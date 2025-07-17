@@ -264,9 +264,10 @@ const RecentChat = ({
 				clearTimeout(agentTimeoutIdRef.current);
 				agentTimeoutIdRef.current = null;
 			}
+			const removeSessionId = false;
 
 			// if (!globalChatMessages?.[sessionId]) {
-			getRecentChatMessages(sessionId, 1, false, 1000, isPublicChat);
+			getRecentChatMessages(sessionId, 1, false, 1000, isPublicChat, removeSessionId);
 			// }
 
 			const sessionIdsToClose = newChatSessionIds?.filter(
@@ -436,24 +437,28 @@ const RecentChat = ({
 	}, [globalChatMessages, sessionId]);
 
 	useEffect(() => {
-		if (recentChatStorage) {
+		if (recentChatStorage?.[sessionId]) {
 			const firstTimeApiCall = true;
-			recentChatHandler(recentChatStorage, false, firstTimeApiCall);
-			updateStateValues({
-				recentChatStorage: null,
-			});
+			recentChatHandler(recentChatStorage?.[sessionId], false, firstTimeApiCall);
+			// updateStateValues({
+			// 	recentChatStorage: null,
+			// });
+			const removeSessionId = true;
+			getRecentChatMessages(sessionId, 1, false, 1000, isPublicChat, removeSessionId);
 		}
-	}, [recentChatStorage]);
+	}, [recentChatStorage?.[sessionId]]);
 
 	useEffect(() => {
-		if (moreRecentChatStorage) {
+		if (moreRecentChatStorage?.[sessionId]) {
 			const firstTimeApiCall = false;
-			recentChatHandler(moreRecentChatStorage, true, firstTimeApiCall);
-			updateStateValues({
-				moreRecentChatStorage: null,
-			});
+			recentChatHandler(moreRecentChatStorage?.[sessionId], true, firstTimeApiCall);
+			// updateStateValues({
+			// 	moreRecentChatStorage: null,
+			// });
+			const removeSessionId = true;
+			getRecentChatMessages(sessionId, 1, true, 1000, isPublicChat, removeSessionId);
 		}
-	}, [moreRecentChatStorage]);
+	}, [moreRecentChatStorage?.[sessionId]]);
 
 	const handleChatQueryChange = useCallback((query) => {
 		setInfo((prev) => ({
@@ -561,7 +566,7 @@ const RecentChat = ({
 					chainOfThought,
 					rating,
 					designAgentsUsed,
-					toolInvocations
+					toolInvocations,
 				} = data?.[i] || {};
 
 				if (firstTimeApiCall) {

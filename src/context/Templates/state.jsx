@@ -2256,6 +2256,7 @@ export const TemplatesState = (props) => {
 		fetchMore = false,
 		limit = 1000,
 		isPublicChat = false,
+		removeSessionId = false,
 	) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -2283,7 +2284,11 @@ export const TemplatesState = (props) => {
 			if (response?.[0]) {
 				dispatch({
 					type: Actions.RECENT_CHAT_MESSAGES_ACTIONS_REQUESTS,
-					payload: response?.[1],
+					payload: {
+						removeSessionId,
+						response: response?.[1],
+						sessionId,
+					},
 					selectedvariable,
 				});
 			} else {

@@ -64,6 +64,7 @@ const NotesPage = lazy(() => import('../views/features/notesPage/NotesPage'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
+import Component from '../views/features/homePage/component';
 
 const betaRoutes = [
 	{
@@ -75,7 +76,8 @@ const betaRoutes = [
 				childrenContainerStyles={{ overflow: 'scroll' }}
 				showBottomToolbar={false}
 			>
-				<InitialHomePage />
+				{/* <InitialHomePage /> */}
+				<Component />
 			</AuthWrapper>
 		),
 	},
