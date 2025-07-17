@@ -421,8 +421,7 @@ const UploadPhotos = () => {
 				uploadStatus: response[1],
 				overAllProgress: Number(result.toFixed(2)),
 			}));
-
-			if (response[1].processedCount === response[1].uploadedCount && shouldClearInterval) {
+			if (response[1].processedCount === response[1].uploadedCount || shouldClearInterval) {
 				clearInterval(interval);
 				updateStateValues({ reFetchSubscription: true });
 				setinfo((prev) => ({ ...prev, isPopupOpen: true }));
