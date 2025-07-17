@@ -774,11 +774,7 @@ class Builder extends Component {
 											duplicateModules={this.state?.duplicateModules}
 											getModuleInfo={this.props?.getModuleInfo}
 											returnCartValue={this.props?.returnCartValue}
-											currencySymbol={
-												this.props?.client
-													? this.props?.currencySymbol
-													: this.props?.currencySymbol2
-											}
+											currencySymbol={this.props?.currencySymbol}
 											handleDownload={this.props?.handleDownload}
 											setShowPopupInMobile={(e, type, component) =>
 												this.props?.setShowPopupInMobile(e, type, component)
@@ -817,11 +813,7 @@ class Builder extends Component {
 											renderClientModulesClickFunction={
 												this.props?.renderClientModulesClickFunction
 											}
-											currencySymbol={
-												this.props?.client
-													? this.props?.currencySymbol
-													: this.props?.currencySymbol2
-											}
+											currencySymbol={this.props?.currencySymbol}
 											returnCartValue={this.props?.returnCartValue}
 											selectedLabelId={this.props?.selectedLabelId}
 											handleDownload={this.props?.handleDownload}
@@ -1042,7 +1034,7 @@ class Builder extends Component {
 													status={this.props?.status}
 													currencySymbol={this.props?.currencySymbol}
 													builderCurrencySymbol={
-														this.props?.currencySymbol2
+														this.props?.currencySymbol
 													}
 													clientGrandTotal={this.props.clientGrandTotal}
 													handleAddLayout={(e, isFluid, isService) =>
@@ -1778,7 +1770,6 @@ class Builder extends Component {
 													}
 													currencySymbol={this.props?.currencySymbol}
 													activeFontColor={this.state?.activeFontColor}
-													currencySymbol2={this.props?.currencySymbol2}
 													isWorkflow={this.state.isWorkflow}
 													clientGrandTotal={
 														this.props?.clientGrandTotal || 0
@@ -2112,7 +2103,6 @@ class Builder extends Component {
 													previewType={this.state.previewType}
 													setTab={(e) => this.props.setActiveTab(e)}
 													currencySymbol={this.props?.currencySymbol}
-													currencySymbol2={this.props?.currencySymbol2}
 													globalSummaryData={
 														this.props?.globalSummaryData
 													}
@@ -3280,9 +3270,6 @@ class Builder extends Component {
 															this.props?.clientGrandTotal || 0
 														}
 														themes={this.props?.themes}
-														currencySymbol2={
-															this.props?.currencySymbol2
-														}
 														status={this.props.status}
 													/>
 												)}
@@ -3363,7 +3350,6 @@ class Builder extends Component {
 							setTab={(e) => this.props.setActiveTab(e)}
 							handleSideBar={(e, _id) => this.props.handleOpenSideBar(e, _id, true)}
 							currencySymbol={this.props?.currencySymbol}
-							currencySymbol2={this.props?.currencySymbol2}
 							globalSummaryData={this.state?.globalSummaryData}
 						/>
 					) : (
@@ -3393,7 +3379,6 @@ class Builder extends Component {
 							invoiceNumber={this.state?.invoiceNumber}
 							setInvoiceNumber={(e) => this.props.handleInvoiceNumber(e)}
 							currencySymbol={this.props?.currencySymbol}
-							currencySymbol2={this.props?.currencySymbol2}
 							invoiceTables={this.state.invoiceTables}
 						/>
 					) : (
@@ -3571,7 +3556,6 @@ class Builder extends Component {
 							invoiceNumber={this.state?.invoiceNumber}
 							handleInvoiceNumberP={(e) => this.props?.handleInvoiceNumber(e)}
 							activeFontColor={this.state?.activeFontColor}
-							currencySymbol2={this.props?.currencySymbol2}
 							DeleteInTableP={(type, index) =>
 								this.props?.handleDeleteInTable(type, index)
 							}

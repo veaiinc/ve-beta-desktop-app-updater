@@ -238,7 +238,7 @@ const ChatBox = ({
 		setInfo((prev) => {
 			const height = info?.chatboxMinimized
 				? '60px'
-				: `${Math.min(textAreaRef?.current?.scrollHeight, 250) + 58 + 28}px`;
+				: `${Math.min(textAreaRef?.current?.scrollHeight, 200) + 58 + 28}px`;
 			if (height === prev?.chatBoxContainerHeight) {
 				return prev;
 			}
@@ -1139,7 +1139,7 @@ const ChatBox = ({
 
 		if (textArea) {
 			textArea.style.height = 'auto';
-			textAreaHeight = Math.min(textArea?.scrollHeight, 250);
+			textAreaHeight = Math.min(textArea?.scrollHeight, 200);
 			textArea.style.height = textAreaHeight + 'px';
 		}
 
