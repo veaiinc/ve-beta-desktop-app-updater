@@ -916,7 +916,6 @@ class Presentation extends Component {
 						handleInvoiceNumber={(e) => this.props?.handleInvoiceNumberP(e)}
 						currencySymbol={this.props?.currencySymbol}
 						activeFontColor={this.state?.activeFontColor}
-						currencySymbol2={this.props?.currencySymbol2}
 						themes={this.props?.themes}
 					/>
 				);
