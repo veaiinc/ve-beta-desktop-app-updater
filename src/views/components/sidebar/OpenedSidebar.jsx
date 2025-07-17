@@ -769,10 +769,10 @@ const OpenedSidebar = ({
 												display: 'flex',
 												flexDirection: 'column',
 												width: '100%',
+												overflowY: 'auto',
 												justifyContent: `${
 													isThisEarlyAccessPage ? 'flex-end' : ''
 												}`,
-												// overflowY: 'auto',
 											}}
 											id="chatsScroll"
 										>
@@ -839,8 +839,8 @@ const OpenedSidebar = ({
 
 													<div>
 														<hr className={'horizontal-line-sidebar'} />
+														<ChatHistory />
 													</div>
-													<ChatHistory />
 													<CreditsLeft />
 													<div
 														className={`settingsOptionsContainer  ${
