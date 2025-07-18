@@ -33,6 +33,7 @@ const RecentChat = ({
 	showCitationsButton = true,
 	showDeleteChat = true,
 	animateChatBox = true,
+	showChatHistory = false,
 }) => {
 	const {
 		templates: {
@@ -917,7 +918,7 @@ const RecentChat = ({
 					width: info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%',
 				}}
 			>
-				{workspaceMode === 'stable' && (
+				{workspaceMode === 'stable' && showChatHistory && (
 					<div className="chat-history-wrapper">
 						<ChatHistory />
 					</div>
