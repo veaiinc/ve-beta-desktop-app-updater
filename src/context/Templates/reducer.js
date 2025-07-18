@@ -178,19 +178,10 @@ const actionHandlers = {
 		...state,
 		moduleTemplateData: action.payload,
 	}),
-	RECENT_CHAT_MESSAGES_ACTIONS_REQUESTS: (state, action) => {
-		const { removeSessionId, sessionId, response } = action?.payload;
-		const data = { ...(state?.[action?.selectedvariable] || {}) };
-		if (removeSessionId) {
-			delete data?.[sessionId];
-		} else {
-			data[sessionId] = response;
-		}
-		return {
-			...state,
-			[action?.selectedvariable]: data,
-		};
-	},
+	RECENT_CHAT_MESSAGES_ACTIONS_REQUESTS: (state, action) => ({
+		...state,
+		[action?.selectedvariable]: action.payload,
+	}),
 	GET_FOLLOW_UP_QUERIES_SUCCESS: (state, action) => ({
 		...state,
 		aiMessagesInfo: {

@@ -428,28 +428,24 @@ const RecentChat = ({
 	}, [globalChatMessages, sessionId]);
 
 	useEffect(() => {
-		if (recentChatStorage?.[sessionId]) {
+		if (recentChatStorage) {
 			const firstTimeApiCall = true;
-			recentChatHandler(recentChatStorage?.[sessionId], false, firstTimeApiCall);
-			// updateStateValues({
-			// 	recentChatStorage: null,
-			// });
-			const removeSessionId = true;
-			getRecentChatMessages(sessionId, 1, false, 1000, isPublicChat, removeSessionId);
+			recentChatHandler(recentChatStorage, false, firstTimeApiCall);
+			updateStateValues({
+				recentChatStorage: null,
+			});
 		}
-	}, [recentChatStorage?.[sessionId]]);
+	}, [recentChatStorage]);
 
 	useEffect(() => {
-		if (moreRecentChatStorage?.[sessionId]) {
+		if (moreRecentChatStorage) {
 			const firstTimeApiCall = false;
-			recentChatHandler(moreRecentChatStorage?.[sessionId], true, firstTimeApiCall);
-			// updateStateValues({
-			// 	moreRecentChatStorage: null,
-			// });
-			const removeSessionId = true;
-			getRecentChatMessages(sessionId, 1, true, 1000, isPublicChat, removeSessionId);
+			recentChatHandler(moreRecentChatStorage, true, firstTimeApiCall);
+			updateStateValues({
+				moreRecentChatStorage: null,
+			});
 		}
-	}, [moreRecentChatStorage?.[sessionId]]);
+	}, [moreRecentChatStorage]);
 
 	const handleChatQueryChange = useCallback((query) => {
 		setInfo((prev) => ({
