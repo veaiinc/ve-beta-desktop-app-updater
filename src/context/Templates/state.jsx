@@ -2262,6 +2262,14 @@ export const TemplatesState = (props) => {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const selectedvariable = fetchMore ? 'moreRecentChatStorage' : 'recentChatStorage';
+			if (removeSessionId) {
+				dispatch({
+					type: Actions.RECENT_CHAT_MESSAGES_ACTIONS_REQUESTS,
+					payload: { removeSessionId, sessionId },
+					selectedvariable,
+				});
+				return;
+			}
 			let response;
 			if (isPublicChat) {
 				response = await Service.fetchGet(
