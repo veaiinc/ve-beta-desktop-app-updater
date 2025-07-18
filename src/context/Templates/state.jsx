@@ -1617,6 +1617,15 @@ export const TemplatesState = (props) => {
 						const connectUrl = response?.[1]?.connectUrl;
 						window.location.href = connectUrl;
 					}
+					break;
+				case 'slack':
+					path = `/slack/${workspaceId}/auth`;
+					response = await Service.fetchGet(path, token, 'third_party_integrations_api');
+					success = response?.[0] === true;
+					if (success) {
+						const connectUrl = response?.[1]?.connectUrl;
+						window.location.href = connectUrl;
+					}
 			}
 		} catch (error) {
 			console.log('error==>connectZoho', error);

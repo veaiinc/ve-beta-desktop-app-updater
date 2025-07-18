@@ -73,7 +73,7 @@ const betaRoutes = [
 			<AuthWrapper
 				title={'Home'}
 				outerContainerStyle={{ overflow: 'hidden' }}
-				childrenContainerStyles={{ overflow: 'scroll' }}
+				childrenContainerStyles={{ overflow: 'auto' }}
 				showBottomToolbar={false}
 			>
 				{/* <InitialHomePage /> */}
