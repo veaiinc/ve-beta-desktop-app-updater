@@ -66,7 +66,6 @@ const NotesPage = lazy(() => import('../views/features/notesPage/NotesPage'));
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 import MeetBot from '../views/features/meetBot/meetBot';
 import NotesWrapper from '../views/features/notesModule/NotesWrapper';
-import Component from '../views/features/homePage/component';
 
 const betaRoutes = [
 	{
@@ -78,8 +77,7 @@ const betaRoutes = [
 				childrenContainerStyles={{ overflow: 'auto' }}
 				showBottomToolbar={false}
 			>
-				{/* <InitialHomePage /> */}
-				<Component />
+				<InitialHomePage />
 			</AuthWrapper>
 		),
 	},

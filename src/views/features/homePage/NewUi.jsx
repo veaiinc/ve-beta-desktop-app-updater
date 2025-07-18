@@ -1,6 +1,11 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import '../../../assets/scss/home_page/newUi.scss';
-const array = [{ value: 1 }, { value: 2 }, { value: 3 }, { value: 4 }, { value: 5 }];
+import Context from '../../../context/context';
+import ChatMessages from './ChatMessages';
+import ChatBox from '../../components/chat/ChatBox';
+import { useNavigate } from 'react-router-dom';
+import ObjectID from 'bson-objectid';
+import Suggestions from './Suggestions';
 
 const getCardStyles = (index, activeIndex, dataLength) => {
 	const prev1 = (activeIndex - 1 + dataLength) % dataLength;
@@ -60,11 +65,43 @@ let scrollTimeout = null;
 let scrollLocked = false;
 
 const NewUi = () => {
+	const {
+		aiSetup: { aiChatSessions },
+		templates: { updateStateValues },
+	} = useContext(Context);
 	const [info, setInfo] = useState({
-		activeIndex: array?.length - 2,
-		dataLength: array?.length,
-		realDataLength: 2,
+		activeIndex: 0,
+		dataLength: 1,
+		data: [{ type: 'chatbox' }],
+		sessionId: ObjectID().toString(),
+		chatQuery: '',
 	});
+	const navigate = useNavigate();
+	const containerRef = useRef(null);
+
+	useEffect(() => {
+		if (aiChatSessions?.data?.length > 4) {
+			const sessions = [
+				...(aiChatSessions?.data || [])?.slice(0, aiChatSessions?.data?.length - 2),
+				{
+					type: 'chatbox',
+				},
+				aiChatSessions?.data?.[aiChatSessions?.data?.length - 1],
+			];
+			const dataLength = sessions?.length;
+			setInfo((prev) => ({
+				...prev,
+				activeIndex: dataLength - 2,
+				dataLength,
+				data: sessions,
+			}));
+		}
+	}, [aiChatSessions]);
+
+	useEffect(() => {
+		containerRef?.current?.addEventListener('wheel', handleWheel, { passive: false });
+		return () => containerRef?.current?.removeEventListener('wheel', handleWheel);
+	}, []);
 
 	const handleWheel = useCallback((e) => {
 		const delta = e.deltaY;
@@ -77,12 +114,13 @@ const NewUi = () => {
 			scrollLocked = true;
 
 			setInfo((prev) => {
+				let { activeIndex = 0, dataLength } = prev;
 				const newIndex =
 					delta > 0
-						? (prev.activeIndex + 1) % prev.dataLength
-						: prev.activeIndex - 1 < 0
-						? prev.dataLength - 1
-						: prev.activeIndex - 1;
+						? (activeIndex + 1) % dataLength
+						: activeIndex - 1 < 0
+						? dataLength - 1
+						: activeIndex - 1;
 
 				return { ...prev, activeIndex: newIndex };
 			});
@@ -95,15 +133,26 @@ const NewUi = () => {
 		}, SCROLL_STOP_DELAY);
 	}, []);
 
-	useEffect(() => {
-		window.addEventListener('wheel', handleWheel, { passive: true });
-		return () => window.removeEventListener('wheel', handleWheel);
+	const handleCustomOnSendFunction = useCallback((sessionId, data) => {
+		updateStateValues({ activePayloadForChat: data });
+		navigate(`/chat/${sessionId}`);
+	}, []);
+
+	const handleChatQueryChange = useCallback((query) => {
+		setInfo((prev) => ({
+			...prev,
+			chatQuery: query,
+		}));
+
+		if (query?.length === 0) {
+			updateStateValues({ chatBoxSuggestions: null });
+		}
 	}, []);
 
 	return (
-		<div className="new-ui-container">
+		<div className="new-ui-container" ref={containerRef}>
 			<div className="new-ui-wrapper">
-				{array?.map((item, index) => (
+				{info?.data?.map((session, index) => (
 					<div
 						key={index}
 						className="new-ui-item"
@@ -111,12 +160,61 @@ const NewUi = () => {
 					>
 						<div
 							className="item"
+							ref={(el) => {
+								if (el) {
+									el.addEventListener(
+										'wheel',
+										(e) => {
+											e.stopPropagation();
+										},
+										{ passive: false },
+									);
+								}
+							}}
 							style={{
 								...(index === info?.activeIndex && {
 									opacity: 1,
 								}),
 							}}
-						></div>
+						>
+							{session?.type === 'chatbox' ? (
+								<div className="chatboxWrapper">
+									<ChatBox
+										sessionId={info?.sessionId}
+										onSend={(data) =>
+											handleCustomOnSendFunction(info?.sessionId, data)
+										}
+										customChatActions={true}
+										autoFocus={false}
+										animatePlaceholder={false}
+										showUpgradeSubscriptionBtn={false}
+										onChatQueryChange={handleChatQueryChange}
+										animateChatBox={false}
+									/>
+									<Suggestions
+										chatQuery={info?.chatQuery}
+										styles={{ backgroundColor: 'var(--card)' }}
+									/>
+								</div>
+							) : (
+								<>
+									<ChatMessages sessionId={session?._id} />
+									<div className="chatBoxContainer">
+										<ChatBox
+											sessionId={session?.id}
+											onSend={(data) =>
+												handleCustomOnSendFunction(session?._id, data)
+											}
+											customChatActions={true}
+											autoFocus={false}
+											animatePlaceholder={false}
+											showUpgradeSubscriptionBtn={false}
+											animateChatBox={false}
+										/>
+									</div>
+								</>
+							)}
+						</div>
 					</div>
 				))}
 			</div>

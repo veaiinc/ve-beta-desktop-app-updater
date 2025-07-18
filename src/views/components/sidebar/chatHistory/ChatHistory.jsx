@@ -175,6 +175,7 @@ const ChatHistory = () => {
 							...infiniteScrollStyle,
 							marginBottom: !currentPlan?.totalAiCreditLimit === 0 ? '140px' : '70px',
 						}}
+						className="chat-history-scroll"
 						// scrollableTarget="chatsScroll"
 						height={'100%'}
 					>
