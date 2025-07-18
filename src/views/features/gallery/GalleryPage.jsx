@@ -380,7 +380,7 @@ const GalleryPage = () => {
 			// 		  ) + '%'
 			// 		: '0',
 		},
-		{ name: 'Collections', number: clientSelectionsData?.totalDocs },
+		{ name: 'Collections', number: clientSelectionsData?.totalDocs || 0 },
 		// {
 		// 	name: 'breaker',
 		// },
