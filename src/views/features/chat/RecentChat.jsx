@@ -561,6 +561,7 @@ const RecentChat = ({
 					chainOfThought,
 					rating,
 					designAgentsUsed,
+					toolInvocations
 				} = data?.[i] || {};
 
 				if (firstTimeApiCall) {
@@ -620,6 +621,7 @@ const RecentChat = ({
 						stream_end: true,
 						processing,
 						used_agents: designAgentsUsed || [],
+						tool_invocations: toolInvocations || [],
 						...(processing === 'Deep Search' && { deepSearch }),
 						...(processing === 'Deep Research' && { deepResearch }),
 						...(processing === 'Normal Search' && { normalSearch }),

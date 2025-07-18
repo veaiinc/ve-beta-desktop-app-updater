@@ -3,6 +3,7 @@ import { message } from '../../../../../../../components/globalComponents/Custom
 import s from './schedulerModal.module.scss';
 
 const recurrenceOptions = [
+	{ value: 'Select Recurrence', label: 'Select Recurrence' },
 	{ value: 'hourly', label: 'Hourly' },
 	{ value: 'daily', label: 'Daily' },
 	{ value: 'weekly', label: 'Weekly' },
@@ -17,7 +18,7 @@ const SchedulerModal = ({
 }) => {
 	const [info, setInfo] = useState({
 		selectedDateTime: '',
-		recurrence: 'daily', // Default to daily
+		recurrence: 'Select Recurrence',
 	});
 
 
@@ -38,8 +39,11 @@ const SchedulerModal = ({
 		}
 
 		try {
-			// Pass both timestamp and recurrence to the handler
-			await handleConnectToSchedulerTrigger(selectedTimestamp, info.recurrence);
+			if (info.recurrence === 'Select Recurrence') {
+				await handleConnectToSchedulerTrigger(selectedTimestamp);
+			} else {
+				await handleConnectToSchedulerTrigger(selectedTimestamp, info.recurrence);
+			}
 			onClose();
 		} catch (error) {
 			console.error('Error connecting scheduler trigger:', error);
@@ -47,7 +51,7 @@ const SchedulerModal = ({
 	};
 
 	const handleClose = () => {
-		setInfo({ selectedDateTime: '', recurrence: 'daily' });
+		setInfo({ selectedDateTime: '', recurrence: 'Select Recurrence' });
 		onClose();
 	};
 
@@ -94,7 +98,6 @@ const SchedulerModal = ({
 								setInfo((prev) => ({ ...prev, recurrence: e.target.value }))
 							}
 							disabled={isLoading}
-							required
 						>
 							{recurrenceOptions.map((option) => (
 								<option key={option.value} value={option.value}>

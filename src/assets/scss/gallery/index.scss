@@ -4,9 +4,9 @@
 	gap: 24px;
 	background-color: var(--background-color, #0c0c0d);
 	// .authParentContainer {
-	// 	.childrenContainer {
-	// 		max-width: 80vw !important;
-	// 	}
+	//  .childrenContainer {
+	//      max-width: 80vw !important;
+	//  }
 	// }
 	.analytic-container {
 		display: flex;
@@ -55,7 +55,7 @@
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-	gap: 32px;
+	gap: 16px;
 	overflow: hidden;
 	background-color: transparent !important;
 	height: 100vh;
@@ -165,6 +165,7 @@
 				position: relative;
 				transform: translateY(0px);
 				transition: all 0.5s ease-in-out;
+				cursor: pointer;
 				img {
 					overflow: hidden;
 					width: 100%;
@@ -243,19 +244,19 @@
 			// background: rgba(32, 33, 35, 0.8);
 			// box-shadow: 0px 4px 4px 0px rgba(224, 224, 224, 0.07);
 			// .galleryPic {
-			// 	.galleryPicSettings {
-			// 		display: flex;
-			// 		opacity: 1;
-			// 		transform: translateY(2px);
-			// 		transition: transform 0.3s ease;
-			// 		.upArrow {
-			// 			transform: translateY(0px);
-			// 			transition: transform 0.3s ease;
-			// 		}
-			// 	}
-			// 	.imageContaienr {
-			// 		transform: translateY(20px);
-			// 	}
+			//  .galleryPicSettings {
+			//      display: flex;
+			//      opacity: 1;
+			//      transform: translateY(2px);
+			//      transition: transform 0.3s ease;
+			//      .upArrow {
+			//          transform: translateY(0px);
+			//          transition: transform 0.3s ease;
+			//      }
+			//  }
+			//  .imageContaienr {
+			//      transform: translateY(20px);
+			//  }
 			// }
 			.albumsContianer {
 				.fullScreenContainer {
@@ -339,6 +340,7 @@
 							position: relative;
 							transform: translateY(0px);
 							transition: all 0.5s ease-in-out;
+							cursor: pointer;
 							img {
 								overflow: hidden;
 								width: 100%;
@@ -379,6 +381,7 @@
 							position: relative;
 							transform: translateY(0px);
 							transition: all 0.5s ease-in-out;
+							cursor: pointer;
 							img {
 								overflow: hidden;
 								width: 100%;
@@ -543,9 +546,9 @@
 							line-height: normal;
 						}
 						// .threeDotsIcon {
-						// 	path {
-						// 		fill: #e4e5e6;
-						// 	}
+						//  path {
+						//      fill: #e4e5e6;
+						//  }
 						// }
 					}
 					.settingsIcon {
@@ -926,7 +929,7 @@
 		.galleryNavbar {
 			display: flex;
 			width: 100%;
-			gap: 32px;
+			gap: 8px;
 			flex-direction: column;
 			.albumDetailsContainer {
 				display: flex;
@@ -1087,11 +1090,17 @@
 							.ant-switch {
 								background-color: var(--stroke);
 							}
+
 							.ant-switch-checked {
 								background-color: var(--primary-button);
 							}
+
+							.ant-switch .ant-switch-handle::before {
+								background-color: var(--background-color);
+							}
+
 							.ant-switch.ant-switch-checked .ant-switch-handle::before {
-								background-color: var(--primary-font);
+								background-color: var(--background-color);
 							}
 						}
 					}
@@ -1236,10 +1245,6 @@
 							transform: scale(1.1);
 						}
 					}
-
-					// &:hover {
-					// 	opacity: 0.7;
-					// }
 					.imageOverlay {
 						position: absolute;
 						top: 0;
@@ -1247,7 +1252,8 @@
 						width: 100%;
 						height: 100%;
 						border-radius: 8px;
-						background: rgba(0, 0, 0, 0.5); /* Adjust opacity as needed */
+						background-color: var(--background-color);
+						opacity: 0.4;
 						pointer-events: none;
 					}
 					.selectedTickSvg {
@@ -1274,12 +1280,12 @@
 						}
 					}
 					// @keyframes rotateCircle {
-					// 	0% {
-					// 		transform: rotate(0deg);
-					// 	}
-					// 	100% {
-					// 		transform: rotate(360deg);
-					// 	}
+					//  0% {
+					//      transform: rotate(0deg);
+					//  }
+					//  100% {
+					//      transform: rotate(360deg);
+					//  }
 					// }
 					&:hover {
 						// transform: scale(1.05);
@@ -1948,25 +1954,25 @@
 }
 
 // .rearrange-image-container.selected {
-// 	border-color: var(--primary-button-font);
+//  border-color: var(--primary-button-font);
 // }
 
 // .rearrange-image-container:hover {
-// 	transform: scale(1.02);
+//  transform: scale(1.02);
 // }
 
 // .rearrange-image-container.dragging {
-// 	opacity: 0.5;
+//  opacity: 0.5;
 // }
 // .hideScrollBar {
-// 	::-webkit-scrollbar {
-// 		display: none;
-// 	}
+//  ::-webkit-scrollbar {
+//      display: none;
+//  }
 // }
 // .focus-picker-img {
-// 	img {
-// 		background-color: red;
-// 	}
+//  img {
+//      background-color: red;
+//  }
 // }
 .selectedImagesCotainer {
 	display: flex;

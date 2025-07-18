@@ -36,6 +36,7 @@ import RecentFileTooltip from './RecentFileTooltip';
 import AskTooltip from './AskTooltip';
 import AddOnCards from '../settings/planbilling/addOnCards';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
+import VoiceWrapper from '../../layouts/VoiceWrapper';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -411,6 +412,17 @@ const ChatBox = ({
 			});
 		}
 	}, [info?.chatSessionId]);
+
+	useEffect(() => {
+		if (!textAreaRef?.current) return;
+
+		if (!info?.chatboxMinimized) {
+			// Focus only if not already focused
+			if (document.activeElement !== textAreaRef.current) {
+				textAreaRef.current.focus();
+			}
+		}
+	}, [info?.chatboxMinimized]);
 
 	useEffect(() => {
 		setInfo((prev) => ({
@@ -1166,8 +1178,12 @@ const ChatBox = ({
 
 	const clearTextArea = () => {
 		const textArea = textAreaRef?.current;
+		const textAreaWrapper = textAreaWrapperRef?.current;
 		if (textArea) {
 			textArea.style.height = '30px'; // Reset to initial min-height
+		}
+		if (textAreaWrapper) {
+			textAreaWrapper.style.height = '30px';
 		}
 	};
 

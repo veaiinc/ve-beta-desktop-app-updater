@@ -370,17 +370,17 @@ const GalleryPage = () => {
 		// { name: 'Slide Show', number: 1 },
 		{
 			name: 'Ai People',
-			number:
-				imageProcessingStatus?.numberOfImagesPeoples > 0
-					? parseInt(
-							(imageProcessingStatus?.numberOfImagesGroupedFaces /
-								imageProcessingStatus?.numberOfImagesPeoples) *
-								100,
-							0,
-					  ) + '%'
-					: '0',
+			// number:
+			// 	imageProcessingStatus?.numberOfImagesPeoples > 0
+			// 		? parseInt(
+			// 				(imageProcessingStatus?.numberOfImagesGroupedFaces /
+			// 					imageProcessingStatus?.numberOfImagesPeoples) *
+			// 					100,
+			// 				0,
+			// 		  ) + '%'
+			// 		: '0',
 		},
-		{ name: 'Collections', number: clientSelectionsData?.totalDocs },
+		{ name: 'Collections', number: clientSelectionsData?.totalDocs || 0 },
 		// {
 		// 	name: 'breaker',
 		// },
@@ -2621,19 +2621,6 @@ const GalleryPage = () => {
 						mobile: mobileSettings.zoom || 1,
 					},
 					// Update the appropriate cover
-					...(info.coverType === 'gallery'
-						? {
-								activeGallery: {
-									...prev.activeGallery,
-									coverImage: updatedCoverImage,
-								},
-						  }
-						: {
-								activeAlbum: {
-									...prev.activeAlbum,
-									coverImage: updatedCoverImage,
-								},
-						  }),
 				}));
 
 				// Refresh data
@@ -3866,6 +3853,7 @@ const GalleryPage = () => {
 														showCoverButton: false,
 													}))
 												}
+												onClick={() => handleUploadCoverOpen('gallery')}
 											></div>
 											<div className="galleryTitle">
 												<p>
@@ -4001,44 +3989,50 @@ const GalleryPage = () => {
 								</div>
 							</div>
 							<div className="galleryMainContentContainer">
-								{data?.map((item, index) => (
-									<div>
-										{item?.name !== 'breaker' && (
-											<div
-												key={index}
-												className={`galleryContent ${
-													info?.activeTab === item?.name ? 'active' : ''
-												}`}
-												onClick={() =>
-													handleClickContent(item?.name, item?.number)
-												}
-												style={{ cursor: 'pointer' }}
-											>
-												<p
-													className={`galleryName ${
+								{data?.map((item, index) => {
+									if (item?.name === 'Collections' && item?.number === 0)
+										return null;
+
+									return (
+										<div key={index}>
+											{item?.name !== 'breaker' && (
+												<div
+													className={`galleryContent ${
 														info?.activeTab === item?.name
 															? 'active'
 															: ''
 													}`}
+													onClick={() =>
+														handleClickContent(item?.name, item?.number)
+													}
+													style={{ cursor: 'pointer' }}
 												>
-													{item?.name}
-												</p>
-												<p
-													className={`count ${
-														info?.activeTab === item?.name
-															? 'active'
-															: ''
-													}`}
-												>
-													{item?.number}
-												</p>
-											</div>
-										)}
-										{item?.name === 'breaker' && (
-											<div className="breaker"></div>
-										)}
-									</div>
-								))}
+													<p
+														className={`galleryName ${
+															info?.activeTab === item?.name
+																? 'active'
+																: ''
+														}`}
+													>
+														{item?.name}
+													</p>
+													<p
+														className={`count ${
+															info?.activeTab === item?.name
+																? 'active'
+																: ''
+														}`}
+													>
+														{item?.number}
+													</p>
+												</div>
+											)}
+											{item?.name === 'breaker' && (
+												<div className="breaker"></div>
+											)}
+										</div>
+									);
+								})}
 							</div>
 							{info.activeTab !== 'Insights' && info.activeTab !== 'Ai People' && (
 								<div
@@ -4778,6 +4772,7 @@ const GalleryPage = () => {
 														setInfo((prev) => ({
 															...prev,
 															selectingImages: !prev?.selectingImages,
+															selectedImages: [],
 														}));
 													}}
 												>
@@ -5060,15 +5055,6 @@ const GalleryPage = () => {
 													className="rearrangeManually"
 													onClick={handleHideAlbum}
 												>
-													<div
-														className="albumStatus"
-														style={{
-															backgroundColor: info?.activeAlbum
-																?.isPublished
-																? 'var(--primary-button)'
-																: 'red',
-														}}
-													></div>
 													<div className="albumStatusText">
 														Album{' '}
 														{info?.activeAlbum?.isPublished
@@ -5209,9 +5195,12 @@ const GalleryPage = () => {
 																					<TickSvg />
 																				</div>
 																			)}
-																			{info.selectingImages && (
-																				<div className="imageOverlay"></div>
-																			)}
+																			{info.selectingImages &&
+																				!info?.selectedImages?.includes(
+																					image?._id,
+																				) && (
+																					<div className="imageOverlay"></div>
+																				)}
 																			{/* {info?.selectedImages
 																				?.length === 0 && (
 																				<div
@@ -5481,13 +5470,13 @@ const GalleryPage = () => {
 				{info.activeTab === 'Collections' &&
 					(clientSelectionsData?.data?.length === 0 ? (
 						<div className="noAlbumsMainContainer">
-							<div className="noAlbumContainer">
+							{/* <div className="noAlbumContainer">
 								<div className="noAlbumContainerTitle">Start upload images</div>
 								<div className="noAlbumContainerDescription">
 									It's quiet for now... You haven't missed anything yet! Create
 									your first album to start organizing your memories
 								</div>
-							</div>
+							</div> */}
 						</div>
 					) : (
 						<div className="galleryViewer">

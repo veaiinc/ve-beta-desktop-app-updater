@@ -412,8 +412,9 @@ const SubscribedUserPlanCard = ({
 													></div>
 												</div>
 											)}
+
 											<div className="storageProgressText">
-												{item?.usedValue >= item?.totalValue
+												{Number(item?.usedValue) >= Number(item?.totalValue)
 													? 'Reached the limit'
 													: ''}
 											</div>
