@@ -224,8 +224,6 @@ const Actions = ({
 				...data,
 			};
 
-			console.log('payload', payload);
-
 			const response = await addStep(automationId, payload);
 			if (response?.[0]) {
 				onClose();

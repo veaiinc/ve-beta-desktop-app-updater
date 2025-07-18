@@ -31,6 +31,20 @@ export const stableNavigationItems = [
 		icon: ChatSvg,
 	},
 	{
+		id: 1,
+		name: 'Home',
+		moduleRoute: '/home',
+		route: '/home',
+		icon: HomeSvg,
+	},
+	{
+		id: 9,
+		name: 'Ambient AI',
+		moduleRoute: null,
+		route: '/ambient-ai',
+		icon: InfiniteSvg,
+	},
+	{
 		id: 7,
 		name: 'Live',
 		moduleRoute: null,
