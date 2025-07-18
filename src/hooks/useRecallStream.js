@@ -23,7 +23,7 @@ const useRecallStream = () => {
 		};
 	}, []);
 
-	const createWebSocketConnection = useCallback((sessionId, pageId, onMessageFunc) => {
+	const createWebSocketConnection = useCallback((sessionId, pageId, onMessageFunc, isAiIntelligenceEnabled) => {
 		const usertoken = localStorage.getItem('usertoken');
 		const workspaceId = localStorage.getItem('workspaceId');
 		const region = localStorage.getItem('region') || 'us-east-1';
@@ -49,6 +49,7 @@ const useRecallStream = () => {
 						location: locationData,
 						timezone: 'Asia/Calcutta',
 						session_id: pageId,
+						is_ai_intelligence_enabled: isAiIntelligenceEnabled,
 					}),
 				);
 				console.log('Connected to Recall WebSocket server');
