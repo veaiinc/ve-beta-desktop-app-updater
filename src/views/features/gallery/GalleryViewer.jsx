@@ -8,6 +8,7 @@ import ImageDetailNav from '../../components/gallery/galleryView/ImageDetailNav'
 import DeletePopup from '../../components/modalsV2/gallery/DeletePopup';
 import { message } from '../../components/globalComponents/CustomToast';
 import { ReactComponent as CrossWhite } from '../../../assets/svg/workspaceSettings/cross.svg';
+import { ReactComponent as BackSvg } from '../../../assets/svg/gallery/back-gray.svg';
 import Skeleton from 'react-loading-skeleton';
 import gsap from 'gsap';
 import ReactModal from '../../components/modalsV2';
@@ -298,7 +299,7 @@ const GalleryViewer = ({
 	return (
 		<ReactModal isOpen={open} closeModal={closeModal} customStyles={customStyles}>
 			<div className="closeGallery">
-				<CrossWhite onClick={handleCloseGallery} />
+				<BackSvg onClick={handleCloseGallery} />
 
 				{info?.imageDetailId && (
 					<p onClick={handleCloseGallery}>{imageDetail?.displayName}</p>
@@ -306,16 +307,6 @@ const GalleryViewer = ({
 			</div>
 
 			<div className="galleryViewerCotnainer" style={{ opacity: info?.fakeLoading ? 0 : 1 }}>
-				<Thumbnails
-					galleryCredentials={galleryCredentials}
-					fetchMoreImages={fetchMoreImages}
-					imagesList={aiface ? aiFaceImages : imagesList}
-					activeThumbnailFunction={activeThumbnailFunction}
-					info={info}
-					selectedImages={selectedImages}
-					isAiFace={aiface}
-				/>
-
 				<div className="activeImageContainer">
 					<FullImagesComponent
 						galleryCredentials={galleryCredentials}
@@ -348,7 +339,15 @@ const GalleryViewer = ({
 						/>
 					)}
 				</div>
-
+				<Thumbnails
+					galleryCredentials={galleryCredentials}
+					fetchMoreImages={fetchMoreImages}
+					imagesList={aiface ? aiFaceImages : imagesList}
+					activeThumbnailFunction={activeThumbnailFunction}
+					info={info}
+					selectedImages={selectedImages}
+					isAiFace={aiface}
+				/>
 				<DeletePopup
 					open={info?.showDeleteAlbum}
 					closeModal={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: false }))}
