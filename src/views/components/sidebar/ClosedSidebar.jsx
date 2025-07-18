@@ -19,6 +19,7 @@ const navigationItemsMap = {
 	beta: betaNavigationItems,
 	internal: internalNavigationItems,
 	stable: stableNavigationItems,
+	suspended: betaNavigationItems,
 };
 
 const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
@@ -85,18 +86,20 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 		},
 		[location.pathname, workspaceMode],
 	);
+
 	const profileSelected = () => {
 		localStorage.setItem('showSettingsSidebar', true);
 		navigate('/settings/my-profile');
 		onIconClick();
 	};
+
 	return (
 		<div className="sidebar-closing" onClick={() => onIconClick()}>
 			<div className="topContainerClosed">
 				<SidebarClosingSvg onClick={() => onIconClick()} />
 				{!isEarlyAccessPage && (
 					<div className="closedIconsContainer">
-						{sidebarNavigationItems.map((item, index) => (
+						{sidebarNavigationItems?.map((item, index) => (
 							<Tooltip
 								key={index}
 								title={<div className="tooltip-text">{item?.name}</div>}
@@ -132,7 +135,8 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 												item.name === 'Tasks' ||
 												item.name === 'Contacts' ||
 												item.name === 'Automations' ||
-												item.name === 'Database'
+												item.name === 'Database' ||
+												item.name === 'Home'
 													? 'var(--primary-font)'
 													: 'none',
 										}}
@@ -147,7 +151,9 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 				<Tooltip
 					title={
 						<div className="tooltip-text">
-							{currentPlan?.totalAiCreditLimit - currentPlan?.totalAiCreditUsed}{' '}
+							{Math.round(
+								currentPlan?.totalAiCreditLimit - currentPlan?.totalAiCreditUsed,
+							)}{' '}
 							Credits Left
 						</div>
 					}

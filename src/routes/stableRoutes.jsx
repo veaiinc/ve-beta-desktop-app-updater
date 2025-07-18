@@ -7,6 +7,8 @@ import AuthWrapper from '../views/layouts/authWrapper';
 
 // pages
 import InitialHomePage from '../views/features/homePage/InitialHomePage';
+import MeetBot from '../views/features/meetBot/meetBot';
+import NotesWrapper from '../views/features/notesModule/NotesWrapper';
 
 // lazy loaded pages
 const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
@@ -16,6 +18,7 @@ const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'))
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
+import AmbientAi from '../views/features/ambientAi/AmbientAi';
 
 const stableRoutes = [
 	{
@@ -24,10 +27,18 @@ const stableRoutes = [
 			<AuthWrapper
 				title={'Home'}
 				outerContainerStyle={{ overflow: 'hidden' }}
-				childrenContainerStyles={{ overflow: 'scroll' }}
+				childrenContainerStyles={{ overflow: 'auto' }}
 				showBottomToolbar={false}
 			>
 				<InitialHomePage />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/ambient-ai',
+		element: (
+			<AuthWrapper title={'Ambient AI'}>
+				<AmbientAi />
 			</AuthWrapper>
 		),
 	},
@@ -77,6 +88,22 @@ const stableRoutes = [
 				<Suspense fallback={<SuspenseFallback />}>
 					<RecentChat />
 				</Suspense>
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/meet',
+		element: (
+			<AuthWrapper title={'Meet'}>
+				<MeetBot />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/meet/:noteId',
+		element: (
+			<AuthWrapper title={'Meet'}>
+				<NotesWrapper />
 			</AuthWrapper>
 		),
 	},

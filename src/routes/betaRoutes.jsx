@@ -48,6 +48,7 @@ import WorkflowBuilder from '../views/features/workflowBuilder/WorkflowBuilder';
 import Workflow_builder_updated from '../views/features/workflowBuilderUpdated/WorkflowBuilderUpdated';
 import Onboarding from '../views/features/onboarding/Onboarding';
 import Contacts from '../views/features/contacts/Contacts';
+import AmbientAi from '../views/features/ambientAi/AmbientAi';
 
 const Files = lazy(() => import('../views/features/files/Files'));
 const ExpandedClientView = lazy(() => import('../views/features/contacts/ExpandedClientView'));
@@ -71,10 +72,18 @@ const betaRoutes = [
 			<AuthWrapper
 				title={'Home'}
 				outerContainerStyle={{ overflow: 'hidden' }}
-				childrenContainerStyles={{ overflow: 'scroll' }}
+				childrenContainerStyles={{ overflow: 'auto' }}
 				showBottomToolbar={false}
 			>
 				<InitialHomePage />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/ambient-ai',
+		element: (
+			<AuthWrapper title={'Ambient AI'}>
+				<AmbientAi />
 			</AuthWrapper>
 		),
 	},

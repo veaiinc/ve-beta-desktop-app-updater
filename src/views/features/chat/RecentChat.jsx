@@ -31,6 +31,7 @@ const RecentChat = ({
 	onNavigateBack = null,
 	showCitationsButton = true,
 	showDeleteChat = true,
+	animateChatBox = true,
 }) => {
 	const { workspaceMode } = useWorkspaceMode();
 	const {
@@ -560,6 +561,7 @@ const RecentChat = ({
 					chainOfThought,
 					rating,
 					designAgentsUsed,
+					toolInvocations
 				} = data?.[i] || {};
 
 				if (firstTimeApiCall) {
@@ -619,6 +621,7 @@ const RecentChat = ({
 						stream_end: true,
 						processing,
 						used_agents: designAgentsUsed || [],
+						tool_invocations: toolInvocations || [],
 						...(processing === 'Deep Search' && { deepSearch }),
 						...(processing === 'Deep Research' && { deepResearch }),
 						...(processing === 'Normal Search' && { normalSearch }),
@@ -1103,6 +1106,7 @@ const RecentChat = ({
 							showScrollButton={info?.showScrollButton}
 							smoothScrollToBottom={smoothScrollToBottom}
 							onChatQueryChange={handleChatQueryChange}
+							animateChatBox={animateChatBox}
 						/>
 					</div>
 				</div>

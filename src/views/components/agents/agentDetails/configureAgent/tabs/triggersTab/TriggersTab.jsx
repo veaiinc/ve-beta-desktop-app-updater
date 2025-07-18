@@ -234,7 +234,7 @@ const TriggersTab = () => {
 		}
 	};
 
-	const handleConnectToSchedulerTrigger = async (scheduledAt) => {
+	const handleConnectToSchedulerTrigger = async (scheduledAt, recurrence) => {
 		try {
 			setInfo((prev) => ({ ...prev, connectTriggerLoading: true }));
 
@@ -242,6 +242,7 @@ const TriggersTab = () => {
 				assistantId: agentId,
 				triggerType: 'schedule',
 				scheduledAt: scheduledAt.toString(),
+				recurrence: recurrence,
 			};
 
 			const response = await connectTrigger({ triggerApp: 'schedule', triggerData });
@@ -314,7 +315,7 @@ const TriggersTab = () => {
 						dataLength={connectedTriggers?.length ?? 0}
 						next={fetchNextTriggers}
 						hasMore={hasNextPage}
-						height={'400px'}
+						height={'100%'}
 						loader={<FetchMoreLoaderComp />}
 					>
 						<ul className={s.triggersListContainer}>
@@ -324,6 +325,11 @@ const TriggersTab = () => {
 									<div className={s.triggerItemContent}>
 										<h3>{trigger.title}</h3>
 										<p>{trigger.description}</p>
+										<p>
+											{trigger?.trigerConfig?.recurrence
+												? `Recurrence : ${trigger?.trigerConfig?.recurrence}`
+												: ''}
+										</p>
 									</div>
 									<button
 										onClick={() => handleDisconnectTrigger(trigger._id)}

@@ -7,7 +7,9 @@ import { useNavigate } from 'react-router-dom';
 import Context from '../../../../context/context';
 import { useParams } from 'react-router-dom';
 import { message } from '../../globalComponents/CustomToast';
-const AgentHeader = ({ onEditClick }) => {
+import RunAndBuildToggle from './RunAndBuildToggle';
+
+const AgentHeader = ({ onEditClick, agentAction, setAgentAction, activeKnowledgeAssistant }) => {
 	const navigate = useNavigate();
 	const { agentId } = useParams();
 	const {
@@ -19,7 +21,7 @@ const AgentHeader = ({ onEditClick }) => {
 	const handleBack = () => {
 		navigate('/agents');
 	};
-
+	const agentName = activeKnowledgeAssistant?.data?.name;
 	const handleDeleteAgent = async (agentId) => {
 		if (info?.loading) return;
 		setInfo((prev) => ({ ...prev, loading: true }));
@@ -42,12 +44,20 @@ const AgentHeader = ({ onEditClick }) => {
 		<div className={s.agentHeaderWrapper}>
 			<div className={s.leftSection} onClick={handleBack}>
 				<BackSvg className={s.backIcon} />
-				<span className={s.backText}>Back to workflow agents</span>
-			</div>
-			<div className={s.rightSection}>
-				<div className={s.iconBtn}>
-					<EditIcon onClick={onEditClick} />
+				<div className={s.profileImageContainer}>
+					<div className={s.profileImage}>
+						{/* <img  src={activeKnowledgeAssistant?.data?.profileImage} alt='agent' /> */}
+
+						<div className={s.profileImageText}>{agentName?.charAt(0)}</div>
+					</div>
+					<span className={s.backText}>{agentName}</span>
 				</div>
+			</div>
+			<RunAndBuildToggle agentAction={agentAction} setAgentAction={setAgentAction} />
+			<div className={s.rightSection}>
+				{/* <div className={s.iconBtn}>
+					<EditIcon onClick={onEditClick} />
+				</div> */}
 				<div className={s.iconBtn}>
 					<DeleteIcon onClick={() => handleDeleteAgent(agentId)} />
 				</div>

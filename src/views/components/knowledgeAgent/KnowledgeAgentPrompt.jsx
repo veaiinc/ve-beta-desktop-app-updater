@@ -2,10 +2,12 @@ import React, { memo, useCallback, useContext, useEffect, useState } from 'react
 import '../../../assets/scss/ai_assistant/aiPrompt.scss';
 import { ReactComponent as Question } from '../../../assets/svg/ai_assistant/question.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
-import CustomTextArea from '../globalComponents/CustomTextArea';
 import { message, Tooltip } from 'antd';
 import Context from '../../../context/context';
 import Skeleton from 'react-loading-skeleton';
+import PromptWithIcons from './PromptWithIcons';
+import AgentCredentials from '../agents/agentDetails/agentCredentials/AgentCredentials';
+import { useParams } from 'react-router-dom';
 
 const customPromptItem = {
 	_id: 'custom',
@@ -15,7 +17,7 @@ const customPromptItem = {
 	isDefault: false,
 };
 
-const KnowledgeAgentPrompt = ({ assistant }) => {
+const KnowledgeAgentPrompt = ({ assistant, actionDetails = [] }) => {
 	const {
 		knowledgeAgent: {
 			allAiPrompts,
@@ -26,7 +28,7 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 			updateKnowledgeAgent,
 		},
 	} = useContext(Context);
-
+	const { agentId } = useParams();
 	const [info, setInfo] = useState({
 		aiModelOptions: [
 			{ label: 'GPT-4o', value: 'gpt-4o' },
@@ -62,7 +64,7 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 				);
 				selectedSystemPrompt = selectedPrompt?.label;
 				systemPrompt = selectedPrompt?.prompt;
-				currentPromptId = assistant?.prompt?.promptId;
+				currentPromptId = selectedPrompt?._id;
 			} else {
 				const defaultPrompt = allAiPrompts?.find((prompt) => prompt?.isDefault);
 				selectedSystemPrompt = defaultPrompt?.label;
@@ -169,12 +171,14 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 
 	return (
 		<div className="aiPromptParentContainer">
-			<div className="aiModalContainer">
-				<div className="aiModalHeader">
-					<span className="lineone">Model </span>
-					<Question />
-				</div>
-
+			<div className="agentPromptDetailsContainer">
+				<AgentCredentials agentId={agentId} />
+				{/* <div className="aiModalContainer">
+					<div className="aiModalHeader">
+						<span className="lineone">Model </span>
+						<Question />
+					</div>
+				</div> */}
 				<div className="chooseModelContainer">
 					<Tooltip
 						open={info.isSelectModelOpen}
@@ -207,10 +211,10 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 			</div>
 
 			<div className="systemProptParentContainer">
-				<div className="systemProptHeader">
-					<span className="lineone">System Prompt</span>
-					<Question />
-				</div>
+				{/* <div className="systemProptHeader">
+                    <span className="lineone">System Prompt</span>
+                    <Question />
+                </div> */}
 
 				{info?.promptLoading ? (
 					<div className="promptLoadingContainer">
@@ -229,47 +233,49 @@ const KnowledgeAgentPrompt = ({ assistant }) => {
 					</div>
 				) : (
 					<>
-						<div className="chooseModelContainer">
-							<Tooltip
-								open={info.isSelectSystemPromptOpen}
-								onOpenChange={handleSystemPromptDropdownVisibility}
-								placement="bottom"
-								title={
-									<div className="modelDropdown">
-										{info?.systemPromptOptions?.map((option) => (
-											<div
-												key={option?._id}
-												className="modelListItem"
-												onClick={() => handleSystemPromptChange(option)}
-											>
-												{option?.label}
-											</div>
-										))}
-									</div>
-								}
-								arrow={false}
-								trigger={'click'}
-								color={'transparent'}
-								overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
-							>
-								<div className="voiceList">
-									{info?.selectedSystemPrompt}{' '}
-									<DownSvg
-										className={`${
-											info?.isSelectSystemPromptOpen ? 'open' : ''
-										}`}
-									/>
-								</div>
-							</Tooltip>
-						</div>
+						{/* <div className="chooseModelContainer">
+                            <Tooltip
+                                open={info.isSelectSystemPromptOpen}
+                                onOpenChange={handleSystemPromptDropdownVisibility}
+                                placement="bottom"
+                                title={
+                                    <div className="modelDropdown">
+                                        {info?.systemPromptOptions?.map((option) => (
+                                            <div
+                                                key={option?._id}
+                                                className="modelListItem"
+                                                onClick={() => handleSystemPromptChange(option)}
+                                            >
+                                                {option?.label}
+                                            </div>
+                                        ))}
+                                    </div>
+                                }
+                                arrow={false}
+                                trigger={'click'}
+                                color={'transparent'}
+                                overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+                            >
+                                <div className="voiceList">
+                                    {info?.selectedSystemPrompt}{' '}
+                                    <DownSvg
+                                        className={`${
+                                            info?.isSelectSystemPromptOpen ? 'open' : ''
+                                        }`}
+                                    />
+                                </div>
+                            </Tooltip>
+                        </div> */}
 
-						<CustomTextArea
-							className="systemPromptTextArea"
-							placeholder="Enter your system prompt here"
-							value={info?.systemPrompt}
-							onChange={(e) => handlePromptChange(e.target.value)}
-							autoResize={true}
-						/>
+						<div className="systemPromptTextArea promptWithIconsWrapper">
+							<PromptWithIcons
+								prompt={info?.systemPrompt}
+								actionDetails={actionDetails}
+								onChange={handlePromptChange}
+								placeholder="Enter your system prompt here"
+								autoResize={true}
+							/>
+						</div>
 
 						<div className="resetPromptContainer">
 							<button onClick={handleResetPrompt}>Reset</button>

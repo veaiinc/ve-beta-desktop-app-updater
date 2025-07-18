@@ -34,12 +34,12 @@ const PromptCards = ({ option = '' }) => {
 						className="calenderWidgetSection2Item"
 						onClick={() => handlePromptPopup(item)}
 					>
-						<div className="calenderWidgetSection2ItemContainer">
+						{/* <div className="calenderWidgetSection2ItemContainer">
 							{iconMap[item?.type]}
 							<div className="calenderWidgetSection2ItemTitle">
 								{item?.type?.charAt(0)?.toUpperCase() + item?.type?.slice(1)}
 							</div>
-						</div>
+						</div> */}
 						<div className="calenderWidgetSection2ItemSubtitle">{item?.title}</div>
 					</div>
 				))}

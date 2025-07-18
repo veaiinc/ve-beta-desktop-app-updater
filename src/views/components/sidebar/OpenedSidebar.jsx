@@ -122,9 +122,6 @@ const OpenedSidebarModules = ({
 			return currentPath.includes('/agents') || currentPath.includes('/ai-assistant');
 		}
 		if (name === 'New Chat') {
-			if (workspaceMode === 'stable') {
-				return currentPath.includes('/home');
-			}
 			return currentPath.includes('/chat');
 		}
 
@@ -168,34 +165,7 @@ const OpenedSidebarModules = ({
 						width: '100%',
 					}}
 				>
-					{Icon && (
-						<Icon
-							fill={
-								name === 'Notes' ||
-								name === 'Calendar' ||
-								name === 'Tasks' ||
-								name === 'Contacts' ||
-								name === 'Automations' ||
-								name === 'Database'
-									? 'none'
-									: 'var(--secondary-font)'
-							}
-							style={{
-								stroke:
-									name === 'Notes' ||
-									name === 'Calendar' ||
-									name === 'Tasks' ||
-									name === 'Contacts' ||
-									name === 'Automations' ||
-									name === 'Database'
-										? 'var(--secondary-font)'
-										: 'none',
-								height: '20px',
-								width: '20px',
-								color: 'var(--secondary-font)',
-							}}
-						/>
-					)}
+					{Icon && <Icon />}
 					<p style={{ margin: 0 }}>{name}</p>
 					{isExactPathMatch() && <TickSvg />}
 				</div>
@@ -279,7 +249,8 @@ const OpenedSidebar = ({
 	isThisEarlyAccessPage,
 	isSidebarOpen,
 }) => {
-	const { workspaceMode } = useWorkspaceMode();
+	const { workspaceMode, workspaceNotFound } = useWorkspaceMode();
+	const workspaceId = localStorage.getItem('workspaceId');
 
 	const sidebarNavigationItems = navigationItemsMap[workspaceMode];
 	const settingsNavigationItems = settingsNavItemsMap[workspaceMode];
@@ -343,9 +314,13 @@ const OpenedSidebar = ({
 	const location = useLocation();
 
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
+	const isWorkspaceSuspended = workspaceMode === 'suspended';
 
-	// Add this constant for Settings options
-	const settingsOptions = isAdmin ? settingsNavigationItems.admin : settingsNavigationItems.user;
+	const settingsOptions = isWorkspaceSuspended
+		? []
+		: isAdmin
+		? settingsNavigationItems?.admin || []
+		: settingsNavigationItems?.user || [];
 
 	const newThemeValue = theme === 'dark' ? 'light' : 'dark';
 	useEffect(() => {
@@ -380,11 +355,6 @@ const OpenedSidebar = ({
 	}, [showSettingsSidebar]);
 
 	const handleNewChat = () => {
-		// For stable workspaceMode, redirecting to /home, check stableNavigationItems
-		if (workspaceMode === 'stable') {
-			navigate('/home');
-			return;
-		}
 		const sessionId = ObjectID()?.toString();
 		navigate(`/chat/${sessionId}`);
 		updateStateValues({
@@ -471,7 +441,7 @@ const OpenedSidebar = ({
 		}
 
 		return modulesList
-			.map((module) => {
+			?.map((module) => {
 				// Convert the module name to its mapped name (if exists in MODULE_NAME_MAP)
 				const formattedModuleName = module?.name?.toLowerCase();
 				const mappedName = MODULE_NAME_MAP[formattedModuleName] || formattedModuleName;
@@ -534,14 +504,15 @@ const OpenedSidebar = ({
 					allPossibleApps,
 			  );
 
-	const settingEssentials =
-		tenantUserAccessControls?.role === 'admin'
-			? settingsNavigationItems.essentials
-			: filterModules(
-					settingsNavigationItems.essentials,
-					tenantUserAccessControls?.accessControls,
-					allPossibleApps,
-			  );
+	const settingEssentials = isWorkspaceSuspended
+		? []
+		: tenantUserAccessControls?.role === 'admin'
+		? settingsNavigationItems?.essentials || []
+		: filterModules(
+				settingsNavigationItems?.essentials || [],
+				tenantUserAccessControls?.accessControls,
+				allPossibleApps,
+		  );
 
 	const isExactPathMatch = useCallback(
 		(currentRoute, moduleName) => {
@@ -587,16 +558,16 @@ const OpenedSidebar = ({
 			onClick: (updateTheme, newThemeValue) => () => updateTheme(newThemeValue),
 		},
 		// {
-		// 	key: 'search',
-		// 	label: (_, isMac) => (isMac ? 'Search ⌘ + k' : 'Search Ctrl + k'),
-		// 	icon: () => <SearchSvg />,
-		// 	onClick: (_, __, triggerCmdK) => () => triggerCmdK(),
+		//  key: 'search',
+		//  label: (_, isMac) => (isMac ? 'Search ⌘ + k' : 'Search Ctrl + k'),
+		//  icon: () => <SearchSvg />,
+		//  onClick: (_, __, triggerCmdK) => () => triggerCmdK(),
 		// },
 		// {
-		// 	key: 'newChat',
-		// 	label: () => 'New Chat',
-		// 	icon: () => <NewEditSvg />,
-		// 	onClick: (_, __, ___, handleNewChat) => () => handleNewChat(),
+		//  key: 'newChat',
+		//  label: () => 'New Chat',
+		//  icon: () => <NewEditSvg />,
+		//  onClick: (_, __, ___, handleNewChat) => () => handleNewChat(),
 		// },
 	];
 
@@ -728,9 +699,15 @@ const OpenedSidebar = ({
 															/>
 														</div>
 													)}
-													<h6 className="workspaceName">
-														{tennantSettingsData?.businessName}
-													</h6>
+													{workspaceNotFound ? (
+														<h6 className="workspaceName">
+															{workspaceId}
+														</h6>
+													) : (
+														<h6 className="workspaceName">
+															{tennantSettingsData?.businessName}
+														</h6>
+													)}
 													{userWorkSpaceList?.length > 1 && (
 														<DownArrowSmallSvg
 															style={{
@@ -784,21 +761,21 @@ const OpenedSidebar = ({
 												display: 'flex',
 												flexDirection: 'column',
 												width: '100%',
+												overflowY: 'auto',
 												justifyContent: `${
 													isThisEarlyAccessPage ? 'flex-end' : ''
 												}`,
-												// overflowY: 'auto',
 											}}
 											id="chatsScroll"
 										>
 											{!isThisEarlyAccessPage && (
 												<>
 													{/* <hr
-														style={{
-															border: '0.7px solid var(--stroke)',
-															margin: '16px 0px',
-														}}
-													/> */}
+                                                        style={{
+                                                            border: '0.7px solid var(--stroke)',
+                                                            margin: '16px 0px',
+                                                        }}
+                                                    /> */}
 													{filteredModules?.map((singleItem, index) => (
 														<div key={index}>
 															<OpenedSidebarModules
@@ -854,8 +831,8 @@ const OpenedSidebar = ({
 
 													<div>
 														<hr className={'horizontal-line-sidebar'} />
+														<ChatHistory />
 													</div>
-													<ChatHistory />
 													<CreditsLeft />
 													<div
 														className={`settingsOptionsContainer  ${
@@ -959,54 +936,68 @@ const OpenedSidebar = ({
 															setShowSettingsSidebar(false);
 														}}
 													>
-														<div>
-															{userDetailsData?.logoURL ? (
-																<div className="crop-container">
-																	<Cropper
-																		image={
-																			userDetailsData?.logoURL
-																		} // Image URL to crop
-																		crop={
-																			userDetailsData
-																				?.cropSettings?.crop
-																		}
-																		zoom={
-																			userDetailsData
-																				?.cropSettings?.zoom
-																		}
-																		showGrid={false}
-																		onCropChange={(e) => ''}
-																		onCropComplete={(e) => ''}
-																		onZoomChange={(e) => ''}
-																	/>
-																</div>
-															) : (
-																<div
-																	className="noImageText"
-																	style={{
-																		background:
-																			userDetailsData
-																				?.cropSettings
-																				?.profileDpColor ||
-																			'',
-																		fontSize: '12px',
-																	}}
-																>
-																	{getInitials(
-																		userDetailsData?.firstName,
-																		userDetailsData?.lastName,
+														{!workspaceNotFound && (
+															<>
+																<div>
+																	{userDetailsData?.logoURL ? (
+																		<div className="crop-container">
+																			<Cropper
+																				image={
+																					userDetailsData?.logoURL
+																				} // Image URL to crop
+																				crop={
+																					userDetailsData
+																						?.cropSettings
+																						?.crop
+																				}
+																				zoom={
+																					userDetailsData
+																						?.cropSettings
+																						?.zoom
+																				}
+																				showGrid={false}
+																				onCropChange={(e) =>
+																					''
+																				}
+																				onCropComplete={(
+																					e,
+																				) => ''}
+																				onZoomChange={(e) =>
+																					''
+																				}
+																			/>
+																		</div>
+																	) : (
+																		<div
+																			className="noImageText"
+																			style={{
+																				background:
+																					userDetailsData
+																						?.cropSettings
+																						?.profileDpColor ||
+																					'',
+																				fontSize: '12px',
+																			}}
+																		>
+																			{getInitials(
+																				userDetailsData?.firstName,
+																				userDetailsData?.lastName,
+																			)}
+																		</div>
 																	)}
 																</div>
-															)}
-														</div>
-														<div className="settingsOptionsUserName">
-															<span>
-																{userDetailsData?.firstName}
-															</span>
-															<span className="workspaceId">
-																{tennantSettingsData?.businessName}
-															</span>
-														</div>
+																<div className="settingsOptionsUserName">
+																	<span>
+																		{userDetailsData?.firstName}
+																	</span>
+																	<span className="workspaceId">
+																		{
+																			tennantSettingsData?.businessName
+																		}
+																	</span>
+																</div>
+															</>
+														)}
 													</div>
 													<div className="logoutIcon">
 														<LogoutRedSvg
@@ -1080,8 +1071,8 @@ const OpenedSidebar = ({
 										{theme === 'dark' ? <SunIcon /> : <MoonIcon />}
 									</div>
 									{/* <div className="eachOption" onClick={triggerCmdK}>
-										<SearchSvg />
-									</div> */}
+                                        <SearchSvg />
+                                    </div> */}
 									<div className="eachOption" onClick={handleNewChat}>
 										<NewEditSvg />
 									</div>
