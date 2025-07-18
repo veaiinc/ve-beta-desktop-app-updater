@@ -449,14 +449,14 @@ const GalleryGrid = ({
 																Images
 															</span>
 														</div>
-														{/* <div className="info-item">
+														<div className="info-item">
 															<span className="info-count">
-																{item?.videoCount || 0}
+																{item?.embeddedVideosCount || 0}
 															</span>
 															<span className="info-label">
 																Videos
 															</span>
-														</div> */}
+														</div>
 													</div>
 													<div className="gallery-overlay-created">
 														<span className="created-date">
@@ -511,12 +511,12 @@ const GalleryGrid = ({
 														</span>
 														<span className="info-label">Images</span>
 													</div>
-													{/* <div className="info-item">
+													<div className="info-item">
 														<span className="info-count">
-															{item?.videoCount || 0}
+															{item?.embeddedVideosCount || 0}
 														</span>
 														<span className="info-label">Videos</span>
-													</div> */}
+													</div>
 												</div>
 											</div>
 										)}
