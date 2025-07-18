@@ -19,6 +19,7 @@ const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'))
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 import AmbientAi from '../views/features/ambientAi/AmbientAi';
+import CardMeetBot from '../views/features/meetBot/CardMeetBot';
 
 const stableRoutes = [
 	{
@@ -95,7 +96,7 @@ const stableRoutes = [
 		path: '/meet',
 		element: (
 			<AuthWrapper title={'Meet'}>
-				<MeetBot />
+				<CardMeetBot />
 			</AuthWrapper>
 		),
 	},
