@@ -30,14 +30,13 @@ const themePreferenceOptions = [
 const MyProfile = () => {
 	const { workspaceMode } = useWorkspaceMode();
 	const fullNameRef = useRef(null);
-	const professionRef = useRef(null);
 	const {
 		profileInfo: {
-			get2FAQrCode,
+			// get2FAQrCode,
 			set2FASettings,
 			userDetailsData,
-			updateUserPhoneNumber,
-			qrcode,
+			// updateUserPhoneNumber,
+			// qrcode,
 			updateUserLogo,
 			getTenantUserDetails,
 			tenantUserDetails,
@@ -48,8 +47,8 @@ const MyProfile = () => {
 			tenantUserAccessControls,
 			tennantSettingsData,
 		},
-		companyInfo: { getTenantPreferences, tenantPreferenceData },
-		themeInfo: { theme, updateTheme },
+		// companyInfo: { getTenantPreferences, tenantPreferenceData },
+		themeInfo: { updateTheme },
 		authInfo: { updateUserDetails },
 	} = useContext(Context);
 
@@ -72,9 +71,9 @@ const MyProfile = () => {
 	const [logoFile, setlogoFile] = useState(null);
 
 	useEffect(() => {
-		if (!tenantPreferenceData) {
-			getTenantPreferences();
-		}
+		// if (!tenantPreferenceData) {
+		// 	getTenantPreferences();
+		// }
 		if (!tenantUserDetails) {
 			getTenantUserDetails();
 		}
@@ -141,11 +140,11 @@ const MyProfile = () => {
 		}
 	}, [tenantUserAccessControls]);
 
-	useEffect(() => {
-		if (userDetails.is2FAEnabled) {
-			get2FAQrCode();
-		}
-	}, [userDetails.is2FAEnabled]);
+	// useEffect(() => {
+	// 	if (userDetails.is2FAEnabled) {
+	// 		get2FAQrCode();
+	// 	}
+	// }, [userDetails.is2FAEnabled]);
 
 	useEffect(() => {
 		if (
