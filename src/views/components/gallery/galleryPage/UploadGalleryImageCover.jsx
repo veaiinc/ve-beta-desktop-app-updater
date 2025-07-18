@@ -8,6 +8,7 @@ import '../../../../assets/scss/gallery/uploadGalleryImageCover.scss';
 import Spinner from '../../loaders/Spinner';
 import { isURL } from '../../../../helpers';
 import { ReactComponent as MobileIcon } from '../../../../assets/svg/gallery/mobileIcon.svg';
+import { ReactComponent as HandGrabIcon } from '../../../../assets/svg/gallery/handGrabIcon.svg';
 import { Slider } from 'antd';
 
 const UploadGalleryImageCover = ({
@@ -186,19 +187,35 @@ const UploadGalleryImageCover = ({
 										}}
 									>
 										{isImageExists ? (
-											<div
-												style={{
-													width: '100%',
-													height: '100%',
-													backgroundImage: `url(${info?.imageURL})`,
-													backgroundPosition: `${
-														currentFocalPoint?.x * 50 + 50
-													}% ${50 - currentFocalPoint?.y * 50}%`,
-													backgroundSize: `${currentZoom * 100}% auto`,
-													backgroundRepeat: 'no-repeat',
-													borderRadius: '12px',
-												}}
-											></div>
+											<>
+												<div
+													style={{
+														backgroundImage: `url(${info?.imageURL})`,
+														backgroundPosition: `${
+															currentFocalPoint?.x * 50 + 50
+														}% ${50 - currentFocalPoint?.y * 50}%`,
+														backgroundSize: `${
+															currentZoom * 100
+														}% auto`,
+													}}
+													className="image-container"
+												>
+													<div className="grid-overlay">
+														{/* Grid Lines */}
+														{Array.from({ length: 9 }).map(
+															(_, index) => (
+																<div
+																	key={index}
+																	style={{
+																		border: '0.5px solid var(--dividers)',
+																		boxSizing: 'border-box',
+																	}}
+																/>
+															),
+														)}
+													</div>
+												</div>
+											</>
 										) : (
 											<div
 												style={{
@@ -225,21 +242,35 @@ const UploadGalleryImageCover = ({
 										>
 											<div
 												style={{
-													width: '100%',
-													height: '100%',
 													backgroundImage: `url(${info?.imageURL})`,
 													backgroundPosition: `${
 														currentFocalPoint?.x * 50 + 50
 													}% ${50 - currentFocalPoint?.y * 50}%`,
 													backgroundSize: `auto ${currentZoom * 100}%`,
-													backgroundRepeat: 'no-repeat',
-													borderRadius: '12px',
 												}}
-											></div>
+												className="image-container"
+											>
+												<div className="grid-overlay">
+													{/* Grid Lines */}
+													{Array.from({ length: 9 }).map((_, index) => (
+														<div
+															key={index}
+															style={{
+																border: '0.3px solid var(--dividers)',
+																boxSizing: 'border-box',
+															}}
+														/>
+													))}
+												</div>
+											</div>
 										</div>
 									)}
 								</div>
 							)}
+						</div>
+						<div className="handGrabIcon">
+							<HandGrabIcon />
+							<p>Drag Image to set image position</p>
 						</div>
 					</div>
 				)}

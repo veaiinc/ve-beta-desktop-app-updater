@@ -65,9 +65,11 @@
 	}
 	.album-cover-container {
 		display: flex;
-		gap: 28px;
+		flex-direction: column;
+		gap: 16px;
 		// height: 550px;
 		justify-content: center;
+		align-items: center;
 		.album-preview {
 			display: flex;
 			width: 100%;
@@ -91,13 +93,8 @@
 					border-top-left-radius: 16px;
 					border-top-right-radius: 16px;
 					border-radius: 2.846px;
-
-					img {
-						width: 100%;
-						height: 100%;
-						object-fit: cover;
-					}
 				}
+
 				button {
 					position: absolute;
 					bottom: 10%;
@@ -135,14 +132,25 @@
 					aspect-ratio: 16 / 9; // or whatever fits
 					width: 100%;
 					max-width: 200px;
+					.image-container {
+						width: 100%;
+						height: 100%;
+						background-repeat: no-repeat;
+						border-radius: 12px;
+						position: relative;
+						.grid-overlay {
+							position: absolute;
+							top: 0;
+							left: 0;
+							width: 100%;
+							height: 100%;
+							display: grid;
+							grid-template-columns: repeat(3, 1fr);
+							grid-template-rows: repeat(3, 1fr);
+							pointer-events: none;
+						}
+					}
 				}
-				// .mobile-logo {
-				// 	position: absolute;
-				// 	height: 100%;
-				// 	width: 100%;
-				// 	bottom: 0;
-				// 	right: 0;
-				// }
 			}
 		}
 		.album-cover-image {
@@ -166,11 +174,25 @@
 				overflow: hidden;
 			}
 		}
+		.handGrabIcon {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			gap: 8px;
+			align-self: stretch;
+			p {
+				color: var(--secondary-font, #94989e);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
 	}
 	.uploadScaleContainer {
 		width: 100%;
 		display: flex;
-		height: 37px;
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 12px;
@@ -200,5 +222,23 @@
 			border-radius: 33px;
 			background: var(--primary-button);
 		}
+	}
+}
+.image-container {
+	width: 100%;
+	height: 100%;
+	background-repeat: no-repeat;
+	border-radius: 12px;
+	position: relative;
+	.grid-overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		grid-template-rows: repeat(3, 1fr);
+		pointer-events: none;
 	}
 }
