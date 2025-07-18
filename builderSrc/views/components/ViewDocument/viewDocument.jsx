@@ -498,7 +498,7 @@ const ViewDocument = ({ workflowId, templateID }) => {
 	};
 	return (
 		<div className="viewDocumentContainer">
-			<div className="back-to-files" onClick={() => window.history.back()}>
+			<div className="back-to-files" onClick={() => navigate(-1)}>
 				<span className="back-arrow">&#8592;</span> Back to Files
 			</div>
 			<MainDocumentSection workflowId={workflowId} templateID={templateID} />
