@@ -177,8 +177,8 @@ const SubscribedUserPlanCard = ({
 		authInfo: { getAddOnsForCurrentPlan, currentPlanAddOns },
 	} = useContext(Context);
 
-	const addOnPlansExists = currentPlanAddOns?.length > 0 ?? false;
-	const subscriptionPlansExists = subscriptionPlans?.length > 0 ?? false;
+	const addOnPlansExists = (currentPlanAddOns?.length ?? 0) > 0;
+	const subscriptionPlansExists = (subscriptionPlans?.length ?? 0) > 0;
 
 	const [info, setInfo] = useState({
 		manageSubscriptionLoader: false,
