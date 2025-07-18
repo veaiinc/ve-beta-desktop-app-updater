@@ -20,7 +20,7 @@ import { ReactComponent as BrushIcon } from '../../../assets/svg/gallery/brush.s
 import { ReactComponent as TrashIcon } from '../../../assets/svg/gallery/delete-red.svg';
 import { ReactComponent as DownloadIcon } from '../../../assets/svg/gallery/download2.svg';
 import { ReactComponent as LightRoomIcon } from '../../../assets/svg/gallery/light-room.svg';
-import { ReactComponent as AlbumCoverIcon } from '../../../assets/svg/gallery/changeAlbumCover.svg';
+import { ReactComponent as AlbumCoverIcon } from '../../../assets/svg/gallery/albumCoverIcon.svg';
 import { ReactComponent as DeleteIcon } from '../../../assets/svg/gallery/delete-red.svg';
 import { ReactComponent as LockIcon } from '../../../assets/svg/gallery/lockIcon.svg';
 import { ReactComponent as HomeIcon } from '../../../assets/svg/gallery/home.svg';
@@ -5872,6 +5872,32 @@ const GalleryPage = () => {
 						</div>
 						{!info.isRearranging && (
 							<div className="selectedImagesActions">
+								{info?.selectedImages?.length === 1 && (
+									<Tooltip
+										title={
+											<div className="galleryEditOptions">
+												<li onClick={handleSetGalleryCover}>
+													<AlbumCoverIcon />
+													<span>Set as Gallery Cover</span>
+												</li>
+												<li onClick={handleSetAlbumCover}>
+													<AlbumCoverIcon />
+													<span>Set as Album Cover</span>
+												</li>
+											</div>
+										}
+										placement="top"
+										trigger={'click'}
+										arrow={false}
+										color={'transparent'}
+									>
+										<div>
+											<AlbumCoverIcon
+												style={{ color: 'var(--primary-font)' }}
+											/>
+										</div>
+									</Tooltip>
+								)}
 								<div style={{ position: 'relative' }} ref={pinIconRef}>
 									<PinIcon onClick={handlePinIcon} />
 									{info.showPin && (
@@ -6191,7 +6217,6 @@ const GalleryPage = () => {
 							...prev,
 							showUploadCover: false,
 							noImageSelected: false,
-							selectedImages: [],
 						}))
 					}
 					style={{ position: 'absolute', top: '60%', left: '0', right: '0', bottom: '0' }}

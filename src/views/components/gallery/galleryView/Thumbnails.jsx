@@ -23,8 +23,8 @@ const Thumbnails = ({
 				scrollableTarget="galleryThumbnails-target"
 				style={{
 					display: 'flex',
+					flexDirection: 'column',
 					gap: '24px',
-					width: '95vw',
 				}}
 			>
 				{galleryCredentials && imagesList
