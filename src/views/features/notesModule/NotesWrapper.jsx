@@ -14,10 +14,11 @@ const NotesWrapper = () => {
 		templates: { aiTranscriptionSuggestions, updateStateValues },
 	} = useContext(Context);
 	const [searchParams] = useSearchParams();
+	const isAiIntelligenceEnabled = searchParams.get('isAiIntelligenceEnabled');
 	const [info, setInfo] = useState({
 		modalIsOpen: false,
 		sessionId: ObjectID()?.toString(),
-		showAmbientAssistance: true,
+		showAmbientAssistance: isAiIntelligenceEnabled === 'true',
 		chatOpen: false,
 	});
 
