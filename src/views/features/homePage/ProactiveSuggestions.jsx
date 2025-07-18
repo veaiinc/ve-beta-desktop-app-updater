@@ -98,6 +98,8 @@ const getDescription = (card) => {
 		}
 	} else if (card?.collectionType === 'forms') {
 		return 'Form response';
+	} else if (card?.insight_type === 'actions') {
+		return card?.crux;
 	}
 };
 
@@ -809,13 +811,15 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 														</div>
 														<div
 															className={`header__card-description ${
-																classList?.[1] === 'selected'
+																classList?.[1] === 'selected' ||
+																card?.insight_type === 'actions'
 																	? 'showDescription'
 																	: ''
 															}`}
 														>
-															{!card?.collectionType &&
-																card?.description}
+															{(!card?.collectionType &&
+																card?.description) ||
+																card?.crux}
 
 															{card?.collectionType &&
 																getDescription(card)}
