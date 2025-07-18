@@ -136,6 +136,7 @@ const ChatBox = ({
 	isBuildEnbled = true,
 	showUpgradeSubscriptionBtn = true,
 	animateChatBox = true,
+	sessionId = null,
 }) => {
 	const textAreaRef = useRef(null);
 	const location = useLocation();
@@ -395,13 +396,18 @@ const ChatBox = ({
 		}
 	}, [activePayloadForChat, info?.chatSessionId]);
 
+	// useEffect(() => {
+	// 	if (currentSessionId) {
+	// 		setInfo((prev) => ({ ...prev, chatSessionId: currentSessionId }));
+	// 	} else {
+	// 		updateStateValues({ currentSessionId: ObjectID()?.toString() });
+	// 	}
+	// }, [currentSessionId]);
+
 	useEffect(() => {
-		if (currentSessionId) {
-			setInfo((prev) => ({ ...prev, chatSessionId: currentSessionId }));
-		} else {
-			updateStateValues({ currentSessionId: ObjectID()?.toString() });
-		}
-	}, [currentSessionId]);
+		const chatSessionId = sessionId || ObjectID()?.toString();
+		setInfo((prev) => ({ ...prev, chatSessionId }));
+	}, [sessionId]);
 
 	useEffect(() => {
 		if (info?.chatSessionId && !globalChatMessages?.[info?.chatSessionId]?.chatBoxInfo) {

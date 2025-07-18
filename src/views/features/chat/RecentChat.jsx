@@ -1051,6 +1051,7 @@ const RecentChat = ({
 																		?.messages?.length -
 																		1
 																}
+																sessionId={sessionId}
 															/>
 														</div>
 													) : (
@@ -1112,6 +1113,7 @@ const RecentChat = ({
 							smoothScrollToBottom={smoothScrollToBottom}
 							onChatQueryChange={handleChatQueryChange}
 							animateChatBox={animateChatBox}
+							sessionId={sessionId}
 						/>
 					</div>
 				</div>
@@ -1124,6 +1126,7 @@ const RecentChat = ({
 			<NoteComponentModal
 				modalIsOpen={info?.noteModalIsOpen}
 				closeModal={handleNoteComponentModalClose}
+				sessionId={sessionId}
 			/>
 		</>
 	);

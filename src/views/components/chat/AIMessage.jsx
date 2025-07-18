@@ -37,6 +37,7 @@ const AIMessage = ({
 	handleSourcesClick = null,
 	messageIndex = null,
 	showCitationsButton = true,
+	sessionId = null,
 }) => {
 	const {
 		documentPreview: { setNoteContent },
@@ -110,6 +111,7 @@ const AIMessage = ({
 							messageData={messageData}
 							agent={agent}
 							key={index}
+							sessionId={sessionId}
 						/>
 					))
 				) : (
