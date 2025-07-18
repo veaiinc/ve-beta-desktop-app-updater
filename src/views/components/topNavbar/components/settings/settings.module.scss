@@ -1,0 +1,11 @@
+.settingsContainer {
+	display: flex;
+	width: 320px;
+	padding: 12px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+	border-radius: 16px;
+	border: 1px solid var(--dividers, #1e1f20);
+	background: var(--popup, #202123);
+}

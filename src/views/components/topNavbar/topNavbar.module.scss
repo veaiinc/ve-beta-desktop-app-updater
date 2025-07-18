@@ -1,0 +1,149 @@
+.topNavbarSettings {
+	max-width: unset;
+}
+
+.topNavbarContainer {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 14px 32px;
+	border-bottom: 1px solid var(--dividers, #1e1f20);
+	background: var(--navbar, #141415);
+
+	ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.leftContainer {
+		display: flex;
+		gap: 4px;
+
+		.navItem {
+			height: 36px;
+			padding: 14px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 8px;
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+			transition: background 0.3s ease;
+
+			&.active,
+			&:hover {
+				background: var(--card-over-card, #1f2123);
+			}
+		}
+	}
+
+	.middleContainer {
+		display: flex;
+		gap: 4px;
+		border-radius: 100px;
+		border: 1px solid var(--dividers, #1e1f20);
+		padding: 4px;
+
+		.navItem {
+			display: flex;
+			height: 40px;
+			padding: 6px 12px;
+			justify-content: center;
+			align-items: center;
+			gap: 18px;
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			border-radius: 100px;
+			border: 1px solid transparent;
+
+			&.active,
+			&:hover {
+				border: 1px solid var(--primary-button, #79ecc9);
+			}
+		}
+	}
+
+	.rightContainer {
+		display: flex;
+		gap: 28px;
+
+		.navItem {
+			display: flex;
+			align-items: center;
+			cursor: pointer;
+
+			svg {
+				width: 24px;
+				height: 24px;
+
+				path {
+					fill: var(--primary-font, #f2f2f3);
+				}
+			}
+
+			.downCaret {
+				width: 16px;
+				height: 16px;
+
+				path {
+					fill: transparent;
+					stroke: var(--primary-font, #f2f2f3);
+				}
+			}
+
+			.profileImg {
+				width: 24px;
+				height: 24px;
+				border-radius: 50%;
+			}
+
+			.nameInitials {
+				align-items: center;
+				background: var(--primary-button, #79ecc9);
+				border-radius: 50%;
+				color: var(--primary-font, #f2f2f3);
+				display: flex;
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				justify-content: center;
+				line-height: normal;
+				width: 24px;
+				height: 24px;
+			}
+
+			.creditsLeftContainer {
+				width: 24px;
+				height: 24px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+		}
+	}
+}
+
+.ant-tooltip-content {
+	background-color: red;
+	.ant-tooltip {
+		width: 320px;
+	}
+}
+
+.ant-tooltip {
+	background-color: red;
+}

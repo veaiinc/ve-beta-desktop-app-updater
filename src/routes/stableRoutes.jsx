@@ -19,23 +19,25 @@ const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'))
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 import AmbientAi from '../views/features/ambientAi/AmbientAi';
+import Agents from '../views/features/agents/Agents';
+import Agent from '../views/features/agents/agent/Agent';
 
 const stableRoutes = [
+	// {
+	// 	path: '/home',
+	// 	element: (
+	// 		<AuthWrapper
+	// 			title={'Home'}
+	// 			outerContainerStyle={{ overflow: 'hidden' }}
+	// 			childrenContainerStyles={{ overflow: 'auto' }}
+	// 			showBottomToolbar={false}
+	// 		>
+	// 			<InitialHomePage />
+	// 		</AuthWrapper>
+	// 	),
+	// },
 	{
 		path: '/home',
-		element: (
-			<AuthWrapper
-				title={'Home'}
-				outerContainerStyle={{ overflow: 'hidden' }}
-				childrenContainerStyles={{ overflow: 'auto' }}
-				showBottomToolbar={false}
-			>
-				<InitialHomePage />
-			</AuthWrapper>
-		),
-	},
-	{
-		path: '/ambient-ai',
 		element: (
 			<AuthWrapper title={'Ambient AI'}>
 				<AmbientAi />
@@ -87,6 +89,30 @@ const stableRoutes = [
 			>
 				<Suspense fallback={<SuspenseFallback />}>
 					<RecentChat />
+				</Suspense>
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/agents',
+		element: (
+			<AuthWrapper
+				title="Agents"
+				outerContainerStyle={{ padding: '0' }}
+				sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
+			>
+				<Suspense fallback={<SuspenseFallback />}>
+					<Agents />
+				</Suspense>
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/agent/:agentId',
+		element: (
+			<AuthWrapper title="Agent">
+				<Suspense fallback={<SuspenseFallback />}>
+					<Agent />
 				</Suspense>
 			</AuthWrapper>
 		),
