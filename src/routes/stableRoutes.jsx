@@ -15,6 +15,7 @@ const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndE
 const SettingsWrapper = lazy(() => import('../views/features/settings/SettingsWrapper'));
 const RecentChat = lazy(() => import('../views/features/chat/RecentChat'));
 const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
+const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
@@ -60,6 +61,16 @@ const stableRoutes = [
 			<AuthWrapper title={'Share and Earn'}>
 				<Suspense fallback={<SuspenseFallback />}>
 					<ShareAndEarn />
+				</Suspense>
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/chats',
+		element: (
+			<AuthWrapper title={'Chats'}>
+				<Suspense fallback={<SuspenseFallback />}>
+					<ChatPage />
 				</Suspense>
 			</AuthWrapper>
 		),
