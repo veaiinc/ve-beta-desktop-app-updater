@@ -37,6 +37,7 @@ const infiniteScrollHeight = 'calc(100vh - 100px)';
 
 // Meeting mode options
 const meetingModeOptions = [
+	{ value: 'meeting', label: 'Meeting' },
 	{ value: 'sales', label: 'Sales Mode' },
 	{ value: 'support', label: 'Support' },
 	{ value: 'interview', label: 'Interview' },
@@ -56,7 +57,7 @@ const MeetBot = () => {
 		selectedMode: 'meeting_bot',
 		creating: false,
 		isAiIntelligenceEnabled: false,
-		meetingMode: 'sales',
+		meetingMode: 'meeting',
 		agenda: '',
 	});
 
@@ -144,7 +145,7 @@ const MeetBot = () => {
 				meetingUrl: '',
 				agenda: '',
 				isAiIntelligenceEnabled: false,
-				meetingMode: 'sales',
+				meetingMode: 'meeting',
 			}));
 			const pageId = response?.[1]?.data?.startTranscription?.data?.pageId;
 			const type = response?.[1]?.data?.startTranscription?.data?.transcriptionSource;
@@ -152,7 +153,9 @@ const MeetBot = () => {
 
 			if (success && pageId && type) {
 				await loadMeetings(1, false);
-				navigate(`/meet/${pageId}?type=${type}`);
+				navigate(
+					`/meet/${pageId}?type=${type}&isAiIntelligenceEnabled=${info.isAiIntelligenceEnabled}`,
+				);
 			}
 		} finally {
 			setInfo((prev) => ({ ...prev, creating: false }));
@@ -381,40 +384,6 @@ const MeetBot = () => {
 					</div>
 
 					<div className="meetbot__drawer-content">
-						{info.selectedMode === 'meeting_bot' && (
-							<>
-								<div className="meetbotGuideMeContainer">
-									<div className="meetbotGuideMeContainerItemContainer">
-										<div className="meetbotGuideMeContainerItem">
-											<div className="meetbotGuideMeContainerItemTitle">
-												Ambient assistance
-											</div>
-											<div className="meetbotGuideMeDescriptionContainer">
-												Your AI actively captures key points, summarizes
-												conversations, and highlights actions in real-time.
-											</div>
-										</div>
-										<Switch
-											checked={info.isAiIntelligenceEnabled}
-											onChange={(checked) =>
-												setInfo((prev) => ({
-													...prev,
-													isAiIntelligenceEnabled: checked,
-												}))
-											}
-										/>
-									</div>
-								</div>
-								<div
-									style={{
-										width: '100%',
-										height: '1px',
-										background: 'var(--stroke)',
-									}}
-								/>
-							</>
-						)}
-
 						<div className="meetbot__drawer-content-container">
 							<div>
 								<div className="meetbot__drawer-label">
@@ -476,6 +445,34 @@ const MeetBot = () => {
 											rows={3}
 										/>
 									</div>
+
+									{info.selectedMode === 'meeting_bot' && (
+										<>
+											<div className="meetbotGuideMeContainer">
+												<div className="meetbotGuideMeContainerItemContainer">
+													<div className="meetbotGuideMeContainerItem">
+														<div className="meetbotGuideMeContainerItemTitle">
+															Ambient assistance
+														</div>
+														<div className="meetbotGuideMeDescriptionContainer">
+															Your AI actively captures key points,
+															summarizes conversations, and highlights
+															actions in real-time.
+														</div>
+													</div>
+													<Switch
+														checked={info.isAiIntelligenceEnabled}
+														onChange={(checked) =>
+															setInfo((prev) => ({
+																...prev,
+																isAiIntelligenceEnabled: checked,
+															}))
+														}
+													/>
+												</div>
+											</div>
+										</>
+									)}
 									<div className="meetbot__drawer-input-wrapper">
 										<input
 											className="meetbot__drawer-input"
@@ -519,18 +516,89 @@ const MeetBot = () => {
 								</>
 							)}
 							{info.selectedMode === 'desktop' && (
-								<div className="meetbot__audio-btn-wrapper">
-									<button
-										disabled={info.creating}
-										onClick={handleCreateMeet}
-										className={`meetbot__audio-btn${
-											info.creating ? ' meetbot__audio-btn--disabled' : ''
-										}`}
-									>
-										<MicorPhoneIcon />
-										{info.creating ? 'Starting...' : 'Record'}
-									</button>
-								</div>
+								<>
+									{/* Meeting Mode Selection */}
+									<div className="meetbot__drawer-mode-wrapper">
+										<div className="meetbot__drawer-mode-label">
+											Meeting Mode
+										</div>
+										<div className="meetbot__drawer-mode-select-container">
+											<select
+												className="meetbot__drawer-mode-select"
+												value={info.meetingMode}
+												onChange={(e) =>
+													setInfo((prev) => ({
+														...prev,
+														meetingMode: e.target.value,
+													}))
+												}
+												disabled={info.creating}
+											>
+												{meetingModeOptions.map((option) => (
+													<option key={option.value} value={option.value}>
+														{option.label}
+													</option>
+												))}
+											</select>
+											<div className="meetbot__drawer-mode-select-arrow">
+												<ChevronDown />
+											</div>
+										</div>
+									</div>
+
+									{/* Agenda Text Field */}
+									<div className="meetbot__drawer-agenda-wrapper">
+										<div className="meetbot__drawer-agenda-label">Agenda</div>
+										<textarea
+											className="meetbot__drawer-agenda-textarea"
+											placeholder="Enter meeting agenda..."
+											value={info.agenda}
+											onChange={(e) =>
+												setInfo((prev) => ({
+													...prev,
+													agenda: e.target.value,
+												}))
+											}
+											disabled={info.creating}
+											rows={3}
+										/>
+									</div>
+									<div className="meetbotGuideMeContainer">
+										<div className="meetbotGuideMeContainerItemContainer">
+											<div className="meetbotGuideMeContainerItem">
+												<div className="meetbotGuideMeContainerItemTitle">
+													Ambient assistance
+												</div>
+												<div className="meetbotGuideMeDescriptionContainer">
+													Your AI actively captures key points, summarizes
+													conversations, and highlights actions in
+													real-time.
+												</div>
+											</div>
+											<Switch
+												checked={info.isAiIntelligenceEnabled}
+												onChange={(checked) =>
+													setInfo((prev) => ({
+														...prev,
+														isAiIntelligenceEnabled: checked,
+													}))
+												}
+											/>
+										</div>
+									</div>
+									<div className="meetbot__audio-btn-wrapper">
+										<button
+											disabled={info.creating}
+											onClick={handleCreateMeet}
+											className={`meetbot__audio-btn${
+												info.creating ? ' meetbot__audio-btn--disabled' : ''
+											}`}
+										>
+											<MicorPhoneIcon />
+											{info.creating ? 'Starting...' : 'Record'}
+										</button>
+									</div>
+								</>
 							)}
 						</div>
 					</div>
