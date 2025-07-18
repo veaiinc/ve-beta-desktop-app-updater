@@ -243,7 +243,7 @@ const UploadGalleryImageCover = ({
 						</div>
 					</div>
 				)}
-				<div className="uploadScaleContainer">
+				<div className="uploadScaleContainer" key={currentScreenType}>
 					<div className="uploadScaleText">Scale </div>
 					<Slider
 						min={100}

@@ -260,7 +260,10 @@ const GalleryPage = () => {
 			x: 0,
 			y: 0,
 		},
-		zoom: 1,
+		zoom: {
+			desktop: 1,
+			mobile: 1,
+		},
 		uploadImageId: null,
 		imageURL: '',
 		coverImageDetails: null,
