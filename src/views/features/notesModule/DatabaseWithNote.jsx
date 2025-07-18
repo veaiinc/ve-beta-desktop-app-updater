@@ -1012,7 +1012,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	useEffect(() => {
 		if (showTranscriptTabs && location?.pathname?.includes('meet') && type === 'meeting_bot') {
-			recallConnection(sessionId, noteId, handleSocketMessage);
+			recallConnection(sessionId, noteId, handleSocketMessage, isAiIntelligenceEnabled);
 			// createLiveIntelligenceStream(
 			// 	sessionId,
 			// 	noteId,
@@ -1021,7 +1021,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			// );
 		} else if (showTranscriptTabs && type === 'desktop') {
 			// Connect to recall for note taker mode as well
-			recallConnection(sessionId, noteId, handleSocketMessage);
+			recallConnection(sessionId, noteId, handleSocketMessage, isAiIntelligenceEnabled);
 		}
 		// No cleanup needed, useRecallStream handles it
 		// eslint-disable-next-line react-hooks/exhaustive-deps

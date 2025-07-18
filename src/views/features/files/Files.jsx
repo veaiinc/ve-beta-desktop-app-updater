@@ -246,8 +246,6 @@ const Files = () => {
 	// Add a ref for the search container
 	const searchContainerRef = useRef(null);
 
-	const [viewMode, setViewMode] = useState('card');
-
 	const {
 		galleryInfo: { tenantGalleries },
 		elasticSearch: { elasticSearchResults, performElasticSearch, resetElasticSearchState },
@@ -269,6 +267,7 @@ const Files = () => {
 		cardHover: false,
 		isLoading: false,
 		selectedView: 'Documents',
+		viewMode: searchParams?.get('viewMode') || 'card', 
 		openProposalPopup: false,
 		initialDataFetched: false,
 		commonState: 'All',
@@ -297,6 +296,13 @@ const Files = () => {
 			}));
 		}
 	}, [activeTab, info?.options]);
+
+	useEffect(() => {
+		setSearchParams({
+			'active-tab': activeTab,
+			viewMode: info?.viewMode,
+		});
+	}, [info?.viewMode, activeTab]);
 
 	useEffect(() => {
 		if (cardItems?.current || info?.createNewGalleryModal) {
@@ -433,6 +439,10 @@ const Files = () => {
 	const handleTotalChange = (data) => {
 		setInfo((prevInfo) => ({ ...prevInfo, totalCount: data }));
 	};
+
+	const setViewMode = useCallback((viewMode) => {
+		setInfo((prev) => ({ ...prev, viewMode }));
+	}, []);
 
 	const handleSearch = async (e) => {
 		clearTimeout(elasticSearchTimeoutRef?.current);
@@ -664,7 +674,7 @@ const Files = () => {
 				statusTextmapper={statusTextmapper}
 				handleCreateDoc={() => (window.location.href = `/builder/create-document`)}
 				handleTotalChange={(value) => handleTotalChange({ workflow: value })}
-				viewMode={viewMode}
+				viewMode={info?.viewMode}
 				setViewMode={setViewMode}
 			/>
 		),
@@ -678,7 +688,7 @@ const Files = () => {
 					navigate(`/chat/${sessionId}`);
 				}}
 				handleTotalChange={(value) => handleTotalChange({ form: value })}
-				viewMode={viewMode}
+				viewMode={info?.viewMode}
 				setViewMode={setViewMode}
 			/>
 		),
@@ -688,7 +698,7 @@ const Files = () => {
 				handleNavigateGallery={handleNavigateGallery}
 				selectedOption={info?.selectedView}
 				handleTotalChange={(value) => handleTotalChange({ classicGallery: value })}
-				viewMode={viewMode}
+				viewMode={info?.viewMode}
 				setViewMode={setViewMode}
 			/>
 		),
@@ -699,7 +709,7 @@ const Files = () => {
 				handleNavigateGallery={handleNavigateGallery}
 				selectedOption={info?.selectedView}
 				handleTotalChange={(value) => handleTotalChange({ liteGallery: value })}
-				viewMode={viewMode}
+				viewMode={info?.viewMode}
 				setViewMode={setViewMode}
 			/>
 		),
@@ -710,7 +720,7 @@ const Files = () => {
 					setInfo((prev) => ({ ...prev, openProposalPopup: true }))
 				}
 				handleTotalChange={(value) => handleTotalChange({ template: value })}
-				viewMode={viewMode}
+				viewMode={info?.viewMode}
 				setViewMode={setViewMode}
 			/>
 		),
