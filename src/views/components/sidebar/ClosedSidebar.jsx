@@ -99,7 +99,7 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 				<SidebarClosingSvg onClick={() => onIconClick()} />
 				{!isEarlyAccessPage && (
 					<div className="closedIconsContainer">
-						{sidebarNavigationItems.map((item, index) => (
+						{sidebarNavigationItems?.map((item, index) => (
 							<Tooltip
 								key={index}
 								title={<div className="tooltip-text">{item?.name}</div>}
@@ -151,7 +151,9 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 				<Tooltip
 					title={
 						<div className="tooltip-text">
-							{currentPlan?.totalAiCreditLimit - currentPlan?.totalAiCreditUsed}{' '}
+							{Math.round(
+								currentPlan?.totalAiCreditLimit - currentPlan?.totalAiCreditUsed,
+							)}{' '}
 							Credits Left
 						</div>
 					}

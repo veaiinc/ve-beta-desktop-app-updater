@@ -55,9 +55,9 @@ const AgentHeader = ({ onEditClick, agentAction, setAgentAction, activeKnowledge
 			</div>
 			<RunAndBuildToggle agentAction={agentAction} setAgentAction={setAgentAction} />
 			<div className={s.rightSection}>
-				<div className={s.iconBtn}>
+				{/* <div className={s.iconBtn}>
 					<EditIcon onClick={onEditClick} />
-				</div>
+				</div> */}
 				<div className={s.iconBtn}>
 					<DeleteIcon onClick={() => handleDeleteAgent(agentId)} />
 				</div>

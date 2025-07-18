@@ -13,7 +13,7 @@ import { message } from '../../../../components/globalComponents/CustomToast';
 import PencilIcon from '../assets/PencilIcon';
 import CatIcon from '../assets/cat.png';
 
-const AgentCredentials = forwardRef(({ agentId }, ref) => {
+const AgentCredentials = forwardRef(({ agentId, agentForRunAgent = false }, ref) => {
 	const agentNameInputRef = useRef(null);
 
 	const {
@@ -29,7 +29,6 @@ const AgentCredentials = forwardRef(({ agentId }, ref) => {
 			agentDescription: false,
 		},
 	});
-
 	useImperativeHandle(ref, () => ({
 		triggerEditAgentName() {
 			setInfo((prev) => ({
@@ -141,7 +140,7 @@ const AgentCredentials = forwardRef(({ agentId }, ref) => {
 	};
 
 	return (
-		<div className={s.agentCredentialsContainer}>
+		<div className={`${s.agentCredentialsContainer} ${agentForRunAgent ? s.runAgent : ''}`}>
 			<div className={s.agentProfilePicContainer}>
 				<img
 					src={info.agentProfilePic ?? CatIcon}
@@ -156,7 +155,10 @@ const AgentCredentials = forwardRef(({ agentId }, ref) => {
 			</div>
 
 			<div className={s.agentDetails}>
-				<div className={s.agentName}>
+				<div
+					className={s.agentName}
+					
+				>
 					{info.editAgentDetails.agentName ? (
 						<input
 							type="text"
@@ -189,6 +191,7 @@ const AgentCredentials = forwardRef(({ agentId }, ref) => {
 										toggleEditAgentDetails('agentName');
 									}
 								}}
+								style={{ justifyContent: agentForRunAgent ? 'center' : 'flex-start' }}
 							>
 								{info.agentName || activeKnowledgeAssistant?.data?.name}
 							</span>
@@ -234,6 +237,7 @@ const AgentCredentials = forwardRef(({ agentId }, ref) => {
 										toggleEditAgentDetails('agentDescription');
 									}
 								}}
+								style={{ textAlign: agentForRunAgent ? 'center' : 'left' }}
 							>
 								{info.agentDescription ||
 									activeKnowledgeAssistant?.data?.description}

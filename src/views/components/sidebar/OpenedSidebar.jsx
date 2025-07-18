@@ -122,9 +122,6 @@ const OpenedSidebarModules = ({
 			return currentPath.includes('/agents') || currentPath.includes('/ai-assistant');
 		}
 		if (name === 'New Chat') {
-			if (workspaceMode === 'stable') {
-				return currentPath.includes('/home');
-			}
 			return currentPath.includes('/chat');
 		}
 
@@ -358,11 +355,6 @@ const OpenedSidebar = ({
 	}, [showSettingsSidebar]);
 
 	const handleNewChat = () => {
-		// For stable workspaceMode, redirecting to /home, check stableNavigationItems
-		if (workspaceMode === 'stable') {
-			navigate('/home');
-			return;
-		}
 		const sessionId = ObjectID()?.toString();
 		navigate(`/chat/${sessionId}`);
 		updateStateValues({
@@ -566,16 +558,16 @@ const OpenedSidebar = ({
 			onClick: (updateTheme, newThemeValue) => () => updateTheme(newThemeValue),
 		},
 		// {
-		// 	key: 'search',
-		// 	label: (_, isMac) => (isMac ? 'Search ⌘ + k' : 'Search Ctrl + k'),
-		// 	icon: () => <SearchSvg />,
-		// 	onClick: (_, __, triggerCmdK) => () => triggerCmdK(),
+		//  key: 'search',
+		//  label: (_, isMac) => (isMac ? 'Search ⌘ + k' : 'Search Ctrl + k'),
+		//  icon: () => <SearchSvg />,
+		//  onClick: (_, __, triggerCmdK) => () => triggerCmdK(),
 		// },
 		// {
-		// 	key: 'newChat',
-		// 	label: () => 'New Chat',
-		// 	icon: () => <NewEditSvg />,
-		// 	onClick: (_, __, ___, handleNewChat) => () => handleNewChat(),
+		//  key: 'newChat',
+		//  label: () => 'New Chat',
+		//  icon: () => <NewEditSvg />,
+		//  onClick: (_, __, ___, handleNewChat) => () => handleNewChat(),
 		// },
 	];
 
@@ -769,21 +761,21 @@ const OpenedSidebar = ({
 												display: 'flex',
 												flexDirection: 'column',
 												width: '100%',
+												overflowY: 'auto',
 												justifyContent: `${
 													isThisEarlyAccessPage ? 'flex-end' : ''
 												}`,
-												// overflowY: 'auto',
 											}}
 											id="chatsScroll"
 										>
 											{!isThisEarlyAccessPage && (
 												<>
 													{/* <hr
-														style={{
-															border: '0.7px solid var(--stroke)',
-															margin: '16px 0px',
-														}}
-													/> */}
+                                                        style={{
+                                                            border: '0.7px solid var(--stroke)',
+                                                            margin: '16px 0px',
+                                                        }}
+                                                    /> */}
 													{filteredModules?.map((singleItem, index) => (
 														<div key={index}>
 															<OpenedSidebarModules
@@ -839,8 +831,8 @@ const OpenedSidebar = ({
 
 													<div>
 														<hr className={'horizontal-line-sidebar'} />
+														<ChatHistory />
 													</div>
-													<ChatHistory />
 													<CreditsLeft />
 													<div
 														className={`settingsOptionsContainer  ${
@@ -1079,8 +1071,8 @@ const OpenedSidebar = ({
 										{theme === 'dark' ? <SunIcon /> : <MoonIcon />}
 									</div>
 									{/* <div className="eachOption" onClick={triggerCmdK}>
-										<SearchSvg />
-									</div> */}
+                                        <SearchSvg />
+                                    </div> */}
 									<div className="eachOption" onClick={handleNewChat}>
 										<NewEditSvg />
 									</div>
@@ -1320,6 +1312,7 @@ const OpenedSidebar = ({
 						setsidebarStates={setsidebarStates}
 						sidebarStates={sidebarStates}
 						sidebarSettings="close"
+						isThisEarlyAccessPage={isThisEarlyAccessPage}
 					/>
 				</div>
 			)}

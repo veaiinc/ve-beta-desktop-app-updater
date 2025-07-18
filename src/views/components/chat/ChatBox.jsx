@@ -36,6 +36,7 @@ import RecentFileTooltip from './RecentFileTooltip';
 import AskTooltip from './AskTooltip';
 import AddOnCards from '../settings/planbilling/addOnCards';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
+import VoiceWrapper from '../../layouts/VoiceWrapper';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -238,7 +239,7 @@ const ChatBox = ({
 		setInfo((prev) => {
 			const height = info?.chatboxMinimized
 				? '60px'
-				: `${Math.min(textAreaRef?.current?.scrollHeight, 250) + 58 + 28}px`;
+				: `${Math.min(textAreaRef?.current?.scrollHeight, 200) + 58 + 28}px`;
 			if (height === prev?.chatBoxContainerHeight) {
 				return prev;
 			}
@@ -411,6 +412,17 @@ const ChatBox = ({
 			});
 		}
 	}, [info?.chatSessionId]);
+
+	useEffect(() => {
+		if (!textAreaRef?.current) return;
+
+		if (!info?.chatboxMinimized) {
+			// Focus only if not already focused
+			if (document.activeElement !== textAreaRef.current) {
+				textAreaRef.current.focus();
+			}
+		}
+	}, [info?.chatboxMinimized]);
 
 	useEffect(() => {
 		setInfo((prev) => ({
@@ -1139,7 +1151,7 @@ const ChatBox = ({
 
 		if (textArea) {
 			textArea.style.height = 'auto';
-			textAreaHeight = Math.min(textArea?.scrollHeight, 250);
+			textAreaHeight = Math.min(textArea?.scrollHeight, 200);
 			textArea.style.height = textAreaHeight + 'px';
 		}
 
@@ -1166,8 +1178,12 @@ const ChatBox = ({
 
 	const clearTextArea = () => {
 		const textArea = textAreaRef?.current;
+		const textAreaWrapper = textAreaWrapperRef?.current;
 		if (textArea) {
 			textArea.style.height = '30px'; // Reset to initial min-height
+		}
+		if (textAreaWrapper) {
+			textAreaWrapper.style.height = '30px';
 		}
 	};
 

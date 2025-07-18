@@ -15,6 +15,10 @@ import { Tooltip } from 'antd';
 import { ReactComponent as Search } from '../../../assets/svg/search.svg';
 import { useNavigate } from 'react-router-dom';
 import { useRef } from 'react';
+import ListViewIcon from '../../../assets/svg/notesPage/ListViewIcon';
+import CardsViewIcon from '../../../assets/svg/notesPage/CardsViewIcon';
+import { ReactComponent as TemplateIcon } from '../../../assets/svg/files/templat.svg';
+import { ReactComponent as Plus2 } from '../../../assets/svg/files/add2.svg';
 
 const filterOptions = [
 	{ label: 'All', value: '' },
@@ -31,7 +35,7 @@ const sortOptions = [
 	{ label: 'A-Z', value: 'title', sortType: 1 },
 ];
 let origin = fetchOriginSelection();
-const TemplatesGrid = ({ handleTotalChange }) => {
+const TemplatesGrid = ({ handleTotalChange, viewMode, setViewMode }) => {
 	const mountedRef = useRef(true);
 	const {
 		templates: {
@@ -56,6 +60,7 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 		blankTemplateLoading: false,
 		searchQuery: '',
 	});
+	// Remove local viewMode state since it's now passed as prop
 	useEffect(() => {
 		if (!myWorkflows) {
 			getMyWorkflowTemplatesData(1);
@@ -102,6 +107,9 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 		}
 	}, [myWorkflows]);
 	useEffect(() => {
+		// Skip animations when in list view
+		if (viewMode === 'list') return;
+
 		const delay =
 			info.selectedView === 'Classic Gallery' || info.selectedView === 'Lite Gallery'
 				? 100
@@ -186,7 +194,7 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 		}, delay);
 
 		return () => clearTimeout(timeout);
-	}, [info?.workflowTemplates?.length]);
+	}, [info?.workflowTemplates?.length, viewMode]);
 
 	const getStatusBadge = (template) => {
 		if (!template?.workflowStats) return 'Draft';
@@ -298,41 +306,57 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 
 	return (
 		<div className="card-sub-container-center">
-			<div className="center-container-header">
-				<FilterDropdown
-					options={filterOptions}
-					selected={info?.selectedFilter}
-					onOptionClick={(value) => handleStateUpdate({ selectedFilter: value })}
-					width="130px"
-				/>
-				<FilterDropdown
-					options={sortOptions}
-					selected={info?.selectedSort}
-					onOptionClick={handleSortClick}
-					showSelectedEndArrow
-					width="180px"
-					hideOnOptionClick={false}
-				/>
-				<div className="filter-container-search">
-					<Search width={16} height={16} />
-					<input
-						type="text"
-						placeholder="Search"
-						value={info?.searchQuery}
-						onChange={(e) => handleStateUpdate({ searchQuery: e.target.value })}
-						className="search-input"
+			<div className="header-container">
+				<div className="center-container-header">
+					<FilterDropdown
+						options={filterOptions}
+						selected={info?.selectedFilter}
+						onOptionClick={(value) => handleStateUpdate({ selectedFilter: value })}
+						width="130px"
 					/>
-					{info?.searchLoading && info?.searchQuery?.length > 0 && (
-						<div className="search-spinner">
-							<Spinner
-								size="small"
-								width={16}
-								height={16}
-								borderWidth={1.5}
-								color="var(--primary-button)"
-							/>
-						</div>
-					)}
+					<FilterDropdown
+						options={sortOptions}
+						selected={info?.selectedSort}
+						onOptionClick={handleSortClick}
+						showSelectedEndArrow
+						width="180px"
+						hideOnOptionClick={false}
+					/>
+					<div className="filter-container-search">
+						<Search width={16} height={16} />
+						<input
+							type="text"
+							placeholder="Search"
+							value={info?.searchQuery}
+							onChange={(e) => handleStateUpdate({ searchQuery: e.target.value })}
+							className="search-input"
+						/>
+						{info?.searchLoading && info?.searchQuery?.length > 0 && (
+							<div className="search-spinner">
+								<Spinner
+									size="small"
+									width={16}
+									height={16}
+									borderWidth={1.5}
+									color="var(--primary-button)"
+								/>
+							</div>
+						)}
+					</div>
+				</div>
+				<div className="view-mode">
+					<div
+						className={`view-mode-icon${viewMode === 'list' ? ' selected' : ''}`}
+						onClick={() => setViewMode('list')}
+					>
+						<ListViewIcon />
+					</div>
+					<div
+						className={`view-mode-icon${viewMode === 'card' ? ' selected' : ''}`}
+						onClick={() => setViewMode('card')}
+					>
+						<CardsViewIcon />
+					</div>
 				</div>
 			</div>
 			<div className="center-container-content">
@@ -347,15 +371,37 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 						hasMore={info?.hasNextPage}
 						height={'100%'}
 					>
-						<div className={`card-container`}>
-							<div className="card-item create" onClick={handleCreateBlankTemplate}>
-								<div className="card-item-style card-item-style-btn">
-									<button className="card-btn">
-										<Plus />
-										Create Template
-									</button>
+						<div className={`card-container${viewMode === 'list' ? ' list-view' : ''}`}>
+							{viewMode === 'list' ? (
+								<div
+									className="card-item create"
+									onClick={handleCreateBlankTemplate}
+								>
+									<div className="card-item__style card-item__style--btn docs-list__create-row">
+										<TemplateIcon className="create-doc-icon" />
+										<div className="doc-add-text">
+											<span className="create-doc-text">Create Template</span>
+											<span className="create-doc-subtext">
+												Build a template that sets the tone, layout, and
+												style for all your future creations.
+											</span>
+										</div>
+										<Plus2 className="create-doc-plus" />
+									</div>
 								</div>
-							</div>
+							) : (
+								<div
+									className="card-item create"
+									onClick={handleCreateBlankTemplate}
+								>
+									<div className="card-item-style card-item-style-btn">
+										<button className="card-btn">
+											<Plus />
+											Create Template
+										</button>
+									</div>
+								</div>
+							)}
 							{info?.workflowTemplates?.map((template, index) => (
 								<div
 									className="card-item"
@@ -366,13 +412,6 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 										className="card-item-style content-wrapper note-card-content templates-grid-container tooltip"
 										data-tooltip={template?.title || ''}
 									>
-										{/* <span
-											className={`status-badge ${
-												template?.status === 'published' ? 'live' : 'draft'
-											}`}
-										>
-											{getStatusBadge(template)}
-										</span> */}
 										<span className="item-title">{template?.title || ''}</span>
 										<span className="notes-sub-heading">
 											<Tooltip title="Created On">
