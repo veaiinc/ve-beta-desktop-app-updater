@@ -302,7 +302,7 @@ const NewUi = () => {
 									/>
 									<div className="chatBoxContainer">
 										<ChatBox
-											sessionId={session?.id}
+											sessionId={session?._id}
 											onSend={(data) =>
 												handleCustomOnSendFunction(session?._id, data)
 											}
