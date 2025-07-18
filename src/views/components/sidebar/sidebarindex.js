@@ -75,7 +75,13 @@ export const betaNavigationItems = [
 		route: '/ambient-ai',
 		icon: InfiniteSvg,
 	},
-
+	{
+		id: 7,
+		name: 'Live',
+		moduleRoute: null,
+		route: '/meet',
+		icon: MeetIcon,
+	},
 	{ id: 2, name: 'Agents', route: '/agents', icon: AgentsSvg },
 	{
 		id: 3,
