@@ -6,6 +6,10 @@ import ChatBox from '../../components/chat/ChatBox';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
 import Suggestions from './Suggestions';
+import {
+	handleDeepResearchChainOfThought,
+	handleDeepSearchChainOfThought,
+} from '../../../helpers/chatHelpers';
 
 const getCardStyles = (index, activeIndex, dataLength) => {
 	const prev1 = (activeIndex - 1 + dataLength) % dataLength;
@@ -81,13 +85,107 @@ const NewUi = () => {
 
 	useEffect(() => {
 		if (aiChatSessions?.data?.length > 4) {
-			const sessions = [
-				...(aiChatSessions?.data || [])?.slice(0, aiChatSessions?.data?.length - 2),
+			let sessions = [
+				...((aiChatSessions?.data || [])?.slice(0, aiChatSessions?.data?.length - 1) || []),
 				{
 					type: 'chatbox',
 				},
 				aiChatSessions?.data?.[aiChatSessions?.data?.length - 1],
 			];
+			sessions = sessions?.filter(
+				(session) =>
+					session?.recentConversations?.length > 0 || session?.type === 'chatbox',
+			);
+			sessions = sessions?.map((session) => {
+				if (session?.type === 'chatbox') {
+					return session;
+				}
+
+				const { recentConversations: data } = session;
+
+				let messages = [];
+
+				for (let i = 0; i < data?.length; i++) {
+					const {
+						originalQuery = '',
+						response,
+						_id: messageId,
+						citations,
+						workflowTemplateId,
+						moduleTemplateId,
+						followUpQuery,
+						chainOfThought,
+						rating,
+						designAgentsUsed,
+						toolInvocations,
+					} = data?.[i] || {};
+
+					let processing = null,
+						memoryThinking = null;
+					let deepSearch = {},
+						deepResearch = {},
+						normalSearch = {};
+
+					if (chainOfThought?.length > 0) {
+						for (let i = 0; i < chainOfThought?.length; i++) {
+							const { deep_search, deep_research, memory_thinking, normal_search } =
+								chainOfThought?.[i] || {};
+							if (deep_search) {
+								processing = 'Deep Search';
+								break;
+							} else if (deep_research) {
+								processing = 'Deep Research';
+								break;
+							} else if (normal_search) {
+								processing = 'Normal Search';
+								break;
+							} else if (memory_thinking) {
+								memoryThinking = memory_thinking;
+							}
+						}
+
+						if (processing === 'Deep Search') {
+							deepSearch = handleDeepSearchChainOfThought(chainOfThought);
+						} else if (processing === 'Deep Research') {
+							deepResearch = handleDeepResearchChainOfThought(chainOfThought);
+						} else if (processing === 'Normal Search') {
+							normalSearch = handleDeepSearchChainOfThought(chainOfThought);
+						}
+					}
+
+					messages = [
+						{
+							message: originalQuery,
+							type: 'user',
+						},
+						{
+							message: response,
+							type: 'AI',
+							messageId,
+							rating: rating || null,
+							citations,
+							follow_up_query: followUpQuery || [],
+							workflow_template_id: workflowTemplateId || null,
+							module_template_id: moduleTemplateId || null,
+							isOldMessage: true,
+							stream_end: true,
+							processing,
+							used_agents: designAgentsUsed || [],
+							tool_invocations: toolInvocations || [],
+							...(processing === 'Deep Search' && { deepSearch }),
+							...(processing === 'Deep Research' && { deepResearch }),
+							...(processing === 'Normal Search' && { normalSearch }),
+							...(memoryThinking && { memory_thinking: memoryThinking }),
+						},
+					]?.concat(messages);
+				}
+
+				return {
+					...session,
+					messages,
+				};
+			});
+
 			const dataLength = sessions?.length;
 			setInfo((prev) => ({
 				...prev,
@@ -198,7 +296,10 @@ const NewUi = () => {
 								</div>
 							) : (
 								<>
-									<ChatMessages sessionId={session?._id} />
+									<ChatMessages
+										sessionId={session?._id}
+										messages={session?.messages}
+									/>
 									<div className="chatBoxContainer">
 										<ChatBox
 											sessionId={session?.id}

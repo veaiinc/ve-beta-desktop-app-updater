@@ -19,7 +19,7 @@ const infiniteScrollStyle = {
 };
 const skeletonLoaders = Array?.from({ length: 30 }, (_, index) => index + 1);
 const page = 1;
-const limit = 30;
+const limit = 10;
 const append = true;
 
 const ChatHistory = () => {
