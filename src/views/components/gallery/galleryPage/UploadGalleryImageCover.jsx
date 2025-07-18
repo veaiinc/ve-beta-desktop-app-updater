@@ -25,8 +25,16 @@ const UploadGalleryImageCover = ({
 	uploadImageLoader,
 	coverLoading,
 }) => {
+	// Initialize separate focal points and zoom for desktop and mobile
 	const [focusInfo, setFocusInfo] = useState({
-		focalPoint: { x: info?.crop?.x || 0, y: info?.crop?.y || 0 },
+		desktop: {
+			focalPoint: { x: info?.crop?.desktop?.x || 0, y: info?.crop?.desktop?.y || 0 },
+			zoom: info?.zoom?.desktop || 1,
+		},
+		mobile: {
+			focalPoint: { x: info?.crop?.mobile?.x || 0, y: info?.crop?.mobile?.y || 0 },
+			zoom: info?.zoom?.mobile || 1,
+		},
 	});
 	const [isDragging, setIsDragging] = useState(false);
 	const [startPos, setStartPos] = useState({ x: 0, y: 0 });
@@ -36,11 +44,23 @@ const UploadGalleryImageCover = ({
 		overlay: { zIndex: 99998 },
 	};
 
+	// Get current screen type settings
+	const currentScreenType = info?.selectedScreenType || 'desktop';
+	const currentFocalPoint = focusInfo[currentScreenType].focalPoint;
+	const currentZoom = focusInfo[currentScreenType].zoom;
+
 	useEffect(() => {
 		setFocusInfo({
-			focalPoint: { x: info?.crop?.x || 0, y: info?.crop?.y || 0 },
+			desktop: {
+				focalPoint: { x: info?.crop?.desktop?.x || 0, y: info?.crop?.desktop?.y || 0 },
+				zoom: info?.zoom?.desktop || 1,
+			},
+			mobile: {
+				focalPoint: { x: info?.crop?.mobile?.x || 0, y: info?.crop?.mobile?.y || 0 },
+				zoom: info?.zoom?.mobile || 1,
+			},
 		});
-	}, [info?.crop]);
+	}, [info?.crop, info?.zoom]);
 
 	const handleMouseDown = (e) => {
 		if (isURL(info?.imageURL)) {
@@ -56,7 +76,7 @@ const UploadGalleryImageCover = ({
 		if (!isDragging) return;
 
 		const container = document.querySelector(
-			info?.selectedScreenType === 'desktop' ? '.screen' : '.mobile-preview-container',
+			currentScreenType === 'desktop' ? '.screen' : '.mobile-preview-container',
 		);
 		if (!container) return;
 
@@ -66,9 +86,13 @@ const UploadGalleryImageCover = ({
 
 		setFocusInfo((prev) => {
 			const newFocus = {
-				focalPoint: {
-					x: Math.max(-1, Math.min(1, prev.focalPoint.x - deltaX)),
-					y: Math.max(-1, Math.min(1, prev.focalPoint.y + deltaY)),
+				...prev,
+				[currentScreenType]: {
+					...prev[currentScreenType],
+					focalPoint: {
+						x: Math.max(-1, Math.min(1, prev[currentScreenType].focalPoint.x - deltaX)),
+						y: Math.max(-1, Math.min(1, prev[currentScreenType].focalPoint.y + deltaY)),
+					},
 				},
 			};
 
@@ -79,6 +103,20 @@ const UploadGalleryImageCover = ({
 
 	const handleMouseUp = () => {
 		setIsDragging(false);
+	};
+
+	const handleZoomChange = (value) => {
+		setFocusInfo((prev) => ({
+			...prev,
+			[currentScreenType]: {
+				...prev[currentScreenType],
+				zoom: value / 100,
+			},
+		}));
+	};
+
+	const handleScreenTypeChange = (screenType) => {
+		setInfo((prev) => ({ ...prev, selectedScreenType: screenType }));
 	};
 
 	const isImageExists = isURL(info?.imageURL);
@@ -114,21 +152,17 @@ const UploadGalleryImageCover = ({
 					<div className="view-toggle">
 						<button
 							className={`toggle-button ${
-								info?.selectedScreenType === 'mobile' ? 'active' : ''
+								currentScreenType === 'mobile' ? 'active' : ''
 							}`}
-							onClick={() =>
-								setInfo((prev) => ({ ...prev, selectedScreenType: 'mobile' }))
-							}
+							onClick={() => handleScreenTypeChange('mobile')}
 						>
 							<MobileIcon />
 						</button>
 						<button
 							className={`toggle-button ${
-								info?.selectedScreenType === 'desktop' ? 'active' : ''
+								currentScreenType === 'desktop' ? 'active' : ''
 							}`}
-							onClick={() =>
-								setInfo((prev) => ({ ...prev, selectedScreenType: 'desktop' }))
-							}
+							onClick={() => handleScreenTypeChange('desktop')}
 						>
 							<DesktopIcon />
 						</button>
@@ -138,7 +172,7 @@ const UploadGalleryImageCover = ({
 				{info?.coverPhoto && (
 					<div className="album-cover-container">
 						<div className="album-preview">
-							{info?.selectedScreenType === 'desktop' ? (
+							{currentScreenType === 'desktop' ? (
 								<div className="desktopPreview">
 									<div
 										className="screen"
@@ -158,9 +192,9 @@ const UploadGalleryImageCover = ({
 													height: '100%',
 													backgroundImage: `url(${info?.imageURL})`,
 													backgroundPosition: `${
-														focusInfo?.focalPoint?.x * 50 + 50
-													}% ${50 - focusInfo?.focalPoint?.y * 50}%`,
-													backgroundSize: `${info?.zoom * 100}% auto`,
+														currentFocalPoint?.x * 50 + 50
+													}% ${50 - currentFocalPoint?.y * 50}%`,
+													backgroundSize: `${currentZoom * 100}% auto`,
 													backgroundRepeat: 'no-repeat',
 													borderRadius: '12px',
 												}}
@@ -195,9 +229,9 @@ const UploadGalleryImageCover = ({
 													height: '100%',
 													backgroundImage: `url(${info?.imageURL})`,
 													backgroundPosition: `${
-														focusInfo?.focalPoint?.x * 50 + 50
-													}% ${50 - focusInfo?.focalPoint?.y * 50}%`,
-													backgroundSize: `auto ${info?.zoom * 100}%`,
+														currentFocalPoint?.x * 50 + 50
+													}% ${50 - currentFocalPoint?.y * 50}%`,
+													backgroundSize: `auto ${currentZoom * 100}%`,
 													backgroundRepeat: 'no-repeat',
 													borderRadius: '12px',
 												}}
@@ -210,14 +244,14 @@ const UploadGalleryImageCover = ({
 					</div>
 				)}
 				<div className="uploadScaleContainer">
-					<div className="uploadScaleText">Scale</div>
+					<div className="uploadScaleText">Scale </div>
 					<Slider
 						min={100}
 						max={200}
-						defaultValue={info?.zoom * 100}
+						defaultValue={currentZoom * 100}
 						style={{ width: '100%' }}
 						tooltip={{ open: false }}
-						onChange={(value) => setInfo((prev) => ({ ...prev, zoom: value / 100 }))}
+						onChange={handleZoomChange}
 						trackStyle={{ backgroundColor: 'var(--primary-button)' }}
 						railStyle={{ backgroundColor: 'var(--stroke)' }}
 					/>
@@ -249,7 +283,7 @@ const UploadGalleryImageCover = ({
 					{info?.coverPhoto && (
 						<p
 							className="bt"
-							onClick={() => handleSetCoverPosition(focusInfo?.focalPoint)}
+							onClick={() => handleSetCoverPosition(focusInfo)}
 							style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
 						>
 							{coverLoading ? <Spinner /> : 'Set cover photo'}
