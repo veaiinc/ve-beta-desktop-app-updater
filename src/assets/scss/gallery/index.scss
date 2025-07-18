@@ -55,7 +55,7 @@
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-	gap: 32px;
+	gap: 16px;
 	overflow: hidden;
 	background-color: transparent !important;
 	height: 100vh;
@@ -165,6 +165,7 @@
 				position: relative;
 				transform: translateY(0px);
 				transition: all 0.5s ease-in-out;
+				cursor: pointer;
 				img {
 					overflow: hidden;
 					width: 100%;
@@ -339,6 +340,7 @@
 							position: relative;
 							transform: translateY(0px);
 							transition: all 0.5s ease-in-out;
+							cursor: pointer;
 							img {
 								overflow: hidden;
 								width: 100%;
@@ -379,6 +381,7 @@
 							position: relative;
 							transform: translateY(0px);
 							transition: all 0.5s ease-in-out;
+							cursor: pointer;
 							img {
 								overflow: hidden;
 								width: 100%;
@@ -926,7 +929,7 @@
 		.galleryNavbar {
 			display: flex;
 			width: 100%;
-			gap: 32px;
+			gap: 8px;
 			flex-direction: column;
 			.albumDetailsContainer {
 				display: flex;
