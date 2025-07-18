@@ -1,4 +1,5 @@
-.topNavbarSettings {
+.topNavbarSettings,
+.topNavbarNotifications {
 	max-width: unset;
 }
 
@@ -133,6 +134,10 @@
 				align-items: center;
 				justify-content: center;
 			}
+		}
+
+		.profileItem {
+			gap: 6px;
 		}
 	}
 }

@@ -6,13 +6,7 @@ import ObjectID from 'bson-objectid';
 import { Tooltip } from 'antd';
 import CreditsLeftSvg from '../sidebar/chatHistory/CreditsLeftSvg';
 import Settings from './components/settings/Settings';
-
-const getInitials = (firstName, lastName) => {
-	const firstNameInitial = firstName ? firstName?.charAt(0) : '-';
-	const lastNameInitial = lastName ? lastName?.charAt(0) : '';
-	const initials = `${firstNameInitial?.toUpperCase()}${lastNameInitial?.toUpperCase()}`;
-	return initials;
-};
+import Notifications from './components/notifications/Notifications';
 
 const leftContainerItems = [
 	{
@@ -37,10 +31,10 @@ const middleContainerItems = [
 		id: 1,
 		label: 'Solo Mode',
 	},
-	{
-		id: 2,
-		label: 'Team',
-	},
+	// {
+	// 	id: 2,
+	// 	label: 'Team',
+	// },
 	{
 		id: 3,
 		label: 'Meeting',
@@ -51,7 +45,7 @@ const TopNavbar = () => {
 	const navigate = useNavigate();
 
 	const {
-		profileInfo: { userDetailsData },
+		profileInfo: { userDetailsData, tennantSettingsData },
 		templates: { updateStateValues },
 		subscriptionInfo: { currentPlan },
 		themeInfo: { theme, updateTheme },
@@ -60,14 +54,18 @@ const TopNavbar = () => {
 	const [info, setInfo] = useState({
 		activeNavItem: 1,
 		activeMode: 1,
+		settingsTooltipOpen: false,
+		middleActive: 1,
+		showNotifications: false,
 	});
 
 	const { firstName, lastName, dp_s3_500w_key, googleMeta } = userDetailsData;
 	const firstInitial = firstName?.charAt(0) ?? '';
 	const lastInitial = lastName?.charAt(0) ?? '';
 	const nameInitials = firstInitial + lastInitial;
-	const profilePicExists = googleMeta?.picture ?? dp_s3_500w_key ?? false;
-	const profilePic = googleMeta?.picture ?? dp_s3_500w_key;
+	const profilePic = dp_s3_500w_key ?? googleMeta?.picture;
+	const profilePicExists = profilePic ?? false;
+	const businessName = tennantSettingsData?.businessName?.toUpperCase();
 	const oppositeTheme = theme === 'dark' ? 'light' : 'dark';
 
 	const handleNavigation = ({ navItemId, route }) => {
@@ -83,9 +81,26 @@ const TopNavbar = () => {
 		navigate(route);
 	};
 
+	const handleMiddleNavigation = ({ id }) => {
+		setInfo((prev) => ({
+			...prev,
+			middleActive: id,
+		}));
+		console.log(id);
+		if (id === 1) {
+			navigate('/home');
+		}
+		if (id === 3) {
+			navigate('/meet');
+		}
+	};
+
 	const handleAction = ({ id }) => {
 		if (id === 2) {
 			updateTheme(oppositeTheme);
+		}
+		if (id === 4) {
+			navigate('/share-and-earn');
 		}
 	};
 
@@ -103,7 +118,7 @@ const TopNavbar = () => {
 							Credits Left
 						</div>
 					}
-					placement="right"
+					placement="bottom"
 					arrow={false}
 					color={'transparent'}
 				>
@@ -152,18 +167,38 @@ const TopNavbar = () => {
 			id: 3,
 			label: 'Notifications',
 			icon: (
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="22"
-					height="22"
-					viewBox="0 0 22 22"
-					fill="none"
+				<Tooltip
+					title={
+						<Notifications
+							showNotifications={info.showNotifications}
+							setShowNotifications={(show) =>
+								setInfo((prev) => ({
+									...prev,
+									showNotifications: show,
+								}))
+							}
+						/>
+					}
+					placement="bottom"
+					arrow={false}
+					color={'transparent'}
+					rootClassName={s.topNavbarNotifications}
 				>
-					<path
-						d="M19.0599 15.1198C18.583 14.2983 17.874 11.9737 17.874 8.9375C17.874 7.11414 17.1497 5.36545 15.8604 4.07614C14.5711 2.78683 12.8224 2.0625 10.999 2.0625C9.17564 2.0625 7.42696 2.78683 6.13765 4.07614C4.84833 5.36545 4.124 7.11414 4.124 8.9375C4.124 11.9745 3.41416 14.2983 2.93721 15.1198C2.81541 15.3287 2.75084 15.566 2.75001 15.8078C2.74918 16.0496 2.81212 16.2873 2.93248 16.497C3.05284 16.7067 3.22637 16.8809 3.43556 17.0022C3.64476 17.1234 3.88222 17.1873 4.124 17.1875H7.63111C7.78973 17.9637 8.21156 18.6612 8.82524 19.1622C9.43893 19.6631 10.2068 19.9367 10.999 19.9367C11.7912 19.9367 12.5591 19.6631 13.1728 19.1622C13.7865 18.6612 14.2083 17.9637 14.3669 17.1875H17.874C18.1157 17.1872 18.3531 17.1231 18.5621 17.0018C18.7712 16.8805 18.9446 16.7063 19.0649 16.4966C19.1851 16.2869 19.248 16.0493 19.2471 15.8076C19.2463 15.5659 19.1817 15.3286 19.0599 15.1198ZM10.999 18.5625C10.5726 18.5624 10.1567 18.4301 9.8086 18.1838C9.46048 17.9376 9.19723 17.5895 9.0551 17.1875H12.9429C12.8008 17.5895 12.5375 17.9376 12.1894 18.1838C11.8413 18.4301 11.4254 18.5624 10.999 18.5625ZM4.124 15.8125C4.78572 14.6747 5.499 12.0381 5.499 8.9375C5.499 7.47881 6.07847 6.07986 7.10992 5.04841C8.14137 4.01696 9.54031 3.4375 10.999 3.4375C12.4577 3.4375 13.8566 4.01696 14.8881 5.04841C15.9195 6.07986 16.499 7.47881 16.499 8.9375C16.499 12.0355 17.2106 14.6721 17.874 15.8125H4.124Z"
-						fill="#F2F2F3"
-					/>
-				</svg>
+					<div className={s.creditsLeftContainer}>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="22"
+							height="22"
+							viewBox="0 0 22 22"
+							fill="none"
+						>
+							<path
+								d="M19.0599 15.1198C18.583 14.2983 17.874 11.9737 17.874 8.9375C17.874 7.11414 17.1497 5.36545 15.8604 4.07614C14.5711 2.78683 12.8224 2.0625 10.999 2.0625C9.17564 2.0625 7.42696 2.78683 6.13765 4.07614C4.84833 5.36545 4.124 7.11414 4.124 8.9375C4.124 11.9745 3.41416 14.2983 2.93721 15.1198C2.81541 15.3287 2.75084 15.566 2.75001 15.8078C2.74918 16.0496 2.81212 16.2873 2.93248 16.497C3.05284 16.7067 3.22637 16.8809 3.43556 17.0022C3.64476 17.1234 3.88222 17.1873 4.124 17.1875H7.63111C7.78973 17.9637 8.21156 18.6612 8.82524 19.1622C9.43893 19.6631 10.2068 19.9367 10.999 19.9367C11.7912 19.9367 12.5591 19.6631 13.1728 19.1622C13.7865 18.6612 14.2083 17.9637 14.3669 17.1875H17.874C18.1157 17.1872 18.3531 17.1231 18.5621 17.0018C18.7712 16.8805 18.9446 16.7063 19.0649 16.4966C19.1851 16.2869 19.248 16.0493 19.2471 15.8076C19.2463 15.5659 19.1817 15.3286 19.0599 15.1198ZM10.999 18.5625C10.5726 18.5624 10.1567 18.4301 9.8086 18.1838C9.46048 17.9376 9.19723 17.5895 9.0551 17.1875H12.9429C12.8008 17.5895 12.5375 17.9376 12.1894 18.1838C11.8413 18.4301 11.4254 18.5624 10.999 18.5625ZM4.124 15.8125C4.78572 14.6747 5.499 12.0381 5.499 8.9375C5.499 7.47881 6.07847 6.07986 7.10992 5.04841C8.14137 4.01696 9.54031 3.4375 10.999 3.4375C12.4577 3.4375 13.8566 4.01696 14.8881 5.04841C15.9195 6.07986 16.499 7.47881 16.499 8.9375C16.499 12.0355 17.2106 14.6721 17.874 15.8125H4.124Z"
+								fill="#F2F2F3"
+							/>
+						</svg>
+					</div>
+				</Tooltip>
 			),
 		},
 		{
@@ -212,8 +247,9 @@ const TopNavbar = () => {
 					{middleContainerItems.map((navItem) => (
 						<li
 							className={`${s.navItem} ${
-								info.activeMode === navItem.id ? s.active : ''
+								info.middleActive === navItem.id ? s.active : ''
 							}`}
+							onClick={() => handleMiddleNavigation(navItem)}
 							key={navItem.id}
 						>
 							{navItem.label}
@@ -236,15 +272,30 @@ const TopNavbar = () => {
 						</li>
 					))}
 					<Tooltip
-						open={true}
-						title={<Settings />}
+						open={info.settingsTooltipOpen}
+						onOpenChange={() =>
+							setInfo({ ...info, settingsTooltipOpen: !info.settingsTooltipOpen })
+						}
+						title={
+							<Settings
+								profilePicExists={profilePicExists}
+								nameInitials={nameInitials}
+								profilePic={profilePic}
+								firstName={firstName}
+								lastName={lastName}
+								businessName={businessName}
+								closeSettingsTooltip={() =>
+									setInfo({ ...info, settingsTooltipOpen: false })
+								}
+							/>
+						}
 						placement="bottomRight"
 						arrow={false}
 						color={'transparent'}
 						rootClassName={s.topNavbarSettings}
 					>
-						<li className={s.navItem}>
-							{!profilePicExists ? (
+						<li className={`${s.navItem} ${s.profileItem}`}>
+							{profilePicExists ? (
 								<img className={s.profileImg} src={profilePic} alt="profile" />
 							) : (
 								<p className={s.nameInitials}>{nameInitials}</p>
