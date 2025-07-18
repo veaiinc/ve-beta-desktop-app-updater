@@ -20,6 +20,7 @@ const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 import AmbientAi from '../views/features/ambientAi/AmbientAi';
+import CardMeetBot from '../views/features/meetBot/CardMeetBot';
 import Agents from '../views/features/agents/Agents';
 import Agent from '../views/features/agents/agent/Agent';
 import GlobalWorkflows from '../views/features/sales/GlobalWorkflows';
@@ -141,7 +142,7 @@ const stableRoutes = [
 		path: '/meet',
 		element: (
 			<AuthWrapper title={'Meet'}>
-				<MeetBot />
+				<CardMeetBot />
 			</AuthWrapper>
 		),
 	},
