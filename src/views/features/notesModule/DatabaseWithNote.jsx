@@ -156,8 +156,11 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const location = useLocation();
 
 	// Add hooks for live intelligence and recall stream
-	const { createWebSocketConnection: recallConnection, sendMessage: recallSendMessage, closeWebSocketConnection: closeRecallConnection } =
-		useRecallStream();
+	const {
+		createWebSocketConnection: recallConnection,
+		sendMessage: recallSendMessage,
+		closeWebSocketConnection: closeRecallConnection,
+	} = useRecallStream();
 	const { createWebSocketConnection: createLiveIntelligenceStream, updateCurrentContext } =
 		useLiveIntelligenceStream();
 
@@ -191,8 +194,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					// }
 				} else if (msg?.event === 'live_intelligence.response' && msg?.data) {
 					handleTranscriptionSuggestions(msg?.data);
-				}
-				else if (msg?.event === 'transcript.done') {
+				} else if (msg?.event === 'transcript.done') {
 					closeRecallConnection();
 				}
 			} catch (e) {

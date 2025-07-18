@@ -17,6 +17,8 @@ import TextSelector from '../../components/chat/chatComponents/TextSelector';
 import ChatHeader from '../../components/chat/ChatHeader';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import { message } from '../../components/globalComponents/CustomToast';
+import ChatHistory from '../../components/sidebar/chatHistory/ChatHistory';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 const RecentChat = ({
 	isPublicChat = false,
 	isPreview = false,
@@ -31,6 +33,7 @@ const RecentChat = ({
 	showCitationsButton = true,
 	showDeleteChat = true,
 	animateChatBox = true,
+	showChatHistory = false,
 }) => {
 	const {
 		templates: {
@@ -53,6 +56,8 @@ const RecentChat = ({
 			removeCurrentSessionId,
 		},
 	} = useContext(Context);
+
+	const { workspaceMode } = useWorkspaceMode();
 
 	const [info, setInfo] = useState({
 		position: { x: window?.innerWidth / 2 - 900, y: 0 },
@@ -256,9 +261,10 @@ const RecentChat = ({
 				clearTimeout(agentTimeoutIdRef.current);
 				agentTimeoutIdRef.current = null;
 			}
+			const removeSessionId = false;
 
 			// if (!globalChatMessages?.[sessionId]) {
-			getRecentChatMessages(sessionId, 1, false, 1000, isPublicChat);
+			getRecentChatMessages(sessionId, 1, false, 1000, isPublicChat, removeSessionId);
 			// }
 
 			const sessionIdsToClose = newChatSessionIds?.filter(
@@ -903,197 +909,212 @@ const RecentChat = ({
 	return (
 		<>
 			<div
-				className="chat-container"
+				className="chat-page-container-wrapper"
 				style={{
-					height: isPublicChat ? 'calc(100% - 32px)' : '',
 					width: info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%',
 				}}
 			>
-				{/* header */}
-				{!isPublicChat && (
-					<ChatHeader
-						sessionId={sessionId}
-						onNavigateBack={onNavigateBack}
-						isNewChat={info?.isNewChat}
-						smoothScrollToParticularMessage={smoothScrollToParticularMessage}
-						showDeleteChat={showDeleteChat}
-					/>
+				{workspaceMode === 'stable' && showChatHistory && (
+					<div className="chat-history-wrapper">
+						<ChatHistory />
+					</div>
 				)}
 
-				{/* chat body */}
-				<div className="chatBodyWrapper">
-					<div
-						className={`chatBodyParentContainer`}
-						ref={chatContentRef}
-						id="scrollableDiv"
-						// style={{
-						// 	'--chat-content-height': `${chatContentRef?.current?.clientHeight}px`,
-						// }}
-					>
-						<TextSelector
-							styles={info?.tooltipStyles?.styles}
-							text={info?.tooltipStyles?.selectedText}
-							visible={info?.tooltipStyles?.visible}
+				<div
+					className="chat-container"
+					style={{
+						height: isPublicChat ? 'calc(100% - 32px)' : '',
+					}}
+				>
+					{/* header */}
+					{!isPublicChat && (
+						<ChatHeader
+							sessionId={sessionId}
+							onNavigateBack={onNavigateBack}
+							isNewChat={info?.isNewChat}
+							smoothScrollToParticularMessage={smoothScrollToParticularMessage}
+							showDeleteChat={showDeleteChat}
 						/>
-						<InfiniteScroll
-							dataLength={globalChatMessages?.length || 0}
-							next={fetchMoreData}
-							hasMore={info?.hasNextPage}
-							loader={<FetchMoreLoaderComp />}
-							scrollableTarget="scrollableDiv"
-							inverse={true}
-							style={{
-								display: 'flex',
-								flexDirection: 'column-reverse',
-								transition: 'all 0.3s ease',
-								overflow: 'visible',
-							}}
-							scrollThreshold={0.8}
-							className="smooth-scroll"
-						>
-							<div className="chatContent" style={{ flex: 1 }}>
-								{(globalChatMessages?.[sessionId]?.messages || [])?.map(
-									(chat, index) =>
-										chat?.content ? (
-											<Fragment key={index}>{chat?.content}</Fragment>
-										) : (
-											<div
-												key={index}
-												className={`chat-message ${chat?.type?.toLowerCase()}-message chat-${index}`}
-												style={{
-													minHeight:
-														index ===
-														globalChatMessages?.[sessionId]?.messages
-															?.length -
-															1
-															? `calc(${chatContentRef?.current?.clientHeight}px - 185px)`
-															: 'auto',
-												}}
-											>
-												<div className="message-content">
-													{chat?.type?.toLowerCase() === 'ai' ? (
-														<div
-															className="content"
-															style={{
-																...(info?.currentUserMessageIndex !==
-																	null && {
-																	opacity:
-																		index ===
-																		info?.currentUserMessageIndex +
-																			1
-																			? 1
-																			: 0.6,
-																}),
-															}}
-															// style={{
-															// 	opacity:
-															// 		index ===
-															// 		info?.activeAIMessageIndex
-															// 			? 1
-															// 			: 0.6,
-															// }}
-															// ref={(el) => {
-															// 	if (
-															// 		el &&
-															// 		!aiMessagesRef.current.includes(
-															// 			el,
-															// 		)
-															// 	) {
-															// 		aiMessagesRef?.current?.push(
-															// 			el,
-															// 		);
-															// 	}
-															// }}
-															data-message-id={chat?.messageId}
-															data-index={index}
-														>
-															<AIMessageRenderer
-																messageData={chat}
-																handleNoteComponentModalOpen={
-																	handleNoteComponentModalOpen
-																}
-																handleViewDocument={
-																	handleViewDocument
-																}
-																showViewDocument={
-																	info?.showViewDocument
-																}
-																isPublicChat={isPublicChat}
-																handleSourcesClick={
-																	handleSourcesClick
-																}
-																messageIndex={index}
-																showCitationsButton={
-																	showCitationsButton
-																}
-																isLastMessage={
-																	index ===
-																	globalChatMessages?.[sessionId]
-																		?.messages?.length -
-																		1
-																}
-															/>
-														</div>
-													) : (
-														<div
-															ref={(el) => {
-																if (
-																	el &&
-																	!userMessagesRefs.current?.[
-																		index
-																	]
-																) {
-																	userMessagesRefs.current[
-																		index
-																	] = el;
-																}
-															}}
-															data-index={index}
-															key={index}
-															// style={{
-															// 	opacity:
-															// 		index ===
-															// 		info?.activeUserMessageIndex
-															// 			? 1
-															// 			: 0.6,
-															// }}
+					)}
 
-															style={{
-																...(info?.currentUserMessageIndex !==
-																	null && {
-																	opacity:
+					{/* chat body */}
+					<div className="chatBodyWrapper">
+						<div
+							className={`chatBodyParentContainer`}
+							ref={chatContentRef}
+							id="scrollableDiv"
+							// style={{
+							// 	'--chat-content-height': `${chatContentRef?.current?.clientHeight}px`,
+							// }}
+						>
+							<TextSelector
+								styles={info?.tooltipStyles?.styles}
+								text={info?.tooltipStyles?.selectedText}
+								visible={info?.tooltipStyles?.visible}
+							/>
+							<InfiniteScroll
+								dataLength={globalChatMessages?.length || 0}
+								next={fetchMoreData}
+								hasMore={info?.hasNextPage}
+								loader={<FetchMoreLoaderComp />}
+								scrollableTarget="scrollableDiv"
+								inverse={true}
+								style={{
+									display: 'flex',
+									flexDirection: 'column-reverse',
+									transition: 'all 0.3s ease',
+									overflow: 'visible',
+								}}
+								scrollThreshold={0.8}
+								className="smooth-scroll"
+							>
+								<div className="chatContent" style={{ flex: 1 }}>
+									{(globalChatMessages?.[sessionId]?.messages || [])?.map(
+										(chat, index) =>
+											chat?.content ? (
+												<Fragment key={index}>{chat?.content}</Fragment>
+											) : (
+												<div
+													key={index}
+													className={`chat-message ${chat?.type?.toLowerCase()}-message chat-${index}`}
+													style={{
+														minHeight:
+															index ===
+															globalChatMessages?.[sessionId]
+																?.messages?.length -
+																1
+																? `calc(${chatContentRef?.current?.clientHeight}px - 185px)`
+																: 'auto',
+													}}
+												>
+													<div className="message-content">
+														{chat?.type?.toLowerCase() === 'ai' ? (
+															<div
+																className="content"
+																style={{
+																	...(info?.currentUserMessageIndex !==
+																		null && {
+																		opacity:
+																			index ===
+																			info?.currentUserMessageIndex +
+																				1
+																				? 1
+																				: 0.6,
+																	}),
+																}}
+																// style={{
+																// 	opacity:
+																// 		index ===
+																// 		info?.activeAIMessageIndex
+																// 			? 1
+																// 			: 0.6,
+																// }}
+																// ref={(el) => {
+																// 	if (
+																// 		el &&
+																// 		!aiMessagesRef.current.includes(
+																// 			el,
+																// 		)
+																// 	) {
+																// 		aiMessagesRef?.current?.push(
+																// 			el,
+																// 		);
+																// 	}
+																// }}
+																data-message-id={chat?.messageId}
+																data-index={index}
+															>
+																<AIMessageRenderer
+																	messageData={chat}
+																	handleNoteComponentModalOpen={
+																		handleNoteComponentModalOpen
+																	}
+																	handleViewDocument={
+																		handleViewDocument
+																	}
+																	showViewDocument={
+																		info?.showViewDocument
+																	}
+																	isPublicChat={isPublicChat}
+																	handleSourcesClick={
+																		handleSourcesClick
+																	}
+																	messageIndex={index}
+																	showCitationsButton={
+																		showCitationsButton
+																	}
+																	isLastMessage={
 																		index ===
-																		info?.currentUserMessageIndex
-																			? 1
-																			: 0.6,
-																}),
-															}}
-														>
-															<UserMessageRenderer
-																messageData={chat}
-															/>
-														</div>
-													)}
+																		globalChatMessages?.[
+																			sessionId
+																		]?.messages?.length -
+																			1
+																	}
+																	sessionId={sessionId}
+																/>
+															</div>
+														) : (
+															<div
+																ref={(el) => {
+																	if (
+																		el &&
+																		!userMessagesRefs.current?.[
+																			index
+																		]
+																	) {
+																		userMessagesRefs.current[
+																			index
+																		] = el;
+																	}
+																}}
+																data-index={index}
+																key={index}
+																// style={{
+																// 	opacity:
+																// 		index ===
+																// 		info?.activeUserMessageIndex
+																// 			? 1
+																// 			: 0.6,
+																// }}
+
+																style={{
+																	...(info?.currentUserMessageIndex !==
+																		null && {
+																		opacity:
+																			index ===
+																			info?.currentUserMessageIndex
+																				? 1
+																				: 0.6,
+																	}),
+																}}
+															>
+																<UserMessageRenderer
+																	messageData={chat}
+																/>
+															</div>
+														)}
+													</div>
 												</div>
-											</div>
-										),
-								)}
-							</div>
-						</InfiniteScroll>
-					</div>
-					<div className="chatBoxWrapper">
-						<ChatBox
-							showIconText={showIconText}
-							isPublicChat={isPublicChat}
-							handleSendWebsocketMessage={handleSendWebsocketMessage}
-							hideDeepResearch={searchParams?.get('agentType') === 'search_agent'}
-							autoFocus={autoFocus}
-							customChatBoxClick={customChatBoxClick}
-							showScrollButton={info?.showScrollButton}
-							smoothScrollToBottom={smoothScrollToBottom}
-							onChatQueryChange={handleChatQueryChange}
-							animateChatBox={animateChatBox}
-						/>
+											),
+									)}
+								</div>
+							</InfiniteScroll>
+						</div>
+						<div className="chatBoxWrapper">
+							<ChatBox
+								showIconText={showIconText}
+								isPublicChat={isPublicChat}
+								handleSendWebsocketMessage={handleSendWebsocketMessage}
+								hideDeepResearch={searchParams?.get('agentType') === 'search_agent'}
+								autoFocus={autoFocus}
+								customChatBoxClick={customChatBoxClick}
+								showScrollButton={info?.showScrollButton}
+								smoothScrollToBottom={smoothScrollToBottom}
+								onChatQueryChange={handleChatQueryChange}
+								animateChatBox={animateChatBox}
+								sessionId={sessionId}
+							/>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -1105,6 +1126,7 @@ const RecentChat = ({
 			<NoteComponentModal
 				modalIsOpen={info?.noteModalIsOpen}
 				closeModal={handleNoteComponentModalClose}
+				sessionId={sessionId}
 			/>
 		</>
 	);

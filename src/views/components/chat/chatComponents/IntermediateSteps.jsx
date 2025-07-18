@@ -15,17 +15,10 @@ const IntermediateSteps = ({ steps = [], isStreaming = false }) => {
 		}
 
 		if (step.result) {
-			// Check if result is a string before calling toLowerCase()
-			const resultString =
-				typeof step.result === 'string' ? step.result : JSON.stringify(step.result);
-
-			if (
-				resultString.toLowerCase().includes('error') ||
-				resultString.toLowerCase().includes('failed')
-			) {
-				return 'error';
+			if (step.result.success) {
+				return 'success';
 			}
-			return 'success';
+			return 'error';
 		}
 
 		return 'pending';

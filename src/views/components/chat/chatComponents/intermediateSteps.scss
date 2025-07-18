@@ -1,8 +1,8 @@
 .intermediate-steps-container {
-	margin-top: 16px;
-	padding: 16px;
-	border-radius: 12px;
-	border: 1px solid var(--stroke);
+	// margin-top: 16px;
+	// padding: 16px;
+	// border-radius: 12px;
+	// border: 1px solid var(--stroke);
 
 	.steps-compact {
 		display: flex;
@@ -19,9 +19,10 @@
 		border-radius: 8px;
 		cursor: pointer;
 		transition: all 0.2s ease;
+		border: 1px solid var(--stroke);
 
 		&:hover {
-			border-color: var(--primary-button);
+			border-color: var(--primary-font);
 			transform: translateY(-1px);
 		}
 
