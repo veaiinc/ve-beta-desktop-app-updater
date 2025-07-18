@@ -93,6 +93,7 @@ const FormWidget = ({
 				workflowTemplateId={workflowTemplateId}
 				agent={agent}
 				builderAgentMapper={builderAgentMapper}
+				sessionId={sessionId}
 			/>
 		</div>
 	);
