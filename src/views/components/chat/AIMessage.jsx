@@ -129,6 +129,13 @@ const AIMessage = ({
 					</div>
 				))}
 
+			{messageData?.tool_invocations && (
+				<IntermediateSteps
+					steps={messageData?.tool_invocations}
+					isStreaming={messageData?.stream_end === false}
+				/>
+			)}
+
 			{messageData?.moduleType === 'ai_suggestion_report' ? (
 				<AISuggestionsReportAiComponent data={messageData?.data} />
 			) : messageData?.widget_type === 'clarifyWidget' ? (
@@ -139,13 +146,6 @@ const AIMessage = ({
 
 			{messageData?.unintegrated_apps?.length > 0 && (
 				<UnintegratedAgentApps apps={messageData?.unintegrated_apps} />
-			)}
-
-			{messageData?.tool_invocations && (
-				<IntermediateSteps
-					steps={messageData?.tool_invocations}
-					isStreaming={messageData?.stream_end === false}
-				/>
 			)}
 
 			{messageData?.messageId && (

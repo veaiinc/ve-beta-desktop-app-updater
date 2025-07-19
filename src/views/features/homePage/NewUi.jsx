@@ -10,6 +10,7 @@ import {
 	handleDeepResearchChainOfThought,
 	handleDeepSearchChainOfThought,
 } from '../../../helpers/chatHelpers';
+import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 
 const getCardStyles = (index, activeIndex, dataLength) => {
 	const prev1 = (activeIndex - 1 + dataLength) % dataLength;
@@ -256,65 +257,75 @@ const NewUi = () => {
 						className="new-ui-item"
 						style={getCardStyles(index, info?.activeIndex, info?.dataLength)}
 					>
-						<div
-							className="item"
-							ref={(el) => {
-								if (el) {
-									el.addEventListener(
-										'wheel',
-										(e) => {
-											e.stopPropagation();
-										},
-										{ passive: false },
-									);
-								}
-							}}
-							style={{
-								...(index === info?.activeIndex && {
-									opacity: 1,
-								}),
-							}}
-						>
-							{session?.type === 'chatbox' ? (
-								<div className="chatboxWrapper">
-									<ChatBox
-										sessionId={info?.sessionId}
-										onSend={(data) =>
-											handleCustomOnSendFunction(info?.sessionId, data)
-										}
-										customChatActions={true}
-										autoFocus={false}
-										animatePlaceholder={false}
-										showUpgradeSubscriptionBtn={false}
-										onChatQueryChange={handleChatQueryChange}
-										animateChatBox={false}
-									/>
-									<Suggestions
-										chatQuery={info?.chatQuery}
-										styles={{ backgroundColor: 'var(--card)' }}
-									/>
-								</div>
-							) : (
-								<>
-									<ChatMessages
-										sessionId={session?._id}
-										messages={session?.messages}
-									/>
-									<div className="chatBoxContainer">
+						<div className="item-wrapper">
+							<div
+								className="item"
+								ref={(el) => {
+									if (el) {
+										el.addEventListener(
+											'wheel',
+											(e) => {
+												e.stopPropagation();
+											},
+											{ passive: false },
+										);
+									}
+								}}
+								style={{
+									...(index === info?.activeIndex && {
+										opacity: 1,
+									}),
+								}}
+							>
+								{session?.type === 'chatbox' ? (
+									<div className="chatboxWrapper">
 										<ChatBox
-											sessionId={session?._id}
+											sessionId={info?.sessionId}
 											onSend={(data) =>
-												handleCustomOnSendFunction(session?._id, data)
+												handleCustomOnSendFunction(info?.sessionId, data)
 											}
 											customChatActions={true}
 											autoFocus={false}
 											animatePlaceholder={false}
 											showUpgradeSubscriptionBtn={false}
+											onChatQueryChange={handleChatQueryChange}
 											animateChatBox={false}
 										/>
+										<Suggestions
+											chatQuery={info?.chatQuery}
+											styles={{ backgroundColor: 'var(--card)' }}
+										/>
 									</div>
-								</>
-							)}
+								) : (
+									<>
+										<div
+											className="fullChat"
+											onClick={() => {
+												navigate(`/chat/${session?._id}`);
+											}}
+										>
+											<ArrowUpRightSvg />
+										</div>
+										<ChatMessages
+											sessionId={session?._id}
+											messages={session?.messages}
+										/>
+										<div className="chatBoxContainer">
+											<ChatBox
+												sessionId={session?.id}
+												onSend={(data) =>
+													handleCustomOnSendFunction(session?._id, data)
+												}
+												customChatActions={true}
+												autoFocus={false}
+												animatePlaceholder={false}
+												showUpgradeSubscriptionBtn={false}
+												animateChatBox={false}
+											/>
+										</div>
+									</>
+								)}
+							</div>
 						</div>
 					</div>
 				))}
