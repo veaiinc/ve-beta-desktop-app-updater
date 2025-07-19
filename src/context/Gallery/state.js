@@ -1537,29 +1537,51 @@ export const Galleries = () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
-			const path = isLightGallery ? '?imageType=optimized' : '';
+			const path = isLightGallery ? '?imageType=optimized' : '?imageType=original';
 			const response = await service.fetchGet(
 				`/${workspaceId}/gallery-images/${imageId}/download${path}`,
 				usertoken,
 				'galleries',
 			);
 
-			if (response[0] === true) {
-				const imageResponse = await fetch(response[1].signedUrl);
+			if (response?.[0] === true) {
+				const { signedUrl, fileName, s3_original } = response[1];
+
+				const imageResponse = await fetch(signedUrl);
 				const blob = await imageResponse.blob();
+
+				// Determine which size to use for download
+				const blobSize = blob.size;
+				const originalSize = s3_original?.size || 0;
+
+				const region = 'us-east-1'; // Assuming region is defined or fetched; hardcoded for this example
+				const finalSize =
+					!isLightGallery && region === 'us-east-1' && originalSize > blobSize
+						? originalSize
+						: blobSize;
+
+				// Trigger download
 				const url = window.URL.createObjectURL(blob);
 				const link = document.createElement('a');
 				link.href = url;
-				link.download = response?.[1]?.fileName || 'image';
+				link.download = fileName || 'image.jpg';
+				link.target = '_blank';
+				link.rel = 'noopener';
 				document.body.appendChild(link);
 				link.click();
 				document.body.removeChild(link);
 				window.URL.revokeObjectURL(url);
-			}
 
-			return response;
+				// Return both sizes for debugging or future use
+				return [true, { blobSize, originalSize, finalSize, fileName }];
+			} else {
+				message.error('Failed to get download link');
+				return [false, null];
+			}
 		} catch (error) {
-			console.log('error==>getDownloadLinkForImage', error);
+			console.error('Error in getDownloadLinkForImage:', error);
+			message.error('Download failed');
+			return [false, null];
 		}
 	};
 	//{{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/visitors
