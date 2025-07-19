@@ -55,6 +55,8 @@ import NoteTakerTranscript from './NoteTakerTranscript';
 import Spinner from '../../components/loaders/Spinner';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../helpers';
+import ToggleSlider from '../../components/input/slider';
+import AiTranscriptionSuggestions from '../../components/chat/AiTranscriptionSuggestions';
 export const NotesRefContext = createContext(null);
 
 const initialState = {
@@ -146,11 +148,15 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		},
 		chatStream: { createWebSocketConnection, sendMessage, closeWebSocketConnection },
 		companyInfo: { getTeamMembers, tenantsUserList },
-		templates: { handleTranscriptionSuggestions },
+		templates: { handleTranscriptionSuggestions, aiTranscriptionSuggestions },
 		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
 
-	const [info, setInfo] = useState(initialState);
+	const [info, setInfo] = useState({
+		...initialState,
+		showAmbientAssistance: false,
+		modalIsOpen: false,
+	});
 	const [transcriptList, setTranscriptList] = useState([]);
 	const [activeTab, setActiveTab] = useState('transcript');
 	const location = useLocation();
@@ -1012,6 +1018,14 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		}
 	};
 
+	const handleCloseModal = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			modalIsOpen: false,
+			showAmbientAssistance: false,
+		}));
+	}, []);
+
 	useEffect(() => {
 		if (showTranscriptTabs && location?.pathname?.includes('meet') && type === 'meeting_bot') {
 			recallConnection(sessionId, noteId, handleSocketMessage, isAiIntelligenceEnabled);
@@ -1057,6 +1071,60 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 						</div>
 
 						<div className="notes-nav-right">
+							<div
+								className={`switchContainer ${
+									info?.showAmbientAssistance ? 'SuggestionSidebarActive' : ''
+								}`}
+								onClick={() => {
+									if (!info?.modalIsOpen) {
+										setInfo((prev) => ({ ...prev, modalIsOpen: true }));
+									}
+								}}
+							>
+								<ToggleSlider
+									value={info?.showAmbientAssistance}
+									onChange={(checked) => {
+										setInfo((prev) => ({
+											...prev,
+											showAmbientAssistance: checked,
+										}));
+									}}
+								/>
+							</div>
+							{info?.showAmbientAssistance && info?.modalIsOpen && (
+								<div className="_aiTranscriptionSuggestions_13ws2_1">
+									<button
+										className="aiTranscriptionSuggestions-close-btn"
+										onClick={() =>
+											setInfo((prev) => ({
+												...prev,
+												modalIsOpen: false,
+												showAmbientAssistance: false,
+											}))
+										}
+										style={{
+											position: 'absolute',
+											top: 12,
+											right: 12,
+											zIndex: 2100,
+											background: 'none',
+											border: 'none',
+											color: 'var(--primary-font, #fff)',
+											fontSize: 24,
+											cursor: 'pointer',
+										}}
+										aria-label="Close sidebar"
+									>
+										×
+									</button>
+									<AiTranscriptionSuggestions
+										data={aiTranscriptionSuggestions || []}
+										modalIsOpen={info?.modalIsOpen}
+										closeModal={handleCloseModal}
+										showAmbientAssistance={info?.showAmbientAssistance}
+									/>
+								</div>
+							)}
 							<button
 								className="notes-nav-button"
 								onClick={() => handleFavorite(!info?.isFavorite)}

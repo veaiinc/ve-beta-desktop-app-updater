@@ -5,6 +5,7 @@ import StepKnowEachOther from './StepKnowEachOther';
 import StepGoalsMission from './StepGoalsMission';
 import PricingPage from '../pricingPlans/pricingPage';
 import ProgressBar from '../../components/onboarding/ProgressBar';
+import { useNavigate } from 'react-router-dom';
 
 const initialData = {
 	userWorkspaceDetails: {},
@@ -20,15 +21,18 @@ const OnboardingStepper = ({ onStepChange }) => {
 	});
 	const [data, setData] = useState(initialData);
 
+	const navigate = useNavigate();
+
 	useEffect(() => {
 		// Save step to localStorage whenever it changes
 		localStorage.setItem('onboardingStep', step);
 		onStepChange?.(step);
-		// Clear localStorage when onboarding is complete (step 5 or beyond)
+		// Clear localStorage and redirect when onboarding is complete (step 5 or beyond)
 		if (step > 5) {
 			localStorage.removeItem('onboardingStep');
+			navigate('/live-intelligence', { replace: true });
 		}
-	}, [step, onStepChange]);
+	}, [step, onStepChange, navigate]);
 
 	const handleNext = (stepData) => {
 		setData((prev) => ({ ...prev, ...stepData }));
@@ -78,9 +82,7 @@ const OnboardingStepper = ({ onStepChange }) => {
 			content = <PricingPage />;
 			break;
 		default:
-			content = <div>Onboarding Complete!</div>;
-			// Clear localStorage when onboarding is complete
-			localStorage.removeItem('onboardingStep');
+			return null;
 	}
 
 	return (
