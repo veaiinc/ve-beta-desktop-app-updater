@@ -70,8 +70,7 @@ const CardMeetBot = () => {
 	const handleLeft = () => {
 		setInfo((prev) => ({
 			...prev,
-			currentIndex:
-				(prev.currentIndex - 1 + meetings.length) % meetings.length,
+			currentIndex: (prev.currentIndex - 1 + meetings.length) % meetings.length,
 		}));
 	};
 	const handleRight = () => {
@@ -209,17 +208,17 @@ const CardMeetBot = () => {
 				<div className={styles.cardMeetBot_listContainer}>
 					<div className={styles.cardMeetBot_left}>
 						<div className={styles.cardMeetBot_container}>
-							
 							<div className={styles.cardMeetBot_title}>
 								<span className="title-highlight">Smart</span> Live Chat
 							</div>
-							<div className={styles.cardMeetBot_cardsContainer}
+							<div
+								className={styles.cardMeetBot_cardsContainer}
 								onTouchStart={handleTouchStart}
 								onTouchMove={handleTouchMove}
 								onTouchEnd={handleTouchEnd}
 							>
 								{loadingMeetings ? (
-									[0,1,2,-1,-2].map((pos, idx) => {
+									[0, 1, 2, -1, -2].map((pos, idx) => {
 										const positionClassMap = {
 											0: styles.cardMeetBot_selected,
 											1: styles.cardMeetBot_right1,
@@ -228,12 +227,39 @@ const CardMeetBot = () => {
 											'-2': styles.cardMeetBot_left2,
 										};
 										return (
-											<div key={idx} className={`${styles.cardMeetBot_card} ${positionClassMap[pos]}`}></div>
+											<div
+												key={idx}
+												className={`${styles.cardMeetBot_card} ${positionClassMap[pos]}`}
+											></div>
 										);
 									})
 								) : meetings.length === 0 ? (
-									<div className="empty-meet-bot-list">
-										<EmptyMeetBotList />
+									<div
+										className={
+											styles.cardMeetBot_card +
+											' ' +
+											styles.cardMeetBot_selected
+										}
+										style={{ background: 'var(--popup)', cursor: 'pointer' }}
+										onClick={() =>
+											setInfo((prev) => ({ ...prev, drawerOpen: true }))
+										}
+									>
+										<div className={styles.cardMeetBot_header}>
+											<div className={styles.cardMeetBot_cardTitle}>
+												Create Meeting
+											</div>
+											<div className={styles.cardMeetBot_cardDescription}>
+												Easily schedule a new meeting and invite
+												participants in just a few clicks.
+											</div>
+											<div className={styles.cardMeetBot_cardAgenda}>
+												<p>
+													Easily schedule a new meeting and invite
+													participants in just a few clicks.
+												</p>
+											</div>
+										</div>
 									</div>
 								) : (
 									meetings.map((meeting, idx) => {
@@ -254,25 +280,68 @@ const CardMeetBot = () => {
 											<div
 												key={meeting._id}
 												className={classList.join(' ')}
-												style={{ background: classList.includes(styles.cardMeetBot_selected) ? 'var(--popup)' : 'var(--background-color)' }}
-												onClick={() => navigate(`/meet/${meeting._id}?type=meeting_bot&history=true`)}
+												style={{
+													background: classList.includes(
+														styles.cardMeetBot_selected,
+													)
+														? 'var(--popup)'
+														: 'var(--background-color)',
+												}}
+												onClick={() =>
+													navigate(
+														`/meet/${meeting._id}?type=meeting_bot&history=true`,
+													)
+												}
 											>
 												<div className={styles.cardMeetBot_header}>
-													<div className={styles.cardMeetBot_cardTitle}>{meeting.title}</div>
-													<div className={styles.cardMeetBot_cardDescription}>
+													<div className={styles.cardMeetBot_cardTitle}>
+														{meeting.title}
+													</div>
+													<div
+														className={
+															styles.cardMeetBot_cardDescription
+														}
+													>
 														{meeting.agenda || 'No agenda provided.'}
 													</div>
 												</div>
-												{classList.includes(styles.cardMeetBot_selected) && (
+												{classList.includes(
+													styles.cardMeetBot_selected,
+												) && (
 													<div className={styles.cardMeetBot_footer}>
-														<div className={styles.cardMeetBot_moduleType}>{meeting.meetingMode}</div>
-														<div className={styles.cardMeetBot_modulePriority}>
-															<div className={styles.cardMeetBot_modulePriorityText}>
-																<div>{meeting.createdBy?.name || 'Unknown'}</div>
+														<div
+															className={
+																styles.cardMeetBot_moduleType
+															}
+														>
+															{meeting.meetingMode}
+														</div>
+														<div
+															className={
+																styles.cardMeetBot_modulePriority
+															}
+														>
+															<div
+																className={
+																	styles.cardMeetBot_modulePriorityText
+																}
+															>
+																<div>
+																	{meeting.createdBy?.name ||
+																		'Unknown'}
+																</div>
 																{meeting.createdAt && (
-																	<div style={{ color: 'var(--secondary-font)' }}>|</div>
+																	<div
+																		style={{
+																			color: 'var(--secondary-font)',
+																		}}
+																	>
+																		|
+																	</div>
 																)}
-																<div>{formatDate(meeting.createdAt)}</div>
+																<div>
+																	{formatDate(meeting.createdAt)}
+																</div>
 															</div>
 														</div>
 													</div>
@@ -300,7 +369,6 @@ const CardMeetBot = () => {
 														placeholder="Search"
 														ref={searchInputRef}
 													/>
-													
 												</div>
 											)}
 										</div>
@@ -311,23 +379,38 @@ const CardMeetBot = () => {
 									</div>
 								</div>
 								<div className={styles.cardMeetBot_optionsRightMainContainer}>
-									<div className={styles.cardMeetBot_actionRight}>
-										<button className={styles.cardMeetBot_cardChangeBtn} style={{marginRight: 8}} onClick={handleLeft}>
-											<ChevronDown className={styles.cardMeetBot_leftChevron} />
-										</button>
-										<div className="card-number">
-											<span>{info.currentIndex + 1}</span>/<span className="total-docs">{meetings.length}</span>
+									{meetings.length > 0 && (
+										<div className={styles.cardMeetBot_actionRight}>
+											<button
+												className={styles.cardMeetBot_cardChangeBtn}
+												style={{ marginRight: 8 }}
+												onClick={handleLeft}
+											>
+												<ChevronDown
+													className={styles.cardMeetBot_leftChevron}
+												/>
+											</button>
+											<div className="card-number">
+												<span>{info.currentIndex + 1}</span>/
+												<span className="total-docs">
+													{meetings.length}
+												</span>
+											</div>
+											<button
+												className={styles.cardMeetBot_cardChangeBtn}
+												onClick={handleRight}
+											>
+												<ChevronDown />
+											</button>
 										</div>
-										<button className={styles.cardMeetBot_cardChangeBtn} onClick={handleRight}>
-											<ChevronDown />
-										</button>
-									</div>
+									)}
 								</div>
-							</div><button
+							</div>
+							<button
 								className={styles.cardMeetBot_createNewBtn}
 								onClick={() => setInfo((prev) => ({ ...prev, drawerOpen: true }))}
 							>
-                                <AddIcon />
+								<AddIcon />
 								Create New
 							</button>
 						</div>
