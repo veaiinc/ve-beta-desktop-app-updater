@@ -62,6 +62,8 @@ import Integrations from '../views/features/integrationsList/Integrations';
 import NotesPage from '../views/features/notesPage/NotesPage';
 
 // components
+import MeetBot from '../views/features/meetBot/meetBot';
+import NotesWrapper from '../views/features/notesModule/NotesWrapper';
 
 const betaRoutes = [
 	{
@@ -70,7 +72,7 @@ const betaRoutes = [
 			<AuthWrapper
 				title={'Home'}
 				outerContainerStyle={{ overflow: 'hidden' }}
-				childrenContainerStyles={{ overflow: 'scroll' }}
+				childrenContainerStyles={{ overflow: 'auto' }}
 				showBottomToolbar={false}
 			>
 				<InitialHomePage />
@@ -548,6 +550,22 @@ const betaRoutes = [
 		element: (
 			<AuthWrapper title="Agent">
 				<Agent />
+			</AuthWrapper>
+		)
+	},
+	{
+		path: '/meet',
+		element: (
+			<AuthWrapper title={'Meet'}>
+				<MeetBot />
+			</AuthWrapper>
+		)
+	},
+	{
+		path: '/meet/:noteId',
+		element: (
+			<AuthWrapper title={'Meet'}>
+				<NotesWrapper />
 			</AuthWrapper>
 		)
 	},

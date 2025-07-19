@@ -13,6 +13,8 @@ import SettingsWrapper from '../views/features/settings/SettingsWrapper';
 import RecentChat from '../views/features/chat/RecentChat';
 import Onboarding from '../views/features/onboarding/Onboarding';
 
+import AmbientAi from '../views/features/ambientAi/AmbientAi';
+
 const stableRoutes = [
 	{
 		path: '/home',
@@ -20,10 +22,18 @@ const stableRoutes = [
 			<AuthWrapper
 				title={'Home'}
 				outerContainerStyle={{ overflow: 'hidden' }}
-				childrenContainerStyles={{ overflow: 'scroll' }}
+				childrenContainerStyles={{ overflow: 'auto' }}
 				showBottomToolbar={false}
 			>
 				<InitialHomePage />
+			</AuthWrapper>
+		)
+	},
+	{
+		path: '/ambient-ai',
+		element: (
+			<AuthWrapper title={'Ambient AI'}>
+				<AmbientAi />
 			</AuthWrapper>
 		)
 	},

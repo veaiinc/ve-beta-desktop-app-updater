@@ -1,24 +1,27 @@
 // preload.js
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer } = require('electron/renderer');
 
-contextBridge.exposeInMainWorld('api', {
+contextBridge.exposeInMainWorld('electronApi', {
 	send(channel, data) {
-		// only these three go _into_ main
-		console.log('sending', channel, data);
-		const validChannels = ['check-for-updates', 'download-update', 'quit-and-install'];
-		if (validChannels.includes(channel)) {
-			ipcRenderer.send(channel, data);
-		}
+		ipcRenderer.invoke(channel, data);
 	},
+
 	receive(channel, callback) {
-		// from main we always use a single "fromMain" gateway
-		if (channel === 'fromMain') {
-			ipcRenderer.on('fromMain', (event, message) => {
-				callback(message);
-			});
-		}
+		ipcRenderer.handle(channel, (event, message) => {
+			callback(message);
+		});
 	},
-	reloadApp() {
-		ipcRenderer.send('reload-app');
+
+	checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+	downloadUpdate: () => ipcRenderer.invoke('download-update'),
+
+	onUpdateStatus: (callback) => {
+		ipcRenderer.on('update-status', (event, data) => {
+			callback(data);
+		});
+	},
+
+	removeUpdateStatusListener: () => {
+		ipcRenderer.removeAllListeners('update-status');
 	}
 });

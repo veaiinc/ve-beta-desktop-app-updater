@@ -1,4 +1,3 @@
-// vite.config.js
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from '@svgr/rollup';
@@ -37,11 +36,8 @@ export default defineConfig({
 		minify: 'esbuild',
 		target: 'es2015',
 		sourcemap: true,
-		reportCompressedSize: false,
-		chunkLoading: 'import',
-		modulePreload: false
+		reportCompressedSize: false
 	},
-
 	css: {
 		devSourcemap: true,
 		postcss: {
@@ -51,16 +47,20 @@ export default defineConfig({
 					preset: [
 						'default',
 						{
-							discardComments: { removeAll: true },
+							discardComments: {
+								removeAll: true
+							},
 							normalizeWhitespace: true,
-							minifyFontValues: { removeAfterKeyword: false }
+							// ✅ Prevent collapsing variable font weights
+							minifyFontValues: {
+								removeAfterKeyword: false
+							}
 						}
 					]
 				})
 			]
 		}
 	},
-
 	optimizeDeps: {
 		include: [
 			'react',
@@ -70,10 +70,9 @@ export default defineConfig({
 			'lodash',
 			'axios',
 			'moment',
-			'dayjs'
+			'dayjs',
+			'@blocknote/core'
 		],
-		// Don’t pre-bundle the native watcher module
-		exclude: ['@parcel/watcher'],
 		force: true
 	},
 
