@@ -2,7 +2,7 @@ import jwtDecode from 'jwt-decode';
 import { getUserBrowser, getUserDevice } from '../../helpers';
 
 const endpoint =
-	'https://us.api.ve.ai/workflows/1.0/betaworkspace/687747411528c2f07a8b1cd4/687747411528c2f07a8b1cd5/687747411528c2f07a8b1cc9 ';
+	'https://us.api.ve.ai/workflows/1.0/betaworkspace/6878ad87193e83b4b3397b3b/6878ad87193e83b4b3397b3c/6878ad87193e83b4b3397b2e';
 
 const getFormattedTimestamp = () => {
 	const now = new Date();
@@ -32,7 +32,7 @@ const createBody = (errorInfo) => {
 		responseInput: {
 			response: [
 				{
-					_id: '687747411528c2f07a8b1cca',
+					_id: '6878ad87193e83b4b3397b2f',
 					type: 'shortanswer',
 					question: 'Error Type',
 					required: true,
@@ -49,7 +49,7 @@ const createBody = (errorInfo) => {
 					actions: [],
 				},
 				{
-					_id: '687747411528c2f07a8b1ccb',
+					_id: '6878ad87193e83b4b3397b30',
 					type: 'longanswer',
 					question: 'Error Message',
 					required: true,
@@ -65,7 +65,7 @@ const createBody = (errorInfo) => {
 					actions: [],
 				},
 				{
-					_id: '687747411528c2f07a8b1ccc',
+					_id: '6878ad87193e83b4b3397b31',
 					type: 'shortanswer',
 					question: 'Error Path',
 					required: true,
@@ -82,7 +82,7 @@ const createBody = (errorInfo) => {
 					actions: [],
 				},
 				{
-					_id: '687747411528c2f07a8b1ccd',
+					_id: '6878ad87193e83b4b3397b32',
 					type: 'shortanswer',
 					question: 'Component',
 					required: true,
@@ -99,7 +99,7 @@ const createBody = (errorInfo) => {
 					actions: [],
 				},
 				{
-					_id: '687747411528c2f07a8b1cce',
+					_id: '6878ad87193e83b4b3397b33',
 					type: 'longanswer',
 					question: 'Component Stack',
 					required: true,
@@ -115,13 +115,13 @@ const createBody = (errorInfo) => {
 					actions: [],
 				},
 				{
-					_id: '687766c4987d9c3ac86a9e78',
+					_id: '6878ad87193e83b4b3397b34',
 					type: 'shortanswer',
-					question: "<p style='font-size:;'>Username</p>",
+					question: 'Username',
 					required: false,
-					order: 7,
+					order: 6,
 					isEditing: false,
-					placeholder: 'Enter your username',
+					placeholder: 'Username',
 					answer: username,
 					variableId: '619f75683f381fd66dac4b65',
 					validation: {
@@ -132,13 +132,13 @@ const createBody = (errorInfo) => {
 					actions: [],
 				},
 				{
-					_id: '687747411528c2f07a8b1ccf',
+					_id: '6878ad87193e83b4b3397b35',
 					type: 'shortanswer',
-					question: "<p style='font-size:;'>Time Stamp</p>",
+					question: 'Time Stamp',
 					required: true,
-					order: 6,
+					order: 7,
 					isEditing: false,
-					placeholder: 'Enter your time stamp',
+					placeholder: 'Time Stamp',
 					answer: timestamp,
 					variableId: '619f75683f381fd66dac4b65',
 					validation: {
@@ -149,13 +149,13 @@ const createBody = (errorInfo) => {
 					actions: [],
 				},
 				{
-					_id: '6877a4fa8f164d43386a31cc',
+					_id: '6878ad87193e83b4b3397b36',
 					type: 'shortanswer',
-					question: "<p style='font-size:;'>Workspace Mode</p>",
+					question: 'Workspace Mode',
 					required: false,
-					order: 9,
+					order: 8,
 					isEditing: false,
-					placeholder: 'Enter your workspace mode',
+					placeholder: 'Workspace Mode',
 					answer: workspaceMode,
 					variableId: '619f75683f381fd66dac4b65',
 					validation: {
@@ -166,11 +166,11 @@ const createBody = (errorInfo) => {
 					actions: [],
 				},
 				{
-					_id: '687747411528c2f07a8b1cd0',
+					_id: '6878ad87193e83b4b3397b37',
 					type: 'shortanswer',
 					question: 'Workspace ID',
 					required: true,
-					order: 8,
+					order: 9,
 					isEditing: false,
 					placeholder: 'Workspace ID',
 					answer: workspaceId,
@@ -183,7 +183,7 @@ const createBody = (errorInfo) => {
 					actions: [],
 				},
 				{
-					_id: '687747411528c2f07a8b1cd1',
+					_id: '6878ad87193e83b4b3397b38',
 					type: 'singlechoice',
 					question: 'Resolution Status',
 					required: true,
@@ -199,7 +199,7 @@ const createBody = (errorInfo) => {
 					actions: [],
 				},
 				{
-					_id: '687747411528c2f07a8b1cd2',
+					_id: '6878ad87193e83b4b3397b39',
 					type: 'shortanswer',
 					question: 'Browser',
 					required: true,
@@ -216,7 +216,7 @@ const createBody = (errorInfo) => {
 					actions: [],
 				},
 				{
-					_id: '687747411528c2f07a8b1cd3',
+					_id: '6878ad87193e83b4b3397b3a',
 					type: 'shortanswer',
 					question: 'Device',
 					required: true,

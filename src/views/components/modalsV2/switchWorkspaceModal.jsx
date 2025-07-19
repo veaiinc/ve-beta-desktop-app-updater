@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useContext } from 'react';
 import Modal from 'react-modal';
 import '../../../assets/scss/switchWorkspace/switchWorkspaceModal.scss';
 import { ReactComponent as Close } from '../../../assets/svg/workspaceSettings/modalclose.svg';
@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import useLogout from '../../hooks/useLogout';
 import { fetchDomainName, getBuisnessName } from '../../../helpers/index';
-
+import { useParams } from 'react-router-dom';
 const customStyles = {
 	content: {
 		top: '50%',
@@ -41,15 +41,16 @@ const customStyles = {
 const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWorkspaceId }) => {
 	const logoutFunc = useLogout();
 	const navigate = useNavigate();
+	const { salesId } = useParams();
 
 	const handleLogout = useCallback(() => {
 		logoutFunc();
 	}, [logoutFunc]);
 
-	const handleSwitchWorkSpaceLogic = (data) => {
+	const handleSwitchWorkSpaceLogic = useCallback((data) => {
 		const { activeWorkspaceId, isOnboard } = data;
 		const workspaceId = localStorage.getItem('workspaceId');
-		if (workspaceId === activeWorkspaceId) {
+		if (workspaceId === data) {
 			closeModal();
 			return;
 		}
@@ -62,13 +63,15 @@ const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWo
 			domain: host
 		});
 
-		window.location.hash = '/home';
+		if (salesId) {
+			window.location.hash = '/home';
+		}
 		if (window.api && typeof window.api.reloadApp === 'function') {
 			window.api.reloadApp();
 		} else {
 			window.location.reload();
 		}
-	};
+	}, []);
 
 	return (
 		<Modal isOpen={open} onRequestClose={closeModal} style={customStyles}>

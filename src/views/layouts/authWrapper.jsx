@@ -20,7 +20,7 @@ const AuthWrapper = ({
 	sidebarContainerStyles = {},
 	sidebarContainerClassName = '',
 	childrenContainerStyles = {},
-	showSidebar = true
+	showSidebar = true,
 }) => {
 	const { authInitialized } = useAuthInitializer();
 	return authInitialized ? (
@@ -37,7 +37,7 @@ const AuthWrapper = ({
 						display: 'flex',
 						height: '100dvh',
 						padding: '0',
-						...outerContainerStyle
+						...outerContainerStyle,
 					}}
 					className="auth-wrapper-container"
 				>
@@ -49,7 +49,7 @@ const AuthWrapper = ({
 									height: 'fit-content',
 									position: 'relative',
 									padding: '0',
-									margin: '0'
+									margin: '0',
 								}}
 								className={sidebarContainerClassName}
 							>
@@ -63,7 +63,7 @@ const AuthWrapper = ({
 								overflowY: 'auto',
 								maxHeight: '100%',
 								height: '100%',
-								padding: ' 0'
+								padding: ' 0',
 							}}
 							id="scrollableTarget"
 						>

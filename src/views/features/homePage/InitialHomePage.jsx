@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useState } from 'react';
 import '../../../assets/scss/home_page/initialHomepage.scss';
 import { getGreeting } from '../../../helpers';
 import jwtDecode from 'jwt-decode';
@@ -7,6 +7,7 @@ import ChatBox from '../../components/chat/ChatBox';
 import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 import Suggestions from './Suggestions';
 import { useNavigate } from 'react-router-dom';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 
 const suggestionContainerStyles = {
 	// position: 'absolute',
@@ -21,13 +22,14 @@ const suggestionContainerStyles = {
 };
 const InitialHomePage = () => {
 	const navigate = useNavigate();
+	const { workspaceMode } = useWorkspaceMode();
 	const {
 		templates: { updateStateValues, currentSessionId, chatBoxSuggestions },
-		profileInfo: { userDetailsData }
+		profileInfo: { userDetailsData },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		chatQuery: ''
+		chatQuery: '',
 	});
 
 	const handleCustomOnSendFunction = useCallback(
@@ -35,13 +37,13 @@ const InitialHomePage = () => {
 			updateStateValues({ activePayloadForChat: data });
 			navigate(`/chat/${currentSessionId}`);
 		},
-		[currentSessionId]
+		[currentSessionId],
 	);
 
 	const handleChatQueryChange = (query) => {
 		setInfo((prev) => ({
 			...prev,
-			chatQuery: query
+			chatQuery: query,
 		}));
 
 		if (query?.length === 0) {
@@ -79,7 +81,7 @@ const InitialHomePage = () => {
 					<div
 						className="suggestions-container"
 						style={{
-							overflow: chatBoxSuggestions?.length > 0 ? 'unset' : 'hidden'
+							overflow: chatBoxSuggestions?.length > 0 ? 'unset' : 'hidden',
 						}}
 					>
 						<Suggestions
@@ -92,7 +94,7 @@ const InitialHomePage = () => {
 							<BuildOptions />
 						)} */}
 				</div>
-				<GlobalWidget />
+				{workspaceMode !== 'stable' && <GlobalWidget />}
 			</div>
 		</div>
 	);

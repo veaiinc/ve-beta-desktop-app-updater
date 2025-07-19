@@ -54,7 +54,7 @@ import { ElementSidebar } from '../../builder_client_common.jsx';
 import MultiSelectionComp from './fluid-engine/MultiSelectionComp.jsx';
 import MultiSelectionOptionComp from './fluid-engine/MultiSelectionOptionComp.jsx';
 import FluidBlockOptionsControls, {
-	ShowZIndexValues
+	ShowZIndexValues,
 } from './fluid-engine/FluidBlockOptionsControls.jsx';
 import LayoutResizeHandle from './fluid-engine/layoutResizeHandle.jsx';
 // import MenuBar from '../elements/menubar/menubar.jsx';
@@ -77,7 +77,7 @@ const elements = [
 	{ text: 'iframe', _id: '6717413415e02bdd2b316122' },
 	// { text: 'menubar', _id: '6717413415e02bdd2b316122' },
 	// { text: 'signature', _id: '67165712f9a74b97c60d1f05' },
-	{ text: 'divider', _id: '6717413415e02bdd2b316122' }
+	{ text: 'divider', _id: '6717413415e02bdd2b316122' },
 ];
 import ObjectID from 'bson-objectid';
 
@@ -105,7 +105,7 @@ class Layout extends Component {
 			{ text: 'iframe', _id: '6717413415e02bdd2b316122' },
 			// { text: 'menubar', _id: '6717413415e02bdd2b316122' },
 			// { text: 'signature', _id: '67165712f9a74b97c60d1f05' },
-			{ text: 'divider', _id: '6717413415e02bdd2b316122' }
+			{ text: 'divider', _id: '6717413415e02bdd2b316122' },
 		];
 		this.state = {
 			gridCols: 28,
@@ -147,7 +147,7 @@ class Layout extends Component {
 			snapToGrid: true,
 			layoutDimensions: {
 				width: 0,
-				height: 0
+				height: 0,
 			},
 			initialDragX: 0,
 			initialDragY: 0,
@@ -159,48 +159,48 @@ class Layout extends Component {
 				{
 					position: { top: '-6px', left: '-6px' },
 					cursor: 'nw-resize',
-					direction: 'nw'
+					direction: 'nw',
 				},
 				{
 					position: { top: '-6px', right: '-6px' },
 					cursor: 'ne-resize',
-					direction: 'ne'
+					direction: 'ne',
 				},
 				{
 					position: { bottom: '-6px', left: '-6px' },
 					cursor: 'sw-resize',
-					direction: 'sw'
+					direction: 'sw',
 				},
 				{
 					position: { bottom: '-6px', right: '-6px' },
 					cursor: 'se-resize',
-					direction: 'se'
+					direction: 'se',
 				},
 				// Edge handles
 				{
 					position: { top: '-6px', left: '50%' },
 					cursor: 'n-resize',
 					direction: 'n',
-					transform: 'translateX(-50%)'
+					transform: 'translateX(-50%)',
 				},
 				{
 					position: { top: '50%', right: '-6px' },
 					cursor: 'e-resize',
 					direction: 'e',
-					transform: 'translateY(-50%)'
+					transform: 'translateY(-50%)',
 				},
 				{
 					position: { bottom: '-6px', left: '50%' },
 					cursor: 's-resize',
 					direction: 's',
-					transform: 'translateX(-50%)'
+					transform: 'translateX(-50%)',
 				},
 				{
 					position: { top: '50%', left: '-6px' },
 					cursor: 'w-resize',
 					direction: 'w',
-					transform: 'translateY(-50%)'
-				}
+					transform: 'translateY(-50%)',
+				},
 			],
 			activeComponentID: null,
 			editLayout: false,
@@ -216,7 +216,7 @@ class Layout extends Component {
 			componentPositions: {},
 			overlapOptions: {
 				hasOverlappingAbove: false,
-				hasOverlappingBelow: false
+				hasOverlappingBelow: false,
 			},
 			blockWidth: 0,
 			gridRows: 8,
@@ -244,12 +244,12 @@ class Layout extends Component {
 				startY: 0,
 				endX: 0,
 				endY: 0,
-				isSelecting: false
+				isSelecting: false,
 			},
 			selectedComponents: [],
 			selectionBoxPosition: {
 				x: 0,
-				y: 0
+				y: 0,
 			},
 			_id: props._id,
 			isImageEdit: false,
@@ -292,8 +292,8 @@ class Layout extends Component {
 			animeTriggerPoints: {
 				start: 0.9,
 				center: 0.6,
-				end: 0.2
-			}
+				end: 0.2,
+			},
 		};
 		this.handleBeforeUnload = this.handleBeforeUnload.bind(this);
 		this.blockRef = React.createRef();
@@ -322,7 +322,7 @@ class Layout extends Component {
 					? this.props.blocks?.[0]?.divStyles?.mGridRows
 					: this.props.blocks?.[0]?.divStyles?.gridRows
 				: 8,
-			gridCols: this.state.previewType === 'm' || this.state.previewMode === 'm' ? 8 : 28
+			gridCols: this.state.previewType === 'm' || this.state.previewMode === 'm' ? 8 : 28,
 		});
 
 		window.addEventListener('beforeunload', this.handleBeforeUnload);
@@ -544,7 +544,7 @@ class Layout extends Component {
 		}
 		let updatedSections = [];
 		const fluidSections = sections?.filter(
-			(section) => _.has(section, 'isFluidSection') && section?.isFluidSection
+			(section) => _.has(section, 'isFluidSection') && section?.isFluidSection,
 		);
 		sections?.forEach((section) => {
 			let updatedSection = { ...section };
@@ -636,9 +636,9 @@ class Layout extends Component {
 											rowIncrement == null
 												? (k + 1) * 6 + 6
 												: currentRow + rowIncrement
-										} / 9`
+										} / 9`,
 								  }
-								: subBlock?.divStyles
+								: subBlock?.divStyles,
 						};
 						if (!_.has(subBlock?.divStyles, 'mGridArea')) {
 							currentRow += rowIncrement;
@@ -670,10 +670,10 @@ class Layout extends Component {
 									?.trim();
 
 								const tagMatch = mContent?.match(
-									/<(\w+)[^>]*style="([^"]*)"[^>]*>([\s\S]*?)<\/\1>/
+									/<(\w+)[^>]*style="([^"]*)"[^>]*>([\s\S]*?)<\/\1>/,
 								);
 								const tagMatch2 = content?.match(
-									/<(\w+)[^>]*style="([^"]*)"[^>]*>([\s\S]*?)<\/\1>/
+									/<(\w+)[^>]*style="([^"]*)"[^>]*>([\s\S]*?)<\/\1>/,
 								);
 								let tagName = tagMatch?.[1] || '';
 								let styles = tagMatch?.[2] || '';
@@ -691,14 +691,14 @@ class Layout extends Component {
 												this.props?.themes?.mobileFonts?.p?.fontSize;
 											const newValue = this.compareAndConvertValues(
 												value,
-												themeValue
+												themeValue,
 											);
 											if (newValue !== value) {
 												fontSizeMatch = false;
 											}
 
 											return `font-size: ${newValue}`;
-										}
+										},
 									);
 								}
 
@@ -724,7 +724,7 @@ class Layout extends Component {
 														parseFloat(ThemeSize?.replace('px', '')) /
 														16;
 													return `font-size: ${ThemeSizeInRem}rem`;
-												}
+												},
 											);
 										} else if (
 											_.includes(styles, 'font-size') &&
@@ -744,7 +744,7 @@ class Layout extends Component {
 														parseFloat(ThemeSize?.replace('px', '')) /
 														16;
 													return `font-size: ${ThemeSizeInRem}rem`;
-												}
+												},
 											);
 										}
 									} else {
@@ -758,7 +758,7 @@ class Layout extends Component {
 												const ThemeSizeInRem =
 													parseFloat(ThemeSize?.replace('px', '')) / 16;
 												return `font-size: ${ThemeSizeInRem}rem`;
-											}
+											},
 										);
 									}
 								}
@@ -778,7 +778,7 @@ class Layout extends Component {
 											const ThemeSizeInRem =
 												parseFloat(ThemeSize?.replace('px', '')) / 16;
 											return `font-size: ${ThemeSizeInRem}rem`;
-										}
+										},
 									);
 								} else {
 									content = content?.replace(
@@ -787,7 +787,7 @@ class Layout extends Component {
 											const originalFontSize = (parseFloat(max) * 16) / 2;
 											const minSizeRem = originalFontSize / 16;
 											return `font-size: ${minSizeRem}rem`;
-										}
+										},
 									);
 								}
 
@@ -820,10 +820,10 @@ class Layout extends Component {
 									?.trim();
 
 								const tagMatch = mContent?.match(
-									/<(\w+)[^>]*style="([^"]*)"[^>]*>([\s\S]*?)<\/\1>/
+									/<(\w+)[^>]*style="([^"]*)"[^>]*>([\s\S]*?)<\/\1>/,
 								);
 								const tagMatch2 = content?.match(
-									/<(\w+)[^>]*style="([^"]*)"[^>]*>([\s\S]*?)<\/\1>/
+									/<(\w+)[^>]*style="([^"]*)"[^>]*>([\s\S]*?)<\/\1>/,
 								);
 								let tagName = tagMatch?.[1] || '';
 								let styles = tagMatch?.[2] || '';
@@ -841,14 +841,14 @@ class Layout extends Component {
 												this.props?.themes?.mobileFonts?.p?.fontSize;
 											const newValue = this.compareAndConvertValues(
 												value,
-												themeValue
+												themeValue,
 											);
 											if (newValue !== value) {
 												fontSizeMatch = false;
 											}
 
 											return `font-size: ${newValue}`;
-										}
+										},
 									);
 								}
 
@@ -874,7 +874,7 @@ class Layout extends Component {
 														parseFloat(ThemeSize?.replace('px', '')) /
 														16;
 													return `font-size: ""`;
-												}
+												},
 											);
 										} else if (
 											_.includes(styles, 'font-size') &&
@@ -894,7 +894,7 @@ class Layout extends Component {
 														parseFloat(ThemeSize?.replace('px', '')) /
 														16;
 													return `font-size: ""`;
-												}
+												},
 											);
 										}
 									} else {
@@ -908,7 +908,7 @@ class Layout extends Component {
 												const ThemeSizeInRem =
 													parseFloat(ThemeSize?.replace('px', '')) / 16;
 												return `font-size: ""`;
-											}
+											},
 										);
 									}
 								}
@@ -928,7 +928,7 @@ class Layout extends Component {
 											const ThemeSizeInRem =
 												parseFloat(ThemeSize?.replace('px', '')) / 16;
 											return `font-size: ""`;
-										}
+										},
 									);
 								} else {
 									content = content?.replace(
@@ -937,7 +937,7 @@ class Layout extends Component {
 											const originalFontSize = (parseFloat(max) * 16) / 2;
 											const minSizeRem = originalFontSize / 16;
 											return `font-size: ""`;
-										}
+										},
 									);
 								}
 
@@ -956,8 +956,8 @@ class Layout extends Component {
 							mGridRows:
 								updatedBlock?.divStyles?.mGridRows >= currentRow
 									? updatedBlock?.divStyles?.mGridRows
-									: currentRow - 1
-						}
+									: currentRow - 1,
+						},
 					};
 				});
 			}
@@ -967,21 +967,21 @@ class Layout extends Component {
 
 		this.setState(
 			{
-				adjustGridAreasTriggerd: true
+				adjustGridAreasTriggerd: true,
 			},
 			() => {
 				setTimeout(() => {
 					this.setState({
-						adjustGridAreasTriggerd: false
+						adjustGridAreasTriggerd: false,
 					});
 				}, 3000);
-			}
+			},
 		);
 	}
 	componentWillReceiveProps = (nextProps) => {
 		if (this.state.triggerFont !== nextProps.triggerFont) {
 			this.setState({
-				triggerFont: nextProps.triggerFont
+				triggerFont: nextProps.triggerFont,
 			});
 		}
 		if (this.props.triggerAdjustGridAreas !== nextProps.triggerAdjustGridAreas) {
@@ -992,33 +992,33 @@ class Layout extends Component {
 		}
 		if (this.state.intialGridRows !== nextProps.intialGridRows) {
 			this.setState({
-				intialGridRows: nextProps.intialGridRows
+				intialGridRows: nextProps.intialGridRows,
 			});
 		}
 		if (this.state.mIntialGridRows !== nextProps.mIntialGridRows) {
 			this.setState({
-				mIntialGridRows: nextProps.mIntialGridRows
+				mIntialGridRows: nextProps.mIntialGridRows,
 			});
 		}
 		if (this.state.fluidShowGrid !== nextProps.fluidShowGrid) {
 			this.setState({
-				fluidShowGrid: nextProps.fluidShowGrid
+				fluidShowGrid: nextProps.fluidShowGrid,
 			});
 		}
 		if (this.state.isLastSection !== nextProps.isLastSection) {
 			this.setState({
-				isLastSection: nextProps.isLastSection
+				isLastSection: nextProps.isLastSection,
 			});
 		}
 		if (this.state._id !== nextProps._id) {
 			this.setState({
-				_id: nextProps._id
+				_id: nextProps._id,
 			});
 		}
 		if (this.state.previewMode !== nextProps.previewMode) {
 			this.setState(
 				{
-					previewMode: nextProps.previewMode
+					previewMode: nextProps.previewMode,
 				},
 				() => {
 					if (nextProps.previewMode === 'm') {
@@ -1026,104 +1026,104 @@ class Layout extends Component {
 						this.setState(
 							{
 								gridCols: 8,
-								adjustGridAreasTriggerd: true
+								adjustGridAreasTriggerd: true,
 							},
 							() => {
 								this.adjustGridAreas();
-							}
+							},
 						);
 					} else {
 						this.setState(
 							{
-								gridCols: 28
+								gridCols: 28,
 							},
-							() => {}
+							() => {},
 						);
 					}
-				}
+				},
 			);
 		}
 		if (this.state.triggeredFont !== nextProps.triggeredFont) {
 			this.setState({
-				triggeredFont: nextProps.triggeredFont
+				triggeredFont: nextProps.triggeredFont,
 			});
 		}
 		if (this.state.activeFontColor !== nextProps.activeFontColor) {
 			this.setState({
-				activeFontColor: nextProps.activeFontColor
+				activeFontColor: nextProps.activeFontColor,
 			});
 		}
 		if (this.state.activeSubBlockId !== nextProps.activeSubBlockId) {
 			this.setState({
-				activeSubBlockId: nextProps.activeSubBlockId
+				activeSubBlockId: nextProps.activeSubBlockId,
 			});
 		}
 		if (this.state.actionType !== nextProps.actionType) {
 			this.setState({
-				actionType: nextProps.actionType
+				actionType: nextProps.actionType,
 			});
 		}
 		if (this.state.activeTextBlock !== nextProps.activeTextBlock) {
 			this.setState({
-				activeTextBlock: nextProps.activeTextBlock
+				activeTextBlock: nextProps.activeTextBlock,
 			});
 		}
 		if (this.state.actionValue !== nextProps.actionValue) {
 			this.setState({
-				actionValue: nextProps.actionValue
+				actionValue: nextProps.actionValue,
 			});
 		}
 		if (this.state.activeSectionID !== nextProps.activeSectionID) {
 			this.setState({
-				activeSectionID: nextProps.activeSectionID
+				activeSectionID: nextProps.activeSectionID,
 			});
 		}
 		if (this.state.animationDirection !== nextProps.animationDirection) {
 			this.setState(
 				{
-					animationDirection: nextProps.animationDirection
+					animationDirection: nextProps.animationDirection,
 				},
-				() => this.reanimateSection()
+				() => this.reanimateSection(),
 			);
 		}
 		if (this.state.animationSpeed !== nextProps.animationSpeed) {
 			this.setState(
 				{
-					animationSpeed: nextProps.animationSpeed
+					animationSpeed: nextProps.animationSpeed,
 				},
-				() => this.reanimateSection()
+				() => this.reanimateSection(),
 			);
 		}
 		if (this.state.animationType !== nextProps.animationType) {
 			this.setState(
 				{
-					animationType: nextProps.animationType
+					animationType: nextProps.animationType,
 				},
-				() => this.reanimateSection()
+				() => this.reanimateSection(),
 			);
 		}
 		if (this.state.activeAnimation !== nextProps.activeAnimation) {
 			this.setState(
 				{
-					activeAnimation: nextProps.activeAnimation
+					activeAnimation: nextProps.activeAnimation,
 				},
-				() => this.reanimateSection()
+				() => this.reanimateSection(),
 			);
 		}
 		if (this.state.crop !== nextProps.crop) {
 			this.setState({
-				crop: nextProps.crop
+				crop: nextProps.crop,
 			});
 		}
 		if (this.state.zoom !== nextProps.zoom) {
 			this.setState({
-				zoom: nextProps.zoom
+				zoom: nextProps.zoom,
 			});
 		}
 		if (this.state.blocks !== nextProps.blocks) {
 			this.setState(
 				{
-					blocks: nextProps.blocks
+					blocks: nextProps.blocks,
 				},
 				() => {
 					this.setState({
@@ -1131,82 +1131,82 @@ class Layout extends Component {
 							? this.state.previewType === 'm'
 								? nextProps.blocks?.[0]?.divStyles?.mGridRows
 								: nextProps.blocks?.[0]?.divStyles?.gridRows
-							: 8
+							: 8,
 					});
-				}
+				},
 			);
 		}
 		if (this.state.style !== nextProps.style) {
 			this.setState({
-				style: nextProps.style
+				style: nextProps.style,
 			});
 		}
 		if (this.state.sectionID !== nextProps._id) {
 			this.setState({
-				sectionID: nextProps._id
+				sectionID: nextProps._id,
 			});
 		}
 		if (this.state.preview !== nextProps.preview) {
 			this.setState({
-				preview: nextProps.preview
+				preview: nextProps.preview,
 			});
 		}
 		if (this.state.previewType !== nextProps.previewType) {
 			this.setState(
 				{
-					previewType: nextProps.previewType
+					previewType: nextProps.previewType,
 				},
 				() => {
 					this.getGridRowsCount();
-				}
+				},
 			);
 		}
 		if (this.state.activeVariableID !== nextProps.activeVariableID) {
 			this.setState({
-				activeVariableID: nextProps.activeVariableID
+				activeVariableID: nextProps.activeVariableID,
 			});
 		}
 		if (this.state.activeVariableName !== nextProps.activeVariableName) {
 			this.setState({
-				activeVariableName: nextProps.activeVariableName
+				activeVariableName: nextProps.activeVariableName,
 			});
 		}
 		if (this.state.subBlockID !== nextProps.subBlockID) {
 			this.setState({
-				subBlockID: nextProps.subBlockID
+				subBlockID: nextProps.subBlockID,
 			});
 		}
 		if (this.state.isActiveSection !== nextProps.isActiveSection) {
 			this.setState(
 				{
-					isActiveSection: nextProps.isActiveSection
+					isActiveSection: nextProps.isActiveSection,
 				},
 				() => {
 					this.setState({
-						showBlockOptions: nextProps.isActiveSection
+						showBlockOptions: nextProps.isActiveSection,
 					});
-				}
+				},
 			);
 		}
 		if (this.state.sectionType !== nextProps.sectionType) {
 			this.setState({
-				sectionType: nextProps.sectionType
+				sectionType: nextProps.sectionType,
 			});
 		}
 		// for bg types -Abdullah
 		if (this.state.backgroundType !== nextProps.backgroundType) {
 			this.setState({
-				backgroundType: nextProps.backgroundType
+				backgroundType: nextProps.backgroundType,
 			});
 		}
 		if (this.state.backgroundImageURL !== nextProps.backgroundImageURL) {
 			this.setState({
-				backgroundImageURL: nextProps.backgroundImageURL
+				backgroundImageURL: nextProps.backgroundImageURL,
 			});
 		}
 		if (this.state.backgroundVideoURL !== nextProps.backgroundVideoURL) {
 			this.setState({
-				backgroundVideoURL: nextProps.backgroundVideoURL
+				backgroundVideoURL: nextProps.backgroundVideoURL,
 			});
 		}
 
@@ -1214,7 +1214,7 @@ class Layout extends Component {
 
 		if (this.state.contractVariables !== nextProps.contractVariables) {
 			this.setState({
-				contractVariables: nextProps.contractVariables
+				contractVariables: nextProps.contractVariables,
 			});
 		}
 		// if (this.state.justifyleft !== nextProps.justifyleft) {
@@ -1263,14 +1263,14 @@ class Layout extends Component {
 			this.setState({
 				showAddElement: false,
 				searchQuery: '',
-				filteredElements: elements
+				filteredElements: elements,
 			});
 		}
 		if (this.searchInputRef.current && !this.searchInputRef.current.contains(event.target)) {
 			this.setState({
 				showSlashElement: false,
 				slashInput: '',
-				isClick: false
+				isClick: false,
 			});
 		}
 		if (
@@ -1286,7 +1286,7 @@ class Layout extends Component {
 				showBlockActions: false,
 				activeComponentID: null,
 				activeComponent: null,
-				isFocused: false
+				isFocused: false,
 			});
 		}
 		if (this.blockRef.current && !this.blockRef.current.contains(event.target)) {
@@ -1294,7 +1294,7 @@ class Layout extends Component {
 				showBlockActions: false,
 				activeComponentID: null,
 				activeComponent: null,
-				isFocused: false
+				isFocused: false,
 			});
 		}
 		if (this.blockRef.current && this.blockRef.current.contains(event.target)) {
@@ -1310,7 +1310,7 @@ class Layout extends Component {
 								activeComponent: null,
 								isFocused: false,
 								setLink: false,
-								activeComponentLink: null
+								activeComponentLink: null,
 							});
 						}
 					}
@@ -1325,7 +1325,7 @@ class Layout extends Component {
 		) {
 			this.setState({
 				showSidebar: false,
-				activeComponentID: null
+				activeComponentID: null,
 			});
 		}
 		Object.values(this.boxRefs).forEach((ref, index) => {
@@ -1407,7 +1407,7 @@ class Layout extends Component {
 						// }
 					});
 				},
-				{ threshold: 0.1 }
+				{ threshold: 0.1 },
 			);
 		}
 	};
@@ -1445,7 +1445,7 @@ class Layout extends Component {
 		fillVideoBlock = null,
 		cardColor = null,
 		iconColor = null,
-		jCount = null
+		jCount = null,
 	) => {
 		let concat2 = '';
 		let concat1 = '';
@@ -1509,7 +1509,7 @@ class Layout extends Component {
 						triggerFont={this.state.triggerFont}
 						setTriggeredFont={(e) =>
 							this.setState({
-								triggeredFont: e
+								triggeredFont: e,
 							})
 						}
 						triggeredFont={this.state.triggeredFont}
@@ -1531,7 +1531,7 @@ class Layout extends Component {
 						handleSelection={(e, activeTextBlock) => {
 							this.setState({
 								activeFontSize: e[1],
-								activeColor: e[2]
+								activeColor: e[2],
 							});
 							let newAlign =
 								e[3] === 'justify' ? 'justifyfull' : e[3] ? `justify${e[3]}` : '';
@@ -1549,14 +1549,14 @@ class Layout extends Component {
 						activeTextBlock={this.state.activeTextBlock}
 						setContent={(e, mContent = false) => {
 							this.setState({
-								followUpBlocks: {}
+								followUpBlocks: {},
 							});
 							this.props.setSubBlockContent(
 								e,
 								this.state.sectionID,
 								header === 'header' ? null : blockID,
 								properties._id,
-								mContent
+								mContent,
 							);
 						}}
 						preview={this.state.preview}
@@ -1611,7 +1611,7 @@ class Layout extends Component {
 								false,
 								false,
 								false,
-								true
+								true,
 							)
 						}
 						currencySymbol={this.props?.currencySymbol}
@@ -1642,7 +1642,7 @@ class Layout extends Component {
 								blockID,
 								properties._id,
 								properties.imageURL,
-								e
+								e,
 							)
 						}
 						activeSubBlockId={this.state.activeSubBlockId}
@@ -1678,13 +1678,13 @@ class Layout extends Component {
 						}
 						setContent={(e) => {
 							this.setState({
-								followUpBlocks: {}
+								followUpBlocks: {},
 							});
 							this.props.setSubBlockContent(
 								e,
 								this.state.sectionID,
 								blockID,
-								properties._id
+								properties._id,
 							);
 						}}
 						setTab={(e) => this.props.handleSetTab('bt', properties._id, blockID)}
@@ -1712,7 +1712,7 @@ class Layout extends Component {
 						triggerFont={this.state.triggerFont}
 						setTriggeredFont={(e) =>
 							this.setState({
-								triggeredFont: e
+								triggeredFont: e,
 							})
 						}
 						getModuleInfo={(id, type) => this.props.getModuleInfo(id, type)}
@@ -1733,13 +1733,13 @@ class Layout extends Component {
 						content={properties.content}
 						setContent={(e) => {
 							this.setState({
-								followUpBlocks: {}
+								followUpBlocks: {},
 							});
 							this.props.setSubBlockContent(
 								e,
 								this.state.sectionID,
 								blockID,
-								properties._id
+								properties._id,
 							);
 						}}
 						divStyles={properties.divStyles}
@@ -1807,7 +1807,7 @@ class Layout extends Component {
 								blockID,
 								properties._id,
 								properties.imageURL,
-								e
+								e,
 							)
 						}
 						client={this.props.client}
@@ -1873,7 +1873,7 @@ class Layout extends Component {
 						setModal={() =>
 							this.setState({
 								setIconLink: false,
-								activeComponentLink: null
+								activeComponentLink: null,
 							})
 						}
 					/>
@@ -1998,7 +1998,7 @@ class Layout extends Component {
 						setIsValidURL={(e) => {
 							if (this.state?.activeType == 'video') {
 								this.setState({
-									isvalidActiveVideoURL: e
+									isvalidActiveVideoURL: e,
 								});
 							}
 							this.props.handleIsValidURL(e);
@@ -2132,7 +2132,7 @@ class Layout extends Component {
 
 		this.setState({
 			cellHeight: desktopCellHeight,
-			cellWidth: cellWidth
+			cellWidth: cellWidth,
 		});
 
 		// Calculate relative mouse position within layout
@@ -2150,7 +2150,7 @@ class Layout extends Component {
 		const updateGridArea = `${row} / ${col} / ${row + 4} / ${col + 4}`;
 		if (this.state.clickGridArea !== updateGridArea) {
 			this.setState({
-				slashInput: ''
+				slashInput: '',
 			});
 		}
 
@@ -2162,24 +2162,24 @@ class Layout extends Component {
 				clickGridArea: updateGridArea,
 				showSlashElement: false,
 				posX: relativeX,
-				posY: relativeY
+				posY: relativeY,
 			},
 			() => {
 				this.props.handleSideBar(e, this.props._id);
 				this.props.setLastClick(this.state.clickGridArea);
-			}
+			},
 		);
 
 		if (this.isLayoutClick(e)) {
 			this.setState({
 				showBlockActions: true,
-				showBlockOptions: true
+				showBlockOptions: true,
 			});
 		} else {
 			// Clicked on a subblock - hide block actions
 			this.setState({
 				showBlockActions: false,
-				showBlockOptions: false
+				showBlockOptions: false,
 			});
 		}
 	};
@@ -2237,8 +2237,8 @@ class Layout extends Component {
 				..._.omit(clipboardData.divStyles, ['mGridArea']),
 				gridArea: `${row + 1} / ${col + 1} / ${rowSpan + 1} / ${colSpan + 1}`,
 				zIndex: zindexValues.zIndex + 1,
-				mZIndex: zindexValues.mZIndex + 1
-			}
+				mZIndex: zindexValues.mZIndex + 1,
+			},
 		};
 
 		// Await the duplication if possible
@@ -2252,13 +2252,13 @@ class Layout extends Component {
 			// Find the sub-block with the highest zIndex (most likely the new one)
 			let newSubBlock = subBlocks.reduce(
 				(max, sb) => (sb.divStyles?.zIndex > (max?.divStyles?.zIndex || 0) ? sb : max),
-				subBlocks[0]
+				subBlocks[0],
 			);
 			if (newSubBlock) {
 				this.setState({
 					blocks: updatedBlocks,
 					activeComponentID: newSubBlock._id,
-					activeComponent: newSubBlock
+					activeComponent: newSubBlock,
 				});
 			}
 		}, 300); // 300ms debounce for async update
@@ -2269,8 +2269,8 @@ class Layout extends Component {
 			let updatedBlocks = this.state.blocks.map((block) => ({
 				...block,
 				subBlocks: block.subBlocks.filter(
-					(subBlock) => subBlock._id !== this.state.activeComponentID
-				)
+					(subBlock) => subBlock._id !== this.state.activeComponentID,
+				),
 			}));
 
 			this.setState(
@@ -2278,11 +2278,11 @@ class Layout extends Component {
 					blocks: updatedBlocks,
 					activeComponentID: null,
 					activeComponent: null,
-					previewGrid: false
+					previewGrid: false,
 				},
 				() => {
 					this.props.handleSaveblocks(this.state.blocks);
-				}
+				},
 			);
 		}
 	};
@@ -2312,17 +2312,17 @@ class Layout extends Component {
 		// e.stopPropagation();
 		// this.props.showAddElement(e);
 		this.setState({
-			showAddElement: !this.state.showAddElement
+			showAddElement: !this.state.showAddElement,
 		});
 	};
 	toggleShowHide = (e) => {
 		this.setState({
-			showHide: !this.state.showHide
+			showHide: !this.state.showHide,
 		});
 	};
 	getAnimationTiming = () => {
 		const matchedAnimation = animationSpeedSec.find(
-			(item) => Object.keys(item)[0] === this.state.animationSpeed // Return the result of the comparison
+			(item) => Object.keys(item)[0] === this.state.animationSpeed, // Return the result of the comparison
 		);
 
 		const speed = matchedAnimation ? matchedAnimation[this.state.animationSpeed] : 0;
@@ -2416,7 +2416,7 @@ class Layout extends Component {
 
 		const { hasOverlappingAbove, hasOverlappingBelow, overLappingBlocks } = this.checkOverlap(
 			this.state.blocks[0],
-			this.state.blocks[0].subBlocks.find((block) => block._id === componentID)
+			this.state.blocks[0].subBlocks.find((block) => block._id === componentID),
 		);
 
 		this.setState(
@@ -2429,12 +2429,12 @@ class Layout extends Component {
 				followUpBlocks: {},
 				overlapOptions: {
 					hasOverlappingAbove,
-					hasOverlappingBelow
-				}
+					hasOverlappingBelow,
+				},
 			},
 			() => {
 				this.props.handleSideBar(e, this.props._id);
-			}
+			},
 		);
 
 		// Store initial values when resize starts
@@ -2448,8 +2448,8 @@ class Layout extends Component {
 				gridArea:
 					this.state.previewType === 'm'
 						? component?.divStyles?.mGridArea
-						: component?.divStyles?.gridArea
-			}
+						: component?.divStyles?.gridArea,
+			},
 		});
 		if (
 			(data.x !== this.state.initialDragX || data.y !== this.state.initialDragY) &&
@@ -2562,7 +2562,7 @@ class Layout extends Component {
 			if (this.state.gridRows === rowEnd) {
 				this.setState({
 					gridRows: this.state.gridRows + 1,
-					layoutHeight: this.state.layoutHeight + cellHeight
+					layoutHeight: this.state.layoutHeight + cellHeight,
 				});
 			}
 			// else if (rowEnd < this.state.gridRows && this.state.gridRows > intialRows) {
@@ -2580,12 +2580,12 @@ class Layout extends Component {
 					gridArea,
 					mGridArea: gridArea,
 					width: elementRect?.width,
-					height: elementRect?.height
+					height: elementRect?.height,
 				},
 				componentPositions: {
 					...this.state.componentPositions,
-					[component?._id]: { x: data.x, y: data.y }
-				}
+					[component?._id]: { x: data.x, y: data.y },
+				},
 			});
 		}
 	};
@@ -2598,20 +2598,20 @@ class Layout extends Component {
 			const finalY = e.clientY;
 			const isChanged = initialX !== finalX || initialY !== finalY;
 			const currentBlock = [...this.state.blocks][0]?.subBlocks?.find(
-				(block) => block._id === component._id
+				(block) => block._id === component._id,
 			);
 
 			if (!isChanged) {
 				const { hasOverlappingAbove, hasOverlappingBelow } = this.checkOverlap(
 					[...this.state.blocks][0],
-					currentBlock
+					currentBlock,
 				);
 
 				this.setState({
 					overlapOptions: {
 						hasOverlappingAbove,
-						hasOverlappingBelow
-					}
+						hasOverlappingBelow,
+					},
 				});
 
 				return;
@@ -2622,7 +2622,7 @@ class Layout extends Component {
 				blockIndex: null,
 				subBlockIndex: null,
 				block: null,
-				subBlock: null
+				subBlock: null,
 			};
 
 			let maxZ = 0;
@@ -2656,7 +2656,7 @@ class Layout extends Component {
 							...subBlock.divStyles,
 							...(this.state.previewMode === 'm' ? { mGridArea } : { gridArea }),
 							dragX: data.x,
-							dragY: data.y
+							dragY: data.y,
 						};
 						activeBlock.blockIndex = k;
 						activeBlock.subBlockIndex = index;
@@ -2686,8 +2686,8 @@ class Layout extends Component {
 					layoutHeight: this.state.layoutHeight,
 					...(this.state.previewType === 'm'
 						? { mGridRows: this.state.gridRows }
-						: { gridRows: this.state.gridRows })
-				}
+						: { gridRows: this.state.gridRows }),
+				},
 			};
 
 			this.setState(
@@ -2697,10 +2697,10 @@ class Layout extends Component {
 					previewGrid: false,
 					overlapOptions: {
 						hasOverlappingAbove,
-						hasOverlappingBelow
+						hasOverlappingBelow,
 					},
 
-					blocks: updatedLayoutHeight
+					blocks: updatedLayoutHeight,
 				},
 				() => {
 					this.setState({
@@ -2717,11 +2717,11 @@ class Layout extends Component {
 						initialGridRows: 0,
 						isDragging: false,
 						initialDragX: 0,
-						initialDragY: 0
+						initialDragY: 0,
 					});
 					this.adjustGridAreas(updatedLayoutHeight);
 					// Remove transforms after state update
-				}
+				},
 			);
 		}
 		// Store the position
@@ -2738,13 +2738,13 @@ class Layout extends Component {
 				? block1?.divStyles?.mGridArea
 				: block1?.divStyles?.gridArea;
 		const [blockLeft1, blockTop1, blockRight1, blockBottom1] = gridArea1?.split('/') || [
-			0, 0, 0, 0
+			0, 0, 0, 0,
 		];
 		const b1 = {
 			left: parseInt(blockLeft1),
 			right: parseInt(blockRight1),
 			top: parseInt(blockTop1),
-			bottom: parseInt(blockBottom1)
+			bottom: parseInt(blockBottom1),
 		};
 
 		let gridArea2 =
@@ -2752,14 +2752,14 @@ class Layout extends Component {
 				? block2?.divStyles?.mGridArea
 				: block2?.divStyles?.gridArea;
 		const [blockLeft2, blockTop2, blockRight2, blockBottom2] = gridArea2?.split('/') || [
-			0, 0, 0, 0
+			0, 0, 0, 0,
 		];
 
 		const b2 = {
 			left: parseInt(blockLeft2),
 			right: parseInt(blockRight2),
 			top: parseInt(blockTop2),
-			bottom: parseInt(blockBottom2)
+			bottom: parseInt(blockBottom2),
 		};
 
 		// Check if there's any intersection at all
@@ -2851,7 +2851,7 @@ class Layout extends Component {
 					(block) =>
 						(this.state.previewType === 'm'
 							? block?.divStyles?.mZIndex || 0
-							: block?.divStyles?.zIndex || 0) > currentZIndex
+							: block?.divStyles?.zIndex || 0) > currentZIndex,
 				);
 
 				if (higherBlock) {
@@ -2879,7 +2879,7 @@ class Layout extends Component {
 					(block) =>
 						(this.state.previewType === 'm'
 							? block?.divStyles?.mZIndex || 0
-							: block?.divStyles?.zIndex || 0) < currentZIndex
+							: block?.divStyles?.zIndex || 0) < currentZIndex,
 				);
 				const lowerBlock = lowerBlocks[lowerBlocks?.length - 1];
 
@@ -2903,7 +2903,7 @@ class Layout extends Component {
 
 			const { hasOverlappingAbove, hasOverlappingBelow } = this.checkOverlap(
 				newBlocks,
-				currentBlock
+				currentBlock,
 			);
 			hasCurrentOverlappingAbove = hasOverlappingAbove;
 			hasCurrentOverlappingBelow = hasOverlappingBelow;
@@ -2917,12 +2917,12 @@ class Layout extends Component {
 				blocks: updatedBlocks,
 				overlapOptions: {
 					hasOverlappingAbove: hasCurrentOverlappingAbove,
-					hasOverlappingBelow: hasCurrentOverlappingBelow
-				}
+					hasOverlappingBelow: hasCurrentOverlappingBelow,
+				},
 			},
 			() => {
 				this.props.handleSaveblocks(updatedBlocks);
-			}
+			},
 		);
 	};
 
@@ -2930,7 +2930,7 @@ class Layout extends Component {
 		if (this.blockRef.current) {
 			const { width, height } = this.blockRef?.current?.getBoundingClientRect();
 			this.setState({
-				layoutDimensions: { width, height }
+				layoutDimensions: { width, height },
 			});
 		}
 	};
@@ -2971,14 +2971,14 @@ class Layout extends Component {
 			resizingComponentID: componentID,
 			initialMousePos: {
 				x: e.clientX,
-				y: e.clientY
+				y: e.clientY,
 			},
 
 			initialDimensions: this.boxRefs[componentID]?.getBoundingClientRect(),
 			placeholderPosition: {
 				gridArea,
-				mGridArea
-			}
+				mGridArea,
+			},
 		});
 
 		// Add mouse move and mouse up event listeners
@@ -3007,12 +3007,12 @@ class Layout extends Component {
 		if (!this.state.isResizing) return;
 
 		const activeComponent = this.state.blocks[0].subBlocks.find(
-			(block) => block._id === this.state.resizingComponentID
+			(block) => block._id === this.state.resizingComponentID,
 		);
 
 		if (activeComponent?.type === 'text') {
 			const textElement = document.querySelector(
-				`[data-id="${this.state.resizingComponentID}"] .jodit-wysiwyg`
+				`[data-id="${this.state.resizingComponentID}"] .jodit-wysiwyg`,
 			);
 			const textHeight = textElement?.scrollHeight || 0;
 
@@ -3044,18 +3044,18 @@ class Layout extends Component {
 							...this.state.placeholderPosition,
 							...(this.state.previewType === 'm'
 								? {
-										mGridArea: `${rowStart} / ${colStart} / ${updatedRowEnd} / ${colEnd}`
+										mGridArea: `${rowStart} / ${colStart} / ${updatedRowEnd} / ${colEnd}`,
 								  }
 								: {
-										gridArea: `${rowStart} / ${colStart} / ${updatedRowEnd} / ${colEnd}`
-								  })
-						}
+										gridArea: `${rowStart} / ${colStart} / ${updatedRowEnd} / ${colEnd}`,
+								  }),
+						},
 					},
 					() => {
 						this.setState({
-							textError: true
+							textError: true,
 						});
-					}
+					},
 				);
 
 				return;
@@ -3089,65 +3089,65 @@ class Layout extends Component {
 			case 'e': // East (right)
 				newGridArea = `${rowStart} / ${colStart} / ${rowEnd} / ${Math.max(
 					colStart + 1,
-					colEnd + this.cellWidthToBeIncreased(deltaX)
+					colEnd + this.cellWidthToBeIncreased(deltaX),
 				)}`;
 				break;
 
 			case 'w': // West (left)
 				newGridArea = `${rowStart} / ${Math.min(
 					colEnd - 1,
-					colStart + this.cellWidthToBeIncreased(deltaX)
+					colStart + this.cellWidthToBeIncreased(deltaX),
 				)} / ${rowEnd} / ${colEnd}`;
 				break;
 
 			case 'n': // North (top)
 				newGridArea = `${Math.min(
 					rowEnd - 1,
-					rowStart + this.cellHeightToBeIncreased(deltaY)
+					rowStart + this.cellHeightToBeIncreased(deltaY),
 				)} / ${colStart} / ${rowEnd} / ${colEnd}`;
 				break;
 
 			case 's': // South (bottom)
 				newGridArea = `${rowStart} / ${colStart} / ${Math.max(
 					rowStart + 1,
-					rowEnd + this.cellHeightToBeIncreased(deltaY)
+					rowEnd + this.cellHeightToBeIncreased(deltaY),
 				)} / ${colEnd}`;
 				break;
 
 			case 'ne': // Northeast
 				newGridArea = `${Math.min(
 					rowEnd - 1,
-					rowStart + this.cellHeightToBeIncreased(deltaY)
+					rowStart + this.cellHeightToBeIncreased(deltaY),
 				)} / ${colStart} / ${rowEnd} / ${Math.max(
 					colStart + 1,
-					colEnd + this.cellWidthToBeIncreased(deltaX)
+					colEnd + this.cellWidthToBeIncreased(deltaX),
 				)}`;
 				break;
 
 			case 'nw': // Northwest
 				newGridArea = `${Math.min(
 					rowEnd - 1,
-					rowStart + this.cellHeightToBeIncreased(deltaY)
+					rowStart + this.cellHeightToBeIncreased(deltaY),
 				)} / ${Math.min(
 					colEnd - 1,
-					colStart + this.cellWidthToBeIncreased(deltaX)
+					colStart + this.cellWidthToBeIncreased(deltaX),
 				)} / ${rowEnd} / ${colEnd}`;
 				break;
 
 			case 'se': // Southeast
 				newGridArea = `${rowStart} / ${colStart} / ${Math.max(
 					rowStart + 1,
-					rowEnd + this.cellHeightToBeIncreased(deltaY)
+					rowEnd + this.cellHeightToBeIncreased(deltaY),
 				)} / ${Math.max(colStart + 1, colEnd + this.cellWidthToBeIncreased(deltaX))}`;
 				break;
 
 			case 'sw': // Southwest
 				newGridArea = `${rowStart} / ${Math.min(
 					colEnd - 1,
-					colStart + this.cellWidthToBeIncreased(deltaX)
+					colStart + this.cellWidthToBeIncreased(deltaX),
 				)} / ${Math.max(
 					rowStart + 1,
-					rowEnd + this.cellHeightToBeIncreased(deltaY)
+					rowEnd + this.cellHeightToBeIncreased(deltaY),
 				)} / ${colEnd}`;
 				break;
 		}
@@ -3160,7 +3160,7 @@ class Layout extends Component {
 		if (this.state.gridRows === newRowEnd) {
 			this.setState({
 				gridRows: this.state.gridRows + 1,
-				layoutHeight: this.state.layoutHeight + cellHeight
+				layoutHeight: this.state.layoutHeight + cellHeight,
 			});
 		}
 		if (this.state.previewMode === 'm' && newColEnd > 9) {
@@ -3178,10 +3178,10 @@ class Layout extends Component {
 				mGridArea:
 					this.state.previewMode === 'm'
 						? newGridArea
-						: this.state.placeholderPosition?.mGridArea
+						: this.state.placeholderPosition?.mGridArea,
 			},
 			deltaX,
-			deltaY
+			deltaY,
 		});
 	};
 
@@ -3196,7 +3196,7 @@ class Layout extends Component {
 			updatedBlocks.push(block);
 		});
 		this.setState({
-			blocks: updatedBlocks
+			blocks: updatedBlocks,
 		});
 		// this.props.handleSaveblocks(updatedBlocks);
 	};
@@ -3204,7 +3204,7 @@ class Layout extends Component {
 	handleResizeEnd = () => {
 		// Clean up event
 		this.setState({
-			textError: false
+			textError: false,
 		});
 		let updatedBlocks = [];
 		_.map(this.state.blocks, (block, k) => {
@@ -3231,7 +3231,7 @@ class Layout extends Component {
 						...subBlock.divStyles,
 						...(this.state.previewMode === 'm' || this.state.previewType === 'm'
 							? { mGridArea }
-							: { gridArea })
+							: { gridArea }),
 					};
 				}
 			});
@@ -3248,8 +3248,8 @@ class Layout extends Component {
 				layoutHeight: this.state.layoutHeight,
 				...(this.state.previewType === 'm'
 					? { mGridRows: this.state.gridRows }
-					: { gridRows: this.state.gridRows })
-			}
+					: { gridRows: this.state.gridRows }),
+			},
 		};
 
 		this.setState(
@@ -3260,22 +3260,22 @@ class Layout extends Component {
 
 				deltaX: 0,
 				deltaY: 0,
-				blocks: updatedLayoutHeight
+				blocks: updatedLayoutHeight,
 			},
 			() => {
 				this.handleTextResize(updatedLayoutHeight);
-			}
+			},
 		);
 	};
 
 	handleTextResize = (updatedLayoutHeight) => {
 		const activeComponent = updatedLayoutHeight[0].subBlocks.find(
-			(block) => block._id === this.state.resizingComponentID
+			(block) => block._id === this.state.resizingComponentID,
 		);
 
 		if (activeComponent?.type === 'text') {
 			const textElement = document.querySelector(
-				`[data-id="${this.state.resizingComponentID}"] .jodit-wysiwyg`
+				`[data-id="${this.state.resizingComponentID}"] .jodit-wysiwyg`,
 			);
 			const textHeight = textElement?.scrollHeight || 0;
 
@@ -3308,7 +3308,7 @@ class Layout extends Component {
 						...updatedLayoutHeight[0].subBlocks[index].divStyles,
 						...(this.state.previewType === 'm'
 							? { mGridArea: `${rowStart}/${colStart}/${updatedRowEnd}/${colEnd}` }
-							: { gridArea: `${rowStart}/${colStart}/${updatedRowEnd}/${colEnd}` })
+							: { gridArea: `${rowStart}/${colStart}/${updatedRowEnd}/${colEnd}` }),
 					};
 				}
 			});
@@ -3316,22 +3316,22 @@ class Layout extends Component {
 				if (updatedRowEnd >= this.state.mIntialGridRows + 1) {
 					updatedLayoutHeight[0].divStyles.mGridRows = updatedRowEnd;
 					this.setState({
-						mGridRows: updatedRowEnd
+						mGridRows: updatedRowEnd,
 					});
 				} else {
 					this.setState({
-						mGridRows: this.state.mIntialGridRows
+						mGridRows: this.state.mIntialGridRows,
 					});
 				}
 			} else {
 				if (updatedRowEnd >= this.state.intialGridRows + 1) {
 					updatedLayoutHeight[0].divStyles.gridRows = updatedRowEnd;
 					this.setState({
-						gridRows: updatedRowEnd
+						gridRows: updatedRowEnd,
 					});
 				} else {
 					this.setState({
-						gridRows: this.state.intialGridRows
+						gridRows: this.state.intialGridRows,
 					});
 				}
 			}
@@ -3339,11 +3339,11 @@ class Layout extends Component {
 		this.setState(
 			{
 				resizingComponentID: null,
-				blocks: updatedLayoutHeight
+				blocks: updatedLayoutHeight,
 			},
 			() => {
 				this.props.handleSaveblocks(updatedLayoutHeight);
-			}
+			},
 		);
 	};
 
@@ -3353,11 +3353,11 @@ class Layout extends Component {
 				previewGrid: true,
 				initialMouseY: e.clientY, // Store initial mouse position
 				layoutResizing: true,
-				activeBlockID: blockId
+				activeBlockID: blockId,
 			},
 			() => {
 				this.props.handleSideBar(e, this.props._id);
-			}
+			},
 		);
 
 		document.addEventListener('mousemove', this.handleResizeBlock);
@@ -3388,11 +3388,11 @@ class Layout extends Component {
 				this.setState({
 					layoutHeight: this.state.layoutHeight + cellHeight * cellsToAdd,
 					gridRows: this.state.gridRows + cellsToAdd,
-					initialMouseY: e.clientY
+					initialMouseY: e.clientY,
 				});
 			} else {
 				this.setState({
-					initialMouseY: e.clientY
+					initialMouseY: e.clientY,
 				});
 			}
 		}
@@ -3410,8 +3410,8 @@ class Layout extends Component {
 						layoutHeight: this.state.layoutHeight,
 						...(this.state.previewType === 'm'
 							? { mGridRows: this.state.gridRows }
-							: { gridRows: this.state.gridRows })
-					}
+							: { gridRows: this.state.gridRows }),
+					},
 				};
 			}
 		}
@@ -3421,11 +3421,11 @@ class Layout extends Component {
 				layoutResizing: false,
 				previewGrid: false,
 				initialMouseY: null,
-				blocks: updatedBlocks
+				blocks: updatedBlocks,
 			},
 			() => {
 				this.props.handleSaveblocks(updatedBlocks);
-			}
+			},
 		);
 
 		document.removeEventListener('mousemove', this.handleResizeBlock);
@@ -3482,7 +3482,7 @@ class Layout extends Component {
 		this.setState({
 			activeComponentID: component?._id,
 			activeComponent: component,
-			initialGridArea: gridArea
+			initialGridArea: gridArea,
 		});
 	};
 	hexToRgba = (hex, alpha = 1) => {
@@ -3507,12 +3507,12 @@ class Layout extends Component {
 
 		this.setState({
 			searchQuery: query,
-			filteredElements: filtered
+			filteredElements: filtered,
 		});
 	};
 	AddElement = (element) => {
 		this.setState({
-			showAddElement: false
+			showAddElement: false,
 		});
 
 		let zindexValues = this.getMaxZIndex();
@@ -3523,10 +3523,12 @@ class Layout extends Component {
 		if (_.size(this.state.blocks) > 0) {
 			if (_.size(this.state.blocks[0].subBlocks) > 0) {
 				let zIndex = Math.max(
-					...this.state.blocks[0].subBlocks.map((subBlock) => subBlock.divStyles?.zIndex)
+					...this.state.blocks[0].subBlocks.map((subBlock) => subBlock.divStyles?.zIndex),
 				);
 				let mZIndex = Math.max(
-					...this.state.blocks[0].subBlocks.map((subBlock) => subBlock.divStyles?.mZIndex)
+					...this.state.blocks[0].subBlocks.map(
+						(subBlock) => subBlock.divStyles?.mZIndex,
+					),
 				);
 				return { zIndex, mZIndex };
 			} else {
@@ -3542,12 +3544,12 @@ class Layout extends Component {
 		if (value === '/') {
 			this.setState({
 				showSlashElement: true,
-				slashInput: value
+				slashInput: value,
 			});
 		} else if (value === '') {
 			this.setState({
 				showSlashElement: false,
-				slashInput: value
+				slashInput: value,
 			});
 		} else {
 			this.setState({ slashInput: value });
@@ -3559,20 +3561,20 @@ class Layout extends Component {
 			const searchTerm = this.state.slashInput.replace('/', '')?.toLowerCase();
 
 			const matchingElement = elements.find((element) =>
-				element.text?.toLowerCase().includes(searchTerm)
+				element.text?.toLowerCase().includes(searchTerm),
 			);
 			if (matchingElement) {
 				this.props.handleAddElement(matchingElement);
 				this.setState({
 					slashInput: '',
 					showSlashElement: false,
-					isClick: false
+					isClick: false,
 				});
 			} else {
 				// Show error message
 				alert('No matching element found');
 				this.setState({
-					slashInput: ''
+					slashInput: '',
 				});
 			}
 		}
@@ -3598,7 +3600,7 @@ class Layout extends Component {
 			rotatingComponentId: componentId,
 			rotationCenter: { x: centerX, y: centerY },
 			initialAngle: initialAngle,
-			currentRotation: component?.divStyles?.rotation || 0
+			currentRotation: component?.divStyles?.rotation || 0,
 		});
 
 		document.addEventListener('mousemove', this.handleRotateMove);
@@ -3611,7 +3613,7 @@ class Layout extends Component {
 		// Calculate the new angle based on mouse position relative to center
 		const currentAngle = Math.atan2(
 			e.clientY - this.state.rotationCenter.y,
-			e.clientX - this.state.rotationCenter.x
+			e.clientX - this.state.rotationCenter.x,
 		);
 
 		// Calculate rotation difference in degrees
@@ -3627,18 +3629,18 @@ class Layout extends Component {
 						...subBlock,
 						divStyles: {
 							...subBlock.divStyles,
-							rotation
-						}
+							rotation,
+						},
 					};
 				}
 				return subBlock;
-			})
+			}),
 		}));
 
 		this.setState({
 			blocks: updatedBlocks,
 			initialAngle: currentAngle, // Update initial angle for next move
-			currentRotation: rotation
+			currentRotation: rotation,
 		});
 	};
 
@@ -3653,11 +3655,11 @@ class Layout extends Component {
 				isRotating: false,
 				rotatingComponentId: null,
 				initialMouseY: null,
-				currentRotation: null
+				currentRotation: null,
 			},
 			() => {
 				this.props.handleSaveblocks(this.state.blocks);
-			}
+			},
 		);
 	};
 
@@ -3678,9 +3680,9 @@ class Layout extends Component {
 					startY,
 					endX: startX,
 					endY: startY,
-					isSelecting: true
+					isSelecting: true,
 				},
-				selectedComponents: []
+				selectedComponents: [],
 			});
 
 			document.addEventListener('mousemove', this.handleGroupSelectionMove);
@@ -3703,8 +3705,8 @@ class Layout extends Component {
 			selectionBox: {
 				...prevState.selectionBox,
 				endX,
-				endY
-			}
+				endY,
+			},
 		}));
 
 		// Check which components are within selection box
@@ -3715,8 +3717,8 @@ class Layout extends Component {
 		this.setState((prevState) => ({
 			selectionBox: {
 				...prevState.selectionBox,
-				isSelecting: true
-			}
+				isSelecting: true,
+			},
 		}));
 
 		document.removeEventListener('mousemove', this.handleGroupSelectionMove);
@@ -3740,7 +3742,7 @@ class Layout extends Component {
 					left: componentRect.left - layoutRect.left,
 					right: componentRect.right - layoutRect.left,
 					top: componentRect.top - layoutRect.top,
-					bottom: componentRect.bottom - layoutRect.top
+					bottom: componentRect.bottom - layoutRect.top,
 				};
 
 				minLeft = Math.min(minLeft, relativeRect.left);
@@ -3756,8 +3758,8 @@ class Layout extends Component {
 					startX: Math.max(0, minLeft - 10),
 					startY: Math.max(0, minTop - 10),
 					endX: Math.min(layoutRect.width, maxRight + 10),
-					endY: Math.min(layoutRect.height, maxBottom + 10)
-				}
+					endY: Math.min(layoutRect.height, maxBottom + 10),
+				},
 			});
 		}
 
@@ -3771,8 +3773,8 @@ class Layout extends Component {
 					startY: 0,
 					endX: 0,
 					endY: 0,
-					isSelecting: false
-				}
+					isSelecting: false,
+				},
 			});
 		}
 	};
@@ -3783,7 +3785,7 @@ class Layout extends Component {
 			left: Math.min(startX, endX),
 			right: Math.max(startX, endX),
 			top: Math.min(startY, endY),
-			bottom: Math.max(startY, endY)
+			bottom: Math.max(startY, endY),
 		};
 
 		const selectedComponents = [];
@@ -3800,7 +3802,7 @@ class Layout extends Component {
 				left: componentRect.left - layoutRect.left,
 				right: componentRect.right - layoutRect.left,
 				top: componentRect.top - layoutRect.top,
-				bottom: componentRect.bottom - layoutRect.top
+				bottom: componentRect.bottom - layoutRect.top,
 			};
 
 			// Check if component intersects with selection box
@@ -3824,7 +3826,7 @@ class Layout extends Component {
 		this.setState({
 			selectionBoxPosition: { x, y },
 			previewGrid: true,
-			showMultipOptions: true
+			showMultipOptions: true,
 		});
 		let groupRect = this.groupResizeRef.current.getBoundingClientRect();
 		let layoutRect = this.blockRef.current.getBoundingClientRect();
@@ -3845,13 +3847,13 @@ class Layout extends Component {
 				this.setState(
 					{
 						gridRows: this.state.gridRows + 1,
-						layoutHeight: (this.state.layoutHeight || layoutRect.height) + cellHeight
+						layoutHeight: (this.state.layoutHeight || layoutRect.height) + cellHeight,
 					},
 					() => {
 						setTimeout(() => {
 							this._expandingLayout = false;
 						}, 100);
-					}
+					},
 				);
 			}
 		}
@@ -3882,9 +3884,9 @@ class Layout extends Component {
 										data.deltaX,
 									y:
 										(prevState.componentPositions[componentId]?.y || 0) +
-										data.deltaY
-								}
-							}
+										data.deltaY,
+								},
+							},
 						}));
 					}
 				});
@@ -3896,7 +3898,7 @@ class Layout extends Component {
 		this.setState({
 			selectionBoxPosition: { x: 0, y: 0 },
 			previewGrid: false,
-			showMultipOptions: true
+			showMultipOptions: true,
 		});
 
 		const updatedBlocks = this.state.blocks.map((block) => ({
@@ -3905,7 +3907,7 @@ class Layout extends Component {
 				...block.divStyles,
 				...(this.state.previewMode === 'm'
 					? { mGridRows: this.state.gridRows }
-					: { gridRows: this.state.gridRows })
+					: { gridRows: this.state.gridRows }),
 			},
 			subBlocks: block.subBlocks.map((subBlock) => {
 				if (this.state.selectedComponents.includes(subBlock._id)) {
@@ -3944,13 +3946,13 @@ class Layout extends Component {
 									? { mGridArea: newGridArea }
 									: { gridArea: newGridArea }),
 								dragX: pos.x,
-								dragY: pos.y
-							}
+								dragY: pos.y,
+							},
 						};
 					}
 				}
 				return subBlock;
-			})
+			}),
 		}));
 
 		this.setState(
@@ -3959,12 +3961,12 @@ class Layout extends Component {
 				componentPositions: {},
 				selectionBox: {
 					...this.state.selectionBox,
-					isSelecting: false
-				}
+					isSelecting: false,
+				},
 			},
 			() => {
 				this.props.handleSaveblocks(updatedBlocks);
-			}
+			},
 		);
 	};
 
@@ -4002,7 +4004,7 @@ class Layout extends Component {
 	handleGroupResize = (e) => {
 		if (!this.state.isResizing) return;
 		this.setState({
-			previewGrid: true
+			previewGrid: true,
 		});
 
 		const { activeResizeDirection, initialMousePos, initialDimensions } = this.state;
@@ -4034,8 +4036,8 @@ class Layout extends Component {
 			activeResizeDirection: handle.direction,
 			initialMousePos: {
 				x: e.clientX,
-				y: e.clientY
-			}
+				y: e.clientY,
+			},
 		});
 
 		document.addEventListener('mousemove', this.handleGroupResize);
@@ -4043,7 +4045,7 @@ class Layout extends Component {
 	handleSetLink = (e) => {
 		this.setState({
 			setIconLink: true,
-			activeComponentLink: e
+			activeComponentLink: e,
 		});
 	};
 
@@ -4051,7 +4053,7 @@ class Layout extends Component {
 		id,
 		rowEndData,
 		updatedBlocks = null,
-		incrementFollowUpBlocks = true
+		incrementFollowUpBlocks = true,
 	) => {
 		let blocks = updatedBlocks ? updatedBlocks : this.state.blocks;
 		blocks.forEach((block, key) => {
@@ -4138,7 +4140,7 @@ class Layout extends Component {
 		}
 
 		let updateFields = {
-			blocks
+			blocks,
 		};
 
 		// if(rowEnd-1 > this.state.gridRows){
@@ -4254,8 +4256,8 @@ class Layout extends Component {
 						startY: minTop,
 						endX: maxRight,
 						endY: maxBottom,
-						isSelecting: true
-					}
+						isSelecting: true,
+					},
 				});
 			}, 100); // Wait for DOM update
 		});
@@ -4264,7 +4266,7 @@ class Layout extends Component {
 		let blocks = [...this.state.blocks];
 		blocks.forEach((block, key) => {
 			block.subBlocks = block.subBlocks.filter(
-				(subBlock) => !this.state.selectedComponents.includes(subBlock._id)
+				(subBlock) => !this.state.selectedComponents.includes(subBlock._id),
 			);
 		});
 		this.setState(
@@ -4276,12 +4278,12 @@ class Layout extends Component {
 					startY: 0,
 					endX: 0,
 					endY: 0,
-					isSelecting: false
-				}
+					isSelecting: false,
+				},
 			},
 			() => {
 				this.props.handleSaveblocks(blocks);
-			}
+			},
 		);
 	};
 
@@ -4312,7 +4314,7 @@ class Layout extends Component {
 		section = false,
 		tab = 'f',
 		buttonText = false,
-		openSmartFieldPopup = false
+		openSmartFieldPopup = false,
 	) => {
 		if (section) {
 			this.setState(
@@ -4321,17 +4323,17 @@ class Layout extends Component {
 					activeType: 'card',
 					elementEndPosition: { x: 677, y: 69 },
 					activePopupComponent: section,
-					showPopupInMobile: this.state.previewType === 'm'
+					showPopupInMobile: this.state.previewType === 'm',
 				},
 				() => {
 					if (this.state?.previewType == 'm') {
 						this.props?.setShowPopupInMobile(
 							this.state?.showPopupInMobile,
 							this.state?.activeType,
-							this.state?.activePopupComponent
+							this.state?.activePopupComponent,
 						);
 					}
-				}
+				},
 			);
 		} else {
 			const gridArea =
@@ -4366,11 +4368,11 @@ class Layout extends Component {
 					textElement.focus();
 				}
 				this.setState({
-					activeSelectedText: true
+					activeSelectedText: true,
 				});
 			} else {
 				this.setState({
-					activeSelectedText: false
+					activeSelectedText: false,
 				});
 			}
 
@@ -4386,17 +4388,17 @@ class Layout extends Component {
 						elementEndPosition: { x: endX, y: endY },
 						activePopupComponent: component,
 						showPopupInMobile: this.state.previewType === 'm',
-						textTab: tab
+						textTab: tab,
 					},
 					() => {
 						if (this.state?.previewType == 'm') {
 							this.props?.setShowPopupInMobile(
 								this.state?.showPopupInMobile,
 								this.state?.activeType,
-								this.state?.activePopupComponent
+								this.state?.activePopupComponent,
 							);
 						}
-					}
+					},
 				);
 			} else {
 				this.setState(
@@ -4410,17 +4412,17 @@ class Layout extends Component {
 						elementEndPosition: { x: layoutRect.width - 276, y: endY },
 						activePopupComponent: component,
 						showPopupInMobile: this.state.previewType === 'm',
-						textTab: tab
+						textTab: tab,
 					},
 					() => {
 						if (this.state?.previewType == 'm') {
 							this.props?.setShowPopupInMobile(
 								this.state?.showPopupInMobile,
 								this.state?.activeType,
-								this.state?.activePopupComponent
+								this.state?.activePopupComponent,
 							);
 						}
-					}
+					},
 				);
 			}
 		}
@@ -4428,7 +4430,7 @@ class Layout extends Component {
 	handleFontsStyles = (e, f) => {
 		this.setState({
 			elementFontColor: e,
-			activeColor: e
+			activeColor: e,
 		});
 	};
 	debounceFuncForImage = (func, timeout = 800) => {
@@ -4439,7 +4441,7 @@ class Layout extends Component {
 			func();
 		}, timeout);
 		this.setState({
-			debounceCropperValues: timeFunction
+			debounceCropperValues: timeFunction,
 		});
 	};
 
@@ -4536,7 +4538,7 @@ class Layout extends Component {
 					...updatedBlocks[0].subBlocks[index].divStyles,
 					...(this.state.previewType === 'm'
 						? { mGridArea: `${rowStart}/${colStart}/${updatedRowEnd}/${colEnd}` }
-						: { gridArea: `${rowStart}/${colStart}/${updatedRowEnd}/${colEnd}` })
+						: { gridArea: `${rowStart}/${colStart}/${updatedRowEnd}/${colEnd}` }),
 				};
 			}
 		});
@@ -4612,7 +4614,7 @@ class Layout extends Component {
 		this.setState(
 			{
 				activePopupComponent: e,
-				previewGrid: isShowGrid
+				previewGrid: isShowGrid,
 			},
 			() => {
 				if (debounce) {
@@ -4622,10 +4624,10 @@ class Layout extends Component {
 				}
 				setTimeout(() => {
 					this.setState({
-						previewGrid: false
+						previewGrid: false,
 					});
 				}, 2000);
-			}
+			},
 		);
 	};
 	debounceFuncForCardProps = (func, delay = 600) => {
@@ -4686,7 +4688,7 @@ class Layout extends Component {
 			activeVariableID:
 				this.state?.activeVariableID === id ? this.state?.activeVariableID : id,
 			activeVariableName:
-				this.state?.activeVariableName === value ? this.state?.activeVariableName : value
+				this.state?.activeVariableName === value ? this.state?.activeVariableName : value,
 		});
 	};
 
@@ -4723,11 +4725,11 @@ class Layout extends Component {
 				[event]: true,
 				actionType: f,
 				actionValue: null,
-				triggerFont: true
+				triggerFont: true,
 			},
 			() => {
 				this.setAlignmentValues(f);
-			}
+			},
 		);
 	};
 
@@ -4769,7 +4771,7 @@ class Layout extends Component {
 				this.boxRefs[component?._id]?.classList.add(`press-out-${animations?.animeName}`);
 				setTimeout(() => {
 					this.boxRefs[component?._id]?.classList.remove(
-						`press-out-${animations?.animeName}`
+						`press-out-${animations?.animeName}`,
 					);
 				}, 2000);
 			} else {
@@ -4777,22 +4779,22 @@ class Layout extends Component {
 				setTimeout(
 					() => {
 						this.boxRefs[component?._id]?.classList.remove(
-							`press-${animations?.animeName}`
+							`press-${animations?.animeName}`,
 						);
 						this.boxRefs[component?._id]?.classList.add(
-							`press-out-${animations?.animeName}`
+							`press-out-${animations?.animeName}`,
 						);
 						// add remove
 						setTimeout(
 							() => {
 								this.boxRefs[component?._id]?.classList.remove(
-									`press-out-${animations?.animeName}`
+									`press-out-${animations?.animeName}`,
 								);
 							},
-							animations?.animeName == 'rotate' ? 3000 : 1500
+							animations?.animeName == 'rotate' ? 3000 : 1500,
 						);
 					},
-					animations?.animeName == 'rotate' ? 3000 : 1500
+					animations?.animeName == 'rotate' ? 3000 : 1500,
 				);
 			}
 		}
@@ -4805,28 +4807,28 @@ class Layout extends Component {
 				justifyleft: false,
 				justifycenter: false,
 				justifyright: true,
-				justifyfull: false
+				justifyfull: false,
 			});
 		} else if (f === 'justifycenter') {
 			this.setState({
 				justifyleft: false,
 				justifycenter: true,
 				justifyright: false,
-				justifyfull: false
+				justifyfull: false,
 			});
 		} else if (f === 'justifyfull') {
 			this.setState({
 				justifyleft: false,
 				justifycenter: false,
 				justifyright: false,
-				justifyfull: true
+				justifyfull: true,
 			});
 		} else {
 			this.setState({
 				justifyleft: true,
 				justifycenter: false,
 				justifyright: false,
-				justifyfull: false
+				justifyfull: false,
 			});
 		}
 	};
@@ -4906,9 +4908,9 @@ class Layout extends Component {
 		}
 		// Store the ref in boxRefs
 		this.boxRefs[component?._id] = element;
-		// setTimeout(() => {
-		// 	this.returnAnimationClasses(component);
-		// }, 100);
+		setTimeout(() => {
+			this.returnAnimationClasses(component);
+		}, 100);
 		//! If it's a scroll animation, initialize the observer
 		// if (this.state?.preview == true && this.props?.client == true) {
 		// 	if (element && component?.animations?.animeType === 'scroll') {
@@ -4938,7 +4940,7 @@ class Layout extends Component {
 					}
 				});
 			},
-			{ threshold: 0.2, rootMargin: '50px' }
+			{ threshold: 0.2, rootMargin: '50px' },
 		);
 		observer.observe(element);
 		return observer;
@@ -4982,7 +4984,7 @@ class Layout extends Component {
 			bounce: this.handleLoopBounce,
 			wiggle: this.handleLoopWiggle,
 			flap: this.handleLoopFlap,
-			cross: this.handleLoopCross
+			cross: this.handleLoopCross,
 		};
 		const handler = animationHandlers[animations?.animeName];
 		if (handler && element) {
@@ -5014,7 +5016,7 @@ class Layout extends Component {
 			parallax: this.handleScrollParallax,
 			arc: this.handleScrollArc,
 			shape: this.handleScrollShape,
-			shutters: this.handleScrollShutters
+			shutters: this.handleScrollShutters,
 		};
 		const handler = animationHandlers[animations?.animeName];
 		const parentBlock = this.animeBlockParentsRef[component?._id];
@@ -5058,7 +5060,7 @@ class Layout extends Component {
 			skew: this.handleSkewAnime,
 			rotate: this.handleRotateAnime,
 			move: this.handleMoveAnime,
-			appear: this.handleAppearAnime
+			appear: this.handleAppearAnime,
 		};
 		const handler = animationHandlers[animations?.animeName];
 		if (typeof window !== 'undefined' && handler && element) {
@@ -5081,7 +5083,7 @@ class Layout extends Component {
 						? parseFloat(adjustments?.scale || 1.3)
 						: parseFloat(
 								parseFloat(adjustments?.scale || 1) /
-									(adjustments?.position == 'into' ? 1 : 10)
+									(adjustments?.position == 'into' ? 1 : 10),
 						  );
 
 				gsap.to(element, {
@@ -5089,7 +5091,7 @@ class Layout extends Component {
 					overwrite: true,
 					opacity: 0,
 					duration: 0,
-					ease: 'power3.Out'
+					ease: 'power3.Out',
 				});
 				component.initialPositionSet = true;
 			} else if (animations?.animeName == 'skew') {
@@ -5099,7 +5101,7 @@ class Layout extends Component {
 					opacity: 0,
 					overwrite: true,
 					duration: 0,
-					ease: 'power3.out'
+					ease: 'power3.out',
 				});
 				component.initialPositionSet = true;
 			} else if (animations?.animeName == 'rotate') {
@@ -5110,7 +5112,7 @@ class Layout extends Component {
 					opacity: 0,
 					overwrite: true,
 					duration: 0,
-					ease: 'power3.out'
+					ease: 'power3.out',
 				});
 				component.initialPositionSet = true;
 			} else if (animations?.animeName == 'move') {
@@ -5130,7 +5132,7 @@ class Layout extends Component {
 					opacity: 0,
 					overwrite: true,
 					duration: 0,
-					ease: 'power3.out'
+					ease: 'power3.out',
 				});
 				component.initialPositionSet = true;
 			} else if (animations?.animeName == 'appear') {
@@ -5138,7 +5140,7 @@ class Layout extends Component {
 					opacity: 0,
 					overwrite: true,
 					duration: 0,
-					ease: 'power3.out'
+					ease: 'power3.out',
 				});
 				component.initialPositionSet = true;
 			}
@@ -5157,7 +5159,7 @@ class Layout extends Component {
 				? parseFloat(adjustments?.scale || 1.3)
 				: parseFloat(
 						parseFloat(adjustments?.scale || 1) /
-							(adjustments?.position == 'into' ? 1 : 10)
+							(adjustments?.position == 'into' ? 1 : 10),
 				  );
 		const add = () => {
 			if (adjustments?.position === 'into') {
@@ -5166,14 +5168,14 @@ class Layout extends Component {
 					opacity: 1,
 					overwrite: true,
 					duration: adjustments?.animeDuration || 3,
-					ease: 'power3.out'
+					ease: 'power3.out',
 				});
 			} else {
 				gsap.to(element, {
 					scale: scaleValue,
 					overwrite: true,
 					duration: adjustments?.animeDuration || 3,
-					ease: 'power3.out'
+					ease: 'power3.out',
 				});
 			}
 		};
@@ -5185,14 +5187,14 @@ class Layout extends Component {
 					opacity: this.props?.client ? 0 : 1,
 					duration:
 						adjustments?.position !== 'into' ? adjustments?.animeDuration || 3 : 0,
-					ease: 'power3.Out'
+					ease: 'power3.Out',
 				});
 			} else {
 				gsap.to(element, {
 					scale: 1,
 					overwrite: true,
 					duration: 2,
-					ease: 'power3.Out'
+					ease: 'power3.Out',
 				});
 			}
 		};
@@ -5267,14 +5269,14 @@ class Layout extends Component {
 					opacity: 1,
 					overwrite: true,
 					duration: adjustments?.animeDuration || 3,
-					ease: 'power3.Out'
+					ease: 'power3.Out',
 				});
 			} else {
 				gsap.to(element, {
 					skewX: skewValue,
 					overwrite: true,
 					duration: adjustments?.animeDuration || 3,
-					ease: 'power3.out'
+					ease: 'power3.out',
 				});
 			}
 		};
@@ -5286,14 +5288,14 @@ class Layout extends Component {
 					opacity: this.props?.client ? 0 : 1,
 					duration:
 						adjustments?.position !== 'into' ? adjustments?.animeDuration || 3 : 0,
-					ease: 'power3.out'
+					ease: 'power3.out',
 				});
 			} else {
 				gsap.to(element, {
 					skewX: 0,
 					overwrite: true,
 					duration: 2,
-					ease: 'power3.Out'
+					ease: 'power3.Out',
 				});
 			}
 		};
@@ -5368,14 +5370,14 @@ class Layout extends Component {
 					opacity: 1,
 					overwrite: true,
 					duration: adjustments?.animeDuration || 3,
-					ease: 'power3.Out'
+					ease: 'power3.Out',
 				});
 			} else {
 				gsap.to(element, {
 					rotation: rotateValue,
 					overwrite: true,
 					duration: adjustments?.animeDuration || 3,
-					ease: 'power3.out'
+					ease: 'power3.out',
 				});
 			}
 		};
@@ -5387,14 +5389,14 @@ class Layout extends Component {
 					opacity: this.props?.client ? 0 : 1,
 					duration:
 						adjustments?.position !== 'into' ? adjustments?.animeDuration || 3 : 0,
-					ease: 'power3.out'
+					ease: 'power3.out',
 				});
 			} else {
 				gsap.to(element, {
 					rotation: 0,
 					overwrite: true,
 					duration: 2,
-					ease: 'power3.Out'
+					ease: 'power3.Out',
 				});
 			}
 		};
@@ -5476,7 +5478,7 @@ class Layout extends Component {
 					opacity: 1,
 					overwrite: true,
 					duration: 2,
-					ease: 'power3.Out'
+					ease: 'power3.Out',
 				});
 			} else {
 				gsap.to(element, {
@@ -5487,7 +5489,7 @@ class Layout extends Component {
 							: 0,
 					overwrite: true,
 					duration: adjustments?.animeDuration || 3,
-					ease: 'power3.out'
+					ease: 'power3.out',
 				});
 			}
 		};
@@ -5503,7 +5505,7 @@ class Layout extends Component {
 					opacity: this.props?.client ? 0 : 1,
 					duration:
 						adjustments?.position !== 'into' ? adjustments?.animeDuration || 3 : 0,
-					ease: 'power3.out'
+					ease: 'power3.out',
 				});
 			} else {
 				gsap.to(element, {
@@ -5511,7 +5513,7 @@ class Layout extends Component {
 					y: 0,
 					overwrite: true,
 					duration: 2,
-					ease: 'power3.Out'
+					ease: 'power3.Out',
 				});
 			}
 		};
@@ -5584,14 +5586,14 @@ class Layout extends Component {
 					opacity: 1,
 					overwrite: true,
 					duration: adjustments?.opacityDelay || 3,
-					ease: 'power3.Out'
+					ease: 'power3.Out',
 				});
 			} else {
 				gsap.to(element, {
 					opacity: 0,
 					overwrite: true,
 					duration: adjustments?.opacityDelay || 3,
-					ease: 'power3.out'
+					ease: 'power3.out',
 				});
 			}
 		};
@@ -5602,14 +5604,14 @@ class Layout extends Component {
 					opacity: 0,
 					// opacity: this.props?.client ? 0 : 1,
 					duration: adjustments?.position !== 'into' ? adjustments?.opacityDelay || 3 : 0,
-					ease: 'power3.out'
+					ease: 'power3.out',
 				});
 			} else {
 				gsap.to(element, {
 					opacity: 1,
 					overwrite: true,
 					duration: 2,
-					ease: 'power3.Out'
+					ease: 'power3.Out',
 				});
 			}
 		};
@@ -5680,24 +5682,24 @@ class Layout extends Component {
 		const totalTime = durationTime + delayTime;
 		const add = () => {
 			element.classList.add(
-				adjustments?.direction == 'center' ? 'loop-breathe-center' : 'loop-breathe'
+				adjustments?.direction == 'center' ? 'loop-breathe-center' : 'loop-breathe',
 			);
 			element.style.animationDuration = `${durationTime || 3}s`;
 			element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
 
 			element.style.setProperty(
 				'--breathe-x-distance',
-				`${adjustments?.direction == 'horizontal' ? adjustments?.animeDistance : '0'}px`
+				`${adjustments?.direction == 'horizontal' ? adjustments?.animeDistance : '0'}px`,
 			);
 
 			element.style.setProperty(
 				'--breathe-y-distance',
-				`${adjustments?.direction == 'vertical' ? adjustments?.animeDistance : '0'}px`
+				`${adjustments?.direction == 'vertical' ? adjustments?.animeDistance : '0'}px`,
 			);
 			adjustments?.direction == 'center' &&
 				element.style.setProperty(
 					'--breathe-scale-value',
-					`${adjustments?.animeDistance / 100 + 0.5 || 2}`
+					`${adjustments?.animeDistance / 100 + 0.5 || 2}`,
 				);
 
 			if (this.props?.client && delayTime > 0) {
@@ -5708,7 +5710,7 @@ class Layout extends Component {
 		};
 		const remove = () => {
 			element.classList.remove(
-				adjustments?.direction == 'center' ? 'loop-breathe-center' : 'loop-breathe'
+				adjustments?.direction == 'center' ? 'loop-breathe-center' : 'loop-breathe',
 			);
 			element.style.removeProperty('--breathe-x-distance');
 			element.style.removeProperty('--breathe-y-distance');
@@ -5740,7 +5742,7 @@ class Layout extends Component {
 			element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
 			element.style.setProperty(
 				'--pulse-intensity-value',
-				`${adjustments?.animeIntensity == 0 ? 0.1 : adjustments?.animeIntensity || 1}`
+				`${adjustments?.animeIntensity == 0 ? 0.1 : adjustments?.animeIntensity || 1}`,
 			);
 
 			if (this.props?.client && delayTime > 0) {
@@ -5777,7 +5779,7 @@ class Layout extends Component {
 			element.style.animationDuration = `${durationTime || 2}s`;
 			element.style.setProperty(
 				'--spin-end-angle',
-				`${adjustments?.direction === 'Clockwise' ? '360deg' : '-360deg'}`
+				`${adjustments?.direction === 'Clockwise' ? '360deg' : '-360deg'}`,
 			);
 
 			if (this.props?.client && delayTime > 0) {
@@ -5821,8 +5823,8 @@ class Layout extends Component {
 					adjustments?.animeIntensity &&
 						(adjustments?.direction == 'left' || adjustments?.direction == 'right')
 						? 60 * adjustments?.animeIntensity
-						: '0'
-				)}px`
+						: '0',
+				)}px`,
 			);
 			element.style.setProperty(
 				'--poke-y-distance',
@@ -5830,8 +5832,8 @@ class Layout extends Component {
 					adjustments?.animeIntensity &&
 						(adjustments?.direction == 'top' || adjustments?.direction == 'bottom')
 						? 60 * adjustments?.animeIntensity
-						: '0'
-				)}px`
+						: '0',
+				)}px`,
 			);
 			if (this.props?.client && delayTime > 0) {
 				setTimeout(() => {
@@ -5916,8 +5918,8 @@ class Layout extends Component {
 			element.style.setProperty(
 				'--swing-value',
 				`${parseFloat(
-					adjustments?.animeIntensity ? 25 * adjustments?.animeIntensity : '15'
-				)}deg`
+					adjustments?.animeIntensity ? 25 * adjustments?.animeIntensity : '15',
+				)}deg`,
 			);
 
 			if (this.props?.client && delayTime > 0) {
@@ -5956,7 +5958,7 @@ class Layout extends Component {
 			element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
 			element.style.setProperty(
 				'--flip-Name',
-				`${adjustments?.direction == 'horizontal' ? 'Flip' : 'FlipX'}`
+				`${adjustments?.direction == 'horizontal' ? 'Flip' : 'FlipX'}`,
 			);
 			if (this.props?.client && delayTime > 0) {
 				setTimeout(() => {
@@ -5996,7 +5998,7 @@ class Layout extends Component {
 					adjustments?.animeIntensity <= 0.5
 						? parseFloat(adjustments?.animeIntensity) + 0.3
 						: parseFloat(adjustments?.animeIntensity) + 0.2 || 1
-				}`
+				}`,
 			);
 			if (this.props?.client && delayTime > 0) {
 				setTimeout(() => {
@@ -6035,8 +6037,8 @@ class Layout extends Component {
 			element.style.setProperty(
 				'--jello-skew-value',
 				`${parseFloat(
-					adjustments?.animeIntensity ? 30 * adjustments?.animeIntensity : '10'
-				)}deg`
+					adjustments?.animeIntensity ? 30 * adjustments?.animeIntensity : '10',
+				)}deg`,
 			);
 
 			if (this.props?.client && delayTime > 0) {
@@ -6075,7 +6077,7 @@ class Layout extends Component {
 			element.style.animationTimingFunction = adjustments?.animeEase || 'ease-in-out';
 			element.style.setProperty(
 				'--bounce-value',
-				`${adjustments?.animeIntensity ? 30 * adjustments?.animeIntensity : 30}px`
+				`${adjustments?.animeIntensity ? 30 * adjustments?.animeIntensity : 30}px`,
 			);
 			if (this.props?.client && delayTime > 0) {
 				setTimeout(() => {
@@ -6115,8 +6117,8 @@ class Layout extends Component {
 			element.style.setProperty(
 				'--wiggle-value',
 				`${parseFloat(
-					adjustments?.animeIntensity ? 20 * adjustments?.animeIntensity : 15
-				)}deg`
+					adjustments?.animeIntensity ? 20 * adjustments?.animeIntensity : 15,
+				)}deg`,
 			);
 
 			if (this.props?.client && delayTime > 0) {
@@ -6161,13 +6163,13 @@ class Layout extends Component {
 					adjustments?.direction == 'left' || adjustments?.direction == 'right'
 						? 'FlapX'
 						: 'FlapY'
-				}`
+				}`,
 			);
 			element.style.setProperty(
 				'--flap-intensity-value',
 				`${parseFloat(
-					adjustments?.animeIntensity ? 40 * adjustments?.animeIntensity : 22.7
-				)}deg`
+					adjustments?.animeIntensity ? 40 * adjustments?.animeIntensity : 22.7,
+				)}deg`,
 			);
 			element.style.setProperty(
 				'--flap-origin-value',
@@ -6179,7 +6181,7 @@ class Layout extends Component {
 						: adjustments?.direction == 'left'
 						? '0% 50%'
 						: '100% 50%'
-				}`
+				}`,
 			);
 
 			if (this.props?.client && delayTime > 0) {
@@ -6225,7 +6227,7 @@ class Layout extends Component {
 					adjustments?.direction == 'left' || adjustments?.direction == 'right'
 						? window?.innerWidth || '200'
 						: 0
-				}px`
+				}px`,
 			);
 			element.style.setProperty(
 				'--cross-y-distance',
@@ -6233,7 +6235,7 @@ class Layout extends Component {
 					adjustments?.direction == 'top' || adjustments?.direction == 'bottom'
 						? window?.innerHeight || '200'
 						: 0
-				}px`
+				}px`,
 			);
 			if (this.props?.client && delayTime > 0) {
 				setTimeout(() => {
@@ -6270,7 +6272,7 @@ class Layout extends Component {
 			element.classList.add('scroll-fade');
 			element.style.setProperty(
 				'--starting-opacity',
-				`${parseFloat(adjustments?.opacity / 100) || 0}`
+				`${parseFloat(adjustments?.opacity / 100) || 0}`,
 			);
 		};
 		const remove = () => {
@@ -6312,7 +6314,7 @@ class Layout extends Component {
 						{
 							autoAlpha: parseFloat(adjustments?.opacity / 100) || 0,
 							force3D: 'auto',
-							backfaceVisibility: 'hidden'
+							backfaceVisibility: 'hidden',
 						},
 						{
 							autoAlpha: 1,
@@ -6320,8 +6322,8 @@ class Layout extends Component {
 							ease: 'power3.inOut',
 							paused: true,
 							immediateRender: false,
-							overwrite: true
-						}
+							overwrite: true,
+						},
 					);
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
@@ -6329,8 +6331,8 @@ class Layout extends Component {
 						duration:
 							this?.returnAnimeDuration(
 								triggerValue,
-								animeArea[1] - animeArea[0] || 0
-							) || 900
+								animeArea[1] - animeArea[0] || 0,
+							) || 900,
 					})
 						.on('progress', (event) => {
 							fadeTween.progress(event.progress);
@@ -6450,7 +6452,7 @@ class Layout extends Component {
 									: 0,
 							autoAlpha: 0,
 							force3D: true,
-							backfaceVisibility: 'hidden'
+							backfaceVisibility: 'hidden',
 						},
 						{
 							y: 0,
@@ -6460,8 +6462,8 @@ class Layout extends Component {
 							ease: 'power3.inOut',
 							paused: true,
 							immediateRender: false,
-							overwrite: true
-						}
+							overwrite: true,
+						},
 					);
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
@@ -6469,8 +6471,8 @@ class Layout extends Component {
 						duration:
 							this?.returnAnimeDuration(
 								triggerValue,
-								animeArea[1] - animeArea[0] || 0
-							) || 900
+								animeArea[1] - animeArea[0] || 0,
+							) || 900,
 					})
 						.on('progress', (event) => {
 							moveTween.progress(event.progress);
@@ -6496,7 +6498,7 @@ class Layout extends Component {
 		element,
 		adjustments,
 		preview = false,
-		parent = this.blockRef.current
+		parent = this.blockRef.current,
 	) => {
 		// !function to add and remove animation properties
 		const { direction = 'center', scale = 1, speed = 1, intensity } = adjustments || {};
@@ -6590,7 +6592,7 @@ class Layout extends Component {
 							scale: parseFloat(scale / 100),
 
 							force3D: true,
-							backfaceVisibility: 'hidden'
+							backfaceVisibility: 'hidden',
 						},
 						{
 							y: 0,
@@ -6601,8 +6603,8 @@ class Layout extends Component {
 							ease: 'power3.inOut',
 							paused: true,
 							immediateRender: false,
-							overwrite: true
-						}
+							overwrite: true,
+						},
 					);
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
@@ -6610,8 +6612,8 @@ class Layout extends Component {
 						duration:
 							this?.returnAnimeDuration(
 								triggerValue,
-								animeArea[1] - animeArea[0] || 0
-							) || 900
+								animeArea[1] - animeArea[0] || 0,
+							) || 900,
 					})
 						.on('progress', (event) => {
 							expandTween.progress(event.progress);
@@ -6636,7 +6638,7 @@ class Layout extends Component {
 		element,
 		adjustments,
 		preview = false,
-		parent = this.blockRef.current
+		parent = this.blockRef.current,
 	) => {
 		// !function to add and remove animation properties
 		const { direction = 'center', scale = 2, speed = 1, intensity } = adjustments || {};
@@ -6731,7 +6733,7 @@ class Layout extends Component {
 							scale: parseFloat(scale),
 
 							force3D: 'auto',
-							backfaceVisibility: 'hidden'
+							backfaceVisibility: 'hidden',
 						},
 						{
 							y: 0,
@@ -6742,8 +6744,8 @@ class Layout extends Component {
 							ease: 'power3.inOut',
 							paused: true,
 							immediateRender: false,
-							overwrite: true
-						}
+							overwrite: true,
+						},
 					);
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
@@ -6751,8 +6753,8 @@ class Layout extends Component {
 						duration:
 							this?.returnAnimeDuration(
 								triggerValue,
-								animeArea[1] - animeArea[0] || 0
-							) || 900
+								animeArea[1] - animeArea[0] || 0,
+							) || 900,
 					})
 						.on('progress', (event) => {
 							shrinkTween.progress(event.progress);
@@ -6826,15 +6828,15 @@ class Layout extends Component {
 						element,
 						{
 							rotation: spinDegrees || 360,
-							scale: scale
+							scale: scale,
 						},
 						{
 							rotate: 0,
 							scale: 1,
 							duration: 3,
 							ease: 'power3.inOut',
-							paused: true
-						}
+							paused: true,
+						},
 					);
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
@@ -6842,8 +6844,8 @@ class Layout extends Component {
 						duration:
 							this?.returnAnimeDuration(
 								triggerValue,
-								animeArea[1] - animeArea[0] || 0
-							) || 900
+								animeArea[1] - animeArea[0] || 0,
+							) || 900,
 					})
 						.on('progress', (event) => {
 							spinTween.progress(event.progress);
@@ -6953,7 +6955,7 @@ class Layout extends Component {
 							x:
 								direction == 'left' || direction == 'right'
 									? returnDistance(direction)
-									: 0
+									: 0,
 						},
 						{
 							y: 0,
@@ -6962,8 +6964,8 @@ class Layout extends Component {
 							ease: 'power2.inOut',
 							immediateRender: false,
 							overwrite: 'auto',
-							paused: true
-						}
+							paused: true,
+						},
 					);
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
@@ -6971,8 +6973,8 @@ class Layout extends Component {
 						duration:
 							this?.returnAnimeDuration(
 								triggerValue,
-								animeArea[1] - animeArea[0] || 0
-							) || 900
+								animeArea[1] - animeArea[0] || 0,
+							) || 900,
 					})
 						.on('progress', (event) => {
 							slideTween.progress(event.progress);
@@ -7038,14 +7040,14 @@ class Layout extends Component {
 					const blurTween = gsap.fromTo(
 						element,
 						{
-							filter: `blur(${parseFloat(adjustments?.blur || 10)}px)`
+							filter: `blur(${parseFloat(adjustments?.blur || 10)}px)`,
 						},
 						{
 							filter: 'blur(0px)',
 							duration: 1,
 							ease: 'power3.inOut',
-							paused: true
-						}
+							paused: true,
+						},
 					);
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
@@ -7053,8 +7055,8 @@ class Layout extends Component {
 						duration:
 							this?.returnAnimeDuration(
 								triggerValue,
-								animeArea[1] - animeArea[0] || 0
-							) || 900
+								animeArea[1] - animeArea[0] || 0,
+							) || 900,
 					})
 						.on('progress', (event) => {
 							blurTween.progress(event.progress);
@@ -7080,14 +7082,14 @@ class Layout extends Component {
 		element,
 		adjustments,
 		preview = false,
-		parent = this.blockRef.current
+		parent = this.blockRef.current,
 	) => {
 		// !function to add and remove animation properties
 		const clipMap = {
 			top: 'inset(100% 0 0 0)',
 			bottom: 'inset(0 0 100% 0)',
 			left: 'inset(0 100% 0 0)',
-			right: 'inset(0 0 0 100%)'
+			right: 'inset(0 0 0 100%)',
 		};
 		const clipStart = clipMap[adjustments?.direction || 'top'] || clipMap.top;
 		const add = () => {
@@ -7130,14 +7132,14 @@ class Layout extends Component {
 					const revealTween = gsap.fromTo(
 						element,
 						{
-							clipPath: clipStart
+							clipPath: clipStart,
 						},
 						{
 							clipPath: 'inset(0% 0% 0% 0%)',
 							duration: 2,
 							ease: 'power3.inOut',
-							paused: true
-						}
+							paused: true,
+						},
 					);
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
@@ -7145,8 +7147,8 @@ class Layout extends Component {
 						duration:
 							this?.returnAnimeDuration(
 								triggerValue,
-								animeArea[1] - animeArea[0] || 0
-							) || 900
+								animeArea[1] - animeArea[0] || 0,
+							) || 900,
 					})
 						.on('progress', (event) => {
 							revealTween.progress(event.progress);
@@ -7172,7 +7174,7 @@ class Layout extends Component {
 		element,
 		adjustments,
 		preview = false,
-		parent = this.blockRef.current
+		parent = this.blockRef.current,
 	) => {
 		// !function to add and remove animation properties
 
@@ -7225,21 +7227,21 @@ class Layout extends Component {
 							transformPerspective: 1000,
 							rotateX: rotate || 360,
 							rotateY: rotate || 360,
-							scale: 0.2
+							scale: 0.2,
 						},
 						{
 							transformPerspective: 1000,
 							rotateX: rotate / 2 || 180,
 							rotateY: rotate / 2 || 180,
 							scale: 0.6,
-							duration: speed || 2
-						}
+							duration: speed || 2,
+						},
 					).to(element, {
 						rotateX: 0,
 						rotateY: 0,
 						autoAlpha: 1,
 						scale: 1,
-						duration: speed || 1
+						duration: speed || 1,
 					});
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
@@ -7247,8 +7249,8 @@ class Layout extends Component {
 						duration:
 							this?.returnAnimeDuration(
 								triggerValue,
-								animeArea[1] - animeArea[0] || 0
-							) || 900
+								animeArea[1] - animeArea[0] || 0,
+							) || 900,
 					})
 						.on('progress', (event) => {
 							tl.progress(event.progress);
@@ -7338,15 +7340,15 @@ class Layout extends Component {
 						element,
 						{
 							x: translate,
-							skewX: skew
+							skewX: skew,
 						},
 						{
 							x: 0,
 							skewX: 0,
 							duration: 1,
 							ease: 'power3.inOut',
-							paused: true
-						}
+							paused: true,
+						},
 					);
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
@@ -7354,8 +7356,8 @@ class Layout extends Component {
 						duration:
 							this?.returnAnimeDuration(
 								triggerValue,
-								animeArea[1] - animeArea[0] || 0
-							) || 900
+								animeArea[1] - animeArea[0] || 0,
+							) || 900,
 					})
 						.on('progress', (event) => {
 							flyTween.progress(event.progress);
@@ -7384,7 +7386,7 @@ class Layout extends Component {
 			direction = '',
 			orientation = '',
 			scale = 0.5,
-			intensity = 600
+			intensity = 600,
 		} = adjustments || {};
 		let translateX = direction === 'right' ? intensity : -intensity;
 		const add = () => {
@@ -7445,7 +7447,7 @@ class Layout extends Component {
 							force3D: 'auto',
 							backfaceVisibility: 'hidden',
 							transformStyle: 'preserve-3d',
-							transformPerspective: 1000
+							transformPerspective: 1000,
 						},
 						{
 							x: 0,
@@ -7457,8 +7459,8 @@ class Layout extends Component {
 							ease: 'power3.inOut',
 							paused: true,
 							immediateRender: false,
-							overwrite: true
-						}
+							overwrite: true,
+						},
 					);
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
@@ -7466,8 +7468,8 @@ class Layout extends Component {
 						duration:
 							this?.returnAnimeDuration(
 								triggerValue,
-								animeArea[1] - animeArea[0] || 0
-							) || 900
+								animeArea[1] - animeArea[0] || 0,
+							) || 900,
 					})
 						.on('progress', (event) => {
 							turnTween.progress(event.progress);
@@ -7555,7 +7557,7 @@ class Layout extends Component {
 							scale: 0.95,
 							duration: speed,
 							transformStyle: 'preserve-3d',
-							transformPerspective: 400
+							transformPerspective: 400,
 						},
 						{
 							z: 0,
@@ -7565,8 +7567,8 @@ class Layout extends Component {
 							scale: 1,
 							duration: 2,
 							ease: 'power3.inOut',
-							paused: true
-						}
+							paused: true,
+						},
 					);
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
@@ -7574,8 +7576,8 @@ class Layout extends Component {
 						duration:
 							this?.returnAnimeDuration(
 								triggerValue,
-								animeArea[1] - animeArea[0] || 0
-							) || 900
+								animeArea[1] - animeArea[0] || 0,
+							) || 900,
 					})
 						.on('progress', (event) => {
 							tiltTween.progress(event.progress);
@@ -7601,7 +7603,7 @@ class Layout extends Component {
 		element,
 		adjustments,
 		preview = false,
-		parent = this.blockRef.current
+		parent = this.blockRef.current,
 	) => {
 		// !function to add and remove animation properties
 		const scale = parseFloat((adjustments?.scale || 20) / 100);
@@ -7651,7 +7653,7 @@ class Layout extends Component {
 							y: '40%',
 							duration: 2,
 							transformStyle: 'preserve-3d',
-							transformPerspective: 400
+							transformPerspective: 400,
 						},
 						{
 							scaleX: 1,
@@ -7659,8 +7661,8 @@ class Layout extends Component {
 							y: 0,
 							duration: 2,
 							ease: 'power3.inOut',
-							paused: true
-						}
+							paused: true,
+						},
 					);
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
@@ -7668,8 +7670,8 @@ class Layout extends Component {
 						duration:
 							this?.returnAnimeDuration(
 								triggerValue,
-								animeArea[1] - animeArea[0] || 0
-							) || 900
+								animeArea[1] - animeArea[0] || 0,
+							) || 900,
 					})
 						.on('progress', (event) => {
 							stretchTween.progress(event.progress);
@@ -7751,7 +7753,7 @@ class Layout extends Component {
 							scale: 0.95,
 							duration: 2,
 							transformStyle: 'preserve-3d',
-							transformPerspective: 400
+							transformPerspective: 400,
 						},
 						{
 							rotationY: 0,
@@ -7759,8 +7761,8 @@ class Layout extends Component {
 							scale: 1,
 							duration: 4,
 							ease: 'power3.inOut',
-							paused: true
-						}
+							paused: true,
+						},
 					);
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
@@ -7768,8 +7770,8 @@ class Layout extends Component {
 						duration:
 							this?.returnAnimeDuration(
 								triggerValue,
-								animeArea[1] - animeArea[0] || 0
-							) || 900
+								animeArea[1] - animeArea[0] || 0,
+							) || 900,
 					})
 						.on('progress', (event) => {
 							flipTween.progress(event.progress);
@@ -7796,7 +7798,7 @@ class Layout extends Component {
 		element,
 		adjustments,
 		preview = false,
-		parent = this.blockRef.current
+		parent = this.blockRef.current,
 	) => {
 		// !function to add and remove animation properties
 
@@ -7849,14 +7851,14 @@ class Layout extends Component {
 							opacity: 1,
 							duration: 2,
 							transformStyle: 'preserve-3d',
-							transformPerspective: 400
+							transformPerspective: 400,
 						},
 						{
 							y: 0,
 							duration: 4,
 							ease: 'power3.inOut',
-							paused: true
-						}
+							paused: true,
+						},
 					);
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
@@ -7864,8 +7866,8 @@ class Layout extends Component {
 						duration:
 							this?.returnAnimeDuration(
 								triggerValue,
-								animeArea[1] - animeArea[0] || 0
-							) || 900
+								animeArea[1] - animeArea[0] || 0,
+							) || 900,
 					})
 						.on('progress', (event) => {
 							parallaxTween.progress(event.progress);
@@ -7947,7 +7949,7 @@ class Layout extends Component {
 							rotationY: direction === 'horizontal' ? -55 : 0,
 							y: direction === 'horizontal' ? 0 : 200,
 							x: direction === 'horizontal' ? -200 : 0,
-							scale: 1.3
+							scale: 1.3,
 						},
 						{
 							z: 0,
@@ -7958,8 +7960,8 @@ class Layout extends Component {
 							scale: 1,
 							duration: speed || 2,
 							ease: 'power3.inOut',
-							paused: true
-						}
+							paused: true,
+						},
 					);
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
@@ -7967,8 +7969,8 @@ class Layout extends Component {
 						duration:
 							this?.returnAnimeDuration(
 								triggerValue,
-								animeArea[1] - animeArea[0] || 0
-							) || 900
+								animeArea[1] - animeArea[0] || 0,
+							) || 900,
 					})
 						.on('progress', (event) => {
 							arcTween.progress(event.progress);
@@ -7999,17 +8001,17 @@ class Layout extends Component {
 				circle: (int) => ({
 					start: 'circle(0% at center)',
 					mid: `circle(${50 * int}% at center)`,
-					end: `circle(${150 * int}% at center)`
+					end: `circle(${150 * int}% at center)`,
 				}),
 				square: (int) => ({
 					start: `inset(${50 * int}% round 0%)`,
 					mid: `inset(${25 * int}% round 0%)`,
-					end: `inset(0% round 0%)`
+					end: `inset(0% round 0%)`,
 				}),
 				oval: (int) => ({
 					start: `ellipse(${0}% ${0}% at center)`,
 					mid: `ellipse(${40 * int}% ${25 * int}% at center)`,
-					end: `ellipse(${100 * int}% ${100 * int}% at center)`
+					end: `ellipse(${100 * int}% ${100 * int}% at center)`,
 				}),
 				diamond: (int) => {
 					const mid = Math.min(50 * int, 50);
@@ -8018,9 +8020,11 @@ class Layout extends Component {
 						mid: `polygon(50% 0%, ${50 + mid}% 50%, 50% ${50 + mid}%, ${
 							50 - mid
 						}% 50%)`,
-						end: `polygon(50% 0%, ${50 + mid}% 50%, 50% ${50 + mid}%, ${50 - mid}% 50%)`
+						end: `polygon(50% 0%, ${50 + mid}% 50%, 50% ${50 + mid}%, ${
+							50 - mid
+						}% 50%)`,
 					};
-				}
+				},
 			};
 
 			const def = shapeMap[direction]?.(animeIntensity) || shapeMap.circle(animeIntensity);
@@ -8069,32 +8073,32 @@ class Layout extends Component {
 					const shapeMap = {
 						circle: {
 							start: 'circle(0% at center)',
-							end: `circle(150% at center)`
+							end: `circle(150% at center)`,
 						},
 						square: {
 							start: `inset(50% round 0%)`,
-							end: `inset(0% round 0%)`
+							end: `inset(0% round 0%)`,
 						},
 						oval: {
 							start: `ellipse(0% 0% at center)`,
-							end: `ellipse(100% 60% at center )`
+							end: `ellipse(100% 60% at center )`,
 						},
 						diamond: {
 							start: `polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%)`,
-							end: `polygon(50% -50%, 150% 50%, 50% 150%, -50% 50%)`
-						}
+							end: `polygon(50% -50%, 150% 50%, 50% 150%, -50% 50%)`,
+						},
 					};
 					const shapeTween = gsap.fromTo(
 						element,
 						{
-							clipPath: shapeMap[direction]?.start || 'circle(0% at center)'
+							clipPath: shapeMap[direction]?.start || 'circle(0% at center)',
 						},
 						{
 							clipPath: shapeMap[direction]?.end || `circle(150% at center)`,
 							duration: parseFloat(animeIntensity + 1),
 							ease: 'power3.inOut',
-							paused: true
-						}
+							paused: true,
+						},
 					);
 					this.scene = new this.ScrollMagic.Scene({
 						triggerElement: parent,
@@ -8102,8 +8106,8 @@ class Layout extends Component {
 						duration:
 							this?.returnAnimeDuration(
 								triggerValue,
-								animeArea[1] - animeArea[0] || 0
-							) || 900
+								animeArea[1] - animeArea[0] || 0,
+							) || 900,
 					})
 						.on('progress', (event) => {
 							shapeTween.progress(event.progress);
@@ -8133,7 +8137,7 @@ class Layout extends Component {
 			const { direction = 'left', parts = 6, stagger = false } = adjustments;
 			const animationName = `shutters_${direction}_${parts}_${stagger}`.replace(
 				/[^a-zA-Z0-9]/g,
-				'_'
+				'_',
 			);
 			const styleId = `style-${animationName}`;
 
@@ -8258,7 +8262,7 @@ class Layout extends Component {
 			backgroundColor: 'white',
 			border: '2px solid #2196F3',
 			position: 'absolute',
-			zIndex: 1
+			zIndex: 1,
 		};
 
 		const layoutRect = this.blockRef.current?.getBoundingClientRect();
@@ -8301,7 +8305,7 @@ class Layout extends Component {
 
 					...(this.state.previewType === 'm' && deviceType !== 'Android'
 						? { zoom: this.getZoomScale() }
-						: {})
+						: {}),
 					// 	this.state.previewType === 'm' || this.state.previewMode === 'm' ? 0.4 : 1,
 				}}
 				onClick={(e) => {
@@ -8309,7 +8313,7 @@ class Layout extends Component {
 						this.toggleSideBar(e);
 					}
 					this.setState({
-						previewGrid: false
+						previewGrid: false,
 					});
 				}}
 				onMouseEnter={() => {
@@ -8338,7 +8342,7 @@ class Layout extends Component {
 							minHeight: '150px',
 							width: '100%',
 							position: 'relative',
-							zIndex: 1
+							zIndex: 1,
 						}}
 						className="show-hide"
 					>
@@ -8358,7 +8362,7 @@ class Layout extends Component {
 						className="bg-overlay"
 						style={{
 							backgroundColor: this.state.style?.bgOverlayColor,
-							opacity: this.state.style?.bgOverlayOpacity / 100
+							opacity: this.state.style?.bgOverlayOpacity / 100,
 						}}
 					></div>
 				)}
@@ -8420,9 +8424,9 @@ class Layout extends Component {
 											? this.state.showHide
 												? 'none'
 												: 'flex'
-											: 'flex'
+											: 'flex',
 							  }
-							: {})
+							: {}),
 					}}
 				>
 					{this.state.showBlockActions &&
@@ -8454,7 +8458,7 @@ class Layout extends Component {
 										this.props.index,
 										this.props.index + 1,
 										this.state.activeSectionID,
-										'down'
+										'down',
 									);
 								}}
 								disabled={this.props.sortedIndex === this.props.itemsLength - 1}
@@ -8462,7 +8466,7 @@ class Layout extends Component {
 									cursor:
 										this.props.sortedIndex === this.props.itemsLength - 1
 											? 'not-allowed'
-											: 'pointer'
+											: 'pointer',
 								}}
 							>
 								<NewDown />
@@ -8476,12 +8480,13 @@ class Layout extends Component {
 										this.props.index,
 										this.props.index - 1,
 										this.state.activeSectionID,
-										'up'
+										'up',
 									);
 								}}
 								disabled={this.props.sortedIndex === 0}
 								style={{
-									cursor: this.props.sortedIndex === 0 ? 'not-allowed' : 'pointer'
+									cursor:
+										this.props.sortedIndex === 0 ? 'not-allowed' : 'pointer',
 								}}
 							>
 								<NewUp />
@@ -8517,7 +8522,7 @@ class Layout extends Component {
 											this.toggleSideBar(e);
 										}}
 										style={{
-											left: 'calc(1% + 10px)'
+											left: 'calc(1% + 10px)',
 										}}
 									>
 										Add Block
@@ -8579,7 +8584,7 @@ class Layout extends Component {
 									onClick={(e) =>
 										this.props.handleAddLayout(
 											{ emptyCardOrder: this.props?.index - 0.1 },
-											true
+											true,
 										)
 									}
 									style={{
@@ -8588,7 +8593,7 @@ class Layout extends Component {
 										fontSize: '10px',
 										fontWeight: 'bold',
 										textAlign: 'center',
-										width: '71.8px'
+										width: '71.8px',
 									}}
 								>
 									{this.state.isElement !== true ? (
@@ -8611,7 +8616,7 @@ class Layout extends Component {
 
 									...(_.has(this.state.style.heading, 'divStyles')
 										? this.state.style.heading.divStyles
-										: {})
+										: {}),
 								}}
 							>
 								{this.switchComponent(
@@ -8619,7 +8624,7 @@ class Layout extends Component {
 									this.state.style.heading,
 									'header' + this.state?.sectionID?.toString(),
 									'header',
-									null
+									null,
 								)}
 							</div>
 						</div>
@@ -8700,7 +8705,7 @@ class Layout extends Component {
 										: '0px'
 								}`,
 
-							position: 'relative'
+							position: 'relative',
 						}}
 					>
 						{/* Add grid overlay */}
@@ -8710,7 +8715,7 @@ class Layout extends Component {
 								<div
 									className="grid-line-vertical"
 									style={{
-										borderColor: this.state.isCenter ? 'yellow' : 'blue'
+										borderColor: this.state.isCenter ? 'yellow' : 'blue',
 									}}
 								></div>
 
@@ -8751,12 +8756,12 @@ class Layout extends Component {
 											this.state.blocks?.[0]?.divStyles?.columnGap || 0
 										}px`,
 										zIndex: 0,
-										pointerEvents: 'none'
+										pointerEvents: 'none',
 									}}
 								>
 									{/* Generate grid cells based on columns and rows */}
 									{Array.from({
-										length: this.state.gridCols * this.state.gridRows
+										length: this.state.gridCols * this.state.gridRows,
 									}).map((_, index) => (
 										<div
 											key={index}
@@ -8768,7 +8773,7 @@ class Layout extends Component {
 												}`,
 												pointerEvents: 'none',
 												backgroundColor: 'rgba(255,255,255,0.2)',
-												borderRadius: '6px'
+												borderRadius: '6px',
 											}}
 										>
 											<div className="grid-cell-content"></div>
@@ -8790,7 +8795,7 @@ class Layout extends Component {
 											? '4px solid red'
 											: '4px solid #3B82F6',
 										pointerEvents: 'none',
-										zIndex: 999999999999999
+										zIndex: 999999999999999,
 
 										//width: `${this.state?.placeholderPosition?.width}px`,
 										//height: `${this.state?.placeholderPosition?.height}px`,
@@ -8829,9 +8834,9 @@ class Layout extends Component {
 														this.getHeight(
 															component,
 															cellHeight,
-															row
-														) || 'auto'
-												})
+															row,
+														) || 'auto',
+												}),
 											}}
 											ref={(el) => (this.columnRefs[k] = el)}
 										>
@@ -8871,15 +8876,15 @@ class Layout extends Component {
 															? _.omit(component.divStyles, [
 																	'gridArea',
 																	'mGridArea',
-																	'width'
+																	'width',
 															  ])
 															: {}),
 														...(this.state.isResizing && {
 															background: 'rgba(59, 130, 246, 0.2)',
-															opacity: 0.5
+															opacity: 0.5,
 														}),
 														width: '100%',
-														minHeight: '100%'
+														minHeight: '100%',
 													}}
 													key={k}
 													ref={(el) => (this.boxRefs[k] = el)}
@@ -8891,7 +8896,7 @@ class Layout extends Component {
 														null,
 														_.has(row, 'contentAlign')
 															? row.contentAlign
-															: null
+															: null,
 													)}
 												</div>
 											</Draggable>
@@ -8907,7 +8912,7 @@ class Layout extends Component {
 											component.divStyles.mGridArea
 										) {
 											rowStart = parseInt(
-												component.divStyles.mGridArea.split('/')[0]
+												component.divStyles.mGridArea.split('/')[0],
 											);
 										} else {
 											if (
@@ -8915,7 +8920,7 @@ class Layout extends Component {
 												component.divStyles.gridArea
 											) {
 												rowStart = parseInt(
-													component.divStyles.gridArea.split('/')[0]
+													component.divStyles.gridArea.split('/')[0],
 												);
 											}
 										}
@@ -8925,7 +8930,7 @@ class Layout extends Component {
 											component.divStyles.gridArea
 										) {
 											rowStart = parseInt(
-												component.divStyles.gridArea.split('/')[0]
+												component.divStyles.gridArea.split('/')[0],
 											);
 										}
 									}
@@ -8935,10 +8940,10 @@ class Layout extends Component {
 									) {
 										try {
 											let transform = _.pick(component.divStyles, [
-												'transform'
+												'transform',
 											]);
 											let values = transform.transform.match(
-												/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/
+												/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/,
 											);
 											if (values) {
 												x = parseInt(values[1]) || 0;
@@ -8979,9 +8984,9 @@ class Layout extends Component {
 														this.getHeight(
 															component,
 															cellHeight,
-															row
-														) || 'auto'
-												})
+															row,
+														) || 'auto',
+												}),
 											}}
 											ref={(el) => {
 												this.columnRefs[k] = el;
@@ -9008,12 +9013,12 @@ class Layout extends Component {
 														this.state.previewMode == 'm'
 															? _.has(
 																	component.divStyles,
-																	'mGridArea'
+																	'mGridArea',
 															  )
 																? component.divStyles?.mGridArea
 																: component.divStyles?.gridArea
 															: component.divStyles?.gridArea,
-														component._id
+														component._id,
 													)
 												}
 												onDrag={(e, data) =>
@@ -9037,7 +9042,7 @@ class Layout extends Component {
 													y:
 														this.state.componentPositions[
 															component?._id
-														]?.y || 0
+														]?.y || 0,
 												}}
 												cancel={
 													this.state.activeComponentID === component?._id
@@ -9079,7 +9084,6 @@ class Layout extends Component {
 													}}
 													// ${this.returnAnimationClasses(component)}
 													className={`column  
-													${this.returnAnimationClasses(component)}
 														 ${component.listCount && 'listAnimation'} ${
 														_.has(component, 'className')
 															? _.has(component, 'mclassName') &&
@@ -9148,11 +9152,11 @@ class Layout extends Component {
 															_.has(component, 'backgroundlabel') &&
 															_.has(
 																this.state.style,
-																'subBlocksBackgroundColor'
+																'subBlocksBackgroundColor',
 															) &&
 															_.size(
 																this.state.style
-																	.subBlocksBackgroundColor
+																	.subBlocksBackgroundColor,
 															) > 0
 																? this.state.style
 																		.subBlocksBackgroundColor[
@@ -9160,11 +9164,11 @@ class Layout extends Component {
 																  ]
 																: _.has(
 																		component,
-																		'sameBgCircle'
+																		'sameBgCircle',
 																  ) &&
 																  _.has(
 																		this.state.style,
-																		'sectionBackgroundColor'
+																		'sectionBackgroundColor',
 																  )
 																? this.state.style
 																		.sectionBackgroundColor
@@ -9175,16 +9179,16 @@ class Layout extends Component {
 																	'gridArea',
 																	'width',
 																	'zIndex',
-																	'mZIndex'
+																	'mZIndex',
 															  ])
 															: {}),
 														...((this.state.isResizing ||
 															this.state.isDragging) && {
 															background: 'rgba(59, 130, 246, 0.2)',
-															opacity: 0.5
+															opacity: 0.5,
 														}),
 														display: 'flex',
-														flexFlow: 'column'
+														flexFlow: 'column',
 														// animation: this.state?.showActiveSubBlockAnime ? `${component?.animeName ? component?.animeName : 'none'} 3s infinite` : 'none',
 													}}
 													key={k}
@@ -9206,7 +9210,7 @@ class Layout extends Component {
 															row.fillVideoBlock,
 														_.has(row, 'cardColor') && row?.cardColor,
 														_.has(row, 'iconColor') && row?.iconColor,
-														_.has(row, 'jCount') && row?.jCount
+														_.has(row, 'jCount') && row?.jCount,
 													)}
 													{this.state.activeComponentID ===
 														component?._id &&
@@ -9220,7 +9224,7 @@ class Layout extends Component {
 
 																		cursor: handle.cursor,
 																		transform:
-																			handle.transform || ''
+																			handle.transform || '',
 																	}}
 																	onMouseDown={(e) =>
 																		this.handleResizeStart(
@@ -9231,11 +9235,11 @@ class Layout extends Component {
 																			component?.divStyles
 																				?.gridArea,
 																			component?.divStyles
-																				?.mGridArea
+																				?.mGridArea,
 																		)
 																	}
 																/>
-															)
+															),
 														)}
 
 													{/* show z index values if showZIndexValues is true */}
@@ -9318,7 +9322,7 @@ class Layout extends Component {
 							}
 							setModalRef={(e) => {
 								this.setState({
-									showImageModal: e
+									showImageModal: e,
 								});
 							}}
 							handleCardPopupProps={this.handleCardPopupProps}
@@ -9358,17 +9362,17 @@ class Layout extends Component {
 							handleShowSmartModal={(type, editValue = '') => {
 								this.setState(
 									{
-										showSidebar: false
+										showSidebar: false,
 									},
 									() => {
 										this.props?.handleShowSmartModal(type, editValue);
-									}
+									},
 								);
 							}}
 							handleDeleteVariable={this.props?.handleDeleteVariable}
 							handleEditVariable={(e) => {
 								this.setState({
-									showSidebar: false
+									showSidebar: false,
 								});
 								this.props?.handleEditVariable(e);
 							}}

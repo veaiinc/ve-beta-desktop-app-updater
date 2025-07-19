@@ -27,7 +27,7 @@ const Sidebar = () => {
 	const [sidebarStates, setsidebarStates] = useState({
 		workSpaceOpen: false,
 		navStyle: 'close',
-		selectedModule: null
+		selectedModule: null,
 	});
 
 	useEffect(() => {
@@ -56,7 +56,7 @@ const Sidebar = () => {
 					height: isSidebarOpen ? '100dvh' : '100dvh',
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : '',
 					maxHeight: isHome ? (isSidebarOpen ? '' : '') : '',
-					minHeight: isHome ? (isSidebarOpen ? '' : '250px') : ''
+					minHeight: isHome ? (isSidebarOpen ? '' : '250px') : '',
 				}}
 				ref={sidebarRef}
 			>

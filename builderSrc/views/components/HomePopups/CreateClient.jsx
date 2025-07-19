@@ -2,7 +2,7 @@ import React from 'react';
 import { ReactComponent as Search } from '../../../assets/svg/CreateClient/Search.svg';
 import { ReactComponent as Add } from '../../../assets/svg/CreateClient/Plus.svg';
 import { ReactComponent as Close } from '../../../assets/svg/Settings/CloseSetting.svg';
-// import { ReactComponent as Tick } from '../../../assets/svg/CreateClient/Tick.svg';
+// import {ReactComponent as Tick} from '../../../assets/svg/CreateClient/Tick.svg'
 import { ReactComponent as DropSet } from '../../../assets/svg/CreateClient/Drop.svg';
 import PhoneInput from 'react-phone-number-input';
 import '../HomePopups/HomePagePopup.scss';

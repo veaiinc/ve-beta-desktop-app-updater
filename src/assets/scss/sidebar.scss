@@ -136,9 +136,9 @@
 					align-items: center;
 					background: var(--card-hover);
 					border-radius: 12px;
-					position: relative;
-					bottom: 61px;
-					left: 8px;
+					position: absolute;
+					bottom: 72px;
+					left: 16px;
 					margin-bottom: 6px;
 
 					.left {
@@ -649,6 +649,10 @@
 			&::-webkit-scrollbar {
 				display: none; // Hide scrollbar Chrome/Safari/Opera
 			}
+			&.earlyAccessPage {
+				height: 100% !important;
+				max-height: 95vh !important;
+			}
 			.workspaceListHeader {
 				position: sticky;
 				top: 0;
@@ -670,7 +674,6 @@
 			.backContinaer {
 				display: flex;
 				align-items: center;
-				justify-content: space-between;
 				gap: 4px;
 				cursor: pointer;
 				padding: 12px;
@@ -1371,10 +1374,8 @@
 		display: flex;
 		width: 100%;
 		padding: 10px;
-		&:first-child {
-			align-items: center;
-			justify-content: space-between;
-		}
+		justify-content: flex-start;
+		align-items: center;
 		flex-shrink: 0;
 		align-self: stretch;
 		gap: 14px;
@@ -1397,12 +1398,6 @@
 		&:hover {
 			background-color: var(--card-over-card-hover);
 			border-radius: 8px;
-		}
-
-		.settings-footer__left {
-			display: flex;
-			align-items: center;
-			gap: 12px;
 		}
 	}
 }
@@ -1725,7 +1720,7 @@
 	gap: 8px;
 	border-radius: 8px;
 	border: 1px solid var(--stroke, #2c2d2e);
-	background: var(--chat-box, #202123);
+	background: var(--background-color);
 	box-shadow: 0px 6px 8px 0px rgba(0, 0, 0, 0.05);
 	color: var(--primary-font, #18181b);
 	font-family: var(--primary-font-family);

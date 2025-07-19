@@ -5,7 +5,7 @@ import {
 	betaNavigationItems,
 	internalNavigationItems,
 	stableSettingsNavItems,
-	betaSettingsNavItems
+	betaSettingsNavItems,
 } from './sidebarindex.js';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
@@ -32,7 +32,6 @@ import UploadAvatarPopupComponent from '../settings/profile/UploadAvatarPopup';
 import UploadFileProiflePopup from '../settings/profile/UploadFileProiflePopup';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import CreditsLeft from './chatHistory/CreditsLeft';
-import Spinner from '../loaders/Spinner.jsx';
 
 const workspaceStyles = {
 	position: 'absolute',
@@ -42,7 +41,7 @@ const workspaceStyles = {
 	border: 'none',
 	zIndex: '10000',
 	borderRadius: '16px',
-	transformOrigin: 'bottom'
+	transformOrigin: 'bottom',
 };
 
 const MODULE_NAME_MAP = {
@@ -59,7 +58,7 @@ const MODULE_NAME_MAP = {
 	// notes: 'notes',
 	agents: 'knowledgeAgent',
 	'ai assistant': 'conversationalAgent',
-	'knowledge agent': 'knowledgeAgent'
+	'knowledge agent': 'knowledgeAgent',
 };
 
 const routeType = 'public';
@@ -78,14 +77,14 @@ const OpenedSidebarModules = ({
 	activeSubModule,
 	setActiveSubModule,
 	handleSubModuleClick,
-	setShowNotificationsDrawer
+	setShowNotificationsDrawer,
 }) => {
 	const location = useLocation();
 
 	const { workspaceMode } = useWorkspaceMode();
 
 	const {
-		aiSetup: { isVoiceIntegrationActive }
+		aiSetup: { isVoiceIntegrationActive },
 	} = useContext(Context);
 
 	const redirectToFunction = (subModules, route, name) => {
@@ -123,9 +122,6 @@ const OpenedSidebarModules = ({
 			return currentPath.includes('/agents') || currentPath.includes('/ai-assistant');
 		}
 		if (name === 'New Chat') {
-			if (workspaceMode === 'stable') {
-				return currentPath.includes('/home');
-			}
 			return currentPath.includes('/chat');
 		}
 
@@ -137,7 +133,7 @@ const OpenedSidebarModules = ({
 			style={{
 				display: 'flex',
 				justifyContent: 'space-between',
-				alignItems: 'flex-start'
+				alignItems: 'flex-start',
 			}}
 		>
 			<div
@@ -147,7 +143,7 @@ const OpenedSidebarModules = ({
 				onClick={() => {
 					if (isVoiceIntegrationActive) {
 						return message.error(
-							'Voice integration is active, please disable it to use this feature'
+							'Voice integration is active, please disable it to use this feature',
 						);
 					}
 					redirectToFunction(subModules, route, name);
@@ -157,7 +153,7 @@ const OpenedSidebarModules = ({
 						isDropdownVisible && subModules?.length
 							? `${subModules.length * 40}px`
 							: '0',
-					justifyContent: 'space-between'
+					justifyContent: 'space-between',
 				}}
 			>
 				<div
@@ -166,7 +162,7 @@ const OpenedSidebarModules = ({
 						justifyContent: 'flex-start',
 						gap: '14px',
 						alignItems: 'center',
-						width: '100%'
+						width: '100%',
 					}}
 				>
 					{Icon && <Icon />}
@@ -183,7 +179,7 @@ const OpenedSidebarModules = ({
 									top: '10px',
 									bottom: '0',
 									width: '1px',
-									backgroundColor: '#333334'
+									backgroundColor: '#333334',
 								}}
 							/>
 							{activeSubModule !== null && (
@@ -195,7 +191,7 @@ const OpenedSidebarModules = ({
 										height: '32px',
 										width: '3px',
 										backgroundColor: 'var(--primary-font)',
-										borderRadius: '100px'
+										borderRadius: '100px',
 									}}
 								/>
 							)}
@@ -212,7 +208,7 @@ const OpenedSidebarModules = ({
 									</div>
 									{subItem.icon &&
 										createElement(subItem.icon, {
-											fill: activeSubModule === index ? '#FFFFFF' : '#939393'
+											fill: activeSubModule === index ? '#FFFFFF' : '#939393',
 										})}
 								</div>
 							))}
@@ -235,13 +231,13 @@ const OpenedSidebarModules = ({
 const navigationItemsMap = {
 	beta: betaNavigationItems,
 	internal: internalNavigationItems,
-	stable: stableNavigationItems
+	stable: stableNavigationItems,
 };
 
 const settingsNavItemsMap = {
 	beta: betaSettingsNavItems,
 	internal: betaSettingsNavItems,
-	stable: stableSettingsNavItems
+	stable: stableSettingsNavItems,
 };
 
 const OpenedSidebar = ({
@@ -251,7 +247,7 @@ const OpenedSidebar = ({
 	setShowNotificationsDrawer,
 	setShowNotesDrawer,
 	isThisEarlyAccessPage,
-	isSidebarOpen
+	isSidebarOpen,
 }) => {
 	const { workspaceMode, workspaceNotFound } = useWorkspaceMode();
 	const workspaceId = localStorage.getItem('workspaceId');
@@ -270,10 +266,10 @@ const OpenedSidebar = ({
 			tennantSettingsData,
 			getTenantSettings,
 			userWorkSpaceList,
-			getUserWorkSpaceList
+			getUserWorkSpaceList,
 		},
 		themeInfo: { theme, updateTheme },
-		authInfo: { updateUserDetails }
+		authInfo: { updateUserDetails },
 	} = useContext(Context);
 
 	const [userDetails, setUserDetails] = useState({
@@ -282,23 +278,19 @@ const OpenedSidebar = ({
 		phoneNumber: '',
 		is2FAEnabled: '',
 		logoURL: '',
-		cropSettings: { crop: { x: 0, y: 0 }, zoom: 1 }
+		cropSettings: { crop: { x: 0, y: 0 }, zoom: 1 },
 	});
 
 	const [uploadAvatarPopup, setuploadAvatarPopup] = useState({ theme: false, file: false });
 
 	const [logoFile, setlogoFile] = useState(null);
 
-	const [infoState, setInfoState] = useState({
-		loading: false
-	});
-
 	useEffect(() => {
 		if (userDetailsData) {
 			setUserDetails((prev) => ({
 				...prev,
 				logoURL: userDetailsData?.dp_s3_500w_key || '',
-				cropSettings: userDetailsData?.dp_style || { crop: { x: 0, y: 0 }, zoom: 1 }
+				cropSettings: userDetailsData?.dp_style || { crop: { x: 0, y: 0 }, zoom: 1 },
 			}));
 		}
 	}, [userDetailsData]);
@@ -363,15 +355,10 @@ const OpenedSidebar = ({
 	}, [showSettingsSidebar]);
 
 	const handleNewChat = () => {
-		// For stable workspaceMode, redirecting to /home, check stableNavigationItems
-		if (workspaceMode === 'stable') {
-			navigate('/home');
-			return;
-		}
 		const sessionId = ObjectID()?.toString();
 		navigate(`/chat/${sessionId}`);
 		updateStateValues({
-			currentChatData: null
+			currentChatData: null,
 		});
 	};
 
@@ -383,7 +370,7 @@ const OpenedSidebar = ({
 		setsidebarStates((prevState) => ({
 			...prevState,
 			workSpaceOpen: isSidebarOpen,
-			navStyle: isSidebarOpen ? 'workspace' : 'close'
+			navStyle: isSidebarOpen ? 'workspace' : 'close',
 		}));
 	};
 
@@ -408,7 +395,7 @@ const OpenedSidebar = ({
 			setSelectedOption(singleItems?.name);
 			setsidebarStates((prev) => ({
 				...prev,
-				selectedModule: singleItems?.name
+				selectedModule: singleItems?.name,
 			}));
 			if (singleItems?.name === 'New Chat') {
 				handleNewChat();
@@ -424,7 +411,7 @@ const OpenedSidebar = ({
 				handleSidebarCollapse();
 			}
 		},
-		[navigate, workspaceMode, isMobile, handleSidebarCollapse]
+		[navigate, workspaceMode, isMobile, handleSidebarCollapse],
 	);
 
 	const handleCloseChatPanel = () => {
@@ -481,7 +468,7 @@ const OpenedSidebar = ({
 
 					if (isSubModuleInAllApps) {
 						const subAccess = accessControls?.find(
-							(control) => control?.app === mappedSubModuleName
+							(control) => control?.app === mappedSubModuleName,
 						);
 						return subAccess ? subAccess?.isEnabled : false; // Exclude if not enabled
 					}
@@ -501,7 +488,7 @@ const OpenedSidebar = ({
 				// Return the module, including the filtered submodules
 				return {
 					...module,
-					subModules: filteredSubModules?.length ? filteredSubModules : undefined
+					subModules: filteredSubModules?.length ? filteredSubModules : undefined,
 				};
 			})
 			.filter(Boolean); // Remove any null values (modules without access or submodules)
@@ -514,7 +501,7 @@ const OpenedSidebar = ({
 			: filterModules(
 					sidebarNavigationItems,
 					tenantUserAccessControls?.accessControls,
-					allPossibleApps
+					allPossibleApps,
 			  );
 
 	const settingEssentials = isWorkspaceSuspended
@@ -524,7 +511,7 @@ const OpenedSidebar = ({
 		: filterModules(
 				settingsNavigationItems?.essentials || [],
 				tenantUserAccessControls?.accessControls,
-				allPossibleApps
+				allPossibleApps,
 		  );
 
 	const isExactPathMatch = useCallback(
@@ -538,7 +525,7 @@ const OpenedSidebar = ({
 
 			return currentPath === routePath;
 		},
-		[location.pathname]
+		[location.pathname],
 	);
 
 	useEffect(() => {
@@ -558,7 +545,7 @@ const OpenedSidebar = ({
 		const event = new KeyboardEvent('keydown', {
 			key: 'k',
 			metaKey: true, // For macOS; use ctrlKey for Windows
-			bubbles: true
+			bubbles: true,
 		});
 		document.dispatchEvent(event);
 	};
@@ -568,25 +555,25 @@ const OpenedSidebar = ({
 			key: 'theme',
 			label: (theme) => `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`,
 			icon: (theme) => (theme === 'dark' ? <SunIcon /> : <MoonIcon />),
-			onClick: (updateTheme, newThemeValue) => () => updateTheme(newThemeValue)
-		}
+			onClick: (updateTheme, newThemeValue) => () => updateTheme(newThemeValue),
+		},
 		// {
-		// 	key: 'search',
-		// 	label: (_, isMac) => (isMac ? 'Search ⌘ + k' : 'Search Ctrl + k'),
-		// 	icon: () => <SearchSvg />,
-		// 	onClick: (_, __, triggerCmdK) => () => triggerCmdK(),
+		//  key: 'search',
+		//  label: (_, isMac) => (isMac ? 'Search ⌘ + k' : 'Search Ctrl + k'),
+		//  icon: () => <SearchSvg />,
+		//  onClick: (_, __, triggerCmdK) => () => triggerCmdK(),
 		// },
 		// {
-		// 	key: 'newChat',
-		// 	label: () => 'New Chat',
-		// 	icon: () => <NewEditSvg />,
-		// 	onClick: (_, __, ___, handleNewChat) => () => handleNewChat(),
+		//  key: 'newChat',
+		//  label: () => 'New Chat',
+		//  icon: () => <NewEditSvg />,
+		//  onClick: (_, __, ___, handleNewChat) => () => handleNewChat(),
 		// },
 	];
 
 	const updateProfileImage = async (settings) => {
 		let json = {
-			dp_style: settings
+			dp_style: settings,
 		};
 		const response = await updateUserDetailsProfile(json);
 
@@ -600,14 +587,14 @@ const OpenedSidebar = ({
 		let json = {
 			dp_style: {
 				...userDetails?.cropSettings,
-				profileDpColor: color
-			}
+				profileDpColor: color,
+			},
 		};
 
 		const response = await updateUserDetails(json);
 		if (response[0]) {
 			updateUserDetailsState({
-				...json.dp_style
+				...json.dp_style,
 			});
 		}
 	};
@@ -618,8 +605,8 @@ const OpenedSidebar = ({
 				...prev,
 				cropSettings: {
 					...prev.cropSettings,
-					zoom
-				}
+					zoom,
+				},
 			};
 		});
 	};
@@ -630,8 +617,8 @@ const OpenedSidebar = ({
 				...prev,
 				cropSettings: {
 					...prev.cropSettings,
-					crop
-				}
+					crop,
+				},
 			};
 		});
 	};
@@ -643,7 +630,7 @@ const OpenedSidebar = ({
 			reader.onloadend = () => {
 				setUserDetails({
 					...userDetails,
-					logoURL: reader.result
+					logoURL: reader.result,
 				});
 			};
 			reader.readAsDataURL(file);
@@ -665,7 +652,7 @@ const OpenedSidebar = ({
 			<div
 				style={{
 					display: 'flex',
-					position: 'relative'
+					position: 'relative',
 				}}
 			>
 				{tenantUserAccessControls && (
@@ -680,7 +667,7 @@ const OpenedSidebar = ({
 										flexDirection: 'column',
 										justifyContent: 'space-between',
 										overflowY: 'auto',
-										borderRight: '1px solid var(--dividers)'
+										borderRight: '1px solid var(--dividers)',
 									}}
 								>
 									<div className="topOptionsList">
@@ -690,7 +677,7 @@ const OpenedSidebar = ({
 												cursor: 'pointer',
 												position: 'sticky',
 												top: '0',
-												zIndex: '1000'
+												zIndex: '1000',
 											}}
 										>
 											{isThisEarlyAccessPage && (
@@ -725,7 +712,7 @@ const OpenedSidebar = ({
 														<DownArrowSmallSvg
 															style={{
 																height: '16px',
-																width: '16px'
+																width: '16px',
 															}}
 														/>
 													)}
@@ -757,10 +744,10 @@ const OpenedSidebar = ({
 																	updateTheme,
 																	newThemeValue,
 																	triggerCmdK,
-																	handleNewChat
+																	handleNewChat,
 																)}
 															/>
-														)
+														),
 													)}
 												</div>
 											)}
@@ -774,21 +761,21 @@ const OpenedSidebar = ({
 												display: 'flex',
 												flexDirection: 'column',
 												width: '100%',
+												overflowY: 'auto',
 												justifyContent: `${
 													isThisEarlyAccessPage ? 'flex-end' : ''
-												}`
-												// overflowY: 'auto',
+												}`,
 											}}
 											id="chatsScroll"
 										>
 											{!isThisEarlyAccessPage && (
 												<>
 													{/* <hr
-														style={{
-															border: '0.7px solid var(--stroke)',
-															margin: '16px 0px',
-														}}
-													/> */}
+                                                        style={{
+                                                            border: '0.7px solid var(--stroke)',
+                                                            margin: '16px 0px',
+                                                        }}
+                                                    /> */}
 													{filteredModules?.map((singleItem, index) => (
 														<div key={index}>
 															<OpenedSidebarModules
@@ -801,7 +788,7 @@ const OpenedSidebar = ({
 																navigateTo={(route) =>
 																	handleNavigateFunction(
 																		route,
-																		singleItem
+																		singleItem,
 																	)
 																}
 																isSelected={
@@ -810,7 +797,7 @@ const OpenedSidebar = ({
 																}
 																isActive={isExactPathMatch(
 																	singleItem.route,
-																	singleItem.name
+																	singleItem.name,
 																)}
 																subModules={singleItem.subModules}
 																isDropdownVisible={
@@ -819,7 +806,7 @@ const OpenedSidebar = ({
 																}
 																onDropdownToggle={() =>
 																	handleDropdownToggle(
-																		singleItem.name
+																		singleItem.name,
 																	)
 																}
 																setActiveDropdown={
@@ -844,8 +831,8 @@ const OpenedSidebar = ({
 
 													<div>
 														<hr className={'horizontal-line-sidebar'} />
+														<ChatHistory />
 													</div>
-													<ChatHistory />
 													<CreditsLeft />
 													<div
 														className={`settingsOptionsContainer  ${
@@ -885,7 +872,7 @@ const OpenedSidebar = ({
 																					''
 																				}
 																				onCropComplete={(
-																					e
+																					e,
 																				) => ''}
 																				onZoomChange={(e) =>
 																					''
@@ -901,12 +888,12 @@ const OpenedSidebar = ({
 																						?.cropSettings
 																						?.profileDpColor ||
 																					'',
-																				fontSize: '12px'
+																				fontSize: '12px',
 																			}}
 																		>
 																			{getInitials(
 																				userDetailsData?.firstName,
-																				userDetailsData?.lastName
+																				userDetailsData?.lastName,
 																			)}
 																		</div>
 																	)}
@@ -973,7 +960,7 @@ const OpenedSidebar = ({
 																					''
 																				}
 																				onCropComplete={(
-																					e
+																					e,
 																				) => ''}
 																				onZoomChange={(e) =>
 																					''
@@ -989,12 +976,12 @@ const OpenedSidebar = ({
 																						?.cropSettings
 																						?.profileDpColor ||
 																					'',
-																				fontSize: '12px'
+																				fontSize: '12px',
 																			}}
 																		>
 																			{getInitials(
 																				userDetailsData?.firstName,
-																				userDetailsData?.lastName
+																				userDetailsData?.lastName,
 																			)}
 																		</div>
 																	)}
@@ -1037,7 +1024,7 @@ const OpenedSidebar = ({
 									left: isMobile ? '0' : '100%',
 									top: '0',
 									height: '100vh',
-									zIndex: isMobile ? 1000 : 1
+									zIndex: isMobile ? 1000 : 1,
 								}}
 							>
 								<div
@@ -1045,7 +1032,7 @@ const OpenedSidebar = ({
 										display: 'flex',
 										justifyContent: 'space-between',
 										alignItems: 'center',
-										marginBottom: '20px'
+										marginBottom: '20px',
 									}}
 								>
 									<h2 style={{ color: 'var(--primary-font)' }}>{selectedChat}</h2>
@@ -1084,8 +1071,8 @@ const OpenedSidebar = ({
 										{theme === 'dark' ? <SunIcon /> : <MoonIcon />}
 									</div>
 									{/* <div className="eachOption" onClick={triggerCmdK}>
-										<SearchSvg />
-									</div> */}
+                                        <SearchSvg />
+                                    </div> */}
 									<div className="eachOption" onClick={handleNewChat}>
 										<NewEditSvg />
 									</div>
@@ -1112,12 +1099,12 @@ const OpenedSidebar = ({
 										className="noImageText"
 										style={{
 											background:
-												userDetails?.cropSettings?.profileDpColor || ''
+												userDetails?.cropSettings?.profileDpColor || '',
 										}}
 									>
 										{getInitials(
 											userDetailsData?.firstName,
-											userDetailsData?.lastName
+											userDetailsData?.lastName,
 										)}
 									</div>
 								)}
@@ -1177,7 +1164,7 @@ const OpenedSidebar = ({
 						<hr
 							style={{
 								border: '0.7px solid var(--stroke)',
-								margin: '16px 0px'
+								margin: '16px 0px',
 							}}
 						/>
 						<div className="settings-options-container">
@@ -1199,7 +1186,7 @@ const OpenedSidebar = ({
 										isSelected={selectedOption === singleItem.name}
 										isActive={isExactPathMatch(
 											singleItem.route,
-											singleItem.name
+											singleItem.name,
 										)}
 										subModules={singleItem.subModules}
 										isDropdownVisible={activeDropdown === singleItem.name}
@@ -1223,7 +1210,7 @@ const OpenedSidebar = ({
 							style={{
 								borderTop: `${
 									!sidebarStates?.workSpaceOpen ? '1px solid var(--stroke)' : ''
-								}`
+								}`,
 							}}
 						>
 							<div
@@ -1237,13 +1224,8 @@ const OpenedSidebar = ({
 										className="settings-footer"
 										onClick={() => openWorkspacesFunction(true)}
 									>
-										<div className="settings-footer__left">
-											<SwitchWorkspaceSvg fill="var(--primary-font)" />
-											<p>Switch workspace</p>
-										</div>
-										{infoState.loading && (
-											<Spinner width="15px" height="15px" />
-										)}
+										<SwitchWorkspaceSvg fill="var(--primary-font)" />
+										<p>Switch workspace</p>
 									</div>
 								)}
 								<div
@@ -1283,12 +1265,12 @@ const OpenedSidebar = ({
 														background:
 															userDetailsData?.cropSettings
 																?.profileDpColor || '',
-														fontSize: '12px'
+														fontSize: '12px',
 													}}
 												>
 													{getInitials(
 														userDetailsData?.firstName,
-														userDetailsData?.lastName
+														userDetailsData?.lastName,
 													)}
 												</div>
 											)}
@@ -1323,15 +1305,14 @@ const OpenedSidebar = ({
 							sidebarStates?.workSpaceOpen ? 'slideUpSidebar' : 'slideDown'
 						} 0.3s ease-out`,
 						top: `${isThisEarlyAccessPage ? '40px' : ''}`,
-						transformOrigin: `${isThisEarlyAccessPage ? 'top' : 'bottom'}`
+						transformOrigin: `${isThisEarlyAccessPage ? 'top' : 'bottom'}`,
 					}}
 				>
 					<WorkspaceListComponent
 						setsidebarStates={setsidebarStates}
 						sidebarStates={sidebarStates}
 						sidebarSettings="close"
-						setInfoState={setInfoState}
-						info={infoState}
+						isThisEarlyAccessPage={isThisEarlyAccessPage}
 					/>
 				</div>
 			)}

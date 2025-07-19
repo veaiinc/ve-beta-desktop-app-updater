@@ -11,7 +11,7 @@ import { BrowserRouter } from 'react-router-dom';
 ReactDOM.createRoot(document.getElementById('root')).render(
 	<BrowserRouter>
 		<App />
-	</BrowserRouter>
+	</BrowserRouter>,
 );
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

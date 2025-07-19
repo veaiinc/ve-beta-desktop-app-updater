@@ -5,7 +5,7 @@ import '@blocknote/mantine/style.css';
 import {
 	getDefaultReactSlashMenuItems,
 	SuggestionMenuController,
-	useCreateBlockNote
+	useCreateBlockNote,
 } from '@blocknote/react';
 import '../../../assets/scss/notes/noteComponent.scss';
 import NoteToolbar from '../../components/notes/NoteToolbar';
@@ -18,7 +18,7 @@ import {
 	useState,
 	useRef,
 	useMemo,
-	createContext
+	createContext,
 } from 'react';
 import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Context from '../../../context/context';
@@ -63,7 +63,7 @@ const initialState = {
 	updatedAt: '',
 	notesConfigs: {
 		smallText: false,
-		fullWidth: false
+		fullWidth: false,
 	},
 	isFavorite: false,
 	loading: true,
@@ -82,13 +82,13 @@ const initialState = {
 	showRemoveIconBtn: false,
 	selectedEmoji: null,
 	coverImageRemoved: false,
-	iconImageRemoved: false
+	iconImageRemoved: false,
 };
 
 const accessLevels = {
 	full: 0,
 	edit: 1,
-	view: 2
+	view: 2,
 };
 
 let userId = null;
@@ -101,7 +101,7 @@ const getRandomWidth = () => {
 
 const skeletonLines = [...Array(10)]?.map(() => ({
 	width: getRandomWidth(),
-	height: 14
+	height: 14,
 }));
 
 const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptTabs = false }) => {
@@ -110,6 +110,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const noteId = useParams()?.noteId;
 	const sessionId = noteId;
 	const type = searchParams.get('type');
+	const isAiIntelligenceEnabled = searchParams.get('isAiIntelligenceEnabled');
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
 	const prevDocRef = useRef([]);
@@ -141,11 +142,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			blocks,
 			createBlock,
 			updateBlock,
-			deleteBlock
+			deleteBlock,
 		},
 		chatStream: { createWebSocketConnection, sendMessage, closeWebSocketConnection },
 		companyInfo: { getTeamMembers, tenantsUserList },
-		templates: { handleTranscriptionSuggestions }
+		templates: { handleTranscriptionSuggestions },
+		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState(initialState);
@@ -153,14 +155,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const [activeTab, setActiveTab] = useState('transcript');
 	const location = useLocation();
 
-	console.log(transcriptList);
-
 	// Add hooks for live intelligence and recall stream
-	const {
-		createWebSocketConnection: recallConnection,
-		sendMessage: recallSendMessage,
-		closeWebSocketConnection: closeRecallConnection
-	} = useRecallStream();
+	const { createWebSocketConnection: recallConnection, sendMessage: recallSendMessage, closeWebSocketConnection: closeRecallConnection } =
+		useRecallStream();
 	const { createWebSocketConnection: createLiveIntelligenceStream, updateCurrentContext } =
 		useLiveIntelligenceStream();
 
@@ -182,8 +179,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 						{
 							speakerName: msg?.data?.speakerName,
 							transcript: msg?.data?.transcript,
-							timestamp: msg?.data?.timestamp
-						}
+							timestamp: msg?.data?.timestamp,
+						},
 					]);
 					// const data = msg?.data;
 					// if (data?.speakerName?.length > 0 || data?.transcript?.length > 0) {
@@ -195,11 +192,14 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 				} else if (msg?.event === 'live_intelligence.response' && msg?.data) {
 					handleTranscriptionSuggestions(msg?.data);
 				}
+				else if (msg?.event === 'transcript.done') {
+					closeRecallConnection();
+				}
 			} catch (e) {
 				// ignore
 			}
 		},
-		[updateCurrentContext]
+		[updateCurrentContext],
 	);
 
 	// Derived states
@@ -214,7 +214,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		info?.localCoverImage,
 		notesPageData?.data?.coverImage,
 		info?.coverImageError,
-		info?.coverImageRemoved
+		info?.coverImageRemoved,
 	]);
 
 	const iconImage = useMemo(() => {
@@ -248,8 +248,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			...defaultBlockSpecs,
 			// Adds the Alert block.
 			image: ImageBlock,
-			database: Database
-		}
+			database: Database,
+		},
 	});
 
 	const editor = useCreateBlockNote({
@@ -258,8 +258,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			splitCells: true,
 			cellBackgroundColor: true,
 			cellTextColor: true,
-			headers: true
-		}
+			headers: true,
+		},
 		// uploadFile,
 	});
 
@@ -269,9 +269,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			getBlocks(
 				{
 					pageId: noteId,
-					listBlockInput: { limit: 100, page: 1 }
+					listBlockInput: { limit: 100, page: 1 },
 				},
-				isDatabase
+				isDatabase,
 			);
 		}
 	}, [noteId]);
@@ -373,7 +373,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 		return () => {
 			updateNotesState({
-				notesPageData: null
+				notesPageData: null,
 			});
 		};
 	}, [noteId]);
@@ -418,7 +418,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 				setInfo((prev) => ({
 					...prev,
-					myAccess
+					myAccess,
 				}));
 			}
 		}
@@ -451,7 +451,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 				updatedAt = '',
 				isFavorite = false,
 				isDeleted = false,
-				updatedBy = null
+				updatedBy = null,
 			} = notesPageData?.data || {};
 			if (blocks) {
 				loadNotesContent(blocks);
@@ -462,7 +462,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 				updatedAt,
 				isFavorite,
 				isDeleted,
-				updatedBy
+				updatedBy,
 			}));
 		} else if (notesPageData?.error) {
 			const messageText =
@@ -493,7 +493,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	const getNotesPageDataFunc = useCallback(async () => {
 		const payload = {
-			pageId: noteId
+			pageId: noteId,
 		};
 		const isDatabase = true;
 		getNotesPageData(payload, isDatabase);
@@ -508,7 +508,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			}
 			setInfo((prev) => ({ ...prev, loading: false }));
 		},
-		[editor]
+		[editor],
 	);
 
 	// Generic debounce function
@@ -518,10 +518,10 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			const timeout = setTimeout(callback, delay);
 			setInfo((prev) => ({
 				...prev,
-				timeouts: { ...prev.timeouts, [key]: timeout }
+				timeouts: { ...prev.timeouts, [key]: timeout },
 			}));
 		},
-		[info.timeouts]
+		[info.timeouts],
 	);
 
 	const handleContentChange = useCallback(
@@ -529,13 +529,13 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			handleDebounce('content', () => {
 				const payload = {
 					pageId: noteId,
-					blocks: data || []
+					blocks: data || [],
 				};
 				saveNotesdata(payload);
 				setInfo((prev) => ({ ...prev, updatedAt: moment().unix() }));
 			});
 		},
-		[noteId, handleDebounce]
+		[noteId, handleDebounce],
 	);
 
 	const handleTitleChange = (e) => {
@@ -548,13 +548,13 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 				updatePage(
 					{
 						pageId: noteId,
-						input: { title: newTitle }
+						input: { title: newTitle },
 					},
-					isDatabase
+					isDatabase,
 				);
 				setInfo((prev) => ({ ...prev, updatedAt: moment().unix() }));
 			},
-			isDatabase
+			isDatabase,
 		);
 	};
 
@@ -579,7 +579,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 				}
 			});
 		},
-		[noteId, handleDebounce]
+		[noteId, handleDebounce],
 	);
 
 	const extractImageUrls = (doc) => {
@@ -598,7 +598,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			type: old?.type,
 			props: old?.props,
 			children: old?.children,
-			content: old?.content
+			content: old?.content,
 		};
 
 		const newBlockFormatted = {
@@ -606,7 +606,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			type: newBlock?.type,
 			props: newBlock?.props,
 			children: newBlock?.children,
-			content: newBlock?.type === 'database' ? [] : newBlock?.content
+			content: newBlock?.type === 'database' ? [] : newBlock?.content,
 		};
 
 		if (oldBlock?.type !== newBlockFormatted?.type) {
@@ -630,7 +630,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 		// Create an array of previous blocks sorted by position
 		const sortedPreviousBlocks = [...previousBlocksRef.current.values()].sort(
-			(a, b) => a.position - b.position
+			(a, b) => a.position - b.position,
 		);
 
 		// Create a map of id to previous index
@@ -740,7 +740,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 						props,
 						children,
 						content,
-						id
+						id,
 					};
 					updated.push(newItemFormatted);
 					previousBlocksRef.current.set(id, newItemFormatted);
@@ -769,8 +769,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 						...rest,
 						content: Array.isArray(rest?.content)
 							? { textContent: rest?.content }
-							: rest.content
-					}
+							: rest.content,
+					},
 				});
 			});
 
@@ -788,9 +788,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					...block,
 					content: Array.isArray(block?.content)
 						? { textContent: block?.content }
-						: block.content
-				}
-			})
+						: block.content,
+				},
+			}),
 		);
 
 		updated.forEach((block) => {
@@ -801,7 +801,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			pendingUpdatesRef.current.delete(block._id);
 			deleteBlock({
 				pageId: noteId,
-				deleteBlockId: block._id
+				deleteBlockId: block._id,
 			});
 		});
 	};
@@ -831,10 +831,10 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		(key, value) => {
 			setInfo((prev) => ({
 				...prev,
-				notesConfigs: { ...prev.notesConfigs, [key]: value }
+				notesConfigs: { ...prev.notesConfigs, [key]: value },
 			}));
 		},
-		[setInfo]
+		[setInfo],
 	);
 
 	const handleDeletePage = useCallback(
@@ -845,7 +845,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			// const [success] = await deletePage({ pageId: noteId, isPermanent: permanent });
 			const [success] = await deletePage(
 				{ pageId: noteId, isPermanent: permanent },
-				isDatabase
+				isDatabase,
 			);
 			if (success) {
 				message.success(`Page ${permanent ? 'permanently ' : ''}deleted successfully`);
@@ -855,7 +855,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			}
 			setInfo((prev) => ({ ...prev, deleteLoading: false }));
 		},
-		[info?.deleteLoading, info?.notesConfigs, navigate, noteId, setInfo]
+		[info?.deleteLoading, info?.notesConfigs, navigate, noteId, setInfo],
 	);
 
 	const handleDuplicatePage = useCallback(async () => {
@@ -881,7 +881,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			if (dataObject?.stream_end) {
 				setInfo((prevInfo) => ({
 					...prevInfo,
-					aiResonse: aiResponseRef.current
+					aiResonse: aiResponseRef.current,
 				}));
 			}
 		}
@@ -903,7 +903,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			query,
 			timezone: 'Asia/Calcutta',
 			web_search: true,
-			location: locationData
+			location: locationData,
 		});
 	}, []);
 
@@ -914,16 +914,16 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		const response = await updatePage(
 			{
 				pageId: noteId,
-				input: { isDeleted: false }
+				input: { isDeleted: false },
 			},
-			isDatabase
+			isDatabase,
 		);
 		if (response?.[0]) {
 			setInfo((prev) => ({
 				...prev,
 				updatedAt: moment().unix(),
 				isDeleted: false,
-				deleteLoading: false
+				deleteLoading: false,
 			}));
 			message?.success('Page restored!');
 		} else {
@@ -951,10 +951,10 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 				pageId: noteId,
 				uploadPageBlockImageInput: {
 					imageName: file?.name,
-					imageSize: file?.size
-				}
+					imageSize: file?.size,
+				},
 			},
-			file
+			file,
 		);
 
 		if (response?.[0]) {
@@ -987,7 +987,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 				showRemoveCoverBtn: false,
 				localCoverImage: false,
 				coverImageError: false,
-				coverImageRemoved: true
+				coverImageRemoved: true,
 			}));
 		} else {
 			message.error('Failed to remove cover image');
@@ -1003,7 +1003,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 				...prev,
 				showRemoveIconBtn: false,
 				selectedEmoji: null,
-				iconImageRemoved: true
+				iconImageRemoved: true,
 			}));
 		} else {
 			message.error('Failed to remove icon');
@@ -1012,13 +1012,16 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	useEffect(() => {
 		if (showTranscriptTabs && location?.pathname?.includes('meet') && type === 'meeting_bot') {
-			recallConnection(sessionId, noteId, handleSocketMessage);
+			recallConnection(sessionId, noteId, handleSocketMessage, isAiIntelligenceEnabled);
 			// createLiveIntelligenceStream(
 			// 	sessionId,
 			// 	noteId,
 			// 	handleLiveIntelligenceMessageFunc,
 			// 	false,
 			// );
+		} else if (showTranscriptTabs && type === 'desktop') {
+			// Connect to recall for note taker mode as well
+			recallConnection(sessionId, noteId, handleSocketMessage, isAiIntelligenceEnabled);
 		}
 		// No cleanup needed, useRecallStream handles it
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1138,7 +1141,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 						<div
 							className="notes-editor-wrapper"
 							style={{
-								maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px'
+								maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px',
 							}}
 						>
 							<Tooltip
@@ -1148,12 +1151,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 									if (info?.showUploadPopup) {
 										setInfo((prev) => ({
 											...prev,
-											showUploadPopup: false
+											showUploadPopup: false,
 										}));
 									}
 									setInfo((prev) => ({
 										...prev,
-										showCustomizeAppearance: !prev.showCustomizeAppearance
+										showCustomizeAppearance: !prev.showCustomizeAppearance,
 									}));
 								}}
 								placement="bottomLeft"
@@ -1164,14 +1167,14 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 												setInfo((prev) => ({
 													...prev,
 													showUploadPopup: false,
-													showCustomizeAppearance: false
+													showCustomizeAppearance: false,
 												}))
 											}
 											setLocalCoverImage={(coverImage) =>
 												setInfo((prev) => ({
 													...prev,
 													localCoverImage: coverImage,
-													coverImageRemoved: false
+													coverImageRemoved: false,
 												}))
 											}
 											uploadType={info?.uploadType}
@@ -1181,14 +1184,14 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 											setSelectedEmoji={(emoji) =>
 												setInfo((prev) => ({
 													...prev,
-													selectedEmoji: emoji
+													selectedEmoji: emoji,
 												}))
 											}
 											closePopup={() =>
 												setInfo((prev) => ({
 													...prev,
 													showUploadPopup: false,
-													showCustomizeAppearance: false
+													showCustomizeAppearance: false,
 												}))
 											}
 										/>
@@ -1199,14 +1202,14 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 												setInfo((prev) => ({
 													...prev,
 													showUploadPopup: true,
-													uploadType
+													uploadType,
 												}))
 											}
 										/>
 									)
 								}
 								overlayInnerStyle={{
-									backgroundColor: 'inherit'
+									backgroundColor: 'inherit',
 								}}
 								arrow={false}
 							>
@@ -1217,7 +1220,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 											? '42px'
 											: iconImage
 											? '100px'
-											: '0px'
+											: '0px',
 									}}
 								>
 									{iconImage && (
@@ -1226,13 +1229,13 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 											onMouseEnter={() =>
 												setInfo((prev) => ({
 													...prev,
-													showRemoveIconBtn: true
+													showRemoveIconBtn: true,
 												}))
 											}
 											onMouseLeave={() =>
 												setInfo((prev) => ({
 													...prev,
-													showRemoveIconBtn: false
+													showRemoveIconBtn: false,
 												}))
 											}
 											style={{
@@ -1240,7 +1243,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 													? '-72px'
 													: iconImage
 													? '-10px'
-													: '-24px'
+													: '-24px',
 											}}
 										>
 											{info?.showRemoveIconBtn && (
@@ -1272,7 +1275,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 											display: 'flex',
 											gap: 24,
 											borderBottom: '1px solid var(--stroke, #2c2d2e)',
-											marginBottom: 12
+											marginBottom: 12,
 										}}
 									>
 										<button
@@ -1294,7 +1297,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 														? '2px solid var(--primary-button, #cfff48)'
 														: '2px solid transparent',
 												cursor: 'pointer',
-												transition: 'color 0.2s'
+												transition: 'color 0.2s',
 											}}
 											onClick={() => setActiveTab('transcript')}
 										>
@@ -1320,7 +1323,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 														? '2px solid var(--primary-button, #cfff48)'
 														: '2px solid transparent',
 												cursor: 'pointer',
-												transition: 'color 0.2s'
+												transition: 'color 0.2s',
 											}}
 											onClick={() => setActiveTab('summary')}
 										>

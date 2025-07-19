@@ -13,37 +13,31 @@ const RecentFileTooltip = ({
 	handleRecentFileClick,
 	fileTypeIcons = {},
 	recentFiles = [],
-	setIsRecentFileOpen
+	setIsRecentFileOpen,
 }) => {
 	const {
-		aiSetup: { filesUploadedInAiChat, getFilesUploadedInAiChat }
+		aiSetup: { filesUploadedInAiChat, getFilesUploadedInAiChat },
 	} = useContext(Context);
 
 	const timeoutIdRef = useRef(null);
 
 	const [info, setInfo] = useState({
 		searchQuery: '',
-		isSearchQueryChanged: false
+		isSearchQueryChanged: false,
 	});
 
 	useEffect(() => {
-		if (isRecentFileOpen && info?.isSearchQueryChanged) {
+		if (isRecentFileOpen && (!filesUploadedInAiChat || info?.isSearchQueryChanged)) {
 			fetchFilesUploadedInAiChat(1);
 			setInfo((prev) => ({ ...prev, isSearchQueryChanged: false }));
 		}
 	}, [info?.isSearchQueryChanged, isRecentFileOpen]);
 
-	useEffect(() => {
-		if (isRecentFileOpen && !filesUploadedInAiChat) {
-			fetchFilesUploadedInAiChat(1);
-		}
-	}, [isRecentFileOpen, filesUploadedInAiChat]);
-
 	const fetchFilesUploadedInAiChat = async (page = 1) => {
 		const payload = {
 			limit: 5,
 			page: page,
-			originalFileName: info?.searchQuery
+			originalFileName: info?.searchQuery,
 		};
 		getFilesUploadedInAiChat(payload, info?.isSearchQueryChanged);
 	};
@@ -83,7 +77,7 @@ const RecentFileTooltip = ({
 							onChange={(e) => {
 								setInfo((prev) => ({
 									...prev,
-									searchQuery: e?.target?.value
+									searchQuery: e?.target?.value,
 								}));
 								handleDebounceIsSearchQueryChanged(e?.target?.value);
 							}}
@@ -95,7 +89,7 @@ const RecentFileTooltip = ({
 							id="scrollableDiv"
 							style={{
 								overflow: 'auto',
-								width: '100%'
+								width: '100%',
 							}}
 						>
 							<InfiniteScroll

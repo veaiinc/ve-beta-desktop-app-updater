@@ -25,7 +25,7 @@ const pathToTabMap = {
 	'/manifesto': 1,
 	'/contact-us': 2,
 	'/careers': 1,
-	'/forefront': 1
+	'/forefront': 1,
 };
 
 const LandingPage = () => {
@@ -158,7 +158,7 @@ const LandingPage = () => {
 		1: <OurMission tab={tab} />,
 		2: <ContactUs type="Enterprise" />,
 		4: <OurMission tab={tab} />,
-		5: <OurMission tab={tab} />
+		5: <OurMission tab={tab} />,
 	};
 
 	return (

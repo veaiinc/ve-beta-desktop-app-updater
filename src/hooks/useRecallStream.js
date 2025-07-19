@@ -23,7 +23,7 @@ const useRecallStream = () => {
 		};
 	}, []);
 
-	const createWebSocketConnection = useCallback((sessionId, pageId, onMessageFunc) => {
+	const createWebSocketConnection = useCallback((sessionId, pageId, onMessageFunc, isAiIntelligenceEnabled) => {
 		const usertoken = localStorage.getItem('usertoken');
 		const workspaceId = localStorage.getItem('workspaceId');
 		const region = localStorage.getItem('region') || 'us-east-1';
@@ -38,6 +38,7 @@ const useRecallStream = () => {
 		isIntentionallyClosedRef.current = false;
 
 		const wsUrl = `wss://recall.${region}.ve.ai/frontend/ws/${pageId}?token=${usertoken}`;
+		// const wsUrl = `https://internally-well-earwig.ngrok-free.app/frontend/ws/${pageId}?token=${usertoken}`;
 
 		const connect = () => {
 			socketRef.current = new WebSocket(wsUrl);
@@ -47,8 +48,9 @@ const useRecallStream = () => {
 					JSON.stringify({
 						location: locationData,
 						timezone: 'Asia/Calcutta',
-						session_id: pageId
-					})
+						session_id: pageId,
+						is_ai_intelligence_enabled: isAiIntelligenceEnabled,
+					}),
 				);
 				console.log('Connected to Recall WebSocket server');
 				reconnectAttemptsRef.current = 0; // Reset on successful connection
@@ -73,7 +75,7 @@ const useRecallStream = () => {
 				if (reconnectAttemptsRef.current < RECONNECT_ATTEMPTS) {
 					reconnectAttemptsRef.current += 1;
 					console.log(
-						`Attempting to reconnect (${reconnectAttemptsRef.current}/${RECONNECT_ATTEMPTS})...`
+						`Attempting to reconnect (${reconnectAttemptsRef.current}/${RECONNECT_ATTEMPTS})...`,
 					);
 					reconnectTimeoutRef.current = setTimeout(() => {
 						connect();
@@ -102,7 +104,15 @@ const useRecallStream = () => {
 		}
 	}, []);
 
-	return { createWebSocketConnection, closeWebSocketConnection };
+	const sendMessage = useCallback((message) => {
+		if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+			socketRef.current.send(JSON.stringify(message));
+		} else {
+			console.warn('WebSocket is not connected. Cannot send message:', message);
+		}
+	}, []);
+
+	return { createWebSocketConnection, closeWebSocketConnection, sendMessage };
 };
 
 export default useRecallStream;

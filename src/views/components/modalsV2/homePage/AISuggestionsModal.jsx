@@ -7,7 +7,7 @@ import { ReactComponent as AgentsSvg } from '../../../../assets/svg/sidebar/agen
 // import CreditCoinImage from '../../../../assets/images/creditCoin.png';
 import {
 	handleCombinedChainOfThought,
-	updateCitationIdsWithCitations
+	updateCitationIdsWithCitations,
 } from '../../../../helpers/chatHelpers';
 import { Markdown } from '../../../../helpers/markdownHelper';
 import { useNavigate } from 'react-router-dom';
@@ -21,7 +21,7 @@ import {
 	getWebsiteName,
 	fileTypeIcons,
 	redirectTo,
-	redirectTypeMapper
+	redirectTypeMapper,
 } from '../../../../helpers';
 import { ReactComponent as ArrowRightIcon } from '../../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import PromptPopup from '../../homePage/PromptPopup';
@@ -33,7 +33,7 @@ import FormDescription from '../../forms/FormDescription';
 const tabOptions = [
 	{ label: 'Actions', value: 'actions' },
 	{ label: 'Report', value: 'report' },
-	{ label: 'Sources', value: 'sources' }
+	{ label: 'Sources', value: 'sources' },
 ];
 
 const AISuggestionsModal = ({
@@ -45,15 +45,15 @@ const AISuggestionsModal = ({
 	totalDocs,
 	selectedCardNumber,
 	shouldShowCards = true,
-	selectedOption = null
+	selectedOption = null,
 }) => {
 	const {
 		templates: {
 			updateStateValues,
 			pendingActionsUpdate,
 			getAISuggestedPendingActions,
-			handleGlobalChatMessages
-		}
+			handleGlobalChatMessages,
+		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		isAIResultsExpanded: true,
@@ -62,11 +62,11 @@ const AISuggestionsModal = ({
 		questionsAnswers: {},
 		activeTab: 'actions',
 		chainOfThoughtData: {
-			hasChainOfThought: false
+			hasChainOfThought: false,
 		},
 		feedbackPopupOpen: false,
 		isDeleting: false,
-		tabOptions: []
+		tabOptions: [],
 	});
 
 	const resizableContainerRef = useRef(null);
@@ -97,19 +97,19 @@ const AISuggestionsModal = ({
 			categories,
 			createdAt,
 			thinker_sources,
-			sessionId
+			sessionId,
 		} = data || {};
 
 		const { chain_of_thought } = data;
 		const chainOfThoughtData = handleCombinedChainOfThought(chain_of_thought || null);
 		const accessType = (data?.permissions?.sharedWith || [])?.filter(
-			(eachItem) => eachItem?.userId === info?.currentUserId
+			(eachItem) => eachItem?.userId === info?.currentUserId,
 		)?.[0]?.access;
 
 		const visibilityMap = {
 			actions: suggested_actions?.length || suggested_prompts?.length,
 			report: research_report?.length || chainOfThoughtData?.hasChainOfThought,
-			sources: thinker_sources?.length
+			sources: thinker_sources?.length,
 		};
 
 		const options = tabOptions?.filter((option) => visibilityMap[option?.value]);
@@ -120,12 +120,12 @@ const AISuggestionsModal = ({
 			chainOfThoughtData,
 			accessType,
 			tabOptions: options,
-			activeTab: options?.[0]?.value
+			activeTab: options?.[0]?.value,
 		}));
 		if (bodyRef?.current) {
 			bodyRef?.current?.scrollTo({
 				top: 0,
-				behavior: 'smooth'
+				behavior: 'smooth',
 			});
 		}
 	}, [data]);
@@ -143,7 +143,7 @@ const AISuggestionsModal = ({
 			onClose?.();
 			navigate(`/chat/${ObjectID()?.toString()}`);
 		},
-		[data]
+		[data],
 	);
 
 	const handleActionClick = useCallback((prompt, proactiveSessionId) => {
@@ -152,8 +152,8 @@ const AISuggestionsModal = ({
 			activePromptForChat: prompt,
 			proactiveInfoForChat: {
 				isProactive: true,
-				proactiveSessionId
-			}
+				proactiveSessionId,
+			},
 		});
 		navigate(`/chat/${sessionId}`);
 	}, []);
@@ -166,29 +166,29 @@ const AISuggestionsModal = ({
 					type: 'user',
 					moduleType: 'ai_suggestion_report',
 					data,
-					message: data?.title
+					message: data?.title,
 				},
 				{
 					type: 'AI',
 					moduleType: 'ai_suggestion_report',
 					data: {
-						research_report: data?.research_report
+						research_report: data?.research_report,
 					},
 					processing: 'Report',
 					report,
 					follow_up_query: data?.suggested_prompts,
-					stream_end: true
-				}
+					stream_end: true,
+				},
 			];
 			const sessionId = ObjectID()?.toString();
 			handleGlobalChatMessages({
 				updateExtraInfo: true,
 				recentChatMessages: messages,
-				sessionId
+				sessionId,
 			});
 			navigate(`/chat/${sessionId}`);
 		},
-		[info?.chainOfThoughtData]
+		[info?.chainOfThoughtData],
 	);
 
 	const handleRunBtnClick = () => {
@@ -268,7 +268,7 @@ const AISuggestionsModal = ({
 		if (info?.activeTab !== tab) {
 			setInfo((prev) => ({
 				...prev,
-				activeTab: tab
+				activeTab: tab,
 			}));
 		}
 	};
@@ -294,7 +294,7 @@ const AISuggestionsModal = ({
 	const handleOpenFeedbackPopup = () => {
 		setInfo((prev) => ({
 			...prev,
-			feedbackPopupOpen: true
+			feedbackPopupOpen: true,
 		}));
 	};
 
@@ -310,14 +310,14 @@ const AISuggestionsModal = ({
 		categories,
 		createdAt,
 		thinker_sources,
-		sessionId
+		sessionId,
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
 	const createdDate = new Date(createdAt * 1000)?.toLocaleDateString('en-US', {
 		year: 'numeric',
 		month: 'short',
-		day: 'numeric'
+		day: 'numeric',
 	});
 
 	return (
@@ -444,7 +444,7 @@ const AISuggestionsModal = ({
 															? 'red'
 															: priority === 'Medium'
 															? 'orange'
-															: 'green'
+															: 'green',
 												}}
 											></div>
 											<div className="priority-text">{`${priority}`}</div>
@@ -525,7 +525,7 @@ const AISuggestionsModal = ({
 																redirectTo(
 																	data?.moduleType,
 																	data?.knowledgeBase?.[0]
-																		?.metadata?.identifier
+																		?.metadata?.identifier,
 																)
 															}
 														>
@@ -579,13 +579,13 @@ const AISuggestionsModal = ({
 																	onClick={() =>
 																		handleActionClick(
 																			item,
-																			sessionId
+																			sessionId,
 																		)
 																	}
 																>
 																	{updateCitationIdsWithCitations(
 																		item,
-																		thinker_sources || []
+																		thinker_sources || [],
 																	)}
 																</div>
 														  ))
@@ -618,7 +618,7 @@ const AISuggestionsModal = ({
 																	<div className="item-text">
 																		{updateCitationIdsWithCitations(
 																			item,
-																			thinker_sources || []
+																			thinker_sources || [],
 																		)}
 																	</div>
 																</div>
@@ -677,7 +677,7 @@ const AISuggestionsModal = ({
 															citation?.type,
 															citation?.[
 																redirectTypeMapper?.[citation?.type]
-															]
+															],
 														)
 													}
 												>
@@ -687,7 +687,7 @@ const AISuggestionsModal = ({
 																getFaviconUrl(citation?.name) ? (
 																	<img
 																		src={getFaviconUrl(
-																			citation?.name
+																			citation?.name,
 																		)}
 																		alt="favicon"
 																		className="favicon-image"
@@ -695,7 +695,7 @@ const AISuggestionsModal = ({
 																) : (
 																	<div className="company-icon">
 																		{getWebsiteName(
-																			citation?.name
+																			citation?.name,
 																		)?.charAt(0)}
 																	</div>
 																)
@@ -704,7 +704,7 @@ const AISuggestionsModal = ({
 																	{citation?.type === 's3_key'
 																		? fileTypeIcons[
 																				citation?.name?.match(
-																					/\.(\w+)$/
+																					/\.(\w+)$/,
 																				)?.[1]
 																		  ]
 																		: fileTypeIcons[

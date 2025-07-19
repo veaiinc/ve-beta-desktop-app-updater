@@ -1,7 +1,7 @@
 {
-	"name": "ve-dashboard-v1",
+	"name": "Ve AI",
 	"description": "Your living intelligence remembers everything, sees what you see, figures out your goals, and doesn’t stop until they're done.",
-	"version": "v0.1.4",
+	"version": "v0.1.5",
 	"private": true,
 	"main": "dist-electron/main.js",
 	"author": "Ve AI",
@@ -130,14 +130,13 @@
 		},
 		"publish": {
 			"provider": "github",
-			"owner": "gowthamveai",
+			"owner": "veaiinc",
 			"repo": "ve-desktop-app-updater",
 			"private": false,
 			"releaseType": "release",
 			"publishAutoUpdate": true
 		},
 		"mac": {
-			"identity": null,
 			"icon": "./electron/assets/app-logo.icns",
 			"artifactName": "${productName}-${version}-${arch}-${os}.${ext}",
 			"category": "public.app-category.business",

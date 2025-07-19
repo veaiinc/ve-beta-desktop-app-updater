@@ -108,7 +108,7 @@ export const ChatStreamState = () => {
 		[resetInactivityTimeout],
 	);
 	const createWebSocketConnection = useCallback(
-		(sessionId, onMessageFunc, agentType, isPublicChat = false, workspaceMode) => {
+		(sessionId, onMessageFunc, agentType, isPublicChat = false) => {
 			if (!sessionId && !isPublicChat) {
 				return;
 			}
@@ -118,13 +118,9 @@ export const ChatStreamState = () => {
 				return;
 			}
 
-			workspaceModeRef.current = workspaceMode;
-			const defaultAgent =
-				workspaceMode === 'stable' ? 'chat_streaming' : 'multi_agent_chat_streaming';
-
-			const agent = agentTypeMap[agentType] || defaultAgent;
+			const agent = agentTypeMap[agentType] || 'multi_agent_chat_streaming';
 			socketsInfoRef.current[sessionId] = {
-				agentType: agent,
+				agentType,
 				isPublicChat,
 				onMessageFunc,
 			};

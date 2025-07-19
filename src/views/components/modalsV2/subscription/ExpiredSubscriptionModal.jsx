@@ -9,7 +9,7 @@ import { Tooltip } from 'antd';
 
 const customStyles = {
 	content: { zIndex: 999 },
-	overlay: { zIndex: 998 }
+	overlay: { zIndex: 998 },
 };
 
 const BYTES_PER_GB = 1073741824;
@@ -23,8 +23,8 @@ const ExpiredSubscriptionModal = () => {
 			expiredSubscriptionModal,
 			getAllSubscriptionPlan,
 			expiredSubscriptionType,
-			currentPlan
-		}
+			currentPlan,
+		},
 	} = useContext(Context);
 
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
@@ -34,7 +34,7 @@ const ExpiredSubscriptionModal = () => {
 		dataUsed: null,
 		dataLimit: null,
 		subscriptionState: 'upgradeSubscription',
-		loading: false
+		loading: false,
 	});
 
 	// // Mapper for subscription types to dataUsed and dataLimit
@@ -45,23 +45,23 @@ const ExpiredSubscriptionModal = () => {
 				: 0,
 			dataLimit: currentPlan?.storageLimitInBytes
 				? Number((currentPlan.storageLimitInBytes / BYTES_PER_GB).toFixed(2))
-				: 0
+				: 0,
 		},
 		'Lite-Gallery': {
 			dataUsed: currentPlan?.liteImageUsed ?? 0,
-			dataLimit: currentPlan?.liteImageLimit ?? 0
+			dataLimit: currentPlan?.liteImageLimit ?? 0,
 		},
 		Tenants: {
 			dataUsed: currentPlan?.tenantUsers ?? 0,
-			dataLimit: currentPlan?.tenantUsersLimit ?? 0
+			dataLimit: currentPlan?.tenantUsersLimit ?? 0,
 		},
 		'Knowledge-Agent': {
 			dataUsed: currentPlan?.knowledgeAgentUsed ?? 0,
-			dataLimit: currentPlan?.knowledgeAgentLimit ?? 0
+			dataLimit: currentPlan?.knowledgeAgentLimit ?? 0,
 		},
 		'Conversational-Agent': {
 			dataUsed: currentPlan?.conversationalAgentUsed ?? 0,
-			dataLimit: currentPlan?.conversationalAgentLimit ?? 0
+			dataLimit: currentPlan?.conversationalAgentLimit ?? 0,
 		},
 		'Classic-Gallery-Upload': {
 			dataUsed: currentPlan?.cumulativeStorageUsedInBytes
@@ -72,8 +72,8 @@ const ExpiredSubscriptionModal = () => {
 				: 0,
 			dataLimitForUpload: currentPlan?.storageLimitInBytes
 				? Number((currentPlan.storageLimitInBytes / BYTES_PER_GB) * 1.5).toFixed(2)
-				: 0
-		}
+				: 0,
+		},
 	};
 
 	const { dataUsed, dataLimit, dataLimitForUpload } =
@@ -91,14 +91,14 @@ const ExpiredSubscriptionModal = () => {
 		setInfo((prev) => ({
 			...prev,
 			isAddOnOpen: true,
-			loading: false
+			loading: false,
 		}));
 	}, [closeModal, getAllSubscriptionPlan]);
 
 	const handleCloseAddOn = useCallback(() => {
 		setInfo((prev) => ({
 			...prev,
-			isAddOnOpen: false
+			isAddOnOpen: false,
 		}));
 	}, []);
 
@@ -150,7 +150,7 @@ const ExpiredSubscriptionModal = () => {
 											expiredSubscriptionType === 'Classic-Gallery-Upload' ||
 											expiredSubscriptionType === 'Classic-Gallery'
 												? 'space-between'
-												: 'flex-end'
+												: 'flex-end',
 									}}
 								>
 									{(expiredSubscriptionType === 'Classic-Gallery-Upload' ||
@@ -169,7 +169,7 @@ const ExpiredSubscriptionModal = () => {
 												dataLimit
 													? Math.min((dataUsed / dataLimit) * 100, 100)
 													: 0
-											}%`
+											}%`,
 										}}
 									/>
 								</div>
@@ -184,7 +184,7 @@ const ExpiredSubscriptionModal = () => {
 													'Classic-Gallery-Upload' ||
 												expiredSubscriptionType === 'Classic-Gallery'
 													? 'space-between'
-													: 'flex-end'
+													: 'flex-end',
 										}}
 									>
 										{(expiredSubscriptionType === 'Classic-Gallery-Upload' ||
@@ -193,7 +193,7 @@ const ExpiredSubscriptionModal = () => {
 												style={{
 													display: 'flex',
 													alignItems: 'center',
-													gap: '4px'
+													gap: '4px',
 												}}
 											>
 												Upload Limit{' '}
@@ -233,10 +233,10 @@ const ExpiredSubscriptionModal = () => {
 														? Math.min(
 																(dataUsed / dataLimitForUpload) *
 																	100,
-																100
+																100,
 														  )
 														: 0
-												}%`
+												}%`,
 											}}
 										/>
 									</div>

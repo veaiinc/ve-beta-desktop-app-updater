@@ -17,7 +17,7 @@ import { ReactComponent as CloseSearchbarIcon } from './assets/svg/closeIcon.svg
 const payload = {
 	page: 1,
 	limit: 20,
-	sortBy: 'createdAt'
+	sortBy: 'createdAt',
 	// sortOrder: '-1',
 };
 const positionClassMap = {
@@ -25,7 +25,7 @@ const positionClassMap = {
 	1: 'right-1',
 	2: 'right-2',
 	'-1': 'left-1',
-	'-2': 'left-2'
+	'-2': 'left-2',
 };
 
 export const filterGroups = [
@@ -35,8 +35,8 @@ export const filterGroups = [
 			// { id: 1, title: 'Urgent Priority', value: 'High' },
 			{ id: 2, title: 'High', value: 'High', bgColor: 'var(--error)' },
 			{ id: 3, title: 'Medium ', value: 'Medium', bgColor: 'var(--pending)' },
-			{ id: 4, title: 'Low ', value: 'Low', bgColor: 'var(--success)' }
-		]
+			{ id: 4, title: 'Low ', value: 'Low', bgColor: 'var(--success)' },
+		],
 	},
 	{
 		title: 'Read Status',
@@ -44,24 +44,24 @@ export const filterGroups = [
 			{ id: 5, title: 'Read', value: true },
 			{ id: 6, title: 'Unread', value: false },
 			// { id: 7, title: 'Flagges', value: 'Flagges' },
-			{ id: 8, title: 'All' }
-		]
+			{ id: 8, title: 'All' },
+		],
 	},
 	{
 		title: 'Confidence level',
 		options: [
 			{ id: 9, title: 'High 90-100%', value: '0.9 - 1.0' },
 			{ id: 10, title: 'Medium 70-89%', value: '0.7 - 0.89' },
-			{ id: 11, title: 'Below 70%', value: '< 0.7' }
-		]
+			{ id: 11, title: 'Below 70%', value: '< 0.7' },
+		],
 	},
 	{
 		title: 'Date',
 		options: [
 			{ id: 12, title: 'Today', value: 'today' },
 			{ id: 13, title: 'Last 7 days', value: 'last7days' },
-			{ id: 14, title: 'Last 30 days', value: 'last30days' }
-		]
+			{ id: 14, title: 'Last 30 days', value: 'last30days' },
+		],
 	},
 	{
 		title: 'Other',
@@ -69,10 +69,10 @@ export const filterGroups = [
 			{
 				id: 15,
 				title: 'Favourites',
-				value: true
-			}
-		]
-	}
+				value: true,
+			},
+		],
+	},
 ];
 
 const insightOptionsInOrder = {
@@ -82,7 +82,7 @@ const insightOptionsInOrder = {
 	risks: 3,
 	opportunity: 4,
 	goals: 5,
-	others: 6
+	others: 6,
 };
 
 const getDescription = (card) => {
@@ -98,6 +98,8 @@ const getDescription = (card) => {
 		}
 	} else if (card?.collectionType === 'forms') {
 		return 'Form response';
+	} else if (card?.insight_type === 'actions') {
+		return card?.crux;
 	}
 };
 
@@ -112,7 +114,7 @@ const sortByInsightsOrder = (data, orderMap) => {
 const getName = (response) => {
 	if (!response?.response) return 'Unknown person';
 	const nameField = response?.response.find(
-		(item) => item?.variableId === '619f75683f381fd66dac4b65'
+		(item) => item?.variableId === '619f75683f381fd66dac4b65',
 	);
 	return nameField?.answer || 'Unknown person';
 };
@@ -147,12 +149,12 @@ const getModuleType = (card) => {
 const PriorityLevel = {
 	High: 'red',
 	Medium: 'yellow',
-	Low: 'green'
+	Low: 'green',
 };
 const sortOptions = {
 	createdAt: {
-		sortType: -1
-	}
+		sortType: -1,
+	},
 };
 // const skeletonLoaders = Array.from({ length: 7 }, (_, index) => index + 1);
 
@@ -184,10 +186,10 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 			currentSessionId,
 			handleGlobalChatMessages,
 			globalChatMessages,
-			chatBoxSuggestions
+			chatBoxSuggestions,
 		},
 		aiSetup: { getPromptsData, promptsData },
-		profileInfo: { insightTypes, getAiInsightTypes }
+		profileInfo: { insightTypes, getAiInsightTypes },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -212,10 +214,10 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 		selectedOption: null,
 		showArrows: {
 			left: false,
-			right: false
+			right: false,
 		},
 		searchOpen: false,
-		settingsOpen: false
+		settingsOpen: false,
 	});
 
 	const promptsLength = promptsData?.data?.length ?? 0;
@@ -235,8 +237,8 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 					left: true,
 					right:
 						isOverflowing &&
-						container.scrollLeft < container.scrollWidth - container.clientWidth - 1
-				}
+						container.scrollLeft < container.scrollWidth - container.clientWidth - 1,
+				},
 			}));
 		}
 	}, []);
@@ -310,7 +312,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 			setInfo((prev) => ({
 				...prev,
 				selectedOption: selectedOptionRef.current,
-				options
+				options,
 			}));
 		}
 	}, [insightTypes]);
@@ -358,13 +360,13 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 		}
 		setInfo((prev) => ({
 			...prev,
-			searchLoading: true
+			searchLoading: true,
 		}));
 		timeoutIdRef.current = setTimeout(async () => {
 			await fetchPendingActions();
 			setInfo((prev) => ({
 				...prev,
-				searchLoading: false
+				searchLoading: false,
 			}));
 		}, 500);
 	}, [info?.searchQuery]);
@@ -377,7 +379,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 			...prev,
 			currentIndex: index,
 			activeCardContent: totalCardsDataRef.current[index],
-			selectedCardNumber: index
+			selectedCardNumber: index,
 		}));
 		currentIndexRef.current = index;
 	}, []);
@@ -391,19 +393,19 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 			if (aiSuggestedPendingActions?.metaInfo?.hasNextPage) {
 				setInfo((prev) => ({
 					...prev,
-					isApiLoading: true
+					isApiLoading: true,
 				}));
 				const nextPage = aiSuggestedPendingActions.metaInfo.currentPage + 1;
 				const payload = {
 					...newUpdatedPayload,
 					page: nextPage,
-					...(option !== 'All' && { insightType: option })
+					...(option !== 'All' && { insightType: option }),
 				};
 
 				await getAISuggestedPendingActions(payload, false);
 				setInfo((prev) => ({
 					...prev,
-					isApiLoading: false
+					isApiLoading: false,
 				}));
 				return;
 			}
@@ -415,7 +417,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 			...prev,
 			currentIndex: index,
 			activeCardContent: totalCardsDataRef.current[index],
-			selectedCardNumber: index + 1
+			selectedCardNumber: index + 1,
 		}));
 		currentIndexRef.current = index;
 	}, [info?.isApiLoading, aiSuggestedPendingActions, info?.selectedOption]);
@@ -429,7 +431,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 				handleRight();
 			}
 		},
-		[handleLeft, handleRight]
+		[handleLeft, handleRight],
 	);
 
 	useEffect(() => {
@@ -498,7 +500,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 			setInfo((prev) => ({
 				...prev,
 				totalCardsData: cards,
-				loading: false
+				loading: false,
 			}));
 		} else {
 			totalCardsDataRef.current = [];
@@ -506,7 +508,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 				...prev,
 				loading: false,
 				totalCardsData: [],
-				cards: []
+				cards: [],
 			}));
 		}
 	};
@@ -522,13 +524,13 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 
 			return {
 				...card,
-				position: Math.abs(diff) <= 2 ? diff : null
+				position: Math.abs(diff) <= 2 ? diff : null,
 			};
 		});
 
 		setInfo((prev) => ({
 			...prev,
-			cards
+			cards,
 		}));
 	};
 
@@ -548,7 +550,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 			activeCardContent: card,
 			openModal: true,
 			currentIndex: index,
-			selectedCardNumber: index + 1
+			selectedCardNumber: index + 1,
 		}));
 		handleModalOpen?.(true);
 		currentIndexRef.current = index;
@@ -558,7 +560,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 		setInfo((prev) => ({
 			...prev,
 			openModal: false,
-			selectedCardNumber: null
+			selectedCardNumber: null,
 		}));
 		handleModalOpen?.(false);
 	};
@@ -575,7 +577,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 
 				// If already selected, don't re-add (toggle off)
 				const isAlreadySelected = prev.selectedFilters.some(
-					(f) => f.value === option.value && f.group === group
+					(f) => f.value === option.value && f.group === group,
 				);
 				if (!isAlreadySelected) {
 					updatedFilters.push({ ...option, group });
@@ -583,12 +585,12 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 			} else {
 				// Toggle logic for other filters
 				const exists = updatedFilters.some(
-					(f) => f.value === option.value && f.group === group
+					(f) => f.value === option.value && f.group === group,
 				);
 
 				if (exists) {
 					updatedFilters = updatedFilters.filter(
-						(f) => !(f.value === option.value && f.group === group)
+						(f) => !(f.value === option.value && f.group === group),
 					);
 				} else {
 					updatedFilters.push({ ...option, group });
@@ -598,7 +600,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 			selectedFiltersRef.current = updatedFilters;
 			return {
 				...prev,
-				selectedFilters: updatedFilters
+				selectedFilters: updatedFilters,
 			};
 		});
 	};
@@ -630,7 +632,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 		searchQueryRef.current = e.target?.value;
 		setInfo((prev) => ({
 			...prev,
-			searchQuery: e.target?.value
+			searchQuery: e.target?.value,
 		}));
 	};
 
@@ -656,7 +658,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 			sortBy: info?.sortBy,
 			...(favourite && { isFavourited: favourite }),
 			search: info?.searchQuery,
-			...(info.selectedOption !== 'all' && { insightType: info?.selectedOption })
+			...(info.selectedOption !== 'all' && { insightType: info?.selectedOption }),
 		};
 	}, [
 		payload,
@@ -664,7 +666,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 		info?.sortOptions,
 		info?.sortBy,
 		info?.searchQuery,
-		info?.selectedOption
+		info?.selectedOption,
 	]);
 
 	const handleTouchStart = (e) => {
@@ -701,21 +703,21 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 		setInfo((prev) => ({
 			...prev,
 			selectedOption: option,
-			currentIndex: 0
+			currentIndex: 0,
 		}));
 	};
 
 	const handleSearchToggle = () => {
 		setInfo((prev) => ({
 			...prev,
-			searchOpen: !prev.searchOpen
+			searchOpen: !prev.searchOpen,
 		}));
 	};
 
 	const handleSettingsToggle = () => {
 		setInfo((prev) => ({
 			...prev,
-			settingsOpen: !prev.settingsOpen
+			settingsOpen: !prev.settingsOpen,
 		}));
 	};
 
@@ -749,12 +751,12 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 											{ position: 1 },
 											{ position: 2 },
 											{ position: -1 },
-											{ position: -2 }
+											{ position: -2 },
 										]?.map((item, index) => {
 											const classList = [
 												'card',
 												'skeleton',
-												positionClassMap[item.position]
+												positionClassMap[item.position],
 											];
 											return (
 												<div key={index} className={classList.join(' ')}>
@@ -763,7 +765,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 														style={{
 															width: '100%',
 															height: '100%',
-															borderRadius: '10px'
+															borderRadius: '10px',
 														}}
 													>
 														<Skeleton height={'100%'} width={'100%'} />
@@ -783,7 +785,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 											if (card?.position === null) return null;
 											const classList = [
 												'card',
-												positionClassMap[card?.position]
+												positionClassMap[card?.position],
 											];
 											return (
 												<div
@@ -794,7 +796,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 														background:
 															classList?.[1] === 'selected'
 																? 'var(--popup)'
-																: 'var(--background-color)'
+																: 'var(--background-color)',
 													}}
 												>
 													{classList?.[1] === 'selected' &&
@@ -809,13 +811,15 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 														</div>
 														<div
 															className={`header__card-description ${
-																classList?.[1] === 'selected'
+																classList?.[1] === 'selected' ||
+																card?.insight_type === 'actions'
 																	? 'showDescription'
 																	: ''
 															}`}
 														>
-															{!card?.collectionType &&
-																card?.description}
+															{(!card?.collectionType &&
+																card?.description) ||
+																card?.crux}
 
 															{card?.collectionType &&
 																getDescription(card)}
@@ -835,7 +839,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 																		backgroundColor:
 																			PriorityLevel[
 																				card?.priority
-																			]
+																			],
 																	}}
 																></span>
 																<div className="module-priority-text">
@@ -844,7 +848,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 																		card?.updatedAt && (
 																			<div
 																				style={{
-																					color: 'var(--secondary-font)'
+																					color: 'var(--secondary-font)',
 																				}}
 																			>
 																				|
@@ -852,15 +856,15 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 																		)}
 																	<Tooltip
 																		title={dayjs(
-																			card?.updatedAt * 1000
+																			card?.updatedAt * 1000,
 																		).format(
-																			'MMMM D, YYYY h:mm A'
+																			'MMMM D, YYYY h:mm A',
 																		)}
 																	>
 																		<div>
 																			{dayjs(
 																				card?.updatedAt *
-																					1000
+																					1000,
 																			)?.fromNow()}
 																		</div>
 																	</Tooltip>
@@ -941,7 +945,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 															onOpenChange={() =>
 																setInfo((prev) => ({
 																	...prev,
-																	openFilter: false
+																	openFilter: false,
 																}))
 															}
 															placement="top"
@@ -955,7 +959,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 																						group?.title
 																					}
 																					style={{
-																						width: '100%'
+																						width: '100%',
 																					}}
 																				>
 																					<div className="filter-item">
@@ -966,23 +970,23 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 																						<div className="filter-item-options">
 																							{group?.options?.map(
 																								(
-																									item
+																									item,
 																								) => {
 																									const itemWithGroup =
 																										{
 																											...item,
-																											group: group?.title
+																											group: group?.title,
 																										};
 
 																									const isSelected =
 																										info?.selectedFilters?.some(
 																											(
-																												option
+																												option,
 																											) =>
 																												option?.title ===
 																													itemWithGroup?.title &&
 																												option?.group ===
-																													itemWithGroup?.group
+																													itemWithGroup?.group,
 																										);
 																									return (
 																										<div
@@ -993,7 +997,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 																											onClick={() =>
 																												handleFilterClick(
 																													itemWithGroup,
-																													group?.title
+																													group?.title,
 																												)
 																											}
 																										>
@@ -1004,7 +1008,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 																													style={{
 																														backgroundColor:
 																															item?.bgColor ||
-																															''
+																															'',
 																													}}
 																												></div>
 																											)}
@@ -1017,14 +1021,14 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 																													<TickIcon
 																														style={{
 																															marginLeft:
-																																'8px'
+																																'8px',
 																														}}
 																													/>
 																												)}
 																											</div>
 																										</div>
 																									);
-																								}
+																								},
 																							)}
 																						</div>
 																					</div>
@@ -1039,12 +1043,12 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 																									'var(--stroke)',
 																								border: 'none',
 																								marginTop:
-																									'10px'
+																									'10px',
 																							}}
 																						/>
 																					)}
 																				</div>
-																			)
+																			),
 																		)}
 																	</div>
 																</div>
@@ -1053,7 +1057,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 															trigger="click"
 															style={{
 																cursor: 'pointer',
-																userSelect: 'none'
+																userSelect: 'none',
 															}}
 														>
 															<div
@@ -1062,7 +1066,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 																	if (info.openFilter) return;
 																	setInfo((prev) => ({
 																		...prev,
-																		openFilter: true
+																		openFilter: true,
 																	}));
 																}}
 															>

@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import SparkleSvg from '../../../assets/svg/ai_agents/sparkle.svg';
+import { ReactComponent as SparkleSvg } from '../../../assets/svg/ai_agents/sparkle.svg';
 import s from '../../../assets/scss/landingScreen/proactiveDropdown.module.scss';
 
 const linkMapper = {
@@ -78,8 +78,7 @@ const ProactiveDropdown = ({ isOpen }) => {
 		<div className={`${s.proactiveDropdown__container} `}>
 			<div className={s.left}>
 				<div className={s.heading}>
-					<img src={SparkleSvg} alt="sparkle" />
-					Upcoming features
+					<SparkleSvg /> Upcoming features
 				</div>
 				<div className={s.listContainer}>
 					{[0, 1, 2].map((listIndex) => (

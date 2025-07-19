@@ -19,6 +19,7 @@ import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
 import getFileTypeInfo from './getFiletypeInfo';
 import { fetchOriginSelection } from '../../../helpers';
 import { triggerCmdK } from '../../components/commandKSearch/CommandKSearch';
+import { ReactComponent as AddIcon } from '../../../assets/svg/files/add.svg';
 
 const origin = fetchOriginSelection();
 const items = [
@@ -255,7 +256,6 @@ const Files = () => {
 
 	const [mostUsedEntities, setMostUsedEntities] = useState(null);
 	const [loadingView, setLoadingView] = useState(null);
-
 	const [info, setInfo] = useState({
 		createNewGalleryModal: false,
 		galleries: [],
@@ -267,6 +267,7 @@ const Files = () => {
 		cardHover: false,
 		isLoading: false,
 		selectedView: 'Documents',
+		viewMode: searchParams?.get('viewMode') || 'card', 
 		openProposalPopup: false,
 		initialDataFetched: false,
 		commonState: 'All',
@@ -295,6 +296,13 @@ const Files = () => {
 			}));
 		}
 	}, [activeTab, info?.options]);
+
+	useEffect(() => {
+		setSearchParams({
+			'active-tab': activeTab,
+			viewMode: info?.viewMode,
+		});
+	}, [info?.viewMode, activeTab]);
 
 	useEffect(() => {
 		if (cardItems?.current || info?.createNewGalleryModal) {
@@ -431,6 +439,10 @@ const Files = () => {
 	const handleTotalChange = (data) => {
 		setInfo((prevInfo) => ({ ...prevInfo, totalCount: data }));
 	};
+
+	const setViewMode = useCallback((viewMode) => {
+		setInfo((prev) => ({ ...prev, viewMode }));
+	}, []);
 
 	const handleSearch = async (e) => {
 		clearTimeout(elasticSearchTimeoutRef?.current);
@@ -662,6 +674,8 @@ const Files = () => {
 				statusTextmapper={statusTextmapper}
 				handleCreateDoc={() => (window.location.href = `/builder/create-document`)}
 				handleTotalChange={(value) => handleTotalChange({ workflow: value })}
+				viewMode={info?.viewMode}
+				setViewMode={setViewMode}
 			/>
 		),
 		Forms: (
@@ -674,6 +688,8 @@ const Files = () => {
 					navigate(`/chat/${sessionId}`);
 				}}
 				handleTotalChange={(value) => handleTotalChange({ form: value })}
+				viewMode={info?.viewMode}
+				setViewMode={setViewMode}
 			/>
 		),
 		Gallery: (
@@ -682,6 +698,8 @@ const Files = () => {
 				handleNavigateGallery={handleNavigateGallery}
 				selectedOption={info?.selectedView}
 				handleTotalChange={(value) => handleTotalChange({ classicGallery: value })}
+				viewMode={info?.viewMode}
+				setViewMode={setViewMode}
 			/>
 		),
 		'Lite Gallery': (
@@ -691,6 +709,8 @@ const Files = () => {
 				handleNavigateGallery={handleNavigateGallery}
 				selectedOption={info?.selectedView}
 				handleTotalChange={(value) => handleTotalChange({ liteGallery: value })}
+				viewMode={info?.viewMode}
+				setViewMode={setViewMode}
 			/>
 		),
 		MostUsedEntries: <MostUsedEntries mostUsedEntities={mostUsedEntities} />,
@@ -700,6 +720,8 @@ const Files = () => {
 					setInfo((prev) => ({ ...prev, openProposalPopup: true }))
 				}
 				handleTotalChange={(value) => handleTotalChange({ template: value })}
+				viewMode={info?.viewMode}
+				setViewMode={setViewMode}
 			/>
 		),
 	};
@@ -744,6 +766,10 @@ const Files = () => {
 						{info?.search ? <SearchResults /> : tabsMapper?.[info?.selectedView]}
 						<div className="card-sub-container-right">
 							<div className="right-sidebar-options">
+								{/* <div className="create-new-btn">
+									<AddIcon />
+									Create New
+								</div> */}
 								{info?.options.map((option) => (
 									<div className="sidebar-option-wrapper" key={option?.value}>
 										<div

@@ -3,7 +3,7 @@ import '../../../assets/scss/sidebar.scss';
 import {
 	stableNavigationItems,
 	betaNavigationItems,
-	internalNavigationItems
+	internalNavigationItems,
 } from './sidebarindex.js';
 
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosingPrimary.svg';
@@ -19,7 +19,7 @@ const navigationItemsMap = {
 	beta: betaNavigationItems,
 	internal: internalNavigationItems,
 	stable: stableNavigationItems,
-	suspended: betaNavigationItems
+	suspended: betaNavigationItems,
 };
 
 const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
@@ -29,7 +29,7 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 
 	const {
 		profileInfo: { userDetailsData },
-		subscriptionInfo: { currentPlan }
+		subscriptionInfo: { currentPlan },
 	} = useContext(Context);
 
 	const sidebarNavigationItems = navigationItemsMap[workspaceMode];
@@ -50,7 +50,7 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 		const sessionId = ObjectID()?.toString();
 		navigate(`/chat/${sessionId}`);
 		updateStateValues({
-			currentChatData: null
+			currentChatData: null,
 		});
 	};
 
@@ -84,7 +84,7 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 			// all other routes just match exact
 			return current === target;
 		},
-		[location.pathname, workspaceMode]
+		[location.pathname, workspaceMode],
 	);
 
 	const profileSelected = () => {
@@ -136,11 +136,9 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 												item.name === 'Contacts' ||
 												item.name === 'Automations' ||
 												item.name === 'Database' ||
-												item.name === 'Home' ||
-												item.name === 'Database' ||
 												item.name === 'Home'
 													? 'var(--primary-font)'
-													: 'none'
+													: 'none',
 										}}
 									/>
 								</div>
@@ -153,7 +151,9 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 				<Tooltip
 					title={
 						<div className="tooltip-text">
-							{currentPlan?.totalAiCreditLimit - currentPlan?.totalAiCreditUsed}{' '}
+							{Math.round(
+								currentPlan?.totalAiCreditLimit - currentPlan?.totalAiCreditUsed,
+							)}{' '}
 							Credits Left
 						</div>
 					}
@@ -178,7 +178,7 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 						className="closedSidebarProfile"
 						onClick={profileSelected}
 						style={{
-							cursor: 'pointer'
+							cursor: 'pointer',
 						}}
 					>
 						{userDetailsData?.logoURL ? (
@@ -198,7 +198,7 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 								className="noImageText"
 								style={{
 									background: userDetailsData?.cropSettings?.profileDpColor || '',
-									fontSize: '12px'
+									fontSize: '12px',
 								}}
 							>
 								{getInitials(userDetailsData?.firstName, userDetailsData?.lastName)}
