@@ -26,6 +26,10 @@ const actionHandlers = {
 		...state,
 		[action?.selectedvariable]: action?.payload,
 	}),
+	GET_NOTIFICATIONS_SUCCESS: (state, action) => ({
+		...state,
+		notificationsList: action?.payload,
+	}),
 
 	UPDATE_STATE_VALUES_SUCCESS: (state, action) => ({ ...state, ...action.payload }),
 
