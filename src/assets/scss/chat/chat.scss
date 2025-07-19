@@ -65,10 +65,10 @@
 			.chatContent {
 				display: flex;
 				flex-direction: column;
-				gap: 40px;
+				gap: 16px;
 				width: 100%;
 				max-width: 750px;
-				margin: 0 auto 50px auto;
+				margin: 0 auto 60px auto;
 				// padding-bottom: calc(var(--chat-content-height) - 40px);
 
 				.chat-message {
