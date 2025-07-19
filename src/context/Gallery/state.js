@@ -1537,6 +1537,7 @@ export const Galleries = () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
+			let region = localStorage.getItem('region');
 			const path = isLightGallery ? '?imageType=optimized' : '?imageType=original';
 			const response = await service.fetchGet(
 				`/${workspaceId}/gallery-images/${imageId}/download${path}`,
