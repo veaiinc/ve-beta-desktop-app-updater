@@ -1,10 +1,7 @@
 import '@blocknote/core/fonts/inter.css';
-import { BlockNoteView } from '@blocknote/mantine';
 // import { createBlock } from '@blocknote/core';
 import '@blocknote/mantine/style.css';
-import { useCreateBlockNote } from '@blocknote/react';
 import '../../../assets/scss/notes/noteComponent.scss';
-import NoteToolbar from '../../components/notes/NoteToolbar';
 import {
 	useEffect,
 	memo,
@@ -28,13 +25,8 @@ import { Tooltip } from 'antd';
 import UploadPopup from '../../components/notes/UploadPopup';
 import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
 import IconUploadPopup from '../../components/notes/IconUploadPopup';
-import { ImageBlock } from '../../components/notes/ImageComponent';
-import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
-import { isEqual } from 'lodash';
-import { Database } from '../../components/notes/Database';
 import DatabaseSidebar from '../../components/modalsV2/notes/DatabaseSidebar';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
-import SlashMenu from '../../components/notes/SlashMenu';
 // import '../../../assets/scss/notes/noteComponent.scss';
 import MeetTranscript from './MeetTranscript';
 import useLiveIntelligenceStream from '../../../hooks/useLiveIntelligenceStream';
@@ -42,6 +34,8 @@ import useRecallStream from '../../../hooks/useRecallStream';
 import NoteTakerTranscript from './NoteTakerTranscript';
 import RecentChat from '../chat/RecentChat';
 import NotesHeader from '../../components/notes/DatabseComponents/NotesHeader';
+import Editor from '../../components/notes/Editor';
+import TranscriptionTabs from '../../components/notes/TranscriptionTabs';
 export const NotesRefContext = createContext(null);
 
 const initialState = {
@@ -102,33 +96,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const type = searchParams.get('type');
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
-	const prevDocRef = useRef([]);
 	const previousBlocksRef = useRef(new Map());
-	const pendingUpdatesRef = useRef(new Map());
-	const debounceTimerRef = useRef(null);
 	const originalFaviconRef = useRef(null);
-	// Map to track BlockNote id -> backend _id mapping
-	const blockIdToBackendIdRef = useRef(new Map());
-
-	// Helper function to get backend _id from BlockNote id
-	const getBackendId = useCallback((blockNoteId) => {
-		return blockIdToBackendIdRef.current.get(blockNoteId);
-	}, []);
-
-	// Helper function to calculate position between two positions
-	const calculatePositionBetween = useCallback((pos1, pos2) => {
-		return (pos1 + pos2) / 2;
-	}, []);
-
-	// Helper function to calculate position after a given position
-	const calculatePositionAfter = useCallback((pos) => {
-		return pos + 1000; // Use larger increments to avoid precision issues
-	}, []);
-
-	// Helper function to calculate position before a given position
-	const calculatePositionBefore = useCallback((pos) => {
-		return pos / 2; // Use division to get a position before
-	}, []);
 
 	// const { createWebSocketConnection, sendMessage } = useChatStream();
 
@@ -137,7 +106,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			getNotesPageData,
 			notesPageData,
 			notesAccess,
-			saveNotesdata,
 			updatePage,
 			addToFavorite,
 			removeFromFavorite,
@@ -146,8 +114,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			updateNotesState,
 			getNotesAccess,
 			globalAccess,
-			uploadNotesImageBlock,
-			deleteNotesImageBlock,
 			notesDeleteCoverImage,
 			notesDeleteIcon,
 			getBlocks,
@@ -256,26 +222,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 		return null;
 	}, [notesPageData?.data?.iconImage, info?.selectedEmoji?.native]);
-	const schema = BlockNoteSchema.create({
-		blockSpecs: {
-			// Adds all default blocks.
-			...defaultBlockSpecs,
-			// Adds the Alert block.
-			image: ImageBlock,
-			database: Database,
-		},
-	});
-
-	const editor = useCreateBlockNote({
-		schema,
-		tables: {
-			splitCells: true,
-			cellBackgroundColor: true,
-			cellTextColor: true,
-			headers: true,
-		},
-		// uploadFile,
-	});
 
 	useEffect(() => {
 		if (noteId) {
@@ -294,14 +240,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			getTenantSettings();
 		}
 	}, [tennantSettingsData]);
-
-	useEffect(() => {
-		if (blocks) {
-			const flatBlocks = flattenBlocksFromBackend(blocks.data); // flatten nested tree
-			previousBlocksRef.current = new Map(flatBlocks.map((b) => [b.id, b]));
-			loadNotesContent(blocks.data); // this can still use nested data if needed
-		}
-	}, [blocks]);
 
 	useEffect(() => {
 		const token = localStorage.getItem('usertoken');
@@ -389,6 +327,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		return () => {
 			updateNotesState({
 				notesPageData: null,
+				blocks: null,
 			});
 		};
 	}, [noteId]);
@@ -468,9 +407,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 				isDeleted = false,
 				updatedBy = null,
 			} = notesPageData?.data || {};
-			if (blocks) {
-				loadNotesContent(blocks);
-			}
 			setInfo((prev) => ({
 				...prev,
 				title,
@@ -497,74 +433,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		};
 	}, [info.timeouts]);
 
-	// useEffect(() => {
-	// 	const unsubscribe = editor.onChange(() => {
-	// 		const currentBlocks = editor.document;
-	// 		onEditorUpdate(currentBlocks);
-	// 	});
-
-	// 	return () => unsubscribe();
-	// }, [editor]);
-
-	useEffect(() => {
-		const unsubscribe = editor.onChange(() => {
-			const currentBlocks = editor.document;
-
-			// Check for blocks exceeding depth limit
-			const blocksToRevert = [];
-
-			const checkDepth = (blocks, currentDepth = 0) => {
-				blocks.forEach((block) => {
-					if (currentDepth > 3) {
-						// 0, 1, 2 = 3 levels max
-						blocksToRevert.push(block.id);
-					}
-					if (block.children && block.children.length > 0) {
-						checkDepth(block.children, currentDepth + 1);
-					}
-				});
-			};
-
-			checkDepth(currentBlocks);
-
-			// Revert blocks that are too deep
-			if (blocksToRevert.length > 0) {
-				blocksToRevert.forEach((blockId) => {
-					editor.removeBlocks([blockId]);
-				});
-				return; // Don't call onEditorUpdate for invalid changes
-			}
-
-			onEditorUpdate(currentBlocks);
-		});
-
-		return () => unsubscribe();
-	}, [editor]);
-
-	const flattenBlocksFromBackend = (blocks, parentId = null) => {
-		const flat = [];
-
-		for (const block of blocks) {
-			const { children, ...rest } = block;
-
-			// Store block with parentId info
-			flat.push({
-				...rest,
-				parentId,
-				children: [], // Keep children as empty array for consistency
-			});
-
-			// Create mapping from BlockNote id to backend _id
-			blockIdToBackendIdRef.current.set(block.id, block._id);
-
-			if (children && children.length > 0) {
-				flat.push(...flattenBlocksFromBackend(children, block.id));
-			}
-		}
-
-		return flat;
-	};
-
 	const getNotesPageDataFunc = useCallback(async () => {
 		const payload = {
 			pageId: noteId,
@@ -572,18 +440,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		const isDatabase = true;
 		getNotesPageData(payload, isDatabase);
 	}, [noteId]);
-
-	const loadNotesContent = useCallback(
-		(data) => {
-			if (data?.length) {
-				queueMicrotask(() => {
-					editor.replaceBlocks(editor.document, data);
-				});
-			}
-			setInfo((prev) => ({ ...prev, loading: false }));
-		},
-		[editor],
-	);
 
 	// Generic debounce function
 	const handleDebounce = useCallback(
@@ -596,20 +452,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			}));
 		},
 		[info.timeouts],
-	);
-
-	const handleContentChange = useCallback(
-		(data) => {
-			handleDebounce('content', () => {
-				const payload = {
-					pageId: noteId,
-					blocks: data || [],
-				};
-				saveNotesdata(payload);
-				setInfo((prev) => ({ ...prev, updatedAt: moment().unix() }));
-			});
-		},
-		[noteId, handleDebounce],
 	);
 
 	const handleTitleChange = (e) => {
@@ -665,491 +507,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		}
 		return urls;
 	};
-
-	const compareFn = (old, newBlock) => {
-		const oldBlock = {
-			id: old?.id,
-			type: old?.type,
-			props: old?.props,
-			content: old?.content,
-			// 🔥 IGNORE: children
-		};
-
-		const newBlockFormatted = {
-			id: newBlock?.id,
-			type: newBlock?.type,
-			props: newBlock?.props,
-			content: newBlock?.type === 'database' ? [] : newBlock?.content,
-		};
-
-		if (oldBlock.type !== newBlockFormatted.type) {
-			return true;
-		}
-
-		if (oldBlock.type === 'table' && newBlockFormatted.type === 'table') {
-			function areArraysEqualCustom(a, b) {
-				if (!Array.isArray(a) || !Array.isArray(b)) return false;
-				if (a.length !== b.length) return false;
-
-				for (let i = 0; i < a.length; i++) {
-					const valA = a[i];
-					const valB = b[i];
-
-					const isNullishA = valA == null; // true for null or undefined
-					const isNullishB = valB == null;
-
-					if (isNullishA && isNullishB) continue;
-					if (valA !== valB) return false;
-				}
-
-				return true;
-			}
-			const { content: oldContent, props: oldProps, id: oldId } = oldBlock;
-			const { content: newContent, props: newProps, id: newId } = newBlockFormatted;
-
-			if (oldId !== newId || oldProps?.textColor !== newProps?.textColor) {
-				return true;
-			}
-
-			if (
-				oldContent?.headerCols !== newContent?.headerCols ||
-				oldContent?.headerRows !== newContent?.headerRows
-			) {
-				return true;
-			}
-
-			if (!areArraysEqualCustom(oldContent?.columnWidths, newContent?.columnWidths)) {
-				return true;
-			}
-
-			if (!isEqual(oldContent?.rows, newContent?.rows)) {
-				return true;
-			}
-			return false;
-		}
-		const blockUpdated = !isEqual(oldBlock, newBlockFormatted);
-
-		if (blockUpdated) {
-			console.log('oldBlock', oldBlock);
-			console.log('newBlockFormatted', newBlockFormatted);
-		}
-
-		return blockUpdated;
-	};
-
-	const flattenBlocks = (blocks, parentId = null, depth = 0) => {
-		const flat = [];
-
-		for (let i = 0; i < blocks.length; i++) {
-			const block = blocks[i];
-			flat.push({
-				id: block.id,
-				type: block.type,
-				props: block.props,
-				content: block.content,
-				children: block.children,
-				parentId,
-				_depth: depth,
-			});
-
-			if (block.children?.length) {
-				flat.push(...flattenBlocks(block.children, block.id, depth + 1));
-			}
-		}
-
-		return flat;
-	};
-
-	const diffArraysNested = (flatNewArr) => {
-		const newMap = new Map(flatNewArr.map((item, index) => [item.id, { ...item, index }]));
-
-		const deleted = [];
-		const added = [];
-		const updated = [];
-
-		const allIds = new Set([...previousBlocksRef.current.keys(), ...newMap.keys()]);
-
-		// Group new blocks by parentId
-		const groupedByParent = flatNewArr.reduce((acc, block) => {
-			const key = block.parentId ?? 'root';
-			acc[key] ||= [];
-			acc[key].push(block);
-			return acc;
-		}, {});
-
-		// Sort siblings
-		Object.values(groupedByParent).forEach((group) => {
-			group.sort((a, b) => a.index - b.index);
-		});
-
-		for (const id of allIds) {
-			const oldItem = previousBlocksRef.current.get(id); // has _id and position
-			const newItem = newMap.get(id); // does not have _id or position
-
-			if (oldItem && !newItem) {
-				// Deleted
-				deleted.push(oldItem);
-				previousBlocksRef.current.delete(id);
-				// Remove from mapping
-				blockIdToBackendIdRef.current.delete(id);
-			} else if (!oldItem && newItem) {
-				// Added
-				const _id = ObjectID().toString();
-				const siblings = groupedByParent[newItem.parentId ?? 'root'];
-				const index = siblings.findIndex((b) => b.id === id);
-
-				const prev =
-					index > 0 ? previousBlocksRef.current.get(siblings[index - 1]?.id) : null;
-				const next =
-					index < siblings.length - 1
-						? previousBlocksRef.current.get(siblings[index + 1]?.id)
-						: null;
-
-				let position;
-				if (prev?.position && next?.position) {
-					// Between two blocks
-					position = calculatePositionBetween(prev.position, next.position);
-				} else if (prev?.position) {
-					// After the last block
-					position = calculatePositionAfter(prev.position);
-				} else if (next?.position) {
-					// Before the first block
-					position = calculatePositionBefore(next.position);
-				} else {
-					// First block in the group
-					position = 1000;
-				}
-
-				const parentBackendId = newItem.parentId
-					? blockIdToBackendIdRef.current.get(newItem.parentId)
-					: null;
-
-				const newBlock = {
-					_id,
-					id,
-					type: newItem.type,
-					props: newItem.props,
-					content: newItem.content,
-					children: [], // Keep children as empty array since we're flattening for comparison
-					parentId: parentBackendId,
-					position,
-				};
-
-				added.push(newBlock);
-				previousBlocksRef.current.set(id, newBlock);
-				// Update the mapping for new blocks
-				blockIdToBackendIdRef.current.set(id, _id);
-			} else if (oldItem && newItem) {
-				// Possible update
-				const siblings = groupedByParent[newItem.parentId ?? 'root'];
-				const index = siblings.findIndex((b) => b.id === id);
-
-				let position = oldItem.position;
-				let positionChanged = false;
-
-				console.log('block', { newItem, oldItem });
-
-				// Check for content and parent changes
-				const contentChanged = compareFn(oldItem, newItem);
-
-				// Compare parentId correctly - oldItem.parentId is _id, newItem.parentId is id
-				let parentChanged = false;
-				if (oldItem.parentId !== null && newItem.parentId !== null) {
-					// Use the mapping to get the backend _id for the new parent
-					// const newParentBackendId = blockIdToBackendIdRef.current.get(newItem.parentId);
-					// console.log('parentId', oldItem.parentId, newItem.parentId);
-
-					parentChanged = oldItem.parentId !== newItem.parentId;
-				} else {
-					// One is null, the other is not
-					parentChanged = oldItem.parentId !== newItem.parentId;
-				}
-
-				// Always check for position changes (for reordering)
-				const prev =
-					index > 0 ? previousBlocksRef.current.get(siblings[index - 1]?.id) : null;
-				const next =
-					index < siblings.length - 1
-						? previousBlocksRef.current.get(siblings[index + 1]?.id)
-						: null;
-
-				// Check if current position is valid relative to neighbors
-				if (prev?.position && next?.position) {
-					// Between two blocks - should be between prev and next
-					if (position <= prev.position || position >= next.position) {
-						position = calculatePositionBetween(prev.position, next.position);
-						positionChanged = true;
-					}
-				} else if (prev?.position) {
-					// After the last block - should be after prev
-					if (position <= prev.position) {
-						position = calculatePositionAfter(prev.position);
-						positionChanged = true;
-					}
-				} else if (next?.position) {
-					// Before the first block - should be before next
-					if (position >= next.position) {
-						position = calculatePositionBefore(next.position);
-						positionChanged = true;
-					}
-				} else {
-					// Only block in the group - should be at a reasonable position
-					if (position < 1000) {
-						position = 1000;
-						positionChanged = true;
-					}
-				}
-
-				const isChanged = positionChanged || contentChanged || parentChanged;
-
-				if (isChanged) {
-					console.log('isChanged', {
-						positionChanged,
-						contentChanged,
-						parentChanged,
-					});
-					const parentBackendId = newItem.parentId
-						? blockIdToBackendIdRef.current.get(newItem.parentId)
-						: null;
-
-					const updatedBlock = {
-						_id: oldItem._id,
-						id,
-						type: newItem.type,
-						props: newItem.props,
-						content: newItem.content,
-						children: [], // Keep children as empty array since we're flattening for comparison
-						parentId: parentBackendId,
-						position,
-					};
-
-					updated.push(updatedBlock);
-					previousBlocksRef.current.set(id, updatedBlock);
-				}
-			}
-		}
-
-		return { added, deleted, updated };
-	};
-
-	const diffArrays = (newArr) => {
-		// Create a map of new items with their indexes
-		const newMap = new Map(newArr.map((item, index) => [item.id, { ...item, index }]));
-
-		// Initialize result arrays
-		const deleted = [];
-		const added = [];
-		const updated = [];
-
-		// Get all ids from both old and new maps
-		const allIds = new Set([...previousBlocksRef.current.keys(), ...newMap.keys()]);
-
-		// Create an array of previous blocks sorted by position
-		const sortedPreviousBlocks = [...previousBlocksRef.current.values()].sort(
-			(a, b) => a.position - b.position,
-		);
-
-		// Create a map of id to previous index
-		const prevIndexMap = new Map();
-		sortedPreviousBlocks.forEach((block, index) => {
-			prevIndexMap.set(block.id, index);
-		});
-
-		// Process each id to determine its status
-		for (const id of allIds) {
-			const oldItem = previousBlocksRef.current.get(id);
-			const newItem = newMap.get(id);
-
-			if (oldItem && !newItem) {
-				// Item was deleted
-				deleted.push(oldItem);
-				previousBlocksRef.current.delete(id);
-			} else if (!oldItem && newItem) {
-				// Item was added
-				const _id = ObjectID().toString();
-				const index = newItem.index;
-
-				// Find surrounding blocks to determine position
-				const prevId = index > 0 ? newArr[index - 1]?.id : null;
-				const nextId = index < newArr.length - 1 ? newArr[index + 1]?.id : null;
-
-				const prevBlock = prevId ? previousBlocksRef.current.get(prevId) : null;
-				const nextBlock = nextId ? previousBlocksRef.current.get(nextId) : null;
-
-				const prevPosition = prevBlock?.position;
-				const nextPosition = nextBlock?.position;
-
-				// Calculate position based on surrounding blocks
-				let position;
-				if (prevPosition && nextPosition) {
-					position = calculatePositionBetween(prevPosition, nextPosition);
-				} else if (prevPosition) {
-					position = calculatePositionAfter(prevPosition);
-				} else if (nextPosition) {
-					position = calculatePositionBefore(nextPosition);
-				} else {
-					position = 1000;
-				}
-
-				const { type, props, content, id } = newItem;
-				const newItemFormatted = { _id, position, type, props, children: [], content, id };
-
-				added.push(newItemFormatted);
-				previousBlocksRef.current.set(id, newItemFormatted);
-			} else if (oldItem && newItem) {
-				// Item exists in both old and new arrays
-				const { type, props, children, content, id } = newItem;
-				const index = newItem.index;
-
-				// Check if this item has changed position
-				let positionChanged = false;
-				let position = oldItem.position;
-
-				// Get the old index (if it exists)
-				const oldIndex = prevIndexMap.get(id);
-
-				// If old index is different from new index, position may need to change
-				if (oldIndex !== undefined && oldIndex !== index) {
-					// Find surrounding blocks to determine if position needs to change
-					const prevId = index > 0 ? newArr[index - 1]?.id : null;
-					const nextId = index < newArr.length - 1 ? newArr[index + 1]?.id : null;
-
-					const prevBlock = prevId ? previousBlocksRef.current.get(prevId) : null;
-					const nextBlock = nextId ? previousBlocksRef.current.get(nextId) : null;
-
-					const prevPosition = prevBlock?.position;
-					const nextPosition = nextBlock?.position;
-
-					// Only change position if it's not properly ordered relative to neighbors
-					if (prevPosition && nextPosition) {
-						if (position <= prevPosition || position >= nextPosition) {
-							position = calculatePositionBetween(prevPosition, nextPosition);
-							positionChanged = true;
-						}
-					} else if (prevPosition) {
-						if (position <= prevPosition) {
-							position = calculatePositionAfter(prevPosition);
-							positionChanged = true;
-						}
-					} else if (nextPosition) {
-						if (position >= nextPosition) {
-							position = calculatePositionBefore(nextPosition);
-							positionChanged = true;
-						}
-					} else {
-						// This is the only block
-						if (position < 1000) {
-							position = 1000;
-							positionChanged = true;
-						}
-					}
-				}
-
-				// Only update if position changed or content changed
-				const isChanged = positionChanged || compareFn(oldItem, newItem);
-
-				if (isChanged) {
-					const newItemFormatted = {
-						_id: oldItem._id,
-						position,
-						type,
-						props,
-						children: [], // Keep children as empty array since we're flattening for comparison
-						content,
-						id,
-					};
-					updated.push(newItemFormatted);
-					previousBlocksRef.current.set(id, newItemFormatted);
-				}
-			}
-		}
-
-		return { deleted, added, updated };
-	};
-
-	const queueBlockUpdate = (block, noteId, delay = 500) => {
-		pendingUpdatesRef.current.set(block._id, block);
-
-		if (debounceTimerRef.current) {
-			clearTimeout(debounceTimerRef.current);
-		}
-
-		debounceTimerRef.current = setTimeout(() => {
-			const updatesToSend = Array.from(pendingUpdatesRef.current.values());
-
-			updatesToSend.forEach(({ _id, ...rest }) => {
-				updateBlock({
-					updateBlockId: _id,
-					pageId: noteId,
-					input: {
-						...rest,
-						content:
-							rest?.type === 'table'
-								? { tableContent: rest?.content }
-								: { textContent: rest?.content },
-					},
-				});
-			});
-
-			pendingUpdatesRef.current.clear();
-		}, delay);
-	};
-
-	const onEditorUpdate = (currentTopLevelBlocks) => {
-		const flatNewArr = flattenBlocks(currentTopLevelBlocks);
-		const { added, deleted, updated } = diffArraysNested(flatNewArr);
-		console.log('added', added);
-		console.log('deleted', deleted);
-		console.log('updated', updated);
-
-		added.forEach((block) => {
-			createBlock({
-				pageId: noteId,
-				input: {
-					...block,
-					content:
-						block?.type === 'table'
-							? { tableContent: block?.content }
-							: { textContent: block?.content },
-				},
-			});
-		});
-
-		updated.forEach((block) => {
-			queueBlockUpdate(block, noteId);
-		});
-
-		deleted.forEach((block) => {
-			pendingUpdatesRef.current.delete(block._id);
-			deleteBlock({
-				pageId: noteId,
-				deleteBlockId: block._id,
-			});
-		});
-
-		setInfo((prev) => ({ ...prev, updatedAt: moment().unix() }));
-	};
-
-	// const onChange = () => {
-	// 	if (editor?.document?.length) {
-	// 		const newDoc = editor.document;
-	// 		const prevImages = extractImageUrls(prevDocRef.current);
-	// 		const newImages = extractImageUrls(newDoc);
-	// 		const removedImages = prevImages.filter((url) => !newImages.includes(url));
-	// 		for (const url of removedImages) {
-	// 			const payload = {
-	// 				pageId: noteId,
-	// 				imageInput: {
-	// 					imageUrl: url,
-	// 					type: 'block',
-	// 				},
-	// 			};
-	// 			deleteNotesImageBlock(payload);
-	// 		}
-	// 		handleContentChange(newDoc);
-	// 		prevDocRef.current = newDoc;
-	// 	}
-	// };
 
 	const handleMoreOptionsChange = useCallback(
 		(key, value) => {
@@ -1259,47 +616,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const handleCoverImageError = () => {
 		setInfo((prev) => ({ ...prev, coverImageError: true }));
 	};
-
-	const checkImage = (url) => {
-		return new Promise((resolve) => {
-			const img = new Image();
-			img.onload = () => resolve(true);
-			img.onerror = () => resolve(false);
-			img.src = url + '?cache_bust=' + Date?.now(); // avoid caching
-		});
-	};
-
-	async function uploadFile(file) {
-		const response = await uploadNotesImageBlock(
-			{
-				pageId: noteId,
-				uploadPageBlockImageInput: {
-					imageName: file?.name,
-					imageSize: file?.size,
-				},
-			},
-			file,
-		);
-
-		if (response?.[0]) {
-			const url = response?.[1];
-			let attempt = 0;
-			const maxAttempts = 10;
-			let isValid = false;
-
-			while (attempt < maxAttempts) {
-				isValid = await checkImage(url);
-				if (isValid) {
-					break;
-				}
-				attempt++;
-				await new Promise((resolve) => setTimeout(resolve, 1000));
-			}
-			return url;
-		}
-
-		return undefined;
-	}
 
 	const handleRemoveCover = async () => {
 		const response = await notesDeleteCoverImage({ pageId: noteId });
@@ -1556,69 +872,10 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 								</Tooltip>
 
 								{showTranscriptTabs && (
-									<div className="notes-tabs-container">
-										<div
-											className="notes-tabs-header"
-											style={{
-												display: 'flex',
-												gap: 24,
-												borderBottom: '1px solid var(--stroke, #2c2d2e)',
-												marginBottom: 12,
-											}}
-										>
-											<button
-												className={
-													activeTab === 'transcript'
-														? 'notes-tab active'
-														: 'notes-tab'
-												}
-												style={{
-													background: 'none',
-													border: 'none',
-													outline: 'none',
-													color: 'inherit',
-													fontWeight: 500,
-													fontSize: 16,
-													padding: '8px 0',
-													borderBottom:
-														activeTab === 'transcript'
-															? '2px solid var(--primary-button, #cfff48)'
-															: '2px solid transparent',
-													cursor: 'pointer',
-													transition: 'color 0.2s',
-												}}
-												onClick={() => setActiveTab('transcript')}
-											>
-												Transcript
-											</button>
-
-											<button
-												className={
-													activeTab === 'summary'
-														? 'notes-tab active'
-														: 'notes-tab'
-												}
-												style={{
-													background: 'none',
-													border: 'none',
-													outline: 'none',
-													color: 'inherit',
-													fontWeight: 500,
-													fontSize: 16,
-													padding: '8px 0',
-													borderBottom:
-														activeTab === 'summary'
-															? '2px solid var(--primary-button, #cfff48)'
-															: '2px solid transparent',
-													cursor: 'pointer',
-													transition: 'color 0.2s',
-												}}
-												onClick={() => setActiveTab('summary')}
-											>
-												Summary
-											</button>
-										</div>
-									</div>
+									<TranscriptionTabs
+										activeTab={activeTab}
+										setActiveTab={setActiveTab}
+									/>
 								)}
 
 								{showTranscriptTabs && activeTab === 'transcript' ? (
@@ -1633,24 +890,19 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 										/>
 									) : null
 								) : (
-									<BlockNoteView
-										editor={editor}
-										formattingToolbar={false}
-										// onChange={onChange}
-										style={innerContainerStyle || {}}
-										theme={'dark'}
-										editable={info?.myAccess !== 'view' || !info?.isDeleted}
-										slashMenu={false}
-									>
-										{(info?.myAccess !== 'view' || !info?.isDeleted) && (
-											<NoteToolbar
-												sendMessage={customSendMessage}
-												aiResonse={info?.aiResonse}
-												resetAiResponse={resetAiResponse}
-											/>
-										)}
-										<SlashMenu editor={editor} noteId={noteId} />
-									</BlockNoteView>
+									<Editor
+										innerContainerStyle={innerContainerStyle}
+										myAccess={info?.myAccess}
+										isDeleted={info?.isDeleted}
+										customSendMessage={customSendMessage}
+										aiResonse={info?.aiResonse}
+										resetAiResponse={resetAiResponse}
+										noteId={noteId}
+										initialBlocks={blocks}
+										createBlock={createBlock}
+										updateBlock={updateBlock}
+										deleteBlock={deleteBlock}
+									/>
 								)}
 							</div>
 						</>

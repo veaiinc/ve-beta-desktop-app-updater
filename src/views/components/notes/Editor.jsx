@@ -1,11 +1,14 @@
 import React, { useCallback, useEffect, useRef } from 'react';
+import '@blocknote/core/fonts/inter.css';
+// import { createBlock } from '@blocknote/core';
+import '@blocknote/mantine/style.css';
 import NoteToolbar from './NoteToolbar';
 import SlashMenu from './SlashMenu';
 import { BlockNoteView } from '@blocknote/mantine';
 import { useCreateBlockNote } from '@blocknote/react';
 import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
 import { ImageBlock } from './ImageComponent';
-import {Database} from './Database';
+import { Database } from './Database';
 import ObjectID from 'bson-objectid';
 import { isEqual } from 'lodash';
 
