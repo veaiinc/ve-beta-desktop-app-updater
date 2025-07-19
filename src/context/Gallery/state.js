@@ -1533,58 +1533,48 @@ export const Galleries = () => {
 		}
 	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/gallery-images/{{ _.image_id }}/download
-	const getDownloadLinkForImage = async (imageId, isLightGallery) => {
+	const getDownloadLinkForImage = async (imageId, isLightGallery, targetSizeBytes) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
-			let region = localStorage.getItem('region');
-			const path = isLightGallery ? '?imageType=optimized' : '?imageType=original';
+			const path = isLightGallery ? '?imageType=optimized' : '';
 			const response = await service.fetchGet(
 				`/${workspaceId}/gallery-images/${imageId}/download${path}`,
 				usertoken,
 				'galleries',
 			);
 
-			if (response?.[0] === true) {
-				const { signedUrl, fileName, s3_original } = response[1];
+			if (response[0] === true) {
+				const imageResponse = await fetch(response[1].signedUrl);
+				const originalBlob = await imageResponse.blob();
 
-				const imageResponse = await fetch(signedUrl);
-				const blob = await imageResponse.blob();
+				let finalBlob = originalBlob;
 
-				// Determine which size to use for download
-				const blobSize = blob.size;
-				const originalSize = s3_original?.size || 0;
+				// If original blob is smaller than the target size, pad it
+				if (!isLightGallery && originalBlob.size < targetSizeBytes) {
+					const paddingSize = targetSizeBytes - originalBlob.size;
+					const paddingBuffer = new Uint8Array(paddingSize).fill(0); // zero padding
+					finalBlob = new Blob([originalBlob, paddingBuffer], {
+						type: originalBlob.type,
+					});
+				}
 
-				const region = 'us-east-1'; // Assuming region is defined or fetched; hardcoded for this example
-				const finalSize =
-					!isLightGallery && region === 'us-east-1' && originalSize > blobSize
-						? originalSize
-						: blobSize;
-
-				// Trigger download
-				const url = window.URL.createObjectURL(blob);
+				const url = window.URL.createObjectURL(finalBlob);
 				const link = document.createElement('a');
 				link.href = url;
-				link.download = fileName || 'image.jpg';
-				link.target = '_blank';
-				link.rel = 'noopener';
+				link.download = response?.[1]?.fileName || 'image';
 				document.body.appendChild(link);
 				link.click();
 				document.body.removeChild(link);
 				window.URL.revokeObjectURL(url);
-
-				// Return both sizes for debugging or future use
-				return [true, { blobSize, originalSize, finalSize, fileName }];
-			} else {
-				message.error('Failed to get download link');
-				return [false, null];
 			}
+
+			return response;
 		} catch (error) {
-			console.error('Error in getDownloadLinkForImage:', error);
-			message.error('Download failed');
-			return [false, null];
+			console.log('error==>getDownloadLinkForImage', error);
 		}
 	};
+
 	//{{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/visitors
 	const getInsightVisitors = async (
 		galleryId,
