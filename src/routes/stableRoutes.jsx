@@ -109,7 +109,7 @@ const stableRoutes = [
 				maxWidth="100%"
 			>
 				<Suspense fallback={<SuspenseFallback />}>
-					<RecentChat />
+					<RecentChat showChatHistory={true} />
 				</Suspense>
 			</AuthWrapper>
 		),
