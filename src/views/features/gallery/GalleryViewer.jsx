@@ -179,7 +179,7 @@ const GalleryViewer = ({
 			setTimeout(() => {
 				const image = document.getElementById(activeImageId || '');
 				if (image) {
-					image.scrollIntoView({ behavior: 'instant', block: 'center' });
+					image.scrollIntoView({ behavior: 'smooth', block: 'center' });
 				}
 			}, 1000);
 		}
@@ -302,13 +302,6 @@ const GalleryViewer = ({
 			activeImageIndex: index,
 			imageDetailId: null,
 		}));
-
-		setTimeout(() => {
-			const image = document.getElementById(id);
-			if (image) {
-				image.scrollIntoView({ behavior: 'instant', block: 'start' });
-			}
-		}, 300);
 	};
 
 	const largeImageFunction = (id, index) => {
