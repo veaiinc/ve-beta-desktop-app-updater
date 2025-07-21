@@ -103,7 +103,7 @@ const NotesWrapper = () => {
 					/>
 				</div>
 			</div>
-			<div
+			{/* <div
 				className={`switchContainer ${
 					info?.showAmbientAssistance ? 'SuggestionSidebarActive' : ''
 				}`}
@@ -117,15 +117,15 @@ const NotesWrapper = () => {
 						}));
 					}}
 				/>
-			</div>
-			{info?.showAmbientAssistance && (
+			</div> */}
+			{/* {info?.showAmbientAssistance && (
 				<AiTranscriptionSuggestions
 					data={aiTranscriptionSuggestions || []}
 					modalIsOpen={info?.modalIsOpen}
 					closeModal={handleCloseModal}
 					showAmbientAssistance={info?.showAmbientAssistance}
 				/>
-			)}
+			)} */}
 		</div>
 	);
 };

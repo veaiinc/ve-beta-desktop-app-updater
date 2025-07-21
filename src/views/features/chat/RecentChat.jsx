@@ -548,7 +548,13 @@ const RecentChat = ({
 					rating,
 					designAgentsUsed,
 					toolInvocations,
+					agentType,
 				} = data?.[i] || {};
+
+				const paramsAgentType = searchParams?.get('agentType');
+				if (agentType === 'knowledge_agent' && paramsAgentType !== 'knowledge_agent') {
+					continue;
+				}
 
 				if (firstTimeApiCall) {
 					chatPayload = {
@@ -665,7 +671,7 @@ const RecentChat = ({
 
 			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
 		},
-		[sessionId],
+		[sessionId, searchParams],
 	);
 
 	const handleNoteComponentModalClose = useCallback(() => {
