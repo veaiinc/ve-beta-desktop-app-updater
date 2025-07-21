@@ -1,9 +1,10 @@
 import React, { memo, useState } from 'react';
 import { Tooltip, Switch } from 'antd';
 import { ReactComponent as DotsSvg } from '../../../assets/svg/docs/vertidot.svg';
-import { ReactComponent as ExpandSvg } from '../../../assets/svg/docs/expand.svg';
-import { ReactComponent as ShareSvg } from '../../../assets/svg/docs/share.svg';
+// import { ReactComponent as ExpandSvg } from '../../../assets/svg/docs/expand.svg';
+// import { ReactComponent as ShareSvg } from '../../../assets/svg/docs/share.svg';
 import { ReactComponent as DeleteSvg } from '../../../assets/svg/tasks/dustBin.svg';
+import { ReactComponent as GearSvg } from '../../../assets/svg/notes/gear.svg';
 import DuplicateSvg from '../../../assets/svg/tasks/DuplicateSvg.jsx';
 import '../../../assets/scss/notes/noteComponent.scss';
 
@@ -104,7 +105,7 @@ const MoreOptions = ({ notesConfigs, onChange, onDelete, onDuplicate }) => {
 					}}
 					onClick={() => handleInfoChange({ openMoreOptions: !info.openMoreOptions })}
 				>
-					<DotsSvg />
+					<GearSvg className="gear-svg" />
 				</div>
 			</Tooltip>
 		</div>
