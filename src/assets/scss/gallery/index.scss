@@ -626,13 +626,13 @@
 					border-radius: 10px;
 					height: 61px;
 					border: 1px solid transparent;
-					// background: var(--card-over-card, #202123);
+					background: var(--card, #202123);
 
 					@media (max-width: 1440px) {
 						width: 100px;
 					}
 					&.active {
-						background: var(--card);
+						background: var(--card-hover);
 						border: 1px solid var(--stroke, #2c2d2e);
 					}
 					&:hover {
@@ -929,7 +929,7 @@
 		.galleryNavbar {
 			display: flex;
 			width: 100%;
-			gap: 8px;
+			gap: 16px;
 			flex-direction: column;
 			.albumDetailsContainer {
 				display: flex;
@@ -1081,6 +1081,7 @@
 							}
 							&.selected {
 								background: var(--card);
+								color: var(--primary-font);
 							}
 							.albumStatus {
 								width: 8px;
