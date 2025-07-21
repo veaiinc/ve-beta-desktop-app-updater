@@ -49,6 +49,7 @@ const activeNavItemMap = {
 const TopNavbar = () => {
 	const navigate = useNavigate();
 	const { pathname } = useLocation();
+	const isBuilder = pathname.includes('builder');
 
 	const {
 		profileInfo: { userDetailsData, tennantSettingsData },
@@ -355,11 +356,13 @@ const TopNavbar = () => {
 	];
 
 	return (
-		<nav className={s.topNavbarContainer}>
-			{navItems.map((navItem) => {
-				return <Fragment key={navItem.id}>{navItem.element}</Fragment>;
-			})}
-		</nav>
+		!isBuilder && (
+			<nav className={s.topNavbarContainer}>
+				{navItems.map((navItem) => {
+					return <Fragment key={navItem.id}>{navItem.element}</Fragment>;
+				})}
+			</nav>
+		)
 	);
 };
 
