@@ -3,7 +3,7 @@ import s from './careers.module.scss';
 import { paraContent1, paraContent2, categories, jobs } from './constants';
 import { useState, useMemo } from 'react';
 
-const careerPageLink = 'https://veai.ve.ai/552ysrgj';
+const careerPageLink = 'https://veai.ve.ai/hiring-form';
 const ContentCreator = 'https://veai.ve.ai/lo3x3v26';
 
 const Careers = () => {

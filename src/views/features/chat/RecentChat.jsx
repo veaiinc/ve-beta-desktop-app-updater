@@ -14,7 +14,6 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 import { debounce } from 'lodash';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
 import TextSelector from '../../components/chat/chatComponents/TextSelector';
-import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import ChatHeader from '../../components/chat/ChatHeader';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import { message } from '../../components/globalComponents/CustomToast';
@@ -33,7 +32,6 @@ const RecentChat = ({
 	showDeleteChat = true,
 	animateChatBox = true,
 }) => {
-	const { workspaceMode } = useWorkspaceMode();
 	const {
 		templates: {
 			globalChatMessages,
@@ -181,18 +179,12 @@ const RecentChat = ({
 	}, [aiChatSessions, sessionId]);
 
 	useEffect(() => {
-		if (sessionIdChanged && chatActive && workspaceMode) {
+		if (sessionIdChanged && chatActive) {
 			const agentType = 'mulit_agent';
-			createWebSocketConnection(
-				sessionId,
-				onMessageFunc,
-				agentType,
-				isPublicChat,
-				workspaceMode,
-			);
+			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
 			onChangeSessionId?.();
 		}
-	}, [sessionIdChanged, chatActive, workspaceMode]);
+	}, [sessionIdChanged, chatActive]);
 
 	useEffect(() => {
 		if (info?.getFollowUpQueries) {
@@ -309,21 +301,15 @@ const RecentChat = ({
 		if (agentType) {
 			updateStateValues({ chatInfo: { ...chatInfo, agentType, assistantId } });
 		}
-		if (sessionId && !isPublicChat && workspaceMode) {
-			createWebSocketConnection(
-				sessionId,
-				onMessageFunc,
-				agentType,
-				isPublicChat,
-				workspaceMode,
-			);
+		if (sessionId && !isPublicChat) {
+			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
 		}
 
 		if (sessionId && isPublicChat && isFirstTimeConnectingToPublicChatRef.current) {
 			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
 			isFirstTimeConnectingToPublicChatRef.current = false;
 		}
-	}, [sessionId, searchParams, workspaceMode]);
+	}, [sessionId, searchParams]);
 
 	useEffect(() => {
 		if (globalChatMessages?.[sessionId]?.messages?.length > 2 && !info?.scrollExecuted) {
@@ -561,7 +547,14 @@ const RecentChat = ({
 					chainOfThought,
 					rating,
 					designAgentsUsed,
+					toolInvocations,
+					agentType,
 				} = data?.[i] || {};
+
+				const paramsAgentType = searchParams?.get('agentType');
+				if (agentType === 'knowledge_agent' && paramsAgentType !== 'knowledge_agent') {
+					continue;
+				}
 
 				if (firstTimeApiCall) {
 					chatPayload = {
@@ -620,6 +613,7 @@ const RecentChat = ({
 						stream_end: true,
 						processing,
 						used_agents: designAgentsUsed || [],
+						tool_invocations: toolInvocations || [],
 						...(processing === 'Deep Search' && { deepSearch }),
 						...(processing === 'Deep Research' && { deepResearch }),
 						...(processing === 'Normal Search' && { normalSearch }),
@@ -677,7 +671,7 @@ const RecentChat = ({
 
 			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
 		},
-		[sessionId],
+		[sessionId, searchParams],
 	);
 
 	const handleNoteComponentModalClose = useCallback(() => {

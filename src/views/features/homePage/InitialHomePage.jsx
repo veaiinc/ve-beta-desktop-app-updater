@@ -7,6 +7,7 @@ import ChatBox from '../../components/chat/ChatBox';
 import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 import Suggestions from './Suggestions';
 import { useNavigate } from 'react-router-dom';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 
 const suggestionContainerStyles = {
 	// position: 'absolute',
@@ -21,6 +22,7 @@ const suggestionContainerStyles = {
 };
 const InitialHomePage = () => {
 	const navigate = useNavigate();
+	const { workspaceMode } = useWorkspaceMode();
 	const {
 		templates: { updateStateValues, currentSessionId, chatBoxSuggestions },
 		profileInfo: { userDetailsData },
@@ -92,7 +94,7 @@ const InitialHomePage = () => {
 							<BuildOptions />
 						)} */}
 				</div>
-				<GlobalWidget />
+				{workspaceMode !== 'stable' && <GlobalWidget />}
 			</div>
 		</div>
 	);

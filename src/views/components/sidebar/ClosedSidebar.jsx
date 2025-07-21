@@ -151,7 +151,9 @@ const ClosedSidebar = ({ onIconClick, isEarlyAccessPage }) => {
 				<Tooltip
 					title={
 						<div className="tooltip-text">
-							{currentPlan?.totalAiCreditLimit - currentPlan?.totalAiCreditUsed}{' '}
+							{Math.round(
+								currentPlan?.totalAiCreditLimit - currentPlan?.totalAiCreditUsed,
+							)}{' '}
 							Credits Left
 						</div>
 					}

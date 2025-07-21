@@ -386,8 +386,8 @@ const createCustomComponents = (citations, markdown) => ({
 		);
 	},
 });
-
-const remarkPlugins = [remarkGfm, remarkMath];
+// [remarkGfm, remarkMath]
+const remarkPlugins = [remarkGfm];
 const rehypePlugins = [rehypeKatex, rehypeCITPlugin, rehypeRaw];
 
 const NonMemoizedMarkdown = ({ children, citations }) => {

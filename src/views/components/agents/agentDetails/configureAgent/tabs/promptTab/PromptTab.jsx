@@ -1,4 +1,5 @@
 import { memo, useContext, useEffect, useState } from 'react';
+import { Drawer } from 'antd';
 import s from './promptTab.module.scss';
 import PromptInput from './PromptInput';
 import Context from '../../../../../../../context/context';
@@ -6,128 +7,253 @@ import { useParams } from 'react-router-dom';
 import { message } from '../../../../../../components/globalComponents/CustomToast';
 import KnowledgeAgentPrompt from '../../../../../knowledgeAgent/KnowledgeAgentPrompt';
 import AgentCredentials from '../../../agentCredentials/AgentCredentials';
+import { ReactComponent as SidebarClosingSvg } from '../../../../../../../assets/svg/sidebar/SidebarClosing.svg';
+import { ReactComponent as Delete } from '../../tabs/assets/delete.svg';
+import { ReactComponent as PlusIcon } from '../../tabs/assets/plus-icon.svg';
+import Spinner from '../../../../../loaders/Spinner';
+
 const actionPattern = /<([^>]+)>/g;
+
 const PromptTab = () => {
-	const { agentId } = useParams();
-	const {
-		knowledgeAgent: {
-			activeKnowledgeAssistant,
-			getActiveKnowledgeAgentDetails,
-			getPipeDreamAction,
-		},
-	} = useContext(Context);
+  const { agentId } = useParams();
+  const {
+    knowledgeAgent: {
+      activeKnowledgeAssistant,
+      getActiveKnowledgeAgentDetails,
+      getPipeDreamAction,
+      getExistingconnectedAccounts,
+      deleteConnectedAccount,
+    },
+    profileInfo: { userDetailsData, getUserDetails },
+  } = useContext(Context);
 
-	const [info, setInfo] = useState({
-		title: '',
-		prompt: '',
-		initialContent: '',
-		actionDetails: [],
-	});
+  const [info, setInfo] = useState({
+    title: '',
+    prompt: '',
+    initialContent: '',
+    actionDetails: [],
+    drawerOpen: true,
+    connectedAccounts: [],
+    accountsLoading: false,
+    deletingAccountId: null,
+  });
 
-	useEffect(() => {
-		if (agentId) {
-			getActiveKnowledgeAgentDetails(agentId);
-		}
-	}, [agentId]);
+  useEffect(() => {
+    if (agentId) {
+      getActiveKnowledgeAgentDetails(agentId);
+    }
+  }, [agentId]);
 
-	const agentData = activeKnowledgeAssistant?.data;
+  useEffect(() => {
+    if (!userDetailsData) {
+      getUserDetails();
+    }
+  }, []);
 
-	function getActionNamefromPrompt(prompt) {
-		if (!prompt) return [];
+  useEffect(() => {
+    if (userDetailsData?._id) {
+      fetchConnectedAccounts();
+    }
+  }, []);
 
-		// Regular expression to match action names in angle brackets
-	
-		let actions = [];
-		let match;
+  const tenatUserId = userDetailsData?._id;
+  const agentData = activeKnowledgeAssistant?.data;
 
-		// Find all matches in the prompt
-		while ((match = actionPattern.exec(prompt)) !== null) {
-			actions.push(match[1]); // match[1] contains the text inside brackets
-		}
+  const fetchConnectedAccounts = async () => {
+    setInfo((prev) => ({ ...prev, accountsLoading: true }));
+    try {
+      const response = await getExistingconnectedAccounts({ tenatUserId });
+      setInfo((prev) => ({
+        ...prev,
+        connectedAccounts: response?.data?.connected_accounts || [],
+      }));
+    } catch (error) {
+      console.error('Error fetching connected accounts:', error);
+      setInfo((prev) => ({ ...prev, connectedAccounts: [] }));
+    } finally {
+      setInfo((prev) => ({ ...prev, accountsLoading: false }));
+    }
+  };
 
-		return actions;
-	}
+  // Handle delete account
+  const handleDeleteAccount = async (accountId, appName, e) => {
+    if (info?.deletingAccountId === accountId) return;
+    e.stopPropagation();
+    setInfo((prev) => ({
+      ...prev,
+      deletingAccountId: accountId,
+    }));
 
-	// useEffect(() => {
-	// 	setInfo({
-	// 		title: activeKnowledgeAssistant?.title,
-	// 		prompt: activeKnowledgeAssistant?.instruction,
-	// 		initialContent: activeKnowledgeAssistant?.instruction,
-	// 	});
-	// }, [activeKnowledgeAssistant?.data?.instructions]);
+    const response = await deleteConnectedAccount({
+      app: appName,
+      account_id: accountId,
+    });
 
-	const handleSubmit = async () => {
-		const instruction = info.prompt;
-		const title = info.title;
-		const payload = {
-			title,
-			instruction,
-		};
+    if (response?.[0] === true) {
+      message.success('Account deleted successfully');
+      fetchConnectedAccounts();
+    } else {
+      message.error('Failed to delete account');
+    }
 
-		const response = await addInstructionToKnowledgeAgent(agentId, payload);
-		if (response?.[0]) {
-			message.success('Instruction added successfully');
-		} else {
-			message.error('Failed to add instruction');
-		}
-	};
-	const handleInputChange = (data) => {
-		setInfo({ ...info, prompt: data });
-	};
+    setInfo((prev) => ({
+      ...prev,
+      deletingAccountId: null,
+    }));
+  };
 
-	useEffect(() => {
-		const fetchPipeDreamAction = async () => {
-			const actionNames = getActionNamefromPrompt(agentData?.prompt?.customEditedPrompt);
-			const actionDetailsArray = [];
+  function getActionNamefromPrompt(prompt) {
+    if (!prompt) return [];
 
-			for (const actionName of actionNames) {
-				try {
-					const response = await getPipeDreamAction(actionName);
-					if (response?.[0] === true) {
-						// Extract app name and get favicon URL
+    let actions = [];
+    let match;
 
-						actionDetailsArray.push({
-							actionName,
-							actionData: response?.[1],
-						});
-					}
-				} catch (error) {
-					message.error(`Error fetching action ${actionName}:`, error);
-				}
-			}
+    while ((match = actionPattern.exec(prompt)) !== null) {
+      actions.push(match[1]);
+    }
 
-			setInfo({ ...info, actionDetails: actionDetailsArray });
-		};
+    return actions;
+  }
 
-		if (agentData?.prompt?.customEditedPrompt) {
-			fetchPipeDreamAction();
-		}
-	}, [agentData?.prompt?.customEditedPrompt]);
+  useEffect(() => {
+    const fetchPipeDreamAction = async () => {
+      const actionNames = getActionNamefromPrompt(agentData?.prompt?.customEditedPrompt);
+      const actionDetailsArray = [];
 
-	return (
-		<div className={s.promptTabContainer}>
-			{/* <div className={s.titleInputContainer}>
-				<input
-					type="text"
-					placeholder="Title"
-					value={info.title}
-					onChange={(e) => setInfo({ ...info, title: e.target.value })}
-				/>
-			</div>
-			<div className={s.promptInputContainer}>
-				<PromptInput
-					onInputChange={handleInputChange}
-					initialContent={info?.initialContent}
-				/>
-				<button className={s.submitBtn} onClick={handleSubmit}>
-					Submit
-				</button>
-			</div> */}
-		
+      for (const actionName of actionNames) {
+        try {
+          const response = await getPipeDreamAction(actionName);
+          if (response?.[0] === true) {
+            actionDetailsArray.push({
+              actionName,
+              actionData: response?.[1],
+            });
+          }
+        } catch (error) {
+          message.error(`Error fetching action ${actionName}:`, error);
+        }
+      }
 
-			<KnowledgeAgentPrompt assistant={agentData} actionDetails={info?.actionDetails} />
-		</div>
-	);
+      setInfo((prev) => ({ ...prev, actionDetails: actionDetailsArray }));
+    };
+
+    if (agentData?.prompt?.customEditedPrompt) {
+      fetchPipeDreamAction();
+    }
+  }, [agentData?.prompt?.customEditedPrompt]);
+
+  return (
+    <div className={s.promptTabContainer}>
+      <div className={s.leftContainer}>
+        <div className={s.listContainer}>
+          <div className={s.left}>
+            <KnowledgeAgentPrompt
+              assistant={agentData}
+              actionDetails={info?.actionDetails}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className={s.rightContainer} style={{ width: info.drawerOpen ? `400px` : `0px` }}>
+        <Drawer
+          open={info.drawerOpen}
+          placement="right"
+          closable={false}
+          mask={false}
+          headerStyle={{ display: 'none' }}
+          bodyStyle={{
+            padding: 0,
+            height: '100vh',
+            overflow: 'auto',
+          }}
+          style={{ position: 'relative' }}
+          className="promptTab__right promptTab__right--open"
+          getContainer={false}
+        >
+          <div className={s.sidebarClosingSvg}>
+            <SidebarClosingSvg
+              onClick={() => setInfo((prev) => ({ ...prev, drawerOpen: false }))}
+            />
+          </div>
+          <div className="promptTab__drawer-content">
+            <div className={s.drawerHeader}>
+              <div className={s.drawerTitle}>
+                <span>Tools</span>
+              </div>
+              {/* <button className={s.addToolButton}>
+                <PlusIcon />
+                <span>Add Tool</span>
+              </button> */}
+            </div>
+
+            <div className={s.toolsContent}>
+              {info.accountsLoading ? (
+                <div className={s.loadingContainer}>
+                  <Spinner
+                    width="20px"
+                    height="20px"
+                    color="var(--primary-font)"
+                  />
+                  <span>Loading tools...</span>
+                </div>
+              ) : info.connectedAccounts.length === 0 ? (
+                <div className={s.emptyState}>
+                  <p>No tools connected yet.</p>
+                  <p>Connect your first tool to get started.</p>
+                </div>
+              ) : (
+                <div className={s.toolsList}>
+                  {info.connectedAccounts.map((account) => (
+                    <div key={account.id} className={s.toolCard}>
+                      <div className={s.toolIcon}>
+                        <img
+                          src={account.app.img_src}
+                          alt={account.app.name}
+                          className={s.appIcon}
+                        />
+                      </div>
+                      <div className={s.toolInfo}>
+                        <h3 className={s.toolTitle}>{account.app.name}</h3>
+                        <p className={s.toolDescription}>
+                          Connected on{' '}
+                          {new Date(account.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <button
+                        className={s.deleteButton}
+                        onClick={(e) =>
+                          handleDeleteAccount(account.id, account.app.name_slug, e)
+                        }
+                        disabled={info.deletingAccountId === account.id}
+                      >
+                        {info.deletingAccountId === account.id ? (
+                          <Spinner
+                            width="16px"
+                            height="16px"
+                            color="var(--primary-font)"
+                          />
+                        ) : (
+                          <Delete />
+                        )}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </Drawer>
+        {!info.drawerOpen && (
+          <div className={s.sidebarClosingSvg}>
+            <SidebarClosingSvg
+              onClick={() => setInfo((prev) => ({ ...prev, drawerOpen: true }))}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default memo(PromptTab);

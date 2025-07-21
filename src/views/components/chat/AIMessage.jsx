@@ -15,6 +15,7 @@ import PromptPopup from '../homePage/PromptPopup';
 import ClarifyWidget from './chatWidgets/ClarifyWidget';
 import FormWidget from './FormWidget';
 import UnintegratedAgentApps from './chatComponents/UnintegratedAgentApps';
+import IntermediateSteps from './chatComponents/IntermediateSteps';
 import { fileTypeIcons, getFaviconUrl, getWebsiteName } from '../../../helpers';
 
 const pencilIconStyles = {
@@ -125,6 +126,13 @@ const AIMessage = ({
 						<p>View Document</p>
 					</div>
 				))}
+
+			{messageData?.tool_invocations && (
+				<IntermediateSteps
+					steps={messageData?.tool_invocations}
+					isStreaming={messageData?.stream_end === false}
+				/>
+			)}
 
 			{messageData?.moduleType === 'ai_suggestion_report' ? (
 				<AISuggestionsReportAiComponent data={messageData?.data} />
@@ -280,6 +288,9 @@ export default memo(AIMessage, (prevProps, nextProps) => {
 		prevProps.rating === nextProps.rating &&
 		JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations) &&
 		prevProps.messageData?.messageId === nextProps.messageData?.messageId &&
+		JSON.stringify(prevProps.messageData?.tool_invocations) ===
+			JSON.stringify(nextProps.messageData?.tool_invocations) &&
+		prevProps.messageData?.stream_end === nextProps.messageData?.stream_end &&
 		prevProps.isLastMessage === nextProps.isLastMessage &&
 		prevProps.handleSourcesClick === nextProps.handleSourcesClick &&
 		prevProps.messageIndex === nextProps.messageIndex &&

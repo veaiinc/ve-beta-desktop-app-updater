@@ -282,7 +282,7 @@ class DocumentShortPreview extends NewProposals {
 										width:
 											this.state.previewType === 'm' ||
 											this.state.previewType === 'ml'
-												? '420px'
+												? '540px'
 												: this.state?.activeModule?.showType == 'a4' &&
 												  this.state?.activeModule?.showAsA4
 												? '780px'

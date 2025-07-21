@@ -3,6 +3,8 @@ import '../../../assets/scss/files/files.scss';
 import moment from 'moment';
 import { DocsStatusButton } from '../../features/docs/Docs';
 import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
+import { ReactComponent as Add } from '../../../assets/svg/files/add2.svg';
+import { ReactComponent as DocIcon } from '../../../assets/svg/files/doc.svg';
 // import DocsCardBg from '../../../assets/images/files/docs-card-bg.png';
 import { useNavigate } from 'react-router-dom';
 import { memo, useContext, useEffect, useState, useCallback, useRef, lazy, Suspense } from 'react';
@@ -14,8 +16,14 @@ import FilterDropdown from '../dropDown/file/FilterDropdown';
 import EmptyState from './EmptyState';
 // import { fetchOriginSelection } from '../../../helpers';
 import { Tooltip } from 'antd';
+import { message } from '../globalComponents/CustomToast';
 import { ReactComponent as Search } from '../../../assets/svg/search.svg';
 import SuspenseFallback from '../globalComponents/SuspenseFallback';
+import ListViewIcon from '../../../assets/svg/notesPage/ListViewIcon';
+import CardsViewIcon from '../../../assets/svg/notesPage/CardsViewIcon';
+import { ReactComponent as Link } from '../../../assets/svg/files/link.svg';
+// import { ReactComponent as Copy } from '../../../assets/svg/files/copy.svg';
+// import { ReactComponent as Share } from '../../../assets/svg/files/share.svg';
 const DocumentShortPreview = lazy(() =>
 	import('../../../../builderSrc/views/feature/DocumentShortPreview'),
 );
@@ -40,8 +48,8 @@ const docsStatusButtonStyles = {
 	gap: '4px',
 	borderRadius: '100px',
 	border: '1px solid var(--stroke, #2B2E31)',
-	// background: 'var(--card-over-card, #27282B)',
-	color: 'white',
+	background: 'var(--popup)',
+	color: 'var(--primary-font)',
 	fontFamily: 'var(--primary-font-family)',
 	fontSize: '10px',
 	fontStyle: 'normal',
@@ -54,11 +62,37 @@ const sortOptions = [
 	{ label: 'A-Z', value: 'title', sortType: 1 },
 ];
 
-const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, clientId = null }) => {
+const docsCtaMapper = [
+	{
+		id: 0,
+		icon: <Link />,
+		action: 'copyDocLink',
+	},
+	// {
+	// 	id: 1,
+	// 	icon: <Copy />,
+	// 	action: 'duplicate',
+	// },
+	// {
+	// 	id: 2,
+	// 	icon: <Share />,
+	// 	action: 'share',
+	// },
+];
+
+const DocsGrid = ({
+	statusTextmapper,
+	handleCreateDoc,
+	handleTotalChange,
+	clientId = null,
+	viewMode,
+	setViewMode,
+}) => {
 	const navigate = useNavigate();
 
 	const {
 		templates: { getDocsFilesList, docsFilesList, updateStateValues, docsFilesRefetch },
+		profileInfo: { tennantSettingsData },
 	} = useContext(Context);
 	const mountedRef = useRef(true);
 
@@ -72,6 +106,8 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
 		searchQuery: '',
 	});
+
+	// Remove local viewMode state since it's now passed as prop
 
 	useEffect(() => {
 		if (!docsFilesList) {
@@ -96,6 +132,9 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 	}, [docsFilesRefetch]);
 
 	useEffect(() => {
+		// Skip animations when in list view
+		if (viewMode === 'list') return;
+
 		const delay =
 			info.selectedView === 'Classic Gallery' || info.selectedView === 'Lite Gallery'
 				? 100
@@ -180,7 +219,7 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 		}, delay);
 
 		return () => clearTimeout(timeout);
-	}, [info?.docs?.length]);
+	}, [info?.docs?.length, viewMode]);
 
 	useEffect(() => {
 		if (docsFilesList) {
@@ -188,11 +227,11 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 				currentPage = 1,
 				hasNextPage = false,
 				data = [],
-				// totalDocs = 0,
+				totalDocs = data.length,
 			} = docsFilesList || {};
 			const newDocs = currentPage === 1 ? [...data] : [...info?.docs, ...(data || [])];
 			handleStateUpdate({ docs: newDocs, currentPage, hasNextPage, loading: false });
-			// handleTotalChange(totalDocs);
+			handleTotalChange(totalDocs);
 		}
 	}, [docsFilesList]);
 
@@ -265,43 +304,97 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 		}
 	}, []);
 
+	const getDocLink = useCallback(
+		(doc) => {
+			if (!doc?._id || !tennantSettingsData) return null;
+
+			const workspaceId =
+				tennantSettingsData?.workspaceIds?.[tennantSettingsData?.workspaceIds?.length - 1];
+			const isCustomDomainExists = tennantSettingsData?.customDomain;
+
+			if (isCustomDomainExists) {
+				return `https://${tennantSettingsData.customDomain}/portal/${doc?.slug || doc._id}`;
+			} else {
+				return `https://${workspaceId}.ve.ai/portal/${doc?.slug || doc._id}`;
+			}
+		},
+		[tennantSettingsData],
+	);
+
+	const handleDocCta = ({ e, action, doc }) => {
+		e?.stopPropagation();
+		if (action === 'copyDocLink') {
+			const link = getDocLink(doc);
+			if (!link) {
+				message.error('Unable to copy document link!');
+				return;
+			}
+
+			if (!navigator?.clipboard) {
+				message.error('Clipboard access not supported!');
+				return;
+			}
+
+			navigator.clipboard
+				.writeText(link)
+				.then(() => message.success('Document link copied successfully!'))
+				.catch(() => message.error('Failed to copy document link!'));
+		} else if (action === 'duplicate') {
+			// Handle duplicate document
+			console.log('Duplicate doc:', doc);
+		} else if (action === 'share') {
+			// Handle share document
+			console.log('Share doc:', doc);
+		}
+	};
+
 	return (
 		<div className="card-sub-container-center">
-			<div className="center-container-header">
-				{/* <FilterDropdown
-					options={filterOptions}
-					selected={info?.selectedFilter}
-					onOptionClick={(value) => handleStateUpdate({ selectedFilter: value })}
-					width="130px"
-				/> */}
-				<FilterDropdown
-					options={sortOptions}
-					selected={info?.selectedSort}
-					onOptionClick={handleSortClick}
-					showSelectedEndArrow
-					width="180px"
-					hideOnOptionClick={false}
-				/>
-				<div className="filter-container-search">
-					<Search width={16} height={16} />
-					<input
-						type="text"
-						placeholder="Search"
-						value={info?.searchQuery}
-						onChange={(e) => handleStateUpdate({ searchQuery: e.target.value })}
-						className="search-input"
+			<div className="header-container">
+				<div className="center-container-header">
+					<FilterDropdown
+						options={sortOptions}
+						selected={info?.selectedSort}
+						onOptionClick={handleSortClick}
+						showSelectedEndArrow
+						width="180px"
+						hideOnOptionClick={false}
 					/>
-					{info?.searchLoading && info?.searchQuery?.length > 0 && (
-						<div className="search-spinner">
-							<Spinner
-								size="small"
-								width={16}
-								height={16}
-								borderWidth={1.5}
-								color="var(--primary-button)"
-							/>
-						</div>
-					)}
+					<div className="filter-container-search">
+						<Search width={16} height={16} />
+						<input
+							type="text"
+							placeholder="Search"
+							value={info?.searchQuery}
+							onChange={(e) => handleStateUpdate({ searchQuery: e.target.value })}
+							className="search-input"
+						/>
+						{info?.searchLoading && info?.searchQuery?.length > 0 && (
+							<div className="search-spinner">
+								<Spinner
+									size="small"
+									width={16}
+									height={16}
+									borderWidth={1.5}
+									color="var(--primary-button)"
+								/>
+							</div>
+						)}
+					</div>
+				</div>
+				<div className="view-mode">
+					<div
+						className={`view-mode-icon${viewMode === 'list' ? ' selected' : ''}`}
+						onClick={() => setViewMode('list')}
+					>
+						<ListViewIcon />
+					</div>
+					<div
+						className={`view-mode-icon${viewMode === 'card' ? ' selected' : ''}`}
+						onClick={() => setViewMode('card')}
+					>
+						<CardsViewIcon />
+					</div>
 				</div>
 			</div>
 			<div className="center-container-content">
@@ -316,72 +409,111 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 						hasMore={info?.hasNextPage}
 						height={'100%'}
 					>
-						<div className={`card-container`}>
-							<div
-								className="card-item create"
-								// onClick={handleCreateDoc}
-								onClick={
-									handleCreateDoc
-										? handleCreateDoc
-										: () => {
-												navigate(`/builder/create-document`);
-										  }
-								}
-							>
-								<div className="card-item-style card-item-style-btn">
-									<button className="card-btn">
-										<Plus />
-										Create Document
-									</button>
+						<div className={`card-container${viewMode === 'list' ? ' list-view' : ''}`}>
+							{viewMode === 'list' ? (
+								<div
+									className="card-item create"
+									onClick={
+										handleCreateDoc
+											? handleCreateDoc
+											: () => {
+													navigate('/builder/create-document');
+											  }
+									}
+								>
+									<div className="card-item-style card-item-style-btn docs-list-create-row">
+										<DocIcon className="create-doc-icon" />
+										<div className="doc-add-text">
+											<span className="create-doc-text">Create Document</span>
+											<span className="create-doc-subtext">
+												Begin a document that’s structured to grow with your
+												thinking.
+											</span>
+										</div>
+										<Add className="create-doc-plus" />
+									</div>
 								</div>
-							</div>
+							) : (
+								<div
+									className="card-item create"
+									onClick={
+										handleCreateDoc
+											? handleCreateDoc
+											: () => {
+													navigate(`/builder/create-document`);
+											  }
+									}
+								>
+									<div className="card-item-style card-item-style-btn">
+										<button className="card-btn">
+											<Plus />
+											Create Document
+										</button>
+									</div>
+								</div>
+							)}
 							{info?.docs?.map((doc, index) => (
 								<div
 									className="card-item "
 									key={index}
 									onClick={() => handleDocClick(doc)}
 								>
-									{/* <div className="card-item-style content-wrapper docs">
-										<div className="docs-card-bg">
-											{doc.firstModule[0]?._id && (
-												<DocumentShortPreview doc={doc} />
-											)}
-										</div>
-										<div className="docs-preview"></div>
-										<DocsStatusButton
-											content={statusTextmapper?.[doc?.status]?.text}
-											style={statusTextmapper?.[doc?.status]?.style}
-											dotStyle={statusTextmapper?.[doc?.status]?.dotStyle}
-										/>
-										<div className="docs-title-wrapper docs-card-container">
-											<span className="docs-item-title">{doc?.title}</span>
-											<span className="docs-item-sub-title">
-												{info?.selectedSort?.value === 'updatedAt' ? (
-													<Tooltip title="Updated On">
-														{moment.unix(doc?.updatedAt).fromNow()}
-													</Tooltip>
-												) : (
-													<Tooltip title="Created On">
-														{moment.unix(doc?.createdAt).fromNow()}
-													</Tooltip>
-												)}
-											</span>
-										</div>
-									</div> */}
 									<div
 										className="docsCardContainer"
 										onClick={() => handleDocClick(doc)}
 									>
-										<div className="docsCardPreview">
-											{doc?.firstModule[0]?._id && (
-												<Suspense fallback={<SuspenseFallback />}>
-													<DocumentShortPreview doc={doc} />
-												</Suspense>
-											)}
-										</div>
-										<div className="docsTitleContainer">
-											<div className="docsTitle">{doc?.title}</div>
-											<div className="docsSubtitleContainer">
+										{viewMode === 'card' ? (
+											<div className="docsCardPreview">
+												{doc?.firstModule[0]?._id && (
+													<Suspense fallback={<SuspenseFallback />}>
+														<DocumentShortPreview doc={doc} />
+													</Suspense>
+												)}
+												<div className="docsCardOverlay">
+													<div className="docsTitleOnPreview">
+														{doc?.title}
+													</div>
+													<div className="docsSubtitleOnPreview">
+														{info?.selectedSort?.value ===
+														'updatedAt' ? (
+															<Tooltip title="Updated On">
+																{moment
+																	.unix(doc?.updatedAt)
+																	.fromNow()}
+															</Tooltip>
+														) : (
+															<Tooltip title="Created On">
+																{moment
+																	.unix(doc?.createdAt)
+																	.fromNow()}
+															</Tooltip>
+														)}
+													</div>
+												</div>
+											</div>
+										) : (
+											<div className="docsListInfo">
+												<div className="docsListContent">
+													<div className="docsTitleOnPreview">
+														{doc?.title}
+													</div>
+													<div className="docsSubtitleOnPreview">
+														{info?.selectedSort?.value ===
+														'updatedAt' ? (
+															<Tooltip title="Updated On">
+																{moment
+																	.unix(doc?.updatedAt)
+																	.fromNow()}
+															</Tooltip>
+														) : (
+															<Tooltip title="Created On">
+																{moment
+																	.unix(doc?.createdAt)
+																	.fromNow()}
+															</Tooltip>
+														)}
+													</div>
+												</div>
 												<DocsStatusButton
 													content={statusTextmapper?.[doc?.status]?.text}
 													style={{
@@ -392,19 +524,56 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 														statusTextmapper?.[doc?.status]?.dotStyle
 													}
 												/>
-												<div className="docsSubtitle">
-													{info?.selectedSort?.value === 'updatedAt' ? (
-														<Tooltip title="Updated On">
-															{moment.unix(doc?.updatedAt).fromNow()}
-														</Tooltip>
-													) : (
-														<Tooltip title="Created On">
-															{moment.unix(doc?.createdAt).fromNow()}
-														</Tooltip>
-													)}
+												<div className="cta-container">
+													{docsCtaMapper?.map((cta) => (
+														<div
+															className="cta"
+															key={cta?.id}
+															onClick={(e) =>
+																handleDocCta({
+																	e,
+																	action: cta?.action,
+																	doc: doc,
+																})
+															}
+														>
+															{cta?.icon}
+														</div>
+													))}
 												</div>
 											</div>
-										</div>
+										)}
+										{viewMode === 'card' && (
+											<div className="docsTitleContainer">
+												<DocsStatusButton
+													content={statusTextmapper?.[doc?.status]?.text}
+													style={{
+														...statusTextmapper?.[doc?.status]?.style,
+														...docsStatusButtonStyles,
+													}}
+													dotStyle={
+														statusTextmapper?.[doc?.status]?.dotStyle
+													}
+												/>
+												<div className="cta-container">
+													{docsCtaMapper?.map((cta) => (
+														<div
+															className="cta"
+															key={cta?.id}
+															onClick={(e) =>
+																handleDocCta({
+																	e,
+																	action: cta?.action,
+																	doc: doc,
+																})
+															}
+														>
+															{cta?.icon}
+														</div>
+													))}
+												</div>
+											</div>
+										)}
 									</div>
 								</div>
 							))}

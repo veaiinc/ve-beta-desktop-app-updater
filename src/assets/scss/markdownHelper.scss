@@ -5,7 +5,7 @@
 	align-items: flex-end;
 	position: relative;
 	width: 100%;
-	gap: 16px;
+	// gap: 16px;
 
 	.user-message-wrapper {
 		width: fit-content;
@@ -15,7 +15,7 @@
 
 			.user-message-renderer-container {
 				background: var(--card-hover, #18191b);
-				border-radius: 16px;
+				border-radius: 8px;
 				color: var(--primary-font, #f2f2f3);
 				font-family: var(--chat-primary-font-family);
 				font-size: 16px;

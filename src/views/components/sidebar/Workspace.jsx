@@ -20,7 +20,12 @@ const workspaceOpenStyle = {
 
 const workspaceStyle = { display: 'flex', gap: '4px', alignItems: 'center' };
 const currentId = localStorage.getItem('workspaceId');
-const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, info }) => {
+const WorkspaceListComponent = ({
+	sidebarStates,
+	setsidebarStates,
+	info,
+	isThisEarlyAccessPage,
+}) => {
 	const {
 		profileInfo: { userWorkSpaceList },
 	} = useContext(Context);
@@ -121,7 +126,11 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, info }) => {
 			{sidebarStates?.workSpaceOpen && (
 				<div style={workspaceOpenStyle} onClick={closeWorkspaceList} />
 			)}
-			<div className="workspaceListComponent">
+			<div
+				className={`workspaceListComponent ${
+					isThisEarlyAccessPage ? 'earlyAccessPage' : ''
+				}`}
+			>
 				<div className="workspaceListHeader">
 					<div className="backContinaer" onClick={closeWorkspaceList}>
 						<h6>Switch Workspace</h6>

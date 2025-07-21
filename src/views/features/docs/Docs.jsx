@@ -147,6 +147,11 @@ export const FilterIcons = {
 };
 
 export const DocsStatusButton = ({ content = '', style = {}, textStyle = {}, dotStyle = {} }) => {
+	// Don't render if there's no content
+	if (!content || content.trim() === '') {
+		return null;
+	}
+
 	return (
 		<div className="DocsStatusButtonOuterContainer" style={{ ...style }}>
 			<div className="DocsStatusCircle" style={{ ...dotStyle }}></div>
