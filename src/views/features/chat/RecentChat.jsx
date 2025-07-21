@@ -2,7 +2,7 @@ import React, { memo, useCallback, useState, useRef, useEffect, useContext, Frag
 import '../../../assets/scss/chat/chat.scss';
 import {
 	handleDeepSearchChainOfThought,
-	handleDeepResearchChainOfThought,
+	handleDeepResearchChainOfThought
 } from '../../../helpers/chatHelpers';
 import Context from '../../../context/context';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
@@ -30,7 +30,7 @@ const RecentChat = ({
 	onNavigateBack = null,
 	showCitationsButton = true,
 	showDeleteChat = true,
-	animateChatBox = true,
+	animateChatBox = true
 }) => {
 	const {
 		templates: {
@@ -43,15 +43,15 @@ const RecentChat = ({
 			chatInfo,
 			updateChatLoadingSessions,
 			newChatSessionIds,
-			getFollowUpQueries,
+			getFollowUpQueries
 		},
 		aiSetup: { updateAiChatSessions, aiChatSessions },
 		chatStream: {
 			createWebSocketConnection,
 			sendMessage,
 			closeWebSocketConnection,
-			removeCurrentSessionId,
-		},
+			removeCurrentSessionId
+		}
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -79,7 +79,7 @@ const RecentChat = ({
 		getFollowUpQueries: false,
 		chatQuery: '',
 		citationsAiMessageIndex: null,
-		citationsModalIsOpen: false,
+		citationsModalIsOpen: false
 	});
 
 	const chatContentRef = useRef(null);
@@ -130,28 +130,28 @@ const RecentChat = ({
 					citations: null,
 					chatPayload: {
 						workflowTemplateId: null,
-						moduleTemplateId: null,
+						moduleTemplateId: null
 					},
 					chatReplyData: null,
-					aiMessagesInfo: null,
+					aiMessagesInfo: null
 				});
 			}, 0);
 
 			const sessionIdsToClose = newChatSessionIdsRef?.current?.filter(
-				(id) => !globalChatMessagesRef?.current?.[id]?.isStreaming,
+				(id) => !globalChatMessagesRef?.current?.[id]?.isStreaming
 			);
 			if (sessionIdsToClose?.length > 0) {
 				closeWebSocketConnection(sessionIdsToClose);
 			}
 			handleGlobalChatMessages({
 				removeChatSessions: true,
-				updateExtraInfo: true,
+				updateExtraInfo: true
 			});
 			removeCurrentSessionId();
 			updateStateValues({
 				newChatSessionIds: [],
 				currentSessionId: null,
-				currentChatData: null,
+				currentChatData: null
 			});
 		};
 	}, []);
@@ -166,12 +166,12 @@ const RecentChat = ({
 				if (session === -1) {
 					setInfo((prev) => ({
 						...prev,
-						isNewChat: true,
+						isNewChat: true
 					}));
 				} else {
 					setInfo((prev) => ({
 						...prev,
-						isNewChat: false,
+						isNewChat: false
 					}));
 				}
 			}
@@ -195,7 +195,7 @@ const RecentChat = ({
 			}
 			setInfo((prev) => ({
 				...prev,
-				getFollowUpQueries: false,
+				getFollowUpQueries: false
 			}));
 		}
 	}, [info?.getFollowUpQueries]);
@@ -215,12 +215,12 @@ const RecentChat = ({
 			updateStateValues({
 				documentPreviewIds: {
 					workflowTemplateId: workflow_template_id,
-					moduleTemplateId: module_template_id,
-				},
+					moduleTemplateId: module_template_id
+				}
 			});
 			setInfo((prev) => ({
 				...prev,
-				latestStreamMesage: null,
+				latestStreamMesage: null
 			}));
 		}
 	}, [info?.latestStreamMesage]);
@@ -234,9 +234,9 @@ const RecentChat = ({
 					citations: null,
 					chatPayload: {
 						workflowTemplateId: null,
-						moduleTemplateId: null,
+						moduleTemplateId: null
 					},
-					aiMessagesInfo: null,
+					aiMessagesInfo: null
 				});
 				tabsRefs.current = {};
 				userMessagesRefs.current = {};
@@ -244,7 +244,7 @@ const RecentChat = ({
 					...prev,
 					scrollExecuted: false,
 					citationsModalIsOpen: false,
-					citationsAiMessageIndex: null,
+					citationsAiMessageIndex: null
 				}));
 			}
 			if (currentUserMessageTimeoutRef.current) {
@@ -262,10 +262,10 @@ const RecentChat = ({
 			// }
 
 			const sessionIdsToClose = newChatSessionIds?.filter(
-				(id) => !globalChatMessages?.[id]?.isStreaming,
+				(id) => !globalChatMessages?.[id]?.isStreaming
 			);
 			const sessionIdsStillOpen = newChatSessionIds?.filter(
-				(id) => globalChatMessages?.[id]?.isStreaming,
+				(id) => globalChatMessages?.[id]?.isStreaming
 			);
 			if (sessionIdsToClose?.length > 0) {
 				closeWebSocketConnection(sessionIdsToClose);
@@ -275,18 +275,18 @@ const RecentChat = ({
 			handleGlobalChatMessages({
 				sessionId,
 				removeChatSessions: true,
-				updateExtraInfo: true,
+				updateExtraInfo: true
 			});
 
 			setInfo((prev) => ({
 				...prev,
 				chatLoading: true,
 				chatSessionId: sessionId,
-				renderingTwice: true,
+				renderingTwice: true
 			}));
 			updateStateValues({
 				currentSessionId: sessionId,
-				newChatSessionIds: newChatSessionIdsRef.current,
+				newChatSessionIds: newChatSessionIdsRef.current
 			});
 		}
 	}, [sessionId]);
@@ -318,7 +318,7 @@ const RecentChat = ({
 			}, 0);
 			setInfo((prev) => ({
 				...prev,
-				scrollExecuted: true,
+				scrollExecuted: true
 			}));
 		}
 	}, [globalChatMessages, sessionId]);
@@ -426,7 +426,7 @@ const RecentChat = ({
 			const firstTimeApiCall = true;
 			recentChatHandler(recentChatStorage, false, firstTimeApiCall);
 			updateStateValues({
-				recentChatStorage: null,
+				recentChatStorage: null
 			});
 		}
 	}, [recentChatStorage]);
@@ -436,7 +436,7 @@ const RecentChat = ({
 			const firstTimeApiCall = false;
 			recentChatHandler(moreRecentChatStorage, true, firstTimeApiCall);
 			updateStateValues({
-				moreRecentChatStorage: null,
+				moreRecentChatStorage: null
 			});
 		}
 	}, [moreRecentChatStorage]);
@@ -444,7 +444,7 @@ const RecentChat = ({
 	const handleChatQueryChange = useCallback((query) => {
 		setInfo((prev) => ({
 			...prev,
-			chatQuery: query,
+			chatQuery: query
 		}));
 	}, []);
 
@@ -462,7 +462,7 @@ const RecentChat = ({
 
 				// Get the infinite scroll container height
 				const infiniteScrollContainer = document?.querySelector(
-					'.infinite-scroll-component__outerdiv',
+					'.infinite-scroll-component__outerdiv'
 				);
 				const containerRect = infiniteScrollContainer?.getBoundingClientRect();
 
@@ -475,8 +475,8 @@ const RecentChat = ({
 					tooltipStyles: {
 						selectedText,
 						visible: true,
-						styles: { top: relativeY, left: relativeX },
-					},
+						styles: { top: relativeY, left: relativeX }
+					}
 				}));
 			}
 		} else {
@@ -489,8 +489,8 @@ const RecentChat = ({
 					tooltipStyles: {
 						selectedText: prev?.tooltipStyles?.selectedText,
 						visible: false,
-						styles: { top: 0, left: 0 },
-					},
+						styles: { top: 0, left: 0 }
+					}
 				};
 			});
 		}
@@ -507,12 +507,12 @@ const RecentChat = ({
 		if (isNearBottom && info?.showScrollButton) {
 			setInfo((prev) => ({
 				...prev,
-				showScrollButton: false,
+				showScrollButton: false
 			}));
 		} else if (!isNearBottom && !info?.showScrollButton) {
 			setInfo((prev) => ({
 				...prev,
-				showScrollButton: true,
+				showScrollButton: true
 			}));
 		}
 	}, [info?.showScrollButton]);
@@ -533,7 +533,7 @@ const RecentChat = ({
 			let messages = [];
 			let chatPayload = {
 				workflowTemplateId: null,
-				moduleTemplateId: null,
+				moduleTemplateId: null
 			};
 			for (let i = 0; i < data?.length; i++) {
 				const {
@@ -548,12 +548,18 @@ const RecentChat = ({
 					rating,
 					designAgentsUsed,
 					toolInvocations,
+					agentType
 				} = data?.[i] || {};
+
+				const paramsAgentType = searchParams?.get('agentType');
+				if (agentType === 'knowledge_agent' && paramsAgentType !== 'knowledge_agent') {
+					continue;
+				}
 
 				if (firstTimeApiCall) {
 					chatPayload = {
 						workflowTemplateId: workflowTemplateId || null,
-						moduleTemplateId: moduleTemplateId || null,
+						moduleTemplateId: moduleTemplateId || null
 					};
 				}
 				let processing = null,
@@ -592,7 +598,7 @@ const RecentChat = ({
 				messages = [
 					{
 						message: originalQuery,
-						type: 'user',
+						type: 'user'
 					},
 					{
 						message: response,
@@ -611,8 +617,8 @@ const RecentChat = ({
 						...(processing === 'Deep Search' && { deepSearch }),
 						...(processing === 'Deep Research' && { deepResearch }),
 						...(processing === 'Normal Search' && { normalSearch }),
-						...(memoryThinking && { memory_thinking: memoryThinking }),
-					},
+						...(memoryThinking && { memory_thinking: memoryThinking })
+					}
 				]?.concat(messages);
 			}
 
@@ -623,7 +629,7 @@ const RecentChat = ({
 					recentChatMessages: messages,
 					updateExtraInfo: true,
 					...(chatPayload?.moduleTemplateId &&
-						chatPayload?.workflowTemplateId && { chatPayload }),
+						chatPayload?.workflowTemplateId && { chatPayload })
 				});
 			}
 			// updateStateValues({
@@ -665,20 +671,20 @@ const RecentChat = ({
 
 			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
 		},
-		[sessionId],
+		[sessionId, searchParams]
 	);
 
 	const handleNoteComponentModalClose = useCallback(() => {
 		setInfo((prev) => ({
 			...prev,
-			noteModalIsOpen: false,
+			noteModalIsOpen: false
 		}));
 	}, []);
 
 	const handleNoteComponentModalOpen = useCallback(() => {
 		setInfo((prev) => ({
 			...prev,
-			noteModalIsOpen: true,
+			noteModalIsOpen: true
 		}));
 	}, []);
 
@@ -690,7 +696,7 @@ const RecentChat = ({
 			const scrollToPosition = (position) => {
 				scrollElement?.scrollTo({
 					top: position,
-					behavior: type === 'instant' ? 'auto' : 'smooth',
+					behavior: type === 'instant' ? 'auto' : 'smooth'
 				});
 			};
 
@@ -702,7 +708,7 @@ const RecentChat = ({
 				scrollToPosition(scrollElement?.scrollHeight);
 			}
 		},
-		[chatContentRef?.current, info?.initialRendering],
+		[chatContentRef?.current, info?.initialRendering]
 	);
 
 	const smoothScrollToLastMessage = useCallback(() => {
@@ -718,7 +724,7 @@ const RecentChat = ({
 		const scrollOffset = lastUserMessageTop - scrollElementTop;
 		scrollElement?.scrollBy({
 			top: scrollOffset,
-			behavior: 'smooth',
+			behavior: 'smooth'
 		});
 	}, []);
 
@@ -731,7 +737,7 @@ const RecentChat = ({
 		const scrollOffset = messageElementTop - scrollElementTop;
 		chatContentRef?.current?.scrollBy({
 			top: scrollOffset,
-			behavior: 'smooth',
+			behavior: 'smooth'
 		});
 
 		if (currentUserMessageTimeoutRef.current) {
@@ -739,12 +745,12 @@ const RecentChat = ({
 		}
 		setInfo((prev) => ({
 			...prev,
-			currentUserMessageIndex: index,
+			currentUserMessageIndex: index
 		}));
 		currentUserMessageTimeoutRef.current = setTimeout(() => {
 			setInfo((prev) => ({
 				...prev,
-				currentUserMessageIndex: null,
+				currentUserMessageIndex: null
 			}));
 			currentUserMessageTimeoutRef.current = null;
 		}, 2000);
@@ -758,7 +764,7 @@ const RecentChat = ({
 			getRecentChatMessages(sessionId, info?.currentPage + 1, true, isPublicChat);
 			setInfo((prev) => ({ ...prev, chatLoading: true }));
 		}, 1000),
-		[info, sessionId, isPublicChat],
+		[info, sessionId, isPublicChat]
 	);
 
 	// stream chat
@@ -771,7 +777,7 @@ const RecentChat = ({
 				handleGlobalChatMessages({
 					payload: data,
 					sessionId,
-					updateExtraInfo: true,
+					updateExtraInfo: true
 				});
 				return;
 			}
@@ -790,7 +796,7 @@ const RecentChat = ({
 				if (data?.agent_id) {
 					agentTimeoutIdRef.current = setTimeout(() => {
 						navigate(
-							`/agent/${data?.agent_id}?config=prompt&agentAction=buildAgent&sId=${sessionId}`,
+							`/agent/${data?.agent_id}?config=prompt&agentAction=buildAgent&sId=${sessionId}`
 						);
 					}, 1000);
 				}
@@ -804,24 +810,24 @@ const RecentChat = ({
 						data?.workflow_template_id && {
 							chatPayload: {
 								moduleTemplateId: data?.module_template_id,
-								workflowTemplateId: data?.workflow_template_id,
-							},
+								workflowTemplateId: data?.workflow_template_id
+							}
 						}),
-					latestStreamMessage: data,
+					latestStreamMessage: data
 				});
 
 				if (chatMessagesRef?.current?.length === 2) {
 					const payload = {
 						sessionId,
 						page: 1,
-						limit: 5,
+						limit: 5
 					};
 					updateAiChatSessions(payload);
 				}
 				setInfo((prev) => ({
 					...prev,
 					latestStreamMesage: data,
-					...(sessionId === currentSessionId && { getFollowUpQueries: true }),
+					...(sessionId === currentSessionId && { getFollowUpQueries: true })
 				}));
 			}
 			const { message_chunk_id } = data;
@@ -833,12 +839,12 @@ const RecentChat = ({
 					updateExtraInfo: false,
 					...(data?.stream_end &&
 						sessionId !== currentSessionId && {
-							removeChatSession: true,
-						}),
+							removeChatSession: true
+						})
 				});
 			}
 		},
-		[globalChatMessages, sessionId],
+		[globalChatMessages, sessionId]
 	);
 
 	const handleSendWebsocketMessage = useCallback(
@@ -851,7 +857,7 @@ const RecentChat = ({
 				handleGlobalChatMessages({
 					sessionId,
 					lastQuery,
-					updateExtraInfo: true,
+					updateExtraInfo: true
 				});
 			} catch (error) {
 				const info = typeof error?.message === 'string' ? error?.message || '' : '';
@@ -861,13 +867,13 @@ const RecentChat = ({
 				handleGlobalChatMessages({
 					sessionId,
 					updateExtraInfo: true,
-					removeStreaming: true,
+					removeStreaming: true
 				});
 
 				// Handle error appropriately (show notification, etc.)
 			}
 		},
-		[sendMessage, sessionId],
+		[sendMessage, sessionId]
 	);
 
 	const handleViewDocument = useCallback((value) => {
@@ -878,7 +884,7 @@ const RecentChat = ({
 		setInfo((prev) => ({
 			...prev,
 			citationsModalIsOpen: false,
-			citationsAiMessageIndex: null,
+			citationsAiMessageIndex: null
 		}));
 	}, []);
 
@@ -887,17 +893,17 @@ const RecentChat = ({
 			setInfo((prev) => {
 				if (index !== prev?.citationsAiMessageIndex) {
 					updateStateValues({
-						chatSources: globalChatMessages?.[sessionId]?.messages?.[index]?.citations,
+						chatSources: globalChatMessages?.[sessionId]?.messages?.[index]?.citations
 					});
 				}
 				return {
 					...prev,
 					citationsModalIsOpen: index !== prev?.citationsAiMessageIndex,
-					citationsAiMessageIndex: index !== prev?.citationsAiMessageIndex ? index : null,
+					citationsAiMessageIndex: index !== prev?.citationsAiMessageIndex ? index : null
 				};
 			});
 		},
-		[globalChatMessages, sessionId, updateStateValues],
+		[globalChatMessages, sessionId, updateStateValues]
 	);
 
 	return (
@@ -906,7 +912,7 @@ const RecentChat = ({
 				className="chat-container"
 				style={{
 					height: isPublicChat ? 'calc(100% - 32px)' : '',
-					width: info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%',
+					width: info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%'
 				}}
 			>
 				{/* header */}
@@ -946,7 +952,7 @@ const RecentChat = ({
 								display: 'flex',
 								flexDirection: 'column-reverse',
 								transition: 'all 0.3s ease',
-								overflow: 'visible',
+								overflow: 'visible'
 							}}
 							scrollThreshold={0.8}
 							className="smooth-scroll"
@@ -967,7 +973,7 @@ const RecentChat = ({
 															?.length -
 															1
 															? `calc(${chatContentRef?.current?.clientHeight}px - 185px)`
-															: 'auto',
+															: 'auto'
 												}}
 											>
 												<div className="message-content">
@@ -982,8 +988,8 @@ const RecentChat = ({
 																		info?.currentUserMessageIndex +
 																			1
 																			? 1
-																			: 0.6,
-																}),
+																			: 0.6
+																})
 															}}
 															// style={{
 															// 	opacity:
@@ -1065,8 +1071,8 @@ const RecentChat = ({
 																		index ===
 																		info?.currentUserMessageIndex
 																			? 1
-																			: 0.6,
-																}),
+																			: 0.6
+																})
 															}}
 														>
 															<UserMessageRenderer
@@ -1076,7 +1082,7 @@ const RecentChat = ({
 													)}
 												</div>
 											</div>
-										),
+										)
 								)}
 							</div>
 						</InfiniteScroll>

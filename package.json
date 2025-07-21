@@ -1,11 +1,11 @@
 {
-	"name": "Ve AI",
+	"name": "VEAI",
 	"description": "Your living intelligence remembers everything, sees what you see, figures out your goals, and doesn’t stop until they're done.",
 	"version": "v0.1.5",
 	"private": true,
 	"main": "dist-electron/main.js",
 	"author": "Ve AI",
-	"repository": "https://github.com/gowthamveai/ve-desktop-app-updater",
+	"repository": "https://github.com/veaiinc/ve-desktop-app-updater",
 	"scripts": {
 		"dev": "NODE_ENV=development npm run clean:build && vite",
 		"start": "electron .",

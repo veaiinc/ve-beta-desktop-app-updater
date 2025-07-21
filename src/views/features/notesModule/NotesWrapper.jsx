@@ -11,7 +11,7 @@ import { useSearchParams } from 'react-router-dom';
 
 const NotesWrapper = () => {
 	const {
-		templates: { aiTranscriptionSuggestions, updateStateValues },
+		templates: { aiTranscriptionSuggestions, updateStateValues }
 	} = useContext(Context);
 	const [searchParams] = useSearchParams();
 	const isAiIntelligenceEnabled = searchParams.get('isAiIntelligenceEnabled');
@@ -19,12 +19,12 @@ const NotesWrapper = () => {
 		modalIsOpen: false,
 		sessionId: ObjectID()?.toString(),
 		showAmbientAssistance: isAiIntelligenceEnabled === 'true',
-		chatOpen: false,
+		chatOpen: false
 	});
 
 	useEffect(() => {
 		updateStateValues({
-			leftSidebarState: 'close',
+			leftSidebarState: 'close'
 		});
 	}, []);
 
@@ -34,14 +34,14 @@ const NotesWrapper = () => {
 			if (info?.chatOpen) {
 				setInfo((prev) => ({
 					...prev,
-					chatOpen: false,
+					chatOpen: false
 				}));
 			}
 		} else if (chat === 'true') {
 			if (!info?.chatOpen) {
 				setInfo((prev) => ({
 					...prev,
-					chatOpen: true,
+					chatOpen: true
 				}));
 			}
 		}
@@ -60,7 +60,7 @@ const NotesWrapper = () => {
 	const handleCloseModal = useCallback(() => {
 		setInfo((prev) => ({
 			...prev,
-			modalIsOpen: false,
+			modalIsOpen: false
 		}));
 	}, []);
 
@@ -75,13 +75,13 @@ const NotesWrapper = () => {
 				<div
 					className="noteChatWrapper"
 					style={{
-						width: info?.chatOpen ? '400px' : '0px',
+						width: info?.chatOpen ? '400px' : '0px'
 					}}
 				>
 					<div
 						className="chat-wrapper"
 						style={{
-							transform: info?.chatOpen ? 'translateX(0%)' : 'translateX(-100%)',
+							transform: info?.chatOpen ? 'translateX(0%)' : 'translateX(-100%)'
 						}}
 					>
 						<RecentChat
@@ -103,7 +103,7 @@ const NotesWrapper = () => {
 					/>
 				</div>
 			</div>
-			<div
+			{/* <div
 				className={`switchContainer ${
 					info?.showAmbientAssistance ? 'SuggestionSidebarActive' : ''
 				}`}
@@ -117,15 +117,15 @@ const NotesWrapper = () => {
 						}));
 					}}
 				/>
-			</div>
-			{info?.showAmbientAssistance && (
+			</div> */}
+			{/* {info?.showAmbientAssistance && (
 				<AiTranscriptionSuggestions
 					data={aiTranscriptionSuggestions || []}
 					modalIsOpen={info?.modalIsOpen}
 					closeModal={handleCloseModal}
 					showAmbientAssistance={info?.showAmbientAssistance}
 				/>
-			)}
+			)} */}
 		</div>
 	);
 };
