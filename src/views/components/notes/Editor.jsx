@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useEffect, useRef } from 'react';
+import { createContext, useCallback, useEffect, useRef, memo } from 'react';
 import '@blocknote/core/fonts/inter.css';
 // import { createBlock } from '@blocknote/core';
 import '@blocknote/mantine/style.css';
@@ -476,4 +476,4 @@ const Editor = ({
 	);
 };
 
-export default Editor;
+export default memo(Editor);
