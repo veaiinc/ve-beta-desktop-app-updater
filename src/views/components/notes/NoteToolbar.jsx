@@ -9,6 +9,7 @@ import {
 	FormattingToolbar,
 	FormattingToolbarController,
 	NestBlockButton,
+	TableCellMergeButton,
 	TextAlignButton,
 	UnnestBlockButton,
 } from '@blocknote/react';
@@ -22,6 +23,7 @@ const NoteToolbar = ({ sendMessage, aiResonse, resetAiResponse }) => {
 		<FormattingToolbarController
 			formattingToolbar={() => (
 				<FormattingToolbar>
+					<TableCellMergeButton key={'tableCellMergeButton'} />
 					<BlockTypeSelect key={'blockTypeSelect'} />
 
 					<TextColorPicker key={'colorStyleButton1'} />
