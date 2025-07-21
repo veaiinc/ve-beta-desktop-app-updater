@@ -1,7 +1,7 @@
 {
 	"name": "VEAI",
 	"description": "Your living intelligence remembers everything, sees what you see, figures out your goals, and doesn’t stop until they're done.",
-	"version": "v0.1.6",
+	"version": "v0.1.7",
 	"private": true,
 	"main": "dist-electron/main.js",
 	"author": "Ve AI",
@@ -138,7 +138,7 @@
 		},
 		"mac": {
 			"icon": "./electron/assets/app-logo.icns",
-			"artifactName": "${productName}-${version}-${arch}-${os}.${ext}",
+			"artifactName": "Ve.AI-${version}-${arch}-${os}.${ext}",
 			"category": "public.app-category.business",
 			"type": "distribution",
 			"gatekeeperAssess": false,
@@ -158,7 +158,7 @@
 				}
 			],
 			"icon": "./electron/assets/app-logo.ico",
-			"artifactName": "${productName}-${version}-${arch}-${os}.${ext}"
+			"artifactName": "Ve.AI-${version}-${arch}-${os}.${ext}"
 		},
 		"linux": {
 			"target": [
@@ -170,7 +170,7 @@
 				}
 			],
 			"icon": "./electron/assets/app-logo.png",
-			"artifactName": "${productName}-${version}-${arch}-${os}.${ext}"
+			"artifactName": "Ve.AI-${version}-${arch}-${os}.${ext}"
 		}
 	},
 	"eslintConfig": {

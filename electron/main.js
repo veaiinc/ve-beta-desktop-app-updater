@@ -38,8 +38,8 @@ function createWindow() {
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
 			nodeIntegration: false,
-			contextIsolation: true
-		}
+			contextIsolation: true,
+		},
 	});
 
 	// Load your front-end
@@ -69,11 +69,11 @@ autoUpdater.on('checking-for-update', () => {
 	}
 });
 autoUpdater.on('update-available', (info) => {
-	log.info('Update available:', info);
+	log.info('Update available, download started:', info);
 	if (mainWindow) {
 		mainWindow.webContents.send('update-status', {
-			status: 'available',
-			version: info.version
+			status: 'download-started',
+			version: info.version,
 		});
 	}
 });
@@ -85,23 +85,50 @@ autoUpdater.on('update-not-available', (info) => {
 });
 autoUpdater.on('error', (err) => {
 	log.error('Error during update:', err); // Log error
+	log.error('Error details:', {
+		message: err.message,
+		stack: err.stack,
+		code: err.code,
+		errno: err.errno,
+	});
 	if (mainWindow) {
 		mainWindow.webContents.send('update-status', {
 			status: 'error',
-			error: err.message
+			error: err.message,
+			details: {
+				code: err.code,
+				errno: err.errno,
+			},
 		});
 	}
 });
+// Removed download-progress event handler to avoid showing downloading status
+
 autoUpdater.on('update-downloaded', (info) => {
-	log.info('Update downloaded:', info); // Log downloaded update
+	log.info('Update download completed:', info); // Log downloaded update
 	if (mainWindow) {
 		mainWindow.webContents.send('update-status', {
-			status: 'downloaded',
-			version: info.version
+			status: 'download-completed',
+			version: info.version,
 		});
+
+		// Show notification to user that app will restart
+		mainWindow.webContents.send('update-status', {
+			status: 'restarting',
+			version: info.version,
+			message:
+				'Update downloaded successfully. The app will restart in 3 seconds to install the new version.',
+		});
+
+		// Wait 3 seconds then quit and install
+		setTimeout(() => {
+			log.info('Quitting app to install update');
+			autoUpdater.quitAndInstall();
+		}, 3000);
+	} else {
+		// If mainWindow is not available, quit immediately
+		autoUpdater.quitAndInstall();
 	}
-	// Trigger update install when the app is quit
-	autoUpdater.quitAndInstall();
 });
 
 app.whenReady().then(() => {
@@ -139,6 +166,23 @@ ipcMain.handle('download-update', async () => {
 		return { success: true, message: 'Download started' };
 	} catch (error) {
 		log.error('Error downloading update:', error);
+		return { success: false, error: error.message };
+	}
+});
+
+// Add handler for manual restart after update
+ipcMain.handle('restart-app', async () => {
+	log.info('Manual restart triggered by renderer');
+	try {
+		if (process.env.NODE_ENV === 'development') {
+			return { success: false, error: 'Restart not available in development mode' };
+		}
+
+		// Quit and install the update
+		autoUpdater.quitAndInstall();
+		return { success: true, message: 'App restarting to install update' };
+	} catch (error) {
+		log.error('Error restarting app:', error);
 		return { success: false, error: error.message };
 	}
 });

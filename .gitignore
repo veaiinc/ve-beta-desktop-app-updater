@@ -31,3 +31,4 @@ secrets/
 package-mac-signed.sh
 
 sync.sh
+script.sh

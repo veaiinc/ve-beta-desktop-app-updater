@@ -267,7 +267,7 @@ const Files = () => {
 		cardHover: false,
 		isLoading: false,
 		selectedView: 'Documents',
-		viewMode: searchParams?.get('viewMode') || 'card', 
+		viewMode: searchParams?.get('viewMode') || 'card',
 		openProposalPopup: false,
 		initialDataFetched: false,
 		commonState: 'All',
@@ -672,7 +672,7 @@ const Files = () => {
 		Documents: (
 			<DocsGrid
 				statusTextmapper={statusTextmapper}
-				handleCreateDoc={() => (window.location.href = `/builder/create-document`)}
+				handleCreateDoc={() => navigate(`/builder/create-document`)}
 				handleTotalChange={(value) => handleTotalChange({ workflow: value })}
 				viewMode={info?.viewMode}
 				setViewMode={setViewMode}
