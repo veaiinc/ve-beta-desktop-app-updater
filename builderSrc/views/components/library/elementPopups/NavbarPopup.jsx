@@ -8,6 +8,9 @@ import { ReactComponent as Option4 } from '../../library/svgs/Navbar/ForthOption
 import { ReactComponent as Cart } from '../../library/svgs/Navbar/Cart/Cart1.svg';
 import { ReactComponent as Hamburger } from '../../library/svgs/Navbar/Hamburger/Hamberger4.svg';
 import _ from 'lodash';
+import { ElementSidebar } from '../../builder_client_common';
+import NavImagePopup from './NavImagePopup';
+
 class NavbarPopup extends React.Component {
 	constructor(props) {
 		super(props);
@@ -44,7 +47,7 @@ class NavbarPopup extends React.Component {
 			type == 'position' ||
 			type == 'downloadIcon' ||
 			type == 'cartValue' ||
-			type == 'sectionBackgroundColor' 
+			type == 'sectionBackgroundColor'
 		) {
 			this.setState({ activeNavbarAlign: value });
 			newComponent = {
@@ -60,6 +63,7 @@ class NavbarPopup extends React.Component {
 	};
 
 	handleEditDesign = (type) => {
+		// console.log(type, 'jeevan');
 		this.setState({ activeEditDesign: type });
 	};
 	handleOptionClick = (option) => {
@@ -93,53 +97,42 @@ class NavbarPopup extends React.Component {
 						Background
 					</div>
 				</div>
-				{this.state.activeEditDesign === 'design' && (
-					<div className="navbar-design-body">
-						<div className="fixed-possition">
-							<div className="toggle-navbar">
-								<div
-									className=" bs-item bs-item-row animated-item"
-									style={{
-										display: 'flex',
-										justifyContent: 'space-between',
-										textTransform: 'capitalize',
-										fontSize: '12px',
-										color: '#E8E8E8',
-										width: '100%',
-									}}
-								>
-									<span
-									// style={{ textTransform: 'capitalize' }}
-									>
-										Fixed Position
-									</span>
+				<div className="navbar-options-container">
+					<div className="navbar-options">
+						<span
+							onClick={() => this.handleEditDesign('design')}
+							className={`navbar-option ${
+								this.state.activeEditDesign === 'design'
+									? 'navbar-title-active'
+									: ''
+							}`}
+						>
+							Styles
+						</span>
+						<span className="h_line" />
+						<span
+							onClick={() => this.handleEditDesign('logo')}
+							className={`navbar-option ${
+								this.state.activeEditDesign === 'logo' ? 'navbar-title-active' : ''
+							}`}
+						>
+							Logo
+						</span>
+						<span className="h_line" />
+						<span
+							onClick={() => this.handleEditDesign('icons')}
+							className={`navbar-option ${
+								this.state.activeEditDesign === 'icons' ? 'navbar-title-active' : ''
+							}`}
+						>
+							Icons
+						</span>
+					</div>
+				</div>
 
-									<label
-										className="switch"
-										onClick={() => {
-											this.handleNavbarStyles(
-												'position',
-												!this.state.activeComponent?.style?.position,
-											);
-										}}
-									>
-										<input
-											type="checkbox"
-											checked={
-												this.state.activeComponent?.style?.position || false
-											}
-										/>
-										<span
-											style={{
-												backgroundColor:
-													this.state.activeComponent?.style?.position &&
-													'#F1F1F1',
-											}}
-											className="slider-round-white round"
-										></span>
-									</label>
-								</div>
-							</div>
+				<div className="navbar-design-body">
+					{this.state.activeEditDesign === 'logo' && (
+						<>
 							<div
 								className=" bs-item bs-item-row animated-item"
 								style={{
@@ -182,6 +175,19 @@ class NavbarPopup extends React.Component {
 									></span>
 								</label>
 							</div>
+							{/* <NavImagePopup /> */}
+
+							<div className="bs-item ">
+								<span className="bs-item-title">Site title</span>
+								<div className="bs-item-input">
+									<span className="bs-item-input-text">Add Site Title</span>
+								</div>
+							</div>
+						</>
+					)}
+
+					{this.state.activeEditDesign === 'icons' && (
+						<>
 							<div
 								className=" bs-item bs-item-row animated-item"
 								style={{
@@ -317,8 +323,260 @@ class NavbarPopup extends React.Component {
 									></span>
 								</label>
 							</div>
-						</div>
-						{/* <div className="fixed-header-styles">
+						</>
+					)}
+					{this.state.activeEditDesign === 'design' && (
+						<div>
+							<div className="fixed-possition">
+								<div className="toggle-navbar">
+									<div
+										className=" bs-item bs-item-row animated-item"
+										style={{
+											display: 'flex',
+											justifyContent: 'space-between',
+											textTransform: 'capitalize',
+											fontSize: '12px',
+											color: '#E8E8E8',
+											width: '100%',
+										}}
+									>
+										<span
+										// style={{ textTransform: 'capitalize' }}
+										>
+											Fixed Position
+										</span>
+
+										<label
+											className="switch"
+											onClick={() => {
+												this.handleNavbarStyles(
+													'position',
+													!this.state.activeComponent?.style?.position,
+												);
+											}}
+										>
+											<input
+												type="checkbox"
+												checked={
+													this.state.activeComponent?.style?.position ||
+													false
+												}
+											/>
+											<span
+												style={{
+													backgroundColor:
+														this.state.activeComponent?.style
+															?.position && '#F1F1F1',
+												}}
+												className="slider-round-white round"
+											></span>
+										</label>
+									</div>
+								</div>
+							</div>
+
+							<div className="design-styles">
+								<div className="design-paragraph">Styles</div>
+								{!this.props?.isMobileNavbar ? (
+									<div className="design-styles-options">
+										<div
+											onClick={() =>
+												this.handleNavbarStyles('navbarAlign', 'one')
+											}
+											className={`design-style-item ${
+												(_.has(
+													this.props?.activeComponent?.style,
+													'navbarAlign',
+												) &&
+													this.props?.activeComponent?.style
+														?.navbarAlign === 'one') ||
+												!_.has(
+													this.props?.activeComponent?.style,
+													'navbarAlign',
+												)
+													? 'active-design-style'
+													: ''
+											}`}
+										>
+											<Option1 />
+										</div>
+										<div
+											onClick={() =>
+												this.handleNavbarStyles('navbarAlign', 'two')
+											}
+											className={`design-style-item ${
+												this.props?.activeComponent?.style?.navbarAlign ===
+												'two'
+													? 'active-design-style'
+													: ''
+											}`}
+										>
+											<Option2 />
+										</div>
+										<div
+											onClick={() =>
+												this.handleNavbarStyles('navbarAlign', 'three')
+											}
+											className={`design-style-item ${
+												this.props?.activeComponent?.style?.navbarAlign ===
+												'three'
+													? 'active-design-style'
+													: ''
+											}`}
+										>
+											<Option3 />
+										</div>
+										<div
+											onClick={() =>
+												this.handleNavbarStyles('navbarAlign', 'four')
+											}
+											className={`design-style-item ${
+												this.props?.activeComponent?.style?.navbarAlign ===
+												'four'
+													? 'active-design-style'
+													: ''
+											}`}
+										>
+											<Option4 />
+										</div>
+									</div>
+								) : (
+									<div className="design-styles-options-mobile">
+										<div
+											onClick={() =>
+												this.handleNavbarStyles('mNavbarAlign', 'one')
+											}
+											className="cartAlign-one"
+											style={{
+												border:
+													this.props?.activeComponent?.style
+														?.mNavbarAlign === 'one' ||
+													!_.has(
+														this.props?.activeComponent?.style,
+														'mNavbarAlign',
+													)
+														? '1px solid #f2f2f3'
+														: '',
+											}}
+										>
+											<Cart />
+											<div
+												style={{
+													backgroundColor:
+														this.props?.activeComponent?.style
+															?.mNavbarAlign === 'one' ||
+														!_.has(
+															this.props?.activeComponent?.style,
+															'mNavbarAlign',
+														)
+															? '#f2f2f3'
+															: '',
+												}}
+												className="logo-text-mobile"
+											>
+												Logo
+											</div>
+											<Hamburger />
+										</div>
+										<div
+											onClick={() =>
+												this.handleNavbarStyles('mNavbarAlign', 'two')
+											}
+											className="cartAlign-one"
+											style={{
+												border:
+													this.props?.activeComponent?.style
+														?.mNavbarAlign === 'two'
+														? '1px solid #f2f2f3'
+														: '',
+											}}
+										>
+											<div
+												style={{
+													backgroundColor:
+														this.props?.activeComponent?.style
+															?.mNavbarAlign === 'two'
+															? '#f2f2f3'
+															: '',
+												}}
+												className="logo-text-mobile"
+											>
+												Logo
+											</div>
+
+											<Cart />
+											<Hamburger />
+										</div>
+										<div
+											onClick={() =>
+												this.handleNavbarStyles('mNavbarAlign', 'three')
+											}
+											className="cartAlign-one"
+											style={{
+												border:
+													this.props?.activeComponent?.style
+														?.mNavbarAlign === 'three'
+														? '1px solid #f2f2f3'
+														: '',
+											}}
+										>
+											<div
+												style={{
+													backgroundColor:
+														this.props?.activeComponent?.style
+															?.mNavbarAlign === 'three'
+															? '#f2f2f3'
+															: '',
+												}}
+												className="logo-text-mobile"
+											>
+												Logo
+											</div>
+											<div
+												style={{
+													width: '100%',
+													display: 'flex',
+													justifyContent: 'flex-end',
+												}}
+											>
+												<Cart />
+											</div>
+											<Hamburger />
+										</div>
+										<div
+											onClick={() =>
+												this.handleNavbarStyles('mNavbarAlign', 'four')
+											}
+											className="cartAlign-one"
+											style={{
+												border:
+													this.props?.activeComponent?.style
+														?.mNavbarAlign === 'four'
+														? '1px solid #f2f2f3'
+														: '',
+											}}
+										>
+											<div
+												style={{
+													backgroundColor:
+														this.props?.activeComponent?.style
+															?.mNavbarAlign === 'four'
+															? '#f2f2f3'
+															: '',
+												}}
+												className="logo-text-mobile"
+											>
+												Logo
+											</div>
+											<div style={{ width: '100%' }}>
+												<Cart />
+											</div>
+											<Hamburger />
+										</div>
+									</div>
+								)}
+							</div>
+							{/* <div className="fixed-header-styles">
 							<div className="design-paragraph">Fixed header styles</div>
 							<div className="fixed-header-styles-options">
 								<div
@@ -345,211 +603,10 @@ class NavbarPopup extends React.Component {
 								</div>
 							</div>
 						</div> */}
-						{/* <div className="divider"></div> */}
+							{/* <div className="divider"></div> */}
 
-						<div className="design-styles">
-							<div className="design-paragraph">Styles</div>
-							{!this.props?.isMobileNavbar ? (
-								<div className="design-styles-options">
-									<div
-										onClick={() =>
-											this.handleNavbarStyles('navbarAlign', 'one')
-										}
-										className={`design-style-item ${
-											(_.has(
-												this.props?.activeComponent?.style,
-												'navbarAlign',
-											) &&
-												this.props?.activeComponent?.style?.navbarAlign ===
-													'one') ||
-											!_.has(
-												this.props?.activeComponent?.style,
-												'navbarAlign',
-											)
-												? 'active-design-style'
-												: ''
-										}`}
-									>
-										<Option1 />
-									</div>
-									<div
-										onClick={() =>
-											this.handleNavbarStyles('navbarAlign', 'two')
-										}
-										className={`design-style-item ${
-											this.props?.activeComponent?.style?.navbarAlign ===
-											'two'
-												? 'active-design-style'
-												: ''
-										}`}
-									>
-										<Option2 />
-									</div>
-									<div
-										onClick={() =>
-											this.handleNavbarStyles('navbarAlign', 'three')
-										}
-										className={`design-style-item ${
-											this.props?.activeComponent?.style?.navbarAlign ===
-											'three'
-												? 'active-design-style'
-												: ''
-										}`}
-									>
-										<Option3 />
-									</div>
-									<div
-										onClick={() =>
-											this.handleNavbarStyles('navbarAlign', 'four')
-										}
-										className={`design-style-item ${
-											this.props?.activeComponent?.style?.navbarAlign ===
-											'four'
-												? 'active-design-style'
-												: ''
-										}`}
-									>
-										<Option4 />
-									</div>
-								</div>
-							) : (
-								<div className="design-styles-options-mobile">
-									<div
-										onClick={() =>
-											this.handleNavbarStyles('mNavbarAlign', 'one')
-										}
-										className="cartAlign-one"
-										style={{
-											border:
-												this.props?.activeComponent?.style?.mNavbarAlign ===
-													'one' ||
-												!_.has(
-													this.props?.activeComponent?.style,
-													'mNavbarAlign',
-												)
-													? '1px solid #f2f2f3'
-													: '',
-										}}
-									>
-										<Cart />
-										<div
-											style={{
-												backgroundColor:
-													this.props?.activeComponent?.style
-														?.mNavbarAlign === 'one' ||
-													!_.has(
-														this.props?.activeComponent?.style,
-														'mNavbarAlign',
-													)
-														? '#f2f2f3'
-														: '',
-											}}
-											className="logo-text-mobile"
-										>
-											Logo
-										</div>
-										<Hamburger />
-									</div>
-									<div
-										onClick={() =>
-											this.handleNavbarStyles('mNavbarAlign', 'two')
-										}
-										className="cartAlign-one"
-										style={{
-											border:
-												this.props?.activeComponent?.style?.mNavbarAlign ===
-												'two'
-													? '1px solid #f2f2f3'
-													: '',
-										}}
-									>
-										<div
-											style={{
-												backgroundColor:
-													this.props?.activeComponent?.style
-														?.mNavbarAlign === 'two'
-														? '#f2f2f3'
-														: '',
-											}}
-											className="logo-text-mobile"
-										>
-											Logo
-										</div>
-
-										<Cart />
-										<Hamburger />
-									</div>
-									<div
-										onClick={() =>
-											this.handleNavbarStyles('mNavbarAlign', 'three')
-										}
-										className="cartAlign-one"
-										style={{
-											border:
-												this.props?.activeComponent?.style?.mNavbarAlign ===
-												'three'
-													? '1px solid #f2f2f3'
-													: '',
-										}}
-									>
-										<div
-											style={{
-												backgroundColor:
-													this.props?.activeComponent?.style
-														?.mNavbarAlign === 'three'
-														? '#f2f2f3'
-														: '',
-											}}
-											className="logo-text-mobile"
-										>
-											Logo
-										</div>
-										<div
-											style={{
-												width: '100%',
-												display: 'flex',
-												justifyContent: 'flex-end',
-											}}
-										>
-											<Cart />
-										</div>
-										<Hamburger />
-									</div>
-									<div
-										onClick={() =>
-											this.handleNavbarStyles('mNavbarAlign', 'four')
-										}
-										className="cartAlign-one"
-										style={{
-											border:
-												this.props?.activeComponent?.style?.mNavbarAlign ===
-												'four'
-													? '1px solid #f2f2f3'
-													: '',
-										}}
-									>
-										<div
-											style={{
-												backgroundColor:
-													this.props?.activeComponent?.style
-														?.mNavbarAlign === 'four'
-														? '#f2f2f3'
-														: '',
-											}}
-											className="logo-text-mobile"
-										>
-											Logo
-										</div>
-										<div style={{ width: '100%' }}>
-											<Cart />
-										</div>
-										<Hamburger />
-									</div>
-								</div>
-							)}
-						</div>
-						{/* hide shadow */}
-						{/* <div className="shadow-editor">
+							{/* hide shadow */}
+							{/* <div className="shadow-editor">
 							<div className="shadow-editor__section">
 								<div className="shadow-editor__header">
 									<h3>Drop shadow</h3>
@@ -706,8 +763,10 @@ class NavbarPopup extends React.Component {
 							</div>
 						
 						</div> */}
-					</div>
-				)}
+						</div>
+					)}
+				</div>
+
 				{this.state.activeEditDesign === 'background' && (
 					<div className="background-body">
 						<div className="background-title">Background</div>
@@ -750,8 +809,8 @@ class NavbarPopup extends React.Component {
 									<ColorPicker
 										title={'Background Color'}
 										color={
-											this.state?.activeComponent?.style?.sectionBackgroundColor ||
-											'#fff'
+											this.state?.activeComponent?.style
+												?.sectionBackgroundColor || '#fff'
 										}
 										handleColor={(e) =>
 											this.handleNavbarStyles('sectionBackgroundColor', e)

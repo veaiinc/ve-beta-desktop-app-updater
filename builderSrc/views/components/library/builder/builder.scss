@@ -1768,7 +1768,9 @@
 		transform: translateY(-20px);
 	}
 }
-
+.jodit-toolbar-button__icon {
+	align-items: center;
+}
 .jodit-ui-group {
 	.jodit-toolbar-button:last-child {
 		width: 100px;
