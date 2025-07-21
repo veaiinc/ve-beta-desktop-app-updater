@@ -236,19 +236,39 @@ const TopNavbar = () => {
 			id: 1,
 			element: (
 				<ul className={s.leftContainer}>
-					{leftContainerItems.map((navItem) => (
-						<li
-							className={`${s.navItem} ${
-								info.activeNavItem === navItem.id ? s.active : ''
-							}`}
-							onClick={() =>
-								handleNavigation({ navItemId: navItem.id, route: navItem.route })
-							}
-							key={navItem.id}
-						>
-							{navItem.label}
-						</li>
-					))}
+					{info.activeMode === 3
+						? [leftContainerItems[0]].map((navItem) => (
+								<li
+									className={`${s.navItem} ${
+										info.activeNavItem === navItem.id ? s.active : ''
+									}`}
+									onClick={() =>
+										handleNavigation({
+											navItemId: navItem.id,
+											route: navItem.route,
+										})
+									}
+									key={navItem.id}
+								>
+									{navItem.label}
+								</li>
+						  ))
+						: leftContainerItems.map((navItem) => (
+								<li
+									className={`${s.navItem} ${
+										info.activeNavItem === navItem.id ? s.active : ''
+									}`}
+									onClick={() =>
+										handleNavigation({
+											navItemId: navItem.id,
+											route: navItem.route,
+										})
+									}
+									key={navItem.id}
+								>
+									{navItem.label}
+								</li>
+						  ))}
 				</ul>
 			),
 		},
