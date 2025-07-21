@@ -1312,6 +1312,7 @@ const OpenedSidebar = ({
 						setsidebarStates={setsidebarStates}
 						sidebarStates={sidebarStates}
 						sidebarSettings="close"
+						isThisEarlyAccessPage={isThisEarlyAccessPage}
 					/>
 				</div>
 			)}

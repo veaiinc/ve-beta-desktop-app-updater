@@ -20,7 +20,7 @@ import { ReactComponent as BrushIcon } from '../../../assets/svg/gallery/brush.s
 import { ReactComponent as TrashIcon } from '../../../assets/svg/gallery/delete-red.svg';
 import { ReactComponent as DownloadIcon } from '../../../assets/svg/gallery/download2.svg';
 import { ReactComponent as LightRoomIcon } from '../../../assets/svg/gallery/light-room.svg';
-import { ReactComponent as AlbumCoverIcon } from '../../../assets/svg/gallery/changeAlbumCover.svg';
+import { ReactComponent as AlbumCoverIcon } from '../../../assets/svg/gallery/albumCoverIcon.svg';
 import { ReactComponent as DeleteIcon } from '../../../assets/svg/gallery/delete-red.svg';
 import { ReactComponent as LockIcon } from '../../../assets/svg/gallery/lockIcon.svg';
 import { ReactComponent as HomeIcon } from '../../../assets/svg/gallery/home.svg';
@@ -260,7 +260,10 @@ const GalleryPage = () => {
 			x: 0,
 			y: 0,
 		},
-		zoom: 1,
+		zoom: {
+			desktop: 1,
+			mobile: 1,
+		},
 		uploadImageId: null,
 		imageURL: '',
 		coverImageDetails: null,
@@ -380,7 +383,7 @@ const GalleryPage = () => {
 			// 		  ) + '%'
 			// 		: '0',
 		},
-		{ name: 'Collections', number: clientSelectionsData?.totalDocs },
+		{ name: 'Collections', number: clientSelectionsData?.totalDocs || 0 },
 		// {
 		// 	name: 'breaker',
 		// },
@@ -2526,7 +2529,7 @@ const GalleryPage = () => {
 		}
 	};
 
-	const handleSetCoverPosition = async (focalPoint) => {
+	const handleSetCoverPosition = async (focusInfo) => {
 		if (info?.coverLoading) return;
 
 		try {
@@ -2553,14 +2556,25 @@ const GalleryPage = () => {
 				throw new Error('Invalid image details for cover update');
 			}
 
+			// Extract desktop and mobile settings from focusInfo
+			const desktopSettings = focusInfo?.desktop || { focalPoint: { x: 0, y: 0 }, zoom: 1 };
+			const mobileSettings = focusInfo?.mobile || { focalPoint: { x: 0, y: 0 }, zoom: 1 };
+
 			const payload = {
 				image_id: currentImage._id,
-				xPosition: focalPoint?.x || 0,
-				yPosition: focalPoint?.y || 0,
+				xPosition: desktopSettings.focalPoint?.x || 0,
+				yPosition: desktopSettings.focalPoint?.y || 0,
+				zoom: desktopSettings.zoom || 1,
+				mobile: {
+					xPosition: mobileSettings.focalPoint?.x || 0,
+					yPosition: mobileSettings.focalPoint?.y || 0,
+					zoom: mobileSettings.zoom || 1,
+					width: 100,
+					height: 100,
+				},
 				givenFileName: currentImage.activeVersion.givenFileName,
 				width: 100,
 				height: 100,
-				zoom: info?.zoom || 1,
 			};
 
 			// Make the appropriate API call based on cover type
@@ -2572,12 +2586,19 @@ const GalleryPage = () => {
 			// message.destroy(id);
 
 			if (response?.[0]) {
-				// Create updated cover image object
+				// Create updated cover image object with both desktop and mobile settings
 				const updatedCoverImage = {
 					...currentImage,
-					xPosition: focalPoint?.x || 0,
-					yPosition: focalPoint?.y || 0,
-					zoom: info?.zoom || 1,
+					desktop: {
+						xPosition: desktopSettings.focalPoint?.x || 0,
+						yPosition: desktopSettings.focalPoint?.y || 0,
+						zoom: desktopSettings.zoom || 1,
+					},
+					mobile: {
+						xPosition: mobileSettings.focalPoint?.x || 0,
+						yPosition: mobileSettings.focalPoint?.y || 0,
+						zoom: mobileSettings.zoom || 1,
+					},
 				};
 				await getAlbumImagesCount(galleryId);
 				// Update state
@@ -2589,10 +2610,19 @@ const GalleryPage = () => {
 					coverImageDetails: updatedCoverImage,
 					selectedImages: [], // Clear selected images
 					crop: {
-						x: focalPoint?.x || 0,
-						y: focalPoint?.y || 0,
+						desktop: {
+							x: desktopSettings.focalPoint?.x || 0,
+							y: desktopSettings.focalPoint?.y || 0,
+						},
+						mobile: {
+							x: mobileSettings.focalPoint?.x || 0,
+							y: mobileSettings.focalPoint?.y || 0,
+						},
 					},
-					zoom: info?.zoom || 1,
+					zoom: {
+						desktop: desktopSettings.zoom || 1,
+						mobile: mobileSettings.zoom || 1,
+					},
 					// Update the appropriate cover
 				}));
 
@@ -2617,7 +2647,7 @@ const GalleryPage = () => {
 		} catch (error) {
 			console.error('Error updating cover position:', error);
 			showMessage('error', error.message || 'Failed to update cover position', () =>
-				handleSetCoverPosition(focalPoint),
+				handleSetCoverPosition(focusInfo),
 			);
 		} finally {
 			setTimeout(() => {
@@ -3030,8 +3060,14 @@ const GalleryPage = () => {
 					imageURL: '',
 					coverImageDetails: null,
 					uploadImageId: null,
-					crop: { x: 0, y: 0 },
-					zoom: 1,
+					crop: {
+						desktop: { x: 0, y: 0 },
+						mobile: { x: 0, y: 0 },
+					},
+					zoom: {
+						desktop: 1,
+						mobile: 1,
+					},
 				}));
 			}
 
@@ -3051,10 +3087,31 @@ const GalleryPage = () => {
 						imageURL: imageURL,
 						coverImageDetails: selectedImage,
 						crop: {
-							x: selectedImage?.xPosition || 0,
-							y: selectedImage?.yPosition || 0,
+							desktop: {
+								x:
+									selectedImage?.desktop?.xPosition ||
+									selectedImage?.xPosition ||
+									0,
+								y:
+									selectedImage?.desktop?.yPosition ||
+									selectedImage?.yPosition ||
+									0,
+							},
+							mobile: {
+								x:
+									selectedImage?.mobile?.xPosition ||
+									selectedImage?.xPosition ||
+									0,
+								y:
+									selectedImage?.mobile?.yPosition ||
+									selectedImage?.yPosition ||
+									0,
+							},
 						},
-						zoom: selectedImage?.zoom || 1,
+						zoom: {
+							desktop: selectedImage?.desktop?.zoom || selectedImage?.zoom || 1,
+							mobile: selectedImage?.mobile?.zoom || selectedImage?.zoom || 1,
+						},
 					}));
 				}
 			}
@@ -3090,10 +3147,31 @@ const GalleryPage = () => {
 						imageURL: imageURL,
 						coverImageDetails: selectedImage,
 						crop: {
-							x: selectedImage?.xPosition || 0,
-							y: selectedImage?.yPosition || 0,
+							desktop: {
+								x:
+									selectedImage?.desktop?.xPosition ||
+									selectedImage?.xPosition ||
+									0,
+								y:
+									selectedImage?.desktop?.yPosition ||
+									selectedImage?.yPosition ||
+									0,
+							},
+							mobile: {
+								x:
+									selectedImage?.mobile?.xPosition ||
+									selectedImage?.xPosition ||
+									0,
+								y:
+									selectedImage?.mobile?.yPosition ||
+									selectedImage?.yPosition ||
+									0,
+							},
 						},
-						zoom: selectedImage?.zoom || 1,
+						zoom: {
+							desktop: selectedImage?.desktop?.zoom || selectedImage?.zoom || 1,
+							mobile: selectedImage?.mobile?.zoom || selectedImage?.zoom || 1,
+						},
 					};
 
 					return newState;
@@ -5794,6 +5872,32 @@ const GalleryPage = () => {
 						</div>
 						{!info.isRearranging && (
 							<div className="selectedImagesActions">
+								{info?.selectedImages?.length === 1 && (
+									<Tooltip
+										title={
+											<div className="galleryEditOptions">
+												<li onClick={handleSetGalleryCover}>
+													<AlbumCoverIcon />
+													<span>Set as Gallery Cover</span>
+												</li>
+												<li onClick={handleSetAlbumCover}>
+													<AlbumCoverIcon />
+													<span>Set as Album Cover</span>
+												</li>
+											</div>
+										}
+										placement="top"
+										trigger={'click'}
+										arrow={false}
+										color={'transparent'}
+									>
+										<div>
+											<AlbumCoverIcon
+												style={{ color: 'var(--primary-font)' }}
+											/>
+										</div>
+									</Tooltip>
+								)}
 								<div style={{ position: 'relative' }} ref={pinIconRef}>
 									<PinIcon onClick={handlePinIcon} />
 									{info.showPin && (
@@ -6113,7 +6217,6 @@ const GalleryPage = () => {
 							...prev,
 							showUploadCover: false,
 							noImageSelected: false,
-							selectedImages: [],
 						}))
 					}
 					style={{ position: 'absolute', top: '60%', left: '0', right: '0', bottom: '0' }}

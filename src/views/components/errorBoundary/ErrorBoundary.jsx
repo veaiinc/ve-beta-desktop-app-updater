@@ -37,19 +37,24 @@ class ErrorBoundary extends Component {
 	async componentDidCatch(error, errorInfo) {
 		console.error('Error caught in ErrorBoundary:', error, errorInfo);
 		const { component, path } = extractErrorDetails(errorInfo?.componentStack);
-		const payload = {
-			errorType: error.name,
-			errorMessage: error.message,
-			errorPath: path,
-			errorComponent: component,
-			errorComponentStack: errorInfo?.componentStack || 'Not Available',
-		};
-		const success = await logError(payload);
-		if (success) {
-			console.log('Error logged successfully');
-		} else {
-			console.error('Error logging failed');
+		if (window.location.hostname !== 'localhost') {
+			const payload = {
+				errorType: error.name,
+				errorMessage: error.message,
+				errorPath: path,
+				errorComponent: component,
+				errorComponentStack: errorInfo?.componentStack || 'Not Available',
+			};
+
+			// Only log errors in production
+			const success = await logError(payload);
+			if (success) {
+				console.log('Error logged successfully');
+			} else {
+				console.error('Error logging failed');
+			}
 		}
+
 		if (error instanceof TypeError) {
 			// perform hard reload on errors caused by lazy loading
 			const isLazyLoadingErr =

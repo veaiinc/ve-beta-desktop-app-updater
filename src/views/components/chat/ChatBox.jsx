@@ -109,6 +109,7 @@ const initialChatBoxInfo = {
 	goals: false,
 	selectedLLMModel: null,
 	build: false,
+	deepSearch: false,
 };
 /*
 Note:
@@ -264,6 +265,7 @@ const ChatBox = ({
 			const ask = sessionData?.chatBoxInfo?.ask;
 			const selectedLLMModel = sessionData?.chatBoxInfo?.selectedLLMModel;
 			const build = sessionData?.chatBoxInfo?.build;
+			const deepSearch = sessionData?.chatBoxInfo?.deepSearch;
 			if (
 				info?.chatBoxInfo?.deepResearch !== deepResearch ||
 				info?.chatBoxInfo?.goals !== goals ||
@@ -271,7 +273,8 @@ const ChatBox = ({
 				info?.chatBoxInfo?.workspaceSearch !== workspaceSearch ||
 				info?.chatBoxInfo?.ask !== ask ||
 				info?.chatBoxInfo?.selectedLLMModel !== selectedLLMModel ||
-				info?.chatBoxInfo?.build !== build
+				info?.chatBoxInfo?.build !== build ||
+				info?.chatBoxInfo?.deepSearch !== deepSearch
 			) {
 				setInfo((prev) => ({
 					...prev,
@@ -307,6 +310,7 @@ const ChatBox = ({
 					deepResearch: false,
 					ask: true,
 					build: false,
+					deepSearch: false,
 				};
 				handleGlobalChatMessages({
 					sessionId: info?.chatSessionId,
@@ -464,6 +468,7 @@ const ChatBox = ({
 			ask: false,
 			deepResearch: false,
 			build: false,
+			deepSearch: false,
 		};
 
 		handleGlobalChatMessages({
@@ -660,6 +665,7 @@ const ChatBox = ({
 						...(!isPublicChat && { modules: Object?.keys(info?.chatFilters?.modules) }),
 						...(!isPublicChat && { date: date }),
 						deep_research: chatBoxData?.deepResearch,
+						deep_search: chatBoxData?.deepSearch,
 					};
 
 					if (chatInfo?.agentType === 'knowledge_agent') {
@@ -1178,8 +1184,12 @@ const ChatBox = ({
 
 	const clearTextArea = () => {
 		const textArea = textAreaRef?.current;
+		const textAreaWrapper = textAreaWrapperRef?.current;
 		if (textArea) {
 			textArea.style.height = '30px'; // Reset to initial min-height
+		}
+		if (textAreaWrapper) {
+			textAreaWrapper.style.height = '30px';
 		}
 	};
 
@@ -1194,6 +1204,7 @@ const ChatBox = ({
 			ask: false,
 			deepResearch: false,
 			goals: false,
+			deepSearch: false,
 		};
 		handleGlobalChatMessages({
 			sessionId: info?.chatSessionId,
@@ -1247,6 +1258,27 @@ const ChatBox = ({
 		chatBoxData = {
 			...chatBoxData,
 			ask: true,
+			deepResearch: false,
+			goals: false,
+			build: false,
+			deepSearch: false,
+		};
+		handleGlobalChatMessages({
+			sessionId: info?.chatSessionId,
+			chatBoxInfo: chatBoxData,
+			updateExtraInfo: true,
+		});
+	};
+
+	const handleDeepSearchClick = () => {
+		let chatBoxData = info?.chatBoxInfo;
+		if (chatBoxData?.deepSearch) {
+			return;
+		}
+		chatBoxData = {
+			...chatBoxData,
+			deepSearch: true,
+			ask: false,
 			deepResearch: false,
 			goals: false,
 			build: false,
@@ -1676,6 +1708,54 @@ const ChatBox = ({
 																					}
 																				/>
 																			</div> */}
+																		</div>
+																	</div>
+																</Tooltip>
+															)}
+
+															{!isPublicChat && (
+																<Tooltip
+																	title={
+																		<div className="chatbox-icon-tooltip-container deep-search-tooltip-container">
+																			<AtomSvg />
+																			Deep Search
+																		</div>
+																	}
+																	color="transparent"
+																	arrow={false}
+																	rootClassName="chatbox-tooltip"
+																>
+																	<div
+																		className={`chat-box-icon-container ${
+																			info?.chatBoxInfo
+																				?.deepSearch
+																				? 'active'
+																				: ''
+																		}`}
+																		onClick={
+																			handleDeepSearchClick
+																		}
+																	>
+																		<div className="chat-icon">
+																			<div className="text-wrapper goals-text-wrapper">
+																				<div
+																					className="trend-icon"
+																					style={{
+																						height: '20px',
+																					}}
+																				>
+																					<AtomSvg />
+																				</div>
+
+																				<div
+																					className="icon-text"
+																					style={{
+																						color: 'var(--primary-font)',
+																					}}
+																				>
+																					Deep Search
+																				</div>
+																			</div>
 																		</div>
 																	</div>
 																</Tooltip>

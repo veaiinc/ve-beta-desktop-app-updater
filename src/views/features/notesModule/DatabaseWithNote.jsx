@@ -32,6 +32,11 @@ import MeetTranscript from './MeetTranscript';
 import useLiveIntelligenceStream from '../../../hooks/useLiveIntelligenceStream';
 import useRecallStream from '../../../hooks/useRecallStream';
 import NoteTakerTranscript from './NoteTakerTranscript';
+import Spinner from '../../components/loaders/Spinner';
+import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
+import { FetchMoreLoaderComp } from '../../../helpers';
+import AiTranscriptionSuggestions from '../../components/chat/AiTranscriptionSuggestions';
+export const NotesRefContext = createContext(null);
 import RecentChat from '../chat/RecentChat';
 import NotesHeader from '../../components/notes/DatabseComponents/NotesHeader';
 import Editor from '../../components/notes/Editor';
@@ -63,6 +68,9 @@ const initialState = {
 	selectedEmoji: null,
 	coverImageRemoved: false,
 	iconImageRemoved: false,
+	files: [],
+	questions: [],
+	actions: [],
 	sessionId: ObjectID()?.toString(),
 	chatSessionId: ObjectID()?.toString(),
 	chatClicked: false,
@@ -93,6 +101,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const noteId = useParams()?.noteId;
 	const sessionId = noteId;
 	const type = searchParams.get('type');
+	const history = searchParams.get('history');
+	const isAiIntelligenceEnabled = searchParams.get('isAiIntelligenceEnabled');
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
 	const originalFaviconRef = useRef(null);
@@ -122,7 +132,11 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		},
 		chatStream: { createWebSocketConnection, sendMessage, closeWebSocketConnection },
 		companyInfo: { getTeamMembers, tenantsUserList },
-		templates: { handleTranscriptionSuggestions },
+		templates: {
+			handleTranscriptionSuggestions,
+			aiTranscriptionSuggestions,
+			updateStateValues,
+		},
 		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
 
@@ -148,6 +162,33 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	// 	},
 	// 	[handleTranscriptionSuggestions],
 	// );
+
+	useEffect(() => {
+		if (aiTranscriptionSuggestions) {
+			const questions = aiTranscriptionSuggestions?.prompts?.filter(
+				(prompt) =>
+					prompt?.entity === 'user' ||
+					(prompt?.entity === 'agent' && prompt?.type === 'search'),
+			);
+			const actions = aiTranscriptionSuggestions?.prompts?.filter(
+				(prompt) => prompt?.entity === 'agent' && prompt?.type === 'action',
+			);
+			setInfo((prev) => ({
+				...prev,
+				questions,
+				actions,
+				files: aiTranscriptionSuggestions?.similar_files || [],
+			}));
+		}
+	}, [aiTranscriptionSuggestions]);
+
+	useEffect(() => {
+		return () => {
+			updateStateValues({
+				aiTranscriptionSuggestions: null,
+			});
+		};
+	}, []);
 	const handleSocketMessage = useCallback(
 		(event) => {
 			try {
@@ -639,8 +680,13 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	};
 
 	useEffect(() => {
-		if (showTranscriptTabs && location?.pathname?.includes('meet') && type === 'meeting_bot') {
-			recallConnection(sessionId, noteId, handleSocketMessage);
+		if (
+			showTranscriptTabs &&
+			location?.pathname?.includes('meet') &&
+			history !== 'true' &&
+			type === 'meeting_bot'
+		) {
+			recallConnection(sessionId, noteId, handleSocketMessage, isAiIntelligenceEnabled);
 			// createLiveIntelligenceStream(
 			// 	sessionId,
 			// 	noteId,
@@ -649,7 +695,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			// );
 		} else if (showTranscriptTabs && type === 'desktop') {
 			// Connect to recall for note taker mode as well
-			recallConnection(sessionId, noteId, handleSocketMessage);
+			recallConnection(sessionId, noteId, handleSocketMessage, isAiIntelligenceEnabled);
 		}
 		// No cleanup needed, useRecallStream handles it
 	}, [showTranscriptTabs, sessionId, type]);
@@ -865,8 +911,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 								/>
 							)}
 
-							{showTranscriptTabs && activeTab === 'transcript' ? (
-								type === 'meeting_bot' ? (
+							{showTranscriptTabs &&
+								activeTab === 'transcript' &&
+								(type === 'meeting_bot' ? (
 									<MeetTranscript transcriptList={transcriptList} />
 								) : type === 'desktop' ? (
 									<NoteTakerTranscript
@@ -875,8 +922,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 										sessionId={sessionId}
 										pageId={noteId}
 									/>
-								) : null
-							) : (
+								) : null)}
+							{((showTranscriptTabs && activeTab === 'summary') ||
+								!showTranscriptTabs) && (
 								<Editor
 									innerContainerStyle={innerContainerStyle}
 									myAccess={info?.myAccess}
@@ -891,6 +939,17 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 									deleteBlock={deleteBlock}
 								/>
 							)}
+							{showTranscriptTabs &&
+								(activeTab === 'questions' ||
+									activeTab === 'actions' ||
+									activeTab === 'files') && (
+									<AiTranscriptionSuggestions
+										questions={info?.questions}
+										actions={info?.actions}
+										files={info?.files}
+										activeTab={activeTab}
+									/>
+								)}
 						</div>
 					</>
 				</div>
