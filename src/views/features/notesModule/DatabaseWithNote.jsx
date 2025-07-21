@@ -36,7 +36,6 @@ import RecentChat from '../chat/RecentChat';
 import NotesHeader from '../../components/notes/DatabseComponents/NotesHeader';
 import Editor from '../../components/notes/Editor';
 import TranscriptionTabs from '../../components/notes/TranscriptionTabs';
-export const NotesRefContext = createContext(null);
 
 const initialState = {
 	timeouts: {}, // Single timeouts object to store all timeouts
@@ -96,7 +95,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const type = searchParams.get('type');
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
-	const previousBlocksRef = useRef(new Map());
 	const originalFaviconRef = useRef(null);
 
 	// const { createWebSocketConnection, sendMessage } = useChatStream();
@@ -498,16 +496,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		[noteId, handleDebounce],
 	);
 
-	const extractImageUrls = (doc) => {
-		const urls = [];
-		for (const block of doc) {
-			if (block.type === 'image' && block.props?.url) {
-				urls.push(block.props.url);
-			}
-		}
-		return urls;
-	};
-
 	const handleMoreOptionsChange = useCallback(
 		(key, value) => {
 			setInfo((prev) => ({
@@ -676,241 +664,239 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	};
 
 	return (
-		<NotesRefContext.Provider value={{ previousBlocksRef, pageId: noteId }}>
-			<div className="notes-container" style={outerContainerStyle || {}}>
-				<div className="notesChatArea">
-					<RecentChat
-						showIconText={false}
-						isPreview={true}
-						autoFocus={false}
-						customChatBoxClick={handleChatBoxClick}
-						// {...(info?.chatClicked && {
-						// 	sId: info?.chatSessionId,
-						// })}
-						sId={info?.chatSessionId}
-						showCitationsButton={false}
-					/>
-				</div>
-				<div className="notesContentWrapper">
-					{info?.title && (
-						<Helmet>
-							<meta charSet="utf-8" />
-							<title>VE - {info?.title}</title>
-						</Helmet>
-					)}
+		<div className="notes-container" style={outerContainerStyle || {}}>
+			<div className="notesChatArea">
+				<RecentChat
+					showIconText={false}
+					isPreview={true}
+					autoFocus={false}
+					customChatBoxClick={handleChatBoxClick}
+					// {...(info?.chatClicked && {
+					// 	sId: info?.chatSessionId,
+					// })}
+					sId={info?.chatSessionId}
+					showCitationsButton={false}
+				/>
+			</div>
+			<div className="notesContentWrapper">
+				{info?.title && (
+					<Helmet>
+						<meta charSet="utf-8" />
+						<title>VE - {info?.title}</title>
+					</Helmet>
+				)}
 
-					<NotesHeader
-						isDeleted={info?.isDeleted}
-						title={info?.title}
-						isFavorite={info?.isFavorite}
-						noteId={noteId}
-						notesConfigs={info?.notesConfigs}
-						myAccess={info?.myAccess}
-						lastUpdated={info?.lastUpdated}
-						updatedAt={info?.updatedAt}
-						handleFavorite={handleFavorite}
-						handleMoreOptionsChange={handleMoreOptionsChange}
-						handleDeletePage={handleDeletePage}
-						handleDuplicatePage={handleDuplicatePage}
-						restorePage={restorePage}
-					/>
+				<NotesHeader
+					isDeleted={info?.isDeleted}
+					title={info?.title}
+					isFavorite={info?.isFavorite}
+					noteId={noteId}
+					notesConfigs={info?.notesConfigs}
+					myAccess={info?.myAccess}
+					lastUpdated={info?.lastUpdated}
+					updatedAt={info?.updatedAt}
+					handleFavorite={handleFavorite}
+					handleMoreOptionsChange={handleMoreOptionsChange}
+					handleDeletePage={handleDeletePage}
+					handleDuplicatePage={handleDuplicatePage}
+					restorePage={restorePage}
+				/>
 
-					<div className="notes-editor-container">
-						<>
-							{coverImage && (
-								<div
-									onMouseEnter={() =>
-										setInfo((prev) => ({ ...prev, showRemoveCoverBtn: true }))
-									}
-									onMouseLeave={() =>
-										setInfo((prev) => ({ ...prev, showRemoveCoverBtn: false }))
-									}
-									className="notes-cover-image-container"
-								>
-									<img
-										src={coverImage}
-										onError={handleCoverImageError}
-										alt="cover image"
-									/>
-									{info?.showRemoveCoverBtn && (
-										<button
-											onClick={handleRemoveCover}
-											className="remove-cover-btn"
-										>
-											Remove
-										</button>
-									)}
-								</div>
-							)}
+				<div className="notes-editor-container">
+					<>
+						{coverImage && (
 							<div
-								className="notes-editor-wrapper"
-								style={{
-									maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px',
-								}}
+								onMouseEnter={() =>
+									setInfo((prev) => ({ ...prev, showRemoveCoverBtn: true }))
+								}
+								onMouseLeave={() =>
+									setInfo((prev) => ({ ...prev, showRemoveCoverBtn: false }))
+								}
+								className="notes-cover-image-container"
 							>
-								<Tooltip
-									// open={info?.showCustomizeAppearance}
-									open={false}
-									onOpenChange={() => {
-										if (info?.showUploadPopup) {
-											setInfo((prev) => ({
-												...prev,
-												showUploadPopup: false,
-											}));
-										}
-										setInfo((prev) => ({
-											...prev,
-											showCustomizeAppearance: !prev.showCustomizeAppearance,
-										}));
-									}}
-									placement="bottomLeft"
-									title={
-										info?.showUploadPopup && info?.uploadType === 'cover' ? (
-											<UploadPopup
-												closePopup={() =>
-													setInfo((prev) => ({
-														...prev,
-														showUploadPopup: false,
-														showCustomizeAppearance: false,
-													}))
-												}
-												setLocalCoverImage={(coverImage) =>
-													setInfo((prev) => ({
-														...prev,
-														localCoverImage: coverImage,
-														coverImageRemoved: false,
-													}))
-												}
-												uploadType={info?.uploadType}
-											/>
-										) : info?.showUploadPopup && info?.uploadType === 'icon' ? (
-											<IconUploadPopup
-												setSelectedEmoji={(emoji) =>
-													setInfo((prev) => ({
-														...prev,
-														selectedEmoji: emoji,
-													}))
-												}
-												closePopup={() =>
-													setInfo((prev) => ({
-														...prev,
-														showUploadPopup: false,
-														showCustomizeAppearance: false,
-													}))
-												}
-											/>
-										) : (
-											<CustomizeAppearance
-												// uploadType can be 'cover' or 'icon'
-												showUploadPopup={(uploadType) =>
-													setInfo((prev) => ({
-														...prev,
-														showUploadPopup: true,
-														uploadType,
-													}))
-												}
-											/>
-										)
-									}
-									overlayInnerStyle={{
-										backgroundColor: 'inherit',
-									}}
-									arrow={false}
-								>
-									<div
-										className="notes-icon-container"
-										style={{
-											paddingTop: coverImage
-												? '42px'
-												: iconImage
-												? '100px'
-												: '0px',
-										}}
+								<img
+									src={coverImage}
+									onError={handleCoverImageError}
+									alt="cover image"
+								/>
+								{info?.showRemoveCoverBtn && (
+									<button
+										onClick={handleRemoveCover}
+										className="remove-cover-btn"
 									>
-										{iconImage && (
-											<div
-												className="notes-icon-wrapper"
-												onMouseEnter={() =>
-													setInfo((prev) => ({
-														...prev,
-														showRemoveIconBtn: true,
-													}))
-												}
-												onMouseLeave={() =>
-													setInfo((prev) => ({
-														...prev,
-														showRemoveIconBtn: false,
-													}))
-												}
-												style={{
-													top: coverImage
-														? '-72px'
-														: iconImage
-														? '-10px'
-														: '-24px',
-												}}
-											>
-												{info?.showRemoveIconBtn && (
-													<div className="remove-icon-btn-container">
-														<CrossIcon
-															className="remove-icon-btn"
-															onClick={handleRemoveIcon}
-														/>
-													</div>
-												)}
-												{iconImage?.native}
-											</div>
-										)}
-										<CustomTextArea
-											className="notes-title"
-											value={info?.title}
-											onChange={handleTitleChange}
-											autoResize={true}
-											onKeyDown={handleKeyDown}
-										/>
-									</div>
-								</Tooltip>
-
-								{showTranscriptTabs && (
-									<TranscriptionTabs
-										activeTab={activeTab}
-										setActiveTab={setActiveTab}
-									/>
-								)}
-
-								{showTranscriptTabs && activeTab === 'transcript' ? (
-									type === 'meeting_bot' ? (
-										<MeetTranscript transcriptList={transcriptList} />
-									) : type === 'desktop' ? (
-										<NoteTakerTranscript
-											sendMessage={recallSendMessage}
-											tenantId={tennantSettingsData?._id}
-											sessionId={sessionId}
-											pageId={noteId}
-										/>
-									) : null
-								) : (
-									<Editor
-										innerContainerStyle={innerContainerStyle}
-										myAccess={info?.myAccess}
-										isDeleted={info?.isDeleted}
-										customSendMessage={customSendMessage}
-										aiResonse={info?.aiResonse}
-										resetAiResponse={resetAiResponse}
-										noteId={noteId}
-										initialBlocks={blocks}
-										createBlock={createBlock}
-										updateBlock={updateBlock}
-										deleteBlock={deleteBlock}
-									/>
+										Remove
+									</button>
 								)}
 							</div>
-						</>
-					</div>
+						)}
+						<div
+							className="notes-editor-wrapper"
+							style={{
+								maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px',
+							}}
+						>
+							<Tooltip
+								// open={info?.showCustomizeAppearance}
+								open={false}
+								onOpenChange={() => {
+									if (info?.showUploadPopup) {
+										setInfo((prev) => ({
+											...prev,
+											showUploadPopup: false,
+										}));
+									}
+									setInfo((prev) => ({
+										...prev,
+										showCustomizeAppearance: !prev.showCustomizeAppearance,
+									}));
+								}}
+								placement="bottomLeft"
+								title={
+									info?.showUploadPopup && info?.uploadType === 'cover' ? (
+										<UploadPopup
+											closePopup={() =>
+												setInfo((prev) => ({
+													...prev,
+													showUploadPopup: false,
+													showCustomizeAppearance: false,
+												}))
+											}
+											setLocalCoverImage={(coverImage) =>
+												setInfo((prev) => ({
+													...prev,
+													localCoverImage: coverImage,
+													coverImageRemoved: false,
+												}))
+											}
+											uploadType={info?.uploadType}
+										/>
+									) : info?.showUploadPopup && info?.uploadType === 'icon' ? (
+										<IconUploadPopup
+											setSelectedEmoji={(emoji) =>
+												setInfo((prev) => ({
+													...prev,
+													selectedEmoji: emoji,
+												}))
+											}
+											closePopup={() =>
+												setInfo((prev) => ({
+													...prev,
+													showUploadPopup: false,
+													showCustomizeAppearance: false,
+												}))
+											}
+										/>
+									) : (
+										<CustomizeAppearance
+											// uploadType can be 'cover' or 'icon'
+											showUploadPopup={(uploadType) =>
+												setInfo((prev) => ({
+													...prev,
+													showUploadPopup: true,
+													uploadType,
+												}))
+											}
+										/>
+									)
+								}
+								overlayInnerStyle={{
+									backgroundColor: 'inherit',
+								}}
+								arrow={false}
+							>
+								<div
+									className="notes-icon-container"
+									style={{
+										paddingTop: coverImage
+											? '42px'
+											: iconImage
+											? '100px'
+											: '0px',
+									}}
+								>
+									{iconImage && (
+										<div
+											className="notes-icon-wrapper"
+											onMouseEnter={() =>
+												setInfo((prev) => ({
+													...prev,
+													showRemoveIconBtn: true,
+												}))
+											}
+											onMouseLeave={() =>
+												setInfo((prev) => ({
+													...prev,
+													showRemoveIconBtn: false,
+												}))
+											}
+											style={{
+												top: coverImage
+													? '-72px'
+													: iconImage
+													? '-10px'
+													: '-24px',
+											}}
+										>
+											{info?.showRemoveIconBtn && (
+												<div className="remove-icon-btn-container">
+													<CrossIcon
+														className="remove-icon-btn"
+														onClick={handleRemoveIcon}
+													/>
+												</div>
+											)}
+											{iconImage?.native}
+										</div>
+									)}
+									<CustomTextArea
+										className="notes-title"
+										value={info?.title}
+										onChange={handleTitleChange}
+										autoResize={true}
+										onKeyDown={handleKeyDown}
+									/>
+								</div>
+							</Tooltip>
+
+							{showTranscriptTabs && (
+								<TranscriptionTabs
+									activeTab={activeTab}
+									setActiveTab={setActiveTab}
+								/>
+							)}
+
+							{showTranscriptTabs && activeTab === 'transcript' ? (
+								type === 'meeting_bot' ? (
+									<MeetTranscript transcriptList={transcriptList} />
+								) : type === 'desktop' ? (
+									<NoteTakerTranscript
+										sendMessage={recallSendMessage}
+										tenantId={tennantSettingsData?._id}
+										sessionId={sessionId}
+										pageId={noteId}
+									/>
+								) : null
+							) : (
+								<Editor
+									innerContainerStyle={innerContainerStyle}
+									myAccess={info?.myAccess}
+									isDeleted={info?.isDeleted}
+									customSendMessage={customSendMessage}
+									aiResonse={info?.aiResonse}
+									resetAiResponse={resetAiResponse}
+									noteId={noteId}
+									initialBlocks={blocks}
+									createBlock={createBlock}
+									updateBlock={updateBlock}
+									deleteBlock={deleteBlock}
+								/>
+							)}
+						</div>
+					</>
 				</div>
 			</div>
 			<DatabaseSidebar pageId={noteId} />
-		</NotesRefContext.Provider>
+		</div>
 	);
 };
 

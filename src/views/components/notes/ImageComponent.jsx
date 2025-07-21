@@ -104,6 +104,7 @@ const ImageComponent = ({ block, editor }) => {
 					type: 'image',
 					props: {
 						...block.props,
+						source: imageFile ? 'upload' : 'link',
 						url: imageUrl,
 					},
 				});

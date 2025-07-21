@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { createContext, useCallback, useEffect, useRef } from 'react';
 import '@blocknote/core/fonts/inter.css';
 // import { createBlock } from '@blocknote/core';
 import '@blocknote/mantine/style.css';
@@ -11,6 +11,8 @@ import { ImageBlock } from './ImageComponent';
 import { Database } from './Database';
 import ObjectID from 'bson-objectid';
 import { isEqual } from 'lodash';
+
+export const EditorContext = createContext(null);
 
 const Editor = ({
 	innerContainerStyle,
@@ -228,12 +230,6 @@ const Editor = ({
 			return false;
 		}
 		const blockUpdated = !isEqual(oldBlock, newBlockFormatted);
-
-		if (blockUpdated) {
-			console.log('oldBlock', oldBlock);
-			console.log('newBlockFormatted', newBlockFormatted);
-		}
-
 		return blockUpdated;
 	};
 
@@ -324,18 +320,12 @@ const Editor = ({
 				let position = oldItem.position;
 				let positionChanged = false;
 
-				console.log('block', { newItem, oldItem });
-
 				// Check for content and parent changes
 				const contentChanged = compareFn(oldItem, newItem);
 
 				// Compare parentId correctly - oldItem.parentId is _id, newItem.parentId is id
 				let parentChanged = false;
 				if (oldItem.parentId !== null && newItem.parentId !== null) {
-					// Use the mapping to get the backend _id for the new parent
-					// const newParentBackendId = blockIdToBackendIdRef.current.get(newItem.parentId);
-					// console.log('parentId', oldItem.parentId, newItem.parentId);
-
 					parentChanged = oldItem.parentId !== newItem.parentId;
 				} else {
 					// One is null, the other is not
@@ -380,11 +370,6 @@ const Editor = ({
 				const isChanged = positionChanged || contentChanged || parentChanged;
 
 				if (isChanged) {
-					console.log('isChanged', {
-						positionChanged,
-						contentChanged,
-						parentChanged,
-					});
 					const parentBackendId = newItem.parentId
 						? blockIdToBackendIdRef.current.get(newItem.parentId)
 						: null;
@@ -440,9 +425,6 @@ const Editor = ({
 	const onEditorUpdate = (currentTopLevelBlocks) => {
 		const flatNewArr = flattenBlocks(currentTopLevelBlocks);
 		const { added, deleted, updated } = diffArraysNested(flatNewArr);
-		console.log('added', added);
-		console.log('deleted', deleted);
-		console.log('updated', updated);
 
 		added.forEach((block) => {
 			createBlock({
@@ -471,24 +453,26 @@ const Editor = ({
 	};
 
 	return (
-		<BlockNoteView
-			editor={editor}
-			formattingToolbar={false}
-			// onChange={onChange}
-			style={innerContainerStyle || {}}
-			theme={'dark'}
-			editable={myAccess !== 'view' || !isDeleted}
-			slashMenu={false}
-		>
-			{(myAccess !== 'view' || !isDeleted) && (
-				<NoteToolbar
-					sendMessage={customSendMessage}
-					aiResonse={aiResonse}
-					resetAiResponse={resetAiResponse}
-				/>
-			)}
-			<SlashMenu editor={editor} noteId={noteId} />
-		</BlockNoteView>
+		<EditorContext.Provider value={{ previousBlocksRef, pageId: noteId }}>
+			<BlockNoteView
+				editor={editor}
+				formattingToolbar={false}
+				// onChange={onChange}
+				style={innerContainerStyle || {}}
+				theme={'dark'}
+				editable={myAccess !== 'view' || !isDeleted}
+				slashMenu={false}
+			>
+				{(myAccess !== 'view' || !isDeleted) && (
+					<NoteToolbar
+						sendMessage={customSendMessage}
+						aiResonse={aiResonse}
+						resetAiResponse={resetAiResponse}
+					/>
+				)}
+				<SlashMenu editor={editor} noteId={noteId} />
+			</BlockNoteView>
+		</EditorContext.Provider>
 	);
 };
 
