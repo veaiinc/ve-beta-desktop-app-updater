@@ -28,15 +28,18 @@ const leftContainerItems = [
 const middleContainerItems = [
 	{
 		id: 1,
-		label: 'Solo Mode',
+		label: 'Solo',
+		activeLabel: 'Solo Mode',
 	},
 	// {
 	// 	id: 2,
 	// 	label: 'Team',
+	// 	activeLabel: 'Team Mode',
 	// },
 	{
 		id: 3,
 		label: 'Meeting',
+		activeLabel: 'Meeting Mode',
 	},
 ];
 
@@ -97,7 +100,6 @@ const TopNavbar = () => {
 			...prev,
 			activeMode: id,
 		}));
-		console.log(id);
 		if (id === 1) {
 			navigate('/home');
 		}
@@ -285,7 +287,7 @@ const TopNavbar = () => {
 							onClick={() => handleMiddleNavigation(navItem)}
 							key={navItem.id}
 						>
-							{navItem.label}
+							{info.activeMode === navItem.id ? navItem.activeLabel : navItem.label}
 						</li>
 					))}
 				</ul>
