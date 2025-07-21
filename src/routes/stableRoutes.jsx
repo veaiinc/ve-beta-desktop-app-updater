@@ -16,7 +16,6 @@ import RecentChat from '../views/features/chat/RecentChat';
 import Onboarding from '../views/features/onboarding/Onboarding';
 
 // components
-import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 import AmbientAi from '../views/features/ambientAi/AmbientAi';
 
 const stableRoutes = [
@@ -45,9 +44,7 @@ const stableRoutes = [
 		path: '/create-workspace',
 		element: (
 			<Public>
-				<Suspense fallback={<SuspenseFallback />}>
-					<Onboarding />
-				</Suspense>
+				<Onboarding />
 			</Public>
 		),
 	},

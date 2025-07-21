@@ -1,27 +1,26 @@
-import '../../../assets/scss/files/index.scss';
-import '../../../assets/scss/files/files.scss';
 import moment from 'moment';
-import { DocsStatusButton } from '../../features/docs/Docs';
+import '../../../assets/scss/files/files.scss';
+import '../../../assets/scss/files/index.scss';
 import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
 import { ReactComponent as Add } from '../../../assets/svg/files/add2.svg';
 import { ReactComponent as DocIcon } from '../../../assets/svg/files/doc.svg';
+import { DocsStatusButton } from '../../features/docs/Docs';
 // import DocsCardBg from '../../../assets/images/files/docs-card-bg.png';
-import { useNavigate } from 'react-router-dom';
-import { memo, useContext, useEffect, useState, useCallback, useRef, lazy, Suspense } from 'react';
-import InfiniteScroll from '../globalComponents/InfiniteScroll';
-import Context from '../../../context/context';
 import gsap from 'gsap';
-import Spinner from '../loaders/Spinner';
+import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Context from '../../../context/context';
 import FilterDropdown from '../dropDown/file/FilterDropdown';
+import InfiniteScroll from '../globalComponents/InfiniteScroll';
+import Spinner from '../loaders/Spinner';
 import EmptyState from './EmptyState';
 // import { fetchOriginSelection } from '../../../helpers';
 import { Tooltip } from 'antd';
-import { message } from '../globalComponents/CustomToast';
-import { ReactComponent as Search } from '../../../assets/svg/search.svg';
-import SuspenseFallback from '../globalComponents/SuspenseFallback';
-import ListViewIcon from '../../../assets/svg/notesPage/ListViewIcon';
-import CardsViewIcon from '../../../assets/svg/notesPage/CardsViewIcon';
 import { ReactComponent as Link } from '../../../assets/svg/files/link.svg';
+import CardsViewIcon from '../../../assets/svg/notesPage/CardsViewIcon';
+import ListViewIcon from '../../../assets/svg/notesPage/ListViewIcon';
+import { ReactComponent as Search } from '../../../assets/svg/search.svg';
+import { message } from '../globalComponents/CustomToast';
 // import { ReactComponent as Copy } from '../../../assets/svg/files/copy.svg';
 // import { ReactComponent as Share } from '../../../assets/svg/files/share.svg';
 import DocumentShortPreview from '../../../../builderSrc/views/feature/DocumentShortPreview';
@@ -463,9 +462,7 @@ const DocsGrid = ({
 										{viewMode === 'card' ? (
 											<div className="docsCardPreview">
 												{doc?.firstModule[0]?._id && (
-													<Suspense fallback={<SuspenseFallback />}>
-														<DocumentShortPreview doc={doc} />
-													</Suspense>
+													<DocumentShortPreview doc={doc} />
 												)}
 												<div className="docsCardOverlay">
 													<div className="docsTitleOnPreview">
