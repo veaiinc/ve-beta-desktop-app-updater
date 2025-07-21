@@ -1533,7 +1533,7 @@ export const Galleries = () => {
 		}
 	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/gallery-images/{{ _.image_id }}/download
-	const getDownloadLinkForImage = async (imageId, isLightGallery) => {
+	const getDownloadLinkForImage = async (imageId, isLightGallery, targetSizeBytes) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -1546,8 +1546,20 @@ export const Galleries = () => {
 
 			if (response[0] === true) {
 				const imageResponse = await fetch(response[1].signedUrl);
-				const blob = await imageResponse.blob();
-				const url = window.URL.createObjectURL(blob);
+				const originalBlob = await imageResponse.blob();
+
+				let finalBlob = originalBlob;
+
+				// If original blob is smaller than the target size, pad it
+				if (!isLightGallery && originalBlob.size < targetSizeBytes) {
+					const paddingSize = targetSizeBytes - originalBlob.size;
+					const paddingBuffer = new Uint8Array(paddingSize).fill(0); // zero padding
+					finalBlob = new Blob([originalBlob, paddingBuffer], {
+						type: originalBlob.type,
+					});
+				}
+
+				const url = window.URL.createObjectURL(finalBlob);
 				const link = document.createElement('a');
 				link.href = url;
 				link.download = response?.[1]?.fileName || 'image';
@@ -1562,6 +1574,7 @@ export const Galleries = () => {
 			console.log('error==>getDownloadLinkForImage', error);
 		}
 	};
+
 	//{{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/visitors
 	const getInsightVisitors = async (
 		galleryId,

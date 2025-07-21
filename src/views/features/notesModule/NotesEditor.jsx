@@ -713,302 +713,307 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	}, []);
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
-			{info?.title && (
-				<Helmet>
-					<meta charSet="utf-8" />
-					<title>VE - {info?.title}</title>
-				</Helmet>
-			)}
+			<div className="notesContentWrapper">
+				{info?.title && (
+					<Helmet>
+						<meta charSet="utf-8" />
+						<title>VE - {info?.title}</title>
+					</Helmet>
+				)}
 
-			{!info?.isDeleted ? (
-				<div className="notes-nav-menu">
-					<div className="notes-nav-left">
-						<div className="backBtnContainer">
-							<span
-								className="backBtn"
-								onClick={() => navigate(-1)}
-								aria-label="Go back to previous page"
+				{!info?.isDeleted ? (
+					<div className="notes-nav-menu">
+						<div className="notes-nav-left">
+							<div className="backBtnContainer">
+								<span
+									className="backBtn"
+									onClick={() => navigate(-1)}
+									aria-label="Go back to previous page"
+								>
+									<BackArrowSvg aria-hidden="true" />
+									<span>Notes</span>
+									<div>/</div>
+								</span>
+							</div>
+							<div className="notes-nav-title">{info?.title}</div>
+						</div>
+
+						<div className="notes-nav-right">
+							<button
+								className="notes-nav-button"
+								onClick={() => handleFavorite(!info?.isFavorite)}
 							>
-								<BackArrowSvg aria-hidden="true" />
-								<span>Notes</span>
-								<div>/</div>
-							</span>
-						</div>
-						<div className="notes-nav-title">{info?.title}</div>
-					</div>
-
-					<div className="notes-nav-right">
-						<button
-							className="notes-nav-button"
-							onClick={() => handleFavorite(!info?.isFavorite)}
-						>
-							<StarSvg
-								fill={info?.isFavorite}
-								width={18}
-								height={18}
-								className="cursor-pointer"
-							/>
-						</button>
-
-						{info?.myAccess === 'full' && (
-							<ShareComponent pageId={noteId} makeApiCall={false} />
-						)}
-
-						<MoreOptions
-							notesConfigs={info?.notesConfigs}
-							onChange={handleMoreOptionsChange}
-							onDelete={handleDeletePage}
-							onDuplicate={handleDuplicatePage}
-						/>
-					</div>
-				</div>
-			) : (
-				<div className="deleted-badge">
-					<div className="badge-text-wrapper">
-						<DangerSvg />
-						<p className="delete-badge-message">
-							{info?.lastUpdated
-								? `${info?.lastUpdated?.firstName} ${
-										info?.lastUpdated?.lastName
-											? info?.lastUpdated?.lastName
-											: ''
-								  } `
-								: 'Someone '}
-							moved this page to trash{' '}
-							{info?.updatedAt ? moment?.unix(info?.updatedAt).fromNow() : ''}.
-						</p>
-					</div>
-
-					<div className="badge-button-wrapper">
-						<button className="delete-badge-restore-btn" onClick={restorePage}>
-							<RestoreIcon />
-							Restore
-						</button>
-						<button
-							className="delete-badge-permanent-delete-btn"
-							onClick={() => handleDeletePage(true)}
-						>
-							<DustBinIcon /> Permanently delete
-						</button>
-					</div>
-				</div>
-			)}
-
-			<div className="notes-editor-container">
-				{info?.loading ? (
-					<div
-						className="notes-editor-wrapper"
-						style={{ maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px' }}
-					>
-						<div className="notes-title">
-							<Skeleton
-								width="90%"
-								height={40}
-								highlightColor="var(--card-hover)"
-								baseColor="var(--card)"
-							/>
-						</div>
-
-						<div className="notes-line-loader">
-							{skeletonLines.map((line, i) => (
-								<Skeleton
-									key={i}
-									height={line.height}
-									width={line.width}
-									highlightColor="var(--card-hover)"
-									baseColor="var(--card)"
+								<StarSvg
+									fill={info?.isFavorite}
+									width={18}
+									height={18}
+									className="cursor-pointer"
 								/>
-							))}
+							</button>
+
+							{info?.myAccess === 'full' && (
+								<ShareComponent pageId={noteId} makeApiCall={false} />
+							)}
+
+							<MoreOptions
+								notesConfigs={info?.notesConfigs}
+								onChange={handleMoreOptionsChange}
+								onDelete={handleDeletePage}
+								onDuplicate={handleDuplicatePage}
+							/>
 						</div>
 					</div>
 				) : (
-					<>
-						{coverImage && (
-							<div
-								onMouseEnter={() =>
-									setInfo((prev) => ({ ...prev, showRemoveCoverBtn: true }))
-								}
-								onMouseLeave={() =>
-									setInfo((prev) => ({ ...prev, showRemoveCoverBtn: false }))
-								}
-								className="notes-cover-image-container"
+					<div className="deleted-badge">
+						<div className="badge-text-wrapper">
+							<DangerSvg />
+							<p className="delete-badge-message">
+								{info?.lastUpdated
+									? `${info?.lastUpdated?.firstName} ${
+											info?.lastUpdated?.lastName
+												? info?.lastUpdated?.lastName
+												: ''
+									  } `
+									: 'Someone '}
+								moved this page to trash{' '}
+								{info?.updatedAt ? moment?.unix(info?.updatedAt).fromNow() : ''}.
+							</p>
+						</div>
+
+						<div className="badge-button-wrapper">
+							<button className="delete-badge-restore-btn" onClick={restorePage}>
+								<RestoreIcon />
+								Restore
+							</button>
+							<button
+								className="delete-badge-permanent-delete-btn"
+								onClick={() => handleDeletePage(true)}
 							>
-								<img
-									src={coverImage}
-									onError={handleCoverImageError}
-									alt="cover image"
-								/>
-								{info?.showRemoveCoverBtn && (
-									<button
-										onClick={handleRemoveCover}
-										className="remove-cover-btn"
-									>
-										Remove
-									</button>
-								)}
-							</div>
-						)}
+								<DustBinIcon /> Permanently delete
+							</button>
+						</div>
+					</div>
+				)}
+
+				<div className="notes-editor-container">
+					{info?.loading ? (
 						<div
 							className="notes-editor-wrapper"
 							style={{ maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px' }}
 						>
-							<Tooltip
-								open={info?.showCustomizeAppearance}
-								onOpenChange={() => {
-									if (info?.showUploadPopup) {
+							<div className="notes-title">
+								<Skeleton
+									width="90%"
+									height={40}
+									highlightColor="var(--card-hover)"
+									baseColor="var(--card)"
+								/>
+							</div>
+
+							<div className="notes-line-loader">
+								{skeletonLines.map((line, i) => (
+									<Skeleton
+										key={i}
+										height={line.height}
+										width={line.width}
+										highlightColor="var(--card-hover)"
+										baseColor="var(--card)"
+									/>
+								))}
+							</div>
+						</div>
+					) : (
+						<>
+							{coverImage && (
+								<div
+									onMouseEnter={() =>
+										setInfo((prev) => ({ ...prev, showRemoveCoverBtn: true }))
+									}
+									onMouseLeave={() =>
+										setInfo((prev) => ({ ...prev, showRemoveCoverBtn: false }))
+									}
+									className="notes-cover-image-container"
+								>
+									<img
+										src={coverImage}
+										onError={handleCoverImageError}
+										alt="cover image"
+									/>
+									{info?.showRemoveCoverBtn && (
+										<button
+											onClick={handleRemoveCover}
+											className="remove-cover-btn"
+										>
+											Remove
+										</button>
+									)}
+								</div>
+							)}
+							<div
+								className="notes-editor-wrapper"
+								style={{
+									maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px',
+								}}
+							>
+								<Tooltip
+									open={info?.showCustomizeAppearance}
+									onOpenChange={() => {
+										if (info?.showUploadPopup) {
+											setInfo((prev) => ({
+												...prev,
+												showUploadPopup: false,
+											}));
+										}
 										setInfo((prev) => ({
 											...prev,
-											showUploadPopup: false,
+											showCustomizeAppearance: !prev.showCustomizeAppearance,
 										}));
+									}}
+									placement="bottomLeft"
+									title={
+										info?.showUploadPopup && info?.uploadType === 'cover' ? (
+											<UploadPopup
+												closePopup={() =>
+													setInfo((prev) => ({
+														...prev,
+														showUploadPopup: false,
+														showCustomizeAppearance: false,
+													}))
+												}
+												setLocalCoverImage={(coverImage) =>
+													setInfo((prev) => ({
+														...prev,
+														localCoverImage: coverImage,
+														coverImageRemoved: false,
+													}))
+												}
+												uploadType={info?.uploadType}
+											/>
+										) : info?.showUploadPopup && info?.uploadType === 'icon' ? (
+											<IconUploadPopup
+												setSelectedEmoji={(emoji) =>
+													setInfo((prev) => ({
+														...prev,
+														selectedEmoji: emoji,
+													}))
+												}
+												closePopup={() =>
+													setInfo((prev) => ({
+														...prev,
+														showUploadPopup: false,
+														showCustomizeAppearance: false,
+													}))
+												}
+											/>
+										) : (
+											<CustomizeAppearance
+												// uploadType can be 'cover' or 'icon'
+												showUploadPopup={(uploadType) =>
+													setInfo((prev) => ({
+														...prev,
+														showUploadPopup: true,
+														uploadType,
+													}))
+												}
+											/>
+										)
 									}
-									setInfo((prev) => ({
-										...prev,
-										showCustomizeAppearance: !prev.showCustomizeAppearance,
-									}));
-								}}
-								placement="bottomLeft"
-								title={
-									info?.showUploadPopup && info?.uploadType === 'cover' ? (
-										<UploadPopup
-											closePopup={() =>
-												setInfo((prev) => ({
-													...prev,
-													showUploadPopup: false,
-													showCustomizeAppearance: false,
-												}))
-											}
-											setLocalCoverImage={(coverImage) =>
-												setInfo((prev) => ({
-													...prev,
-													localCoverImage: coverImage,
-													coverImageRemoved: false,
-												}))
-											}
-											uploadType={info?.uploadType}
-										/>
-									) : info?.showUploadPopup && info?.uploadType === 'icon' ? (
-										<IconUploadPopup
-											setSelectedEmoji={(emoji) =>
-												setInfo((prev) => ({
-													...prev,
-													selectedEmoji: emoji,
-												}))
-											}
-											closePopup={() =>
-												setInfo((prev) => ({
-													...prev,
-													showUploadPopup: false,
-													showCustomizeAppearance: false,
-												}))
-											}
-										/>
-									) : (
-										<CustomizeAppearance
-											// uploadType can be 'cover' or 'icon'
-											showUploadPopup={(uploadType) =>
-												setInfo((prev) => ({
-													...prev,
-													showUploadPopup: true,
-													uploadType,
-												}))
-											}
-										/>
-									)
-								}
-								overlayInnerStyle={{
-									backgroundColor: 'inherit',
-								}}
-								arrow={false}
-							>
-								<div
-									className="notes-icon-container"
-									style={{
-										paddingTop: coverImage
-											? '42px'
-											: iconImage
-											? '100px'
-											: '0px',
+									overlayInnerStyle={{
+										backgroundColor: 'inherit',
 									}}
+									arrow={false}
 								>
-									{iconImage && (
-										<div
-											className="notes-icon-wrapper"
-											onMouseEnter={() =>
-												setInfo((prev) => ({
-													...prev,
-													showRemoveIconBtn: true,
-												}))
-											}
-											onMouseLeave={() =>
-												setInfo((prev) => ({
-													...prev,
-													showRemoveIconBtn: false,
-												}))
-											}
-											style={{
-												top: coverImage
-													? '-72px'
-													: iconImage
-													? '-10px'
-													: '-24px',
-											}}
-										>
-											{info?.showRemoveIconBtn && (
-												<div className="remove-icon-btn-container">
-													<CrossIcon
-														className="remove-icon-btn"
-														onClick={handleRemoveIcon}
-													/>
-												</div>
-											)}
-											{iconImage?.native}
-										</div>
+									<div
+										className="notes-icon-container"
+										style={{
+											paddingTop: coverImage
+												? '42px'
+												: iconImage
+												? '100px'
+												: '0px',
+										}}
+									>
+										{iconImage && (
+											<div
+												className="notes-icon-wrapper"
+												onMouseEnter={() =>
+													setInfo((prev) => ({
+														...prev,
+														showRemoveIconBtn: true,
+													}))
+												}
+												onMouseLeave={() =>
+													setInfo((prev) => ({
+														...prev,
+														showRemoveIconBtn: false,
+													}))
+												}
+												style={{
+													top: coverImage
+														? '-72px'
+														: iconImage
+														? '-10px'
+														: '-24px',
+												}}
+											>
+												{info?.showRemoveIconBtn && (
+													<div className="remove-icon-btn-container">
+														<CrossIcon
+															className="remove-icon-btn"
+															onClick={handleRemoveIcon}
+														/>
+													</div>
+												)}
+												{iconImage?.native}
+											</div>
+										)}
+										<CustomTextArea
+											className="notes-title"
+											value={info?.title}
+											onChange={handleTitleChange}
+											autoResize={true}
+											onKeyDown={handleKeyDown}
+										/>
+									</div>
+								</Tooltip>
+								<BlockNoteView
+									editor={editor}
+									formattingToolbar={false}
+									onChange={onChange}
+									style={innerContainerStyle || {}}
+									theme={'dark'}
+									editable={info?.myAccess !== 'view' || !info?.isDeleted}
+									slashMenu={false}
+								>
+									{(info?.myAccess !== 'view' || !info?.isDeleted) && (
+										<NoteToolbar
+											sendMessage={customSendMessage}
+											aiResonse={info?.aiResonse}
+											resetAiResponse={resetAiResponse}
+										/>
 									)}
-									<CustomTextArea
-										className="notes-title"
-										value={info?.title}
-										onChange={handleTitleChange}
-										autoResize={true}
-										onKeyDown={handleKeyDown}
-									/>
-								</div>
-							</Tooltip>
-							<BlockNoteView
-								editor={editor}
-								formattingToolbar={false}
-								onChange={onChange}
-								style={innerContainerStyle || {}}
-								theme={'dark'}
-								editable={info?.myAccess !== 'view' || !info?.isDeleted}
-								slashMenu={false}
-							>
-								{(info?.myAccess !== 'view' || !info?.isDeleted) && (
-									<NoteToolbar
-										sendMessage={customSendMessage}
-										aiResonse={info?.aiResonse}
-										resetAiResponse={resetAiResponse}
-									/>
-								)}
-								<SuggestionMenuController
-									triggerCharacter={'/'}
-									getItems={async (query) => {
-										const defaultItems = getDefaultReactSlashMenuItems(editor);
-										const imageBlockIndex = defaultItems.findIndex(
-											(item) => item.group === 'Media',
-										);
-										defaultItems.splice(
-											imageBlockIndex,
-											0,
-											insertImage(editor, noteId),
-										);
+									<SuggestionMenuController
+										triggerCharacter={'/'}
+										getItems={async (query) => {
+											const defaultItems =
+												getDefaultReactSlashMenuItems(editor);
+											const imageBlockIndex = defaultItems.findIndex(
+												(item) => item.group === 'Media',
+											);
+											defaultItems.splice(
+												imageBlockIndex,
+												0,
+												insertImage(editor, noteId),
+											);
 
-										return filterSuggestionItems(defaultItems, query);
-									}}
-								/>
-							</BlockNoteView>
-						</div>
-					</>
-				)}
+											return filterSuggestionItems(defaultItems, query);
+										}}
+									/>
+								</BlockNoteView>
+							</div>
+						</>
+					)}
+				</div>
 			</div>
 			{/* <NoteTranscription pageId={noteId} updateTranscription={handleUpdateTranscription} /> */}
 		</div>

@@ -194,9 +194,10 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 								});
 
 								if (accountsResponse?.data?.connected_accounts) {
-									const newAccount = accountsResponse.data.connected_accounts.find(
-										(account) => account.app.name_slug === action.app,
-									);
+									const newAccount =
+										accountsResponse.data.connected_accounts.find(
+											(account) => account.app.name_slug === action.app,
+										);
 									if (newAccount) {
 										accountId = newAccount.id;
 									} else {
@@ -249,9 +250,17 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 					variables.push({
 						name: prop.name,
 						type: prop.type,
-						description: prop.description || `No description provided for ${prop.name}`,
+						optional: prop.optional ?? false,
+						description: prop.options
+							? `${
+									prop.description ? `${prop.description} ` : ''
+							  }, Always populate one of: [${prop.options
+									.map((opt) => `'${opt}'`)
+									.join(
+										', ',
+									)}]. Never choose any value apart from this. It should be populated with one of the options.`
+							: prop.description || `No description provided for ${prop.name}`,
 					});
-
 				}
 			});
 
@@ -275,7 +284,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				variables,
 				isAuthenticated: true,
 				agent: 'knowledgeAgent',
-				key: action.key
+				key: action.key,
 			};
 
 			await addActionToKnowledgeAgent(agentId, payload);
