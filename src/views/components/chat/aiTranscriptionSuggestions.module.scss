@@ -1,16 +1,17 @@
 .aiTranscriptionSuggestions {
 	display: flex;
 	// width: 600px;
+	width: 100%;
 	transition: width 0.3s ease-in-out;
-	height: 100vh;
-	padding: 20px 32px;
+	flex-grow: 1;
+	overflow-y: auto;
+	// padding: 20px 32px;
 	flex-direction: column;
 	align-items: center;
 	gap: 24px;
-	flex-shrink: 0;
-	border-left: 1px solid var(--dividers, #f0f0f0);
-	background: var(--right-bar, #f5f5f5);
-	box-shadow: 4px 0px 8px 0px rgba(0, 0, 0, 0.04) inset;
+	// border-left: 1px solid var(--dividers, #f0f0f0);
+	// background: var(--right-bar, #f5f5f5);
+	// box-shadow: 4px 0px 8px 0px rgba(0, 0, 0, 0.04) inset;
 
 	.header {
 		display: flex;
@@ -60,12 +61,12 @@
 			gap: 8px;
 			align-self: stretch;
 			width: 100%;
-			background: var(--popup, #fff);
-			box-shadow: 0px 8px 12px 0px rgba(0, 0, 0, 0.06);
-			background: var(--popup, #fff);
-			height: 40vh;
+			// box-shadow: 0px 8px 12px 0px rgba(0, 0, 0, 0.06);
+			// background: var(--popup, #fff);
+			// height: 40vh;
 			padding: 20px;
 			border-radius: 16px;
+			height: 100%;
 
 			.questionsHeading {
 				display: flex;
@@ -306,7 +307,8 @@
 			flex-direction: column;
 			align-items: flex-start;
 			gap: 20px;
-
+			height: 100%;
+			overflow-y: auto;
 			.text {
 				color: var(--primary-font, #f2f2f3);
 				font-family: var(--primary-font-family);
@@ -323,9 +325,7 @@
 				align-items: flex-start;
 				gap: 8px;
 				align-self: stretch;
-				height: 10vh;
-				flex-wrap: nowrap;
-				overflow-y: auto;
+				flex-wrap: wrap;
 				.file {
 					display: flex;
 					padding: 12px 14px;
@@ -368,16 +368,16 @@
 	}
 }
 
-@media (max-width: 1600px) {
-	.aiTranscriptionSuggestions {
-		width: 500px;
-		padding: 16px 24px;
-	}
-}
+// @media (max-width: 1600px) {
+// 	.aiTranscriptionSuggestions {
+// 		width: 500px;
+// 		padding: 16px 24px;
+// 	}
+// }
 
-@media (max-width: 1400px) {
-	.aiTranscriptionSuggestions {
-		width: 450px;
-		padding: 16px 24px;
-	}
-}
+// @media (max-width: 1400px) {
+// 	.aiTranscriptionSuggestions {
+// 		width: 450px;
+// 		padding: 16px 24px;
+// 	}
+// }
