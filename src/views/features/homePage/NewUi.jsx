@@ -11,6 +11,8 @@ import {
 	handleDeepSearchChainOfThought,
 } from '../../../helpers/chatHelpers';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
+import { getGreeting } from '../../../helpers';
+import jwtDecode from 'jwt-decode';
 
 const getCardStyles = (index, activeIndex, dataLength) => {
 	const prev1 = (activeIndex - 1 + dataLength) % dataLength;
@@ -73,6 +75,7 @@ const NewUi = () => {
 	const {
 		aiSetup: { aiChatSessions },
 		templates: { updateStateValues },
+		profileInfo: { userDetailsData },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		activeIndex: 0,
@@ -248,6 +251,12 @@ const NewUi = () => {
 		}
 	}, []);
 
+	const userName =
+		jwtDecode(localStorage.getItem('usertoken'))?.userName ||
+		userDetailsData?.firstName + ' ' + (userDetailsData?.lastName ?? '') ||
+		'User';
+	const greeting = getGreeting();
+
 	return (
 		<div className="new-ui-container" ref={containerRef}>
 			<div className="new-ui-wrapper">
@@ -279,6 +288,12 @@ const NewUi = () => {
 							>
 								{session?.type === 'chatbox' ? (
 									<div className="chatboxWrapper">
+										<div className={`title-container `}>
+											<div className="title-text">
+												<h2 className="title-one">{greeting}!</h2>
+												<span className="title-two">{userName}</span>
+											</div>
+										</div>
 										<ChatBox
 											sessionId={info?.sessionId}
 											onSend={(data) =>
@@ -289,7 +304,7 @@ const NewUi = () => {
 											animatePlaceholder={false}
 											showUpgradeSubscriptionBtn={false}
 											onChatQueryChange={handleChatQueryChange}
-											animateChatBox={false}
+											animateChatBox={true}
 										/>
 										<Suggestions
 											chatQuery={info?.chatQuery}

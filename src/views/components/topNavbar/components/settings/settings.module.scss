@@ -23,6 +23,7 @@
 		}
 
 		.userInfoDetails {
+			flex: 1;
 			display: flex;
 			flex-direction: column;
 			gap: 2px;
@@ -129,4 +130,16 @@
 			background: rgba(192, 55, 68, 0.2);
 		}
 	}
+}
+
+.switchWorkspaceTooltip {
+	color: var(--primary-font, #f2f2f3);
+	font-family: var(--primary-font-family);
+	font-size: 13px;
+	font-style: normal;
+	font-weight: 500;
+	background: var(--popup, #202123);
+	padding: 12px;
+	border-radius: 12px;
+	border: 1px solid var(--dividers, #1e1f20);
 }

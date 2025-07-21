@@ -81,8 +81,12 @@
 		align-self: stretch;
 		cursor: pointer;
 		border-radius: 8px;
-		background: var(--card, #1b1c1d);
-		margin: 8px auto;
+		background: inherit;
+		transition: all 0.3s ease;
+
+		&:hover {
+			background: var(--card, #1b1c1d);
+		}
 
 		svg {
 			width: 36px;
@@ -119,9 +123,36 @@
 			align-self: stretch;
 			background-color: inherit;
 			cursor: pointer;
-			border-bottom: 1px solid var(--stroke, #2c2d2e);
-			border-radius: 8px;
 			position: relative;
+
+			&::after {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 1px;
+				background-color: var(--stroke, #2c2d2e);
+			}
+
+			&:hover {
+				&::before {
+					content: 'Switch to this workspace';
+					position: absolute;
+					right: -154px;
+					top: 50%;
+					transform: translateY(-15%);
+					width: 100%;
+					height: 100%;
+					background-color: transparent;
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
 
 			.workspaceLogo {
 				width: 36px;
