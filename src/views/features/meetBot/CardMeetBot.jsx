@@ -9,7 +9,7 @@ import EmptyMeetBotList from './emptyMeetBotList';
 import { ReactComponent as ChevronDown } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
 import { ReactComponent as AddIcon } from '../../../assets/svg/add.svg';
-
+import Spinner from '../../components/loaders/Spinner';
 const meetingModeOptions = [
 	{ value: 'meeting', label: 'Meeting' },
 	{ value: 'sales', label: 'Sales Mode' },
