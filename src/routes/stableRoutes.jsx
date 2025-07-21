@@ -8,11 +8,15 @@ import AuthWrapper from '../views/layouts/authWrapper';
 import InitialHomePage from '../views/features/homePage/InitialHomePage';
 import MeetBot from '../views/features/meetBot/meetBot';
 import NotesWrapper from '../views/features/notesModule/NotesWrapper';
+
+// lazy loaded pages
 import ShareAndEarn from '../views/features/shareAndEarn/ShareAndEarn';
 import SettingsWrapper from '../views/features/settings/SettingsWrapper';
 import RecentChat from '../views/features/chat/RecentChat';
 import Onboarding from '../views/features/onboarding/Onboarding';
 
+// components
+import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 import AmbientAi from '../views/features/ambientAi/AmbientAi';
 
 const stableRoutes = [
@@ -27,7 +31,7 @@ const stableRoutes = [
 			>
 				<InitialHomePage />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/ambient-ai',
@@ -35,15 +39,17 @@ const stableRoutes = [
 			<AuthWrapper title={'Ambient AI'}>
 				<AmbientAi />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/create-workspace',
 		element: (
 			<Public>
-				<Onboarding />
+				<Suspense fallback={<SuspenseFallback />}>
+					<Onboarding />
+				</Suspense>
 			</Public>
-		)
+		),
 	},
 	{
 		path: '/share-and-earn',
@@ -51,7 +57,7 @@ const stableRoutes = [
 			<AuthWrapper title={'Share and Earn'}>
 				<ShareAndEarn />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/settings/:type',
@@ -59,7 +65,7 @@ const stableRoutes = [
 			<AuthWrapper title={'Workspace Settings'}>
 				<SettingsWrapper />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/chat/:sessionId',
@@ -69,14 +75,14 @@ const stableRoutes = [
 				showBottomToolbar={false}
 				outerContainerStyle={{
 					paddingRight: '0px',
-					backgroundColor: 'var(--chat-background-color)'
+					backgroundColor: 'var(--chat-background-color)',
 				}}
 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 				maxWidth="100%"
 			>
 				<RecentChat />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/meet',
@@ -84,7 +90,7 @@ const stableRoutes = [
 			<AuthWrapper title={'Meet'}>
 				<MeetBot />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/meet/:noteId',
@@ -92,23 +98,7 @@ const stableRoutes = [
 			<AuthWrapper title={'Meet'}>
 				<NotesWrapper />
 			</AuthWrapper>
-		)
-	},
-	{
-		path: '/meet',
-		element: (
-			<AuthWrapper title={'Meet'}>
-				<MeetBot />
-			</AuthWrapper>
-		)
-	},
-	{
-		path: '/meet/:noteId',
-		element: (
-			<AuthWrapper title={'Meet'}>
-				<NotesWrapper />
-			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '*',
@@ -116,8 +106,8 @@ const stableRoutes = [
 			<Public>
 				<Navigate to="/home" />
 			</Public>
-		)
-	}
+		),
+	},
 ];
 
 export default stableRoutes;

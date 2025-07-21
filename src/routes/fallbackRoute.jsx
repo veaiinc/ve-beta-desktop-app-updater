@@ -5,8 +5,8 @@ import PageLoader from '../views/features/app/PageLoader';
 const fallbackRoute = [
 	{
 		path: '*',
-		element: <PageLoader />
-	}
+		element: <PageLoader />,
+	},
 ];
 
 export default fallbackRoute;

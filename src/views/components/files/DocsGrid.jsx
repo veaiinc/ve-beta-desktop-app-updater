@@ -52,20 +52,20 @@ const docsStatusButtonStyles = {
 	fontSize: '10px',
 	fontStyle: 'normal',
 	fontWeight: '500',
-	lineHeight: '14px'
+	lineHeight: '14px',
 };
 const sortOptions = [
 	{ label: 'Recently Added', value: 'createdAt', sortType: -1 },
 	{ label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
-	{ label: 'A-Z', value: 'title', sortType: 1 }
+	{ label: 'A-Z', value: 'title', sortType: 1 },
 ];
 
 const docsCtaMapper = [
 	{
 		id: 0,
 		icon: <Link />,
-		action: 'copyDocLink'
-	}
+		action: 'copyDocLink',
+	},
 	// {
 	// 	id: 1,
 	// 	icon: <Copy />,
@@ -84,13 +84,13 @@ const DocsGrid = ({
 	handleTotalChange,
 	clientId = null,
 	viewMode,
-	setViewMode
+	setViewMode,
 }) => {
 	const navigate = useNavigate();
 
 	const {
 		templates: { getDocsFilesList, docsFilesList, updateStateValues, docsFilesRefetch },
-		profileInfo: { tennantSettingsData }
+		profileInfo: { tennantSettingsData },
 	} = useContext(Context);
 	const mountedRef = useRef(true);
 
@@ -102,7 +102,7 @@ const DocsGrid = ({
 		searchLoading: false,
 		selectedFilter: { label: 'All', value: '' },
 		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
-		searchQuery: ''
+		searchQuery: '',
 	});
 
 	// Remove local viewMode state since it's now passed as prop
@@ -140,7 +140,7 @@ const DocsGrid = ({
 
 		const timeout = setTimeout(() => {
 			const cards = document.querySelectorAll(
-				'.card-container .card-item:not(.card-item-style-btn)'
+				'.card-container .card-item:not(.card-item-style-btn)',
 			);
 			if (!cards || cards.length === 0) return;
 
@@ -152,13 +152,13 @@ const DocsGrid = ({
 					const yOffset = 50 + Math.random() * 100;
 					gsap.set(card, {
 						y: yOffset,
-						opacity: 0
+						opacity: 0,
 					});
 				});
 
 				const columnGroups = {
 					oddColumns: newCards.filter((_, index) => index % 4 === 0 || index % 4 === 2),
-					evenColumns: newCards.filter((_, index) => index % 4 === 1 || index % 4 === 3)
+					evenColumns: newCards.filter((_, index) => index % 4 === 1 || index % 4 === 3),
 				};
 
 				gsap.to(columnGroups.oddColumns, {
@@ -167,23 +167,23 @@ const DocsGrid = ({
 					duration: 0.4,
 					stagger: {
 						each: 0.05,
-						ease: 'power1.out'
+						ease: 'power1.out',
 					},
 					modifiers: {
 						y: (y, target) => {
 							const initialY = Math.abs(
-								parseFloat(target.style.transform?.split('translateY(')[1]) || 0
+								parseFloat(target.style.transform?.split('translateY(')[1]) || 0,
 							);
 							const duration = gsap.utils.mapRange(50, 150, 0.4, 0.2)(initialY);
 							if (target._gsap) target._gsap.duration = duration;
 							return y;
-						}
+						},
 					},
 					onComplete: () => {
 						columnGroups.oddColumns.forEach((card) => {
 							card.dataset.animated = 'true';
 						});
-					}
+					},
 				});
 
 				gsap.to(columnGroups.evenColumns, {
@@ -193,23 +193,23 @@ const DocsGrid = ({
 					delay: 0.1,
 					stagger: {
 						each: 0.05,
-						ease: 'power1.out'
+						ease: 'power1.out',
 					},
 					modifiers: {
 						y: (y, target) => {
 							const initialY = Math.abs(
-								parseFloat(target.style.transform?.split('translateY(')[1]) || 0
+								parseFloat(target.style.transform?.split('translateY(')[1]) || 0,
 							);
 							const duration = gsap.utils.mapRange(50, 150, 0.4, 0.2)(initialY);
 							if (target._gsap) target._gsap.duration = duration;
 							return y;
-						}
+						},
 					},
 					onComplete: () => {
 						columnGroups.evenColumns.forEach((card) => {
 							card.dataset.animated = 'true';
 						});
-					}
+					},
 				});
 			}, cards[0]);
 
@@ -225,7 +225,7 @@ const DocsGrid = ({
 				currentPage = 1,
 				hasNextPage = false,
 				data = [],
-				totalDocs = data.length
+				totalDocs = data.length,
 			} = docsFilesList || {};
 			const newDocs = currentPage === 1 ? [...data] : [...info?.docs, ...(data || [])];
 			handleStateUpdate({ docs: newDocs, currentPage, hasNextPage, loading: false });
@@ -261,9 +261,9 @@ const DocsGrid = ({
 					page,
 					sortBy,
 					sortType,
-					title: info?.searchQuery
+					title: info?.searchQuery,
 					// action: info?.selectedFilter?.value,
-				}
+				},
 			};
 			if (clientId) {
 				payload.filters.clientId = clientId;
@@ -316,7 +316,7 @@ const DocsGrid = ({
 				return `https://${workspaceId}.ve.ai/portal/${doc?.slug || doc._id}`;
 			}
 		},
-		[tennantSettingsData]
+		[tennantSettingsData],
 	);
 
 	const handleDocCta = ({ e, action, doc }) => {
@@ -516,7 +516,7 @@ const DocsGrid = ({
 													content={statusTextmapper?.[doc?.status]?.text}
 													style={{
 														...statusTextmapper?.[doc?.status]?.style,
-														...docsStatusButtonStyles
+														...docsStatusButtonStyles,
 													}}
 													dotStyle={
 														statusTextmapper?.[doc?.status]?.dotStyle
@@ -531,7 +531,7 @@ const DocsGrid = ({
 																handleDocCta({
 																	e,
 																	action: cta?.action,
-																	doc: doc
+																	doc: doc,
 																})
 															}
 														>
@@ -547,7 +547,7 @@ const DocsGrid = ({
 													content={statusTextmapper?.[doc?.status]?.text}
 													style={{
 														...statusTextmapper?.[doc?.status]?.style,
-														...docsStatusButtonStyles
+														...docsStatusButtonStyles,
 													}}
 													dotStyle={
 														statusTextmapper?.[doc?.status]?.dotStyle
@@ -562,7 +562,7 @@ const DocsGrid = ({
 																handleDocCta({
 																	e,
 																	action: cta?.action,
-																	doc: doc
+																	doc: doc,
 																})
 															}
 														>

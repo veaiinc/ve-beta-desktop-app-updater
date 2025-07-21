@@ -26,7 +26,7 @@ const customStyles = {
 		padding: '40px',
 		flexDirection: 'column',
 		alignItems: 'flex-start',
-		gap: '20px'
+		gap: '20px',
 	},
 	overlay: {
 		top: 0,
@@ -34,8 +34,8 @@ const customStyles = {
 		right: 0,
 		bottom: 0,
 		background: 'rgba(0, 0, 0, 0.40)',
-		backdropFilter: 'blur(4px)'
-	}
+		backdropFilter: 'blur(4px)',
+	},
 };
 
 const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWorkspaceId }) => {
@@ -60,7 +60,7 @@ const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWo
 		localStorage.setItem('isOnboard', isOnboard);
 		Cookies.set('workspaceId', activeWorkspaceId, {
 			sameSite: 'lax',
-			domain: host
+			domain: host,
 		});
 
 		if (salesId) {

@@ -1,0 +1,47 @@
+name: Push to Bitbucket
+on:
+    push:
+        branches:
+            # - '**'  # Sync all branches
+            - 'master'
+            - 'development'
+            - 'feature/new-transcription-ui'
+
+jobs:
+    sync:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+              with:
+                  fetch-depth: 0
+
+            - name: Push to Bitbucket
+              env:
+                  BB_USERNAME: ${{ secrets.BITBUCKET_USERNAME }}
+                  BB_WORKSPACE: ${{ secrets.BITBUCKET_WORKSPACE }}
+                  BB_APP_PASSWORD: ${{ secrets.BITBUCKET_APP_PASSWORD }}
+              run: |
+                  # Configure git user
+                  git config --global user.name "GitHub-Bitbucket Sync"
+                  git config --global user.email "noreply@github.com"
+
+                  # Validate required secrets
+                  if [[ -z "$BB_USERNAME" || -z "$BB_WORKSPACE" || -z "$BB_APP_PASSWORD" ]]; then
+                    echo "❌ Error: Missing required secrets (BITBUCKET_USERNAME, BITBUCKET_WORKSPACE, or BITBUCKET_APP_PASSWORD)"
+                    exit 1
+                  fi
+
+                  echo "🔄 Syncing to Bitbucket repository: $BB_WORKSPACE/${{ github.event.repository.name }}"
+
+                  # Add Bitbucket remote
+                  git remote add bitbucket https://$BB_USERNAME:$BB_APP_PASSWORD@bitbucket.org/$BB_WORKSPACE/${{ github.event.repository.name }}.git
+
+                  # Push all branches and tags
+                  echo "📤 Pushing branches..."
+                  git push bitbucket --all --force
+
+                  echo "🏷️ Pushing tags..."
+                  git push bitbucket --tags --force
+
+                  echo "✅ Successfully synced to Bitbucket"

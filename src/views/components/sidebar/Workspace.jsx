@@ -15,7 +15,7 @@ const workspaceOpenStyle = {
 	opacity: 0.4,
 	height: '100vh',
 	zIndex: 997,
-	cursor: 'pointer'
+	cursor: 'pointer',
 };
 
 const workspaceStyle = { display: 'flex', gap: '4px', alignItems: 'center' };
@@ -24,10 +24,10 @@ const WorkspaceListComponent = ({
 	sidebarStates,
 	setsidebarStates,
 	info,
-	isThisEarlyAccessPage
+	isThisEarlyAccessPage,
 }) => {
 	const {
-		profileInfo: { userWorkSpaceList }
+		profileInfo: { userWorkSpaceList },
 	} = useContext(Context);
 
 	const [searchWorkspace, setSearchWorkspace] = useState('');
@@ -40,7 +40,7 @@ const WorkspaceListComponent = ({
 	const filteredWorkspaces =
 		userWorkSpaceList
 			?.filter((ws) =>
-				ws?.businessName?.toLowerCase()?.includes(searchWorkspace?.toLowerCase())
+				ws?.businessName?.toLowerCase()?.includes(searchWorkspace?.toLowerCase()),
 			)
 			.sort((a, b) => {
 				if (a?.activeWorkspaceId === currentId) return -1;
@@ -55,7 +55,7 @@ const WorkspaceListComponent = ({
 			if (e?.key === 'ArrowDown') {
 				e?.preventDefault();
 				setFocusedIndex((prev) =>
-					prev < filteredWorkspaces?.length - 1 ? prev + 1 : prev
+					prev < filteredWorkspaces?.length - 1 ? prev + 1 : prev,
 				);
 			} else if (e?.key === 'ArrowUp') {
 				e?.preventDefault();
@@ -92,14 +92,14 @@ const WorkspaceListComponent = ({
 
 			Cookies?.set('workspaceId', activeWorkspaceId, {
 				sameSite: 'lax',
-				domain: host
+				domain: host,
 			});
 
 			// case : if there is no usertoken in cookies so everytime make sure usertoken and cookies should be set,
 			let accessToken = localStorage.getItem('usertoken');
 			Cookies?.set('usertoken', accessToken, {
 				sameSite: 'lax',
-				domain: host
+				domain: host,
 			});
 
 			const currentRegion = localStorage.getItem('region');
@@ -114,7 +114,7 @@ const WorkspaceListComponent = ({
 				localStorage.setItem('region', newWorkspaceRegion);
 				Cookies?.set('region', newWorkspaceRegion, {
 					sameSite: 'lax',
-					domain: host
+					domain: host,
 				});
 			}
 			window.location.hash = '/home';
@@ -124,7 +124,7 @@ const WorkspaceListComponent = ({
 				window.location.reload();
 			}
 		},
-		[userWorkSpaceList]
+		[userWorkSpaceList],
 	);
 
 	return (

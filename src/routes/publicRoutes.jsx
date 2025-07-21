@@ -20,7 +20,7 @@ const publicRoutes = [
 			<Public>
 				<LandingPage />
 			</Public>
-		)
+		),
 	},
 	{
 		path: '/manifesto',
@@ -28,7 +28,7 @@ const publicRoutes = [
 			<Public>
 				<LandingPage />
 			</Public>
-		)
+		),
 	},
 	{
 		path: '/contact-us',
@@ -36,7 +36,7 @@ const publicRoutes = [
 			<Public>
 				<LandingPage />
 			</Public>
-		)
+		),
 	},
 	{
 		path: '/api',
@@ -44,7 +44,7 @@ const publicRoutes = [
 			<Public>
 				<LandingPage />
 			</Public>
-		)
+		),
 	},
 	{
 		path: '/about-us',
@@ -52,7 +52,7 @@ const publicRoutes = [
 			<Public>
 				<LandingPage />
 			</Public>
-		)
+		),
 	},
 	{
 		path: '/careers',
@@ -60,7 +60,7 @@ const publicRoutes = [
 			<Public>
 				<LandingPage />
 			</Public>
-		)
+		),
 	},
 	{
 		path: '/forefront',
@@ -68,7 +68,7 @@ const publicRoutes = [
 			<Public>
 				<LandingPage />
 			</Public>
-		)
+		),
 	},
 	{
 		path: '/onboarding',
@@ -76,7 +76,7 @@ const publicRoutes = [
 			<Public>
 				<Onboarding />
 			</Public>
-		)
+		),
 	},
 	{
 		path: '/verify-user',
@@ -84,7 +84,7 @@ const publicRoutes = [
 			<Public>
 				<LoginPage />
 			</Public>
-		)
+		),
 	},
 	{
 		path: '/referral/:referralCode',
@@ -92,7 +92,7 @@ const publicRoutes = [
 			<Public>
 				<LoginPage />
 			</Public>
-		)
+		),
 	},
 	{
 		path: '/privacy-policy',
@@ -100,7 +100,7 @@ const publicRoutes = [
 			<Public>
 				<PrivacyPolicy />
 			</Public>
-		)
+		),
 	},
 	{
 		path: '/terms-of-service',
@@ -108,7 +108,7 @@ const publicRoutes = [
 			<Public>
 				<TermsOfService />
 			</Public>
-		)
+		),
 	},
 	{
 		path: '/cookie-policy',
@@ -116,7 +116,7 @@ const publicRoutes = [
 			<Public>
 				<CookiePolicy />
 			</Public>
-		)
+		),
 	},
 	{
 		path: '/changelog',
@@ -124,7 +124,7 @@ const publicRoutes = [
 			<Public>
 				<ChageLog />
 			</Public>
-		)
+		),
 	},
 	{
 		path: '/user/verify-oauth-user',
@@ -132,7 +132,7 @@ const publicRoutes = [
 			<Public>
 				<OauthVerify />
 			</Public>
-		)
+		),
 	},
 	{
 		path: '*',
@@ -140,8 +140,8 @@ const publicRoutes = [
 			<Public>
 				<Navigate to="/" />
 			</Public>
-		)
-	}
+		),
+	},
 ];
 
 export default publicRoutes;

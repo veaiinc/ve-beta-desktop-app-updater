@@ -1,5 +1,4 @@
 import { Navigate } from 'react-router-dom';
-
 // layouts
 import AuthWrapper from '../views/layouts/authWrapper';
 import GalleryViewLayout from '../views/layouts/galleryViewLayout';
@@ -46,12 +45,12 @@ import SmartFile from '../views/features/sales/smartFiles/SmartFile';
 import WorkflowBuilder from '../views/features/workflowBuilder/WorkflowBuilder';
 import Workflow_builder_updated from '../views/features/workflowBuilderUpdated/WorkflowBuilderUpdated';
 import Onboarding from '../views/features/onboarding/Onboarding';
+import Contacts from '../views/features/contacts/Contacts';
+import AmbientAi from '../views/features/ambientAi/AmbientAi';
 
 import Files from '../views/features/files/Files';
 import ExpandedClientView from '../views/features/contacts/ExpandedClientView';
 import BuilderApp from '../../builderSrc/App';
-import Contacts from '../views/features/contacts/Contacts';
-import AmbientAi from '../views/features/ambientAi/AmbientAi';
 import Notes from '../views/features/notesModule/Notes';
 import Agents from '../views/features/agents/Agents';
 import Agent from '../views/features/agents/agent/Agent';
@@ -77,7 +76,7 @@ const betaRoutes = [
 			>
 				<InitialHomePage />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/ambient-ai',
@@ -85,7 +84,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Ambient AI'}>
 				<AmbientAi />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/create-workspace',
@@ -93,7 +92,7 @@ const betaRoutes = [
 			<Public>
 				<Onboarding />
 			</Public>
-		)
+		),
 	},
 	{
 		path: '/share-and-earn',
@@ -101,7 +100,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Share and Earn'}>
 				<ShareAndEarn />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/settings/:type',
@@ -109,7 +108,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Workspace Settings'}>
 				<SettingsWrapper />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/chat/:sessionId',
@@ -119,14 +118,14 @@ const betaRoutes = [
 				showBottomToolbar={false}
 				outerContainerStyle={{
 					paddingRight: '0px',
-					backgroundColor: 'var(--chat-background-color)'
+					backgroundColor: 'var(--chat-background-color)',
 				}}
 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 				maxWidth="100%"
 			>
 				<RecentChat />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/playbook',
@@ -134,7 +133,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Sales'}>
 				<GlobalWorkflows />
 			</AuthWrapper>
-		)
+		),
 	},
 
 	{
@@ -143,7 +142,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Early Access'}>
 				<EarlyAccess />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/brand-setup',
@@ -151,7 +150,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Brand Setup'}>
 				<BrandSetup />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/galleries',
@@ -159,7 +158,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Galleries'} showBottomToolbar={false}>
 				<AddGallery />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/lite-gallery',
@@ -167,7 +166,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Lite Gallery'} showBottomToolbar={false}>
 				<LiteGallery />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/galleries/:galleryId',
@@ -175,7 +174,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Gallery'} showBottomToolbar={false}>
 				<GalleryPage />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/galleries/:galleryId/:albumId/upload-photos',
@@ -183,7 +182,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Upload Photos'} showBottomToolbar={false}>
 				<UploadPhotos />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/galleries/:galleryId/:albumId/album-settings',
@@ -191,7 +190,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Album Settings'} showBottomToolbar={false}>
 				<AlbumSettings />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/galleries/:galleryId/:albumId/gallery-viewer',
@@ -199,7 +198,7 @@ const betaRoutes = [
 			<GalleryViewLayout title={'Gallery Viewer'}>
 				<GalleryViewer />
 			</GalleryViewLayout>
-		)
+		),
 	},
 	{
 		path: '/smart-file/:templateId/:workflowId',
@@ -207,7 +206,7 @@ const betaRoutes = [
 			<SmartFileLayout title={'Smart File'}>
 				<SmartFile />
 			</SmartFileLayout>
-		)
+		),
 	},
 	{
 		path: '/workflow_builder/:templateId',
@@ -215,7 +214,7 @@ const betaRoutes = [
 			<WorkflowBuilderLayout title={'Workflow Builder'}>
 				<WorkflowBuilder />
 			</WorkflowBuilderLayout>
-		)
+		),
 	},
 	{
 		path: '/automation_builder/:templateId',
@@ -223,7 +222,7 @@ const betaRoutes = [
 			<WorkflowBuilderLayout title={'Workflow Builder'}>
 				<Workflow_builder_updated />
 			</WorkflowBuilderLayout>
-		)
+		),
 	},
 	{
 		path: '/tasks',
@@ -235,7 +234,7 @@ const betaRoutes = [
 			>
 				<Tasks />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/task/:taskId',
@@ -243,7 +242,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Tasks'}>
 				<TaskFullView />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/integrations',
@@ -251,7 +250,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Integrations'}>
 				<Integrations />
 			</AuthWrapper>
-		)
+		),
 	},
 
 	{
@@ -264,7 +263,7 @@ const betaRoutes = [
 			>
 				<CalendarModule />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/scheduler',
@@ -272,7 +271,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Scheduler'} maxWidth={'95%'}>
 				<SchedulerMainPage />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/scheduling/edit/:sessionId',
@@ -280,7 +279,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Scheduling'} maxWidth={'95%'}>
 				<EditScheduler />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/pricing',
@@ -288,7 +287,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Pricing'}>
 				<PricingPage />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/notes',
@@ -296,7 +295,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
 				<NotesPage />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/database',
@@ -304,7 +303,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
 				<NotesPage isDatabase={true} />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/contacts',
@@ -316,7 +315,7 @@ const betaRoutes = [
 			>
 				<Contacts />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/ai-assistant',
@@ -324,7 +323,7 @@ const betaRoutes = [
 			<AuthWrapper title={'AI Assistant'}>
 				<AiAssistants />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/ai-assistant/:aiAssistantId',
@@ -332,7 +331,7 @@ const betaRoutes = [
 			<AuthWrapper title={'AI Assistant'}>
 				<AgentDetails />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/ai-assistant/:aiAssistantId/edit',
@@ -340,7 +339,7 @@ const betaRoutes = [
 			<AuthWrapper title={'AI Assistant'}>
 				<EditAgent />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/docs',
@@ -348,7 +347,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Docs'}>
 				<Docs />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/knowledge-agent',
@@ -360,7 +359,7 @@ const betaRoutes = [
 			>
 				<KnowledgeAgents />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/knowledge-agent/:agentId',
@@ -372,7 +371,7 @@ const betaRoutes = [
 			>
 				<KnowledgeAgentDetails />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/knowledge-agent/:agentId/edit',
@@ -384,7 +383,7 @@ const betaRoutes = [
 			>
 				<EditKnowledgeAgent />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/doc/:id',
@@ -392,7 +391,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Docs'}>
 				<DocsFullView />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/my-templates',
@@ -400,7 +399,7 @@ const betaRoutes = [
 			<AuthWrapper title={'My Templates'}>
 				<MyTemplates />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/automation-builder/:automationId',
@@ -408,7 +407,7 @@ const betaRoutes = [
 			<AutomationBuilderLayout title={'Automation Builder'}>
 				<AutomationBuilder />
 			</AutomationBuilderLayout>
-		)
+		),
 	},
 	{
 		path: '/form',
@@ -416,7 +415,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Forms'}>
 				<Forms />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/form/:id',
@@ -424,7 +423,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Form Leads'}>
 				<FormLeads />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/forms/:id/responses',
@@ -432,7 +431,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Form Responses'}>
 				<FormResCard view="responses" />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/forms/:id/summary',
@@ -440,7 +439,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Form Summary'}>
 				<FormSummary view="summary" />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/note/:noteId',
@@ -449,7 +448,7 @@ const betaRoutes = [
 				title={'Notes'}
 				outerContainerStyle={{
 					backgroundColor: 'var(--background-color)',
-					padding: '0px'
+					padding: '0px',
 				}}
 				sidebarContainerStyles={{ padding: '0px' }}
 				maxWidth={'100%'}
@@ -457,7 +456,7 @@ const betaRoutes = [
 			>
 				<Notes />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/note/:noteId/database',
@@ -466,7 +465,7 @@ const betaRoutes = [
 				title={'Notes'}
 				outerContainerStyle={{
 					backgroundColor: 'var(--background-color)',
-					padding: '0px'
+					padding: '0px',
 				}}
 				sidebarContainerStyles={{ padding: '0px' }}
 				maxWidth={'100%'}
@@ -474,7 +473,7 @@ const betaRoutes = [
 			>
 				<Notes isDatabase={true} />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/automations',
@@ -482,7 +481,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Automations'}>
 				<Automations />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/contact/:contactId',
@@ -494,7 +493,7 @@ const betaRoutes = [
 			>
 				<ExpandedClientView />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/search',
@@ -502,7 +501,7 @@ const betaRoutes = [
 			<AuthWrapper title="Search">
 				<ElasticSearch />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/files',
@@ -510,7 +509,7 @@ const betaRoutes = [
 			<AuthWrapper title="Files" maxWidth={'100%'}>
 				<Files />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/proactiveai/:proactiveAiId',
@@ -518,7 +517,7 @@ const betaRoutes = [
 			<AuthWrapper title="Proactive AI" childrenContainerStyles={{ maxWidth: '100%' }}>
 				<ProactiveAi />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/builder/*',
@@ -531,7 +530,7 @@ const betaRoutes = [
 			>
 				<BuilderApp />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/agents',
@@ -543,7 +542,7 @@ const betaRoutes = [
 			>
 				<Agents />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/agent/:agentId',
@@ -551,7 +550,7 @@ const betaRoutes = [
 			<AuthWrapper title="Agent">
 				<Agent />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/meet',
@@ -559,7 +558,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Meet'}>
 				<MeetBot />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '/meet/:noteId',
@@ -567,7 +566,7 @@ const betaRoutes = [
 			<AuthWrapper title={'Meet'}>
 				<NotesWrapper />
 			</AuthWrapper>
-		)
+		),
 	},
 	{
 		path: '*',
@@ -575,8 +574,8 @@ const betaRoutes = [
 			<Public>
 				<Navigate to="/home" />
 			</Public>
-		)
-	}
+		),
+	},
 ];
 
 export default betaRoutes;

@@ -9,5 +9,5 @@ root.render(
 		<HashRouter>
 			<App />
 		</HashRouter>
-	</ContextState>
+	</ContextState>,
 );

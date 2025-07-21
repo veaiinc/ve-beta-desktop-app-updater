@@ -21,7 +21,7 @@ export const publicRoutesList = [
 	'/terms-of-service',
 	'/cookie-policy',
 	'/changelog',
-	'/user/verify-oauth-user'
+	'/user/verify-oauth-user',
 ];
 
 const routeImports = {
@@ -30,7 +30,7 @@ const routeImports = {
 	betaRoutes: () => import('../routes/betaRoutes'),
 	internalRoutes: () => import('../routes/internalRoutes'),
 	workspaceNotFoundRoute: () => import('../routes/workspaceNotFoundRoute'),
-	suspendedRoute: () => import('../routes/suspendedRoute')
+	suspendedRoute: () => import('../routes/suspendedRoute'),
 };
 
 const routeMap = {
@@ -38,7 +38,7 @@ const routeMap = {
 	stable: 'stableRoutes',
 	beta: 'betaRoutes',
 	internal: 'internalRoutes',
-	suspended: 'suspendedRoute'
+	suspended: 'suspendedRoute',
 };
 
 const useWorkspaceMode = () => {
@@ -46,7 +46,7 @@ const useWorkspaceMode = () => {
 	const logOut = useLogout();
 
 	const {
-		profileInfo: { tennantSettingsData, getTenantSettings }
+		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
 
 	const [routesInfo, setRoutesInfo] = useState({
@@ -56,13 +56,13 @@ const useWorkspaceMode = () => {
 		internalRoutes: null,
 		fallbackRoute,
 		workspaceNotFoundRoute: null,
-		suspendedRoute: null
+		suspendedRoute: null,
 	});
 	const [workspaceNotFound, setWorkspaceNotFound] = useState(false);
 
 	const workspaceMode = tennantSettingsData?.workspaceMode ?? null;
 	const isPublicRoute = publicRoutesList.some((routePath) =>
-		matchPath({ path: routePath, end: true }, pathname)
+		matchPath({ path: routePath, end: true }, pathname),
 	);
 	const routeType = isPublicRoute
 		? 'publicRoutes'
@@ -121,7 +121,7 @@ const useWorkspaceMode = () => {
 				const { default: importedRoutes } = await routeImports[type]();
 				setRoutesInfo((prev) => ({
 					...prev,
-					[type]: importedRoutes
+					[type]: importedRoutes,
 				}));
 			}
 		};

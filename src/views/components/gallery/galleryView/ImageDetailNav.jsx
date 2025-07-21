@@ -29,28 +29,28 @@ const ImageDetailNav = ({
 	addTagToImage,
 	removeTagFromImage,
 	closeModal,
-	handleOpenUploadCover
+	handleOpenUploadCover,
 }) => {
 	const { search } = useLocation();
 	const params = new URLSearchParams(search);
 	const isLightGallery = params.get('lite-gallery') === 'true';
 	const {
-		galleryInfo: { getDownloadLinkForImage }
+		galleryInfo: { getDownloadLinkForImage },
 	} = useContext(Context);
 	const navigate = useNavigate();
 	const [navInfo, setnavInfo] = useState({
 		showLabels: true,
 		searchInput: '',
-		currentImageSize: null
+		currentImageSize: null,
 	});
 	const OptionsArray = [
 		{
 			icon: <Image />,
-			label: 'Image'
+			label: 'Image',
 		},
 		{
 			icon: <Rotate />,
-			label: 'Rotate'
+			label: 'Rotate',
 		},
 		// {
 		// 	icon: <Share className="shareIcon" />,
@@ -58,12 +58,12 @@ const ImageDetailNav = ({
 		// },
 		{
 			icon: <Download />,
-			label: 'Download'
+			label: 'Download',
 		},
 		{
 			icon: <Delete />,
-			label: 'Delete'
-		}
+			label: 'Delete',
+		},
 	];
 
 	useEffect(() => {
@@ -76,7 +76,7 @@ const ImageDetailNav = ({
 		if (imageDetail) {
 			setnavInfo((prev) => ({
 				...prev,
-				currentImageSize: imageDetail?.activeVersion?.s3_original?.size
+				currentImageSize: imageDetail?.activeVersion?.s3_original?.size,
 			}));
 		}
 	}, [imageDetail]);
@@ -85,7 +85,7 @@ const ImageDetailNav = ({
 		Delete: () => {
 			setInfo((prev) => ({
 				...prev,
-				showDeleteAlbum: true
+				showDeleteAlbum: true,
 			}));
 		},
 		Image: () => {
@@ -105,7 +105,7 @@ const ImageDetailNav = ({
 			const response = await getDownloadLinkForImage(
 				info?.imageDetailId,
 				isLightGallery,
-				navInfo?.currentImageSize
+				navInfo?.currentImageSize,
 			);
 
 			message.destroy(id);
@@ -115,7 +115,7 @@ const ImageDetailNav = ({
 			} else {
 				message.error('Failed to get download link');
 			}
-		}
+		},
 	};
 
 	const addTagHandler = async () => {
@@ -128,13 +128,13 @@ const ImageDetailNav = ({
 
 		const json = {
 			displayName: navInfo.searchInput,
-			slug: slugify(navInfo.searchInput, { lower: true, strict: true })
+			slug: slugify(navInfo.searchInput, { lower: true, strict: true }),
 		};
 
 		const response = await addGalleryTag(json, galleryId);
 		if (response?.[0] === true) {
 			setnavInfo((prev) => ({
-				...prev
+				...prev,
 			}));
 		}
 	};
@@ -142,7 +142,7 @@ const ImageDetailNav = ({
 	const handleTagChange = (e, tagId, imageId) => {
 		const isTagSelected = e.target.checked;
 		const payload = {
-			image_ids: [imageId]
+			image_ids: [imageId],
 		};
 		if (isTagSelected) {
 			addTagToImage(payload, galleryId, albumId, tagId);
@@ -156,23 +156,23 @@ const ImageDetailNav = ({
 			_id: face.face_id || face._id,
 			name: face.name || 'Unknown',
 			displayImage: face.displayImage || {
-				optimizedImageS3Key: face.optimizedImageS3Key || face.s3_optimized?.key
+				optimizedImageS3Key: face.optimizedImageS3Key || face.s3_optimized?.key,
 			},
 			tenant_id: face.tenant_id,
 			imageDetails: face.imageDetails || {
 				activeVersion: {
 					originalWidth: face.originalWidth || 0,
-					originalHeight: face.originalHeight || 0
-				}
-			}
+					originalHeight: face.originalHeight || 0,
+				},
+			},
 		};
 		navigate(`/galleries/${galleryId}`, {
 			state: {
 				activePeopleState: 'AI',
 				activeTab: 'Ai People',
 				selectedFace: formattedFace,
-				returnFromViewer: true
-			}
+				returnFromViewer: true,
+			},
 		});
 		closeModal();
 	};
@@ -187,7 +187,7 @@ const ImageDetailNav = ({
 							functionsList[option?.label] && functionsList[option?.label]()
 						}
 						style={{
-							cursor: option?.label === 'Share' ? 'not-allowed' : ''
+							cursor: option?.label === 'Share' ? 'not-allowed' : '',
 						}}
 					>
 						{option.icon}
@@ -305,7 +305,7 @@ const ImageDetailNav = ({
 									onChange={(e) =>
 										setnavInfo((prev) => ({
 											...prev,
-											searchInput: e.target.value
+											searchInput: e.target.value,
 										}))
 									}
 									onKeyDown={(e) => {
@@ -319,7 +319,7 @@ const ImageDetailNav = ({
 										setnavInfo((prev) => ({
 											...prev,
 											searchInput: '',
-											showLabels: true
+											showLabels: true,
 										}))
 									}
 								/>
@@ -332,14 +332,14 @@ const ImageDetailNav = ({
 									?.filter((tag) =>
 										tag?.displayName
 											?.toLowerCase()
-											.includes(navInfo?.searchInput?.toLowerCase())
+											.includes(navInfo?.searchInput?.toLowerCase()),
 									)
 									?.map((tag) => (
 										<div className="pinOptionsList">
 											<input
 												type="checkbox"
 												checked={imageDetail?.galleryTags?.find(
-													(checkTag) => tag._id === checkTag?._id
+													(checkTag) => tag._id === checkTag?._id,
 												)}
 												onChange={(e) =>
 													handleTagChange(e, tag?._id, imageDetail?._id)

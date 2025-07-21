@@ -15,10 +15,10 @@ const AiTranscriptionSuggestions = ({
 	questions = [],
 	actions = [],
 	files = [],
-	activeTab = null
+	activeTab = null,
 }) => {
 	const {
-		templates: { aiTranscriptionSuggestions, updateStateValues }
+		templates: { aiTranscriptionSuggestions, updateStateValues },
 	} = useContext(Context);
 	const [searchParams, setSearchParams] = useSearchParams();
 	// const [info, setInfo] = useState({
@@ -62,7 +62,7 @@ const AiTranscriptionSuggestions = ({
 		if (questions?.length > 0) {
 			questionsRef.current.scrollTo({
 				top: questionsRef.current.scrollHeight,
-				behavior: 'smooth'
+				behavior: 'smooth',
 			});
 		}
 	}, [questions?.length]);
@@ -72,7 +72,7 @@ const AiTranscriptionSuggestions = ({
 		if (actions?.length > 0) {
 			actionsRef.current.scrollTo({
 				top: actionsRef.current.scrollHeight,
-				behavior: 'smooth'
+				behavior: 'smooth',
 			});
 		}
 	}, [actions?.length]);
@@ -83,7 +83,7 @@ const AiTranscriptionSuggestions = ({
 		if (files?.length > 0) {
 			filesRef.current.scrollTo({
 				top: filesRef.current.scrollHeight,
-				behavior: 'smooth'
+				behavior: 'smooth',
 			});
 		}
 	}, [files?.length]);
@@ -94,10 +94,10 @@ const AiTranscriptionSuggestions = ({
 			newParams.set('chat', 'true');
 			setSearchParams(newParams);
 			updateStateValues({
-				activePromptForChat: prompt
+				activePromptForChat: prompt,
 			});
 		},
-		[updateStateValues]
+		[updateStateValues],
 	);
 
 	const handleFileClick = useCallback((file) => {

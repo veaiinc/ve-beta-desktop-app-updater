@@ -14,20 +14,20 @@ export default defineConfig({
 				vite: {
 					build: {
 						outDir: 'dist-electron',
-						emptyOutDir: false
-					}
-				}
+						emptyOutDir: false,
+					},
+				},
 			},
 			preload: {
 				input: 'electron/preload',
 				vite: {
 					build: {
 						outDir: 'dist-electron',
-						emptyOutDir: false
-					}
-				}
-			}
-		})
+						emptyOutDir: false,
+					},
+				},
+			},
+		}),
 	],
 
 	build: {
@@ -36,7 +36,7 @@ export default defineConfig({
 		minify: 'esbuild',
 		target: 'es2015',
 		sourcemap: true,
-		reportCompressedSize: false
+		reportCompressedSize: false,
 	},
 	css: {
 		devSourcemap: true,
@@ -48,18 +48,18 @@ export default defineConfig({
 						'default',
 						{
 							discardComments: {
-								removeAll: true
+								removeAll: true,
 							},
 							normalizeWhitespace: true,
 							// ✅ Prevent collapsing variable font weights
 							minifyFontValues: {
-								removeAfterKeyword: false
-							}
-						}
-					]
-				})
-			]
-		}
+								removeAfterKeyword: false,
+							},
+						},
+					],
+				}),
+			],
+		},
 	},
 	optimizeDeps: {
 		include: [
@@ -71,18 +71,18 @@ export default defineConfig({
 			'axios',
 			'moment',
 			'dayjs',
-			'@blocknote/core'
+			'@blocknote/core',
 		],
-		force: true
+		force: true,
 	},
 
 	server: {
 		hmr: {
-			overlay: false
-		}
+			overlay: false,
+		},
 	},
 
 	define: {
-		'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
-	}
+		'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+	},
 });

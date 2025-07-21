@@ -50,10 +50,10 @@ const App = () => {
 						// Handle specific error types
 						if (data.error && data.error.includes('Code signature')) {
 							console.log(
-								'This is a code signing issue. In development, this is expected.'
+								'This is a code signing issue. In development, this is expected.',
 							);
 							console.log(
-								'For production, ensure proper code signing is configured.'
+								'For production, ensure proper code signing is configured.',
 							);
 						}
 						break;

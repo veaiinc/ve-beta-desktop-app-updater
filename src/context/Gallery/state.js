@@ -37,10 +37,10 @@ export const intialState = {
 	imageProcessingStatus: {
 		numberOfImagesGroupedFaces: 0,
 		numberOfImagesPeoples: 0,
-		imagesCount: 0
+		imagesCount: 0,
 	},
 	clientSelectionLightRoomCopy: null,
-	galleryGuestAccessDetails: null
+	galleryGuestAccessDetails: null,
 };
 
 export const Galleries = () => {
@@ -58,13 +58,13 @@ export const Galleries = () => {
 				sort: '-createdAt',
 				page: 1,
 				limit: 15,
-				...queryParams
+				...queryParams,
 			};
 
 			if (reset) {
 				dispatch({
 					type: Actions.GET_TENANT_GALLERIES,
-					payload: null
+					payload: null,
 				});
 			}
 
@@ -72,7 +72,7 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}${API.GALLERY.galleries}?${queryString}`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 
 			if (response?.[0] === true) {
@@ -82,13 +82,13 @@ export const Galleries = () => {
 							...response?.[1],
 							galleries: [
 								...state?.tenantGalleries?.galleries,
-								...response?.[1]?.galleries
-							]
+								...response?.[1]?.galleries,
+							],
 					  }
 					: response?.[1];
 				dispatch({
 					type: Actions.GET_TENANT_GALLERIES,
-					payload: reset ? response?.[1] : data
+					payload: reset ? response?.[1] : data,
 				});
 			} else {
 				dispatch({
@@ -102,8 +102,8 @@ export const Galleries = () => {
 						hasPrevPage: false,
 						hasNextPage: false,
 						prevPage: null,
-						nextPage: null
-					}
+						nextPage: null,
+					},
 				});
 				return response;
 			}
@@ -119,7 +119,7 @@ export const Galleries = () => {
 				`/${workspaceId}${API.GALLERY.galleries}`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 
 			return response;
@@ -136,7 +136,7 @@ export const Galleries = () => {
 				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}/albums`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response?.[0] === 200) {
 				getAlbums(galleryId);
@@ -156,15 +156,15 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}/basic-details`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response?.[0] === true) {
 				const sortedAlbums = response?.[1]?.albums?.sort(
-					(a, b) => a.customSortIndex - b.customSortIndex
+					(a, b) => a.customSortIndex - b.customSortIndex,
 				);
 				dispatch({
 					type: Actions.GET_TENANT_ALBUMS,
-					payload: { ...response?.[1], albums: sortedAlbums }
+					payload: { ...response?.[1], albums: sortedAlbums },
 				});
 			} else {
 				return response;
@@ -182,7 +182,7 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 		} catch (error) {
 			console.log('error==>getGallery', error);
@@ -201,7 +201,7 @@ export const Galleries = () => {
 				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response?.[0]) {
 				getAlbumImagesCount(galleryId);
@@ -220,7 +220,7 @@ export const Galleries = () => {
 			const response = await service.getGallery(
 				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}/details`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 		} catch (error) {
 			console.log('error==>getGalleryData', error);
@@ -234,13 +234,13 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}${API.GALLERY.tags}`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 
 			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.GET_TAGS_LIST,
-					payload: { galleryId, list: response?.[1] }
+					payload: { galleryId, list: response?.[1] },
 				});
 			}
 
@@ -258,7 +258,7 @@ export const Galleries = () => {
 				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}${API.GALLERY.tags}`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 
 			const payloadData = state?.tagsList
@@ -268,7 +268,7 @@ export const Galleries = () => {
 			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.POST_TAG_LIST,
-					payload: payloadData
+					payload: payloadData,
 				});
 			}
 
@@ -288,7 +288,7 @@ export const Galleries = () => {
 			const response = await service.getGallery(
 				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}/albums/${albumSlug}`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 		} catch (error) {
 			console.log('error==>basicGalleryDetails', error);
@@ -303,12 +303,12 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}/preferences`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response?.[0]) {
 				dispatch({
 					type: Actions.GET_EDIT_PREFERENCES,
-					payload: response?.[1]
+					payload: response?.[1],
 				});
 			}
 			return response;
@@ -324,7 +324,7 @@ export const Galleries = () => {
 				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}/preferences`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 		} catch (error) {
 			console.log('error==>editPreferences', error);
@@ -338,12 +338,12 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/galleries/${galleryId}/albums/${albumSlug}`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_ALBUM_DETAILS,
-					payload: response?.[1]
+					payload: response?.[1],
 				});
 			}
 		} catch (error) {
@@ -358,12 +358,12 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/galleries/${galleryId}/layout-settings`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_LAYOUT_SETTINGS,
-					payload: response?.[1]
+					payload: response?.[1],
 				});
 			}
 		} catch (error) {
@@ -380,12 +380,12 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/layout-settings`,
 				json,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_LAYOUT_SETTINGS,
-					payload: response?.[1]
+					payload: response?.[1],
 				});
 			}
 		} catch (error) {
@@ -400,12 +400,12 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/galleries/${galleryId}/tenant-users`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_COLLABORATORS,
-					payload: response?.[1]
+					payload: response?.[1],
 				});
 			}
 		} catch (error) {
@@ -428,7 +428,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/tenant-users`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 		} catch (error) {
 			console.log('error==>getLayoutSettings', error);
@@ -445,7 +445,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/tenant-users/${tenant_user_id}`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 		} catch (error) {
 			console.log('error==>getLayoutSettings', error);
@@ -459,7 +459,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/tenant-users/${tenant_user_id}`,
 				usertoken,
 				null,
-				'galleries'
+				'galleries',
 			);
 		} catch (error) {
 			console.log('error==>getLayoutSettings', error);
@@ -475,7 +475,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/albums/${albumID}`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response[0]) {
 				getAlbums(galleryId);
@@ -493,7 +493,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/albums/${albumID}`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response[0]) {
 				getAlbums(galleryId);
@@ -513,7 +513,7 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/galleries/${galleryId}/album-slug-availability/${slugName}`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			return response;
 		} catch (error) {
@@ -528,7 +528,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/albums/${albumID}/guest-access`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 
 			if (response?.[0]) {
@@ -556,7 +556,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/set-up-image-upload`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 		} catch (error) {
 			console.log('error==>setUpImageUpload', error);
@@ -571,7 +571,7 @@ export const Galleries = () => {
 				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}${API.GALLERY.albums}/${albumId}${API.GALLERY.images}`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 
 			return response;
@@ -588,7 +588,7 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}${API.GALLERY.albums}/${albumId}${API.GALLERY.imageUploadStatus}?uploadBatchId=${batchId}`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 
 			return response;
@@ -605,12 +605,12 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}${API.GALLERY.albums}/${albumId}${API.GALLERY.checkImageDuplicates}`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response[0] === true) {
 				dispatch({
 					type: Actions.GET_IMAGE_DUPLICATES,
-					payload: { galleryId, albumId, list: response?.[1] }
+					payload: { galleryId, albumId, list: response?.[1] },
 				});
 			}
 
@@ -627,12 +627,12 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}${API.GALLERY.watermarks}`,
 				usertoken,
-				'tenant'
+				'tenant',
 			);
 			if (response[0] === true) {
 				dispatch({
 					type: Actions.GET_WATERMARKS_LIST,
-					payload: response?.[1]
+					payload: response?.[1],
 				});
 			}
 		} catch (error) {
@@ -643,7 +643,7 @@ export const Galleries = () => {
 		console.log(value, 'activeUpdateAlbumfromFunction');
 		dispatch({
 			type: Actions.UPDATE_ALBUM_STATE,
-			payload: value
+			payload: value,
 		});
 	};
 	const uploadWaterMark = async (file) => {
@@ -654,13 +654,13 @@ export const Galleries = () => {
 				`/${workspaceId}${API.GALLERY.watermarks}`,
 				null,
 				usertoken,
-				'tenant'
+				'tenant',
 			);
 			if (response[0]) {
 				const responseUrl = await axios.put(response[1]?.signedUrl, file, {
 					headers: {
-						'Content-Type': file.type
-					}
+						'Content-Type': file.type,
+					},
 				});
 
 				if (responseUrl.status === 200) {
@@ -682,12 +682,12 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/content-distribution/get-credentials/${galleryId}`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_GALLERY_CREDENTIALS,
-					payload: response?.[1]
+					payload: response?.[1],
 				});
 			}
 		} catch (error) {
@@ -702,7 +702,7 @@ export const Galleries = () => {
 		page = 1,
 		limit = 20,
 		displayName = '',
-		reset = false
+		reset = false,
 	) => {
 		try {
 			// if (reset) {
@@ -716,20 +716,20 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/images?page=${page}&limit=${limit}&displayName=${displayName}`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 
 			const payload = state.imagesList
 				? {
 						...state.imagesList,
 						...response?.[1],
-						docs: [...state.imagesList.docs, ...(response?.[1]?.docs || [])]
+						docs: [...state.imagesList.docs, ...(response?.[1]?.docs || [])],
 				  }
 				: response?.[1];
 			if (response[0] === true) {
 				dispatch({
 					type: Actions.GET_IMAGES_LIST,
-					payload: reset ? response?.[1] : payload
+					payload: reset ? response?.[1] : payload,
 				});
 				return [true, response?.[1]];
 			}
@@ -754,7 +754,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/cover-image`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 		} catch (error) {
 			console.log('error==>setAlbumCoverImage', error);
@@ -768,12 +768,12 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/image-file-names`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_LIGHTROOM_COPY_LIST,
-					payload: response?.[1]
+					payload: response?.[1],
 				});
 				return response;
 			}
@@ -790,7 +790,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 		} catch (error) {
 			console.log('error==>updateTagOrder', error);
@@ -805,12 +805,12 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/galleries/${galleryId}/visitor-form-access`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_VISITOR_FORM_ACCESS,
-					payload: response?.[1]
+					payload: response?.[1],
 				});
 			}
 		} catch (error) {
@@ -825,7 +825,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/visitor-form-access`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 		} catch (error) {
 			console.log('error==>editVisitorFormAccess', error);
@@ -837,7 +837,7 @@ export const Galleries = () => {
 			if (reset) {
 				dispatch({
 					type: Actions.GET_IMAGE_DETAIL,
-					payload: null
+					payload: null,
 				});
 			}
 
@@ -848,12 +848,12 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/gallery-images/${imageId}`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_IMAGE_DETAIL,
-					payload: response?.[1]
+					payload: response?.[1],
 				});
 			}
 		} catch (error) {
@@ -868,7 +868,7 @@ export const Galleries = () => {
 				`/${workspaceId}/gallery-images/${imageId}`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 
 			if (response[0] === true) {
@@ -878,12 +878,12 @@ export const Galleries = () => {
 
 				dispatch({
 					type: Actions.GET_IMAGES_LIST,
-					payload: { ...state.imagesList, docs: updateDataDocs }
+					payload: { ...state.imagesList, docs: updateDataDocs },
 				});
 
 				dispatch({
 					type: Actions.GET_IMAGE_DETAIL,
-					payload: response?.[1]
+					payload: response?.[1],
 				});
 
 				return [true];
@@ -904,7 +904,7 @@ export const Galleries = () => {
 				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}${API.GALLERY.albums}/${albumId}${API.GALLERY.coverImage}`,
 				json,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response[0] === true && state?.albumImagesCount) {
 				getAlbumImagesCount(galleryId);
@@ -922,7 +922,7 @@ export const Galleries = () => {
 				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}${API.GALLERY.coverImage}`,
 				json,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			return response;
 		} catch (error) {
@@ -937,12 +937,12 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/galleries/${galleryId}/guest-access`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_GALLERY_GUEST_ACCESS,
-					payload: response?.[1]
+					payload: response?.[1],
 				});
 			}
 		} catch (error) {
@@ -957,12 +957,12 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/guest-access`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_GALLERY_GUEST_ACCESS,
-					payload: response?.[1]
+					payload: response?.[1],
 				});
 			}
 		} catch (error) {
@@ -978,7 +978,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/share-via-email`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			return response;
 		} catch (error) {
@@ -994,24 +994,24 @@ export const Galleries = () => {
 				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}${API.GALLERY.albums}/${albumId}`,
 				usertoken,
 				null,
-				'galleries'
+				'galleries',
 			);
 
 			if (response[0] === true) {
 				dispatch({
-					type: Actions.RESET_IMAGES_LIST
+					type: Actions.RESET_IMAGES_LIST,
 				});
 
 				if (state.albumImagesCount) {
 					let ablumsData = state.albumImagesCount.albums.filter(
-						(item) => item._id !== albumId
+						(item) => item._id !== albumId,
 					);
 					dispatch({
 						type: Actions.GET_ALBUM_IMAGES_COUNT,
 						payload: {
 							...state.albumImagesCount,
-							albums: ablumsData
-						}
+							albums: ablumsData,
+						},
 					});
 				}
 			}
@@ -1030,21 +1030,21 @@ export const Galleries = () => {
 				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}`,
 				usertoken,
 				null,
-				'galleries'
+				'galleries',
 			);
 			if (response && response[0] === true) {
 				// Check if tenantGalleries and galleries exist before spreading
 				if (state?.tenantGalleries?.galleries) {
 					const updateGallery = state.tenantGalleries.galleries.filter(
-						(item) => galleryId !== item?._id
+						(item) => galleryId !== item?._id,
 					);
 
 					dispatch({
 						type: Actions.GET_TENANT_GALLERIES,
 						payload: {
 							...state.tenantGalleries,
-							galleries: updateGallery
-						}
+							galleries: updateGallery,
+						},
 					});
 				}
 				return response;
@@ -1063,7 +1063,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/images`,
 				usertoken,
 				payload,
-				'galleries'
+				'galleries',
 			);
 			if (response[0] === true) {
 				let docs = state.imagesList?.docs?.filter((image) => {
@@ -1072,16 +1072,16 @@ export const Galleries = () => {
 
 				const payloadData = {
 					...state.imagesList,
-					docs
+					docs,
 				};
 
 				dispatch({
-					type: Actions.RESET_IMAGES_LIST
+					type: Actions.RESET_IMAGES_LIST,
 				});
 
 				dispatch({
 					type: Actions.GET_IMAGES_LIST,
-					payload: payloadData
+					payload: payloadData,
 				});
 
 				return [true];
@@ -1101,7 +1101,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/sortType`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			return response;
 		} catch (error) {
@@ -1116,12 +1116,12 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.GET_ALBUM_IMAGES_COUNT,
-					payload: response?.[1]
+					payload: response?.[1],
 				});
 			} else {
 				return response;
@@ -1139,7 +1139,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/images`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			return response;
 		} catch (error) {
@@ -1155,7 +1155,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/images`,
 				usertoken,
 				payload,
-				'galleries'
+				'galleries',
 			);
 			return response;
 		} catch (error) {
@@ -1170,7 +1170,7 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/galleries/gallery-slug-availability/${slug}`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			return response;
 		} catch (error) {
@@ -1185,12 +1185,12 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/galleries/${galleryId}/collections`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_CLIENT_SELECTIONS,
-					payload: response?.[1]
+					payload: response?.[1],
 				});
 			}
 		} catch (error) {
@@ -1200,7 +1200,7 @@ export const Galleries = () => {
 	const clearClientSelectionsData = () => {
 		dispatch({
 			type: Actions.GET_CLIENT_SELECTIONS,
-			payload: null
+			payload: null,
 		});
 	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/gallery-collections/{{ _.collection_id }}/images
@@ -1211,7 +1211,7 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/gallery-collections/${collectionId}/images?page=${page}&limit=${limit}`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			const payload =
 				page === 1
@@ -1220,13 +1220,13 @@ export const Galleries = () => {
 							...response?.[1],
 							docs: [
 								...(state.clientSelectionImages?.docs || []),
-								...(response?.[1]?.docs || [])
-							]
+								...(response?.[1]?.docs || []),
+							],
 					  };
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_CLIENT_SELECTION_IMAGES,
-					payload: payload
+					payload: payload,
 				});
 			}
 		} catch (error) {
@@ -1243,12 +1243,12 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/gallery-collections/${collectionId}/image-file-names`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_CLIENT_SELECTION_LIGHTROOM_COPY,
-					payload: response?.[1]
+					payload: response?.[1],
 				});
 				return response;
 			}
@@ -1265,7 +1265,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/move-images`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			return response;
 		} catch (error) {
@@ -1281,7 +1281,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			return response;
 		} catch (error) {
@@ -1296,11 +1296,11 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/galleries/${galleryId}/share-details`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			dispatch({
 				type: Actions.GET_GALLERY_SHARE_DETAILS,
-				payload: response?.[1]
+				payload: response?.[1],
 			});
 		} catch (error) {
 			console.log('error==>getGalleryShareDetails', error);
@@ -1315,7 +1315,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/change-master-access-pin`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			return response;
 		} catch (error) {
@@ -1330,8 +1330,8 @@ export const Galleries = () => {
 				type: Actions.GET_ALBUM_IMAGES_COUNT,
 				payload: {
 					...state.albumImagesCount,
-					albums: [...sortedItems]
-				}
+					albums: [...sortedItems],
+				},
 			});
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -1339,7 +1339,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/custom-sort-index`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 
 			// if (response[0] === true) {
@@ -1360,7 +1360,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/re-arrange-status?isSortRequired=true`,
 
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			return response;
 		} catch (error) {
@@ -1373,8 +1373,8 @@ export const Galleries = () => {
 				type: Actions.GET_IMAGES_LIST,
 				payload: {
 					...state.imagesList,
-					docs: images
-				}
+					docs: images,
+				},
 			});
 		} catch (error) {
 			console.log('error==>updateImageOrder', error);
@@ -1390,7 +1390,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/images`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			return response;
 		} catch (error) {
@@ -1402,7 +1402,7 @@ export const Galleries = () => {
 		try {
 			dispatch({
 				type: Actions.GET_TENANT_GALLERIES,
-				payload: null
+				payload: null,
 			});
 
 			let usertoken = localStorage.getItem('usertoken');
@@ -1411,7 +1411,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/default-sort`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response[0] === true) {
 				getGalleries({ page: 1, limit: 15, storeOriginals }, true);
@@ -1428,7 +1428,7 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/galleries/${galleryId}/faces?page=${page}&limit=${limit}`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response[0]) {
 				const data = reset
@@ -1436,11 +1436,11 @@ export const Galleries = () => {
 					: {
 							...state.aiFace,
 							...response?.[1],
-							faces: [...state.aiFace?.faces, ...response?.[1]?.faces]
+							faces: [...state.aiFace?.faces, ...response?.[1]?.faces],
 					  };
 				dispatch({
 					type: Actions.GET_AI_FACE,
-					payload: data
+					payload: data,
 				});
 			}
 		} catch (error) {
@@ -1456,7 +1456,7 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/download/${downloadId}`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			return response;
 		} catch (error) {
@@ -1470,7 +1470,7 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/download/${downloadId}/${fileId}/zip-download-url`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			return response;
 		} catch (error) {
@@ -1485,7 +1485,7 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/galleries/${galleryId}/faces/${faceId}/images?page=${page}&limit=${limit}`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response[0]) {
 				const data = reset
@@ -1493,11 +1493,11 @@ export const Galleries = () => {
 					: {
 							...state.aiFaceImages,
 							...response?.[1],
-							images: [...state.aiFaceImages?.images, ...response?.[1]?.images]
+							images: [...state.aiFaceImages?.images, ...response?.[1]?.images],
 					  };
 				dispatch({
 					type: Actions.GET_AI_FACE_IMAGES,
-					payload: data
+					payload: data,
 				});
 			}
 		} catch (error) {
@@ -1507,13 +1507,13 @@ export const Galleries = () => {
 	const clearAiFace = () => {
 		dispatch({
 			type: Actions.GET_AI_FACE,
-			payload: null
+			payload: null,
 		});
 	};
 	const aiFaceImagesReset = () => {
 		dispatch({
 			type: Actions.GET_AI_FACE_IMAGES,
-			payload: null
+			payload: null,
 		});
 	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}/download
@@ -1525,7 +1525,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/download`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			return response;
 		} catch (error) {
@@ -1541,7 +1541,7 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/gallery-images/${imageId}/download${path}`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 
 			if (response[0] === true) {
@@ -1555,7 +1555,7 @@ export const Galleries = () => {
 					const paddingSize = targetSizeBytes - originalBlob.size;
 					const paddingBuffer = new Uint8Array(paddingSize).fill(0); // zero padding
 					finalBlob = new Blob([originalBlob, paddingBuffer], {
-						type: originalBlob.type
+						type: originalBlob.type,
 					});
 				}
 
@@ -1581,7 +1581,7 @@ export const Galleries = () => {
 		page = 1,
 		limit = 20,
 		search = '',
-		dateRange = {}
+		dateRange = {},
 	) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -1592,14 +1592,14 @@ export const Galleries = () => {
 				limit,
 				search,
 				startDate: dateRange?.startDate || '',
-				endDate: dateRange?.endDate || ''
+				endDate: dateRange?.endDate || '',
 			};
 
 			const response = await service.fetchGet(
 				`/${workspaceId}/galleries/${galleryId}/visitors`,
 				usertoken,
 				'galleries',
-				queryParams
+				queryParams,
 			);
 			if (response[0] === true) {
 				const newPayload =
@@ -1607,11 +1607,14 @@ export const Galleries = () => {
 						? response[1]
 						: {
 								...response[1],
-								docs: [...(state.insightsVisitors?.docs || []), ...response[1].docs]
+								docs: [
+									...(state.insightsVisitors?.docs || []),
+									...response[1].docs,
+								],
 						  };
 				dispatch({
 					type: Actions.GET_INSIGHT_VISITORS,
-					payload: newPayload
+					payload: newPayload,
 				});
 			}
 			return response;
@@ -1628,7 +1631,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/download-images`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response?.[0] && Array.isArray(response?.[1]?.signedUrls)) {
 				for (let i = 0; i < response[1].signedUrls.length; i++) {
@@ -1670,13 +1673,13 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/download-images`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 
 			if (response?.[0] === true && response?.[1]?.downloadId) {
 				dispatch({
 					type: Actions.GET_DOWNLOAD_IMAGES,
-					payload: response?.[1]
+					payload: response?.[1],
 				});
 				const regionPrefix = region === 'ap-south-1' ? 'in' : 'us';
 
@@ -1701,7 +1704,7 @@ export const Galleries = () => {
 				`/${workspaceId}/gallery-collections/${collectionId}/download`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response?.[0] === true && response?.[1]?.downloadId) {
 				const regionPrefix = region === 'ap-south-1' ? 'in' : 'us';
@@ -1716,7 +1719,7 @@ export const Galleries = () => {
 	const clearGalleryShareDetails = () => {
 		dispatch({
 			type: Actions.GET_GALLERY_SHARE_DETAILS,
-			payload: null
+			payload: null,
 		});
 	};
 
@@ -1727,7 +1730,7 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/galleries/${galleryId}/pre-registered-users/notify`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			return response;
 		} catch (error) {
@@ -1743,7 +1746,7 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/galleries/${galleryId}/pre-registered-users?page=${page}&limit=${limit}`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 
 			if (response[0]) {
@@ -1756,9 +1759,9 @@ export const Galleries = () => {
 									metadata: response?.[1].metadata,
 									data: [
 										...(state.preRegisteredUsers?.data || []),
-										...response?.[1].data
-									]
-							  }
+										...response?.[1].data,
+									],
+							  },
 				});
 			}
 			return [false, null];
@@ -1776,18 +1779,18 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/galleries/${galleryId}/face-grouping-status`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/pre-registered-users/status
 			const response2 = await service.fetchGet(
 				`/${workspaceId}/galleries/${galleryId}/pre-registered-users/status`,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			if (response[0] === true) {
 				dispatch({
 					type: Actions.GET_IMAGE_PROCESSING_STATUS,
-					payload: response?.[1]
+					payload: response?.[1],
 				});
 			}
 		} catch (error) {
@@ -1803,15 +1806,15 @@ export const Galleries = () => {
 				`/${workspaceId}/watermarks`,
 				usertoken,
 				json,
-				'tenant'
+				'tenant',
 			);
 			if (response[0] === true) {
 				const updatedWaterMarks = state.waterMarks.filter(
-					(watermark) => watermark.profileId !== json?.watermarkProfileId
+					(watermark) => watermark.profileId !== json?.watermarkProfileId,
 				);
 				dispatch({
 					type: Actions.GET_WATERMARKS_LIST,
-					payload: updatedWaterMarks
+					payload: updatedWaterMarks,
 				});
 				return response;
 			} else {
@@ -1825,13 +1828,13 @@ export const Galleries = () => {
 	const clearPreRegisteredUsers = () => {
 		dispatch({
 			type: Actions.GET_PRE_REGISTERED_USERS,
-			payload: null
+			payload: null,
 		});
 	};
 	const clearGalleryState = () => {
 		dispatch({
 			type: Actions.CLEAR_SPECIFIC_STATES,
-			payload: null
+			payload: null,
 		});
 	};
 
@@ -1844,7 +1847,7 @@ export const Galleries = () => {
 				`/${workspaceId}/galleries/${galleryId}/tags/${tagId}`,
 				payload,
 				usertoken,
-				'galleries'
+				'galleries',
 			);
 			return response;
 		} catch (error) {
@@ -1859,13 +1862,13 @@ export const Galleries = () => {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const payload = {
-				removeType: selectedDropDownValue
+				removeType: selectedDropDownValue,
 			};
 			const response = await service.fetchDelete(
 				`/${workspaceId}/galleries/${galleryId}/albums/${albumSlug}/tags/${tagId}`,
 				usertoken,
 				payload,
-				'galleries'
+				'galleries',
 			);
 			return response;
 		} catch (error) {
@@ -1901,7 +1904,7 @@ export const Galleries = () => {
 			if (response[0] === true) {
 				dispatch({
 					type: Actions.GET_GALLERY_GUEST_ACCESS_DETAILS,
-					payload: response?.[1]
+					payload: response?.[1],
 				});
 			} else {
 				return response;
@@ -1919,7 +1922,7 @@ export const Galleries = () => {
 				payload,
 				workspaceId,
 				usertoken,
-				'workflows_Api'
+				'workflows_Api',
 			);
 			if (response?.[0]) {
 				return response;
@@ -2003,7 +2006,7 @@ export const Galleries = () => {
 		try {
 			dispatch({
 				type: Actions.UPDATE_STATE_VALUES_SUCCESS,
-				payload: updatedVariableValuesObj
+				payload: updatedVariableValuesObj,
 			});
 		} catch (error) {
 			console.log('error==>updateStateValues', error);
@@ -2106,6 +2109,6 @@ export const Galleries = () => {
 		uploadNewVideo,
 		updateVideoStatus,
 		checkVideoSlugAvailability,
-		deleteVideo
+		deleteVideo,
 	};
 };

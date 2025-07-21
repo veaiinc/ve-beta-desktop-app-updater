@@ -17,10 +17,10 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 			listofAllappsActions,
 			connectTool,
 			addActionToKnowledgeAgent,
-			getExistingconnectedAccounts
+			getExistingconnectedAccounts,
 		},
 		profileInfo: { userDetailsData, getUserDetails },
-		knowledgeAgent: { actionsInfo }
+		knowledgeAgent: { actionsInfo },
 	} = useContext(Context);
 	const { agentId } = useParams();
 	const [info, setInfo] = useState({
@@ -37,7 +37,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		isConnecting: false,
 		connectedAccounts: [],
 		accountsLoading: false,
-		checkingAccounts: false
+		checkingAccounts: false,
 	});
 	const searchTimeoutRef = useRef(null);
 	const pageRef = useRef(1);
@@ -57,12 +57,12 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 						actions: reset ? response.data : [...prev.actions, ...response.data],
 						hasNextPage: response.hasNextPage,
 						totalActions: response.totalDocs || response.totalActions || 0,
-						page
+						page,
 					}));
 				} else {
 					setInfo((prev) => ({
 						...prev,
-						error: response?.message || 'Failed to fetch actions'
+						error: response?.message || 'Failed to fetch actions',
 					}));
 				}
 			} catch (error) {
@@ -71,7 +71,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				setInfo((prev) => ({ ...prev, isLoading: false }));
 			}
 		},
-		[listofAllappsActions, info.perPage]
+		[listofAllappsActions, info.perPage],
 	);
 
 	useEffect(() => {
@@ -85,7 +85,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				error: null,
 				isConnecting: false,
 				connectedAccounts: [],
-				checkingAccounts: true
+				checkingAccounts: true,
 			}));
 			fetchConnectedAccounts();
 		}
@@ -108,7 +108,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				fetchActions(1, true, value.trim());
 			}, 400);
 		},
-		[fetchActions]
+		[fetchActions],
 	);
 
 	const fetchMoreActions = useCallback(() => {
@@ -140,7 +140,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 			if (response?.data?.connected_accounts) {
 				setInfo((prev) => ({
 					...prev,
-					connectedAccounts: response.data.connected_accounts
+					connectedAccounts: response.data.connected_accounts,
 				}));
 			}
 		} catch (error) {
@@ -149,7 +149,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 			setInfo((prev) => ({
 				...prev,
 				accountsLoading: false,
-				checkingAccounts: false
+				checkingAccounts: false,
 			}));
 			fetchActions(1, true, '');
 		}
@@ -161,14 +161,14 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 			addLoading: { ...prev.addLoading, [action._id]: true },
 			addError: { ...prev.addError, [action._id]: undefined },
 			isConnecting: true,
-			error: null
+			error: null,
 		}));
 
 		try {
 			let accountId = null;
 
 			const existingAccount = info.connectedAccounts.find(
-				(account) => account.app.name_slug === action.app
+				(account) => account.app.name_slug === action.app,
 			);
 
 			if (existingAccount) {
@@ -190,13 +190,13 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 							try {
 								const tenatUserId = userDetailsData?._id;
 								const accountsResponse = await getExistingconnectedAccounts({
-									tenatUserId
+									tenatUserId,
 								});
 
 								if (accountsResponse?.data?.connected_accounts) {
 									const newAccount =
 										accountsResponse.data.connected_accounts.find(
-											(account) => account.app.name_slug === action.app
+											(account) => account.app.name_slug === action.app,
 										);
 									if (newAccount) {
 										accountId = newAccount.id;
@@ -219,11 +219,11 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 								addLoading: { ...prev.addLoading, [action._id]: false },
 								addError: {
 									...prev.addError,
-									[action._id]: err.message || 'Failed to connect to the app'
-								}
+									[action._id]: err.message || 'Failed to connect to the app',
+								},
 							}));
 							reject(err);
-						}
+						},
 					});
 				});
 			}
@@ -257,9 +257,9 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 							  }, Always populate one of: [${prop.options
 									.map((opt) => `'${opt}'`)
 									.join(
-										', '
+										', ',
 									)}]. Never choose any value apart from this. It should be populated with one of the options.`
-							: prop.description || `No description provided for ${prop.name}`
+							: prop.description || `No description provided for ${prop.name}`,
 					});
 				}
 			});
@@ -268,7 +268,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				action_key: action.key || action.id || '',
 				app: action.app || '',
 				account_id: accountId,
-				props
+				props,
 			};
 			let body = JSON.stringify(bodyObj);
 			body = body.replace(/"{{(.*?)}}"/g, '{{$1}}');
@@ -284,7 +284,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				variables,
 				isAuthenticated: true,
 				agent: 'knowledgeAgent',
-				key: action.key
+				key: action.key,
 			};
 
 			await addActionToKnowledgeAgent(agentId, payload);
@@ -294,7 +294,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				...prev,
 				addLoading: { ...prev.addLoading, [action._id]: false },
 				addError: { ...prev.addError, [action._id]: undefined },
-				isConnecting: false
+				isConnecting: false,
 			}));
 			if (onToolAdded) onToolAdded();
 			onClose();
@@ -304,7 +304,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				error: error.message || 'An unexpected error occurred',
 				isConnecting: false,
 				addLoading: { ...prev.addLoading, [action._id]: false },
-				addError: { ...prev.addError, [action._id]: error.message || 'Failed to add tool' }
+				addError: { ...prev.addError, [action._id]: error.message || 'Failed to add tool' },
 			}));
 		}
 	};
@@ -316,7 +316,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 			modalType={'center'}
 			customStyles={{
 				overlay: { zIndex: 1001 },
-				content: { borderRadius: '15px', zIndex: 1002 }
+				content: { borderRadius: '15px', zIndex: 1002 },
 			}}
 		>
 			<div className="actions-modal addtoolv2-modal">
@@ -366,7 +366,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 							height={535}
 							style={{
 								overflowY: 'auto',
-								width: '100%'
+								width: '100%',
 							}}
 						>
 							<div className="grouped-app-list">
@@ -382,7 +382,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 														const isAdded = addedActionKeys.includes(
 															action.key ||
 																action.id ||
-																action.action_key
+																action.action_key,
 														);
 														return (
 															<div
@@ -443,7 +443,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 																			marginTop: 4,
 																			color: 'var(--error)',
 																			fontSize: '12px',
-																			fontWeight: '500'
+																			fontWeight: '500',
 																		}}
 																	>
 																		{info.addError[action._id]}
@@ -457,7 +457,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 													<div className="app-group-divider" />
 												)}
 											</div>
-										)
+										),
 									)
 								)}
 							</div>
