@@ -219,7 +219,7 @@ const GalleryViewer = ({
 				}
 			}
 		}
-	}, [imagesList, aiFaceImages, info?.activeImage]);
+	}, [imagesList, aiFaceImages, info?.activeImage, info?.activeImageIndex]);
 
 	useEffect(() => {
 		if (info?.imageDetailId && info?.imageDetailId !== imageDetail?._id) {
@@ -602,6 +602,7 @@ const GalleryViewer = ({
 				</div>
 				<div className="activeImageContainer">
 					<FullImagesComponent
+						key={activeAlbumId}
 						galleryCredentials={galleryCredentials}
 						fetchMoreImages={fetchMoreImages}
 						imagesList={aiface ? aiFaceImages : imagesList}
