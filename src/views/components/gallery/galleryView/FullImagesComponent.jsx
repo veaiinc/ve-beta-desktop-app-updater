@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState, useCallback } from 'react';
 import InfiniteScroll from '../../globalComponents/InfiniteScroll';
 import Skeleton from 'react-loading-skeleton';
 
@@ -32,8 +32,8 @@ const FullImagesComponent = ({
 		}));
 	}, [info?.activeImage]);
 
-	useEffect(() => {
-		const handleKeyDown = (e) => {
+	const handleKeyDown = useCallback(
+		(e) => {
 			const currentIndex = activeImageIndex;
 
 			if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
@@ -65,11 +65,14 @@ const FullImagesComponent = ({
 					});
 				}
 			}
-		};
+		},
+		[activeImageIndex, displayedImages, setInfo],
+	);
 
+	useEffect(() => {
 		window.addEventListener('keydown', handleKeyDown);
 		return () => window.removeEventListener('keydown', handleKeyDown);
-	}, [activeImageIndex, displayedImages]);
+	}, [handleKeyDown]);
 
 	const handleDrag = (dx, dy, imageRef, scale) => {
 		if (!imageRef?.current) return;
