@@ -16,6 +16,7 @@ import SlackActions from './SlackActions';
 // import CreateMeeting from './CreateMeeting';
 import Delay from './Delay';
 import AgentAction from './AgentAction';
+import CreateDatabaseRow from './CreateDatabaseRow';
 
 const integrations = [
 	{
@@ -47,6 +48,10 @@ const actionGroups = [
 			{
 				actionLabel: 'Delay',
 				actionType: 'delay',
+			},
+			{
+				actionLabel: 'Create Database Row',
+				actionType: 'database',
 			},
 			// {
 			// 	actionLabel: 'Create Meeting',
@@ -319,6 +324,17 @@ const Actions = ({
 					handleChangeClick={handleChangeClick}
 				/>
 			),
+			database: (
+				<CreateDatabaseRow
+					onBack={handleBack}
+					onSave={onSave}
+					addTriggerLoading={info?.saveLoader}
+					activeStepsData={activeStepsData}
+					handleChangeClick={handleChangeClick}
+					variables={variables}
+					activeEdge={activeEdge}
+				/>
+			),
 			gmail: (
 				<GoogleActions
 					onBack={handleBack}
@@ -358,6 +374,7 @@ const Actions = ({
 		info?.selectedAction,
 		activeStepsData,
 		handleChangeClick,
+		activeEdge,
 	]);
 
 	return (
