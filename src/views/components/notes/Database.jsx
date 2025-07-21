@@ -4,8 +4,6 @@ import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } f
 import s from '../../../assets/scss/notes/database.module.scss';
 import { ReactComponent as TableViewIcon } from '../../../assets/svg/tasks/grid.svg';
 import Context from '../../../context/context';
-import { NotesRefContext } from '../../features/notesModule/DatabaseWithNote';
-import CustomTextArea from '../globalComponents/CustomTextArea';
 import DatabaseAddFieldModal from '../modalsV2/notes/DatabaseAddFieldModal';
 import DatabaseAddModal from '../modalsV2/notes/DatabaseAddModal';
 import CheckBox from '../tasks/listView/CheckBox';
@@ -19,12 +17,10 @@ import PersonMultiSelect from '../tasks/listView/PersonMultiSelect';
 import Priority from '../tasks/listView/Priority';
 import Select from '../tasks/listView/Select';
 import Status from '../tasks/listView/Status';
-import TaskHeader from '../tasks/listView/TaskHeader';
 import TaskId from '../tasks/listView/TaskId';
 import TextField from '../tasks/listView/TextField';
 import CheckBoxFilter from './DatabseComponents/CheckBoxFilter';
 import DateComponent from './DatabseComponents/DateComponent';
-import FilterComponent from './DatabseComponents/FilterComponent';
 import StatusFilter from './DatabseComponents/StatusFilter';
 import TableView from './DatabseComponents/views/TableView';
 import DateFilterComponent from './DatabseComponents/DateFilterComponent';
@@ -32,11 +28,10 @@ import NumberComponent from './DatabseComponents/NumberComponent';
 import { ReactComponent as ChevronIcon } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import ListView from './DatabseComponents/views/ListView';
 import Spinner from '../loaders/Spinner';
-import SortComponent from './DatabseComponents/SortComponent';
-import GroupComponent from './DatabseComponents/GroupComponent';
 import BoardView from './DatabseComponents/views/BoardView';
 import GalleryView from './DatabseComponents/views/GalleryView';
 import DatabaseHeader from './DatabseComponents/DatabaseHeader';
+import { EditorContext } from './Editor';
 
 export const rowTypes = {
 	text: TextField,
@@ -86,11 +81,12 @@ const DatabaseComponent = ({ block, editor }) => {
 		},
 	} = useContext(Context);
 
-	const { previousBlocksRef, pageId } = useContext(NotesRefContext);
+	const { previousBlocksRef, pageId } = useContext(EditorContext);
 	const timeoutRef = useRef(null);
 
 	const { databaseId } = block?.props || {};
 	const sourceBlockId = previousBlocksRef?.current?.get(block?.id)?._id;
+	console.log('sourceBlockId', sourceBlockId);
 
 	const [info, setInfo] = useState({
 		addRowModalOpen: false,

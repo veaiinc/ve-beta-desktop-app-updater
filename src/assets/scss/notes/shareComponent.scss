@@ -1,16 +1,24 @@
 .notes-nav-menu-item-share {
 	button {
 		display: flex;
-		justify-content: center;
+		height: 32px;
+		padding: 8px 14px;
 		align-items: center;
-		background-color: transparent;
+		gap: 6px;
+		border-radius: 8px;
+		border: 1px solid var(--stroke);
+		background: var(--popup);
 		color: var(--primary-font);
 		font-family: var(--primary-font-family);
-		height: fit-content;
-		width: fit-content;
+		font-size: 14px;
+		font-style: normal;
 		font-weight: 500;
+		line-height: normal;
 		cursor: pointer;
-		border: none;
+
+		&:active {
+			opacity: 0.8;
+		}
 	}
 }
 

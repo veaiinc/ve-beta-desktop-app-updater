@@ -14,7 +14,7 @@ import 'react-resizable/css/styles.css';
 import { ReactComponent as ImageIcon } from '../../../assets/svg/notes/image.svg';
 import Spinner from '../loaders/Spinner';
 
-const ImageComponent = memo(({ block, editor }) => {
+const ImageComponent = ({ block, editor }) => {
 	const [showUploadPopup, setShowUploadPopup] = useState(!block.props.url);
 	const [isSelected, setIsSelected] = useState(false);
 	const [showReplace, setShowReplace] = useState(false);
@@ -104,6 +104,7 @@ const ImageComponent = memo(({ block, editor }) => {
 					type: 'image',
 					props: {
 						...block.props,
+						source: imageFile ? 'upload' : 'link',
 						url: imageUrl,
 					},
 				});
@@ -244,9 +245,9 @@ const ImageComponent = memo(({ block, editor }) => {
 			/>
 		</div>
 	);
-});
+};
 
-export default ImageComponent;
+export default memo(ImageComponent);
 
 export const ImageBlock = createReactBlockSpec(
 	{
