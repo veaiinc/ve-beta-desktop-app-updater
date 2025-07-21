@@ -83,6 +83,7 @@ const GalleryViewer = ({
 	const faceId = selectedFace;
 	const activeImageId = selectedImage;
 	const hasRunFakeLoading = useRef(true);
+	const navigate = useNavigate();
 
 	const isLightGallery = searchkeys.get('lite-gallery') === 'true';
 
@@ -462,6 +463,32 @@ const GalleryViewer = ({
 				setInfo((prev) => ({ ...prev, facesLoading: false }));
 			}
 		}
+	};
+
+	const handlePeopleClick = (face) => {
+		const formattedFace = {
+			_id: face.face_id || face._id,
+			name: face.name || 'Unknown',
+			displayImage: face.displayImage || {
+				optimizedImageS3Key: face.optimizedImageS3Key || face.s3_optimized?.key,
+			},
+			tenant_id: face.tenant_id,
+			imageDetails: face.imageDetails || {
+				activeVersion: {
+					originalWidth: face.originalWidth || 0,
+					originalHeight: face.originalHeight || 0,
+				},
+			},
+		};
+		navigate(`/galleries/${activeGalleryId}`, {
+			state: {
+				activePeopleState: 'AI',
+				activeTab: 'Ai People',
+				selectedFace: formattedFace,
+				returnFromViewer: true,
+			},
+		});
+		closeModal();
 	};
 	return (
 		<ReactModal isOpen={open} closeModal={closeModal} customStyles={customStyles}>
