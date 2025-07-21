@@ -11,6 +11,16 @@ import { ReactComponent as CrossWhite } from '../../../assets/svg/workspaceSetti
 import Skeleton from 'react-loading-skeleton';
 import gsap from 'gsap';
 import ReactModal from '../../components/modalsV2';
+import { ReactComponent as InfoIcon } from '../../../assets/svg/gallery/info.svg';
+import { ReactComponent as ChevronLeft } from '../../../assets/svg/tasks/chevronRightThin.svg';
+import { Slider } from 'antd';
+import { ReactComponent as Pin } from '../../../assets/svg/gallery/pin.svg';
+import { ReactComponent as Download } from '../../../assets/svg/gallery/download.svg';
+import { ReactComponent as Delete } from '../../../assets/svg/gallery/delete-red.svg';
+import { Tooltip } from 'antd';
+import slugify from 'slugify';
+import Peopleitem from '../../components/gallery/galleryView/PeopleCard';
+
 // import { Background } from '@xyflow/react';
 
 const FakeLoadingComponent = () => {
@@ -65,14 +75,16 @@ const GalleryViewer = ({
 	selectedFace = null,
 	tagId = null,
 	handleOpenUploadCover,
+	handleClickAlbum,
 }) => {
 	const [searchkeys, setsearchkeys] = useSearchParams();
 	const selectedImages = currentSelectedImages;
 	const aiface = aiFace;
 	const faceId = selectedFace;
 	const activeImageId = selectedImage;
-
 	const hasRunFakeLoading = useRef(true);
+
+	const isLightGallery = searchkeys.get('lite-gallery') === 'true';
 
 	const customStyles = {
 		content: { zIndex: 9999, height: '100vh', width: '100vw' },
@@ -97,18 +109,24 @@ const GalleryViewer = ({
 			getDownloadLinkForImage,
 			getAiFaceImages,
 			aiFaceImages,
+			tenantAlbums,
+			albumImagesCount,
 		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		index: 0,
 		page: 1,
-		limit: 20,
+		limit: 40,
 		activeImage: null,
 		activeImageIndex: 0,
 		imageDetailId: null,
 		showDeleteAlbum: false,
 		fakeLoading: false,
+		imageScalling: 1,
+		searchInput: '',
+		showLabels: true,
+		facesLoading: false,
 	});
 
 	useEffect(() => {
@@ -147,7 +165,13 @@ const GalleryViewer = ({
 			}, 1500);
 		}
 
-		if ((imagesList || (aiFaceImages && aiFaceImages.images?.length > 0)) && activeImageId) {
+		// Only set activeImage to activeImageId if we don't already have an active image
+		// This prevents resetting to the first image when fetching more images
+		if (
+			(imagesList || (aiFaceImages && aiFaceImages.images?.length > 0)) &&
+			activeImageId &&
+			!info?.activeImage
+		) {
 			setInfo((prev) => ({
 				...prev,
 				activeImage: activeImageId,
@@ -155,7 +179,7 @@ const GalleryViewer = ({
 			setTimeout(() => {
 				const image = document.getElementById(activeImageId || '');
 				if (image) {
-					image.scrollIntoView({ behavior: 'instant', block: 'center' });
+					image.scrollIntoView({ behavior: 'smooth', block: 'center' });
 				}
 			}, 1000);
 		}
@@ -173,6 +197,29 @@ const GalleryViewer = ({
 			}
 		}
 	}, [info?.activeImage]);
+	// Update active image index when images list changes (after fetching more images)
+	useEffect(() => {
+		if (info?.activeImage && (imagesList || aiFaceImages)) {
+			const currentImages = aiface ? aiFaceImages?.images : imagesList?.docs;
+			if (currentImages) {
+				const newIndex = currentImages.findIndex((img) => img?._id === info?.activeImage);
+				if (newIndex !== -1 && newIndex !== info?.activeImageIndex) {
+					setInfo((prev) => ({
+						...prev,
+						activeImageIndex: newIndex,
+					}));
+
+					// Restore scroll position to the active image after a short delay
+					setTimeout(() => {
+						const image = document.getElementById(info?.activeImage);
+						if (image) {
+							image.scrollIntoView({ behavior: 'instant', block: 'start' });
+						}
+					}, 100);
+				}
+			}
+		}
+	}, [imagesList, aiFaceImages, info?.activeImage, info?.activeImageIndex]);
 
 	useEffect(() => {
 		if (info?.imageDetailId && info?.imageDetailId !== imageDetail?._id) {
@@ -212,8 +259,23 @@ const GalleryViewer = ({
 		}
 	}, [info?.imageDetailId]);
 
+	useEffect(() => {
+		if (info?.activeImage) {
+			const image = document.getElementById(info?.activeImage);
+			if (image) {
+				image.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			}
+		}
+	}, [info?.activeImage]);
+
+	useEffect(() => {
+		if (!tagsList) {
+			getGalleryTagsList(activeGalleryId);
+		}
+	}, []);
 	const fetchMoreImages = () => {
 		const nextPage = info.page + 1;
+
 		if (aiface) {
 			getAiFaceImages(activeGalleryId, selectedFace, nextPage, info?.limit).then(() => {
 				setInfo((prev) => ({
@@ -240,13 +302,6 @@ const GalleryViewer = ({
 			activeImageIndex: index,
 			imageDetailId: null,
 		}));
-
-		setTimeout(() => {
-			const image = document.getElementById(id);
-			if (image) {
-				image.scrollIntoView({ behavior: 'instant', block: 'start' });
-			}
-		}, 300);
 	};
 
 	const largeImageFunction = (id, index) => {
@@ -264,7 +319,7 @@ const GalleryViewer = ({
 
 	const handleAlbumDelete = async () => {
 		const payload = {
-			image_ids: [info?.imageDetailId],
+			image_ids: [info?.activeImage],
 		};
 
 		const response = await deleteImages(payload, activeGalleryId, activeAlbumId);
@@ -295,29 +350,252 @@ const GalleryViewer = ({
 		}
 	};
 
+	const currentActiveImage = aiface
+		? aiFaceImages?.images?.find((image) => image?._id === info?.activeImage)
+		: imagesList?.docs?.find((image) => image?._id === info?.activeImage);
+
+	const displayedImages = (aiface ? aiFaceImages?.images : imagesList?.docs)?.filter(
+		(image) => selectedImages?.includes(image?._id) || !selectedImages,
+	);
+	const handleNavigation = (direction) => {
+		setInfo((prev) => {
+			if (!displayedImages || displayedImages.length === 0) return prev;
+
+			let newIndex = prev.activeImageIndex;
+
+			if (direction === 'prev') {
+				newIndex = Math.max(prev.activeImageIndex - 1, 0);
+			} else if (direction === 'next') {
+				newIndex = Math.min(prev.activeImageIndex + 1, displayedImages.length - 1);
+			}
+
+			const newImage = displayedImages[newIndex];
+
+			return {
+				...prev,
+				activeImageIndex: newIndex,
+				activeImage: newImage?._id || prev.activeImage, // fallback if image not found
+			};
+		});
+
+		// Optional: Scroll to the new image
+		setTimeout(() => {
+			const newImage = displayedImages[newIndex];
+			const imageElement = document.getElementById(newImage?._id);
+
+			if (imageElement) {
+				imageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			}
+		}, 100);
+	};
+	const handleAlbumClick = (album) => {
+		setInfo((prev) => ({
+			...prev,
+			activeImageIndex: 0,
+			activeImage: null,
+			imageDetailId: null,
+		}));
+		handleClickAlbum(album, 'albumName');
+	};
+
+	const addTagHandler = async () => {
+		if (
+			!info?.searchInput.trim().length ||
+			tagsList?.list.find((tag) => tag.displayName === info?.searchInput)
+		) {
+			return;
+		}
+
+		const json = {
+			displayName: info.searchInput,
+			slug: slugify(info.searchInput, { lower: true, strict: true }),
+		};
+
+		const response = await addGalleryTag(json, activeGalleryId);
+		if (response?.[0] === true) {
+			setInfo((prev) => ({
+				...prev,
+			}));
+		}
+	};
+	const handleTagChange = (e, tagId, imageId) => {
+		const isTagSelected = e.target.checked;
+		const payload = {
+			image_ids: [imageId],
+		};
+		if (isTagSelected) {
+			addTagToImage(payload, activeGalleryId, activeAlbumId, tagId);
+		} else {
+			removeTagFromImage(payload, activeGalleryId, activeAlbumId, tagId);
+		}
+		message.success('Tag update Successfull');
+	};
+
+	const handleDownloadSingleImage = async () => {
+		message.success('Downloading Started...');
+
+		const response = await getImageDetail(info?.activeImage);
+		const totalBytes = response?.[1]?.activeVersion?.s3_original?.size;
+		if (response?.[0]) {
+			const response = await getDownloadLinkForImage(
+				info?.activeImage,
+				isLightGallery,
+				totalBytes,
+			);
+			if (response?.[0]) {
+				message.success('Downloading Completed...');
+			} else {
+				message.error('Failed to download image');
+			}
+		}
+	};
+	const handleSelectedImage = async (open) => {
+		if (open) {
+			// Only fetch if faces are not already loaded for the current image
+			if (
+				!imageDetail ||
+				imageDetail?._id !== info?.activeImage ||
+				!imageDetail?.activeVersion?.faces
+			) {
+				setInfo((prev) => ({ ...prev, facesLoading: true }));
+				await getImageDetail(info?.activeImage);
+				setInfo((prev) => ({ ...prev, facesLoading: false }));
+			}
+		}
+	};
 	return (
 		<ReactModal isOpen={open} closeModal={closeModal} customStyles={customStyles}>
-			<div className="closeGallery">
-				<CrossWhite onClick={handleCloseGallery} />
-
-				{info?.imageDetailId && (
-					<p onClick={handleCloseGallery}>{imageDetail?.displayName}</p>
-				)}
-			</div>
-
 			<div className="galleryViewerCotnainer" style={{ opacity: info?.fakeLoading ? 0 : 1 }}>
-				<Thumbnails
-					galleryCredentials={galleryCredentials}
-					fetchMoreImages={fetchMoreImages}
-					imagesList={aiface ? aiFaceImages : imagesList}
-					activeThumbnailFunction={activeThumbnailFunction}
-					info={info}
-					selectedImages={selectedImages}
-					isAiFace={aiface}
-				/>
+				<div className="closeGallery">
+					<div className="closeGallery-left">
+						<ChevronLeft
+							onClick={handleCloseGallery}
+							style={{ transform: 'rotate(180deg)', height: '24px', width: '24px' }}
+						/>
+						<div className="imageAlbumTabsContainer">
+							{albumImagesCount?.albums?.map((album) => {
+								let src = null;
+								if (album?.coverImage?._id) {
+									const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+									src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${activeGalleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
+								}
+								return (
+									<span
+										key={album._id}
+										className={`eachAlbumTab ${
+											activeAlbumId === album?._id ? 'active' : ''
+										}`}
+										onClick={() => handleAlbumClick(album)}
+									>
+										{album?.coverImage?._id && (
+											<img
+												src={src}
+												alt="album-cover"
+												style={{
+													width: '24px',
+													height: '24px',
+													borderRadius: '50%',
+													overflow: 'hidden',
+												}}
+											/>
+										)}
+										<span className="eachAlbumDetails">{album.title}</span>
+										<span className="eachAlbumCount">{album.imagesCount}</span>
+									</span>
+								);
+							})}
+						</div>
+					</div>
+					<div className="closeGallery-right">
+						<Tooltip
+							title={
+								<div className="lablesContainer lablesListContainer">
+									<div className="header">
+										<input
+											type="text"
+											placeholder="type to Search or create"
+											value={info?.searchInput}
+											onChange={(e) =>
+												setInfo((prev) => ({
+													...prev,
+													searchInput: e.target.value,
+												}))
+											}
+											onKeyDown={(e) => {
+												if (e.key === 'Enter') {
+													addTagHandler();
+												}
+											}}
+										/>
+										<CrossWhite
+											onClick={() =>
+												setInfo((prev) => ({
+													...prev,
+													searchInput: '',
+													// showLabels: true,
+												}))
+											}
+										/>
+									</div>
 
+									<div className="line"></div>
+
+									<div className="labelsList">
+										{tagsList?.list
+											?.filter((tag) =>
+												tag?.displayName
+													?.toLowerCase()
+													.includes(info?.searchInput?.toLowerCase()),
+											)
+											?.map((tag) => (
+												<div className="pinOptionsList">
+													<input
+														type="checkbox"
+														checked={imageDetail?.galleryTags?.find(
+															(checkTag) => tag._id === checkTag?._id,
+														)}
+														onChange={(e) =>
+															handleTagChange(
+																e,
+																tag?._id,
+																info?.activeImage,
+															)
+														}
+													/>
+													<span className="checkboxText">
+														{tag?.displayName}
+													</span>
+												</div>
+											))}
+									</div>
+								</div>
+							}
+							placement="bottom"
+							arrow={false}
+							trigger={'click'}
+							overlayStyle={{ zIndex: 10000 }}
+						>
+							<div className="eachImageOptions">
+								<Pin /> Tags
+							</div>
+						</Tooltip>
+						<div
+							className="eachImageOptions"
+							onClick={() => handleDownloadSingleImage()}
+						>
+							<Download /> Download
+						</div>
+						<div
+							className="eachImageOptions deleteImage"
+							onClick={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: true }))}
+						>
+							<Delete /> Delete
+						</div>
+					</div>
+				</div>
 				<div className="activeImageContainer">
 					<FullImagesComponent
+						key={activeAlbumId}
 						galleryCredentials={galleryCredentials}
 						fetchMoreImages={fetchMoreImages}
 						imagesList={aiface ? aiFaceImages : imagesList}
@@ -326,9 +604,9 @@ const GalleryViewer = ({
 						setInfo={setInfo}
 						selectedImages={selectedImages}
 						isAiFace={aiface}
+						activeImageIndex={info?.activeImageIndex}
 					/>
-
-					{info?.imageDetailId && (
+					{/* {info?.imageDetailId && (
 						<ImageDetailNav
 							info={info}
 							setInfo={setInfo}
@@ -346,9 +624,152 @@ const GalleryViewer = ({
 							closeModal={() => closeModal()}
 							handleOpenUploadCover={handleOpenUploadCover}
 						/>
-					)}
+					)} */}
+
+					<Tooltip
+						title={
+							<div
+								className="peopleSelectionImages"
+								style={{
+									width: '100%',
+									display: 'flex',
+
+									gap: '8px',
+								}}
+							>
+								{info?.facesLoading && (
+									<div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+										{[...Array(2)].map((_, i) => (
+											<Skeleton
+												key={i}
+												style={{
+													width: '48px',
+													height: '48px',
+													borderRadius: '50%',
+												}}
+											/>
+										))}
+									</div>
+								)}
+								{!info?.facesLoading &&
+									imageDetail?.activeVersion?.faces?.map((face) => {
+										const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+										const src = `${galleryCredentials?.baseURL}/${imageDetail?.activeVersion?.s3_optimized?.key}?${params}`;
+
+										return (
+											// <div
+											// 	className="rounded"
+											// 	key={face?._id}
+											// 	style={{
+											// 		backgroundImage: `url(${src})`,
+											// 		backgroundSize: 'cover',
+											// 		backgroundRepeat: 'no-repeat',
+											// 	}}
+											// ></div>
+											<div
+												onClick={() => handlePeopleClick(face)}
+												style={{ cursor: 'pointer' }}
+											>
+												<Peopleitem
+													url={src}
+													people={face}
+													thumbwidth={48}
+													thumbHeight={48}
+													key={face?._id}
+													originalWidth={
+														imageDetail?.activeVersion?.originalWidth
+													}
+													originalHeight={
+														imageDetail?.activeVersion?.originalHeight
+													}
+												/>
+											</div>
+										);
+									})}
+							</div>
+						}
+						onOpenChange={(open) => {
+							handleSelectedImage(open);
+						}}
+						overlayStyle={{ zIndex: 10000 }}
+						arrow={false}
+						trigger={'hover'}
+						color="transparent"
+						placement="topLeft"
+					>
+						<div className="imageSelectedPeopleContainer">
+							<InfoIcon />
+							<span>People</span>
+						</div>
+					</Tooltip>
 				</div>
 
+				<div className="currentImageDetailsContainer">
+					<div className="currentImageDetailsContainer-left">
+						<div className="infoIcon">
+							<InfoIcon />
+						</div>
+						<span>{currentActiveImage?.displayName}</span>
+					</div>
+					<div className="currentImageCountContainer">
+						<ChevronLeft
+							style={{ transform: 'rotate(180deg)', cursor: 'pointer' }}
+							onClick={() => handleNavigation('prev')}
+						/>
+						<span className="currentImageCountContainerText">
+							{info?.activeImageIndex + 1} /{' '}
+							{aiface ? aiFaceImages?.totalDocs : imagesList?.totalDocs}
+						</span>
+						<ChevronLeft
+							onClick={() => handleNavigation('next')}
+							style={{ cursor: 'pointer' }}
+						/>
+					</div>
+					<div className="currentImageScallingContainer">
+						<span
+							onClick={() =>
+								setInfo((prev) => ({
+									...prev,
+									imageScalling: Math.max(0.1, prev.imageScalling - 0.1),
+								}))
+							}
+						>
+							-
+						</span>
+						<Slider
+							min={1}
+							max={200}
+							value={info?.imageScalling * 100}
+							onChange={(value) =>
+								setInfo((prev) => ({ ...prev, imageScalling: value / 100 }))
+							}
+							style={{ width: '137px' }}
+							trackStyle={{ backgroundColor: 'var(--primary-button)' }}
+							railStyle={{ backgroundColor: 'var(--stroke)' }}
+						/>
+						<span
+							onClick={() =>
+								setInfo((prev) => ({
+									...prev,
+									imageScalling: Math.min(2, prev.imageScalling + 0.1),
+								}))
+							}
+						>
+							+
+						</span>
+					</div>
+				</div>
+				<Thumbnails
+					galleryCredentials={galleryCredentials}
+					fetchMoreImages={fetchMoreImages}
+					imagesList={aiface ? aiFaceImages : imagesList}
+					aiFaceImages={aiFaceImages}
+					activeThumbnailFunction={activeThumbnailFunction}
+					info={info}
+					selectedImages={selectedImages}
+					isAiFace={aiface}
+					activeImageIndex={info?.activeImageIndex}
+				/>
 				<DeletePopup
 					open={info?.showDeleteAlbum}
 					closeModal={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: false }))}
