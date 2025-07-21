@@ -1,8 +1,7 @@
-import { Fragment, useContext, useState } from 'react';
+import { Fragment, useContext, useEffect, useState } from 'react';
 import s from './topNavbar.module.scss';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import ObjectID from 'bson-objectid';
 import { Tooltip } from 'antd';
 import CreditsLeftSvg from '../sidebar/chatHistory/CreditsLeftSvg';
 import Settings from './components/settings/Settings';
@@ -16,7 +15,7 @@ const leftContainerItems = [
 	},
 	{
 		id: 2,
-		label: 'Chat',
+		label: 'Chats',
 		route: '/chats',
 	},
 	{
@@ -41,8 +40,15 @@ const middleContainerItems = [
 	},
 ];
 
+const activeNavItemMap = {
+	'/home': 1,
+	'/chats': 2,
+	'/agents': 3,
+};
+
 const TopNavbar = () => {
 	const navigate = useNavigate();
+	const { pathname } = useLocation();
 
 	const {
 		profileInfo: { userDetailsData, tennantSettingsData },
@@ -52,10 +58,9 @@ const TopNavbar = () => {
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		activeNavItem: 1,
-		activeMode: 1,
+		activeNavItem: activeNavItemMap[pathname],
 		settingsTooltipOpen: false,
-		middleActive: 1,
+		activeMode: 1,
 		showNotifications: false,
 	});
 
@@ -67,6 +72,11 @@ const TopNavbar = () => {
 	const profilePicExists = profilePic ?? false;
 	const businessName = tennantSettingsData?.businessName?.toUpperCase();
 	const oppositeTheme = theme === 'dark' ? 'light' : 'dark';
+
+	useEffect(() => {
+		if (pathname.includes('/meet')) setInfo((prev) => ({ ...prev, activeMode: 3 }));
+		else setInfo((prev) => ({ ...prev, activeMode: 1 }));
+	}, [pathname]);
 
 	const handleNavigation = ({ navItemId, route }) => {
 		setInfo((prev) => ({
@@ -84,7 +94,7 @@ const TopNavbar = () => {
 	const handleMiddleNavigation = ({ id }) => {
 		setInfo((prev) => ({
 			...prev,
-			middleActive: id,
+			activeMode: id,
 		}));
 		console.log(id);
 		if (id === 1) {
@@ -231,7 +241,9 @@ const TopNavbar = () => {
 							className={`${s.navItem} ${
 								info.activeNavItem === navItem.id ? s.active : ''
 							}`}
-							onClick={() => handleNavigation(navItem)}
+							onClick={() =>
+								handleNavigation({ navItemId: navItem.id, route: navItem.route })
+							}
 							key={navItem.id}
 						>
 							{navItem.label}
@@ -247,7 +259,7 @@ const TopNavbar = () => {
 					{middleContainerItems.map((navItem) => (
 						<li
 							className={`${s.navItem} ${
-								info.middleActive === navItem.id ? s.active : ''
+								info.activeMode === navItem.id ? s.active : ''
 							}`}
 							onClick={() => handleMiddleNavigation(navItem)}
 							key={navItem.id}
