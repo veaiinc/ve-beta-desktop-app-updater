@@ -528,8 +528,6 @@ const OpenedSidebar = ({
 		[location.pathname],
 	);
 
-	console.log(userDetailsData?.logoURL);
-
 	useEffect(() => {
 		if (showSettingsSidebar && settingsOptions?.length > 0) {
 			const firstItem = settingsOptions[0];

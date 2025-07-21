@@ -17,7 +17,7 @@ const leftContainerItems = [
 	{
 		id: 2,
 		label: 'Chat',
-		route: `/chat/${ObjectID()?.toString()}`,
+		route: '/chats',
 	},
 	{
 		id: 3,

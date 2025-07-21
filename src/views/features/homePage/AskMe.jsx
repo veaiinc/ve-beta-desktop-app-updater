@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import BuildOptions from './BuildOptions';
 import Suggestions from './Suggestions';
 import Sintegrations from './suggestedIntegrations/Sintegrations';
-
+import ObjectID from 'bson-objectid';
 const AskMe = () => {
 	const navigate = useNavigate();
 	const {
@@ -15,14 +15,15 @@ const AskMe = () => {
 
 	const [info, setInfo] = useState({
 		chatQuery: '',
+		sessionId: ObjectID().toString(),
 	});
 
 	const handleCustomOnSendFunction = useCallback(
 		(data) => {
 			updateStateValues({ activePayloadForChat: data });
-			navigate(`/chat/${currentSessionId}`);
+			navigate(`/chat/${info?.sessionId}`);
 		},
-		[currentSessionId],
+		[info?.sessionId],
 	);
 
 	const handleChatQueryChange = (query) => {
@@ -47,6 +48,7 @@ const AskMe = () => {
 						animatePlaceholder={true}
 						onChatQueryChange={handleChatQueryChange}
 						showUpgradeSubscriptionBtn={false}
+						sessionId={info?.sessionId}
 					/>
 				</div>
 			</div>

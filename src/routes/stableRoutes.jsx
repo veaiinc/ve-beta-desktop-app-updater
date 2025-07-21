@@ -15,10 +15,12 @@ const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndE
 const SettingsWrapper = lazy(() => import('../views/features/settings/SettingsWrapper'));
 const RecentChat = lazy(() => import('../views/features/chat/RecentChat'));
 const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
+const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 import AmbientAi from '../views/features/ambientAi/AmbientAi';
+import CardMeetBot from '../views/features/meetBot/CardMeetBot';
 import Agents from '../views/features/agents/Agents';
 import Agent from '../views/features/agents/agent/Agent';
 import GlobalWorkflows from '../views/features/sales/GlobalWorkflows';
@@ -74,6 +76,16 @@ const stableRoutes = [
 		),
 	},
 	{
+		path: '/chats',
+		element: (
+			<AuthWrapper title={'Chats'}>
+				<Suspense fallback={<SuspenseFallback />}>
+					<ChatPage />
+				</Suspense>
+			</AuthWrapper>
+		),
+	},
+	{
 		path: '/settings/:type',
 		element: (
 			<AuthWrapper title={'Workspace Settings'}>
@@ -97,7 +109,7 @@ const stableRoutes = [
 				maxWidth="100%"
 			>
 				<Suspense fallback={<SuspenseFallback />}>
-					<RecentChat />
+					<RecentChat showChatHistory={true} />
 				</Suspense>
 			</AuthWrapper>
 		),
@@ -130,7 +142,7 @@ const stableRoutes = [
 		path: '/meet',
 		element: (
 			<AuthWrapper title={'Meet'}>
-				<MeetBot />
+				<CardMeetBot />
 			</AuthWrapper>
 		),
 	},

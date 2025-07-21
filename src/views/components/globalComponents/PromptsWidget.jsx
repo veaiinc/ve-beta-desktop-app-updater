@@ -25,8 +25,6 @@ const PromptsWidget = ({ option, currentIndex, searchQuery }) => {
 		templates: {
 			aiSuggestedPendingActions,
 			getAISuggestedPendingActions,
-			updateStateValues,
-			currentSessionId,
 			pendingActionsUpdate,
 		},
 	} = useContext(Context);
