@@ -18,6 +18,8 @@ import { ReactComponent as Pin } from '../../../assets/svg/gallery/pin.svg';
 import { ReactComponent as Download } from '../../../assets/svg/gallery/download.svg';
 import { ReactComponent as Delete } from '../../../assets/svg/gallery/delete-red.svg';
 import { Tooltip } from 'antd';
+import slugify from 'slugify';
+import Peopleitem from '../../components/gallery/galleryView/PeopleCard';
 
 // import { Background } from '@xyflow/react';
 
@@ -124,6 +126,7 @@ const GalleryViewer = ({
 		imageScalling: 1,
 		searchInput: '',
 		showLabels: true,
+		facesLoading: false,
 	});
 
 	useEffect(() => {
@@ -323,7 +326,7 @@ const GalleryViewer = ({
 
 	const handleAlbumDelete = async () => {
 		const payload = {
-			image_ids: [info?.imageDetailId],
+			image_ids: [info?.activeImage],
 		};
 
 		const response = await deleteImages(payload, activeGalleryId, activeAlbumId);
@@ -432,19 +435,38 @@ const GalleryViewer = ({
 		} else {
 			removeTagFromImage(payload, activeGalleryId, activeAlbumId, tagId);
 		}
+		message.success('Tag update Successfull');
 	};
 
 	const handleDownloadSingleImage = async () => {
 		message.success('Downloading Started...');
 
-		const imageDetails = await getImageDetail(info?.activeImage);
-		const totalBytes = imageDetails?.activeVersion?.s3_original?.size;
-		if (imageDetails) {
-			const response = await getDownloadLinkForImage(info?.imageDetailId, true, totalBytes);
+		const response = await getImageDetail(info?.activeImage);
+		const totalBytes = response?.[1]?.activeVersion?.s3_original?.size;
+		if (response?.[0]) {
+			const response = await getDownloadLinkForImage(
+				info?.activeImage,
+				isLightGallery,
+				totalBytes,
+			);
 			if (response?.[0]) {
 				message.success('Downloading Completed...');
 			} else {
 				message.error('Failed to download image');
+			}
+		}
+	};
+	const handleSelectedImage = async (open) => {
+		if (open) {
+			// Only fetch if faces are not already loaded for the current image
+			if (
+				!imageDetail ||
+				imageDetail?._id !== info?.activeImage ||
+				!imageDetail?.activeVersion?.faces
+			) {
+				setInfo((prev) => ({ ...prev, facesLoading: true }));
+				await getImageDetail(info?.activeImage);
+				setInfo((prev) => ({ ...prev, facesLoading: false }));
 			}
 		}
 	};
@@ -453,7 +475,10 @@ const GalleryViewer = ({
 			<div className="galleryViewerCotnainer" style={{ opacity: info?.fakeLoading ? 0 : 1 }}>
 				<div className="closeGallery">
 					<div className="closeGallery-left">
-						<CrossWhite onClick={handleCloseGallery} />
+						<ChevronLeft
+							onClick={handleCloseGallery}
+							style={{ transform: 'rotate(180deg)', height: '24px', width: '24px' }}
+						/>
 						<div className="imageAlbumTabsContainer">
 							{albumImagesCount?.albums?.map((album) => {
 								let src = null;
@@ -540,7 +565,7 @@ const GalleryViewer = ({
 															handleTagChange(
 																e,
 																tag?._id,
-																imageDetail?._id,
+																info?.activeImage,
 															)
 														}
 													/>
@@ -555,6 +580,7 @@ const GalleryViewer = ({
 							placement="bottom"
 							arrow={false}
 							trigger={'click'}
+							overlayStyle={{ zIndex: 10000 }}
 						>
 							<div className="eachImageOptions">
 								<Pin /> Tags
@@ -566,7 +592,10 @@ const GalleryViewer = ({
 						>
 							<Download /> Download
 						</div>
-						<div className="eachImageOptions deleteImage">
+						<div
+							className="eachImageOptions deleteImage"
+							onClick={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: true }))}
+						>
 							<Delete /> Delete
 						</div>
 					</div>
@@ -602,6 +631,83 @@ const GalleryViewer = ({
 							handleOpenUploadCover={handleOpenUploadCover}
 						/>
 					)} */}
+
+					<Tooltip
+						title={
+							<div
+								className="peopleSelectionImages"
+								style={{
+									width: '100%',
+									display: 'flex',
+
+									gap: '8px',
+								}}
+							>
+								{info?.facesLoading && (
+									<div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+										{[...Array(2)].map((_, i) => (
+											<Skeleton
+												key={i}
+												style={{
+													width: '48px',
+													height: '48px',
+													borderRadius: '50%',
+												}}
+											/>
+										))}
+									</div>
+								)}
+								{!info?.facesLoading &&
+									imageDetail?.activeVersion?.faces?.map((face) => {
+										const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+										const src = `${galleryCredentials?.baseURL}/${imageDetail?.activeVersion?.s3_optimized?.key}?${params}`;
+
+										return (
+											// <div
+											// 	className="rounded"
+											// 	key={face?._id}
+											// 	style={{
+											// 		backgroundImage: `url(${src})`,
+											// 		backgroundSize: 'cover',
+											// 		backgroundRepeat: 'no-repeat',
+											// 	}}
+											// ></div>
+											<div
+												onClick={() => handlePeopleClick(face)}
+												style={{ cursor: 'pointer' }}
+											>
+												<Peopleitem
+													url={src}
+													people={face}
+													thumbwidth={48}
+													thumbHeight={48}
+													key={face?._id}
+													originalWidth={
+														imageDetail?.activeVersion?.originalWidth
+													}
+													originalHeight={
+														imageDetail?.activeVersion?.originalHeight
+													}
+												/>
+											</div>
+										);
+									})}
+							</div>
+						}
+						onOpenChange={(open) => {
+							handleSelectedImage(open);
+						}}
+						overlayStyle={{ zIndex: 10000 }}
+						arrow={false}
+						trigger={'hover'}
+						color="transparent"
+						placement="topLeft"
+					>
+						<div className="imageSelectedPeopleContainer">
+							<InfoIcon />
+							<span>People</span>
+						</div>
+					</Tooltip>
 				</div>
 
 				<div className="currentImageDetailsContainer">
