@@ -35,7 +35,6 @@ import NoteTakerTranscript from './NoteTakerTranscript';
 import Spinner from '../../components/loaders/Spinner';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../helpers';
-import AiTranscriptionSuggestions from '../../components/chat/AiTranscriptionSuggestions';
 export const NotesRefContext = createContext(null);
 import RecentChat from '../chat/RecentChat';
 import NotesHeader from '../../components/notes/DatabseComponents/NotesHeader';
@@ -69,12 +68,6 @@ const initialState = {
 	selectedEmoji: null,
 	coverImageRemoved: false,
 	iconImageRemoved: false,
-	files: [],
-	questions: [],
-	actions: [],
-	sessionId: ObjectID()?.toString(),
-	chatSessionId: ObjectID()?.toString(),
-	chatClicked: false,
 };
 
 const accessLevels = {
@@ -102,7 +95,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const noteId = useParams()?.noteId;
 	const sessionId = noteId;
 	const type = searchParams.get('type');
-	const history = searchParams.get('history');
 	const isAiIntelligenceEnabled = searchParams.get('isAiIntelligenceEnabled');
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
@@ -133,11 +125,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		},
 		chatStream: { createWebSocketConnection, sendMessage, closeWebSocketConnection },
 		companyInfo: { getTeamMembers, tenantsUserList },
-		templates: {
-			handleTranscriptionSuggestions,
-			aiTranscriptionSuggestions,
-			updateStateValues,
-		},
+		templates: { handleTranscriptionSuggestions },
 		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
 
@@ -163,33 +151,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	// 	},
 	// 	[handleTranscriptionSuggestions],
 	// );
-
-	useEffect(() => {
-		if (aiTranscriptionSuggestions) {
-			const questions = aiTranscriptionSuggestions?.prompts?.filter(
-				(prompt) =>
-					prompt?.entity === 'user' ||
-					(prompt?.entity === 'agent' && prompt?.type === 'search'),
-			);
-			const actions = aiTranscriptionSuggestions?.prompts?.filter(
-				(prompt) => prompt?.entity === 'agent' && prompt?.type === 'action',
-			);
-			setInfo((prev) => ({
-				...prev,
-				questions,
-				actions,
-				files: aiTranscriptionSuggestions?.similar_files || [],
-			}));
-		}
-	}, [aiTranscriptionSuggestions]);
-
-	useEffect(() => {
-		return () => {
-			updateStateValues({
-				aiTranscriptionSuggestions: null,
-			});
-		};
-	}, []);
 	const handleSocketMessage = useCallback(
 		(event) => {
 			try {
@@ -681,12 +642,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	};
 
 	useEffect(() => {
-		if (
-			showTranscriptTabs &&
-			location?.pathname?.includes('meet') &&
-			history !== 'true' &&
-			type === 'meeting_bot'
-		) {
+		if (showTranscriptTabs && location?.pathname?.includes('meet') && type === 'meeting_bot') {
 			recallConnection(sessionId, noteId, handleSocketMessage, isAiIntelligenceEnabled);
 			// createLiveIntelligenceStream(
 			// 	sessionId,
@@ -915,15 +871,73 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 							</Tooltip>
 
 							{showTranscriptTabs && (
-								<TranscriptionTabs
-									activeTab={activeTab}
-									setActiveTab={setActiveTab}
-								/>
+								<div className="notes-tabs-container">
+									<div
+										className="notes-tabs-header"
+										style={{
+											display: 'flex',
+											gap: 24,
+											borderBottom: '1px solid var(--stroke, #2c2d2e)',
+											marginBottom: 12,
+										}}
+									>
+										<button
+											className={
+												activeTab === 'transcript'
+													? 'notes-tab active'
+													: 'notes-tab'
+											}
+											style={{
+												background: 'none',
+												border: 'none',
+												outline: 'none',
+												color: 'inherit',
+												fontWeight: 500,
+												fontSize: 16,
+												padding: '8px 0',
+												borderBottom:
+													activeTab === 'transcript'
+														? '2px solid var(--primary-button, #cfff48)'
+														: '2px solid transparent',
+												cursor: 'pointer',
+												transition: 'color 0.2s',
+											}}
+											onClick={() => setActiveTab('transcript')}
+										>
+											Transcript
+										</button>
+
+										<button
+											className={
+												activeTab === 'summary'
+													? 'notes-tab active'
+													: 'notes-tab'
+											}
+											style={{
+												background: 'none',
+												border: 'none',
+												outline: 'none',
+												color: 'inherit',
+												fontWeight: 500,
+												fontSize: 16,
+												padding: '8px 0',
+												borderBottom:
+													activeTab === 'summary'
+														? '2px solid var(--primary-button, #cfff48)'
+														: '2px solid transparent',
+												cursor: 'pointer',
+												transition: 'color 0.2s',
+											}}
+											onClick={() => setActiveTab('summary')}
+										>
+											Summary
+										</button>
+									</div>
+								</div>
 							)}
 
-							{showTranscriptTabs &&
-								activeTab === 'transcript' &&
-								(type === 'meeting_bot' ? (
+							{showTranscriptTabs && activeTab === 'transcript' ? (
+								type === 'meeting_bot' ? (
 									<MeetTranscript transcriptList={transcriptList} />
 								) : type === 'desktop' ? (
 									<NoteTakerTranscript
@@ -932,34 +946,27 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 										sessionId={sessionId}
 										pageId={noteId}
 									/>
-								) : null)}
-							{((showTranscriptTabs && activeTab === 'summary') ||
-								!showTranscriptTabs) && (
-								<Editor
-									innerContainerStyle={innerContainerStyle}
-									myAccess={info?.myAccess}
-									isDeleted={info?.isDeleted}
-									customSendMessage={customSendMessage}
-									aiResonse={info?.aiResonse}
-									resetAiResponse={resetAiResponse}
-									noteId={noteId}
-									initialBlocks={blocks}
-									createBlock={createBlock}
-									updateBlock={updateBlock}
-									deleteBlock={deleteBlock}
-								/>
+								) : null
+							) : (
+								<BlockNoteView
+									editor={editor}
+									formattingToolbar={false}
+									// onChange={onChange}
+									style={innerContainerStyle || {}}
+									theme={'dark'}
+									editable={info?.myAccess !== 'view' || !info?.isDeleted}
+									slashMenu={false}
+								>
+									{(info?.myAccess !== 'view' || !info?.isDeleted) && (
+										<NoteToolbar
+											sendMessage={customSendMessage}
+											aiResonse={info?.aiResonse}
+											resetAiResponse={resetAiResponse}
+										/>
+									)}
+									<SlashMenu editor={editor} noteId={noteId} />
+								</BlockNoteView>
 							)}
-							{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
-								(activeTab === 'questions' ||
-									activeTab === 'actions' ||
-									activeTab === 'files') && (
-									<AiTranscriptionSuggestions
-										questions={info?.questions}
-										actions={info?.actions}
-										files={info?.files}
-										activeTab={activeTab}
-									/>
-								)}
 						</div>
 					</>
 				</div>

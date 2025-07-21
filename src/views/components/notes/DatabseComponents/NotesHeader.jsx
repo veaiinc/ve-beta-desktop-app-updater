@@ -9,7 +9,7 @@ import ShareComponent from '../../../components/notes/ShareComponent';
 import MoreOptions from '../../../components/notes/MoreOptions';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
-import { Switch } from 'antd';
+// import { Switch } from 'antd';
 
 const NotesHeader = ({
 	isDeleted,
@@ -57,10 +57,10 @@ const NotesHeader = ({
 					</>
 				)}
 
-				<Switch
+				{/* <Switch
 					checked={showAiTranscriptionSuggestions}
 					onChange={handleShowAiTranscriptionSuggestions}
-				/>
+				/> */}
 
 				<button className="notes-nav-button" onClick={() => handleFavorite(!isFavorite)}>
 					<StarSvg
