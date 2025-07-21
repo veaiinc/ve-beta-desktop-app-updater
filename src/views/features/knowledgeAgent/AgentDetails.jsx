@@ -14,6 +14,7 @@ import jwtDecode from 'jwt-decode';
 import ChatBox from '../../components/chat/ChatBox';
 import AgentCredentials from '../../components/agents/agentDetails/agentCredentials/AgentCredentials';
 import AgentActivities from '../../components/agents/agentDetails/AgentActivities';
+import ObjectID from 'bson-objectid';
 const KnowledgeAgentDetails = () => {
 	const {
 		knowledgeAgent: { activeKnowledgeAssistant, getActiveKnowledgeAgentDetails },
@@ -27,6 +28,7 @@ const KnowledgeAgentDetails = () => {
 		activeAiAssistant: null,
 		loading: true,
 		access: 'view',
+		sessionId: ObjectID().toString(),
 	});
 
 	useEffect(() => {
@@ -68,9 +70,9 @@ const KnowledgeAgentDetails = () => {
 	const handleCustomOnSendFunction = useCallback(
 		(data) => {
 			updateStateValues({ activePayloadForChat: data });
-			navigate(`/chat/${currentSessionId}?agentType=knowledge_agent&assistantId=${agentId}`);
+			navigate(`/chat/${info?.sessionId}?agentType=knowledge_agent&assistantId=${agentId}`);
 		},
-		[currentSessionId],
+		[info?.sessionId],
 	);
 
 	const checkAccess = useCallback(() => {
@@ -130,6 +132,7 @@ const KnowledgeAgentDetails = () => {
 							onSend={handleCustomOnSendFunction}
 							customChatActions={true}
 							showUpgradeSubscriptionBtn={false}
+							sessionId={info?.sessionId}
 						/>
 					</div>
 				</div>
