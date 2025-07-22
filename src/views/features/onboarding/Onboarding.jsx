@@ -34,7 +34,7 @@ const Onboarding = () => {
 	}, []);
 
 	return (
-		<div className={`onboardingContainer ${currentStep === 1 ? 'stages-page' : ''}`}>
+		<div className={`onboardingContainer`}>
 			<div className="onboarding-header">
 				<div className="logo">
 					<VeLogo />
