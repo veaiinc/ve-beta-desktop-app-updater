@@ -34,7 +34,7 @@ const Onboarding = () => {
 	}, []);
 
 	return (
-		<div className="onboardingContainer">
+		<div className={`onboardingContainer`}>
 			<div className="onboarding-header">
 				<div className="logo">
 					<VeLogo />
@@ -47,9 +47,9 @@ const Onboarding = () => {
 							<OnboardingStepper onStepChange={setCurrentStep} />
 						</div>
 					</div>
-					<div className="description-section">
+					{/* <div className="description-section">
 						<LoginDescription />
-					</div>
+					</div> */}
 				</div>
 			</div>
 		</div>

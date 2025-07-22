@@ -1415,29 +1415,20 @@
 		padding: 0 250px;
 		padding-right: 440px;
 
-		.email-section {
-			flex: 0 0 350px;
+		.verification-code-container {
 			max-width: 350px;
-
-			.verification-code-container {
-				max-width: 350px;
-			}
 		}
+	}
 
-		.description-section {
-			display: flex;
-			padding: 40px 24px;
-		}
+	.description-section {
+		display: flex;
+		padding: 40px 24px;
 	}
 }
 @media screen and (max-width: 1500px) {
 	.main-content-container {
 		padding: 0 180px;
 		padding-right: 440px;
-		.email-section {
-			flex: 0 0 350px;
-			max-width: 350px;
-		}
 	}
 	.description-section {
 		margin-left: 24px;
