@@ -12,7 +12,7 @@ const leftContainerItemsStable = [
 	{
 		id: 1,
 		label: 'Insights',
-		route: '/home',
+		route: '/insights',
 	},
 	{
 		id: 2,
@@ -30,7 +30,7 @@ const leftContainerItemsBeta = [
 	{
 		id: 1,
 		label: 'Insights',
-		route: '/home',
+		route: '/insights',
 	},
 	{
 		id: 2,
@@ -46,6 +46,11 @@ const leftContainerItemsBeta = [
 		id: 4,
 		label: 'Files',
 		route: '/files',
+	},
+	{
+		id: 5,
+		label: 'Tools',
+		route: '/home',
 	},
 ];
 
@@ -68,12 +73,13 @@ const middleContainerItems = [
 ];
 
 const activeNavItemMap = {
-	'/home': 1,
+	'/home': 5,
 	'/chats': 2,
 	'/agents': 3,
 };
 
 const TopNavbar = () => {
+	const region = localStorage.getItem('region') ?? 'us-east-1';
 	const navigate = useNavigate();
 	const { workspaceMode } = useWorkspaceMode();
 	const { pathname } = useLocation();
@@ -101,8 +107,22 @@ const TopNavbar = () => {
 	const profilePicExists = profilePic ?? false;
 	const businessName = tennantSettingsData?.businessName?.toUpperCase();
 	const oppositeTheme = theme === 'dark' ? 'light' : 'dark';
-	const leftContainerItems =
-		workspaceMode === 'stable' ? leftContainerItemsStable : leftContainerItemsBeta;
+	const leftContainerItems = (() => {
+		const baseItems =
+			workspaceMode === 'stable' ? leftContainerItemsStable : leftContainerItemsBeta;
+
+		// Filter out Insights, Chats, and Agents if region is ap-south-1
+		if (region === 'ap-south-1') {
+			return baseItems.filter(
+				(item) =>
+					item.label !== 'Insights' && item.label !== 'Chats' && item.label !== 'Agents',
+			);
+		}
+
+		return baseItems;
+	})();
+
+	const showMiddleContainer = region !== 'ap-south-1';
 
 	useEffect(() => {
 		if (pathname.includes('/meet')) setInfo((prev) => ({ ...prev, activeMode: 3 }));
@@ -144,7 +164,7 @@ const TopNavbar = () => {
 		}
 	};
 
-	const rightContainerItems = [
+	const baseRightContainerItems = [
 		{
 			id: 1,
 			label: 'Credits Left',
@@ -261,6 +281,11 @@ const TopNavbar = () => {
 		},
 	];
 
+	const rightContainerItems =
+		region === 'ap-south-1'
+			? baseRightContainerItems.filter((item) => item.label !== 'Credits Left')
+			: baseRightContainerItems;
+
 	const navItems = [
 		{
 			id: 1,
@@ -302,24 +327,30 @@ const TopNavbar = () => {
 				</ul>
 			),
 		},
-		{
-			id: 2,
-			element: (
-				<ul className={s.middleContainer}>
-					{middleContainerItems.map((navItem) => (
-						<li
-							className={`${s.navItem} ${
-								info.activeMode === navItem.id ? s.active : ''
-							}`}
-							onClick={() => handleMiddleNavigation(navItem)}
-							key={navItem.id}
-						>
-							{info.activeMode === navItem.id ? navItem.activeLabel : navItem.label}
-						</li>
-					))}
-				</ul>
-			),
-		},
+		...(showMiddleContainer
+			? [
+					{
+						id: 2,
+						element: (
+							<ul className={s.middleContainer}>
+								{middleContainerItems.map((navItem) => (
+									<li
+										className={`${s.navItem} ${
+											info.activeMode === navItem.id ? s.active : ''
+										}`}
+										onClick={() => handleMiddleNavigation(navItem)}
+										key={navItem.id}
+									>
+										{info.activeMode === navItem.id
+											? navItem.activeLabel
+											: navItem.label}
+									</li>
+								))}
+							</ul>
+						),
+					},
+			  ]
+			: []),
 		{
 			id: 3,
 			element: (

@@ -71,7 +71,7 @@ import ChatPage from '../views/components/homePage/ChatPage';
 
 const betaRoutes = [
 	{
-		path: '/home',
+		path: '/insights',
 		element: (
 			<AuthWrapper
 				title={'Home'}
@@ -79,15 +79,15 @@ const betaRoutes = [
 				childrenContainerStyles={{ overflow: 'auto' }}
 				showBottomToolbar={false}
 			>
-				<InitialHomePage />
+				<AmbientAi />
 			</AuthWrapper>
 		),
 	},
 	{
-		path: '/ambient-ai',
+		path: '/home',
 		element: (
-			<AuthWrapper title={'Ambient AI'}>
-				<AmbientAi />
+			<AuthWrapper title={'Tools'}>
+				<InitialHomePage />
 			</AuthWrapper>
 		),
 	},

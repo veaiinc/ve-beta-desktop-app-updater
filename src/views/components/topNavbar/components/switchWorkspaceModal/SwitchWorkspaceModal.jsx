@@ -23,7 +23,7 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal }) => {
 	const handleSwitchWorkspace = (activeWorkspaceId, region) => {
 		localStorage.setItem('workspaceId', activeWorkspaceId);
 		localStorage.setItem('region', region);
-		window.location.reload(true);
+		window.location.href = '/home';
 	};
 
 	return (
