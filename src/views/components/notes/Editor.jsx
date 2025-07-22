@@ -245,6 +245,12 @@ const Editor = ({
 			}
 			return false;
 		}
+		if (oldBlock.type === 'image' && newBlockFormatted.type === 'image') {
+			const { content: oldContent, ...restOld } = oldBlock;
+			const { content: newContent, ...restNew } = newBlockFormatted;
+			return !isEqual(restOld, restNew);
+		}
+
 		const blockUpdated = !isEqual(oldBlock, newBlockFormatted);
 		return blockUpdated;
 	};

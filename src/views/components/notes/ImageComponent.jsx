@@ -14,6 +14,20 @@ import 'react-resizable/css/styles.css';
 import { ReactComponent as ImageIcon } from '../../../assets/svg/notes/image.svg';
 import Spinner from '../loaders/Spinner';
 import { EditorContext } from './Editor';
+import { message } from '../globalComponents/CustomToast';
+
+const loaderStyle = {
+	position: 'absolute',
+	bottom: '10px',
+	right: '10px',
+	height: '20px',
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	gap: '10px',
+	fontSize: '12px',
+	zIndex: 1000,
+};
 
 const ImageComponent = ({ block, editor }) => {
 	const { previousBlocksRef, pageId } = useContext(EditorContext);
@@ -23,6 +37,7 @@ const ImageComponent = ({ block, editor }) => {
 
 	const [info, setInfo] = useState({
 		showUploadPopup: !block.props.url,
+		tempImageUrl: '',
 		isSelected: false,
 		showReplace: false,
 		isLoading: false,
@@ -77,8 +92,7 @@ const ImageComponent = ({ block, editor }) => {
 	}, [block, editor]);
 
 	const handleImageSelect = async (imageUrl, imageFile = null) => {
-		handleInfoChange({ isLoading: true });
-
+		handleInfoChange({ isLoading: true, tempImageUrl: imageUrl });
 		try {
 			if (imageFile) {
 				const response = await uploadNotesImageBlock(
@@ -95,40 +109,22 @@ const ImageComponent = ({ block, editor }) => {
 				);
 				if (response?.[0]) {
 					imageUrl = response[1];
+				} else {
+					handleInfoChange({ isLoading: false, tempImageUrl: '' });
+					message.error('Failed to upload image');
+					return;
 				}
 			}
 
-			// Use native image loading to check availability
-			const waitForImageLoad = (url, maxAttempts = 10, interval = 2000) =>
-				new Promise((resolve) => {
-					let attempts = 0;
-
-					const tryLoad = () => {
-						const img = new Image();
-						img.onload = () => resolve(true);
-						img.onerror = () => {
-							if (++attempts >= maxAttempts) return resolve(false);
-							setTimeout(tryLoad, interval);
-						};
-						img.src = url + `?cacheBust=${Date.now()}`; // avoid caching issues
-					};
-
-					tryLoad();
-				});
-
-			const available = await waitForImageLoad(imageUrl);
-			if (available) {
-				editor.updateBlock(block, {
-					type: 'image',
-					props: {
-						...block.props,
-						source: imageFile ? 'upload' : 'link',
-						url: imageUrl,
-					},
-				});
-			} else {
-				console.warn('Image not available after polling.');
-			}
+			editor.updateBlock(block, {
+				type: 'image',
+				props: {
+					...block.props,
+					source: imageFile ? 'upload' : 'link',
+					url: imageUrl,
+				},
+			});
+			handleInfoChange({ isLoading: false });
 		} catch (error) {
 			console.error('Error uploading image:', error);
 		} finally {
@@ -154,7 +150,7 @@ const ImageComponent = ({ block, editor }) => {
 
 	return (
 		<div className="custom-image-block">
-			{block.props.url ? (
+			{info.tempImageUrl || block.props.url ? (
 				<div
 					style={{
 						position: 'relative',
@@ -163,13 +159,19 @@ const ImageComponent = ({ block, editor }) => {
 					onMouseEnter={() => handleInfoChange({ showReplace: true })}
 					onMouseLeave={() => handleInfoChange({ showReplace: false })}
 				>
+					{info.isLoading && (
+						<div style={loaderStyle}>
+							<Spinner width="20px" height="20px" />
+							Uploading...
+						</div>
+					)}
 					<ResizableBox
 						width={info.size.width}
 						height={info.size.height}
 						onResize={onResize}
 						onResizeStop={onResizeStop}
 						minConstraints={[100, 100]}
-						maxConstraints={[800, 800]}
+						maxConstraints={[895, 895]}
 						resizeHandles={['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']}
 						className={`resizable-box ${info.isSelected ? 'selected' : ''}`}
 						onClick={(e) => {
@@ -182,7 +184,7 @@ const ImageComponent = ({ block, editor }) => {
 					>
 						<div className="image-container">
 							<img
-								src={block.props.url}
+								src={info.tempImageUrl || block.props.url}
 								alt={block.props.caption}
 								data-fit={block.props.fitMode || 'fit'}
 							/>
@@ -255,7 +257,7 @@ const ImageComponent = ({ block, editor }) => {
 				}}
 				arrow={false}
 				trigger="click"
-				destroyTooltipOnHide={false}
+				destroyOnHidden={true}
 				align={{
 					points: ['tr', 'br'],
 					offset: [0, 0],
@@ -333,7 +335,7 @@ export const ImageBlock = createReactBlockSpec(
 
 export const insertImage = (editor, pageId) => ({
 	title: 'Image',
-	subtext: 'Image with caption',
+	subtext: 'Resizeable Image',
 	key: 'image',
 	onItemClick: () => {
 		insertOrUpdateBlock(editor, {
