@@ -1514,11 +1514,12 @@ class Layout extends Component {
 						}
 						triggeredFont={this.state.triggeredFont}
 						text={
-							this.state.previewType === 'm'
-								? _.has(properties, 'mContent')
-									? properties.mContent
-									: properties.content
-								: properties.content
+							// this.state.previewType === 'm'
+							// 	? _.has(properties, 'mContent')
+							// 		? properties.mContent
+							// 		: properties.content
+							// 	:
+							properties.content
 						}
 						style={properties.styles}
 						//divStyles={properties.divStyles}
