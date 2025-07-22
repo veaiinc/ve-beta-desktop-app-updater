@@ -118,14 +118,14 @@ const NotesWrapper = () => {
 					}}
 				/>
 			</div> */}
-			{info?.showAmbientAssistance && (
+			{/* {info?.showAmbientAssistance && (
 				<AiTranscriptionSuggestions
 					data={aiTranscriptionSuggestions || []}
 					modalIsOpen={info?.modalIsOpen}
 					closeModal={handleCloseModal}
 					showAmbientAssistance={info?.showAmbientAssistance}
 				/>
-			)}
+			)} */}
 		</div>
 	);
 };

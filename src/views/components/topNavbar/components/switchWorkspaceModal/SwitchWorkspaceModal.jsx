@@ -3,6 +3,8 @@ import ReactModal from '../../../modalsV2';
 import s from './switchWorkspaceModal.module.scss';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../../../context/context';
+import Cookies from 'js-cookie';
+import { fetchDomainName } from '../../../../../helpers';
 
 const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal }) => {
 	const navigate = useNavigate();
@@ -23,6 +25,15 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal }) => {
 	const handleSwitchWorkspace = (activeWorkspaceId, region) => {
 		localStorage.setItem('workspaceId', activeWorkspaceId);
 		localStorage.setItem('region', region);
+		const host = fetchDomainName();
+		Cookies.set('workspaceId', activeWorkspaceId, {
+			sameSite: 'lax',
+			domain: host,
+		});
+		Cookies.set('region', region, {
+			sameSite: 'lax',
+			domain: host,
+		});
 		window.location.href = '/home';
 	};
 
