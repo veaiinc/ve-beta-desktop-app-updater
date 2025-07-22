@@ -1,7 +1,5 @@
 import { memo } from 'react';
 import { Helmet } from 'react-helmet';
-import { SkeletonTheme } from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
 import Sidebar from '../components/sidebar/Sidebar';
 import TopNavbar from '../components/topNavbar/TopNavbar';
 import '../../assets/scss/authWrapper.scss';
@@ -63,26 +61,24 @@ const AuthWrapper = ({
 					}}
 					className="auth-wrapper-container"
 				>
-					<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
-						{layoutModeComponentMap[layoutMode]}
+					{layoutModeComponentMap[layoutMode]}
+					<div
+						style={{
+							flex: 1,
+							overflowY: 'auto',
+							maxHeight: '100%',
+							height: '100%',
+							padding: ' 0',
+						}}
+						id="scrollableTarget"
+					>
 						<div
-							style={{
-								flex: 1,
-								overflowY: 'auto',
-								maxHeight: '100%',
-								height: '100%',
-								padding: ' 0',
-							}}
-							id="scrollableTarget"
+							className="childrenContainer"
+							style={{ maxWidth: maxWidth || '', ...childrenContainerStyles }}
 						>
-							<div
-								className="childrenContainer"
-								style={{ maxWidth: maxWidth || '', ...childrenContainerStyles }}
-							>
-								{children}
-							</div>
+							{children}
 						</div>
-					</SkeletonTheme>
+					</div>
 				</div>
 			</div>
 			<ExpiredSubscriptionModal />

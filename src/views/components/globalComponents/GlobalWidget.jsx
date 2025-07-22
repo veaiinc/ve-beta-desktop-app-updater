@@ -3,13 +3,13 @@ import '../../../assets/scss/globalComponents/globalWidget.scss';
 import PromptCards from './PromptCard';
 import CalenderWidget from './CalenderWidget';
 import TaskWidget from './TaskWidget';
-// import AutomationWidget from './AutomationWidget';
+import AutomationWidget from './AutomationWidget';
 import ContactsWidget from './ContactsWidget';
 import { Tooltip } from 'antd';
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/contacts/calendar.svg';
 import { ReactComponent as TaskSvg } from '../../../assets/svg/home_page/tasks.svg';
 import { ReactComponent as ContactSvg } from '../../../assets/svg/home_page/contacts.svg';
-// import { ReactComponent as AutomationsSvg } from '../../../assets/svg/home_page/automation.svg';
+import { ReactComponent as AutomationsSvg } from '../../../assets/svg/home_page/automation.svg';
 import Context from '../../../context/context';
 
 const optionsList = [
@@ -38,15 +38,15 @@ const optionsList = [
 		showOption: true,
 		icon: ContactSvg,
 	},
-	// {
-	// 	id: 4,
-	// 	label: 'Automation',
-	// 	value: 'automation',
-	// 	tooltip: 'Create and manage your automations',
-	// 	controlValue: 'automation',
-	// 	showOption: true,
-	// 	icon: AutomationsSvg,
-	// },
+	{
+		id: 4,
+		label: 'Automation',
+		value: 'automation',
+		tooltip: 'Create and manage your automations',
+		controlValue: 'automation',
+		showOption: true,
+		icon: AutomationsSvg,
+	},
 ];
 
 const GlobalWidget = () => {
@@ -60,7 +60,7 @@ const GlobalWidget = () => {
 	const componentMapper = useMemo(() => ({
 		calendar: <CalenderWidget />,
 		task: <TaskWidget />,
-		// automation: <AutomationWidget />,
+		automation: <AutomationWidget />,
 		contact: <ContactsWidget />,
 	}));
 
