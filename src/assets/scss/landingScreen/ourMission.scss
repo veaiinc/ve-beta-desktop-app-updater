@@ -23,6 +23,8 @@
 		overflow: hidden;
 		display: flex;
 		justify-content: center;
+		max-width: 700px;
+		width: 100%;
 		&.bridge-img-dark {
 			.mission-block {
 				.bridge,
@@ -167,7 +169,7 @@
 
 	.long-description-block {
 		color: var(--primary-font, #f2f2f3);
-		font-family: Manrope;
+		font-family: var(--secondary-font-family);
 		font-size: 16px;
 		font-style: normal;
 		font-weight: 500;
@@ -221,6 +223,10 @@
 		}
 
 		.loginDescriptionFour {
+			display: flex;
+			flex-direction: column;
+			gap: 24px;
+
 			.descriptionFourTitle {
 				color: var(--primary-font, #f2f2f3);
 				font-family: Charter;
@@ -231,10 +237,25 @@
 				letter-spacing: -0.72px;
 			}
 			ul {
-				list-style: none;
-				padding: 0;
 				margin: 0;
 			}
+
+			.descriptionFourPoints {
+				ul {
+					font-family: var(--primary-font-family);
+					padding-inline-start: 20px;
+				}
+			}
+		}
+
+		.loginDescriptionText5 {
+			color: var(--primary-font, #f2f2f3);
+			font-family: Charter;
+			font-size: 24px;
+			font-style: italic;
+			font-weight: 700;
+			line-height: normal;
+			letter-spacing: -0.72px;
 		}
 
 		.bottomText {
