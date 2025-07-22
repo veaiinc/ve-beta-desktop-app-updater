@@ -948,7 +948,21 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 									/>
 								) : null)}
 
-							{showTranscriptTabs && activeTab === 'summary' && <MeetSummary />}
+							{showTranscriptTabs && activeTab === 'summary' && (
+								<Editor
+									innerContainerStyle={innerContainerStyle}
+									myAccess={info?.myAccess}
+									isDeleted={info?.isDeleted}
+									customSendMessage={customSendMessage}
+									aiResonse={info?.aiResonse}
+									resetAiResponse={resetAiResponse}
+									noteId={noteId}
+									initialBlocks={blocks}
+									createBlock={createBlock}
+									updateBlock={updateBlock}
+									deleteBlock={deleteBlock}
+								/>
+							)}
 
 							{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
 								(activeTab === 'userQuestions' ||
