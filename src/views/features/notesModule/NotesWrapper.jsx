@@ -16,7 +16,7 @@ const NotesWrapper = () => {
 	const [searchParams] = useSearchParams();
 	const isAiIntelligenceEnabled = searchParams.get('isAiIntelligenceEnabled');
 	const [info, setInfo] = useState({
-		modalIsOpen: false,
+		modalIsOpen: true,
 		sessionId: ObjectID()?.toString(),
 		showAmbientAssistance: isAiIntelligenceEnabled === 'true',
 		chatOpen: false,
@@ -118,14 +118,14 @@ const NotesWrapper = () => {
 					}}
 				/>
 			</div> */}
-			{/* {info?.showAmbientAssistance && (
+			{info?.showAmbientAssistance && (
 				<AiTranscriptionSuggestions
 					data={aiTranscriptionSuggestions || []}
 					modalIsOpen={info?.modalIsOpen}
 					closeModal={handleCloseModal}
 					showAmbientAssistance={info?.showAmbientAssistance}
 				/>
-			)} */}
+			)}
 		</div>
 	);
 };

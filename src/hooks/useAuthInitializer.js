@@ -8,7 +8,7 @@ import useWorkspaceMode from './useWorkspaceMode';
 
 const useAuthInitializer = () => {
 	const { authLoading } = useAuth();
-	const { workspaceModeLoading } = useWorkspaceMode();
+	const { workspaceModeLoading, workspaceMode } = useWorkspaceMode();
 	useTheme();
 	useIntercom();
 	useSubscription();
@@ -16,7 +16,7 @@ const useAuthInitializer = () => {
 	const { accessControlsLoading } = useAccessControls();
 
 	const authInitialized = authLoading || accessControlsLoading || workspaceModeLoading;
-	return { authInitialized };
+	return { authInitialized, workspaceMode };
 };
 
 export default useAuthInitializer;

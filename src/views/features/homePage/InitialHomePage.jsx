@@ -8,6 +8,7 @@ import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 import Suggestions from './Suggestions';
 import { useNavigate } from 'react-router-dom';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
+import ObjectID from 'bson-objectid';
 
 const suggestionContainerStyles = {
 	// position: 'absolute',
@@ -30,14 +31,15 @@ const InitialHomePage = () => {
 
 	const [info, setInfo] = useState({
 		chatQuery: '',
+		sessionId: ObjectID().toString(),
 	});
 
 	const handleCustomOnSendFunction = useCallback(
 		(data) => {
 			updateStateValues({ activePayloadForChat: data });
-			navigate(`/chat/${currentSessionId}`);
+			navigate(`/chat/${info?.sessionId}`);
 		},
-		[currentSessionId],
+		[info?.sessionId],
 	);
 
 	const handleChatQueryChange = (query) => {
@@ -76,6 +78,7 @@ const InitialHomePage = () => {
 							animatePlaceholder={false}
 							onChatQueryChange={handleChatQueryChange}
 							showUpgradeSubscriptionBtn={false}
+							sessionId={info?.sessionId}
 						/>
 					</div>
 					<div

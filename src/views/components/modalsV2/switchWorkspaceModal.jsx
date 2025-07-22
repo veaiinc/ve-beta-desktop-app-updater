@@ -6,7 +6,7 @@ import { ReactComponent as Selected } from '../../../assets/svg/workspaceSetting
 import { ReactComponent as Unselected } from '../../../assets/svg/workspaceSettings/Unselected.svg';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import useLogout from '../../hooks/useLogout';
+import useLogout from '../../../hooks/useLogout';
 import { fetchDomainName, getBuisnessName } from '../../../helpers/index';
 import { useParams } from 'react-router-dom';
 const customStyles = {

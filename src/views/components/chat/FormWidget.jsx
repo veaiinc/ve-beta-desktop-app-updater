@@ -22,6 +22,7 @@ const FormWidget = ({
 	messageData,
 	isLastMessage = false,
 	agent = null,
+	sessionId = null,
 }) => {
 	const [isExpanded, setIsExpanded] = useState(false);
 	const formRef = useRef(null);
@@ -92,6 +93,7 @@ const FormWidget = ({
 				workflowTemplateId={workflowTemplateId}
 				agent={agent}
 				builderAgentMapper={builderAgentMapper}
+				sessionId={sessionId}
 			/>
 		</div>
 	);

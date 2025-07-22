@@ -137,6 +137,7 @@ const ChatBox = ({
 	isBuildEnbled = true,
 	showUpgradeSubscriptionBtn = true,
 	animateChatBox = true,
+	sessionId = null,
 }) => {
 	const textAreaRef = useRef(null);
 	const location = useLocation();
@@ -170,7 +171,7 @@ const ChatBox = ({
 		subscriptionInfo: { currentPlan },
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
-		aiSetup: { voiceIntegrationData, updateAiChatSessions },
+		aiSetup: { voiceIntegrationData, updateAiChatSessions, aiChatSessions },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -399,13 +400,18 @@ const ChatBox = ({
 		}
 	}, [activePayloadForChat, info?.chatSessionId]);
 
+	// useEffect(() => {
+	// 	if (currentSessionId) {
+	// 		setInfo((prev) => ({ ...prev, chatSessionId: currentSessionId }));
+	// 	} else {
+	// 		updateStateValues({ currentSessionId: ObjectID()?.toString() });
+	// 	}
+	// }, [currentSessionId]);
+
 	useEffect(() => {
-		if (currentSessionId) {
-			setInfo((prev) => ({ ...prev, chatSessionId: currentSessionId }));
-		} else {
-			updateStateValues({ currentSessionId: ObjectID()?.toString() });
-		}
-	}, [currentSessionId]);
+		const chatSessionId = sessionId || ObjectID()?.toString();
+		setInfo((prev) => ({ ...prev, chatSessionId }));
+	}, [sessionId]);
 
 	useEffect(() => {
 		if (info?.chatSessionId && !globalChatMessages?.[info?.chatSessionId]?.chatBoxInfo) {
@@ -764,7 +770,12 @@ const ChatBox = ({
 
 					onChatQueryChange?.('');
 					clearTextArea();
-					if (!(globalChatMessages?.[sessionId]?.messages?.length > 0)) {
+					if (
+						!(
+							globalChatMessages?.[sessionId]?.messages?.length > 0 ||
+							aiChatSessions?.data?.findIndex((ele) => ele?._id === sessionId) !== -1
+						)
+					) {
 						const payload = { sessionId, addNewSession: true, type: 'update' };
 						updateAiChatSessions(payload);
 					}
@@ -805,6 +816,7 @@ const ChatBox = ({
 			chatReplyData,
 			proactiveInfoForChat,
 			onChatQueryChange,
+			aiChatSessions,
 		],
 	);
 

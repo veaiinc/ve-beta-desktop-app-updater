@@ -7,6 +7,7 @@ import Public from '../views/layouts/Public';
 import LandingPage from '../views/features/landingScreen/LandingPage';
 import LoginPage from '../views/features/loginPage/LoginPage';
 import Onboarding from '../views/features/onboarding/Onboarding';
+import LiveIntelligence from '../views/features/onboarding/LiveIntelligence';
 import TermsOfService from '../views/features/signin/TermsOfService';
 import CookiePolicy from '../views/features/signin/CookiePolicy';
 import PrivacyPolicy from '../views/features/signin/PrivacyPolicy';
@@ -75,6 +76,14 @@ const publicRoutes = [
 		element: (
 			<Public>
 				<Onboarding />
+			</Public>
+		),
+	},
+	{
+		path: '/live-intelligence',
+		element: (
+			<Public>
+				<LiveIntelligence />
 			</Public>
 		),
 	},
