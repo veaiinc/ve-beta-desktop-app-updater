@@ -115,6 +115,58 @@
 			align-items: center;
 			gap: 10px;
 			flex-shrink: 0;
+			position: relative;
+
+			.switchContainer {
+				position: absolute;
+				right: 160px;
+				top: 0;
+			}
+
+			// Sidebar for AiTranscriptionSuggestions
+			._aiTranscriptionSuggestions_13ws2_1 {
+				position: fixed;
+				top: 0;
+				right: 0;
+				height: 100vh;
+				width: 400px;
+				background: var(--card, #18191b);
+				z-index: 2000;
+				box-shadow: -2px 0 8px rgba(0, 0, 0, 0.12);
+				transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+				will-change: transform;
+				display: flex;
+				flex-direction: column;
+				border-left: 1px solid var(--stroke, #2c2d2e);
+			}
+
+			._aiTranscriptionSuggestionsOverlay_13ws2_1 {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100vw;
+				height: 100vh;
+				background: rgba(0, 0, 0, 0.3);
+			}
+
+			.aiTranscriptionSuggestions-close-btn {
+				position: absolute;
+				top: 12px;
+				right: 12px;
+
+				background: none;
+				border: none;
+				color: var(--primary-font, #fff);
+				font-size: 28px;
+				cursor: pointer;
+				padding: 4px 10px;
+				border-radius: 50%;
+				transition: background 0.2s;
+
+				&:hover {
+					background: var(--card-hover, #232425);
+				}
+			}
 
 			.notes-nav-button {
 				display: flex;
@@ -241,7 +293,7 @@
 		align-items: center;
 		flex-grow: 1;
 		overflow-y: auto;
-		padding-top: 48px;
+		// padding-top: 48px;
 
 		.notes-cover-image-container {
 			width: 100%;
@@ -297,7 +349,6 @@
 			align-items: flex-start;
 			gap: 18px;
 			flex-grow: 1;
-			overflow-y: auto;
 
 			.notes-icon-container {
 				width: 100%;
