@@ -5,6 +5,12 @@
 	margin: auto;
 	display: flex;
 	flex-direction: column;
+	.main-content-container {
+		display: flex;
+		align-items: center;
+		width: 100%;
+		justify-content: center;
+	}
 
 	.onboarding-header {
 		display: flex;
@@ -204,9 +210,6 @@
 		padding-right: 398px;
 		flex-direction: column;
 		.onboarding-section,
-		.description-section {
-			display: none !important;
-		}
 		.onboarding-section {
 			max-width: 100%;
 			width: 100%;
@@ -220,15 +223,8 @@
 		width: 100%;
 		margin-left: 0;
 	}
-	.description-section {
-		display: none !important;
-	}
 }
-@media screen and (max-width: 1023px) {
-	.description-section {
-		display: none !important;
-	}
-}
+
 @media screen and (max-width: 768px) {
 	.onboarding-section {
 		max-width: 100% !important;
@@ -307,6 +303,16 @@
 		width: 100%;
 		margin-left: 0;
 		height: auto;
+		margin-top: 100px;
+	}
+}
+@media screen and (max-width: 1023px) {
+	.description-section {
+		display: none !important;
+	}
+	.onboarding-main .email-section .stages-container {
+		margin-left: 0 !important;
+		margin-top: 100px;
 	}
 }
 @media screen and (max-width: 900px) {
@@ -318,6 +324,9 @@
 	}
 }
 @media screen and (max-width: 768px) {
+	.description-section {
+		display: none !important;
+	}
 	.email-section {
 		max-width: 100% !important;
 		width: 100% !important;
