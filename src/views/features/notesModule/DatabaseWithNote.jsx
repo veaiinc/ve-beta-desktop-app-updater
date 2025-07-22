@@ -41,6 +41,7 @@ import RecentChat from '../chat/RecentChat';
 import NotesHeader from '../../components/notes/DatabseComponents/NotesHeader';
 import Editor from '../../components/notes/Editor';
 import TranscriptionTabs from '../../components/notes/TranscriptionTabs';
+import MeetSummary from './MeetSummary';
 
 const initialState = {
 	timeouts: {}, // Single timeouts object to store all timeouts
@@ -946,8 +947,24 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 										pageId={noteId}
 									/>
 								) : null)}
-							{((showTranscriptTabs && activeTab === 'summary') ||
-								!showTranscriptTabs) && (
+
+							{showTranscriptTabs && activeTab === 'summary' && <MeetSummary />}
+
+							{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
+								(activeTab === 'userQuestions' ||
+									activeTab === 'aiQuestions' ||
+									activeTab === 'actions' ||
+									activeTab === 'files') && (
+									<AiTranscriptionSuggestions
+										userQuestions={info?.userQuestions}
+										aiQuestions={info?.aiQuestions}
+										actions={info?.actions}
+										files={info?.files}
+										activeTab={activeTab}
+									/>
+								)}
+
+							{!showTranscriptTabs && (
 								<Editor
 									innerContainerStyle={innerContainerStyle}
 									myAccess={info?.myAccess}
@@ -960,30 +977,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 									createBlock={createBlock}
 									updateBlock={updateBlock}
 									deleteBlock={deleteBlock}
-								/>
-							)}
-							{/* {(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
-								(activeTab === 'questions' ||
-									activeTab === 'actions' ||
-									activeTab === 'files') && (
-									<AiTranscriptionSuggestions
-										questions={info?.questions}
-										actions={info?.actions}
-										files={info?.files}
-										activeTab={activeTab}
-									/>
-								)} */}
-
-							{(activeTab === 'userQuestions' ||
-								activeTab === 'aiQuestions' ||
-								activeTab === 'actions' ||
-								activeTab === 'files') && (
-								<AiTranscriptionSuggestions
-									userQuestions={info?.userQuestions}
-									aiQuestions={info?.aiQuestions}
-									actions={info?.actions}
-									files={info?.files}
-									activeTab={activeTab}
 								/>
 							)}
 						</div>
