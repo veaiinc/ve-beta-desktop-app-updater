@@ -23,24 +23,24 @@ const AuthWrapper = ({
 }) => {
 	const { authInitialized, workspaceMode } = useAuthInitializer();
 
-	const layoutMode = showSidebar && workspaceMode !== 'stable' ? 'sidebar' : 'topNavbar';
-	const layoutModeComponentMap = {
-		sidebar: (
-			<div
-				style={{
-					...sidebarContainerStyles,
-					height: 'fit-content',
-					position: 'relative',
-					padding: '0',
-					margin: '0',
-				}}
-				className={sidebarContainerClassName}
-			>
-				<Sidebar />
-			</div>
-		),
-		topNavbar: <TopNavbar />,
-	};
+	// const layoutMode = showSidebar && workspaceMode !== 'stable' ? 'sidebar' : 'topNavbar';
+	// const layoutModeComponentMap = {
+	// 	sidebar: (
+	// 		<div
+	// 			style={{
+	// 				...sidebarContainerStyles,
+	// 				height: 'fit-content',
+	// 				position: 'relative',
+	// 				padding: '0',
+	// 				margin: '0',
+	// 			}}
+	// 			className={sidebarContainerClassName}
+	// 		>
+	// 			<Sidebar />
+	// 		</div>
+	// 	),
+	// 	topNavbar: <TopNavbar />,
+	// };
 
 	return authInitialized ? (
 		<PageLoader />
@@ -54,14 +54,16 @@ const AuthWrapper = ({
 				<div
 					style={{
 						display: 'flex',
-						flexDirection: layoutMode === 'topNavbar' ? 'column' : 'row',
+						// flexDirection: layoutMode === 'topNavbar' ? 'column' : 'row',
+						flexDirection: 'column',
 						height: '100dvh',
 						padding: '0',
 						...outerContainerStyle,
 					}}
 					className="auth-wrapper-container"
 				>
-					{layoutModeComponentMap[layoutMode]}
+					{/* {layoutModeComponentMap[layoutMode]} */}
+					<TopNavbar />
 					<div
 						style={{
 							flex: 1,

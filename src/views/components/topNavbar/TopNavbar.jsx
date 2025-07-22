@@ -6,8 +6,9 @@ import { Tooltip } from 'antd';
 import CreditsLeftSvg from '../sidebar/chatHistory/CreditsLeftSvg';
 import Settings from './components/settings/Settings';
 import Notifications from './components/notifications/Notifications';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 
-const leftContainerItems = [
+const leftContainerItemsStable = [
 	{
 		id: 1,
 		label: 'Insights',
@@ -22,6 +23,29 @@ const leftContainerItems = [
 		id: 3,
 		label: 'Agents',
 		route: '/agents',
+	},
+];
+
+const leftContainerItemsBeta = [
+	{
+		id: 1,
+		label: 'Insights',
+		route: '/home',
+	},
+	{
+		id: 2,
+		label: 'Chats',
+		route: '/chats',
+	},
+	{
+		id: 3,
+		label: 'Agents',
+		route: '/agents',
+	},
+	{
+		id: 4,
+		label: 'Files',
+		route: '/files',
 	},
 ];
 
@@ -51,6 +75,7 @@ const activeNavItemMap = {
 
 const TopNavbar = () => {
 	const navigate = useNavigate();
+	const { workspaceMode } = useWorkspaceMode();
 	const { pathname } = useLocation();
 	const isBuilder = pathname.includes('builder');
 
@@ -76,6 +101,8 @@ const TopNavbar = () => {
 	const profilePicExists = profilePic ?? false;
 	const businessName = tennantSettingsData?.businessName?.toUpperCase();
 	const oppositeTheme = theme === 'dark' ? 'light' : 'dark';
+	const leftContainerItems =
+		workspaceMode === 'stable' ? leftContainerItemsStable : leftContainerItemsBeta;
 
 	useEffect(() => {
 		if (pathname.includes('/meet')) setInfo((prev) => ({ ...prev, activeMode: 3 }));

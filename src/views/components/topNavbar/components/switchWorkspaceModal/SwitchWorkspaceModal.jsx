@@ -20,8 +20,9 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal }) => {
 		}
 	}, [userWorkSpaceList]);
 
-	const handleSwitchWorkspace = (activeWorkspaceId) => {
+	const handleSwitchWorkspace = (activeWorkspaceId, region) => {
 		localStorage.setItem('workspaceId', activeWorkspaceId);
+		localStorage.setItem('region', region);
 		window.location.reload(true);
 	};
 
@@ -111,10 +112,10 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal }) => {
 								?.toLowerCase()
 								.includes(info?.searchWorkspace?.toLowerCase()),
 						)
-						?.map(({ activeWorkspaceId, businessName, logo_s3_500w_key }) => (
+						?.map(({ activeWorkspaceId, businessName, logo_s3_500w_key, region }) => (
 							<button
 								key={activeWorkspaceId}
-								onClick={() => handleSwitchWorkspace(activeWorkspaceId)}
+								onClick={() => handleSwitchWorkspace(activeWorkspaceId, region)}
 								className={s.workspaceItem}
 							>
 								{logo_s3_500w_key ? (

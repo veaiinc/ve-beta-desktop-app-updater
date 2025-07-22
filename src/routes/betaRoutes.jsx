@@ -64,8 +64,9 @@ const NotesPage = lazy(() => import('../views/features/notesPage/NotesPage'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
-import MeetBot from '../views/features/meetBot/meetBot';
+// import MeetBot from '../views/features/meetBot/meetBot';
 import NotesWrapper from '../views/features/notesModule/NotesWrapper';
+import CardMeetBot from '../views/features/meetBot/CardMeetBot';
 
 const betaRoutes = [
 	{
@@ -587,7 +588,8 @@ const betaRoutes = [
 		path: '/meet',
 		element: (
 			<AuthWrapper title={'Meet'}>
-				<MeetBot />
+				{/* <MeetBot /> */}
+				<CardMeetBot />
 			</AuthWrapper>
 		),
 	},
