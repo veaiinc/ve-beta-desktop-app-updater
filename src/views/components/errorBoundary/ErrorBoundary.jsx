@@ -43,6 +43,7 @@ class ErrorBoundary extends Component {
 		console.error('Error caught in ErrorBoundary:', error, errorInfo);
 		const { component, path } = extractErrorDetails(errorInfo?.componentStack);
 
+		// It happens if you are on a page and you release a new version. The file that contains the dynamically imported module, does not exist anymore (https://stackoverflow.com/questions/72376333/failed-to-fetch-dynamically-imported-module)
 		const isLazyLoadingErr =
 			error instanceof TypeError &&
 			(error.message.includes('Failed to fetch dynamically imported module') ||
