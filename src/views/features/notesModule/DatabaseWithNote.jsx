@@ -286,22 +286,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		userId = user_id;
 	}, []);
 
-	// useEffect(() => {
-	// 	const notesContainer = document.querySelector('.notes-container');
-	// 	const handleKeyDown = (e) => {
-	// 		if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-	// 			const selected = editor?.getSelectedText()?.length > 0 || false;
-	// 			if (selected) {
-	// 				e.stopPropagation();
-	// 				return;
-	// 			}
-	// 		}
-	// 	};
-
-	// 	notesContainer.addEventListener('keydown', handleKeyDown);
-	// 	return () => notesContainer.removeEventListener('keydown', handleKeyDown);
-	// }, []);
-
 	useEffect(() => {
 		const originalFaviconTag = document.querySelector("link[rel~='icon']");
 

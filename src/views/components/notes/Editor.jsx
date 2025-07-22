@@ -52,6 +52,22 @@ const Editor = ({
 		// uploadFile,
 	});
 
+	// useEffect(() => {
+	// 	const notesContainer = document.querySelector('.notes-container');
+	// 	const handleKeyDown = (e) => {
+	// 		if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+	// 			const selected = editor?.getSelectedText()?.length > 0 || false;
+	// 			if (selected) {
+	// 				e.stopPropagation();
+	// 				return;
+	// 			}
+	// 		}
+	// 	};
+
+	// 	notesContainer.addEventListener('keydown', handleKeyDown);
+	// 	return () => notesContainer.removeEventListener('keydown', handleKeyDown);
+	// }, []);
+
 	useEffect(() => {
 		const unsubscribe = editor.onChange(() => {
 			const currentBlocks = editor.document;

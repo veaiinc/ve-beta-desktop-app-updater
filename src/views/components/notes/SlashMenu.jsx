@@ -21,7 +21,7 @@ const SlashMenu = ({ editor, noteId }) => {
 		// Insert the database item after Advanced group
 		defaultItems.splice(lastAdvanceBlockIndex + 1, 0, insertDatabase(editor, noteId));
 
-		defaultItems = defaultItems.filter((item) => item?.group !== 'Media');
+		// defaultItems = defaultItems.filter((item) => item?.group !== 'Media');
 
 		// Return filtered items based on the query
 		return filterSuggestionItems(defaultItems, query);

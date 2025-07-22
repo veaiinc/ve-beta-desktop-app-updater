@@ -440,7 +440,7 @@ export const NotesState = (props) => {
 		});
 	};
 
-	const uploadNotesImageBlock = async (payload, data) => {
+	const uploadNotesImageBlock = async (payload, data, isDatabase = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -449,7 +449,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				isDatabase ? 'page_notes_api_database' : 'page_notes_api',
 			);
 
 			if (response?.[0]) {
