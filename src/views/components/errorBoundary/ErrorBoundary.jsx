@@ -58,6 +58,8 @@ class ErrorBoundary extends Component {
 		}
 
 		if (window.location.hostname !== 'localhost') {
+			if (isLazyLoadingErr) return;
+
 			const payload = {
 				errorType: error.name,
 				errorMessage: error.message,
