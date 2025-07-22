@@ -27,7 +27,7 @@ const sortOptions = [
 	{ label: 'A-Z', value: 'title', sortType: 1 },
 ];
 
-const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
+const NotesGrid = ({ handleNewNotes, handleTotalChange, isDatabase = false }) => {
 	const navigate = useNavigate();
 
 	const {
@@ -45,11 +45,11 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 
 	useEffect(() => {
 		fetchNotes({ page: 1 });
-	}, [info?.selectedFilter?.value, info?.selectedSort]);
+	}, [info?.selectedFilter?.value, info?.selectedSort, isDatabase]);
 
 	useEffect(() => {
 		if (notes) {
-			const { currentPage = 1, hasNextPage = false, data = [], totalDocs = 0 } = notes || {};
+			const { currentPage = 1, hasNextPage = false, data = [], totalDocs } = notes || {};
 			const newNotes = currentPage === 1 ? [...data] : [...info?.notes, ...(data || [])];
 			handleStateUpdate({ notes: newNotes, currentPage, hasNextPage, loading: false });
 			handleTotalChange(totalDocs);
@@ -159,7 +159,8 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 					sortOrder,
 				},
 			};
-			await getNotesList(payload, false);
+			const append = false;
+			await getNotesList(payload, append, isDatabase);
 		} catch (error) {
 			console.error('Error fetching notes:', error);
 		}
@@ -213,7 +214,7 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 								<div className="card-item-style card-item-style-btn">
 									<button className="card-btn">
 										<Plus />
-										Create Note
+										{isDatabase ? 'Create Database' : 'Create Note'}
 									</button>
 								</div>
 							</div>
