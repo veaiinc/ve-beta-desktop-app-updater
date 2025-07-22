@@ -4,6 +4,7 @@ import Context from '../../../context/context';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import CustomToast, { message } from '../globalComponents/CustomToast';
 import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 import { ReactComponent as GreenTick } from '../../../assets/svg/onboarding/green-tick.svg';
 import { ReactComponent as DarkIcon } from '../../../assets/svg/onboarding/dark.svg';
 import { ReactComponent as LightIcon } from '../../../assets/svg/onboarding/light.svg';
@@ -595,10 +596,9 @@ const Stages = ({ onNext }) => {
 										<Skeleton
 											width="100%"
 											height="41px"
-											style={{
-												'--highlight-color': 'gray',
-												'--base-color': 'transparent',
-											}}
+											baseColor="var(--card)"
+											highlightColor="var(--stroke)"
+											style={{ borderRadius: '8px' }}
 										/>
 									) : (
 										<div className="nameInputAndProfilePictureContainer">
@@ -693,10 +693,9 @@ const Stages = ({ onNext }) => {
 												<Skeleton
 													width="100%"
 													height="41px"
-													style={{
-														'--highlight-color': 'gray',
-														'--base-color': 'transparent',
-													}}
+													baseColor="var(--card)"
+													highlightColor="var(--stroke)"
+													style={{ borderRadius: '8px' }}
 												/>
 											) : (
 												<PhoneInput

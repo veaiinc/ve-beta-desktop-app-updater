@@ -54,7 +54,7 @@
 		z-index: 1;
 		padding-left: 100px;
 		.email-section {
-			max-width: 800px;
+			max-width: 600px;
 		}
 		.onboarding-section {
 			flex: 1 1 50%;
@@ -105,10 +105,10 @@
 				padding: 32px 20px;
 				max-width: 700px;
 			}
-			.onboarding-section {
-				flex: 0 0 350px;
-				max-width: 350px;
-			}
+			// .onboarding-section {
+			// 	flex: 0 0 350px;
+			// 	max-width: 350px;
+			// }
 
 			.description-section {
 				display: flex;
@@ -133,10 +133,10 @@
 				max-width: 480px;
 			}
 		}
-		.onboarding-section {
-			flex: 0 0 350px;
-			max-width: 350px;
-		}
+		// .onboarding-section {
+		// 	flex: 0 0 350px;
+		// 	max-width: 350px;
+		// }
 		.description-section {
 			margin-left: 24px;
 			padding: 32px 20px;
@@ -148,9 +148,9 @@
 	.onboarding-main {
 		.email-section {
 			.stages-container {
-				margin-left: 24px;
 				padding: 32px 20px;
 				max-width: 580px;
+				margin-left: 316px;
 			}
 			.knowEachOtherStepContainer {
 				max-width: 580px;
@@ -170,7 +170,7 @@
 	.onboarding-main {
 		.email-section {
 			.stages-container {
-				margin-left: 24px;
+				margin-left: 316px;
 				padding: 32px 20px;
 				max-width: 580px;
 			}
@@ -192,6 +192,7 @@
 				margin-left: 24px;
 				padding: 32px 20px;
 				max-width: 500px;
+				margin-top: -37px;
 			}
 			.knowEachOtherStepContainer {
 				max-width: 480px;
@@ -209,6 +210,12 @@
 		padding: 0 100px;
 		padding-right: 398px;
 		flex-direction: column;
+		.email-section {
+			.stages-container {
+				margin-left: -55px;
+				margin-top: -37px;
+			}
+		}
 		.onboarding-section,
 		.onboarding-section {
 			max-width: 100%;
@@ -294,7 +301,8 @@
 .stages-container {
 	display: flex;
 	flex-direction: column;
-	gap: 19px;
+	gap: 50px;
+	width: 100%;
 }
 
 @media screen and (max-width: 1120px) {

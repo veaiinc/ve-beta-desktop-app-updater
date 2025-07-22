@@ -1,7 +1,7 @@
 .live-intelligence {
 	display: flex;
 	flex-direction: column;
-	align-items: flex-start;
+	align-items: center;
 	gap: 100px;
 	padding: 0 24px;
 
@@ -124,6 +124,9 @@
 		display: flex;
 		justify-content: flex-start;
 		cursor: pointer;
+		align-self: flex-start;
+		align-items: flex-start;
+		margin-left: -180px;
 	}
 
 	// Hover effects for grid item content header
@@ -136,10 +139,30 @@
 			transform: translateX(10px);
 		}
 	}
+	@media (max-width: 1800px) {
+		&__footer {
+			margin-left: -210px;
+		}
+	}
+	@media (max-width: 1400px) {
+		&__footer {
+			margin-left: -220px;
+		}
+	}
+	@media (max-width: 1280px) {
+		gap: 60px;
+		padding: 0 12px;
+
+		&__content {
+			gap: 32px;
+		}
+	}
 
 	@media (max-width: 1024px) {
 		gap: 60px;
 		padding: 0 12px;
+		margin-top: -160px;
+		margin-left: 0;
 
 		&__content {
 			width: 100%;
@@ -171,11 +194,12 @@
 				}
 				&--image {
 					width: 280px;
-					height: 280px;
+					height: 350px;
 				}
 			}
 		}
 		&__footer {
+			margin-left: 0;
 			font-size: 15px;
 			line-height: 24px;
 		}
@@ -217,8 +241,8 @@
 					}
 				}
 				&--image {
-					width: 120px;
-					height: 120px;
+					height: 355px;
+					width: 416px;
 				}
 			}
 		}
@@ -226,6 +250,7 @@
 			font-size: 13px;
 			line-height: 18px;
 			justify-content: center;
+			
 		}
 	}
 }
