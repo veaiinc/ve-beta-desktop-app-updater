@@ -32,6 +32,7 @@
 			align-items: flex-start;
 			gap: 8px;
 			align-self: stretch;
+			width: 100%;
 
 			.inputLabel {
 				color: #7a7e85;
@@ -40,6 +41,13 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+			}
+			.messageLineWrapper {
+				width: 100%;
+
+				.slackMessageWrapper {
+					width: 100%;
+				}
 			}
 
 			.inputField {
