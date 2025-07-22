@@ -179,6 +179,19 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange, isDatabase = false }) =>
 		handleStateUpdate({ selectedSort: { ...value, sortType } });
 	};
 
+	const handleCreateNoteOrDatabase = async () => {
+		const payload = {
+			input: {
+				title: 'New Note',
+			},
+		};
+		const response = await createNotesList(payload, isDatabase);
+		if (response?.[1]?._id) {
+			const newNoteId = response[1]?._id;
+			navigate(`/note/${newNoteId}${isDatabase ? '/database' : ''}`);
+		}
+	};
+
 	return (
 		<div className="card-sub-container-center">
 			<div className="center-container-header">
@@ -212,7 +225,10 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange, isDatabase = false }) =>
 						<div className="card-container">
 							<div className="card-item" onClick={handleNewNotes}>
 								<div className="card-item-style card-item-style-btn">
-									<button className="card-btn">
+									<button
+										onClick={handleCreateNoteOrDatabase}
+										className="card-btn"
+									>
 										<Plus />
 										{isDatabase ? 'Create Database' : 'Create Note'}
 									</button>
