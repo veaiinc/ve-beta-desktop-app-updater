@@ -6,6 +6,8 @@ import { ReactComponent as Mobile } from '../../../assets/svg/smartFile/Mobile.s
 import { ReactComponent as Divider } from '../../../assets/svg/smartFile/Divider.svg';
 import { ReactComponent as Settings } from '../../../assets/svg/Settings/Settings.svg';
 import { withRouter } from '../../../services/withRouter';
+
+import MetaImage from './Meta-image/MetaImage';
 import Title from './title';
 import { Tooltip } from 'antd';
 import { Threedots, BackArrow } from '../builder_client_common';
@@ -192,13 +194,20 @@ class Header extends Component {
 							</span>
 						</>
 					</span>{' '}
-					<>
-						<Title
-							title={this.state.title}
-							updatePublishedTemplate={this.props.updatePublishedTemplate}
-							isWorkflow={this.state.isWorkflow}
+					<div className="meta-title-container">
+						<MetaImage
+							handleImageUploadGlobal={this.props.handleImageUploadGlobal}
+							imageUrl={this.props.imageUrl}
 						/>
-					</>
+
+						<>
+							<Title
+								title={this.state.title}
+								updatePublishedTemplate={this.props.updatePublishedTemplate}
+								isWorkflow={this.state.isWorkflow}
+							/>
+						</>
+					</div>
 				</div>
 				{/* <div className="h-center">{this.renderModules()}</div> */}
 				<div className="h-right">

@@ -6415,19 +6415,22 @@ const GalleryPage = () => {
 				}
 				handleDeleteImages={handleAlbumDelete}
 			/>
-			<GalleryViewer
-				open={info?.isGalleryViewer}
-				closeModal={() => handleCloseGalleryViewer()}
-				selectedImage={info?.currentExpandImage}
-				currentSelectedImages={
-					info?.selectedImages?.length > 0 ? info?.selectedImages : null
-				}
-				aiFace={false}
-				activeGalleryId={galleryId}
-				activeAlbumId={info?.activeAlbumId}
-				tagId={info?.activeTagId}
-				handleOpenUploadCover={openUploadCoverPhoto}
-			/>
+			{info?.isGalleryViewer && (
+				<GalleryViewer
+					open={info?.isGalleryViewer}
+					closeModal={() => handleCloseGalleryViewer()}
+					selectedImage={info?.currentExpandImage}
+					currentSelectedImages={
+						info?.selectedImages?.length > 0 ? info?.selectedImages : null
+					}
+					aiFace={false}
+					activeGalleryId={galleryId}
+					activeAlbumId={info?.activeAlbumId}
+					tagId={info?.activeTagId}
+					handleOpenUploadCover={openUploadCoverPhoto}
+					handleClickAlbum={handleClickAlbum}
+				/>
+			)}
 			{info?.videoUploadPopup && (
 				<VideoUploadPopup
 					isOpen={info?.videoUploadPopup}

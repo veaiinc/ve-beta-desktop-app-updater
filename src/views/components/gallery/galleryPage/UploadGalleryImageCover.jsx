@@ -222,24 +222,28 @@ const UploadGalleryImageCover = ({
 													width: '100%',
 													height: '100%',
 													color: 'var(--secondary-font)',
+													display: 'flex',
+													justifyContent: 'center',
+													alignItems: 'center',
+													backgroundColor: 'var(--card)',
 												}}
 											>
-												No selected Image
+												Set Cover Image
 											</div>
 										)}
 									</div>
 								</div>
 							) : (
 								<div className="mobile-preview">
-									{isImageExists && (
-										<div
-											className="mobile-preview-container"
-											onMouseDown={handleMouseDown}
-											onMouseMove={handleMouseMove}
-											onMouseUp={handleMouseUp}
-											onMouseLeave={handleMouseUp}
-											style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
-										>
+									<div
+										className="mobile-preview-container"
+										onMouseDown={handleMouseDown}
+										onMouseMove={handleMouseMove}
+										onMouseUp={handleMouseUp}
+										onMouseLeave={handleMouseUp}
+										style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+									>
+										{isImageExists ? (
 											<div
 												style={{
 													backgroundImage: `url(${info?.imageURL})`,
@@ -263,8 +267,22 @@ const UploadGalleryImageCover = ({
 													))}
 												</div>
 											</div>
-										</div>
-									)}
+										) : (
+											<div
+												style={{
+													width: '100%',
+													height: '100%',
+													color: 'var(--secondary-font)',
+													display: 'flex',
+													justifyContent: 'center',
+													alignItems: 'center',
+													backgroundColor: 'var(--card)',
+												}}
+											>
+												Set Cover Image
+											</div>
+										)}
+									</div>
 								</div>
 							)}
 						</div>
