@@ -1,6 +1,13 @@
 import { memo } from 'react';
 
-const TranscriptionTabs = ({ activeTab, setActiveTab }) => {
+const TranscriptionTabs = ({
+	activeTab,
+	setActiveTab,
+	userQuestions,
+	aiQuestions,
+	actions,
+	files,
+}) => {
 	return (
 		<div className="notes-tabs-container">
 			<div
@@ -55,6 +62,101 @@ const TranscriptionTabs = ({ activeTab, setActiveTab }) => {
 				>
 					Summary
 				</button>
+				{userQuestions?.length > 0 && (
+					<button
+						className={activeTab === 'userQuestions' ? 'notes-tab active' : 'notes-tab'}
+						style={{
+							background: 'none',
+							border: 'none',
+							outline: 'none',
+							color: 'inherit',
+							fontWeight: 500,
+							fontSize: 16,
+							padding: '8px 0',
+							borderBottom:
+								activeTab === 'userQuestions'
+									? '2px solid var(--primary-button, #cfff48)'
+									: '2px solid transparent',
+							cursor: 'pointer',
+							transition: 'color 0.2s',
+						}}
+						onClick={() => setActiveTab('userQuestions')}
+					>
+						Ask User
+					</button>
+				)}
+
+				{aiQuestions?.length > 0 && (
+					<button
+						className={activeTab === 'aiQuestions' ? 'notes-tab active' : 'notes-tab'}
+						style={{
+							background: 'none',
+							border: 'none',
+							outline: 'none',
+							color: 'inherit',
+							fontWeight: 500,
+							fontSize: 16,
+							padding: '8px 0',
+							borderBottom:
+								activeTab === 'aiQuestions'
+									? '2px solid var(--primary-button, #cfff48)'
+									: '2px solid transparent',
+							cursor: 'pointer',
+							transition: 'color 0.2s',
+						}}
+						onClick={() => setActiveTab('aiQuestions')}
+					>
+						Need help?
+					</button>
+				)}
+
+				{actions?.length > 0 && (
+					<button
+						className={activeTab === 'actions' ? 'notes-tab active' : 'notes-tab'}
+						style={{
+							background: 'none',
+							border: 'none',
+							outline: 'none',
+							color: 'inherit',
+							fontWeight: 500,
+							fontSize: 16,
+							padding: '8px 0',
+							borderBottom:
+								activeTab === 'actions'
+									? '2px solid var(--primary-button, #cfff48)'
+									: '2px solid transparent',
+							cursor: 'pointer',
+							transition: 'color 0.2s',
+						}}
+						onClick={() => setActiveTab('actions')}
+					>
+						Actions
+					</button>
+				)}
+
+				{files?.length > 0 && (
+					<button
+						className={activeTab === 'files' ? 'notes-tab active' : 'notes-tab'}
+						style={{
+							background: 'none',
+							border: 'none',
+							outline: 'none',
+							color: 'inherit',
+							fontWeight: 500,
+							fontSize: 16,
+							padding: '8px 0',
+							borderBottom:
+								activeTab === 'files'
+									? '2px solid var(--primary-button, #cfff48)'
+									: '2px solid transparent',
+							cursor: 'pointer',
+							transition: 'color 0.2s',
+						}}
+						onClick={() => setActiveTab('files')}
+					>
+						Files
+					</button>
+				)}
 			</div>
 		</div>
 	);

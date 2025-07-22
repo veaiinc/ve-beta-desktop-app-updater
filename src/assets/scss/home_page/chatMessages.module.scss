@@ -5,4 +5,8 @@
 	width: 100%;
 	flex-grow: 1;
 	overflow-y: auto;
+
+	:global(.chat-suggestions-container) {
+		display: none !important;
+	}
 }
