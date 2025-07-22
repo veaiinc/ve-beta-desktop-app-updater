@@ -527,84 +527,68 @@ class ServiceItem extends Component {
 										}}
 									>
 										{(this.state.preview && this.props.client) ||
-										this.props.isWorkflow
-											? this.state.block.subBlocks[0]?.unit !== 'none' && (
-													<a
-														style={{
-															background: `${
-																this.state.block?.pricingFontColor
-															}${Math.round(0.12 * 255).toString(
-																16,
-															)}`,
-															border: `1px solid ${this.state.block?.pricingFontColor}`,
-															display:
-																this.props.returnDisplayItemSub(
-																	'quantity',
+										this.props.isWorkflow ? (
+											<a
+												style={{
+													background: `${
+														this.state.block?.pricingFontColor
+													}${Math.round(0.12 * 255).toString(
+														16,
+													)}`,
+													border: `1px solid ${this.state.block?.pricingFontColor}`,
+													display: this.props.returnDisplayItemSub(
+														'quantity',
+														this.state.block._id,
+													),
+												}}
+											>
+												{this.state.block.canClientCustomiseQuantity &&
+												this.state.block.canClientCustomiseQuantity == true ? (
+													<span
+														onClick={() => {
+															if (
+																this.props.preview ||
+																this.props.isWorkflow
+															) {
+																this.props.handleServiceSelect(
 																	this.state.block._id,
-																),
+																	'quantity',
+																	'decrease',
+																);
+															}
 														}}
 													>
-														{this.state.block
-															.canClientCustomiseQuantity &&
-														this.state.block
-															.canClientCustomiseQuantity == true ? (
-															<span
-																onClick={() => {
-																	if (
-																		this.props.preview ||
-																		this.props.isWorkflow
-																	) {
-																		this.props.handleServiceSelect(
-																			this.state.block._id,
-																			'quantity',
-																			'decrease',
-																		);
-																	}
-																}}
-															>
-																-
-															</span>
-														) : (
-															''
-														)}
-														{this.state.block.subBlocks[0]?.unit ===
-														'none'
-															? ' '
-															: window?.location?.pathname?.includes(
-																	'/workflow',
-															  )
-															? this.state.block.subBlocks[0].quantity
-															: this.props.getRowValue(
-																	'quantity',
+														-
+													</span>
+												) : (
+													''
+												)}
+												{window?.location?.pathname?.includes('/workflow')
+													? this.state.block.subBlocks[0].quantity
+													: this.props.getRowValue('quantity', this.state.block._id)}
+												{this.state.block.canClientCustomiseQuantity &&
+												this.state.block.canClientCustomiseQuantity == true ? (
+													<span
+														onClick={() => {
+															if (
+																this.props.preview ||
+																this.props.isWorkflow
+															) {
+																this.props.handleServiceSelect(
 																	this.state.block._id,
-															  )}
-
-														{this.state.block
-															.canClientCustomiseQuantity &&
-														this.state.block
-															.canClientCustomiseQuantity == true ? (
-															<span
-																onClick={() => {
-																	if (
-																		this.props.preview ||
-																		this.props.isWorkflow
-																	) {
-																		this.props.handleServiceSelect(
-																			this.state.block._id,
-																			'quantity',
-																			'increase',
-																		);
-																	}
-																}}
-															>
-																+
-															</span>
-														) : (
-															''
-														)}
-													</a>
-											  )
-											: 1}
+																	'quantity',
+																	'increase',
+																);
+															}
+														}}
+													>
+														+
+													</span>
+												) : (
+													''
+												)}
+											</a>
+										) : 1}
 										<span
 											style={{
 												display: this.props.returnDisplayItemSub(

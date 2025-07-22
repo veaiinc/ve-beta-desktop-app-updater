@@ -9,84 +9,76 @@ import Context from '../../../context/context';
 import { fileTypeIcons, redirectTo, redirectTypeMapper } from '../../../helpers';
 import { useSearchParams } from 'react-router-dom';
 
-const AiTranscriptionSuggestions = ({
-	closeModal,
-	showAmbientAssistance,
-	questions = [],
-	actions = [],
-	files = [],
-	activeTab = null,
-}) => {
+const AiTranscriptionSuggestions = ({ closeModal, showAmbientAssistance }) => {
 	const {
 		templates: { aiTranscriptionSuggestions, updateStateValues },
 	} = useContext(Context);
 	const [searchParams, setSearchParams] = useSearchParams();
-	// const [info, setInfo] = useState({
-	// 	files: [],
-	// 	questions: [],
-	// 	actions: [],
-	// });
+	const [info, setInfo] = useState({
+		files: [],
+		questions: [],
+		actions: [],
+	});
 	const questionsRef = useRef(null);
 	const filesRef = useRef(null);
 	const actionsRef = useRef(null);
 
-	// useEffect(() => {
-	// 	if (aiTranscriptionSuggestions) {
-	// 		const questions = aiTranscriptionSuggestions?.prompts?.filter(
-	// 			(prompt) =>
-	// 				prompt?.entity === 'user' ||
-	// 				(prompt?.entity === 'agent' && prompt?.type === 'search'),
-	// 		);
-	// 		const actions = aiTranscriptionSuggestions?.prompts?.filter(
-	// 			(prompt) => prompt?.entity === 'agent' && prompt?.type === 'action',
-	// 		);
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			questions,
-	// 			actions,
-	// 			files: aiTranscriptionSuggestions?.similar_files || [],
-	// 		}));
-	// 	}
-	// }, [aiTranscriptionSuggestions]);
+	useEffect(() => {
+		if (aiTranscriptionSuggestions) {
+			const questions = aiTranscriptionSuggestions?.prompts?.filter(
+				(prompt) =>
+					prompt?.entity === 'user' ||
+					(prompt?.entity === 'agent' && prompt?.type === 'search'),
+			);
+			const actions = aiTranscriptionSuggestions?.prompts?.filter(
+				(prompt) => prompt?.entity === 'agent' && prompt?.type === 'action',
+			);
+			setInfo((prev) => ({
+				...prev,
+				questions,
+				actions,
+				files: aiTranscriptionSuggestions?.similar_files || [],
+			}));
+		}
+	}, [aiTranscriptionSuggestions]);
 
-	// useEffect(() => {
-	// 	return () => {
-	// 		updateStateValues({
-	// 			aiTranscriptionSuggestions: null,
-	// 		});
-	// 	};
-	// }, []);
+	useEffect(() => {
+		return () => {
+			updateStateValues({
+				aiTranscriptionSuggestions: null,
+			});
+		};
+	}, []);
 
 	useEffect(() => {
 		if (!questionsRef.current) return;
-		if (questions?.length > 0) {
+		if (info?.questions?.length > 0) {
 			questionsRef.current.scrollTo({
 				top: questionsRef.current.scrollHeight,
 				behavior: 'smooth',
 			});
 		}
-	}, [questions?.length]);
+	}, [info?.questions?.length]);
 
 	useEffect(() => {
 		if (!actionsRef.current) return;
-		if (actions?.length > 0) {
+		if (info?.actions?.length > 0) {
 			actionsRef.current.scrollTo({
 				top: actionsRef.current.scrollHeight,
 				behavior: 'smooth',
 			});
 		}
-	}, [actions?.length]);
+	}, [info?.actions?.length]);
 
 	useEffect(() => {
 		if (!filesRef.current) return;
-
-		if (files?.length > 0) {
+		if (info?.files?.length > 0) {
 			filesRef.current.scrollTo({
-				top: filesRef.current.scrollHeight,
+				bottom: filesRef.current.scrollHeight,
 				behavior: 'smooth',
 			});
 		}
-	}, [files?.length]);
+	}, [info?.files?.length]);
 
 	const handleActionClick = useCallback(
 		(prompt) => {
@@ -107,28 +99,36 @@ const AiTranscriptionSuggestions = ({
 	return (
 		<div
 			className={s.aiTranscriptionSuggestions}
-			// style={{
-			// 	width: showAmbientAssistance ? '600px' : '0px',
-			// }}
+			style={{
+				width: showAmbientAssistance ? '600px' : '0px',
+			}}
 		>
-			{/* <div className={s.header}>
+			<div className={s.header}>
 				<div className={s.leftContainer}>
-					<div className={s.closeIconContainer} onClick={closeModal}>
+					{/* <div className={s.closeIconContainer} onClick={closeModal}>
 						<CloseIcon />
-					</div>
+					</div> */}
 					<div className={s.text}>Ambient Assistance</div>
 				</div>
-			</div> */}
+			</div>
 
 			<div className={s.body}>
-				{activeTab === 'questions' && (
-					<div className={s.questionsContainer}>
-						{/* <div className={s.questionsHeading}>
+				{info?.questions?.length > 0 && (
+					<div
+						className={s.questionsContainer}
+						style={{
+							height:
+								info?.actions?.length > 0 || info?.files?.length > 0
+									? '40vh'
+									: '100%',
+						}}
+					>
+						<div className={s.questionsHeading}>
 							<QuestionSvg />
 							Need Help
-						</div> */}
+						</div>
 						<div className={s.suggestedQuestionsContainer} ref={questionsRef}>
-							{questions?.map((question, index) => {
+							{info?.questions?.map((question, index) => {
 								return question?.entity === 'user' ? (
 									<div className={s.wrapper}>
 										<div className={s.suggestedUserQuestion} key={index}>
@@ -180,11 +180,11 @@ const AiTranscriptionSuggestions = ({
 					</div>
 				)}
 
-				{activeTab === 'actions' && (
+				{info?.actions?.length > 0 && (
 					<div className={s.actionsWrapper}>
-						{/* <div className={s.text}>Actions</div> */}
+						<div className={s.text}>Actions</div>
 						<div className={s.actionsContainer} ref={actionsRef}>
-							{actions?.map((action, index) => (
+							{info?.actions?.map((action, index) => (
 								<>
 									<div
 										className={s.actionContainer}
@@ -201,11 +201,11 @@ const AiTranscriptionSuggestions = ({
 					</div>
 				)}
 
-				{activeTab === 'files' && (
-					<div className={s.filesWrapper} ref={filesRef}>
-						{/* <div className={s.text}>Files</div> */}
-						<div className={s.filesContainer}>
-							{files?.map((file, index) => (
+				{info?.files?.length > 0 && (
+					<div className={s.filesWrapper}>
+						<div className={s.text}>Files</div>
+						<div className={s.filesContainer} ref={filesRef}>
+							{info?.files?.map((file, index) => (
 								<div
 									className={s.file}
 									key={index}

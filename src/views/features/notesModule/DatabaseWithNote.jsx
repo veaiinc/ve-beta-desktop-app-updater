@@ -59,6 +59,7 @@ const initialState = {
 	deleteLoading: false,
 	updatedBy: null,
 	showUploadPopup: false,
+	showAiTranscriptionSuggestions: false,
 	showCustomizeAppearance: false,
 	coverImageError: false,
 	localCoverImage: false, // cover image or link that is selected/uploaded before refreshing the page
@@ -693,6 +694,13 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		}));
 	};
 
+	const handleShowAiTranscriptionSuggestions = () => {
+		setInfo((prev) => ({
+			...prev,
+			showAiTranscriptionSuggestions: !prev.showAiTranscriptionSuggestions,
+		}));
+	};
+
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
 			<div className="notesChatArea">
@@ -730,6 +738,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					handleDeletePage={handleDeletePage}
 					handleDuplicatePage={handleDuplicatePage}
 					restorePage={restorePage}
+					showAiTranscriptionSuggestions={info?.showAiTranscriptionSuggestions}
+					handleShowAiTranscriptionSuggestions={handleShowAiTranscriptionSuggestions}
 				/>
 
 				<div className="notes-editor-container">
@@ -923,7 +933,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 									deleteBlock={deleteBlock}
 								/>
 							)}
-							{showTranscriptTabs &&
+							{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
 								(activeTab === 'questions' ||
 									activeTab === 'actions' ||
 									activeTab === 'files') && (

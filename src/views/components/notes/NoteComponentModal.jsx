@@ -28,7 +28,7 @@ const outerContainerStyle = {
 	maxWidth: '775px',
 };
 
-const NoteComponentModal = ({ modalIsOpen, closeModal }) => {
+const NoteComponentModal = ({ modalIsOpen, closeModal, sessionId }) => {
 	const chatContentRef = useRef(null);
 	const {
 		templates: { globalChatMessages, currentSessionId, handleGlobalChatMessages },
@@ -129,7 +129,7 @@ const NoteComponentModal = ({ modalIsOpen, closeModal }) => {
 			try {
 				await sendMessage(data);
 				handleGlobalChatMessages({
-					sessionId: currentSessionId,
+					sessionId: sessionId,
 					lastQuery,
 					updateExtraInfo: true,
 				});
@@ -138,7 +138,7 @@ const NoteComponentModal = ({ modalIsOpen, closeModal }) => {
 				// Handle error appropriately (show notification, etc.)
 			}
 		},
-		[sendMessage, currentSessionId],
+		[sendMessage, sessionId],
 	);
 
 	if (!modalIsOpen) {
@@ -164,40 +164,37 @@ const NoteComponentModal = ({ modalIsOpen, closeModal }) => {
 						{/* chat body */}
 						<div className={`chatBodyParentContainer`} ref={chatContentRef}>
 							<div className="chatContent">
-								{globalChatMessages?.[currentSessionId]?.messages?.map(
-									(chat, index) =>
-										chat?.content ? (
-											chat?.content
-										) : (
-											<div
-												key={index}
-												className={`chat-message ${chat?.type?.toLowerCase()}-message`}
-											>
-												<div className="message-content">
-													{chat?.type?.toLowerCase() === 'ai' ? (
-														<div className="content">
-															<AIMessage
-																text={chat?.message}
-																smoothScrollToBottom={
-																	smoothScrollToBottom
-																}
-																messageId={chat?.messageId}
-																showTypingEffect={
-																	chat?.typingEffect
-																}
-																rating={chat?.rating}
-																messageData={chat}
-																citations={chat?.citations}
-																isNoteCanvas={true}
-																showCitationsButton={false}
-															/>
-														</div>
-													) : (
-														<Markdown>{chat?.message}</Markdown>
-													)}
-												</div>
+								{globalChatMessages?.[sessionId]?.messages?.map((chat, index) =>
+									chat?.content ? (
+										chat?.content
+									) : (
+										<div
+											key={index}
+											className={`chat-message ${chat?.type?.toLowerCase()}-message`}
+										>
+											<div className="message-content">
+												{chat?.type?.toLowerCase() === 'ai' ? (
+													<div className="content">
+														<AIMessage
+															text={chat?.message}
+															smoothScrollToBottom={
+																smoothScrollToBottom
+															}
+															messageId={chat?.messageId}
+															showTypingEffect={chat?.typingEffect}
+															rating={chat?.rating}
+															messageData={chat}
+															citations={chat?.citations}
+															isNoteCanvas={true}
+															showCitationsButton={false}
+														/>
+													</div>
+												) : (
+													<Markdown>{chat?.message}</Markdown>
+												)}
 											</div>
-										),
+										</div>
+									),
 								)}
 							</div>
 						</div>
@@ -206,6 +203,7 @@ const NoteComponentModal = ({ modalIsOpen, closeModal }) => {
 								showIconText={false}
 								handleSendWebsocketMessage={handleSendWebsocketMessage}
 								showUpgradeSubscriptionBtn={false}
+								sessionId={sessionId}
 							/>
 						</div>
 					</div>
@@ -270,7 +268,7 @@ const NoteComponentModal = ({ modalIsOpen, closeModal }) => {
 								}
 								initialContent={
 									info?.chatToNoteLoopOn
-										? globalChatMessages?.[currentSessionId]?.messages
+										? globalChatMessages?.[sessionId]?.messages
 										: noteContent
 								}
 								loopOn={info?.chatToNoteLoopOn}
