@@ -38,23 +38,19 @@ const RecentChat = ({
 			recentChatStorage,
 			moreRecentChatStorage,
 			handleGlobalChatMessages,
-			chatInfo,
 			updateChatLoadingSessions,
 			newChatSessionIds,
 			getFollowUpQueries,
 		},
 		aiSetup: { updateAiChatSessions, aiChatSessions },
-		chatStream: {
-			createWebSocketConnection,
-			sendMessage,
-			closeWebSocketConnection,
-			removeCurrentSessionId,
-		},
+		chatStream: { sendMessage, closeWebSocketConnection, removeCurrentSessionId },
 	} = useContext(Context);
 
 	const { workspaceMode } = useWorkspaceMode();
 	let { sessionId } = useParams();
 	const [searchParams] = useSearchParams();
+	let agentType = searchParams?.get('agentType');
+	let assistantId = searchParams?.get('assistantId');
 
 	const [info, setInfo] = useState({
 		position: { x: window?.innerWidth / 2 - 900, y: 0 },
@@ -86,8 +82,6 @@ const RecentChat = ({
 
 	const chatContentRef = useRef(null);
 	const chatMessagesRef = useRef([]);
-	const agentType = searchParams?.get('agentType');
-	const assistantId = searchParams?.get('assistantId');
 	const userMessagesRefs = useRef({});
 	// const previousAiMessagesRef = useRef([]);
 	// const aiCitationsByIdRef = useRef({});
@@ -289,12 +283,22 @@ const RecentChat = ({
 	useEffect(() => {
 		// const agentType = searchParams?.get('agentType');
 		// const assistantId = searchParams?.get('assistantId') || null;
-		if (!agentType && location?.pathname?.includes('knowledge-agent')) {
-			return;
-		}
+		// if (!agentType && location?.pathname?.includes('knowledge-agent')) {
+		// 	return;
+		// }
 
-		if (agentType) {
-			updateStateValues({ chatInfo: { ...chatInfo, agentType, assistantId } });
+		if (
+			agentType &&
+			sessionId &&
+			globalChatMessages?.[sessionId]?.chatInfo?.agentType !== agentType &&
+			globalChatMessages?.[sessionId]?.chatInfo?.assistantId !== assistantId
+		) {
+			// updateStateValues({ chatInfo: { agentType, assistantId } });
+			handleGlobalChatMessages({
+				sessionId,
+				updateExtraInfo: true,
+				chatInfo: { agentType, assistantId },
+			});
 		}
 		// if (sessionId && !isPublicChat) {
 		// 	createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
