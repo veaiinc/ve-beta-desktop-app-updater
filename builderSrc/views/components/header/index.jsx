@@ -7,7 +7,7 @@ import { ReactComponent as Divider } from '../../../assets/svg/smartFile/Divider
 import { ReactComponent as Settings } from '../../../assets/svg/Settings/Settings.svg';
 import { withRouter } from '../../../services/withRouter';
 
-import MetaImage from './Meta-image/MetaImage';
+import MetaImage from './MetaImage/MetaImage';
 import Title from './title';
 import { Tooltip } from 'antd';
 import { Threedots, BackArrow } from '../builder_client_common';
