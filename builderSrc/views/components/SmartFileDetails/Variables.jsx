@@ -51,7 +51,7 @@ const Variables = ({
 					const key = variabledata[i]?.code;
 					if (clientVariableMapper[key]) {
 						ele.value = clientDetails[clientVariableMapper[key]];
-						ele.defaultValue = clientDetails[clientVariableMapper[key]];
+						   ele.defaultValue = clientDetails[clientVariableMapper[key]];
 					}
 					variableMapper[ele?._id] = ele;
 				}
@@ -200,8 +200,8 @@ const Variables = ({
 					<div className="variableInputWithPopoverWrapper">
 						<input
 							className={`custominputContainer`}
-							placeholder={ele?.displayName}
-							value={ele?.defaultValue || ''}
+							  placeholder={ele?.displayName}
+							  value={ele?.defaultValue || ''}
 							onChange={(e) => onChangeVariablesData(e, index)}
 							id={'sidebar-' + ele?._id}
 						/>

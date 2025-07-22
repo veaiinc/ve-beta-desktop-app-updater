@@ -404,6 +404,8 @@ const SmartFileSidebar = ({
 	);
 
 	const refreshClientDetails = useCallback(() => {
+
+		
 		// ! commenting cause not using it now
 		// if (workflowId) {
 		// 	getSmartFileData({
