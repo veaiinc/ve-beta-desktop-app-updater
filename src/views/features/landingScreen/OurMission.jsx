@@ -93,11 +93,11 @@ const tabsMapper = {
 					<p key={`desc4-${index}`}>{text}</p>
 				))}
 			</div>
-			<div className="loginDescriptionText5">{loginDescriptionContent.descriptionText5}</div>
+			<div className="loginDescriptionText5">
+				<span>{loginDescriptionContent.descriptionText5}</span>
+				<span>{loginDescriptionContent.descriptionFour.title}</span>
+			</div>
 			<div className="loginDescriptionFour">
-				<div className="descriptionFourTitle">
-					{loginDescriptionContent.descriptionFour.title}
-				</div>
 				<div className="descriptionFourPoints">
 					<ul>
 						{loginDescriptionContent.descriptionFour.points.map((point, index) => (

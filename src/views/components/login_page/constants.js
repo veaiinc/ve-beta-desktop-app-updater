@@ -1,20 +1,21 @@
 export const loginDescriptionContent = {
-	descriptionText: [
-		'They promised us computers would be bicycles for the mind.',
-		'But we got tricycles for every task.',
-	],
-	descriptionText2: [
-		'They said AI would change everything.',
-		"But here we are — still typing prompts like it's a command line from 1982.",
-	],
-	descriptionText3: ['Ve is my answer to that unfinished Promise.'],
-
-	descriptionText4: [
-		'An intelligence that understands your intent and completes the work.',
-		'A living system that adapts to you, becomes what you need.',
+	descriptionText: ['They told us computers were general-purpose machines, capable of anything.'],
+	descriptionText2: [' But today? '],
+	descriptionText3: [
+		"There's an app for every function.",
+		'They told us Google had all the answers.',
+		'But you still need the right words — even when you already know what you want.',
 	],
 
-	descriptionText5: 'This is the end of asking.',
+	descriptionTwo: {
+		title: 'Ve is my answer to that unfinished Promise.',
+		features: [
+			'An intelligence that understands your intent and completes the work.',
+			'A living system that adapts to you, becomes what you need.',
+		],
+	},
+
+	descriptionThree: 'This is the end of asking.',
 
 	descriptionFour: {
 		title: 'An honest ask.',

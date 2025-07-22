@@ -5,7 +5,6 @@
 	color: var(--primary-font);
 	display: flex;
 	font-family: var(--secondary-font-family);
-	font-weight: 700;
 	gap: 100px;
 	justify-content: center;
 	margin-top: 74px;
@@ -171,7 +170,6 @@
 		color: var(--primary-font, #f2f2f3);
 		font-family: var(--secondary-font-family);
 		font-size: 16px;
-		font-style: normal;
 		font-weight: 500;
 		line-height: 32px;
 		text-align: left;
@@ -202,11 +200,8 @@
 			.loginDescriptionTwoText {
 				span {
 					color: var(--primary-font, #f2f2f3);
-					font-family: Charter;
+					font-family: Cardo;
 					font-size: 24px;
-					font-style: italic;
-					font-weight: 700;
-					line-height: normal;
 					letter-spacing: -0.72px;
 				}
 			}
@@ -214,11 +209,8 @@
 
 		.loginDescriptionThree {
 			color: var(--primary-font, #f2f2f3);
-			font-family: Charter;
+			font-family: Cardo;
 			font-size: 24px;
-			font-style: italic;
-			font-weight: 700;
-			line-height: normal;
 			letter-spacing: -0.72px;
 		}
 
@@ -229,11 +221,8 @@
 
 			.descriptionFourTitle {
 				color: var(--primary-font, #f2f2f3);
-				font-family: Charter;
+				font-family: Cardo;
 				font-size: 24px;
-				font-style: italic;
-				font-weight: 700;
-				line-height: normal;
 				letter-spacing: -0.72px;
 			}
 			ul {
@@ -250,21 +239,22 @@
 
 		.loginDescriptionText5 {
 			color: var(--primary-font, #f2f2f3);
-			font-family: Charter;
+			font-family: Cardo;
 			font-size: 24px;
-			font-style: italic;
-			font-weight: 700;
-			line-height: normal;
 			letter-spacing: -0.72px;
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+			span {
+				font-size: 24px;
+				letter-spacing: -0.72px;
+			}
 		}
 
 		.bottomText {
 			color: var(--primary-font, #f2f2f3);
-			font-family: Charter;
+			font-family: Cardo;
 			font-size: 24px;
-			font-style: italic;
-			font-weight: 700;
-			line-height: normal;
 			letter-spacing: -0.72px;
 		}
 	}
@@ -307,7 +297,7 @@
 
 		.long-description-block {
 			padding: 2px 10px;
-			gap: 3px;
+			gap: 24px;
 			overflow: auto;
 
 			.mobile-heading {
