@@ -8,10 +8,10 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import _ from 'lodash';
 
 class ImageLibrary extends Images {
-	constructor() {
+	constructor(props) {
 		super();
 		this.state = {
-			activeTab: 'l',
+			activeTab: props.libraryImageType || 'l',
 			images: {},
 			libraryImages: {
 				currentPage: 1,

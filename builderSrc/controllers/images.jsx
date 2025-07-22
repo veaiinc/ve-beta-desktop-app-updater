@@ -7,6 +7,7 @@ import Proposals from './proposals';
 
 class Images extends Proposals {
 	uploadImage = async (json, image, activaModuleId = null) => {
+		console.log(json, image, activaModuleId ,"jeevan===>");
 		let userToken = localStorage.getItem('usertoken');
 		let workspaceId = localStorage.getItem('workspaceId');
 		let response = await Action.uploadImage(

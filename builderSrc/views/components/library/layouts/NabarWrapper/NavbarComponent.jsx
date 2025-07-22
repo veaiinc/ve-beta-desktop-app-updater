@@ -30,6 +30,7 @@ class NavbarComponent extends Component {
 			hoveredCart: false,
 			showCartModal: false,
 			section: props.section,
+			showImageModalLibrary: false,
 		};
 		this.navbarRef = React.createRef();
 		this.imageRef = React.createRef();
@@ -659,6 +660,13 @@ class NavbarComponent extends Component {
 								},
 							);
 						}}
+						activeModuleId={this.props?.activeModuleId}
+						setModalRef={(e) => {
+							this.setState({
+								showImageModalLibrary: e,
+							});
+						}}
+						showImageModalLibrary={this.state.showImageModalLibrary}
 					/>
 				)}
 				{this.state.showImageModal && (

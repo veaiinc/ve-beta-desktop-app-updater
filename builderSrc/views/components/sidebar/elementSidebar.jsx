@@ -342,6 +342,9 @@ class ElementSidebar extends Component {
 								);
 							}}
 							isMobileNavbar={this.props.isMobileNavbar}
+							activeModuleId={this.props?.activeModuleId}
+							setModalRef={(e) => this.props?.setModalRef(e)}
+							showImageModalLibrary={this.props.showImageModalLibrary}
 						/>
 					)}
 
