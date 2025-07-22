@@ -5,7 +5,7 @@ import MissionTabNavigation from './missionTabNavigation/MissionTabNavigation';
 import Careers from './careers/Careers';
 import MobileMenu from '../../components/landing_screen/MobileMenu';
 import Context from '../../../context/context';
-import { loginDescriptionContent } from '../../components/login_page/constants';
+import { loginDescriptionContent } from './constants';
 
 const paragraphs1 = [
 	`We've built telescopes to touch the stars and microscopes to probe life's
@@ -88,26 +88,12 @@ const tabsMapper = {
 					<p key={`desc3-${index}`}>{text}</p>
 				))}
 			</div>
-			<div className="loginDescriptionTwo">
-				<div className="loginDescriptionTwoText">
-					{loginDescriptionContent.descriptionTwo.title
-						.split('Promise.')
-						.map((part, index) =>
-							index === 0 ? (
-								<p key={`title-${index}`}>
-									{part}
-									<span>Promise.</span>
-								</p>
-							) : null,
-						)}
-				</div>
-				<ul>
-					{loginDescriptionContent.descriptionTwo.features.map((feature, index) => (
-						<li key={`feature-${index}`}>{feature}</li>
-					))}
-				</ul>
+			<div className="loginDescriptionText4">
+				{loginDescriptionContent.descriptionText4.map((text, index) => (
+					<p key={`desc4-${index}`}>{text}</p>
+				))}
 			</div>
-			<div className="loginDescriptionThree">{loginDescriptionContent.descriptionThree}</div>
+			<div className="loginDescriptionText5">{loginDescriptionContent.descriptionText5}</div>
 			<div className="loginDescriptionFour">
 				<div className="descriptionFourTitle">
 					{loginDescriptionContent.descriptionFour.title}
