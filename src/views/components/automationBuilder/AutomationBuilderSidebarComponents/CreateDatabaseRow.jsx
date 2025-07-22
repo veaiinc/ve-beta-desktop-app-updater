@@ -40,10 +40,6 @@ const CreateDatabaseRow = ({
 		fieldValues: [],
 	});
 
-	const updateInfo = useCallback((data) => {
-		setInfo((prev) => ({ ...prev, ...data }));
-	}, []);
-
 	// Pre-fill form when editing an existing step
 	useEffect(() => {
 		if (activeStepsData) {
@@ -116,6 +112,10 @@ const CreateDatabaseRow = ({
 			});
 		}
 	}, [databaseContext, info.selectedDatabase, activeStepsData]);
+
+	const updateInfo = useCallback((data) => {
+		setInfo((prev) => ({ ...prev, ...data }));
+	}, []);
 
 	const handleSelectPage = (option) => {
 		const page = option.value;
