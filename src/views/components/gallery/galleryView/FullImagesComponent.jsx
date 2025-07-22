@@ -22,6 +22,7 @@ const FullImagesComponent = ({
 	const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 	const [dragStart, setDragStart] = useState(null);
 	const imageContainerRef = useRef({});
+	const observerRef = useRef(null);
 
 	// Reset zoom and drag on active image change
 	useEffect(() => {
@@ -30,14 +31,51 @@ const FullImagesComponent = ({
 			...prev,
 			imageScalling: 1,
 		}));
-	}, [info?.activeImage]);
+	}, [info?.activeImage, setInfo]);
+
+	// Set up IntersectionObserver to detect centered image
+	useEffect(() => {
+		const observerOptions = {
+			root: document.getElementById('activeImageWrapper-target'),
+			rootMargin: '0px',
+			threshold: 0.5, // Trigger when 50% of the image is visible
+		};
+
+		observerRef.current = new IntersectionObserver((entries) => {
+			entries.forEach((entry) => {
+				if (entry.isIntersecting) {
+					const imageId = entry.target.id;
+					const index = displayedImages.findIndex((img) => img._id === imageId);
+					if (index !== -1 && imageId !== info.activeImage) {
+						setInfo((prev) => ({
+							...prev,
+							activeImage: imageId,
+							activeImageIndex: index,
+						}));
+					}
+				}
+			});
+		}, observerOptions);
+
+		// Observe all image containers
+		Object.values(imageContainerRef.current).forEach((el) => {
+			if (el) observerRef.current.observe(el);
+		});
+
+		return () => {
+			if (observerRef.current) {
+				observerRef.current.disconnect();
+			}
+		};
+	}, [displayedImages, info.activeImage, setInfo]);
 
 	const handleKeyDown = useCallback(
 		(e) => {
-			const currentIndex = activeImageIndex;
+			const currentIndex = info.activeImageIndex || 0;
+			const nextIndex = Math.min(currentIndex + 1, displayedImages.length - 1);
+			const prevIndex = Math.max(currentIndex - 1, 0);
 
 			if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-				const prevIndex = Math.max(currentIndex - 1, 0);
 				const prevImage = displayedImages[prevIndex];
 				if (prevImage) {
 					setInfo((prev) => ({
@@ -48,10 +86,10 @@ const FullImagesComponent = ({
 					document.getElementById(prevImage._id)?.scrollIntoView({
 						behavior: 'smooth',
 						block: 'center',
+						inline: 'center',
 					});
 				}
 			} else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-				const nextIndex = Math.min(currentIndex + 1, displayedImages.length - 1);
 				const nextImage = displayedImages[nextIndex];
 				if (nextImage) {
 					setInfo((prev) => ({
@@ -62,11 +100,27 @@ const FullImagesComponent = ({
 					document.getElementById(nextImage._id)?.scrollIntoView({
 						behavior: 'smooth',
 						block: 'center',
+						inline: 'center',
 					});
+				}
+				// Trigger fetchMoreImages when reaching the last image
+				if (
+					nextIndex === displayedImages.length - 1 &&
+					!selectedImages &&
+					imagesList?.hasNextPage
+				) {
+					fetchMoreImages();
 				}
 			}
 		},
-		[activeImageIndex, displayedImages, setInfo],
+		[
+			displayedImages,
+			setInfo,
+			fetchMoreImages,
+			imagesList,
+			selectedImages,
+			info.activeImageIndex,
+		],
 	);
 
 	useEffect(() => {
@@ -109,7 +163,6 @@ const FullImagesComponent = ({
 					alignItems: 'center',
 					width: '100vw',
 				}}
-				onScroll={() => setInfo((prev) => ({ ...prev, imageDetailId: null }))}
 				horizontal={true}
 			>
 				{galleryCredentials && imagesList
@@ -122,7 +175,12 @@ const FullImagesComponent = ({
 							const translateY = isActive ? dragOffset.y : 0;
 
 							const ref = (el) => {
-								if (el) imageContainerRef.current[image?._id] = el;
+								if (el) {
+									imageContainerRef.current[image?._id] = el;
+									if (observerRef.current) {
+										observerRef.current.observe(el);
+									}
+								}
 							};
 
 							return (
@@ -184,10 +242,10 @@ const FullImagesComponent = ({
 										alt={`Gallery image ${index}`}
 										style={{
 											transform: `
-												translate(${translateX}px, ${translateY}px)
-												scale(${scale})
-												rotate(${image?.rotation || 0}deg)
-											`,
+                        translate(${translateX}px, ${translateY}px)
+                        scale(${scale})
+                        rotate(${image?.rotation || 0}deg)
+                      `,
 											transformOrigin: 'center',
 											cursor: scale > 1 && isActive ? 'grab' : 'default',
 											userSelect: 'none',
