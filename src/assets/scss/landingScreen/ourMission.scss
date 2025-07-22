@@ -1,5 +1,7 @@
 @import 'mobileMenu';
 
+$cardo-font-family: 'Cardo';
+
 .our-mission-container {
 	align-items: flex-start;
 	color: var(--primary-font);
@@ -200,7 +202,7 @@
 			.loginDescriptionTwoText {
 				span {
 					color: var(--primary-font, #f2f2f3);
-					font-family: Cardo;
+					font-family: $cardo-font-family;
 					font-size: 24px;
 					letter-spacing: -0.72px;
 				}
@@ -209,7 +211,7 @@
 
 		.loginDescriptionThree {
 			color: var(--primary-font, #f2f2f3);
-			font-family: Cardo;
+			font-family: $cardo-font-family;
 			font-size: 24px;
 			letter-spacing: -0.72px;
 		}
@@ -221,7 +223,7 @@
 
 			.descriptionFourTitle {
 				color: var(--primary-font, #f2f2f3);
-				font-family: Cardo;
+				font-family: $cardo-font-family;
 				font-size: 24px;
 				letter-spacing: -0.72px;
 			}
@@ -239,7 +241,7 @@
 
 		.loginDescriptionText5 {
 			color: var(--primary-font, #f2f2f3);
-			font-family: Cardo;
+			font-family: $cardo-font-family;
 			font-size: 24px;
 			letter-spacing: -0.72px;
 			display: flex;
@@ -253,7 +255,7 @@
 
 		.bottomText {
 			color: var(--primary-font, #f2f2f3);
-			font-family: Cardo;
+			font-family: $cardo-font-family;
 			font-size: 24px;
 			letter-spacing: -0.72px;
 		}
