@@ -70,7 +70,8 @@ const initialState = {
 	coverImageRemoved: false,
 	iconImageRemoved: false,
 	files: [],
-	questions: [],
+	userQuestions: [],
+	aiQuestions: [],
 	actions: [],
 	sessionId: ObjectID()?.toString(),
 	chatSessionId: ObjectID()?.toString(),
@@ -166,17 +167,25 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	useEffect(() => {
 		if (aiTranscriptionSuggestions) {
-			const questions = aiTranscriptionSuggestions?.prompts?.filter(
-				(prompt) =>
-					prompt?.entity === 'user' ||
-					(prompt?.entity === 'agent' && prompt?.type === 'search'),
-			);
-			const actions = aiTranscriptionSuggestions?.prompts?.filter(
-				(prompt) => prompt?.entity === 'agent' && prompt?.type === 'action',
-			);
+			const userQuestions = [];
+			const aiQuestions = [];
+			const actions = [];
+
+			for (const prompt of aiTranscriptionSuggestions?.prompts || []) {
+				if (prompt?.entity === 'user') {
+					userQuestions.push(prompt);
+				} else if (prompt?.entity === 'agent') {
+					if (prompt?.type === 'search') {
+						aiQuestions.push(prompt);
+					} else if (prompt?.type === 'action') {
+						actions.push(prompt);
+					}
+				}
+			}
 			setInfo((prev) => ({
 				...prev,
-				questions,
+				userQuestions,
+				aiQuestions,
 				actions,
 				files: aiTranscriptionSuggestions?.similar_files || [],
 			}));
@@ -719,19 +728,21 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
-			<div className="notesChatArea">
-				<RecentChat
-					showIconText={false}
-					isPreview={true}
-					autoFocus={false}
-					customChatBoxClick={handleChatBoxClick}
-					// {...(info?.chatClicked && {
-					// 	sId: info?.chatSessionId,
-					// })}
-					sId={info?.chatSessionId}
-					showCitationsButton={false}
-				/>
-			</div>
+			{type !== 'meeting_bot' && (
+				<div className="notesChatArea">
+					<RecentChat
+						showIconText={false}
+						isPreview={true}
+						autoFocus={false}
+						customChatBoxClick={handleChatBoxClick}
+						// {...(info?.chatClicked && {
+						// 	sId: info?.chatSessionId,
+						// })}
+						sId={info?.chatSessionId}
+						showCitationsButton={false}
+					/>
+				</div>
+			)}
 			<div className="notesContentWrapper">
 				{info?.title && (
 					<Helmet>
@@ -913,14 +924,16 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 									/>
 								</div>
 							</Tooltip>
-
 							{showTranscriptTabs && (
 								<TranscriptionTabs
 									activeTab={activeTab}
 									setActiveTab={setActiveTab}
+									userQuestions={info?.userQuestions}
+									aiQuestions={info?.aiQuestions}
+									actions={info?.actions}
+									files={info?.files}
 								/>
 							)}
-
 							{showTranscriptTabs &&
 								activeTab === 'transcript' &&
 								(type === 'meeting_bot' ? (
@@ -949,7 +962,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 									deleteBlock={deleteBlock}
 								/>
 							)}
-							{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
+							{/* {(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
 								(activeTab === 'questions' ||
 									activeTab === 'actions' ||
 									activeTab === 'files') && (
@@ -959,7 +972,20 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 										files={info?.files}
 										activeTab={activeTab}
 									/>
-								)}
+								)} */}
+
+							{(activeTab === 'userQuestions' ||
+								activeTab === 'aiQuestions' ||
+								activeTab === 'actions' ||
+								activeTab === 'files') && (
+								<AiTranscriptionSuggestions
+									userQuestions={info?.userQuestions}
+									aiQuestions={info?.aiQuestions}
+									actions={info?.actions}
+									files={info?.files}
+									activeTab={activeTab}
+								/>
+							)}
 						</div>
 					</>
 				</div>
