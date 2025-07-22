@@ -67,6 +67,7 @@ import SuspenseFallback from '../views/components/globalComponents/SuspenseFallb
 // import MeetBot from '../views/features/meetBot/meetBot';
 import NotesWrapper from '../views/features/notesModule/NotesWrapper';
 import CardMeetBot from '../views/features/meetBot/CardMeetBot';
+import ChatPage from '../views/components/homePage/ChatPage';
 
 const betaRoutes = [
 	{
@@ -96,6 +97,16 @@ const betaRoutes = [
 			<Public>
 				<Onboarding />
 			</Public>
+		),
+	},
+	{
+		path: '/chats',
+		element: (
+			<AuthWrapper title={'Chats'}>
+				<Suspense fallback={<SuspenseFallback />}>
+					<ChatPage />
+				</Suspense>
+			</AuthWrapper>
 		),
 	},
 	{
