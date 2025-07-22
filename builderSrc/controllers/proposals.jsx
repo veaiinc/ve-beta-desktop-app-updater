@@ -1472,6 +1472,7 @@ class Proposals extends Component {
 						response?.[1]?.data?.getDetailedTemplateInfo?.summary?.sections || [],
 					themes: response?.[1]?.data?.getDetailedTemplateInfo?.themes || null,
 					numOfDocuments: response?.[1]?.data?.getDetailedTemplateInfo?.workflows || 0,
+					imageUrl: response?.[1]?.data?.getDetailedTemplateInfo?.imageUrl,
 				},
 				async () => {
 					if (callVariableApi) {
@@ -1572,6 +1573,7 @@ class Proposals extends Component {
 				sectionTables: version.tables ? version.tables : [],
 				module: version.module,
 				activeModuleId: version._id,
+				imageUrl: version?.imageUrl,
 			});
 			if (this.state.isWorkflow) {
 				this.setState({
@@ -1686,6 +1688,7 @@ class Proposals extends Component {
 					themes: response?.[1]?.data?.workflowInfo?.themes || null,
 					workflowTemplateID: response?.[1]?.data?.workflowInfo?.template?._id,
 					invoiceSentDate: response[1]?.data?.workflowInfo?.sendAt,
+					imageUrl: response?.[1]?.data?.workflowInfo?.imageUrl,
 				},
 				() => {
 					if (getModules === true) {
@@ -1712,6 +1715,7 @@ class Proposals extends Component {
 		if (response[0] == true) {
 			this.setState({
 				navBar: response[1]?.data?.updateWorkflow?.navBar,
+				imageUrl: response[1]?.data?.updateWorkflow?.imageUrl,
 			});
 		}
 	};
@@ -2436,6 +2440,7 @@ class Proposals extends Component {
 		if (response[0] === true) {
 			this.setState({
 				navBar: response[1]?.data?.updateWorkflowTemplate?.navBar,
+				imageUrl: response[1]?.data?.updateWorkflowTemplate?.imageUrl,
 			});
 		}
 	};
