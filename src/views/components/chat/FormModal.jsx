@@ -7,7 +7,14 @@ import ChatBox from '../chat/ChatBox';
 // import { fetchOriginSelection } from '../../../helpers';
 import { ReactComponent as ExpandIcon } from '../../../assets/svg/docs/expand.svg';
 
-const FormModal = ({ isOpen, closeModal, workflowTemplateId, builderAgentMapper, agent }) => {
+const FormModal = ({
+	isOpen,
+	closeModal,
+	workflowTemplateId,
+	builderAgentMapper,
+	agent,
+	sessionId,
+}) => {
 	return (
 		<ReactModal
 			isOpen={isOpen}
@@ -20,7 +27,7 @@ const FormModal = ({ isOpen, closeModal, workflowTemplateId, builderAgentMapper,
 		>
 			<div className="form-modal-container">
 				<div className="section-30">
-					<Section1 />
+					<Section1 sessionId={sessionId} />
 				</div>
 				<div className="section-70">
 					<Section2
@@ -35,7 +42,7 @@ const FormModal = ({ isOpen, closeModal, workflowTemplateId, builderAgentMapper,
 	);
 };
 
-const Section1 = () => {
+const Section1 = ({ sessionId }) => {
 	const {
 		templates: { globalChatMessages, currentSessionId, handleGlobalChatMessages },
 		chatStream: { sendMessage },
@@ -45,8 +52,8 @@ const Section1 = () => {
 
 	useEffect(() => {
 		const lastMessage =
-			globalChatMessages?.[currentSessionId]?.messages?.[
-				globalChatMessages?.[currentSessionId]?.messages?.length - 1
+			globalChatMessages?.[sessionId]?.messages?.[
+				globalChatMessages?.[sessionId]?.messages?.length - 1
 			];
 		if (scrollToBottomRef.current && lastMessage?.contentType === 'loading') {
 			smoothScrollToBottom();
@@ -60,7 +67,7 @@ const Section1 = () => {
 				scrollToBottomRef.current = true;
 			}
 		}
-	}, [globalChatMessages?.[currentSessionId]?.messages]);
+	}, [globalChatMessages?.[sessionId]?.messages]);
 
 	const smoothScrollToBottom = useCallback(
 		(type) => {
@@ -90,7 +97,7 @@ const Section1 = () => {
 			try {
 				await sendMessage(data);
 				handleGlobalChatMessages({
-					sessionId: currentSessionId,
+					sessionId,
 					lastQuery,
 					updateExtraInfo: true,
 				});
@@ -98,7 +105,7 @@ const Section1 = () => {
 				console.error('Failed to send message:', error);
 			}
 		},
-		[sendMessage, currentSessionId],
+		[sendMessage, sessionId],
 	);
 	return (
 		<div className="form-widget-chat-bar-container">
@@ -140,6 +147,7 @@ const Section1 = () => {
 					showIconText={false}
 					handleSendWebsocketMessage={handleSendWebsocketMessage}
 					autoFocus={true}
+					sessionId={sessionId}
 				/>
 			</div>
 		</div>
