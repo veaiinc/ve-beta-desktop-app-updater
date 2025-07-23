@@ -7,6 +7,7 @@ const TranscriptionTabs = ({
 	aiQuestions,
 	actions,
 	files,
+	allSuggestions,
 }) => {
 	return (
 		<div className="notes-tabs-container">
@@ -62,6 +63,29 @@ const TranscriptionTabs = ({
 				>
 					Summary
 				</button>
+				{allSuggestions?.length > 0 && (
+					<button
+						className={activeTab === 'all' ? 'notes-tab active' : 'notes-tab'}
+						style={{
+							background: 'none',
+							border: 'none',
+							outline: 'none',
+							color: 'inherit',
+							fontWeight: 500,
+							fontSize: 16,
+							padding: '8px 0',
+							borderBottom:
+								activeTab === 'all'
+									? '2px solid var(--primary-button, #cfff48)'
+									: '2px solid transparent',
+							cursor: 'pointer',
+							transition: 'color 0.2s',
+						}}
+						onClick={() => setActiveTab('all')}
+					>
+						All
+					</button>
+				)}
 				{userQuestions?.length > 0 && (
 					<button
 						className={activeTab === 'userQuestions' ? 'notes-tab active' : 'notes-tab'}

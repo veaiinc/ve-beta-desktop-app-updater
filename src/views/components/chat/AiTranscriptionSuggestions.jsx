@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { Fragment, memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import s from './aiTranscriptionSuggestions.module.scss';
 import { ReactComponent as CloseIcon } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/home_page/arrow-right.svg';
@@ -17,6 +17,7 @@ const AiTranscriptionSuggestions = ({
 	actions = [],
 	files = [],
 	activeTab = null,
+	allSuggestions = [],
 }) => {
 	const {
 		templates: { aiTranscriptionSuggestions, updateStateValues },
@@ -60,44 +61,59 @@ const AiTranscriptionSuggestions = ({
 
 	useEffect(() => {
 		if (!bodyRef.current) return;
-		if (userQuestions?.length > 0) {
-			bodyRef.current.scrollTo({
-				top: bodyRef.current.scrollHeight,
-				behavior: 'smooth',
-			});
-		}
-	}, [userQuestions?.length]);
 
-	useEffect(() => {
-		if (!bodyRef.current) return;
-		if (aiQuestions?.length > 0) {
-			bodyRef.current.scrollTo({
-				top: bodyRef.current.scrollHeight,
-				behavior: 'smooth',
-			});
-		}
-	}, [aiQuestions?.length]);
+		bodyRef.current.scrollTo({
+			top: bodyRef.current.scrollHeight,
+			behavior: 'smooth',
+		});
+	}, [
+		allSuggestions?.length,
+		userQuestions?.length,
+		aiQuestions?.length,
+		actions?.length,
+		files?.length,
+	]);
 
-	useEffect(() => {
-		if (!bodyRef.current) return;
-		if (actions?.length > 0) {
-			bodyRef.current.scrollTo({
-				top: bodyRef.current.scrollHeight,
-				behavior: 'smooth',
-			});
-		}
-	}, [actions?.length]);
+	// useEffect(() => {
+	// 	if (!bodyRef.current) return;
+	// 	if (userQuestions?.length > 0) {
+	// 		bodyRef.current.scrollTo({
+	// 			top: bodyRef.current.scrollHeight,
+	// 			behavior: 'smooth',
+	// 		});
+	// 	}
+	// }, [userQuestions?.length]);
 
-	useEffect(() => {
-		if (!bodyRef.current) return;
+	// useEffect(() => {
+	// 	if (!bodyRef.current) return;
+	// 	if (aiQuestions?.length > 0) {
+	// 		bodyRef.current.scrollTo({
+	// 			top: bodyRef.current.scrollHeight,
+	// 			behavior: 'smooth',
+	// 		});
+	// 	}
+	// }, [aiQuestions?.length]);
 
-		if (files?.length > 0) {
-			bodyRef.current.scrollTo({
-				top: bodyRef.current.scrollHeight,
-				behavior: 'smooth',
-			});
-		}
-	}, [files?.length]);
+	// useEffect(() => {
+	// 	if (!bodyRef.current) return;
+	// 	if (actions?.length > 0) {
+	// 		bodyRef.current.scrollTo({
+	// 			top: bodyRef.current.scrollHeight,
+	// 			behavior: 'smooth',
+	// 		});
+	// 	}
+	// }, [actions?.length]);
+
+	// useEffect(() => {
+	// 	if (!bodyRef.current) return;
+
+	// 	if (files?.length > 0) {
+	// 		bodyRef.current.scrollTo({
+	// 			top: bodyRef.current.scrollHeight,
+	// 			behavior: 'smooth',
+	// 		});
+	// 	}
+	// }, [files?.length]);
 
 	const handleActionClick = useCallback(
 		(prompt) => {
@@ -132,6 +148,83 @@ const AiTranscriptionSuggestions = ({
 			</div> */}
 
 			<div className={s.body} ref={bodyRef}>
+				{activeTab === 'all' && (
+					<div className={s.allSuggestionsContainer}>
+						{allSuggestions?.map((suggestion, index) => {
+							return (
+								<Fragment key={index}>
+									{suggestion?.entity === 'user' ? (
+										<div className={s.userQuestionContainer} key={index}>
+											<div className={s.header}>Ask User</div>
+											<div className={s.body}>
+												<div className={s.questionText}>
+													{suggestion?.query || ''}
+												</div>
+											</div>
+										</div>
+									) : suggestion?.entity === 'agent' ? (
+										suggestion?.type === 'search' ? (
+											<div className={s.aiQuestionContainer} key={index}>
+												<div className={s.header}>Need help?</div>
+												<div
+													className={s.body}
+													onClick={() =>
+														handleActionClick(suggestion?.query || '')
+													}
+												>
+													<div className={s.questionText}>
+														<div className={s.text}>
+															{suggestion?.query || ''}
+														</div>
+													</div>
+													{suggestion?.is_memory_used && (
+														<div className={s.memoryUsedContainer}>
+															<div className={s.memoryUsedText}>
+																<MemorySvg />
+																Memory Used
+															</div>
+															<div className={s.verticalLine} />
+														</div>
+													)}
+												</div>
+											</div>
+										) : (
+											<div className={s.actionsContainer}>
+												<div
+													className={s.actionContainer}
+													key={index}
+													onClick={() =>
+														handleActionClick(suggestion?.query || '')
+													}
+												>
+													<div className={s.iconContainer}></div>
+													{suggestion?.query || ''}
+												</div>
+												<div className={s.horizontalLine} />
+											</div>
+										)
+									) : (
+										<div
+											className={s.file}
+											key={index}
+											onClick={() => handleFileClick(suggestion)}
+										>
+											<div className={s.fileIcon}>
+												{fileTypeIcons[
+													suggestion?.type === 's3_key'
+														? suggestion?.name?.match(/\.(\w+)$/)?.[1] // to check the file format
+														: suggestion?.type
+												] || <VeLogoSvg />}
+											</div>
+											<div className={s.fileName}>{suggestion?.name}</div>
+										</div>
+									)}
+								</Fragment>
+							);
+						})}
+					</div>
+				)}
+
 				{activeTab === 'userQuestions' && (
 					<div className={s.userQuestionsContainer}>
 						{userQuestions?.map((question, index) => {
