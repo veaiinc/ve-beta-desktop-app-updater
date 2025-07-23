@@ -7,7 +7,7 @@ import Context from '../../../context/context';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 import LoginDescription from '../../components/login_page/LoginDescription';
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
-import useLogout from '../../../hooks/useLogout';
+import logout from '../../../helpers/logout';
 
 const aboutVe = `Hi! Welcome to VEAI, you can give me access to everything from your Slack, Google Drive files, Calendar, Notion documents, and Salesforce. I'll help you get answers from data you don't have the time or energy to go through, help find connections between points in multiple different documents, record and summarize meetings you join (or the ones you skip).`;
 
@@ -22,16 +22,12 @@ const Onboarding = () => {
 	const {
 		themeInfo: { theme },
 	} = useContext(Context);
-	const logoutFunc = useLogout();
 	const [currentStep, setCurrentStep] = useState(1);
 
 	const isDarkMode =
 		theme === 'systemDefault'
 			? window.matchMedia('(prefers-color-scheme: dark)').matches
 			: theme === 'dark';
-	const handleLogout = () => {
-		logoutFunc();
-	};
 
 	useEffect(() => {
 		const selector = '.mainContent';
@@ -44,7 +40,7 @@ const Onboarding = () => {
 				<div className="logo">
 					<VeLogo />
 				</div>
-				<div className="logout-btn" onClick={handleLogout}>
+				<div className="logout-btn" onClick={logout}>
 					<LogoutRedSvg />
 				</div>
 			</div>
