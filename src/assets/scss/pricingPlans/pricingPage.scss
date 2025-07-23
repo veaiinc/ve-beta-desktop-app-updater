@@ -12,7 +12,7 @@
 	font-family: var(--primary-font-family);
 	color: var(--primary-font, #f2f2f3);
 	// z-index: 100;
-	margin-top: 100px;
+	// margin-top: 100px;
 	overflow: hidden;
 	.pricing-header {
 		display: flex;
@@ -965,6 +965,7 @@
 
 @media (max-width: 768px) {
 	.pricing-page {
+		margin-top: -17px;
 		.pricing-header {
 			.pricing-header-title {
 				font-size: 24px;
@@ -1001,6 +1002,7 @@
 	.pricing-page {
 		padding: 24px 12px 0 12px;
 		gap: 32px;
+		margin-top: -100px;
 
 		.pricing-header {
 			.pricing-header-title {

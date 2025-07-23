@@ -5,6 +5,7 @@ import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks
 import { ReactComponent as FilterIcon } from '../../../assets/svg/tasks/newFiltersIcon.svg';
 import { ReactComponent as TickIcon } from '../../../assets/svg/tick.svg';
 import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 import AISuggestionsModal from '../../components/modalsV2/homePage/AISuggestionsModal';
 import { Tooltip } from 'antd';
 import dayjs from 'dayjs';
@@ -768,7 +769,12 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 															borderRadius: '10px',
 														}}
 													>
-														<Skeleton height={'100%'} width={'100%'} />
+														<Skeleton
+															height={'100%'}
+															width={'100%'}
+															baseColor="var(--stroke-hover)"
+															highlightColor="var(--card-over-card)"
+														/>
 													</div>
 												</div>
 											);

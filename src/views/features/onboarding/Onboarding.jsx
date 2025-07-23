@@ -6,6 +6,8 @@ import { ReactComponent as LightModeGradient } from '../../../assets/svg/onboard
 import Context from '../../../context/context';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 import LoginDescription from '../../components/login_page/LoginDescription';
+import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
+import logout from '../../../helpers/logout';
 
 const aboutVe = `Hi! Welcome to VEAI, you can give me access to everything from your Slack, Google Drive files, Calendar, Notion documents, and Salesforce. I'll help you get answers from data you don't have the time or energy to go through, help find connections between points in multiple different documents, record and summarize meetings you join (or the ones you skip).`;
 
@@ -20,7 +22,6 @@ const Onboarding = () => {
 	const {
 		themeInfo: { theme },
 	} = useContext(Context);
-
 	const [currentStep, setCurrentStep] = useState(1);
 
 	const isDarkMode =
@@ -38,6 +39,9 @@ const Onboarding = () => {
 			<div className="onboarding-header">
 				<div className="logo">
 					<VeLogo />
+				</div>
+				<div className="logout-btn" onClick={logout}>
+					<LogoutRedSvg />
 				</div>
 			</div>
 			<div className="onboarding-main">
