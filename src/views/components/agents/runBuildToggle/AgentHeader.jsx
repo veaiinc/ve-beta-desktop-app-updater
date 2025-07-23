@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { act, useContext, useState } from 'react';
 import s from './agentHeader.module.scss';
 import { ReactComponent as BackSvg } from './assets/back.svg';
 import { ReactComponent as EditIcon } from './assets/edit.svg';
@@ -8,6 +8,7 @@ import Context from '../../../../context/context';
 import { useParams } from 'react-router-dom';
 import { message } from '../../globalComponents/CustomToast';
 import RunAndBuildToggle from './RunAndBuildToggle';
+import AgentShareComponent from '../agentShare/AgentShareComponent';
 
 const AgentHeader = ({ onEditClick, agentAction, setAgentAction, activeKnowledgeAssistant }) => {
 	const navigate = useNavigate();
@@ -22,6 +23,7 @@ const AgentHeader = ({ onEditClick, agentAction, setAgentAction, activeKnowledge
 		navigate('/agents');
 	};
 	const agentName = activeKnowledgeAssistant?.data?.name;
+	const listSharedUsers = activeKnowledgeAssistant?.data?.sharedWith;
 	const handleDeleteAgent = async (agentId) => {
 		if (info?.loading) return;
 		setInfo((prev) => ({ ...prev, loading: true }));
@@ -61,7 +63,10 @@ const AgentHeader = ({ onEditClick, agentAction, setAgentAction, activeKnowledge
 				<div className={s.iconBtn}>
 					<DeleteIcon onClick={() => handleDeleteAgent(agentId)} />
 				</div>
-				{/* <div className={s.shareBtn}>Share</div> */}
+				<AgentShareComponent
+					agentId={agentId}
+					activeKnowledgeAssistant={activeKnowledgeAssistant}
+				/>
 				{/* <div className={s.divider} /> */}
 				{/* <div className={s.publishBtn}>Publish Agent</div> */}
 			</div>
