@@ -7,7 +7,7 @@ import { message } from '../../globalComponents/CustomToast';
 import Spinner from '../../loaders/Spinner';
 import VariableComponent from './VariableComponent';
 
-const CreateDatabaseRow = ({
+const UpdateDatabaseRow = ({
 	onBack,
 	onSave,
 	activeStepsData,
@@ -24,7 +24,11 @@ const CreateDatabaseRow = ({
 			availableDatabases,
 			updateNotesState,
 			getDatabase,
+			getDatabaseRows,
+			getDatabaseViews,
 			database: databaseContext,
+			rowData,
+			views,
 		},
 	} = useContext(Context);
 
@@ -38,19 +42,26 @@ const CreateDatabaseRow = ({
 		databaseFields: [],
 		databaseFieldsLoading: false,
 		fieldValues: [],
+		databaseRows: [],
+		databaseRowsLoading: false,
+		selectedRow: null,
+		selectedViewId: null,
+		databaseViews: [],
 	});
 
 	// Pre-fill form when editing an existing step
 	useEffect(() => {
 		if (activeStepsData) {
-			// For create database nodes, the data is stored in inputBody
+			// For update database nodes, the data is stored in inputBody
 			const pageId = activeStepsData?.inputBody?.pageId;
-			const databaseId = activeStepsData?.inputBody?.databaseId;
+			const updateDatabaseRowId = activeStepsData?.inputBody?.updateDatabaseRowId;
 
 			updateInfo({
 				title: activeStepsData?.title,
 				description: activeStepsData?.description,
 			});
+
+			
 		}
 	}, [activeStepsData]);
 
@@ -119,42 +130,136 @@ const CreateDatabaseRow = ({
 	// Handle database selection when available databases are loaded
 	useEffect(() => {
 		if (availableDatabases && activeStepsData?.inputBody?.pageId && !info.selectedDatabase) {
-			const databaseId = activeStepsData.inputBody.databaseId;
+			// For update database, we need to find the database that contains the row we're updating
+			// Since we don't have the databaseId stored, we'll need to find it by checking which database contains the row
 
-			if (databaseId) {
-				const targetDatabase = availableDatabases.find((db) => db._id === databaseId);
-				if (targetDatabase) {
-					updateInfo({ selectedDatabase: targetDatabase });
-					getDatabase({
-						pageId: activeStepsData.inputBody.pageId,
-						databaseId: targetDatabase._id,
-					});
-				}
-			} else {
-				// If no databaseId stored, select the first database
-				if (availableDatabases.length > 0) {
-					const firstDatabase = availableDatabases[0];
-					updateInfo({ selectedDatabase: firstDatabase });
-					getDatabase({
-						pageId: activeStepsData.inputBody.pageId,
-						databaseId: firstDatabase._id,
-					});
-				}
+			// For now, let's select the first database and let the user change it if needed
+			// In a more complete solution, we'd need to fetch each database and check which one contains the row
+			if (availableDatabases.length > 0) {
+				const firstDatabase = availableDatabases[0];
+				updateInfo({ selectedDatabase: firstDatabase });
+				getDatabase({
+					pageId: activeStepsData.inputBody.pageId,
+					databaseId: firstDatabase._id,
+				});
+				fetchDatabaseViews(activeStepsData.inputBody.pageId, firstDatabase._id);
 			}
 		}
 	}, [availableDatabases, activeStepsData, info.selectedDatabase]);
 
+	// Update database views from context
+	useEffect(() => {
+		if (info.selectedDatabase?._id && views?.[info.selectedDatabase._id]) {
+			const databaseViews = views[info.selectedDatabase._id] || [];
+			updateInfo({
+				databaseViews: databaseViews,
+			});
+
+			// Auto-select the first view if available
+			if (databaseViews.length > 0 && !info.selectedViewId) {
+				const firstView = databaseViews[0];
+				updateInfo({ selectedViewId: firstView._id });
+				fetchDatabaseRows(info.selectedPage._id, info.selectedDatabase._id, firstView._id);
+			}
+		} else if (info.selectedDatabase?._id && databaseContext?.[info.selectedDatabase._id]) {
+			// If no views are loaded but we have database metadata, try to fetch views
+			const database = databaseContext[info.selectedDatabase._id];
+			if (database?.databaseMetadata?.sourceBlockId) {
+				fetchDatabaseViews(info.selectedPage._id, info.selectedDatabase._id);
+			}
+		}
+	}, [views, info.selectedDatabase, info.selectedPage, databaseContext]);
+
+	// Handle row selection when database rows are loaded
+	useEffect(() => {
+		const currentDatabaseRows = getDatabaseRowsFromContext();
+		if (
+			activeStepsData?.inputBody?.updateDatabaseRowId &&
+			currentDatabaseRows.length > 0 &&
+			!info.selectedRow
+		) {
+			const targetRowId = activeStepsData.inputBody.updateDatabaseRowId;
+
+			const targetRow = currentDatabaseRows.find((row) => row._id === targetRowId);
+			if (targetRow) {
+				updateInfo({ selectedRow: targetRow });
+			}
+		}
+	}, [rowData, info.selectedViewId, activeStepsData, info.selectedRow]);
+
 	const updateInfo = useCallback((data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
 	}, []);
+
+	const fetchDatabaseViews = useCallback(
+		async (pageId, databaseId) => {
+			try {
+				// Get the source block ID from the database metadata
+				const database = databaseContext?.[databaseId];
+				if (database?.databaseMetadata?.sourceBlockId) {
+					await getDatabaseViews(
+						{ pageId, blockId: database.databaseMetadata.sourceBlockId },
+						databaseId,
+					);
+				} else {
+					console.warn('No sourceBlockId found for database:', databaseId);
+				}
+			} catch (error) {
+				console.error('Error fetching database views:', error);
+			}
+		},
+		[databaseContext, getDatabaseViews],
+	);
+
+	const fetchDatabaseRows = useCallback(
+		async (pageId, databaseId, viewId) => {
+			if (!viewId) {
+				return;
+			}
+
+			updateInfo({ databaseRowsLoading: true });
+			try {
+				await getDatabaseRows(
+					{
+						pageId,
+						databaseId,
+						databaseViewId: viewId,
+						input: {
+							docLimit: 100,
+							docPage: 1,
+							groupLimit: 10,
+							groupPage: 1,
+							search: '',
+						},
+					},
+					{
+						viewId,
+						filters: null,
+						sortBy: null,
+						groupBy: null,
+						blockId: null,
+					},
+				);
+			} catch (error) {
+				console.error('Error fetching database rows:', error);
+			} finally {
+				updateInfo({ databaseRowsLoading: false });
+			}
+		},
+		[getDatabaseRows, updateInfo],
+	);
 
 	const handleSelectPage = (option) => {
 		const page = option.value;
 		updateInfo({
 			selectedPage: page,
 			selectedDatabase: null,
+			selectedRow: null,
 			databaseFields: [],
 			fieldValues: [],
+			databaseRows: [],
+			databaseViews: [],
+			selectedViewId: null,
 		});
 		updateNotesState({ availableDatabases: undefined });
 		listAvailableDatabases({ pageId: page._id });
@@ -164,11 +269,23 @@ const CreateDatabaseRow = ({
 		const database = option.value;
 		updateInfo({
 			selectedDatabase: database,
+			selectedRow: null,
 			databaseFields: [],
 			databaseFieldsLoading: true,
 			fieldValues: [],
+			databaseRows: [],
+			databaseViews: [],
+			selectedViewId: null,
 		});
 		getDatabase({ pageId: info.selectedPage._id, databaseId: database._id });
+		fetchDatabaseViews(info.selectedPage._id, database._id);
+	};
+
+	const handleSelectRow = (option) => {
+		const row = option.value;
+		updateInfo({
+			selectedRow: row,
+		});
 	};
 
 	const handleFieldValueChange = (index, value) => {
@@ -180,6 +297,11 @@ const CreateDatabaseRow = ({
 	const handleSave = () => {
 		if (!info.selectedDatabase) {
 			message.error('Please select a database.');
+			return;
+		}
+
+		if (!info.selectedRow) {
+			message.error('Please select a database row to update.');
 			return;
 		}
 
@@ -211,9 +333,9 @@ const CreateDatabaseRow = ({
 			actionType: 'database',
 			variables: payloadVariables,
 			inputBody: {
-				action: 'createDatabaseRecord',
+				action: 'updateDatabaseRecord',
 				pageId: info.selectedPage._id,
-				databaseId: info.selectedDatabase._id,
+				updateDatabaseRowId: info.selectedRow._id,
 				...inputBodyValues,
 			},
 		};
@@ -255,12 +377,55 @@ const CreateDatabaseRow = ({
 		));
 	};
 
+	// Get database rows from context
+	const getDatabaseRowsFromContext = () => {
+		if (!info.selectedViewId || !rowData?.[info.selectedViewId]) {
+			return [];
+		}
+
+		const viewData = rowData[info.selectedViewId];
+		const groupData = viewData.groupData || {};
+
+		// Flatten all groups into a single array of rows
+		const allRows = [];
+		Object.values(groupData).forEach((group) => {
+			if (group.docs && Array.isArray(group.docs)) {
+				allRows.push(...group.docs);
+			}
+		});
+
+		return allRows;
+	};
+
+	const databaseRows = getDatabaseRowsFromContext();
+
+	// Create a meaningful label for each row
+	const getRowLabel = (row) => {
+		// Try to get a meaningful field value for the label
+		const values = row.values || {};
+		const firstFieldValue = Object.values(values)[0];
+
+		if (firstFieldValue) {
+			// If it's an object with a name property, use that
+			if (typeof firstFieldValue === 'object' && firstFieldValue.name) {
+				return firstFieldValue.name;
+			}
+			// If it's a string or number, use it directly
+			if (typeof firstFieldValue === 'string' || typeof firstFieldValue === 'number') {
+				return String(firstFieldValue);
+			}
+		}
+
+		// Fallback to serial number or ID
+		return `Row ${row.serialNumber || row._id}`;
+	};
+
 	return (
 		<div className="inAppActionsContainer">
-			<HeaderComponent onBack={onBack} heading="Create Database Row" />
+			<HeaderComponent onBack={onBack} heading="Update Database Row" />
 			<>
 				<ActionDetailsBlock
-					actionLabel="Create Database Row"
+					actionLabel="Update Database Row"
 					heading="Actions"
 					title={info.title}
 					description={info.description}
@@ -303,10 +468,34 @@ const CreateDatabaseRow = ({
 							)}
 						</div>
 					)}
-					{info.selectedDatabase && (
+
+					{info.selectedDatabase && info.databaseViews.length > 0 && (
+						<div className="inputWrapper">
+							<span className="inputLabel">Database Row</span>
+							{info.databaseRowsLoading ? (
+								<Spinner />
+							) : (
+								<VariableComponent
+									type="dropdown"
+									options={databaseRows.map((row) => ({
+										label: getRowLabel(row),
+										value: row,
+									}))}
+									value={{
+										label: info.selectedRow
+											? getRowLabel(info.selectedRow)
+											: 'Select a Database Row',
+									}}
+									onChange={handleSelectRow}
+								/>
+							)}
+						</div>
+					)}
+
+					{info.selectedRow && (
 						<>
 							<hr className="inputSeparator" />
-							<h2 className="InputBlockHeading">Fields</h2>
+							<h2 className="InputBlockHeading">Fields to Update</h2>
 							{renderDatabaseFields()}
 						</>
 					)}
@@ -330,4 +519,4 @@ const CreateDatabaseRow = ({
 	);
 };
 
-export default memo(CreateDatabaseRow);
+export default memo(UpdateDatabaseRow);
