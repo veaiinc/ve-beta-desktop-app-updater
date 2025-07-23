@@ -31,7 +31,7 @@ import UploadPopup from '../../components/notes/UploadPopup';
 import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
 import IconUploadPopup from '../../components/notes/IconUploadPopup';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
-import { ImageBlock, insertImage } from '../../components/notes/ImageComponent';
+// import { ImageBlock, insertImage } from '../../components/notes/ImageComponent';
 import { BlockNoteSchema, defaultBlockSpecs, filterSuggestionItems } from '@blocknote/core';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import useRecallStream from '../../../hooks/useRecallStream';
@@ -164,7 +164,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			// Adds all default blocks.
 			...defaultBlockSpecs,
 			// Adds the Alert block.
-			image: ImageBlock,
+			// image: ImageBlock,
 		},
 	});
 
@@ -997,14 +997,14 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 										getItems={async (query) => {
 											const defaultItems =
 												getDefaultReactSlashMenuItems(editor);
-											const imageBlockIndex = defaultItems.findIndex(
-												(item) => item.group === 'Media',
-											);
-											defaultItems.splice(
-												imageBlockIndex,
-												0,
-												insertImage(editor, noteId),
-											);
+											// const imageBlockIndex = defaultItems.findIndex(
+											// 	(item) => item.group === 'Media',
+											// );
+											// defaultItems.splice(
+											// 	imageBlockIndex,
+											// 	0,
+											// 	insertImage(editor, noteId),
+											// );
 
 											return filterSuggestionItems(defaultItems, query);
 										}}
