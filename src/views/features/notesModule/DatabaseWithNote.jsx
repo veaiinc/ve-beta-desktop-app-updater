@@ -132,6 +132,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			createBlock,
 			updateBlock,
 			deleteBlock,
+			updateStateValues: updateNotesStateValues,
 		},
 		chatStream: { createWebSocketConnection, sendMessage, closeWebSocketConnection },
 		companyInfo: { getTeamMembers, tenantsUserList },
@@ -195,6 +196,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	useEffect(() => {
 		return () => {
+			updateNotesStateValues({
+				meetSummary: null,
+			});
 			updateStateValues({
 				aiTranscriptionSuggestions: null,
 			});
@@ -933,6 +937,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 									aiQuestions={info?.aiQuestions}
 									actions={info?.actions}
 									files={info?.files}
+									history={history}
 								/>
 							)}
 							{showTranscriptTabs &&
@@ -949,18 +954,10 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 								) : null)}
 
 							{showTranscriptTabs && activeTab === 'summary' && (
-								<Editor
-									innerContainerStyle={innerContainerStyle}
-									myAccess={info?.myAccess}
-									isDeleted={info?.isDeleted}
-									customSendMessage={customSendMessage}
-									aiResonse={info?.aiResonse}
-									resetAiResponse={resetAiResponse}
-									noteId={noteId}
-									initialBlocks={blocks}
-									createBlock={createBlock}
-									updateBlock={updateBlock}
-									deleteBlock={deleteBlock}
+								<MeetSummary
+									activeTab={activeTab}
+									history={history}
+									pageId={noteId}
 								/>
 							)}
 
@@ -978,7 +975,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 									/>
 								)}
 
-							{!showTranscriptTabs && (
+							{(!showTranscriptTabs ||
+								(showTranscriptTabs && activeTab === 'notes')) && (
 								<Editor
 									innerContainerStyle={innerContainerStyle}
 									myAccess={info?.myAccess}

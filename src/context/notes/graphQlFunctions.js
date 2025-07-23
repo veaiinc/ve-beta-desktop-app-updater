@@ -1005,6 +1005,14 @@ export const getMeetBotDataQuery = gql`
 	}
 `;
 
+export const getMeetSummaryQuery = gql`
+	query Query($pageId: ID!) {
+		getTranscriptionSummary(pageId: $pageId) {
+			transcriptionSummary
+		}
+	}
+`;
+
 export const meetBotCreateMutation = gql`
 	mutation Mutation($input: TranscriptionInput) {
 		startTranscription(input: $input) {

@@ -7,6 +7,7 @@ const TranscriptionTabs = ({
 	aiQuestions,
 	actions,
 	files,
+	history,
 }) => {
 	return (
 		<div className="notes-tabs-container">
@@ -40,9 +41,32 @@ const TranscriptionTabs = ({
 				>
 					Transcript
 				</button>
+				{history === 'true' && (
+					<button
+						className={activeTab === 'summary' ? 'notes-tab active' : 'notes-tab'}
+						style={{
+							background: 'none',
+							border: 'none',
+							outline: 'none',
+							color: 'inherit',
+							fontWeight: 500,
+							fontSize: 16,
+							padding: '8px 0',
+							borderBottom:
+								activeTab === 'summary'
+									? '2px solid var(--primary-button, #cfff48)'
+									: '2px solid transparent',
+							cursor: 'pointer',
+							transition: 'color 0.2s',
+						}}
+						onClick={() => setActiveTab('summary')}
+					>
+						Summary
+					</button>
+				)}
 
 				<button
-					className={activeTab === 'summary' ? 'notes-tab active' : 'notes-tab'}
+					className={activeTab === 'notes' ? 'notes-tab active' : 'notes-tab'}
 					style={{
 						background: 'none',
 						border: 'none',
@@ -52,15 +76,15 @@ const TranscriptionTabs = ({
 						fontSize: 16,
 						padding: '8px 0',
 						borderBottom:
-							activeTab === 'summary'
+							activeTab === 'notes'
 								? '2px solid var(--primary-button, #cfff48)'
 								: '2px solid transparent',
 						cursor: 'pointer',
 						transition: 'color 0.2s',
 					}}
-					onClick={() => setActiveTab('summary')}
+					onClick={() => setActiveTab('notes')}
 				>
-					Summary
+					Notes
 				</button>
 				{userQuestions?.length > 0 && (
 					<button
