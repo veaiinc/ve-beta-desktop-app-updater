@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import s from './settings.module.scss';
 import Context from '../../../../../context/context';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -213,11 +213,18 @@ const Settings = ({
 	});
 
 	const {
-		profileInfo: { tenantUserAccessControls },
+		profileInfo: { tenantUserAccessControls, userWorkSpaceList, getUserWorkSpaceList },
 	} = useContext(Context);
 
 	const fullName = `${firstName ?? ''} ${lastName ?? ''}`;
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
+	const workspacesMoreThanOne = userWorkSpaceList?.length > 1;
+
+	useEffect(() => {
+		if (!userWorkSpaceList) {
+			getUserWorkSpaceList();
+		}
+	}, [userWorkSpaceList]);
 
 	return (
 		<div className={s.settingsContainer}>
@@ -368,12 +375,15 @@ const Settings = ({
 				</svg>
 				<span>Logout</span>
 			</button>
-			<SwitchWorkspaceModal
-				isOpen={info.workspaceModalOpen}
-				closeWorkspaceModal={() => {
-					setInfo((prev) => ({ ...prev, workspaceModalOpen: false }));
-				}}
-			/>
+			{workspacesMoreThanOne && (
+				<SwitchWorkspaceModal
+					isOpen={info.workspaceModalOpen}
+					closeWorkspaceModal={() => {
+						setInfo((prev) => ({ ...prev, workspaceModalOpen: false }));
+					}}
+					userWorkSpaceList={userWorkSpaceList}
+				/>
+			)}
 		</div>
 	);
 };
