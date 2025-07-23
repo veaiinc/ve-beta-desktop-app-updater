@@ -40,24 +40,59 @@
 			}
 		}
 
-		.actionDetailsBlockHeaderButton {
-			border: none;
+		.actionDetailsBlockHeaderRight {
 			display: flex;
-			padding: 6px 8px;
 			align-items: center;
-			gap: 12px;
-			border-radius: 6px;
-			background: var(--card);
-			color: var(--primary-font);
-			font-family: var(--primary-font-family);
-			font-size: 14px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-			cursor: pointer;
+			gap: 8px;
 
-			&:hover {
+			.actionDetailsBlockHeaderIconButton {
+				border: none;
+				display: flex;
+				padding: 6px;
+				align-items: center;
+				justify-content: center;
+				gap: 4px;
+				border-radius: 6px;
+				background: transparent;
+				color: var(--secondary-font);
+				cursor: pointer;
+				transition: all 0.2s ease;
+
+				svg {
+					width: 16px;
+					height: 16px;
+					fill: currentColor;
+				}
+
+				&:hover {
+					background: var(--card);
+					color: var(--primary-font);
+				}
+
+				&:active {
+					transform: scale(0.95);
+				}
+			}
+
+			.actionDetailsBlockHeaderButton {
+				border: none;
+				display: flex;
+				padding: 6px 8px;
+				align-items: center;
+				gap: 12px;
+				border-radius: 6px;
 				background: var(--card);
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				cursor: pointer;
+
+				&:hover {
+					background: var(--card);
+				}
 			}
 		}
 	}
