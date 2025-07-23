@@ -663,13 +663,16 @@ const actionHandlers = {
 		const prompts = [...(aiTranscriptionSuggestions?.prompts || [])];
 
 		let files = [...(aiTranscriptionSuggestions?.similar_files || [])];
+		let suggestions = [...(aiTranscriptionSuggestions?.suggestions || [])];
 
 		if (suggested_prompt) {
 			prompts?.push(suggested_prompt);
+			suggestions?.push(suggested_prompt);
 		}
 
 		if (similar_files) {
 			files = files?.concat(similar_files || []);
+			suggestions = suggestions?.concat(similar_files || []);
 		}
 
 		return {
@@ -678,6 +681,7 @@ const actionHandlers = {
 				...aiTranscriptionSuggestions,
 				prompts,
 				similar_files: files,
+				suggestions,
 			},
 		};
 	},

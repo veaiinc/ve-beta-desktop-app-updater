@@ -74,6 +74,7 @@ const initialState = {
 	userQuestions: [],
 	aiQuestions: [],
 	actions: [],
+	allSuggestions: [],
 	sessionId: ObjectID()?.toString(),
 	chatSessionId: ObjectID()?.toString(),
 	chatClicked: false,
@@ -172,24 +173,40 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			const userQuestions = [];
 			const aiQuestions = [];
 			const actions = [];
+			const files = [];
+			// for (const prompt of aiTranscriptionSuggestions?.prompts || []) {
+			// 	if (prompt?.entity === 'user') {
+			// 		userQuestions.push(prompt);
+			// 	} else if (prompt?.entity === 'agent') {
+			// 		if (prompt?.type === 'search') {
+			// 			aiQuestions.push(prompt);
+			// 		} else if (prompt?.type === 'action') {
+			// 			actions.push(prompt);
+			// 		}
+			// 	}
+			// }
 
-			for (const prompt of aiTranscriptionSuggestions?.prompts || []) {
-				if (prompt?.entity === 'user') {
-					userQuestions.push(prompt);
-				} else if (prompt?.entity === 'agent') {
-					if (prompt?.type === 'search') {
-						aiQuestions.push(prompt);
-					} else if (prompt?.type === 'action') {
-						actions.push(prompt);
+			for (const suggestion of aiTranscriptionSuggestions?.suggestions || []) {
+				if (suggestion?.entity === 'user') {
+					userQuestions.push(suggestion);
+				} else if (suggestion?.entity === 'agent') {
+					if (suggestion?.type === 'search') {
+						aiQuestions.push(suggestion);
+					} else if (suggestion?.type === 'action') {
+						actions.push(suggestion);
 					}
+				} else {
+					files.push(suggestion);
 				}
 			}
+
 			setInfo((prev) => ({
 				...prev,
 				userQuestions,
 				aiQuestions,
 				actions,
-				files: aiTranscriptionSuggestions?.similar_files || [],
+				files,
+				allSuggestions: aiTranscriptionSuggestions?.suggestions || [],
 			}));
 		}
 	}, [aiTranscriptionSuggestions]);
@@ -938,6 +955,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 									actions={info?.actions}
 									files={info?.files}
 									history={history}
+									allSuggestions={info?.allSuggestions}
 								/>
 							)}
 							{showTranscriptTabs &&
@@ -965,13 +983,15 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 								(activeTab === 'userQuestions' ||
 									activeTab === 'aiQuestions' ||
 									activeTab === 'actions' ||
-									activeTab === 'files') && (
+									activeTab === 'files' ||
+									activeTab === 'all') && (
 									<AiTranscriptionSuggestions
 										userQuestions={info?.userQuestions}
 										aiQuestions={info?.aiQuestions}
 										actions={info?.actions}
 										files={info?.files}
 										activeTab={activeTab}
+										allSuggestions={info?.allSuggestions}
 									/>
 								)}
 
