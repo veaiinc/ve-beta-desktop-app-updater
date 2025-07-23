@@ -104,7 +104,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const noteId = useParams()?.noteId;
 	const sessionId = noteId;
 	const type = searchParams.get('type');
-	const history = searchParams.get('history');
+	const history = Boolean(searchParams.get('history'));
 	const isAiIntelligenceEnabled = searchParams.get('isAiIntelligenceEnabled');
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
@@ -146,7 +146,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	const [info, setInfo] = useState(initialState);
 	const [transcriptList, setTranscriptList] = useState([]);
-	const [activeTab, setActiveTab] = useState('transcript');
+	const [activeTab, setActiveTab] = useState(history ? 'transcript' : 'all');
 	const location = useLocation();
 
 	// Add hooks for live intelligence and recall stream
@@ -698,7 +698,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		if (
 			showTranscriptTabs &&
 			location?.pathname?.includes('meet') &&
-			history !== 'true' &&
+			history !== true &&
 			type === 'meeting_bot'
 		) {
 			recallConnection(sessionId, noteId, handleSocketMessage, isAiIntelligenceEnabled);

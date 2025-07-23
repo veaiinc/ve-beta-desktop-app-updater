@@ -15,7 +15,7 @@ const MeetSummary = ({ activeTab, history, pageId }) => {
 	});
 
 	useEffect(() => {
-		if (activeTab === 'summary' && history === 'true' && !meetSummary) {
+		if (activeTab === 'summary' && history === true && !meetSummary) {
 			getMeetSummary({ pageId });
 			setInfo((prev) => ({ ...prev, loading: true }));
 		}
