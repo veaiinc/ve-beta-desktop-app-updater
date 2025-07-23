@@ -27,7 +27,7 @@ const sortOptions = [
 	{ label: 'A-Z', value: 'title', sortType: 1 },
 ];
 
-const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
+const NotesGrid = ({ handleNewNotes, handleTotalChange, isDatabase = false }) => {
 	const navigate = useNavigate();
 
 	const {
@@ -45,11 +45,11 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 
 	useEffect(() => {
 		fetchNotes({ page: 1 });
-	}, [info?.selectedFilter?.value, info?.selectedSort]);
+	}, [info?.selectedFilter?.value, info?.selectedSort, isDatabase]);
 
 	useEffect(() => {
 		if (notes) {
-			const { currentPage = 1, hasNextPage = false, data = [], totalDocs = 0 } = notes || {};
+			const { currentPage = 1, hasNextPage = false, data = [], totalDocs } = notes || {};
 			const newNotes = currentPage === 1 ? [...data] : [...info?.notes, ...(data || [])];
 			handleStateUpdate({ notes: newNotes, currentPage, hasNextPage, loading: false });
 			handleTotalChange(totalDocs);
@@ -159,7 +159,8 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 					sortOrder,
 				},
 			};
-			await getNotesList(payload, false);
+			const append = false;
+			await getNotesList(payload, append, isDatabase);
 		} catch (error) {
 			console.error('Error fetching notes:', error);
 		}
@@ -176,6 +177,19 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 			sortType = info?.selectedSort?.sortType * -1;
 		}
 		handleStateUpdate({ selectedSort: { ...value, sortType } });
+	};
+
+	const handleCreateNoteOrDatabase = async () => {
+		const payload = {
+			input: {
+				title: 'New Note',
+			},
+		};
+		const response = await createNotesList(payload, isDatabase);
+		if (response?.[1]?._id) {
+			const newNoteId = response[1]?._id;
+			navigate(`/note/${newNoteId}${isDatabase ? '/database' : ''}`);
+		}
 	};
 
 	return (
@@ -211,9 +225,12 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 						<div className="card-container">
 							<div className="card-item" onClick={handleNewNotes}>
 								<div className="card-item-style card-item-style-btn">
-									<button className="card-btn">
+									<button
+										onClick={handleCreateNoteOrDatabase}
+										className="card-btn"
+									>
 										<Plus />
-										Create Note
+										{isDatabase ? 'Create Database' : 'Create Note'}
 									</button>
 								</div>
 							</div>

@@ -18,7 +18,7 @@ import ObjectID from 'bson-objectid';
 const KnowledgeAgentDetails = () => {
 	const {
 		knowledgeAgent: { activeKnowledgeAssistant, getActiveKnowledgeAgentDetails },
-		templates: { updateStateValues, currentSessionId, chatInfo },
+		templates: { updateStateValues, handleGlobalChatMessages },
 	} = useContext(Context);
 
 	const { agentId } = useParams();
@@ -52,13 +52,21 @@ const KnowledgeAgentDetails = () => {
 	}, [agentId, activeKnowledgeAssistant]);
 
 	useEffect(() => {
-		if (agentId) {
-			updateStateValues({
+		if (agentId && info?.sessionId) {
+			// updateStateValues({
+			// 	chatInfo: {
+			// 		...chatInfo,
+			// 		agentType: 'knowledge_agent',
+			// 		assistantId: agentId,
+			// 	},
+			// });
+			handleGlobalChatMessages({
+				sessionId: info?.sessionId,
 				chatInfo: {
-					...chatInfo,
 					agentType: 'knowledge_agent',
 					assistantId: agentId,
 				},
+				updateExtraInfo: true,
 			});
 		}
 	}, [agentId]);

@@ -31,6 +31,7 @@ const actionHandlers = {
 			hasMore,
 			updateSession,
 			sessionData,
+			reset,
 		} = action?.payload;
 
 		let aiChatSessions = { ...(state?.aiChatSessions || {}) };
@@ -83,12 +84,18 @@ const actionHandlers = {
 				},
 			};
 		} else {
-			sessions = sessions?.filter((session) => session?.isNewSession);
+			// sessions = sessions?.filter((session) => session?.isNewSession);
+
+			if (reset) {
+				sessions = data;
+			} else {
+				sessions = [...sessions, ...data];
+			}
 			return {
 				...state,
 				aiChatSessions: {
 					...aiChatSessions,
-					data: [...sessions, ...data],
+					data: sessions,
 					hasMore,
 					currentPage,
 				},

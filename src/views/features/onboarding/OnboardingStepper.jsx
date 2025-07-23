@@ -5,7 +5,7 @@ import StepKnowEachOther from './StepKnowEachOther';
 import StepGoalsMission from './StepGoalsMission';
 import PricingPage from '../pricingPlans/pricingPage';
 import ProgressBar from '../../components/onboarding/ProgressBar';
-import { useNavigate } from 'react-router-dom';
+import LiveIntelligence from './LiveIntelligence';
 
 const initialData = {
 	userWorkspaceDetails: {},
@@ -14,6 +14,7 @@ const initialData = {
 };
 
 const OnboardingStepper = ({ onStepChange }) => {
+
 	const [step, setStep] = useState(() => {
 		// Initialize step from localStorage, default to 1 if not found
 		const savedStep = localStorage.getItem('onboardingStep');
@@ -21,18 +22,15 @@ const OnboardingStepper = ({ onStepChange }) => {
 	});
 	const [data, setData] = useState(initialData);
 
-	const navigate = useNavigate();
-
 	useEffect(() => {
 		// Save step to localStorage whenever it changes
 		localStorage.setItem('onboardingStep', step);
 		onStepChange?.(step);
-		// Clear localStorage and redirect when onboarding is complete (step 5 or beyond)
+		// Clear localStorage when onboarding is complete (step 5 or beyond)
 		if (step > 5) {
 			localStorage.removeItem('onboardingStep');
-			navigate('/live-intelligence', { replace: true });
 		}
-	}, [step, onStepChange, navigate]);
+	}, [step, onStepChange]);
 
 	const handleNext = (stepData) => {
 		setData((prev) => ({ ...prev, ...stepData }));
@@ -57,32 +55,37 @@ const OnboardingStepper = ({ onStepChange }) => {
 			content = <StepIntro onNext={() => setStep(3)} onBack={handleBack} />;
 			break;
 		case 3:
-			showProgressBar = true;
-			progress = 0.5;
-			content = (
-				<StepKnowEachOther
-					data={data.knowEachOther}
-					onNext={(stepData) => handleNext({ knowEachOther: stepData })}
-					onBack={handleBack}
-				/>
-			);
+			content = <LiveIntelligence onNext={() => setStep(4)} onBack={handleBack} />;
 			break;
+		// case 3:
+		// 	showProgressBar = true;
+		// 	progress = 0.5;
+		// 	content = (
+		// 		<StepKnowEachOther
+		// 			data={data.knowEachOther}
+		// 			onNext={(stepData) => handleNext({ knowEachOther: stepData })}
+		// 			onBack={handleBack}
+		// 		/>
+		// 	);
+		// 	break;
+		// case 4:
+		// 	showProgressBar = true;
+		// 	progress = 1;
+		// 	content = (
+		// 		<StepGoalsMission
+		// 			data={data.goals}
+		// 			onNext={(stepData) => handleNext({ goals: stepData })}
+		// 			onBack={handleBack}
+		// 		/>
+		// 	);
+		// 	break;
 		case 4:
-			showProgressBar = true;
-			progress = 1;
-			content = (
-				<StepGoalsMission
-					data={data.goals}
-					onNext={(stepData) => handleNext({ goals: stepData })}
-					onBack={handleBack}
-				/>
-			);
-			break;
-		case 5:
 			content = <PricingPage />;
 			break;
 		default:
-			return null;
+			content = <div>Onboarding Complete!</div>;
+			// Clear localStorage when onboarding is complete
+			localStorage.removeItem('onboardingStep');
 	}
 
 	return (

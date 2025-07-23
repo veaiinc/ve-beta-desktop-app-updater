@@ -2049,6 +2049,7 @@ export const TemplatesState = (props) => {
 		removeLatestStreamMessage = false,
 		lastQuery = null,
 		chatBoxInfo = null,
+		chatInfo = null,
 	}) => {
 		try {
 			dispatch({
@@ -2069,6 +2070,7 @@ export const TemplatesState = (props) => {
 					removeLatestStreamMessage,
 					lastQuery,
 					chatBoxInfo,
+					chatInfo,
 				},
 			});
 		} catch (error) {

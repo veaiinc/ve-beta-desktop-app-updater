@@ -101,6 +101,7 @@ export const NotesState = (props) => {
 			);
 
 			if (response?.[0]) {
+				const totalDocs = response?.[1]?.data?.listPages?.totalDocs;
 				const currentPageNotesList = response?.[1]?.data?.listPages?.data;
 				const currentPage = response?.[1]?.data?.listPages?.currentPage;
 				const hasNextPage = response?.[1]?.data?.listPages?.hasNextPage;
@@ -111,6 +112,7 @@ export const NotesState = (props) => {
 						: currentPageNotesList,
 					hasNextPage,
 					currentPage,
+					totalDocs,
 				};
 				dispatch({
 					type: Actions.GET_NOTES_SUCCESS,

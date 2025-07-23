@@ -210,6 +210,7 @@ const actionHandlers = {
 			removeLatestStreamMessage,
 			lastQuery,
 			chatBoxInfo,
+			chatInfo,
 		} = action?.payload;
 		let messages = [...(state?.globalChatMessages?.[sessionId]?.messages || [])];
 
@@ -224,6 +225,10 @@ const actionHandlers = {
 
 			if (chatBoxInfo) {
 				sessionIdData.chatBoxInfo = chatBoxInfo;
+			}
+
+			if (chatInfo) {
+				sessionIdData.chatInfo = chatInfo;
 			}
 
 			if (latestStreamMessage) {

@@ -186,7 +186,7 @@ const ChatHistory = () => {
 								dateGroup !== getChatDateGroup(chats[index - 1].createdAt);
 
 							return (
-								<div key={chat?._id} className="chat-container-wrapper ">
+								<div key={index} className="chat-container-wrapper ">
 									{showGroupHeader && (
 										<div
 											className="chat-group-header"
