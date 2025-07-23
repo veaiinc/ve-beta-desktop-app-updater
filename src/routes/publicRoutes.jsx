@@ -10,7 +10,6 @@ import LandingPage from '../views/features/landingScreen/LandingPage';
 // lazy loaded pages
 const LoginPage = lazy(() => import('../views/features/loginPage/LoginPage'));
 const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
-const LiveIntelligence = lazy(() => import('../views/features/onboarding/LiveIntelligence'));
 const TermsOfService = lazy(() => import('../views/features/signin/TermsOfService'));
 const CookiePolicy = lazy(() => import('../views/features/signin/CookiePolicy'));
 const PrivacyPolicy = lazy(() => import('../views/features/signin/PrivacyPolicy'));
@@ -83,16 +82,6 @@ const publicRoutes = [
 			<Public>
 				<Suspense fallback={<SuspenseFallback />}>
 					<Onboarding />
-				</Suspense>
-			</Public>
-		),
-	},
-	{
-		path: '/live-intelligence',
-		element: (
-			<Public>
-				<Suspense fallback={<SuspenseFallback />}>
-					<LiveIntelligence />
 				</Suspense>
 			</Public>
 		),

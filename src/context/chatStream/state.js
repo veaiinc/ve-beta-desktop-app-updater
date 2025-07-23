@@ -17,7 +17,6 @@ export const ChatStreamState = () => {
 	const socketsInfoRef = useRef({});
 	const inactivityTimeoutRef = useRef(null);
 	const currentSessionIdRef = useRef(null);
-	const workspaceModeRef = useRef(null);
 	const MAX_RETRY_ATTEMPTS = 30;
 	const RETRY_DELAY = 1000; // 1 second
 
@@ -49,7 +48,7 @@ export const ChatStreamState = () => {
 	}, []);
 
 	const sendMessage = useCallback(
-		(data, sessionId) => {
+		({ data, sessionId, onMessageFunc, isPublicChat, agentType }) => {
 			return new Promise((resolve, reject) => {
 				let attempts = 0;
 
@@ -72,10 +71,9 @@ export const ChatStreamState = () => {
 						console.log('Connection closed, attempting to reconnect...');
 						createWebSocketConnection(
 							sessionId,
-							socketsInfoRef.current[sessionId]?.onMessageFunc,
-							socketsInfoRef.current[sessionId]?.agentType,
-							socketsInfoRef.current[sessionId]?.isPublicChat,
-							workspaceModeRef.current,
+							onMessageFunc,
+							agentType,
+							isPublicChat,
 						);
 						attempts++;
 						setTimeout(attemptSend, RETRY_DELAY);

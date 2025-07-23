@@ -23,13 +23,8 @@ const RecentChat = ({
 	isPublicChat = false,
 	isPreview = false,
 	sId = null,
-	showIconText = true,
 	autoFocus = true,
 	customChatBoxClick = null,
-	sessionIdChanged = false,
-	onChangeSessionId = null,
-	chatActive = false,
-	onNavigateBack = null,
 	showCitationsButton = true,
 	showDeleteChat = true,
 	animateChatBox = true,
@@ -43,21 +38,19 @@ const RecentChat = ({
 			recentChatStorage,
 			moreRecentChatStorage,
 			handleGlobalChatMessages,
-			chatInfo,
 			updateChatLoadingSessions,
 			newChatSessionIds,
 			getFollowUpQueries,
 		},
 		aiSetup: { updateAiChatSessions, aiChatSessions },
-		chatStream: {
-			createWebSocketConnection,
-			sendMessage,
-			closeWebSocketConnection,
-			removeCurrentSessionId,
-		},
+		chatStream: { sendMessage, closeWebSocketConnection, removeCurrentSessionId },
 	} = useContext(Context);
 
 	const { workspaceMode } = useWorkspaceMode();
+	let { sessionId } = useParams();
+	const [searchParams] = useSearchParams();
+	let agentType = searchParams?.get('agentType');
+	let assistantId = searchParams?.get('assistantId');
 
 	const [info, setInfo] = useState({
 		position: { x: window?.innerWidth / 2 - 900, y: 0 },
@@ -89,8 +82,6 @@ const RecentChat = ({
 
 	const chatContentRef = useRef(null);
 	const chatMessagesRef = useRef([]);
-	let { sessionId } = useParams();
-	const [searchParams] = useSearchParams();
 	const userMessagesRefs = useRef({});
 	// const previousAiMessagesRef = useRef([]);
 	// const aiCitationsByIdRef = useRef({});
@@ -182,14 +173,6 @@ const RecentChat = ({
 			}
 		}
 	}, [aiChatSessions, sessionId]);
-
-	useEffect(() => {
-		if (sessionIdChanged && chatActive) {
-			const agentType = 'mulit_agent';
-			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
-			onChangeSessionId?.();
-		}
-	}, [sessionIdChanged, chatActive]);
 
 	useEffect(() => {
 		if (info?.getFollowUpQueries) {
@@ -298,24 +281,34 @@ const RecentChat = ({
 	}, [sessionId]);
 
 	useEffect(() => {
-		const agentType = searchParams?.get('agentType');
-		const assistantId = searchParams?.get('assistantId') || null;
-		if ((!agentType && location?.pathname?.includes('knowledge-agent')) || chatActive) {
-			return;
-		}
+		// const agentType = searchParams?.get('agentType');
+		// const assistantId = searchParams?.get('assistantId') || null;
+		// if (!agentType && location?.pathname?.includes('knowledge-agent')) {
+		// 	return;
+		// }
 
-		if (agentType) {
-			updateStateValues({ chatInfo: { ...chatInfo, agentType, assistantId } });
+		if (
+			agentType &&
+			sessionId &&
+			globalChatMessages?.[sessionId]?.chatInfo?.agentType !== agentType &&
+			globalChatMessages?.[sessionId]?.chatInfo?.assistantId !== assistantId
+		) {
+			// updateStateValues({ chatInfo: { agentType, assistantId } });
+			handleGlobalChatMessages({
+				sessionId,
+				updateExtraInfo: true,
+				chatInfo: { agentType, assistantId },
+			});
 		}
-		if (sessionId && !isPublicChat) {
-			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
-		}
+		// if (sessionId && !isPublicChat) {
+		// 	createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
+		// }
 
-		if (sessionId && isPublicChat && isFirstTimeConnectingToPublicChatRef.current) {
-			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
-			isFirstTimeConnectingToPublicChatRef.current = false;
-		}
-	}, [sessionId, searchParams]);
+		// if (sessionId && isPublicChat && isFirstTimeConnectingToPublicChatRef.current) {
+		// 	createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
+		// 	isFirstTimeConnectingToPublicChatRef.current = false;
+		// }
+	}, [sessionId, agentType, assistantId]);
 
 	useEffect(() => {
 		if (globalChatMessages?.[sessionId]?.messages?.length > 2 && !info?.scrollExecuted) {
@@ -554,11 +547,13 @@ const RecentChat = ({
 					rating,
 					designAgentsUsed,
 					toolInvocations,
-					agentType,
+					agentType: agentTypeFromResponse,
 				} = data?.[i] || {};
 
-				const paramsAgentType = searchParams?.get('agentType');
-				if (agentType === 'knowledge_agent' && paramsAgentType !== 'knowledge_agent') {
+				if (
+					agentTypeFromResponse === 'knowledge_agent' &&
+					agentType !== 'knowledge_agent'
+				) {
 					continue;
 				}
 
@@ -677,7 +672,7 @@ const RecentChat = ({
 
 			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
 		},
-		[sessionId, searchParams],
+		[sessionId, agentType],
 	);
 
 	const handleNoteComponentModalClose = useCallback(() => {
@@ -856,7 +851,7 @@ const RecentChat = ({
 	const handleSendWebsocketMessage = useCallback(
 		async (data, lastQuery) => {
 			try {
-				await sendMessage(data, sessionId);
+				await sendMessage({ data, sessionId, onMessageFunc, isPublicChat, agentType });
 				setTimeout(() => {
 					smoothScrollToLastMessage();
 				}, 0);
@@ -879,7 +874,7 @@ const RecentChat = ({
 				// Handle error appropriately (show notification, etc.)
 			}
 		},
-		[sendMessage, sessionId],
+		[sendMessage, sessionId, onMessageFunc, agentType, isPublicChat],
 	);
 
 	const handleViewDocument = useCallback((value) => {
@@ -936,7 +931,6 @@ const RecentChat = ({
 					{!isPublicChat && (
 						<ChatHeader
 							sessionId={sessionId}
-							onNavigateBack={onNavigateBack}
 							isNewChat={info?.isNewChat}
 							smoothScrollToParticularMessage={smoothScrollToParticularMessage}
 							showDeleteChat={showDeleteChat}
@@ -1108,10 +1102,9 @@ const RecentChat = ({
 						</div>
 						<div className="chatBoxWrapper">
 							<ChatBox
-								showIconText={showIconText}
 								isPublicChat={isPublicChat}
 								handleSendWebsocketMessage={handleSendWebsocketMessage}
-								hideDeepResearch={searchParams?.get('agentType') === 'search_agent'}
+								hideDeepResearch={agentType === 'search_agent'}
 								autoFocus={autoFocus}
 								customChatBoxClick={customChatBoxClick}
 								showScrollButton={info?.showScrollButton}

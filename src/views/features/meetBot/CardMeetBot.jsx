@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { Drawer, Switch } from 'antd';
 import styles from './cardMeetBot.module.scss';
+import './meetBot.scss';
 import { ReactComponent as MicorPhoneIcon } from './micorPhoneIcon.svg';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import Context from '../../../context/context';

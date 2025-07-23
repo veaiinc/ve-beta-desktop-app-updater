@@ -14,7 +14,6 @@ import { message } from '../globalComponents/CustomToast';
 
 const ChatHeader = ({
 	sessionId,
-	onNavigateBack,
 	isNewChat = false,
 	smoothScrollToParticularMessage = null,
 	showDeleteChat = true,
@@ -75,15 +74,6 @@ const ChatHeader = ({
 			setInfo((prev) => ({ ...prev, isFavourite }));
 		}
 	}, [currentChatData, info?.userId]);
-
-	const handleNavigateBack = useCallback(() => {
-		const pathname = location?.pathname?.split('/')?.[1];
-		if (pathname === 'calendar' || pathname === 'contacts' || pathname === 'tasks') {
-			onNavigateBack?.();
-		} else {
-			navigate(-1);
-		}
-	}, [location?.pathname]);
 
 	const handleDeleteChatClick = useCallback(async () => {
 		if (deleteChatSessionLoadingRef.current || globalChatMessages?.[sessionId]?.isStreaming) {
