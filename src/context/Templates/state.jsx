@@ -1712,7 +1712,6 @@ export const TemplatesState = (props) => {
 							  ],
 					hasNextPage: response?.[1]?.data?.activityLogs?.hasNextPage,
 				};
-				console.log(payload);
 				dispatch({
 					type: Actions.GET_NOTIFICATIONS_SUCCESS,
 					payload,
