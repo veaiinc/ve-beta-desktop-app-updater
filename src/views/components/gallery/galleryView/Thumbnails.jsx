@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo, useEffect } from 'react';
 import InfiniteScroll from '../../globalComponents/InfiniteScroll';
 import Skeleton from 'react-loading-skeleton';
 
@@ -13,6 +13,14 @@ const Thumbnails = ({
 	isAiFace,
 	activeImageIndex,
 }) => {
+	useEffect(() => {
+		if (info?.activeImage) {
+			const thumbnail = document.getElementById('thumbnail' + info.activeImage);
+			if (thumbnail) {
+				thumbnail.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+			}
+		}
+	}, [info?.activeImage, activeImageIndex]);
 	return (
 		<div className="galleryThumbnails" id="galleryThumbnails-target">
 			<InfiniteScroll

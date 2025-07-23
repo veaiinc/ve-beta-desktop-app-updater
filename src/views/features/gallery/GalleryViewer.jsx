@@ -120,7 +120,7 @@ const GalleryViewer = ({
 		page: 1,
 		limit: 40,
 		activeImage: null,
-		activeImageIndex: 0,
+		activeImageIndex: null,
 		imageDetailId: null,
 		showDeleteAlbum: false,
 		fakeLoading: false,
@@ -211,12 +211,11 @@ const GalleryViewer = ({
 					}));
 
 					// Restore scroll position to the active image after a short delay
-					setTimeout(() => {
-						const image = document.getElementById(info?.activeImage);
-						if (image) {
-							image.scrollIntoView({ behavior: 'instant', block: 'start' });
-						}
-					}, 100);
+
+					const image = document.getElementById(info?.activeImage);
+					if (image) {
+						image.scrollIntoView({ behavior: 'instant', block: 'start' });
+					}
 				}
 			}
 		}
@@ -492,7 +491,7 @@ const GalleryViewer = ({
 	};
 	return (
 		<ReactModal isOpen={open} closeModal={closeModal} customStyles={customStyles}>
-			<div className="galleryViewerCotnainer" style={{ opacity: info?.fakeLoading ? 0 : 1 }}>
+			<div className="galleryViewerCotnainer">
 				<div className="closeGallery">
 					<div className="closeGallery-left">
 						<ChevronLeft
@@ -621,18 +620,20 @@ const GalleryViewer = ({
 					</div>
 				</div>
 				<div className="activeImageContainer">
-					<FullImagesComponent
-						key={activeAlbumId}
-						galleryCredentials={galleryCredentials}
-						fetchMoreImages={fetchMoreImages}
-						imagesList={aiface ? aiFaceImages : imagesList}
-						largeImageFunction={largeImageFunction}
-						info={info}
-						setInfo={setInfo}
-						selectedImages={selectedImages}
-						isAiFace={aiface}
-						activeImageIndex={info?.activeImageIndex}
-					/>
+					{info?.activeImage && (imagesList || aiFaceImages) && (
+						<FullImagesComponent
+							key={activeAlbumId}
+							galleryCredentials={galleryCredentials}
+							fetchMoreImages={fetchMoreImages}
+							imagesList={aiface ? aiFaceImages : imagesList}
+							largeImageFunction={largeImageFunction}
+							info={info}
+							setInfo={setInfo}
+							selectedImages={selectedImages}
+							isAiFace={aiface}
+							activeImageIndex={info?.activeImageIndex}
+						/>
+					)}
 					{/* {info?.imageDetailId && (
 						<ImageDetailNav
 							info={info}
@@ -809,7 +810,7 @@ const GalleryViewer = ({
 				/>
 			</div>
 
-			{info?.fakeLoading && <FakeLoadingComponent />}
+			{/* {info?.fakeLoading && <FakeLoadingComponent />} */}
 		</ReactModal>
 	);
 };
