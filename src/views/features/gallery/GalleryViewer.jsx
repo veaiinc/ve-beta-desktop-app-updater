@@ -796,17 +796,31 @@ const GalleryViewer = ({
 						>
 							-
 						</span>
-						<Slider
-							min={1}
-							max={200}
-							value={info?.imageScalling * 100}
-							onChange={(value) =>
-								setInfo((prev) => ({ ...prev, imageScalling: value / 100 }))
-							}
-							style={{ width: '137px' }}
-							trackStyle={{ backgroundColor: 'var(--primary-button)' }}
-							railStyle={{ backgroundColor: 'var(--stroke)' }}
-						/>
+						<div style={{ position: 'relative', width: '137px', height: '100%' }}>
+							<Slider
+								min={1}
+								max={200}
+								value={info?.imageScalling * 100}
+								onChange={(value) =>
+									setInfo((prev) => ({ ...prev, imageScalling: value / 100 }))
+								}
+								trackStyle={{ backgroundColor: 'var(--primary-button)' }}
+								railStyle={{ backgroundColor: 'var(--stroke)' }}
+							/>
+
+							<div
+								style={{
+									position: 'absolute',
+									left: 'calc((100 - 1) / (200 - 1) * 100%)', // Position at 100 on a 1–200 scale
+									top: 0,
+									height: '100%',
+									width: '1px',
+									backgroundColor: 'var(--secondary-font)',
+									pointerEvents: 'none',
+									opacity: 0.5,
+								}}
+							/>
+						</div>
 						<span
 							onClick={() =>
 								setInfo((prev) => ({
