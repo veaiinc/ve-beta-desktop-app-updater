@@ -1,10 +1,8 @@
 import { memo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/onboarding/liveIntelligence.scss';
 import { ReactComponent as SideImageDark } from '../../../assets/svg/onboarding/darkimage.svg';
 
-const LiveIntelligence = () => {
-	const navigate = useNavigate();
+const LiveIntelligence = ({ onNext }) => {
 
 	return (
 		<div className="live-intelligence">
@@ -51,7 +49,7 @@ const LiveIntelligence = () => {
 					</aside>
 				</div>
 			</div>
-			<footer className="live-intelligence__footer" onClick={() => navigate('/home')}>
+			<footer className="live-intelligence__footer" onClick={onNext}>
 				Got it!
 			</footer>
 		</div>

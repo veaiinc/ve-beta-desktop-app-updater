@@ -3,6 +3,8 @@ import ReactModal from '../../../modalsV2';
 import s from './switchWorkspaceModal.module.scss';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../../../context/context';
+import Cookies from 'js-cookie';
+import { fetchDomainName } from '../../../../../helpers';
 
 const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal }) => {
 	const navigate = useNavigate();
@@ -20,9 +22,19 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal }) => {
 		}
 	}, [userWorkSpaceList]);
 
-	const handleSwitchWorkspace = (activeWorkspaceId) => {
+	const handleSwitchWorkspace = (activeWorkspaceId, region) => {
 		localStorage.setItem('workspaceId', activeWorkspaceId);
-		window.location.reload(true);
+		localStorage.setItem('region', region);
+		const host = fetchDomainName();
+		Cookies.set('workspaceId', activeWorkspaceId, {
+			sameSite: 'lax',
+			domain: host,
+		});
+		Cookies.set('region', region, {
+			sameSite: 'lax',
+			domain: host,
+		});
+		window.location.href = '/home';
 	};
 
 	return (
@@ -111,10 +123,10 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal }) => {
 								?.toLowerCase()
 								.includes(info?.searchWorkspace?.toLowerCase()),
 						)
-						?.map(({ activeWorkspaceId, businessName, logo_s3_500w_key }) => (
+						?.map(({ activeWorkspaceId, businessName, logo_s3_500w_key, region }) => (
 							<button
 								key={activeWorkspaceId}
-								onClick={() => handleSwitchWorkspace(activeWorkspaceId)}
+								onClick={() => handleSwitchWorkspace(activeWorkspaceId, region)}
 								className={s.workspaceItem}
 							>
 								{logo_s3_500w_key ? (

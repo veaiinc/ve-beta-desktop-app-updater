@@ -17,31 +17,10 @@ import { message } from '../../components/globalComponents/CustomToast';
 import Spinner from '../../components/loaders/Spinner';
 import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
 import getFileTypeInfo from './getFiletypeInfo';
-import { fetchOriginSelection } from '../../../helpers';
 import { triggerCmdK } from '../../components/commandKSearch/CommandKSearch';
 import { ReactComponent as AddIcon } from '../../../assets/svg/files/add.svg';
-
-const origin = fetchOriginSelection();
-const items = [
-	{
-		value: 1,
-		label: 'Files',
-	},
-	{
-		value: 2,
-		label: 'Meetings',
-	},
-	{
-		value: 3,
-		label: 'Webpages',
-	},
-];
-
-const customDropdownStyle = {
-	display: 'flex',
-	alignItems: 'center',
-	gap: '5px',
-};
+import NotesPage from '../notesPage/NotesPage';
+import NotesGrid from '../../components/files/NotesGrid';
 
 const options = [
 	{
@@ -63,6 +42,14 @@ const options = [
 	{
 		label: 'Lite Gallery',
 		value: 'liteGallery',
+	},
+	{
+		label: 'Notes',
+		value: 'notes',
+	},
+	{
+		label: 'Database',
+		value: 'database',
 	},
 ];
 
@@ -157,84 +144,84 @@ export const statusTextmapper = {
 	},
 };
 
-const suggestedOptions = [
-	{
-		id: 1,
-		title: 'Document',
-		value: '',
-		controlValue: 'workflow',
-		action: (navigate) => {
-			navigate(`/builder/create-document`);
-		},
-	},
-	{
-		id: 2,
-		title: 'Form',
-		value: 'form-submission',
-		controlValue: 'form',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({
-				...prev,
-				openProposalPopup: true,
-				commonState: 'form-submission',
-			}));
-		},
-	},
-	{
-		id: 3,
-		title: 'Proposal',
-		value: 'proposal',
-		controlValue: 'workflow',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'proposal' }));
-		},
-	},
-	{
-		id: 4,
-		title: 'Invoice',
-		value: 'invoice',
-		controlValue: 'workflow',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'invoice' }));
-		},
-	},
-	{
-		id: 5,
-		title: 'Contract',
-		value: 'contract',
-		controlValue: 'workflow',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'contract' }));
-		},
-	},
-	{
-		id: 6,
-		title: 'Presentation',
-		value: 'presentation',
-		controlValue: 'workflow',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'presentation' }));
-		},
-	},
-	{
-		id: 7,
-		title: 'Gallery',
-		value: 'galleries',
-		controlValue: 'classicGallery',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openGalleryPopup: true }));
-		},
-	},
-	{
-		id: 8,
-		title: 'Lite Gallery',
-		value: 'lite-gallery',
-		controlValue: 'liteGallery',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openLiteGalleryPopup: true }));
-		},
-	},
-];
+// const suggestedOptions = [
+// 	{
+// 		id: 1,
+// 		title: 'Document',
+// 		value: '',
+// 		controlValue: 'workflow',
+// 		action: (navigate) => {
+// 			navigate(`/builder/create-document`);
+// 		},
+// 	},
+// 	{
+// 		id: 2,
+// 		title: 'Form',
+// 		value: 'form-submission',
+// 		controlValue: 'form',
+// 		action: ({ setInfo }) => {
+// 			setInfo((prev) => ({
+// 				...prev,
+// 				openProposalPopup: true,
+// 				commonState: 'form-submission',
+// 			}));
+// 		},
+// 	},
+// 	{
+// 		id: 3,
+// 		title: 'Proposal',
+// 		value: 'proposal',
+// 		controlValue: 'workflow',
+// 		action: ({ setInfo }) => {
+// 			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'proposal' }));
+// 		},
+// 	},
+// 	{
+// 		id: 4,
+// 		title: 'Invoice',
+// 		value: 'invoice',
+// 		controlValue: 'workflow',
+// 		action: ({ setInfo }) => {
+// 			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'invoice' }));
+// 		},
+// 	},
+// 	{
+// 		id: 5,
+// 		title: 'Contract',
+// 		value: 'contract',
+// 		controlValue: 'workflow',
+// 		action: ({ setInfo }) => {
+// 			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'contract' }));
+// 		},
+// 	},
+// 	{
+// 		id: 6,
+// 		title: 'Presentation',
+// 		value: 'presentation',
+// 		controlValue: 'workflow',
+// 		action: ({ setInfo }) => {
+// 			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'presentation' }));
+// 		},
+// 	},
+// 	{
+// 		id: 7,
+// 		title: 'Gallery',
+// 		value: 'galleries',
+// 		controlValue: 'classicGallery',
+// 		action: ({ setInfo }) => {
+// 			setInfo((prev) => ({ ...prev, openGalleryPopup: true }));
+// 		},
+// 	},
+// 	{
+// 		id: 8,
+// 		title: 'Lite Gallery',
+// 		value: 'lite-gallery',
+// 		controlValue: 'liteGallery',
+// 		action: ({ setInfo }) => {
+// 			setInfo((prev) => ({ ...prev, openLiteGalleryPopup: true }));
+// 		},
+// 	},
+// ];
 
 const Files = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -267,7 +254,7 @@ const Files = () => {
 		cardHover: false,
 		isLoading: false,
 		selectedView: 'Documents',
-		viewMode: searchParams?.get('viewMode') || 'card', 
+		viewMode: searchParams?.get('viewMode') || 'card',
 		openProposalPopup: false,
 		initialDataFetched: false,
 		commonState: 'All',
@@ -411,20 +398,20 @@ const Files = () => {
 
 	const handleDropdownOptionClick = async (option) => {
 		if (option === info?.selectedView) {
-			setInfo({
-				...info,
+			setInfo((prev) => ({
+				...prev,
 				bottomNavigationDropdown: false,
-			});
+			}));
 			return;
 		}
 
 		setLoadingView(option);
 
 		try {
-			setInfo({
-				...info,
+			setInfo((prev) => ({
+				...prev,
 				bottomNavigationDropdown: false,
-			});
+			}));
 			const urlParam = option === 'My Templates' ? 'My-Templates' : option;
 			setSearchParams({ 'active-tab': urlParam });
 		} finally {
@@ -722,6 +709,19 @@ const Files = () => {
 				handleTotalChange={(value) => handleTotalChange({ template: value })}
 				viewMode={info?.viewMode}
 				setViewMode={setViewMode}
+			/>
+		),
+		Notes: (
+			<NotesGrid
+				handleNewNotes={() => {}}
+				handleTotalChange={(value) => handleTotalChange({ notes: value })}
+			/>
+		),
+		Database: (
+			<NotesGrid
+				handleNewNotes={() => {}}
+				handleTotalChange={(value) => handleTotalChange({ database: value })}
+				isDatabase={true}
 			/>
 		),
 	};

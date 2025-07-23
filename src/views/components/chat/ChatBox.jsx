@@ -160,7 +160,7 @@ const ChatBox = ({
 			handleStreamSendMessage,
 			activePayloadForChat,
 			activeInputForChat,
-			chatInfo,
+			// chatInfo,
 			userEditedQuery,
 			galleryFile,
 			currentSessionId,
@@ -220,16 +220,16 @@ const ChatBox = ({
 				: 1;
 
 	useEffect(() => {
-		if (
-			!chatInfo?.agentType ||
-			(location?.pathname?.split('/')?.[1] !== 'chat' &&
-				location?.pathname?.split('/')?.[1] !== 'knowledge-agent' &&
-				chatInfo?.agentType === 'knowledge_agent')
-		) {
-			updateStateValues({
-				chatInfo: { ...chatInfo, agentType: 'multi_agent', assistantId: null },
-			});
-		}
+		// if (
+		// 	!chatInfo?.agentType ||
+		// 	(location?.pathname?.split('/')?.[1] !== 'chat' &&
+		// 		location?.pathname?.split('/')?.[1] !== 'knowledge-agent' &&
+		// 		chatInfo?.agentType === 'knowledge_agent')
+		// ) {
+		// 	updateStateValues({
+		// 		chatInfo: { ...chatInfo, agentType: 'multi_agent', assistantId: null },
+		// 	});
+		// }
 		document.addEventListener('click', handleWindowClick);
 		return () => {
 			document.removeEventListener('click', handleWindowClick);
@@ -649,6 +649,7 @@ const ChatBox = ({
 					const sessionId = params?.sessionId || info?.chatSessionId;
 					const chatBoxData =
 						globalChatMessages?.[sessionId]?.chatBoxInfo || info?.chatBoxInfo;
+					const chatInfo = globalChatMessages?.[sessionId]?.chatInfo;
 
 					const chatPayload = globalChatMessages?.[sessionId]?.chatPayload || {};
 					const date =
@@ -805,7 +806,6 @@ const ChatBox = ({
 			onSend,
 			customChatActions,
 			info,
-			chatInfo,
 			activeWorkflowSlugForSmartFile,
 			recentFilesRef.current,
 			uploadedImagesRef?.current,

@@ -64,12 +64,14 @@ const NotesPage = lazy(() => import('../views/features/notesPage/NotesPage'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
-import MeetBot from '../views/features/meetBot/meetBot';
+// import MeetBot from '../views/features/meetBot/meetBot';
 import NotesWrapper from '../views/features/notesModule/NotesWrapper';
+import CardMeetBot from '../views/features/meetBot/CardMeetBot';
+import ChatPage from '../views/components/homePage/ChatPage';
 
 const betaRoutes = [
 	{
-		path: '/home',
+		path: '/insights',
 		element: (
 			<AuthWrapper
 				title={'Home'}
@@ -77,15 +79,15 @@ const betaRoutes = [
 				childrenContainerStyles={{ overflow: 'auto' }}
 				showBottomToolbar={false}
 			>
-				<InitialHomePage />
+				<AmbientAi />
 			</AuthWrapper>
 		),
 	},
 	{
-		path: '/ambient-ai',
+		path: '/home',
 		element: (
-			<AuthWrapper title={'Ambient AI'}>
-				<AmbientAi />
+			<AuthWrapper title={'Tools'}>
+				<InitialHomePage />
 			</AuthWrapper>
 		),
 	},
@@ -95,6 +97,16 @@ const betaRoutes = [
 			<Public>
 				<Onboarding />
 			</Public>
+		),
+	},
+	{
+		path: '/chats',
+		element: (
+			<AuthWrapper title={'Chats'}>
+				<Suspense fallback={<SuspenseFallback />}>
+					<ChatPage />
+				</Suspense>
+			</AuthWrapper>
 		),
 	},
 	{
@@ -587,7 +599,8 @@ const betaRoutes = [
 		path: '/meet',
 		element: (
 			<AuthWrapper title={'Meet'}>
-				<MeetBot />
+				{/* <MeetBot /> */}
+				<CardMeetBot />
 			</AuthWrapper>
 		),
 	},

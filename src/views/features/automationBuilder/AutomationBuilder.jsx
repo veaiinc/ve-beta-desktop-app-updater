@@ -139,7 +139,10 @@ const AutomationBuilder = () => {
 	const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
 	const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
-
+const handleBack = () => {
+	navigate('/automations');
+	window.location.reload();
+	};
 	useEffect(() => {
 		if (automationId) {
 			getConnectionDetails();
@@ -626,7 +629,7 @@ const AutomationBuilder = () => {
 
 		const response = await updateCurrentAutomation({ status: 'published' });
 		if (response) {
-			navigate(-1);
+			handleBack();
 		}
 		setInfo((prev) => ({ ...prev, publishLoading: false }));
 	}, [info?.publishLoading, updateCurrentAutomation]);
@@ -643,7 +646,7 @@ const AutomationBuilder = () => {
 	return (
 		<div className="updatedAutomationBuilderContainer">
 			<div className="updatedBuilderHeaderContainer">
-				<span className="previousStepText" onClick={() => navigate(-1)}>
+				<span className="previousStepText" onClick={() => handleBack()}>
 					<ChevronRight style={{ transform: 'rotate(180deg)' }} /> Back
 				</span>
 				<div className="updatedBuilderHeaderTabContainer">

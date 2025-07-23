@@ -49,17 +49,16 @@ class ErrorBoundary extends Component {
 			(error.message.includes('Failed to fetch dynamically imported module') ||
 				error.message.includes(`'text/html' is not a valid JavaScript MIME type`));
 
-		// Immediately set state for lazy loading error
 		if (isLazyLoadingErr) {
 			this.setState({ isLazyLoadingError: true });
+
 			setTimeout(() => {
 				window.location.reload(true);
-			}, 300); // delay to let loader appear
+			}, 300);
+			return;
 		}
 
 		if (window.location.hostname !== 'localhost') {
-			if (isLazyLoadingErr) return;
-
 			const payload = {
 				errorType: error.name,
 				errorMessage: error.message,
