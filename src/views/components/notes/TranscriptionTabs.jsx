@@ -92,7 +92,7 @@ const TranscriptionTabs = ({
 					</button>
 				)}
 
-				{allSuggestions?.length > 0 && (
+				{(allSuggestions?.length > 0 || !history) && (
 					<button
 						className={activeTab === 'all' ? 'notes-tab active' : 'notes-tab'}
 						style={{
