@@ -84,6 +84,7 @@ const GalleryViewer = ({
 	const activeImageId = selectedImage;
 	const hasRunFakeLoading = useRef(true);
 	const navigate = useNavigate();
+	const isThumbnailClicked = useRef(false); // New ref to track thumbnail clicks
 
 	const isLightGallery = searchkeys.get('lite-gallery') === 'true';
 
@@ -297,14 +298,26 @@ const GalleryViewer = ({
 	};
 
 	const activeThumbnailFunction = (id, index) => {
+		isThumbnailClicked.current = true; // Set flag to true when thumbnail is clicked
 		setInfo((prev) => ({
 			...prev,
 			activeImage: id,
 			activeImageIndex: index,
-			imageDetailId: null,
+			imageDetailId: id, // Optionally open image details on thumbnail click
 		}));
-	};
 
+		// Scroll to the selected image in the FullImagesComponent
+		setTimeout(() => {
+			const imageElement = document.getElementById(id);
+			if (imageElement) {
+				imageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			}
+			// Reset the flag after a short delay to allow observer to resume
+			setTimeout(() => {
+				isThumbnailClicked.current = false;
+			}, 1000);
+		}, 100);
+	};
 	const largeImageFunction = (id, index) => {
 		setInfo((prev) => {
 			let options =
@@ -646,6 +659,7 @@ const GalleryViewer = ({
 							selectedImages={selectedImages}
 							isAiFace={aiface}
 							activeImageIndex={info?.activeImageIndex}
+							isThumbnailClicked={isThumbnailClicked}
 						/>
 					)}
 					{/* {info?.imageDetailId && (

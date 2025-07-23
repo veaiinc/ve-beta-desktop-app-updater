@@ -14,6 +14,7 @@ const FullImagesComponent = ({
 	selectedImages,
 	isAiFace,
 	activeImageIndex,
+	isThumbnailClicked,
 }) => {
 	const displayedImages = (isAiFace ? imagesList?.images : imagesList?.docs)?.filter(
 		(image) => selectedImages?.includes(image?._id) || !selectedImages,
@@ -39,12 +40,12 @@ const FullImagesComponent = ({
 		const observerOptions = {
 			root: document.getElementById('activeImageWrapper-target'),
 			rootMargin: '0px',
-			threshold: 0.5, // Trigger when 50% of the image is visible
+			threshold: 0.5, // Trigger when 10% of the image is visible
 		};
 
 		observerRef.current = new IntersectionObserver((entries) => {
-			// Skip observer updates during keyboard navigation
-			if (isKeyNavigating.current) return;
+			// Skip observer updates during thumbnail clicks or keyboard navigation
+			if (isKeyNavigating.current || isThumbnailClicked.current) return;
 
 			entries.forEach((entry) => {
 				if (entry.isIntersecting) {
@@ -71,8 +72,7 @@ const FullImagesComponent = ({
 				observerRef.current.disconnect();
 			}
 		};
-	}, [displayedImages, info.activeImage, setInfo]);
-
+	}, [displayedImages, info.activeImage, setInfo, isThumbnailClicked]);
 	const handleKeyDown = useCallback(
 		(e) => {
 			// Prevent default browser scrolling behavior for arrow keys
