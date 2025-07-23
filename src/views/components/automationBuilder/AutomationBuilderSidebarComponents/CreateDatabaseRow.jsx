@@ -318,6 +318,9 @@ const CreateDatabaseRow = ({
 						style={{
 							cursor: addTriggerLoading ? 'not-allowed' : 'pointer',
 							padding: '12px 24px',
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
 						}}
 						onClick={addTriggerLoading ? null : handleSave}
 						disabled={addTriggerLoading}
