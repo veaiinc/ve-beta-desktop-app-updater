@@ -6,6 +6,7 @@ import './NavbarCompStyles.scss';
 import { ElementSidebar, DownloadIcon, DownloadPDF } from '../../../builder_client_common';
 import CartIcons from '../NabarWrapper/CartIcons';
 import _ from 'lodash';
+import NavbarPopup from '../../elementPopups/NavbarPopup';
 class NavbarComponent extends Component {
 	constructor(props) {
 		super(props);
@@ -480,7 +481,7 @@ class NavbarComponent extends Component {
 										/>
 									)}
 
-									{this.state.hoveredImage && (
+									{/* {this.state.hoveredImage && (
 										<div
 											ref={this.imageRef}
 											className="edit-icon-wrapper"
@@ -488,7 +489,7 @@ class NavbarComponent extends Component {
 										>
 											<Edit />
 										</div>
-									)}
+									)} */}
 								</div>
 							)}
 						</div>
@@ -608,38 +609,11 @@ class NavbarComponent extends Component {
 										)}
 									</div>
 								</div>
-								{this.state.hoveredCart && (
-									<div
-										ref={this.imageRef}
-										className="edit-icon-hover"
-										onClick={() => this.setState({ showCartModal: true })}
-									>
-										<Edit />
-									</div>
-								)}
 							</div>
 						</div>
 					</div>
 				</div>
-				{this.state.showCartModal && (
-					<ElementSidebar
-						ref={this.navbarRef}
-						elementEndPosition={{ x: '80%', y: 125 }}
-						activeType={'mNavbarCart'}
-						noBounds={'.builder'}
-						activePopupComponent={this.props?.section}
-						setActivePopupComponent={(value) => {
-							this.setState(
-								{
-									section: value,
-								},
-								() => {
-									this.props?.setActiveSection(value);
-								},
-							);
-						}}
-					/>
-				)}
+
 				{this.state.showStyleModal && (
 					<ElementSidebar
 						ref={this.navbarRef}
@@ -667,27 +641,6 @@ class NavbarComponent extends Component {
 							});
 						}}
 						showImageModalLibrary={this.state.showImageModalLibrary}
-					/>
-				)}
-				{this.state.showImageModal && (
-					<ElementSidebar
-						ref={this.navbarRef}
-						elementEndPosition={{ x: 100, y: 125 }}
-						activeType={'navImage'}
-						setModalRef={(e) => {
-							this.setState({
-								showImageModalLibrary: e,
-							});
-						}}
-						isWorkflow={this.props.isWorkflow}
-						modules={this.props?.modules}
-						module={this.props.module}
-						noBounds={'.builder'}
-						activePopupComponent={this.props?.section}
-						setActivePopupComponent={(value) => {
-							this.props.setActiveSection(value);
-						}}
-						activeModuleId={this.props?.activeModuleId}
 					/>
 				)}
 			</>

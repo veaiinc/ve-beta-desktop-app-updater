@@ -400,6 +400,11 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: 16px; /* 133.333% */
+				&:hover {
+					background: var(--card-over-card-hover, #27282b);
+					background: var(--card-over-card-hover, color(display-p3 0.1529 0.1569 0.1686));
+					cursor: pointer;
+				}
 				.element_image {
 					height: 100%;
 					width: 100%;
@@ -442,6 +447,14 @@
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
+					&:hover {
+						background: var(--card-over-card-hover, #27282b);
+						background: var(
+							--card-over-card-hover,
+							color(display-p3 0.1529 0.1569 0.1686)
+						);
+						cursor: pointer;
+					}
 				}
 			}
 		}
@@ -607,6 +620,67 @@
 				gap: 16px;
 				flex-wrap: wrap;
 				.cartclick-icon-btn {
+					display: flex;
+					width: 32px;
+					height: 32px;
+					justify-content: center;
+					align-items: center;
+					gap: 9.6px;
+					flex-shrink: 0;
+					border: 0.8px solid var(--stroke, #333334);
+					border: 0.8px solid var(--stroke, color(display-p3 0.2 0.2 0.2039));
+					&.active {
+						border: 0.8px solid var(--primary-font, #f2f2f3);
+						border: 0.8px solid
+							var(--primary-font, color(display-p3 0.949 0.949 0.9529));
+						background: var(--card-over-card-hover, #27282b);
+						background: var(
+							--card-over-card-hover,
+							color(display-p3 0.1529 0.1569 0.1686)
+						);
+					}
+					// &:active {
+					// 	border: 0.8px solid var(--primary-font, #f2f2f3);
+					// 	border: 0.8px solid
+					// 		var(--primary-font, color(display-p3 0.949 0.949 0.9529));
+					// 	background: var(--card-over-card-hover, #27282b);
+					// 	background: var(
+					// 		--card-over-card-hover,
+					// 		color(display-p3 0.1529 0.1569 0.1686)
+					// 	);
+					// }
+				}
+			}
+		}
+		.sectionsub {
+			display: flex;
+			padding: 6px;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			align-self: stretch;
+			.section-title {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 12px;
+				align-self: stretch;
+				color: #f1f1f1;
+				color: color(display-p3 0.9451 0.9451 0.9451);
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 16px; /* 133.333% */
+			}
+			.field-style-options {
+				display: flex;
+				width: 226px;
+				align-items: center;
+				align-content: center;
+				gap: 16px;
+				flex-wrap: wrap;
+				.style-btn {
 					display: flex;
 					width: 32px;
 					height: 32px;
@@ -1231,6 +1305,9 @@
 	font-family: Inter;
 	font-size: 12px;
 	font-weight: 500;
+	&:hover {
+		border-color: #666;
+	}
 }
 
 .upload-box {

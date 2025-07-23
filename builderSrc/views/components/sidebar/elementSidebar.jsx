@@ -13,11 +13,9 @@ import IconPopup from '../library/elementPopups/IconPopup';
 import SmartFieldPopup from '../library/elementPopups/SmartFieldPopup';
 import DividerPopup from '../library/elementPopups/DividerPopup';
 // import NavHiddenPopup from '../library/elementPopups/NavHiddenPopup';
-import NavImagePopup from '../library/elementPopups/NavImagePopup';
 import MenubarPopup from '../library/elementPopups/MenubarPopup';
 import SchedulerPopup from '../library/elementPopups/schedulerPopup';
 import MobileNavHamburger from '../library/elementPopups/MobileHamburgerPopup';
-import MobileNavbarCart from '../library/elementPopups/MobileCartPopup';
 class ElementSidebar extends Component {
 	constructor(props) {
 		super(props);
@@ -345,43 +343,6 @@ class ElementSidebar extends Component {
 							activeModuleId={this.props?.activeModuleId}
 							setModalRef={(e) => this.props?.setModalRef(e)}
 							showImageModalLibrary={this.props.showImageModalLibrary}
-						/>
-					)}
-
-					{this.state?.activeType == 'navImage' && (
-						<NavImagePopup
-							activeComponent={this.state?.activePopupComponent}
-							setActivePopupComponent={(value) => {
-								this.setState(
-									{
-										activePopupComponent: value,
-									},
-									() => {
-										this.props?.setActivePopupComponent(value);
-									},
-								);
-							}}
-							modules={this.props?.modules}
-							module={this.props.module}
-							isWorkflow={this.props.isWorkflow}
-							activeWorkflowModuleId={this.props?.activeWorkflowModuleId}
-							activeModuleId={this.props?.activeModuleId}
-							previewType={this.props.previewType}
-							activeSectionID={this.props.activeSectionID}
-							setModalRef={(e) => this.props?.setModalRef(e)}
-							isMobileNavbar={this.props.isMobileNavbar}
-						/>
-					)}
-
-					{this.state?.activeType === 'mNavbarCart' && (
-						<MobileNavbarCart
-							activeComponent={this.state?.activePopupComponent}
-							setActivePopupComponent={(value) => {
-								this.setState({ activePopupComponent: value }, () => {
-									this.props?.setActivePopupComponent(value);
-								});
-							}}
-							// setMobileNavCart={this.props.setMobileNavCart}
 						/>
 					)}
 					{this.state?.activeType === 'mNavbarHamburger' && (

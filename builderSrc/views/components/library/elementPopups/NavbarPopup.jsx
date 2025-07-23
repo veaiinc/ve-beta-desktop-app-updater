@@ -10,7 +10,7 @@ import { ReactComponent as Hamburger } from '../../library/svgs/Navbar/Hamburger
 import randomize from 'randomatic';
 import _ from 'lodash';
 import { Delete, ElementSidebar } from '../../builder_client_common';
-import NavImagePopup from './NavImagePopup';
+// import NavImagePopup from './NavImagePopup';
 import { ReactComponent as Cart1 } from '../../library/svgs/Navbar/Cart/Cart1.svg';
 import { ReactComponent as Cart2 } from '../../library/svgs/Navbar/Cart/Catrt2.svg';
 import { ReactComponent as Cart3 } from '../../library/svgs/Navbar/Cart/Cart3.svg';
@@ -18,6 +18,13 @@ import { ReactComponent as Cart4 } from '../../library/svgs/Navbar/Cart/Cart4.sv
 import { ReactComponent as Cart5 } from '../../library/svgs/Navbar/Cart/Cart5.svg';
 import { ReactComponent as Cart6 } from '../../library/svgs/Navbar/Cart/Cart6.svg';
 import { ReactComponent as Cart7 } from '../../library/svgs/Navbar/Cart/Cart7.svg';
+import { ReactComponent as Cart8 } from '../svgs/Navbar/Hamburger/Hamburger1.svg';
+import { ReactComponent as Cart9 } from '../svgs/Navbar/Hamburger/Hamberger2.svg';
+import { ReactComponent as Cart10 } from '../svgs/Navbar/Hamburger/Hamberger3.svg';
+import { ReactComponent as Cart11 } from '../svgs/Navbar/Hamburger/Hamberger4.svg';
+import { ReactComponent as Cart12 } from '../svgs/Navbar/Hamburger/Hamburger5.svg';
+import { ReactComponent as Cart13 } from '../svgs/Navbar/Hamburger/Hamburger6.svg';
+import { ReactComponent as Cart14 } from '../svgs/Navbar/Hamburger/Hamburger7.svg';
 import { ReactComponent as Upload } from '../svgs/Navbar/Upload.svg';
 import Cropper from 'react-easy-crop';
 import Images from '../../../../controllers/images';
@@ -32,7 +39,6 @@ class NavbarPopup extends Images {
 			siteTitle: this.props.activeComponent?.style?.siteTitle || '',
 			desktopLogo: null,
 			mobileLogo: null,
-			activeComponent: this.props.activeComponent,
 			showImageProgressBar: false,
 			uploadBatchID: randomize('Aa0', 10),
 			uploadedImageURL: null,
@@ -61,6 +67,7 @@ class NavbarPopup extends Images {
 			cartEnabled: false,
 			style: 'icon',
 			selectedCart: 0,
+			selectedHamburger: 0,
 			selectedBorder: 0,
 			showZero: false,
 			libraryImageType: null,
@@ -75,19 +82,28 @@ class NavbarPopup extends Images {
 			<Cart6 />,
 			<Cart7 />,
 		];
+		this.cartShapes = [
+			<Cart8 />,
+			<Cart9 />,
+			<Cart10 />,
+			<Cart11 />,
+			<Cart12 />,
+			<Cart13 />,
+			<Cart14 />,
+		];
 		this.borderShapes = ['dash', 'square', 'hexagon', 'circle'];
 		this.desktopLogoRef = React.createRef();
 		this.mobileLogoRef = React.createRef();
 		this.cropperRef = React.createRef();
 	}
 
-	componentWillReceiveProps(nextProps) {
+	componentWillReceiveProps = (nextProps) => {
 		if (nextProps.activeComponent !== this.state.activeComponent) {
 			this.setState({
 				activeComponent: nextProps.activeComponent,
 			});
 		}
-	}
+	};
 	handleNavbarStyles = (type, value) => {
 		let newComponent = { ...this.state.activeComponent };
 		if (
@@ -132,9 +148,9 @@ class NavbarPopup extends Images {
 				mCrop: nextProps?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.mImage_settings
 					?.crop,
 
-				zoom: nextProps?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.zoom,
-				mZoom: nextProps?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.mImage_settings
-					?.zoom,
+				// zoom: nextProps?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.zoom,
+				// mZoom: nextProps?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.mImage_settings
+				// 	?.zoom,
 
 				aspect: this.props.isMobileNavbar
 					? nextProps?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings
@@ -163,7 +179,6 @@ class NavbarPopup extends Images {
 
 	//! file upload functions
 	handleDivClick = (e) => {
-		console.log('cliclked');
 		if (this.desktopLogoRef.current) {
 			this.desktopLogoRef.current.click();
 		} else if (this.mobileLogoRef.current) {
@@ -378,125 +393,6 @@ class NavbarPopup extends Images {
 			});
 		}, interval);
 	};
-
-	// handleActiveImageStyles = (type, value) => {
-	// 	let newComponent = { ...this.state.activeComponent };
-	// 	if (type == 'imageURL' || type == 'imgLibrary') {
-	// 		if (this.props.isMobileNavbar) {
-	// 			newComponent = {
-	// 				...newComponent,
-	// 				blocks: [
-	// 					{
-	// 						...newComponent.blocks[0],
-	// 						subBlocks: [
-	// 							{
-	// 								...newComponent.blocks[0].subBlocks[0],
-	// 								mImageURL: value,
-	// 							},
-	// 						],
-	// 					},
-	// 				],
-	// 			};
-	// 		} else {
-	// 			newComponent = {
-	// 				...newComponent,
-	// 				blocks: [
-	// 					{
-	// 						...newComponent.blocks[0],
-	// 						subBlocks: [
-	// 							{
-	// 								...newComponent.blocks[0].subBlocks[0],
-	// 								imageURL: value,
-	// 							},
-	// 						],
-	// 					},
-	// 				],
-	// 			};
-	// 		}
-	// 	} else if (type == 'objectFit') {
-	// 		if (this.props.isMobileNavbar) {
-	// 			newComponent = {
-	// 				...newComponent,
-	// 				blocks: [
-	// 					{
-	// 						...newComponent.blocks[0],
-	// 						subBlocks: [
-	// 							{
-	// 								...newComponent.blocks[0].subBlocks[0],
-	// 								imageURL: value,
-	// 							},
-	// 						],
-	// 					},
-	// 				],
-	// 			};
-	// 		} else {
-	// 			newComponent = {
-	// 				...newComponent,
-	// 				[type]: value,
-	// 			};
-	// 		}
-	// 	} else if (type == 'remove') {
-	// 		if (this.props.isMobileNavbar) {
-	// 			newComponent = {
-	// 				...newComponent,
-	// 				blocks: [
-	// 					{
-	// 						...newComponent.blocks[0],
-	// 						subBlocks: [
-	// 							{
-	// 								...newComponent.blocks[0].subBlocks[0],
-	// 								mImageURL: '',
-	// 								mImage_settings: {
-	// 									crop: {
-	// 										x: 0,
-	// 										y: 0,
-	// 									},
-	// 									zoom: 1,
-	// 									aspect: 1.5,
-	// 								},
-	// 							},
-	// 						],
-	// 					},
-	// 				],
-	// 			};
-	// 		} else {
-	// 			newComponent = {
-	// 				...newComponent,
-	// 				blocks: [
-	// 					{
-	// 						...newComponent.blocks[0],
-	// 						subBlocks: [
-	// 							{
-	// 								...newComponent.blocks[0].subBlocks[0],
-	// 								imageURL: '',
-	// 								image_settings: {
-	// 									crop: {
-	// 										x: 0,
-	// 										y: 0,
-	// 									},
-	// 									zoom: 1,
-	// 									aspect: 1.5,
-	// 								},
-	// 							},
-	// 						],
-	// 					},
-	// 				],
-	// 			};
-	// 		}
-	// 	} else if (type == 'siteTitle') {
-	// 		newComponent.style = newComponent.style || {};
-	// 		newComponent.style.siteTitle = value;
-	// 	}
-	// 	this.setState(
-	// 		{
-	// 			activeComponent: newComponent,
-	// 		},
-	// 		() => {
-	// 			this.props?.setActivePopupComponent(newComponent);
-	// 		},
-	// 	);
-	// };
-
 	handleCropChange = (value) => {
 		if (
 			this.cropperRef.current &&
@@ -556,40 +452,6 @@ class NavbarPopup extends Images {
 			},
 		);
 	};
-	// handleZoomChange = (value) => {
-	// 	const zoomValue = parseFloat(value);
-	// 	const newState = {
-	// 		[this.props.isMobileNavbar ? 'mZoom' : 'zoom']: zoomValue,
-	// 		activeComponent: {
-	// 			...this.state.activeComponent,
-	// 			blocks: [
-	// 				{
-	// 					...this.state.activeComponent.blocks[0],
-	// 					subBlocks: [
-	// 						{
-	// 							...this.state.activeComponent.blocks[0].subBlocks[0],
-	// 							[this.props.isMobileNavbar ? 'mImage_settings' : 'image_settings']:
-	// 								{
-	// 									...this.state.activeComponent.blocks[0].subBlocks[0][
-	// 										this.props.isMobileNavbar
-	// 											? 'mImage_settings'
-	// 											: 'image_settings'
-	// 									],
-	// 									zoom: zoomValue,
-	// 								},
-	// 						},
-	// 					],
-	// 				},
-	// 			],
-	// 		},
-	// 	};
-
-	// 	this.setState(newState, () => {
-	// 		this.debounceFunction(() => {
-	// 			this.props?.setActivePopupComponent(newState.activeComponent);
-	// 		}, 500);
-	// 	});
-	// };
 
 	handleZoomChange = (value) => {
 		let newComponent = { ...this.state.activeComponent };
@@ -636,7 +498,6 @@ class NavbarPopup extends Images {
 				activeComponent: newComponent,
 			},
 			() => {
-				// console.log(this.state.mZoom, this.state.zoom, newComponent, 'jeevan');
 				this.debounceFunction(() => {
 					this.props?.setActivePopupComponent(newComponent);
 				}, 500);
@@ -660,6 +521,24 @@ class NavbarPopup extends Images {
 			};
 		} else {
 			newComponent = { ...newComponent, [key]: value };
+		}
+		this.setState({ activeComponent: newComponent }, () => {
+			this.props?.setActivePopupComponent(newComponent);
+		});
+	};
+
+	handleHamCartGlobalFunction = (type, value) => {
+		console.log(type, value, 'jeevan');
+		let newComponent = { ...this.props.activeComponent };
+		if (type == 'hamburgerIcon' || type == 'thickness') {
+			this.setState({ selectedHamburger: value });
+			// console.log(this.state.selectedHamburger, 'value');
+			newComponent = {
+				...newComponent,
+				style: { ...newComponent.style, [type]: value },
+			};
+		} else {
+			newComponent = { ...newComponent, [type]: value };
 		}
 		this.setState({ activeComponent: newComponent }, () => {
 			this.props?.setActivePopupComponent(newComponent);
@@ -999,25 +878,6 @@ class NavbarPopup extends Images {
 									</p>
 								</div>
 							</div>
-							{/* <div className="element_or">
-								<div className="ortext">Or</div>
-								<div className="line"></div>
-							</div>
-							<div className="element_button_main">
-								<div
-									className="element_button"
-									onClick={() =>
-										this.setState({ showImageModalLibrary: true }, () => {
-											this.props?.setModalRef(
-												this.state.showImageModalLibrary,
-											);
-										})
-									}
-									style={{ cursor: 'pointer' }}
-								>
-									<span className="subheading">Select an Image from Library</span>
-								</div>
-							</div> */}
 						</>
 					)}
 
@@ -1052,7 +912,10 @@ class NavbarPopup extends Images {
 									<input
 										type="checkbox"
 										checked={
-											this.state.activeComponent?.style?.showCart || false
+											this.state.activeComponent?.style?.showCart ||
+											!_.has(this.state.activeComponent?.style, 'showCart')
+												? true
+												: false
 										}
 									/>
 									<span
@@ -1087,7 +950,12 @@ class NavbarPopup extends Images {
 									onClick={() => {
 										this.handleNavbarStyles(
 											'downloadIcon',
-											!this.state.activeComponent?.style?.downloadIcon,
+											!_.has(
+												this.state.activeComponent?.style,
+												'downloadIcon',
+											)
+												? false
+												: !this.state.activeComponent?.style?.downloadIcon,
 										);
 									}}
 								>
@@ -1095,12 +963,11 @@ class NavbarPopup extends Images {
 										type="checkbox"
 										checked={
 											this.state.activeComponent?.style?.downloadIcon ||
-											!_.has(
+											(!_.has(
 												this.state.activeComponent?.style,
 												'downloadIcon',
-											)
-												? true
-												: false
+											) &&
+												true)
 										}
 									/>
 									<span
@@ -1135,7 +1002,9 @@ class NavbarPopup extends Images {
 									onClick={() => {
 										this.handleNavbarStyles(
 											'cartValue',
-											!this.state.activeComponent?.style?.cartValue,
+											!_.has(this.state.activeComponent?.style, 'cartValue')
+												? false
+												: !this.state.activeComponent?.style?.cartValue,
 										);
 									}}
 								>
@@ -1143,9 +1012,11 @@ class NavbarPopup extends Images {
 										type="checkbox"
 										checked={
 											this.state.activeComponent?.style?.cartValue ||
-											!_.has(this.state.activeComponent?.style, 'cartValue')
-												? true
-												: false
+											(!_.has(
+												this.state.activeComponent?.style,
+												'cartValue',
+											) &&
+												true)
 										}
 									/>
 									<span
@@ -1159,7 +1030,7 @@ class NavbarPopup extends Images {
 								</label>
 							</div>
 							<div className="cartclick-style">
-								<span className="cartclick-label">Style's</span>
+								<span className="cartclick-label">Cart Icons</span>
 								<div className="cartclick-icon-options">
 									{this.cartIcons.map((Icon, i) => (
 										<div
@@ -1180,6 +1051,35 @@ class NavbarPopup extends Images {
 									))}
 								</div>
 							</div>
+							{this.props.isMobileNavbar && (
+								<div className="sectionsub">
+									<span className="section-title">Hamburger Icons</span>
+									<div className="field-style-options">
+										{this.cartShapes.map((Icon, i) => (
+											<div
+												key={i}
+												className={`style-btn ${
+													this.props.activeComponent?.style
+														?.hamburgerIcon === i ||
+													(!this.props.activeComponent?.style
+														?.hamburgerIcon &&
+														i === 0)
+														? 'active'
+														: ''
+												}`}
+												onClick={() =>
+													this.handleHamCartGlobalFunction(
+														'hamburgerIcon',
+														i,
+													)
+												}
+											>
+												{Icon}
+											</div>
+										))}
+									</div>
+								</div>
+							)}
 						</>
 					)}
 					{this.state.activeEditDesign === 'design' && (
