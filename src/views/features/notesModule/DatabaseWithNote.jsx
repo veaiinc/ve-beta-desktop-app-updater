@@ -147,7 +147,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	const [info, setInfo] = useState(initialState);
 	const [transcriptList, setTranscriptList] = useState([]);
-	const [activeTab, setActiveTab] = useState(history ? 'transcript' : 'all');
+	const [activeTab, setActiveTab] = useState(
+		history || type === 'desktop' ? 'transcript' : 'all',
+	);
 	const location = useLocation();
 
 	// Add hooks for live intelligence and recall stream
@@ -956,6 +958,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 									files={info?.files}
 									history={history}
 									allSuggestions={info?.allSuggestions}
+									type={type}
 								/>
 							)}
 							{showTranscriptTabs &&

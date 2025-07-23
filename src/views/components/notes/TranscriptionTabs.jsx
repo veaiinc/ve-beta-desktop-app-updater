@@ -9,6 +9,7 @@ const TranscriptionTabs = ({
 	files,
 	history,
 	allSuggestions,
+	type = null,
 }) => {
 	return (
 		<div className="notes-tabs-container">
@@ -21,7 +22,7 @@ const TranscriptionTabs = ({
 					marginBottom: 12,
 				}}
 			>
-				{history && (
+				{(history || type === 'desktop') && (
 					<button
 						className={activeTab === 'transcript' ? 'notes-tab active' : 'notes-tab'}
 						style={{
@@ -92,7 +93,7 @@ const TranscriptionTabs = ({
 					</button>
 				)}
 
-				{(allSuggestions?.length > 0 || !history) && (
+				{allSuggestions?.length > 0 && (
 					<button
 						className={activeTab === 'all' ? 'notes-tab active' : 'notes-tab'}
 						style={{
