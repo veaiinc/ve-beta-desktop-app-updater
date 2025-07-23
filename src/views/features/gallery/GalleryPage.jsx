@@ -23,8 +23,8 @@ import { ReactComponent as LightRoomIcon } from '../../../assets/svg/gallery/lig
 import { ReactComponent as AlbumCoverIcon } from '../../../assets/svg/gallery/albumCoverIcon.svg';
 import { ReactComponent as DeleteIcon } from '../../../assets/svg/gallery/delete-red.svg';
 import { ReactComponent as LockIcon } from '../../../assets/svg/gallery/lockIcon.svg';
-import { ReactComponent as HomeIcon } from '../../../assets/svg/gallery/home.svg';
-import { ReactComponent as RightArrow } from '../../../assets/svg/gallery/rightArrow.svg';
+import { ReactComponent as RightArrow } from '../../../assets/svg/home_page/arrow-right.svg';
+import { ReactComponent as PlusIcon } from '../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as ToastSuccess } from '../../../assets/svg/gallery/toastSuccess.svg';
 import { ReactComponent as ToastWarning } from '../../../assets/svg/gallery/toastWarning.svg';
 import { ReactComponent as ToastError } from '../../../assets/svg/gallery/toastError.svg';
@@ -72,6 +72,7 @@ import { ReactComponent as SelectModeIcon } from '../../../assets/svg/gallery/se
 import { getThumbnailUrl } from '../../../helpers/videoThumbnailHelpers';
 import GalleryVideos from '../../components/gallery/galleryVideos/GalleryVideos';
 import { ReactComponent as ChevronLeft } from '../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as MoveToIcon } from '../../../assets/svg/gallery/moveToIcon.svg';
 // const workspaceId = localStorage.getItem('workspaceId');
 
 const dummyImagesArray = Array.from({ length: 10 }, () => ({ isPlaceholderImg: true }));
@@ -350,6 +351,7 @@ const GalleryPage = () => {
 		videoUploaded: false,
 		thumbnailUrls: {},
 		selectedScreenType: 'desktop',
+		selectedAlbumToMove: null,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -5922,6 +5924,107 @@ const GalleryPage = () => {
 										</div>
 									</Tooltip>
 								)}
+								<Tooltip
+									title={
+										<div className="listAlbumsContainer">
+											<div className="moveToAlbumTitleContainer">
+												<span className="moveToAlbumOptionsContainer">
+													<span className="moveToAlbumTitle">
+														{' '}
+														Move {
+															info.selectedImages.length
+														} images{' '}
+													</span>
+													<RightArrow
+														onClick={() =>
+															handleMoveImageToAlbum(
+																info?.selectedAlbumToMove,
+															)
+														}
+													/>
+												</span>
+											</div>
+											{sortByCustomIndex(albumImagesCount?.albums)?.map(
+												(album, index) => {
+													let src = null;
+													if (album?.coverImage?._id) {
+														const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+														src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
+													}
+													return (
+														<div
+															className={`albumCard ${
+																info.selectedAlbumId === album?._id
+																	? 'active'
+																	: ''
+															}`}
+															onClick={() =>
+																handleAlbumClick(album?._id)
+															}
+														>
+															<div className="albumCardContent">
+																<div
+																	style={{
+																		backgroundImage: `url(${src})`,
+																		backgroundSize: 'cover',
+																		backgroundPosition:
+																			'center',
+																		backgroundRepeat:
+																			'no-repeat',
+																		width: '24px',
+																		height: '24px',
+																		borderRadius: '50%',
+																		backgroundColor:
+																			'var(--background-color)',
+																	}}
+																></div>
+																<p className="albumName">
+																	{album?.title}
+																</p>
+															</div>
+															<Checkbox
+																className="custom-checkbox-style"
+																onChange={() =>
+																	setInfo((prev) => ({
+																		...prev,
+																		selectedAlbumToMove:
+																			album?._id,
+																	}))
+																}
+																checked={
+																	info.selectedAlbumToMove ===
+																	album?._id
+																}
+															/>
+														</div>
+													);
+												},
+											)}
+											<div
+												className="createAlbumContainer"
+												onClick={() =>
+													setInfo((prev) => ({
+														...prev,
+														showCreateAlbum: true,
+													}))
+												}
+											>
+												<PlusIcon />
+												<span className="createAlbumText">
+													Create Album
+												</span>
+											</div>
+										</div>
+									}
+									placement="top"
+									arrow={false}
+									color="transparent"
+									trigger={'click'}
+								>
+									<div>
+										<MoveToIcon />
+									</div>
+								</Tooltip>
 								<div style={{ position: 'relative' }} ref={pinIconRef}>
 									<PinIcon onClick={handlePinIcon} />
 									{info.showPin && (
