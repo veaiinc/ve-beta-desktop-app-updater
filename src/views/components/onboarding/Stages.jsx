@@ -596,9 +596,11 @@ const Stages = ({ onNext }) => {
 										<Skeleton
 											width="100%"
 											height="41px"
-											baseColor="var(--card)"
-											highlightColor="var(--stroke)"
-											style={{ borderRadius: '8px' }}
+											style={{
+												'--highlight-color': 'gray',
+												'--base-color': 'transparent',
+												borderRadius: '8px',
+											}}
 										/>
 									) : (
 										<div className="nameInputAndProfilePictureContainer">
@@ -690,13 +692,17 @@ const Stages = ({ onNext }) => {
 										<p className="question">Enter your phone number</p>
 										<div className="phoneInputContain">
 											{info?.userDetailsLoading ? (
-												<Skeleton
-													width="100%"
-													height="41px"
-													baseColor="var(--card)"
-													highlightColor="var(--stroke)"
-													style={{ borderRadius: '8px' }}
-												/>
+												<span style={{ width: '100%' }}>
+													<Skeleton
+														width="100%"
+														height="41px"
+														style={{
+															'--highlight-color': 'gray',
+															'--base-color': 'transparent',
+															borderRadius: '8px',
+														}}
+													/>
+												</span>
 											) : (
 												<PhoneInput
 													placeholder="Enter phone number"
