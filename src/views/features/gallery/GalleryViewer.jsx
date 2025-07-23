@@ -126,7 +126,7 @@ const GalleryViewer = ({
 		imageDetailId: null,
 		showDeleteAlbum: false,
 		fakeLoading: false,
-		imageScalling: 0.9,
+		imageScalling: 1,
 		searchInput: '',
 		showLabels: true,
 		facesLoading: false,

@@ -31,7 +31,7 @@ const FullImagesComponent = ({
 		setDragOffset({ x: 0, y: 0 });
 		setInfo((prev) => ({
 			...prev,
-			imageScalling: 0.9,
+			imageScalling: 1,
 		}));
 	}, [info?.activeImage, setInfo]);
 
@@ -193,7 +193,7 @@ const FullImagesComponent = ({
 							const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 							const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
 							const isActive = image?._id === info?.activeImage;
-							const scale = isActive ? info?.imageScalling || 0.9 : 0.9;
+							const scale = isActive ? info?.imageScalling || 1 : 1;
 							const translateX = isActive ? dragOffset.x : 0;
 							const translateY = isActive ? dragOffset.y : 0;
 
@@ -273,7 +273,6 @@ const FullImagesComponent = ({
 											cursor: scale > 1 && isActive ? 'grab' : 'default',
 											userSelect: 'none',
 											maxWidth: '100%',
-											maxHeight: '90vh',
 										}}
 										draggable={false}
 										onClick={() => largeImageFunction(image?._id, index)}

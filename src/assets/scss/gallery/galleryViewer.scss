@@ -161,6 +161,9 @@
 					object-fit: contain;
 					border-radius: 24px;
 					cursor: pointer;
+					@media (max-width: 1440px) {
+						max-height: 65vh;
+					}
 				}
 			}
 		}
