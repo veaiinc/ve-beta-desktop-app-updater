@@ -9,7 +9,12 @@ import s from './agentShare.module.scss';
 const AgentShareComponent = ({ agentId, activeKnowledgeAssistant }) => {
 	const {
 		companyInfo: { getTeamMembers, tenantsUserList },
-		knowledgeAgent: { addSharedAgentUser, removeSharedAgentUser, updateSharedAgentUser },
+		knowledgeAgent: {
+			addSharedAgentUser,
+			removeSharedAgentUser,
+			updateSharedAgentUser,
+			getSharedAgentUsers,
+		},
 		profileInfo: { tennantSettingsData },
 	} = useContext(Context);
 
@@ -24,33 +29,56 @@ const AgentShareComponent = ({ agentId, activeKnowledgeAssistant }) => {
 		globalAccessDropdown: false,
 		tenantUsers: [],
 		tenantUserLoading: false,
+		sharedUsers: [],
+		currentUserId: null,
 	});
 
-	const [currentUserId, setCurrentUserId] = useState(null);
-	const { agentId: urlAgentId } = useParams();
-	const finalAgentId = agentId || urlAgentId;
+	const globalAccess = activeKnowledgeAssistant?.data?.globalAccess || {
+		isEnabled: false,
+		access: 'view',
+	};
 
-	// Get shared users from activeKnowledgeAssistant
-	const sharedUsers = activeKnowledgeAssistant?.data?.sharedWith || [];
+	const { agentId: urlAgentId } = useParams();
+	const finalAgentId = urlAgentId;
 
 	useEffect(() => {
 		const token = localStorage.getItem('usertoken');
 		const { user_id } = jwtDecode(token);
-		setCurrentUserId(user_id);
+		handleInfoChange({ currentUserId: user_id });
 	}, []);
+
+	useEffect(() => {
+		if (finalAgentId) {
+			fetchSharedUsers();
+		}
+	}, [finalAgentId]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
 			getTeamMembers();
 		} else {
-			const formattedUsers = filterUsers(tenantsUserList, sharedUsers);
+			const formattedUsers = filterUsers(tenantsUserList, info.sharedUsers);
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				tenantUsers: formattedUsers,
 				tenantUserLoading: false,
 			}));
 		}
-	}, [sharedUsers]);
+	}, [tenantsUserList, info.sharedUsers]);
+
+	const fetchSharedUsers = async () => {
+		try {
+			const response = await getSharedAgentUsers(finalAgentId);
+			if (response?.[0]) {
+				handleInfoChange({ sharedUsers: response?.[1] || [] });
+			} else {
+				handleInfoChange({ sharedUsers: [] });
+			}
+		} catch (error) {
+			console.error('Error fetching shared users:', error);
+			handleInfoChange({ sharedUsers: [] });
+		}
+	};
 
 	const handleInfoChange = (data) => {
 		setInfo((prev) => ({
@@ -111,6 +139,8 @@ const AgentShareComponent = ({ agentId, activeKnowledgeAssistant }) => {
 			}));
 
 			message.success('Members added successfully');
+			// Refresh shared users after adding members
+			await fetchSharedUsers();
 			return true;
 		} catch (error) {
 			message.error('Failed to add members');
@@ -125,6 +155,8 @@ const AgentShareComponent = ({ agentId, activeKnowledgeAssistant }) => {
 				const response = await removeSharedAgentUser(finalAgentId, userId);
 				if (response?.[0]) {
 					message.success('User removed successfully');
+					// Refresh shared users after removing user
+					await fetchSharedUsers();
 				} else {
 					message.error('Failed to remove user');
 				}
@@ -140,6 +172,8 @@ const AgentShareComponent = ({ agentId, activeKnowledgeAssistant }) => {
 				const response = await addSharedAgentUser(finalAgentId, payload);
 				if (response?.[0]) {
 					message.success('Access updated successfully');
+					// Refresh shared users after updating access
+					await fetchSharedUsers();
 				} else {
 					message.error('Failed to update access');
 				}
@@ -149,15 +183,17 @@ const AgentShareComponent = ({ agentId, activeKnowledgeAssistant }) => {
 		}
 	};
 
-	const handleGlobalAccessUpdate = async (input) => {
+	const handleGlobalAccessUpdate = async (isEnabled, access = 'view') => {
 		try {
 			const payload = {
-				isEnabled: input,
-				access: 'view', // Default access for global
+				isEnabled,
+				...(isEnabled && { access }),
 			};
 			const response = await updateSharedAgentUser(finalAgentId, payload);
 			if (response?.[0]) {
 				message.success('Global access updated');
+				// Refresh shared users after updating global access
+				await fetchSharedUsers();
 			} else {
 				message.error('Failed to update global access');
 			}
@@ -226,12 +262,12 @@ const AgentShareComponent = ({ agentId, activeKnowledgeAssistant }) => {
 				accessType={info.accessType}
 				onAccessTypeChange={(value) => handleInfoChange({ accessType: value })}
 				// Members list
-				membersWithAccess={sharedUsers}
+				membersWithAccess={info.sharedUsers}
 				onAccessChange={handleChangeAccess}
-				currentUserId={currentUserId}
+				currentUserId={info.currentUserId}
 				// Global access
 				showGlobalAccess={true}
-				globalAccess={{ isEnabled: false, access: 'view' }}
+				globalAccess={globalAccess}
 				onGlobalAccessChange={handleGlobalAccessUpdate}
 				isGlobalAccessDropdownOpen={info.globalAccessDropdown}
 				onGlobalAccessDropdownChange={(value) =>

@@ -1147,7 +1147,7 @@ export const KnowledgeAgentState = () => {
 		const workspaceId = localStorage.getItem('workspaceId');
 		const usertoken = localStorage.getItem('usertoken');
 		const url = `/${workspaceId}/knowledge-agents/${agentId}/remove-shared-user/${userId}`;
-		const response = await service?.fetchDelete(url, usertoken, 'ai_assistant_api');
+		const response = await service?.fetchDelete(url, usertoken, null, 'ai_assistant_api');
 		return response;
 	};
 
@@ -1162,7 +1162,7 @@ export const KnowledgeAgentState = () => {
 	const getSharedAgentUsers = async (agentId) => {
 		const workspaceId = localStorage.getItem('workspaceId');
 		const usertoken = localStorage.getItem('usertoken');
-		const url = `/${workspaceId}/knowledge-agents/${agentId}/shared-users`;
+		const url = `/${workspaceId}/knowledge-agents/${agentId}/list-shared-users`;
 		const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
 		return response;
 	};
