@@ -3,6 +3,7 @@ import { memo } from 'react';
 import { insertImage } from './ImageComponent';
 import { insertDatabase } from './Database';
 import { filterSuggestionItems } from '@blocknote/core';
+import SlashMenuComponent from './SlashMenuComponent';
 
 const SlashMenu = ({ editor, noteId }) => {
 	const getItems = async (query) => {
@@ -28,7 +29,13 @@ const SlashMenu = ({ editor, noteId }) => {
 		// Return filtered items based on the query
 		return filterSuggestionItems(defaultItems, query);
 	};
-	return <SuggestionMenuController triggerCharacter={'/'} getItems={getItems} />;
+	return (
+		<SuggestionMenuController
+			triggerCharacter={'/'}
+			getItems={getItems}
+			suggestionMenuComponent={SlashMenuComponent}
+		/>
+	);
 };
 
 export default memo(SlashMenu);

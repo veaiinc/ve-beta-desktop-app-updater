@@ -1,6 +1,7 @@
 .bn-container[data-color-scheme] {
 	--bn-colors-editor-text: var(--primary-font); /* Set your desired text color */
 	--bn-colors-placeholder-text: var(--secondary-font);
+	--bn-font-family: var(--primary-font-family);
 	--bn-colors-tooltip-text: var(--primary-font);
 	--bn-colors-tooltip-background: var(--card);
 	--bn-colors-menu-text: var(--primary-font);
@@ -34,11 +35,11 @@
 		flex-shrink: 0;
 		align-self: stretch;
 		border-right: 1px solid var(--stroke, #2c2d2e);
-		background: var(--popup, #18191b);
+		background: var(--card, #18191b);
 
 		.headerInfo,
 		.nonActiveQuestionsContainer {
-			background: var(--popup, #18191b) !important;
+			background: var(--card, #18191b) !important;
 		}
 	}
 
@@ -60,7 +61,7 @@
 		align-items: center;
 		flex-shrink: 0;
 		height: 64px;
-		background: var(--popup, #18191b);
+		background: var(--card, #18191b);
 
 		.notes-nav-left {
 			align-items: center;
@@ -292,20 +293,20 @@
 		flex-direction: column;
 		align-items: center;
 		flex-grow: 1;
+		gap: 48px;
 		overflow-y: auto;
 
 		.notes-cover-image-container {
 			width: 100%;
 			height: fit-content;
-			margin-top: 8px;
 			position: relative;
 
 			img {
 				display: block;
 				object-fit: cover;
 				width: 100%;
-				height: 280px;
-				max-height: 280px;
+				height: 160px;
+				max-height: 160px;
 				object-position: center 60%;
 			}
 
@@ -341,50 +342,12 @@
 		}
 
 		.notes-editor-wrapper {
-			margin-top: 12px;
 			display: flex;
 			width: 90%;
 			flex-direction: column;
 			align-items: flex-start;
-			gap: 18px;
+			gap: 24px;
 			flex-grow: 1;
-			overflow-y: auto;
-
-			.notes-icon-container {
-				width: 100%;
-				position: relative;
-
-				.notes-icon-wrapper {
-					position: absolute;
-					width: 100px;
-					display: flex;
-					justify-content: center;
-					align-items: center;
-					z-index: 1000;
-					font-size: 94px;
-
-					.remove-icon-btn-container {
-						position: absolute;
-						right: -6px;
-						top: -62px;
-						cursor: pointer;
-					}
-				}
-			}
-
-			.notes-title {
-				margin: 0;
-				padding: 0;
-				color: var(--primary-font);
-				font-family: var(--primary-font-family);
-				font-size: 40px;
-				font-style: normal;
-				font-weight: 600;
-				line-height: 40px; /* 125% */
-				border: none;
-				width: 100%;
-				background-color: transparent;
-			}
 
 			.bn-container {
 				width: 100% !important;
@@ -432,9 +395,19 @@
 				p.bn-inline-content {
 					color: var(--primary-font);
 					font-family: var(--primary-font-family);
-					font-size: 16px;
+					font-size: 15px;
 					font-style: normal;
 					font-weight: 400;
+				}
+
+				blockquote.bn-inline-content {
+					color: #f2f2f3;
+					font-family: Inter;
+					font-size: 15px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 26px; /* 173.333% */
+					letter-spacing: 0.2px;
 				}
 
 				.bn-block-outer:not([data-prev-type])
