@@ -23,6 +23,13 @@
 		top: 0;
 
 		width: 100%;
+		.logout-btn {
+			cursor: pointer;
+			svg {
+				width: 24px;
+				height: 24px;
+			}
+		}
 	}
 	.progressBar {
 		display: flex;
@@ -150,7 +157,7 @@
 			.stages-container {
 				padding: 32px 20px;
 				max-width: 580px;
-				margin-left: 316px;
+				margin-left: 0;
 			}
 			.knowEachOtherStepContainer {
 				max-width: 580px;
