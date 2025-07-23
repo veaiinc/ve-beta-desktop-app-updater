@@ -44,6 +44,7 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange, isDatabase = false }) =>
 	});
 
 	useEffect(() => {
+		setInfo((prevInfo) => ({ ...prevInfo, loading: true }));
 		fetchNotes({ page: 1 });
 	}, [info?.selectedFilter?.value, info?.selectedSort, isDatabase]);
 
@@ -163,6 +164,8 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange, isDatabase = false }) =>
 			await getNotesList(payload, append, isDatabase);
 		} catch (error) {
 			console.error('Error fetching notes:', error);
+		} finally {
+			setInfo((prevInfo) => ({ ...prevInfo, loading: false }));
 		}
 	};
 
@@ -238,7 +241,11 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange, isDatabase = false }) =>
 								<div
 									className="card-item notes-grid-container tooltip"
 									key={index}
-									onClick={() => navigate(`/note/${note?._id}`)}
+									onClick={() =>
+										navigate(
+											`/note/${note?._id}${isDatabase ? '/database' : ''}`,
+										)
+									}
 									data-tooltip={note?.title}
 								>
 									<div className="card-item-style content-wrapper note-card-content">

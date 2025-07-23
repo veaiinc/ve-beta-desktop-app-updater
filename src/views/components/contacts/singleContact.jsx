@@ -8,9 +8,11 @@ import '../../../assets/scss/contacts/singleContact.scss';
 import DocsGrid from '../files/DocsGrid';
 import ActivityContact from './ActivityContact';
 import OverviewContact from './overViewContact';
+import { statusTextmapper } from '../../features/files/Files';
 
 const SingleContact = ({ selectedContact, selectedOptions }) => {
 	const navigate = useNavigate();
+	const [viewMode, setViewMode] = useState('card');
 
 	// const handleTotalChange = (data) => {
 	// 	setInfo((prevInfo) => ({ ...prevInfo, totalCount: data }));
@@ -47,9 +49,12 @@ const SingleContact = ({ selectedContact, selectedOptions }) => {
 			{selectedOptions === 'Files' && (
 				<DocsGrid
 					// handleTotalChange={handleTotalChange}
+					statusTextmapper={statusTextmapper}
 					clientId={selectedContact?._id}
 					handleDocClick={handleDocClick}
 					handleCreateDoc={handleCreateDoc}
+					viewMode={viewMode}
+					setViewMode={setViewMode}
 				/>
 			)}
 		</div>
