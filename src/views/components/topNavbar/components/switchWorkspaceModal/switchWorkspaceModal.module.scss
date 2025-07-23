@@ -115,6 +115,15 @@
 		display: flex;
 		flex-direction: column;
 
+		.emptyWorkspaceList {
+			color: var(--secondary-font, #94989e);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
 		.workspaceItem {
 			display: flex;
 			padding: 12px;
