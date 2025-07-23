@@ -18,7 +18,7 @@
 	}
 	.closeGallery-left {
 		display: flex;
-		justify-content: space-between;
+		justify-content: flex-start;
 		width: 100%;
 		align-items: center;
 		.imageAlbumTabsContainer {
@@ -27,12 +27,15 @@
 			align-items: center;
 			gap: 10px;
 			width: 100%;
+			max-width: 70vw;
+			overflow-x: auto;
 			.eachAlbumTab {
 				display: flex;
 				padding: 12px 8px;
 				justify-content: center;
 				align-items: center;
 				gap: 6px;
+				flex-shrink: 0;
 				cursor: pointer;
 
 				&.active {
@@ -109,10 +112,12 @@
 			scroll-snap-align: center;
 			flex-shrink: 0;
 			border: 3px solid transparent;
+			opacity: 0.7;
 			&.active {
 				border: 3px solid var(--primary-button);
 				border-radius: 8px;
 				padding: 2px;
+				opacity: 1;
 			}
 		}
 		// border: 1px solid blue;
@@ -127,6 +132,7 @@
 		width: 90vw;
 		overflow-x: scroll;
 		position: relative;
+		background-color: var(--card);
 
 		.activeImageWrapper {
 			display: flex;
@@ -148,6 +154,7 @@
 				background-color: var(--card);
 				scroll-snap-align: center;
 				flex-shrink: 0;
+
 				img {
 					width: 100%;
 					max-height: 78vh;
@@ -443,8 +450,8 @@
 }
 .imageSelectedPeopleContainer {
 	position: absolute;
-	bottom: 10px;
-	left: 20px;
+	bottom: 6px;
+	left: 6px;
 	display: flex;
 	padding: 12px;
 	justify-content: center;
@@ -471,5 +478,6 @@
 	gap: 6px;
 	border-radius: 4px;
 	background: var(--card);
+	flex-wrap: wrap;
 	backdrop-filter: blur(50px);
 }

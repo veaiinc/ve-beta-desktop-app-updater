@@ -71,6 +71,7 @@ import { ReactComponent as ArrowSvg } from '../../../assets/svg/file/arrow.svg';
 import { ReactComponent as SelectModeIcon } from '../../../assets/svg/gallery/selectModeIcon.svg';
 import { getThumbnailUrl } from '../../../helpers/videoThumbnailHelpers';
 import GalleryVideos from '../../components/gallery/galleryVideos/GalleryVideos';
+import { ReactComponent as ChevronLeft } from '../../../assets/svg/tasks/chevronRightThin.svg';
 // const workspaceId = localStorage.getItem('workspaceId');
 
 const dummyImagesArray = Array.from({ length: 10 }, () => ({ isPlaceholderImg: true }));
@@ -3760,7 +3761,7 @@ const GalleryPage = () => {
 	return (
 		<>
 			<div className="galleryContainer">
-				{!info?.isRearranging && (
+				{/* {!info?.isRearranging && (
 					<div className="galleryTitleWhenScrolled">
 						<span onClick={() => navigate('/home')} className="homeIcon">
 							<HomeIcon />
@@ -3776,7 +3777,7 @@ const GalleryPage = () => {
 							Files
 						</span>
 					</div>
-				)}
+				)} */}
 				{info?.isRearranging ? (
 					<div className="galleryRearrangingContainer">
 						<div className="galleryRearrangingImageContainer">
@@ -3830,6 +3831,17 @@ const GalleryPage = () => {
 						<div className="albumsContianer">
 							<div className="galleryContentContainer">
 								<div className="content">
+									<div
+										className="rightArrowIcon"
+										onClick={handleBackNavigation}
+										style={{ cursor: 'pointer' }}
+									>
+										<ChevronLeft
+											style={{ transform: 'rotate(180deg)' }}
+											height="20px"
+											width="20px"
+										/>
+									</div>
 									<div className="galleryPic">
 										<div className="galleryHeaderColumn">
 											<div
@@ -4186,12 +4198,24 @@ const GalleryPage = () => {
 																					height: '100%',
 																					backgroundRepeat:
 																						'no-repeat',
-																					backgroundColor:
-																						'#ccc',
 																					borderRadius:
 																						'12px',
 																				}}
 																			/>
+																			{!album?.coverImage
+																				?._id && (
+																				<AlbumCoverIcon
+																					style={{
+																						position:
+																							'absolute',
+																						top: '50%',
+																						left: '50%',
+																						transform:
+																							'translate(-50%, -50%)',
+																					}}
+																					color="var(--secondary-font)"
+																				/>
+																			)}
 
 																			{!isActive && (
 																				<div className="albumOverlay" />
@@ -5118,7 +5142,7 @@ const GalleryPage = () => {
 										}
 										resetInfinityScroll={info?.resetInfinityScroll}
 										disableDrop={true}
-										height={'83vh'}
+										height={'90vh'}
 									>
 										{!info.isRearranging ? (
 											<ResponsiveMasonry

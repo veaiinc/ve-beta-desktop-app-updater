@@ -368,6 +368,7 @@
 				.content {
 					display: flex;
 					gap: 16px;
+					align-items: center;
 					.galleryHeaderColumn {
 						display: flex;
 						flex-direction: row;
@@ -719,10 +720,8 @@
 					height: 120px;
 					position: relative;
 					border-radius: 16px;
-					// border: 1px solid var(--stroke);
 					overflow: hidden;
 					background-size: cover !important;
-					background: var(--card-over-card);
 					// height: 100%;
 					&:hover {
 						img {
@@ -772,7 +771,11 @@
 						left: 0px;
 						bottom: 0px;
 						border-radius: 10px;
-						background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000 100%);
+						background: linear-gradient(
+							180deg,
+							rgba(0, 0, 0, 0) 0%,
+							var(--image-backdrop, rgba(45, 45, 45, 0.8)) 100%
+						);
 						padding-bottom: 12px;
 						padding-left: 12px;
 						p {

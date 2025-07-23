@@ -112,6 +112,7 @@ const GalleryViewer = ({
 			aiFaceImages,
 			tenantAlbums,
 			albumImagesCount,
+			getAlbumCount,
 		},
 	} = useContext(Context);
 
@@ -124,7 +125,7 @@ const GalleryViewer = ({
 		imageDetailId: null,
 		showDeleteAlbum: false,
 		fakeLoading: false,
-		imageScalling: 1,
+		imageScalling: 0.9,
 		searchInput: '',
 		showLabels: true,
 		facesLoading: false,
@@ -358,36 +359,44 @@ const GalleryViewer = ({
 		(image) => selectedImages?.includes(image?._id) || !selectedImages,
 	);
 	const handleNavigation = (direction) => {
-		setInfo((prev) => {
-			if (!displayedImages || displayedImages.length === 0) return prev;
+		if (!displayedImages || displayedImages.length === 0) return;
 
-			let newIndex = prev.activeImageIndex;
+		let newIndex = info.activeImageIndex;
 
-			if (direction === 'prev') {
-				newIndex = Math.max(prev.activeImageIndex - 1, 0);
-			} else if (direction === 'next') {
-				newIndex = Math.min(prev.activeImageIndex + 1, displayedImages.length - 1);
-			}
+		if (direction === 'prev') {
+			newIndex = Math.max(info.activeImageIndex - 1, 0);
+		} else if (direction === 'next') {
+			newIndex = Math.min(info.activeImageIndex + 1, displayedImages.length - 1);
+		}
 
-			const newImage = displayedImages[newIndex];
+		const newImage = displayedImages[newIndex];
+		if (!newImage) return;
 
-			return {
-				...prev,
-				activeImageIndex: newIndex,
-				activeImage: newImage?._id || prev.activeImage, // fallback if image not found
-			};
-		});
+		setInfo((prev) => ({
+			...prev,
+			activeImage: newImage._id,
+			activeImageIndex: newIndex,
+		}));
 
-		// Optional: Scroll to the new image
+		// Scroll to the newly selected image
 		setTimeout(() => {
-			const newImage = displayedImages[newIndex];
-			const imageElement = document.getElementById(newImage?._id);
-
+			const imageElement = document.getElementById(newImage._id);
 			if (imageElement) {
 				imageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
 			}
 		}, 100);
+
+		// Optionally trigger `fetchMoreImages()` if at end
+		if (
+			direction === 'next' &&
+			newIndex === displayedImages.length - 1 &&
+			!selectedImages &&
+			imagesList?.hasNextPage
+		) {
+			fetchMoreImages();
+		}
 	};
+
 	const handleAlbumClick = (album) => {
 		setInfo((prev) => ({
 			...prev,
@@ -425,6 +434,7 @@ const GalleryViewer = ({
 		};
 		if (isTagSelected) {
 			addTagToImage(payload, activeGalleryId, activeAlbumId, tagId);
+			getAlbumCount(activeGalleryId, activeAlbumId);
 		} else {
 			removeTagFromImage(payload, activeGalleryId, activeAlbumId, tagId);
 		}
@@ -499,37 +509,41 @@ const GalleryViewer = ({
 							style={{ transform: 'rotate(180deg)', height: '24px', width: '24px' }}
 						/>
 						<div className="imageAlbumTabsContainer">
-							{albumImagesCount?.albums?.map((album) => {
-								let src = null;
-								if (album?.coverImage?._id) {
-									const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-									src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${activeGalleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
-								}
-								return (
-									<span
-										key={album._id}
-										className={`eachAlbumTab ${
-											activeAlbumId === album?._id ? 'active' : ''
-										}`}
-										onClick={() => handleAlbumClick(album)}
-									>
-										{album?.coverImage?._id && (
-											<img
-												src={src}
-												alt="album-cover"
-												style={{
-													width: '24px',
-													height: '24px',
-													borderRadius: '50%',
-													overflow: 'hidden',
-												}}
-											/>
-										)}
-										<span className="eachAlbumDetails">{album.title}</span>
-										<span className="eachAlbumCount">{album.imagesCount}</span>
-									</span>
-								);
-							})}
+							{albumImagesCount?.albums
+								?.filter((album) => album.imagesCount > 0) // Only include albums with images
+								.map((album) => {
+									let src = null;
+									if (album?.coverImage?._id) {
+										const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+										src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${activeGalleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
+									}
+									return (
+										<span
+											key={album._id}
+											className={`eachAlbumTab ${
+												activeAlbumId === album?._id ? 'active' : ''
+											}`}
+											onClick={() => handleAlbumClick(album)}
+										>
+											{album?.coverImage?._id && (
+												<img
+													src={src}
+													alt="album-cover"
+													style={{
+														width: '24px',
+														height: '24px',
+														borderRadius: '50%',
+														overflow: 'hidden',
+													}}
+												/>
+											)}
+											<span className="eachAlbumDetails">{album.title}</span>
+											<span className="eachAlbumCount">
+												{album.imagesCount}
+											</span>
+										</span>
+									);
+								})}
 						</div>
 					</div>
 					<div className="closeGallery-right">
@@ -746,7 +760,11 @@ const GalleryViewer = ({
 						/>
 						<span className="currentImageCountContainerText">
 							{info?.activeImageIndex + 1} /{' '}
-							{aiface ? aiFaceImages?.totalDocs : imagesList?.totalDocs}
+							{!currentSelectedImages
+								? aiface
+									? aiFaceImages?.totalDocs
+									: imagesList?.totalDocs
+								: displayedImages?.length}
 						</span>
 						<ChevronLeft
 							onClick={() => handleNavigation('next')}

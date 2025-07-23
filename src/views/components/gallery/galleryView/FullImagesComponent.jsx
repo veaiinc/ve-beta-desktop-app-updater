@@ -23,13 +23,14 @@ const FullImagesComponent = ({
 	const [dragStart, setDragStart] = useState(null);
 	const imageContainerRef = useRef({});
 	const observerRef = useRef(null);
+	const isKeyNavigating = useRef(false); // Flag to track if navigation is via keyboard
 
 	// Reset zoom and drag on active image change
 	useEffect(() => {
 		setDragOffset({ x: 0, y: 0 });
 		setInfo((prev) => ({
 			...prev,
-			imageScalling: 1,
+			imageScalling: 0.9,
 		}));
 	}, [info?.activeImage, setInfo]);
 
@@ -42,6 +43,9 @@ const FullImagesComponent = ({
 		};
 
 		observerRef.current = new IntersectionObserver((entries) => {
+			// Skip observer updates during keyboard navigation
+			if (isKeyNavigating.current) return;
+
 			entries.forEach((entry) => {
 				if (entry.isIntersecting) {
 					const imageId = entry.target.id;
@@ -71,9 +75,16 @@ const FullImagesComponent = ({
 
 	const handleKeyDown = useCallback(
 		(e) => {
+			// Prevent default browser scrolling behavior for arrow keys
+			if (['ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown'].includes(e.key)) {
+				e.preventDefault();
+			}
+
 			const currentIndex = info.activeImageIndex || 0;
 			const nextIndex = Math.min(currentIndex + 1, displayedImages.length - 1);
 			const prevIndex = Math.max(currentIndex - 1, 0);
+
+			isKeyNavigating.current = true; // Set flag to disable IntersectionObserver
 
 			if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
 				const prevImage = displayedImages[prevIndex];
@@ -83,10 +94,16 @@ const FullImagesComponent = ({
 						activeImage: prevImage._id,
 						activeImageIndex: prevIndex,
 					}));
-					document.getElementById(prevImage._id)?.scrollIntoView({
-						behavior: 'smooth',
-						block: 'center',
-						inline: 'center',
+					requestAnimationFrame(() => {
+						document.getElementById(prevImage._id)?.scrollIntoView({
+							behavior: 'smooth',
+							block: 'center',
+							inline: 'center',
+						});
+						// Reset the flag after scroll completes (approximate duration)
+						setTimeout(() => {
+							isKeyNavigating.current = false;
+						}, 500); // Adjust based on smooth scroll duration
 					});
 				}
 			} else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
@@ -97,10 +114,16 @@ const FullImagesComponent = ({
 						activeImage: nextImage._id,
 						activeImageIndex: nextIndex,
 					}));
-					document.getElementById(nextImage._id)?.scrollIntoView({
-						behavior: 'smooth',
-						block: 'center',
-						inline: 'center',
+					requestAnimationFrame(() => {
+						document.getElementById(nextImage._id)?.scrollIntoView({
+							behavior: 'smooth',
+							block: 'center',
+							inline: 'center',
+						});
+						// Reset the flag after scroll completes
+						setTimeout(() => {
+							isKeyNavigating.current = false;
+						}, 500); // Adjust based on smooth scroll duration
 					});
 				}
 				// Trigger fetchMoreImages when reaching the last image
@@ -170,7 +193,7 @@ const FullImagesComponent = ({
 							const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 							const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
 							const isActive = image?._id === info?.activeImage;
-							const scale = isActive ? info?.imageScalling || 1 : 1;
+							const scale = isActive ? info?.imageScalling || 0.9 : 0.9;
 							const translateX = isActive ? dragOffset.x : 0;
 							const translateY = isActive ? dragOffset.y : 0;
 
@@ -185,7 +208,7 @@ const FullImagesComponent = ({
 
 							return (
 								<div
-									key={image?._id || index}
+									key={image?._id} // Use unique _id as key
 									className="imageContainer"
 									id={image?._id}
 									ref={ref}
@@ -259,7 +282,11 @@ const FullImagesComponent = ({
 							);
 					  })
 					: [...Array(5)].map((_, index) => (
-							<div key={index} className="imageContainer" style={{ width: '500px' }}>
+							<div
+								key={`skeleton-${index}`}
+								className="imageContainer"
+								style={{ width: '500px' }}
+							>
 								<Skeleton width="800px" height="900px" />
 							</div>
 					  ))}
