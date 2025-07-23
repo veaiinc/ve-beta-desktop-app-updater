@@ -570,7 +570,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			);
 			if (success) {
 				message.success(`Page ${permanent ? 'permanently ' : ''}deleted successfully`);
-				navigate('/notes');
+				navigate(-1);
 			} else {
 				message.error('Failed to delete page');
 			}
