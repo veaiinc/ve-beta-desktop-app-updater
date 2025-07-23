@@ -711,15 +711,9 @@ const Files = () => {
 				setViewMode={setViewMode}
 			/>
 		),
-		Notes: (
-			<NotesGrid
-				handleNewNotes={() => {}}
-				handleTotalChange={(value) => handleTotalChange({ notes: value })}
-			/>
-		),
+		Notes: <NotesGrid handleTotalChange={(value) => handleTotalChange({ notes: value })} />,
 		Database: (
 			<NotesGrid
-				handleNewNotes={() => {}}
 				handleTotalChange={(value) => handleTotalChange({ database: value })}
 				isDatabase={true}
 			/>

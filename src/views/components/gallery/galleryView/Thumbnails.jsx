@@ -1,30 +1,42 @@
-import React, { memo } from 'react';
-import InfiniteScroll from 'react-infinite-scroll-component';
+import { memo, useEffect } from 'react';
+import InfiniteScroll from '../../globalComponents/InfiniteScroll';
 import Skeleton from 'react-loading-skeleton';
 
 const Thumbnails = ({
 	galleryCredentials,
 	fetchMoreImages,
 	imagesList,
+	aiFaceImages,
 	activeThumbnailFunction,
 	info,
 	selectedImages,
 	isAiFace,
+	activeImageIndex,
 }) => {
+	useEffect(() => {
+		if (info?.activeImage) {
+			const thumbnail = document.getElementById('thumbnail' + info.activeImage);
+			if (thumbnail) {
+				thumbnail.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+			}
+		}
+	}, [info?.activeImage, activeImageIndex]);
 	return (
 		<div className="galleryThumbnails" id="galleryThumbnails-target">
 			<InfiniteScroll
+				// key={`thumbnails-${info?.page}-${
+				// 	isAiFace ? aiFaceImages?.images?.length || 0 : imagesList?.docs?.length || 0
+				// }`}
 				dataLength={
 					isAiFace ? imagesList?.images?.length || 0 : imagesList?.docs?.length || 0
 				}
 				next={selectedImages ? () => {} : fetchMoreImages}
 				hasMore={selectedImages ? false : imagesList?.hasNextPage || false}
-				loader={<h6 style={{ color: 'white', textAlign: 'center' }}>loading..</h6>}
-				scrollableTarget="galleryThumbnails-target"
+				horizontal={true}
 				style={{
 					display: 'flex',
-					flexDirection: 'column',
-					gap: '24px',
+					gap: '16px',
+					overflow: 'scroll',
 				}}
 			>
 				{galleryCredentials && imagesList
@@ -34,28 +46,24 @@ const Thumbnails = ({
 							)
 							?.map((image, index) => {
 								const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-								const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_thumbnail_100h?.key}?${params}`;
+								const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
 								return (
 									<div
 										className={`imageContainer ${
-											info?.activeImageIndex === index ? 'active' : ''
+											activeImageIndex === index ? 'active' : ''
 										}`}
 										id={'thumbnail' + image?._id}
-										key={'key-thumbnail' + index + '+' + image?._id}
+										key={image?._id || 'key-thumbnail' + index}
 										onClick={() => activeThumbnailFunction(image?._id, index)}
-										style={{
-											border:
-												info?.activeImage === image?._id &&
-												info?.activeImageIndex !== index
-													? '1.3px solid gray'
-													: '',
-											objectFit: 'cover',
-										}}
 									>
 										<img
 											src={src}
-											alt={`Gallery image ${index}`}
-											style={{ cursor: 'pointer' }}
+											alt="thumbnail"
+											style={{
+												width: '100%',
+												borderRadius: '8px',
+												objectFit: 'cover',
+											}}
 										/>
 									</div>
 								);
