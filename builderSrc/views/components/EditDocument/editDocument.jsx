@@ -1,4 +1,4 @@
-import React, { useState, useContext, useCallback, useEffect } from 'react';
+import React, { useState, useContext, useCallback, useEffect, useRef } from 'react';
 import '../../../assets/scss/document/editDocument.scss';
 import { useNavigate, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import SmartFileSidebar from '../SmartFileDetails/NewSmartFileSidebar';
@@ -56,6 +56,8 @@ const EditDocument = () => {
 	const shouldOpenSignature = searchParams.get('openSignature') === 'true';
 	const navigate = useNavigate();
 	const [previewDevice, setPreviewDevice] = useState('d'); // 'd' for desktop, 'm' for mobile
+	const warningSectionRef = useRef(null);
+	const [showWarning, setWarning] = useState(true);
 	const [info, setInfo] = useState({
 		workflowInfo: null,
 		clientDetails: {},
@@ -124,9 +126,15 @@ const EditDocument = () => {
 	const handleEditClick = () => {
 		setInfo((prev) => ({ ...prev, showEditDocumentModal: true }));
 	};
+	const handelClickOutside = (e) => {
+		setWarning(!showWarning);
+		if (warningSectionRef.current && !warningSectionRef.current.contains(e.target)) {
+			setWarning(!showWarning);
+		}
+	};
 
 	return (
-		<div className="editDocumentContainer">
+		<div className="editDocumentContainer" onClick={handelClickOutside}>
 			<div className="section1-main-container">
 				<SmartFileSidebar
 					workflowId={workflowId}
@@ -204,36 +212,48 @@ const EditDocument = () => {
 				</div>
 			</div>
 
-			<div className="sectionWarning">
-				<div className="section-warning">
-					<div className="section-warning-header">
-						<div className="warning-icon-container">
-							<span className="warning-icon">
-								<WarningIcon />
-							</span>
-							<span className="warning-icon">Workflow warning</span>
+			{showWarning && (
+				<div
+					ref={warningSectionRef}
+					className="sectionWarning"
+					onClick={handelClickOutside}
+				>
+					<div className="section-warning">
+						<div className="section-warning-header">
+							<div className="warning-icon-container">
+								<span className="warning-icon">
+									<WarningIcon />
+								</span>
+								<span className="warning-icon">Workflow warning (09)</span>
+							</div>
+							<div className="ignore-btn">
+								<span className="ignore-btn-text">Resolve</span>
+							</div>
 						</div>
-						<div className="ignore-btn">
-							<span className="ignore-btn-text">Ignore</span>
-							<span className="ignore-btn-icon">
-								{' '}
-								<Cross />
-							</span>
+						<div className="section-warning-header">
+							<div className="warning2-icon-container">
+								<span className="warning-icon2">
+									<WarningIcon />
+								</span>
+								<span className="warning2-icon">Workflow warning (09)</span>
+							</div>
+							<div className="ignore-btn">
+								<span className="ignore-btn-text">Ignore all</span>
+							</div>
 						</div>
 					</div>
-					<div></div>
+					<div className="section-warning-body">
+						<span className="warning-text">
+							Section ‘Service Block’ has no services listed
+						</span>
+						<span className="warning-icon">
+							<ArrowRight />
+						</span>
+					</div>
+					<span className="warning-divider"></span>
+					{/* <hr /> */}
 				</div>
-				<div className="section-warning-body">
-					<span className="warning-text">
-						Section ‘Service Block’ has no services listed
-					</span>
-					<span className="warning-icon">
-						<ArrowRight />
-					</span>
-				</div>
-				<span className="warning-divider"></span>
-				{/* <hr /> */}
-			</div>
+			)}
 			<EditdocumentModel
 				open={info.showEditDocumentModal}
 				closeModal={() => setInfo((prev) => ({ ...prev, showEditDocumentModal: true }))}
