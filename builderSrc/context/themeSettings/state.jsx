@@ -148,14 +148,6 @@ export const ThemeSettingsState = (props) => {
 			updatedContent = updatedContent.replace(regex, (match, attributes) => {
 				let newStyle = '';
 
-				// Extract existing style attributes
-				const existingStyleMatch = attributes?.match(/style\s*=\s*["']([^"']*?)["']/i);
-				const existingStyles = existingStyleMatch ? existingStyleMatch[1] : '';
-				
-				// Extract existing color if present
-				const existingColorMatch = existingStyles.match(/color:\s*([^;]+)/i);
-				const hasManualColor = existingColorMatch !== null;
-
 				// Don't remove the textAlignMatch from the content
 				const textAlignMatch = attributes?.match(
 					/style\s*=\s*["'][^"']*text-align[^"']*["']/i,
@@ -172,13 +164,10 @@ export const ThemeSettingsState = (props) => {
 				}
 
 				let themeStyleObject = {
+					// ...currentTheme.fonts?.[tag],
+					// ...currentTheme?.colors?.text?.[tag],
 					fontSize: currentTheme?.fonts?.[tagName]?.fontSize,
 				};
-
-				// Only add theme color if no manual color exists
-				if (!hasManualColor && currentTheme?.colors?.text?.[tagName]?.color) {
-					themeStyleObject.color = currentTheme.colors.text[tagName].color;
-				}
 
 				// Convert themeStyleObject to inline style string
 				if (themeStyleObject) {
@@ -198,34 +187,19 @@ export const ThemeSettingsState = (props) => {
 					});
 				}
 
-				// Preserve existing styles except font-size and color (if theme color is being applied)
-				if (existingStyles) {
-					const preservedStyles = existingStyles
-						.split(';')
-						.filter(style => {
-							const prop = style.split(':')[0]?.trim().toLowerCase();
-							// Keep all styles except font-size and color (if theme color is being applied)
-							return style.trim() && 
-								prop !== 'font-size' && 
-								(hasManualColor || prop !== 'color');
-						})
-						.join(';');
-					
-					if (preservedStyles) {
-						newStyle += preservedStyles + ';';
-					}
-				}
+				// Combine with existing newStyle
+				newStyle = `${newStyle}${textAlign ? `text-align: ${textAlign}; ` : ''}`.trim();
 
-				// Add text-align back if it existed
-				if (textAlign) {
-					newStyle += `text-align: ${textAlign};`;
-				}
+				// Update or add style attribute
+				const updatedAttributes = attributes
+					?.replace(/\s?style\s*=\s*["'][^"']*["']/i, '')
+					?.trim();
 
-				return `<${tag} style="${newStyle.trim()}">`;
+				return `<${tag}${updatedAttributes} style="${newStyle}">`;
 			});
 		});
 
-		return updatedContent;
+		subBlock.content = updatedContent;
 	};
 
 	return {
