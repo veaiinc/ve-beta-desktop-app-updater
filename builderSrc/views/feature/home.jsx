@@ -617,6 +617,7 @@ class Home extends Proposals {
 			navbarMobileEdit: false,
 			showMobileMenu: false,
 			isTemplateDeleteOpen: false,
+			isSectionWarningOpen: false,
 			numOfDocuments: 0,
 			isFormTemplate: false,
 			triggerAdjustGridAreas: false,
@@ -637,6 +638,7 @@ class Home extends Proposals {
 		this.editDesignModalRef = createRef();
 		this.mCloseEditNavRef = createRef();
 		this.templateDeleteRef = createRef();
+		this.sectionWarningRef = createRef();
 	}
 	componentDidMount = async () => {
 		// setting the local storage keys for development
@@ -842,6 +844,11 @@ class Home extends Proposals {
 		if (this.templateDeleteRef.current && !this.templateDeleteRef.current.contains(e.target)) {
 			this.setState({
 				isTemplateDeleteOpen: false,
+			});
+		}
+		if (this.sectionWarningRef.current && !this.sectionWarningRef.current.contains(e.target)) {
+			this.setState({
+				isSectionWarningOpen: false,
 			});
 		}
 	};
@@ -5912,8 +5919,11 @@ class Home extends Proposals {
 					)}
 
 					{/* section warnings */}
-
-					<SectionWarning />
+					{this.state.isSectionWarningOpen && (
+						<div ref={this.sectionWarningRef}>
+							<SectionWarning />
+						</div>
+					)}
 
 					{this.state.isGeneratePreview ? (
 						''
@@ -6011,6 +6021,9 @@ class Home extends Proposals {
 									handleDuplicateTemplate={() => this.handleDuplicateTemplate()}
 									handleDeleteOpen={(e) => {
 										this.setState({ isTemplateDeleteOpen: e });
+									}}
+									handleSectionWarningOpen={(e) => {
+										this.setState({ isSectionWarningOpen: e });
 									}}
 									isFormTemplate={this.state.isFormTemplate}
 									handleImageUploadGlobal={this.handleImageUploadGlobal}

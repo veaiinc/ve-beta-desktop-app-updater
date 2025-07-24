@@ -164,6 +164,10 @@ class Header extends Component {
 		// window.history.back();
 	};
 
+	handleSectionWarningOpen = () => {
+		this.props.handleSectionWarningOpen(true);
+	};
+
 	render() {
 		return (
 			<div className="builder-header">
@@ -356,7 +360,10 @@ class Header extends Component {
 								)}
 							</>
 							<>
-								<div className="warning-icon-container">
+								<div
+									className="warning-icon-container"
+									onClick={this.handleSectionWarningOpen}
+								>
 									<span className="warning-icon">
 										<WarningIcon />
 									</span>

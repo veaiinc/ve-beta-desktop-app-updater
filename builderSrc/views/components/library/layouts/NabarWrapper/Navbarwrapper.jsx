@@ -105,6 +105,7 @@ class NavbarWrapper extends React.Component {
 			isEditElement: true,
 		});
 	};
+	
 	render() {
 		return (
 			<div
