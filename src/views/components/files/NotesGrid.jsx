@@ -27,7 +27,7 @@ const sortOptions = [
 	{ label: 'A-Z', value: 'title', sortType: 1 },
 ];
 
-const NotesGrid = ({ handleNewNotes, handleTotalChange, isDatabase = false }) => {
+const NotesGrid = ({ handleTotalChange, isDatabase = false }) => {
 	const navigate = useNavigate();
 
 	const {
@@ -226,7 +226,7 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange, isDatabase = false }) =>
 						height={'100%'}
 					>
 						<div className="card-container">
-							<div className="card-item" onClick={handleNewNotes}>
+							<div className="card-item">
 								<div className="card-item-style card-item-style-btn">
 									<button
 										onClick={handleCreateNoteOrDatabase}
@@ -279,7 +279,7 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange, isDatabase = false }) =>
 						<EmptyState
 							title={'No notes here'}
 							subtitle={'Try creating some notes'}
-							buttonOnClick={handleNewNotes}
+							buttonOnClick={handleCreateNoteOrDatabase}
 							buttonText={'Create note'}
 						/>
 					</div>

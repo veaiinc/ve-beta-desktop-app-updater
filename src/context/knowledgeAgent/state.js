@@ -47,11 +47,13 @@ export const KnowledgeAgentState = () => {
 					data,
 					currentPage: response?.[1]?.currentPage ?? 1,
 					hasNextPage: response?.[1]?.hasNextPage ?? false,
+					totalDocs: response?.[1]?.totalDocs ?? 0,
 				};
 				dispatch({
 					type: Actions?.SET_KNOWLEDGE_ASSISTANTS_LIST,
 					payload,
 				});
+				return [true, payload];
 			} else {
 				dispatch({
 					type: Actions?.SET_KNOWLEDGE_ASSISTANTS_LIST,
@@ -59,8 +61,10 @@ export const KnowledgeAgentState = () => {
 						data: [],
 						hasNextPage: false,
 						currentPage: 1,
+						totalDocs: 0,
 					},
 				});
+				return [false, response?.[1]];
 			}
 		} catch (error) {
 			console.log('error==>getKnowledgeAssistantsList', error);
@@ -1135,6 +1139,37 @@ export const KnowledgeAgentState = () => {
 		return response;
 	};
 
+	const addSharedAgentUser = async (agentId, payload) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const url = `/${workspaceId}/knowledge-agents/${agentId}/add-shared-user`;
+		const response = await service?.fetchPut(url, payload, usertoken, 'ai_assistant_api');
+		return response;
+	};
+
+	const removeSharedAgentUser = async (agentId, userId) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const url = `/${workspaceId}/knowledge-agents/${agentId}/remove-shared-user/${userId}`;
+		const response = await service?.fetchDelete(url, usertoken, null, 'ai_assistant_api');
+		return response;
+	};
+
+	const updateSharedAgentUser = async (agentId, payload) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const url = `/${workspaceId}/knowledge-agents/${agentId}/update-global-agent-access`;
+		const response = await service?.fetchPut(url, payload, usertoken, 'ai_assistant_api');
+		return response;
+	};
+
+	const getSharedAgentUsers = async (agentId) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const url = `/${workspaceId}/knowledge-agents/${agentId}/list-shared-users`;
+		const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+		return response;
+	};
 	return {
 		...state,
 		createNewKnowledgeAgent,
@@ -1178,5 +1213,9 @@ export const KnowledgeAgentState = () => {
 		getKnowledgeAssistantsListForAutomation,
 		getActiveKnowledgeAgentForAutomation,
 		getPipeDreamAction,
+		addSharedAgentUser,
+		removeSharedAgentUser,
+		updateSharedAgentUser,
+		getSharedAgentUsers,
 	};
 };

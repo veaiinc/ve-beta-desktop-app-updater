@@ -368,6 +368,7 @@
 				.content {
 					display: flex;
 					gap: 16px;
+					align-items: center;
 					.galleryHeaderColumn {
 						display: flex;
 						flex-direction: row;
@@ -626,13 +627,13 @@
 					border-radius: 10px;
 					height: 61px;
 					border: 1px solid transparent;
-					// background: var(--card-over-card, #202123);
+					background: var(--card, #202123);
 
 					@media (max-width: 1440px) {
 						width: 100px;
 					}
 					&.active {
-						background: var(--card);
+						background: var(--card-hover);
 						border: 1px solid var(--stroke, #2c2d2e);
 					}
 					&:hover {
@@ -719,10 +720,8 @@
 					height: 120px;
 					position: relative;
 					border-radius: 16px;
-					// border: 1px solid var(--stroke);
 					overflow: hidden;
 					background-size: cover !important;
-					background: var(--card-over-card);
 					// height: 100%;
 					&:hover {
 						img {
@@ -772,7 +771,11 @@
 						left: 0px;
 						bottom: 0px;
 						border-radius: 10px;
-						background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000 100%);
+						background: linear-gradient(
+							180deg,
+							rgba(0, 0, 0, 0) 0%,
+							var(--image-backdrop, rgba(45, 45, 45, 0.8)) 100%
+						);
 						padding-bottom: 12px;
 						padding-left: 12px;
 						p {
@@ -929,7 +932,7 @@
 		.galleryNavbar {
 			display: flex;
 			width: 100%;
-			gap: 8px;
+			gap: 16px;
 			flex-direction: column;
 			.albumDetailsContainer {
 				display: flex;
@@ -1067,7 +1070,7 @@
 							border-radius: 8px;
 							border: 1px solid transparent;
 							background: transparent;
-							color: var(--secondary-font, #f2f2f3);
+							color: var(--primary-font, #f2f2f3);
 							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
@@ -1081,6 +1084,7 @@
 							}
 							&.selected {
 								background: var(--card);
+								color: var(--primary-font);
 							}
 							.albumStatus {
 								width: 8px;
@@ -2559,4 +2563,96 @@
 	height: 1px;
 	background: var(--dividers);
 	flex-shrink: 0;
+}
+.listAlbumsContainer {
+	display: flex;
+	width: 250px;
+	padding: 6px 0px;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 6px;
+	border-radius: 12px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	background: var(--popup, #202123);
+	.moveToAlbumTitleContainer {
+		display: flex;
+		padding: 12px 16px;
+		justify-content: center;
+		align-items: center;
+		align-self: stretch;
+		.moveToAlbumOptionsContainer {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			.moveToAlbumTitle {
+				color: var(--primary-button, #79ecc9);
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			svg {
+				path {
+					stroke: var(--primary-button) !important;
+				}
+			}
+		}
+	}
+	.albumCard {
+		display: flex;
+		padding: 12px 16px;
+		justify-content: space-between;
+		align-items: center;
+		align-self: stretch;
+		&:hover {
+			background: var(--card);
+		}
+		.albumCardContent {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+		.custom-checkbox-style {
+			.ant-checkbox-inner {
+				background-color: transparent;
+				border: 1px solid var(--stroke);
+
+				&:hover {
+					border-color: var(--stroke);
+				}
+			}
+
+			// Remove blue outline or border on focus
+			.ant-checkbox-input:focus + .ant-checkbox-inner {
+				border-color: var(--stroke);
+				box-shadow: none;
+				outline: none;
+			}
+		}
+	}
+	.createAlbumContainer {
+		display: flex;
+		padding: 12px 16px;
+		justify-content: center;
+		align-items: center;
+		align-self: stretch;
+		gap: 8px;
+		cursor: pointer;
+
+		svg {
+			path {
+				stroke: var(--primary-button) !important;
+			}
+		}
+		.createAlbumText {
+			color: var(--primary-button, #79ecc9);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
 }

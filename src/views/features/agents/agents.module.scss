@@ -4,161 +4,540 @@
 	padding: 21px 32px 0 62px;
 	display: flex;
 	flex-direction: column;
-	gap: 24px;
+	align-items: center;
+	justify-content: center;
+	gap: 50px;
+	max-width: 900px;
+	margin: -120px auto 0;
+
 	.titleContainer {
 		display: flex;
-		flex-direction: column;
-		gap: 4px;
+		gap: 6px;
+		margin-bottom: 10px;
 		.titleOne {
-			color: var(--secondary-font, #7a7e85);
+			color: var(--primary-button, #79ecc9);
+			text-align: center;
 			font-family: var(--primary-font-family);
-			font-size: 24px;
+			font-size: 32px;
 			font-style: normal;
-			font-weight: 400;
-			line-height: 36px;
+			font-weight: 500;
+			line-height: normal;
 		}
-		.titleTwo {
-			color: #79ecc9;
-			font-family: var(--primary-font-family);
-			font-size: 24px;
-			font-style: normal;
-			font-weight: 400;
-			line-height: 36px;
-		}
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 32px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
 	}
-	.agentsListAndSuggestedAgentsContainer {
+
+	.agentCardsContainer {
 		display: flex;
-		height: 100%;
-		flex-direction: column;
+		gap: 20px;
+		flex-wrap: wrap;
+		justify-content: center;
 		align-items: center;
-		overflow-y: auto;
+		height: 255px;
+		width: 903px;
+		position: relative;
+		transition: all 0.3s ease;
+		margin-bottom: 15px;
+		.noData {
+			height: fit-content;
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
 
-		.agentActionsContainer {
+		.card {
 			display: flex;
+			width: 270px;
+			height: 255px;
+			padding: 16px;
 			flex-direction: column;
-			align-items: flex-start;
-			gap: 36px;
-			width: 100%;
-			.headerActionsContainer {
-				display: flex;
-				align-items: center;
+			justify-content: center;
+			align-items: center;
+			flex-shrink: 0;
+			border-radius: 16px;
+			background: var(--popup, #202123);
+			box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.04);
+			position: relative;
+			cursor: pointer;
 
-				justify-content: space-between;
-				gap: 8px;
-				width: 100%;
-				position: sticky;
-				top: 0;
-				background: var(--background-color);
-
-				.headerActionsRight {
-					display: flex;
-					align-items: center;
-					gap: 8px;
-				}
-				.searchContainer {
-					display: flex;
-					width: 220px;
-					height: 36px;
-					padding: 10px;
-					align-items: center;
-					gap: 18px;
-					border-radius: 6px;
-					border: 1px solid var(--stroke, #2c2d2e);
-					input {
-						color: var(--secondary-font, #34363b);
-						font-family: var(--primary-font-family);
-						font-size: 13px;
-						font-style: normal;
-						font-weight: 400;
-						line-height: normal;
-						background-color: transparent;
-						border: none;
-						outline: none;
-					}
-				}
-				.actionsContainer {
-					display: flex;
-					width: 36px;
-					height: 36px;
-					padding: 10px;
-					justify-content: center;
-					align-items: center;
-					gap: 18px;
-					border-radius: 6px;
-					border: 1px solid var(--stroke, #2c2d2e);
-					cursor: pointer;
-				}
-			}
-			.headerActions {
-				display: flex;
-				justify-content: space-between;
-				align-items: center;
-				align-self: stretch;
-				margin-top: 20px;
-
-				.headerTitle {
-					color: var(--primary-font, #f2f2f3);
-					font-family: var(--primary-font-family);
-					font-size: 18px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-				}
-			}
-			.body {
+			.cardInfo {
 				display: flex;
 				flex-direction: column;
-				width: 100%;
-				height: 100%;
-				min-height: 0;
-			}
-			.viewContainer {
-				border-radius: 8px;
-				border: 1px solid var(--stroke, #2c2d2e);
-				display: flex;
-				height: 36px;
-				padding: 4px;
+				justify-content: center;
 				align-items: center;
-				gap: 2px;
-				cursor: pointer;
-				.viewIcon {
-					display: flex;
-					padding: 6px 8px;
-					justify-content: center;
-					align-items: center;
-					gap: 18px;
-					border-radius: 6px;
-					cursor: pointer;
-					&.active {
-						border-radius: 6px;
-						background: var(--card-hover, #202123);
+				gap: 12px;
+				align-self: stretch;
+			}
+		}
+
+		.card {
+			position: absolute;
+			bottom: 0;
+			transform: translateX(-50%);
+			transition: all 0.3s ease;
+			display: none;
+			border: 1px solid var(--stroke);
+
+			.cardInfo {
+				.agentImage {
+					width: 60px;
+					height: 60px;
+					object-fit: cover;
+					border-radius: 16px;
+				}
+
+				.agentName {
+					color: var(--primary-font, #f2f2f3);
+					text-align: center;
+					font-family: var(--primary-font-family);
+					font-size: 16px;
+					font-style: normal;
+					font-weight: 580;
+					line-height: 22px;
+				}
+
+				.imageContainer {
+					padding: 8px;
+					width: 40px;
+					height: 40px;
+					border-radius: 8px;
+					border: 1px solid var(--stroke);
+					svg {
+						transform: rotate(-3deg);
 					}
 				}
 			}
 		}
-		.suggestionsContainer {
+
+		.card.skeleton {
+			overflow: hidden;
+			padding: 0;
+			background-color: transparent;
+			border: none;
+
+			.skeletonContainer {
+				padding: 0;
+				border-radius: 16px;
+				overflow: hidden;
+			}
+
+			&.selected {
+				padding: 4px;
+			}
+		}
+
+		.selected {
+			left: 50%;
+			z-index: 3;
 			display: flex;
-			width: 100%;
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 24px;
-			.suggestionsHeader {
+			background-color: var(--popup);
+			border: 1.5px solid var(--primary-button);
+			// &::before {
+			// 	content: '';
+			// 	position: absolute;
+			// 	top: 0;
+			// 	left: 0;
+			// 	right: 0;
+			// 	bottom: 0;
+			// 	background: linear-gradient(180deg, #4acea6 0%, #5f8ee0 100%);
+			// 	z-index: 0;
+			// 	border-radius: 16px;
+			// }
+
+			// &::after {
+			// 	content: '';
+			// 	position: absolute;
+			// 	top: 2px;
+			// 	left: 2px;
+			// 	right: 2px;
+			// 	bottom: 2px;
+			// 	background-color: var(--popup, #202123);
+			// 	border-radius: 14px;
+			// 	z-index: 1;
+			// }
+
+			// > * {
+			// 	position: relative;
+			// 	z-index: 2;
+			// }
+		}
+
+		.left1 {
+			left: 30%;
+			z-index: 2;
+			width: 180px;
+			height: 203px;
+			display: flex;
+			bottom: -2px;
+			transform: translateX(-50%) rotate(-2deg);
+		}
+
+		.left2 {
+			left: 15%;
+			z-index: 1;
+			width: 170px;
+			height: 169px;
+			bottom: -10px;
+			display: flex;
+			transform: translateX(-50%) rotate(-4deg);
+			opacity: 0.5;
+		}
+
+		.right1 {
+			left: 70%;
+			z-index: 2;
+			width: 180px;
+			height: 203px;
+			display: flex;
+			bottom: -2px;
+			transform: translateX(-50%) rotate(2deg);
+
+			.footer {
+				justify-content: flex-end;
+			}
+		}
+
+		.right2 {
+			left: 85%;
+			z-index: 1;
+			width: 170px;
+			height: 169px;
+			bottom: -10px;
+			display: flex;
+			transform: translateX(-50%) rotate(4deg);
+			opacity: 0.5;
+
+			.footer {
+				justify-content: flex-end;
+			}
+		}
+	}
+
+	.agentFilterContainer {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		width: 100%;
+		min-height: 40px;
+		.leftContainer {
+			.searchContainer {
+				display: flex;
+				align-items: center;
+
+				.searchBtn {
+					flex-shrink: 0;
+					display: flex;
+					padding: 10px;
+					background: transparent;
+					border: 1px solid transparent;
+					border-radius: 8px;
+					cursor: pointer;
+
+					&.expanded {
+						border-right: none;
+					}
+					&:hover {
+						background-color: var(--card);
+					}
+				}
+
+				.searchWrapper {
+					display: flex;
+					align-items: center;
+					width: 0;
+					opacity: 0;
+					height: 41px;
+					overflow: hidden;
+					border-radius: 8px;
+					border: 1px solid transparent;
+					transition: width 0.3s ease, opacity 0.2s ease 0.1s;
+					border-left: none;
+					border-top-left-radius: 0;
+					border-bottom-left-radius: 0;
+					position: relative;
+
+					&.expanded {
+						width: 200px;
+						opacity: 1;
+					}
+
+					.searchInput {
+						flex: 1;
+						border: none;
+						background: transparent;
+						margin-left: 8px;
+						font-size: 14px;
+						color: var(--primary-font, #7a7e85);
+						opacity: 1;
+						transition: opacity 0.2s ease 0.1s;
+					}
+
+					.searchLoader {
+						position: absolute;
+						right: 40px;
+						top: 50%;
+						transform: translateY(-50%);
+					}
+
+					.closeBtn {
+						align-items: center;
+						align-self: stretch;
+						background-color: initial;
+						border: 1px solid #0000;
+						border-radius: 8px;
+
+						color: var(--primary-font, #f2f2f3);
+						cursor: pointer;
+						display: flex;
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						gap: 8px;
+						justify-content: center;
+						line-height: normal;
+						outline: none;
+						padding: 8px;
+						transition: all 0.2s ease;
+
+						&:hover {
+							background-color: var(--card);
+						}
+					}
+				}
+			}
+		}
+
+		.rightContainer {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			.cardChangeBtn {
+				display: flex;
+				width: 24px;
+				height: 24px;
+				// transform: rotate(90deg);
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				border-radius: 4px;
+				background-color: transparent;
+				cursor: pointer;
+				svg {
+					width: 20px;
+				}
+				.leftChevron {
+					transform: rotate(180deg);
+				}
+			}
+			.cardNumber {
+				width: 70px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				flex-shrink: 0;
+				color: var(--secondary-font, #7a7e85);
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-weight: 500;
+				span {
+					color: var(--primary-font, #f2f2f3);
+					text-align: center;
+					font-family: var(--primary-font-family);
+					font-size: 13px;
+					font-weight: 500;
+				}
+				.totalDocs {
+					color: var(--secondary-font, #7a7e85);
+					font-family: var(--primary-font-family);
+					font-size: 13px;
+					font-weight: 500;
+				}
+			}
+		}
+	}
+
+	.agentActionsContainer {
+		display: flex;
+		width: 100%;
+		justify-content: center;
+		align-items: center;
+		gap: 24px;
+		.createNewAgent {
+			display: flex;
+			padding: 8px 12px 8px 8px;
+			justify-content: center;
+			align-items: center;
+			gap: 6px;
+			border-radius: 100px;
+			background: var(--card-hover, #202122);
+			cursor: pointer;
+
+			.text {
 				color: var(--primary-font, #f2f2f3);
 				font-family: var(--primary-font-family);
-				font-size: 18px;
+				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
-				margin-top: 24px;
 			}
-			.suggestionsBody {
-				display: flex;
-				flex-direction: row;
-				flex-wrap: wrap;
-				gap: 24px;
-				width: 100%;
-				height: 250px;
+
+			.iconContainer {
+				width: 16px;
+				height: 16px;
+				svg {
+					width: 16px;
+					height: 16px;
+					path {
+						fill: var(--primary-font, #f2f2f3);
+					}
+				}
 			}
 		}
 	}
+
+	// .agentsListAndSuggestedAgentsContainer {
+	// 	display: flex;
+	// 	height: 100%;
+	// 	flex-direction: column;
+	// 	align-items: center;
+	// 	overflow-y: auto;
+
+	// 	.agentActionsContainer {
+	// 		display: flex;
+	// 		flex-direction: column;
+	// 		align-items: flex-start;
+	// 		gap: 36px;
+	// 		width: 100%;
+	// 		.headerActionsContainer {
+	// 			display: flex;
+	// 			align-items: center;
+
+	// 			justify-content: space-between;
+	// 			gap: 8px;
+	// 			width: 100%;
+	// 			position: sticky;
+	// 			top: 0;
+	// 			background: var(--background-color);
+
+	// 			.headerActionsRight {
+	// 				display: flex;
+	// 				align-items: center;
+	// 				gap: 8px;
+	// 			}
+	// 			.searchContainer {
+	// 				display: flex;
+	// 				width: 220px;
+	// 				height: 36px;
+	// 				padding: 10px;
+	// 				align-items: center;
+	// 				gap: 18px;
+	// 				border-radius: 6px;
+	// 				border: 1px solid var(--stroke, #2c2d2e);
+	// 				input {
+	// 					color: var(--secondary-font, #34363b);
+	// 					font-family: var(--primary-font-family);
+	// 					font-size: 13px;
+	// 					font-style: normal;
+	// 					font-weight: 400;
+	// 					line-height: normal;
+	// 					background-color: transparent;
+	// 					border: none;
+	// 					outline: none;
+	// 				}
+	// 			}
+	// 			.actionsContainer {
+	// 				display: flex;
+	// 				width: 36px;
+	// 				height: 36px;
+	// 				padding: 10px;
+	// 				justify-content: center;
+	// 				align-items: center;
+	// 				gap: 18px;
+	// 				border-radius: 6px;
+	// 				border: 1px solid var(--stroke, #2c2d2e);
+	// 				cursor: pointer;
+	// 			}
+	// 		}
+	// 		.headerActions {
+	// 			display: flex;
+	// 			justify-content: space-between;
+	// 			align-items: center;
+	// 			align-self: stretch;
+	// 			margin-top: 20px;
+
+	// 			.headerTitle {
+	// 				color: var(--primary-font, #f2f2f3);
+	// 				font-family: var(--primary-font-family);
+	// 				font-size: 18px;
+	// 				font-style: normal;
+	// 				font-weight: 500;
+	// 				line-height: normal;
+	// 			}
+	// 		}
+	// 		.body {
+	// 			display: flex;
+	// 			flex-direction: column;
+	// 			width: 100%;
+	// 			height: 100%;
+	// 			min-height: 0;
+	// 		}
+	// 		.viewContainer {
+	// 			border-radius: 8px;
+	// 			border: 1px solid var(--stroke, #2c2d2e);
+	// 			display: flex;
+	// 			height: 36px;
+	// 			padding: 4px;
+	// 			align-items: center;
+	// 			gap: 2px;
+	// 			cursor: pointer;
+	// 			.viewIcon {
+	// 				display: flex;
+	// 				padding: 6px 8px;
+	// 				justify-content: center;
+	// 				align-items: center;
+	// 				gap: 18px;
+	// 				border-radius: 6px;
+	// 				cursor: pointer;
+	// 				&.active {
+	// 					border-radius: 6px;
+	// 					background: var(--card-hover, #202123);
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// 	.suggestionsContainer {
+	// 		display: flex;
+	// 		width: 100%;
+	// 		flex-direction: column;
+	// 		align-items: flex-start;
+	// 		gap: 24px;
+	// 		.suggestionsHeader {
+	// 			color: var(--primary-font, #f2f2f3);
+	// 			font-family: var(--primary-font-family);
+	// 			font-size: 18px;
+	// 			font-style: normal;
+	// 			font-weight: 500;
+	// 			line-height: normal;
+	// 			margin-top: 24px;
+	// 		}
+	// 		.suggestionsBody {
+	// 			display: flex;
+	// 			flex-direction: row;
+	// 			flex-wrap: wrap;
+	// 			gap: 24px;
+	// 			width: 100%;
+	// 			height: 250px;
+	// 		}
+	// 	}
+	// }
 }
