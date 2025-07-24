@@ -915,7 +915,7 @@ const RecentChat = ({
 					width: info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%',
 				}}
 			>
-				{workspaceMode === 'stable' && showChatHistory && (
+				{showChatHistory && (
 					<div className="chat-history-wrapper">
 						<ChatHistory />
 					</div>
@@ -983,7 +983,10 @@ const RecentChat = ({
 															globalChatMessages?.[sessionId]
 																?.messages?.length -
 																1
-																? `calc(${chatContentRef?.current?.clientHeight}px - 185px)`
+																? `${
+																		chatContentRef?.current
+																			?.clientHeight - 145
+																  }px`
 																: 'auto',
 													}}
 												>

@@ -142,7 +142,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const [info, setInfo] = useState(initialState);
 	const [transcriptList, setTranscriptList] = useState([]);
 	const [activeTab, setActiveTab] = useState(
-		history || type === 'desktop' ? 'transcript' : 'all',
+		// history || type === 'desktop' ? 'transcript' : 'all',
+		'transcript',
 	);
 	const location = useLocation();
 
