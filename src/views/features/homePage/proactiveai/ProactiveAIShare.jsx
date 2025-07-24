@@ -161,46 +161,12 @@ const ProactiveAIShare = ({ proactiveAiId, proactiveAiData }) => {
 			},
 			proactiveAiId,
 		);
-		if (response?.[0]) {
+		if (response?.[0] === true) {
+			getAISuggestedPendingActions(response?.[1], false, 'update', proactiveAiId);
 			message.success('Access updated successfully');
 		} else {
-			message.error('Failed to update access');
+			message.error(response?.[1]?.message || 'Failed to update access');
 		}
-
-		// if (access === 'remove') {
-		// 	const response = await removeNotesAccess({
-		// 		pageId,
-		// 		userId,
-		// 	});
-		// 	if (response?.[0]) {
-		// 		message.success(response?.[1]?.message);
-		// 		const updatedMembersWithAccess = info?.membersWithAccess?.filter(
-		// 			(member) => member?.userId !== userId,
-		// 		);
-		// 		updateNotesState({ notesAccess: updatedMembersWithAccess });
-		// 	} else {
-		// 		message.error(response?.[1]?.message);
-		// 	}
-		// } else {
-		// 	const response = await changeNotesAccess({
-		// 		pageId,
-		// 		userPermissionInput: {
-		// 			userId,
-		// 			access,
-		// 		},
-		// 	});
-		// 	if (response?.[0]) {
-		// 		message.success(response?.[1]?.message);
-		// 		const updatedMembersWithAccess = info?.membersWithAccess?.map((member) =>
-		// 			member?.userId === userId ? { ...member, access } : member,
-		// 		);
-		// 		updateNotesState({
-		// 			notesAccess: updatedMembersWithAccess,
-		// 		});
-		// 	} else {
-		// 		message.error(response?.[1]?.message);
-		// 	}
-		// }
 	};
 
 	const filteredMembers = useMemo(() => {
