@@ -95,6 +95,98 @@
 			padding-bottom: 60px; // space for device switcher bar
 		}
 	}
+	.sectionWarning {
+		display: flex;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		flex-direction: column;
+		align-items: flex-start;
+		align-self: stretch;
+		border-radius: 12px;
+		background: var(--popup, #202123);
+		width: 536px;
+		height: 152px;
+		.section-warning {
+			.section-warning-header {
+				display: flex;
+				padding: 8px 16px;
+				border-radius: 12px;
+				align-items: center;
+				gap: 8px;
+				background: var(--card-over-card-hover, #242628);
+				.warning-icon-container {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+					.warning-icon {
+						display: flex;
+						align-items: center;
+						gap: 8px;
+						color: var(--error, #c03744);
+						font-family: 'General Sans Variable';
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 22px; /* 157.143% */
+					}
+				}
+			}
+			.ignore-btn {
+				display: flex;
+				height: 24px;
+				padding: 4px;
+				align-items: center;
+				gap: 6px;
+				border-radius: 100px;
+				.ignore-btn-text {
+					color: var(--primary-font, #f2f2f3);
+					font-family: 'General Sans Variable';
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 18px; /* 150% */
+				}
+				.ignore-btn-icon {
+					width: 12px;
+					height: 12px;
+					font-size: 12px;
+					color: var(--primary-font, #f2f2f3);
+				}
+			}
+		}
+		.section-warning-body {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 12px 16px;
+
+			align-items: flex-start;
+			gap: 4px;
+			align-self: stretch;
+			.warning-text {
+				color: var(--primary-font, #f2f2f3);
+				font-family: 'General Sans Variable';
+
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 00;
+				line-height: 24px; /* 171.429% */
+			}
+			.warning-icon {
+				width: 12px;
+				height: 12px;
+				font-size: 12px;
+				color: var(--primary-font, #f2f2f3);
+			}
+		}
+		.warning-divider {
+			width: 95%;
+			height: 1px;
+			margin: 0 auto;
+			background: var(--stroke, #2c2d2e);
+		}
+	}
 }
 
 @media (max-width: 1024px) {

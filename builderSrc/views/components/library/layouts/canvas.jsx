@@ -231,7 +231,7 @@ class Layout extends Component {
 			triggeredFont: props?.triggeredFont,
 			previewMode: props?.previewMode,
 			clickGridArea: null,
-			showAddElement: false,
+			showAddElement: props?.showAddElementstate || false,
 			searchQuery: '',
 			filteredElements: elements,
 			isClick: false,
@@ -979,6 +979,11 @@ class Layout extends Component {
 		);
 	}
 	componentWillReceiveProps = (nextProps) => {
+		if (nextProps.closeAddElement) {
+			this.setState({
+				showAddElement: false,
+			});
+		}
 		if (this.state.triggerFont !== nextProps.triggerFont) {
 			this.setState({
 				triggerFont: nextProps.triggerFont,
@@ -8511,7 +8516,8 @@ class Layout extends Component {
 					this.state.showBlockOptions &&
 					this.props.module !== 'form' &&
 					this.state.previewMode === 'd' &&
-					!disabledModules.includes(this.props.module) ? (
+					!disabledModules.includes(this.props.module) &&
+					!this.props.closeAddElement ? (
 						<>
 							{!this.state.showAddElement && (
 								<div className="add-element">
@@ -8531,7 +8537,7 @@ class Layout extends Component {
 								</div>
 							)}
 
-							{this.state.showAddElement && (
+							{this.state.showAddElement && !this.props.closeAddElement && (
 								<div className="add-element-container" ref={this.addElementRef}>
 									<input
 										type="text"

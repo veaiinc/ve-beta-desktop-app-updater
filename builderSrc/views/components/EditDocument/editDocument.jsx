@@ -9,6 +9,9 @@ import { ReactComponent as DesktopIcon } from '../../components/library/svgs/hea
 import { ReactComponent as MobileIcon } from '../../components/library/svgs/header/MobilePop.svg';
 import TempBuilderPreview from '../../feature/temp-prev';
 import EditdocumentModel from '../ViewDocument/EditdocumentModel';
+import { ReactComponent as WarningIcon } from '../../../assets/svg/sectionwarnings/warning.svg';
+import { ReactComponent as Cross } from '../../../assets/svg/sectionwarnings/cross.svg';
+import { ReactComponent as ArrowRight } from '../../../assets/svg/sectionwarnings/arrowRight.svg';
 const EditButton = ({ workflowId, templateId }) => {
 	const navigate = useNavigate();
 	const handleEditClick = () => {
@@ -199,6 +202,37 @@ const EditDocument = () => {
 						previewMode={previewDevice}
 					/>
 				</div>
+			</div>
+
+			<div className="sectionWarning">
+				<div className="section-warning">
+					<div className="section-warning-header">
+						<div className="warning-icon-container">
+							<span className="warning-icon">
+								<WarningIcon />
+							</span>
+							<span className="warning-icon">Workflow warning</span>
+						</div>
+						<div className="ignore-btn">
+							<span className="ignore-btn-text">Ignore</span>
+							<span className="ignore-btn-icon">
+								{' '}
+								<Cross />
+							</span>
+						</div>
+					</div>
+					<div></div>
+				</div>
+				<div className="section-warning-body">
+					<span className="warning-text">
+						Section ‘Service Block’ has no services listed
+					</span>
+					<span className="warning-icon">
+						<ArrowRight />
+					</span>
+				</div>
+				<span className="warning-divider"></span>
+				{/* <hr /> */}
 			</div>
 			<EditdocumentModel
 				open={info.showEditDocumentModal}

@@ -38,7 +38,7 @@ import { ReactComponent as Email } from '../components/smartFields/smartFields/a
 import { ReactComponent as Date } from '../components/smartFields/smartFields/date.svg';
 import { ReactComponent as Link } from '../components/smartFields/smartFields/link.svg';
 import { ReactComponent as Currency } from '../components/smartFields/smartFields/currency.svg';
-
+import SectionWarning from '../components/HomePopups/SectionWarning';
 import { ElementSidebar } from '../components/builder_client_common';
 // library for creATING IDs FOR BLOCKS AND SUBBLOCKS
 
@@ -5891,6 +5891,10 @@ class Home extends Proposals {
 							/>
 						</div>
 					)}
+
+					{/* section warnings */}
+
+					<SectionWarning />
 
 					{this.state.isGeneratePreview ? (
 						''

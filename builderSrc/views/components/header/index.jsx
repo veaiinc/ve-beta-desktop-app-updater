@@ -9,6 +9,7 @@ import { withRouter } from '../../../services/withRouter';
 import Title from './title';
 import { Tooltip } from 'antd';
 import { Threedots, BackArrow } from '../builder_client_common';
+import { ReactComponent as WarningIcon } from '../../../assets/svg/sectionwarnings/warning.svg';
 
 class Header extends Component {
 	constructor(props) {
@@ -344,6 +345,13 @@ class Header extends Component {
 										)}
 									</span>
 								)}
+							</>
+							<>
+								<div className="warning-icon-container">
+									<span className="warning-icon">
+										<WarningIcon />
+									</span>
+								</div>
 							</>
 						</>
 					)}

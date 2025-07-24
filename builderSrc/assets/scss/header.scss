@@ -296,6 +296,35 @@
 				}
 			}
 		}
+		.warning-icon-container {
+			display: flex;
+			width: 36px;
+			height: 36px;
+			padding: 8px 16px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			border-radius: 8px;
+			border: 1px solid var(--stroke, #333334);
+			.warning-icon {
+				display: flex;
+				width: 24px;
+				height: 24px;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				flex-shrink: 0;
+
+				svg {
+					width: 15.745px;
+					height: 15.749px;
+					flex-shrink: 0;
+					path {
+						fill: var(--error, #c03744);
+					}
+				}
+			}
+		}
 	}
 	.header-popup {
 		position: absolute;
