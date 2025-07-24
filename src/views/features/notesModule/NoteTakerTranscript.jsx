@@ -7,7 +7,7 @@ import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import Spinner from '../../components/loaders/Spinner';
 
-const NoteTakerTranscript = ({ sendMessage, tenantId, sessionId, pageId }) => {
+const NoteTakerTranscript = ({ sendMessage, tenantId, sessionId, pageId, history }) => {
 	const { noteId } = useParams();
 	const [searchParams] = useSearchParams();
 	const type = searchParams.get('type');
@@ -129,14 +129,16 @@ const NoteTakerTranscript = ({ sendMessage, tenantId, sessionId, pageId }) => {
 
 	return (
 		<div>
-			<NoteTranscription
-				pageId={noteId}
-				updateTranscription={handleUpdateTranscription}
-				sendMessage={sendMessage}
-				tenantId={tenantId}
-				sessionId={sessionId}
-				recallPageId={pageId}
-			/>
+			{!history && (
+				<NoteTranscription
+					pageId={noteId}
+					updateTranscription={handleUpdateTranscription}
+					sendMessage={sendMessage}
+					tenantId={tenantId}
+					sessionId={sessionId}
+					recallPageId={pageId}
+				/>
+			)}
 			<div>
 				{!combinedData.length ? (
 					<div className="meet-transcript-empty">No transcript yet.</div>

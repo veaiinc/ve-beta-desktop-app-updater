@@ -1,11 +1,12 @@
 @import 'mobileMenu';
 
 .our-mission-container {
+	--cardo-font-family: 'Cardo';
+
 	align-items: flex-start;
 	color: var(--primary-font);
 	display: flex;
 	font-family: var(--secondary-font-family);
-	font-weight: 700;
 	gap: 100px;
 	justify-content: center;
 	margin-top: 74px;
@@ -23,6 +24,8 @@
 		overflow: hidden;
 		display: flex;
 		justify-content: center;
+		max-width: 700px;
+		width: 100%;
 		&.bridge-img-dark {
 			.mission-block {
 				.bridge,
@@ -167,9 +170,8 @@
 
 	.long-description-block {
 		color: var(--primary-font, #f2f2f3);
-		font-family: Manrope;
+		font-family: var(--secondary-font-family);
 		font-size: 16px;
-		font-style: normal;
 		font-weight: 500;
 		line-height: 32px;
 		text-align: left;
@@ -200,11 +202,8 @@
 			.loginDescriptionTwoText {
 				span {
 					color: var(--primary-font, #f2f2f3);
-					font-family: Charter;
+					font-family: var(--cardo-font-family);
 					font-size: 24px;
-					font-style: italic;
-					font-weight: 700;
-					line-height: normal;
 					letter-spacing: -0.72px;
 				}
 			}
@@ -212,39 +211,54 @@
 
 		.loginDescriptionThree {
 			color: var(--primary-font, #f2f2f3);
-			font-family: Charter;
+			font-family: var(--cardo-font-family);
 			font-size: 24px;
-			font-style: italic;
-			font-weight: 700;
-			line-height: normal;
 			letter-spacing: -0.72px;
 		}
 
 		.loginDescriptionFour {
+			display: flex;
+			flex-direction: column;
+			gap: 24px;
+
 			.descriptionFourTitle {
 				color: var(--primary-font, #f2f2f3);
-				font-family: Charter;
+				font-family: var(--cardo-font-family);
 				font-size: 24px;
-				font-style: italic;
-				font-weight: 700;
-				line-height: normal;
 				letter-spacing: -0.72px;
 			}
 			ul {
-				list-style: none;
-				padding: 0;
 				margin: 0;
+			}
+
+			.descriptionFourPoints {
+				ul {
+					font-family: var(--primary-font-family);
+					padding-inline-start: 20px;
+				}
+			}
+		}
+
+		.loginDescriptionText5 {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--cardo-font-family);
+			font-size: 24px;
+			letter-spacing: -0.72px;
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+			span {
+				font-size: 24px;
+				letter-spacing: -0.72px;
 			}
 		}
 
 		.bottomText {
 			color: var(--primary-font, #f2f2f3);
-			font-family: Charter;
+			font-family: var(--cardo-font-family);
 			font-size: 24px;
-			font-style: italic;
-			font-weight: 700;
-			line-height: normal;
 			letter-spacing: -0.72px;
+			font-style: italic;
 		}
 	}
 }
@@ -286,7 +300,7 @@
 
 		.long-description-block {
 			padding: 2px 10px;
-			gap: 3px;
+			gap: 24px;
 			overflow: auto;
 
 			.mobile-heading {

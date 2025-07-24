@@ -228,7 +228,9 @@ const DocsGrid = ({
 			} = docsFilesList || {};
 			const newDocs = currentPage === 1 ? [...data] : [...info?.docs, ...(data || [])];
 			handleStateUpdate({ docs: newDocs, currentPage, hasNextPage, loading: false });
-			handleTotalChange(totalDocs);
+			if (typeof handleTotalChange === 'function') {
+				handleTotalChange(totalDocs);
+			}
 		}
 	}, [docsFilesList]);
 

@@ -56,6 +56,7 @@ import {
 
 	// for meet bots
 	getMeetBotDataQuery,
+	getMeetSummaryQuery,
 	meetBotCreateMutation,
 	deleteLiveKitRoomMutation,
 	getMeetTranscriptHistoryQuery,
@@ -82,6 +83,7 @@ export const intialState = {
 	},
 	transcriptHistory: [],
 	existingBots: null,
+	meetSummary: null,
 };
 
 export const NotesState = (props) => {
@@ -101,6 +103,7 @@ export const NotesState = (props) => {
 			);
 
 			if (response?.[0]) {
+				const totalDocs = response?.[1]?.data?.listPages?.totalDocs;
 				const currentPageNotesList = response?.[1]?.data?.listPages?.data;
 				const currentPage = response?.[1]?.data?.listPages?.currentPage;
 				const hasNextPage = response?.[1]?.data?.listPages?.hasNextPage;
@@ -111,6 +114,7 @@ export const NotesState = (props) => {
 						: currentPageNotesList,
 					hasNextPage,
 					currentPage,
+					totalDocs,
 				};
 				dispatch({
 					type: Actions.GET_NOTES_SUCCESS,
@@ -440,7 +444,7 @@ export const NotesState = (props) => {
 		});
 	};
 
-	const uploadNotesImageBlock = async (payload, data) => {
+	const uploadNotesImageBlock = async (payload, data, isDatabase = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -449,7 +453,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				isDatabase ? 'page_notes_api_database' : 'page_notes_api',
 			);
 
 			if (response?.[0]) {
@@ -1777,6 +1781,36 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const getMeetSummary = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getMeetSummaryQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api_database',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_MEET_SUMMARY_SUCCESS,
+					payload: {
+						summary: response?.[1]?.data?.getTranscriptionSummary?.transcriptionSummary,
+					},
+				});
+			} else {
+				dispatch({
+					type: Actions.GET_MEET_SUMMARY_SUCCESS,
+					payload: { summary: 'Summary not found' },
+				});
+			}
+		} catch (error) {
+			console.error('error==>getMeetSummary', error);
+		}
+	};
+
 	const createMeetBot = async (payload) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -1852,6 +1886,17 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const updateStateValues = async (updatedVaribaleValuesObj) => {
+		try {
+			dispatch({
+				type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+				payload: updatedVaribaleValuesObj,
+			});
+		} catch (error) {
+			console.log('error==>updateStateValues', error);
+		}
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -1910,5 +1955,7 @@ export const NotesState = (props) => {
 		deleteLiveKitRoom,
 		getMeetTranscriptHistory,
 		updateDatabaseView,
+		getMeetSummary,
+		updateStateValues,
 	};
 };

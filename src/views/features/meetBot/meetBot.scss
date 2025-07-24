@@ -695,6 +695,52 @@
 					cursor: not-allowed;
 				}
 			}
+
+			.meetbot__drawer-title-wrapper {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				width: 100%;
+			}
+
+			.meetbot__drawer-title-label {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.meetbot__drawer-title-input {
+				width: 100%;
+				height: 45px;
+				padding: 0px 16px;
+				border-radius: 8px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				background: none;
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				outline: none;
+				transition: border-color 0.2s ease;
+
+				&:focus {
+					border-color: var(--primary-button, #79ecc9);
+				}
+
+				&::placeholder {
+					color: var(--secondary-font, #94989e);
+				}
+
+				&:disabled {
+					opacity: 0.5;
+					cursor: not-allowed;
+				}
+			}
 		}
 
 		.openDrawerBtn {

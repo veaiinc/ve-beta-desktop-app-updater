@@ -89,12 +89,13 @@ const NewUi = () => {
 
 	useEffect(() => {
 		if (aiChatSessions?.data?.length > 4) {
-			let sessions = [
-				...((aiChatSessions?.data || [])?.slice(0, aiChatSessions?.data?.length - 1) || []),
+			let sessions = [...(aiChatSessions?.data || [])]?.reverse();
+			sessions = [
+				...sessions?.slice(0, sessions?.length - 1),
 				{
 					type: 'chatbox',
 				},
-				aiChatSessions?.data?.[aiChatSessions?.data?.length - 1],
+				sessions?.[sessions?.length - 1],
 			];
 			sessions = sessions?.filter(
 				(session) =>

@@ -21,10 +21,6 @@ import { message } from '../../components/globalComponents/CustomToast';
 import { Helmet } from 'react-helmet';
 import ObjectID from 'bson-objectid';
 import jwtDecode from 'jwt-decode';
-import { Tooltip } from 'antd';
-import UploadPopup from '../../components/notes/UploadPopup';
-import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
-import IconUploadPopup from '../../components/notes/IconUploadPopup';
 import DatabaseSidebar from '../../components/modalsV2/notes/DatabaseSidebar';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 // import '../../../assets/scss/notes/noteComponent.scss';
@@ -35,11 +31,14 @@ import NoteTakerTranscript from './NoteTakerTranscript';
 import Spinner from '../../components/loaders/Spinner';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../helpers';
+import AiTranscriptionSuggestions from '../../components/chat/AiTranscriptionSuggestions';
 export const NotesRefContext = createContext(null);
 import RecentChat from '../chat/RecentChat';
 import NotesHeader from '../../components/notes/DatabseComponents/NotesHeader';
 import Editor from '../../components/notes/Editor';
 import TranscriptionTabs from '../../components/notes/TranscriptionTabs';
+import MeetSummary from './MeetSummary';
+import NotesTitleArea from '../../components/notes/DatabseComponents/NotesTitleArea';
 
 const initialState = {
 	timeouts: {}, // Single timeouts object to store all timeouts
@@ -57,17 +56,22 @@ const initialState = {
 	lastUpdated: null,
 	deleteLoading: false,
 	updatedBy: null,
-	showUploadPopup: false,
 	showAiTranscriptionSuggestions: false,
-	showCustomizeAppearance: false,
 	coverImageError: false,
 	localCoverImage: false, // cover image or link that is selected/uploaded before refreshing the page
-	uploadType: null, // can be 'cover' or 'icon'
 	showRemoveCoverBtn: false,
 	showRemoveIconBtn: false,
 	selectedEmoji: null,
 	coverImageRemoved: false,
 	iconImageRemoved: false,
+	files: [],
+	userQuestions: [],
+	aiQuestions: [],
+	actions: [],
+	allSuggestions: [],
+	sessionId: ObjectID()?.toString(),
+	chatSessionId: ObjectID()?.toString(),
+	chatClicked: false,
 };
 
 const accessLevels = {
@@ -95,6 +99,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const noteId = useParams()?.noteId;
 	const sessionId = noteId;
 	const type = searchParams.get('type');
+	const history = Boolean(searchParams.get('history'));
 	const isAiIntelligenceEnabled = searchParams.get('isAiIntelligenceEnabled');
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
@@ -122,16 +127,23 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			createBlock,
 			updateBlock,
 			deleteBlock,
+			updateStateValues: updateNotesStateValues,
 		},
 		chatStream: { createWebSocketConnection, sendMessage, closeWebSocketConnection },
 		companyInfo: { getTeamMembers, tenantsUserList },
-		templates: { handleTranscriptionSuggestions },
+		templates: {
+			handleTranscriptionSuggestions,
+			aiTranscriptionSuggestions,
+			updateStateValues,
+		},
 		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState(initialState);
 	const [transcriptList, setTranscriptList] = useState([]);
-	const [activeTab, setActiveTab] = useState('transcript');
+	const [activeTab, setActiveTab] = useState(
+		history || type === 'desktop' ? 'transcript' : 'all',
+	);
 	const location = useLocation();
 
 	// Add hooks for live intelligence and recall stream
@@ -151,6 +163,60 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	// 	},
 	// 	[handleTranscriptionSuggestions],
 	// );
+
+	useEffect(() => {
+		if (aiTranscriptionSuggestions) {
+			const userQuestions = [];
+			const aiQuestions = [];
+			const actions = [];
+			const files = [];
+			// for (const prompt of aiTranscriptionSuggestions?.prompts || []) {
+			// 	if (prompt?.entity === 'user') {
+			// 		userQuestions.push(prompt);
+			// 	} else if (prompt?.entity === 'agent') {
+			// 		if (prompt?.type === 'search') {
+			// 			aiQuestions.push(prompt);
+			// 		} else if (prompt?.type === 'action') {
+			// 			actions.push(prompt);
+			// 		}
+			// 	}
+			// }
+
+			for (const suggestion of aiTranscriptionSuggestions?.suggestions || []) {
+				if (suggestion?.entity === 'user') {
+					userQuestions.push(suggestion);
+				} else if (suggestion?.entity === 'agent') {
+					if (suggestion?.type === 'search') {
+						aiQuestions.push(suggestion);
+					} else if (suggestion?.type === 'action') {
+						actions.push(suggestion);
+					}
+				} else {
+					files.push(suggestion);
+				}
+			}
+
+			setInfo((prev) => ({
+				...prev,
+				userQuestions,
+				aiQuestions,
+				actions,
+				files,
+				allSuggestions: aiTranscriptionSuggestions?.suggestions || [],
+			}));
+		}
+	}, [aiTranscriptionSuggestions]);
+
+	useEffect(() => {
+		return () => {
+			updateNotesStateValues({
+				meetSummary: null,
+			});
+			updateStateValues({
+				aiTranscriptionSuggestions: null,
+			});
+		};
+	}, []);
 	const handleSocketMessage = useCallback(
 		(event) => {
 			try {
@@ -247,22 +313,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		const { user_id } = jwtDecode(token);
 		userId = user_id;
 	}, []);
-
-	// useEffect(() => {
-	// 	const notesContainer = document.querySelector('.notes-container');
-	// 	const handleKeyDown = (e) => {
-	// 		if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-	// 			const selected = editor?.getSelectedText()?.length > 0 || false;
-	// 			if (selected) {
-	// 				e.stopPropagation();
-	// 				return;
-	// 			}
-	// 		}
-	// 	};
-
-	// 	notesContainer.addEventListener('keydown', handleKeyDown);
-	// 	return () => notesContainer.removeEventListener('keydown', handleKeyDown);
-	// }, []);
 
 	useEffect(() => {
 		const originalFaviconTag = document.querySelector("link[rel~='icon']");
@@ -475,12 +525,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		);
 	};
 
-	const handleKeyDown = (e) => {
-		if (e.key === 'Enter') {
-			e.preventDefault(); // optional: stops newline if it's a textarea
-		}
-	};
-
 	const handleFavorite = useCallback(
 		(value) => {
 			setInfo((prev) => ({ ...prev, isFavorite: value }));
@@ -521,7 +565,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			);
 			if (success) {
 				message.success(`Page ${permanent ? 'permanently ' : ''}deleted successfully`);
-				navigate('/notes');
+				navigate(-1);
 			} else {
 				message.error('Failed to delete page');
 			}
@@ -642,7 +686,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	};
 
 	useEffect(() => {
-		if (showTranscriptTabs && location?.pathname?.includes('meet') && type === 'meeting_bot') {
+		if (
+			showTranscriptTabs &&
+			location?.pathname?.includes('meet') &&
+			history !== true &&
+			type === 'meeting_bot'
+		) {
 			recallConnection(sessionId, noteId, handleSocketMessage, isAiIntelligenceEnabled);
 			// createLiveIntelligenceStream(
 			// 	sessionId,
@@ -673,21 +722,27 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		}));
 	};
 
+	const handleInfoChange = useCallback((data) => {
+		setInfo((prev) => ({ ...prev, ...data }));
+	}, []);
+
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
-			<div className="notesChatArea">
-				<RecentChat
-					showIconText={false}
-					isPreview={true}
-					autoFocus={false}
-					customChatBoxClick={handleChatBoxClick}
-					// {...(info?.chatClicked && {
-					// 	sId: info?.chatSessionId,
-					// })}
-					sId={info?.chatSessionId}
-					showCitationsButton={false}
-				/>
-			</div>
+			{!(type === 'meeting_bot' || type === 'desktop') && (
+				<div className="notesChatArea">
+					<RecentChat
+						showIconText={false}
+						isPreview={true}
+						autoFocus={false}
+						customChatBoxClick={handleChatBoxClick}
+						// {...(info?.chatClicked && {
+						// 	sId: info?.chatSessionId,
+						// })}
+						sId={info?.chatSessionId}
+						showCitationsButton={false}
+					/>
+				</div>
+			)}
 			<div className="notesContentWrapper">
 				{info?.title && (
 					<Helmet>
@@ -747,197 +802,32 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 								maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px',
 							}}
 						>
-							<Tooltip
-								// open={info?.showCustomizeAppearance}
-								open={false}
-								onOpenChange={() => {
-									if (info?.showUploadPopup) {
-										setInfo((prev) => ({
-											...prev,
-											showUploadPopup: false,
-										}));
-									}
-									setInfo((prev) => ({
-										...prev,
-										showCustomizeAppearance: !prev.showCustomizeAppearance,
-									}));
-								}}
-								placement="bottomLeft"
-								title={
-									info?.showUploadPopup && info?.uploadType === 'cover' ? (
-										<UploadPopup
-											closePopup={() =>
-												setInfo((prev) => ({
-													...prev,
-													showUploadPopup: false,
-													showCustomizeAppearance: false,
-												}))
-											}
-											setLocalCoverImage={(coverImage) =>
-												setInfo((prev) => ({
-													...prev,
-													localCoverImage: coverImage,
-													coverImageRemoved: false,
-												}))
-											}
-											uploadType={info?.uploadType}
-										/>
-									) : info?.showUploadPopup && info?.uploadType === 'icon' ? (
-										<IconUploadPopup
-											setSelectedEmoji={(emoji) =>
-												setInfo((prev) => ({
-													...prev,
-													selectedEmoji: emoji,
-												}))
-											}
-											closePopup={() =>
-												setInfo((prev) => ({
-													...prev,
-													showUploadPopup: false,
-													showCustomizeAppearance: false,
-												}))
-											}
-										/>
-									) : (
-										<CustomizeAppearance
-											// uploadType can be 'cover' or 'icon'
-											showUploadPopup={(uploadType) =>
-												setInfo((prev) => ({
-													...prev,
-													showUploadPopup: true,
-													uploadType,
-												}))
-											}
-										/>
-									)
-								}
-								overlayInnerStyle={{
-									backgroundColor: 'inherit',
-								}}
-								arrow={false}
-							>
-								<div
-									className="notes-icon-container"
-									style={{
-										paddingTop: coverImage
-											? '42px'
-											: iconImage
-											? '100px'
-											: '0px',
-									}}
-								>
-									{iconImage && (
-										<div
-											className="notes-icon-wrapper"
-											onMouseEnter={() =>
-												setInfo((prev) => ({
-													...prev,
-													showRemoveIconBtn: true,
-												}))
-											}
-											onMouseLeave={() =>
-												setInfo((prev) => ({
-													...prev,
-													showRemoveIconBtn: false,
-												}))
-											}
-											style={{
-												top: coverImage
-													? '-72px'
-													: iconImage
-													? '-10px'
-													: '-24px',
-											}}
-										>
-											{info?.showRemoveIconBtn && (
-												<div className="remove-icon-btn-container">
-													<CrossIcon
-														className="remove-icon-btn"
-														onClick={handleRemoveIcon}
-													/>
-												</div>
-											)}
-											{iconImage?.native}
-										</div>
-									)}
-									<CustomTextArea
-										className="notes-title"
-										value={info?.title}
-										onChange={handleTitleChange}
-										autoResize={true}
-										onKeyDown={handleKeyDown}
-									/>
-								</div>
-							</Tooltip>
+							<NotesTitleArea
+								iconImage={info?.iconImage}
+								coverImage={info?.coverImage}
+								updateParentState={handleInfoChange}
+								handleRemoveIcon={handleRemoveIcon}
+								handleTitleChange={handleTitleChange}
+								title={info?.title}
+								showRemoveIconBtn={info?.showRemoveIconBtn}
+							/>
 
 							{showTranscriptTabs && (
-								<div className="notes-tabs-container">
-									<div
-										className="notes-tabs-header"
-										style={{
-											display: 'flex',
-											gap: 24,
-											borderBottom: '1px solid var(--stroke, #2c2d2e)',
-											marginBottom: 12,
-										}}
-									>
-										<button
-											className={
-												activeTab === 'transcript'
-													? 'notes-tab active'
-													: 'notes-tab'
-											}
-											style={{
-												background: 'none',
-												border: 'none',
-												outline: 'none',
-												color: 'inherit',
-												fontWeight: 500,
-												fontSize: 16,
-												padding: '8px 0',
-												borderBottom:
-													activeTab === 'transcript'
-														? '2px solid var(--primary-button, #cfff48)'
-														: '2px solid transparent',
-												cursor: 'pointer',
-												transition: 'color 0.2s',
-											}}
-											onClick={() => setActiveTab('transcript')}
-										>
-											Transcript
-										</button>
-
-										<button
-											className={
-												activeTab === 'summary'
-													? 'notes-tab active'
-													: 'notes-tab'
-											}
-											style={{
-												background: 'none',
-												border: 'none',
-												outline: 'none',
-												color: 'inherit',
-												fontWeight: 500,
-												fontSize: 16,
-												padding: '8px 0',
-												borderBottom:
-													activeTab === 'summary'
-														? '2px solid var(--primary-button, #cfff48)'
-														: '2px solid transparent',
-												cursor: 'pointer',
-												transition: 'color 0.2s',
-											}}
-											onClick={() => setActiveTab('summary')}
-										>
-											Summary
-										</button>
-									</div>
-								</div>
+								<TranscriptionTabs
+									activeTab={activeTab}
+									setActiveTab={setActiveTab}
+									userQuestions={info?.userQuestions}
+									aiQuestions={info?.aiQuestions}
+									actions={info?.actions}
+									files={info?.files}
+									history={history}
+									allSuggestions={info?.allSuggestions}
+									type={type}
+								/>
 							)}
-
-							{showTranscriptTabs && activeTab === 'transcript' ? (
-								type === 'meeting_bot' ? (
+							{showTranscriptTabs &&
+								activeTab === 'transcript' &&
+								(type === 'meeting_bot' ? (
 									<MeetTranscript transcriptList={transcriptList} />
 								) : type === 'desktop' ? (
 									<NoteTakerTranscript
@@ -945,27 +835,49 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 										tenantId={tennantSettingsData?._id}
 										sessionId={sessionId}
 										pageId={noteId}
+										history={history}
 									/>
-								) : null
-							) : (
-								<BlockNoteView
-									editor={editor}
-									formattingToolbar={false}
-									// onChange={onChange}
-									style={innerContainerStyle || {}}
-									theme={'dark'}
-									editable={info?.myAccess !== 'view' || !info?.isDeleted}
-									slashMenu={false}
-								>
-									{(info?.myAccess !== 'view' || !info?.isDeleted) && (
-										<NoteToolbar
-											sendMessage={customSendMessage}
-											aiResonse={info?.aiResonse}
-											resetAiResponse={resetAiResponse}
-										/>
-									)}
-									<SlashMenu editor={editor} noteId={noteId} />
-								</BlockNoteView>
+								) : null)}
+
+							{showTranscriptTabs && activeTab === 'summary' && (
+								<MeetSummary
+									activeTab={activeTab}
+									history={history}
+									pageId={noteId}
+								/>
+							)}
+
+							{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
+								(activeTab === 'userQuestions' ||
+									activeTab === 'aiQuestions' ||
+									activeTab === 'actions' ||
+									activeTab === 'files' ||
+									activeTab === 'all') && (
+									<AiTranscriptionSuggestions
+										userQuestions={info?.userQuestions}
+										aiQuestions={info?.aiQuestions}
+										actions={info?.actions}
+										files={info?.files}
+										activeTab={activeTab}
+										allSuggestions={info?.allSuggestions}
+									/>
+								)}
+
+							{(!showTranscriptTabs ||
+								(showTranscriptTabs && activeTab === 'notes')) && (
+								<Editor
+									innerContainerStyle={innerContainerStyle}
+									myAccess={info?.myAccess}
+									isDeleted={info?.isDeleted}
+									customSendMessage={customSendMessage}
+									aiResonse={info?.aiResonse}
+									resetAiResponse={resetAiResponse}
+									noteId={noteId}
+									initialBlocks={blocks}
+									createBlock={createBlock}
+									updateBlock={updateBlock}
+									deleteBlock={deleteBlock}
+								/>
 							)}
 						</div>
 					</>

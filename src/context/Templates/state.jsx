@@ -1712,7 +1712,6 @@ export const TemplatesState = (props) => {
 							  ],
 					hasNextPage: response?.[1]?.data?.activityLogs?.hasNextPage,
 				};
-				console.log(payload);
 				dispatch({
 					type: Actions.GET_NOTIFICATIONS_SUCCESS,
 					payload,
@@ -2049,6 +2048,7 @@ export const TemplatesState = (props) => {
 		removeLatestStreamMessage = false,
 		lastQuery = null,
 		chatBoxInfo = null,
+		chatInfo = null,
 	}) => {
 		try {
 			dispatch({
@@ -2069,6 +2069,7 @@ export const TemplatesState = (props) => {
 					removeLatestStreamMessage,
 					lastQuery,
 					chatBoxInfo,
+					chatInfo,
 				},
 			});
 		} catch (error) {

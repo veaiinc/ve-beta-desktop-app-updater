@@ -60,6 +60,7 @@ const NotesHeader = ({
 				{/* <Switch
 					checked={showAiTranscriptionSuggestions}
 					onChange={handleShowAiTranscriptionSuggestions}
+					size="small"
 				/> */}
 
 				<button className="notes-nav-button" onClick={() => handleFavorite(!isFavorite)}>

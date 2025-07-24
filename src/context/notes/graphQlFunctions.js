@@ -210,10 +210,12 @@ export const globalNotesAccessMutation = gql`
 export const notesImageBlockUploadMutation = gql`
 	mutation UploadPageBlockImage(
 		$pageId: ID!
+		$blockId: ID!
 		$uploadPageBlockImageInput: UploadPageBlockImageInput!
 	) {
 		uploadPageBlockImage(
 			pageId: $pageId
+			blockId: $blockId
 			uploadPageBlockImageInput: $uploadPageBlockImageInput
 		) {
 			signedUrl
@@ -1001,6 +1003,14 @@ export const getMeetBotDataQuery = gql`
 				isDeleted
 				transcriptionSource
 			}
+		}
+	}
+`;
+
+export const getMeetSummaryQuery = gql`
+	query Query($pageId: ID!) {
+		getTranscriptionSummary(pageId: $pageId) {
+			transcriptionSummary
 		}
 	}
 `;

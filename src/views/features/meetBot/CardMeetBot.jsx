@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { Drawer, Switch } from 'antd';
 import styles from './cardMeetBot.module.scss';
+import './meetBot.scss';
 import { ReactComponent as MicorPhoneIcon } from './micorPhoneIcon.svg';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import Context from '../../../context/context';
@@ -51,6 +52,7 @@ const CardMeetBot = () => {
 		isAiIntelligenceEnabled: false,
 		meetingMode: 'meeting',
 		agenda: '',
+		title: '',
 		currentIndex: 0,
 		searchOpen: false,
 	});
@@ -148,12 +150,12 @@ const CardMeetBot = () => {
 	}
 
 	const handleCreateMeet = async () => {
-		let now = new Date();
+		if (!info.title.trim()) {
+			// You can add a toast notification here if needed
+			return;
+		}
 		let input = {
-			title:
-				info.selectedMode === 'meeting_bot'
-					? `Meeting at ${formatCustomDate(now)}`
-					: `Note at ${formatCustomDate(now)}`,
+			title: info.title.trim(),
 			transcriptionSource: info.selectedMode,
 			isAiIntelligenceEnabled: info.isAiIntelligenceEnabled,
 			meetingMode: info.meetingMode,
@@ -170,6 +172,7 @@ const CardMeetBot = () => {
 				...prev,
 				meetingUrl: '',
 				agenda: '',
+				title: '',
 				isAiIntelligenceEnabled: false,
 				meetingMode: 'meeting',
 			}));
@@ -193,11 +196,17 @@ const CardMeetBot = () => {
 			info.selectedMode === 'meeting_bot' &&
 			e.key === 'Enter' &&
 			isValidUrl(info.meetingUrl) &&
+			info.title.trim() &&
 			!info.creating
 		) {
 			handleCreateMeet();
 		}
-		if (info.selectedMode === 'desktop' && e.key === 'Enter' && !info.creating) {
+		if (
+			info.selectedMode === 'desktop' &&
+			e.key === 'Enter' &&
+			info.title.trim() &&
+			!info.creating
+		) {
 			handleCreateMeet();
 		}
 	};
@@ -289,7 +298,7 @@ const CardMeetBot = () => {
 												}}
 												onClick={() =>
 													navigate(
-														`/meet/${meeting._id}?type=meeting_bot&history=true`,
+														`/meet/${meeting?._id}?type=${meeting?.transcriptionSource}&history=true`,
 													)
 												}
 											>
@@ -500,6 +509,23 @@ const CardMeetBot = () => {
 										: `Only you know you're recording—no visible participants join your meeting.`}
 								</div>
 							</div>
+
+							{/* Title Input Field */}
+							<div className="meetbot__drawer-title-wrapper">
+								<div className="meetbot__drawer-title-label">Title</div>
+								<input
+									className="meetbot__drawer-title-input"
+									placeholder="Enter meeting title..."
+									value={info.title}
+									onChange={(e) =>
+										setInfo((prev) => ({
+											...prev,
+											title: e.target.value,
+										}))
+									}
+									disabled={info.creating}
+								/>
+							</div>
 							{info.selectedMode === 'meeting_bot' && (
 								<>
 									{/* Meeting Mode Selection */}
@@ -593,12 +619,16 @@ const CardMeetBot = () => {
 										{!info.creating && (
 											<button
 												className={`meetbot__drawer-tick${
-													!isValidUrl(info.meetingUrl)
+													!isValidUrl(info.meetingUrl) ||
+													!info.title.trim()
 														? ' meetbot__drawer-tick--disabled'
 														: ''
 												}`}
 												onClick={handleCreateMeet}
-												disabled={!isValidUrl(info.meetingUrl)}
+												disabled={
+													!isValidUrl(info.meetingUrl) ||
+													!info.title.trim()
+												}
 												title="Create meeting"
 											>
 												Create
@@ -691,10 +721,12 @@ const CardMeetBot = () => {
 									</div>
 									<div className="meetbot__audio-btn-wrapper">
 										<button
-											disabled={info.creating}
+											disabled={info.creating || !info.title.trim()}
 											onClick={handleCreateMeet}
 											className={`meetbot__audio-btn${
-												info.creating ? ' meetbot__audio-btn--disabled' : ''
+												info.creating || !info.title.trim()
+													? ' meetbot__audio-btn--disabled'
+													: ''
 											}`}
 										>
 											<MicorPhoneIcon />

@@ -801,7 +801,10 @@ const SortableComponent = ({
 	}, [field.answer]);
 
 	// Single handler for all option selections
-	const handleOptionSelect = (selectedOption) => {
+	const [showOtherInput, setShowOtherInput] = useState(false);
+const [otherValue, setOtherValue] = useState('');
+
+const handleOptionSelect = (selectedOption) => {
 		// Only allow selection in preview or client mode
 		if (isPreview || client) {
 			const newAnswer =
@@ -815,6 +818,17 @@ const SortableComponent = ({
 
 			setLocalAnswer(newAnswer);
 			debouncedAnswerChange(field.id, newAnswer, _id);
+			
+			// Show input field when "Other" is selected
+			if (selectedOption === 'Other' && field.hasOtherOption) {
+				setShowOtherInput(true);
+				setOtherValue('');
+				console.log('Other selected, showing input field');
+			} else {
+				setShowOtherInput(false);
+				setOtherValue('');
+				console.log('Non-Other option selected, hiding input field');
+			}
 		}
 	};
 	const optionStyles = {
@@ -4713,7 +4727,7 @@ const SortableComponent = ({
 															<div className="toggle-switch">
 																<input
 																	type="checkbox"
-																	checked={field.showOtherOption}
+																	checked={field.hasOtherOption}
 																	onChange={(e) => {
 																		const updateBlocks =
 																			blocks.map((f) => {
@@ -4721,11 +4735,34 @@ const SortableComponent = ({
 																					f.id ===
 																					field.id
 																				) {
-																					return {
+																					const newField = {
 																						...f,
-																						showOtherOption:
-																							!f.showOtherOption,
+																						hasOtherOption:
+																							!f.hasOtherOption,
 																					};
+																					if (!f.hasOtherOption) {
+																						// Add 'Other' option if it doesn't exist
+																						newField.options = [
+																							...(f.options || []),
+																							'Other',
+																						];
+																					} else {
+																						// Remove 'Other' option if it exists
+																						newField.options = f.options.filter(
+																							(opt) =>
+																								opt !== 'Other',
+																						);
+																						// Also remove it from answers if selected
+																						if (Array.isArray(newField.answer)) {
+																							newField.answer = newField.answer.filter(
+																								(ans) =>
+																									ans !== 'Other',
+																							);
+																						} else if (newField.answer === 'Other') {
+																							newField.answer = '';
+																						}
+																					}
+																					return newField;
 																				}
 																				return f;
 																			});
@@ -5114,7 +5151,7 @@ const SortableComponent = ({
 						maxHeight: '600px',
 						overflowY: 'auto',
 						position: 'relative',
-						paddingBottom: '20px',
+						// paddingBottom: '20px',
 						maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
 						WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
 					}}
@@ -5283,7 +5320,7 @@ const SortableComponent = ({
 										color: 'black',
 									}}
 								>
-									{displayOptions.map((option, index) => (
+									{displayOptions.filter(option => option !== 'Other').map((option, index) => (
 										<div
 											key={`${instanceKey}-${index}-${option}`}
 											className="dropdown-option"
@@ -5301,6 +5338,9 @@ const SortableComponent = ({
 												onAnswerChange(field.id, newValue, _id);
 												// Close dropdown after selection
 												setLocalDropdownState(false);
+												// Hide Other input if selecting a different option
+												setShowOtherInput(false);
+												setOtherValue('');
 											}}
 											style={{
 												padding: '10px 12px',
@@ -5387,20 +5427,16 @@ const SortableComponent = ({
 									))}
 
 									{/* Static "Other" option */}
-									{field.showOtherOption && (
+									{field.hasOtherOption && (
 										<div
 											className="dropdown-option"
 											onClick={() => {
-												const newValue = field.allowMultiple
-													? Array.isArray(field.answer)
-														? field.answer.includes('Other')
-															? field.answer.filter(
-																	(a) => a !== 'Other',
-															  )
-															: [...(field.answer || []), 'Other']
-														: ['Other']
-													: 'Other';
+												const newValue = 'Other';
 												onAnswerChange(field.id, newValue, _id);
+												setShowOtherInput(true);
+												setOtherValue('');
+												setLocalDropdownState(false); // Close dropdown after selection
+												console.log('Other selected in dropdown, showing input field');
 											}}
 											style={{
 												padding: '10px 12px',
@@ -5411,12 +5447,15 @@ const SortableComponent = ({
 												backgroundColor: field.allowMultiple
 													? Array.isArray(field.answer) &&
 													  field.answer.includes('Other')
-														? '#3D3D3D'
+														? '#1a1a1a'
 														: 'transparent'
 													: field.answer === 'Other'
-													? '#3D3D3D'
+													? '#1a1a1a'
 													: 'transparent',
-												borderRadius: '30px',
+												borderRadius: '8px',
+												border: '1px solid #E0E0E0',
+												transition: 'all 0.2s ease',
+												marginTop: '8px',
 												//
 											}}
 										>
@@ -5531,6 +5570,17 @@ const SortableComponent = ({
 												newValue = option;
 											}
 											onAnswerChange(field.id, newValue, _id);
+											
+											// Show input field when "Other" is selected
+											if (option === 'Other' && field.hasOtherOption) {
+												setShowOtherInput(true);
+												setOtherValue('');
+												console.log('Other selected, showing input field');
+											} else {
+												setShowOtherInput(false);
+												setOtherValue('');
+												console.log('Non-Other option selected, hiding input field');
+											}
 										}
 									}}
 									style={{
@@ -5709,6 +5759,64 @@ const SortableComponent = ({
 							</div>
 						))
 					)}
+				</div>
+			)}
+
+			{/* Add Other option input field - only show in client mode */}
+			{client && showOtherInput && field.hasOtherOption && (field.type === 'singlechoice' || field.type === 'multiplechoice' || field.type === 'dropdown') && (
+				<div style={{
+					marginTop: '12px',
+					marginBottom: '16px',
+					width: windowWidth <= 768 ? '305px' : '712px',
+					position: 'relative',
+					zIndex: 1,
+				}}>
+					<div style={{
+						position: 'relative',
+						display: 'flex',
+						alignItems: 'center',
+						width: '100%',
+					}}>
+						<input
+							type="text"
+							value={otherValue}
+							onChange={(e) => {
+								const value = e.target.value;
+								setOtherValue(value);
+								// Update the answer with the Other option value
+								const newAnswer = field.type === 'multiplechoice'
+									? [...(Array.isArray(localAnswer) ? localAnswer.filter(a => !a.startsWith('Other:')) : []), value ? `Other: ${value}` : 'Other']
+									: value ? `Other: ${value}` : 'Other';
+								debouncedAnswerChange(field.id, newAnswer, _id);
+								console.log('Other input changed:', value, 'newAnswer:', newAnswer);
+							}}
+							placeholder="Please specify..."
+							style={{
+								width: '100%',
+								padding: '12px 16px',
+								border: '1px solid #E0E0E0',
+								borderRadius: '8px',
+								fontSize: '16px',
+								fontFamily: optionFont || 'Inter',
+								outline: 'none',
+								backgroundColor: 'white',
+								color: field?.question?.match(/color:\s*(.*?)[;"]/)?.[1] || '#1A1A1A',
+							}}
+						/>
+						{/* <span style={{
+							position: 'absolute',
+							left: '12px',
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							width: '20px',
+							color: '#666',
+							fontSize: '14px',
+							fontWeight: '500',
+						}}>
+							{String.fromCharCode(65 + (field.options?.length || 0))}
+						</span> */}
+					</div>
 				</div>
 			)}
 
