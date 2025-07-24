@@ -1,5 +1,5 @@
 // main.js
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, Menu } = require('electron');
 const ipcMain = require('electron').ipcMain;
 const { autoUpdater } = require('electron-updater');
 const log = require('electron-log'); // Import electron-log
@@ -11,23 +11,27 @@ autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info'; // Adjust log level as needed
 log.info('App started'); // Log app start
 
-// Configure autoUpdater for development and production
-if (process.env.NODE_ENV === 'development') {
-	// Disable auto-updater in development
-	autoUpdater.autoDownload = false;
-	autoUpdater.autoInstallOnAppQuit = false;
-	log.info('Auto-updater disabled in development mode');
-} else {
-	// Production settings
-	autoUpdater.autoDownload = true;
-	autoUpdater.autoInstallOnAppQuit = true;
+let template = [];
 
-	autoUpdater.allowDowngrade = false;
-	autoUpdater.allowPrerelease = false;
-	autoUpdater.disableWebInstaller = true;
-
-	log.info('Auto-updater configured for production');
-}
+// if (process.platform === 'darwin') {
+// 	const name = app.getName();
+// 	template.unshift({
+// 		label: name,
+// 		submenu: [
+// 			{
+// 				label: 'About ' + name,
+// 				role: 'about',
+// 			},
+// 			{
+// 				label: 'Quit',
+// 				accelerator: 'Command+Q',
+// 				click() {
+// 					app.quit();
+// 				},
+// 			},
+// 		],
+// 	});
+// }
 
 function createWindow() {
 	mainWindow = new BrowserWindow({
@@ -132,6 +136,8 @@ autoUpdater.on('update-downloaded', (info) => {
 });
 
 app.whenReady().then(() => {
+	// const menu = Menu.buildFromTemplate(template);
+	// Menu.setApplicationMenu(menu);
 	createWindow();
 });
 
@@ -189,8 +195,5 @@ ipcMain.handle('restart-app', async () => {
 
 // Graceful exit on macOS
 app.on('window-all-closed', () => {
-	if (process.platform !== 'darwin') {
-		log.info('All windows closed. Quitting app.'); // Log app quitting
-		app.quit();
-	}
+	app.quit();
 });
