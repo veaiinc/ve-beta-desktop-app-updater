@@ -129,8 +129,18 @@ const AgentShareComponent = ({ agentId, activeKnowledgeAssistant }) => {
 				};
 
 				const response = await addSharedAgentUser(finalAgentId, payload);
-				if (!response?.[0]) {
-					message.error(`Failed to add ${user?.fullName}`);
+				if (response?.[0] !== true) {
+					// Handle specific error cases
+					if (response?.[1]?.code === 403) {
+						message.error('Insufficient permissions to add users to this agent');
+					} else {
+						message.error(
+							`Failed to add ${user?.fullName}: ${
+								response?.[1]?.message || 'Unknown error'
+							}`,
+						);
+					}
+					setInfo((prev) => ({ ...prev, btnLoading: false }));
 					return false;
 				}
 			}
@@ -156,11 +166,18 @@ const AgentShareComponent = ({ agentId, activeKnowledgeAssistant }) => {
 		if (access === 'remove') {
 			try {
 				const response = await removeSharedAgentUser(finalAgentId, userId);
-				if (response?.[0]) {
+				if (response?.[0] === true) {
 					message.success('User removed successfully');
 					await fetchSharedUsers();
 				} else {
-					message.error('Failed to remove user');
+					// Handle specific error cases
+					if (response?.[1]?.code === 403) {
+						message.error('Insufficient permissions to remove users from this agent');
+					} else {
+						message.error(
+							`Failed to remove user: ${response?.[1]?.message || 'Unknown error'}`,
+						);
+					}
 				}
 			} catch (error) {
 				message.error('Failed to remove user');
@@ -172,12 +189,22 @@ const AgentShareComponent = ({ agentId, activeKnowledgeAssistant }) => {
 					access,
 				};
 				const response = await addSharedAgentUser(finalAgentId, payload);
-				if (response?.[0]) {
+				console.log(response);
+				if (response?.[0] === true) {
 					message.success('Access updated successfully');
 					// Refresh shared users after updating access
 					await fetchSharedUsers();
 				} else {
-					message.error('Failed to update access');
+					// Handle specific error cases
+					if (response?.[1]?.code === 403) {
+						message.error(
+							'Insufficient permissions to update user access for this agent',
+						);
+					} else {
+						message.error(
+							`Failed to update access: ${response?.[1]?.message || 'Unknown error'}`,
+						);
+					}
 				}
 			} catch (error) {
 				message.error('Failed to update access');
@@ -192,12 +219,23 @@ const AgentShareComponent = ({ agentId, activeKnowledgeAssistant }) => {
 				...(isEnabled && { access }),
 			};
 			const response = await updateSharedAgentUser(finalAgentId, payload);
-			if (response?.[0]) {
+			if (response?.[0] === true) {
 				message.success('Global access updated');
 				await getActiveKnowledgeAgentDetails(finalAgentId);
 				// await fetchSharedUsers();
 			} else {
-				message.error('Failed to update global access');
+				// Handle specific error cases
+				if (response?.[1]?.code === 403) {
+					message.error(
+						'Insufficient permissions to update global access for this agent',
+					);
+				} else {
+					message.error(
+						`Failed to update global access: ${
+							response?.[1]?.message || 'Unknown error'
+						}`,
+					);
+				}
 			}
 		} catch (error) {
 			message.error('Failed to update global access');
