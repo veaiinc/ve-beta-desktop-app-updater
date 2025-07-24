@@ -263,6 +263,17 @@
 				justify-content: flex-end;
 			}
 		}
+
+		.card.skeleton {
+			overflow: hidden;
+			padding: 0;
+			transition: none;
+			background-color: transparent;
+
+			&.selected {
+				border: 1.5px solid var(--primary-button);
+			}
+		}
 	}
 	.actionMainContainer {
 		width: 100%;
@@ -567,22 +578,6 @@
 						font-weight: 500;
 					}
 				}
-			}
-		}
-		.card.skeleton {
-			overflow: hidden;
-			padding: 0;
-			background-color: transparent;
-			border: none;
-
-			.skeleton-container {
-				padding: 0;
-				border-radius: 16px;
-				overflow: hidden;
-			}
-
-			&.selected {
-				padding: 4px;
 			}
 		}
 	}

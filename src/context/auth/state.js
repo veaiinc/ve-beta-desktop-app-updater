@@ -356,9 +356,9 @@ export const AuthState = () => {
 							actions: [],
 							conditions: [],
 							validation: {
-								pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-								operators: []
-							}
+								pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+								operators: [],
+							},
 						},
 					],
 				},
@@ -402,6 +402,7 @@ export const AuthState = () => {
 		if (userId) {
 			params = new URLSearchParams({
 				isVisitor: true,
+				locationDetails: encodedLocationDetails,
 				userId,
 			})?.toString();
 		}
