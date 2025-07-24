@@ -86,7 +86,6 @@ const DatabaseComponent = ({ block, editor }) => {
 
 	const { databaseId } = block?.props || {};
 	const sourceBlockId = previousBlocksRef?.current?.get(block?.id)?._id;
-	console.log('sourceBlockId', sourceBlockId);
 
 	const [info, setInfo] = useState({
 		addRowModalOpen: false,

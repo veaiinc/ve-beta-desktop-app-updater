@@ -67,6 +67,7 @@ class ErrorBoundary extends Component {
 				errorComponentStack: errorInfo?.componentStack || 'Not Available',
 			};
 
+			if (isLazyLoadingErr) return;
 			const success = await logError(payload);
 			if (success) {
 				console.log('Error logged successfully');
