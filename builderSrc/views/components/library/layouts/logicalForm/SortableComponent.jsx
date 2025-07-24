@@ -5320,7 +5320,7 @@ const handleOptionSelect = (selectedOption) => {
 										color: 'black',
 									}}
 								>
-									{displayOptions.map((option, index) => (
+									{displayOptions.filter(option => option !== 'Other').map((option, index) => (
 										<div
 											key={`${instanceKey}-${index}-${option}`}
 											className="dropdown-option"
@@ -5338,6 +5338,9 @@ const handleOptionSelect = (selectedOption) => {
 												onAnswerChange(field.id, newValue, _id);
 												// Close dropdown after selection
 												setLocalDropdownState(false);
+												// Hide Other input if selecting a different option
+												setShowOtherInput(false);
+												setOtherValue('');
 											}}
 											style={{
 												padding: '10px 12px',
@@ -5428,25 +5431,12 @@ const handleOptionSelect = (selectedOption) => {
 										<div
 											className="dropdown-option"
 											onClick={() => {
-												const newValue = field.allowMultiple
-													? Array.isArray(field.answer)
-														? field.answer.includes('Other')
-															? field.answer.filter(
-																	(a) => a !== 'Other',
-															  )
-															: [...(field.answer || []), 'Other']
-														: ['Other']
-													: 'Other';
+												const newValue = 'Other';
 												onAnswerChange(field.id, newValue, _id);
-												// Show input field when "Other" is selected
-												if (newValue === 'Other' || (Array.isArray(newValue) && newValue.includes('Other'))) {
-													setShowOtherInput(true);
-													setOtherValue('');
-												} else {
-													setShowOtherInput(false);
-													setOtherValue('');
-												}
-												console.log('Other clicked, showOtherInput:', showOtherInput);
+												setShowOtherInput(true);
+												setOtherValue('');
+												setLocalDropdownState(false); // Close dropdown after selection
+												console.log('Other selected in dropdown, showing input field');
 											}}
 											style={{
 												padding: '10px 12px',
@@ -5773,7 +5763,7 @@ const handleOptionSelect = (selectedOption) => {
 			)}
 
 			{/* Add Other option input field - only show in client mode */}
-			{client && showOtherInput && field.hasOtherOption && (field.type === 'singlechoice' || field.type === 'multiplechoice') && (
+			{client && showOtherInput && field.hasOtherOption && (field.type === 'singlechoice' || field.type === 'multiplechoice' || field.type === 'dropdown') && (
 				<div style={{
 					marginTop: '12px',
 					marginBottom: '16px',
