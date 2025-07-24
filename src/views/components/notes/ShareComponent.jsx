@@ -8,7 +8,7 @@ import ShareModal from '../../components/globalComponents/globalShareModal';
 import jwtDecode from 'jwt-decode';
 import moment from 'moment';
 
-const ShareComponent = ({ pageId, makeApiCall = true }) => {
+const ShareComponent = ({ pageId, makeApiCall = true, isDatabase }) => {
 	const {
 		companyInfo: { getTeamMembers, tenantsUserList },
 		notes: {
@@ -152,21 +152,34 @@ const ShareComponent = ({ pageId, makeApiCall = true }) => {
 			access,
 		}));
 
-		const response = await addNotesAccess({
-			pageId,
-			usersPermissionInput,
-		});
+		const response = await addNotesAccess(
+			{
+				pageId,
+				usersPermissionInput,
+			},
+			isDatabase,
+		);
 
 		if (response?.[0]) {
+			handleInfoChange({
+				btnLoading: false,
+				selectedMembers: [],
+				accessType: 'full',
+				inputFocused: false,
+				search: '',
+			});
+
 			const selectedUserWithAccess = selectedMembers.map((user) => ({
 				...user,
 				access,
 			}));
+
 			updateNotesState({
 				notesAccess: [...(info?.membersWithAccess || []), ...selectedUserWithAccess],
 			});
 
 			message.success(response?.[1]?.message);
+
 			return true;
 		} else {
 			handleInfoChange({ btnLoading: false });
@@ -177,10 +190,13 @@ const ShareComponent = ({ pageId, makeApiCall = true }) => {
 
 	const handleChangeAccess = async (userId, access) => {
 		if (access === 'remove') {
-			const response = await removeNotesAccess({
-				pageId,
-				userId,
-			});
+			const response = await removeNotesAccess(
+				{
+					pageId,
+					userId,
+				},
+				isDatabase,
+			);
 			if (response?.[0]) {
 				message.success(response?.[1]?.message);
 				const updatedMembersWithAccess = info?.membersWithAccess?.filter(
@@ -191,13 +207,16 @@ const ShareComponent = ({ pageId, makeApiCall = true }) => {
 				message.error(response?.[1]?.message);
 			}
 		} else {
-			const response = await changeNotesAccess({
-				pageId,
-				userPermissionInput: {
-					userId,
-					access,
+			const response = await changeNotesAccess(
+				{
+					pageId,
+					userPermissionInput: {
+						userId,
+						access,
+					},
 				},
-			});
+				isDatabase,
+			);
 			if (response?.[0]) {
 				message.success(response?.[1]?.message);
 				const updatedMembersWithAccess = info?.membersWithAccess?.map((member) =>
@@ -274,7 +293,7 @@ const ShareComponent = ({ pageId, makeApiCall = true }) => {
 				access: globalAccess?.access || 'view',
 			},
 		};
-		const response = await updateGlobalAccess(payload);
+		const response = await updateGlobalAccess(payload, isDatabase);
 		if (response?.[0]) {
 			message?.success('Global access updated');
 		} else {

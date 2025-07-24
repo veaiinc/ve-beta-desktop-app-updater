@@ -53,6 +53,7 @@ import {
 	getPageQueryDatabase,
 	createNotesDatabaseMutation,
 	updateDatabaseViewMutation,
+	changeNotesAccessMutationDatabase,
 
 	// for meet bots
 	getMeetBotDataQuery,
@@ -211,7 +212,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const getNotesAccess = async (payload) => {
+	const getNotesAccess = async (payload, isDatabase = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -220,7 +221,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				isDatabase ? 'page_notes_api_database' : 'page_notes_api',
 			);
 
 			if (response?.[0]) {
@@ -239,7 +240,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const addNotesAccess = async (payload) => {
+	const addNotesAccess = async (payload, isDatabase = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -248,7 +249,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				isDatabase ? 'page_notes_api_database' : 'page_notes_api',
 			);
 
 			if (response?.[0]) {
@@ -261,16 +262,16 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const changeNotesAccess = async (payload) => {
+	const changeNotesAccess = async (payload, isDatabase = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
-				changeNotesAccessMutation,
+				isDatabase ? changeNotesAccessMutationDatabase : changeNotesAccessMutation,
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				isDatabase ? 'page_notes_api_database' : 'page_notes_api',
 			);
 
 			if (response?.[0]) {
@@ -305,7 +306,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const removeNotesAccess = async (payload) => {
+	const removeNotesAccess = async (payload, isDatabase = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -314,7 +315,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				isDatabase ? 'page_notes_api_database' : 'page_notes_api',
 			);
 			if (response?.[0]) {
 				return [true, response?.[1]?.data?.unsharePage];
@@ -410,7 +411,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const updateGlobalAccess = async (payload) => {
+	const updateGlobalAccess = async (payload, isDatabase = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -419,7 +420,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				isDatabase ? 'page_notes_api_database' : 'page_notes_api',
 			);
 			if (response?.[0]) {
 				dispatch({

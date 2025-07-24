@@ -41,7 +41,6 @@ import MeetSummary from './MeetSummary';
 import NotesTitleArea from '../../components/notes/DatabseComponents/NotesTitleArea';
 
 const initialState = {
-	timeouts: {}, // Single timeouts object to store all timeouts
 	title: '',
 	updatedAt: '',
 	notesConfigs: {
@@ -103,6 +102,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
 	const originalFaviconRef = useRef(null);
+	const titleTimeoutRef = useRef(null);
 
 	// const { createWebSocketConnection, sendMessage } = useChatStream();
 
@@ -381,7 +381,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	useEffect(() => {
 		if (noteId) {
-			getNotesAccess({ pageId: noteId });
+			const isDatabase = true;
+			getNotesAccess({ pageId: noteId }, isDatabase);
 		}
 	}, [noteId]);
 
@@ -456,10 +457,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	useEffect(() => {
 		return () => {
-			// Clear all timeouts on unmount
-			Object.values(info.timeouts).forEach(clearTimeout);
+			// Clear title timeout on unmount
+			if (titleTimeoutRef.current) {
+				clearTimeout(titleTimeoutRef.current);
+			}
 		};
-	}, [info.timeouts]);
+	}, []);
 
 	const getNotesPageDataFunc = useCallback(async () => {
 		const payload = {
@@ -469,44 +472,36 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		getNotesPageData(payload, isDatabase);
 	}, [noteId]);
 
-	// Generic debounce function
-	const handleDebounce = useCallback(
-		(key, callback, delay = 500) => {
-			clearTimeout(info.timeouts[key]);
-			const timeout = setTimeout(callback, delay);
-			setInfo((prev) => ({
-				...prev,
-				timeouts: { ...prev.timeouts, [key]: timeout },
-			}));
-		},
-		[info.timeouts],
-	);
+	// Generic debounce function for title updates
+	const handleTitleDebounce = useCallback((callback, delay = 500) => {
+		if (titleTimeoutRef.current) {
+			clearTimeout(titleTimeoutRef.current);
+		}
+		titleTimeoutRef.current = setTimeout(callback, delay);
+	}, []);
 
 	const handleTitleChange = (e) => {
 		const newTitle = e?.target?.value;
 		setInfo((prev) => ({ ...prev, title: newTitle }));
 		const isDatabase = true;
-		handleDebounce(
-			'title',
-			() => {
-				updatePage(
-					{
-						pageId: noteId,
-						input: { title: newTitle },
-					},
-					isDatabase,
-				);
-				setInfo((prev) => ({ ...prev, updatedAt: moment().unix() }));
-			},
-			isDatabase,
-		);
+		handleTitleDebounce(() => {
+			updatePage(
+				{
+					pageId: noteId,
+					input: { title: newTitle },
+				},
+				isDatabase,
+			);
+			setInfo((prev) => ({ ...prev, updatedAt: moment().unix() }));
+		}, 500);
 	};
 
 	const handleFavorite = useCallback(
 		(value) => {
 			setInfo((prev) => ({ ...prev, isFavorite: value }));
 
-			handleDebounce('favorite', async () => {
+			// Simple timeout for favorite action
+			setTimeout(async () => {
 				const payload = { pageId: noteId };
 				const [success] = value
 					? await addToFavorite(payload)
@@ -515,9 +510,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 				if (!success) {
 					setInfo((prev) => ({ ...prev, isFavorite: !value }));
 				}
-			});
+			}, 500);
 		},
-		[noteId, handleDebounce],
+		[noteId],
 	);
 
 	const handleMoreOptionsChange = useCallback(
@@ -744,6 +739,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					restorePage={restorePage}
 					showAiTranscriptionSuggestions={info?.showAiTranscriptionSuggestions}
 					handleShowAiTranscriptionSuggestions={handleShowAiTranscriptionSuggestions}
+					isDatabase={true}
 				/>
 
 				<div className="notes-editor-container">

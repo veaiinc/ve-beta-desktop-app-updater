@@ -109,6 +109,15 @@ export const changeNotesAccessMutation = gql`
 	}
 `;
 
+export const changeNotesAccessMutationDatabase = gql`
+	mutation ChangePageAccess($pageId: ID!, $userPermissionInput: UserPermissionInput!) {
+		changePageAccess(pageId: $pageId, userPermissionInput: $userPermissionInput) {
+			success
+			message
+		}
+	}
+`;
+
 export const updatePageMutation = gql`
 	mutation Mutation($pageId: ID!, $input: UpdatePageInput!) {
 		updatePage(pageId: $pageId, input: $input) {
