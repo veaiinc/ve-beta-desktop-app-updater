@@ -983,7 +983,10 @@ const RecentChat = ({
 															globalChatMessages?.[sessionId]
 																?.messages?.length -
 																1
-																? `calc(${chatContentRef?.current?.clientHeight}px - 185px)`
+																? `${
+																		chatContentRef?.current
+																			?.clientHeight - 145
+																  }px`
 																: 'auto',
 													}}
 												>

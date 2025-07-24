@@ -15,6 +15,7 @@ async function getConfig() {
 	}
 	return cachedConfig;
 }
+export { getConfig };
 
 const handleHeaders = (token, body, type, isPublicChat = false) => {
 	const headers = { 'Content-Type': 'application/json' };
