@@ -1,13 +1,14 @@
 .ambient-ai-wrapper {
 	width: 100%;
 	height: 100%;
+	height: 100%;
 
 	.ambient-ai-container {
 		// margin: 0 auto;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		min-height: 100%;
+		height: 100%;
 		position: relative;
 		width: 100%;
 		transition: width 0.3s ease-in-out;
