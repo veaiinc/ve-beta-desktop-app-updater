@@ -158,7 +158,6 @@ const AgentShareComponent = ({ agentId, activeKnowledgeAssistant }) => {
 				const response = await removeSharedAgentUser(finalAgentId, userId);
 				if (response?.[0]) {
 					message.success('User removed successfully');
-					// Refresh shared users after removing user
 					await fetchSharedUsers();
 				} else {
 					message.error('Failed to remove user');
