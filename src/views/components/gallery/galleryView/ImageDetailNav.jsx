@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, memo, useContext } from 'react';
 import { ReactComponent as Download } from '../../../../assets/svg/gallery/download.svg';
 import { ReactComponent as Image } from '../../../../assets/svg/gallery/gallery2.svg';
 import { ReactComponent as Rotate } from '../../../../assets/svg/gallery/rotate.svg';
@@ -12,6 +12,8 @@ import { useNavigate } from 'react-router-dom';
 import slugify from 'slugify';
 import Peopleitem from './PeopleCard';
 import { message } from '../../globalComponents/CustomToast';
+import Context from '../../../../context/context';
+import { useLocation } from 'react-router-dom';
 
 const ImageDetailNav = ({
 	info,
@@ -26,14 +28,20 @@ const ImageDetailNav = ({
 	addGalleryTag,
 	addTagToImage,
 	removeTagFromImage,
-	getDownloadLinkForImage,
 	closeModal,
 	handleOpenUploadCover,
 }) => {
+	const { search } = useLocation();
+	const params = new URLSearchParams(search);
+	const isLightGallery = params.get('lite-gallery') === 'true';
+	const {
+		galleryInfo: { getDownloadLinkForImage },
+	} = useContext(Context);
 	const navigate = useNavigate();
 	const [navInfo, setnavInfo] = useState({
 		showLabels: true,
 		searchInput: '',
+		currentImageSize: null,
 	});
 	const OptionsArray = [
 		{
@@ -64,6 +72,15 @@ const ImageDetailNav = ({
 		}
 	}, []);
 
+	useEffect(() => {
+		if (imageDetail) {
+			setnavInfo((prev) => ({
+				...prev,
+				currentImageSize: imageDetail?.activeVersion?.s3_original?.size,
+			}));
+		}
+	}, [imageDetail]);
+
 	const functionsList = {
 		Delete: () => {
 			setInfo((prev) => ({
@@ -85,7 +102,11 @@ const ImageDetailNav = ({
 		Download: async () => {
 			const id = message.loading('Downloading image...');
 
-			const response = await getDownloadLinkForImage(info?.imageDetailId);
+			const response = await getDownloadLinkForImage(
+				info?.imageDetailId,
+				isLightGallery,
+				navInfo?.currentImageSize,
+			);
 
 			message.destroy(id);
 

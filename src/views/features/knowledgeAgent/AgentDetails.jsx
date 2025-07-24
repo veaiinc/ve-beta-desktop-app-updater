@@ -14,10 +14,11 @@ import jwtDecode from 'jwt-decode';
 import ChatBox from '../../components/chat/ChatBox';
 import AgentCredentials from '../../components/agents/agentDetails/agentCredentials/AgentCredentials';
 import AgentActivities from '../../components/agents/agentDetails/AgentActivities';
+import ObjectID from 'bson-objectid';
 const KnowledgeAgentDetails = () => {
 	const {
 		knowledgeAgent: { activeKnowledgeAssistant, getActiveKnowledgeAgentDetails },
-		templates: { updateStateValues, currentSessionId, chatInfo },
+		templates: { updateStateValues, handleGlobalChatMessages },
 	} = useContext(Context);
 
 	const { agentId } = useParams();
@@ -27,6 +28,7 @@ const KnowledgeAgentDetails = () => {
 		activeAiAssistant: null,
 		loading: true,
 		access: 'view',
+		sessionId: ObjectID().toString(),
 	});
 
 	useEffect(() => {
@@ -50,13 +52,21 @@ const KnowledgeAgentDetails = () => {
 	}, [agentId, activeKnowledgeAssistant]);
 
 	useEffect(() => {
-		if (agentId) {
-			updateStateValues({
+		if (agentId && info?.sessionId) {
+			// updateStateValues({
+			// 	chatInfo: {
+			// 		...chatInfo,
+			// 		agentType: 'knowledge_agent',
+			// 		assistantId: agentId,
+			// 	},
+			// });
+			handleGlobalChatMessages({
+				sessionId: info?.sessionId,
 				chatInfo: {
-					...chatInfo,
 					agentType: 'knowledge_agent',
 					assistantId: agentId,
 				},
+				updateExtraInfo: true,
 			});
 		}
 	}, [agentId]);
@@ -68,9 +78,9 @@ const KnowledgeAgentDetails = () => {
 	const handleCustomOnSendFunction = useCallback(
 		(data) => {
 			updateStateValues({ activePayloadForChat: data });
-			navigate(`/chat/${currentSessionId}?agentType=knowledge_agent&assistantId=${agentId}`);
+			navigate(`/chat/${info?.sessionId}?agentType=knowledge_agent&assistantId=${agentId}`);
 		},
-		[currentSessionId],
+		[info?.sessionId],
 	);
 
 	const checkAccess = useCallback(() => {
@@ -130,6 +140,7 @@ const KnowledgeAgentDetails = () => {
 							onSend={handleCustomOnSendFunction}
 							customChatActions={true}
 							showUpgradeSubscriptionBtn={false}
+							sessionId={info?.sessionId}
 						/>
 					</div>
 				</div>

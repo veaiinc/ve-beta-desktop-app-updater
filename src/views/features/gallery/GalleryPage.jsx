@@ -20,11 +20,11 @@ import { ReactComponent as BrushIcon } from '../../../assets/svg/gallery/brush.s
 import { ReactComponent as TrashIcon } from '../../../assets/svg/gallery/delete-red.svg';
 import { ReactComponent as DownloadIcon } from '../../../assets/svg/gallery/download2.svg';
 import { ReactComponent as LightRoomIcon } from '../../../assets/svg/gallery/light-room.svg';
-import { ReactComponent as AlbumCoverIcon } from '../../../assets/svg/gallery/changeAlbumCover.svg';
+import { ReactComponent as AlbumCoverIcon } from '../../../assets/svg/gallery/albumCoverIcon.svg';
 import { ReactComponent as DeleteIcon } from '../../../assets/svg/gallery/delete-red.svg';
 import { ReactComponent as LockIcon } from '../../../assets/svg/gallery/lockIcon.svg';
-import { ReactComponent as HomeIcon } from '../../../assets/svg/gallery/home.svg';
-import { ReactComponent as RightArrow } from '../../../assets/svg/gallery/rightArrow.svg';
+import { ReactComponent as RightArrow } from '../../../assets/svg/home_page/arrow-right.svg';
+import { ReactComponent as PlusIcon } from '../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as ToastSuccess } from '../../../assets/svg/gallery/toastSuccess.svg';
 import { ReactComponent as ToastWarning } from '../../../assets/svg/gallery/toastWarning.svg';
 import { ReactComponent as ToastError } from '../../../assets/svg/gallery/toastError.svg';
@@ -71,6 +71,8 @@ import { ReactComponent as ArrowSvg } from '../../../assets/svg/file/arrow.svg';
 import { ReactComponent as SelectModeIcon } from '../../../assets/svg/gallery/selectModeIcon.svg';
 import { getThumbnailUrl } from '../../../helpers/videoThumbnailHelpers';
 import GalleryVideos from '../../components/gallery/galleryVideos/GalleryVideos';
+import { ReactComponent as ChevronLeft } from '../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as MoveToIcon } from '../../../assets/svg/gallery/moveToIcon.svg';
 // const workspaceId = localStorage.getItem('workspaceId');
 
 const dummyImagesArray = Array.from({ length: 10 }, () => ({ isPlaceholderImg: true }));
@@ -260,7 +262,10 @@ const GalleryPage = () => {
 			x: 0,
 			y: 0,
 		},
-		zoom: 1,
+		zoom: {
+			desktop: 1,
+			mobile: 1,
+		},
 		uploadImageId: null,
 		imageURL: '',
 		coverImageDetails: null,
@@ -346,6 +351,7 @@ const GalleryPage = () => {
 		videoUploaded: false,
 		thumbnailUrls: {},
 		selectedScreenType: 'desktop',
+		selectedAlbumToMove: null,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -2526,7 +2532,7 @@ const GalleryPage = () => {
 		}
 	};
 
-	const handleSetCoverPosition = async (focalPoint) => {
+	const handleSetCoverPosition = async (focusInfo) => {
 		if (info?.coverLoading) return;
 
 		try {
@@ -2553,14 +2559,25 @@ const GalleryPage = () => {
 				throw new Error('Invalid image details for cover update');
 			}
 
+			// Extract desktop and mobile settings from focusInfo
+			const desktopSettings = focusInfo?.desktop || { focalPoint: { x: 0, y: 0 }, zoom: 1 };
+			const mobileSettings = focusInfo?.mobile || { focalPoint: { x: 0, y: 0 }, zoom: 1 };
+
 			const payload = {
 				image_id: currentImage._id,
-				xPosition: focalPoint?.x || 0,
-				yPosition: focalPoint?.y || 0,
+				xPosition: desktopSettings.focalPoint?.x || 0,
+				yPosition: desktopSettings.focalPoint?.y || 0,
+				zoom: desktopSettings.zoom || 1,
+				mobile: {
+					xPosition: mobileSettings.focalPoint?.x || 0,
+					yPosition: mobileSettings.focalPoint?.y || 0,
+					zoom: mobileSettings.zoom || 1,
+					width: 100,
+					height: 100,
+				},
 				givenFileName: currentImage.activeVersion.givenFileName,
 				width: 100,
 				height: 100,
-				zoom: info?.zoom || 1,
 			};
 
 			// Make the appropriate API call based on cover type
@@ -2572,12 +2589,19 @@ const GalleryPage = () => {
 			// message.destroy(id);
 
 			if (response?.[0]) {
-				// Create updated cover image object
+				// Create updated cover image object with both desktop and mobile settings
 				const updatedCoverImage = {
 					...currentImage,
-					xPosition: focalPoint?.x || 0,
-					yPosition: focalPoint?.y || 0,
-					zoom: info?.zoom || 1,
+					desktop: {
+						xPosition: desktopSettings.focalPoint?.x || 0,
+						yPosition: desktopSettings.focalPoint?.y || 0,
+						zoom: desktopSettings.zoom || 1,
+					},
+					mobile: {
+						xPosition: mobileSettings.focalPoint?.x || 0,
+						yPosition: mobileSettings.focalPoint?.y || 0,
+						zoom: mobileSettings.zoom || 1,
+					},
 				};
 				await getAlbumImagesCount(galleryId);
 				// Update state
@@ -2589,10 +2613,19 @@ const GalleryPage = () => {
 					coverImageDetails: updatedCoverImage,
 					selectedImages: [], // Clear selected images
 					crop: {
-						x: focalPoint?.x || 0,
-						y: focalPoint?.y || 0,
+						desktop: {
+							x: desktopSettings.focalPoint?.x || 0,
+							y: desktopSettings.focalPoint?.y || 0,
+						},
+						mobile: {
+							x: mobileSettings.focalPoint?.x || 0,
+							y: mobileSettings.focalPoint?.y || 0,
+						},
 					},
-					zoom: info?.zoom || 1,
+					zoom: {
+						desktop: desktopSettings.zoom || 1,
+						mobile: mobileSettings.zoom || 1,
+					},
 					// Update the appropriate cover
 				}));
 
@@ -2617,7 +2650,7 @@ const GalleryPage = () => {
 		} catch (error) {
 			console.error('Error updating cover position:', error);
 			showMessage('error', error.message || 'Failed to update cover position', () =>
-				handleSetCoverPosition(focalPoint),
+				handleSetCoverPosition(focusInfo),
 			);
 		} finally {
 			setTimeout(() => {
@@ -3030,8 +3063,14 @@ const GalleryPage = () => {
 					imageURL: '',
 					coverImageDetails: null,
 					uploadImageId: null,
-					crop: { x: 0, y: 0 },
-					zoom: 1,
+					crop: {
+						desktop: { x: 0, y: 0 },
+						mobile: { x: 0, y: 0 },
+					},
+					zoom: {
+						desktop: 1,
+						mobile: 1,
+					},
 				}));
 			}
 
@@ -3051,10 +3090,31 @@ const GalleryPage = () => {
 						imageURL: imageURL,
 						coverImageDetails: selectedImage,
 						crop: {
-							x: selectedImage?.xPosition || 0,
-							y: selectedImage?.yPosition || 0,
+							desktop: {
+								x:
+									selectedImage?.desktop?.xPosition ||
+									selectedImage?.xPosition ||
+									0,
+								y:
+									selectedImage?.desktop?.yPosition ||
+									selectedImage?.yPosition ||
+									0,
+							},
+							mobile: {
+								x:
+									selectedImage?.mobile?.xPosition ||
+									selectedImage?.xPosition ||
+									0,
+								y:
+									selectedImage?.mobile?.yPosition ||
+									selectedImage?.yPosition ||
+									0,
+							},
 						},
-						zoom: selectedImage?.zoom || 1,
+						zoom: {
+							desktop: selectedImage?.desktop?.zoom || selectedImage?.zoom || 1,
+							mobile: selectedImage?.mobile?.zoom || selectedImage?.zoom || 1,
+						},
 					}));
 				}
 			}
@@ -3090,10 +3150,31 @@ const GalleryPage = () => {
 						imageURL: imageURL,
 						coverImageDetails: selectedImage,
 						crop: {
-							x: selectedImage?.xPosition || 0,
-							y: selectedImage?.yPosition || 0,
+							desktop: {
+								x:
+									selectedImage?.desktop?.xPosition ||
+									selectedImage?.xPosition ||
+									0,
+								y:
+									selectedImage?.desktop?.yPosition ||
+									selectedImage?.yPosition ||
+									0,
+							},
+							mobile: {
+								x:
+									selectedImage?.mobile?.xPosition ||
+									selectedImage?.xPosition ||
+									0,
+								y:
+									selectedImage?.mobile?.yPosition ||
+									selectedImage?.yPosition ||
+									0,
+							},
 						},
-						zoom: selectedImage?.zoom || 1,
+						zoom: {
+							desktop: selectedImage?.desktop?.zoom || selectedImage?.zoom || 1,
+							mobile: selectedImage?.mobile?.zoom || selectedImage?.zoom || 1,
+						},
 					};
 
 					return newState;
@@ -3682,7 +3763,7 @@ const GalleryPage = () => {
 	return (
 		<>
 			<div className="galleryContainer">
-				{!info?.isRearranging && (
+				{/* {!info?.isRearranging && (
 					<div className="galleryTitleWhenScrolled">
 						<span onClick={() => navigate('/home')} className="homeIcon">
 							<HomeIcon />
@@ -3698,7 +3779,7 @@ const GalleryPage = () => {
 							Files
 						</span>
 					</div>
-				)}
+				)} */}
 				{info?.isRearranging ? (
 					<div className="galleryRearrangingContainer">
 						<div className="galleryRearrangingImageContainer">
@@ -3752,6 +3833,17 @@ const GalleryPage = () => {
 						<div className="albumsContianer">
 							<div className="galleryContentContainer">
 								<div className="content">
+									<div
+										className="rightArrowIcon"
+										onClick={handleBackNavigation}
+										style={{ cursor: 'pointer' }}
+									>
+										<ChevronLeft
+											style={{ transform: 'rotate(180deg)' }}
+											height="20px"
+											width="20px"
+										/>
+									</div>
 									<div className="galleryPic">
 										<div className="galleryHeaderColumn">
 											<div
@@ -4108,12 +4200,24 @@ const GalleryPage = () => {
 																					height: '100%',
 																					backgroundRepeat:
 																						'no-repeat',
-																					backgroundColor:
-																						'#ccc',
 																					borderRadius:
 																						'12px',
 																				}}
 																			/>
+																			{!album?.coverImage
+																				?._id && (
+																				<AlbumCoverIcon
+																					style={{
+																						position:
+																							'absolute',
+																						top: '50%',
+																						left: '50%',
+																						transform:
+																							'translate(-50%, -50%)',
+																					}}
+																					color="var(--secondary-font)"
+																				/>
+																			)}
 
 																			{!isActive && (
 																				<div className="albumOverlay" />
@@ -5040,7 +5144,7 @@ const GalleryPage = () => {
 										}
 										resetInfinityScroll={info?.resetInfinityScroll}
 										disableDrop={true}
-										height={'83vh'}
+										height={'90vh'}
 									>
 										{!info.isRearranging ? (
 											<ResponsiveMasonry
@@ -5794,6 +5898,133 @@ const GalleryPage = () => {
 						</div>
 						{!info.isRearranging && (
 							<div className="selectedImagesActions">
+								{info?.selectedImages?.length === 1 && (
+									<Tooltip
+										title={
+											<div className="galleryEditOptions">
+												<li onClick={handleSetGalleryCover}>
+													<AlbumCoverIcon />
+													<span>Set as Gallery Cover</span>
+												</li>
+												<li onClick={handleSetAlbumCover}>
+													<AlbumCoverIcon />
+													<span>Set as Album Cover</span>
+												</li>
+											</div>
+										}
+										placement="top"
+										trigger={'click'}
+										arrow={false}
+										color={'transparent'}
+									>
+										<div>
+											<AlbumCoverIcon
+												style={{ color: 'var(--primary-font)' }}
+											/>
+										</div>
+									</Tooltip>
+								)}
+								<Tooltip
+									title={
+										<div className="listAlbumsContainer">
+											<div className="moveToAlbumTitleContainer">
+												<span className="moveToAlbumOptionsContainer">
+													<span className="moveToAlbumTitle">
+														{' '}
+														Move {
+															info.selectedImages.length
+														} images{' '}
+													</span>
+													<RightArrow
+														onClick={() =>
+															handleMoveImageToAlbum(
+																info?.selectedAlbumToMove,
+															)
+														}
+													/>
+												</span>
+											</div>
+											{sortByCustomIndex(albumImagesCount?.albums)?.map(
+												(album, index) => {
+													let src = null;
+													if (album?.coverImage?._id) {
+														const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+														src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
+													}
+													return (
+														<div
+															className={`albumCard ${
+																info.selectedAlbumId === album?._id
+																	? 'active'
+																	: ''
+															}`}
+															onClick={() =>
+																handleAlbumClick(album?._id)
+															}
+														>
+															<div className="albumCardContent">
+																<div
+																	style={{
+																		backgroundImage: `url(${src})`,
+																		backgroundSize: 'cover',
+																		backgroundPosition:
+																			'center',
+																		backgroundRepeat:
+																			'no-repeat',
+																		width: '24px',
+																		height: '24px',
+																		borderRadius: '50%',
+																		backgroundColor:
+																			'var(--background-color)',
+																	}}
+																></div>
+																<p className="albumName">
+																	{album?.title}
+																</p>
+															</div>
+															<Checkbox
+																className="custom-checkbox-style"
+																onChange={() =>
+																	setInfo((prev) => ({
+																		...prev,
+																		selectedAlbumToMove:
+																			album?._id,
+																	}))
+																}
+																checked={
+																	info.selectedAlbumToMove ===
+																	album?._id
+																}
+															/>
+														</div>
+													);
+												},
+											)}
+											<div
+												className="createAlbumContainer"
+												onClick={() =>
+													setInfo((prev) => ({
+														...prev,
+														showCreateAlbum: true,
+													}))
+												}
+											>
+												<PlusIcon />
+												<span className="createAlbumText">
+													Create Album
+												</span>
+											</div>
+										</div>
+									}
+									placement="top"
+									arrow={false}
+									color="transparent"
+									trigger={'click'}
+								>
+									<div>
+										<MoveToIcon />
+									</div>
+								</Tooltip>
 								<div style={{ position: 'relative' }} ref={pinIconRef}>
 									<PinIcon onClick={handlePinIcon} />
 									{info.showPin && (
@@ -6113,7 +6344,6 @@ const GalleryPage = () => {
 							...prev,
 							showUploadCover: false,
 							noImageSelected: false,
-							selectedImages: [],
 						}))
 					}
 					style={{ position: 'absolute', top: '60%', left: '0', right: '0', bottom: '0' }}
@@ -6312,19 +6542,22 @@ const GalleryPage = () => {
 				}
 				handleDeleteImages={handleAlbumDelete}
 			/>
-			<GalleryViewer
-				open={info?.isGalleryViewer}
-				closeModal={() => handleCloseGalleryViewer()}
-				selectedImage={info?.currentExpandImage}
-				currentSelectedImages={
-					info?.selectedImages?.length > 0 ? info?.selectedImages : null
-				}
-				aiFace={false}
-				activeGalleryId={galleryId}
-				activeAlbumId={info?.activeAlbumId}
-				tagId={info?.activeTagId}
-				handleOpenUploadCover={openUploadCoverPhoto}
-			/>
+			{info?.isGalleryViewer && (
+				<GalleryViewer
+					open={info?.isGalleryViewer}
+					closeModal={() => handleCloseGalleryViewer()}
+					selectedImage={info?.currentExpandImage}
+					currentSelectedImages={
+						info?.selectedImages?.length > 0 ? info?.selectedImages : null
+					}
+					aiFace={false}
+					activeGalleryId={galleryId}
+					activeAlbumId={info?.activeAlbumId}
+					tagId={info?.activeTagId}
+					handleOpenUploadCover={openUploadCoverPhoto}
+					handleClickAlbum={handleClickAlbum}
+				/>
+			)}
 			{info?.videoUploadPopup && (
 				<VideoUploadPopup
 					isOpen={info?.videoUploadPopup}

@@ -26,6 +26,10 @@ const actionHandlers = {
 		...state,
 		[action?.selectedvariable]: action?.payload,
 	}),
+	GET_NOTIFICATIONS_SUCCESS: (state, action) => ({
+		...state,
+		notificationsList: action?.payload,
+	}),
 
 	UPDATE_STATE_VALUES_SUCCESS: (state, action) => ({ ...state, ...action.payload }),
 
@@ -206,6 +210,7 @@ const actionHandlers = {
 			removeLatestStreamMessage,
 			lastQuery,
 			chatBoxInfo,
+			chatInfo,
 		} = action?.payload;
 		let messages = [...(state?.globalChatMessages?.[sessionId]?.messages || [])];
 
@@ -220,6 +225,10 @@ const actionHandlers = {
 
 			if (chatBoxInfo) {
 				sessionIdData.chatBoxInfo = chatBoxInfo;
+			}
+
+			if (chatInfo) {
+				sessionIdData.chatInfo = chatInfo;
 			}
 
 			if (latestStreamMessage) {
@@ -654,13 +663,16 @@ const actionHandlers = {
 		const prompts = [...(aiTranscriptionSuggestions?.prompts || [])];
 
 		let files = [...(aiTranscriptionSuggestions?.similar_files || [])];
+		let suggestions = [...(aiTranscriptionSuggestions?.suggestions || [])];
 
 		if (suggested_prompt) {
 			prompts?.push(suggested_prompt);
+			suggestions?.push(suggested_prompt);
 		}
 
 		if (similar_files) {
 			files = files?.concat(similar_files || []);
+			suggestions = suggestions?.concat(similar_files || []);
 		}
 
 		return {
@@ -669,6 +681,7 @@ const actionHandlers = {
 				...aiTranscriptionSuggestions,
 				prompts,
 				similar_files: files,
+				suggestions,
 			},
 		};
 	},

@@ -8,11 +8,6 @@ import { ReactComponent as ChevronRightThinSvg } from '../../assets/svg/tasks/ch
 import { ReactComponent as DoubleRightArrowSvg } from '../../assets/svg/tasks/doubleRightArrow.svg';
 
 const ChatLeftBarComponent = ({ children }) => {
-	const {
-		// subscriptionInfo: { renewBanner },
-		templates: { updateStateValues },
-	} = useContext(Context);
-
 	const [info, setInfo] = useState(() => {
 		let isClosed = false;
 		try {
@@ -39,8 +34,6 @@ const ChatLeftBarComponent = ({ children }) => {
 		localStorage.setItem('chatSidebarClosed', info.isClosed);
 	}, [info.isClosed]);
 
-	const isFirstTimeChatActiveRef = useRef(true);
-	const isFirstTimeSuggestionsRenderRef = useRef(true);
 	const [animationClass, setAnimationClass] = useState('');
 
 	useEffect(() => {
@@ -82,7 +75,6 @@ const ChatLeftBarComponent = ({ children }) => {
 
 	const handleChatActive = () => {
 		if (info?.chatActive) return;
-		isFirstTimeChatActiveRef.current = false;
 
 		setInfo((prev) => ({
 			...prev,
@@ -97,42 +89,6 @@ const ChatLeftBarComponent = ({ children }) => {
 			chatActive: false,
 		}));
 	}, []);
-
-	const handleNewChat = () => {
-		const sessionId = ObjectID()?.toString();
-		isFirstTimeSuggestionsRenderRef.current = false;
-		setInfo((prev) => ({
-			...prev,
-			sessionId,
-			sessionIdChanged: true,
-		}));
-	};
-
-	const handleSuggestionClick = (suggestion) => {
-		updateStateValues({ activePromptForChat: suggestion });
-		// On mobile, close the chat panel after suggestion click
-		if (info?.isMobile) {
-			setInfo((prev) => ({
-				...prev,
-				mobileActive: false,
-			}));
-		}
-	};
-
-	const handleSessionIdChange = () => {
-		setInfo((prev) => ({
-			...prev,
-			sessionIdChanged: false,
-		}));
-	};
-
-	const handleGoBackClick = () => {
-		setInfo((prev) => ({
-			...prev,
-			chatActive: false,
-			mobileActive: false,
-		}));
-	};
 
 	const toggleMobileChat = () => {
 		setInfo((prev) => ({
@@ -195,19 +151,11 @@ const ChatLeftBarComponent = ({ children }) => {
 						<ChevronRightThinSvg className="chatWrapperHeader__icon" onClick={goBack} />
 					</div>
 					<RecentChat
-						showIconText={false}
 						isPreview={true}
-						autoFocus={true}
+						autoFocus={false}
 						customChatBoxClick={handleChatActive}
-						chatActive={info?.chatActive}
-						sessionIdChanged={info?.sessionIdChanged}
-						onChangeSessionId={handleSessionIdChange}
-						onNewChatBtnClick={handleNewChat}
-						{...(!isFirstTimeChatActiveRef?.current && {
-							sId: info?.sessionId,
-						})}
+						sId={info?.sessionId}
 						showCitationsButton={false}
-						onNavigateBack={handleGoBackClick}
 						animateChatBox={false}
 					/>
 				</div>

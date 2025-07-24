@@ -7,20 +7,12 @@ import './stepDetailsModal.scss';
 
 const StepDetailsModal = ({ isOpen, closeModal, step, stepIndex }) => {
 	if (!step) return null;
-
 	const getStepStatus = (step) => {
 		if (step.result) {
-			// Check if result is a string before calling toLowerCase()
-			const resultString =
-				typeof step.result === 'string' ? step.result : JSON.stringify(step.result);
-
-			if (
-				resultString.toLowerCase().includes('error') ||
-				resultString.toLowerCase().includes('failed')
-			) {
-				return 'error';
+			if (step.result.success) {
+				return 'success';
 			}
-			return 'success';
+			return 'error';
 		}
 		return 'pending';
 	};
@@ -98,50 +90,24 @@ const StepDetailsModal = ({ isOpen, closeModal, step, stepIndex }) => {
 							<div className="input-content">
 								{typeof step.input === 'object' ? (
 									<div className="input-fields">
-										{step.input.to && (
-											<div className="input-field">
-												<label>To</label>
+										{/* Handle all input fields dynamically */}
+										{Object.entries(step.input).map(([key, value]) => (
+											<div key={key} className="input-field">
+												<label>
+													{key.charAt(0).toUpperCase() + key.slice(1)}
+												</label>
 												<p className="field-description">
-													Specifies the recipient(s) of the message
+													Input parameter: {key}
 												</p>
 												<div className="field-value">
-													{Array.isArray(step.input.to)
-														? step.input.to.join(', ')
-														: step.input.to}
+													{typeof value === 'object' ? (
+														<pre>{JSON.stringify(value, null, 2)}</pre>
+													) : (
+														value.toString()
+													)}
 												</div>
 											</div>
-										)}
-										{step.input.subject && (
-											<div className="input-field">
-												<label>Subject</label>
-												<p className="field-description">
-													Specifies the subject of the message
-												</p>
-												<div className="field-value">
-													{step.input.subject}
-												</div>
-											</div>
-										)}
-										{step.input.body && (
-											<div className="input-field">
-												<label>Body</label>
-												<p className="field-description">
-													Specifies the content of the message
-												</p>
-												<div className="field-value">{step.input.body}</div>
-											</div>
-										)}
-										{Object.keys(step.input).length > 3 && (
-											<div className="input-field">
-												<label>Additional Data</label>
-												<p className="field-description">
-													Additional input parameters
-												</p>
-												<pre className="field-value">
-													{JSON.stringify(step.input, null, 2)}
-												</pre>
-											</div>
-										)}
+										))}
 									</div>
 								) : (
 									<div className="input-field">

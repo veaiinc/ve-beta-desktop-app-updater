@@ -140,6 +140,7 @@ const CreateDocument = () => {
 		currentStep: 1,
 		isCreateButtonActive: false,
 		isNewClientFromUrl: false,
+		duplicateWarning: null, // Add this new property for duplicate warning
 	});
 
 	const steps = [
@@ -175,6 +176,72 @@ const CreateDocument = () => {
 		getTemplatesData(1);
 	}, []);
 
+	const handleInputChange = useCallback((e, type) => {
+		const value = e.target.value;
+		setStageInfo((prev) => {
+			const updatedClientDetails = { ...prev.clientDetails, [type]: value };
+			return {
+				...prev,
+				clientDetails: updatedClientDetails,
+			};
+		});
+	}, []);
+
+	// Function to normalize phone number for comparison
+	const normalizePhoneNumber = useCallback((phone) => {
+		if (!phone) return '';
+		return phone.replace(/[^\d+]/g, '').replace(/^(\d)/, '+$1');
+	}, []);
+
+	// Function to check for duplicate clients
+	const checkForDuplicateClient = useCallback(
+		(clientDetails) => {
+			// Skip validation if not adding new client or no contact info
+			if (!stageInfo.isNewClient || (!clientDetails.email && !clientDetails.phoneNumber)) {
+				setStageInfo((prev) => ({ ...prev, duplicateWarning: null }));
+				return;
+			}
+
+			const existingClients = stageInfo.clientData || [];
+			let duplicate = null;
+
+			// Check email duplicates first
+			if (clientDetails.email) {
+				duplicate = existingClients.find((client) => {
+					const clientData = JSON.parse(client.value);
+					return clientData.email?.toLowerCase() === clientDetails.email.toLowerCase();
+				});
+			}
+
+			// Check phone duplicates if no email duplicate found
+			if (!duplicate && clientDetails.phoneNumber) {
+				const normalizedInputPhone = normalizePhoneNumber(clientDetails.phoneNumber);
+				duplicate = existingClients.find((client) => {
+					const clientData = JSON.parse(client.value);
+					return normalizePhoneNumber(clientData.phoneNumber) === normalizedInputPhone;
+				});
+			}
+
+			// Set warning message if duplicate found
+			if (duplicate) {
+				const clientData = JSON.parse(duplicate.value);
+				const contactType = clientDetails.email ? 'email' : 'phone number';
+				const message = `A contact already exists with this ${contactType}, this document will be created for ${
+					clientData.name
+				}, ${clientData.email || 'No email'}, ${clientData.phoneNumber || 'No phone'}.`;
+
+				setStageInfo((prev) => ({
+					...prev,
+					duplicateWarning: { type: contactType, existingClient: clientData, message },
+				}));
+			} else {
+				setStageInfo((prev) => ({ ...prev, duplicateWarning: null }));
+			}
+		},
+		[stageInfo.clientData, stageInfo.isNewClient, normalizePhoneNumber],
+	);
+
+	// Update the useEffect that processes client list to also check for duplicates
 	useEffect(() => {
 		if (clientList?.data) {
 			const clientData = clientList.data.map((client) => ({
@@ -182,9 +249,24 @@ const CreateDocument = () => {
 				value: JSON.stringify(client),
 				_id: client._id,
 			}));
-			setStageInfo((prev) => ({ ...prev, clientData }));
+			setStageInfo((prev) => ({
+				...prev,
+				clientData,
+			}));
 		}
 	}, [clientList]);
+
+	// Check for duplicates when client data or details change
+	useEffect(() => {
+		if (stageInfo.clientData.length > 0 && stageInfo.isNewClient) {
+			checkForDuplicateClient(stageInfo.clientDetails);
+		}
+	}, [
+		stageInfo.clientData,
+		stageInfo.clientDetails,
+		stageInfo.isNewClient,
+		checkForDuplicateClient,
+	]);
 
 	useEffect(() => {
 		if (myWorkflows?.data) {
@@ -299,6 +381,7 @@ const CreateDocument = () => {
 				clientEditable: true,
 				isNewClient: true,
 				clientSelection: true,
+				duplicateWarning: null, // Clear duplicate warning
 			};
 		} else {
 			obj = {
@@ -310,20 +393,13 @@ const CreateDocument = () => {
 				clientEditable: false,
 				isNewClient: false,
 				clientSelection: true,
+				duplicateWarning: null, // Clear duplicate warning
 			};
 		}
 		setStageInfo((prev) => ({
 			...prev,
 			...obj,
 			showClientSelectionToolTip: false,
-		}));
-	}, []);
-
-	const handleInputChange = useCallback((e, type) => {
-		const value = e.target.value;
-		setStageInfo((prev) => ({
-			...prev,
-			clientDetails: { ...prev.clientDetails, [type]: value },
 		}));
 	}, []);
 
@@ -373,9 +449,9 @@ const CreateDocument = () => {
 				if (stageInfo.clientDetails.email)
 					clientDetails.email = stageInfo.clientDetails.email;
 				if (stageInfo.clientDetails.phoneNumber) {
-					let phone = (stageInfo.clientDetails.phoneNumber || '').trim();
-					if (phone && !phone.startsWith('+')) phone = '+' + phone;
-					clientDetails.phoneNumber = phone;
+					clientDetails.phoneNumber = normalizePhoneNumber(
+						stageInfo.clientDetails.phoneNumber,
+					);
 				}
 				// Validate required fields
 				if (!clientDetails.name) {
@@ -439,13 +515,12 @@ const CreateDocument = () => {
 						return;
 					}
 				}
-				if (clientDetails.phoneNumber) {
-					const phone = (clientDetails.phoneNumber || '').trim();
-					const phoneRegex = /^\+?[1-9]\d{1,14}$/;
-					if (!phoneRegex.test(phone)) {
-						message.error('Please enter a valid phone number');
-						return;
-					}
+				if (
+					clientDetails.phoneNumber &&
+					normalizePhoneNumber(clientDetails.phoneNumber).length < 8
+				) {
+					message.error('Please enter a valid phone number');
+					return;
 				}
 				if (!stageInfo.selectedTemplate?._id || !stageInfo.documentName) {
 					message.error('Please select a template and provide a document title');
@@ -480,9 +555,9 @@ const CreateDocument = () => {
 					if (stageInfo.clientDetails.email)
 						clientDetails.email = stageInfo.clientDetails.email;
 					if (stageInfo.clientDetails.phoneNumber) {
-						let phone = (stageInfo.clientDetails.phoneNumber || '').trim();
-						if (phone && !phone.startsWith('+')) phone = '+' + phone;
-						clientDetails.phoneNumber = phone;
+						clientDetails.phoneNumber = normalizePhoneNumber(
+							stageInfo.clientDetails.phoneNumber,
+						);
 					}
 					// Validate required fields
 					if (!clientDetails.name) {
@@ -500,13 +575,12 @@ const CreateDocument = () => {
 							return;
 						}
 					}
-					if (clientDetails.phoneNumber) {
-						const phone = (clientDetails.phoneNumber || '').trim();
-						const phoneRegex = /^\+?[1-9]\d{1,14}$/;
-						if (!phoneRegex.test(phone)) {
-							message.error('Please enter a valid phone number');
-							return;
-						}
+					if (
+						clientDetails.phoneNumber &&
+						normalizePhoneNumber(clientDetails.phoneNumber).length < 8
+					) {
+						message.error('Please enter a valid phone number');
+						return;
 					}
 					if (!stageInfo.selectedTemplate?._id || !stageInfo.documentName) {
 						message.error('Please select a template and provide a document title');
@@ -563,7 +637,7 @@ const CreateDocument = () => {
 		} finally {
 			setStageInfo((prev) => ({ ...prev, isCreating: false }));
 		}
-	}, [stageInfo, createSmartfile, createLeadfromTemplates, navigate]);
+	}, [stageInfo, createSmartfile, createLeadfromTemplates, navigate, normalizePhoneNumber]);
 
 	const filterOptions = [
 		{ id: 1, title: 'All', value: 'All' },
@@ -598,26 +672,28 @@ const CreateDocument = () => {
 						{stageInfo.clientSelection ? (
 							<>
 								{stageInfo.isNewClientFromUrl ? (
-									<div className="clientDetailsSummary">
-										<div className="clientSummaryItem">
-											<span className="inputLabel">Client Name</span>
-											<div className="clientSummaryValue">
-												{stageInfo.clientDetails.name}
+									<>
+										<div className="clientDetailsSummary">
+											<div className="clientSummaryItem">
+												<span className="inputLabel">Client Name</span>
+												<div className="clientSummaryValue">
+													{stageInfo.clientDetails.name}
+												</div>
+											</div>
+											<div className="clientSummaryItem">
+												<span className="inputLabel">Client Email</span>
+												<div className="clientSummaryValue">
+													{stageInfo.clientDetails.email}
+												</div>
+											</div>
+											<div className="clientSummaryItem">
+												<span className="inputLabel">Client Phone</span>
+												<div className="clientSummaryValue">
+													{stageInfo.clientDetails.phoneNumber}
+												</div>
 											</div>
 										</div>
-										<div className="clientSummaryItem">
-											<span className="inputLabel">Client Email</span>
-											<div className="clientSummaryValue">
-												{stageInfo.clientDetails.email}
-											</div>
-										</div>
-										<div className="clientSummaryItem">
-											<span className="inputLabel">Client Phone</span>
-											<div className="clientSummaryValue">
-												{stageInfo.clientDetails.phoneNumber}
-											</div>
-										</div>
-									</div>
+									</>
 								) : stageInfo.isNewClient ? (
 									<>
 										<div className="newClientHeader">
@@ -631,6 +707,7 @@ const CreateDocument = () => {
 														...prev,
 														clientSelection: false,
 														showClientSelectionToolTip: true,
+														duplicateWarning: null, // Clear duplicate warning
 													}))
 												}
 											>
@@ -683,6 +760,12 @@ const CreateDocument = () => {
 												</Tooltip>
 											</div>
 										</div>
+										{/* Duplicate warning message */}
+										{stageInfo.duplicateWarning && (
+											<div className="duplicateWarningMessage">
+												{stageInfo.duplicateWarning.message}
+											</div>
+										)}
 									</>
 								) : (
 									<>

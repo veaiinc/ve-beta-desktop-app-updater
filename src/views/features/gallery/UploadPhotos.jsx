@@ -371,7 +371,6 @@ const UploadPhotos = () => {
 				return {
 					...prev,
 					uploadImages,
-					duplciatesFound: (prev.duplciatesFound || 0) + duplicates.length,
 					startedUploading: true,
 					isProcessingDuplicates: false,
 				};

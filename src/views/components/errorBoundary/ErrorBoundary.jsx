@@ -3,6 +3,7 @@ import s from './errorBoundary.module.scss';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 import logError from '../../../services/api/errorLogger';
 import logout from '../../../helpers/logout';
+import PageLoader from '../../features/app/PageLoader';
 
 const extractErrorDetails = (componentStack) => {
 	if (!componentStack) {
@@ -27,7 +28,11 @@ const extractErrorDetails = (componentStack) => {
 class ErrorBoundary extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { hasError: false, error: null };
+		this.state = {
+			hasError: false,
+			error: null,
+			isLazyLoadingError: false,
+		};
 	}
 
 	static getDerivedStateFromError(error) {
@@ -37,33 +42,50 @@ class ErrorBoundary extends Component {
 	async componentDidCatch(error, errorInfo) {
 		console.error('Error caught in ErrorBoundary:', error, errorInfo);
 		const { component, path } = extractErrorDetails(errorInfo?.componentStack);
-		const payload = {
-			errorType: error.name,
-			errorMessage: error.message,
-			errorPath: path,
-			errorComponent: component,
-			errorComponentStack: errorInfo?.componentStack || 'Not Available',
-		};
-		const success = await logError(payload);
-		if (success) {
-			console.log('Error logged successfully');
-		} else {
-			console.error('Error logging failed');
+
+		// It happens if you are on a page and you release a new version. The file that contains the dynamically imported module, does not exist anymore (https://stackoverflow.com/questions/72376333/failed-to-fetch-dynamically-imported-module)
+		const isLazyLoadingErr =
+			error instanceof TypeError &&
+			(error.message.includes('Failed to fetch dynamically imported module') ||
+				error.message.includes(`'text/html' is not a valid JavaScript MIME type`));
+
+		if (isLazyLoadingErr) {
+			this.setState({ isLazyLoadingError: true });
+
+			setTimeout(() => {
+				window.location.reload(true);
+			}, 300);
+			return;
 		}
-		if (error instanceof TypeError) {
-			// perform hard reload on errors caused by lazy loading
-			const isLazyLoadingErr =
-				error.message.includes('Failed to fetch dynamically imported module') ||
-				error.message.includes(`'text/html' is not a valid JavaScript MIME type`);
-			if (isLazyLoadingErr) window.location.reload(true);
+
+		if (window.location.hostname !== 'localhost') {
+			const payload = {
+				errorType: error.name,
+				errorMessage: error.message,
+				errorPath: path,
+				errorComponent: component,
+				errorComponentStack: errorInfo?.componentStack || 'Not Available',
+			};
+
+			if (isLazyLoadingErr) return;
+			const success = await logError(payload);
+			if (success) {
+				console.log('Error logged successfully');
+			} else {
+				console.error('Error logging failed');
+			}
 		}
 	}
 
 	render() {
-		const { hasError } = this.state;
+		const { hasError, isLazyLoadingError } = this.state;
 		const { fallback } = this.props;
 
 		if (hasError) {
+			if (isLazyLoadingError) {
+				return <PageLoader />;
+			}
+
 			return (
 				fallback || (
 					<div className={s.errorBoundaryContainer}>

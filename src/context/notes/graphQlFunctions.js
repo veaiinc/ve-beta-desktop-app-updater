@@ -210,10 +210,12 @@ export const globalNotesAccessMutation = gql`
 export const notesImageBlockUploadMutation = gql`
 	mutation UploadPageBlockImage(
 		$pageId: ID!
+		$blockId: ID!
 		$uploadPageBlockImageInput: UploadPageBlockImageInput!
 	) {
 		uploadPageBlockImage(
 			pageId: $pageId
+			blockId: $blockId
 			uploadPageBlockImageInput: $uploadPageBlockImageInput
 		) {
 			signedUrl
@@ -359,7 +361,7 @@ export const getBlocksQuery = gql`
 				id
 				type
 				pageId
-				parentBlockId
+				parentId
 				position
 				props
 				content
@@ -380,7 +382,7 @@ export const createBlockMutation = gql`
 			id
 			type
 			pageId
-			parentBlockId
+			parentId
 			position
 			props
 			content
@@ -400,7 +402,7 @@ export const updateBlockMutation = gql`
 			id
 			type
 			pageId
-			parentBlockId
+			parentId
 			position
 			props
 			content
@@ -482,7 +484,7 @@ export const createDatabaseViewMutation = gql`
 					textBy
 				}
 			}
-			visibleFields
+			# visibleFields
 			type
 			columnWidths
 			aggregations
@@ -784,7 +786,7 @@ export const getDatabaseViewsQuery = gql`
 					textBy
 				}
 			}
-			visibleFields
+			# visibleFields
 			type
 			columnWidths
 			aggregations
@@ -1005,6 +1007,14 @@ export const getMeetBotDataQuery = gql`
 	}
 `;
 
+export const getMeetSummaryQuery = gql`
+	query Query($pageId: ID!) {
+		getTranscriptionSummary(pageId: $pageId) {
+			transcriptionSummary
+		}
+	}
+`;
+
 export const meetBotCreateMutation = gql`
 	mutation Mutation($input: TranscriptionInput) {
 		startTranscription(input: $input) {
@@ -1026,27 +1036,27 @@ export const deleteLiveKitRoomMutation = gql`
 
 export const getMeetTranscriptHistoryQuery = gql`
 	query ListTranscriptions($pageId: ID!, $limit: Int!, $page: Int!) {
-	listTranscriptions(pageId: $pageId, limit: $limit, page: $page) {
-	  totalPages
-	  totalDocs
-	  limit
-	  currentPage
-	  hasNextPage
-	  hasPrevPage
-	  prevPage
-	  nextPage
-	  data {
-		_id
-		tenantId
-		pageId
-		speakerName
-		transcript
-		transcriptionSource
-		createdAt
-		updatedAt
-	  }
+		listTranscriptions(pageId: $pageId, limit: $limit, page: $page) {
+			totalPages
+			totalDocs
+			limit
+			currentPage
+			hasNextPage
+			hasPrevPage
+			prevPage
+			nextPage
+			data {
+				_id
+				tenantId
+				pageId
+				speakerName
+				transcript
+				transcriptionSource
+				createdAt
+				updatedAt
+			}
+		}
 	}
-  }
 `;
 
 export const updateDatabaseViewMutation = gql`
@@ -1090,7 +1100,7 @@ export const updateDatabaseViewMutation = gql`
 					textBy
 				}
 			}
-			visibleFields
+			# visibleFields
 			type
 			columnWidths
 			aggregations

@@ -3,6 +3,7 @@
 	flex-direction: column;
 	gap: 150px;
 	justify-content: space-around;
+	margin-left: -100px;
 
 	height: 100%;
 	.introContent {
@@ -71,7 +72,17 @@
 		}
 	}
 }
+@media (max-width: 480px) {
+	.introStepContainer {
+		margin-top: -100px !important;
+		margin-left: 0 !important;
+	}
+}
 @media (max-width: 768px) {
+	.introStepContainer {
+		margin-top: -190px;
+		margin-left: 0 !important;
+	}
 	.introStepContainer .introContent .introTitle {
 		font-size: 32px;
 		font-weight: 600;
@@ -81,5 +92,10 @@
 		font-size: 13px;
 		line-height: 20px;
 		width: 300px;
+	}
+}
+@media (max-width: 1280px) {
+	.introStepContainer {
+		margin-left: -150px;
 	}
 }

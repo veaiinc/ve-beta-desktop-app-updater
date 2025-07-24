@@ -1807,7 +1807,11 @@ class App extends BaseClass {
 				const variableData = variable?.[0] || {};
 
 				let variableValue =
-					variable?.[0]?.value || variable?.[0]?.defaultValue?.trim() || '';
+					variable?.[0]?.value ||
+					(typeof variable?.[0]?.defaultValue === 'string'
+						? variable?.[0]?.defaultValue?.trim()
+						: variable?.[0]?.defaultValue) ||
+					'';
 
 				if (variable?.[0]?.blockId) {
 					//handling values for subTotal variable

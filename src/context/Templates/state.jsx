@@ -93,6 +93,7 @@ export const intialState = {
 	globalChatMessages: {}, // { type: 'AI', message: 'Hello, how can I help you today?' }
 	currentSessionId: null,
 	citations: null,
+	notificationsList: null,
 	docsFilesList: null,
 	moreDocsFilesList: null,
 	docsFilesRefetch: false,
@@ -1681,6 +1682,49 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const getNotificationsList = async ({ page = 1, limit = 10 } = {}) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const payload = {
+				filters: {
+					limit,
+					page,
+				},
+			};
+			const response = await service.query(
+				getActivityLogsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			const success = response?.[0];
+			if (success) {
+				const payload = {
+					currentPage: response?.[1]?.data?.activityLogs?.currentPage,
+					data:
+						page === 1
+							? response?.[1]?.data?.activityLogs?.data
+							: [
+									...(state?.notificationsList?.data || []),
+									...(response?.[1]?.data?.activityLogs?.data || []),
+							  ],
+					hasNextPage: response?.[1]?.data?.activityLogs?.hasNextPage,
+				};
+				dispatch({
+					type: Actions.GET_NOTIFICATIONS_SUCCESS,
+					payload,
+				});
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('errror ==>getNotifications', error);
+			return [false, error];
+		}
+	};
+
 	const getDrafStateWorkflowtemplates = async (payload, fetchMore = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -2004,6 +2048,7 @@ export const TemplatesState = (props) => {
 		removeLatestStreamMessage = false,
 		lastQuery = null,
 		chatBoxInfo = null,
+		chatInfo = null,
 	}) => {
 		try {
 			dispatch({
@@ -2024,6 +2069,7 @@ export const TemplatesState = (props) => {
 					removeLatestStreamMessage,
 					lastQuery,
 					chatBoxInfo,
+					chatInfo,
 				},
 			});
 		} catch (error) {
@@ -2270,6 +2316,7 @@ export const TemplatesState = (props) => {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const selectedvariable = fetchMore ? 'moreRecentChatStorage' : 'recentChatStorage';
+
 			let response;
 			if (isPublicChat) {
 				response = await Service.fetchGet(
@@ -2899,5 +2946,6 @@ export const TemplatesState = (props) => {
 		updatechatSessionFavourite,
 		isSlugAvailable,
 		updateSlug,
+		getNotificationsList,
 	};
 };

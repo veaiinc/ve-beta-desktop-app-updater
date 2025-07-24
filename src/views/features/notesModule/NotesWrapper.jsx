@@ -14,10 +14,11 @@ const NotesWrapper = () => {
 		templates: { aiTranscriptionSuggestions, updateStateValues },
 	} = useContext(Context);
 	const [searchParams] = useSearchParams();
+	const isAiIntelligenceEnabled = searchParams.get('isAiIntelligenceEnabled');
 	const [info, setInfo] = useState({
-		modalIsOpen: false,
+		modalIsOpen: true,
 		sessionId: ObjectID()?.toString(),
-		showAmbientAssistance: true,
+		showAmbientAssistance: isAiIntelligenceEnabled === 'true',
 		chatOpen: false,
 	});
 
@@ -102,7 +103,7 @@ const NotesWrapper = () => {
 					/>
 				</div>
 			</div>
-			<div
+			{/* <div
 				className={`switchContainer ${
 					info?.showAmbientAssistance ? 'SuggestionSidebarActive' : ''
 				}`}
@@ -116,15 +117,15 @@ const NotesWrapper = () => {
 						}));
 					}}
 				/>
-			</div>
-			{info?.showAmbientAssistance && (
+			</div> */}
+			{/* {info?.showAmbientAssistance && (
 				<AiTranscriptionSuggestions
 					data={aiTranscriptionSuggestions || []}
 					modalIsOpen={info?.modalIsOpen}
 					closeModal={handleCloseModal}
 					showAmbientAssistance={info?.showAmbientAssistance}
 				/>
-			)}
+			)} */}
 		</div>
 	);
 };

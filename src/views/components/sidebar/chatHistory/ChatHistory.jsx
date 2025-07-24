@@ -19,7 +19,7 @@ const infiniteScrollStyle = {
 };
 const skeletonLoaders = Array?.from({ length: 30 }, (_, index) => index + 1);
 const page = 1;
-const limit = 30;
+const limit = 10;
 const append = true;
 
 const ChatHistory = () => {
@@ -175,6 +175,7 @@ const ChatHistory = () => {
 							...infiniteScrollStyle,
 							marginBottom: !currentPlan?.totalAiCreditLimit === 0 ? '140px' : '70px',
 						}}
+						className="chat-history-scroll"
 						// scrollableTarget="chatsScroll"
 						height={'100%'}
 					>
@@ -185,7 +186,7 @@ const ChatHistory = () => {
 								dateGroup !== getChatDateGroup(chats[index - 1].createdAt);
 
 							return (
-								<div key={chat?._id} className="chat-container-wrapper ">
+								<div key={index} className="chat-container-wrapper ">
 									{showGroupHeader && (
 										<div
 											className="chat-group-header"

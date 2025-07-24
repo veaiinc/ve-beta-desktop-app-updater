@@ -16,6 +16,8 @@ import SlackActions from './SlackActions';
 // import CreateMeeting from './CreateMeeting';
 import Delay from './Delay';
 import AgentAction from './AgentAction';
+import CreateDatabaseRow from './CreateDatabaseRow';
+import UpdateDatabaseRow from './UpdateDatabaseRow';
 
 const integrations = [
 	{
@@ -47,6 +49,14 @@ const actionGroups = [
 			{
 				actionLabel: 'Delay',
 				actionType: 'delay',
+			},
+			{
+				actionLabel: 'Create Database Row',
+				actionType: 'database',
+			},
+			{
+				actionLabel: 'Update Database Row',
+				actionType: 'database',
 			},
 			// {
 			// 	actionLabel: 'Create Meeting',
@@ -172,17 +182,27 @@ const Actions = ({
 		}
 	}, [activeEdge]);
 
-	useEffect(() => {
+		useEffect(() => {
 		if (activeStepsData) {
+			// Handle database nodes that have actionType: 'database' but different inputBody.action values
+			let actionType = activeStepsData?.actionType || activeStepsData?.type;
+			let actionLabel = '';
+			
+			if (actionType === 'database') {
+				if (activeStepsData?.inputBody?.action === 'updateDatabaseRecord') {
+					actionLabel = 'Update Database Row';
+				} else if (activeStepsData?.inputBody?.action === 'createDatabaseRecord') {
+					actionLabel = 'Create Database Row';
+				}
+			}
+			
 			updateInfo({
 				selectedAction: {
-					actionType: activeStepsData?.actionType || activeStepsData?.type,
+					actionType: actionType,
 					groupId: activeStepsData?.app || 'inApp',
-					actionLabel: actionGroups
+					actionLabel: actionLabel || actionGroups
 						?.find((group) => group?._id === activeStepsData?.app)
-						?.actions?.find(
-							(action) => action?.actionType === activeStepsData?.actionType,
-						)?.actionLabel,
+						?.actions?.find((action) => action?.actionType === actionType)?.actionLabel,
 				},
 			});
 		}
@@ -319,6 +339,17 @@ const Actions = ({
 					handleChangeClick={handleChangeClick}
 				/>
 			),
+			database: (
+				<CreateDatabaseRow
+					onBack={handleBack}
+					onSave={onSave}
+					addTriggerLoading={info?.saveLoader}
+					activeStepsData={activeStepsData}
+					handleChangeClick={handleChangeClick}
+					variables={variables}
+					activeEdge={activeEdge}
+				/>
+			),
 			gmail: (
 				<GoogleActions
 					onBack={handleBack}
@@ -358,13 +389,31 @@ const Actions = ({
 		info?.selectedAction,
 		activeStepsData,
 		handleChangeClick,
+		activeEdge,
 	]);
 
 	return (
 		<div className="actionSidebarComponents">
 			{info?.selectedAction ? (
 				info?.selectedAction?.groupId === 'inApp' ? (
-					actionMapper?.[info?.selectedAction?.actionType]
+					info?.selectedAction?.actionType === 'database' ? (
+						activeStepsData?.inputBody?.action === 'updateDatabaseRecord' || 
+						info?.selectedAction?.actionLabel === 'Update Database Row' ? (
+							<UpdateDatabaseRow
+								onBack={handleBack}
+								onSave={onSave}
+								addTriggerLoading={info?.saveLoader}
+								activeStepsData={activeStepsData}
+								handleChangeClick={handleChangeClick}
+								variables={variables}
+								activeEdge={activeEdge}
+							/>
+						) : (
+							actionMapper?.[info?.selectedAction?.actionType]
+						)
+					) : (
+						actionMapper?.[info?.selectedAction?.actionType]
+					)
 				) : (
 					actionMapper?.[info?.selectedAction?.groupId]
 				)
