@@ -14,6 +14,7 @@ const AgentShareComponent = ({ agentId, activeKnowledgeAssistant }) => {
 			removeSharedAgentUser,
 			updateSharedAgentUser,
 			getSharedAgentUsers,
+			getActiveKnowledgeAgentDetails,
 		},
 		profileInfo: { tennantSettingsData },
 	} = useContext(Context);
@@ -33,10 +34,12 @@ const AgentShareComponent = ({ agentId, activeKnowledgeAssistant }) => {
 		currentUserId: null,
 	});
 
-	const globalAccess = activeKnowledgeAssistant?.data?.globalAccess || {
-		isEnabled: false,
-		access: 'view',
-	};
+	// Map workspaceUserAccess to globalAccess format
+	const workspaceUserAccess = activeKnowledgeAssistant?.data?.workspaceUserAccess;
+	const globalAccess =
+		workspaceUserAccess && workspaceUserAccess !== 'no-access'
+			? { isEnabled: true, access: workspaceUserAccess }
+			: { isEnabled: false, access: 'view' };
 
 	const { agentId: urlAgentId } = useParams();
 	const finalAgentId = urlAgentId;
@@ -192,8 +195,8 @@ const AgentShareComponent = ({ agentId, activeKnowledgeAssistant }) => {
 			const response = await updateSharedAgentUser(finalAgentId, payload);
 			if (response?.[0]) {
 				message.success('Global access updated');
-				// Refresh shared users after updating global access
-				await fetchSharedUsers();
+				await getActiveKnowledgeAgentDetails(finalAgentId);
+				// await fetchSharedUsers();
 			} else {
 				message.error('Failed to update global access');
 			}
@@ -203,9 +206,9 @@ const AgentShareComponent = ({ agentId, activeKnowledgeAssistant }) => {
 	};
 
 	const handleCopyLink = () => {
-		const domain =
-			tennantSettingsData?.customDomain || `${localStorage.getItem('workspaceId')}.ve.ai`;
-		const shareLink = `https://${domain}/agent/${finalAgentId}`;
+		// const domain =
+		// 	tennantSettingsData?.customDomain || `${localStorage.getItem('workspaceId')}.ve.ai`;
+		const shareLink = `https://ve.ai/agent/${finalAgentId}`;
 		navigator.clipboard.writeText(shareLink);
 		message.success('Link copied to clipboard');
 	};
@@ -229,6 +232,7 @@ const AgentShareComponent = ({ agentId, activeKnowledgeAssistant }) => {
 				showPublishTab={false}
 				// Share tab
 				selectedMembers={info.selectedMembers}
+				globalAccess={globalAccess}
 				onMemberSelect={(user) => {
 					if (
 						info?.selectedMembers?.some(
@@ -267,7 +271,6 @@ const AgentShareComponent = ({ agentId, activeKnowledgeAssistant }) => {
 				currentUserId={info.currentUserId}
 				// Global access
 				showGlobalAccess={true}
-				globalAccess={globalAccess}
 				onGlobalAccessChange={handleGlobalAccessUpdate}
 				isGlobalAccessDropdownOpen={info.globalAccessDropdown}
 				onGlobalAccessDropdownChange={(value) =>
