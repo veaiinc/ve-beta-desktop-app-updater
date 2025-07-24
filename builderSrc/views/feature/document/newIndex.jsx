@@ -13,6 +13,8 @@ import { ReactComponent as PhoneIcon } from '../../../assets/svg/questionTypes/p
 import { ReactComponent as Plus } from '../../../assets/svg/document/plus.svg';
 import { ReactComponent as DocumentPreview } from '../../../assets/svg/document/documentrightside.svg';
 import { fetchOriginSelection } from '../../../helper';
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 
 const origin = fetchOriginSelection();
 // ClientSelectionTooltip Component
@@ -743,15 +745,39 @@ const CreateDocument = () => {
 										<div className="inputFieldContainer">
 											<label className="inputLabel">Client Phone</label>
 											<div className="inputWithIconContainer">
-												<input
-													className="inputBoxContainer withIcon"
+												<PhoneInput
 													placeholder="Enter client phone number"
 													value={stageInfo.clientDetails.phoneNumber}
-													pattern="^\+?[1-9]\d{1,14}$"
-													onChange={(e) =>
-														handleInputChange(e, 'phoneNumber')
+													onChange={(value) =>
+														setStageInfo((prev) => ({
+															...prev,
+															clientDetails: {
+																...prev.clientDetails,
+																phoneNumber: value || '',
+															},
+														}))
 													}
-													type="number"
+													defaultCountry={(() => {
+														try {
+															const locationDetails = JSON.parse(
+																localStorage.getItem(
+																	'locationDetails',
+																),
+															);
+															return (
+																locationDetails?.countryCode || 'US'
+															);
+														} catch {
+															return 'US';
+														}
+													})()}
+													className="phoneInputNumber"
+													countryCallingCodeEditable={true}
+													autoComplete="tel"
+													style={{
+														backgroundColor: 'none',
+														border: '1px solid var(--stroke)',
+													}}
 												/>
 												<Tooltip title="Phone Number" placement="top">
 													<div className="inputIcon">
@@ -813,15 +839,35 @@ const CreateDocument = () => {
 										</div>
 										<div className="inputWithIconContainer">
 											<span className="inputLabel">Client Phone</span>
-											<input
-												className="inputBoxContainer withIcon"
+											<PhoneInput
 												placeholder="Client Phone"
 												value={stageInfo.clientDetails.phoneNumber}
-												disabled={!stageInfo.clientEditable}
-												onChange={(e) =>
-													handleInputChange(e, 'phoneNumber')
+												onChange={(value) =>
+													setStageInfo((prev) => ({
+														...prev,
+														clientDetails: {
+															...prev.clientDetails,
+															phoneNumber: value || '',
+														},
+													}))
 												}
-												type="text"
+												defaultCountry={(() => {
+													try {
+														const locationDetails = JSON.parse(
+															localStorage.getItem('locationDetails'),
+														);
+														return locationDetails?.countryCode || 'US';
+													} catch {
+														return 'US';
+													}
+												})()}
+												className="phoneInputNumber"
+												countryCallingCodeEditable={true}
+												autoComplete="tel"
+												style={{
+													backgroundColor: 'none',
+													border: '1px solid var(--stroke)',
+												}}
 											/>
 											<Tooltip title="Phone Number" placement="top">
 												<div className="inputIcon">
