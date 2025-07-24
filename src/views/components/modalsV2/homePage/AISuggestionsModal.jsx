@@ -25,7 +25,7 @@ import {
 } from '../../../../helpers';
 import { ReactComponent as ArrowRightIcon } from '../../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import PromptPopup from '../../homePage/PromptPopup';
-// import ProactiveAIShare from '../../../features/homePage/proactiveai/ProactiveAIShare';
+import ProactiveAIShare from '../../../features/homePage/proactiveai/ProactiveAIShare';
 import jwtDecode from 'jwt-decode';
 import ChainOfThoughtInterpreter from '../../homePage/ChainOfThoughtInterpreter';
 import FormDescription from '../../forms/FormDescription';
@@ -67,6 +67,7 @@ const AISuggestionsModal = ({
 		feedbackPopupOpen: false,
 		isDeleting: false,
 		tabOptions: [],
+		accessType: 'view',
 	});
 
 	const resizableContainerRef = useRef(null);
@@ -381,7 +382,10 @@ const AISuggestionsModal = ({
 									</div>
 								)}
 
-								{/* <ProactiveAIShare proactiveAiId={data?._id} /> */}
+								<ProactiveAIShare
+									proactiveAiId={data?._id}
+									proactiveAiData={data}
+								/>
 
 								{/* <div className="btn download-btn">
 									<DownloadSvg />

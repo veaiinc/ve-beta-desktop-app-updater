@@ -6,11 +6,12 @@ import ShareModal from '../../../components/globalComponents/globalShareModal';
 import Context from '../../../../context/context';
 import { useContext } from 'react';
 import jwtDecode from 'jwt-decode';
-const ProactiveAIShare = ({ proactiveAiId }) => {
+import { message } from '../../../components/globalComponents/CustomToast';
+const ProactiveAIShare = ({ proactiveAiId, proactiveAiData }) => {
 	const {
 		companyInfo: { getTeamMembers, tenantsUserList },
 		profileInfo: { tennantSettingsData },
-		templates: { addProactiveAiAccess },
+		templates: { addProactiveAiAccess, updateProactiveAiAccess, getAISuggestedPendingActions },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		sharePopupOpen: false,
@@ -29,6 +30,24 @@ const ProactiveAIShare = ({ proactiveAiId }) => {
 	}, []);
 
 	useEffect(() => {
+		if (proactiveAiData?.permissions?.sharedWith && tenantsUserList) {
+			const formattedUsers = filterUsersToGetMembersWithAccess(
+				tenantsUserList,
+				proactiveAiData?.permissions?.sharedWith || [],
+			);
+			setInfo((prev) => ({
+				...prev,
+				membersWithAccess: formattedUsers,
+			}));
+		} else if (!proactiveAiData) {
+			setInfo((prev) => ({
+				...prev,
+				membersWithAccess: [],
+			}));
+		}
+	}, [proactiveAiData, tenantsUserList]);
+
+	useEffect(() => {
 		if (!tenantsUserList) {
 			getTeamMembers();
 		} else {
@@ -38,7 +57,7 @@ const ProactiveAIShare = ({ proactiveAiId }) => {
 				tenantUsers: formattedUsers,
 			}));
 		}
-	}, [tenantsUserList]);
+	}, [tenantsUserList, info?.membersWithAccess]);
 
 	const handleShareClick = () => {
 		setInfo((prev) => ({
@@ -69,6 +88,21 @@ const ProactiveAIShare = ({ proactiveAiId }) => {
 		}));
 	};
 
+	const filterUsersToGetMembersWithAccess = (tenantUsers = [], membersWithAccess = []) => {
+		const accessMap = new Map(
+			membersWithAccess.map((member) => [member.userId, member.access]),
+		);
+
+		return tenantUsers
+			.filter((user) => accessMap.has(user._id))
+			.map((user) => ({
+				fullName: `${user.firstName}${user.lastName ? ` ${user.lastName}` : ''}`,
+				email: user.email,
+				userId: user._id,
+				access: accessMap.get(user._id),
+			}));
+	};
+
 	const filterUsers = (tenantUsers = [], membersWithAccess = []) => {
 		return tenantUsers
 			?.filter((user) => !membersWithAccess?.some((member) => member?.userId === user?._id))
@@ -92,6 +126,7 @@ const ProactiveAIShare = ({ proactiveAiId }) => {
 	const handleAddMembers = async () => {
 		const selectedMembers = info?.selectedMembers;
 		const access = info?.accessType;
+
 		if (selectedMembers?.length === 0) {
 			return;
 		}
@@ -104,24 +139,34 @@ const ProactiveAIShare = ({ proactiveAiId }) => {
 		const response = await addProactiveAiAccess(usersPermissionInput, proactiveAiId);
 
 		if (response?.[0]) {
-			const selectedUserWithAccess = selectedMembers.map((user) => ({
-				...user,
-				access,
+			getAISuggestedPendingActions(response?.[1], false, 'update', proactiveAiId);
+			setInfo((prev) => ({
+				...prev,
+				selectedMembers: [],
 			}));
-			updateNotesState({
-				notesAccess: [...(info?.membersWithAccess || []), ...selectedUserWithAccess],
-			});
 
-			message.success(response?.[1]?.message);
+			message.success('Invite sent successfully');
 			return true;
 		} else {
-			handleInfoChange({ btnLoading: false });
-			message.error(response?.[1]?.message);
+			message.error('Failed to invite');
 			return false;
 		}
 	};
 
 	const handleChangeAccess = async (userId, access) => {
+		const response = await updateProactiveAiAccess(
+			{
+				userId,
+				access,
+			},
+			proactiveAiId,
+		);
+		if (response?.[0]) {
+			message.success('Access updated successfully');
+		} else {
+			message.error('Failed to update access');
+		}
+
 		// if (access === 'remove') {
 		// 	const response = await removeNotesAccess({
 		// 		pageId,
@@ -206,6 +251,7 @@ const ProactiveAIShare = ({ proactiveAiId }) => {
 				//members list
 				membersWithAccess={info?.membersWithAccess}
 				onAccessChange={handleChangeAccess}
+				showRemoveButton={false}
 				currentUserId={info?.currentUserId}
 				//global access
 				workspaceImage={tennantSettingsData?.logo_s3_500w_key}

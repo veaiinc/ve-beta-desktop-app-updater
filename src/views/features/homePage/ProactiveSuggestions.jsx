@@ -275,14 +275,14 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
 			updateCardsData();
-			// if (info?.activeCardContent) {
-			// 	setInfo((prev) => ({
-			// 		...prev,
-			// 		activeCardContent: aiSuggestedPendingActions?.pendingActions?.find(
-			// 			(c) => c?._id === info?.activeCardContent?._id,
-			// 		),
-			// 	}));
-			// }
+			if (info?.activeCardContent) {
+				setInfo((prev) => ({
+					...prev,
+					activeCardContent: aiSuggestedPendingActions?.pendingActions?.find(
+						(c) => c?._id === info?.activeCardContent?._id,
+					),
+				}));
+			}
 		}
 	}, [aiSuggestedPendingActions]);
 
