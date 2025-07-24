@@ -1,6 +1,5 @@
 import { memo, useContext, useEffect, useRef, useState, useCallback } from 'react';
 import '../../assets/scss/chatLeftBarComponent.scss';
-import Context from '../../context/context';
 import ObjectID from 'bson-objectid';
 import RecentChat from '../features/chat/RecentChat';
 import { ReactComponent as SparkleSvg } from '../../assets/svg/ai_agents/sparkle.svg';
