@@ -103,9 +103,10 @@ const AISuggestionsModal = ({
 
 		const { chain_of_thought } = data;
 		const chainOfThoughtData = handleCombinedChainOfThought(chain_of_thought || null);
-		const accessType = (data?.permissions?.sharedWith || [])?.filter(
-			(eachItem) => eachItem?.userId === info?.currentUserId,
-		)?.[0]?.access;
+		const accessType =
+			(data?.permissions?.sharedWith || [])?.filter(
+				(eachItem) => eachItem?.userId === info?.currentUserId,
+			)?.[0]?.access || 'view';
 
 		const visibilityMap = {
 			actions: suggested_actions?.length || suggested_prompts?.length,
@@ -279,6 +280,10 @@ const AISuggestionsModal = ({
 	};
 
 	const handleDeleteCard = useCallback(async () => {
+		if (info?.accessType === 'view') {
+			message.error('You do not have access to delete this insight');
+			return;
+		}
 		if (!data?._id || info.isDeleting) return;
 		const type = 'delete';
 		setInfo((prev) => ({ ...prev, isDeleting: true }));
@@ -290,9 +295,20 @@ const AISuggestionsModal = ({
 			message.error('Failed to delete pending action');
 		}
 		setInfo((prev) => ({ ...prev, isDeleting: false }));
-	}, [data?._id, getAISuggestedPendingActions, onClose, pendingActionsUpdate, info.isDeleting]);
+	}, [
+		data?._id,
+		getAISuggestedPendingActions,
+		onClose,
+		pendingActionsUpdate,
+		info.isDeleting,
+		info?.accessType,
+	]);
 
 	const handleOpenFeedbackPopup = () => {
+		if (info?.accessType == 'view') {
+			message.error('You do not have access to give feedback');
+			return;
+		}
 		setInfo((prev) => ({
 			...prev,
 			feedbackPopupOpen: true,
@@ -381,11 +397,12 @@ const AISuggestionsModal = ({
 										Teach me
 									</div>
 								)}
-
-								<ProactiveAIShare
-									proactiveAiId={data?._id}
-									proactiveAiData={data}
-								/>
+								{info?.accessType !== 'view' && (
+									<ProactiveAIShare
+										proactiveAiId={data?._id}
+										proactiveAiData={data}
+									/>
+								)}
 
 								{/* <div className="btn download-btn">
 									<DownloadSvg />
