@@ -56,6 +56,7 @@ import {
 
 	// for meet bots
 	getMeetBotDataQuery,
+	getMeetSummaryQuery,
 	meetBotCreateMutation,
 	deleteLiveKitRoomMutation,
 	getMeetTranscriptHistoryQuery,
@@ -82,6 +83,7 @@ export const intialState = {
 	},
 	transcriptHistory: [],
 	existingBots: null,
+	meetSummary: null,
 };
 
 export const NotesState = (props) => {
@@ -1779,6 +1781,36 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const getMeetSummary = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getMeetSummaryQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api_database',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_MEET_SUMMARY_SUCCESS,
+					payload: {
+						summary: response?.[1]?.data?.getTranscriptionSummary?.transcriptionSummary,
+					},
+				});
+			} else {
+				dispatch({
+					type: Actions.GET_MEET_SUMMARY_SUCCESS,
+					payload: { summary: 'Summary not found' },
+				});
+			}
+		} catch (error) {
+			console.error('error==>getMeetSummary', error);
+		}
+	};
+
 	const createMeetBot = async (payload) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -1854,6 +1886,17 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const updateStateValues = async (updatedVaribaleValuesObj) => {
+		try {
+			dispatch({
+				type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+				payload: updatedVaribaleValuesObj,
+			});
+		} catch (error) {
+			console.log('error==>updateStateValues', error);
+		}
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -1912,5 +1955,7 @@ export const NotesState = (props) => {
 		deleteLiveKitRoom,
 		getMeetTranscriptHistory,
 		updateDatabaseView,
+		getMeetSummary,
+		updateStateValues,
 	};
 };

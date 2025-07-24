@@ -68,6 +68,7 @@ const initialState = {
 	userQuestions: [],
 	aiQuestions: [],
 	actions: [],
+	allSuggestions: [],
 	sessionId: ObjectID()?.toString(),
 	chatSessionId: ObjectID()?.toString(),
 	chatClicked: false,
@@ -98,7 +99,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const noteId = useParams()?.noteId;
 	const sessionId = noteId;
 	const type = searchParams.get('type');
-	const history = searchParams.get('history');
+	const history = Boolean(searchParams.get('history'));
 	const isAiIntelligenceEnabled = searchParams.get('isAiIntelligenceEnabled');
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
@@ -126,6 +127,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			createBlock,
 			updateBlock,
 			deleteBlock,
+			updateStateValues: updateNotesStateValues,
 		},
 		chatStream: { createWebSocketConnection, sendMessage, closeWebSocketConnection },
 		companyInfo: { getTeamMembers, tenantsUserList },
@@ -139,7 +141,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	const [info, setInfo] = useState(initialState);
 	const [transcriptList, setTranscriptList] = useState([]);
-	const [activeTab, setActiveTab] = useState('transcript');
+	const [activeTab, setActiveTab] = useState(
+		history || type === 'desktop' ? 'transcript' : 'all',
+	);
 	const location = useLocation();
 
 	// Add hooks for live intelligence and recall stream
@@ -165,30 +169,49 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			const userQuestions = [];
 			const aiQuestions = [];
 			const actions = [];
+			const files = [];
+			// for (const prompt of aiTranscriptionSuggestions?.prompts || []) {
+			// 	if (prompt?.entity === 'user') {
+			// 		userQuestions.push(prompt);
+			// 	} else if (prompt?.entity === 'agent') {
+			// 		if (prompt?.type === 'search') {
+			// 			aiQuestions.push(prompt);
+			// 		} else if (prompt?.type === 'action') {
+			// 			actions.push(prompt);
+			// 		}
+			// 	}
+			// }
 
-			for (const prompt of aiTranscriptionSuggestions?.prompts || []) {
-				if (prompt?.entity === 'user') {
-					userQuestions.push(prompt);
-				} else if (prompt?.entity === 'agent') {
-					if (prompt?.type === 'search') {
-						aiQuestions.push(prompt);
-					} else if (prompt?.type === 'action') {
-						actions.push(prompt);
+			for (const suggestion of aiTranscriptionSuggestions?.suggestions || []) {
+				if (suggestion?.entity === 'user') {
+					userQuestions.push(suggestion);
+				} else if (suggestion?.entity === 'agent') {
+					if (suggestion?.type === 'search') {
+						aiQuestions.push(suggestion);
+					} else if (suggestion?.type === 'action') {
+						actions.push(suggestion);
 					}
+				} else {
+					files.push(suggestion);
 				}
 			}
+
 			setInfo((prev) => ({
 				...prev,
 				userQuestions,
 				aiQuestions,
 				actions,
-				files: aiTranscriptionSuggestions?.similar_files || [],
+				files,
+				allSuggestions: aiTranscriptionSuggestions?.suggestions || [],
 			}));
 		}
 	}, [aiTranscriptionSuggestions]);
 
 	useEffect(() => {
 		return () => {
+			updateNotesStateValues({
+				meetSummary: null,
+			});
 			updateStateValues({
 				aiTranscriptionSuggestions: null,
 			});
@@ -666,7 +689,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		if (
 			showTranscriptTabs &&
 			location?.pathname?.includes('meet') &&
-			history !== 'true' &&
+			history !== true &&
 			type === 'meeting_bot'
 		) {
 			recallConnection(sessionId, noteId, handleSocketMessage, isAiIntelligenceEnabled);
@@ -705,7 +728,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
-			{type !== 'meeting_bot' && (
+			{!(type === 'meeting_bot' || type === 'desktop') && (
 				<div className="notesChatArea">
 					<RecentChat
 						showIconText={false}
@@ -797,6 +820,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 									aiQuestions={info?.aiQuestions}
 									actions={info?.actions}
 									files={info?.files}
+									history={history}
+									allSuggestions={info?.allSuggestions}
+									type={type}
 								/>
 							)}
 							{showTranscriptTabs &&
@@ -809,22 +835,15 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 										tenantId={tennantSettingsData?._id}
 										sessionId={sessionId}
 										pageId={noteId}
+										history={history}
 									/>
 								) : null)}
 
 							{showTranscriptTabs && activeTab === 'summary' && (
-								<Editor
-									innerContainerStyle={innerContainerStyle}
-									myAccess={info?.myAccess}
-									isDeleted={info?.isDeleted}
-									customSendMessage={customSendMessage}
-									aiResonse={info?.aiResonse}
-									resetAiResponse={resetAiResponse}
-									noteId={noteId}
-									initialBlocks={blocks}
-									createBlock={createBlock}
-									updateBlock={updateBlock}
-									deleteBlock={deleteBlock}
+								<MeetSummary
+									activeTab={activeTab}
+									history={history}
+									pageId={noteId}
 								/>
 							)}
 
@@ -832,17 +851,20 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 								(activeTab === 'userQuestions' ||
 									activeTab === 'aiQuestions' ||
 									activeTab === 'actions' ||
-									activeTab === 'files') && (
+									activeTab === 'files' ||
+									activeTab === 'all') && (
 									<AiTranscriptionSuggestions
 										userQuestions={info?.userQuestions}
 										aiQuestions={info?.aiQuestions}
 										actions={info?.actions}
 										files={info?.files}
 										activeTab={activeTab}
+										allSuggestions={info?.allSuggestions}
 									/>
 								)}
 
-							{!showTranscriptTabs && (
+							{(!showTranscriptTabs ||
+								(showTranscriptTabs && activeTab === 'notes')) && (
 								<Editor
 									innerContainerStyle={innerContainerStyle}
 									myAccess={info?.myAccess}

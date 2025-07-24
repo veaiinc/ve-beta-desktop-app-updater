@@ -298,7 +298,7 @@ const CardMeetBot = () => {
 												}}
 												onClick={() =>
 													navigate(
-														`/meet/${meeting._id}?type=meeting_bot&history=true`,
+														`/meet/${meeting?._id}?type=${meeting?.transcriptionSource}&history=true`,
 													)
 												}
 											>

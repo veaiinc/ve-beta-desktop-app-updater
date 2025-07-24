@@ -7,6 +7,9 @@ const TranscriptionTabs = ({
 	aiQuestions,
 	actions,
 	files,
+	history,
+	allSuggestions,
+	type = null,
 }) => {
 	return (
 		<div className="notes-tabs-container">
@@ -19,49 +22,100 @@ const TranscriptionTabs = ({
 					marginBottom: 12,
 				}}
 			>
-				<button
-					className={activeTab === 'transcript' ? 'notes-tab active' : 'notes-tab'}
-					style={{
-						background: 'none',
-						border: 'none',
-						outline: 'none',
-						color: 'inherit',
-						fontWeight: 500,
-						fontSize: 16,
-						padding: '8px 0',
-						borderBottom:
-							activeTab === 'transcript'
-								? '2px solid var(--primary-button, #cfff48)'
-								: '2px solid transparent',
-						cursor: 'pointer',
-						transition: 'color 0.2s',
-					}}
-					onClick={() => setActiveTab('transcript')}
-				>
-					Transcript
-				</button>
+				{(history || type === 'desktop') && (
+					<button
+						className={activeTab === 'transcript' ? 'notes-tab active' : 'notes-tab'}
+						style={{
+							background: 'none',
+							border: 'none',
+							outline: 'none',
+							color: 'inherit',
+							fontWeight: 500,
+							fontSize: 16,
+							padding: '8px 0',
+							borderBottom:
+								activeTab === 'transcript'
+									? '2px solid var(--primary-button, #cfff48)'
+									: '2px solid transparent',
+							cursor: 'pointer',
+							transition: 'color 0.2s',
+						}}
+						onClick={() => setActiveTab('transcript')}
+					>
+						Transcript
+					</button>
+				)}
 
-				<button
-					className={activeTab === 'summary' ? 'notes-tab active' : 'notes-tab'}
-					style={{
-						background: 'none',
-						border: 'none',
-						outline: 'none',
-						color: 'inherit',
-						fontWeight: 500,
-						fontSize: 16,
-						padding: '8px 0',
-						borderBottom:
-							activeTab === 'summary'
-								? '2px solid var(--primary-button, #cfff48)'
-								: '2px solid transparent',
-						cursor: 'pointer',
-						transition: 'color 0.2s',
-					}}
-					onClick={() => setActiveTab('summary')}
-				>
-					Summary
-				</button>
+				{history && type === 'meeting_bot' && (
+					<button
+						className={activeTab === 'summary' ? 'notes-tab active' : 'notes-tab'}
+						style={{
+							background: 'none',
+							border: 'none',
+							outline: 'none',
+							color: 'inherit',
+							fontWeight: 500,
+							fontSize: 16,
+							padding: '8px 0',
+							borderBottom:
+								activeTab === 'summary'
+									? '2px solid var(--primary-button, #cfff48)'
+									: '2px solid transparent',
+							cursor: 'pointer',
+							transition: 'color 0.2s',
+						}}
+						onClick={() => setActiveTab('summary')}
+					>
+						Summary
+					</button>
+				)}
+				{history && (
+					<button
+						className={activeTab === 'notes' ? 'notes-tab active' : 'notes-tab'}
+						style={{
+							background: 'none',
+							border: 'none',
+							outline: 'none',
+							color: 'inherit',
+							fontWeight: 500,
+							fontSize: 16,
+							padding: '8px 0',
+							borderBottom:
+								activeTab === 'notes'
+									? '2px solid var(--primary-button, #cfff48)'
+									: '2px solid transparent',
+							cursor: 'pointer',
+							transition: 'color 0.2s',
+						}}
+						onClick={() => setActiveTab('notes')}
+					>
+						Notes
+					</button>
+				)}
+
+				{!history && (
+					<button
+						className={activeTab === 'all' ? 'notes-tab active' : 'notes-tab'}
+						style={{
+							background: 'none',
+							border: 'none',
+							outline: 'none',
+							color: 'inherit',
+							fontWeight: 500,
+							fontSize: 16,
+							padding: '8px 0',
+							borderBottom:
+								activeTab === 'all'
+									? '2px solid var(--primary-button, #cfff48)'
+									: '2px solid transparent',
+							cursor: 'pointer',
+							transition: 'color 0.2s',
+						}}
+						onClick={() => setActiveTab('all')}
+					>
+						All
+					</button>
+				)}
 				{userQuestions?.length > 0 && (
 					<button
 						className={activeTab === 'userQuestions' ? 'notes-tab active' : 'notes-tab'}
