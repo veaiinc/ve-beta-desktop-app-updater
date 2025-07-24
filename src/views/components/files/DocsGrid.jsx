@@ -48,8 +48,7 @@ const docsStatusButtonStyles = {
 	gap: '4px',
 	borderRadius: '100px',
 	border: '1px solid var(--stroke, #2B2E31)',
-	background: 'var(--popup)',
-	color: 'var(--primary-font)',
+	color: '#FFFFFF',
 	fontFamily: 'var(--primary-font-family)',
 	fontSize: '10px',
 	fontStyle: 'normal',
@@ -105,6 +104,13 @@ const DocsGrid = ({
 		selectedFilter: { label: 'All', value: '' },
 		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
 		searchQuery: '',
+		filterOptions: [
+			{ label: 'All', value: '' },
+			{ label: 'Files Viewed', value: 'filesViewed' },
+			{ label: 'Enquiry', value: 'enquiry' },
+			{ label: 'Sent', value: 'filesSent' },
+			{ label: 'Confirmed', value: 'confirmed' },
+		],
 	});
 
 	// Remove local viewMode state since it's now passed as prop
@@ -130,6 +136,11 @@ const DocsGrid = ({
 			updateStateValues({ docsFilesRefetch: null });
 		}
 	}, [docsFilesRefetch]);
+
+	// Handle filter changes
+	useEffect(() => {
+		fetchDocs({ page: 1 });
+	}, [info?.selectedFilter]);
 
 	useEffect(() => {
 		// Skip animations when in list view
@@ -266,9 +277,11 @@ const DocsGrid = ({
 					sortBy,
 					sortType,
 					title: info?.searchQuery,
-					// action: info?.selectedFilter?.value,
 				},
 			};
+			if (info?.selectedFilter?.value) {
+				payload.filters.status = info.selectedFilter.value;
+			}
 			if (clientId) {
 				payload.filters.clientId = clientId;
 			}
@@ -295,6 +308,10 @@ const DocsGrid = ({
 			sortType = info?.selectedSort?.sortType * -1;
 		}
 		handleStateUpdate({ selectedSort: { ...value, sortType } });
+	};
+
+	const handleFilterClick = (value) => {
+		handleStateUpdate({ selectedFilter: value });
 	};
 
 	const handleDocClick = useCallback((doc) => {
@@ -354,6 +371,12 @@ const DocsGrid = ({
 		<div className="card-sub-container-center">
 			<div className="header-container">
 				<div className="center-container-header">
+					<FilterDropdown
+						options={info?.filterOptions}
+						selected={info?.selectedFilter}
+						onOptionClick={handleFilterClick}
+						width="130px"
+					/>
 					<FilterDropdown
 						options={sortOptions}
 						selected={info?.selectedSort}

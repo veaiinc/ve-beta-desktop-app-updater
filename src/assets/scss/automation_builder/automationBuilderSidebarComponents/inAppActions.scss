@@ -18,7 +18,7 @@
 		overflow-y: auto;
 
 		.InputBlockHeading {
-			color: #f2f2f3;
+			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
@@ -35,7 +35,7 @@
 			width: 100%;
 
 			.inputLabel {
-				color: #7a7e85;
+				color: var(--secondary-font);
 				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
@@ -57,8 +57,8 @@
 				align-items: center;
 				align-self: stretch;
 				border-radius: 12px;
-				border: 1px solid #2c2d2e;
-				color: #f2f2f3;
+				border: 1px solid var(--stroke);
+				color: var(--primary-font);
 				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
@@ -67,7 +67,7 @@
 				background-color: transparent;
 
 				&::placeholder {
-					color: #7a7e85;
+						color: var(--secondary-font);
 				}
 			}
 
@@ -115,6 +115,34 @@
 			text-align: center;
 			padding: 16px;
 		}
+	}
 
+	.triggerSaveButtonContainer {
+		display: flex;
+		padding: 12px 24px;
+		justify-content: center;
+		align-items: center;
+		align-self: stretch;
+
+		.actionsSaveButton {
+			padding: 12px 24px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 12px;
+			background-color: var(--primary-color);
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			border: none;
+			transition: background-color 0.2s ease;
+
+			&:hover {
+				background-color: var(--card-over-card-hover);
+			}
+		}
 	}
 }

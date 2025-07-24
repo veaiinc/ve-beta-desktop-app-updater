@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { ReactComponent as VeAiLogo } from '../../../assets/svg/ve.svg';
 
 const TranscriptionTabs = ({
 	activeTab,
@@ -22,29 +23,29 @@ const TranscriptionTabs = ({
 					marginBottom: 12,
 				}}
 			>
-				{(history || type === 'desktop') && (
-					<button
-						className={activeTab === 'transcript' ? 'notes-tab active' : 'notes-tab'}
-						style={{
-							background: 'none',
-							border: 'none',
-							outline: 'none',
-							color: 'inherit',
-							fontWeight: 500,
-							fontSize: 16,
-							padding: '8px 0',
-							borderBottom:
-								activeTab === 'transcript'
-									? '2px solid var(--primary-button, #cfff48)'
-									: '2px solid transparent',
-							cursor: 'pointer',
-							transition: 'color 0.2s',
-						}}
-						onClick={() => setActiveTab('transcript')}
-					>
-						Transcript
-					</button>
-				)}
+				{/* {(history || type === 'desktop') && ( */}
+				<button
+					className={activeTab === 'transcript' ? 'notes-tab active' : 'notes-tab'}
+					style={{
+						background: 'none',
+						border: 'none',
+						outline: 'none',
+						color: 'inherit',
+						fontWeight: 500,
+						fontSize: 16,
+						padding: '8px 0',
+						borderBottom:
+							activeTab === 'transcript'
+								? '2px solid var(--primary-button, #cfff48)'
+								: '2px solid transparent',
+						cursor: 'pointer',
+						transition: 'color 0.2s',
+					}}
+					onClick={() => setActiveTab('transcript')}
+				>
+					Transcript
+				</button>
+				{/* )} */}
 
 				{history && type === 'meeting_bot' && (
 					<button
@@ -160,7 +161,7 @@ const TranscriptionTabs = ({
 						}}
 						onClick={() => setActiveTab('aiQuestions')}
 					>
-						Need help?
+						Ask <VeAiLogo /> AI?
 					</button>
 				)}
 

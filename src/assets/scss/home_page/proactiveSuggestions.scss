@@ -1,7 +1,6 @@
 .proactive-suggestions-container {
 	width: 100%;
 	margin: 0 auto;
-	height: 100%;
 	display: flex;
 	gap: 40px;
 	flex-direction: column;
@@ -261,6 +260,17 @@
 
 			.footer {
 				justify-content: flex-end;
+			}
+		}
+
+		.card.skeleton {
+			overflow: hidden;
+			padding: 0;
+			transition: none;
+			background-color: transparent;
+
+			&.selected {
+				border: 1.5px solid var(--primary-button);
 			}
 		}
 	}
@@ -567,22 +577,6 @@
 						font-weight: 500;
 					}
 				}
-			}
-		}
-		.card.skeleton {
-			overflow: hidden;
-			padding: 0;
-			background-color: transparent;
-			border: none;
-
-			.skeleton-container {
-				padding: 0;
-				border-radius: 16px;
-				overflow: hidden;
-			}
-
-			&.selected {
-				padding: 4px;
 			}
 		}
 	}
@@ -1455,9 +1449,6 @@
 }
 
 @media screen and (max-width: 768px) {
-	.proactive-suggestions-container {
-		height: 100%;
-	}
 	.cards-container {
 		width: 100% !important;
 		overflow: hidden !important;

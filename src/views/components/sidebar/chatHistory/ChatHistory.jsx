@@ -155,6 +155,8 @@ const ChatHistory = () => {
 								width="211px"
 								height="46px"
 								borderRadius="12px"
+								baseColor="var(--card)"
+								highlightColor="gray"
 							/>
 						))}
 					</div>

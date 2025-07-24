@@ -42,6 +42,7 @@ const ShareModal = ({
 	onAccessChange,
 	currentUserId,
 	showAccessControl = true,
+	showRemoveButton = true,
 
 	// Global access
 	showGlobalAccess = false,
@@ -408,6 +409,9 @@ const ShareModal = ({
 																			member?.userId,
 																			value,
 																		)
+																	}
+																	showRemoveButton={
+																		showRemoveButton
 																	}
 																	accessTypes={accessTypes}
 																	accessTypeLabels={
