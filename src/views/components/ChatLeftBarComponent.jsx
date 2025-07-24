@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useRef, useState, useCallback } from 'react';
+import { memo, useEffect, useState, useCallback } from 'react';
 import '../../assets/scss/chatLeftBarComponent.scss';
 import ObjectID from 'bson-objectid';
 import RecentChat from '../features/chat/RecentChat';
