@@ -47,11 +47,13 @@ export const KnowledgeAgentState = () => {
 					data,
 					currentPage: response?.[1]?.currentPage ?? 1,
 					hasNextPage: response?.[1]?.hasNextPage ?? false,
+					totalDocs: response?.[1]?.totalDocs ?? 0,
 				};
 				dispatch({
 					type: Actions?.SET_KNOWLEDGE_ASSISTANTS_LIST,
 					payload,
 				});
+				return [true, payload];
 			} else {
 				dispatch({
 					type: Actions?.SET_KNOWLEDGE_ASSISTANTS_LIST,
@@ -59,8 +61,10 @@ export const KnowledgeAgentState = () => {
 						data: [],
 						hasNextPage: false,
 						currentPage: 1,
+						totalDocs: 0,
 					},
 				});
+				return [false, response?.[1]];
 			}
 		} catch (error) {
 			console.log('error==>getKnowledgeAssistantsList', error);

@@ -21,10 +21,6 @@ import { message } from '../../components/globalComponents/CustomToast';
 import { Helmet } from 'react-helmet';
 import ObjectID from 'bson-objectid';
 import jwtDecode from 'jwt-decode';
-import { Tooltip } from 'antd';
-import UploadPopup from '../../components/notes/UploadPopup';
-import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
-import IconUploadPopup from '../../components/notes/IconUploadPopup';
 import DatabaseSidebar from '../../components/modalsV2/notes/DatabaseSidebar';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 // import '../../../assets/scss/notes/noteComponent.scss';
@@ -42,6 +38,7 @@ import NotesHeader from '../../components/notes/DatabseComponents/NotesHeader';
 import Editor from '../../components/notes/Editor';
 import TranscriptionTabs from '../../components/notes/TranscriptionTabs';
 import MeetSummary from './MeetSummary';
+import NotesTitleArea from '../../components/notes/DatabseComponents/NotesTitleArea';
 
 const initialState = {
 	timeouts: {}, // Single timeouts object to store all timeouts
@@ -59,12 +56,9 @@ const initialState = {
 	lastUpdated: null,
 	deleteLoading: false,
 	updatedBy: null,
-	showUploadPopup: false,
 	showAiTranscriptionSuggestions: false,
-	showCustomizeAppearance: false,
 	coverImageError: false,
 	localCoverImage: false, // cover image or link that is selected/uploaded before refreshing the page
-	uploadType: null, // can be 'cover' or 'icon'
 	showRemoveCoverBtn: false,
 	showRemoveIconBtn: false,
 	selectedEmoji: null,
@@ -320,22 +314,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		userId = user_id;
 	}, []);
 
-	// useEffect(() => {
-	// 	const notesContainer = document.querySelector('.notes-container');
-	// 	const handleKeyDown = (e) => {
-	// 		if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-	// 			const selected = editor?.getSelectedText()?.length > 0 || false;
-	// 			if (selected) {
-	// 				e.stopPropagation();
-	// 				return;
-	// 			}
-	// 		}
-	// 	};
-
-	// 	notesContainer.addEventListener('keydown', handleKeyDown);
-	// 	return () => notesContainer.removeEventListener('keydown', handleKeyDown);
-	// }, []);
-
 	useEffect(() => {
 		const originalFaviconTag = document.querySelector("link[rel~='icon']");
 
@@ -547,12 +525,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		);
 	};
 
-	const handleKeyDown = (e) => {
-		if (e.key === 'Enter') {
-			e.preventDefault(); // optional: stops newline if it's a textarea
-		}
-	};
-
 	const handleFavorite = useCallback(
 		(value) => {
 			setInfo((prev) => ({ ...prev, isFavorite: value }));
@@ -593,7 +565,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			);
 			if (success) {
 				message.success(`Page ${permanent ? 'permanently ' : ''}deleted successfully`);
-				navigate('/notes');
+				navigate(-1);
 			} else {
 				message.error('Failed to delete page');
 			}
@@ -750,6 +722,10 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		}));
 	};
 
+	const handleInfoChange = useCallback((data) => {
+		setInfo((prev) => ({ ...prev, ...data }));
+	}, []);
+
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
 			{type !== 'meeting_bot' && (
@@ -826,128 +802,16 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 								maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px',
 							}}
 						>
-							<Tooltip
-								// open={info?.showCustomizeAppearance}
-								open={false}
-								onOpenChange={() => {
-									if (info?.showUploadPopup) {
-										setInfo((prev) => ({
-											...prev,
-											showUploadPopup: false,
-										}));
-									}
-									setInfo((prev) => ({
-										...prev,
-										showCustomizeAppearance: !prev.showCustomizeAppearance,
-									}));
-								}}
-								placement="bottomLeft"
-								title={
-									info?.showUploadPopup && info?.uploadType === 'cover' ? (
-										<UploadPopup
-											closePopup={() =>
-												setInfo((prev) => ({
-													...prev,
-													showUploadPopup: false,
-													showCustomizeAppearance: false,
-												}))
-											}
-											setLocalCoverImage={(coverImage) =>
-												setInfo((prev) => ({
-													...prev,
-													localCoverImage: coverImage,
-													coverImageRemoved: false,
-												}))
-											}
-											uploadType={info?.uploadType}
-										/>
-									) : info?.showUploadPopup && info?.uploadType === 'icon' ? (
-										<IconUploadPopup
-											setSelectedEmoji={(emoji) =>
-												setInfo((prev) => ({
-													...prev,
-													selectedEmoji: emoji,
-												}))
-											}
-											closePopup={() =>
-												setInfo((prev) => ({
-													...prev,
-													showUploadPopup: false,
-													showCustomizeAppearance: false,
-												}))
-											}
-										/>
-									) : (
-										<CustomizeAppearance
-											// uploadType can be 'cover' or 'icon'
-											showUploadPopup={(uploadType) =>
-												setInfo((prev) => ({
-													...prev,
-													showUploadPopup: true,
-													uploadType,
-												}))
-											}
-										/>
-									)
-								}
-								overlayInnerStyle={{
-									backgroundColor: 'inherit',
-								}}
-								arrow={false}
-							>
-								<div
-									className="notes-icon-container"
-									style={{
-										paddingTop: coverImage
-											? '42px'
-											: iconImage
-											? '100px'
-											: '0px',
-									}}
-								>
-									{iconImage && (
-										<div
-											className="notes-icon-wrapper"
-											onMouseEnter={() =>
-												setInfo((prev) => ({
-													...prev,
-													showRemoveIconBtn: true,
-												}))
-											}
-											onMouseLeave={() =>
-												setInfo((prev) => ({
-													...prev,
-													showRemoveIconBtn: false,
-												}))
-											}
-											style={{
-												top: coverImage
-													? '-72px'
-													: iconImage
-													? '-10px'
-													: '-24px',
-											}}
-										>
-											{info?.showRemoveIconBtn && (
-												<div className="remove-icon-btn-container">
-													<CrossIcon
-														className="remove-icon-btn"
-														onClick={handleRemoveIcon}
-													/>
-												</div>
-											)}
-											{iconImage?.native}
-										</div>
-									)}
-									<CustomTextArea
-										className="notes-title"
-										value={info?.title}
-										onChange={handleTitleChange}
-										autoResize={true}
-										onKeyDown={handleKeyDown}
-									/>
-								</div>
-							</Tooltip>
+							<NotesTitleArea
+								iconImage={info?.iconImage}
+								coverImage={info?.coverImage}
+								updateParentState={handleInfoChange}
+								handleRemoveIcon={handleRemoveIcon}
+								handleTitleChange={handleTitleChange}
+								title={info?.title}
+								showRemoveIconBtn={info?.showRemoveIconBtn}
+							/>
+
 							{showTranscriptTabs && (
 								<TranscriptionTabs
 									activeTab={activeTab}
