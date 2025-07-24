@@ -319,7 +319,7 @@ const HeadingComponent = () => {
 							dropdownRender={(menu) => (
 								<div
 									onMouseDown={handleMouseDown}
-									// onMouseUp={handleMouseDown}
+									onMouseUp={handleMouseDown}
 									onClick={handleMouseDown}
 								>
 									{menu}
