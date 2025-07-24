@@ -54,6 +54,7 @@ import {
 	createNotesDatabaseMutation,
 	updateDatabaseViewMutation,
 	changeNotesAccessMutationDatabase,
+	updateGlobalNotesAccessMutation,
 
 	// for meet bots
 	getMeetBotDataQuery,
@@ -165,15 +166,16 @@ export const NotesState = (props) => {
 			);
 
 			if (response?.[0]) {
-				const data = response?.[1]?.data?.getPage;
+				const data = response?.[1]?.data?.getPage?.permissions || {};
 				dispatch({
 					type: Actions.GET_NOTES_PAGE_DATA_SUCCESS,
 					payload: { data },
 				});
+				const accessKey = isDatabase ? 'tenantAccess' : 'globalNoteAccess';
 				dispatch({
 					type: Actions.SET_GLOBAL_ACCESS,
-					payload: data?.globalNoteAccess
-						? { isEnabled: true, access: data?.globalNoteAccess }
+					payload: data?.[accessKey]
+						? { isEnabled: true, access: data?.[accessKey] }
 						: { isEnabled: false, access: 'view' },
 				});
 			} else {
@@ -418,7 +420,7 @@ export const NotesState = (props) => {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.mutation(
-				globalNotesAccessMutation,
+				isDatabase ? updateGlobalNotesAccessMutation : globalNotesAccessMutation,
 				payload,
 				workspaceId,
 				usertoken,

@@ -285,12 +285,12 @@ const ShareComponent = ({ pageId, makeApiCall = true, isDatabase }) => {
 		}, 500);
 	};
 
-	const handleGlobalAccessUpdate = async (input) => {
+	const handleGlobalAccessUpdate = async (input, access = 'view') => {
 		const payload = {
 			pageId,
 			input: {
 				isEnabled: input,
-				access: globalAccess?.access || 'view',
+				access,
 			},
 		};
 		const response = await updateGlobalAccess(payload, isDatabase);

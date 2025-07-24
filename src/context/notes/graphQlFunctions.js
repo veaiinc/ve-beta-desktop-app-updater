@@ -216,6 +216,16 @@ export const globalNotesAccessMutation = gql`
 	}
 `;
 
+//database
+export const updateGlobalNotesAccessMutation = gql`
+	mutation Mutation($pageId: ID!, $input: TenantAccessInput!) {
+		updateTenantAccess(pageId: $pageId, input: $input) {
+			success
+			message
+		}
+	}
+`;
+
 export const notesImageBlockUploadMutation = gql`
 	mutation UploadPageBlockImage(
 		$pageId: ID!
@@ -345,6 +355,7 @@ export const getPageQueryDatabase = gql`
 					userId
 					access
 				}
+				tenantAccess
 			}
 			tenantId
 			createdAt
