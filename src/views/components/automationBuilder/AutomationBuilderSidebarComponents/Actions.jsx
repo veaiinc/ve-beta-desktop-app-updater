@@ -18,6 +18,7 @@ import Delay from './Delay';
 import AgentAction from './AgentAction';
 import CreateDatabaseRow from './CreateDatabaseRow';
 import UpdateDatabaseRow from './UpdateDatabaseRow';
+import DeleteDatabaseRow from './DeleteDatabaseRow';
 
 const integrations = [
 	{
@@ -56,6 +57,10 @@ const actionGroups = [
 			},
 			{
 				actionLabel: 'Update Database Row',
+				actionType: 'database',
+			},
+			{
+				actionLabel: 'Delete Database Row',
 				actionType: 'database',
 			},
 			// {
@@ -182,27 +187,32 @@ const Actions = ({
 		}
 	}, [activeEdge]);
 
-		useEffect(() => {
+	useEffect(() => {
 		if (activeStepsData) {
 			// Handle database nodes that have actionType: 'database' but different inputBody.action values
 			let actionType = activeStepsData?.actionType || activeStepsData?.type;
 			let actionLabel = '';
-			
+
 			if (actionType === 'database') {
 				if (activeStepsData?.inputBody?.action === 'updateDatabaseRecord') {
 					actionLabel = 'Update Database Row';
 				} else if (activeStepsData?.inputBody?.action === 'createDatabaseRecord') {
 					actionLabel = 'Create Database Row';
+				} else if (activeStepsData?.inputBody?.action === 'deleteDatabaseRecord') {
+					actionLabel = 'Delete Database Row';
 				}
 			}
-			
+
 			updateInfo({
 				selectedAction: {
 					actionType: actionType,
 					groupId: activeStepsData?.app || 'inApp',
-					actionLabel: actionLabel || actionGroups
-						?.find((group) => group?._id === activeStepsData?.app)
-						?.actions?.find((action) => action?.actionType === actionType)?.actionLabel,
+					actionLabel:
+						actionLabel ||
+						actionGroups
+							?.find((group) => group?._id === activeStepsData?.app)
+							?.actions?.find((action) => action?.actionType === actionType)
+							?.actionLabel,
 				},
 			});
 		}
@@ -397,9 +407,20 @@ const Actions = ({
 			{info?.selectedAction ? (
 				info?.selectedAction?.groupId === 'inApp' ? (
 					info?.selectedAction?.actionType === 'database' ? (
-						activeStepsData?.inputBody?.action === 'updateDatabaseRecord' || 
+						activeStepsData?.inputBody?.action === 'updateDatabaseRecord' ||
 						info?.selectedAction?.actionLabel === 'Update Database Row' ? (
 							<UpdateDatabaseRow
+								onBack={handleBack}
+								onSave={onSave}
+								addTriggerLoading={info?.saveLoader}
+								activeStepsData={activeStepsData}
+								handleChangeClick={handleChangeClick}
+								variables={variables}
+								activeEdge={activeEdge}
+							/>
+						) : activeStepsData?.inputBody?.action === 'deleteDatabaseRecord' ||
+						  info?.selectedAction?.actionLabel === 'Delete Database Row' ? (
+							<DeleteDatabaseRow
 								onBack={handleBack}
 								onSave={onSave}
 								addTriggerLoading={info?.saveLoader}

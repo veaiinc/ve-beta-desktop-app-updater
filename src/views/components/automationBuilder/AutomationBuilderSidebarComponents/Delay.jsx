@@ -161,13 +161,18 @@ const Delay = ({
 				</div>
 			</div>
 
-			<button
-				className="actionsSaveButton"
-				onClick={createNewTaskNode}
-				disabled={addTriggerLoading}
-			>
-				{addTriggerLoading ? <Spin /> : 'Save'}
-			</button>
+			<div className="triggerSaveButtonContainer">
+				<div
+					className="actionsSaveButton"
+					onClick={addTriggerLoading ? null : createNewTaskNode}
+					disabled={addTriggerLoading}
+					style={{
+						cursor: addTriggerLoading ? 'not-allowed' : 'pointer',
+					}}
+				>
+					{addTriggerLoading ? <Spin /> : 'Save'}
+				</div>
+			</div>
 		</div>
 	);
 };

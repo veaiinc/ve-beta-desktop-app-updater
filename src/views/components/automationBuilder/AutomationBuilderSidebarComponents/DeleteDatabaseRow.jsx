@@ -7,7 +7,7 @@ import { message } from '../../globalComponents/CustomToast';
 import Spinner from '../../loaders/Spinner';
 import VariableComponent from './VariableComponent';
 
-const UpdateDatabaseRow = ({
+const DeleteDatabaseRow = ({
 	onBack,
 	onSave,
 	activeStepsData,
@@ -39,9 +39,6 @@ const UpdateDatabaseRow = ({
 		pagesLoading: true,
 		selectedPage: null,
 		selectedDatabase: null,
-		databaseFields: [],
-		databaseFieldsLoading: false,
-		fieldValues: [],
 		databaseRows: [],
 		databaseRowsLoading: false,
 		selectedRow: null,
@@ -52,9 +49,9 @@ const UpdateDatabaseRow = ({
 	// Pre-fill form when editing an existing step
 	useEffect(() => {
 		if (activeStepsData) {
-			// For update database nodes, the data is stored in inputBody
+			// For delete database nodes, the data is stored in inputBody
 			const pageId = activeStepsData?.inputBody?.pageId;
-			const updateDatabaseRowId = activeStepsData?.inputBody?.updateDatabaseRowId;
+			const deleteDatabaseRowId = activeStepsData?.inputBody?.deleteDatabaseRowId;
 
 			updateInfo({
 				title: activeStepsData?.title,
@@ -104,31 +101,10 @@ const UpdateDatabaseRow = ({
 		}
 	}, [notes, activeStepsData]);
 
-	// Update database fields and their values from context
-	useEffect(() => {
-		if (info.selectedDatabase?._id && databaseContext?.[info.selectedDatabase._id]) {
-			const fields =
-				databaseContext[info.selectedDatabase._id].databaseMetadata?.fields || [];
-			const initialFieldValues = fields.map((field) => {
-				const existingValue = activeStepsData?.inputBody?.[field._id] || '';
-				return {
-					id: field._id,
-					name: field.name,
-					value: existingValue,
-				};
-			});
-			updateInfo({
-				databaseFields: fields,
-				fieldValues: initialFieldValues,
-				databaseFieldsLoading: false,
-			});
-		}
-	}, [databaseContext, info.selectedDatabase, activeStepsData]);
-
 	// Handle database selection when available databases are loaded
 	useEffect(() => {
 		if (availableDatabases && activeStepsData?.inputBody?.pageId && !info.selectedDatabase) {
-			// For update database, we need to find the database that contains the row we're updating
+			// For delete database, we need to find the database that contains the row we're deleting
 			// Since we don't have the databaseId stored, we'll need to find it by checking which database contains the row
 
 			// For now, let's select the first database and let the user change it if needed
@@ -172,11 +148,11 @@ const UpdateDatabaseRow = ({
 	useEffect(() => {
 		const currentDatabaseRows = getDatabaseRowsFromContext();
 		if (
-			activeStepsData?.inputBody?.updateDatabaseRowId &&
+			activeStepsData?.inputBody?.deleteDatabaseRowId &&
 			currentDatabaseRows.length > 0 &&
 			!info.selectedRow
 		) {
-			const targetRowId = activeStepsData.inputBody.updateDatabaseRowId;
+			const targetRowId = activeStepsData.inputBody.deleteDatabaseRowId;
 
 			const targetRow = currentDatabaseRows.find((row) => row._id === targetRowId);
 			if (targetRow) {
@@ -199,8 +175,6 @@ const UpdateDatabaseRow = ({
 						{ pageId, blockId: database.databaseMetadata.sourceBlockId },
 						databaseId,
 					);
-				} else {
-					console.warn('No sourceBlockId found for database:', databaseId);
 				}
 			} catch (error) {
 				console.error('Error fetching database views:', error);
@@ -253,8 +227,6 @@ const UpdateDatabaseRow = ({
 			selectedPage: page,
 			selectedDatabase: null,
 			selectedRow: null,
-			databaseFields: [],
-			fieldValues: [],
 			databaseRows: [],
 			databaseViews: [],
 			selectedViewId: null,
@@ -268,9 +240,6 @@ const UpdateDatabaseRow = ({
 		updateInfo({
 			selectedDatabase: database,
 			selectedRow: null,
-			databaseFields: [],
-			databaseFieldsLoading: true,
-			fieldValues: [],
 			databaseRows: [],
 			databaseViews: [],
 			selectedViewId: null,
@@ -286,12 +255,6 @@ const UpdateDatabaseRow = ({
 		});
 	};
 
-	const handleFieldValueChange = (index, value) => {
-		const newFieldValues = [...info.fieldValues];
-		newFieldValues[index].value = value;
-		updateInfo({ fieldValues: newFieldValues });
-	};
-
 	const handleSave = () => {
 		if (!info.selectedDatabase) {
 			message.error('Please select a database.');
@@ -299,28 +262,9 @@ const UpdateDatabaseRow = ({
 		}
 
 		if (!info.selectedRow) {
-			message.error('Please select a database row to update.');
+			message.error('Please select a database row to delete.');
 			return;
 		}
-
-		const variableRegex = /\{\{.*?\}\}/g;
-		const payloadVariables = {};
-		const inputBodyValues = {};
-
-		info.fieldValues.forEach((field) => {
-			if (field.id && field.value !== '') {
-				inputBodyValues[field.id] = field.value;
-
-				if (typeof field.value === 'string' && field.value.match(variableRegex)) {
-					const variablePaths = field.value
-						.match(variableRegex)
-						.map((v) => v.slice(2, -2));
-					if (variablePaths.length > 0) {
-						payloadVariables[field.id] = variablePaths;
-					}
-				}
-			}
-		});
 
 		const payload = {
 			title: info.title,
@@ -329,12 +273,11 @@ const UpdateDatabaseRow = ({
 			app: 'inApp',
 			isEnabled: true,
 			actionType: 'database',
-			variables: payloadVariables,
+			variables: {},
 			inputBody: {
-				action: 'updateDatabaseRecord',
+				action: 'deleteDatabaseRecord',
 				pageId: info.selectedPage._id,
-				updateDatabaseRowId: info.selectedRow._id,
-				...inputBodyValues,
+				deleteDatabaseRowId: info.selectedRow._id,
 			},
 		};
 
@@ -352,28 +295,6 @@ const UpdateDatabaseRow = ({
 			onBack();
 		}
 	}, [handleChangeClick, activeStepsData, onBack]);
-
-	const renderDatabaseFields = () => {
-		if (info.databaseFieldsLoading) return <Spinner />;
-
-		if (info.fieldValues.length === 0) {
-			return <div className="noFieldsMessage">This database has no fields.</div>;
-		}
-
-		return info.fieldValues.map((field, index) => (
-			<div className="inputWrapper" key={field.id}>
-				<span className="inputLabel">{field.name}</span>
-				<div className="messageLineWrapper slackMessageWrapper">
-					<VariableComponent
-						variables={variables?.data}
-						value={field.value}
-						onChange={(val) => handleFieldValueChange(index, val)}
-						placeholder="Enter Value"
-					/>
-				</div>
-			</div>
-		));
-	};
 
 	// Get database rows from context
 	const getDatabaseRowsFromContext = () => {
@@ -420,10 +341,10 @@ const UpdateDatabaseRow = ({
 
 	return (
 		<div className="inAppActionsContainer">
-			<HeaderComponent onBack={onBack} heading="Update Database Row" />
+			<HeaderComponent onBack={onBack} heading="Delete Database Row" />
 			<>
 				<ActionDetailsBlock
-					actionLabel="Update Database Row"
+					actionLabel="Delete Database Row"
 					heading="Actions"
 					title={info.title}
 					description={info.description}
@@ -489,14 +410,6 @@ const UpdateDatabaseRow = ({
 							)}
 						</div>
 					)}
-
-					{info.selectedRow && (
-						<>
-							<hr className="inputSeparator" />
-							<h2 className="InputBlockHeading">Fields to Update</h2>
-							{renderDatabaseFields()}
-						</>
-					)}
 				</div>
 
 				<div className="triggerSaveButtonContainer">
@@ -516,4 +429,4 @@ const UpdateDatabaseRow = ({
 	);
 };
 
-export default memo(UpdateDatabaseRow);
+export default memo(DeleteDatabaseRow);

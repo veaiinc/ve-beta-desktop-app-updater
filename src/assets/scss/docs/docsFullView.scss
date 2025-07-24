@@ -176,7 +176,6 @@
 		align-items: center;
 		gap: 4px;
 		border-radius: 35px;
-		background: var(--background-color);
 
 		.DocsStatusCircle {
 			width: 6px;
@@ -186,7 +185,7 @@
 		}
 
 		.DocsButtontext {
-			color: #f2f2f3; /* this is a badge text color  don't use variable here */
+			color: #fff; 
 			text-align: center;
 			font-family: var(--primary-font-family);
 			font-size: 12px;
