@@ -147,7 +147,13 @@ const AiTranscriptionSuggestions = ({
 				</div>
 			</div> */}
 
-			<div className={s.body} ref={bodyRef}>
+			<div
+				className={s.body}
+				ref={bodyRef}
+				style={{
+					gap: activeTab === 'all' ? '48px' : '24px',
+				}}
+			>
 				{activeTab === 'all' && (
 					<div className={s.allSuggestionsContainer}>
 						{allSuggestions?.map((suggestion, index) => {
