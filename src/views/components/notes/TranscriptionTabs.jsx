@@ -46,7 +46,7 @@ const TranscriptionTabs = ({
 					</button>
 				)}
 
-				{history && (
+				{history && type === 'meeting_bot' && (
 					<button
 						className={activeTab === 'summary' ? 'notes-tab active' : 'notes-tab'}
 						style={{

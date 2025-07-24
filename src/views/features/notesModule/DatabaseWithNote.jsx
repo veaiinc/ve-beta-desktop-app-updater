@@ -728,7 +728,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
-			{type !== 'meeting_bot' && (
+			{!(type === 'meeting_bot' || type === 'desktop') && (
 				<div className="notesChatArea">
 					<RecentChat
 						showIconText={false}
@@ -835,6 +835,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 										tenantId={tennantSettingsData?._id}
 										sessionId={sessionId}
 										pageId={noteId}
+										history={history}
 									/>
 								) : null)}
 
