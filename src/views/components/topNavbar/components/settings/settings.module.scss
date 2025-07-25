@@ -1,13 +1,16 @@
 .settingsContainer {
-	display: flex;
-	width: 320px;
-	padding: 12px;
-	flex-direction: column;
 	align-items: flex-start;
-	gap: 12px;
-	border-radius: 16px;
-	border: 1px solid var(--dividers, #1e1f20);
 	background: var(--popup, #202123);
+	border: 1px solid var(--dividers, #1e1f20);
+	border-radius: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 12px;
+	position: absolute;
+	right: -12px;
+	top: 34px;
+	width: 320px;
 
 	.userInfo {
 		width: 100%;
