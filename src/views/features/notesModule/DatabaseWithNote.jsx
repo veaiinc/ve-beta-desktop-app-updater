@@ -165,7 +165,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	// 	},
 	// 	[handleTranscriptionSuggestions],
 	// );
-
 	useEffect(() => {
 		if (aiTranscriptionSuggestions) {
 			const userQuestions = [];
@@ -219,6 +218,14 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			});
 		};
 	}, []);
+
+	useEffect(() => {
+		if (transcriptList?.length > 0) {
+			updateNotesStateValues({
+				transcriptionList: transcriptList,
+			});
+		}
+	}, [transcriptList]);
 	const handleSocketMessage = useCallback(
 		(event) => {
 			try {
