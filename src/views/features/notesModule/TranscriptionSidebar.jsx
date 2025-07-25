@@ -77,6 +77,48 @@ const transcriptionList = [
 		transcript: 'Nature has an incredible way of inspiring creativity.',
 		timestamp: '2021-01-01 10:00:00',
 	},
+	{
+		speakerName: 'Speaker 3',
+		transcript: 'This is the transcript of the third speaker',
+		timestamp: '2021-01-01 10:00:00',
+	},
+	{
+		speakerName: 'Speaker 1',
+		transcript:
+			"The beauty of nature is truly mesmerizing. Just think about the vibrant colors of a sunset or the soothing sound of a flowing river. It's a reminder of the tranquility that surrounds us, urging us to appreciate the world we live in.",
+		timestamp: '2021-01-01 10:00:00',
+	},
+	{
+		speakerName: 'Speaker 3',
+		transcript: 'This is the transcript of the third speaker',
+		timestamp: '2021-01-01 10:00:00',
+	},
+	{
+		speakerName: 'Speaker 2',
+		transcript: 'Nature has an incredible way of inspiring creativity.',
+		timestamp: '2021-01-01 10:00:00',
+	},
+	{
+		speakerName: 'Speaker 3',
+		transcript: 'This is the transcript of the third speaker',
+		timestamp: '2021-01-01 10:00:00',
+	},
+	{
+		speakerName: 'Speaker 1',
+		transcript:
+			"The beauty of nature is truly mesmerizing. Just think about the vibrant colors of a sunset or the soothing sound of a flowing river. It's a reminder of the tranquility that surrounds us, urging us to appreciate the world we live in.",
+		timestamp: '2021-01-01 10:00:00',
+	},
+	{
+		speakerName: 'Speaker 3',
+		transcript: 'This is the transcript of the third speaker',
+		timestamp: '2021-01-01 10:00:00',
+	},
+	{
+		speakerName: 'Speaker 2',
+		transcript: 'Nature has an incredible way of inspiring creativity.',
+		timestamp: '2021-01-01 10:00:00',
+	},
 ];
 const TranscriptionSidebar = () => {
 	// const {
@@ -85,13 +127,8 @@ const TranscriptionSidebar = () => {
 
 	return (
 		<div className={styles.transcriptionSidebar}>
-			<div className={styles.transcriptionHeaderContainer}>
-				<div className={styles.transcriptionHeaderLeft}>
-					<SidebarClosingSvg />
-					<div className={styles.transcriptionHeaderLeftTitle}>Transcription</div>
-				</div>
-
-				{/* <div className={styles.transcriptionHeaderRight}>
+			{/* <div className={styles.transcriptionHeaderContainer}>
+				<div className={styles.transcriptionHeaderRight}>
 					<Dropdown
 						menu={{ items: Options }}
 						overlayClassName={styles.transcriptionHeaderRightDropdownOverlay}
@@ -102,8 +139,8 @@ const TranscriptionSidebar = () => {
 							View Only <DownOutlined />
 						</div>
 					</Dropdown>
-				</div> */}
-			</div>
+				</div>
+			</div> */}
 			<div className={styles.transcriptionListContainer}>
 				{transcriptionList.map((item, index) => (
 					<div key={item.id} className={styles.transcriptionItem}>

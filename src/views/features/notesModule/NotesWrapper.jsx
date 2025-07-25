@@ -1,25 +1,26 @@
 import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/notes/notesWrapper.scss';
+import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosingPrimary.svg';
 import RecentChat from '../chat/RecentChat';
 import ObjectID from 'bson-objectid';
-import Notes from './Notes';
-import AiTranscriptionSuggestions from '../../components/chat/AiTranscriptionSuggestions';
 import Context from '../../../context/context';
 import DatabaseWithNote from './DatabaseWithNote';
-import ToggleSlider from '../../components/input/slider';
 import { useSearchParams } from 'react-router-dom';
+import TranscriptionSidebar from './TranscriptionSidebar';
 
 const NotesWrapper = () => {
 	const {
-		templates: { aiTranscriptionSuggestions, updateStateValues },
+		templates: { updateStateValues },
 	} = useContext(Context);
-	const [searchParams] = useSearchParams();
+	const [searchParams, setSearchParams] = useSearchParams();
 	const isAiIntelligenceEnabled = searchParams.get('isAiIntelligenceEnabled');
 	const [info, setInfo] = useState({
 		modalIsOpen: true,
 		sessionId: ObjectID()?.toString(),
 		showAmbientAssistance: isAiIntelligenceEnabled === 'true',
-		chatOpen: false,
+		sidebarOpen: false,
+		chatActive: false,
+		transcriptionActive: false,
 	});
 
 	useEffect(() => {
@@ -30,77 +31,67 @@ const NotesWrapper = () => {
 
 	useEffect(() => {
 		const chat = searchParams.get('chat');
-		if (chat === 'false') {
-			if (info?.chatOpen) {
-				setInfo((prev) => ({
-					...prev,
-					chatOpen: false,
-				}));
-			}
-		} else if (chat === 'true') {
-			if (!info?.chatOpen) {
-				setInfo((prev) => ({
-					...prev,
-					chatOpen: true,
-				}));
-			}
-		}
-	}, [searchParams]);
+		const transcription = searchParams.get('transcription');
 
-	// useEffect(() => {
-	// 	if (aiTranscriptionSuggestions && !info?.handledOnce) {
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			modalIsOpen: true,
-	// 			handledOnce: true,
-	// 		}));
-	// 	}
-	// }, [aiTranscriptionSuggestions]);
-
-	const handleCloseModal = useCallback(() => {
 		setInfo((prev) => ({
 			...prev,
-			modalIsOpen: false,
+			chatActive: chat === 'true' || false,
+			transcriptionActive: transcription === 'true' || false,
+			sidebarOpen: chat === 'true' || transcription === 'true' || false,
 		}));
-	}, []);
+	}, [searchParams]);
+
+	const handleCloseSidebar = useCallback(() => {
+		const newParams = new URLSearchParams(searchParams);
+		newParams.delete('transcription');
+		newParams.delete('chat');
+		setSearchParams(newParams, { replace: true });
+	}, [searchParams]);
 
 	return (
-		<div
-			className={'notes-parent-wrapper'}
-			// style={{
-			// 	width: info?.modalIsOpen ? 'calc(100% - 400px)' : '100%',
-			// }}
-		>
+		<div className={'notes-parent-wrapper'}>
 			<div className="leftWrapper">
-				<div
-					className="noteChatWrapper"
-					style={{
-						width: info?.chatOpen ? '400px' : '0px',
-					}}
-				>
-					<div
-						className="chat-wrapper"
-						style={{
-							transform: info?.chatOpen ? 'translateX(0%)' : 'translateX(-100%)',
-						}}
-					>
-						<RecentChat
-							isPreview={true}
-							showDeleteChat={false}
-							showCitationsButton={false}
-							// customChatBoxClick={handleCustomChatBoxClick}
-							sId={info?.sessionId}
-							animateChatBox={false}
-						/>
-					</div>
-				</div>
-
 				<div className="notesContainerWrapper">
-					{/* <Notes /> */}
 					<DatabaseWithNote
 						showTranscriptTabs={true}
 						showAmbientAssistance={info?.showAmbientAssistance}
 					/>
+				</div>
+				<div
+					className="noteChatWrapper"
+					style={{
+						width: info?.sidebarOpen ? '400px' : '0px',
+						borderLeft: info?.sidebarOpen ? '1px solid var(--stroke)' : 'none',
+					}}
+				>
+					<div className="note-sidebar-header">
+						<div className="sidebar-close-icon" onClick={handleCloseSidebar}>
+							<SidebarClosingSvg />
+						</div>
+						<div className="sidebar-title">
+							{info?.chatActive && 'Chat'}
+							{info?.transcriptionActive && 'Transcription'}
+						</div>
+					</div>
+					<div className="note-sidebar-content">
+						<div className={`${info?.chatActive ? 'active' : ''} chat-wrapper`}>
+							<RecentChat
+								isPreview={true}
+								showDeleteChat={false}
+								showCitationsButton={false}
+								// customChatBoxClick={handleCustomChatBoxClick}
+								sId={info?.sessionId}
+								animateChatBox={false}
+							/>
+						</div>
+						<div
+							className={`${
+								info?.transcriptionActive ? 'active' : ''
+							} transcription-wrapper`}
+						>
+							<TranscriptionSidebar />
+						</div>
+					</div>
 				</div>
 			</div>
 			{/* <div

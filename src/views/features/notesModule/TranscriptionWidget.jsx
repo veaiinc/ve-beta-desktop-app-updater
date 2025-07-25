@@ -41,7 +41,20 @@ const TranscriptionWidget = ({
 		},
 		{
 			speakerName: 'John',
-			transcript: 'Hello lorem ipsum dolor sit amet',
+			transcript:
+				'Hello lorem ipsum dolor sit ametHello lorem ipsum dolor sit ametHello lorem ipsum dolor sit ametHello lorem ipsum dolor sit amet',
+			timestamp: 1234567890,
+		},
+		{
+			speakerName: 'John',
+			transcript:
+				'Hello lorem ipsum dolor sit ametHello lorem ipsum dolor sit ametHello lorem ipsum dolor sit ametHello lorem ipsum dolor sit amet',
+			timestamp: 1234567890,
+		},
+		{
+			speakerName: 'John',
+			transcript:
+				'Hello lorem ipsum dolor sit ametHello lorem ipsum dolor sit ametHello lorem ipsum dolor sit ametHello lorem ipsum dolor sit amet',
 			timestamp: 1234567890,
 		},
 	],
