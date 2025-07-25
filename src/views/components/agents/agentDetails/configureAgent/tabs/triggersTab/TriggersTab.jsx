@@ -65,7 +65,7 @@ const TriggersTab = () => {
 
 	const {
 		knowledgeAgent: { triggers, getTriggers, connectTrigger, disconnectTrigger },
-		templates: { connectedThirdParties, getConnectedThirdParties },
+		templates: { connectedThirdParties, getConnectedThirdParties, connectThirdParty },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -199,6 +199,10 @@ const TriggersTab = () => {
 			);
 
 			if (!connectedParty) {
+				if (appType === 'gmail') {
+					await connectThirdParty('gmail');
+					return;
+				}
 				message.error(`No connected ${appType} account found for ${selectedEmail}`);
 				return;
 			}
@@ -399,12 +403,14 @@ const TriggersTab = () => {
 				connectedEmails={getConnectedEmailsForApp(info.selectedAppType)}
 				selectedAppType={info.selectedAppType}
 				isLoading={info.connectTriggerLoading}
+				connectedThirdParties={connectedThirdParties}
 			/>
 			<SchedulerModal
 				isOpen={info.schedulerModalOpen}
 				onClose={() => setInfo({ ...info, schedulerModalOpen: false })}
 				handleConnectToSchedulerTrigger={handleConnectToSchedulerTrigger}
 				isLoading={info.connectTriggerLoading}
+				connectThirdParty={connectThirdParty}
 			/>
 		</div>
 	);
