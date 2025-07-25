@@ -109,6 +109,15 @@ export const changeNotesAccessMutation = gql`
 	}
 `;
 
+export const changeNotesAccessMutationDatabase = gql`
+	mutation ChangePageAccess($pageId: ID!, $userPermissionInput: UserPermissionInput!) {
+		changePageAccess(pageId: $pageId, userPermissionInput: $userPermissionInput) {
+			success
+			message
+		}
+	}
+`;
+
 export const updatePageMutation = gql`
 	mutation Mutation($pageId: ID!, $input: UpdatePageInput!) {
 		updatePage(pageId: $pageId, input: $input) {
@@ -203,6 +212,16 @@ export const globalNotesAccessMutation = gql`
 		globalNoteAccess(pageId: $pageId, input: $input) {
 			message
 			success
+		}
+	}
+`;
+
+//database
+export const updateGlobalNotesAccessMutation = gql`
+	mutation Mutation($pageId: ID!, $input: TenantAccessInput!) {
+		updateTenantAccess(pageId: $pageId, input: $input) {
+			success
+			message
 		}
 	}
 `;
@@ -336,6 +355,7 @@ export const getPageQueryDatabase = gql`
 					userId
 					access
 				}
+				tenantAccess
 			}
 			tenantId
 			createdAt
