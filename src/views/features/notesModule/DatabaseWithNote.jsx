@@ -39,7 +39,6 @@ import Editor from '../../components/notes/Editor';
 import TranscriptionTabs from '../../components/notes/TranscriptionTabs';
 import MeetSummary from './MeetSummary';
 import NotesTitleArea from '../../components/notes/DatabseComponents/NotesTitleArea';
-import TranscriptionSidebar from './TranscriptionSidebar';
 
 const initialState = {
 	timeouts: {}, // Single timeouts object to store all timeouts
@@ -736,165 +735,164 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	}, []);
 
 	return (
-		// <div className="notes-container" style={outerContainerStyle || {}}>
-		// 	{!(type === 'meeting_bot' || type === 'desktop') && (
-		// 		<div className="notesChatArea">
-		// 			<RecentChat
-		// 				showIconText={false}
-		// 				isPreview={true}
-		// 				autoFocus={false}
-		// 				customChatBoxClick={handleChatBoxClick}
-		// 				// {...(info?.chatClicked && {
-		// 				// 	sId: info?.chatSessionId,
-		// 				// })}
-		// 				sId={info?.chatSessionId}
-		// 				showCitationsButton={false}
-		// 			/>
-		// 		</div>
-		// 	)}
-		// 	<div className="notesContentWrapper">
-		// 		{info?.title && (
-		// 			<Helmet>
-		// 				<meta charSet="utf-8" />
-		// 				<title>VE - {info?.title}</title>
-		// 			</Helmet>
-		// 		)}
+		<div className="notes-container" style={outerContainerStyle || {}}>
+			{!(type === 'meeting_bot' || type === 'desktop') && (
+				<div className="notesChatArea">
+					<RecentChat
+						showIconText={false}
+						isPreview={true}
+						autoFocus={false}
+						customChatBoxClick={handleChatBoxClick}
+						// {...(info?.chatClicked && {
+						// 	sId: info?.chatSessionId,
+						// })}
+						sId={info?.chatSessionId}
+						showCitationsButton={false}
+					/>
+				</div>
+			)}
+			<div className="notesContentWrapper">
+				{info?.title && (
+					<Helmet>
+						<meta charSet="utf-8" />
+						<title>VE - {info?.title}</title>
+					</Helmet>
+				)}
 
-		// 		<NotesHeader
-		// 			isDeleted={info?.isDeleted}
-		// 			title={info?.title}
-		// 			isFavorite={info?.isFavorite}
-		// 			noteId={noteId}
-		// 			notesConfigs={info?.notesConfigs}
-		// 			myAccess={info?.myAccess}
-		// 			lastUpdated={info?.lastUpdated}
-		// 			updatedAt={info?.updatedAt}
-		// 			handleFavorite={handleFavorite}
-		// 			handleMoreOptionsChange={handleMoreOptionsChange}
-		// 			handleDeletePage={handleDeletePage}
-		// 			handleDuplicatePage={handleDuplicatePage}
-		// 			restorePage={restorePage}
-		// 			showAiTranscriptionSuggestions={info?.showAiTranscriptionSuggestions}
-		// 			handleShowAiTranscriptionSuggestions={handleShowAiTranscriptionSuggestions}
-		// 		/>
+				<NotesHeader
+					isDeleted={info?.isDeleted}
+					title={info?.title}
+					isFavorite={info?.isFavorite}
+					noteId={noteId}
+					notesConfigs={info?.notesConfigs}
+					myAccess={info?.myAccess}
+					lastUpdated={info?.lastUpdated}
+					updatedAt={info?.updatedAt}
+					handleFavorite={handleFavorite}
+					handleMoreOptionsChange={handleMoreOptionsChange}
+					handleDeletePage={handleDeletePage}
+					handleDuplicatePage={handleDuplicatePage}
+					restorePage={restorePage}
+					showAiTranscriptionSuggestions={info?.showAiTranscriptionSuggestions}
+					handleShowAiTranscriptionSuggestions={handleShowAiTranscriptionSuggestions}
+				/>
 
-		// 		<div className="notes-editor-container">
-		// 			<>
-		// 				{coverImage && (
-		// 					<div
-		// 						onMouseEnter={() =>
-		// 							setInfo((prev) => ({ ...prev, showRemoveCoverBtn: true }))
-		// 						}
-		// 						onMouseLeave={() =>
-		// 							setInfo((prev) => ({ ...prev, showRemoveCoverBtn: false }))
-		// 						}
-		// 						className="notes-cover-image-container"
-		// 					>
-		// 						<img
-		// 							src={coverImage}
-		// 							onError={handleCoverImageError}
-		// 							alt="cover image"
-		// 						/>
-		// 						{info?.showRemoveCoverBtn && (
-		// 							<button
-		// 								onClick={handleRemoveCover}
-		// 								className="remove-cover-btn"
-		// 							>
-		// 								Remove
-		// 							</button>
-		// 						)}
-		// 					</div>
-		// 				)}
-		// 				<div
-		// 					className="notes-editor-wrapper"
-		// 					style={{
-		// 						maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px',
-		// 					}}
-		// 				>
-		// 					<NotesTitleArea
-		// 						iconImage={info?.iconImage}
-		// 						coverImage={info?.coverImage}
-		// 						updateParentState={handleInfoChange}
-		// 						handleRemoveIcon={handleRemoveIcon}
-		// 						handleTitleChange={handleTitleChange}
-		// 						title={info?.title}
-		// 						showRemoveIconBtn={info?.showRemoveIconBtn}
-		// 					/>
+				<div className="notes-editor-container">
+					<>
+						{coverImage && (
+							<div
+								onMouseEnter={() =>
+									setInfo((prev) => ({ ...prev, showRemoveCoverBtn: true }))
+								}
+								onMouseLeave={() =>
+									setInfo((prev) => ({ ...prev, showRemoveCoverBtn: false }))
+								}
+								className="notes-cover-image-container"
+							>
+								<img
+									src={coverImage}
+									onError={handleCoverImageError}
+									alt="cover image"
+								/>
+								{info?.showRemoveCoverBtn && (
+									<button
+										onClick={handleRemoveCover}
+										className="remove-cover-btn"
+									>
+										Remove
+									</button>
+								)}
+							</div>
+						)}
+						<div
+							className="notes-editor-wrapper"
+							style={{
+								maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px',
+							}}
+						>
+							<NotesTitleArea
+								iconImage={info?.iconImage}
+								coverImage={info?.coverImage}
+								updateParentState={handleInfoChange}
+								handleRemoveIcon={handleRemoveIcon}
+								handleTitleChange={handleTitleChange}
+								title={info?.title}
+								showRemoveIconBtn={info?.showRemoveIconBtn}
+							/>
 
-		// 					{showTranscriptTabs && (
-		// 						<TranscriptionTabs
-		// 							activeTab={activeTab}
-		// 							setActiveTab={setActiveTab}
-		// 							userQuestions={info?.userQuestions}
-		// 							aiQuestions={info?.aiQuestions}
-		// 							actions={info?.actions}
-		// 							files={info?.files}
-		// 							history={history}
-		// 							allSuggestions={info?.allSuggestions}
-		// 							type={type}
-		// 						/>
-		// 					)}
-		// 					{showTranscriptTabs &&
-		// 						activeTab === 'transcript' &&
-		// 						(type === 'meeting_bot' ? (
-		// 							<MeetTranscript transcriptList={transcriptList} />
-		// 						) : type === 'desktop' ? (
-		// 							<NoteTakerTranscript
-		// 								sendMessage={recallSendMessage}
-		// 								tenantId={tennantSettingsData?._id}
-		// 								sessionId={sessionId}
-		// 								pageId={noteId}
-		// 								history={history}
-		// 							/>
-		// 						) : null)}
+							{showTranscriptTabs && (
+								<TranscriptionTabs
+									activeTab={activeTab}
+									setActiveTab={setActiveTab}
+									userQuestions={info?.userQuestions}
+									aiQuestions={info?.aiQuestions}
+									actions={info?.actions}
+									files={info?.files}
+									history={history}
+									allSuggestions={info?.allSuggestions}
+									type={type}
+								/>
+							)}
+							{showTranscriptTabs &&
+								activeTab === 'transcript' &&
+								(type === 'meeting_bot' ? (
+									<MeetTranscript transcriptList={transcriptList} />
+								) : type === 'desktop' ? (
+									<NoteTakerTranscript
+										sendMessage={recallSendMessage}
+										tenantId={tennantSettingsData?._id}
+										sessionId={sessionId}
+										pageId={noteId}
+										history={history}
+									/>
+								) : null)}
 
-		// 					{showTranscriptTabs && activeTab === 'summary' && (
-		// 						<MeetSummary
-		// 							activeTab={activeTab}
-		// 							history={history}
-		// 							pageId={noteId}
-		// 						/>
-		// 					)}
+							{showTranscriptTabs && activeTab === 'summary' && (
+								<MeetSummary
+									activeTab={activeTab}
+									history={history}
+									pageId={noteId}
+								/>
+							)}
 
-		// 					{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
-		// 						(activeTab === 'userQuestions' ||
-		// 							activeTab === 'aiQuestions' ||
-		// 							activeTab === 'actions' ||
-		// 							activeTab === 'files' ||
-		// 							activeTab === 'all') && (
-		// 							<AiTranscriptionSuggestions
-		// 								userQuestions={info?.userQuestions}
-		// 								aiQuestions={info?.aiQuestions}
-		// 								actions={info?.actions}
-		// 								files={info?.files}
-		// 								activeTab={activeTab}
-		// 								allSuggestions={info?.allSuggestions}
-		// 							/>
-		// 						)}
+							{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
+								(activeTab === 'userQuestions' ||
+									activeTab === 'aiQuestions' ||
+									activeTab === 'actions' ||
+									activeTab === 'files' ||
+									activeTab === 'all') && (
+									<AiTranscriptionSuggestions
+										userQuestions={info?.userQuestions}
+										aiQuestions={info?.aiQuestions}
+										actions={info?.actions}
+										files={info?.files}
+										activeTab={activeTab}
+										allSuggestions={info?.allSuggestions}
+									/>
+								)}
 
-		// 					{(!showTranscriptTabs ||
-		// 						(showTranscriptTabs && activeTab === 'notes')) && (
-		// 						<Editor
-		// 							innerContainerStyle={innerContainerStyle}
-		// 							myAccess={info?.myAccess}
-		// 							isDeleted={info?.isDeleted}
-		// 							customSendMessage={customSendMessage}
-		// 							aiResonse={info?.aiResonse}
-		// 							resetAiResponse={resetAiResponse}
-		// 							noteId={noteId}
-		// 							initialBlocks={blocks}
-		// 							createBlock={createBlock}
-		// 							updateBlock={updateBlock}
-		// 							deleteBlock={deleteBlock}
-		// 						/>
-		// 					)}
-		// 				</div>
-		// 			</>
-		// 		</div>
-		// 	</div>
-		// 	<DatabaseSidebar pageId={noteId} />
-		// </div>
-		<TranscriptionSidebar />
+							{(!showTranscriptTabs ||
+								(showTranscriptTabs && activeTab === 'notes')) && (
+								<Editor
+									innerContainerStyle={innerContainerStyle}
+									myAccess={info?.myAccess}
+									isDeleted={info?.isDeleted}
+									customSendMessage={customSendMessage}
+									aiResonse={info?.aiResonse}
+									resetAiResponse={resetAiResponse}
+									noteId={noteId}
+									initialBlocks={blocks}
+									createBlock={createBlock}
+									updateBlock={updateBlock}
+									deleteBlock={deleteBlock}
+								/>
+							)}
+						</div>
+					</>
+				</div>
+			</div>
+			<DatabaseSidebar pageId={noteId} />
+		</div>
 	);
 };
 
