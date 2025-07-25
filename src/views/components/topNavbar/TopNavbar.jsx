@@ -129,16 +129,6 @@ const TopNavbar = () => {
 	const showMiddleContainer = region !== 'ap-south-1';
 
 	useEffect(() => {
-		if (info.settingsTooltipOpen) {
-			document.body.style.overflow = 'hidden';
-		} else {
-			document.body.style.overflow = ''; // Reset to default
-		}
-		return () => {
-			document.body.style.overflow = ''; // Cleanup on unmount
-		};
-	}, [info.settingsTooltipOpen]);
-	useEffect(() => {
 		if (pathname.includes('/meet')) setInfo((prev) => ({ ...prev, activeMode: 3 }));
 		else setInfo((prev) => ({ ...prev, activeMode: 1 }));
 	}, [pathname]);
