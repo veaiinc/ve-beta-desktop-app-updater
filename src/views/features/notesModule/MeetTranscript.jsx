@@ -53,7 +53,7 @@ const MeetTranscript = ({ transcriptList = [] }) => {
 		}
 	};
 
-		useEffect(() => {
+	useEffect(() => {
 		if (type === 'meeting_bot') {
 			loadTranscripts(1, false);
 		}

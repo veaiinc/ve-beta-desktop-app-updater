@@ -39,6 +39,7 @@ import Editor from '../../components/notes/Editor';
 import TranscriptionTabs from '../../components/notes/TranscriptionTabs';
 import MeetSummary from './MeetSummary';
 import NotesTitleArea from '../../components/notes/DatabseComponents/NotesTitleArea';
+import TranscriptionWidget from './TranscriptionWidget';
 
 const initialState = {
 	timeouts: {}, // Single timeouts object to store all timeouts
@@ -880,6 +881,10 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 									deleteBlock={deleteBlock}
 								/>
 							)}
+
+							{/* {showTranscriptTabs && !history && type === 'meeting_bot' && ( */}
+							<TranscriptionWidget />
+							{/* )} */}
 						</div>
 					</>
 				</div>
