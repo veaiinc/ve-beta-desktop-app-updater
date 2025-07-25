@@ -5,6 +5,7 @@ import { ReactComponent as Delete } from '../../../../assets/svg/delete.svg';
 import { ReactComponent as Plus } from '../../../../assets/svg/plus.svg';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import DateView from '../../../../../src/views/components/tasks/listView/DateView';
+import DateSelection from './DateSelection';
 
 // Separate component for each role's attendees section
 const RoleAttendees = ({
@@ -138,7 +139,7 @@ const RoleAttendees = ({
 	);
 };
 
-const EventTaskManager = ({ event, updateEvent }) => {
+const EventTaskManager = ({ event, updateEvent, workflowInfoDetails }) => {
 	const {
 		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
@@ -157,7 +158,13 @@ const EventTaskManager = ({ event, updateEvent }) => {
 				description: event?.description || '',
 				location: event?.location || '',
 				date: event?.date || Date.now(),
-				roles: event?.roles || [],
+				startDateTime: event?.startDateTime || null,
+				roles: event?.roles || [
+					{
+						type: '',
+						id: `role_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+					},
+				], // Initialize with one empty role
 				attendees: event?.attendees || [],
 			});
 		}
@@ -192,6 +199,7 @@ const EventTaskManager = ({ event, updateEvent }) => {
 	const handleAddRole = () => {
 		const newRole = {
 			type: '',
+			id: `role_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
 		};
 		handleEventUpdate('add_role', { newRole });
 	};
@@ -222,6 +230,7 @@ const EventTaskManager = ({ event, updateEvent }) => {
 			title: event?.title || '',
 			description: event?.description || '',
 			date: event?.date || Date.now(),
+			startDateTime: event?.startDateTime || null,
 			location: event?.location || '',
 			roles: event?.roles || [],
 			attendees: event?.attendees || [],
@@ -283,8 +292,10 @@ const EventTaskManager = ({ event, updateEvent }) => {
 			title: updatedEvent.title,
 			description: updatedEvent.description,
 			date: updatedEvent.date,
+			startDateTime: updatedEvent.startDateTime,
 			location: updatedEvent.location,
 			attendees: updatedEvent.attendees,
+			roles: updatedEvent.roles, // Add roles to the backend payload
 		};
 
 		updateEvent(backendPayload);
@@ -293,8 +304,11 @@ const EventTaskManager = ({ event, updateEvent }) => {
 	return (
 		<div className="eventTaskContainer">
 			<div className="eventCreationHeader">
-				<div className="eventHeaderTop">
+				{/* <div className="eventHeaderTop">
 					<div className="eventTitleSection">
+						<span className="eventTitlePrefix">
+							{`${workflowInfoDetails?.clientDetails?.name}'s `}
+						</span>
 						<input
 							type="text"
 							value={event?.title || ''}
@@ -303,16 +317,15 @@ const EventTaskManager = ({ event, updateEvent }) => {
 							className="eventTitleInput"
 						/>
 					</div>
-				</div>
+				</div> */}
 
 				<div className="eventMetaInfo">
 					<div className="eventMetaItem">
-						<DateView
-							value={event?.date}
-							onOptionClick={(value) => handleFieldChange('dueDate', value)}
-							title={'Due Date'}
-							showIcon={true}
-							customListItemStyle={{ margin: '0 6px' }}
+						<DateSelection
+							value={event?.startDateTime}
+							onChange={(value) => handleFieldChange('startDateTime', value)}
+							title={'Start Date'}
+							placeholder="Select start date"
 						/>
 					</div>
 					<div className="eventMetaDivider">|</div>
@@ -360,6 +373,12 @@ const EventTaskManager = ({ event, updateEvent }) => {
 											placeholder="Enter role"
 											className="eventRoleInputField"
 										/>
+										<button
+											className="eventRoleDeleteBtn"
+											onClick={() => handleRemoveRole(roleIndex)}
+										>
+											<Delete />
+										</button>
 									</div>
 									<RoleAttendees
 										role={role}

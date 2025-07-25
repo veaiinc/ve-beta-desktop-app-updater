@@ -379,7 +379,7 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 				description: finalDescription,
 				// priority: 'low',
 				// status: statusId,
-				// clients: [workflowInfoDetails?.clientDetails?._id],
+				clients: [workflowInfoDetails?.clientDetails?._id],
 				//jeevan changes
 				priority: task.priority,
 				status: task.status,
@@ -412,7 +412,7 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 				title: event.title,
 				description: event.description,
 				location: event.location || null,
-				startDateTime,
+				startDateTime: event.startDateTime,
 				endDateTime,
 				timezone: 'Asia/Calcutta',
 				allDay: true,
@@ -525,8 +525,12 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 														onClick={() =>
 															handleTaskFieldEdit(task, 'title')
 														}
-														style={{ cursor: 'pointer' }}
+														style={{
+															cursor: 'pointer',
+															textTransform: 'capitalize',
+														}}
 													>
+														{`${workflowInfoDetails?.clientDetails?.name}'s `}
 														{task.title || 'title'}
 													</span>
 												)}
@@ -652,8 +656,12 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 														onClick={() =>
 															handleEventFieldEdit(event, 'title')
 														}
-														style={{ cursor: 'pointer' }}
+														style={{
+															cursor: 'pointer',
+															textTransform: 'capitalize',
+														}}
 													>
+														{`${workflowInfoDetails?.clientDetails?.name}'s `}
 														{event.title}
 													</span>
 												)}

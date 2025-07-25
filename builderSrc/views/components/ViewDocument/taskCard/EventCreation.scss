@@ -176,6 +176,12 @@
 		.eventTitleSection {
 			flex: 1;
 			margin-left: 10px;
+			.eventTitlePrefix {
+				color: #ffffff;
+				font-size: 14px;
+				font-weight: 500;
+				text-transform: capitalize;
+			}
 
 			.eventTitleInput {
 				background: transparent;
@@ -460,6 +466,42 @@
 	display: flex;
 	align-items: center;
 	gap: 8px;
+	width: 100%;
+
+	.eventRoleInputField {
+		flex: 1;
+		padding: 8px 12px;
+		border: 1px solid #e0e0e0;
+		border-radius: 4px;
+		font-size: 14px;
+		outline: none;
+		transition: border-color 0.2s;
+
+		&:focus {
+			border-color: #2196f3;
+		}
+	}
+
+	.eventRoleDeleteBtn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: none;
+		border: none;
+		padding: 4px;
+		cursor: pointer;
+		transition: opacity 0.2s;
+
+		&:hover {
+			opacity: 0.7;
+		}
+
+		svg {
+			width: 16px;
+			height: 16px;
+			color: #f44336;
+		}
+	}
 }
 
 .eventDeleteRoleBtn {
