@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import ImageItem from '../../elements/image';
 import { EditNavbar as Edit } from '../../../builder_client_common';
-import Cart from '../../../library/svgs/Navbar/Cart';
 import './NavbarCompStyles.scss';
-import { ElementSidebar, DownloadIcon, DownloadPDF } from '../../../builder_client_common';
+import { ElementSidebar,  DownloadPDF } from '../../../builder_client_common';
 import CartIcons from '../NabarWrapper/CartIcons';
 import _ from 'lodash';
-import NavbarPopup from '../../elementPopups/NavbarPopup';
+
 class NavbarComponent extends Component {
 	constructor(props) {
 		super(props);
@@ -25,11 +24,9 @@ class NavbarComponent extends Component {
 			showStyleModal: props.showStyleModal,
 			hoveredImage: false,
 			hoveredModule: false,
-			showImageModal: false,
 			showHiddenModal: props.showHiddenModal,
 			showMobileMenu: false,
 			hoveredCart: false,
-			showCartModal: false,
 			section: props.section,
 			showImageModalLibrary: false,
 		};
@@ -89,9 +86,7 @@ class NavbarComponent extends Component {
 			this.setState(
 				{
 					showStyleModal: false,
-					showImageModal: false,
 					showHiddenModal: false,
-					showCartModal: false,
 				},
 				() => {
 					this.props.setShowStyleModal(false);
@@ -491,15 +486,11 @@ class NavbarComponent extends Component {
 											<Edit />
 										</div>
 									)} */}
-									)} */}
 								</div>
 							)}
 						</div>
 						<div>
-							<div
-								onClick={() => this.setState({ showCartModal: true })}
-								className="cart-wrapper"
-							>
+							<div className="cart-wrapper">
 								<div
 									onMouseEnter={() => {
 										if (
@@ -624,25 +615,7 @@ class NavbarComponent extends Component {
 						</div>
 					</div>
 				</div>
-				{this.state.showCartModal && (
-					<ElementSidebar
-						ref={this.navbarRef}
-						elementEndPosition={{ x: '80%', y: 125 }}
-						activeType={'mNavbarCart'}
-						noBounds={'.builder'}
-						activePopupComponent={this.props?.section}
-						setActivePopupComponent={(value) => {
-							this.setState(
-								{
-									section: value,
-								},
-								() => {
-									this.props?.setActiveSection(value);
-								},
-							);
-						}}
-					/>
-				)}
+
 				{this.state.showStyleModal && (
 					<ElementSidebar
 						ref={this.navbarRef}
@@ -669,19 +642,6 @@ class NavbarComponent extends Component {
 								showImageModalLibrary: e,
 							});
 						}}
-					/>
-				)}
-				{this.state.showImageModal && (
-					<ElementSidebar
-						ref={this.navbarRef}
-						elementEndPosition={{ x: 100, y: 125 }}
-						activeType={'navImage'}
-						setModalRef={(e) => {
-							this.setState({
-								showImageModalLibrary: e,
-							});
-						}}
-						showImageModalLibrary={this.state.showImageModalLibrary}
 					/>
 				)}
 			</>

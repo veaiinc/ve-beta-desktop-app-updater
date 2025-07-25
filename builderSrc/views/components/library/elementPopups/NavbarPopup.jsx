@@ -47,9 +47,9 @@ class NavbarPopup extends Images {
 			showImageModalLibrary: props.showImageModalLibrary || false,
 			debounceInterval: null,
 			crop: props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.crop,
-			mCrop: props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.mImage_settings?.crop,
+			// mCrop: props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.mImage_settings?.crop,
 			zoom: props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.zoom || 1,
-			mZoom: props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.mImage_settings?.zoom || 1,
+			// mZoom: props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.mImage_settings?.zoom || 1,
 			aspect: props.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.image_settings?.aspect,
 			activeEditDesign: 'design',
 			navbarAlign: 'center',
@@ -198,7 +198,7 @@ class NavbarPopup extends Images {
 							subBlocks: [
 								{
 									...newComponent.blocks[0].subBlocks[0],
-									mImageURL: value,
+									imageURL: value,
 								},
 							],
 						},
@@ -230,8 +230,8 @@ class NavbarPopup extends Images {
 							subBlocks: [
 								{
 									...newComponent.blocks[0].subBlocks[0],
-									mImageURL: '',
-									mImage_settings: {
+									imageURL: '',
+									image_settings: {
 										crop: {
 											x: 0,
 											y: 0,
@@ -414,8 +414,8 @@ class NavbarPopup extends Images {
 						subBlocks: [
 							{
 								...newComponent.blocks[0].subBlocks[0],
-								mImage_settings: {
-									...newComponent.blocks[0].subBlocks[0]?.mImage_settings,
+								image_settings: {
+									...newComponent.blocks[0].subBlocks[0]?.image_settings,
 									crop: value,
 								},
 							},
@@ -444,7 +444,7 @@ class NavbarPopup extends Images {
 		}
 		this.setState(
 			{
-				[this.props.isMobileNavbar ? 'mCrop' : 'crop']: value,
+				[this.props.isMobileNavbar ? 'crop' : 'crop']: value,
 				activeComponent: newComponent,
 			},
 			() => {
@@ -466,8 +466,8 @@ class NavbarPopup extends Images {
 						subBlocks: [
 							{
 								...newComponent.blocks[0].subBlocks[0],
-								mImage_settings: {
-									...newComponent?.blocks[0].subBlocks[0]?.mImage_settings,
+								image_settings: {
+									...newComponent?.blocks[0].subBlocks[0]?.image_settings,
 									zoom: parseFloat(value),
 								},
 							},
@@ -496,7 +496,7 @@ class NavbarPopup extends Images {
 		}
 		this.setState(
 			{
-				[this.props.isMobileNavbar ? 'mZoom' : 'zoom']: parseFloat(value),
+				[this.props.isMobileNavbar ? 'zoom' : 'zoom']: parseFloat(value),
 				activeComponent: newComponent,
 			},
 			() => {
@@ -549,7 +549,7 @@ class NavbarPopup extends Images {
 
 	render() {
 		let isImage = this.props.isMobileNavbar
-			? this.state?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.mImageURL
+			? this.state?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.imageURL
 			: this.state?.activeComponent?.blocks?.[0]?.subBlocks?.[0]?.imageURL;
 		return (
 			<div className="edit-design-modal">
@@ -716,19 +716,8 @@ class NavbarPopup extends Images {
 												>
 													<Cropper
 														image={isImage}
-														crop={
-															this.props?.isMobileNavbar
-																? this.state?.mCrop || {
-																		x: 1,
-																		y: 1,
-																  }
-																: this.state?.crop || { x: 1, y: 1 }
-														}
-														zoom={
-															this.props?.isMobileNavbar
-																? this.state?.mZoom
-																: this.state?.zoom || 1
-														}
+														crop={this.state?.crop || { x: 1, y: 1 }}
+														zoom={this.state?.zoom || 1}
 														aspect={this.state?.aspect}
 														onCropChange={(e) =>
 															this.handleCropChange(e)
@@ -872,11 +861,7 @@ class NavbarPopup extends Images {
 										<div className="progress-circle"></div>
 									</div> */}
 									<p className="progress-value">
-										{parseFloat(
-											this.props.isMobileNavbar
-												? this.state.mZoom
-												: this.state?.zoom,
-										)?.toFixed(1)}
+										{parseFloat(this.state?.zoom)?.toFixed(1)}
 									</p>
 								</div>
 							</div>

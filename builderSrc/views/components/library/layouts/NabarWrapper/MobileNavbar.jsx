@@ -38,9 +38,9 @@ class MobileNavbarComponent extends Component {
 	builderRenderNavbar = () => {
 		let properties = this.props.navBar?.blocks[0]?.subBlocks[0] || {};
 		const newMImageSettings = {
-			crop: properties?.mImage_settings?.crop || { x: 1, y: 1 },
-			zoom: properties?.mImage_settings?.zoom || 1,
-			aspect: properties?.mImage_settings?.aspect || 1.5,
+			crop: properties?.image_settings?.crop || { x: 1, y: 1 },
+			zoom: properties?.image_settings?.zoom || 1,
+			aspect: properties?.image_settings?.aspect || 1.5,
 		};
 		return (
 			<>
@@ -97,7 +97,7 @@ class MobileNavbarComponent extends Component {
 									// 	this.setState({ mobileHoverLogoEdit: false });
 									// }}
 								>
-									{properties?.mImageURL ? (
+									{properties?.imageURL ? (
 										// {this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.mImageURL ? (
 										// <img
 										// 	src={
@@ -114,8 +114,8 @@ class MobileNavbarComponent extends Component {
 										<ImageItem
 											preview={this.props?.preview}
 											previewType={this.props?.previewType}
-											imageUrl={properties?.mImageURL}
-											imageSettings={newMImageSettings}
+											imageUrl={properties?.imageURL}
+											imageSettings={properties?.image_settings}
 											settingData={(e) => this.props.imgSettingData(e)}
 											setActiveImage={(e) =>
 												this.props.setActiveImage(
@@ -504,17 +504,16 @@ class MobileNavbarComponent extends Component {
 									width: '80px',
 								}}
 							>
-								{this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.mImageURL ||
-								this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.imageURL ? (
+								{this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.imageURL ? (
 									<ImageItem
 										preview={this.props?.preview}
 										previewType={this.props?.previewType}
 										imageUrl={
-											properties?.mImageURL ||
+											properties?.imageURL ||
 											this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]
 												?.imageURL
 										}
-										imageSettings={newMImageSettings}
+										imageSettings={properties?.image_settings}
 										settingData={(e) => this.props.imgSettingData(e)}
 										setActiveImage={(e) =>
 											this.props.setActiveImage(
