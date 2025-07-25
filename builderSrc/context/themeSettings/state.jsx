@@ -143,7 +143,7 @@ export const ThemeSettingsState = (props) => {
 			'ul',
 		];
 
-		elementsToColor.forEach((tag) => {p
+		elementsToColor.forEach((tag) => {
 			const regex = new RegExp(`<${tag}([^>]*)>`, 'gi');
 			updatedContent = updatedContent.replace(regex, (match, attributes) => {
 				let newStyle = '';
