@@ -421,7 +421,10 @@ class InvoiceWrapper extends Component {
 						// <a className="add-block" onClick={(e) => this.hanldeAddBlock(e)}>
 						// 	Add Block
 						// </a>
-						<div className="add-block-new-container">
+						<div
+							className="add-block-new-container"
+							onClick={(e) => this.hanldeAddBlock(e)}
+						>
 							<div
 								onClick={(e) => this.hanldeAddBlock(e)}
 								className="addBlankContainer"
@@ -432,7 +435,7 @@ class InvoiceWrapper extends Component {
 							<div className="addBlockDividerContainer">
 								<div className="addBlockDivider"></div>
 							</div>
-							<div className="addBlankContainer">
+							<div>
 								{this.state.isElement !== true ? (
 									<div
 										className={`addBlank ${
@@ -441,13 +444,14 @@ class InvoiceWrapper extends Component {
 										onClick={(e) => this.props.handleAddLayout(null, true)}
 										//onMouseEnter={(e) => this.setActiveTab('fluid')}
 									>
-										<AddBlank />
+										{/* <AddBlank /> */}
+										<p style={{ color: 'white', fontSize: '14px' }}>Add</p>
 									</div>
 								) : (
 									''
 								)}
-
-								<span className="tooltip-text">Add Blank Card</span>
+								{/* 
+								<span className="tooltip-text">Add Blank Card</span> */}
 							</div>
 						</div>
 					) : (
