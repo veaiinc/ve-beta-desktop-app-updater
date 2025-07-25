@@ -360,24 +360,14 @@ class ColorPicker extends Component {
 						></a>
 						{/* <p>{this.state.color}</p> */}
 
-						<div
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-							}}
-						>
-							<input
-								className="input-color-text"
-								value={this.state.inputColor}
-								onChange={(e) => this.changeColorInput(e)}
-								placeholder={this.state.inputColor === '' ? 'No Color' : ''}
-								maxLength={7}
-								onBlur={(e) =>
-									this.state.type !== null ? this.sendColorInput(e) : ''
-								}
-							/>
-						</div>
+						<input
+							className="input-color-text"
+							value={this.state.inputColor}
+							onChange={(e) => this.changeColorInput(e)}
+							placeholder={this.state.inputColor === '' ? 'No Color' : ''}
+							maxLength={7}
+							onBlur={(e) => (this.state.type !== null ? this.sendColorInput(e) : '')}
+						/>
 					</div>
 					{this.state.showColorModal ? (
 						<div
