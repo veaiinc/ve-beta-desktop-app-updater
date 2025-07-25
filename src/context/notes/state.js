@@ -166,7 +166,8 @@ export const NotesState = (props) => {
 			);
 
 			if (response?.[0]) {
-				const data = response?.[1]?.data?.getPage?.permissions || {};
+				const data = response?.[1]?.data?.getPage || {};
+				const permissions = data?.permissions || {};
 				dispatch({
 					type: Actions.GET_NOTES_PAGE_DATA_SUCCESS,
 					payload: { data },
@@ -174,8 +175,8 @@ export const NotesState = (props) => {
 				const accessKey = isDatabase ? 'tenantAccess' : 'globalNoteAccess';
 				dispatch({
 					type: Actions.SET_GLOBAL_ACCESS,
-					payload: data?.[accessKey]
-						? { isEnabled: true, access: data?.[accessKey] }
+					payload: permissions?.[accessKey]
+						? { isEnabled: true, access: permissions?.[accessKey] }
 						: { isEnabled: false, access: 'view' },
 				});
 			} else {
