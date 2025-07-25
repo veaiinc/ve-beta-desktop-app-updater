@@ -64,7 +64,7 @@ const TranscriptionWidget = ({
 		const newParams = new URLSearchParams(searchParams);
 		newParams.set('transcription', 'true');
 		newParams.delete('chat');
-		setSearchParams(newParams);
+		setSearchParams(newParams, { replace: true });
 	};
 
 	return (

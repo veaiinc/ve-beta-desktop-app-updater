@@ -39,7 +39,7 @@ import Editor from '../../components/notes/Editor';
 import TranscriptionTabs from '../../components/notes/TranscriptionTabs';
 import MeetSummary from './MeetSummary';
 import NotesTitleArea from '../../components/notes/DatabseComponents/NotesTitleArea';
-import TranscriptionWidget from './TranscriptionWidget';
+import TranscriptionWrapper from './TranscriptionWrapper';
 
 const initialState = {
 	title: '',
@@ -100,6 +100,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const sessionId = noteId;
 	const type = searchParams.get('type');
 	const history = Boolean(searchParams.get('history'));
+	const chat = Boolean(searchParams.get('chat'));
+	const transcription = Boolean(searchParams.get('transcription'));
 	const isAiIntelligenceEnabled = searchParams.get('isAiIntelligenceEnabled');
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
@@ -886,7 +888,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 							)}
 
 							{/* {showTranscriptTabs && !history && type === 'meeting_bot' && ( */}
-							<TranscriptionWidget />
+							<TranscriptionWrapper chat={chat} transcription={transcription} />
 							{/* )} */}
 						</div>
 					</>
