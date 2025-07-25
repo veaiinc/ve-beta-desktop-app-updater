@@ -14,6 +14,7 @@ const CustomTextArea = ({
 	readOnly,
 	disabled,
 	autoResize,
+	replacePlaceholder = false,
 
 	...rest
 }) => {
@@ -45,7 +46,7 @@ const CustomTextArea = ({
 			}}
 			onBlur={onBlur}
 			onFocus={onFocus}
-			placeholder={`Enter ${placeholder}`}
+			placeholder={replacePlaceholder ? placeholder : `Enter ${placeholder}`}
 			name={name}
 			className={`custom-textarea ${className}`}
 			style={{

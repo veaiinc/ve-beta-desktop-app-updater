@@ -111,6 +111,8 @@ const NotesTitleArea = ({
 					onChange={handleTitleChange}
 					autoResize={true}
 					onKeyDown={handleKeyDown}
+					placeholder="New note"
+					replacePlaceholder={true}
 				/>
 			</div>
 		</Tooltip>
