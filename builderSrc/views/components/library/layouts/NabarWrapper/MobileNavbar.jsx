@@ -167,7 +167,7 @@ class MobileNavbarComponent extends Component {
 											{this.props?.navBar?.style?.siteTitle || 'Logo'}
 										</div>
 									)}
-									{this.state.mobileHoverLogoEdit && (
+									{/* {this.state.mobileHoverLogoEdit && (
 										<div
 											className="mobile-logo-edit-icon"
 											onClick={() => {
@@ -183,7 +183,7 @@ class MobileNavbarComponent extends Component {
 										>
 											<EditNavbar />
 										</div>
-									)}
+									)} */}
 								</div>
 							)}
 						</div>
@@ -248,8 +248,8 @@ class MobileNavbarComponent extends Component {
 										// 			? '100px'
 										// 			: ''
 										// 		: '',
-										width: '140px',
-										display: 'contents',
+										width: '100px',
+										// display: 'contents',
 									}}
 									// onMouseEnter={() => {
 									// 	this.setState({ mobileHoverCartEdit: true });
@@ -302,7 +302,7 @@ class MobileNavbarComponent extends Component {
 											{this.props?.finalTotalCost || '0'}
 										</span>
 									)}
-									{this.state.mobileHoverCartEdit && (
+									{/* {this.state.mobileHoverCartEdit && (
 										<div
 											className="mobile-cart-edit-icon"
 											onClick={() =>
@@ -318,7 +318,7 @@ class MobileNavbarComponent extends Component {
 										>
 											<EditNavbar />
 										</div>
-									)}
+									)} */}
 								</div>
 							</div>
 						</div>
@@ -342,23 +342,23 @@ class MobileNavbarComponent extends Component {
 											: '1px solid transparent',
 										padding: '5px',
 									}}
-									onMouseEnter={() => {
-										this.setState({ mobileHoverHamburgerEdit: true });
-									}}
-									onMouseLeave={() => {
-										this.setState({ mobileHoverHamburgerEdit: false });
-									}}
+									// onMouseEnter={() => {
+									// 	this.setState({ mobileHoverHamburgerEdit: true });
+									// }}
+									// onMouseLeave={() => {
+									// 	this.setState({ mobileHoverHamburgerEdit: false });
+									// }}
 									className="navbar-inner-mobile-right"
 								>
 									<div>
 										<HamburgerIcons
-											iconType={this.props?.navBar?.style?.hamburgerIcon || 4}
+											iconType={this.props?.navBar?.style?.hamburgerIcon ?? 4}
 											fillColor={
 												this.props?.navBar?.navigationColor || '#000000'
 											}
 											style={{ cursor: 'pointer' }}
 										/>
-										{this.state.mobileHoverHamburgerEdit && (
+										{/* {this.state.mobileHoverHamburgerEdit && (
 											<div
 												className="mobile-hamburger-edit-icon"
 												onClick={(e) => {
@@ -375,7 +375,7 @@ class MobileNavbarComponent extends Component {
 											>
 												<EditNavbar />
 											</div>
-										)}
+										)} */}
 									</div>
 								</div>
 							)}

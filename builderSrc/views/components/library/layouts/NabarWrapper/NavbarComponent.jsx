@@ -6,6 +6,7 @@ import './NavbarCompStyles.scss';
 import { ElementSidebar, DownloadIcon, DownloadPDF } from '../../../builder_client_common';
 import CartIcons from '../NabarWrapper/CartIcons';
 import _ from 'lodash';
+import NavbarPopup from '../../elementPopups/NavbarPopup';
 class NavbarComponent extends Component {
 	constructor(props) {
 		super(props);
@@ -30,6 +31,7 @@ class NavbarComponent extends Component {
 			hoveredCart: false,
 			showCartModal: false,
 			section: props.section,
+			showImageModalLibrary: false,
 		};
 		this.navbarRef = React.createRef();
 		this.imageRef = React.createRef();
@@ -480,6 +482,7 @@ class NavbarComponent extends Component {
 									)}
 
 									{/* {this.state.hoveredImage && (
+									{/* {this.state.hoveredImage && (
 										<div
 											ref={this.imageRef}
 											className="edit-icon-wrapper"
@@ -487,6 +490,7 @@ class NavbarComponent extends Component {
 										>
 											<Edit />
 										</div>
+									)} */}
 									)} */}
 								</div>
 							)}
@@ -677,15 +681,7 @@ class NavbarComponent extends Component {
 								showImageModalLibrary: e,
 							});
 						}}
-						isWorkflow={this.props.isWorkflow}
-						modules={this.props?.modules}
-						module={this.props.module}
-						noBounds={'.builder'}
-						activePopupComponent={this.props?.section}
-						setActivePopupComponent={(value) => {
-							this.props.setActiveSection(value);
-						}}
-						activeModuleId={this.props?.activeModuleId}
+						showImageModalLibrary={this.state.showImageModalLibrary}
 					/>
 				)}
 			</>
