@@ -462,7 +462,6 @@ const TopNavbar = () => {
 						arrow={false}
 						color={'transparent'}
 						rootClassName={s.topNavbarSettings}
-						trigger="click"
 					>
 						<li className={`${s.navItem} ${s.profileItem}`}>
 							{profilePicExists ? (
