@@ -8,10 +8,10 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import _ from 'lodash';
 
 class ImageLibrary extends Images {
-	constructor() {
-		super();
+	constructor(props) {
+		super(props);
 		this.state = {
-			activeTab: 'l',
+			activeTab: props.libraryImageType || 'l',
 			images: {},
 			libraryImages: {
 				currentPage: 1,
@@ -55,6 +55,7 @@ class ImageLibrary extends Images {
 		);
 	};
 	render() {
+		console.log(this.props, 'this.props');
 		let url;
 		const region = localStorage.getItem('region') || 'ap-south-1';
 		if (region === 'ap-south-1') {

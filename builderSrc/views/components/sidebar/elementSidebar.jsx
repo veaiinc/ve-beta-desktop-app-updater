@@ -13,7 +13,7 @@ import IconPopup from '../library/elementPopups/IconPopup';
 import SmartFieldPopup from '../library/elementPopups/SmartFieldPopup';
 import DividerPopup from '../library/elementPopups/DividerPopup';
 // import NavHiddenPopup from '../library/elementPopups/NavHiddenPopup';
-import NavImagePopup from '../library/elementPopups/NavImagePopup';
+// import NavImagePopup from '../library/elementPopups/NavImagePopup';
 import MenubarPopup from '../library/elementPopups/MenubarPopup';
 import SchedulerPopup from '../library/elementPopups/schedulerPopup';
 import MobileNavHamburger from '../library/elementPopups/MobileHamburgerPopup';
@@ -342,9 +342,11 @@ class ElementSidebar extends Component {
 								);
 							}}
 							isMobileNavbar={this.props.isMobileNavbar}
+							activeModuleId={this.props?.activeModuleId}
+							setModalRef={(e) => this.props?.setModalRef(e)}
 						/>
 					)}
-
+					{/* 
 					{this.state?.activeType == 'navImage' && (
 						<NavImagePopup
 							activeComponent={this.state?.activePopupComponent}
@@ -368,7 +370,7 @@ class ElementSidebar extends Component {
 							setModalRef={(e) => this.props?.setModalRef(e)}
 							isMobileNavbar={this.props.isMobileNavbar}
 						/>
-					)}
+					)} */}
 
 					{this.state?.activeType === 'mNavbarCart' && (
 						<MobileNavbarCart

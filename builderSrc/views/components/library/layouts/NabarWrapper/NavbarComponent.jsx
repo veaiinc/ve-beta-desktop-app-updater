@@ -479,7 +479,7 @@ class NavbarComponent extends Component {
 										/>
 									)}
 
-									{this.state.hoveredImage && (
+									{/* {this.state.hoveredImage && (
 										<div
 											ref={this.imageRef}
 											className="edit-icon-wrapper"
@@ -487,7 +487,7 @@ class NavbarComponent extends Component {
 										>
 											<Edit />
 										</div>
-									)}
+									)} */}
 								</div>
 							)}
 						</div>
@@ -607,7 +607,7 @@ class NavbarComponent extends Component {
 										)}
 									</div>
 								</div>
-								{this.state.hoveredCart && (
+								{/* {this.state.hoveredCart && (
 									<div
 										ref={this.imageRef}
 										className="edit-icon-hover"
@@ -615,7 +615,7 @@ class NavbarComponent extends Component {
 									>
 										<Edit />
 									</div>
-								)}
+								)} */}
 							</div>
 						</div>
 					</div>
@@ -642,7 +642,7 @@ class NavbarComponent extends Component {
 				{this.state.showStyleModal && (
 					<ElementSidebar
 						ref={this.navbarRef}
-						elementEndPosition={{ x: '80%', y: 125 }}
+						elementEndPosition={{ x: '80%', y: '100%' }}
 						activeType={'navbar'}
 						isWorkflow={this.props.isWorkflow}
 						modules={this.props?.modules}
@@ -658,6 +658,12 @@ class NavbarComponent extends Component {
 									this.props?.setActiveSection(value);
 								},
 							);
+						}}
+						activeModuleId={this.props?.activeModuleId}
+						setModalRef={(e) => {
+							this.setState({
+								showImageModalLibrary: e,
+							});
 						}}
 					/>
 				)}

@@ -90,12 +90,12 @@ class MobileNavbarComponent extends Component {
 										height: '40px',
 										width: '80px',
 									}}
-									onMouseEnter={() => {
-										this.setState({ mobileHoverLogoEdit: true });
-									}}
-									onMouseLeave={() => {
-										this.setState({ mobileHoverLogoEdit: false });
-									}}
+									// onMouseEnter={() => {
+									// 	this.setState({ mobileHoverLogoEdit: true });
+									// }}
+									// onMouseLeave={() => {
+									// 	this.setState({ mobileHoverLogoEdit: false });
+									// }}
 								>
 									{properties?.mImageURL ? (
 										// {this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.mImageURL ? (
@@ -251,12 +251,12 @@ class MobileNavbarComponent extends Component {
 										width: '140px',
 										display: 'contents',
 									}}
-									onMouseEnter={() => {
-										this.setState({ mobileHoverCartEdit: true });
-									}}
-									onMouseLeave={() => {
-										this.setState({ mobileHoverCartEdit: false });
-									}}
+									// onMouseEnter={() => {
+									// 	this.setState({ mobileHoverCartEdit: true });
+									// }}
+									// onMouseLeave={() => {
+									// 	this.setState({ mobileHoverCartEdit: false });
+									// }}
 								>
 									{(this.props?.navBar?.style?.downloadIcon ||
 										!_.has(this.props?.navBar?.style, 'downloadIcon')) && (
