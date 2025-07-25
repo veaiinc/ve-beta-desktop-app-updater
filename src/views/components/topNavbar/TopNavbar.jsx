@@ -7,6 +7,8 @@ import CreditsLeftSvg from '../sidebar/chatHistory/CreditsLeftSvg';
 import Settings from './components/settings/Settings';
 import Notifications from './components/notifications/Notifications';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
+import FilesTooltip from './components/filesTooltip/FilesTooltip';
+import ToolsTooltip from './components/toolsTooltip/ToolsTooltip';
 
 const leftContainerItemsStable = [
 	{
@@ -97,6 +99,8 @@ const TopNavbar = () => {
 		settingsTooltipOpen: false,
 		activeMode: 1,
 		showNotifications: false,
+		filesTooltipOpen: false,
+		toolsTooltipOpen: false,
 	});
 
 	const { firstName, lastName, dp_s3_500w_key, googleMeta } = userDetailsData;
@@ -138,6 +142,14 @@ const TopNavbar = () => {
 		// reset chat data when navigating to chat
 		if (navItemId === 2) {
 			updateStateValues({ currentChatData: null });
+		}
+
+		if (navItemId === 4) {
+			setInfo((prev) => ({
+				...prev,
+				filesTooltipOpen: true,
+			}));
+			return;
 		}
 		navigate(route);
 	};
@@ -290,41 +302,94 @@ const TopNavbar = () => {
 		{
 			id: 1,
 			element: (
-				<ul className={s.leftContainer}>
-					{info.activeMode === 3
-						? [leftContainerItems[0]].map((navItem) => (
-								<li
-									className={`${s.navItem} ${
-										info.activeNavItem === navItem.id ? s.active : ''
-									}`}
-									onClick={() =>
-										handleNavigation({
-											navItemId: navItem.id,
-											route: navItem.route,
-										})
-									}
-									key={navItem.id}
-								>
-									{navItem.label}
-								</li>
-						  ))
-						: leftContainerItems.map((navItem) => (
-								<li
-									className={`${s.navItem} ${
-										info.activeNavItem === navItem.id ? s.active : ''
-									}`}
-									onClick={() =>
-										handleNavigation({
-											navItemId: navItem.id,
-											route: navItem.route,
-										})
-									}
-									key={navItem.id}
-								>
-									{navItem.label}
-								</li>
-						  ))}
-				</ul>
+				<>
+					<ul className={s.leftContainer}>
+						{info.activeMode === 3
+							? [leftContainerItems[0]].map((navItem) => (
+									<li
+										className={`${s.navItem} ${
+											info.activeNavItem === navItem.id ? s.active : ''
+										}`}
+										onClick={() =>
+											handleNavigation({
+												navItemId: navItem.id,
+												route: navItem.route,
+											})
+										}
+										key={navItem.id}
+									>
+										{navItem.label}
+									</li>
+							  ))
+							: leftContainerItems.map((navItem) =>
+									navItem.id === 4 ? (
+										<Tooltip
+											open={info.filesTooltipOpen}
+											onOpenChange={() =>
+												setInfo({
+													...info,
+													filesTooltipOpen: !info.filesTooltipOpen,
+												})
+											}
+											title={<FilesTooltip />}
+											placement="bottomRight"
+											arrow={false}
+											color={'transparent'}
+											rootClassName={s.topNavbarSettings}
+										>
+											<li
+												className={`${s.navItem} ${s.profileItem}`}
+												onClick={() =>
+													handleNavigation({
+														navItemId: navItem.id,
+														route: navItem.route,
+													})
+												}
+											>
+												{navItem.label}
+											</li>
+										</Tooltip>
+									) : navItem.id === 5 ? (
+										<Tooltip
+											open={info.toolsTooltipOpen}
+											onOpenChange={() =>
+												setInfo({
+													...info,
+													toolsTooltipOpen: !info.toolsTooltipOpen,
+												})
+											}
+											title={<ToolsTooltip />}
+											placement="bottomRight"
+											arrow={false}
+											color={'transparent'}
+											rootClassName={s.topNavbarSettings}
+										>
+											<li
+												onClick={() => navigate('/home')}
+												className={`${s.navItem} ${s.profileItem}`}
+											>
+												{navItem.label}
+											</li>
+										</Tooltip>
+									) : (
+										<li
+											className={`${s.navItem} ${
+												info.activeNavItem === navItem.id ? s.active : ''
+											}`}
+											onClick={() =>
+												handleNavigation({
+													navItemId: navItem.id,
+													route: navItem.route,
+												})
+											}
+											key={navItem.id}
+										>
+											{navItem.label}
+										</li>
+									),
+							  )}
+					</ul>
+				</>
 			),
 		},
 		...(showMiddleContainer
