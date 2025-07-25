@@ -102,7 +102,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const history = Boolean(searchParams.get('history'));
 	const chat = Boolean(searchParams.get('chat'));
 	const transcription = Boolean(searchParams.get('transcription'));
-	const isAiIntelligenceEnabled = searchParams.get('isAiIntelligenceEnabled');
+	const isAiIntelligenceEnabled = Boolean(searchParams.get('isAiIntelligenceEnabled'));
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
 	const originalFaviconRef = useRef(null);
@@ -146,7 +146,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const [transcriptList, setTranscriptList] = useState([]);
 	const [activeTab, setActiveTab] = useState(
 		// history || type === 'desktop' ? 'transcript' : 'all',
-		'transcript',
+		// 'transcript',
+		history ? 'transcript' : type === 'desktop' ? 'transcript' : 'all',
 	);
 	const location = useLocation();
 
@@ -705,7 +706,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			// 	handleLiveIntelligenceMessageFunc,
 			// 	false,
 			// );
-		} else if (showTranscriptTabs && type === 'desktop') {
+		} else if (showTranscriptTabs && type === 'desktop' && !history) {
 			// Connect to recall for note taker mode as well
 			recallConnection(sessionId, noteId, handleSocketMessage, isAiIntelligenceEnabled);
 		}
@@ -887,9 +888,13 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 								/>
 							)}
 
-							{/* {showTranscriptTabs && !history && type === 'meeting_bot' && ( */}
-							<TranscriptionWrapper chat={chat} transcription={transcription} />
-							{/* )} */}
+							{showTranscriptTabs && !history && type === 'meeting_bot' && (
+								<TranscriptionWrapper
+									chat={chat}
+									transcription={transcription}
+									transcriptList={transcriptList}
+								/>
+							)}
 						</div>
 					</>
 				</div>

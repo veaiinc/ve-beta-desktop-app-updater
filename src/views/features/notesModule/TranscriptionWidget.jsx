@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import s from '../../../assets/scss/notes/transcriptionWidget.module.scss';
 import { ReactComponent as ExpandIcon } from '../../../assets/svg/docs/expand.svg';
 import { ReactComponent as TimerIcon } from '../../../assets/svg/notes/timerIcon.svg';
@@ -32,47 +32,39 @@ const getSpeakerColor = (speakerName) => {
 	const index = Math.abs(hash) % colors.length;
 	return colors[index];
 };
-const TranscriptionWidget = ({
-	transcriptList = [
-		{
-			speakerName: 'John',
-			transcript: 'Hello lorem ipsum dolor sit amet',
-			timestamp: 1234567890,
-		},
-		{
-			speakerName: 'John',
-			transcript:
-				'Hello lorem ipsum dolor sit ametHello lorem ipsum dolor sit ametHello lorem ipsum dolor sit ametHello lorem ipsum dolor sit amet',
-			timestamp: 1234567890,
-		},
-		{
-			speakerName: 'John',
-			transcript:
-				'Hello lorem ipsum dolor sit ametHello lorem ipsum dolor sit ametHello lorem ipsum dolor sit ametHello lorem ipsum dolor sit amet',
-			timestamp: 1234567890,
-		},
-		{
-			speakerName: 'John',
-			transcript:
-				'Hello lorem ipsum dolor sit ametHello lorem ipsum dolor sit ametHello lorem ipsum dolor sit ametHello lorem ipsum dolor sit amet',
-			timestamp: 1234567890,
-		},
-	],
-}) => {
+
+const TranscriptionWidget = ({ transcriptList = [] }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
+	const [info, setInfo] = useState({ expand: false });
 	const handleExpand = () => {
 		const newParams = new URLSearchParams(searchParams);
 		newParams.set('transcription', 'true');
 		newParams.delete('chat');
 		setSearchParams(newParams, { replace: true });
 	};
+	const handleMouseEnter = () => {
+		if (transcriptList?.length > 0) {
+			setInfo((prev) => ({ ...prev, expand: true }));
+		}
+	};
+	const handleMouseLeave = () => {
+		setInfo((prev) => ({ ...prev, expand: false }));
+	};
 
 	return (
-		<div className={s.transcriptionWidget}>
+		<div
+			className={s.transcriptionWidget}
+			onMouseEnter={handleMouseEnter}
+			onMouseLeave={handleMouseLeave}
+			style={{
+				width: info.expand ? '500px' : '210px',
+				height: info.expand ? '500px' : '52px',
+			}}
+		>
 			{transcriptList?.length > 0 ? (
 				<div className={s.transcriptionContainer}>
 					<div className={s.transcriptionHeader}>
-						<div className={s.transcriptionHeaderText}></div>
+						<div className={s.transcriptionHeaderText}>Transcription</div>
 						<div className={s.expandIcon} onClick={handleExpand}>
 							<ExpandIcon />
 						</div>
@@ -111,8 +103,14 @@ const TranscriptionWidget = ({
 			) : (
 				<div className={s.noTranscription}>No transcription yet.</div>
 			)}
-			<div className={s.transcriptionContent}>
-				<div className={s.text}>Transcription</div>
+			<div
+				className={s.transcriptionContent}
+				style={{
+					width: info.expand ? '0px' : '100%',
+					height: info.expand ? '0px' : '32px',
+				}}
+			>
+				<div className={s.text}>{!info.expand ? 'Transcription' : ''}</div>
 			</div>
 		</div>
 	);

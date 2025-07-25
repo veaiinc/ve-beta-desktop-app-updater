@@ -3,6 +3,9 @@
 	width: 100%;
 	display: flex;
 	flex-direction: row;
+	.notes-nav-menu {
+		display: none;
+	}
 	.leftWrapper {
 		height: 100%;
 		display: flex;
@@ -40,6 +43,7 @@
 			.note-sidebar-content {
 				flex-grow: 1;
 				width: 400px;
+				position: relative;
 				.transcription-wrapper {
 					width: 100%;
 					height: 100%;

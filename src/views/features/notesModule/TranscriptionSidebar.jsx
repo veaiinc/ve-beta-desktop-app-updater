@@ -44,86 +44,11 @@ const getSpeakerColor = (speakerName) => {
 	const index = Math.abs(hash) % colors.length;
 	return colors[index];
 };
-const transcriptionList = [
-	{
-		speakerName: 'Speaker 1',
-		transcript:
-			"The beauty of nature is truly mesmerizing. Just think about the vibrant colors of a sunset or the soothing sound of a flowing river. It's a reminder of the tranquility that surrounds us, urging us to appreciate the world we live in.",
-		timestamp: '2021-01-01 10:00:00',
-	},
-	{
-		speakerName: 'Speaker 2',
-		transcript: 'Nature has an incredible way of inspiring creativity.',
-		timestamp: '2021-01-01 10:00:00',
-	},
-	{
-		speakerName: 'Speaker 3',
-		transcript: 'This is the transcript of the third speaker',
-		timestamp: '2021-01-01 10:00:00',
-	},
-	{
-		speakerName: 'Speaker 1',
-		transcript:
-			"The beauty of nature is truly mesmerizing. Just think about the vibrant colors of a sunset or the soothing sound of a flowing river. It's a reminder of the tranquility that surrounds us, urging us to appreciate the world we live in.",
-		timestamp: '2021-01-01 10:00:00',
-	},
-	{
-		speakerName: 'Speaker 3',
-		transcript: 'This is the transcript of the third speaker',
-		timestamp: '2021-01-01 10:00:00',
-	},
-	{
-		speakerName: 'Speaker 2',
-		transcript: 'Nature has an incredible way of inspiring creativity.',
-		timestamp: '2021-01-01 10:00:00',
-	},
-	{
-		speakerName: 'Speaker 3',
-		transcript: 'This is the transcript of the third speaker',
-		timestamp: '2021-01-01 10:00:00',
-	},
-	{
-		speakerName: 'Speaker 1',
-		transcript:
-			"The beauty of nature is truly mesmerizing. Just think about the vibrant colors of a sunset or the soothing sound of a flowing river. It's a reminder of the tranquility that surrounds us, urging us to appreciate the world we live in.",
-		timestamp: '2021-01-01 10:00:00',
-	},
-	{
-		speakerName: 'Speaker 3',
-		transcript: 'This is the transcript of the third speaker',
-		timestamp: '2021-01-01 10:00:00',
-	},
-	{
-		speakerName: 'Speaker 2',
-		transcript: 'Nature has an incredible way of inspiring creativity.',
-		timestamp: '2021-01-01 10:00:00',
-	},
-	{
-		speakerName: 'Speaker 3',
-		transcript: 'This is the transcript of the third speaker',
-		timestamp: '2021-01-01 10:00:00',
-	},
-	{
-		speakerName: 'Speaker 1',
-		transcript:
-			"The beauty of nature is truly mesmerizing. Just think about the vibrant colors of a sunset or the soothing sound of a flowing river. It's a reminder of the tranquility that surrounds us, urging us to appreciate the world we live in.",
-		timestamp: '2021-01-01 10:00:00',
-	},
-	{
-		speakerName: 'Speaker 3',
-		transcript: 'This is the transcript of the third speaker',
-		timestamp: '2021-01-01 10:00:00',
-	},
-	{
-		speakerName: 'Speaker 2',
-		transcript: 'Nature has an incredible way of inspiring creativity.',
-		timestamp: '2021-01-01 10:00:00',
-	},
-];
+
 const TranscriptionSidebar = () => {
-	// const {
-	// 	notes: { transcriptionList },
-	// } = useContext(Context);
+	const {
+		notes: { transcriptionList },
+	} = useContext(Context);
 
 	return (
 		<div className={styles.transcriptionSidebar}>
@@ -142,8 +67,8 @@ const TranscriptionSidebar = () => {
 				</div>
 			</div> */}
 			<div className={styles.transcriptionListContainer}>
-				{transcriptionList.map((item, index) => (
-					<div key={item.id} className={styles.transcriptionItem}>
+				{transcriptionList?.map((item, index) => (
+					<div key={index} className={styles.transcriptionItem}>
 						<div
 							style={{ backgroundColor: getSpeakerColor(item.speakerName) }}
 							className={styles.transcriptionItemSpeaker}
