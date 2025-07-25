@@ -593,7 +593,7 @@ class Layout1 extends Component {
 
 		//currency
 		const region = localStorage?.getItem('region') || 'ap-south-1';
-		let currencySymbol = region === 'ap-south-1' ? '₹' : '$';
+		let currencySymbol = this.props?.currencySymbol || region === 'ap-south-1' ? '₹' : '$';
 
 		//we need to also maintain the incoming styling from builder
 		let subTotalWithStyling = section?.style?.subTotalValue + '';
