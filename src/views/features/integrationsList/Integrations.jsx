@@ -378,16 +378,16 @@ const Integrations = () => {
 		// 		'Effortlessly connect to Notion to manage tasks, organize projects, and centralize your work—all in one place.',
 		// 	isConnected: false,
 		// },
-		// {
-		// 	id: 3,
-		// 	icon: slack,
-		// 	title: 'Slack',
-		// 	connectType: 'slack',
-		// 	description:
-		// 		'Stay connected and streamline communication by integrating with Slack. Receive updates, share insights, and collaborate seamlessly.',
-		// 	isConnected: false,
-		// 	onlyShowIn: 'shared',
-		// },
+		{
+			id: 3,
+			icon: slack,
+			title: 'Slack',
+			connectType: 'slack',
+			description:
+				'Stay connected and streamline communication by integrating with Slack. Receive updates, share insights, and collaborate seamlessly.',
+			isConnected: false,
+			onlyShowIn: 'shared',
+		},
 		// {
 		// 	id: 4,
 		// 	icon: googleDrive,
