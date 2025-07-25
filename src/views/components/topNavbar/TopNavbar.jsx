@@ -448,6 +448,7 @@ const TopNavbar = () => {
 							{navItem.icon}
 						</li>
 					))}
+
 					<Tooltip
 						open={info.settingsTooltipOpen}
 						onOpenChange={() =>

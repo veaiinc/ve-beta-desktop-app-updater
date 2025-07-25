@@ -8513,7 +8513,7 @@ class Layout extends Component {
 					this.state.previewMode === 'd' &&
 					!disabledModules.includes(this.props.module) ? (
 						<>
-							{!this.state.showAddElement && (
+							{this.state.showBlockActions && (
 								<div className="add-element">
 									<a
 										className="add-element-button"
@@ -8560,23 +8560,24 @@ class Layout extends Component {
 							>
 								Add Block
 							</a> */}
-							<div
-								className="add-block-new-container "
-								onClick={(e) => {
-									e.stopPropagation();
-									e.preventDefault();
-									this.setState({ showAddBlock: true }, () => {
-										this.hanldeAddBlock(this.state.showAddBlock);
-									});
-								}}
-							>
-								<div className="addBlankContainer">
-									<AddBlock />
-									<span className="tooltip-text">Add Layout</span>
-								</div>
-								<div className="addBlockDivider">Add</div>
+							{this.state.showBlockActions && (
+								<div
+									className="add-block-new-container "
+									onClick={(e) => {
+										e.stopPropagation();
+										e.preventDefault();
+										this.setState({ showAddBlock: true }, () => {
+											this.hanldeAddBlock(this.state.showAddBlock);
+										});
+									}}
+								>
+									<div className="addBlankContainer">
+										<AddBlock />
+										<span className="tooltip-text">Add Layout</span>
+									</div>
+									<div className="addBlockDivider">Add</div>
 
-								{/* <div className="addBlockDividerContainer">
+									{/* <div className="addBlockDividerContainer">
 									<div className="addBlockDivider"></div>
 								</div>
 								<div
@@ -8602,7 +8603,8 @@ class Layout extends Component {
 										''
 									)}
 								</div> */}
-							</div>
+								</div>
+							)}
 						</>
 					) : (
 						''
