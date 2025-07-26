@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState, useRef, useCallback } from 'react';
 import '../../../../assets/scss/ai_assistant/modal/addToolV2.scss';
 import ReactModal from '../index';
-import { createFrontendClient } from '@pipedream/sdk/browser';
 import Context from '../../../../context/context';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/docs/cross.svg';
 import Spinner from '../../loaders/Spinner';
@@ -11,18 +10,22 @@ import { ReactComponent as SearchIcon } from '../../../../assets/svg/ai_assistan
 import { ReactComponent as AddIcon } from '../../../../assets/svg/ai_assistant/add.svg';
 import { message } from '../../globalComponents/CustomToast';
 
+// AddToolV2Modal component for adding tools to a knowledge agent
 const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 	const {
 		knowledgeAgent: {
 			listofAllappsActions,
 			connectTool,
 			addActionToKnowledgeAgent,
-			getExistingconnectedAccounts,
+			getComposioConnectedAccounts,
 		},
-		profileInfo: { userDetailsData, getUserDetails },
+		profileInfo: { userDetailsData, getUserDetails, tennantSettingsData },
 		knowledgeAgent: { actionsInfo },
 	} = useContext(Context);
+
 	const { agentId } = useParams();
+
+	// State to manage modal data and UI states
 	const [info, setInfo] = useState({
 		actions: [],
 		isLoading: false,
@@ -39,24 +42,35 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		accountsLoading: false,
 		checkingAccounts: false,
 	});
+
 	const searchTimeoutRef = useRef(null);
 	const pageRef = useRef(1);
 
+	// Fetch user details if not present
 	useEffect(() => {
 		if (!userDetailsData) getUserDetails();
-	}, [userDetailsData]);
+	}, [userDetailsData, getUserDetails]);
 
+	// Fetch actions from API
 	const fetchActions = useCallback(
 		async (page = 1, reset = false, search = '') => {
 			setInfo((prev) => ({ ...prev, isLoading: true, error: null }));
 			try {
 				const [success, response] = await listofAllappsActions(page, info.perPage, search);
-				if (success) {
+				if (success && response?.data) {
+					const actionsData = Array.isArray(response.data.items)
+						? response.data.items
+						: [];
 					setInfo((prev) => ({
 						...prev,
-						actions: reset ? response.data : [...prev.actions, ...response.data],
-						hasNextPage: response.hasNextPage,
-						totalActions: response.totalDocs || response.totalActions || 0,
+						actions: reset
+							? actionsData
+							: [
+									...(Array.isArray(prev.actions) ? prev.actions : []),
+									...actionsData,
+							  ],
+						hasNextPage: response?.hasNextPage || false,
+						totalActions: response?.totalDocs || response?.totalActions || 0,
 						page,
 					}));
 				} else {
@@ -66,6 +80,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 					}));
 				}
 			} catch (error) {
+				console.error('fetchActions error:', error);
 				setInfo((prev) => ({ ...prev, error: error.message || 'Failed to fetch actions' }));
 			} finally {
 				setInfo((prev) => ({ ...prev, isLoading: false }));
@@ -74,6 +89,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		[listofAllappsActions, info.perPage],
 	);
 
+	// Reset and fetch accounts when modal opens
 	useEffect(() => {
 		if (isOpen) {
 			pageRef.current = 1;
@@ -91,6 +107,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		}
 	}, [isOpen]);
 
+	// Handle search input with debouncing
 	const handleSearch = useCallback(
 		(e) => {
 			const value = e.target.value;
@@ -111,6 +128,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		[fetchActions],
 	);
 
+	// Fetch more actions for infinite scroll
 	const fetchMoreActions = useCallback(() => {
 		if (info.hasNextPage && !info.isLoading) {
 			const nextPage = pageRef.current + 1;
@@ -119,193 +137,172 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		}
 	}, [info.hasNextPage, info.isLoading, fetchActions, info.search]);
 
-	const groupedActions = info.actions.reduce((acc, action) => {
-		const appName = (action.app_name || action.app || '')
-			.replace(/_/g, ' ')
-			.replace(/\b\w/g, (l) => l.toUpperCase());
-		if (!acc[appName]) acc[appName] = [];
-		acc[appName].push(action);
-		return acc;
-	}, {});
+	// Group actions by app name
+	const groupedActions = (Array.isArray(info.actions) ? info.actions : []).reduce(
+		(acc, action) => {
+			if (!action?.toolkit?.name) {
+				console.warn('Action missing toolkit name:', action);
+				return acc;
+			}
+			const appName = action.toolkit.name
+				.replace(/_/g, ' ')
+				.replace(/\b\w/g, (l) => l.toUpperCase());
+			if (!acc[appName]) acc[appName] = [];
+			acc[appName].push(action);
+			return acc;
+		},
+		{},
+	);
 
+	// List of added action keys
 	const addedActionKeys = Array.isArray(actionsInfo?.data)
 		? actionsInfo.data.map((a) => a.action_key || a.key || a.id)
 		: [];
 
+	// Fetch connected accounts
 	const fetchConnectedAccounts = async () => {
 		setInfo((prev) => ({ ...prev, accountsLoading: true }));
 		try {
-			const tenatUserId = userDetailsData?._id;
-			const response = await getExistingconnectedAccounts({ tenatUserId });
-			if (response?.data?.connected_accounts) {
+			const [success, response] = await getComposioConnectedAccounts();
+			if (success && Array.isArray(response?.data?.connected_accounts)) {
 				setInfo((prev) => ({
 					...prev,
 					connectedAccounts: response.data.connected_accounts,
 				}));
+			} else {
+				console.warn('No connected accounts found or invalid response:', response);
 			}
 		} catch (error) {
 			console.error('Error fetching connected accounts:', error);
+			setInfo((prev) => ({ ...prev, error: error.message || 'Failed to fetch accounts' }));
 		} finally {
-			setInfo((prev) => ({
-				...prev,
-				accountsLoading: false,
-				checkingAccounts: false,
-			}));
+			setInfo((prev) => ({ ...prev, accountsLoading: false, checkingAccounts: false }));
 			fetchActions(1, true, '');
 		}
 	};
 
+	// Handle adding a tool
 	const handleAddTool = async (action) => {
+		if (!action?.toolkit?.slug) {
+			message.error('Invalid tool data');
+			return;
+		}
+
 		setInfo((prev) => ({
 			...prev,
-			addLoading: { ...prev.addLoading, [action._id]: true },
-			addError: { ...prev.addError, [action._id]: undefined },
+			addLoading: { ...prev.addLoading, [action.slug]: true },
+			addError: { ...prev.addError, [action.slug]: undefined },
 			isConnecting: true,
 			error: null,
 		}));
 
 		try {
-			let accountId = null;
-
-			const existingAccount = info.connectedAccounts.find(
-				(account) => account.app.name_slug === action.app,
-			);
+			const existingAccount = (
+				Array.isArray(info.connectedAccounts) ? info.connectedAccounts : []
+			).find((account) => account.app?.name_slug === action.toolkit.slug);
 
 			if (existingAccount) {
-				accountId = existingAccount.id;
-			} else {
-				const [connectSuccess, connectRes] = await connectTool({ app: action.app });
-				if (!connectSuccess || !connectRes?.data?.token) {
-					throw new Error(connectRes?.message || 'Failed to get connection token');
-				}
-
-				const { token } = connectRes.data;
-				const pd = createFrontendClient();
-
-				await new Promise((resolve, reject) => {
-					pd.connectAccount({
-						app: action.app,
-						token: token,
-						onSuccess: async () => {
-							try {
-								const tenatUserId = userDetailsData?._id;
-								const accountsResponse = await getExistingconnectedAccounts({
-									tenatUserId,
-								});
-
-								if (accountsResponse?.data?.connected_accounts) {
-									const newAccount =
-										accountsResponse.data.connected_accounts.find(
-											(account) => account.app.name_slug === action.app,
-										);
-									if (newAccount) {
-										accountId = newAccount.id;
-									} else {
-										throw new Error('Newly connected account not found');
-									}
-								} else {
-									throw new Error('Failed to fetch connected accounts');
-								}
-								resolve();
-							} catch (error) {
-								reject(error);
-							}
-						},
-						onError: (err) => {
-							setInfo((prev) => ({
-								...prev,
-								error: err.message || 'Failed to connect to the app',
-								isConnecting: false,
-								addLoading: { ...prev.addLoading, [action._id]: false },
-								addError: {
-									...prev.addError,
-									[action._id]: err.message || 'Failed to connect to the app',
-								},
-							}));
-							reject(err);
-						},
-					});
+				// Account is already connected, proceed with adding the tool
+				await handleCreateAction(action, existingAccount.id);
+			} else if (action.auth_type === 'api_key') {
+				message.error('API key authentication is not supported for this tool');
+				setInfo((prev) => ({
+					...prev,
+					addLoading: { ...prev.addLoading, [action.slug]: false },
+					isConnecting: false,
+				}));
+				// Optionally: openAccountCreationModal(action);
+			} else if (action.auth_type === 'oauth') {
+				const [connectSuccess, response] = await connectTool({
+					slug: action.toolkit.slug,
 				});
-			}
-
-			if (!accountId) {
-				throw new Error('Account ID not found');
-			}
-
-			const name = action.name || action.key || action.id || '';
-			const description = action.description || '';
-			const workspaceId = localStorage.getItem('workspaceId');
-			const url = `https://us.api.ve.ai/third-party-integrations/1.0/pipedream/execute-action/${workspaceId}`;
-			const method = 'POST';
-			const contentType = 'json';
-			const headers = [{ name: 'Content-Type', value: 'application/json' }];
-
-			const props = {};
-			const variables = [];
-			(action.configurable_props || []).forEach((prop) => {
-				if (prop.type === 'app') {
-					props[prop.name] = { authProvisionId: accountId };
+				if (connectSuccess && response?.data?.oauth_url) {
+					window.open(response.data.oauth_url, '_blank');
+					// Note: handleCreateAction should be called after OAuth flow completion
+					// You may need to handle OAuth callback separately
+					setInfo((prev) => ({
+						...prev,
+						addLoading: { ...prev.addLoading, [action.slug]: false },
+						isConnecting: false,
+					}));
 				} else {
-					props[prop.name] = `{{${prop.name}}}`;
-					variables.push({
-						name: prop.name,
-						type: prop.type,
-						optional: prop.optional ?? false,
-						description: prop.options
-							? `${
-									prop.description ? `${prop.description} ` : ''
-							  }, Always populate one of: [${prop.options
-									.map((opt) => `'${opt}'`)
-									.join(
-										', ',
-									)}]. Never choose any value apart from this. It should be populated with one of the options.`
-							: prop.description || `No description provided for ${prop.name}`,
-					});
+					throw new Error('Failed to initiate OAuth connection');
 				}
-			});
+			} else {
+				throw new Error('Unsupported authentication type');
+			}
+		} catch (error) {
+			console.error('handleAddTool error:', error);
+			setInfo((prev) => ({
+				...prev,
+				addLoading: { ...prev.addLoading, [action.slug]: false },
+				addError: {
+					...prev.addError,
+					[action.slug]: error.message || 'Failed to add tool',
+				},
+				isConnecting: false,
+			}));
+			message.error(error.message || 'Failed to add tool');
+		}
+	};
 
-			const bodyObj = {
-				action_key: action.key || action.id || '',
-				app: action.app || '',
-				account_id: accountId,
-				props,
-			};
-			let body = JSON.stringify(bodyObj);
-			body = body.replace(/"{{(.*?)}}"/g, '{{$1}}');
+	// Create and add action to knowledge agent
+	const handleCreateAction = async (action, accountId) => {
+		try {
+			setInfo((prev) => ({
+				...prev,
+				addLoading: { ...prev.addLoading, [action.slug]: true },
+				addError: { ...prev.addError, [action.slug]: undefined },
+				isConnecting: true,
+				error: null,
+			}));
+
+			const name = action.name || action.slug || 'Unnamed Action';
+			const description = action.description || '';
+			const tenantId = tennantSettingsData?._id;
+			const tenantUserId = userDetailsData?._id;
+
+			if (!tenantId || !tenantUserId) {
+				throw new Error('Missing tenant or user information');
+			}
+
+			const userId = `${tenantId}_${tenantUserId}`;
+			const variables = action.input_parameters?.properties || {};
 
 			const payload = {
 				name,
 				description,
-				url,
-				method,
-				contentType,
-				body,
-				headers,
 				variables,
 				isAuthenticated: true,
 				agent: 'knowledgeAgent',
-				key: action.key,
+				userId,
+				key: action.toolkit.slug,
+				platform: 'composio',
+				logoUrl: action.toolkit.logo || '',
+				accountId, 
 			};
 
-			await addActionToKnowledgeAgent(agentId, payload);
-
-			message.success('Tool added successfully');
-			setInfo((prev) => ({
-				...prev,
-				addLoading: { ...prev.addLoading, [action._id]: false },
-				addError: { ...prev.addError, [action._id]: undefined },
-				isConnecting: false,
-			}));
-			if (onToolAdded) onToolAdded();
-			onClose();
+			const [success, response] = await addActionToKnowledgeAgent(agentId, payload);
+			if (success) {
+				message.success('Tool added successfully');
+				if (onToolAdded) onToolAdded();
+				onClose();
+			} else {
+				throw new Error(response?.message || 'Failed to add tool');
+			}
 		} catch (error) {
+			console.error('handleCreateAction error:', error);
 			setInfo((prev) => ({
 				...prev,
 				error: error.message || 'An unexpected error occurred',
 				isConnecting: false,
-				addLoading: { ...prev.addLoading, [action._id]: false },
-				addError: { ...prev.addError, [action._id]: error.message || 'Failed to add tool' },
+				addLoading: { ...prev.addLoading, [action.slug]: false },
+				addError: {
+					...prev.addError,
+					[action.slug]: error.message || 'Failed to add tool',
+				},
 			}));
+			message.error(error.message || 'Failed to add tool');
 		}
 	};
 
@@ -313,7 +310,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		<ReactModal
 			isOpen={isOpen}
 			closeModal={onClose}
-			modalType={'center'}
+			modalType="center"
 			customStyles={{
 				overlay: { zIndex: 1001 },
 				content: { borderRadius: '15px', zIndex: 1002 },
@@ -352,7 +349,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 						<InfiniteScroll
 							dataLength={info.actions.length || 0}
 							next={fetchMoreActions}
-							hasMore={info.hasNextPage || false}
+							hasMore={info.hasNextPage}
 							loader={
 								<div className="centered-loading">
 									<Spinner
@@ -380,26 +377,24 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 												<div className="app-group-grid">
 													{actions.map((action) => {
 														const isAdded = addedActionKeys.includes(
-															action.key ||
-																action.id ||
-																action.action_key,
+															action.toolkit.slug,
 														);
 														return (
 															<div
-																key={action._id}
+																key={action.slug}
 																className="app-item-grid"
 																onClick={() =>
 																	handleAddTool(action)
 																}
 															>
 																<img
-																	src={action.image_src}
-																	alt={action.name}
+																	src={action.toolkit.logo || ''}
+																	alt={action.name || 'Tool'}
 																	className="app-icon"
 																/>
 																<div className="app-info">
 																	<span className="app-action-name">
-																		{action.name}
+																		{action.name || 'Unnamed'}
 																	</span>
 																</div>
 																{isAdded ? (
@@ -411,12 +406,12 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 																		className="primary-button connect-button"
 																		disabled={
 																			!!info.addLoading[
-																				action._id
+																				action.slug
 																			] || info.isConnecting
 																		}
 																	>
 																		{info.addLoading[
-																			action._id
+																			action.slug
 																		] ? (
 																			<div className="add-button-container">
 																				<Spinner
@@ -436,7 +431,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 																		)}
 																	</button>
 																)}
-																{info.addError[action._id] && (
+																{info.addError[action.slug] && (
 																	<div
 																		className="field-error"
 																		style={{
@@ -446,7 +441,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 																			fontWeight: '500',
 																		}}
 																	>
-																		{info.addError[action._id]}
+																		{info.addError[action.slug]}
 																	</div>
 																)}
 															</div>

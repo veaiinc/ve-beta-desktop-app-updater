@@ -39,6 +39,7 @@ import Editor from '../../components/notes/Editor';
 import TranscriptionTabs from '../../components/notes/TranscriptionTabs';
 import MeetSummary from './MeetSummary';
 import NotesTitleArea from '../../components/notes/DatabseComponents/NotesTitleArea';
+import TranscriptionWrapper from './TranscriptionWrapper';
 
 const initialState = {
 	title: '',
@@ -98,8 +99,11 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const noteId = useParams()?.noteId;
 	const sessionId = noteId;
 	const type = searchParams.get('type');
-	const history = Boolean(searchParams.get('history'));
-	const isAiIntelligenceEnabled = searchParams.get('isAiIntelligenceEnabled');
+	const history = searchParams.get('history') === 'true' ? true : false;
+	const chat = searchParams.get('chat') === 'true' ? true : false;
+	const transcription = searchParams.get('transcription') === 'true' ? true : false;
+	const isAiIntelligenceEnabled =
+		searchParams.get('isAiIntelligenceEnabled') === 'true' ? true : false;
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
 	const originalFaviconRef = useRef(null);
@@ -143,7 +147,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const [transcriptList, setTranscriptList] = useState([]);
 	const [activeTab, setActiveTab] = useState(
 		// history || type === 'desktop' ? 'transcript' : 'all',
-		'transcript',
+		// 'transcript',
+		history ? 'transcript' : type === 'desktop' ? 'transcript' : 'all',
 	);
 	const location = useLocation();
 
@@ -164,7 +169,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	// 	},
 	// 	[handleTranscriptionSuggestions],
 	// );
-
 	useEffect(() => {
 		if (aiTranscriptionSuggestions) {
 			const userQuestions = [];
@@ -218,6 +222,14 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			});
 		};
 	}, []);
+
+	useEffect(() => {
+		if (transcriptList?.length > 0) {
+			updateNotesStateValues({
+				transcriptionList: transcriptList,
+			});
+		}
+	}, [transcriptList]);
 	const handleSocketMessage = useCallback(
 		(event) => {
 			try {
@@ -695,7 +707,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			// 	handleLiveIntelligenceMessageFunc,
 			// 	false,
 			// );
-		} else if (showTranscriptTabs && type === 'desktop') {
+		} else if (showTranscriptTabs && type === 'desktop' && !history) {
 			// Connect to recall for note taker mode as well
 			recallConnection(sessionId, noteId, handleSocketMessage, isAiIntelligenceEnabled);
 		}
@@ -874,6 +886,14 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 									createBlock={createBlock}
 									updateBlock={updateBlock}
 									deleteBlock={deleteBlock}
+								/>
+							)}
+
+							{showTranscriptTabs && !history && type === 'meeting_bot' && (
+								<TranscriptionWrapper
+									chat={chat}
+									transcription={transcription}
+									transcriptList={transcriptList}
 								/>
 							)}
 						</div>

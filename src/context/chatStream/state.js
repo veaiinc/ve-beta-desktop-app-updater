@@ -128,15 +128,15 @@ export const ChatStreamState = () => {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const region = localStorage.getItem('region') || 'ap-south-1';
 			const config = await getConfig();
-			const { chat_api, chat_api_US, guest_chat_api, guest_chat_api_US } = config;
+			const { chat_ws_api, chat_ws_api_US, guest_chat_ws_api, guest_chat_ws_api_US } = config;
 
 			let baseUrl = `${
-				region === 'ap-south-1' ? chat_api : chat_api_US
+				region === 'ap-south-1' ? chat_ws_api : chat_ws_api_US
 			}/${workspaceId}/${sessionId}/${agent}?token=${usertoken}`;
 
 			if (isPublicChat) {
 				baseUrl = `${
-					region === 'ap-south-1' ? guest_chat_api : guest_chat_api_US
+					region === 'ap-south-1' ? guest_chat_ws_api : guest_chat_ws_api_US
 				}/${sessionId}/guest_chat`;
 			}
 
