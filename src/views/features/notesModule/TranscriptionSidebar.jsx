@@ -1,4 +1,4 @@
-import { memo, useContext } from 'react';
+import { memo, useContext, useEffect, useRef } from 'react';
 import styles from '../../../assets/scss/notes/transcriptionSidebar.module.scss';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosingPrimary.svg';
 import { ReactComponent as TimerIcon } from '../../../assets/svg/notes/timerIcon.svg';
@@ -49,7 +49,15 @@ const TranscriptionSidebar = () => {
 	const {
 		notes: { transcriptionList },
 	} = useContext(Context);
+	const listContainerRef = useRef(null);
 
+	useEffect(() => {
+		if (!listContainerRef?.current) return;
+		listContainerRef.current.scrollTo({
+			top: listContainerRef.current.scrollHeight,
+			behavior: 'smooth',
+		});
+	}, [transcriptionList?.length]);
 	return (
 		<div className={styles.transcriptionSidebar}>
 			{/* <div className={styles.transcriptionHeaderContainer}>
@@ -66,7 +74,7 @@ const TranscriptionSidebar = () => {
 					</Dropdown>
 				</div>
 			</div> */}
-			<div className={styles.transcriptionListContainer}>
+			<div className={styles.transcriptionListContainer} ref={listContainerRef}>
 				{transcriptionList?.map((item, index) => (
 					<div key={index} className={styles.transcriptionItem}>
 						<div
