@@ -163,6 +163,26 @@
 				}
 			}
 
+			&.selectedWorkspace {
+				&::before {
+					content: 'Switch to this workspace';
+					position: absolute;
+					right: -154px;
+					top: 50%;
+					transform: translateY(-15%);
+					width: 100%;
+					height: 100%;
+					background-color: transparent;
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+				// background: var(--card, #1b1c1d);
+			}
+
 			.workspaceLogo {
 				width: 36px;
 				height: 36px;

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import ReactModal from '../../../modalsV2';
 import s from './switchWorkspaceModal.module.scss';
 import { useNavigate } from 'react-router-dom';
@@ -13,10 +13,21 @@ const customStyles = {
 const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }) => {
 	const currentWorkspaceId = localStorage.getItem('workspaceId');
 	const navigate = useNavigate();
+	const selectedWorkspaceRef = useRef(null);
 
 	const [info, setInfo] = useState({
 		searchWorkspace: '',
+		selectedWorkspaceIndex: 0,
 	});
+
+	useEffect(() => {
+		if (selectedWorkspaceRef.current) {
+			selectedWorkspaceRef.current.scrollIntoView({
+				behavior: 'smooth',
+				block: 'nearest',
+			});
+		}
+	}, [info.selectedWorkspaceIndex]);
 
 	const workspaceList = useMemo(() => {
 		return userWorkSpaceList?.filter(
@@ -43,6 +54,31 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 		window.location.href = '/home';
 	};
 
+	const handleKeyboardNavigation = (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+
+		const maxIndex = workspaceList.length - 1;
+		let newIndex = info.selectedWorkspaceIndex;
+
+		if (e.key === 'ArrowUp') {
+			newIndex = Math.max(0, newIndex - 1);
+		} else if (e.key === 'ArrowDown') {
+			newIndex = Math.min(maxIndex, newIndex + 1);
+		}
+
+		if (e.key === 'Enter') {
+			handleSwitchWorkspace(
+				workspaceList[newIndex].activeWorkspaceId,
+				workspaceList[newIndex].region,
+			);
+		}
+
+		if (newIndex !== info.selectedWorkspaceIndex) {
+			setInfo({ ...info, selectedWorkspaceIndex: newIndex });
+		}
+	};
+
 	return (
 		<ReactModal
 			isOpen={isOpen}
@@ -50,7 +86,7 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 			modalType={'center'}
 			customStyles={customStyles}
 		>
-			<div className={s.switchWorkspaceModal}>
+			<div className={s.switchWorkspaceModal} onKeyDown={handleKeyboardNavigation}>
 				<header className={s.header}>
 					<h1 className={s.title}>Switch Workspace</h1>
 					<button
@@ -131,7 +167,10 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 						</p>
 					) : (
 						workspaceList?.map(
-							({ activeWorkspaceId, businessName, logo_s3_500w_key, region }) => (
+							(
+								{ activeWorkspaceId, businessName, logo_s3_500w_key, region },
+								index,
+							) => (
 								<button
 									key={activeWorkspaceId}
 									onClick={() =>
@@ -141,7 +180,16 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 											businessName,
 										)
 									}
-									className={s.workspaceItem}
+									className={`${s.workspaceItem} ${
+										index === info.selectedWorkspaceIndex
+											? s.selectedWorkspace
+											: ''
+									}`}
+									ref={
+										index === info.selectedWorkspaceIndex
+											? selectedWorkspaceRef
+											: null
+									}
 								>
 									{logo_s3_500w_key ? (
 										<img
