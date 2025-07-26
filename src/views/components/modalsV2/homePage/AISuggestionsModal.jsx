@@ -295,7 +295,7 @@ const AISuggestionsModal = ({
 	};
 
 	const handleDeleteCard = useCallback(async () => {
-		if (info?.accessType === 'view') {
+		if (info?.accessType === 'view' && !info?.isAdmin) {
 			message.error('You do not have access to delete this insight');
 			return;
 		}
@@ -317,10 +317,11 @@ const AISuggestionsModal = ({
 		pendingActionsUpdate,
 		info.isDeleting,
 		info?.accessType,
+		info?.isAdmin,
 	]);
 
 	const handleOpenFeedbackPopup = () => {
-		if (info?.accessType == 'view') {
+		if (info?.accessType == 'view' && !info?.isAdmin) {
 			message.error('You do not have access to give feedback');
 			return;
 		}
