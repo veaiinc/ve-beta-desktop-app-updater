@@ -326,7 +326,7 @@ const TopNavbar = () => {
 				<>
 					<ul className={s.leftContainer}>
 						{info.activeMode === 3
-							? [leftContainerItems[0]].map((navItem) => (
+							? [leftContainerItems[0]].map((navItem, index) => (
 									<li
 										className={`${s.navItem} ${
 											info.activeNavItem === navItem.id ? s.active : ''
@@ -337,12 +337,12 @@ const TopNavbar = () => {
 												route: navItem.route,
 											})
 										}
-										key={navItem.id}
+										key={`${navItem.id}-${index}`}
 									>
 										{navItem.label}
 									</li>
 							  ))
-							: leftContainerItems.map((navItem) =>
+							: leftContainerItems.map((navItem, index) =>
 									navItem.id === 4 ? (
 										<Tooltip
 											open={info.filesTooltipOpen}
@@ -355,6 +355,7 @@ const TopNavbar = () => {
 													settingsTooltipOpen: false,
 												}))
 											}
+											key={`tooltip1-${navItem.id}-${index}`}
 											title={<FilesTooltip />}
 											placement="bottomRight"
 											arrow={false}
@@ -390,6 +391,7 @@ const TopNavbar = () => {
 											arrow={false}
 											color={'transparent'}
 											rootClassName={s.topNavbarSettings}
+											key={`tooltip2-${navItem.id}-${index}`}
 										>
 											<li
 												onClick={() => navigate('/home')}
@@ -409,7 +411,7 @@ const TopNavbar = () => {
 													route: navItem.route,
 												})
 											}
-											key={navItem.id}
+											key={`${navItem.id}-${index}`}
 										>
 											{navItem.label}
 										</li>
@@ -425,13 +427,13 @@ const TopNavbar = () => {
 						id: 2,
 						element: (
 							<ul className={s.middleContainer}>
-								{middleContainerItems.map((navItem) => (
+								{middleContainerItems.map((navItem,index) => (
 									<li
 										className={`${s.navItem} ${
 											info.activeMode === navItem.id ? s.active : ''
 										}`}
 										onClick={() => handleMiddleNavigation(navItem)}
-										key={navItem.id}
+										key={`${navItem.id}-${index}`}
 									>
 										{info.activeMode === navItem.id
 											? navItem.activeLabel
@@ -447,11 +449,11 @@ const TopNavbar = () => {
 			id: 3,
 			element: (
 				<ul className={s.rightContainer}>
-					{rightContainerItems.map((navItem) => (
+					{rightContainerItems.map((navItem,index) => (
 						<li
 							className={s.navItem}
-							onClick={() => handleAction(navItem)}
-							key={navItem.id}
+							onClick={() => handleAction(navItem,index)}
+							key={`${navItem.id}-${index}`}
 						>
 							{navItem.icon}
 						</li>
