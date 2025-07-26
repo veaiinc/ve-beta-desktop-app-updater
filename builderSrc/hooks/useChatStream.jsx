@@ -1,5 +1,5 @@
 import { useCallback, useRef, useEffect } from 'react';
-import { getConfig } from '../services/index.js';
+import  getConfig  from '../services/index.jsx';
 
 const agentTypeMap = {
 	search_agent: 'search_agent_streaming',
