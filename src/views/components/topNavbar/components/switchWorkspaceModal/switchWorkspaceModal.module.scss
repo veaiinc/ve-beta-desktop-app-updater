@@ -146,7 +146,7 @@
 
 			&:hover {
 				&::before {
-					content: 'Switch to this workspace';
+					content: 'Switch';
 					position: absolute;
 					right: -154px;
 					top: 50%;
@@ -165,7 +165,7 @@
 
 			&.selectedWorkspace {
 				&::before {
-					content: 'Switch to this workspace';
+					content: 'Switch';
 					position: absolute;
 					right: -154px;
 					top: 50%;
@@ -180,7 +180,7 @@
 					font-weight: 500;
 					line-height: normal;
 				}
-				// background: var(--card, #1b1c1d);
+				background: var(--card, #1b1c1d);
 			}
 
 			.workspaceLogo {

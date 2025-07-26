@@ -55,11 +55,13 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 	};
 
 	const handleKeyboardNavigation = (e) => {
-		e.preventDefault();
-		e.stopPropagation();
-
 		const maxIndex = workspaceList.length - 1;
 		let newIndex = info.selectedWorkspaceIndex;
+
+		if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'Enter') {
+			e.preventDefault();
+			e.stopPropagation();
+		}
 
 		if (e.key === 'ArrowUp') {
 			newIndex = Math.max(0, newIndex - 1);
