@@ -57,7 +57,7 @@ const apiEndPointMapperUS = {
 const Service = {
 	fetchGet: async (url, token = null, type = null, body = null) => {
 		let URL;
-		const region = localStorage.getItem('region') || 'ap-south-1';
+		const region = localStorage.getItem('region') || 'us-east-1';
 		if (region === 'ap-south-1') {
 			URL = (apiEndPointMapper?.[type] ? apiEndPointMapper?.[type] : images_api_server) + url;
 		} else {
@@ -104,7 +104,7 @@ const Service = {
 	fetchPost: async (url, body, token = null, type = null) => {
 		let URL;
 
-		const region = localStorage.getItem('region') || 'ap-south-1';
+		const region = localStorage.getItem('region') || 'us-east-1';
 		if (region === 'ap-south-1') {
 			URL = (apiEndPointMapper?.[type] ? apiEndPointMapper?.[type] : images_api_server) + url;
 		} else {
@@ -152,7 +152,7 @@ const Service = {
 	fetchPut: async (url, body, token = null, type = null) => {
 		let URL;
 
-		const region = localStorage.getItem('region') || 'ap-south-1';
+		const region = localStorage.getItem('region') || 'use-east-1';
 		if (region === 'ap-south-1') {
 			URL = (apiEndPointMapper?.[type] ? apiEndPointMapper?.[type] : images_api_server) + url;
 		} else {
@@ -192,7 +192,7 @@ const Service = {
 	fetchDelete: async (url, token = null, body = null, type = null) => {
 		let URL;
 
-		const region = localStorage.getItem('region') || 'ap-south-1';
+		const region = localStorage.getItem('region') || 'use-east-1';
 		if (region === 'ap-south-1') {
 			URL = (apiEndPointMapper?.[type] ? apiEndPointMapper?.[type] : images_api_server) + url;
 		} else {
@@ -242,7 +242,7 @@ const Service = {
 	fetchPostFiles: async (url, body, token = null, type = null) => {
 		let URL;
 
-		const region = localStorage.getItem('region') || 'ap-south-1';
+		const region = localStorage.getItem('region') || 'use-east-1';
 		if (region === 'ap-south-1') {
 			URL = (apiEndPointMapper?.[type] ? apiEndPointMapper?.[type] : images_api_server) + url;
 		} else {

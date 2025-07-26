@@ -154,7 +154,7 @@ const apiFetch = async (url, method, body, token, type, isPublicChat = false) =>
 			custom_domain_api: custom_domain_api_US,
 		};
 
-		const region = localStorage.getItem('region') || 'ap-south-1';
+		const region = localStorage.getItem('region') || 'us-east-1';
 		const endpoint =
 			(region === 'ap-south-1' ? apiEndpoints[type] : apiEndpointsUS?.[type]) + url;
 

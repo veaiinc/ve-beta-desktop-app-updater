@@ -55,9 +55,8 @@ class ImageLibrary extends Images {
 		);
 	};
 	render() {
-	
 		let url;
-		const region = localStorage.getItem('region') || 'ap-south-1';
+		const region = localStorage.getItem('region') || 'us-east-1';
 		if (region === 'ap-south-1') {
 			url = 'https://ap.images.ve.ai';
 		} else {

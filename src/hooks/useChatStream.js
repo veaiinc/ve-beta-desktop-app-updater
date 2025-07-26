@@ -112,7 +112,7 @@ const useChatStream = () => {
 
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
-			const region = localStorage.getItem('region') || 'ap-south-1';
+			const region = localStorage.getItem('region') || 'us-east-1';
 			const config = await getConfig();
 			let baseUrl = `${
 				region === 'ap-south-1' ? config.chat_ws_api : config.chat_ws_api_US
