@@ -276,11 +276,16 @@ const NewUi = () => {
 
 	return (
 		<div className="new-ui-container" ref={containerRef}>
-			<div className="new-ui-wrapper">
+			<div
+				className="new-ui-wrapper"
+				style={{
+					height: info?.data?.length === 1 ? '60vh' : '80vh',
+				}}
+			>
 				{info?.data?.map((session, index) => (
 					<div
 						key={index}
-						className="new-ui-item"
+						className={`new-ui-item ${info?.data?.length === 1 ? 'single-card' : ''}`}
 						style={getCardStyles(index, info?.activeIndex, info?.dataLength)}
 					>
 						<div className="item-wrapper">
@@ -366,6 +371,11 @@ const NewUi = () => {
 						</div>
 					</div>
 				))}
+			</div>
+			<div className="active-card-title">
+				{info?.data?.[info?.activeIndex]?.title
+					? info?.data?.[info?.activeIndex]?.title
+					: ''}
 			</div>
 		</div>
 	);
