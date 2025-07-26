@@ -71,7 +71,7 @@ const SCROLL_STOP_DELAY = 40; // time between wheel events to detect gesture end
 let scrollTimeout = null;
 let scrollLocked = false;
 
-const NewUi = () => {
+const NewUi = ({ handleActiveChatIndex }) => {
 	const {
 		aiSetup: { aiChatSessions },
 		templates: { updateStateValues, handleGlobalChatMessages },
@@ -216,6 +216,10 @@ const NewUi = () => {
 		containerRef?.current?.addEventListener('wheel', handleWheel, { passive: false });
 		return () => containerRef?.current?.removeEventListener('wheel', handleWheel);
 	}, []);
+
+	useEffect(() => {
+		handleActiveChatIndex(info.activeIndex);
+	}, [info.activeIndex]);
 
 	const handleWheel = useCallback((e) => {
 		const delta = e.deltaY;
