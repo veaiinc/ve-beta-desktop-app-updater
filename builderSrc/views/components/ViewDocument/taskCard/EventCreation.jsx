@@ -234,11 +234,14 @@ const EventTaskManager = ({ event, updateEvent, workflowInfoDetails }) => {
 			updatedRoles[data.roleIndex] = {
 				...updatedRoles[data.roleIndex],
 				type: data.newType,
+				id: updatedRoles[data.roleIndex].id // Preserve the role ID
 			};
 			updatedEvent.roles = updatedRoles;
 		} else if (action === 'add_role') {
-			const newRole = data.newRole || {
+			const newRole = {
 				type: '',
+				id: `role_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+				...data.newRole
 			};
 			updatedEvent.roles = [...(event.roles || []), newRole];
 		} else if (action === 'update_roles') {
@@ -282,6 +285,7 @@ const EventTaskManager = ({ event, updateEvent, workflowInfoDetails }) => {
 			startDateTime: updatedEvent.startDateTime,
 			location: updatedEvent.location,
 			attendees: updatedEvent.attendees,
+			roles: updatedEvent.roles, // Add roles to the backend payload
 		};
 
 		updateEvent(backendPayload);
