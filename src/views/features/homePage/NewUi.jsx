@@ -74,7 +74,7 @@ let scrollLocked = false;
 const NewUi = ({ handleActiveChatIndex }) => {
 	const {
 		aiSetup: { aiChatSessions },
-		templates: { updateStateValues },
+		templates: { updateStateValues, handleGlobalChatMessages },
 		profileInfo: { userDetailsData },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -104,6 +104,17 @@ const NewUi = ({ handleActiveChatIndex }) => {
 			sessions = sessions?.map((session) => {
 				if (session?.type === 'chatbox') {
 					return session;
+				}
+
+				if (session?.agentType === 'knowledge_agent' && session?.assistantId) {
+					handleGlobalChatMessages({
+						sessionId: session?._id,
+						chatInfo: {
+							agentType: 'knowledge_agent',
+							assistantId: session?.assistantId,
+						},
+						updateExtraInfo: true,
+					});
 				}
 
 				const { recentConversations: data } = session;
@@ -240,9 +251,14 @@ const NewUi = ({ handleActiveChatIndex }) => {
 		}, SCROLL_STOP_DELAY);
 	}, []);
 
-	const handleCustomOnSendFunction = useCallback((sessionId, data) => {
+	const handleCustomOnSendFunction = useCallback((sessionId, data, agentType, assistantId) => {
 		updateStateValues({ activePayloadForChat: data });
-		navigate(`/chat/${sessionId}`);
+
+		if (agentType === 'knowledge_agent' && assistantId) {
+			navigate(`/chat/${sessionId}?agentType=${agentType}&assistantId=${assistantId}`);
+		} else {
+			navigate(`/chat/${sessionId}`);
+		}
 	}, []);
 
 	const handleChatQueryChange = useCallback((query) => {
@@ -264,11 +280,16 @@ const NewUi = ({ handleActiveChatIndex }) => {
 
 	return (
 		<div className="new-ui-container" ref={containerRef}>
-			<div className="new-ui-wrapper">
+			<div
+				className="new-ui-wrapper"
+				style={{
+					height: info?.data?.length === 1 ? '60vh' : '80vh',
+				}}
+			>
 				{info?.data?.map((session, index) => (
 					<div
 						key={index}
-						className="new-ui-item"
+						className={`new-ui-item ${info?.data?.length === 1 ? 'single-card' : ''}`}
 						style={getCardStyles(index, info?.activeIndex, info?.dataLength)}
 					>
 						<div className="item-wrapper">
@@ -332,9 +353,14 @@ const NewUi = ({ handleActiveChatIndex }) => {
 										/>
 										<div className="chatBoxContainer">
 											<ChatBox
-												sessionId={session?.id}
+												sessionId={session?._id}
 												onSend={(data) =>
-													handleCustomOnSendFunction(session?._id, data)
+													handleCustomOnSendFunction(
+														session?._id,
+														data,
+														session?.agentType,
+														session?.assistantId,
+													)
 												}
 												customChatActions={true}
 												autoFocus={false}
@@ -349,6 +375,11 @@ const NewUi = ({ handleActiveChatIndex }) => {
 						</div>
 					</div>
 				))}
+			</div>
+			<div className="active-card-title">
+				{info?.data?.[info?.activeIndex]?.title
+					? info?.data?.[info?.activeIndex]?.title
+					: ''}
 			</div>
 		</div>
 	);

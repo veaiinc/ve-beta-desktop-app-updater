@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import s from '../../../assets/scss/notes/transcriptionWidget.module.scss';
 import { ReactComponent as ExpandIcon } from '../../../assets/svg/docs/expand.svg';
 import { ReactComponent as TimerIcon } from '../../../assets/svg/notes/timerIcon.svg';
@@ -35,7 +35,18 @@ const getSpeakerColor = (speakerName) => {
 
 const TranscriptionWidget = ({ transcriptList = [] }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
+	const listContainerRef = useRef(null);
 	const [info, setInfo] = useState({ expand: false });
+
+	useEffect(() => {
+		if (!listContainerRef?.current) return;
+
+		listContainerRef.current.scrollTo({
+			top: listContainerRef.current.scrollHeight,
+			behavior: 'smooth',
+		});
+	}, [transcriptList?.length]);
+
 	const handleExpand = () => {
 		const newParams = new URLSearchParams(searchParams);
 		newParams.set('transcription', 'true');
@@ -69,8 +80,8 @@ const TranscriptionWidget = ({ transcriptList = [] }) => {
 							<ExpandIcon />
 						</div>
 					</div>
-					<div className={s.transcriptionListContainer}>
-						{transcriptList.map((item, index) => (
+					<div className={s.transcriptionListContainer} ref={listContainerRef}>
+						{transcriptList?.map((item, index) => (
 							<div key={index} className={s.transcriptionItem}>
 								<div
 									style={{ backgroundColor: getSpeakerColor(item.speakerName) }}
