@@ -431,8 +431,8 @@ class SummaryWarpper extends Component {
 							onClick={(e) => this.hanldeAddBlock(e)}
 						>
 							<div
-								onClick={(e) => this.hanldeAddBlock(e)}
-								className="addBlankContainer"
+							// onClick={(e) => this.hanldeAddBlock(e)}
+							// className="addBlankContainer"
 							>
 								<AddBlock />
 								{/* <label className="tooltip-text">Add Block</label> */}
@@ -446,7 +446,7 @@ class SummaryWarpper extends Component {
 										className={`addBlank ${
 											this.state.activeTab === 'fluid' ? 'active' : ''
 										}`}
-										onClick={(e) => this.props.handleAddLayout(null, true)}
+										// onClick={(e) => this.props.handleAddLayout(null, true)}
 										//onMouseEnter={(e) => this.setActiveTab('fluid')}
 									>
 										{/* <AddBlank /> */}

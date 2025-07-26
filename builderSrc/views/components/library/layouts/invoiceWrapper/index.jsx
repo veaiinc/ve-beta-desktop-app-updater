@@ -426,11 +426,11 @@ class InvoiceWrapper extends Component {
 							onClick={(e) => this.hanldeAddBlock(e)}
 						>
 							<div
-								onClick={(e) => this.hanldeAddBlock(e)}
-								className="addBlankContainer"
+							// onClick={(e) => this.hanldeAddBlock(e)}
+							// className="addBlankContainer"
 							>
 								<AddBlock />
-								<span className="tooltip-text">Add Card</span>
+								{/* <span className="tooltip-text">Add Card</span> */}
 							</div>
 							<div className="addBlockDividerContainer">
 								<div className="addBlockDivider"></div>
@@ -441,7 +441,7 @@ class InvoiceWrapper extends Component {
 										className={`addBlank ${
 											this.state.activeTab === 'fluid' ? 'active' : ''
 										}`}
-										onClick={(e) => this.props.handleAddLayout(null, true)}
+										// onClick={(e) => this.props.handleAddLayout(null, true)}
 										//onMouseEnter={(e) => this.setActiveTab('fluid')}
 									>
 										{/* <AddBlank /> */}

@@ -420,7 +420,7 @@ class SchedulerWrapper extends Component {
 							onClick={(e) => this.hanldeAddBlock(e)}
 						>
 							<div
-								onClick={(e) => this.hanldeAddBlock(e)}
+								// onClick={(e) => this.hanldeAddBlock(e)}
 								className="addBlankContainer"
 							>
 								<AddBlock />
@@ -435,7 +435,7 @@ class SchedulerWrapper extends Component {
 										className={`addBlank ${
 											this.state.activeTab === 'fluid' ? 'active' : ''
 										}`}
-										onClick={(e) => this.props.handleAddLayout(null, true)}
+										// onClick={(e) => this.props.handleAddLayout(null, true)}
 										//onMouseEnter={(e) => this.setActiveTab('fluid')}
 									>
 										{/* <AddBlank /> */}
