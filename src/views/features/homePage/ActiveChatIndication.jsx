@@ -4,7 +4,6 @@ import { Tooltip } from 'antd';
 import RecentChatsTooltip from './RecentChatsTooltip';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import moment from 'moment';
 
 const page = 1;
 const limit = 10;
@@ -18,12 +17,20 @@ const ActiveChatIndication = ({ activeChatIndex }) => {
 			refetchChatHistoryList,
 			updateStateValues,
 			currentSessionId,
-			currentChatData,
 			chatLoadingSessions,
 			updateChatLoadingSessions,
 		},
-		subscriptionInfo: { currentPlan },
 	} = useContext(Context);
+
+	const chats = aiChatSessions?.data;
+	const hasNextPage = aiChatSessions?.hasMore || false;
+	const currentPage = aiChatSessions?.currentPage || 1;
+	const totalChats = chats?.length;
+	const totalCards = totalChats + 1;
+	const maxIndicators = 10;
+	const totalIndicators = totalCards <= maxIndicators ? totalCards : maxIndicators;
+	const indicatorIndex = activeChatIndex % 10;
+	const tabArray = Array.from({ length: totalIndicators });
 
 	useEffect(() => {
 		if (!aiChatSessions || aiChatSessions?.getData) {
@@ -51,6 +58,13 @@ const ActiveChatIndication = ({ activeChatIndex }) => {
 		getAiChatSessions(page, limit, append);
 	}, []);
 
+	const fetchMoreChats = () => {
+		if (hasNextPage) {
+			const nextPage = currentPage + 1;
+			getAiChatSessions(nextPage, limit, !append);
+		}
+	};
+
 	const handleChatNavigation = useCallback(
 		(chat) => {
 			if (currentSessionId === chat?._id) return;
@@ -69,24 +83,6 @@ const ActiveChatIndication = ({ activeChatIndex }) => {
 		},
 		[currentSessionId, updateChatLoadingSessions],
 	);
-
-	const chats = aiChatSessions?.data;
-	const hasNextPage = aiChatSessions?.hasMore || false;
-	const currentPage = aiChatSessions?.currentPage || 1;
-
-	const fetchMoreChats = () => {
-		if (hasNextPage) {
-			const nextPage = currentPage + 1;
-			getAiChatSessions(nextPage, limit, !append);
-		}
-	};
-
-	const totalChats = chats?.length;
-	const totalCards = totalChats + 1;
-	const maxIndicators = 10;
-	const totalIndicators = totalCards <= maxIndicators ? totalCards : maxIndicators;
-	const indicatorIndex = activeChatIndex % 10;
-	const tabArray = Array.from({ length: totalIndicators });
 
 	return (
 		<Tooltip
