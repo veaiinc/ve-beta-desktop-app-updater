@@ -224,6 +224,7 @@ const ShareModal = ({
 				payload2 = {
 					canDownloadOptimized: true,
 					isEnabled: true,
+					accessPin: info?.galleryGuestAccess?.pin,
 				};
 			} else {
 				payload = {
@@ -234,6 +235,7 @@ const ShareModal = ({
 					canDownloadOptimized: false,
 					canDownloadOriginals: false,
 					isEnabled: false,
+					accessPin: info?.galleryGuestAccess?.pin,
 				};
 			}
 		} else if (name === 'guestCannotDownload') {

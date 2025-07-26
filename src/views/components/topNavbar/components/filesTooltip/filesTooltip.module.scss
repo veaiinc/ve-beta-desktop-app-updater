@@ -8,7 +8,7 @@
 	border: 1px solid var(--dividers, #1e1f20);
 	background: var(--popup, #202123);
 	position: absolute;
-	top: 28px;
+	top: 20px;
 
 	.fileContainer {
 		width: 49.3%;
@@ -21,19 +21,19 @@
 
 		&:hover {
 			border-radius: 8px;
-			background: rgba(121, 236, 201, 0.3);
+			background: var(--primary-opacity);
 			transition: background 0.3s ease;
 
 			svg {
-				stroke: var(--background-color);
+				stroke: var(--background-color) !important;
 
 				g {
 					path {
-						stroke: var(--background-color);
+						stroke: var(--background-color) !important;
 					}
 				}
 				path {
-					stroke: var(--primary-font);
+					stroke: var(--background-color) !important;
 				}
 			}
 
@@ -45,18 +45,18 @@
 
 		&:last-child {
 			&::after {
-				background: var(--primary-button, #79ecc9);
+				background: var(--primary-opacity);
 				border-radius: 4px;
-				color: var(--background-color, #0f0f0f);
-				content: 'upcoming';
+				color: var(--primary-button);
+				content: 'Upcoming';
 				font-family: var(--primary-font-family);
-				font-size: 10px;
-				font-weight: 600;
-				letter-spacing: 0.5px;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
 				padding: 2px 6px;
 				position: absolute;
 				right: 126px;
-				text-transform: uppercase;
 				top: 8px;
 			}
 		}

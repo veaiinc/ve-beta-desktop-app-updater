@@ -735,7 +735,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 					<div className="proactive-suggestions-title">
 						<span className="title-highlight">Ambient</span> Insights For You
 					</div>
-					{info?.activeBtn === 'insights' && info?.options?.length && (
+					{info?.activeBtn === 'insights' && info?.options?.length > 0 && (
 						<>
 							{(info?.cards?.length > 0 ||
 								info?.options?.length ||
