@@ -21,19 +21,19 @@
 
 		&:hover {
 			border-radius: 8px;
-			background: var(--primary-opacity);
+			background: rgba(121, 236, 201, 0.3);
 			transition: background 0.3s ease;
 
 			svg {
-				stroke: var(--background-color) !important;
+				stroke: var(--background-color);
 
 				g {
 					path {
-						stroke: var(--background-color) !important;
+						stroke: var(--background-color);
 					}
 				}
 				path {
-					stroke: var(--background-color) !important;
+					stroke: var(--primary-font);
 				}
 			}
 
@@ -45,18 +45,18 @@
 
 		&:last-child {
 			&::after {
-				background: var(--primary-opacity);
+				background: var(--primary-button, #79ecc9);
 				border-radius: 4px;
-				color: var(--primary-button);
-				content: 'Upcoming';
+				color: var(--background-color, #0f0f0f);
+				content: 'upcoming';
 				font-family: var(--primary-font-family);
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
+				font-size: 10px;
+				font-weight: 600;
+				letter-spacing: 0.5px;
 				padding: 2px 6px;
 				position: absolute;
 				right: 126px;
+				text-transform: uppercase;
 				top: 8px;
 			}
 		}
