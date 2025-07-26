@@ -21,18 +21,12 @@
 
 		&:hover {
 			border-radius: 8px;
-			background: var(--primary-opacity);
+			background: rgba(121, 236, 201, 0.3);
 			transition: background 0.3s ease;
 
 			.toolIcon {
 				border: 1px solid var(--primary-button);
 				background: var(--primary-button);
-
-				svg {
-					path {
-						stroke: var(--background-color);
-					}
-				}
 			}
 		}
 
