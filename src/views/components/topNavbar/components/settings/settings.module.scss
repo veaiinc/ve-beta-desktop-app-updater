@@ -6,10 +6,10 @@
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
+	left: -298px;
 	padding: 12px;
 	position: absolute;
-	right: -12px;
-	top: 34px;
+	top: 26px;
 	width: 320px;
 
 	.userInfo {
@@ -145,6 +145,13 @@
 		background: var(--primary-font, #f2f2f3);
 		border: none;
 		cursor: pointer;
+
+		svg {
+			stroke: var(--background-color);
+			path {
+				fill: var(--background-color);
+			}
+		}
 
 		span {
 			color: var(--background-color, #121212);
