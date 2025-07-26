@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './TaskCard.scss';
 import { ReactComponent as ArrowDown } from '../../../../assets/svg/dropDown.svg';
-
+import { ReactComponent as Plus } from '../../../../assets/svg/plus.svg';
 const TeamMembers = ({
 	teamMembers = [],
 	selectedMembers = [],
@@ -153,7 +153,7 @@ const TeamMembers = ({
 													isSelected ? 'selected' : ''
 												}`}
 											>
-												{isSelected ? 'Added' : 'Add'}
+												{isSelected ? 'Added' : <Plus />}
 											</button>
 										</div>
 									);

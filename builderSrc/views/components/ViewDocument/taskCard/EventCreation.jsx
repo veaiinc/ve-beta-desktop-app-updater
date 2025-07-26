@@ -4,18 +4,10 @@ import Context from '../../../../../src/context/context';
 import { ReactComponent as Delete } from '../../../../assets/svg/delete.svg';
 import { ReactComponent as Plus } from '../../../../assets/svg/plus.svg';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
-import DateView from '../../../../../src/views/components/tasks/listView/DateView';
 import DateSelection from './DateSelection';
 
 // Separate component for each role's attendees section
-const RoleAttendees = ({
-	role,
-	roleIndex,
-	attendees,
-	onAddAttendee,
-	onRemoveAttendee,
-	tenantsUserList,
-}) => {
+const RoleAttendees = ({ role, attendees, onAddAttendee, onRemoveAttendee, tenantsUserList }) => {
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const [searchValue, setSearchValue] = useState('');
 	const [filteredUsers, setFilteredUsers] = useState([]);
@@ -70,7 +62,6 @@ const RoleAttendees = ({
 		setSearchValue('');
 		setFilteredUsers([]);
 	};
-
 	return (
 		<div className="eventAttendeeInput">
 			<div className="eventAddAttendeeContainer">
@@ -122,7 +113,7 @@ const RoleAttendees = ({
 												className="dropdownItem"
 												onClick={() => handleSelect(user)}
 											>
-												{user.firstName} {user.lastName}
+												{user.firstName} {user.lastName || ''}
 											</div>
 										),
 									)}
@@ -186,10 +177,6 @@ const EventTaskManager = ({ event, updateEvent, workflowInfoDetails }) => {
 
 	const handleFieldChange = (field, value) => {
 		handleEventUpdate('field_change', { field, value });
-	};
-
-	const handleDateChange = (date) => {
-		handleEventUpdate('date_change', { date });
 	};
 
 	const handleRoleChange = (roleIndex, newType) => {
@@ -295,7 +282,6 @@ const EventTaskManager = ({ event, updateEvent, workflowInfoDetails }) => {
 			startDateTime: updatedEvent.startDateTime,
 			location: updatedEvent.location,
 			attendees: updatedEvent.attendees,
-			roles: updatedEvent.roles, // Add roles to the backend payload
 		};
 
 		updateEvent(backendPayload);
