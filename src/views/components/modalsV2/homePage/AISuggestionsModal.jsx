@@ -54,6 +54,7 @@ const AISuggestionsModal = ({
 			getAISuggestedPendingActions,
 			handleGlobalChatMessages,
 		},
+		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		isAIResultsExpanded: true,
@@ -81,7 +82,21 @@ const AISuggestionsModal = ({
 		const token = localStorage.getItem('usertoken');
 		const { user_id } = jwtDecode(token);
 		setInfo((prev) => ({ ...prev, currentUserId: user_id }));
+
+		if (!tenantsUserList) {
+			getTeamMembers();
+		}
 	}, []);
+	useEffect(() => {
+		if (info?.currentUserId && tenantsUserList) {
+			const currentUserIndex = tenantsUserList?.findIndex(
+				(user) => user?._id === info?.currentUserId,
+			);
+			if (currentUserIndex !== -1 && tenantsUserList?.[currentUserIndex]?.role === 'admin') {
+				setInfo((prev) => ({ ...prev, isAdmin: true }));
+			}
+		}
+	}, [info?.currentUserId, tenantsUserList]);
 
 	useEffect(() => {
 		if (!data) return;
@@ -280,7 +295,7 @@ const AISuggestionsModal = ({
 	};
 
 	const handleDeleteCard = useCallback(async () => {
-		if (info?.accessType === 'view') {
+		if (info?.accessType === 'view' && !info?.isAdmin) {
 			message.error('You do not have access to delete this insight');
 			return;
 		}
@@ -302,10 +317,11 @@ const AISuggestionsModal = ({
 		pendingActionsUpdate,
 		info.isDeleting,
 		info?.accessType,
+		info?.isAdmin,
 	]);
 
 	const handleOpenFeedbackPopup = () => {
-		if (info?.accessType == 'view') {
+		if (info?.accessType == 'view' && !info?.isAdmin) {
 			message.error('You do not have access to give feedback');
 			return;
 		}
@@ -397,7 +413,7 @@ const AISuggestionsModal = ({
 										Teach me
 									</div>
 								)}
-								{info?.accessType !== 'view' && (
+								{(info?.accessType !== 'view' || info?.isAdmin) && (
 									<ProactiveAIShare
 										proactiveAiId={data?._id}
 										proactiveAiData={data}
