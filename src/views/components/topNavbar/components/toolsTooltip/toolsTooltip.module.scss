@@ -1,0 +1,78 @@
+.toolsTooltipContainer {
+	display: flex;
+	flex-wrap: wrap;
+	width: 640px;
+	padding: 8px;
+	gap: 8px;
+	border-radius: 16px;
+	border: 1px solid var(--dividers, #1e1f20);
+	background: var(--popup, #202123);
+	position: absolute;
+	top: 20px;
+
+	.toolContainer {
+		width: 49.3%;
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 8px 12px;
+		cursor: pointer;
+		position: relative;
+
+		&:hover {
+			border-radius: 8px;
+			background: var(--primary-opacity);
+			transition: background 0.3s ease;
+
+			.toolIcon {
+				border: 1px solid var(--primary-button);
+				background: var(--primary-button);
+
+				svg {
+					path {
+						stroke: var(--background-color);
+					}
+				}
+			}
+		}
+
+		.toolIcon {
+			display: flex;
+			width: 45px;
+			height: 45px;
+			padding: 13px 12px 12px 13px;
+			justify-content: center;
+			align-items: center;
+			border-radius: 8px;
+			border: 1px solid var(--stroke, #2c2d2e);
+
+			svg {
+				path {
+					stroke: var(--primary-font);
+				}
+			}
+		}
+
+		.toolInfo {
+			.toolLabel {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				margin: 0;
+			}
+
+			.toolDescription {
+				color: var(--secondary-font, #94989e);
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				margin: 0;
+			}
+		}
+	}
+}

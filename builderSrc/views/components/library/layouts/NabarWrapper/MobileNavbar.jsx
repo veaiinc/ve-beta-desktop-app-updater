@@ -38,9 +38,9 @@ class MobileNavbarComponent extends Component {
 	builderRenderNavbar = () => {
 		let properties = this.props.navBar?.blocks[0]?.subBlocks[0] || {};
 		const newMImageSettings = {
-			crop: properties?.mImage_settings?.crop || { x: 1, y: 1 },
-			zoom: properties?.mImage_settings?.zoom || 1,
-			aspect: properties?.mImage_settings?.aspect || 1.5,
+			crop: properties?.image_settings?.crop || { x: 1, y: 1 },
+			zoom: properties?.image_settings?.zoom || 1,
+			aspect: properties?.image_settings?.aspect || 1.5,
 		};
 		return (
 			<>
@@ -90,14 +90,14 @@ class MobileNavbarComponent extends Component {
 										height: '40px',
 										width: '80px',
 									}}
-									onMouseEnter={() => {
-										this.setState({ mobileHoverLogoEdit: true });
-									}}
-									onMouseLeave={() => {
-										this.setState({ mobileHoverLogoEdit: false });
-									}}
+									// onMouseEnter={() => {
+									// 	this.setState({ mobileHoverLogoEdit: true });
+									// }}
+									// onMouseLeave={() => {
+									// 	this.setState({ mobileHoverLogoEdit: false });
+									// }}
 								>
-									{properties?.mImageURL ? (
+									{properties?.imageURL ? (
 										// {this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.mImageURL ? (
 										// <img
 										// 	src={
@@ -114,8 +114,8 @@ class MobileNavbarComponent extends Component {
 										<ImageItem
 											preview={this.props?.preview}
 											previewType={this.props?.previewType}
-											imageUrl={properties?.mImageURL}
-											imageSettings={newMImageSettings}
+											imageUrl={properties?.imageURL}
+											imageSettings={properties?.image_settings}
 											settingData={(e) => this.props.imgSettingData(e)}
 											setActiveImage={(e) =>
 												this.props.setActiveImage(
@@ -167,7 +167,7 @@ class MobileNavbarComponent extends Component {
 											{this.props?.navBar?.style?.siteTitle || 'Logo'}
 										</div>
 									)}
-									{this.state.mobileHoverLogoEdit && (
+									{/* {this.state.mobileHoverLogoEdit && (
 										<div
 											className="mobile-logo-edit-icon"
 											onClick={() => {
@@ -183,7 +183,7 @@ class MobileNavbarComponent extends Component {
 										>
 											<EditNavbar />
 										</div>
-									)}
+									)} */}
 								</div>
 							)}
 						</div>
@@ -248,15 +248,15 @@ class MobileNavbarComponent extends Component {
 										// 			? '100px'
 										// 			: ''
 										// 		: '',
-										width: '140px',
-										display: 'contents',
+										width: '100px',
+										// display: 'contents',
 									}}
-									onMouseEnter={() => {
-										this.setState({ mobileHoverCartEdit: true });
-									}}
-									onMouseLeave={() => {
-										this.setState({ mobileHoverCartEdit: false });
-									}}
+									// onMouseEnter={() => {
+									// 	this.setState({ mobileHoverCartEdit: true });
+									// }}
+									// onMouseLeave={() => {
+									// 	this.setState({ mobileHoverCartEdit: false });
+									// }}
 								>
 									{(this.props?.navBar?.style?.downloadIcon ||
 										!_.has(this.props?.navBar?.style, 'downloadIcon')) && (
@@ -302,7 +302,7 @@ class MobileNavbarComponent extends Component {
 											{this.props?.finalTotalCost || '0'}
 										</span>
 									)}
-									{this.state.mobileHoverCartEdit && (
+									{/* {this.state.mobileHoverCartEdit && (
 										<div
 											className="mobile-cart-edit-icon"
 											onClick={() =>
@@ -318,7 +318,7 @@ class MobileNavbarComponent extends Component {
 										>
 											<EditNavbar />
 										</div>
-									)}
+									)} */}
 								</div>
 							</div>
 						</div>
@@ -342,23 +342,23 @@ class MobileNavbarComponent extends Component {
 											: '1px solid transparent',
 										padding: '5px',
 									}}
-									onMouseEnter={() => {
-										this.setState({ mobileHoverHamburgerEdit: true });
-									}}
-									onMouseLeave={() => {
-										this.setState({ mobileHoverHamburgerEdit: false });
-									}}
+									// onMouseEnter={() => {
+									// 	this.setState({ mobileHoverHamburgerEdit: true });
+									// }}
+									// onMouseLeave={() => {
+									// 	this.setState({ mobileHoverHamburgerEdit: false });
+									// }}
 									className="navbar-inner-mobile-right"
 								>
 									<div>
 										<HamburgerIcons
-											iconType={this.props?.navBar?.style?.hamburgerIcon || 4}
+											iconType={this.props?.navBar?.style?.hamburgerIcon ?? 4}
 											fillColor={
 												this.props?.navBar?.navigationColor || '#000000'
 											}
 											style={{ cursor: 'pointer' }}
 										/>
-										{this.state.mobileHoverHamburgerEdit && (
+										{/* {this.state.mobileHoverHamburgerEdit && (
 											<div
 												className="mobile-hamburger-edit-icon"
 												onClick={(e) => {
@@ -375,7 +375,7 @@ class MobileNavbarComponent extends Component {
 											>
 												<EditNavbar />
 											</div>
-										)}
+										)} */}
 									</div>
 								</div>
 							)}
@@ -504,17 +504,16 @@ class MobileNavbarComponent extends Component {
 									width: '80px',
 								}}
 							>
-								{this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.mImageURL ||
-								this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.imageURL ? (
+								{this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]?.imageURL ? (
 									<ImageItem
 										preview={this.props?.preview}
 										previewType={this.props?.previewType}
 										imageUrl={
-											properties?.mImageURL ||
+											properties?.imageURL ||
 											this.props?.navBar?.blocks?.[0]?.subBlocks?.[0]
 												?.imageURL
 										}
-										imageSettings={newMImageSettings}
+										imageSettings={properties?.image_settings}
 										settingData={(e) => this.props.imgSettingData(e)}
 										setActiveImage={(e) =>
 											this.props.setActiveImage(

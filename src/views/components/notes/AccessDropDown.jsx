@@ -124,4 +124,6 @@ const AccessDropdown = memo(
 	},
 );
 
+AccessDropdown.displayName = 'AccessDropdown';
+
 export default AccessDropdown;

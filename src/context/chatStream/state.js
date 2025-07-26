@@ -1,4 +1,5 @@
 import { useReducer, useRef, useCallback } from 'react';
+import { getConfig } from '../../services/index';
 
 export const initialChatStreamState = {};
 
@@ -106,7 +107,7 @@ export const ChatStreamState = () => {
 		[resetInactivityTimeout],
 	);
 	const createWebSocketConnection = useCallback(
-		(sessionId, onMessageFunc, agentType, isPublicChat = false) => {
+		async (sessionId, onMessageFunc, agentType, isPublicChat = false) => {
 			if (!sessionId && !isPublicChat) {
 				return;
 			}
@@ -126,16 +127,16 @@ export const ChatStreamState = () => {
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
 			const region = localStorage.getItem('region') || 'ap-south-1';
+			const config = await getConfig();
+			const { chat_api, chat_api_US, guest_chat_api, guest_chat_api_US } = config;
 
 			let baseUrl = `${
-				region === 'ap-south-1' ? 'wss://ai.ap-south-1.ve.ai' : 'wss://ai.us-east-1.ve.ai'
+				region === 'ap-south-1' ? chat_api : chat_api_US
 			}/${workspaceId}/${sessionId}/${agent}?token=${usertoken}`;
 
 			if (isPublicChat) {
 				baseUrl = `${
-					region === 'ap-south-1'
-						? 'wss://guestsearch.ap-south-1.ve.ai'
-						: 'wss://guestsearch.us-east-1.ve.ai'
+					region === 'ap-south-1' ? guest_chat_api : guest_chat_api_US
 				}/${sessionId}/guest_chat`;
 			}
 

@@ -18,7 +18,7 @@
 		overflow-y: auto;
 
 		.InputBlockHeading {
-			color: #f2f2f3;
+			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
@@ -35,7 +35,7 @@
 			width: 100%;
 
 			.inputLabel {
-				color: #7a7e85;
+				color: var(--secondary-font);
 				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
@@ -57,8 +57,8 @@
 				align-items: center;
 				align-self: stretch;
 				border-radius: 12px;
-				border: 1px solid #2c2d2e;
-				color: #f2f2f3;
+				border: 1px solid var(--stroke);
+				color: var(--primary-font);
 				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
@@ -67,7 +67,7 @@
 				background-color: transparent;
 
 				&::placeholder {
-					color: #7a7e85;
+					color: var(--secondary-font);
 				}
 			}
 
@@ -116,5 +116,143 @@
 			padding: 16px;
 		}
 
+		// Filter Database specific styles
+		.filterRow {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+			margin-bottom: 16px;
+			padding: 16px;
+			border: 1px solid var(--stroke);
+			border-radius: 12px;
+			background-color: var(--card);
+
+			.filterField,
+			.filterOperator,
+			.filterValue {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+
+				.inputLabel {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+
+			.removeFilterButton {
+				align-self: flex-end;
+				padding: 8px 16px;
+				border-radius: 8px;
+				border: 1px solid var(--stroke);
+				background-color: transparent;
+				color: var(--error-color);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				cursor: pointer;
+				transition: all 0.2s ease;
+
+				&:hover {
+					background-color: var(--error-color);
+					color: white;
+				}
+			}
+		}
+
+		.addFilterButton {
+			width: 100%;
+			padding: 12px;
+			border-radius: 12px;
+			border: 2px dashed var(--stroke);
+			background-color: transparent;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+			transition: all 0.2s ease;
+
+			&:hover {
+				border-color: var(--primary-color);
+				color: var(--primary-color);
+			}
+		}
+
+		.noVariablesMessage {
+			padding: 12px;
+			border-radius: 8px;
+			background-color: var(--warning-bg);
+			color: var(--warning-color);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			text-align: center;
+			border: 1px solid var(--warning-border);
+		}
+
+		.moveToCheckboxContainer {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			margin-top: 8px;
+
+			label {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				cursor: pointer;
+
+				input[type='checkbox'] {
+					margin: 0;
+					cursor: pointer;
+				}
+			}
+		}
+	}
+
+	.triggerSaveButtonContainer {
+		display: flex;
+		padding: 12px 24px;
+		justify-content: center;
+		align-items: center;
+		align-self: stretch;
+
+		.actionsSaveButton {
+			padding: 12px 24px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 12px;
+			background-color: var(--primary-color);
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			border: none;
+			transition: background-color 0.2s ease;
+
+			&:hover {
+				background-color: var(--card-over-card-hover);
+			}
+		}
 	}
 }

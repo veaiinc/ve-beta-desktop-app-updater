@@ -315,15 +315,11 @@ const CreateDatabaseRow = ({
 				<div className="triggerSaveButtonContainer">
 					<div
 						className="actionsSaveButton"
-						style={{
-							cursor: addTriggerLoading ? 'not-allowed' : 'pointer',
-							padding: '12px 24px',
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-						}}
 						onClick={addTriggerLoading ? null : handleSave}
 						disabled={addTriggerLoading}
+						style={{
+							cursor: addTriggerLoading ? 'not-allowed' : 'pointer',
+						}}
 					>
 						{addTriggerLoading ? 'Saving...' : 'Save'}
 					</div>

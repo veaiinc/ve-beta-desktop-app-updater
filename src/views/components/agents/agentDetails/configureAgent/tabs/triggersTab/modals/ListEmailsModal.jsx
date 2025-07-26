@@ -1,5 +1,6 @@
 import { memo, useContext } from 'react';
 import s from './listEmailsModal.module.scss';
+import GmailIcon from '../../../../../../../../assets/svg/login_page/GmailIcon';
 
 // components
 import ReactModal from '../../../../../../../components/modalsV2/';
@@ -24,7 +25,11 @@ const ListEmailsModal = ({
 }) => {
 	const {
 		profileInfo: { userDetailsData },
+		templates: { connectedThirdParties, connectThirdParty },
 	} = useContext(Context);
+
+	const integratedEmail =
+		connectedThirdParties?.data?.find((appInfo) => appInfo.app === 'gmail')?.email || null;
 
 	const userEmail = userDetailsData?.email;
 	const googleProfilePic = userDetailsData?.googleMeta?.picture;
@@ -58,7 +63,7 @@ const ListEmailsModal = ({
 	const getModalTitle = () => {
 		switch (selectedAppType) {
 			case 'gmail':
-				return 'Select a Gmail account or enter an email';
+				return 'Select an Integrated Gmail account or Connect Gmail';
 			case 'outlook':
 				return 'Select an Outlook account or enter an email';
 			default:
@@ -86,26 +91,37 @@ const ListEmailsModal = ({
 				</header>
 				<div className={s.divider}></div>
 				<ul>
-					<li onClick={handleClick} className={s.emailItem}>
-						<div className={s.content}>
-							{profilePic && <img src={profilePic} alt="profile" />}
-							<span>
-								{userEmail?.split('@')[0] ?? ''}
+					{integratedEmail ? (
+						<li onClick={handleClick} className={s.emailItem}>
+							<div className={s.content}>
+								{profilePic && <img src={profilePic} alt="profile" />}
+								<span>
+									{/* {userEmail?.split('@')[0] ?? ''}
 								<span style={{ color: 'var(--secondary-font)' }}>
 									@{userEmail?.split('@')[1] ?? ''}
+								</span> */}
+									{integratedEmail}
 								</span>
-							</span>
-						</div>
-						<UpArrowIcon />
-					</li>
-					<li>
+							</div>
+							<UpArrowIcon />
+						</li>
+					) : (
+						<button
+							className={s.connectButton}
+							onClick={() => connectThirdParty('gmail')}
+						>
+							<GmailIcon />
+							Connect Gmail
+						</button>
+					)}
+					{/* <li>
 						<input
 							type="email"
 							onKeyDown={handleKeyDown}
 							placeholder="Enter your email and hit enter ↵"
 							autoFocus
 						/>
-					</li>
+					</li> */}
 				</ul>
 			</div>
 		</ReactModal>

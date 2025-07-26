@@ -20,6 +20,8 @@ export const WorkspaceAssetsState = () => {
 			const token = localStorage.getItem('usertoken');
 			const params = { page, limit };
 			const type = 'workspace_images_api';
+			const region = localStorage.getItem('region');
+			const regionUrl = region === 'us-east-1' ? 'us' : 'ap';
 
 			const response = await Service.fetchGet(path, token, type, params);
 
@@ -28,15 +30,15 @@ export const WorkspaceAssetsState = () => {
 					id: img._id,
 					givenFileName: img.givenFileName,
 					imageUrl: img?.s3_optimized_3840w?.key
-						? `https://ap.images.ve.ai/${img.s3_optimized_3840w.key}`
+						? `https://${regionUrl}.images.ve.ai/${img.s3_optimized_3840w.key}`
 						: img?.s3_optimized_2560w?.key
-						? `https://ap.images.ve.ai/${img.s3_optimized_2560w.key}`
+						? `https://${regionUrl}.images.ve.ai/${img.s3_optimized_2560w.key}`
 						: img?.s3_optimized_1920w?.key
-						? `https://ap.images.ve.ai/${img.s3_optimized_1920w.key}`
+						? `https://${regionUrl}.images.ve.ai/${img.s3_optimized_1920w.key}`
 						: img?.s3_optimized_1000w?.key
-						? `https://ap.images.ve.ai/${img.s3_optimized_1000w.key}`
+						? `https://${regionUrl}.images.ve.ai/${img.s3_optimized_1000w.key}`
 						: img?.s3_optimized_500w?.key
-						? `https://ap.images.ve.ai/${img.s3_optimized_500w.key}`
+						? `https://${regionUrl}.images.ve.ai/${img.s3_optimized_500w.key}`
 						: '',
 				}));
 

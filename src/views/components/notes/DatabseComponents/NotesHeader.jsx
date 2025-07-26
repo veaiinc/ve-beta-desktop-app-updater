@@ -80,7 +80,9 @@ const NotesHeader = ({
 					onDuplicate={handleDuplicatePage}
 				/>
 
-				{myAccess === 'full' && <ShareComponent pageId={noteId} makeApiCall={false} />}
+				{myAccess === 'full' && (
+					<ShareComponent pageId={noteId} makeApiCall={false} isDatabase={true} />
+				)}
 			</div>
 		</div>
 	) : (

@@ -39,7 +39,7 @@
 			background: transparent;
 			border: none;
 			outline: none;
-			color: #f2f2f3;
+			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
@@ -49,7 +49,7 @@
 			cursor: pointer;
 
 			&::placeholder {
-				color: #7a7e85;
+				color: var(--secondary-font);
 			}
 		}
 
@@ -69,7 +69,8 @@
 			line-height: normal;
 
 			&.errorMessage {
-				background-color: #7a2929;
+				background-color: var(--error);
+				color: var(--primary-font);
 			}
 		}
 	}

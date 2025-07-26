@@ -1,11 +1,14 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import ReactModal from '../../../modalsV2';
 import s from './switchWorkspaceModal.module.scss';
 import { useNavigate } from 'react-router-dom';
-import Context from '../../../../../context/context';
 import Cookies from 'js-cookie';
 import { fetchDomainName } from '../../../../../helpers';
-import { message } from '../../../../components/globalComponents/CustomToast';
+
+const customStyles = {
+	overlay: { zIndex: 1001 },
+	content: { borderRadius: '40px', zIndex: 1002 },
+};
 
 const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }) => {
 	const currentWorkspaceId = localStorage.getItem('workspaceId');
@@ -24,12 +27,6 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 	}, [userWorkSpaceList, currentWorkspaceId, info?.searchWorkspace]);
 	const showWorkspaceSearch = userWorkSpaceList?.length > 3;
 	const emptyWorkspaceList = workspaceList?.length === 0;
-
-	useEffect(() => {
-		if (!userWorkSpaceList) {
-			getUserWorkSpaceList();
-		}
-	}, [userWorkSpaceList]);
 
 	const handleSwitchWorkspace = (activeWorkspaceId, region) => {
 		localStorage.setItem('workspaceId', activeWorkspaceId);
@@ -51,10 +48,7 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 			isOpen={isOpen}
 			closeModal={closeWorkspaceModal}
 			modalType={'center'}
-			customStyles={{
-				overlay: { zIndex: 1001 },
-				content: { borderRadius: '40px', zIndex: 1002 },
-			}}
+			customStyles={customStyles}
 		>
 			<div className={s.switchWorkspaceModal}>
 				<header className={s.header}>

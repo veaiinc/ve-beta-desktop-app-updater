@@ -1,5 +1,7 @@
 .topNavbarSettings,
 .topNavbarNotifications {
+	height: 0;
+	position: relative;
 	max-width: unset;
 }
 
@@ -8,7 +10,7 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	padding: 14px 32px;
+	padding: 8px 32px;
 	border-bottom: 1px solid var(--dividers, #1e1f20);
 	background: var(--navbar, #141415);
 	z-index: 1;

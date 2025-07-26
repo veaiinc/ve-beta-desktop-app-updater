@@ -729,6 +729,7 @@ class Sidebar extends Images {
 		this.colorUpdateTimeout = null;
 		this.blockRef = React.createRef();
 	}
+
 	componentDidMount = () => {
 		const savedCustomUnits = localStorage.getItem('customUnits');
 		if (savedCustomUnits) {
@@ -5202,13 +5203,14 @@ class Sidebar extends Images {
 											value={
 												_.filter(this.state?.activeSection?.blocks, {
 													_id: this.state?.activeServiceSubBlock,
-												})[0]?.subBlocks[0]['unit']
+												})[0]?.subBlocks[0]['unit'] && ''
 											}
 											onChange={(e) => {
 												if (e.target.value === 'custom') {
 													this.setState({
 														showCustomUnitInput: true,
 													});
+													// console.log('hello');
 												} else {
 													this.setServiceItemValue(
 														e.target.value,

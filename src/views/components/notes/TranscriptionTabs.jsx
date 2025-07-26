@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { ReactComponent as VeAiLogo } from '../../../assets/svg/ve.svg';
 
 const TranscriptionTabs = ({
 	activeTab,
@@ -160,7 +161,7 @@ const TranscriptionTabs = ({
 						}}
 						onClick={() => setActiveTab('aiQuestions')}
 					>
-						Need help?
+						Ask <VeAiLogo /> AI?
 					</button>
 				)}
 
