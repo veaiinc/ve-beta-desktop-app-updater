@@ -81,17 +81,11 @@ const ActiveChatIndication = ({ activeChatIndex }) => {
 		}
 	};
 
-	const totlaChats = chats?.length;
-
-	const totalCards = totlaChats + 1;
+	const totalChats = chats?.length;
+	const totalCards = totalChats + 1;
 	const maxIndicators = 10;
 	const totalIndicators = totalCards <= maxIndicators ? totalCards : maxIndicators;
-
-	const indicatorIndex =
-		totalCards <= maxIndicators
-			? activeChatIndex
-			: Math.round((activeChatIndex * (maxIndicators - 1)) / (totalCards - 1));
-
+	const indicatorIndex = activeChatIndex % 10;
 	const tabArray = Array.from({ length: totalIndicators });
 
 	return (
@@ -102,6 +96,7 @@ const ActiveChatIndication = ({ activeChatIndex }) => {
 					fetchMoreChats={fetchMoreChats}
 					hasNextPage={hasNextPage}
 					handleChatNavigation={handleChatNavigation}
+					loading={chatLoadingSessions}
 				/>
 			}
 			placement="right"
