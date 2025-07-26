@@ -86,6 +86,7 @@ export const intialState = {
 	transcriptHistory: [],
 	existingBots: null,
 	meetSummary: null,
+	transcriptionList: [],
 };
 
 export const NotesState = (props) => {
