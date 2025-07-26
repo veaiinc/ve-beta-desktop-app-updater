@@ -99,10 +99,11 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const noteId = useParams()?.noteId;
 	const sessionId = noteId;
 	const type = searchParams.get('type');
-	const history = Boolean(searchParams.get('history'));
-	const chat = Boolean(searchParams.get('chat'));
-	const transcription = Boolean(searchParams.get('transcription'));
-	const isAiIntelligenceEnabled = Boolean(searchParams.get('isAiIntelligenceEnabled'));
+	const history = searchParams.get('history') === 'true' ? true : false;
+	const chat = searchParams.get('chat') === 'true' ? true : false;
+	const transcription = searchParams.get('transcription') === 'true' ? true : false;
+	const isAiIntelligenceEnabled =
+		searchParams.get('isAiIntelligenceEnabled') === 'true' ? true : false;
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
 	const originalFaviconRef = useRef(null);
