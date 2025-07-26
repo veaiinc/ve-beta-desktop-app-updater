@@ -37,10 +37,14 @@ const tools = [
 ];
 
 const ToolsTooltip = () => {
+	const region = localStorage.getItem('region');
 	const navigate = useNavigate();
 
 	return (
-		<div className={s.toolsTooltipContainer}>
+		<div
+			className={s.toolsTooltipContainer}
+			style={region === 'ap-south-1' ? { left: '-76px' } : { left: '-290px' }}
+		>
 			{tools.map((tool) => (
 				<div
 					key={tool.id}
