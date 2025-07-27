@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState, useRef, useCallback } from 'react';
 import '../../../../assets/scss/ai_assistant/modal/addToolV2.scss';
+import '../../../../assets/scss/ai_assistant/modal/apiKeyModal.scss';
 import ReactModal from '../index';
 import Context from '../../../../context/context';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/docs/cross.svg';
@@ -9,6 +10,7 @@ import InfiniteScroll from '../../globalComponents/InfiniteScroll';
 import { ReactComponent as SearchIcon } from '../../../../assets/svg/ai_assistant/search.svg';
 import { ReactComponent as AddIcon } from '../../../../assets/svg/ai_assistant/add.svg';
 import { message } from '../../globalComponents/CustomToast';
+import ListConnectModal from '../../agents/agentDetails/configureAgent/tabs/triggersTab/modals/ListConnectModal';
 
 // AddToolV2Modal component for adding tools to a knowledge agent
 const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
@@ -41,6 +43,9 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		connectedAccounts: [],
 		accountsLoading: false,
 		checkingAccounts: false,
+		showApiKeyModal: false,
+		selectedActionForApiKey: null,
+		apiKeyModalLoading: false,
 	});
 
 	const searchTimeoutRef = useRef(null);
@@ -102,6 +107,9 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				isConnecting: false,
 				connectedAccounts: [],
 				checkingAccounts: true,
+				showApiKeyModal: false,
+				selectedActionForApiKey: null,
+				apiKeyModalLoading: false,
 			}));
 			fetchConnectedAccounts();
 		}
@@ -205,13 +213,13 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				// Account is already connected, proceed with adding the tool
 				await handleCreateAction(action, existingAccount.id);
 			} else if (action.auth_type === 'api_key') {
-				message.error('API key authentication is not supported for this tool');
 				setInfo((prev) => ({
 					...prev,
+					showApiKeyModal: true,
+					selectedActionForApiKey: action,
 					addLoading: { ...prev.addLoading, [action.slug]: false },
 					isConnecting: false,
 				}));
-				// Optionally: openAccountCreationModal(action);
 			} else if (action.auth_type === 'oauth') {
 				const [connectSuccess, response] = await connectTool({
 					slug: action.toolkit.slug,
@@ -247,15 +255,17 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 	};
 
 	// Create and add action to knowledge agent
-	const handleCreateAction = async (action, accountId) => {
+	const handleCreateAction = async (action, accountId, skipLoadingState = false) => {
 		try {
-			setInfo((prev) => ({
-				...prev,
-				addLoading: { ...prev.addLoading, [action.slug]: true },
-				addError: { ...prev.addError, [action.slug]: undefined },
-				isConnecting: true,
-				error: null,
-			}));
+			if (!skipLoadingState) {
+				setInfo((prev) => ({
+					...prev,
+					addLoading: { ...prev.addLoading, [action.slug]: true },
+					addError: { ...prev.addError, [action.slug]: undefined },
+					isConnecting: true,
+					error: null,
+				}));
+			}
 
 			const name = action.name || action.slug || 'Unnamed Action';
 			const description = action.description || '';
@@ -279,7 +289,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				key: action.toolkit.slug,
 				platform: 'composio',
 				logoUrl: action.toolkit.logo || '',
-				accountId, 
+				accountId,
 			};
 
 			const [success, response] = await addActionToKnowledgeAgent(agentId, payload);
@@ -292,175 +302,253 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 			}
 		} catch (error) {
 			console.error('handleCreateAction error:', error);
-			setInfo((prev) => ({
-				...prev,
-				error: error.message || 'An unexpected error occurred',
-				isConnecting: false,
-				addLoading: { ...prev.addLoading, [action.slug]: false },
-				addError: {
-					...prev.addError,
-					[action.slug]: error.message || 'Failed to add tool',
-				},
-			}));
+			if (!skipLoadingState) {
+				setInfo((prev) => ({
+					...prev,
+					error: error.message || 'An unexpected error occurred',
+					isConnecting: false,
+					addLoading: { ...prev.addLoading, [action.slug]: false },
+					addError: {
+						...prev.addError,
+						[action.slug]: error.message || 'Failed to add tool',
+					},
+				}));
+			}
 			message.error(error.message || 'Failed to add tool');
+			throw error;
 		}
 	};
 
+	// Handle API key submission
+	const handleApiKeySubmit = async (apiKey, action) => {
+		setInfo((prev) => ({
+			...prev,
+			apiKeyModalLoading: true,
+		}));
+
+		try {
+			// First, connect the tool with API key
+			const [connectSuccess, connectResponse] = await connectTool({
+				slug: action.toolkit.slug,
+				apiKey: apiKey,
+			});
+
+			if (connectSuccess && connectResponse?.data?.account_id) {
+				// Tool connected successfully, now add it to the knowledge agent
+				await handleCreateAction(action, connectResponse.data.account_id, true);
+
+				// Close the API key modal
+				setInfo((prev) => ({
+					...prev,
+					showApiKeyModal: false,
+					selectedActionForApiKey: null,
+					apiKeyModalLoading: false,
+				}));
+			} else {
+				throw new Error(connectResponse?.message || 'Failed to connect tool with API key');
+			}
+		} catch (error) {
+			console.error('API key submission error:', error);
+			setInfo((prev) => ({
+				...prev,
+				apiKeyModalLoading: false,
+			}));
+			// Don't throw the error, let the ListConnectModal handle it
+			return Promise.reject(error);
+		}
+	};
+
+	// Handle API key modal close
+	const handleApiKeyModalClose = () => {
+		setInfo((prev) => ({
+			...prev,
+			showApiKeyModal: false,
+			selectedActionForApiKey: null,
+			apiKeyModalLoading: false,
+		}));
+	};
+
 	return (
-		<ReactModal
-			isOpen={isOpen}
-			closeModal={onClose}
-			modalType="center"
-			customStyles={{
-				overlay: { zIndex: 1001 },
-				content: { borderRadius: '15px', zIndex: 1002 },
-			}}
-		>
-			<div className="actions-modal addtoolv2-modal">
-				<div className="addtoolv2-header">
-					<div className="search-container">
-						<SearchIcon className="search-icon" />
-						<input
-							type="text"
-							placeholder="Browse tools"
-							value={info.search}
-							onChange={handleSearch}
-							className="search-input"
-						/>
+		<div className="add-tool-v2-modal-container">
+			<ReactModal
+				isOpen={isOpen}
+				closeModal={onClose}
+				modalType="center"
+				customStyles={{
+					overlay: { zIndex: 1001 },
+					content: { borderRadius: '15px', zIndex: 1002 },
+				}}
+			>
+				<div className="actions-modal addtoolv2-modal">
+					<div className="addtoolv2-header">
+						<div className="search-container">
+							<SearchIcon className="search-icon" />
+							<input
+								type="text"
+								placeholder="Browse tools"
+								value={info.search}
+								onChange={handleSearch}
+								className="search-input"
+							/>
+						</div>
+						<CrossIcon onClick={onClose} className="cross-icon" />
 					</div>
-					<CrossIcon onClick={onClose} className="cross-icon" />
-				</div>
-				<div className="actions-modal-inputs">
-					{info.checkingAccounts ? (
-						<div className="centered-loading">
-							<Spinner width="20px" height="20px" color="var(--primary-font)" />
-							<span className="centered-loading-text">
-								Checking existing accounts...
-							</span>
-						</div>
-					) : info.isLoading && info.actions.length === 0 ? (
-						<div className="centered-loading">
-							<Spinner width="20px" height="20px" color="var(--primary-font)" />
-							<span className="centered-loading-text">Loading tools...</span>
-						</div>
-					) : info.error ? (
-						<div className="error-message">{info.error}</div>
-					) : (
-						<InfiniteScroll
-							dataLength={info.actions.length || 0}
-							next={fetchMoreActions}
-							hasMore={info.hasNextPage}
-							loader={
-								<div className="centered-loading">
-									<Spinner
-										width="16px"
-										height="16px"
-										color="var(--primary-font)"
-									/>
-									Loading more...
-								</div>
-							}
-							height={535}
-							style={{
-								overflowY: 'auto',
-								width: '100%',
-							}}
-						>
-							<div className="grouped-app-list">
-								{Object.keys(groupedActions).length === 0 ? (
-									<div className="error-message centered">No tools found.</div>
-								) : (
-									Object.entries(groupedActions).map(
-										([appName, actions], idx) => (
-											<div key={appName} className="app-group">
-												<div className="app-group-header">{appName}</div>
-												<div className="app-group-grid">
-													{actions.map((action) => {
-														const isAdded = addedActionKeys.includes(
-															action.toolkit.slug,
-														);
-														return (
-															<div
-																key={action.slug}
-																className="app-item-grid"
-																onClick={() =>
-																	handleAddTool(action)
-																}
-															>
-																<img
-																	src={action.toolkit.logo || ''}
-																	alt={action.name || 'Tool'}
-																	className="app-icon"
-																/>
-																<div className="app-info">
-																	<span className="app-action-name">
-																		{action.name || 'Unnamed'}
-																	</span>
-																</div>
-																{isAdded ? (
-																	<span className="added-badge">
-																		✓ Added
-																	</span>
-																) : (
-																	<button
-																		className="primary-button connect-button"
-																		disabled={
-																			!!info.addLoading[
-																				action.slug
-																			] || info.isConnecting
-																		}
-																	>
-																		{info.addLoading[
-																			action.slug
-																		] ? (
-																			<div className="add-button-container">
-																				<Spinner
-																					width="16px"
-																					height="16px"
-																					color="var(--primary-font)"
-																				/>
-																				{info.isConnecting
-																					? 'Connecting...'
-																					: 'Adding...'}
-																			</div>
-																		) : (
-																			<div className="add-button-container">
-																				<AddIcon className="add-icon" />
-																				Add
-																			</div>
-																		)}
-																	</button>
-																)}
-																{info.addError[action.slug] && (
-																	<div
-																		className="field-error"
-																		style={{
-																			marginTop: 4,
-																			color: 'var(--error)',
-																			fontSize: '12px',
-																			fontWeight: '500',
-																		}}
-																	>
-																		{info.addError[action.slug]}
-																	</div>
-																)}
-															</div>
-														);
-													})}
-												</div>
-												{idx < Object.keys(groupedActions).length - 1 && (
-													<div className="app-group-divider" />
-												)}
-											</div>
-										),
-									)
-								)}
+					<div className="actions-modal-inputs">
+						{info.checkingAccounts ? (
+							<div className="centered-loading">
+								<Spinner width="20px" height="20px" color="var(--primary-font)" />
+								<span className="centered-loading-text">
+									Checking existing accounts...
+								</span>
 							</div>
-						</InfiniteScroll>
-					)}
+						) : info.isLoading && info.actions.length === 0 ? (
+							<div className="centered-loading">
+								<Spinner width="20px" height="20px" color="var(--primary-font)" />
+								<span className="centered-loading-text">Loading tools...</span>
+							</div>
+						) : info.error ? (
+							<div className="error-message">{info.error}</div>
+						) : (
+							<InfiniteScroll
+								dataLength={info.actions.length || 0}
+								next={fetchMoreActions}
+								hasMore={info.hasNextPage}
+								loader={
+									<div className="centered-loading">
+										<Spinner
+											width="16px"
+											height="16px"
+											color="var(--primary-font)"
+										/>
+										Loading more...
+									</div>
+								}
+								height={535}
+								style={{
+									overflowY: 'auto',
+									width: '100%',
+								}}
+							>
+								<div className="grouped-app-list">
+									{Object.keys(groupedActions).length === 0 ? (
+										<div className="error-message centered">
+											No tools found.
+										</div>
+									) : (
+										Object.entries(groupedActions).map(
+											([appName, actions], idx) => (
+												<div key={appName} className="app-group">
+													<div className="app-group-header">
+														{appName}
+													</div>
+													<div className="app-group-grid">
+														{actions.map((action) => {
+															const isAdded =
+																addedActionKeys.includes(
+																	action.toolkit.slug,
+																);
+															return (
+																<div
+																	key={action.slug}
+																	className="app-item-grid"
+																	onClick={() =>
+																		handleAddTool(action)
+																	}
+																>
+																	<img
+																		src={
+																			action.toolkit.logo ||
+																			''
+																		}
+																		alt={action.name || 'Tool'}
+																		className="app-icon"
+																	/>
+																	<div className="app-info">
+																		<span className="app-action-name">
+																			{action.name ||
+																				'Unnamed'}
+																		</span>
+																	</div>
+																	{isAdded ? (
+																		<span className="added-badge">
+																			✓ Added
+																		</span>
+																	) : (
+																		<button
+																			className="primary-button connect-button"
+																			disabled={
+																				!!info.addLoading[
+																					action.slug
+																				] ||
+																				info.isConnecting
+																			}
+																		>
+																			{info.addLoading[
+																				action.slug
+																			] ? (
+																				<div className="add-button-container">
+																					<Spinner
+																						width="16px"
+																						height="16px"
+																						color="var(--primary-font)"
+																					/>
+																					{info.isConnecting
+																						? 'Connecting...'
+																						: 'Adding...'}
+																				</div>
+																			) : (
+																				<div className="add-button-container">
+																					<AddIcon className="add-icon" />
+																					Add
+																				</div>
+																			)}
+																		</button>
+																	)}
+																	{info.addError[action.slug] && (
+																		<div
+																			className="field-error"
+																			style={{
+																				marginTop: 4,
+																				color: 'var(--error)',
+																				fontSize: '12px',
+																				fontWeight: '500',
+																			}}
+																		>
+																			{
+																				info.addError[
+																					action.slug
+																				]
+																			}
+																		</div>
+																	)}
+																</div>
+															);
+														})}
+													</div>
+													{idx <
+														Object.keys(groupedActions).length - 1 && (
+														<div className="app-group-divider" />
+													)}
+												</div>
+											),
+										)
+									)}
+								</div>
+							</InfiniteScroll>
+						)}
+					</div>
 				</div>
-			</div>
-		</ReactModal>
+			</ReactModal>
+
+			{/* API Key Modal */}
+			<ListConnectModal
+				isOpen={info.showApiKeyModal}
+				onClose={handleApiKeyModalClose}
+				action={info.selectedActionForApiKey}
+				onApiKeySubmit={handleApiKeySubmit}
+				isLoading={info.apiKeyModalLoading}
+			/>
+		</div>
 	);
 };
 

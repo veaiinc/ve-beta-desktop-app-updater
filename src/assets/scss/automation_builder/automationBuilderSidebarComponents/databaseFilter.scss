@@ -1,0 +1,238 @@
+.databaseFilterInputContainer {
+	display: flex;
+	padding: 12px 24px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+	align-self: stretch;
+	flex-grow: 1;
+
+	.databaseFilterInputHeading {
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		margin: 0;
+	}
+
+	.databaseFilterInputField {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 10px;
+		width: 100%;
+
+		.databaseFilterInputLabel {
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.databaseFilterInputValue {
+			width: 100%;
+			padding: 12px 8px;
+			border-radius: 8px;
+			border: 1px solid var(--stroke);
+			background-color: var(--card);
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			box-sizing: border-box;
+
+			&::placeholder {
+				color: var(--secondary-font);
+			}
+		}
+
+		.databaseFilterLimitContainer {
+			display: flex;
+			align-items: center;
+			width: 100%;
+			position: relative;
+
+			.databaseFilterInputValue {
+				padding-right: 40px;
+			}
+
+			.databaseFilterLimitArrows {
+				position: absolute;
+				right: 8px;
+				top: 50%;
+				transform: translateY(-50%);
+				display: flex;
+				flex-direction: column;
+				gap: 2px;
+
+				.databaseFilterLimitArrow {
+					width: 16px;
+					height: 12px;
+					border: none;
+					background-color: transparent;
+					color: var(--secondary-font);
+					font-size: 8px;
+					cursor: pointer;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					border-radius: 2px;
+					transition: all 0.2s ease;
+
+					&:hover {
+						background-color: var(--card-over-card-hover);
+						color: var(--primary-font);
+					}
+
+					&:active {
+						background-color: var(--stroke);
+					}
+
+					&.databaseFilterLimitArrowUp {
+						border-bottom: 1px solid var(--stroke);
+					}
+
+					&.databaseFilterLimitArrowDown {
+						border-top: 1px solid var(--stroke);
+					}
+				}
+			}
+		}
+
+		// Style for dropdown components
+		:global(.variableComponentDropdown) {
+			width: 100%;
+
+			.variableComponentDropdownValue {
+				padding: 12px 8px;
+				border-radius: 8px;
+				border: 1px solid var(--stroke);
+				background-color: transparent;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-weight: 500;
+			}
+		}
+	}
+
+	.databaseFilterFilterContainer {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		width: 100%;
+		padding: 16px;
+		border: 1px solid var(--stroke);
+		border-radius: 8px;
+		background-color: var(--card);
+
+		.databaseFilterFilterHeader {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			width: 100%;
+
+			.databaseFilterFilterTitle {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+			}
+
+			.databaseFilterRemoveFilterButton {
+				padding: 6px 12px;
+				border: 1px solid var(--error);
+				border-radius: 4px;
+				background-color: transparent;
+				color: var(--error);
+				font-family: var(--primary-font-family);
+				font-size: 11px;
+				font-weight: 500;
+				cursor: pointer;
+				transition: all 0.2s ease;
+
+				&:hover {
+					background-color: var(--error);
+					color: var(--primary-font);
+				}
+			}
+		}
+	}
+
+	.databaseFilterAddFilterButton {
+		width: 100%;
+		padding: 12px;
+		border: 1px dashed var(--stroke);
+		border-radius: 8px;
+		background-color: transparent;
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.2s ease;
+
+		&:hover {
+			border-color: var(--stroke-hover);
+			color: var(--primary-font);
+			background-color: var(--card);
+		}
+	}
+
+	.databaseFilterCheckboxContainer {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		width: 100%;
+
+		label {
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			cursor: pointer;
+			padding: 12px 8px;
+			border-radius: 8px;
+			border: 1px solid var(--stroke);
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			transition: all 0.2s ease;
+
+			&:hover {
+				background-color: var(--card-over-card-hover);
+				border-color: var(--stroke-hover);
+			}
+
+			input[type='checkbox'] {
+				margin: 0;
+				accent-color: var(--primary-button);
+			}
+		}
+	}
+}
+
+.databaseFilterSaveButton {
+	padding: 12px 24px;
+	border: none;
+	border-radius: 8px;
+	background-color: var(--card-over-card);
+	color: var(--primary-font);
+	font-family: var(--primary-font-family);
+	font-size: 14px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	margin: 0 24px 24px 24px;
+	&:hover {
+		background-color: var(--card-over-card-hover);
+	}
+}

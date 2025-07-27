@@ -10,6 +10,7 @@ import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/b
 import { ReactComponent as Copy } from '../../../assets/svg/worflow_builder/buildercard/labelledCopy.svg';
 import { ReactComponent as ShockIcon } from '../../../assets/svg/automation_builder/shock.svg';
 import { ReactComponent as SwitchIcon } from '../../../assets/svg/automation_builder/switch.svg';
+import { ReactComponent as DatabaseIcon } from '../../../assets/svg/automation_builder/database.svg';
 // import UpdatedDeleteWorkflowStep from '../modalsV2/automationBuilder/UpdatedDeleteStepsModal';
 import { ReactComponent as OpenEye } from '../../../assets/svg/gallery/open-eye.svg';
 import { ReactComponent as CrossedOpenEye } from '../../../assets/svg/gallery/crossedOpenEye.svg';
@@ -450,6 +451,80 @@ export const SwitchNode = ({ data }) => {
 					</span>
 					<span className="lower-action-node-subtitle">
 						{data?.currentStep?.description || 'Switch Description'}
+					</span>
+				</div>
+				<Handle type="source" position={Position.Bottom} />
+				<Handle type="target" position={Position.Top} />
+			</div>
+		</Tooltip>
+	);
+};
+
+export const DatabaseFilterNode = ({ data }) => {
+	const openDeleteModal = useCallback(() => {
+		if (data?.onToolBarOpen) {
+			data.onToolBarOpen({
+				deleteModalOpen: true,
+				deleteStepData: data?.currentStep,
+			});
+		}
+	}, [data]);
+
+	const onDatabaseFilterNodeClick = useCallback(() => {
+		if (data?.currentStep?.isHidden) return; // Prevent click if hidden
+		if (data?.onToolBarOpen) {
+			data.onToolBarOpen({
+				toolBarOpen: true,
+				sidebarType: 'conditions',
+				activeStepsData: data?.currentStep,
+				editMode: true,
+			});
+		}
+	}, [data]);
+
+	return (
+		<Tooltip
+			placement="right"
+			title={
+				<HoverComponentForNodes
+					openDeleteModal={openDeleteModal}
+					isHidden={data?.currentStep?.isHidden}
+					onHideClick={() => {
+						data?.changePipelineVisibility(
+							data?.currentStep?._id,
+							!data?.currentStep?.isHidden,
+						);
+					}}
+					onDuplicateClick={() => {
+						data?.duplicateStep(data?.currentStep?._id);
+					}}
+					showDuplicate={false}
+				/>
+			}
+			arrow={false}
+			rootClassName="customNodesToolTip"
+		>
+			<div
+				className={`action-node ${data?.currentStep?.isHidden ? 'hidden-node' : ''}`}
+				onClick={onDatabaseFilterNodeClick}
+				style={{
+					opacity: data?.currentStep?.isHidden ? 0.2 : 1,
+					cursor: data?.currentStep?.isHidden ? 'not-allowed' : 'pointer',
+				}}
+			>
+				<div className="upper-action-node-container">
+					<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+						<DatabaseIcon />
+						Database Filter
+					</span>
+					<span> Condition</span>
+				</div>
+				<div className="lower-action-node-container">
+					<span className="lower-action-node-title">
+						{data?.currentStep?.title || 'Database Filter Title'}
+					</span>
+					<span className="lower-action-node-subtitle">
+						{data?.currentStep?.description || 'Database Filter Description'}
 					</span>
 				</div>
 				<Handle type="source" position={Position.Bottom} />
