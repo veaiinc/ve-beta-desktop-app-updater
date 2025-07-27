@@ -10,9 +10,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import { message } from '../../../../src/views/components/globalComponents/CustomToast';
 import moment from 'moment';
-import TaskCard from './taskCard/TaskCard';
-// import { EventTask } from './taskCard/EventTask';
-import EventCreation from './taskCard/EventCreation';
 
 // Extend dayjs with timezone plugins
 dayjs.extend(utc);
@@ -64,7 +61,6 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 		templates: { workflowInfoDetails, moveWorkflowStatus },
 		tasks: { taskMetadata, getTaskMetadata, addListItem },
 		calendarInfo: { createCalendarEvent, calendarCategoriesList, getCalendarCategories },
-		// companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
 	const navigate = useNavigate();
 	// State to control contract sign modal
@@ -109,12 +105,6 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 			}));
 		}
 	}, [calendarCategoriesList]);
-
-	// useEffect(() => {
-	// 	if (!tenantsUserList || tenantsUserList.length === 0) {
-	// 		getTeamMembers();
-	// 	}
-	// }, []);
 
 	// Extract tables from summary
 	const { tables = [] } = workflowInfoDetails?.summary || {};
@@ -170,20 +160,10 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 	);
 
 	// Initialize taskState and eventState in info
-
 	useEffect(() => {
 		setInfo((prev) => ({
 			...prev,
-			// taskState: allServiceItems.map((t) => ({ ...t, checked: true })),
-			//jeevan changess
-			taskState: allServiceItems.map((t) => ({
-				...t,
-				checked: true,
-				assignedTo: t.assignedTo || { tenantUsers: [] },
-				priority: t.priority || 'low',
-				status: t.status || statusId || '', // default status
-				title: t.title || '',
-			})),
+			taskState: allServiceItems.map((t) => ({ ...t, checked: true })),
 			activeTaskKey: null,
 		}));
 	}, [JSON.stringify(allServiceItems)]);
@@ -235,14 +215,6 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 			...prev,
 			eventState: prev.eventState.map((e) =>
 				e.key === key ? { ...e, checked: !e.checked } : e,
-			),
-		}));
-	};
-	const handleEventUpdate = (event, updateEvent) => {
-		setInfo((prev) => ({
-			...prev,
-			eventState: prev.eventState.map((e) =>
-				e.key === event.key ? { ...e, ...updateEvent } : e,
 			),
 		}));
 	};
@@ -306,15 +278,6 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 		setEditingEvent({ key: null, field: null });
 		setEventEditFields({});
 	};
-	//jeevan changess
-	const handleTaskUpdate = (task, updateTask) => {
-		setInfo((prev) => ({
-			...prev,
-			taskState: prev.taskState.map((t) =>
-				t.key === task.key ? { ...t, ...updateTask } : t,
-			),
-		}));
-	};
 
 	const handleAccept = async () => {
 		// Check for tenant user signature before proceeding
@@ -377,21 +340,15 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 			const payload = {
 				title: task.title,
 				description: finalDescription,
-				// priority: 'low',
-				// status: statusId,
+				priority: 'low',
+				status: statusId,
 				clients: [workflowInfoDetails?.clientDetails?._id],
-				//jeevan changes
-				priority: task.priority,
-				status: task.status,
-				// clients: [workflowInfoDetails?.clientDetails?._id],
-				assignedTo: task.assignedTo,
-				dueDate: task.dueDate,
 			};
 
 			try {
 				await addListItem({ input: payload });
 			} catch (e) {
-				message.error('Error creating task:', e);
+				console.error('Error creating task:', e);
 				allSuccess = false;
 			}
 		}
@@ -419,7 +376,6 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 				calendarCategory: calendarCategory || null,
 				meeting: null,
 				phone: null,
-				attendees: event.attendees,
 				// Do not add numberOfGuests or any custom keys
 			};
 			try {
@@ -530,8 +486,7 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 															textTransform: 'capitalize',
 														}}
 													>
-														{`${workflowInfoDetails?.clientDetails?.name}'s `}
-														{task.title || 'title'}
+														{task.title}
 													</span>
 												)}
 												<input
@@ -548,13 +503,7 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 									>
 										<div className="acceptDocumentModalCardDetails">
 											<div style={{ width: '100%' }}>
-												<TaskCard
-													updateTask={(task, updateTask) =>
-														handleTaskUpdate(task, updateTask)
-													}
-													task={task}
-												/>
-												{/* {editingTask.key === task.key &&
+												{editingTask.key === task.key &&
 												editingTask.field === 'description' ? (
 													<input
 														value={taskEditFields.value}
@@ -586,7 +535,7 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 													>
 														{task.description}
 													</div>
-												)} */}
+												)}
 											</div>
 										</div>
 									</Collapse.Panel>
@@ -679,19 +628,7 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 									>
 										<div className="acceptDocumentModalCardDetails">
 											<div style={{ width: '100%' }}>
-												<EventCreation
-													event={event}
-													updateEvent={(updateEvent) => {
-														handleEventUpdate(event, updateEvent);
-													}}
-												/>
-												{/* <EventTask
-													event={event}
-													updateEvent={(updateEvent) => {
-														handleEventUpdate(event, updateEvent);
-													}}
-												/> */}
-												{/* {editingEvent.key === event.key &&
+												{editingEvent.key === event.key &&
 												editingEvent.field === 'description' ? (
 													<input
 														value={eventEditFields.value}
@@ -729,7 +666,7 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 													>
 														{event.description}
 													</div>
-												)} */}
+												)}
 											</div>
 										</div>
 									</Collapse.Panel>
