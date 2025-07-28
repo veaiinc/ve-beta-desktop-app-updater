@@ -120,6 +120,32 @@ const getClassName = (index, activeIndex, dataLength, scrollDirection) => {
 	}
 };
 
+const getUpdatedActiveCardIndex = (activeIndex, dataLength) => {
+	let newIndex = 0;
+	if (dataLength === 4) {
+		if (activeIndex === 0) {
+			newIndex = dataLength - 2;
+		} else if (activeIndex === 3) {
+			newIndex = 1;
+		} else {
+			newIndex = activeIndex;
+		}
+	} else {
+		if (activeIndex === 0) {
+			newIndex = dataLength - 3;
+		} else if (activeIndex === 1) {
+			newIndex = dataLength - 2;
+		} else if (activeIndex === dataLength - 1) {
+			newIndex = 2;
+		} else if (activeIndex === dataLength - 2) {
+			newIndex = 1;
+		} else {
+			newIndex = activeIndex;
+		}
+	}
+	return newIndex;
+};
+
 const getNewActiveCardIndex = (scrollDirection, prevActiveIndex, dataLength) => {
 	let newIndex = 0;
 	//dataLength will be minimum 4 always
@@ -386,6 +412,22 @@ const NewUi = ({ handleActiveChatIndex }) => {
 		}
 	}, []);
 
+	const handleActiveIndexChange = useCallback((index) => {
+		setInfo((prev) => {
+			if (
+				index === prev?.activeIndex - 1 ||
+				(prev?.dataLength > 4 && index === prev?.activeIndex - 2)
+			) {
+				return {
+					...prev,
+					activeIndex: getUpdatedActiveCardIndex(index, prev?.dataLength),
+					scrollDirection: 'up',
+				};
+			}
+			return prev;
+		});
+	}, []);
+
 	const userName =
 		jwtDecode(localStorage.getItem('usertoken'))?.userName ||
 		userDetailsData?.firstName + ' ' + (userDetailsData?.lastName ?? '') ||
@@ -417,7 +459,17 @@ const NewUi = ({ handleActiveChatIndex }) => {
 								: {}
 						}
 					>
-						<div className="item-wrapper">
+						<div
+							className="item-wrapper"
+							style={{
+								cursor:
+									index === info?.activeIndex - 1 ||
+									(info?.dataLength > 4 && index === info?.activeIndex - 2)
+										? 'pointer'
+										: 'default',
+							}}
+							onClick={() => handleActiveIndexChange(index)}
+						>
 							{(index === info?.activeIndex - 1 ||
 								(info?.dataLength > 4 && index === info?.activeIndex - 2)) && (
 								<div className="item-title">{session?.title || 'New Chat'}</div>
