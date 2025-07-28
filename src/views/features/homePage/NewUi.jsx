@@ -234,7 +234,8 @@ const NewUi = ({ handleActiveChatIndex }) => {
 							messageId,
 							rating: rating || null,
 							citations,
-							follow_up_query: followUpQuery || [],
+							follow_up_query:
+								typeof followUpQuery === 'string' ? [] : followUpQuery ?? [],
 							workflow_template_id: workflowTemplateId || null,
 							module_template_id: moduleTemplateId || null,
 							isOldMessage: true,
