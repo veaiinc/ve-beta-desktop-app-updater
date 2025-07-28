@@ -6,6 +6,15 @@ import { DownOutlined } from '@ant-design/icons';
 const customStyles = { padding: 0 };
 const inputCustomStyles = { margin: 0 };
 
+const tooltipStyles = {
+	body: {
+		padding: 0,
+		backgroundColor: 'var(--card, #181a1b)',
+		border: '1px solid var(--stroke, #2c2d2e)',
+		borderRadius: '8px',
+	},
+};
+
 const SelectDropdown = ({
 	options = [],
 	setOption,
@@ -62,12 +71,7 @@ const SelectDropdown = ({
 				color="transparent"
 				open={visible}
 				onOpenChange={() => {}}
-				overlayInnerStyle={{
-					padding: 0,
-					backgroundColor: 'var(--card, #181a1b)',
-					border: '1px solid var(--stroke, #2c2d2e)',
-					borderRadius: '8px',
-				}}
+				styles={tooltipStyles}
 				overlayClassName={s.buildTooltipWrapper}
 				title={
 					<div

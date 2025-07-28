@@ -7,6 +7,12 @@ import Context from '../../../context/context';
 import getFileTypeInfo, { categoryMap } from './getFiletypeInfo';
 import { triggerCmdK } from '../../components/commandKSearch/CommandKSearch';
 
+const tooltipStyles = {
+	body: {
+		padding: 0,
+	},
+};
+
 const ElasticSearchResults = () => {
 	const navigate = useNavigate();
 
@@ -94,7 +100,7 @@ const ElasticSearchResults = () => {
 										</div>
 									}
 									placement="top"
-									overlayInnerStyle={{ padding: 0 }}
+									styles={tooltipStyles}
 									overlayClassName="elastic-search-tooltip"
 									arrow={false}
 								>

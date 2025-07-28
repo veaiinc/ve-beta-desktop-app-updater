@@ -3,6 +3,10 @@ import s from '../../../../../assets/scss/notes/dropdown/filterHelperDropdown.mo
 import { Tooltip } from 'antd';
 import { ReactComponent as Tick } from '../../../../../assets/svg/tasks/tick.svg';
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content' },
+};
+
 const FilterHelperDropdown = ({ options, selectedOption, onChange, children }) => {
 	return (
 		<Tooltip
@@ -28,7 +32,8 @@ const FilterHelperDropdown = ({ options, selectedOption, onChange, children }) =
 			trigger={'click'}
 			color={'transparent'}
 			placement={'bottomLeft'}
-			overlayStyle={{ minWidth: 'fit-content', zIndex: 50004 }}
+			styles={tooltipStyles}
+			zIndex={50004}
 			destroyOnHidden={true}
 		>
 			<div className={s.filterHelperDropdown}>{children}</div>

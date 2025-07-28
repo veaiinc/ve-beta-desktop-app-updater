@@ -53,6 +53,12 @@ import useRecallStream from '../../../hooks/useRecallStream';
 
 export const NotesRefContext = createContext(null);
 
+const tooltipStyles = {
+	body: {
+		backgroundColor: 'inherit',
+	},
+};
+
 const initialState = {
 	timeouts: {}, // Single timeouts object to store all timeouts
 	title: '',
@@ -1214,9 +1220,7 @@ const MeetNote = ({ outerContainerStyle, innerContainerStyle }) => {
 											/>
 										)
 									}
-									overlayInnerStyle={{
-										backgroundColor: 'inherit',
-									}}
+									styles={tooltipStyles}
 									arrow={false}
 								>
 									<div

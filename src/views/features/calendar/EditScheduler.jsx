@@ -15,6 +15,18 @@ import PhoneInput from 'react-phone-number-input';
 const durationOptions = ['30 Minutes', '45 Minutes', '60 Minutes', '90 Minutes', '120 Minutes'];
 const sessionTypeOptions = ['In Person', 'Phone Call', 'Video Call'];
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content', padding: '0' },
+};
+
+const tootTipInnerStyles = {
+	body: {
+		padding: '6px 12px',
+		fontSize: '12px',
+		fontFamily: 'var(--primary-font-family)',
+	},
+};
+
 const sessionTypeInputConfig = {
 	'In Person': {
 		value: 'location',
@@ -1227,7 +1239,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 								arrow={false}
 								trigger={'click'}
 								color={'transparent'}
-								overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+								styles={tooltipStyles}
 							>
 								<div className="typeOfSession-lable">
 									{info?.sessionType}
@@ -1353,7 +1365,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 								}
 								arrow={false}
 								color={'transparent'}
-								overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+								styles={tooltipStyles}
 							>
 								<div className="period-selector">
 									{info.bookingPeriod || 'Day'}
@@ -1452,12 +1464,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 																	title="Add another time slot"
 																	placement="top"
 																	color="#292b2e"
-																	overlayInnerStyle={{
-																		padding: '6px 12px',
-																		fontSize: '12px',
-																		fontFamily:
-																			'var(--primary-font-family)',
-																	}}
+																	styles={tootTipInnerStyles}
 																>
 																	<div
 																		className="add-slot"
@@ -1474,12 +1481,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 																		title="Remove time slot"
 																		placement="top"
 																		color="#292b2e"
-																		overlayInnerStyle={{
-																			padding: '6px 12px',
-																			fontSize: '12px',
-																			fontFamily:
-																				'var(--primary-font-family)',
-																		}}
+																		styles={tootTipInnerStyles}
 																	>
 																		<div
 																			className="add-slot"
@@ -1498,12 +1500,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 																	title="Copy time slot to other enabled days"
 																	placement="top"
 																	color="#292b2e"
-																	overlayInnerStyle={{
-																		padding: '6px 12px',
-																		fontSize: '12px',
-																		fontFamily:
-																			'var(--primary-font-family)',
-																	}}
+																	styles={tootTipInnerStyles}
 																>
 																	<div
 																		className="copy-slot"

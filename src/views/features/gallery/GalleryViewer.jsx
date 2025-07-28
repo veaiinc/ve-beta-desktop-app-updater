@@ -626,7 +626,7 @@ const GalleryViewer = ({
 							placement="bottom"
 							arrow={false}
 							trigger={'click'}
-							overlayStyle={{ zIndex: 10000 }}
+							zIndex={10000}
 						>
 							<div className="eachImageOptions">
 								<Pin /> Tags
@@ -747,11 +747,11 @@ const GalleryViewer = ({
 						onOpenChange={(open) => {
 							handleSelectedImage(open);
 						}}
-						overlayStyle={{ zIndex: 10000 }}
 						arrow={false}
 						trigger={'hover'}
 						color="transparent"
 						placement="topLeft"
+						zIndex={10000}
 					>
 						<div className="imageSelectedPeopleContainer">
 							<InfoIcon />

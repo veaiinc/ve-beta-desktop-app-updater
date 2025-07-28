@@ -23,8 +23,7 @@ const TabNavigation = ({ tab, handleSetTab, isVisible }) => {
 				trigger="hover"
 				overlayClassName="proactive-tooltip"
 				getPopupContainer={() => document.body}
-				overlayStyle={{ width: '100%', maxWidth: '100vw' }}
-				overlayInnerStyle={{ padding: '0px' }}
+				styles={{body:{ width: '100%', maxWidth: '100vw' }}}
 				arrow={false}
 				onVisibleChange={handleProactiveDropdownHover}
 			>

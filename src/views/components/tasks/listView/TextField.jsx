@@ -2,6 +2,11 @@ import { memo, useState } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 import { Tooltip } from 'antd';
 import TextFilter from '../../dropDown/tasks/TextFilter';
+
+const tooltipStyles = {
+	body: { minWidth: 'fit-content' },
+};
+
 const TextField = ({
 	value,
 	onChange,
@@ -24,7 +29,7 @@ const TextField = ({
 			trigger={'click'}
 			color="transparent"
 			placement={tooltipPlacement}
-			overlayStyle={{ minWidth: 'fit-content' }}
+			styles={tooltipStyles}
 			open={info?.isOpen}
 			onOpenChange={(isOpen) => handleStateChange({ isOpen })}
 			destroyOnHidden={true}

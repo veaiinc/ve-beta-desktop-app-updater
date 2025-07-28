@@ -16,6 +16,10 @@ import ThreeDotsSvg from '../../../../assets/svg/my_templates/ThreeDotsSvg';
 import Context from '../../../../context/context';
 // import CrossSvg from '../../../../assets/svg/docs/CrossSvg';
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content' },
+};
+
 const OptionsDropDown = ({
 	properties,
 	taskPreferences,
@@ -345,7 +349,7 @@ const OptionsDropDown = ({
 			arrow={false}
 			trigger={'click'}
 			color={'transparent'}
-			overlayStyle={{ minWidth: 'fit-content' }}
+			styles={tooltipStyles}
 			overlayClassName="options-dropdown-tooltip"
 		>
 			<div className="btn-options">

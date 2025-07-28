@@ -156,9 +156,7 @@ const UpdatedDeleteWorkflowStep = ({
 									placement="bottomLeft"
 									arrow={false}
 									color="transparent"
-									overlayStyle={{
-										zIndex: 100000,
-									}}
+									zIndex={100000}
 								>
 									<div
 										className="switchSelectedBranch"

@@ -18,6 +18,10 @@ import { Tooltip } from 'antd';
 import moment from 'moment';
 import '../../../assets/scss/tasks/taskFullView.scss';
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content', padding: '0' },
+};
+
 const optionsForQuickActions = [
 	{ id: 4, title: 'Document', value: 'document' },
 	{ id: 6, title: 'Proposal', value: 'proposal' },
@@ -134,7 +138,7 @@ const TaskFullView = () => {
 							arrow={false}
 							trigger={'click'}
 							color={'transparent'}
-							overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+							styles={tooltipStyles}
 							overlayClassName="dot-svg-tooltip"
 							title={
 								<div className="dot-svg-tooltip-content">

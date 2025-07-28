@@ -34,6 +34,17 @@ const filterMapperTypes = {
 	last_edited_time: DateFilterDropdown,
 };
 
+const innerTooltipStyles = {
+	body: {
+		minWidth: 'fit-content',
+		paddingLeft: '8px',
+	},
+};
+
+const outerTooltipStyles = {
+	body: { minWidth: 'fit-content' },
+};
+
 const FilterDropdown = ({ fields, colors, filters, handleFilterChange }) => {
 	const [info, setInfo] = useState({
 		searchValue: '',
@@ -129,10 +140,7 @@ const FilterDropdown = ({ fields, colors, filters, handleFilterChange }) => {
 										trigger={['click', 'hover']}
 										color="transparent"
 										placement="rightTop"
-										overlayStyle={{
-											minWidth: 'fit-content',
-											paddingLeft: '8px',
-										}}
+										styles={innerTooltipStyles}
 									>
 										<div className={s.filterDropdownTooltipBodyItem}>
 											<div className={s.filterDropdownTooltipBodyItemIcon}>
@@ -156,7 +164,7 @@ const FilterDropdown = ({ fields, colors, filters, handleFilterChange }) => {
 			trigger={'click'}
 			color={'transparent'}
 			placement={'bottomRight'}
-			overlayStyle={{ minWidth: 'fit-content' }}
+			styles={outerTooltipStyles}
 		>
 			<button className={s.filterDropdownBtn}>
 				<PlusIcon />

@@ -32,6 +32,10 @@ const styles = {
 	body: { padding: '0px' },
 };
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content', padding: '0' },
+};
+
 const initialState = {
 	activeTab: 'preview',
 	openMoreOptions: false,
@@ -510,7 +514,7 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 									arrow={false}
 									trigger={'click'}
 									color={'transparent'}
-									overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+									styles={tooltipStyles}
 									overlayClassName="dot-svg-tooltip"
 									title={
 										<div className="dot-svg-tooltip-content">

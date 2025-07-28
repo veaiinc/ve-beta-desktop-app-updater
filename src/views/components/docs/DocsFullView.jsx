@@ -21,6 +21,10 @@ import { Spin } from 'antd';
 import DeleteLeadModal from '../../components/modalsV2/workflowsModals/DeleteLeadModal.jsx';
 import { message } from '../globalComponents/CustomToast.jsx';
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content', padding: '0' },
+};
+
 // Import the status mapper directly
 export const statusTextmapper = {
 	filesViewed: {
@@ -494,7 +498,7 @@ const DocsFullView = () => {
 							arrow={false}
 							trigger={'click'}
 							color={'transparent'}
-							overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+							styles={tooltipStyles}
 							overlayClassName="dot-svg-tooltip"
 							title={
 								<div className="dot-svg-tooltip-content">
