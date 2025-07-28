@@ -42,7 +42,7 @@ const ActiveChatIndication = ({ activeChatIndex }) => {
 		if (currentSessionId) {
 			const index = aiChatSessions?.data?.findIndex((chat) => chat?._id === currentSessionId);
 			if (typeof index === 'number' && index !== -1) {
-				updateStateValues({ currentChatData: aiChatSessions?.data[index] });
+				updateStateValues?.({ currentChatData: aiChatSessions?.data?.[index] });
 			}
 		}
 	}, [currentSessionId, aiChatSessions]);
@@ -50,18 +50,18 @@ const ActiveChatIndication = ({ activeChatIndex }) => {
 	useEffect(() => {
 		if (refetchChatHistoryList) {
 			fetchChats();
-			updateStateValues({ refetchChatHistoryList: false });
+			updateStateValues?.({ refetchChatHistoryList: false });
 		}
 	}, [refetchChatHistoryList]);
 
 	const fetchChats = useCallback(() => {
-		getAiChatSessions(page, limit, append);
+		getAiChatSessions?.(page, limit, append);
 	}, []);
 
 	const fetchMoreChats = () => {
 		if (hasNextPage) {
 			const nextPage = currentPage + 1;
-			getAiChatSessions(nextPage, limit, !append);
+			getAiChatSessions?.(nextPage, limit, !append);
 		}
 	};
 
@@ -70,15 +70,15 @@ const ActiveChatIndication = ({ activeChatIndex }) => {
 			if (currentSessionId === chat?._id) return;
 
 			if (chatLoadingSessions?.[chat?._id]?.isNotSeen) {
-				updateChatLoadingSessions({ sessionId: chat?._id, removeSessionId: true });
+				updateChatLoadingSessions?.({ sessionId: chat?._id, removeSessionId: true });
 			}
 
 			if (chat?.agentType === 'knowledge_agent') {
-				navigate(
+				navigate?.(
 					`/chat/${chat?._id}?agentType=knowledge_agent&assistantId=${chat?.assistantId}`,
 				);
 			} else {
-				navigate(`/chat/${chat?._id}`);
+				navigate?.(`/chat/${chat?._id}`);
 			}
 		},
 		[currentSessionId, updateChatLoadingSessions],
@@ -99,7 +99,7 @@ const ActiveChatIndication = ({ activeChatIndex }) => {
 			color="transparent"
 		>
 			<div className={s.activeChatIndication}>
-				{tabArray.map((tab, index) => (
+				{tabArray?.map((tab, index) => (
 					<div
 						className={`${s.chatTab} ${index === indicatorIndex ? s.active : ''}`}
 						key={index}
