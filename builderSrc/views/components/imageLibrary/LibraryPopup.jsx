@@ -1,6 +1,5 @@
-// import React, { Component } from 'react';
-import './images.scss';
-
+import React, { Component } from 'react';
+import './library.scss';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import Images from '../../../controllers/images';
 import Masonry from 'masonry-layout';
@@ -8,7 +7,7 @@ import UnsplashImages from './unsplashImages';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import _ from 'lodash';
 
-class ImageLibrary extends Images {
+class LibraryPopup extends Images {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -57,45 +56,111 @@ class ImageLibrary extends Images {
 	};
 	render() {
 		let url;
-		const region = localStorage.getItem('region') || 'us-east-1';
+		const region = localStorage.getItem('region') || 'ap-south-1';
 		if (region === 'ap-south-1') {
 			url = 'https://ap.images.ve.ai';
 		} else {
 			url = 'https://us.images.ve.ai';
 		}
 		return (
-			<div className="image-library">
-				<div className="il-h">
-					<span onClick={(e) => this.props.close(e)}>
-						<Close />
-					</span>
+			<div className="image-library-popup">
+				<div className="il-header">
+					<div className="il-h-left">
+						<div
+							className={`il-h-left-item  ${
+								this.state.activeTab === 'l' ? 'active' : ''
+							}`}
+							onClick={(e) =>
+								this.setState({
+									activeTab: 'l',
+								})
+							}
+						>
+							<a>Library</a>
+							<span
+								className={
+									this.state.activeTab === 'l' ? 'il-h-left-item-line ' : ''
+								}
+							></span>
+						</div>
+						<div
+							className={`il-h-left-item  ${
+								this.state.activeTab === 'u' ? 'active' : ''
+							}`}
+							onClick={(e) =>
+								this.setState({
+									activeTab: 'u',
+								})
+							}
+						>
+							<a>Unsplash</a>
+							<span
+								className={
+									this.state.activeTab === 'u' ? 'il-h-left-item-line ' : ''
+								}
+							></span>
+						</div>
+						{/* <div
+							className={`il-h-left-item  ${
+								this.state.activeTab === 'b' ? 'active' : ''
+							}`}
+							onClick={(e) =>
+								this.setState({
+									activeTab: 'b',
+								})
+							}
+						>
+							<a>Background</a>
+							<span
+								className={
+									this.state.activeTab === 'b' ? 'il-h-left-item-line ' : ''
+								}
+							></span>
+						</div> */}
+					</div>
+					<div className="il-h-right">
+						<span onClick={(e) => this.props.close(e)}>
+							<Close />
+						</span>
+					</div>
+					{this.state.activeTab === 'b' && (
+						<div className="il-h-right">
+							<span className="checkbox-container">
+								<span className="checkbox-container-item">
+									<input type="checkbox" className="checkbox" />
+								</span>
+								<p className="active">Uploaded</p>
+							</span>
+							<span className="checkbox-container">
+								<input type="checkbox" className="checkbox" />
+								<p>Solid Colors</p>
+							</span>
+							<span className="checkbox-container">
+								<input type="checkbox" className="checkbox" />
+								<p>Gradients</p>
+							</span>
+							<span className="checkbox-container">
+								<input type="checkbox" className="checkbox" />
+								<p>Others</p>
+							</span>
+
+							{/* <span onClick={(e) => this.props.close(e)}>
+								<Close />
+							</span> */}
+						</div>
+					)}
+
+					{/* / */}
 				</div>
 				<div className="il-b">
 					<div className="ilb-body">
-						<div className="ilbb-tabs">
-							<a
-								className={this.state.activeTab === 'l' ? 'active' : ''}
-								onClick={(e) =>
-									this.setState({
-										activeTab: 'l',
-									})
-								}
-							>
-								Library
-							</a>
-							<a
-								className={this.state.activeTab === 'u' ? 'active' : ''}
-								onClick={(e) =>
-									this.setState({
-										activeTab: 'u',
-									})
-								}
-							>
-								Unsplash
-							</a>
-						</div>
+						{this.state.activeTab === '' && (
+							<div className="ilbb-tabs">
+								{/* <input type="text" placeholder="Search for an image" /> */}
+								<div className="input">Search for an image</div>
+							</div>
+						)}
 
-						<div></div>
 						{this.state.activeTab === 'l' ? (
 							<>
 								{this.state.isLoading ? (
@@ -108,13 +173,7 @@ class ImageLibrary extends Images {
 										</div>
 									</div>
 								) : (
-									<div
-										className="ilbb-images grid"
-										id="veGalleryScrollableDiv"
-										style={{
-											maxHeight: window.innerHeight - 200,
-										}}
-									>
+									<div className="ilbb-images grid" id="veGalleryScrollableDiv">
 										{/* <a className="grid-item uploadeImageContainer">
 									<div className="uploadeLogo">
 										<Upload />
@@ -209,4 +268,4 @@ class ImageLibrary extends Images {
 	}
 }
 
-export default ImageLibrary;
+export default LibraryPopup;
