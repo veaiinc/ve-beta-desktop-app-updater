@@ -1,14 +1,23 @@
-import { memo, useState } from 'react';
+import { memo, useLayoutEffect, useRef, useState } from 'react';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
 import s from '../../../assets/scss/home_page/chatMessages.module.scss';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
 
 const ChatMessages = ({ messages = [], sessionId = null }) => {
+	const containerRef = useRef(null);
 	const [info, setInfo] = useState({
 		showViewDocument: false,
 		noteModalIsOpen: false,
 	});
+
+	useLayoutEffect(() => {
+		if (containerRef.current) {
+			containerRef.current.scrollTo({
+				top: containerRef.current.scrollHeight,
+			});
+		}
+	}, [messages]);
 
 	const handleNoteComponentModalOpen = () => {
 		setInfo((prev) => ({ ...prev, noteModalIsOpen: true }));
@@ -20,7 +29,7 @@ const ChatMessages = ({ messages = [], sessionId = null }) => {
 
 	return (
 		<>
-			<div className={s.ChatMessagesContainer} style={{ flex: 1 }}>
+			<div className={s.ChatMessagesContainer} ref={containerRef}>
 				{messages?.map((chat, index) =>
 					chat?.content ? (
 						<Fragment key={index}>{chat?.content}</Fragment>
