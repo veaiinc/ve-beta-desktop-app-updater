@@ -1,5 +1,6 @@
 import service from '../../services/graphQlServices';
-// import Service from '../../services/index';
+import Service from '../../services/index';
+
 import { message } from '../../views/components/globalComponents/CustomToast';
 import {
 	getNotesListQuery,
@@ -1891,6 +1892,38 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const getMeetingPreferences = async () => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = `/tenant-user/${workspaceId}/tenantuser-preference?preferenceType=meetingPreference`;
+			const token = localStorage.getItem('usertoken');
+			const type = 'tenant';
+			const response = await Service?.fetchGet(path, token, type);
+			const success = response?.[0] === true;
+			if (success) {
+				return response?.[1];
+			}
+		} catch (error) {
+			console.error('error==>getMeetingPreferences', error);
+		}
+	};
+
+	const updateMeetingPreferences = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = `/tenant-user/${workspaceId}/tenantuser-preference`;
+			const token = localStorage.getItem('usertoken');
+			const type = 'tenant';
+			const response = await Service?.fetchPut(path, payload, token, type);
+			const success = response?.[0] === true;
+			if (success) {
+				return response?.[1];
+			}
+		} catch (error) {
+			console.error('error==>updateMeetingPreferences', error);
+		}
+	};
+
 	const updateStateValues = async (updatedVaribaleValuesObj) => {
 		try {
 			dispatch({
@@ -1962,5 +1995,7 @@ export const NotesState = (props) => {
 		updateDatabaseView,
 		getMeetSummary,
 		updateStateValues,
+		getMeetingPreferences,
+		updateMeetingPreferences,
 	};
 };
