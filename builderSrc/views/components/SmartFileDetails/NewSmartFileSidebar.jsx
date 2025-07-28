@@ -404,14 +404,14 @@ const SmartFileSidebar = ({
 	);
 
 	const refreshClientDetails = useCallback(() => {
-
-		
 		// ! commenting cause not using it now
 		// if (workflowId) {
 		// 	getSmartFileData({
 		// 		getWorkflowWithModulesId: workflowId,
 		// 	});
 		// }
+		// ! added to fetch updated variables
+		refreshVariablesData();
 	}, [workflowId, getSmartFileData]);
 
 	if (!showSmartFileSidebar) {
