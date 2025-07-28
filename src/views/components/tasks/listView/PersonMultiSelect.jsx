@@ -66,7 +66,7 @@ const PersonMultiSelect = ({
 					arrow={false}
 					color="transparent"
 					overlayStyle={{ minWidth: 'fit-content' }}
-					destroyTooltipOnHide
+					destroyOnHidden={true}
 				>
 					<div
 						className="person-multi-select-selected"

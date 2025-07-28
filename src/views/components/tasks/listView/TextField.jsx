@@ -27,7 +27,7 @@ const TextField = ({
 			overlayStyle={{ minWidth: 'fit-content' }}
 			open={info?.isOpen}
 			onOpenChange={(isOpen) => handleStateChange({ isOpen })}
-			destroyTooltipOnHide
+			destroyOnHidden={true}
 		>
 			<div
 				className={`text-field filter-wrapper ${maxWidth ? 'max-width' : ''}`}

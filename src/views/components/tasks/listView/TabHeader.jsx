@@ -295,7 +295,7 @@ const TabHeader = ({
 											arrow={false}
 											color="transparent"
 											trigger="click"
-											destroyTooltipOnHide
+											destroyOnHidden={true}
 											open={
 												showDropDown &&
 												activeTab === tab?._id &&

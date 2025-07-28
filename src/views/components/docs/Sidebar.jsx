@@ -27,6 +27,11 @@ import DuplicateSvg from '../../../assets/svg/tasks/DuplicateSvg.jsx';
 import { message } from '../globalComponents/CustomToast.jsx';
 import Spinner from '../loaders/Spinner.jsx';
 
+const styles = {
+	header: { display: 'none' },
+	body: { padding: '0px' },
+};
+
 const initialState = {
 	activeTab: 'preview',
 	openMoreOptions: false,
@@ -438,8 +443,7 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 				open={open}
 				onClose={modifyClose}
 				style={{ padding: '0px', backgroundColor: 'transparent' }}
-				headerStyle={{ display: 'none' }}
-				bodyStyle={{ padding: '0px' }}
+				styles={styles}
 				// width={480}
 				width={info?.sideBarExpanded ? 'fit-content' : width}
 			>

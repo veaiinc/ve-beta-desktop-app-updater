@@ -80,7 +80,7 @@ const FilterDropdown = ({ fields, colors, filters, handleFilterChange }) => {
 
 								return (
 									<Tooltip
-										destroyTooltipOnHide
+										destroyOnHidden={true}
 										key={property?._id}
 										title={
 											<div

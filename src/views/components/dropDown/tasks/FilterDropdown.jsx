@@ -67,7 +67,7 @@ const FilterDropdown = ({ properties, colors, filters, responseMetadata, handleF
 
 								return (
 									<Tooltip
-										destroyTooltipOnHide
+										destroyOnHidden={true}
 										key={property?.value}
 										title={
 											<div className="filter-dropdown-tooltip-body-item-dropdown">

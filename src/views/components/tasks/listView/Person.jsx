@@ -94,7 +94,7 @@ const Person = ({
 				arrow={false}
 				color="transparent"
 				overlayStyle={{ minWidth: 'fit-content' }}
-				destroyTooltipOnHide
+				destroyOnHidden={true}
 				overlayClassName="person-dropdown-wrapper"
 			>
 				<div

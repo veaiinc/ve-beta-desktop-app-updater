@@ -4,6 +4,8 @@ import { Drawer } from 'antd';
 import s from '../../../../assets/scss/notes/modals/databaseSidebar.module.scss';
 import { rowTypes } from '../../notes/Database';
 import DatabaseIcon from '../../notes/DatabseComponents/DatabaseIcon';
+const style = { padding: '0px', backgroundColor: 'transparent' };
+const styles = { header: { display: 'none' }, body: { padding: '0px', overflow: 'hidden' } };
 
 const DatabaseSidebar = ({ pageId }) => {
 	const {
@@ -105,13 +107,12 @@ const DatabaseSidebar = ({ pageId }) => {
 	return (
 		<Drawer
 			onClose={() => updateDatabaseSidebar({ open: false })}
-			width={'fit-content'}
+			width="fit-content"
 			open={sideBarOpen}
-			style={{ padding: '0px', backgroundColor: 'transparent' }}
-			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px', overflow: 'hidden' }}
+			style={style}
+			styles={styles}
 			className={s.databaseSidebarDrawer}
-			destroyOnClose={true}
+			destroyOnHidden={true}
 			maskClassName={s.databaseSidebarMask}
 		>
 			<div className={s.notesDatabaseSidebar}>

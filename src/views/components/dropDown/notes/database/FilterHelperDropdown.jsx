@@ -29,7 +29,7 @@ const FilterHelperDropdown = ({ options, selectedOption, onChange, children }) =
 			color={'transparent'}
 			placement={'bottomLeft'}
 			overlayStyle={{ minWidth: 'fit-content', zIndex: 50004 }}
-			destroyTooltipOnHide={true}
+			destroyOnHidden={true}
 		>
 			<div className={s.filterHelperDropdown}>{children}</div>
 		</Tooltip>

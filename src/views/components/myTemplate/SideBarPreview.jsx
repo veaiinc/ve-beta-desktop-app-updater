@@ -19,6 +19,11 @@ const customStyles = {
 	marginTop: '50px',
 };
 
+const styles = {
+	header: { display: 'none' },
+	body: { padding: '0px' },
+};
+
 const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) => {
 	const navigate = useNavigate();
 	const {
@@ -134,8 +139,7 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 			open={open}
 			onClose={onClose}
 			style={{ backgroundColor: 'transparent' }}
-			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
+			styles={styles}
 			width={480}
 		>
 			<div

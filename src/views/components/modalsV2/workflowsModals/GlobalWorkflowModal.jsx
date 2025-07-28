@@ -22,6 +22,11 @@ const initialState = {
 	loading: true,
 };
 
+const styles = {
+	header: { display: 'none' },
+	body: { padding: '0px' },
+};
+
 const EntryPointCard = ({ publicData }) => {
 	const data = publicData?.moduleTemplates?.filter((e) => e?.isPublic);
 
@@ -296,8 +301,7 @@ const GlobalWorkflowModal = ({
 				}}
 				mask={true}
 				open={modalIsOpen}
-				headerStyle={{ display: 'none' }}
-				bodyStyle={{ padding: '0px' }}
+				styles={styles}
 				maskClassName="globalContainerMaskclassName"
 			>
 				<div

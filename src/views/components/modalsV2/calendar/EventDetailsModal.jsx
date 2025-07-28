@@ -30,6 +30,17 @@ const sanitizeInput = (value) => {
 	return value;
 };
 
+const styles = {
+	header: { display: 'none' },
+	body: {
+		padding: '0px',
+		backgroundColor: 'transparent',
+		marginTop: '0px',
+		height: '100%',
+		overflow: 'hidden',
+	},
+};
+
 // Utility to normalize select values
 // const normalizeSelectValue = (value, options, field) => {
 // 	if (!options?.length) {
@@ -599,9 +610,7 @@ const EventDetailsModal = ({
 			onClose={modifiedOnClose}
 			width="auto"
 			open={isEventSelected}
-			styles={{ body: { padding: '0px', backgroundColor: 'transparent' } }}
-			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px', marginTop: '0px', height: '100%', overflow: 'hidden' }}
+			styles={styles}
 			placement="right"
 			closable={false}
 			className="event-details-drawer"

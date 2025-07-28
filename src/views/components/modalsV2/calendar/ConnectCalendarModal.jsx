@@ -2,6 +2,11 @@ import React, { memo } from 'react';
 import { Drawer } from 'antd';
 import '../../../../assets/scss/calendar/modal/connectCalendarModal.scss';
 
+const styles = {
+	header: { display: 'none' },
+	body: { padding: '0px' },
+};
+
 const ConnectCalendarModal = ({ onClose }) => {
 	return (
 		<Drawer
@@ -9,8 +14,7 @@ const ConnectCalendarModal = ({ onClose }) => {
 			width={450}
 			open={false}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
-			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
+			styles={styles}
 		>
 			<div className="connectCalendarModalContainer">
 				<div className="connectCalendarModalHeader">

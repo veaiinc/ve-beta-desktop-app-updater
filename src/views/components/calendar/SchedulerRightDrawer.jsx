@@ -21,6 +21,12 @@ import { isURL } from '../../../helpers';
 import AvailabilitySection from './AvailabilitySection';
 import ShareModal from '../globalComponents/globalShareModal';
 
+const styles = {
+	header: { display: 'none' },
+	body: { padding: '0px' },
+};
+
+
 const sessionTypeOptions = ['In Person', 'Phone Call', 'Video Call'];
 const sessionTypeInputConfig = {
 	'In Person': {
@@ -943,8 +949,7 @@ const SchedulerRightDrawer = ({
 			open={open}
 			onClose={handleClose}
 			placement="right"
-			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
+			styles={styles}
 			rootClassName="scheduler-right-drawer-wrapper"
 		>
 			<div className="scheduler-right-drawer-container">
