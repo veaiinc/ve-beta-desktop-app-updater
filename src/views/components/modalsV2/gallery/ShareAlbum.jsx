@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import ReactModal from '../index';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as Copy } from '../../../../assets/svg/gallery/copy.svg';

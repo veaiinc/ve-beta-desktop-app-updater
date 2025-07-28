@@ -7,6 +7,7 @@ import { ReactComponent as SearchLogo } from '../../../../assets/svg/chat/search
 import Context from '../../../../context/context';
 import { Tooltip } from 'antd';
 import { getInitials } from '../../../../helpers/index';
+import { ReactComponent as CrossIcon } from '../../../../assets/svg/gallery/cross.svg';
 
 const CollaboratorPopup = ({ open, closeModal, galleryId, setCollaborator }) => {
 	const {
@@ -96,9 +97,9 @@ const CollaboratorPopup = ({ open, closeModal, galleryId, setCollaborator }) => 
 			<div className="collaborator-main">
 				<div className="collaborator-title">
 					<p>Manage collaborators</p>
-					<p style={{ cursor: 'pointer' }} onClick={closeModal}>
-						X
-					</p>
+					<span style={{ cursor: 'pointer' }} onClick={closeModal}>
+						<CrossIcon />
+					</span>
 				</div>
 				<div className="collaborator-wrapper">
 					<div>

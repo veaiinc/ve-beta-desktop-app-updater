@@ -22,7 +22,7 @@ import { ReactComponent as DownloadIcon } from '../../../assets/svg/gallery/down
 import { ReactComponent as LightRoomIcon } from '../../../assets/svg/gallery/light-room.svg';
 import { ReactComponent as AlbumCoverIcon } from '../../../assets/svg/gallery/albumCoverIcon.svg';
 import { ReactComponent as DeleteIcon } from '../../../assets/svg/gallery/delete-red.svg';
-import { ReactComponent as LockIcon } from '../../../assets/svg/gallery/lockIcon.svg';
+import { ReactComponent as LockIcon } from '../../../assets/svg/notesPage/lock-icon.svg';
 import { ReactComponent as RightArrow } from '../../../assets/svg/home_page/arrow-right.svg';
 import { ReactComponent as PlusIcon } from '../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as ToastSuccess } from '../../../assets/svg/gallery/toastSuccess.svg';
@@ -2291,10 +2291,10 @@ const GalleryPage = () => {
 			message.destroy();
 			showMessage('success', 'Gallery deleted successfully');
 			if (!info?.isLightGallery) {
-				navigate('/files?activeTab=Gallery');
+				navigate('/files?active-tab=Gallery');
 				await getGalleries({}, true);
 			} else {
-				navigate(`/files?activeTab=Lite+Gallery`);
+				navigate(`/files?active-tab=Lite+Gallery`);
 				await getGalleries({ isLightGallery: true }, true);
 			}
 		} else {
@@ -4259,36 +4259,7 @@ const GalleryPage = () => {
 																				// 	)
 																				// }
 																			>
-																				<p>
-																					{album?.title}
-																				</p>
-																				<p
-																					style={{
-																						display:
-																							'flex',
-																						flexDirection:
-																							'row',
-																						alignItems:
-																							'center',
-																						gap: '5px',
-																					}}
-																				>
-																					{album
-																						?.guestAccess
-																						?.isEnabled && (
-																						<div
-																							style={{
-																								position:
-																									'relative',
-																							}}
-																						>
-																							<LockIcon
-																								style={{
-																									color: 'var(--secondary-font)',
-																								}}
-																							/>
-																						</div>
-																					)}
+																				<p className="albumTitle">
 																					{`${
 																						album?.imagesCount ||
 																						0
@@ -4299,6 +4270,30 @@ const GalleryPage = () => {
 																							: 'photo'
 																					}`}
 																				</p>
+
+																				<div className="albumDetailsBottom">
+																					<p>
+																						{
+																							album?.title
+																						}
+																					</p>
+																					{album
+																						?.guestAccess
+																						?.isEnabled && (
+																						<span
+																							style={{
+																								height: '18px',
+																								width: '18px',
+																							}}
+																						>
+																							<LockIcon
+																								style={{
+																									color: 'var(--secondary-font)',
+																								}}
+																							/>
+																						</span>
+																					)}
+																				</div>
 																			</div>
 																			{/* <div className="overlay"></div> */}
 																		</div>
@@ -4977,19 +4972,21 @@ const GalleryPage = () => {
 																/>
 																Rename Album
 															</li>
-															<li
-																onClick={() => {
-																	setInfo((prev) => ({
-																		...prev,
-																		showShareAlbum: true,
-																		showGalleryOptions: false,
-																		showOptions: false,
-																	}));
-																}}
-															>
-																<ShareIcon />
-																Share Album
-															</li>
+															{info?.activeAlbum?.isPublished && (
+																<li
+																	onClick={() => {
+																		setInfo((prev) => ({
+																			...prev,
+																			showShareAlbum: true,
+																			showGalleryOptions: false,
+																			showOptions: false,
+																		}));
+																	}}
+																>
+																	<ShareIcon />
+																	Share Album
+																</li>
+															)}
 															<li
 																onClick={() =>
 																	setInfo((prev) => ({
@@ -6452,6 +6449,7 @@ const GalleryPage = () => {
 				link={getShareLink()}
 				onCopyLink={handleCopyAlbumLink}
 				shouldShowPin={info?.activeAlbum?.guestAccess?.isEnabled}
+				galleryId={galleryId}
 			/>
 
 			<MoveToAlbumPopup
