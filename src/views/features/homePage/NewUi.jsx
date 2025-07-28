@@ -288,6 +288,9 @@ const NewUi = ({ handleActiveChatIndex }) => {
 			scrollLocked = true;
 
 			setInfo((prev) => {
+				if (prev?.dataLength === 1) {
+					return prev;
+				}
 				let { activeIndex: prevActiveIndex = 0, dataLength } = prev;
 				const scrollDirection = delta > 0 ? 'down' : 'up';
 				let newIndex = 0;
