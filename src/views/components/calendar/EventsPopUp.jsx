@@ -188,7 +188,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 		const validations = [
 			{
 				condition: !title,
-				message: 'Agenda is required',
+				message: 'Event Name is required',
 			},
 			{
 				condition: !startDate,
@@ -205,10 +205,6 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 			{
 				condition: endDateTime.isBefore(startDateTime),
 				message: 'End date/time cannot be before start date/time',
-			},
-			{
-				condition: attendees.length === 0,
-				message: 'At least one attendee is required',
 			},
 			{
 				condition: !selectedCategory,
@@ -1164,12 +1160,12 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 												  ))
 												: null}
 											{/* If input is a valid email and not in the list, allow adding */}
-											{info.attendeesInputField &&
-												isValidEmail(info.attendeesInputField) &&
+											{info?.attendeesInputField &&
+												isValidEmail(info?.attendeesInputField) &&
 												!tenantsUserList?.some(
 													(item) =>
-														item.email.toLowerCase() ===
-														info.attendeesInputField.toLowerCase(),
+														item?.email?.toLowerCase() ===
+														info?.attendeesInputField?.toLowerCase(),
 												) && (
 													<div
 														className={

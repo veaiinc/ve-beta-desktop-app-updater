@@ -11,6 +11,7 @@ import { ReactComponent as ChevronDown } from '../../../assets/svg/tasks/chevron
 import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
 import { ReactComponent as AddIcon } from '../../../assets/svg/add.svg';
 import Spinner from '../../components/loaders/Spinner';
+import GuideMePopup from './guideMePopup';
 
 const drawerStyles = {
 	header: { display: 'none' },
@@ -62,6 +63,7 @@ const CardMeetBot = () => {
 		currentIndex: 0,
 		searchOpen: false,
 		cards: [],
+		guideMePopupOpen: false,
 	});
 	const searchInputRef = useRef(null);
 
@@ -656,6 +658,7 @@ const CardMeetBot = () => {
 															setInfo((prev) => ({
 																...prev,
 																isAiIntelligenceEnabled: checked,
+																guideMePopupOpen: checked ? true : false,
 															}))
 														}
 													/>
@@ -806,6 +809,10 @@ const CardMeetBot = () => {
 					/>
 				)}
 			</div>
+			<GuideMePopup
+				isOpen={info.guideMePopupOpen}
+				onClose={() => setInfo({ ...info, guideMePopupOpen: false })}
+			/>
 		</div>
 	);
 };

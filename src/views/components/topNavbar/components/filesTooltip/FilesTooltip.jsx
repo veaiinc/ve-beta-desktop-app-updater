@@ -52,7 +52,7 @@ const files = [
 	},
 ];
 
-const FilesTooltip = () => {
+const FilesTooltip = ({ closeTooltip }) => {
 	const region = localStorage.getItem('region');
 	const navigate = useNavigate();
 
@@ -69,6 +69,7 @@ const FilesTooltip = () => {
 						if (file.link) {
 							navigate(file.link);
 						}
+						closeTooltip();
 					}}
 				>
 					<div className={s.fileIcon}>{file.icon}</div>
