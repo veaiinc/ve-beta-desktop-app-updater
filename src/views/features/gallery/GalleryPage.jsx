@@ -595,7 +595,7 @@ const GalleryPage = () => {
 		const childrenContainer = document.querySelector('.childrenContainer');
 		if (childrenContainer) {
 			const originalWidth = childrenContainer.style.maxWidth;
-			childrenContainer.style.maxWidth = '80vw';
+			childrenContainer.style.maxWidth = '85vw';
 			return () => {
 				childrenContainer.style.maxWidth = originalWidth;
 			};
@@ -3762,7 +3762,7 @@ const GalleryPage = () => {
 
 	return (
 		<>
-			<div className="galleryContainer">
+			<div className="galleryContainer" style={{ height: info?.isRearranging ? '100%' : '' }}>
 				{/* {!info?.isRearranging && (
 					<div className="galleryTitleWhenScrolled">
 						<span onClick={() => navigate('/home')} className="homeIcon">
@@ -4443,7 +4443,7 @@ const GalleryPage = () => {
 					</div>
 				)}
 				<div className="horizontalRule"></div>
-				{info?.scrolledTillEnd && info?.activeTab === 'Albums' && (
+				{info?.scrolledTillEnd && info?.activeTab === 'Albums' && !info?.isRearranging && (
 					<div className="galleryTitleWhenScrolled" style={{ gap: '24px' }}>
 						{sortByCustomIndex(albumImagesCount?.albums)?.map((album) => {
 							const isActive = album._id === info.activeAlbumId;
