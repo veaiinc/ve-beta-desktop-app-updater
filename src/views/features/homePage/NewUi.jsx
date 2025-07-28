@@ -296,7 +296,7 @@ const NewUi = ({ handleActiveChatIndex }) => {
 				let newIndex = 0;
 				//dataLength will be minimum 4 always
 
-				if (scrollDirection === 'up') {
+				if (scrollDirection === 'down') {
 					if (dataLength === 4) {
 						if (prevActiveIndex === dataLength - 2) {
 							newIndex = 1;
@@ -394,6 +394,11 @@ const NewUi = ({ handleActiveChatIndex }) => {
 						}
 					>
 						<div className="item-wrapper">
+							{(index === info?.activeIndex - 1 ||
+								(info?.dataLength >= 4 && index === info?.activeIndex - 2)) && (
+								<div className="item-title">{session?.title || 'New Chat'}</div>
+							)}
+
 							<div
 								className="item"
 								ref={(el) => {
@@ -411,6 +416,7 @@ const NewUi = ({ handleActiveChatIndex }) => {
 									...(index === info?.activeIndex && {
 										opacity: 1,
 									}),
+									height: session?.type === 'chatbox' ? 'fit-content' : '100%',
 								}}
 							>
 								{session?.type === 'chatbox' ? (

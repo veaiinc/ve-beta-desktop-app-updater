@@ -11,6 +11,7 @@
 		width: 100%;
 		max-width: 1500px;
 		height: 80vh;
+		overflow: hidden;
 		position: relative;
 		display: flex;
 		flex-direction: column;
@@ -33,6 +34,17 @@
 				top: 0 !important;
 				bottom: 0 !important;
 				margin: 0 !important;
+			}
+
+			.item-title {
+				width: 100%;
+				font-size: 15px;
+				font-weight: 500;
+				color: var(--primary-font);
+				position: absolute;
+				display: flex;
+				align-items: center;
+				justify-content: center;
 			}
 
 			.item-wrapper {
@@ -200,6 +212,14 @@
 			color: var(--primary-font);
 			margin-top: 1rem;
 		}
+	}
+
+	.active-card-title {
+		width: 100%;
+		font-size: 15px;
+		font-weight: 600;
+		color: var(--primary-font);
+		margin-top: 1rem;
 	}
 }
 
