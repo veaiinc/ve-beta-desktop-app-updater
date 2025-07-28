@@ -18,7 +18,6 @@ const getCardStyles = (index, activeIndex, dataLength) => {
 	const prev1 = (activeIndex - 1 + dataLength) % dataLength;
 	const prev2 = (activeIndex - 2 + dataLength) % dataLength;
 	const prev3 = (activeIndex - 3 + dataLength) % dataLength;
-
 	const next = (activeIndex + 1) % dataLength;
 	if (index === activeIndex) {
 		return {
@@ -34,7 +33,7 @@ const getCardStyles = (index, activeIndex, dataLength) => {
 			width: '88%',
 			opacity: 1,
 		};
-	} else if (index === prev2) {
+	} else if (index === prev2 && dataLength > 4) {
 		return {
 			top: 0,
 			bottom: '94%',
@@ -65,6 +64,62 @@ const getCardStyles = (index, activeIndex, dataLength) => {
 	}
 };
 
+const getClassName = (index, activeIndex, dataLength, scrollDirection) => {
+	if (scrollDirection === 'down') {
+		if (index === activeIndex) {
+			return 'card3__from__bottom';
+		} else if (index === activeIndex - 1) {
+			return 'card2__from__bottom';
+		} else if (index === activeIndex + 1) {
+			return 'card4__from__bottom';
+		} else if (dataLength === 4) {
+			if (index === activeIndex - 2) {
+				return 'card0__from__bottom';
+			} else if (index <= activeIndex - 2) {
+				return 'card__top';
+			} else if (index >= activeIndex + 2) {
+				return 'card__bottom';
+			}
+		} else {
+			if (index === activeIndex - 2) {
+				return 'card1__from__bottom';
+			} else if (index === activeIndex - 3) {
+				return 'card0__from__bottom';
+			} else if (index < activeIndex - 3) {
+				return 'card__top';
+			} else if (index >= activeIndex + 2) {
+				return 'card__bottom';
+			}
+		}
+	} else if (scrollDirection === 'up') {
+		if (index === activeIndex) {
+			return 'card3__from__top';
+		} else if (index === activeIndex - 1) {
+			return 'card2__from__top';
+		} else if (index === activeIndex + 1) {
+			return 'card4__from__top';
+		} else if (dataLength === 4) {
+			if (index <= activeIndex - 2) {
+				return 'card__top';
+			} else if (index >= activeIndex + 2) {
+				return 'card__bottom';
+			}
+		} else {
+			if (index === activeIndex - 2) {
+				return 'card1__from__top';
+			} else if (index === activeIndex - 3) {
+				return 'card0__from__top';
+			} else if (index < activeIndex - 3) {
+				return 'card__top';
+			} else if (index >= activeIndex + 2) {
+				return 'card__bottom';
+			}
+		}
+	} else {
+		return '';
+	}
+};
+
 const SCROLL_THRESHOLD = 10;
 const SCROLL_STOP_DELAY = 40; // time between wheel events to detect gesture end
 
@@ -81,22 +136,21 @@ const NewUi = ({ handleActiveChatIndex }) => {
 		activeIndex: 0,
 		dataLength: 1,
 		data: [{ type: 'chatbox' }],
-		sessionId: ObjectID().toString(),
+		sessionId: ObjectID()?.toString(),
 		chatQuery: '',
+		scrollDirection: null,
 	});
 	const navigate = useNavigate();
 	const containerRef = useRef(null);
 
 	useEffect(() => {
-		if (aiChatSessions?.data?.length > 4) {
-			let sessions = [...(aiChatSessions?.data || [])]?.reverse();
-			sessions = [
-				...sessions?.slice(0, sessions?.length - 1),
-				{
-					type: 'chatbox',
-				},
-				sessions?.[sessions?.length - 1],
-			];
+		if (aiChatSessions?.data?.length) {
+			let sessions = [...(aiChatSessions?.data || [])];
+			sessions =
+				sessions?.length === 1
+					? [{ type: 'chatbox' }, ...sessions]
+					: [sessions?.[0], { type: 'chatbox' }, ...sessions?.slice(1)];
+			sessions = [...sessions, ...sessions?.slice(0, 3)];
 			sessions = sessions?.filter(
 				(session) =>
 					session?.recentConversations?.length > 0 || session?.type === 'chatbox',
@@ -208,6 +262,7 @@ const NewUi = ({ handleActiveChatIndex }) => {
 				activeIndex: dataLength - 2,
 				dataLength,
 				data: sessions,
+				scrollDirection: null,
 			}));
 		}
 	}, [aiChatSessions]);
@@ -232,15 +287,46 @@ const NewUi = ({ handleActiveChatIndex }) => {
 			scrollLocked = true;
 
 			setInfo((prev) => {
-				let { activeIndex = 0, dataLength } = prev;
-				const newIndex =
-					delta > 0
-						? (activeIndex + 1) % dataLength
-						: activeIndex - 1 < 0
-						? dataLength - 1
-						: activeIndex - 1;
+				let { activeIndex: prevActiveIndex = 0, dataLength } = prev;
+				const scrollDirection = delta > 0 ? 'down' : 'up';
+				let newIndex = 0;
+				//dataLength will be minimum 4 always
 
-				return { ...prev, activeIndex: newIndex };
+				if (scrollDirection === 'up') {
+					if (dataLength === 4) {
+						if (prevActiveIndex === dataLength - 2) {
+							newIndex = 1;
+						} else {
+							newIndex = prevActiveIndex + 1;
+						}
+					} else {
+						if (prevActiveIndex === dataLength - 2) {
+							newIndex = 2;
+						} else {
+							newIndex = prevActiveIndex + 1;
+						}
+					}
+				} else {
+					if (dataLength === 4) {
+						if (prevActiveIndex === 1) {
+							newIndex = dataLength - 2;
+						} else {
+							newIndex = prevActiveIndex - 1;
+						}
+					} else {
+						if (prevActiveIndex === 2) {
+							newIndex = dataLength - 2;
+						} else {
+							newIndex = prevActiveIndex - 1;
+						}
+					}
+				}
+
+				return {
+					...prev,
+					activeIndex: newIndex,
+					scrollDirection,
+				};
 			});
 		}
 
@@ -289,8 +375,19 @@ const NewUi = ({ handleActiveChatIndex }) => {
 				{info?.data?.map((session, index) => (
 					<div
 						key={index}
-						className={`new-ui-item ${info?.data?.length === 1 ? 'single-card' : ''}`}
-						style={getCardStyles(index, info?.activeIndex, info?.dataLength)}
+						className={`new-ui-item ${
+							info?.data?.length === 1 ? 'single-card' : ''
+						} ${getClassName(
+							index,
+							info?.activeIndex,
+							info?.dataLength,
+							info?.scrollDirection,
+						)}`}
+						style={
+							!info?.scrollDirection
+								? getCardStyles(index, info?.activeIndex, info?.dataLength)
+								: {}
+						}
 					>
 						<div className="item-wrapper">
 							<div
