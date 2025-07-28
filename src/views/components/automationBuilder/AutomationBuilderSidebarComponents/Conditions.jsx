@@ -59,7 +59,9 @@ const Conditions = ({
 
 	useEffect(() => {
 		if (activeStepsData) {
-			setInfo((prev) => ({ ...prev, activeScreen: activeStepsData?.type }));
+			// Determine the correct screen based on condition type
+			let screenType = activeStepsData?.type;
+			setInfo((prev) => ({ ...prev, activeScreen: screenType }));
 		}
 	}, [activeStepsData]);
 

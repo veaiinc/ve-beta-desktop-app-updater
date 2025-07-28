@@ -19,6 +19,7 @@ import AgentAction from './AgentAction';
 import CreateDatabaseRow from './CreateDatabaseRow';
 import UpdateDatabaseRow from './UpdateDatabaseRow';
 import DeleteDatabaseRow from './DeleteDatabaseRow';
+import DatabaseFilter from './DatabaseFilter';
 
 const integrations = [
 	{
@@ -50,6 +51,10 @@ const actionGroups = [
 			{
 				actionLabel: 'Delay',
 				actionType: 'delay',
+			},
+			{
+				actionLabel: 'Database Filter',
+				actionType: 'databaseFilter',
 			},
 			{
 				actionLabel: 'Create Database Row',
@@ -200,6 +205,9 @@ const Actions = ({
 					actionLabel = 'Create Database Row';
 				} else if (activeStepsData?.inputBody?.action === 'deleteDatabaseRecord') {
 					actionLabel = 'Delete Database Row';
+				} else if (activeStepsData?.inputBody?.action === 'findDatabaseRecord') {
+					actionLabel = 'Database Filter';
+					actionType = 'databaseFilter';
 				}
 			}
 
@@ -347,6 +355,16 @@ const Actions = ({
 					variables={variables}
 					activeStepsData={activeStepsData}
 					handleChangeClick={handleChangeClick}
+				/>
+			),
+			databaseFilter: (
+				<DatabaseFilter
+					variables={variables}
+					onSave={onSave}
+					isLoading={info?.saveLoader}
+					hasNextNode={info?.hasNextNode}
+					onBack={handleBack}
+					activeStepsData={activeStepsData}
 				/>
 			),
 			database: (

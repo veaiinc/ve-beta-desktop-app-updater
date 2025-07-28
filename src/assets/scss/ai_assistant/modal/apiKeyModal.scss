@@ -1,0 +1,268 @@
+.api-key-modal {
+	background: var(--card);
+	border-radius: 15px;
+	width: 480px;
+	max-width: 90vw;
+	max-height: 90vh;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+
+	.api-key-modal-header {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		padding: 24px 24px 0 24px;
+		border-bottom: 1px solid var(--stroke);
+
+		.header-content {
+			display: flex;
+			align-items: center;
+			gap: 16px;
+			flex: 1;
+
+			.tool-logo {
+				width: 48px;
+				height: 48px;
+				border-radius: 8px;
+				object-fit: cover;
+				background: var(--card);
+			}
+
+			.tool-info {
+				h2 {
+					margin: 0 0 4px 0;
+					font-size: 18px;
+					font-weight: 600;
+					font-family: var(--primary-font-family);
+					color: var(--primary-font);
+				}
+
+				p {
+					margin: 0;
+					font-size: 14px;
+					font-family: var(--primary-font-family);
+					color: var(--secondary-font);
+				}
+			}
+		}
+
+		.cross-icon {
+			width: 20px;
+			height: 20px;
+			cursor: pointer;
+			color: var(--secondary-font);
+			transition: color 0.2s ease;
+
+			&:hover {
+				color: var(--primary-font);
+			}
+		}
+	}
+
+	.api-key-modal-body {
+		padding: 24px;
+		flex: 1;
+		overflow-y: auto;
+
+		.form-field {
+			margin-bottom: 24px;
+
+			label {
+				display: block;
+				margin-bottom: 8px;
+				font-size: 14px;
+				font-family: var(--primary-font-family);
+				font-weight: 500;
+				color: var(--primary-font);
+
+				.required {
+					color: var(--error);
+					margin-left: 4px;
+				}
+			}
+
+			.input-container {
+				position: relative;
+				display: flex;
+				align-items: center;
+
+				.api-key-input {
+					width: 100%;
+					padding: 12px 48px 12px 16px;
+					border: 1px solid var(--stroke);
+					border-radius: 8px;
+					font-size: 14px;
+					font-family: var(--primary-font-family);
+					background: var(--card);
+					color: var(--primary-font);
+					transition: border-color 0.2s ease;
+
+					&:focus {
+						outline: none;
+						border-color: var(--stroke);
+					}
+
+					&:disabled {
+						opacity: 0.6;
+						cursor: not-allowed;
+					}
+
+					&::placeholder {
+						color: var(--secondary-font);
+					}
+				}
+
+				.toggle-visibility {
+					position: absolute;
+					right: 12px;
+					background: none;
+					border: none;
+					cursor: pointer;
+					padding: 4px;
+					color: var(--secondary-font);
+					transition: color 0.2s ease;
+
+					&:hover {
+						color: var(--primary-font);
+					}
+
+					&:disabled {
+						opacity: 0.6;
+						cursor: not-allowed;
+					}
+
+					svg {
+						width: 16px;
+						height: 16px;
+					}
+				}
+			}
+
+			.field-error {
+				margin-top: 8px;
+				font-size: 12px;
+				font-family: var(--primary-font-family);
+				color: var(--error);
+				font-weight: 500;
+			}
+		}
+
+		.help-text {
+			p {
+				margin: 0;
+				font-size: 13px;
+				font-family: var(--primary-font-family);
+				color: var(--secondary-font);
+				line-height: 1.5;
+			}
+		}
+	}
+
+	.api-key-modal-footer {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		gap: 12px;
+		padding: 24px;
+		border-top: 1px solid var(--stroke);
+
+		.cancel-button {
+			padding: 10px 20px;
+			border: 1px solid var(--stroke);
+			border-radius: 8px;
+			background: var(--card);
+			font-family: var(--primary-font-family);
+			color: var(--primary-font);
+			font-size: 14px;
+			font-weight: 500;
+			cursor: pointer;
+			transition: all 0.2s ease;
+
+			&:hover:not(:disabled) {
+				background: var(--stroke);
+			}
+
+			&:disabled {
+				opacity: 0.6;
+				cursor: not-allowed;
+			}
+		}
+
+		.connect-button {
+			padding: 10px 20px;
+			border: none;
+			border-radius: 8px;
+			background: var(--card-over-card);
+			font-family: var(--primary-font-family);
+			color: var(--primary-font);
+			font-size: 14px;
+			font-weight: 500;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+
+			&:hover:not(:disabled) {
+				background: var(--card-over-card-hover);
+			}
+
+			&:disabled {
+				opacity: 0.6;
+				cursor: not-allowed;
+			}
+
+			span {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+		}
+	}
+}
+
+@media (max-width: 768px) {
+	.api-key-modal {
+		width: 95vw;
+		margin: 20px;
+
+		.api-key-modal-header {
+			padding: 20px 20px 0 20px;
+
+			.header-content {
+				gap: 12px;
+
+				.tool-logo {
+					width: 40px;
+					height: 40px;
+				}
+
+				.tool-info {
+					h2 {
+						font-size: 16px;
+					}
+
+					p {
+						font-size: 13px;
+					}
+				}
+			}
+		}
+
+		.api-key-modal-body {
+			padding: 20px;
+		}
+
+		.api-key-modal-footer {
+			padding: 20px;
+			flex-direction: column-reverse;
+
+			.cancel-button,
+			.connect-button {
+				width: 100%;
+				justify-content: center;
+			}
+		}
+	}
+}

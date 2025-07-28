@@ -5,10 +5,8 @@ import { colors } from '../../../../../src/helpers/taskHelpers';
 import { ReactComponent as PrioritySvg } from '../../../../../src/assets/svg/tasks/ChartBar.svg';
 import Status from '../../../../../src/views/components/tasks/listView/Status';
 import DateView from '../../../../../src/views/components/tasks/listView/DateView';
-import TeamMembers from './TeamMembers';
-import PrioritySelect from './PrioritySelect';
-import StatusSelection from './StatusSelection';
-import DateSelection from './DateSelection';
+import Person from '../../../../../src/views/components/tasks/listView/Person';
+import Select from '../../../../../src/views/components/tasks/listView/Select';
 
 function TaskCard({ updateTask, task }) {
 	const {
@@ -96,12 +94,12 @@ function TaskCard({ updateTask, task }) {
 	const handleFieldChange = (key, value) => {
 		const updated = {
 			...localTask,
-			[key]: key === 'assignedTo' ? { tenantUsers: value } : value,
+			[key]: value, // Remove the conditional wrapping
 		};
 		setLocalTask(updated);
 		updateTask(task, {
 			...task,
-			[key]: key === 'assignedTo' ? { tenantUsers: value } : value,
+			[key]: key === 'assignedTo' ? { tenantUsers: value } : value, // Keep the API format only for updateTask
 		});
 	};
 
@@ -122,34 +120,37 @@ function TaskCard({ updateTask, task }) {
 						<div className="taskCard-label">ASSIGNED TO</div>
 
 						<div className="team-manager">
-							{/* <Person
-								// value={info?.assignedTo || []}
-								value={[{ name: 'test', _id: 'test' }]}
+							<Person
+								value={
+									Array.isArray(localTask?.assignedTo)
+										? localTask?.assignedTo
+										: localTask?.assignedTo?.tenantUsers || []
+								}
 								onOptionClick={(value) => handleFieldChange('assignedTo', value)}
 								showTitle={false}
-								title={'sabith'}
+								title={'Assigned To'}
 								multiSelect={true}
 								parseValue={true}
 								removeBtn={true}
-								// options={tenantsUserList}
+								options={tenantsUserList}
 								disabled={false}
 								showLabel={true}
-							/> */}
-							<TeamMembers
+							/>
+							{/* <TeamMembers
 								assignedUsers={task?.assignedTo || []}
 								teamMembers={tenantsUserList || []}
 								title={'Assigned To'}
 								onSelectedMembersChange={(value) =>
 									handleFieldChange('assignedTo', value)
 								}
-							/>
+							/> */}
 						</div>
 					</div>
 
 					<div className="taskCard-info">
 						<div className="taskCard-label">Priority</div>
 						<div className={`taskCard-priority`}>
-							{/* <Select
+							<Select
 								value={task?.priority || 'low'}
 								onOptionClick={(value) => handleFieldChange('priority', value)}
 								title={'Priority'}
@@ -159,8 +160,8 @@ function TaskCard({ updateTask, task }) {
 									{ label: 'Medium', _id: 'medium', color: '4' },
 									{ label: 'High', _id: 'high', color: '1' },
 								]}
-							/> */}
-							<PrioritySelect
+							/>
+							{/* <PrioritySelect
 								value={task?.priority || 'low'}
 								onOptionClick={(value) => handleFieldChange('priority', value)}
 								options={[
@@ -168,31 +169,31 @@ function TaskCard({ updateTask, task }) {
 									{ label: 'Medium', _id: 'medium', color: '4' },
 									{ label: 'High', _id: 'high', color: '1' },
 								]}
-							/>
+							/> */}
 						</div>
 					</div>
 					<div className="taskCard-info">
 						<div className="taskCard-label">Due Date</div>
-						{/* <DateView
+						<DateView
 							value={task?.dueDate}
 							onOptionClick={(value) => handleFieldChange('dueDate', value)}
 							title={'Due Date'}
 							showIcon={true}
 							customListItemStyle={{ margin: '0 6px' }}
-						/> */}
-						<DateSelection
+						/>
+						{/* <DateSelection
 							value={task?.dueDate} // This should be epoch timestamp
 							onChange={(epochValue) => handleFieldChange('dueDate', epochValue)}
 							title={'Due Date'}
 							showTime={true}
 							format="YYYY-MM-DD HH:mm"
 							placeholder="Select due date"
-						/>
+						/> */}
 					</div>
 
 					<div className="taskCard-info">
 						<div className="taskCard-label">Status</div>
-						{/* <Status
+						<Status
 							value={task?.status || taskMetadata?.todoGroupLabels?.[0]?._id}
 							showLabel={true}
 							options={info?.options}
@@ -200,8 +201,8 @@ function TaskCard({ updateTask, task }) {
 							title={'Status'}
 							colors={colors}
 							setDefault={info?.isSubTaskEditing ? false : true}
-						/> */}
-						<StatusSelection
+						/>
+						{/* <StatusSelection
 							value={task?.status || 'Pending'}
 							placeholder={'Select Status'}
 							onOptionClick={(value) => handleFieldChange('status', value)}
@@ -213,7 +214,7 @@ function TaskCard({ updateTask, task }) {
 							]}
 							title={'Status'}
 							colors={colors}
-						/>
+						/> */}
 					</div>
 				</div>
 
