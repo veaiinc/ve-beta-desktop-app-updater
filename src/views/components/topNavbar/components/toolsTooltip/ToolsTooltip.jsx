@@ -36,7 +36,7 @@ const tools = [
 	},
 ];
 
-const ToolsTooltip = () => {
+const ToolsTooltip = ({ closeTooltip }) => {
 	const region = localStorage.getItem('region');
 	const navigate = useNavigate();
 
@@ -53,6 +53,7 @@ const ToolsTooltip = () => {
 						if (tool.link) {
 							navigate(tool.link);
 						}
+						closeTooltip();
 					}}
 				>
 					<div className={s.toolIcon}>{tool.icon}</div>

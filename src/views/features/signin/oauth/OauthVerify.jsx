@@ -27,7 +27,7 @@ const OauthVerify = () => {
 			) {
 				localStorage.setItem('workspaceId', accessibleWorkspaces?.workspaceId);
 				localStorage.setItem('usertoken', accessToken);
-				localStorage.setItem('region', region || 'ap-south-1');
+				localStorage.setItem('region', region || 'us-east-1');
 				localStorage.setItem('isOnboard', accessibleWorkspaces?.isOnboard);
 				const host = fetchDomainName();
 				Cookies.set('usertoken', accessToken, {
@@ -38,7 +38,7 @@ const OauthVerify = () => {
 					sameSite: 'lax',
 					domain: host,
 				});
-				Cookies.set('region', region || 'ap-south-1', {
+				Cookies.set('region', region || 'us-east-1', {
 					sameSite: 'lax',
 					domain: host,
 				});
@@ -52,13 +52,13 @@ const OauthVerify = () => {
 				accessibleWorkspaces === 'undefined'
 			) {
 				localStorage.setItem('usertoken', accessToken);
-				localStorage.setItem('region', region || 'ap-south-1');
+				localStorage.setItem('region', region || 'us-east-1');
 				const host = fetchDomainName();
 				Cookies.set('usertoken', accessToken, {
 					sameSite: 'lax',
 					domain: host,
 				});
-				Cookies.set('region', region || 'ap-south-1', {
+				Cookies.set('region', region || 'us-east-1', {
 					sameSite: 'lax',
 					domain: host,
 				});
