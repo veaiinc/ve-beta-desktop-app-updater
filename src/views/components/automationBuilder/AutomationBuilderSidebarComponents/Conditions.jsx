@@ -15,11 +15,9 @@ import Context from '../../../../context/context';
 import HeaderComponent from './HeaderComponent';
 import IfElse from './IfElse';
 import SwitchStep from './SwitchStep';
-import DatabaseFilter from './DatabaseFilter';
 const conditionsList = {
 	condition: { label: 'If / Else', value: 'condition' },
 	switch: { label: 'Switch', value: 'switch' },
-	databaseFilter: { label: 'Database Filter', value: 'databaseFilter' },
 };
 const Conditions = ({
 	onClose,
@@ -63,12 +61,6 @@ const Conditions = ({
 		if (activeStepsData) {
 			// Determine the correct screen based on condition type
 			let screenType = activeStepsData?.type;
-			if (
-				activeStepsData?.type === 'condition' &&
-				activeStepsData?.inputBody?.action === 'findDatabaseRecord'
-			) {
-				screenType = 'databaseFilter';
-			}
 			setInfo((prev) => ({ ...prev, activeScreen: screenType }));
 		}
 	}, [activeStepsData]);
@@ -169,16 +161,6 @@ const Conditions = ({
 			),
 			switch: (
 				<SwitchStep
-					variables={variables}
-					onSave={onSave}
-					isLoading={info?.isLoading}
-					hasNextNode={info?.hasNextNode}
-					onBack={onBack}
-					activeStepsData={activeStepsData}
-				/>
-			),
-			databaseFilter: (
-				<DatabaseFilter
 					variables={variables}
 					onSave={onSave}
 					isLoading={info?.isLoading}

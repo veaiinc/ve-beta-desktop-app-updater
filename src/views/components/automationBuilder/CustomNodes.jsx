@@ -373,13 +373,13 @@ const HoverComponentForNodes = ({
 			{showDuplicate && (
 				<Tooltip title="Duplicate node" placement="right">
 					<span onClick={handleDebouncedDuplicate}>
-						<Copy style={{ cursor: 'pointer' }} className={"icon-copy"} />
+						<Copy style={{ cursor: 'pointer' }} className={'icon-copy'} />
 					</span>
 				</Tooltip>
 			)}
 			<Tooltip title="Delete node" placement="right">
 				<span onClick={openDeleteModal}>
-					<Dustbin style={{ cursor: 'pointer' }} className={"icon-dustbin"} />
+					<Dustbin style={{ cursor: 'pointer' }} className={'icon-dustbin'} />
 				</span>
 			</Tooltip>
 		</div>
@@ -475,7 +475,7 @@ export const DatabaseFilterNode = ({ data }) => {
 		if (data?.onToolBarOpen) {
 			data.onToolBarOpen({
 				toolBarOpen: true,
-				sidebarType: 'conditions',
+				sidebarType: 'actions',
 				activeStepsData: data?.currentStep,
 				editMode: true,
 			});
@@ -517,7 +517,7 @@ export const DatabaseFilterNode = ({ data }) => {
 						<DatabaseIcon />
 						Database Filter
 					</span>
-					<span> Condition</span>
+					<span> Action</span>
 				</div>
 				<div className="lower-action-node-container">
 					<span className="lower-action-node-title">

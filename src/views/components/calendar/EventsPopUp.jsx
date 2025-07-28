@@ -207,10 +207,6 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 				message: 'End date/time cannot be before start date/time',
 			},
 			{
-				condition: attendees.length === 0,
-				message: 'At least one attendee is required',
-			},
-			{
 				condition: !selectedCategory,
 				message: 'Please select a category',
 			},
