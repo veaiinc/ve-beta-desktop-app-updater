@@ -84,7 +84,6 @@ const DatabaseFilter = ({
 				value: '',
 			},
 		],
-		moveToYes: true,
 	});
 
 	// Pre-fill form when editing an existing step
@@ -321,7 +320,7 @@ const DatabaseFilter = ({
 			}
 		});
 
-		// Create the exact payload structure you want
+		// Create the exact payload structure
 		const payload = {
 			title: info.title.trim(),
 			description: info.description.trim(),
@@ -333,19 +332,14 @@ const DatabaseFilter = ({
 			inputBody,
 		};
 
-		// Add moveTo only for new steps (not when editing)
-		if (!activeStepsData) {
-			payload.moveTo = info.moveToYes ? 'yes' : 'no';
-		}
-
 		onSave(payload);
-	}, [info, onSave, activeStepsData]);
+	}, [info, onSave]);
 
 	return (
 		<>
 			<ActionDetailsBlock
 				actionLabel="Database Filter"
-				heading="Database Filter Condition"
+				heading="Database Filter Action"
 				title={info.title}
 				description={info.description}
 				updaterFn={updateInfo}
@@ -496,34 +490,6 @@ const DatabaseFilter = ({
 				<button className="databaseFilterAddFilterButton" onClick={addFilter}>
 					Add Filter
 				</button>
-
-				{hasNextNode && (
-					<div className="databaseFilterInputField">
-						<span className="databaseFilterInputLabel">
-							Where should the existing steps go?
-						</span>
-						<div className="databaseFilterCheckboxContainer">
-							<label htmlFor="toYes">
-								<input
-									type="checkbox"
-									id="toYes"
-									checked={info.moveToYes}
-									onChange={(e) => updateInfo({ moveToYes: e.target.checked })}
-								/>
-								To Yes (Records Found)
-							</label>
-							<label htmlFor="toNo">
-								<input
-									type="checkbox"
-									id="toNo"
-									checked={!info.moveToYes}
-									onChange={(e) => updateInfo({ moveToYes: !e.target.checked })}
-								/>
-								To No (No Records Found)
-							</label>
-						</div>
-					</div>
-				)}
 			</div>
 
 			<button className="databaseFilterSaveButton" onClick={handleSave} disabled={isLoading}>
