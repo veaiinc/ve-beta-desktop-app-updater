@@ -337,6 +337,16 @@ const NewUi = ({ handleActiveChatIndex }) => {
 					scrollDirection,
 				};
 			});
+
+			// let { activeIndex = 0, dataLength } = prev;
+			// const newIndex =
+			// 	delta > 0
+			// 		? (activeIndex + 1) % dataLength
+			// 		: activeIndex - 1 < 0
+			// 		? dataLength - 1
+			// 		: activeIndex - 1;
+
+			// return { ...prev, activeIndex: newIndex };
 		}
 
 		// Reset the timeout on every wheel event
