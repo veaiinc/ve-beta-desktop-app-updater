@@ -165,7 +165,6 @@ const Calendar = () => {
 		}));
 	}, []);
 	const updateCategoryList = useCallback(() => {
-		console.log(calendarCategoriesList);
 		if (calendarCategoriesList?.error) {
 			message.error(calendarCategoriesList?.error);
 			return;
