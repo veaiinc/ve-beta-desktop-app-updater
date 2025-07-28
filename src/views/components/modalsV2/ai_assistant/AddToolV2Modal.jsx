@@ -61,18 +61,6 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		// { id: 'trending', name: 'Trending' },
 		// { id: 'your-tools', name: 'Your tools' },
 	];
-
-	// Use cases for filtering
-	const useCases = ['Communications', 'CRM', 'Data scrapper', 'Calendar', 'Knowledge'];
-
-	// Apps for filtering (this would come from your API)
-	const apps = [
-		{ name: 'Gmail', icon: '📧', slug: 'gmail' },
-		{ name: 'Google Calendar', icon: '📅', slug: 'google_calendar' },
-		{ name: 'Hubspot', icon: '🏢', slug: 'hubspot' },
-		{ name: 'LinkedIn', icon: '💼', slug: 'linkedin' },
-	];
-
 	// Generate apps list dynamically from the actual actions data
 	const generateAppsFromActions = (actions) => {
 		const appMap = new Map();
@@ -631,11 +619,11 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 															onClick={() => handleAddTool(action)}
 														>
 															<div className="tool-icon-container">
-															<img
-																src={action.toolkit.logo || ''}
-																alt={action.name || 'Tool'}
-																className="tool-icon"
-															/>
+																<img
+																	src={action.toolkit.logo || ''}
+																	alt={action.name || 'Tool'}
+																	className="tool-icon"
+																/>
 															</div>
 															<div className="tool-info">
 																<span className="tool-name">

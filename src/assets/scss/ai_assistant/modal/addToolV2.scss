@@ -33,7 +33,7 @@
 			gap: 8px;
 			border-radius: 8px;
 			border: 1px solid var(--stroke, #2c2d2e);
-			background: var(--chat-button, #2e2f33);
+			background: var(--card-over-card-hover, #2e2f33);
 
 			.search-input {
 				width: 100%;
@@ -223,7 +223,7 @@
 				aspect-ratio: 1/1;
 				border-radius: 10px;
 				border: 1px solid var(--stroke, #2c2d2e);
-				background: var(--chat-button, #2e2f33);
+				background: var(--card-over-card-hover, #2e2f33);
 				.tool-icon {
 					display: flex;
 					width: 18px;
@@ -337,7 +337,6 @@
 		width: 100%;
 		padding: 12px;
 		border-radius: 14px;
-		background: var(--error-bg, rgba(255, 107, 107, 0.1));
 		color: var(--error, #ff6b6b);
 		font-size: 14px;
 		font-weight: 500;
