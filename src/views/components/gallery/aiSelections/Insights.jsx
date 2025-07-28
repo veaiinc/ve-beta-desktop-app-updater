@@ -12,6 +12,7 @@ import { useInView } from 'react-intersection-observer';
 import { debounce } from 'lodash';
 const filterOptions = ['Today', 'Last Week', 'Last Month', 'Last Year'];
 import { useLocation } from 'react-router-dom';
+import { Tooltip } from 'antd';
 
 const Insights = () => {
 	const location = useLocation();
@@ -278,7 +279,53 @@ const Insights = () => {
 							<p onClick={() => downloadCSV(visitorData)}>
 								<DownloadIcon />
 							</p>
-							<p
+							<Tooltip
+								title={
+									<div className="filter-dropdown">
+										<div className="filter-option">Filter by</div>
+										<hr
+											style={{
+												width: '100%',
+												border: '1px solid rgba(255, 255, 255, 0.1)',
+											}}
+										/>
+										{filterOptions.map((option, index) => (
+											<div
+												key={index}
+												className="filter-option"
+												onClick={() => {
+													setSelectedFilter(option);
+													setShowFilter(false);
+												}}
+											>
+												{option}
+											</div>
+										))}
+										<hr
+											style={{
+												width: '100%',
+												border: '1px solid rgba(255, 255, 255, 0.1)',
+											}}
+										/>
+										<div
+											className="filter-option"
+											onClick={() => setShowDatePicker(!showDatePicker)}
+										>
+											Custom Date
+										</div>
+									</div>
+								}
+								arrow={false}
+								placement="bottom"
+								color="transparent"
+								overlayStyle={{ zIndex: 10000 }}
+								trigger="click"
+							>
+								<p className="filter-container">
+									<FilterIcon />
+								</p>
+							</Tooltip>
+							{/* <p
 								className="filter-container"
 								onClick={() => setShowFilter(!showFilter)}
 							>
@@ -319,7 +366,7 @@ const Insights = () => {
 										</div>
 									</div>
 								)}
-							</p>
+							</p> */}
 							<MainPopup
 								open={showDatePicker}
 								onClose={() => setShowDatePicker(false)}

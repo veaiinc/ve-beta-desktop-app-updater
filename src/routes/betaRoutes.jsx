@@ -138,7 +138,7 @@ const betaRoutes = [
 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 				maxWidth="100%"
 			>
-				<RecentChat />
+				<RecentChat showChatHistory={true} />
 			</AuthWrapper>
 		),
 	},

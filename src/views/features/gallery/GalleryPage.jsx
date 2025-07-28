@@ -22,7 +22,7 @@ import { ReactComponent as DownloadIcon } from '../../../assets/svg/gallery/down
 import { ReactComponent as LightRoomIcon } from '../../../assets/svg/gallery/light-room.svg';
 import { ReactComponent as AlbumCoverIcon } from '../../../assets/svg/gallery/albumCoverIcon.svg';
 import { ReactComponent as DeleteIcon } from '../../../assets/svg/gallery/delete-red.svg';
-import { ReactComponent as LockIcon } from '../../../assets/svg/gallery/lockIcon.svg';
+import { ReactComponent as LockIcon } from '../../../assets/svg/notesPage/lock-icon.svg';
 import { ReactComponent as RightArrow } from '../../../assets/svg/home_page/arrow-right.svg';
 import { ReactComponent as PlusIcon } from '../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as ToastSuccess } from '../../../assets/svg/gallery/toastSuccess.svg';
@@ -595,7 +595,7 @@ const GalleryPage = () => {
 		const childrenContainer = document.querySelector('.childrenContainer');
 		if (childrenContainer) {
 			const originalWidth = childrenContainer.style.maxWidth;
-			childrenContainer.style.maxWidth = '80vw';
+			childrenContainer.style.maxWidth = '85vw';
 			return () => {
 				childrenContainer.style.maxWidth = originalWidth;
 			};
@@ -2291,10 +2291,10 @@ const GalleryPage = () => {
 			message.destroy();
 			showMessage('success', 'Gallery deleted successfully');
 			if (!info?.isLightGallery) {
-				navigate('/files?activeTab=Gallery');
+				navigate('/files?active-tab=Gallery');
 				await getGalleries({}, true);
 			} else {
-				navigate(`/files?activeTab=Lite+Gallery`);
+				navigate(`/files?active-tab=Lite+Gallery`);
 				await getGalleries({ isLightGallery: true }, true);
 			}
 		} else {
@@ -3285,10 +3285,11 @@ const GalleryPage = () => {
 		if (!clientX || !clientY) return;
 
 		const container = rearrangeContainerRef.current;
+		console.log('container', container);
 		if (!container) return;
 
 		const scrollSpeed = 20;
-		const buffer = 50;
+		const buffer = 100;
 
 		const { top, bottom } = container.getBoundingClientRect();
 
@@ -3709,11 +3710,11 @@ const GalleryPage = () => {
 		}));
 	};
 
-	const openUploadCoverPhoto = (file) => {
+	const openUploadCoverPhoto = (file, type) => {
 		setInfo((prev) => ({
 			...prev,
 			showUploadCover: true,
-			coverType: 'album',
+			coverType: type,
 			selectedImages: [file?._id],
 			coverPhoto: true,
 			isLoadingCover: true, // Set loading to true while fetching the image
@@ -3762,7 +3763,7 @@ const GalleryPage = () => {
 
 	return (
 		<>
-			<div className="galleryContainer">
+			<div className="galleryContainer" style={{ height: info?.isRearranging ? '100%' : '' }}>
 				{/* {!info?.isRearranging && (
 					<div className="galleryTitleWhenScrolled">
 						<span onClick={() => navigate('/home')} className="homeIcon">
@@ -4258,36 +4259,7 @@ const GalleryPage = () => {
 																				// 	)
 																				// }
 																			>
-																				<p>
-																					{album?.title}
-																				</p>
-																				<p
-																					style={{
-																						display:
-																							'flex',
-																						flexDirection:
-																							'row',
-																						alignItems:
-																							'center',
-																						gap: '5px',
-																					}}
-																				>
-																					{album
-																						?.guestAccess
-																						?.isEnabled && (
-																						<div
-																							style={{
-																								position:
-																									'relative',
-																							}}
-																						>
-																							<LockIcon
-																								style={{
-																									color: 'var(--secondary-font)',
-																								}}
-																							/>
-																						</div>
-																					)}
+																				<p className="albumTitle">
 																					{`${
 																						album?.imagesCount ||
 																						0
@@ -4298,6 +4270,30 @@ const GalleryPage = () => {
 																							: 'photo'
 																					}`}
 																				</p>
+
+																				<div className="albumDetailsBottom">
+																					<p>
+																						{
+																							album?.title
+																						}
+																					</p>
+																					{album
+																						?.guestAccess
+																						?.isEnabled && (
+																						<span
+																							style={{
+																								height: '18px',
+																								width: '18px',
+																							}}
+																						>
+																							<LockIcon
+																								style={{
+																									color: 'var(--secondary-font)',
+																								}}
+																							/>
+																						</span>
+																					)}
+																				</div>
 																			</div>
 																			{/* <div className="overlay"></div> */}
 																		</div>
@@ -4443,7 +4439,7 @@ const GalleryPage = () => {
 					</div>
 				)}
 				<div className="horizontalRule"></div>
-				{info?.scrolledTillEnd && info?.activeTab === 'Albums' && (
+				{info?.scrolledTillEnd && info?.activeTab === 'Albums' && !info?.isRearranging && (
 					<div className="galleryTitleWhenScrolled" style={{ gap: '24px' }}>
 						{sortByCustomIndex(albumImagesCount?.albums)?.map((album) => {
 							const isActive = album._id === info.activeAlbumId;
@@ -4905,7 +4901,7 @@ const GalleryPage = () => {
 													title={
 														<div
 															className="galleryEditOptions"
-															ref={albumSettingsRef}
+															// ref={albumSettingsRef}
 														>
 															<div
 																className="album-toggles"
@@ -4976,19 +4972,21 @@ const GalleryPage = () => {
 																/>
 																Rename Album
 															</li>
-															<li
-																onClick={() => {
-																	setInfo((prev) => ({
-																		...prev,
-																		showShareAlbum: true,
-																		showGalleryOptions: false,
-																		showOptions: false,
-																	}));
-																}}
-															>
-																<ShareIcon />
-																Share Album
-															</li>
+															{info?.activeAlbum?.isPublished && (
+																<li
+																	onClick={() => {
+																		setInfo((prev) => ({
+																			...prev,
+																			showShareAlbum: true,
+																			showGalleryOptions: false,
+																			showOptions: false,
+																		}));
+																	}}
+																>
+																	<ShareIcon />
+																	Share Album
+																</li>
+															)}
 															<li
 																onClick={() =>
 																	setInfo((prev) => ({
@@ -5058,6 +5056,7 @@ const GalleryPage = () => {
 													arrow={false}
 													color="transparent"
 													trigger={'click'}
+													overlayStyle={{ zIndex: 997 }}
 												>
 													<div
 														style={{ position: 'relative' }}
@@ -5131,6 +5130,10 @@ const GalleryPage = () => {
 											isMouseInGallery: false,
 										}))
 									}
+									style={{
+										height: '90vh',
+										overflow: 'auto',
+									}}
 									ref={rearrangeContainerRef}
 								>
 									<InfiniteScroll
@@ -5144,7 +5147,8 @@ const GalleryPage = () => {
 										}
 										resetInfinityScroll={info?.resetInfinityScroll}
 										disableDrop={true}
-										height={'90vh'}
+										// height={'90vh'}
+										scrollableTarget="galleryScrollTarget"
 									>
 										{!info.isRearranging ? (
 											<ResponsiveMasonry
@@ -5283,6 +5287,12 @@ const GalleryPage = () => {
 																	<Skeleton
 																		width="100%"
 																		height="200px"
+																		style={{
+																			'--highlight-color':
+																				'gray',
+																			'--base-color':
+																				'transparent',
+																		}}
 																	/>
 																</div>
 														  ))}
@@ -5555,99 +5565,46 @@ const GalleryPage = () => {
 													}))
 												}
 											>
-												<p style={{ cursor: 'pointer' }}>
-													Selection Settings
-												</p>
-												{info.clientSubscriptionOptions && (
-													<div
-														className="galleryEditOptions"
-														ref={optionsContainerRef}
-														style={{
-															position: 'absolute',
-															right: '0',
-															top: '100%',
-															zIndex: 100,
-															width: '200px',
-														}}
-													>
-														<li
-															onClick={handleLightRoomCopy}
-															style={{
-																display: 'flex',
-																alignItems: 'center',
-																gap: '4px',
-															}}
+												<Tooltip
+													title={
+														<div
+															className="galleryEditOptions"
+															ref={optionsContainerRef}
 														>
-															<LightRoomIcon />
-															<span>Light Room Copy</span>
-														</li>
-														{/* <li
-														onClick={() => {
-															setInfo((prev) => ({
-																...prev,
-																showShareAlbum: true,
-																clientSubscriptionOptions: false,
-															}));
-														}}
-														style={{
-															display: 'flex',
-															alignItems: 'center',
-															gap: '4px',
-														}}
-													>
-														<ShareIcon />
-														<span>Share</span>
-													</li> */}
-														<li
-															onClick={handleDownload}
-															style={{
-																display: 'flex',
-																alignItems: 'center',
-																gap: '4px',
-															}}
-														>
-															<DownloadIcon />
-															<span>Download</span>
-														</li>
-														<li
-															onClick={() =>
-																handleUploadCoverOpen('album')
-															}
-															style={{
-																display: 'flex',
-																alignItems: 'center',
-																gap: '4px',
-															}}
-														>
-															<AlbumCoverIcon />
-															Album Cover
-														</li>
-														{/* <div
-															onClick={() => {
-																setInfo((prev) => ({
-																	...prev,
-																	showDeleteAlbum: true,
-																	showOptionsContainer: false, // Close options menu if it exists
-																}));
-															}}
-															style={{
-																display: 'flex',
-																alignItems: 'center',
-																gap: '4px',
-															}}
-														>
-															<DeleteIcon />
-															<span
+															<li
+																onClick={handleLightRoomCopy}
 																style={{
-																	color: '#A74A49',
-																	cursor: 'pointer',
+																	display: 'flex',
+																	alignItems: 'center',
+																	gap: '4px',
 																}}
 															>
-																Delete Album
-															</span>
-														</div> */}
-													</div>
-												)}
+																<LightRoomIcon />
+																<span>Light Room Copy</span>
+															</li>
+
+															<li
+																onClick={handleDownload}
+																style={{
+																	display: 'flex',
+																	alignItems: 'center',
+																	gap: '4px',
+																}}
+															>
+																<DownloadIcon />
+																<span>Download</span>
+															</li>
+														</div>
+													}
+													placement="bottom"
+													arrow={false}
+													color={'transparent'}
+													trigger={'click'}
+												>
+													<p style={{ cursor: 'pointer' }}>
+														Selection Settings
+													</p>
+												</Tooltip>
 											</div>
 											<div
 												onClick={() =>
@@ -6498,6 +6455,7 @@ const GalleryPage = () => {
 				link={getShareLink()}
 				onCopyLink={handleCopyAlbumLink}
 				shouldShowPin={info?.activeAlbum?.guestAccess?.isEnabled}
+				galleryId={galleryId}
 			/>
 
 			<MoveToAlbumPopup

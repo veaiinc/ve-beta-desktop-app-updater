@@ -606,7 +606,7 @@ const ShareModal = ({
 											onClick={() => handleOpenDownloadOptions('Guest')}
 										>
 											<p>
-												{galleryGuestAccessDetails?.canClientDownloadOriginals &&
+												{galleryGuestAccessDetails?.canDownloadOriginals &&
 												galleryGuestAccessDetails?.canDownloadOptimized
 													? 'Guest Download Originals , Guest Download Optimized'
 													: galleryGuestAccessDetails?.canDownloadOriginals

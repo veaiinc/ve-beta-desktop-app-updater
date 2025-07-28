@@ -303,11 +303,13 @@ class ServiceItem extends Component {
 							showSubBlockBorder: true,
 						},
 						() => {
+							// ! commented for making it active on every clixk
 							if (
-								!this.state.textSelection &&
-								this.state.client == false &&
-								this.imgRef.current &&
-								!this.imgRef.current.contains(event.target)
+								// 	!this.state.textSelection &&
+								// 	this.state.client == false &&
+								// 	this.imgRef.current &&
+								// 	!this.imgRef.current.contains(event.target)
+								!this.props?.client
 							) {
 								this.props.serviceTableSubBlock(this.state.block._id);
 							}
@@ -604,7 +606,8 @@ class ServiceItem extends Component {
 												),
 											}}
 										>
-											{this.state.block.subBlocks[0]?.unit === 'none'
+											{!this.state.block.subBlocks[0]?.unit ||
+											this.state.block.subBlocks[0]?.unit === 'none'
 												? `Quantity: ${
 														window?.location?.pathname?.includes(
 															'/workflow',
