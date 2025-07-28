@@ -7,6 +7,9 @@
 	border-radius: 16px;
 	border: 1px solid var(--dividers, #1e1f20);
 	background: var(--popup, #202123);
+	top: 26px;
+	right: -12px;
+	position: absolute;
 
 	.notificationsHeader {
 		display: flex;
@@ -35,7 +38,7 @@
 		.notificationItem {
 			display: flex;
 			padding: 12px;
-			align-items: center;
+			align-items: flex-start;
 			gap: 12px;
 			align-self: stretch;
 			border-radius: 8px;
