@@ -1,141 +1,243 @@
-import { memo, useState } from 'react';
+import { memo, useState, useEffect, useContext } from 'react';
 import './guideMePopup.scss';
 import { Switch } from 'antd';
-const preferenceOptions = [
-	{
-		id: 1,
-		title: 'Smart Questions',
-		desc: 'How many suggestions per 15-min block?',
-		value: 'smartQuestions',
-		options: [
-			{
-				id: 1,
-				title: 'Few (1–2)',
-				value: 'few',
-			},
-			{
-				id: 2,
-				title: 'Normal (3)',
-				value: 'normal',
-			},
-			{
-				id: 3,
-				title: 'More (5+)',
-				value: 'more',
-			},
-		],
-	},
-	{
-		id: 2,
-		title: 'Instant Answers',
-		desc: 'How many suggestions per 15-min block?',
-		value: 'instantAnswers',
-		options: [
-			{
-				id: 1,
-				title: 'Minimal',
-				value: 'minimal',
-			},
-			{
-				id: 2,
-				title: 'Key Questions Only',
-				value: 'keyQuestionsOnly',
-			},
-			{
-				id: 3,
-				title: 'All Possible',
-				value: 'allPossible',
-			},
-		],
-	},
-	{
-		id: 3,
-		title: 'Action Suggestions',
-		value: 'actionSuggestions',
-	},
-	{
-		id: 4,
-		title: 'Context File Pulls',
-		value: 'contextFilePulls',
-	},
-	{
-		id: 5,
-		title: 'Live Conversation Coaching',
-		value: 'liveConversationCoaching',
-	},
-];
-const GuideMePreference = () => {
+import Context from '../../../context/context';
+import Spinner from '../../components/loaders/Spinner';
+
+const GuideMePreference = ({ mode, onUpdatePreferences }) => {
+	const {
+		notes: { getMeetingPreferences },
+	} = useContext(Context);
+	const [loading, setLoading] = useState(true);
 	const [info, setInfo] = useState({
-		selectedQuestion: 'few',
-		selectedInstantAnswers: 'minimal',
-		enabledSwitches: {
+		thresholdValue: 0,
+		enabledFeatures: {
 			smartQuestions: true,
 			instantAnswers: true,
-			actionSuggestions: false,
-			contextFilePulls: false,
-			liveConversationCoaching: false,
+			actionSuggestions: true,
+			contextFilePulls: true,
 		},
+		allPreferences: {},
 	});
+
+	// Map mode to API meeting type
+	const getMeetingTypeFromMode = (mode) => {
+		const modeMap = {
+			'Sales Mode': 'sales',
+			Support: 'support',
+			Interviewer: 'interview',
+			Ideas: 'ideas',
+			Meeting: 'meeting',
+			};
+		return modeMap[mode] || 'meeting';
+	};
+
+	const meetingType = getMeetingTypeFromMode(mode);
+
+	// Fetch initial preferences when component mounts
+	useEffect(() => {
+		fetchMeetingPreferences();
+	}, []);
+
+	// Update local state when mode changes
+	useEffect(() => {
+		if (info.allPreferences[meetingType]) {
+			const preferences = info.allPreferences[meetingType];
+			setInfo((prev) => ({
+				...prev,
+				thresholdValue: preferences.threshold || 0,
+				enabledFeatures: {
+					smartQuestions: preferences.askUser || false,
+					instantAnswers: preferences.needHelp || false,
+					actionSuggestions: preferences.actions || false,
+					contextFilePulls: preferences.similarFiles || false,
+				},
+			}));
+		}
+	}, [meetingType, info.allPreferences]);
+
+	const fetchMeetingPreferences = async () => {
+		try {
+			setLoading(true);
+			const response = await getMeetingPreferences();
+
+			if (response?.meetingPreference) {
+				setInfo((prev) => ({
+					...prev,
+					allPreferences: response.meetingPreference,
+				}));
+
+				// Set current meeting type preferences
+				const currentPreferences = response.meetingPreference[meetingType];
+				if (currentPreferences) {
+					setInfo((prev) => ({
+						...prev,
+						thresholdValue: currentPreferences.threshold || 0,
+						enabledFeatures: {
+							smartQuestions: currentPreferences.askUser || false,
+							instantAnswers: currentPreferences.needHelp || false,
+							actionSuggestions: currentPreferences.actions || false,
+							contextFilePulls: currentPreferences.similarFiles || false,
+						},
+					}));
+				}
+			}
+		} catch (error) {
+			console.error('Error fetching meeting preferences:', error);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleThresholdChange = (value) => {
+		setInfo((prev) => ({
+			...prev,
+			thresholdValue: value,
+		}));
+	};
+
+	const handleFeatureToggle = (feature, checked) => {
+		setInfo((prev) => ({
+			...prev,
+			enabledFeatures: {
+				...prev.enabledFeatures,
+				[feature]: checked,
+			},
+		}));
+	};
+
+	// Expose current preferences to parent component
+	useEffect(() => {
+		if (onUpdatePreferences) {
+			onUpdatePreferences({
+				thresholdValue: info.thresholdValue,
+				enabledFeatures: info.enabledFeatures,
+				allPreferences: info.allPreferences,
+				meetingType,
+			});
+		}
+	}, [
+		info.thresholdValue,
+		info.enabledFeatures,
+		info.allPreferences,
+		meetingType,
+		onUpdatePreferences,
+	]);
+
+	// Calculate the percentage for the slider background
+	const sliderPercentage = (info.thresholdValue / 10) * 100;
+
+	if (loading) {
+		return (
+			<div className="guideMePreference">
+				<Spinner />
+			</div>
+		);
+	}
+
 	return (
 		<div className="guideMePreference">
 			<div className="guideMePreferenceHeader">
-				<div className="guideMePreferenceTitle">Intelligence Preferences</div>
+				<div className="guideMePreferenceTitle">Response Intensity Threshold</div>
 				<div className="guideMePreferenceDescription">
-					What should I enable for this meeting?
+					<div className="thresholdDescription">
+						<div className="thresholdOption">
+							<div className="thresholdHeading">Low Threshold:</div>
+							<div className="thresholdSubtext">
+								You'll see a wider range of suggestions, Ideal for brainstorming or
+								discovery — shows all types of input.
+							</div>
+						</div>
+						<div className="thresholdOption">
+							<div className="thresholdHeading">High Threshold:</div>
+							<div className="thresholdSubtext">
+								Only top-priority actions and insights will appear best for focused,
+								high-impact meetings.
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
+
+			<div className="thresholdSliderContainer">
+				<div className="customSlider">
+					<input
+						type="range"
+						min="0"
+						max="10"
+						value={info.thresholdValue}
+						onChange={(e) => handleThresholdChange(parseInt(e.target.value))}
+						className="thresholdSlider"
+						style={{
+							background:
+								info.thresholdValue === 0
+									? '#2c2d2e'
+									: `linear-gradient(to right, #79ecc9 0%, #79ecc9 ${sliderPercentage}%, #2c2d2e ${sliderPercentage}%, #2c2d2e 100%)`,
+							marginLeft: '12px',
+						}}
+					/>
+					<div
+						className="sliderThumb"
+						style={{
+							left: `${sliderPercentage}%`,
+							transform: 'translateX(-50%)',
+						}}
+					>
+						{info.thresholdValue}
+					</div>
+				</div>
+			</div>
+
 			<div className="guideMePreferenceBody">
-				{preferenceOptions?.map((item) => (
-					<>
-						<div key={item.id} className="guideMePreferenceBodyItem">
-							<div className="guideMePreferenceBodyItemHeader">
-								<div className="guideMePreferenceBodyItemHeaderTitle">
-									{item.title}
-								</div>
-								<Switch
-									checked={info?.enabledSwitches?.[item?.value]}
-									onChange={(checked) => {
-										setInfo({
-											...info,
-											enabledSwitches: {
-												...info?.enabledSwitches,
-												[item?.value]: checked,
-											},
-										});
-									}}
-								/>
-							</div>
-							{info?.enabledSwitches?.[item?.value] && (
-								<div className="guideMePreferenceOptionBody">
-									<div className="guideMePreferenceOptionBodyDesc">
-										{item.desc}
-									</div>
-									<div className="guideMePreferenceOptions">
-										{item?.options?.map((item) => {
-											return (
-												<div
-													key={item.id}
-													className={`guideMePreferenceEachOption${
-														info?.selectedQuestion === item?.value
-															? ' active'
-															: ''
-													} ${
-														info?.selectedInstantAnswers === item?.value
-															? ' active'
-															: ''
-													}`}
-												>
-													{item.title}
-												</div>
-											);
-										})}
-									</div>
-								</div>
-							)}
+				<div className="guideMePreferenceBodyItem">
+					<div className="guideMePreferenceBodyItemHeader">
+						<div className="guideMePreferenceBodyItemHeaderTitle">
+							Smart Questions (Ask user)
 						</div>
-						<div className="horizontalLine"></div>
-					</>
-				))}
+						<Switch
+							checked={info.enabledFeatures.smartQuestions}
+							onChange={(checked) => handleFeatureToggle('smartQuestions', checked)}
+						/>
+					</div>
+				</div>
+
+				<div className="guideMePreferenceBodyItem">
+					<div className="guideMePreferenceBodyItemHeader">
+						<div className="guideMePreferenceBodyItemHeaderTitle">
+							Instant Answers (Need help)
+						</div>
+						<Switch
+							checked={info.enabledFeatures.instantAnswers}
+							onChange={(checked) => handleFeatureToggle('instantAnswers', checked)}
+						/>
+					</div>
+				</div>
+
+				<div className="guideMePreferenceBodyItem">
+					<div className="guideMePreferenceBodyItemHeader">
+						<div className="guideMePreferenceBodyItemHeaderTitle">
+							Action Suggestions
+						</div>
+						<Switch
+							checked={info.enabledFeatures.actionSuggestions}
+							onChange={(checked) =>
+								handleFeatureToggle('actionSuggestions', checked)
+							}
+						/>
+					</div>
+				</div>
+
+				<div className="guideMePreferenceBodyItem">
+					<div className="guideMePreferenceBodyItemHeader">
+						<div className="guideMePreferenceBodyItemHeaderTitle">
+							Context File Pulls
+						</div>
+						<Switch
+							checked={info.enabledFeatures.contextFilePulls}
+							onChange={(checked) => handleFeatureToggle('contextFilePulls', checked)}
+						/>
+					</div>
+				</div>
 			</div>
 		</div>
 	);

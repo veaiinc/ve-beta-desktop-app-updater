@@ -234,6 +234,8 @@
 	.sidebarClosingSvg {
 		z-index: 1001;
 		cursor: pointer;
+		position: relative;
+		top: 10px;
 	}
 
 	.rightContainer {
