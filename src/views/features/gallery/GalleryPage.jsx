@@ -5173,7 +5173,7 @@ const GalleryPage = () => {
 															<p>Add Photos</p>
 														</div>
 													</div>
-													{info?.imagesList?.docs && !info?.albumLoading
+													{info?.imagesList?.docs && info?.albumLoading
 														? info?.imagesList?.docs?.map(
 																(image, index) => {
 																	const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
@@ -5287,6 +5287,12 @@ const GalleryPage = () => {
 																	<Skeleton
 																		width="100%"
 																		height="200px"
+																		style={{
+																			'--highlight-color':
+																				'gray',
+																			'--base-color':
+																				'transparent',
+																		}}
 																	/>
 																</div>
 														  ))}
