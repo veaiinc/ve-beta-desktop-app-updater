@@ -10,15 +10,17 @@ const customStyles = {
 	content: { borderRadius: '40px', zIndex: 1002 },
 };
 
+const intialState = {
+	searchWorkspace: '',
+	selectedWorkspaceIndex: 0,
+};
+
 const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }) => {
 	const currentWorkspaceId = localStorage.getItem('workspaceId');
 	const navigate = useNavigate();
 	const selectedWorkspaceRef = useRef(null);
 
-	const [info, setInfo] = useState({
-		searchWorkspace: '',
-		selectedWorkspaceIndex: 0,
-	});
+	const [info, setInfo] = useState(intialState);
 
 	useEffect(() => {
 		if (selectedWorkspaceRef.current) {
@@ -28,6 +30,12 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 			});
 		}
 	}, [info.selectedWorkspaceIndex]);
+
+	useEffect(() => {
+		if (isOpen) {
+			setInfo(intialState);
+		}
+	}, [isOpen]);
 
 	const workspaceList = useMemo(() => {
 		return userWorkSpaceList?.filter(
@@ -95,7 +103,7 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 						className={s.closeButton}
 						onClick={() => {
 							closeWorkspaceModal();
-							setInfo({ searchWorkspace: '' });
+							setInfo(intialState);
 						}}
 					>
 						Close
