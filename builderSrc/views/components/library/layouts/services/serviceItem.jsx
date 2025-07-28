@@ -304,14 +304,15 @@ class ServiceItem extends Component {
 						},
 						() => {
 							// ! commented for making it active on every clixk
-							// if (
-							// 	!this.state.textSelection &&
-							// 	this.state.client == false &&
-							// 	this.imgRef.current &&
-							// 	!this.imgRef.current.contains(event.target)
-							// ) {
-							this.props.serviceTableSubBlock(this.state.block._id);
-							// }
+							if (
+								// 	!this.state.textSelection &&
+								// 	this.state.client == false &&
+								// 	this.imgRef.current &&
+								// 	!this.imgRef.current.contains(event.target)
+								!this.props?.client
+							) {
+								this.props.serviceTableSubBlock(this.state.block._id);
+							}
 						},
 					);
 				}}
