@@ -1,5 +1,5 @@
 import { useCallback, useRef, useEffect } from 'react';
-import { getConfig } from '../services/index.js';
+import getConfig from '../services/index.jsx';
 
 const agentTypeMap = {
 	search_agent: 'search_agent_streaming',
@@ -108,7 +108,7 @@ const useChatStream = () => {
 
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
-			const region = localStorage.getItem('region') || 'ap-south-1';
+			const region = localStorage.getItem('region') || 'us-east-1';
 
 			const config = await getConfig();
 

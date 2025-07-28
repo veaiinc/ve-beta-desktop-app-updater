@@ -126,7 +126,7 @@ export const ChatStreamState = () => {
 
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
-			const region = localStorage.getItem('region') || 'ap-south-1';
+			const region = localStorage.getItem('region') || 'us-east-1';
 			const config = await getConfig();
 			const { chat_ws_api, chat_ws_api_US, guest_chat_ws_api, guest_chat_ws_api_US } = config;
 

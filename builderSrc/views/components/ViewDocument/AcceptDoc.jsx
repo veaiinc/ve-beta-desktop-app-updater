@@ -369,7 +369,7 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 				title: event.title,
 				description: event.description,
 				location: event.location || null,
-				startDateTime,
+				startDateTime: event.startDateTime,
 				endDateTime,
 				timezone: 'Asia/Calcutta',
 				allDay: true,
@@ -481,7 +481,10 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 														onClick={() =>
 															handleTaskFieldEdit(task, 'title')
 														}
-														style={{ cursor: 'pointer' }}
+														style={{
+															cursor: 'pointer',
+															textTransform: 'capitalize',
+														}}
 													>
 														{task.title}
 													</span>
@@ -602,8 +605,12 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 														onClick={() =>
 															handleEventFieldEdit(event, 'title')
 														}
-														style={{ cursor: 'pointer' }}
+														style={{
+															cursor: 'pointer',
+															textTransform: 'capitalize',
+														}}
 													>
+														{`${workflowInfoDetails?.clientDetails?.name}'s `}
 														{event.title}
 													</span>
 												)}

@@ -7,7 +7,7 @@ import SwitchWorkspaceModal from '../switchWorkspaceModal/SwitchWorkspaceModal';
 import { Tooltip } from 'antd';
 
 const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
-const isMac = navigator.userAgent.includes('Mac');
+const isMac = navigator.platform.toLowerCase().indexOf('mac') !== -1;
 
 const settingsItems = [
 	{

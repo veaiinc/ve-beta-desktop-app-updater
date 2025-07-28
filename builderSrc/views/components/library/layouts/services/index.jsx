@@ -592,7 +592,7 @@ class Layout1 extends Component {
 		let currentSubTotal = 0;
 
 		//currency
-		const region = localStorage?.getItem('region') || 'ap-south-1';
+		const region = localStorage?.getItem('region') || 'us-east-1';
 		let currencySymbol = this.props?.currencySymbol || region === 'ap-south-1' ? '₹' : '$';
 
 		//we need to also maintain the incoming styling from builder
