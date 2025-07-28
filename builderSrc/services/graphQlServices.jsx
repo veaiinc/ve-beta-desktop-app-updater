@@ -39,7 +39,7 @@ const Service = {
 		url = null,
 		isEndUser = null,
 	) => {
-		const region = localStorage.getItem('region') || 'ap-south-1';
+		const region = localStorage.getItem('region') || 'us-east-1';
 
 		url =
 			region === 'ap-south-1'
@@ -83,7 +83,7 @@ const Service = {
 		trackingToken = null,
 		isEndUser = null,
 	) => {
-		const region = localStorage.getItem('region') || 'ap-south-1';
+		const region = localStorage.getItem('region') || 'us-east-1';
 		let subUrl = '';
 		if (url) {
 			subUrl =

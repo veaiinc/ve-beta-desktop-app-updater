@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import ReactModal from '../../../modalsV2';
 import s from './switchWorkspaceModal.module.scss';
 import { useNavigate } from 'react-router-dom';
@@ -10,25 +10,61 @@ const customStyles = {
 	content: { borderRadius: '40px', zIndex: 1002 },
 };
 
+const intialState = {
+	searchWorkspace: '',
+	selectedWorkspaceIndex: 0,
+};
+
 const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }) => {
 	const currentWorkspaceId = localStorage.getItem('workspaceId');
 	const navigate = useNavigate();
+	const selectedWorkspaceRef = useRef(null);
 
-	const [info, setInfo] = useState({
-		searchWorkspace: '',
-	});
+	const [info, setInfo] = useState(intialState);
+
+	useEffect(() => {
+		if (selectedWorkspaceRef.current) {
+			selectedWorkspaceRef.current.scrollIntoView({
+				behavior: 'instant',
+				block: 'nearest',
+			});
+		}
+	}, [info.selectedWorkspaceIndex]);
+
+	useEffect(() => {
+		if (isOpen) {
+			setInfo(intialState);
+		}
+	}, [isOpen]);
 
 	const workspaceList = useMemo(() => {
-		return userWorkSpaceList?.filter(
-			({ businessName, activeWorkspaceId }) =>
-				activeWorkspaceId !== currentWorkspaceId &&
-				businessName?.toLowerCase().includes(info?.searchWorkspace?.toLowerCase()),
+		const filteredList = userWorkSpaceList?.filter(({ businessName }) =>
+			businessName?.toLowerCase().includes(info?.searchWorkspace?.toLowerCase()),
 		);
+		if (!filteredList) return [];
+		const currentWorkspaceIndex = filteredList.findIndex(
+			({ activeWorkspaceId }) => activeWorkspaceId === currentWorkspaceId,
+		);
+		if (currentWorkspaceIndex > 0) {
+			const currentWorkspace = filteredList[currentWorkspaceIndex];
+			const newList = [
+				currentWorkspace,
+				...filteredList.slice(0, currentWorkspaceIndex),
+				...filteredList.slice(currentWorkspaceIndex + 1),
+			];
+			return newList;
+		}
+
+		return filteredList;
 	}, [userWorkSpaceList, currentWorkspaceId, info?.searchWorkspace]);
 	const showWorkspaceSearch = userWorkSpaceList?.length > 3;
 	const emptyWorkspaceList = workspaceList?.length === 0;
 
 	const handleSwitchWorkspace = (activeWorkspaceId, region) => {
+		if (activeWorkspaceId === currentWorkspaceId) {
+			closeWorkspaceModal();
+			return;
+		}
 		localStorage.setItem('workspaceId', activeWorkspaceId);
 		localStorage.setItem('region', region);
 		const host = fetchDomainName();
@@ -43,6 +79,33 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 		window.location.href = '/home';
 	};
 
+	const handleKeyboardNavigation = (e) => {
+		const maxIndex = workspaceList.length - 1;
+		let newIndex = info.selectedWorkspaceIndex;
+
+		if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'Enter') {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+
+		if (e.key === 'ArrowUp') {
+			newIndex = newIndex === 0 ? maxIndex : newIndex - 1;
+		} else if (e.key === 'ArrowDown') {
+			newIndex = newIndex === maxIndex ? 0 : newIndex + 1;
+		}
+
+		if (e.key === 'Enter') {
+			handleSwitchWorkspace(
+				workspaceList[newIndex].activeWorkspaceId,
+				workspaceList[newIndex].region,
+			);
+		}
+
+		if (newIndex !== info.selectedWorkspaceIndex) {
+			setInfo({ ...info, selectedWorkspaceIndex: newIndex });
+		}
+	};
+
 	return (
 		<ReactModal
 			isOpen={isOpen}
@@ -50,14 +113,14 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 			modalType={'center'}
 			customStyles={customStyles}
 		>
-			<div className={s.switchWorkspaceModal}>
+			<div className={s.switchWorkspaceModal} onKeyDown={handleKeyboardNavigation}>
 				<header className={s.header}>
 					<h1 className={s.title}>Switch Workspace</h1>
 					<button
 						className={s.closeButton}
 						onClick={() => {
 							closeWorkspaceModal();
-							setInfo({ searchWorkspace: '' });
+							setInfo(intialState);
 						}}
 					>
 						Close
@@ -82,7 +145,13 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 							type="text"
 							placeholder="Search Workspace"
 							value={info.searchWorkspace}
-							onChange={(e) => setInfo({ ...info, searchWorkspace: e.target.value })}
+							onChange={(e) =>
+								setInfo((prev) => ({
+									...prev,
+									searchWorkspace: e.target.value,
+									selectedWorkspaceIndex: 0,
+								}))
+							}
 						/>
 					</div>
 				)}
@@ -131,7 +200,10 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 						</p>
 					) : (
 						workspaceList?.map(
-							({ activeWorkspaceId, businessName, logo_s3_500w_key, region }) => (
+							(
+								{ activeWorkspaceId, businessName, logo_s3_500w_key, region },
+								index,
+							) => (
 								<button
 									key={activeWorkspaceId}
 									onClick={() =>
@@ -141,7 +213,16 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 											businessName,
 										)
 									}
-									className={s.workspaceItem}
+									className={`${s.workspaceItem} ${
+										index === info.selectedWorkspaceIndex
+											? s.selectedWorkspace
+											: ''
+									}`}
+									ref={
+										index === info.selectedWorkspaceIndex
+											? selectedWorkspaceRef
+											: null
+									}
 								>
 									{logo_s3_500w_key ? (
 										<img

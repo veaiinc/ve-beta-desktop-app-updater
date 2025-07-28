@@ -34,7 +34,7 @@ export const nameShortner = (name) => {
 export const handleCookieSetupOnMounting = () => {
 	const usertoken = Cookies.get('usertoken');
 	const workspaceId = Cookies.get('workspaceId');
-	const region = Cookies.get('region') || 'ap-south-1';
+	const region = Cookies.get('region') || 'us-east-1';
 
 	if (usertoken && workspaceId) {
 		localStorage.setItem('usertoken', usertoken);

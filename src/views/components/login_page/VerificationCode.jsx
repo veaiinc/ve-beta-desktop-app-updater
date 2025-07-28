@@ -60,18 +60,18 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 
 		if (response[0] === true) {
 			if (invitedWorkspaceId && invitedUserEmail) {
-				getWorkSpaceInfo(invitedWorkspaceId);
+				await getWorkSpaceInfo(invitedWorkspaceId);
 				navigate(
 					`/onboarding?invitedWorkspaceId=${invitedWorkspaceId}&inviteeEmail=${invitedUserEmail}`,
 				);
 			} else if (emailVerified) {
 				if (response?.[1]?.hasWorkspaces) {
 					if (response?.[1]?.isOnboard) {
-						let locationDetails = JSON.parse(localStorage?.getItem('locationDetails'));
-						if (!locationDetails) {
-							locationDetails = await getLocationsDetails();
-						}
-						getWorkSpaceInfo(response?.[1]?.workspaceId);
+						// let locationDetails = JSON.parse(localStorage?.getItem('locationDetails'));
+						// if (!locationDetails) {
+						// 	locationDetails = await getLocationsDetails();
+						// }
+						await getWorkSpaceInfo(response?.[1]?.workspaceId);
 						navigate('/home');
 					} else {
 						navigate('/early-access');

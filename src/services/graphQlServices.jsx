@@ -84,12 +84,12 @@ const Service = {
 		};
 
 		// hotfix
-		// const region = localStorage.getItem('region') || 'ap-south-1';
+		// const region = localStorage.getItem('region') || 'us-east-1';
 		let region;
 		if (workspaceId === 'framemax') {
 			const region = 'us-north-1';
 		} else {
-			region = localStorage.getItem('region') || 'ap-south-1';
+			region = localStorage.getItem('region') || 'us-east-1';
 		}
 		const subUrl = region === 'ap-south-1' ? graphQLAPICall[type] : graphQLAPICallUS[type];
 		const httpLink = new HttpLink({ uri: `${subUrl}/${workspaceId}/graphql` });
@@ -159,7 +159,7 @@ const Service = {
 			page_notes_api_database: page_notes_api_database_US,
 		};
 
-		const region = localStorage.getItem('region') || 'ap-south-1';
+		const region = localStorage.getItem('region') || 'us-east-1';
 		const subUrl = region === 'ap-south-1' ? graphQLAPICall[type] : graphQLAPICallUS[type];
 		const httpLink = new HttpLink({ uri: `${subUrl}/${workspaceId}/graphql` });
 		const link = ApolloLink.from([errorLink, httpLink]);
