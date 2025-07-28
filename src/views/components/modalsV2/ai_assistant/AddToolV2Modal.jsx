@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState, useRef, useCallback } from 'react';
 import '../../../../assets/scss/ai_assistant/modal/addToolV2.scss';
+import '../../../../assets/scss/ai_assistant/modal/apiKeyModal.scss';
 import ReactModal from '../index';
 import Context from '../../../../context/context';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/docs/cross.svg';
@@ -9,6 +10,7 @@ import InfiniteScroll from '../../globalComponents/InfiniteScroll';
 import { ReactComponent as SearchIcon } from '../../../../assets/svg/ai_assistant/search.svg';
 import { ReactComponent as AddIcon } from '../../../../assets/svg/ai_assistant/add.svg';
 import { message } from '../../globalComponents/CustomToast';
+import ListConnectModal from '../../agents/agentDetails/configureAgent/tabs/triggersTab/modals/ListConnectModal';
 
 // AddToolV2Modal component for adding tools to a knowledge agent
 const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
@@ -41,10 +43,50 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		connectedAccounts: [],
 		accountsLoading: false,
 		checkingAccounts: false,
+		showApiKeyModal: false,
+		selectedActionForApiKey: null,
+		apiKeyModalLoading: false,
+		selectedCategory: 'all',
+		selectedUseCase: null,
+		selectedApp: null,
 	});
 
 	const searchTimeoutRef = useRef(null);
 	const pageRef = useRef(1);
+
+	// Categories for left panel
+	const categories = [
+		{ id: 'all', name: 'All tools', active: true },
+		// { id: 'premium', name: 'Premium' },
+		// { id: 'trending', name: 'Trending' },
+		// { id: 'your-tools', name: 'Your tools' },
+	];
+	// Generate apps list dynamically from the actual actions data
+	const generateAppsFromActions = (actions) => {
+		const appMap = new Map();
+
+		actions.forEach((action) => {
+			if (action.toolkit?.name && action.toolkit?.slug) {
+				const appName = action.toolkit.name
+					.replace(/_/g, ' ')
+					.replace(/\b\w/g, (l) => l.toUpperCase());
+
+				if (!appMap.has(action.toolkit.slug)) {
+					appMap.set(action.toolkit.slug, {
+						name: appName,
+						icon: '🔧', // Default icon
+						slug: action.toolkit.slug,
+						logo: action.toolkit.logo,
+					});
+				}
+			}
+		});
+
+		return Array.from(appMap.values());
+	};
+
+	// Get apps list from actions data
+	const availableApps = generateAppsFromActions(info.actions);
 
 	// Fetch user details if not present
 	useEffect(() => {
@@ -102,6 +144,12 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				isConnecting: false,
 				connectedAccounts: [],
 				checkingAccounts: true,
+				showApiKeyModal: false,
+				selectedActionForApiKey: null,
+				apiKeyModalLoading: false,
+				selectedCategory: 'all',
+				selectedUseCase: null,
+				selectedApp: null,
 			}));
 			fetchConnectedAccounts();
 		}
@@ -128,6 +176,33 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		[fetchActions],
 	);
 
+	// Handle category selection
+	const handleCategorySelect = (categoryId) => {
+		setInfo((prev) => ({ ...prev, selectedCategory: categoryId }));
+		// Reset filters when changing category
+		setInfo((prev) => ({
+			...prev,
+			selectedUseCase: null,
+			selectedApp: null,
+		}));
+	};
+
+	// Handle use case selection
+	const handleUseCaseSelect = (useCase) => {
+		setInfo((prev) => ({
+			...prev,
+			selectedUseCase: prev.selectedUseCase === useCase ? null : useCase,
+		}));
+	};
+
+	// Handle app selection
+	const handleAppSelect = (app) => {
+		setInfo((prev) => ({
+			...prev,
+			selectedApp: prev.selectedApp?.slug === app.slug ? null : app,
+		}));
+	};
+
 	// Fetch more actions for infinite scroll
 	const fetchMoreActions = useCallback(() => {
 		if (info.hasNextPage && !info.isLoading) {
@@ -137,23 +212,31 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		}
 	}, [info.hasNextPage, info.isLoading, fetchActions, info.search]);
 
-	// Group actions by app name
-	const groupedActions = (Array.isArray(info.actions) ? info.actions : []).reduce(
-		(acc, action) => {
-			if (!action?.toolkit?.name) {
-				console.warn('Action missing toolkit name:', action);
-				return acc;
-			}
-			const appName = action.toolkit.name
-				.replace(/_/g, ' ')
-				.replace(/\b\w/g, (l) => l.toUpperCase());
-			if (!acc[appName]) acc[appName] = [];
-			acc[appName].push(action);
-			return acc;
-		},
-		{},
-	);
+	// Filter actions based on selected filters
+	const filteredActions = (Array.isArray(info.actions) ? info.actions : []).filter((action) => {
+		// Debug logging
+		if (info.selectedApp) {
+			console.log('Filtering by app:', {
+				selectedApp: info.selectedApp.slug,
+				actionToolkitSlug: action.toolkit?.slug,
+				actionName: action.name,
+				matches: action.toolkit?.slug === info.selectedApp.slug,
+			});
+		}
 
+		// Filter by app if selected
+		if (info.selectedApp && action.toolkit?.slug !== info.selectedApp.slug) {
+			return false;
+		}
+
+		// Filter by use case (this would need to be implemented based on your data structure)
+		if (info.selectedUseCase) {
+			// Add logic to filter by use case based on your data structure
+			// For now, we'll skip this filter
+		}
+
+		return true;
+	});
 	// List of added action keys
 	const addedActionKeys = Array.isArray(actionsInfo?.data)
 		? actionsInfo.data.map((a) => a.action_key || a.key || a.id)
@@ -205,13 +288,13 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				// Account is already connected, proceed with adding the tool
 				await handleCreateAction(action, existingAccount.id);
 			} else if (action.auth_type === 'api_key') {
-				message.error('API key authentication is not supported for this tool');
 				setInfo((prev) => ({
 					...prev,
+					showApiKeyModal: true,
+					selectedActionForApiKey: action,
 					addLoading: { ...prev.addLoading, [action.slug]: false },
 					isConnecting: false,
 				}));
-				// Optionally: openAccountCreationModal(action);
 			} else if (action.auth_type === 'oauth') {
 				const [connectSuccess, response] = await connectTool({
 					slug: action.toolkit.slug,
@@ -247,15 +330,17 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 	};
 
 	// Create and add action to knowledge agent
-	const handleCreateAction = async (action, accountId) => {
+	const handleCreateAction = async (action, accountId, skipLoadingState = false) => {
 		try {
-			setInfo((prev) => ({
-				...prev,
-				addLoading: { ...prev.addLoading, [action.slug]: true },
-				addError: { ...prev.addError, [action.slug]: undefined },
-				isConnecting: true,
-				error: null,
-			}));
+			if (!skipLoadingState) {
+				setInfo((prev) => ({
+					...prev,
+					addLoading: { ...prev.addLoading, [action.slug]: true },
+					addError: { ...prev.addError, [action.slug]: undefined },
+					isConnecting: true,
+					error: null,
+				}));
+			}
 
 			const name = action.name || action.slug || 'Unnamed Action';
 			const description = action.description || '';
@@ -279,7 +364,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				key: action.toolkit.slug,
 				platform: 'composio',
 				logoUrl: action.toolkit.logo || '',
-				accountId, 
+				accountId,
 			};
 
 			const [success, response] = await addActionToKnowledgeAgent(agentId, payload);
@@ -292,175 +377,320 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 			}
 		} catch (error) {
 			console.error('handleCreateAction error:', error);
-			setInfo((prev) => ({
-				...prev,
-				error: error.message || 'An unexpected error occurred',
-				isConnecting: false,
-				addLoading: { ...prev.addLoading, [action.slug]: false },
-				addError: {
-					...prev.addError,
-					[action.slug]: error.message || 'Failed to add tool',
-				},
-			}));
+			if (!skipLoadingState) {
+				setInfo((prev) => ({
+					...prev,
+					error: error.message || 'An unexpected error occurred',
+					isConnecting: false,
+					addLoading: { ...prev.addLoading, [action.slug]: false },
+					addError: {
+						...prev.addError,
+						[action.slug]: error.message || 'Failed to add tool',
+					},
+				}));
+			}
 			message.error(error.message || 'Failed to add tool');
+			throw error;
 		}
 	};
 
+	// Handle API key submission
+	const handleApiKeySubmit = async (apiKey, action) => {
+		setInfo((prev) => ({
+			...prev,
+			apiKeyModalLoading: true,
+		}));
+
+		try {
+			// First, connect the tool with API key
+			const [connectSuccess, connectResponse] = await connectTool({
+				slug: action.toolkit.slug,
+				apiKey: apiKey,
+			});
+
+			if (connectSuccess && connectResponse?.data?.account_id) {
+				// Tool connected successfully, now add it to the knowledge agent
+				await handleCreateAction(action, connectResponse.data.account_id, true);
+
+				// Close the API key modal
+				setInfo((prev) => ({
+					...prev,
+					showApiKeyModal: false,
+					selectedActionForApiKey: null,
+					apiKeyModalLoading: false,
+				}));
+			} else {
+				throw new Error(connectResponse?.message || 'Failed to connect tool with API key');
+			}
+		} catch (error) {
+			console.error('API key submission error:', error);
+			setInfo((prev) => ({
+				...prev,
+				apiKeyModalLoading: false,
+			}));
+			// Don't throw the error, let the ListConnectModal handle it
+			return Promise.reject(error);
+		}
+	};
+
+	// Handle API key modal close
+	const handleApiKeyModalClose = () => {
+		setInfo((prev) => ({
+			...prev,
+			showApiKeyModal: false,
+			selectedActionForApiKey: null,
+			apiKeyModalLoading: false,
+		}));
+	};
+
 	return (
-		<ReactModal
-			isOpen={isOpen}
-			closeModal={onClose}
-			modalType="center"
-			customStyles={{
-				overlay: { zIndex: 1001 },
-				content: { borderRadius: '15px', zIndex: 1002 },
-			}}
-		>
-			<div className="actions-modal addtoolv2-modal">
-				<div className="addtoolv2-header">
-					<div className="search-container">
-						<SearchIcon className="search-icon" />
-						<input
-							type="text"
-							placeholder="Browse tools"
-							value={info.search}
-							onChange={handleSearch}
-							className="search-input"
-						/>
-					</div>
-					<CrossIcon onClick={onClose} className="cross-icon" />
-				</div>
-				<div className="actions-modal-inputs">
-					{info.checkingAccounts ? (
-						<div className="centered-loading">
-							<Spinner width="20px" height="20px" color="var(--primary-font)" />
-							<span className="centered-loading-text">
-								Checking existing accounts...
-							</span>
+		<div className="add-tool-v2-modal-container">
+			<ReactModal
+				isOpen={isOpen}
+				closeModal={onClose}
+				modalType="center"
+				customStyles={{
+					overlay: { zIndex: 1001 },
+					content: { borderRadius: '15px', zIndex: 1002 },
+				}}
+			>
+				<div className="actions-modal addtoolv2-modal">
+					<div className="modal-content">
+						{/* Left Panel - Navigation and Filters */}
+						<div className="left-panel">
+							{/* Search Bar - Only in left panel */}
+							<div className="search-container">
+								<SearchIcon className="search-icon" />
+								<input
+									type="text"
+									placeholder="Browse tools"
+									value={info.search}
+									onChange={handleSearch}
+									className="search-input"
+								/>
+							</div>
+							<div className="divider"></div>
+
+							{/* Tools Categories */}
+							<div className="filter-section">
+								<h3 className="filter-title">Tools</h3>
+								<div className="filter-options">
+									{categories.map((category) => (
+										<button
+											key={category.id}
+											className={`filter-option ${
+												info.selectedCategory === category.id
+													? 'active'
+													: ''
+											}`}
+											onClick={() => handleCategorySelect(category.id)}
+										>
+											{category.name}
+										</button>
+									))}
+								</div>
+							</div>
+
+							{/* Use Cases */}
+							{/* <div className="filter-section">
+								<h3 className="filter-title">By use case</h3>
+								<div className="filter-options">
+									{useCases.map((useCase) => (
+										<button
+											key={useCase}
+											className={`filter-option ${
+												info.selectedUseCase === useCase ? 'active' : ''
+											}`}
+											onClick={() => handleUseCaseSelect(useCase)}
+										>
+											{useCase}
+										</button>
+									))}
+								</div>
+							</div> */}
+
+							{/* Apps */}
+							<div className="filter-section">
+								<h3 className="filter-title">By apps</h3>
+								<div className="filter-options apps-filter-options">
+									{availableApps.length > 0 ? (
+										availableApps.map((app) => (
+											<button
+												key={app.slug}
+												className={`filter-option app-option ${
+													info.selectedApp?.slug === app.slug
+														? 'active'
+														: ''
+												}`}
+												onClick={() => handleAppSelect(app)}
+											>
+												{app.logo ? (
+													<img
+														src={app.logo}
+														alt={app.name}
+														className="app-icon-small"
+													/>
+												) : (
+													<span className="app-icon-text">
+														{app.icon}
+													</span>
+												)}
+												{app.name}
+											</button>
+										))
+									) : (
+										<div className="no-apps-message">No apps available</div>
+									)}
+								</div>
+							</div>
 						</div>
-					) : info.isLoading && info.actions.length === 0 ? (
-						<div className="centered-loading">
-							<Spinner width="20px" height="20px" color="var(--primary-font)" />
-							<span className="centered-loading-text">Loading tools...</span>
-						</div>
-					) : info.error ? (
-						<div className="error-message">{info.error}</div>
-					) : (
-						<InfiniteScroll
-							dataLength={info.actions.length || 0}
-							next={fetchMoreActions}
-							hasMore={info.hasNextPage}
-							loader={
+
+						{/* Right Panel - Tools Grid */}
+						<div className="right-panel">
+							{/* <div className="right-panel-header">
+								<CrossIcon onClick={onClose} className="cross-icon" />
+							</div> */}
+
+							<div className="tools-header">
+								<h2 className="tools-title">All Tools</h2>
+								<p className="tools-subtitle">
+									Your Personal Tools & Community Picks
+								</p>
+							</div>
+
+							{info.checkingAccounts ? (
 								<div className="centered-loading">
 									<Spinner
-										width="16px"
-										height="16px"
+										width="20px"
+										height="20px"
 										color="var(--primary-font)"
 									/>
-									Loading more...
+									<span className="centered-loading-text">
+										Checking existing accounts...
+									</span>
 								</div>
-							}
-							height={535}
-							style={{
-								overflowY: 'auto',
-								width: '100%',
-							}}
-						>
-							<div className="grouped-app-list">
-								{Object.keys(groupedActions).length === 0 ? (
-									<div className="error-message centered">No tools found.</div>
-								) : (
-									Object.entries(groupedActions).map(
-										([appName, actions], idx) => (
-											<div key={appName} className="app-group">
-												<div className="app-group-header">{appName}</div>
-												<div className="app-group-grid">
-													{actions.map((action) => {
-														const isAdded = addedActionKeys.includes(
-															action.toolkit.slug,
-														);
-														return (
-															<div
-																key={action.slug}
-																className="app-item-grid"
-																onClick={() =>
-																	handleAddTool(action)
-																}
-															>
+							) : info.isLoading && filteredActions.length === 0 ? (
+								<div className="centered-loading">
+									<Spinner
+										width="20px"
+										height="20px"
+										color="var(--primary-font)"
+									/>
+									<span className="centered-loading-text">Loading tools...</span>
+								</div>
+							) : info.error ? (
+								<div className="error-message">{info.error}</div>
+							) : (
+								<>
+									<InfiniteScroll
+										dataLength={filteredActions.length || 0}
+										next={fetchMoreActions}
+										hasMore={info.hasNextPage}
+										loader={
+											<div className="centered-loading">
+												<Spinner
+													width="16px"
+													height="16px"
+													color="var(--primary-font)"
+												/>
+												Loading more...
+											</div>
+										}
+										height={535}
+										style={{
+											overflowY: 'auto',
+											width: '100%',
+										}}
+									>
+										<div className="tools-grid">
+											{filteredActions.length === 0 ? (
+												<div className="error-message centered">
+													No tools found.
+												</div>
+											) : (
+												filteredActions.map((action) => {
+													const isAdded = addedActionKeys.includes(
+														action.toolkit.slug,
+													);
+													return (
+														<div
+															key={action.slug}
+															className="tool-item"
+															onClick={() => handleAddTool(action)}
+														>
+															<div className="tool-icon-container">
 																<img
 																	src={action.toolkit.logo || ''}
 																	alt={action.name || 'Tool'}
-																	className="app-icon"
+																	className="tool-icon"
 																/>
-																<div className="app-info">
-																	<span className="app-action-name">
-																		{action.name || 'Unnamed'}
-																	</span>
-																</div>
-																{isAdded ? (
-																	<span className="added-badge">
-																		✓ Added
-																	</span>
-																) : (
-																	<button
-																		className="primary-button connect-button"
-																		disabled={
-																			!!info.addLoading[
-																				action.slug
-																			] || info.isConnecting
-																		}
-																	>
-																		{info.addLoading[
-																			action.slug
-																		] ? (
-																			<div className="add-button-container">
-																				<Spinner
-																					width="16px"
-																					height="16px"
-																					color="var(--primary-font)"
-																				/>
-																				{info.isConnecting
-																					? 'Connecting...'
-																					: 'Adding...'}
-																			</div>
-																		) : (
-																			<div className="add-button-container">
-																				<AddIcon className="add-icon" />
-																				Add
-																			</div>
-																		)}
-																	</button>
-																)}
-																{info.addError[action.slug] && (
-																	<div
-																		className="field-error"
-																		style={{
-																			marginTop: 4,
-																			color: 'var(--error)',
-																			fontSize: '12px',
-																			fontWeight: '500',
-																		}}
-																	>
-																		{info.addError[action.slug]}
-																	</div>
-																)}
 															</div>
-														);
-													})}
-												</div>
-												{idx < Object.keys(groupedActions).length - 1 && (
-													<div className="app-group-divider" />
-												)}
-											</div>
-										),
-									)
-								)}
-							</div>
-						</InfiniteScroll>
-					)}
+															<div className="tool-info">
+																<span className="tool-name">
+																	{action.name || 'Unnamed'}
+																</span>
+															</div>
+															{isAdded ? (
+																<span className="added-badge">
+																	✓ Added
+																</span>
+															) : (
+																<button
+																	className="add-button"
+																	disabled={
+																		!!info.addLoading[
+																			action.slug
+																		] || info.isConnecting
+																	}
+																>
+																	{info.addLoading[
+																		action.slug
+																	] ? (
+																		<div className="add-button-container">
+																			<Spinner
+																				width="16px"
+																				height="16px"
+																				color="var(--primary-font)"
+																			/>
+																			{info.isConnecting
+																				? 'Connecting...'
+																				: 'Adding...'}
+																		</div>
+																	) : (
+																		<div className="add-button-container">
+																			<AddIcon className="add-icon" />
+																			Add
+																		</div>
+																	)}
+																</button>
+															)}
+															{info.addError[action.slug] && (
+																<div className="field-error">
+																	{info.addError[action.slug]}
+																</div>
+															)}
+														</div>
+													);
+												})
+											)}
+										</div>
+									</InfiniteScroll>
+								</>
+							)}
+						</div>
+					</div>
 				</div>
-			</div>
-		</ReactModal>
+			</ReactModal>
+
+			{/* API Key Modal */}
+			<ListConnectModal
+				isOpen={info.showApiKeyModal}
+				onClose={handleApiKeyModalClose}
+				action={info.selectedActionForApiKey}
+				onApiKeySubmit={handleApiKeySubmit}
+				isLoading={info.apiKeyModalLoading}
+			/>
+		</div>
 	);
 };
 
