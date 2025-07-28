@@ -66,7 +66,6 @@ const ShareAlbum = (props) => {
 					</button>
 				</div>
 			</div>
-			);
 		</ReactModal>
 	);
 };

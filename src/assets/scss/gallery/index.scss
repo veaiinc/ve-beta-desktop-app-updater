@@ -2613,6 +2613,14 @@
 			display: flex;
 			align-items: center;
 			gap: 8px;
+			.albumName {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
 		}
 		.custom-checkbox-style {
 			.ant-checkbox-inner {

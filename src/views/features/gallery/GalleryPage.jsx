@@ -3285,10 +3285,11 @@ const GalleryPage = () => {
 		if (!clientX || !clientY) return;
 
 		const container = rearrangeContainerRef.current;
+		console.log('container', container);
 		if (!container) return;
 
 		const scrollSpeed = 20;
-		const buffer = 50;
+		const buffer = 100;
 
 		const { top, bottom } = container.getBoundingClientRect();
 
@@ -4905,7 +4906,7 @@ const GalleryPage = () => {
 													title={
 														<div
 															className="galleryEditOptions"
-															ref={albumSettingsRef}
+															// ref={albumSettingsRef}
 														>
 															<div
 																className="album-toggles"
@@ -5058,6 +5059,7 @@ const GalleryPage = () => {
 													arrow={false}
 													color="transparent"
 													trigger={'click'}
+													overlayStyle={{ zIndex: 997 }}
 												>
 													<div
 														style={{ position: 'relative' }}
@@ -5131,6 +5133,10 @@ const GalleryPage = () => {
 											isMouseInGallery: false,
 										}))
 									}
+									style={{
+										height: '90vh',
+										overflow: 'auto',
+									}}
 									ref={rearrangeContainerRef}
 								>
 									<InfiniteScroll
@@ -5144,7 +5150,8 @@ const GalleryPage = () => {
 										}
 										resetInfinityScroll={info?.resetInfinityScroll}
 										disableDrop={true}
-										height={'90vh'}
+										// height={'90vh'}
+										scrollableTarget="galleryScrollTarget"
 									>
 										{!info.isRearranging ? (
 											<ResponsiveMasonry
@@ -5555,99 +5562,46 @@ const GalleryPage = () => {
 													}))
 												}
 											>
-												<p style={{ cursor: 'pointer' }}>
-													Selection Settings
-												</p>
-												{info.clientSubscriptionOptions && (
-													<div
-														className="galleryEditOptions"
-														ref={optionsContainerRef}
-														style={{
-															position: 'absolute',
-															right: '0',
-															top: '100%',
-															zIndex: 100,
-															width: '200px',
-														}}
-													>
-														<li
-															onClick={handleLightRoomCopy}
-															style={{
-																display: 'flex',
-																alignItems: 'center',
-																gap: '4px',
-															}}
+												<Tooltip
+													title={
+														<div
+															className="galleryEditOptions"
+															ref={optionsContainerRef}
 														>
-															<LightRoomIcon />
-															<span>Light Room Copy</span>
-														</li>
-														{/* <li
-														onClick={() => {
-															setInfo((prev) => ({
-																...prev,
-																showShareAlbum: true,
-																clientSubscriptionOptions: false,
-															}));
-														}}
-														style={{
-															display: 'flex',
-															alignItems: 'center',
-															gap: '4px',
-														}}
-													>
-														<ShareIcon />
-														<span>Share</span>
-													</li> */}
-														<li
-															onClick={handleDownload}
-															style={{
-																display: 'flex',
-																alignItems: 'center',
-																gap: '4px',
-															}}
-														>
-															<DownloadIcon />
-															<span>Download</span>
-														</li>
-														<li
-															onClick={() =>
-																handleUploadCoverOpen('album')
-															}
-															style={{
-																display: 'flex',
-																alignItems: 'center',
-																gap: '4px',
-															}}
-														>
-															<AlbumCoverIcon />
-															Album Cover
-														</li>
-														{/* <div
-															onClick={() => {
-																setInfo((prev) => ({
-																	...prev,
-																	showDeleteAlbum: true,
-																	showOptionsContainer: false, // Close options menu if it exists
-																}));
-															}}
-															style={{
-																display: 'flex',
-																alignItems: 'center',
-																gap: '4px',
-															}}
-														>
-															<DeleteIcon />
-															<span
+															<li
+																onClick={handleLightRoomCopy}
 																style={{
-																	color: '#A74A49',
-																	cursor: 'pointer',
+																	display: 'flex',
+																	alignItems: 'center',
+																	gap: '4px',
 																}}
 															>
-																Delete Album
-															</span>
-														</div> */}
-													</div>
-												)}
+																<LightRoomIcon />
+																<span>Light Room Copy</span>
+															</li>
+
+															<li
+																onClick={handleDownload}
+																style={{
+																	display: 'flex',
+																	alignItems: 'center',
+																	gap: '4px',
+																}}
+															>
+																<DownloadIcon />
+																<span>Download</span>
+															</li>
+														</div>
+													}
+													placement="bottom"
+													arrow={false}
+													color={'transparent'}
+													trigger={'click'}
+												>
+													<p style={{ cursor: 'pointer' }}>
+														Selection Settings
+													</p>
+												</Tooltip>
 											</div>
 											<div
 												onClick={() =>
