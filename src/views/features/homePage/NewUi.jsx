@@ -356,6 +356,15 @@ const NewUi = ({ handleActiveChatIndex }) => {
 		}
 	}, []);
 
+	const handleExpandChat = useCallback((session) => {
+		const { agentType, assistantId, _id: sessionId } = session || {};
+		if (agentType === 'knowledge_agent' && assistantId) {
+			navigate(`/chat/${sessionId}?agentType=${agentType}&assistantId=${assistantId}`);
+		} else {
+			navigate(`/chat/${sessionId}`);
+		}
+	}, []);
+
 	const handleChatQueryChange = useCallback((query) => {
 		setInfo((prev) => ({
 			...prev,
@@ -454,9 +463,7 @@ const NewUi = ({ handleActiveChatIndex }) => {
 									<>
 										<div
 											className="fullChat"
-											onClick={() => {
-												navigate(`/chat/${session?._id}`);
-											}}
+											onClick={() => handleExpandChat(session)}
 										>
 											<ArrowUpRightSvg />
 										</div>
