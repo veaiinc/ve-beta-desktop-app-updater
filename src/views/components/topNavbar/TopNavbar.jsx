@@ -94,7 +94,7 @@ const TopNavbar = () => {
 	const navigate = useNavigate();
 	const { workspaceMode } = useWorkspaceMode();
 	const { pathname } = useLocation();
-	const isBuilder = pathname.includes('builder');
+	const hideTopNavbar = pathname.includes('builder') || pathname.includes('galleries');
 
 	const {
 		profileInfo: { userDetailsData, tennantSettingsData },
@@ -157,6 +157,8 @@ const TopNavbar = () => {
 			setInfo((prev) => ({
 				...prev,
 				filesTooltipOpen: true,
+				toolsTooltipOpen: false,
+				settingsTooltipOpen: false,
 			}));
 			return;
 		}
@@ -235,17 +237,7 @@ const TopNavbar = () => {
 			label: 'Notifications',
 			icon: (
 				<Tooltip
-					title={
-						<Notifications
-							showNotifications={info.showNotifications}
-							setShowNotifications={(show) =>
-								setInfo((prev) => ({
-									...prev,
-									showNotifications: show,
-								}))
-							}
-						/>
-					}
+					title={<Notifications />}
 					placement="bottom"
 					arrow={false}
 					color={'transparent'}
@@ -310,13 +302,26 @@ const TopNavbar = () => {
 										<Tooltip
 											open={info.filesTooltipOpen}
 											onOpenChange={() =>
-												setInfo({
-													...info,
-													filesTooltipOpen: !info.filesTooltipOpen,
-												})
+												setInfo((prev) => ({
+													...prev,
+													filesTooltipOpen: !prev.filesTooltipOpen,
+													toolsTooltipOpen: false,
+													settingsTooltipOpen: false,
+												}))
 											}
 											key={`tooltip1-${navItem.id}-${index}`}
-											title={<FilesTooltip />}
+											title={
+												<FilesTooltip
+													closeTooltip={() =>
+														setInfo((prev) => ({
+															...prev,
+															filesTooltipOpen: false,
+															toolsTooltipOpen: false,
+															settingsTooltipOpen: false,
+														}))
+													}
+												/>
+											}
 											placement="bottomRight"
 											arrow={false}
 											color={'transparent'}
@@ -338,12 +343,23 @@ const TopNavbar = () => {
 										<Tooltip
 											open={info.toolsTooltipOpen}
 											onOpenChange={() =>
-												setInfo({
-													...info,
-													toolsTooltipOpen: !info.toolsTooltipOpen,
-												})
+												setInfo((prev) => ({
+													...prev,
+													toolsTooltipOpen: !prev.toolsTooltipOpen,
+												}))
 											}
-											title={<ToolsTooltip />}
+											title={
+												<ToolsTooltip
+													closeTooltip={() =>
+														setInfo((prev) => ({
+															...prev,
+															toolsTooltipOpen: false,
+															settingsTooltipOpen: false,
+															filesTooltipOpen: false,
+														}))
+													}
+												/>
+											}
 											placement="bottomRight"
 											arrow={false}
 											color={'transparent'}
@@ -351,7 +367,15 @@ const TopNavbar = () => {
 											key={`tooltip2-${navItem.id}-${index}`}
 										>
 											<li
-												onClick={() => navigate('/home')}
+												onClick={() => {
+													navigate('/home');
+													setInfo((prev) => ({
+														...prev,
+														toolsTooltipOpen: false,
+														settingsTooltipOpen: false,
+														filesTooltipOpen: false,
+													}));
+												}}
 												className={`${s.navItem} ${s.profileItem}`}
 											>
 												{navItem.label}
@@ -419,7 +443,12 @@ const TopNavbar = () => {
 					<Tooltip
 						open={info.settingsTooltipOpen}
 						onOpenChange={() =>
-							setInfo({ ...info, settingsTooltipOpen: !info.settingsTooltipOpen })
+							setInfo((prev) => ({
+								...prev,
+								settingsTooltipOpen: !prev.settingsTooltipOpen,
+								toolsTooltipOpen: false,
+								filesTooltipOpen: false,
+							}))
 						}
 						title={
 							<Settings
@@ -430,7 +459,12 @@ const TopNavbar = () => {
 								lastName={lastName}
 								businessName={businessName}
 								closeSettingsTooltip={() =>
-									setInfo({ ...info, settingsTooltipOpen: false })
+									setInfo((prev) => ({
+										...prev,
+										settingsTooltipOpen: false,
+										toolsTooltipOpen: false,
+										filesTooltipOpen: false,
+									}))
 								}
 							/>
 						}
@@ -454,7 +488,7 @@ const TopNavbar = () => {
 	];
 
 	return (
-		!isBuilder && (
+		!hideTopNavbar && (
 			<nav className={s.topNavbarContainer}>
 				{navItems.map((navItem) => {
 					return <Fragment key={navItem.id}>{navItem.element}</Fragment>;

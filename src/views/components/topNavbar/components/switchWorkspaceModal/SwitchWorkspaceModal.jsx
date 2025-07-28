@@ -25,7 +25,7 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 	useEffect(() => {
 		if (selectedWorkspaceRef.current) {
 			selectedWorkspaceRef.current.scrollIntoView({
-				behavior: 'smooth',
+				behavior: 'instant',
 				block: 'nearest',
 			});
 		}
@@ -38,16 +38,33 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 	}, [isOpen]);
 
 	const workspaceList = useMemo(() => {
-		return userWorkSpaceList?.filter(
-			({ businessName, activeWorkspaceId }) =>
-				activeWorkspaceId !== currentWorkspaceId &&
-				businessName?.toLowerCase().includes(info?.searchWorkspace?.toLowerCase()),
+		const filteredList = userWorkSpaceList?.filter(({ businessName }) =>
+			businessName?.toLowerCase().includes(info?.searchWorkspace?.toLowerCase()),
 		);
+		if (!filteredList) return [];
+		const currentWorkspaceIndex = filteredList.findIndex(
+			({ activeWorkspaceId }) => activeWorkspaceId === currentWorkspaceId,
+		);
+		if (currentWorkspaceIndex > 0) {
+			const currentWorkspace = filteredList[currentWorkspaceIndex];
+			const newList = [
+				currentWorkspace,
+				...filteredList.slice(0, currentWorkspaceIndex),
+				...filteredList.slice(currentWorkspaceIndex + 1),
+			];
+			return newList;
+		}
+
+		return filteredList;
 	}, [userWorkSpaceList, currentWorkspaceId, info?.searchWorkspace]);
 	const showWorkspaceSearch = userWorkSpaceList?.length > 3;
 	const emptyWorkspaceList = workspaceList?.length === 0;
 
 	const handleSwitchWorkspace = (activeWorkspaceId, region) => {
+		if (activeWorkspaceId === currentWorkspaceId) {
+			closeWorkspaceModal();
+			return;
+		}
 		localStorage.setItem('workspaceId', activeWorkspaceId);
 		localStorage.setItem('region', region);
 		const host = fetchDomainName();
@@ -72,9 +89,9 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 		}
 
 		if (e.key === 'ArrowUp') {
-			newIndex = Math.max(0, newIndex - 1);
+			newIndex = newIndex === 0 ? maxIndex : newIndex - 1;
 		} else if (e.key === 'ArrowDown') {
-			newIndex = Math.min(maxIndex, newIndex + 1);
+			newIndex = newIndex === maxIndex ? 0 : newIndex + 1;
 		}
 
 		if (e.key === 'Enter') {
@@ -128,7 +145,13 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 							type="text"
 							placeholder="Search Workspace"
 							value={info.searchWorkspace}
-							onChange={(e) => setInfo({ ...info, searchWorkspace: e.target.value })}
+							onChange={(e) =>
+								setInfo((prev) => ({
+									...prev,
+									searchWorkspace: e.target.value,
+									selectedWorkspaceIndex: 0,
+								}))
+							}
 						/>
 					</div>
 				)}
