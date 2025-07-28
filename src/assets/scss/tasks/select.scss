@@ -112,6 +112,8 @@
 }
 .select-options-dropdown-body-options {
 	gap: 0px !important;
+	max-height: 300px;
+	overflow-y: auto;
 }
 .select-options-wrapper {
 	display: flex;

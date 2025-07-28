@@ -43,7 +43,7 @@ const RecentChatsTooltip = ({ chats, handleChatNavigation, fetchMoreChats, hasNe
 								className={s.chatListWrapper}
 								dataLength={chatsLength}
 								next={fetchMoreChats}
-								hasMore={hasNextPage}
+								hasMore={hasNextPage || false}
 								loader={
 									<FetchMoreLoaderComp
 										wrapperStyle={{ width: '100%', height: '40px' }}
@@ -55,10 +55,10 @@ const RecentChatsTooltip = ({ chats, handleChatNavigation, fetchMoreChats, hasNe
 								{chats?.map((chat) => (
 									<div
 										className={s.chatItem}
-										key={chat._id}
-										onClick={() => handleChatNavigation(chat)}
+										key={chat?._id}
+										onClick={() => handleChatNavigation?.(chat)}
 									>
-										<span>{chat.title}</span>
+										<span>{chat?.title}</span>
 									</div>
 								))}
 							</InfiniteScroll>
