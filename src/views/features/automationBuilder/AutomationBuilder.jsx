@@ -19,6 +19,7 @@ import {
 	StartStepNode,
 	SwitchNode,
 	DelayNode,
+	DatabaseFilterNode,
 } from '../../components/automationBuilder/CustomNodes';
 import CustomEdges from '../../components/automationBuilder/CustomEdges';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
@@ -41,6 +42,7 @@ const nodeTypes = {
 	createTask: ActionNode,
 	switch: SwitchNode,
 	delay: DelayNode,
+	databaseFilter: DatabaseFilterNode,
 };
 
 const edgeTypes = {
@@ -139,9 +141,9 @@ const AutomationBuilder = () => {
 	const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
 	const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
-const handleBack = () => {
-	navigate('/automations');
-	window.location.reload();
+	const handleBack = () => {
+		navigate('/automations');
+		window.location.reload();
 	};
 	useEffect(() => {
 		if (automationId) {
@@ -309,11 +311,21 @@ const handleBack = () => {
 				const nodeY = parentY + 150; //added a static height for now, will change if required
 				parentPositions.set(stepId, { x: nodeX, y: nodeY });
 
+				// Determine node type based on action type
+				let nodeType = currentStep?.type;
+				if (
+					currentStep?.type === 'action' &&
+					currentStep?.actionType === 'database' &&
+					currentStep?.inputBody?.action === 'findDatabaseRecord'
+				) {
+					nodeType = 'databaseFilter';
+				}
+
 				// Create and add node
 				nodes.push({
 					id: stepId,
 					position: { x: nodeX, y: nodeY },
-					type: currentStep?.type,
+					type: nodeType,
 					data: {
 						currentStep,
 						onToolBarOpen: handleToolBarOpen,
@@ -332,6 +344,14 @@ const handleBack = () => {
 
 				// Handle edges based on step type
 				if (currentStep.type === 'condition') {
+					const { ifYes, ifNo } = currentStep;
+					const branchY = nextY;
+				} else if (
+					currentStep.type === 'action' &&
+					currentStep.actionType === 'database' &&
+					currentStep.inputBody?.action === 'findDatabaseRecord'
+				) {
+					// Handle database filter actions with branching logic
 					const { ifYes, ifNo } = currentStep;
 					const branchY = nextY;
 
