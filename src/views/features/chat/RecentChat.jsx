@@ -176,7 +176,7 @@ const RecentChat = ({
 
 	useEffect(() => {
 		if (info?.getFollowUpQueries) {
-			if (info?.chatQuery?.trim()?.length === 0) {
+			if (agentType !== 'knowledge_agent' && info?.chatQuery?.trim()?.length === 0) {
 				followUpQueryTimeoutRef.current = setTimeout(() => {
 					getFollowUpQueries(sessionId, info?.latestStreamMesage?.message_id);
 				}, 5000);
