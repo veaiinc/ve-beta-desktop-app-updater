@@ -120,6 +120,42 @@ const getClassName = (index, activeIndex, dataLength, scrollDirection) => {
 	}
 };
 
+const getNewActiveCardIndex = (scrollDirection, prevActiveIndex, dataLength) => {
+	let newIndex = 0;
+	//dataLength will be minimum 4 always
+
+	if (scrollDirection === 'down') {
+		if (dataLength === 4) {
+			if (prevActiveIndex === dataLength - 2) {
+				newIndex = 1;
+			} else {
+				newIndex = prevActiveIndex + 1;
+			}
+		} else {
+			if (prevActiveIndex === dataLength - 2) {
+				newIndex = 2;
+			} else {
+				newIndex = prevActiveIndex + 1;
+			}
+		}
+	} else {
+		if (dataLength === 4) {
+			if (prevActiveIndex === 1) {
+				newIndex = dataLength - 2;
+			} else {
+				newIndex = prevActiveIndex - 1;
+			}
+		} else {
+			if (prevActiveIndex === 2) {
+				newIndex = dataLength - 2;
+			} else {
+				newIndex = prevActiveIndex - 1;
+			}
+		}
+	}
+	return newIndex;
+};
+
 const SCROLL_THRESHOLD = 10;
 const SCROLL_STOP_DELAY = 40; // time between wheel events to detect gesture end
 
@@ -293,38 +329,7 @@ const NewUi = ({ handleActiveChatIndex }) => {
 				}
 				let { activeIndex: prevActiveIndex = 0, dataLength } = prev;
 				const scrollDirection = delta > 0 ? 'down' : 'up';
-				let newIndex = 0;
-				//dataLength will be minimum 4 always
-
-				if (scrollDirection === 'down') {
-					if (dataLength === 4) {
-						if (prevActiveIndex === dataLength - 2) {
-							newIndex = 1;
-						} else {
-							newIndex = prevActiveIndex + 1;
-						}
-					} else {
-						if (prevActiveIndex === dataLength - 2) {
-							newIndex = 2;
-						} else {
-							newIndex = prevActiveIndex + 1;
-						}
-					}
-				} else {
-					if (dataLength === 4) {
-						if (prevActiveIndex === 1) {
-							newIndex = dataLength - 2;
-						} else {
-							newIndex = prevActiveIndex - 1;
-						}
-					} else {
-						if (prevActiveIndex === 2) {
-							newIndex = dataLength - 2;
-						} else {
-							newIndex = prevActiveIndex - 1;
-						}
-					}
-				}
+				let newIndex = getNewActiveCardIndex(scrollDirection, prevActiveIndex, dataLength);
 
 				return {
 					...prev,
@@ -395,7 +400,7 @@ const NewUi = ({ handleActiveChatIndex }) => {
 					>
 						<div className="item-wrapper">
 							{(index === info?.activeIndex - 1 ||
-								(info?.dataLength >= 4 && index === info?.activeIndex - 2)) && (
+								(info?.dataLength > 4 && index === info?.activeIndex - 2)) && (
 								<div className="item-title">{session?.title || 'New Chat'}</div>
 							)}
 
@@ -415,6 +420,7 @@ const NewUi = ({ handleActiveChatIndex }) => {
 								style={{
 									...(index === info?.activeIndex && {
 										opacity: 1,
+										pointerEvents: 'auto',
 									}),
 									height: session?.type === 'chatbox' ? 'fit-content' : '100%',
 								}}
@@ -473,7 +479,7 @@ const NewUi = ({ handleActiveChatIndex }) => {
 												autoFocus={false}
 												animatePlaceholder={false}
 												showUpgradeSubscriptionBtn={false}
-												animateChatBox={false}
+												animateChatBox={true}
 											/>
 										</div>
 									</>
