@@ -3710,11 +3710,11 @@ const GalleryPage = () => {
 		}));
 	};
 
-	const openUploadCoverPhoto = (file) => {
+	const openUploadCoverPhoto = (file, type) => {
 		setInfo((prev) => ({
 			...prev,
 			showUploadCover: true,
-			coverType: 'album',
+			coverType: type,
 			selectedImages: [file?._id],
 			coverPhoto: true,
 			isLoadingCover: true, // Set loading to true while fetching the image
