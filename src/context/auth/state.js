@@ -124,21 +124,21 @@ export const AuthState = () => {
 			const response = await service?.fetchPost(path, body, null, 'auth');
 			const host = fetchDomainName();
 			if (response[0] === true) {
-				const { accessToken, accessibleWorkspaces, region } = response?.[1] || {};
+				const { accessToken, accessibleWorkspaces } = response?.[1] || {};
 				const hasWorkspaces = accessibleWorkspaces?.length > 0;
 
 				if (accessToken?.length) {
 					localStorage.setItem('usertoken', accessToken);
-					localStorage.setItem('region', region || 'ap-south-1');
+					// localStorage.setItem('region', region || 'us-east-1');
 
 					Cookies.set('usertoken', accessToken, {
 						sameSite: 'lax',
 						domain: host,
 					});
-					Cookies.set('region', region || 'ap-south-1', {
-						sameSite: 'lax',
-						domain: host,
-					});
+					// Cookies.set('region', region || 'us-east-1', {
+					// 	sameSite: 'lax',
+					// 	domain: host,
+					// });
 				}
 
 				if (!hasWorkspaces) {
