@@ -156,18 +156,20 @@
 
 					.chat-title {
 						width: 100%;
-						max-width: 220px;
-						text-overflow: ellipsis;
-						white-space: nowrap;
-						overflow: hidden;
 						color: var(--primary-font, #f2f2f3);
-						text-overflow: ellipsis;
 						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
 						margin: 0;
+						display: -webkit-box;
+						-webkit-line-clamp: 1;
+						line-clamp: 1;
+						-webkit-box-orient: vertical;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						word-break: break-all;
 					}
 				}
 
