@@ -384,7 +384,6 @@ const Files = () => {
 		}
 	};
 	const handleCreateNewGallery = (type) => {
-		console.log(type, 'type');
 		if (!accessControlCheck(type)) return;
 		setInfo({
 			...info,

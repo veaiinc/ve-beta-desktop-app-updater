@@ -33,6 +33,7 @@ const ShareAlbum = (props) => {
 			pin: value,
 		}));
 		if (/^\d{0,3}$/.test(value)) {
+			// check if the value is a number and has 0-3 digits
 			if (value.length === 3) {
 				const payload = { accessPin: value, pin: true };
 				const response = await editAlbumAccessPin(payload, galleryId, albumSlug);
