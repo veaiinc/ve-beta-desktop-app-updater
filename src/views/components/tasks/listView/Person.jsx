@@ -3,6 +3,10 @@ import '../../../../assets/scss/tasks/person.scss';
 import { Tooltip } from 'antd';
 import TeamMembersDropdown from '../../dropDown/tasks/TeamMembersDropdown';
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content' },
+};
+
 const Person = ({
 	value,
 	showLabel = false,
@@ -81,7 +85,7 @@ const Person = ({
 					: ''
 			}
 			placement="bottom"
-			overlayClassName="person-tooltip-wrapper"
+			classNames={{ root: 'person-tooltip-wrapper' }}
 			color="transparent"
 		>
 			<Tooltip
@@ -98,9 +102,9 @@ const Person = ({
 				trigger="click"
 				arrow={false}
 				color="transparent"
-				overlayStyle={{ minWidth: 'fit-content' }}
-				destroyTooltipOnHide
-				overlayClassName="person-dropdown-wrapper"
+				styles={tooltipStyles}
+				destroyOnHidden={true}
+				classNames={{ root: 'person-dropdown-wrapper' }}
 			>
 				<div
 					className="person-multi-select-selected filter-wrapper"

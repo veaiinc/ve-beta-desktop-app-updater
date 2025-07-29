@@ -8,6 +8,10 @@ import moment from 'moment';
 // import ToggleSwitch from '../../../components/input/slider';
 import { Tooltip } from 'antd';
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content', padding: '0' },
+};
+
 const customStyles = {
 	content: { zIndex: 1003, borderRadius: '24px' },
 	overlay: { zIndex: 1002 },
@@ -178,7 +182,7 @@ const UpdateSessionSlot = ({
 						arrow={false}
 						trigger={'click'}
 						color={'transparent'}
-						overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+						styles={tooltipStyles}
 					>
 						<div className={styles['selectedSession-lable']}>
 							{info.selectedSession?.sessionName}

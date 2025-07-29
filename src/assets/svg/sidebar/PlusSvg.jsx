@@ -20,15 +20,15 @@ const PlusSvg = ({ fill }) => {
 					d="M6.1875 9.5H11.8125"
 					stroke="var(--primary-font)"
 					stroke-width="1.125"
-					stroke-linecap="round"
-					stroke-linejoin="round"
+					strokeLinecap="round"
+					strokeLinejoin="round"
 				/>
 				<path
 					d="M9 6.6875V12.3125"
 					stroke="var(--primary-font)"
 					stroke-width="1.125"
-					stroke-linecap="round"
-					stroke-linejoin="round"
+					strokeLinecap="round"
+					strokeLinejoin="round"
 				/>
 			</g>
 			<defs>

@@ -11,6 +11,10 @@ import { ReactComponent as PieSvg } from '../../../../assets/svg/tasks/ChartDonu
 import { ReactComponent as PrioritySvg } from '../../../../assets/svg/tasks/ChartBar.svg';
 import { ReactComponent as Tick } from '../../../../assets/svg/tasks/tick.svg';
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content' },
+};
+
 import Context from '../../../../context/context';
 import StatusEditDropDown from './StatusEditDropDown';
 
@@ -241,7 +245,7 @@ const CurrentViewOptions = ({
 									trigger={'click'}
 									color={'transparent'}
 									placement={'bottomRight'}
-									overlayStyle={{ minWidth: 'fit-content' }}
+									styles={tooltipStyles}
 									open={info?.groupDropDownOpen}
 									onOpenChange={(value) => {
 										setInfo((prev) => ({
@@ -322,7 +326,7 @@ const CurrentViewOptions = ({
 			trigger={'click'}
 			color={'transparent'}
 			placement={'bottomRight'}
-			overlayStyle={{ minWidth: 'fit-content' }}
+			styles={tooltipStyles}
 		>
 			<div
 				className="current-view-options-icon"

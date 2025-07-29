@@ -282,7 +282,7 @@ const GroupComponent = ({ fields, view, databaseId, blockId, metaInfo }) => {
 												/>
 											}
 											placement="bottomRight"
-											overlayClassName="status-dropdown"
+											classNames={{ root: 'status-dropdown' }}
 											color="transparent"
 											trigger={['click']}
 										>
@@ -306,7 +306,7 @@ const GroupComponent = ({ fields, view, databaseId, blockId, metaInfo }) => {
 												/>
 											}
 											placement="bottomRight"
-											overlayClassName="status-dropdown"
+											classNames={{ root: 'status-dropdown' }}
 											color="transparent"
 											trigger={['click']}
 										>
@@ -330,7 +330,7 @@ const GroupComponent = ({ fields, view, databaseId, blockId, metaInfo }) => {
 												/>
 											}
 											placement="bottomRight"
-											overlayClassName="status-dropdown"
+											classNames={{ root: 'status-dropdown' }}
 											color="transparent"
 											trigger={['click']}
 										>
@@ -438,7 +438,7 @@ const GroupComponent = ({ fields, view, databaseId, blockId, metaInfo }) => {
 				</div>
 			}
 			placement="bottomLeft"
-			overlayClassName="status-dropdown"
+			classNames={{ root: 'status-dropdown' }}
 			color="transparent"
 			trigger={['click']}
 			open={info?.isOpen}

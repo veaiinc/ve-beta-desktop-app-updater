@@ -8,6 +8,10 @@ import { ReactComponent as LensSvg } from '../../../assets/svg/notes/lens.svg';
 import { ReactComponent as VeSvg } from '../../../assets/svg/ve.svg';
 import Spinner from '../loaders/Spinner';
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content' },
+};
+
 const buttonStyle = {
 	display: 'flex',
 	alignItems: 'center',
@@ -29,7 +33,7 @@ const dropDownOptions = [
 	},
 ];
 
-const AskAiButton = memo(({ sendMessage, aiResonse, resetAiResponse }) => {
+const AskAiButton = ({ sendMessage, aiResonse, resetAiResponse }) => {
 	const editor = useBlockNoteEditor();
 	const [info, setInfo] = useState({
 		isOpen: false,
@@ -88,7 +92,7 @@ const AskAiButton = memo(({ sendMessage, aiResonse, resetAiResponse }) => {
 				placement="bottomRight"
 				trigger="click"
 				color="transparent"
-				overlayStyle={{ minWidth: 'fit-content' }}
+				styles={tooltipStyles}
 			>
 				<span style={buttonStyle}>
 					Ask <VeSvg height={16} width={16} />
@@ -96,7 +100,7 @@ const AskAiButton = memo(({ sendMessage, aiResonse, resetAiResponse }) => {
 			</Tooltip>
 		</Components.FormattingToolbar.Button>
 	);
-});
+};
 
 const AskAiDropdown = memo(({ handleAiQuery, isLoading }) => {
 	const [info, setInfo] = useState({ input: '' });
@@ -165,4 +169,6 @@ const AskAiDropdown = memo(({ handleAiQuery, isLoading }) => {
 	);
 });
 
-export default AskAiButton;
+AskAiDropdown.displayName = 'AskAiDropdown';
+
+export default memo(AskAiButton);

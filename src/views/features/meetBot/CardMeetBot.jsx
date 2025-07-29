@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useContext, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Drawer, Switch } from 'antd';
 import styles from './cardMeetBot.module.scss';
 import './meetBot.scss';
@@ -12,6 +12,12 @@ import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search
 import { ReactComponent as AddIcon } from '../../../assets/svg/add.svg';
 import Spinner from '../../components/loaders/Spinner';
 import GuideMePopup from './guideMePopup';
+
+const drawerStyles = {
+	header: { display: 'none' },
+	body: { padding: 0, background: 'var(--background-color)', height: '100vh', overflow: 'auto' },
+};
+
 const meetingModeOptions = [
 	{ value: 'meeting', label: 'Meeting' },
 	{ value: 'sales', label: 'Sales Mode' },
@@ -61,7 +67,7 @@ const CardMeetBot = () => {
 	});
 	const searchInputRef = useRef(null);
 
-	const meetings = existingBots?.data || [];
+	const meetings = useMemo(() => existingBots?.data || [], [existingBots?.data]);
 	const loadingMeetings = existingBots ? false : true;
 
 	// Load existing bots when component mounts
@@ -85,14 +91,11 @@ const CardMeetBot = () => {
 		}));
 	};
 
-	// Update window function to properly position cards
-	const updateWindow = useCallback(
-		(index) => {
+	useEffect(() => {
+		if (meetings.length > 0) {
 			const length = meetings.length;
-			if (length === 0) return [];
-
 			const cards = meetings.map((meeting, i) => {
-				let diff = i - index;
+				let diff = i - info.currentIndex;
 
 				// Handle circular navigation
 				if (diff > length / 2) diff -= length;
@@ -104,17 +107,9 @@ const CardMeetBot = () => {
 				};
 			});
 
-			return cards;
-		},
-		[meetings],
-	);
-
-	useEffect(() => {
-		if (meetings.length > 0) {
-			const updatedCards = updateWindow(info.currentIndex);
 			setInfo((prev) => ({
 				...prev,
-				cards: updatedCards,
+				cards: cards,
 			}));
 		} else {
 			setInfo((prev) => ({
@@ -122,7 +117,7 @@ const CardMeetBot = () => {
 				cards: [],
 			}));
 		}
-	}, [info.currentIndex, meetings, updateWindow]);
+	}, [info.currentIndex, meetings]);
 
 	// Touch/swipe support
 	const [touchStartX, setTouchStartX] = useState(null);
@@ -495,13 +490,7 @@ const CardMeetBot = () => {
 					placement="right"
 					closable={false}
 					mask={false}
-					headerStyle={{ display: 'none' }}
-					bodyStyle={{
-						padding: 0,
-						background: 'var(--background-color)',
-						height: '100vh',
-						overflow: 'auto',
-					}}
+					styles={drawerStyles}
 					style={{ position: 'relative', background: 'var(--background-color)' }}
 					className="meetbot__right meetbot__right--open"
 					getContainer={false}
@@ -658,7 +647,9 @@ const CardMeetBot = () => {
 															setInfo((prev) => ({
 																...prev,
 																isAiIntelligenceEnabled: checked,
-																guideMePopupOpen: checked ? true : false,
+																guideMePopupOpen: checked
+																	? true
+																	: false,
 															}))
 														}
 													/>

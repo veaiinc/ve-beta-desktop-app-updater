@@ -7,6 +7,12 @@ import CustomTextArea from '../../globalComponents/CustomTextArea';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/notes/cross.svg';
 import s from '../../../../assets/scss/notes/notesTitleArea.module.scss';
 
+const tooltipStyles = {
+	body: {
+		backgroundColor: 'inherit',
+	},
+};
+
 const NotesTitleArea = ({
 	iconImage,
 	coverImage,
@@ -80,9 +86,7 @@ const NotesTitleArea = ({
 					/>
 				)
 			}
-			overlayInnerStyle={{
-				backgroundColor: 'inherit',
-			}}
+			styles={tooltipStyles}
 			arrow={false}
 		>
 			<div

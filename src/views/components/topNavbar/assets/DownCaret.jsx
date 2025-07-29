@@ -13,8 +13,8 @@ const DownCaret = () => {
 			<path
 				d="M13 6L8 11L3 6"
 				stroke="#F2F2F3"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 		</svg>
 	);

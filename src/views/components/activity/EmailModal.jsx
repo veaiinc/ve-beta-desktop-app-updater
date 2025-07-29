@@ -4,6 +4,11 @@ import { Drawer } from 'antd';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/close.svg';
 import { ReactComponent as EmailSvg } from '../../../assets/svg/activity/email.svg';
 
+const styles = {
+	header: { display: 'none' },
+	body: { padding: '0px' },
+};
+
 const EmailModal = ({ modalIsOpen, showDrawer }) => {
 	return (
 		<Drawer
@@ -11,8 +16,7 @@ const EmailModal = ({ modalIsOpen, showDrawer }) => {
 			open={modalIsOpen}
 			width={480}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
-			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
+			styles={styles}
 		>
 			<div className="emailSidePanel">
 				<div className="innerContainer">

@@ -400,13 +400,17 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 			// Create dates in Asia/Calcutta timezone to avoid UTC conversion issues
 			const startDateTime = dayjs.tz(startDate, 'Asia/Calcutta').startOf('day').format();
 			const endDateTime = dayjs.tz(endDate, 'Asia/Calcutta').endOf('day').format();
+			console.log('event===>', event.date, event.startDateTime, event.endDateTime);
 
 			const payload = {
 				title: event.title,
 				description: event.description,
 				location: event.location || null,
-				startDateTime: event.startDateTime,
-				endDateTime,
+				startDateTime:
+					event.startDateTime !== false && event.startDateTime
+						? event.startDateTime
+						: event.date || startDateTime,
+				endDateTime: event.endDateTime,
 				timezone: 'Asia/Calcutta',
 				allDay: true,
 				calendarCategory: calendarCategory || null,
@@ -559,7 +563,10 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 															})
 														}
 														onBlur={() =>
-															handleTaskFieldSave(task, 'description')
+															handleTaskFieldSave(
+																	task,
+																	'description',
+																);
 														}
 														onKeyDown={(e) => {
 															if (e.key === 'Enter')

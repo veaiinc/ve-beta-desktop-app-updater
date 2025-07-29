@@ -64,7 +64,7 @@ const TranscriptionSidebar = () => {
 				<div className={styles.transcriptionHeaderRight}>
 					<Dropdown
 						menu={{ items: Options }}
-						overlayClassName={styles.transcriptionHeaderRightDropdownOverlay}
+						classNames={{ root: styles.transcriptionHeaderRightDropdownOverlay }}
 						trigger={['click']}
 						placement="bottom"
 					>

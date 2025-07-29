@@ -18,6 +18,11 @@ import {
 import { Drawer } from 'antd';
 import EditAndViewEmailTemplateModal from './EditAndViewEmailTemplateModal';
 
+const styles = {
+	header: { display: 'none' },
+	body: { padding: '0px' },
+};
+
 const initialState = {
 	editState: false,
 	emailTemplates: null,
@@ -334,8 +339,7 @@ const WorkflowCardEditModal = ({
 			width={420}
 			open={modalIsOpen}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
-			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
+			styles={styles}
 		>
 			<div className="WorkflowCardEditModalParentContainer">
 				<div className="innerContainer">

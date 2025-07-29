@@ -271,7 +271,7 @@ const EventsPresetsPopOverComponent = ({
 										color={'#202020'}
 										arrow={false}
 										trigger="click"
-										overlayClassName="toolTipContainer"
+										classNames={{ root: 'toolTipContainer' }}
 										open={info?.threeDotsPopUp?.[index]}
 										onOpenChange={(open) => {
 											if (!open) {

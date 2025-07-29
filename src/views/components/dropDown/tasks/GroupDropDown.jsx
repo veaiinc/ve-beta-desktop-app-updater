@@ -532,7 +532,7 @@ const GroupDropDown = ({
 									/>
 								}
 								placement="bottomLeft"
-								overlayClassName="status-dropdown"
+								classNames={{ root: 'status-dropdown' }}
 								color="transparent"
 								trigger={['click']}
 								zIndex={50100}

@@ -18,6 +18,10 @@ const methodsOptions = ['GET', 'POST', 'PUT', 'DELETE'];
 const apiUsesOptions = ['JSON'];
 const variableTypes = ['string', 'integer', 'float', 'boolean'];
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content', padding: '0', backgroundColor: 'transparent' },
+};
+
 const AddKnowledgeAgentActionModal = ({
 	isOpen,
 	onClose,
@@ -584,14 +588,7 @@ const AddKnowledgeAgentActionModal = ({
 											arrow={false}
 											trigger={'click'}
 											color={'transparent'}
-											overlayStyle={{
-												minWidth: 'fit-content',
-												padding: '0',
-											}}
-											overlayInnerStyle={{
-												padding: 0,
-												backgroundColor: 'transparent',
-											}}
+											styles={tooltipStyles}
 										>
 											<div className="method-dropdown">
 												{variable?.type}
@@ -755,7 +752,7 @@ const EndpointTab = ({
 							arrow={false}
 							trigger={'click'}
 							color={'transparent'}
-							overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+							styles={tooltipStyles}
 						>
 							<div className="method-dropdown">
 								{method}
@@ -785,7 +782,7 @@ const EndpointTab = ({
 							arrow={false}
 							trigger={'click'}
 							color={'transparent'}
-							overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+							styles={tooltipStyles}
 						>
 							<div className="method-dropdown">
 								{apiUses}
