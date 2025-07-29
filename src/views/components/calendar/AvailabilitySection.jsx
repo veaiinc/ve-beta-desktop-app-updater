@@ -21,6 +21,10 @@ const validateTimeRange = (startTime, endTime) => {
 	return endTotal > startTotal;
 };
 
+const tooltipStyles = {
+	body: { width: '100%', padding: '0' },
+};
+
 const AvailabilitySection = ({ value, onChange, onSummaryChange }) => {
 	const [mode, setMode] = useState('weekly');
 	const [modeOpen, setModeOpen] = useState(false);
@@ -498,7 +502,7 @@ const AvailabilitySection = ({ value, onChange, onSummaryChange }) => {
 						}
 						trigger={'click'}
 						color={'transparent'}
-						overlayStyle={{ width: '100%', padding: '0' }}
+						styles={tooltipStyles}
 					>
 						<div className="typeOfSession-lable">
 							{REPEAT_OPTIONS.find((opt) => opt.value === mode)?.label}

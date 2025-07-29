@@ -5,6 +5,12 @@ import Actions from './WorkflowBuilderSidebarComponents/Actions';
 import Conditions from './WorkflowBuilderSidebarComponents/Conditions';
 import Notification from './WorkflowBuilderSidebarComponents/Notification';
 import Context from '../../../context/context';
+
+const styles = {
+	header: { display: 'none' },
+	body: { padding: '0px' },
+};
+
 const BuilderToolbar = ({
 	open,
 	onCLose,
@@ -90,8 +96,7 @@ const BuilderToolbar = ({
 			open={open}
 			width={360}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
-			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
+			styles={styles}
 			mask={false}
 			rootClassName="testing"
 		>

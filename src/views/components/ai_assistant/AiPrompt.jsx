@@ -6,6 +6,10 @@ import CustomTextArea from '../../components/globalComponents/CustomTextArea';
 import { Tooltip } from 'antd';
 import Context from '../../../context/context';
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content', padding: '0' },
+};
+
 const AiPrompt = ({ assistant }) => {
 	const {
 		aiSetup: {
@@ -154,7 +158,7 @@ const AiPrompt = ({ assistant }) => {
 						arrow={false}
 						trigger={'click'}
 						color={'transparent'}
-						overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+						styles={tooltipStyles}
 					>
 						<div className="voiceList">
 							{info?.selectedModel}{' '}
@@ -191,7 +195,7 @@ const AiPrompt = ({ assistant }) => {
 						arrow={false}
 						trigger={'click'}
 						color={'transparent'}
-						overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+						styles={tooltipStyles}
 					>
 						<div className="voiceList">
 							{info?.selectedSystemPrompt}{' '}

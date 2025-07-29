@@ -29,6 +29,13 @@ const loaderStyle = {
 	zIndex: 1000,
 };
 
+const tooltipStyles = {
+	body: {
+		backgroundColor: 'inherit',
+		padding: 0,
+	},
+};
+
 const ImageComponent = ({ block, editor }) => {
 	const { previousBlocksRef, pageId } = useContext(EditorContext);
 	const {
@@ -160,10 +167,7 @@ const ImageComponent = ({ block, editor }) => {
 					noteId={block.props.pageId}
 				/>
 			}
-			overlayInnerStyle={{
-				backgroundColor: 'inherit',
-				padding: 0,
-			}}
+			styles={tooltipStyles}
 			arrow={false}
 			trigger="click"
 			destroyOnHidden={true}

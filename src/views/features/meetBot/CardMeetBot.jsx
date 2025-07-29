@@ -12,6 +12,12 @@ import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search
 import { ReactComponent as AddIcon } from '../../../assets/svg/add.svg';
 import Spinner from '../../components/loaders/Spinner';
 import GuideMePopup from './guideMePopup';
+
+const drawerStyles = {
+	header: { display: 'none' },
+	body: { padding: 0, background: 'var(--background-color)', height: '100vh', overflow: 'auto' },
+};
+
 const meetingModeOptions = [
 	{ value: 'meeting', label: 'Meeting' },
 	{ value: 'sales', label: 'Sales Mode' },
@@ -484,13 +490,7 @@ const CardMeetBot = () => {
 					placement="right"
 					closable={false}
 					mask={false}
-					headerStyle={{ display: 'none' }}
-					bodyStyle={{
-						padding: 0,
-						background: 'var(--background-color)',
-						height: '100vh',
-						overflow: 'auto',
-					}}
+					styles={drawerStyles}
 					style={{ position: 'relative', background: 'var(--background-color)' }}
 					className="meetbot__right meetbot__right--open"
 					getContainer={false}

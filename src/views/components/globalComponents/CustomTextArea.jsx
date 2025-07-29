@@ -3,19 +3,18 @@ import PropTypes from 'prop-types';
 import '../../../assets/scss/globalComponents/customTextArea.scss';
 
 const CustomTextArea = ({
-	value,
-	onChange,
-	onBlur,
-	onFocus,
-	placeholder,
-	name,
-	className,
-	style,
-	readOnly,
-	disabled,
-	autoResize,
+	value = undefined,
+	onChange = undefined,
+	onBlur = undefined,
+	onFocus = undefined,
+	placeholder = 'Empty',
+	name = '',
+	className = '',
+	style = {},
+	readOnly = false,
+	disabled = false,
+	autoResize = false,
 	replacePlaceholder = false,
-
 	...rest
 }) => {
 	const textAreaRef = useRef(null);
@@ -23,14 +22,11 @@ const CustomTextArea = ({
 	const adjustHeight = () => {
 		if (autoResize && textAreaRef.current) {
 			const textarea = textAreaRef.current;
-			// Reset height to minimal value to properly calculate new height
 			textarea.style.height = '0px';
-			// Set the height to scrollHeight to fit content exactly
 			textarea.style.height = `${textarea.scrollHeight}px`;
 		}
 	};
 
-	// Adjust height on mount and when value changes
 	useEffect(() => {
 		adjustHeight();
 	}, [value, autoResize]);
@@ -41,7 +37,6 @@ const CustomTextArea = ({
 			value={value}
 			onChange={(e) => {
 				onChange?.(e);
-				// Adjust height after each change
 				adjustHeight();
 			}}
 			onBlur={onBlur}
@@ -52,7 +47,6 @@ const CustomTextArea = ({
 			style={{
 				resize: 'none',
 				overflow: 'hidden',
-				// minHeight: '15px',
 				boxSizing: 'border-box',
 				...style,
 			}}
@@ -76,20 +70,7 @@ CustomTextArea.propTypes = {
 	readOnly: PropTypes.bool,
 	disabled: PropTypes.bool,
 	autoResize: PropTypes.bool,
-};
-
-CustomTextArea.defaultProps = {
-	placeholder: 'Empty',
-	name: '',
-	className: '',
-	style: {},
-	readOnly: false,
-	disabled: false,
-	value: undefined,
-	onChange: undefined,
-	onBlur: undefined,
-	onFocus: undefined,
-	autoResize: false,
+	replacePlaceholder: PropTypes.bool,
 };
 
 export default CustomTextArea;

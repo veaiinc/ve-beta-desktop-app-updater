@@ -127,7 +127,7 @@ const CollaboratorPopup = ({ open, closeModal, galleryId, setCollaborator }) => 
 							color={'transparent'}
 							arrow={false}
 							trigger="click"
-							overlayClassName="toolTipContainer"
+							classNames={{ root: 'toolTipContainer' }}
 							open={collaboratorInfo?.showAllUsers}
 							onOpenChange={(open) => {
 								if (!open) {

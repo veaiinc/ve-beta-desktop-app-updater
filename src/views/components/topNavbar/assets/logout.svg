@@ -10,22 +10,22 @@
 							d="M7.875 3.3125H3.375V15.6875H7.875"
 							stroke="#E03F4F"
 							stroke-width="1.125"
-							stroke-linecap="round"
-							stroke-linejoin="round"
+							strokeLinecap="round"
+							strokeLinejoin="round"
 						/>
 						<path
 							d="M7.875 9.5H15.75"
 							stroke="#E03F4F"
 							stroke-width="1.125"
-							stroke-linecap="round"
-							stroke-linejoin="round"
+							strokeLinecap="round"
+							strokeLinejoin="round"
 						/>
 						<path
 							d="M12.9375 6.6875L15.75 9.5L12.9375 12.3125"
 							stroke="#E03F4F"
 							stroke-width="1.125"
-							stroke-linecap="round"
-							stroke-linejoin="round"
+							strokeLinecap="round"
+							strokeLinejoin="round"
 						/>
 					</g>
 					<defs>

@@ -4,6 +4,11 @@ import { ReactComponent as SearchSvg } from '../../../../../assets/svg/workflow/
 import { ReactComponent as Tick } from '../../../../../assets/svg/tasks/tick.svg';
 import s from '../../../../../assets/scss/notes/dropdown/statusDropdown.module.scss';
 import { Tooltip } from 'antd';
+
+const tooltipStyles = {
+	body: { minWidth: 'fit-content' },
+};
+
 const StatusDropdown = ({
 	fields,
 	sorts = [
@@ -81,7 +86,7 @@ const StatusDropdown = ({
 			trigger={'click'}
 			color={'transparent'}
 			placement={'bottomRight'}
-			overlayStyle={{ minWidth: 'fit-content' }}
+			styles={tooltipStyles}
 		>
 			<button className={s.statusDropdownButton}>
 				<PlusIcon />

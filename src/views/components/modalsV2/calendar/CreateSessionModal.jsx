@@ -14,6 +14,10 @@ import { isURL } from '../../../../helpers';
 
 const sessionTypeOptions = ['In Person', 'Phone Call', 'Video Call'];
 
+const tooltipStyles = {
+	body: { width: '100%', padding: '0' },
+};
+
 const sessionTypeInputConfig = {
 	'In Person': {
 		value: 'location',
@@ -295,7 +299,7 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 							}
 							trigger={'click'}
 							color={'transparent'}
-							overlayStyle={{ width: '100%', padding: '0' }}
+							styles={tooltipStyles}
 						>
 							<div className="typeOfSession-lable">
 								{info?.sessionType}
