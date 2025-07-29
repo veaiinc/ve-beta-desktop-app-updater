@@ -44,6 +44,18 @@ const useAccessControls = () => {
 	}, [tenantUserAccessControls]);
 
 	useEffect(() => {
+		if (tenantUserAccessControls) {
+			localStorage.setItem(
+				'accessControls',
+				JSON.stringify({
+					accessControls: tenantUserAccessControls?.accessControls,
+					role: tenantUserAccessControls?.role,
+				}),
+			);
+		}
+	}, [tenantUserAccessControls]);
+
+	useEffect(() => {
 		if (
 			tenantUserAccessControls?.role === 'admin' ||
 			!tenantUserAccessControls?.accessControls

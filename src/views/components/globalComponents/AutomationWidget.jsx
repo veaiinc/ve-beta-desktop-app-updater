@@ -74,6 +74,7 @@ const AutomationWidget = ({ width, height }) => {
 	};
 
 	const handleCreateAutomation = async () => {
+		if (!accessControlCheck('automation')) return;
 		if (info?.loading) return; // Prevent multiple clicks
 		try {
 			setInfo((prev) => ({
