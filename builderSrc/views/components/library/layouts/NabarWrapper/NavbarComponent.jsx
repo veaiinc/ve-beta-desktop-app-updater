@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 import ImageItem from '../../elements/image';
 import { EditNavbar as Edit } from '../../../builder_client_common';
 import './NavbarCompStyles.scss';
-import { ElementSidebar,  DownloadPDF } from '../../../builder_client_common';
+import { ElementSidebar, DownloadPDF } from '../../../builder_client_common';
 import CartIcons from '../NabarWrapper/CartIcons';
 import _ from 'lodash';
 
 class NavbarComponent extends Component {
 	constructor(props) {
-		super(props);
+		super();
 		this.state = {
 			preview: props.preview,
 			previewType: props.previewType,
@@ -338,6 +338,10 @@ class NavbarComponent extends Component {
 										? '1px solid #f1f2f3'
 										: '1px solid transparent',
 									padding: '10px',
+									justifyContent:
+										this.props?.section?.style?.navbarAlign === 'two'
+											? 'center'
+											: 'flex-start',
 								}}
 								className="navbar-modules-inner-wrapper"
 							>
@@ -492,27 +496,27 @@ class NavbarComponent extends Component {
 						<div>
 							<div className="cart-wrapper">
 								<div
-									onMouseEnter={() => {
-										if (
-											this.state.preview !== true &&
-											this.props.isEditElement === true
-										) {
-											this.setState({
-												hoveredCart: true,
-											});
-										}
-									}}
-									onMouseLeave={() => {
-										this.setState({
-											hoveredCart: false,
-										});
-									}}
-									style={{
-										border: this.state.hoveredCart
-											? '1px solid #f1f2f3'
-											: '1px solid transparent',
-										padding: '5px',
-									}}
+									// onMouseEnter={() => {
+									// 	if (
+									// 		this.state.preview !== true &&
+									// 		this.props.isEditElement === true
+									// 	) {
+									// 		this.setState({
+									// 			hoveredCart: true,
+									// 		});
+									// 	}
+									// }}
+									// onMouseLeave={() => {
+									// 	this.setState({
+									// 		hoveredCart: false,
+									// 	});
+									// }}
+									// style={{
+									// 	border: this.state.hoveredCart
+									// 		? '1px solid #f1f2f3'
+									// 		: '1px solid transparent',
+									// 	padding: '5px',
+									// }}
 									className="cart-div"
 								>
 									<div
@@ -520,6 +524,12 @@ class NavbarComponent extends Component {
 											display: 'flex',
 											flexDirection: 'row',
 											gap: '10px',
+											justifyContent: 'flex-end',
+											width:
+												this.props?.section?.style?.navbarAlign === 'three'
+													? 'auto'
+													: '200px',
+
 											// border:
 											// 	this.props?.section?.style?.cartBorder !== 'dash' &&
 											// 	this.props?.section?.style?.cartBorder
@@ -538,7 +548,7 @@ class NavbarComponent extends Component {
 											// 			? '100px'
 											// 			: ''
 											// 		: '',
-											width: 'auto',
+											// width: 'auto',
 											// padding: '10px 5px',
 										}}
 										className="cart-icon"
@@ -619,7 +629,7 @@ class NavbarComponent extends Component {
 				{this.state.showStyleModal && (
 					<ElementSidebar
 						ref={this.navbarRef}
-						elementEndPosition={{ x: '80%', y: '100%' }}
+						elementEndPosition={{ x: '50%', y: '100%' }}
 						activeType={'navbar'}
 						isWorkflow={this.props.isWorkflow}
 						modules={this.props?.modules}
@@ -685,6 +695,10 @@ class NavbarComponent extends Component {
 									border: this.state.hoveredModule
 										? '1px solid #f1f2f3'
 										: '1px solid transparent',
+									justifyContent:
+										this.props?.section?.style?.navbarAlign === 'two'
+											? 'center'
+											: 'flex-start',
 								}}
 								className="navbar-modules-inner-wrapper"
 							>
@@ -756,6 +770,11 @@ class NavbarComponent extends Component {
 									display: 'flex',
 									alignItems: 'center',
 									gap: '10px',
+									width:
+										this.props?.section?.style?.navbarAlign === 'three'
+											? 'auto'
+											: '200px',
+									justifyContent: 'flex-end',
 								}}
 								className="cart-div"
 							>
@@ -774,35 +793,36 @@ class NavbarComponent extends Component {
 										/>
 									</div>
 								)}
-								{this.props?.section?.style?.downloadIcon ||
+								{/* {this.props?.section?.style?.downloadIcon ||
 									(!_.has(this.props?.section?.style, 'downloadIcon') && (
 										<div className="cart-divider"></div>
-									))}
+									))} */}
 								<div
 									style={{
 										display: 'flex',
 										flexDirection: 'row',
+										justifyContent: 'flex-end',
 										gap: '10px',
-										border:
-											this.props?.section?.style?.cartBorder !== 'dash' &&
-											this.props?.section?.style?.cartBorder
-												? `1px solid ${
-														this.props?.section?.navigationColor ||
-														'#8B75BA'
-												  }`
-												: '1 px solid transparent',
-										borderRadius:
-											this.props?.section?.style?.cartBorder !== 'dash'
-												? this.props?.section?.style?.cartBorder ===
-												  'hexagon'
-													? '7px'
-													: this.props?.section?.style?.cartBorder ===
-													  'circle'
-													? '100px'
-													: ''
-												: '',
-										width: '150px',
-										padding: '10px 5px',
+										// border:
+										// 	this.props?.section?.style?.cartBorder !== 'dash' &&
+										// 	this.props?.section?.style?.cartBorder
+										// 		? `1px solid ${
+										// 				this.props?.section?.navigationColor ||
+										// 				'#8B75BA'
+										// 		  }`
+										// 		: '1 px solid transparent',
+										// borderRadius:
+										// 	this.props?.section?.style?.cartBorder !== 'dash'
+										// 		? this.props?.section?.style?.cartBorder ===
+										// 		  'hexagon'
+										// 			? '7px'
+										// 			: this.props?.section?.style?.cartBorder ===
+										// 			  'circle'
+										// 			? '100px'
+										// 			: ''
+										// 		: '',
+										// width: '200px',
+										// padding: '10px 5px',
 									}}
 									className="cart-icon"
 								>

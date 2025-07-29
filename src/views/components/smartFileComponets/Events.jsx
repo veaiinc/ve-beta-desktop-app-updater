@@ -405,7 +405,7 @@ const Events = ({
 							color={'#202020'}
 							arrow={false}
 							trigger="click"
-							overlayClassName="toolTipContainer"
+							classNames={{ root: 'toolTipContainer' }}
 							open={info?.presetPopUp?.[`events${index}${ind}`]}
 							onOpenChange={(open) => {
 								if (!open) {

@@ -7,7 +7,7 @@ const ParentTaskComponent = ({ value, showTitle = false }) => {
 		<Tooltip
 			title={showTitle ? <div className="tooltip-inner">{'Parent task'}</div> : ''}
 			placement="bottom"
-			overlayClassName="tooltip-overlay-container"
+			classNames={{ root: 'tooltip-overlay-container' }}
 			color="transparent"
 		>
 			<div className="parent-task-component">

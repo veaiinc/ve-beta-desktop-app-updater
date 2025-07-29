@@ -82,7 +82,7 @@ const Events = ({
 				valueTobeChanged = { ...valueTobeChanged, description: val };
 			}
 			if (type === 'date') {
-				valueTobeChanged = { ...valueTobeChanged, date: val };
+				valueTobeChanged = { ...valueTobeChanged, date: val === null ? null : val };
 				calenderStartDate = val;
 			}
 			if (type === 'serviecType') {
@@ -509,7 +509,8 @@ const Events = ({
 								<span className="labelName">Date</span>
 								<DatePicker
 									onChange={(date, dateString) => {
-										localEventsOnchange(ind, 'date', dateString);
+										// If date is null (cleared), set to null, else use dateString
+										localEventsOnchange(ind, 'date', date ? dateString : null);
 									}}
 									format={['YYYY-MM-DD', 'DD-MM-YYYY']}
 									value={
@@ -518,7 +519,7 @@ const Events = ({
 													`${moment(item?.date)?.format('YYYY-MM-DD')}`,
 													'YYYY-MM-DD',
 											  )
-											: item?.date
+											: null // set to null if no date
 									}
 									className={`custominputContainer ${editable ? 'edit' : ''}`}
 									style={{ height: '50px' }}
@@ -528,7 +529,7 @@ const Events = ({
 											? dayjs(`${info?.calenderStartDate}`, 'YYYY-MM-DD')
 											: ''
 									}
-									allowClear={false}
+									allowClear={true}
 								/>
 							</div>
 							<div className="inputWithLabelContainer">

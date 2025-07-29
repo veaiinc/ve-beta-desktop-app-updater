@@ -18,6 +18,10 @@ const tabs = [
 	{ value: 'publish', label: 'Publish' },
 ];
 
+const tooltipStyles = {
+	body: { minWidth: '256px' },
+};
+
 let userId,
 	activeWorkspaceId = null;
 const today = new Date();
@@ -335,10 +339,8 @@ const ShareModal = ({
 												arrow={false}
 												placement="bottomLeft"
 												color="transparent"
-												overlayStyle={{
-													minWidth: '256px',
-													zIndex: 50003,
-												}}
+												styles={tooltipStyles}
+												zIndex={50003}
 												trigger="click"
 												open={info?.globalAccessDropdown}
 												onOpenChange={(open) => {

@@ -110,7 +110,7 @@ const ListTabs = ({ tabs, defaultActiveTab }) => {
 					arrow={false}
 					color="transparent"
 					trigger="click"
-					overlayClassName="list-tabs-header-more-button-tooltip"
+					classNames={{ root: 'list-tabs-header-more-button-tooltip' }}
 					title={
 						<div className="list-tabs-header-more-button-tooltip-content">
 							<div className="list-tabs-header-more-button-tooltip-content-header">

@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useRef } from 'react';
+import React, { useState, useContext, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Drawer, Switch } from 'antd';
 import styles from './cardMeetBot.module.scss';
 import './meetBot.scss';
@@ -11,6 +11,13 @@ import { ReactComponent as ChevronDown } from '../../../assets/svg/tasks/chevron
 import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
 import { ReactComponent as AddIcon } from '../../../assets/svg/add.svg';
 import Spinner from '../../components/loaders/Spinner';
+import GuideMePopup from './guideMePopup';
+
+const drawerStyles = {
+	header: { display: 'none' },
+	body: { padding: 0, background: 'var(--background-color)', height: '100vh', overflow: 'auto' },
+};
+
 const meetingModeOptions = [
 	{ value: 'meeting', label: 'Meeting' },
 	{ value: 'sales', label: 'Sales Mode' },
@@ -55,16 +62,18 @@ const CardMeetBot = () => {
 		title: '',
 		currentIndex: 0,
 		searchOpen: false,
+		cards: [],
+		guideMePopupOpen: false,
 	});
 	const searchInputRef = useRef(null);
 
-	const meetings = existingBots?.data || [];
+	const meetings = useMemo(() => existingBots?.data || [], [existingBots?.data]);
 	const loadingMeetings = existingBots ? false : true;
 
 	// Load existing bots when component mounts
 	useEffect(() => {
 		if (!existingBots) {
-			getExistingBots({ page: 1, limit: 10, append: true });
+			getExistingBots({ page: 1, limit: 10, append: false });
 		}
 	}, []);
 
@@ -81,6 +90,34 @@ const CardMeetBot = () => {
 			currentIndex: (prev.currentIndex + 1) % meetings.length,
 		}));
 	};
+
+	useEffect(() => {
+		if (meetings.length > 0) {
+			const length = meetings.length;
+			const cards = meetings.map((meeting, i) => {
+				let diff = i - info.currentIndex;
+
+				// Handle circular navigation
+				if (diff > length / 2) diff -= length;
+				if (diff < -length / 2) diff += length;
+
+				return {
+					...meeting,
+					position: Math.abs(diff) <= 2 ? diff : null,
+				};
+			});
+
+			setInfo((prev) => ({
+				...prev,
+				cards: cards,
+			}));
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				cards: [],
+			}));
+		}
+	}, [info.currentIndex, meetings]);
 
 	// Touch/swipe support
 	const [touchStartX, setTouchStartX] = useState(null);
@@ -181,7 +218,7 @@ const CardMeetBot = () => {
 			const success = response?.[1]?.data?.startTranscription?.success;
 
 			if (success && pageId && type) {
-				await getExistingBots({ page: 1, limit: 10, append: true });
+				await getExistingBots({ page: 1, limit: 10, append: false });
 				navigate(
 					`/meet/${pageId}?type=${type}&isAiIntelligenceEnabled=${info.isAiIntelligenceEnabled}`,
 				);
@@ -210,6 +247,27 @@ const CardMeetBot = () => {
 			handleCreateMeet();
 		}
 	};
+
+	// Keyboard navigation for cards
+	const handleKeyDown = useCallback(
+		(e) => {
+			// Don't handle arrow keys if search is focused or drawer is open
+			if (info.searchOpen || info.drawerOpen) return;
+
+			if (e?.key === 'ArrowUp' || e?.key === 'ArrowLeft') {
+				handleLeft();
+			} else if (e?.key === 'ArrowDown' || e?.key === 'ArrowRight') {
+				handleRight();
+			}
+		},
+		[info.searchOpen, info.drawerOpen, handleLeft, handleRight],
+	);
+	useEffect(() => {
+		window.addEventListener('keydown', handleKeyDown);
+		return () => {
+			window.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [handleKeyDown]);
 
 	return (
 		<div className="meetbot">
@@ -271,8 +329,8 @@ const CardMeetBot = () => {
 										</div>
 									</div>
 								) : (
-									meetings.map((meeting, idx) => {
-										const position = idx - info.currentIndex;
+									info.cards?.map((meeting, idx) => {
+										const position = meeting.position;
 										const positionClassMap = {
 											0: styles.cardMeetBot_selected,
 											1: styles.cardMeetBot_right1,
@@ -284,7 +342,7 @@ const CardMeetBot = () => {
 											styles.cardMeetBot_card,
 											positionClassMap[position] || '',
 										];
-										if (Math.abs(position) > 2) return null;
+										if (position === null) return null;
 										return (
 											<div
 												key={meeting._id}
@@ -432,13 +490,7 @@ const CardMeetBot = () => {
 					placement="right"
 					closable={false}
 					mask={false}
-					headerStyle={{ display: 'none' }}
-					bodyStyle={{
-						padding: 0,
-						background: 'var(--background-color)',
-						height: '100vh',
-						overflow: 'auto',
-					}}
+					styles={drawerStyles}
 					style={{ position: 'relative', background: 'var(--background-color)' }}
 					className="meetbot__right meetbot__right--open"
 					getContainer={false}
@@ -595,6 +647,9 @@ const CardMeetBot = () => {
 															setInfo((prev) => ({
 																...prev,
 																isAiIntelligenceEnabled: checked,
+																guideMePopupOpen: checked
+																	? true
+																	: false,
 															}))
 														}
 													/>
@@ -745,6 +800,10 @@ const CardMeetBot = () => {
 					/>
 				)}
 			</div>
+			<GuideMePopup
+				isOpen={info.guideMePopupOpen}
+				onClose={() => setInfo({ ...info, guideMePopupOpen: false })}
+			/>
 		</div>
 	);
 };

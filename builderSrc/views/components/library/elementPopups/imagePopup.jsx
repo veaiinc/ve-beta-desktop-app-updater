@@ -34,6 +34,7 @@ import LoopAdj from '../../animePopups/LoopAdj';
 import ScrollAdj from '../../animePopups/ScrollAdj';
 import AnimeLoader from '../svgs/adjustmentSvgs/AnimeLoader';
 import _ from 'lodash';
+import LibraryPopup from '../../imageLibrary/LibraryPopup';
 
 export default class ImagePopup extends Images {
 	constructor(props) {
@@ -1531,7 +1532,7 @@ export default class ImagePopup extends Images {
 							}}
 							modalType={'center'}
 						>
-							<ImageLibrary
+							<LibraryPopup
 								close={(e) => {
 									this.setState({ showImageModal: false }, () => {
 										this.props?.setModalRef(this.state.showImageModal);
@@ -1541,6 +1542,16 @@ export default class ImagePopup extends Images {
 									this.handleActiveImageStyles('imageURL', e);
 								}}
 							/>
+							{/* // <ImageLibrary
+							// 	close={(e) => {
+							// 		this.setState({ showImageModal: false }, () => {
+							// 			this.props?.setModalRef(this.state.showImageModal);
+							// 		});
+							// 	}}
+							// 	setLibraryImage={(e) => {
+							// 		this.handleActiveImageStyles('imageURL', e);
+							// 	}}
+							// /> */}
 						</Modal>
 					</>
 				)}

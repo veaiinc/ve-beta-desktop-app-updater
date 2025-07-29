@@ -12,6 +12,10 @@ const alignmentOptions = [
 	{ value: 'right', icon: <RightAlignIcon />, label: 'Align Right' },
 ];
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content' },
+};
+
 const AlignButton = () => {
 	const editor = useBlockNoteEditor();
 	const Components = useComponentsContext();
@@ -89,7 +93,7 @@ const AlignButton = () => {
 					placement="bottom"
 					trigger="click"
 					color="transparent"
-					overlayStyle={{ minWidth: 'fit-content' }}
+					styles={tooltipStyles}
 				>
 					<Components.FormattingToolbar.Button
 						mainTooltip="Alignment"

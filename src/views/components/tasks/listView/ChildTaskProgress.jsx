@@ -22,7 +22,7 @@ const ChildTaskProgress = ({ value, showTitle = false, completedStatus = [] }) =
 		<Tooltip
 			title={showTitle ? <div className="tooltip-inner">{'Sub tasks'}</div> : ''}
 			placement="bottom"
-			overlayClassName="tooltip-overlay-container"
+			classNames={{ root: 'tooltip-overlay-container' }}
 			color="transparent"
 		>
 			<span className="child-task-progress">

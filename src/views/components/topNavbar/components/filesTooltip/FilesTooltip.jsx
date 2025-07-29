@@ -52,11 +52,15 @@ const files = [
 	},
 ];
 
-const FilesTooltip = () => {
+const FilesTooltip = ({ closeTooltip }) => {
+	const region = localStorage.getItem('region');
 	const navigate = useNavigate();
 
 	return (
-		<div className={s.filesTooltipContainer}>
+		<div
+			className={s.filesTooltipContainer}
+			style={region === 'ap-south-1' ? { left: '-12px' } : { left: '-226px' }}
+		>
 			{files.map((file) => (
 				<div
 					key={file.id}
@@ -65,6 +69,7 @@ const FilesTooltip = () => {
 						if (file.link) {
 							navigate(file.link);
 						}
+						closeTooltip();
 					}}
 				>
 					<div className={s.fileIcon}>{file.icon}</div>

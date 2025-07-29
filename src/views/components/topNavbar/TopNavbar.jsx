@@ -1,14 +1,23 @@
 import { Fragment, useContext, useEffect, useState } from 'react';
 import s from './topNavbar.module.scss';
+import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import { Tooltip } from 'antd';
-import CreditsLeftSvg from '../sidebar/chatHistory/CreditsLeftSvg';
+
+// components
 import Settings from './components/settings/Settings';
 import Notifications from './components/notifications/Notifications';
-import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import FilesTooltip from './components/filesTooltip/FilesTooltip';
 import ToolsTooltip from './components/toolsTooltip/ToolsTooltip';
+import { Tooltip } from 'antd';
+
+// svg icons
+import DownCaret from './assets/DownCaret';
+import { ReactComponent as LightMode } from './assets/light-mode.svg';
+import { ReactComponent as DarkMode } from './assets/dark-mode.svg';
+import { ReactComponent as NotificationsSvg } from './assets/notification.svg';
+import { ReactComponent as ShareAndEarnSvg } from './assets/share-and-earn.svg';
+import CreditsLeftSvg from '../sidebar/chatHistory/CreditsLeftSvg';
 
 const leftContainerItemsStable = [
 	{
@@ -85,7 +94,7 @@ const TopNavbar = () => {
 	const navigate = useNavigate();
 	const { workspaceMode } = useWorkspaceMode();
 	const { pathname } = useLocation();
-	const isBuilder = pathname.includes('builder');
+	const hideTopNavbar = pathname.includes('builder') || pathname.includes('galleries');
 
 	const {
 		profileInfo: { userDetailsData, tennantSettingsData },
@@ -148,6 +157,8 @@ const TopNavbar = () => {
 			setInfo((prev) => ({
 				...prev,
 				filesTooltipOpen: true,
+				toolsTooltipOpen: false,
+				settingsTooltipOpen: false,
 			}));
 			return;
 		}
@@ -206,69 +217,34 @@ const TopNavbar = () => {
 		{
 			id: 2,
 			label: `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`,
-			icon:
-				theme === 'dark' ? (
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="21"
-						height="21"
-						viewBox="0 0 21 21"
-						fill="none"
-					>
-						<path
-							d="M9.875 3.625V3C9.875 2.83424 9.94085 2.67527 10.0581 2.55806C10.1753 2.44085 10.3342 2.375 10.5 2.375C10.6658 2.375 10.8247 2.44085 10.9419 2.55806C11.0592 2.67527 11.125 2.83424 11.125 3V3.625C11.125 3.79076 11.0592 3.94973 10.9419 4.06694C10.8247 4.18415 10.6658 4.25 10.5 4.25C10.3342 4.25 10.1753 4.18415 10.0581 4.06694C9.94085 3.94973 9.875 3.79076 9.875 3.625ZM15.5 10.5C15.5 11.4889 15.2068 12.4556 14.6573 13.2779C14.1079 14.1001 13.327 14.741 12.4134 15.1194C11.4998 15.4978 10.4945 15.5969 9.52455 15.4039C8.55464 15.211 7.66373 14.7348 6.96447 14.0355C6.2652 13.3363 5.789 12.4454 5.59607 11.4755C5.40315 10.5055 5.50216 9.50021 5.8806 8.58658C6.25904 7.67295 6.8999 6.89206 7.72215 6.34265C8.54439 5.79324 9.51109 5.5 10.5 5.5C11.8256 5.50145 13.0966 6.0287 14.0339 6.96606C14.9713 7.90343 15.4986 9.17436 15.5 10.5ZM14.25 10.5C14.25 9.75832 14.0301 9.0333 13.618 8.41661C13.206 7.79993 12.6203 7.31928 11.9351 7.03545C11.2498 6.75162 10.4958 6.67736 9.76841 6.82206C9.04098 6.96675 8.3728 7.3239 7.84835 7.84835C7.3239 8.3728 6.96675 9.04098 6.82206 9.76841C6.67736 10.4958 6.75162 11.2498 7.03545 11.9351C7.31928 12.6203 7.79993 13.206 8.41661 13.618C9.0333 14.0301 9.75832 14.25 10.5 14.25C11.4942 14.249 12.4475 13.8535 13.1505 13.1505C13.8535 12.4475 14.249 11.4942 14.25 10.5ZM5.05781 5.94219C5.17509 6.05946 5.33415 6.12535 5.5 6.12535C5.66585 6.12535 5.82491 6.05946 5.94219 5.94219C6.05946 5.82491 6.12535 5.66585 6.12535 5.5C6.12535 5.33415 6.05946 5.17509 5.94219 5.05781L5.31719 4.43281C5.19991 4.31554 5.04085 4.24965 4.875 4.24965C4.70915 4.24965 4.55009 4.31554 4.43281 4.43281C4.31554 4.55009 4.24965 4.70915 4.24965 4.875C4.24965 5.04085 4.31554 5.19991 4.43281 5.31719L5.05781 5.94219ZM5.05781 15.0578L4.43281 15.6828C4.31554 15.8001 4.24965 15.9591 4.24965 16.125C4.24965 16.2909 4.31554 16.4499 4.43281 16.5672C4.55009 16.6845 4.70915 16.7503 4.875 16.7503C5.04085 16.7503 5.19991 16.6845 5.31719 16.5672L5.94219 15.9422C6.00026 15.8841 6.04632 15.8152 6.07775 15.7393C6.10917 15.6634 6.12535 15.5821 6.12535 15.5C6.12535 15.4179 6.10917 15.3366 6.07775 15.2607C6.04632 15.1848 6.00026 15.1159 5.94219 15.0578C5.88412 14.9997 5.81518 14.9537 5.73931 14.9223C5.66344 14.8908 5.58212 14.8747 5.5 14.8747C5.41788 14.8747 5.33656 14.8908 5.26069 14.9223C5.18482 14.9537 5.11588 14.9997 5.05781 15.0578ZM15.5 6.125C15.5821 6.12506 15.6634 6.10895 15.7393 6.07759C15.8152 6.04622 15.8841 6.00021 15.9422 5.94219L16.5672 5.31719C16.6845 5.19991 16.7503 5.04085 16.7503 4.875C16.7503 4.70915 16.6845 4.55009 16.5672 4.43281C16.4499 4.31554 16.2909 4.24965 16.125 4.24965C15.9591 4.24965 15.8001 4.31554 15.6828 4.43281L15.0578 5.05781C14.9703 5.14522 14.9107 5.25663 14.8865 5.37793C14.8624 5.49924 14.8748 5.62498 14.9221 5.73924C14.9695 5.85351 15.0496 5.95116 15.1525 6.01983C15.2554 6.08849 15.3763 6.1251 15.5 6.125ZM15.9422 15.0578C15.8249 14.9405 15.6659 14.8747 15.5 14.8747C15.3341 14.8747 15.1751 14.9405 15.0578 15.0578C14.9405 15.1751 14.8747 15.3341 14.8747 15.5C14.8747 15.6659 14.9405 15.8249 15.0578 15.9422L15.6828 16.5672C15.7409 16.6253 15.8098 16.6713 15.8857 16.7027C15.9616 16.7342 16.0429 16.7503 16.125 16.7503C16.2071 16.7503 16.2884 16.7342 16.3643 16.7027C16.4402 16.6713 16.5091 16.6253 16.5672 16.5672C16.6253 16.5091 16.6713 16.4402 16.7027 16.3643C16.7342 16.2884 16.7503 16.2071 16.7503 16.125C16.7503 16.0429 16.7342 15.9616 16.7027 15.8857C16.6713 15.8098 16.6253 15.7409 16.5672 15.6828L15.9422 15.0578ZM3.625 9.875H3C2.83424 9.875 2.67527 9.94085 2.55806 10.0581C2.44085 10.1753 2.375 10.3342 2.375 10.5C2.375 10.6658 2.44085 10.8247 2.55806 10.9419C2.67527 11.0592 2.83424 11.125 3 11.125H3.625C3.79076 11.125 3.94973 11.0592 4.06694 10.9419C4.18415 10.8247 4.25 10.6658 4.25 10.5C4.25 10.3342 4.18415 10.1753 4.06694 10.0581C3.94973 9.94085 3.79076 9.875 3.625 9.875ZM10.5 16.75C10.3342 16.75 10.1753 16.8158 10.0581 16.9331C9.94085 17.0503 9.875 17.2092 9.875 17.375V18C9.875 18.1658 9.94085 18.3247 10.0581 18.4419C10.1753 18.5592 10.3342 18.625 10.5 18.625C10.6658 18.625 10.8247 18.5592 10.9419 18.4419C11.0592 18.3247 11.125 18.1658 11.125 18V17.375C11.125 17.2092 11.0592 17.0503 10.9419 16.9331C10.8247 16.8158 10.6658 16.75 10.5 16.75ZM18 9.875H17.375C17.2092 9.875 17.0503 9.94085 16.9331 10.0581C16.8158 10.1753 16.75 10.3342 16.75 10.5C16.75 10.6658 16.8158 10.8247 16.9331 10.9419C17.0503 11.0592 17.2092 11.125 17.375 11.125H18C18.1658 11.125 18.3247 11.0592 18.4419 10.9419C18.5592 10.8247 18.625 10.6658 18.625 10.5C18.625 10.3342 18.5592 10.1753 18.4419 10.0581C18.3247 9.94085 18.1658 9.875 18 9.875Z"
-							fill="var(--primary-font,#F2F2F3)"
-						></path>
-					</svg>
-				) : (
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="21"
-						height="21"
-						viewBox="0 0 21 21"
-						fill="none"
-					>
-						<path
-							d="M18.7454 11.6117C18.6652 11.5313 18.5647 11.4743 18.4546 11.4468C18.3445 11.4193 18.2289 11.4222 18.1204 11.4554C16.9286 11.8157 15.6615 11.8459 14.4539 11.5428C13.2464 11.2397 12.1437 10.6147 11.2633 9.73436C10.383 8.854 9.75794 7.7513 9.45486 6.54374C9.15178 5.33619 9.18198 4.06903 9.54226 2.87729C9.5757 2.76869 9.5789 2.65304 9.55153 2.54276C9.52415 2.43249 9.46723 2.33176 9.38688 2.25142C9.30654 2.17107 9.20581 2.11415 9.09554 2.08677C8.98526 2.0594 8.86961 2.0626 8.76101 2.09604C7.11338 2.60076 5.6669 3.61228 4.62742 4.98666C3.71837 6.19358 3.16387 7.63008 3.02622 9.13476C2.88857 10.6395 3.17323 12.1527 3.84821 13.5045C4.52319 14.8564 5.56175 15.9932 6.84721 16.7873C8.13267 17.5814 9.61411 18.0014 11.1251 17.9999C12.8878 18.0054 14.6037 17.4323 16.0095 16.3687C17.3838 15.3292 18.3954 13.8827 18.9001 12.2351C18.9331 12.1269 18.9362 12.0118 18.909 11.902C18.8817 11.7922 18.8252 11.6918 18.7454 11.6117ZM15.2579 15.3703C13.9341 16.3673 12.2947 16.8527 10.6414 16.7369C8.9882 16.6211 7.43242 15.9121 6.2605 14.7403C5.08857 13.5684 4.37939 12.0127 4.26349 10.3595C4.1476 8.70624 4.63279 7.06679 5.62976 5.74291C6.2793 4.88515 7.11903 4.18982 8.08289 3.71166C8.02798 4.09699 8.00031 4.48572 8.00008 4.87494C8.00235 7.02913 8.85911 9.09443 10.3823 10.6177C11.9056 12.1409 13.9709 12.9977 16.1251 12.9999C16.5151 12.9998 16.9046 12.9721 17.2907 12.9171C16.8121 13.8811 16.1162 14.7209 15.2579 15.3703Z"
-							fill="var(--primary-font,#F2F2F3)"
-						></path>
-					</svg>
-				),
+			icon: (
+				<Tooltip
+					title={
+						<div className="tooltip-text">
+							<span>Switch to {theme === 'dark' ? 'light' : 'dark'} mode</span>
+						</div>
+					}
+					placement="bottom"
+					arrow={false}
+					color={'transparent'}
+				>
+					{theme === 'dark' ? <LightMode /> : <DarkMode />}
+				</Tooltip>
+			),
 		},
 		{
 			id: 3,
 			label: 'Notifications',
 			icon: (
 				<Tooltip
-					title={
-						<Notifications
-							showNotifications={info.showNotifications}
-							setShowNotifications={(show) =>
-								setInfo((prev) => ({
-									...prev,
-									showNotifications: show,
-								}))
-							}
-						/>
-					}
+					title={<Notifications />}
 					placement="bottom"
 					arrow={false}
 					color={'transparent'}
 					rootClassName={s.topNavbarNotifications}
 				>
 					<div className={s.creditsLeftContainer}>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="22"
-							height="22"
-							viewBox="0 0 22 22"
-							fill="none"
-						>
-							<path
-								d="M19.0599 15.1198C18.583 14.2983 17.874 11.9737 17.874 8.9375C17.874 7.11414 17.1497 5.36545 15.8604 4.07614C14.5711 2.78683 12.8224 2.0625 10.999 2.0625C9.17564 2.0625 7.42696 2.78683 6.13765 4.07614C4.84833 5.36545 4.124 7.11414 4.124 8.9375C4.124 11.9745 3.41416 14.2983 2.93721 15.1198C2.81541 15.3287 2.75084 15.566 2.75001 15.8078C2.74918 16.0496 2.81212 16.2873 2.93248 16.497C3.05284 16.7067 3.22637 16.8809 3.43556 17.0022C3.64476 17.1234 3.88222 17.1873 4.124 17.1875H7.63111C7.78973 17.9637 8.21156 18.6612 8.82524 19.1622C9.43893 19.6631 10.2068 19.9367 10.999 19.9367C11.7912 19.9367 12.5591 19.6631 13.1728 19.1622C13.7865 18.6612 14.2083 17.9637 14.3669 17.1875H17.874C18.1157 17.1872 18.3531 17.1231 18.5621 17.0018C18.7712 16.8805 18.9446 16.7063 19.0649 16.4966C19.1851 16.2869 19.248 16.0493 19.2471 15.8076C19.2463 15.5659 19.1817 15.3286 19.0599 15.1198ZM10.999 18.5625C10.5726 18.5624 10.1567 18.4301 9.8086 18.1838C9.46048 17.9376 9.19723 17.5895 9.0551 17.1875H12.9429C12.8008 17.5895 12.5375 17.9376 12.1894 18.1838C11.8413 18.4301 11.4254 18.5624 10.999 18.5625ZM4.124 15.8125C4.78572 14.6747 5.499 12.0381 5.499 8.9375C5.499 7.47881 6.07847 6.07986 7.10992 5.04841C8.14137 4.01696 9.54031 3.4375 10.999 3.4375C12.4577 3.4375 13.8566 4.01696 14.8881 5.04841C15.9195 6.07986 16.499 7.47881 16.499 8.9375C16.499 12.0355 17.2106 14.6721 17.874 15.8125H4.124Z"
-								fill="#F2F2F3"
-							/>
-						</svg>
+						<NotificationsSvg />
 					</div>
 				</Tooltip>
 			),
@@ -277,18 +253,18 @@ const TopNavbar = () => {
 			id: 4,
 			label: 'Share And Earn',
 			icon: (
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="22"
-					height="22"
-					viewBox="0 0 22 22"
-					fill="none"
+				<Tooltip
+					title={
+						<div className="tooltip-text">
+							<span>Share and Earn</span>
+						</div>
+					}
+					placement="bottom"
+					arrow={false}
+					color={'transparent'}
 				>
-					<path
-						d="M18.5625 6.18748H15.5478C15.5813 6.15912 15.6157 6.13162 15.6484 6.10154C15.9094 5.86966 16.1197 5.58642 16.2662 5.26954C16.4128 4.95266 16.4924 4.60894 16.5 4.2599C16.5113 3.87806 16.4444 3.49794 16.3035 3.14287C16.1626 2.78781 15.9505 2.4653 15.6805 2.19514C15.4104 1.92498 15.0879 1.71286 14.7329 1.57183C14.3779 1.43079 13.9978 1.3638 13.6159 1.37498C13.2667 1.3825 12.9229 1.46202 12.6058 1.60856C12.2888 1.75511 12.0054 1.96551 11.7734 2.22662C11.4524 2.59864 11.1915 3.01848 11 3.47099C10.8085 3.01848 10.5476 2.59864 10.2266 2.22662C9.99459 1.96551 9.71121 1.75511 9.39417 1.60856C9.07713 1.46202 8.73325 1.3825 8.38406 1.37498C8.00222 1.3638 7.62211 1.43079 7.26709 1.57183C6.91207 1.71286 6.58962 1.92498 6.31954 2.19514C6.04946 2.4653 5.83745 2.78781 5.69652 3.14287C5.55558 3.49794 5.48871 3.87806 5.5 4.2599C5.50764 4.60894 5.58722 4.95266 5.73375 5.26954C5.88029 5.58642 6.09064 5.86966 6.35164 6.10154C6.3843 6.1299 6.41867 6.1574 6.45219 6.18748H3.4375C3.07283 6.18748 2.72309 6.33235 2.46523 6.59021C2.20737 6.84807 2.0625 7.19781 2.0625 7.56248V10.3125C2.0625 10.6772 2.20737 11.0269 2.46523 11.2848C2.72309 11.5426 3.07283 11.6875 3.4375 11.6875V17.1875C3.4375 17.5522 3.58237 17.9019 3.84023 18.1597C4.09809 18.4176 4.44783 18.5625 4.8125 18.5625H17.1875C17.5522 18.5625 17.9019 18.4176 18.1598 18.1597C18.4176 17.9019 18.5625 17.5522 18.5625 17.1875V11.6875C18.9272 11.6875 19.2769 11.5426 19.5348 11.2848C19.7926 11.0269 19.9375 10.6772 19.9375 10.3125V7.56248C19.9375 7.19781 19.7926 6.84807 19.5348 6.59021C19.2769 6.33235 18.9272 6.18748 18.5625 6.18748ZM12.8047 3.13756C12.9135 3.01735 13.0461 2.92094 13.194 2.85439C13.3419 2.78784 13.5019 2.75259 13.6641 2.75084H13.7062C13.8962 2.75203 14.0842 2.79114 14.2589 2.86588C14.4337 2.94063 14.5917 3.0495 14.7239 3.18613C14.856 3.32275 14.9596 3.48437 15.0284 3.66152C15.0973 3.83867 15.1301 4.02779 15.125 4.21779C15.1233 4.37995 15.088 4.54 15.0214 4.68789C14.9549 4.83578 14.8585 4.96831 14.7383 5.07717C13.9227 5.79904 12.5692 6.05342 11.7305 6.14279C11.8336 5.23271 12.1172 3.91014 12.8047 3.13756ZM7.29695 3.16849C7.56331 2.90217 7.92404 2.75176 8.3007 2.74998H8.34281C8.50497 2.75173 8.66502 2.78698 8.81291 2.85353C8.9608 2.92008 9.09333 3.01649 9.20219 3.1367C9.9232 3.95139 10.1776 5.30232 10.267 6.13764C9.43164 6.0517 8.0807 5.79389 7.26602 5.07287C7.14581 4.96401 7.0494 4.83148 6.98285 4.68359C6.9163 4.53571 6.88105 4.37566 6.8793 4.21349C6.87397 4.02034 6.90793 3.82811 6.97914 3.64848C7.05034 3.46884 7.1573 3.30555 7.29352 3.16849H7.29695ZM3.4375 7.56248H10.3125V10.3125H3.4375V7.56248ZM4.8125 11.6875H10.3125V17.1875H4.8125V11.6875ZM17.1875 17.1875H11.6875V11.6875H17.1875V17.1875ZM18.5625 10.3125H11.6875V7.56248H18.5625V10.3125Z"
-						fill="#F2F2F3"
-					/>
-				</svg>
+					<ShareAndEarnSvg />
+				</Tooltip>
 			),
 		},
 	];
@@ -305,7 +281,7 @@ const TopNavbar = () => {
 				<>
 					<ul className={s.leftContainer}>
 						{info.activeMode === 3
-							? [leftContainerItems[0]].map((navItem) => (
+							? [leftContainerItems[0]].map((navItem, index) => (
 									<li
 										className={`${s.navItem} ${
 											info.activeNavItem === navItem.id ? s.active : ''
@@ -316,22 +292,36 @@ const TopNavbar = () => {
 												route: navItem.route,
 											})
 										}
-										key={navItem.id}
+										key={`${navItem.id}-${index}`}
 									>
 										{navItem.label}
 									</li>
 							  ))
-							: leftContainerItems.map((navItem) =>
+							: leftContainerItems.map((navItem, index) =>
 									navItem.id === 4 ? (
 										<Tooltip
 											open={info.filesTooltipOpen}
 											onOpenChange={() =>
-												setInfo({
-													...info,
-													filesTooltipOpen: !info.filesTooltipOpen,
-												})
+												setInfo((prev) => ({
+													...prev,
+													filesTooltipOpen: !prev.filesTooltipOpen,
+													toolsTooltipOpen: false,
+													settingsTooltipOpen: false,
+												}))
 											}
-											title={<FilesTooltip />}
+											key={`tooltip1-${navItem.id}-${index}`}
+											title={
+												<FilesTooltip
+													closeTooltip={() =>
+														setInfo((prev) => ({
+															...prev,
+															filesTooltipOpen: false,
+															toolsTooltipOpen: false,
+															settingsTooltipOpen: false,
+														}))
+													}
+												/>
+											}
 											placement="bottomRight"
 											arrow={false}
 											color={'transparent'}
@@ -353,19 +343,39 @@ const TopNavbar = () => {
 										<Tooltip
 											open={info.toolsTooltipOpen}
 											onOpenChange={() =>
-												setInfo({
-													...info,
-													toolsTooltipOpen: !info.toolsTooltipOpen,
-												})
+												setInfo((prev) => ({
+													...prev,
+													toolsTooltipOpen: !prev.toolsTooltipOpen,
+												}))
 											}
-											title={<ToolsTooltip />}
+											title={
+												<ToolsTooltip
+													closeTooltip={() =>
+														setInfo((prev) => ({
+															...prev,
+															toolsTooltipOpen: false,
+															settingsTooltipOpen: false,
+															filesTooltipOpen: false,
+														}))
+													}
+												/>
+											}
 											placement="bottomRight"
 											arrow={false}
 											color={'transparent'}
 											rootClassName={s.topNavbarSettings}
+											key={`tooltip2-${navItem.id}-${index}`}
 										>
 											<li
-												onClick={() => navigate('/home')}
+												onClick={() => {
+													navigate('/home');
+													setInfo((prev) => ({
+														...prev,
+														toolsTooltipOpen: false,
+														settingsTooltipOpen: false,
+														filesTooltipOpen: false,
+													}));
+												}}
 												className={`${s.navItem} ${s.profileItem}`}
 											>
 												{navItem.label}
@@ -382,7 +392,7 @@ const TopNavbar = () => {
 													route: navItem.route,
 												})
 											}
-											key={navItem.id}
+											key={`${navItem.id}-${index}`}
 										>
 											{navItem.label}
 										</li>
@@ -398,13 +408,13 @@ const TopNavbar = () => {
 						id: 2,
 						element: (
 							<ul className={s.middleContainer}>
-								{middleContainerItems.map((navItem) => (
+								{middleContainerItems.map((navItem, index) => (
 									<li
 										className={`${s.navItem} ${
 											info.activeMode === navItem.id ? s.active : ''
 										}`}
 										onClick={() => handleMiddleNavigation(navItem)}
-										key={navItem.id}
+										key={`${navItem.id}-${index}`}
 									>
 										{info.activeMode === navItem.id
 											? navItem.activeLabel
@@ -420,11 +430,11 @@ const TopNavbar = () => {
 			id: 3,
 			element: (
 				<ul className={s.rightContainer}>
-					{rightContainerItems.map((navItem) => (
+					{rightContainerItems.map((navItem, index) => (
 						<li
 							className={s.navItem}
-							onClick={() => handleAction(navItem)}
-							key={navItem.id}
+							onClick={() => handleAction(navItem, index)}
+							key={`${navItem.id}-${index}`}
 						>
 							{navItem.icon}
 						</li>
@@ -433,7 +443,12 @@ const TopNavbar = () => {
 					<Tooltip
 						open={info.settingsTooltipOpen}
 						onOpenChange={() =>
-							setInfo({ ...info, settingsTooltipOpen: !info.settingsTooltipOpen })
+							setInfo((prev) => ({
+								...prev,
+								settingsTooltipOpen: !prev.settingsTooltipOpen,
+								toolsTooltipOpen: false,
+								filesTooltipOpen: false,
+							}))
 						}
 						title={
 							<Settings
@@ -444,7 +459,12 @@ const TopNavbar = () => {
 								lastName={lastName}
 								businessName={businessName}
 								closeSettingsTooltip={() =>
-									setInfo({ ...info, settingsTooltipOpen: false })
+									setInfo((prev) => ({
+										...prev,
+										settingsTooltipOpen: false,
+										toolsTooltipOpen: false,
+										filesTooltipOpen: false,
+									}))
 								}
 							/>
 						}
@@ -459,21 +479,7 @@ const TopNavbar = () => {
 							) : (
 								<p className={s.nameInitials}>{nameInitials}</p>
 							)}
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								viewBox="0 0 16 16"
-								fill=""
-								className={s.downCaret}
-							>
-								<path
-									d="M13 6L8 11L3 6"
-									stroke="#F2F2F3"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-								/>
-							</svg>
+							<DownCaret />
 						</li>
 					</Tooltip>
 				</ul>
@@ -482,7 +488,7 @@ const TopNavbar = () => {
 	];
 
 	return (
-		!isBuilder && (
+		!hideTopNavbar && (
 			<nav className={s.topNavbarContainer}>
 				{navItems.map((navItem) => {
 					return <Fragment key={navItem.id}>{navItem.element}</Fragment>;

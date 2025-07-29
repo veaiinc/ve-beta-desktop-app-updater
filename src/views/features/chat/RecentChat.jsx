@@ -176,7 +176,7 @@ const RecentChat = ({
 
 	useEffect(() => {
 		if (info?.getFollowUpQueries) {
-			if (info?.chatQuery?.trim()?.length === 0) {
+			if (agentType !== 'knowledge_agent' && info?.chatQuery?.trim()?.length === 0) {
 				followUpQueryTimeoutRef.current = setTimeout(() => {
 					getFollowUpQueries(sessionId, info?.latestStreamMesage?.message_id);
 				}, 5000);
@@ -244,10 +244,16 @@ const RecentChat = ({
 				clearTimeout(agentTimeoutIdRef.current);
 				agentTimeoutIdRef.current = null;
 			}
-			const removeSessionId = false;
 
 			// if (!globalChatMessages?.[sessionId]) {
-			getRecentChatMessages(sessionId, 1, false, 1000, isPublicChat, removeSessionId);
+			getRecentChatMessages({
+				sessionId,
+				page: 1,
+				fetchMore: false,
+				limit: 1000,
+				isPublicChat,
+				removeSessionId: false,
+			});
 			// }
 
 			const sessionIdsToClose = newChatSessionIds?.filter(
@@ -423,9 +429,17 @@ const RecentChat = ({
 	useEffect(() => {
 		if (recentChatStorage) {
 			const firstTimeApiCall = true;
-			recentChatHandler(recentChatStorage, false, firstTimeApiCall);
-			updateStateValues({
-				recentChatStorage: null,
+			recentChatHandler(recentChatStorage?.[sessionId], false, firstTimeApiCall);
+			// updateStateValues({
+			// 	recentChatStorage: null,
+			// });
+			getRecentChatMessages({
+				sessionId,
+				page: 1,
+				fetchMore: false,
+				limit: 1000,
+				isPublicChat,
+				removeSessionId: true,
 			});
 		}
 	}, [recentChatStorage]);
@@ -433,9 +447,17 @@ const RecentChat = ({
 	useEffect(() => {
 		if (moreRecentChatStorage) {
 			const firstTimeApiCall = false;
-			recentChatHandler(moreRecentChatStorage, true, firstTimeApiCall);
-			updateStateValues({
-				moreRecentChatStorage: null,
+			recentChatHandler(moreRecentChatStorage?.[sessionId], true, firstTimeApiCall);
+			// updateStateValues({
+			// 	moreRecentChatStorage: null,
+			// });
+			getRecentChatMessages({
+				sessionId,
+				page: 1,
+				fetchMore: true,
+				limit: 1000,
+				isPublicChat,
+				removeSessionId: true,
 			});
 		}
 	}, [moreRecentChatStorage]);
@@ -762,7 +784,13 @@ const RecentChat = ({
 			if (!info?.hasNextPage || info?.chatLoading) {
 				return;
 			}
-			getRecentChatMessages(sessionId, info?.currentPage + 1, true, isPublicChat);
+			getRecentChatMessages({
+				sessionId,
+				page: info?.currentPage + 1,
+				fetchMore: true,
+				isPublicChat,
+				removeSessionId: false,
+			});
 			setInfo((prev) => ({ ...prev, chatLoading: true }));
 		}, 1000),
 		[info, sessionId, isPublicChat],
@@ -985,7 +1013,7 @@ const RecentChat = ({
 																1
 																? `${
 																		chatContentRef?.current
-																			?.clientHeight - 145
+																			?.clientHeight - 177
 																  }px`
 																: 'auto',
 													}}

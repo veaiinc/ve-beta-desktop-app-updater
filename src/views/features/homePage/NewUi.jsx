@@ -18,7 +18,6 @@ const getCardStyles = (index, activeIndex, dataLength) => {
 	const prev1 = (activeIndex - 1 + dataLength) % dataLength;
 	const prev2 = (activeIndex - 2 + dataLength) % dataLength;
 	const prev3 = (activeIndex - 3 + dataLength) % dataLength;
-
 	const next = (activeIndex + 1) % dataLength;
 	if (index === activeIndex) {
 		return {
@@ -34,7 +33,7 @@ const getCardStyles = (index, activeIndex, dataLength) => {
 			width: '88%',
 			opacity: 1,
 		};
-	} else if (index === prev2) {
+	} else if (index === prev2 && dataLength > 4) {
 		return {
 			top: 0,
 			bottom: '94%',
@@ -65,38 +64,155 @@ const getCardStyles = (index, activeIndex, dataLength) => {
 	}
 };
 
+const getClassName = (index, activeIndex, dataLength, scrollDirection) => {
+	if (scrollDirection === 'down') {
+		if (index === activeIndex) {
+			return 'card3__from__bottom';
+		} else if (index === activeIndex - 1) {
+			return 'card2__from__bottom';
+		} else if (index === activeIndex + 1) {
+			return 'card4__from__bottom';
+		} else if (dataLength === 4) {
+			if (index === activeIndex - 2) {
+				return 'card0__from__bottom';
+			} else if (index <= activeIndex - 2) {
+				return 'card__top';
+			} else if (index >= activeIndex + 2) {
+				return 'card__bottom';
+			}
+		} else {
+			if (index === activeIndex - 2) {
+				return 'card1__from__bottom';
+			} else if (index === activeIndex - 3) {
+				return 'card0__from__bottom';
+			} else if (index < activeIndex - 3) {
+				return 'card__top';
+			} else if (index >= activeIndex + 2) {
+				return 'card__bottom';
+			}
+		}
+	} else if (scrollDirection === 'up') {
+		if (index === activeIndex) {
+			return 'card3__from__top';
+		} else if (index === activeIndex - 1) {
+			return 'card2__from__top';
+		} else if (index === activeIndex + 1) {
+			return 'card4__from__top';
+		} else if (dataLength === 4) {
+			if (index <= activeIndex - 2) {
+				return 'card__top';
+			} else if (index >= activeIndex + 2) {
+				return 'card__bottom';
+			}
+		} else {
+			if (index === activeIndex - 2) {
+				return 'card1__from__top';
+			} else if (index === activeIndex - 3) {
+				return 'card0__from__top';
+			} else if (index < activeIndex - 3) {
+				return 'card__top';
+			} else if (index >= activeIndex + 2) {
+				return 'card__bottom';
+			}
+		}
+	} else {
+		return '';
+	}
+};
+
+const getUpdatedActiveCardIndex = (activeIndex, dataLength) => {
+	let newIndex = 0;
+	if (dataLength === 4) {
+		if (activeIndex === 0) {
+			newIndex = dataLength - 2;
+		} else if (activeIndex === 3) {
+			newIndex = 1;
+		} else {
+			newIndex = activeIndex;
+		}
+	} else {
+		if (activeIndex === 0) {
+			newIndex = dataLength - 3;
+		} else if (activeIndex === 1) {
+			newIndex = dataLength - 2;
+		} else if (activeIndex === dataLength - 1) {
+			newIndex = 2;
+		} else if (activeIndex === dataLength - 2) {
+			newIndex = 1;
+		} else {
+			newIndex = activeIndex;
+		}
+	}
+	return newIndex;
+};
+
+const getNewActiveCardIndex = (scrollDirection, prevActiveIndex, dataLength) => {
+	let newIndex = 0;
+	//dataLength will be minimum 4 always
+
+	if (scrollDirection === 'down') {
+		if (dataLength === 4) {
+			if (prevActiveIndex === dataLength - 2) {
+				newIndex = 1;
+			} else {
+				newIndex = prevActiveIndex + 1;
+			}
+		} else {
+			if (prevActiveIndex === dataLength - 2) {
+				newIndex = 2;
+			} else {
+				newIndex = prevActiveIndex + 1;
+			}
+		}
+	} else {
+		if (dataLength === 4) {
+			if (prevActiveIndex === 1) {
+				newIndex = dataLength - 2;
+			} else {
+				newIndex = prevActiveIndex - 1;
+			}
+		} else {
+			if (prevActiveIndex === 2) {
+				newIndex = dataLength - 2;
+			} else {
+				newIndex = prevActiveIndex - 1;
+			}
+		}
+	}
+	return newIndex;
+};
+
 const SCROLL_THRESHOLD = 10;
 const SCROLL_STOP_DELAY = 40; // time between wheel events to detect gesture end
 
 let scrollTimeout = null;
 let scrollLocked = false;
 
-const NewUi = () => {
+const NewUi = ({ handleActiveChatIndex }) => {
 	const {
 		aiSetup: { aiChatSessions },
-		templates: { updateStateValues },
+		templates: { updateStateValues, handleGlobalChatMessages },
 		profileInfo: { userDetailsData },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		activeIndex: 0,
 		dataLength: 1,
 		data: [{ type: 'chatbox' }],
-		sessionId: ObjectID().toString(),
+		sessionId: ObjectID()?.toString(),
 		chatQuery: '',
+		scrollDirection: null,
 	});
 	const navigate = useNavigate();
 	const containerRef = useRef(null);
 
 	useEffect(() => {
-		if (aiChatSessions?.data?.length > 4) {
-			let sessions = [...(aiChatSessions?.data || [])]?.reverse();
-			sessions = [
-				...sessions?.slice(0, sessions?.length - 1),
-				{
-					type: 'chatbox',
-				},
-				sessions?.[sessions?.length - 1],
-			];
+		if (aiChatSessions?.data?.length) {
+			let sessions = [...(aiChatSessions?.data || [])];
+			sessions =
+				sessions?.length === 1
+					? [{ type: 'chatbox' }, ...sessions]
+					: [sessions?.[0], { type: 'chatbox' }, ...sessions?.slice(1)];
+			sessions = [...sessions, ...sessions?.slice(0, 3)];
 			sessions = sessions?.filter(
 				(session) =>
 					session?.recentConversations?.length > 0 || session?.type === 'chatbox',
@@ -104,6 +220,17 @@ const NewUi = () => {
 			sessions = sessions?.map((session) => {
 				if (session?.type === 'chatbox') {
 					return session;
+				}
+
+				if (session?.agentType === 'knowledge_agent' && session?.assistantId) {
+					handleGlobalChatMessages({
+						sessionId: session?._id,
+						chatInfo: {
+							agentType: 'knowledge_agent',
+							assistantId: session?.assistantId,
+						},
+						updateExtraInfo: true,
+					});
 				}
 
 				const { recentConversations: data } = session;
@@ -169,7 +296,8 @@ const NewUi = () => {
 							messageId,
 							rating: rating || null,
 							citations,
-							follow_up_query: followUpQuery || [],
+							follow_up_query:
+								typeof followUpQuery === 'string' ? [] : followUpQuery ?? [],
 							workflow_template_id: workflowTemplateId || null,
 							module_template_id: moduleTemplateId || null,
 							isOldMessage: true,
@@ -197,6 +325,7 @@ const NewUi = () => {
 				activeIndex: dataLength - 2,
 				dataLength,
 				data: sessions,
+				scrollDirection: null,
 			}));
 		}
 	}, [aiChatSessions]);
@@ -205,6 +334,10 @@ const NewUi = () => {
 		containerRef?.current?.addEventListener('wheel', handleWheel, { passive: false });
 		return () => containerRef?.current?.removeEventListener('wheel', handleWheel);
 	}, []);
+
+	useEffect(() => {
+		handleActiveChatIndex(info.activeIndex);
+	}, [info.activeIndex]);
 
 	const handleWheel = useCallback((e) => {
 		const delta = e.deltaY;
@@ -217,16 +350,29 @@ const NewUi = () => {
 			scrollLocked = true;
 
 			setInfo((prev) => {
-				let { activeIndex = 0, dataLength } = prev;
-				const newIndex =
-					delta > 0
-						? (activeIndex + 1) % dataLength
-						: activeIndex - 1 < 0
-						? dataLength - 1
-						: activeIndex - 1;
+				if (prev?.dataLength === 1) {
+					return prev;
+				}
+				let { activeIndex: prevActiveIndex = 0, dataLength } = prev;
+				const scrollDirection = delta > 0 ? 'down' : 'up';
+				let newIndex = getNewActiveCardIndex(scrollDirection, prevActiveIndex, dataLength);
 
-				return { ...prev, activeIndex: newIndex };
+				return {
+					...prev,
+					activeIndex: newIndex,
+					scrollDirection,
+				};
 			});
+
+			// let { activeIndex = 0, dataLength } = prev;
+			// const newIndex =
+			// 	delta > 0
+			// 		? (activeIndex + 1) % dataLength
+			// 		: activeIndex - 1 < 0
+			// 		? dataLength - 1
+			// 		: activeIndex - 1;
+
+			// return { ...prev, activeIndex: newIndex };
 		}
 
 		// Reset the timeout on every wheel event
@@ -236,9 +382,23 @@ const NewUi = () => {
 		}, SCROLL_STOP_DELAY);
 	}, []);
 
-	const handleCustomOnSendFunction = useCallback((sessionId, data) => {
+	const handleCustomOnSendFunction = useCallback((sessionId, data, agentType, assistantId) => {
 		updateStateValues({ activePayloadForChat: data });
-		navigate(`/chat/${sessionId}`);
+
+		if (agentType === 'knowledge_agent' && assistantId) {
+			navigate(`/chat/${sessionId}?agentType=${agentType}&assistantId=${assistantId}`);
+		} else {
+			navigate(`/chat/${sessionId}`);
+		}
+	}, []);
+
+	const handleExpandChat = useCallback((session) => {
+		const { agentType, assistantId, _id: sessionId } = session || {};
+		if (agentType === 'knowledge_agent' && assistantId) {
+			navigate(`/chat/${sessionId}?agentType=${agentType}&assistantId=${assistantId}`);
+		} else {
+			navigate(`/chat/${sessionId}`);
+		}
 	}, []);
 
 	const handleChatQueryChange = useCallback((query) => {
@@ -252,6 +412,22 @@ const NewUi = () => {
 		}
 	}, []);
 
+	const handleActiveIndexChange = useCallback((index) => {
+		setInfo((prev) => {
+			if (
+				index === prev?.activeIndex - 1 ||
+				(prev?.dataLength > 4 && index === prev?.activeIndex - 2)
+			) {
+				return {
+					...prev,
+					activeIndex: getUpdatedActiveCardIndex(index, prev?.dataLength),
+					scrollDirection: 'up',
+				};
+			}
+			return prev;
+		});
+	}, []);
+
 	const userName =
 		jwtDecode(localStorage.getItem('usertoken'))?.userName ||
 		userDetailsData?.firstName + ' ' + (userDetailsData?.lastName ?? '') ||
@@ -260,14 +436,45 @@ const NewUi = () => {
 
 	return (
 		<div className="new-ui-container" ref={containerRef}>
-			<div className="new-ui-wrapper">
+			<div
+				className="new-ui-wrapper"
+				style={{
+					height: info?.data?.length === 1 ? '60vh' : '80vh',
+				}}
+			>
 				{info?.data?.map((session, index) => (
 					<div
 						key={index}
-						className="new-ui-item"
-						style={getCardStyles(index, info?.activeIndex, info?.dataLength)}
+						className={`new-ui-item ${
+							info?.data?.length === 1 ? 'single-card' : ''
+						} ${getClassName(
+							index,
+							info?.activeIndex,
+							info?.dataLength,
+							info?.scrollDirection,
+						)}`}
+						style={
+							!info?.scrollDirection
+								? getCardStyles(index, info?.activeIndex, info?.dataLength)
+								: {}
+						}
 					>
-						<div className="item-wrapper">
+						<div
+							className="item-wrapper"
+							style={{
+								cursor:
+									index === info?.activeIndex - 1 ||
+									(info?.dataLength > 4 && index === info?.activeIndex - 2)
+										? 'pointer'
+										: 'default',
+							}}
+							onClick={() => handleActiveIndexChange(index)}
+						>
+							{(index === info?.activeIndex - 1 ||
+								(info?.dataLength > 4 && index === info?.activeIndex - 2)) && (
+								<div className="item-title">{session?.title || 'New Chat'}</div>
+							)}
+
 							<div
 								className="item"
 								ref={(el) => {
@@ -284,7 +491,9 @@ const NewUi = () => {
 								style={{
 									...(index === info?.activeIndex && {
 										opacity: 1,
+										pointerEvents: 'auto',
 									}),
+									height: session?.type === 'chatbox' ? 'fit-content' : '100%',
 								}}
 							>
 								{session?.type === 'chatbox' ? (
@@ -316,9 +525,7 @@ const NewUi = () => {
 									<>
 										<div
 											className="fullChat"
-											onClick={() => {
-												navigate(`/chat/${session?._id}`);
-											}}
+											onClick={() => handleExpandChat(session)}
 										>
 											<ArrowUpRightSvg />
 										</div>
@@ -328,15 +535,20 @@ const NewUi = () => {
 										/>
 										<div className="chatBoxContainer">
 											<ChatBox
-												sessionId={session?.id}
+												sessionId={session?._id}
 												onSend={(data) =>
-													handleCustomOnSendFunction(session?._id, data)
+													handleCustomOnSendFunction(
+														session?._id,
+														data,
+														session?.agentType,
+														session?.assistantId,
+													)
 												}
 												customChatActions={true}
 												autoFocus={false}
 												animatePlaceholder={false}
 												showUpgradeSubscriptionBtn={false}
-												animateChatBox={false}
+												animateChatBox={true}
 											/>
 										</div>
 									</>
@@ -345,6 +557,11 @@ const NewUi = () => {
 						</div>
 					</div>
 				))}
+			</div>
+			<div className="active-card-title">
+				{info?.data?.[info?.activeIndex]?.title
+					? info?.data?.[info?.activeIndex]?.title
+					: ''}
 			</div>
 		</div>
 	);

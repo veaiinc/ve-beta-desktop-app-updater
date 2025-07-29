@@ -9,6 +9,10 @@ const tabTooltipContent = [
 	{ label: 'Duplicate', value: 'duplicate', icon: <DuplicateSvg /> },
 ];
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content', padding: '0' },
+};
+
 const TabEditDropdown = ({
 	tab,
 	activeTab,
@@ -83,7 +87,7 @@ const TabEditDropdown = ({
 			arrow={false}
 			trigger={'click'}
 			color={'transparent'}
-			overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+			styles={tooltipStyles}
 			style={{ padding: 0 }}
 			placement="bottomLeft"
 			open={info?.showEditViewDropDown}

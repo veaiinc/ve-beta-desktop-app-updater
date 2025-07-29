@@ -138,6 +138,7 @@ class ServiceItem extends Component {
 		if (this.blocksRef.current && !this.blocksRef.current.contains(event.target)) {
 			this.setState({
 				showSubBlockOptions: false,
+				showSubBlockBorder: false,
 			});
 			if (document.activeElement instanceof HTMLElement) {
 				document.activeElement.blur();
@@ -282,30 +283,33 @@ class ServiceItem extends Component {
 							: ''
 						: ''
 				} ${this.state.showSubBlockBorder ? 'borderedSubBlock' : ''}`}
-				onMouseEnter={() => {
-					if (this.state.preview !== true) {
-						this.setState({
-							showSubBlockBorder: true,
-						});
-					}
-				}}
-				onMouseLeave={() => {
-					this.setState({
-						showSubBlockBorder: false,
-					});
-				}}
+				// onMouseEnter={() => {
+				// 	if (this.state.preview !== true) {
+				// 		this.setState({
+				// 			showSubBlockBorder: true,
+				// 		});
+				// 	}
+				// }}
+				// onMouseLeave={() => {
+				// 	this.setState({
+				// 		showSubBlockBorder: false,
+				// 	});
+				// }}
 				ref={this.blocksRef}
 				onClick={(e) => {
 					this.setState(
 						{
 							showSubBlockOptions: true,
+							showSubBlockBorder: true,
 						},
 						() => {
+							// ! commented for making it active on every clixk
 							if (
-								!this.state.textSelection &&
-								this.state.client == false &&
-								this.imgRef.current &&
-								!this.imgRef.current.contains(event.target)
+								// 	!this.state.textSelection &&
+								// 	this.state.client == false &&
+								// 	this.imgRef.current &&
+								// 	!this.imgRef.current.contains(event.target)
+								!this.props?.client
 							) {
 								this.props.serviceTableSubBlock(this.state.block._id);
 							}
@@ -532,9 +536,7 @@ class ServiceItem extends Component {
 												style={{
 													background: `${
 														this.state.block?.pricingFontColor
-													}${Math.round(0.12 * 255).toString(
-														16,
-													)}`,
+													}${Math.round(0.12 * 255).toString(16)}`,
 													border: `1px solid ${this.state.block?.pricingFontColor}`,
 													display: this.props.returnDisplayItemSub(
 														'quantity',
@@ -543,7 +545,8 @@ class ServiceItem extends Component {
 												}}
 											>
 												{this.state.block.canClientCustomiseQuantity &&
-												this.state.block.canClientCustomiseQuantity == true ? (
+												this.state.block.canClientCustomiseQuantity ==
+													true ? (
 													<span
 														onClick={() => {
 															if (
@@ -565,9 +568,13 @@ class ServiceItem extends Component {
 												)}
 												{window?.location?.pathname?.includes('/workflow')
 													? this.state.block.subBlocks[0].quantity
-													: this.props.getRowValue('quantity', this.state.block._id)}
+													: this.props.getRowValue(
+															'quantity',
+															this.state.block._id,
+													  )}
 												{this.state.block.canClientCustomiseQuantity &&
-												this.state.block.canClientCustomiseQuantity == true ? (
+												this.state.block.canClientCustomiseQuantity ==
+													true ? (
 													<span
 														onClick={() => {
 															if (
@@ -588,7 +595,9 @@ class ServiceItem extends Component {
 													''
 												)}
 											</a>
-										) : 1}
+										) : (
+											1
+										)}
 										<span
 											style={{
 												display: this.props.returnDisplayItemSub(
@@ -597,7 +606,8 @@ class ServiceItem extends Component {
 												),
 											}}
 										>
-											{this.state.block.subBlocks[0]?.unit === 'none'
+											{!this.state.block.subBlocks[0]?.unit ||
+											this.state.block.subBlocks[0]?.unit === 'none'
 												? `Quantity: ${
 														window?.location?.pathname?.includes(
 															'/workflow',

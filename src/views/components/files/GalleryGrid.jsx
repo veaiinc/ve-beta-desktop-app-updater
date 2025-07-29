@@ -525,7 +525,7 @@ const GalleryGrid = ({
 										title={item?.title || ''}
 										placement="bottom"
 										arrow={false}
-										overlayInnerStyle={toolTipStyles}
+										styles={toolTipStyles}
 									>
 										{/* <span className="gallery-item-title galleryTitleTooltip">
 											{item?.title}

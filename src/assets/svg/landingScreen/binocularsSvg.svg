@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
   <g clip-path="url(#clip0_5597_5132)">
-    <path d="M7.3125 6.1875H10.6875" stroke="var(--primary-button)" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M16.143 10.8505L13.0739 3.86702C12.7574 3.55058 12.3282 3.3728 11.8807 3.3728C11.4332 3.3728 11.004 3.55058 10.6875 3.86702V11.8123" stroke="var(--primary-button)" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M7.31297 11.8123V3.86702C6.9965 3.55058 6.5673 3.3728 6.11977 3.3728C5.67223 3.3728 5.24303 3.55058 4.92656 3.86702L1.85742 10.8505" stroke="var(--primary-button)" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M4.5 14.625C6.0533 14.625 7.3125 13.3658 7.3125 11.8125C7.3125 10.2592 6.0533 9 4.5 9C2.9467 9 1.6875 10.2592 1.6875 11.8125C1.6875 13.3658 2.9467 14.625 4.5 14.625Z" stroke="var(--primary-button)" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M13.5 14.625C15.0533 14.625 16.3125 13.3658 16.3125 11.8125C16.3125 10.2592 15.0533 9 13.5 9C11.9467 9 10.6875 10.2592 10.6875 11.8125C10.6875 13.3658 11.9467 14.625 13.5 14.625Z" stroke="var(--primary-button)" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M7.3125 6.1875H10.6875" stroke="var(--primary-button)" stroke-width="1.125" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M16.143 10.8505L13.0739 3.86702C12.7574 3.55058 12.3282 3.3728 11.8807 3.3728C11.4332 3.3728 11.004 3.55058 10.6875 3.86702V11.8123" stroke="var(--primary-button)" stroke-width="1.125" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M7.31297 11.8123V3.86702C6.9965 3.55058 6.5673 3.3728 6.11977 3.3728C5.67223 3.3728 5.24303 3.55058 4.92656 3.86702L1.85742 10.8505" stroke="var(--primary-button)" stroke-width="1.125" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M4.5 14.625C6.0533 14.625 7.3125 13.3658 7.3125 11.8125C7.3125 10.2592 6.0533 9 4.5 9C2.9467 9 1.6875 10.2592 1.6875 11.8125C1.6875 13.3658 2.9467 14.625 4.5 14.625Z" stroke="var(--primary-button)" stroke-width="1.125" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M13.5 14.625C15.0533 14.625 16.3125 13.3658 16.3125 11.8125C16.3125 10.2592 15.0533 9 13.5 9C11.9467 9 10.6875 10.2592 10.6875 11.8125C10.6875 13.3658 11.9467 14.625 13.5 14.625Z" stroke="var(--primary-button)" stroke-width="1.125" strokeLinecap="round" strokeLinejoin="round"/>
   </g>
   <defs>
     <clipPath id="clip0_5597_5132">

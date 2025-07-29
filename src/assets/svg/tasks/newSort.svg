@@ -1,11 +1,11 @@
 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g id="FadersHorizontal" clip-path="url(#clip0_2021_7140)">
-<path id="Vector" d="M14.375 6.25H16.875" stroke="var(--primary-font)" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-<path id="Vector_2" d="M3.125 6.25H11.875" stroke="var(--primary-font)" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-<path id="Vector_3" d="M9.375 13.75H16.875" stroke="var(--primary-font)" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-<path id="Vector_4" d="M3.125 13.75H6.875" stroke="var(--primary-font)" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-<path id="Vector_5" d="M11.875 4.375V8.125" stroke="var(--primary-font)" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-<path id="Vector_6" d="M6.875 11.875V15.625" stroke="var(--primary-font)" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector" d="M14.375 6.25H16.875" stroke="var(--primary-font)" stroke-width="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+<path id="Vector_2" d="M3.125 6.25H11.875" stroke="var(--primary-font)" stroke-width="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+<path id="Vector_3" d="M9.375 13.75H16.875" stroke="var(--primary-font)" stroke-width="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+<path id="Vector_4" d="M3.125 13.75H6.875" stroke="var(--primary-font)" stroke-width="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+<path id="Vector_5" d="M11.875 4.375V8.125" stroke="var(--primary-font)" stroke-width="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+<path id="Vector_6" d="M6.875 11.875V15.625" stroke="var(--primary-font)" stroke-width="1.25" strokeLinecap="round" strokeLinejoin="round"/>
 </g>
 <defs>
 <clipPath id="clip0_2021_7140">

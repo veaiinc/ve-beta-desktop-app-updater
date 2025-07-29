@@ -13,6 +13,10 @@ const colors = {
 	7: { backgroundColor: '#453061', color: '#6F4C99' },
 };
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content' },
+};
+
 const Select = ({
 	value,
 	options = [],
@@ -71,8 +75,8 @@ const Select = ({
 				arrow={false}
 				trigger={'click'}
 				color={'transparent'}
-				overlayStyle={{ minWidth: 'fit-content' }}
-				overlayClassName="select-dropdown-wrapper"
+				styles={tooltipStyles}
+				classNames={{ root: 'select-dropdown-wrapper' }}
 				open={!disabled && info?.open}
 				onClick={(e) => {
 					e?.stopPropagation();
@@ -86,7 +90,7 @@ const Select = ({
 				<Tooltip
 					title={showTitle ? <div className="tooltip-inner">{title}</div> : ''}
 					placement="bottom"
-					overlayClassName="tooltip-overlay-container"
+					classNames={{ root: 'tooltip-overlay-container' }}
 					color="transparent"
 				>
 					<div

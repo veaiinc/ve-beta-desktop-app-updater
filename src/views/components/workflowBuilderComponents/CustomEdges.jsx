@@ -58,7 +58,7 @@ const CustomEdges = ({
 						color={'#202020'}
 						arrow={false}
 						trigger="click"
-						overlayClassName="reactFlowNodestoolTipContainer"
+						classNames={{ root: 'reactFlowNodestoolTipContainer' }}
 						open={info?.addNodesPopUp}
 						onOpenChange={(open) => {
 							setInfo((prev) => ({ ...prev, addNodesPopUp: open }));

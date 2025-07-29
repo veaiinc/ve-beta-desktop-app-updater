@@ -1,4 +1,5 @@
 import { useCallback, useRef, useEffect } from 'react';
+import getConfig from '../services/index.jsx';
 
 const agentTypeMap = {
 	search_agent: 'search_agent_streaming',
@@ -94,7 +95,7 @@ const useChatStream = () => {
 	);
 
 	const createWebSocketConnection = useCallback(
-		(sessionId, onMessageFunc, agentType, isPublicChat = false) => {
+		async (sessionId, onMessageFunc, agentType, isPublicChat = false) => {
 			if (!sessionId && !isPublicChat) {
 				return;
 			}
@@ -107,17 +108,17 @@ const useChatStream = () => {
 
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
-			const region = localStorage.getItem('region') || 'ap-south-1';
+			const region = localStorage.getItem('region') || 'us-east-1';
+
+			const config = await getConfig();
 
 			let baseUrl = `${
-				region === 'ap-south-1' ? 'wss://ai.ap-south-1.ve.ai' : 'wss://ai.us-east-1.ve.ai'
+				region === 'ap-south-1' ? config.chat_ws_api : config.chat_ws_api_US
 			}/${workspaceId}/${sessionId}/${agent}?token=${usertoken}`;
 
 			if (isPublicChat) {
 				baseUrl = `${
-					region === 'ap-south-1'
-						? 'wss://guestsearch.ap-south-1.ve.ai'
-						: 'wss://guestsearch.us-east-1.ve.ai'
+					region === 'ap-south-1' ? config.guest_chat_ws_api : config.guest_chat_ws_api_US
 				}/${sessionId}/guest_chat`;
 			}
 

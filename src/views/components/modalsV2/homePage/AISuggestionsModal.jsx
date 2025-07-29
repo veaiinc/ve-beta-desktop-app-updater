@@ -54,6 +54,7 @@ const AISuggestionsModal = ({
 			getAISuggestedPendingActions,
 			handleGlobalChatMessages,
 		},
+		profileInfo: { getTenantUserAccessControls, tenantUserAccessControls },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		isAIResultsExpanded: true,
@@ -68,6 +69,7 @@ const AISuggestionsModal = ({
 		isDeleting: false,
 		tabOptions: [],
 		accessType: 'view',
+		hasFullAccess: false,
 	});
 
 	const resizableContainerRef = useRef(null);
@@ -81,7 +83,27 @@ const AISuggestionsModal = ({
 		const token = localStorage.getItem('usertoken');
 		const { user_id } = jwtDecode(token);
 		setInfo((prev) => ({ ...prev, currentUserId: user_id }));
+
+		if (!tenantUserAccessControls) {
+			getTenantUserAccessControls();
+		}
 	}, []);
+
+	useEffect(() => {
+		if (info?.currentUserId && tenantUserAccessControls) {
+			let hasFullAccess = false;
+			if (tenantUserAccessControls?.role === 'admin') {
+				hasFullAccess = true;
+			} else if (tenantUserAccessControls?.accessControls) {
+				tenantUserAccessControls?.accessControls?.forEach((access) => {
+					if (access?.app === 'insights' && access?.hasFullAccess && access?.isEnabled) {
+						hasFullAccess = true;
+					}
+				});
+			}
+			setInfo((prev) => ({ ...prev, hasFullAccess }));
+		}
+	}, [info?.currentUserId, tenantUserAccessControls]);
 
 	useEffect(() => {
 		if (!data) return;
@@ -280,7 +302,7 @@ const AISuggestionsModal = ({
 	};
 
 	const handleDeleteCard = useCallback(async () => {
-		if (info?.accessType === 'view') {
+		if (info?.accessType === 'view' && !info?.hasFullAccess) {
 			message.error('You do not have access to delete this insight');
 			return;
 		}
@@ -302,10 +324,11 @@ const AISuggestionsModal = ({
 		pendingActionsUpdate,
 		info.isDeleting,
 		info?.accessType,
+		info?.hasFullAccess,
 	]);
 
 	const handleOpenFeedbackPopup = () => {
-		if (info?.accessType == 'view') {
+		if (info?.accessType == 'view' && !info?.hasFullAccess) {
 			message.error('You do not have access to give feedback');
 			return;
 		}
@@ -397,7 +420,7 @@ const AISuggestionsModal = ({
 										Teach me
 									</div>
 								)}
-								{info?.accessType !== 'view' && (
+								{(info?.accessType !== 'view' || info?.hasFullAccess) && (
 									<ProactiveAIShare
 										proactiveAiId={data?._id}
 										proactiveAiData={data}

@@ -60,7 +60,7 @@ import { ReactComponent as Notification } from '../../../assets/svg/worflow_buil
 // 						color={'#202020'}
 // 						arrow={false}
 // 						trigger="click"
-// 						overlayClassName="reactFlowNodestoolTipContainer"
+// 						classNames={{ root: 'reactFlowNodestoolTipContainer' }}
 // 						open={info?.addNodesPopUp}
 // 						onOpenChange={(open) => {
 // 							setInfo((prev) => ({ ...prev, addNodesPopUp: open }));
@@ -220,7 +220,7 @@ const CustomEdges = ({
 						color={'#202020'}
 						arrow={false}
 						trigger="click"
-						overlayClassName="reactFlowNodestoolTipContainer"
+						classNames={{ root: 'reactFlowNodestoolTipContainer' }}
 						open={info?.addNodesPopUp}
 						onOpenChange={(open) =>
 							setInfo((prev) => ({ ...prev, addNodesPopUp: open }))

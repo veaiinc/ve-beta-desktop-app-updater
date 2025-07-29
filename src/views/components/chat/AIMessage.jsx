@@ -18,6 +18,10 @@ import UnintegratedAgentApps from './chatComponents/UnintegratedAgentApps';
 import IntermediateSteps from './chatComponents/IntermediateSteps';
 import { fileTypeIcons, getFaviconUrl, getWebsiteName } from '../../../helpers';
 
+const tooltipStyles = {
+	body: { color: 'var(--primary-font)' },
+};
+
 const pencilIconStyles = {
 	width: '20px',
 	height: '20px',
@@ -167,7 +171,7 @@ const AIMessage = ({
 									</div>
 								}
 								color="transparent"
-								overlayInnerStyle={{ color: 'var(--primary-font)' }}
+								styles={tooltipStyles}
 							>
 								{info?.isCopiedToClipboard ? (
 									<TickSvg />
@@ -183,7 +187,7 @@ const AIMessage = ({
 								trigger={'hover'}
 								color="transparent"
 								title={<div className="hover-icons-tooltip">Edit</div>}
-								overlayInnerStyle={{ color: 'var(--primary-font)' }}
+								styles={tooltipStyles}
 							>
 								<PencilSparkleIcon
 									style={pencilIconStyles}
@@ -197,7 +201,7 @@ const AIMessage = ({
 							trigger={'hover'}
 							color="transparent"
 							title={<div className="hover-icons-tooltip">Feedback</div>}
-							overlayInnerStyle={{ color: 'var(--primary-font)' }}
+							styles={tooltipStyles}
 						>
 							<div className="teach-me-container" onClick={handleTeachMeClick}>
 								<GraduationCapSvg
@@ -251,7 +255,8 @@ const AIMessage = ({
 			)}
 
 			{(aiMessagesInfo?.[messageData?.messageId]?.followUpQuery?.length > 0 ||
-				(messageData?.['follow_up_query'] || [])?.length > 0) && (
+				((messageData?.['follow_up_query'] || [])?.length > 0 &&
+					typeof messageData?.['follow_up_query'] === 'object')) && (
 				<div className="chat-suggestions-container">
 					{(aiMessagesInfo?.[messageData?.messageId]?.followUpQuery?.length > 0 ||
 						(messageData?.['follow_up_query'] || [])?.length > 0) && (

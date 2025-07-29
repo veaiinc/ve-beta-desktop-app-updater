@@ -2305,17 +2305,30 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getRecentChatMessages = async (
+	const getRecentChatMessages = async ({
 		sessionId,
 		page = 1,
 		fetchMore = false,
 		limit = 1000,
 		isPublicChat = false,
-	) => {
+		removeSessionId = false,
+	}) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const selectedvariable = fetchMore ? 'moreRecentChatStorage' : 'recentChatStorage';
+
+			if (removeSessionId) {
+				dispatch({
+					type: Actions.RECENT_CHAT_MESSAGES_ACTIONS_REQUESTS,
+					payload: {
+						sessionId,
+						removeSessionId,
+					},
+					selectedvariable,
+				});
+				return;
+			}
 
 			let response;
 			if (isPublicChat) {
@@ -2339,7 +2352,10 @@ export const TemplatesState = (props) => {
 			if (response?.[0]) {
 				dispatch({
 					type: Actions.RECENT_CHAT_MESSAGES_ACTIONS_REQUESTS,
-					payload: response?.[1],
+					payload: {
+						data: response?.[1],
+						sessionId,
+					},
 					selectedvariable,
 				});
 			} else {
