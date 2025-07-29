@@ -23,7 +23,7 @@ import UploadFileTooltip from './UploadFileTooltip';
 import DateRangeDropdown from './DateRangeDropdown';
 import moment from 'moment';
 import { Image, Spin, Tooltip } from 'antd';
-import AIMessageLoader from './AIMessageLoader';
+// import AIMessageLoader from './AIMessageLoader';
 import WebSvg from '../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../assets/svg/ai_agents/bookSvg';
 import useUpdatedVoiceIntegration from '../../../hooks/useUpdatedVoiceIntegration';
@@ -36,7 +36,7 @@ import RecentFileTooltip from './RecentFileTooltip';
 import AskTooltip from './AskTooltip';
 import AddOnCards from '../settings/planbilling/addOnCards';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
-import VoiceWrapper from '../../layouts/VoiceWrapper';
+// import VoiceWrapper from '../../layouts/VoiceWrapper';
 
 const moduleHelper = {
 	tasks: 'tasks',
