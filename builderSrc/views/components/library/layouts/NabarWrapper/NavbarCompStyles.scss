@@ -149,7 +149,7 @@
 		align-items: center;
 		gap: 16.733px;
 		flex-wrap: wrap;
-		margin: 0px 20px;
+		// margin: 0px 20px;
 		position: relative;
 		::after {
 			content: '';
@@ -307,7 +307,6 @@
 				::-webkit-scrollbar {
 					display: none;
 				}
-
 
 				.design-paragraph {
 					color: #e8e8e8;
