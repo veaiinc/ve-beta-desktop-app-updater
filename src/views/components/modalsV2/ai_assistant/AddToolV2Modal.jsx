@@ -368,7 +368,8 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				accountId,
 			};
 
-			const [success, response] = await addActionToKnowledgeAgent(agentId, payload);
+			const { success, response } = await addActionToKnowledgeAgent(agentId, payload);
+
 			if (success) {
 				message.success('Tool added successfully');
 				if (onToolAdded) onToolAdded();
