@@ -523,8 +523,8 @@ export const Galleries = () => {
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/guest-access
 	const editAlbumAccessPin = async (payload, galleryId, albumSlug) => {
 		try {
-			let usertoken = localStorage.getItem('usertoken');
-			let workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
 			const url = `/${workspaceId}/galleries/${galleryId}/albums/${albumSlug}/guest-access`;
 			const type = 'galleries';
 

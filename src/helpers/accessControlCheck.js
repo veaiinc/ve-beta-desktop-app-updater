@@ -1,4 +1,4 @@
-import { message } from 'antd';
+import { message } from '../views/components/globalComponents/CustomToast';
 
 export const accessControlCheck = (accessControl) => {
 	const accessControls = JSON.parse(localStorage.getItem('accessControls'));
