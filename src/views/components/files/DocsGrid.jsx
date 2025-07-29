@@ -22,6 +22,7 @@ import SuspenseFallback from '../globalComponents/SuspenseFallback';
 import ListViewIcon from '../../../assets/svg/notesPage/ListViewIcon';
 import CardsViewIcon from '../../../assets/svg/notesPage/CardsViewIcon';
 import { ReactComponent as Link } from '../../../assets/svg/files/link.svg';
+import { accessControlCheck } from '../../../helpers/accessControlCheck';
 // import { ReactComponent as Copy } from '../../../assets/svg/files/copy.svg';
 // import { ReactComponent as Share } from '../../../assets/svg/files/share.svg';
 const DocumentShortPreview = lazy(() =>
@@ -438,13 +439,14 @@ const DocsGrid = ({
 							{viewMode === 'list' ? (
 								<div
 									className="card-item create"
-									onClick={
+									onClick={() => {
+										if (!accessControlCheck('template')) return;
 										handleCreateDoc
 											? handleCreateDoc
 											: () => {
 													navigate('/builder/create-document');
-											  }
-									}
+											  };
+									}}
 								>
 									<div className="card-item-style card-item-style-btn docs-list-create-row">
 										<DocIcon className="create-doc-icon" />
@@ -461,13 +463,14 @@ const DocsGrid = ({
 							) : (
 								<div
 									className="card-item create"
-									onClick={
+									onClick={() => {
+										if (!accessControlCheck('template')) return;
 										handleCreateDoc
 											? handleCreateDoc
 											: () => {
 													navigate(`/builder/create-document`);
-											  }
-									}
+											  };
+									}}
 								>
 									<div className="card-item-style card-item-style-btn">
 										<button className="card-btn">

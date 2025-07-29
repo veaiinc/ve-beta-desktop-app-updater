@@ -288,7 +288,7 @@ const TemplatesGrid = ({ handleTotalChange, viewMode, setViewMode }) => {
 	};
 
 	const handleCreateBlankTemplate = async () => {
-		if (!accessControlCheck('template')) return;
+		if (!accessControlCheck('workflow')) return;
 		if (info?.blankTemplateLoading) return;
 		setInfo((prev) => ({ ...prev, blankTemplateLoading: true }));
 		const response = await createBlankTemplate({
