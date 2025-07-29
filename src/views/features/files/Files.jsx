@@ -55,6 +55,16 @@ const options = [
 ];
 
 export const statusTextmapper = {
+	contractSigned: {
+		id: 'contractSigned',
+		text: 'Accepted',
+		dotStyle: {
+			backgroundColor: '#00A051',
+		},
+		style: {
+			backgroundColor: '#2C593F',
+		},
+	},
 	filesViewed: {
 		id: 'filesViewed',
 		text: 'Files Viewed',
@@ -661,7 +671,6 @@ const Files = () => {
 		Documents: (
 			<DocsGrid
 				statusTextmapper={statusTextmapper}
-				handleCreateDoc={() => (window.location.href = `/builder/create-document`)}
 				handleTotalChange={(value) => handleTotalChange({ workflow: value })}
 				viewMode={info?.viewMode}
 				setViewMode={setViewMode}

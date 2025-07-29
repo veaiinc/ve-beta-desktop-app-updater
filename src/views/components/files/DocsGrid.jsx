@@ -82,14 +82,13 @@ const docsCtaMapper = [
 
 const DocsGrid = ({
 	statusTextmapper,
-	handleCreateDoc,
 	handleTotalChange,
 	clientId = null,
 	viewMode,
 	setViewMode,
 }) => {
 	const navigate = useNavigate();
-
+	console.log(statusTextmapper);
 	const {
 		templates: { getDocsFilesList, docsFilesList, updateStateValues, docsFilesRefetch },
 		profileInfo: { tennantSettingsData },
@@ -439,14 +438,7 @@ const DocsGrid = ({
 							{viewMode === 'list' ? (
 								<div
 									className="card-item create"
-									onClick={() => {
-										if (!accessControlCheck('template')) return;
-										handleCreateDoc
-											? handleCreateDoc
-											: () => {
-													navigate('/builder/create-document');
-											  };
-									}}
+									onClick={() => navigate('/builder/create-document')}
 								>
 									<div className="card-item-style card-item-style-btn docs-list-create-row">
 										<DocIcon className="create-doc-icon" />
@@ -463,14 +455,7 @@ const DocsGrid = ({
 							) : (
 								<div
 									className="card-item create"
-									onClick={() => {
-										if (!accessControlCheck('template')) return;
-										handleCreateDoc
-											? handleCreateDoc
-											: () => {
-													navigate(`/builder/create-document`);
-											  };
-									}}
+									onClick={() => navigate('/builder/create-document')}
 								>
 									<div className="card-item-style card-item-style-btn">
 										<button className="card-btn">
