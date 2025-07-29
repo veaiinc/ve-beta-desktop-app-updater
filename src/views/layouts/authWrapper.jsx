@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Helmet } from 'react-helmet';
-import Sidebar from '../components/sidebar/Sidebar';
+// import Sidebar from '../components/sidebar/Sidebar';
 import TopNavbar from '../components/topNavbar/TopNavbar';
 import '../../assets/scss/authWrapper.scss';
 import ExpiredSubscriptionModal from '../components/modalsV2/subscription/ExpiredSubscriptionModal';
