@@ -22,6 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import { message } from '../../components/globalComponents/CustomToast';
 import { generateRandomAIAgentDetails } from '../../components/agents/agentsList/utils';
 import Skeleton from 'react-loading-skeleton';
+import { accessControlCheck } from '../../../helpers/accessControlCheck';
 
 // constants
 const page = 1,
@@ -267,6 +268,7 @@ const Agents = () => {
 	}, []);
 
 	const handleCreateNewAgent = useCallback(async () => {
+		if (!accessControlCheck('knowledgeAgent')) return;
 		if (info.createAgentLoader) return;
 		setInfo((prev) => ({ ...prev, createAgentLoader: true }));
 		const { agentName, agentDescription } = generateRandomAIAgentDetails();

@@ -30,6 +30,7 @@ import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress
 import LinkText from '../../components/tasks/listView/LinkText';
 import ChildTaskComponent from '../../components/tasks/listView/ChildTaskComponent';
 import PersonMultiSelect from '../../components/tasks/listView/PersonMultiSelect';
+import { accessControlCheck } from '../../../helpers/accessControlCheck';
 // import { useSearchParams } from 'react-router-dom';
 import CreatedWithAi from '../../components/tasks/listView/CreatedWithAi';
 import { colors } from '../../../helpers/taskHelpers';
@@ -815,6 +816,7 @@ const Tasks = () => {
 	);
 
 	const handleAddButtonOnClick = () => {
+		if (!accessControlCheck('task')) return;
 		updateTaskInfo({ isCreatingSubtask: false, isCreateModalOpen: true });
 	};
 

@@ -245,7 +245,7 @@ const AddOnPlans = ({
 				if (addOnIndex !== -1) {
 					addOns[addOnIndex].count += 1;
 				} else {
-					addOns.push({ ...addOn, count: 1 });
+					addOns.push({ ...addOn, count: currentPlan?.tenantUsers ?? 1 });
 				}
 
 				const priceToAdd =
