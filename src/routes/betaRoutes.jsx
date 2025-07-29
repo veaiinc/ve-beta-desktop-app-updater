@@ -605,7 +605,7 @@ const betaRoutes = [
 		),
 	},
 	{
-		path: '/meet/:noteId',
+		path: '/meet/:noteId/:meetingId',
 		element: (
 			<AuthWrapper title={'Meet'}>
 				<NotesWrapper />

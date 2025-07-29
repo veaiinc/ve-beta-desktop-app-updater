@@ -1752,10 +1752,8 @@ export const NotesState = (props) => {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 			const payload = {
-				input: {
-					page,
-					limit,
-				},
+				page,
+				limit,
 			};
 			const response = await service.query(
 				getMeetBotDataQuery,
@@ -1765,9 +1763,9 @@ export const NotesState = (props) => {
 				'page_notes_api_database',
 			);
 			if (response?.[0]) {
-				const currentPageBotsList = response?.[1]?.data?.listTranscriptionPages?.data;
-				const currentPage = response?.[1]?.data?.listTranscriptionPages?.currentPage;
-				const hasNextPage = response?.[1]?.data?.listTranscriptionPages?.hasNextPage;
+				const currentPageBotsList = response?.[1]?.data?.listMeetings?.data;
+				const currentPage = response?.[1]?.data?.listMeetings?.currentPage;
+				const hasNextPage = response?.[1]?.data?.listMeetings?.hasNextPage;
 
 				const payload = {
 					data: append
