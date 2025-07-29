@@ -3,9 +3,9 @@ import s from './agents.module.scss';
 import Context from '../../../context/context';
 
 // icons
-import { ReactComponent as SearchIcon } from '../../../assets/svg/agents/search.svg';
-import { ReactComponent as SortIcon } from '../../../assets/svg/agents/sort.svg';
-import { ReactComponent as FilterIcon } from '../../../assets/svg/agents/filter.svg';
+// import { ReactComponent as SearchIcon } from '../../../assets/svg/agents/search.svg';
+// import { ReactComponent as SortIcon } from '../../../assets/svg/agents/sort.svg';
+// import { ReactComponent as FilterIcon } from '../../../assets/svg/agents/filter.svg';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
 import { ReactComponent as CloseSearchbarIcon } from '../../../views/features/homePage/assets/svg/closeIcon.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
@@ -14,10 +14,10 @@ import { ReactComponent as PlusIcon } from '../../../assets/svg/agents/add.svg';
 
 // components
 // import QuickActions from '../../components/globalComponents/QuickActions';
-import AgentsList from '../../components/agents/agentsList/AgentsList';
-import AgentSuggestion from '../../components/agents/suggestedCard/agentSuggestion';
+// import AgentsList from '../../components/agents/agentsList/AgentsList';
+// import AgentSuggestion from '../../components/agents/suggestedCard/agentSuggestion';
 import Spinner from '../../components/loaders/Spinner';
-import ViewToggle from '../../components/agents/agentsList/ViewToggle';
+// import ViewToggle from '../../components/agents/agentsList/ViewToggle';
 import { useNavigate } from 'react-router-dom';
 import { message } from '../../components/globalComponents/CustomToast';
 import { generateRandomAIAgentDetails } from '../../components/agents/agentsList/utils';
@@ -493,14 +493,14 @@ const Agents = () => {
 				</div>
 			)}
 
-			<div className={s.agentActionsContainer}>
+			{/* <div className={s.agentActionsContainer}>
 				<div className={s.createNewAgent} onClick={handleCreateNewAgent}>
 					<div className={s.iconContainer}>
 						<PlusIcon />
 					</div>
 					<div className={s.text}>Create New</div>
 				</div>
-			</div>
+			</div> */}
 
 			{/* <QuickActions /> */}
 		</div>
