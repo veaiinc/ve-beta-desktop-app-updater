@@ -80,7 +80,15 @@ const GuideMePopup = ({ isOpen, onClose }) => {
 	}, [info.selectedOption, info.mode]);
 
 	return (
-		<ReactModal isOpen={isOpen} closeModal={onClose}>
+		<ReactModal
+			isOpen={isOpen}
+			closeModal={onClose}
+			modalType="center"
+			customStyles={{
+				overlay: { zIndex: 1001 },
+				content: { borderRadius: '15px', zIndex: 1002 },
+			}}
+		>
 			<div className="guideMePopupMainContainer">
 				<div className="guideMePopupMainContainerHeader">
 					<button
