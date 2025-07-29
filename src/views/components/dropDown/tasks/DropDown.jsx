@@ -3,6 +3,10 @@ import '../../../../assets/scss/dropdown/tasks/dropDown.scss';
 import { ReactComponent as Tick } from '../../../../assets/svg/tasks/checkmark.svg';
 import { Tooltip } from 'antd';
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content', padding: '0' },
+};
+
 const DropDown = ({
 	title,
 	children,
@@ -101,7 +105,7 @@ const DropDown = ({
 			arrow={false}
 			trigger={'click'}
 			color={'transparent'}
-			overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+			styles={tooltipStyles}
 		>
 			<div
 				className=""

@@ -10,6 +10,11 @@ import { Tooltip } from 'antd';
 import { ReactComponent as LockIconSvg } from '../../../assets/svg/workspaceSettings/lock-big.svg';
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
 import moment from 'moment';
+
+const tooltipStyles = {
+	body: { minWidth: '256px' },
+};
+
 const ShareModal = ({
 	// Modal control
 	isOpen,
@@ -446,10 +451,8 @@ const ShareModal = ({
 															arrow={false}
 															placement="bottomLeft"
 															color="transparent"
-															overlayStyle={{
-																minWidth: '256px',
-																zIndex: 50003,
-															}}
+															styles={tooltipStyles}
+															zIndex={50003}
 															trigger="click"
 															open={isGlobalAccessDropdownOpen}
 															onOpenChange={

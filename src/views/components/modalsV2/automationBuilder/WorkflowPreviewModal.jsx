@@ -5,6 +5,12 @@ import { ReactComponent as EditSvg } from '../../../../assets/svg/worflow_builde
 import { Drawer } from 'antd';
 import { fetchOriginSelection } from '../../../../helpers';
 let origin = fetchOriginSelection();
+
+const styles = {
+	header: { display: 'none' },
+	body: { padding: '0px' },
+};
+
 const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData, previewType }) => {
 	const [info, setInfo] = useState({});
 
@@ -14,8 +20,7 @@ const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData, p
 			width={420}
 			open={modalIsOpen}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
-			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
+			styles={styles}
 		>
 			<div className="GlobalWorkflowModalParentContainer">
 				<div className="innerContainer">

@@ -11,7 +11,7 @@ const CheckBoxFilter = ({ value, title, onChange }) => {
 		<Tooltip
 			title={<CheckBoxFilterDropdown value={value} title={title} onChange={onChange} />}
 			placement="bottomLeft"
-			overlayClassName="checkbox-dropdown"
+			classNames={{ root: 'checkbox-dropdown' }}
 			color="transparent"
 			trigger={['click']}
 		>

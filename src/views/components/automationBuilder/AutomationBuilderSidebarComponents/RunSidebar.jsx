@@ -7,6 +7,12 @@ import Context from '../../../../context/context';
 import Skeleton from 'react-loading-skeleton';
 import moment from 'moment';
 
+const tooltipStyles = {
+	body: {
+		minWidth: 'fit-content',
+	},
+};
+
 const formatExecutionTime = (createdAt, completedAt) => {
 	if (!createdAt || !completedAt) return 'Not available';
 
@@ -40,8 +46,9 @@ const RunSidebar = ({ automationId, onClose }) => {
 	// Initial fetch
 	useEffect(() => {
 		setInfo((prev) => ({ ...prev, loading: true }));
-		getExecutionHistory(automationId, { page: 1, limit: 1000 })
-			.finally(() => setInfo((prev) => ({ ...prev, loading: false })));
+		getExecutionHistory(automationId, { page: 1, limit: 1000 }).finally(() =>
+			setInfo((prev) => ({ ...prev, loading: false })),
+		);
 	}, [automationId]);
 
 	return (
@@ -131,9 +138,7 @@ const RunSidebar = ({ automationId, onClose }) => {
 									placement="left"
 									arrow={false}
 									color="transparent"
-									overlayStyle={{
-										minWidth: 'fit-content',
-									}}
+									styles={tooltipStyles}
 								>
 									<div className="execution-item">
 										<div className="execution-item-status">

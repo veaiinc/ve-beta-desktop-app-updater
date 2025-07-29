@@ -10,6 +10,16 @@ import jwtDecode from 'jwt-decode';
 import { Tooltip } from 'antd';
 import Skeleton from 'react-loading-skeleton';
 
+const accessTooltipStyles = {
+	body: {
+		minWidth: '256px',
+	},
+};
+
+const searchTooltipStyles = {
+	body: { minWidth: 'fit-content' },
+};
+
 const accessOptions = [
 	{
 		label: 'Owner',
@@ -264,9 +274,7 @@ const AccessDropdown = memo(({ selectedAccess, onChange = () => {}, myAccess }) 
 			arrow={false}
 			placement="bottomRight"
 			color="transparent"
-			overlayStyle={{
-				minWidth: '256px',
-			}}
+			styles={accessTooltipStyles}
 			trigger="click"
 			open={info?.isOpen}
 			onOpenChange={(open) => {
@@ -289,6 +297,7 @@ const AccessDropdown = memo(({ selectedAccess, onChange = () => {}, myAccess }) 
 		</Tooltip>
 	);
 });
+AccessDropdown.displayName = 'AccessDropdown';
 
 const SearchDropdown = memo(({ options = [], onOptionClick = () => {} }) => {
 	const [info, setInfo] = useState({
@@ -358,7 +367,7 @@ const SearchDropdown = memo(({ options = [], onOptionClick = () => {} }) => {
 			arrow={false}
 			placement="bottomLeft"
 			color="transparent"
-			overlayStyle={{ minWidth: 'fit-content' }}
+			styles={searchTooltipStyles}
 			trigger="click"
 			open={info?.isOpen}
 			onOpenChange={(open) => {
@@ -382,3 +391,5 @@ const SearchDropdown = memo(({ options = [], onOptionClick = () => {} }) => {
 		</Tooltip>
 	);
 });
+
+SearchDropdown.displayName = 'SearchDropdown';

@@ -281,7 +281,7 @@ const KnowledgeAgentPersonality = ({
 						arrow={false}
 						trigger={'click'}
 						color={'transparent'}
-						overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+						styles={{body:{minWidth: 'fit-content', padding: '0'}}}
 					>
 						<div className="voiceList">
 							{info?.selectedVoice}{' '}

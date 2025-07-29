@@ -9,6 +9,10 @@ import PromptWithIcons from './PromptWithIcons';
 import AgentCredentials from '../agents/agentDetails/agentCredentials/AgentCredentials';
 import { useParams } from 'react-router-dom';
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content', padding: '0' },
+};
+
 const customPromptItem = {
 	_id: 'custom',
 	label: 'Custom',
@@ -200,7 +204,7 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [] }) => {
 						arrow={false}
 						trigger={'click'}
 						color={'transparent'}
-						overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+						styles={tooltipStyles}
 					>
 						<div className="voiceList">
 							{info?.selectedModel}{' '}
@@ -254,7 +258,7 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [] }) => {
                                 arrow={false}
                                 trigger={'click'}
                                 color={'transparent'}
-                                overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+                                styles={tooltipStyles}
                             >
                                 <div className="voiceList">
                                     {info?.selectedSystemPrompt}{' '}

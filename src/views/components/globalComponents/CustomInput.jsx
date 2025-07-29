@@ -3,18 +3,18 @@ import PropTypes from 'prop-types';
 import '../../../assets/scss/globalComponents/customInput.scss';
 
 const CustomInput = ({
-	type,
-	value,
-	onChange,
-	onBlur,
-	onFocus,
-	defaultValue,
-	placeholder,
-	name,
-	className,
-	style,
-	readOnly,
-	disabled,
+	type = 'text',
+	value = undefined,
+	onChange = undefined,
+	onBlur = undefined,
+	onFocus = undefined,
+	defaultValue = undefined,
+	placeholder = 'Empty',
+	name = '',
+	className = '',
+	style = {},
+	readOnly = false,
+	disabled = false,
 	...rest
 }) => {
 	// Determine if the input should be controlled or uncontrolled
@@ -52,21 +52,6 @@ CustomInput.propTypes = {
 	style: PropTypes.object, // Optional: Inline styles
 	readOnly: PropTypes.bool,
 	disabled: PropTypes.bool,
-};
-
-CustomInput.defaultProps = {
-	type: 'text',
-	placeholder: 'Empty',
-	name: '',
-	className: '',
-	style: {},
-	readOnly: false,
-	disabled: false,
-	value: undefined,
-	onChange: undefined,
-	defaultValue: undefined,
-	onBlur: undefined,
-	onFocus: undefined,
 };
 
 export default CustomInput;

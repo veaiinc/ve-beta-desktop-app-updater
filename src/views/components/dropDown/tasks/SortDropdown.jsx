@@ -5,6 +5,10 @@ import { ReactComponent as Tick } from '../../../../assets/svg/tasks/tick.svg';
 import { Tooltip } from 'antd';
 import { ReactComponent as PlusIcon } from '../../../../assets/svg/tasks/plus.svg';
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content' },
+};
+
 const SortDropdown = ({ properties, sort, handleSortChange }) => {
 	const [info, setInfo] = useState({
 		searchValue: '',
@@ -72,7 +76,7 @@ const SortDropdown = ({ properties, sort, handleSortChange }) => {
 			trigger={'click'}
 			color={'transparent'}
 			placement={'bottomRight'}
-			overlayStyle={{ minWidth: 'fit-content' }}
+			styles={tooltipStyles}
 		>
 			<button className="sort-filter-button">
 				<PlusIcon />

@@ -20,6 +20,11 @@ import SessionMetric from './SessionMetric.jsx';
 import Skeleton from 'react-loading-skeleton';
 import moment from 'moment';
 
+const styles = {
+	header: { display: 'none' },
+	body: { padding: '0px' },
+};
+
 const SessionActivityModal = ({
 	modalIsOpen,
 	showDrawer,
@@ -174,8 +179,7 @@ const SessionActivityModal = ({
 			open={modalIsOpen}
 			width={480}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
-			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
+			styles={styles}
 		>
 			<div className="activitySidePanel">
 				<div className="innerContainer">

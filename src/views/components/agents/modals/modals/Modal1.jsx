@@ -19,6 +19,17 @@ const initialSteps = [
 	},
 ];
 
+const tooltipStyles = {
+	body: {
+		width: '100%',
+		padding: 0,
+		overflow: 'hidden',
+		border: '1px solid var(--stroke)',
+		borderRadius: 8,
+		paddingTop: 0,
+	},
+};
+
 // Get all timezones with their offsets (copied from SchedulerRightDrawer)
 const getTimezonesWithOffsets = () => {
 	const validRegions = [
@@ -157,14 +168,7 @@ const Step2Content = ({ onBack }) => {
 							}
 							trigger={['click']}
 							color={'transparent'}
-							overlayStyle={{
-								width: '100%',
-								padding: 0,
-								overflow: 'hidden',
-								border: '1px solid var(--stroke)',
-								borderRadius: 8,
-								paddingTop: 0,
-							}}
+							styles={tooltipStyles}
 						>
 							<div className={s.timeZoneSelect} onClick={() => setTzOpen(true)}>
 								{moment.tz(selectedTz).format('z')} ({selectedTz})

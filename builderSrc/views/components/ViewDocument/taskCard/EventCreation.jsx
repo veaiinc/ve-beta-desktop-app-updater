@@ -220,7 +220,7 @@ const EventTaskManager = ({ event, updateEvent, workflowInfoDetails }) => {
 			title: event?.title || '',
 			description: event?.description || '',
 			date: event?.date || Date.now(),
-			startDateTime: event?.startDateTime || null,
+			startDateTime: event?.startDateTime || event?.data || null,
 			location: event?.location || '',
 			roles: event?.roles || [],
 			attendees: event?.attendees || [],
@@ -293,6 +293,7 @@ const EventTaskManager = ({ event, updateEvent, workflowInfoDetails }) => {
 
 		updateEvent(backendPayload);
 	};
+	console.log('event===>', event);
 
 	return (
 		<div className="eventTaskContainer">
@@ -315,7 +316,7 @@ const EventTaskManager = ({ event, updateEvent, workflowInfoDetails }) => {
 				<div className="eventMetaInfo">
 					<div className="eventMetaItem">
 						<DateSelection
-							value={event?.startDateTime}
+							value={event?.date}
 							onChange={(value) => handleFieldChange('startDateTime', value)}
 							title={'Start Date'}
 							placeholder="Select start date"

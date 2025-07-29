@@ -55,7 +55,7 @@ const DateFilterComponent = ({ value, onChange, title, showStartEnd, filterType 
 				/>
 			}
 			placement="bottomLeft"
-			overlayClassName="status-dropdown"
+			classNames={{ root: 'status-dropdown' }}
 			color="transparent"
 			trigger={['click']}
 			destroyOnHide={true}

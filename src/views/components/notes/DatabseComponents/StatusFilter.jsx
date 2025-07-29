@@ -53,7 +53,7 @@ const StatusFilter = ({
 				/>
 			}
 			placement="bottomLeft"
-			overlayClassName="status-dropdown"
+			classNames={{ root: 'status-dropdown' }}
 			color="transparent"
 			trigger={['click']}
 		>

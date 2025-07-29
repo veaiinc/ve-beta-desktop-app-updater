@@ -8,7 +8,7 @@ const TaskId = ({ value, showTitle = false, prefix = null }) => {
 			<Tooltip
 				title={showTitle ? <div className="tooltip-inner">{'Task id'}</div> : ''}
 				placement="bottom"
-				overlayClassName="tooltip-overlay-container"
+				classNames={{ root: 'tooltip-overlay-container' }}
 				color="transparent"
 			>
 				{prefix ? `${prefix}-${value}` : value}

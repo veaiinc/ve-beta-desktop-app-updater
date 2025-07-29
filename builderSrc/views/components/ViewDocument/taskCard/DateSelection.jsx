@@ -4,42 +4,43 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 const DateSelection = ({ value, onChange, title, placeholder }) => {
 	const [isOpen, setIsOpen] = useState(false);
+	const [date, setDate] = useState(value);
 
 	// Safely convert epoch to Date object for display
-	const getDisplayValue = () => {
-		try {
-			if (!value || value === null || value === undefined) {
-				return null;
-			}
+	// const getDisplayValue = () => {
+	// 	try {
+	// 		if (!value || value === null || value === undefined) {
+	// 			return null;
+	// 		}
 
-			// If value is already a Date object
-			if (value instanceof Date) {
-				return value;
-			}
+	// 		// If value is already a Date object
+	// 		if (value instanceof Date) {
+	// 			return value;
+	// 		}
 
-			// If value is a string (ISO format), parse it
-			if (typeof value === 'string') {
-				const parsed = new Date(value);
-				if (!isNaN(parsed.getTime())) {
-					return parsed;
-				}
-			}
+	// 		// If value is a string (ISO format), parse it
+	// 		if (typeof value === 'string') {
+	// 			const parsed = new Date(value);
+	// 			if (!isNaN(parsed.getTime())) {
+	// 				return parsed;
+	// 			}
+	// 		}
 
-			// If value is a number (epoch timestamp)
-			if (typeof value === 'number' && !isNaN(value)) {
-				// Check if it's already in milliseconds (13 digits) or seconds (10 digits)
-				const timestamp = value.toString().length === 13 ? value : value * 1000;
-				return new Date(timestamp);
-			}
+	// 		// If value is a number (epoch timestamp)
+	// 		if (typeof value === 'number' && !isNaN(value)) {
+	// 			// Check if it's already in milliseconds (13 digits) or seconds (10 digits)
+	// 			const timestamp = value.toString().length === 13 ? value : value * 1000;
+	// 			return new Date(timestamp);
+	// 		}
 
-			return null;
-		} catch (error) {
-			console.error('Error converting date value:', error);
-			return null;
-		}
-	};
+	// 		return null;
+	// 	} catch (error) {
+	// 		console.error('Error converting date value:', error);
+	// 		return null;
+	// 	}
+	// };
 
-	const displayValue = getDisplayValue();
+	// const displayValue = getDisplayValue();
 
 	const handleDateChange = (date) => {
 		try {
@@ -52,7 +53,8 @@ const DateSelection = ({ value, onChange, title, placeholder }) => {
 				const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
 				const day = String(selectedDate.getDate()).padStart(2, '0');
 
-				const isoString = `${year}-${month}-${day}T00:00:00+05:30`;
+				const isoString = `${year}-${month}-${day}`;
+				setDate(isoString);
 				onChange(isoString);
 			} else {
 				onChange(null);
@@ -68,7 +70,7 @@ const DateSelection = ({ value, onChange, title, placeholder }) => {
 	return (
 		<div style={{ position: 'relative' }}>
 			<DatePicker
-				selected={displayValue}
+				selected={date}
 				onChange={handleDateChange}
 				open={isOpen}
 				onInputClick={() => setIsOpen(true)}

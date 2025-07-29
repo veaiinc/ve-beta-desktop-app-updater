@@ -8571,9 +8571,9 @@ class Layout extends Component {
 										});
 									}}
 								>
-									<div className="addBlankContainer">
+									<div>
 										<AddBlock />
-										<span className="tooltip-text">Add Layout</span>
+										{/* <span className="tooltip-text">Add Layout</span> */}
 									</div>
 									<div className="addBlockDivider">Add</div>
 
