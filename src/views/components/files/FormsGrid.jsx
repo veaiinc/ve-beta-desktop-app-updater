@@ -41,16 +41,19 @@ const getFormCtaActions = (formStatus) => {
 				id: 0,
 				icon: <Link />,
 				action: 'copyFormLink',
+				tooltip: 'Copy Form Link',
 			},
 			{
 				id: 1,
 				icon: <Copy />,
 				action: 'duplicate',
+				tooltip: 'Duplicate Form',
 			},
 			{
 				id: 2,
 				icon: <Delete />,
 				action: 'delete',
+				tooltip: 'Delete Form',
 			},
 		];
 	} else {
