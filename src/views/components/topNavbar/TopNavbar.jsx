@@ -19,25 +19,7 @@ import { ReactComponent as NotificationsSvg } from './assets/notification.svg';
 import { ReactComponent as ShareAndEarnSvg } from './assets/share-and-earn.svg';
 import CreditsLeftSvg from '../sidebar/chatHistory/CreditsLeftSvg';
 
-const leftContainerItemsStable = [
-	{
-		id: 1,
-		label: 'Insights',
-		route: '/insights',
-	},
-	{
-		id: 2,
-		label: 'Chats',
-		route: '/chats',
-	},
-	{
-		id: 3,
-		label: 'Agents',
-		route: '/agents',
-	},
-];
-
-const leftContainerItemsBeta = [
+const baseLeftContainerItems = [
 	{
 		id: 1,
 		label: 'Insights',
@@ -121,18 +103,20 @@ const TopNavbar = () => {
 	const businessName = tennantSettingsData?.businessName?.toUpperCase();
 	const oppositeTheme = theme === 'dark' ? 'light' : 'dark';
 	const leftContainerItems = (() => {
-		const baseItems =
-			workspaceMode === 'stable' ? leftContainerItemsStable : leftContainerItemsBeta;
+		let items = [...baseLeftContainerItems];
 
-		// Filter out Insights, Chats, and Agents if region is ap-south-1
+		if (workspaceMode === 'stable') {
+			items = items.filter((item) => item.label !== 'Files' && item.label !== 'Tools');
+		}
+
 		if (region === 'ap-south-1') {
-			return baseItems.filter(
+			items = items.filter(
 				(item) =>
 					item.label !== 'Insights' && item.label !== 'Chats' && item.label !== 'Agents',
 			);
 		}
 
-		return baseItems;
+		return items;
 	})();
 
 	const showMiddleContainer = region !== 'ap-south-1';
