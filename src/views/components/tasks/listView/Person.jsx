@@ -23,12 +23,17 @@ const Person = ({
 	});
 
 	useEffect(() => {
-		if (!value || value?.length === 0) return;
+		if (!value) return;
+
+		// Ensure value is always treated as an array
+		const valueArray = Array.isArray(value) ? value : [value];
+		if (valueArray.length === 0) return;
+
 		setInfo((prev) => ({
 			...prev,
 			selected: multiSelect
-				? value?.map((item) => ({ _id: item?._id, name: item?.name }))
-				: [{ _id: value?._id, name: value?.name }],
+				? valueArray?.map((item) => ({ _id: item?._id, name: item?.name }))
+				: [{ _id: valueArray[0]?._id, name: valueArray[0]?.name }],
 		}));
 	}, [value]);
 	const handleOptionClick = useCallback(

@@ -360,10 +360,11 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				variables,
 				isAuthenticated: true,
 				agent: 'knowledgeAgent',
-				userId,
-				key: action.toolkit.slug,
+				app: action.toolkit.slug,
+				key: action.slug,
 				platform: 'composio',
 				logoUrl: action.toolkit.logo || '',
+				userId,
 				accountId,
 			};
 

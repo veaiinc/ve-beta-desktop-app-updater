@@ -255,7 +255,8 @@ const AIMessage = ({
 			)}
 
 			{(aiMessagesInfo?.[messageData?.messageId]?.followUpQuery?.length > 0 ||
-				(messageData?.['follow_up_query'] || [])?.length > 0) && (
+				((messageData?.['follow_up_query'] || [])?.length > 0 &&
+					typeof messageData?.['follow_up_query'] === 'object')) && (
 				<div className="chat-suggestions-container">
 					{(aiMessagesInfo?.[messageData?.messageId]?.followUpQuery?.length > 0 ||
 						(messageData?.['follow_up_query'] || [])?.length > 0) && (
