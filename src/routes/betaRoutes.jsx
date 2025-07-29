@@ -685,7 +685,7 @@ const betaRoutes = [
 		),
 	},
 	{
-		path: '/meet/:noteId',
+		path: '/meet/:noteId/:meetingId',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper title={'Meet'}>

@@ -25,7 +25,7 @@ const useRecallStream = () => {
 	}, []);
 
 	const createWebSocketConnection = useCallback(
-		async (sessionId, pageId, onMessageFunc, isAiIntelligenceEnabled) => {
+		async (sessionId, meetingId, onMessageFunc, isAiIntelligenceEnabled) => {
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
 			const region = localStorage.getItem('region') || 'us-east-1';
@@ -43,7 +43,7 @@ const useRecallStream = () => {
 			const config = await getConfig();
 			const meetingWsUrl =
 				region === 'ap-south-1' ? config.meeting_ws_api : config.meeting_ws_api_US;
-			const wsUrl = `${meetingWsUrl}/frontend/ws/${pageId}?token=${usertoken}`;
+			const wsUrl = `${meetingWsUrl}/frontend/ws/${meetingId}?token=${usertoken}`;
 			// const wsUrl = `https://internally-well-earwig.ngrok-free.app/frontend/ws/${pageId}?token=${usertoken}`;
 
 			const connect = () => {
@@ -54,7 +54,7 @@ const useRecallStream = () => {
 						JSON.stringify({
 							location: locationData,
 							timezone: 'Asia/Calcutta',
-							session_id: pageId,
+							session_id: meetingId,
 							is_ai_intelligence_enabled: isAiIntelligenceEnabled,
 						}),
 					);

@@ -25,6 +25,7 @@ export default function NoteTranscription({
 	tenantId,
 	sessionId,
 	recallPageId,
+	meetingId,
 }) {
 	const wsUrl = 'wss://ve-ai-transcriptions-8p8k0b44.livekit.cloud';
 	const [liveKitToken, setLiveKitToken] = useState(null);
@@ -128,12 +129,13 @@ export default function NoteTranscription({
 	// Function to send transcription to recall socket
 	const sendTranscriptionToRecall = useCallback(
 		(transcriptionData) => {
-			if(transcriptionData.isFinal && sendMessage && tenantId && sessionId && recallPageId){
+			if(transcriptionData.isFinal && sendMessage && tenantId && sessionId && recallPageId && meetingId){
 			if ( sendMessage && tenantId && sessionId && recallPageId) {
 				const message = {
 					tenantId,
 					sessionId,
 					pageId: recallPageId,
+					meetingId: meetingId,
 					speakerName: '',
 					transcript: transcriptionData.displayedText,
 					description: '',

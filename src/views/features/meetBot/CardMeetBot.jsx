@@ -213,14 +213,14 @@ const CardMeetBot = () => {
 				isAiIntelligenceEnabled: false,
 				meetingMode: 'meeting',
 			}));
-			const pageId = response?.[1]?.data?.startTranscription?.data?.pageId;
-			const type = response?.[1]?.data?.startTranscription?.data?.transcriptionSource;
-			const success = response?.[1]?.data?.startTranscription?.success;
+			const meetingId = response?.[1]?.data?.startMeeting?._id;
+			const pageId = response?.[1]?.data?.startMeeting?.pageId;
+			const type = response?.[1]?.data?.startMeeting?.transcriptionSource;
 
-			if (success && pageId && type) {
+			if (meetingId && type) {
 				await getExistingBots({ page: 1, limit: 10, append: false });
 				navigate(
-					`/meet/${pageId}?type=${type}&isAiIntelligenceEnabled=${info.isAiIntelligenceEnabled}`,
+					`/meet/${pageId}/${meetingId}?type=${type}&isAiIntelligenceEnabled=${info.isAiIntelligenceEnabled}`,
 				);
 			}
 		} finally {
@@ -769,6 +769,7 @@ const CardMeetBot = () => {
 													setInfo((prev) => ({
 														...prev,
 														isAiIntelligenceEnabled: checked,
+														guideMePopupOpen: checked ? true : false,
 													}))
 												}
 											/>
