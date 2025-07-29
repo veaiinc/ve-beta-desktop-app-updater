@@ -214,7 +214,9 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 										)
 									}
 									className={`${s.workspaceItem} ${
-										index === info.selectedWorkspaceIndex
+										activeWorkspaceId === currentWorkspaceId
+											? s.currentWorkspace
+											: index === info.selectedWorkspaceIndex
 											? s.selectedWorkspace
 											: ''
 									}`}
