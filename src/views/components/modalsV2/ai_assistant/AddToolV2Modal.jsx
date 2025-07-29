@@ -368,14 +368,14 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				accountId,
 			};
 
-			const { success, response } = await addActionToKnowledgeAgent(agentId, payload);
+			const response = await addActionToKnowledgeAgent(agentId, payload);
 
-			if (success) {
-				message.success('Tool added successfully');
+			if (response?.[0] === true) {
+				message?.success('Tool added successfully');
 				if (onToolAdded) onToolAdded();
 				onClose();
 			} else {
-				throw new Error(response?.message || 'Failed to add tool');
+				throw new Error(response?.[1]?.message || 'Failed to add tool');
 			}
 		} catch (error) {
 			console.error('handleCreateAction error:', error);

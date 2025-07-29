@@ -550,12 +550,7 @@ export const KnowledgeAgentState = () => {
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
 			const response = await service?.fetchPost(path, payload, token, type);
-			const success = response?.[0] === true;
-			if (success) {
-				return response?.[1];
-			} else {
-				throw new Error(response?.[1]?.message || 'Failed to create action');
-			}
+			return response;
 		} catch (error) {
 			console.log('error==>addActionToKnowledgeAgent', error);
 			throw error;
