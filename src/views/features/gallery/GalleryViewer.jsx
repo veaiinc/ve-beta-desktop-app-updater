@@ -412,6 +412,7 @@ const GalleryViewer = ({
 	};
 
 	const handleAlbumClick = (album) => {
+		if (activeAlbumId === album?._id) return;
 		setInfo((prev) => ({
 			...prev,
 			activeImageIndex: 0,
