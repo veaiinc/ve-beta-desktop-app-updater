@@ -101,7 +101,7 @@ const ElasticSearchResults = () => {
 									}
 									placement="top"
 									styles={tooltipStyles}
-									overlayClassName="elastic-search-tooltip"
+									classNames={{ root: 'elastic-search-tooltip' }}
 									arrow={false}
 								>
 									<div className="search-result-item" style={{ width: '100%' }}>

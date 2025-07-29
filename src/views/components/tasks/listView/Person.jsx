@@ -80,7 +80,7 @@ const Person = ({
 					: ''
 			}
 			placement="bottom"
-			overlayClassName="person-tooltip-wrapper"
+			classNames={{ root: 'person-tooltip-wrapper' }}
 			color="transparent"
 		>
 			<Tooltip
@@ -99,7 +99,7 @@ const Person = ({
 				color="transparent"
 				styles={tooltipStyles}
 				destroyOnHidden={true}
-				overlayClassName="person-dropdown-wrapper"
+				classNames={{ root: 'person-dropdown-wrapper' }}
 			>
 				<div
 					className="person-multi-select-selected filter-wrapper"

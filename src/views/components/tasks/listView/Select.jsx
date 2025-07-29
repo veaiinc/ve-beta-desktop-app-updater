@@ -76,7 +76,7 @@ const Select = ({
 				trigger={'click'}
 				color={'transparent'}
 				styles={tooltipStyles}
-				overlayClassName="select-dropdown-wrapper"
+				classNames={{ root: 'select-dropdown-wrapper' }}
 				open={!disabled && info?.open}
 				onClick={(e) => {
 					e?.stopPropagation();
@@ -90,7 +90,7 @@ const Select = ({
 				<Tooltip
 					title={showTitle ? <div className="tooltip-inner">{title}</div> : ''}
 					placement="bottom"
-					overlayClassName="tooltip-overlay-container"
+					classNames={{ root: 'tooltip-overlay-container' }}
 					color="transparent"
 				>
 					<div

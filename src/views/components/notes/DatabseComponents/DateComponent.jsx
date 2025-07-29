@@ -21,7 +21,7 @@ const DateComponent = ({ value, onChange, disabled = false }) => {
 		<Tooltip
 			title={disabled ? null : <DateDropdown value={value} onChange={onChange} />}
 			placement="right"
-			overlayClassName="status-dropdown"
+			classNames={{ root: 'status-dropdown' }}
 			color="transparent"
 			trigger={['click']}
 			destroyOnHide={true}

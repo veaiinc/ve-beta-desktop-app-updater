@@ -72,7 +72,7 @@ const SelectDropdown = ({
 				open={visible}
 				onOpenChange={() => {}}
 				styles={tooltipStyles}
-				overlayClassName={s.buildTooltipWrapper}
+				classNames={{ root: s.buildTooltipWrapper }}
 				title={
 					<div
 						className={s.buildTooltipContainer}

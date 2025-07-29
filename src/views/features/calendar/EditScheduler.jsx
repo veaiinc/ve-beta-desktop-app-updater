@@ -1344,7 +1344,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 							<Tooltip
 								placement="bottom"
 								trigger="click"
-								overlayClassName="booking-period-dropdown"
+								classNames={{ root: 'booking-period-dropdown' }}
 								title={
 									<div className="period-options">
 										{['Day', 'Week', 'Month'].map((period) => (

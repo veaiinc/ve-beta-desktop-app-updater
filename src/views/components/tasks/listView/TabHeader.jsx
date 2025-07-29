@@ -307,7 +307,7 @@ const TabHeader = ({
 													handleDropDown(false);
 												}
 											}}
-											overlayClassName="tab-dropdown"
+											classNames={{ root: 'tab-dropdown' }}
 											title={
 												activeTab === tab._id &&
 												index < visibility.visibleCount ? (
@@ -381,7 +381,7 @@ const TabHeader = ({
 					arrow={false}
 					color="transparent"
 					trigger="click"
-					overlayClassName="tabs-overflow-dropdown"
+					classNames={{ root: 'tabs-overflow-dropdown' }}
 					title={
 						<div className="tabs-overflow-content">
 							<div className="tabs-overflow-header">All Tabs</div>

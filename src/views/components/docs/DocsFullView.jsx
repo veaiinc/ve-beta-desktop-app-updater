@@ -499,7 +499,7 @@ const DocsFullView = () => {
 							trigger={'click'}
 							color={'transparent'}
 							styles={tooltipStyles}
-							overlayClassName="dot-svg-tooltip"
+							classNames={{ root: 'dot-svg-tooltip' }}
 							title={
 								<div className="dot-svg-tooltip-content">
 									<div className="items" onClick={handleDuplicateSmartFile}>

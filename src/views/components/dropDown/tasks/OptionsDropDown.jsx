@@ -350,7 +350,7 @@ const OptionsDropDown = ({
 			trigger={'click'}
 			color={'transparent'}
 			styles={tooltipStyles}
-			overlayClassName="options-dropdown-tooltip"
+			classNames={{ root: 'options-dropdown-tooltip' }}
 		>
 			<div className="btn-options">
 				<ThreeDotsSvg />

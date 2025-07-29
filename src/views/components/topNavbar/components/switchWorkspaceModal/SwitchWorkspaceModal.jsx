@@ -171,15 +171,15 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 								d="M2.8125 9H15.1875"
 								stroke="#79ECC9"
 								stroke-width="1.125"
-								stroke-linecap="round"
-								stroke-linejoin="round"
+								strokeLinecap="round"
+								strokeLinejoin="round"
 							/>
 							<path
 								d="M9 2.8125V15.1875"
 								stroke="#79ECC9"
 								stroke-width="1.125"
-								stroke-linecap="round"
-								stroke-linejoin="round"
+								strokeLinecap="round"
+								strokeLinejoin="round"
 							/>
 						</g>
 						<defs>

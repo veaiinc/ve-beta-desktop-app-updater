@@ -44,7 +44,7 @@ const PersonMultiSelect = ({
 			<Tooltip
 				title={showTitle ? <div className="tooltip-inner">{title}</div> : ''}
 				placement="bottom"
-				overlayClassName="tooltip-overlay-container"
+				classNames={{ root: 'tooltip-overlay-container' }}
 				color="transparent"
 			>
 				<Tooltip

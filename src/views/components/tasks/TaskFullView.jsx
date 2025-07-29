@@ -139,7 +139,7 @@ const TaskFullView = () => {
 							trigger={'click'}
 							color={'transparent'}
 							styles={tooltipStyles}
-							overlayClassName="dot-svg-tooltip"
+							classNames={{ root: 'dot-svg-tooltip' }}
 							title={
 								<div className="dot-svg-tooltip-content">
 									<hr style={{ width: '100%', opacity: 0.1 }} />
