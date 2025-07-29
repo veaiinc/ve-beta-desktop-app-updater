@@ -415,33 +415,37 @@ class SchedulerWrapper extends Component {
 					this.props.module !== 'scheduler' &&
 					!this.props?.activeModule?.showAsSlide &&
 					!disabledModules.includes(this.props.module) ? (
-						<div className="add-block-new-container">
+						<div
+							className="add-block-new-container"
+							onClick={(e) => this.hanldeAddBlock(e)}
+						>
 							<div
-								onClick={(e) => this.hanldeAddBlock(e)}
+								// onClick={(e) => this.hanldeAddBlock(e)}
 								className="addBlankContainer"
 							>
 								<AddBlock />
-								<label className="tooltip-text">Add Block</label>
+								{/* <label className="tooltip-text">Add Block</label> */}
 							</div>
 							<div className="addBlockDividerContainer">
 								<div className="addBlockDivider"></div>
 							</div>
-							<div className="addBlankContainer">
+							<div>
 								{this.state.isElement !== true ? (
 									<div
 										className={`addBlank ${
 											this.state.activeTab === 'fluid' ? 'active' : ''
 										}`}
-										onClick={(e) => this.props.handleAddLayout(null, true)}
+										// onClick={(e) => this.props.handleAddLayout(null, true)}
 										//onMouseEnter={(e) => this.setActiveTab('fluid')}
 									>
-										<AddBlank />
+										{/* <AddBlank /> */}
+										<p style={{ color: 'white', fontSize: '14px' }}> Add </p>
 									</div>
 								) : (
 									''
 								)}
 
-								<label className="tooltip-text">Add Blank</label>
+								{/* <label className="tooltip-text">Add Blank</label> */}
 							</div>
 						</div>
 					) : (

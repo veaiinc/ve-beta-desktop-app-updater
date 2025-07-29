@@ -338,6 +338,10 @@ class NavbarComponent extends Component {
 										? '1px solid #f1f2f3'
 										: '1px solid transparent',
 									padding: '10px',
+									justifyContent:
+										this.props?.section?.style?.navbarAlign === 'two'
+											? 'center'
+											: 'flex-start',
 								}}
 								className="navbar-modules-inner-wrapper"
 							>
@@ -691,6 +695,10 @@ class NavbarComponent extends Component {
 									border: this.state.hoveredModule
 										? '1px solid #f1f2f3'
 										: '1px solid transparent',
+									justifyContent:
+										this.props?.section?.style?.navbarAlign === 'two'
+											? 'center'
+											: 'flex-start',
 								}}
 								className="navbar-modules-inner-wrapper"
 							>
