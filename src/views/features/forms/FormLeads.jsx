@@ -419,7 +419,7 @@ const FormLeads = () => {
 													  '';
 											return fileUrl
 												? fileUrl.replace(/ /g, '%20')
-												: 'No file URL';
+												: 'Not provided';
 										});
 										answer = fileLinks.join('; ');
 									} else if (typeof files === 'object' && files !== null) {
@@ -432,13 +432,13 @@ const FormLeads = () => {
 											'';
 										answer = fileUrl
 											? fileUrl.replace(/ /g, '%20')
-											: 'No file URL';
+											: 'Not provided';
 									} else {
 										answer = 'No file uploaded';
 									}
 								} catch (e) {
 									console.error('Error parsing file upload answer:', e);
-									answer = 'Error parsing file data';
+									answer = 'Error uploading file';
 								}
 								break;
 							case 'rating':
