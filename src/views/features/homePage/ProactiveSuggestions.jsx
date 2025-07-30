@@ -775,6 +775,9 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 															width={'100%'}
 															highlightColor="var(--card-over-card)"
 															baseColor="var(--card)"
+															style={{
+																lineHeight: 'unset',
+															}}
 														/>
 													</div>
 												</div>
