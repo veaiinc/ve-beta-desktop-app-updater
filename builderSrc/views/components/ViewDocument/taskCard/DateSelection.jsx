@@ -7,7 +7,15 @@ const DateSelection = ({ value, onChange, title, placeholder }) => {
 
 	useEffect(() => {
 		if (value) {
-			setSelectedDate(dayjs(value));
+			if (typeof value === 'number' || (typeof value === 'string' && /^\d{8}$/.test(value))) {
+				const year = value.toString().slice(0, 4);
+				const month = value.toString().slice(4, 6);
+				const day = value.toString().slice(6, 8);
+				const formattedDate = `${year}-${month}-${day}`;
+				setSelectedDate(dayjs(formattedDate));
+			} else {
+				setSelectedDate(dayjs(value));
+			}
 		}
 	}, [value]);
 
