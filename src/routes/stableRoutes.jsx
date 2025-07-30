@@ -148,7 +148,7 @@ const stableRoutes = [
 		),
 	},
 	{
-		path: '/meet/:noteId',
+		path: '/meet/:noteId/:meetingId',
 		element: (
 			<AuthWrapper title={'Meet'}>
 				<Suspense fallback={<SuspenseFallback />}>

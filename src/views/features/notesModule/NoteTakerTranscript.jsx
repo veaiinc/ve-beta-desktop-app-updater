@@ -7,7 +7,14 @@ import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import Spinner from '../../components/loaders/Spinner';
 
-const NoteTakerTranscript = ({ sendMessage, tenantId, sessionId, pageId, history }) => {
+const NoteTakerTranscript = ({
+	sendMessage,
+	tenantId,
+	sessionId,
+	pageId,
+	visible = true,
+	onTranscriptionUpdate,
+}) => {
 	const { noteId } = useParams();
 	const [searchParams] = useSearchParams();
 	const meetingId = useParams()?.meetingId;
@@ -32,10 +39,7 @@ const NoteTakerTranscript = ({ sendMessage, tenantId, sessionId, pageId, history
 	const loadTranscripts = async (page = 1, append = false) => {
 		try {
 			setInfo((prev) => ({ ...prev, transcriptLoading: true }));
-			const response = await getMeetTranscriptHistory(
-				{ pageId: noteId, limit: 10, page },
-				append,
-			);
+			const response = await getMeetTranscriptHistory({ meetingId, limit: 10, page }, append);
 			if (response?.[1]?.data?.listTranscriptions) {
 				const { hasNextPage, currentPage, totalPages } =
 					response[1].data.listTranscriptions;
@@ -78,12 +82,23 @@ const NoteTakerTranscript = ({ sendMessage, tenantId, sessionId, pageId, history
 				styles: transcription.isFinal
 					? { italic: false, textColor: 'var(--primary-font)' }
 					: { italic: true, textColor: 'var(--secondary-font)' },
+				time: new Date().toLocaleTimeString(),
+				id: transcription.id,
 			};
 
 			setTranscriptions((prev) => {
+				// Check if this transcript already exists to avoid duplicates
+				const existingTranscript = prev.find((t) => t.id === transcription.id);
+				if (existingTranscript) {
+					return prev; // Don't update if already exists
+				}
+
 				// Replace or add the transcription by id
 				const filtered = prev.filter((t) => t.id !== transcription.id);
-				return [...filtered, { ...formatted, id: transcription.id }];
+				const updated = [...filtered, formatted];
+				// Only send the new transcript to parent, not the entire array
+				if (onTranscriptionUpdate) onTranscriptionUpdate(formatted);
+				return updated;
 			});
 
 			try {
@@ -94,7 +109,7 @@ const NoteTakerTranscript = ({ sendMessage, tenantId, sessionId, pageId, history
 				console.error('Error updating transcription blocks:', error);
 			}
 		},
-		[],
+		[onTranscriptionUpdate],
 	);
 
 	useEffect(() => {
@@ -115,75 +130,40 @@ const NoteTakerTranscript = ({ sendMessage, tenantId, sessionId, pageId, history
 	const combinedData = [...apiData, ...transcriptions];
 
 	// Show loading spinner only on initial load
-	if (info.transcriptLoading && info.transcriptPage === 1) {
-		return (
-			<div className="loading-container">
-				<Spinner
-					width="32px"
-					height="32px"
-					color="var(--primary-button)"
-					borderTopColor="var(--background-color)"
-				/>
-			</div>
-		);
-	}
+	// if (info.transcriptLoading && info.transcriptPage === 1) {
+	// 	return (
+	// 		<div className="loading-container">
+	// 			<Spinner
+	// 				width="32px"
+	// 				height="32px"
+	// 				color="var(--primary-button)"
+	// 				borderTopColor="var(--background-color)"
+	// 			/>
+	// 		</div>
+	// 	);
+	// }
 
+	// Only render the mic bar always at the root
 	return (
-		<div>
-			{!history && (
-				<NoteTranscription
-					pageId={noteId}
-					updateTranscription={handleUpdateTranscription}
-					sendMessage={sendMessage}
-					tenantId={tenantId}
-					sessionId={sessionId}
-					recallPageId={pageId}
-					meetingId={meetingId}
-				/>
-			)}
-			<div>
-				{!combinedData.length ? (
-					<div className="meet-transcript-empty">No transcript yet.</div>
-				) : (
-					<InfiniteScroll
-						dataLength={combinedData.length}
-						next={loadMoreTranscripts}
-						hasMore={info.transcriptHasMore}
-						height={'800px'}
-						loader={<FetchMoreLoaderComp />}
-						style={{ width: '100%' }}
-					>
-						<div className="meet-transcript-list">
-							{combinedData.map((item, idx) => (
-								<div
-									className={`meet-transcript-item`}
-									key={item._id || item.id || idx}
-									ref={idx === combinedData.length - 1 ? lastItemRef : null}
-								>
-									<div className="meet-transcript-meta">
-										<span className="meet-transcript-participant">
-											{apiData.includes(item)
-												? item.speakerName
-												: 'Note Taker'}
-										</span>
-										<span className="meet-transcript-time">
-											{apiData.includes(item)
-												? moment(Number(item.createdAt) * 1000).format(
-														'HH:mm:ss',
-												  )
-												: moment().format('HH:mm:ss')}
-										</span>
-									</div>
-									<div className="meet-transcript-text">
-										{apiData.includes(item) ? item.transcript : item.text}
-									</div>
-								</div>
-							))}
-						</div>
-					</InfiniteScroll>
-				)}
-				<div ref={scrollRef} />
-			</div>
+		<div
+			style={{
+				position: 'fixed',
+				left: 0,
+				right: 0,
+				bottom: 0,
+				zIndex: 100,
+				pointerEvents: 'auto',
+			}}
+		>
+			<NoteTranscription
+				pageId={noteId}
+				updateTranscription={handleUpdateTranscription}
+				sendMessage={sendMessage}
+				tenantId={tenantId}
+				sessionId={sessionId}
+				recallPageId={pageId}
+				meetingId={meetingId}
+			/>
 		</div>
 	);
 };

@@ -63,6 +63,7 @@ import {
 	meetBotCreateMutation,
 	deleteLiveKitRoomMutation,
 	getMeetTranscriptHistoryQuery,
+	getAiLiveIntelligenceHistoryQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -88,6 +89,7 @@ export const intialState = {
 	existingBots: null,
 	meetSummary: null,
 	transcriptionList: [],
+	aiLiveIntelligenceHistory: null,
 };
 
 export const NotesState = (props) => {
@@ -1890,6 +1892,47 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const getAiLiveIntelligenceHistory = async (payload, append = false) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getAiLiveIntelligenceHistoryQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api_database',
+			);
+			if (response?.[0]) {
+				const currentPageAiIntelligenceList = response?.[1]?.data?.listAiIntelligence?.data;
+				const currentPage = response?.[1]?.data?.listAiIntelligence?.currentPage;
+				const hasNextPage = response?.[1]?.data?.listAiIntelligence?.hasNextPage;
+				const totalPages = response?.[1]?.data?.listAiIntelligence?.totalPages;
+
+				const payload = {
+					data: append
+						? [
+								...(state?.aiLiveIntelligenceHistory?.data || []),
+								...currentPageAiIntelligenceList,
+						  ]
+						: currentPageAiIntelligenceList,
+					hasNextPage,
+					currentPage,
+					totalPages,
+				};
+
+				dispatch({
+					type: Actions.GET_AI_LIVE_INTELLIGENCE_HISTORY_SUCCESS,
+					payload,
+				});
+
+				return response;
+			}
+		} catch (error) {
+			console.error('error==>getAiLiveIntelligenceHistory', error);
+		}
+	};
+
 	const getMeetingPreferences = async () => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -1995,5 +2038,6 @@ export const NotesState = (props) => {
 		updateStateValues,
 		getMeetingPreferences,
 		updateMeetingPreferences,
+		getAiLiveIntelligenceHistory,
 	};
 };
