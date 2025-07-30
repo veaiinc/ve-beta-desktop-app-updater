@@ -237,12 +237,11 @@
 		}
 
 		.filesContainer {
-			display: flex;
-			align-items: flex-start;
-			align-content: flex-start;
+			width: 100%;
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
 			gap: 16px;
-			align-self: stretch;
-			flex-wrap: wrap;
+			justify-content: center;
 		}
 
 		.file {
@@ -253,7 +252,7 @@
 			align-items: center;
 			background: var(--card, #18191b);
 			height: 170px;
-			width: 256px;
+			// width: 256px;
 			border-radius: 12px;
 			cursor: pointer;
 			position: relative;
@@ -289,6 +288,22 @@
 				font-weight: 500;
 				line-height: 24px;
 			}
+		}
+	}
+}
+
+@media (max-width: 768px) {
+	.aiTranscriptionSuggestions {
+		.filesContainer {
+			grid-template-columns: repeat(2, minmax(0, 280px)) !important;
+		}
+	}
+}
+
+@media (max-width: 524px) {
+	.aiTranscriptionSuggestions {
+		.filesContainer {
+			grid-template-columns: repeat(1, minmax(0, 280px)) !important;
 		}
 	}
 }
