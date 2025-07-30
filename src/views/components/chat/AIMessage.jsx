@@ -45,7 +45,7 @@ const AIMessage = ({
 }) => {
 	const {
 		documentPreview: { setNoteContent },
-		templates: { updateStateValues, aiMessagesInfo },
+		templates: { updateStateValues, aiMessagesInfo, globalChatMessages },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -95,14 +95,42 @@ const AIMessage = ({
 		}
 	};
 
+	const handleFeedbackUpdateSuccess = (feedbackReq = {}) => {
+		// Clone the existing globalChatMessages safely
+		const newGlobalChatMessages = { ...(globalChatMessages || {}) };
+
+		// Ensure the session exists before modifying
+		if (newGlobalChatMessages[sessionId]?.messages) {
+			newGlobalChatMessages[sessionId].messages = newGlobalChatMessages[
+				sessionId
+			].messages.map((message) => {
+				if (message?.messageId === messageData?.messageId) {
+					return {
+						...message,
+						...feedbackReq,
+					};
+				}
+				return message;
+			});
+
+			// Apply updated state
+			updateStateValues({
+				globalChatMessages: newGlobalChatMessages,
+			});
+		}
+	};
+
 	return (
 		<div className="ai-message-container">
 			{info?.feedbackPopupOpen && (
 				<PromptPopup
 					messageId={messageData?.messageId}
-					liked={info?.liked}
+					liked={messageData?.rating}
 					open={info?.feedbackPopupOpen}
+					feedbackMessage={messageData?.userRemarks}
 					feedbackPopupOpen={info?.feedbackPopupOpen}
+					selectedFeedback={messageData?.userFeedbackReasons}
+					handleFeedbackUpdateSuccess={handleFeedbackUpdateSuccess}
 					closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
 				/>
 			)}

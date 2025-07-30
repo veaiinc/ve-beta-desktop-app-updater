@@ -66,11 +66,19 @@ const PromptPopup = ({
 	messageId = null,
 	feedbackType = 'chatFeedback',
 	setLiked = null,
+	handleFeedbackUpdateSuccess = null,
+	feedbackMessage = '',
+	selectedFeedback = [],
 }) => {
 	const navigate = useNavigate();
 
 	const {
-		templates: { updateStateValues, updateAiChatMessageRating, pendingActionsFeedback },
+		templates: {
+			updateStateValues,
+			updateAiChatMessageRating,
+			pendingActionsFeedback,
+			globalChatMessages,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -79,9 +87,9 @@ const PromptPopup = ({
 		parsedPrompt: [],
 		feedbackPopupOpen,
 		feedback: liked,
-		selectedFeedback: new Set(),
+		selectedFeedback: new Set(selectedFeedback),
 		confidenceScore,
-		feedbackMessage: '',
+		feedbackMessage: feedbackMessage || '',
 	});
 
 	useEffect(() => {
@@ -170,7 +178,6 @@ const PromptPopup = ({
 		setInfo((prev) => ({ ...prev, feedback }));
 		if (setLiked) setLiked(feedback);
 	};
-
 	const handleFeedbackSubmit = useCallback(async () => {
 		const { selectedFeedback, feedbackMessage, feedback } = info;
 		if (feedback && !messageId) {
@@ -203,6 +210,7 @@ const PromptPopup = ({
 
 			if (response?.[0]) {
 				message.success('Feedback submitted successfully.');
+				handleFeedbackUpdateSuccess?.(feedbackReq);
 			}
 
 			setInfo((prev) => ({
