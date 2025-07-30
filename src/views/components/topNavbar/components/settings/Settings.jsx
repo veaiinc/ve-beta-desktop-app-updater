@@ -162,6 +162,7 @@ const Settings = ({
 							} else {
 								settingItem.handleClick();
 							}
+							closeSettingsTooltip();
 						}}
 						key={settingItem.id}
 						className={`${s.settingItem} ${
