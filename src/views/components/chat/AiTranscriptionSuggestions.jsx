@@ -171,7 +171,10 @@ const AiTranscriptionSuggestions = ({
 							let currentFileGroup = [];
 
 							allSuggestions?.forEach((suggestion, index) => {
-								if (suggestion?.entity === 'user') {
+								if (
+									suggestion?.entity === 'user' ||
+									suggestion?.entity === 'other_user'
+								) {
 									// Flush any pending file group
 									if (currentFileGroup.length > 0) {
 										result.push(
@@ -195,7 +198,10 @@ const AiTranscriptionSuggestions = ({
 											</div>
 										</div>,
 									);
-								} else if (suggestion?.entity === 'agent') {
+								} else if (
+									suggestion?.entity === 'agent' ||
+									suggestion?.entity?.includes('agent')
+								) {
 									// Flush any pending file group
 									if (currentFileGroup.length > 0) {
 										result.push(

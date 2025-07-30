@@ -669,29 +669,38 @@ const actionHandlers = {
 		return { ...state, chatLoadingSessions };
 	},
 	HANDLE_TRANSCRIPTION_SUGGESTIONS: (state, action) => {
-		const { suggested_prompt, similar_files } = action?.payload || {};
+		const { suggested_prompt, similar_files, data = [] } = action?.payload || {};
 		const aiTranscriptionSuggestions = state?.aiTranscriptionSuggestions || {};
-		const prompts = [...(aiTranscriptionSuggestions?.prompts || [])];
 
-		let files = [...(aiTranscriptionSuggestions?.similar_files || [])];
 		let suggestions = [...(aiTranscriptionSuggestions?.suggestions || [])];
 
 		if (suggested_prompt) {
-			prompts?.push(suggested_prompt);
 			suggestions?.push(suggested_prompt);
 		}
 
 		if (similar_files) {
-			files = files?.concat(similar_files || []);
 			suggestions = suggestions?.concat(similar_files || []);
+		}
+
+		if (data?.length > 0) {
+			let newSuggestions = [];
+			data?.forEach((item) => {
+				const { suggested_prompt, similar_files } = item?.response || {};
+				if (suggested_prompt) {
+					newSuggestions?.push(suggested_prompt);
+				}
+				if (similar_files) {
+					newSuggestions = newSuggestions?.concat(similar_files || []);
+				}
+			});
+			suggestions = [...newSuggestions, ...suggestions];
 		}
 
 		return {
 			...state,
 			aiTranscriptionSuggestions: {
 				...aiTranscriptionSuggestions,
-				prompts,
-				similar_files: files,
+
 				suggestions,
 			},
 		};

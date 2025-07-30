@@ -1159,3 +1159,26 @@ export const updateDatabaseViewMutation = gql`
 		}
 	}
 `;
+
+export const getAiLiveIntelligenceHistoryQuery = gql`
+	query ListAiIntelligence($meetingId: ID!, $limit: Int!, $page: Int!) {
+		listAiIntelligence(meetingId: $meetingId, limit: $limit, page: $page) {
+			totalPages
+			totalDocs
+			limit
+			currentPage
+			hasNextPage
+			hasPrevPage
+			prevPage
+			nextPage
+			data {
+				_id
+				tenantId
+				meetingId
+				response
+				createdAt
+				updatedAt
+			}
+		}
+	}
+`;

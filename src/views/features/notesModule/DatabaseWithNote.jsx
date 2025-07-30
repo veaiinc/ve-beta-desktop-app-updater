@@ -120,6 +120,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		notes: {
 			getMeetTranscriptHistory,
 			transcriptHistory,
+			aiLiveIntelligenceHistory,
+			getAiLiveIntelligenceHistory,
 			getNotesPageData,
 			notesPageData,
 			notesAccess,
@@ -165,6 +167,15 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	} = useRecallStream();
 	const { createWebSocketConnection: createLiveIntelligenceStream, updateCurrentContext } =
 		useLiveIntelligenceStream();
+
+
+	useEffect(() => {
+		if (!aiLiveIntelligenceHistory) {
+			getAiLiveIntelligenceHistory({ meetingId: meetingId, limit: 20, page: 1 }, false);
+		} else {
+			handleTranscriptionSuggestions({ data: aiLiveIntelligenceHistory?.data || [] });
+		}
+	}, [aiLiveIntelligenceHistory]);
 
 	// Function to fetch historical transcriptions for desktop
 	const fetchHistoricalTranscriptions = useCallback(async () => {
@@ -282,22 +293,14 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			const aiQuestions = [];
 			const actions = [];
 			const files = [];
-			// for (const prompt of aiTranscriptionSuggestions?.prompts || []) {
-			// 	if (prompt?.entity === 'user') {
-			// 		userQuestions.push(prompt);
-			// 	} else if (prompt?.entity === 'agent') {
-			// 		if (prompt?.type === 'search') {
-			// 			aiQuestions.push(prompt);
-			// 		} else if (prompt?.type === 'action') {
-			// 			actions.push(prompt);
-			// 		}
-			// 	}
-			// }
 
 			for (const suggestion of aiTranscriptionSuggestions?.suggestions || []) {
-				if (suggestion?.entity === 'user') {
+				if (suggestion?.entity === 'user' || suggestion?.entity === 'other_user') {
 					userQuestions.push(suggestion);
-				} else if (suggestion?.entity === 'agent') {
+				} else if (
+					suggestion?.entity === 'agent' ||
+					suggestion?.entity?.includes('agent')
+				) {
 					if (suggestion?.type === 'search') {
 						aiQuestions.push(suggestion);
 					} else if (suggestion?.type === 'action') {
