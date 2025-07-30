@@ -19,25 +19,7 @@ import { ReactComponent as NotificationsSvg } from './assets/notification.svg';
 import { ReactComponent as ShareAndEarnSvg } from './assets/share-and-earn.svg';
 import CreditsLeftSvg from '../sidebar/chatHistory/CreditsLeftSvg';
 
-const leftContainerItemsStable = [
-	{
-		id: 1,
-		label: 'Insights',
-		route: '/insights',
-	},
-	{
-		id: 2,
-		label: 'Chats',
-		route: '/chats',
-	},
-	{
-		id: 3,
-		label: 'Agents',
-		route: '/agents',
-	},
-];
-
-const leftContainerItemsBeta = [
+const baseLeftContainerItems = [
 	{
 		id: 1,
 		label: 'Insights',
@@ -121,18 +103,20 @@ const TopNavbar = () => {
 	const businessName = tennantSettingsData?.businessName?.toUpperCase();
 	const oppositeTheme = theme === 'dark' ? 'light' : 'dark';
 	const leftContainerItems = (() => {
-		const baseItems =
-			workspaceMode === 'stable' ? leftContainerItemsStable : leftContainerItemsBeta;
+		let items = [...baseLeftContainerItems];
 
-		// Filter out Insights, Chats, and Agents if region is ap-south-1
+		if (workspaceMode === 'stable') {
+			items = items.filter((item) => item.label !== 'Files' && item.label !== 'Tools');
+		}
+
 		if (region === 'ap-south-1') {
-			return baseItems.filter(
+			items = items.filter(
 				(item) =>
 					item.label !== 'Insights' && item.label !== 'Chats' && item.label !== 'Agents',
 			);
 		}
 
-		return baseItems;
+		return items;
 	})();
 
 	const showMiddleContainer = region !== 'ap-south-1';
@@ -278,10 +262,109 @@ const TopNavbar = () => {
 		{
 			id: 1,
 			element: (
-				<>
-					<ul className={s.leftContainer}>
-						{info.activeMode === 3
-							? [leftContainerItems[0]].map((navItem, index) => (
+				<ul className={s.leftContainer}>
+					{info.activeMode === 3
+						? [leftContainerItems[0]].map((navItem, index) => (
+								<li
+									className={`${s.navItem} ${
+										info.activeNavItem === navItem.id ? s.active : ''
+									}`}
+									onClick={() =>
+										handleNavigation({
+											navItemId: navItem.id,
+											route: navItem.route,
+										})
+									}
+									key={`${navItem.id}-${index}`}
+								>
+									{navItem.label}
+								</li>
+						  ))
+						: leftContainerItems.map((navItem, index) =>
+								navItem.id === 4 ? (
+									<Tooltip
+										open={info.filesTooltipOpen}
+										onOpenChange={() =>
+											setInfo((prev) => ({
+												...prev,
+												filesTooltipOpen: !prev.filesTooltipOpen,
+												toolsTooltipOpen: false,
+												settingsTooltipOpen: false,
+											}))
+										}
+										key={`tooltip1-${navItem.id}-${index}`}
+										title={
+											<FilesTooltip
+												closeTooltip={() =>
+													setInfo((prev) => ({
+														...prev,
+														filesTooltipOpen: false,
+														toolsTooltipOpen: false,
+														settingsTooltipOpen: false,
+													}))
+												}
+											/>
+										}
+										placement="bottomRight"
+										arrow={false}
+										color={'transparent'}
+										rootClassName={s.topNavbarSettings}
+									>
+										<li
+											className={`${s.navItem} ${s.profileItem}`}
+											onClick={() =>
+												handleNavigation({
+													navItemId: navItem.id,
+													route: navItem.route,
+												})
+											}
+										>
+											{navItem.label}
+										</li>
+									</Tooltip>
+								) : navItem.id === 5 ? (
+									<Tooltip
+										open={info.toolsTooltipOpen}
+										onOpenChange={() =>
+											setInfo((prev) => ({
+												...prev,
+												toolsTooltipOpen: !prev.toolsTooltipOpen,
+											}))
+										}
+										title={
+											<ToolsTooltip
+												closeTooltip={() =>
+													setInfo((prev) => ({
+														...prev,
+														toolsTooltipOpen: false,
+														settingsTooltipOpen: false,
+														filesTooltipOpen: false,
+													}))
+												}
+											/>
+										}
+										placement="bottomRight"
+										arrow={false}
+										color={'transparent'}
+										rootClassName={s.topNavbarSettings}
+										key={`tooltip2-${navItem.id}-${index}`}
+									>
+										<li
+											onClick={() => {
+												navigate('/home');
+												setInfo((prev) => ({
+													...prev,
+													toolsTooltipOpen: false,
+													settingsTooltipOpen: false,
+													filesTooltipOpen: false,
+												}));
+											}}
+											className={`${s.navItem} ${s.profileItem}`}
+										>
+											{navItem.label}
+										</li>
+									</Tooltip>
+								) : (
 									<li
 										className={`${s.navItem} ${
 											info.activeNavItem === navItem.id ? s.active : ''
@@ -296,110 +379,9 @@ const TopNavbar = () => {
 									>
 										{navItem.label}
 									</li>
-							  ))
-							: leftContainerItems.map((navItem, index) =>
-									navItem.id === 4 ? (
-										<Tooltip
-											open={info.filesTooltipOpen}
-											onOpenChange={() =>
-												setInfo((prev) => ({
-													...prev,
-													filesTooltipOpen: !prev.filesTooltipOpen,
-													toolsTooltipOpen: false,
-													settingsTooltipOpen: false,
-												}))
-											}
-											key={`tooltip1-${navItem.id}-${index}`}
-											title={
-												<FilesTooltip
-													closeTooltip={() =>
-														setInfo((prev) => ({
-															...prev,
-															filesTooltipOpen: false,
-															toolsTooltipOpen: false,
-															settingsTooltipOpen: false,
-														}))
-													}
-												/>
-											}
-											placement="bottomRight"
-											arrow={false}
-											color={'transparent'}
-											rootClassName={s.topNavbarSettings}
-										>
-											<li
-												className={`${s.navItem} ${s.profileItem}`}
-												onClick={() =>
-													handleNavigation({
-														navItemId: navItem.id,
-														route: navItem.route,
-													})
-												}
-											>
-												{navItem.label}
-											</li>
-										</Tooltip>
-									) : navItem.id === 5 ? (
-										<Tooltip
-											open={info.toolsTooltipOpen}
-											onOpenChange={() =>
-												setInfo((prev) => ({
-													...prev,
-													toolsTooltipOpen: !prev.toolsTooltipOpen,
-												}))
-											}
-											title={
-												<ToolsTooltip
-													closeTooltip={() =>
-														setInfo((prev) => ({
-															...prev,
-															toolsTooltipOpen: false,
-															settingsTooltipOpen: false,
-															filesTooltipOpen: false,
-														}))
-													}
-												/>
-											}
-											placement="bottomRight"
-											arrow={false}
-											color={'transparent'}
-											rootClassName={s.topNavbarSettings}
-											key={`tooltip2-${navItem.id}-${index}`}
-										>
-											<li
-												onClick={() => {
-													navigate('/home');
-													setInfo((prev) => ({
-														...prev,
-														toolsTooltipOpen: false,
-														settingsTooltipOpen: false,
-														filesTooltipOpen: false,
-													}));
-												}}
-												className={`${s.navItem} ${s.profileItem}`}
-											>
-												{navItem.label}
-											</li>
-										</Tooltip>
-									) : (
-										<li
-											className={`${s.navItem} ${
-												info.activeNavItem === navItem.id ? s.active : ''
-											}`}
-											onClick={() =>
-												handleNavigation({
-													navItemId: navItem.id,
-													route: navItem.route,
-												})
-											}
-											key={`${navItem.id}-${index}`}
-										>
-											{navItem.label}
-										</li>
-									),
-							  )}
-					</ul>
-				</>
+								),
+						  )}
+				</ul>
 			),
 		},
 		...(showMiddleContainer

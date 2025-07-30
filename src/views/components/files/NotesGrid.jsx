@@ -11,6 +11,7 @@ import Spinner from '../loaders/Spinner';
 import moment from 'moment';
 import EmptyState from './EmptyState';
 import { Tooltip } from 'antd';
+import { accessControlCheck } from '../../../helpers/accessControlCheck';
 
 const filterOptions = [
 	{ label: 'All', value: 'all' },
@@ -183,6 +184,7 @@ const NotesGrid = ({ handleTotalChange, isDatabase = false }) => {
 	};
 
 	const handleCreateNoteOrDatabase = async () => {
+		if (!accessControlCheck('note')) return;
 		const payload = {
 			input: {
 				title: 'New Note',

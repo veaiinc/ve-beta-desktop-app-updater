@@ -9,6 +9,7 @@ import ContactsWidgetView from '../../components/contacts/ContactsWidgetView';
 import CreateClientModal from '../../components/modalsV2/contacts/CreateClientModal';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/chat/search.svg';
 import { ReactComponent as AddIcon } from '../../../assets/svg/files/add.svg';
+import { accessControlCheck } from '../../../helpers/accessControlCheck';
 
 const suggestedPrompts = [
 	'Start a Deep Research on revamping the current Dashboard Layout',
@@ -163,6 +164,7 @@ const Contacts = () => {
 	);
 
 	const handleCreateContact = () => {
+		if (!accessControlCheck('contact')) return;
 		setInfo((prev) => ({ ...prev, openClientPopup: true }));
 	};
 

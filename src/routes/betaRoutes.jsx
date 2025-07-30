@@ -2,53 +2,55 @@ import { Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 
 // layouts
-import AuthWrapper from '../views/layouts/authWrapper';
-import GalleryViewLayout from '../views/layouts/galleryViewLayout';
-import AutomationBuilderLayout from '../views/layouts/automationBuilderLayout';
-import SmartFileLayout from '../views/layouts/smartFileLayout';
-import WorkflowBuilderLayout from '../views/layouts/workflowBuilderLayout';
-import Public from '../views/layouts/Public';
+const AuthWrapper = lazy(() => import('../views/layouts/authWrapper'));
+const GalleryViewLayout = lazy(() => import('../views/layouts/galleryViewLayout'));
+const AutomationBuilderLayout = lazy(() => import('../views/layouts/automationBuilderLayout'));
+const SmartFileLayout = lazy(() => import('../views/layouts/smartFileLayout'));
+const WorkflowBuilderLayout = lazy(() => import('../views/layouts/workflowBuilderLayout'));
+const Public = lazy(() => import('../views/layouts/Public'));
 
 // Protected Pages
-import GlobalWorkflows from '../views/features/sales/GlobalWorkflows';
-import EarlyAccess from '../views/features/earlyAccess/EarlyAccess';
-import AddGallery from '../views/features/gallery/AddGallery';
-import GalleryPage from '../views/features/gallery/GalleryPage';
-import GalleryViewer from '../views/features/gallery/GalleryViewer';
-import AlbumSettings from '../views/features/gallery/AlbumSettings';
-import UploadPhotos from '../views/features/gallery/UploadPhotos';
-import InitialHomePage from '../views/features/homePage/InitialHomePage';
-import ShareAndEarn from '../views/features/shareAndEarn/ShareAndEarn';
-import SettingsWrapper from '../views/features/settings/SettingsWrapper';
-import Docs from '../views/features/docs/Docs';
+const GlobalWorkflows = lazy(() => import('../views/features/sales/GlobalWorkflows'));
+const EarlyAccess = lazy(() => import('../views/features/earlyAccess/EarlyAccess'));
+const AddGallery = lazy(() => import('../views/features/gallery/AddGallery'));
+const AlbumSettings = lazy(() => import('../views/features/gallery/AlbumSettings'));
+const UploadPhotos = lazy(() => import('../views/features/gallery/UploadPhotos'));
+const InitialHomePage = lazy(() => import('../views/features/homePage/InitialHomePage'));
+const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
+const SettingsWrapper = lazy(() => import('../views/features/settings/SettingsWrapper'));
+const Docs = lazy(() => import('../views/features/docs/Docs'));
 import LiteGallery from '../views/features/gallery/Litegallery';
-import MyTemplates from '../views/features/myTemplates/MyTemplates';
-import Forms from '../views/features/forms/Forms';
-import FormLeads from '../views/features/forms/FormLeads';
-import EditAgent from '../views/features/aiAssistant/EditAgent';
-import AgentDetails from '../views/features/aiAssistant/AgentDetails';
-import RecentChat from '../views/features/chat/RecentChat';
-import AutomationBuilder from '../views/features/automationBuilder/AutomationBuilder';
-import Automations from '../views/features/automations/Automations';
-import BrandSetup from '../views/features/settings/BrandSetup';
-import DocsFullView from '../views/components/docs/DocsFullView';
-import ElasticSearch from '../views/features/elasticSearch/ElasticSearch';
-import EditKnowledgeAgent from '../views/features/knowledgeAgent/EditAgent';
-import FormResCard from '../views/components/forms/FormResCard';
-import FormSummary from '../views/components/forms/FormSummary';
-import SchedulerMainPage from '../views/features/calendar/SchedulerMainPage';
-import EditScheduler from '../views/features/calendar/EditScheduler';
-import PricingPage from '../views/features/pricingPlans/pricingPage';
-import ProactiveAi from '../views/features/proactiveAi/ProactiveAi';
-import KnowledgeAgents from '../views/features/knowledgeAgent/KnowledgeAgents';
-import AiAssistants from '../views/features/aiAssistant/AiAssistants';
-import KnowledgeAgentDetails from '../views/features/knowledgeAgent/AgentDetails';
-import SmartFile from '../views/features/sales/smartFiles/SmartFile';
-import WorkflowBuilder from '../views/features/workflowBuilder/WorkflowBuilder';
-import Workflow_builder_updated from '../views/features/workflowBuilderUpdated/WorkflowBuilderUpdated';
-import Onboarding from '../views/features/onboarding/Onboarding';
-import Contacts from '../views/features/contacts/Contacts';
-import AmbientAi from '../views/features/ambientAi/AmbientAi';
+const MyTemplates = lazy(() => import('../views/features/myTemplates/MyTemplates'));
+const Forms = lazy(() => import('../views/features/forms/Forms'));
+const FormLeads = lazy(() => import('../views/features/forms/FormLeads'));
+const EditAgent = lazy(() => import('../views/features/aiAssistant/EditAgent'));
+const AgentDetails = lazy(() => import('../views/features/aiAssistant/AgentDetails'));
+const RecentChat = lazy(() => import('../views/features/chat/RecentChat'));
+const AutomationBuilder = lazy(() =>
+	import('../views/features/automationBuilder/AutomationBuilder'),
+);
+const Automations = lazy(() => import('../views/features/automations/Automations'));
+// const BrandSetup = lazy(() => import('../views/features/settings/BrandSetup'));
+const DocsFullView = lazy(() => import('../views/components/docs/DocsFullView'));
+// const ElasticSearch = lazy(() => import('../views/features/elasticSearch/ElasticSearch'));
+const EditKnowledgeAgent = lazy(() => import('../views/features/knowledgeAgent/EditAgent'));
+const FormResCard = lazy(() => import('../views/components/forms/FormResCard'));
+const FormSummary = lazy(() => import('../views/components/forms/FormSummary'));
+const SchedulerMainPage = lazy(() => import('../views/features/calendar/SchedulerMainPage'));
+const EditScheduler = lazy(() => import('../views/features/calendar/EditScheduler'));
+const PricingPage = lazy(() => import('../views/features/pricingPlans/pricingPage'));
+const ProactiveAi = lazy(() => import('../views/features/proactiveAi/ProactiveAi'));
+const KnowledgeAgents = lazy(() => import('../views/features/knowledgeAgent/KnowledgeAgents'));
+const AiAssistants = lazy(() => import('../views/features/aiAssistant/AiAssistants'));
+const KnowledgeAgentDetails = lazy(() => import('../views/features/knowledgeAgent/AgentDetails'));
+const SmartFile = lazy(() => import('../views/features/sales/smartFiles/SmartFile'));
+const WorkflowBuilder = lazy(() => import('../views/features/workflowBuilder/WorkflowBuilder'));
+const Workflow_builder_updated = lazy(() =>
+	import('../views/features/workflowBuilderUpdated/WorkflowBuilderUpdated'),
+);
+const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
+const Contacts = lazy(() => import('../views/features/contacts/Contacts'));
+const AmbientAi = lazy(() => import('../views/features/ambientAi/AmbientAi'));
 
 const Files = lazy(() => import('../views/features/files/Files'));
 const ExpandedClientView = lazy(() => import('../views/features/contacts/ExpandedClientView'));
@@ -61,34 +63,41 @@ const Tasks = lazy(() => import('../views/features/tasks/Tasks'));
 const TaskFullView = lazy(() => import('../views/features/tasks/TaskFullView'));
 const Integrations = lazy(() => import('../views/features/integrationsList/Integrations'));
 const NotesPage = lazy(() => import('../views/features/notesPage/NotesPage'));
+const NotesWrapper = lazy(() => import('../views/features/notesModule/NotesWrapper'));
+const GalleryPage = lazy(() => import('../views/features/gallery/GalleryPage'));
+const GalleryViewer = lazy(() => import('../views/features/gallery/GalleryViewer'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 // import MeetBot from '../views/features/meetBot/meetBot';
-import NotesWrapper from '../views/features/notesModule/NotesWrapper';
-import CardMeetBot from '../views/features/meetBot/CardMeetBot';
-import ChatPage from '../views/components/homePage/ChatPage';
+// import NotesWrapper from '../views/features/notesModule/NotesWrapper';
+const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
+const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
 
 const betaRoutes = [
 	{
 		path: '/insights',
 		element: (
-			<AuthWrapper
-				title={'Home'}
-				outerContainerStyle={{ overflow: 'hidden' }}
-				childrenContainerStyles={{ overflow: 'auto' }}
-				showBottomToolbar={false}
-			>
-				<AmbientAi />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title={'Home'}
+					outerContainerStyle={{ overflow: 'hidden' }}
+					childrenContainerStyles={{ overflow: 'auto' }}
+					showBottomToolbar={false}
+				>
+					<AmbientAi />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/home',
 		element: (
-			<AuthWrapper title={'Tools'}>
-				<InitialHomePage />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Tools'}>
+					<InitialHomePage />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
@@ -102,514 +111,587 @@ const betaRoutes = [
 	{
 		path: '/chats',
 		element: (
-			<AuthWrapper title={'Chats'}>
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Chats'}>
 					<ChatPage />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/share-and-earn',
 		element: (
-			<AuthWrapper title={'Share and Earn'}>
-				<ShareAndEarn />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Share and Earn'}>
+					<ShareAndEarn />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/settings/:type',
 		element: (
-			<AuthWrapper title={'Workspace Settings'}>
-				<SettingsWrapper />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Workspace Settings'}>
+					<SettingsWrapper />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/chat/:sessionId',
 		element: (
-			<AuthWrapper
-				title={'Chat'}
-				showBottomToolbar={false}
-				outerContainerStyle={{
-					paddingRight: '0px',
-					backgroundColor: 'var(--chat-background-color)',
-				}}
-				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
-				maxWidth="100%"
-			>
-				<RecentChat showChatHistory={true} />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title={'Chat'}
+					showBottomToolbar={false}
+					outerContainerStyle={{
+						paddingRight: '0px',
+						backgroundColor: 'var(--chat-background-color)',
+					}}
+					authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
+					maxWidth="100%"
+				>
+					<RecentChat showChatHistory={true} />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/playbook',
 		element: (
-			<AuthWrapper title={'Sales'}>
-				<GlobalWorkflows />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Sales'}>
+					<GlobalWorkflows />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 
 	{
 		path: '/early-access',
 		element: (
-			<AuthWrapper title={'Early Access'}>
-				<EarlyAccess />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Early Access'}>
+					<EarlyAccess />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
-	{
-		path: '/brand-setup',
-		element: (
-			<AuthWrapper title={'Brand Setup'}>
-				<BrandSetup />
-			</AuthWrapper>
-		),
-	},
+	// {
+	// 	path: '/brand-setup',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'Brand Setup'}>
+	// 				<BrandSetup />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
 	{
 		path: '/galleries',
 		element: (
-			<AuthWrapper title={'Galleries'} showBottomToolbar={false}>
-				<AddGallery />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Galleries'} showBottomToolbar={false}>
+					<AddGallery />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/lite-gallery',
 		element: (
-			<AuthWrapper title={'Lite Gallery'} showBottomToolbar={false}>
-				<LiteGallery />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Lite Gallery'} showBottomToolbar={false}>
+					<LiteGallery />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/galleries/:galleryId',
 		element: (
-			<AuthWrapper title={'Gallery'} showBottomToolbar={false}>
-				<GalleryPage />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Gallery'} showBottomToolbar={false}>
+					<GalleryPage />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/galleries/:galleryId/:albumId/upload-photos',
 		element: (
-			<AuthWrapper title={'Upload Photos'} showBottomToolbar={false}>
-				<UploadPhotos />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Upload Photos'} showBottomToolbar={false}>
+					<UploadPhotos />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/galleries/:galleryId/:albumId/album-settings',
 		element: (
-			<AuthWrapper title={'Album Settings'} showBottomToolbar={false}>
-				<AlbumSettings />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Album Settings'} showBottomToolbar={false}>
+					<AlbumSettings />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/galleries/:galleryId/:albumId/gallery-viewer',
 		element: (
-			<GalleryViewLayout title={'Gallery Viewer'}>
-				<GalleryViewer />
-			</GalleryViewLayout>
+			<Suspense fallback={<SuspenseFallback />}>
+				<GalleryViewLayout title={'Gallery Viewer'}>
+					<GalleryViewer />
+				</GalleryViewLayout>
+			</Suspense>
 		),
 	},
 	{
 		path: '/smart-file/:templateId/:workflowId',
 		element: (
-			<SmartFileLayout title={'Smart File'}>
-				<SmartFile />
-			</SmartFileLayout>
+			<Suspense fallback={<SuspenseFallback />}>
+				<SmartFileLayout title={'Smart File'}>
+					<SmartFile />
+				</SmartFileLayout>
+			</Suspense>
 		),
 	},
 	{
 		path: '/workflow_builder/:templateId',
 		element: (
-			<WorkflowBuilderLayout title={'Workflow Builder'}>
-				<WorkflowBuilder />
-			</WorkflowBuilderLayout>
+			<Suspense fallback={<SuspenseFallback />}>
+				<WorkflowBuilderLayout title={'Workflow Builder'}>
+					<WorkflowBuilder />
+				</WorkflowBuilderLayout>
+			</Suspense>
 		),
 	},
 	{
 		path: '/automation_builder/:templateId',
 		element: (
-			<WorkflowBuilderLayout title={'Workflow Builder'}>
-				<Workflow_builder_updated />
-			</WorkflowBuilderLayout>
+			<Suspense fallback={<SuspenseFallback />}>
+				<WorkflowBuilderLayout title={'Workflow Builder'}>
+					<Workflow_builder_updated />
+				</WorkflowBuilderLayout>
+			</Suspense>
 		),
 	},
 	{
 		path: '/tasks',
 		element: (
-			<AuthWrapper
-				title={'Tasks'}
-				outerContainerStyle={{ padding: '0 32px 0 0' }}
-				childrenContainerStyles={{ maxWidth: '100%' }}
-			>
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title={'Tasks'}
+					outerContainerStyle={{ padding: '0 32px 0 0' }}
+					childrenContainerStyles={{ maxWidth: '100%' }}
+				>
 					<Tasks />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/task/:taskId',
 		element: (
-			<AuthWrapper title={'Tasks'}>
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Tasks'}>
 					<TaskFullView />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/integrations',
 		element: (
-			<AuthWrapper title={'Integrations'}>
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Integrations'}>
 					<Integrations />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 
 	{
 		path: '/calendar',
 		element: (
-			<AuthWrapper
-				title={'Calendar'}
-				outerContainerStyle={{ overflow: 'hidden', padding: '0 32px 0 0 ' }}
-				childrenContainerStyles={{ maxWidth: '100%' }}
-			>
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title={'Calendar'}
+					outerContainerStyle={{ overflow: 'hidden', padding: '0 32px 0 0 ' }}
+					childrenContainerStyles={{ maxWidth: '100%' }}
+				>
 					<CalendarModule />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/scheduler',
 		element: (
-			<AuthWrapper title={'Scheduler'} maxWidth={'95%'}>
-				<SchedulerMainPage />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Scheduler'} maxWidth={'95%'}>
+					<SchedulerMainPage />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/scheduling/edit/:sessionId',
 		element: (
-			<AuthWrapper title={'Scheduling'} maxWidth={'95%'}>
-				<EditScheduler />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Scheduling'} maxWidth={'95%'}>
+					<EditScheduler />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/pricing',
 		element: (
-			<AuthWrapper title={'Pricing'}>
-				<PricingPage />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Pricing'}>
+					<PricingPage />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/notes',
 		element: (
-			<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
 					<NotesPage />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/database',
 		element: (
-			<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
 					<NotesPage isDatabase={true} />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/contacts',
 		element: (
-			<AuthWrapper
-				title={'Contacts'}
-				outerContainerStyle={{ padding: '0 32px 0 0' }}
-				childrenContainerStyles={{ maxWidth: '100%' }}
-			>
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title={'Contacts'}
+					outerContainerStyle={{ padding: '0 32px 0 0' }}
+					childrenContainerStyles={{ maxWidth: '100%' }}
+				>
 					<Contacts />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/ai-assistant',
 		element: (
-			<AuthWrapper title={'AI Assistant'}>
-				<AiAssistants />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'AI Assistant'}>
+					<AiAssistants />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/ai-assistant/:aiAssistantId',
 		element: (
-			<AuthWrapper title={'AI Assistant'}>
-				<AgentDetails />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'AI Assistant'}>
+					<AgentDetails />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/ai-assistant/:aiAssistantId/edit',
 		element: (
-			<AuthWrapper title={'AI Assistant'}>
-				<EditAgent />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'AI Assistant'}>
+					<EditAgent />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/docs',
 		element: (
-			<AuthWrapper title={'Docs'}>
-				<Docs />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Docs'}>
+					<Docs />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/knowledge-agent',
 		element: (
-			<AuthWrapper
-				title={'Knowledge Agent'}
-				innerContainerStyle={{ paddingBottom: '0px' }}
-				showBottomToolbar={false}
-			>
-				<KnowledgeAgents />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title={'Knowledge Agent'}
+					innerContainerStyle={{ paddingBottom: '0px' }}
+					showBottomToolbar={false}
+				>
+					<KnowledgeAgents />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/knowledge-agent/:agentId',
 		element: (
-			<AuthWrapper
-				title={'Knowledge Agent'}
-				showBottomToolbar={false}
-				innerContainerStyle={{ paddingBottom: '0px' }}
-			>
-				<KnowledgeAgentDetails />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title={'Knowledge Agent'}
+					showBottomToolbar={false}
+					innerContainerStyle={{ paddingBottom: '0px' }}
+				>
+					<KnowledgeAgentDetails />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/knowledge-agent/:agentId/edit',
 		element: (
-			<AuthWrapper
-				title={'Knowledge Agent'}
-				showBottomToolbar={false}
-				outerContainerStyle={{ paddingRight: '0px' }}
-			>
-				<EditKnowledgeAgent />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title={'Knowledge Agent'}
+					showBottomToolbar={false}
+					outerContainerStyle={{ paddingRight: '0px' }}
+				>
+					<EditKnowledgeAgent />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/doc/:id',
 		element: (
-			<AuthWrapper title={'Docs'}>
-				<DocsFullView />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Docs'}>
+					<DocsFullView />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/my-templates',
 		element: (
-			<AuthWrapper title={'My Templates'}>
-				<MyTemplates />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'My Templates'}>
+					<MyTemplates />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/automation-builder/:automationId',
 		element: (
-			<AutomationBuilderLayout title={'Automation Builder'}>
-				<AutomationBuilder />
-			</AutomationBuilderLayout>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AutomationBuilderLayout title={'Automation Builder'}>
+					<AutomationBuilder />
+				</AutomationBuilderLayout>
+			</Suspense>
 		),
 	},
 	{
 		path: '/form',
 		element: (
-			<AuthWrapper title={'Forms'}>
-				<Forms />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Forms'}>
+					<Forms />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/form/:id',
 		element: (
-			<AuthWrapper title={'Form Leads'}>
-				<FormLeads />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Form Leads'}>
+					<FormLeads />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/forms/:id/responses',
 		element: (
-			<AuthWrapper title={'Form Responses'}>
-				<FormResCard view="responses" />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Form Responses'}>
+					<FormResCard view="responses" />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/forms/:id/summary',
 		element: (
-			<AuthWrapper title={'Form Summary'}>
-				<FormSummary view="summary" />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Form Summary'}>
+					<FormSummary view="summary" />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/note/:noteId',
 		element: (
-			<AuthWrapper
-				title={'Notes'}
-				outerContainerStyle={{
-					backgroundColor: 'var(--background-color)',
-					padding: '0px',
-				}}
-				sidebarContainerStyles={{ padding: '0px' }}
-				maxWidth={'100%'}
-				sidebarContainerClassName={'auth-sidebar-container'}
-			>
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title={'Notes'}
+					outerContainerStyle={{
+						backgroundColor: 'var(--background-color)',
+						padding: '0px',
+					}}
+					sidebarContainerStyles={{ padding: '0px' }}
+					maxWidth={'100%'}
+					sidebarContainerClassName={'auth-sidebar-container'}
+				>
 					<Notes />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/note/:noteId/database',
 		element: (
-			<AuthWrapper
-				title={'Notes'}
-				outerContainerStyle={{
-					backgroundColor: 'var(--background-color)',
-					padding: '0px',
-				}}
-				sidebarContainerStyles={{ padding: '0px' }}
-				maxWidth={'100%'}
-				sidebarContainerClassName={'auth-sidebar-container'}
-			>
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title={'Notes'}
+					outerContainerStyle={{
+						backgroundColor: 'var(--background-color)',
+						padding: '0px',
+					}}
+					sidebarContainerStyles={{ padding: '0px' }}
+					maxWidth={'100%'}
+					sidebarContainerClassName={'auth-sidebar-container'}
+				>
 					<Notes isDatabase={true} />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/automations',
 		element: (
-			<AuthWrapper title={'Automations'}>
-				<Automations />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Automations'}>
+					<Automations />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/contact/:contactId',
 		element: (
-			<AuthWrapper
-				title="Contact Details"
-				outerContainerStyle={{ padding: '0 32px 0 0' }}
-				childrenContainerStyles={{ maxWidth: '100%' }}
-			>
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title="Contact Details"
+					outerContainerStyle={{ padding: '0 32px 0 0' }}
+					childrenContainerStyles={{ maxWidth: '100%' }}
+				>
 					<ExpandedClientView />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
-	{
-		path: '/search',
-		element: (
-			<AuthWrapper title="Search">
-				<ElasticSearch />
-			</AuthWrapper>
-		),
-	},
+	// {
+	// 	path: '/search',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title="Search">
+	// 				<ElasticSearch />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
 	{
 		path: '/files',
 		element: (
-			<AuthWrapper title="Files" maxWidth={'100%'}>
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title="Files" maxWidth={'100%'}>
 					<Files />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/proactiveai/:proactiveAiId',
 		element: (
-			<AuthWrapper title="Proactive AI" childrenContainerStyles={{ maxWidth: '100%' }}>
-				<ProactiveAi />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title="Proactive AI" childrenContainerStyles={{ maxWidth: '100%' }}>
+					<ProactiveAi />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/builder/*',
 		element: (
-			<AuthWrapper
-				title="Builder"
-				outerContainerStyle={{ padding: '0px', backgroundColor: '#fff' }}
-				childrenContainerStyles={{ maxWidth: '100%' }}
-				showSidebar={false}
-			>
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title="Builder"
+					outerContainerStyle={{ padding: '0px', backgroundColor: '#fff' }}
+					childrenContainerStyles={{ maxWidth: '100%' }}
+					showSidebar={false}
+				>
 					<BuilderApp />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/agents',
 		element: (
-			<AuthWrapper
-				title="Agents"
-				outerContainerStyle={{ padding: '0' }}
-				sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
-			>
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title="Agents"
+					outerContainerStyle={{ padding: '0' }}
+					sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
+				>
 					<Agents />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/agent/:agentId',
 		element: (
-			<AuthWrapper title="Agent">
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title="Agent">
 					<Agent />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/meet',
 		element: (
-			<AuthWrapper title={'Meet'}>
-				{/* <MeetBot /> */}
-				<CardMeetBot />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Meet'}>
+					<CardMeetBot />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/meet/:noteId/:meetingId',
 		element: (
-			<AuthWrapper title={'Meet'}>
-				<NotesWrapper />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Meet'}>
+					<NotesWrapper />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{

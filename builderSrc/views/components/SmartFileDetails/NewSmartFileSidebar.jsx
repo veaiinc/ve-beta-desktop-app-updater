@@ -628,17 +628,6 @@ const SmartFileSidebar = ({
 			});
 		}
 
-		// Check client details for empty fields
-		if (info?.clientDetails) {
-			const clientDetails = info.clientDetails;
-			if (!clientDetails.name || clientDetails.name.trim() === '') {
-				emptyFieldNames.push('Client Name');
-			}
-			if (!clientDetails.email || clientDetails.email.trim() === '') {
-				emptyFieldNames.push('Client Email');
-			}
-		}
-
 		// Check payment schedule for missing dates
 		let paymentDateErrorAdded = false;
 		if (fileOptions && fileOptions.length > 0) {
@@ -679,7 +668,7 @@ const SmartFileSidebar = ({
 		}
 
 		return emptyFieldNames;
-	}, [info?.variablesData, info?.documentTitle, info?.clientDetails, fileOptions]);
+	}, [info?.variablesData, info?.documentTitle, fileOptions]);
 
 	// Function to handle empty fields modal
 	const handleEmptyFieldsModal = useCallback(() => {
@@ -702,16 +691,6 @@ const SmartFileSidebar = ({
 		// Handle document title case
 		if (firstEmptyField === 'Document Title') {
 			setIsEditingTitle(true);
-			return;
-		}
-
-		// Handle client details
-		if (firstEmptyField === 'Client Name' || firstEmptyField === 'Client Email') {
-			// Find and focus on client details section
-			const clientDetailsElement = document.querySelector('.client-details-section');
-			if (clientDetailsElement) {
-				clientDetailsElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-			}
 			return;
 		}
 

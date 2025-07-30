@@ -6,6 +6,7 @@ import Context from '../../../context/context';
 import Skeleton from 'react-loading-skeleton';
 import { useNavigate } from 'react-router-dom';
 import CreateClientModal from '../modalsV2/contacts/CreateClientModal';
+import { accessControlCheck } from '../../../helpers/accessControlCheck';
 
 const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 
@@ -155,6 +156,7 @@ const ContactsWidget = ({ width, height }) => {
 					<div
 						onClick={(e) => {
 							e.stopPropagation();
+							if (!accessControlCheck('contact')) return;
 							setInfo((prev) => ({
 								...prev,
 								createLeadPopup: true,

@@ -6456,6 +6456,8 @@ const GalleryPage = () => {
 				onCopyLink={handleCopyAlbumLink}
 				shouldShowPin={info?.activeAlbum?.guestAccess?.isEnabled}
 				galleryId={galleryId}
+				albumSlug={info?.activeAlbum?.slug}
+				albumId={info?.activeAlbum?._id}
 			/>
 
 			<MoveToAlbumPopup

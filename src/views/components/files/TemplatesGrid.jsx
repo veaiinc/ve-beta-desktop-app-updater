@@ -19,6 +19,7 @@ import ListViewIcon from '../../../assets/svg/notesPage/ListViewIcon';
 import CardsViewIcon from '../../../assets/svg/notesPage/CardsViewIcon';
 import { ReactComponent as TemplateIcon } from '../../../assets/svg/files/templat.svg';
 import { ReactComponent as Plus2 } from '../../../assets/svg/files/add2.svg';
+import { accessControlCheck } from '../../../helpers/accessControlCheck';
 
 const filterOptions = [
 	{ label: 'All', value: '' },
@@ -287,6 +288,7 @@ const TemplatesGrid = ({ handleTotalChange, viewMode, setViewMode }) => {
 	};
 
 	const handleCreateBlankTemplate = async () => {
+		if (!accessControlCheck('workflow')) return;
 		if (info?.blankTemplateLoading) return;
 		setInfo((prev) => ({ ...prev, blankTemplateLoading: true }));
 		const response = await createBlankTemplate({
