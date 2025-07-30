@@ -400,7 +400,6 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 			// Create dates in Asia/Calcutta timezone to avoid UTC conversion issues
 			const startDateTime = dayjs.tz(startDate, 'Asia/Calcutta').startOf('day').format();
 			const endDateTime = dayjs.tz(endDate, 'Asia/Calcutta').endOf('day').format();
-			console.log('event===>', event.date, event.startDateTime, event.endDateTime);
 
 			const payload = {
 				title: event.title,
@@ -410,9 +409,10 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 					event.startDateTime !== false && event.startDateTime
 						? event.startDateTime
 						: event.date || startDateTime,
-				endDateTime: event.startDateTime !== false && event.startDateTime
-				? event.startDateTime
-				: event.date || endDateTime,
+				endDateTime:
+					event.startDateTime !== false && event.startDateTime
+						? event.startDateTime
+						: event.date || endDateTime,
 				timezone: 'Asia/Calcutta',
 				allDay: true,
 				calendarCategory: calendarCategory || null,

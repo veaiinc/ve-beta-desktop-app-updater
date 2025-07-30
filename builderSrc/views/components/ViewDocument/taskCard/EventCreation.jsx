@@ -271,7 +271,6 @@ const EventTaskManager = ({ event, updateEvent, workflowInfoDetails }) => {
 					role: data.roleType,
 					tenantUserId: data.user._id,
 					responseStatus: 'confirmed',
-
 				};
 
 				updatedEvent.attendees = [...(event?.attendees || []), newAttendee];
@@ -296,7 +295,6 @@ const EventTaskManager = ({ event, updateEvent, workflowInfoDetails }) => {
 
 		updateEvent(backendPayload);
 	};
-	console.log('event===>', event);
 
 	return (
 		<div className="eventTaskContainer">
