@@ -146,11 +146,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	const [info, setInfo] = useState(initialState);
 	const [transcriptList, setTranscriptList] = useState([]);
-	const [activeTab, setActiveTab] = useState(
-		// history || type === 'desktop' ? 'transcript' : 'all',
-		// 'transcript',
-		history ? 'transcript' : type === 'desktop' ? 'transcript' : 'all',
-	);
+	const [activeTab, setActiveTab] = useState(type === 'desktop' ? 'transcript' : 'all');
+	const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 	const location = useLocation();
 
 	// Add hooks for live intelligence and recall stream
@@ -161,6 +158,27 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	} = useRecallStream();
 	const { createWebSocketConnection: createLiveIntelligenceStream, updateCurrentContext } =
 		useLiveIntelligenceStream();
+
+	// Function to fetch historical transcriptions
+	const fetchHistoricalTranscriptions = useCallback(async () => {
+		if (!noteId || !showTranscriptTabs) return;
+
+		setIsLoadingHistory(true);
+		try {
+			// TODO: Replace with your actual history endpoint
+			// const response = await fetch(`/api/transcriptions/history/${noteId}`);
+			// const historicalData = await response.json();
+			// setTranscriptList(historicalData.transcriptions || []);
+
+			// For now, we'll start with empty array and let socket data populate
+			setTranscriptList([]);
+		} catch (error) {
+			console.error('Error fetching historical transcriptions:', error);
+			setTranscriptList([]);
+		} finally {
+			setIsLoadingHistory(false);
+		}
+	}, [noteId, showTranscriptTabs]);
 
 	// Handler for transcript socket messages
 	// const handleLiveIntelligenceMessageFunc = useCallback(
@@ -236,6 +254,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			try {
 				const msg = JSON.parse(event?.data || null);
 				if (msg?.event === 'transcript.received' && msg?.data) {
+					// Append new transcript data to existing list
 					setTranscriptList((prev) => [
 						...prev,
 						{
@@ -694,13 +713,13 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		}
 	};
 
+	// Fetch historical data when component mounts
 	useEffect(() => {
-		if (
-			showTranscriptTabs &&
-			location?.pathname?.includes('meet') &&
-			history !== true &&
-			type === 'meeting_bot'
-		) {
+		fetchHistoricalTranscriptions();
+	}, []);
+
+	useEffect(() => {
+		if (showTranscriptTabs && location?.pathname?.includes('meet') && type === 'meeting_bot') {
 			recallConnection(sessionId, meetingId, handleSocketMessage, isAiIntelligenceEnabled);
 			// createLiveIntelligenceStream(
 			// 	sessionId,
@@ -708,7 +727,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			// 	handleLiveIntelligenceMessageFunc,
 			// 	false,
 			// );
-		} else if (showTranscriptTabs && type === 'desktop' && !history) {
+		} else if (showTranscriptTabs && type === 'desktop') {
 			// Connect to recall for note taker mode as well
 			recallConnection(sessionId, meetingId, handleSocketMessage, isAiIntelligenceEnabled);
 		}
@@ -838,23 +857,29 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 							{showTranscriptTabs &&
 								activeTab === 'transcript' &&
 								(type === 'meeting_bot' ? (
-									<MeetTranscript transcriptList={transcriptList} />
+									isLoadingHistory ? (
+										<div className="transcript-loading">
+											<Spinner
+												width="20px"
+												height="20px"
+												color="var(--primary-button)"
+											/>
+											<span>Loading transcriptions...</span>
+										</div>
+									) : (
+										<MeetTranscript transcriptList={transcriptList} />
+									)
 								) : type === 'desktop' ? (
 									<NoteTakerTranscript
 										sendMessage={recallSendMessage}
 										tenantId={tennantSettingsData?._id}
 										sessionId={sessionId}
 										pageId={noteId}
-										history={history}
 									/>
 								) : null)}
 
 							{showTranscriptTabs && activeTab === 'summary' && (
-								<MeetSummary
-									activeTab={activeTab}
-									history={history}
-									pageId={noteId}
-								/>
+								<MeetSummary activeTab={activeTab} pageId={noteId} />
 							)}
 
 							{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
@@ -890,7 +915,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 								/>
 							)}
 
-							{showTranscriptTabs && !history && type === 'meeting_bot' && (
+							{showTranscriptTabs && type === 'meeting_bot' && (
 								<TranscriptionWrapper
 									chat={chat}
 									transcription={transcription}
