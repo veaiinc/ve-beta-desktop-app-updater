@@ -6,7 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 const SettingsPageSidebar = () => {
 	const navigate = useNavigate();
 	const { type } = useParams();
-	console.log(type, 'type');
+
 	return (
 		<div className="settingsSidebarOptions">
 			{settingsItems.map((item) => (
