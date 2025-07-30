@@ -23,9 +23,10 @@ const AiTranscriptionSuggestions = ({
 		templates: { updateStateValues },
 	} = useContext(Context);
 	const [searchParams, setSearchParams] = useSearchParams();
-	const [info, setInfo] = useState({
-		sessionId: null,
-	});
+	const sessionId = searchParams.get('sId');
+	// const [info, setInfo] = useState({
+	// 	sessionId: null,
+	// });
 	const bodyRef = useRef(null);
 	// useEffect(() => {
 	// 	if (aiTranscriptionSuggestions) {
@@ -54,14 +55,14 @@ const AiTranscriptionSuggestions = ({
 	// 	};
 	// }, []);
 
-	useEffect(() => {
-		if (searchParams.get('sId')) {
-			setInfo((prev) => ({
-				...prev,
-				sessionId: searchParams.get('sId'),
-			}));
-		}
-	}, [searchParams]);
+	// useEffect(() => {
+	// 	if (searchParams.get('sId')) {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			sessionId: searchParams.get('sId'),
+	// 		}));
+	// 	}
+	// }, [searchParams]);
 
 	useEffect(() => {
 		if (!bodyRef.current) return;
@@ -121,19 +122,19 @@ const AiTranscriptionSuggestions = ({
 
 	const handleActionClick = useCallback(
 		(prompt) => {
-			if (prompt && info?.sessionId) {
+			if (prompt && sessionId) {
 				const newParams = new URLSearchParams(searchParams);
 				newParams.set('chat', 'true');
 				setSearchParams(newParams);
 				updateStateValues({
 					activePromptForChat: {
 						prompt,
-						sessionId: info?.sessionId,
+						sessionId,
 					},
 				});
 			}
 		},
-		[info?.sessionId],
+		[sessionId],
 	);
 
 	const handleFileClick = useCallback((file) => {
