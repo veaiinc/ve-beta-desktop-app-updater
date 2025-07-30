@@ -265,10 +265,13 @@ const EventTaskManager = ({ event, updateEvent, workflowInfoDetails }) => {
 
 			if (!isUserAlreadyInRole) {
 				const newAttendee = {
-					id: data.user.id,
+					// id: data.user.id,
 					name: `${data.user.firstName} ${data.user.lastName}`,
 					email: data.user.email,
 					role: data.roleType,
+					tenantUserId: data.user._id,
+					responseStatus: 'confirmed',
+
 				};
 
 				updatedEvent.attendees = [...(event?.attendees || []), newAttendee];

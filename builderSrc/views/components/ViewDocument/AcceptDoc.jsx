@@ -410,7 +410,9 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 					event.startDateTime !== false && event.startDateTime
 						? event.startDateTime
 						: event.date || startDateTime,
-				endDateTime: event.endDateTime,
+				endDateTime: event.startDateTime !== false && event.startDateTime
+				? event.startDateTime
+				: event.date || endDateTime,
 				timezone: 'Asia/Calcutta',
 				allDay: true,
 				calendarCategory: calendarCategory || null,
