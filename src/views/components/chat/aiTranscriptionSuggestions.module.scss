@@ -94,12 +94,11 @@
 					svg {
 						width: 24px;
 						height: 24px;
-						color: var(--text-primary, #ffffff);
 					}
 				}
 
 				.fileName {
-					color: var(--text-primary, #ffffff);
+					color: var(--primary-font, #f2f2f3);
 					font-size: 14px;
 					font-weight: 500;
 					line-height: 20px;
