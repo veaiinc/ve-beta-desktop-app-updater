@@ -20,42 +20,48 @@ import { ReactComponent as TemplatesSvg } from '../../assets/templates.svg';
 const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
 const isMac = navigator.platform.toLowerCase().indexOf('mac') !== -1;
 
-const settingsItems = [
+export const settingsItems = [
 	{
 		id: 1,
 		label: 'My Profile',
 		icon: <MyProfileSvg />,
 		route: '/settings/my-profile',
+		value: 'my-profile',
 	},
 	{
 		id: 2,
 		label: 'Workspace',
 		icon: <WorkspaceSvg />,
 		route: '/settings/workspace',
+		value: 'workspace',
 	},
 	{
 		id: 3,
 		label: 'Team Members',
 		icon: <TeamMembersSvg />,
 		route: '/settings/team-members',
+		value: 'team-members',
 	},
 	{
 		id: 4,
 		label: 'Integrations',
 		icon: <IntegrationsSvg />,
 		route: '/settings/integrations',
+		value: 'integrations',
 	},
 	{
 		id: 5,
 		label: 'Plan Billing',
 		icon: <PlanBillingSvg />,
 		route: '/settings/plan-billing',
+		value: 'plan-billing',
 	},
 	{
 		id: 6,
 		label: 'AI Setup',
 		icon: <AISetupSvg />,
 		route: '/settings/ai-setup',
+		value: 'ai-setup',
 	},
 	{
 		id: 7,

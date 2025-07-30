@@ -10,6 +10,7 @@ import PlanBilling from './PlanBilling';
 import AiSetup from '../aiSetup/AiSetup';
 import PricingPage from '../pricingPlans/pricingPage';
 import Integrations from '../integrationsList/Integrations';
+import SettingsPageSideBar from '../../components/settings/SettingsPageSidebar';
 const mapper = {
 	'my-profile': <MyProfile />,
 	workspace: <SettingsWorkspace />,
@@ -45,34 +46,40 @@ const SettingsWrapper = (props) => {
 	return (
 		<div
 			className={`${
-				type === 'integrations' || type === 'ai-setup' ? '' : 'accountSettingsMainWrapper'
+				type === 'integrations' || type === 'ai-setup'
+					? 'accountSettingsMainWrapper'
+					: 'accountSettingsMainWrapper'
 			}`}
 			style={{
 				height: '100%',
 			}}
 		>
-			{type === 'ai-setup' ? (
+			{/* {type === 'ai-setup' ? (
 				mapper?.[type]
-			) : (
+			) : ( */}
+			<div
+				className={`${
+					type !== 'integrations' ? 'accountSettingsWrapper' : 'accountSettingsWrapper'
+				}`}
+				style={{
+					height: '100%',
+				}}
+			>
 				<div
-					className={`${type !== 'integrations'  ? 'accountSettingsWrapper' : ''}`}
+					className={`${
+						type !== 'integrations' ? 'accountSettingsMapper' : 'accountSettingsMapper'
+					}`}
 					style={{
 						height: '100%',
 					}}
 				>
-					<div
-						className={`${type !== 'integrations'  ? 'accountSettingsMapper' : ''}`}
-						style={{
-							height: '100%',
-						}}
-					>
-						{mapper?.[type]}
-					</div>
-					{/* <div className="accountSettingsSidebar">
-				<SettingsPageSideBar {...props} type={type} setType1={setType} />
-			</div> */}
+					{mapper?.[type]}
 				</div>
-			)}
+				<div className="accountSettingsSidebar">
+					<SettingsPageSideBar {...props} type={type} setType1={setType} />
+				</div>
+			</div>
+			{/* )} */}
 		</div>
 	);
 };

@@ -2,6 +2,7 @@
 	display: grid;
 	grid-template-columns: repeat(2, 1fr); // 2 columns
 	gap: 12px;
+	flex-shrink: 0;
 	.calenderWidgetSection2Item {
 		display: flex;
 		height: 200px;
