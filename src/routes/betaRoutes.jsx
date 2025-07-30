@@ -103,9 +103,11 @@ const betaRoutes = [
 	{
 		path: '/create-workspace',
 		element: (
-			<Public>
-				<Onboarding />
-			</Public>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Onboarding'}>
+					<Onboarding />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
@@ -697,9 +699,11 @@ const betaRoutes = [
 	{
 		path: '*',
 		element: (
-			<Public>
-				<Navigate to="/home" />
-			</Public>
+			<Suspense fallback={<SuspenseFallback />}>
+				<Public>
+					<Navigate to="/home" />
+				</Public>
+			</Suspense>
 		),
 	},
 ];
