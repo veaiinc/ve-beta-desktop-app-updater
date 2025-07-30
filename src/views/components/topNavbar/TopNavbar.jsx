@@ -262,10 +262,109 @@ const TopNavbar = () => {
 		{
 			id: 1,
 			element: (
-				<>
-					<ul className={s.leftContainer}>
-						{info.activeMode === 3
-							? [leftContainerItems[0]].map((navItem, index) => (
+				<ul className={s.leftContainer}>
+					{info.activeMode === 3
+						? [leftContainerItems[0]].map((navItem, index) => (
+								<li
+									className={`${s.navItem} ${
+										info.activeNavItem === navItem.id ? s.active : ''
+									}`}
+									onClick={() =>
+										handleNavigation({
+											navItemId: navItem.id,
+											route: navItem.route,
+										})
+									}
+									key={`${navItem.id}-${index}`}
+								>
+									{navItem.label}
+								</li>
+						  ))
+						: leftContainerItems.map((navItem, index) =>
+								navItem.id === 4 ? (
+									<Tooltip
+										open={info.filesTooltipOpen}
+										onOpenChange={() =>
+											setInfo((prev) => ({
+												...prev,
+												filesTooltipOpen: !prev.filesTooltipOpen,
+												toolsTooltipOpen: false,
+												settingsTooltipOpen: false,
+											}))
+										}
+										key={`tooltip1-${navItem.id}-${index}`}
+										title={
+											<FilesTooltip
+												closeTooltip={() =>
+													setInfo((prev) => ({
+														...prev,
+														filesTooltipOpen: false,
+														toolsTooltipOpen: false,
+														settingsTooltipOpen: false,
+													}))
+												}
+											/>
+										}
+										placement="bottomRight"
+										arrow={false}
+										color={'transparent'}
+										rootClassName={s.topNavbarSettings}
+									>
+										<li
+											className={`${s.navItem} ${s.profileItem}`}
+											onClick={() =>
+												handleNavigation({
+													navItemId: navItem.id,
+													route: navItem.route,
+												})
+											}
+										>
+											{navItem.label}
+										</li>
+									</Tooltip>
+								) : navItem.id === 5 ? (
+									<Tooltip
+										open={info.toolsTooltipOpen}
+										onOpenChange={() =>
+											setInfo((prev) => ({
+												...prev,
+												toolsTooltipOpen: !prev.toolsTooltipOpen,
+											}))
+										}
+										title={
+											<ToolsTooltip
+												closeTooltip={() =>
+													setInfo((prev) => ({
+														...prev,
+														toolsTooltipOpen: false,
+														settingsTooltipOpen: false,
+														filesTooltipOpen: false,
+													}))
+												}
+											/>
+										}
+										placement="bottomRight"
+										arrow={false}
+										color={'transparent'}
+										rootClassName={s.topNavbarSettings}
+										key={`tooltip2-${navItem.id}-${index}`}
+									>
+										<li
+											onClick={() => {
+												navigate('/home');
+												setInfo((prev) => ({
+													...prev,
+													toolsTooltipOpen: false,
+													settingsTooltipOpen: false,
+													filesTooltipOpen: false,
+												}));
+											}}
+											className={`${s.navItem} ${s.profileItem}`}
+										>
+											{navItem.label}
+										</li>
+									</Tooltip>
+								) : (
 									<li
 										className={`${s.navItem} ${
 											info.activeNavItem === navItem.id ? s.active : ''
@@ -280,110 +379,9 @@ const TopNavbar = () => {
 									>
 										{navItem.label}
 									</li>
-							  ))
-							: leftContainerItems.map((navItem, index) =>
-									navItem.id === 4 ? (
-										<Tooltip
-											open={info.filesTooltipOpen}
-											onOpenChange={() =>
-												setInfo((prev) => ({
-													...prev,
-													filesTooltipOpen: !prev.filesTooltipOpen,
-													toolsTooltipOpen: false,
-													settingsTooltipOpen: false,
-												}))
-											}
-											key={`tooltip1-${navItem.id}-${index}`}
-											title={
-												<FilesTooltip
-													closeTooltip={() =>
-														setInfo((prev) => ({
-															...prev,
-															filesTooltipOpen: false,
-															toolsTooltipOpen: false,
-															settingsTooltipOpen: false,
-														}))
-													}
-												/>
-											}
-											placement="bottomRight"
-											arrow={false}
-											color={'transparent'}
-											rootClassName={s.topNavbarSettings}
-										>
-											<li
-												className={`${s.navItem} ${s.profileItem}`}
-												onClick={() =>
-													handleNavigation({
-														navItemId: navItem.id,
-														route: navItem.route,
-													})
-												}
-											>
-												{navItem.label}
-											</li>
-										</Tooltip>
-									) : navItem.id === 5 ? (
-										<Tooltip
-											open={info.toolsTooltipOpen}
-											onOpenChange={() =>
-												setInfo((prev) => ({
-													...prev,
-													toolsTooltipOpen: !prev.toolsTooltipOpen,
-												}))
-											}
-											title={
-												<ToolsTooltip
-													closeTooltip={() =>
-														setInfo((prev) => ({
-															...prev,
-															toolsTooltipOpen: false,
-															settingsTooltipOpen: false,
-															filesTooltipOpen: false,
-														}))
-													}
-												/>
-											}
-											placement="bottomRight"
-											arrow={false}
-											color={'transparent'}
-											rootClassName={s.topNavbarSettings}
-											key={`tooltip2-${navItem.id}-${index}`}
-										>
-											<li
-												onClick={() => {
-													navigate('/home');
-													setInfo((prev) => ({
-														...prev,
-														toolsTooltipOpen: false,
-														settingsTooltipOpen: false,
-														filesTooltipOpen: false,
-													}));
-												}}
-												className={`${s.navItem} ${s.profileItem}`}
-											>
-												{navItem.label}
-											</li>
-										</Tooltip>
-									) : (
-										<li
-											className={`${s.navItem} ${
-												info.activeNavItem === navItem.id ? s.active : ''
-											}`}
-											onClick={() =>
-												handleNavigation({
-													navItemId: navItem.id,
-													route: navItem.route,
-												})
-											}
-											key={`${navItem.id}-${index}`}
-										>
-											{navItem.label}
-										</li>
-									),
-							  )}
-					</ul>
-				</>
+								),
+						  )}
+				</ul>
 			),
 		},
 		...(showMiddleContainer

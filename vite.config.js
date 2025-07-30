@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from '@svgr/rollup';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig({
 	build: {
@@ -13,6 +14,12 @@ export default defineConfig({
 	},
 	plugins: [
 		react(),
+		visualizer({
+			open: true,
+			filename: 'bundle-visualizer.html',
+			brotliSize: true,
+			filename: 'bundle-visualizer.html',
+		}),
 		svgr({
 			svgoConfig: {
 				plugins: [],
