@@ -166,6 +166,10 @@ const ChatHeader = ({
 					favorites,
 				};
 			}
+			setInfo((prev) => ({
+				...prev,
+				isFavourite,
+			}));
 			updateStateValues({
 				aiChatSessions: {
 					...(aiChatSessions || {}),

@@ -73,7 +73,7 @@ const RecentChat = ({
 		showViewDocument: false,
 		tooltipStyles: { visible: false, styles: { top: 0, left: 0 }, selectedText: '' },
 		deleteChatSessionLoading: false,
-		isNewChat: false,
+		isNewChat: true,
 		currentUserMessageIndex: null,
 		getFollowUpQueries: false,
 		chatQuery: '',
@@ -152,28 +152,6 @@ const RecentChat = ({
 			});
 		};
 	}, []);
-
-	useEffect(() => {
-		if (!sessionId) return;
-
-		if (aiChatSessions) {
-			const sessions = aiChatSessions?.data || [];
-			if (sessions?.length > 0) {
-				const session = sessions?.findIndex((s) => s?._id === sessionId);
-				if (session === -1) {
-					setInfo((prev) => ({
-						...prev,
-						isNewChat: true,
-					}));
-				} else {
-					setInfo((prev) => ({
-						...prev,
-						isNewChat: false,
-					}));
-				}
-			}
-		}
-	}, [aiChatSessions, sessionId]);
 
 	useEffect(() => {
 		if (info?.getFollowUpQueries) {
@@ -318,6 +296,12 @@ const RecentChat = ({
 	}, [sessionId, agentType, assistantId]);
 
 	useEffect(() => {
+		if (globalChatMessages?.[sessionId]?.messages?.length && info?.isNewChat) {
+			setInfo((prev) => ({
+				...prev,
+				isNewChat: false,
+			}));
+		}
 		if (globalChatMessages?.[sessionId]?.messages?.length > 2 && !info?.scrollExecuted) {
 			setTimeout(() => {
 				smoothScrollToLastMessage();
