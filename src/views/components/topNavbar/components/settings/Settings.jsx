@@ -15,7 +15,7 @@ import { ReactComponent as HelpSvg } from '../../assets/help.svg';
 import { ReactComponent as SwitchWorkspaceSvg } from '../../assets/switch-workspace.svg';
 import { ReactComponent as LogoutSvg } from '../../assets/logout.svg';
 import { ReactComponent as DownloadMacSvg } from '../../assets/download-mac.svg';
-// import { ReactComponent as TemplatesSvg } from '../../assets/templates.svg';
+import { ReactComponent as TemplatesSvg } from '../../assets/templates.svg';
 
 const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
 const isMac = navigator.platform.toLowerCase().indexOf('mac') !== -1;
@@ -57,12 +57,12 @@ const settingsItems = [
 		icon: <AISetupSvg />,
 		route: '/settings/ai-setup',
 	},
-	// {
-	// 	id: 7,
-	// 	label: 'Templates',
-	// 	icon: <TemplatesSvg />,
-	// 	route: '/playbook',
-	// },
+	{
+		id: 7,
+		label: 'Templates',
+		icon: <TemplatesSvg />,
+		route: '/playbook',
+	},
 	{
 		id: 8,
 		label: 'Help',
