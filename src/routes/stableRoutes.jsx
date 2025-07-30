@@ -110,7 +110,7 @@ const stableRoutes = [
 				maxWidth="100%"
 			>
 				<Suspense fallback={<SuspenseFallback />}>
-					<RecentChat showChatHistory={true} />
+					<RecentChat showChatHistory={true} showDeleteChat={true} showChats={true} />
 				</Suspense>
 			</AuthWrapper>
 		),
@@ -148,7 +148,7 @@ const stableRoutes = [
 		),
 	},
 	{
-		path: '/meet/:noteId',
+		path: '/meet/:noteId/:meetingId',
 		element: (
 			<AuthWrapper title={'Meet'}>
 				<Suspense fallback={<SuspenseFallback />}>

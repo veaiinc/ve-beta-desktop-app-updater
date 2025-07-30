@@ -11,7 +11,7 @@ import Spinner from '../../components/loaders/Spinner';
 const MeetTranscript = ({ transcriptList = [] }) => {
 	const listRef = useRef(null);
 	const lastItemRef = useRef(null);
-	const { noteId } = useParams();
+	const { meetingId, noteId } = useParams();
 	const [searchParams] = useSearchParams();
 	const type = searchParams.get('type');
 	const [highlightIdx, setHighlightIdx] = useState(null);
@@ -31,7 +31,7 @@ const MeetTranscript = ({ transcriptList = [] }) => {
 		try {
 			setInfo((prev) => ({ ...prev, transcriptLoading: true }));
 			const response = await getMeetTranscriptHistory(
-				{ pageId: noteId, limit: 10, page },
+				{ meetingId, limit: 10, page },
 				append,
 			);
 			if (response?.[1]?.data?.listTranscriptions) {

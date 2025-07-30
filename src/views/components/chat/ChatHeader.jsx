@@ -5,7 +5,7 @@ import { ReactComponent as DeleteSvg } from '../../../assets/svg/delete.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 import { ReactComponent as StarSvg } from '../../../assets/svg/home_page/star.svg';
-
+import { ReactComponent as CardsThreeSvg } from '../../../assets/svg/chat/cardsThree.svg';
 import { Tooltip } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
@@ -16,7 +16,8 @@ const ChatHeader = ({
 	sessionId,
 	isNewChat = false,
 	smoothScrollToParticularMessage = null,
-	showDeleteChat = true,
+	showDeleteChat = false,
+	showChats = false,
 }) => {
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -165,6 +166,10 @@ const ChatHeader = ({
 					favorites,
 				};
 			}
+			setInfo((prev) => ({
+				...prev,
+				isFavourite,
+			}));
 			updateStateValues({
 				aiChatSessions: {
 					...(aiChatSessions || {}),
@@ -184,6 +189,10 @@ const ChatHeader = ({
 		updateStateValues,
 		globalChatMessages,
 	]);
+
+	const handleChatsClick = useCallback(() => {
+		navigate('/chats');
+	}, []);
 
 	return (
 		<div className={s.wrapper}>
@@ -246,6 +255,19 @@ const ChatHeader = ({
 					</div>
 
 					<div className={s.rightContainer}>
+						{showChats && (
+							<Tooltip
+								title={<div className={s.tooltip}>Chats</div>}
+								placement="bottom"
+								color="transparent"
+								arrow={false}
+							>
+								<button className={s.chatsBtn} onClick={handleChatsClick}>
+									<CardsThreeSvg />
+								</button>
+							</Tooltip>
+						)}
+
 						{!isNewChat && (
 							<>
 								<Tooltip
@@ -269,19 +291,21 @@ const ChatHeader = ({
 										<StarSvg />
 									</button>
 								</Tooltip>
-								<Tooltip
-									title={<div className={s.tooltip}>Delete Chat</div>}
-									placement="bottom"
-									color="transparent"
-									arrow={false}
-								>
-									<button
-										className={s.deleteChatBtn}
-										onClick={handleDeleteChatClick}
+								{showDeleteChat && (
+									<Tooltip
+										title={<div className={s.tooltip}>Delete Chat</div>}
+										placement="bottom"
+										color="transparent"
+										arrow={false}
 									>
-										<DeleteSvg />
-									</button>
-								</Tooltip>
+										<button
+											className={s.deleteChatBtn}
+											onClick={handleDeleteChatClick}
+										>
+											<DeleteSvg />
+										</button>
+									</Tooltip>
+								)}
 							</>
 						)}
 					</div>
