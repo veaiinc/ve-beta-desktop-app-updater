@@ -72,6 +72,10 @@ const initialState = {
 	sessionId: ObjectID()?.toString(),
 	chatSessionId: ObjectID()?.toString(),
 	chatClicked: false,
+	transcriptions: [],
+	transcriptionsPage: 1,
+	transcriptionsHasMore: true,
+	transcriptionsLoading: false,
 };
 
 const accessLevels = {
@@ -114,6 +118,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	const {
 		notes: {
+			getMeetTranscriptHistory,
+			transcriptHistory,
 			getNotesPageData,
 			notesPageData,
 			notesAccess,
@@ -149,6 +155,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const [activeTab, setActiveTab] = useState(type === 'desktop' ? 'transcript' : 'all');
 	const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 	const location = useLocation();
+	const transcriptContainerRef = useRef(null);
 
 	// Add hooks for live intelligence and recall stream
 	const {
@@ -159,26 +166,87 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const { createWebSocketConnection: createLiveIntelligenceStream, updateCurrentContext } =
 		useLiveIntelligenceStream();
 
-	// Function to fetch historical transcriptions
+	// Function to fetch historical transcriptions for desktop
 	const fetchHistoricalTranscriptions = useCallback(async () => {
-		if (!noteId || !showTranscriptTabs) return;
+		if (!noteId || !showTranscriptTabs || type !== 'desktop') return;
 
 		setIsLoadingHistory(true);
 		try {
-			// TODO: Replace with your actual history endpoint
-			// const response = await fetch(`/api/transcriptions/history/${noteId}`);
-			// const historicalData = await response.json();
-			// setTranscriptList(historicalData.transcriptions || []);
+			// Fetch historical transcriptions for desktop
+			const response = await getMeetTranscriptHistory(
+				{ meetingId: meetingId, limit: 20, page: 1 },
+				false,
+			);
+			if (response?.[0]) {
+				const rawData = response[1]?.data?.listTranscriptions?.data || [];
+				const hasMore = response[1]?.data?.listTranscriptions?.hasNextPage;
 
-			// For now, we'll start with empty array and let socket data populate
-			setTranscriptList([]);
+				// Transform the data to match UI expectations
+				const transformedData = rawData.map((item) => ({
+					...item,
+					text: item.transcript, // Map transcript to text
+					time: item.createdAt
+						? new Date(parseInt(item.createdAt) * 1000).toLocaleTimeString()
+						: '', // Convert timestamp to readable time
+					speakerName: item.speakerName || 'Note Taker', // Default speaker name
+				}));
+
+				setInfo((prev) => ({
+					...prev,
+					transcriptions: transformedData,
+					transcriptionsHasMore: hasMore,
+					transcriptionsPage: 1,
+					transcriptionsLoading: false,
+				}));
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					transcriptions: [],
+					transcriptionsLoading: false,
+				}));
+			}
 		} catch (error) {
 			console.error('Error fetching historical transcriptions:', error);
-			setTranscriptList([]);
+			setInfo((prev) => ({
+				...prev,
+				transcriptions: [],
+				transcriptionsLoading: false,
+			}));
 		} finally {
 			setIsLoadingHistory(false);
 		}
-	}, [noteId, showTranscriptTabs]);
+	}, [noteId, showTranscriptTabs, type]);
+
+	// Function to fetch historical transcriptions for meeting_bot
+	const fetchMeetingBotTranscriptions = useCallback(async () => {
+		if (!noteId || !showTranscriptTabs || type !== 'meeting_bot') return;
+
+		try {
+			const response = await getMeetTranscriptHistory(
+				{ meetingId: meetingId, limit: 20, page: 1 },
+				false,
+			);
+			if (response?.[0]) {
+				const rawData = response[1]?.data?.listTranscriptions?.data || [];
+				// Transform the data to match the existing transcriptList format
+				const transformedData = rawData.map((item) => ({
+					...item,
+					text: item.transcript,
+					time: item.createdAt
+						? new Date(parseInt(item.createdAt) * 1000).toLocaleTimeString()
+						: '',
+					speakerName: item.speakerName || 'Note Taker',
+				}));
+
+				setTranscriptList(transformedData);
+			} else {
+				setTranscriptList([]);
+			}
+		} catch (error) {
+			console.error('Error fetching meeting bot transcriptions:', error);
+			setTranscriptList([]);
+		}
+	}, [noteId, showTranscriptTabs, type, getMeetTranscriptHistory]);
 
 	// Handler for transcript socket messages
 	// const handleLiveIntelligenceMessageFunc = useCallback(
@@ -188,6 +256,26 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	// 	},
 	// 	[handleTranscriptionSuggestions],
 	// );
+
+	// Handler for noteTakerTranscript socket messages
+	const handleNoteTakerTranscriptMessage = useCallback((event) => {
+		try {
+			const data = JSON.parse(event?.data || '{}');
+			console.log('🔍 Received socket message:', data);
+
+			// Check if this is a noteTakerTranscript response
+			if (data.noteTakerTranscript) {
+				console.log('🔍 Processing noteTakerTranscript:', data.noteTakerTranscript);
+				handleSocketTranscription({
+					...data.noteTakerTranscript,
+					isFinal: true, // Assume final since it's from server
+					id: data.noteTakerTranscript._id || Date.now().toString(),
+				});
+			}
+		} catch (error) {
+			console.error('Error parsing socket message:', error);
+		}
+	}, []);
 	useEffect(() => {
 		if (aiTranscriptionSuggestions) {
 			const userQuestions = [];
@@ -249,10 +337,113 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			});
 		}
 	}, [transcriptList]);
+
+	// When new socket data comes in:
+	const handleSocketTranscription = useCallback((newTranscript) => {
+		setInfo((prev) => {
+			const transcriptions = prev.transcriptions || [];
+
+			// Get the transcript text from various possible sources
+			const transcriptText =
+				newTranscript.transcript || newTranscript.displayedText || newTranscript.text || '';
+
+			// Check if this transcript already exists (to avoid duplicates)
+			const existingTranscript = transcriptions.find(
+				(t) =>
+					t.text === transcriptText ||
+					t.transcript === transcriptText ||
+					t.id === newTranscript.id, // Also check by ID
+			);
+
+			if (existingTranscript) {
+				return prev; // Don't add duplicate
+			}
+
+			// Check if this is a continuation of the last transcript (same session)
+			const lastTranscript = transcriptions[transcriptions.length - 1];
+			const isContinuation =
+				lastTranscript &&
+				!lastTranscript.isFinal &&
+				// Check if the new text contains the last text (continuation)
+				transcriptText.includes(lastTranscript.text || lastTranscript.transcript || '');
+
+			if (!newTranscript.isFinal) {
+				// Partial transcript - update the last entry if it's a continuation
+				if (isContinuation) {
+					// Update the last entry with the new partial text
+					const updated = [...transcriptions];
+					updated[updated.length - 1] = {
+						...updated[updated.length - 1],
+						...newTranscript,
+						text: transcriptText,
+						transcript: transcriptText,
+						time: new Date().toLocaleTimeString(),
+					};
+					return { ...prev, transcriptions: updated };
+				} else {
+					// New partial transcript - add as new entry
+					return {
+						...prev,
+						transcriptions: [
+							...transcriptions,
+							{
+								...newTranscript,
+								text: transcriptText,
+								transcript: transcriptText,
+								time: new Date().toLocaleTimeString(),
+							},
+						],
+					};
+				}
+			} else {
+				// Final transcript - update the last entry if it's a continuation, otherwise append
+				if (isContinuation) {
+					// Finalize the last entry
+					const updated = [...transcriptions];
+					updated[updated.length - 1] = {
+						...updated[updated.length - 1],
+						...newTranscript,
+						text: transcriptText,
+						transcript: transcriptText,
+						time: new Date().toLocaleTimeString(),
+						isFinal: true,
+					};
+					return { ...prev, transcriptions: updated };
+				} else {
+					// New final transcript - append as new entry
+					return {
+						...prev,
+						transcriptions: [
+							...transcriptions,
+							{
+								...newTranscript,
+								text: transcriptText,
+								transcript: transcriptText,
+								time: new Date().toLocaleTimeString(),
+								isFinal: true,
+							},
+						],
+					};
+				}
+			}
+		});
+	}, []);
+
+	// Auto-scroll to bottom when new transcripts are added
+	useEffect(() => {
+		if (transcriptContainerRef.current && info.transcriptions?.length > 0) {
+			transcriptContainerRef.current.scrollTo({
+				top: transcriptContainerRef.current.scrollHeight,
+				behavior: 'smooth',
+			});
+		}
+	}, [info.transcriptions?.length]);
+
 	const handleSocketMessage = useCallback(
 		(event) => {
 			try {
 				const msg = JSON.parse(event?.data || null);
+
 				if (msg?.event === 'transcript.received' && msg?.data) {
 					// Append new transcript data to existing list
 					setTranscriptList((prev) => [
@@ -274,12 +465,19 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					handleTranscriptionSuggestions(msg?.data);
 				} else if (msg?.event === 'transcript.done') {
 					closeRecallConnection();
+				} else if (msg?.noteTakerTranscript) {
+					// Handle noteTakerTranscript responses
+					handleSocketTranscription({
+						...msg.noteTakerTranscript,
+						isFinal: true, // Assume final since it's from server
+						id: msg.noteTakerTranscript._id || Date.now().toString(),
+					});
 				}
 			} catch (e) {
-				// ignore
+				console.error('Error in handleSocketMessage:', e);
 			}
 		},
-		[updateCurrentContext],
+		[updateCurrentContext, handleSocketTranscription],
 	);
 
 	// Derived states
@@ -716,6 +914,10 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	// Fetch historical data when component mounts
 	useEffect(() => {
 		fetchHistoricalTranscriptions();
+		// Also fetch meeting bot transcriptions if needed
+		if (type === 'meeting_bot' && showTranscriptTabs) {
+			fetchMeetingBotTranscriptions();
+		}
 	}, []);
 
 	useEffect(() => {
@@ -753,6 +955,58 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const handleInfoChange = useCallback((data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
 	}, []);
+
+	const fetchTranscriptionHistory = useCallback(
+		async (page = 1, append = false) => {
+			setInfo((prev) => ({ ...prev, transcriptionsLoading: true }));
+			try {
+				const response = await getMeetTranscriptHistory(
+					{ meetingId: meetingId || noteId, limit: 20, page },
+					append,
+				);
+				if (response?.[0]) {
+					const rawData = response[1]?.data?.listTranscriptions?.data || [];
+					const hasMore = response[1]?.data?.listTranscriptions?.hasNextPage;
+
+					// Transform the data to match UI expectations
+					const transformedData = rawData.map((item) => ({
+						...item,
+						text: item.transcript, // Map transcript to text
+						time: item.createdAt
+							? new Date(parseInt(item.createdAt) * 1000).toLocaleTimeString()
+							: '', // Convert timestamp to readable time
+						speakerName: item.speakerName || 'Note Taker', // Default speaker name
+					}));
+
+					setInfo((prev) => ({
+						...prev,
+						transcriptions: append
+							? [...(prev.transcriptions || []), ...transformedData]
+							: transformedData,
+						transcriptionsHasMore: hasMore,
+						transcriptionsPage: page,
+						transcriptionsLoading: false,
+					}));
+				} else {
+					setInfo((prev) => ({ ...prev, transcriptionsLoading: false }));
+				}
+			} catch {
+				setInfo((prev) => ({ ...prev, transcriptionsLoading: false }));
+			}
+		},
+		[meetingId, noteId],
+	);
+
+	const loadMoreTranscriptions = () => {
+		if (info.transcriptionsLoading || !info.transcriptionsHasMore) return;
+		fetchTranscriptionHistory((info.transcriptionsPage || 1) + 1, true);
+	};
+
+	useEffect(() => {
+		if (activeTab === 'transcript') {
+			fetchTranscriptionHistory(1, false);
+		}
+	}, [activeTab]);
 
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
@@ -856,27 +1110,48 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 							)}
 							{showTranscriptTabs &&
 								activeTab === 'transcript' &&
-								(type === 'meeting_bot' ? (
-									isLoadingHistory ? (
-										<div className="transcript-loading">
-											<Spinner
-												width="20px"
-												height="20px"
-												color="var(--primary-button)"
-											/>
-											<span>Loading transcriptions...</span>
-										</div>
-									) : (
-										<MeetTranscript transcriptList={transcriptList} />
-									)
-								) : type === 'desktop' ? (
-									<NoteTakerTranscript
-										sendMessage={recallSendMessage}
-										tenantId={tennantSettingsData?._id}
-										sessionId={sessionId}
-										pageId={noteId}
-									/>
-								) : null)}
+								type === 'desktop' && (
+									<div style={{ paddingBottom: 80, width: '100%' }}>
+										{info.transcriptions && info.transcriptions.length === 0 ? (
+											<div className="meet-transcript-empty">
+												No transcript yet.
+											</div>
+										) : (
+											<InfiniteScroll
+												dataLength={info.transcriptions?.length || 0}
+												next={loadMoreTranscriptions}
+												hasMore={info.transcriptionsHasMore}
+												height={'800px'}
+												style={{ width: '100%' }}
+											>
+												<div
+													className="meet-transcript-list"
+													ref={transcriptContainerRef}
+												>
+													{info.transcriptions?.map((item, idx) => (
+														<div
+															className={`meet-transcript-item`}
+															key={item._id || item.id || idx}
+														>
+															<div className="meet-transcript-meta">
+																<span className="meet-transcript-participant">
+																	{item.speakerName ||
+																		'Note Taker'}
+																</span>
+																<span className="meet-transcript-time">
+																	{item.time || ''}
+																</span>
+															</div>
+															<div className="meet-transcript-text">
+																{item.text || item.transcript || ''}
+															</div>
+														</div>
+													))}
+												</div>
+											</InfiniteScroll>
+										)}
+									</div>
+								)}
 
 							{showTranscriptTabs && activeTab === 'summary' && (
 								<MeetSummary activeTab={activeTab} pageId={noteId} />
@@ -926,6 +1201,17 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					</>
 				</div>
 			</div>
+			{/* Always render NoteTakerTranscript at the root level */}
+			{showTranscriptTabs && type === 'desktop' && (
+				<NoteTakerTranscript
+					sendMessage={recallSendMessage}
+					tenantId={tennantSettingsData?._id}
+					sessionId={sessionId}
+					pageId={noteId}
+					visible={activeTab === 'transcript'}
+					onTranscriptionUpdate={handleSocketTranscription}
+				/>
+			)}
 			<DatabaseSidebar pageId={noteId} />
 		</div>
 	);
