@@ -1,6 +1,6 @@
 import { memo, useState, useEffect, useRef, useContext, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import '../../../assets/scss/login_page/index.scss';
+import '../../../assets/scss/login_page/verification_code.scss';
 import { ReactComponent as LeftArrowBackBtn } from '../../../assets/svg/login_page/left-arrow-back-btn.svg';
 import { message } from '../globalComponents/CustomToast';
 import { getLocationsDetails } from '../../../helpers';
@@ -153,7 +153,9 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 		<div className="verification-code-container">
 			<div className="verification-code-header-container">
 				<div className="verification-code-title-container">
-					<h1 className="verification-code-title">We sent you a code</h1>
+					<h1 className="verification-code-title">
+						We sent you a <span className="verification-code-title-span">code</span>
+					</h1>
 					<p className="verification-code-subtitle">
 						A 4-digit verification code has been sent to {email}.
 					</p>
