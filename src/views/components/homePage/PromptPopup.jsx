@@ -69,6 +69,7 @@ const PromptPopup = ({
 	handleFeedbackUpdateSuccess = null,
 	feedbackMessage = '',
 	selectedFeedback = [],
+	isTrained = false,
 }) => {
 	const navigate = useNavigate();
 
@@ -391,11 +392,23 @@ const PromptPopup = ({
 						<button
 							className="runPrompt"
 							onClick={
-								info?.feedbackPopupOpen ? handleFeedbackSubmit : handleClickRun
+								info?.feedbackPopupOpen
+									? isTrained
+										? undefined
+										: handleFeedbackSubmit
+									: handleClickRun
 							}
+							style={{
+								cursor: isTrained ? 'not-allowed' : 'pointer',
+								color: isTrained ? 'var(--primary-button)' : 'var(--primary-font)',
+							}}
 						>
 							{info?.feedbackPopupOpen ? (
-								'Submit'
+								isTrained ? (
+									'Trained'
+								) : (
+									'Submit'
+								)
 							) : (
 								<>
 									Run this prompt <ArrowUpRight />

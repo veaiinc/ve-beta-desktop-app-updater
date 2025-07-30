@@ -131,6 +131,11 @@ const AIMessage = ({
 					feedbackPopupOpen={info?.feedbackPopupOpen}
 					selectedFeedback={messageData?.userFeedbackReasons}
 					handleFeedbackUpdateSuccess={handleFeedbackUpdateSuccess}
+					isTrained={
+						messageData?.rating ||
+						messageData?.userRemarks ||
+						messageData?.userFeedbackReasons?.length
+					}
 					closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
 				/>
 			)}
