@@ -185,7 +185,7 @@ const actionHandlers = {
 	RECENT_CHAT_MESSAGES_ACTIONS_REQUESTS: (state, action) => {
 		const { sessionId, removeSessionId = false, data = null } = action?.payload;
 		const selectedvariable = action?.selectedvariable;
-		let selectedvariableData = state?.[selectedvariable] || {};
+		let selectedvariableData = { ...(state?.[selectedvariable] || {}) };
 		if (removeSessionId) {
 			delete selectedvariableData[sessionId];
 		}

@@ -18,17 +18,16 @@ const TranscriptionWrapper = ({ chat, transcription, transcriptList = [] }) => {
 				right: chat || transcription ? '400px' : '0px',
 			}}
 		>
-			{!chat && (
-				<div className={styles.transcriptionWrapperButtonContainer}>
-					<button
-						className={styles.transcriptionWrapperButton}
-						onClick={onChatButtonClick}
-					>
-						Ask Ve
-					</button>
-				</div>
-			)}
-			{!transcription && <TranscriptionWidget transcriptList={transcriptList} />}
+			{/* {!chat && ( */}
+			<div className={styles.transcriptionWrapperButtonContainer}>
+				<button className={styles.transcriptionWrapperButton} onClick={onChatButtonClick}>
+					Ask Ve
+				</button>
+			</div>
+			{/* )} */}
+			{/* {!transcription && */}
+			<TranscriptionWidget transcriptList={transcriptList} />
+			{/* // } */}
 		</div>
 	);
 };
