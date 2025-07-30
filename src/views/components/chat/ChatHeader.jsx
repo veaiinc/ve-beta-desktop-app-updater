@@ -16,7 +16,7 @@ const ChatHeader = ({
 	sessionId,
 	isNewChat = false,
 	smoothScrollToParticularMessage = null,
-	showDeleteChat = true,
+	showDeleteChat = false,
 }) => {
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -269,19 +269,21 @@ const ChatHeader = ({
 										<StarSvg />
 									</button>
 								</Tooltip>
-								<Tooltip
-									title={<div className={s.tooltip}>Delete Chat</div>}
-									placement="bottom"
-									color="transparent"
-									arrow={false}
-								>
-									<button
-										className={s.deleteChatBtn}
-										onClick={handleDeleteChatClick}
+								{showDeleteChat && (
+									<Tooltip
+										title={<div className={s.tooltip}>Delete Chat</div>}
+										placement="bottom"
+										color="transparent"
+										arrow={false}
 									>
-										<DeleteSvg />
-									</button>
-								</Tooltip>
+										<button
+											className={s.deleteChatBtn}
+											onClick={handleDeleteChatClick}
+										>
+											<DeleteSvg />
+										</button>
+									</Tooltip>
+								)}
 							</>
 						)}
 					</div>
