@@ -6,7 +6,7 @@
 	position: relative;
 	max-width: 430px;
 	width: 430px;
-	height: 412px;
+	height: 500px;
 
 	.taskGlobalWidgetContainer {
 		display: flex;
@@ -212,7 +212,7 @@
 		border-radius: 0px 0px 16px 16px;
 		border-top: 1px solid var(--stroke, #2c2d2e);
 		background: var(--card-over-card-hover, #27282b);
-		max-width: 380px;
+		max-width: 430px;
 		width: 100%;
 		cursor: pointer;
 

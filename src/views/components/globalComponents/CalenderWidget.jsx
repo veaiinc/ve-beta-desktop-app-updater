@@ -13,7 +13,7 @@ import Skeleton from 'react-loading-skeleton';
 import { accessControlCheck } from '../../../helpers/accessControlCheck';
 
 const skeletonLoaders = Array?.from({ length: 6 }, (_, index) => index + 1);
-const CalenderWidget = ({ width = '100%', height = '412px' }) => {
+const CalenderWidget = ({ width = '100%', height = '500px' }) => {
 	const {
 		calendarInfo: {
 			getCalendarEventsList,
