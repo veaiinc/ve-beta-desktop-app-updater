@@ -16,7 +16,7 @@ const NotesWrapper = () => {
 	const isAiIntelligenceEnabled = searchParams.get('isAiIntelligenceEnabled');
 	const [info, setInfo] = useState({
 		modalIsOpen: true,
-		sessionId: ObjectID()?.toString(),
+		sessionId: searchParams.get('sId') || ObjectID()?.toString(),
 		showAmbientAssistance: isAiIntelligenceEnabled === 'true',
 		sidebarOpen: false,
 		chatActive: false,
@@ -28,6 +28,14 @@ const NotesWrapper = () => {
 			leftSidebarState: 'close',
 		});
 	}, []);
+
+	useEffect(() => {
+		if (info?.sessionId && info?.sessionId !== searchParams.get('sId')) {
+			const newParams = new URLSearchParams(searchParams);
+			newParams.set('sId', info?.sessionId);
+			setSearchParams(newParams, { replace: true });
+		}
+	}, [info?.sessionId]);
 
 	useEffect(() => {
 		const chat = searchParams.get('chat');

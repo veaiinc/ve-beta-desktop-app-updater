@@ -85,8 +85,13 @@ const AIMessage = ({
 	}, []);
 
 	const handlePromptClick = (prompt) => {
-		if (prompt) {
-			updateStateValues({ activePromptForChat: prompt });
+		if (prompt && sessionId) {
+			updateStateValues({
+				activePromptForChat: {
+					prompt,
+					sessionId,
+				},
+			});
 		}
 	};
 
@@ -143,7 +148,7 @@ const AIMessage = ({
 			{messageData?.moduleType === 'ai_suggestion_report' ? (
 				<AISuggestionsReportAiComponent data={messageData?.data} />
 			) : messageData?.widget_type === 'clarifyWidget' ? (
-				<ClarifyWidget data={messageData?.data} />
+				<ClarifyWidget data={messageData?.data} sessionId={sessionId} />
 			) : (
 				<Markdown citations={citations}>{text}</Markdown>
 			)}

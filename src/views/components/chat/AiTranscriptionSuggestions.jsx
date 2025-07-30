@@ -20,17 +20,12 @@ const AiTranscriptionSuggestions = ({
 	allSuggestions = [],
 }) => {
 	const {
-		templates: { aiTranscriptionSuggestions, updateStateValues },
+		templates: { updateStateValues },
 	} = useContext(Context);
 	const [searchParams, setSearchParams] = useSearchParams();
-	// const [info, setInfo] = useState({
-	// 	files: [],
-	// 	questions: [],
-	// 	actions: [],
-	// });
-	const questionsRef = useRef(null);
-	const filesRef = useRef(null);
-	const actionsRef = useRef(null);
+	const [info, setInfo] = useState({
+		sessionId: null,
+	});
 	const bodyRef = useRef(null);
 	// useEffect(() => {
 	// 	if (aiTranscriptionSuggestions) {
@@ -58,6 +53,15 @@ const AiTranscriptionSuggestions = ({
 	// 		});
 	// 	};
 	// }, []);
+
+	useEffect(() => {
+		if (searchParams.get('sId')) {
+			setInfo((prev) => ({
+				...prev,
+				sessionId: searchParams.get('sId'),
+			}));
+		}
+	}, [searchParams]);
 
 	useEffect(() => {
 		if (!bodyRef.current) return;
@@ -117,14 +121,19 @@ const AiTranscriptionSuggestions = ({
 
 	const handleActionClick = useCallback(
 		(prompt) => {
-			const newParams = new URLSearchParams(searchParams);
-			newParams.set('chat', 'true');
-			setSearchParams(newParams);
-			updateStateValues({
-				activePromptForChat: prompt,
-			});
+			if (prompt && info?.sessionId) {
+				const newParams = new URLSearchParams(searchParams);
+				newParams.set('chat', 'true');
+				setSearchParams(newParams);
+				updateStateValues({
+					activePromptForChat: {
+						prompt,
+						sessionId: info?.sessionId,
+					},
+				});
+			}
 		},
-		[updateStateValues],
+		[info?.sessionId],
 	);
 
 	const handleFileClick = useCallback((file) => {

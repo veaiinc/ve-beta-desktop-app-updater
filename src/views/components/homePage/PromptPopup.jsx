@@ -154,10 +154,16 @@ const PromptPopup = ({
 					: info.dynamicValues[part.value] || `[${part.value}]`,
 			)
 			.join('');
+		const sessionId = ObjectID()?.toString();
 
-		updateStateValues({ activePromptForChat: finalPrompt });
+		updateStateValues({
+			activePromptForChat: {
+				prompt: finalPrompt,
+				sessionId,
+			},
+		});
 		closeModal();
-		navigate(`/chat/${ObjectID().toString()}`);
+		navigate(`/chat/${sessionId}`);
 	}, [info, updateStateValues, closeModal, navigate]);
 
 	const handleFeedbackClick = (feedback) => {

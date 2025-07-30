@@ -52,7 +52,10 @@ const Suggestions = ({ landingPage = false, chatQuery = '', styles = {} }) => {
 	const handleSuggestionClick = (suggestion) => {
 		const sessionId = ObjectID()?.toString();
 		updateStateValues({
-			activePromptForChat: suggestion,
+			activePromptForChat: {
+				prompt: suggestion,
+				sessionId,
+			},
 		});
 		if (landingPage) {
 			navigate(`/c/${sessionId}`);
