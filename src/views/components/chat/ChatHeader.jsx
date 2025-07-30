@@ -5,7 +5,7 @@ import { ReactComponent as DeleteSvg } from '../../../assets/svg/delete.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 import { ReactComponent as StarSvg } from '../../../assets/svg/home_page/star.svg';
-
+import { ReactComponent as CardsThreeSvg } from '../../../assets/svg/chat/cardsThree.svg';
 import { Tooltip } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
@@ -17,6 +17,7 @@ const ChatHeader = ({
 	isNewChat = false,
 	smoothScrollToParticularMessage = null,
 	showDeleteChat = false,
+	showChats = false,
 }) => {
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -185,6 +186,10 @@ const ChatHeader = ({
 		globalChatMessages,
 	]);
 
+	const handleChatsClick = useCallback(() => {
+		navigate('/chats');
+	}, []);
+
 	return (
 		<div className={s.wrapper}>
 			<div
@@ -246,6 +251,19 @@ const ChatHeader = ({
 					</div>
 
 					<div className={s.rightContainer}>
+						{showChats && (
+							<Tooltip
+								title={<div className={s.tooltip}>Chats</div>}
+								placement="bottom"
+								color="transparent"
+								arrow={false}
+							>
+								<button className={s.chatsBtn} onClick={handleChatsClick}>
+									<CardsThreeSvg />
+								</button>
+							</Tooltip>
+						)}
+
 						{!isNewChat && (
 							<>
 								<Tooltip

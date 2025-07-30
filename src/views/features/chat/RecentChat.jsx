@@ -29,6 +29,7 @@ const RecentChat = ({
 	showDeleteChat = false,
 	animateChatBox = true,
 	showChatHistory = false,
+	showChats = false,
 }) => {
 	const {
 		templates: {
@@ -962,6 +963,7 @@ const RecentChat = ({
 							isNewChat={info?.isNewChat}
 							smoothScrollToParticularMessage={smoothScrollToParticularMessage}
 							showDeleteChat={showDeleteChat}
+							showChats={showChats}
 						/>
 					)}
 
