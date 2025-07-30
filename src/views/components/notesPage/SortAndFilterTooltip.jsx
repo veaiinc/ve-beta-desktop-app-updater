@@ -8,15 +8,17 @@ import { ReactComponent as TickIcon } from '../../../assets/svg/notesPage/tick-i
 // Constants
 
 const tooltipOverlayInnerStyle = {
-	borderRadius: '10px',
-	fontSize: '14px',
-	backgroundColor: 'var(--card)',
-	color: 'var(--primary-font)',
-	textAlign: 'center',
-	marginLeft: '8px',
-	minWidth: 'fit-content',
-	minHeight: 'fit-content',
-	padding: '0px',
+	body: {
+		borderRadius: '10px',
+		fontSize: '14px',
+		backgroundColor: 'var(--card)',
+		color: 'var(--primary-font)',
+		textAlign: 'center',
+		marginLeft: '8px',
+		minWidth: 'fit-content',
+		minHeight: 'fit-content',
+		padding: '0px',
+	},
 };
 
 export const filterOptions = [
@@ -84,7 +86,7 @@ const SortAndFilterTooltip = ({
 		}
 		placement="bottom"
 		arrow={false}
-		overlayInnerStyle={tooltipOverlayInnerStyle}
+		styles={tooltipOverlayInnerStyle}
 	>
 		{children}
 	</Tooltip>

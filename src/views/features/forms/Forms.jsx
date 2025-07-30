@@ -157,7 +157,7 @@ const Forms = () => {
 												}));
 											}
 										}}
-										overlayClassName="filterTooltipPopUpContainer"
+										classNames={{ root: 'filterTooltipPopUpContainer' }}
 										placement="bottomLeft"
 										title={
 											<FilterPopUp

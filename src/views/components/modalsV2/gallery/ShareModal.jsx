@@ -13,6 +13,11 @@ import { message } from '../../globalComponents/CustomToast';
 
 const workspaceId = localStorage.getItem('workspaceId');
 
+const styles = {
+	header: { display: 'none' },
+	body: { padding: '0px' },
+};
+
 const ShareModal = ({
 	open,
 	closeModal,
@@ -415,8 +420,7 @@ const ShareModal = ({
 			open={open}
 			width={677}
 			onClose={closeModal}
-			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
+			styles={styles}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
 		>
 			<div className="shareMainContainer">
@@ -606,7 +610,7 @@ const ShareModal = ({
 											onClick={() => handleOpenDownloadOptions('Guest')}
 										>
 											<p>
-												{galleryGuestAccessDetails?.canClientDownloadOriginals &&
+												{galleryGuestAccessDetails?.canDownloadOriginals &&
 												galleryGuestAccessDetails?.canDownloadOptimized
 													? 'Guest Download Originals , Guest Download Optimized'
 													: galleryGuestAccessDetails?.canDownloadOriginals

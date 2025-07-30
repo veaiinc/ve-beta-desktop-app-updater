@@ -61,7 +61,7 @@ const image9 = `${baseUrl}/public/Images/File9.jpg`;
 
 const services1 = `${baseUrl}/public/services/1.jpg`;
 
-const OldForm = `${baseUrl}/public/forms/old_form.png`;
+// const OldForm = `${baseUrl}/public/forms/old_form.png`;
 const LogicalForm = `${baseUrl}/public/forms/logicalform.png`;
 
 const events1 = `${baseUrl}/public/events/1.jpg`;
@@ -227,7 +227,7 @@ const services = [{ img: services1, _id: '6679683d5fa3e9d945138016' }];
 const events = [{ img: events1, _id: '6687ca4f6921b1f4711c017a' }];
 
 const form = [
-	{ img: OldForm, _id: '676a68d77dd00ba5a35ee1f9' },
+	// { img: OldForm, _id: '676a68d77dd00ba5a35ee1f9' },
 	{ img: LogicalForm, _id: '679332cc8deffd56077f9ac2' },
 ];
 

@@ -30,6 +30,17 @@ const sanitizeInput = (value) => {
 	return value;
 };
 
+const styles = {
+	header: { display: 'none' },
+	body: {
+		padding: '0px',
+		backgroundColor: 'transparent',
+		marginTop: '0px',
+		height: '100%',
+		overflow: 'hidden',
+	},
+};
+
 // Utility to normalize select values
 // const normalizeSelectValue = (value, options, field) => {
 // 	if (!options?.length) {
@@ -98,7 +109,7 @@ const EventDetailsModal = ({
 	onClose,
 }) => {
 	const {
-		calendarInfo: { updateCalendarEvent, deleteCalendarEvent } = {},
+		calendarInfo: { updateCalendarEvent, deleteCalendarEvent, getCalendarEventsList } = {},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		companyInfo: { tenantsUserList },
 	} = useContext(Context);
@@ -252,8 +263,18 @@ const EventDetailsModal = ({
 			updateSubscriptionState,
 			validateEventUpdate,
 			updateCalenderEventsList,
+			getCalendarEventsList,
 		],
 	);
+	const handleRemoveAttendee = (indexToRemove) => {
+		setInfo((prev) => ({
+			...prev,
+			eventDetails: {
+				...prev.eventDetails,
+				attendees: prev.eventDetails.attendees.filter((_, idx) => idx !== indexToRemove),
+			},
+		}));
+	};
 
 	const modifiedOnClose = useCallback(() => {
 		if (updateEventDebounceRef.current) {
@@ -367,7 +388,6 @@ const EventDetailsModal = ({
 				responseStatus: 'confirmed',
 				isWorkspaceUser: false,
 				tenantUserId: null,
-				role: null,
 			},
 		];
 
@@ -599,9 +619,7 @@ const EventDetailsModal = ({
 			onClose={modifiedOnClose}
 			width="auto"
 			open={isEventSelected}
-			styles={{ body: { padding: '0px', backgroundColor: 'transparent' } }}
-			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px', marginTop: '0px', height: '100%', overflow: 'hidden' }}
+			styles={styles}
 			placement="right"
 			closable={false}
 			className="event-details-drawer"
@@ -609,7 +627,7 @@ const EventDetailsModal = ({
 			<div
 				className="eventDetailsDrawerParentCOntainer"
 				ref={resizableContainerRef}
-				style={{ width: window.innerWidth >= 1440 ? '450px' : '380px' }}
+				style={{ width: window.innerWidth >= 1440 ? '460px' : '400px' }}
 			>
 				<div className="drag-handler" onMouseDown={handleMouseDown} />
 				<div className="innerContainer">
@@ -672,6 +690,28 @@ const EventDetailsModal = ({
 									</div>
 									<div className="attendeesValue">
 										{componentMapper?.attendees(info?.eventDetails?.attendees)}
+										<div className="attendeesList">
+											{info?.eventDetails?.attendees?.map(
+												(attendee, index) => (
+													<div key={index} className="attendee-item">
+														<span>
+															{attendee.email}{' '}
+															{attendee.role
+																? `(${attendee.role})`
+																: ''}
+														</span>
+														<button
+															onClick={() =>
+																handleRemoveAttendee(index)
+															}
+															title="Remove attendee"
+														>
+															×
+														</button>
+													</div>
+												),
+											)}
+										</div>
 									</div>
 								</div>
 								<div className="eventDetailsWrapper">

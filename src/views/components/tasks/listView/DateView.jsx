@@ -88,7 +88,7 @@ const DateView = ({
 					<Tooltip
 						title={showTitle && <div className="tooltip-inner">{title}</div>}
 						placement={placement}
-						overlayClassName="tooltip-overlay-container"
+						classNames={{ root: 'tooltip-overlay-container' }}
 						color="transparent"
 					>
 						<div className={`listItem-date ${className}`} style={customListItemStyle}>
@@ -107,7 +107,7 @@ const DateView = ({
 		<Tooltip
 			title={showTitle ? <div className="tooltip-inner">{title}</div> : ''}
 			placement="bottom"
-			overlayClassName="tooltip-overlay-container"
+			classNames={{ root: 'tooltip-overlay-container' }}
 			color="transparent"
 		>
 			<div

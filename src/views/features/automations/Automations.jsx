@@ -9,6 +9,7 @@ import { message } from '../../components/globalComponents/CustomToast';
 import Skeleton from 'react-loading-skeleton';
 import { useNavigate } from 'react-router-dom';
 import { ReactComponent as AddIcon } from '../../../assets/svg/files/add.svg';
+import { accessControlCheck } from '../../../helpers/accessControlCheck';
 
 const limit = 10;
 const append = true;
@@ -80,6 +81,7 @@ const Automations = () => {
 	};
 
 	const handleCreateAutomation = async () => {
+		if (!accessControlCheck('automation')) return;
 		if (info?.createAutomationLoading) return;
 		setInfo((prev) => ({ ...prev, createAutomationLoading: true }));
 		const response = await createAutomation({

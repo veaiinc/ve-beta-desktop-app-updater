@@ -19,6 +19,8 @@
 		font-weight: 500;
 		line-height: normal;
 		margin-bottom: 32px;
+		user-select: none; /* Prevent text selection */
+		cursor: default;
 		.title-highlight {
 			color: var(--primary-button, #cfff48);
 			font-family: var(--primary-font-family);

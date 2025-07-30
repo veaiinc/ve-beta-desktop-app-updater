@@ -8,14 +8,18 @@ let origin = fetchOriginSelection();
 const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData, previewType }) => {
 	const [info, setInfo] = useState({});
 
+	const styles = {
+		header: { display: 'none' },
+		body: { padding: '0px' },
+	};
+
 	return (
 		<Drawer
 			onClose={closeModal}
 			width={420}
 			open={modalIsOpen}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
-			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
+			styles={styles}
 		>
 			<div className="GlobalWorkflowModalParentContainer">
 				<div className="innerContainer">

@@ -13,6 +13,7 @@ import {
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { getGreeting } from '../../../helpers';
 import jwtDecode from 'jwt-decode';
+import { Tooltip } from 'antd';
 
 const getCardStyles = (index, activeIndex, dataLength) => {
 	const prev1 = (activeIndex - 1 + dataLength) % dataLength;
@@ -559,9 +560,11 @@ const NewUi = ({ handleActiveChatIndex }) => {
 				))}
 			</div>
 			<div className="active-card-title">
-				{info?.data?.[info?.activeIndex]?.title
-					? info?.data?.[info?.activeIndex]?.title
-					: ''}
+				<Tooltip title="Chat Title">
+					{info?.data?.[info?.activeIndex]?.title
+						? info?.data?.[info?.activeIndex]?.title
+						: ''}
+				</Tooltip>
 			</div>
 		</div>
 	);

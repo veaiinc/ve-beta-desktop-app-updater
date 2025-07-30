@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
   <g clip-path="url(#clip0_734_6649)">
-    <path d="M2.33398 4.08398H11.6673" stroke="#C71B3A" stroke-width="0.875" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M5.83398 6.41602V9.91602" stroke="#C71B3A" stroke-width="0.875" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M8.16602 6.41602V9.91602" stroke="#C71B3A" stroke-width="0.875" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M2.91602 4.08398L3.49935 11.084C3.49935 11.3934 3.62227 11.6901 3.84106 11.9089C4.05985 12.1277 4.3566 12.2507 4.66602 12.2507H9.33268C9.6421 12.2507 9.93885 12.1277 10.1576 11.9089C10.3764 11.6901 10.4993 11.3934 10.4993 11.084L11.0827 4.08398" stroke="#C71B3A" stroke-width="0.875" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M5.25 4.08333V2.33333C5.25 2.17862 5.31146 2.03025 5.42085 1.92085C5.53025 1.81146 5.67862 1.75 5.83333 1.75H8.16667C8.32138 1.75 8.46975 1.81146 8.57915 1.92085C8.68854 2.03025 8.75 2.17862 8.75 2.33333V4.08333" stroke="#C71B3A" stroke-width="0.875" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M2.33398 4.08398H11.6673" stroke="#C71B3A" stroke-width="0.875" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M5.83398 6.41602V9.91602" stroke="#C71B3A" stroke-width="0.875" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M8.16602 6.41602V9.91602" stroke="#C71B3A" stroke-width="0.875" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M2.91602 4.08398L3.49935 11.084C3.49935 11.3934 3.62227 11.6901 3.84106 11.9089C4.05985 12.1277 4.3566 12.2507 4.66602 12.2507H9.33268C9.6421 12.2507 9.93885 12.1277 10.1576 11.9089C10.3764 11.6901 10.4993 11.3934 10.4993 11.084L11.0827 4.08398" stroke="#C71B3A" stroke-width="0.875" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M5.25 4.08333V2.33333C5.25 2.17862 5.31146 2.03025 5.42085 1.92085C5.53025 1.81146 5.67862 1.75 5.83333 1.75H8.16667C8.32138 1.75 8.46975 1.81146 8.57915 1.92085C8.68854 2.03025 8.75 2.17862 8.75 2.33333V4.08333" stroke="#C71B3A" stroke-width="0.875" strokeLinecap="round" strokeLinejoin="round"/>
   </g>
   <defs>
     <clipPath id="clip0_734_6649">

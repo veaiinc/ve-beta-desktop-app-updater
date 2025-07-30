@@ -506,3 +506,9 @@
 	z-index: 1001;
 	transform: translateY(10%);
 }
+
+/* Make the DatePicker clear (X) button white in Events component */
+.eventsParentContainer .ant-picker-clear {
+  color: #fff !important;
+  background: transparent !important;
+}

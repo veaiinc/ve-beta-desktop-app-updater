@@ -3,6 +3,10 @@ import '../../../../assets/scss/tasks/personMultiSelect.scss';
 import { Tooltip } from 'antd';
 import PersonDropdown from '../../dropDown/tasks/PersonDropdown';
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content' },
+};
+
 const PersonMultiSelect = ({
 	value = [],
 	showTitle = false,
@@ -40,7 +44,7 @@ const PersonMultiSelect = ({
 			<Tooltip
 				title={showTitle ? <div className="tooltip-inner">{title}</div> : ''}
 				placement="bottom"
-				overlayClassName="tooltip-overlay-container"
+				classNames={{ root: 'tooltip-overlay-container' }}
 				color="transparent"
 			>
 				<Tooltip
@@ -65,8 +69,8 @@ const PersonMultiSelect = ({
 					trigger="click"
 					arrow={false}
 					color="transparent"
-					overlayStyle={{ minWidth: 'fit-content' }}
-					destroyTooltipOnHide
+					styles={tooltipStyles}
+					destroyOnHidden={true}
 				>
 					<div
 						className="person-multi-select-selected"

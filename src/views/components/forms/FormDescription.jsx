@@ -524,7 +524,7 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 							{getBasicInfo(response).length > 0 && (
 								<>
 									<div className="infoRow">
-										<h3 className="sectionTitle">Basic Information</h3>
+										<div className="sectionTitle">Basic Information</div>
 									</div>
 									{getBasicInfo(response).map((field, index) => (
 										<div key={index} className="infoRow">
@@ -540,7 +540,7 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 							)}
 						</div>
 						<div className="descriptionSection">
-							<h3 className="sectionTitle">Form Responses</h3>
+							<div className="sectionTitle">Form Responses</div>
 							<div className="formResponsesParentContainer">
 								{response?.response?.map(
 									(formData) =>

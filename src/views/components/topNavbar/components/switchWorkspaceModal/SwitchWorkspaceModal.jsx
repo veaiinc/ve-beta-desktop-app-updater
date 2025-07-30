@@ -166,20 +166,20 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 						viewBox="0 0 18 18"
 						fill="none"
 					>
-						<g clip-path="url(#clip0_171_2471)">
+						<g clipPath="url(#clip0_171_2471)">
 							<path
 								d="M2.8125 9H15.1875"
 								stroke="#79ECC9"
-								stroke-width="1.125"
-								stroke-linecap="round"
-								stroke-linejoin="round"
+								strokeWidth="1.125"
+								strokeLinecap="round"
+								strokeLinejoin="round"
 							/>
 							<path
 								d="M9 2.8125V15.1875"
 								stroke="#79ECC9"
-								stroke-width="1.125"
-								stroke-linecap="round"
-								stroke-linejoin="round"
+								strokeWidth="1.125"
+								strokeLinecap="round"
+								strokeLinejoin="round"
 							/>
 						</g>
 						<defs>
@@ -214,7 +214,9 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 										)
 									}
 									className={`${s.workspaceItem} ${
-										index === info.selectedWorkspaceIndex
+										activeWorkspaceId === currentWorkspaceId
+											? s.currentWorkspace
+											: index === info.selectedWorkspaceIndex
 											? s.selectedWorkspace
 											: ''
 									}`}

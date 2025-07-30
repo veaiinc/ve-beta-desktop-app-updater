@@ -10,6 +10,7 @@ import Spinner from '../../components/loaders/Spinner';
 const NoteTakerTranscript = ({ sendMessage, tenantId, sessionId, pageId, history }) => {
 	const { noteId } = useParams();
 	const [searchParams] = useSearchParams();
+	const meetingId = useParams()?.meetingId;
 	const type = searchParams.get('type');
 	const [transcriptions, setTranscriptions] = useState([]);
 	const scrollRef = useRef(null);
@@ -137,6 +138,7 @@ const NoteTakerTranscript = ({ sendMessage, tenantId, sessionId, pageId, history
 					tenantId={tenantId}
 					sessionId={sessionId}
 					recallPageId={pageId}
+					meetingId={meetingId}
 				/>
 			)}
 			<div>

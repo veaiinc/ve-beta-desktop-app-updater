@@ -167,8 +167,7 @@ const PromptPopup = ({
 
 	const handleFeedbackSubmit = useCallback(async () => {
 		const { selectedFeedback, feedbackMessage, feedback } = info;
-
-		if (!messageId || !feedback) {
+		if (feedback && !messageId) {
 			console.warn('Cannot submit: Missing messageId or feedback type');
 			return;
 		}
@@ -176,8 +175,8 @@ const PromptPopup = ({
 		const userFeedbackReasons =
 			selectedFeedback instanceof Set ? Array.from(selectedFeedback) : [];
 
-		if (userFeedbackReasons.length === 0 && !feedbackMessage) {
-			message.warning('Either select a feedback type or provide a message');
+		if (!feedback && !feedbackMessage) {
+			message.warning('Please provide feedback');
 			return;
 		}
 
@@ -188,18 +187,16 @@ const PromptPopup = ({
 				userRemarks: feedbackMessage,
 			};
 
-			let promise;
+			let response;
 
 			if (feedbackType === 'chatFeedback') {
-				promise = updateAiChatMessageRating(feedbackReq, messageId);
+				response = await updateAiChatMessageRating(feedbackReq, messageId);
 			} else {
-				promise = pendingActionsFeedback(messageId, feedbackReq);
+				response = await pendingActionsFeedback(messageId, feedbackReq);
 			}
 
-			const res = await promise;
-
-			if (res) {
-				if (res?.[0]) message.success('Feedback added successfully');
+			if (response?.[0]) {
+				message.success('Feedback submitted successfully.');
 			}
 
 			setInfo((prev) => ({
@@ -213,8 +210,16 @@ const PromptPopup = ({
 			closeModal();
 		} catch (error) {
 			console.error('Feedback submit error:', error);
+			message.error('An error occurred while submitting feedback.');
 		}
-	}, [info, updateAiChatMessageRating, closeModal]);
+	}, [
+		info,
+		messageId,
+		feedbackType,
+		updateAiChatMessageRating,
+		pendingActionsFeedback,
+		closeModal,
+	]);
 
 	const handleFeedbackSelect = (feedback) => {
 		setInfo((prev) => {

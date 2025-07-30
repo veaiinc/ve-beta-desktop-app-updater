@@ -550,7 +550,7 @@ const RecentChat = ({
 
 	const recentChatHandler = useCallback(
 		(inComingData, fetchMore = false, firstTimeApiCall = false) => {
-			const { data, hasNextPage, currentPage } = inComingData;
+			const { data = [], hasNextPage, currentPage } = inComingData ?? {};
 			let messages = [];
 			let chatPayload = {
 				workflowTemplateId: null,

@@ -520,6 +520,20 @@ export const Galleries = () => {
 			console.log('error==>checkAlbumSlugIsAvalible', error);
 		}
 	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/guest-access
+	const editAlbumAccessPin = async (payload, galleryId, albumSlug) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const url = `/${workspaceId}/galleries/${galleryId}/albums/${albumSlug}/guest-access`;
+			const type = 'galleries';
+
+			const response = await service.fetchPut(url, payload, usertoken, type);
+			return response;
+		} catch (error) {
+			console.log('error==>editAlbumAccessPin', error);
+		}
+	};
 	const editLockAlbum = async (payload, galleryId, albumID) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -2132,5 +2146,6 @@ export const Galleries = () => {
 		updateVideoStatus,
 		checkVideoSlugAvailability,
 		deleteVideo,
+		editAlbumAccessPin,
 	};
 };

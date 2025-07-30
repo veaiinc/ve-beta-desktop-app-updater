@@ -97,6 +97,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const { workspaceMode } = useWorkspaceMode();
 	const [searchParams] = useSearchParams();
 	const noteId = useParams()?.noteId;
+	const meetingId = useParams()?.meetingId;
 	const sessionId = noteId;
 	const type = searchParams.get('type');
 	const history = searchParams.get('history') === 'true' ? true : false;
@@ -700,7 +701,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			history !== true &&
 			type === 'meeting_bot'
 		) {
-			recallConnection(sessionId, noteId, handleSocketMessage, isAiIntelligenceEnabled);
+			recallConnection(sessionId, meetingId, handleSocketMessage, isAiIntelligenceEnabled);
 			// createLiveIntelligenceStream(
 			// 	sessionId,
 			// 	noteId,
@@ -709,7 +710,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			// );
 		} else if (showTranscriptTabs && type === 'desktop' && !history) {
 			// Connect to recall for note taker mode as well
-			recallConnection(sessionId, noteId, handleSocketMessage, isAiIntelligenceEnabled);
+			recallConnection(sessionId, meetingId, handleSocketMessage, isAiIntelligenceEnabled);
 		}
 		// No cleanup needed, useRecallStream handles it
 	}, [showTranscriptTabs, sessionId, type]);

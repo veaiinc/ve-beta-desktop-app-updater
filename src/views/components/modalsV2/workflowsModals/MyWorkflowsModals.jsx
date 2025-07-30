@@ -17,6 +17,11 @@ import { memo } from 'react';
 import SearchSvg from '../../../../assets/svg/activity/SearchSvg';
 import CrossSvg from '../../../../assets/svg/docs/CrossSvg';
 
+const styles = {
+	header: { display: 'none' },
+	body: { padding: '0px' },
+};
+
 const timeOptions = [
 	{
 		label: 'All',
@@ -290,8 +295,7 @@ const MyWorkflowsModals = ({
 			width={420}
 			open={modalIsOpen}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
-			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
+			styles={styles}
 		>
 			<div className="myWorkflowModalParentContainer">
 				<div className="innerContainer">

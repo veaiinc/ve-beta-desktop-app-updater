@@ -1,5 +1,6 @@
 // import React, { Component } from 'react';
 import './images.scss';
+
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import Images from '../../../controllers/images';
 import Masonry from 'masonry-layout';
@@ -93,6 +94,8 @@ class ImageLibrary extends Images {
 								Unsplash
 							</a>
 						</div>
+
+						<div></div>
 						{this.state.activeTab === 'l' ? (
 							<>
 								{this.state.isLoading ? (

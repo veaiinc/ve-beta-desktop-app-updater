@@ -985,8 +985,8 @@ export const getLiveKitTokenQuery = gql`
 `;
 
 export const getMeetBotDataQuery = gql`
-	query ListTranscriptionPages($input: ListTranscriptionPagesInput!) {
-		listTranscriptionPages(input: $input) {
+	query ListMeetings($limit: Int!, $page: Int!) {
+		listMeetings(limit: $limit, page: $page) {
 			totalPages
 			totalDocs
 			limit
@@ -998,18 +998,20 @@ export const getMeetBotDataQuery = gql`
 			data {
 				_id
 				title
-				icon
-				coverImage
-				permissions {
-					private
-					sharedWith {
-						userId
-						access
-					}
-				}
 				tenantId
-				createdAt
-				updatedAt
+				pageId
+				transcriptionSource
+				meetingMode
+				agenda
+				isAiIntelligenceEnabled
+				status
+				meetingPreference {
+					threshold
+					askUser
+					needHelp
+					actions
+					similarFiles
+				}
 				createdBy {
 					_id
 					name
@@ -1020,8 +1022,8 @@ export const getMeetBotDataQuery = gql`
 					name
 					email
 				}
-				isDeleted
-				transcriptionSource
+				createdAt
+				updatedAt
 			}
 		}
 	}
@@ -1036,11 +1038,36 @@ export const getMeetSummaryQuery = gql`
 `;
 
 export const meetBotCreateMutation = gql`
-	mutation Mutation($input: TranscriptionInput) {
-		startTranscription(input: $input) {
-			success
-			message
-			data
+	mutation Mutation($input: MeetingInput) {
+		startMeeting(input: $input) {
+			_id
+			title
+			tenantId
+			pageId
+			transcriptionSource
+			meetingMode
+			agenda
+			isAiIntelligenceEnabled
+			status
+			meetingPreference {
+				threshold
+				askUser
+				needHelp
+				actions
+				similarFiles
+			}
+			createdBy {
+				_id
+				name
+				email
+			}
+			updatedBy {
+				_id
+				name
+				email
+			}
+			createdAt
+			updatedAt
 		}
 	}
 `;

@@ -160,7 +160,6 @@
 			align-items: center;
 			gap: 16px;
 			border-radius: 50px;
-			border: none;
 		}
 	}
 	.deletePopupDeleteButton {
@@ -172,7 +171,10 @@
 		align-items: center;
 		gap: 16px;
 		border-radius: 50px;
-		border: none;
+		border: 1px solid var(--error);
+		background: transparent;
+		color: var(--error);
+		cursor: pointer;
 	}
 }
 

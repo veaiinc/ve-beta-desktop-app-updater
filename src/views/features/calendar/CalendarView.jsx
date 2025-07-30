@@ -12,6 +12,7 @@ import moment from 'moment';
 import EventDetailsModal from '../../components/modalsV2/calendar/EventDetailsModal';
 import EventsPopUp from '../../components/calendar/EventsPopUp';
 import { message } from '../../components/globalComponents/CustomToast';
+import { accessControlCheck } from '../../../helpers/accessControlCheck';
 
 const initialState = {
 	eventsList: [],
@@ -259,6 +260,7 @@ const CalendarView = ({
 	);
 
 	const onSelectSlot = useCallback((event) => {
+		if (!accessControlCheck('calendar')) return;
 		setInfo((prev) => ({
 			...prev,
 			isCreateEventOpen: true,
