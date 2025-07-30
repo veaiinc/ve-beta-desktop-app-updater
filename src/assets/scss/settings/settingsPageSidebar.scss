@@ -2,6 +2,7 @@
 	display: flex;
 	flex-direction: column;
 	width: 190px;
+	gap: 2px;
 	.settingsSidebarEachOption {
 		display: flex;
 		padding: 12px;
@@ -19,6 +20,12 @@
 			line-height: normal;
 			flex: 1 0 0;
 			align-self: stretch;
+		}
+		&:hover {
+			background: var(--card, #202123);
+		}
+		&.active {
+			background: var(--card-over-card, #202123);
 		}
 	}
 }

@@ -11,7 +11,7 @@ const SettingsPageSidebar = () => {
 		<div className="settingsSidebarOptions">
 			{settingsItems.map((item) => (
 				<div
-					className={`settingsSidebarEachOption ${type === item?.label ? 'active' : ''}`}
+					className={`settingsSidebarEachOption ${type === item?.value ? 'active' : ''}`}
 					onClick={() => {
 						if (item?.route) {
 							navigate(item?.route);
