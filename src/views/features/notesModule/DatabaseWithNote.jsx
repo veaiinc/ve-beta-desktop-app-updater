@@ -1112,8 +1112,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 								/>
 							)}
 							{showTranscriptTabs &&
-								activeTab === 'transcript' &&
-								type === 'desktop' && (
+								activeTab === 'transcript' && 
+								(type === 'desktop' || type === 'meeting_bot') && (
 									<div style={{ paddingBottom: 80, width: '100%' }}>
 										{info.transcriptions && info.transcriptions.length === 0 ? (
 											<div className="meet-transcript-empty">
@@ -1157,9 +1157,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 								)}
 
 							{showTranscriptTabs && activeTab === 'summary' && (
-								<MeetSummary activeTab={activeTab} pageId={noteId} />
+								<MeetSummary activeTab={activeTab} meetingId={meetingId} />
 							)}
-
 							{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
 								(activeTab === 'userQuestions' ||
 									activeTab === 'aiQuestions' ||
@@ -1176,7 +1175,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 									/>
 								)}
 
-							{(!showTranscriptTabs ||
+							{/* {(!showTranscriptTabs ||
 								(showTranscriptTabs && activeTab === 'notes')) && (
 								<Editor
 									innerContainerStyle={innerContainerStyle}
@@ -1191,9 +1190,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 									updateBlock={updateBlock}
 									deleteBlock={deleteBlock}
 								/>
-							)}
+							)} */}
 
-							{showTranscriptTabs && type === 'meeting_bot' && (
+							{showTranscriptTabs && type === 'meeting_bot' && !history && (
 								<TranscriptionWrapper
 									chat={chat}
 									transcription={transcription}

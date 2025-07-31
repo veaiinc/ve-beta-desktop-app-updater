@@ -4,26 +4,28 @@ import { Markdown } from '../../../helpers/markdownHelper';
 import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';
 
-const MeetSummary = ({ activeTab, history, pageId }) => {
+const MeetSummary = ({ activeTab, meetingId }) => {
 	const {
 		notes: { getMeetSummary, meetSummary },
 	} = useContext(Context);
-
 	const [info, setInfo] = useState({
 		summary: '',
 		loading: false,
 	});
-
 	useEffect(() => {
-		if (activeTab === 'summary' && history === true && !meetSummary) {
-			getMeetSummary({ pageId });
+		if (activeTab === 'summary' && !meetSummary) {
+			getMeetSummary({ meetingId });
 			setInfo((prev) => ({ ...prev, loading: true }));
 		}
 	}, [activeTab]);
 
 	useEffect(() => {
 		if (meetSummary) {
-			setInfo((prev) => ({ ...prev, summary: meetSummary?.summary, loading: false }));
+			setInfo((prev) => ({
+				...prev,
+				summary: meetSummary?.summary,
+				loading: false,
+			}));
 		}
 	}, [meetSummary]);
 

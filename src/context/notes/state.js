@@ -1798,12 +1798,11 @@ export const NotesState = (props) => {
 				usertoken,
 				'page_notes_api_database',
 			);
-
 			if (response?.[0]) {
 				dispatch({
 					type: Actions.GET_MEET_SUMMARY_SUCCESS,
 					payload: {
-						summary: response?.[1]?.data?.getTranscriptionSummary?.transcriptionSummary,
+						summary: response?.[1]?.data?.getMeetingSummaryAndRevampedPrompt?.transcriptionSummary,
 					},
 				});
 			} else {

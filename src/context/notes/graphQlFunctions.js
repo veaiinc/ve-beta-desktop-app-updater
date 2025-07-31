@@ -1030,11 +1030,12 @@ export const getMeetBotDataQuery = gql`
 `;
 
 export const getMeetSummaryQuery = gql`
-	query Query($pageId: ID!) {
-		getTranscriptionSummary(pageId: $pageId) {
-			transcriptionSummary
-		}
-	}
+query GetMeetingSummaryAndRevampedPrompt($meetingId: ID!) {
+  getMeetingSummaryAndRevampedPrompt(meetingId: $meetingId) {
+    transcriptionSummary
+    revampedPrompt
+  }
+}
 `;
 
 export const meetBotCreateMutation = gql`
