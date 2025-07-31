@@ -22,22 +22,22 @@ const getCardStyles = (index, activeIndex, dataLength) => {
 	const next = (activeIndex + 1) % dataLength;
 	if (index === activeIndex) {
 		return {
-			top: '18%',
+			top: '15%',
 			bottom: '0%',
 			width: '100%',
 			opacity: 1,
 		};
 	} else if (index === prev1) {
 		return {
-			top: '6%',
-			bottom: '82%',
+			top: '7%',
+			bottom: '85%',
 			width: '88%',
 			opacity: 1,
 		};
 	} else if (index === prev2 && dataLength > 4) {
 		return {
 			top: 0,
-			bottom: '94%',
+			bottom: '93%',
 			width: '75%',
 			opacity: 1,
 		};
@@ -323,7 +323,10 @@ const NewUi = ({ handleActiveChatIndex }) => {
 			const dataLength = sessions?.length;
 			setInfo((prev) => ({
 				...prev,
-				activeIndex: dataLength - 2,
+				activeIndex:
+					prev?.data?.[prev?.activeIndex]?.type === 'chatbox'
+						? dataLength - 2
+						: prev?.activeIndex,
 				dataLength,
 				data: sessions,
 				scrollDirection: null,
@@ -429,6 +432,14 @@ const NewUi = ({ handleActiveChatIndex }) => {
 		});
 	}, []);
 
+	const handleNewChat = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			activeIndex: prev?.dataLength === 1 ? 0 : prev?.dataLength - 2,
+			scrollDirection: 'down',
+		}));
+	}, []);
+
 	const userName =
 		jwtDecode(localStorage.getItem('usertoken'))?.userName ||
 		userDetailsData?.firstName + ' ' + (userDetailsData?.lastName ?? '') ||
@@ -443,128 +454,153 @@ const NewUi = ({ handleActiveChatIndex }) => {
 					height: info?.data?.length === 1 ? '60vh' : '80vh',
 				}}
 			>
-				{info?.data?.map((session, index) => (
-					<div
-						key={index}
-						className={`new-ui-item ${
-							info?.data?.length === 1 ? 'single-card' : ''
-						} ${getClassName(
-							index,
-							info?.activeIndex,
-							info?.dataLength,
-							info?.scrollDirection,
-						)}`}
-						style={
-							!info?.scrollDirection
-								? getCardStyles(index, info?.activeIndex, info?.dataLength)
-								: {}
-						}
-					>
+				{info?.data?.map((session, index) => {
+					const animationClass = getClassName(
+						index,
+						info?.activeIndex,
+						info?.dataLength,
+						info?.scrollDirection,
+					);
+					return (
 						<div
-							className="item-wrapper"
-							style={{
-								cursor:
-									index === info?.activeIndex - 1 ||
-									(info?.dataLength > 4 && index === info?.activeIndex - 2)
-										? 'pointer'
-										: 'default',
-							}}
-							onClick={() => handleActiveIndexChange(index)}
+							key={index}
+							className={`new-ui-item ${
+								info?.data?.length === 1 ? 'single-card' : ''
+							} ${animationClass}`}
+							style={
+								!info?.scrollDirection
+									? getCardStyles(index, info?.activeIndex, info?.dataLength)
+									: {}
+							}
 						>
-							{(index === info?.activeIndex - 1 ||
-								(info?.dataLength > 4 && index === info?.activeIndex - 2)) && (
-								<div className="item-title">{session?.title || 'New Chat'}</div>
-							)}
-
 							<div
-								className="item"
-								ref={(el) => {
-									if (el) {
-										el.addEventListener(
-											'wheel',
-											(e) => {
-												e.stopPropagation();
-											},
-											{ passive: false },
-										);
-									}
-								}}
+								className="item-wrapper"
 								style={{
-									...(index === info?.activeIndex && {
-										opacity: 1,
-										pointerEvents: 'auto',
-									}),
-									height: session?.type === 'chatbox' ? 'fit-content' : '100%',
+									cursor:
+										index === info?.activeIndex - 1 ||
+										(info?.dataLength > 4 && index === info?.activeIndex - 2)
+											? 'pointer'
+											: 'default',
 								}}
+								onClick={() => handleActiveIndexChange(index)}
 							>
-								{session?.type === 'chatbox' ? (
-									<div className="chatboxWrapper">
-										<div className={`title-container `}>
-											<div className="title-text">
-												<h2 className="title-one">{greeting}!</h2>
-												<span className="title-two">{userName}</span>
-											</div>
-										</div>
-										<ChatBox
-											sessionId={info?.sessionId}
-											onSend={(data) =>
-												handleCustomOnSendFunction(info?.sessionId, data)
-											}
-											customChatActions={true}
-											autoFocus={false}
-											animatePlaceholder={false}
-											showUpgradeSubscriptionBtn={false}
-											onChatQueryChange={handleChatQueryChange}
-											animateChatBox={true}
-										/>
-										<Suggestions
-											chatQuery={info?.chatQuery}
-											styles={{ backgroundColor: 'var(--card)' }}
-										/>
+								{(index === info?.activeIndex - 1 ||
+									(info?.dataLength > 4 && index === info?.activeIndex - 2)) && (
+									<div
+										className={`item-title ${
+											index === info?.activeIndex - 2 ? 'low-visibility' : ''
+										}`}
+									>
+										{session?.title || 'New Chat'}
 									</div>
-								) : (
-									<>
-										<div
-											className="fullChat"
-											onClick={() => handleExpandChat(session)}
-										>
-											<ArrowUpRightSvg />
-										</div>
-										<ChatMessages
-											sessionId={session?._id}
-											messages={session?.messages}
-										/>
-										<div className="chatBoxContainer">
+								)}
+
+								<div
+									className="item"
+									ref={(el) => {
+										if (el) {
+											el.addEventListener(
+												'wheel',
+												(e) => {
+													e.stopPropagation();
+												},
+												{ passive: false },
+											);
+										}
+									}}
+									style={{
+										...(index === info?.activeIndex && {
+											opacity: 1,
+											pointerEvents: 'auto',
+										}),
+										height:
+											session?.type === 'chatbox' ? 'fit-content' : '100%',
+									}}
+								>
+									{session?.type === 'chatbox' ? (
+										<div className="chatboxWrapper">
+											<div className={`title-container `}>
+												<div className="title-text">
+													<h2 className="title-one">{greeting}!</h2>
+													<span className="title-two">{userName}</span>
+												</div>
+											</div>
 											<ChatBox
-												sessionId={session?._id}
+												sessionId={info?.sessionId}
 												onSend={(data) =>
 													handleCustomOnSendFunction(
-														session?._id,
+														info?.sessionId,
 														data,
-														session?.agentType,
-														session?.assistantId,
 													)
 												}
 												customChatActions={true}
 												autoFocus={false}
 												animatePlaceholder={false}
 												showUpgradeSubscriptionBtn={false}
+												onChatQueryChange={handleChatQueryChange}
 												animateChatBox={true}
 											/>
+											<Suggestions
+												chatQuery={info?.chatQuery}
+												styles={{ backgroundColor: 'var(--card)' }}
+											/>
 										</div>
-									</>
-								)}
+									) : (
+										<>
+											<div
+												className="fullChat"
+												onClick={() => handleExpandChat(session)}
+											>
+												<ArrowUpRightSvg />
+											</div>
+											<ChatMessages
+												sessionId={session?._id}
+												messages={session?.messages}
+											/>
+											<div className="chatBoxContainer">
+												<ChatBox
+													sessionId={session?._id}
+													onSend={(data) =>
+														handleCustomOnSendFunction(
+															session?._id,
+															data,
+															session?.agentType,
+															session?.assistantId,
+														)
+													}
+													customChatActions={true}
+													autoFocus={false}
+													animatePlaceholder={false}
+													showUpgradeSubscriptionBtn={false}
+													animateChatBox={true}
+												/>
+											</div>
+										</>
+									)}
+								</div>
 							</div>
 						</div>
-					</div>
-				))}
+					);
+				})}
 			</div>
-			<div className="active-card-title">
-				<Tooltip title="Chat Title">
-					{info?.data?.[info?.activeIndex]?.title
-						? info?.data?.[info?.activeIndex]?.title
-						: ''}
-				</Tooltip>
+			<div className="new-ui-footer">
+				<div className="active-card-title">
+					<Tooltip title="Chat Title">
+						{info?.data?.[info?.activeIndex]?.title
+							? info?.data?.[info?.activeIndex]?.title
+							: 'New Chat'}
+					</Tooltip>
+				</div>
+				<div
+					className={`new-btn ${
+						!(info?.activeIndex === 0 || info?.activeIndex === info?.dataLength - 2)
+							? 'active'
+							: ''
+					}`}
+					onClick={handleNewChat}
+				>
+					New
+				</div>
 			</div>
 		</div>
 	);
