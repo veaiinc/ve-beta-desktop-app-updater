@@ -4,11 +4,10 @@ import '../../../assets/scss/switchWorkspace/switchWorkspaceModal.scss';
 import { ReactComponent as Close } from '../../../assets/svg/workspaceSettings/modalclose.svg';
 import { ReactComponent as Selected } from '../../../assets/svg/workspaceSettings/Selected.svg';
 import { ReactComponent as Unselected } from '../../../assets/svg/workspaceSettings/Unselected.svg';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import useLogout from '../../../hooks/useLogout';
 import { fetchDomainName, getBuisnessName } from '../../../helpers/index';
-import { useParams } from 'react-router-dom';
 const customStyles = {
 	content: {
 		top: '50%',
