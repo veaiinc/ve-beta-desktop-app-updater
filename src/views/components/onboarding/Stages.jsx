@@ -3,21 +3,12 @@ import '../../../assets/scss/onboarding/stages.scss';
 import Context from '../../../context/context';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import CustomToast, { message } from '../globalComponents/CustomToast';
-import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { ReactComponent as GreenTick } from '../../../assets/svg/onboarding/green-tick.svg';
-import { ReactComponent as UploadIcon } from '../../../assets/svg/onboarding/upload-icon.svg';
-import { Tooltip } from 'antd';
-import ToolTipContainer from '../popover/ToolTipContainer';
-import Spinner from '../loaders/Spinner';
-import WorkspaceTypeOptions from './WorkspaceTypeOptions';
-import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import { formatUsername, fetchDomainName } from '../../../helpers';
 import Cookies from 'js-cookie';
 import ThemeSelector from './ThemeSelector';
 import WorkspaceTypeInput from './WorkspaceTypeInput';
-import DomainInfoInput from './DomainInfo';
 import WorkspaceHandle from './WorkspaceHandle';
 import NameInput from './NameInput';
 import PhoneNumberInput from './PhoneNumberInput';
@@ -344,6 +335,10 @@ const Stages = ({ onNext }) => {
 
 	const handleVerifyPhoneNumber = useCallback(async () => {
 		if (info?.isPhoneNumberVerified) return;
+		if (info?.username?.trim()?.length === 0) {
+			message?.error('Please enter your name before verifying phone number');
+			return;
+		}
 		setInfo((prev) => ({ ...prev, verifyPhoneNumberLoading: true }));
 		const { username, phoneNumber } = info;
 		if (
@@ -373,9 +368,9 @@ const Stages = ({ onNext }) => {
 	}, [info?.username, info?.phoneNumber, info?.isPhoneNumberVerified]);
 
 	const handleSetOTP = useCallback(
-		(e) => {
-			let otp = e?.target?.value?.replace(/[^0-9]/g, '') ?? '';
-			if (otp?.length > 4) otp = otp?.slice(0, 4);
+		(otp) => {
+			// let otp = e?.target?.value?.replace(/[^0-9]/g, '') ?? '';
+			// if (otp?.length > 4) otp = otp?.slice(0, 4);
 			setInfo((prev) => ({ ...prev, otp }));
 		},
 		[info?.otp],
@@ -516,7 +511,8 @@ const Stages = ({ onNext }) => {
 				} else {
 					message?.success('Workspace created successfully');
 				}
-				onNext(info);
+				// onNext(info);
+				navigate('/pricing');
 			} else {
 				message?.error(response?.[1]?.message);
 			}
@@ -540,19 +536,6 @@ const Stages = ({ onNext }) => {
 	return (
 		<>
 			<div className="stageContainer">
-				{/* {info?.userDetailsLoading ? (
-					<Skeleton
-						width="300px"
-						height="17px"
-						style={{
-							'--highlight-color': 'gray',
-							'--base-color': 'transparent',
-						}}
-					/>
-				) : (
-					<h1 className="email">{emailCntxt}</h1>
-				)} */}
-
 				{/* Combined Single Stage Form */}
 				<div className="singleStage">
 					<header className="header">
@@ -563,7 +546,9 @@ const Stages = ({ onNext }) => {
 							</>
 						) : (
 							<>
-								<h1 className="title">Let's get started</h1>
+								<h1 className="title">
+									Let's get <span className="title-highlight">started</span>
+								</h1>
 								<h2 className="subtitle">Personalize your experience</h2>
 							</>
 						)}
@@ -572,34 +557,43 @@ const Stages = ({ onNext }) => {
 					<main className="singleStageContent">
 						{/* User Details Section - Only show if not in workspace creation mode */}
 						{(!isWorkspaceCreationMode || invitedUserOnboarding) && (
-							<div className="userDetailsSection">
-								<NameInput
-									userDetailsLoading={info?.userDetailsLoading}
-									username={info?.username}
-									handleSetUsername={handleSetUsername}
-									customContainerStyle={customContainerStyle}
-									contentStyling={contentStyling}
-								/>
+							<div className={`userDetailsSection`}>
+								<div
+									className={`topAnimationSection ${
+										!info?.isPhoneNumberVerified ? 'show' : ''
+									}`}
+								>
+									<NameInput
+										userDetailsLoading={info?.userDetailsLoading}
+										username={info?.username}
+										handleSetUsername={handleSetUsername}
+										customContainerStyle={customContainerStyle}
+										contentStyling={contentStyling}
+										disabled={info?.otpSent}
+									/>
 
-								<PhoneNumberInput
-									otpSent={info?.otpSent}
-									phoneNumber={info?.phoneNumber}
-									otp={info?.otp}
-									handleSetOTP={handleSetOTP}
-									verifyOtpLoader={info?.verifyOtpLoader}
-									handleResendOtp={handleResendOtp}
-									resendOtpLoading={info?.resendOtpLoading}
-									handleSetOTPSentToFalse={handleSetOTPSentToFalse}
-									userDetailsLoading={info?.userDetailsLoading}
-									isPhoneNumberVerified={info?.isPhoneNumberVerified}
-									handleSetPhoneNumber={handleSetPhoneNumber}
-									handleVerifyPhoneNumber={handleVerifyPhoneNumber}
-									verifyPhoneNumberLoading={info?.verifyPhoneNumberLoading}
-								/>
+									<PhoneNumberInput
+										otpSent={info?.otpSent}
+										phoneNumber={info?.phoneNumber}
+										otp={info?.otp}
+										handleSetOTP={handleSetOTP}
+										verifyOtpLoader={info?.verifyOtpLoader}
+										handleResendOtp={handleResendOtp}
+										resendOtpLoading={info?.resendOtpLoading}
+										handleSetOTPSentToFalse={handleSetOTPSentToFalse}
+										userDetailsLoading={info?.userDetailsLoading}
+										isPhoneNumberVerified={info?.isPhoneNumberVerified}
+										handleSetPhoneNumber={handleSetPhoneNumber}
+									/>
+								</div>
 
 								{/* Workspace Details Section */}
-								{/* {!invitedUserOnboarding && (
-									<div className="workspaceDetailsSection">
+								{!invitedUserOnboarding && (
+									<div
+										className={`workspaceDetailsSection ${
+											info?.isPhoneNumberVerified ? 'show' : ''
+										}`}
+									>
 										<WorkspaceHandle
 											companyName={info?.companyName}
 											handleSetCompanyName={handleSetCompanyName}
@@ -629,7 +623,7 @@ const Stages = ({ onNext }) => {
 											handleSetThemePreference={handleSetThemePreference}
 										/>
 									</div>
-								)} */}
+								)}
 							</div>
 						)}
 						{/* Workspace Details Section - Show for workspace creation mode */}
@@ -661,17 +655,32 @@ const Stages = ({ onNext }) => {
 				</div>
 			</div>
 			<div className="btnsContainer">
-				<button
-					style={{
-						opacity: continueBtnDisabled ? 0.4 : 1,
-						cursor: continueBtnDisabled ? 'not-allowed' : 'pointer',
-					}}
-					disabled={continueBtnDisabled}
-					className="continueBtn"
-					onClick={handleContinue}
-				>
-					{isWorkspaceCreationMode ? 'Create Workspace' : 'Continue'}
-				</button>
+				{!info?.isPhoneNumberVerified && !info?.otpSent && (
+					<button
+						style={{
+							opacity: info?.verifyPhoneNumberLoading ? 0.5 : 1,
+							cursor: info?.verifyPhoneNumberLoading ? 'not-allowed' : 'pointer',
+						}}
+						disabled={info?.verifyPhoneNumberLoading}
+						className="continueBtn"
+						onClick={handleVerifyPhoneNumber}
+					>
+						{info?.verifyPhoneNumberLoading ? 'Verifying...' : 'Verify Number by OTP'}
+					</button>
+				)}
+				{info?.isPhoneNumberVerified && (
+					<button
+						style={{
+							opacity: continueBtnDisabled ? 0.4 : 1,
+							cursor: continueBtnDisabled ? 'not-allowed' : 'pointer',
+						}}
+						disabled={continueBtnDisabled}
+						className="continueBtn"
+						onClick={handleContinue}
+					>
+						{isWorkspaceCreationMode ? 'Create Workspace' : 'Continue'}
+					</button>
+				)}
 			</div>
 			<CustomToast />
 		</>

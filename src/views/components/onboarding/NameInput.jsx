@@ -1,15 +1,9 @@
 import { memo } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
-const NameInput = ({
-	userDetailsLoading,
-	username,
-	handleSetUsername,
-	customContainerStyle,
-	contentStyling,
-}) => {
+const NameInput = ({ userDetailsLoading, username, handleSetUsername, disabled }) => {
 	return (
-		<div className="nameInputContainer">
+		<div className={`nameInputContainer ${disabled ? 'disabled' : ''}`}>
 			<p className="question">What is your name?</p>
 			{userDetailsLoading ? (
 				<Skeleton
@@ -24,6 +18,7 @@ const NameInput = ({
 			) : (
 				<div className="nameInputAndProfilePictureContainer">
 					<input
+						disabled={disabled}
 						className="nameInput"
 						value={username}
 						onChange={handleSetUsername}

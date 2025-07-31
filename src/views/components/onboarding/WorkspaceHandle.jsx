@@ -2,7 +2,10 @@ import { Tooltip } from 'antd';
 import { memo } from 'react';
 import DomainInfo from './DomainInfo';
 import ToolTipContainer from '../popover/ToolTipContainer';
+import InfoToolTip from './InfoToolTip';
 
+const workspaceHandleInfoText =
+	'This is your workspace’s unique identity across Ve.ai like your team’s online home.';
 const WorkspaceHandle = ({
 	companyName,
 	handleSetCompanyName,
@@ -15,7 +18,9 @@ const WorkspaceHandle = ({
 }) => {
 	return (
 		<div className="companyNameContainer">
-			<p className="question">Name of your Workspace handle?</p>
+			<p className="question">
+				Name of your Workspace handle? <InfoToolTip text={workspaceHandleInfoText} />
+			</p>
 			<div className="companyNameAndLogoInputs">
 				<input
 					className="companyNameInput"
@@ -24,7 +29,7 @@ const WorkspaceHandle = ({
 					value={companyName}
 					onChange={handleSetCompanyName}
 				/>
-				<Tooltip
+				{/* <Tooltip
 					title={
 						<ToolTipContainer
 							customContainerStyle={customContainerStyle}
@@ -46,7 +51,7 @@ const WorkspaceHandle = ({
 								onChange={handleSetCompanyLogo}
 								className="companyLogoInput"
 							/>
-							{/* {info?.companyLogo ? (
+							{info?.companyLogo ? (
                     <img
                         className="companyLogo"
                         src={info?.companyLogo}
@@ -54,10 +59,10 @@ const WorkspaceHandle = ({
                     />
                 ) : (
                     <UploadIcon />
-                )} */}
+                )}
 						</label>
 					</div>
-				</Tooltip>
+				</Tooltip> */}
 			</div>
 			<DomainInfo
 				workspaceHandle={workspaceHandle}

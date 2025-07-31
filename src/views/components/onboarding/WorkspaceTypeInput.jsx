@@ -1,6 +1,10 @@
 import { Tooltip } from 'antd';
 import { memo } from 'react';
 import WorkspaceTypeOptions from './WorkspaceTypeOptions';
+import InfoToolTip from './InfoToolTip';
+
+const workspaceTypeInfoText =
+	'Describe the kind of work your team does. This helps us tailor features, agents, and suggestions for you.';
 
 const WorkspaceTypeInput = ({
 	workspaceTypeContainerOpen,
@@ -12,7 +16,9 @@ const WorkspaceTypeInput = ({
 }) => {
 	return (
 		<div className="workspaceTypeContainer">
-			<p className="question">Your workspace type?</p>
+			<p className="question">
+				Your workspace type? <InfoToolTip text={workspaceTypeInfoText} />
+			</p>
 			<Tooltip
 				open={workspaceTypeContainerOpen}
 				trigger={[]}
