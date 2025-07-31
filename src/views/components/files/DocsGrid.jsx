@@ -88,7 +88,6 @@ const DocsGrid = ({
 	setViewMode,
 }) => {
 	const navigate = useNavigate();
-	console.log(statusTextmapper);
 	const {
 		templates: { getDocsFilesList, docsFilesList, updateStateValues, docsFilesRefetch },
 		profileInfo: { tennantSettingsData },
@@ -599,7 +598,6 @@ const DocsGrid = ({
 							subtitle={
 								'Start by creating a document, image, or media to keep everything in one place.'
 							}
-							buttonOnClick={handleCreateDoc}
 							buttonText={'Create Document'}
 							showUpload={false}
 						/>
