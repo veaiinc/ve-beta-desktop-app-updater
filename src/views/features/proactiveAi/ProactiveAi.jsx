@@ -83,11 +83,17 @@ const ProactiveAi = () => {
 			chatPrompt += `Title : ${proactiveAiData?.title}\n\n`;
 			chatPrompt += `Description : ${proactiveAiData?.description}\n\n`;
 			chatPrompt += `Prompt : ${prompt}`;
+			const sessionId = ObjectID()?.toString();
 
-			updateStateValues({ activePromptForChat: chatPrompt });
-			navigate(`/chat/${ObjectID()?.toString()}`);
+			updateStateValues({
+				activePromptForChat: {
+					prompt: chatPrompt,
+					sessionId,
+				},
+			});
+			navigate(`/chat/${sessionId}`);
 		},
-		[proactiveAiData, updateStateValues, navigate],
+		[proactiveAiData],
 	);
 
 	const handleViewReportClick = useCallback(
@@ -161,9 +167,14 @@ const ProactiveAi = () => {
 
 			prompt = `\n\nThese are answers of your questions:\n${answersText}\n`;
 		}
-
-		updateStateValues({ activePromptForChat: prompt });
-		navigate(`/chat/${ObjectID()?.toString()}`);
+		const sessionId = ObjectID()?.toString();
+		updateStateValues({
+			activePromptForChat: {
+				prompt,
+				sessionId,
+			},
+		});
+		navigate(`/chat/${sessionId}`);
 	};
 
 	const handleTabClick = (tab) => {

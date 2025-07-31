@@ -393,14 +393,28 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 		const calendarCategory = (info.calendarCategories || []).find((cat) => cat.type === 'all');
 
 		for (const event of checkedEvents) {
+			// Format date if it's in YYYYMMDD format
+			const formatDateString = (dateStr) => {
+				if (
+					typeof dateStr === 'number' ||
+					(typeof dateStr === 'string' && /^\d{8}$/.test(dateStr))
+				) {
+					const str = dateStr.toString();
+					return `${str.slice(0, 4)}-${str.slice(4, 6)}-${str.slice(6, 8)}`;
+				}
+				return dateStr;
+			};
+
+			// Convert date format if needed
+			const formattedDate = formatDateString(event.date);
+
 			// Use startDate and endDate from event (already in YYYY-MM-DD format)
-			const startDate = event.startDate || event.date || getToday();
-			const endDate = event.endDate || event.date || getToday();
+			const startDate = event.startDate || formattedDate || getToday();
+			const endDate = event.endDate || formattedDate || getToday();
 
 			// Create dates in Asia/Calcutta timezone to avoid UTC conversion issues
 			const startDateTime = dayjs.tz(startDate, 'Asia/Calcutta').startOf('day').format();
 			const endDateTime = dayjs.tz(endDate, 'Asia/Calcutta').endOf('day').format();
-			console.log('event===>', event.date, event.startDateTime, event.endDateTime);
 
 			const payload = {
 				title: event.title,
@@ -409,8 +423,11 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 				startDateTime:
 					event.startDateTime !== false && event.startDateTime
 						? event.startDateTime
-						: event.date || startDateTime,
-				endDateTime: event.endDateTime,
+						: formattedDate || startDateTime,
+				endDateTime:
+					event.startDateTime !== false && event.startDateTime
+						? event.startDateTime
+						: formattedDate || endDateTime,
 				timezone: 'Asia/Calcutta',
 				allDay: true,
 				calendarCategory: calendarCategory || null,

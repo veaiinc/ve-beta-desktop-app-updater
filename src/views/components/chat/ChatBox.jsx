@@ -23,7 +23,7 @@ import UploadFileTooltip from './UploadFileTooltip';
 import DateRangeDropdown from './DateRangeDropdown';
 import moment from 'moment';
 import { Image, Spin, Tooltip } from 'antd';
-import AIMessageLoader from './AIMessageLoader';
+// import AIMessageLoader from './AIMessageLoader';
 import WebSvg from '../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../assets/svg/ai_agents/bookSvg';
 import useUpdatedVoiceIntegration from '../../../hooks/useUpdatedVoiceIntegration';
@@ -36,12 +36,13 @@ import RecentFileTooltip from './RecentFileTooltip';
 import AskTooltip from './AskTooltip';
 import AddOnCards from '../settings/planbilling/addOnCards';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
-import VoiceWrapper from '../../layouts/VoiceWrapper';
+// import VoiceWrapper from '../../layouts/VoiceWrapper';
 
 const moduleHelper = {
 	tasks: 'tasks',
 	'smart-file': 'form_filling',
 	calendar: 'calendar',
+	meet: 'meet',
 };
 
 const initialChatFilters = {
@@ -330,8 +331,12 @@ const ChatBox = ({
 	}, [globalChatMessages, info?.chatSessionId]);
 
 	useEffect(() => {
-		if (activePromptForChat && info?.chatSessionId) {
-			handleSendMessageFunc(null, true, activePromptForChat);
+		if (
+			activePromptForChat &&
+			info?.chatSessionId &&
+			activePromptForChat?.sessionId === info?.chatSessionId
+		) {
+			handleSendMessageFunc(null, true, activePromptForChat?.prompt);
 			updateStateValues({ activePromptForChat: null });
 		}
 	}, [activePromptForChat, info?.chatSessionId]);
@@ -739,7 +744,7 @@ const ChatBox = ({
 					}
 
 					if (routeName === 'meet') {
-						payload.module_id = params?.noteId;
+						payload.module_id = params?.meetingId;
 					}
 
 					let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));

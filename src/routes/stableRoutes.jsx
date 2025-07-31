@@ -7,8 +7,8 @@ import AuthWrapper from '../views/layouts/authWrapper';
 
 // pages
 // import InitialHomePage from '../views/features/homePage/InitialHomePage';
-import MeetBot from '../views/features/meetBot/meetBot';
-import NotesWrapper from '../views/features/notesModule/NotesWrapper';
+// import MeetBot from '../views/features/meetBot/meetBot';
+// import NotesWrapper from '../views/features/notesModule/NotesWrapper';
 
 // lazy loaded pages
 const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
@@ -16,6 +16,7 @@ const SettingsWrapper = lazy(() => import('../views/features/settings/SettingsWr
 const RecentChat = lazy(() => import('../views/features/chat/RecentChat'));
 const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
 const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
+const NotesWrapper = lazy(() => import('../views/features/notesModule/NotesWrapper'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
@@ -109,7 +110,7 @@ const stableRoutes = [
 				maxWidth="100%"
 			>
 				<Suspense fallback={<SuspenseFallback />}>
-					<RecentChat showChatHistory={true} />
+					<RecentChat showChatHistory={true} showDeleteChat={true} showChats={true} />
 				</Suspense>
 			</AuthWrapper>
 		),
@@ -147,10 +148,12 @@ const stableRoutes = [
 		),
 	},
 	{
-		path: '/meet/:noteId',
+		path: '/meet/:noteId/:meetingId',
 		element: (
 			<AuthWrapper title={'Meet'}>
-				<NotesWrapper />
+				<Suspense fallback={<SuspenseFallback />}>
+					<NotesWrapper />
+				</Suspense>
 			</AuthWrapper>
 		),
 	},

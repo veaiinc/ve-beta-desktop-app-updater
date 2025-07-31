@@ -985,8 +985,8 @@ export const getLiveKitTokenQuery = gql`
 `;
 
 export const getMeetBotDataQuery = gql`
-	query ListTranscriptionPages($input: ListTranscriptionPagesInput!) {
-		listTranscriptionPages(input: $input) {
+	query ListMeetings($limit: Int!, $page: Int!) {
+		listMeetings(limit: $limit, page: $page) {
 			totalPages
 			totalDocs
 			limit
@@ -998,18 +998,20 @@ export const getMeetBotDataQuery = gql`
 			data {
 				_id
 				title
-				icon
-				coverImage
-				permissions {
-					private
-					sharedWith {
-						userId
-						access
-					}
-				}
 				tenantId
-				createdAt
-				updatedAt
+				pageId
+				transcriptionSource
+				meetingMode
+				agenda
+				isAiIntelligenceEnabled
+				status
+				meetingPreference {
+					threshold
+					askUser
+					needHelp
+					actions
+					similarFiles
+				}
 				createdBy {
 					_id
 					name
@@ -1020,27 +1022,53 @@ export const getMeetBotDataQuery = gql`
 					name
 					email
 				}
-				isDeleted
-				transcriptionSource
+				createdAt
+				updatedAt
 			}
 		}
 	}
 `;
 
 export const getMeetSummaryQuery = gql`
-	query Query($pageId: ID!) {
-		getTranscriptionSummary(pageId: $pageId) {
-			transcriptionSummary
-		}
-	}
+query GetMeetingSummaryAndRevampedPrompt($meetingId: ID!) {
+  getMeetingSummaryAndRevampedPrompt(meetingId: $meetingId) {
+    transcriptionSummary
+    revampedPrompt
+  }
+}
 `;
 
 export const meetBotCreateMutation = gql`
-	mutation Mutation($input: TranscriptionInput) {
-		startTranscription(input: $input) {
-			success
-			message
-			data
+	mutation Mutation($input: MeetingInput) {
+		startMeeting(input: $input) {
+			_id
+			title
+			tenantId
+			pageId
+			transcriptionSource
+			meetingMode
+			agenda
+			isAiIntelligenceEnabled
+			status
+			meetingPreference {
+				threshold
+				askUser
+				needHelp
+				actions
+				similarFiles
+			}
+			createdBy {
+				_id
+				name
+				email
+			}
+			updatedBy {
+				_id
+				name
+				email
+			}
+			createdAt
+			updatedAt
 		}
 	}
 `;
@@ -1055,8 +1083,8 @@ export const deleteLiveKitRoomMutation = gql`
 `;
 
 export const getMeetTranscriptHistoryQuery = gql`
-	query ListTranscriptions($pageId: ID!, $limit: Int!, $page: Int!) {
-		listTranscriptions(pageId: $pageId, limit: $limit, page: $page) {
+	query ListTranscriptions($meetingId: ID!, $limit: Int!, $page: Int!) {
+		listTranscriptions(meetingId: $meetingId, limit: $limit, page: $page) {
 			totalPages
 			totalDocs
 			limit
@@ -1068,7 +1096,7 @@ export const getMeetTranscriptHistoryQuery = gql`
 			data {
 				_id
 				tenantId
-				pageId
+				meetingId
 				speakerName
 				transcript
 				transcriptionSource
@@ -1129,6 +1157,29 @@ export const updateDatabaseViewMutation = gql`
 			updatedAt
 			createdBy
 			updatedBy
+		}
+	}
+`;
+
+export const getAiLiveIntelligenceHistoryQuery = gql`
+	query ListAiIntelligence($meetingId: ID!, $limit: Int!, $page: Int!) {
+		listAiIntelligence(meetingId: $meetingId, limit: $limit, page: $page) {
+			totalPages
+			totalDocs
+			limit
+			currentPage
+			hasNextPage
+			hasPrevPage
+			prevPage
+			nextPage
+			data {
+				_id
+				tenantId
+				meetingId
+				response
+				createdAt
+				updatedAt
+			}
 		}
 	}
 `;

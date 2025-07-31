@@ -95,7 +95,7 @@ const ActiveChatIndication = ({ activeChatIndex }) => {
 					loading={chatLoadingSessions}
 				/>
 			}
-			placement="right"
+			placement="center"
 			color="transparent"
 		>
 			<div className={s.activeChatIndication}>

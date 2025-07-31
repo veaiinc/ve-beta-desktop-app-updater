@@ -5,12 +5,13 @@
 	align-items: center;
 	justify-content: center;
 	flex-direction: column;
-	padding: 1rem;
+	gap: 24px;
+	padding: 24px;
 
 	.new-ui-wrapper {
 		width: 100%;
 		max-width: 1500px;
-		height: 80vh;
+		flex-grow: 1;
 		overflow: hidden;
 		position: relative;
 		display: flex;
@@ -21,8 +22,8 @@
 		.new-ui-item {
 			position: absolute;
 			background-color: var(--card);
-			border-radius: 24px;
-			margin: 0.5rem 30px 0 30px;
+			border-radius: 32px;
+			margin: 12px 30px 0 30px;
 			color: var(--primary-font);
 			display: flex;
 			flex-direction: column;
@@ -32,20 +33,26 @@
 			overflow: hidden;
 
 			&.single-card {
-				top: 0 !important;
+				top: 10% !important;
 				bottom: 0 !important;
 				margin: 0 !important;
 			}
 
 			.item-title {
 				width: 100%;
-				font-size: 15px;
-				font-weight: 400;
+				font-size: 14px;
+				font-weight: 500;
 				color: var(--primary-font);
 				position: absolute;
 				display: flex;
 				align-items: center;
 				justify-content: center;
+				transition: opacity 0.2s ease;
+
+				&.low-visibility {
+					opacity: 0.5;
+					color: var(--secondary-font);
+				}
 			}
 
 			.item-wrapper {
@@ -208,20 +215,56 @@
 		}
 	}
 
-	.active-card-title {
+	.new-ui-footer {
+		display: flex;
+		max-width: 1500px;
 		width: 100%;
-		font-size: 15px;
-		font-weight: 600;
-		color: var(--primary-font);
-		margin-top: 1rem;
-		height: 18px;
+		justify-content: space-between;
+		align-items: center;
+		height: 45px;
+
+		.active-card-title {
+			width: 100%;
+			font-size: 16px;
+			font-weight: 500;
+			color: var(--primary-font);
+			height: 18px;
+		}
+
+		.new-btn {
+			display: flex;
+			width: 125px;
+			padding: 12px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			flex-shrink: 0;
+			border-radius: 24px;
+			border: 1px solid var(--primary-button, #79ecc9);
+			cursor: pointer;
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity 0.2s ease;
+
+			color: var(--primary-button, #79ecc9);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+
+			&.active {
+				opacity: 1;
+				pointer-events: auto;
+			}
+		}
 	}
 }
 
 @keyframes card0__from__bottom {
 	from {
 		top: 0;
-		bottom: 94%;
+		bottom: 93%;
 		width: 75%;
 		opacity: 1;
 	}
@@ -234,14 +277,14 @@
 }
 @keyframes card1__from__bottom {
 	from {
-		top: 6%;
-		bottom: 82%;
+		top: 7%;
+		bottom: 85%;
 		width: 88%;
 		opacity: 1;
 	}
 	to {
 		top: 0;
-		bottom: 94%;
+		bottom: 93%;
 		width: 75%;
 		opacity: 1;
 	}
@@ -256,7 +299,7 @@
 	}
 	to {
 		top: 0;
-		bottom: 94%;
+		bottom: 93%;
 		width: 75%;
 		opacity: 1;
 	}
@@ -264,14 +307,14 @@
 
 @keyframes card2__from__bottom {
 	from {
-		top: 18%;
+		top: 15%;
 		bottom: 0%;
 		width: 100%;
 		opacity: 1;
 	}
 	to {
-		top: 6%;
-		bottom: 82%;
+		top: 7%;
+		bottom: 85%;
 		width: 88%;
 		opacity: 1;
 	}
@@ -280,13 +323,13 @@
 @keyframes card2__from__top {
 	from {
 		top: 0;
-		bottom: 94%;
+		bottom: 93%;
 		width: 75%;
 		opacity: 1;
 	}
 	to {
-		top: 6%;
-		bottom: 82%;
+		top: 7%;
+		bottom: 85%;
 		width: 88%;
 		opacity: 1;
 	}
@@ -300,7 +343,7 @@
 		opacity: 0.25;
 	}
 	to {
-		top: 18%;
+		top: 15%;
 		bottom: 0%;
 		width: 100%;
 		opacity: 1;
@@ -309,13 +352,13 @@
 
 @keyframes card3__from__top {
 	from {
-		top: 6%;
-		bottom: 82%;
+		top: 7%;
+		bottom: 85%;
 		width: 88%;
 		opacity: 1;
 	}
 	to {
-		top: 18%;
+		top: 15%;
 		bottom: 0%;
 		width: 100%;
 		opacity: 1;
@@ -324,7 +367,7 @@
 
 @keyframes card4__from__top {
 	from {
-		top: 18%;
+		top: 15%;
 		bottom: 0%;
 		width: 100%;
 		opacity: 1;

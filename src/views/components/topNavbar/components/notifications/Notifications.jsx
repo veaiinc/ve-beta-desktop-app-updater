@@ -36,9 +36,9 @@ const Notifications = () => {
 				<h2 className={s.title}>Notifications</h2>
 			</header>
 			{notificationsLoading ? (
-				<p>Loading...</p>
+				<p className={s.loadingText}>Loading...</p>
 			) : emptyNotifications ? (
-				<p>No notifications found!</p>
+				<p className={s.emptyText}>No notifications found!</p>
 			) : (
 				<InfiniteScroll
 					dataLength={notificationsLength}

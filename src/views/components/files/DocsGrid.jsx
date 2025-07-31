@@ -22,6 +22,7 @@ import SuspenseFallback from '../globalComponents/SuspenseFallback';
 import ListViewIcon from '../../../assets/svg/notesPage/ListViewIcon';
 import CardsViewIcon from '../../../assets/svg/notesPage/CardsViewIcon';
 import { ReactComponent as Link } from '../../../assets/svg/files/link.svg';
+import { accessControlCheck } from '../../../helpers/accessControlCheck';
 // import { ReactComponent as Copy } from '../../../assets/svg/files/copy.svg';
 // import { ReactComponent as Share } from '../../../assets/svg/files/share.svg';
 const DocumentShortPreview = lazy(() =>
@@ -81,14 +82,12 @@ const docsCtaMapper = [
 
 const DocsGrid = ({
 	statusTextmapper,
-	handleCreateDoc,
 	handleTotalChange,
 	clientId = null,
 	viewMode,
 	setViewMode,
 }) => {
 	const navigate = useNavigate();
-
 	const {
 		templates: { getDocsFilesList, docsFilesList, updateStateValues, docsFilesRefetch },
 		profileInfo: { tennantSettingsData },
@@ -438,13 +437,7 @@ const DocsGrid = ({
 							{viewMode === 'list' ? (
 								<div
 									className="card-item create"
-									onClick={
-										handleCreateDoc
-											? handleCreateDoc
-											: () => {
-													navigate('/builder/create-document');
-											  }
-									}
+									onClick={() => navigate('/builder/create-document')}
 								>
 									<div className="card-item-style card-item-style-btn docs-list-create-row">
 										<DocIcon className="create-doc-icon" />
@@ -461,13 +454,7 @@ const DocsGrid = ({
 							) : (
 								<div
 									className="card-item create"
-									onClick={
-										handleCreateDoc
-											? handleCreateDoc
-											: () => {
-													navigate(`/builder/create-document`);
-											  }
-									}
+									onClick={() => navigate('/builder/create-document')}
 								>
 									<div className="card-item-style card-item-style-btn">
 										<button className="card-btn">
@@ -611,7 +598,6 @@ const DocsGrid = ({
 							subtitle={
 								'Start by creating a document, image, or media to keep everything in one place.'
 							}
-							buttonOnClick={handleCreateDoc}
 							buttonText={'Create Document'}
 							showUpload={false}
 						/>

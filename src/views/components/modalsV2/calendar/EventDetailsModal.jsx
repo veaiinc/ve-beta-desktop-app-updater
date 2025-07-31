@@ -109,7 +109,7 @@ const EventDetailsModal = ({
 	onClose,
 }) => {
 	const {
-		calendarInfo: { updateCalendarEvent, deleteCalendarEvent } = {},
+		calendarInfo: { updateCalendarEvent, deleteCalendarEvent, getCalendarEventsList } = {},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		companyInfo: { tenantsUserList },
 	} = useContext(Context);
@@ -263,8 +263,18 @@ const EventDetailsModal = ({
 			updateSubscriptionState,
 			validateEventUpdate,
 			updateCalenderEventsList,
+			getCalendarEventsList,
 		],
 	);
+	const handleRemoveAttendee = (indexToRemove) => {
+		setInfo((prev) => ({
+			...prev,
+			eventDetails: {
+				...prev.eventDetails,
+				attendees: prev.eventDetails.attendees.filter((_, idx) => idx !== indexToRemove),
+			},
+		}));
+	};
 
 	const modifiedOnClose = useCallback(() => {
 		if (updateEventDebounceRef.current) {
@@ -378,7 +388,6 @@ const EventDetailsModal = ({
 				responseStatus: 'confirmed',
 				isWorkspaceUser: false,
 				tenantUserId: null,
-				role: null,
 			},
 		];
 
@@ -400,10 +409,13 @@ const EventDetailsModal = ({
 			),
 			startDateTime: (value) => (
 				<DateView
-					value={moment(value).unix()}
+					value={moment(value).isValid() ? moment(value).unix() : null}
 					showTime={true}
 					onOptionClick={(value) => {
-						updateEventDetails('startDateTime', moment.unix(value).toISOString());
+						const date = moment.unix(value);
+						if (date.isValid()) {
+							updateEventDetails('startDateTime', date.toISOString());
+						}
 					}}
 					className="dateInput"
 					format="MMMM DD, YYYY hh:mm A"
@@ -412,10 +424,13 @@ const EventDetailsModal = ({
 			),
 			endDateTime: (value) => (
 				<DateView
-					value={moment(value).unix()}
+					value={moment(value).isValid() ? moment(value).unix() : null}
 					showTime={true}
 					onOptionClick={(value) => {
-						updateEventDetails('endDateTime', moment.unix(value).toISOString());
+						const date = moment.unix(value);
+						if (date.isValid()) {
+							updateEventDetails('endDateTime', date.toISOString());
+						}
 					}}
 					className="dateInput"
 					format="MMMM DD, YYYY hh:mm A"
@@ -537,10 +552,7 @@ const EventDetailsModal = ({
 				/>
 			),
 			createdAt: (value) => {
-				// Ensure the value is a valid timestamp (in milliseconds or seconds)
-				const timestamp = Number(value);
-				const isSeconds = timestamp < 10000000000; // If timestamp is small, assume it's in seconds
-				const date = isSeconds ? moment.unix(timestamp) : moment(timestamp);
+				const date = moment(value);
 				const formattedDate = date.isValid() ? date.format('DD-MM-YYYY hh:mm A') : '-';
 				return (
 					<CustomInput
@@ -552,10 +564,7 @@ const EventDetailsModal = ({
 				);
 			},
 			updatedAt: (value) => {
-				// Ensure the value is a valid timestamp (in milliseconds or seconds)
-				const timestamp = Number(value);
-				const isSeconds = timestamp < 10000000000; // If timestamp is small, assume it's in seconds
-				const date = isSeconds ? moment.unix(timestamp) : moment(timestamp);
+				const date = moment(value);
 				const formattedDate = date.isValid() ? date.format('DD-MM-YYYY hh:mm A') : '-';
 				return (
 					<CustomInput
@@ -618,7 +627,7 @@ const EventDetailsModal = ({
 			<div
 				className="eventDetailsDrawerParentCOntainer"
 				ref={resizableContainerRef}
-				style={{ width: window.innerWidth >= 1440 ? '450px' : '380px' }}
+				style={{ width: window.innerWidth >= 1440 ? '460px' : '400px' }}
 			>
 				<div className="drag-handler" onMouseDown={handleMouseDown} />
 				<div className="innerContainer">
@@ -681,6 +690,28 @@ const EventDetailsModal = ({
 									</div>
 									<div className="attendeesValue">
 										{componentMapper?.attendees(info?.eventDetails?.attendees)}
+										<div className="attendeesList">
+											{info?.eventDetails?.attendees?.map(
+												(attendee, index) => (
+													<div key={index} className="attendee-item">
+														<span>
+															{attendee.email}{' '}
+															{attendee.role
+																? `(${attendee.role})`
+																: ''}
+														</span>
+														<button
+															onClick={() =>
+																handleRemoveAttendee(index)
+															}
+															title="Remove attendee"
+														>
+															×
+														</button>
+													</div>
+												),
+											)}
+										</div>
 									</div>
 								</div>
 								<div className="eventDetailsWrapper">

@@ -21,6 +21,7 @@ import { triggerCmdK } from '../../components/commandKSearch/CommandKSearch';
 import { ReactComponent as AddIcon } from '../../../assets/svg/files/add.svg';
 import NotesPage from '../notesPage/NotesPage';
 import NotesGrid from '../../components/files/NotesGrid';
+import { accessControlCheck } from '../../../helpers/accessControlCheck';
 
 const options = [
 	{
@@ -54,6 +55,16 @@ const options = [
 ];
 
 export const statusTextmapper = {
+	contractSigned: {
+		id: 'contractSigned',
+		text: 'Accepted',
+		dotStyle: {
+			backgroundColor: '#00A051',
+		},
+		style: {
+			backgroundColor: '#2C593F',
+		},
+	},
 	filesViewed: {
 		id: 'filesViewed',
 		text: 'Files Viewed',
@@ -382,7 +393,8 @@ const Files = () => {
 			navigate(`/galleries/${gallery?._id}`, { state: { galleryData: gallery } });
 		}
 	};
-	const handleCreateNewGallery = () => {
+	const handleCreateNewGallery = (type) => {
+		if (!accessControlCheck(type)) return;
 		setInfo({
 			...info,
 			createNewGalleryModal: true,
@@ -659,7 +671,6 @@ const Files = () => {
 		Documents: (
 			<DocsGrid
 				statusTextmapper={statusTextmapper}
-				handleCreateDoc={() => (window.location.href = `/builder/create-document`)}
 				handleTotalChange={(value) => handleTotalChange({ workflow: value })}
 				viewMode={info?.viewMode}
 				setViewMode={setViewMode}
@@ -670,6 +681,7 @@ const Files = () => {
 				statusTextmapper={statusTextmapper}
 				handleNavigateForm={handleNavigateForm}
 				handleCreateForm={() => {
+					if (!accessControlCheck('form')) return;
 					const sessionId = ObjectID().toHexString();
 					updateTemplateStateValues({ activeInputForChat: 'Create a form for ' });
 					navigate(`/chat/${sessionId}`);
@@ -681,7 +693,7 @@ const Files = () => {
 		),
 		Gallery: (
 			<GalleryGrid
-				handleCreateNewGallery={handleCreateNewGallery}
+				handleCreateNewGallery={() => handleCreateNewGallery('classicGallery')}
 				handleNavigateGallery={handleNavigateGallery}
 				selectedOption={info?.selectedView}
 				handleTotalChange={(value) => handleTotalChange({ classicGallery: value })}
@@ -692,7 +704,7 @@ const Files = () => {
 		'Lite Gallery': (
 			<GalleryGrid
 				tenantGalleries={tenantGalleries}
-				handleCreateNewGallery={handleCreateNewGallery}
+				handleCreateNewGallery={() => handleCreateNewGallery('liteGallery')}
 				handleNavigateGallery={handleNavigateGallery}
 				selectedOption={info?.selectedView}
 				handleTotalChange={(value) => handleTotalChange({ liteGallery: value })}

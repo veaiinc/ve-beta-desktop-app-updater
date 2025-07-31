@@ -11,6 +11,16 @@
 	right: -12px;
 	position: absolute;
 
+	.loadingText {
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: normal;
+		text-align: center;
+	}
+
 	.notificationsHeader {
 		display: flex;
 		padding: 12px;

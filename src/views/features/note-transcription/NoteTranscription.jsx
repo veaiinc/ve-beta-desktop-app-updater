@@ -25,6 +25,7 @@ export default function NoteTranscription({
 	tenantId,
 	sessionId,
 	recallPageId,
+	meetingId,
 }) {
 	const wsUrl = 'wss://ve-ai-transcriptions-8p8k0b44.livekit.cloud';
 	const [liveKitToken, setLiveKitToken] = useState(null);
@@ -128,17 +129,25 @@ export default function NoteTranscription({
 	// Function to send transcription to recall socket
 	const sendTranscriptionToRecall = useCallback(
 		(transcriptionData) => {
-			if(transcriptionData.isFinal && sendMessage && tenantId && sessionId && recallPageId){
-			if ( sendMessage && tenantId && sessionId && recallPageId) {
-				const message = {
-					tenantId,
-					sessionId,
-					pageId: recallPageId,
-					speakerName: '',
-					transcript: transcriptionData.displayedText,
-					description: '',
-				};
-				sendMessage({ noteTakerTranscript: message });
+			if (
+				transcriptionData.isFinal &&
+				sendMessage &&
+				tenantId &&
+				sessionId &&
+				recallPageId &&
+				meetingId
+			) {
+				if (sendMessage && tenantId && sessionId && recallPageId) {
+					const message = {
+						tenantId,
+						sessionId,
+						pageId: recallPageId,
+						meetingId: meetingId,
+						speakerName: '',
+						transcript: transcriptionData.displayedText,
+						description: '',
+					};
+					sendMessage({ noteTakerTranscript: message });
 				}
 			}
 		},
@@ -253,15 +262,20 @@ export default function NoteTranscription({
 						text: segment.text,
 						isFinal: segment.final,
 					});
+
 					// Call updateTranscription with the correct format
 					const transcriptionData = {
 						id: segment.id,
 						displayedText: segment.text,
 						isFinal: segment.final,
 					};
-					debouncedUpdateTranscription(updateTranscription, transcriptionData);
 
-					// Send transcription to recall socket for live intelligence
+					// Only send to parent if it's a final transcript
+					if (segment.final) {
+						debouncedUpdateTranscription(updateTranscription, transcriptionData);
+					}
+
+					// Send transcription to recall socket for live intelligence (always send)
 					sendTranscriptionToRecall(transcriptionData);
 				}
 			}

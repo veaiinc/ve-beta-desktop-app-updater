@@ -8,7 +8,8 @@
 	border-radius: 16px;
 	background-color: var(--navbar);
 	border: 1px solid var(--stroke);
-
+	position: relative;
+	left: 103px;
 	.chatList {
 		width: 100%;
 		display: flex;

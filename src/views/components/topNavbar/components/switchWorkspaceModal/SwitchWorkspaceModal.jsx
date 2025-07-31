@@ -109,7 +109,10 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 	return (
 		<ReactModal
 			isOpen={isOpen}
-			closeModal={closeWorkspaceModal}
+			closeModal={() => {
+				closeWorkspaceModal();
+				setInfo(intialState);
+			}}
 			modalType={'center'}
 			customStyles={customStyles}
 		>
@@ -156,7 +159,10 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 					</div>
 				)}
 				<button
-					onClick={() => navigate('/create-workspace')}
+					onClick={() => {
+						closeWorkspaceModal();
+						navigate('/create-workspace');
+					}}
 					className={s.createWorkspaceButton}
 				>
 					<svg
@@ -214,7 +220,9 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 										)
 									}
 									className={`${s.workspaceItem} ${
-										index === info.selectedWorkspaceIndex
+										activeWorkspaceId === currentWorkspaceId
+											? s.currentWorkspace
+											: index === info.selectedWorkspaceIndex
 											? s.selectedWorkspace
 											: ''
 									}`}

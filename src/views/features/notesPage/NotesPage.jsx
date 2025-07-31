@@ -1,11 +1,11 @@
-import { memo, useContext, useEffect, useState, useCallback } from 'react';
+import { memo, useContext, useEffect, useState, useCallback, lazy, Suspense } from 'react';
 import '../../../assets/scss/notesPage/notesPage.scss';
 // import QuickActions from '../../components/globalComponents/QuickActions';
 import jwtDecode from 'jwt-decode';
 // Components
 import ViewModeSortFilter from '../../components/notesPage/ViewModeSortFilter';
-import CardsViewNotes from '../../components/notesPage/CardsViewNotes';
-import ListViewNotes from '../../components/notesPage/ListViewNotes';
+const CardsViewNotes = lazy(() => import('../../components/notesPage/CardsViewNotes'));
+const ListViewNotes = lazy(() => import('../../components/notesPage/ListViewNotes'));
 import Context from '../../../context/context';
 import { useSearchParams } from 'react-router-dom';
 import Spinner from '../../components/loaders/Spinner';
@@ -114,61 +114,62 @@ const NotesPage = ({ isDatabase = false }) => {
 
 	return (
 		<div className="notesPageContainer">
-			<ViewModeSortFilter
-				viewMode={info.viewMode}
-				setViewMode={(viewMode) => setInfo((prev) => ({ ...prev, viewMode }))}
-				setSelectedFilter={setSelectedFilter}
-				setSelectedSort={setSelectedSort}
-				setSearchQuery={setSearchQuery}
-				setLoading={setLoading}
-				loading={info?.loading}
-				selectedFilter={info?.selectedFilter}
-				selectedSort={info?.selectedSort}
-				isDatabase={isDatabase}
-			/>
-			{info?.initialLoader ? (
-				<div className="notes-list-loader-container">
-					<Spinner
-						width="18px"
-						height="18px"
-						color="var(--primary-button)"
-						borderWidth={1.5}
-					/>
-				</div>
-			) : notes?.data?.length == 0 ? (
-				<div className="notes-list-loader-container">No notes found</div>
-			) : (
-				<div
-					className={`notesContainer ${
-						info.viewMode === 'cards'
-							? 'cardsView'
-							: info.viewMode === 'list'
-							? 'listView'
-							: ''
-					}`}
-				>
-					{info.viewMode === 'cards' ? (
-						<CardsViewNotes
-							notes={notes}
-							fetchMoreNotes={fetchNotes}
-							setSelectedFilter={setSelectedFilter}
-							setSelectedSort={setSelectedSort}
-							userId={info?.userId}
-							isDatabase={isDatabase}
+			<Suspense fallback={<SuspenseFallback />}>
+				<ViewModeSortFilter
+					viewMode={info.viewMode}
+					setViewMode={(viewMode) => setInfo((prev) => ({ ...prev, viewMode }))}
+					setSelectedFilter={setSelectedFilter}
+					setSelectedSort={setSelectedSort}
+					setSearchQuery={setSearchQuery}
+					setLoading={setLoading}
+					loading={info?.loading}
+					selectedFilter={info?.selectedFilter}
+					selectedSort={info?.selectedSort}
+					isDatabase={isDatabase}
+				/>
+				{info?.initialLoader ? (
+					<div className="notes-list-loader-container">
+						<Spinner
+							width="18px"
+							height="18px"
+							color="var(--primary-button)"
+							borderWidth={1.5}
 						/>
-					) : info.viewMode === 'list' ? (
-						<ListViewNotes
-							notes={notes}
-							fetchMoreNotes={fetchNotes}
-							setSelectedFilter={setSelectedFilter}
-							setSelectedSort={setSelectedSort}
-							userId={info?.userId}
-							isDatabase={isDatabase}
-						/>
-					) : null}
-				</div>
-			)}
-
+					</div>
+				) : notes?.data?.length == 0 ? (
+					<div className="notes-list-loader-container">No notes found</div>
+				) : (
+					<div
+						className={`notesContainer ${
+							info.viewMode === 'cards'
+								? 'cardsView'
+								: info.viewMode === 'list'
+								? 'listView'
+								: ''
+						}`}
+					>
+						{info.viewMode === 'cards' ? (
+							<CardsViewNotes
+								notes={notes}
+								fetchMoreNotes={fetchNotes}
+								setSelectedFilter={setSelectedFilter}
+								setSelectedSort={setSelectedSort}
+								userId={info?.userId}
+								isDatabase={isDatabase}
+							/>
+						) : info.viewMode === 'list' ? (
+							<ListViewNotes
+								notes={notes}
+								fetchMoreNotes={fetchNotes}
+								setSelectedFilter={setSelectedFilter}
+								setSelectedSort={setSelectedSort}
+								userId={info?.userId}
+								isDatabase={isDatabase}
+							/>
+						) : null}
+					</div>
+				)}
+			</Suspense>
 			{/* <QuickActions /> */}
 		</div>
 	);

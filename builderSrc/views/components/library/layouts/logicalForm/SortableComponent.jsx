@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import Draggable from 'react-draggable';
-import * as GoogleFonts from 'google-fonts-complete';
+// import * as GoogleFonts from 'google-fonts-complete';
 import { Popover } from 'antd';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -140,7 +140,7 @@ const SortableComponent = ({
 	const [activeTab, setActiveTab] = useState('question'); // Add this line
 	const inlineDropdownRef = useRef(null);
 	const addButtonRef = useRef(null);
-	const fontFamilies = Object.keys(GoogleFonts).sort((a, b) => a.localeCompare(b));
+	// const fontFamilies = Object.keys(GoogleFonts).sort((a, b) => a.localeCompare(b));
 
 	useEffect(() => {
 		// Load font if field has a custom font set
@@ -802,9 +802,9 @@ const SortableComponent = ({
 
 	// Single handler for all option selections
 	const [showOtherInput, setShowOtherInput] = useState(false);
-const [otherValue, setOtherValue] = useState('');
+	const [otherValue, setOtherValue] = useState('');
 
-const handleOptionSelect = (selectedOption) => {
+	const handleOptionSelect = (selectedOption) => {
 		// Only allow selection in preview or client mode
 		if (isPreview || client) {
 			const newAnswer =
@@ -818,7 +818,7 @@ const handleOptionSelect = (selectedOption) => {
 
 			setLocalAnswer(newAnswer);
 			debouncedAnswerChange(field.id, newAnswer, _id);
-			
+
 			// Show input field when "Other" is selected
 			if (selectedOption === 'Other' && field.hasOtherOption) {
 				setShowOtherInput(true);
@@ -1643,12 +1643,12 @@ const handleOptionSelect = (selectedOption) => {
 	const isLastQuestion = field.order === Math.max(...blocks.map((b) => b.order));
 
 	// Add this helper function
-	const getFilteredFonts = () => {
-		if (!fontSearchQuery) return fontFamilies;
-		return fontFamilies.filter((font) =>
-			font?.toLowerCase().includes(fontSearchQuery?.toLowerCase()),
-		);
-	};
+	// const getFilteredFonts = () => {
+	// 	if (!fontSearchQuery) return fontFamilies;
+	// 	return fontFamilies.filter((font) =>
+	// 		font?.toLowerCase().includes(fontSearchQuery?.toLowerCase()),
+	// 	);
+	// };
 
 	// Generate a stable key for this field instance
 	const [instanceKey] = useState(() => Math.random().toString(36));
@@ -4735,31 +4735,52 @@ const handleOptionSelect = (selectedOption) => {
 																					f.id ===
 																					field.id
 																				) {
-																					const newField = {
-																						...f,
-																						hasOtherOption:
-																							!f.hasOtherOption,
-																					};
-																					if (!f.hasOtherOption) {
+																					const newField =
+																						{
+																							...f,
+																							hasOtherOption:
+																								!f.hasOtherOption,
+																						};
+																					if (
+																						!f.hasOtherOption
+																					) {
 																						// Add 'Other' option if it doesn't exist
-																						newField.options = [
-																							...(f.options || []),
-																							'Other',
-																						];
+																						newField.options =
+																							[
+																								...(f.options ||
+																									[]),
+																								'Other',
+																							];
 																					} else {
 																						// Remove 'Other' option if it exists
-																						newField.options = f.options.filter(
-																							(opt) =>
-																								opt !== 'Other',
-																						);
-																						// Also remove it from answers if selected
-																						if (Array.isArray(newField.answer)) {
-																							newField.answer = newField.answer.filter(
-																								(ans) =>
-																									ans !== 'Other',
+																						newField.options =
+																							f.options.filter(
+																								(
+																									opt,
+																								) =>
+																									opt !==
+																									'Other',
 																							);
-																						} else if (newField.answer === 'Other') {
-																							newField.answer = '';
+																						// Also remove it from answers if selected
+																						if (
+																							Array.isArray(
+																								newField.answer,
+																							)
+																						) {
+																							newField.answer =
+																								newField.answer.filter(
+																									(
+																										ans,
+																									) =>
+																										ans !==
+																										'Other',
+																								);
+																						} else if (
+																							newField.answer ===
+																							'Other'
+																						) {
+																							newField.answer =
+																								'';
 																						}
 																					}
 																					return newField;
@@ -5439,14 +5460,21 @@ const handleOptionSelect = (selectedOption) => {
 													: 'Other';
 												onAnswerChange(field.id, newValue, _id);
 												// Show input field when "Other" is selected
-												if (newValue === 'Other' || (Array.isArray(newValue) && newValue.includes('Other'))) {
+												if (
+													newValue === 'Other' ||
+													(Array.isArray(newValue) &&
+														newValue.includes('Other'))
+												) {
 													setShowOtherInput(true);
 													setOtherValue('');
 												} else {
 													setShowOtherInput(false);
 													setOtherValue('');
 												}
-												console.log('Other clicked, showOtherInput:', showOtherInput);
+												console.log(
+													'Other clicked, showOtherInput:',
+													showOtherInput,
+												);
 											}}
 											style={{
 												padding: '10px 12px',
@@ -5580,7 +5608,7 @@ const handleOptionSelect = (selectedOption) => {
 												newValue = option;
 											}
 											onAnswerChange(field.id, newValue, _id);
-											
+
 											// Show input field when "Other" is selected
 											if (option === 'Other' && field.hasOtherOption) {
 												setShowOtherInput(true);
@@ -5589,7 +5617,9 @@ const handleOptionSelect = (selectedOption) => {
 											} else {
 												setShowOtherInput(false);
 												setOtherValue('');
-												console.log('Non-Other option selected, hiding input field');
+												console.log(
+													'Non-Other option selected, hiding input field',
+												);
 											}
 										}
 									}}
@@ -5773,47 +5803,71 @@ const handleOptionSelect = (selectedOption) => {
 			)}
 
 			{/* Add Other option input field - only show in client mode */}
-			{client && showOtherInput && field.hasOtherOption && (field.type === 'singlechoice' || field.type === 'multiplechoice') && (
-				<div style={{
-					marginTop: '12px',
-					marginBottom: '16px',
-					width: windowWidth <= 768 ? '305px' : '712px',
-					position: 'relative',
-					zIndex: 1,
-				}}>
-					<div style={{
-						position: 'relative',
-						display: 'flex',
-						alignItems: 'center',
-						width: '100%',
-					}}>
-						<input
-							type="text"
-							value={otherValue}
-							onChange={(e) => {
-								const value = e.target.value;
-								setOtherValue(value);
-								// Update the answer with the Other option value
-								const newAnswer = field.type === 'multiplechoice'
-									? [...(Array.isArray(localAnswer) ? localAnswer.filter(a => !a.startsWith('Other:')) : []), value ? `Other: ${value}` : 'Other']
-									: value ? `Other: ${value}` : 'Other';
-								debouncedAnswerChange(field.id, newAnswer, _id);
-								console.log('Other input changed:', value, 'newAnswer:', newAnswer);
-							}}
-							placeholder="Please specify..."
+			{client &&
+				showOtherInput &&
+				field.hasOtherOption &&
+				(field.type === 'singlechoice' || field.type === 'multiplechoice') && (
+					<div
+						style={{
+							marginTop: '12px',
+							marginBottom: '16px',
+							width: windowWidth <= 768 ? '305px' : '712px',
+							position: 'relative',
+							zIndex: 1,
+						}}
+					>
+						<div
 							style={{
+								position: 'relative',
+								display: 'flex',
+								alignItems: 'center',
 								width: '100%',
-								padding: '12px 16px',
-								border: '1px solid #E0E0E0',
-								borderRadius: '8px',
-								fontSize: '16px',
-								fontFamily: optionFont || 'Inter',
-								outline: 'none',
-								backgroundColor: 'white',
-								color: field?.question?.match(/color:\s*(.*?)[;"]/)?.[1] || '#1A1A1A',
 							}}
-						/>
-						{/* <span style={{
+						>
+							<input
+								type="text"
+								value={otherValue}
+								onChange={(e) => {
+									const value = e.target.value;
+									setOtherValue(value);
+									// Update the answer with the Other option value
+									const newAnswer =
+										field.type === 'multiplechoice'
+											? [
+													...(Array.isArray(localAnswer)
+														? localAnswer.filter(
+																(a) => !a.startsWith('Other:'),
+														  )
+														: []),
+													value ? `Other: ${value}` : 'Other',
+											  ]
+											: value
+											? `Other: ${value}`
+											: 'Other';
+									debouncedAnswerChange(field.id, newAnswer, _id);
+									console.log(
+										'Other input changed:',
+										value,
+										'newAnswer:',
+										newAnswer,
+									);
+								}}
+								placeholder="Please specify..."
+								style={{
+									width: '100%',
+									padding: '12px 16px',
+									border: '1px solid #E0E0E0',
+									borderRadius: '8px',
+									fontSize: '16px',
+									fontFamily: optionFont || 'Inter',
+									outline: 'none',
+									backgroundColor: 'white',
+									color:
+										field?.question?.match(/color:\s*(.*?)[;"]/)?.[1] ||
+										'#1A1A1A',
+								}}
+							/>
+							{/* <span style={{
 							position: 'absolute',
 							left: '12px',
 							display: 'flex',
@@ -5826,9 +5880,9 @@ const handleOptionSelect = (selectedOption) => {
 						}}>
 							{String.fromCharCode(65 + (field.options?.length || 0))}
 						</span> */}
+						</div>
 					</div>
-				</div>
-			)}
+				)}
 
 			{![
 				'multiplechoice',

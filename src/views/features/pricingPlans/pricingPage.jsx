@@ -205,9 +205,7 @@ const PricingPage = () => {
 								{info.selectedPlanId === plan._id && plan?.isSeatBasedPlan && (
 									<div className="quantitySelectorContainer">
 										<span className="quantitySelectorOptionsCount">
-											{info.tenantUsersCount[plan._id] ||
-												currentPlan?.tenantUsers ||
-												1}
+											{info.tenantUsersCount[plan._id] || 1}
 										</span>
 										<span
 											onClick={() => decreaseTenantUsersCount(plan._id)}

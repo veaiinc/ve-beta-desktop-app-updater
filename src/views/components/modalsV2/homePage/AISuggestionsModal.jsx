@@ -160,12 +160,18 @@ const AISuggestionsModal = ({
 			chatPrompt += `Title : ${data?.title}\n\n`;
 			chatPrompt += `Description : ${data?.description}\n\n`;
 			chatPrompt += `Prompt : ${prompt}`;
+			const sessionId = ObjectID()?.toString();
 
 			if (typeof updateStateValues === 'function') {
-				updateStateValues({ activePromptForChat: chatPrompt });
+				updateStateValues({
+					activePromptForChat: {
+						prompt: chatPrompt,
+						sessionId,
+					},
+				});
 			}
 			onClose?.();
-			navigate(`/chat/${ObjectID()?.toString()}`);
+			navigate(`/chat/${sessionId}`);
 		},
 		[data],
 	);
@@ -173,7 +179,10 @@ const AISuggestionsModal = ({
 	const handleActionClick = useCallback((prompt, proactiveSessionId) => {
 		const sessionId = ObjectID()?.toString();
 		updateStateValues({
-			activePromptForChat: prompt,
+			activePromptForChat: {
+				prompt,
+				sessionId,
+			},
 			proactiveInfoForChat: {
 				isProactive: true,
 				proactiveSessionId,
@@ -236,9 +245,15 @@ const AISuggestionsModal = ({
 
 			prompt = `\n\nThese are answers of your questions:\n${answersText}\n`;
 		}
+		const sessionId = ObjectID()?.toString();
 
-		updateStateValues({ activePromptForChat: prompt });
-		navigate(`/chat/${ObjectID()?.toString()}`);
+		updateStateValues({
+			activePromptForChat: {
+				prompt,
+				sessionId,
+			},
+		});
+		navigate(`/chat/${sessionId}`);
 	};
 
 	const handlePrevCardClick = () => {

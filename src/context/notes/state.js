@@ -63,6 +63,7 @@ import {
 	meetBotCreateMutation,
 	deleteLiveKitRoomMutation,
 	getMeetTranscriptHistoryQuery,
+	getAiLiveIntelligenceHistoryQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -88,6 +89,7 @@ export const intialState = {
 	existingBots: null,
 	meetSummary: null,
 	transcriptionList: [],
+	aiLiveIntelligenceHistory: null,
 };
 
 export const NotesState = (props) => {
@@ -1752,10 +1754,8 @@ export const NotesState = (props) => {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 			const payload = {
-				input: {
-					page,
-					limit,
-				},
+				page,
+				limit,
 			};
 			const response = await service.query(
 				getMeetBotDataQuery,
@@ -1765,9 +1765,9 @@ export const NotesState = (props) => {
 				'page_notes_api_database',
 			);
 			if (response?.[0]) {
-				const currentPageBotsList = response?.[1]?.data?.listTranscriptionPages?.data;
-				const currentPage = response?.[1]?.data?.listTranscriptionPages?.currentPage;
-				const hasNextPage = response?.[1]?.data?.listTranscriptionPages?.hasNextPage;
+				const currentPageBotsList = response?.[1]?.data?.listMeetings?.data;
+				const currentPage = response?.[1]?.data?.listMeetings?.currentPage;
+				const hasNextPage = response?.[1]?.data?.listMeetings?.hasNextPage;
 
 				const payload = {
 					data: append
@@ -1798,12 +1798,11 @@ export const NotesState = (props) => {
 				usertoken,
 				'page_notes_api_database',
 			);
-
 			if (response?.[0]) {
 				dispatch({
 					type: Actions.GET_MEET_SUMMARY_SUCCESS,
 					payload: {
-						summary: response?.[1]?.data?.getTranscriptionSummary?.transcriptionSummary,
+						summary: response?.[1]?.data?.getMeetingSummaryAndRevampedPrompt?.transcriptionSummary,
 					},
 				});
 			} else {
@@ -1889,6 +1888,47 @@ export const NotesState = (props) => {
 			}
 		} catch (error) {
 			console.error('error==>getMeetTranscriptHistory', error);
+		}
+	};
+
+	const getAiLiveIntelligenceHistory = async (payload, append = false) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getAiLiveIntelligenceHistoryQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api_database',
+			);
+			if (response?.[0]) {
+				const currentPageAiIntelligenceList = response?.[1]?.data?.listAiIntelligence?.data;
+				const currentPage = response?.[1]?.data?.listAiIntelligence?.currentPage;
+				const hasNextPage = response?.[1]?.data?.listAiIntelligence?.hasNextPage;
+				const totalPages = response?.[1]?.data?.listAiIntelligence?.totalPages;
+
+				const payload = {
+					data: append
+						? [
+								...(state?.aiLiveIntelligenceHistory?.data || []),
+								...currentPageAiIntelligenceList,
+						  ]
+						: currentPageAiIntelligenceList,
+					hasNextPage,
+					currentPage,
+					totalPages,
+				};
+
+				dispatch({
+					type: Actions.GET_AI_LIVE_INTELLIGENCE_HISTORY_SUCCESS,
+					payload,
+				});
+
+				return response;
+			}
+		} catch (error) {
+			console.error('error==>getAiLiveIntelligenceHistory', error);
 		}
 	};
 
@@ -1997,5 +2037,6 @@ export const NotesState = (props) => {
 		updateStateValues,
 		getMeetingPreferences,
 		updateMeetingPreferences,
+		getAiLiveIntelligenceHistory,
 	};
 };

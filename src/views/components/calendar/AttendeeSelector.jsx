@@ -241,17 +241,8 @@ const AttendeeSelector = ({ options, value = [], onChange, className }) => {
 				ref={selectRef}
 				mode="multiple"
 				variant="borderless"
-				value={info.formattedValues}
 				options={info.formattedOptions}
 				onChange={handleChange}
-				onSearch={handleSearch}
-				searchValue={searchValue}
-				placeholder=" "
-				tagRender={tagRender}
-				optionRender={optionRender}
-				dropdownRender={dropdownRender}
-				optionFilterProp="label"
-				showSearch
 				open={isDropdownOpen}
 				onDropdownVisibleChange={(visible) => {
 					setIsDropdownOpen(visible);
@@ -260,16 +251,21 @@ const AttendeeSelector = ({ options, value = [], onChange, className }) => {
 					(option?.label?.toLowerCase() || '').includes(input.toLowerCase()) ||
 					(option?.email?.toLowerCase() || '').includes(input.toLowerCase())
 				}
+				optionRender={optionRender}
 				getPopupContainer={(trigger) => trigger?.parentNode}
 				dropdownStyle={{
 					maxHeight: '200px',
-					overflowY: 'auto',
-					overflowX: 'hidden',
 					color: 'var(--primary-font)',
 				}}
 				notFoundContent={null}
 				showArrow={false}
-				style={{ width: '100%' }}
+				value={undefined}
+				suffixIcon={null}
+				showSearch
+				onSearch={(value) => {
+					setSearchValue(value);
+				}}
+				searchValue={searchValue}
 			/>
 		</div>
 	);
