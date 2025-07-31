@@ -80,7 +80,7 @@ body {
 	-webkit-font-smoothing: antialiased;
 	margin: 0;
 	scroll-behavior: smooth;
-	overscroll-behavior: none;
+	// overscroll-behavior: none; // unable to reload the page when user swipes down in mobile
 
 	/* Enhanced smooth scrolling */
 	scroll-snap-type: y proximity;
