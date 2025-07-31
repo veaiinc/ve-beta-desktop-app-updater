@@ -23,9 +23,6 @@ const PhoneNumberInput = ({
 	const otpArray = useMemo(() => otp?.split('')?.concat(Array(4).fill(''))?.slice(0, 4), [otp]);
 	return (
 		<div className={`phoneNumberInputContainer ${!isPhoneNumberVerified ? 'show' : ''}`}>
-			{/* {otpSent || true ? ( */}
-
-			{/* ) : ( */}
 			<div className={`phoneInputContainer ${otpSent ? 'disabled' : ''}`}>
 				<p className="question">
 					Enter your phone number <InfoToolTip text={infoText} />
@@ -76,7 +73,6 @@ const PhoneNumberInput = ({
 					<CustomOtp
 						otp={otpArray}
 						setOtp={(otpArray) => handleSetOTP(otpArray.join(''))}
-						// onComplete={(otpStr) => handleSetOTP(otpStr)}
 						error={''}
 					/>
 				</div>
@@ -103,7 +99,6 @@ const PhoneNumberInput = ({
 					)}
 				</div>
 			</div>
-			{/* )} */}
 		</div>
 	);
 };
