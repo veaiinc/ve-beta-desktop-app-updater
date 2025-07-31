@@ -18,6 +18,8 @@ import { ReactComponent as DarkMode } from './assets/dark-mode.svg';
 import { ReactComponent as NotificationsSvg } from './assets/notification.svg';
 import { ReactComponent as ShareAndEarnSvg } from './assets/share-and-earn.svg';
 import CreditsLeftSvg from '../sidebar/chatHistory/CreditsLeftSvg';
+import CreditsLeft from './components/creditsLeft/CreditsLeft';
+import AddOnCards from '../settings/planbilling/addOnCards';
 
 const tooltipStyle = {
 	padding: 8,
@@ -105,6 +107,8 @@ const TopNavbar = () => {
 		showNotifications: false,
 		filesTooltipOpen: false,
 		toolsTooltipOpen: false,
+		addOnCardsModalOpen: false,
+		creditsLeftTooltipOpen: false,
 	});
 
 	const { firstName, lastName, dp_s3_500w_key, googleMeta } = userDetailsData;
@@ -190,13 +194,25 @@ const TopNavbar = () => {
 			label: 'Credits Left',
 			icon: (
 				<Tooltip
+					open={info.creditsLeftTooltipOpen}
+					onOpenChange={() =>
+						setInfo((prev) => ({
+							...prev,
+							creditsLeftTooltipOpen: !prev.creditsLeftTooltipOpen,
+						}))
+					}
 					title={
-						<div style={tooltipStyle}>
-							{Math.round(
-								currentPlan?.totalAiCreditLimit - currentPlan?.totalAiCreditUsed,
-							)}{' '}
-							Credits Left
-						</div>
+						<CreditsLeft
+							totalAiCreditLimit={currentPlan?.totalAiCreditLimit}
+							totalAiCreditUsed={currentPlan?.totalAiCreditUsed}
+							openAddOnCardsModal={() =>
+								setInfo((prev) => ({
+									...prev,
+									addOnCardsModalOpen: true,
+									creditsLeftTooltipOpen: false,
+								}))
+							}
+						/>
 					}
 					placement="bottom"
 					arrow={false}
@@ -484,11 +500,19 @@ const TopNavbar = () => {
 
 	return (
 		!hideTopNavbar && (
-			<nav className={s.topNavbarContainer}>
-				{navItems.map((navItem) => {
-					return <Fragment key={navItem.id}>{navItem.element}</Fragment>;
-				})}
-			</nav>
+			<>
+				<nav className={s.topNavbarContainer}>
+					{navItems.map((navItem) => {
+						return <Fragment key={navItem.id}>{navItem.element}</Fragment>;
+					})}
+				</nav>
+				<AddOnCards
+					isOpen={info.addOnCardsModalOpen}
+					closeModal={() => setInfo((prev) => ({ ...prev, addOnCardsModalOpen: false }))}
+					subscriptionState="addOnPlans"
+					selectedPeriodProp="One Time Purchase"
+				/>
+			</>
 		)
 	);
 };

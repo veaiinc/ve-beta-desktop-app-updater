@@ -21,7 +21,7 @@
 
 		&:hover {
 			border-radius: 8px;
-			background: rgba(121, 236, 201, 0.3);
+			background: var(--primary-opacity);
 			transition: background 0.3s ease;
 
 			svg {
