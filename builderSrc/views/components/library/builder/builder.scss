@@ -149,11 +149,12 @@
 				.navbar-mobile-cart {
 					display: flex;
 					align-items: center;
+					// justify-content: space-evenly;
 
 					.mobile-cart-container {
 						display: flex;
 						align-items: center;
-						justify-content: space-between;
+						justify-content: space-evenly;
 						width: 100%;
 						position: relative;
 
@@ -521,9 +522,8 @@
 
 .add-block-new-container {
 	position: absolute;
-
+	height: 25px;
 	// height: 44.8px;
-	padding: 6.2px;
 
 	gap: 4.4px;
 
@@ -531,12 +531,11 @@
 	top: -15px;
 	left: 50%;
 	display: flex;
-	padding: 6px 12px;
+	padding: 2px 10px;
 	justify-content: center;
 	align-items: center;
 	gap: 4px;
 	flex: 1 0 0;
-
 	border-radius: 6px;
 	background: var(--background-color, #121212);
 	box-shadow: 0px 1px 6.9px 0px rgba(0, 0, 0, 0.25), 0px 8px 20px 0px rgba(0, 0, 0, 0.09);
@@ -805,7 +804,6 @@
 		left: 0px;
 		opacity: 0.3;
 		z-index: 3;
-		cursor: pointer;
 	}
 
 	display: flex;
@@ -1768,7 +1766,9 @@
 		transform: translateY(-20px);
 	}
 }
-
+.jodit-toolbar-button__icon {
+	align-items: center;
+}
 .jodit-ui-group {
 	.jodit-toolbar-button:last-child {
 		width: 100px;

@@ -39,17 +39,17 @@ export const jobs = [
 		category: 'Design',
 	},
 	{
-		title: 'Sales executive',
+		title: 'Sales Executive',
 		description: 'Fulltime · Hyderabad',
 		category: 'Sales',
 	},
 	{
-		title: 'Backend developer',
+		title: 'Mern Stack Developer',
 		description: 'Fulltime · Hyderabad',
 		category: 'Engineering',
 	},
 	{
-		title: 'Ai engineer',
+		title: 'Ai Engineer',
 		description: 'Fulltime · Hyderabad',
 		category: 'Engineering',
 	},
@@ -57,5 +57,25 @@ export const jobs = [
 		title: 'In-House Content Creator',
 		description: 'Fulltime · Hyderabad',
 		category: 'Marketing',
+	},
+	{
+		title: 'Marketing Specialist',
+		description: 'Fulltime · Hyderabad',
+		category: 'Marketing',
+	},
+	{
+		title: 'Operations Executive',
+		description: 'Fulltime · Hyderabad',
+		category: 'Product',
+	},
+	{
+		title: 'Product Intern',
+		description: 'Fulltime · Hyderabad',
+		category: 'Product',
+	},
+	{
+		title: 'Aws Devops Engineer',
+		description: 'Fulltime · Hyderabad',
+		category: 'Engineering',
 	},
 ];

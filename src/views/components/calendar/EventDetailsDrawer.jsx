@@ -12,6 +12,11 @@ import Spinner from '../../components/loaders/Spinner';
 import Context from '../../../context/context';
 import moment from 'moment';
 
+const styles = {
+	header: { display: 'none' },
+	body: { padding: '0px' },
+};
+
 const RenderEventDetails = ({ info, updateCalendarInfo, formatEventTime }) => {
 	if (!info?.eventDetails) return null;
 
@@ -228,8 +233,7 @@ const EventDetailsDrawer = ({ selectedEvent, isEventSelected, updateCalendarInfo
 			width={'25%'}
 			open={isEventSelected}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
-			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
+			styles={styles}
 		>
 			{info?.loading ? (
 				<div className="eventDetailsDrawerParentCOntainer">

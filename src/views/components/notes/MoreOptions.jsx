@@ -8,6 +8,10 @@ import { ReactComponent as GearSvg } from '../../../assets/svg/notes/gear.svg';
 import DuplicateSvg from '../../../assets/svg/tasks/DuplicateSvg.jsx';
 import '../../../assets/scss/notes/noteComponent.scss';
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content', padding: '0' },
+};
+
 const options = [
 	// {
 	// 	id: 'smallText',
@@ -68,7 +72,7 @@ const MoreOptions = ({ notesConfigs, onChange, onDelete, onDuplicate }) => {
 				arrow={false}
 				trigger={'click'}
 				color={'transparent'}
-				overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+				 styles={tooltipStyles}
 				title={
 					<div className="notes-more-options-tooltip-content">
 						{options?.map((option) => (

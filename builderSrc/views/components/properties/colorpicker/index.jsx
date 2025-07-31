@@ -8,7 +8,7 @@ import Modal from '../../library/modals';
 import { ReactComponent as Close } from '../../library/svgs/Close.svg';
 import { ReactComponent as Spinner } from '../../library/svgs/Spinner.svg';
 import { ReactComponent as Plus } from '../../library/svgs/summary/Plus.svg';
-
+// import { ReactComponent as Vector } from '../../';
 class ColorPicker extends Component {
 	constructor(props) {
 		super();
@@ -359,6 +359,7 @@ class ColorPicker extends Component {
 							onClick={(e) => this.toggleColorModal(e)}
 						></a>
 						{/* <p>{this.state.color}</p> */}
+
 						<input
 							className="input-color-text"
 							value={this.state.inputColor}

@@ -31,4 +31,5 @@ secrets/
 package-mac-signed.sh
 
 sync.sh
+bundle-visualizer.html
 script.sh

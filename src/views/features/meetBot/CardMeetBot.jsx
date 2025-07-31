@@ -1,23 +1,15 @@
-import React, { useState, useContext, useEffect, useRef } from 'react';
-import { Drawer, Switch } from 'antd';
+import React, { useState, useContext, useEffect, useRef, useCallback, useMemo } from 'react';
 import styles from './cardMeetBot.module.scss';
 import './meetBot.scss';
-import { ReactComponent as MicorPhoneIcon } from './micorPhoneIcon.svg';
-import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 import EmptyMeetBotList from './emptyMeetBotList';
 import { ReactComponent as ChevronDown } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
 import { ReactComponent as AddIcon } from '../../../assets/svg/add.svg';
-import Spinner from '../../components/loaders/Spinner';
-const meetingModeOptions = [
-	{ value: 'meeting', label: 'Meeting' },
-	{ value: 'sales', label: 'Sales Mode' },
-	{ value: 'support', label: 'Support' },
-	{ value: 'interview', label: 'Interview' },
-	{ value: 'ideas', label: 'Ideas' },
-];
+import GuideMePopup from './guideMePopup';
+import CreateMeetingModal from './CreateMeetingModal';
+
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 function formatDate(timestamp) {
@@ -30,41 +22,27 @@ function formatDate(timestamp) {
 	});
 }
 
-function isValidUrl(url) {
-	try {
-		new URL(url);
-		return true;
-	} catch {
-		return false;
-	}
-}
-
 const CardMeetBot = () => {
 	const {
 		notes: { getExistingBots, createMeetBot, existingBots },
 	} = useContext(Context);
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
-		drawerOpen: false,
-		meetingUrl: '',
-		selectedMode: 'meeting_bot',
-		creating: false,
-		isAiIntelligenceEnabled: false,
-		meetingMode: 'meeting',
-		agenda: '',
-		title: '',
+		modalOpen: false,
 		currentIndex: 0,
 		searchOpen: false,
+		cards: [],
+		guideMePopupOpen: false,
 	});
 	const searchInputRef = useRef(null);
 
-	const meetings = existingBots?.data || [];
+	const meetings = useMemo(() => existingBots?.data || [], [existingBots?.data]);
 	const loadingMeetings = existingBots ? false : true;
 
 	// Load existing bots when component mounts
 	useEffect(() => {
 		if (!existingBots) {
-			getExistingBots({ page: 1, limit: 10, append: true });
+			getExistingBots({ page: 1, limit: 10, append: false });
 		}
 	}, []);
 
@@ -81,6 +59,34 @@ const CardMeetBot = () => {
 			currentIndex: (prev.currentIndex + 1) % meetings.length,
 		}));
 	};
+
+	useEffect(() => {
+		if (meetings.length > 0) {
+			const length = meetings.length;
+			const cards = meetings.map((meeting, i) => {
+				let diff = i - info.currentIndex;
+
+				// Handle circular navigation
+				if (diff > length / 2) diff -= length;
+				if (diff < -length / 2) diff += length;
+
+				return {
+					...meeting,
+					position: Math.abs(diff) <= 2 ? diff : null,
+				};
+			});
+
+			setInfo((prev) => ({
+				...prev,
+				cards: cards,
+			}));
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				cards: [],
+			}));
+		}
+	}, [info.currentIndex, meetings]);
 
 	// Touch/swipe support
 	const [touchStartX, setTouchStartX] = useState(null);
@@ -149,66 +155,32 @@ const CardMeetBot = () => {
 		return `${month} ${day} ${year} ${hours}:${minutes}${ampm}`;
 	}
 
-	const handleCreateMeet = async () => {
-		if (!info.title.trim()) {
-			// You can add a toast notification here if needed
-			return;
-		}
-		let input = {
-			title: info.title.trim(),
-			transcriptionSource: info.selectedMode,
-			isAiIntelligenceEnabled: info.isAiIntelligenceEnabled,
-			meetingMode: info.meetingMode,
-			agenda: info.agenda,
-		};
-		if (info.selectedMode === 'meeting_bot') {
-			if (!isValidUrl(info.meetingUrl)) return;
-			input.meetingLink = info.meetingUrl;
-		}
-		setInfo((prev) => ({ ...prev, creating: true }));
-		try {
-			const response = await createMeetBot({ input });
-			setInfo((prev) => ({
-				...prev,
-				meetingUrl: '',
-				agenda: '',
-				title: '',
-				isAiIntelligenceEnabled: false,
-				meetingMode: 'meeting',
-			}));
-			const pageId = response?.[1]?.data?.startTranscription?.data?.pageId;
-			const type = response?.[1]?.data?.startTranscription?.data?.transcriptionSource;
-			const success = response?.[1]?.data?.startTranscription?.success;
+	// Keyboard navigation for cards
+	const handleKeyDown = useCallback(
+		(e) => {
+			// Don't handle arrow keys if search is focused or modal is open
+			if (info.searchOpen || info.modalOpen) return;
 
-			if (success && pageId && type) {
-				await getExistingBots({ page: 1, limit: 10, append: true });
-				navigate(
-					`/meet/${pageId}?type=${type}&isAiIntelligenceEnabled=${info.isAiIntelligenceEnabled}`,
-				);
+			if (e?.key === 'ArrowUp' || e?.key === 'ArrowLeft') {
+				handleLeft();
+			} else if (e?.key === 'ArrowDown' || e?.key === 'ArrowRight') {
+				handleRight();
 			}
-		} finally {
-			setInfo((prev) => ({ ...prev, creating: false }));
-		}
-	};
+		},
+		[info.searchOpen, info.modalOpen, handleLeft, handleRight],
+	);
+	useEffect(() => {
+		window.addEventListener('keydown', handleKeyDown);
+		return () => {
+			window.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [handleKeyDown]);
 
-	const handleInputKeyDown = (e) => {
-		if (
-			info.selectedMode === 'meeting_bot' &&
-			e.key === 'Enter' &&
-			isValidUrl(info.meetingUrl) &&
-			info.title.trim() &&
-			!info.creating
-		) {
-			handleCreateMeet();
-		}
-		if (
-			info.selectedMode === 'desktop' &&
-			e.key === 'Enter' &&
-			info.title.trim() &&
-			!info.creating
-		) {
-			handleCreateMeet();
-		}
+	const closeModal = () => {
+		setInfo((prev) => ({
+			...prev,
+			modalOpen: false,
+		}));
 	};
 
 	return (
@@ -251,7 +223,7 @@ const CardMeetBot = () => {
 										}
 										style={{ background: 'var(--popup)', cursor: 'pointer' }}
 										onClick={() =>
-											setInfo((prev) => ({ ...prev, drawerOpen: true }))
+											setInfo((prev) => ({ ...prev, modalOpen: true }))
 										}
 									>
 										<div className={styles.cardMeetBot_header}>
@@ -271,8 +243,8 @@ const CardMeetBot = () => {
 										</div>
 									</div>
 								) : (
-									meetings.map((meeting, idx) => {
-										const position = idx - info.currentIndex;
+									info.cards?.map((meeting, idx) => {
+										const position = meeting.position;
 										const positionClassMap = {
 											0: styles.cardMeetBot_selected,
 											1: styles.cardMeetBot_right1,
@@ -284,7 +256,7 @@ const CardMeetBot = () => {
 											styles.cardMeetBot_card,
 											positionClassMap[position] || '',
 										];
-										if (Math.abs(position) > 2) return null;
+										if (position === null) return null;
 										return (
 											<div
 												key={meeting._id}
@@ -298,7 +270,7 @@ const CardMeetBot = () => {
 												}}
 												onClick={() =>
 													navigate(
-														`/meet/${meeting?._id}?type=${meeting?.transcriptionSource}&history=true`,
+														`/meet/${meeting?.pageId}/${meeting?._id}?type=${meeting?.transcriptionSource}`,
 													)
 												}
 											>
@@ -417,7 +389,7 @@ const CardMeetBot = () => {
 							</div>
 							<button
 								className={styles.cardMeetBot_createNewBtn}
-								onClick={() => setInfo((prev) => ({ ...prev, drawerOpen: true }))}
+								onClick={() => setInfo((prev) => ({ ...prev, modalOpen: true }))}
 							>
 								<AddIcon />
 								Create New
@@ -426,325 +398,13 @@ const CardMeetBot = () => {
 					</div>
 				</div>
 			</div>
-			<div className="rightContainer" style={{ width: info.drawerOpen ? `400px` : `0px` }}>
-				<Drawer
-					open={info.drawerOpen}
-					placement="right"
-					closable={false}
-					mask={false}
-					headerStyle={{ display: 'none' }}
-					bodyStyle={{
-						padding: 0,
-						background: 'var(--background-color)',
-						height: '100vh',
-						overflow: 'auto',
-					}}
-					style={{ position: 'relative', background: 'var(--background-color)' }}
-					className="meetbot__right meetbot__right--open"
-					getContainer={false}
-				>
-					<div className="meetbot__drawer-header">
-						<SidebarClosingSvg
-							className="sidebarClosingSvg"
-							onClick={() => setInfo({ ...info, drawerOpen: false })}
-						/>
-						<div className="meetbot__drawer-tabs-container">
-							<div className="meetbot__drawer-tabs">
-								<button
-									className={`meetbot__drawer-tab${
-										info.selectedMode === 'meeting_bot'
-											? ' meetbot__drawer-tab--active'
-											: ''
-									}`}
-									onClick={() =>
-										setInfo((prev) => ({
-											...prev,
-											selectedMode: 'meeting_bot',
-										}))
-									}
-								>
-									Online
-								</button>
-								<button
-									className={`meetbot__drawer-tab${
-										info.selectedMode === 'desktop'
-											? ' meetbot__drawer-tab--active'
-											: ''
-									}`}
-									onClick={() =>
-										setInfo((prev) => ({ ...prev, selectedMode: 'desktop' }))
-									}
-								>
-									Offline
-								</button>
 
-								{/* Selection Indicator */}
-								<span
-									className="meetbot__drawer-indicator"
-									style={{
-										left:
-											info.selectedMode === 'meeting_bot'
-												? '0%'
-												: info.selectedMode === 'desktop'
-												? '60%'
-												: '0%',
-										transition: 'left 0.3s ease',
-									}}
-								/>
-							</div>
-						</div>
-					</div>
+			<CreateMeetingModal isOpen={info.modalOpen} onClose={closeModal} />
 
-					<div className="meetbot__drawer-content">
-						<div className="meetbot__drawer-content-container">
-							<div>
-								<div className="meetbot__drawer-label">
-									{info.selectedMode === 'meeting_bot'
-										? 'Record a live meeting'
-										: 'Record a private note'}
-								</div>
-								<div className="meetbot__drawer-desc">
-									{info.selectedMode === 'meeting_bot'
-										? 'Works with Zoom, Google meet, or Microsoft Teams'
-										: `Only you know you're recording—no visible participants join your meeting.`}
-								</div>
-							</div>
-
-							{/* Title Input Field */}
-							<div className="meetbot__drawer-title-wrapper">
-								<div className="meetbot__drawer-title-label">Title</div>
-								<input
-									className="meetbot__drawer-title-input"
-									placeholder="Enter meeting title..."
-									value={info.title}
-									onChange={(e) =>
-										setInfo((prev) => ({
-											...prev,
-											title: e.target.value,
-										}))
-									}
-									disabled={info.creating}
-								/>
-							</div>
-							{info.selectedMode === 'meeting_bot' && (
-								<>
-									{/* Meeting Mode Selection */}
-									<div className="meetbot__drawer-mode-wrapper">
-										<div className="meetbot__drawer-mode-label">
-											Meeting Mode
-										</div>
-										<div className="meetbot__drawer-mode-select-container">
-											<select
-												className="meetbot__drawer-mode-select"
-												value={info.meetingMode}
-												onChange={(e) =>
-													setInfo((prev) => ({
-														...prev,
-														meetingMode: e.target.value,
-													}))
-												}
-												disabled={info.creating}
-											>
-												{meetingModeOptions.map((option) => (
-													<option key={option.value} value={option.value}>
-														{option.label}
-													</option>
-												))}
-											</select>
-											<div className="meetbot__drawer-mode-select-arrow">
-												<ChevronDown />
-											</div>
-										</div>
-									</div>
-
-									{/* Agenda Text Field */}
-									<div className="meetbot__drawer-agenda-wrapper">
-										<div className="meetbot__drawer-agenda-label">Agenda</div>
-										<textarea
-											className="meetbot__drawer-agenda-textarea"
-											placeholder="Enter meeting agenda..."
-											value={info.agenda}
-											onChange={(e) =>
-												setInfo((prev) => ({
-													...prev,
-													agenda: e.target.value,
-												}))
-											}
-											disabled={info.creating}
-											rows={3}
-										/>
-									</div>
-
-									{info.selectedMode === 'meeting_bot' && (
-										<>
-											<div className="meetbotGuideMeContainer">
-												<div className="meetbotGuideMeContainerItemContainer">
-													<div className="meetbotGuideMeContainerItem">
-														<div className="meetbotGuideMeContainerItemTitle">
-															Ambient assistance
-														</div>
-														<div className="meetbotGuideMeDescriptionContainer">
-															Your AI actively captures key points,
-															summarizes conversations, and highlights
-															actions in real-time.
-														</div>
-													</div>
-													<Switch
-														checked={info.isAiIntelligenceEnabled}
-														onChange={(checked) =>
-															setInfo((prev) => ({
-																...prev,
-																isAiIntelligenceEnabled: checked,
-															}))
-														}
-													/>
-												</div>
-											</div>
-										</>
-									)}
-									<div className="meetbot__drawer-input-wrapper">
-										<input
-											className="meetbot__drawer-input"
-											placeholder="Paste meeting URL"
-											value={info.meetingUrl}
-											onChange={(e) =>
-												setInfo((prev) => ({
-													...prev,
-													meetingUrl: e.target.value,
-												}))
-											}
-											onKeyDown={handleInputKeyDown}
-											disabled={info.creating}
-										/>
-										{!info.creating && (
-											<button
-												className={`meetbot__drawer-tick${
-													!isValidUrl(info.meetingUrl) ||
-													!info.title.trim()
-														? ' meetbot__drawer-tick--disabled'
-														: ''
-												}`}
-												onClick={handleCreateMeet}
-												disabled={
-													!isValidUrl(info.meetingUrl) ||
-													!info.title.trim()
-												}
-												title="Create meeting"
-											>
-												Create
-											</button>
-										)}
-										{info.creating && (
-											<span className="meetbot__drawer-loader">
-												<Spinner
-													width="16px"
-													height="16px"
-													color="var(--primary-button)"
-													borderTopColor="var(--background-color)"
-													borderWidth={1}
-												/>
-											</span>
-										)}
-									</div>
-								</>
-							)}
-							{info.selectedMode === 'desktop' && (
-								<>
-									{/* Meeting Mode Selection */}
-									<div className="meetbot__drawer-mode-wrapper">
-										<div className="meetbot__drawer-mode-label">
-											Meeting Mode
-										</div>
-										<div className="meetbot__drawer-mode-select-container">
-											<select
-												className="meetbot__drawer-mode-select"
-												value={info.meetingMode}
-												onChange={(e) =>
-													setInfo((prev) => ({
-														...prev,
-														meetingMode: e.target.value,
-													}))
-												}
-												disabled={info.creating}
-											>
-												{meetingModeOptions.map((option) => (
-													<option key={option.value} value={option.value}>
-														{option.label}
-													</option>
-												))}
-											</select>
-											<div className="meetbot__drawer-mode-select-arrow">
-												<ChevronDown />
-											</div>
-										</div>
-									</div>
-
-									{/* Agenda Text Field */}
-									<div className="meetbot__drawer-agenda-wrapper">
-										<div className="meetbot__drawer-agenda-label">Agenda</div>
-										<textarea
-											className="meetbot__drawer-agenda-textarea"
-											placeholder="Enter meeting agenda..."
-											value={info.agenda}
-											onChange={(e) =>
-												setInfo((prev) => ({
-													...prev,
-													agenda: e.target.value,
-												}))
-											}
-											disabled={info.creating}
-											rows={3}
-										/>
-									</div>
-									<div className="meetbotGuideMeContainer">
-										<div className="meetbotGuideMeContainerItemContainer">
-											<div className="meetbotGuideMeContainerItem">
-												<div className="meetbotGuideMeContainerItemTitle">
-													Ambient assistance
-												</div>
-												<div className="meetbotGuideMeDescriptionContainer">
-													Your AI actively captures key points, summarizes
-													conversations, and highlights actions in
-													real-time.
-												</div>
-											</div>
-											<Switch
-												checked={info.isAiIntelligenceEnabled}
-												onChange={(checked) =>
-													setInfo((prev) => ({
-														...prev,
-														isAiIntelligenceEnabled: checked,
-													}))
-												}
-											/>
-										</div>
-									</div>
-									<div className="meetbot__audio-btn-wrapper">
-										<button
-											disabled={info.creating || !info.title.trim()}
-											onClick={handleCreateMeet}
-											className={`meetbot__audio-btn${
-												info.creating || !info.title.trim()
-													? ' meetbot__audio-btn--disabled'
-													: ''
-											}`}
-										>
-											<MicorPhoneIcon />
-											{info.creating ? 'Starting...' : 'Record'}
-										</button>
-									</div>
-								</>
-							)}
-						</div>
-					</div>
-				</Drawer>
-				{!info.drawerOpen && (
-					<SidebarClosingSvg
-						className="sidebarClosingSvg"
-						onClick={() => setInfo({ ...info, drawerOpen: true })}
-					/>
-				)}
-			</div>
+			<GuideMePopup
+				isOpen={info.guideMePopupOpen}
+				onClose={() => setInfo({ ...info, guideMePopupOpen: false })}
+			/>
 		</div>
 	);
 };

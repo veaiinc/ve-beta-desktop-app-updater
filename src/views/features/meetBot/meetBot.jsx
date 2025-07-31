@@ -12,6 +12,11 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 import { message } from '../../components/globalComponents/CustomToast';
 import { ReactComponent as ChevronDown } from '../../../assets/svg/tasks/chevronRightThin.svg';
 
+const drawerStyles = {
+	header: { display: 'none' },
+	body: { padding: 0, background: 'var(--background-color)', height: '100vh', overflow: 'auto' },
+};
+
 function formatDate(timestamp) {
 	const date = new Date(Number(timestamp) * 1000);
 	return date.toLocaleDateString(undefined, {
@@ -320,13 +325,7 @@ const MeetBot = () => {
 					placement="right"
 					closable={false}
 					mask={false}
-					headerStyle={{ display: 'none' }}
-					bodyStyle={{
-						padding: 0,
-						background: 'var(--background-color)',
-						height: '100vh',
-						overflow: 'auto',
-					}}
+					styles={drawerStyles}
 					style={{ position: 'relative', background: 'var(--background-color)' }}
 					className="meetbot__right meetbot__right--open"
 					getContainer={false}

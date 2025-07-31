@@ -13,43 +13,43 @@ const TaskSvg = ({ fill }) => {
 				d="M8.25 14.625H15.75"
 				stroke={fill}
 				stroke-width="1.125"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 			<path
 				d="M8.25 9.375H15.75"
 				stroke={fill}
 				stroke-width="1.125"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 			<path
 				d="M8.25 4.125H15.75"
 				stroke={fill}
 				stroke-width="1.125"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 			<path
 				d="M2.25 4.125L3 4.875L5.25 2.625"
 				stroke={fill}
 				stroke-width="1.125"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 			<path
 				d="M2.25 9.375L3 10.125L5.25 7.875"
 				stroke={fill}
 				stroke-width="1.125"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 			<path
 				d="M2.25 14.625L3 15.375L5.25 13.125"
 				stroke={fill}
 				stroke-width="1.125"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 		</svg>
 	);

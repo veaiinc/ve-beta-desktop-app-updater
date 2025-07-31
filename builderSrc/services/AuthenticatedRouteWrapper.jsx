@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 const isAuthenticated = () => {
 	const usertoken = localStorage.getItem('usertoken');
 	const workspaceId = localStorage.getItem('workspaceId');
-	const region = localStorage.getItem('region') || 'ap-south-1';
+	const region = localStorage.getItem('region') || 'us-east-1';
 
 	if (usertoken && workspaceId) {
 		return true;

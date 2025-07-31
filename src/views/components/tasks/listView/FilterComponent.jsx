@@ -103,7 +103,7 @@ const FilterComponent = ({
 
 	return (
 		<Tooltip
-			overlayClassName="filterComponent-tooltip"
+			classNames={{ root: 'filterComponent-tooltip' }}
 			color="transparent"
 			arrow={false}
 			trigger={'click'}

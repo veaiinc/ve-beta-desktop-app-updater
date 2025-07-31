@@ -4,6 +4,12 @@ import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSet
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import { Tooltip } from 'antd';
 
+const tooltipStyles = {
+	body: {
+		minWidth: 'fit-content',
+	},
+};
+
 const labelMapper = {
 	messageReceived: 'Message received',
 	'create-formResponse': 'Form response',
@@ -283,9 +289,7 @@ const VariableComponent = ({
 						placement="bottom"
 						arrow={false}
 						color="transparent"
-						overlayStyle={{
-							minWidth: 'fit-content',
-						}}
+						styles={tooltipStyles}
 						open={info?.optionDropdownOpen}
 						onOpenChange={(open) => {
 							if (!open) {
@@ -473,9 +477,7 @@ const VariableComponent = ({
 					placement="bottom"
 					arrow={false}
 					color="transparent"
-					overlayStyle={{
-						minWidth: 'fit-content',
-					}}
+					styles={tooltipStyles}
 				>
 					<button
 						className="insertVariableButton"

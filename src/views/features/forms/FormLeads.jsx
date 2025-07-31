@@ -371,10 +371,9 @@ const FormLeads = () => {
 
 			// Create CSV header with proper titles
 			const headers = [
-				'Submission ID',
+				...questions?.map((q) => removeHTMLTags(q?.question || 'Untitled Question')),
 				'Submission Date',
 				'Submission Time',
-				...questions?.map((q) => removeHTMLTags(q?.question || 'Untitled Question')),
 			];
 			const csvRows = [headers];
 
@@ -383,7 +382,6 @@ const FormLeads = () => {
 				const row = [];
 
 				// Add submission details
-				row.push(response?._id || 'N/A');
 				const submissionDate = new Date(response?.createdAt * 1000);
 				row.push(submissionDate.toLocaleDateString());
 				row.push(submissionDate.toLocaleTimeString());
@@ -402,7 +400,46 @@ const FormLeads = () => {
 						// Handle different types of answers
 						switch (answerItem?.type) {
 							case 'fileupload':
-								answer = answerItem?.answer?.name || 'No file uploaded';
+								try {
+									// Parse the file upload answer to get file URLs
+									let files = answerItem?.answer;
+									if (typeof files === 'string') {
+										files = JSON.parse(files);
+									}
+
+									if (Array.isArray(files) && files.length > 0) {
+										const fileLinks = files.map((file) => {
+											const fileUrl =
+												typeof file === 'string'
+													? file
+													: file?.fileURL ||
+													  file?.url ||
+													  file?.previewUrl ||
+													  file?.fileUrl ||
+													  '';
+											return fileUrl
+												? fileUrl.replace(/ /g, '%20')
+												: 'Not provided';
+										});
+										answer = fileLinks.join('; ');
+									} else if (typeof files === 'object' && files !== null) {
+										// Handle single file object
+										const fileUrl =
+											files?.fileURL ||
+											files?.url ||
+											files?.previewUrl ||
+											files?.fileUrl ||
+											'';
+										answer = fileUrl
+											? fileUrl.replace(/ /g, '%20')
+											: 'Not provided';
+									} else {
+										answer = 'No file uploaded';
+									}
+								} catch (e) {
+									console.error('Error parsing file upload answer:', e);
+									answer = 'Error uploading file';
+								}
 								break;
 							case 'rating':
 								answer = `${answerItem?.answer} stars`;

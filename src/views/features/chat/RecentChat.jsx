@@ -26,9 +26,10 @@ const RecentChat = ({
 	autoFocus = true,
 	customChatBoxClick = null,
 	showCitationsButton = true,
-	showDeleteChat = true,
+	showDeleteChat = false,
 	animateChatBox = true,
 	showChatHistory = false,
+	showChats = false,
 }) => {
 	const {
 		templates: {
@@ -72,7 +73,7 @@ const RecentChat = ({
 		showViewDocument: false,
 		tooltipStyles: { visible: false, styles: { top: 0, left: 0 }, selectedText: '' },
 		deleteChatSessionLoading: false,
-		isNewChat: false,
+		isNewChat: true,
 		currentUserMessageIndex: null,
 		getFollowUpQueries: false,
 		chatQuery: '',
@@ -153,30 +154,8 @@ const RecentChat = ({
 	}, []);
 
 	useEffect(() => {
-		if (!sessionId) return;
-
-		if (aiChatSessions) {
-			const sessions = aiChatSessions?.data || [];
-			if (sessions?.length > 0) {
-				const session = sessions?.findIndex((s) => s?._id === sessionId);
-				if (session === -1) {
-					setInfo((prev) => ({
-						...prev,
-						isNewChat: true,
-					}));
-				} else {
-					setInfo((prev) => ({
-						...prev,
-						isNewChat: false,
-					}));
-				}
-			}
-		}
-	}, [aiChatSessions, sessionId]);
-
-	useEffect(() => {
 		if (info?.getFollowUpQueries) {
-			if (info?.chatQuery?.trim()?.length === 0) {
+			if (agentType !== 'knowledge_agent' && info?.chatQuery?.trim()?.length === 0) {
 				followUpQueryTimeoutRef.current = setTimeout(() => {
 					getFollowUpQueries(sessionId, info?.latestStreamMesage?.message_id);
 				}, 5000);
@@ -244,10 +223,16 @@ const RecentChat = ({
 				clearTimeout(agentTimeoutIdRef.current);
 				agentTimeoutIdRef.current = null;
 			}
-			const removeSessionId = false;
 
 			// if (!globalChatMessages?.[sessionId]) {
-			getRecentChatMessages(sessionId, 1, false, 1000, isPublicChat, removeSessionId);
+			getRecentChatMessages({
+				sessionId,
+				page: 1,
+				fetchMore: false,
+				limit: 1000,
+				isPublicChat,
+				removeSessionId: false,
+			});
 			// }
 
 			const sessionIdsToClose = newChatSessionIds?.filter(
@@ -311,6 +296,12 @@ const RecentChat = ({
 	}, [sessionId, agentType, assistantId]);
 
 	useEffect(() => {
+		if (globalChatMessages?.[sessionId]?.messages?.length && info?.isNewChat) {
+			setInfo((prev) => ({
+				...prev,
+				isNewChat: false,
+			}));
+		}
 		if (globalChatMessages?.[sessionId]?.messages?.length > 2 && !info?.scrollExecuted) {
 			setTimeout(() => {
 				smoothScrollToLastMessage();
@@ -421,24 +412,40 @@ const RecentChat = ({
 	}, [globalChatMessages, sessionId]);
 
 	useEffect(() => {
-		if (recentChatStorage) {
+		if (recentChatStorage?.[sessionId]) {
 			const firstTimeApiCall = true;
-			recentChatHandler(recentChatStorage, false, firstTimeApiCall);
-			updateStateValues({
-				recentChatStorage: null,
+			recentChatHandler(recentChatStorage?.[sessionId], false, firstTimeApiCall);
+			// updateStateValues({
+			// 	recentChatStorage: null,
+			// });
+			getRecentChatMessages({
+				sessionId,
+				page: 1,
+				fetchMore: false,
+				limit: 1000,
+				isPublicChat,
+				removeSessionId: true,
 			});
 		}
-	}, [recentChatStorage]);
+	}, [recentChatStorage?.[sessionId]]);
 
 	useEffect(() => {
-		if (moreRecentChatStorage) {
+		if (moreRecentChatStorage?.[sessionId]) {
 			const firstTimeApiCall = false;
-			recentChatHandler(moreRecentChatStorage, true, firstTimeApiCall);
-			updateStateValues({
-				moreRecentChatStorage: null,
+			recentChatHandler(moreRecentChatStorage?.[sessionId], true, firstTimeApiCall);
+			// updateStateValues({
+			// 	moreRecentChatStorage: null,
+			// });
+			getRecentChatMessages({
+				sessionId,
+				page: 1,
+				fetchMore: true,
+				limit: 1000,
+				isPublicChat,
+				removeSessionId: true,
 			});
 		}
-	}, [moreRecentChatStorage]);
+	}, [moreRecentChatStorage?.[sessionId]]);
 
 	const handleChatQueryChange = useCallback((query) => {
 		setInfo((prev) => ({
@@ -528,7 +535,7 @@ const RecentChat = ({
 
 	const recentChatHandler = useCallback(
 		(inComingData, fetchMore = false, firstTimeApiCall = false) => {
-			const { data, hasNextPage, currentPage } = inComingData;
+			const { data = [], hasNextPage, currentPage } = inComingData ?? {};
 			let messages = [];
 			let chatPayload = {
 				workflowTemplateId: null,
@@ -548,6 +555,8 @@ const RecentChat = ({
 					designAgentsUsed,
 					toolInvocations,
 					agentType: agentTypeFromResponse,
+					userFeedbackReasons,
+					userRemarks,
 				} = data?.[i] || {};
 
 				if (
@@ -615,6 +624,8 @@ const RecentChat = ({
 						processing,
 						used_agents: designAgentsUsed || [],
 						tool_invocations: toolInvocations || [],
+						userFeedbackReasons,
+						userRemarks,
 						...(processing === 'Deep Search' && { deepSearch }),
 						...(processing === 'Deep Research' && { deepResearch }),
 						...(processing === 'Normal Search' && { normalSearch }),
@@ -762,7 +773,13 @@ const RecentChat = ({
 			if (!info?.hasNextPage || info?.chatLoading) {
 				return;
 			}
-			getRecentChatMessages(sessionId, info?.currentPage + 1, true, isPublicChat);
+			getRecentChatMessages({
+				sessionId,
+				page: info?.currentPage + 1,
+				fetchMore: true,
+				isPublicChat,
+				removeSessionId: false,
+			});
 			setInfo((prev) => ({ ...prev, chatLoading: true }));
 		}, 1000),
 		[info, sessionId, isPublicChat],
@@ -915,7 +932,7 @@ const RecentChat = ({
 					width: info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%',
 				}}
 			>
-				{workspaceMode === 'stable' && showChatHistory && (
+				{showChatHistory && (
 					<div className="chat-history-wrapper">
 						<ChatHistory />
 					</div>
@@ -934,6 +951,7 @@ const RecentChat = ({
 							isNewChat={info?.isNewChat}
 							smoothScrollToParticularMessage={smoothScrollToParticularMessage}
 							showDeleteChat={showDeleteChat}
+							showChats={showChats}
 						/>
 					)}
 
@@ -983,7 +1001,10 @@ const RecentChat = ({
 															globalChatMessages?.[sessionId]
 																?.messages?.length -
 																1
-																? `calc(${chatContentRef?.current?.clientHeight}px - 185px)`
+																? `${
+																		chatContentRef?.current
+																			?.clientHeight - 177
+																  }px`
 																: 'auto',
 													}}
 												>

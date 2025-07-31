@@ -2,6 +2,7 @@ import React, { memo, useCallback, useContext, useEffect, useRef } from 'react';
 import Context from '../../../../../context/context';
 import s from '../../../../../assets/scss/notes/databaseComponents/tableView.module.scss';
 import { rowTypes } from '../../Database';
+import { ReactComponent as SidebarClosingSvg } from '../../../../../assets/svg/sidebar/SidebarClosingPrimary.svg';
 
 const TableBody = ({
 	data,
@@ -114,21 +115,28 @@ const TableBody = ({
 								width: column?.width,
 								flex: '1 0 auto',
 							}}
-							onClick={() =>
-								updateDatabaseSidebar({
-									data: {
-										rowData: row,
-										viewId,
-										databaseId,
-										groupId,
-										blockId,
-									},
-									open: true,
-									replace: true,
-								})
-							}
 						>
 							{generateCell(row, column)}
+							{column?.type === 'title' && (
+								<div
+									className={s.opnSidebarIcon}
+									onClick={() =>
+										updateDatabaseSidebar({
+											data: {
+												rowData: row,
+												viewId,
+												databaseId,
+												groupId,
+												blockId,
+											},
+											open: true,
+											replace: true,
+										})
+									}
+								>
+									<SidebarClosingSvg /> OPEN
+								</div>
+							)}
 						</div>
 					))}
 				</div>

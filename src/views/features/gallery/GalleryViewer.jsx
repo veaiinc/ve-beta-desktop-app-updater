@@ -20,6 +20,7 @@ import { ReactComponent as Delete } from '../../../assets/svg/gallery/delete-red
 import { Tooltip } from 'antd';
 import slugify from 'slugify';
 import Peopleitem from '../../components/gallery/galleryView/PeopleCard';
+import { ReactComponent as AlbumCoverIcon } from '../../../assets/svg/gallery/albumCoverIcon.svg';
 
 // import { Background } from '@xyflow/react';
 
@@ -411,6 +412,7 @@ const GalleryViewer = ({
 	};
 
 	const handleAlbumClick = (album) => {
+		if (activeAlbumId === album?._id) return;
 		setInfo((prev) => ({
 			...prev,
 			activeImageIndex: 0,
@@ -512,6 +514,15 @@ const GalleryViewer = ({
 		});
 		closeModal();
 	};
+	const handleChangeCover = (type) => {
+		const selectedImagesDetails = imagesList?.docs?.find(
+			(image) => image._id === info?.activeImage,
+		);
+
+		if (selectedImagesDetails) {
+			handleOpenUploadCover(selectedImagesDetails, type);
+		}
+	};
 	return (
 		<ReactModal isOpen={open} closeModal={closeModal} customStyles={customStyles}>
 			<div className="galleryViewerCotnainer">
@@ -560,6 +571,38 @@ const GalleryViewer = ({
 						</div>
 					</div>
 					<div className="closeGallery-right">
+						<Tooltip
+							title={
+								<div className="changeCoverContainer">
+									<div
+										className="changeCoverContainerItem"
+										onClick={() => {
+											handleChangeCover('album');
+										}}
+									>
+										Change Album Cover
+									</div>
+									<div
+										className="changeCoverContainerItem"
+										onClick={() => {
+											handleChangeCover('gallery');
+										}}
+									>
+										Change Gallery Cover
+									</div>
+								</div>
+							}
+							trigger={'click'}
+							overlayStyle={{ zIndex: 10000 }}
+							arrow={false}
+							placement="bottom"
+							color="transparent"
+						>
+							<div className="eachImageOptions">
+								<AlbumCoverIcon />
+								Change Cover
+							</div>
+						</Tooltip>
 						<Tooltip
 							title={
 								<div className="lablesContainer lablesListContainer">
@@ -626,7 +669,7 @@ const GalleryViewer = ({
 							placement="bottom"
 							arrow={false}
 							trigger={'click'}
-							overlayStyle={{ zIndex: 10000 }}
+							zIndex={10000}
 						>
 							<div className="eachImageOptions">
 								<Pin /> Tags
@@ -747,11 +790,11 @@ const GalleryViewer = ({
 						onOpenChange={(open) => {
 							handleSelectedImage(open);
 						}}
-						overlayStyle={{ zIndex: 10000 }}
 						arrow={false}
 						trigger={'hover'}
 						color="transparent"
 						placement="topLeft"
+						zIndex={10000}
 					>
 						<div className="imageSelectedPeopleContainer">
 							<InfoIcon />

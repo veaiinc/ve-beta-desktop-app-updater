@@ -1,5 +1,6 @@
 import { useCallback, useRef, useEffect } from 'react';
 import { message } from 'antd/lib';
+import { getConfig } from '../services/index.js';
 
 const useRecallStream = () => {
 	const socketRef = useRef(null);
@@ -23,76 +24,83 @@ const useRecallStream = () => {
 		};
 	}, []);
 
-	const createWebSocketConnection = useCallback((sessionId, pageId, onMessageFunc, isAiIntelligenceEnabled) => {
-		const usertoken = localStorage.getItem('usertoken');
-		const workspaceId = localStorage.getItem('workspaceId');
-		const region = localStorage.getItem('region') || 'us-east-1';
+	const createWebSocketConnection = useCallback(
+		async (sessionId, meetingId, onMessageFunc, isAiIntelligenceEnabled) => {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const region = localStorage.getItem('region') || 'us-east-1';
 
-		if (socketRef.current) {
-			isIntentionallyClosedRef.current = true;
-			socketRef.current.close();
-		}
+			if (socketRef.current) {
+				isIntentionallyClosedRef.current = true;
+				socketRef.current.close();
+			}
 
-		messageHandlerRef.current = onMessageFunc;
-		reconnectAttemptsRef.current = 0; // Reset reconnect attempts
-		isIntentionallyClosedRef.current = false;
+			messageHandlerRef.current = onMessageFunc;
+			reconnectAttemptsRef.current = 0; // Reset reconnect attempts
+			isIntentionallyClosedRef.current = false;
 
-		const wsUrl = `wss://recall.${region}.ve.ai/frontend/ws/${pageId}?token=${usertoken}`;
-		// const wsUrl = `https://internally-well-earwig.ngrok-free.app/frontend/ws/${pageId}?token=${usertoken}`;
+			// Get config and determine the appropriate recall WebSocket URL
+			const config = await getConfig();
+			const meetingWsUrl =
+				region === 'ap-south-1' ? config.meeting_ws_api : config.meeting_ws_api_US;
+			const wsUrl = `${meetingWsUrl}/frontend/ws/${meetingId}?token=${usertoken}`;
+			// const wsUrl = `https://internally-well-earwig.ngrok-free.app/frontend/ws/${pageId}?token=${usertoken}`;
 
-		const connect = () => {
-			socketRef.current = new WebSocket(wsUrl);
+			const connect = () => {
+				socketRef.current = new WebSocket(wsUrl);
 
-			socketRef.current.onopen = () => {
-				socketRef.current.send(
-					JSON.stringify({
-						location: locationData,
-						timezone: 'Asia/Calcutta',
-						session_id: pageId,
-						is_ai_intelligence_enabled: isAiIntelligenceEnabled,
-					}),
-				);
-				console.log('Connected to Recall WebSocket server');
-				reconnectAttemptsRef.current = 0; // Reset on successful connection
-				if (reconnectTimeoutRef.current) {
-					clearTimeout(reconnectTimeoutRef.current);
-				}
-			};
-
-			socketRef.current.onmessage = (event) => {
-				if (messageHandlerRef.current) {
-					messageHandlerRef.current(event);
-				}
-			};
-
-			socketRef.current.onclose = () => {
-				console.log('Disconnected from Recall WebSocket server');
-				if (isIntentionallyClosedRef.current) {
-					return; // Do not reconnect if closed intentionally
-				}
-
-				// Attempt reconnection if not manually closed
-				if (reconnectAttemptsRef.current < RECONNECT_ATTEMPTS) {
-					reconnectAttemptsRef.current += 1;
-					console.log(
-						`Attempting to reconnect (${reconnectAttemptsRef.current}/${RECONNECT_ATTEMPTS})...`,
+				socketRef.current.onopen = () => {
+					socketRef.current.send(
+						JSON.stringify({
+							location: locationData,
+							timezone: 'Asia/Calcutta',
+							session_id: meetingId,
+							is_ai_intelligence_enabled: isAiIntelligenceEnabled,
+						}),
 					);
-					reconnectTimeoutRef.current = setTimeout(() => {
-						connect();
-					}, RECONNECT_DELAY);
-				} else {
-					console.log('Max reconnect attempts reached, stopping reconnection');
-					message.error('Failed to reconnect to Recall WebSocket server');
-				}
+					console.log('Connected to Recall WebSocket server');
+					reconnectAttemptsRef.current = 0; // Reset on successful connection
+					if (reconnectTimeoutRef.current) {
+						clearTimeout(reconnectTimeoutRef.current);
+					}
+				};
+
+				socketRef.current.onmessage = (event) => {
+					if (messageHandlerRef.current) {
+						messageHandlerRef.current(event);
+					}
+				};
+
+				socketRef.current.onclose = () => {
+					console.log('Disconnected from Recall WebSocket server');
+					if (isIntentionallyClosedRef.current) {
+						return; // Do not reconnect if closed intentionally
+					}
+
+					// Attempt reconnection if not manually closed
+					if (reconnectAttemptsRef.current < RECONNECT_ATTEMPTS) {
+						reconnectAttemptsRef.current += 1;
+						console.log(
+							`Attempting to reconnect (${reconnectAttemptsRef.current}/${RECONNECT_ATTEMPTS})...`,
+						);
+						reconnectTimeoutRef.current = setTimeout(() => {
+							connect();
+						}, RECONNECT_DELAY);
+					} else {
+						console.log('Max reconnect attempts reached, stopping reconnection');
+						message.error('Failed to reconnect to Recall WebSocket server');
+					}
+				};
+
+				socketRef.current.onerror = (error) => {
+					console.error('Recall WebSocket error:', error);
+				};
 			};
 
-			socketRef.current.onerror = (error) => {
-				console.error('Recall WebSocket error:', error);
-			};
-		};
-
-		connect();
-	}, []);
+			connect();
+		},
+		[],
+	);
 
 	const closeWebSocketConnection = useCallback(() => {
 		isIntentionallyClosedRef.current = true;

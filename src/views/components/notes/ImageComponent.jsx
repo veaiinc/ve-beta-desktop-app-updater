@@ -29,6 +29,13 @@ const loaderStyle = {
 	zIndex: 1000,
 };
 
+const tooltipStyles = {
+	body: {
+		backgroundColor: 'inherit',
+		padding: 0,
+	},
+};
+
 const ImageComponent = ({ block, editor }) => {
 	const { previousBlocksRef, pageId } = useContext(EditorContext);
 	const {
@@ -149,121 +156,120 @@ const ImageComponent = ({ block, editor }) => {
 	}, [handleClickOutside]);
 
 	return (
-		<div className="custom-image-block">
-			{info.tempImageUrl || block.props.url ? (
-				<div
-					style={{
-						position: 'relative',
-						display: 'inline-block',
-					}}
-					onMouseEnter={() => handleInfoChange({ showReplace: true })}
-					onMouseLeave={() => handleInfoChange({ showReplace: false })}
-				>
-					{info.isLoading && (
-						<div style={loaderStyle}>
-							<Spinner width="20px" height="20px" />
-							Uploading...
-						</div>
-					)}
-					<ResizableBox
-						width={info.size.width}
-						height={info.size.height}
-						onResize={onResize}
-						onResizeStop={onResizeStop}
-						minConstraints={[100, 100]}
-						maxConstraints={[895, 895]}
-						resizeHandles={['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']}
-						className={`resizable-box ${info.isSelected ? 'selected' : ''}`}
-						onClick={(e) => {
-							e.stopPropagation();
-							handleInfoChange({ isSelected: true });
-						}}
+		<Tooltip
+			open={info.showUploadPopup}
+			onOpenChange={(visible) => handleInfoChange({ showUploadPopup: visible })}
+			placement="bottomLeft"
+			title={
+				<ImageUploadPopup
+					closePopup={() => handleInfoChange({ showUploadPopup: false })}
+					onImageSelect={handleImageSelect}
+					noteId={block.props.pageId}
+				/>
+			}
+			styles={tooltipStyles}
+			arrow={false}
+			trigger="click"
+			destroyOnHidden={true}
+			// align={{
+			// 	points: ['tr', 'br'],
+			// 	offset: [0, 0],
+			// }}
+		>
+			<div className="custom-image-block">
+				{info.tempImageUrl || block.props.url ? (
+					<div
 						style={{
-							border: info.isSelected ? '2px solid var(--info)' : 'none',
+							position: 'relative',
+							display: 'inline-block',
 						}}
+						onMouseEnter={() => handleInfoChange({ showReplace: true })}
+						onMouseLeave={() => handleInfoChange({ showReplace: false })}
 					>
-						<div className="image-container">
-							<img
-								src={info.tempImageUrl || block.props.url}
-								alt={block.props.caption}
-								data-fit={block.props.fitMode || 'fit'}
-							/>
-						</div>
-					</ResizableBox>
-					{info.showReplace && (
-						<div className="image-controls">
-							<button
-								onClick={(e) => {
-									e.stopPropagation();
-									toggleFitMode();
-								}}
-							>
-								{block.props.fitMode === 'cover'
-									? 'Contain'
-									: block.props.fitMode === 'fit'
-									? 'Cover'
-									: 'Fit'}
-							</button>
-							<button
-								onClick={(e) => {
-									e.stopPropagation();
-									handleInfoChange({ showUploadPopup: true });
-								}}
-							>
-								Replace
-							</button>
-						</div>
-					)}
-				</div>
-			) : (
-				<div
-					className="custom-image-block-placeholder"
-					onClick={() => !info.isLoading && handleInfoChange({ showUploadPopup: true })}
-				>
-					{info.isLoading ? (
-						<>
-							<div className="custom-image-block-placeholder-loading">
-								<Spinner width="24px" height="24px" />
+						{info.isLoading && (
+							<div style={loaderStyle}>
+								<Spinner width="20px" height="20px" />
+								Uploading...
 							</div>
-							<p className="custom-image-block-placeholder-text">
-								Uploading image...
-							</p>
-						</>
-					) : (
-						<>
-							<div className="custom-image-block-placeholder-icon">
-								<ImageIcon />
+						)}
+						<ResizableBox
+							width={info.size.width}
+							height={info.size.height}
+							onResize={onResize}
+							onResizeStop={onResizeStop}
+							minConstraints={[100, 100]}
+							maxConstraints={[895, 895]}
+							resizeHandles={['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']}
+							className={`resizable-box ${info.isSelected ? 'selected' : ''}`}
+							onClick={(e) => {
+								e.stopPropagation();
+								handleInfoChange({ isSelected: true });
+							}}
+							style={{
+								border: info.isSelected ? '2px solid var(--info)' : 'none',
+							}}
+						>
+							<div className="image-container">
+								<img
+									src={info.tempImageUrl || block.props.url}
+									alt={block.props.caption}
+									data-fit={block.props.fitMode || 'fit'}
+								/>
 							</div>
-							<p className="custom-image-block-placeholder-text">Add image</p>
-						</>
-					)}
-				</div>
-			)}
-
-			<Tooltip
-				open={info.showUploadPopup}
-				onOpenChange={(visible) => handleInfoChange({ showUploadPopup: visible })}
-				placement="bottomRight"
-				title={
-					<ImageUploadPopup
-						closePopup={() => handleInfoChange({ showUploadPopup: false })}
-						onImageSelect={handleImageSelect}
-						noteId={block.props.pageId}
-					/>
-				}
-				overlayInnerStyle={{
-					backgroundColor: 'inherit',
-					padding: 0,
-				}}
-				arrow={false}
-				trigger="click"
-				destroyOnHidden={true}
-				align={{
-					points: ['tr', 'br'],
-					offset: [0, 0],
-				}}
-			/>
-		</div>
+						</ResizableBox>
+						{info.showReplace && (
+							<div className="image-controls">
+								<button
+									onClick={(e) => {
+										e.stopPropagation();
+										toggleFitMode();
+									}}
+								>
+									{block.props.fitMode === 'cover'
+										? 'Contain'
+										: block.props.fitMode === 'fit'
+										? 'Cover'
+										: 'Fit'}
+								</button>
+								<button
+									onClick={(e) => {
+										e.stopPropagation();
+										handleInfoChange({ showUploadPopup: true });
+									}}
+								>
+									Replace
+								</button>
+							</div>
+						)}
+					</div>
+				) : (
+					<div
+						className="custom-image-block-placeholder"
+						onClick={() =>
+							!info.isLoading && handleInfoChange({ showUploadPopup: true })
+						}
+					>
+						{info.isLoading ? (
+							<>
+								<div className="custom-image-block-placeholder-loading">
+									<Spinner width="24px" height="24px" />
+								</div>
+								<p className="custom-image-block-placeholder-text">
+									Uploading image...
+								</p>
+							</>
+						) : (
+							<>
+								<div className="custom-image-block-placeholder-icon">
+									<ImageIcon />
+								</div>
+								<p className="custom-image-block-placeholder-text">Add image</p>
+							</>
+						)}
+					</div>
+				)}
+			</div>
+		</Tooltip>
 	);
 };
 

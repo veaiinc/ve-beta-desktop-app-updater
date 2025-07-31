@@ -12,6 +12,10 @@ import { message } from '../globalComponents/CustomToast';
 // import CustomTextArea from '../globalComponents/CustomTextArea';
 import Context from '../../../context/context';
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content', padding: '0' },
+};
+
 const personas = [
 	{
 		option1: 'Formal',
@@ -304,7 +308,7 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 						arrow={false}
 						trigger={'click'}
 						color={'transparent'}
-						overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+						styles={tooltipStyles}
 					>
 						<div className="voiceList">
 							{info?.selectedVoice}{' '}

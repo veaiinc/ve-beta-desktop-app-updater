@@ -20,7 +20,7 @@ const ActionDetailsBlock = ({
 					<h3>{heading}</h3>
 					<span className="actionDetailsBlockHeaderActionName">{actionLabel}</span>
 				</div>
-				<div className="actionDetailsBlockHeaderRight">
+				{/* <div className="actionDetailsBlockHeaderRight">
 					{showChangeButton && (
 						<button
 							className="actionDetailsBlockHeaderButton"
@@ -29,7 +29,7 @@ const ActionDetailsBlock = ({
 							Change
 						</button>
 					)}
-				</div>
+				</div> */}
 			</div>
 			<div className="actionDetailsBlockBody">
 				<input

@@ -2305,17 +2305,30 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getRecentChatMessages = async (
+	const getRecentChatMessages = async ({
 		sessionId,
 		page = 1,
 		fetchMore = false,
 		limit = 1000,
 		isPublicChat = false,
-	) => {
+		removeSessionId = false,
+	}) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const selectedvariable = fetchMore ? 'moreRecentChatStorage' : 'recentChatStorage';
+
+			if (removeSessionId) {
+				dispatch({
+					type: Actions.RECENT_CHAT_MESSAGES_ACTIONS_REQUESTS,
+					payload: {
+						sessionId,
+						removeSessionId,
+					},
+					selectedvariable,
+				});
+				return;
+			}
 
 			let response;
 			if (isPublicChat) {
@@ -2339,7 +2352,10 @@ export const TemplatesState = (props) => {
 			if (response?.[0]) {
 				dispatch({
 					type: Actions.RECENT_CHAT_MESSAGES_ACTIONS_REQUESTS,
-					payload: response?.[1],
+					payload: {
+						data: response?.[1],
+						sessionId,
+					},
 					selectedvariable,
 				});
 			} else {
@@ -2669,6 +2685,18 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const updateProactiveAiAccess = async (payload, id) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/knowledge-bases/pending-actions/${id}/access`;
+			const response = await Service.fetchPut(url, payload, usertoken, 'tenant');
+			return response;
+		} catch (error) {
+			console.log('error==>updateProactiveAiAccess', error);
+		}
+	};
+
 	const getChatBoxSuggestions = async (payload) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -2937,6 +2965,7 @@ export const TemplatesState = (props) => {
 		updateAiQuestions,
 		getProactiveAiData,
 		addProactiveAiAccess,
+		updateProactiveAiAccess,
 		getChatBoxSuggestions,
 		updateChatLoadingSessions,
 		deleteChatSession,

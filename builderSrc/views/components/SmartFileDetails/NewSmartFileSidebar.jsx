@@ -404,14 +404,14 @@ const SmartFileSidebar = ({
 	);
 
 	const refreshClientDetails = useCallback(() => {
-
-		
 		// ! commenting cause not using it now
 		// if (workflowId) {
 		// 	getSmartFileData({
 		// 		getWorkflowWithModulesId: workflowId,
 		// 	});
 		// }
+		// ! added to fetch updated variables
+		refreshVariablesData();
 	}, [workflowId, getSmartFileData]);
 
 	if (!showSmartFileSidebar) {
@@ -628,76 +628,6 @@ const SmartFileSidebar = ({
 			});
 		}
 
-		// Check signature data for empty fields
-		if (fileOptions && fileOptions.length > 0) {
-			fileOptions.forEach((option) => {
-				const moduleData = option.moduleData;
-				if (moduleData?.versions?.[0]?.tables) {
-					moduleData.versions[0].tables.forEach((table) => {
-						if (
-							table.type === 'contract-with-signature' &&
-							table.values &&
-							table.values.length > 0
-						) {
-							// Check if there's a signature displayed in the UI (Your Signature section)
-							const signatureComponent =
-								document.querySelector('.signature-component');
-							const yourSignatureSection = signatureComponent?.querySelector(
-								'.acceptedBlocks:nth-child(2)',
-							);
-							const hasSignatureInUI =
-								yourSignatureSection &&
-								yourSignatureSection.querySelector('.signatureContainer') &&
-								!yourSignatureSection
-									.querySelector('.signatureContainer span')
-									?.textContent.includes('Not Signed Yet') &&
-								!yourSignatureSection
-									.querySelector('.signatureContainer span')
-									?.textContent.includes('Click to type');
-
-							// Check if there's a signed signature in the local state
-							const hasSignedSignature =
-								signatureComponent &&
-								signatureComponent.querySelector('img[alt="signature"]');
-
-							// Check if any signature has a valid tenant signature
-							const hasValidTenantSignature = table.values.some((signature) => {
-								const tenantSignature =
-									signature.values && signature.values.length > 1
-										? signature.values[1]
-										: null;
-								return (
-									tenantSignature &&
-									tenantSignature.value &&
-									tenantSignature.value.trim() !== ''
-								);
-							});
-
-							// Only add "Your Signature" once if no valid signature is found
-							if (
-								!hasValidTenantSignature &&
-								!hasSignatureInUI &&
-								!hasSignedSignature
-							) {
-								emptyFieldNames.push('Your Signature');
-							}
-						}
-					});
-				}
-			});
-		}
-
-		// Check client details for empty fields
-		if (info?.clientDetails) {
-			const clientDetails = info.clientDetails;
-			if (!clientDetails.name || clientDetails.name.trim() === '') {
-				emptyFieldNames.push('Client Name');
-			}
-			if (!clientDetails.email || clientDetails.email.trim() === '') {
-				emptyFieldNames.push('Client Email');
-			}
-		}
-
 		// Check payment schedule for missing dates
 		let paymentDateErrorAdded = false;
 		if (fileOptions && fileOptions.length > 0) {
@@ -738,7 +668,7 @@ const SmartFileSidebar = ({
 		}
 
 		return emptyFieldNames;
-	}, [info?.variablesData, info?.documentTitle, info?.clientDetails, fileOptions]);
+	}, [info?.variablesData, info?.documentTitle, fileOptions]);
 
 	// Function to handle empty fields modal
 	const handleEmptyFieldsModal = useCallback(() => {
@@ -761,16 +691,6 @@ const SmartFileSidebar = ({
 		// Handle document title case
 		if (firstEmptyField === 'Document Title') {
 			setIsEditingTitle(true);
-			return;
-		}
-
-		// Handle client details
-		if (firstEmptyField === 'Client Name' || firstEmptyField === 'Client Email') {
-			// Find and focus on client details section
-			const clientDetailsElement = document.querySelector('.client-details-section');
-			if (clientDetailsElement) {
-				clientDetailsElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-			}
 			return;
 		}
 
@@ -849,16 +769,6 @@ const SmartFileSidebar = ({
 				setTimeout(() => {
 					eventsSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
 				}, 300);
-			}
-			return;
-		}
-
-		// Handle signature fields
-		if (firstEmptyField && firstEmptyField.includes('Signature')) {
-			// Find the signature section and expand it
-			const signatureSection = document.querySelector('.signature-component');
-			if (signatureSection) {
-				signatureSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
 			}
 			return;
 		}

@@ -12,6 +12,11 @@ import {
 } from '../../../../helpers';
 import { ReactComponent as VeLogoSvg } from '../../../../assets/svg/veLogo.svg';
 
+const styles = {
+	header: { display: 'none' },
+	body: { padding: '0px' },
+};
+
 const CitationsModal = ({ closeModal, modalIsOpen }) => {
 	const {
 		templates: { chatSources },
@@ -27,8 +32,7 @@ const CitationsModal = ({ closeModal, modalIsOpen }) => {
 			rootClassName="citations-modal"
 			width={400}
 			mask={false}
-			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
+			styles={styles}
 		>
 			<div className="citations-container">
 				<div className="header">
@@ -81,7 +85,13 @@ const CitationsModal = ({ closeModal, modalIsOpen }) => {
 									</div>
 								</div>
 								{(citation?.name || citation?.snippet) && (
-									<div className="source-name-text-container">
+									<div
+										className="source-name-text-container"
+										style={{
+											wordBreak:
+												citation?.type === 'url' ? 'break-all' : 'normal',
+										}}
+									>
 										{citation?.name || citation?.snippet || ''}
 									</div>
 								)}

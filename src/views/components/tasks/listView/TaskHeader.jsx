@@ -9,6 +9,10 @@ import { Tooltip } from 'antd';
 import TabEditDropdown from '../../dropDown/tasks/TabEditDropdown';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content', padding: '0' },
+};
+
 export const layouts = {
 	list: {
 		Icon: <ListViewIcon />,
@@ -132,7 +136,7 @@ const TaskHeader = ({
 				arrow={false}
 				trigger={'click'}
 				color={'transparent'}
-				overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+				styles={tooltipStyles}
 				style={{ padding: 0 }}
 				placement="bottomLeft"
 			>

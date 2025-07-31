@@ -7,6 +7,10 @@ import Notification from './AutomationBuilderSidebarComponents/Notification';
 import Context from '../../../context/context';
 import Triggers from './AutomationBuilderSidebarComponents/Triggers';
 import RunSidebar from './AutomationBuilderSidebarComponents/RunSidebar';
+const styles = {
+	header: { display: 'none' },
+	body: { padding: '0px' },
+};
 const BuilderToolbar = ({
 	open,
 	onClose,
@@ -125,8 +129,7 @@ const BuilderToolbar = ({
 				borderLeft: '1px solid var(--stroke)',
 				color: 'var(--primary-font)',
 			}}
-			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
+			styles={styles}
 			mask={false}
 			rootClassName="testing"
 		>

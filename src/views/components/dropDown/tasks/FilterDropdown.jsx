@@ -11,6 +11,17 @@ import PersonDropdown from './PersonDropdown';
 import TeamMembersDropdown from './TeamMembersDropdown';
 import DateViewDropdown from './DateViewDropdown';
 
+const innerTooltipStyles = {
+	body: {
+		minWidth: 'fit-content',
+		paddingLeft: '8px',
+	},
+};
+
+const outerTooltipStyles = {
+	body: { minWidth: 'fit-content' },
+};
+
 const filterMapperTypes = {
 	text: TextFilter,
 	select: SelectDropdown,
@@ -67,7 +78,7 @@ const FilterDropdown = ({ properties, colors, filters, responseMetadata, handleF
 
 								return (
 									<Tooltip
-										destroyTooltipOnHide
+										destroyOnHidden={true}
 										key={property?.value}
 										title={
 											<div className="filter-dropdown-tooltip-body-item-dropdown">
@@ -115,10 +126,7 @@ const FilterDropdown = ({ properties, colors, filters, responseMetadata, handleF
 										trigger={['click', 'hover']}
 										color="transparent"
 										placement="rightTop"
-										overlayStyle={{
-											minWidth: 'fit-content',
-											paddingLeft: '8px',
-										}}
+										styles={innerTooltipStyles}
 									>
 										<div className="filter-dropdown-tooltip-body-item">
 											<div className="filter-dropdown-tooltip-body-item-icon">
@@ -142,7 +150,7 @@ const FilterDropdown = ({ properties, colors, filters, responseMetadata, handleF
 			trigger={'click'}
 			color={'transparent'}
 			placement={'bottomRight'}
-			overlayStyle={{ minWidth: 'fit-content' }}
+			styles={outerTooltipStyles}
 		>
 			<button className="sort-filter-button">
 				<PlusIcon />

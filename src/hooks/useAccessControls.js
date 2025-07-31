@@ -40,6 +40,14 @@ const useAccessControls = () => {
 	useEffect(() => {
 		if (!tenantUserAccessControls) {
 			fetchTenantUserAccessControls();
+		} else {
+			localStorage.setItem(
+				'accessControls',
+				JSON.stringify({
+					accessControls: tenantUserAccessControls.accessControls,
+					role: tenantUserAccessControls.role,
+				}),
+			);
 		}
 	}, [tenantUserAccessControls]);
 

@@ -145,7 +145,7 @@ const InviteMembersWorkspaceComponent = ({
 
 				{sendRequestList?.map((singleUser, index) => {
 					return (
-						<div style={{ width: '100%' }}>
+						<div key={index} style={{ width: '100%' }}>
 							<div className="sendRequestInputContainer">
 								<div className="sendRequestInput">
 									<input

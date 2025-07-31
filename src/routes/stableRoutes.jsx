@@ -6,8 +6,8 @@ import AuthWrapper from '../views/layouts/authWrapper';
 
 // pages
 // import InitialHomePage from '../views/features/homePage/InitialHomePage';
-import MeetBot from '../views/features/meetBot/meetBot';
-import NotesWrapper from '../views/features/notesModule/NotesWrapper';
+// import MeetBot from '../views/features/meetBot/meetBot';
+// import NotesWrapper from '../views/features/notesModule/NotesWrapper';
 
 // lazy loaded pages
 import ShareAndEarn from '../views/features/shareAndEarn/ShareAndEarn';
@@ -22,6 +22,7 @@ import CardMeetBot from '../views/features/meetBot/CardMeetBot';
 import Agents from '../views/features/agents/Agents';
 import Agent from '../views/features/agents/agent/Agent';
 import GlobalWorkflows from '../views/features/sales/GlobalWorkflows';
+import NotesWrapper from '../views/features/notesModule/NotesWrapper';
 
 const stableRoutes = [
 	// {
@@ -98,7 +99,7 @@ const stableRoutes = [
 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 				maxWidth="100%"
 			>
-				<RecentChat showBottomToolbar={true} />
+				<RecentChat showChatHistory={true} showDeleteChat={true} showChats={true} />
 			</AuthWrapper>
 		),
 	},
@@ -131,7 +132,7 @@ const stableRoutes = [
 		),
 	},
 	{
-		path: '/meet/:noteId',
+		path: '/meet/:noteId/:meetingId',
 		element: (
 			<AuthWrapper title={'Meet'}>
 				<NotesWrapper />

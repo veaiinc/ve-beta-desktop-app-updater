@@ -20,17 +20,13 @@ const AiTranscriptionSuggestions = ({
 	allSuggestions = [],
 }) => {
 	const {
-		templates: { aiTranscriptionSuggestions, updateStateValues },
+		templates: { updateStateValues },
 	} = useContext(Context);
 	const [searchParams, setSearchParams] = useSearchParams();
+	const sessionId = searchParams.get('sId');
 	// const [info, setInfo] = useState({
-	// 	files: [],
-	// 	questions: [],
-	// 	actions: [],
+	// 	sessionId: null,
 	// });
-	const questionsRef = useRef(null);
-	const filesRef = useRef(null);
-	const actionsRef = useRef(null);
 	const bodyRef = useRef(null);
 	// useEffect(() => {
 	// 	if (aiTranscriptionSuggestions) {
@@ -58,6 +54,15 @@ const AiTranscriptionSuggestions = ({
 	// 		});
 	// 	};
 	// }, []);
+
+	// useEffect(() => {
+	// 	if (searchParams.get('sId')) {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			sessionId: searchParams.get('sId'),
+	// 		}));
+	// 	}
+	// }, [searchParams]);
 
 	useEffect(() => {
 		if (!bodyRef.current) return;
@@ -117,19 +122,34 @@ const AiTranscriptionSuggestions = ({
 
 	const handleActionClick = useCallback(
 		(prompt) => {
-			const newParams = new URLSearchParams(searchParams);
-			newParams.set('chat', 'true');
-			setSearchParams(newParams);
-			updateStateValues({
-				activePromptForChat: prompt,
-			});
+			if (prompt && sessionId) {
+				const newParams = new URLSearchParams(searchParams);
+				newParams.set('chat', 'true');
+				setSearchParams(newParams);
+				updateStateValues({
+					activePromptForChat: {
+						prompt,
+						sessionId,
+					},
+				});
+			}
 		},
-		[updateStateValues],
+		[sessionId],
 	);
 
 	const handleFileClick = useCallback((file) => {
 		redirectTo?.(file?.type, file?.[redirectTypeMapper?.[file?.type]]);
 	}, []);
+
+	const uniqueFiles = [];
+	const seen = new Set();
+	files?.forEach((file) => {
+		const id = file.source || file.s3_key || file.name;
+		if (!seen.has(id)) {
+			seen.add(id);
+			uniqueFiles.push(file);
+		}
+	});
 
 	return (
 		<div
@@ -156,10 +176,29 @@ const AiTranscriptionSuggestions = ({
 			>
 				{activeTab === 'all' && (
 					<div className={s.allSuggestionsContainer}>
-						{allSuggestions?.map((suggestion, index) => {
-							return (
-								<Fragment key={index}>
-									{suggestion?.entity === 'user' ? (
+						{(() => {
+							const result = [];
+							let currentFileGroup = [];
+
+							allSuggestions?.forEach((suggestion, index) => {
+								if (
+									suggestion?.entity === 'user' ||
+									suggestion?.entity === 'other_user'
+								) {
+									// Flush any pending file group
+									if (currentFileGroup.length > 0) {
+										result.push(
+											<div
+												className={s.filesContainer}
+												key={`files-${index}`}
+											>
+												{currentFileGroup}
+											</div>,
+										);
+										currentFileGroup = [];
+									}
+
+									result.push(
 										<div className={s.userQuestionContainer} key={index}>
 											<div className={s.header}>Ask User</div>
 											<div className={s.body}>
@@ -167,9 +206,27 @@ const AiTranscriptionSuggestions = ({
 													{suggestion?.query || ''}
 												</div>
 											</div>
-										</div>
-									) : suggestion?.entity === 'agent' ? (
-										suggestion?.type === 'search' ? (
+										</div>,
+									);
+								} else if (
+									suggestion?.entity === 'agent' ||
+									suggestion?.entity?.includes('agent')
+								) {
+									// Flush any pending file group
+									if (currentFileGroup.length > 0) {
+										result.push(
+											<div
+												className={s.filesContainer}
+												key={`files-${index}`}
+											>
+												{currentFileGroup}
+											</div>,
+										);
+										currentFileGroup = [];
+									}
+
+									if (suggestion?.type === 'search') {
+										result.push(
 											<div className={s.aiQuestionContainer} key={index}>
 												<div className={s.header}>Need help?</div>
 												<div
@@ -193,12 +250,13 @@ const AiTranscriptionSuggestions = ({
 														</div>
 													)}
 												</div>
-											</div>
-										) : (
-											<div className={s.actionsContainer}>
+											</div>,
+										);
+									} else {
+										result.push(
+											<div className={s.actionsContainer} key={index}>
 												<div
 													className={s.actionContainer}
-													key={index}
 													onClick={() =>
 														handleActionClick(suggestion?.query || '')
 													}
@@ -207,9 +265,12 @@ const AiTranscriptionSuggestions = ({
 													{suggestion?.query || ''}
 												</div>
 												<div className={s.horizontalLine} />
-											</div>
-										)
-									) : (
+											</div>,
+										);
+									}
+								} else {
+									// This is a file - add to current file group
+									currentFileGroup.push(
 										<div
 											className={s.file}
 											key={index}
@@ -223,11 +284,22 @@ const AiTranscriptionSuggestions = ({
 												] || <VeLogoSvg />}
 											</div>
 											<div className={s.fileName}>{suggestion?.name}</div>
-										</div>
-									)}
-								</Fragment>
-							);
-						})}
+										</div>,
+									);
+								}
+							});
+
+							// Flush any remaining file group
+							if (currentFileGroup.length > 0) {
+								result.push(
+									<div className={s.filesContainer} key="files-final">
+										{currentFileGroup}
+									</div>,
+								);
+							}
+
+							return result;
+						})()}
 					</div>
 				)}
 
@@ -297,7 +369,7 @@ const AiTranscriptionSuggestions = ({
 
 				{activeTab === 'files' && (
 					<div className={s.filesContainer}>
-						{files?.map((file, index) => (
+						{uniqueFiles.map((file, index) => (
 							<div
 								className={s.file}
 								key={index}

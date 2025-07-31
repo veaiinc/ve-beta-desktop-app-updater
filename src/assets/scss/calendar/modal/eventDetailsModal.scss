@@ -167,6 +167,52 @@
 			.eventInfoWrapper {
 				width: 100%;
 			}
+			.attendeesSection {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 8px;
+				align-self: stretch;
+				padding: 10px;
+				border-radius: 8px;
+
+				.attendeesValue {
+					width: 100%;
+
+					.attendeesList {
+						display: flex;
+						margin-top: 8px;
+						overflow-y: auto;
+						max-height: 200px;
+						width: fit-content;
+						gap: 4px;
+						flex-wrap: wrap;
+						padding-right: 8px;
+					}
+
+					.attendee-item {
+						display: flex;
+						justify-content: space-between;
+						align-items: center;
+						padding: 6px 8px;
+						border: 1px solid var(--stroke);
+						border-radius: 6px;
+						margin-bottom: 6px;
+						background: var(--card-over-card);
+						color: var(--primary-font);
+						font-size: 14px;
+
+						button {
+							background: transparent;
+							border: none;
+							cursor: pointer;
+							font-weight: bold;
+							font-size: 16px;
+							line-height: 1;
+						}
+					}
+				}
+			}
 
 			.eventDetailsTitle {
 				color: var(--primary-font);
@@ -204,6 +250,7 @@
 							background: var(--popup);
 							border: none;
 							padding: 4px 8px;
+							height: 0;
 						}
 
 						.ant-select-selection-item {

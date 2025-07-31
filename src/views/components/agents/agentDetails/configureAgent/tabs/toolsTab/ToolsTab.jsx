@@ -127,13 +127,13 @@ const ToolsTab = ({ agentId }) => {
 			setInfo((prev) => {
 				const firstTool =
 					prev.selectedTool || (actionList.length > 0 ? actionList[0] : null);
-				const variables = firstTool?.typeDependencies?.variables || [];
+				const variables = firstTool?.typeDependencies?.variables || {};
 				const defaultSelections = {};
 
 				// Set default selection to 'ai' for all variables
-				variables.forEach((variable) => {
-					defaultSelections[variable.name] = 'ai';
-				});
+				// variables.forEach((variable) => {
+				// 	defaultSelections[variable.name] = 'ai';
+				// });
 
 				return {
 					...prev,
@@ -142,7 +142,7 @@ const ToolsTab = ({ agentId }) => {
 					searchLoading: false,
 					// Auto-select the first tool if no tool is currently selected
 					selectedTool: firstTool,
-					toolVariables: variables.map((v) => ({ ...v, value: '' })),
+					// toolVariables: variables.map((v) => ({ ...v, value: '' })),
 					variableSelections: {
 						...prev.variableSelections,
 						...defaultSelections,
@@ -262,7 +262,7 @@ const ToolsTab = ({ agentId }) => {
 		setInfo((prev) => ({
 			...prev,
 			selectedTool: tool,
-			toolVariables: variables.map((v) => ({ ...v, value: '' })),
+			// toolVariables: variables.map((v) => ({ ...v, value: '' })),
 			variableSelections: {
 				...prev.variableSelections,
 				...defaultSelections,
@@ -377,7 +377,7 @@ const ToolsTab = ({ agentId }) => {
 	return (
 		<div className={s?.actionsTabContainer}>
 			<AgentCredentials />
-				{/* <div className={s?.actionsHeader}>
+			{/* <div className={s?.actionsHeader}>
 					<div className={s?.searchInputContainer}>
 					<div className={s?.searchIcon}>
 						{info?.searchLoading ? (
@@ -396,13 +396,13 @@ const ToolsTab = ({ agentId }) => {
 				</div>
 
 				</div> */}
-				{/* <span className={s.description}>
+			{/* <span className={s.description}>
 				Give your agent abilities like reading emails or syncing notes.
 			</span> */}
 
-				<div className={s.twoPanelLayout}>
-					{/* Left Panel - Tool List */}
-					<div className={s.leftPanel}>
+			<div className={s.twoPanelLayout}>
+				{/* Left Panel - Tool List */}
+				<div className={s.leftPanel}>
 					<div
 						className={s?.addActionButton}
 						onClick={() =>
@@ -415,250 +415,235 @@ const ToolsTab = ({ agentId }) => {
 						<PlusSvg />
 						<span>Add tool</span>
 					</div>
-						{info?.aiActionList?.length > 0 ? (
-							<div className={s.toolList}>
-								{info?.aiActionList?.map((item) => (
-									<div
-										key={item?._id}
-										className={`${s.toolItem} ${
-											info.selectedTool?._id === item?._id ? s.selected : ''
-										}`}
-										onClick={() => handleToolSelect(item)}
-									>
-										<div className={s.toolIcon}>
-											{getToolFaviconUrl(item?.typeDependencies) && (
-												<img
-													src={getToolFaviconUrl(item?.typeDependencies)}
-													alt="Tool icon"
-													className={s.toolFavicon}
-												/>
+					{info?.aiActionList?.length > 0 ? (
+						<div className={s.toolList}>
+							{info?.aiActionList?.map((item) => (
+								<div
+									key={item?._id}
+									className={`${s.toolItem} ${
+										info.selectedTool?._id === item?._id ? s.selected : ''
+									}`}
+									onClick={() => handleToolSelect(item)}
+								>
+									<div className={s.toolIcon}>
+										{getToolFaviconUrl(item?.typeDependencies) && (
+											<img
+												src={getToolFaviconUrl(item?.typeDependencies)}
+												alt="Tool icon"
+												className={s.toolFavicon}
+											/>
+										)}
+									</div>
+									<div className={s.toolInfo}>
+										<p className={s.toolName}>{item?.typeDependencies?.name}</p>
+										<span className={s.toolDescription}>
+											{getCleanDescription(
+												item?.typeDependencies?.description,
 											)}
-										</div>
-										<div className={s.toolInfo}>
-											<p className={s.toolName}>
-												{item?.typeDependencies?.name}
-											</p>
-											<span className={s.toolDescription}>
-												{getCleanDescription(
-													item?.typeDependencies?.description,
-												)}
-											</span>
-										</div>
+										</span>
 									</div>
-								))}
-							</div>
-						) : (
-							<div className={s?.emptyState}>
-								<p className={s?.emptyStateTitle}>No tools found</p>
-								<p className={s?.emptyStateDescription}>
-									Add a tool to get started.
-								</p>
-							</div>
-						)}
-					</div>
+								</div>
+							))}
+						</div>
+					) : (
+						<div className={s?.emptyState}>
+							<p className={s?.emptyStateTitle}>No tools found</p>
+							<p className={s?.emptyStateDescription}>Add a tool to get started.</p>
+						</div>
+					)}
+				</div>
 
-					{/* Right Panel - Tool Configuration */}
-					<div className={s.rightPanel}>
-						{info.selectedTool ? (
-							<div className={s.toolConfiguration}>
-								{/* Tool Header */}
-								<div className={s.toolHeader}>
-									<div className={s.toolTitle}>
-										<span>{info.selectedTool?.typeDependencies?.name}</span>
-										{/* <ChevronDownIcon className={s.chevronIcon} /> */}
-									</div>
-									<div className={s.toolHeaderActions}>
-										<button
-											className={s.headerActionButton}
-											onClick={() =>
-												handleDeleteAction(info.selectedTool?._id)
-											}
-										>
-											<DeleteSvg />
-											Delete
-										</button>
-										<button
-											className={s.headerActionButton}
-											onClick={() => {
-												setTimeout(() => {
-													if (firstInputRef.current) {
-														firstInputRef.current.focus();
-													}
-												}, 100);
-											}}
-										>
-											<EditIcon />
-											Edit tool
-										</button>
-										{/* <button className={s.headerActionButton}>
+				{/* Right Panel - Tool Configuration */}
+				<div className={s.rightPanel}>
+					{info.selectedTool ? (
+						<div className={s.toolConfiguration}>
+							{/* Tool Header */}
+							<div className={s.toolHeader}>
+								<div className={s.toolTitle}>
+									<span>{info.selectedTool?.typeDependencies?.name}</span>
+									{/* <ChevronDownIcon className={s.chevronIcon} /> */}
+								</div>
+								<div className={s.toolHeaderActions}>
+									<button
+										className={s.headerActionButton}
+										onClick={() => handleDeleteAction(info.selectedTool?._id)}
+									>
+										<DeleteSvg />
+										Delete
+									</button>
+									<button
+										className={s.headerActionButton}
+										onClick={() => {
+											setTimeout(() => {
+												if (firstInputRef.current) {
+													firstInputRef.current.focus();
+												}
+											}, 100);
+										}}
+									>
+										<EditIcon />
+										Edit tool
+									</button>
+									{/* <button className={s.headerActionButton}>
 										<AutoRunIcon />
 										Auto run
 									</button> */}
-										<ToggleSwitch
-											id={`toggle-${info.selectedTool?._id}`}
-											value={info.selectedTool?.status}
-											onChange={() =>
-												handleToggleChange(
-													info.selectedTool?._id,
-													info.selectedTool?.status,
-													info.selectedTool?.type,
-												)
-											}
-										/>
-									</div>
-								</div>
-
-								{/* Tool Description */}
-								<div className={s.toolDescriptionSection}>
-									<div className={s.sectionHeader}>
-										<RobotIcon className={s.sectionIcon} />
-										<span>How tool is described to agent</span>
-									</div>
-									<textarea
-										className={s.descriptionTextarea}
-										placeholder="Describe how this tool should be presented to the agent..."
-										value={
-											info.selectedTool?.typeDependencies?.description || ''
+									<ToggleSwitch
+										id={`toggle-${info.selectedTool?._id}`}
+										value={info.selectedTool?.status}
+										onChange={() =>
+											handleToggleChange(
+												info.selectedTool?._id,
+												info.selectedTool?.status,
+												info.selectedTool?.type,
+											)
 										}
-										readOnly
 									/>
 								</div>
+							</div>
 
-								{/* Tool Input Variables */}
-								<div className={s.toolInputSection}>
-									<div className={s.sectionHeader}>
-										<DocumentIcon className={s.sectionIcon} />
-										<span>Tool Input</span>
-									</div>
-									<div className={s.variablesContainer}>
-										{Array.isArray(info.toolVariables) &&
-											info.toolVariables.map((variable, idx) => (
-												<div key={variable.name} className={s.variableCard}>
-													<div className={s.variableHeader}>
-														<span className={s.variableName}>
-															{variable.name}
-														</span>
-														<div className={s.dropdownContainer}>
-															<button
-																className={s.variableConfigButton}
-																onClick={(e) => {
-																	e.stopPropagation();
-																	toggleDropdown(variable.name);
-																}}
-															>
-																{info.variableSelections[
+							{/* Tool Description */}
+							<div className={s.toolDescriptionSection}>
+								<div className={s.sectionHeader}>
+									<RobotIcon className={s.sectionIcon} />
+									<span>How tool is described to agent</span>
+								</div>
+								<textarea
+									className={s.descriptionTextarea}
+									placeholder="Describe how this tool should be presented to the agent..."
+									value={info.selectedTool?.typeDependencies?.description || ''}
+									readOnly
+								/>
+							</div>
+
+							{/* Tool Input Variables */}
+							<div className={s.toolInputSection}>
+								<div className={s.sectionHeader}>
+									<DocumentIcon className={s.sectionIcon} />
+									<span>Tool Input</span>
+								</div>
+								<div className={s.variablesContainer}>
+									{Array.isArray(info.toolVariables) &&
+										info.toolVariables.map((variable, idx) => (
+											<div key={variable.name} className={s.variableCard}>
+												<div className={s.variableHeader}>
+													<span className={s.variableName}>
+														{variable.name}
+													</span>
+													<div className={s.dropdownContainer}>
+														<button
+															className={s.variableConfigButton}
+															onClick={(e) => {
+																e.stopPropagation();
+																toggleDropdown(variable.name);
+															}}
+														>
+															{info.variableSelections[
+																variable.name
+															] === 'manual' ? (
+																<>
+																	<SettingsIcon />
+																	Set manually
+																</>
+															) : info.variableSelections[
 																	variable.name
-																] === 'manual' ? (
-																	<>
-																		<SettingsIcon />
-																		Set manually
-																	</>
-																) : info.variableSelections[
+															  ] === 'ai' ? (
+																<>
+																	<StarIcon />
+																	Let the AI decide
+																</>
+															) : (
+																<>
+																	<SettingsIcon />
+																	Set manually
+																</>
+															)}
+															<ChevronDownIcon
+																className={`${s.chevronIcon} ${
+																	info.openDropdowns[
 																		variable.name
-																  ] === 'ai' ? (
-																	<>
-																		<StarIcon />
-																		Let the AI decide
-																	</>
-																) : (
-																	<>
-																		<SettingsIcon />
-																		Set manually
-																	</>
-																)}
-																<ChevronDownIcon
-																	className={`${s.chevronIcon} ${
-																		info.openDropdowns[
+																	]
+																		? s.rotated
+																		: ''
+																}`}
+															/>
+														</button>
+														{info.openDropdowns[variable.name] && (
+															<div className={s.dropdownMenu}>
+																<div
+																	className={`${s.dropdownItem} ${
+																		info.variableSelections[
 																			variable.name
-																		]
-																			? s.rotated
+																		] === 'manual'
+																			? s.selected
 																			: ''
 																	}`}
-																/>
-															</button>
-															{info.openDropdowns[variable.name] && (
-																<div className={s.dropdownMenu}>
-																	<div
-																		className={`${
-																			s.dropdownItem
-																		} ${
-																			info.variableSelections[
-																				variable.name
-																			] === 'manual'
-																				? s.selected
-																				: ''
-																		}`}
-																		onClick={() =>
-																			handleOptionSelect(
-																				variable.name,
-																				'manual',
-																			)
-																		}
-																	>
-																		<SettingsIcon />
-																		Set manually
-																	</div>
-																	<div
-																		className={`${
-																			s.dropdownItem
-																		} ${
-																			info.variableSelections[
-																				variable.name
-																			] === 'ai'
-																				? s.selected
-																				: ''
-																		}`}
-																		onClick={() =>
-																			handleOptionSelect(
-																				variable.name,
-																				'ai',
-																			)
-																		}
-																	>
-																		<StarIcon />
-																		Let the AI decide
-																	</div>
+																	onClick={() =>
+																		handleOptionSelect(
+																			variable.name,
+																			'manual',
+																		)
+																	}
+																>
+																	<SettingsIcon />
+																	Set manually
 																</div>
-															)}
-														</div>
+																<div
+																	className={`${s.dropdownItem} ${
+																		info.variableSelections[
+																			variable.name
+																		] === 'ai'
+																			? s.selected
+																			: ''
+																	}`}
+																	onClick={() =>
+																		handleOptionSelect(
+																			variable.name,
+																			'ai',
+																		)
+																	}
+																>
+																	<StarIcon />
+																	Let the AI decide
+																</div>
+															</div>
+														)}
 													</div>
-													<p className={s.variableDescription}>
-														{variable.description}
-													</p>
-													<input
-														ref={idx === 0 ? firstInputRef : null}
-														className={s.variableInput}
-														value={variable.value || ''}
-														onChange={(e) =>
-															handleVariableChange(
-																idx,
-																e.target.value,
-															)
-														}
-														placeholder="Type here..."
-													/>
 												</div>
-											))}
-									</div>
+												<p className={s.variableDescription}>
+													{variable.description}
+												</p>
+												<input
+													ref={idx === 0 ? firstInputRef : null}
+													className={s.variableInput}
+													value={variable.value || ''}
+													onChange={(e) =>
+														handleVariableChange(idx, e.target.value)
+													}
+													placeholder="Type here..."
+												/>
+											</div>
+										))}
 								</div>
+							</div>
 
-								{/* Update Button */}
-								<div className={s.updateButtonContainer}>
-									<button
-										className={s.updateButton}
-										onClick={handleUpdateToolVariables}
-									>
-										Update Variables
-									</button>
-								</div>
+							{/* Update Button */}
+							<div className={s.updateButtonContainer}>
+								<button
+									className={s.updateButton}
+									onClick={handleUpdateToolVariables}
+								>
+									Update Variables
+								</button>
 							</div>
-						) : (
-							<div className={s.noToolSelected}>
-								<p>Select a tool from the left panel to configure it</p>
-							</div>
-						)}
-					</div>
+						</div>
+					) : (
+						<div className={s.noToolSelected}>
+							<p>Select a tool from the left panel to configure it</p>
+						</div>
+					)}
 				</div>
+			</div>
 			<ActionsModal
 				isOpen={info?.actionModalOpen}
 				onClose={closeActionModal}

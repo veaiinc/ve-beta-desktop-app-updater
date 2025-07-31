@@ -1,4 +1,3 @@
- 
 import { Drawer } from 'antd';
 import React, { memo, useCallback, useEffect, useState, useRef, useContext } from 'react';
 import '../../../../assets/scss/tasks/modals/listViewSidebar.scss';
@@ -28,6 +27,11 @@ const getFormattedDate = (date) => {
 const customStyles = {
 	height: 'calc(100dvh - 41px)',
 	marginTop: '53px',
+};
+
+const styles = {
+	header: { display: 'none' },
+	body: { padding: '0px', overflow: 'hidden' },
 };
 
 const ListViewSidebar = ({
@@ -329,10 +333,9 @@ const ListViewSidebar = ({
 			width={'fit-content'}
 			open={sideBarOpen}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
-			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px', overflow: 'hidden' }}
+			styles={styles}
 			className="listview-sidebar-drawer"
-			destroyOnClose={true}
+			destroyOnHidden={true}
 		>
 			<div
 				className={`listView-sidebar-container ${

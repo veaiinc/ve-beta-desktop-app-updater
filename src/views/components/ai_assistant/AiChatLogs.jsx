@@ -14,6 +14,10 @@ import { Markdown } from '../../../helpers/markdownHelper';
 import RefershSvg from '../../../assets/svg/sidebar/RefershSvg';
 import DownSvg from '../../../assets/svg/activity/DownSvg';
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content', padding: '0' },
+};
+
 const initialInfo = {
 	aiChatLogsList: null,
 	chatListLoading: true,
@@ -129,7 +133,7 @@ const AiChatLogs = ({ assistant }) => {
 							arrow={false}
 							trigger={'click'}
 							color={'transparent'}
-							overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+							styles={tooltipStyles}
 						>
 							<div className="chatLogsActionBtn">
 								Source <DownSvg />
@@ -167,7 +171,7 @@ const AiChatLogs = ({ assistant }) => {
 							arrow={false}
 							trigger={'click'}
 							color={'transparent'}
-							overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+							styles={tooltipStyles}
 						>
 							<div className="chatLogsActionBtn">
 								Feedback <DownArrow />

@@ -9,6 +9,7 @@ import { ReactComponent as SearchIcon } from '../../../assets/svg/notes/search.s
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import Skeleton from 'react-loading-skeleton';
 import Spinner from '../loaders/Spinner';
+import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 
 const initialState = {
 	selectedUploadCategory: 'upload',
@@ -34,14 +35,15 @@ const uploadCategoryOptions = [
 	},
 	{
 		id: 2,
-		label: 'Library',
-		value: 'images',
-	},
-	{
-		id: 3,
 		label: 'Link',
 		value: 'link',
 	},
+	{
+		id: 3,
+		label: 'Library',
+		value: 'images',
+	},
+
 	{
 		id: 4,
 		label: 'Unsplash',
@@ -167,14 +169,7 @@ const ImageUploadPopup = ({ closePopup, onImageSelect, noteId }) => {
 			<div className="images">
 				{workspaceImagesLoading ? (
 					<div className="workspaceImagesLoading">
-						{skeletonLoaders?.map((skeletonId) => (
-							<Skeleton
-								key={skeletonId}
-								width="125.5px"
-								height="82px"
-								borderRadius="8px"
-							/>
-						))}
+						<Spinner width="24px" height="24px" />
 					</div>
 				) : workspaceImagesEmpty ? (
 					<div className="noImagesFound">
@@ -188,35 +183,30 @@ const ImageUploadPopup = ({ closePopup, onImageSelect, noteId }) => {
 						next={fetchNextWorkspaceImages}
 						hasMore={workspaceImagesHasNextPage}
 						loader={<FetchMoreLoaderComp />}
-						height={'364px'}
+						height={'250px'}
 					>
-						<div className="imagesListContainer">
-							{workspaceImagesList?.map((image) => (
-								<img
-									key={image.id}
-									className="imageItem"
-									onClick={() => handleImageClick(image.imageUrl)}
-									src={image.imageUrl}
-									alt={image.givenFileName}
-								/>
-							))}
-						</div>
+						<ResponsiveMasonry>
+							<Masonry gutter="16px">
+								{workspaceImagesList?.map((image) => (
+									<img
+										key={image.id}
+										className="imageItem"
+										onClick={() => handleImageClick(image.imageUrl)}
+										src={image.imageUrl}
+										alt={image.givenFileName}
+										loading="lazy"
+									/>
+								))}
+							</Masonry>
+						</ResponsiveMasonry>
 					</InfiniteScroll>
 				)}
 			</div>
 		),
 		upload: (
-			<div className="upload">
+			<div className="uploadImageWrapper">
 				{info.uploadLoading ? (
-					<div className="uploadLoading">
-						<Spinner width="24px" height="24px" />
-						<div className="uploadContent">
-							<div className="uploadTitle">Uploading image...</div>
-							<div className="uploadSubtitle">
-								Please wait while we process your image
-							</div>
-						</div>
-					</div>
+					'Uploading...'
 				) : (
 					<>
 						<input
@@ -225,21 +215,17 @@ const ImageUploadPopup = ({ closePopup, onImageSelect, noteId }) => {
 							accept="image/*"
 							onChange={handleImageUpload}
 						/>
-						<UploadIcon />
-						<div className="uploadContent">
-							<div className="uploadTitle">Click to upload</div>
-							<div className="uploadSubtitle">
-								supported formats .jpg, .jpeg, .png
-							</div>
-						</div>
+						Upload file
 					</>
 				)}
 			</div>
 		),
 		link: (
 			<div className="link">
-				<div className="linkInputContainer">
-					<LinkIcon />
+				<div className="linkTitleWrapper">
+					<div className="linkTitle">Embed Link</div>
+				</div>
+				<div className="linkInputWrapper">
 					<input
 						autoFocus
 						type="text"
@@ -248,14 +234,12 @@ const ImageUploadPopup = ({ closePopup, onImageSelect, noteId }) => {
 						value={info.link}
 						onChange={handleLinkChange}
 					/>
-				</div>
-				<div className="linkSubmitButtonContainer">
 					<button
 						disabled={!info.isLinkValid}
 						onClick={handleLinkSubmit}
 						className={`linkSubmitButton ${!info.isLinkValid ? 'disabled' : ''}`}
 					>
-						Submit
+						Embed
 					</button>
 				</div>
 			</div>
@@ -264,19 +248,12 @@ const ImageUploadPopup = ({ closePopup, onImageSelect, noteId }) => {
 			<div className="unsplash">
 				{unsplashImagesLoading ? (
 					<div className="unsplashImagesLoading">
-						{skeletonLoaders?.map((skeletonId) => (
-							<Skeleton
-								key={skeletonId}
-								width="125.5px"
-								height="82px"
-								borderRadius="8px"
-							/>
-						))}
+						<Spinner width="24px" height="24px" />
 					</div>
 				) : (
 					<div className="unsplashImagesContainer">
 						<div className="imagesSearchContainer">
-							<SearchIcon />
+							{/* <SearchIcon /> */}
 							<input
 								className="imagesSearchInput"
 								autoFocus
@@ -298,23 +275,28 @@ const ImageUploadPopup = ({ closePopup, onImageSelect, noteId }) => {
 								next={fetchNextUnsplashImages}
 								hasMore={unsplashImagesHasNextPage}
 								loader={<FetchMoreLoaderComp />}
-								height={'364px'}
+								height={'250px'}
 							>
-								<div className="unsplashImagesListContainer">
-									{unsplashImagesList?.map((image) => (
-										<img
-											key={image.id}
-											className="unsplashImage"
-											onClick={() => handleImageClick(image.uploadImageUrl)}
-											src={image.previewImageUrl}
-											alt={
-												image.alt_description ||
-												image.description ||
-												'Unsplash Image'
-											}
-										/>
-									))}
-								</div>
+								<ResponsiveMasonry>
+									<Masonry gutter="16px">
+										{unsplashImagesList?.map((image) => (
+											<img
+												key={image.id}
+												className="unsplashImage"
+												onClick={() =>
+													handleImageClick(image.uploadImageUrl)
+												}
+												src={image.previewImageUrl}
+												alt={
+													image.alt_description ||
+													image.description ||
+													'Unsplash Image'
+												}
+												loading="lazy"
+											/>
+										))}
+									</Masonry>
+								</ResponsiveMasonry>
 							</InfiniteScroll>
 						)}
 					</div>
@@ -340,6 +322,7 @@ const ImageUploadPopup = ({ closePopup, onImageSelect, noteId }) => {
 						}`}
 					>
 						{uploadCategory.label}
+						<div className="uploadCategoryLabelActiveIndicator" />
 					</div>
 				))}
 			</header>

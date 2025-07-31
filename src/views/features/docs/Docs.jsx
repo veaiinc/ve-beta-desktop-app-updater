@@ -42,6 +42,7 @@ export const statusTextmapper = {
 		},
 		style: {
 			backgroundColor: '#29456C',
+			color: '#FFFFFF',
 		},
 		label: 'Files Viewed',
 	},
@@ -53,6 +54,7 @@ export const statusTextmapper = {
 		},
 		style: {
 			backgroundColor: '#29456C',
+			color: '#FFFFFF',
 		},
 		label: 'Enquiry',
 	},
@@ -64,6 +66,7 @@ export const statusTextmapper = {
 		},
 		style: {
 			backgroundColor: '#29456C',
+			color: '#FFFFFF',
 		},
 		label: 'Sent',
 	},
@@ -75,6 +78,7 @@ export const statusTextmapper = {
 		},
 		style: {
 			backgroundColor: '#2C593F',
+			color: '#FFFFFF',
 		},
 		label: 'Confirmed',
 	},
@@ -86,6 +90,7 @@ export const statusTextmapper = {
 		},
 		style: {
 			backgroundColor: 'rgba(125, 79, 39, 1)',
+			color: '#FFFFFF',
 		},
 		label: 'Expired',
 	},
@@ -108,6 +113,7 @@ export const statusTextmapper = {
 		},
 		style: {
 			backgroundColor: '#2C593F',
+			color: '#FFFFFF',
 		},
 		label: 'Proposal Accepted',
 	},
@@ -119,6 +125,7 @@ export const statusTextmapper = {
 		},
 		style: {
 			backgroundColor: '#29456C',
+			color: '#FFFFFF',
 		},
 		label: 'Live',
 	},
@@ -130,6 +137,7 @@ export const statusTextmapper = {
 		},
 		style: {
 			backgroundColor: 'rgba(125, 79, 39, 1)',
+			color: '#FFFFFF',
 		},
 		label: 'Draft',
 	},
@@ -743,7 +751,7 @@ const Docs = () => {
 											}));
 										}
 									}}
-									overlayClassName="filterTooltipPopUpContainer"
+									classNames={{ root: 'filterTooltipPopUpContainer' }}
 									placement="bottomLeft"
 									title={
 										<FilterPopUp

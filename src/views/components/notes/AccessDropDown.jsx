@@ -20,6 +20,9 @@ const accessOptions = [
 		value: 'view',
 	},
 ];
+const tooltipStyles = {
+	body: { minWidth: '256px' },
+};
 
 const AccessDropdown = memo(
 	({ selectedAccess, showRemoveButton = true, onChange = () => {}, disabled = false }) => {
@@ -93,10 +96,8 @@ const AccessDropdown = memo(
 				arrow={false}
 				placement="bottomRight"
 				color="transparent"
-				overlayStyle={{
-					minWidth: '256px',
-					zIndex: 50003,
-				}}
+				styles={tooltipStyles}
+				zIndex={50003}
 				trigger="click"
 				open={info?.isOpen}
 				onOpenChange={(open) => {
@@ -123,5 +124,7 @@ const AccessDropdown = memo(
 		);
 	},
 );
+
+AccessDropdown.displayName = 'AccessDropdown';
 
 export default AccessDropdown;

@@ -17,10 +17,7 @@ import EmptyState from './EmptyState';
 // import { fetchOriginSelection } from '../../../helpers';
 import { Tooltip } from 'antd';
 import { ReactComponent as Link } from '../../../assets/svg/files/link.svg';
-import CardsViewIcon from '../../../assets/svg/notesPage/CardsViewIcon';
-import ListViewIcon from '../../../assets/svg/notesPage/ListViewIcon';
-import { ReactComponent as Search } from '../../../assets/svg/search.svg';
-import { message } from '../globalComponents/CustomToast';
+import { accessControlCheck } from '../../../helpers/accessControlCheck';
 // import { ReactComponent as Copy } from '../../../assets/svg/files/copy.svg';
 // import { ReactComponent as Share } from '../../../assets/svg/files/share.svg';
 import DocumentShortPreview from '../../../../builderSrc/views/feature/DocumentShortPreview';
@@ -45,8 +42,7 @@ const docsStatusButtonStyles = {
 	gap: '4px',
 	borderRadius: '100px',
 	border: '1px solid var(--stroke, #2B2E31)',
-	background: 'var(--popup)',
-	color: 'var(--primary-font)',
+	color: '#FFFFFF',
 	fontFamily: 'var(--primary-font-family)',
 	fontSize: '10px',
 	fontStyle: 'normal',
@@ -79,14 +75,13 @@ const docsCtaMapper = [
 
 const DocsGrid = ({
 	statusTextmapper,
-	handleCreateDoc,
 	handleTotalChange,
 	clientId = null,
 	viewMode,
 	setViewMode,
 }) => {
 	const navigate = useNavigate();
-
+	console.log(statusTextmapper);
 	const {
 		templates: { getDocsFilesList, docsFilesList, updateStateValues, docsFilesRefetch },
 		profileInfo: { tennantSettingsData },
@@ -102,6 +97,13 @@ const DocsGrid = ({
 		selectedFilter: { label: 'All', value: '' },
 		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
 		searchQuery: '',
+		filterOptions: [
+			{ label: 'All', value: '' },
+			{ label: 'Files Viewed', value: 'filesViewed' },
+			{ label: 'Enquiry', value: 'enquiry' },
+			{ label: 'Sent', value: 'filesSent' },
+			{ label: 'Confirmed', value: 'confirmed' },
+		],
 	});
 
 	// Remove local viewMode state since it's now passed as prop
@@ -127,6 +129,11 @@ const DocsGrid = ({
 			updateStateValues({ docsFilesRefetch: null });
 		}
 	}, [docsFilesRefetch]);
+
+	// Handle filter changes
+	useEffect(() => {
+		fetchDocs({ page: 1 });
+	}, [info?.selectedFilter]);
 
 	useEffect(() => {
 		// Skip animations when in list view
@@ -263,9 +270,11 @@ const DocsGrid = ({
 					sortBy,
 					sortType,
 					title: info?.searchQuery,
-					// action: info?.selectedFilter?.value,
 				},
 			};
+			if (info?.selectedFilter?.value) {
+				payload.filters.status = info.selectedFilter.value;
+			}
 			if (clientId) {
 				payload.filters.clientId = clientId;
 			}
@@ -292,6 +301,10 @@ const DocsGrid = ({
 			sortType = info?.selectedSort?.sortType * -1;
 		}
 		handleStateUpdate({ selectedSort: { ...value, sortType } });
+	};
+
+	const handleFilterClick = (value) => {
+		handleStateUpdate({ selectedFilter: value });
 	};
 
 	const handleDocClick = useCallback((doc) => {
@@ -351,6 +364,12 @@ const DocsGrid = ({
 		<div className="card-sub-container-center">
 			<div className="header-container">
 				<div className="center-container-header">
+					<FilterDropdown
+						options={info?.filterOptions}
+						selected={info?.selectedFilter}
+						onOptionClick={handleFilterClick}
+						width="130px"
+					/>
 					<FilterDropdown
 						options={sortOptions}
 						selected={info?.selectedSort}
@@ -412,13 +431,7 @@ const DocsGrid = ({
 							{viewMode === 'list' ? (
 								<div
 									className="card-item create"
-									onClick={
-										handleCreateDoc
-											? handleCreateDoc
-											: () => {
-													navigate('/builder/create-document');
-											  }
-									}
+									onClick={() => navigate('/builder/create-document')}
 								>
 									<div className="card-item-style card-item-style-btn docs-list-create-row">
 										<DocIcon className="create-doc-icon" />
@@ -435,13 +448,7 @@ const DocsGrid = ({
 							) : (
 								<div
 									className="card-item create"
-									onClick={
-										handleCreateDoc
-											? handleCreateDoc
-											: () => {
-													navigate(`/builder/create-document`);
-											  }
-									}
+									onClick={() => navigate('/builder/create-document')}
 								>
 									<div className="card-item-style card-item-style-btn">
 										<button className="card-btn">

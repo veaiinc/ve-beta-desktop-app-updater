@@ -1,5 +1,6 @@
 // import React, { Component } from 'react';
 import './images.scss';
+
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import Images from '../../../controllers/images';
 import Masonry from 'masonry-layout';
@@ -8,10 +9,10 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import _ from 'lodash';
 
 class ImageLibrary extends Images {
-	constructor() {
-		super();
+	constructor(props) {
+		super(props);
 		this.state = {
-			activeTab: 'l',
+			activeTab: props.libraryImageType || 'l',
 			images: {},
 			libraryImages: {
 				currentPage: 1,
@@ -56,7 +57,7 @@ class ImageLibrary extends Images {
 	};
 	render() {
 		let url;
-		const region = localStorage.getItem('region') || 'ap-south-1';
+		const region = localStorage.getItem('region') || 'us-east-1';
 		if (region === 'ap-south-1') {
 			url = 'https://ap.images.ve.ai';
 		} else {
@@ -93,6 +94,8 @@ class ImageLibrary extends Images {
 								Unsplash
 							</a>
 						</div>
+
+						<div></div>
 						{this.state.activeTab === 'l' ? (
 							<>
 								{this.state.isLoading ? (

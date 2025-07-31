@@ -7,6 +7,19 @@
 	border-radius: 16px;
 	border: 1px solid var(--dividers, #1e1f20);
 	background: var(--popup, #202123);
+	top: 26px;
+	right: -12px;
+	position: absolute;
+
+	.loadingText {
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: normal;
+		text-align: center;
+	}
 
 	.notificationsHeader {
 		display: flex;
@@ -35,7 +48,7 @@
 		.notificationItem {
 			display: flex;
 			padding: 12px;
-			align-items: center;
+			align-items: flex-start;
 			gap: 12px;
 			align-self: stretch;
 			border-radius: 8px;

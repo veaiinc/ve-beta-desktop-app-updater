@@ -1,7 +1,10 @@
 .guideMePopupMainContainer {
 	display: flex;
 	width: 600px;
-	height: 760px;
+	min-height: 500px;
+	max-height: 650px;
+	overflow-y: auto;
+	height: 100%;
 	padding: 32px;
 	flex-direction: column;
 	align-items: flex-start;
@@ -9,6 +12,7 @@
 	border-radius: 20px;
 	border: 1px solid var(--stroke, #2c2d2e);
 	background: var(--popup, #202123);
+
 	.guideMePopupMainContainerHeader {
 		display: flex;
 		padding: 4px;
@@ -95,6 +99,7 @@
 			gap: 6px;
 			border-radius: 100px;
 			background: var(--primary-button, #79ecc9);
+			cursor: pointer;
 		}
 	}
 }
@@ -105,116 +110,201 @@
 	align-items: flex-start;
 	gap: 24px;
 	align-self: stretch;
+
 	.guideMePreferenceHeader {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 6px;
+		gap: 12px;
 		align-self: stretch;
+
 		.guideMePreferenceTitle {
 			color: var(--primary-font, #f2f2f3);
 			font-family: var(--primary-font-family);
 			font-size: 20px;
 			font-style: normal;
 			font-weight: 600;
-			line-height: 30px; /* 150% */
+			line-height: 30px;
 			align-self: stretch;
 		}
+
 		.guideMePreferenceDescription {
-			color: var(--secondary-font, #94989e);
-			font-family: var(--primary-font-family);
-			font-size: 16px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: 24px; /* 150% */
 			align-self: stretch;
+
+			.meetingTypeSelector {
+				display: flex;
+				align-items: center;
+				margin-bottom: 12px;
+
+				label {
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-weight: 500;
+				}
+
+				.ant-select {
+					.ant-select-selector {
+						background: var(--card, #1b1c1d);
+						border: 1px solid var(--stroke, #2c2d2e);
+						color: var(--primary-font, #f2f2f3);
+					}
+
+					.ant-select-selection-item {
+						color: var(--primary-font, #f2f2f3);
+					}
+				}
+			}
+
+			.thresholdDescription {
+				display: flex;
+				flex-direction: column;
+				gap: 12px;
+
+				.thresholdOption {
+					display: flex;
+					flex-direction: column;
+					gap: 4px;
+
+					.thresholdHeading {
+						color: var(--primary-font, #f2f2f3);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 600;
+						line-height: 20px;
+					}
+
+					.thresholdSubtext {
+						color: var(--secondary-font, #94989e);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 20px;
+					}
+				}
+			}
 		}
 	}
+
+	.thresholdSliderContainer {
+		width: 100%;
+		margin: 10px 0;
+
+		.customSlider {
+			position: relative;
+			width: 100%;
+			cursor: pointer;
+			.thresholdSlider {
+				width: 100%;
+				height: 6px;
+				border-radius: 3px;
+				outline: none;
+				-webkit-appearance: none;
+				appearance: none;
+				
+				&::-webkit-slider-thumb {
+					cursor: pointer;
+					-webkit-appearance: none;
+					appearance: none;
+					width: 0;
+					height: 0;
+					background: transparent;
+					border: none;
+				}
+
+				&::-moz-range-thumb {
+					width: 0;
+					height: 0;
+					background: transparent;
+					border: none;
+				}
+
+				&::-webkit-slider-track {
+					background: transparent;
+				}
+
+				&::-moz-range-track {
+					background: transparent;
+				}
+			}
+
+			.sliderThumb {
+				position: absolute;
+				top: 0px;
+				width: 24px;
+				height: 24px;
+				border-radius: 50%;
+				background: #ffffff;
+				border: 2px solid #79ecc9;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: #1b1c1d;
+				font-size: 10px;
+				font-weight: 600;
+				font-family: var(--primary-font-family);
+				pointer-events: none;
+				transition: all 0.2s ease;
+				z-index: 10;
+			}
+		}
+	}
+
 	.guideMePreferenceBody {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 16px;
 		align-self: stretch;
+
 		.guideMePreferenceBodyItem {
 			display: flex;
 			flex-direction: column;
 			align-items: flex-start;
 			gap: 8px;
 			align-self: stretch;
+
 			.guideMePreferenceBodyItemHeader {
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
 				align-self: stretch;
+				padding: 12px 0;
+
 				.guideMePreferenceBodyItemHeaderTitle {
 					color: var(--primary-font, #f2f2f3);
 					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
-					line-height: 24px; /* 150% */
-				}
-				.ant-switch {
-					background-color: var(--stroke-hover);
-				}
-				.ant-switch-checked {
-					background-color: var(--primary-button);
+					line-height: 24px;
 				}
 
-				.ant-switch.ant-switch-checked .ant-switch-handle::before {
-					background-color: var(--background-color);
-				}
-				.ant-switch:not(.ant-switch-checked) .ant-switch-handle::before {
-					background-color: var(--background-color); /* Or any desired color */
-				}
-			}
-			.guideMePreferenceOptionBody {
-				display: flex;
-				flex-direction: column;
-				align-items: flex-start;
-				gap: 8px;
-				align-self: stretch;
-				.guideMePreferenceOptionBodyDesc {
-					color: var(--secondary-font, #94989e);
-					font-family: var(--primary-font-family);
-					font-size: 13px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: 20px; /* 153.846% */
-				}
-				.guideMePreferenceOptions {
-					display: flex;
-					align-items: center;
-					gap: 8px;
-					.guideMePreferenceEachOption {
-						display: flex;
-						height: 32px;
-						padding: 12px;
-						justify-content: center;
-						align-items: center;
-						gap: 6px;
-						border-radius: 6px;
-						background: var(--card, #1b1c1d);
-						color: var(--secondary-font, #94989e);
-						font-family: var(--primary-font-family);
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-						&.active {
-							border: 0.5px solid var(--primary-button, #79ecc9);
-							background: var(--popup, #202123);
-							color: var(--primary-button, #79ecc9);
+				.ant-switch {
+					background-color: var(--stroke-hover, #2c2d2e);
+					border: none;
+
+					&.ant-switch-checked {
+						background-color: var(--primary-button, #79ecc9);
+					}
+
+					.ant-switch-handle {
+						&::before {
+							background-color: var(--background-color, #1b1c1d);
 						}
+					}
+
+					&.ant-switch-checked .ant-switch-handle::before {
+						background-color: var(--background-color, #1b1c1d);
+					}
+
+					&:not(.ant-switch-checked) .ant-switch-handle::before {
+						background-color: var(--background-color, #1b1c1d);
 					}
 				}
 			}
-		}
-		.horizontalLine {
-			width: 100%;
-			height: 1px;
-			background: var(--stroke, #2c2d2e);
 		}
 	}
 }

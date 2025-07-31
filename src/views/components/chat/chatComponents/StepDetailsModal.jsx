@@ -9,10 +9,13 @@ const StepDetailsModal = ({ isOpen, closeModal, step, stepIndex }) => {
 	if (!step) return null;
 	const getStepStatus = (step) => {
 		if (step.result) {
-			if (step.result.success) {
+			if (step.result.successful) {
 				return 'success';
+			} else if (step.result.error) {
+				return 'error';
+			} else {
+				return 'pending';
 			}
-			return 'error';
 		}
 		return 'pending';
 	};

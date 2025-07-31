@@ -119,7 +119,13 @@
 				}
 
 				.source-name-text-container {
+					display: -webkit-box;
+					-webkit-line-clamp: 3;
+					line-clamp: 3;
+					-webkit-box-orient: vertical;
 					overflow-wrap: break-word;
+					text-overflow: ellipsis;
+					overflow: hidden;
 					width: 100%;
 					color: var(--primary-font);
 					font-family: var(--chat-primary-font-family);

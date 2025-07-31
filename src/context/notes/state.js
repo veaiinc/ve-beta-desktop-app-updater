@@ -1,5 +1,6 @@
 import service from '../../services/graphQlServices';
-// import Service from '../../services/index';
+import Service from '../../services/index';
+
 import { message } from '../../views/components/globalComponents/CustomToast';
 import {
 	getNotesListQuery,
@@ -53,6 +54,8 @@ import {
 	getPageQueryDatabase,
 	createNotesDatabaseMutation,
 	updateDatabaseViewMutation,
+	changeNotesAccessMutationDatabase,
+	updateGlobalNotesAccessMutation,
 
 	// for meet bots
 	getMeetBotDataQuery,
@@ -60,6 +63,7 @@ import {
 	meetBotCreateMutation,
 	deleteLiveKitRoomMutation,
 	getMeetTranscriptHistoryQuery,
+	getAiLiveIntelligenceHistoryQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -84,6 +88,8 @@ export const intialState = {
 	transcriptHistory: [],
 	existingBots: null,
 	meetSummary: null,
+	transcriptionList: [],
+	aiLiveIntelligenceHistory: null,
 };
 
 export const NotesState = (props) => {
@@ -164,15 +170,17 @@ export const NotesState = (props) => {
 			);
 
 			if (response?.[0]) {
-				const data = response?.[1]?.data?.getPage;
+				const data = response?.[1]?.data?.getPage || {};
+				const permissions = data?.permissions || {};
 				dispatch({
 					type: Actions.GET_NOTES_PAGE_DATA_SUCCESS,
 					payload: { data },
 				});
+				const accessKey = isDatabase ? 'tenantAccess' : 'globalNoteAccess';
 				dispatch({
 					type: Actions.SET_GLOBAL_ACCESS,
-					payload: data?.globalNoteAccess
-						? { isEnabled: true, access: data?.globalNoteAccess }
+					payload: permissions?.[accessKey]
+						? { isEnabled: true, access: permissions?.[accessKey] }
 						: { isEnabled: false, access: 'view' },
 				});
 			} else {
@@ -213,7 +221,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const getNotesAccess = async (payload) => {
+	const getNotesAccess = async (payload, isDatabase = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -222,7 +230,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				isDatabase ? 'page_notes_api_database' : 'page_notes_api',
 			);
 
 			if (response?.[0]) {
@@ -241,7 +249,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const addNotesAccess = async (payload) => {
+	const addNotesAccess = async (payload, isDatabase = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -250,7 +258,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				isDatabase ? 'page_notes_api_database' : 'page_notes_api',
 			);
 
 			if (response?.[0]) {
@@ -263,16 +271,16 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const changeNotesAccess = async (payload) => {
+	const changeNotesAccess = async (payload, isDatabase = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
-				changeNotesAccessMutation,
+				isDatabase ? changeNotesAccessMutationDatabase : changeNotesAccessMutation,
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				isDatabase ? 'page_notes_api_database' : 'page_notes_api',
 			);
 
 			if (response?.[0]) {
@@ -307,7 +315,7 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const removeNotesAccess = async (payload) => {
+	const removeNotesAccess = async (payload, isDatabase = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -316,7 +324,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				isDatabase ? 'page_notes_api_database' : 'page_notes_api',
 			);
 			if (response?.[0]) {
 				return [true, response?.[1]?.data?.unsharePage];
@@ -412,16 +420,16 @@ export const NotesState = (props) => {
 		}
 	};
 
-	const updateGlobalAccess = async (payload) => {
+	const updateGlobalAccess = async (payload, isDatabase = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.mutation(
-				globalNotesAccessMutation,
+				isDatabase ? updateGlobalNotesAccessMutation : globalNotesAccessMutation,
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				isDatabase ? 'page_notes_api_database' : 'page_notes_api',
 			);
 			if (response?.[0]) {
 				dispatch({
@@ -1746,10 +1754,8 @@ export const NotesState = (props) => {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 			const payload = {
-				input: {
-					page,
-					limit,
-				},
+				page,
+				limit,
 			};
 			const response = await service.query(
 				getMeetBotDataQuery,
@@ -1759,9 +1765,9 @@ export const NotesState = (props) => {
 				'page_notes_api_database',
 			);
 			if (response?.[0]) {
-				const currentPageBotsList = response?.[1]?.data?.listTranscriptionPages?.data;
-				const currentPage = response?.[1]?.data?.listTranscriptionPages?.currentPage;
-				const hasNextPage = response?.[1]?.data?.listTranscriptionPages?.hasNextPage;
+				const currentPageBotsList = response?.[1]?.data?.listMeetings?.data;
+				const currentPage = response?.[1]?.data?.listMeetings?.currentPage;
+				const hasNextPage = response?.[1]?.data?.listMeetings?.hasNextPage;
 
 				const payload = {
 					data: append
@@ -1886,6 +1892,79 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const getAiLiveIntelligenceHistory = async (payload, append = false) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getAiLiveIntelligenceHistoryQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api_database',
+			);
+			if (response?.[0]) {
+				const currentPageAiIntelligenceList = response?.[1]?.data?.listAiIntelligence?.data;
+				const currentPage = response?.[1]?.data?.listAiIntelligence?.currentPage;
+				const hasNextPage = response?.[1]?.data?.listAiIntelligence?.hasNextPage;
+				const totalPages = response?.[1]?.data?.listAiIntelligence?.totalPages;
+
+				const payload = {
+					data: append
+						? [
+								...(state?.aiLiveIntelligenceHistory?.data || []),
+								...currentPageAiIntelligenceList,
+						  ]
+						: currentPageAiIntelligenceList,
+					hasNextPage,
+					currentPage,
+					totalPages,
+				};
+
+				dispatch({
+					type: Actions.GET_AI_LIVE_INTELLIGENCE_HISTORY_SUCCESS,
+					payload,
+				});
+
+				return response;
+			}
+		} catch (error) {
+			console.error('error==>getAiLiveIntelligenceHistory', error);
+		}
+	};
+
+	const getMeetingPreferences = async () => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = `/tenant-user/${workspaceId}/tenantuser-preference?preferenceType=meetingPreference`;
+			const token = localStorage.getItem('usertoken');
+			const type = 'tenant';
+			const response = await Service?.fetchGet(path, token, type);
+			const success = response?.[0] === true;
+			if (success) {
+				return response?.[1];
+			}
+		} catch (error) {
+			console.error('error==>getMeetingPreferences', error);
+		}
+	};
+
+	const updateMeetingPreferences = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = `/tenant-user/${workspaceId}/tenantuser-preference`;
+			const token = localStorage.getItem('usertoken');
+			const type = 'tenant';
+			const response = await Service?.fetchPut(path, payload, token, type);
+			const success = response?.[0] === true;
+			if (success) {
+				return response?.[1];
+			}
+		} catch (error) {
+			console.error('error==>updateMeetingPreferences', error);
+		}
+	};
+
 	const updateStateValues = async (updatedVaribaleValuesObj) => {
 		try {
 			dispatch({
@@ -1957,5 +2036,8 @@ export const NotesState = (props) => {
 		updateDatabaseView,
 		getMeetSummary,
 		updateStateValues,
+		getMeetingPreferences,
+		updateMeetingPreferences,
+		getAiLiveIntelligenceHistory,
 	};
 };

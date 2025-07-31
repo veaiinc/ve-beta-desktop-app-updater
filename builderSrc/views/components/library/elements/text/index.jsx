@@ -1738,7 +1738,7 @@ class App extends BaseClass {
 		if (selectedSection && currentSectionTableData) {
 			let currentSubTotal = 0;
 			//currency
-			const region = localStorage?.getItem('region') || 'ap-south-1';
+			const region = localStorage?.getItem('region') || 'us-east-1';
 			let currencySymbol;
 			if (region === 'ap-south-1') {
 				currencySymbol = '₹';

@@ -26,33 +26,51 @@ const UnintegratedAgentApps = ({ apps = [] }) => {
 		}));
 		try {
 			// 1. Connect tool to get connection token
-			const [connectSuccess, connectRes] = await connectTool({ app: app });
-			if (!connectSuccess || !connectRes?.data?.token) {
-				throw new Error(connectRes?.message || 'Failed to get connection token');
+			const [connectSuccess, response] = await connectTool({
+				slug: app,
+			});
+			// if (!connectSuccess || !connectRes?.data?.token) {
+			// 	throw new Error(connectRes?.message || 'Failed to get connection token');
+			// }
+
+			if (connectSuccess && response?.data?.oauth_url) {
+				window.open(response.data.oauth_url, '_blank');
+
+				message.success('App connected successfully');
+				updateStateValues({ activeInputForChat: 'I have integrated, please proceed' });
+				setInfo((prev) => ({
+					...prev,
+					connectedTools: {
+						...prev?.connectedTools,
+						[index]: true,
+					},
+				}));
+			} else {
+				throw new Error('Failed to initiate OAuth connection');
 			}
 
-			const { token } = connectRes.data;
-			const pd = createFrontendClient();
+			// const { token } = connectRes.data;
+			// const pd = createFrontendClient();
 
-			// 2. Use Pipedream SDK to connect account
-			await pd.connectAccount({
-				app: app,
-				token: token,
-				onSuccess: async () => {
-					message.success('Tool added successfully');
-					updateStateValues({ activeInputForChat: 'proceed' });
-					setInfo((prev) => ({
-						...prev,
-						connectedTools: {
-							...prev?.connectedTools,
-							[index]: true,
-						},
-					}));
-				},
-				onError: () => {
-					throw new Error('Failed to connect to the app');
-				},
-			});
+			// // 2. Use Pipedream SDK to connect account
+			// await pd.connectAccount({
+			// 	app: app,
+			// 	token: token,
+			// 	onSuccess: async () => {
+			// 		message.success('Tool added successfully');
+			// 		updateStateValues({ activeInputForChat: 'proceed' });
+			// 		setInfo((prev) => ({
+			// 			...prev,
+			// 			connectedTools: {
+			// 				...prev?.connectedTools,
+			// 				[index]: true,
+			// 			},
+			// 		}));
+			// 	},
+			// 	onError: () => {
+			// 		throw new Error('Failed to connect to the app');
+			// 	},
+			// });
 		} catch (error) {
 			message?.error(error?.message || '');
 		}

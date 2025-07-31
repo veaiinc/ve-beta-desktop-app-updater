@@ -230,25 +230,15 @@
 	}
 
 	.custom-image-block-placeholder {
-		width: 100%;
-		height: 50px;
-		border: 2.5px dashed var(--stroke, #2b2e31);
-		border-radius: 12px;
 		display: flex;
-		flex-direction: row;
 		align-items: center;
-		justify-content: center;
+		gap: 8px;
+		align-self: stretch;
+		border-radius: 12px;
+		border: 1.5px dashed var(--stroke, #2b2e31);
+		padding: 16px;
 		cursor: pointer;
 		transition: all 0.2s ease;
-		gap: 8px;
-
-		&:hover {
-			background: var(--card-over-card-hover);
-		}
-
-		&:not(:hover) {
-			cursor: default;
-		}
 
 		.custom-image-block-placeholder-icon {
 			width: 24px;
@@ -258,6 +248,9 @@
 			justify-content: center;
 			svg {
 				width: 100%;
+				path {
+					fill: var(--secondary-font) !important;
+				}
 			}
 		}
 

@@ -6,6 +6,10 @@ import { ReactComponent as ArrowUpAndDown } from '../../../../assets/svg/tasks/a
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import DropDown from '../../dropDown/tasks/DropDown';
 
+const tooltipStyles = {
+	body: { width: 'fit-content' },
+};
+
 const SortComponent = ({ sort, properties, responseMetadata, updateViewInfo, handelSortClick }) => {
 	const handleFieldUpdate = useCallback(
 		(sortBy, newValue) => {
@@ -114,7 +118,7 @@ const SortComponent = ({ sort, properties, responseMetadata, updateViewInfo, han
 					placement="bottomLeft"
 					arrow={false}
 					color={'transparent'}
-					overlayStyle={{ width: 'fit-content' }}
+					styles={tooltipStyles}
 					trigger={'click'}
 				>
 					<div className="listView-sortWrapper">

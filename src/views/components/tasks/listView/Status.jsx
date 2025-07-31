@@ -101,7 +101,7 @@ const Status = ({
 				/>
 			}
 			placement="bottom"
-			overlayClassName="status-dropdown"
+			classNames={{ root: 'status-dropdown' }}
 			color="transparent"
 			trigger={['click']}
 			onClick={(e) => {
@@ -111,7 +111,7 @@ const Status = ({
 			<Tooltip
 				title={showTitle ? <div className="tooltip-inner">{title}</div> : ''}
 				placement="bottom"
-				overlayClassName="tooltip-overlay-container"
+				classNames={{ root: 'tooltip-overlay-container' }}
 				color="transparent"
 			>
 				<div

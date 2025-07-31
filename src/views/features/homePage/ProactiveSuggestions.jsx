@@ -275,14 +275,14 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
 			updateCardsData();
-			// if (info?.activeCardContent) {
-			// 	setInfo((prev) => ({
-			// 		...prev,
-			// 		activeCardContent: aiSuggestedPendingActions?.pendingActions?.find(
-			// 			(c) => c?._id === info?.activeCardContent?._id,
-			// 		),
-			// 	}));
-			// }
+			if (info?.activeCardContent) {
+				setInfo((prev) => ({
+					...prev,
+					activeCardContent: aiSuggestedPendingActions?.pendingActions?.find(
+						(c) => c?._id === info?.activeCardContent?._id,
+					),
+				}));
+			}
 		}
 	}, [aiSuggestedPendingActions]);
 
@@ -705,6 +705,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 			...prev,
 			selectedOption: option,
 			currentIndex: 0,
+			loading: true,
 		}));
 	};
 
@@ -734,7 +735,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 					<div className="proactive-suggestions-title">
 						<span className="title-highlight">Ambient</span> Insights For You
 					</div>
-					{info?.activeBtn === 'insights' && info?.options?.length && (
+					{info?.activeBtn === 'insights' && info?.options?.length > 0 && (
 						<>
 							{(info?.cards?.length > 0 ||
 								info?.options?.length ||
@@ -772,8 +773,11 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 														<Skeleton
 															height={'100%'}
 															width={'100%'}
-															baseColor="var(--stroke-hover)"
 															highlightColor="var(--card-over-card)"
+															baseColor="var(--card)"
+															style={{
+																lineHeight: 'unset',
+															}}
 														/>
 													</div>
 												</div>

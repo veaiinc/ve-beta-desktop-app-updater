@@ -1,4 +1,5 @@
 import { Navigate } from 'react-router-dom';
+
 // layouts
 import AuthWrapper from '../views/layouts/authWrapper';
 import GalleryViewLayout from '../views/layouts/galleryViewLayout';
@@ -11,8 +12,6 @@ import Public from '../views/layouts/Public';
 import GlobalWorkflows from '../views/features/sales/GlobalWorkflows';
 import EarlyAccess from '../views/features/earlyAccess/EarlyAccess';
 import AddGallery from '../views/features/gallery/AddGallery';
-import GalleryPage from '../views/features/gallery/GalleryPage';
-import GalleryViewer from '../views/features/gallery/GalleryViewer';
 import AlbumSettings from '../views/features/gallery/AlbumSettings';
 import UploadPhotos from '../views/features/gallery/UploadPhotos';
 import InitialHomePage from '../views/features/homePage/InitialHomePage';
@@ -28,9 +27,7 @@ import AgentDetails from '../views/features/aiAssistant/AgentDetails';
 import RecentChat from '../views/features/chat/RecentChat';
 import AutomationBuilder from '../views/features/automationBuilder/AutomationBuilder';
 import Automations from '../views/features/automations/Automations';
-import BrandSetup from '../views/features/settings/BrandSetup';
 import DocsFullView from '../views/components/docs/DocsFullView';
-import ElasticSearch from '../views/features/elasticSearch/ElasticSearch';
 import EditKnowledgeAgent from '../views/features/knowledgeAgent/EditAgent';
 import FormResCard from '../views/components/forms/FormResCard';
 import FormSummary from '../views/components/forms/FormSummary';
@@ -47,7 +44,6 @@ import Workflow_builder_updated from '../views/features/workflowBuilderUpdated/W
 import Onboarding from '../views/features/onboarding/Onboarding';
 import Contacts from '../views/features/contacts/Contacts';
 import AmbientAi from '../views/features/ambientAi/AmbientAi';
-
 import Files from '../views/features/files/Files';
 import ExpandedClientView from '../views/features/contacts/ExpandedClientView';
 import BuilderApp from '../../builderSrc/App';
@@ -59,11 +55,11 @@ import Tasks from '../views/features/tasks/Tasks';
 import TaskFullView from '../views/features/tasks/TaskFullView';
 import Integrations from '../views/features/integrationsList/Integrations';
 import NotesPage from '../views/features/notesPage/NotesPage';
+import NotesWrapper from '../views/features/notesModule/NotesWrapper';
+import GalleryPage from '../views/features/gallery/GalleryPage';
+import GalleryViewer from '../views/features/gallery/GalleryViewer';
 
 // components
-// import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
-// import MeetBot from '../views/features/meetBot/meetBot';
-import NotesWrapper from '../views/features/notesModule/NotesWrapper';
 import CardMeetBot from '../views/features/meetBot/CardMeetBot';
 import ChatPage from '../views/components/homePage/ChatPage';
 
@@ -92,18 +88,16 @@ const betaRoutes = [
 	{
 		path: '/create-workspace',
 		element: (
-			<Public>
+			<AuthWrapper title={'Onboarding'}>
 				<Onboarding />
-			</Public>
+			</AuthWrapper>
 		),
 	},
 	{
 		path: '/chats',
 		element: (
 			<AuthWrapper title={'Chats'}>
-				{/* <Suspense fallback={<SuspenseFallback />}> */}
 				<ChatPage />
-				{/* </Suspense> */}
 			</AuthWrapper>
 		),
 	},
@@ -136,7 +130,7 @@ const betaRoutes = [
 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 				maxWidth="100%"
 			>
-				<RecentChat />
+				<RecentChat showChatHistory={true} showDeleteChat={true} showChats={true} />
 			</AuthWrapper>
 		),
 	},
@@ -157,14 +151,16 @@ const betaRoutes = [
 			</AuthWrapper>
 		),
 	},
-	{
-		path: '/brand-setup',
-		element: (
-			<AuthWrapper title={'Brand Setup'}>
-				<BrandSetup />
-			</AuthWrapper>
-		),
-	},
+	// {
+	// 	path: '/brand-setup',
+	// 	element: (
+	//
+	// 			<AuthWrapper title={'Brand Setup'}>
+	// 				<BrandSetup />
+	// 			</AuthWrapper>
+	//
+	// 	),
+	// },
 	{
 		path: '/galleries',
 		element: (
@@ -508,14 +504,16 @@ const betaRoutes = [
 			</AuthWrapper>
 		),
 	},
-	{
-		path: '/search',
-		element: (
-			<AuthWrapper title="Search">
-				<ElasticSearch />
-			</AuthWrapper>
-		),
-	},
+	// {
+	// 	path: '/search',
+	// 	element: (
+	//
+	// 			<AuthWrapper title="Search">
+	// 				<ElasticSearch />
+	// 			</AuthWrapper>
+	//
+	// 	),
+	// },
 	{
 		path: '/files',
 		element: (
@@ -569,13 +567,12 @@ const betaRoutes = [
 		path: '/meet',
 		element: (
 			<AuthWrapper title={'Meet'}>
-				{/* <MeetBot /> */}
 				<CardMeetBot />
 			</AuthWrapper>
 		),
 	},
 	{
-		path: '/meet/:noteId',
+		path: '/meet/:noteId/:meetingId',
 		element: (
 			<AuthWrapper title={'Meet'}>
 				<NotesWrapper />
