@@ -798,6 +798,20 @@
 								-webkit-line-clamp: 1;
 							}
 						}
+						.collectionAlbumTitle {
+							color: #fff;
+							display: -webkit-box;
+							font-family: var(--primary-font-family);
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 600;
+							line-height: normal;
+							overflow: hidden;
+							text-overflow: ellipsis;
+							width: 180px;
+							-webkit-box-orient: vertical;
+							-webkit-line-clamp: 1;
+						}
 					}
 					.albumOverlay {
 						position: absolute;
