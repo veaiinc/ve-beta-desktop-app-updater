@@ -4322,7 +4322,7 @@ const GalleryPage = () => {
 																		style={{
 																			background: src
 																				? `url(${src})`
-																				: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
+																				: ``,
 																			backgroundSize: 'cover',
 																			backgroundPosition:
 																				'center',
@@ -4337,7 +4337,20 @@ const GalleryPage = () => {
 																		{album.image && (
 																			<img src={src} />
 																		)}
-
+																		{!album?.coverImage
+																			?._id && (
+																			<AlbumCoverIcon
+																				style={{
+																					position:
+																						'absolute',
+																					top: '50%',
+																					left: '50%',
+																					transform:
+																						'translate(-50%, -50%)',
+																				}}
+																				color="var(--secondary-font)"
+																			/>
+																		)}
 																		<div
 																			className="albumDetails"
 																			onClick={() =>
@@ -4347,11 +4360,13 @@ const GalleryPage = () => {
 																				)
 																			}
 																		>
-																			<p>{album?.title}</p>
-																			<p>{`${
+																			<p className="albumTitle">{`${
 																				album?.numberOfImages ||
 																				0
 																			} photos`}</p>
+																			<p className="albumCollectionTitle">
+																				{album?.title}
+																			</p>
 																		</div>
 																		<div className="overlay"></div>
 																	</div>
