@@ -1750,7 +1750,7 @@ const GalleryPage = () => {
 				  }?light-gallery=${info?.isLightGallery ? true : false}`;
 
 		// Open in new tab
-		window.open(uploadUrl, '_blank');
+		navigate(uploadUrl);
 	};
 
 	const handleCallToAction = useCallback(() => {
