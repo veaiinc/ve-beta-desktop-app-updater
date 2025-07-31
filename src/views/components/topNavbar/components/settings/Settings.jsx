@@ -108,7 +108,6 @@ const Settings = ({
 	}, [info.intercomOpen]);
 
 	useEffect(() => {
-		launchIntercom();
 		if (!userWorkSpaceList) {
 			getUserWorkSpaceList();
 		}
