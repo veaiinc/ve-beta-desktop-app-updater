@@ -119,7 +119,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const {
 		notes: {
 			getMeetTranscriptHistory,
-			transcriptHistory,
 			aiLiveIntelligenceHistory,
 			getAiLiveIntelligenceHistory,
 			getNotesPageData,
@@ -175,6 +174,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		} else {
 			handleTranscriptionSuggestions({ data: aiLiveIntelligenceHistory?.data || [] });
 		}
+
 	}, [aiLiveIntelligenceHistory]);
 
 	// Function to fetch historical transcriptions for desktop
@@ -326,9 +326,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		return () => {
 			updateNotesStateValues({
 				meetSummary: null,
+				aiLiveIntelligenceHistory: null,
+				transcriptHistory: null,
 			});
 			updateStateValues({
 				aiTranscriptionSuggestions: null,
+
 			});
 		};
 	}, []);
