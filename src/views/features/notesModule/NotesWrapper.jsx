@@ -16,12 +16,12 @@ const NotesWrapper = () => {
 	const isAiIntelligenceEnabled = searchParams.get('isAiIntelligenceEnabled');
 	const [info, setInfo] = useState({
 		modalIsOpen: true,
-		sessionId: searchParams.get('sId') || ObjectID()?.toString(),
 		showAmbientAssistance: isAiIntelligenceEnabled === 'true',
 		sidebarOpen: false,
 		chatActive: false,
 		transcriptionActive: false,
 	});
+	const sessionId = searchParams.get('sId') || ObjectID()?.toString();
 
 	useEffect(() => {
 		updateStateValues({
@@ -30,12 +30,12 @@ const NotesWrapper = () => {
 	}, []);
 
 	useEffect(() => {
-		if (info?.sessionId && info?.sessionId !== searchParams.get('sId')) {
+		if (sessionId && sessionId !== searchParams.get('sId')) {
 			const newParams = new URLSearchParams(searchParams);
-			newParams.set('sId', info?.sessionId);
+			newParams.set('sId', sessionId);
 			setSearchParams(newParams, { replace: true });
 		}
-	}, [info?.sessionId]);
+	}, [sessionId]);
 
 	useEffect(() => {
 		const chat = searchParams.get('chat');
@@ -87,7 +87,7 @@ const NotesWrapper = () => {
 								isPreview={true}
 								showCitationsButton={false}
 								// customChatBoxClick={handleCustomChatBoxClick}
-								sId={info?.sessionId}
+								sId={sessionId}
 								animateChatBox={true}
 							/>
 						</div>
