@@ -743,7 +743,7 @@ const ChatBox = ({
 					}
 
 					if (routeName === 'meet') {
-						payload.module_id = params?.noteId;
+						payload.module_id = params?.meetingId;
 					}
 
 					let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
