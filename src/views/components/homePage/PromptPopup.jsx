@@ -66,11 +66,20 @@ const PromptPopup = ({
 	messageId = null,
 	feedbackType = 'chatFeedback',
 	setLiked = null,
+	handleFeedbackUpdateSuccess = null,
+	feedbackMessage = '',
+	selectedFeedback = [],
+	isTrained = false,
 }) => {
 	const navigate = useNavigate();
 
 	const {
-		templates: { updateStateValues, updateAiChatMessageRating, pendingActionsFeedback },
+		templates: {
+			updateStateValues,
+			updateAiChatMessageRating,
+			pendingActionsFeedback,
+			globalChatMessages,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -79,9 +88,9 @@ const PromptPopup = ({
 		parsedPrompt: [],
 		feedbackPopupOpen,
 		feedback: liked,
-		selectedFeedback: new Set(),
+		selectedFeedback: new Set(selectedFeedback),
 		confidenceScore,
-		feedbackMessage: '',
+		feedbackMessage: feedbackMessage || '',
 	});
 
 	useEffect(() => {
@@ -154,17 +163,22 @@ const PromptPopup = ({
 					: info.dynamicValues[part.value] || `[${part.value}]`,
 			)
 			.join('');
+		const sessionId = ObjectID()?.toString();
 
-		updateStateValues({ activePromptForChat: finalPrompt });
+		updateStateValues({
+			activePromptForChat: {
+				prompt: finalPrompt,
+				sessionId,
+			},
+		});
 		closeModal();
-		navigate(`/chat/${ObjectID().toString()}`);
+		navigate(`/chat/${sessionId}`);
 	}, [info, updateStateValues, closeModal, navigate]);
 
 	const handleFeedbackClick = (feedback) => {
 		setInfo((prev) => ({ ...prev, feedback }));
 		if (setLiked) setLiked(feedback);
 	};
-
 	const handleFeedbackSubmit = useCallback(async () => {
 		const { selectedFeedback, feedbackMessage, feedback } = info;
 		if (feedback && !messageId) {
@@ -197,6 +211,7 @@ const PromptPopup = ({
 
 			if (response?.[0]) {
 				message.success('Feedback submitted successfully.');
+				handleFeedbackUpdateSuccess?.(feedbackReq);
 			}
 
 			setInfo((prev) => ({
@@ -377,11 +392,23 @@ const PromptPopup = ({
 						<button
 							className="runPrompt"
 							onClick={
-								info?.feedbackPopupOpen ? handleFeedbackSubmit : handleClickRun
+								info?.feedbackPopupOpen
+									? isTrained
+										? undefined
+										: handleFeedbackSubmit
+									: handleClickRun
 							}
+							style={{
+								cursor: isTrained ? 'not-allowed' : 'pointer',
+								color: isTrained ? 'var(--primary-button)' : 'var(--primary-font)',
+							}}
 						>
 							{info?.feedbackPopupOpen ? (
-								'Submit'
+								isTrained ? (
+									'Trained'
+								) : (
+									'Submit'
+								)
 							) : (
 								<>
 									Run this prompt <ArrowUpRight />

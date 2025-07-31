@@ -1,94 +1,62 @@
-import React, { useState } from 'react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import React, { useState, useEffect } from 'react';
+import { DatePicker } from 'antd';
+import dayjs from 'dayjs';
 
 const DateSelection = ({ value, onChange, title, placeholder }) => {
-	const [isOpen, setIsOpen] = useState(false);
-	const [date, setDate] = useState(value);
+	const [selectedDate, setSelectedDate] = useState(null);
 
-	// Safely convert epoch to Date object for display
-	// const getDisplayValue = () => {
-	// 	try {
-	// 		if (!value || value === null || value === undefined) {
-	// 			return null;
-	// 		}
-
-	// 		// If value is already a Date object
-	// 		if (value instanceof Date) {
-	// 			return value;
-	// 		}
-
-	// 		// If value is a string (ISO format), parse it
-	// 		if (typeof value === 'string') {
-	// 			const parsed = new Date(value);
-	// 			if (!isNaN(parsed.getTime())) {
-	// 				return parsed;
-	// 			}
-	// 		}
-
-	// 		// If value is a number (epoch timestamp)
-	// 		if (typeof value === 'number' && !isNaN(value)) {
-	// 			// Check if it's already in milliseconds (13 digits) or seconds (10 digits)
-	// 			const timestamp = value.toString().length === 13 ? value : value * 1000;
-	// 			return new Date(timestamp);
-	// 		}
-
-	// 		return null;
-	// 	} catch (error) {
-	// 		console.error('Error converting date value:', error);
-	// 		return null;
-	// 	}
-	// };
-
-	// const displayValue = getDisplayValue();
+	useEffect(() => {
+		if (value) {
+			if (typeof value === 'number' || (typeof value === 'string' && /^\d{8}$/.test(value))) {
+				const year = value.toString().slice(0, 4);
+				const month = value.toString().slice(4, 6);
+				const day = value.toString().slice(6, 8);
+				const formattedDate = `${year}-${month}-${day}`;
+				setSelectedDate(dayjs(formattedDate));
+			} else {
+				setSelectedDate(dayjs(value));
+			}
+		}
+	}, [value]);
 
 	const handleDateChange = (date) => {
-		try {
-			if (date && !isNaN(date.getTime())) {
-				// Create a new date with only the date part (time set to 00:00:00)
-				const selectedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-
-				// Convert to ISO string with timezone offset, but only date part
-				const year = selectedDate.getFullYear();
-				const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-				const day = String(selectedDate.getDate()).padStart(2, '0');
-
-				const isoString = `${year}-${month}-${day}`;
-				setDate(isoString);
-				onChange(isoString);
-			} else {
-				onChange(null);
-			}
-			setIsOpen(false);
-		} catch (error) {
-			console.error('Error handling date change:', error);
+		setSelectedDate(date);
+		if (date) {
+			const isoDate = date.format('YYYY-MM-DD');
+			onChange(isoDate);
+		} else {
 			onChange(null);
-			setIsOpen(false);
 		}
 	};
 
 	return (
-		<div style={{ position: 'relative' }}>
+		<div className="white-datepicker">
+			<style>
+				{`
+                    .white-datepicker .ant-picker-suffix {
+                        color: white !important;
+                    }
+                    .white-datepicker .ant-picker {
+                        background-color: transparent;
+                    }
+                    .white-datepicker .ant-picker-input > input {
+                        color: white;
+                    }
+                    .white-datepicker .ant-picker-input > input::placeholder {
+                        color: rgba(255, 255, 255, 0.6);
+                    }
+                `}
+			</style>
 			<DatePicker
-				selected={date}
+				value={selectedDate}
 				onChange={handleDateChange}
-				open={isOpen}
-				onInputClick={() => setIsOpen(true)}
-				onCalendarOpen={() => setIsOpen(true)}
-				onCalendarClose={() => setIsOpen(false)}
-				showTimeSelect={false}
-				dateFormat="yyyy-MM-dd"
-				placeholderText={placeholder || (title ? `Select ${title}` : 'Select date')}
-				className="dateView-datePicker"
+				format="DD-MM-YYYY"
+				placeholder={placeholder || (title ? `Select ${title}` : 'Select date')}
+				allowClear={false}
 				style={{
 					width: '100%',
-					backgroundColor: 'white',
-					border: '1px solid #d9d9d9',
-					borderRadius: '6px',
-					padding: '8px 12px',
-					cursor: 'pointer',
-					fontSize: '14px',
-					lineHeight: '1.5',
+					backgroundColor: 'transparent',
+					color: 'white',
 				}}
 			/>
 		</div>

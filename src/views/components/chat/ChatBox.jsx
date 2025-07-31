@@ -330,8 +330,12 @@ const ChatBox = ({
 	}, [globalChatMessages, info?.chatSessionId]);
 
 	useEffect(() => {
-		if (activePromptForChat && info?.chatSessionId) {
-			handleSendMessageFunc(null, true, activePromptForChat);
+		if (
+			activePromptForChat &&
+			info?.chatSessionId &&
+			activePromptForChat?.sessionId === info?.chatSessionId
+		) {
+			handleSendMessageFunc(null, true, activePromptForChat?.prompt);
 			updateStateValues({ activePromptForChat: null });
 		}
 	}, [activePromptForChat, info?.chatSessionId]);

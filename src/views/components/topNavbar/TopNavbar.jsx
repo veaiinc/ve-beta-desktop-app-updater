@@ -19,6 +19,14 @@ import { ReactComponent as NotificationsSvg } from './assets/notification.svg';
 import { ReactComponent as ShareAndEarnSvg } from './assets/share-and-earn.svg';
 import CreditsLeftSvg from '../sidebar/chatHistory/CreditsLeftSvg';
 
+const tooltipStyle = {
+	padding: 8,
+	borderRadius: 8,
+	color: 'var(--primary-font)',
+	background: 'var(--background-color)',
+	border: '1px solid var(--dividers)',
+};
+
 const baseLeftContainerItems = [
 	{
 		id: 1,
@@ -76,7 +84,12 @@ const TopNavbar = () => {
 	const navigate = useNavigate();
 	const { workspaceMode } = useWorkspaceMode();
 	const { pathname } = useLocation();
-	const hideTopNavbar = pathname.includes('builder') || pathname.includes('galleries');
+	const hideTopNavbar =
+		pathname.includes('builder') ||
+		pathname.includes('galleries') ||
+		pathname.includes('create-workspace');
+	//  ||
+	// pathname.includes('	plan-billing');
 
 	const {
 		profileInfo: { userDetailsData, tennantSettingsData },
@@ -178,7 +191,7 @@ const TopNavbar = () => {
 			icon: (
 				<Tooltip
 					title={
-						<div className="tooltip-text">
+						<div style={tooltipStyle}>
 							{Math.round(
 								currentPlan?.totalAiCreditLimit - currentPlan?.totalAiCreditUsed,
 							)}{' '}
@@ -204,7 +217,7 @@ const TopNavbar = () => {
 			icon: (
 				<Tooltip
 					title={
-						<div className="tooltip-text">
+						<div style={tooltipStyle}>
 							<span>Switch to {theme === 'dark' ? 'light' : 'dark'} mode</span>
 						</div>
 					}
@@ -239,7 +252,7 @@ const TopNavbar = () => {
 			icon: (
 				<Tooltip
 					title={
-						<div className="tooltip-text">
+						<div style={tooltipStyle}>
 							<span>Share and Earn</span>
 						</div>
 					}

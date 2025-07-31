@@ -409,10 +409,13 @@ const EventDetailsModal = ({
 			),
 			startDateTime: (value) => (
 				<DateView
-					value={moment(value).unix()}
+					value={moment(value).isValid() ? moment(value).unix() : null}
 					showTime={true}
 					onOptionClick={(value) => {
-						updateEventDetails('startDateTime', moment.unix(value).toISOString());
+						const date = moment.unix(value);
+						if (date.isValid()) {
+							updateEventDetails('startDateTime', date.toISOString());
+						}
 					}}
 					className="dateInput"
 					format="MMMM DD, YYYY hh:mm A"
@@ -421,10 +424,13 @@ const EventDetailsModal = ({
 			),
 			endDateTime: (value) => (
 				<DateView
-					value={moment(value).unix()}
+					value={moment(value).isValid() ? moment(value).unix() : null}
 					showTime={true}
 					onOptionClick={(value) => {
-						updateEventDetails('endDateTime', moment.unix(value).toISOString());
+						const date = moment.unix(value);
+						if (date.isValid()) {
+							updateEventDetails('endDateTime', date.toISOString());
+						}
 					}}
 					className="dateInput"
 					format="MMMM DD, YYYY hh:mm A"
@@ -546,10 +552,7 @@ const EventDetailsModal = ({
 				/>
 			),
 			createdAt: (value) => {
-				// Ensure the value is a valid timestamp (in milliseconds or seconds)
-				const timestamp = Number(value);
-				const isSeconds = timestamp < 10000000000; // If timestamp is small, assume it's in seconds
-				const date = isSeconds ? moment.unix(timestamp) : moment(timestamp);
+				const date = moment(value);
 				const formattedDate = date.isValid() ? date.format('DD-MM-YYYY hh:mm A') : '-';
 				return (
 					<CustomInput
@@ -561,10 +564,7 @@ const EventDetailsModal = ({
 				);
 			},
 			updatedAt: (value) => {
-				// Ensure the value is a valid timestamp (in milliseconds or seconds)
-				const timestamp = Number(value);
-				const isSeconds = timestamp < 10000000000; // If timestamp is small, assume it's in seconds
-				const date = isSeconds ? moment.unix(timestamp) : moment(timestamp);
+				const date = moment(value);
 				const formattedDate = date.isValid() ? date.format('DD-MM-YYYY hh:mm A') : '-';
 				return (
 					<CustomInput

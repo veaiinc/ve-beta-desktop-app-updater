@@ -4,7 +4,7 @@
 	display: flex;
 	flex-direction: row;
 	.notes-nav-menu {
-		display: none;
+		display: none !important;
 	}
 	.leftWrapper {
 		height: 100%;
@@ -49,9 +49,11 @@
 					height: 100%;
 					opacity: 0;
 					position: absolute;
+					z-index: 10;
 
 					&.active {
 						opacity: 1;
+						z-index: 20;
 					}
 				}
 				.chat-wrapper {
@@ -62,9 +64,11 @@
 					transition: transform 0.5s ease;
 					position: absolute;
 					opacity: 0;
+					z-index: 10;
 
 					&.active {
 						opacity: 1;
+						z-index: 20;
 					}
 
 					.headerInfo {
