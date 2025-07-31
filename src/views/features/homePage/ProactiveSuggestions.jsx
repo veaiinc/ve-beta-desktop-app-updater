@@ -25,8 +25,10 @@ const positionClassMap = {
 	0: 'selected',
 	1: 'right-1',
 	2: 'right-2',
+	3: 'right-3',
 	'-1': 'left-1',
 	'-2': 'left-2',
+	'-3': 'left-3',
 };
 
 export const filterGroups = [
@@ -525,7 +527,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 
 			return {
 				...card,
-				position: Math.abs(diff) <= 2 ? diff : null,
+				position: Math.abs(diff) <= 3 ? diff : null,
 			};
 		});
 
