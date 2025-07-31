@@ -53,6 +53,7 @@
 
 	/* button colors */
 	--primary-button: rgba(121, 236, 201, 1);
+	--primary-opacity: rgba(121, 236, 201, 0.3);
 	--primary-button-hover: rgb(38, 40, 41); /* #262829 */
 	--primary-button-active: rgb(38, 40, 41); /* #262829 */
 	--primary-button-font: var(--background-color); /* #0c0c0d */
@@ -126,6 +127,7 @@
 
 	/* button colors */
 	--primary-button: #34ad9b;
+	--primary-opacity: rgba(121, 236, 201, 0.3);
 	--primary-button-hover: rgb(242, 242, 243); /* #f2f2f3 */
 	--primary-button-active: rgb(242, 242, 243); /* #f2f2f3 */
 	--primary-button-font: var(--background-color); /* #0c0c0d */

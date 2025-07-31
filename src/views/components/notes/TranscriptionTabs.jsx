@@ -70,7 +70,7 @@ const TranscriptionTabs = ({
 						Summary
 					</button>
 				)}
-				{history && (
+				{/* {history && (
 					<button
 						className={activeTab === 'notes' ? 'notes-tab active' : 'notes-tab'}
 						style={{
@@ -92,7 +92,7 @@ const TranscriptionTabs = ({
 					>
 						Notes
 					</button>
-				)}
+				)} */}
 
 				{!history && (
 					<button

@@ -4,87 +4,82 @@ import _ from 'lodash';
 function Peopleitem(props) {
 	const peopleCardOuterContainer = useRef();
 
+	// Validate required props
 	if (
 		!props.url ||
 		!props.people?.boundingBox ||
 		typeof props.originalWidth !== 'number' ||
 		typeof props.originalHeight !== 'number' ||
-		props.originalWidth === 0 ||
-		props.originalHeight === 0
+		props.originalWidth <= 0 ||
+		props.originalHeight <= 0 ||
+		!props.thumbwidth ||
+		props.thumbwidth <= 0
 	) {
 		return null;
 	}
-	let url;
-	let maxWidth = 1920;
-	let maxHeight = 1080;
 
-	url = props.url;
+	const { boundingBox } = props.people;
+	const { originalWidth, originalHeight, thumbwidth, url } = props;
 
-	let imageOptimisedheight =
-		props.originalWidth > props.originalHeight
-			? Math.ceil((maxWidth / props.originalWidth) * props.originalHeight)
-			: Math.ceil((maxHeight / props.originalWidth) * props.originalHeight);
+	// Add padding around the face (e.g., 20% extra on all sides)
+	const paddingFactor = 0.2; // 20% padding
+	const paddedWidth = boundingBox.Width * originalWidth * (1 + paddingFactor);
+	const paddedHeight = boundingBox.Height * originalHeight * (1 + paddingFactor);
 
-	let imageOptimisedWidth = props.originalWidth > props.originalHeight ? maxWidth : maxHeight;
-	let top = _.has(props?.people, 'boundingBox')
-		? props?.people?.boundingBox?.Top * imageOptimisedheight
-		: 0;
-	let left = _.has(props.people, 'boundingBox')
-		? props?.people?.boundingBox?.Left * imageOptimisedWidth
-		: 0;
-	let width = _.has(props.people, 'boundingBox')
-		? props?.people?.boundingBox?.Width * imageOptimisedWidth
-		: imageOptimisedWidth;
-	let height = _.has(props.people, 'boundingBox')
-		? props?.people?.boundingBox?.Height * imageOptimisedheight
-		: imageOptimisedheight;
+	// Calculate face center in original image
+	const faceCenterX = (boundingBox.Left + boundingBox.Width / 2) * originalWidth;
+	const faceCenterY = (boundingBox.Top + boundingBox.Height / 2) * originalHeight;
 
-	let paddingPercentage = 0;
-	let paddingWidth = width + (width * paddingPercentage) / 100;
-	let paddingHeight = height + (height * paddingPercentage) / 100;
+	// Compute crop bounds (centered on face)
+	let cropX = faceCenterX - paddedWidth / 2;
+	let cropY = faceCenterY - paddedHeight / 2;
+	let cropWidth = paddedWidth;
+	let cropHeight = paddedHeight;
 
-	let paddingLeft = left - (width * paddingPercentage) / 200;
-	let paddingTop = top - (width * paddingPercentage) / 200;
+	// Constrain crop to image boundaries
+	cropX = Math.max(0, Math.min(cropX, originalWidth - cropWidth));
+	cropY = Math.max(0, Math.min(cropY, originalHeight - cropHeight));
+	cropWidth = Math.min(cropWidth, originalWidth - cropX);
+	cropHeight = Math.min(cropHeight, originalHeight - cropY);
 
-	let squareWidth;
-	let squareHeight;
-	let squareLeft;
-	let squareTop;
-	let difference;
-	let scaleRatio;
-	if (paddingWidth < paddingHeight) {
-		squareHeight = paddingHeight;
-		squareWidth = paddingHeight;
-		difference = squareWidth - paddingWidth;
-		squareLeft = paddingLeft - difference / 2;
-		squareTop = paddingTop;
-		scaleRatio = parseFloat(props.thumbwidth / squareHeight);
-	} else if (paddingWidth >= paddingHeight) {
-		squareHeight = paddingWidth;
-		squareWidth = paddingWidth;
-
-		difference = squareHeight - paddingHeight;
-		squareLeft = paddingLeft;
-		squareTop = paddingTop - difference / 2;
-		scaleRatio = parseFloat(props.thumbwidth / squareWidth);
+	// If crop is too small, fallback to full image centered
+	if (cropWidth <= 0 || cropHeight <= 0) {
+		cropX = 0;
+		cropY = 0;
+		cropWidth = originalWidth;
+		cropHeight = originalHeight;
 	}
 
+	// Compute scale to fit crop into thumbwidth (maintain aspect by covering)
+	const scale = thumbwidth / Math.max(cropWidth, cropHeight);
+
+	// Background size and position
+	const bgSizeX = originalWidth * scale;
+	const bgSizeY = originalHeight * scale;
+	const bgPosX = -cropX * scale;
+	const bgPosY = -cropY * scale;
+
+	// Avoid NaN or infinite values
 	if (
-		isNaN(squareTop) ||
-		isNaN(squareLeft) ||
-		isNaN(scaleRatio) ||
-		squareWidth <= 0 ||
-		squareHeight <= 0
+		isNaN(bgPosX) ||
+		isNaN(bgPosY) ||
+		isNaN(bgSizeX) ||
+		isNaN(bgSizeY) ||
+		!isFinite(bgPosX) ||
+		!isFinite(bgPosY) ||
+		bgSizeX <= 0 ||
+		bgSizeY <= 0
 	) {
 		return null;
 	}
+
 	return (
 		<div
 			ref={peopleCardOuterContainer}
 			className="people-card f-left"
 			style={{
-				width: props.thumbwidth,
-				height: props.thumbwidth,
+				width: thumbwidth,
+				height: thumbwidth,
 				display: props.navBarIcon && props.dontShowPhotosCount ? '' : 'flex',
 				alignItems: 'center',
 				flexDirection: 'column',
@@ -98,38 +93,37 @@ function Peopleitem(props) {
 			<div
 				className="img f-left"
 				style={{
-					width: props.thumbwidth,
-					height: props.thumbwidth,
+					width: thumbwidth,
+					height: thumbwidth,
 					borderRadius: 0,
 					position: 'relative',
-					maxWidth: props.thumbwidth,
+					maxWidth: thumbwidth,
 				}}
 			>
-				{/* Scaled background image */}
+				{/* Circular cropped image using background */}
 				<div
 					style={{
-						width: squareWidth,
-						height: squareHeight,
-						backgroundImage: `url(${url})`, // no shorthand for background
-						backgroundRepeat: 'no-repeat', // separate properties
-						backgroundPositionX: `${-squareLeft}px`, // individual position properties
-						backgroundPositionY: `${-squareTop}px`,
-						backgroundSize: 'auto', // individual size property
-						transform: `scale(${scaleRatio})`,
-						position: 'absolute',
-						top: `${(props.thumbwidth - squareHeight) / 2}px`,
-						left: `${(props.thumbwidth - squareWidth) / 2}px`,
+						width: '100%',
+						height: '100%',
+						backgroundImage: `url(${url})`,
+						backgroundRepeat: 'no-repeat',
+						backgroundPosition: `${bgPosX}px ${bgPosY}px`,
+						backgroundSize: `${bgSizeX}px ${bgSizeY}px`,
 						borderRadius: '50%',
-						backgroundColor: '#f5f5f5',
+						overflow: 'hidden',
+						position: 'absolute',
+						top: 0,
+						left: 0,
 						zIndex: 2,
+						backgroundColor: '#f5f5f5',
 					}}
-				></div>
+				/>
 
-				{/* White circular mask/background */}
+				{/* Optional: White circular mask behind (if needed for contrast) */}
 				<div
 					style={{
-						width: props.thumbwidth,
-						height: props.thumbwidth,
+						width: thumbwidth,
+						height: thumbwidth,
 						zIndex: 1,
 						position: 'absolute',
 						borderRadius: '50%',
@@ -141,4 +135,4 @@ function Peopleitem(props) {
 	);
 }
 
-export default Peopleitem;
+export default React.memo(Peopleitem);

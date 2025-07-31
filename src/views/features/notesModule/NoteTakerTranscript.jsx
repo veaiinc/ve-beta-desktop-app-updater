@@ -15,7 +15,6 @@ const NoteTakerTranscript = ({
 	visible = true,
 	onTranscriptionUpdate,
 }) => {
-	const { noteId } = useParams();
 	const [searchParams] = useSearchParams();
 	const meetingId = useParams()?.meetingId;
 	const type = searchParams.get('type');
@@ -156,7 +155,7 @@ const NoteTakerTranscript = ({
 			}}
 		>
 			<NoteTranscription
-				pageId={noteId}
+				pageId={pageId} // for getliVEkITOken
 				updateTranscription={handleUpdateTranscription}
 				sendMessage={sendMessage}
 				tenantId={tenantId}

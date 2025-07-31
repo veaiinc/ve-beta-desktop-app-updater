@@ -25,6 +25,7 @@ function formatDate(timestamp) {
 const CardMeetBot = () => {
 	const {
 		notes: { getExistingBots, createMeetBot, existingBots },
+		templates: { updateStateValues },
 	} = useContext(Context);
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
@@ -44,6 +45,8 @@ const CardMeetBot = () => {
 		if (!existingBots) {
 			getExistingBots({ page: 1, limit: 10, append: false });
 		}
+
+
 	}, []);
 
 	// Carousel navigation handlers
@@ -270,7 +273,7 @@ const CardMeetBot = () => {
 												}}
 												onClick={() =>
 													navigate(
-														`/meet/${meeting?.pageId}/${meeting?._id}?type=${meeting?.transcriptionSource}`,
+														`/meet/${meeting?.pageId}/${meeting?._id}?type=${meeting?.transcriptionSource}&history=true`,
 													)
 												}
 											>
