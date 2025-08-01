@@ -590,16 +590,21 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 												key={item._id || item.id || idx}
 											>
 												<div className="meet-transcript-meta">
-													<span
-														className="avatar"
-														style={{
-															backgroundColor: getSpeakerColor(
-																item.speakerName,
-															),
-														}}
-													>
-														{item.speakerName?.split(' ')[0]?.charAt(0)}
-													</span>
+													{type === 'meeting_bot' && (
+														<span
+															className="avatar"
+															style={{
+																backgroundColor: getSpeakerColor(
+																	item.speakerName,
+																),
+															}}
+														>
+															{item.speakerName
+																?.split(' ')[0]
+																?.charAt(0)}
+														</span>
+													)}
+
 													<span className="meet-transcript-participant">
 														{item.speakerName || 'Note Taker'}
 													</span>
