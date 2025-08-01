@@ -512,7 +512,7 @@ const Stages = ({ onNext }) => {
 					message?.success('Workspace created successfully');
 				}
 				// onNext(info);
-				navigate('/pricing');
+				navigate('/settings/pricing');
 			} else {
 				message?.error(response?.[1]?.message);
 			}
@@ -628,7 +628,7 @@ const Stages = ({ onNext }) => {
 						)}
 						{/* Workspace Details Section - Show for workspace creation mode */}
 						{isWorkspaceCreationMode && !invitedUserOnboarding && (
-							<div className="workspaceDetailsSection">
+							<div className="workspaceDetailsSection show">
 								<WorkspaceHandle
 									companyName={info?.companyName}
 									handleSetCompanyName={handleSetCompanyName}
@@ -655,7 +655,7 @@ const Stages = ({ onNext }) => {
 				</div>
 			</div>
 			<div className="btnsContainer">
-				{!info?.isPhoneNumberVerified && !info?.otpSent && (
+				{!info?.isPhoneNumberVerified && !info?.otpSent && !isWorkspaceCreationMode && (
 					<button
 						style={{
 							opacity: info?.verifyPhoneNumberLoading ? 0.5 : 1,
@@ -668,7 +668,7 @@ const Stages = ({ onNext }) => {
 						{info?.verifyPhoneNumberLoading ? 'Verifying...' : 'Verify Number by OTP'}
 					</button>
 				)}
-				{info?.isPhoneNumberVerified && (
+				{(info?.isPhoneNumberVerified || isWorkspaceCreationMode) && (
 					<button
 						style={{
 							opacity: continueBtnDisabled ? 0.4 : 1,
