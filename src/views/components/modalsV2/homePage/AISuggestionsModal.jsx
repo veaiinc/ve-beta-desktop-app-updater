@@ -366,6 +366,7 @@ const AISuggestionsModal = ({
 		createdAt,
 		thinker_sources,
 		sessionId,
+		read,
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
@@ -411,6 +412,8 @@ const AISuggestionsModal = ({
 												style={{ transform: 'rotate(270deg)' }}
 											/>
 										</div>
+
+										{read && <div className="is-read">Read</div>}
 									</>
 								)}
 							</div>

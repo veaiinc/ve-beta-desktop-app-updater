@@ -31,6 +31,12 @@
 			justify-content: center;
 			font-size: 15px;
 			overflow: hidden;
+			border: 1px solid transparent;
+			transition: border 0.2s ease;
+
+			&:hover {
+				border: 1px solid var(--stroke-hover);
+			}
 
 			&.single-card {
 				top: 10% !important;
@@ -106,12 +112,56 @@
 						align-items: center;
 						justify-content: center;
 
+						.backdrop {
+							position: absolute;
+							background-color: var(--stroke);
+							border-radius: 50%;
+						}
+
+						.backdrop1 {
+							top: 5%;
+							left: 15%;
+							width: 400px;
+							height: 400px;
+							animation: 7s ease-in-out 0s infinite alternate none running move-1,
+								5s ease-in-out 0s infinite alternate none running flicker;
+						}
+
+						.backdrop2 {
+							top: 50%;
+							left: 50%;
+							width: 600px;
+							height: 400px;
+							transform: translate(-50%, -50%);
+							animation: 3s ease-in-out 0s infinite alternate none running move-2,
+								5s ease-in-out 0s infinite alternate none running flicker;
+						}
+
+						.backdrop3 {
+							bottom: 5%;
+							right: 15%;
+							width: 200px;
+							height: 200px;
+							animation: 7s ease-in-out 0s infinite alternate none running move-3,
+								5s ease-in-out 0s infinite alternate none running flicker;
+						}
+
+						.backdrop4 {
+							top: 20%;
+							left: 50%;
+							width: 700px;
+							height: 200px;
+							animation: 8s ease-in-out 0s infinite alternate move-4,
+								5s ease-in-out 0s infinite alternate none running flicker;
+						}
+
 						.title-container {
 							display: flex;
 							flex-direction: column;
 							align-items: center;
 							gap: 12px;
 							align-self: stretch;
+							position: relative;
 
 							.title-text {
 								display: flex;
@@ -377,5 +427,56 @@
 		bottom: 0%;
 		width: 100%;
 		opacity: 0.25;
+	}
+}
+
+@keyframes move-1 {
+	0% {
+		transform: translate(0px, 100%);
+	}
+	100% {
+		transform: translate(0%, 0%);
+	}
+}
+@keyframes move-2 {
+	0% {
+		transform: translate(-100%, -100%);
+	}
+	100% {
+		transform: translate(0%, 0%);
+	}
+}
+@keyframes move-3 {
+	0% {
+		transform: translate(0%, -100%);
+		opacity: 0.8;
+	}
+	100% {
+		transform: translate(0%, 0%);
+		opacity: 1;
+	}
+}
+@keyframes move-4 {
+	0% {
+		transform: translate(0%, 0%);
+		opacity: 0.8;
+	}
+	100% {
+		transform: translate(-70%, 60%);
+		opacity: 1;
+	}
+}
+@keyframes flicker {
+	0% {
+		opacity: 0.8;
+		filter: blur(70px);
+	}
+	50% {
+		opacity: 1;
+		filter: blur(90px);
+	}
+	100% {
+		opacity: 0.8;
+		filter: blur(70px);
 	}
 }
