@@ -212,7 +212,7 @@
 		}
 
 		.card0__from__bottom {
-			animation: card0__from__bottom 0.3s ease-in-out forwards;
+			animation: card0__from__bottom 0.4s cubic-bezier(0.33, 1, 0.68, 1) forwards;
 		}
 
 		.card0__from__top {
@@ -223,22 +223,22 @@
 		}
 
 		.card1__from__bottom {
-			animation: card1__from__bottom 0.3s ease-in-out forwards;
+			animation: card1__from__bottom 0.4s cubic-bezier(0.33, 1, 0.68, 1) forwards;
 		}
 		.card1__from__top {
-			animation: card1__from__top 0.3s ease-in-out forwards;
+			animation: card1__from__top 0.4s cubic-bezier(0.33, 1, 0.68, 1) forwards;
 		}
 		.card2__from__bottom {
-			animation: card2__from__bottom 0.3s ease-in-out forwards;
+			animation: card2__from__bottom 0.4s cubic-bezier(0.33, 1, 0.68, 1) forwards;
 		}
 		.card2__from__top {
-			animation: card2__from__top 0.3s ease-in-out forwards;
+			animation: card2__from__top 0.4s cubic-bezier(0.33, 1, 0.68, 1) forwards;
 		}
 		.card3__from__bottom {
-			animation: card3__from__bottom 0.3s ease-in-out forwards;
+			animation: card3__from__bottom 0.4s cubic-bezier(0.33, 1, 0.68, 1) forwards;
 		}
 		.card3__from__top {
-			animation: card3__from__top 0.3s ease-in-out forwards;
+			animation: card3__from__top 0.4s cubic-bezier(0.33, 1, 0.68, 1) forwards;
 		}
 		.card4__from__bottom {
 			top: 100%;
@@ -247,7 +247,7 @@
 			opacity: 0.25;
 		}
 		.card4__from__top {
-			animation: card4__from__top 0.3s ease-in-out forwards;
+			animation: card4__from__top 0.4s cubic-bezier(0.33, 1, 0.68, 1) forwards;
 		}
 
 		.card__top {
