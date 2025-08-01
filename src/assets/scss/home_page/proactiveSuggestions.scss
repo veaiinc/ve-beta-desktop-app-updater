@@ -224,7 +224,8 @@
 			transform: translateX(-50%) rotate(-2deg);
 		}
 
-		.left-2 {
+		.left-2,
+		.left-3 {
 			left: 15%;
 			z-index: 1;
 			width: 170px;
@@ -232,7 +233,10 @@
 			bottom: -10px;
 			display: flex;
 			transform: translateX(-50%) rotate(-4deg);
-			opacity: 0.5;
+			opacity: 1;
+		}
+		.left-3 {
+			z-index: 0;
 		}
 
 		.right-1 {
@@ -249,7 +253,8 @@
 			}
 		}
 
-		.right-2 {
+		.right-2,
+		.right-3 {
 			left: 85%;
 			z-index: 1;
 			width: 170px;
@@ -257,11 +262,14 @@
 			bottom: -10px;
 			display: flex;
 			transform: translateX(-50%) rotate(4deg);
-			opacity: 0.5;
+			opacity: 1;
 
 			.footer {
 				justify-content: flex-end;
 			}
+		}
+		.right-3 {
+			z-index: 0;
 		}
 
 		.card.skeleton {

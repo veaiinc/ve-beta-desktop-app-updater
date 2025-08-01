@@ -66,6 +66,7 @@
 						display: flex;
 						align-items: center;
 						gap: 12px;
+						height: 32px;
 						.prev-btn {
 							cursor: pointer;
 							transform: rotate(-90deg);
@@ -78,6 +79,23 @@
 								width: 20px;
 								height: 20px;
 							}
+						}
+						.is-read {
+							display: flex;
+							height: 32px;
+							padding: 12px;
+							justify-content: center;
+							align-items: center;
+							gap: 6px;
+							border-radius: 6px;
+							background: var(--primary-opacity, rgba(121, 236, 201, 0.1));
+
+							color: var(--primary-button, #79ecc9);
+							font-family: var(--primary-font-family);
+							font-size: 13px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
 						}
 						.total-docs {
 							display: flex;
