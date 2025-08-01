@@ -999,7 +999,6 @@ export const getMeetBotDataQuery = gql`
 				_id
 				title
 				tenantId
-				pageId
 				transcriptionSource
 				meetingMode
 				agenda
@@ -1029,13 +1028,48 @@ export const getMeetBotDataQuery = gql`
 	}
 `;
 
+export const getMeetBotByIdQuery = gql`
+	query GetMeeting($meetingId: ID!) {
+		getMeeting(meetingId: $meetingId) {
+			_id
+			title
+			tenantId
+			pageId
+			transcriptionSource
+			meetingMode
+			agenda
+			isAiIntelligenceEnabled
+			status
+			meetingPreference {
+				threshold
+				askUser
+				needHelp
+				actions
+				similarFiles
+			}
+			createdBy {
+				_id
+				name
+				email
+			}
+			updatedBy {
+				_id
+				name
+				email
+			}
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
 export const getMeetSummaryQuery = gql`
-query GetMeetingSummaryAndRevampedPrompt($meetingId: ID!) {
-  getMeetingSummaryAndRevampedPrompt(meetingId: $meetingId) {
-    transcriptionSummary
-    revampedPrompt
-  }
-}
+	query GetMeetingSummaryAndRevampedPrompt($meetingId: ID!) {
+		getMeetingSummaryAndRevampedPrompt(meetingId: $meetingId) {
+			transcriptionSummary
+			revampedPrompt
+		}
+	}
 `;
 
 export const meetBotCreateMutation = gql`

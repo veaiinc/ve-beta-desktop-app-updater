@@ -33,7 +33,7 @@ function isValidUrl(url) {
 
 const CreateMeetingModal = ({ isOpen, onClose }) => {
 	const {
-		notes: { createMeetBot, getExistingBots },
+		notes: { createMeetBot },
 	} = useContext(Context);
 	const navigate = useNavigate();
 
@@ -72,13 +72,11 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 		try {
 			const response = await createMeetBot({ input });
 			const meetingId = response?.[1]?.data?.startMeeting?._id;
-			const pageId = response?.[1]?.data?.startMeeting?.pageId;
 			const type = response?.[1]?.data?.startMeeting?.transcriptionSource;
 
 			if (meetingId && type) {
-				await getExistingBots({ page: 1, limit: 10, append: false });
 				navigate(
-					`/meet/${pageId}/${meetingId}?type=${type}&isAiIntelligenceEnabled=${formData.isAiIntelligenceEnabled}`,
+					`/meet/${meetingId}?type=${type}&isAiIntelligenceEnabled=${formData.isAiIntelligenceEnabled}`,
 				);
 			}
 

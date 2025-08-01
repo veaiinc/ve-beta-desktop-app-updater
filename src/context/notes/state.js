@@ -59,6 +59,7 @@ import {
 
 	// for meet bots
 	getMeetBotDataQuery,
+	getMeetBotByIdQuery,
 	getMeetSummaryQuery,
 	meetBotCreateMutation,
 	deleteLiveKitRoomMutation,
@@ -90,6 +91,7 @@ export const intialState = {
 	meetSummary: null,
 	transcriptionList: [],
 	aiLiveIntelligenceHistory: null,
+	createBotInfo: null,
 };
 
 export const NotesState = (props) => {
@@ -1802,7 +1804,9 @@ export const NotesState = (props) => {
 				dispatch({
 					type: Actions.GET_MEET_SUMMARY_SUCCESS,
 					payload: {
-						summary: response?.[1]?.data?.getMeetingSummaryAndRevampedPrompt?.transcriptionSummary,
+						summary:
+							response?.[1]?.data?.getMeetingSummaryAndRevampedPrompt
+								?.transcriptionSummary,
 					},
 				});
 			} else {
@@ -1829,10 +1833,69 @@ export const NotesState = (props) => {
 				'page_notes_api_database',
 			);
 			if (response?.[0]) {
+				dispatch({
+					type: Actions.CREATE_MEET_BOT_SUCCESS,
+					payload: {
+						createBotInfo: response?.[1]?.data?.startMeeting,
+					},
+				});
 				return response;
 			}
 		} catch (error) {
 			console.error('error==>createMeetBot', error);
+		}
+	};
+
+	const getMeetBotById = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+
+			const response = await service.query(
+				getMeetBotByIdQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api_database',
+			);
+			if (response?.[0]) {
+				const meetingData = response?.[1]?.data?.getMeeting;
+				if (meetingData) {
+					dispatch({
+						type: Actions.CREATE_MEET_BOT_SUCCESS,
+						payload: {
+							createBotInfo: meetingData,
+						},
+					});
+				} else {
+					// Meeting not found
+					dispatch({
+						type: Actions.CREATE_MEET_BOT_SUCCESS,
+						payload: {
+							createBotInfo: null,
+						},
+					});
+				}
+				return response;
+			} else {
+				// API error
+				dispatch({
+					type: Actions.CREATE_MEET_BOT_SUCCESS,
+					payload: {
+						createBotInfo: null,
+					},
+				});
+				return response;
+			}
+		} catch (error) {
+			console.error('error==>getMeetBotById', error);
+			// Network or other error
+			dispatch({
+				type: Actions.CREATE_MEET_BOT_SUCCESS,
+				payload: {
+					createBotInfo: null,
+				},
+			});
 		}
 	};
 
@@ -2030,6 +2093,7 @@ export const NotesState = (props) => {
 		fetchMoreGroupData,
 		getExistingBots,
 		createMeetBot,
+		getMeetBotById,
 		deleteLiveKitRoom,
 		getMeetTranscriptHistory,
 		updateDatabaseView,
