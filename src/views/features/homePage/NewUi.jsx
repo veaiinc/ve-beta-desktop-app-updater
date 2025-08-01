@@ -519,6 +519,10 @@ const NewUi = ({ handleActiveChatIndex }) => {
 								>
 									{session?.type === 'chatbox' ? (
 										<div className="chatboxWrapper">
+											<div className="backdrop1 backdrop" />
+											<div className="backdrop2 backdrop" />
+											<div className="backdrop3 backdrop" />
+											<div className="backdrop4 backdrop" />
 											<div className={`title-container `}>
 												<div className="title-text">
 													<h2 className="title-one">{greeting}!</h2>
@@ -542,7 +546,10 @@ const NewUi = ({ handleActiveChatIndex }) => {
 											/>
 											<Suggestions
 												chatQuery={info?.chatQuery}
-												styles={{ backgroundColor: 'var(--card)' }}
+												styles={{
+													backgroundColor: 'var(--card)',
+													position: 'relative',
+												}}
 											/>
 										</div>
 									) : (

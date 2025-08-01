@@ -2697,11 +2697,12 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getChatBoxSuggestions = async (payload) => {
+	const getChatBoxSuggestions = async (payload = {}) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 			const path = `https://ai.us-east-1.ve.ai/${workspaceId}/suggestions`;
+			payload.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 			const response = await fetch(path, {
 				method: 'POST',
 				headers: {
