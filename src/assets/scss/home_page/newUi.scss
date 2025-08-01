@@ -133,7 +133,7 @@
 							width: 600px;
 							height: 400px;
 							transform: translate(-50%, -50%);
-							animation: 3s ease-in-out 0s infinite alternate none running move-2,
+							animation: 7s ease-in-out 0s infinite alternate none running move-2,
 								5s ease-in-out 0s infinite alternate none running flicker;
 						}
 
@@ -273,12 +273,26 @@
 		align-items: center;
 		height: 45px;
 
-		.active-card-title {
-			width: 100%;
-			font-size: 16px;
-			font-weight: 500;
-			color: var(--primary-font);
-			height: 18px;
+		.footer-left-container {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			flex-grow: 1;
+
+			.active-card-title {
+				font-size: 16px;
+				font-weight: 500;
+				color: var(--primary-font);
+			}
+
+			.chat-created-at {
+				color: var(--secondary-font, #94989e);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
 		}
 
 		.new-btn {
