@@ -544,13 +544,13 @@ const NewUi = ({ handleActiveChatIndex }) => {
 												onChatQueryChange={handleChatQueryChange}
 												animateChatBox={true}
 											/>
-											<Suggestions
+											{/* <Suggestions
 												chatQuery={info?.chatQuery}
 												styles={{
 													backgroundColor: 'var(--card)',
 													position: 'relative',
 												}}
-											/>
+											/> */}
 										</div>
 									) : (
 										<>
