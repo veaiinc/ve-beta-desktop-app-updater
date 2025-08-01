@@ -69,6 +69,7 @@ const GalleryViewer = lazy(() => import('../views/features/gallery/GalleryViewer
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
+import MeetBotWrapper from '../views/features/meetBot/meetBotWrapper';
 // import MeetBot from '../views/features/meetBot/meetBot';
 // import NotesWrapper from '../views/features/notesModule/NotesWrapper';
 const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
@@ -687,11 +688,11 @@ const betaRoutes = [
 		),
 	},
 	{
-		path: '/meet/:noteId/:meetingId',
+		path: '/meet/:meetingId',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper title={'Meet'}>
-					<NotesWrapper />
+					<MeetBotWrapper />
 				</AuthWrapper>
 			</Suspense>
 		),
