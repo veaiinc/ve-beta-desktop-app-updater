@@ -4,6 +4,8 @@ const ipcMain = require('electron').ipcMain;
 const { autoUpdater } = require('electron-updater');
 const log = require('electron-log'); // Import electron-log
 const path = require('node:path');
+const sharp = require('sharp'); // Add sharp import
+const axios = require('axios'); // Add axios import
 let mainWindow = null;
 
 // Set the autoUpdater logger to electron-log
@@ -190,6 +192,93 @@ ipcMain.handle('restart-app', async () => {
 	} catch (error) {
 		log.error('Error restarting app:', error);
 		return { success: false, error: error.message };
+	}
+});
+
+// Image processing handlers
+ipcMain.handle('process-image-with-sharp', async (event, data) => {
+	try {
+		const { imageBuffer, watermarkUrl, watermarkPosition, scale, opacity, isWaterMarkApply } =
+			data;
+
+		// Convert base64 or array buffer to Buffer
+		let imageData;
+		if (typeof imageBuffer === 'string') {
+			// Handle base64
+			imageData = Buffer.from(imageBuffer, 'base64');
+		} else {
+			// Handle array buffer
+			imageData = Buffer.from(imageBuffer);
+		}
+
+		let sharpImage = sharp(imageData);
+
+		// Get image metadata
+		const metadata = await sharpImage.metadata();
+
+		// Apply watermark if enabled
+		if (isWaterMarkApply && watermarkUrl) {
+			try {
+				// Fetch watermark image
+				const watermarkResponse = await axios.get(watermarkUrl, {
+					responseType: 'arraybuffer',
+				});
+				const watermarkBuffer = Buffer.from(watermarkResponse.data);
+
+				// Resize watermark based on scale
+				const watermarkImage = sharp(watermarkBuffer);
+				const watermarkMetadata = await watermarkImage.metadata();
+				const watermarkWidth = Math.floor(metadata.width * scale);
+				const watermarkHeight = Math.floor(
+					(watermarkMetadata.height / watermarkMetadata.width) * watermarkWidth,
+				);
+
+				const resizedWatermark = await watermarkImage
+					.resize({ width: watermarkWidth, height: watermarkHeight })
+					.toBuffer();
+
+				// Calculate position
+				let position = { top: 0, left: 0 };
+				const offset = 10; // Margin from edges
+				if (watermarkPosition.name === 'southeast') {
+					position = {
+						left: metadata.width - watermarkWidth - offset,
+						top: metadata.height - watermarkHeight - offset,
+					};
+				} else if (watermarkPosition.name === 'northwest') {
+					position = { left: offset, top: offset };
+				} // Add other positions as needed
+
+				// Apply watermark with opacity
+				sharpImage = sharpImage.composite([
+					{
+						input: resizedWatermark,
+						top: position.top,
+						left: position.left,
+						blend: 'over',
+						opacity: opacity,
+					},
+				]);
+			} catch (watermarkError) {
+				log.error('Error applying watermark:', watermarkError);
+				// Continue without watermark if there's an error
+			}
+		}
+
+		// Convert to buffer (JPEG format)
+		const processedBuffer = await sharpImage.jpeg({ quality: 80 }).toBuffer();
+
+		// Return the processed buffer as base64
+		return {
+			success: true,
+			processedImage: processedBuffer.toString('base64'),
+		};
+	} catch (error) {
+		log.error('Image processing error:', error);
+		return {
+			success: false,
+			error: error.message,
+		};
 	}
 });
 

@@ -1740,17 +1740,12 @@ const GalleryPage = () => {
 	// ... rest of the code ...
 
 	const handleNavigateUpload = () => {
-		const uploadUrl =
-			info?.albumContains === 'All'
-				? `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos?light-gallery=${
-						info?.isLightGallery ? true : false
-				  }`
-				: `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos?tag=${
-						info?.albumContains
-				  }?light-gallery=${info?.isLightGallery ? true : false}`;
-
-		// Open in new tab
-		window.open(uploadUrl, '_blank');
+		const uploadUrl = `/galleries/${galleryId}/${
+			info?.activeAlbumId
+		}/upload-photos?light-gallery=${info?.isLightGallery ? true : false}${
+			info?.albumContains !== 'All' ? `&tag=${info?.albumContains}` : ''
+		}`;
+		navigate(uploadUrl);
 	};
 
 	const handleCallToAction = useCallback(() => {

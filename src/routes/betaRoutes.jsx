@@ -58,7 +58,7 @@ import NotesPage from '../views/features/notesPage/NotesPage';
 import NotesWrapper from '../views/features/notesModule/NotesWrapper';
 import GalleryPage from '../views/features/gallery/GalleryPage';
 import GalleryViewer from '../views/features/gallery/GalleryViewer';
-
+import UploadPhotosDesktop from '../views/features/gallery/UploadPhotosDesktop';
 // components
 import CardMeetBot from '../views/features/meetBot/CardMeetBot';
 import ChatPage from '../views/components/homePage/ChatPage';
@@ -189,7 +189,7 @@ const betaRoutes = [
 		path: '/galleries/:galleryId/:albumId/upload-photos',
 		element: (
 			<AuthWrapper title={'Upload Photos'} showBottomToolbar={false}>
-				<UploadPhotos />
+				<UploadPhotosDesktop />
 			</AuthWrapper>
 		),
 	},

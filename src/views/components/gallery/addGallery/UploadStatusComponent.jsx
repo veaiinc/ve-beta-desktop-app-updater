@@ -186,7 +186,6 @@ const UploadStatusComponent = ({
 												/>
 											</div>
 										)}
-
 										{(!singlePhoto?.isUploaded ||
 											singlePhoto?.uploadedPerct === 0) && (
 											<CancelUploadSvg

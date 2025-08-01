@@ -23,5 +23,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	removeUpdateStatusListener: () => {
 		ipcRenderer.removeAllListeners('update-status');
-	}
+	},
+
+	// Image processing function
+	processImageWithSharp: (data) => ipcRenderer.invoke('process-image-with-sharp', data),
 });
