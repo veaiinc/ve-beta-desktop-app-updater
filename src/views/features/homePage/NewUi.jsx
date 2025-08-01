@@ -591,13 +591,27 @@ const NewUi = ({ handleActiveChatIndex }) => {
 				})}
 			</div>
 			<div className="new-ui-footer">
-				<div className="active-card-title">
-					<Tooltip title="Chat Title">
-						{info?.data?.[info?.activeIndex]?.title
-							? info?.data?.[info?.activeIndex]?.title
-							: 'New Chat'}
-					</Tooltip>
+				<div className="footer-left-container">
+					<div className="active-card-title">
+						<Tooltip title="Chat Title">
+							{info?.data?.[info?.activeIndex]?.title
+								? info?.data?.[info?.activeIndex]?.title
+								: 'New Chat'}
+						</Tooltip>
+					</div>
+					<div className="chat-created-at">
+						{info?.data?.[info?.activeIndex]?.createdAt
+							? new Date(
+									info?.data?.[info?.activeIndex]?.createdAt * 1000,
+							  ).toLocaleTimeString('en-US', {
+									hour: 'numeric',
+									minute: '2-digit',
+									hour12: true,
+							  })
+							: ''}
+					</div>
 				</div>
+
 				<div
 					className={`new-btn ${
 						!(info?.activeIndex === 0 || info?.activeIndex === info?.dataLength - 2)
