@@ -228,7 +228,7 @@ const NotesGrid = ({ handleTotalChange, isDatabase = false }) => {
 						height={'100%'}
 					>
 						<div className="card-container">
-							<div className="card-item">
+							<div className="card-item create">
 								<div className="card-item-style card-item-style-btn">
 									<button
 										onClick={handleCreateNoteOrDatabase}
