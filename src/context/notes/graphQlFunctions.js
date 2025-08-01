@@ -999,7 +999,6 @@ export const getMeetBotDataQuery = gql`
 				_id
 				title
 				tenantId
-				pageId
 				transcriptionSource
 				meetingMode
 				agenda
@@ -1030,12 +1029,12 @@ export const getMeetBotDataQuery = gql`
 `;
 
 export const getMeetSummaryQuery = gql`
-query GetMeetingSummaryAndRevampedPrompt($meetingId: ID!) {
-  getMeetingSummaryAndRevampedPrompt(meetingId: $meetingId) {
-    transcriptionSummary
-    revampedPrompt
-  }
-}
+	query GetMeetingSummaryAndRevampedPrompt($meetingId: ID!) {
+		getMeetingSummaryAndRevampedPrompt(meetingId: $meetingId) {
+			transcriptionSummary
+			revampedPrompt
+		}
+	}
 `;
 
 export const meetBotCreateMutation = gql`
