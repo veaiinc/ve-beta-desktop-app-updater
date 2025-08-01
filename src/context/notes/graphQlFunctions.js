@@ -1034,7 +1034,6 @@ export const getMeetBotByIdQuery = gql`
 			_id
 			title
 			tenantId
-			pageId
 			transcriptionSource
 			meetingMode
 			agenda
@@ -1078,7 +1077,6 @@ export const meetBotCreateMutation = gql`
 			_id
 			title
 			tenantId
-			pageId
 			transcriptionSource
 			meetingMode
 			agenda

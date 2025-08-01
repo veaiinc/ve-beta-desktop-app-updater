@@ -13,6 +13,7 @@ import TranscriptionWrapper from '../notesModule/TranscriptionWrapper';
 import '../../../assets/scss/notes/noteComponent.scss';
 import { ReactComponent as ShareIcon } from '../../../assets/svg/docs/meetshare.svg';
 import { ReactComponent as DotIcon } from '../../../assets/svg/docs/dot.svg';
+import { ReactComponent as ClockPersonIcon } from './clockPerson.svg';
 import './meetBot.scss';
 import './meetBotContainer.scss';
 import moment from 'moment';
@@ -30,6 +31,35 @@ const initialState = {
 	transcriptionsHasMore: true,
 	transcriptionsLoading: false,
 };
+
+const getSpeakerColor = (speakerName) => {
+	if (!speakerName) return '#9e9e9e';
+
+	// Deterministic color based on name
+	const colors = [
+		'#FF5733', // Red-Orange
+		'#33C4FF', // Blue
+		'#33FF57', // Green
+		'#FF33A8', // Pink
+		'#B833FF', // Purple
+		'#FFC300', // Yellow
+		'#33FFF6', // Cyan
+		'#FF8C33', // Orange
+		'#7D33FF', // Indigo
+		'#33FFAA', // Mint
+	];
+
+	// Generate a hash of the speaker name
+	let hash = 0;
+	for (let i = 0; i < speakerName.length; i++) {
+		hash = speakerName.charCodeAt(i) + ((hash << 5) - hash);
+	}
+
+	// Use hash to pick a consistent color
+	const index = Math.abs(hash) % colors.length;
+	return colors[index];
+};
+
 const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const meetingId = useParams()?.meetingId;
@@ -475,21 +505,21 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					<div className="meeting-info">
 						<div className="meeting-title-container">
 							<h2 className="meeting-title">{createBotInfo.title}</h2>
-									{createBotInfo?.createdBy && (
-										<div className="meeting-meta-info">
-										<span className="meeting-created-by-name">
-											{createBotInfo?.createdBy?.name}
-										</span>
-										<DotIcon />
-										<span className="meeting-created-by-email">
-											{createBotInfo?.createdBy?.email}
-										</span>
-										<DotIcon />
-										<span className="meeting-created-by-time">
-											{moment(createBotInfo?.createdAt).format('DD MMM YYYY HH')}
-										</span>
-									</div>
-								)}
+							{createBotInfo?.createdBy && (
+								<div className="meeting-meta-info">
+									<span className="meeting-created-by-name">
+										{createBotInfo?.createdBy?.name}
+									</span>
+									<DotIcon />
+									<span className="meeting-created-by-email">
+										{createBotInfo?.createdBy?.email}
+									</span>
+									<DotIcon />
+									<span className="meeting-created-by-time">
+										{moment(createBotInfo?.createdAt).format('DD MMM YYYY HH')}
+									</span>
+								</div>
+							)}
 						</div>
 						<div className="meeting-meta">
 							<span className="meeting-share">
@@ -560,10 +590,22 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 												key={item._id || item.id || idx}
 											>
 												<div className="meet-transcript-meta">
+													<span
+														className="avatar"
+														style={{
+															backgroundColor: getSpeakerColor(
+																item.speakerName,
+															),
+														}}
+													>
+														{item.speakerName?.split(' ')[0]?.charAt(0)}
+													</span>
 													<span className="meet-transcript-participant">
 														{item.speakerName || 'Note Taker'}
 													</span>
+													<DotIcon />
 													<span className="meet-transcript-time">
+														<ClockPersonIcon />
 														{item.time || ''}
 													</span>
 												</div>
