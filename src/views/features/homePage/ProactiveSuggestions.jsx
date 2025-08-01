@@ -5,6 +5,7 @@ import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks
 import { ReactComponent as FilterIcon } from '../../../assets/svg/tasks/newFiltersIcon.svg';
 import { ReactComponent as TickIcon } from '../../../assets/svg/tick.svg';
 import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 import AISuggestionsModal from '../../components/modalsV2/homePage/AISuggestionsModal';
 import { Tooltip } from 'antd';
 import dayjs from 'dayjs';
@@ -24,8 +25,10 @@ const positionClassMap = {
 	0: 'selected',
 	1: 'right-1',
 	2: 'right-2',
+	3: 'right-3',
 	'-1': 'left-1',
 	'-2': 'left-2',
+	'-3': 'left-3',
 };
 
 export const filterGroups = [
@@ -98,6 +101,8 @@ const getDescription = (card) => {
 		}
 	} else if (card?.collectionType === 'forms') {
 		return 'Form response';
+	} else if (card?.insight_type === 'actions') {
+		return card?.crux;
 	}
 };
 
@@ -272,14 +277,14 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
 			updateCardsData();
-			// if (info?.activeCardContent) {
-			// 	setInfo((prev) => ({
-			// 		...prev,
-			// 		activeCardContent: aiSuggestedPendingActions?.pendingActions?.find(
-			// 			(c) => c?._id === info?.activeCardContent?._id,
-			// 		),
-			// 	}));
-			// }
+			if (info?.activeCardContent) {
+				setInfo((prev) => ({
+					...prev,
+					activeCardContent: aiSuggestedPendingActions?.pendingActions?.find(
+						(c) => c?._id === info?.activeCardContent?._id,
+					),
+				}));
+			}
 		}
 	}, [aiSuggestedPendingActions]);
 
@@ -522,7 +527,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 
 			return {
 				...card,
-				position: Math.abs(diff) <= 2 ? diff : null,
+				position: Math.abs(diff) <= 3 ? diff : null,
 			};
 		});
 
@@ -702,6 +707,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 			...prev,
 			selectedOption: option,
 			currentIndex: 0,
+			loading: true,
 		}));
 	};
 
@@ -731,7 +737,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 					<div className="proactive-suggestions-title">
 						<span className="title-highlight">Ambient</span> Insights For You
 					</div>
-					{info?.activeBtn === 'insights' && info?.options?.length && (
+					{info?.activeBtn === 'insights' && info?.options?.length > 0 && (
 						<>
 							{(info?.cards?.length > 0 ||
 								info?.options?.length ||
@@ -766,7 +772,15 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 															borderRadius: '10px',
 														}}
 													>
-														<Skeleton height={'100%'} width={'100%'} />
+														<Skeleton
+															height={'100%'}
+															width={'100%'}
+															highlightColor="var(--card-over-card)"
+															baseColor="var(--card)"
+															style={{
+																lineHeight: 'unset',
+															}}
+														/>
 													</div>
 												</div>
 											);
@@ -809,13 +823,15 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 														</div>
 														<div
 															className={`header__card-description ${
-																classList?.[1] === 'selected'
+																classList?.[1] === 'selected' ||
+																card?.insight_type === 'actions'
 																	? 'showDescription'
 																	: ''
 															}`}
 														>
-															{!card?.collectionType &&
-																card?.description}
+															{(!card?.collectionType &&
+																card?.description) ||
+																card?.crux}
 
 															{card?.collectionType &&
 																getDescription(card)}

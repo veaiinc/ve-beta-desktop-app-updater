@@ -23,3 +23,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .cursorrules
+
+dist-electron
+sync.sh
+bundle-visualizer.html

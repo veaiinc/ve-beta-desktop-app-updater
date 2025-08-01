@@ -250,7 +250,11 @@ const EditKnowledgeAgent = () => {
 							</div>
 						</div>
 						<div className="chat-component-wrapper">
-							<RecentChat sId={info?.sessionId} isPreview={true} />
+							<RecentChat
+								sId={info?.sessionId}
+								isPreview={true}
+								animateChatbox={false}
+							/>
 						</div>
 					</div>
 				</div>

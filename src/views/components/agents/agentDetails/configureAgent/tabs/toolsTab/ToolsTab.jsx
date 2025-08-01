@@ -15,10 +15,15 @@ import { ReactComponent as SearchSvg } from '../assets/search-icon.svg';
 import { ReactComponent as DeleteSvg } from '../assets/delete-icon.svg';
 import { ReactComponent as EditSvg } from '../assets/edit-icon.svg';
 import { ReactComponent as PlusSvg } from '../assets/plus-icon.svg';
-import { ReactComponent as GmailIcon } from '../assets/gmail-icon.svg';
-import { ReactComponent as Delete } from '../assets/delete.svg';
+import { ReactComponent as RobotIcon } from '../../../../../../../assets/svg/ai_assistant/robot.svg';
+import { ReactComponent as DocumentIcon } from '../../../../../../../assets/svg/ai_assistant/document.svg';
+import { ReactComponent as SettingsIcon } from '../../../../../../../assets/svg/ai_assistant/settings.svg';
+import { ReactComponent as StarIcon } from '../../../../../../../assets/svg/ai_assistant/star.svg';
+import { ReactComponent as ChevronDownIcon } from '../../../../../../../assets/svg/ai_assistant/chevron-down.svg';
+import { ReactComponent as EditIcon } from '../../../../../../../assets/svg/ai_assistant/edit.svg';
 import moment from 'moment';
 import { message } from '../../../../../globalComponents/CustomToast';
+import AgentCredentials from '../../../agentCredentials/AgentCredentials';
 
 // Debounce hook
 const useDebounce = (func, timeout = 500) => {
@@ -38,7 +43,12 @@ const useDebounce = (func, timeout = 500) => {
 const ToolsTab = ({ agentId }) => {
 	const {
 		aiSetup: { updateAiAction },
-		knowledgeAgent: { getActionsForKnowledgeAgent, deleteActionOfKnowledgeAgent, actionsInfo },
+		knowledgeAgent: {
+			getActionsForKnowledgeAgent,
+			deleteActionOfKnowledgeAgent,
+			actionsInfo,
+			updateToolVariables,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -52,7 +62,14 @@ const ToolsTab = ({ agentId }) => {
 		editToolModalTool: null,
 		search: '',
 		searchLoading: false,
+		selectedTool: null,
+		toolVariables: [],
+		openDropdowns: {}, // Track which dropdowns are open
+		variableSelections: {}, // Track selected options for each variable
 	});
+
+	// Ref for the first input field
+	const firstInputRef = useRef(null);
 
 	// Debounced search function
 	const debouncedSearch = useDebounce((searchValue) => {
@@ -106,12 +123,32 @@ const ToolsTab = ({ agentId }) => {
 
 	useEffect(() => {
 		if (actionsInfo) {
-			setInfo((prev) => ({
-				...prev,
-				aiActionList: actionsInfo?.data,
-				actionsLoading: false,
-				searchLoading: false,
-			}));
+			const actionList = actionsInfo?.data || [];
+			setInfo((prev) => {
+				const firstTool =
+					prev.selectedTool || (actionList.length > 0 ? actionList[0] : null);
+				const variables = firstTool?.typeDependencies?.variables || {};
+				const defaultSelections = {};
+
+				// Set default selection to 'ai' for all variables
+				// variables.forEach((variable) => {
+				// 	defaultSelections[variable.name] = 'ai';
+				// });
+
+				return {
+					...prev,
+					aiActionList: actionList,
+					actionsLoading: false,
+					searchLoading: false,
+					// Auto-select the first tool if no tool is currently selected
+					selectedTool: firstTool,
+					// toolVariables: variables.map((v) => ({ ...v, value: '' })),
+					variableSelections: {
+						...prev.variableSelections,
+						...defaultSelections,
+					},
+				};
+			});
 		}
 	}, [actionsInfo]);
 
@@ -157,6 +194,7 @@ const ToolsTab = ({ agentId }) => {
 				setInfo((prev) => ({
 					...prev,
 					aiActionList: prev?.aiActionList?.filter((action) => action?._id !== actionId),
+					selectedTool: prev.selectedTool?._id === actionId ? null : prev.selectedTool,
 				}));
 			} else {
 				message.error('Failed to delete action');
@@ -212,10 +250,135 @@ const ToolsTab = ({ agentId }) => {
 		}
 	}, [agentId, info?.search]);
 
+	const handleToolSelect = useCallback((tool) => {
+		const variables = tool?.typeDependencies?.variables || [];
+		const defaultSelections = {};
+
+		// Set default selection to 'ai' for all variables
+		variables.forEach((variable) => {
+			defaultSelections[variable.name] = 'ai';
+		});
+
+		setInfo((prev) => ({
+			...prev,
+			selectedTool: tool,
+			// toolVariables: variables.map((v) => ({ ...v, value: '' })),
+			variableSelections: {
+				...prev.variableSelections,
+				...defaultSelections,
+			},
+		}));
+	}, []);
+
+	const handleVariableChange = useCallback((idx, value) => {
+		setInfo((prev) => ({
+			...prev,
+			toolVariables: prev.toolVariables.map((v, i) => (i === idx ? { ...v, value } : v)),
+		}));
+	}, []);
+
+	const handleUpdateToolVariables = useCallback(async () => {
+		if (!info.selectedTool) return;
+
+		try {
+			const headers = info.toolVariables.map((field, idx) => {
+				const original = info.selectedTool.typeDependencies.variables[idx];
+				const result = {};
+				Object.keys(original).forEach((key) => {
+					if (key === 'description') {
+						// Check if user selected manual mode and provided input
+						const isManualMode = info.variableSelections[field.name] === 'manual';
+						const hasUserInput = field.value && field.value.trim() !== '';
+
+						if (isManualMode && hasUserInput) {
+							// Use user input value
+							result[key] = field.value;
+						} else {
+							// Use original Pipedream description
+							result[key] = original[key];
+						}
+					} else {
+						result[key] = field[key];
+					}
+				});
+				return result;
+			});
+
+			const payload = {
+				type: 'executeAPIRequest',
+				variables: headers,
+			};
+
+			const response = await updateToolVariables(agentId, info.selectedTool._id, payload);
+			if (response?.[0] === true) {
+				message.success('Tool variables updated successfully');
+			} else {
+				message.error('Failed to update tool variables');
+			}
+		} catch (error) {
+			message.error('Failed to update tool variables');
+		}
+	}, [
+		info.selectedTool,
+		info.toolVariables,
+		info.variableSelections,
+		agentId,
+		updateToolVariables,
+	]);
+
+	// Toggle dropdown
+	const toggleDropdown = useCallback((variableName) => {
+		setInfo((prev) => ({
+			...prev,
+			openDropdowns: {
+				...prev.openDropdowns,
+				[variableName]: !prev.openDropdowns[variableName],
+			},
+		}));
+	}, []);
+
+	// Close all dropdowns
+	const closeAllDropdowns = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			openDropdowns: {},
+		}));
+	}, []);
+
+	// Handle dropdown option selection
+	const handleOptionSelect = useCallback((variableName, option) => {
+		setInfo((prev) => ({
+			...prev,
+			variableSelections: {
+				...prev.variableSelections,
+				[variableName]: option,
+			},
+			openDropdowns: {
+				...prev.openDropdowns,
+				[variableName]: false,
+			},
+		}));
+	}, []);
+
+	// Close dropdowns when clicking outside
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			if (!event.target.closest(`.${s.dropdownContainer}`)) {
+				closeAllDropdowns();
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [closeAllDropdowns]);
+
 	return (
 		<div className={s?.actionsTabContainer}>
-			<div className={s?.actionsHeader}>
-				<div className={s?.searchInputContainer}>
+			<AgentCredentials />
+			{/* <div className={s?.actionsHeader}>
+					<div className={s?.searchInputContainer}>
 					<div className={s?.searchIcon}>
 						{info?.searchLoading ? (
 							<Spinner width="16px" height="16px" />
@@ -231,96 +394,256 @@ const ToolsTab = ({ agentId }) => {
 						onChange={handleSearchChange}
 					/>
 				</div>
-				<div
-					className={s?.addActionButton}
-					onClick={() =>
-						setInfo((prevStates) => ({
-							...prevStates,
-							addToolModalOpen: true,
-						}))
-					}
-				>
-					<PlusSvg />
-					<span>Add tool</span>
-				</div>
-			</div>
-			<span className={s.description}>
-				Give your agent abilities like reading emails or syncing notes.
-			</span>
 
-			{info?.aiActionList?.length > 0 ? (
-				<div className={s?.actionsContainer}>
-					{info?.aiActionList?.map((item) => (
-						<div
-							key={item?._id}
-							className={s.instructionItem}
-							onClick={() => handleActionClick(item)}
-							style={{ cursor: 'pointer' }}
-						>
-							<span className={s.actionNameContainer}>
-								<div className={s.toolIconContainer}>
-									{getToolFaviconUrl(item?.typeDependencies) && (
-										<img
-											src={getToolFaviconUrl(item?.typeDependencies)}
-											alt="Tool icon"
-											className={s.toolFavicon}
-										/>
-									)}
+				</div> */}
+			{/* <span className={s.description}>
+				Give your agent abilities like reading emails or syncing notes.
+			</span> */}
+
+			<div className={s.twoPanelLayout}>
+				{/* Left Panel - Tool List */}
+				<div className={s.leftPanel}>
+					<div
+						className={s?.addActionButton}
+						onClick={() =>
+							setInfo((prevStates) => ({
+								...prevStates,
+								addToolModalOpen: true,
+							}))
+						}
+					>
+						<PlusSvg />
+						<span>Add tool</span>
+					</div>
+					{info?.aiActionList?.length > 0 ? (
+						<div className={s.toolList}>
+							{info?.aiActionList?.map((item) => (
+								<div
+									key={item?._id}
+									className={`${s.toolItem} ${
+										info.selectedTool?._id === item?._id ? s.selected : ''
+									}`}
+									onClick={() => handleToolSelect(item)}
+								>
+									<div className={s.toolIcon}>
+										{getToolFaviconUrl(item?.typeDependencies) && (
+											<img
+												src={getToolFaviconUrl(item?.typeDependencies)}
+												alt="Tool icon"
+												className={s.toolFavicon}
+											/>
+										)}
+									</div>
+									<div className={s.toolInfo}>
+										<p className={s.toolName}>{item?.typeDependencies?.name}</p>
+										<span className={s.toolDescription}>
+											{getCleanDescription(
+												item?.typeDependencies?.description,
+											)}
+										</span>
+									</div>
 								</div>
-								<div className={s.actionNameContainer}>
-									<p className={s.actionName}>{item?.typeDependencies?.name}</p>
-									<span className={s.actionDescription}>
-										{getCleanDescription(item?.typeDependencies?.description)}
-									</span>
+							))}
+						</div>
+					) : (
+						<div className={s?.emptyState}>
+							<p className={s?.emptyStateTitle}>No tools found</p>
+							<p className={s?.emptyStateDescription}>Add a tool to get started.</p>
+						</div>
+					)}
+				</div>
+
+				{/* Right Panel - Tool Configuration */}
+				<div className={s.rightPanel}>
+					{info.selectedTool ? (
+						<div className={s.toolConfiguration}>
+							{/* Tool Header */}
+							<div className={s.toolHeader}>
+								<div className={s.toolTitle}>
+									<span>{info.selectedTool?.typeDependencies?.name}</span>
+									{/* <ChevronDownIcon className={s.chevronIcon} /> */}
 								</div>
-								<Delete
-									className={s.deleteKnowledge}
-									onClick={(e) => {
-										e.stopPropagation();
-										handleDeleteAction(item?._id);
-									}}
-								/>
-								<div className={s.actionIconsContainer}>
-									<EditSvg
-										className={s.editKnowledge}
-										onClick={(e) => {
-											e.stopPropagation();
-											setInfo((prev) => ({
-												...prev,
-												editToolModalOpen: true,
-												editToolModalTool: item,
-											}));
+								<div className={s.toolHeaderActions}>
+									<button
+										className={s.headerActionButton}
+										onClick={() => handleDeleteAction(info.selectedTool?._id)}
+									>
+										<DeleteSvg />
+										Delete
+									</button>
+									<button
+										className={s.headerActionButton}
+										onClick={() => {
+											setTimeout(() => {
+												if (firstInputRef.current) {
+													firstInputRef.current.focus();
+												}
+											}, 100);
 										}}
+									>
+										<EditIcon />
+										Edit tool
+									</button>
+									{/* <button className={s.headerActionButton}>
+										<AutoRunIcon />
+										Auto run
+									</button> */}
+									<ToggleSwitch
+										id={`toggle-${info.selectedTool?._id}`}
+										value={info.selectedTool?.status}
+										onChange={() =>
+											handleToggleChange(
+												info.selectedTool?._id,
+												info.selectedTool?.status,
+												info.selectedTool?.type,
+											)
+										}
 									/>
 								</div>
-							</span>
-							<span className={s.actionDate}>
-								{moment.unix(item?.createdAt).format('MMM DD, YYYY')}
-							</span>
-							<span
-								className={s.aiToggleSwitch}
-								onClick={(e) => {
-									e.stopPropagation();
-								}}
-							>
-								<ToggleSwitch
-									id={item?._id}
-									value={item?.status}
-									onChange={() =>
-										handleToggleChange(item?._id, item?.status, item?.type)
-									}
-								/>
-							</span>
-						</div>
-					))}
-				</div>
-			) : (
-				<div className={s?.emptyState}>
-					<p className={s?.emptyStateTitle}>No tools found</p>
-					<p className={s?.emptyStateDescription}>Add a tool to get started.</p>
-				</div>
-			)}
+							</div>
 
+							{/* Tool Description */}
+							<div className={s.toolDescriptionSection}>
+								<div className={s.sectionHeader}>
+									<RobotIcon className={s.sectionIcon} />
+									<span>How tool is described to agent</span>
+								</div>
+								<textarea
+									className={s.descriptionTextarea}
+									placeholder="Describe how this tool should be presented to the agent..."
+									value={info.selectedTool?.typeDependencies?.description || ''}
+									readOnly
+								/>
+							</div>
+
+							{/* Tool Input Variables */}
+							<div className={s.toolInputSection}>
+								<div className={s.sectionHeader}>
+									<DocumentIcon className={s.sectionIcon} />
+									<span>Tool Input</span>
+								</div>
+								<div className={s.variablesContainer}>
+									{Array.isArray(info.toolVariables) &&
+										info.toolVariables.map((variable, idx) => (
+											<div key={variable.name} className={s.variableCard}>
+												<div className={s.variableHeader}>
+													<span className={s.variableName}>
+														{variable.name}
+													</span>
+													<div className={s.dropdownContainer}>
+														<button
+															className={s.variableConfigButton}
+															onClick={(e) => {
+																e.stopPropagation();
+																toggleDropdown(variable.name);
+															}}
+														>
+															{info.variableSelections[
+																variable.name
+															] === 'manual' ? (
+																<>
+																	<SettingsIcon />
+																	Set manually
+																</>
+															) : info.variableSelections[
+																	variable.name
+															  ] === 'ai' ? (
+																<>
+																	<StarIcon />
+																	Let the AI decide
+																</>
+															) : (
+																<>
+																	<SettingsIcon />
+																	Set manually
+																</>
+															)}
+															<ChevronDownIcon
+																className={`${s.chevronIcon} ${
+																	info.openDropdowns[
+																		variable.name
+																	]
+																		? s.rotated
+																		: ''
+																}`}
+															/>
+														</button>
+														{info.openDropdowns[variable.name] && (
+															<div className={s.dropdownMenu}>
+																<div
+																	className={`${s.dropdownItem} ${
+																		info.variableSelections[
+																			variable.name
+																		] === 'manual'
+																			? s.selected
+																			: ''
+																	}`}
+																	onClick={() =>
+																		handleOptionSelect(
+																			variable.name,
+																			'manual',
+																		)
+																	}
+																>
+																	<SettingsIcon />
+																	Set manually
+																</div>
+																<div
+																	className={`${s.dropdownItem} ${
+																		info.variableSelections[
+																			variable.name
+																		] === 'ai'
+																			? s.selected
+																			: ''
+																	}`}
+																	onClick={() =>
+																		handleOptionSelect(
+																			variable.name,
+																			'ai',
+																		)
+																	}
+																>
+																	<StarIcon />
+																	Let the AI decide
+																</div>
+															</div>
+														)}
+													</div>
+												</div>
+												<p className={s.variableDescription}>
+													{variable.description}
+												</p>
+												<input
+													ref={idx === 0 ? firstInputRef : null}
+													className={s.variableInput}
+													value={variable.value || ''}
+													onChange={(e) =>
+														handleVariableChange(idx, e.target.value)
+													}
+													placeholder="Type here..."
+												/>
+											</div>
+										))}
+								</div>
+							</div>
+
+							{/* Update Button */}
+							<div className={s.updateButtonContainer}>
+								<button
+									className={s.updateButton}
+									onClick={handleUpdateToolVariables}
+								>
+									Update Variables
+								</button>
+							</div>
+						</div>
+					) : (
+						<div className={s.noToolSelected}>
+							<p>Select a tool from the left panel to configure it</p>
+						</div>
+					)}
+				</div>
+			</div>
 			<ActionsModal
 				isOpen={info?.actionModalOpen}
 				onClose={closeActionModal}

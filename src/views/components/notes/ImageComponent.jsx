@@ -13,23 +13,61 @@ import { ResizableBox } from 'react-resizable';
 import 'react-resizable/css/styles.css';
 import { ReactComponent as ImageIcon } from '../../../assets/svg/notes/image.svg';
 import Spinner from '../loaders/Spinner';
+import { EditorContext } from './Editor';
+import { message } from '../globalComponents/CustomToast';
 
-const ImageComponent = memo(({ block, editor }) => {
-	const [showUploadPopup, setShowUploadPopup] = useState(!block.props.url);
-	const [isSelected, setIsSelected] = useState(false);
-	const [showReplace, setShowReplace] = useState(false);
-	const [isLoading, setIsLoading] = useState(false);
-	const [size, setSize] = useState({
-		width: block.props.width || 500,
-		height: block.props.height || 300,
-	});
+const loaderStyle = {
+	position: 'absolute',
+	bottom: '10px',
+	right: '10px',
+	height: '20px',
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	gap: '10px',
+	fontSize: '12px',
+	zIndex: 1000,
+};
+
+const tooltipStyles = {
+	body: {
+		backgroundColor: 'inherit',
+		padding: 0,
+	},
+};
+
+const ImageComponent = ({ block, editor }) => {
+	const { previousBlocksRef, pageId } = useContext(EditorContext);
 	const {
 		notes: { uploadNotesImageBlock },
 	} = useContext(Context);
 
-	const onResize = useCallback((event, { size: newSize }) => {
-		setSize(newSize);
+	const [info, setInfo] = useState({
+		showUploadPopup: !block.props.url,
+		tempImageUrl: '',
+		isSelected: false,
+		showReplace: false,
+		isLoading: false,
+		size: {
+			width: block.props.width || 500,
+			height: block.props.height || 300,
+		},
+	});
+
+	// Remove individual state variables since they're now in the info state
+
+	const sourceBlockId = previousBlocksRef?.current?.get(block?.id)?._id;
+
+	const handleInfoChange = useCallback((newInfo) => {
+		setInfo((prevInfo) => ({ ...prevInfo, ...newInfo }));
 	}, []);
+
+	const onResize = useCallback(
+		(event, { size: newSize }) => {
+			handleInfoChange({ size: newSize });
+		},
+		[handleInfoChange],
+	);
 
 	const onResizeStop = useCallback(
 		(event, { size: newSize }) => {
@@ -61,69 +99,53 @@ const ImageComponent = memo(({ block, editor }) => {
 	}, [block, editor]);
 
 	const handleImageSelect = async (imageUrl, imageFile = null) => {
-		setIsLoading(true);
-
+		handleInfoChange({ isLoading: true, tempImageUrl: imageUrl });
 		try {
 			if (imageFile) {
 				const response = await uploadNotesImageBlock(
 					{
-						pageId: block.props.pageId,
+						pageId: pageId,
+						blockId: sourceBlockId,
 						uploadPageBlockImageInput: {
 							imageName: imageFile.name,
 							imageSize: imageFile.size,
 						},
 					},
 					imageFile,
+					true,
 				);
 				if (response?.[0]) {
 					imageUrl = response[1];
+				} else {
+					handleInfoChange({ isLoading: false, tempImageUrl: '' });
+					message.error('Failed to upload image');
+					return;
 				}
 			}
 
-			// Use native image loading to check availability
-			const waitForImageLoad = (url, maxAttempts = 10, interval = 2000) =>
-				new Promise((resolve) => {
-					let attempts = 0;
-
-					const tryLoad = () => {
-						const img = new Image();
-						img.onload = () => resolve(true);
-						img.onerror = () => {
-							if (++attempts >= maxAttempts) return resolve(false);
-							setTimeout(tryLoad, interval);
-						};
-						img.src = url + `?cacheBust=${Date.now()}`; // avoid caching issues
-					};
-
-					tryLoad();
-				});
-
-			const available = await waitForImageLoad(imageUrl);
-			if (available) {
-				editor.updateBlock(block, {
-					type: 'image',
-					props: {
-						...block.props,
-						url: imageUrl,
-					},
-				});
-			} else {
-				console.warn('Image not available after polling.');
-			}
+			editor.updateBlock(block, {
+				type: 'image',
+				props: {
+					...block.props,
+					source: imageFile ? 'upload' : 'link',
+					url: imageUrl,
+				},
+			});
+			handleInfoChange({ isLoading: false });
 		} catch (error) {
 			console.error('Error uploading image:', error);
 		} finally {
-			setIsLoading(false);
+			handleInfoChange({ isLoading: false });
 		}
 	};
 
 	const handleClickOutside = useCallback(
 		(event) => {
-			if (isSelected) {
-				setIsSelected(false);
+			if (info.isSelected) {
+				handleInfoChange({ isSelected: false });
 			}
 		},
-		[isSelected],
+		[info.isSelected, handleInfoChange],
 	);
 
 	useEffect(() => {
@@ -134,119 +156,124 @@ const ImageComponent = memo(({ block, editor }) => {
 	}, [handleClickOutside]);
 
 	return (
-		<div className="custom-image-block">
-			{block.props.url ? (
-				<div
-					style={{
-						position: 'relative',
-						display: 'inline-block',
-					}}
-					onMouseEnter={() => setShowReplace(true)}
-					onMouseLeave={() => setShowReplace(false)}
-				>
-					<ResizableBox
-						width={size.width}
-						height={size.height}
-						onResize={onResize}
-						onResizeStop={onResizeStop}
-						minConstraints={[100, 100]}
-						maxConstraints={[800, 800]}
-						resizeHandles={['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']}
-						className={`resizable-box ${isSelected ? 'selected' : ''}`}
-						onClick={(e) => {
-							e.stopPropagation();
-							setIsSelected(true);
-						}}
+		<Tooltip
+			open={info.showUploadPopup}
+			onOpenChange={(visible) => handleInfoChange({ showUploadPopup: visible })}
+			placement="bottomLeft"
+			title={
+				<ImageUploadPopup
+					closePopup={() => handleInfoChange({ showUploadPopup: false })}
+					onImageSelect={handleImageSelect}
+					noteId={block.props.pageId}
+				/>
+			}
+			styles={tooltipStyles}
+			arrow={false}
+			trigger="click"
+			destroyOnHidden={true}
+			// align={{
+			// 	points: ['tr', 'br'],
+			// 	offset: [0, 0],
+			// }}
+		>
+			<div className="custom-image-block">
+				{info.tempImageUrl || block.props.url ? (
+					<div
 						style={{
-							border: isSelected ? '2px solid var(--info)' : 'none',
+							position: 'relative',
+							display: 'inline-block',
 						}}
+						onMouseEnter={() => handleInfoChange({ showReplace: true })}
+						onMouseLeave={() => handleInfoChange({ showReplace: false })}
 					>
-						<div className="image-container">
-							<img
-								src={block.props.url}
-								alt={block.props.caption}
-								data-fit={block.props.fitMode || 'fit'}
-							/>
-						</div>
-					</ResizableBox>
-					{showReplace && (
-						<div className="image-controls">
-							<button
-								onClick={(e) => {
-									e.stopPropagation();
-									toggleFitMode();
-								}}
-							>
-								{block.props.fitMode === 'cover'
-									? 'Contain'
-									: block.props.fitMode === 'fit'
-									? 'Cover'
-									: 'Fit'}
-							</button>
-							<button
-								onClick={(e) => {
-									e.stopPropagation();
-									setShowUploadPopup(true);
-								}}
-							>
-								Replace
-							</button>
-						</div>
-					)}
-				</div>
-			) : (
-				<div
-					className="custom-image-block-placeholder"
-					onClick={() => !isLoading && setShowUploadPopup(true)}
-				>
-					{isLoading ? (
-						<>
-							<div className="custom-image-block-placeholder-loading">
-								<Spinner width="24px" height="24px" />
+						{info.isLoading && (
+							<div style={loaderStyle}>
+								<Spinner width="20px" height="20px" />
+								Uploading...
 							</div>
-							<p className="custom-image-block-placeholder-text">
-								Uploading image...
-							</p>
-						</>
-					) : (
-						<>
-							<div className="custom-image-block-placeholder-icon">
-								<ImageIcon />
+						)}
+						<ResizableBox
+							width={info.size.width}
+							height={info.size.height}
+							onResize={onResize}
+							onResizeStop={onResizeStop}
+							minConstraints={[100, 100]}
+							maxConstraints={[895, 895]}
+							resizeHandles={['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']}
+							className={`resizable-box ${info.isSelected ? 'selected' : ''}`}
+							onClick={(e) => {
+								e.stopPropagation();
+								handleInfoChange({ isSelected: true });
+							}}
+							style={{
+								border: info.isSelected ? '2px solid var(--info)' : 'none',
+							}}
+						>
+							<div className="image-container">
+								<img
+									src={info.tempImageUrl || block.props.url}
+									alt={block.props.caption}
+									data-fit={block.props.fitMode || 'fit'}
+								/>
 							</div>
-							<p className="custom-image-block-placeholder-text">Add image</p>
-						</>
-					)}
-				</div>
-			)}
-
-			<Tooltip
-				open={showUploadPopup}
-				onOpenChange={(visible) => setShowUploadPopup(visible)}
-				placement="bottomRight"
-				title={
-					<ImageUploadPopup
-						closePopup={() => setShowUploadPopup(false)}
-						onImageSelect={handleImageSelect}
-						noteId={block.props.pageId}
-					/>
-				}
-				overlayInnerStyle={{
-					backgroundColor: 'inherit',
-					padding: 0,
-				}}
-				arrow={false}
-				trigger="click"
-				destroyTooltipOnHide={false}
-				align={{
-					points: ['tr', 'br'],
-					offset: [0, 0],
-				}}
-			/>
-		</div>
+						</ResizableBox>
+						{info.showReplace && (
+							<div className="image-controls">
+								<button
+									onClick={(e) => {
+										e.stopPropagation();
+										toggleFitMode();
+									}}
+								>
+									{block.props.fitMode === 'cover'
+										? 'Contain'
+										: block.props.fitMode === 'fit'
+										? 'Cover'
+										: 'Fit'}
+								</button>
+								<button
+									onClick={(e) => {
+										e.stopPropagation();
+										handleInfoChange({ showUploadPopup: true });
+									}}
+								>
+									Replace
+								</button>
+							</div>
+						)}
+					</div>
+				) : (
+					<div
+						className="custom-image-block-placeholder"
+						onClick={() =>
+							!info.isLoading && handleInfoChange({ showUploadPopup: true })
+						}
+					>
+						{info.isLoading ? (
+							<>
+								<div className="custom-image-block-placeholder-loading">
+									<Spinner width="24px" height="24px" />
+								</div>
+								<p className="custom-image-block-placeholder-text">
+									Uploading image...
+								</p>
+							</>
+						) : (
+							<>
+								<div className="custom-image-block-placeholder-icon">
+									<ImageIcon />
+								</div>
+								<p className="custom-image-block-placeholder-text">Add image</p>
+							</>
+						)}
+					</div>
+				)}
+			</div>
+		</Tooltip>
 	);
-});
+};
 
-export default ImageComponent;
+export default memo(ImageComponent);
 
 export const ImageBlock = createReactBlockSpec(
 	{
@@ -303,9 +330,6 @@ export const ImageBlock = createReactBlockSpec(
 			compressed: {
 				default: false,
 			},
-			pageId: {
-				default: '',
-			},
 		},
 		content: 'none',
 		isSelectable: true, // Changed to true for better UX
@@ -317,13 +341,12 @@ export const ImageBlock = createReactBlockSpec(
 
 export const insertImage = (editor, pageId) => ({
 	title: 'Image',
-	subtext: 'Image with caption',
+	subtext: 'Resizeable Image',
 	key: 'image',
 	onItemClick: () => {
 		insertOrUpdateBlock(editor, {
 			type: 'image',
 			props: {
-				pageId,
 				fitMode: 'contain',
 			},
 		});

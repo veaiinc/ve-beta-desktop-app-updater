@@ -1738,14 +1738,15 @@ class App extends BaseClass {
 		if (selectedSection && currentSectionTableData) {
 			let currentSubTotal = 0;
 			//currency
-			const region = localStorage?.getItem('region') || 'ap-south-1';
+			const region = localStorage?.getItem('region') || 'us-east-1';
 			let currencySymbol;
 			if (region === 'ap-south-1') {
 				currencySymbol = '₹';
 			} else {
 				currencySymbol = '$';
 			}
-
+			// ! updated to use user's currency symbol
+			currencySymbol = this.props?.currencySymbol || currencySymbol;
 			let subTotalWithStyling = selectedSection?.style?.subTotalValue + '';
 
 			let subTotalValue =
@@ -1777,10 +1778,12 @@ class App extends BaseClass {
 				}
 			}
 			currentSubTotal =
-				currencySymbol +
-				(currentSubTotal || 0)?.toLocaleString('en-IN', {
-					currency: 'INR',
-				});
+				currentSubTotal == 0
+					? '0'
+					: currencySymbol +
+					  (currentSubTotal || 0)?.toLocaleString('en-IN', {
+							currency: 'INR',
+					  });
 
 			return currentSubTotal;
 		}
@@ -1804,7 +1807,11 @@ class App extends BaseClass {
 				const variableData = variable?.[0] || {};
 
 				let variableValue =
-					variable?.[0]?.value || variable?.[0]?.defaultValue?.trim() || '';
+					variable?.[0]?.value ||
+					(typeof variable?.[0]?.defaultValue === 'string'
+						? variable?.[0]?.defaultValue?.trim()
+						: variable?.[0]?.defaultValue) ||
+					'';
 
 				if (variable?.[0]?.blockId) {
 					//handling values for subTotal variable
@@ -1851,9 +1858,12 @@ class App extends BaseClass {
 						},
 					});
 
-					if (this.props?.clientGrandTotal) {
-						variableValue = toWords.convert(this.props?.clientGrandTotal);
-					}
+					// if (this.props?.clientGrandTotal) {
+					variableValue =
+						this.props?.clientGrandTotal == 0
+							? 'Zero'
+							: toWords.convert(this.props?.clientGrandTotal);
+					// }
 				}
 
 				return `<span class="variable" style="${style}${

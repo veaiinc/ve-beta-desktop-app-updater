@@ -25,7 +25,7 @@ import {
 } from '../../../../helpers';
 import { ReactComponent as ArrowRightIcon } from '../../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import PromptPopup from '../../homePage/PromptPopup';
-// import ProactiveAIShare from '../../../features/homePage/proactiveai/ProactiveAIShare';
+import ProactiveAIShare from '../../../features/homePage/proactiveai/ProactiveAIShare';
 import jwtDecode from 'jwt-decode';
 import ChainOfThoughtInterpreter from '../../homePage/ChainOfThoughtInterpreter';
 import FormDescription from '../../forms/FormDescription';
@@ -54,6 +54,7 @@ const AISuggestionsModal = ({
 			getAISuggestedPendingActions,
 			handleGlobalChatMessages,
 		},
+		profileInfo: { getTenantUserAccessControls, tenantUserAccessControls },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		isAIResultsExpanded: true,
@@ -67,6 +68,8 @@ const AISuggestionsModal = ({
 		feedbackPopupOpen: false,
 		isDeleting: false,
 		tabOptions: [],
+		accessType: 'view',
+		hasFullAccess: false,
 	});
 
 	const resizableContainerRef = useRef(null);
@@ -80,7 +83,27 @@ const AISuggestionsModal = ({
 		const token = localStorage.getItem('usertoken');
 		const { user_id } = jwtDecode(token);
 		setInfo((prev) => ({ ...prev, currentUserId: user_id }));
+
+		if (!tenantUserAccessControls) {
+			getTenantUserAccessControls();
+		}
 	}, []);
+
+	useEffect(() => {
+		if (info?.currentUserId && tenantUserAccessControls) {
+			let hasFullAccess = false;
+			if (tenantUserAccessControls?.role === 'admin') {
+				hasFullAccess = true;
+			} else if (tenantUserAccessControls?.accessControls) {
+				tenantUserAccessControls?.accessControls?.forEach((access) => {
+					if (access?.app === 'insights' && access?.hasFullAccess && access?.isEnabled) {
+						hasFullAccess = true;
+					}
+				});
+			}
+			setInfo((prev) => ({ ...prev, hasFullAccess }));
+		}
+	}, [info?.currentUserId, tenantUserAccessControls]);
 
 	useEffect(() => {
 		if (!data) return;
@@ -102,9 +125,10 @@ const AISuggestionsModal = ({
 
 		const { chain_of_thought } = data;
 		const chainOfThoughtData = handleCombinedChainOfThought(chain_of_thought || null);
-		const accessType = (data?.permissions?.sharedWith || [])?.filter(
-			(eachItem) => eachItem?.userId === info?.currentUserId,
-		)?.[0]?.access;
+		const accessType =
+			(data?.permissions?.sharedWith || [])?.filter(
+				(eachItem) => eachItem?.userId === info?.currentUserId,
+			)?.[0]?.access || 'view';
 
 		const visibilityMap = {
 			actions: suggested_actions?.length || suggested_prompts?.length,
@@ -136,12 +160,18 @@ const AISuggestionsModal = ({
 			chatPrompt += `Title : ${data?.title}\n\n`;
 			chatPrompt += `Description : ${data?.description}\n\n`;
 			chatPrompt += `Prompt : ${prompt}`;
+			const sessionId = ObjectID()?.toString();
 
 			if (typeof updateStateValues === 'function') {
-				updateStateValues({ activePromptForChat: chatPrompt });
+				updateStateValues({
+					activePromptForChat: {
+						prompt: chatPrompt,
+						sessionId,
+					},
+				});
 			}
 			onClose?.();
-			navigate(`/chat/${ObjectID()?.toString()}`);
+			navigate(`/chat/${sessionId}`);
 		},
 		[data],
 	);
@@ -149,7 +179,10 @@ const AISuggestionsModal = ({
 	const handleActionClick = useCallback((prompt, proactiveSessionId) => {
 		const sessionId = ObjectID()?.toString();
 		updateStateValues({
-			activePromptForChat: prompt,
+			activePromptForChat: {
+				prompt,
+				sessionId,
+			},
 			proactiveInfoForChat: {
 				isProactive: true,
 				proactiveSessionId,
@@ -212,9 +245,15 @@ const AISuggestionsModal = ({
 
 			prompt = `\n\nThese are answers of your questions:\n${answersText}\n`;
 		}
+		const sessionId = ObjectID()?.toString();
 
-		updateStateValues({ activePromptForChat: prompt });
-		navigate(`/chat/${ObjectID()?.toString()}`);
+		updateStateValues({
+			activePromptForChat: {
+				prompt,
+				sessionId,
+			},
+		});
+		navigate(`/chat/${sessionId}`);
 	};
 
 	const handlePrevCardClick = () => {
@@ -278,6 +317,10 @@ const AISuggestionsModal = ({
 	};
 
 	const handleDeleteCard = useCallback(async () => {
+		if (info?.accessType === 'view' && !info?.hasFullAccess) {
+			message.error('You do not have access to delete this insight');
+			return;
+		}
 		if (!data?._id || info.isDeleting) return;
 		const type = 'delete';
 		setInfo((prev) => ({ ...prev, isDeleting: true }));
@@ -289,9 +332,21 @@ const AISuggestionsModal = ({
 			message.error('Failed to delete pending action');
 		}
 		setInfo((prev) => ({ ...prev, isDeleting: false }));
-	}, [data?._id, getAISuggestedPendingActions, onClose, pendingActionsUpdate, info.isDeleting]);
+	}, [
+		data?._id,
+		getAISuggestedPendingActions,
+		onClose,
+		pendingActionsUpdate,
+		info.isDeleting,
+		info?.accessType,
+		info?.hasFullAccess,
+	]);
 
 	const handleOpenFeedbackPopup = () => {
+		if (info?.accessType == 'view' && !info?.hasFullAccess) {
+			message.error('You do not have access to give feedback');
+			return;
+		}
 		setInfo((prev) => ({
 			...prev,
 			feedbackPopupOpen: true,
@@ -311,6 +366,7 @@ const AISuggestionsModal = ({
 		createdAt,
 		thinker_sources,
 		sessionId,
+		read,
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
@@ -356,6 +412,8 @@ const AISuggestionsModal = ({
 												style={{ transform: 'rotate(270deg)' }}
 											/>
 										</div>
+
+										{read && <div className="is-read">Read</div>}
 									</>
 								)}
 							</div>
@@ -380,8 +438,12 @@ const AISuggestionsModal = ({
 										Teach me
 									</div>
 								)}
-
-								{/* <ProactiveAIShare proactiveAiId={data?._id} /> */}
+								{(info?.accessType !== 'view' || info?.hasFullAccess) && (
+									<ProactiveAIShare
+										proactiveAiId={data?._id}
+										proactiveAiData={data}
+									/>
+								)}
 
 								{/* <div className="btn download-btn">
 									<DownloadSvg />
@@ -550,8 +612,9 @@ const AISuggestionsModal = ({
 
 								<div className="tabs-container">
 									<div className="tab-buttons">
-										{info?.tabOptions?.map((option) => (
+										{info?.tabOptions?.map((option, index) => (
 											<div
+												key={index}
 												className={`tab-btn ${
 													info?.activeTab === option?.value
 														? 'active'

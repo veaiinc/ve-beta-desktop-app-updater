@@ -317,6 +317,7 @@ const updateWorkflowTemplateQuery = gql`
 		updateWorkflowTemplate(templateId: $templateId, updateObj: $updateObj) {
 			_id
 			navBar
+			imageUrl
 		}
 	}
 `;
@@ -530,7 +531,7 @@ class Home extends Proposals {
 			templateList: [],
 			invoiceTables: [],
 			currency: '',
-			currencySymbol2: null,
+			currencySymbol: null,
 			settingEnabled: false,
 			settingClosingFlag: false,
 			endUrl: '',
@@ -622,6 +623,7 @@ class Home extends Proposals {
 			workflowTemplateID: null,
 			invoiceSentDate: null,
 			invoiceAcceptedDate: null,
+			imageUrl: null,
 		};
 		this.componentRef = createRef();
 		this.addBlockRef = createRef();
@@ -4718,7 +4720,7 @@ class Home extends Proposals {
 		const symbol = getSymbolFromCurrency(currency);
 
 		this.setState({
-			currencySymbol2: symbol,
+			currencySymbol: symbol,
 		});
 		return symbol;
 	};
@@ -5702,6 +5704,23 @@ class Home extends Proposals {
 		);
 	};
 	handleTriggerAdjustGridAreas = async (e) => {};
+	handleImageUploadGlobal = (url) => {
+		if (this.state.isWorkflow) {
+			this.updateWorkflowNavbar(updateNavBarWorkflowQuery, {
+				updateWorkflowId: this.state.workflow_id,
+				updateWorkflowInput: {
+					imageUrl: url,
+				},
+			});
+		} else {
+			this.updateWorkflowTemplate(updateWorkflowTemplateQuery, {
+				templateId: this.props.params.templateID,
+				updateObj: {
+					imageUrl: url,
+				},
+			});
+		}
+	};
 	render() {
 		if (this.componentRef.current) {
 			const data = [
@@ -5990,6 +6009,8 @@ class Home extends Proposals {
 										this.setState({ isTemplateDeleteOpen: e });
 									}}
 									isFormTemplate={this.state.isFormTemplate}
+									handleImageUploadGlobal={this.handleImageUploadGlobal}
+									imageUrl={this.state.imageUrl}
 								/>
 							)}
 						</div>
@@ -6622,9 +6643,7 @@ class Home extends Proposals {
 														globalSummaryData={
 															this.state?.globalSummaryData
 														}
-														currencySymbol2={
-															this.state?.currencySymbol2
-														}
+														currencySymbol={this.state?.currencySymbol}
 														getModuleInfo={(id, type) =>
 															this.getModule(id, type)
 														}
@@ -7383,7 +7402,7 @@ class Home extends Proposals {
 												}
 												handleAcceptProposal={this?.handleAcceptProposal}
 												globalSummaryData={this.state?.globalSummaryData}
-												currencySymbol2={this.state?.currencySymbol2}
+												currencySymbol={this.state?.currencySymbol}
 												getModuleInfo={(id, type) =>
 													this.getModule(id, type)
 												}

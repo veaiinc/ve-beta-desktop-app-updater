@@ -1,15 +1,7 @@
 import '@blocknote/core/fonts/inter.css';
-import { BlockNoteView } from '@blocknote/mantine';
 // import { createBlock } from '@blocknote/core';
 import '@blocknote/mantine/style.css';
-import {
-	getDefaultReactSlashMenuItems,
-	SuggestionMenuController,
-	useCreateBlockNote,
-} from '@blocknote/react';
 import '../../../assets/scss/notes/noteComponent.scss';
-import NoteToolbar from '../../components/notes/NoteToolbar';
-import ShareComponent from '../../components/notes/ShareComponent';
 import {
 	useEffect,
 	memo,
@@ -24,29 +16,13 @@ import { useParams, useNavigate, useLocation, useSearchParams } from 'react-rout
 import Context from '../../../context/context';
 import moment from 'moment';
 import CustomTextArea from '../../components/globalComponents/CustomTextArea';
-import MoreOptions from '../../components/notes/MoreOptions';
-import { StarSvg } from '../../../assets/svg/notes/Star';
-import { ReactComponent as DangerSvg } from '../../../assets/svg/notes/danger.svg';
 import { ReactComponent as CrossIcon } from '../../../assets/svg/notes/cross.svg';
 import { message } from '../../components/globalComponents/CustomToast';
 import { Helmet } from 'react-helmet';
-import Skeleton from 'react-loading-skeleton';
 import ObjectID from 'bson-objectid';
 import jwtDecode from 'jwt-decode';
-import { ReactComponent as DustBinIcon } from '../../../assets/svg/tasks/dustBin.svg';
-import { ReactComponent as RestoreIcon } from '../../../assets/svg/notes/restore.svg';
-import { Tooltip } from 'antd';
-import UploadPopup from '../../components/notes/UploadPopup';
-import CustomizeAppearance from '../../components/notes/CustomizeAppearance';
-import IconUploadPopup from '../../components/notes/IconUploadPopup';
-import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
-import { ImageBlock } from '../../components/notes/ImageComponent';
-import { BlockNoteSchema, defaultBlockSpecs, filterSuggestionItems } from '@blocknote/core';
-import { isEqual } from 'lodash';
-import { Database } from '../../components/notes/Database';
 import DatabaseSidebar from '../../components/modalsV2/notes/DatabaseSidebar';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
-import SlashMenu from '../../components/notes/SlashMenu';
 // import '../../../assets/scss/notes/noteComponent.scss';
 import MeetTranscript from './MeetTranscript';
 import useLiveIntelligenceStream from '../../../hooks/useLiveIntelligenceStream';
@@ -55,10 +31,17 @@ import NoteTakerTranscript from './NoteTakerTranscript';
 import Spinner from '../../components/loaders/Spinner';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../helpers';
+import AiTranscriptionSuggestions from '../../components/chat/AiTranscriptionSuggestions';
 export const NotesRefContext = createContext(null);
+import RecentChat from '../chat/RecentChat';
+import NotesHeader from '../../components/notes/DatabseComponents/NotesHeader';
+import Editor from '../../components/notes/Editor';
+import TranscriptionTabs from '../../components/notes/TranscriptionTabs';
+import MeetSummary from './MeetSummary';
+import NotesTitleArea from '../../components/notes/DatabseComponents/NotesTitleArea';
+import TranscriptionWrapper from './TranscriptionWrapper';
 
 const initialState = {
-	timeouts: {}, // Single timeouts object to store all timeouts
 	title: '',
 	updatedAt: '',
 	notesConfigs: {
@@ -73,16 +56,26 @@ const initialState = {
 	lastUpdated: null,
 	deleteLoading: false,
 	updatedBy: null,
-	showUploadPopup: false,
-	showCustomizeAppearance: false,
+	showAiTranscriptionSuggestions: false,
 	coverImageError: false,
 	localCoverImage: false, // cover image or link that is selected/uploaded before refreshing the page
-	uploadType: null, // can be 'cover' or 'icon'
 	showRemoveCoverBtn: false,
 	showRemoveIconBtn: false,
 	selectedEmoji: null,
 	coverImageRemoved: false,
 	iconImageRemoved: false,
+	files: [],
+	userQuestions: [],
+	aiQuestions: [],
+	actions: [],
+	allSuggestions: [],
+	sessionId: ObjectID()?.toString(),
+	chatSessionId: ObjectID()?.toString(),
+	chatClicked: false,
+	transcriptions: [],
+	transcriptionsPage: 1,
+	transcriptionsHasMore: true,
+	transcriptionsLoading: false,
 };
 
 const accessLevels = {
@@ -108,23 +101,29 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const { workspaceMode } = useWorkspaceMode();
 	const [searchParams] = useSearchParams();
 	const noteId = useParams()?.noteId;
-	const sessionId = noteId;
+	const meetingId = useParams()?.meetingId;
+	const sessionId = meetingId;
 	const type = searchParams.get('type');
+	const history = searchParams.get('history') === 'true' ? true : false;
+	const chat = searchParams.get('chat') === 'true' ? true : false;
+	const transcription = searchParams.get('transcription') === 'true' ? true : false;
+	const isAiIntelligenceEnabled =
+		searchParams.get('isAiIntelligenceEnabled') === 'true' ? true : false;
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
-	const prevDocRef = useRef([]);
-	const previousBlocksRef = useRef(new Map());
-	const pendingUpdatesRef = useRef(new Map());
-	const debounceTimerRef = useRef(null);
 	const originalFaviconRef = useRef(null);
+	const titleTimeoutRef = useRef(null);
+
 	// const { createWebSocketConnection, sendMessage } = useChatStream();
 
 	const {
 		notes: {
+			getMeetTranscriptHistory,
+			aiLiveIntelligenceHistory,
+			getAiLiveIntelligenceHistory,
 			getNotesPageData,
 			notesPageData,
 			notesAccess,
-			saveNotesdata,
 			updatePage,
 			addToFavorite,
 			removeFromFavorite,
@@ -133,8 +132,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			updateNotesState,
 			getNotesAccess,
 			globalAccess,
-			uploadNotesImageBlock,
-			deleteNotesImageBlock,
 			notesDeleteCoverImage,
 			notesDeleteIcon,
 			getBlocks,
@@ -142,23 +139,125 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			createBlock,
 			updateBlock,
 			deleteBlock,
+			updateStateValues: updateNotesStateValues,
 		},
 		chatStream: { createWebSocketConnection, sendMessage, closeWebSocketConnection },
 		companyInfo: { getTeamMembers, tenantsUserList },
-		templates: { handleTranscriptionSuggestions },
+		templates: {
+			handleTranscriptionSuggestions,
+			aiTranscriptionSuggestions,
+			updateStateValues,
+		},
 		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState(initialState);
 	const [transcriptList, setTranscriptList] = useState([]);
-	const [activeTab, setActiveTab] = useState('transcript');
+	const [activeTab, setActiveTab] = useState(type === 'desktop' ? 'transcript' : 'all');
+	const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 	const location = useLocation();
+	const transcriptContainerRef = useRef(null);
 
 	// Add hooks for live intelligence and recall stream
-	const { createWebSocketConnection: recallConnection, sendMessage: recallSendMessage, closeWebSocketConnection: closeRecallConnection } =
-		useRecallStream();
+	const {
+		createWebSocketConnection: recallConnection,
+		sendMessage: recallSendMessage,
+		closeWebSocketConnection: closeRecallConnection,
+	} = useRecallStream();
 	const { createWebSocketConnection: createLiveIntelligenceStream, updateCurrentContext } =
 		useLiveIntelligenceStream();
+
+
+	useEffect(() => {
+		if (!aiLiveIntelligenceHistory) {
+			getAiLiveIntelligenceHistory({ meetingId: meetingId, limit: 20, page: 1 }, false);
+		} else {
+			handleTranscriptionSuggestions({ data: aiLiveIntelligenceHistory?.data || [] });
+		}
+
+	}, [aiLiveIntelligenceHistory]);
+
+	// Function to fetch historical transcriptions for desktop
+	const fetchHistoricalTranscriptions = useCallback(async () => {
+		if (!meetingId || !showTranscriptTabs || type !== 'desktop') return;
+
+		setIsLoadingHistory(true);
+		try {
+			// Fetch historical transcriptions for desktop
+			const response = await getMeetTranscriptHistory(
+				{ meetingId: meetingId, limit: 20, page: 1 },
+				false,
+			);
+			if (response?.[0]) {
+				const rawData = response[1]?.data?.listTranscriptions?.data || [];
+				const hasMore = response[1]?.data?.listTranscriptions?.hasNextPage;
+
+				// Transform the data to match UI expectations
+				const transformedData = rawData.map((item) => ({
+					...item,
+					text: item.transcript, // Map transcript to text
+					time: item.createdAt
+						? new Date(parseInt(item.createdAt) * 1000).toLocaleTimeString()
+						: '', // Convert timestamp to readable time
+					speakerName: item.speakerName || 'Note Taker', // Default speaker name
+				}));
+
+				setInfo((prev) => ({
+					...prev,
+					transcriptions: transformedData,
+					transcriptionsHasMore: hasMore,
+					transcriptionsPage: 1,
+					transcriptionsLoading: false,
+				}));
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					transcriptions: [],
+					transcriptionsLoading: false,
+				}));
+			}
+		} catch (error) {
+			console.error('Error fetching historical transcriptions:', error);
+			setInfo((prev) => ({
+				...prev,
+				transcriptions: [],
+				transcriptionsLoading: false,
+			}));
+		} finally {
+			setIsLoadingHistory(false);
+		}
+	}, [meetingId, showTranscriptTabs, type]);
+
+	// Function to fetch historical transcriptions for meeting_bot
+	const fetchMeetingBotTranscriptions = useCallback(async () => {
+		if (!meetingId || !showTranscriptTabs || type !== 'meeting_bot') return;
+
+		try {
+			const response = await getMeetTranscriptHistory(
+				{ meetingId: meetingId, limit: 20, page: 1 },
+				false,
+			);
+			if (response?.[0]) {
+				const rawData = response[1]?.data?.listTranscriptions?.data || [];
+				// Transform the data to match the existing transcriptList format
+				const transformedData = rawData.map((item) => ({
+					...item,
+					text: item.transcript,
+					time: item.createdAt
+						? new Date(parseInt(item.createdAt) * 1000).toLocaleTimeString()
+						: '',
+					speakerName: item.speakerName || 'Note Taker',
+				}));
+
+				setTranscriptList(transformedData);
+			} else {
+				setTranscriptList([]);
+			}
+		} catch (error) {
+			console.error('Error fetching meeting bot transcriptions:', error);
+			setTranscriptList([]);
+		}
+	}, [meetingId, showTranscriptTabs, type, getMeetTranscriptHistory]);
 
 	// Handler for transcript socket messages
 	// const handleLiveIntelligenceMessageFunc = useCallback(
@@ -168,11 +267,191 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	// 	},
 	// 	[handleTranscriptionSuggestions],
 	// );
+
+	// Handler for noteTakerTranscript socket messages
+	const handleNoteTakerTranscriptMessage = useCallback((event) => {
+		try {
+			const data = JSON.parse(event?.data || '{}');
+			console.log('🔍 Received socket message:', data);
+
+			// Check if this is a noteTakerTranscript response
+			if (data.noteTakerTranscript) {
+				console.log('🔍 Processing noteTakerTranscript:', data.noteTakerTranscript);
+				handleSocketTranscription({
+					...data.noteTakerTranscript,
+					isFinal: true, // Assume final since it's from server
+					id: data.noteTakerTranscript._id || Date.now().toString(),
+				});
+			}
+		} catch (error) {
+			console.error('Error parsing socket message:', error);
+		}
+	}, []);
+	useEffect(() => {
+		if (aiTranscriptionSuggestions) {
+			const userQuestions = [];
+			const aiQuestions = [];
+			const actions = [];
+			const files = [];
+
+			for (const suggestion of aiTranscriptionSuggestions?.suggestions || []) {
+				if (suggestion?.entity === 'user' || suggestion?.entity === 'other_user') {
+					userQuestions.push(suggestion);
+				} else if (
+					suggestion?.entity === 'agent' ||
+					suggestion?.entity?.includes('agent')
+				) {
+					if (suggestion?.type === 'search') {
+						aiQuestions.push(suggestion);
+					} else if (suggestion?.type === 'action') {
+						actions.push(suggestion);
+					}
+				} else {
+					files.push(suggestion);
+				}
+			}
+
+			setInfo((prev) => ({
+				...prev,
+				userQuestions,
+				aiQuestions,
+				actions,
+				files,
+				allSuggestions: aiTranscriptionSuggestions?.suggestions || [],
+			}));
+		}
+	}, [aiTranscriptionSuggestions]);
+
+	useEffect(() => {
+		return () => {
+			updateNotesStateValues({
+				meetSummary: null,
+				aiLiveIntelligenceHistory: null,
+				transcriptHistory: null,
+			});
+			updateStateValues({
+				aiTranscriptionSuggestions: null,
+
+			});
+		};
+	}, []);
+
+	useEffect(() => {
+		if (transcriptList?.length > 0) {
+			updateNotesStateValues({
+				transcriptionList: transcriptList,
+			});
+		}
+	}, [transcriptList]);
+
+	// When new socket data comes in:
+	const handleSocketTranscription = useCallback((newTranscript) => {
+		setInfo((prev) => {
+			const transcriptions = prev.transcriptions || [];
+
+			// Get the transcript text from various possible sources
+			const transcriptText =
+				newTranscript.transcript || newTranscript.displayedText || newTranscript.text || '';
+
+			// Check if this transcript already exists (to avoid duplicates)
+			const existingTranscript = transcriptions.find(
+				(t) =>
+					t.text === transcriptText ||
+					t.transcript === transcriptText ||
+					t.id === newTranscript.id, // Also check by ID
+			);
+
+			if (existingTranscript) {
+				return prev; // Don't add duplicate
+			}
+
+			// Check if this is a continuation of the last transcript (same session)
+			const lastTranscript = transcriptions[transcriptions.length - 1];
+			const isContinuation =
+				lastTranscript &&
+				!lastTranscript.isFinal &&
+				// Check if the new text contains the last text (continuation)
+				transcriptText.includes(lastTranscript.text || lastTranscript.transcript || '');
+
+			if (!newTranscript.isFinal) {
+				// Partial transcript - update the last entry if it's a continuation
+				if (isContinuation) {
+					// Update the last entry with the new partial text
+					const updated = [...transcriptions];
+					updated[updated.length - 1] = {
+						...updated[updated.length - 1],
+						...newTranscript,
+						text: transcriptText,
+						transcript: transcriptText,
+						time: new Date().toLocaleTimeString(),
+					};
+					return { ...prev, transcriptions: updated };
+				} else {
+					// New partial transcript - add as new entry
+					return {
+						...prev,
+						transcriptions: [
+							...transcriptions,
+							{
+								...newTranscript,
+								text: transcriptText,
+								transcript: transcriptText,
+								time: new Date().toLocaleTimeString(),
+							},
+						],
+					};
+				}
+			} else {
+				// Final transcript - update the last entry if it's a continuation, otherwise append
+				if (isContinuation) {
+					// Finalize the last entry
+					const updated = [...transcriptions];
+					updated[updated.length - 1] = {
+						...updated[updated.length - 1],
+						...newTranscript,
+						text: transcriptText,
+						transcript: transcriptText,
+						time: new Date().toLocaleTimeString(),
+						isFinal: true,
+					};
+					return { ...prev, transcriptions: updated };
+				} else {
+					// New final transcript - append as new entry
+					return {
+						...prev,
+						transcriptions: [
+							...transcriptions,
+							{
+								...newTranscript,
+								text: transcriptText,
+								transcript: transcriptText,
+								time: new Date().toLocaleTimeString(),
+								isFinal: true,
+							},
+						],
+					};
+				}
+			}
+		});
+	}, []);
+
+	// Auto-scroll to bottom when new transcripts are added
+	useEffect(() => {
+		if (transcriptContainerRef.current && info.transcriptions?.length > 0) {
+			transcriptContainerRef.current.scrollTo({
+				top: transcriptContainerRef.current.scrollHeight,
+				behavior: 'smooth',
+			});
+		}
+	}, [info.transcriptions?.length]);
+
 	const handleSocketMessage = useCallback(
 		(event) => {
 			try {
 				const msg = JSON.parse(event?.data || null);
+
 				if (msg?.event === 'transcript.received' && msg?.data) {
+					// Append new transcript data to existing list
 					setTranscriptList((prev) => [
 						...prev,
 						{
@@ -190,15 +469,21 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					// }
 				} else if (msg?.event === 'live_intelligence.response' && msg?.data) {
 					handleTranscriptionSuggestions(msg?.data);
-				}
-				else if (msg?.event === 'transcript.done') {
+				} else if (msg?.event === 'transcript.done') {
 					closeRecallConnection();
+				} else if (msg?.noteTakerTranscript) {
+					// Handle noteTakerTranscript responses
+					handleSocketTranscription({
+						...msg.noteTakerTranscript,
+						isFinal: true, // Assume final since it's from server
+						id: msg.noteTakerTranscript._id || Date.now().toString(),
+					});
 				}
 			} catch (e) {
-				// ignore
+				console.error('Error in handleSocketMessage:', e);
 			}
 		},
-		[updateCurrentContext],
+		[updateCurrentContext, handleSocketTranscription],
 	);
 
 	// Derived states
@@ -241,26 +526,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 		return null;
 	}, [notesPageData?.data?.iconImage, info?.selectedEmoji?.native]);
-	const schema = BlockNoteSchema.create({
-		blockSpecs: {
-			// Adds all default blocks.
-			...defaultBlockSpecs,
-			// Adds the Alert block.
-			image: ImageBlock,
-			database: Database,
-		},
-	});
-
-	const editor = useCreateBlockNote({
-		schema,
-		tables: {
-			splitCells: true,
-			cellBackgroundColor: true,
-			cellTextColor: true,
-			headers: true,
-		},
-		// uploadFile,
-	});
 
 	useEffect(() => {
 		if (noteId) {
@@ -281,32 +546,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	}, [tennantSettingsData]);
 
 	useEffect(() => {
-		if (blocks) {
-			previousBlocksRef.current = new Map(blocks?.data?.map((block) => [block.id, block]));
-			loadNotesContent(blocks?.data);
-		}
-	}, [blocks]);
-
-	useEffect(() => {
 		const token = localStorage.getItem('usertoken');
 		const { user_id } = jwtDecode(token);
 		userId = user_id;
-	}, []);
-
-	useEffect(() => {
-		const notesContainer = document.querySelector('.notes-container');
-		const handleKeyDown = (e) => {
-			if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-				const selected = editor?.getSelectedText()?.length > 0 || false;
-				if (selected) {
-					e.stopPropagation();
-					return;
-				}
-			}
-		};
-
-		notesContainer.addEventListener('keydown', handleKeyDown);
-		return () => notesContainer.removeEventListener('keydown', handleKeyDown);
 	}, []);
 
 	useEffect(() => {
@@ -373,6 +615,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		return () => {
 			updateNotesState({
 				notesPageData: null,
+				blocks: null,
 			});
 		};
 	}, [noteId]);
@@ -398,7 +641,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	useEffect(() => {
 		if (noteId) {
-			getNotesAccess({ pageId: noteId });
+			const isDatabase = true;
+			getNotesAccess({ pageId: noteId }, isDatabase);
 		}
 	}, [noteId]);
 
@@ -452,9 +696,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 				isDeleted = false,
 				updatedBy = null,
 			} = notesPageData?.data || {};
-			if (blocks) {
-				loadNotesContent(blocks);
-			}
 			setInfo((prev) => ({
 				...prev,
 				title,
@@ -476,19 +717,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	useEffect(() => {
 		return () => {
-			// Clear all timeouts on unmount
-			Object.values(info.timeouts).forEach(clearTimeout);
+			// Clear title timeout on unmount
+			if (titleTimeoutRef.current) {
+				clearTimeout(titleTimeoutRef.current);
+			}
 		};
-	}, [info.timeouts]);
-
-	useEffect(() => {
-		const unsubscribe = editor.onChange(() => {
-			const currentBlocks = editor.document;
-			onEditorUpdate(currentBlocks);
-		});
-
-		return () => unsubscribe();
-	}, [editor]);
+	}, []);
 
 	const getNotesPageDataFunc = useCallback(async () => {
 		const payload = {
@@ -498,76 +732,36 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		getNotesPageData(payload, isDatabase);
 	}, [noteId]);
 
-	const loadNotesContent = useCallback(
-		(data) => {
-			if (data?.length) {
-				queueMicrotask(() => {
-					editor.replaceBlocks(editor.document, data);
-				});
-			}
-			setInfo((prev) => ({ ...prev, loading: false }));
-		},
-		[editor],
-	);
-
-	// Generic debounce function
-	const handleDebounce = useCallback(
-		(key, callback, delay = 500) => {
-			clearTimeout(info.timeouts[key]);
-			const timeout = setTimeout(callback, delay);
-			setInfo((prev) => ({
-				...prev,
-				timeouts: { ...prev.timeouts, [key]: timeout },
-			}));
-		},
-		[info.timeouts],
-	);
-
-	const handleContentChange = useCallback(
-		(data) => {
-			handleDebounce('content', () => {
-				const payload = {
-					pageId: noteId,
-					blocks: data || [],
-				};
-				saveNotesdata(payload);
-				setInfo((prev) => ({ ...prev, updatedAt: moment().unix() }));
-			});
-		},
-		[noteId, handleDebounce],
-	);
+	// Generic debounce function for title updates
+	const handleTitleDebounce = useCallback((callback, delay = 500) => {
+		if (titleTimeoutRef.current) {
+			clearTimeout(titleTimeoutRef.current);
+		}
+		titleTimeoutRef.current = setTimeout(callback, delay);
+	}, []);
 
 	const handleTitleChange = (e) => {
 		const newTitle = e?.target?.value;
 		setInfo((prev) => ({ ...prev, title: newTitle }));
 		const isDatabase = true;
-		handleDebounce(
-			'title',
-			() => {
-				updatePage(
-					{
-						pageId: noteId,
-						input: { title: newTitle },
-					},
-					isDatabase,
-				);
-				setInfo((prev) => ({ ...prev, updatedAt: moment().unix() }));
-			},
-			isDatabase,
-		);
-	};
-
-	const handleKeyDown = (e) => {
-		if (e.key === 'Enter') {
-			e.preventDefault(); // optional: stops newline if it's a textarea
-		}
+		handleTitleDebounce(() => {
+			updatePage(
+				{
+					pageId: noteId,
+					input: { title: newTitle },
+				},
+				isDatabase,
+			);
+			setInfo((prev) => ({ ...prev, updatedAt: moment().unix() }));
+		}, 500);
 	};
 
 	const handleFavorite = useCallback(
 		(value) => {
 			setInfo((prev) => ({ ...prev, isFavorite: value }));
 
-			handleDebounce('favorite', async () => {
+			// Simple timeout for favorite action
+			setTimeout(async () => {
 				const payload = { pageId: noteId };
 				const [success] = value
 					? await addToFavorite(payload)
@@ -576,255 +770,10 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 				if (!success) {
 					setInfo((prev) => ({ ...prev, isFavorite: !value }));
 				}
-			});
+			}, 500);
 		},
-		[noteId, handleDebounce],
+		[noteId],
 	);
-
-	const extractImageUrls = (doc) => {
-		const urls = [];
-		for (const block of doc) {
-			if (block.type === 'image' && block.props?.url) {
-				urls.push(block.props.url);
-			}
-		}
-		return urls;
-	};
-
-	const compareFn = (old, newBlock) => {
-		const oldBlock = {
-			id: old?.id,
-			type: old?.type,
-			props: old?.props,
-			children: old?.children,
-			content: old?.content,
-		};
-
-		const newBlockFormatted = {
-			id: newBlock?.id,
-			type: newBlock?.type,
-			props: newBlock?.props,
-			children: newBlock?.children,
-			content: newBlock?.type === 'database' ? [] : newBlock?.content,
-		};
-
-		if (oldBlock?.type !== newBlockFormatted?.type) {
-			return true;
-		}
-
-		return !isEqual(oldBlock, newBlockFormatted);
-	};
-
-	const diffArrays = (newArr) => {
-		// Create a map of new items with their indexes
-		const newMap = new Map(newArr.map((item, index) => [item.id, { ...item, index }]));
-
-		// Initialize result arrays
-		const deleted = [];
-		const added = [];
-		const updated = [];
-
-		// Get all ids from both old and new maps
-		const allIds = new Set([...previousBlocksRef.current.keys(), ...newMap.keys()]);
-
-		// Create an array of previous blocks sorted by position
-		const sortedPreviousBlocks = [...previousBlocksRef.current.values()].sort(
-			(a, b) => a.position - b.position,
-		);
-
-		// Create a map of id to previous index
-		const prevIndexMap = new Map();
-		sortedPreviousBlocks.forEach((block, index) => {
-			prevIndexMap.set(block.id, index);
-		});
-
-		// Process each id to determine its status
-		for (const id of allIds) {
-			const oldItem = previousBlocksRef.current.get(id);
-			const newItem = newMap.get(id);
-
-			if (oldItem && !newItem) {
-				// Item was deleted
-				deleted.push(oldItem);
-				previousBlocksRef.current.delete(id);
-			} else if (!oldItem && newItem) {
-				// Item was added
-				const _id = ObjectID().toString();
-				const index = newItem.index;
-
-				// Find surrounding blocks to determine position
-				const prevId = index > 0 ? newArr[index - 1]?.id : null;
-				const nextId = index < newArr.length - 1 ? newArr[index + 1]?.id : null;
-
-				const prevBlock = prevId ? previousBlocksRef.current.get(prevId) : null;
-				const nextBlock = nextId ? previousBlocksRef.current.get(nextId) : null;
-
-				const prevPosition = prevBlock?.position;
-				const nextPosition = nextBlock?.position;
-
-				// Calculate position based on surrounding blocks
-				let position;
-				if (prevPosition && nextPosition) {
-					position = (prevPosition + nextPosition) / 2;
-				} else if (prevPosition) {
-					position = prevPosition + 1;
-				} else if (nextPosition) {
-					position = nextPosition / 2;
-				} else {
-					position = 1;
-				}
-
-				const { type, props, children, content, id } = newItem;
-				const newItemFormatted = { _id, position, type, props, children, content, id };
-
-				added.push(newItemFormatted);
-				previousBlocksRef.current.set(id, newItemFormatted);
-			} else if (oldItem && newItem) {
-				// Item exists in both old and new arrays
-				const { type, props, children, content, id } = newItem;
-				const index = newItem.index;
-
-				// Check if this item has changed position
-				let positionChanged = false;
-				let position = oldItem.position;
-
-				// Get the old index (if it exists)
-				const oldIndex = prevIndexMap.get(id);
-
-				// If old index is different from new index, position may need to change
-				if (oldIndex !== undefined && oldIndex !== index) {
-					// Find surrounding blocks to determine if position needs to change
-					const prevId = index > 0 ? newArr[index - 1]?.id : null;
-					const nextId = index < newArr.length - 1 ? newArr[index + 1]?.id : null;
-
-					const prevBlock = prevId ? previousBlocksRef.current.get(prevId) : null;
-					const nextBlock = nextId ? previousBlocksRef.current.get(nextId) : null;
-
-					const prevPosition = prevBlock?.position;
-					const nextPosition = nextBlock?.position;
-
-					// Only change position if it's not properly ordered relative to neighbors
-					if (prevPosition && nextPosition) {
-						if (position <= prevPosition || position >= nextPosition) {
-							position = (prevPosition + nextPosition) / 2;
-							positionChanged = true;
-						}
-					} else if (prevPosition) {
-						if (position <= prevPosition) {
-							position = prevPosition + 1;
-							positionChanged = true;
-						}
-					} else if (nextPosition) {
-						if (position >= nextPosition) {
-							position = nextPosition / 2;
-							positionChanged = true;
-						}
-					} else {
-						// This is the only block
-						if (position !== 1) {
-							position = 1;
-							positionChanged = true;
-						}
-					}
-				}
-
-				// Only update if position changed or content changed
-				const isChanged = positionChanged || compareFn(oldItem, newItem);
-
-				if (isChanged) {
-					const newItemFormatted = {
-						_id: oldItem._id,
-						position,
-						type,
-						props,
-						children,
-						content,
-						id,
-					};
-					updated.push(newItemFormatted);
-					previousBlocksRef.current.set(id, newItemFormatted);
-				}
-			}
-		}
-
-		return { deleted, added, updated };
-	};
-
-	const queueBlockUpdate = (block, noteId, delay = 500) => {
-		pendingUpdatesRef.current.set(block._id, block);
-
-		if (debounceTimerRef.current) {
-			clearTimeout(debounceTimerRef.current);
-		}
-
-		debounceTimerRef.current = setTimeout(() => {
-			const updatesToSend = Array.from(pendingUpdatesRef.current.values());
-
-			updatesToSend.forEach(({ _id, ...rest }) => {
-				updateBlock({
-					updateBlockId: _id,
-					pageId: noteId,
-					input: {
-						...rest,
-						content: Array.isArray(rest?.content)
-							? { textContent: rest?.content }
-							: rest.content,
-					},
-				});
-			});
-
-			pendingUpdatesRef.current.clear();
-		}, delay);
-	};
-
-	const onEditorUpdate = (currentTopLevelBlocks) => {
-		const { added, deleted, updated } = diffArrays(currentTopLevelBlocks);
-
-		added.forEach((block) =>
-			createBlock({
-				pageId: noteId,
-				input: {
-					...block,
-					content: Array.isArray(block?.content)
-						? { textContent: block?.content }
-						: block.content,
-				},
-			}),
-		);
-
-		updated.forEach((block) => {
-			queueBlockUpdate(block, noteId);
-		});
-
-		deleted.forEach((block) => {
-			pendingUpdatesRef.current.delete(block._id);
-			deleteBlock({
-				pageId: noteId,
-				deleteBlockId: block._id,
-			});
-		});
-	};
-
-	// const onChange = () => {
-	// 	if (editor?.document?.length) {
-	// 		const newDoc = editor.document;
-	// 		const prevImages = extractImageUrls(prevDocRef.current);
-	// 		const newImages = extractImageUrls(newDoc);
-	// 		const removedImages = prevImages.filter((url) => !newImages.includes(url));
-	// 		for (const url of removedImages) {
-	// 			const payload = {
-	// 				pageId: noteId,
-	// 				imageInput: {
-	// 					imageUrl: url,
-	// 					type: 'block',
-	// 				},
-	// 			};
-	// 			deleteNotesImageBlock(payload);
-	// 		}
-	// 		handleContentChange(newDoc);
-	// 		prevDocRef.current = newDoc;
-	// 	}
-	// };
 
 	const handleMoreOptionsChange = useCallback(
 		(key, value) => {
@@ -848,7 +797,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			);
 			if (success) {
 				message.success(`Page ${permanent ? 'permanently ' : ''}deleted successfully`);
-				navigate('/notes');
+				navigate(-1);
 			} else {
 				message.error('Failed to delete page');
 			}
@@ -906,7 +855,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		});
 	}, []);
 
-	const restorePage = async () => {
+	const restorePage = useCallback(async () => {
 		if (info?.deleteLoading) return;
 		setInfo((prev) => ({ ...prev, deleteLoading: true }));
 		const isDatabase = true;
@@ -929,52 +878,11 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			setInfo((prev) => ({ ...prev, deleteLoading: false }));
 			message?.error(`Couldn't restore page`);
 		}
-	};
+	}, [info?.deleteLoading, noteId]);
 
 	const handleCoverImageError = () => {
 		setInfo((prev) => ({ ...prev, coverImageError: true }));
 	};
-
-	const checkImage = (url) => {
-		return new Promise((resolve) => {
-			const img = new Image();
-			img.onload = () => resolve(true);
-			img.onerror = () => resolve(false);
-			img.src = url + '?cache_bust=' + Date?.now(); // avoid caching
-		});
-	};
-
-	async function uploadFile(file) {
-		const response = await uploadNotesImageBlock(
-			{
-				pageId: noteId,
-				uploadPageBlockImageInput: {
-					imageName: file?.name,
-					imageSize: file?.size,
-				},
-			},
-			file,
-		);
-
-		if (response?.[0]) {
-			const url = response?.[1];
-			let attempt = 0;
-			const maxAttempts = 10;
-			let isValid = false;
-
-			while (attempt < maxAttempts) {
-				isValid = await checkImage(url);
-				if (isValid) {
-					break;
-				}
-				attempt++;
-				await new Promise((resolve) => setTimeout(resolve, 1000));
-			}
-			return url;
-		}
-
-		return undefined;
-	}
 
 	const handleRemoveCover = async () => {
 		const response = await notesDeleteCoverImage({ pageId: noteId });
@@ -1009,9 +917,18 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		}
 	};
 
+	// Fetch historical data when component mounts
+	useEffect(() => {
+		fetchHistoricalTranscriptions();
+		// Also fetch meeting bot transcriptions if needed
+		if (type === 'meeting_bot' && showTranscriptTabs) {
+			fetchMeetingBotTranscriptions();
+		}
+	}, []);
+
 	useEffect(() => {
 		if (showTranscriptTabs && location?.pathname?.includes('meet') && type === 'meeting_bot') {
-			recallConnection(sessionId, noteId, handleSocketMessage);
+			recallConnection(sessionId, meetingId, handleSocketMessage, isAiIntelligenceEnabled);
 			// createLiveIntelligenceStream(
 			// 	sessionId,
 			// 	noteId,
@@ -1020,15 +937,101 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			// );
 		} else if (showTranscriptTabs && type === 'desktop') {
 			// Connect to recall for note taker mode as well
-			recallConnection(sessionId, noteId, handleSocketMessage);
+			recallConnection(sessionId, meetingId, handleSocketMessage, isAiIntelligenceEnabled);
 		}
 		// No cleanup needed, useRecallStream handles it
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [showTranscriptTabs, sessionId, type]);
 
+	const handleChatBoxClick = () => {
+		if (info?.chatClicked) return;
+
+		setInfo((prev) => ({
+			...prev,
+			chatClicked: true,
+		}));
+	};
+
+	const handleShowAiTranscriptionSuggestions = () => {
+		setInfo((prev) => ({
+			...prev,
+			showAiTranscriptionSuggestions: !prev.showAiTranscriptionSuggestions,
+		}));
+	};
+
+	const handleInfoChange = useCallback((data) => {
+		setInfo((prev) => ({ ...prev, ...data }));
+	}, []);
+
+	const fetchTranscriptionHistory = useCallback(
+		async (page = 1, append = false) => {
+			setInfo((prev) => ({ ...prev, transcriptionsLoading: true }));
+			try {
+				const response = await getMeetTranscriptHistory(
+					{ meetingId: meetingId, limit: 20, page },
+					append,
+				);
+				if (response?.[0]) {
+					const rawData = response[1]?.data?.listTranscriptions?.data || [];
+					const hasMore = response[1]?.data?.listTranscriptions?.hasNextPage;
+
+					// Transform the data to match UI expectations
+					const transformedData = rawData.map((item) => ({
+						...item,
+						text: item.transcript, // Map transcript to text
+						time: item.createdAt
+							? new Date(parseInt(item.createdAt) * 1000).toLocaleTimeString()
+							: '', // Convert timestamp to readable time
+						speakerName: item.speakerName || 'Note Taker', // Default speaker name
+					}));
+
+					setInfo((prev) => ({
+						...prev,
+						transcriptions: append
+							? [...(prev.transcriptions || []), ...transformedData]
+							: transformedData,
+						transcriptionsHasMore: hasMore,
+						transcriptionsPage: page,
+						transcriptionsLoading: false,
+					}));
+				} else {
+					setInfo((prev) => ({ ...prev, transcriptionsLoading: false }));
+				}
+			} catch {
+				setInfo((prev) => ({ ...prev, transcriptionsLoading: false }));
+			}
+		},
+		[meetingId],
+	);
+
+	const loadMoreTranscriptions = () => {
+		if (info.transcriptionsLoading || !info.transcriptionsHasMore) return;
+		fetchTranscriptionHistory((info.transcriptionsPage || 1) + 1, true);
+	};
+
+	useEffect(() => {
+		if (activeTab === 'transcript') {
+			fetchTranscriptionHistory(1, false);
+		}
+	}, [activeTab]);
+
 	return (
-		<NotesRefContext.Provider value={{ previousBlocksRef, pageId: noteId }}>
-			<div className="notes-container" style={outerContainerStyle || {}}>
+		<div className="notes-container" style={outerContainerStyle || {}}>
+			{!(type === 'meeting_bot' || type === 'desktop') && (
+				<div className="notesChatArea">
+					<RecentChat
+						showIconText={false}
+						isPreview={true}
+						autoFocus={false}
+						customChatBoxClick={handleChatBoxClick}
+						// {...(info?.chatClicked && {
+						// 	sId: info?.chatSessionId,
+						// })}
+						sId={info?.chatSessionId}
+						showCitationsButton={false}
+					/>
+				</div>
+			)}
+			<div className="notesContentWrapper">
 				{info?.title && (
 					<Helmet>
 						<meta charSet="utf-8" />
@@ -1036,79 +1039,24 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					</Helmet>
 				)}
 
-				{!info?.isDeleted ? (
-					<div className="notes-nav-menu">
-						<div className="notes-nav-left">
-							<div className="backBtnContainer">
-								<span
-									className="backBtn"
-									onClick={() => navigate(-1)}
-									aria-label="Go back to previous page"
-								>
-									<BackArrowSvg aria-hidden="true" />
-									<span>Notes</span>
-									<div>/</div>
-								</span>
-							</div>
-							<div className="notes-nav-title">{info?.title}</div>
-						</div>
-
-						<div className="notes-nav-right">
-							<button
-								className="notes-nav-button"
-								onClick={() => handleFavorite(!info?.isFavorite)}
-							>
-								<StarSvg
-									fill={info?.isFavorite}
-									width={18}
-									height={18}
-									className="cursor-pointer"
-								/>
-							</button>
-
-							{info?.myAccess === 'full' && (
-								<ShareComponent pageId={noteId} makeApiCall={false} />
-							)}
-
-							<MoreOptions
-								notesConfigs={info?.notesConfigs}
-								onChange={handleMoreOptionsChange}
-								onDelete={handleDeletePage}
-								onDuplicate={handleDuplicatePage}
-							/>
-						</div>
-					</div>
-				) : (
-					<div className="deleted-badge">
-						<div className="badge-text-wrapper">
-							<DangerSvg />
-							<p className="delete-badge-message">
-								{info?.lastUpdated
-									? `${info?.lastUpdated?.firstName} ${
-											info?.lastUpdated?.lastName
-												? info?.lastUpdated?.lastName
-												: ''
-									  } `
-									: 'Someone '}
-								moved this page to trash{' '}
-								{info?.updatedAt ? moment?.unix(info?.updatedAt).fromNow() : ''}.
-							</p>
-						</div>
-
-						<div className="badge-button-wrapper">
-							<button className="delete-badge-restore-btn" onClick={restorePage}>
-								<RestoreIcon />
-								Restore
-							</button>
-							<button
-								className="delete-badge-permanent-delete-btn"
-								onClick={() => handleDeletePage(true)}
-							>
-								<DustBinIcon /> Permanently delete
-							</button>
-						</div>
-					</div>
-				)}
+				<NotesHeader
+					isDeleted={info?.isDeleted}
+					title={info?.title}
+					isFavorite={info?.isFavorite}
+					noteId={noteId}
+					notesConfigs={info?.notesConfigs}
+					myAccess={info?.myAccess}
+					lastUpdated={info?.lastUpdated}
+					updatedAt={info?.updatedAt}
+					handleFavorite={handleFavorite}
+					handleMoreOptionsChange={handleMoreOptionsChange}
+					handleDeletePage={handleDeletePage}
+					handleDuplicatePage={handleDuplicatePage}
+					restorePage={restorePage}
+					showAiTranscriptionSuggestions={info?.showAiTranscriptionSuggestions}
+					handleShowAiTranscriptionSuggestions={handleShowAiTranscriptionSuggestions}
+					isDatabase={true}
+				/>
 
 				<div className="notes-editor-container">
 					<>
@@ -1143,232 +1091,134 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 								maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px',
 							}}
 						>
-							<Tooltip
-								// open={info?.showCustomizeAppearance}
-								open={false}
-								onOpenChange={() => {
-									if (info?.showUploadPopup) {
-										setInfo((prev) => ({
-											...prev,
-											showUploadPopup: false,
-										}));
-									}
-									setInfo((prev) => ({
-										...prev,
-										showCustomizeAppearance: !prev.showCustomizeAppearance,
-									}));
-								}}
-								placement="bottomLeft"
-								title={
-									info?.showUploadPopup && info?.uploadType === 'cover' ? (
-										<UploadPopup
-											closePopup={() =>
-												setInfo((prev) => ({
-													...prev,
-													showUploadPopup: false,
-													showCustomizeAppearance: false,
-												}))
-											}
-											setLocalCoverImage={(coverImage) =>
-												setInfo((prev) => ({
-													...prev,
-													localCoverImage: coverImage,
-													coverImageRemoved: false,
-												}))
-											}
-											uploadType={info?.uploadType}
-										/>
-									) : info?.showUploadPopup && info?.uploadType === 'icon' ? (
-										<IconUploadPopup
-											setSelectedEmoji={(emoji) =>
-												setInfo((prev) => ({
-													...prev,
-													selectedEmoji: emoji,
-												}))
-											}
-											closePopup={() =>
-												setInfo((prev) => ({
-													...prev,
-													showUploadPopup: false,
-													showCustomizeAppearance: false,
-												}))
-											}
-										/>
-									) : (
-										<CustomizeAppearance
-											// uploadType can be 'cover' or 'icon'
-											showUploadPopup={(uploadType) =>
-												setInfo((prev) => ({
-													...prev,
-													showUploadPopup: true,
-													uploadType,
-												}))
-											}
-										/>
-									)
-								}
-								overlayInnerStyle={{
-									backgroundColor: 'inherit',
-								}}
-								arrow={false}
-							>
-								<div
-									className="notes-icon-container"
-									style={{
-										paddingTop: coverImage
-											? '42px'
-											: iconImage
-											? '100px'
-											: '0px',
-									}}
-								>
-									{iconImage && (
-										<div
-											className="notes-icon-wrapper"
-											onMouseEnter={() =>
-												setInfo((prev) => ({
-													...prev,
-													showRemoveIconBtn: true,
-												}))
-											}
-											onMouseLeave={() =>
-												setInfo((prev) => ({
-													...prev,
-													showRemoveIconBtn: false,
-												}))
-											}
-											style={{
-												top: coverImage
-													? '-72px'
-													: iconImage
-													? '-10px'
-													: '-24px',
-											}}
-										>
-											{info?.showRemoveIconBtn && (
-												<div className="remove-icon-btn-container">
-													<CrossIcon
-														className="remove-icon-btn"
-														onClick={handleRemoveIcon}
-													/>
-												</div>
-											)}
-											{iconImage?.native}
-										</div>
-									)}
-									<CustomTextArea
-										className="notes-title"
-										value={info?.title}
-										onChange={handleTitleChange}
-										autoResize={true}
-										onKeyDown={handleKeyDown}
-									/>
-								</div>
-							</Tooltip>
+							<NotesTitleArea
+								iconImage={info?.iconImage}
+								coverImage={info?.coverImage}
+								updateParentState={handleInfoChange}
+								handleRemoveIcon={handleRemoveIcon}
+								handleTitleChange={handleTitleChange}
+								title={info?.title}
+								showRemoveIconBtn={info?.showRemoveIconBtn}
+							/>
 
 							{showTranscriptTabs && (
-								<div className="notes-tabs-container">
-									<div
-										className="notes-tabs-header"
-										style={{
-											display: 'flex',
-											gap: 24,
-											borderBottom: '1px solid var(--stroke, #2c2d2e)',
-											marginBottom: 12,
-										}}
-									>
-										<button
-											className={
-												activeTab === 'transcript'
-													? 'notes-tab active'
-													: 'notes-tab'
-											}
-											style={{
-												background: 'none',
-												border: 'none',
-												outline: 'none',
-												color: 'inherit',
-												fontWeight: 500,
-												fontSize: 16,
-												padding: '8px 0',
-												borderBottom:
-													activeTab === 'transcript'
-														? '2px solid var(--primary-button, #cfff48)'
-														: '2px solid transparent',
-												cursor: 'pointer',
-												transition: 'color 0.2s',
-											}}
-											onClick={() => setActiveTab('transcript')}
-										>
-											Transcript
-										</button>
-
-										<button
-											className={
-												activeTab === 'summary'
-													? 'notes-tab active'
-													: 'notes-tab'
-											}
-											style={{
-												background: 'none',
-												border: 'none',
-												outline: 'none',
-												color: 'inherit',
-												fontWeight: 500,
-												fontSize: 16,
-												padding: '8px 0',
-												borderBottom:
-													activeTab === 'summary'
-														? '2px solid var(--primary-button, #cfff48)'
-														: '2px solid transparent',
-												cursor: 'pointer',
-												transition: 'color 0.2s',
-											}}
-											onClick={() => setActiveTab('summary')}
-										>
-											Summary
-										</button>
-									</div>
-								</div>
+								<TranscriptionTabs
+									activeTab={activeTab}
+									setActiveTab={setActiveTab}
+									userQuestions={info?.userQuestions}
+									aiQuestions={info?.aiQuestions}
+									actions={info?.actions}
+									files={info?.files}
+									history={history}
+									allSuggestions={info?.allSuggestions}
+									type={type}
+								/>
 							)}
+							{showTranscriptTabs &&
+								activeTab === 'transcript' && 
+								(type === 'desktop' || type === 'meeting_bot') && (
+									<div style={{ paddingBottom: 80, width: '100%' }}>
+										{info.transcriptions && info.transcriptions.length === 0 ? (
+											<div className="meet-transcript-empty">
+												No transcript yet.
+											</div>
+										) : (
+											<InfiniteScroll
+												dataLength={info.transcriptions?.length || 0}
+												next={loadMoreTranscriptions}
+												hasMore={info.transcriptionsHasMore}
+												height={'800px'}
+												style={{ width: '100%' }}
+											>
+												<div
+													className="meet-transcript-list"
+													ref={transcriptContainerRef}
+												>
+													{info.transcriptions?.map((item, idx) => (
+														<div
+															className={`meet-transcript-item`}
+															key={item._id || item.id || idx}
+														>
+															<div className="meet-transcript-meta">
+																<span className="meet-transcript-participant">
+																	{item.speakerName ||
+																		'Note Taker'}
+																</span>
+																<span className="meet-transcript-time">
+																	{item.time || ''}
+																</span>
+															</div>
+															<div className="meet-transcript-text">
+																{item.text || item.transcript || ''}
+															</div>
+														</div>
+													))}
+												</div>
+											</InfiniteScroll>
+										)}
+									</div>
+								)}
 
-							{showTranscriptTabs && activeTab === 'transcript' ? (
-								type === 'meeting_bot' ? (
-									<MeetTranscript transcriptList={transcriptList} />
-								) : type === 'desktop' ? (
-									<NoteTakerTranscript
-										sendMessage={recallSendMessage}
-										tenantId={tennantSettingsData?._id}
-										sessionId={sessionId}
-										pageId={noteId}
+							{showTranscriptTabs && activeTab === 'summary' && (
+								<MeetSummary activeTab={activeTab} meetingId={meetingId} />
+							)}
+							{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
+								(activeTab === 'userQuestions' ||
+									activeTab === 'aiQuestions' ||
+									activeTab === 'actions' ||
+									activeTab === 'files' ||
+									activeTab === 'all') && (
+									<AiTranscriptionSuggestions
+										userQuestions={info?.userQuestions}
+										aiQuestions={info?.aiQuestions}
+										actions={info?.actions}
+										files={info?.files}
+										activeTab={activeTab}
+										allSuggestions={info?.allSuggestions}
 									/>
-								) : null
-							) : (
-								<BlockNoteView
-									editor={editor}
-									formattingToolbar={false}
-									// onChange={onChange}
-									style={innerContainerStyle || {}}
-									theme={'dark'}
-									editable={info?.myAccess !== 'view' || !info?.isDeleted}
-									slashMenu={false}
-								>
-									{(info?.myAccess !== 'view' || !info?.isDeleted) && (
-										<NoteToolbar
-											sendMessage={customSendMessage}
-											aiResonse={info?.aiResonse}
-											resetAiResponse={resetAiResponse}
-										/>
-									)}
-									<SlashMenu editor={editor} noteId={noteId} />
-								</BlockNoteView>
+								)}
+
+							{/* {(!showTranscriptTabs ||
+								(showTranscriptTabs && activeTab === 'notes')) && (
+								<Editor
+									innerContainerStyle={innerContainerStyle}
+									myAccess={info?.myAccess}
+									isDeleted={info?.isDeleted}
+									customSendMessage={customSendMessage}
+									aiResonse={info?.aiResonse}
+									resetAiResponse={resetAiResponse}
+									noteId={noteId}
+									initialBlocks={blocks}
+									createBlock={createBlock}
+									updateBlock={updateBlock}
+									deleteBlock={deleteBlock}
+								/>
+							)} */}
+
+							{showTranscriptTabs && type === 'meeting_bot' && !history && (
+								<TranscriptionWrapper
+									chat={chat}
+									transcription={transcription}
+									transcriptList={transcriptList}
+								/>
 							)}
 						</div>
 					</>
 				</div>
 			</div>
+			{/* Always render NoteTakerTranscript at the root level */}
+			{showTranscriptTabs && type === 'desktop' && (
+				<NoteTakerTranscript
+					sendMessage={recallSendMessage}
+					tenantId={tennantSettingsData?._id}
+					sessionId={sessionId}
+					pageId={noteId}
+					visible={activeTab === 'transcript'}
+					onTranscriptionUpdate={handleSocketTranscription}
+				/>
+			)}
 			<DatabaseSidebar pageId={noteId} />
-		</NotesRefContext.Provider>
+		</div>
 	);
 };
 

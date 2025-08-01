@@ -15,8 +15,19 @@ import PromptPopup from '../homePage/PromptPopup';
 import ClarifyWidget from './chatWidgets/ClarifyWidget';
 import FormWidget from './FormWidget';
 import UnintegratedAgentApps from './chatComponents/UnintegratedAgentApps';
+import IntermediateSteps from './chatComponents/IntermediateSteps';
 import { fileTypeIcons, getFaviconUrl, getWebsiteName } from '../../../helpers';
 
+const tooltipStyles = {
+	body: { color: 'var(--primary-font)' },
+};
+
+const pencilIconStyles = {
+	width: '20px',
+	height: '20px',
+	position: 'relative',
+	top: '-2px',
+};
 const AIMessage = ({
 	text,
 	customePencilClickFunc = null,
@@ -30,10 +41,11 @@ const AIMessage = ({
 	handleSourcesClick = null,
 	messageIndex = null,
 	showCitationsButton = true,
+	sessionId = null,
 }) => {
 	const {
 		documentPreview: { setNoteContent },
-		templates: { updateStateValues, aiMessagesInfo },
+		templates: { updateStateValues, aiMessagesInfo, globalChatMessages },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -73,8 +85,38 @@ const AIMessage = ({
 	}, []);
 
 	const handlePromptClick = (prompt) => {
-		if (prompt) {
-			updateStateValues({ activePromptForChat: prompt });
+		if (prompt && sessionId) {
+			updateStateValues({
+				activePromptForChat: {
+					prompt,
+					sessionId,
+				},
+			});
+		}
+	};
+
+	const handleFeedbackUpdateSuccess = (feedbackReq = {}) => {
+		// Clone the existing globalChatMessages safely
+		const newGlobalChatMessages = { ...(globalChatMessages || {}) };
+
+		// Ensure the session exists before modifying
+		if (newGlobalChatMessages[sessionId]?.messages) {
+			newGlobalChatMessages[sessionId].messages = newGlobalChatMessages[
+				sessionId
+			].messages.map((message) => {
+				if (message?.messageId === messageData?.messageId) {
+					return {
+						...message,
+						...feedbackReq,
+					};
+				}
+				return message;
+			});
+
+			// Apply updated state
+			updateStateValues({
+				globalChatMessages: newGlobalChatMessages,
+			});
 		}
 	};
 
@@ -83,9 +125,17 @@ const AIMessage = ({
 			{info?.feedbackPopupOpen && (
 				<PromptPopup
 					messageId={messageData?.messageId}
-					liked={info?.liked}
+					liked={messageData?.rating}
 					open={info?.feedbackPopupOpen}
+					feedbackMessage={messageData?.userRemarks}
 					feedbackPopupOpen={info?.feedbackPopupOpen}
+					selectedFeedback={messageData?.userFeedbackReasons}
+					handleFeedbackUpdateSuccess={handleFeedbackUpdateSuccess}
+					isTrained={
+						messageData?.rating ||
+						messageData?.userRemarks ||
+						messageData?.userFeedbackReasons?.length
+					}
 					closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
 				/>
 			)}
@@ -103,6 +153,7 @@ const AIMessage = ({
 							messageData={messageData}
 							agent={agent}
 							key={index}
+							sessionId={sessionId}
 						/>
 					))
 				) : (
@@ -120,10 +171,17 @@ const AIMessage = ({
 					</div>
 				))}
 
+			{messageData?.tool_invocations && (
+				<IntermediateSteps
+					steps={messageData?.tool_invocations}
+					isStreaming={messageData?.stream_end === false}
+				/>
+			)}
+
 			{messageData?.moduleType === 'ai_suggestion_report' ? (
 				<AISuggestionsReportAiComponent data={messageData?.data} />
 			) : messageData?.widget_type === 'clarifyWidget' ? (
-				<ClarifyWidget data={messageData?.data} />
+				<ClarifyWidget data={messageData?.data} sessionId={sessionId} />
 			) : (
 				<Markdown citations={citations}>{text}</Markdown>
 			)}
@@ -151,7 +209,7 @@ const AIMessage = ({
 									</div>
 								}
 								color="transparent"
-								overlayInnerStyle={{ color: 'var(--primary-font)' }}
+								styles={tooltipStyles}
 							>
 								{info?.isCopiedToClipboard ? (
 									<TickSvg />
@@ -167,10 +225,10 @@ const AIMessage = ({
 								trigger={'hover'}
 								color="transparent"
 								title={<div className="hover-icons-tooltip">Edit</div>}
-								overlayInnerStyle={{ color: 'var(--primary-font)' }}
+								styles={tooltipStyles}
 							>
 								<PencilSparkleIcon
-									style={{ width: '20px', height: '20px' }}
+									style={pencilIconStyles}
 									onClick={handlePencilClick}
 								/>
 							</Tooltip>
@@ -181,14 +239,14 @@ const AIMessage = ({
 							trigger={'hover'}
 							color="transparent"
 							title={<div className="hover-icons-tooltip">Feedback</div>}
-							overlayInnerStyle={{ color: 'var(--primary-font)' }}
+							styles={tooltipStyles}
 						>
 							<div className="teach-me-container" onClick={handleTeachMeClick}>
 								<GraduationCapSvg
 									className="teach-me-icon"
-									style={{ width: '20px', height: '20px' }}
+									style={{ width: '19px', height: '19px' }}
 								/>
-								<div className="teach-me-text">Teach me</div>
+								{/* <div className="teach-me-text">Teach me</div> */}
 							</div>
 						</Tooltip>
 						{messageData?.citations?.length > 0 && showCitationsButton && (
@@ -235,7 +293,8 @@ const AIMessage = ({
 			)}
 
 			{(aiMessagesInfo?.[messageData?.messageId]?.followUpQuery?.length > 0 ||
-				(messageData?.['follow_up_query'] || [])?.length > 0) && (
+				((messageData?.['follow_up_query'] || [])?.length > 0 &&
+					typeof messageData?.['follow_up_query'] === 'object')) && (
 				<div className="chat-suggestions-container">
 					{(aiMessagesInfo?.[messageData?.messageId]?.followUpQuery?.length > 0 ||
 						(messageData?.['follow_up_query'] || [])?.length > 0) && (
@@ -274,6 +333,9 @@ export default memo(AIMessage, (prevProps, nextProps) => {
 		prevProps.rating === nextProps.rating &&
 		JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations) &&
 		prevProps.messageData?.messageId === nextProps.messageData?.messageId &&
+		JSON.stringify(prevProps.messageData?.tool_invocations) ===
+			JSON.stringify(nextProps.messageData?.tool_invocations) &&
+		prevProps.messageData?.stream_end === nextProps.messageData?.stream_end &&
 		prevProps.isLastMessage === nextProps.isLastMessage &&
 		prevProps.handleSourcesClick === nextProps.handleSourcesClick &&
 		prevProps.messageIndex === nextProps.messageIndex &&

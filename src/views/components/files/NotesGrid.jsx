@@ -11,6 +11,7 @@ import Spinner from '../loaders/Spinner';
 import moment from 'moment';
 import EmptyState from './EmptyState';
 import { Tooltip } from 'antd';
+import { accessControlCheck } from '../../../helpers/accessControlCheck';
 
 const filterOptions = [
 	{ label: 'All', value: 'all' },
@@ -27,7 +28,7 @@ const sortOptions = [
 	{ label: 'A-Z', value: 'title', sortType: 1 },
 ];
 
-const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
+const NotesGrid = ({ handleTotalChange, isDatabase = false }) => {
 	const navigate = useNavigate();
 
 	const {
@@ -44,12 +45,13 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 	});
 
 	useEffect(() => {
+		setInfo((prevInfo) => ({ ...prevInfo, loading: true }));
 		fetchNotes({ page: 1 });
-	}, [info?.selectedFilter?.value, info?.selectedSort]);
+	}, [info?.selectedFilter?.value, info?.selectedSort, isDatabase]);
 
 	useEffect(() => {
 		if (notes) {
-			const { currentPage = 1, hasNextPage = false, data = [], totalDocs = 0 } = notes || {};
+			const { currentPage = 1, hasNextPage = false, data = [], totalDocs } = notes || {};
 			const newNotes = currentPage === 1 ? [...data] : [...info?.notes, ...(data || [])];
 			handleStateUpdate({ notes: newNotes, currentPage, hasNextPage, loading: false });
 			handleTotalChange(totalDocs);
@@ -159,9 +161,12 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 					sortOrder,
 				},
 			};
-			await getNotesList(payload, false);
+			const append = false;
+			await getNotesList(payload, append, isDatabase);
 		} catch (error) {
 			console.error('Error fetching notes:', error);
+		} finally {
+			setInfo((prevInfo) => ({ ...prevInfo, loading: false }));
 		}
 	};
 
@@ -176,6 +181,20 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 			sortType = info?.selectedSort?.sortType * -1;
 		}
 		handleStateUpdate({ selectedSort: { ...value, sortType } });
+	};
+
+	const handleCreateNoteOrDatabase = async () => {
+		if (!accessControlCheck('note')) return;
+		const payload = {
+			input: {
+				title: 'New Note',
+			},
+		};
+		const response = await createNotesList(payload, isDatabase);
+		if (response?.[1]?._id) {
+			const newNoteId = response[1]?._id;
+			navigate(`/note/${newNoteId}${isDatabase ? '/database' : ''}`);
+		}
 	};
 
 	return (
@@ -209,11 +228,14 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 						height={'100%'}
 					>
 						<div className="card-container">
-							<div className="card-item" onClick={handleNewNotes}>
+							<div className="card-item create">
 								<div className="card-item-style card-item-style-btn">
-									<button className="card-btn">
+									<button
+										onClick={handleCreateNoteOrDatabase}
+										className="card-btn"
+									>
 										<Plus />
-										Create Note
+										{isDatabase ? 'Create Database' : 'Create Note'}
 									</button>
 								</div>
 							</div>
@@ -221,7 +243,11 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 								<div
 									className="card-item notes-grid-container tooltip"
 									key={index}
-									onClick={() => navigate(`/note/${note?._id}`)}
+									onClick={() =>
+										navigate(
+											`/note/${note?._id}${isDatabase ? '/database' : ''}`,
+										)
+									}
 									data-tooltip={note?.title}
 								>
 									<div className="card-item-style content-wrapper note-card-content">
@@ -255,7 +281,7 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 						<EmptyState
 							title={'No notes here'}
 							subtitle={'Try creating some notes'}
-							buttonOnClick={handleNewNotes}
+							buttonOnClick={handleCreateNoteOrDatabase}
 							buttonText={'Create note'}
 						/>
 					</div>

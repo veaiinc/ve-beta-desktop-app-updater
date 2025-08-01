@@ -3,6 +3,7 @@ import { memo } from 'react';
 import { insertImage } from './ImageComponent';
 import { insertDatabase } from './Database';
 import { filterSuggestionItems } from '@blocknote/core';
+import SlashMenuComponent from './SlashMenuComponent';
 
 const SlashMenu = ({ editor, noteId }) => {
 	const getItems = async (query) => {
@@ -21,14 +22,20 @@ const SlashMenu = ({ editor, noteId }) => {
 		// Insert the database item after Advanced group
 		defaultItems.splice(lastAdvanceBlockIndex + 1, 0, insertDatabase(editor, noteId));
 
-		const allowedBlocks = ['heading', 'heading_2', 'heading_3', 'database'];
-
-		defaultItems = defaultItems.filter((item) => allowedBlocks.includes(item.key));
+		defaultItems = defaultItems.filter(
+			(item) => item?.group !== 'Media' || item?.key === 'image',
+		);
 
 		// Return filtered items based on the query
 		return filterSuggestionItems(defaultItems, query);
 	};
-	return <SuggestionMenuController triggerCharacter={'/'} getItems={getItems} />;
+	return (
+		<SuggestionMenuController
+			triggerCharacter={'/'}
+			getItems={getItems}
+			suggestionMenuComponent={SlashMenuComponent}
+		/>
+	);
 };
 
 export default memo(SlashMenu);

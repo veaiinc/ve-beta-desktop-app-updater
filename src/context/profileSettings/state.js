@@ -33,17 +33,13 @@ export const ProfileState = () => {
 				'auth',
 			);
 			if (response?.[0]) {
-				const region = response?.[1]?.locationDetails?.region ?? null;
+				const region = response?.[1]?.locationDetails?.region ?? 'us-east-1';
 				if (region) {
 					const host = fetchDomainName();
 					localStorage.setItem('region', region);
 					Cookies.set('region', region, {
 						sameSite: 'lax',
 						domain: host,
-					});
-					dispatch({
-						type: Actions.GET_WORKSPACE_INFO,
-						payload: response?.[1],
 					});
 				} else {
 					console.error('Unable to get region from workspace info api');

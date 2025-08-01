@@ -13,12 +13,12 @@
 	}
 
 	.span {
-		// color: var(--primary-font);
-		color: var(--chat-secondary-font);
+		color: var(--primary-font);
+		// color: var(--chat-secondary-font);
 		font-family: var(--chat-primary-font-family);
 		font-size: calc(var(--font-size) * 1);
 		font-weight: 400;
-		line-height: 30px;
+		line-height: 28px;
 		letter-spacing: 0.25px;
 	}
 
@@ -37,8 +37,8 @@
 
 	.code {
 		font-size: inherit;
-		color: var(--chat-secondary-font);
-		// color: var(--primary-font);
+		// color: var(--chat-secondary-font);
+		color: var(--primary-font);
 		font-family: var(--chat-primary-font-family);
 		line-height: calc(var(--font-size) * 1.75);
 		// letter-spacing: -0.08px;;
@@ -110,8 +110,8 @@
 	}
 
 	.p {
-		// color: var(--primary-font);
-		color: var(--chat-secondary-font);
+		color: var(--primary-font);
+		// color: var(--chat-secondary-font);
 		font-family: var(--chat-primary-font-family);
 		font-size: calc(var(--font-size) * 1);
 		font-weight: 400;
@@ -155,7 +155,7 @@
 		font-size: calc(var(--font-size) * 0.9375);
 		line-height: 28px;
 		font-family: var(--chat-primary-font-family);
-		padding-left: 26px; /* 24px */
+		padding-left: 22px; /* 24px */
 
 		.p {
 			margin: 0;
@@ -185,14 +185,14 @@
 	}
 
 	.li {
-		color: var(--chat-secondary-font);
-		// color: var(--primary-font);
+		// color: var(--chat-secondary-font);
+		color: var(--primary-font);
 		font-family: var(--chat-primary-font-family);
 		letter-spacing: 0.25px;
 		font-weight: 400;
 		line-height: 28px;
 		font-size: calc(var(--font-size) * 1);
-		margin: 8px 0;
+		margin: 5px 0;
 		padding-left: 3px;
 	}
 
@@ -323,8 +323,8 @@
 				th,
 				td {
 					border: none;
-					color: var(--chat-secondary-font);
-					// color: var(--primary-font);
+					// color: var(--chat-secondary-font);
+					color: var(--primary-font);
 					font-size: calc(var(--font-size) * 0.875); /* 14px */
 					line-height: calc(var(--font-size) * 1.25); /* 20px */
 					// letter-spacing: -0.08px;; /* 0.2px */

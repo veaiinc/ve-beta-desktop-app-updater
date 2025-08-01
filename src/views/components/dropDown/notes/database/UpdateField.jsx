@@ -405,7 +405,7 @@ const UpdateField = ({
 					}
 					open={false}
 					placement="bottomLeft"
-					overlayClassName="status-dropdown"
+					classNames={{ root: 'status-dropdown' }}
 					color="transparent"
 					trigger={['click']}
 					zIndex={50100}
@@ -443,7 +443,7 @@ const UpdateField = ({
 						}
 						open={info?.limitTooltipOpen}
 						placement="bottomLeft"
-						overlayClassName="status-dropdown"
+						classNames={{ root: 'status-dropdown' }}
 						color="transparent"
 						trigger={['click']}
 						zIndex={50100}

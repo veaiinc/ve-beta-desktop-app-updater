@@ -418,9 +418,19 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 								<div className="header-top">
 									<span className="title">
 										<span className="question-number">
-											<Skeleton width={32} height={20} />
+											<Skeleton
+												width={32}
+												height={20}
+												baseColor="var(--card)"
+												highlightColor="gray"
+											/>
 										</span>{' '}
-										<Skeleton width={180} height={20} />
+										<Skeleton
+											width={180}
+											height={20}
+											baseColor="var(--card)"
+											highlightColor="gray"
+										/>
 									</span>
 								</div>
 							</div>
@@ -430,7 +440,12 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 										<div className="collapsible-list__item">
 											<div className="candidate-info">
 												<div className="candidate-name">
-													<Skeleton width={140} height={18} />
+													<Skeleton
+														width={140}
+														height={18}
+														baseColor="var(--card)"
+														highlightColor="gray"
+													/>
 												</div>
 											</div>
 										</div>

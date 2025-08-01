@@ -432,10 +432,20 @@ const FormResCard = ({
 							<div className="topRow">
 								<div className="carddetails">
 									<h1 className="name">
-										<Skeleton width={120} height={20} />
+										<Skeleton
+											width={120}
+											height={20}
+											baseColor="var(--card)"
+											highlightColor="gray"
+										/>
 									</h1>
 									<h1 className="time">
-										<Skeleton width={60} height={16} />
+										<Skeleton
+											width={60}
+											height={16}
+											baseColor="var(--card)"
+											highlightColor="gray"
+										/>
 									</h1>
 								</div>
 							</div>

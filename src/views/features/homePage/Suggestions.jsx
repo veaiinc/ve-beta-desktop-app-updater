@@ -1,4 +1,4 @@
-import { memo, useContext, useRef, useEffect, useCallback } from 'react';
+import { memo, useContext, useRef, useEffect, useCallback, useState } from 'react';
 import '../../../assets/scss/home_page/suggestions.scss';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
 import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
@@ -11,11 +11,26 @@ const Suggestions = ({ landingPage = false, chatQuery = '', styles = {} }) => {
 		templates: { updateStateValues, getChatBoxSuggestions, chatBoxSuggestions },
 	} = useContext(Context);
 	const timeoutIdRef = useRef(null);
+	const suggestionsContainerRef = useRef(null);
 	const navigate = useNavigate();
+
+	const [info, setInfo] = useState({
+		height: '0px',
+	});
 
 	useEffect(() => {
 		handleDebounceChatQueryChange(chatQuery);
 	}, [chatQuery]);
+
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			height:
+				chatBoxSuggestions?.length > 0
+					? `${suggestionsContainerRef.current.scrollHeight}px`
+					: '0px',
+		}));
+	}, [chatBoxSuggestions]);
 
 	useEffect(() => {
 		return () => {
@@ -37,7 +52,10 @@ const Suggestions = ({ landingPage = false, chatQuery = '', styles = {} }) => {
 	const handleSuggestionClick = (suggestion) => {
 		const sessionId = ObjectID()?.toString();
 		updateStateValues({
-			activePromptForChat: suggestion,
+			activePromptForChat: {
+				prompt: suggestion,
+				sessionId,
+			},
 		});
 		if (landingPage) {
 			navigate(`/c/${sessionId}`);
@@ -49,10 +67,11 @@ const Suggestions = ({ landingPage = false, chatQuery = '', styles = {} }) => {
 		<div
 			className="suggestions-wrapper"
 			style={{
-				height: landingPage ? '250px' : '100%',
+				height: landingPage ? '250px' : info?.height,
 				overflow: landingPage ? 'auto' : 'hidden',
 				...styles,
 			}}
+			ref={suggestionsContainerRef}
 		>
 			{chatBoxSuggestions?.map((suggestion, index) => (
 				<div

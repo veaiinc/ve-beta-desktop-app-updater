@@ -31,6 +31,20 @@ export const stableNavigationItems = [
 		icon: ChatSvg,
 	},
 	{
+		id: 1,
+		name: 'Home',
+		moduleRoute: '/home',
+		route: '/home',
+		icon: HomeSvg,
+	},
+	{
+		id: 9,
+		name: 'Ambient AI',
+		moduleRoute: null,
+		route: '/ambient-ai',
+		icon: InfiniteSvg,
+	},
+	{
 		id: 7,
 		name: 'Live',
 		moduleRoute: null,
@@ -61,26 +75,32 @@ export const betaNavigationItems = [
 		route: '/ambient-ai',
 		icon: InfiniteSvg,
 	},
-
+	{
+		id: 7,
+		name: 'Live',
+		moduleRoute: null,
+		route: '/meet',
+		icon: MeetIcon,
+	},
 	{ id: 2, name: 'Agents', route: '/agents', icon: AgentsSvg },
-	{
-		id: 3,
-		name: 'Notes',
-		route: '/notes',
-		icon: NotesIcon,
-	},
+	// {
+	// 	id: 3,
+	// 	name: 'Notes',
+	// 	route: '/notes',
+	// 	icon: NotesIcon,
+	// },
 
-	{
-		id: 3.5,
-		name: 'Database',
-		route: '/database',
-		icon: DatabaseIcon,
-	},
+	// {
+	// 	id: 3.5,
+	// 	name: 'Database',
+	// 	route: '/database',
+	// 	icon: DatabaseIcon,
+	// },
 	{ id: 4, name: 'Files', route: '/files', icon: FilesSvg },
-	{ id: 5, name: 'Tasks', route: '/tasks', icon: TasksSvg },
-	{ id: 6, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
-	{ id: 7, name: 'Contacts', route: '/contacts', icon: ContactsSvg },
-	{ id: 8, name: 'Automations', route: '/automations', icon: AutomationSvg },
+	// { id: 5, name: 'Tasks', route: '/tasks', icon: TasksSvg },
+	// { id: 6, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
+	// { id: 7, name: 'Contacts', route: '/contacts', icon: ContactsSvg },
+	// { id: 8, name: 'Automations', route: '/automations', icon: AutomationSvg },
 ];
 
 export const internalNavigationItems = [
@@ -113,26 +133,26 @@ export const internalNavigationItems = [
 		icon: MeetIcon,
 	},
 	{ id: 2, name: 'Agents', route: '/agents', icon: AgentsSvg },
-	{
-		id: 3,
-		name: 'Notes',
-		route: '/notes',
-		icon: NotesIcon,
-	},
+	// {
+	// 	id: 3,
+	// 	name: 'Notes',
+	// 	route: '/notes',
+	// 	icon: NotesIcon,
+	// },
 
-	{
-		id: 3.5,
-		name: 'Database',
-		route: '/database',
-		icon: DatabaseIcon,
-	},
+	// {
+	// 	id: 3.5,
+	// 	name: 'Database',
+	// 	route: '/database',
+	// 	icon: DatabaseIcon,
+	// },
 	{ id: 4, name: 'Files', route: '/files', icon: FilesSvg },
-	{ id: 5, name: 'Tasks', route: '/tasks', icon: TasksSvg },
-	{ id: 6, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
+	// { id: 5, name: 'Tasks', route: '/tasks', icon: TasksSvg },
+	// { id: 6, name: 'Calendar', route: '/calendar', icon: CalendarSvg },
 
-	{ id: 8, name: 'Contacts', route: '/contacts', icon: ContactsSvg },
+	// { id: 8, name: 'Contacts', route: '/contacts', icon: ContactsSvg },
 
-	{ id: 9, name: 'Automations', route: '/automations', icon: AutomationSvg },
+	// { id: 9, name: 'Automations', route: '/automations', icon: AutomationSvg },
 ];
 
 export const stableSettingsNavItems = {

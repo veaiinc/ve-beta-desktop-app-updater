@@ -3,8 +3,8 @@ import s from './careers.module.scss';
 import { paraContent1, paraContent2, categories, jobs } from './constants';
 import { useState, useMemo } from 'react';
 
-const careerPageLink = 'https://veai.ve.ai/552ysrgj';
-const ContentCreator = 'https://veai.ve.ai/lo3x3v26';
+const careerPageLink = 'https://veai.ve.ai/hiring-1';
+const ContentCreator = 'https://veai.ve.ai/content';
 
 const Careers = () => {
 	const [info, setInfo] = useState({
@@ -51,7 +51,7 @@ const Careers = () => {
 					Build ambient intelligence that empowers the way people work.
 				</p>
 			</section>
-			<section className={s.categories}>
+			{/* <section className={s.categories}>
 				{categories.map((category, index) => (
 					<p
 						key={`category-${index}`}
@@ -61,7 +61,7 @@ const Careers = () => {
 						{category}
 					</p>
 				))}
-			</section>
+			</section> */}
 
 			<section className={s.jobContainer}>
 				{filteredJobs.length > 0 ? (

@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { Fragment, memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import s from './aiTranscriptionSuggestions.module.scss';
 import { ReactComponent as CloseIcon } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/home_page/arrow-right.svg';
@@ -9,217 +9,382 @@ import Context from '../../../context/context';
 import { fileTypeIcons, redirectTo, redirectTypeMapper } from '../../../helpers';
 import { useSearchParams } from 'react-router-dom';
 
-const AiTranscriptionSuggestions = ({ closeModal, showAmbientAssistance }) => {
+const AiTranscriptionSuggestions = ({
+	closeModal,
+	showAmbientAssistance,
+	userQuestions = [],
+	aiQuestions = [],
+	actions = [],
+	files = [],
+	activeTab = null,
+	allSuggestions = [],
+}) => {
 	const {
-		templates: { aiTranscriptionSuggestions, updateStateValues },
+		templates: { updateStateValues },
 	} = useContext(Context);
 	const [searchParams, setSearchParams] = useSearchParams();
-	const [info, setInfo] = useState({
-		files: [],
-		questions: [],
-		actions: [],
-	});
-	const questionsRef = useRef(null);
-	const filesRef = useRef(null);
-	const actionsRef = useRef(null);
+	const sessionId = searchParams.get('sId');
+	// const [info, setInfo] = useState({
+	// 	sessionId: null,
+	// });
+	const bodyRef = useRef(null);
+	// useEffect(() => {
+	// 	if (aiTranscriptionSuggestions) {
+	// 		const questions = aiTranscriptionSuggestions?.prompts?.filter(
+	// 			(prompt) =>
+	// 				prompt?.entity === 'user' ||
+	// 				(prompt?.entity === 'agent' && prompt?.type === 'search'),
+	// 		);
+	// 		const actions = aiTranscriptionSuggestions?.prompts?.filter(
+	// 			(prompt) => prompt?.entity === 'agent' && prompt?.type === 'action',
+	// 		);
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			questions,
+	// 			actions,
+	// 			files: aiTranscriptionSuggestions?.similar_files || [],
+	// 		}));
+	// 	}
+	// }, [aiTranscriptionSuggestions]);
+
+	// useEffect(() => {
+	// 	return () => {
+	// 		updateStateValues({
+	// 			aiTranscriptionSuggestions: null,
+	// 		});
+	// 	};
+	// }, []);
+
+	// useEffect(() => {
+	// 	if (searchParams.get('sId')) {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			sessionId: searchParams.get('sId'),
+	// 		}));
+	// 	}
+	// }, [searchParams]);
 
 	useEffect(() => {
-		if (aiTranscriptionSuggestions) {
-			const questions = aiTranscriptionSuggestions?.prompts?.filter(
-				(prompt) =>
-					prompt?.entity === 'user' ||
-					(prompt?.entity === 'agent' && prompt?.type === 'search'),
-			);
-			const actions = aiTranscriptionSuggestions?.prompts?.filter(
-				(prompt) => prompt?.entity === 'agent' && prompt?.type === 'action',
-			);
-			setInfo((prev) => ({
-				...prev,
-				questions,
-				actions,
-				files: aiTranscriptionSuggestions?.similar_files || [],
-			}));
-		}
-	}, [aiTranscriptionSuggestions]);
+		if (!bodyRef.current) return;
 
-	useEffect(() => {
-		return () => {
-			updateStateValues({
-				aiTranscriptionSuggestions: null,
-			});
-		};
-	}, []);
+		bodyRef.current.scrollTo({
+			top: bodyRef.current.scrollHeight,
+			behavior: 'smooth',
+		});
+	}, [
+		allSuggestions?.length,
+		userQuestions?.length,
+		aiQuestions?.length,
+		actions?.length,
+		files?.length,
+	]);
 
-	useEffect(() => {
-		if (!questionsRef.current) return;
-		if (info?.questions?.length > 0) {
-			questionsRef.current.scrollTo({
-				top: questionsRef.current.scrollHeight,
-				behavior: 'smooth',
-			});
-		}
-	}, [info?.questions?.length]);
+	// useEffect(() => {
+	// 	if (!bodyRef.current) return;
+	// 	if (userQuestions?.length > 0) {
+	// 		bodyRef.current.scrollTo({
+	// 			top: bodyRef.current.scrollHeight,
+	// 			behavior: 'smooth',
+	// 		});
+	// 	}
+	// }, [userQuestions?.length]);
 
-	useEffect(() => {
-		if (!actionsRef.current) return;
-		if (info?.actions?.length > 0) {
-			actionsRef.current.scrollTo({
-				top: actionsRef.current.scrollHeight,
-				behavior: 'smooth',
-			});
-		}
-	}, [info?.actions?.length]);
+	// useEffect(() => {
+	// 	if (!bodyRef.current) return;
+	// 	if (aiQuestions?.length > 0) {
+	// 		bodyRef.current.scrollTo({
+	// 			top: bodyRef.current.scrollHeight,
+	// 			behavior: 'smooth',
+	// 		});
+	// 	}
+	// }, [aiQuestions?.length]);
 
-	useEffect(() => {
-		if (!filesRef.current) return;
-		if (info?.files?.length > 0) {
-			filesRef.current.scrollTo({
-				bottom: filesRef.current.scrollHeight,
-				behavior: 'smooth',
-			});
-		}
-	}, [info?.files?.length]);
+	// useEffect(() => {
+	// 	if (!bodyRef.current) return;
+	// 	if (actions?.length > 0) {
+	// 		bodyRef.current.scrollTo({
+	// 			top: bodyRef.current.scrollHeight,
+	// 			behavior: 'smooth',
+	// 		});
+	// 	}
+	// }, [actions?.length]);
+
+	// useEffect(() => {
+	// 	if (!bodyRef.current) return;
+
+	// 	if (files?.length > 0) {
+	// 		bodyRef.current.scrollTo({
+	// 			top: bodyRef.current.scrollHeight,
+	// 			behavior: 'smooth',
+	// 		});
+	// 	}
+	// }, [files?.length]);
 
 	const handleActionClick = useCallback(
 		(prompt) => {
-			const newParams = new URLSearchParams(searchParams);
-			newParams.set('chat', 'true');
-			setSearchParams(newParams);
-			updateStateValues({
-				activePromptForChat: prompt,
-			});
+			if (prompt && sessionId) {
+				const newParams = new URLSearchParams(searchParams);
+				newParams.set('chat', 'true');
+				setSearchParams(newParams);
+				updateStateValues({
+					activePromptForChat: {
+						prompt,
+						sessionId,
+					},
+				});
+			}
 		},
-		[updateStateValues],
+		[sessionId],
 	);
 
 	const handleFileClick = useCallback((file) => {
 		redirectTo?.(file?.type, file?.[redirectTypeMapper?.[file?.type]]);
 	}, []);
 
+	const uniqueFiles = [];
+	const seen = new Set();
+	files?.forEach((file) => {
+		const id = file.source || file.s3_key || file.name;
+		if (!seen.has(id)) {
+			seen.add(id);
+			uniqueFiles.push(file);
+		}
+	});
+
 	return (
 		<div
 			className={s.aiTranscriptionSuggestions}
-			style={{
-				width: showAmbientAssistance ? '600px' : '0px',
-			}}
+			// style={{
+			// 	width: showAmbientAssistance ? '600px' : '0px',
+			// }}
 		>
-			<div className={s.header}>
+			{/* <div className={s.header}>
 				<div className={s.leftContainer}>
-					{/* <div className={s.closeIconContainer} onClick={closeModal}>
+					<div className={s.closeIconContainer} onClick={closeModal}>
 						<CloseIcon />
-					</div> */}
+					</div>
 					<div className={s.text}>Ambient Assistance</div>
 				</div>
-			</div>
+			</div> */}
 
-			<div className={s.body}>
-				{info?.questions?.length > 0 && (
-					<div
-						className={s.questionsContainer}
-						style={{
-							height:
-								info?.actions?.length > 0 || info?.files?.length > 0
-									? '40vh'
-									: '100%',
-						}}
-					>
-						<div className={s.questionsHeading}>
-							<QuestionSvg />
-							Need Help
-						</div>
-						<div className={s.suggestedQuestionsContainer} ref={questionsRef}>
-							{info?.questions?.map((question, index) => {
-								return question?.entity === 'user' ? (
-									<div className={s.wrapper}>
-										<div className={s.suggestedUserQuestion} key={index}>
-											<div className={s.answerContainer}>
-												<div className={s.questionHeader}>
-													<div className={s.text}>Ask User</div>
-													{question?.is_memory_used && (
-														<div className={s.isMemoryUsed}>
-															<MemorySvg />
-															Memory Used
-														</div>
-													)}
+			<div
+				className={s.body}
+				ref={bodyRef}
+				style={{
+					gap: activeTab === 'all' ? '48px' : '24px',
+				}}
+			>
+				{activeTab === 'all' && (
+					<div className={s.allSuggestionsContainer}>
+						{(() => {
+							const result = [];
+							let currentFileGroup = [];
+
+							allSuggestions?.forEach((suggestion, index) => {
+								if (
+									suggestion?.entity === 'user' ||
+									suggestion?.entity === 'other_user'
+								) {
+									// Flush any pending file group
+									if (currentFileGroup.length > 0) {
+										result.push(
+											<div
+												className={s.filesContainer}
+												key={`files-${index}`}
+											>
+												{currentFileGroup}
+											</div>,
+										);
+										currentFileGroup = [];
+									}
+
+									result.push(
+										<div className={s.userQuestionContainer} key={index}>
+											<div className={s.header}>Ask User</div>
+											<div className={s.body}>
+												<div className={s.questionText}>
+													{suggestion?.query || ''}
 												</div>
-												<div className={s.answerText}>{`"${
-													question?.query || ''
-												}"`}</div>
 											</div>
-										</div>
-										<div className={s.horizontalLine}></div>
-									</div>
-								) : (
-									<div className={s.wrapper}>
-										<div className={s.suggestedAiQuestion} key={index}>
-											<div className={s.answerContainer}>
-												<div className={s.questionHeader}>
-													<div className={s.text}>Ask AI</div>
-													{question?.is_memory_used && (
-														<div className={s.isMemoryUsed}>
-															<MemorySvg />
-															Memory Used
-														</div>
-													)}
-												</div>
+										</div>,
+									);
+								} else if (
+									suggestion?.entity === 'agent' ||
+									suggestion?.entity?.includes('agent')
+								) {
+									// Flush any pending file group
+									if (currentFileGroup.length > 0) {
+										result.push(
+											<div
+												className={s.filesContainer}
+												key={`files-${index}`}
+											>
+												{currentFileGroup}
+											</div>,
+										);
+										currentFileGroup = [];
+									}
+
+									if (suggestion?.type === 'search') {
+										result.push(
+											<div className={s.aiQuestionContainer} key={index}>
+												<div className={s.header}>Need help?</div>
 												<div
-													className={s.answerText}
+													className={s.body}
 													onClick={() =>
-														handleActionClick(question?.query || '')
+														handleActionClick(suggestion?.query || '')
 													}
 												>
-													{`"${question?.query || ''}"`}
+													<div className={s.questionText}>
+														<div className={s.text}>
+															{suggestion?.query || ''}
+														</div>
+													</div>
+													{suggestion?.is_memory_used && (
+														<div className={s.memoryUsedContainer}>
+															<div className={s.memoryUsedText}>
+																<MemorySvg />
+																Memory Used
+															</div>
+															<div className={s.verticalLine} />
+														</div>
+													)}
 												</div>
+											</div>,
+										);
+									} else {
+										result.push(
+											<div className={s.actionsContainer} key={index}>
+												<div
+													className={s.actionContainer}
+													onClick={() =>
+														handleActionClick(suggestion?.query || '')
+													}
+												>
+													<div className={s.iconContainer}></div>
+													{suggestion?.query || ''}
+												</div>
+												<div className={s.horizontalLine} />
+											</div>,
+										);
+									}
+								} else {
+									// This is a file - add to current file group
+									currentFileGroup.push(
+										<div
+											className={s.file}
+											key={index}
+											onClick={() => handleFileClick(suggestion)}
+										>
+											<div className={s.fileIcon}>
+												{fileTypeIcons[
+													suggestion?.type === 's3_key'
+														? suggestion?.name?.match(/\.(\w+)$/)?.[1] // to check the file format
+														: suggestion?.type
+												] || <VeLogoSvg />}
 											</div>
-										</div>
-										<div className={s.horizontalLine}></div>
-									</div>
+											<div className={s.fileName}>{suggestion?.name}</div>
+										</div>,
+									);
+								}
+							});
+
+							// Flush any remaining file group
+							if (currentFileGroup.length > 0) {
+								result.push(
+									<div className={s.filesContainer} key="files-final">
+										{currentFileGroup}
+									</div>,
 								);
-							})}
-						</div>
+							}
+
+							return result;
+						})()}
 					</div>
 				)}
 
-				{info?.actions?.length > 0 && (
-					<div className={s.actionsWrapper}>
-						<div className={s.text}>Actions</div>
-						<div className={s.actionsContainer} ref={actionsRef}>
-							{info?.actions?.map((action, index) => (
-								<>
-									<div
-										className={s.actionContainer}
-										key={index}
-										onClick={() => handleActionClick(action?.query || '')}
-									>
-										<ArrowRightSvg style={{ flexShrink: 0 }} />
-										{action?.query || ''}
+				{activeTab === 'userQuestions' && (
+					<div className={s.userQuestionsContainer}>
+						{userQuestions?.map((question, index) => {
+							return (
+								<div className={s.userQuestionContainer} key={index}>
+									<div className={s.header}>Ask User</div>
+									<div className={s.body}>
+										<div className={s.questionText}>
+											{question?.query || ''}
+										</div>
 									</div>
-									<div className={s.horizontalLine} />
-								</>
-							))}
-						</div>
+								</div>
+							);
+						})}
 					</div>
 				)}
 
-				{info?.files?.length > 0 && (
-					<div className={s.filesWrapper}>
-						<div className={s.text}>Files</div>
-						<div className={s.filesContainer} ref={filesRef}>
-							{info?.files?.map((file, index) => (
+				{activeTab === 'aiQuestions' && (
+					<div className={s.aiQuestionsContainer}>
+						{aiQuestions?.map((question, index) => {
+							return (
+								<div className={s.aiQuestionContainer} key={index}>
+									<div className={s.header}>Need help?</div>
+									<div
+										className={s.body}
+										onClick={() => handleActionClick(question?.query || '')}
+									>
+										<div className={s.questionText}>
+											<div className={s.text}>{question?.query || ''}</div>
+										</div>
+										{question?.is_memory_used && (
+											<div className={s.memoryUsedContainer}>
+												<div className={s.memoryUsedText}>
+													<MemorySvg />
+													Memory Used
+												</div>
+												<div className={s.verticalLine} />
+											</div>
+										)}
+									</div>
+								</div>
+							);
+						})}
+					</div>
+				)}
+
+				{activeTab === 'actions' && (
+					<div className={s.actionsContainer}>
+						{actions?.map((action, index) => (
+							<>
 								<div
-									className={s.file}
+									className={s.actionContainer}
 									key={index}
-									onClick={() => handleFileClick(file)}
+									onClick={() => handleActionClick(action?.query || '')}
 								>
+									<div className={s.iconContainer}></div>
+									{action?.query || ''}
+								</div>
+								<div className={s.horizontalLine} />
+							</>
+						))}
+					</div>
+				)}
+
+				{activeTab === 'files' && (
+					<div className={s.filesContainer}>
+						{uniqueFiles.map((file, index) => (
+							<div
+								className={s.file}
+								key={index}
+								onClick={() => handleFileClick(file)}
+							>
+								<div className={s.fileIcon}>
 									{fileTypeIcons[
 										file?.type === 's3_key'
 											? file?.name?.match(/\.(\w+)$/)?.[1] // to check the file format
 											: file?.type
 									] || <VeLogoSvg />}
-									<div className={s.fileName}>{file?.name}</div>
 								</div>
-							))}
-						</div>
+								<div className={s.fileName}>{file?.name}</div>
+							</div>
+						))}
 					</div>
 				)}
 			</div>

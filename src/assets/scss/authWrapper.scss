@@ -12,13 +12,11 @@
 		position: relative;
 
 		.childrenContainer {
-			flex: 1;
-			// padding: 1.5rem 6rem 3rem 6rem;
 			background: inherit;
-			margin-top: 5rem;
 			width: 100%;
 			height: 100%;
-			margin: auto;
+			margin: 0 auto;
+			overflow-y: auto;
 		}
 	}
 }

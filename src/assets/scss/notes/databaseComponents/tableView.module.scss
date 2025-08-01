@@ -172,8 +172,35 @@
 	min-width: 100%;
 	transition: background-color 0.2s;
 
+	.opnSidebarIcon {
+		display: none;
+	}
+
 	&:hover {
-		background-color: var(--card-over-card);
+		.opnSidebarIcon {
+			display: block;
+			position: absolute;
+			right: 3px;
+			background-color: var(--card-over-card-hover);
+			height: fit-content;
+			width: fit-content;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 4px;
+			color: var(--primary-font);
+			border-radius: 4px;
+			gap: 2px;
+			font-size: 11px;
+			font-weight: 500;
+			font-family: var(--primary-font-family);
+			cursor: pointer;
+
+			svg {
+				width: 16px;
+				height: 16px;
+			}
+		}
 	}
 }
 
@@ -234,21 +261,21 @@
 	}
 }
 
-// Skeleton loading styles
-:global {
-	.react-loading-skeleton {
-		background-color: var(--card-over-card);
+// // Skeleton loading styles
+// :global {
+// 	.react-loading-skeleton {
+// 		background-color: var(--card-over-card);
 
-		&::after {
-			background-image: linear-gradient(
-				90deg,
-				var(--card-over-card) 0%,
-				var(--card-over-card) 50%,
-				var(--card-over-card) 100%
-			);
-		}
-	}
-}
+// 		&::after {
+// 			background-image: linear-gradient(
+// 				90deg,
+// 				var(--card-over-card) 0%,
+// 				var(--card-over-card) 50%,
+// 				var(--card-over-card) 100%
+// 			);
+// 		}
+// 	}
+// }
 
 .tableFooter {
 	background-color: var(--card);

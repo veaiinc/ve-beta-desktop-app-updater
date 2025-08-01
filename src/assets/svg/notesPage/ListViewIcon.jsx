@@ -9,18 +9,18 @@ const ListViewIcon = ({ active = false }) => {
 			viewBox="0 0 16 16"
 			fill="none"
 		>
-			<g clip-path="url(#clip0_4929_31257)">
+			<g clipPath="url(#clip0_4929_31257)">
 				<path
 					d="M13 9H3C2.72386 9 2.5 9.22386 2.5 9.5V12C2.5 12.2761 2.72386 12.5 3 12.5H13C13.2761 12.5 13.5 12.2761 13.5 12V9.5C13.5 9.22386 13.2761 9 13 9Z"
 					stroke={active ? '#121212' : 'var(--secondary-font)'}
-					stroke-linecap="round"
-					stroke-linejoin="round"
+					strokeLinecap="round"
+					strokeLinejoin="round"
 				/>
 				<path
 					d="M13 3.5H3C2.72386 3.5 2.5 3.72386 2.5 4V6.5C2.5 6.77614 2.72386 7 3 7H13C13.2761 7 13.5 6.77614 13.5 6.5V4C13.5 3.72386 13.2761 3.5 13 3.5Z"
 					stroke={active ? '#121212' : 'var(--secondary-font)'}
-					stroke-linecap="round"
-					stroke-linejoin="round"
+					strokeLinecap="round"
+					strokeLinejoin="round"
 				/>
 			</g>
 			<defs>

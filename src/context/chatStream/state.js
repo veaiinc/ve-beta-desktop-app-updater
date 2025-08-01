@@ -1,4 +1,5 @@
 import { useReducer, useRef, useCallback } from 'react';
+import { getConfig } from '../../services/index';
 
 export const initialChatStreamState = {};
 
@@ -17,7 +18,6 @@ export const ChatStreamState = () => {
 	const socketsInfoRef = useRef({});
 	const inactivityTimeoutRef = useRef(null);
 	const currentSessionIdRef = useRef(null);
-	const workspaceModeRef = useRef(null);
 	const MAX_RETRY_ATTEMPTS = 30;
 	const RETRY_DELAY = 1000; // 1 second
 
@@ -49,7 +49,7 @@ export const ChatStreamState = () => {
 	}, []);
 
 	const sendMessage = useCallback(
-		(data, sessionId) => {
+		({ data, sessionId, onMessageFunc, isPublicChat, agentType }) => {
 			return new Promise((resolve, reject) => {
 				let attempts = 0;
 
@@ -72,10 +72,9 @@ export const ChatStreamState = () => {
 						console.log('Connection closed, attempting to reconnect...');
 						createWebSocketConnection(
 							sessionId,
-							socketsInfoRef.current[sessionId]?.onMessageFunc,
-							socketsInfoRef.current[sessionId]?.agentType,
-							socketsInfoRef.current[sessionId]?.isPublicChat,
-							workspaceModeRef.current,
+							onMessageFunc,
+							agentType,
+							isPublicChat,
 						);
 						attempts++;
 						setTimeout(attemptSend, RETRY_DELAY);
@@ -108,7 +107,7 @@ export const ChatStreamState = () => {
 		[resetInactivityTimeout],
 	);
 	const createWebSocketConnection = useCallback(
-		(sessionId, onMessageFunc, agentType, isPublicChat = false, workspaceMode) => {
+		async (sessionId, onMessageFunc, agentType, isPublicChat = false) => {
 			if (!sessionId && !isPublicChat) {
 				return;
 			}
@@ -118,30 +117,26 @@ export const ChatStreamState = () => {
 				return;
 			}
 
-			workspaceModeRef.current = workspaceMode;
-			const defaultAgent =
-				workspaceMode === 'stable' ? 'chat_streaming' : 'multi_agent_chat_streaming';
-
-			const agent = agentTypeMap[agentType] || defaultAgent;
+			const agent = agentTypeMap[agentType] || 'multi_agent_chat_streaming';
 			socketsInfoRef.current[sessionId] = {
-				agentType: agent,
+				agentType,
 				isPublicChat,
 				onMessageFunc,
 			};
 
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
-			const region = localStorage.getItem('region') || 'ap-south-1';
+			const region = localStorage.getItem('region') || 'us-east-1';
+			const config = await getConfig();
+			const { chat_ws_api, chat_ws_api_US, guest_chat_ws_api, guest_chat_ws_api_US } = config;
 
 			let baseUrl = `${
-				region === 'ap-south-1' ? 'wss://ai.ap-south-1.ve.ai' : 'wss://ai.us-east-1.ve.ai'
+				region === 'ap-south-1' ? chat_ws_api : chat_ws_api_US
 			}/${workspaceId}/${sessionId}/${agent}?token=${usertoken}`;
 
 			if (isPublicChat) {
 				baseUrl = `${
-					region === 'ap-south-1'
-						? 'wss://guestsearch.ap-south-1.ve.ai'
-						: 'wss://guestsearch.us-east-1.ve.ai'
+					region === 'ap-south-1' ? guest_chat_ws_api : guest_chat_ws_api_US
 				}/${sessionId}/guest_chat`;
 			}
 

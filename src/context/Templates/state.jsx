@@ -93,6 +93,7 @@ export const intialState = {
 	globalChatMessages: {}, // { type: 'AI', message: 'Hello, how can I help you today?' }
 	currentSessionId: null,
 	citations: null,
+	notificationsList: null,
 	docsFilesList: null,
 	moreDocsFilesList: null,
 	docsFilesRefetch: false,
@@ -1617,6 +1618,15 @@ export const TemplatesState = (props) => {
 						const connectUrl = response?.[1]?.connectUrl;
 						window.location.href = connectUrl;
 					}
+					break;
+				case 'slack':
+					path = `/slack/${workspaceId}/auth`;
+					response = await Service.fetchGet(path, token, 'third_party_integrations_api');
+					success = response?.[0] === true;
+					if (success) {
+						const connectUrl = response?.[1]?.connectUrl;
+						window.location.href = connectUrl;
+					}
 			}
 		} catch (error) {
 			console.log('error==>connectZoho', error);
@@ -1669,6 +1679,49 @@ export const TemplatesState = (props) => {
 			}
 		} catch (error) {
 			console.log('errror ==>getActivityLogs', error);
+		}
+	};
+
+	const getNotificationsList = async ({ page = 1, limit = 10 } = {}) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const payload = {
+				filters: {
+					limit,
+					page,
+				},
+			};
+			const response = await service.query(
+				getActivityLogsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			const success = response?.[0];
+			if (success) {
+				const payload = {
+					currentPage: response?.[1]?.data?.activityLogs?.currentPage,
+					data:
+						page === 1
+							? response?.[1]?.data?.activityLogs?.data
+							: [
+									...(state?.notificationsList?.data || []),
+									...(response?.[1]?.data?.activityLogs?.data || []),
+							  ],
+					hasNextPage: response?.[1]?.data?.activityLogs?.hasNextPage,
+				};
+				dispatch({
+					type: Actions.GET_NOTIFICATIONS_SUCCESS,
+					payload,
+				});
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('errror ==>getNotifications', error);
+			return [false, error];
 		}
 	};
 
@@ -1995,6 +2048,7 @@ export const TemplatesState = (props) => {
 		removeLatestStreamMessage = false,
 		lastQuery = null,
 		chatBoxInfo = null,
+		chatInfo = null,
 	}) => {
 		try {
 			dispatch({
@@ -2015,6 +2069,7 @@ export const TemplatesState = (props) => {
 					removeLatestStreamMessage,
 					lastQuery,
 					chatBoxInfo,
+					chatInfo,
 				},
 			});
 		} catch (error) {
@@ -2250,17 +2305,31 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getRecentChatMessages = async (
+	const getRecentChatMessages = async ({
 		sessionId,
 		page = 1,
 		fetchMore = false,
 		limit = 1000,
 		isPublicChat = false,
-	) => {
+		removeSessionId = false,
+	}) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const selectedvariable = fetchMore ? 'moreRecentChatStorage' : 'recentChatStorage';
+
+			if (removeSessionId) {
+				dispatch({
+					type: Actions.RECENT_CHAT_MESSAGES_ACTIONS_REQUESTS,
+					payload: {
+						sessionId,
+						removeSessionId,
+					},
+					selectedvariable,
+				});
+				return;
+			}
+
 			let response;
 			if (isPublicChat) {
 				response = await Service.fetchGet(
@@ -2283,7 +2352,10 @@ export const TemplatesState = (props) => {
 			if (response?.[0]) {
 				dispatch({
 					type: Actions.RECENT_CHAT_MESSAGES_ACTIONS_REQUESTS,
-					payload: response?.[1],
+					payload: {
+						data: response?.[1],
+						sessionId,
+					},
 					selectedvariable,
 				});
 			} else {
@@ -2613,11 +2685,24 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getChatBoxSuggestions = async (payload) => {
+	const updateProactiveAiAccess = async (payload, id) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/knowledge-bases/pending-actions/${id}/access`;
+			const response = await Service.fetchPut(url, payload, usertoken, 'tenant');
+			return response;
+		} catch (error) {
+			console.log('error==>updateProactiveAiAccess', error);
+		}
+	};
+
+	const getChatBoxSuggestions = async (payload = {}) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 			const path = `https://ai.us-east-1.ve.ai/${workspaceId}/suggestions`;
+			payload.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 			const response = await fetch(path, {
 				method: 'POST',
 				headers: {
@@ -2881,6 +2966,7 @@ export const TemplatesState = (props) => {
 		updateAiQuestions,
 		getProactiveAiData,
 		addProactiveAiAccess,
+		updateProactiveAiAccess,
 		getChatBoxSuggestions,
 		updateChatLoadingSessions,
 		deleteChatSession,
@@ -2890,5 +2976,6 @@ export const TemplatesState = (props) => {
 		updatechatSessionFavourite,
 		isSlugAvailable,
 		updateSlug,
+		getNotificationsList,
 	};
 };

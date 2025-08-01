@@ -1,8 +1,7 @@
 import { memo } from 'react';
 import { Helmet } from 'react-helmet';
-import { SkeletonTheme } from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
-import Sidebar from '../components/sidebar/Sidebar';
+// import Sidebar from '../components/sidebar/Sidebar';
+import TopNavbar from '../components/topNavbar/TopNavbar';
 import '../../assets/scss/authWrapper.scss';
 import ExpiredSubscriptionModal from '../components/modalsV2/subscription/ExpiredSubscriptionModal';
 import ExpiredTokenModal from '../components/modalsV2/subscription/ExpiredTokenModal';
@@ -22,7 +21,27 @@ const AuthWrapper = ({
 	childrenContainerStyles = {},
 	showSidebar = true,
 }) => {
-	const { authInitialized } = useAuthInitializer();
+	const { authInitialized, workspaceMode } = useAuthInitializer();
+
+	// const layoutMode = showSidebar && workspaceMode !== 'stable' ? 'sidebar' : 'topNavbar';
+	// const layoutModeComponentMap = {
+	// 	sidebar: (
+	// 		<div
+	// 			style={{
+	// 				...sidebarContainerStyles,
+	// 				height: 'fit-content',
+	// 				position: 'relative',
+	// 				padding: '0',
+	// 				margin: '0',
+	// 			}}
+	// 			className={sidebarContainerClassName}
+	// 		>
+	// 			<Sidebar />
+	// 		</div>
+	// 	),
+	// 	topNavbar: <TopNavbar />,
+	// };
+
 	return authInitialized ? (
 		<PageLoader />
 	) : (
@@ -35,46 +54,33 @@ const AuthWrapper = ({
 				<div
 					style={{
 						display: 'flex',
+						// flexDirection: layoutMode === 'topNavbar' ? 'column' : 'row',
+						flexDirection: 'column',
 						height: '100dvh',
 						padding: '0',
 						...outerContainerStyle,
 					}}
 					className="auth-wrapper-container"
 				>
-					<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
-						{showSidebar && (
-							<div
-								style={{
-									...sidebarContainerStyles,
-									height: 'fit-content',
-									position: 'relative',
-									padding: '0',
-									margin: '0',
-								}}
-								className={sidebarContainerClassName}
-							>
-								<Sidebar />
-							</div>
-						)}
-
+					{/* {layoutModeComponentMap[layoutMode]} */}
+					<TopNavbar />
+					<div
+						style={{
+							flex: 1,
+							overflowY: 'auto',
+							maxHeight: '100%',
+							height: '100%',
+							padding: ' 0',
+						}}
+						id="scrollableTarget"
+					>
 						<div
-							style={{
-								flex: 1,
-								overflowY: 'auto',
-								maxHeight: '100%',
-								height: '100%',
-								padding: ' 0',
-							}}
-							id="scrollableTarget"
+							className="childrenContainer"
+							style={{ maxWidth: maxWidth || '', ...childrenContainerStyles }}
 						>
-							<div
-								className="childrenContainer"
-								style={{ maxWidth: maxWidth || '', ...childrenContainerStyles }}
-							>
-								{children}
-							</div>
+							{children}
 						</div>
-					</SkeletonTheme>
+					</div>
 				</div>
 			</div>
 			<ExpiredSubscriptionModal />

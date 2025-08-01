@@ -10,6 +10,7 @@ import EventsPopUp from '../calendar/EventsPopUp';
 import ObjectId from 'bson-objectid';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import Skeleton from 'react-loading-skeleton';
+import { accessControlCheck } from '../../../helpers/accessControlCheck';
 
 const skeletonLoaders = Array?.from({ length: 6 }, (_, index) => index + 1);
 const CalenderWidget = ({ width = '100%', height = '412px' }) => {
@@ -23,7 +24,9 @@ const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 			getCalendarCategories,
 			resetCalendarAiChat,
 		},
+		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
+	const { role, accessControls = [] } = tenantUserAccessControls || {};
 	const location = useLocation();
 	const isContactPage = location?.pathname?.includes('contact');
 	const navigate = useNavigate();
@@ -186,6 +189,7 @@ const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 		setInfo((prev) => ({ ...prev, isLoading: false }));
 	};
 	const EventCreatePopup = () => {
+		if (!accessControlCheck('calendar')) return;
 		setInfo((prev) => ({ ...prev, isCreateEventModalOpen: true }));
 	};
 
@@ -196,7 +200,7 @@ const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 	return (
 		<div
 			className="calender-main-container"
-			style={{ width: isContactPage ? '100%' : '380px', height: height }}
+			style={{ maxWidth: isContactPage ? '100%' : '380px', height: height }}
 		>
 			<div className="calenderWidgetContainer">
 				<div className="calenderWidgetMain">

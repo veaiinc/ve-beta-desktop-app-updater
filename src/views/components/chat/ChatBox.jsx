@@ -23,7 +23,7 @@ import UploadFileTooltip from './UploadFileTooltip';
 import DateRangeDropdown from './DateRangeDropdown';
 import moment from 'moment';
 import { Image, Spin, Tooltip } from 'antd';
-import AIMessageLoader from './AIMessageLoader';
+// import AIMessageLoader from './AIMessageLoader';
 import WebSvg from '../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../assets/svg/ai_agents/bookSvg';
 import useUpdatedVoiceIntegration from '../../../hooks/useUpdatedVoiceIntegration';
@@ -36,11 +36,13 @@ import RecentFileTooltip from './RecentFileTooltip';
 import AskTooltip from './AskTooltip';
 import AddOnCards from '../settings/planbilling/addOnCards';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
+// import VoiceWrapper from '../../layouts/VoiceWrapper';
 
 const moduleHelper = {
 	tasks: 'tasks',
 	'smart-file': 'form_filling',
 	calendar: 'calendar',
+	meet: 'meet',
 };
 
 const initialChatFilters = {
@@ -108,6 +110,7 @@ const initialChatBoxInfo = {
 	goals: false,
 	selectedLLMModel: null,
 	build: false,
+	deepSearch: false,
 };
 /*
 Note:
@@ -134,6 +137,8 @@ const ChatBox = ({
 	onChatQueryChange = null,
 	isBuildEnbled = true,
 	showUpgradeSubscriptionBtn = true,
+	animateChatBox = true,
+	sessionId = null,
 }) => {
 	const textAreaRef = useRef(null);
 	const location = useLocation();
@@ -156,7 +161,7 @@ const ChatBox = ({
 			handleStreamSendMessage,
 			activePayloadForChat,
 			activeInputForChat,
-			chatInfo,
+			// chatInfo,
 			userEditedQuery,
 			galleryFile,
 			currentSessionId,
@@ -167,7 +172,7 @@ const ChatBox = ({
 		subscriptionInfo: { currentPlan },
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
-		aiSetup: { voiceIntegrationData, updateAiChatSessions },
+		aiSetup: { voiceIntegrationData, updateAiChatSessions, aiChatSessions },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -198,10 +203,13 @@ const ChatBox = ({
 		openUpgradeModal: false,
 		askTooltipOpen: false,
 		chatBoxInfo: initialChatBoxInfo,
+		chatboxMinimized: true,
+		chatBoxContainerHeight: 60,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
+	const textAreaWrapperRef = useRef(null);
 	const uploadedImagesRef = useRef(info?.uploadedImages || []);
 	const recentFilesRef = useRef(info?.recentFiles || []);
 	const showPlaceholder = info?.chatQuery?.length === 0 && info?.widgetQuery?.length === 0;
@@ -213,17 +221,37 @@ const ChatBox = ({
 				: 1;
 
 	useEffect(() => {
-		if (
-			!chatInfo?.agentType ||
-			(location?.pathname?.split('/')?.[1] !== 'chat' &&
-				location?.pathname?.split('/')?.[1] !== 'knowledge-agent' &&
-				chatInfo?.agentType === 'knowledge_agent')
-		) {
-			updateStateValues({
-				chatInfo: { ...chatInfo, agentType: 'multi_agent', assistantId: null },
-			});
-		}
+		// if (
+		// 	!chatInfo?.agentType ||
+		// 	(location?.pathname?.split('/')?.[1] !== 'chat' &&
+		// 		location?.pathname?.split('/')?.[1] !== 'knowledge-agent' &&
+		// 		chatInfo?.agentType === 'knowledge_agent')
+		// ) {
+		// 	updateStateValues({
+		// 		chatInfo: { ...chatInfo, agentType: 'multi_agent', assistantId: null },
+		// 	});
+		// }
+		document.addEventListener('click', handleWindowClick);
+		return () => {
+			document.removeEventListener('click', handleWindowClick);
+		};
 	}, []);
+
+	useEffect(() => {
+		if (!animateChatBox) return;
+		setInfo((prev) => {
+			const height = info?.chatboxMinimized
+				? '60px'
+				: `${Math.min(textAreaRef?.current?.scrollHeight, 200) + 58 + 28}px`;
+			if (height === prev?.chatBoxContainerHeight) {
+				return prev;
+			}
+			return {
+				...prev,
+				chatBoxContainerHeight: height,
+			};
+		});
+	}, [info?.chatboxMinimized]);
 
 	useEffect(() => {
 		const sessionData = globalChatMessages?.[info?.chatSessionId],
@@ -239,6 +267,7 @@ const ChatBox = ({
 			const ask = sessionData?.chatBoxInfo?.ask;
 			const selectedLLMModel = sessionData?.chatBoxInfo?.selectedLLMModel;
 			const build = sessionData?.chatBoxInfo?.build;
+			const deepSearch = sessionData?.chatBoxInfo?.deepSearch;
 			if (
 				info?.chatBoxInfo?.deepResearch !== deepResearch ||
 				info?.chatBoxInfo?.goals !== goals ||
@@ -246,7 +275,8 @@ const ChatBox = ({
 				info?.chatBoxInfo?.workspaceSearch !== workspaceSearch ||
 				info?.chatBoxInfo?.ask !== ask ||
 				info?.chatBoxInfo?.selectedLLMModel !== selectedLLMModel ||
-				info?.chatBoxInfo?.build !== build
+				info?.chatBoxInfo?.build !== build ||
+				info?.chatBoxInfo?.deepSearch !== deepSearch
 			) {
 				setInfo((prev) => ({
 					...prev,
@@ -282,6 +312,7 @@ const ChatBox = ({
 					deepResearch: false,
 					ask: true,
 					build: false,
+					deepSearch: false,
 				};
 				handleGlobalChatMessages({
 					sessionId: info?.chatSessionId,
@@ -300,8 +331,12 @@ const ChatBox = ({
 	}, [globalChatMessages, info?.chatSessionId]);
 
 	useEffect(() => {
-		if (activePromptForChat && info?.chatSessionId) {
-			handleSendMessageFunc(null, true, activePromptForChat);
+		if (
+			activePromptForChat &&
+			info?.chatSessionId &&
+			activePromptForChat?.sessionId === info?.chatSessionId
+		) {
+			handleSendMessageFunc(null, true, activePromptForChat?.prompt);
 			updateStateValues({ activePromptForChat: null });
 		}
 	}, [activePromptForChat, info?.chatSessionId]);
@@ -370,13 +405,18 @@ const ChatBox = ({
 		}
 	}, [activePayloadForChat, info?.chatSessionId]);
 
+	// useEffect(() => {
+	// 	if (currentSessionId) {
+	// 		setInfo((prev) => ({ ...prev, chatSessionId: currentSessionId }));
+	// 	} else {
+	// 		updateStateValues({ currentSessionId: ObjectID()?.toString() });
+	// 	}
+	// }, [currentSessionId]);
+
 	useEffect(() => {
-		if (currentSessionId) {
-			setInfo((prev) => ({ ...prev, chatSessionId: currentSessionId }));
-		} else {
-			updateStateValues({ currentSessionId: ObjectID()?.toString() });
-		}
-	}, [currentSessionId]);
+		const chatSessionId = sessionId || ObjectID()?.toString();
+		setInfo((prev) => ({ ...prev, chatSessionId }));
+	}, [sessionId]);
 
 	useEffect(() => {
 		if (info?.chatSessionId && !globalChatMessages?.[info?.chatSessionId]?.chatBoxInfo) {
@@ -387,6 +427,17 @@ const ChatBox = ({
 			});
 		}
 	}, [info?.chatSessionId]);
+
+	useEffect(() => {
+		if (!textAreaRef?.current) return;
+
+		if (!info?.chatboxMinimized) {
+			// Focus only if not already focused
+			if (document.activeElement !== textAreaRef.current) {
+				textAreaRef.current.focus();
+			}
+		}
+	}, [info?.chatboxMinimized]);
 
 	useEffect(() => {
 		setInfo((prev) => ({
@@ -403,6 +454,18 @@ const ChatBox = ({
 		setPreviewOpen(true);
 	};
 
+	const handleWindowClick = useCallback(() => {
+		if (!animateChatBox) return;
+		setInfo((prev) => {
+			if (prev?.chatboxMinimized) {
+				return prev;
+			}
+			return {
+				...prev,
+				chatboxMinimized: true,
+			};
+		});
+	}, [animateChatBox]);
 	const handleGoalsClick = () => {
 		let chatBoxData = info?.chatBoxInfo;
 
@@ -416,6 +479,7 @@ const ChatBox = ({
 			ask: false,
 			deepResearch: false,
 			build: false,
+			deepSearch: false,
 		};
 
 		handleGlobalChatMessages({
@@ -590,6 +654,7 @@ const ChatBox = ({
 					const sessionId = params?.sessionId || info?.chatSessionId;
 					const chatBoxData =
 						globalChatMessages?.[sessionId]?.chatBoxInfo || info?.chatBoxInfo;
+					const chatInfo = globalChatMessages?.[sessionId]?.chatInfo;
 
 					const chatPayload = globalChatMessages?.[sessionId]?.chatPayload || {};
 					const date =
@@ -614,6 +679,7 @@ const ChatBox = ({
 						...(!isPublicChat && { modules: Object?.keys(info?.chatFilters?.modules) }),
 						...(!isPublicChat && { date: date }),
 						deep_research: chatBoxData?.deepResearch,
+						deep_search: chatBoxData?.deepSearch,
 					};
 
 					if (chatInfo?.agentType === 'knowledge_agent') {
@@ -680,7 +746,7 @@ const ChatBox = ({
 					}
 
 					if (routeName === 'meet') {
-						payload.module_id = params?.noteId;
+						payload.module_id = params?.meetingId;
 					}
 
 					let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
@@ -706,12 +772,18 @@ const ChatBox = ({
 						chatQuery: '',
 						// recentFiles: [],// not clearing the recent files , because they want like sana
 						chatFilters: initialChatFilters,
+						chatboxMinimized: true,
 					}));
 					uploadedImagesRef.current = [];
 
 					onChatQueryChange?.('');
 					clearTextArea();
-					if (!(globalChatMessages?.[sessionId]?.messages?.length > 0)) {
+					if (
+						!(
+							globalChatMessages?.[sessionId]?.messages?.length > 0 ||
+							aiChatSessions?.data?.findIndex((ele) => ele?._id === sessionId) !== -1
+						)
+					) {
 						const payload = { sessionId, addNewSession: true, type: 'update' };
 						updateAiChatSessions(payload);
 					}
@@ -741,7 +813,6 @@ const ChatBox = ({
 			onSend,
 			customChatActions,
 			info,
-			chatInfo,
 			activeWorkflowSlugForSmartFile,
 			recentFilesRef.current,
 			uploadedImagesRef?.current,
@@ -752,6 +823,7 @@ const ChatBox = ({
 			chatReplyData,
 			proactiveInfoForChat,
 			onChatQueryChange,
+			aiChatSessions,
 		],
 	);
 
@@ -1096,12 +1168,20 @@ const ChatBox = ({
 
 	const handleTextAreaChange = (e) => {
 		const textArea = textAreaRef?.current;
+		const textAreaWrapper = textAreaWrapperRef?.current;
 		const query = e?.target?.value;
 		const lastChar = query?.trim()?.slice(-1);
 
+		let textAreaHeight = '';
+
 		if (textArea) {
 			textArea.style.height = 'auto';
-			textArea.style.height = textArea.scrollHeight + 'px';
+			textAreaHeight = Math.min(textArea?.scrollHeight, 200);
+			textArea.style.height = textAreaHeight + 'px';
+		}
+
+		if (textAreaWrapper) {
+			textAreaWrapper.style.height = textAreaHeight + 'px';
 		}
 
 		let isRecentFileOpen = false;
@@ -1117,13 +1197,18 @@ const ChatBox = ({
 			...prev,
 			chatQuery: query,
 			isRecentFileOpen,
+			chatBoxContainerHeight: textAreaHeight + 58 + 28 + 'px',
 		}));
 	};
 
 	const clearTextArea = () => {
 		const textArea = textAreaRef?.current;
+		const textAreaWrapper = textAreaWrapperRef?.current;
 		if (textArea) {
-			textArea.style.height = '26px'; // Reset to initial min-height
+			textArea.style.height = '30px'; // Reset to initial min-height
+		}
+		if (textAreaWrapper) {
+			textAreaWrapper.style.height = '30px';
 		}
 	};
 
@@ -1138,6 +1223,7 @@ const ChatBox = ({
 			ask: false,
 			deepResearch: false,
 			goals: false,
+			deepSearch: false,
 		};
 		handleGlobalChatMessages({
 			sessionId: info?.chatSessionId,
@@ -1168,6 +1254,15 @@ const ChatBox = ({
 	// };
 
 	const handleChatBoxClick = (e) => {
+		if (animateChatBox) {
+			e?.stopPropagation();
+			if (info?.chatboxMinimized) {
+				setInfo((prev) => ({
+					...prev,
+					chatboxMinimized: false,
+				}));
+			}
+		}
 		if (customChatBoxClick) {
 			customChatBoxClick?.(e);
 		}
@@ -1182,6 +1277,27 @@ const ChatBox = ({
 		chatBoxData = {
 			...chatBoxData,
 			ask: true,
+			deepResearch: false,
+			goals: false,
+			build: false,
+			deepSearch: false,
+		};
+		handleGlobalChatMessages({
+			sessionId: info?.chatSessionId,
+			chatBoxInfo: chatBoxData,
+			updateExtraInfo: true,
+		});
+	};
+
+	const handleDeepSearchClick = () => {
+		let chatBoxData = info?.chatBoxInfo;
+		if (chatBoxData?.deepSearch) {
+			return;
+		}
+		chatBoxData = {
+			...chatBoxData,
+			deepSearch: true,
+			ask: false,
 			deepResearch: false,
 			goals: false,
 			build: false,
@@ -1218,11 +1334,16 @@ const ChatBox = ({
 		}));
 	}, []);
 
+	const handleScrollButtonClick = useCallback(
+		(e) => {
+			e?.stopPropagation();
+			smoothScrollToBottom?.();
+		},
+		[smoothScrollToBottom],
+	);
+
 	return (
-		<div
-			className="chatParentWrapper"
-			{...(customChatBoxClick && { onClick: handleChatBoxClick })}
-		>
+		<div className="chatParentWrapper" onClick={handleChatBoxClick}>
 			<div className={`chatWrapper`}>
 				<div
 					className={`chat-box-container ${
@@ -1231,24 +1352,19 @@ const ChatBox = ({
 				>
 					<div className="chatcontainer">
 						<div className="chatBodyContainer">
-							<div className="chatInputContainer">
+							<div
+								className="chatInputContainer"
+								style={{
+									...(animateChatBox && {
+										height: info?.chatBoxContainerHeight,
+									}),
+								}}
+							>
 								<div
 									className={`chatInputParentContainer ${
 										startPage ? ' startPageContainer' : ''
 									}`}
 								>
-									{chatReplyData && (
-										<div className="chat-reply-data">
-											<div className="reply-icon"></div>
-											<div className="reply-text">{`"${chatReplyData}"`}</div>
-											<div
-												className="reply-close-icon"
-												onClick={handleReplyCloseClick}
-											>
-												<CloseSvg width={16} height={16} />
-											</div>
-										</div>
-									)}
 									<RecentFileTooltip
 										fileTypeIcons={fileTypeIcons}
 										handleRecentFileClick={handleRecentFileClick}
@@ -1320,23 +1436,28 @@ const ChatBox = ({
 												startPage ? 'startPagePlaceholderContainer' : ''
 											}`}
 										>
-											<textarea
-												type="text"
-												value={info?.chatQuery}
-												onChange={handleTextAreaChange}
-												autoFocus={autoFocus}
-												onKeyDown={handleSendMessageFunc}
-												className={`textArea ${
-													startPage ? 'startTextPage' : ''
-												}`}
-												rows={1}
-												ref={textAreaRef}
-												placeholder={
-													!animatePlaceholder
-														? 'Start typing or use @ to mention a source.'
-														: ''
-												}
-											/>
+											<div
+												className="textAreaWrapper"
+												ref={textAreaWrapperRef}
+											>
+												<textarea
+													type="text"
+													value={info?.chatQuery}
+													onChange={handleTextAreaChange}
+													autoFocus={autoFocus}
+													onKeyDown={handleSendMessageFunc}
+													className={`textArea ${
+														startPage ? 'startTextPage' : ''
+													}`}
+													rows={1}
+													ref={textAreaRef}
+													placeholder={
+														!animatePlaceholder
+															? 'Start typing or use @ to mention a source.'
+															: ''
+													}
+												/>
+											</div>
 
 											{showPlaceholder && animatePlaceholder && (
 												<ChatBoxPlaceholder
@@ -1486,7 +1607,7 @@ const ChatBox = ({
 															>
 																<Tooltip
 																	title={
-																		<div className="chatbox-icon-tooltip-container upload-file-tooltip-container">
+																		<div className="chatbox-icon-tooltip-container upload-file-tooltip-btn-container">
 																			<PlusSvg
 																				width={20}
 																				height={20}
@@ -1606,6 +1727,54 @@ const ChatBox = ({
 																					}
 																				/>
 																			</div> */}
+																		</div>
+																	</div>
+																</Tooltip>
+															)}
+
+															{!isPublicChat && (
+																<Tooltip
+																	title={
+																		<div className="chatbox-icon-tooltip-container deep-search-tooltip-container">
+																			<AtomSvg />
+																			Deep Search
+																		</div>
+																	}
+																	color="transparent"
+																	arrow={false}
+																	rootClassName="chatbox-tooltip"
+																>
+																	<div
+																		className={`chat-box-icon-container ${
+																			info?.chatBoxInfo
+																				?.deepSearch
+																				? 'active'
+																				: ''
+																		}`}
+																		onClick={
+																			handleDeepSearchClick
+																		}
+																	>
+																		<div className="chat-icon">
+																			<div className="text-wrapper goals-text-wrapper">
+																				<div
+																					className="trend-icon"
+																					style={{
+																						height: '20px',
+																					}}
+																				>
+																					<AtomSvg />
+																				</div>
+
+																				<div
+																					className="icon-text"
+																					style={{
+																						color: 'var(--primary-font)',
+																					}}
+																				>
+																					Deep Search
+																				</div>
+																			</div>
 																		</div>
 																	</div>
 																</Tooltip>
@@ -1976,7 +2145,7 @@ const ChatBox = ({
 			<div className="chatbarContainer" style={{ width: '100%' }}>
 				{showScrollButton && (
 					<div className="scroll-btn-wrapper">
-						<button className="scroll-button" onClick={() => smoothScrollToBottom?.()}>
+						<button className="scroll-button" onClick={handleScrollButtonClick}>
 							<ArrowUpRightSvg className="arrow-up" />
 						</button>
 					</div>
@@ -2006,7 +2175,12 @@ const ChatBox = ({
 										className="removeImageIcon"
 										onClick={() => handleRemoveImage(ele)}
 									>
-										<Close />
+										<Close
+											style={{
+												width: '10px',
+												height: '10px',
+											}}
+										/>
 									</span>
 								)}
 							</div>
@@ -2059,6 +2233,16 @@ const ChatBox = ({
 							<div className="upgrade-button" onClick={handleUpgradeClick}>
 								Upgrade
 							</div>
+						</div>
+					</div>
+				)}
+
+				{chatReplyData && (
+					<div className="chat-reply-data">
+						<div className="reply-icon"></div>
+						<div className="reply-text">{`"${chatReplyData}"`}</div>
+						<div className="reply-close-icon" onClick={handleReplyCloseClick}>
+							<CloseSvg width={16} height={16} />
 						</div>
 					</div>
 				)}

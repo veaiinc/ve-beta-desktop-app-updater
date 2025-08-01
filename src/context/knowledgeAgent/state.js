@@ -47,11 +47,13 @@ export const KnowledgeAgentState = () => {
 					data,
 					currentPage: response?.[1]?.currentPage ?? 1,
 					hasNextPage: response?.[1]?.hasNextPage ?? false,
+					totalDocs: response?.[1]?.totalDocs ?? 0,
 				};
 				dispatch({
 					type: Actions?.SET_KNOWLEDGE_ASSISTANTS_LIST,
 					payload,
 				});
+				return [true, payload];
 			} else {
 				dispatch({
 					type: Actions?.SET_KNOWLEDGE_ASSISTANTS_LIST,
@@ -59,8 +61,10 @@ export const KnowledgeAgentState = () => {
 						data: [],
 						hasNextPage: false,
 						currentPage: 1,
+						totalDocs: 0,
 					},
 				});
+				return [false, response?.[1]];
 			}
 		} catch (error) {
 			console.log('error==>getKnowledgeAssistantsList', error);
@@ -546,12 +550,7 @@ export const KnowledgeAgentState = () => {
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
 			const response = await service?.fetchPost(path, payload, token, type);
-			const success = response?.[0] === true;
-			if (success) {
-				return response?.[1];
-			} else {
-				throw new Error(response?.[1]?.message || 'Failed to create action');
-			}
+			return response;
 		} catch (error) {
 			console.log('error==>addActionToKnowledgeAgent', error);
 			throw error;
@@ -790,11 +789,11 @@ export const KnowledgeAgentState = () => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
-			const url = '/pipedream/connect-token/' + workspaceId + '/' + payload?.app;
+			const url = '/composio/auth-config-and-account/' + workspaceId;
 
 			const response = await service?.fetchPost(
 				url,
-				{},
+				{ toolkit_slug: payload?.slug },
 				usertoken,
 				'third_party_integrations_api',
 			);
@@ -1042,10 +1041,10 @@ export const KnowledgeAgentState = () => {
 	const listofAllappsActions = async (page = 1, limit = 10, search = '') => {
 		const workspaceId = localStorage.getItem('workspaceId');
 		const usertoken = localStorage.getItem('usertoken');
-		const url = `/${workspaceId}/agent-tools?page=${page}&limit=${limit}${
-			search ? `&search=${encodeURIComponent(search)}` : ''
+		const url = `/composio/tools/${workspaceId}${
+			search ? `?search=${encodeURIComponent(search)}` : ''
 		}`;
-		const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+		const response = await service?.fetchGet(url, usertoken, 'third_party_integrations_api');
 		if (response?.[0] === true) {
 			return [true, response?.[1]];
 		}
@@ -1127,12 +1126,56 @@ export const KnowledgeAgentState = () => {
 		}
 	};
 
-	const getPipeDreamAction = async (action) => {
+	const getComposioAction = async (action) => {
 		const workspaceId = localStorage.getItem('workspaceId');
 		const usertoken = localStorage.getItem('usertoken');
-		const url = `/${workspaceId}/${action}/agent-tools`;
+		const url = `/composio/toolkits/${workspaceId}/${action}`;
 		const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
 		return response;
+	};
+
+	const addSharedAgentUser = async (agentId, payload) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const url = `/${workspaceId}/knowledge-agents/${agentId}/add-shared-user`;
+		const response = await service?.fetchPut(url, payload, usertoken, 'ai_assistant_api');
+		return response;
+	};
+
+	const removeSharedAgentUser = async (agentId, userId) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const url = `/${workspaceId}/knowledge-agents/${agentId}/remove-shared-user/${userId}`;
+		const response = await service?.fetchDelete(url, usertoken, null, 'ai_assistant_api');
+		return response;
+	};
+
+	const updateSharedAgentUser = async (agentId, payload) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const url = `/${workspaceId}/knowledge-agents/${agentId}/update-global-agent-access`;
+		const response = await service?.fetchPut(url, payload, usertoken, 'ai_assistant_api');
+		return response;
+	};
+
+	const getSharedAgentUsers = async (agentId) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const url = `/${workspaceId}/knowledge-agents/${agentId}/list-shared-users`;
+		const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+		return response;
+	};
+
+	// Composio API functions
+	const getComposioConnectedAccounts = async () => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const url = `/composio/auth-configs/${workspaceId}`;
+		const response = await service?.fetchGet(url, usertoken, 'third_party_integrations_api');
+		if (response?.[0] === true) {
+			return [true, response?.[1]];
+		}
+		return [false, response?.[1]];
 	};
 
 	return {
@@ -1177,6 +1220,11 @@ export const KnowledgeAgentState = () => {
 		listofAllappsActions,
 		getKnowledgeAssistantsListForAutomation,
 		getActiveKnowledgeAgentForAutomation,
-		getPipeDreamAction,
+		getComposioAction,
+		addSharedAgentUser,
+		removeSharedAgentUser,
+		updateSharedAgentUser,
+		getSharedAgentUsers,
+		getComposioConnectedAccounts,
 	};
 };

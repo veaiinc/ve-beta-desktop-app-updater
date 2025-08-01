@@ -5,7 +5,7 @@ import { ReactComponent as DeleteSvg } from '../../../assets/svg/delete.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 import { ReactComponent as StarSvg } from '../../../assets/svg/home_page/star.svg';
-
+import { ReactComponent as CardsThreeSvg } from '../../../assets/svg/chat/cardsThree.svg';
 import { Tooltip } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
@@ -14,10 +14,10 @@ import { message } from '../globalComponents/CustomToast';
 
 const ChatHeader = ({
 	sessionId,
-	onNavigateBack,
 	isNewChat = false,
 	smoothScrollToParticularMessage = null,
-	showDeleteChat = true,
+	showDeleteChat = false,
+	showChats = false,
 }) => {
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -41,32 +41,26 @@ const ChatHeader = ({
 	const deleteChatSessionLoadingRef = useRef(false);
 
 	useEffect(() => {
-		const messages = globalChatMessages?.[sessionId]?.messages;
+		const messages = globalChatMessages?.[sessionId]?.messages || [];
+		const userMessages = [];
+		let index = 0,
+			lastIndex;
 
-		if (messages?.length > 0) {
-			const userMessages = [];
-			let index = 0,
-				lastIndex;
-
-			for (const message of messages) {
-				if (message?.type?.toLowerCase() === 'user') {
-					userMessages.push({
-						message: message?.message,
-						index: index++,
-					});
-				}
-			}
-
-			lastIndex = userMessages?.length - 1;
-
-			if (userMessages?.length > 0) {
-				setInfo((prev) => ({
-					...prev,
-					activeUserMessageIndex: lastIndex,
-					userMessages,
-				}));
+		for (const message of messages) {
+			if (message?.type?.toLowerCase() === 'user') {
+				userMessages.push({
+					message: message?.message,
+					index: index++,
+				});
 			}
 		}
+		lastIndex = userMessages?.length - 1;
+
+		setInfo((prev) => ({
+			...prev,
+			activeUserMessageIndex: lastIndex,
+			userMessages,
+		}));
 	}, [globalChatMessages?.[sessionId]?.messages?.length]);
 
 	useEffect(() => {
@@ -81,15 +75,6 @@ const ChatHeader = ({
 			setInfo((prev) => ({ ...prev, isFavourite }));
 		}
 	}, [currentChatData, info?.userId]);
-
-	const handleNavigateBack = useCallback(() => {
-		const pathname = location?.pathname?.split('/')?.[1];
-		if (pathname === 'calendar' || pathname === 'contacts' || pathname === 'tasks') {
-			onNavigateBack?.();
-		} else {
-			navigate(-1);
-		}
-	}, [location?.pathname]);
 
 	const handleDeleteChatClick = useCallback(async () => {
 		if (deleteChatSessionLoadingRef.current || globalChatMessages?.[sessionId]?.isStreaming) {
@@ -181,6 +166,10 @@ const ChatHeader = ({
 					favorites,
 				};
 			}
+			setInfo((prev) => ({
+				...prev,
+				isFavourite,
+			}));
 			updateStateValues({
 				aiChatSessions: {
 					...(aiChatSessions || {}),
@@ -200,6 +189,10 @@ const ChatHeader = ({
 		updateStateValues,
 		globalChatMessages,
 	]);
+
+	const handleChatsClick = useCallback(() => {
+		navigate('/chats');
+	}, []);
 
 	return (
 		<div className={s.wrapper}>
@@ -262,6 +255,19 @@ const ChatHeader = ({
 					</div>
 
 					<div className={s.rightContainer}>
+						{showChats && (
+							<Tooltip
+								title={<div className={s.tooltip}>Chats</div>}
+								placement="bottom"
+								color="transparent"
+								arrow={false}
+							>
+								<button className={s.chatsBtn} onClick={handleChatsClick}>
+									<CardsThreeSvg />
+								</button>
+							</Tooltip>
+						)}
+
 						{!isNewChat && (
 							<>
 								<Tooltip
@@ -285,19 +291,21 @@ const ChatHeader = ({
 										<StarSvg />
 									</button>
 								</Tooltip>
-								<Tooltip
-									title={<div className={s.tooltip}>Delete Chat</div>}
-									placement="bottom"
-									color="transparent"
-									arrow={false}
-								>
-									<button
-										className={s.deleteChatBtn}
-										onClick={handleDeleteChatClick}
+								{showDeleteChat && (
+									<Tooltip
+										title={<div className={s.tooltip}>Delete Chat</div>}
+										placement="bottom"
+										color="transparent"
+										arrow={false}
 									>
-										<DeleteSvg />
-									</button>
-								</Tooltip>
+										<button
+											className={s.deleteChatBtn}
+											onClick={handleDeleteChatClick}
+										>
+											<DeleteSvg />
+										</button>
+									</Tooltip>
+								)}
 							</>
 						)}
 					</div>

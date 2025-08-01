@@ -1,6 +1,7 @@
 import '../../../assets/scss/files/index.scss';
 import '../../../assets/scss/files/files.scss';
 import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
+import { ReactComponent as Add } from '../../../assets/svg/files/add2.svg';
 import Spinner from '../../components/loaders/Spinner';
 import { ReactComponent as Folder } from '../../../assets/svg/files/Folder.svg';
 import { memo, useContext, useEffect, useState, useRef } from 'react';
@@ -12,6 +13,10 @@ import gsap from 'gsap';
 import EmptyState from './EmptyState';
 import { Tooltip } from 'antd';
 import { ReactComponent as Search } from '../../../assets/svg/search.svg';
+import ListViewIcon from '../../../assets/svg/notesPage/ListViewIcon';
+import CardsViewIcon from '../../../assets/svg/notesPage/CardsViewIcon';
+import moment from 'moment';
+import { ReactComponent as Gallery } from '../../../assets/svg/files/gallery.svg';
 
 const filterOptions = [
 	{ label: 'All', value: 'all' },
@@ -50,6 +55,8 @@ const GalleryGrid = ({
 	handleNavigateGallery,
 	selectedOption,
 	handleTotalChange,
+	viewMode,
+	setViewMode,
 }) => {
 	const navigate = useNavigate();
 	const mountedRef = useRef(true);
@@ -67,6 +74,8 @@ const GalleryGrid = ({
 		searchQuery: '',
 		searchLoading: false,
 	});
+
+	// Remove local viewMode state since it's now passed as prop
 
 	const debounceTimeout = useRef();
 
@@ -126,6 +135,9 @@ const GalleryGrid = ({
 	}, [tenantGalleries]);
 
 	useEffect(() => {
+		// Skip animations when in list view
+		if (viewMode === 'list') return;
+
 		const delay =
 			info.selectedView === 'Gallery' || info.selectedView === 'Lite Gallery' ? 100 : 0;
 
@@ -208,7 +220,7 @@ const GalleryGrid = ({
 		}, delay);
 
 		return () => clearTimeout(timeout);
-	}, [info?.galleries?.length]);
+	}, [info?.galleries?.length, viewMode]);
 
 	// Debounce search effect
 	useEffect(() => {
@@ -285,44 +297,53 @@ const GalleryGrid = ({
 
 	return (
 		<div className="card-sub-container-center">
-			<div className="center-container-header">
-				{/* <FilterDropdown
-					options={filterOptions}
-					selected={info?.selectedFilter}
-					onOptionClick={(value) => handleStateUpdate({ selectedFilter: value })}
-					width="120px"
-				/> */}
-				<FilterDropdown
-					options={sortOptions}
-					selected={info?.selectedSort}
-					onOptionClick={handleSortClick}
-					showSelectedEndArrow
-					hideOnOptionClick={false}
-					width="180px"
-				/>
-
-				<div className="filter-container-search">
-					<Search width={16} height={16} />
-					<input
-						type="text"
-						placeholder="Search"
-						value={info.searchQuery}
-						onChange={(e) => {
-							setInfo({ ...info, searchQuery: e.target.value });
-						}}
-						className="search-input"
+			<div className="header-container">
+				<div className="center-container-header">
+					<FilterDropdown
+						options={sortOptions}
+						selected={info?.selectedSort}
+						onOptionClick={handleSortClick}
+						showSelectedEndArrow
+						hideOnOptionClick={false}
+						width="180px"
 					/>
-					{info.searchQuery.length > 0 && info.loading && (
-						<div className="search-spinner">
-							<Spinner
-								size="small"
-								width={16}
-								height={16}
-								borderWidth={1.5}
-								color="var(--primary-button)"
-							/>
-						</div>
-					)}
+					<div className="filter-container-search">
+						<Search width={16} height={16} />
+						<input
+							type="text"
+							placeholder="Search"
+							value={info.searchQuery}
+							onChange={(e) => {
+								setInfo({ ...info, searchQuery: e.target.value });
+							}}
+							className="search-input"
+						/>
+						{info.searchQuery.length > 0 && info.loading && (
+							<div className="search-spinner">
+								<Spinner
+									size="small"
+									width={16}
+									height={16}
+									borderWidth={1.5}
+									color="var(--primary-button)"
+								/>
+							</div>
+						)}
+					</div>
+				</div>
+				<div className="view-mode">
+					<div
+						className={`view-mode-icon${viewMode === 'list' ? ' selected' : ''}`}
+						onClick={() => setViewMode('list')}
+					>
+						<ListViewIcon />
+					</div>
+					<div
+						className={`view-mode-icon${viewMode === 'card' ? ' selected' : ''}`}
+						onClick={() => setViewMode('card')}
+					>
+						<CardsViewIcon />
+					</div>
 				</div>
 			</div>
 			<div className="center-container-content">
@@ -337,15 +358,37 @@ const GalleryGrid = ({
 						hasMore={info?.hasNextPage}
 						height={'100%'}
 					>
-						<div className={`card-container`}>
-							<div className="card-item create" onClick={handleCreateNewGallery}>
-								<div className="card-item-style card-item-style-btn">
-									<button className="card-btn">
-										<Plus />
-										Create Gallery
-									</button>
+						<div className={`card-container${viewMode === 'list' ? ' list-view' : ''}`}>
+							{viewMode === 'list' && (
+								<div className="card-item create">
+									<div
+										className="card-item__style card-item__style--btn gallery-list__create-row"
+										onClick={handleCreateNewGallery}
+									>
+										<Gallery className="create-gallery-icon" />
+										<div className="gallery-add-text">
+											<span className="create-gallery-text">
+												Create Gallery
+											</span>
+											<span className="create-gallery-subtext">
+												Create a new gallery and organize your images and
+												videos.
+											</span>
+										</div>
+										<Add className="create-gallery-plus" />
+									</div>
 								</div>
-							</div>
+							)}
+							{viewMode === 'card' && (
+								<div className="card-item create" onClick={handleCreateNewGallery}>
+									<div className="card-item-style card-item-style-btn">
+										<button className="card-btn">
+											<Plus />
+											Create Gallery
+										</button>
+									</div>
+								</div>
+							)}
 							{info?.galleries?.map((item, index) => (
 								<div
 									className="card-item"
@@ -354,46 +397,139 @@ const GalleryGrid = ({
 								>
 									<div
 										className="card-item-style content-wrapper"
+										data-title={item?.title || ''}
 										style={{
-											backgroundImage: item?.coverImage?.thumbnailUrl
-												? `url(${item.coverImage.thumbnailUrl})`
-												: 'none',
+											backgroundImage:
+												viewMode === 'card' &&
+												item?.coverImage?.thumbnailUrl
+													? `url(${item.coverImage.thumbnailUrl})`
+													: 'none',
 											display: 'flex',
 											justifyContent: 'center',
 											alignItems: 'center',
-											minHeight: '120px',
-											marginBottom: '8px',
+											minHeight: viewMode === 'card' ? '120px' : 'auto',
+											marginBottom: viewMode === 'card' ? '8px' : '0',
 											backgroundSize: 'cover',
-											backgroundPosition: `${
-												item?.coverImage?.xPosition * 50 + 50
-											}% ${50 - item?.coverImage?.yPosition * 50}%`,
+											backgroundPosition:
+												viewMode === 'card'
+													? `${item?.coverImage?.xPosition * 50 + 50}% ${
+															50 - item?.coverImage?.yPosition * 50
+													  }%`
+													: 'center',
+											position: 'relative',
+											border: 'none',
 										}}
 									>
-										{!item?.coverImage?.thumbnailUrl && (
+										{viewMode === 'card' && !item?.coverImage?.thumbnailUrl && (
 											<div className="folder-icon-wrapper">
 												<Folder />
 											</div>
 										)}
-										{/* <span
-								className={`live-badge ${
-									item?.status === 'active' ? 'badge-active' : 'badge-draft'
-								}`}
-							>
-								<span className="live-badge-dot"></span>
-								<span className="live-badge-text">
-									{item?.status === 'published' ? 'Live' : 'Draft'}
-								</span>
-							</span> */}
+										{viewMode === 'card' && (
+											<div className="gallery-card-overlay">
+												<span className="gallery-overlay-title">
+													{item?.title}
+												</span>
+												<div className="gallery-overlay-extra">
+													<div className="gallery-overlay-info">
+														<div className="info-item">
+															<span className="info-count">
+																{item?.albumsCount || 0}
+															</span>
+															<span className="info-label">
+																Albums
+															</span>
+														</div>
+														<div className="info-item">
+															<span className="info-count">
+																{item?.storageDetails.imagesCount ||
+																	0}
+															</span>
+															<span className="info-label">
+																Images
+															</span>
+														</div>
+														<div className="info-item">
+															<span className="info-count">
+																{item?.embeddedVideosCount || 0}
+															</span>
+															<span className="info-label">
+																Videos
+															</span>
+														</div>
+													</div>
+													<div className="gallery-overlay-created">
+														<span className="created-date">
+															{item?.createdAt
+																? moment
+																		.unix(item.createdAt)
+																		.fromNow()
+																: 'N/A'}
+														</span>
+													</div>
+												</div>
+											</div>
+										)}
+										{viewMode === 'list' && (
+											<div className="gallery-list-content">
+												<div className="gallery-list-image">
+													{item?.coverImage?.thumbnailUrl ? (
+														<img
+															src={item.coverImage.thumbnailUrl}
+															alt={item?.title}
+															style={{
+																width: '100%',
+																height: '100%',
+																objectFit: 'cover',
+																borderRadius: '4px',
+															}}
+														/>
+													) : (
+														<Folder />
+													)}
+												</div>
+												<div className="gallery-list-info">
+													<div className="gallery-list-title">
+														{item?.title}
+													</div>
+													<div className="gallery-list-created">
+														{item?.createdAt
+															? moment.unix(item.createdAt).fromNow()
+															: 'N/A'}
+													</div>
+												</div>
+												<div className="gallery-overlay-info">
+													<div className="info-item">
+														<span className="info-count">
+															{item?.albumsCount || 0}
+														</span>
+														<span className="info-label">Albums</span>
+													</div>
+													<div className="info-item">
+														<span className="info-count">
+															{item?.storageDetails.imagesCount || 0}
+														</span>
+														<span className="info-label">Images</span>
+													</div>
+													<div className="info-item">
+														<span className="info-count">
+															{item?.embeddedVideosCount || 0}
+														</span>
+														<span className="info-label">Videos</span>
+													</div>
+												</div>
+											</div>
+										)}
 									</div>
 									<Tooltip
 										title={item?.title || ''}
 										placement="bottom"
 										arrow={false}
-										overlayInnerStyle={toolTipStyles}
+										styles={toolTipStyles}
 									>
-										<span className="gallery-item-title galleryTitleTooltip">
+										{/* <span className="gallery-item-title galleryTitleTooltip">
 											{item?.title}
-										</span>
+										</span> */}
 									</Tooltip>
 								</div>
 							))}
@@ -407,7 +543,7 @@ const GalleryGrid = ({
 								'Start by adding images, or videos to keep everything in one place.'
 							}
 							buttonOnClick={handleCreateNewGallery}
-							buttonText={'Upload Gallery'}
+							buttonText={'Create Gallery'}
 							showUpload={true}
 						/>
 					</div>

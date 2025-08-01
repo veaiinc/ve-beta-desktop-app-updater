@@ -2,7 +2,7 @@ import Spinner from '../loaders/Spinner';
 
 const SuspenseFallback = () => {
 	return (
-		<div style={{ width: '100%', height: '100%', background: 'inherit' }}>
+		<div style={{ width: '100vw', height: '100vh', background: 'inherit' }}>
 			<Spinner
 				width="18px"
 				height="18px"

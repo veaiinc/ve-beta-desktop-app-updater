@@ -36,26 +36,25 @@
 	align-items: center;
 	gap: 10px;
 	flex-direction: column;
-	align-self: flex-end;
+	align-self: flex-start;
 	color: var(--primary-font);
 	font-family: var(--primary-font-family);
 	font-size: 16px;
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
-	padding-right: 16px;
+	padding-left: 16px;
 }
 .calendarParentContainer {
 	display: flex;
 	align-items: flex-start;
 	gap: 10px;
-	height: calc(100vh - 210px);
+	height: 100%;
 	margin: auto;
 	width: 100%;
 }
 
 .calendarSidebarContainer {
-	margin-bottom: 25px;
 	display: flex;
 	width: 100%;
 	height: auto;
@@ -74,8 +73,8 @@
 		width: 100%;
 		display: flex;
 		flex-direction: column;
-		gap: 16px;
-		height: calc(100vh - 108px);
+		gap: 12px;
+		height: 100%;
 		position: relative;
 
 		.calendarWrapper {
@@ -119,10 +118,12 @@
 .calendarViewParentContainer {
 	display: flex;
 	flex-direction: column;
-	height: calc(100vh - 64px);
+	height: 100%;
 	width: 100%;
 	flex-grow: 1;
 	overflow: hidden;
+	position: relative;
+	bottom: 16px;
 
 	&::-webkit-scrollbar {
 		display: none;

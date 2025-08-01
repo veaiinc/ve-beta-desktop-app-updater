@@ -1,12 +1,14 @@
 import { memo, useCallback, useContext, useEffect, useState } from 'react';
-import './agentDetails.module.scss';
+import s from './agentDetails.module.scss';
 import { useNavigate, useParams } from 'react-router-dom';
 import InfiniteScroll from '../../globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import dayjs from 'dayjs';
 import Spinner from '../../loaders/Spinner';
 import Context from '../../../../context/context';
-const PAGE_LIMIT = 10;
+import { ReactComponent as BriefcaseIcon } from '../../../../assets/svg/agents/briefcase.svg';
+
+const pageLimit = 10;
 
 const AgentActivities = () => {
 	const navigate = useNavigate();
@@ -25,7 +27,7 @@ const AgentActivities = () => {
 	const fetchActivities = async (page = 1) => {
 		setActivitiesInfo((prev) => ({ ...prev, loadingActivities: true }));
 		try {
-			const response = await getActivitiesForKnowledgeAgent(agentId, page, PAGE_LIMIT);
+			const response = await getActivitiesForKnowledgeAgent(agentId, page, pageLimit);
 			if (response?.[0]) {
 				const { data, hasNextPage: next, currentPage: cur } = response[1];
 				setActivitiesInfo((prev) => ({
@@ -68,22 +70,64 @@ const AgentActivities = () => {
 		);
 	}, []);
 
-	// Sort activities by createdAt desc
-	const sortedActivities = [...activitiesInfo.activities].sort(
-		(a, b) => b.createdAt - a.createdAt,
-	);
-	const [current, ...older] = sortedActivities;
+	// Group activities by date
+	const groupActivitiesByDate = () => {
+		const today = dayjs().startOf('day');
+		const thisWeek = dayjs().startOf('week');
+
+		const todayActivities = [];
+		const thisWeekActivities = [];
+		const olderActivities = [];
+
+		activitiesInfo.activities.forEach((activity) => {
+			const activityDate = dayjs.unix(activity.createdAt);
+
+			if (activityDate.isSame(today, 'day')) {
+				todayActivities.push(activity);
+			} else if (activityDate.isAfter(thisWeek)) {
+				thisWeekActivities.push(activity);
+			} else {
+				olderActivities.push(activity);
+			}
+		});
+
+		return { todayActivities, thisWeekActivities, olderActivities };
+	};
+
+	const { todayActivities, thisWeekActivities, olderActivities } = groupActivitiesByDate();
+
+	const formatTimeAgo = (timestamp) => {
+		const now = dayjs();
+		const activityTime = dayjs.unix(timestamp);
+		const diffHours = now.diff(activityTime, 'hour');
+		const diffMinutes = now.diff(activityTime, 'minute');
+
+		if (diffMinutes < 60) {
+			return `${diffMinutes}m ago`;
+		} else if (diffHours < 24) {
+			return `${diffHours}h ago`;
+		} else {
+			return dayjs.unix(timestamp).format('MMM D');
+		}
+	};
 
 	return (
-		<div className="agent-activity-section">
-			<h2 className="activity-title">Activities</h2>
-			<div className="activity-group-wrapper">
+		<div className={s.agentActivitiesContainer}>
+			<div className={s.activitiesHeader}>
+				<div className={s.headerLeft}>
+					<BriefcaseIcon className={s.briefcaseIcon} />
+					<span className={s.headerTitle}>All Tasks</span>
+				</div>
+				<div className={s.taskCount}>{activitiesInfo.activities.length}</div>
+			</div>
+
+			<div className={s.activitiesContent}>
 				{activitiesInfo.activities.length === 0 && activitiesInfo.loadingActivities ? (
-					<div className="activities-spinner-wrapper">
+					<div className={s.loadingContainer}>
 						<Spinner />
 					</div>
 				) : activitiesInfo.activities.length === 0 && !activitiesInfo.loadingActivities ? (
-					<div className="activities-empty-message">No activities yet.</div>
+					<div className={s.emptyMessage}>No tasks yet.</div>
 				) : (
 					<InfiniteScroll
 						dataLength={activitiesInfo.activities.length}
@@ -92,47 +136,94 @@ const AgentActivities = () => {
 						loader={<FetchMoreLoaderComp />}
 						style={{ width: '100%' }}
 					>
-						<div className="activity-group current-group">
-							<div className="activity-group-header">
-								<span className="dot-current" />
-								<span className="group-label">Current</span>
-							</div>
-							{current && (
-								<div
-									className="activity-card current"
-									key={current?._id}
-									onClick={() => handleChatSessionClick(current)}
-								>
-									<div className="activity-card-content">
-										<div className="activity-title-main">
-											{current.originalQuery}
+						{todayActivities.length > 0 && (
+							<div className={s.taskSection}>
+								<div className={s.sectionTitle}>Today</div>
+								<div className={s.taskList}>
+									{todayActivities.map((activity, index) => (
+										<div
+											key={activity._id}
+											className={`${s.taskItem} ${
+												index === 0 ? s.activeTask : ''
+											}`}
+											onClick={() => handleChatSessionClick(activity)}
+										>
+											<div className={s.taskContent}>
+												<div className={s.taskTitle}>
+													{activity.originalQuery?.length > 50
+														? `${activity.originalQuery.substring(
+																0,
+																50,
+														  )}...`
+														: activity.originalQuery}
+												</div>
+											</div>
+											<div className={s.taskTime}>
+												{formatTimeAgo(activity.createdAt)}
+											</div>
 										</div>
-										<div className="activity-desc">{current.response}</div>
-									</div>
-									<div className="activity-time">
-										{dayjs.unix(current.createdAt).format('hh:mm A')}
-									</div>
+									))}
 								</div>
-							)}
-						</div>
-						<div className="activity-group older-group">
-							<div className="activity-group-header">
-								<span className="group-label older">Older</span>
 							</div>
-							{older.map((activity) => (
-								<div className="activity-card older" key={activity._id}>
-									<div className="activity-card-content">
-										<div className="activity-title-main">
-											{activity.originalQuery}
+						)}
+
+						{thisWeekActivities.length > 0 && (
+							<div className={s.taskSection}>
+								<div className={s.sectionTitle}>This week</div>
+								<div className={s.taskList}>
+									{thisWeekActivities.map((activity) => (
+										<div
+											key={activity._id}
+											className={s.taskItem}
+											onClick={() => handleChatSessionClick(activity)}
+										>
+											<div className={s.taskContent}>
+												<div className={s.taskTitle}>
+													{activity.originalQuery?.length > 50
+														? `${activity.originalQuery.substring(
+																0,
+																50,
+														  )}...`
+														: activity.originalQuery}
+												</div>
+											</div>
+											<div className={s.taskTime}>
+												{formatTimeAgo(activity.createdAt)}
+											</div>
 										</div>
-										<div className="activity-desc">{activity.response}</div>
-									</div>
-									<div className="activity-time">
-										{dayjs.unix(activity.createdAt).format('hh:mm A')}
-									</div>
+									))}
 								</div>
-							))}
-						</div>
+							</div>
+						)}
+
+						{olderActivities.length > 0 && (
+							<div className={s.taskSection}>
+								<div className={s.sectionTitle}>Older</div>
+								<div className={s.taskList}>
+									{olderActivities.map((activity) => (
+										<div
+											key={activity._id}
+											className={s.taskItem}
+											onClick={() => handleChatSessionClick(activity)}
+										>
+											<div className={s.taskContent}>
+												<div className={s.taskTitle}>
+													{activity.originalQuery?.length > 50
+														? `${activity.originalQuery.substring(
+																0,
+																50,
+														  )}...`
+														: activity.originalQuery}
+												</div>
+											</div>
+											<div className={s.taskTime}>
+												{formatTimeAgo(activity.createdAt)}
+											</div>
+										</div>
+									))}
+								</div>
+							</div>
+						)}
 					</InfiniteScroll>
 				)}
 			</div>

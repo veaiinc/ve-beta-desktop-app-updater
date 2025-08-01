@@ -199,11 +199,10 @@ export const AiSetupState = () => {
 			const response = await service?.fetchGet(url, token, type, params);
 			if (response?.[0]) {
 				const aiChatSessions = {
-					data: reset
-						? [...response?.[1]?.data]
-						: [...state?.aiChatSessions?.data, ...response?.[1]?.data],
+					data: response?.[1]?.data,
 					hasMore: response?.[1]?.hasNextPage,
 					currentPage: response?.[1]?.currentPage,
+					reset,
 				};
 				dispatch({
 					type: Actions?.SET_AI_CHAT_SESSIONS,

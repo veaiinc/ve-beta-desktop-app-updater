@@ -1,4 +1,4 @@
-import { useContext, useEffect, useCallback } from 'react';
+import { useContext } from 'react';
 import Intercom, { shutdown, show } from '@intercom/messenger-js-sdk';
 import Context from '../context/context';
 
@@ -10,7 +10,7 @@ const useIntercom = () => {
 		profileInfo: { userDetailsData, getIntercomToken },
 	} = useContext(Context);
 
-	const launchIntercom = useCallback(async () => {
+	const launchIntercom = async () => {
 		try {
 			if (!userDetailsData) return;
 			const { _id: user_id } = userDetailsData;
@@ -27,14 +27,9 @@ const useIntercom = () => {
 		} catch (error) {
 			console.error('Intercom boot failed:', error);
 		}
-	}, [userDetailsData]);
+	};
 
-	useEffect(() => {
-		launchIntercom();
-		return () => shutdown();
-	}, [userDetailsData]);
-
-	return { showIntercom: show, shutdownIntercom: shutdown };
+	return { showIntercom: show, shutdownIntercom: shutdown, launchIntercom };
 };
 
 export default useIntercom;

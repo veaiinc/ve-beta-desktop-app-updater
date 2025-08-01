@@ -13,32 +13,32 @@ const SortIcon = ({ active = false }) => {
 				<path
 					d="M3 8H7.5"
 					stroke={active ? 'var(--primary-font)' : 'var(--secondary-font)'}
-					stroke-linecap="round"
-					stroke-linejoin="round"
+					strokeLinecap="round"
+					strokeLinejoin="round"
 				/>
 				<path
 					d="M3 4H6.5"
 					stroke={active ? 'var(--primary-font)' : 'var(--secondary-font)'}
-					stroke-linecap="round"
-					stroke-linejoin="round"
+					strokeLinecap="round"
+					strokeLinejoin="round"
 				/>
 				<path
 					d="M3 12H11.5"
 					stroke={active ? 'var(--primary-font)' : 'var(--secondary-font)'}
-					stroke-linecap="round"
-					stroke-linejoin="round"
+					strokeLinecap="round"
+					strokeLinejoin="round"
 				/>
 				<path
 					d="M9 5.5L11.5 3L14 5.5"
 					stroke={active ? 'var(--primary-font)' : 'var(--secondary-font)'}
-					stroke-linecap="round"
-					stroke-linejoin="round"
+					strokeLinecap="round"
+					strokeLinejoin="round"
 				/>
 				<path
 					d="M11.5 3V9"
 					stroke={active ? 'var(--primary-font)' : 'var(--secondary-font)'}
-					stroke-linecap="round"
-					stroke-linejoin="round"
+					strokeLinecap="round"
+					strokeLinejoin="round"
 				/>
 			</g>
 			<defs>

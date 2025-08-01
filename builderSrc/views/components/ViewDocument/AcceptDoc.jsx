@@ -10,6 +10,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import { message } from '../../../../src/views/components/globalComponents/CustomToast';
 import moment from 'moment';
+import TaskCard from './taskCard/TaskCard';
+// import { EventTask } from './taskCard/EventTask';
+import EventCreation from './taskCard/EventCreation';
 
 // Extend dayjs with timezone plugins
 dayjs.extend(utc);
@@ -160,10 +163,20 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 	);
 
 	// Initialize taskState and eventState in info
+
 	useEffect(() => {
 		setInfo((prev) => ({
 			...prev,
-			taskState: allServiceItems.map((t) => ({ ...t, checked: true })),
+			// taskState: allServiceItems.map((t) => ({ ...t, checked: true })),
+			//jeevan changess
+			taskState: allServiceItems.map((t) => ({
+				...t,
+				checked: true,
+				assignedTo: t.assignedTo || { tenantUsers: [] },
+				priority: t.priority || 'low',
+				status: t.status || statusId || '', // default status
+				title: t.title || '',
+			})),
 			activeTaskKey: null,
 		}));
 	}, [JSON.stringify(allServiceItems)]);
@@ -215,6 +228,14 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 			...prev,
 			eventState: prev.eventState.map((e) =>
 				e.key === key ? { ...e, checked: !e.checked } : e,
+			),
+		}));
+	};
+	const handleEventUpdate = (event, updateEvent) => {
+		setInfo((prev) => ({
+			...prev,
+			eventState: prev.eventState.map((e) =>
+				e.key === event.key ? { ...e, ...updateEvent } : e,
 			),
 		}));
 	};
@@ -278,6 +299,15 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 		setEditingEvent({ key: null, field: null });
 		setEventEditFields({});
 	};
+	//jeevan changess
+	const handleTaskUpdate = (task, updateTask) => {
+		setInfo((prev) => ({
+			...prev,
+			taskState: prev.taskState.map((t) =>
+				t.key === task.key ? { ...t, ...updateTask } : t,
+			),
+		}));
+	};
 
 	const handleAccept = async () => {
 		// Check for tenant user signature before proceeding
@@ -340,15 +370,21 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 			const payload = {
 				title: task.title,
 				description: finalDescription,
-				priority: 'low',
-				status: statusId,
+				// priority: 'low',
+				// status: statusId,
 				clients: [workflowInfoDetails?.clientDetails?._id],
+				//jeevan changes
+				priority: task.priority,
+				status: task.status,
+				// clients: [workflowInfoDetails?.clientDetails?._id],
+				assignedTo: task.assignedTo,
+				dueDate: task.dueDate,
 			};
 
 			try {
 				await addListItem({ input: payload });
 			} catch (e) {
-				console.error('Error creating task:', e);
+				message.error('Error creating task:', e);
 				allSuccess = false;
 			}
 		}
@@ -357,9 +393,24 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 		const calendarCategory = (info.calendarCategories || []).find((cat) => cat.type === 'all');
 
 		for (const event of checkedEvents) {
+			// Format date if it's in YYYYMMDD format
+			const formatDateString = (dateStr) => {
+				if (
+					typeof dateStr === 'number' ||
+					(typeof dateStr === 'string' && /^\d{8}$/.test(dateStr))
+				) {
+					const str = dateStr.toString();
+					return `${str.slice(0, 4)}-${str.slice(4, 6)}-${str.slice(6, 8)}`;
+				}
+				return dateStr;
+			};
+
+			// Convert date format if needed
+			const formattedDate = formatDateString(event.date);
+
 			// Use startDate and endDate from event (already in YYYY-MM-DD format)
-			const startDate = event.startDate || event.date || getToday();
-			const endDate = event.endDate || event.date || getToday();
+			const startDate = event.startDate || formattedDate || getToday();
+			const endDate = event.endDate || formattedDate || getToday();
 
 			// Create dates in Asia/Calcutta timezone to avoid UTC conversion issues
 			const startDateTime = dayjs.tz(startDate, 'Asia/Calcutta').startOf('day').format();
@@ -369,13 +420,20 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 				title: event.title,
 				description: event.description,
 				location: event.location || null,
-				startDateTime,
-				endDateTime,
+				startDateTime:
+					event.startDateTime !== false && event.startDateTime
+						? event.startDateTime
+						: formattedDate || startDateTime,
+				endDateTime:
+					event.startDateTime !== false && event.startDateTime
+						? event.startDateTime
+						: formattedDate || endDateTime,
 				timezone: 'Asia/Calcutta',
 				allDay: true,
 				calendarCategory: calendarCategory || null,
 				meeting: null,
 				phone: null,
+				attendees: event.attendees,
 				// Do not add numberOfGuests or any custom keys
 			};
 			try {
@@ -481,9 +539,13 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 														onClick={() =>
 															handleTaskFieldEdit(task, 'title')
 														}
-														style={{ cursor: 'pointer' }}
+														style={{
+															cursor: 'pointer',
+															textTransform: 'capitalize',
+														}}
 													>
-														{task.title}
+														{`${workflowInfoDetails?.clientDetails?.name}'s `}
+														{task.title || 'title'}
 													</span>
 												)}
 												<input
@@ -500,7 +562,13 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 									>
 										<div className="acceptDocumentModalCardDetails">
 											<div style={{ width: '100%' }}>
-												{editingTask.key === task.key &&
+												<TaskCard
+													updateTask={(task, updateTask) =>
+														handleTaskUpdate(task, updateTask)
+													}
+													task={task}
+												/>
+												{/* {editingTask.key === task.key &&
 												editingTask.field === 'description' ? (
 													<input
 														value={taskEditFields.value}
@@ -512,7 +580,10 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 															})
 														}
 														onBlur={() =>
-															handleTaskFieldSave(task, 'description')
+															handleTaskFieldSave(
+																	task,
+																	'description',
+																);
 														}
 														onKeyDown={(e) => {
 															if (e.key === 'Enter')
@@ -532,7 +603,7 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 													>
 														{task.description}
 													</div>
-												)}
+												)} */}
 											</div>
 										</div>
 									</Collapse.Panel>
@@ -602,8 +673,12 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 														onClick={() =>
 															handleEventFieldEdit(event, 'title')
 														}
-														style={{ cursor: 'pointer' }}
+														style={{
+															cursor: 'pointer',
+															textTransform: 'capitalize',
+														}}
 													>
+														{`${workflowInfoDetails?.clientDetails?.name}'s `}
 														{event.title}
 													</span>
 												)}
@@ -621,7 +696,19 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 									>
 										<div className="acceptDocumentModalCardDetails">
 											<div style={{ width: '100%' }}>
-												{editingEvent.key === event.key &&
+												<EventCreation
+													event={event}
+													updateEvent={(updateEvent) => {
+														handleEventUpdate(event, updateEvent);
+													}}
+												/>
+												{/* <EventTask
+													event={event}
+													updateEvent={(updateEvent) => {
+														handleEventUpdate(event, updateEvent);
+													}}
+												/> */}
+												{/* {editingEvent.key === event.key &&
 												editingEvent.field === 'description' ? (
 													<input
 														value={eventEditFields.value}
@@ -659,7 +746,7 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 													>
 														{event.description}
 													</div>
-												)}
+												)} */}
 											</div>
 										</div>
 									</Collapse.Panel>

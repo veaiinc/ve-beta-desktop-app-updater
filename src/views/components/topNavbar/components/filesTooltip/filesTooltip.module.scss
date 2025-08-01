@@ -1,0 +1,110 @@
+.filesTooltipContainer {
+	display: flex;
+	flex-wrap: wrap;
+	width: 640px;
+	padding: 8px;
+	gap: 8px;
+	border-radius: 16px;
+	border: 1px solid var(--dividers, #1e1f20);
+	background: var(--popup, #202123);
+	position: absolute;
+	top: 20px;
+
+	.fileContainer {
+		width: 49.3%;
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 8px 12px;
+		cursor: pointer;
+		position: relative;
+
+		&:hover {
+			border-radius: 8px;
+			background: var(--primary-opacity);
+			transition: background 0.3s ease;
+
+			svg {
+				stroke: var(--background-color);
+
+				g {
+					path {
+						stroke: var(--background-color);
+					}
+				}
+				path {
+					stroke: var(--primary-font);
+				}
+			}
+
+			.fileIcon {
+				border: 1px solid var(--primary-button);
+				background: var(--primary-button);
+			}
+		}
+
+		&:last-child {
+			&::after {
+				background: var(--primary-button, #79ecc9);
+				border-radius: 4px;
+				color: var(--background-color, #0f0f0f);
+				content: 'upcoming';
+				font-family: var(--primary-font-family);
+				font-size: 10px;
+				font-weight: 600;
+				letter-spacing: 0.5px;
+				padding: 2px 6px;
+				position: absolute;
+				right: 126px;
+				text-transform: uppercase;
+				top: 8px;
+			}
+		}
+
+		.fileIcon {
+			display: flex;
+			width: 45px;
+			height: 45px;
+			padding: 13px 12px 12px 13px;
+			justify-content: center;
+			align-items: center;
+			border-radius: 8px;
+			border: 1px solid var(--stroke, #2c2d2e);
+
+			svg {
+				stroke: var(--primary-font);
+
+				g {
+					path {
+						stroke: var(--primary-font);
+					}
+				}
+				path {
+					stroke: var(--primary-font);
+				}
+			}
+		}
+
+		.fileInfo {
+			.fileLabel {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				margin: 0;
+			}
+
+			.fileDescription {
+				color: var(--secondary-font, #94989e);
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				margin: 0;
+			}
+		}
+	}
+}

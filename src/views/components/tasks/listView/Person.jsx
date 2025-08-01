@@ -3,6 +3,10 @@ import '../../../../assets/scss/tasks/person.scss';
 import { Tooltip } from 'antd';
 import TeamMembersDropdown from '../../dropDown/tasks/TeamMembersDropdown';
 
+const tooltipStyles = {
+	body: { minWidth: 'fit-content' },
+};
+
 const Person = ({
 	value,
 	showLabel = false,
@@ -19,12 +23,17 @@ const Person = ({
 	});
 
 	useEffect(() => {
-		if (!value || value?.length === 0) return;
+		if (!value) return;
+
+		// Ensure value is always treated as an array
+		const valueArray = Array.isArray(value) ? value : [value];
+		if (valueArray.length === 0) return;
+
 		setInfo((prev) => ({
 			...prev,
 			selected: multiSelect
-				? value?.map((item) => ({ _id: item?._id, name: item?.name }))
-				: [{ _id: value?._id, name: value?.name }],
+				? valueArray?.map((item) => ({ _id: item?._id, name: item?.name }))
+				: [{ _id: valueArray[0]?._id, name: valueArray[0]?.name }],
 		}));
 	}, [value]);
 	const handleOptionClick = useCallback(
@@ -76,7 +85,7 @@ const Person = ({
 					: ''
 			}
 			placement="bottom"
-			overlayClassName="person-tooltip-wrapper"
+			classNames={{ root: 'person-tooltip-wrapper' }}
 			color="transparent"
 		>
 			<Tooltip
@@ -93,9 +102,9 @@ const Person = ({
 				trigger="click"
 				arrow={false}
 				color="transparent"
-				overlayStyle={{ minWidth: 'fit-content' }}
-				destroyTooltipOnHide
-				overlayClassName="person-dropdown-wrapper"
+				styles={tooltipStyles}
+				destroyOnHidden={true}
+				classNames={{ root: 'person-dropdown-wrapper' }}
 			>
 				<div
 					className="person-multi-select-selected filter-wrapper"

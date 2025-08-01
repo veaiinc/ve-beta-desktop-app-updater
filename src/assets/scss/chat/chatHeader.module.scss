@@ -151,6 +151,19 @@
 				align-items: center;
 				gap: 12px;
 				height: 32px;
+				.chatsBtn {
+					border: none;
+					cursor: pointer;
+					display: flex;
+					width: 32px;
+					height: 32px;
+					justify-content: center;
+					align-items: center;
+					gap: 6px;
+					border-radius: 6px;
+					border: 1px solid var(--stroke, #c71b3a);
+					background: transparent;
+				}
 				.favouriteBtn {
 					border: none;
 					cursor: pointer;

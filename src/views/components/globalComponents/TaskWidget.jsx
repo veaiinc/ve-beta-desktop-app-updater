@@ -9,8 +9,7 @@ import {
 	useRef,
 } from 'react';
 import '../../../assets/scss/globalComponents/taskWidget.scss';
-import { ReactComponent as DownArrowIcon } from '../../../assets/svg/chat/downArrow.svg';
-import { ReactComponent as FiltersIcon } from '../../../assets/svg/tasks/filterLines.svg';
+import { accessControlCheck } from '../../../helpers/accessControlCheck';
 import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/add.svg';
 import { ReactComponent as ArrowViewIcon } from '../../../assets/svg/calendar/arrowview.svg';
 import Context from '../../../context/context';
@@ -87,6 +86,7 @@ const TaskWidget = ({ width, height, clientId, onTaskCountUpdate }) => {
 		},
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
 
 	const isLoading = useRef(true);
@@ -108,6 +108,7 @@ const TaskWidget = ({ width, height, clientId, onTaskCountUpdate }) => {
 		},
 		group: null,
 	});
+	const { role, accessControls = [] } = tenantUserAccessControls || {};
 
 	useEffect(() => {
 		setInfo((prev) => ({ ...prev, loading: true }));
@@ -455,6 +456,7 @@ const TaskWidget = ({ width, height, clientId, onTaskCountUpdate }) => {
 		updateSideBarData({ open: false });
 	};
 	const handleCreateTaskPopup = () => {
+		if (!accessControlCheck('task')) return;
 		setInfo((prev) => ({
 			...prev,
 			createTaskPopup: true,
@@ -756,7 +758,7 @@ const TaskWidget = ({ width, height, clientId, onTaskCountUpdate }) => {
 
 	return (
 		<div className="task-main-container" style={{ width: width, height: height }}>
-			<div className="taskWidgetContainer">
+			<div className="taskGlobalWidgetContainer">
 				<div className="taskWidgetBody">
 					<div className="taskWidgetBodyHeader">
 						<div className="taskWidgetBodyHeaderLeft">

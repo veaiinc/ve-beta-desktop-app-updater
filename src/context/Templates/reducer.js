@@ -26,6 +26,10 @@ const actionHandlers = {
 		...state,
 		[action?.selectedvariable]: action?.payload,
 	}),
+	GET_NOTIFICATIONS_SUCCESS: (state, action) => ({
+		...state,
+		notificationsList: action?.payload,
+	}),
 
 	UPDATE_STATE_VALUES_SUCCESS: (state, action) => ({ ...state, ...action.payload }),
 
@@ -178,10 +182,21 @@ const actionHandlers = {
 		...state,
 		moduleTemplateData: action.payload,
 	}),
-	RECENT_CHAT_MESSAGES_ACTIONS_REQUESTS: (state, action) => ({
-		...state,
-		[action?.selectedvariable]: action.payload,
-	}),
+	RECENT_CHAT_MESSAGES_ACTIONS_REQUESTS: (state, action) => {
+		const { sessionId, removeSessionId = false, data = null } = action?.payload;
+		const selectedvariable = action?.selectedvariable;
+		let selectedvariableData = { ...(state?.[selectedvariable] || {}) };
+		if (removeSessionId) {
+			delete selectedvariableData[sessionId];
+		}
+		if (data) {
+			selectedvariableData[sessionId] = data;
+		}
+		return {
+			...state,
+			[selectedvariable]: selectedvariableData,
+		};
+	},
 	GET_FOLLOW_UP_QUERIES_SUCCESS: (state, action) => ({
 		...state,
 		aiMessagesInfo: {
@@ -206,6 +221,7 @@ const actionHandlers = {
 			removeLatestStreamMessage,
 			lastQuery,
 			chatBoxInfo,
+			chatInfo,
 		} = action?.payload;
 		let messages = [...(state?.globalChatMessages?.[sessionId]?.messages || [])];
 
@@ -220,6 +236,10 @@ const actionHandlers = {
 
 			if (chatBoxInfo) {
 				sessionIdData.chatBoxInfo = chatBoxInfo;
+			}
+
+			if (chatInfo) {
+				sessionIdData.chatInfo = chatInfo;
 			}
 
 			if (latestStreamMessage) {
@@ -649,26 +669,39 @@ const actionHandlers = {
 		return { ...state, chatLoadingSessions };
 	},
 	HANDLE_TRANSCRIPTION_SUGGESTIONS: (state, action) => {
-		const { suggested_prompt, similar_files } = action?.payload || {};
+		const { suggested_prompt, similar_files, data = [] } = action?.payload || {};
 		const aiTranscriptionSuggestions = state?.aiTranscriptionSuggestions || {};
-		const prompts = [...(aiTranscriptionSuggestions?.prompts || [])];
 
-		let files = [...(aiTranscriptionSuggestions?.similar_files || [])];
+		let suggestions = [...(aiTranscriptionSuggestions?.suggestions || [])];
 
 		if (suggested_prompt) {
-			prompts?.push(suggested_prompt);
+			suggestions?.push(suggested_prompt);
 		}
 
 		if (similar_files) {
-			files = files?.concat(similar_files || []);
+			suggestions = suggestions?.concat(similar_files || []);
+		}
+
+		if (data?.length > 0) {
+			let newSuggestions = [];
+			data?.forEach((item) => {
+				const { suggested_prompt, similar_files } = item?.response || {};
+				if (suggested_prompt) {
+					newSuggestions?.push(suggested_prompt);
+				}
+				if (similar_files) {
+					newSuggestions = newSuggestions?.concat(similar_files || []);
+				}
+			});
+			suggestions = [...newSuggestions, ...suggestions];
 		}
 
 		return {
 			...state,
 			aiTranscriptionSuggestions: {
 				...aiTranscriptionSuggestions,
-				prompts,
-				similar_files: files,
+
+				suggestions,
 			},
 		};
 	},

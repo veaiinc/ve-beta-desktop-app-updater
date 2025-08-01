@@ -1,34 +1,91 @@
 import { Component } from 'react';
 import s from './errorBoundary.module.scss';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
+import logError from '../../../services/api/errorLogger';
+import logout from '../../../helpers/logout';
+import PageLoader from '../../features/app/PageLoader';
+
+const extractErrorDetails = (componentStack) => {
+	if (!componentStack) {
+		return { component: 'Unknown', path: 'Unknown' };
+	}
+	const lines = componentStack.trim().split('\n');
+	const firstFrame = lines.find((line) => line.includes('at') && line.includes('src/'));
+
+	if (!firstFrame) {
+		return { component: 'Unknown', path: 'Unknown' };
+	}
+
+	const componentMatch = firstFrame.match(/at (\w+)/);
+	const fullPathMatch = firstFrame.match(/http:\/\/localhost:\d+(\/src\/[^?\s\)]+)/);
+
+	return {
+		component: componentMatch ? componentMatch[1] : 'Unknown',
+		path: fullPathMatch ? fullPathMatch[1] : 'Unknown',
+	};
+};
 
 class ErrorBoundary extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { hasError: false, error: null };
+		this.state = {
+			hasError: false,
+			error: null,
+			isLazyLoadingError: false,
+		};
 	}
 
 	static getDerivedStateFromError(error) {
 		return { hasError: true, error };
 	}
 
-	componentDidCatch(error, errorInfo) {
+	async componentDidCatch(error, errorInfo) {
 		console.error('Error caught in ErrorBoundary:', error, errorInfo);
+		const { component, path } = extractErrorDetails(errorInfo?.componentStack);
 
-		if (error instanceof TypeError) {
-			// perform hard reload on errors caused by lazy loading
-			const isLazyLoadingErr =
-				error.message.includes('Failed to fetch dynamically imported module') ||
-				error.message.includes(`'text/html' is not a valid JavaScript MIME type`);
-			if (isLazyLoadingErr) window.location.reload(true);
+		// It happens if you are on a page and you release a new version. The file that contains the dynamically imported module, does not exist anymore (https://stackoverflow.com/questions/72376333/failed-to-fetch-dynamically-imported-module)
+		const isLazyLoadingErr =
+			error instanceof TypeError &&
+			(error.message.includes('Failed to fetch dynamically imported module') ||
+				error.message.includes(`'text/html' is not a valid JavaScript MIME type`));
+
+		if (isLazyLoadingErr) {
+			this.setState({ isLazyLoadingError: true });
+
+			setTimeout(() => {
+				window.location.reload(true);
+			}, 300);
+			return;
+		}
+
+		if (window.location.hostname !== 'localhost') {
+			const payload = {
+				errorType: error.name,
+				errorMessage: error.message,
+				errorPath: path,
+				errorComponent: component,
+				errorComponentStack: errorInfo?.componentStack || 'Not Available',
+			};
+
+			if (isLazyLoadingErr) return;
+			const success = await logError(payload);
+			if (success) {
+				console.log('Error logged successfully');
+			} else {
+				console.error('Error logging failed');
+			}
 		}
 	}
 
 	render() {
-		const { hasError } = this.state;
+		const { hasError, isLazyLoadingError } = this.state;
 		const { fallback } = this.props;
 
 		if (hasError) {
+			if (isLazyLoadingError) {
+				return <PageLoader />;
+			}
+
 			return (
 				fallback || (
 					<div className={s.errorBoundaryContainer}>
@@ -52,8 +109,14 @@ class ErrorBoundary extends Component {
 								>
 									Refresh
 								</button>
-								<button className={s.errorButton}>
-									<a href="mailto:support@ve.ai">Contact Support</a>
+								<button
+									onClick={() => (window.location.href = '/home')}
+									className={s.errorButton}
+								>
+									<span>Home</span>
+								</button>
+								<button className={s.errorButton} onClick={() => logout()}>
+									<span>Logout</span>
 								</button>
 							</div>
 						</div>

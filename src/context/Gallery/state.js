@@ -520,6 +520,20 @@ export const Galleries = () => {
 			console.log('error==>checkAlbumSlugIsAvalible', error);
 		}
 	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/guest-access
+	const editAlbumAccessPin = async (payload, galleryId, albumSlug) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const url = `/${workspaceId}/galleries/${galleryId}/albums/${albumSlug}/guest-access`;
+			const type = 'galleries';
+
+			const response = await service.fetchPut(url, payload, usertoken, type);
+			return response;
+		} catch (error) {
+			console.log('error==>editAlbumAccessPin', error);
+		}
+	};
 	const editLockAlbum = async (payload, galleryId, albumID) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -856,6 +870,7 @@ export const Galleries = () => {
 					payload: response?.[1],
 				});
 			}
+			return response;
 		} catch (error) {
 			console.log('error==>getImageDetail', error);
 		}
@@ -1533,7 +1548,7 @@ export const Galleries = () => {
 		}
 	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/gallery-images/{{ _.image_id }}/download
-	const getDownloadLinkForImage = async (imageId, isLightGallery) => {
+	const getDownloadLinkForImage = async (imageId, isLightGallery, targetSizeBytes) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -1546,8 +1561,20 @@ export const Galleries = () => {
 
 			if (response[0] === true) {
 				const imageResponse = await fetch(response[1].signedUrl);
-				const blob = await imageResponse.blob();
-				const url = window.URL.createObjectURL(blob);
+				const originalBlob = await imageResponse.blob();
+
+				let finalBlob = originalBlob;
+
+				// If original blob is smaller than the target size, pad it
+				if (!isLightGallery && originalBlob.size < targetSizeBytes) {
+					const paddingSize = targetSizeBytes - originalBlob.size;
+					const paddingBuffer = new Uint8Array(paddingSize).fill(0); // zero padding
+					finalBlob = new Blob([originalBlob, paddingBuffer], {
+						type: originalBlob.type,
+					});
+				}
+
+				const url = window.URL.createObjectURL(finalBlob);
 				const link = document.createElement('a');
 				link.href = url;
 				link.download = response?.[1]?.fileName || 'image';
@@ -1562,6 +1589,7 @@ export const Galleries = () => {
 			console.log('error==>getDownloadLinkForImage', error);
 		}
 	};
+
 	//{{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/visitors
 	const getInsightVisitors = async (
 		galleryId,
@@ -1614,36 +1642,57 @@ export const Galleries = () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
+
 			const response = await service.fetchPost(
 				`/${workspaceId}/galleries/${galleryId}/download-images`,
 				payload,
 				usertoken,
 				'galleries',
 			);
+
 			if (response?.[0] && Array.isArray(response?.[1]?.signedUrls)) {
-				for (let i = 0; i < response[1].signedUrls.length; i++) {
-					const signedUrl = response[1].signedUrls[i];
+				const signedUrls = response[1].signedUrls;
+
+				for (let i = 0; i < signedUrls.length; i++) {
+					const { signedUrl, originalSize } = signedUrls[i];
+
 					try {
 						const imageResponse = await fetch(signedUrl);
-						const blob = await imageResponse.blob();
-						const url = window.URL.createObjectURL(blob);
+						const originalBlob = await imageResponse.blob();
+
+						let finalBlob = originalBlob;
+
+						// Apply padding if needed
+						if (originalBlob.size < originalSize) {
+							const paddingSize = originalSize - originalBlob.size;
+							const paddingBuffer = new Uint8Array(paddingSize).fill(0); // zero padding
+							finalBlob = new Blob([originalBlob, paddingBuffer], {
+								type: originalBlob.type,
+							});
+						}
+
+						const url = window.URL.createObjectURL(finalBlob);
 						const link = document.createElement('a');
 						link.href = url;
 
+						// Extract filename from URL
 						const fileName =
 							signedUrl.split('/').pop().split('?')[0] || `image-${i + 1}.jpg`;
 						link.download = fileName;
+
 						document.body.appendChild(link);
 						link.click();
 						document.body.removeChild(link);
 						window.URL.revokeObjectURL(url);
 
+						// Optional: wait between downloads
 						await new Promise((resolve) => setTimeout(resolve, 500));
 					} catch (downloadError) {
 						console.log(`Error downloading image ${i + 1}:`, downloadError);
 					}
 				}
 			}
+
 			return response;
 		} catch (error) {
 			console.log('error==>getDownloadForMultipleImages', error);
@@ -1927,14 +1976,68 @@ export const Galleries = () => {
 			const baseUrl = `/${workspaceId}/watermarks`;
 			const type = 'tenant';
 			const response = await service?.fetchPut(baseUrl, payload, usertoken, type);
-			if (response) {
-				return response;
-			}
+			return response;
 		} catch (error) {
 			console.error(error);
 		}
 	};
 
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/embedded-videos
+	const uploadNewVideo = async (payload, galleryId) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const baseUrl = `/${workspaceId}/galleries/${galleryId}/embedded-videos`;
+			const type = 'galleries';
+			const response = await service?.fetchPost(baseUrl, payload, usertoken, type);
+			return response;
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/embedded-videos/vidoId
+	const updateVideoStatus = async (payload, videoId, galleryId) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const baseUrl = `/${workspaceId}/galleries/${galleryId}/embedded-videos/${videoId}`;
+			const type = 'galleries';
+			const response = await service?.fetchPut(baseUrl, payload, usertoken, type);
+			return response;
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/embedded-videos/slug-availability/{{slug}}.
+
+	const checkVideoSlugAvailability = async (galleryId, slug) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const baseUrl = `/${workspaceId}/galleries/${galleryId}/embedded-videos/slug-availability/${slug}`;
+			const type = 'galleries';
+			const response = await service?.fetchGet(baseUrl, usertoken, type);
+			return response;
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/embedded-videos/vidoid
+	const deleteVideo = async (galleryId, videoId) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const baseUrl = `/${workspaceId}/galleries/${galleryId}/embedded-videos/${videoId}`;
+			const type = 'galleries';
+			const response = await service.fetchDelete(baseUrl, usertoken, null, type);
+			return response;
+		} catch (error) {
+			console.error(error);
+		}
+	};
 	const updateStateValues = async (updatedVariableValuesObj) => {
 		try {
 			dispatch({
@@ -2039,5 +2142,10 @@ export const Galleries = () => {
 		getMostUsedEntities,
 		updateWaterMarkVisibility,
 		updateStateValues,
+		uploadNewVideo,
+		updateVideoStatus,
+		checkVideoSlugAvailability,
+		deleteVideo,
+		editAlbumAccessPin,
 	};
 };

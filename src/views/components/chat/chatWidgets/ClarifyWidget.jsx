@@ -2,7 +2,7 @@ import { memo, useContext } from 'react';
 import '../../../../assets/scss/chat/chatWidgets/clarifyWidget.scss';
 import Context from '../../../../context/context';
 
-const ClarifyWidget = ({ data }) => {
+const ClarifyWidget = ({ data, sessionId }) => {
 	const {
 		templates: { updateStateValues },
 	} = useContext(Context);
@@ -18,7 +18,10 @@ const ClarifyWidget = ({ data }) => {
 			prompt += option + (index !== options?.length - 1 ? ', ' : '');
 		});
 		updateStateValues({
-			activePromptForChat: prompt,
+			activePromptForChat: {
+				prompt,
+				sessionId,
+			},
 		});
 	};
 	return (

@@ -1,7 +1,6 @@
 .proactive-suggestions-container {
 	width: 100%;
 	margin: 0 auto;
-	height: 100%;
 	display: flex;
 	gap: 40px;
 	flex-direction: column;
@@ -106,6 +105,7 @@
 					line-height: 22px; /* 135.714% */
 					user-select: none;
 					height: 0;
+					width: 100%;
 					&.showDescription {
 						height: auto;
 					}
@@ -224,7 +224,8 @@
 			transform: translateX(-50%) rotate(-2deg);
 		}
 
-		.left-2 {
+		.left-2,
+		.left-3 {
 			left: 15%;
 			z-index: 1;
 			width: 170px;
@@ -232,7 +233,10 @@
 			bottom: -10px;
 			display: flex;
 			transform: translateX(-50%) rotate(-4deg);
-			opacity: 0.5;
+			opacity: 1;
+		}
+		.left-3 {
+			z-index: 0;
 		}
 
 		.right-1 {
@@ -249,7 +253,8 @@
 			}
 		}
 
-		.right-2 {
+		.right-2,
+		.right-3 {
 			left: 85%;
 			z-index: 1;
 			width: 170px;
@@ -257,10 +262,24 @@
 			bottom: -10px;
 			display: flex;
 			transform: translateX(-50%) rotate(4deg);
-			opacity: 0.5;
+			opacity: 1;
 
 			.footer {
 				justify-content: flex-end;
+			}
+		}
+		.right-3 {
+			z-index: 0;
+		}
+
+		.card.skeleton {
+			overflow: hidden;
+			padding: 0;
+			transition: none;
+			background-color: transparent;
+
+			&.selected {
+				border: 1.5px solid var(--primary-button);
 			}
 		}
 	}
@@ -567,22 +586,6 @@
 						font-weight: 500;
 					}
 				}
-			}
-		}
-		.card.skeleton {
-			overflow: hidden;
-			padding: 0;
-			background-color: transparent;
-			border: none;
-
-			.skeleton-container {
-				padding: 0;
-				border-radius: 16px;
-				overflow: hidden;
-			}
-
-			&.selected {
-				padding: 4px;
 			}
 		}
 	}
@@ -1241,10 +1244,6 @@
 	border-radius: 16px;
 	.chatParentWrapper {
 		position: relative !important;
-
-		.textArea {
-			max-height: 200px !important;
-		}
 	}
 }
 @keyframes slideUpChatbox {
@@ -1458,81 +1457,7 @@
 	}
 }
 
-.globalWidgetMainContainer {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: 33px;
-	max-width: 800px;
-	width: 100%;
-	margin: 0 auto;
-}
-.homepage__options-main-container {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	align-content: center;
-	position: relative;
-	gap: 6px;
-	width: 100%;
-	max-width: 750px; /* Adjusted to make space for arrows */
-	overflow-x: scroll;
-	scrollbar-width: none !important;
-	transition: width 0.9s ease-in-out;
-	scroll-behavior: smooth; /* Ensure smooth scrolling */
-	-ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
-	margin: 0 auto;
-	&::-webkit-scrollbar {
-		display: none; /* Hide scrollbar for WebKit browsers */
-	}
-	.option {
-		display: flex;
-		padding: 8px 12px;
-		align-items: center;
-		gap: 10px;
-		border-radius: 100px;
-		border: 1px solid var(--stroke, #202123);
-		cursor: pointer;
-		box-sizing: border-box;
-		height: 32px;
-		flex-shrink: 0;
-		&:hover {
-			border: 1px solid var(--stroke-hover);
-		}
-		.option-label {
-			color: var(--primary-font);
-			font-family: var(--primary-font-family);
-			font-size: 13px !important;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-			display: flex;
-			gap: 6px;
-			align-items: center;
-			text-transform: capitalize;
-			svg {
-				color: var(--secondary-font);
-				width: 16px;
-				height: 16px;
-			}
-		}
-		&.active {
-			border: 1px solid var(--primary-button);
-			.option-label {
-				color: var(--primary-button);
-				svg {
-					color: var(--primary-button);
-				}
-			}
-		}
-	}
-}
-
 @media screen and (max-width: 768px) {
-	.proactive-suggestions-container {
-		height: 100%;
-	}
 	.cards-container {
 		width: 100% !important;
 		overflow: hidden !important;

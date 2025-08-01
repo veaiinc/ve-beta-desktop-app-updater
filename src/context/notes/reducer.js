@@ -507,10 +507,19 @@ const actionHandlers = {
 		...state,
 		transcriptHistory: action?.payload,
 	}),
+	GET_AI_LIVE_INTELLIGENCE_HISTORY_SUCCESS: (state, action) => ({
+		...state,
+		aiLiveIntelligenceHistory: action?.payload,
+	}),
 	GET_EXISTING_BOTS_SUCCESS: (state, action) => ({
 		...state,
 		existingBots: action?.payload,
 	}),
+	GET_MEET_SUMMARY_SUCCESS: (state, action) => ({
+		...state,
+		meetSummary: action?.payload,
+	}),
+	UPDATE_STATE_VALUES_SUCCESS: (state, action) => ({ ...state, ...action.payload }),
 	RESET_STATE: () => intialState,
 };
 

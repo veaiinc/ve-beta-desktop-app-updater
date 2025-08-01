@@ -234,17 +234,454 @@
 	.sidebarClosingSvg {
 		z-index: 1001;
 		cursor: pointer;
+		position: relative;
+		top: 10px;
+	}
+
+	// Modal styles
+	.meetbot__modal-container {
+		background: var(--background-color);
+		border-radius: 15px;
+		overflow: hidden;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+
+		.meetbot__drawer-header {
+			display: flex;
+			width: 100%;
+			height: 56px;
+			padding: 8px 16px;
+			justify-content: center;
+			align-items: center;
+			gap: 24px;
+			flex-shrink: 0;
+			background: var(--card-over-card, #1f2123);
+			position: relative;
+			@media (max-width: 900px) {
+				padding: 18px 0 8px 0;
+			}
+		}
+
+		.meetbot__drawer-tabs {
+			position: relative;
+			display: flex;
+			gap: 24px;
+		}
+		.meetbot__drawer-tabs-container {
+			width: 100%;
+			display: flex;
+			justify-content: center;
+
+			.meetbot__drawer-tab {
+				color: var(--secondary-font, #94989e);
+				font-family: var(--primary-font-family);
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				background: none;
+				border: none;
+				cursor: pointer;
+				position: relative;
+				z-index: 1;
+				&:hover {
+					color: var(--primary-font) !important;
+				}
+			}
+		}
+
+		.meetbot__drawer-tab--active {
+			color: var(--primary-font) !important;
+			font-weight: bold;
+		}
+
+		.meetbot__drawer-indicator {
+			position: absolute;
+			bottom: -16px;
+			left: 0;
+			width: 40%; /* Each tab takes half the width */
+			height: 3px;
+			background-color: var(--primary-font); /* Your brand color */
+			border-top-left-radius: 2px;
+			border-top-right-radius: 2px;
+			transition: left 0.3s ease;
+			z-index: 0;
+		}
+
+		& .meetbot__drawer-content {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+			margin-top: 80px;
+			padding: 0 20px 24px;
+		}
+		.meetbotGuideMeContainer {
+			display: flex;
+			width: 100%;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 16px;
+			.meetbotGuideMeContainerItemContainer {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				.meetbotGuideMeContainerItem {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 2px;
+					flex: 1 0 0;
+					.meetbotGuideMeContainerItemTitle {
+						color: var(--primary-font, #f2f2f3);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+					.meetbotGuideMeDescriptionContainer {
+						width: 100%;
+						color: var(--secondary-font, #94989e);
+						font-family: var(--primary-font-family);
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+				}
+				.ant-switch {
+					background-color: var(--stroke-hover);
+				}
+				.ant-switch-checked {
+					background-color: var(--primary-button);
+				}
+
+				.ant-switch.ant-switch-checked .ant-switch-handle::before {
+					background-color: var(--background-color);
+				}
+				.ant-switch:not(.ant-switch-checked) .ant-switch-handle::before {
+					background-color: var(--background-color); /* Or any desired color */
+				}
+			}
+			.meetbotGuideMeButtonContainer {
+				.meetbotGuideButton {
+					display: flex;
+					height: 35px;
+					padding: 0px 16px;
+					justify-content: center;
+					align-items: center;
+					gap: 6px;
+					border-radius: 24px;
+					background: var(--primary-button, #79ecc9);
+					color: var(--background-color, #121212);
+					font-family: var(--primary-font-family);
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					cursor: pointer;
+				}
+			}
+		}
+		.meetbot__drawer-content-container {
+			display: flex;
+			width: 100%;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 35px;
+			.meetbot__drawer-content-container-item {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 2px;
+				align-self: stretch;
+			}
+		}
+		& .meetbot__drawer-label {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		& .meetbot__drawer-desc {
+			color: var(--secondary-font, #94989e);
+			font-family: var(--primary-font-family);
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		& .meetbot__drawer-input {
+			display: flex;
+			height: 45px;
+			padding: 0px 16px;
+			align-items: center;
+			gap: 8px;
+			align-self: stretch;
+			border-radius: 8px;
+			border: 1px solid var(--stroke, #2c2d2e);
+			background: none;
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			width: 100%;
+		}
+		.meetbot__drawer-input-wrapper {
+			display: flex;
+			align-items: center;
+			position: relative;
+			width: 100%;
+			justify-content: space-between;
+			gap: 12px;
+		}
+		.meetbot__audio-btn-wrapper {
+			display: flex;
+			align-items: center;
+			min-height: 40px;
+			justify-content: end;
+			width: 100%;
+		}
+		.meetbot__audio-btn {
+			width: 100%;
+			display: flex;
+			height: 45px;
+			padding: 0px 16px;
+			justify-content: center;
+			align-items: center;
+			gap: 6px;
+			align-self: stretch;
+			border-radius: 24px;
+			border: 1px solid var(--primary-button, #79ecc9);
+			background: var(--primary-button, #79ecc9);
+			color: var(--background-color, #121212);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+		}
+		.meetbot__audio-btn--disabled {
+			cursor: not-allowed;
+			background: var(--primary-button, #79ecc9);
+			color: var(--background-color, #121212);
+		}
+		.meetbot__drawer-tick {
+			cursor: pointer;
+			color: var(--primary-button, #79ecc9);
+			background: none;
+			border: none;
+			font-size: 14px;
+			font-weight: 600;
+			padding: 8px 16px;
+			border-radius: 6px;
+			transition: all 0.2s ease;
+		}
+		.meetbot__drawer-tick--disabled {
+			color: var(--secondary-font, #94989e);
+			cursor: not-allowed;
+			opacity: 0.5;
+		}
+		.meetbot__drawer-loader {
+			position: absolute;
+			right: 12px;
+			color: var(--secondary-font, #94989e);
+			font-size: 18px;
+		}
+
+		.meetbot__drawer-mode-wrapper {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			width: 100%;
+		}
+
+		.meetbot__drawer-mode-label {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.meetbot__drawer-mode-select-container {
+			position: relative;
+			width: 100%;
+
+			.meetbot__drawer-mode-select {
+				width: 100%;
+				height: 45px;
+				padding: 0px 16px;
+				padding-right: 40px;
+				border-radius: 8px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				background: none;
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				outline: none;
+				cursor: pointer;
+				transition: border-color 0.2s ease;
+				appearance: none;
+
+				&:focus {
+					border-color: var(--primary-button, #79ecc9);
+				}
+
+				&:disabled {
+					opacity: 0.5;
+					cursor: not-allowed;
+				}
+
+				option {
+					background: var(--background-color);
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-weight: 500;
+					padding: 8px 16px;
+				}
+			}
+
+			.meetbot__drawer-mode-select-arrow {
+				position: absolute;
+				right: 12px;
+				top: 35%;
+				pointer-events: none;
+				color: var(--secondary-font, #94989e);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				transform: rotate(90deg);
+			}
+		}
+
+		.meetbot__drawer-agenda-wrapper {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			width: 100%;
+		}
+
+		.meetbot__drawer-agenda-label {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.meetbot__drawer-agenda-textarea {
+			display: flex;
+			min-height: 80px;
+			padding: 12px 16px;
+			align-items: flex-start;
+			gap: 8px;
+			align-self: stretch;
+			border-radius: 8px;
+			border: 1px solid var(--stroke, #2c2d2e);
+			background: none;
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			width: 100%;
+			resize: vertical;
+			outline: none;
+			transition: border-color 0.2s ease;
+
+			&:focus {
+				border-color: var(--primary-button, #79ecc9);
+				box-shadow: 0 0 0 2px rgba(121, 236, 201, 0.2);
+			}
+
+			&::placeholder {
+				color: var(--secondary-font, #94989e);
+			}
+
+			&:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+			}
+		}
+
+		.meetbot__drawer-title-wrapper {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			width: 100%;
+		}
+
+		.meetbot__drawer-title-label {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.meetbot__drawer-title-input {
+			width: 100%;
+			height: 45px;
+			padding: 0px 16px;
+			border-radius: 8px;
+			border: 1px solid var(--stroke, #2c2d2e);
+			background: none;
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			outline: none;
+			transition: border-color 0.2s ease;
+
+			&:focus {
+				border-color: var(--primary-button, #79ecc9);
+			}
+
+			&::placeholder {
+				color: var(--secondary-font, #94989e);
+			}
+
+			&:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+			}
+		}
 	}
 
 	.rightContainer {
 		display: flex;
-		padding: 20px 24px;
+		width: 400px;
+		height: 900px;
+		padding: 0px 24px 20px 24px;
 		flex-direction: column;
-		align-items: flex-start;
+		align-items: center;
 		gap: 24px;
 		flex-shrink: 0;
-		position: relative;
-		right: 20px;
+		.ant-drawer-content-wrapper {
+			width: 420px !important;
+		}
 		.meetbot__right {
 			background: var(--background-color) !important;
 			border-left: 1.5px solid var(--stroke);
@@ -256,7 +693,7 @@
 			display: flex;
 			width: 100%;
 			flex-direction: column;
-			padding: 20px 24px;
+			padding: 0px 20px 24px;
 			gap: 24px;
 			color: var(--primary-font);
 			@media (max-width: 900px) {
@@ -290,53 +727,187 @@
 
 			& .meetbot__drawer-header {
 				display: flex;
+				width: 100%;
+				height: 56px;
+				padding: 8px 16px;
+				justify-content: center;
 				align-items: center;
-				justify-content: flex-start;
-				padding: 32px 0 16px 0;
+				gap: 24px;
+				flex-shrink: 0;
+				background: var(--card-over-card, #1f2123);
+				position: absolute;
+				left: 0;
 				@media (max-width: 900px) {
 					padding: 18px 0 8px 0;
 				}
 			}
 
-			& .meetbot__drawer-tabs {
+			.meetbot__drawer-tabs {
+				position: relative;
 				display: flex;
-				align-items: flex-start;
-				gap: 8px;
-				align-self: stretch;
+				gap: 24px;
+			}
+			.meetbot__drawer-tabs-container {
+				width: 100%;
+				display: flex;
+				justify-content: center;
+
+				.meetbot__drawer-tab {
+					color: var(--secondary-font, #94989e);
+					font-family: var(--primary-font-family);
+					font-size: 16px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					background: none;
+					border: none;
+					cursor: pointer;
+					position: relative;
+					z-index: 1;
+					&:hover {
+						color: var(--primary-font) !important;
+					}
+				}
 			}
 
-			& .meetbot__drawer-tab {
-				display: flex;
-				height: 45px;
-				padding: 0px 16px;
-				justify-content: center;
-				align-items: center;
-				gap: 6px;
-				flex: 1 0 0;
-				border-radius: 24px;
-				border: 1px solid #2c2d2e;
-				background: none;
-				font-weight: normal;
-				color: var(--primary-font, #f2f2f3);
-				font-family: var(--primary-font-family);
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 600;
-				line-height: normal;
-				cursor: pointer;
-			}
-			& .meetbot__drawer-tab--active {
+			.meetbot__drawer-tab--active {
+				color: var(--primary-font) !important;
 				font-weight: bold;
-				border-color: var(--primary-button, #79ecc9);
-				background: var(--card-over-card-hover);
 			}
+
+			.meetbot__drawer-indicator {
+				position: absolute;
+				bottom: -16px;
+				left: 0;
+				width: 40%; /* Each tab takes half the width */
+				height: 3px;
+				background-color: var(--primary-font); /* Your brand color */
+				border-top-left-radius: 2px;
+				border-top-right-radius: 2px;
+				transition: left 0.3s ease;
+				z-index: 0;
+			}
+			// & .meetbot__drawer-tabs {
+			// 	display: flex;
+			// 	align-items: flex-start;
+			// 	gap: 8px;
+			// 	align-self: stretch;
+			// }
+
+			// & .meetbot__drawer-tab {
+			// 	display: flex;
+			// 	height: 45px;
+			// 	padding: 0px 16px;
+			// 	justify-content: center;
+			// 	align-items: center;
+			// 	gap: 6px;
+			// 	flex: 1 0 0;
+			// 	border-radius: 24px;
+			// 	border: 1px solid #2c2d2e;
+			// 	background: none;
+			// 	font-weight: normal;
+			// 	color: var(--primary-font, #f2f2f3);
+			// 	font-family: var(--primary-font-family);
+			// 	font-size: 14px;
+			// 	font-style: normal;
+			// 	font-weight: 600;
+			// 	line-height: normal;
+			// 	cursor: pointer;
+			// }
+			// & .meetbot__drawer-tab--active {
+			// 	font-weight: bold;
+			// 	border-color: var(--primary-button, #79ecc9);
+			// 	background: var(--card-over-card-hover);
+			// }
 
 			& .meetbot__drawer-content {
 				display: flex;
 				flex-direction: column;
 				gap: 12px;
+				margin-top: 80px;
 			}
+			.meetbotGuideMeContainer {
+				display: flex;
+				width: 352px;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 16px;
+				.meetbotGuideMeContainerItemContainer {
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+					.meetbotGuideMeContainerItem {
+						display: flex;
+						flex-direction: column;
+						align-items: flex-start;
+						gap: 2px;
+						flex: 1 0 0;
+						.meetbotGuideMeContainerItemTitle {
+							color: var(--primary-font, #f2f2f3);
+							font-family: var(--primary-font-family);
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+						.meetbotGuideMeDescriptionContainer {
+							width: 320px;
+							color: var(--secondary-font, #94989e);
+							font-family: var(--primary-font-family);
+							font-size: 13px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+					}
+					.ant-switch {
+						background-color: var(--stroke-hover);
+					}
+					.ant-switch-checked {
+						background-color: var(--primary-button);
+					}
 
+					.ant-switch.ant-switch-checked .ant-switch-handle::before {
+						background-color: var(--background-color);
+					}
+					.ant-switch:not(.ant-switch-checked) .ant-switch-handle::before {
+						background-color: var(--background-color); /* Or any desired color */
+					}
+				}
+				.meetbotGuideMeButtonContainer {
+					.meetbotGuideButton {
+						display: flex;
+						height: 35px;
+						padding: 0px 16px;
+						justify-content: center;
+						align-items: center;
+						gap: 6px;
+						border-radius: 24px;
+						background: var(--primary-button, #79ecc9);
+						color: var(--background-color, #121212);
+						font-family: var(--primary-font-family);
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						cursor: pointer;
+					}
+				}
+			}
+			.meetbot__drawer-content-container {
+				display: flex;
+				width: 352px;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 35px;
+				.meetbot__drawer-content-container-item {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 2px;
+					align-self: stretch;
+				}
+			}
 			& .meetbot__drawer-label {
 				color: var(--primary-font, #f2f2f3);
 				font-family: var(--primary-font-family);
@@ -386,17 +957,26 @@
 				align-items: center;
 				min-height: 40px;
 				justify-content: end;
+				width: 100%;
 			}
 			.meetbot__audio-btn {
-				width: fit-content;
-				height: 100%;
-				border-radius: 10px;
-				border: 1px solid var(--stroke, #2c2d2e);
+				width: 100%;
+				display: flex;
+				height: 45px;
+				padding: 0px 16px;
+				justify-content: center;
+				align-items: center;
+				gap: 6px;
+				align-self: stretch;
+				border-radius: 24px;
+				border: 1px solid var(--primary-button, #79ecc9);
 				background: var(--primary-button, #79ecc9);
 				color: var(--background-color, #121212);
-				font-weight: 600;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
-				padding: 0 16px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
 				cursor: pointer;
 			}
 			.meetbot__audio-btn--disabled {
@@ -425,6 +1005,175 @@
 				right: 12px;
 				color: var(--secondary-font, #94989e);
 				font-size: 18px;
+			}
+
+			.meetbot__drawer-mode-wrapper {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				width: 100%;
+			}
+
+			.meetbot__drawer-mode-label {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.meetbot__drawer-mode-select-container {
+				position: relative;
+				width: 100%;
+
+				.meetbot__drawer-mode-select {
+					width: 100%;
+					height: 45px;
+					padding: 0px 16px;
+					padding-right: 40px;
+					border-radius: 8px;
+					border: 1px solid var(--stroke, #2c2d2e);
+					background: none;
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					outline: none;
+					cursor: pointer;
+					transition: border-color 0.2s ease;
+					appearance: none;
+
+					&:focus {
+						border-color: var(--primary-button, #79ecc9);
+					}
+
+					&:disabled {
+						opacity: 0.5;
+						cursor: not-allowed;
+					}
+
+					option {
+						background: var(--background-color);
+						color: var(--primary-font, #f2f2f3);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-weight: 500;
+						padding: 8px 16px;
+					}
+				}
+
+				.meetbot__drawer-mode-select-arrow {
+					position: absolute;
+					right: 12px;
+					top: 35%;
+					pointer-events: none;
+					color: var(--secondary-font, #94989e);
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					transform: rotate(90deg);
+				}
+			}
+
+			.meetbot__drawer-agenda-wrapper {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				width: 100%;
+			}
+
+			.meetbot__drawer-agenda-label {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.meetbot__drawer-agenda-textarea {
+				display: flex;
+				min-height: 80px;
+				padding: 12px 16px;
+				align-items: flex-start;
+				gap: 8px;
+				align-self: stretch;
+				border-radius: 8px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				background: none;
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				width: 100%;
+				resize: vertical;
+				outline: none;
+				transition: border-color 0.2s ease;
+
+				&:focus {
+					border-color: var(--primary-button, #79ecc9);
+					box-shadow: 0 0 0 2px rgba(121, 236, 201, 0.2);
+				}
+
+				&::placeholder {
+					color: var(--secondary-font, #94989e);
+				}
+
+				&:disabled {
+					opacity: 0.5;
+					cursor: not-allowed;
+				}
+			}
+
+			.meetbot__drawer-title-wrapper {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				width: 100%;
+			}
+
+			.meetbot__drawer-title-label {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.meetbot__drawer-title-input {
+				width: 100%;
+				height: 45px;
+				padding: 0px 16px;
+				border-radius: 8px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				background: none;
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				outline: none;
+				transition: border-color 0.2s ease;
+
+				&:focus {
+					border-color: var(--primary-button, #79ecc9);
+				}
+
+				&::placeholder {
+					color: var(--secondary-font, #94989e);
+				}
+
+				&:disabled {
+					opacity: 0.5;
+					cursor: not-allowed;
+				}
 			}
 		}
 

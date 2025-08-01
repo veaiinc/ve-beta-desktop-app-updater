@@ -351,7 +351,7 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose, hasSerialNumber
 					}
 					open={info?.fieldTypeTooltipOpen}
 					placement="bottomLeft"
-					overlayClassName="status-dropdown"
+					classNames={{ root: 'status-dropdown' }}
 					color="transparent"
 					trigger={['click']}
 					zIndex={50100}
@@ -390,7 +390,7 @@ const AddField = ({ pageId, databaseId, handleBack, handleClose, hasSerialNumber
 						}
 						open={info?.limitTooltipOpen}
 						placement="bottomLeft"
-						overlayClassName="status-dropdown"
+						classNames={{ root: 'status-dropdown' }}
 						color="transparent"
 						trigger={['click']}
 						zIndex={50100}

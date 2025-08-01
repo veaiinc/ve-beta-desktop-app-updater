@@ -14,13 +14,11 @@ import jwtDecode from 'jwt-decode';
 import ChatBox from '../../components/chat/ChatBox';
 import AgentCredentials from '../../components/agents/agentDetails/agentCredentials/AgentCredentials';
 import AgentActivities from '../../components/agents/agentDetails/AgentActivities';
+import ObjectID from 'bson-objectid';
 const KnowledgeAgentDetails = () => {
 	const {
-		knowledgeAgent: {
-			activeKnowledgeAssistant,
-			getActiveKnowledgeAgentDetails,
-		},
-		templates: { updateStateValues, currentSessionId, chatInfo },
+		knowledgeAgent: { activeKnowledgeAssistant, getActiveKnowledgeAgentDetails },
+		templates: { updateStateValues, handleGlobalChatMessages },
 	} = useContext(Context);
 
 	const { agentId } = useParams();
@@ -30,6 +28,7 @@ const KnowledgeAgentDetails = () => {
 		activeAiAssistant: null,
 		loading: true,
 		access: 'view',
+		sessionId: ObjectID().toString(),
 	});
 
 	useEffect(() => {
@@ -53,13 +52,21 @@ const KnowledgeAgentDetails = () => {
 	}, [agentId, activeKnowledgeAssistant]);
 
 	useEffect(() => {
-		if (agentId) {
-			updateStateValues({
+		if (agentId && info?.sessionId) {
+			// updateStateValues({
+			// 	chatInfo: {
+			// 		...chatInfo,
+			// 		agentType: 'knowledge_agent',
+			// 		assistantId: agentId,
+			// 	},
+			// });
+			handleGlobalChatMessages({
+				sessionId: info?.sessionId,
 				chatInfo: {
-					...chatInfo,
 					agentType: 'knowledge_agent',
 					assistantId: agentId,
 				},
+				updateExtraInfo: true,
 			});
 		}
 	}, [agentId]);
@@ -71,9 +78,9 @@ const KnowledgeAgentDetails = () => {
 	const handleCustomOnSendFunction = useCallback(
 		(data) => {
 			updateStateValues({ activePayloadForChat: data });
-			navigate(`/chat/${currentSessionId}?agentType=knowledge_agent&assistantId=${agentId}`);
+			navigate(`/chat/${info?.sessionId}?agentType=knowledge_agent&assistantId=${agentId}`);
 		},
-		[currentSessionId],
+		[info?.sessionId],
 	);
 
 	const checkAccess = useCallback(() => {
@@ -89,8 +96,12 @@ const KnowledgeAgentDetails = () => {
 	}, [info?.activeAiAssistant?.sharedWith]);
 
 	return (
-		<div style={{ width: '100%', paddingRight: 10 }} className="agent-details-container">
-			{/* <CreateAgentHeader
+		<div className="agent-details-wrappe-container">
+			<div className="agent-activity-section-container">
+				<AgentActivities />
+			</div>
+			<div style={{ width: '100%', paddingRight: 10 }} className="agent-details-container">
+				{/* <CreateAgentHeader
 				backText="Back to Knowledge Agents"
 				agentIcon={<AgentIcon width={16} height={16} />}
 				name={info?.loading ? 'Loading...' : info?.activeAiAssistant?.name}
@@ -101,39 +112,39 @@ const KnowledgeAgentDetails = () => {
 				onActionClick={() =>
 					navigate(`/knowledge-agent/${agentId}/edit`, {
 						state: { assistant: info?.activeAiAssistant },
-					})
-				}
-				assistant={info?.activeAiAssistant}
-				showActionButton={info?.access === 'edit' || info?.access === 'owner'}
-			/> */}
-			<AgentCredentials agentId={agentId} />
-			<div className="agent-details-wrapper">
-				{/* <div className="agent-details-content">
+						})
+						}
+						assistant={info?.activeAiAssistant}
+						showActionButton={info?.access === 'edit' || info?.access === 'owner'}
+						/> */}
+				<AgentCredentials agentId={agentId} agentForRunAgent={true} />
+				<div className="agent-details-wrapper">
+					{/* <div className="agent-details-content">
 					<h2>
-						Ask <span className="agent-name">{info?.activeAiAssistant?.name}</span>
-						<br /> anything
+					Ask <span className="agent-name">{info?.activeAiAssistant?.name}</span>
+					<br /> anything
 					</h2>
-
+					
 					{info?.activeAiAssistant?.handle && (
 						<div className="handle-wrapper">@{info?.activeAiAssistant?.handle}</div>
-					)}
-
-					{info?.activeAiAssistant?.description && (
-						<div className="description-wrapper">
+						)}
+						
+						{info?.activeAiAssistant?.description && (
+							<div className="description-wrapper">
 							{info?.activeAiAssistant?.description}
-						</div>
-					)}
-				</div> */}
-				<div className="chat-box-wrapper">
-					<ChatBox
-						onSend={handleCustomOnSendFunction}
-						customChatActions={true}
-						showUpgradeSubscriptionBtn={false}
-					/>
+							</div>
+							)}
+							</div> */}
+					<div className="chat-box-wrapper">
+						<ChatBox
+							onSend={handleCustomOnSendFunction}
+							customChatActions={true}
+							showUpgradeSubscriptionBtn={false}
+							sessionId={info?.sessionId}
+						/>
+					</div>
 				</div>
 			</div>
-
-			<AgentActivities />
 		</div>
 	);
 };

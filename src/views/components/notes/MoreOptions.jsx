@@ -1,11 +1,16 @@
 import React, { memo, useState } from 'react';
 import { Tooltip, Switch } from 'antd';
 import { ReactComponent as DotsSvg } from '../../../assets/svg/docs/vertidot.svg';
-import { ReactComponent as ExpandSvg } from '../../../assets/svg/docs/expand.svg';
-import { ReactComponent as ShareSvg } from '../../../assets/svg/docs/share.svg';
+// import { ReactComponent as ExpandSvg } from '../../../assets/svg/docs/expand.svg';
+// import { ReactComponent as ShareSvg } from '../../../assets/svg/docs/share.svg';
 import { ReactComponent as DeleteSvg } from '../../../assets/svg/tasks/dustBin.svg';
+import { ReactComponent as GearSvg } from '../../../assets/svg/notes/gear.svg';
 import DuplicateSvg from '../../../assets/svg/tasks/DuplicateSvg.jsx';
 import '../../../assets/scss/notes/noteComponent.scss';
+
+const tooltipStyles = {
+	body: { minWidth: 'fit-content', padding: '0' },
+};
 
 const options = [
 	// {
@@ -67,7 +72,7 @@ const MoreOptions = ({ notesConfigs, onChange, onDelete, onDuplicate }) => {
 				arrow={false}
 				trigger={'click'}
 				color={'transparent'}
-				overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+				 styles={tooltipStyles}
 				title={
 					<div className="notes-more-options-tooltip-content">
 						{options?.map((option) => (
@@ -104,7 +109,7 @@ const MoreOptions = ({ notesConfigs, onChange, onDelete, onDuplicate }) => {
 					}}
 					onClick={() => handleInfoChange({ openMoreOptions: !info.openMoreOptions })}
 				>
-					<DotsSvg />
+					<GearSvg className="gear-svg" />
 				</div>
 			</Tooltip>
 		</div>

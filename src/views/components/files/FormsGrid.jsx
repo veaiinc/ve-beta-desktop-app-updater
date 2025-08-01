@@ -8,6 +8,8 @@ import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 import FilterDropdown from '../dropDown/file/FilterDropdown';
 import EmptyState from './EmptyState';
+import CardsViewIcon from '../../../assets/svg/notesPage/CardsViewIcon';
+import ListViewIcon from '../../../assets/svg/notesPage/ListViewIcon';
 import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
 import { ReactComponent as Link } from '../../../assets/svg/files/link.svg';
 import { ReactComponent as Copy } from '../../../assets/svg/files/copy.svg';
@@ -20,6 +22,11 @@ import { message } from '../globalComponents/CustomToast';
 import { fetchOriginSelection } from '../../../helpers';
 import { Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { ReactComponent as Add2 } from '../../../assets/svg/files/add2.svg';
+import { ReactComponent as FormIcon } from '../../../assets/svg/files/form.svg';
+import { ReactComponent as Delete } from '../../../assets/svg/files/delete.svg';
+import { ReactComponent as Edit } from '../../../assets/svg/files/edit.svg';
+import ReactModal from '../../../../builderSrc/views/components/ui-components/modal';
 
 const sortOptions = [
 	{ label: 'Recently Added', value: 'createdAt', sortType: -1 },
@@ -27,29 +34,57 @@ const sortOptions = [
 	{ label: 'A-Z', value: 'title', sortType: 1 },
 ];
 
-const fileCtaMapper = [
-	{
-		id: 0,
-		icon: <Link />,
-		action: 'copyFormLink',
-	},
-	// {
-	// 	id: 1,
-	// 	icon: <Copy />,
-	// 	action: 'duplicate',
-	// },
-	// {
-	// 	id: 2,
-	// 	icon: <Share />,
-	// action: 'share',
-	// },
-];
+const getFormCtaActions = (formStatus) => {
+	if (formStatus === 'published') {
+		return [
+			{
+				id: 0,
+				icon: <Link />,
+				action: 'copyFormLink',
+				tooltip: 'Copy Form Link',
+			},
+			{
+				id: 1,
+				icon: <Copy />,
+				action: 'duplicate',
+				tooltip: 'Duplicate Form',
+			},
+			{
+				id: 2,
+				icon: <Delete />,
+				action: 'delete',
+				tooltip: 'Delete Form',
+			},
+		];
+	} else {
+		// For draft status, show edit instead of copy link
+		return [
+			{
+				id: 0,
+				icon: <Edit />,
+				action: 'edit',
+			},
+			{
+				id: 1,
+				icon: <Copy />,
+				action: 'duplicate',
+			},
+			{
+				id: 2,
+				icon: <Delete />,
+				action: 'delete',
+			},
+		];
+	}
+};
 
 const FormsGrid = ({
 	statusTextmapper,
 	handleCreateForm,
 	handleNavigateForm,
 	handleTotalChange,
+	viewMode,
+	setViewMode,
 }) => {
 	const activeWorkspaceId = localStorage.getItem('workspaceId');
 	const origin = fetchOriginSelection();
@@ -59,6 +94,7 @@ const FormsGrid = ({
 			getTemplatesListForForms,
 			formsTemplatesList,
 			duplicateGlobalWorkflowTemplate,
+			deleteWorkflowTemplates,
 		},
 		profileInfo: { tennantSettingsData },
 	} = useContext(Context);
@@ -75,7 +111,12 @@ const FormsGrid = ({
 		searchQuery: '',
 	});
 
+	const [deleteModal, setDeleteModal] = useState({ open: false, formId: null });
+
 	useEffect(() => {
+		// Skip animations when in list view
+		if (viewMode === 'list') return;
+
 		const delay =
 			info.selectedView === 'Classic Gallery' || info.selectedView === 'Lite Gallery'
 				? 100
@@ -160,7 +201,7 @@ const FormsGrid = ({
 		}, delay);
 
 		return () => clearTimeout(timeout);
-	}, [info?.forms?.length]);
+	}, [info?.forms?.length, viewMode]);
 
 	useEffect(() => {
 		fetchForms({ page: 1 });
@@ -254,10 +295,44 @@ const FormsGrid = ({
 				.writeText(link)
 				.then(() => message.success('Form link copied successfully!'))
 				.catch(() => message.error('Failed to copy form link!'));
+		} else if (action === 'edit') {
+			handleEditForm(formId);
 		} else if (action === 'duplicate') {
 			handleDuplicateForm({ formId, formTitle });
+		} else if (action === 'delete') {
+			setDeleteModal({ open: true, formId });
 		}
 	};
+
+	const handleDeleteForm = useCallback(
+		async (formId) => {
+			try {
+				const payload = {
+					deleteTemplateId: formId,
+				};
+				const response = await deleteWorkflowTemplates(payload);
+				if (response?.[0]) {
+					message.success('Form deleted successfully');
+					// Refresh the forms list
+					fetchForms({ page: 1 });
+				} else {
+					message.error('Failed to delete form. Please try again.');
+				}
+			} catch (error) {
+				console.error('Error deleting form:', error);
+				message.error('Failed to delete form. Please try again.');
+			}
+		},
+		[deleteWorkflowTemplates, fetchForms],
+	);
+
+	const handleConfirmDelete = useCallback(async () => {
+		if (!deleteModal.formId) return;
+		await handleDeleteForm(deleteModal.formId);
+		setDeleteModal({ open: false, formId: null });
+	}, [deleteModal.formId, handleDeleteForm]);
+
+	const handleCancelDelete = () => setDeleteModal({ open: false, formId: null });
 
 	const getFormLinkUrl = useCallback(
 		(slug) => {
@@ -295,37 +370,60 @@ const FormsGrid = ({
 		[duplicateGlobalWorkflowTemplate],
 	);
 
+	const handleEditForm = useCallback(
+		(formId) => {
+			navigate(`/builder/${formId}?form=true`);
+		},
+		[navigate],
+	);
+
 	return (
 		<div className="card-sub-container-center">
-			<div className="center-container-header">
-				<FilterDropdown
-					options={sortOptions}
-					selected={info?.selectedSort}
-					onOptionClick={handleSortClick}
-					showSelectedEndArrow
-					width="180px"
-					hideOnOptionClick={false}
-				/>
-				<div className="filter-container-search">
-					<Search width={16} height={16} />
-					<input
-						type="text"
-						placeholder="Search"
-						value={info?.searchQuery}
-						onChange={(e) => handleStateUpdate({ searchQuery: e.target.value })}
-						className="search-input"
+			<div className="header-container">
+				<div className="center-container-header">
+					<FilterDropdown
+						options={sortOptions}
+						selected={info?.selectedSort}
+						onOptionClick={handleSortClick}
+						showSelectedEndArrow
+						width="180px"
+						hideOnOptionClick={false}
 					/>
-					{info?.searchLoading && info?.searchQuery?.length > 0 && (
-						<div className="search-spinner">
-							<Spinner
-								size="small"
-								width={16}
-								height={16}
-								borderWidth={1.5}
-								color="var(--primary-button)"
-							/>
-						</div>
-					)}
+					<div className="filter-container-search">
+						<Search width={16} height={16} />
+						<input
+							type="text"
+							placeholder="Search"
+							value={info?.searchQuery}
+							onChange={(e) => handleStateUpdate({ searchQuery: e.target.value })}
+							className="search-input"
+						/>
+						{info?.searchLoading && info?.searchQuery?.length > 0 && (
+							<div className="search-spinner">
+								<Spinner
+									size="small"
+									width={16}
+									height={16}
+									borderWidth={1.5}
+									color="var(--primary-button)"
+								/>
+							</div>
+						)}
+					</div>
+				</div>
+				<div className="view-mode">
+					<div
+						className={`view-mode-icon${viewMode === 'list' ? ' selected' : ''}`}
+						onClick={() => setViewMode('list')}
+					>
+						<ListViewIcon />
+					</div>
+					<div
+						className={`view-mode-icon${viewMode === 'card' ? ' selected' : ''}`}
+						onClick={() => setViewMode('card')}
+					>
+						<CardsViewIcon />
+					</div>
 				</div>
 			</div>
 			<div className="center-container-content">
@@ -340,82 +438,182 @@ const FormsGrid = ({
 						hasMore={info?.hasNextPage}
 						height={'100%'}
 					>
-						<div className="card-container">
-							<div className="card-item create" onClick={handleCreateForm}>
-								<div className="card-item-style card-item-style-btn">
-									<button className="card-btn">
-										<Plus />
-										Create Form
-									</button>
+						<div className={`card-container${viewMode === 'list' ? ' list-view' : ''}`}>
+							{viewMode === 'list' ? (
+								<div className="card-item create" onClick={handleCreateForm}>
+									<div className="card-item-style card-item-style-btn docs-list-create-row">
+										<FormIcon className="create-doc-icon" />
+										<div className="doc-add-text">
+											<span className="create-doc-text">Create Form</span>
+											<span className="create-doc-subtext">
+												Begin a form that’s structured to grow with your
+												workflow.
+											</span>
+										</div>
+										<Add2 className="create-doc-plus" />
+									</div>
 								</div>
-							</div>
+							) : (
+								<div className="card-item create" onClick={handleCreateForm}>
+									<div className="card-item-style card-item-style-btn">
+										<button className="card-btn">
+											<Plus />
+											Create Form
+										</button>
+									</div>
+								</div>
+							)}
 							{info?.forms?.map((form, index) => (
 								<div
 									className="card-item"
 									key={index}
 									onClick={() => handleNavigateForm(form)}
 								>
-									<div className="card-item-style content-wrapper docs">
-										<div className="docs-title-wrapper docs-title-wrapper-form">
-											<div className="card-header">
-												<h1 className="form-title">{form?.title}</h1>
-												{form?.formResponsesCount > 0 && (
-													<p className="responses-count">
-														<span>{form?.formResponsesCount}</span>{' '}
-														<span>
-															Response
-															{form?.formResponsesCount > 1 && 's'}
-														</span>{' '}
-														<TrendUp />
-													</p>
-												)}
-												<p
-													className="createdAt"
-													data-tooltip={`Created on ${moment
-														.unix(form?.createdAt)
-														.format('DD MMM YYYY')}`}
-												>
-													<Tooltip title="Created On">
-														{moment.unix(form?.createdAt).fromNow()}
-													</Tooltip>
-												</p>
-											</div>
-											<div className="card-footer">
-												<div className="cta-container">
-													{fileCtaMapper?.map((cta) => (
-														<div
-															className="cta"
-															key={cta?.id}
-															onClick={(e) =>
-																handleFileCta({
-																	e,
-																	action: cta?.action,
-																	slug: form?.slug,
-																	formId: form?._id,
-																	formTitle: form?.title,
-																})
-															}
-														>
-															{cta?.icon}
+									{viewMode === 'list' ? (
+										<div className="card-item-style content-wrapper docs">
+											<div className="docs-title-wrapper docs-title-wrapper-form">
+												<div className="form-header-footer-row">
+													<div className="card-header">
+														<h1 className="form-title">
+															{form?.title}
+														</h1>
+														<div className="file-status">
+															{form?.status === 'published' ? (
+																<>
+																	<GreenDot />
+																	<span>Live</span>
+																</>
+															) : (
+																<>
+																	<GreyDot />
+																	<span>Draft</span>
+																</>
+															)}
 														</div>
-													))}
+													</div>
+													<div className="card-footer">
+														<div className="cta-container">
+															{getFormCtaActions(form?.status)?.map(
+																(cta) => (
+																	<div
+																		className="cta"
+																		key={cta?.id}
+																		onClick={(e) =>
+																			handleFileCta({
+																				e,
+																				action: cta?.action,
+																				slug: form?.slug,
+																				formId: form?._id,
+																				formTitle:
+																					form?.title,
+																			})
+																		}
+																	>
+																		{cta?.icon}
+																	</div>
+																),
+															)}
+														</div>
+													</div>
 												</div>
-												<div className="file-status">
-													{form?.status === 'published' ? (
-														<>
-															<GreenDot />
-															<span>Live</span>
-														</>
-													) : (
-														<>
-															<GreyDot />
-															<span>Draft</span>
-														</>
+												<div className="form-responses-count-container">
+													{form?.formResponsesCount > 0 && (
+														<p className="responses-count">
+															<span>{form?.formResponsesCount}</span>{' '}
+															<span>
+																Response
+																{form?.formResponsesCount > 1 &&
+																	's'}
+															</span>{' '}
+														</p>
 													)}
+													<p
+														className="createdAt"
+														data-tooltip={`Created on ${moment
+															.unix(form?.createdAt)
+															.format('DD MMM YYYY')}`}
+													>
+														<span style={{ marginRight: 5 }}>•</span>
+														<span>
+															{form?.updatedAt ? 'Edited' : 'Created'}{' '}
+														</span>
+														<Tooltip title="Created On">
+															{moment.unix(form?.createdAt).fromNow()}
+														</Tooltip>
+													</p>
 												</div>
 											</div>
 										</div>
-									</div>
+									) : (
+										<div className="card-item-style content-wrapper docs">
+											<div className="docs-title-wrapper docs-title-wrapper-form">
+												<div className="card-header">
+													<h1 className="form-title">{form?.title}</h1>
+												</div>
+												<div className="form-responses-count-container">
+													{form?.formResponsesCount > 0 && (
+														<p className="responses-count">
+															<span>{form?.formResponsesCount}</span>{' '}
+															<span>
+																Response
+																{form?.formResponsesCount > 1 &&
+																	's'}
+															</span>{' '}
+															<TrendUp />
+														</p>
+													)}
+													<p
+														className="createdAt"
+														data-tooltip={`Created on ${moment
+															.unix(form?.createdAt)
+															.format('DD MMM YYYY')}`}
+													>
+														<Tooltip title="Created On">
+															Edited{' '}
+															{moment.unix(form?.createdAt).fromNow()}
+														</Tooltip>
+													</p>
+												</div>
+												<div className="card-footer">
+													<div className="file-status">
+														{form?.status === 'published' ? (
+															<>
+																<GreenDot />
+																<span>Live</span>
+															</>
+														) : (
+															<>
+																<GreyDot />
+																<span>Draft</span>
+															</>
+														)}
+													</div>
+													<div className="cta-container">
+														{' '}
+														{getFormCtaActions(form?.status)?.map(
+															(cta) => (
+																<div
+																	className="cta"
+																	key={cta?.id}
+																	onClick={(e) =>
+																		handleFileCta({
+																			e,
+																			action: cta?.action,
+																			slug: form?.slug,
+																			formId: form?._id,
+																			formTitle: form?.title,
+																		})
+																	}
+																>
+																	{cta?.icon}
+																</div>
+															),
+														)}
+													</div>
+												</div>
+											</div>
+										</div>
+									)}
 								</div>
 							))}
 						</div>
@@ -431,6 +629,44 @@ const FormsGrid = ({
 					</div>
 				)}
 			</div>
+			<ReactModal
+				isOpen={deleteModal.open}
+				closeModal={handleCancelDelete}
+				shouldCloseOnOverlayClick={true}
+			>
+				<div className="delete-form-modal">
+					<div className="delete-form-modal__header-group">
+						<h1 className="delete-form-modal__title">Delete Form?</h1>
+						<p className="delete-form-modal__desc">
+							{(() => {
+								const form = info.forms.find((f) => f._id === deleteModal.formId);
+								const count = form?.formResponsesCount || 0;
+								return `This form has ${count} response${count === 1 ? '' : 's'}.`;
+							})()}
+						</p>
+					</div>
+					<div className="delete-form-modal__desc-warning-group">
+						<p className="delete-form-modal__warning">
+							This action cannot be undone, and all responses collected will be
+							permanently removed.{' '}
+						</p>
+					</div>
+					<div className="delete-form-modal__button-group">
+						<button
+							className="delete-form-modal__button delete-form-modal__button--cancel"
+							onClick={handleCancelDelete}
+						>
+							Cancel
+						</button>
+						<button
+							className="delete-form-modal__button delete-form-modal__button--delete"
+							onClick={handleConfirmDelete}
+						>
+							Delete Permanently
+						</button>
+					</div>
+				</div>
+			</ReactModal>
 		</div>
 	);
 };

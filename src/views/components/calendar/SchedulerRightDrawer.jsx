@@ -21,6 +21,39 @@ import { isURL } from '../../../helpers';
 import AvailabilitySection from './AvailabilitySection';
 import ShareModal from '../globalComponents/globalShareModal';
 
+const styles = {
+	header: { display: 'none' },
+	body: { padding: '0px' },
+};
+
+const timeZoneTooltipStyles = {
+	body: {
+		width: '100%',
+		padding: '0',
+		overflow: 'hidden',
+		border: '1px solid var(--stroke)',
+		borderRadius: 8,
+	},
+};
+
+const durationTooltipStyles = {
+	body: {
+		width: '100%',
+		padding: '0',
+	},
+};
+
+const sessionTypeTooltipStyles = {
+	body: {
+		width: '100%',
+		padding: '0',
+	},
+};
+
+const bufferTooltipStyles = {
+	body: { width: '100%', padding: '0' },
+};
+
 const sessionTypeOptions = ['In Person', 'Phone Call', 'Video Call'];
 const sessionTypeInputConfig = {
 	'In Person': {
@@ -943,8 +976,7 @@ const SchedulerRightDrawer = ({
 			open={open}
 			onClose={handleClose}
 			placement="right"
-			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
+			styles={styles}
 			rootClassName="scheduler-right-drawer-wrapper"
 		>
 			<div className="scheduler-right-drawer-container">
@@ -1180,13 +1212,7 @@ const SchedulerRightDrawer = ({
 															}
 															trigger={'click'}
 															color={'transparent'}
-															overlayStyle={{
-																width: '100%',
-																padding: '0',
-																overflow: 'hidden',
-																border: '1px solid var(--stroke)',
-																borderRadius: 8,
-															}}
+															styles={timeZoneTooltipStyles}
 														>
 															<div
 																className="typeOfSession-lable timezone-select"
@@ -1295,10 +1321,7 @@ const SchedulerRightDrawer = ({
 															}
 															trigger={'click'}
 															color={'transparent'}
-															overlayStyle={{
-																width: '100%',
-																padding: '0',
-															}}
+															styles={durationTooltipStyles}
 														>
 															<div className="typeOfSession-lable">
 																{info.durationUnit}
@@ -1393,10 +1416,7 @@ const SchedulerRightDrawer = ({
 														}
 														trigger={'click'}
 														color={'transparent'}
-														overlayStyle={{
-															width: '100%',
-															padding: '0',
-														}}
+														styles={sessionTypeTooltipStyles}
 													>
 														<div className="typeOfSession-lable">
 															{info?.sessionType}
@@ -1619,7 +1639,7 @@ const SchedulerRightDrawer = ({
 												}
 												trigger={'click'}
 												color={'transparent'}
-												overlayStyle={{ width: '100%', padding: '0' }}
+												styles={bufferTooltipStyles}
 											>
 												<div className="typeOfSession-lable">
 													{info.bufferUnit}

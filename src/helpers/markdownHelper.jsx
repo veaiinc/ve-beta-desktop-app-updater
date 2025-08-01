@@ -386,8 +386,8 @@ const createCustomComponents = (citations, markdown) => ({
 		);
 	},
 });
-
-const remarkPlugins = [remarkGfm, remarkMath];
+// [remarkGfm, remarkMath]
+const remarkPlugins = [remarkGfm];
 const rehypePlugins = [rehypeKatex, rehypeCITPlugin, rehypeRaw];
 
 const NonMemoizedMarkdown = ({ children, citations }) => {
@@ -578,7 +578,11 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 							arrow={false}
 							trigger={'hover'}
 							color="transparent"
-							title={<div className="user-hover-icons-tooltip">Copy</div>}
+							title={
+								<div className="user-hover-icons-tooltip">
+									{info?.isCopiedToClipboard ? 'Copied' : 'Copy'}
+								</div>
+							}
 						>
 							{info?.isCopiedToClipboard ? (
 								<TickSvg />

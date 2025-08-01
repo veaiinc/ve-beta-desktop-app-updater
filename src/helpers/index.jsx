@@ -242,16 +242,17 @@ let urlMapper = {
 	'www.ve.co': 'https://builder.ve.co',
 };
 
-let hostNameMapper = {
+export const fetchOriginSelection = () => {
+	const hostname = window.location.hostname;
+	return urlMapper?.[hostname];
+};
+
+const hostNameMapper = {
 	localhost: 'localhost',
 	've.ai': 've.ai',
 	've.co': 've.co',
 	'www.ve.co': 've.co',
 	'www.ve.ai': 've.ai',
-};
-export const fetchOriginSelection = () => {
-	const hostname = window.location.hostname;
-	return urlMapper?.[hostname];
 };
 
 export const fetchDomainName = () => {
@@ -403,10 +404,27 @@ export const redirectTypeMapper = {
 	proactiveai: 'proactiveai_id',
 };
 
-const origin = fetchOriginSelection();
-
 // Email validation utility
 export const isValidEmail = (email) => {
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	return emailRegex.test(email);
+};
+
+export const getUserBrowser = () => {
+	const userAgent = navigator.userAgent;
+	const browser = userAgent.match(/Firefox|Chrome|Safari|Opera|Edge/)[0];
+	return browser;
+};
+
+export const getUserDevice = () => {
+	const ua = navigator.userAgent;
+
+	if (/iPhone|iPad|iPod/i.test(ua)) return 'iOS';
+	if (/Android/i.test(ua)) return 'Android';
+	if (/Windows Phone/i.test(ua)) return 'Windows Phone';
+	if (/Mac/i.test(ua) && !/iPhone|iPad|iPod/i.test(ua)) return 'Mac';
+	if (/Windows/i.test(ua)) return 'Windows';
+	if (/Linux/i.test(ua)) return 'Linux';
+
+	return 'Unknown';
 };

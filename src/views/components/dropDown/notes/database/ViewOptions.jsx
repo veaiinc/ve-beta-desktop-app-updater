@@ -215,7 +215,7 @@ const ViewOptions = ({
 				)
 			}
 			placement="bottomRight"
-			overlayClassName="status-dropdown"
+			classNames={{ root: 'status-dropdown' }}
 			color="transparent"
 			open={info?.isOpen}
 			trigger={['click']}
