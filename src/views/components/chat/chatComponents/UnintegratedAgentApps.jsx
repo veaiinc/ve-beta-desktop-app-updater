@@ -87,12 +87,13 @@ const UnintegratedAgentApps = ({ apps = [] }) => {
 			<div className={s.appsContainer}>
 				{apps?.map((app, index) => (
 					<div className={s.appContainer} key={index}>
-						<div className={s.title}>{app || ''}</div>
+						<img src={app?.image_url} alt={app?.app} className={s.appIcon} />
+						<div className={s.title}>{app?.app || ''}</div>
 						{info?.connectedTools[index] && <CircleTick />}
 						{!info?.connectedTools[index] && (
 							<button
 								className={s.connectBtn}
-								onClick={() => handleAddTool(app, index)}
+								onClick={() => handleAddTool(app?.app, index)}
 							>
 								Connect
 								{info?.loading && info?.selectedIndex === index && (

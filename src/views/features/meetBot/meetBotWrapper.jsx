@@ -1,14 +1,14 @@
-import { memo, useCallback, useContext, useEffect, useState } from 'react';
-import '../../../assets/scss/notes/notesWrapper.scss';
-import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosingPrimary.svg';
-import RecentChat from '../chat/RecentChat';
-import ObjectID from 'bson-objectid';
 import Context from '../../../context/context';
+import { useContext, useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import TranscriptionSidebar from './TranscriptionSidebar';
-import DatabaseWithNote from './DatabaseWithNote';
+import ObjectID from 'bson-objectid';
+import RecentChat from '../chat/RecentChat';
+import TranscriptionSidebar from '../notesModule/TranscriptionSidebar';
+import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosingPrimary.svg';
+import '../../../assets/scss/notes/notesWrapper.scss';
+import MeetBotContainer from './meetBotContainer';
 
-const NotesWrapper = () => {
+const MeetBotWrapper = () => {
 	const {
 		templates: { updateStateValues },
 	} = useContext(Context);
@@ -60,7 +60,7 @@ const NotesWrapper = () => {
 		<div className={'notes-parent-wrapper'}>
 			<div className="leftWrapper">
 				<div className="notesContainerWrapper">
-					<DatabaseWithNote
+					<MeetBotContainer
 						showTranscriptTabs={true}
 						showAmbientAssistance={info?.showAmbientAssistance}
 					/>
@@ -102,30 +102,30 @@ const NotesWrapper = () => {
 				</div>
 			</div>
 			{/* <div
-				className={`switchContainer ${
-					info?.showAmbientAssistance ? 'SuggestionSidebarActive' : ''
-				}`}
-			>
-				<ToggleSlider
-					value={info?.showAmbientAssistance}
-					onChange={(checked) => {
-						setInfo((prev) => ({
-							...prev,
-							showAmbientAssistance: checked,
-						}));
-					}}
-				/>
-			</div> */}
+                    className={`switchContainer ${
+                        info?.showAmbientAssistance ? 'SuggestionSidebarActive' : ''
+                    }`}
+                >
+                    <ToggleSlider
+                        value={info?.showAmbientAssistance}
+                        onChange={(checked) => {
+                            setInfo((prev) => ({
+                                ...prev,
+                                showAmbientAssistance: checked,
+                            }));
+                        }}
+                    />
+                </div> */}
 			{/* {info?.showAmbientAssistance && (
-				<AiTranscriptionSuggestions
-					data={aiTranscriptionSuggestions || []}
-					modalIsOpen={info?.modalIsOpen}
-					closeModal={handleCloseModal}
-					showAmbientAssistance={info?.showAmbientAssistance}
-				/>
-			)} */}
+                    <AiTranscriptionSuggestions
+                        data={aiTranscriptionSuggestions || []}
+                        modalIsOpen={info?.modalIsOpen}
+                        closeModal={handleCloseModal}
+                        showAmbientAssistance={info?.showAmbientAssistance}
+                    />
+                )} */}
 		</div>
 	);
 };
 
-export default memo(NotesWrapper);
+export default MeetBotWrapper;

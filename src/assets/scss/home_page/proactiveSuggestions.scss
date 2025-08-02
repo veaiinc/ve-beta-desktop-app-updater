@@ -68,7 +68,7 @@
 				flex-direction: column;
 				align-items: flex-start;
 				justify-content: center;
-				gap: 6px;
+				gap: 12px;
 				width: 100%;
 				flex-grow: 1;
 
@@ -92,8 +92,8 @@
 
 				.header__card-description {
 					display: -webkit-box;
-					-webkit-line-clamp: 4;
-					line-clamp: 4;
+					-webkit-line-clamp: 3;
+					line-clamp: 3;
 					-webkit-box-orient: vertical;
 					overflow: hidden;
 					text-align: center;
@@ -116,12 +116,12 @@
 				position: absolute;
 				bottom: 10px;
 				left: 0px;
-				width: 98%;
+				width: 100%;
 				display: flex;
 				flex-direction: row;
 				justify-content: space-between;
 				gap: 16px;
-				padding: 4px;
+				padding: 0 8px;
 				display: none;
 				.module-type {
 					color: var(--secondary-font, #93989f);
@@ -1355,6 +1355,7 @@
 		display: flex;
 		align-items: center;
 		align-content: center;
+		justify-content: center;
 		position: relative;
 		gap: 6px;
 		width: 100%;

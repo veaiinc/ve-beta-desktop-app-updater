@@ -1178,8 +1178,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 									/>
 								)}
 
-							{/* {(!showTranscriptTabs ||
-								(showTranscriptTabs && activeTab === 'notes')) && (
+							{(!showTranscriptTabs) && (
 								<Editor
 									innerContainerStyle={innerContainerStyle}
 									myAccess={info?.myAccess}
@@ -1193,7 +1192,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 									updateBlock={updateBlock}
 									deleteBlock={deleteBlock}
 								/>
-							)} */}
+							)}
 
 							{showTranscriptTabs && type === 'meeting_bot' && !history && (
 								<TranscriptionWrapper
