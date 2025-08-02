@@ -2,6 +2,9 @@
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
+	// height: fit-content !important;
+	height: 100%;
+	width: 100%;
 
 	.email {
 		color: var(--primary-font, #f2f2f3);
@@ -21,15 +24,20 @@
 		.header {
 			display: flex;
 			flex-direction: column;
-			gap: 6px;
+			align-items: flex-start;
+			gap: 8px;
 
 			.title {
 				color: var(--primary-font, #f2f2f3);
 				font-family: var(--primary-font-family);
-				font-size: 32px;
+				font-size: 34px;
 				font-style: normal;
-				font-weight: 600;
+				font-weight: 500;
 				line-height: normal;
+
+				.title-highlight {
+					color: var(--primary-button);
+				}
 			}
 
 			.subtitle {
@@ -37,7 +45,7 @@
 				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
-				font-weight: 400;
+				font-weight: 500;
 				line-height: normal;
 			}
 		}
@@ -46,12 +54,13 @@
 			display: flex;
 			flex-direction: column;
 			gap: 40px;
+			width: 100%;
 
 			.userDetailsSection,
 			.workspaceDetailsSection {
 				display: flex;
 				flex-direction: column;
-				gap: 62px;
+				// gap: 24px;
 
 				.nameInputContainer,
 				.phoneInputContainer,
@@ -65,7 +74,7 @@
 					flex-direction: column;
 					gap: 12px;
 					position: relative;
-					height: 50px;
+					padding: 0 1px;
 
 					.question {
 						color: var(--primary-font);
@@ -83,9 +92,13 @@
 						background-color: var(--card);
 						border-radius: 12px;
 
+						&:has(.nameInput:focus) {
+							outline: 1px solid var(--secondary-font);
+						}
+
 						.nameInput {
-							width: calc(100% - 49px);
-							border-radius: 12px;
+							width: 100%;
+							border-radius: 8px;
 							background: var(--card);
 							color: var(--primary-font);
 							font-family: var(--primary-font-family);
@@ -93,7 +106,7 @@
 							font-style: normal;
 							font-weight: 500;
 							line-height: normal;
-							padding: 12px 16px;
+							padding: 14px 16px;
 							outline: none;
 							border: none;
 						}
@@ -135,36 +148,6 @@
 							.uploadIcon {
 								font-size: 20px;
 								color: var(--secondary-font);
-							}
-						}
-					}
-
-					.phoneInputNumber {
-						width: 100%;
-						border-radius: 12px;
-						padding: 12px 16px;
-						background: var(--card);
-						color: var(--primary-font);
-						font-family: var(--primary-font-family);
-						font-size: 14px;
-						font-style: normal;
-						border: none;
-						outline: none;
-						height: 40px;
-
-						.PhoneInputInput {
-							background-color: inherit;
-							border: none;
-							outline: none;
-							color: var(--primary-font);
-							width: 100%;
-
-							&::placeholder {
-								color: var(--secondary-font, #7a7e85);
-								font-family: var(--primary-font-family);
-								font-size: 14px;
-								font-style: normal;
-								font-weight: 500;
 							}
 						}
 					}
@@ -285,6 +268,7 @@
 						width: 100%;
 						display: flex;
 						gap: 8px;
+						flex-wrap: wrap;
 
 						:nth-child(1) {
 							width: 60%;
@@ -318,11 +302,14 @@
 
 							&.active {
 								border-radius: 8px;
-								border: 1px solid var(--stroke, #2c2d2e);
-								background: var(--card, #1b1c1d);
+								border: 1px solid var(--primary-button);
+								background-color: var(--card, #1b1c1d);
 							}
 							&:hover {
-								background: var(--card-over-card-hover);
+								background-color: var(--card-over-card-hover);
+								&:not(.active) {
+									border: 1px solid var(--card-over-card-hover);
+								}
 							}
 						}
 					}
@@ -338,10 +325,6 @@
 					.PhoneInput {
 						flex: 1;
 						width: 100%;
-					}
-
-					.phoneInputNumber {
-						padding-right: 90px;
 					}
 
 					.verifyPhoneNumberBtn {
@@ -378,28 +361,6 @@
 				}
 
 				.companyNameAndLogoInputs {
-					display: flex;
-					justify-content: space-between;
-					gap: 8px;
-					background-color: var(--card);
-					border-radius: 12px;
-
-					.companyNameInput {
-						width: calc(100% - 49px);
-						border-radius: 12px;
-						background: var(--card);
-						color: var(--primary-font);
-						font-family: var(--primary-font-family);
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-						padding: 12px 16px;
-						outline: none;
-						border-radius: 12px;
-						border: none;
-					}
-
 					.companyLogoInputContainer {
 						width: 41px;
 						height: 41px;
@@ -473,26 +434,6 @@
 				}
 
 				.workspaceTypeInputContainer {
-					display: flex;
-					justify-content: space-between;
-					background-color: var(--card);
-					border-radius: 12px;
-
-					.workspaceTypeInput {
-						width: 100%;
-						border-radius: 12px;
-						background: var(--card);
-						color: var(--primary-font);
-						font-family: var(--primary-font-family);
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-						padding: 12px 16px;
-						border: none;
-						outline: none;
-					}
-
 					.workspaceTypeDropdown {
 						width: 41px;
 						height: 41px;
@@ -555,7 +496,7 @@
 
 			.nameInputContainer,
 			.phoneInputContainer,
-			.otpInputContainer,
+			// .otpInputContainer,
 			.phoneInputContain,
 			.themeInputContainer {
 				width: 100%;
@@ -581,7 +522,7 @@
 					border-radius: 12px;
 
 					.nameInput {
-						width: calc(100% - 49px);
+						width: 100%;
 						border-radius: 12px;
 						background: var(--card);
 						color: var(--primary-font);
@@ -627,35 +568,6 @@
 							object-fit: cover;
 							border-radius: 50%;
 							padding: 6px;
-						}
-					}
-				}
-
-				.phoneInputNumber {
-					width: 100%;
-					border-radius: 12px;
-					padding: 12px 16px;
-					background: var(--card);
-					color: var(--primary-font);
-					font-family: var(--primary-font-family);
-					font-size: 14px;
-					font-style: normal;
-					border: none;
-					outline: none;
-					height: 40px;
-
-					.PhoneInputInput {
-						background-color: inherit;
-						border: none;
-						outline: none;
-						color: var(--primary-font);
-
-						&::placeholder {
-							color: var(--secondary-font, #7a7e85);
-							font-family: var(--primary-font-family);
-							font-size: 14px;
-							font-style: normal;
-							font-weight: 500;
 						}
 					}
 				}
@@ -871,28 +783,6 @@
 				}
 
 				.companyNameAndLogoInputs {
-					display: flex;
-					justify-content: space-between;
-					gap: 8px;
-					background-color: var(--card);
-					border-radius: 12px;
-
-					.companyNameInput {
-						width: calc(100% - 49px);
-						border-radius: 12px;
-						background: var(--card);
-						color: var(--primary-font);
-						font-family: var(--primary-font-family);
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-						padding: 12px 16px;
-						outline: none;
-						border-radius: 12px;
-						border: none;
-					}
-
 					.companyLogoInputContainer {
 						width: 41px;
 						height: 41px;
@@ -1020,6 +910,7 @@
 	justify-content: space-between;
 	align-items: center;
 	gap: 8px;
+	width: 100%;
 
 	.backBtn,
 	.continueBtn {
@@ -1060,56 +951,248 @@
 		height: 41px;
 	}
 }
-@media (max-width: 768px) {
-	.btnsContainer {
-		flex-direction: column;
-		gap: 12px;
 
-		.backBtn,
-		.continueBtn {
-			width: 100%;
-			height: 45px;
+.companyNameContainer {
+	.companyNameAndLogoInputs {
+		display: flex;
+		padding: 14px 16px;
+		align-items: center;
+		gap: 10px;
+		align-self: stretch;
+		border-radius: 8px;
+		background: var(--card, #1b1c1d);
+		border: 1px solid transparent;
+
+		&:has(.companyNameInput:focus) {
+			border: 1px solid var(--secondary-font);
+		}
+
+		.companyNameInput {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
-			margin-top: 49px;
-		}
-	}
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			background-color: transparent;
+			border: none;
+			outline: none;
+			width: 100%;
+			height: 100%;
+			padding: 0;
 
-	.header {
-		grid-template-columns: 1fr;
-		gap: 24px;
-
-		.logoDivProfile {
-			grid-column: 1;
-			order: 1;
-			justify-self: center;
-		}
-
-		.detailsBody {
-			grid-column: 1;
-			order: 2;
-		}
-	}
-
-	h1 {
-		font-size: 24px;
-	}
-
-	// Ensure SVG icons in themeOption maintain their original sizes on mobile
-	.themeOptionsContainer {
-		flex-wrap: wrap;
-
-		.themeOption {
-			svg {
-				width: auto !important;
-				height: auto !important;
-				min-width: 20px;
-				min-height: 20px;
+			&::placeholder {
+				color: var(--secondary-font, #94989e);
 			}
 		}
 	}
 }
-@media (max-width: 1024px) {
-	.stageContainer {
-		margin-top: -180px;
+
+.workspaceTypeInputContainer {
+	display: flex;
+	padding: 14px 16px;
+	align-items: center;
+	gap: 10px;
+	align-self: stretch;
+	border-radius: 8px;
+	background-color: var(--card);
+	border: 1px solid transparent;
+	&:has(.workspaceTypeInput:focus) {
+		border: 1px solid var(--secondary-font);
+	}
+
+	.workspaceTypeInput {
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		background-color: transparent;
+		border: none;
+		outline: none;
+		width: 100%;
+		height: 100%;
+		padding: 0;
+
+		&::placeholder {
+			color: var(--secondary-font, #94989e);
+		}
+	}
+}
+
+.workspaceDetailsSection {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	overflow: hidden;
+	max-height: 0;
+	transition: max-height 1s ease-in-out;
+
+	&.show {
+		max-height: 400px;
+	}
+}
+
+.phoneNumberInputContainer {
+	margin-top: 24px;
+
+	.phoneInputOtpInputContainer {
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+		overflow: hidden;
+		max-height: 0;
+		transition: max-height 1s ease-in-out, border-top 1.5s ease-in-out;
+
+		&.show {
+			margin-top: 24px;
+			padding-top: 24px;
+			border-top: 1px solid var(--stroke, #424548);
+			max-height: 300px; // approximate max height of content
+		}
+
+		.otpContainerText {
+			// display: flex;
+			padding: 6px 8px;
+			align-items: center;
+			gap: 8px;
+			align-self: stretch;
+			border-radius: 8px;
+			background-color: var(--primary-opacity);
+			color: var(--primary-button, #79ecc9);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 24px;
+			flex-wrap: wrap;
+
+			.infoIcon {
+				width: 18px;
+				height: 18px;
+				display: inline-flex;
+				border-radius: 18px;
+				border: 1px solid var(--primary-button);
+				justify-content: center;
+				align-items: center;
+				font-size: 13px;
+				font-family: 'Palatino Linotype', Palatino, serif;
+				margin-right: 4px;
+			}
+
+			.phoneNumberHighlight {
+				font-weight: 500;
+				margin-left: 4px;
+			}
+		}
+
+		.verification-code-input-container {
+			align-items: flex-start;
+		}
+
+		.otpActionsContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			width: 100%;
+
+			.otpResendBtn {
+				color: var(--primary-button, #79ecc9);
+				text-align: center;
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				background-color: transparent;
+				border: none;
+				outline: none;
+				cursor: pointer;
+			}
+
+			.changeNumberBtn {
+				color: var(--secondary-font, #94989e);
+				text-align: center;
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				background-color: transparent;
+				border: none;
+				outline: none;
+				cursor: pointer;
+			}
+		}
+	}
+
+	.phoneInputContainer {
+		&.disabled {
+			opacity: 0.5;
+		}
+
+		.phoneInputNumber {
+			display: flex;
+			width: 100%;
+			height: 47px;
+			padding-left: 16px;
+			justify-content: space-between;
+			align-items: center;
+			border-radius: 8px;
+			background: var(--card, #1b1c1d);
+			gap: 10px;
+			border: 1px solid transparent;
+
+			&:has(.PhoneInputInput:focus) {
+				border: 1px solid var(--secondary-font);
+			}
+
+			.PhoneInputInput {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				background-color: transparent;
+				border: none;
+				outline: none;
+				cursor: pointer;
+				width: 100%;
+				height: 45px;
+				padding-right: 16px;
+			}
+			select {
+				-webkit-appearance: none;
+				-moz-appearance: none;
+				appearance: none;
+			}
+			select {
+				color: #333;
+				background-color: white;
+				font-size: 16px;
+				padding: 8px 12px;
+				border-radius: 6px;
+				border: 1px solid #ccc;
+			}
+		}
+	}
+}
+
+.nameInputContainer {
+	&.disabled {
+		opacity: 0.5;
+	}
+}
+
+.topAnimationSection {
+	overflow: hidden;
+	max-height: 0;
+	transition: max-height 1s ease-in-out;
+
+	&.show {
+		max-height: 600px;
 	}
 }
