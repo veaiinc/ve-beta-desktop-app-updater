@@ -1,0 +1,194 @@
+.verification-code-container {
+	display: flex;
+	width: 100%;
+	max-width: 400px;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+	gap: 80px;
+	.verification-code-header-container {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		align-self: stretch;
+		gap: 80px;
+		.verification-code-title-container {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 16px;
+			align-self: stretch;
+
+			.verification-code-title {
+				color: var(--primary-font, #f2f2f3);
+				text-align: center;
+				font-family: var(--primary-font-family);
+				font-size: 40px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+
+				.verification-code-title-span {
+					color: var(--primary-button, #79ecc9);
+				}
+			}
+
+			.verification-code-subtitle {
+				color: var(--primary-font, #f2f2f3);
+				text-align: center;
+				font-family: var(--primary-font-family);
+				font-size: 18px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 26px;
+			}
+		}
+
+		.verification-code-input-container-wrapper {
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-end;
+			align-items: center;
+			gap: 24px;
+			align-self: stretch;
+			.verification-code-input-container {
+				width: 100%;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				position: relative;
+
+				input {
+					&::selection {
+						background-color: transparent;
+					}
+				}
+
+				.otp-error-message {
+					position: absolute;
+					top: -24px;
+					color: var(--error);
+					font-family: var(--secondary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					text-align: right;
+				}
+
+				.otp-input-container {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					gap: 8px;
+					flex-direction: column;
+
+					.ant-otp {
+						.ant-input {
+							background-color: var(--card);
+							border: none;
+							outline: none;
+							border-radius: 12px;
+							border: 1px solid var(--stroke);
+							background: var(--card);
+							padding: 14px 19px;
+							width: 50px;
+							height: 50px;
+							color: var(--primary-font);
+
+							&::placeholder {
+								color: var(--primary-font);
+							}
+						}
+						.ant-input-otp-input::placeholder {
+							content: '0';
+						}
+					}
+				}
+			}
+
+			.verification-code-button {
+				margin-top: 40px;
+				border-radius: 60px;
+				background: var(--card-over-card);
+				border: none;
+				transition: all 0.3s ease;
+				width: 100%;
+				height: 45px;
+				padding: 14px 24px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 12px;
+				color: var(--secondary-font);
+				font-family: var(--secondary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+
+				svg {
+					margin-top: -3px;
+				}
+
+				.verify-code-text-container {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					gap: 12px;
+				}
+			}
+
+			.resend-code-text {
+				color: var(--primary-button, #79ecc9);
+				text-align: center;
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+
+				&.disabled {
+					opacity: 0.5;
+					cursor: not-allowed;
+				}
+			}
+			.back-btn-container {
+				color: var(--secondary-font, #94989e);
+				text-align: center;
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+	}
+	.acknowledge-container {
+		color: var(--primary-font, #f2f2f3);
+		text-align: center;
+		.acknowledge-text {
+			color: var(--secondary-font, #7a7e85);
+			text-align: center;
+			font-family: var(--primary-font-family);
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 20px;
+		}
+		.acknowledge-text-link {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 20px;
+			text-decoration-line: underline;
+			text-decoration-style: solid;
+			text-decoration-skip-ink: auto;
+			text-decoration-thickness: auto;
+			text-underline-offset: auto;
+			text-underline-position: from-font;
+		}
+	}
+}
