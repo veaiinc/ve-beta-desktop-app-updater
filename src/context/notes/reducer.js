@@ -520,6 +520,10 @@ const actionHandlers = {
 		meetSummary: action?.payload,
 	}),
 	UPDATE_STATE_VALUES_SUCCESS: (state, action) => ({ ...state, ...action.payload }),
+	CREATE_MEET_BOT_SUCCESS: (state, action) => ({
+		...state,
+		createBotInfo: action?.payload?.createBotInfo,
+	}),
 	RESET_STATE: () => intialState,
 };
 
