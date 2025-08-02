@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useEffect } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import s from '../../../assets/scss/home_page/activeChatIndication.module.scss';
 import { Tooltip } from 'antd';
 import RecentChatsTooltip from './RecentChatsTooltip';
@@ -22,6 +22,10 @@ const ActiveChatIndication = ({ activeChatIndex, activeChatData }) => {
 		},
 	} = useContext(Context);
 
+	const [info, setInfo] = useState({
+		previousChats: 0,
+	});
+
 	const chats = aiChatSessions?.data;
 	const hasNextPage = aiChatSessions?.hasMore || false;
 	const currentPage = aiChatSessions?.currentPage || 1;
@@ -37,6 +41,26 @@ const ActiveChatIndication = ({ activeChatIndex, activeChatData }) => {
 			fetchChats();
 		}
 	}, []);
+
+	useEffect(() => {
+		if (activeChatData && aiChatSessions?.data) {
+			const index = aiChatSessions?.data?.findIndex(
+				(chat) => chat?._id === activeChatData?._id,
+			);
+
+			if (index !== -1) {
+				setInfo((prev) => ({
+					...prev,
+					previousChats: index + 1,
+				}));
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					previousChats: 0,
+				}));
+			}
+		}
+	}, [activeChatData, aiChatSessions?.data]);
 
 	useEffect(() => {
 		if (currentSessionId) {
@@ -99,13 +123,22 @@ const ActiveChatIndication = ({ activeChatIndex, activeChatData }) => {
 			placement="center"
 			color="transparent"
 		>
-			<div className={s.activeChatIndication}>
-				{tabArray?.map((tab, index) => (
-					<div
-						className={`${s.chatTab} ${index === indicatorIndex ? s.active : ''}`}
-						key={index}
-					/>
-				))}
+			<div className={s.chatsWrapper}>
+				{chats?.length && <div className={s.previousChatsCount}>{info?.previousChats}</div>}
+
+				<div className={s.activeChatIndication}>
+					{tabArray?.map((tab, index) => (
+						<div
+							className={`${s.chatTab} ${index === indicatorIndex ? s.active : ''}`}
+							key={index}
+						/>
+					))}
+				</div>
+				{chats?.length && (
+					<div className={s.totalChatsCount}>
+						{chats?.length > 50 ? `+${chats?.length}` : chats?.length}
+					</div>
+				)}
 			</div>
 		</Tooltip>
 	);
