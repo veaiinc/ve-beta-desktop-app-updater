@@ -32,8 +32,8 @@ const tooltipStyle = {
 const baseLeftContainerItems = [
 	{
 		id: 1,
-		label: 'Insights',
-		route: '/insights',
+		label: 'Ambient',
+		route: '/ambient-ai',
 	},
 	{
 		id: 2,
@@ -490,7 +490,7 @@ const TopNavbar = () => {
 							) : (
 								<p className={s.nameInitials}>{nameInitials}</p>
 							)}
-							<DownCaret />
+							{/* <DownCaret /> */}
 						</li>
 					</Tooltip>
 				</ul>
