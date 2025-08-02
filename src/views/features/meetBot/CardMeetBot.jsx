@@ -9,6 +9,7 @@ import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search
 import { ReactComponent as AddIcon } from '../../../assets/svg/add.svg';
 import GuideMePopup from './guideMePopup';
 import CreateMeetingModal from './CreateMeetingModal';
+import moment from 'moment';
 
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -45,8 +46,6 @@ const CardMeetBot = () => {
 		if (!existingBots) {
 			getExistingBots({ page: 1, limit: 10, append: false });
 		}
-
-
 	}, []);
 
 	// Carousel navigation handlers
@@ -323,8 +322,17 @@ const CardMeetBot = () => {
 																		|
 																	</div>
 																)}
-																<div>
-																	{formatDate(meeting.createdAt)}
+																<div
+																	style={{
+																		textOverflow: 'ellipsis',
+																		overflow: 'hidden',
+																		whiteSpace: 'nowrap',
+																		maxWidth: '100px',
+																	}}
+																>
+																	{moment
+																		.unix(meeting.createdAt)
+																		.format('DD MMM YYYY')}
 																</div>
 															</div>
 														</div>
