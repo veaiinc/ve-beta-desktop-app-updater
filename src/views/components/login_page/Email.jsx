@@ -287,7 +287,7 @@ const Email = ({
 						</button>
 					</div>
 				</div>
-				{info?.isHostnameVeDotAi || true && (
+				{info?.isHostnameVeDotAi && (
 					<>
 						<div className="or-divider">
 							<div className="line"></div>
