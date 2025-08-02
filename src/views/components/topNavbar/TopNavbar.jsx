@@ -161,6 +161,7 @@ const TopNavbar = () => {
 				toolsTooltipOpen: false,
 				settingsTooltipOpen: false,
 			}));
+			navigate(`/files?active-tab=Documents&viewMode=card`);
 			return;
 		}
 		navigate(route);
@@ -334,7 +335,7 @@ const TopNavbar = () => {
 												}
 											/>
 										}
-										placement="bottomRight"
+										placement="bottom"
 										arrow={false}
 										color={'transparent'}
 										rootClassName={s.topNavbarSettings}
@@ -372,7 +373,7 @@ const TopNavbar = () => {
 												}
 											/>
 										}
-										placement="bottomRight"
+										placement="bottom"
 										arrow={false}
 										color={'transparent'}
 										rootClassName={s.topNavbarSettings}
