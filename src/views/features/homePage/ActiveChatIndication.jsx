@@ -9,7 +9,7 @@ const page = 1;
 const limit = 10;
 const append = true;
 
-const ActiveChatIndication = ({ activeChatIndex, activeChatData }) => {
+const ActiveChatIndication = ({ activeChatData }) => {
 	const navigate = useNavigate();
 	const {
 		aiSetup: { getAiChatSessions, aiChatSessions },
@@ -24,6 +24,7 @@ const ActiveChatIndication = ({ activeChatIndex, activeChatData }) => {
 
 	const [info, setInfo] = useState({
 		previousChats: 0,
+		activeChatIndex: -1,
 	});
 
 	const chats = aiChatSessions?.data;
@@ -33,7 +34,6 @@ const ActiveChatIndication = ({ activeChatIndex, activeChatData }) => {
 	const totalCards = totalChats + 1;
 	const maxIndicators = 10;
 	const totalIndicators = totalCards <= maxIndicators ? totalCards : maxIndicators;
-	const indicatorIndex = activeChatIndex % 10;
 	const tabArray = Array.from({ length: totalIndicators });
 
 	useEffect(() => {
@@ -52,11 +52,13 @@ const ActiveChatIndication = ({ activeChatIndex, activeChatData }) => {
 				setInfo((prev) => ({
 					...prev,
 					previousChats: index + 1,
+					activeChatIndex: index % 10,
 				}));
 			} else {
 				setInfo((prev) => ({
 					...prev,
 					previousChats: 0,
+					activeChatIndex: -1,
 				}));
 			}
 		}
@@ -129,7 +131,9 @@ const ActiveChatIndication = ({ activeChatIndex, activeChatData }) => {
 				<div className={s.activeChatIndication}>
 					{tabArray?.map((tab, index) => (
 						<div
-							className={`${s.chatTab} ${index === indicatorIndex ? s.active : ''}`}
+							className={`${s.chatTab} ${
+								index === info?.activeChatIndex ? s.active : ''
+							}`}
 							key={index}
 						/>
 					))}

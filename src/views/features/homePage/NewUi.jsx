@@ -340,7 +340,7 @@ const NewUi = ({ handleActiveChatChange }) => {
 	}, []);
 
 	useEffect(() => {
-		handleActiveChatChange(info.activeIndex, info.data?.[info.activeIndex]);
+		handleActiveChatChange(info.data?.[info.activeIndex]);
 	}, [info.activeIndex]);
 
 	const handleWheel = useCallback((e) => {
