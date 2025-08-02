@@ -221,6 +221,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 		},
 		searchOpen: false,
 		settingsOpen: false,
+		hasCards: false,
 	});
 
 	const promptsLength = promptsData?.data?.length ?? 0;
@@ -504,6 +505,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 				...prev,
 				totalCardsData: cards,
 				loading: false,
+				hasCards: true,
 			}));
 		} else {
 			totalCardsDataRef.current = [];
@@ -896,62 +898,58 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 									info?.selectedOption !== 'All' ? 'onPrompt' : ''
 								}`}
 							>
-								{(info?.cards.length > 0 ||
-									info?.searchQuery?.length !== 0 ||
-									info?.selectedFilters?.length > 0) &&
-									info?.selectedOption !== 'action' && (
-										<div className="right-container">
-											<div className="options-container">
-												{/* ←— unified search bar */}
-												<div
-													className="searchMainContainer"
-													ref={searchContainerRef}
+								{info?.hasCards && (
+									<div className="right-container">
+										<div className="options-container">
+											{/* ←— unified search bar */}
+											<div
+												className="searchMainContainer"
+												ref={searchContainerRef}
+											>
+												<button
+													className={`search-btn ${
+														info?.searchOpen ? 'expanded' : ''
+													}`}
+													onClick={handleSearchToggle}
+													aria-label="Toggle search"
 												>
-													<button
-														className={`search-btn ${
-															info?.searchOpen ? 'expanded' : ''
-														}`}
-														onClick={handleSearchToggle}
-														aria-label="Toggle search"
-													>
-														<SearchSvg stroke="var(--secondary-font)" />
-													</button>
-													<div
-														className={`search-wrapper ${
-															info?.searchOpen ? 'expanded' : ''
-														}`}
-													>
-														<input
-															className="search-input"
-															placeholder="Search"
-															onChange={handleSearchQueryChange}
-															ref={searchInputRef}
-														/>
-														{info?.searchLoading && (
-															<div className="search-loader">
-																<Spinner
-																	color="var(--primary-button)"
-																	borderWidth={2}
-																	width="15px"
-																	height="15px"
-																/>
-															</div>
-														)}
-														{info?.searchOpen && (
-															<button
-																className="close-btn"
-																onClick={handleSearchToggle}
-																aria-label="Close search"
-															>
-																<CloseSearchbarIcon />
-															</button>
-														)}
-													</div>
+													<SearchSvg stroke="var(--secondary-font)" />
+												</button>
+												<div
+													className={`search-wrapper ${
+														info?.searchOpen ? 'expanded' : ''
+													}`}
+												>
+													<input
+														className="search-input"
+														placeholder="Search"
+														onChange={handleSearchQueryChange}
+														ref={searchInputRef}
+													/>
+													{info?.searchLoading && (
+														<div className="search-loader">
+															<Spinner
+																color="var(--primary-button)"
+																borderWidth={2}
+																width="15px"
+																height="15px"
+															/>
+														</div>
+													)}
+													{info?.searchOpen && (
+														<button
+															className="close-btn"
+															onClick={handleSearchToggle}
+															aria-label="Close search"
+														>
+															<CloseSearchbarIcon />
+														</button>
+													)}
 												</div>
-												{(info?.cards.length > 0 ||
-													info?.searchQuery?.length !== 0 ||
-													info?.selectedFilters?.length > 0) && (
-													<div className="optionsRightMainContainer">
+											</div>
+											{info?.hasCards && (
+												<div className="optionsRightMainContainer">
+													<div className="filter-wrapper">
 														<Tooltip
 															open={info?.openFilter}
 															onOpenChange={() =>
@@ -1072,73 +1070,76 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 																userSelect: 'none',
 															}}
 														>
-															<div
-																className="action-left"
-																onClick={() => {
+															<button
+																className={`filter-btn ${
+																	info.openFilter ? 'active' : ''
+																}`}
+																onClick={(e) => {
+																	e.stopPropagation();
+																	e.preventDefault();
 																	if (info.openFilter) return;
 																	setInfo((prev) => ({
 																		...prev,
 																		openFilter: true,
 																	}));
 																}}
+																data-tooltip="Filter"
 															>
-																<button
-																	className={`filter-btn ${
-																		info.openFilter
-																			? 'active'
-																			: ''
-																	}`}
-																	data-tooltip="Filter"
-																>
-																	<FilterIcon stroke="var(--secondary-font)" />
-																</button>
-															</div>
+																<FilterIcon stroke="var(--secondary-font)" />
+															</button>
 														</Tooltip>
-													</div>
-												)}
-											</div>
-										</div>
-									)}
 
-								{(info?.cards.length > 0 ||
-									info?.searchQuery?.length !== 0 ||
-									info?.selectedFilters?.length > 0) && (
-									<div className="optionsRightMainContainer">
-										{(info?.cards.length > 0 ||
-											info?.searchQuery?.length !== 0 ||
-											info?.selectedFilters?.length > 0) && (
-											<div className="action-right">
-												<button
-													className="card-change-btn"
-													onClick={(e) => {
-														e.stopPropagation();
-														e.preventDefault();
-														handleLeft();
-													}}
-												>
-													<ChevronRightThinSvg className="left-chevron" />
-												</button>
-												<div className="card-number">
-													<span>{currentIndexRef?.current + 1}</span>/
-													<span className="total-docs">
-														{
-															aiSuggestedPendingActions?.metaInfo
-																?.totalDocs
-														}
-													</span>
+														{info?.selectedFilters?.length > 0 && (
+															<div className="selected-filters">
+																Filters :{' '}
+																{`${info?.selectedFilters?.[0]?.title}`}
+																{info?.selectedFilters?.length >
+																	1 && (
+																	<span className="filter-count">
+																		+
+																		{info?.selectedFilters
+																			?.length - 1}
+																	</span>
+																)}
+															</div>
+														)}
+													</div>
 												</div>
-												<button
-													className="card-change-btn"
-													onClick={(e) => {
-														e.stopPropagation();
-														e.preventDefault();
-														handleRight();
-													}}
-												>
-													<ChevronRightThinSvg />
-												</button>
+											)}
+										</div>
+									</div>
+								)}
+
+								{info?.cards?.length > 0 && (
+									<div className="optionsRightMainContainer">
+										<div className="action-right">
+											<button
+												className="card-change-btn"
+												onClick={(e) => {
+													e.stopPropagation();
+													e.preventDefault();
+													handleLeft();
+												}}
+											>
+												<ChevronRightThinSvg className="left-chevron" />
+											</button>
+											<div className="card-number">
+												<span>{currentIndexRef?.current + 1}</span>/
+												<span className="total-docs">
+													{aiSuggestedPendingActions?.metaInfo?.totalDocs}
+												</span>
 											</div>
-										)}
+											<button
+												className="card-change-btn"
+												onClick={(e) => {
+													e.stopPropagation();
+													e.preventDefault();
+													handleRight();
+												}}
+											>
+												<ChevronRightThinSvg />
+											</button>
+										</div>
 									</div>
 								)}
 							</div>
