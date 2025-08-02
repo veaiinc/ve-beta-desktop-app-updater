@@ -461,9 +461,15 @@ const NewUi = ({ handleActiveChatChange }) => {
 						info?.dataLength,
 						info?.scrollDirection,
 					);
+					const key =
+						session?.type === 'chatbox'
+							? index === 0 || index === info?.dataLength - 2
+								? 'chatbox1'
+								: 'chatbox2'
+							: index;
 					return (
 						<div
-							key={index}
+							key={key}
 							className={`new-ui-item ${
 								info?.data?.length === 1 ? 'single-card' : ''
 							} ${animationClass}`}
