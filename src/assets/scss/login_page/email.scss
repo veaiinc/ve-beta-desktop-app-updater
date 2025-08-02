@@ -121,6 +121,10 @@
 					line-height: normal;
 					border: none;
 					outline: none;
+
+					&:focus {
+						outline: 1px solid var(--secondary-font);
+					}
 				}
 				.email-input-button {
 					display: flex;
@@ -167,6 +171,7 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+				transition: all 0.3s ease;
 				&:hover {
 					background: var(--primary-font);
 					color: var(--background-color);
