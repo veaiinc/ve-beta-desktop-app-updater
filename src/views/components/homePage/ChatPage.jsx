@@ -6,21 +6,26 @@ import ActiveChatIndication from '../../features/homePage/ActiveChatIndication';
 const ChatPage = () => {
 	const [info, setInfo] = useState({
 		activeChatIndex: 0,
+		activeChatData: null,
 	});
 
-	const handleActiveChatIndex = (index) => {
+	const handleActiveChatChange = (index, data) => {
 		setInfo((prev) => ({
 			...prev,
 			activeChatIndex: index,
+			activeChatData: data,
 		}));
 	};
 
 	return (
 		<div className={s.chatPage}>
 			<div className={s.chatHistoryWrapper}>
-				<ActiveChatIndication activeChatIndex={info.activeChatIndex} />
+				<ActiveChatIndication
+					activeChatIndex={info.activeChatIndex}
+					activeChatData={info.activeChatData}
+				/>
 			</div>
-			<NewUi handleActiveChatIndex={handleActiveChatIndex} />
+			<NewUi handleActiveChatChange={handleActiveChatChange} />
 		</div>
 	);
 };

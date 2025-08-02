@@ -9,7 +9,7 @@ const page = 1;
 const limit = 10;
 const append = true;
 
-const ActiveChatIndication = ({ activeChatIndex }) => {
+const ActiveChatIndication = ({ activeChatIndex, activeChatData }) => {
 	const navigate = useNavigate();
 	const {
 		aiSetup: { getAiChatSessions, aiChatSessions },
@@ -93,6 +93,7 @@ const ActiveChatIndication = ({ activeChatIndex }) => {
 					hasNextPage={hasNextPage}
 					handleChatNavigation={handleChatNavigation}
 					loading={chatLoadingSessions}
+					activeChatData={activeChatData}
 				/>
 			}
 			placement="center"
