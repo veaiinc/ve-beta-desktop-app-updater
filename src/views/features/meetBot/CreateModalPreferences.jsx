@@ -1,6 +1,6 @@
 import { Slider, Switch } from 'antd';
 import React, { useState, useEffect, useContext, useCallback } from 'react';
-import './createModalPreferences.scss';
+import './CreateModalPreferences.scss';
 import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';
 import { message } from '../../components/globalComponents/CustomToast';
