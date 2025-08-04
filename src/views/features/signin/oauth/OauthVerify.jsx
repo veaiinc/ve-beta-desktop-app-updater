@@ -16,7 +16,6 @@ const OauthVerify = () => {
 		if (accessibleWorkspaces !== undefined || accessibleWorkspaces !== 'undefined') {
 			accessibleWorkspaces = JSON.parse(accessibleWorkspaces);
 		}
-		let region = params.get('region');
 
 		if (accessToken) {
 			if (
@@ -27,7 +26,7 @@ const OauthVerify = () => {
 			) {
 				localStorage.setItem('workspaceId', accessibleWorkspaces?.workspaceId);
 				localStorage.setItem('usertoken', accessToken);
-				localStorage.setItem('region', region || 'us-east-1');
+				localStorage.setItem('region', accessibleWorkspaces?.region || 'us-east-1');
 				localStorage.setItem('isOnboard', accessibleWorkspaces?.isOnboard);
 				const host = fetchDomainName();
 				Cookies.set('usertoken', accessToken, {
@@ -38,7 +37,7 @@ const OauthVerify = () => {
 					sameSite: 'lax',
 					domain: host,
 				});
-				Cookies.set('region', region || 'us-east-1', {
+				Cookies.set('region', accessibleWorkspaces?.region || 'us-east-1', {
 					sameSite: 'lax',
 					domain: host,
 				});
@@ -52,13 +51,13 @@ const OauthVerify = () => {
 				accessibleWorkspaces === 'undefined'
 			) {
 				localStorage.setItem('usertoken', accessToken);
-				localStorage.setItem('region', region || 'us-east-1');
+				localStorage.setItem('region', accessibleWorkspaces?.region || 'us-east-1');
 				const host = fetchDomainName();
 				Cookies.set('usertoken', accessToken, {
 					sameSite: 'lax',
 					domain: host,
 				});
-				Cookies.set('region', region || 'us-east-1', {
+				Cookies.set('region', accessibleWorkspaces?.region || 'us-east-1', {
 					sameSite: 'lax',
 					domain: host,
 				});
