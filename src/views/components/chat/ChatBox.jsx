@@ -414,7 +414,7 @@ const ChatBox = ({
 
 	//below useeffect is for getting suggestions
 	useEffect(() => {
-		if (info?.suggestion) {
+		if (info?.showSuggestion) {
 			let height = 0;
 			if (suggestionRef?.current && textAreaRef?.current) {
 				height = Math.max(
@@ -435,7 +435,7 @@ const ChatBox = ({
 			}
 			setInfo((prev) => ({ ...prev, chatBoxContainerHeight: `${height + 58 + 28}px` }));
 		}
-	}, [info?.suggestion]);
+	}, [info?.showSuggestion]);
 
 	//below useeffect is for getting suggestions
 	useEffect(() => {
