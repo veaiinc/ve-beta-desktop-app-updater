@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/globalWorkflow.scss';
 import { useNavigate } from 'react-router-dom';
 import GlobalWorkflowCard from '../../components/sales/globalWorkflowCard';
@@ -7,7 +7,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import GlobalWorkflowModal from '../../components/modalsV2/workflowsModals/GlobalWorkflowModal';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import Skeleton from 'react-loading-skeleton';
-import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
+import { FetchMoreLoaderComp } from '../../../helpers';
 import '../../../assets/scss/sales/globalProposalCard.scss';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/search.svg';
 const options = [
@@ -19,8 +19,6 @@ const options = [
 	{ id: 6, name: 'Invoice', value: 'invoice' },
 	// { id: 7, name: 'Automation', value: 'automation' },
 ];
-
-const origin = fetchOriginSelection();
 
 const NoResultsFound = ({ searchQuery }) => (
 	<div
@@ -49,7 +47,6 @@ const GlobalWorkflows = () => {
 			getGlobalWorkflows,
 			globalMoreWorkflows,
 			globalWorkflows,
-			getModuleTemplate,
 			duplicateGlobalWorkflowTemplate,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
