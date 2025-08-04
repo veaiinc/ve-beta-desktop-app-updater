@@ -348,7 +348,7 @@ const AISuggestionsModal = ({
 				message.error('You do not have access to update this insight');
 				return;
 			}
-			if (!data?._id || data?.isCompleted) return;
+			if (!data?._id || data?.isCompleted || isCompletedRef.current) return;
 			const payload = {
 				isCompleted: true,
 			};
