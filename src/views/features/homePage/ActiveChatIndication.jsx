@@ -138,11 +138,7 @@ const ActiveChatIndication = ({ activeChatData }) => {
 						/>
 					))}
 				</div>
-				{chats?.length && (
-					<div className={s.totalChatsCount}>
-						{chats?.length > 50 ? `+${chats?.length}` : chats?.length}
-					</div>
-				)}
+				{chats?.length && <div className={s.totalChatsCount}>{chats?.length}</div>}
 			</div>
 		</Tooltip>
 	);
