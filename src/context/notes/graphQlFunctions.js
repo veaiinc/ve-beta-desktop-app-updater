@@ -977,8 +977,8 @@ export const updateViewGroupMutation = gql`
 `;
 
 export const getLiveKitTokenQuery = gql`
-	query Query($pageId: ID!) {
-		getLiveKitToken(pageId: $pageId) {
+	query Query($meetingId: ID!) {
+		getLiveKitToken(meetingId: $meetingId) {
 			accessToken
 		}
 	}
@@ -1106,10 +1106,10 @@ export const meetBotCreateMutation = gql`
 `;
 
 export const deleteLiveKitRoomMutation = gql`
-	mutation DeleteLiveKitRoom($pageId: ID!) {
-		deleteLiveKitRoom(pageId: $pageId) {
-			message
+	mutation Mutation($meetingId: ID!) {
+		deleteLiveKitRoom(meetingId: $meetingId) {
 			success
+			message
 		}
 	}
 `;

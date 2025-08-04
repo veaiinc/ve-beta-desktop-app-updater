@@ -163,7 +163,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 						</div>
 					</div>
 				</div>
-				{/* <div className="tabs">
+				<div className="tabs">
 					<button
 						className={`tab ${
 							formData.selectedMode === 'meeting_bot' ? ' active' : ''
@@ -185,7 +185,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 					>
 						In-Person Meeting
 					</button>
-				</div> */}
+				</div>
 
 				<div className="modal-content">
 					<div className="content-container">

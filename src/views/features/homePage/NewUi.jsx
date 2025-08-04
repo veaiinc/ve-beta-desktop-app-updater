@@ -549,6 +549,7 @@ const NewUi = ({ handleActiveChatChange }) => {
 												showUpgradeSubscriptionBtn={false}
 												onChatQueryChange={handleChatQueryChange}
 												animateChatBox={true}
+												getSuggestions={true}
 											/>
 											{/* <Suggestions
 												chatQuery={info?.chatQuery}
