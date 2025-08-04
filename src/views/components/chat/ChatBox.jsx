@@ -42,7 +42,7 @@ const moduleHelper = {
 	tasks: 'tasks',
 	'smart-file': 'form_filling',
 	calendar: 'calendar',
-	meet: 'meet',
+	meet: 'meeting',
 };
 
 const initialChatFilters = {
