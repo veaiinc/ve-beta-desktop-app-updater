@@ -1,14 +1,9 @@
 import { Navigate } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
+import { lazy, Suspense } from 'react';
 
 // layouts
-import Public from '../views/layouts/Public';
-import AuthWrapper from '../views/layouts/authWrapper';
-
-// pages
-// import InitialHomePage from '../views/features/homePage/InitialHomePage';
-// import MeetBot from '../views/features/meetBot/meetBot';
-// import NotesWrapper from '../views/features/notesModule/NotesWrapper';
+const AuthWrapper = lazy(() => import('../views/layouts/authWrapper'));
+const Public = lazy(() => import('../views/layouts/Public'));
 
 // lazy loaded pages
 const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
@@ -16,15 +11,15 @@ const SettingsWrapper = lazy(() => import('../views/features/settings/SettingsWr
 const RecentChat = lazy(() => import('../views/features/chat/RecentChat'));
 const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
 const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
-const NotesWrapper = lazy(() => import('../views/features/notesModule/NotesWrapper'));
+const Agents = lazy(() => import('../views/features/agents/Agents'));
+const Agent = lazy(() => import('../views/features/agents/agent/Agent'));
+const GlobalWorkflows = lazy(() => import('../views/features/sales/GlobalWorkflows'));
+const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
+const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 import AmbientAi from '../views/features/ambientAi/AmbientAi';
-import CardMeetBot from '../views/features/meetBot/CardMeetBot';
-import Agents from '../views/features/agents/Agents';
-import Agent from '../views/features/agents/agent/Agent';
-import GlobalWorkflows from '../views/features/sales/GlobalWorkflows';
 
 const stableRoutes = [
 	// ========================================
@@ -33,33 +28,35 @@ const stableRoutes = [
 	{
 		path: '/home',
 		element: (
-			<AuthWrapper title={'Ambient AI'}>
-				<AmbientAi />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Ambient AI'}>
+					<AmbientAi />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/agents',
 		element: (
-			<AuthWrapper
-				title="Agents"
-				outerContainerStyle={{ padding: '0' }}
-				sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
-			>
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title="Agents"
+					outerContainerStyle={{ padding: '0' }}
+					sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
+				>
 					<Agents />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/agent/:agentId',
 		element: (
-			<AuthWrapper title="Agent">
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title="Agent">
 					<Agent />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 
@@ -69,60 +66,64 @@ const stableRoutes = [
 	{
 		path: '/chats',
 		element: (
-			<AuthWrapper title={'Chats'}>
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Chats'}>
 					<ChatPage />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/chat/:sessionId',
 		element: (
-			<AuthWrapper
-				title={'Chat'}
-				showBottomToolbar={false}
-				outerContainerStyle={{
-					paddingRight: '0px',
-					backgroundColor: 'var(--chat-background-color)',
-				}}
-				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
-				maxWidth="100%"
-			>
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title={'Chat'}
+					showBottomToolbar={false}
+					outerContainerStyle={{
+						paddingRight: '0px',
+						backgroundColor: 'var(--chat-background-color)',
+					}}
+					authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
+					maxWidth="100%"
+				>
 					<RecentChat showChatHistory={true} showDeleteChat={true} showChats={true} />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/meet',
 		element: (
-			<AuthWrapper title={'Meet'}>
-				<CardMeetBot />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Meet'}>
+					<CardMeetBot />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/meet/:meetingId',
 		element: (
-			<AuthWrapper title={'Meet'}>
-				<Suspense fallback={<SuspenseFallback />}>
-					<NotesWrapper />
-				</Suspense>
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Meet'}>
+					<MeetBotWrapper />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 
 	// ========================================
-	// WORKFLOW & SALES
+	// Playbook
 	// ========================================
 	{
 		path: '/playbook',
 		element: (
-			<AuthWrapper title={'Sales'}>
-				<GlobalWorkflows />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Playbook'}>
+					<GlobalWorkflows />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 
@@ -132,11 +133,11 @@ const stableRoutes = [
 	{
 		path: '/settings/:type',
 		element: (
-			<AuthWrapper title={'Workspace Settings'}>
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Workspace Settings'}>
 					<SettingsWrapper />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 
@@ -146,21 +147,21 @@ const stableRoutes = [
 	{
 		path: '/create-workspace',
 		element: (
-			<Public>
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Onboarding'}>
 					<Onboarding />
-				</Suspense>
-			</Public>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/share-and-earn',
 		element: (
-			<AuthWrapper title={'Share and Earn'}>
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Share and Earn'}>
 					<ShareAndEarn />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 
@@ -170,9 +171,11 @@ const stableRoutes = [
 	{
 		path: '*',
 		element: (
-			<Public>
-				<Navigate to="/home" />
-			</Public>
+			<Suspense fallback={<SuspenseFallback />}>
+				<Public>
+					<Navigate to="/home" />
+				</Public>
+			</Suspense>
 		),
 	},
 ];
