@@ -139,7 +139,7 @@ const ChatBox = ({
 	showUpgradeSubscriptionBtn = true,
 	animateChatBox = true,
 	sessionId = null,
-	getSuggestions = false,
+	getSuggestions = true,
 }) => {
 	const location = useLocation();
 	const { handleConnect } = useUpdatedVoiceIntegration();
@@ -384,12 +384,13 @@ const ChatBox = ({
 		};
 	}, [showPlaceholder]);
 
+	//below useeffect is for getting suggestions
 	useEffect(() => {
 		if (
 			info?.chatQuery?.length > 0 &&
 			info?.chatSessionId &&
 			getSuggestions &&
-			info?.chatQuery?.includes('\n')
+			!info?.chatQuery?.includes('\n')
 		) {
 			const previousChatQuery = previousChatQueryRef.current?.trim().replace(/\n/g, '');
 			const currentChatQuery = info?.chatQuery?.trim()?.replace(/\n/g, '');
@@ -411,6 +412,7 @@ const ChatBox = ({
 		}
 	}, [info?.chatQuery]);
 
+	//below useeffect is for getting suggestions
 	useEffect(() => {
 		if (info?.suggestion) {
 			let height = 0;
@@ -435,6 +437,7 @@ const ChatBox = ({
 		}
 	}, [info?.suggestion]);
 
+	//below useeffect is for getting suggestions
 	useEffect(() => {
 		if (info?.chatQuery && info?.suggestion) {
 			if (info?.suggestion?.startsWith(info?.chatQuery)) {
@@ -1260,6 +1263,7 @@ const ChatBox = ({
 					prev?.chatQuery?.length > 0 &&
 					prev?.suggestion?.startsWith(prev?.chatQuery)
 				) {
+					previousChatQueryRef.current = prev?.suggestion;
 					return {
 						...prev,
 						chatQuery: prev?.suggestion,
