@@ -242,7 +242,7 @@ const Insights = () => {
 					</div>
 				))}
 			</div>
-			{visitorData?.length > 0 && (
+			{(visitorData?.length > 0 || selectedFilter !== 'All Time') && (
 				<>
 					<div className="insightsHeader">
 						<div className="heading">
@@ -406,19 +406,19 @@ const Insights = () => {
 									style={{
 										display: 'flex',
 										flexDirection: 'row',
-										width: '215px',
+										width: '240px',
 										justifyContent: 'space-between',
 										alignItems: 'center',
 									}}
 								>
 									<div
 										style={{
-											color: '#fff',
+											color: 'var(--primary-font)',
 											display: 'flex',
 											alignItems: 'center',
 										}}
 									>
-										Filtered By
+										Filtered By :
 									</div>
 									<div
 										style={{
@@ -429,7 +429,9 @@ const Insights = () => {
 											padding: '10px',
 										}}
 									>
-										<span style={{ color: '#fff' }}>{selectedFilter}</span>
+										<span style={{ color: 'var(--primary-font)' }}>
+											{selectedFilter}
+										</span>
 										<CloseIcon
 											onClick={() => setSelectedFilter('All Time')}
 											style={{
