@@ -35,7 +35,7 @@ export const ChatBoxSuggestionsState = () => {
 		inactivityTimeoutRefs.current[sessionId] = setTimeout(() => {
 			socketRefs.current[sessionId].close();
 			inactivityTimeoutRefs.current[sessionId] = null;
-		}, 1000 * 60 * 5);
+		}, 1000 * 60 * 2);
 	};
 
 	const sendMessage = useCallback(
