@@ -59,7 +59,7 @@ const ToolsTooltip = ({ closeTooltip }) => {
 					<div className={s.toolIcon}>{tool.icon}</div>
 					<div className={s.toolInfo}>
 						<h3 className={s.toolLabel}>{tool.label}</h3>
-						<p className={s.toolDescription}>{tool.description}</p>
+						{/* <p className={s.toolDescription}>{tool.description}</p> */}
 					</div>
 				</div>
 			))}

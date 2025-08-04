@@ -516,12 +516,14 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 									</span>
 									<DotIcon />
 									<span className="meeting-created-by-time">
-										{moment(createBotInfo?.createdAt).format('DD MMM YYYY HH')}
+										{moment
+											.unix(createBotInfo?.createdAt)
+											.format('DD MMM YYYY HH:mm')}
 									</span>
 								</div>
 							)}
 						</div>
-						<div className="meeting-meta">
+						{/* <div className="meeting-meta">
 							<span className="meeting-share">
 								Share
 								<ShareIcon />
@@ -529,7 +531,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 							{createBotInfo.isAiIntelligenceEnabled && (
 								<span className="meeting-guide">Guide me</span>
 							)}
-						</div>
+						</div> */}
 					</div>
 				) : meetingNotFound ? (
 					<div className="meeting-error">

@@ -189,7 +189,7 @@ const SCROLL_STOP_DELAY = 40; // time between wheel events to detect gesture end
 let scrollTimeout = null;
 let scrollLocked = false;
 
-const NewUi = ({ handleActiveChatIndex }) => {
+const NewUi = ({ handleActiveChatChange }) => {
 	const {
 		aiSetup: { aiChatSessions },
 		templates: { updateStateValues, handleGlobalChatMessages },
@@ -340,7 +340,7 @@ const NewUi = ({ handleActiveChatIndex }) => {
 	}, []);
 
 	useEffect(() => {
-		handleActiveChatIndex(info.activeIndex);
+		handleActiveChatChange(info.data?.[info.activeIndex]);
 	}, [info.activeIndex]);
 
 	const handleWheel = useCallback((e) => {
@@ -461,9 +461,15 @@ const NewUi = ({ handleActiveChatIndex }) => {
 						info?.dataLength,
 						info?.scrollDirection,
 					);
+					const key =
+						session?.type === 'chatbox'
+							? index === 0 || index === info?.dataLength - 2
+								? 'chatbox1'
+								: 'chatbox2'
+							: index;
 					return (
 						<div
-							key={index}
+							key={key}
 							className={`new-ui-item ${
 								info?.data?.length === 1 ? 'single-card' : ''
 							} ${animationClass}`}

@@ -32,8 +32,8 @@ const tooltipStyle = {
 const baseLeftContainerItems = [
 	{
 		id: 1,
-		label: 'Insights',
-		route: '/insights',
+		label: 'Ambient',
+		route: '/ambient-ai',
 	},
 	{
 		id: 2,
@@ -161,6 +161,7 @@ const TopNavbar = () => {
 				toolsTooltipOpen: false,
 				settingsTooltipOpen: false,
 			}));
+			navigate(`/files?active-tab=Documents&viewMode=card`);
 			return;
 		}
 		navigate(route);
@@ -334,7 +335,7 @@ const TopNavbar = () => {
 												}
 											/>
 										}
-										placement="bottomRight"
+										placement="bottom"
 										arrow={false}
 										color={'transparent'}
 										rootClassName={s.topNavbarSettings}
@@ -372,7 +373,7 @@ const TopNavbar = () => {
 												}
 											/>
 										}
-										placement="bottomRight"
+										placement="bottom"
 										arrow={false}
 										color={'transparent'}
 										rootClassName={s.topNavbarSettings}
@@ -490,7 +491,7 @@ const TopNavbar = () => {
 							) : (
 								<p className={s.nameInitials}>{nameInitials}</p>
 							)}
-							<DownCaret />
+							{/* <DownCaret /> */}
 						</li>
 					</Tooltip>
 				</ul>
