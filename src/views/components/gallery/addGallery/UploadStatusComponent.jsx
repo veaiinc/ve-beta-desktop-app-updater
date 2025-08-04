@@ -93,7 +93,7 @@ const UploadStatusComponent = ({
 				/>
 			)}
 			<DuplicateComponent info={info} setinfo={setinfo} />
-			{lightGallery === 'false' && currentPlan?.aiFaceEnabled === false && (
+			{lightGallery === 'false' && currentPlan?.isAIFacesEnabled === false && (
 				<div className="upload_status_aiface">
 					<WarningIcon />
 					Uploaded Images Will not be Processed by AI
