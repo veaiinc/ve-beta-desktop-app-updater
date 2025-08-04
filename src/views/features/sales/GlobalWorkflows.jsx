@@ -10,12 +10,14 @@ import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import GlobalProposalsCard from '../../components/sales/globalProposalsCard';
 import Skeleton from 'react-loading-skeleton';
 import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
+import { ReactComponent as VeAiLogoGrey } from '../../../assets/svg/landingScreen/veai-logo-grey.svg';
+import '../../../assets/scss/sales/globalProposalCard.scss';
 
 const options = [
 	{ id: 1, name: 'Design Files', value: '' },
-	{ id: 2, name: 'Form', value: 'form-submission' },
+	{ id: 2, name: 'Forms', value: 'form-submission' },
 	{ id: 3, name: 'Proposals', value: 'proposal' },
-	{ id: 4, name: 'Presentation', value: 'presentation' },
+	{ id: 4, name: 'Presentations', value: 'presentation' },
 	{ id: 5, name: 'Contract', value: 'contract' },
 	{ id: 6, name: 'Invoice', value: 'invoice' },
 	// { id: 7, name: 'Automation', value: 'automation' },
@@ -315,209 +317,169 @@ const GlobalWorkflows = () => {
 			{info?.loading ? (
 				<UpdatedPageLoader />
 			) : (
-				<div
-					className={`playbook-wrapper`}
-					style={{
-						// background: `url(${backgroundImage})`,
-						// backgroundSize: 'cover',
-						// backgroundPosition: 'top',
-						// backgroundRepeat: 'no-repeat',
-						height: '100vh',
-						width: '100%',
-					}}
-				>
-					<div className={`globalWorkflowContainer`}>
-						<div className={`left_div  ${info?.modalIsOpen ? 'modal-open' : ''}`}>
-							<div className="left_child_div">
-								<h2 className="side_heading">Templates</h2>
-								<p className="side_text">
-									We have specially curated best workflows and designs that suit
-									your business
-								</p>
+				<div className="playbook-wrapper">
+					<div className="globalWorkflowContainer">
+						{/* Top Navigation Bar */}
+						<div className="top-navigation">
+							<div className="nav-categories">
+								{options?.map((each, index) => (
+									<div
+										key={index}
+										className={`nav-category ${
+											selectedOption === each?.value ? 'active' : ''
+										}`}
+										onClick={() => handleOptionSelect(each)}
+									>
+										{each?.name}
+									</div>
+								))}
 							</div>
-
-							<div className="options_div">
-								<input
-									type="text"
-									placeholder="search"
-									className="search_bar"
-									style={{ color: 'var(--primary-font)' }}
-									value={searchQuery}
-									onChange={handleSearch}
-								/>
-								<h2
-									style={{
-										fontSize: '18px',
-										paddingBottom: '30px',
-										color: 'var(--primary-font)',
-										fontWeight: '400',
-									}}
-								>
-									What are you Offering?
-								</h2>
-								<div className="options">
-									{options?.map((each, index) => (
-										<div key={index}>
-											<li
-												className={`options_style ${
-													selectedOption === each ? 'selected' : ''
-												}`}
-												onClick={() => handleOptionSelect(each)}
-											>
-												{each?.name}
-											</li>
-										</div>
-									))}
+							<div className="nav-search">
+								<div className="search-icon">
+									<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+										<path
+											d="M17.5 17.5L12.5 12.5M14.1667 8.33333C14.1667 11.555 11.555 14.1667 8.33333 14.1667C5.11167 14.1667 2.5 11.555 2.5 8.33333C2.5 5.11167 5.11167 2.5 8.33333 2.5C11.555 2.5 14.1667 5.11167 14.1667 8.33333Z"
+											stroke="currentColor"
+											strokeWidth="1.5"
+											strokeLinecap="round"
+											strokeLinejoin="round"
+										/>
+									</svg>
 								</div>
 							</div>
 						</div>
-						<div
-							className={`mainContentContainer ${
-								info?.modalIsOpen ? 'modal-open' : ''
-							}`}
-							id="templatesScrollableTarget"
-						>
-							{info?.isExpanded ? (
-								<div
-									style={{
-										position: 'absolute',
-										width: '420px',
-										display: 'flex',
-										// transition:
-										//  'opacity 0.3s ease-out, transform 0.3s ease-out',
-										opacity: info?.isExpanded ? 1 : 0,
-										transform: info?.isExpanded
-											? 'translateX(0)'
-											: 'translateX(-100%)',
-										flexDirection: 'column',
-										alignItems: 'flex-start',
-										gap: '32px',
-										marginTop: '25%',
-										marginLeft: '10%',
-									}}
-								>
-									<div>
-										<span className="dior-studio-text">By Ve.ai</span>
-									</div>
-									<div className="workflow-title-container">
-										<div className="workflow-title">
-											{info?.activeTemplateData?.title}
+
+						{/* Main Content */}
+						<div className="main-content">
+							{/* Title */}
+							<div className="page-title">
+								<h1>Use cases from <span>ve.ai</span></h1>
+							</div>
+
+							{/* Search and Filter Bar */}
+							<div className="filter-bar">
+								<div className="filter-categories">
+									{options?.map((each, index) => (
+										<div
+											key={index}
+											className={`filter-category ${
+												selectedOption === each?.value ? 'active' : ''
+											}`}
+											onClick={() => handleOptionSelect(each)}
+										>
+											{each?.name}
 										</div>
-										<div className="workflow-description">
-											{info?.activeTemplateData?.description ||
-												'Ideal for wedding photography business with multiple events, selectable packages and services, this workflow provides customisable design in enquiry forms, proposals, invoices for multiple payment schedule and hassle contracts with e-sign contracts'}
-										</div>
-										<div></div>
-										<div>
-											<button
-												className="buy-button"
-												onClick={onCustomiseFunc}
-												style={{ cursor: 'pointer' }}
-											>
-												Add to workspace
-											</button>
-										</div>
-									</div>
+									))}
 								</div>
-							) : (
-								<div
-									style={{
-										position: 'relative',
-										opacity: info?.isExpanded ? 0 : 1,
-										transform: info?.isExpanded
-											? 'translateX(-100%)'
-											: 'translateX(0)',
-										transition:
-											'opacity 0.3s ease-out, transform 0.3s ease-out',
-										width: '100%',
-										visibility: info?.isExpanded ? 'hidden' : 'visible',
-										pointerEvents: info?.isExpanded ? 'none' : 'auto',
-									}}
-								>
+								<div className="search-container">
+									<input
+										type="text"
+										placeholder="Search templates..."
+										className="search-input"
+										value={searchQuery}
+										onChange={handleSearch}
+									/>
+								</div>
+							</div>
+
+							{/* Templates Grid */}
+							<div className="templates-grid-container">
+								{info.isLoading || info.searchLoading ? (
+									<div className="skeleton-grid">
+										{[...Array(selectedOption === 'Workflow' ? 3 : 6)].map(
+											(_, index) => (
+												<Skeleton
+													key={index}
+													width="100%"
+													height={
+														selectedOption === 'Workflow'
+															? '300px'
+															: '268px'
+													}
+													baseColor="transparent"
+													highlightColor="rgba(255, 255, 255, 0.20)"
+													opacity={0.5}
+												/>
+											),
+										)}
+									</div>
+								) : (
 									<InfiniteScroll
 										dataLength={info?.globalWorkflowData?.length || 0}
 										next={fetchMoreGlobalWorkflows}
 										hasMore={info?.hasNextPage}
 										loader={<FetchMoreLoaderComp />}
-										scrollableTarget="templatesScrollableTarget"
-										// height="calc(100vh - 100px)"
-										height={'100vh'}
+										className="templates-grid"
 									>
-										<div className="globalWorkflowParentCardContainer">
-											{info.isLoading || info.searchLoading ? (
-												<div
-													style={{
-														display: 'grid',
-														gridTemplateColumns:
-															selectedOption === 'Workflow'
-																? '1fr'
-																: 'repeat(2, 1fr)',
-														gap: '16px',
-														width: '100%',
-														maxWidth: '100%',
-													}}
-												>
-													{[
-														...Array(
-															selectedOption === 'Workflow' ? 3 : 6,
-														),
-													].map((_, index) => (
-														<Skeleton
-															key={index}
-															width="100%"
-															height={
-																selectedOption === 'Workflow'
-																	? '300px'
-																	: '268px'
-															}
-															baseColor="transparent"
-															highlightColor="rgba(255, 255, 255, 0.20)"
-															opacity={0.5}
-														/>
-													))}
-												</div>
+										{selectedOption !== 'automation' ? (
+											moduleTemplateData?.length === 0 && searchQuery ? (
+												<NoResultsFound searchQuery={searchQuery} />
 											) : (
-												<>
-													{selectedOption !== 'automation' ? (
-														moduleTemplateData?.length === 0 &&
-														searchQuery ? (
-															<NoResultsFound
-																searchQuery={searchQuery}
-															/>
-														) : (
-															<GlobalProposalsCard
-																data={
-																	info?.globalWorkflowData || []
-																}
-																onClickFunc={openModal}
-																modalIsOpen={info.modalIsOpen}
-																isLoading={info.isLoading}
-															/>
-														)
-													) : info?.globalWorkflowData?.length === 0 &&
-													  searchQuery ? (
-														<NoResultsFound searchQuery={searchQuery} />
-													) : (
-														info?.globalWorkflowData?.map(
-															(ele, index) => (
-																<GlobalWorkflowCard
-																	key={index}
-																	data={ele}
-																	onClickFunc={openModal}
-																	isSelected={
-																		ele?._id ===
-																		info?.selectedWorkflowId
+												<div className="mainProposalsCard">
+													{info?.globalWorkflowData?.map(
+														(template, index) => (
+															<div
+																key={index}
+																className="globalProposalsCardContainer"
+																onClick={() => {
+																	if (!template?._id) {
+																		return;
 																	}
-																/>
-															),
-														)
+																	openModal(
+																		template,
+																		template.module,
+																	);
+																}}
+															>
+																<div className="imageContainer2">
+																	<div className="templateCard2">
+																		<div className="iframeContainer">
+																			<iframe
+																				src={`/builder/preview/short/${template?._id}?module=${template?.moduleTemplates?.[0]?._id}&isPubic=${template?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
+																				title="Builder Preview"
+																				width="100%"
+																				height="100%"
+																				style={{
+																					cursor: 'pointer',
+																					pointerEvents:
+																						'none',
+																					border: 'none',
+																					backgroundColor:
+																						'#fff',
+																				}}
+																			/>
+																		</div>
+																	</div>
+																</div>
+																<h4
+																	className="templateTitle"
+																	style={{ fontSize: '14px' }}
+																>
+																	{template.title}
+																</h4>
+															</div>
+														),
 													)}
-												</>
-											)}
-										</div>
+												</div>
+											)
+										) : info?.globalWorkflowData?.length === 0 &&
+										  searchQuery ? (
+											<NoResultsFound searchQuery={searchQuery} />
+										) : (
+											info?.globalWorkflowData?.map((ele, index) => (
+												<GlobalWorkflowCard
+													key={index}
+													data={ele}
+													onClickFunc={openModal}
+													isSelected={
+														ele?._id === info?.selectedWorkflowId
+													}
+												/>
+											))
+										)}
 									</InfiniteScroll>
-								</div>
-							)}
+								)}
+							</div>
 						</div>
 
 						<GlobalWorkflowModal
