@@ -669,7 +669,7 @@ const actionHandlers = {
 		return { ...state, chatLoadingSessions };
 	},
 	HANDLE_TRANSCRIPTION_SUGGESTIONS: (state, action) => {
-		const { suggested_prompt, similar_files, data = [] } = action?.payload || {};
+		let { suggested_prompt, similar_files, data = [] } = action?.payload || {};
 		const aiTranscriptionSuggestions = state?.aiTranscriptionSuggestions || {};
 
 		let suggestions = [...(aiTranscriptionSuggestions?.suggestions || [])];
@@ -679,17 +679,25 @@ const actionHandlers = {
 		}
 
 		if (similar_files) {
+			similar_files = similar_files?.map((file) => ({
+				...file,
+				entity: 'file',
+			}));
 			suggestions = suggestions?.concat(similar_files || []);
 		}
 
 		if (data?.length > 0) {
 			let newSuggestions = [];
 			data?.forEach((item) => {
-				const { suggested_prompt, similar_files } = item?.response || {};
+				let { suggested_prompt, similar_files } = item?.response || {};
 				if (suggested_prompt) {
 					newSuggestions?.push(suggested_prompt);
 				}
 				if (similar_files) {
+					similar_files = similar_files?.map((file) => ({
+						...file,
+						entity: 'file',
+					}));
 					newSuggestions = newSuggestions?.concat(similar_files || []);
 				}
 			});
