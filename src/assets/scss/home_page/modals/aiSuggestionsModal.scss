@@ -1,7 +1,19 @@
-.drawer-mask {
-	background-color: transparent !important;
+// .drawer-mask {
+// 	background-color: transparent !important;
+// }
+
+.custom-mask {
+	position: absolute;
+	top: -258px;
+	width: 100vw;
+	height: 100vh;
 }
+
 .ai-suggestions-drawer {
+	.ant-drawer-mask {
+		display: none !important;
+	}
+
 	height: 100%;
 	.ant-drawer-content-wrapper {
 		box-shadow: unset !important;
