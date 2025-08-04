@@ -49,6 +49,7 @@ const GlobalWorkflows = () => {
 			globalWorkflows,
 			duplicateGlobalWorkflowTemplate,
 		},
+		profileInfo: { tennantSettingsData },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
@@ -73,10 +74,12 @@ const GlobalWorkflows = () => {
 		isFilterSearchExpanded: false,
 	});
 
-	const [moduleInfo, setModuleInfo] = useState({
-		currentPage: 1,
-		hasNextPage: false,
-	});
+	const workspaceImg = tennantSettingsData?.logo_s3_500w_key ?? null;
+
+	// const [moduleInfo, setModuleInfo] = useState({
+	// 	currentPage: 1,
+	// 	hasNextPage: false,
+	// });
 
 	//useEffects
 	useEffect(() => {
@@ -484,10 +487,18 @@ const GlobalWorkflows = () => {
 																		);
 																	}}
 																>
-																	<div className="imageContainer2">
+																	<div
+																		style={{
+																			background: `url(${
+																				template?.imageUrl ??
+																				workspaceImg
+																			}) no-repeat center center`,
+																		}}
+																		className="imageContainer2"
+																	>
 																		<div className="templateCard2">
 																			<div className="iframeContainer">
-																				<iframe
+																				{/* <iframe
 																					src={`/builder/preview/short/${template?._id}?module=${template?.moduleTemplates?.[0]?._id}&isPubic=${template?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
 																					title="Builder Preview"
 																					width="100%"
@@ -500,7 +511,23 @@ const GlobalWorkflows = () => {
 																						backgroundColor:
 																							'#fff',
 																					}}
-																				/>
+																				/> */}
+																				{/* <img
+																					style={{
+																						position: 'absolute',
+																						top: 0,
+																						left: 0,
+																					}}
+																					width="100%"
+																					height="100%"
+																					src={
+																						template?.imageUrl ??
+																						workspaceImg
+																					}
+																					alt={
+																						template?._id
+																					}
+																				/> */}
 																			</div>
 																		</div>
 																	</div>
