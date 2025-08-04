@@ -27,91 +27,14 @@ import Agent from '../views/features/agents/agent/Agent';
 import GlobalWorkflows from '../views/features/sales/GlobalWorkflows';
 
 const stableRoutes = [
-	// {
-	// 	path: '/home',
-	// 	element: (
-	// 		<AuthWrapper
-	// 			title={'Home'}
-	// 			outerContainerStyle={{ overflow: 'hidden' }}
-	// 			childrenContainerStyles={{ overflow: 'auto' }}
-	// 			showBottomToolbar={false}
-	// 		>
-	// 			<InitialHomePage />
-	// 		</AuthWrapper>
-	// 	),
-	// },
-	{
-		path: '/playbook',
-		element: (
-			<AuthWrapper title={'Sales'}>
-				<GlobalWorkflows />
-			</AuthWrapper>
-		),
-	},
+	// ========================================
+	// AI & ASSISTANT FEATURES
+	// ========================================
 	{
 		path: '/home',
 		element: (
 			<AuthWrapper title={'Ambient AI'}>
 				<AmbientAi />
-			</AuthWrapper>
-		),
-	},
-	{
-		path: '/create-workspace',
-		element: (
-			<Public>
-				<Suspense fallback={<SuspenseFallback />}>
-					<Onboarding />
-				</Suspense>
-			</Public>
-		),
-	},
-	{
-		path: '/share-and-earn',
-		element: (
-			<AuthWrapper title={'Share and Earn'}>
-				<Suspense fallback={<SuspenseFallback />}>
-					<ShareAndEarn />
-				</Suspense>
-			</AuthWrapper>
-		),
-	},
-	{
-		path: '/chats',
-		element: (
-			<AuthWrapper title={'Chats'}>
-				<Suspense fallback={<SuspenseFallback />}>
-					<ChatPage />
-				</Suspense>
-			</AuthWrapper>
-		),
-	},
-	{
-		path: '/settings/:type',
-		element: (
-			<AuthWrapper title={'Workspace Settings'}>
-				<Suspense fallback={<SuspenseFallback />}>
-					<SettingsWrapper />
-				</Suspense>
-			</AuthWrapper>
-		),
-	},
-	{
-		path: '/chat/:sessionId',
-		element: (
-			<AuthWrapper
-				title={'Chat'}
-				showBottomToolbar={false}
-				outerContainerStyle={{
-					paddingRight: '0px',
-					backgroundColor: 'var(--chat-background-color)',
-				}}
-				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
-				maxWidth="100%"
-			>
-				<Suspense fallback={<SuspenseFallback />}>
-					<RecentChat showChatHistory={true} showDeleteChat={true} showChats={true} />
-				</Suspense>
 			</AuthWrapper>
 		),
 	},
@@ -139,6 +62,39 @@ const stableRoutes = [
 			</AuthWrapper>
 		),
 	},
+
+	// ========================================
+	// CHAT & COMMUNICATION
+	// ========================================
+	{
+		path: '/chats',
+		element: (
+			<AuthWrapper title={'Chats'}>
+				<Suspense fallback={<SuspenseFallback />}>
+					<ChatPage />
+				</Suspense>
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/chat/:sessionId',
+		element: (
+			<AuthWrapper
+				title={'Chat'}
+				showBottomToolbar={false}
+				outerContainerStyle={{
+					paddingRight: '0px',
+					backgroundColor: 'var(--chat-background-color)',
+				}}
+				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
+				maxWidth="100%"
+			>
+				<Suspense fallback={<SuspenseFallback />}>
+					<RecentChat showChatHistory={true} showDeleteChat={true} showChats={true} />
+				</Suspense>
+			</AuthWrapper>
+		),
+	},
 	{
 		path: '/meet',
 		element: (
@@ -147,7 +103,7 @@ const stableRoutes = [
 			</AuthWrapper>
 		),
 	},
-	{	
+	{
 		path: '/meet/:meetingId',
 		element: (
 			<AuthWrapper title={'Meet'}>
@@ -157,6 +113,60 @@ const stableRoutes = [
 			</AuthWrapper>
 		),
 	},
+
+	// ========================================
+	// WORKFLOW & SALES
+	// ========================================
+	{
+		path: '/playbook',
+		element: (
+			<AuthWrapper title={'Sales'}>
+				<GlobalWorkflows />
+			</AuthWrapper>
+		),
+	},
+
+	// ========================================
+	// SETTINGS & ADMINISTRATION
+	// ========================================
+	{
+		path: '/settings/:type',
+		element: (
+			<AuthWrapper title={'Workspace Settings'}>
+				<Suspense fallback={<SuspenseFallback />}>
+					<SettingsWrapper />
+				</Suspense>
+			</AuthWrapper>
+		),
+	},
+
+	// ========================================
+	// ONBOARDING & FEATURES
+	// ========================================
+	{
+		path: '/create-workspace',
+		element: (
+			<Public>
+				<Suspense fallback={<SuspenseFallback />}>
+					<Onboarding />
+				</Suspense>
+			</Public>
+		),
+	},
+	{
+		path: '/share-and-earn',
+		element: (
+			<AuthWrapper title={'Share and Earn'}>
+				<Suspense fallback={<SuspenseFallback />}>
+					<ShareAndEarn />
+				</Suspense>
+			</AuthWrapper>
+		),
+	},
+
+	// ========================================
+	// FALLBACK ROUTE
+	// ========================================
 	{
 		path: '*',
 		element: (
