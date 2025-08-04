@@ -74,6 +74,7 @@ const AISuggestionsModal = ({
 
 	const resizableContainerRef = useRef(null);
 	const widthRef = useRef(null);
+	const isCompletedRef = useRef(false);
 	const animationFrameId = useRef(null);
 	const mouseXPosition = useRef(null);
 	const navigate = useNavigate();
@@ -341,6 +342,27 @@ const AISuggestionsModal = ({
 		info?.accessType,
 		info?.hasFullAccess,
 	]);
+	const handleCompleteBtnClick = useCallback(
+		async (data) => {
+			if (info?.accessType === 'view' && !info?.hasFullAccess) {
+				message.error('You do not have access to update this insight');
+				return;
+			}
+			if (!data?._id || data?.isCompleted) return;
+			const payload = {
+				isCompleted: true,
+			};
+			isCompletedRef.current = true;
+			const res = await pendingActionsUpdate(data?._id, payload, 'update');
+			if (res?.[0] === true) {
+				getAISuggestedPendingActions({ isCompleted: true }, false, 'update', data?._id);
+			} else {
+				message.error('Failed to update');
+			}
+			isCompletedRef.current = false;
+		},
+		[pendingActionsUpdate, info?.accessType, info?.hasFullAccess, getAISuggestedPendingActions],
+	);
 
 	const handleOpenFeedbackPopup = () => {
 		if (info?.accessType == 'view' && !info?.hasFullAccess) {
@@ -367,6 +389,7 @@ const AISuggestionsModal = ({
 		thinker_sources,
 		sessionId,
 		read,
+		isCompleted,
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
@@ -414,6 +437,15 @@ const AISuggestionsModal = ({
 										</div>
 
 										{read && <div className="is-read">Read</div>}
+										<button
+											className="complete-btn"
+											onClick={() => handleCompleteBtnClick(data)}
+											style={{
+												cursor: isCompleted ? 'not-allowed' : 'pointer',
+											}}
+										>
+											{isCompleted ? 'Completed' : 'Not Completed'}
+										</button>
 									</>
 								)}
 							</div>

@@ -20,6 +20,7 @@
 			overflow: hidden;
 			background-color: var(--card);
 			position: relative;
+
 			.note-sidebar-header {
 				display: flex;
 				align-items: center;
@@ -28,11 +29,13 @@
 				gap: 15px;
 				height: 72px;
 
-				position: absolute;
-				top: 0;
-				left: 0;
-				right: 0;
-				z-index: 100;
+				&.header-absolute {
+					position: absolute;
+					top: 0;
+					left: 0;
+					right: 0;
+					z-index: 100;
+				}
 
 				.sidebar-title {
 					color: var(--primary-font, #f2f2f3);

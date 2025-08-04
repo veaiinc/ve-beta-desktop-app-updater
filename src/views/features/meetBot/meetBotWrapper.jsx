@@ -72,7 +72,11 @@ const MeetBotWrapper = () => {
 						borderLeft: info?.sidebarOpen ? '1px solid var(--stroke)' : 'none',
 					}}
 				>
-					<div className="note-sidebar-header">
+					<div
+						className={`note-sidebar-header ${
+							info?.chatActive ? 'header-absolute' : ''
+						}`}
+					>
 						<div className="sidebar-close-icon" onClick={handleCloseSidebar}>
 							<SidebarClosingSvg />
 						</div>
