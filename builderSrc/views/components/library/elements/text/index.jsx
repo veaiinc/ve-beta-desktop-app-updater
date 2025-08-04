@@ -203,7 +203,7 @@ class App extends BaseClass {
 					const valueRem = (selectedFont / 16) * 2;
 					const viewportWidth = window.innerWidth - 50;
 					const valueVw = (selectedFont * 100) / viewportWidth;
-					// let updatedValue = `clamp(${minSizeRem}rem, ${valueVw}vw ,${valueRem}rem)`;
+					// let updatedValue = `clamp(${minSizeRem}rem, ${valueVw}rem ,${valueRem}rem)`;
 					let updatedValue = `${minSizeRem}rem`;
 					editor.execCommand('fontSize', false, updatedValue);
 				},
@@ -302,19 +302,8 @@ class App extends BaseClass {
 							if (_.has(data, 'fontSize')) {
 								let fontSize = data?.fontSize?.replace(/[^0-9.]/g, '') || 0;
 								fontSize = parseFloat(fontSize);
-								let updatedValue = '';
-								if (this.props.previewType === 'm') {
-									const minSizeRem = fontSize / 16;
-									const valueRem = (fontSize / 16) * 2;
-									const viewportWidth = window.innerWidth - 50;
-									const valueVw = (fontSize * 100) / viewportWidth;
-									updatedValue = `clamp(${minSizeRem}rem, ${valueVw}vw ,${valueRem}rem)`;
-								} else {
-									const minSizeRem = (fontSize * 0.5) / 16;
-									const valueRem = (fontSize / 16) * 2;
-									const valueVw = (fontSize / window.innerWidth) * 100;
-									updatedValue = `clamp(${minSizeRem}rem, ${valueVw}vw ,${valueRem}rem)`;
-								}
+								// Convert px to rem directly without clamp
+								const updatedValue = `${fontSize / 16}rem`;
 								styles += `font-size: ${updatedValue};`;
 							}
 
@@ -838,21 +827,8 @@ class App extends BaseClass {
 														0;
 													fontSize = parseFloat(fontSize);
 													let updatedValue = '';
-													if (this.props.previewType === 'm') {
-														const minSizeRem = fontSize / 16;
-														const valueRem = (fontSize / 16) * 2;
-														const viewportWidth =
-															window.innerWidth - 50;
-														const valueVw =
-															(fontSize * 100) / viewportWidth;
-														updatedValue = `clamp(${minSizeRem}rem, ${valueVw}vw ,${valueRem}rem)`;
-													} else {
-														const minSizeRem = (fontSize * 0.5) / 16;
-														const valueRem = (fontSize / 16) * 2;
-														const valueVw =
-															(fontSize / window.innerWidth) * 100;
-														updatedValue = `clamp(${minSizeRem}rem, ${valueVw}vw ,${valueRem}rem)`;
-													}
+													// Convert px to rem directly without clamp
+													updatedValue = `${fontSize / 16}rem`;
 													styles += `font-size: ${updatedValue};`;
 												}
 
@@ -1113,22 +1089,8 @@ class App extends BaseClass {
 														data?.fontSize?.replace(/[^0-9.]/g, '') ||
 														0;
 													fontSize = parseFloat(fontSize);
-													let updatedValue = '';
-													if (this.props.previewType === 'm') {
-														const minSizeRem = fontSize / 16;
-														const valueRem = (fontSize / 16) * 2;
-														const viewportWidth =
-															window.innerWidth - 50;
-														const valueVw =
-															(fontSize * 100) / viewportWidth;
-														updatedValue = `clamp(${minSizeRem}rem, ${valueVw}vw ,${valueRem}rem)`;
-													} else {
-														const minSizeRem = (fontSize * 0.5) / 16;
-														const valueRem = (fontSize / 16) * 2;
-														const valueVw =
-															(fontSize / window.innerWidth) * 100;
-														updatedValue = `clamp(${minSizeRem}rem, ${valueVw}vw ,${valueRem}rem)`;
-													}
+													// Convert px to rem directly without clamp
+													const updatedValue = `${fontSize / 16}rem`;
 													styles += `font-size: ${updatedValue};`;
 												}
 
@@ -1547,10 +1509,7 @@ class App extends BaseClass {
 							const valueRem = (value / 16) * 2;
 							const valueVw = (value / window.innerWidth) * 100;
 
-							let updatedValue =
-								this.state.previewType === 'm'
-									? `${value}px`
-									: `clamp(${minSizeRem}rem, ${valueVw}vw ,${valueRem}rem)`;
+							let updatedValue = `${value / 16}rem`;
 
 							jodit.execCommand(command, false, updatedValue);
 						});
@@ -1560,10 +1519,7 @@ class App extends BaseClass {
 						const valueRem = (value / 16) * 2;
 						const valueVw = (value / window.innerWidth) * 100;
 
-						let updatedValue =
-							this.state.previewType === 'm'
-								? `${value}px`
-								: `clamp(${minSizeRem}rem, ${valueVw}vw ,${valueRem}rem)`;
+						let updatedValue = `${value / 16}rem`;
 
 						jodit.execCommand(command, false, updatedValue);
 					}
@@ -2331,18 +2287,8 @@ class App extends BaseClass {
 		if (!value) return '';
 		let data = parseInt(value, 10);
 		let updatedValue = data;
-		if (this.props.previewType === 'm') {
-			const minSizeRem = data / 16;
-			const valueRem = (data / 16) * 2;
-			const viewportWidth = window.innerWidth - 50;
-			const valueVw = (data * 100) / viewportWidth;
-			updatedValue = `clamp(${minSizeRem}rem, ${valueVw}vw ,${valueRem}rem)`;
-		} else {
-			const minSizeRem = (data * 0.1) / 16;
-			const valueRem = (data / 16) * 2;
-			const valueVw = (data / window.innerWidth) * 100;
-			updatedValue = `clamp(${minSizeRem}rem, ${valueVw}vw ,${valueRem}rem)`;
-		}
+		// Convert px to rem directly without clamp
+		updatedValue = `${data / 16}rem`;
 		return updatedValue;
 	};
 	applyFontThemeStyles = (stylesObject) => {
