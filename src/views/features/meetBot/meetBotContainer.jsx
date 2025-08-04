@@ -104,13 +104,13 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		closeWebSocketConnection: closeRecallConnection,
 	} = useRecallStream();
 
-	useEffect(() => {
-		if (!aiLiveIntelligenceHistory) {
-			getAiLiveIntelligenceHistory({ meetingId: meetingId, limit: 20, page: 1 }, false);
-		} else {
-			handleTranscriptionSuggestions({ data: aiLiveIntelligenceHistory?.data || [] });
-		}
-	}, [aiLiveIntelligenceHistory]);
+	// useEffect(() => {
+	// 	if (!aiLiveIntelligenceHistory) {
+	// 		getAiLiveIntelligenceHistory({ meetingId: meetingId, limit: 20, page: 1 }, false);
+	// 	} else {
+	// 		handleTranscriptionSuggestions({ data: aiLiveIntelligenceHistory?.data || [] });
+	// 	}
+	// }, [aiLiveIntelligenceHistory]);
 	// Function to fetch historical transcriptions for desktop
 	const fetchHistoricalTranscriptions = useCallback(async () => {
 		if (!meetingId || !showTranscriptTabs || type !== 'desktop') return;
@@ -212,7 +212,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					} else if (suggestion?.type === 'action') {
 						actions.push(suggestion);
 					}
-				} else {
+				} else if (suggestion?.entity === 'file') {
 					files.push(suggestion);
 				}
 			}
