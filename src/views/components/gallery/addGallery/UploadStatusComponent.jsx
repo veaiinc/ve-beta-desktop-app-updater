@@ -7,6 +7,7 @@ import AiEnabledSwitch from './AiEnabledSwitch';
 import Context from '../../../../context/context';
 import { getImageSizeFormat } from '../../../../helpers';
 import { message } from '../../globalComponents/CustomToast';
+import { ReactComponent as WarningIcon } from '../../../../assets/svg/custom_toast/warning.svg';
 
 const UploadStatusComponent = ({
 	info,
@@ -18,7 +19,7 @@ const UploadStatusComponent = ({
 }) => {
 	const {
 		galleryInfo: { setUpImageUpload, tenantAlbums },
-		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState, currentPlan },
 	} = useContext(Context);
 	// func for removing the image
 	// const params = new URLSearchParams(window.location.search);
@@ -92,7 +93,12 @@ const UploadStatusComponent = ({
 				/>
 			)}
 			<DuplicateComponent info={info} setinfo={setinfo} />
-
+			{lightGallery === 'false' && currentPlan?.isAIFacesEnabled === false && (
+				<div className="upload_status_aiface">
+					<WarningIcon />
+					Uploaded Images Will not be Processed by AI
+				</div>
+			)}
 			<div className="upload_status_container">
 				<div
 					className="header_upload_div"

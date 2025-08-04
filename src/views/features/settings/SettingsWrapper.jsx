@@ -9,7 +9,8 @@ import TeamSettings from './TeamSettings';
 import PlanBilling from './PlanBilling';
 import AiSetup from '../aiSetup/AiSetup';
 import PricingPage from '../pricingPlans/pricingPage';
-import Integrations from '../integrationsList/Integrations';
+// import Integrations from '../integrationsList/Integrations';
+import Integrations from '../integrations/Integrations';
 const mapper = {
 	'my-profile': <MyProfile />,
 	workspace: <SettingsWorkspace />,
@@ -55,13 +56,13 @@ const SettingsWrapper = (props) => {
 				mapper?.[type]
 			) : (
 				<div
-					className={`${type !== 'integrations'  ? 'accountSettingsWrapper' : ''}`}
+					className={`${type !== 'integrations' ? 'accountSettingsWrapper' : ''}`}
 					style={{
 						height: '100%',
 					}}
 				>
 					<div
-						className={`${type !== 'integrations'  ? 'accountSettingsMapper' : ''}`}
+						className={`${type !== 'integrations' ? 'accountSettingsMapper' : ''}`}
 						style={{
 							height: '100%',
 						}}
