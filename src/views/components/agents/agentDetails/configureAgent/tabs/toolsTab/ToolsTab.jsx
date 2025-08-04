@@ -24,7 +24,7 @@ import { ReactComponent as EditIcon } from '../../../../../../../assets/svg/ai_a
 import moment from 'moment';
 import { message } from '../../../../../globalComponents/CustomToast';
 import AgentCredentials from '../../../agentCredentials/AgentCredentials';
-import DeleteFormModal from '../../../../../modalsV2/DeleteModal/DeleteModal';
+import DeleteModal from '../../../../../modalsV2/DeleteModal/DeleteModal';
 
 // Debounce hook
 const useDebounce = (func, timeout = 500) => {
@@ -703,7 +703,7 @@ const ToolsTab = ({ agentId }) => {
 			/>
 
 			{/* Delete Tool Modal */}
-			<DeleteFormModal
+			<DeleteModal
 				isOpen={info?.deleteModal?.open}
 				onClose={handleCancelDelete}
 				onConfirm={handleConfirmDelete}

@@ -11,7 +11,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import jwtDecode from 'jwt-decode';
 import { message } from '../globalComponents/CustomToast';
-import DeleteFormModal from '../modalsV2/DeleteModal/DeleteModal';
+import DeleteModal from '../modalsV2/DeleteModal/DeleteModal';
 
 const ChatHeader = ({
 	sessionId,
@@ -343,7 +343,7 @@ const ChatHeader = ({
 			)}
 
 			{/* Delete Chat Modal */}
-			<DeleteFormModal
+			<DeleteModal
 				isOpen={info?.deleteModal?.open}
 				onClose={handleCancelDelete}
 				onConfirm={handleConfirmDelete}

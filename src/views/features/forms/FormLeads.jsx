@@ -21,7 +21,7 @@ import { ReactComponent as Delete } from '../../../assets/svg/delete.svg';
 import { ReactComponent as Download } from '../../../assets/svg/download.svg';
 import Context from '../../../context/context';
 import ShareWidget from '../../components/globalComponents/ShareWidget';
-import DeleteFormModal from '../../components/modalsV2/DeleteModal/DeleteModal';
+import DeleteModal from '../../components/modalsV2/DeleteModal/DeleteModal';
 
 const FormLeads = () => {
 	const origin = fetchOriginSelection();
@@ -913,7 +913,7 @@ const FormLeads = () => {
 			/>
 
 			{/* Delete Form Modal */}
-			<DeleteFormModal
+			<DeleteModal
 				isOpen={deleteModal.open}
 				onClose={handleCancelDelete}
 				onConfirm={handleConfirmDelete}

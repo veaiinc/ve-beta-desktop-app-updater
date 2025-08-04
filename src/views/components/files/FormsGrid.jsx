@@ -26,7 +26,7 @@ import { ReactComponent as Add2 } from '../../../assets/svg/files/add2.svg';
 import { ReactComponent as FormIcon } from '../../../assets/svg/files/form.svg';
 import { ReactComponent as Delete } from '../../../assets/svg/files/delete.svg';
 import { ReactComponent as Edit } from '../../../assets/svg/files/edit.svg';
-import DeleteFormModal from '../modalsV2/DeleteModal/DeleteModal';
+import DeleteModal from '../modalsV2/DeleteModal/DeleteModal';
 
 const sortOptions = [
 	{ label: 'Recently Added', value: 'createdAt', sortType: -1 },
@@ -629,7 +629,7 @@ const FormsGrid = ({
 					</div>
 				)}
 			</div>
-			<DeleteFormModal
+			<DeleteModal
 				isOpen={deleteModal.open}
 				onClose={handleCancelDelete}
 				onConfirm={handleConfirmDelete}

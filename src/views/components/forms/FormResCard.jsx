@@ -20,7 +20,7 @@ import { useParams } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { message } from '../globalComponents/CustomToast';
-import DeleteFormModal from '../modalsV2/DeleteModal/DeleteModal';
+import DeleteModal from '../modalsV2/DeleteModal/DeleteModal';
 
 const removeHTMLTags = (text) =>
 	text
@@ -575,7 +575,7 @@ const FormResCard = ({
 			</div>
 
 			{/* Delete Response Modal */}
-			<DeleteFormModal
+			<DeleteModal
 				isOpen={deleteModal.open}
 				onClose={handleCancelDelete}
 				onConfirm={handleConfirmDelete}

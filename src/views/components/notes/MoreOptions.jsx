@@ -7,7 +7,7 @@ import { ReactComponent as DeleteSvg } from '../../../assets/svg/tasks/dustBin.s
 import { ReactComponent as GearSvg } from '../../../assets/svg/notes/gear.svg';
 import DuplicateSvg from '../../../assets/svg/tasks/DuplicateSvg.jsx';
 import '../../../assets/scss/notes/noteComponent.scss';
-import DeleteFormModal from '../modalsV2/DeleteModal/DeleteModal';
+import DeleteModal from '../modalsV2/DeleteModal/DeleteModal';
 
 const tooltipStyles = {
 	body: { minWidth: 'fit-content', padding: '0' },
@@ -141,7 +141,7 @@ const MoreOptions = ({ notesConfigs, onChange, onDelete, onDuplicate }) => {
 			</Tooltip>
 
 			{/* Delete Note Modal */}
-			<DeleteFormModal
+			<DeleteModal
 				isOpen={info?.deleteModal?.open}
 				onClose={handleCancelDelete}
 				onConfirm={handleConfirmDelete}

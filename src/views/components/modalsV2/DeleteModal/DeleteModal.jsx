@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import ReactModal from '..';
 import './deleteModal.scss';
 
-const DeleteFormModal = ({
+const DeleteModal = ({
 	isOpen,
 	onClose,
 	onConfirm,
@@ -72,4 +72,4 @@ const DeleteFormModal = ({
 	);
 };
 
-export default DeleteFormModal;
+export default DeleteModal;
