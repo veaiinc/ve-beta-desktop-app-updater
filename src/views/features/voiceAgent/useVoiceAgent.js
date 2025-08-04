@@ -115,7 +115,7 @@ export const useVoiceAgent = (token) => {
                 setIsConnecting(true);
                 setMicStatus('Connecting...');
 
-                wsRef.current = new WebSocket('ws://958fa9e5b983.ngrok-free.app/ws');
+                wsRef.current = new WebSocket('wss://voice.us-east-1.ve.ai/ws');
 
                 wsRef.current.onopen = () => {
                     console.log('WebSocket connected, sending token...');
