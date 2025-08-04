@@ -80,7 +80,7 @@ export default function NoteTranscription({
 			typingIntervalsRef.current.clear();
 			disconnect();
 			closeLiveIntelligenceConnection();
-			deleteLiveKitRoom({ pageId: pageId });
+			deleteLiveKitRoom({ meetingId });
 		};
 	}, [disconnect]);
 
@@ -307,7 +307,7 @@ export default function NoteTranscription({
 	const handleStartTranscription = async () => {
 		// Fetch a new LiveKit token
 		try {
-			const response = await getLiveKitToken({ pageId: pageId });
+			const response = await getLiveKitToken({ meetingId });
 			if (response && response[0] === true && response[1]?.accessToken) {
 				setLiveKitToken(response[1].accessToken);
 				setIsRecording(true);
@@ -335,7 +335,7 @@ export default function NoteTranscription({
 		// Clean up typing intervals
 		typingIntervalsRef.current.forEach((interval) => clearInterval(interval));
 		typingIntervalsRef.current.clear();
-		deleteLiveKitRoom({ pageId: pageId });
+		deleteLiveKitRoom({ meetingId });
 		// Disconnect LiveKit
 		disconnect();
 		// Close live intelligence connection
