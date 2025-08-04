@@ -77,11 +77,11 @@ const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
 
 const betaRoutes = [
 	{
-		path: '/insights',
+		path: '/ambient-ai',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper
-					title={'Home'}
+					title={'Ambient AI'}
 					outerContainerStyle={{ overflow: 'hidden' }}
 					childrenContainerStyles={{ overflow: 'auto' }}
 					showBottomToolbar={false}

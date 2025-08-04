@@ -12,7 +12,13 @@ const infinityScrollStyles = {
 	gap: '2px',
 };
 
-const RecentChatsTooltip = ({ chats, handleChatNavigation, fetchMoreChats, hasNextPage }) => {
+const RecentChatsTooltip = ({
+	chats,
+	handleChatNavigation,
+	fetchMoreChats,
+	hasNextPage,
+	activeChatData,
+}) => {
 	const chatsLength = chats?.length || 0;
 	const emptyChatsState = chatsLength === 0;
 	const loadingState = chats === undefined;
@@ -58,7 +64,10 @@ const RecentChatsTooltip = ({ chats, handleChatNavigation, fetchMoreChats, hasNe
 										key={chat?._id}
 										onClick={() => handleChatNavigation?.(chat)}
 									>
-										<span>{chat?.title}</span>
+										<span className={s.chatTitle}>{chat?.title}</span>
+										{activeChatData?._id === chat?._id && (
+											<span className={s.activeChatIndicator} />
+										)}
 									</div>
 								))}
 							</InfiniteScroll>
