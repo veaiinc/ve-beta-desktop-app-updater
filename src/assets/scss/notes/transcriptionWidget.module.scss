@@ -153,27 +153,104 @@
 	overflow: hidden;
 	z-index: 10;
 	transition: all 0.5s ease;
-	.transcriptionWrapperButtonContainer {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		gap: 24px;
-		height: 52px;
 
-		.transcriptionWrapperButton {
+	.transcriptionWrapperContent {
+		display: flex;
+		gap: 24px;
+		align-items: flex-end;
+		justify-content: center;
+		max-width: 800px;
+		width: 100%;
+
+		.chatInputContainer {
 			display: flex;
-			width: 100%;
-			height: 100%;
-			padding: 12px 24px;
-			justify-content: center;
+			height: 52px;
+			padding: 0px 12px;
 			align-items: center;
+			flex: 1 0 0;
 			border-radius: 12px;
-			background: var(--popup);
-			cursor: pointer;
-			color: var(--primary-button, #202123);
-			font-size: 15px;
-			font-weight: 600;
 			border: 1px solid var(--stroke, #2c2d2e);
+			background-color: var(--card-hover, #202123);
+			gap: 8px;
+
+			.chatInputSparkle {
+				display: flex;
+				width: 20px;
+				height: 20px;
+				justify-content: center;
+				align-items: center;
+			}
+			.chatInput {
+				flex-grow: 1;
+				border: none;
+				outline: none;
+				background-color: transparent;
+				color: var(--primary-font, #f2f2f3);
+				text-overflow: ellipsis;
+				font-family: var(--primary-font-family);
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 450;
+				line-height: normal;
+				height: 100%;
+				text-overflow: ellipsis;
+				overflow: hidden;
+				white-space: nowrap;
+
+				&:placeholder {
+					color: var(--secondary-font, #94989e);
+				}
+			}
+
+			.sendButton {
+				display: flex;
+				width: 36px;
+				height: 36px;
+				padding: 10px;
+				justify-content: center;
+				align-items: center;
+				gap: 6px;
+				border-radius: 8px;
+				background-color: var(--default-state-buttons, #2e2f33);
+				cursor: pointer;
+				border: none;
+				outline: none;
+				transition: all 0.3s ease;
+
+				.sendButtonIcon {
+					// transform: rotate(90deg);
+					path {
+						stroke: var(--primary-font, #f2f2f3) !important;
+					}
+				}
+
+				// &:hover {
+			}
 		}
+
+		// .transcriptionWrapperButtonContainer {
+		// 	display: flex;
+		// 	justify-content: center;
+		// 	align-items: center;
+		// 	gap: 24px;
+		// 	height: 52px;
+		// 	background-color: red;
+
+		// 	.transcriptionWrapperButton {
+		// 		display: flex;
+		// 		width: 100%;
+		// 		height: 100%;
+		// 		padding: 12px 24px;
+		// 		justify-content: center;
+		// 		align-items: center;
+		// 		border-radius: 12px;
+		// 		background: var(--popup);
+		// 		cursor: pointer;
+		// 		color: var(--primary-button, #202123);
+		// 		font-size: 15px;
+		// 		font-weight: 600;
+		// 		border: 1px solid var(--stroke, #2c2d2e);
+		// 	}
+		// }
 	}
 }

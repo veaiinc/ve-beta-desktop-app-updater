@@ -63,7 +63,7 @@ const Tasks = lazy(() => import('../views/features/tasks/Tasks'));
 const TaskFullView = lazy(() => import('../views/features/tasks/TaskFullView'));
 const Integrations = lazy(() => import('../views/features/integrationsList/Integrations'));
 const NotesPage = lazy(() => import('../views/features/notesPage/NotesPage'));
-const NotesWrapper = lazy(() => import('../views/features/notesModule/NotesWrapper'));
+// const NotesWrapper = lazy(() => import('../views/features/notesModule/NotesWrapper'));
 const GalleryPage = lazy(() => import('../views/features/gallery/GalleryPage'));
 const GalleryViewer = lazy(() => import('../views/features/gallery/GalleryViewer'));
 
@@ -76,6 +76,9 @@ const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
 const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
 
 const betaRoutes = [
+	// ========================================
+	// AI & ASSISTANT FEATURES
+	// ========================================
 	{
 		path: '/ambient-ai',
 		element: (
@@ -92,51 +95,121 @@ const betaRoutes = [
 		),
 	},
 	{
-		path: '/home',
+		path: '/ai-assistant',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Tools'}>
-					<InitialHomePage />
+				<AuthWrapper title={'AI Assistant'}>
+					<AiAssistants />
 				</AuthWrapper>
 			</Suspense>
 		),
 	},
 	{
-		path: '/create-workspace',
+		path: '/ai-assistant/:aiAssistantId',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Onboarding'}>
-					<Onboarding />
+				<AuthWrapper title={'AI Assistant'}>
+					<AgentDetails />
 				</AuthWrapper>
 			</Suspense>
 		),
 	},
+	{
+		path: '/ai-assistant/:aiAssistantId/edit',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'AI Assistant'}>
+					<EditAgent />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/knowledge-agent',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title={'Knowledge Agent'}
+					innerContainerStyle={{ paddingBottom: '0px' }}
+					showBottomToolbar={false}
+				>
+					<KnowledgeAgents />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/knowledge-agent/:agentId',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title={'Knowledge Agent'}
+					showBottomToolbar={false}
+					innerContainerStyle={{ paddingBottom: '0px' }}
+				>
+					<KnowledgeAgentDetails />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/knowledge-agent/:agentId/edit',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title={'Knowledge Agent'}
+					showBottomToolbar={false}
+					outerContainerStyle={{ paddingRight: '0px' }}
+				>
+					<EditKnowledgeAgent />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/proactiveai/:proactiveAiId',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title="Proactive AI" childrenContainerStyles={{ maxWidth: '100%' }}>
+					<ProactiveAi />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/agents',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title="Agents"
+					outerContainerStyle={{ padding: '0' }}
+					sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
+				>
+					<Agents />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/agent/:agentId',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title="Agent">
+					<Agent />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+
+	// ========================================
+	// CHAT & COMMUNICATION
+	// ========================================
 	{
 		path: '/chats',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper title={'Chats'}>
 					<ChatPage />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/share-and-earn',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Share and Earn'}>
-					<ShareAndEarn />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/settings/:type',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Workspace Settings'}>
-					<SettingsWrapper />
 				</AuthWrapper>
 			</Suspense>
 		),
@@ -161,36 +234,29 @@ const betaRoutes = [
 		),
 	},
 	{
-		path: '/playbook',
+		path: '/meet',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Sales'}>
-					<GlobalWorkflows />
+				<AuthWrapper title={'Meet'}>
+					<CardMeetBot />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/meet/:meetingId',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Meet'}>
+					<MeetBotWrapper />
 				</AuthWrapper>
 			</Suspense>
 		),
 	},
 
-	{
-		path: '/early-access',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Early Access'}>
-					<EarlyAccess />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	// {
-	// 	path: '/brand-setup',
-	// 	element: (
-	// 		<Suspense fallback={<SuspenseFallback />}>
-	// 			<AuthWrapper title={'Brand Setup'}>
-	// 				<BrandSetup />
-	// 			</AuthWrapper>
-	// 		</Suspense>
-	// 	),
-	// },
+	// ========================================
+	// GALLERY & MEDIA
+	// ========================================
 	{
 		path: '/galleries',
 		element: (
@@ -251,6 +317,20 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
+
+	// ========================================
+	// WORKFLOW & AUTOMATION
+	// ========================================
+	{
+		path: '/playbook',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Sales'}>
+					<GlobalWorkflows />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
 	{
 		path: '/smart-file/:templateId/:workflowId',
 		element: (
@@ -282,221 +362,6 @@ const betaRoutes = [
 		),
 	},
 	{
-		path: '/tasks',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper
-					title={'Tasks'}
-					outerContainerStyle={{ padding: '0 32px 0 0' }}
-					childrenContainerStyles={{ maxWidth: '100%' }}
-				>
-					<Tasks />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/task/:taskId',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Tasks'}>
-					<TaskFullView />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/integrations',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Integrations'}>
-					<Integrations />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-
-	{
-		path: '/calendar',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper
-					title={'Calendar'}
-					outerContainerStyle={{ overflow: 'hidden', padding: '0 32px 0 0 ' }}
-					childrenContainerStyles={{ maxWidth: '100%' }}
-				>
-					<CalendarModule />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/scheduler',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Scheduler'} maxWidth={'95%'}>
-					<SchedulerMainPage />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/scheduling/edit/:sessionId',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Scheduling'} maxWidth={'95%'}>
-					<EditScheduler />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/pricing',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Pricing'}>
-					<PricingPage />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/notes',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
-					<NotesPage />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/database',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
-					<NotesPage isDatabase={true} />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/contacts',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper
-					title={'Contacts'}
-					outerContainerStyle={{ padding: '0 32px 0 0' }}
-					childrenContainerStyles={{ maxWidth: '100%' }}
-				>
-					<Contacts />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/ai-assistant',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'AI Assistant'}>
-					<AiAssistants />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/ai-assistant/:aiAssistantId',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'AI Assistant'}>
-					<AgentDetails />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/ai-assistant/:aiAssistantId/edit',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'AI Assistant'}>
-					<EditAgent />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/docs',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Docs'}>
-					<Docs />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/knowledge-agent',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper
-					title={'Knowledge Agent'}
-					innerContainerStyle={{ paddingBottom: '0px' }}
-					showBottomToolbar={false}
-				>
-					<KnowledgeAgents />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/knowledge-agent/:agentId',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper
-					title={'Knowledge Agent'}
-					showBottomToolbar={false}
-					innerContainerStyle={{ paddingBottom: '0px' }}
-				>
-					<KnowledgeAgentDetails />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/knowledge-agent/:agentId/edit',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper
-					title={'Knowledge Agent'}
-					showBottomToolbar={false}
-					outerContainerStyle={{ paddingRight: '0px' }}
-				>
-					<EditKnowledgeAgent />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/doc/:id',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Docs'}>
-					<DocsFullView />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/my-templates',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'My Templates'}>
-					<MyTemplates />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
 		path: '/automation-builder/:automationId',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
@@ -506,6 +371,20 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
+	{
+		path: '/automations',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Automations'}>
+					<Automations />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+
+	// ========================================
+	// FORMS & TEMPLATES
+	// ========================================
 	{
 		path: '/form',
 		element: (
@@ -542,6 +421,106 @@ const betaRoutes = [
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper title={'Form Summary'}>
 					<FormSummary view="summary" />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/my-templates',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'My Templates'}>
+					<MyTemplates />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+
+	// ========================================
+	// CALENDAR & SCHEDULING
+	// ========================================
+	{
+		path: '/calendar',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title={'Calendar'}
+					outerContainerStyle={{ overflow: 'hidden', padding: '0 32px 0 0 ' }}
+					childrenContainerStyles={{ maxWidth: '100%' }}
+				>
+					<CalendarModule />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/scheduler',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Scheduler'} maxWidth={'95%'}>
+					<SchedulerMainPage />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/scheduling/edit/:sessionId',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Scheduling'} maxWidth={'95%'}>
+					<EditScheduler />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+
+	// ========================================
+	// TASKS & PROJECTS
+	// ========================================
+	{
+		path: '/tasks',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title={'Tasks'}
+					outerContainerStyle={{ padding: '0 32px 0 0' }}
+					childrenContainerStyles={{ maxWidth: '100%' }}
+				>
+					<Tasks />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/task/:taskId',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Tasks'}>
+					<TaskFullView />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+
+	// ========================================
+	// NOTES & DOCUMENTATION
+	// ========================================
+	{
+		path: '/notes',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
+					<NotesPage />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/database',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
+					<NotesPage isDatabase={true} />
 				</AuthWrapper>
 			</Suspense>
 		),
@@ -585,11 +564,39 @@ const betaRoutes = [
 		),
 	},
 	{
-		path: '/automations',
+		path: '/docs',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Automations'}>
-					<Automations />
+				<AuthWrapper title={'Docs'}>
+					<Docs />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/doc/:id',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Docs'}>
+					<DocsFullView />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+
+	// ========================================
+	// CONTACTS & CRM
+	// ========================================
+	{
+		path: '/contacts',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title={'Contacts'}
+					outerContainerStyle={{ padding: '0 32px 0 0' }}
+					childrenContainerStyles={{ maxWidth: '100%' }}
+				>
+					<Contacts />
 				</AuthWrapper>
 			</Suspense>
 		),
@@ -608,16 +615,10 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
-	// {
-	// 	path: '/search',
-	// 	element: (
-	// 		<Suspense fallback={<SuspenseFallback />}>
-	// 			<AuthWrapper title="Search">
-	// 				<ElasticSearch />
-	// 			</AuthWrapper>
-	// 		</Suspense>
-	// 	),
-	// },
+
+	// ========================================
+	// FILES & INTEGRATIONS
+	// ========================================
 	{
 		path: '/files',
 		element: (
@@ -629,15 +630,19 @@ const betaRoutes = [
 		),
 	},
 	{
-		path: '/proactiveai/:proactiveAiId',
+		path: '/integrations',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title="Proactive AI" childrenContainerStyles={{ maxWidth: '100%' }}>
-					<ProactiveAi />
+				<AuthWrapper title={'Integrations'}>
+					<Integrations />
 				</AuthWrapper>
 			</Suspense>
 		),
 	},
+
+	// ========================================
+	// BUILDER & TOOLS
+	// ========================================
 	{
 		path: '/builder/*',
 		element: (
@@ -653,50 +658,78 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
+
+	// ========================================
+	// SETTINGS & ADMINISTRATION
+	// ========================================
 	{
-		path: '/agents',
+		path: '/settings/:type',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper
-					title="Agents"
-					outerContainerStyle={{ padding: '0' }}
-					sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
-				>
-					<Agents />
+				<AuthWrapper title={'Workspace Settings'}>
+					<SettingsWrapper />
 				</AuthWrapper>
 			</Suspense>
 		),
 	},
 	{
-		path: '/agent/:agentId',
+		path: '/pricing',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title="Agent">
-					<Agent />
+				<AuthWrapper title={'Pricing'}>
+					<PricingPage />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+
+	// ========================================
+	// ONBOARDING & FEATURES
+	// ========================================
+	{
+		path: '/home',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Tools'}>
+					<InitialHomePage />
 				</AuthWrapper>
 			</Suspense>
 		),
 	},
 	{
-		path: '/meet',
+		path: '/create-workspace',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Meet'}>
-					<CardMeetBot />
+				<AuthWrapper title={'Onboarding'}>
+					<Onboarding />
 				</AuthWrapper>
 			</Suspense>
 		),
 	},
 	{
-		path: '/meet/:meetingId',
+		path: '/share-and-earn',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Meet'}>
-					<MeetBotWrapper />
+				<AuthWrapper title={'Share and Earn'}>
+					<ShareAndEarn />
 				</AuthWrapper>
 			</Suspense>
 		),
 	},
+	{
+		path: '/early-access',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Early Access'}>
+					<EarlyAccess />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+
+	// ========================================
+	// FALLBACK ROUTE
+	// ========================================
 	{
 		path: '*',
 		element: (
