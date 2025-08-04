@@ -22,7 +22,7 @@ const CreateModalPreferences = ({ mode = 'Meeting', onUpdatePreferences }) => {
 	const [updating, setUpdating] = useState(false);
 	const [sliderValue, setSliderValue] = useState(2);
 	const [info, setInfo] = useState({
-		thresholdValue: 2,
+		thresholdValue: 8,
 		enabledFeatures: {
 			smartQuestions: true,
 			instantAnswers: true,
@@ -55,7 +55,7 @@ const CreateModalPreferences = ({ mode = 'Meeting', onUpdatePreferences }) => {
 	useEffect(() => {
 		if (info.allPreferences[meetingType]) {
 			const preferences = info.allPreferences[meetingType];
-			const thresholdValue = preferences.threshold || 2;
+			const thresholdValue = preferences.threshold || 8;
 			setInfo((prev) => ({
 				...prev,
 				thresholdValue: thresholdValue,
@@ -84,7 +84,7 @@ const CreateModalPreferences = ({ mode = 'Meeting', onUpdatePreferences }) => {
 				// Set current meeting type preferences
 				const currentPreferences = response.meetingPreference[meetingType];
 				if (currentPreferences) {
-					const thresholdValue = currentPreferences.threshold || 2;
+					const thresholdValue = currentPreferences.threshold || 8;
 					setInfo((prev) => ({
 						...prev,
 						thresholdValue: thresholdValue,
@@ -268,7 +268,7 @@ const CreateModalPreferences = ({ mode = 'Meeting', onUpdatePreferences }) => {
 						/>
 					</div>
 				</div>
-				<div className="preference-threshold">
+				{/* <div className="preference-threshold">
 					<div className="threshold-title">Response Intensity Threshold</div>
 					<Slider
 						min={2}
@@ -291,7 +291,7 @@ const CreateModalPreferences = ({ mode = 'Meeting', onUpdatePreferences }) => {
 						<span className="threshold-subtext-icon">i</span>
 						<div className="threshold-subtext-content">{stepsHint[sliderValue]}</div>
 					</div>
-				</div>
+				</div> */}
 			</div>
 		</div>
 	);
