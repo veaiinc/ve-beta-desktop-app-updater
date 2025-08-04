@@ -11,6 +11,11 @@ import GuideMePopup from './guideMePopup';
 import CreateMeetingModal from './CreateMeetingModal';
 import moment from 'moment';
 
+// const drawerStyles = {
+// 	header: { display: 'none' },
+// 	body: { padding: 0, background: 'var(--background-color)', height: '100vh', overflow: 'auto' },
+// };
+
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 function formatDate(timestamp) {

@@ -680,7 +680,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 			if (response?.[0]) {
 				return [true, response?.[1]?.data?.getLiveKitToken];
@@ -1908,7 +1908,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api',
+				'page_notes_api_database',
 			);
 			if (response?.[0]) {
 				return response;
