@@ -397,30 +397,51 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 	};
 
 	// Handle API key submission
-	const handleApiKeySubmit = async (apiKey, action) => {
+	const handleApiKeySubmit = async (apiKeyData, action) => {
 		setInfo((prev) => ({
 			...prev,
 			apiKeyModalLoading: true,
 		}));
 
 		try {
+			// Prepare payload based on whether it's WhatsApp or other tools
+			let payload = { slug: action.toolkit.slug };
+
+			if (action?.toolkit?.slug === 'whatsapp' && typeof apiKeyData === 'object') {
+				// For WhatsApp, apiKeyData is an object with multiple fields
+				payload = {
+					...payload,
+					...apiKeyData,
+				};
+			} else {
+				// For other tools, apiKeyData is just the API key string
+				payload.apiKey = apiKeyData;
+			}
+
 			// First, connect the tool with API key
-			const [connectSuccess, connectResponse] = await connectTool({
-				slug: action.toolkit.slug,
-				apiKey: apiKey,
-			});
+			const [connectSuccess, connectResponse] = await connectTool(payload);
 
-			if (connectSuccess && connectResponse?.data?.account_id) {
-				// Tool connected successfully, now add it to the knowledge agent
-				await handleCreateAction(action, connectResponse.data.account_id, true);
+			if (connectSuccess) {
+				// Get the account ID from the response
+				const accountId =
+					connectResponse?.data?.account_id ||
+					connectResponse?.data?.connected_account_id ||
+					connectResponse?.data?.auth_config_id;
 
-				// Close the API key modal
-				setInfo((prev) => ({
-					...prev,
-					showApiKeyModal: false,
-					selectedActionForApiKey: null,
-					apiKeyModalLoading: false,
-				}));
+				if (accountId) {
+					// Tool connected successfully, now add it to the knowledge agent
+					await handleCreateAction(action, accountId, true);
+
+					// Close the API key modal and clear inputs
+					setInfo((prev) => ({
+						...prev,
+						showApiKeyModal: false,
+						selectedActionForApiKey: null,
+						apiKeyModalLoading: false,
+					}));
+				} else {
+					throw new Error('No account ID found in response');
+				}
 			} else {
 				throw new Error(connectResponse?.message || 'Failed to connect tool with API key');
 			}
