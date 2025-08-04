@@ -341,7 +341,9 @@ const TopNavbar = () => {
 										rootClassName={s.topNavbarSettings}
 									>
 										<li
-											className={`${s.navItem} ${s.profileItem}`}
+											className={`${s.navItem} ${s.profileItem} ${
+												pathname.includes('/files') ? s.active : ''
+											}`}
 											onClick={() =>
 												handleNavigation({
 													navItemId: navItem.id,
@@ -389,7 +391,9 @@ const TopNavbar = () => {
 													filesTooltipOpen: false,
 												}));
 											}}
-											className={`${s.navItem} ${s.profileItem}`}
+											className={`${s.navItem} ${s.profileItem} ${
+												pathname.includes('/home') ? s.active : ''
+											}`}
 										>
 											{navItem.label}
 										</li>
