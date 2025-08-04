@@ -2396,6 +2396,11 @@ class Invoice extends Component {
 	}
 
 	render() {
+		const isiOS =
+			this.props?.client && this.props?.previewType === 'm'
+				? /iP(hone|ad|od)/.test(navigator.platform) ||
+				  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+				: true;
 		return (
 			<div
 				className="block"
@@ -2405,6 +2410,7 @@ class Invoice extends Component {
 							? '0px 0px'
 							: '0px 0px',
 					width: this.state?.previewType === 'm' && '400px',
+					width: this.state?.previewType === 'm' && (isiOS ? '400px' : '375'),
 				}}
 				onClick={(e) => {
 					// e.stopPropagation();
