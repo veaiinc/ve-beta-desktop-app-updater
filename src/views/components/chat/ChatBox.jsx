@@ -2,17 +2,17 @@ import { memo, useCallback, useState, useRef, useEffect, useContext } from 'reac
 import '../../../assets/scss/chat/chatbox.scss';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
-import { ReactComponent as SpeechMicSvg } from '../../../assets/svg/ai_agents/speechmic.svg';
+import { ReactComponent as SpeechMicSvg } from '../../../assets/svg/ai_agents/mic.svg';
 import { ReactComponent as ChevronSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as PlusSvg } from '../../../assets/svg/ai_assistant/plus.svg';
-import { ReactComponent as AudioSvg } from '../../../assets/svg/ai_agents/audio.svg';
 import { ReactComponent as AtomSvg } from '../../../assets/svg/ai_agents/atom.svg';
 import { ReactComponent as SparkSvg } from '../../../assets/svg/spark.svg';
 import { ReactComponent as ArrowDownSvg } from '../../../assets/svg/ai_agents/arrow-down.svg';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { ReactComponent as BulbSvg } from '../../../assets/svg/home_page/bulb.svg';
 import { ReactComponent as TrendUpSvg } from '../../../assets/svg/trendUp.svg';
+import { ReactComponent as StopIconSvg } from '../../../assets/svg/notesPage/cancelnCircle.svg';
 import CreditCoinImage from '../../../assets/images/creditCoin.png';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
@@ -281,7 +281,7 @@ const ChatBox = ({
 			}));
 			onChatQueryChange?.(fullText.trim());
 		}
-	}, [segments, onChatQueryChange]);
+	}, [segments]);
 
 	const uploadedImagesRef = useRef(info?.uploadedImages || []);
 	const recentFilesRef = useRef(info?.recentFiles || []);
@@ -1344,7 +1344,6 @@ const ChatBox = ({
 								setTranscriptionText('');
 								// Reset voiceIntegration to false to keep chat interface visible
 								setInfo((prev) => ({ ...prev, voiceIntegration: false }));
-								message.success('Transcription started');
 							}
 						} else {
 							console.error('Failed to fetch LiveKit token:', response);
@@ -1361,7 +1360,6 @@ const ChatBox = ({
 					setTranscriptionText('');
 					// Reset voiceIntegration to false to keep chat interface visible
 					setInfo((prev) => ({ ...prev, voiceIntegration: false }));
-					message.success('Transcription stopped');
 				}
 
 				// Don't call handleConnect during transcription to avoid voiceIntegration conflicts
@@ -1776,19 +1774,6 @@ const ChatBox = ({
 											) : (
 												<div style={{ display: 'flex', gap: '8px' }}>
 													<div
-														className={`click-btn ${
-															startPage ? 'startPage' : ''
-														}`}
-														onClick={(e) => handleMicIconClick(e)}
-														style={{
-															backgroundColor:
-																'var(--primary-button)',
-														}}
-														title="Start Speech-to-Text"
-													>
-														<AudioSvg />
-													</div>
-													<div
 														className={`click-btn speech-to-text-btn ${
 															startPage ? 'startPage' : ''
 														} ${isTranscribing ? 'transcribing' : ''}`}
@@ -1804,7 +1789,11 @@ const ChatBox = ({
 																: 'Start Speech-to-Text'
 														}
 													>
-														<AudioSvg />
+														{isTranscribing ? (
+															<StopIconSvg />
+														) : (
+															<SpeechMicSvg />
+														)}
 													</div>
 												</div>
 											))}
@@ -2463,7 +2452,11 @@ const ChatBox = ({
 																	: 'Start Speech-to-Text'
 															}
 														>
-															<SpeechMicSvg />
+															{isTranscribing ? (
+																<StopIconSvg />
+															) : (
+																<SpeechMicSvg />
+															)}
 														</div>
 													</div>
 												</div>
