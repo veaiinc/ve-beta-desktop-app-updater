@@ -30,6 +30,9 @@ const initialState = {
 	transcriptionsPage: 1,
 	transcriptionsHasMore: true,
 	transcriptionsLoading: false,
+	botJoined: false,
+	botJoinedTime: 0,
+	meetingPlatform: '',
 };
 
 const getSpeakerColor = (speakerName) => {
@@ -251,7 +254,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 
 	// Fetch meeting details if not available
 	useEffect(() => {
-		if (!createBotInfo && meetingId) {
+		if (meetingId && (!createBotInfo || createBotInfo?._id !== meetingId)) {
 			setIsLoadingMeetingDetails(true);
 			setMeetingNotFound(false);
 			getMeetBotById({ meetingId }).finally(() => {
@@ -266,6 +269,17 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			setMeetingNotFound(true);
 		}
 	}, [isLoadingMeetingDetails, createBotInfo, meetingId]);
+
+	useEffect(() => {
+		if (createBotInfo) {
+			setInfo((prev) => ({
+				...prev,
+				botJoined: createBotInfo?.status === 'live',
+				botJoinedTime: createBotInfo?.botJoinedAt,
+				meetingPlatform: createBotInfo?.meetingPlatform,
+			}));
+		}
+	}, [createBotInfo]);
 
 	// When new socket data comes in:
 	const handleSocketTranscription = useCallback((newTranscript) => {
@@ -401,6 +415,12 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						isFinal: true, // Assume final since it's from server
 						id: msg.noteTakerTranscript._id || Date.now().toString(),
 					});
+				} else if (msg?.event === 'bot.join') {
+					setInfo((prev) => ({
+						...prev,
+						botJoined: true,
+						botJoinedTime: moment().unix(),
+					}));
 				}
 			} catch (e) {
 				console.error('Error in handleSocketMessage:', e);
@@ -650,6 +670,9 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						chat={chat}
 						transcription={transcription}
 						transcriptList={transcriptList}
+						botJoined={info?.botJoined}
+						botJoinedTime={info?.botJoinedTime}
+						meetingPlatform={info?.meetingPlatform}
 					/>
 				)}
 				{/* Always render NoteTakerTranscript at the root level */}
