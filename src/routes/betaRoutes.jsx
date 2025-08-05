@@ -50,7 +50,6 @@ const Workflow_builder_updated = lazy(() =>
 );
 const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
 const Contacts = lazy(() => import('../views/features/contacts/Contacts'));
-const AmbientAi = lazy(() => import('../views/features/ambientAi/AmbientAi'));
 
 const Files = lazy(() => import('../views/features/files/Files'));
 const ExpandedClientView = lazy(() => import('../views/features/contacts/ExpandedClientView'));
@@ -70,6 +69,7 @@ const GalleryViewer = lazy(() => import('../views/features/gallery/GalleryViewer
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 import MeetBotWrapper from '../views/features/meetBot/meetBotWrapper';
+import ProactiveSuggestions from '../views/features/homePage/ProactiveSuggestions';
 // import MeetBot from '../views/features/meetBot/meetBot';
 // import NotesWrapper from '../views/features/notesModule/NotesWrapper';
 const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
@@ -89,7 +89,7 @@ const betaRoutes = [
 					childrenContainerStyles={{ overflow: 'auto' }}
 					showBottomToolbar={false}
 				>
-					<AmbientAi />
+					<ProactiveSuggestions />
 				</AuthWrapper>
 			</Suspense>
 		),

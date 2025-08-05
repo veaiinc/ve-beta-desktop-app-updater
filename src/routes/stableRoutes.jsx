@@ -19,7 +19,7 @@ const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapp
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
-import AmbientAi from '../views/features/ambientAi/AmbientAi';
+import ProactiveSuggestions from '../views/features/homePage/ProactiveSuggestions';
 
 const stableRoutes = [
 	// ========================================
@@ -30,7 +30,7 @@ const stableRoutes = [
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper title={'Ambient AI'}>
-					<AmbientAi />
+					<ProactiveSuggestions />
 				</AuthWrapper>
 			</Suspense>
 		),
