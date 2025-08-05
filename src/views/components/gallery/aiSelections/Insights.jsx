@@ -38,7 +38,7 @@ const Insights = () => {
 	const [date, setDate] = useState('');
 	const ITEMS_PER_PAGE = 20;
 	const [selectedRole, setSelectedRole] = useState('');
-	const pathname = window.location.pathname;
+	const pathname = location.pathname;
 	const galleryId = pathname.split('/galleries/')[1];
 
 	const { ref, inView } = useInView({

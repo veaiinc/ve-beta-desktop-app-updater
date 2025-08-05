@@ -1,0 +1,108 @@
+.delete-modal {
+	text-align: center;
+	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+	display: flex;
+	width: 530px;
+	padding: 40px 32px;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	border-radius: 24px;
+	background: var(--popup, #18191b);
+
+	&__title {
+		color: var(--primary-font, #f2f2f3);
+		text-align: center;
+		font-family: var(--primary-font-family);
+		font-size: 24px;
+		font-style: normal;
+		font-weight: 600;
+		line-height: normal;
+		text-transform: capitalize;
+	}
+
+	&__desc {
+		color: var(--secondary-font, #f2f2f3);
+		text-align: center;
+		font-family: var(--primary-font-family);
+		font-size: 16px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 24px;
+	}
+
+	&__warning {
+		color: var(--primary-font, #f2f2f3);
+		text-align: center;
+		font-size: 16px;
+		font-style: normal;
+		font-family: var(--primary-font-family);
+		font-weight: 500;
+		line-height: 24px;
+	}
+
+	&__header-group {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		width: 100%;
+		align-items: center;
+	}
+
+	&__desc-warning-group {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		width: 100%;
+		align-items: center;
+		margin-bottom: 8px;
+	}
+
+	&__button-group {
+		display: flex;
+		justify-content: center;
+		gap: 32px;
+		width: 100%;
+		margin-top: 16px;
+		margin-left: 55px;
+	}
+
+	&__button {
+		display: flex;
+		width: 150px;
+		height: 44px;
+		padding: 14px 24px;
+		justify-content: center;
+		align-items: center;
+		gap: 10px;
+		border-radius: 24px;
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 20px;
+		text-transform: capitalize;
+		cursor: pointer;
+
+		&--cancel {
+			border: 1px solid var(--stroke, #2c2d2e);
+			background-color: transparent;
+			color: var(--secondary-font);
+			width: auto;
+			&:hover {
+				border: solid var(--stroke-hover);
+				color: var(--primary-font);
+			}
+		}
+		&--delete {
+			color: var(--error);
+			border: solid var(--error);
+			background-color: transparent;
+			width: auto;
+			&:hover {
+				background-color: var(--error);
+				color: var(--primary-font);
+			}
+		}
+	}
+}
