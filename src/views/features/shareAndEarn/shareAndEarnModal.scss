@@ -10,14 +10,14 @@
 	border: 1px solid var(--stroke);
 	border-radius: 24px;
 
-	.modalHeader {
+	.shareHeader {
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
 		align-self: stretch;
 		gap: 24px;
 
-		.modalMainText {
+		.shareHeaderText {
 			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-weight: 500;
@@ -27,7 +27,7 @@
 			margin: 0;
 		}
 
-		.modalSubText {
+		.shareHeaderSubText {
 			color: var(--primary-button);
 			font-family: var(--primary-font-family);
 			font-weight: 500;
@@ -120,15 +120,15 @@
 		padding: 30px 20px;
 		gap: 24px;
 
-		.modalHeader {
+		.shareHeader {
 			gap: 16px;
 
-			.modalMainText {
+			.shareHeaderText {
 				font-size: 24px;
 				line-height: 1.2em;
 			}
 
-			.modalSubText {
+			.shareHeaderSubText {
 				font-size: 13px;
 			}
 		}
@@ -160,8 +160,8 @@
 		padding: 20px 16px;
 		gap: 20px;
 
-		.modalHeader {
-			.modalMainText {
+		.shareHeader {
+			.shareHeaderText {
 				font-size: 20px;
 			}
 		}

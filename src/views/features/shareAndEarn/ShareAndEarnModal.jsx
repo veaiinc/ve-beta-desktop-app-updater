@@ -69,11 +69,11 @@ const ShareAndEarnModal = ({ isOpen, closeModal }) => {
 			shouldCloseOnOverlayClick={true}
 		>
 			<div className="shareAndEarnModalContainer">
-				<div className="modalHeader">
-					<h1 className="modalMainText">
+				<div className="shareHeader">
+					<h1 className="shareHeaderText">
 						Get your friends to Ve and earn while you're at it!
 					</h1>
-					<h2 className="modalSubText">
+					<h2 className="shareHeaderSubText">
 						Get {referralDetails?.referralPlan?.referrerRewardInPercentage || 10}% on
 						your friends 1st payment
 					</h2>
