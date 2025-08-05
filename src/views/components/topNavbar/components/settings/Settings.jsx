@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import s from './settings.module.scss';
 import Context from '../../../../../context/context';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import logout from '../../../../../helpers/logout';
 import SwitchWorkspaceModal from '../switchWorkspaceModal/SwitchWorkspaceModal';
 import { Tooltip } from 'antd';
@@ -17,9 +17,12 @@ import { ReactComponent as LogoutSvg } from '../../assets/logout.svg';
 import { ReactComponent as DownloadMacSvg } from '../../assets/download-mac.svg';
 import { ReactComponent as TemplatesSvg } from '../../assets/templates.svg';
 import useIntercom from '../../../../../hooks/useIntercom';
+import useBroadcastChannel from '../../../../../hooks/useBroadcastChannel';
 
 const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
-const isMac = navigator.platform.toLowerCase().indexOf('mac') !== -1;
+const isMac =
+	navigator.userAgentData?.platform === 'macOS' ||
+	navigator.userAgent.toLowerCase().indexOf('mac') !== -1;
 
 export const settingsItems = [
 	{
@@ -89,7 +92,7 @@ const Settings = ({
 }) => {
 	const { pathname } = useLocation();
 	const { launchIntercom, shutdownIntercom, showIntercom } = useIntercom();
-
+	const channel = useBroadcastChannel();
 	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
@@ -191,7 +194,13 @@ const Settings = ({
 					</div>
 				))}
 			</div>
-			<button className={s.logoutButton} onClick={() => logout()}>
+			<button
+				className={s.logoutButton}
+				onClick={() => {
+					logout();
+					channel.postMessage('reload');
+				}}
+			>
 				<LogoutSvg />
 				<span>Logout</span>
 			</button>
