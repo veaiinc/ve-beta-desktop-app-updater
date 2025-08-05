@@ -36,6 +36,9 @@ import RecentFileTooltip from './RecentFileTooltip';
 import AskTooltip from './AskTooltip';
 import AddOnCards from '../settings/planbilling/addOnCards';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
+import { ReactComponent as VoiceAgentSvg } from '../../../assets/svg/ai_agents/voiceagent.svg';
+import VoiceAgentParent from '../../features/voiceAgent/VoiceAgentParent';
+
 // import VoiceWrapper from '../../layouts/VoiceWrapper';
 
 const moduleHelper = {
@@ -212,6 +215,7 @@ const ChatBox = ({
 		chatBoxInfo: initialChatBoxInfo,
 		chatboxMinimized: true,
 		chatBoxContainerHeight: 60,
+		showVoiceAgent: false, // New state for voice agent visibility
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -1465,6 +1469,21 @@ const ChatBox = ({
 		[smoothScrollToBottom],
 	);
 
+	const handleVoiceAgentClick = useCallback((e) => {
+		e?.stopPropagation();
+		setInfo((prev) => ({
+			...prev,
+			showVoiceAgent: true,
+		}));
+	}, []);
+
+	const handleCloseVoiceAgent = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			showVoiceAgent: false,
+		}));
+	}, []);
+
 	return (
 		<div className="chatParentWrapper" onClick={handleChatBoxClick}>
 			<div className={`chatWrapper`}>
@@ -2243,14 +2262,25 @@ const ChatBox = ({
 															}`}
 															onClick={(e) => {
 																e.stopPropagation();
-																handleSendBtnClick(e);
+																if (
+																	info?.chatQuery?.trim()
+																		?.length > 0
+																) {
+																	handleSendBtnClick(e);
+																} else {
+																	handleVoiceAgentClick(e);
+																}
 															}}
 															style={{
 																backgroundColor:
 																	'var(--primary-button)',
 															}}
 														>
-															<ArrowUp />
+															{info?.chatQuery?.trim()?.length > 0 ? (
+																<ArrowUp />
+															) : (
+																<VoiceAgentSvg />
+															)}
 														</div>
 													</div>
 												</div>
@@ -2388,6 +2418,7 @@ const ChatBox = ({
 				closeModal={handleCloseUpgrageModal}
 				subscriptionState="addOnPlans"
 			/>
+			{info?.showVoiceAgent && <VoiceAgentParent />}
 		</div>
 	);
 };

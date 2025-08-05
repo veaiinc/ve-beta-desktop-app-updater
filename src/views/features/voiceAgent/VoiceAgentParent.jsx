@@ -55,11 +55,9 @@ const VoiceAgentParent = () => {
 				e.target.closest('.action-button') ||
 				e.target.closest('.cancel-button')
 			) {
-				console.log('Clicking on controls, not dragging');
 				return;
 			}
 
-			console.log('Starting drag');
 			isDraggingRef.current = true;
 			startPosRef.current = {
 				x: e.clientX - position.x,
@@ -88,7 +86,6 @@ const VoiceAgentParent = () => {
 	}, [disconnect]);
 
 	const handleMicClick = useCallback(() => {
-		console.log('Mic button clicked - isConnected:', isConnected, 'isRecording:', isRecording);
 		if (!isConnected && !isConnecting) {
 			connectAndStart();
 		} else {
@@ -134,8 +131,6 @@ const VoiceAgentParent = () => {
 		}
 		return getStatusText();
 	};
-
-	console.log('VoiceAgentParent rendering, isActive:', isActive);
 
 	if (!isActive) {
 		return null;

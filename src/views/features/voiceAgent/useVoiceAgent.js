@@ -145,13 +145,12 @@ export const useVoiceAgent = (token) => {
 
 				// Add error handling for buffer source
 				bufferSource.onerror = (error) => {
-					console.error('Audio buffer source error:', error);
+					// Handle error silently
 				};
 
 				// Small delay to prevent overwhelming the audio system
 				await new Promise((resolve) => setTimeout(resolve, 5));
 			} catch (error) {
-				console.error('Error playing audio chunk:', error);
 				// Continue processing other chunks even if one fails
 			}
 		}
@@ -178,31 +177,19 @@ export const useVoiceAgent = (token) => {
 				audioContextRef.current.close();
 				audioContextRef.current = null;
 			}
-
-			console.log('Audio recording stopped');
 		}
 	}, []);
 
 	const startRecording = useCallback(async () => {
-		console.log(
-			'startRecording called - WebSocket state:',
-			wsRef.current?.readyState,
-			'isRecordingRef:',
-			isRecordingRef.current,
-		);
-
 		if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-			console.log('Cannot start recording - WebSocket not connected');
 			return;
 		}
 
 		if (isRecordingRef.current) {
-			console.log('Already recording');
 			return;
 		}
 
 		try {
-			console.log('Starting audio recording...');
 			const stream = await navigator.mediaDevices.getUserMedia({
 				audio: {
 					sampleRate: 16000,
@@ -212,8 +199,6 @@ export const useVoiceAgent = (token) => {
 					autoGainControl: true,
 				},
 			});
-
-			console.log('Got media stream:', stream);
 
 			audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)({
 				sampleRate: 16000,
@@ -237,17 +222,7 @@ export const useVoiceAgent = (token) => {
 						pcmData[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
 					}
 
-					console.log('Sending PCM data:', pcmData.length, 'samples');
 					wsRef.current.send(pcmData.buffer);
-				} else {
-					console.log(
-						'Not sending audio - wsRef:',
-						!!wsRef.current,
-						'readyState:',
-						wsRef.current?.readyState,
-						'isRecordingRef:',
-						isRecordingRef.current,
-					);
 				}
 			};
 
@@ -259,17 +234,13 @@ export const useVoiceAgent = (token) => {
 			setMicStatus('Listening...');
 
 			audioStreamRef.current = stream;
-
-			console.log('Audio recording started successfully');
 		} catch (error) {
-			console.error('Failed to start recording:', error);
 			setMicStatus('Recording failed');
 		}
 	}, []);
 
 	const connectAndStart = useCallback(async () => {
 		if (isConnected || isConnecting) {
-			console.log('Already connected or connecting');
 			return;
 		}
 
@@ -279,14 +250,12 @@ export const useVoiceAgent = (token) => {
 		}
 
 		try {
-			console.log('Starting WebSocket connection...');
 			setIsConnecting(true);
 			setMicStatus('Connecting...');
 
 			wsRef.current = new WebSocket('ws://voice.us-east-1.ve.ai/ws');
 
 			wsRef.current.onopen = () => {
-				console.log('WebSocket connected, sending token...');
 				wsRef.current.send(
 					JSON.stringify({
 						session_id: sessionId,
@@ -312,7 +281,6 @@ export const useVoiceAgent = (token) => {
 			};
 
 			wsRef.current.onclose = (event) => {
-				console.log('WebSocket disconnected, code:', event.code, 'reason:', event.reason);
 				setIsConnected(false);
 				setIsConnecting(false);
 				setIsRecording(false);
@@ -321,25 +289,17 @@ export const useVoiceAgent = (token) => {
 			};
 
 			wsRef.current.onerror = (error) => {
-				console.error('WebSocket error:', error);
 				setIsConnected(false);
 				setIsConnecting(false);
 				setMicStatus('Connection failed');
 			};
 
 			wsRef.current.onmessage = async (event) => {
-				console.log(
-					'WebSocket message received:',
-					typeof event.data,
-					event.data instanceof Blob ? 'Blob' : 'Text',
-				);
-
 				if (event.data instanceof Blob) {
 					try {
 						const arrayBuffer = await event.data.arrayBuffer();
 
 						if (arrayBuffer.byteLength === 0) {
-							console.warn('Received empty audio buffer');
 							return;
 						}
 
@@ -379,27 +339,22 @@ export const useVoiceAgent = (token) => {
 							processAudioQueue();
 						}
 					} catch (error) {
-						console.error('Error handling audio:', error);
+						// Handle error silently
 					}
 					return;
 				}
 
 				try {
 					const data = JSON.parse(event.data);
-					console.log('Received JSON message:', data);
 
 					if (data.status === 'connected') {
-						console.log('Connection successful, starting recording...');
 						setIsConnected(true);
 						setIsConnecting(false);
 						// Auto-start recording once connected
 						setTimeout(() => {
-							console.log('Calling startRecording after connection...');
 							startRecording();
 						}, 100); // Small delay to ensure state is updated
 					} else if (data.response) {
-						console.log('Received response chunk from agent');
-
 						if (!isReceivingResponseRef.current) {
 							isReceivingResponseRef.current = true;
 							const newMessage = addMessage('', false);
@@ -414,7 +369,6 @@ export const useVoiceAgent = (token) => {
 							);
 						}
 					} else if (data.ready_for_input) {
-						console.log('Ready for input - response complete');
 						isReceivingResponseRef.current = false;
 						currentMessageRef.current = null;
 
@@ -426,18 +380,16 @@ export const useVoiceAgent = (token) => {
 							processAudioQueue();
 						}
 					} else if (data.error) {
-						console.error('Received error:', data.error);
 						addMessage(`Error: ${data.error}`, false);
 						if (data.error.includes('token')) {
 							// Handle token error specifically (from HTML reference)
-							console.error('Token error detected');
 						}
 						stopRecording();
 						isReceivingResponseRef.current = false;
 						currentMessageRef.current = null;
 					}
 				} catch (error) {
-					console.error('Error parsing JSON message:', error);
+					// Handle error silently
 				}
 			};
 
@@ -453,10 +405,7 @@ export const useVoiceAgent = (token) => {
 				};
 				checkConnection();
 			});
-
-			console.log('Connection established successfully');
 		} catch (error) {
-			console.error('Failed to start connection:', error);
 			setMicStatus('Connection failed');
 			setIsConnecting(false);
 		}
@@ -473,7 +422,6 @@ export const useVoiceAgent = (token) => {
 	]);
 
 	const disconnect = useCallback(() => {
-		console.log('Disconnecting WebSocket...');
 		stopRecording();
 		if (wsRef.current) {
 			wsRef.current.close();
@@ -482,7 +430,6 @@ export const useVoiceAgent = (token) => {
 		setIsConnected(false);
 		setIsConnecting(false);
 		setMicStatus('Click to start');
-		console.log('WebSocket disconnected');
 	}, [stopRecording]);
 
 	// Keep-alive mechanism to prevent server-side timeout
@@ -490,7 +437,6 @@ export const useVoiceAgent = (token) => {
 		const keepAlive = () => {
 			if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
 				wsRef.current.send(JSON.stringify({ type: 'ping' }));
-				console.log('Sent keep-alive ping');
 			}
 		};
 

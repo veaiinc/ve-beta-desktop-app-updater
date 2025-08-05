@@ -10,7 +10,6 @@ import { ReactComponent as AddIcon } from '../../../assets/svg/add.svg';
 import GuideMePopup from './guideMePopup';
 import CreateMeetingModal from './CreateMeetingModal';
 import moment from 'moment';
-import VoiceAgentParent from '../voiceAgent/VoiceAgentParent';
 
 // const drawerStyles = {
 // 	header: { display: 'none' },
@@ -417,7 +416,6 @@ const CardMeetBot = () => {
 			</div>
 
 			<CreateMeetingModal isOpen={info.modalOpen} onClose={closeModal} />
-			<VoiceAgentParent />
 			<GuideMePopup
 				isOpen={info.guideMePopupOpen}
 				onClose={() => setInfo({ ...info, guideMePopupOpen: false })}
