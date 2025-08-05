@@ -8,8 +8,8 @@
 	background: var(--background-color, #121212);
 
 	.globalWorkflowContainer {
-		height: 100vh;
-		width: 100%;
+		height: calc(100vh - 67px);
+		flex: 1;
 		display: flex;
 		flex-direction: column;
 		background: var(--background-color, #121212);
