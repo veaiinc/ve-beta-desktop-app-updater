@@ -1,4 +1,4 @@
-import React, { memo, useContext, useState, useEffect } from 'react';
+import { memo, useContext, useState, useEffect } from 'react';
 import ReactModal from '../../components/modalsV2';
 import { ReactComponent as Copy } from '../../../assets/svg/shareAndEarn/copy.svg';
 import { message } from '../../components/globalComponents/CustomToast';
