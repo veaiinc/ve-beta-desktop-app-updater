@@ -49,7 +49,6 @@ const Workflow_builder_updated = lazy(() =>
 const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
 const Contacts = lazy(() => import('../views/features/contacts/Contacts'));
 const AmbientAi = lazy(() => import('../views/features/ambientAi/AmbientAi'));
-
 const Files = lazy(() => import('../views/features/files/Files'));
 const ExpandedClientView = lazy(() => import('../views/features/contacts/ExpandedClientView'));
 const BuilderApp = lazy(() => import('../../builderSrc/App'));
