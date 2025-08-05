@@ -25,7 +25,7 @@ const tooltipStyle = {
 	padding: 8,
 	borderRadius: 8,
 	color: 'var(--primary-font)',
-	background: 'var(--background-color)',
+	background: 'var(--navbar)',
 	border: '1px solid var(--dividers)',
 };
 
