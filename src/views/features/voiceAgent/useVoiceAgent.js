@@ -1,296 +1,521 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import ObjectID from 'bson-objectid';
+
+// Generate a simple session ID
+const sessionId = ObjectID()?.toString();
 
 export const useVoiceAgent = (token) => {
-    const [isConnected, setIsConnected] = useState(false);
-    const [isRecording, setIsRecording] = useState(false);
-    const [isConnecting, setIsConnecting] = useState(false);
-    const [messages, setMessages] = useState([]);
-    const [micStatus, setMicStatus] = useState('Click to start');
+	const [isConnected, setIsConnected] = useState(false);
+	const [isRecording, setIsRecording] = useState(false);
+	const [isConnecting, setIsConnecting] = useState(false);
+	const [messages, setMessages] = useState([]);
+	const [micStatus, setMicStatus] = useState('Click to start');
 
-    const wsRef = useRef(null);
-    const audioContextRef = useRef(null);
-    const audioProcessorRef = useRef(null);
-    const audioStreamRef = useRef(null);
-    const isRecordingRef = useRef(false);
+	const wsRef = useRef(null);
+	const audioContextRef = useRef(null);
+	const audioProcessorRef = useRef(null);
+	const audioStreamRef = useRef(null);
+	const isRecordingRef = useRef(false);
 
-    const addMessage = useCallback((content, isUser = false) => {
-        setMessages((prev) => [...prev, { content, isUser, id: Date.now() }]);
-    }, []);
+	// Audio playback variables (from HTML reference)
+	const playbackAudioContextRef = useRef(null);
+	const audioQueueRef = useRef([]);
+	const isPlayingRef = useRef(false);
+	const audioBufferQueueRef = useRef([]);
+	const nextStartTimeRef = useRef(0);
+	const audioContextStartedRef = useRef(false);
+	const audioBufferRef = useRef(null);
+	const audioBufferSizeRef = useRef(0);
+	const lastFlushTimeRef = useRef(0);
+	const MIN_BUFFER_SIZE = 1024; // Minimum buffer size before processing
+	const FLUSH_INTERVAL = 100; // Flush buffer every 100ms if not full
 
-    const stopRecording = useCallback(() => {
-        if (isRecording) {
-            setIsRecording(false);
-            isRecordingRef.current = false;
+	// Message tracking variables (from HTML reference)
+	const currentMessageRef = useRef(null);
+	const isReceivingResponseRef = useRef(false);
 
-            if (audioStreamRef.current) {
-                audioStreamRef.current.getTracks().forEach((track) => track.stop());
-                audioStreamRef.current = null;
-            }
+	const addMessage = useCallback((content, isUser = false) => {
+		const newMessage = { content, isUser, id: Date.now() };
+		setMessages((prev) => [...prev, newMessage]);
+		return newMessage;
+	}, []);
 
-            if (audioProcessorRef.current) {
-                audioProcessorRef.current.disconnect();
-                audioProcessorRef.current = null;
-            }
+	const updateMessage = useCallback((messageId, content) => {
+		setMessages((prev) =>
+			prev.map((msg) => (msg.id === messageId ? { ...msg, content } : msg)),
+		);
+	}, []);
 
-            if (audioContextRef.current) {
-                audioContextRef.current.close();
-                audioContextRef.current = null;
-            }
+	// Initialize audio context for playback (from HTML reference)
+	const initPlaybackAudioContext = useCallback(() => {
+		if (!playbackAudioContextRef.current) {
+			playbackAudioContextRef.current = new (window.AudioContext ||
+				window.webkitAudioContext)({
+				sampleRate: 24000,
+			});
+		}
 
-            console.log('Audio recording stopped');
-        }
-    }, [isRecording]);
+		if (playbackAudioContextRef.current.state === 'suspended') {
+			playbackAudioContextRef.current.resume();
+		}
 
-    const startRecording = useCallback(async () => {
-        if (!isConnected || isRecording) {
-            console.log('Cannot start recording - not connected or already recording');
-            return;
-        }
+		if (!audioContextStartedRef.current) {
+			nextStartTimeRef.current = playbackAudioContextRef.current.currentTime;
+			audioContextStartedRef.current = true;
+		}
+	}, []);
 
-        try {
-            console.log('Starting audio recording...');
-            const stream = await navigator.mediaDevices.getUserMedia({
-                audio: {
-                    sampleRate: 16000,
-                    channelCount: 1,
-                    echoCancellation: true,
-                    noiseSuppression: true,
-                    autoGainControl: true,
-                },
-            });
+	// Ensure audio context is running
+	const ensureAudioContextRunning = useCallback(async () => {
+		if (
+			playbackAudioContextRef.current &&
+			playbackAudioContextRef.current.state === 'suspended'
+		) {
+			await playbackAudioContextRef.current.resume();
+		}
+	}, []);
 
-            audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)({
-                sampleRate: 16000,
-            });
+	// Initialize audio context on user interaction (from HTML reference)
+	const initAudioOnUserInteraction = useCallback(() => {
+		if (!playbackAudioContextRef.current) {
+			initPlaybackAudioContext();
+		}
+		// Remove event listeners after first interaction
+		document.removeEventListener('click', initAudioOnUserInteraction);
+		document.removeEventListener('keydown', initAudioOnUserInteraction);
+		document.removeEventListener('touchstart', initAudioOnUserInteraction);
+	}, [initPlaybackAudioContext]);
 
-            const source = audioContextRef.current.createMediaStreamSource(stream);
-            audioProcessorRef.current = audioContextRef.current.createScriptProcessor(
-                4096,
-                1,
-                1,
-            );
+	// Add event listeners for audio context initialization (from HTML reference)
+	useEffect(() => {
+		document.addEventListener('click', initAudioOnUserInteraction);
+		document.addEventListener('keydown', initAudioOnUserInteraction);
+		document.addEventListener('touchstart', initAudioOnUserInteraction);
 
-            audioProcessorRef.current.onaudioprocess = (event) => {
-                if (
-                    wsRef.current &&
-                    wsRef.current.readyState === WebSocket.OPEN &&
-                    isRecordingRef.current
-                ) {
-                    const inputBuffer = event.inputBuffer;
-                    const inputData = inputBuffer.getChannelData(0);
+		return () => {
+			document.removeEventListener('click', initAudioOnUserInteraction);
+			document.removeEventListener('keydown', initAudioOnUserInteraction);
+			document.removeEventListener('touchstart', initAudioOnUserInteraction);
+		};
+	}, [initAudioOnUserInteraction]);
 
-                    const pcmData = new Int16Array(inputData.length);
-                    for (let i = 0; i < inputData.length; i++) {
-                        const s = Math.max(-1, Math.min(1, inputData[i]));
-                        pcmData[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
-                    }
+	// Improved audio queue processing for smooth streaming (from HTML reference)
+	const processAudioQueue = useCallback(async () => {
+		if (isPlayingRef.current) return;
+		isPlayingRef.current = true;
 
-                    console.log('Sending PCM data:', pcmData.length, 'samples');
-                    wsRef.current.send(pcmData.buffer);
-                }
-            };
+		initPlaybackAudioContext();
+		await ensureAudioContextRunning();
 
-            source.connect(audioProcessorRef.current);
-            audioProcessorRef.current.connect(audioContextRef.current.destination);
+		while (audioQueueRef.current.length > 0) {
+			if (playbackAudioContextRef.current.state === 'suspended') {
+				await playbackAudioContextRef.current.resume();
+			}
 
-            setIsRecording(true);
-            isRecordingRef.current = true;
-            setMicStatus('Listening...');
+			const arrayBuffer = audioQueueRef.current.shift();
 
-            audioStreamRef.current = stream;
+			try {
+				const int16Array = new Int16Array(arrayBuffer);
+				const float32Array = new Float32Array(int16Array.length);
 
-            console.log('Audio recording started');
-        } catch (error) {
-            console.error('Failed to start recording:', error);
-            setMicStatus('Recording failed');
-        }
-    }, [isConnected, isRecording]);
+				// Convert Int16 to Float32
+				for (let i = 0; i < int16Array.length; i++) {
+					float32Array[i] = int16Array[i] / 32768.0;
+				}
 
-    const toggleAction = useCallback(async () => {
-        console.log('toggleAction called - isConnected:', isConnected, 'isRecording:', isRecording);
-        if (!isConnected && !isConnecting) {
-            // Start connection and recording
-            try {
-                console.log('Starting WebSocket connection...');
-                setIsConnecting(true);
-                setMicStatus('Connecting...');
+				const audioBuffer = playbackAudioContextRef.current.createBuffer(
+					1,
+					float32Array.length,
+					24000,
+				);
+				audioBuffer.getChannelData(0).set(float32Array);
 
-                wsRef.current = new WebSocket('wss://voice.us-east-1.ve.ai/ws');
+				const bufferSource = playbackAudioContextRef.current.createBufferSource();
+				bufferSource.buffer = audioBuffer;
+				bufferSource.connect(playbackAudioContextRef.current.destination);
 
-                wsRef.current.onopen = () => {
-                    console.log('WebSocket connected, sending token...');
-                    wsRef.current.send(
-                        JSON.stringify({
-                            token: token,
-                            location: {
-                                countryCode: 'IN',
-                                countryRegion: 'Telangana',
-                                country: 'India',
-                                city: 'Hyderabad',
-                                timezone: 'Asia/Kolkata',
-                                postalCode: '500003',
-                                currency: 'INR',
-                                region: 'us-east-1',
-                            },
-                            is_voice_enabled: true,
-                        }),
-                    );
-                };
+				// Schedule the audio to play at the next available time
+				const duration = audioBuffer.duration;
+				const startTime = Math.max(
+					nextStartTimeRef.current,
+					playbackAudioContextRef.current.currentTime,
+				);
+				bufferSource.start(startTime);
+				nextStartTimeRef.current = startTime + duration;
 
-                wsRef.current.onclose = (event) => {
-                    console.log('WebSocket disconnected, code:', event.code, 'reason:', event.reason);
-                    setIsConnected(false);
-                    setIsConnecting(false);
-                    setIsRecording(false);
-                    setMicStatus('Click to start');
-                };
+				// Add error handling for buffer source
+				bufferSource.onerror = (error) => {
+					console.error('Audio buffer source error:', error);
+				};
 
-                wsRef.current.onerror = (error) => {
-                    console.error('WebSocket error:', error);
-                    setIsConnected(false);
-                    setIsConnecting(false);
-                    setMicStatus('Connection failed');
-                };
+				// Small delay to prevent overwhelming the audio system
+				await new Promise((resolve) => setTimeout(resolve, 5));
+			} catch (error) {
+				console.error('Error playing audio chunk:', error);
+				// Continue processing other chunks even if one fails
+			}
+		}
 
-                wsRef.current.onmessage = async (event) => {
-                    if (event.data instanceof Blob) {
-                        try {
-                            const arrayBuffer = await event.data.arrayBuffer();
+		isPlayingRef.current = false;
+	}, [initPlaybackAudioContext, ensureAudioContextRunning]);
 
-                            if (arrayBuffer.byteLength === 0) {
-                                console.warn('Received empty audio buffer');
-                                return;
-                            }
+	const stopRecording = useCallback(() => {
+		if (isRecordingRef.current) {
+			setIsRecording(false);
+			isRecordingRef.current = false;
 
-                            const audioContext = new (window.AudioContext ||
-                                window.webkitAudioContext)();
+			if (audioStreamRef.current) {
+				audioStreamRef.current.getTracks().forEach((track) => track.stop());
+				audioStreamRef.current = null;
+			}
 
-                            const int16Array = new Int16Array(arrayBuffer);
-                            const float32Array = new Float32Array(int16Array.length);
+			if (audioProcessorRef.current) {
+				audioProcessorRef.current.disconnect();
+				audioProcessorRef.current = null;
+			}
 
-                            for (let i = 0; i < int16Array.length; i++) {
-                                float32Array[i] = int16Array[i] / 32768.0;
-                            }
+			if (audioContextRef.current) {
+				audioContextRef.current.close();
+				audioContextRef.current = null;
+			}
 
-                            const audioBuffer = audioContext.createBuffer(
-                                1,
-                                float32Array.length,
-                                44100,
-                            );
-                            audioBuffer.getChannelData(0).set(float32Array);
+			console.log('Audio recording stopped');
+		}
+	}, []);
 
-                            const source = audioContext.createBufferSource();
-                            source.buffer = audioBuffer;
-                            source.connect(audioContext.destination);
-                            source.start();
+	const startRecording = useCallback(async () => {
+		console.log(
+			'startRecording called - WebSocket state:',
+			wsRef.current?.readyState,
+			'isRecordingRef:',
+			isRecordingRef.current,
+		);
 
-                            console.log(`Playing audio: ${int16Array.length} samples at 44100 Hz`);
-                        } catch (error) {
-                            console.error('Error playing audio:', error);
-                        }
-                        return;
-                    }
+		if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+			console.log('Cannot start recording - WebSocket not connected');
+			return;
+		}
 
-                    try {
-                        const data = JSON.parse(event.data);
-                        console.log('Received message:', data);
+		if (isRecordingRef.current) {
+			console.log('Already recording');
+			return;
+		}
 
-                        if (data.status === 'connected') {
-                            console.log('Connection successful');
-                            setIsConnected(true);
-                            setIsConnecting(false);
-                            startRecording(); // Start recording immediately
-                        } else if (data.response) {
-                            console.log('Received response chunk from agent');
-                            addMessage(data.response, false);
-                        } else if (data.ready_for_input) {
-                            console.log('Ready for input - response complete');
-                        } else if (data.error) {
-                            console.error('Received error:', data.error);
-                            addMessage(`Error: ${data.error}`, false);
-                            stopRecording();
-                        }
-                    } catch (error) {
-                        console.error('Error parsing JSON message:', error);
-                    }
-                };
+		try {
+			console.log('Starting audio recording...');
+			const stream = await navigator.mediaDevices.getUserMedia({
+				audio: {
+					sampleRate: 16000,
+					channelCount: 1,
+					echoCancellation: true,
+					noiseSuppression: true,
+					autoGainControl: true,
+				},
+			});
 
-                await new Promise((resolve, reject) => {
-                    const checkConnection = () => {
-                        if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-                            resolve();
-                        } else if (wsRef.current && wsRef.current.readyState === WebSocket.CLOSED) {
-                            reject(new Error('WebSocket connection failed'));
-                        } else {
-                            setTimeout(checkConnection, 100);
-                        }
-                    };
-                    checkConnection();
-                });
+			console.log('Got media stream:', stream);
 
-                console.log('Connection established successfully');
-            } catch (error) {
-                console.error('Failed to start connection:', error);
-                setMicStatus('Connection failed');
-                setIsConnecting(false);
-            }
-        } else {
-            // Stop connection and recording
-            console.log('Stopping WebSocket and recording...');
-            stopRecording();
-            if (wsRef.current) {
-                wsRef.current.close();
-                wsRef.current = null;
-            }
-            setIsConnected(false);
-            setMicStatus('Click to start');
-            console.log('WebSocket and recording stopped');
-        }
-    }, [isConnected, isConnecting, isRecording, token, addMessage, startRecording, stopRecording]);
+			audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)({
+				sampleRate: 16000,
+			});
 
-    const disconnect = useCallback(() => {
-        console.log('Disconnecting WebSocket...');
-        stopRecording();
-        if (wsRef.current) {
-            wsRef.current.close();
-            wsRef.current = null;
-        }
-        setIsConnected(false);
-        setMicStatus('Click to start');
-        console.log('WebSocket disconnected');
-    }, [stopRecording]);
+			const source = audioContextRef.current.createMediaStreamSource(stream);
+			audioProcessorRef.current = audioContextRef.current.createScriptProcessor(4096, 1, 1);
 
-    // Keep-alive mechanism to prevent server-side timeout
-    useEffect(() => {
-        const keepAlive = () => {
-            if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-                wsRef.current.send(JSON.stringify({ type: 'ping' }));
-                console.log('Sent keep-alive ping');
-            }
-        };
+			audioProcessorRef.current.onaudioprocess = (event) => {
+				if (
+					wsRef.current &&
+					wsRef.current.readyState === WebSocket.OPEN &&
+					isRecordingRef.current
+				) {
+					const inputBuffer = event.inputBuffer;
+					const inputData = inputBuffer.getChannelData(0);
 
-        const interval = setInterval(keepAlive, 30000); // Send ping every 30 seconds
-        return () => clearInterval(interval);
-    }, []);
+					const pcmData = new Int16Array(inputData.length);
+					for (let i = 0; i < inputData.length; i++) {
+						const s = Math.max(-1, Math.min(1, inputData[i]));
+						pcmData[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+					}
 
-    useEffect(() => {
-        return () => {
-            if (wsRef.current) {
-                wsRef.current.close();
-            }
-            stopRecording();
-        };
-    }, [stopRecording]);
+					console.log('Sending PCM data:', pcmData.length, 'samples');
+					wsRef.current.send(pcmData.buffer);
+				} else {
+					console.log(
+						'Not sending audio - wsRef:',
+						!!wsRef.current,
+						'readyState:',
+						wsRef.current?.readyState,
+						'isRecordingRef:',
+						isRecordingRef.current,
+					);
+				}
+			};
 
-    return {
-        isConnected,
-        isRecording,
-        isConnecting,
-        messages,
-        micStatus,
-        addMessage,
-        toggleAction,
-        disconnect,
-        stopRecording,
-    };
+			source.connect(audioProcessorRef.current);
+			audioProcessorRef.current.connect(audioContextRef.current.destination);
+
+			setIsRecording(true);
+			isRecordingRef.current = true;
+			setMicStatus('Listening...');
+
+			audioStreamRef.current = stream;
+
+			console.log('Audio recording started successfully');
+		} catch (error) {
+			console.error('Failed to start recording:', error);
+			setMicStatus('Recording failed');
+		}
+	}, []);
+
+	const connectAndStart = useCallback(async () => {
+		if (isConnected || isConnecting) {
+			console.log('Already connected or connecting');
+			return;
+		}
+
+		// Initialize audio context on first user interaction (from HTML reference)
+		if (!playbackAudioContextRef.current) {
+			initPlaybackAudioContext();
+		}
+
+		try {
+			console.log('Starting WebSocket connection...');
+			setIsConnecting(true);
+			setMicStatus('Connecting...');
+
+			wsRef.current = new WebSocket('ws://voice.us-east-1.ve.ai/ws');
+
+			wsRef.current.onopen = () => {
+				console.log('WebSocket connected, sending token...');
+				wsRef.current.send(
+					JSON.stringify({
+						session_id: sessionId,
+						token: token,
+						location: {
+							countryCode: 'IN',
+							countryRegion: 'Telangana',
+							country: 'India',
+							city: 'Hyderabad',
+							timezone: 'Asia/Kolkata',
+							postalCode: '500003',
+							currency: 'INR',
+							region: 'us-east-1',
+						},
+						workflow_slug: null,
+						module: null,
+						web_search: true,
+						knowledge_base_search: true,
+						deep_research: false,
+						is_voice_enabled: true,
+					}),
+				);
+			};
+
+			wsRef.current.onclose = (event) => {
+				console.log('WebSocket disconnected, code:', event.code, 'reason:', event.reason);
+				setIsConnected(false);
+				setIsConnecting(false);
+				setIsRecording(false);
+				isRecordingRef.current = false;
+				setMicStatus('Click to start');
+			};
+
+			wsRef.current.onerror = (error) => {
+				console.error('WebSocket error:', error);
+				setIsConnected(false);
+				setIsConnecting(false);
+				setMicStatus('Connection failed');
+			};
+
+			wsRef.current.onmessage = async (event) => {
+				console.log(
+					'WebSocket message received:',
+					typeof event.data,
+					event.data instanceof Blob ? 'Blob' : 'Text',
+				);
+
+				if (event.data instanceof Blob) {
+					try {
+						const arrayBuffer = await event.data.arrayBuffer();
+
+						if (arrayBuffer.byteLength === 0) {
+							console.warn('Received empty audio buffer');
+							return;
+						}
+
+						// Buffer small audio chunks for smoother playback (from HTML reference)
+						if (arrayBuffer.byteLength < MIN_BUFFER_SIZE) {
+							if (!audioBufferRef.current) {
+								audioBufferRef.current = new Uint8Array(arrayBuffer);
+								audioBufferSizeRef.current = arrayBuffer.byteLength;
+							} else {
+								const newBuffer = new Uint8Array(
+									audioBufferSizeRef.current + arrayBuffer.byteLength,
+								);
+								newBuffer.set(audioBufferRef.current, 0);
+								newBuffer.set(
+									new Uint8Array(arrayBuffer),
+									audioBufferSizeRef.current,
+								);
+								audioBufferRef.current = newBuffer;
+								audioBufferSizeRef.current += arrayBuffer.byteLength;
+							}
+
+							const now = Date.now();
+							// Only process if we have enough data or if it's been a while
+							if (
+								audioBufferSizeRef.current >= MIN_BUFFER_SIZE ||
+								now - lastFlushTimeRef.current > FLUSH_INTERVAL
+							) {
+								audioQueueRef.current.push(audioBufferRef.current.buffer);
+								audioBufferRef.current = null;
+								audioBufferSizeRef.current = 0;
+								lastFlushTimeRef.current = now;
+								processAudioQueue();
+							}
+						} else {
+							// Process larger chunks immediately
+							audioQueueRef.current.push(arrayBuffer);
+							processAudioQueue();
+						}
+					} catch (error) {
+						console.error('Error handling audio:', error);
+					}
+					return;
+				}
+
+				try {
+					const data = JSON.parse(event.data);
+					console.log('Received JSON message:', data);
+
+					if (data.status === 'connected') {
+						console.log('Connection successful, starting recording...');
+						setIsConnected(true);
+						setIsConnecting(false);
+						// Auto-start recording once connected
+						setTimeout(() => {
+							console.log('Calling startRecording after connection...');
+							startRecording();
+						}, 100); // Small delay to ensure state is updated
+					} else if (data.response) {
+						console.log('Received response chunk from agent');
+
+						if (!isReceivingResponseRef.current) {
+							isReceivingResponseRef.current = true;
+							const newMessage = addMessage('', false);
+							currentMessageRef.current = newMessage;
+						}
+
+						if (currentMessageRef.current) {
+							const currentContent = currentMessageRef.current.content;
+							updateMessage(
+								currentMessageRef.current.id,
+								currentContent + data.response,
+							);
+						}
+					} else if (data.ready_for_input) {
+						console.log('Ready for input - response complete');
+						isReceivingResponseRef.current = false;
+						currentMessageRef.current = null;
+
+						// Process any remaining buffered audio (from HTML reference)
+						if (audioBufferRef.current && audioBufferSizeRef.current > 0) {
+							audioQueueRef.current.push(audioBufferRef.current.buffer);
+							audioBufferRef.current = null;
+							audioBufferSizeRef.current = 0;
+							processAudioQueue();
+						}
+					} else if (data.error) {
+						console.error('Received error:', data.error);
+						addMessage(`Error: ${data.error}`, false);
+						if (data.error.includes('token')) {
+							// Handle token error specifically (from HTML reference)
+							console.error('Token error detected');
+						}
+						stopRecording();
+						isReceivingResponseRef.current = false;
+						currentMessageRef.current = null;
+					}
+				} catch (error) {
+					console.error('Error parsing JSON message:', error);
+				}
+			};
+
+			await new Promise((resolve, reject) => {
+				const checkConnection = () => {
+					if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+						resolve();
+					} else if (wsRef.current && wsRef.current.readyState === WebSocket.CLOSED) {
+						reject(new Error('WebSocket connection failed'));
+					} else {
+						setTimeout(checkConnection, 100);
+					}
+				};
+				checkConnection();
+			});
+
+			console.log('Connection established successfully');
+		} catch (error) {
+			console.error('Failed to start connection:', error);
+			setMicStatus('Connection failed');
+			setIsConnecting(false);
+		}
+	}, [
+		isConnected,
+		isConnecting,
+		token,
+		addMessage,
+		updateMessage,
+		startRecording,
+		stopRecording,
+		processAudioQueue,
+		initPlaybackAudioContext,
+	]);
+
+	const disconnect = useCallback(() => {
+		console.log('Disconnecting WebSocket...');
+		stopRecording();
+		if (wsRef.current) {
+			wsRef.current.close();
+			wsRef.current = null;
+		}
+		setIsConnected(false);
+		setIsConnecting(false);
+		setMicStatus('Click to start');
+		console.log('WebSocket disconnected');
+	}, [stopRecording]);
+
+	// Keep-alive mechanism to prevent server-side timeout
+	useEffect(() => {
+		const keepAlive = () => {
+			if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+				wsRef.current.send(JSON.stringify({ type: 'ping' }));
+				console.log('Sent keep-alive ping');
+			}
+		};
+
+		const interval = setInterval(keepAlive, 30000); // Send ping every 30 seconds
+		return () => clearInterval(interval);
+	}, []);
+
+	useEffect(() => {
+		return () => {
+			if (wsRef.current) {
+				wsRef.current.close();
+			}
+			stopRecording();
+		};
+	}, [stopRecording]);
+
+	return {
+		isConnected,
+		isRecording,
+		isConnecting,
+		messages,
+		micStatus,
+		addMessage,
+		connectAndStart,
+		disconnect,
+		stopRecording,
+	};
 };

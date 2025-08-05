@@ -1,13 +1,4 @@
 .voice-agent-container {
-	--primary-color: #10a37f;
-	--error-color: #ff4444;
-	--text-color: #343541;
-	--bg-color: #f7f7f8;
-	--chat-bg: #ffffff;
-	--user-msg-bg: #f7f7f8;
-	--assistant-msg-bg: #ffffff;
-	--border-color: #e5e5e5;
-
 	max-width: 1000px;
 	margin: 0 auto;
 	padding: 20px;
@@ -277,7 +268,8 @@
 		gap: 12px;
 
 		.mic-button,
-		.cancel-button {
+		.cancel-button,
+		.action-button {
 			flex: 1;
 			cursor: pointer;
 			display: flex;
@@ -290,9 +282,15 @@
 			align-self: stretch;
 			border-radius: 12px;
 			background: var(--card-over-card, #202123);
+			color: var(--primary-font);
 
 			&:hover {
 				background-color: var(--card-over-card-hover);
+			}
+
+			&:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
 			}
 
 			svg {
@@ -320,9 +318,27 @@
 			cursor: not-allowed;
 		}
 
+		.action-button {
+			&[data-enabled='true'] {
+				background-color: var(--primary-button);
+
+				svg {
+					path {
+						stroke: var(--primary-font);
+					}
+				}
+			}
+
+			svg {
+				path {
+					stroke: var(--primary-font);
+				}
+			}
+		}
+
 		.mic-button {
 			&[data-enabled='true'] {
-				background-color: #4caf50;
+				background-color: var(--primary-button);
 				.mic-icon {
 					path {
 						stroke: var(--primary-font);
