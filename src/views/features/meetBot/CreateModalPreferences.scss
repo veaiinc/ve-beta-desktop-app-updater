@@ -180,6 +180,26 @@
 						border: 1px solid var(--stroke, #2c2d2e);
 					}
 				}
+
+				// Override disabled state styling to maintain colors
+				&.ant-slider-disabled {
+					.ant-slider-rail {
+						background-color: var(--card-over-card, #1e1f21) !important;
+					}
+
+					.ant-slider-track {
+						background-color: var(--primary-button, #79ecc9) !important;
+					}
+
+					.ant-slider-handle {
+						border-color: var(--primary-button, #79ecc9) !important;
+						background-color: var(--card-over-card-hover, #242628) !important;
+					}
+
+					.ant-slider-mark-text {
+						color: var(--secondary-font, #94989e) !important;
+					}
+				}
 			}
 
 			.threshold-subtext {

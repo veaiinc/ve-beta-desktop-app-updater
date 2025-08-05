@@ -21,6 +21,7 @@ import { ReactComponent as Delete } from '../../../assets/svg/delete.svg';
 import { ReactComponent as Download } from '../../../assets/svg/download.svg';
 import Context from '../../../context/context';
 import ShareWidget from '../../components/globalComponents/ShareWidget';
+import DeleteModal from '../../components/modalsV2/DeleteModal/DeleteModal';
 
 const FormLeads = () => {
 	const origin = fetchOriginSelection();
@@ -334,7 +335,7 @@ const FormLeads = () => {
 						});
 					break;
 				case 'deleteForm':
-					handleDeleteForm(formData?._id);
+					setDeleteModal({ open: true });
 					break;
 				case 'duplicateForm':
 					handleDuplicateForm();
@@ -346,7 +347,7 @@ const FormLeads = () => {
 					break;
 			}
 		},
-		[copyLinkUrl, formData?._id, handleDeleteForm, handleDuplicateForm],
+		[copyLinkUrl, formData?._id, handleDuplicateForm],
 	);
 
 	const handleSummaryDataUpdate = useCallback((data) => {
@@ -607,6 +608,8 @@ const FormLeads = () => {
 		isOpen: false,
 	});
 
+	const [deleteModal, setDeleteModal] = useState({ open: false });
+
 	const handleShareModalClose = useCallback(() => {
 		setShareModalInfo((prev) => ({ ...prev, isOpen: false }));
 	}, []);
@@ -628,6 +631,13 @@ const FormLeads = () => {
 		navigator.clipboard.writeText(embeddedCode);
 		message.success('Embedded code copied to clipboard');
 	}, [embeddedCode]);
+
+	const handleConfirmDelete = useCallback(async () => {
+		await handleDeleteForm(formData?._id);
+		setDeleteModal({ open: false });
+	}, [formData?._id, handleDeleteForm]);
+
+	const handleCancelDelete = () => setDeleteModal({ open: false });
 
 	return (
 		<div className="formLeadsParentContainer" role="main">
@@ -900,6 +910,14 @@ const FormLeads = () => {
 				onCopyLink={handleCopyLink}
 				onCopyEmbedded={handleCopyEmbedded}
 				embeddedCode={embeddedCode}
+			/>
+
+			{/* Delete Form Modal */}
+			<DeleteModal
+				isOpen={deleteModal.open}
+				onClose={handleCancelDelete}
+				onConfirm={handleConfirmDelete}
+				responseCount={formData?.formResponsesCount || 0}
 			/>
 		</div>
 	);

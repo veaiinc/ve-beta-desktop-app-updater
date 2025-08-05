@@ -27,10 +27,11 @@
 				align-items: center;
 				gap: 24px;
 				align-self: stretch;
+				flex-direction: column;
 
 				.imageCircleDiv {
-					width: 100px;
-					height: 100px;
+					width: 150px;
+					height: 150px;
 					border-radius: 100px;
 					border: 1px solid rgba(151, 151, 151, 0.36);
 					position: relative;
@@ -40,9 +41,6 @@
 							border: none !important; /* Removes the crop area border */
 							display: none !important;
 							position: static;
-						}
-						.reactEasyCrop_Container {
-							// top: -18px !important;
 						}
 					}
 					img {
@@ -73,7 +71,7 @@
 						left: 0px;
 						right: 1px;
 						height: 100%;
-						width: 98px;
+						width: 150px;
 						border-radius: 0 0 45px 45px;
 						border-radius: 50%;
 						display: flex;
@@ -806,15 +804,12 @@
 	gap: 50px;
 
 	.notifications-container-header {
-		background-color: none;
 		display: flex;
-		max-width: 700px;
 		width: 100%;
 		padding: 32px 0px;
 		flex-direction: column;
 		align-items: flex-start;
 		border-radius: 32px;
-
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;

@@ -141,6 +141,10 @@
 
 		.profileItem {
 			gap: 6px;
+
+			&.active {
+				background: var(--card-over-card, #1f2123);
+			}
 		}
 	}
 }

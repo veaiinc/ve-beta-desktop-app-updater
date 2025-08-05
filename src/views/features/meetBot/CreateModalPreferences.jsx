@@ -6,11 +6,11 @@ import Spinner from '../../components/loaders/Spinner';
 import { message } from '../../components/globalComponents/CustomToast';
 
 const stepsHint = {
-	1: 'Broader suggestions for brainstorming, including low-signal but useful insights.',
-	2: 'Blend of broad ideas and focused suggestions — ideal for exploratory mode with some signal control.',
-	3: 'Shows only high-relevance ideas based on recent discussion momentum.',
-	4: 'Stricter suggestions for clear, focused direction.',
-	5: 'Only top-priority insights shown—ideal for focused, high-impact meetings.',
+	2: 'Broader suggestions for brainstorming, including low-signal but useful insights.',
+	4: 'Blend of broad ideas and focused suggestions — ideal for exploratory mode with some signal control.',
+	6: 'Shows only high-relevance ideas based on recent discussion momentum.',
+	8: 'Stricter suggestions for clear, focused direction.',
+	10: 'Only top-priority insights shown—ideal for focused, high-impact meetings.',
 };
 
 const CreateModalPreferences = ({ mode = 'Meeting', onUpdatePreferences }) => {
@@ -20,9 +20,9 @@ const CreateModalPreferences = ({ mode = 'Meeting', onUpdatePreferences }) => {
 
 	const [loading, setLoading] = useState(true);
 	const [updating, setUpdating] = useState(false);
-	const [sliderValue, setSliderValue] = useState(1);
+	const [sliderValue, setSliderValue] = useState(2);
 	const [info, setInfo] = useState({
-		thresholdValue: 1,
+		thresholdValue: 8,
 		enabledFeatures: {
 			smartQuestions: true,
 			instantAnswers: true,
@@ -55,7 +55,7 @@ const CreateModalPreferences = ({ mode = 'Meeting', onUpdatePreferences }) => {
 	useEffect(() => {
 		if (info.allPreferences[meetingType]) {
 			const preferences = info.allPreferences[meetingType];
-			const thresholdValue = preferences.threshold || 1;
+			const thresholdValue = preferences.threshold || 8;
 			setInfo((prev) => ({
 				...prev,
 				thresholdValue: thresholdValue,
@@ -84,7 +84,7 @@ const CreateModalPreferences = ({ mode = 'Meeting', onUpdatePreferences }) => {
 				// Set current meeting type preferences
 				const currentPreferences = response.meetingPreference[meetingType];
 				if (currentPreferences) {
-					const thresholdValue = currentPreferences.threshold || 1;
+					const thresholdValue = currentPreferences.threshold || 8;
 					setInfo((prev) => ({
 						...prev,
 						thresholdValue: thresholdValue,
@@ -268,30 +268,30 @@ const CreateModalPreferences = ({ mode = 'Meeting', onUpdatePreferences }) => {
 						/>
 					</div>
 				</div>
-				<div className="preference-threshold">
+				{/* <div className="preference-threshold">
 					<div className="threshold-title">Response Intensity Threshold</div>
 					<Slider
-						min={1}
-						max={5}
-						step={1}
+						min={2}
+						max={10}
+						step={2}
 						value={sliderValue}
 						onChange={handleThresholdChange}
 						onChangeComplete={handleThresholdChangeComplete}
 						disabled={updating}
 						marks={{
 							0: '',
-							1: '',
 							2: '',
-							3: '',
 							4: '',
-							5: '',
+							6: '',
+							8: '',
+							10: '',
 						}}
 					/>
 					<div className="threshold-subtext">
 						<span className="threshold-subtext-icon">i</span>
 						<div className="threshold-subtext-content">{stepsHint[sliderValue]}</div>
 					</div>
-				</div>
+				</div> */}
 			</div>
 		</div>
 	);

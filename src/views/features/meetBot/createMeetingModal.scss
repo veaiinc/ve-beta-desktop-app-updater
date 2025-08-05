@@ -9,6 +9,8 @@
 	border-radius: 24px;
 	border: 1px solid var(--stroke, #2c2d2e);
 	background: var(--popup, #202123);
+	max-height: 95vh;
+	overflow-y: auto;
 	.modal-header {
 		display: flex;
 		align-items: center;
@@ -123,7 +125,6 @@
 		// flex-direction: column;
 		// gap: 12px;
 		// flex: 1;
-		// overflow-y: auto;
 
 		.content-container {
 			display: flex;
@@ -600,7 +601,8 @@
 						opacity: 1;
 
 						&:hover:not(:disabled) {
-							background: var(--primary-button-hover, #6dd4b8);
+							background: var(--primary-button, #6dd4b8);
+							cursor: pointer;
 						}
 
 						&:disabled {
