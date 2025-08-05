@@ -781,7 +781,7 @@ const TaskWidget = ({ width, height, clientId, onTaskCountUpdate }) => {
 					</div>
 					<div
 						className="taskWidgetBodyContainer"
-						style={{ maxHeight: isContactPage ? '400px' : '300px' }}
+						style={{ maxHeight: isContactPage ? '400px' : '380px' }}
 						id="taskWidgetBodyContainer"
 					>
 						{info.loading ? (
