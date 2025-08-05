@@ -2,6 +2,7 @@ import { memo, useCallback, useState, useRef, useEffect, useContext } from 'reac
 import '../../../assets/scss/chat/chatbox.scss';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
+import { ReactComponent as SpeechMicSvg } from '../../../assets/svg/ai_agents/speechmic.svg';
 import { ReactComponent as ChevronSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as PlusSvg } from '../../../assets/svg/ai_assistant/plus.svg';
@@ -38,6 +39,9 @@ import AddOnCards from '../settings/planbilling/addOnCards';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import { ReactComponent as VoiceAgentSvg } from '../../../assets/svg/ai_agents/voiceagent.svg';
 import VoiceAgentParent from '../../features/voiceAgent/VoiceAgentParent';
+import useNote from '../../../hooks/useNote';
+import { Track } from 'livekit-client';
+import { useTrackTranscription } from '@livekit/components-react';
 
 // import VoiceWrapper from '../../layouts/VoiceWrapper';
 
@@ -100,9 +104,9 @@ const chatboxPlaceholders = [
 	'Summarize all emails from today',
 	'Schedule a meeting for next week',
 	'Draft and send a follow-up email',
-	'Deep research “latest industry trends” with sources',
+	'Deep research "latest industry trends" with sources',
 	'Generate a professional-looking form in seconds',
-	'Search across Gmail, Drive, and Notion for “invoice”',
+	'Search across Gmail, Drive, and Notion for "invoice"',
 ];
 
 const initialChatBoxInfo = {
@@ -183,6 +187,7 @@ const ChatBox = ({
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
 		aiSetup: { voiceIntegrationData, updateAiChatSessions, aiChatSessions },
+		notes: { getLiveKitToken },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -221,6 +226,63 @@ const ChatBox = ({
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
 
+	// Speech-to-text state
+	const [isTranscribing, setIsTranscribing] = useState(false);
+	const [liveKitToken, setLiveKitToken] = useState(null);
+	const [transcriptionText, setTranscriptionText] = useState('');
+	const transcriptionSessionId = useRef(ObjectID().toString());
+	const isMountedRef = useRef(true);
+
+	// LiveKit transcription setup
+	const wsUrl = 'wss://ve-ai-transcriptions-8p8k0b44.livekit.cloud';
+
+	const {
+		connect,
+		disconnect,
+		isConnected,
+		localAudioTrack,
+		localParticipant,
+		isMuted,
+		muteAudio,
+		unmuteAudio,
+	} = useNote({
+		wsUrl,
+		token: liveKitToken,
+		isRecording: isTranscribing,
+	});
+
+	// Track reference for transcription
+	const trackRef =
+		localParticipant && localAudioTrack
+			? {
+					publication: localParticipant.getTrackPublication(Track.Source.Microphone),
+					source: Track.Source.Microphone,
+					participant: localParticipant,
+			  }
+			: undefined;
+
+	const { segments } = useTrackTranscription(trackRef);
+
+	// Process transcription segments
+	useEffect(() => {
+		if (!segments || segments.length === 0) return;
+
+		let fullText = '';
+		segments.forEach((segment) => {
+			fullText += segment.text + ' ';
+		});
+
+		if (fullText.trim()) {
+			setTranscriptionText(fullText.trim());
+			// Update chat query with transcription
+			setInfo((prev) => ({
+				...prev,
+				chatQuery: fullText.trim(),
+			}));
+			onChatQueryChange?.(fullText.trim());
+		}
+	}, [segments, onChatQueryChange]);
+
 	const uploadedImagesRef = useRef(info?.uploadedImages || []);
 	const recentFilesRef = useRef(info?.recentFiles || []);
 	const showPlaceholder = info?.chatQuery?.length === 0 && info?.widgetQuery?.length === 0;
@@ -231,6 +293,8 @@ const ChatBox = ({
 				: 1;
 
 	useEffect(() => {
+		isMountedRef.current = true;
+
 		// if (
 		// 	!chatInfo?.agentType ||
 		// 	(location?.pathname?.split('/')?.[1] !== 'chat' &&
@@ -243,6 +307,7 @@ const ChatBox = ({
 		// }
 		document.addEventListener('click', handleWindowClick);
 		return () => {
+			isMountedRef.current = false;
 			document.removeEventListener('click', handleWindowClick);
 			if (chatSessionIdRef.current) {
 				closeWebSocketConnection(chatSessionIdRef.current);
@@ -251,8 +316,15 @@ const ChatBox = ({
 			if (suggestionsTimeoutRef.current) {
 				clearTimeout(suggestionsTimeoutRef.current);
 			}
+
+			// Cleanup transcription
+			if (isTranscribing) {
+				setIsTranscribing(false);
+				setLiveKitToken(null);
+				disconnect();
+			}
 		};
-	}, []);
+	}, [isTranscribing, disconnect]);
 
 	useEffect(() => {
 		if (!animateChatBox) return;
@@ -522,11 +594,19 @@ const ChatBox = ({
 	}, [info?.chatboxMinimized]);
 
 	useEffect(() => {
+		const newVoiceIntegration = voiceIntegrationData?.shouldConnect || false;
+
+		// Don't set voiceIntegration to true during transcription
+		// This prevents the chat interface from being hidden
+		if (isTranscribing && newVoiceIntegration) {
+			return;
+		}
+
 		setInfo((prev) => ({
 			...prev,
-			voiceIntegration: voiceIntegrationData?.shouldConnect || false,
+			voiceIntegration: newVoiceIntegration,
 		}));
-	}, [voiceIntegrationData]);
+	}, [voiceIntegrationData, isTranscribing]);
 
 	const handleSuggestionsMessageFunc = (event) => {
 		const data = JSON.parse(event?.data || {});
@@ -1231,23 +1311,70 @@ const ChatBox = ({
 
 	const handleMicIconClick = useCallback(
 		async (event) => {
-			const { hasMic, hasCamera } = await checkDevices();
+			try {
+				const { hasMic, hasCamera } = await checkDevices();
 
-			if (!hasMic) {
-				message.error('Mic is not available');
-				return;
-			}
+				if (!hasMic) {
+					message.error('Mic is not available');
+					return;
+				}
 
-			if (!info?.voiceIntegration) {
-				handleConnect();
-				setInfo((prev) => ({ ...prev, voiceIntegration: true }));
-			} else {
-				// toggleMute();
+				// Handle transcription toggle
+				if (!isTranscribing) {
+					try {
+						// Get LiveKit token
+						const response = await getLiveKitToken({
+							meetingId: transcriptionSessionId.current,
+						});
+
+						// Handle different response formats
+						let token = null;
+						if (response && response[0] === true) {
+							// Check if response[1] has token or accessToken
+							token = response[1]?.token || response[1]?.accessToken;
+						} else if (response && response.token) {
+							// Direct response format
+							token = response.token;
+						}
+
+						if (token) {
+							if (isMountedRef.current) {
+								setLiveKitToken(token);
+								setIsTranscribing(true);
+								setTranscriptionText('');
+								// Reset voiceIntegration to false to keep chat interface visible
+								setInfo((prev) => ({ ...prev, voiceIntegration: false }));
+								message.success('Transcription started');
+							}
+						} else {
+							console.error('Failed to fetch LiveKit token:', response);
+							message.error('Failed to start transcription. Please try again.');
+						}
+					} catch (err) {
+						console.error('Error fetching LiveKit token:', err);
+						message.error('Error starting transcription. Please try again.');
+					}
+				} else {
+					// Stop transcription
+					setIsTranscribing(false);
+					setLiveKitToken(null);
+					setTranscriptionText('');
+					// Reset voiceIntegration to false to keep chat interface visible
+					setInfo((prev) => ({ ...prev, voiceIntegration: false }));
+					message.success('Transcription stopped');
+				}
+
+				// Don't call handleConnect during transcription to avoid voiceIntegration conflicts
+				// The transcription uses its own LiveKit connection, not the voice integration
+
+				event.stopPropagation();
+			} catch (error) {
+				console.error('Error in handleMicIconClick:', error);
+				message.error('An error occurred while starting transcription');
 			}
-			event.stopPropagation();
 		},
 
-		[info, handleConnect],
+		[info, handleConnect, isTranscribing, getLiveKitToken],
 	);
 
 	const handleSendBtnClick = (e) => {
@@ -1595,23 +1722,33 @@ const ChatBox = ({
 												>
 													{info?.suggestion}
 												</div>
-												<textarea
-													type="text"
-													value={info?.chatQuery}
-													onChange={handleTextAreaChange}
-													autoFocus={autoFocus}
-													onKeyDown={handleTextAreaKeyDown}
-													className={`textArea ${
-														startPage ? 'startTextPage' : ''
-													}`}
-													rows={1}
-													ref={textAreaRef}
-													placeholder={
-														!animatePlaceholder
-															? 'Start typing or use @ to mention a source.'
-															: ''
-													}
-												/>
+												<div className="textarea-container">
+													<textarea
+														type="text"
+														value={info?.chatQuery}
+														onChange={handleTextAreaChange}
+														autoFocus={autoFocus}
+														onKeyDown={handleTextAreaKeyDown}
+														className={`textArea ${
+															startPage ? 'startTextPage' : ''
+														} ${isTranscribing ? 'transcribing' : ''}`}
+														rows={1}
+														ref={textAreaRef}
+														placeholder={
+															isTranscribing
+																? 'Listening... Speak now'
+																: !animatePlaceholder
+																? 'Start typing or use @ to mention a source.'
+																: ''
+														}
+													/>
+													{isTranscribing && (
+														<div className="transcription-indicator">
+															<div className="pulse-dot"></div>
+															<span>Recording</span>
+														</div>
+													)}
+												</div>
 											</div>
 
 											{showPlaceholder && animatePlaceholder && (
@@ -1637,16 +1774,38 @@ const ChatBox = ({
 													<ArrowUp />
 												</div>
 											) : (
-												<div
-													className={`click-btn ${
-														startPage ? 'startPage' : ''
-													}`}
-													onClick={(e) => handleMicIconClick(e)}
-													style={{
-														backgroundColor: 'var(--primary-button)',
-													}}
-												>
-													<AudioSvg />
+												<div style={{ display: 'flex', gap: '8px' }}>
+													<div
+														className={`click-btn ${
+															startPage ? 'startPage' : ''
+														}`}
+														onClick={(e) => handleMicIconClick(e)}
+														style={{
+															backgroundColor:
+																'var(--primary-button)',
+														}}
+														title="Start Speech-to-Text"
+													>
+														<AudioSvg />
+													</div>
+													<div
+														className={`click-btn speech-to-text-btn ${
+															startPage ? 'startPage' : ''
+														} ${isTranscribing ? 'transcribing' : ''}`}
+														onClick={(e) => handleMicIconClick(e)}
+														style={{
+															backgroundColor: isTranscribing
+																? 'var(--error-color)'
+																: 'var(--secondary-button)',
+														}}
+														title={
+															isTranscribing
+																? 'Stop Recording'
+																: 'Start Speech-to-Text'
+														}
+													>
+														<AudioSvg />
+													</div>
 												</div>
 											))}
 									</div>
@@ -2282,6 +2441,30 @@ const ChatBox = ({
 																<VoiceAgentSvg />
 															)}
 														</div>
+
+														{/* Separate Speech-to-Text Button */}
+														<div
+															className={`click-btn speech-to-text-btn ${
+																isTranscribing ? 'transcribing' : ''
+															}`}
+															onClick={(e) => {
+																e.stopPropagation();
+																handleMicIconClick(e);
+															}}
+															style={{
+																backgroundColor: isTranscribing
+																	? 'var(--error-color)'
+																	: 'var(--secondary-button)',
+																marginLeft: '8px',
+															}}
+															title={
+																isTranscribing
+																	? 'Stop Recording'
+																	: 'Start Speech-to-Text'
+															}
+														>
+															<SpeechMicSvg />
+														</div>
 													</div>
 												</div>
 											)}
@@ -2386,7 +2569,7 @@ const ChatBox = ({
 								<img src={CreditCoinImage} className="coin-icon" alt="coin" />
 
 								<div className="title-text-container">
-									You don’t have enough credits to continue.
+									You don't have enough credits to continue.
 								</div>
 							</div>
 							<div className="description-container">
