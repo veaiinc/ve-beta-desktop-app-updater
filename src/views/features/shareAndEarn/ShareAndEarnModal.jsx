@@ -5,13 +5,16 @@ import { message } from '../../components/globalComponents/CustomToast';
 import Context from '../../../context/context';
 import { REFERRAL_BASE_URL } from '../../../helpers/ConstantUrls';
 import './shareAndEarnModal.scss';
+import Skeleton from 'react-loading-skeleton';
 
 const ShareAndEarnModal = ({ isOpen, closeModal }) => {
 	const {
 		subscriptionInfo: { getShareAndEarn, referralData },
 	} = useContext(Context);
-
-	const [copyText, setCopyText] = useState('Copy');
+	const [info, setInfo] = useState({
+		copyText: 'Copy',
+		isLoading: true,
+	});
 
 	const referralDetails = referralData?.referralDetails;
 	const referralLink = referralDetails?.referralCode
@@ -27,6 +30,7 @@ const ShareAndEarnModal = ({ isOpen, closeModal }) => {
 
 	const fetchData = async () => {
 		try {
+			setInfo({ ...info, isLoading: true });
 			const response = await getShareAndEarn();
 
 			if (!response?.referralDetails) {
@@ -34,6 +38,7 @@ const ShareAndEarnModal = ({ isOpen, closeModal }) => {
 				closeModal();
 				return;
 			}
+			setInfo({ ...info, isLoading: false });
 		} catch (error) {
 			message.error(error.message || 'Something went wrong.');
 			closeModal();
@@ -43,11 +48,11 @@ const ShareAndEarnModal = ({ isOpen, closeModal }) => {
 	const handleCopyLink = () => {
 		navigator.clipboard.writeText(referralLink);
 		message.success('Copied to clipboard');
-		setCopyText('Copied!');
+		setInfo({ ...info, copyText: 'Copied!' });
 
 		// Reset the text back to "Copy" after 2 seconds
 		setTimeout(() => {
-			setCopyText('Copy');
+			setInfo({ ...info, copyText: 'Copy' });
 		}, 2000);
 	};
 
@@ -82,17 +87,30 @@ const ShareAndEarnModal = ({ isOpen, closeModal }) => {
 				<div className="referralCodeContainer">
 					<div className="codeInputWrapper">
 						<div className="codeInput">
-							<span className="codeText" onClick={handleCopyLink}>
-								{displayValue}
-							</span>
+							{info.isLoading ? (
+								<Skeleton
+									width={200}
+									height={20}
+									baseColor="var(--card)"
+									highlightColor="gray"
+								/>
+							) : (
+								<span className="codeText" onClick={handleCopyLink}>
+									{displayValue}
+								</span>
+							)}
 						</div>
 					</div>
 
-					<button className="copyButton" onClick={handleCopyLink}>
+					<button
+						className="copyButton"
+						onClick={handleCopyLink}
+						disabled={info.isLoading}
+					>
 						<div className="copyIcon">
 							<Copy />
 						</div>
-						<span className="copyText">{copyText}</span>
+						<span className="copyText">{info.copyText}</span>
 					</button>
 				</div>
 			</div>
