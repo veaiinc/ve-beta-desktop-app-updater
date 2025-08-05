@@ -100,7 +100,7 @@ const TranscriptionWidget = ({ transcriptList = [] }) => {
 										<div className={s.transcriptionItemDot}></div>
 										<div className={s.transcriptionItemTimestamp}>
 											<TimerIcon />
-											{moment(item?.timestamp)?.format('HH:mm:ss')}
+											{item?.time}
 										</div>
 									</div>
 									<div className={s.transcriptionItemTranscript}>

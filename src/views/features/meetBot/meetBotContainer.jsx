@@ -251,7 +251,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 
 	// Fetch meeting details if not available
 	useEffect(() => {
-		if (!createBotInfo && meetingId) {
+		if (meetingId && (!createBotInfo || createBotInfo?._id !== meetingId)) {
 			setIsLoadingMeetingDetails(true);
 			setMeetingNotFound(false);
 			getMeetBotById({ meetingId }).finally(() => {
