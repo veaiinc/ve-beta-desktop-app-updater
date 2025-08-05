@@ -154,16 +154,16 @@ const stableRoutes = [
 			</Suspense>
 		),
 	},
-	{
-		path: '/share-and-earn',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Share and Earn'}>
-					<ShareAndEarn />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
+	// {
+	// 	path: '/share-and-earn',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'Share and Earn'}>
+	// 				<ShareAndEarn />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
 
 	// ========================================
 	// FALLBACK ROUTE

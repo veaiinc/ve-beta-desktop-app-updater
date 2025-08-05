@@ -16,7 +16,7 @@ const AddGallery = lazy(() => import('../views/features/gallery/AddGallery'));
 const AlbumSettings = lazy(() => import('../views/features/gallery/AlbumSettings'));
 const UploadPhotos = lazy(() => import('../views/features/gallery/UploadPhotos'));
 const InitialHomePage = lazy(() => import('../views/features/homePage/InitialHomePage'));
-const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
+// const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
 const SettingsWrapper = lazy(() => import('../views/features/settings/SettingsWrapper'));
 const Docs = lazy(() => import('../views/features/docs/Docs'));
 import LiteGallery from '../views/features/gallery/Litegallery';
@@ -93,16 +93,16 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
-	{
-		path: '/share-and-earn',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Share and Earn'}>
-					<ShareAndEarn />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
+	// {
+	// 	path: '/share-and-earn',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'Share and Earn'}>
+	// 				<ShareAndEarn />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
 	{
 		path: '/early-access',
 		element: (
