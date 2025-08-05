@@ -17,7 +17,7 @@ export const useVoiceAgent = (token) => {
 	const audioStreamRef = useRef(null);
 	const isRecordingRef = useRef(false);
 
-	// Audio playback variables (from HTML reference)
+	// Audio playback variables
 	const playbackAudioContextRef = useRef(null);
 	const audioQueueRef = useRef([]);
 	const isPlayingRef = useRef(false);
@@ -30,7 +30,7 @@ export const useVoiceAgent = (token) => {
 	const MIN_BUFFER_SIZE = 1024; // Minimum buffer size before processing
 	const FLUSH_INTERVAL = 100; // Flush buffer every 100ms if not full
 
-	// Message tracking variables (from HTML reference)
+	// Message tracking variables
 	const currentMessageRef = useRef(null);
 	const isReceivingResponseRef = useRef(false);
 
@@ -46,7 +46,7 @@ export const useVoiceAgent = (token) => {
 		);
 	}, []);
 
-	// Initialize audio context for playback (from HTML reference)
+	// Initialize audio context for playback
 	const initPlaybackAudioContext = useCallback(() => {
 		if (!playbackAudioContextRef.current) {
 			playbackAudioContextRef.current = new (window.AudioContext ||
@@ -75,7 +75,7 @@ export const useVoiceAgent = (token) => {
 		}
 	}, []);
 
-	// Initialize audio context on user interaction (from HTML reference)
+	// Initialize audio context on user interaction
 	const initAudioOnUserInteraction = useCallback(() => {
 		if (!playbackAudioContextRef.current) {
 			initPlaybackAudioContext();
@@ -86,7 +86,7 @@ export const useVoiceAgent = (token) => {
 		document.removeEventListener('touchstart', initAudioOnUserInteraction);
 	}, [initPlaybackAudioContext]);
 
-	// Add event listeners for audio context initialization (from HTML reference)
+	// Add event listeners for audio context initialization
 	useEffect(() => {
 		document.addEventListener('click', initAudioOnUserInteraction);
 		document.addEventListener('keydown', initAudioOnUserInteraction);
@@ -99,7 +99,7 @@ export const useVoiceAgent = (token) => {
 		};
 	}, [initAudioOnUserInteraction]);
 
-	// Improved audio queue processing for smooth streaming (from HTML reference)
+	// Improved audio queue processing for smooth streaming
 	const processAudioQueue = useCallback(async () => {
 		if (isPlayingRef.current) return;
 		isPlayingRef.current = true;
@@ -244,7 +244,7 @@ export const useVoiceAgent = (token) => {
 			return;
 		}
 
-		// Initialize audio context on first user interaction (from HTML reference)
+		// Initialize audio context on first user interaction
 		if (!playbackAudioContextRef.current) {
 			initPlaybackAudioContext();
 		}
@@ -303,7 +303,7 @@ export const useVoiceAgent = (token) => {
 							return;
 						}
 
-						// Buffer small audio chunks for smoother playback (from HTML reference)
+						// Buffer small audio chunks for smoother playback
 						if (arrayBuffer.byteLength < MIN_BUFFER_SIZE) {
 							if (!audioBufferRef.current) {
 								audioBufferRef.current = new Uint8Array(arrayBuffer);
@@ -372,7 +372,7 @@ export const useVoiceAgent = (token) => {
 						isReceivingResponseRef.current = false;
 						currentMessageRef.current = null;
 
-						// Process any remaining buffered audio (from HTML reference)
+						// Process any remaining buffered audio
 						if (audioBufferRef.current && audioBufferSizeRef.current > 0) {
 							audioQueueRef.current.push(audioBufferRef.current.buffer);
 							audioBufferRef.current = null;
@@ -382,7 +382,7 @@ export const useVoiceAgent = (token) => {
 					} else if (data.error) {
 						addMessage(`Error: ${data.error}`, false);
 						if (data.error.includes('token')) {
-							// Handle token error specifically (from HTML reference)
+							// Handle token error specifically
 						}
 						stopRecording();
 						isReceivingResponseRef.current = false;
