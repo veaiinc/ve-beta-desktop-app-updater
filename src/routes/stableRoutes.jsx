@@ -16,10 +16,10 @@ const Agent = lazy(() => import('../views/features/agents/agent/Agent'));
 const GlobalWorkflows = lazy(() => import('../views/features/sales/GlobalWorkflows'));
 const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
 const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
+const ProactiveSuggestions = lazy(() => import('../views/features/homePage/ProactiveSuggestions'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
-import ProactiveSuggestions from '../views/features/homePage/ProactiveSuggestions';
 
 const stableRoutes = [
 	// ========================================
