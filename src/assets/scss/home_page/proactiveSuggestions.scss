@@ -68,7 +68,7 @@
 				flex-direction: column;
 				align-items: flex-start;
 				justify-content: center;
-				gap: 6px;
+				gap: 12px;
 				width: 100%;
 				flex-grow: 1;
 
@@ -92,8 +92,8 @@
 
 				.header__card-description {
 					display: -webkit-box;
-					-webkit-line-clamp: 4;
-					line-clamp: 4;
+					-webkit-line-clamp: 3;
+					line-clamp: 3;
 					-webkit-box-orient: vertical;
 					overflow: hidden;
 					text-align: center;
@@ -116,12 +116,12 @@
 				position: absolute;
 				bottom: 10px;
 				left: 0px;
-				width: 98%;
+				width: 100%;
 				display: flex;
 				flex-direction: row;
 				justify-content: space-between;
 				gap: 16px;
-				padding: 4px;
+				padding: 0 8px;
 				display: none;
 				.module-type {
 					color: var(--secondary-font, #93989f);
@@ -224,7 +224,8 @@
 			transform: translateX(-50%) rotate(-2deg);
 		}
 
-		.left-2 {
+		.left-2,
+		.left-3 {
 			left: 15%;
 			z-index: 1;
 			width: 170px;
@@ -232,7 +233,10 @@
 			bottom: -10px;
 			display: flex;
 			transform: translateX(-50%) rotate(-4deg);
-			opacity: 0.5;
+			opacity: 1;
+		}
+		.left-3 {
+			z-index: 0;
 		}
 
 		.right-1 {
@@ -249,7 +253,8 @@
 			}
 		}
 
-		.right-2 {
+		.right-2,
+		.right-3 {
 			left: 85%;
 			z-index: 1;
 			width: 170px;
@@ -257,11 +262,14 @@
 			bottom: -10px;
 			display: flex;
 			transform: translateX(-50%) rotate(4deg);
-			opacity: 0.5;
+			opacity: 1;
 
 			.footer {
 				justify-content: flex-end;
 			}
+		}
+		.right-3 {
+			z-index: 0;
 		}
 
 		.card.skeleton {
@@ -281,14 +289,17 @@
 		display: flex;
 		flex-direction: row;
 		min-height: 41px;
-
 		justify-content: space-between;
 		align-items: center;
+		position: relative;
+		z-index: 1000;
+
 		.right-container {
 			.options-container {
 				display: flex;
 				align-items: center;
-				button {
+				.search-btn,
+				.close-btn {
 					outline: none;
 					border: none;
 					display: flex;
@@ -458,19 +469,20 @@
 			position: relative;
 			display: flex;
 			align-items: center;
-			.action-left {
+			.filter-wrapper {
 				display: flex;
+				height: 41px;
+				justify-content: center;
 				align-items: center;
-				gap: 6px;
-				.sort-btn,
+				gap: 8px;
+
 				.filter-btn {
+					aspect-ratio: 1;
 					display: flex;
-					padding: 6px;
 					justify-content: center;
 					align-items: center;
 					gap: 8px;
 					align-self: stretch;
-					border-radius: 8px;
 					color: var(--primary-font, #f2f2f3);
 					font-family: var(--primary-font-family);
 					font-size: 14px;
@@ -480,7 +492,8 @@
 					background-color: transparent;
 					cursor: pointer;
 					border: 1px solid transparent;
-					height: 41px;
+					padding: 6px;
+					border-radius: 8px;
 					// &::after {
 					// 	content: attr(data-tooltip);
 					// 	position: absolute;
@@ -523,6 +536,8 @@
 
 					svg {
 						transition: color 0.2s ease;
+						width: 20px;
+						height: 20px;
 					}
 
 					&.active {
@@ -530,7 +545,22 @@
 						color: var(--primary-font);
 					}
 				}
+				.selected-filters {
+					display: flex;
+					gap: 4px;
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+
+					.filter-count {
+						color: var(--secondary-font, #7a7e85);
+					}
+				}
 			}
+
 			.action-right {
 				display: inline-flex;
 				align-items: center;
@@ -1338,6 +1368,7 @@
 
 .options-wrapper {
 	position: relative;
+	z-index: 1000;
 	display: flex;
 	align-items: center;
 	max-width: 800px; /* Total width including arrows */
@@ -1347,6 +1378,7 @@
 		display: flex;
 		align-items: center;
 		align-content: center;
+		justify-content: center;
 		position: relative;
 		gap: 6px;
 		width: 100%;

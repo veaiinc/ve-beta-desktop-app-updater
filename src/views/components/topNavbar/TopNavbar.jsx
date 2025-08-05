@@ -18,6 +18,8 @@ import { ReactComponent as DarkMode } from './assets/dark-mode.svg';
 import { ReactComponent as NotificationsSvg } from './assets/notification.svg';
 import { ReactComponent as ShareAndEarnSvg } from './assets/share-and-earn.svg';
 import CreditsLeftSvg from '../sidebar/chatHistory/CreditsLeftSvg';
+import CreditsLeft from './components/creditsLeft/CreditsLeft';
+import AddOnCards from '../settings/planbilling/addOnCards';
 
 const tooltipStyle = {
 	padding: 8,
@@ -30,8 +32,8 @@ const tooltipStyle = {
 const baseLeftContainerItems = [
 	{
 		id: 1,
-		label: 'Insights',
-		route: '/insights',
+		label: 'Ambient',
+		route: '/ambient-ai',
 	},
 	{
 		id: 2,
@@ -105,6 +107,8 @@ const TopNavbar = () => {
 		showNotifications: false,
 		filesTooltipOpen: false,
 		toolsTooltipOpen: false,
+		addOnCardsModalOpen: false,
+		creditsLeftTooltipOpen: false,
 	});
 
 	const { firstName, lastName, dp_s3_500w_key, googleMeta } = userDetailsData;
@@ -157,6 +161,7 @@ const TopNavbar = () => {
 				toolsTooltipOpen: false,
 				settingsTooltipOpen: false,
 			}));
+			navigate(`/files?active-tab=Documents&viewMode=card`);
 			return;
 		}
 		navigate(route);
@@ -190,13 +195,25 @@ const TopNavbar = () => {
 			label: 'Credits Left',
 			icon: (
 				<Tooltip
+					open={info.creditsLeftTooltipOpen}
+					onOpenChange={() =>
+						setInfo((prev) => ({
+							...prev,
+							creditsLeftTooltipOpen: !prev.creditsLeftTooltipOpen,
+						}))
+					}
 					title={
-						<div style={tooltipStyle}>
-							{Math.round(
-								currentPlan?.totalAiCreditLimit - currentPlan?.totalAiCreditUsed,
-							)}{' '}
-							Credits Left
-						</div>
+						<CreditsLeft
+							totalAiCreditLimit={currentPlan?.totalAiCreditLimit}
+							totalAiCreditUsed={currentPlan?.totalAiCreditUsed}
+							openAddOnCardsModal={() =>
+								setInfo((prev) => ({
+									...prev,
+									addOnCardsModalOpen: true,
+									creditsLeftTooltipOpen: false,
+								}))
+							}
+						/>
 					}
 					placement="bottom"
 					arrow={false}
@@ -318,13 +335,15 @@ const TopNavbar = () => {
 												}
 											/>
 										}
-										placement="bottomRight"
+										placement="bottom"
 										arrow={false}
 										color={'transparent'}
 										rootClassName={s.topNavbarSettings}
 									>
 										<li
-											className={`${s.navItem} ${s.profileItem}`}
+											className={`${s.navItem} ${s.profileItem} ${
+												pathname.includes('/files') ? s.active : ''
+											}`}
 											onClick={() =>
 												handleNavigation({
 													navItemId: navItem.id,
@@ -356,7 +375,7 @@ const TopNavbar = () => {
 												}
 											/>
 										}
-										placement="bottomRight"
+										placement="bottom"
 										arrow={false}
 										color={'transparent'}
 										rootClassName={s.topNavbarSettings}
@@ -372,7 +391,9 @@ const TopNavbar = () => {
 													filesTooltipOpen: false,
 												}));
 											}}
-											className={`${s.navItem} ${s.profileItem}`}
+											className={`${s.navItem} ${s.profileItem} ${
+												pathname.includes('/home') ? s.active : ''
+											}`}
 										>
 											{navItem.label}
 										</li>
@@ -474,7 +495,7 @@ const TopNavbar = () => {
 							) : (
 								<p className={s.nameInitials}>{nameInitials}</p>
 							)}
-							<DownCaret />
+							{/* <DownCaret /> */}
 						</li>
 					</Tooltip>
 				</ul>
@@ -484,11 +505,19 @@ const TopNavbar = () => {
 
 	return (
 		!hideTopNavbar && (
-			<nav className={s.topNavbarContainer}>
-				{navItems.map((navItem) => {
-					return <Fragment key={navItem.id}>{navItem.element}</Fragment>;
-				})}
-			</nav>
+			<>
+				<nav className={s.topNavbarContainer}>
+					{navItems.map((navItem) => {
+						return <Fragment key={navItem.id}>{navItem.element}</Fragment>;
+					})}
+				</nav>
+				<AddOnCards
+					isOpen={info.addOnCardsModalOpen}
+					closeModal={() => setInfo((prev) => ({ ...prev, addOnCardsModalOpen: false }))}
+					subscriptionState="addOnPlans"
+					selectedPeriodProp="One Time Purchase"
+				/>
+			</>
 		)
 	);
 };

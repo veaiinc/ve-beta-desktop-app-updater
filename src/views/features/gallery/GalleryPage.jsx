@@ -2603,7 +2603,7 @@ const GalleryPage = () => {
 						zoom: mobileSettings.zoom || 1,
 					},
 				};
-				await getAlbumImagesCount(galleryId);
+				// await getAlbumImagesCount(galleryId);
 				// Update state
 				setInfo((prev) => ({
 					...prev,
@@ -2611,7 +2611,7 @@ const GalleryPage = () => {
 					uploadImageId: null,
 					imageURL: '',
 					coverImageDetails: updatedCoverImage,
-					selectedImages: [], // Clear selected images
+					selectedImages: [],
 					crop: {
 						desktop: {
 							x: desktopSettings.focalPoint?.x || 0,
@@ -3285,7 +3285,7 @@ const GalleryPage = () => {
 		if (!clientX || !clientY) return;
 
 		const container = rearrangeContainerRef.current;
-		console.log('container', container);
+
 		if (!container) return;
 
 		const scrollSpeed = 20;
@@ -3716,6 +3716,7 @@ const GalleryPage = () => {
 			showUploadCover: true,
 			coverType: type,
 			selectedImages: [file?._id],
+			selectedImage: file,
 			coverPhoto: true,
 			isLoadingCover: true, // Set loading to true while fetching the image
 		}));
@@ -4364,7 +4365,7 @@ const GalleryPage = () => {
 																				album?.numberOfImages ||
 																				0
 																			} photos`}</p>
-																			<p className="collectionAlbumTitle">
+																			<p className="albumCollectionTitle">
 																				{album?.title}
 																			</p>
 																		</div>
@@ -5899,7 +5900,10 @@ const GalleryPage = () => {
 								<Tooltip
 									title={
 										<div className="listAlbumsContainer">
-											<div className="moveToAlbumTitleContainer">
+											<div
+												className="moveToAlbumTitleContainer"
+												style={{ cursor: 'pointer' }}
+											>
 												<span className="moveToAlbumOptionsContainer">
 													<span className="moveToAlbumTitle">
 														{' '}

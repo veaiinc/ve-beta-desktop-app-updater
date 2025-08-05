@@ -102,7 +102,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const [searchParams] = useSearchParams();
 	const noteId = useParams()?.noteId;
 	const meetingId = useParams()?.meetingId;
-	const sessionId = noteId;
+	const sessionId = meetingId;
 	const type = searchParams.get('type');
 	const history = searchParams.get('history') === 'true' ? true : false;
 	const chat = searchParams.get('chat') === 'true' ? true : false;
@@ -119,7 +119,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const {
 		notes: {
 			getMeetTranscriptHistory,
-			transcriptHistory,
 			aiLiveIntelligenceHistory,
 			getAiLiveIntelligenceHistory,
 			getNotesPageData,
@@ -175,11 +174,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		} else {
 			handleTranscriptionSuggestions({ data: aiLiveIntelligenceHistory?.data || [] });
 		}
+
 	}, [aiLiveIntelligenceHistory]);
 
 	// Function to fetch historical transcriptions for desktop
 	const fetchHistoricalTranscriptions = useCallback(async () => {
-		if (!noteId || !showTranscriptTabs || type !== 'desktop') return;
+		if (!meetingId || !showTranscriptTabs || type !== 'desktop') return;
 
 		setIsLoadingHistory(true);
 		try {
@@ -226,11 +226,11 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		} finally {
 			setIsLoadingHistory(false);
 		}
-	}, [noteId, showTranscriptTabs, type]);
+	}, [meetingId, showTranscriptTabs, type]);
 
 	// Function to fetch historical transcriptions for meeting_bot
 	const fetchMeetingBotTranscriptions = useCallback(async () => {
-		if (!noteId || !showTranscriptTabs || type !== 'meeting_bot') return;
+		if (!meetingId || !showTranscriptTabs || type !== 'meeting_bot') return;
 
 		try {
 			const response = await getMeetTranscriptHistory(
@@ -257,7 +257,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			console.error('Error fetching meeting bot transcriptions:', error);
 			setTranscriptList([]);
 		}
-	}, [noteId, showTranscriptTabs, type, getMeetTranscriptHistory]);
+	}, [meetingId, showTranscriptTabs, type, getMeetTranscriptHistory]);
 
 	// Handler for transcript socket messages
 	// const handleLiveIntelligenceMessageFunc = useCallback(
@@ -326,9 +326,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		return () => {
 			updateNotesStateValues({
 				meetSummary: null,
+				aiLiveIntelligenceHistory: null,
+				transcriptHistory: null,
 			});
 			updateStateValues({
 				aiTranscriptionSuggestions: null,
+
 			});
 		};
 	}, []);
@@ -964,7 +967,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			setInfo((prev) => ({ ...prev, transcriptionsLoading: true }));
 			try {
 				const response = await getMeetTranscriptHistory(
-					{ meetingId: meetingId || noteId, limit: 20, page },
+					{ meetingId: meetingId, limit: 20, page },
 					append,
 				);
 				if (response?.[0]) {
@@ -997,7 +1000,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 				setInfo((prev) => ({ ...prev, transcriptionsLoading: false }));
 			}
 		},
-		[meetingId, noteId],
+		[meetingId],
 	);
 
 	const loadMoreTranscriptions = () => {
@@ -1112,8 +1115,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 								/>
 							)}
 							{showTranscriptTabs &&
-								activeTab === 'transcript' &&
-								type === 'desktop' && (
+								activeTab === 'transcript' && 
+								(type === 'desktop' || type === 'meeting_bot') && (
 									<div style={{ paddingBottom: 80, width: '100%' }}>
 										{info.transcriptions && info.transcriptions.length === 0 ? (
 											<div className="meet-transcript-empty">
@@ -1157,9 +1160,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 								)}
 
 							{showTranscriptTabs && activeTab === 'summary' && (
-								<MeetSummary activeTab={activeTab} pageId={noteId} />
+								<MeetSummary activeTab={activeTab} meetingId={meetingId} />
 							)}
-
 							{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
 								(activeTab === 'userQuestions' ||
 									activeTab === 'aiQuestions' ||
@@ -1176,8 +1178,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 									/>
 								)}
 
-							{(!showTranscriptTabs ||
-								(showTranscriptTabs && activeTab === 'notes')) && (
+							{(!showTranscriptTabs) && (
 								<Editor
 									innerContainerStyle={innerContainerStyle}
 									myAccess={info?.myAccess}
@@ -1193,7 +1194,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 								/>
 							)}
 
-							{showTranscriptTabs && type === 'meeting_bot' && (
+							{showTranscriptTabs && type === 'meeting_bot' && !history && (
 								<TranscriptionWrapper
 									chat={chat}
 									transcription={transcription}

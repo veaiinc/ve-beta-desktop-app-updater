@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useEffect } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import s from '../../../assets/scss/home_page/activeChatIndication.module.scss';
 import { Tooltip } from 'antd';
 import RecentChatsTooltip from './RecentChatsTooltip';
@@ -9,7 +9,7 @@ const page = 1;
 const limit = 10;
 const append = true;
 
-const ActiveChatIndication = ({ activeChatIndex }) => {
+const ActiveChatIndication = ({ activeChatData }) => {
 	const navigate = useNavigate();
 	const {
 		aiSetup: { getAiChatSessions, aiChatSessions },
@@ -22,6 +22,11 @@ const ActiveChatIndication = ({ activeChatIndex }) => {
 		},
 	} = useContext(Context);
 
+	const [info, setInfo] = useState({
+		previousChats: 0,
+		activeChatIndex: -1,
+	});
+
 	const chats = aiChatSessions?.data;
 	const hasNextPage = aiChatSessions?.hasMore || false;
 	const currentPage = aiChatSessions?.currentPage || 1;
@@ -29,7 +34,6 @@ const ActiveChatIndication = ({ activeChatIndex }) => {
 	const totalCards = totalChats + 1;
 	const maxIndicators = 10;
 	const totalIndicators = totalCards <= maxIndicators ? totalCards : maxIndicators;
-	const indicatorIndex = activeChatIndex % 10;
 	const tabArray = Array.from({ length: totalIndicators });
 
 	useEffect(() => {
@@ -37,6 +41,28 @@ const ActiveChatIndication = ({ activeChatIndex }) => {
 			fetchChats();
 		}
 	}, []);
+
+	useEffect(() => {
+		if (activeChatData && aiChatSessions?.data) {
+			const index = aiChatSessions?.data?.findIndex(
+				(chat) => chat?._id === activeChatData?._id,
+			);
+
+			if (index !== -1) {
+				setInfo((prev) => ({
+					...prev,
+					previousChats: index + 1,
+					activeChatIndex: index % 10,
+				}));
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					previousChats: 0,
+					activeChatIndex: -1,
+				}));
+			}
+		}
+	}, [activeChatData, aiChatSessions?.data]);
 
 	useEffect(() => {
 		if (currentSessionId) {
@@ -93,18 +119,26 @@ const ActiveChatIndication = ({ activeChatIndex }) => {
 					hasNextPage={hasNextPage}
 					handleChatNavigation={handleChatNavigation}
 					loading={chatLoadingSessions}
+					activeChatData={activeChatData}
 				/>
 			}
-			placement="right"
+			placement="center"
 			color="transparent"
 		>
-			<div className={s.activeChatIndication}>
-				{tabArray?.map((tab, index) => (
-					<div
-						className={`${s.chatTab} ${index === indicatorIndex ? s.active : ''}`}
-						key={index}
-					/>
-				))}
+			<div className={s.chatsWrapper}>
+				{chats?.length && <div className={s.previousChatsCount}>{info?.previousChats}</div>}
+
+				<div className={s.activeChatIndication}>
+					{tabArray?.map((tab, index) => (
+						<div
+							className={`${s.chatTab} ${
+								index === info?.activeChatIndex ? s.active : ''
+							}`}
+							key={index}
+						/>
+					))}
+				</div>
+				{chats?.length && <div className={s.totalChatsCount}>{chats?.length}</div>}
 			</div>
 		</Tooltip>
 	);

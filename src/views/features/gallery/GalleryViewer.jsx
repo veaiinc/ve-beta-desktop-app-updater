@@ -21,6 +21,7 @@ import { Tooltip } from 'antd';
 import slugify from 'slugify';
 import Peopleitem from '../../components/gallery/galleryView/PeopleCard';
 import { ReactComponent as AlbumCoverIcon } from '../../../assets/svg/gallery/albumCoverIcon.svg';
+import Loader from '../../components/loaders/Spinner';
 
 // import { Background } from '@xyflow/react';
 
@@ -131,6 +132,7 @@ const GalleryViewer = ({
 		searchInput: '',
 		showLabels: true,
 		facesLoading: false,
+		downloadLoading: false,
 	});
 
 	useEffect(() => {
@@ -276,6 +278,14 @@ const GalleryViewer = ({
 			getGalleryTagsList(activeGalleryId);
 		}
 	}, []);
+	useEffect(() => {
+		if (selectedImage) {
+			setInfo((prev) => ({
+				...prev,
+				activeImage: selectedImage,
+			}));
+		}
+	}, [selectedImage, info?.activeImage]);
 	const fetchMoreImages = () => {
 		const nextPage = info.page + 1;
 
@@ -458,6 +468,10 @@ const GalleryViewer = ({
 
 	const handleDownloadSingleImage = async () => {
 		message.success('Downloading Started...');
+		setInfo((prev) => ({
+			...prev,
+			downloadLoading: true,
+		}));
 
 		const response = await getImageDetail(info?.activeImage);
 		const totalBytes = response?.[1]?.activeVersion?.s3_original?.size;
@@ -467,6 +481,10 @@ const GalleryViewer = ({
 				isLightGallery,
 				totalBytes,
 			);
+			setInfo((prev) => ({
+				...prev,
+				downloadLoading: false,
+			}));
 			if (response?.[0]) {
 				message.success('Downloading Completed...');
 			} else {
@@ -679,7 +697,7 @@ const GalleryViewer = ({
 							className="eachImageOptions"
 							onClick={() => handleDownloadSingleImage()}
 						>
-							<Download /> Download
+							{info?.downloadLoading ? <Loader /> : <Download />} Download
 						</div>
 						<div
 							className="eachImageOptions deleteImage"

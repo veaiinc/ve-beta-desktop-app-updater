@@ -6,55 +6,24 @@ import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 import { ReactComponent as VeLogoSvg } from '../../../assets/svg/veLogo.svg';
 import { ReactComponent as OpenAISvg } from '../../../assets/svg/openai.svg';
 
-const llmModels = {
-	models: [
-		{
-			model_code: 'gpt-4o-mini',
-			display_name: 'GPT-4o Mini',
-			model_type: 'openai',
-		},
-		{
-			model_code: 'gpt-4o',
-			model_type: 'openai',
-			display_name: 'GPT-4o',
-		},
-		{
-			model_code: 'o4-mini',
-			model_type: 'openai',
-			display_name: 'O4 Mini',
-		},
-		{
-			model_code: 'o3-mini',
-			model_type: 'openai',
-			display_name: 'O3 Mini',
-		},
-		{
-			model_code: 'gpt-4.1',
-			model_type: 'openai',
-			display_name: 'GPT-4.1',
-		},
-	],
-	default_model_code: 'gpt-4o',
-};
-
 const AskTooltip = ({ children, open, onOpenChange }) => {
 	const {
 		templates: {
 			globalChatMessages,
 			currentSessionId,
 			handleGlobalChatMessages,
-			// getLLMModels,
-			// llmModels,
+			getLLMModels,
+			llmModels,
 		},
 	} = useContext(Context);
 
 	const chatBoxInfo = globalChatMessages?.[currentSessionId]?.chatBoxInfo;
 
-	// useEffect(() => {
-	// 	if (!llmModels && open) {
-	// 		getLLMModels();
-	// 	}
-	// }, [open]);
+	useEffect(() => {
+		if (!llmModels && open) {
+			getLLMModels();
+		}
+	}, [open]);
 
 	const handleModelClick = useCallback(
 		(model) => {

@@ -1591,6 +1591,42 @@ export const TemplatesState = (props) => {
 			console.log('errror ==>sendCustomEmailToClients', error);
 		}
 	};
+	const getAuthUrlForThirdParty = async (connectType) => {
+		try {
+			const token = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			let path, response;
+
+			switch (connectType) {
+				case 'gmail':
+					path = `/auth/gmail/${workspaceId}`;
+					response = await Service?.fetchGet(path, token, 'calendar_api');
+					break;
+				case 'google-calendar':
+					path = `/google-calendar/${workspaceId}/auth`;
+					response = await Service?.fetchGet(path, token, 'calendar_api');
+					break;
+				case 'slack':
+					path = `/slack/${workspaceId}/auth`;
+					response = await Service?.fetchGet(path, token, 'third_party_integrations_api');
+					break;
+				default:
+					// For other integrations, use the generic pattern
+					path = `/${connectType}/${workspaceId}/auth`;
+					response = await Service?.fetchGet(path, token, 'third_party_integrations_api');
+					break;
+			}
+
+			if (response?.[0] === true) {
+				return response?.[1]?.connectUrl || response?.[1]?.url;
+			} else {
+				throw new Error(response?.[1]?.message || 'Failed to get authorization URL');
+			}
+		} catch (error) {
+			console.error('Error getting auth URL:', error);
+			throw error;
+		}
+	};
 
 	const connectThirdParty = async (connectType) => {
 		try {
@@ -2697,11 +2733,12 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getChatBoxSuggestions = async (payload) => {
+	const getChatBoxSuggestions = async (payload = {}) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 			const path = `https://ai.us-east-1.ve.ai/${workspaceId}/suggestions`;
+			payload.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 			const response = await fetch(path, {
 				method: 'POST',
 				headers: {
@@ -2976,5 +3013,6 @@ export const TemplatesState = (props) => {
 		isSlugAvailable,
 		updateSlug,
 		getNotificationsList,
+		getAuthUrlForThirdParty,
 	};
 };

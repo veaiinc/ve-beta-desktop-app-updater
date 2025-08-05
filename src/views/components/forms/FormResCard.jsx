@@ -20,6 +20,7 @@ import { useParams } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { message } from '../globalComponents/CustomToast';
+import DeleteModal from '../modalsV2/DeleteModal/DeleteModal';
 
 const removeHTMLTags = (text) =>
 	text
@@ -44,6 +45,7 @@ const FormResCard = ({
 	const [currentPage, setCurrentPage] = useState(1);
 	const [expandedCard, setExpandedCard] = useState(null);
 	const [delFormResLoading, setDelFormResLoading] = useState(false);
+	const [deleteModal, setDeleteModal] = useState({ open: false, responseId: null });
 
 	useEffect(() => {
 		fetchInitialResponses();
@@ -314,6 +316,20 @@ const FormResCard = ({
 		}
 	};
 
+	const handleOpenDeleteModal = (responseId) => {
+		setDeleteModal({ open: true, responseId });
+	};
+
+	const handleConfirmDelete = async () => {
+		if (!deleteModal.responseId) return;
+		await handleDeleteResponse(deleteModal.responseId);
+		setDeleteModal({ open: false, responseId: null });
+	};
+
+	const handleCancelDelete = () => {
+		setDeleteModal({ open: false, responseId: null });
+	};
+
 	const sortResponses = (responses) => {
 		if (!responses || !Array.isArray(responses)) return [];
 
@@ -459,100 +475,116 @@ const FormResCard = ({
 	if (!responses.length) return <div className="no-responses">No responses yet</div>;
 
 	return (
-		<div className="formResCardScrollParent">
-			<div className="formResLayout">
-				<div className="formResponsesContainer">
-					<InfiniteScroll
-						dataLength={responses.length}
-						next={fetchMoreResponses}
-						hasMore={hasNextPage}
-						loader={<FetchMoreLoaderComp />}
-						style={{
-							display: 'flex',
-							flexDirection: 'column',
-							width: '100%',
-						}}
-						scrollThreshold="90%"
-					>
-						{sortResponses(responses).map((response, index) => {
-							const resumeInfo = getResumeInfo(response);
-							const isExpanded = expandedCard === index;
+		<>
+			<div className="formResCardScrollParent">
+				<div className="formResLayout">
+					<div className="formResponsesContainer">
+						<InfiniteScroll
+							dataLength={responses.length}
+							next={fetchMoreResponses}
+							hasMore={hasNextPage}
+							loader={<FetchMoreLoaderComp />}
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								width: '100%',
+							}}
+							scrollThreshold="90%"
+						>
+							{sortResponses(responses).map((response, index) => {
+								const resumeInfo = getResumeInfo(response);
+								const isExpanded = expandedCard === index;
 
-							return (
-								<div
-									key={response._id || index}
-									className={`resWrapper ${isExpanded ? 'open' : ''}`}
-									onClick={() => {
-										setExpandedCard(expandedCard === index ? null : index);
-										handleCardClick(response, index);
-									}}
-								>
-									<div className="topRow">
-										<div className="carddetails">
-											<h1 className="name">{getName(response)}</h1>
-											<h1 className="time">{getTimeAgo(response)}</h1>
-										</div>
-										<div
-											className="deleteButton"
-											onClick={() => handleDeleteResponse(response._id)}
-										>
-											<Delete />
-										</div>
-									</div>
-									{isExpanded && (
-										<div className="incard">
-											<h3 className="options">Actions</h3>
-											<div className="actionsRow">
-												<div
-													className="resoption"
-													onClick={(e) => {
-														e.stopPropagation();
-														handleActionClick('Call', response);
-													}}
-												>
-													<span className="optioncon">
-														<Call />
-													</span>
-													<h1 className="option">Call</h1>
-												</div>
-												<div
-													className="resoption"
-													onClick={(e) => {
-														e.stopPropagation();
-														handleActionClick('Mail', response);
-													}}
-												>
-													<span className="optioncon">
-														<Message />
-													</span>
-													<h1 className="option">Email</h1>
-												</div>
-												<div
-													className="resoption"
-													onClick={(e) => {
-														e.stopPropagation();
-														handleDownloadSingleResponse(response);
-													}}
-													style={{
-														display: 'flex',
-														alignItems: 'center',
-													}}
-												>
-													<span className="optioncon">
-														<Download />
-													</span>
-													<h1 className="option">Download</h1>
-												</div>
+								return (
+									<div
+										key={response._id || index}
+										className={`resWrapper ${isExpanded ? 'open' : ''}`}
+										onClick={() => {
+											setExpandedCard(expandedCard === index ? null : index);
+											handleCardClick(response, index);
+										}}
+									>
+										<div className="topRow">
+											<div className="carddetails">
+												<h1 className="name">{getName(response)}</h1>
+												<h1 className="time">{getTimeAgo(response)}</h1>
+											</div>
+											<div
+												className="deleteButton"
+												onClick={(e) => {
+													e.stopPropagation();
+													handleOpenDeleteModal(response._id);
+												}}
+											>
+												<Delete />
 											</div>
 										</div>
-									)}
-								</div>
-							);
-						})}
-					</InfiniteScroll>
+										{isExpanded && (
+											<div className="incard">
+												<h3 className="options">Actions</h3>
+												<div className="actionsRow">
+													<div
+														className="resoption"
+														onClick={(e) => {
+															e.stopPropagation();
+															handleActionClick('Call', response);
+														}}
+													>
+														<span className="optioncon">
+															<Call />
+														</span>
+														<h1 className="option">Call</h1>
+													</div>
+													<div
+														className="resoption"
+														onClick={(e) => {
+															e.stopPropagation();
+															handleActionClick('Mail', response);
+														}}
+													>
+														<span className="optioncon">
+															<Message />
+														</span>
+														<h1 className="option">Email</h1>
+													</div>
+													<div
+														className="resoption"
+														onClick={(e) => {
+															e.stopPropagation();
+															handleDownloadSingleResponse(response);
+														}}
+														style={{
+															display: 'flex',
+															alignItems: 'center',
+														}}
+													>
+														<span className="optioncon">
+															<Download />
+														</span>
+														<h1 className="option">Download</h1>
+													</div>
+												</div>
+											</div>
+										)}
+									</div>
+								);
+							})}
+						</InfiniteScroll>
+					</div>
 				</div>
 			</div>
-		</div>
+
+			{/* Delete Response Modal */}
+			<DeleteModal
+				isOpen={deleteModal.open}
+				onClose={handleCancelDelete}
+				onConfirm={handleConfirmDelete}
+				title="Delete Response?"
+				itemType="response"
+				description="Are you sure you want to delete this form response?"
+				warning="This response will be permanently removed and cannot be recovered."
+			/>
+		</>
 	);
 };
 

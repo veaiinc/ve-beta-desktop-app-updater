@@ -18,7 +18,6 @@ export default defineConfig({
 			open: true,
 			filename: 'bundle-visualizer.html',
 			brotliSize: true,
-			filename: 'bundle-visualizer.html',
 		}),
 		svgr({
 			svgoConfig: {

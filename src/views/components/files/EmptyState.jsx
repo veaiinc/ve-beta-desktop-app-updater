@@ -1,7 +1,8 @@
 import { memo } from 'react';
 import '../../../assets/scss/files/emptyState.scss';
 import { ReactComponent as UploadSvg } from '../../../assets/svg/files/uploadSvg.svg';
-const EmptyState = ({ title, subtitle, buttonText, buttonOnClick, showUpload = false }) => {
+
+const EmptyState = ({ title, subtitle, buttonOnClick, buttonText, showUpload = false }) => {
 	return (
 		<div className="file-empty-satate">
 			<div className="file-empty-satate-title">{title}</div>

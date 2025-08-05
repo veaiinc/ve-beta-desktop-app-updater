@@ -798,7 +798,7 @@
 								-webkit-line-clamp: 1;
 							}
 						}
-						.collectionAlbumTitle {
+						.albumCollectionTitle {
 							color: #fff;
 							display: -webkit-box;
 							font-family: var(--primary-font-family);
@@ -1117,15 +1117,9 @@
 							.ant-switch {
 								background-color: var(--stroke);
 							}
-
 							.ant-switch-checked {
 								background-color: var(--primary-button);
 							}
-
-							.ant-switch .ant-switch-handle::before {
-								background-color: var(--background-color);
-							}
-
 							.ant-switch.ant-switch-checked .ant-switch-handle::before {
 								background-color: var(--background-color);
 							}

@@ -9,8 +9,9 @@ import TeamSettings from './TeamSettings';
 import PlanBilling from './PlanBilling';
 import AiSetup from '../aiSetup/AiSetup';
 import PricingPage from '../pricingPlans/pricingPage';
-import Integrations from '../integrationsList/Integrations';
+// import Integrations from '../integrationsList/Integrations';
 import SettingsPageSideBar from '../../components/settings/SettingsPageSidebar';
+import Integrations from '../integrations/Integrations';
 const mapper = {
 	'my-profile': <MyProfile />,
 	workspace: <SettingsWorkspace />,

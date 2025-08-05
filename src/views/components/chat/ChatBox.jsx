@@ -42,6 +42,7 @@ const moduleHelper = {
 	tasks: 'tasks',
 	'smart-file': 'form_filling',
 	calendar: 'calendar',
+	meet: 'meeting',
 };
 
 const initialChatFilters = {
@@ -138,14 +139,20 @@ const ChatBox = ({
 	showUpgradeSubscriptionBtn = true,
 	animateChatBox = true,
 	sessionId = null,
+	getSuggestions = true,
 }) => {
-	const textAreaRef = useRef(null);
 	const location = useLocation();
-
 	const { handleConnect } = useUpdatedVoiceIntegration();
 	const params = useParams();
 	const { workspaceMode } = useWorkspaceMode();
 
+	const textAreaRef = useRef(null);
+	const placeholderIntervalId = useRef(null);
+	const textAreaWrapperRef = useRef(null);
+	const suggestionsTimeoutRef = useRef(null);
+	const suggestionRef = useRef(null);
+	const chatSessionIdRef = useRef(null);
+	const previousChatQueryRef = useRef('');
 	const {
 		templates: {
 			globalChatMessages,
@@ -168,6 +175,7 @@ const ChatBox = ({
 			deleteMultiAgentFile,
 			proactiveInfoForChat,
 		},
+		chatBoxSuggestionsSocket: { sendMessage, closeWebSocketConnection },
 		subscriptionInfo: { currentPlan },
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
@@ -208,11 +216,10 @@ const ChatBox = ({
 
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
-	const textAreaWrapperRef = useRef(null);
+
 	const uploadedImagesRef = useRef(info?.uploadedImages || []);
 	const recentFilesRef = useRef(info?.recentFiles || []);
 	const showPlaceholder = info?.chatQuery?.length === 0 && info?.widgetQuery?.length === 0;
-	const placeholderIntervalId = useRef(null);
 	const totalCreditsUsed = currentPlan?.totalAiCreditUsed || 0,
 		totalCreditsLimit =
 			typeof currentPlan?.totalAiCreditLimit === 'number'
@@ -233,6 +240,13 @@ const ChatBox = ({
 		document.addEventListener('click', handleWindowClick);
 		return () => {
 			document.removeEventListener('click', handleWindowClick);
+			if (chatSessionIdRef.current) {
+				closeWebSocketConnection(chatSessionIdRef.current);
+			}
+
+			if (suggestionsTimeoutRef.current) {
+				clearTimeout(suggestionsTimeoutRef.current);
+			}
 		};
 	}, []);
 
@@ -370,6 +384,70 @@ const ChatBox = ({
 		};
 	}, [showPlaceholder]);
 
+	//below useeffect is for getting suggestions
+	useEffect(() => {
+		if (
+			info?.chatQuery?.length > 0 &&
+			info?.chatSessionId &&
+			getSuggestions &&
+			!info?.chatQuery?.includes('\n')
+		) {
+			const previousChatQuery = previousChatQueryRef.current?.trim().replace(/\n/g, '');
+			const currentChatQuery = info?.chatQuery?.trim()?.replace(/\n/g, '');
+			if (previousChatQuery === currentChatQuery) {
+				return;
+			}
+			previousChatQueryRef.current = info?.chatQuery;
+			if (suggestionsTimeoutRef.current) {
+				clearTimeout(suggestionsTimeoutRef.current);
+			}
+			suggestionsTimeoutRef.current = setTimeout(() => {
+				sendMessage({
+					sessionId: info?.chatSessionId,
+					query: info?.chatQuery,
+					onMessageFunc: handleSuggestionsMessageFunc,
+				});
+				suggestionsTimeoutRef.current = null;
+			}, 400);
+		}
+	}, [info?.chatQuery]);
+
+	//below useeffect is for getting suggestions
+	useEffect(() => {
+		if (info?.showSuggestion) {
+			let height = 0;
+			if (suggestionRef?.current && textAreaRef?.current) {
+				height = Math.max(
+					suggestionRef?.current?.scrollHeight,
+					textAreaRef?.current?.scrollHeight,
+				);
+				height = Math.min(height, 200);
+				height = Math.max(height, 30);
+			}
+			if (suggestionRef?.current) {
+				suggestionRef.current.style.height = `${height}px`;
+			}
+			if (textAreaRef?.current) {
+				textAreaRef.current.style.height = `${height}px`;
+			}
+			if (textAreaWrapperRef?.current) {
+				textAreaWrapperRef.current.style.height = `${height}px`;
+			}
+			setInfo((prev) => ({ ...prev, chatBoxContainerHeight: `${height + 58 + 28}px` }));
+		}
+	}, [info?.showSuggestion]);
+
+	//below useeffect is for getting suggestions
+	useEffect(() => {
+		if (info?.chatQuery && info?.suggestion) {
+			if (info?.suggestion?.startsWith(info?.chatQuery)) {
+				setInfo((prev) => ({ ...prev, showSuggestion: true }));
+			} else {
+				setInfo((prev) => ({ ...prev, showSuggestion: false }));
+			}
+		}
+	}, [info?.chatQuery, info?.suggestion]);
+
 	useEffect(() => {
 		if (galleryFile) {
 			recentFilesRef.current = [...recentFilesRef?.current, galleryFile];
@@ -415,6 +493,7 @@ const ChatBox = ({
 	useEffect(() => {
 		const chatSessionId = sessionId || ObjectID()?.toString();
 		setInfo((prev) => ({ ...prev, chatSessionId }));
+		chatSessionIdRef.current = chatSessionId;
 	}, [sessionId]);
 
 	useEffect(() => {
@@ -444,6 +523,16 @@ const ChatBox = ({
 			voiceIntegration: voiceIntegrationData?.shouldConnect || false,
 		}));
 	}, [voiceIntegrationData]);
+
+	const handleSuggestionsMessageFunc = (event) => {
+		const data = JSON.parse(event?.data || {});
+		if (data?.suggestion) {
+			setInfo((prev) => ({
+				...prev,
+				suggestion: data?.suggestion,
+			}));
+		}
+	};
 
 	const handlePreview = async (file) => {
 		if (!file.url && !file.preview) {
@@ -743,7 +832,7 @@ const ChatBox = ({
 					}
 
 					if (routeName === 'meet') {
-						payload.module_id = params?.noteId;
+						payload.module_id = params?.meetingId;
 					}
 
 					let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
@@ -1163,9 +1252,32 @@ const ChatBox = ({
 		}
 	};
 
+	const handleTextAreaKeyDown = (e) => {
+		handleSendMessageFunc?.(e);
+		if (e?.key === 'Tab') {
+			e?.preventDefault();
+			e?.stopPropagation();
+			setInfo((prev) => {
+				if (
+					prev?.suggestion &&
+					prev?.chatQuery?.length > 0 &&
+					prev?.suggestion?.startsWith(prev?.chatQuery)
+				) {
+					previousChatQueryRef.current = prev?.suggestion;
+					return {
+						...prev,
+						chatQuery: prev?.suggestion,
+					};
+				}
+				return prev;
+			});
+		}
+	};
+
 	const handleTextAreaChange = (e) => {
 		const textArea = textAreaRef?.current;
 		const textAreaWrapper = textAreaWrapperRef?.current;
+		const suggestionContainer = suggestionRef?.current;
 		const query = e?.target?.value;
 		const lastChar = query?.trim()?.slice(-1);
 
@@ -1173,12 +1285,22 @@ const ChatBox = ({
 
 		if (textArea) {
 			textArea.style.height = 'auto';
-			textAreaHeight = Math.min(textArea?.scrollHeight, 200);
+			textAreaHeight = textArea?.scrollHeight;
+			if (suggestionContainer) {
+				const suggestionContainerHeight = suggestionContainer?.scrollHeight;
+				if (textAreaHeight < suggestionContainerHeight) {
+					textAreaHeight = suggestionContainerHeight;
+				}
+			}
+			textAreaHeight = Math.min(textAreaHeight, 200);
 			textArea.style.height = textAreaHeight + 'px';
 		}
 
 		if (textAreaWrapper) {
 			textAreaWrapper.style.height = textAreaHeight + 'px';
+		}
+		if (suggestionContainer) {
+			suggestionContainer.style.height = textAreaHeight + 'px';
 		}
 
 		let isRecentFileOpen = false;
@@ -1201,11 +1323,15 @@ const ChatBox = ({
 	const clearTextArea = () => {
 		const textArea = textAreaRef?.current;
 		const textAreaWrapper = textAreaWrapperRef?.current;
+		const suggestionContainer = suggestionRef?.current;
 		if (textArea) {
 			textArea.style.height = '30px'; // Reset to initial min-height
 		}
 		if (textAreaWrapper) {
 			textAreaWrapper.style.height = '30px';
+		}
+		if (suggestionContainer) {
+			suggestionContainer.style.height = '30px';
 		}
 	};
 
@@ -1437,12 +1563,25 @@ const ChatBox = ({
 												className="textAreaWrapper"
 												ref={textAreaWrapperRef}
 											>
+												<div
+													className="suggestion-container"
+													ref={suggestionRef}
+													style={{
+														display:
+															info?.showSuggestion &&
+															info?.chatQuery?.length > 0
+																? 'block'
+																: 'none',
+													}}
+												>
+													{info?.suggestion}
+												</div>
 												<textarea
 													type="text"
 													value={info?.chatQuery}
 													onChange={handleTextAreaChange}
 													autoFocus={autoFocus}
-													onKeyDown={handleSendMessageFunc}
+													onKeyDown={handleTextAreaKeyDown}
 													className={`textArea ${
 														startPage ? 'startTextPage' : ''
 													}`}

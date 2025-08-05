@@ -1,15 +1,27 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import s from './notifications.module.scss';
 import Context from '../../../../../context/context';
 import InfiniteScroll from '../../../globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../../../helpers';
 import moment from 'moment';
 import { ReactComponent as NotificationsSvg } from '../../assets/notification.svg';
+import DownCaret from '../../assets/DownCaret';
+
+const ellipsisStyle = {
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+};
 
 const Notifications = () => {
 	const {
 		templates: { getNotificationsList, notificationsList },
 	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		selectedNotificationId: null,
+		showCaret: null,
+	});
 
 	const notificationsLoading = notificationsList === null;
 	const notifications = notificationsList?.data ?? [];
@@ -45,13 +57,65 @@ const Notifications = () => {
 					next={fetchNextNotificationsList}
 					hasMore={hasNextPage}
 					loader={<FetchMoreLoaderComp />}
-					height={'400px'}
+					height={'340px'}
 				>
 					<div className={s.notificationsList}>
 						{notifications.map((notification) => {
 							return (
-								<div className={s.notificationItem} key={notification._id}>
-									<h3 className={s.summary}>{notification.summary}</h3>
+								<div
+									onClick={() =>
+										setInfo((prev) => ({
+											...prev,
+											selectedNotificationId:
+												info.selectedNotificationId === notification._id
+													? null
+													: notification._id,
+										}))
+									}
+									onMouseEnter={() =>
+										setInfo((prev) => ({
+											...prev,
+											showCaret: notification._id,
+										}))
+									}
+									onMouseLeave={() =>
+										setInfo((prev) => ({
+											...prev,
+											showCaret: null,
+										}))
+									}
+									className={s.notificationItem}
+									style={{
+										backgroundColor:
+											info.selectedNotificationId === notification._id
+												? 'var(--card, #1b1c1d)'
+												: '',
+									}}
+									key={notification._id}
+								>
+									<div className={s.summaryContainer}>
+										<p
+											style={
+												info.selectedNotificationId === notification._id
+													? {}
+													: ellipsisStyle
+											}
+											className={s.summary}
+										>
+											{notification.summary}
+										</p>
+										{info.showCaret === notification._id && (
+											<span
+												className={
+													info.selectedNotificationId === notification._id
+														? s.caretDown
+														: s.caretUp
+												}
+											>
+												<DownCaret />
+											</span>
+										)}
+									</div>
 									<p className={s.time}>
 										{moment.unix(notification.timestamp).fromNow()}
 									</p>
