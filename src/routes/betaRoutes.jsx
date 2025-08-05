@@ -30,9 +30,7 @@ const AutomationBuilder = lazy(() =>
 	import('../views/features/automationBuilder/AutomationBuilder'),
 );
 const Automations = lazy(() => import('../views/features/automations/Automations'));
-// const BrandSetup = lazy(() => import('../views/features/settings/BrandSetup'));
 const DocsFullView = lazy(() => import('../views/components/docs/DocsFullView'));
-// const ElasticSearch = lazy(() => import('../views/features/elasticSearch/ElasticSearch'));
 const EditKnowledgeAgent = lazy(() => import('../views/features/knowledgeAgent/EditAgent'));
 const FormResCard = lazy(() => import('../views/components/forms/FormResCard'));
 const FormSummary = lazy(() => import('../views/components/forms/FormSummary'));
@@ -62,20 +60,60 @@ const Tasks = lazy(() => import('../views/features/tasks/Tasks'));
 const TaskFullView = lazy(() => import('../views/features/tasks/TaskFullView'));
 const Integrations = lazy(() => import('../views/features/integrationsList/Integrations'));
 const NotesPage = lazy(() => import('../views/features/notesPage/NotesPage'));
-// const NotesWrapper = lazy(() => import('../views/features/notesModule/NotesWrapper'));
 const GalleryPage = lazy(() => import('../views/features/gallery/GalleryPage'));
 const GalleryViewer = lazy(() => import('../views/features/gallery/GalleryViewer'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
-import MeetBotWrapper from '../views/features/meetBot/meetBotWrapper';
-import ProactiveSuggestions from '../views/features/homePage/ProactiveSuggestions';
-// import MeetBot from '../views/features/meetBot/meetBot';
-// import NotesWrapper from '../views/features/notesModule/NotesWrapper';
+const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
+const ProactiveSuggestions = lazy(() => import('../views/features/homePage/ProactiveSuggestions'));
 const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
 const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
 
 const betaRoutes = [
+	// ========================================
+	// ONBOARDING, HOME & FEATURES
+	// ========================================
+	{
+		path: '/home',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Tools'}>
+					<InitialHomePage />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/create-workspace',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Onboarding'}>
+					<Onboarding />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/share-and-earn',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Share and Earn'}>
+					<ShareAndEarn />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/early-access',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Early Access'}>
+					<EarlyAccess />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
 	// ========================================
 	// AI & ASSISTANT FEATURES
 	// ========================================
@@ -202,7 +240,7 @@ const betaRoutes = [
 	},
 
 	// ========================================
-	// CHAT & COMMUNICATION
+	// CHAT
 	// ========================================
 	{
 		path: '/chats',
@@ -233,6 +271,9 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
+	// ========================================
+	// MEET
+	// ========================================
 	{
 		path: '/meet',
 		element: (
@@ -253,9 +294,8 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
-
 	// ========================================
-	// GALLERY & MEDIA
+	// GALLERY
 	// ========================================
 	{
 		path: '/galleries',
@@ -317,9 +357,8 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
-
 	// ========================================
-	// WORKFLOW & AUTOMATION
+	// PLAYBOOK
 	// ========================================
 	{
 		path: '/playbook',
@@ -331,6 +370,9 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
+	// ========================================
+	// WORKFLOW & AUTOMATION
+	// ========================================
 	{
 		path: '/smart-file/:templateId/:workflowId',
 		element: (
@@ -381,7 +423,6 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
-
 	// ========================================
 	// FORMS & TEMPLATES
 	// ========================================
@@ -473,9 +514,8 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
-
 	// ========================================
-	// TASKS & PROJECTS
+	// TASKS
 	// ========================================
 	{
 		path: '/tasks',
@@ -501,9 +541,8 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
-
 	// ========================================
-	// NOTES & DOCUMENTATION
+	// NOTES & DOCUMENTS
 	// ========================================
 	{
 		path: '/notes',
@@ -583,9 +622,8 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
-
 	// ========================================
-	// CONTACTS & CRM
+	// CONTACTS
 	// ========================================
 	{
 		path: '/contacts',
@@ -615,9 +653,8 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
-
 	// ========================================
-	// FILES & INTEGRATIONS
+	// FILES
 	// ========================================
 	{
 		path: '/files',
@@ -629,6 +666,9 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
+	// ========================================
+	// INTEGRATIONS
+	// ========================================
 	{
 		path: '/integrations',
 		element: (
@@ -639,9 +679,8 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
-
 	// ========================================
-	// BUILDER & TOOLS
+	// BUILDER
 	// ========================================
 	{
 		path: '/builder/*',
@@ -658,9 +697,8 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
-
 	// ========================================
-	// SETTINGS & ADMINISTRATION
+	// SETTINGS
 	// ========================================
 	{
 		path: '/settings/:type',
@@ -672,6 +710,9 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
+	// ========================================
+	// PRICING
+	// ========================================
 	{
 		path: '/pricing',
 		element: (
@@ -682,51 +723,6 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
-
-	// ========================================
-	// ONBOARDING & FEATURES
-	// ========================================
-	{
-		path: '/home',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Tools'}>
-					<InitialHomePage />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/create-workspace',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Onboarding'}>
-					<Onboarding />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/share-and-earn',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Share and Earn'}>
-					<ShareAndEarn />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/early-access',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Early Access'}>
-					<EarlyAccess />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-
 	// ========================================
 	// FALLBACK ROUTE
 	// ========================================

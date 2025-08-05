@@ -4369,7 +4369,7 @@ const GalleryPage = () => {
 																				{album?.title}
 																			</p>
 																		</div>
-																		<div className="overlay"></div>
+																		{/* <div className="overlay"></div> */}
 																	</div>
 																);
 															},
