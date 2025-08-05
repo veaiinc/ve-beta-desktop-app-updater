@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import ObjectID from 'bson-objectid';
+import { voice_agent_api_US } from '../../../services/config.live';
 
 // Generate a simple session ID
 const sessionId = ObjectID()?.toString();
+const workspaceId = localStorage.getItem('workspaceId');
 
 export const useVoiceAgent = (token) => {
 	const [isConnected, setIsConnected] = useState(false);
@@ -253,12 +255,13 @@ export const useVoiceAgent = (token) => {
 			setIsConnecting(true);
 			setMicStatus('Connecting...');
 
-			wsRef.current = new WebSocket('ws://voice.us-east-1.ve.ai/ws');
+			wsRef.current = new WebSocket(voice_agent_api_US);
 
 			wsRef.current.onopen = () => {
 				wsRef.current.send(
 					JSON.stringify({
 						session_id: sessionId,
+						workspace_name: workspaceId,
 						token: token,
 						location: {
 							countryCode: 'IN',
