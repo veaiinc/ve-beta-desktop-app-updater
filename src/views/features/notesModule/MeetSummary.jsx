@@ -10,14 +10,8 @@ const MeetSummary = ({ activeTab, meetingId }) => {
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		summary: '',
-		loading: false,
+		loading: true,
 	});
-	useEffect(() => {
-		if (activeTab === 'summary' && !meetSummary) {
-			getMeetSummary({ meetingId });
-			setInfo((prev) => ({ ...prev, loading: true }));
-		}
-	}, [activeTab]);
 
 	useEffect(() => {
 		if (meetSummary) {

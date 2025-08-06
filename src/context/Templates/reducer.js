@@ -669,7 +669,12 @@ const actionHandlers = {
 		return { ...state, chatLoadingSessions };
 	},
 	HANDLE_TRANSCRIPTION_SUGGESTIONS: (state, action) => {
-		let { suggested_prompt, similar_files, data = [] } = action?.payload || {};
+		let {
+			suggested_prompt,
+			similar_files,
+			data = [],
+			revampedPrompt = [],
+		} = action?.payload || {};
 		const aiTranscriptionSuggestions = state?.aiTranscriptionSuggestions || {};
 
 		let suggestions = [...(aiTranscriptionSuggestions?.suggestions || [])];
@@ -702,6 +707,10 @@ const actionHandlers = {
 				}
 			});
 			suggestions = [...newSuggestions, ...suggestions];
+		}
+
+		if (revampedPrompt) {
+			suggestions = [...revampedPrompt, ...suggestions];
 		}
 
 		return {

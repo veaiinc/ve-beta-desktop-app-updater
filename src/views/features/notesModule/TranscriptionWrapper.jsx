@@ -64,6 +64,11 @@ const TranscriptionWrapper = ({
 						className={styles.chatInput}
 						value={info.userInput}
 						onChange={(e) => setInfo({ ...info, userInput: e.target.value })}
+						onKeyDown={(e) => {
+							if (e.key === 'Enter') {
+								onChatButtonClick();
+							}
+						}}
 					/>
 					<button className={styles.sendButton} onClick={onChatButtonClick}>
 						<UpArrowGrey className={styles.sendButtonIcon} />

@@ -1807,6 +1807,8 @@ export const NotesState = (props) => {
 						summary:
 							response?.[1]?.data?.getMeetingSummaryAndRevampedPrompt
 								?.transcriptionSummary,
+						revampedPrompt:
+							response?.[1]?.data?.getMeetingSummaryAndRevampedPrompt?.revampedPrompt,
 					},
 				});
 			} else {
