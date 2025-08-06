@@ -140,6 +140,8 @@ const ChatBox = ({
 	animateChatBox = true,
 	sessionId = null,
 	getSuggestions = true,
+	showBrowserButton = false,
+	handleBrowserButtonClick = null,
 }) => {
 	const location = useLocation();
 	const { handleConnect } = useUpdatedVoiceIntegration();
@@ -2284,6 +2286,18 @@ const ChatBox = ({
 						<button className="scroll-button" onClick={handleScrollButtonClick}>
 							<ArrowUpRightSvg className="arrow-up" />
 						</button>
+					</div>
+				)}
+
+				{showBrowserButton && (
+					<div
+						className="browser-button-container"
+						onClick={(e) => {
+							e.stopPropagation();
+							handleBrowserButtonClick?.(e);
+						}}
+					>
+						<div className="browser-button">Browser</div>
 					</div>
 				)}
 				{uploadedImagesRef?.current?.length > 0 ? (

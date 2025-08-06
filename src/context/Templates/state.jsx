@@ -90,7 +90,37 @@ export const intialState = {
 	draftStateWorkflowtemplates: null,
 	moreDraftStateWorkflowtemplates: null,
 	createLeadModalContextState: false,
-	globalChatMessages: {}, // { type: 'AI', message: 'Hello, how can I help you today?' }
+	globalChatMessages: {
+		'6893252b25c0aa3ae38b314c': {
+			browserData: {
+				success: true,
+				sessionId: 'b719a760-ebd3-4d1b-bf50-07486c418136',
+				currentUrl: 'about:blank',
+				allTabUrls: [
+					{
+						url: 'about:blank',
+						debuggerUrl:
+							'https://www.browserbase.com/devtools-fullscreen/inspector.html?wss=connect.browserbase.com/debug/b719a760-ebd3-4d1b-bf50-07486c418136/devtools/page/F579266D09021B6259261E1331B1E0A9?debug=true',
+						title: 'Blank Tab',
+					},
+					{
+						url: 'https://www.amazon.in/',
+						debuggerUrl:
+							'https://www.browserbase.com/devtools-fullscreen/inspector.html?wss=connect.browserbase.com/debug/b719a760-ebd3-4d1b-bf50-07486c418136/devtools/page/93818EFF3F7902B010E9E990A504B54A?debug=true',
+						title: 'www.amazon.in',
+					},
+					{
+						url: 'https://www.amazon.in/',
+						debuggerUrl:
+							'https://www.browserbase.com/devtools-fullscreen/inspector.html?wss=connect.browserbase.com/debug/b719a760-ebd3-4d1b-bf50-07486c41813/devtools/page/93818EFF3F7902B010E9E990A504B54A?debug=true',
+						title: 'www.amazon.in',
+					},
+				],
+				activeTabIndex: 1,
+				timestamp: '2025-08-06T10:49:10.799Z',
+			},
+		},
+	}, // { type: 'AI', message: 'Hello, how can I help you today?' }
 	currentSessionId: null,
 	citations: null,
 	notificationsList: null,
@@ -2085,6 +2115,7 @@ export const TemplatesState = (props) => {
 		lastQuery = null,
 		chatBoxInfo = null,
 		chatInfo = null,
+		browserData = null,
 	}) => {
 		try {
 			dispatch({
@@ -2106,11 +2137,71 @@ export const TemplatesState = (props) => {
 					lastQuery,
 					chatBoxInfo,
 					chatInfo,
+					browserData,
 				},
 			});
 		} catch (error) {
 			console.log('error==>handleGlobalChatMessages', error);
 		}
+	};
+
+	const getBrowserSession = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchPost(
+				`/api/browser/${workspaceId}/task/${payload?.sessionId}`,
+				{
+					query: 'go to amazon.in and find me the best rated LED monitor which has the best ratings. ignore sponsored ads. My max budget is 10000 INR.',
+					chat_history: [],
+				},
+				usertoken,
+				'browser_api',
+			);
+			console.log('response==>getBrowserSession', response);
+		} catch (error) {
+			console.log('error==>getBrowserSession', error);
+		}
+	};
+	const getBrowserUrls = async (sessionId) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+
+		let count = 0;
+		const MAX_COUNT = 10;
+		const INTERVAL_MS = 3000;
+
+		const poll = async () => {
+			if (count >= MAX_COUNT) return;
+
+			try {
+				const response = await Service.fetchPost(
+					`/api/browser/${workspaceId}/live-stream/${sessionId}/status`,
+					null,
+					usertoken,
+					'browser_api',
+				);
+
+				if (response?.[0] && response?.[1]?.success === true) {
+					console.log('response==>getBrowserUrls', response);
+					handleGlobalChatMessages({
+						sessionId: sessionId,
+						browserData: response?.[1],
+						updateExtraInfo: true,
+					});
+				} else {
+					return;
+				}
+			} catch (error) {
+				console.log('error==>getBrowserUrls', error);
+				return; // Optional: stop polling on error
+			}
+
+			count++;
+			setTimeout(poll, INTERVAL_MS); // Wait before next call
+		};
+
+		poll(); // Start polling
 	};
 
 	const updateAiChatMessageRating = async (payload, messageId, isPublicChat = false) => {
@@ -3014,5 +3105,7 @@ export const TemplatesState = (props) => {
 		updateSlug,
 		getNotificationsList,
 		getAuthUrlForThirdParty,
+		getBrowserSession,
+		getBrowserUrls,
 	};
 };

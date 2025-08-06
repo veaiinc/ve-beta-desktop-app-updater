@@ -501,6 +501,33 @@
 			}
 		}
 
+		.browser-button-container {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			width: 100px;
+			height: 68px;
+			cursor: pointer;
+			background-color: var(--card);
+			border-radius: 10px;
+			border: 1px solid var(--stroke, #333334);
+			box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+
+			.browser-button {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+
 		.credits-upgrade-container {
 			display: flex;
 			padding: 16px;

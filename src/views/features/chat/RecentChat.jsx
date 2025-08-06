@@ -19,17 +19,19 @@ import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import { message } from '../../components/globalComponents/CustomToast';
 import ChatHistory from '../../components/sidebar/chatHistory/ChatHistory';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
+import Browser from '../../components/chat/chatComponents/Browser';
 const RecentChat = ({
 	isPublicChat = false,
 	isPreview = false,
 	sId = null,
 	autoFocus = true,
 	customChatBoxClick = null,
-	showCitationsButton = true,
+	showCitationsButton = false,
 	showDeleteChat = false,
 	animateChatBox = true,
 	showChatHistory = false,
 	showChats = false,
+	showBrowser = false,
 }) => {
 	const {
 		templates: {
@@ -42,6 +44,8 @@ const RecentChat = ({
 			updateChatLoadingSessions,
 			newChatSessionIds,
 			getFollowUpQueries,
+			getBrowserSession,
+			getBrowserUrls,
 		},
 		aiSetup: { updateAiChatSessions, aiChatSessions },
 		chatStream: { sendMessage, closeWebSocketConnection, removeCurrentSessionId },
@@ -79,6 +83,7 @@ const RecentChat = ({
 		chatQuery: '',
 		citationsAiMessageIndex: null,
 		citationsModalIsOpen: false,
+		openBrowser: false,
 	});
 
 	const chatContentRef = useRef(null);
@@ -152,6 +157,14 @@ const RecentChat = ({
 			});
 		};
 	}, []);
+
+	// useEffect(() => {
+	// 	getBrowserSession({ sessionId });
+	// }, []);
+
+	// useEffect(() => {
+	// 	getBrowserUrls(sessionId);
+	// }, [sessionId]);
 
 	useEffect(() => {
 		if (info?.getFollowUpQueries) {
@@ -446,6 +459,13 @@ const RecentChat = ({
 			});
 		}
 	}, [moreRecentChatStorage?.[sessionId]]);
+
+	const handleBrowserButtonClick = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			openBrowser: !prev?.openBrowser,
+		}));
+	}, []);
 
 	const handleChatQueryChange = useCallback((query) => {
 		setInfo((prev) => ({
@@ -1135,9 +1155,28 @@ const RecentChat = ({
 								onChatQueryChange={handleChatQueryChange}
 								animateChatBox={animateChatBox}
 								sessionId={sessionId}
+								handleBrowserButtonClick={handleBrowserButtonClick}
+								showBrowserButton={
+									(!info?.openBrowser ||
+										Boolean(globalChatMessages?.[sessionId]?.browserData)) &&
+									showBrowser
+								}
 							/>
 						</div>
 					</div>
+				</div>
+
+				<div
+					className="browser-container"
+					style={{
+						width: info?.openBrowser && showBrowser ? '500px' : '0px',
+					}}
+				>
+					<Browser
+						sessionId={sessionId}
+						browserData={globalChatMessages?.[sessionId]?.browserData}
+						handleBrowserButtonClick={handleBrowserButtonClick}
+					/>
 				</div>
 			</div>
 

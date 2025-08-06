@@ -110,6 +110,8 @@ const apiFetch = async (url, method, body, token, type, isPublicChat = false) =>
 			workspace_images_api_US,
 			custom_domain_api,
 			custom_domain_api_US,
+			browser_api,
+			browser_api_US,
 		} = config;
 
 		const apiEndpoints = {
@@ -131,6 +133,7 @@ const apiFetch = async (url, method, body, token, type, isPublicChat = false) =>
 			elastic_search_api,
 			workspace_images_api,
 			custom_domain_api,
+			browser_api,
 		};
 
 		const apiEndpointsUS = {
@@ -152,6 +155,7 @@ const apiFetch = async (url, method, body, token, type, isPublicChat = false) =>
 			elastic_search_api: elastic_search_api_US,
 			workspace_images_api: workspace_images_api_US,
 			custom_domain_api: custom_domain_api_US,
+			browser_api: browser_api_US,
 		};
 
 		const region = localStorage.getItem('region') || 'us-east-1';

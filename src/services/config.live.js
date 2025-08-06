@@ -18,6 +18,7 @@ export const page_notes_api_database = 'https://ap.api.ve.ai/page-notes/1.0';
 export const elastic_search_api = 'https://ap.api.ve.ai/elastic-search/1.0';
 export const workspace_images_api = 'https://ap.api.ve.ai/images/1.0/';
 export const custom_domain_api = 'https://ap.api.ve.ai/custom-domain/1.0';
+export const browser_api = 'https://browser.us-east-1.ve.ai';
 //socket endpoints
 export const chat_ws_api = 'wss://ai.ap-south-1.ve.ai';
 export const guest_chat_ws_api = 'wss://guestsearch.ap-south-1.ve.ai';
@@ -44,6 +45,7 @@ export const page_notes_api_database_US = 'https://us.api.ve.ai/page-notes/1.0';
 export const elastic_search_api_US = 'https://ap.api.ve.ai/elastic-search/1.0';
 export const workspace_images_api_US = 'https://us.api.ve.ai/images/1.0/';
 export const custom_domain_api_US = 'https://ap.api.ve.ai/custom-domain/1.0';
+export const browser_api_US = 'https://browser.us-east-1.ve.ai';
 //socket endpoints
 export const chat_ws_api_US = 'wss://ai.us-east-1.ve.ai';
 export const guest_chat_ws_api_US = 'wss://guestsearch.us-east-1.ve.ai';
