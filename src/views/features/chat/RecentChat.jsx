@@ -1169,7 +1169,7 @@ const RecentChat = ({
 				<div
 					className="browser-container"
 					style={{
-						width: info?.openBrowser && showBrowser ? '500px' : '0px',
+						width: info?.openBrowser && showBrowser ? '40%' : '0px',
 					}}
 				>
 					<Browser

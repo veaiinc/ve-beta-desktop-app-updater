@@ -91,7 +91,7 @@ export const intialState = {
 	moreDraftStateWorkflowtemplates: null,
 	createLeadModalContextState: false,
 	globalChatMessages: {
-		'6893252b25c0aa3ae38b314c': {
+		'6892ed1fec1c1966c5e14f6c': {
 			browserData: {
 				success: true,
 				sessionId: 'b719a760-ebd3-4d1b-bf50-07486c418136',
