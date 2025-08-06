@@ -5,7 +5,16 @@ import { useSearchParams } from 'react-router-dom';
 import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/uparrow-grey.svg';
 import { ReactComponent as Sparks } from '../../../assets/svg/notes/sparks.svg';
 import Context from '../../../context/context.js';
-const TranscriptionWrapper = ({ chat, transcription, transcriptList = [], sessionId }) => {
+
+const TranscriptionWrapper = ({
+	chat,
+	transcription,
+	transcriptList = [],
+	sessionId,
+	botJoined,
+	botJoinedTime,
+	meetingPlatform,
+}) => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const {
 		templates: { updateStateValues },
@@ -60,7 +69,13 @@ const TranscriptionWrapper = ({ chat, transcription, transcriptList = [], sessio
 						<UpArrowGrey className={styles.sendButtonIcon} />
 					</button>
 				</div>
-				<TranscriptionWidget transcriptList={transcriptList} />
+				{botJoined && (
+					<TranscriptionWidget
+						transcriptList={transcriptList}
+						botJoinedTime={botJoinedTime}
+						meetingPlatform={meetingPlatform}
+					/>
+				)}
 			</div>
 		</div>
 	);

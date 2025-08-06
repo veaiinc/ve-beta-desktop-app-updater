@@ -19,6 +19,7 @@ export const elastic_search_api = 'https://ap.api.ve.ai/elastic-search/1.0';
 export const workspace_images_api = 'https://ap.api.ve.ai/images/1.0/';
 export const custom_domain_api = 'https://ap.api.ve.ai/custom-domain/1.0';
 export const browser_api = 'https://browser.us-east-1.ve.ai';
+export const microsoft_integration_api = 'https://ap.api.ve.ai/microsoft-integration/1.0';
 //socket endpoints
 export const chat_ws_api = 'wss://ai.ap-south-1.ve.ai';
 export const guest_chat_ws_api = 'wss://guestsearch.ap-south-1.ve.ai';
@@ -46,7 +47,9 @@ export const elastic_search_api_US = 'https://ap.api.ve.ai/elastic-search/1.0';
 export const workspace_images_api_US = 'https://us.api.ve.ai/images/1.0/';
 export const custom_domain_api_US = 'https://ap.api.ve.ai/custom-domain/1.0';
 export const browser_api_US = 'https://browser.us-east-1.ve.ai';
+export const microsoft_integration_api_US = 'https://us.api.ve.ai/microsoft-integration/1.0';
 //socket endpoints
 export const chat_ws_api_US = 'wss://ai.us-east-1.ve.ai';
 export const guest_chat_ws_api_US = 'wss://guestsearch.us-east-1.ve.ai';
 export const meeting_ws_api_US = 'wss://recall.us-east-1.ve.ai';
+export const voice_agent_api_US = 'wss://voice.us-east-1.ve.ai/ws';

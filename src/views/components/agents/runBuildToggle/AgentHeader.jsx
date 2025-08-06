@@ -9,6 +9,7 @@ import { useParams } from 'react-router-dom';
 import { message } from '../../globalComponents/CustomToast';
 import RunAndBuildToggle from './RunAndBuildToggle';
 import AgentShareComponent from '../agentShare/AgentShareComponent';
+import DeleteFormModal from '../../modalsV2/DeleteModal/DeleteModal';
 
 const AgentHeader = ({ onEditClick, agentAction, setAgentAction, activeKnowledgeAssistant }) => {
 	const navigate = useNavigate();
@@ -18,6 +19,7 @@ const AgentHeader = ({ onEditClick, agentAction, setAgentAction, activeKnowledge
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		loading: false,
+		deleteModal: { open: false },
 	});
 	const handleBack = () => {
 		navigate('/agents');
@@ -42,6 +44,28 @@ const AgentHeader = ({ onEditClick, agentAction, setAgentAction, activeKnowledge
 			setInfo((prev) => ({ ...prev, loading: false }));
 		}
 	};
+
+	const handleOpenDeleteModal = () => {
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: true },
+		}));
+	};
+
+	const handleConfirmDelete = async () => {
+		await handleDeleteAgent(agentId);
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: false },
+		}));
+	};
+
+	const handleCancelDelete = () => {
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: false },
+		}));
+	};
 	return (
 		<div className={s.agentHeaderWrapper}>
 			<div className={s.leftSection} onClick={handleBack}>
@@ -61,7 +85,7 @@ const AgentHeader = ({ onEditClick, agentAction, setAgentAction, activeKnowledge
 					<EditIcon onClick={onEditClick} />
 				</div> */}
 				<div className={s.iconBtn}>
-					<DeleteIcon onClick={() => handleDeleteAgent(agentId)} />
+					<DeleteIcon onClick={handleOpenDeleteModal} />
 				</div>
 				<AgentShareComponent
 					agentId={agentId}
@@ -70,6 +94,17 @@ const AgentHeader = ({ onEditClick, agentAction, setAgentAction, activeKnowledge
 				{/* <div className={s.divider} /> */}
 				{/* <div className={s.publishBtn}>Publish Agent</div> */}
 			</div>
+
+			{/* Delete Agent Modal */}
+			<DeleteFormModal
+				isOpen={info?.deleteModal?.open}
+				onClose={handleCancelDelete}
+				onConfirm={handleConfirmDelete}
+				title="Delete Agent?"
+				itemType="agent"
+				description="Are you sure you want to delete this agent?"
+				warning="This agent will be permanently removed and cannot be recovered."
+			/>
 		</div>
 	);
 };

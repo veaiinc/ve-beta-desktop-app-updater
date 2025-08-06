@@ -45,6 +45,8 @@ const AISuggestionsModal = ({
 	totalDocs,
 	selectedCardNumber,
 	selectedOption = null,
+	trainedFeedbackIds = null,
+	setTrainedFeedbackIds = null,
 }) => {
 	const {
 		templates: {
@@ -69,6 +71,7 @@ const AISuggestionsModal = ({
 		tabOptions: [],
 		accessType: 'view',
 		hasFullAccess: false,
+		selectedFeedback: 'thumbsUp',
 	});
 
 	const resizableContainerRef = useRef(null);
@@ -876,11 +879,22 @@ const AISuggestionsModal = ({
 											<button
 												className="teach-me-btn"
 												onClick={handleOpenFeedbackPopup}
+												style={{
+													cursor: trainedFeedbackIds?.includes(data?._id)
+														? 'not-allowed'
+														: 'pointer',
+													opacity: trainedFeedbackIds?.includes(data?._id)
+														? 0.5
+														: 1,
+												}}
+												disabled={trainedFeedbackIds?.includes(data?._id)}
 											>
 												<AgentsSvg
 													style={{ color: 'var(--primary-button)' }}
 												/>{' '}
-												Teach AI
+												{trainedFeedbackIds?.includes(data?._id)
+													? 'Trained'
+													: 'Teach AI'}
 											</button>
 											<button
 												className="report-btn"
@@ -904,6 +918,8 @@ const AISuggestionsModal = ({
 					closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
 					feedbackType="pendingActionFeedback"
 					setLiked={(liked) => setInfo((prev) => ({ ...prev, selectedFeedback: liked }))}
+					trainedFeedbackIds={trainedFeedbackIds}
+					setTrainedFeedbackIds={setTrainedFeedbackIds}
 				/>
 			</Drawer>
 		</>

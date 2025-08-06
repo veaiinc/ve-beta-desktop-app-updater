@@ -1316,3 +1316,94 @@
 		}
 	}
 }
+
+// Transcription indicator styles
+.textarea-container {
+	position: relative;
+	width: 100%;
+
+	.textArea {
+		&.transcribing {
+			border-color: var(--error-color);
+			box-shadow: 0px 0px 12px 0px rgba(255, 0, 0, 0.1);
+		}
+	}
+
+	.transcription-indicator {
+		position: absolute;
+		top: -30px;
+		right: 0;
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		padding: 4px 8px;
+		background: var(--error-color);
+		color: white;
+		border-radius: 12px;
+		font-size: 11px;
+		font-weight: 500;
+		z-index: 10;
+
+		.pulse-dot {
+			width: 8px;
+			height: 8px;
+			background: white;
+			border-radius: 50%;
+			animation: pulse 1.5s ease-in-out infinite;
+		}
+
+		span {
+			font-size: 11px;
+			font-weight: 500;
+		}
+	}
+}
+
+@keyframes pulse {
+	0% {
+		opacity: 1;
+		transform: scale(1);
+	}
+	50% {
+		opacity: 0.5;
+		transform: scale(1.2);
+	}
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+.click-btn.transcribing {
+	background: var(--error-color) !important;
+	opacity: 1 !important;
+
+	svg {
+		path {
+			stroke: white !important;
+		}
+	}
+}
+
+// Speech-to-text button styles
+.speech-to-text-btn {
+	background: var(--secondary-button) !important;
+	opacity: 0.8;
+	transition: all 0.2s ease-in-out;
+
+	&:hover {
+		opacity: 1;
+		background: var(--secondary-button-hover) !important;
+	}
+
+	&.transcribing {
+		background: var(--error-color) !important;
+		opacity: 1 !important;
+
+		svg {
+			path {
+				stroke: white !important;
+			}
+		}
+	}
+}

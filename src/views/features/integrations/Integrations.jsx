@@ -17,6 +17,8 @@ import Service from '../../../services/index';
 import jwtDecode from 'jwt-decode';
 import FilterDropdown from '../../components/dropDown/file/FilterDropdown';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/search.svg';
+import outlookCalendar from '../../../assets/svg/Settings/outlook-calendar.svg';
+import outlookMail from '../../../assets/svg/Settings/outlook-mail.svg';
 
 const availableIntegrations = [
 	{
@@ -36,7 +38,25 @@ const availableIntegrations = [
 	// 	showIn: ['shared'],
 	// },
 	{
+		id: 2,
+		icon: outlookCalendar,
+		title: 'Outlook Calendar',
+		connectType: 'outlook-calendar',
+		description:
+			'Easily connect with Outlook Calendar to sync your schedule and manage appointments.',
+		showIn: ['private', 'shared'],
+	},
+	{
 		id: 3,
+		icon: outlookMail,
+		title: 'Outlook Mail',
+		connectType: 'outlook-mail',
+		description:
+			'Easily connect with Outlook Mail to sync your emails and streamline communication.',
+		showIn: ['private', 'shared'],
+	},
+	{
+		id: 4,
 		icon: googleCalendar,
 		title: 'Google Calendar',
 		connectType: 'google-calendar',
@@ -145,7 +165,6 @@ const requestIntegrations = [
 	{ id: 99, title: 'Document360' },
 	{ id: 100, title: 'Helpjuice' },
 	{ id: 101, title: 'ActiveCampaign' },
-	{ id: 102, title: 'Outlook Mail' },
 	{ id: 103, iconSlug: 'googleCalendar', title: 'Google Calendar' },
 ];
 
@@ -159,6 +178,8 @@ const getIntegrationInfo = (appType) => {
 		zoho: { icon: Zoho, title: 'Zoho' },
 		dropbox: { icon: dropbox, title: 'Dropbox' },
 		paypal: { icon: PayPal, title: 'PayPal' },
+		'outlook-calendar': { icon: outlookCalendar, title: 'Outlook Calendar' },
+		'outlook-mail': { icon: outlookMail, title: 'Outlook Mail' },
 	};
 
 	const info = integrationMap[appType];
@@ -542,6 +563,41 @@ const Integrations = () => {
 						lastSync: 'Recently',
 						accounts: data['google-calendar'],
 						connectType: 'google-calendar',
+					});
+				}
+
+				if (data['outlook-calendar']?.length > 0) {
+					legacyPlatforms.push({
+						_id: 'legacy-outlook-calendar',
+						icon: outlookCalendar,
+						title: 'Outlook Calendar',
+						description: 'Connected Outlook Calendar accounts for scheduling.',
+						isActive: getIntegrationStatus(data['outlook-calendar'][0] || {}),
+						syncedCount: data['outlook-calendar'].length,
+						access: 'private',
+						addedBy: 'User',
+						email: data['outlook-calendar'][0]?.email || '-',
+						lastSync: 'Recently',
+						accounts: data['outlook-calendar'],
+						connectType: 'outlook-calendar',
+					});
+				}
+
+				if (data['outlook-mail']?.length > 0) {
+					legacyPlatforms.push({
+						_id: 'legacy-outlook-mail',
+						icon: outlookMail,
+						title: 'Outlook Mail',
+						description:
+							'Connected Outlook Mail accounts for emails and communication.',
+						isActive: getIntegrationStatus(data['outlook-mail'][0] || {}),
+						syncedCount: data['outlook-mail'].length,
+						access: 'private',
+						addedBy: 'User',
+						email: data['outlook-mail'][0]?.email || '-',
+						lastSync: 'Recently',
+						accounts: data['outlook-mail'],
+						connectType: 'outlook-mail',
 					});
 				}
 
