@@ -95,7 +95,12 @@ const TopNavbar = () => {
 	// pathname.includes('	plan-billing');
 
 	const {
-		profileInfo: { userDetailsData, tennantSettingsData },
+		profileInfo: {
+			userDetailsData,
+			tennantSettingsData,
+			userWorkSpaceList,
+			getUserWorkSpaceList,
+		},
 		templates: { updateStateValues },
 		subscriptionInfo: { currentPlan },
 		themeInfo: { theme, updateTheme },
@@ -139,6 +144,12 @@ const TopNavbar = () => {
 	})();
 
 	const showMiddleContainer = region !== 'ap-south-1';
+
+	useEffect(() => {
+		if (!userWorkSpaceList) {
+			getUserWorkSpaceList();
+		}
+	}, [userWorkSpaceList]);
 
 	useEffect(() => {
 		if (pathname.includes('/meet')) setInfo((prev) => ({ ...prev, activeMode: 3 }));
