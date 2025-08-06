@@ -72,7 +72,6 @@ const UploadPhotos = () => {
 		isProcessingDuplicates: false, // New state for duplicate processing feedback
 	});
 
-	console.log(currentPlan, 'currentPlan');
 	const recentImageInitiatedRef = useRef(info.recentImageInitiated);
 	const params = new URLSearchParams(window.location.search);
 	const lightGallery = !tenantAlbums?.storeOriginals ? 'true' : 'false';
@@ -470,7 +469,6 @@ const UploadPhotos = () => {
 					}));
 					let waitTime = 2000 * attempts;
 					await new Promise((resolve) => {
-						console.log('waiting for ', waitTime, 'seconds');
 						setTimeout(() => resolve(), waitTime);
 					});
 				}
