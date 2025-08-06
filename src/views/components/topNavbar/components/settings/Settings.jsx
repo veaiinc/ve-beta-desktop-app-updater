@@ -101,7 +101,7 @@ const Settings = ({
 	});
 
 	const {
-		profileInfo: { tenantUserAccessControls, userWorkSpaceList, getUserWorkSpaceList },
+		profileInfo: { tenantUserAccessControls, userWorkSpaceList },
 	} = useContext(Context);
 
 	const fullName = `${firstName ?? ''} ${lastName ?? ''}`;
@@ -115,12 +115,6 @@ const Settings = ({
 			shutdownIntercom();
 		}
 	}, [info.intercomOpen]);
-
-	useEffect(() => {
-		if (!userWorkSpaceList) {
-			getUserWorkSpaceList();
-		}
-	}, [userWorkSpaceList]);
 
 	const openIntercom = async () => {
 		await launchIntercom();
