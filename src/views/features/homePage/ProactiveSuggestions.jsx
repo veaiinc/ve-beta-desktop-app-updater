@@ -183,6 +183,7 @@ const ProactiveSuggestions = () => {
 		settingsOpen: false,
 		hasCards: false,
 		trainedFeedbackIds: null,
+		headline: null,
 	});
 
 	const promptsLength = promptsData?.data?.length ?? 0;
@@ -271,13 +272,16 @@ const ProactiveSuggestions = () => {
 		if (!insightTypes) {
 			getAiInsightTypes();
 		} else {
-			const options = sortByInsightsOrder(insightTypes, insightOptionsInOrder);
+			const { insights, headline } = insightTypes || {};
+			const options = sortByInsightsOrder(insights, insightOptionsInOrder);
 			insightTypesRef.current = options;
 			selectedOptionRef.current = options?.[0]?.insight_type;
+
 			setInfo((prev) => ({
 				...prev,
 				selectedOption: selectedOptionRef.current,
 				options,
+				headline,
 			}));
 		}
 	}, [insightTypes]);
@@ -701,7 +705,14 @@ const ProactiveSuggestions = () => {
 					</div>
 				)} */}
 						<div className="proactive-suggestions-title">
-							<span className="title-highlight">Ambient</span> Insights For You
+							{info?.headline ? (
+								info?.headline
+							) : (
+								<>
+									<span className="title-highlight">Ambient</span> Insights For
+									You
+								</>
+							)}
 						</div>
 
 						<div
@@ -1090,7 +1101,7 @@ const ProactiveSuggestions = () => {
 													? 'active'
 													: ''
 											}`}
-											onClick={(e) => {
+											onClick={() => {
 												handleOptionSelection(insight_type);
 											}}
 											key={index}
