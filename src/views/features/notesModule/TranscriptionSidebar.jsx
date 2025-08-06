@@ -1,21 +1,8 @@
 import { memo, useContext, useEffect, useRef } from 'react';
 import styles from '../../../assets/scss/notes/transcriptionSidebar.module.scss';
-import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosingPrimary.svg';
 import { ReactComponent as TimerIcon } from '../../../assets/svg/notes/timerIcon.svg';
-import { Dropdown } from 'antd';
-import { DownOutlined } from '@ant-design/icons';
 import Context from '../../../context/context';
 import moment from 'moment';
-
-const Options = [
-	{
-		id: 1,
-		label: 'Testing1',
-		value: 'testing1',
-	},
-	{ id: 2, label: 'Testing2', value: 'testing2' },
-	{ id: 3, label: 'Testing3', value: 'testing3' },
-];
 
 const getSpeakerColor = (speakerName) => {
 	if (!speakerName) return '#9e9e9e';
@@ -94,7 +81,7 @@ const TranscriptionSidebar = () => {
 								<div className={styles.transcriptionItemDot}></div>
 								<div className={styles.transcriptionItemTimestamp}>
 									<TimerIcon />
-									{moment(item?.timestamp)?.format('HH:mm:ss')}
+									{item?.time}
 								</div>
 							</div>
 							<div className={styles.transcriptionItemTranscript}>

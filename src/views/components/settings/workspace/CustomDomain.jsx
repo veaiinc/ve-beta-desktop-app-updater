@@ -244,7 +244,7 @@ const CustomDomain = () => {
 							onChange={handleSetSubDomain}
 							onKeyDown={handleRequestCustomDomainConnection}
 							type="text"
-							placeholder="app"
+							placeholder="subdomain"
 						/>
 					</div>
 					<div className="domainInputWrapper">
@@ -254,7 +254,7 @@ const CustomDomain = () => {
 							onChange={handleSetAppDomain}
 							onKeyDown={handleRequestCustomDomainConnection}
 							type="text"
-							placeholder="example.com"
+							placeholder="yourdomain.com"
 						/>
 					</div>
 					{/* {info?.isRequesting && (

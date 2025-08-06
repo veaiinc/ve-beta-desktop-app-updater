@@ -5,6 +5,11 @@ import { ReactComponent as GreenTickSvg } from '../../../../assets/svg/Settings/
 import UserSvg from '../../../../assets/svg/Settings/UserSvg';
 import EmailSvg from '../../../../assets/svg/Settings/EmailSvg';
 import { ReactComponent as ProfessionSvg } from '../../../../assets/svg/Settings/profession.svg';
+import Cropper from 'react-easy-crop';
+import { ReactComponent as PencilkSvg } from '../../../../assets/svg/pencilSimple.svg';
+import UploadAvatarPopupComponent from './UploadAvatarPopup';
+import UploadFileProiflePopup from './UploadFileProiflePopup';
+
 // profile details component
 const ProfileDetailsComponent = ({
 	fullNameRef,
@@ -15,12 +20,102 @@ const ProfileDetailsComponent = ({
 	handlePopupFormClose,
 	role,
 	workspaceName,
+	userDetailsData,
+	updateProfileImage,
+	setUserDetails,
+	setlogoFile,
+	updateDpThemeHandler,
 }) => {
+	const [uploadAvatarPopup, setuploadAvatarPopup] = useState({ theme: false, file: false });
+	const [logoFile, setlogoFileLocal] = useState(null);
+
+	const getInitials = (firstName, lastName) => {
+		const firstNameInitial = firstName ? firstName?.charAt(0) : '-';
+		const lastNameInitial = lastName ? lastName?.charAt(0) : '';
+		const initials = `${firstNameInitial?.toUpperCase()}${lastNameInitial?.toUpperCase()}`;
+		return initials;
+	};
+
+	const handleImageChange = (acceptedFiles) => {
+		const file = acceptedFiles[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				setUserDetails({
+					...userDetails,
+					logoURL: reader.result,
+				});
+			};
+			reader.readAsDataURL(file);
+
+			setuploadAvatarPopup((prev) => ({ ...prev, theme: false, file: true }));
+			setlogoFileLocal(file);
+			setlogoFile(file);
+		}
+	};
+
+	const handleZoom = (zoom) => {
+		setUserDetails((prev) => {
+			return {
+				...prev,
+				cropSettings: {
+					...prev.cropSettings,
+					zoom,
+				},
+			};
+		});
+	};
+
+	const handleCrop = (crop) => {
+		setUserDetails((prev) => {
+			return {
+				...prev,
+				cropSettings: {
+					...prev.cropSettings,
+					crop,
+				},
+			};
+		});
+	};
+
 	return (
 		<>
 			<div className="formsMain">
 				<h2 className="profile-title">My Profile </h2>
 				<div className="profileHeader">
+					<div className="imageCircleDiv">
+						{userDetails?.logoURL ? (
+							<div className="crop-container">
+								<Cropper
+									image={userDetails?.logoURL} // Image URL to crop
+									crop={userDetails?.cropSettings?.crop}
+									zoom={userDetails?.cropSettings?.zoom}
+									showGrid={false}
+									onCropChange={(e) => ''}
+									onCropComplete={(e) => ''}
+									onZoomChange={(e) => ''}
+								/>
+							</div>
+						) : (
+							<div
+								className="noImageText"
+								style={{
+									background: userDetails?.cropSettings?.profileDpColor || '',
+								}}
+							>
+								{getInitials(userDetailsData?.firstName, userDetailsData?.lastName)}
+							</div>
+						)}
+
+						<div
+							className="editImage"
+							onClick={() =>
+								setuploadAvatarPopup((prev) => ({ ...prev, theme: true }))
+							}
+						>
+							<PencilkSvg />
+						</div>
+					</div>
 					<div className="profileBody">
 						<div>
 							<div className="iconAlignclass">
@@ -115,6 +210,25 @@ const ProfileDetailsComponent = ({
 					</div>
 				</div>
 			</div>
+
+			<UploadAvatarPopupComponent
+				userDetails={userDetails}
+				userDetailsData={userDetailsData}
+				uploadAvatarPopup={uploadAvatarPopup}
+				setuploadAvatarPopup={setuploadAvatarPopup}
+				handleImageChange={handleImageChange}
+				updateDpThemeHandler={updateDpThemeHandler}
+				setZoom={handleZoom}
+				setCrop={handleCrop}
+			/>
+
+			<UploadFileProiflePopup
+				userDetails={userDetails}
+				userDetailsData={userDetailsData}
+				uploadAvatarPopup={uploadAvatarPopup}
+				setuploadAvatarPopup={setuploadAvatarPopup}
+				updateProfileImage={updateProfileImage}
+			/>
 
 			{showForm && (
 				<MySettingsChangePasword showForm={showForm} onClose={handlePopupFormClose} />

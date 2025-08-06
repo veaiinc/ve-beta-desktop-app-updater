@@ -36,24 +36,21 @@ const Onboarding = () => {
 
 	return (
 		<div className={`onboardingContainer`}>
-			<div className="onboarding-header">
-				<div className="logo">
-					<VeLogo />
-				</div>
-				<div className="logout-btn" onClick={logout}>
-					<LogoutRedSvg />
-				</div>
-			</div>
-			<div className="onboarding-main">
-				<div className="main-content-container" style={{ padding: '180px 20px 0 120px;' }}>
-					<div className="email-section">
+			<div className="onboarding-page-container">
+				<div className="main-content-container onboarding-child-container">
+					<div className="header-container">
+						<div className="logo">
+							<VeLogo />
+						</div>
+					</div>
+					<div className="content-container">
 						<div className="stages-container">
 							<OnboardingStepper onStepChange={setCurrentStep} />
 						</div>
 					</div>
-					{/* <div className="description-section">
-						<LoginDescription />
-					</div> */}
+				</div>
+				<div className="description-section onboarding-child-container">
+					<LoginDescription />
 				</div>
 			</div>
 		</div>

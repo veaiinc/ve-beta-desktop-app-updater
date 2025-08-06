@@ -30,10 +30,7 @@ const MeetTranscript = ({ transcriptList = [] }) => {
 	const loadTranscripts = async (page = 1, append = false) => {
 		try {
 			setInfo((prev) => ({ ...prev, transcriptLoading: true }));
-			const response = await getMeetTranscriptHistory(
-				{ meetingId, limit: 10, page },
-				append,
-			);
+			const response = await getMeetTranscriptHistory({ meetingId, limit: 10, page }, append);
 			if (response?.[1]?.data?.listTranscriptions) {
 				const { hasNextPage, currentPage, totalPages } =
 					response[1].data.listTranscriptions;

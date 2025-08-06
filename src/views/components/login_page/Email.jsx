@@ -1,6 +1,7 @@
 import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import validator from 'validator';
-import '../../../assets/scss/login_page/index.scss';
+// import '../../../assets/scss/login_page/index.scss';
+import '../../../assets/scss/login_page/email.scss';
 import { ReactComponent as GoogleLogo } from '../../../assets/svg/login_page/google.svg';
 import { ReactComponent as AppleLogo } from '../../../assets/svg/apple.svg';
 import { ReactComponent as MicrosoftLogo } from '../../../assets/svg/microsoft.svg';
@@ -236,111 +237,103 @@ const Email = ({
 				)}
 				<h1 className="login-page-title">
 					{/* <span className="title-one">AI.&nbsp; </span> */}
-					<span className="title-two">Living intelligence</span>
-					<span className="login-page-subtitle">Ambient Memory AI</span>
+					<span className="title-two">
+						LIVING <span className="title-two-span"> INTELLIGENCE</span>
+					</span>
+					<span className="login-page-subtitle">Ambient AI</span>
 				</h1>
 			</div>
-			{info?.isHostnameVeDotAi && (
-				<>
-					<div className="service-container">
-						<div
-							disabled={info?.googleLoading}
-							className="google-login-button"
-							onClick={handleContinueWithGoogle}
-						>
-							<div className="google-logo-container">
-								<GoogleLogo />
-								<p>Continue with Google</p>
-							</div>
-							{info?.googleLoading && (
-								<Spinner
-									width="18px"
-									height="18px"
-									color="var(--primary-button)"
-									borderTopColor="transparent"
-									borderWidth={1.5}
-								/>
-							)}
-						</div>
-					</div>
-					<div className="or-divider">
-						<div className="line"></div>
-						<span>OR</span>
-						<div className="line"></div>
-					</div>
-				</>
-			)}
 
-			<div className="login-button-container">
-				<div className="email-input-container-title">
-					<span>Email</span>
-				</div>
-				<div className="email-input-container">
-					<input
-						value={email}
-						onChange={handleSetEmail}
-						onKeyDown={handleContinueWithEmail}
-						autoFocus
-						type="email"
-						placeholder="example@acme.com"
-						className="email-input"
-					/>
-					<div
-						disabled={!info.isEmailValid || info.isLoading}
-						style={{
-							cursor:
-								!info.isEmailValid || info.isLoading ? 'not-allowed' : 'pointer',
-							background: !info.isEmailValid
-								? 'var(--card-hover)'
-								: 'var(--primary-button)',
-						}}
-						onClick={() => handleContinueWithEmail(null, 'click')}
-						className="email-input-button"
-					>
-						{info.isLoading ? (
-							<Spinner
-								width="20px"
-								height="20px"
-								borderTopColor="transparent"
-								color="var(--background-color)"
-							/>
-						) : info?.isEmailValid ? (
-							<span ref={arrowRef}>
-								<UpArrowBlackHover
-									style={{
-										stroke: 'var(--primary-font)',
-									}}
+			<div className="login-content-wrapper">
+				<div className="login-button-container">
+					<div className="email-input-container-title">
+						<span>Email</span>
+					</div>
+					<div className="email-input-container">
+						<input
+							value={email}
+							onChange={handleSetEmail}
+							onKeyDown={handleContinueWithEmail}
+							autoFocus
+							type="email"
+							placeholder="example@acme.com"
+							className="email-input"
+						/>
+						<button
+							disabled={!info.isEmailValid || info.isLoading}
+							onClick={() => handleContinueWithEmail(null, 'click')}
+							className="email-input-button"
+						>
+							{info.isLoading ? (
+								<Spinner
+									width="20px"
+									height="20px"
+									borderTopColor="transparent"
+									color="var(--background-color)"
 								/>
-							</span>
-						) : (
-							<span ref={arrowRef}>
-								<UpArrowGrey
-									style={{
-										stroke: 'var(--card-over-card)',
-									}}
-								/>
-							</span>
-						)}
+							) : info?.isEmailValid ? (
+								<span ref={arrowRef}>
+									<UpArrowBlackHover
+										style={{
+											stroke: 'var(--primary-font)',
+										}}
+									/>
+								</span>
+							) : (
+								<span ref={arrowRef}>
+									<UpArrowGrey className="arrow-icon" />
+								</span>
+							)}
+						</button>
 					</div>
 				</div>
+				{info?.isHostnameVeDotAi && (
+					<>
+						<div className="or-divider">
+							<div className="line"></div>
+							<span className="or-text">OR</span>
+						</div>
+						<div className="service-container">
+							<div
+								disabled={info?.googleLoading}
+								className="google-login-button"
+								onClick={handleContinueWithGoogle}
+							>
+								<div className="google-logo-container">
+									<GoogleLogo />
+									<p>Continue with Google</p>
+								</div>
+								{info?.googleLoading && (
+									<Spinner
+										width="18px"
+										height="18px"
+										color="var(--primary-button)"
+										borderTopColor="transparent"
+										borderWidth={1.5}
+									/>
+								)}
+							</div>
+						</div>
+					</>
+				)}
 			</div>
 			<div className="acknowledge-container">
-				<span className="acknowledge-text">
+				<p className="acknowledge-text">
 					By continuing, you acknowledge that you understand and agree to the{' '}
-				</span>
-				<span
-					className="acknowledge-text-link"
-					onClick={() => window.open('/terms-of-service', '_blank')}
-				>
-					Terms & Conditions
-				</span>{' '}
-				<span className="acknowledge-text">and</span>{' '}
-				<span
-					className="acknowledge-text-link"
-					onClick={() => window.open('/privacy-policy', '_blank')}
-				>
-					Privacy Policy
-				</span>
+					<span
+						className="acknowledge-text-link"
+						onClick={() => window.open('/terms-of-service', '_blank')}
+					>
+						Terms & Conditions
+					</span>{' '}
+					and{' '}
+					<span
+						className="acknowledge-text-link"
+						onClick={() => window.open('/privacy-policy', '_blank')}
+					>
+						Privacy Policy
+					</span>
+				</p>
 			</div>
 		</div>
 	);

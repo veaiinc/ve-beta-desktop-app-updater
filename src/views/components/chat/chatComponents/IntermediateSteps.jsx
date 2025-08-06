@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ReactComponent as CheckIcon } from '../../../../assets/svg/tick.svg';
 import { ReactComponent as ErrorIcon } from '../../../../assets/svg/gallery/toastError.svg';
-import { ReactComponent as LoadingIcon } from '../../../../assets/svg/gallery/rotating-circle.svg';
+import Spinner from '../../loaders/Spinner';
 import StepDetailsModal from './StepDetailsModal';
 import './intermediateSteps.scss';
 
@@ -10,21 +10,24 @@ const IntermediateSteps = ({ steps = [], isStreaming = false }) => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 
 	const getStepStatus = (step, index) => {
+		// If step doesn't have a result key yet, show loading
+		if (!step.result) {
+			return 'loading';
+		}
+
+		// If streaming and this is the last step, show loading
 		if (isStreaming && index === steps.length - 1) {
 			return 'loading';
 		}
 
-		if (step.result) {
-			if (step.result.successful) {
-				return 'success';
-			} else if (step.result.error) {
-				return 'error';
-			} else {
-				return 'pending';
-			}
+		// If step has result, determine status based on result
+		if (step.result.successful) {
+			return 'success';
+		} else if (step.result.error) {
+			return 'error';
+		} else {
+			return 'pending';
 		}
-
-		return 'pending';
 	};
 
 	const formatStepName = (name) => {
@@ -39,7 +42,17 @@ const IntermediateSteps = ({ steps = [], isStreaming = false }) => {
 			case 'error':
 				return <ErrorIcon className="status-icon error" />;
 			case 'loading':
-				return <LoadingIcon className="status-icon loading" />;
+				return (
+					<div className="status-icon loading">
+						<Spinner
+							width="16px"
+							height="16px"
+							color="var(--primary-button)"
+							borderTopColor="transparent"
+							borderWidth={2}
+						/>
+					</div>
+				);
 			default:
 				return <div className="status-icon pending" />;
 		}

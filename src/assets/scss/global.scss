@@ -80,7 +80,7 @@ body {
 	-webkit-font-smoothing: antialiased;
 	margin: 0;
 	scroll-behavior: smooth;
-	overscroll-behavior: none;
+	overscroll-behavior: none; // unable to reload the page when user swipes down in mobile
 
 	/* Enhanced smooth scrolling */
 	scroll-snap-type: y proximity;
@@ -3863,8 +3863,18 @@ p {
 		}
 	}
 }
-// @media screen and (max-width: 768px) {
-//     h5 {
-//         font-size:1rem!important;
-//     }
-// }
+@media screen and (max-width: 500px) {
+	body {
+		overscroll-behavior: unset !important;
+	}
+}
+input {
+	background: inherit;
+	outline: none;
+	border: none;
+	color: var(--primary-font);
+
+	&::placeholder {
+		color: var(--secondary-font);
+	}
+}

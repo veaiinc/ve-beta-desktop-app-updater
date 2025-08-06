@@ -1,5 +1,4 @@
 import { Navigate } from 'react-router-dom';
-
 // layouts
 import AuthWrapper from '../views/layouts/authWrapper';
 import GalleryViewLayout from '../views/layouts/galleryViewLayout';
@@ -7,7 +6,6 @@ import AutomationBuilderLayout from '../views/layouts/automationBuilderLayout';
 import SmartFileLayout from '../views/layouts/smartFileLayout';
 import WorkflowBuilderLayout from '../views/layouts/workflowBuilderLayout';
 import Public from '../views/layouts/Public';
-
 // Protected Pages
 import GlobalWorkflows from '../views/features/sales/GlobalWorkflows';
 import EarlyAccess from '../views/features/earlyAccess/EarlyAccess';
@@ -15,7 +13,7 @@ import AddGallery from '../views/features/gallery/AddGallery';
 import AlbumSettings from '../views/features/gallery/AlbumSettings';
 import UploadPhotos from '../views/features/gallery/UploadPhotos';
 import InitialHomePage from '../views/features/homePage/InitialHomePage';
-import ShareAndEarn from '../views/features/shareAndEarn/ShareAndEarn';
+// import ShareAndEarn from '../views/features/shareAndEarn/ShareAndEarn';
 import SettingsWrapper from '../views/features/settings/SettingsWrapper';
 import Docs from '../views/features/docs/Docs';
 import LiteGallery from '../views/features/gallery/Litegallery';
@@ -43,7 +41,6 @@ import WorkflowBuilder from '../views/features/workflowBuilder/WorkflowBuilder';
 import Workflow_builder_updated from '../views/features/workflowBuilderUpdated/WorkflowBuilderUpdated';
 import Onboarding from '../views/features/onboarding/Onboarding';
 import Contacts from '../views/features/contacts/Contacts';
-import AmbientAi from '../views/features/ambientAi/AmbientAi';
 import Files from '../views/features/files/Files';
 import ExpandedClientView from '../views/features/contacts/ExpandedClientView';
 import BuilderApp from '../../builderSrc/App';
@@ -55,28 +52,19 @@ import Tasks from '../views/features/tasks/Tasks';
 import TaskFullView from '../views/features/tasks/TaskFullView';
 import Integrations from '../views/features/integrationsList/Integrations';
 import NotesPage from '../views/features/notesPage/NotesPage';
-import NotesWrapper from '../views/features/notesModule/NotesWrapper';
 import GalleryPage from '../views/features/gallery/GalleryPage';
 import GalleryViewer from '../views/features/gallery/GalleryViewer';
 import UploadPhotosDesktop from '../views/features/gallery/UploadPhotosDesktop';
 // components
+import MeetBotWrapper from '../views/features/meetBot/meetBotWrapper';
+import ProactiveSuggestions from '../views/features/homePage/ProactiveSuggestions';
 import CardMeetBot from '../views/features/meetBot/CardMeetBot';
 import ChatPage from '../views/components/homePage/ChatPage';
-
+import NotesWrapper from '../views/features/notesModule/NotesWrapper';
 const betaRoutes = [
-	{
-		path: '/insights',
-		element: (
-			<AuthWrapper
-				title={'Home'}
-				outerContainerStyle={{ overflow: 'hidden' }}
-				childrenContainerStyles={{ overflow: 'auto' }}
-				showBottomToolbar={false}
-			>
-				<AmbientAi />
-			</AuthWrapper>
-		),
-	},
+	// ========================================
+	// ONBOARDING, HOME & FEATURES
+	// ========================================
 	{
 		path: '/home',
 		element: (
@@ -93,27 +81,147 @@ const betaRoutes = [
 			</AuthWrapper>
 		),
 	},
+	// {
+	// 	path: '/share-and-earn',
+	// 	element: (
+	//
+	// 			<AuthWrapper title={'Share and Earn'}>
+	// 				<ShareAndEarn />
+	// 			</AuthWrapper>
+	//
+	// 	),
+	// },
+	{
+		path: '/early-access',
+		element: (
+			<AuthWrapper title={'Early Access'}>
+				<EarlyAccess />
+			</AuthWrapper>
+		),
+	},
+	// ========================================
+	// AI & ASSISTANT FEATURES
+	// ========================================
+	{
+		path: '/ambient-ai',
+		element: (
+			<AuthWrapper
+				title={'Ambient AI'}
+				outerContainerStyle={{ overflow: 'hidden' }}
+				childrenContainerStyles={{ overflow: 'auto' }}
+				showBottomToolbar={false}
+			>
+				<ProactiveSuggestions />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/ai-assistant',
+		element: (
+			<AuthWrapper title={'AI Assistant'}>
+				<AiAssistants />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/ai-assistant/:aiAssistantId',
+		element: (
+			<AuthWrapper title={'AI Assistant'}>
+				<AgentDetails />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/ai-assistant/:aiAssistantId/edit',
+		element: (
+			<AuthWrapper title={'AI Assistant'}>
+				<EditAgent />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/knowledge-agent',
+		element: (
+			<AuthWrapper
+				title={'Knowledge Agent'}
+				innerContainerStyle={{ paddingBottom: '0px' }}
+				showBottomToolbar={false}
+			>
+				<KnowledgeAgents />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/knowledge-agent/:agentId',
+		element: (
+			<AuthWrapper
+				title={'Knowledge Agent'}
+				showBottomToolbar={false}
+				innerContainerStyle={{ paddingBottom: '0px' }}
+			>
+				<KnowledgeAgentDetails />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/knowledge-agent/:agentId/edit',
+		element: (
+			<AuthWrapper
+				title={'Knowledge Agent'}
+				showBottomToolbar={false}
+				outerContainerStyle={{ paddingRight: '0px' }}
+			>
+				<EditKnowledgeAgent />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/proactiveai/:proactiveAiId',
+		element: (
+			<AuthWrapper title="Proactive AI" childrenContainerStyles={{ maxWidth: '100%' }}>
+				<ProactiveAi />
+			</AuthWrapper>
+		),
+	},
+	// {
+	// 	path: '/agents',
+	// 	element: (
+	// 		<AuthWrapper title={'Share and Earn'}>
+	// 			<ShareAndEarn />
+	// 		</AuthWrapper>
+	// 	),
+	// },
+	{
+		path: '/agents',
+		element: (
+			<AuthWrapper
+				title="Agents"
+				outerContainerStyle={{ padding: '0' }}
+				sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
+			>
+				<Agents />
+			</AuthWrapper>
+		),
+	},
+	// ========================================
+	// CHAT
+	// ========================================
+	{
+		path: '/agent/:agentId',
+		element: (
+			<AuthWrapper title="Agent">
+				<Agent />
+			</AuthWrapper>
+		),
+	},
+	// ========================================
+	// CHAT
+	// ========================================
 	{
 		path: '/chats',
 		element: (
 			<AuthWrapper title={'Chats'}>
 				<ChatPage />
-			</AuthWrapper>
-		),
-	},
-	{
-		path: '/share-and-earn',
-		element: (
-			<AuthWrapper title={'Share and Earn'}>
-				<ShareAndEarn />
-			</AuthWrapper>
-		),
-	},
-	{
-		path: '/settings/:type',
-		element: (
-			<AuthWrapper title={'Workspace Settings'}>
-				<SettingsWrapper />
 			</AuthWrapper>
 		),
 	},
@@ -134,20 +242,22 @@ const betaRoutes = [
 			</AuthWrapper>
 		),
 	},
+	// ========================================
+	// MEET
+	// ========================================
 	{
-		path: '/playbook',
+		path: '/meet',
 		element: (
-			<AuthWrapper title={'Sales'}>
-				<GlobalWorkflows />
+			<AuthWrapper title={'Meet'}>
+				<CardMeetBot />
 			</AuthWrapper>
 		),
 	},
-
 	{
-		path: '/early-access',
+		path: '/meet/:meetingId',
 		element: (
-			<AuthWrapper title={'Early Access'}>
-				<EarlyAccess />
+			<AuthWrapper title={'Meet'}>
+				<MeetBotWrapper />
 			</AuthWrapper>
 		),
 	},
@@ -161,6 +271,9 @@ const betaRoutes = [
 	//
 	// 	),
 	// },
+	// ========================================
+	// GALLERY
+	// ========================================
 	{
 		path: '/galleries',
 		element: (
@@ -217,6 +330,20 @@ const betaRoutes = [
 			</GalleryViewLayout>
 		),
 	},
+	// ========================================
+	// PLAYBOOK
+	// ========================================
+	{
+		path: '/playbook',
+		element: (
+			<AuthWrapper title={'Sales'}>
+				<GlobalWorkflows />
+			</AuthWrapper>
+		),
+	},
+	// ========================================
+	// WORKFLOW & AUTOMATION
+	// ========================================
 	{
 		path: '/smart-file/:templateId/:workflowId',
 		element: (
@@ -242,34 +369,67 @@ const betaRoutes = [
 		),
 	},
 	{
-		path: '/tasks',
+		path: '/automation-builder/:automationId',
 		element: (
-			<AuthWrapper
-				title={'Tasks'}
-				outerContainerStyle={{ padding: '0 32px 0 0' }}
-				childrenContainerStyles={{ maxWidth: '100%' }}
-			>
-				<Tasks />
+			<AutomationBuilderLayout title={'Automation Builder'}>
+				<AutomationBuilder />
+			</AutomationBuilderLayout>
+		),
+	},
+	{
+		path: '/automations',
+		element: (
+			<AuthWrapper title={'Automations'}>
+				<Automations />
+			</AuthWrapper>
+		),
+	},
+	// ========================================
+	// FORMS & TEMPLATES
+	// ========================================
+	{
+		path: '/form',
+		element: (
+			<AuthWrapper title={'Forms'}>
+				<Forms />
 			</AuthWrapper>
 		),
 	},
 	{
-		path: '/task/:taskId',
+		path: '/form/:id',
 		element: (
-			<AuthWrapper title={'Tasks'}>
-				<TaskFullView />
+			<AuthWrapper title={'Form Leads'}>
+				<FormLeads />
 			</AuthWrapper>
 		),
 	},
 	{
-		path: '/integrations',
+		path: '/forms/:id/responses',
 		element: (
-			<AuthWrapper title={'Integrations'}>
-				<Integrations />
+			<AuthWrapper title={'Form Responses'}>
+				<FormResCard view="responses" />
 			</AuthWrapper>
 		),
 	},
-
+	{
+		path: '/forms/:id/summary',
+		element: (
+			<AuthWrapper title={'Form Summary'}>
+				<FormSummary view="summary" />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/my-templates',
+		element: (
+			<AuthWrapper title={'My Templates'}>
+				<MyTemplates />
+			</AuthWrapper>
+		),
+	},
+	// ========================================
+	// CALENDAR & SCHEDULING
+	// ========================================
 	{
 		path: '/calendar',
 		element: (
@@ -298,14 +458,32 @@ const betaRoutes = [
 			</AuthWrapper>
 		),
 	},
+	// ========================================
+	// TASKS
+	// ========================================
 	{
-		path: '/pricing',
+		path: '/tasks',
 		element: (
-			<AuthWrapper title={'Pricing'}>
-				<PricingPage />
+			<AuthWrapper
+				title={'Tasks'}
+				outerContainerStyle={{ padding: '0 32px 0 0' }}
+				childrenContainerStyles={{ maxWidth: '100%' }}
+			>
+				<Tasks />
 			</AuthWrapper>
 		),
 	},
+	{
+		path: '/task/:taskId',
+		element: (
+			<AuthWrapper title={'Tasks'}>
+				<TaskFullView />
+			</AuthWrapper>
+		),
+	},
+	// ========================================
+	// NOTES & DOCUMENTS
+	// ========================================
 	{
 		path: '/notes',
 		element: (
@@ -493,10 +671,33 @@ const betaRoutes = [
 		),
 	},
 	{
-		path: '/automations',
+		path: '/docs',
 		element: (
-			<AuthWrapper title={'Automations'}>
-				<Automations />
+			<AuthWrapper title={'Docs'}>
+				<Docs />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/doc/:id',
+		element: (
+			<AuthWrapper title={'Docs'}>
+				<DocsFullView />
+			</AuthWrapper>
+		),
+	},
+	// ========================================
+	// CONTACTS
+	// ========================================
+	{
+		path: '/contacts',
+		element: (
+			<AuthWrapper
+				title={'Contacts'}
+				outerContainerStyle={{ padding: '0 32px 0 0' }}
+				childrenContainerStyles={{ maxWidth: '100%' }}
+			>
+				<Contacts />
 			</AuthWrapper>
 		),
 	},
@@ -522,6 +723,9 @@ const betaRoutes = [
 	//
 	// 	),
 	// },
+	// ========================================
+	// FILES
+	// ========================================
 	{
 		path: '/files',
 		element: (
@@ -530,14 +734,20 @@ const betaRoutes = [
 			</AuthWrapper>
 		),
 	},
+	// ========================================
+	// INTEGRATIONS
+	// ========================================
 	{
-		path: '/proactiveai/:proactiveAiId',
+		path: '/integrations',
 		element: (
-			<AuthWrapper title="Proactive AI" childrenContainerStyles={{ maxWidth: '100%' }}>
-				<ProactiveAi />
+			<AuthWrapper title={'Integrations'}>
+				<Integrations />
 			</AuthWrapper>
 		),
 	},
+	// ========================================
+	// BUILDER
+	// ========================================
 	{
 		path: '/builder/*',
 		element: (
@@ -551,23 +761,25 @@ const betaRoutes = [
 			</AuthWrapper>
 		),
 	},
+	// ========================================
+	// SETTINGS
+	// ========================================
 	{
-		path: '/agents',
+		path: '/settings/:type',
 		element: (
-			<AuthWrapper
-				title="Agents"
-				outerContainerStyle={{ padding: '0' }}
-				sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
-			>
-				<Agents />
+			<AuthWrapper title={'Workspace Settings'}>
+				<SettingsWrapper />
 			</AuthWrapper>
 		),
 	},
+	// ========================================
+	// PRICING
+	// ========================================
 	{
-		path: '/agent/:agentId',
+		path: '/pricing',
 		element: (
-			<AuthWrapper title="Agent">
-				<Agent />
+			<AuthWrapper title={'Pricing'}>
+				<PricingPage />
 			</AuthWrapper>
 		),
 	},
@@ -587,6 +799,9 @@ const betaRoutes = [
 			</AuthWrapper>
 		),
 	},
+	// ========================================
+	// FALLBACK ROUTE
+	// ========================================
 	{
 		path: '*',
 		element: (
@@ -596,5 +811,4 @@ const betaRoutes = [
 		),
 	},
 ];
-
 export default betaRoutes;

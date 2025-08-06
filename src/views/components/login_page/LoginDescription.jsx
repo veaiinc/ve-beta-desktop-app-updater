@@ -1,67 +1,41 @@
 import { memo } from 'react';
 import s from '../../../assets/scss/login_page/logindescription.module.scss';
-import { loginDescriptionContent } from './constants';
+import { loginLeftContents } from './constants';
 
 const LoginDescription = () => (
 	<div className={s.loginDescriptionContainer}>
-		<div className={s.scrollableContent}>
-			<div className={s.loginDescriptionText}>
-				{loginDescriptionContent.descriptionText.map((text, index) => (
-					<p key={index}>{text}</p>
-				))}
-			</div>
-			<div className={s.loginDescriptionText2}>
-				{loginDescriptionContent.descriptionText2.map((text, index) => {
-					const parts = text.split('today');
-					return (
-						<p key={index}>
-							{parts[0]}
-							<span className={s.todaySpan}>today</span>
-							{parts[1]}
-						</p>
-					);
-				})}
-			</div>
-			<div className={s.loginDescriptionText3}>
-				{loginDescriptionContent.descriptionText3.map((text, index) => (
-					<p key={index}>{text}</p>
-				))}
-			</div>
-			<div className={s.loginDescriptionTwo}>
-				<div className={s.loginDescriptionTwoText}>
-					{loginDescriptionContent.descriptionTwo.title
-						.split('Promise.')
-						.map((part, index) =>
-							index === 0 ? (
-								<p key={index}>
-									{part}
-									<span>Promise.</span>
-								</p>
-							) : null,
+		<div className={s.contentArea}>
+			{loginLeftContents.map(
+				(
+					{ gap, marginBottom, content, title, boldText, name, titleGap, list, endText },
+					index,
+				) => (
+					<div key={index} style={{ marginBottom, gap }} className={s.section}>
+						{title && (
+							<p className={s.title} style={{ marginBottom: titleGap }}>
+								{title} {endText && <span className={s.endText}>{endText}</span>}
+							</p>
 						)}
-				</div>
-				<ul>
-					{loginDescriptionContent.descriptionTwo.features.map((feature, index) => (
-						<li key={index}>{feature}</li>
-					))}
-				</ul>
-			</div>
-			<div className={s.loginDescriptionThree}>
-				{loginDescriptionContent.descriptionThree}
-			</div>
-			<div className={s.loginDescriptionFour}>
-				<div className={s.descriptionFourTitle}>
-					{loginDescriptionContent.descriptionFour.title}
-				</div>
-				<div className={s.descriptionFourPoints}>
-					<ul>
-						{loginDescriptionContent.descriptionFour.points.map((point, index) => (
-							<li key={index}>{point}</li>
-						))}
-					</ul>
-				</div>
-			</div>
-			<div className={s.bottomText}>{loginDescriptionContent.bottomText}</div>
+						{boldText && <p className={s.boldText}>{boldText}</p>}
+						{name && <p className={s.name}>{name}</p>}
+						{list && (
+							<ul>
+								{list.map((item, index) => (
+									<li key={index}>{item}</li>
+								))}
+							</ul>
+						)}
+						{content &&
+							content.map((item, parentIndex) =>
+								item
+									.split('\n')
+									.map((line, index) => (
+										<p key={`${parentIndex}-${index}`}>{line}</p>
+									)),
+							)}
+					</div>
+				),
+			)}
 		</div>
 	</div>
 );

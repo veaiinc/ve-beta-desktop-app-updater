@@ -20,12 +20,23 @@
 			overflow: hidden;
 			background-color: var(--card);
 			position: relative;
+
 			.note-sidebar-header {
 				display: flex;
 				align-items: center;
-				padding: 20px 20px 0 20px;
+				padding-top: 10px;
+				padding-left: 20px;
 				gap: 15px;
-				background-color: var(--card);
+				height: 72px;
+
+				&.header-absolute {
+					position: absolute;
+					top: 0;
+					left: 0;
+					right: 0;
+					z-index: 100;
+				}
+
 				.sidebar-title {
 					color: var(--primary-font, #f2f2f3);
 					font-family: var(--primary-font-family);
@@ -93,6 +104,8 @@
 
 		.notesContainerWrapper {
 			flex-grow: 1;
+			overflow-y: auto;
+			margin-bottom: 75px;
 		}
 	}
 	.switchContainer {

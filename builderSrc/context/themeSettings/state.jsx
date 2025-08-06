@@ -174,13 +174,12 @@ export const ThemeSettingsState = (props) => {
 					Object.entries(themeStyleObject).forEach(([key, value]) => {
 						// Convert camelCase to kebab-case
 						const cssKey = key.replace(/([A-Z])/g, '-$1')?.toLowerCase();
+						console.log('cssKey', cssKey);
 
 						if (key === 'fontSize' && tag !== 'li') {
-							let minSizeRem = (getNumberFromPx(value) * 0.5) / 16;
-							let valueRem = (getNumberFromPx(value) / 16) * 2;
-							let valueVw = (getNumberFromPx(value) / window.innerWidth) * 100;
-							let clampValue = `clamp(${minSizeRem}rem, ${valueVw}vw ,${valueRem}rem)`;
-							newStyle += `${cssKey}: ${clampValue}; `;
+							// Convert px to rem directly without clamp
+							const fontSizeInRem = getNumberFromPx(value) / 16;
+							newStyle += `${cssKey}: ${fontSizeInRem}rem; `;
 						} else {
 							newStyle += `${cssKey}: ${value}; `;
 						}

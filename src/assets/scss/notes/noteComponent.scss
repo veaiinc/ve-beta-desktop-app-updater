@@ -726,16 +726,21 @@
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
+	display: flex;
+	height: 40px;
+	padding: 10px 8px;
+	justify-content: center;
+	align-items: center;
+	gap: 8px;
 }
 
 .notes-tab.active {
-	border-bottom: 2px solid var(--primary-button, #79ecc9);
 	color: var(--primary-font, #f2f2f3) !important;
 	font-family: var(--primary-font-family);
-	font-size: 14px;
+	font-size: 15px;
 	font-style: normal;
 	font-weight: 500;
-	line-height: normal;
+	line-height: 26px;
 }
 
 .bn-drag-preview {

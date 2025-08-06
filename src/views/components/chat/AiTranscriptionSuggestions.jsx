@@ -180,114 +180,122 @@ const AiTranscriptionSuggestions = ({
 							const result = [];
 							let currentFileGroup = [];
 
-							allSuggestions?.forEach((suggestion, index) => {
-								if (
-									suggestion?.entity === 'user' ||
-									suggestion?.entity === 'other_user'
-								) {
-									// Flush any pending file group
-									if (currentFileGroup.length > 0) {
-										result.push(
-											<div
-												className={s.filesContainer}
-												key={`files-${index}`}
-											>
-												{currentFileGroup}
-											</div>,
-										);
-										currentFileGroup = [];
-									}
-
-									result.push(
-										<div className={s.userQuestionContainer} key={index}>
-											<div className={s.header}>Ask User</div>
-											<div className={s.body}>
-												<div className={s.questionText}>
-													{suggestion?.query || ''}
-												</div>
-											</div>
-										</div>,
-									);
-								} else if (
-									suggestion?.entity === 'agent' ||
-									suggestion?.entity?.includes('agent')
-								) {
-									// Flush any pending file group
-									if (currentFileGroup.length > 0) {
-										result.push(
-											<div
-												className={s.filesContainer}
-												key={`files-${index}`}
-											>
-												{currentFileGroup}
-											</div>,
-										);
-										currentFileGroup = [];
-									}
-
-									if (suggestion?.type === 'search') {
-										result.push(
-											<div className={s.aiQuestionContainer} key={index}>
-												<div className={s.header}>Need help?</div>
+							allSuggestions
+								?.filter((suggestion) => suggestion?.entity !== undefined)
+								?.forEach((suggestion, index) => {
+									if (
+										suggestion?.entity === 'user' ||
+										suggestion?.entity === 'other_user'
+									) {
+										// Flush any pending file group
+										if (currentFileGroup.length > 0) {
+											result.push(
 												<div
-													className={s.body}
-													onClick={() =>
-														handleActionClick(suggestion?.query || '')
-													}
+													className={s.filesContainer}
+													key={`files-${index}`}
 												>
+													{currentFileGroup}
+												</div>,
+											);
+											currentFileGroup = [];
+										}
+
+										result.push(
+											<div className={s.userQuestionContainer} key={index}>
+												<div className={s.header}>Ask User</div>
+												<div className={s.body}>
 													<div className={s.questionText}>
-														<div className={s.text}>
-															{suggestion?.query || ''}
-														</div>
+														{suggestion?.query || ''}
 													</div>
-													{suggestion?.is_memory_used && (
-														<div className={s.memoryUsedContainer}>
-															<div className={s.memoryUsedText}>
-																<MemorySvg />
-																Memory Used
-															</div>
-															<div className={s.verticalLine} />
-														</div>
-													)}
 												</div>
 											</div>,
 										);
-									} else {
-										result.push(
-											<div className={s.actionsContainer} key={index}>
+									} else if (
+										suggestion?.entity === 'agent' ||
+										suggestion?.entity?.includes('agent')
+									) {
+										// Flush any pending file group
+										if (currentFileGroup.length > 0) {
+											result.push(
 												<div
-													className={s.actionContainer}
-													onClick={() =>
-														handleActionClick(suggestion?.query || '')
-													}
+													className={s.filesContainer}
+													key={`files-${index}`}
 												>
-													<div className={s.iconContainer}></div>
-													{suggestion?.query || ''}
+													{currentFileGroup}
+												</div>,
+											);
+											currentFileGroup = [];
+										}
+
+										if (suggestion?.type === 'search') {
+											result.push(
+												<div className={s.aiQuestionContainer} key={index}>
+													<div className={s.header}>Need help?</div>
+													<div
+														className={s.body}
+														onClick={() =>
+															handleActionClick(
+																suggestion?.query || '',
+															)
+														}
+													>
+														<div className={s.questionText}>
+															<div className={s.text}>
+																{suggestion?.query || ''}
+															</div>
+														</div>
+														{suggestion?.is_memory_used && (
+															<div className={s.memoryUsedContainer}>
+																<div className={s.memoryUsedText}>
+																	<MemorySvg />
+																	Memory Used
+																</div>
+																<div className={s.verticalLine} />
+															</div>
+														)}
+													</div>
+												</div>,
+											);
+										} else {
+											result.push(
+												<div className={s.actionsContainer} key={index}>
+													<div
+														className={s.actionContainer}
+														onClick={() =>
+															handleActionClick(
+																suggestion?.query || '',
+															)
+														}
+													>
+														<div className={s.iconContainer}></div>
+														{suggestion?.query || ''}
+													</div>
+													<div className={s.horizontalLine} />
+												</div>,
+											);
+										}
+									} else if (suggestion?.entity === 'file') {
+										// This is a file - add to current file group
+										currentFileGroup.push(
+											<div
+												className={s.file}
+												key={index}
+												onClick={() => handleFileClick(suggestion)}
+											>
+												<div className={s.fileIcon}>
+													{fileTypeIcons[
+														suggestion?.type === 's3_key'
+															? suggestion?.name?.match(
+																	/\.(\w+)$/,
+															  )?.[1] // to check the file format
+															: suggestion?.type
+													] || <VeLogoSvg />}
 												</div>
-												<div className={s.horizontalLine} />
+												<div className={s.fileName}>{suggestion?.name}</div>
 											</div>,
 										);
 									}
-								} else {
-									// This is a file - add to current file group
-									currentFileGroup.push(
-										<div
-											className={s.file}
-											key={index}
-											onClick={() => handleFileClick(suggestion)}
-										>
-											<div className={s.fileIcon}>
-												{fileTypeIcons[
-													suggestion?.type === 's3_key'
-														? suggestion?.name?.match(/\.(\w+)$/)?.[1] // to check the file format
-														: suggestion?.type
-												] || <VeLogoSvg />}
-											</div>
-											<div className={s.fileName}>{suggestion?.name}</div>
-										</div>,
-									);
-								}
-							});
+								});
 
 							// Flush any remaining file group
 							if (currentFileGroup.length > 0) {
@@ -300,6 +308,9 @@ const AiTranscriptionSuggestions = ({
 
 							return result;
 						})()}
+						{allSuggestions?.length === 0 && (
+							<div className="meet-transcript-empty">No data.</div>
+						)}
 					</div>
 				)}
 

@@ -1628,6 +1628,7 @@ export const Galleries = () => {
 		limit = 20,
 		search = '',
 		dateRange = {},
+		selectedRole = '',
 	) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -1640,6 +1641,10 @@ export const Galleries = () => {
 				startDate: dateRange?.startDate || '',
 				endDate: dateRange?.endDate || '',
 			};
+
+			if (selectedRole?.length > 0) {
+				queryParams.visitorRole = selectedRole;
+			}
 
 			const response = await service.fetchGet(
 				`/${workspaceId}/galleries/${galleryId}/visitors`,

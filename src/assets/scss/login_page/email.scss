@@ -1,0 +1,251 @@
+.verify-user-container {
+	display: flex;
+	flex-direction: column;
+	gap: 40px;
+	max-width: 400px;
+	width: 100%;
+	height: auto;
+	justify-content: center;
+	margin-top: 0;
+
+	.login-page-content {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 4px;
+		align-self: stretch;
+
+		.login-page-title {
+			width: 100%;
+			display: flex;
+			justify-content: center;
+			flex-direction: column;
+			align-items: start;
+			gap: 4px;
+			.title-one {
+				color: var(--primary-font, #f2f2f3);
+				text-align: center;
+				font-family: var(--primary-font-family);
+				font-size: 53px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: 60px; /* 113.208% */
+				letter-spacing: -1.59px;
+			}
+			.title-two {
+				color: var(--primary-font, #f2f2f3);
+				text-align: left;
+				font-family: var(--primary-font-family);
+				font-size: 32px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+
+				.title-two-span {
+					color: var(--primary-button);
+				}
+			}
+
+			.login-page-subtitle {
+				color: var(--secondary-font, #94989e);
+				font-family: var(--primary-font-family);
+				font-size: 22px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+		}
+
+		.referral-message {
+			display: flex;
+			justify-content: flex-start;
+			align-items: center;
+			gap: 8px;
+			align-self: stretch;
+			.email-icon {
+				width: 18px;
+				height: 18px;
+				stroke: var(--primary-button);
+			}
+			.referrer-name {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--secondary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+			}
+		}
+	}
+
+	.login-content-wrapper {
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+		align-items: center;
+		align-self: stretch;
+
+		.login-button-container {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: flex-start;
+			gap: 8px;
+			align-self: stretch;
+			.email-input-container-title {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			.email-input-container {
+				display: flex;
+				align-items: flex-start;
+				gap: 8px;
+				align-self: stretch;
+				.email-input {
+					display: flex;
+					padding: 14px 16px;
+					align-items: center;
+					gap: 10px;
+					flex: 1 0 0;
+					border-radius: 8px;
+					background: var(--card, #18191b);
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					border: none;
+					outline: none;
+
+					&:focus {
+						outline: 1px solid var(--secondary-font);
+					}
+				}
+				.email-input-button {
+					display: flex;
+					width: 47px;
+					height: 47px;
+					justify-content: center;
+					align-items: center;
+					border-radius: 8px;
+					background-color: var(--primary-button, #79ecc9);
+					cursor: pointer;
+
+					.arrow-icon {
+						path {
+							stroke: var(--primary-button-font) !important;
+						}
+					}
+
+					&:disabled {
+						opacity: 0.5;
+						cursor: not-allowed;
+					}
+				}
+			}
+		}
+
+		.service-container {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			width: 100%;
+			.google-login-button {
+				display: flex;
+				height: 45px;
+				padding: 14px 16px;
+				justify-content: space-between;
+				align-items: center;
+				align-self: stretch;
+				border-radius: 8px;
+				background: var(--card, #18191b);
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				cursor: pointer;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				transition: all 0.3s ease;
+				&:hover {
+					background: var(--primary-font);
+					color: var(--background-color);
+				}
+				.google-logo-container {
+					display: flex;
+					align-items: center;
+					gap: 12px;
+					p {
+						margin-top: 0;
+						margin-bottom: 0;
+					}
+				}
+			}
+		}
+
+		.or-divider {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			margin: 16px 0;
+			width: 100%;
+			position: relative;
+
+			.or-text {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				background-color: var(--background-color);
+				padding: 0 24px;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+			}
+
+			.line {
+				width: 100%;
+				height: 1px;
+				background: var(--stroke, #2c2d2e);
+			}
+		}
+	}
+
+	.acknowledge-container {
+		color: var(--primary-font, #f2f2f3);
+		.acknowledge-text {
+			color: var(--secondary-font, #7a7e85);
+			text-align: center;
+			font-family: var(--primary-font-family);
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 20px;
+			text-align: center;
+
+			.acknowledge-text-link {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 20px;
+				text-decoration-line: underline;
+				text-decoration-style: solid;
+				text-decoration-skip-ink: auto;
+				text-decoration-thickness: auto;
+				text-underline-offset: auto;
+				text-underline-position: from-font;
+				cursor: pointer;
+			}
+		}
+	}
+}

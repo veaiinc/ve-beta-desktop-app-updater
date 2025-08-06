@@ -3,6 +3,10 @@ import '../../../assets/scss/notesPage/notesPage.scss';
 // import QuickActions from '../../components/globalComponents/QuickActions';
 import jwtDecode from 'jwt-decode';
 // Components
+import ViewModeSortFilter from '../../components/notesPage/ViewModeSortFilter';
+import CardsViewNotes from '../../components/notesPage/CardsViewNotes';
+import ListViewNotes from '../../components/notesPage/ListViewNotes';
+import Context from '../../../context/context';
 import { useSearchParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';
@@ -168,6 +172,7 @@ const NotesPage = ({ isDatabase = false }) => {
 					) : null}
 				</div>
 			)}
+			{/* <QuickActions /> */}
 		</div>
 	);
 };

@@ -37,6 +37,9 @@ const Insights = () => {
 	const [showDatePicker, setShowDatePicker] = useState(false);
 	const [date, setDate] = useState('');
 	const ITEMS_PER_PAGE = 20;
+	const [selectedRole, setSelectedRole] = useState('');
+	const pathname = location.pathname;
+	const galleryId = pathname.split('/galleries/')[1];
 
 	const { ref, inView } = useInView({
 		threshold: 0.5,
@@ -45,8 +48,6 @@ const Insights = () => {
 	const loadMore = async () => {
 		if (inView && !isLoading && insightsVisitors?.hasNextPage) {
 			setIsLoading(true);
-			const pathname = window.location.pathname;
-			const galleryId = pathname.split('/galleries/')[1];
 			const nextPage = currentPage + 1;
 			const dateRange = calculateDateRange(selectedFilter);
 
@@ -104,8 +105,6 @@ const Insights = () => {
 	};
 
 	useEffect(() => {
-		const pathname = window.location.pathname;
-		const galleryId = pathname.split('/galleries/')[1];
 		if (galleryId) {
 			if (!aiFace) {
 				getAiFace?.(galleryId, 1, 40, true);
@@ -115,7 +114,12 @@ const Insights = () => {
 			// Always fetch data when filter/search changes or when resetting to show all data
 			getInsightVisitors(galleryId, 1, ITEMS_PER_PAGE, searchQuery, dateRange);
 		}
-	}, [searchQuery, selectedFilter]);
+	}, [searchQuery, selectedFilter, galleryId]);
+
+	useEffect(() => {
+		const dateRange = calculateDateRange(selectedFilter);
+		getInsightVisitors(galleryId, 1, ITEMS_PER_PAGE, searchQuery, dateRange, selectedRole);
+	}, [selectedRole]);
 
 	useEffect(() => {
 		loadMore();
@@ -215,10 +219,16 @@ const Insights = () => {
 		{
 			name: 'Guest views',
 			number: visitorData.filter((visitor) => visitor.visitorRole === 'guest').length || 0,
+			onClick: () => {
+				setSelectedRole('guest');
+			},
 		},
 		{
 			name: 'Client views',
 			number: visitorData.filter((visitor) => visitor.visitorRole === 'master').length || 0,
+			onClick: () => {
+				setSelectedRole('master');
+			},
 		},
 	];
 
@@ -242,7 +252,7 @@ const Insights = () => {
 					</div>
 				))}
 			</div>
-			{visitorData?.length > 0 && (
+			{(visitorData?.length > 0 || selectedFilter !== 'All Time') && (
 				<>
 					<div className="insightsHeader">
 						<div className="heading">
@@ -393,7 +403,14 @@ const Insights = () => {
 					>
 						<div className="insightsDetails">
 							{details?.map((ele, index) => (
-								<div key={index} className="insightsDetails-item">
+								<div
+									key={index}
+									className="insightsDetails-item"
+									onClick={() => ele?.onClick?.()}
+									style={{
+										cursor: ele?.onClick ? 'pointer' : 'default',
+									}}
+								>
 									<p className="itemName">{ele.name}</p>
 									<p className="count">{ele.number}</p>
 								</div>
@@ -406,19 +423,19 @@ const Insights = () => {
 									style={{
 										display: 'flex',
 										flexDirection: 'row',
-										width: '215px',
+										width: '240px',
 										justifyContent: 'space-between',
 										alignItems: 'center',
 									}}
 								>
 									<div
 										style={{
-											color: '#fff',
+											color: 'var(--primary-font)',
 											display: 'flex',
 											alignItems: 'center',
 										}}
 									>
-										Filtered By
+										Filtered By :
 									</div>
 									<div
 										style={{
@@ -429,9 +446,58 @@ const Insights = () => {
 											padding: '10px',
 										}}
 									>
-										<span style={{ color: '#fff' }}>{selectedFilter}</span>
+										<span style={{ color: 'var(--primary-font)' }}>
+											{selectedFilter}
+										</span>
 										<CloseIcon
 											onClick={() => setSelectedFilter('All Time')}
+											style={{
+												cursor: 'pointer',
+												width: '12px',
+												height: '12px',
+												marginLeft: '8px',
+											}}
+										/>
+									</div>
+								</div>
+							)}
+							{selectedRole && (
+								<div
+									className="selected-filter"
+									style={{
+										display: 'flex',
+										flexDirection: 'row',
+										width: '240px',
+										justifyContent: 'space-between',
+										alignItems: 'center',
+									}}
+									onClick={() => setSelectedRole('')}
+								>
+									<div
+										style={{
+											color: 'var(--primary-font)',
+											display: 'flex',
+											alignItems: 'center',
+										}}
+									>
+										Filtered By :
+									</div>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											border: '1px solid rgba(255, 255, 255, 0.1)',
+											borderRadius: '16px',
+											padding: '10px',
+										}}
+									>
+										<span style={{ color: 'var(--primary-font)' }}>
+											{selectedRole === 'guest'
+												? 'Guest views'
+												: 'Client views'}
+										</span>
+										<CloseIcon
+											onClick={() => setSelectedRole('')}
 											style={{
 												cursor: 'pointer',
 												width: '12px',

@@ -113,8 +113,8 @@ const AutomationWidget = ({ width, height }) => {
 						{info?.isLoading ? (
 							skeletonLoaders?.map((_, index) => (
 								<Skeleton
-									width="280px"
-									height="36px"
+									width="390px"
+									height="50px"
 									style={{
 										'--highlight-color': 'gray',
 										'--base-color': 'transparent',

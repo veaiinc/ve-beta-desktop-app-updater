@@ -23,6 +23,30 @@ const TranscriptionTabs = ({
 					marginBottom: 12,
 				}}
 			>
+				{history && type === 'meeting_bot' && (
+					<button
+						className={activeTab === 'summary' ? 'notes-tab active' : 'notes-tab'}
+						style={{
+							background: 'none',
+							border: 'none',
+							outline: 'none',
+							color: 'inherit',
+							fontWeight: 500,
+							fontSize: 16,
+							padding: '8px 0',
+							borderBottom:
+								activeTab === 'summary'
+									? '2px solid var(--primary-button, #cfff48)'
+									: '2px solid transparent',
+							cursor: 'pointer',
+							transition: 'color 0.2s',
+						}}
+						onClick={() => setActiveTab('summary')}
+					>
+						Summary
+					</button>
+				)}
+
 				{(history || type === 'desktop') && (
 					<button
 						className={activeTab === 'transcript' ? 'notes-tab active' : 'notes-tab'}
@@ -47,9 +71,9 @@ const TranscriptionTabs = ({
 					</button>
 				)}
 
-				{history && type === 'meeting_bot' && (
+				{history && (
 					<button
-						className={activeTab === 'summary' ? 'notes-tab active' : 'notes-tab'}
+						className={activeTab === 'all' ? 'notes-tab active' : 'notes-tab'}
 						style={{
 							background: 'none',
 							border: 'none',
@@ -59,18 +83,18 @@ const TranscriptionTabs = ({
 							fontSize: 16,
 							padding: '8px 0',
 							borderBottom:
-								activeTab === 'summary'
+								activeTab === 'userQuestions'
 									? '2px solid var(--primary-button, #cfff48)'
 									: '2px solid transparent',
 							cursor: 'pointer',
 							transition: 'color 0.2s',
 						}}
-						onClick={() => setActiveTab('summary')}
+						onClick={() => setActiveTab('all')}
 					>
-						Summary
+						Meeting Intelligence
 					</button>
 				)}
-				{history && (
+				{/* {history && (
 					<button
 						className={activeTab === 'notes' ? 'notes-tab active' : 'notes-tab'}
 						style={{
@@ -92,7 +116,7 @@ const TranscriptionTabs = ({
 					>
 						Notes
 					</button>
-				)}
+				)} */}
 
 				{!history && (
 					<button

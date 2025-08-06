@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import s from './settings.module.scss';
 import Context from '../../../../../context/context';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import logout from '../../../../../helpers/logout';
 import SwitchWorkspaceModal from '../switchWorkspaceModal/SwitchWorkspaceModal';
 import { Tooltip } from 'antd';
@@ -16,46 +16,56 @@ import { ReactComponent as SwitchWorkspaceSvg } from '../../assets/switch-worksp
 import { ReactComponent as LogoutSvg } from '../../assets/logout.svg';
 import { ReactComponent as DownloadMacSvg } from '../../assets/download-mac.svg';
 import { ReactComponent as TemplatesSvg } from '../../assets/templates.svg';
+import useIntercom from '../../../../../hooks/useIntercom';
+import useBroadcastChannel from '../../../../../hooks/useBroadcastChannel';
 
 const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
-const isMac = navigator.platform.toLowerCase().indexOf('mac') !== -1;
+const isMac =
+	navigator.userAgentData?.platform === 'macOS' ||
+	navigator.userAgent.toLowerCase().indexOf('mac') !== -1;
 
-const settingsItems = [
+export const settingsItems = [
 	{
 		id: 1,
 		label: 'My Profile',
 		icon: <MyProfileSvg />,
 		route: '/settings/my-profile',
+		value: 'my-profile',
 	},
 	{
 		id: 2,
 		label: 'Workspace',
 		icon: <WorkspaceSvg />,
 		route: '/settings/workspace',
+		value: 'workspace',
 	},
 	{
 		id: 3,
 		label: 'Team Members',
 		icon: <TeamMembersSvg />,
 		route: '/settings/team-members',
+		value: 'team-members',
 	},
 	{
 		id: 4,
 		label: 'Integrations',
 		icon: <IntegrationsSvg />,
 		route: '/settings/integrations',
+		value: 'integrations',
 	},
 	{
 		id: 5,
 		label: 'Plan Billing',
 		icon: <PlanBillingSvg />,
 		route: '/settings/plan-billing',
+		value: 'plan-billing',
 	},
 	{
 		id: 6,
 		label: 'AI Setup',
 		icon: <AISetupSvg />,
 		route: '/settings/ai-setup',
+		value: 'ai-setup',
 	},
 	{
 		id: 7,
@@ -68,16 +78,6 @@ const settingsItems = [
 		label: 'Help',
 		icon: <HelpSvg />,
 		route: null,
-		handleClick: () => {
-			let iframe = document.getElementById('ve-ai-chat-iframe');
-			if (iframe) {
-				const requiredStyle = iframe.style.display === 'none' ? 'block' : 'none';
-				iframe.style.display = requiredStyle;
-			} else {
-				console.log('Iframe not found');
-			}
-			return;
-		},
 	},
 ];
 
@@ -91,15 +91,17 @@ const Settings = ({
 	closeSettingsTooltip,
 }) => {
 	const { pathname } = useLocation();
-
+	const { launchIntercom, shutdownIntercom, showIntercom } = useIntercom();
+	const channel = useBroadcastChannel();
 	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
 		workspaceModalOpen: false,
+		intercomOpen: false,
 	});
 
 	const {
-		profileInfo: { tenantUserAccessControls, userWorkSpaceList, getUserWorkSpaceList },
+		profileInfo: { tenantUserAccessControls, userWorkSpaceList },
 	} = useContext(Context);
 
 	const fullName = `${firstName ?? ''} ${lastName ?? ''}`;
@@ -107,10 +109,17 @@ const Settings = ({
 	const workspacesMoreThanOne = userWorkSpaceList?.length > 1;
 
 	useEffect(() => {
-		if (!userWorkSpaceList) {
-			getUserWorkSpaceList();
+		if (info.intercomOpen) {
+			openIntercom();
+		} else {
+			shutdownIntercom();
 		}
-	}, [userWorkSpaceList]);
+	}, [info.intercomOpen]);
+
+	const openIntercom = async () => {
+		await launchIntercom();
+		showIntercom();
+	};
 
 	return (
 		<div className={s.settingsContainer}>
@@ -160,7 +169,10 @@ const Settings = ({
 							if (settingItem.route) {
 								navigate(settingItem.route);
 							} else {
-								settingItem.handleClick();
+								setInfo((prev) => ({
+									...prev,
+									intercomOpen: !prev.intercomOpen,
+								}));
 							}
 							closeSettingsTooltip();
 						}}
@@ -176,7 +188,13 @@ const Settings = ({
 					</div>
 				))}
 			</div>
-			<button className={s.logoutButton} onClick={() => logout()}>
+			<button
+				className={s.logoutButton}
+				onClick={() => {
+					logout();
+					channel.postMessage('reload');
+				}}
+			>
 				<LogoutSvg />
 				<span>Logout</span>
 			</button>

@@ -19,6 +19,7 @@ export const getTemmplatesQuery = gql`
 
 				tenantId
 				title
+				imageUrl
 				workflows
 				templates
 				steps
@@ -70,6 +71,8 @@ export const getClientListQuery = gql`
 				updatedAt
 				createdAt
 				createdBy
+				workflows
+				templateDetails
 			}
 		}
 	}
@@ -254,6 +257,7 @@ export const getWorkflowListQuery = gql`
 				createdAt
 				updatedAt
 				firstModule
+				imageUrl
 			}
 		}
 	}

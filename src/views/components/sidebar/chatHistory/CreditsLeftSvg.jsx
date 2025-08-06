@@ -2,10 +2,12 @@ import { memo } from 'react';
 
 const CreditsLeftSvg = ({ totalAiCreditLimit, totalAiCreditUsed }) => {
 	const totalCircumference = 62.8; // 2 * π * 10 (radius)
-	const creditsUsedPercentage =
-		totalAiCreditLimit > 0 ? (totalAiCreditUsed / totalAiCreditLimit) * 100 : 0;
+	const creditsLeftPercentage =
+		totalAiCreditLimit > 0
+			? ((totalAiCreditLimit - totalAiCreditUsed) / totalAiCreditLimit) * 100
+			: 0;
 	const strokeDasharray = `${
-		(creditsUsedPercentage / 100) * totalCircumference
+		(creditsLeftPercentage / 100) * totalCircumference
 	} ${totalCircumference}`;
 
 	return (
@@ -18,25 +20,18 @@ const CreditsLeftSvg = ({ totalAiCreditLimit, totalAiCreditUsed }) => {
 			className="closed-sidebar-icon"
 		>
 			{/* Background Circle (always fully visible) */}
-			<circle
-				cx="12"
-				cy="12"
-				r="10"
-				stroke="var(--stroke, #2b2e31)"
-				strokeWidth="4"
-				fill="none"
-			/>
+			<circle cx="12" cy="12" r="10" stroke="var(--stroke)" strokeWidth="4" fill="none" />
 			{/* Progress Circle (shows credits used, starts at left bottom) */}
 			<circle
 				cx="12"
 				cy="12"
 				r="10"
-				stroke="var(--primary-button, #1890ff)"
+				stroke="var(--primary-button)"
 				strokeWidth="4"
 				fill="none"
 				strokeDasharray={strokeDasharray}
 				strokeDashoffset="0"
-				transform="rotate(135 12 12)" // Start progress at left bottom (135° counterclockwise)
+				transform="rotate(-90 12 12)" // Start progress at top (0° = -90° in SVG)
 			/>
 		</svg>
 	);

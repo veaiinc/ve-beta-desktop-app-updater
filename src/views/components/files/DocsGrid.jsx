@@ -608,6 +608,7 @@ const DocsGrid = ({
 							// buttonOnClick={handleCreateDoc}
 							buttonText={'Create Document'}
 							showUpload={false}
+							buttonOnClick={() => navigate('/builder/create-document')}
 						/>
 					</div>
 				)}

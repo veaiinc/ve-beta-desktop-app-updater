@@ -6,11 +6,11 @@ import useNote from '../../../hooks/useNote';
 import useLiveIntelligenceStream from '../../../hooks/useLiveIntelligenceStream';
 import '../../../assets/scss/noteTranscription/note-transcription.scss';
 import { message } from 'antd';
-import ObjectID from 'bson-objectid';
 import Waveform from '../../../assets/svg/note-transcription.gif';
 import { ReactComponent as Mic } from '../../../assets/svg/microphone.svg';
 import { ReactComponent as MuteMic } from '../../../assets/svg/ai_agents/mutemic.svg';
 import { ReactComponent as Close } from '../../../assets/svg/ai_agents/close.svg';
+import ObjectID from 'bson-objectid';
 // Memoized TranscriptionItem to prevent unnecessary re-renders
 const TranscriptionItem = memo(({ displayedText, isFinal }) => {
 	return (
@@ -36,7 +36,7 @@ export default function NoteTranscription({
 	const processedSegmentsRef = useRef(new Map()); // Track processed segment text and final state
 	const isMountedRef = useRef(false);
 	const [isRecording, setIsRecording] = useState(false); // Control transcription start
-	const sessionIdRef = useRef(ObjectID().toString()); // Unique session ID for live intelligence
+	const sessionIdRef = useRef(null); // Unique session ID for live intelligence
 
 	const {
 		notes: { getLiveKitToken, deleteLiveKitRoom },
@@ -80,7 +80,7 @@ export default function NoteTranscription({
 			typingIntervalsRef.current.clear();
 			disconnect();
 			closeLiveIntelligenceConnection();
-			deleteLiveKitRoom({ pageId: pageId });
+			deleteLiveKitRoom({ meetingId: sessionIdRef.current });
 		};
 	}, [disconnect]);
 
@@ -305,9 +305,10 @@ export default function NoteTranscription({
 	}, [transcriptions]);
 	// Handle start transcription
 	const handleStartTranscription = async () => {
+		sessionIdRef.current = ObjectID().toString();
 		// Fetch a new LiveKit token
 		try {
-			const response = await getLiveKitToken({ pageId: pageId });
+			const response = await getLiveKitToken({ meetingId: sessionIdRef.current });
 			if (response && response[0] === true && response[1]?.accessToken) {
 				setLiveKitToken(response[1].accessToken);
 				setIsRecording(true);
@@ -335,7 +336,7 @@ export default function NoteTranscription({
 		// Clean up typing intervals
 		typingIntervalsRef.current.forEach((interval) => clearInterval(interval));
 		typingIntervalsRef.current.clear();
-		deleteLiveKitRoom({ pageId: pageId });
+		deleteLiveKitRoom({ meetingId: sessionIdRef.current });
 		// Disconnect LiveKit
 		disconnect();
 		// Close live intelligence connection

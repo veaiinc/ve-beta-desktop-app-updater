@@ -73,6 +73,7 @@ import { getThumbnailUrl } from '../../../helpers/videoThumbnailHelpers';
 import GalleryVideos from '../../components/gallery/galleryVideos/GalleryVideos';
 import { ReactComponent as ChevronLeft } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as MoveToIcon } from '../../../assets/svg/gallery/moveToIcon.svg';
+import Spinner from '../../components/loaders/Spinner';
 // const workspaceId = localStorage.getItem('workspaceId');
 
 const dummyImagesArray = Array.from({ length: 10 }, () => ({ isPlaceholderImg: true }));
@@ -352,6 +353,7 @@ const GalleryPage = () => {
 		thumbnailUrls: {},
 		selectedScreenType: 'desktop',
 		selectedAlbumToMove: null,
+		imagesMovingToAlbum: false,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -2599,7 +2601,7 @@ const GalleryPage = () => {
 						zoom: mobileSettings.zoom || 1,
 					},
 				};
-				await getAlbumImagesCount(galleryId);
+				// await getAlbumImagesCount(galleryId);
 				// Update state
 				setInfo((prev) => ({
 					...prev,
@@ -2607,7 +2609,7 @@ const GalleryPage = () => {
 					uploadImageId: null,
 					imageURL: '',
 					coverImageDetails: updatedCoverImage,
-					selectedImages: [], // Clear selected images
+					selectedImages: [],
 					crop: {
 						desktop: {
 							x: desktopSettings.focalPoint?.x || 0,
@@ -2791,6 +2793,10 @@ const GalleryPage = () => {
 	};
 
 	const handleMoveImageToAlbum = async (albumId) => {
+		setInfo((prev) => ({
+			...prev,
+			imagesMovingToAlbum: true,
+		}));
 		const payload = {
 			image_ids: info?.selectedImages,
 		};
@@ -2809,12 +2815,17 @@ const GalleryPage = () => {
 				},
 				selectedImages: [],
 				showMoveToAlbum: false,
+				imagesMovingToAlbum: false,
 			}));
 			showMessage('success', 'Images moved to album successfully');
 		} else {
 			showMessage('error', 'Something went wrong, please try again later', () =>
 				handleMoveImageToAlbum(albumId),
 			);
+			setInfo((prev) => ({
+				...prev,
+				imagesMovingToAlbum: false,
+			}));
 		}
 	};
 
@@ -3281,7 +3292,7 @@ const GalleryPage = () => {
 		if (!clientX || !clientY) return;
 
 		const container = rearrangeContainerRef.current;
-		console.log('container', container);
+
 		if (!container) return;
 
 		const scrollSpeed = 20;
@@ -3712,6 +3723,7 @@ const GalleryPage = () => {
 			showUploadCover: true,
 			coverType: type,
 			selectedImages: [file?._id],
+			selectedImage: file,
 			coverPhoto: true,
 			isLoadingCover: true, // Set loading to true while fetching the image
 		}));
@@ -4318,7 +4330,7 @@ const GalleryPage = () => {
 																		style={{
 																			background: src
 																				? `url(${src})`
-																				: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
+																				: ``,
 																			backgroundSize: 'cover',
 																			backgroundPosition:
 																				'center',
@@ -4333,7 +4345,20 @@ const GalleryPage = () => {
 																		{album.image && (
 																			<img src={src} />
 																		)}
-
+																		{!album?.coverImage
+																			?._id && (
+																			<AlbumCoverIcon
+																				style={{
+																					position:
+																						'absolute',
+																					top: '50%',
+																					left: '50%',
+																					transform:
+																						'translate(-50%, -50%)',
+																				}}
+																				color="var(--secondary-font)"
+																			/>
+																		)}
 																		<div
 																			className="albumDetails"
 																			onClick={() =>
@@ -4343,13 +4368,15 @@ const GalleryPage = () => {
 																				)
 																			}
 																		>
-																			<p>{album?.title}</p>
-																			<p>{`${
+																			<p className="albumTitle">{`${
 																				album?.numberOfImages ||
 																				0
 																			} photos`}</p>
+																			<p className="albumCollectionTitle">
+																				{album?.title}
+																			</p>
 																		</div>
-																		<div className="overlay"></div>
+																		{/* <div className="overlay"></div> */}
 																	</div>
 																);
 															},
@@ -5851,133 +5878,152 @@ const GalleryPage = () => {
 						</div>
 						{!info.isRearranging && (
 							<div className="selectedImagesActions">
-								{info?.selectedImages?.length === 1 && (
+								{info?.selectedImages?.length === 1 &&
+									info?.activeTab !== 'Collections' && (
+										<Tooltip
+											title={
+												<div className="galleryEditOptions">
+													<li onClick={handleSetGalleryCover}>
+														<AlbumCoverIcon />
+														<span>Set as Gallery Cover</span>
+													</li>
+													<li onClick={handleSetAlbumCover}>
+														<AlbumCoverIcon />
+														<span>Set as Album Cover</span>
+													</li>
+												</div>
+											}
+											placement="top"
+											trigger={'click'}
+											arrow={false}
+											color={'transparent'}
+										>
+											<div>
+												<AlbumCoverIcon
+													style={{ color: 'var(--primary-font)' }}
+												/>
+											</div>
+										</Tooltip>
+									)}
+								{info?.activeTab !== 'Collections' && (
 									<Tooltip
 										title={
-											<div className="galleryEditOptions">
-												<li onClick={handleSetGalleryCover}>
-													<AlbumCoverIcon />
-													<span>Set as Gallery Cover</span>
-												</li>
-												<li onClick={handleSetAlbumCover}>
-													<AlbumCoverIcon />
-													<span>Set as Album Cover</span>
-												</li>
+											<div className="listAlbumsContainer">
+												<div
+													className="moveToAlbumTitleContainer"
+													style={{ cursor: 'pointer' }}
+												>
+													<span className="moveToAlbumOptionsContainer">
+														<span className="moveToAlbumTitle">
+															{' '}
+															Move {
+																info.selectedImages.length
+															} images{' '}
+														</span>
+														{info.imagesMovingToAlbum ? (
+															<Spinner
+																style={{
+																	width: '16px',
+																	height: '16px',
+																}}
+															/>
+														) : (
+															<RightArrow
+																onClick={() =>
+																	handleMoveImageToAlbum(
+																		info?.selectedAlbumToMove,
+																	)
+																}
+															/>
+														)}
+													</span>
+												</div>
+												{sortByCustomIndex(albumImagesCount?.albums)
+													?.filter(
+														(album) =>
+															album?._id !== info?.activeAlbumId,
+													)
+													?.map((album, index) => {
+														let src = null;
+														if (album?.coverImage?._id) {
+															const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+															src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
+														}
+														return (
+															<div
+																className={`albumCard ${
+																	info.selectedAlbumId ===
+																	album?._id
+																		? 'active'
+																		: ''
+																}`}
+																onClick={() =>
+																	handleAlbumClick(album?._id)
+																}
+															>
+																<div className="albumCardContent">
+																	<div
+																		style={{
+																			backgroundImage: `url(${src})`,
+																			backgroundSize: 'cover',
+																			backgroundPosition:
+																				'center',
+																			backgroundRepeat:
+																				'no-repeat',
+																			width: '24px',
+																			height: '24px',
+																			borderRadius: '50%',
+																			backgroundColor:
+																				'var(--background-color)',
+																		}}
+																	></div>
+																	<p className="albumName">
+																		{album?.title}
+																	</p>
+																</div>
+																<Checkbox
+																	className="custom-checkbox-style"
+																	onChange={() =>
+																		setInfo((prev) => ({
+																			...prev,
+																			selectedAlbumToMove:
+																				album?._id,
+																		}))
+																	}
+																	checked={
+																		info.selectedAlbumToMove ===
+																		album?._id
+																	}
+																/>
+															</div>
+														);
+													})}
+												<div
+													className="createAlbumContainer"
+													onClick={() =>
+														setInfo((prev) => ({
+															...prev,
+															showCreateAlbum: true,
+														}))
+													}
+												>
+													<PlusIcon />
+													<span className="createAlbumText">
+														Create Album
+													</span>
+												</div>
 											</div>
 										}
 										placement="top"
-										trigger={'click'}
 										arrow={false}
-										color={'transparent'}
+										color="transparent"
+										trigger={'click'}
 									>
 										<div>
-											<AlbumCoverIcon
-												style={{ color: 'var(--primary-font)' }}
-											/>
+											<MoveToIcon />
 										</div>
 									</Tooltip>
 								)}
-								<Tooltip
-									title={
-										<div className="listAlbumsContainer">
-											<div className="moveToAlbumTitleContainer">
-												<span className="moveToAlbumOptionsContainer">
-													<span className="moveToAlbumTitle">
-														{' '}
-														Move {
-															info.selectedImages.length
-														} images{' '}
-													</span>
-													<RightArrow
-														onClick={() =>
-															handleMoveImageToAlbum(
-																info?.selectedAlbumToMove,
-															)
-														}
-													/>
-												</span>
-											</div>
-											{sortByCustomIndex(albumImagesCount?.albums)?.map(
-												(album, index) => {
-													let src = null;
-													if (album?.coverImage?._id) {
-														const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-														src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
-													}
-													return (
-														<div
-															className={`albumCard ${
-																info.selectedAlbumId === album?._id
-																	? 'active'
-																	: ''
-															}`}
-															onClick={() =>
-																handleAlbumClick(album?._id)
-															}
-														>
-															<div className="albumCardContent">
-																<div
-																	style={{
-																		backgroundImage: `url(${src})`,
-																		backgroundSize: 'cover',
-																		backgroundPosition:
-																			'center',
-																		backgroundRepeat:
-																			'no-repeat',
-																		width: '24px',
-																		height: '24px',
-																		borderRadius: '50%',
-																		backgroundColor:
-																			'var(--background-color)',
-																	}}
-																></div>
-																<p className="albumName">
-																	{album?.title}
-																</p>
-															</div>
-															<Checkbox
-																className="custom-checkbox-style"
-																onChange={() =>
-																	setInfo((prev) => ({
-																		...prev,
-																		selectedAlbumToMove:
-																			album?._id,
-																	}))
-																}
-																checked={
-																	info.selectedAlbumToMove ===
-																	album?._id
-																}
-															/>
-														</div>
-													);
-												},
-											)}
-											<div
-												className="createAlbumContainer"
-												onClick={() =>
-													setInfo((prev) => ({
-														...prev,
-														showCreateAlbum: true,
-													}))
-												}
-											>
-												<PlusIcon />
-												<span className="createAlbumText">
-													Create Album
-												</span>
-											</div>
-										</div>
-									}
-									placement="top"
-									arrow={false}
-									color="transparent"
-									trigger={'click'}
-								>
-									<div>
-										<MoveToIcon />
-									</div>
-								</Tooltip>
 								<div style={{ position: 'relative' }} ref={pinIconRef}>
 									<PinIcon onClick={handlePinIcon} />
 									{info.showPin && (
@@ -6040,9 +6086,11 @@ const GalleryPage = () => {
 										</div>
 									)}
 								</div>
-								<div onClick={() => handleExpandClick(null, 'multiple')}>
-									<ExpandIcon />
-								</div>
+								{info?.activeTab !== 'Collections' && (
+									<div onClick={() => handleExpandClick(null, 'multiple')}>
+										<ExpandIcon />
+									</div>
+								)}
 								<div onClick={handleDownload}>
 									<DownloadIcon />
 								</div>
