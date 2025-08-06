@@ -16,7 +16,7 @@ const AddGallery = lazy(() => import('../views/features/gallery/AddGallery'));
 const AlbumSettings = lazy(() => import('../views/features/gallery/AlbumSettings'));
 const UploadPhotos = lazy(() => import('../views/features/gallery/UploadPhotos'));
 const InitialHomePage = lazy(() => import('../views/features/homePage/InitialHomePage'));
-const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
+// const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
 const SettingsWrapper = lazy(() => import('../views/features/settings/SettingsWrapper'));
 const Docs = lazy(() => import('../views/features/docs/Docs'));
 import LiteGallery from '../views/features/gallery/Litegallery';
@@ -48,7 +48,7 @@ const Workflow_builder_updated = lazy(() =>
 );
 const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
 const Contacts = lazy(() => import('../views/features/contacts/Contacts'));
-const AmbientAi = lazy(() => import('../views/features/ambientAi/AmbientAi'));
+
 const Files = lazy(() => import('../views/features/files/Files'));
 const ExpandedClientView = lazy(() => import('../views/features/contacts/ExpandedClientView'));
 const BuilderApp = lazy(() => import('../../builderSrc/App'));
@@ -66,6 +66,7 @@ const GalleryViewer = lazy(() => import('../views/features/gallery/GalleryViewer
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
+const ProactiveSuggestions = lazy(() => import('../views/features/homePage/ProactiveSuggestions'));
 const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
 const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
 
@@ -93,16 +94,16 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
-	{
-		path: '/share-and-earn',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Share and Earn'}>
-					<ShareAndEarn />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
+	// {
+	// 	path: '/share-and-earn',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'Share and Earn'}>
+	// 				<ShareAndEarn />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
 	{
 		path: '/early-access',
 		element: (
@@ -126,7 +127,7 @@ const betaRoutes = [
 					childrenContainerStyles={{ overflow: 'auto' }}
 					showBottomToolbar={false}
 				>
-					<AmbientAi />
+					<ProactiveSuggestions />
 				</AuthWrapper>
 			</Suspense>
 		),

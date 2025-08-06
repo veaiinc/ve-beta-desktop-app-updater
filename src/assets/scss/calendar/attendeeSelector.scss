@@ -66,6 +66,12 @@
 		}
 	}
 
+	.ant-input {
+		&::placeholder {
+			color: var(--secondary-font) !important;
+		}
+	}
+
 	.ant-select {
 		width: 100%;
 		border-radius: 4px;
