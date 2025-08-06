@@ -70,6 +70,8 @@ const PromptPopup = ({
 	feedbackMessage = '',
 	selectedFeedback = [],
 	isTrained = false,
+	trainedFeedbackIds = null,
+	setTrainedFeedbackIds = null,
 }) => {
 	const navigate = useNavigate();
 
@@ -222,6 +224,10 @@ const PromptPopup = ({
 				feedback: null,
 			}));
 
+			if (setTrainedFeedbackIds) {
+				setTrainedFeedbackIds(messageId);
+			}
+
 			closeModal();
 		} catch (error) {
 			console.error('Feedback submit error:', error);
@@ -234,6 +240,7 @@ const PromptPopup = ({
 		updateAiChatMessageRating,
 		pendingActionsFeedback,
 		closeModal,
+		setTrainedFeedbackIds,
 	]);
 
 	const handleFeedbackSelect = (feedback) => {
@@ -393,18 +400,24 @@ const PromptPopup = ({
 							className="runPrompt"
 							onClick={
 								info?.feedbackPopupOpen
-									? isTrained
+									? isTrained || trainedFeedbackIds?.includes(messageId)
 										? undefined
 										: handleFeedbackSubmit
 									: handleClickRun
 							}
 							style={{
-								cursor: isTrained ? 'not-allowed' : 'pointer',
-								color: isTrained ? 'var(--primary-button)' : 'var(--primary-font)',
+								cursor:
+									isTrained || trainedFeedbackIds?.includes(messageId)
+										? 'not-allowed'
+										: 'pointer',
+								color:
+									isTrained || trainedFeedbackIds?.includes(messageId)
+										? 'var(--primary-button)'
+										: 'var(--primary-font)',
 							}}
 						>
 							{info?.feedbackPopupOpen ? (
-								isTrained ? (
+								isTrained || trainedFeedbackIds?.includes(messageId) ? (
 									'Trained'
 								) : (
 									'Submit'
