@@ -76,7 +76,12 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 			sameSite: 'lax',
 			domain: host,
 		});
-		window.location.href = '/home';
+		window.location.hash = '/home';
+		if (window.api && typeof window.api.reloadApp === 'function') {
+			window.api.reloadApp();
+		} else {
+			window.location.reload();
+		}
 	};
 
 	const handleKeyboardNavigation = (e) => {

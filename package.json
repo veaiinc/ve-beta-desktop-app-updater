@@ -140,7 +140,7 @@
 		},
 		"mac": {
 			"icon": "./electron/assets/app-logo.icns",
-			"artifactName": "Ve.AI-${version}-${arch}-${os}.${ext}",
+			"artifactName": "Ve.AI-${arch}-${os}.${ext}",
 			"category": "public.app-category.business",
 			"type": "distribution",
 			"gatekeeperAssess": false,
@@ -164,7 +164,7 @@
 				}
 			],
 			"icon": "./electron/assets/app-logo.ico",
-			"artifactName": "Ve.AI-${version}-${arch}-${os}.${ext}"
+			"artifactName": "Ve.AI-${arch}-${os}.${ext}"
 		},
 		"linux": {
 			"target": [
@@ -176,7 +176,7 @@
 				}
 			],
 			"icon": "./electron/assets/app-logo.png",
-			"artifactName": "Ve.AI-${version}-${arch}-${os}.${ext}"
+			"artifactName": "Ve.AI-${arch}-${os}.${ext}"
 		}
 	},
 	"eslintConfig": {
