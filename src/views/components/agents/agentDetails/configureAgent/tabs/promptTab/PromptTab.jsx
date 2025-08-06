@@ -87,34 +87,33 @@ const PromptTab = () => {
 	};
 
 	// Handle delete account
-	const handleDeleteAccount = async (accountId, appName, e) => {
-		if (info?.deletingAccountId === accountId) return;
-		e.stopPropagation();
-		setInfo((prev) => ({
-			...prev,
-			deletingAccountId: accountId,
-		}));
+	// const handleDeleteAccount = async (accountId, appName, e) => {
+	// 	if (info?.deletingAccountId === accountId) return;
+	// 	e.stopPropagation();
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		deletingAccountId: accountId,
+	// 	}));
 
-		const response = await deleteConnectedAccount({
-			app: appName,
-			account_id: accountId,
-		});
+	// 	const response = await deleteConnectedAccount({
+	// 		app: appName,
+	// 		account_id: accountId,
+	// 	});
 
-		if (response?.[0] === true) {
-			message.success('Account deleted successfully');
-			fetchConnectedAccounts();
-		} else {
-			message.error('Failed to delete account');
-		}
+	// 	if (response?.[0] === true) {
+	// 		message.success('Account deleted successfully');
+	// 		fetchConnectedAccounts();
+	// 	} else {
+	// 		message.error('Failed to delete account');
+	// 	}
 
-		setInfo((prev) => ({
-			...prev,
-			deletingAccountId: null,
-		}));
-	};
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		deletingAccountId: null,
+	// 	}));
+	// };
 
 	const handleOpenDeleteModal = (accountId, appName, e) => {
-		e.stopPropagation();
 		setInfo((prev) => ({
 			...prev,
 			deleteModal: { open: true, accountId, appName },
@@ -272,11 +271,10 @@ const PromptTab = () => {
 											</div>
 											<button
 												className={s.deleteButton}
-												onClick={(e) =>
+												onClick={() =>
 													handleOpenDeleteModal(
 														account.id,
 														account.app.name_slug,
-														e,
 													)
 												}
 												disabled={info.deletingAccountId === account.id}

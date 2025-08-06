@@ -14,7 +14,7 @@ import { ReactComponent as Plus } from '../../../assets/svg/document/plus.svg';
 import { ReactComponent as DocumentPreview } from '../../../assets/svg/document/documentrightside.svg';
 import { fetchOriginSelection } from '../../../helper';
 import PhoneInput from 'react-phone-number-input';
-import 'react-phone-number-input/style.css';
+// import 'react-phone-number-input/style.css';
 
 const origin = fetchOriginSelection();
 // ClientSelectionTooltip Component
@@ -104,6 +104,14 @@ const ClientSelectionTooltip = ({ handleOptionSelection, clientsList, getClientL
 			</div>
 		</div>
 	);
+};
+
+const phoneInputStyle = {
+	backgroundColor: 'inherit',
+	color: 'var(--primary-font)',
+	padding: '10px 14px',
+	borderRadius: '10px',
+	border: '1px solid var(--stroke)',
 };
 
 const CreateDocument = () => {
@@ -770,10 +778,7 @@ const CreateDocument = () => {
 													className="phoneInputNumber"
 													countryCallingCodeEditable={true}
 													autoComplete="tel"
-													style={{
-														backgroundColor: 'none',
-														border: '1px solid var(--stroke)',
-													}}
+													style={phoneInputStyle}
 												/>
 												<Tooltip title="Phone Number" placement="top">
 													<div className="inputIcon">
