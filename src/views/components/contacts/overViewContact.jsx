@@ -14,6 +14,7 @@ import { ReactComponent as PhoneIcon } from '../../../assets/svg/contacts/phone.
 import { ReactComponent as AvatarIcon } from '../../../assets/svg/contacts/phone.svg';
 import UserSvg from '../../../assets/svg/Settings/UserSvg';
 import { message } from '../globalComponents/CustomToast';
+import DeleteFormModal from '../modalsV2/DeleteModal/DeleteModal';
 
 const OverviewContact = () => {
 	const { contactId } = useParams();
@@ -28,6 +29,7 @@ const OverviewContact = () => {
 			email: false,
 			phoneNumber: false,
 		},
+		deleteModal: { open: false },
 	});
 	const navigate = useNavigate();
 
@@ -154,6 +156,28 @@ const OverviewContact = () => {
 		}
 	};
 
+	const handleOpenDeleteModal = () => {
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: true },
+		}));
+	};
+
+	const handleConfirmDelete = async () => {
+		await handleDelete();
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: false },
+		}));
+	};
+
+	const handleCancelDelete = () => {
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: false },
+		}));
+	};
+
 	return (
 		<div className="about-container">
 			<div className="top-bar-container">
@@ -166,7 +190,10 @@ const OverviewContact = () => {
 						<span className="breadcrumb-current">Overview</span>
 					</div>
 					<div className="top-bar-actions">
-						<DeleteIcon className="top-bar-icon delete" onClick={handleDelete} />
+						<DeleteIcon
+							className="top-bar-icon delete"
+							onClick={handleOpenDeleteModal}
+						/>
 					</div>
 				</div>
 				{/* <QuickActions /> */}
@@ -346,6 +373,17 @@ const OverviewContact = () => {
 					</div>
 				</div>
 			</div>
+
+			{/* Delete Contact Modal */}
+			<DeleteFormModal
+				isOpen={info?.deleteModal?.open}
+				onClose={handleCancelDelete}
+				onConfirm={handleConfirmDelete}
+				title="Delete Contact?"
+				itemType="contact"
+				description="Are you sure you want to delete this contact?"
+				warning="This contact will be permanently removed and cannot be recovered."
+			/>
 		</div>
 	);
 };
