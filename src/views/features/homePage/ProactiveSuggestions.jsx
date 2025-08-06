@@ -272,14 +272,8 @@ const ProactiveSuggestions = () => {
 		if (!insightTypes) {
 			getAiInsightTypes();
 		} else {
-			let headline = null;
-			let options = insightTypes?.filter((option) => {
-				if (option?.headline) {
-					headline = option?.headline;
-				}
-				return !option?.headline;
-			});
-			options = sortByInsightsOrder(options, insightOptionsInOrder);
+			const { insights, headline } = insightTypes || {};
+			const options = sortByInsightsOrder(insights, insightOptionsInOrder);
 			insightTypesRef.current = options;
 			selectedOptionRef.current = options?.[0]?.insight_type;
 
