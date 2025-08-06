@@ -158,13 +158,13 @@ const RecentChat = ({
 		};
 	}, []);
 
-	// useEffect(() => {
-	// 	getBrowserSession({ sessionId });
-	// }, []);
+	useEffect(() => {
+		getBrowserSession({ sessionId });
+	}, []);
 
-	// useEffect(() => {
-	// 	getBrowserUrls(sessionId);
-	// }, [sessionId]);
+	useEffect(() => {
+		getBrowserUrls(sessionId);
+	}, [sessionId]);
 
 	useEffect(() => {
 		if (info?.getFollowUpQueries) {
