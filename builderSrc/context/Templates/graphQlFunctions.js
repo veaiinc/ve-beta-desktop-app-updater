@@ -67,6 +67,8 @@ export const getClientListQuery = gql`
 				updatedAt
 				createdAt
 				createdBy
+				workflows
+				templateDetails
 			}
 		}
 	}
