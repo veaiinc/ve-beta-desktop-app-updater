@@ -1314,6 +1314,34 @@ const ChatBox = ({
 		[info, uploadedImagesRef],
 	);
 
+	// Comprehensive function to clear all transcription states
+	const clearTranscriptionStates = useCallback(() => {
+		// Clear all transcription-related states
+		setIsTranscribing(false);
+		setLiveKitToken(null);
+		setTranscriptionText('');
+
+		// Clear chat query if it was set by transcription
+		setInfo((prev) => ({
+			...prev,
+			chatQuery: '',
+			voiceIntegration: false,
+			suggestion: null,
+			showSuggestion: false,
+		}));
+
+		// Clear transcription session ID
+		transcriptionSessionId.current = ObjectID().toString();
+
+		// Disconnect LiveKit connection
+		disconnect();
+
+		// Clear any stored segments or transcription data
+		// The segments will be cleared automatically when trackRef becomes undefined
+
+		console.log('All transcription states cleared');
+	}, [disconnect]);
+
 	const handleMicIconClick = useCallback(
 		async (event) => {
 			try {
@@ -1362,17 +1390,8 @@ const ChatBox = ({
 						message.error('Error starting transcription. Please try again.');
 					}
 				} else {
-					// Stop transcription
-					setIsTranscribing(false);
-					setLiveKitToken(null);
-					setTranscriptionText('');
-					// Clear suggestions when stopping transcription
-					setInfo((prev) => ({
-						...prev,
-						voiceIntegration: false,
-						suggestion: null,
-						showSuggestion: false,
-					}));
+					// Stop transcription and clear all states
+					clearTranscriptionStates();
 				}
 
 				// Don't call handleConnect during transcription to avoid voiceIntegration conflicts
