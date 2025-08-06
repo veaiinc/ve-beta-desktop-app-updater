@@ -4054,6 +4054,23 @@ m-border {
 	}
 }
 
+@media (max-width: 480px) {
+	.clienEventsStyling {
+		max-width: 100% !important;
+		min-height: auto !important;
+		min-width: auto !important;
+	}
+}
+
+@media (max-width: 375px) {
+	.clienEventsStyling {
+		max-width: 100% !important;
+		min-height: auto !important;
+		min-width: auto !important;
+		width: 100% !important;
+	}
+}
+
 .show-hide {
 	align-items: center;
 	justify-content: center;
