@@ -6,6 +6,7 @@ import { ReactComponent as RightSvg } from '../../../../assets/svg/activity/righ
 import { ReactComponent as DustBinIcon } from '../../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as ExpandSvg } from '../../../../assets/svg/docs/expand.svg';
 import Spinner from '../../loaders/Spinner';
+import DeleteFormModal from '../DeleteModal/DeleteModal';
 import Skeleton from 'react-loading-skeleton';
 import CustomTextArea from '../../globalComponents/CusomTextArea';
 // import QuickActions from '../../globalComponents/QuickActions';
@@ -57,6 +58,7 @@ const ListViewSidebar = ({
 		deleteLoading: false,
 		completedSubtaskCount: 0,
 		titlePropName: null,
+		deleteModal: { open: false },
 	});
 
 	const [localTitle, setLocalTitle] = useState('');
@@ -162,7 +164,29 @@ const ListViewSidebar = ({
 			deleteLoading: false,
 		}));
 		updateSideBarData({ open: false });
-	}, [deleteTask, selectedRow?._id, updateSideBarData]);
+	}, [deleteTask, selectedRow?._id, updateSideBarData, groupBy]);
+
+	const handleOpenDeleteModal = () => {
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: true },
+		}));
+	};
+
+	const handleConfirmDelete = async () => {
+		await handleDeleteTask();
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: false },
+		}));
+	};
+
+	const handleCancelDelete = () => {
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: false },
+		}));
+	};
 
 	const generateRow = useCallback(
 		(row) => {
@@ -397,9 +421,7 @@ const ListViewSidebar = ({
 							)} */}
 							<button
 								className="sidebar-delete-button"
-								onClick={() => {
-									handleDeleteTask();
-								}}
+								onClick={handleOpenDeleteModal}
 								disabled={info?.deleteLoading}
 							>
 								{info?.deleteLoading ? (
@@ -466,6 +488,17 @@ const ListViewSidebar = ({
 					</div>
 				</div>
 			</div>
+
+			{/* Delete Task Modal */}
+			<DeleteFormModal
+				isOpen={info?.deleteModal?.open}
+				onClose={handleCancelDelete}
+				onConfirm={handleConfirmDelete}
+				title="Delete Task?"
+				itemType="task"
+				description="Are you sure you want to delete this task?"
+				warning="This task will be permanently removed and cannot be recovered."
+			/>
 		</Drawer>
 	);
 };
