@@ -183,7 +183,7 @@ const ProactiveSuggestions = () => {
 		settingsOpen: false,
 		hasCards: false,
 		trainedFeedbackIds: null,
-		selectedOptionData: null,
+		headline: null,
 	});
 
 	const promptsLength = promptsData?.data?.length ?? 0;
@@ -272,14 +272,22 @@ const ProactiveSuggestions = () => {
 		if (!insightTypes) {
 			getAiInsightTypes();
 		} else {
-			const options = sortByInsightsOrder(insightTypes, insightOptionsInOrder);
+			let headline = null;
+			let options = insightTypes?.filter((option) => {
+				if (option?.headline) {
+					headline = option?.headline;
+				}
+				return !option?.headline;
+			});
+			options = sortByInsightsOrder(options, insightOptionsInOrder);
 			insightTypesRef.current = options;
 			selectedOptionRef.current = options?.[0]?.insight_type;
+
 			setInfo((prev) => ({
 				...prev,
 				selectedOption: selectedOptionRef.current,
 				options,
-				selectedOptionData: options?.[0],
+				headline,
 			}));
 		}
 	}, [insightTypes]);
@@ -656,7 +664,7 @@ const ProactiveSuggestions = () => {
 		setTouchEndX(null);
 	};
 
-	const handleOptionSelection = (option, optionData) => {
+	const handleOptionSelection = (option) => {
 		if (info?.selectedOption === option) return;
 
 		currentIndexRef.current = 0;
@@ -666,7 +674,6 @@ const ProactiveSuggestions = () => {
 			selectedOption: option,
 			currentIndex: 0,
 			loading: true,
-			selectedOptionData: optionData,
 		}));
 	};
 
@@ -704,8 +711,8 @@ const ProactiveSuggestions = () => {
 					</div>
 				)} */}
 						<div className="proactive-suggestions-title">
-							{info?.selectedOptionData?.headline ? (
-								info?.selectedOptionData?.headline
+							{info?.headline ? (
+								info?.headline
 							) : (
 								<>
 									<span className="title-highlight">Ambient</span> Insights For
@@ -1093,25 +1100,21 @@ const ProactiveSuggestions = () => {
 									className={`homepage__options-container`}
 									ref={optionsContainerRef}
 								>
-									{info?.options?.map((option, index) => (
+									{info?.options?.map(({ count, insight_type }, index) => (
 										<div
 											className={`option ${
-												info?.selectedOption === option?.insight_type
+												info?.selectedOption === insight_type
 													? 'active'
 													: ''
 											}`}
-											onClick={(e) => {
-												handleOptionSelection(option?.insight_type, option);
+											onClick={() => {
+												handleOptionSelection(insight_type);
 											}}
 											key={index}
 										>
 											<div className="option-label">
-												<span className="option-name">
-													{option?.insight_type}
-												</span>
-												<span className="option-value">
-													{option?.count}
-												</span>
+												<span className="option-name">{insight_type}</span>
+												<span className="option-value">{count}</span>
 											</div>
 										</div>
 									))}
