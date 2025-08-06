@@ -943,6 +943,8 @@ const ChatBox = ({
 						// recentFiles: [],// not clearing the recent files , because they want like sana
 						chatFilters: initialChatFilters,
 						chatboxMinimized: true,
+						suggestion: null,
+						showSuggestion: false,
 					}));
 					uploadedImagesRef.current = [];
 
@@ -1322,6 +1324,9 @@ const ChatBox = ({
 				// Handle transcription toggle
 				if (!isTranscribing) {
 					try {
+						// Generate new session ID for each transcription start
+						transcriptionSessionId.current = ObjectID().toString();
+
 						// Get LiveKit token
 						const response = await getLiveKitToken({
 							meetingId: transcriptionSessionId.current,
@@ -1358,8 +1363,13 @@ const ChatBox = ({
 					setIsTranscribing(false);
 					setLiveKitToken(null);
 					setTranscriptionText('');
-					// Reset voiceIntegration to false to keep chat interface visible
-					setInfo((prev) => ({ ...prev, voiceIntegration: false }));
+					// Clear suggestions when stopping transcription
+					setInfo((prev) => ({
+						...prev,
+						voiceIntegration: false,
+						suggestion: null,
+						showSuggestion: false,
+					}));
 				}
 
 				// Don't call handleConnect during transcription to avoid voiceIntegration conflicts
@@ -1396,11 +1406,22 @@ const ChatBox = ({
 					return {
 						...prev,
 						chatQuery: prev?.suggestion,
+						suggestion: null,
+						showSuggestion: false,
 					};
 				}
 				return prev;
 			});
 		}
+	};
+
+	const handleTextAreaFocus = () => {
+		// Clear suggestions when text field is focused
+		setInfo((prev) => ({
+			...prev,
+			suggestion: null,
+			showSuggestion: false,
+		}));
 	};
 
 	const handleTextAreaChange = (e) => {
@@ -1727,6 +1748,7 @@ const ChatBox = ({
 														onChange={handleTextAreaChange}
 														autoFocus={autoFocus}
 														onKeyDown={handleTextAreaKeyDown}
+														onFocus={handleTextAreaFocus}
 														className={`textArea ${
 															startPage ? 'startTextPage' : ''
 														} ${isTranscribing ? 'transcribing' : ''}`}
