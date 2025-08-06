@@ -308,6 +308,9 @@ const AiTranscriptionSuggestions = ({
 
 							return result;
 						})()}
+						{allSuggestions?.length === 0 && (
+							<div className="meet-transcript-empty">No data.</div>
+						)}
 					</div>
 				)}
 

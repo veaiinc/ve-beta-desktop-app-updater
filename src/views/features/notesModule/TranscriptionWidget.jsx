@@ -121,7 +121,7 @@ const TranscriptionWidget = ({ transcriptList = [], botJoinedTime, meetingPlatfo
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
 			style={{
-				minWidth: info.expand ? '500px' : '357px',
+				width: info.expand ? '500px' : '365px',
 				height: info.expand ? '500px' : '52px',
 			}}
 		>
