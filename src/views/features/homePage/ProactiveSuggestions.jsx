@@ -182,6 +182,7 @@ const ProactiveSuggestions = () => {
 		searchOpen: false,
 		settingsOpen: false,
 		hasCards: false,
+		trainedFeedbackIds: null,
 	});
 
 	const promptsLength = promptsData?.data?.length ?? 0;
@@ -1113,6 +1114,16 @@ const ProactiveSuggestions = () => {
 							selectedCardNumber={currentIndexRef?.current + 1}
 							selectedOption={info?.selectedOption}
 							// onFavouriteClick={handleFavouriteClick}
+							trainedFeedbackIds={info?.trainedFeedbackIds}
+							setTrainedFeedbackIds={(submittedFeedbackId) =>
+								setInfo((prev) => ({
+									...prev,
+									trainedFeedbackIds: [
+										...(prev.trainedFeedbackIds || []),
+										submittedFeedbackId,
+									],
+								}))
+							}
 						/>
 					</>
 				)}

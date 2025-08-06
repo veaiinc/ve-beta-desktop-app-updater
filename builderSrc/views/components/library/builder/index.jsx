@@ -860,9 +860,10 @@ class Builder extends Component {
 					)}
 
 					{this.props.module !== 'summary' &&
-					(_.has(this.state?.activeModule, 'showAsSlide') == false ||
+					(!_.has(this.state?.activeModule, 'showAsSlide') ||
 						(_.has(this.state?.activeModule, 'showAsSlide') == true &&
-							this.state?.activeModule?.showAsSlide == false))
+							(this.state?.activeModule?.showAsSlide == false ||
+								!this.state?.activeModule?.showAsSlide)))
 						? _.map(
 								_.sortBy(
 									this.props.module === 'form' && this.state.isHeader
