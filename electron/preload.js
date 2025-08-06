@@ -27,4 +27,6 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	// Image processing function
 	processImageWithSharp: (data) => ipcRenderer.invoke('process-image-with-sharp', data),
+
+	extractImageMetadata: (data) => ipcRenderer.invoke('extract-image-metadata', data),
 });

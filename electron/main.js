@@ -6,6 +6,7 @@ const log = require('electron-log'); // Import electron-log
 const path = require('node:path');
 const sharp = require('sharp'); // Add sharp import
 const axios = require('axios'); // Add axios import
+const exifReader = require('exif-reader');
 let mainWindow = null;
 
 // Set the autoUpdater logger to electron-log
@@ -198,48 +199,56 @@ ipcMain.handle('restart-app', async () => {
 // Image processing handlers
 ipcMain.handle('process-image-with-sharp', async (event, data) => {
 	try {
-		const { imageBuffer, watermarkUrl, watermarkPosition, scale, opacity, isWaterMarkApply } =
-			data;
+		const {
+			imageBuffer,
+			watermarkUrl,
+			watermarkPosition,
+			scale,
+			opacity,
+			isWaterMarkApply,
+			resizeOptions = { width: 1200 }, // ← Default to 1K–1.2K
+			quality = 85,
+		} = data;
 
-		// Convert base64 or array buffer to Buffer
 		let imageData;
 		if (typeof imageBuffer === 'string') {
-			// Handle base64
 			imageData = Buffer.from(imageBuffer, 'base64');
 		} else {
-			// Handle array buffer
 			imageData = Buffer.from(imageBuffer);
 		}
 
 		let sharpImage = sharp(imageData);
-
-		// Get image metadata
 		const metadata = await sharpImage.metadata();
+
+		// 🔽 Resize only if needed — for optimized version
+		if (metadata.width > resizeOptions.maxWidth) {
+			sharpImage = sharpImage.resize({
+				width: resizeOptions.maxWidth,
+				fit: 'inside',
+				withoutEnlargement: true,
+			});
+		}
 
 		// Apply watermark if enabled
 		if (isWaterMarkApply && watermarkUrl) {
 			try {
-				// Fetch watermark image
 				const watermarkResponse = await axios.get(watermarkUrl, {
 					responseType: 'arraybuffer',
 				});
 				const watermarkBuffer = Buffer.from(watermarkResponse.data);
+				const watermarkMetadata = await sharp(watermarkBuffer).metadata();
 
-				// Resize watermark based on scale
-				const watermarkImage = sharp(watermarkBuffer);
-				const watermarkMetadata = await watermarkImage.metadata();
 				const watermarkWidth = Math.floor(metadata.width * scale);
 				const watermarkHeight = Math.floor(
 					(watermarkMetadata.height / watermarkMetadata.width) * watermarkWidth,
 				);
 
-				const resizedWatermark = await watermarkImage
+				const resizedWatermark = await sharp(watermarkBuffer)
 					.resize({ width: watermarkWidth, height: watermarkHeight })
 					.toBuffer();
 
-				// Calculate position
 				let position = { top: 0, left: 0 };
-				const offset = 10; // Margin from edges
+				const offset = 10;
 				if (watermarkPosition.name === 'southeast') {
 					position = {
 						left: metadata.width - watermarkWidth - offset,
@@ -247,41 +256,69 @@ ipcMain.handle('process-image-with-sharp', async (event, data) => {
 					};
 				} else if (watermarkPosition.name === 'northwest') {
 					position = { left: offset, top: offset };
-				} // Add other positions as needed
+				}
 
-				// Apply watermark with opacity
 				sharpImage = sharpImage.composite([
 					{
 						input: resizedWatermark,
 						top: position.top,
 						left: position.left,
 						blend: 'over',
-						opacity: opacity,
+						opacity,
 					},
 				]);
-			} catch (watermarkError) {
-				log.error('Error applying watermark:', watermarkError);
-				// Continue without watermark if there's an error
+			} catch (err) {
+				log.error('Watermark error:', err);
 			}
 		}
 
-		// Convert to buffer (JPEG format)
-		const processedBuffer = await sharpImage.jpeg({ quality: 80 }).toBuffer();
+		// Output as JPEG, compressed
+		const processedBuffer = await sharpImage.jpeg({ quality, progressive: true }).toBuffer();
 
-		// Return the processed buffer as base64
 		return {
 			success: true,
 			processedImage: processedBuffer.toString('base64'),
+			width: resizeOptions.maxWidth,
+			height: Math.floor((metadata.height * resizeOptions.maxWidth) / metadata.width),
+			size: processedBuffer.length,
 		};
 	} catch (error) {
-		log.error('Image processing error:', error);
+		log.error('Processing error:', error);
+		return { success: false, error: error.message };
+	}
+});
+ipcMain.handle('extract-image-metadata', async (event, { imageBuffer }) => {
+	const buffer = Buffer.from(imageBuffer);
+	try {
+		const metadata = await sharp(buffer).metadata();
+		const { width, height, format } = metadata;
+
+		let originalDateTime = null;
+		if (metadata.exif) {
+			const exifData = exifReader(metadata.exif);
+			const dateStr = exifData?.Photo?.DateTimeOriginal;
+			if (dateStr) {
+				originalDateTime = Math.floor(new Date(dateStr).getTime() / 1000);
+			}
+		}
+
+		// Fallback to current time if no EXIF
+		if (!originalDateTime) {
+			originalDateTime = Math.floor(Date.now() / 1000);
+		}
+
+		return { success: true, metadata, width, height, format, originalDateTime };
+	} catch (err) {
+		console.error('Metadata extraction failed:', err);
 		return {
 			success: false,
-			error: error.message,
+			width: null,
+			height: null,
+			format: 'jpeg',
+			originalDateTime: Math.floor(Date.now() / 1000),
 		};
 	}
 });
-
 // Graceful exit on macOS
 app.on('window-all-closed', () => {
 	app.quit();

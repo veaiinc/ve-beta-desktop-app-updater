@@ -12,6 +12,8 @@ import axios from 'axios';
 import UploadCompletedPopup from '../../components/gallery/addGallery/UploadCompletedPopup';
 import { message } from '../../components/globalComponents/CustomToast';
 import Context from '../../../context/context';
+import { uploadImage } from '../../../helpers/uploadImage';
+import ObjectID from 'bson-objectid';
 
 const UploadPhotosDesktop = () => {
 	const { galleryId, albumId } = useParams();
@@ -28,6 +30,8 @@ const UploadPhotosDesktop = () => {
 			getAlbums,
 			getImageDuplicatesList,
 			updateWaterMarkVisibility,
+			getUploadImagePolicy,
+			uploadDesktopImages,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState, updateStateValues },
 	} = useContext(Context);
@@ -43,27 +47,27 @@ const UploadPhotosDesktop = () => {
 			tpos: 'auto',
 			transformOrigin: 'bottom right',
 		},
+		initialUpload: false,
 		startedUploading: false,
 		uploadImages: {},
-		uploadSize: 0, // KB
-		uploadLimit: Math.min(
-			navigator.hardwareConcurrency ? Math.max(2, navigator.hardwareConcurrency - 1) : 4,
-			6,
-		), // Cap at 8 to avoid overload
+		uploadSize: 0, // kb
+		uploadLimit: Math.min(navigator.hardwareConcurrency - 1, 6), // Dynamic upload limit based on CPU cores
+		currentUpload: 1,
+		recentImageInitiated: null,
+		isSkipDuplicates: false,
 		uploadBatchID: randomize('Aa0', 10),
 		selectedGalleryTags: [],
-		duplicatesFound: 0, // Fixed typo
+		duplciatesFound: 0,
+		uploadStatus: { processedCount: 0, uploadedCount: 0 },
 		overAllProgress: 0,
 		isPopupOpen: false,
 		title: '',
+		isRefreshPopupOpen: false,
 		isAiEnabled: false,
+		isUploadComplete: false,
 		scaleWatermark: 0.15,
 		watermarkOpacity: 1,
-		// Processing state
-		isProcessing: false,
-		processingProgress: 0,
-		processedCount: 0,
-		totalCount: 0,
+		isProcessingDuplicates: false, // New state for duplicate processing feedback
 	});
 
 	const intervalRef = useRef(null);
@@ -167,27 +171,50 @@ const UploadPhotosDesktop = () => {
 		await Promise.all(executing);
 		return results;
 	};
-
 	// --- Process Image with Sharp ---
-	const processSingleImage = async (originalFile, index) => {
+	const processSingleImage = async (originalFile) => {
 		try {
 			const imageBuffer = await originalFile.arrayBuffer();
-			const watermarkUrl = getWatermarkUrl();
-			const result = await window.electronApi.processImageWithSharp({
-				imageBuffer: Array.from(new Uint8Array(imageBuffer)),
-				watermarkUrl,
-				watermarkPosition: info.watermarkPosition,
-				scale: info.scaleWatermark,
-				opacity: info.watermarkOpacity,
-				isWaterMarkApply: info.isWaterMarkApply,
-			});
-			if (!result.success) throw new Error(result.error);
-			const processedBuffer = Uint8Array.from(atob(result.processedImage), (c) =>
-				c.charCodeAt(0),
-			);
-			const processedFile = new File([processedBuffer], originalFile.name, {
-				type: 'image/jpeg',
-			});
+			const uint8Array = new Uint8Array(imageBuffer);
+
+			// 👉 Extract metadata from original image
+			const { metadata, width, height, format, originalDateTime } =
+				await window.electronApi.extractImageMetadata({
+					imageBuffer: Array.from(uint8Array),
+				});
+
+			if (!width || !height) {
+				throw new Error('Unable to extract image dimensions');
+			}
+
+			// 👉 Only process optimized version if watermark is enabled or resize needed
+			let processedBuffer = null;
+			let processedFile = originalFile;
+
+			if (info.isWaterMarkApply || true) {
+				// Always process for compression/resize
+				const watermarkUrl = getWatermarkUrl();
+				const result = await window.electronApi.processImageWithSharp({
+					imageBuffer: Array.from(uint8Array),
+					watermarkUrl,
+					watermarkPosition: info.watermarkPosition,
+					scale: info.scaleWatermark,
+					opacity: info.watermarkOpacity,
+					isWaterMarkApply: info.isWaterMarkApply,
+					resizeOptions: { width: 1200 },
+					quality: 85,
+					forceJpeg: true,
+				});
+
+				if (!result.success) throw new Error(result.error);
+
+				processedBuffer = Uint8Array.from(atob(result.processedImage), (c) =>
+					c.charCodeAt(0),
+				);
+				processedFile = new File([processedBuffer], originalFile.name, {
+					type: 'image/jpeg',
+				});
+			}
 
 			setInfo((prev) => ({
 				...prev,
@@ -198,8 +225,12 @@ const UploadPhotosDesktop = () => {
 			return {
 				success: true,
 				processedFile,
+				width,
+				height,
+				format,
+				originalDateTime,
 				originalSize: originalFile.size,
-				processedSize: processedBuffer.length,
+				processedSize: processedBuffer ? processedBuffer.length : originalFile.size,
 			};
 		} catch (error) {
 			console.error('Failed to process:', originalFile.name, error);
@@ -216,7 +247,6 @@ const UploadPhotosDesktop = () => {
 			return { success: false, error };
 		}
 	};
-
 	// --- On Drop: Just Store Raw Files ---
 	const onDropFunction = async (files) => {
 		if (
@@ -247,7 +277,7 @@ const UploadPhotosDesktop = () => {
 		const duplicateSet = getDuplicateSet();
 		const updatedUploadImages = { ...info.uploadImages };
 		let totalSize = 0;
-		let duplicatesFound = info.duplicatesFound;
+		let duplicatesFound = info.duplciatesFound || 0;
 
 		validFiles.forEach((file) => {
 			const isDuplicate = duplicateSet.has(file.name);
@@ -274,7 +304,7 @@ const UploadPhotosDesktop = () => {
 			...prev,
 			uploadImages: updatedUploadImages,
 			uploadSize: prev.uploadSize + totalSize / 1024,
-			duplicatesFound,
+			duplciatesFound: duplicatesFound,
 		}));
 	};
 
@@ -289,8 +319,9 @@ const UploadPhotosDesktop = () => {
 			updateStateValues({ reFetchSubscription: true });
 			return;
 		}
+		const policyResponse = await getUploadImagePolicy(galleryId);
+		const policyData = policyResponse?.[1];
 
-		// Reset state
 		setInfo((prev) => ({
 			...prev,
 			startedUploading: true,
@@ -298,138 +329,210 @@ const UploadPhotosDesktop = () => {
 			processedCount: 0,
 			totalCount: nonDuplicates.length,
 			processingProgress: 0,
+			completedUploads: 0,
 			overAllProgress: 0,
 		}));
 
-		const concurrency = info.uploadLimit;
-
-		// Shared queue for processing → upload
 		const processingQueue = [...nonDuplicates];
-		let completedUploads = 0;
 
-		// Function: Process one image and upload it immediately
+		if (intervalRef.current) clearInterval(intervalRef.current);
+		intervalRef.current = setInterval(async () => {
+			const response = await getImageUploadStatus(galleryId, albumId, info.uploadBatchID);
+			if (response[0]) {
+				const { uploadedCount } = response[1];
+				setInfo((prev) => ({
+					...prev,
+					overAllProgress: Math.min((uploadedCount / nonDuplicates.length) * 100, 100),
+				}));
+			}
+		}, 3000);
+
 		const processAndUploadOne = async () => {
 			while (processingQueue.length > 0) {
-				const key = processingQueue.shift(); // Safe: JS is single-threaded
+				const key = processingQueue.shift();
 				const image = info.uploadImages[key];
+				if (!image) continue;
 
 				try {
-					// 1. Process the image
-					const result = await processSingleImage(image.file);
+					// ✅ Check if it's a duplicate (but user doesn't want to skip)
+					let imageId;
+					if (image.isDuplicate && !info.isSkipDuplicates) {
+						// 🔥 Use existing image _id — no new ID
+						const existingId = image.originalImage?._id;
+						if (!existingId) {
+							console.error('No original _id found for duplicate:', key);
+							continue;
+						}
+						imageId = ObjectID(existingId); // Convert string to ObjectId
+					} else {
+						// ✅ New image → generate new ID
+						imageId = ObjectID();
+					}
 
+					// Process only if not skipping or not duplicate
+					const result = await processSingleImage(image.file);
 					if (!result.success) continue;
 
-					// 2. Update state with processed file
+					const processedImage = { ...image, processedFile: result.processedFile };
+					setInfo((prev) => ({
+						...prev,
+						uploadImages: { ...prev.uploadImages, [key]: processedImage },
+					}));
+
+					let uploaded = false;
+					let attempts = 0;
+
+					while (attempts < 3 && !uploaded) {
+						attempts++;
+
+						try {
+							const uploadResultOriginal = await uploadImage(
+								image.file,
+								'originals',
+								null,
+								policyData,
+								imageId,
+								(percent) => {
+									setInfo((prev) => ({
+										...prev,
+										uploadImages: {
+											...prev.uploadImages,
+											[key]: {
+												...prev.uploadImages[key],
+												uploadedPerct: percent,
+											},
+										},
+									}));
+								},
+							);
+
+							const uploadResultOptimized = await uploadImage(
+								result.processedFile,
+								'optimized',
+								null,
+								policyData,
+								imageId,
+							);
+
+							if (uploadResultOriginal.success && uploadResultOptimized.success) {
+								const payload = generateUploadPayload(
+									image,
+									result.processedFile,
+									imageId,
+									policyData,
+									uploadResultOriginal,
+									uploadResultOptimized,
+									{
+										width: result.width,
+										height: result.height,
+										format: result.format,
+										originalDateTime: result.originalDateTime,
+									},
+								);
+
+								const [success, response] = await uploadDesktopImages(
+									galleryId,
+									albumId,
+									payload,
+								);
+								if (success) {
+									uploaded = true;
+								} else {
+									console.error('Failed to register image:', response);
+								}
+							}
+						} catch (e) {
+							console.error(`Upload error (attempt ${attempts}):`, e);
+							if (attempts < 3)
+								await new Promise((r) => setTimeout(r, 2000 * attempts));
+						}
+					}
+
+					if (!uploaded) {
+						setInfo((prev) => ({
+							...prev,
+							uploadImages: {
+								...prev.uploadImages,
+								[key]: { ...image, isFailed: true },
+							},
+						}));
+					}
+				} catch (error) {
+					console.error('Processing/upload failed:', error);
 					setInfo((prev) => ({
 						...prev,
 						uploadImages: {
 							...prev.uploadImages,
-							[key]: {
-								...prev.uploadImages[key],
-								processedFile: result.processedFile,
-								processedSize: result.processedSize,
-							},
+							[key]: { ...image, isFailed: true },
 						},
 					}));
-
-					// 3. Upload immediately
-					const json = getJsonFunction(key);
-					let attempts = 0;
-					while (attempts < 3) {
-						const signedURL = await getUploadImageSignUrl(galleryId, albumId, json);
-						if (signedURL[0] === true) {
-							const success = await uploadOnS3Function(
-								{ ...image, processedFile: result.processedFile },
-								key,
-								signedURL[1].signedUrl,
-							);
-							if (success) {
-								completedUploads++;
-								const progress = (completedUploads / nonDuplicates.length) * 100;
-								setInfo((prev) => ({
-									...prev,
-									overAllProgress: Math.min(progress, 100),
-								}));
-								break;
-							}
-						}
-						attempts++;
-						if (attempts < 3) await new Promise((r) => setTimeout(r, 2000 * attempts));
-					}
-				} catch (error) {
-					console.error('Failed to process/upload:', key, error);
 				}
 			}
 		};
 
-		// Start N concurrent workers (each can process + upload)
-		const workers = Array.from({ length: concurrency }, () => processAndUploadOne());
-
-		// Wait for all to finish
+		const workers = Array.from({ length: info.uploadLimit }, () => processAndUploadOne());
 		await Promise.all(workers);
 
-		// Finalize
 		if (intervalRef.current) clearInterval(intervalRef.current);
 		setInfo((prev) => ({ ...prev, isPopupOpen: true, overAllProgress: 100 }));
 		updateStateValues({ reFetchSubscription: true, reFetchGallery: true });
 	};
 
-	// --- Generate Upload Metadata ---
-	const getJsonFunction = (currentImage) => {
-		const image = info.uploadImages[currentImage];
-		if (!image || image.isUploaded) return null;
-		return {
-			originalFileName: image.file.name,
-			originalDateTime: moment(image.originalDate).unix() || 0,
-			uploadBatchId: info.uploadBatchID,
-			tag_ids: info.selectedGalleryTags.map((tag) => tag._id || ''),
-			isAIFacesEnabled:
-				lightGallery === 'true'
-					? info.isAiEnabled && validateExpiryData?.liteImageLimitWithAiFace > 0
-					: true,
-			...(image.isDuplicate && !info.isSkipDuplicates
-				? { image_id: image.originalImage?._id }
-				: {}),
-		};
-	};
+	const generateUploadPayload = (
+		image,
+		processedFile,
+		imageId, // ← will be existing _id for duplicates
+		policyData,
+		uploadResultOriginal,
+		uploadResultOptimized,
+		extractedMetadata,
+	) => {
+		const versionId = Date.now().toString();
+		const givenFileName = `${imageId.toHexString()}_${versionId}.jpeg`;
 
-	// --- Upload to S3/B2 ---
-	const uploadOnS3Function = async (image, key, signUrl) => {
-		const fileToUpload = image.processedFile || image.file;
-		try {
-			const options = {
-				onUploadProgress: (e) => {
-					const percent = Math.floor((e.loaded * 100) / e.total);
-					setInfo((prev) => ({
-						...prev,
-						uploadImages: {
-							...prev.uploadImages,
-							[key]: { ...prev.uploadImages[key], uploadedPerct: percent },
-						},
-					}));
+		// Use metadata from processSingleImage
+		const {
+			width: originalWidth,
+			height: originalHeight,
+			format: originalFormat,
+			originalDateTime,
+		} = extractedMetadata;
+
+		return {
+			tag_ids: info.selectedGalleryTags.map((tag) => tag._id || ''),
+			image_id: imageId.toHexString(), // ← This will be reused ID for duplicates
+			activeVersion: {
+				uploadBatchId: info.uploadBatchID,
+				isAIFacesEnabled:
+					lightGallery === 'true'
+						? info.isAiEnabled && validateExpiryData?.liteImageLimitWithAiFace > 0
+						: true,
+				originalFileName: image.file.name,
+				givenFileName,
+				s3_original: {
+					key: uploadResultOriginal.fileKey,
+					size: image.file.size,
 				},
-				headers: { 'Content-Type': fileToUpload.type },
-			};
-			const response = await axios.put(signUrl, fileToUpload, options);
-			if (response.status === 200) {
-				setInfo((prev) => ({
-					...prev,
-					uploadImages: {
-						...prev.uploadImages,
-						[key]: {
-							...prev.uploadImages[key],
-							isUploaded: true,
-							uploadedPerct: 100,
-						},
-					},
-				}));
-				return true;
-			}
-			return false;
-		} catch (error) {
-			console.error('Upload failed:', error);
-			return false;
-		}
+				s3_optimized: {
+					key: uploadResultOptimized.fileKey,
+					size: processedFile.size,
+				},
+				s3_thumbnail_300w: {
+					key: uploadResultOptimized.fileKey.replace(/optimized\//, 'thumbnails_300w/'),
+				},
+				watermark: {
+					applied: info.isWaterMarkApply,
+					profile: info.watermarkProfileId
+						? `watermark/${info.watermarkProfileId}_${versionId}-300w`
+						: null,
+					position: info.watermarkPosition.name,
+				},
+				originalWidth,
+				originalHeight,
+				originalFormat,
+				originalDateTime,
+			},
+		};
 	};
 
 	const onSaveClick = () => {
@@ -469,7 +572,7 @@ const UploadPhotosDesktop = () => {
 			</div>
 			<UploadCompletedPopup
 				info={info}
-				setInfo={setInfo}
+				setinfo={setInfo}
 				getImageDuplicatesList={getImageDuplicatesList}
 			/>
 		</div>

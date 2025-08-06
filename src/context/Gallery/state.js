@@ -594,7 +594,38 @@ export const Galleries = () => {
 			return [false, { message: 'Failed to get upload image sign url' }];
 		}
 	};
+	// [GET] - {{ _.base_url }}/galleries/:gallery/upload-policy
+	const getUploadImagePolicy = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/upload-policy`,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>getUploadImagePolicy', error);
+		}
+	};
 
+	// [POST]baseURL/:gallery/albums/:album/desktop-images
+	const uploadDesktopImages = async (galleryId, albumId, payload) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPost(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/desktop-images`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>uploadDesktopImages', error);
+		}
+	};
 	const getImageUploadStatus = async (galleryId, albumId, batchId) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -2147,5 +2178,7 @@ export const Galleries = () => {
 		checkVideoSlugAvailability,
 		deleteVideo,
 		editAlbumAccessPin,
+		getUploadImagePolicy,
+		uploadDesktopImages,
 	};
 };

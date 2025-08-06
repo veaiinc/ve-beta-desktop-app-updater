@@ -77,7 +77,7 @@ const UploadStatusComponent = ({
 			uploadBatchId: info?.uploadBatchID,
 		};
 
-		setUpImageUpload(galleryId, payload);
+		// setUpImageUpload(galleryId, payload);
 
 		uploadFilesConcurrently();
 	};
@@ -121,7 +121,7 @@ const UploadStatusComponent = ({
 								<Progress percent={info?.overAllProgress} showInfo={false} />
 							</div>
 
-							<div className="text_value">{info?.overAllProgress}%</div>
+							<div className="text_value">{info?.overAllProgress.toFixed(2)}%</div>
 						</div>
 					) : (
 						<button
