@@ -19,7 +19,8 @@ const roleTextStyling = {
 	fontWeight: '400',
 	lineHeight: 'normal',
 };
-const getClientStyling = (numEvents) => {
+const getClientStyling = (numEvents, screenWidth = 1024) => {
+	
 	if (numEvents === 1) {
 		return {
 			display: 'grid',
@@ -30,14 +31,38 @@ const getClientStyling = (numEvents) => {
 		};
 	}
 
-	return {
-		display: 'grid',
-		gridTemplateColumns: 'repeat(auto-fill, minmax(354px, 1fr))',
-		gap: '20px',
-		maxWidth: '748px',
-		margin: '0 auto',
-		paddingTop: '12px',
-	};
+	// Responsive grid based on screen width
+	if (screenWidth <= 480) {
+		// Mobile phones - single column
+		return {
+			display: 'grid',
+			gridTemplateColumns: '1fr',
+			gap: '16px',
+			maxWidth: '100%',
+			margin: '0 auto',
+			paddingTop: '12px',
+		};
+	} else if (screenWidth <= 768) {
+		// Tablets - smaller minimum width
+		return {
+			display: 'grid',
+			gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+			gap: '20px',
+			maxWidth: '748px',
+			margin: '0 auto',
+			paddingTop: '12px',
+		};
+	} else {
+		// Desktop - original design with reduced minimum width
+		return {
+			display: 'grid',
+			gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+			gap: '20px',
+			maxWidth: '748px',
+			margin: '0 auto',
+			paddingTop: '12px',
+		};
+	}
 };
 const getEventCardStyle = (index, totalEvents) => {
 	// If it's the last event and alone in its row
@@ -48,15 +73,31 @@ const getEventCardStyle = (index, totalEvents) => {
 	}
 	return {};
 };
-const eventsTextStyling = {
-	display: 'flex',
-	gap: '20px',
-	flexWrap: 'wrap',
-	flexDirection: 'row',
-	maxWidth: '748px', // (2 * 354px) + 20px gap
-	// margin: '0 auto',
-	justifyContent: 'flex-start',
-	paddingTop: '12px',
+const getEventsTextStyling = (screenWidth = 1024) => {
+	
+	if (screenWidth <= 480) {
+		// Mobile phones
+		return {
+			display: 'flex',
+			gap: '16px',
+			flexWrap: 'wrap',
+			flexDirection: 'row',
+			maxWidth: '100%',
+			justifyContent: 'flex-start',
+			paddingTop: '12px',
+		};
+	} else {
+		// Desktop and tablets
+		return {
+			display: 'flex',
+			gap: '20px',
+			flexWrap: 'wrap',
+			flexDirection: 'row',
+			maxWidth: '748px', // (2 * 354px) + 20px gap
+			justifyContent: 'flex-start',
+			paddingTop: '12px',
+		};
+	}
 };
 
 class Events extends Component {
@@ -94,6 +135,7 @@ class Events extends Component {
 			showEventPopup: false,
 			activeType: 'event',
 			textTab: '',
+			screenWidth: typeof window !== 'undefined' ? window.innerWidth : 1024,
 		};
 		this.blockRef = React.createRef();
 		this.boxRefs = [];
@@ -101,6 +143,7 @@ class Events extends Component {
 	}
 	componentDidMount = () => {
 		document.addEventListener('mousedown', this.handleClickOutside);
+		window.addEventListener('resize', this.handleResize);
 		this.animateSection();
 
 		if (this.blockRef.current) {
@@ -111,6 +154,7 @@ class Events extends Component {
 	};
 	componentWillUnmount() {
 		document.removeEventListener('mousedown', this.handleClickOutside);
+		window.removeEventListener('resize', this.handleResize);
 	}
 	componentWillReceiveProps = (nextProps) => {
 		if (this.state.activeFontColor !== nextProps.activeFontColor) {
@@ -272,6 +316,12 @@ class Events extends Component {
 				showBlockEditOptions: false,
 			});
 		}
+	};
+
+	handleResize = () => {
+		this.setState({
+			screenWidth: window.innerWidth,
+		});
 	};
 
 	toggleSideBar = (e) => {
@@ -699,8 +749,8 @@ class Events extends Component {
 	};
 	render() {
 		const events = this.returnData() || []; // Add default empty array
-		const finalWrapperStyling = this.props?.client ? getClientStyling(events?.length || 0) : {};
-		const finalEventsTextStyling = this.props?.client ? eventsTextStyling : {};
+		const finalWrapperStyling = this.props?.client ? getClientStyling(events?.length || 0, this.state.screenWidth) : {};
+		const finalEventsTextStyling = this.props?.client ? getEventsTextStyling(this.state.screenWidth) : {};
 		return (
 			<div
 				className={`block ${this.state.showBlockOptions ? 'borderedBlock' : ''}`}
@@ -813,7 +863,7 @@ class Events extends Component {
 									backgroundColor: this.state.style?.cardBackgroundColor,
 									maxWidth: this.props.client ? '100%' : '',
 									minWidth:
-										window?.location?.pathname?.includes('document') && '400px',
+										window?.location?.pathname?.includes('document') && this.state.screenWidth > 480 ? '400px' : 'auto',
 									position: 'relative',
 									display: 'flex',
 									flexDirection: 'column',
