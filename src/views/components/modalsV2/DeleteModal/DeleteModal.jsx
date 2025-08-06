@@ -42,7 +42,19 @@ const DeleteModal = ({
 	};
 
 	return (
-		<ReactModal isOpen={isOpen} closeModal={onClose} shouldCloseOnOverlayClick={true}>
+		<ReactModal
+			isOpen={isOpen}
+			closeModal={onClose}
+			shouldCloseOnOverlayClick={true}
+			customStyles={{
+				content: {
+					zIndex: 9999,
+				},
+				overlay: {
+					zIndex: 9998,
+				},
+			}}
+		>
 			<div className="delete-modal">
 				<div className="delete-modal__header-group">
 					<h1 className="delete-modal__title">{title}</h1>

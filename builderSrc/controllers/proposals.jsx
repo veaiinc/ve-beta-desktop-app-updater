@@ -1803,6 +1803,13 @@ class Proposals extends Component {
 						activeModule: this.state?.modules?.find(
 							(module) => module._id === template?._id,
 						),
+						getModuleParams: {
+							id: null,
+							type: null,
+						},
+						previewMode: 'd',
+						previewType: 'd',
+						showSideBar: false,
 
 						//title: response[1].data[`${type}Info`].title,
 					},
@@ -1905,6 +1912,13 @@ class Proposals extends Component {
 						activeModule: this.state?.modules?.filter(
 							(ele) => ele._id === this.state?.activeModuleId,
 						)[0],
+						getModuleParams: {
+							id: null,
+							type: null,
+						},
+						previewMode: 'd',
+						previewType: 'd',
+						showSideBar: false,
 					},
 					() => {
 						if (this.state.isWorkflow && this.state.version === 0) {
