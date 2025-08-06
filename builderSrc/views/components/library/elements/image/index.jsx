@@ -356,19 +356,35 @@ class ImageItem extends BaseClass {
 								{/* {(_.has(this.state.properties, 'mImageObjectFit') || */}
 								{/* // _.has(this.state.properties, 'mobileImageObjectFit')) && ( */}
 								{this.state.mobileImageObjectFit || this.state.mImageObjectFit ? (
-									<img
-										src={this.state.imageUrl}
+									// ! wrote new logic for pdf download
+									// <img
+									// 	src={this.state.imageUrl}
+									// 	style={{
+									// 		objectFit:
+									// 			this.state.previewType === 'm'
+									// 				? this.state.mobileImageObjectFit
+									// 				: this.state.mImageObjectFit
+									// 				? this.state.mImageObjectFit
+									// 				: this.state.mobileImageObjectFit,
+									// 		height: '100%',
+									// 		width: '100%',
+									// 	}}
+									// />
+									<div
 										style={{
-											objectFit:
+											height: '100%',
+											width: '100%',
+											backgroundImage: `url(${this.state.imageUrl})`,
+											backgroundSize:
 												this.state.previewType === 'm'
 													? this.state.mobileImageObjectFit
 													: this.state.mImageObjectFit
 													? this.state.mImageObjectFit
 													: this.state.mobileImageObjectFit,
-											height: '100%',
-											width: '100%',
+											backgroundPosition: 'center',
+											backgroundRepeat: 'no-repeat',
 										}}
-									/>
+									></div>
 								) : (
 									<Cropper
 										image={

@@ -2,9 +2,10 @@
 	display: grid;
 	grid-template-columns: repeat(2, 1fr); // 2 columns
 	gap: 12px;
+	flex-shrink: 0;
 	.calenderWidgetSection2Item {
 		display: flex;
-		height: 200px;
+		height: 244px;
 		padding: 16px;
 		flex-direction: column;
 		justify-content: flex-end;
@@ -13,7 +14,7 @@
 		border-radius: 20px;
 		background: var(--card, #171819);
 		cursor: pointer;
-		max-width: 200px;
+		max-width: 250px;
 		width: 100%;
 		&:hover {
 			background: var(--card-over-card, #202123);

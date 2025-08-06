@@ -1,11 +1,13 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useLogout from './useLogout';
 import Context from '../context/context';
+import useBroadcastChannel from './useBroadcastChannel';
+import logout from '../helpers/logout';
 
 const useAuth = () => {
 	const navigate = useNavigate();
-	const logOut = useLogout();
+	const channel = useBroadcastChannel();
+
 	const [info, setInfo] = useState({
 		authLoading: true,
 	});
@@ -26,7 +28,8 @@ const useAuth = () => {
 			authLoading: false,
 		}));
 		if (statusCode === 401) {
-			logOut();
+			logout();
+			channel.postMessage('reload');
 		}
 	};
 

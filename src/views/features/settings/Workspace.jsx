@@ -7,18 +7,8 @@ import PublicInformation from './PublicInformation';
 import BrandSetup from './BrandSetup';
 import { message } from '../../components/globalComponents/CustomToast';
 import CustomDomain from '../../components/settings/workspace/CustomDomain';
-import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
-
-const temporaryPlaceholderText = `
-The voice embodies values of:
-- Innovation: Highlights cutting-edge features and transformative potential
-- Clarity: Provides clear and concise descriptions of features and benefits
-- Persuasiveness: Uses strong, assertive language to encourage adoption
-- Efficiency: Emphasizes speed and effectiveness in achieving goals`;
 
 const SettingsWorkspace = () => {
-	const { workspaceMode } = useWorkspaceMode();
-
 	const {
 		profileInfo: { tennantSettingsData },
 	} = useContext(Context);
@@ -71,7 +61,7 @@ const SettingsWorkspace = () => {
 					<WorkspaceHandleComponent overviewState={overviewState} />
 				</div>
 				<div className="orContainer"></div>
-				{workspaceMode === 'beta' && <CustomDomain />}
+				<CustomDomain />
 				{/* <div className="brandVoiceContainer">
 				<h1 className="title">Brand Voice</h1>
 				<Tooltip

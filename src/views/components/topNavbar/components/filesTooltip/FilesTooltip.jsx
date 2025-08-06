@@ -75,7 +75,7 @@ const FilesTooltip = ({ closeTooltip }) => {
 					<div className={s.fileIcon}>{file.icon}</div>
 					<div className={s.fileInfo}>
 						<h3 className={s.fileLabel}>{file.label}</h3>
-						<p className={s.fileDescription}>{file.description}</p>
+						{/* <p className={s.fileDescription}>{file.description}</p> */}
 					</div>
 				</div>
 			))}

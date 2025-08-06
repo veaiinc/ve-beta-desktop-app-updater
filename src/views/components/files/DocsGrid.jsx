@@ -25,7 +25,9 @@ import { ReactComponent as Link } from '../../../assets/svg/files/link.svg';
 import { accessControlCheck } from '../../../helpers/accessControlCheck';
 // import { ReactComponent as Copy } from '../../../assets/svg/files/copy.svg';
 // import { ReactComponent as Share } from '../../../assets/svg/files/share.svg';
-import DocumentShortPreview from '../../../../builderSrc/views/feature/DocumentShortPreview';
+// const DocumentShortPreview = lazy(() =>
+// 	import('../../../../builderSrc/views/feature/DocumentShortPreview'),
+// );
 
 // const origin = fetchOriginSelection();
 
@@ -107,7 +109,10 @@ const DocsGrid = ({
 			{ label: 'Enquiry', value: 'enquiry' },
 			{ label: 'Sent', value: 'filesSent' },
 			{ label: 'Confirmed', value: 'confirmed' },
+			{ label: 'Contract Signed', value: 'contractSigned' },
+			{ label: 'Accepted', value: 'proposalAccepted' },
 		],
+		logoUrl: tennantSettingsData?.logo_s3_500w_key || '',
 	});
 
 	// Remove local viewMode state since it's now passed as prop
@@ -474,10 +479,16 @@ const DocsGrid = ({
 									>
 										{viewMode === 'card' ? (
 											<div className="docsCardPreview">
-												{doc?.firstModule[0]?._id && (
-													<Suspense fallback={<SuspenseFallback />}>
-														<DocumentShortPreview doc={doc} />
-													</Suspense>
+												{doc?.imageUrl ? (
+													<img src={doc?.imageUrl} alt="doc" />
+												) : (
+													<div className="docsCardPreviewPlaceholder">
+														<img src={info?.logoUrl} alt="doc" />
+														{/* <DocIcon className="placeholder-icon" />
+														<div className="placeholder-text">
+															No Preview Available
+														</div> */}
+													</div>
 												)}
 												<div className="docsCardOverlay">
 													<div className="docsTitleOnPreview">
@@ -598,6 +609,7 @@ const DocsGrid = ({
 							}
 							buttonText={'Create Document'}
 							showUpload={false}
+							buttonOnClick={() => navigate('/builder/create-document')}
 						/>
 					</div>
 				)}

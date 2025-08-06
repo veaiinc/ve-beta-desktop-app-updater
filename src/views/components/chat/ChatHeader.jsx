@@ -11,6 +11,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import jwtDecode from 'jwt-decode';
 import { message } from '../globalComponents/CustomToast';
+import DeleteModal from '../modalsV2/DeleteModal/DeleteModal';
 
 const ChatHeader = ({
 	sessionId,
@@ -37,6 +38,7 @@ const ChatHeader = ({
 		activeUserMessageIndex: -1,
 		isFavourite: false,
 		userId: null,
+		deleteModal: { open: false },
 	});
 	const deleteChatSessionLoadingRef = useRef(false);
 
@@ -93,7 +95,29 @@ const ChatHeader = ({
 			message.error('Failed to delete chat session');
 		}
 		deleteChatSessionLoadingRef.current = false;
-	}, [deleteChatSession, sessionId, globalChatMessages]);
+	}, [deleteChatSession, sessionId, globalChatMessages, navigate, updateAiChatSessions]);
+
+	const handleOpenDeleteModal = () => {
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: true },
+		}));
+	};
+
+	const handleConfirmDelete = async () => {
+		await handleDeleteChatClick();
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: false },
+		}));
+	};
+
+	const handleCancelDelete = () => {
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: false },
+		}));
+	};
 
 	const handleActiveUserMessageIndexChange = useCallback(
 		(index) => {
@@ -300,7 +324,7 @@ const ChatHeader = ({
 									>
 										<button
 											className={s.deleteChatBtn}
-											onClick={handleDeleteChatClick}
+											onClick={handleOpenDeleteModal}
 										>
 											<DeleteSvg />
 										</button>
@@ -317,6 +341,17 @@ const ChatHeader = ({
 					onClick={() => setInfo((prev) => ({ ...prev, chatDropdownExpanded: false }))}
 				/>
 			)}
+
+			{/* Delete Chat Modal */}
+			<DeleteModal
+				isOpen={info?.deleteModal?.open}
+				onClose={handleCancelDelete}
+				onConfirm={handleConfirmDelete}
+				title="Delete Chat?"
+				itemType="chat"
+				description="Are you sure you want to delete this chat session?"
+				warning="This chat session will be permanently removed and cannot be recovered."
+			/>
 		</div>
 	);
 };

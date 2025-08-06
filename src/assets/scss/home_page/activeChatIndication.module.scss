@@ -1,20 +1,38 @@
-.activeChatIndication {
+.chatsWrapper {
 	display: flex;
 	padding: 0 24px;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	gap: 10px;
+	gap: 16px;
 
-	.chatTab {
-		width: 27px;
-		height: 3px;
-		border-radius: 100px;
-		background-color: var(--stroke);
-		transition: background-color 0.2s ease-in-out;
+	.previousChatsCount,
+	.totalChatsCount {
+		font-family: var(--primary-font-family);
+		font-size: 13px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		color: var(--primary-font);
+	}
 
-		&.active {
-			background-color: var(--primary-font);
+	.activeChatIndication {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		gap: 10px;
+
+		.chatTab {
+			width: 27px;
+			height: 3px;
+			border-radius: 100px;
+			background-color: var(--stroke);
+			transition: background-color 0.2s ease-in-out;
+
+			&.active {
+				background-color: var(--primary-font);
+			}
 		}
 	}
 }

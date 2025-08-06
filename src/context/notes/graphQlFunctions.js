@@ -977,8 +977,8 @@ export const updateViewGroupMutation = gql`
 `;
 
 export const getLiveKitTokenQuery = gql`
-	query Query($pageId: ID!) {
-		getLiveKitToken(pageId: $pageId) {
+	query Query($meetingId: ID!) {
+		getLiveKitToken(meetingId: $meetingId) {
 			accessToken
 		}
 	}
@@ -999,7 +999,6 @@ export const getMeetBotDataQuery = gql`
 				_id
 				title
 				tenantId
-				pageId
 				transcriptionSource
 				meetingMode
 				agenda
@@ -1029,10 +1028,47 @@ export const getMeetBotDataQuery = gql`
 	}
 `;
 
+export const getMeetBotByIdQuery = gql`
+	query GetMeeting($meetingId: ID!) {
+		getMeeting(meetingId: $meetingId) {
+			_id
+			title
+			tenantId
+			transcriptionSource
+			meetingMode
+			agenda
+			isAiIntelligenceEnabled
+			status
+			botJoinedAt
+			meetingPlatform
+			meetingPreference {
+				threshold
+				askUser
+				needHelp
+				actions
+				similarFiles
+			}
+			createdBy {
+				_id
+				name
+				email
+			}
+			updatedBy {
+				_id
+				name
+				email
+			}
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
 export const getMeetSummaryQuery = gql`
-	query Query($pageId: ID!) {
-		getTranscriptionSummary(pageId: $pageId) {
+	query GetMeetingSummaryAndRevampedPrompt($meetingId: ID!) {
+		getMeetingSummaryAndRevampedPrompt(meetingId: $meetingId) {
 			transcriptionSummary
+			revampedPrompt
 		}
 	}
 `;
@@ -1043,12 +1079,12 @@ export const meetBotCreateMutation = gql`
 			_id
 			title
 			tenantId
-			pageId
 			transcriptionSource
 			meetingMode
 			agenda
 			isAiIntelligenceEnabled
 			status
+			meetingPlatform
 			meetingPreference {
 				threshold
 				askUser
@@ -1073,10 +1109,10 @@ export const meetBotCreateMutation = gql`
 `;
 
 export const deleteLiveKitRoomMutation = gql`
-	mutation DeleteLiveKitRoom($pageId: ID!) {
-		deleteLiveKitRoom(pageId: $pageId) {
-			message
+	mutation Mutation($meetingId: ID!) {
+		deleteLiveKitRoom(meetingId: $meetingId) {
 			success
+			message
 		}
 	}
 `;

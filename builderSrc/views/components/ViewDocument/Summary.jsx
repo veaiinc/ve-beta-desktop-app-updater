@@ -251,11 +251,26 @@ const Summary = () => {
 			return total + (Number(item.amount) || 0) * (item.quantity || 1);
 		}, 0);
 	};
+
 	const extractNumberFromHTML = (htmlString) => {
-		if (!htmlString) return 0;
-		const match = htmlString.match(/([\d,.]+)/);
-		return match ? Number(match[1].replace(/,/g, '')) : 0;
+		if (typeof htmlString !== 'string' || !htmlString.trim()) return 0;
+
+		// Strip HTML tags if any
+		const textOnly = htmlString.replace(/<[^>]*>/g, '').trim();
+
+		// Match the first number-like pattern, e.g., 1,234.56 or 1234
+		const match = textOnly.match(/[\d,.]+/);
+
+		if (!match) return 0;
+
+		// Clean commas (for thousands separator), then try to parse to float
+		const cleaned = match[0].replace(/,/g, '');
+
+		// Ensure it's a valid number
+		const number = parseFloat(cleaned);
+		return isNaN(number) ? 0 : number;
 	};
+
 	// Calculate overall total across all service tables
 	const overallServicesTotal = servicesTables.reduce((sum, table) => {
 		const filtered = filterServiceTableItems(

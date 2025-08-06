@@ -32,6 +32,7 @@ import UploadAvatarPopupComponent from '../settings/profile/UploadAvatarPopup';
 import UploadFileProiflePopup from '../settings/profile/UploadFileProiflePopup';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import CreditsLeft from './chatHistory/CreditsLeft';
+import useBroadcastChannel from '../../../hooks/useBroadcastChannel';
 
 const workspaceStyles = {
 	position: 'absolute',
@@ -300,7 +301,6 @@ const OpenedSidebar = ({
 	}, [userWorkSpaceList]);
 
 	const navigate = useNavigate();
-	const logoutFunc = useLogout();
 	const [selectedOption, setSelectedOption] = useState(null);
 	const [selectedChat, setSelectedChat] = useState(null);
 	const [activeChat, setActiveChat] = useState(false);
@@ -340,7 +340,7 @@ const OpenedSidebar = ({
 			updateStateValues({ leftSidebarState: null });
 		}
 	}, [leftSidebarState]);
-
+	const channel = useBroadcastChannel();
 	useEffect(() => {
 		const handleResize = () => {
 			setIsMobile(window.innerWidth < 500);
@@ -363,7 +363,8 @@ const OpenedSidebar = ({
 	};
 
 	const handleLogout = useCallback(async () => {
-		logoutFunc();
+		logout();
+		channel.postMessage('reload');
 	}, [logoutFunc]);
 
 	const openWorkspacesFunction = (isSidebarOpen) => {

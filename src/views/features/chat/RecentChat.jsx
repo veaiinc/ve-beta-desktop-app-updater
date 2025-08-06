@@ -557,6 +557,7 @@ const RecentChat = ({
 					agentType: agentTypeFromResponse,
 					userFeedbackReasons,
 					userRemarks,
+					unintegratedApps,
 				} = data?.[i] || {};
 
 				if (
@@ -626,6 +627,7 @@ const RecentChat = ({
 						tool_invocations: toolInvocations || [],
 						userFeedbackReasons,
 						userRemarks,
+						unintegrated_apps: unintegratedApps,
 						...(processing === 'Deep Search' && { deepSearch }),
 						...(processing === 'Deep Research' && { deepResearch }),
 						...(processing === 'Normal Search' && { normalSearch }),

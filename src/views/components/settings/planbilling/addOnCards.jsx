@@ -7,6 +7,7 @@ import Spinner from '../../../components/loaders/Spinner';
 import ReactModal from '../../modalsV2';
 import { message } from '../../globalComponents/CustomToast';
 import SubscriptionChange from '../../modalsV2/subscription/SubscriptionChange';
+import '../../../../assets/scss/settings/planBilling.scss';
 
 const customStyles = {
 	content: { zIndex: 1003 },
@@ -23,6 +24,7 @@ const AddOnPlans = ({
 	isOpen,
 	closeModal,
 	subscriptionState,
+	selectedPeriodProp = null,
 	// handleToggleSubscriptionState,
 }) => {
 	const {
@@ -49,7 +51,7 @@ const AddOnPlans = ({
 		mappableData: [],
 		checkoutLoader: false,
 		initialLoader: true,
-		selectedPeriod: 'Yearly',
+		selectedPeriod: selectedPeriodProp || 'Yearly',
 		showSubscriptionChange: false,
 		selectedAddOn: null,
 		scheduledDowngrade: false,

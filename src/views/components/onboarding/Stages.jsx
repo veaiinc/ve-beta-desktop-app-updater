@@ -3,43 +3,16 @@ import '../../../assets/scss/onboarding/stages.scss';
 import Context from '../../../context/context';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import CustomToast, { message } from '../globalComponents/CustomToast';
-import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { ReactComponent as GreenTick } from '../../../assets/svg/onboarding/green-tick.svg';
-import { ReactComponent as DarkIcon } from '../../../assets/svg/onboarding/dark.svg';
-import { ReactComponent as LightIcon } from '../../../assets/svg/onboarding/light.svg';
-import { ReactComponent as UploadIcon } from '../../../assets/svg/onboarding/upload-icon.svg';
-import { ReactComponent as DeskTopIcon } from '../../../../builderSrc/assets/svg/smartFile/Desktop.svg';
-import { Tooltip } from 'antd';
-import ToolTipContainer from '../popover/ToolTipContainer';
-import Spinner from '../loaders/Spinner';
-import WorkspaceTypeOptions from './WorkspaceTypeOptions';
-import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import { formatUsername, fetchDomainName } from '../../../helpers';
 import Cookies from 'js-cookie';
+import ThemeSelector from './ThemeSelector';
+import WorkspaceTypeInput from './WorkspaceTypeInput';
+import WorkspaceHandle from './WorkspaceHandle';
+import NameInput from './NameInput';
+import PhoneNumberInput from './PhoneNumberInput';
 let usernameTimeoutId, companyLogoFile;
-
-const themePreferences = [
-	{
-		id: 1,
-		label: 'System Default',
-		icon: <DeskTopIcon />,
-		value: 'systemDefault',
-	},
-	{
-		id: 2,
-		label: 'Dark',
-		icon: <DarkIcon />,
-		value: 'dark',
-	},
-	{
-		id: 3,
-		label: 'Light',
-		icon: <LightIcon />,
-		value: 'light',
-	},
-];
 
 export const customContainerStyle = {
 	display: 'flex',
@@ -362,6 +335,10 @@ const Stages = ({ onNext }) => {
 
 	const handleVerifyPhoneNumber = useCallback(async () => {
 		if (info?.isPhoneNumberVerified) return;
+		if (info?.username?.trim()?.length === 0) {
+			message?.error('Please enter your name before verifying phone number');
+			return;
+		}
 		setInfo((prev) => ({ ...prev, verifyPhoneNumberLoading: true }));
 		const { username, phoneNumber } = info;
 		if (
@@ -391,9 +368,9 @@ const Stages = ({ onNext }) => {
 	}, [info?.username, info?.phoneNumber, info?.isPhoneNumberVerified]);
 
 	const handleSetOTP = useCallback(
-		(e) => {
-			let otp = e?.target?.value?.replace(/[^0-9]/g, '') ?? '';
-			if (otp?.length > 4) otp = otp?.slice(0, 4);
+		(otp) => {
+			// let otp = e?.target?.value?.replace(/[^0-9]/g, '') ?? '';
+			// if (otp?.length > 4) otp = otp?.slice(0, 4);
 			setInfo((prev) => ({ ...prev, otp }));
 		},
 		[info?.otp],
@@ -534,7 +511,8 @@ const Stages = ({ onNext }) => {
 				} else {
 					message?.success('Workspace created successfully');
 				}
-				onNext(info);
+				// onNext(info);
+				navigate('/settings/pricing');
 			} else {
 				message?.error(response?.[1]?.message);
 			}
@@ -558,469 +536,118 @@ const Stages = ({ onNext }) => {
 	return (
 		<>
 			<div className="stageContainer">
-				{/* {info?.userDetailsLoading ? (
-					<Skeleton
-						width="300px"
-						height="17px"
-						style={{
-							'--highlight-color': 'gray',
-							'--base-color': 'transparent',
-						}}
-					/>
-				) : (
-					<h1 className="email">{emailCntxt}</h1>
-				)} */}
-
 				{/* Combined Single Stage Form */}
 				<div className="singleStage">
 					<header className="header">
-						<h1 className="title">
-							{isWorkspaceCreationMode
-								? 'Create a new workspace'
-								: "Let's get started"}
-						</h1>
-						<h2 className="subtitle">
-							{isWorkspaceCreationMode
-								? 'Set up your workspace details'
-								: 'Personalize your experience'}
-						</h2>
+						{isWorkspaceCreationMode ? (
+							<>
+								<h1 className="title">Create a new workspace</h1>
+								<h2 className="subtitle">Set up your workspace details</h2>
+							</>
+						) : (
+							<>
+								<h1 className="title">
+									Let's get <span className="title-highlight">started</span>
+								</h1>
+								<h2 className="subtitle">Personalize your experience</h2>
+							</>
+						)}
 					</header>
 
 					<main className="singleStageContent">
 						{/* User Details Section - Only show if not in workspace creation mode */}
 						{(!isWorkspaceCreationMode || invitedUserOnboarding) && (
-							<div className="userDetailsSection">
-								<div className="nameInputContainer">
-									<p className="question">What is your name?</p>
-									{info?.userDetailsLoading ? (
-										<Skeleton
-											width="100%"
-											height="41px"
-											style={{
-												'--highlight-color': 'gray',
-												'--base-color': 'transparent',
-												borderRadius: '8px',
-											}}
-										/>
-									) : (
-										<div className="nameInputAndProfilePictureContainer">
-											<input
-												className="nameInput"
-												value={info?.username}
-												onChange={handleSetUsername}
-												type="text"
-												placeholder="Full Name"
-												autoFocus
-											/>
-											{/* <Tooltip
-												title={
-													<ToolTipContainer
-														customContainerStyle={customContainerStyle}
-														contentStyling={contentStyling}
-														title={''}
-														content={'Upload your profile picture'}
-														removeClassName={true}
-													/>
-												}
-												arrow={true}
-												color={'var(--card)'}
-											>
-												<div className="profilePictureContainer">
-													<label htmlFor="profilePictureInput">
-														<input
-															id="profilePictureInput"
-															type="file"
-															accept="image/*"
-															onChange={handleSetProfilePicture}
-															className="profilePictureInput"
-														/>
-														{info?.profilePicture ? (
-															<img
-																src={info?.profilePicture}
-																alt={info?.username}
-																className="profilePicture"
-															/>
-														) : (
-															<UploadIcon />
-														)}
-													</label>
-												</div>
-											</Tooltip> */}
-										</div>
-									)}
-								</div>
+							<div className={`userDetailsSection`}>
+								<div
+									className={`topAnimationSection ${
+										!info?.isPhoneNumberVerified ? 'show' : ''
+									}`}
+								>
+									<NameInput
+										userDetailsLoading={info?.userDetailsLoading}
+										username={info?.username}
+										handleSetUsername={handleSetUsername}
+										customContainerStyle={customContainerStyle}
+										contentStyling={contentStyling}
+										disabled={info?.otpSent}
+									/>
 
-								{info?.otpSent ? (
-									<div className="otpInputContainer">
-										<p className="question">
-											Enter the OTP that was sent to {info?.phoneNumber}
-										</p>
-										<input
-											className={`otpInput ${info?.otpSent && 'animate'}`}
-											value={info?.otp}
-											placeholder="0000"
-											onChange={handleSetOTP}
-											type="text"
-										/>
-										{info?.verifyOtpLoader && (
-											<div className="spinnerContainer">
-												<Spinner width={'16px'} height={'16px'} />
-											</div>
-										)}
-										<button
-											onClick={handleResendOtp}
-											className="resendOtpBtn"
-											style={{
-												opacity: info?.resendOtpLoading ? 0.5 : 1,
-												cursor: info?.resendOtpLoading
-													? 'not-allowed'
-													: 'pointer',
-											}}
-											disabled={info?.resendOtpLoading}
-										>
-											{info?.resendOtpLoading ? 'Resending...' : 'Resend OTP'}
-										</button>
-										<button
-											onClick={handleSetOTPSentToFalse}
-											className="changePhoneNumberBtn"
-										>
-											Change Phone Number
-										</button>
-									</div>
-								) : (
-									<div className="phoneInputContainer">
-										<p className="question">Enter your phone number</p>
-										<div className="phoneInputContain">
-											{info?.userDetailsLoading ? (
-												<span style={{ width: '100%' }}>
-													<Skeleton
-														width="100%"
-														height="41px"
-														style={{
-															'--highlight-color': 'gray',
-															'--base-color': 'transparent',
-															borderRadius: '8px',
-														}}
-													/>
-												</span>
-											) : (
-												<PhoneInput
-													placeholder="Enter phone number"
-													value={info?.phoneNumber}
-													onChange={handleSetPhoneNumber}
-													defaultCountry={(() => {
-														try {
-															const locationDetails = JSON.parse(
-																localStorage.getItem(
-																	'locationDetails',
-																),
-															);
-															return (
-																locationDetails?.countryCode || 'US'
-															);
-														} catch {
-															return 'US';
-														}
-													})()}
-													className="phoneInputNumber"
-													countryCallingCodeEditable={true}
-													autoComplete="tel"
-													disabled={info?.isPhoneNumberVerified}
-												/>
-											)}
-											{info?.isPhoneNumberVerified ? (
-												<div className="phoneNumberVerifiedContainer">
-													<GreenTick />
-												</div>
-											) : (
-												info?.phoneNumber && (
-													<button
-														onClick={handleVerifyPhoneNumber}
-														className="verifyPhoneNumberBtn"
-														style={{
-															opacity: info?.verifyPhoneNumberLoading
-																? 0.5
-																: 1,
-															cursor: info?.verifyPhoneNumberLoading
-																? 'not-allowed'
-																: 'pointer',
-														}}
-														disabled={info?.verifyPhoneNumberLoading}
-													>
-														{info?.verifyPhoneNumberLoading
-															? 'Verifying...'
-															: 'Verify now'}
-													</button>
-												)
-											)}
-										</div>
-									</div>
-								)}
+									<PhoneNumberInput
+										otpSent={info?.otpSent}
+										phoneNumber={info?.phoneNumber}
+										otp={info?.otp}
+										handleSetOTP={handleSetOTP}
+										verifyOtpLoader={info?.verifyOtpLoader}
+										handleResendOtp={handleResendOtp}
+										resendOtpLoading={info?.resendOtpLoading}
+										handleSetOTPSentToFalse={handleSetOTPSentToFalse}
+										userDetailsLoading={info?.userDetailsLoading}
+										isPhoneNumberVerified={info?.isPhoneNumberVerified}
+										handleSetPhoneNumber={handleSetPhoneNumber}
+									/>
+								</div>
 
 								{/* Workspace Details Section */}
 								{!invitedUserOnboarding && (
-									<div className="workspaceDetailsSection">
-										<div className="companyNameContainer">
-											<p className="question">
-												Name of your Workspace handle?
-											</p>
-											<div className="companyNameAndLogoInputs">
-												<input
-													className="companyNameInput"
-													type="text"
-													placeholder="Company Name"
-													value={info?.companyName}
-													onChange={handleSetCompanyName}
-												/>
-												<Tooltip
-													title={
-														<ToolTipContainer
-															customContainerStyle={
-																customContainerStyle
-															}
-															contentStyling={contentStyling}
-															title={''}
-															content={'Upload your company logo'}
-															removeClassName={true}
-														/>
-													}
-													arrow={true}
-													color={'var(--card)'}
-												>
-													<div className="companyLogoInputContainer">
-														<label htmlFor="companyLogoInput">
-															<input
-																id="companyLogoInput"
-																type="file"
-																accept="image/*"
-																onChange={handleSetCompanyLogo}
-																className="companyLogoInput"
-															/>
-															{/* {info?.companyLogo ? (
-															<img
-																className="companyLogo"
-																src={info?.companyLogo}
-																alt="Company Logo"
-															/>
-														) : (
-															<UploadIcon />
-														)} */}
-														</label>
-													</div>
-												</Tooltip>
-											</div>
-											<div className="domainInfoContainer">
-												{info?.workspaceHandle?.length > 0 &&
-													(info?.workspaceHandle.length < 4 ? (
-														<span className="unavailable">
-															Workspace handle must be at least 4
-															characters
-														</span>
-													) : (
-														<>
-															<span className="domainName">
-																{info?.workspaceHandle}.ve.ai
-															</span>
-															{info?.checkingWorkspaceHandle ? (
-																<Spinner
-																	width="16px"
-																	height="16px"
-																/>
-															) : info?.isWorkspaceHandleAvailable ? (
-																<span className="available">
-																	will be your domain
-																</span>
-															) : (
-																<span className="unavailable">
-																	is already taken
-																</span>
-															)}
-														</>
-													))}
-											</div>
-										</div>
-
-										<div className="workspaceTypeContainer">
-											<p className="question">Your workspace type?</p>
-											<Tooltip
-												open={workspaceTypeContainerOpen}
-												trigger={[]}
-												title={
-													<WorkspaceTypeOptions
-														width={workspaceTypeContainerWidth}
-														handleSetWorkspaceType={
-															handleSetWorkspaceType
-														}
-														searchTerm={info?.workspaceType}
-														setWorkspaceTypeContainerOpen={
-															setWorkspaceTypeContainerOpen
-														}
-													/>
-												}
-												placement="bottom"
-												color={'transparent'}
-											>
-												<div className="workspaceTypeInputContainer">
-													<input
-														type="text"
-														placeholder="Type to search"
-														className="workspaceTypeInput"
-														value={info?.workspaceType}
-														onChange={handleWorkspaceTypeInput}
-													/>
-													{/* <div className="workspaceTypeDropdown">
-											<div className="labelContainer">
-												<DownArrow />
-											</div>
-										</div> */}
-												</div>
-											</Tooltip>
-										</div>
-										<div className="themeInputContainer">
-											<p
-												className="question"
-												style={{ color: 'var(--primary-font)' }}
-											>
-												How do you want things to look?
-											</p>
-											<div className="themeOptionsContainer">
-												{themePreferences.map((theme) => (
-													<div
-														key={theme.id}
-														className={`themeOption ${
-															info?.themePreference === theme.value
-																? 'active'
-																: ''
-														}`}
-														onClick={() =>
-															handleSetThemePreference(theme.value)
-														}
-													>
-														{theme.icon}
-														<span
-															className="themeOptionLabel"
-															style={{ color: 'var(--primary-font)' }}
-														>
-															{theme.label}
-														</span>
-													</div>
-												))}
-											</div>
-										</div>
+									<div
+										className={`workspaceDetailsSection ${
+											info?.isPhoneNumberVerified ? 'show' : ''
+										}`}
+									>
+										<WorkspaceHandle
+											companyName={info?.companyName}
+											handleSetCompanyName={handleSetCompanyName}
+											workspaceHandle={info?.workspaceHandle}
+											checkingWorkspaceHandle={info?.checkingWorkspaceHandle}
+											isWorkspaceHandleAvailable={
+												info?.isWorkspaceHandleAvailable
+											}
+											customContainerStyle={customContainerStyle}
+											contentStyling={contentStyling}
+											handleSetCompanyLogo={handleSetCompanyLogo}
+										/>
+										<WorkspaceTypeInput
+											workspaceTypeContainerOpen={workspaceTypeContainerOpen}
+											workspaceTypeContainerWidth={
+												workspaceTypeContainerWidth
+											}
+											handleSetWorkspaceType={handleSetWorkspaceType}
+											handleWorkspaceTypeInput={handleWorkspaceTypeInput}
+											workspaceType={info?.workspaceType}
+											setWorkspaceTypeContainerOpen={
+												setWorkspaceTypeContainerOpen
+											}
+										/>
+										<ThemeSelector
+											themePreference={info?.themePreference}
+											handleSetThemePreference={handleSetThemePreference}
+										/>
 									</div>
 								)}
 							</div>
 						)}
 						{/* Workspace Details Section - Show for workspace creation mode */}
 						{isWorkspaceCreationMode && !invitedUserOnboarding && (
-							<div className="workspaceDetailsSection">
-								<div className="companyNameContainer">
-									<p className="question">Name of your Workspace handle?</p>
-									<div className="companyNameAndLogoInputs">
-										<input
-											className="companyNameInput"
-											type="text"
-											placeholder="Company Name"
-											value={info?.companyName}
-											onChange={handleSetCompanyName}
-										/>
-										<Tooltip
-											title={
-												<ToolTipContainer
-													customContainerStyle={customContainerStyle}
-													contentStyling={contentStyling}
-													title={''}
-													content={'Upload your company logo'}
-													removeClassName={true}
-												/>
-											}
-											arrow={true}
-											color={'var(--card)'}
-										>
-											<div className="companyLogoInputContainer">
-												<label htmlFor="companyLogoInput">
-													<input
-														id="companyLogoInput"
-														type="file"
-														accept="image/*"
-														onChange={handleSetCompanyLogo}
-														className="companyLogoInput"
-													/>
-													{/* {info?.companyLogo ? (
-														<img
-															className="companyLogo"
-															src={info?.companyLogo}
-															alt="Company Logo"
-														/>
-													) : (
-														<UploadIcon />
-													)} */}
-												</label>
-											</div>
-										</Tooltip>
-									</div>
+							<div className="workspaceDetailsSection show">
+								<WorkspaceHandle
+									companyName={info?.companyName}
+									handleSetCompanyName={handleSetCompanyName}
+									workspaceHandle={info?.workspaceHandle}
+									checkingWorkspaceHandle={info?.checkingWorkspaceHandle}
+									isWorkspaceHandleAvailable={info?.isWorkspaceHandleAvailable}
+									customContainerStyle={customContainerStyle}
+									contentStyling={contentStyling}
+									handleSetCompanyLogo={handleSetCompanyLogo}
+								/>
 
-									<div className="domainInfoContainer">
-										{info?.workspaceHandle?.length > 0 &&
-											(info?.workspaceHandle.length < 4 ? (
-												<span className="unavailable">
-													Workspace handle must be at least 4 characters
-												</span>
-											) : (
-												<>
-													<span className="domainName">
-														{info?.workspaceHandle}.ve.ai
-													</span>
-													{info?.checkingWorkspaceHandle ? (
-														<Spinner width="16px" height="16px" />
-													) : info?.isWorkspaceHandleAvailable ? (
-														<span className="available">
-															will be your domain
-														</span>
-													) : (
-														<span className="unavailable">
-															is already taken
-														</span>
-													)}
-												</>
-											))}
-									</div>
-								</div>
-
-								<div className="workspaceTypeContainer">
-									<p className="question">Your workspace type?</p>
-									<Tooltip
-										open={workspaceTypeContainerOpen}
-										trigger={[]}
-										title={
-											<WorkspaceTypeOptions
-												width={workspaceTypeContainerWidth}
-												handleSetWorkspaceType={handleSetWorkspaceType}
-												searchTerm={info?.workspaceType}
-												setWorkspaceTypeContainerOpen={
-													setWorkspaceTypeContainerOpen
-												}
-											/>
-										}
-										placement="bottom"
-										color={'transparent'}
-									>
-										<div className="workspaceTypeInputContainer">
-											<input
-												type="text"
-												placeholder="Type to search"
-												className="workspaceTypeInput"
-												value={info?.workspaceType}
-												onChange={handleWorkspaceTypeInput}
-											/>
-											{/* <div className="workspaceTypeDropdown">
-										<div className="labelContainer">
-											<DownArrow />
-										</div>
-									</div> */}
-										</div>
-									</Tooltip>
-								</div>
+								<WorkspaceTypeInput
+									workspaceTypeContainerOpen={workspaceTypeContainerOpen}
+									workspaceTypeContainerWidth={workspaceTypeContainerWidth}
+									handleSetWorkspaceType={handleSetWorkspaceType}
+									handleWorkspaceTypeInput={handleWorkspaceTypeInput}
+									workspaceType={info?.workspaceType}
+									setWorkspaceTypeContainerOpen={setWorkspaceTypeContainerOpen}
+								/>
 							</div>
 						)}
 						{/* Theme Preference Section - Only show if not in workspace creation mode */}
@@ -1028,17 +655,32 @@ const Stages = ({ onNext }) => {
 				</div>
 			</div>
 			<div className="btnsContainer">
-				<button
-					style={{
-						opacity: continueBtnDisabled ? 0.4 : 1,
-						cursor: continueBtnDisabled ? 'not-allowed' : 'pointer',
-					}}
-					disabled={continueBtnDisabled}
-					className="continueBtn"
-					onClick={handleContinue}
-				>
-					{isWorkspaceCreationMode ? 'Create Workspace' : 'Continue'}
-				</button>
+				{!info?.isPhoneNumberVerified && !info?.otpSent && !isWorkspaceCreationMode && (
+					<button
+						style={{
+							opacity: info?.verifyPhoneNumberLoading ? 0.5 : 1,
+							cursor: info?.verifyPhoneNumberLoading ? 'not-allowed' : 'pointer',
+						}}
+						disabled={info?.verifyPhoneNumberLoading}
+						className="continueBtn"
+						onClick={handleVerifyPhoneNumber}
+					>
+						{info?.verifyPhoneNumberLoading ? 'Verifying...' : 'Verify Number by OTP'}
+					</button>
+				)}
+				{(info?.isPhoneNumberVerified || isWorkspaceCreationMode) && (
+					<button
+						style={{
+							opacity: continueBtnDisabled ? 0.4 : 1,
+							cursor: continueBtnDisabled ? 'not-allowed' : 'pointer',
+						}}
+						disabled={continueBtnDisabled}
+						className="continueBtn"
+						onClick={handleContinue}
+					>
+						{isWorkspaceCreationMode ? 'Create Workspace' : 'Continue'}
+					</button>
+				)}
 			</div>
 			<CustomToast />
 		</>

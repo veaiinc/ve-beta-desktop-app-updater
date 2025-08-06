@@ -7,6 +7,7 @@ import { ReactComponent as DeleteSvg } from '../../../assets/svg/tasks/dustBin.s
 import { ReactComponent as GearSvg } from '../../../assets/svg/notes/gear.svg';
 import DuplicateSvg from '../../../assets/svg/tasks/DuplicateSvg.jsx';
 import '../../../assets/scss/notes/noteComponent.scss';
+import DeleteModal from '../modalsV2/DeleteModal/DeleteModal';
 
 const tooltipStyles = {
 	body: { minWidth: 'fit-content', padding: '0' },
@@ -47,7 +48,10 @@ const fontOptions = [
 ];
 
 const MoreOptions = ({ notesConfigs, onChange, onDelete, onDuplicate }) => {
-	const [info, setInfo] = useState({ isOpen: false });
+	const [info, setInfo] = useState({
+		isOpen: false,
+		deleteModal: { open: false },
+	});
 
 	const handleInfoChange = (data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
@@ -57,6 +61,29 @@ const MoreOptions = ({ notesConfigs, onChange, onDelete, onDuplicate }) => {
 		if (option?.id === 'duplicate') {
 			onDuplicate();
 		}
+	};
+
+	const handleOpenDeleteModal = () => {
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: true },
+			openMoreOptions: false, // Close the tooltip when opening modal
+		}));
+	};
+
+	const handleConfirmDelete = async () => {
+		await onDelete();
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: false },
+		}));
+	};
+
+	const handleCancelDelete = () => {
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: false },
+		}));
 	};
 
 	return (
@@ -72,7 +99,7 @@ const MoreOptions = ({ notesConfigs, onChange, onDelete, onDuplicate }) => {
 				arrow={false}
 				trigger={'click'}
 				color={'transparent'}
-				 styles={tooltipStyles}
+				styles={tooltipStyles}
 				title={
 					<div className="notes-more-options-tooltip-content">
 						{options?.map((option) => (
@@ -95,9 +122,9 @@ const MoreOptions = ({ notesConfigs, onChange, onDelete, onDuplicate }) => {
 							</div>
 						))}
 						<hr style={{ width: '100%', opacity: 0.1 }} />
-						<div className="deleteItem cursor-pointer" onClick={() => onDelete()}>
+						<div className="deleteItem cursor-pointer" onClick={handleOpenDeleteModal}>
 							<DeleteSvg />
-							<span>Move to trash</span>
+							<span>Delete</span>
 						</div>
 					</div>
 				}
@@ -112,6 +139,18 @@ const MoreOptions = ({ notesConfigs, onChange, onDelete, onDuplicate }) => {
 					<GearSvg className="gear-svg" />
 				</div>
 			</Tooltip>
+
+			{/* Delete Note Modal */}
+			<DeleteModal
+				isOpen={info?.deleteModal?.open}
+				onClose={handleCancelDelete}
+				onConfirm={handleConfirmDelete}
+				title="Delete Note?"
+				itemType="note"
+				description="Are you sure you want to delete this note?"
+				warning="This note will be permanently removed and cannot be recovered."
+				confirmText="Delete Permanently"
+			/>
 		</div>
 	);
 };

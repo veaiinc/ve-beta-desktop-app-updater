@@ -88,63 +88,50 @@ const LoginPage = () => {
 
 	const stages = {
 		email: (
-			<div className="main-content-container">
-				<div className="email-section">
-					<Email
-						email={info?.email}
-						setEmail={setEmail}
-						setActiveStage={setActiveStage}
-						setEmailVerified={setEmailVerified}
-						setLastOtpEmail={setLastOtpEmail}
-						lastOtpEmail={info?.lastOtpEmail}
-					/>
-					<div className="disclaimer-container">
-						{!info?.cookiesAccepted && info?.showCookiesNotice && (
-							<div className="cookies-notice">
-								<div className="cookie-container">
-									{/* <span className="cookie-icon">
-										<img src={CookiesImg} />
-									</span> */}
-									<p>
-										This site uses cookies to provide you with a personalized
-										experience. Check our{' '}
-										<b onClick={() => window.open('/cookie-policy', '_blank')}>
-											<u>cookie policy</u>
-										</b>{' '}
-										for more details.
-									</p>
-								</div>
-								<div className="buttons-container">
-									<div className="decline-button" onClick={handleDeclineCookies}>
-										Deny all
-									</div>
-									<div className="accept-button" onClick={handleAcceptCookies}>
-										Accept
-									</div>
-								</div>
+			<>
+				<Email
+					email={info?.email}
+					setEmail={setEmail}
+					setActiveStage={setActiveStage}
+					setEmailVerified={setEmailVerified}
+					setLastOtpEmail={setLastOtpEmail}
+					lastOtpEmail={info?.lastOtpEmail}
+				/>
+
+				{!info?.cookiesAccepted && info?.showCookiesNotice && (
+					<div className="cookies-notice">
+						<div className="cookie-container">
+							<p className="cookie-text">
+								This site uses cookies to provide you with a personalized
+								experience. Check our{' '}
+								<button
+									className="cookie-policy-link"
+									onClick={() => window.open('/cookie-policy', '_blank')}
+								>
+									<u>cookie policy</u>
+								</button>{' '}
+								for more details.
+							</p>
+						</div>
+						<div className="buttons-container">
+							<div className="decline-button" onClick={handleDeclineCookies}>
+								Deny all
 							</div>
-						)}
+							<div className="accept-button" onClick={handleAcceptCookies}>
+								Accept
+							</div>
+						</div>
 					</div>
-				</div>
-				<div className="description-section">
-					<LoginDescription />
-				</div>
-			</div>
+				)}
+			</>
 		),
 		verificationCode: (
-			<div className="main-content-container">
-				<div className="email-section">
-					<VerificationCode
-						email={info?.email}
-						emailVerified={info?.emailVerified}
-						setEmailVerified={setEmailVerified}
-						setActiveStage={setActiveStage}
-					/>
-				</div>
-				<div className="description-section">
-					<LoginDescription />
-				</div>
-			</div>
+			<VerificationCode
+				email={info?.email}
+				emailVerified={info?.emailVerified}
+				setEmailVerified={setEmailVerified}
+				setActiveStage={setActiveStage}
+			/>
 		),
 	};
 
@@ -183,29 +170,22 @@ const LoginPage = () => {
 	return (
 		<div className="login-page-container-wrapper">
 			<div className="login-page-container">
-				<div className="header">
-					<div className="logo" onClick={handleLogoClick}>
-						<VeLogo />
+				<div className="main-content-container login-child-container">
+					<div className="header-container">
+						<div className="logo" onClick={handleLogoClick}>
+							<VeLogo />
+						</div>
+					</div>
+					<div className="content-container">
+						<div className="stages-container">
+							{stages?.[info?.activeStage] || <div>Loading...</div>}
+						</div>
 					</div>
 				</div>
-				{/* <div className="gradient-container">
-				{info?.isDarkMode ? <DarkModeGradient /> : <LightModeGradient />}
-			</div> */}
-				<div className="stages-container">
-					{/* <div className="logo-container">
-						<VeAiLogo />
-						</div> */}
-					{stages?.[info?.activeStage]}
+				<div className="description-section login-child-container">
+					<LoginDescription />
 				</div>
-				{/* <footer className="login-footer-container">
-				{footerLinks?.map((link) => (
-					<a className="footer-link" key={link?.id} onClick={link?.handleClick}>
-						{link?.label}
-					</a>
-				))}
-			</footer> */}
 			</div>
-			{/* Remove floating LoginDescription here */}
 		</div>
 	);
 };

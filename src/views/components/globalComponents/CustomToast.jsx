@@ -2,8 +2,8 @@ import { memo, useEffect, useRef, useState } from 'react';
 import { ReactComponent as Success } from '../../../assets/svg/custom_toast/tickmark.svg';
 import { ReactComponent as Error } from '../../../assets/svg/custom_toast/exclamatory.svg';
 import { ReactComponent as Warning } from '../../../assets/svg/custom_toast/warning.svg';
+import Spinner from '../loaders/Spinner';
 
-import { SpinnerIcon } from '@livekit/components-react';
 import '../../../assets/scss/toast/toast.scss';
 
 const defaultDuration = 3; // 3 seconds
@@ -16,7 +16,7 @@ const toastIcon = {
 	success: <Success />,
 	warning: <Warning />,
 	error: <Error />,
-	loading: <SpinnerIcon className="loading-spinner" />,
+	loading: <Spinner className="loading-spinner" />,
 };
 
 const CustomToast = () => {

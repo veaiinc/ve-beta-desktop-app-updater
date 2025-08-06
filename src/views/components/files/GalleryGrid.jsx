@@ -543,7 +543,7 @@ const GalleryGrid = ({
 								'Start by adding images, or videos to keep everything in one place.'
 							}
 							buttonOnClick={handleCreateNewGallery}
-							buttonText={'Upload Gallery'}
+							buttonText={'Create Gallery'}
 							showUpload={true}
 						/>
 					</div>

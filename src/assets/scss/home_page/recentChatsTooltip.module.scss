@@ -1,13 +1,16 @@
 .recentChatTooltip {
 	display: flex;
 	width: 250px;
-	padding: 20px 20px 16px 20px;
+	height: 400px;
+	padding: 16px 14px;
 	flex-direction: column;
 	align-items: center;
 	gap: 16px;
 	border-radius: 16px;
-	background-color: var(--navbar);
-	border: 1px solid var(--stroke);
+	border: 1px solid var(--dividers, #1e1f20);
+	background: var(--popup, #202123);
+	position: relative;
+	left: 103px;
 
 	.chatList {
 		width: 100%;
@@ -51,27 +54,34 @@
 
 			.chatItem {
 				display: flex;
-				padding: 8px 0;
+				padding: 8px;
 				align-items: center;
 				gap: 10px;
-				color: var(--primary-font, #f2f2f3);
-				font-family: var(--primary-font-family);
-				font-size: 13px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
+				align-self: stretch;
+				border-radius: 6px;
 				cursor: pointer;
 				width: 100%;
 				min-width: 0;
 				box-sizing: border-box;
 				transition: background-color 0.2s ease;
 
-				span {
+				&:hover {
+					background: var(--card, #242628);
+				}
+
+				.chatTitle {
 					white-space: nowrap;
 					overflow: hidden;
 					text-overflow: ellipsis;
 					flex: 1;
 					min-width: 0;
+				}
+
+				.activeChatIndicator {
+					width: 4px;
+					height: 4px;
+					border-radius: 50%;
+					background: var(--primary-button, #007bff);
 				}
 			}
 		}

@@ -71,7 +71,7 @@ const Configuration = ({ specificAutomationInfo, updateCurrentAutomation }) => {
 			</div>
 			<div className="configurationBody">
 				<div className="workflowIssuesHeadingContainer">
-					<h1 className="workflowIssuesHeading">Workflow issues</h1>
+					<h1 className="workflowIssuesHeading">Automation issues</h1>
 					<span className="workflowIssuesSubHeading">
 						Make sure all issues are resolved before publishing
 					</span>

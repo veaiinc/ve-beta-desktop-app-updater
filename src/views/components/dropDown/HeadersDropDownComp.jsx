@@ -1,29 +1,11 @@
-import { useState, memo, useCallback, useEffect } from 'react';
+import { useState, memo, useEffect, useCallback } from 'react';
 import '../../../assets/scss/dropdown/headerDropdown.scss';
 import { ReactComponent as DownArrow } from '../../../assets/svg/chat/downArrow.svg';
 import { ReactComponent as Tick } from '../../../assets/svg/tick.svg';
-import useLogout from '../../../hooks/useLogout';
 import { getBuisnessName } from '../../../helpers/index';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers/index';
-
-const iconComponent = (
-	<div
-		style={{
-			display: 'flex',
-			width: '18px',
-			height: '18px',
-			justifyContent: 'center',
-			alignItems: 'center',
-			gap: '5.625px',
-			borderRadius: '56.25px',
-			background:
-				'url(https://s3-alpha-sig.figma.com/img/1785/4816/6b242fa46aaac2dc8b45609480a257a7?Expires=1719792000&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=iiGtkJltYhmFpJEjLTL3da5weMk3RS~kz41rEB5FRlBc7f5Z6QrYajx4l9J6rFkjM7PJRErDB-hUwGrIvRwQqxiIFy9OiPSnkxmCNj1KJoPjLg8BT5jb3GoxoTz2tZmxic1R5iAUYRX-f~y8FTCqERjIVkZhGEd60SyrfgLPpS97Ruxuq6zCvwAPOorZM8qOS0nlM4~Drp0pqddZRxNtxLDTY4VuIPlXw2O~oz-dbBB5I6-SEyLHx~xKPFeD8ph5DARXtHktw3bpU0VCmDNecA2UZfpP5hgDsXeM9bINAGidL-2zyfO~8QNFGleIJThiCaIrxgQ-ZcdhDygd7BWvBQ__)',
-			backgroundSize: 'cover',
-			backgroundPosition: 'center',
-		}}
-	></div>
-);
+import logout from '../../../helpers/logout';
 
 const logoutStyles = {
 	color: 'var(--secondary-button)',
@@ -45,7 +27,6 @@ const HeadersDropDownComp = ({
 	onMouseHoverFunc = false,
 	outerContainerStyle,
 	onChangeFunc,
-	selectedValueStyle,
 	showArrow = true,
 	containerClassName = '',
 	dropDownTextStyling = {},
@@ -56,7 +37,6 @@ const HeadersDropDownComp = ({
 	hasNextPage,
 	labelField = 'label',
 }) => {
-	const logoutFunc = useLogout();
 	const [isOpen, setIsOpen] = useState(false);
 	const toggleDropdown = () => setIsOpen((prev) => !prev);
 	const [searchValue, setSearchValue] = useState('');
@@ -77,9 +57,6 @@ const HeadersDropDownComp = ({
 		setIsOpen(false);
 		setSearchValue('');
 	};
-	const handleLogout = useCallback(() => {
-		logoutFunc();
-	}, [logoutFunc]);
 
 	const handleOpen = useCallback(async () => {
 		setIsOpen(true);
@@ -114,15 +91,6 @@ const HeadersDropDownComp = ({
 				) : (
 					''
 				)}
-				{/* <span
-					className="selectedPage"
-					style={{
-						color: containerStyle?.color || 'var(--primary-button)',
-						...(selectedValueStyle || {}),
-					}}
-				>
-					{selectedValue}
-				</span> */}
 				<input
 					type="text"
 					value={searchValue}
@@ -193,7 +161,7 @@ const HeadersDropDownComp = ({
 
 									<div
 										className="dropdown-item"
-										onClick={handleLogout}
+										onClick={logout}
 										style={{
 											...logoutStyles,
 										}}

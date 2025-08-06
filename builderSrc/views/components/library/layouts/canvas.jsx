@@ -713,8 +713,8 @@ class Layout extends Component {
 										if (tagName !== DesktopTagName) {
 											let formedContent = `<${DesktopTagName} style="${DesktopStyles}">${contentWithSpace}</${DesktopTagName}>`;
 											content = formedContent?.replace(
-												/font-size:\s*clamp\(([0-9.]+)rem,\s*([0-9.]+)vw\s*,\s*([0-9.]+)rem\)/g,
-												(match, min, vw, max) => {
+												/font-size:\s*clamp\(([0-9.]+)rem,\s*([0-9.]+)rem\s*,\s*([0-9.]+)rem\)/g,
+												(match, min, rem, max) => {
 													const ThemeSize =
 														this.props?.themes?.mobileFonts?.[
 															DesktopTagName
@@ -734,8 +734,8 @@ class Layout extends Component {
 										} else {
 											let formedContent = `<${tagName} style="${styles}">${contentWithSpace}</${tagName}>`;
 											content = formedContent?.replace(
-												/font-size:\s*clamp\(([0-9.]+)rem,\s*([0-9.]+)vw\s*,\s*([0-9.]+)rem\)/g,
-												(match, min, vw, max) => {
+												/font-size:\s*clamp\(([0-9.]+)rem,\s*([0-9.]+)rem\s*,\s*([0-9.]+)rem\)/g,
+												(match, min, rem, max) => {
 													const ThemeSize =
 														this.props.themes?.mobileFonts?.[tagName]
 															?.fontSize ||
@@ -749,8 +749,8 @@ class Layout extends Component {
 										}
 									} else {
 										content = subBlock?.content?.replace(
-											/font-size:\s*clamp\(([0-9.]+)rem,\s*([0-9.]+)vw\s*,\s*([0-9.]+)rem\)/g,
-											(match, min, vw, max) => {
+											/font-size:\s*clamp\(([0-9.]+)rem,\s*([0-9.]+)rem\s*,\s*([0-9.]+)rem\)/g,
+											(match, min, rem, max) => {
 												const ThemeSize =
 													this.props.themes?.mobileFonts?.[tagName]
 														?.fontSize ||
@@ -769,8 +769,8 @@ class Layout extends Component {
 								if (tagNameMatch) {
 									tagName = tagNameMatch[1];
 									content = content?.replace(
-										/font-size:\s*clamp\(([0-9.]+)rem,\s*([0-9.]+)vw\s*,\s*([0-9.]+)rem\)/g,
-										(match, min, vw, max) => {
+										/font-size:\s*clamp\(([0-9.]+)rem,\s*([0-9.]+)rem\s*,\s*([0-9.]+)rem\)/g,
+										(match, min, rem, max) => {
 											const ThemeSize =
 												this.props.themes?.mobileFonts?.[tagName]
 													?.fontSize ||
@@ -782,8 +782,8 @@ class Layout extends Component {
 									);
 								} else {
 									content = content?.replace(
-										/font-size:\s*clamp\(([0-9.]+)rem,\s*([0-9.]+)vw\s*,\s*([0-9.]+)rem\)/g,
-										(match, min, vw, max) => {
+										/font-size:\s*clamp\(([0-9.]+)rem,\s*([0-9.]+)rem\s*,\s*([0-9.]+)rem\)/g,
+										(match, min, rem, max) => {
 											const originalFontSize = (parseFloat(max) * 16) / 2;
 											const minSizeRem = originalFontSize / 16;
 											return `font-size: ${minSizeRem}rem`;
@@ -863,8 +863,8 @@ class Layout extends Component {
 										if (tagName !== DesktopTagName) {
 											let formedContent = `<${DesktopTagName}">${contentWithSpace}</${DesktopTagName}>`;
 											content = formedContent?.replace(
-												/font-size:\s*clamp\(([0-9.]+)rem,\s*([0-9.]+)vw\s*,\s*([0-9.]+)rem\)/g,
-												(match, min, vw, max) => {
+												/font-size:\s*clamp\(([0-9.]+)rem,\s*([0-9.]+)rem\s*,\s*([0-9.]+)rem\)/g,
+												(match, min, rem, max) => {
 													const ThemeSize =
 														this.props?.themes?.mobileFonts?.[
 															DesktopTagName
@@ -884,8 +884,8 @@ class Layout extends Component {
 										} else {
 											let formedContent = `<${tagName} >${contentWithSpace}</${tagName}>`;
 											content = formedContent?.replace(
-												/font-size:\s*clamp\(([0-9.]+)rem,\s*([0-9.]+)vw\s*,\s*([0-9.]+)rem\)/g,
-												(match, min, vw, max) => {
+												/font-size:\s*clamp\(([0-9.]+)rem,\s*([0-9.]+)rem\s*,\s*([0-9.]+)rem\)/g,
+												(match, min, rem, max) => {
 													const ThemeSize =
 														this.props.themes?.mobileFonts?.[tagName]
 															?.fontSize ||
@@ -899,8 +899,8 @@ class Layout extends Component {
 										}
 									} else {
 										content = subBlock?.content?.replace(
-											/font-size:\s*clamp\(([0-9.]+)rem,\s*([0-9.]+)vw\s*,\s*([0-9.]+)rem\)/g,
-											(match, min, vw, max) => {
+											/font-size:\s*clamp\(([0-9.]+)rem,\s*([0-9.]+)rem\s*,\s*([0-9.]+)rem\)/g,
+											(match, min, rem, max) => {
 												const ThemeSize =
 													this.props.themes?.mobileFonts?.[tagName]
 														?.fontSize ||
@@ -919,8 +919,8 @@ class Layout extends Component {
 								if (tagNameMatch) {
 									tagName = tagNameMatch[1];
 									content = content?.replace(
-										/font-size:\s*clamp\(([0-9.]+)rem,\s*([0-9.]+)vw\s*,\s*([0-9.]+)rem\)/g,
-										(match, min, vw, max) => {
+										/font-size:\s*clamp\(([0-9.]+)rem,\s*([0-9.]+)rem\s*,\s*([0-9.]+)rem\)/g,
+										(match, min, rem, max) => {
 											const ThemeSize =
 												this.props.themes?.mobileFonts?.[tagName]
 													?.fontSize ||
@@ -932,8 +932,8 @@ class Layout extends Component {
 									);
 								} else {
 									content = content?.replace(
-										/font-size:\s*clamp\(([0-9.]+)rem,\s*([0-9.]+)vw\s*,\s*([0-9.]+)rem\)/g,
-										(match, min, vw, max) => {
+										/font-size:\s*clamp\(([0-9.]+)rem,\s*([0-9.]+)rem\s*,\s*([0-9.]+)rem\)/g,
+										(match, min, rem, max) => {
 											const originalFontSize = (parseFloat(max) * 16) / 2;
 											const minSizeRem = originalFontSize / 16;
 											return `font-size: ""`;

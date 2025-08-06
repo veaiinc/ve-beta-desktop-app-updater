@@ -457,7 +457,7 @@ const MyProfile = () => {
 				</div> */}
 				{/* Temporary Hide */}
 
-				{workspaceMode === 'beta' && <Notifications />}
+				{workspaceMode !== 'stable' && <Notifications />}
 
 				<div className="danger-zone">
 					<div className="danger-zone-header">

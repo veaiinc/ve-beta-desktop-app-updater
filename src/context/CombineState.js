@@ -20,6 +20,7 @@ import { KnowledgeAgentState } from './knowledgeAgent/state';
 import { WorkspaceAssetsState } from './workspaceAssets/state';
 import { CustomDomainState } from './customDomain/state';
 import { ChatStreamState } from './chatStream/state';
+import { ChatBoxSuggestionsState } from './chatBoxSuggestions/state';
 
 const useCombineState = () => {
 	// Call all hooks at the top level
@@ -44,6 +45,7 @@ const useCombineState = () => {
 	const workspaceAssets = WorkspaceAssetsState();
 	const customDomainInfo = CustomDomainState();
 	const chatStream = ChatStreamState();
+	const chatBoxSuggestionsSocket = ChatBoxSuggestionsState();
 	// Only memoize the final combined object
 	return useMemo(
 		() => ({
@@ -68,6 +70,7 @@ const useCombineState = () => {
 			workspaceAssets,
 			customDomainInfo,
 			chatStream,
+			chatBoxSuggestionsSocket,
 		}),
 		[
 			chatInfo,
@@ -91,6 +94,7 @@ const useCombineState = () => {
 			workspaceAssets,
 			customDomainInfo,
 			chatStream,
+			chatBoxSuggestionsSocket,
 		],
 	);
 };

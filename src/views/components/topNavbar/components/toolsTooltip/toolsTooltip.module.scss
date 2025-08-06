@@ -1,32 +1,38 @@
 .toolsTooltipContainer {
 	display: flex;
-	flex-wrap: wrap;
-	width: 640px;
+	width: 450px;
 	padding: 8px;
-	gap: 8px;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 4px 8px;
 	border-radius: 16px;
 	border: 1px solid var(--dividers, #1e1f20);
 	background: var(--popup, #202123);
 	position: absolute;
-	top: 20px;
+	top: 16px;
 
 	.toolContainer {
-		width: 49.3%;
+		width: 49%;
 		display: flex;
+		padding: 8px 12px;
 		align-items: center;
 		gap: 12px;
-		padding: 8px 12px;
+		border-radius: 8px;
 		cursor: pointer;
-		position: relative;
 
 		&:hover {
 			border-radius: 8px;
-			background: rgba(121, 236, 201, 0.3);
+			background: var(--primary-opacity);
 			transition: background 0.3s ease;
 
 			.toolIcon {
 				border: 1px solid var(--primary-button);
 				background: var(--primary-button);
+				svg {
+					path {
+						stroke: var(--background-color);
+					}
+				}
 			}
 		}
 

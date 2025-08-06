@@ -9,6 +9,12 @@ import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search
 import { ReactComponent as AddIcon } from '../../../assets/svg/add.svg';
 import GuideMePopup from './guideMePopup';
 import CreateMeetingModal from './CreateMeetingModal';
+import moment from 'moment';
+
+// const drawerStyles = {
+// 	header: { display: 'none' },
+// 	body: { padding: 0, background: 'var(--background-color)', height: '100vh', overflow: 'auto' },
+// };
 
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -25,6 +31,7 @@ function formatDate(timestamp) {
 const CardMeetBot = () => {
 	const {
 		notes: { getExistingBots, createMeetBot, existingBots },
+		templates: { updateStateValues },
 	} = useContext(Context);
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
@@ -270,7 +277,7 @@ const CardMeetBot = () => {
 												}}
 												onClick={() =>
 													navigate(
-														`/meet/${meeting?.pageId}/${meeting?._id}?type=${meeting?.transcriptionSource}`,
+														`/meet/${meeting?._id}?type=${meeting?.transcriptionSource}&history=true`,
 													)
 												}
 											>
@@ -320,8 +327,17 @@ const CardMeetBot = () => {
 																		|
 																	</div>
 																)}
-																<div>
-																	{formatDate(meeting.createdAt)}
+																<div
+																	style={{
+																		textOverflow: 'ellipsis',
+																		overflow: 'hidden',
+																		whiteSpace: 'nowrap',
+																		maxWidth: '100px',
+																	}}
+																>
+																	{moment
+																		.unix(meeting.createdAt)
+																		.format('DD MMM YYYY')}
 																</div>
 															</div>
 														</div>
@@ -400,7 +416,6 @@ const CardMeetBot = () => {
 			</div>
 
 			<CreateMeetingModal isOpen={info.modalOpen} onClose={closeModal} />
-
 			<GuideMePopup
 				isOpen={info.guideMePopupOpen}
 				onClose={() => setInfo({ ...info, guideMePopupOpen: false })}

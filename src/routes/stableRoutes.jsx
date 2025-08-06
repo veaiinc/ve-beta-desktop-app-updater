@@ -1,105 +1,34 @@
 import { Navigate } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
 
 // layouts
-import Public from '../views/layouts/Public';
-import AuthWrapper from '../views/layouts/authWrapper';
-
-// pages
-// import InitialHomePage from '../views/features/homePage/InitialHomePage';
-// import MeetBot from '../views/features/meetBot/meetBot';
-// import NotesWrapper from '../views/features/notesModule/NotesWrapper';
+const AuthWrapper = lazy(() => import('../views/layouts/authWrapper'));
+const Public = lazy(() => import('../views/layouts/Public'));
 
 // lazy loaded pages
-import ShareAndEarn from '../views/features/shareAndEarn/ShareAndEarn';
+// const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
 import SettingsWrapper from '../views/features/settings/SettingsWrapper';
 import RecentChat from '../views/features/chat/RecentChat';
 import Onboarding from '../views/features/onboarding/Onboarding';
 import ChatPage from '../views/components/homePage/ChatPage';
-
-// components
-import AmbientAi from '../views/features/ambientAi/AmbientAi';
-import CardMeetBot from '../views/features/meetBot/CardMeetBot';
 import Agents from '../views/features/agents/Agents';
 import Agent from '../views/features/agents/agent/Agent';
 import GlobalWorkflows from '../views/features/sales/GlobalWorkflows';
-import NotesWrapper from '../views/features/notesModule/NotesWrapper';
+import CardMeetBot from '../views/features/meetBot/CardMeetBot';
+import MeetBotWrapper from '../views/features/meetBot/meetBotWrapper';
+import ProactiveSuggestions from '../views/features/homePage/ProactiveSuggestions';
+
+// components
 
 const stableRoutes = [
-	// {
-	// 	path: '/home',
-	// 	element: (
-	// 		<AuthWrapper
-	// 			title={'Home'}
-	// 			outerContainerStyle={{ overflow: 'hidden' }}
-	// 			childrenContainerStyles={{ overflow: 'auto' }}
-	// 			showBottomToolbar={false}
-	// 		>
-	// 			<InitialHomePage />
-	// 		</AuthWrapper>
-	// 	),
-	// },
-	{
-		path: '/playbook',
-		element: (
-			<AuthWrapper title={'Sales'}>
-				<GlobalWorkflows />
-			</AuthWrapper>
-		),
-	},
+	// ========================================
+	// AI & ASSISTANT FEATURES
+	// ========================================
 	{
 		path: '/home',
 		element: (
 			<AuthWrapper title={'Ambient AI'}>
-				<AmbientAi />
-			</AuthWrapper>
-		),
-	},
-	{
-		path: '/create-workspace',
-		element: (
-			<Public>
-				<Onboarding />
-			</Public>
-		),
-	},
-	{
-		path: '/share-and-earn',
-		element: (
-			<AuthWrapper title={'Share and Earn'}>
-				<ShareAndEarn />
-			</AuthWrapper>
-		),
-	},
-	{
-		path: '/chats',
-		element: (
-			<AuthWrapper title={'Chats'}>
-				<ChatPage />
-			</AuthWrapper>
-		),
-	},
-	{
-		path: '/settings/:type',
-		element: (
-			<AuthWrapper title={'Workspace Settings'}>
-				<SettingsWrapper />
-			</AuthWrapper>
-		),
-	},
-	{
-		path: '/chat/:sessionId',
-		element: (
-			<AuthWrapper
-				title={'Chat'}
-				showBottomToolbar={false}
-				outerContainerStyle={{
-					paddingRight: '0px',
-					backgroundColor: 'var(--chat-background-color)',
-				}}
-				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
-				maxWidth="100%"
-			>
-				<RecentChat showChatHistory={true} showDeleteChat={true} showChats={true} />
+				<ProactiveSuggestions />
 			</AuthWrapper>
 		),
 	},
@@ -123,6 +52,35 @@ const stableRoutes = [
 			</AuthWrapper>
 		),
 	},
+
+	// ========================================
+	// CHAT & COMMUNICATION
+	// ========================================
+	{
+		path: '/chats',
+		element: (
+			<AuthWrapper title={'Chats'}>
+				<ChatPage />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/chat/:sessionId',
+		element: (
+			<AuthWrapper
+				title={'Chat'}
+				showBottomToolbar={false}
+				outerContainerStyle={{
+					paddingRight: '0px',
+					backgroundColor: 'var(--chat-background-color)',
+				}}
+				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
+				maxWidth="100%"
+			>
+				<RecentChat showChatHistory={true} showDeleteChat={true} showChats={true} />
+			</AuthWrapper>
+		),
+	},
 	{
 		path: '/meet',
 		element: (
@@ -132,13 +90,63 @@ const stableRoutes = [
 		),
 	},
 	{
-		path: '/meet/:noteId/:meetingId',
+		path: '/meet/:meetingId',
 		element: (
 			<AuthWrapper title={'Meet'}>
-				<NotesWrapper />
+				<MeetBotWrapper />
 			</AuthWrapper>
 		),
 	},
+
+	// ========================================
+	// Playbook
+	// ========================================
+	{
+		path: '/playbook',
+		element: (
+			<AuthWrapper title={'Playbook'}>
+				<GlobalWorkflows />
+			</AuthWrapper>
+		),
+	},
+
+	// ========================================
+	// SETTINGS & ADMINISTRATION
+	// ========================================
+	{
+		path: '/settings/:type',
+		element: (
+			<AuthWrapper title={'Workspace Settings'}>
+				<SettingsWrapper />
+			</AuthWrapper>
+		),
+	},
+
+	// ========================================
+	// ONBOARDING & FEATURES
+	// ========================================
+	{
+		path: '/create-workspace',
+		element: (
+			<AuthWrapper title={'Onboarding'}>
+				<Onboarding />
+			</AuthWrapper>
+		),
+	},
+	// {
+	// 	path: '/share-and-earn',
+	// 	element: (
+	//
+	// 			<AuthWrapper title={'Share and Earn'}>
+	// 				<ShareAndEarn />
+	// 			</AuthWrapper>
+	//
+	// 	),
+	// },
+
+	// ========================================
+	// FALLBACK ROUTE
+	// ========================================
 	{
 		path: '*',
 		element: (

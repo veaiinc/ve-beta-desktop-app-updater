@@ -6,6 +6,7 @@ import AutomationMenu from './AutomationMenu';
 import AutomationSteps from './AutomationSteps';
 import { message } from '../../globalComponents/CustomToast';
 import Spinner from '../../loaders/Spinner';
+import DeleteModal from '../../modalsV2/DeleteModal/DeleteModal';
 
 const options = [
 	{
@@ -28,6 +29,7 @@ const AutomationCard = ({
 		automationTitle: automationTitle ?? '',
 		isRenaming: false,
 		activeOption: 'steps',
+		deleteModal: { open: false },
 	});
 
 	const {
@@ -76,6 +78,28 @@ const AutomationCard = ({
 		}));
 	};
 
+	const handleOpenDeleteModal = () => {
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: true },
+		}));
+	};
+
+	const handleConfirmDelete = async () => {
+		await handleDeleteAutomation(automationId);
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: false },
+		}));
+	};
+
+	const handleCancelDelete = () => {
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: false },
+		}));
+	};
+
 	const activeAutomationOptionMapper = useMemo(() => {
 		return {
 			steps: <AutomationSteps automationSteps={automationSteps} />,
@@ -83,55 +107,68 @@ const AutomationCard = ({
 	}, [automationSteps]);
 
 	return (
-		<div className="automationCardContainer">
-			<header className="automationHeader">
-				<div className="automationTitleAndStatus">
-					{info?.editAutomationTitle ? (
-						<input
-							className="renameAutomationTitle"
-							type="text"
-							value={info?.automationTitle}
-							onChange={handleSetAutomationTitle}
-							onKeyDown={handleRename}
-							autoFocus
-						/>
-					) : (
-						<>
-							<h1 className="automationTitle">{info?.automationTitle}</h1>
-						</>
-					)}
-				</div>
-				{info?.isRenaming && <Spinner width="16px" height="16px" />}
-				<AutomationMenu
-					automationId={automationId}
-					showAutomationMenu={info?.showAutomationMenu}
-					toggleAutomationMenu={toggleAutomationMenu}
-					enableAutomationTitleEditMode={enableAutomationTitleEditMode}
-					handleDeleteAutomation={handleDeleteAutomation}
-				>
-					<div className="automationStatusContainer">
-						<h2 className="automationStatus">
-							{automationStatus === 'published' && 'Live'}
-						</h2>
-						<ThreeDotsVerticalIcon />
+		<>
+			<div className="automationCardContainer">
+				<header className="automationHeader">
+					<div className="automationTitleAndStatus">
+						{info?.editAutomationTitle ? (
+							<input
+								className="renameAutomationTitle"
+								type="text"
+								value={info?.automationTitle}
+								onChange={handleSetAutomationTitle}
+								onKeyDown={handleRename}
+								autoFocus
+							/>
+						) : (
+							<>
+								<h1 className="automationTitle">{info?.automationTitle}</h1>
+							</>
+						)}
 					</div>
-				</AutomationMenu>
-			</header>
-			<ul className="automationOptions">
-				{options?.map((option) => (
-					<li key={option?.id} className="automationOption">
-						<span
-							className={`automationOptionTitle ${
-								info?.activeOption === option?.value ? 'activeOption' : ''
-							}`}
-						>
-							{option?.title}
-						</span>
-					</li>
-				))}
-			</ul>
-			{activeAutomationOptionMapper?.[info?.activeOption]}
-		</div>
+					{info?.isRenaming && <Spinner width="16px" height="16px" />}
+					<AutomationMenu
+						automationId={automationId}
+						showAutomationMenu={info?.showAutomationMenu}
+						toggleAutomationMenu={toggleAutomationMenu}
+						enableAutomationTitleEditMode={enableAutomationTitleEditMode}
+						handleDeleteAutomation={handleOpenDeleteModal}
+					>
+						<div className="automationStatusContainer">
+							<h2 className="automationStatus">
+								{automationStatus === 'published' && 'Live'}
+							</h2>
+							<ThreeDotsVerticalIcon />
+						</div>
+					</AutomationMenu>
+				</header>
+				<ul className="automationOptions">
+					{options?.map((option) => (
+						<li key={option?.id} className="automationOption">
+							<span
+								className={`automationOptionTitle ${
+									info?.activeOption === option?.value ? 'activeOption' : ''
+								}`}
+							>
+								{option?.title}
+							</span>
+						</li>
+					))}
+				</ul>
+				{activeAutomationOptionMapper?.[info?.activeOption]}
+			</div>
+
+			{/* Delete Automation Modal */}
+			<DeleteModal
+				isOpen={info?.deleteModal?.open}
+				onClose={handleCancelDelete}
+				onConfirm={handleConfirmDelete}
+				title="Delete Automation?"
+				itemType="automation"
+				description="Are you sure you want to delete this automation?"
+				warning="This automation will be permanently removed and cannot be recovered."
+			/>
+		</>
 	);
 };
 

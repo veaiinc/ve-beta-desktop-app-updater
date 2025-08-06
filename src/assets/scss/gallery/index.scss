@@ -798,6 +798,20 @@
 								-webkit-line-clamp: 1;
 							}
 						}
+						.albumCollectionTitle {
+							color: #fff;
+							display: -webkit-box;
+							font-family: var(--primary-font-family);
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 600;
+							line-height: normal;
+							overflow: hidden;
+							text-overflow: ellipsis;
+							width: 180px;
+							-webkit-box-orient: vertical;
+							-webkit-line-clamp: 1;
+						}
 					}
 					.albumOverlay {
 						position: absolute;
@@ -1103,15 +1117,9 @@
 							.ant-switch {
 								background-color: var(--stroke);
 							}
-
 							.ant-switch-checked {
 								background-color: var(--primary-button);
 							}
-
-							.ant-switch .ant-switch-handle::before {
-								background-color: var(--background-color);
-							}
-
 							.ant-switch.ant-switch-checked .ant-switch-handle::before {
 								background-color: var(--background-color);
 							}

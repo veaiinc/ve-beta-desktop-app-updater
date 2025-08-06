@@ -1,5 +1,4 @@
 .verification-code-input-container {
-	margin-top: 144px;
 	width: 100%;
 	display: flex;
 	justify-content: center;
@@ -25,7 +24,6 @@
 		align-items: center;
 		flex-direction: column;
 		gap: 8px;
-		margin-bottom: 15px;
 
 		#otpContainer {
 			display: inline-flex;
