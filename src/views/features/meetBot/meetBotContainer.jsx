@@ -427,6 +427,11 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					handleTranscriptionSuggestions(msg?.data);
 				} else if (msg?.event === 'transcript.done') {
 					closeRecallConnection();
+					setSearchParams({
+						...Object.fromEntries(searchParams.entries()),
+						history: 'true',
+					});
+					getMeetSummary({ meetingId });
 				} else if (msg?.noteTakerTranscript) {
 					// Handle noteTakerTranscript responses
 					handleSocketTranscription({

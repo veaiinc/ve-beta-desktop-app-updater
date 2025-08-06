@@ -23,14 +23,18 @@ const MeetSummary = ({ activeTab, meetingId }) => {
 		}
 	}, [meetSummary]);
 
+	const loading = meetSummary ? false : true;
+
 	return (
 		<div className={s.meetSummaryContainer}>
-			{info?.loading ? (
+			{loading ? (
 				<div className={s.loadingContainer}>
 					<Spinner />
 				</div>
-			) : (
+			) : info?.summary ? (
 				<Markdown>{info?.summary}</Markdown>
+			) : (
+				<div className={s.loadingContainer}>No summary.</div>
 			)}
 		</div>
 	);
