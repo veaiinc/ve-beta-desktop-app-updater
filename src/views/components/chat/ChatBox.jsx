@@ -147,6 +147,7 @@ const ChatBox = ({
 	animateChatBox = true,
 	sessionId = null,
 	getSuggestions = true,
+	placeholder = 'Start typing or use @ to mention a source.',
 }) => {
 	const location = useLocation();
 	const { handleConnect } = useUpdatedVoiceIntegration();
@@ -1780,7 +1781,7 @@ const ChatBox = ({
 															isTranscribing
 																? 'Listening... Speak now'
 																: !animatePlaceholder
-																? 'Start typing or use @ to mention a source.'
+																? placeholder
 																: ''
 														}
 													/>

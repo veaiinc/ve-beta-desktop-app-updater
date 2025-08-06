@@ -1,0 +1,44 @@
+.createAgentContainer {
+	display: flex;
+	padding: 24px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 36px;
+	border-radius: 20px;
+	background: var(--card, #1b1c1d);
+
+	.headerWrapper {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+		align-self: stretch;
+
+		.title {
+			color: var(--primary-font, #f2f2f3);
+			font-family: 'General Sans Variable', sans-serif;
+			font-size: 18px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 28px;
+			letter-spacing: 0.2px;
+		}
+
+		.subHeading {
+			color: var(--secondary-font, #94989e);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 22px; /* 157.143% */
+			letter-spacing: 0.2px;
+		}
+	}
+
+	.chatBoxWrapper {
+		display: flex;
+		width: 100%;
+		height: 120px;
+		position: relative;
+	}
+}
