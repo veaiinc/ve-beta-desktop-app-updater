@@ -115,7 +115,7 @@ class ErrorBoundary extends Component {
 								>
 									<span>Home</span>
 								</button>
-								<button className={s.errorButton} onClick={() => logout()}>
+								<button className={s.errorButton} onClick={logout}>
 									<span>Logout</span>
 								</button>
 							</div>

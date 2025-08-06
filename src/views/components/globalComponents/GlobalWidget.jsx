@@ -7,20 +7,12 @@ import AutomationWidget from './AutomationWidget';
 import ContactsWidget from './ContactsWidget';
 import { Tooltip } from 'antd';
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/contacts/calendar.svg';
-import { ReactComponent as TaskSvg } from '../../../assets/svg/home_page/tasks.svg';
+import { ReactComponent as TaskSvg } from '../../components/topNavbar/components/toolsTooltip/assets/tasks.svg';
 import { ReactComponent as ContactSvg } from '../../../assets/svg/home_page/contacts.svg';
 import { ReactComponent as AutomationsSvg } from '../../../assets/svg/home_page/automation.svg';
 import Context from '../../../context/context';
 
 const optionsList = [
-	{
-		id: 1,
-		label: 'Calendar',
-		value: 'calendar',
-		tooltip: 'Manage your meetings and events',
-		showOption: true,
-		icon: CalendarSvg,
-	},
 	{
 		id: 2,
 		label: 'Task',
@@ -28,6 +20,14 @@ const optionsList = [
 		tooltip: 'Manage your tasks and to-dos',
 		showOption: true,
 		icon: TaskSvg,
+	},
+	{
+		id: 1,
+		label: 'Calendar',
+		value: 'calendar',
+		tooltip: 'Manage your meetings and events',
+		showOption: true,
+		icon: CalendarSvg,
 	},
 	{
 		id: 3,
@@ -54,12 +54,12 @@ const GlobalWidget = () => {
 		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
-		selectedOption: 'calendar',
+		selectedOption: 'task',
 	});
 
 	const componentMapper = useMemo(() => ({
-		calendar: <CalenderWidget />,
 		task: <TaskWidget />,
+		calendar: <CalenderWidget />,
 		automation: <AutomationWidget />,
 		contact: <ContactsWidget />,
 	}));
@@ -90,8 +90,8 @@ const GlobalWidget = () => {
 			return (
 				<Tooltip
 					key={option?.id}
-					title={<div className="tooltipValue">{option?.tooltip}</div>}
-					placement="bottom"
+					title={<div className="tooltipValue"></div>}
+					placement="right"
 					arrow={false}
 					trigger="hover"
 					color={'transparent'}
@@ -115,10 +115,10 @@ const GlobalWidget = () => {
 								/>
 							</div>
 						) : (
-							<div className="option-label">
+							<>
 								<Icon />
-								{option?.label}
-							</div>
+								<span> {option?.label}</span>
+							</>
 						)}
 					</div>
 				</Tooltip>
@@ -133,11 +133,11 @@ const GlobalWidget = () => {
 	]);
 	return (
 		<div className="globalWidgetMainContainer">
-			<div className="widgetOptionsContainer">{renderedOptions}</div>
 			<div className="globalWidgetWrapper">
 				{info?.selectedOption ? componentMapper[info?.selectedOption] : <CalenderWidget />}
 				<PromptCards option={info?.selectedOption} />
 			</div>
+			<div className="widgetOptionsContainer">{renderedOptions}</div>
 		</div>
 	);
 };

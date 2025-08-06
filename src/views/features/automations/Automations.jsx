@@ -118,9 +118,11 @@ const Automations = () => {
 					{skeletonLoaders?.map((skeletonId) => (
 						<Skeleton
 							key={skeletonId}
-							width="340px"
+							width="540px"
 							height="424px"
 							borderRadius="24px"
+							baseColor="var(--card)"
+							highlightColor="grey"
 						/>
 					))}
 				</div>

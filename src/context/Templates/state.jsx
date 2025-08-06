@@ -1610,6 +1610,14 @@ export const TemplatesState = (props) => {
 					path = `/slack/${workspaceId}/auth`;
 					response = await Service?.fetchGet(path, token, 'third_party_integrations_api');
 					break;
+				case 'outlook-calendar':
+					path = `/outlookcalendar/${workspaceId}/auth`;
+					response = await Service?.fetchGet(path, token, 'microsoft_integration_api');
+					break;
+				case 'outlook-mail':
+					path = `/outlookmail/${workspaceId}/auth`;
+					response = await Service?.fetchGet(path, token, 'microsoft_integration_api');
+					break;
 				default:
 					// For other integrations, use the generic pattern
 					path = `/${connectType}/${workspaceId}/auth`;
@@ -1663,6 +1671,25 @@ export const TemplatesState = (props) => {
 						const connectUrl = response?.[1]?.connectUrl;
 						window.location.href = connectUrl;
 					}
+					break;
+				case 'outlook-calendar':
+					path = `/outlookcalendar/${workspaceId}/auth`;
+					response = await Service.fetchGet(path, token, 'microsoft_integration_api');
+					success = response?.[0] === true;
+					if (success) {
+						const connectUrl = response?.[1]?.connectUrl;
+						window.location.href = connectUrl;
+					}
+					break;
+				case 'outlook-mail':
+					path = `/outlookmail/${workspaceId}/auth`;
+					response = await Service.fetchGet(path, token, 'microsoft_integration_api');
+					success = response?.[0] === true;
+					if (success) {
+						const connectUrl = response?.[1]?.connectUrl;
+						window.location.href = connectUrl;
+					}
+					break;
 			}
 		} catch (error) {
 			console.log('error==>connectZoho', error);

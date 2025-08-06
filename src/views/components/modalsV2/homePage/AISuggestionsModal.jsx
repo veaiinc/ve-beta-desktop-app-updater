@@ -44,7 +44,6 @@ const AISuggestionsModal = ({
 	onPrevCardClick,
 	totalDocs,
 	selectedCardNumber,
-	shouldShowCards = true,
 	selectedOption = null,
 }) => {
 	const {
@@ -74,7 +73,8 @@ const AISuggestionsModal = ({
 
 	const resizableContainerRef = useRef(null);
 	const widthRef = useRef(null);
-	const isCompletedRef = useRef(false);
+	const isUpdatingCompletedRef = useRef(false);
+	const isUpdatingReadRef = useRef(false);
 	const animationFrameId = useRef(null);
 	const mouseXPosition = useRef(null);
 	const navigate = useNavigate();
@@ -348,18 +348,18 @@ const AISuggestionsModal = ({
 				message.error('You do not have access to update this insight');
 				return;
 			}
-			if (!data?._id || data?.isCompleted || isCompletedRef.current) return;
+			if (!data?._id || data?.isCompleted || isUpdatingCompletedRef.current) return;
 			const payload = {
 				isCompleted: true,
 			};
-			isCompletedRef.current = true;
+			isUpdatingCompletedRef.current = true;
 			const res = await pendingActionsUpdate(data?._id, payload, 'update');
 			if (res?.[0] === true) {
 				getAISuggestedPendingActions({ isCompleted: true }, false, 'update', data?._id);
 			} else {
 				message.error('Failed to update');
 			}
-			isCompletedRef.current = false;
+			isUpdatingCompletedRef.current = false;
 		},
 		[pendingActionsUpdate, info?.accessType, info?.hasFullAccess, getAISuggestedPendingActions],
 	);
@@ -374,6 +374,23 @@ const AISuggestionsModal = ({
 			feedbackPopupOpen: true,
 		}));
 	};
+
+	const handleReadBtnClick = useCallback(
+		async (data) => {
+			if (data?.read || !data?._id || isUpdatingReadRef.current) return;
+
+			isUpdatingReadRef.current = true;
+
+			const res = await pendingActionsUpdate(data?._id, { read: true });
+			if (res?.[0] === true) {
+				getAISuggestedPendingActions({ read: true }, false, 'update', data?._id);
+			} else {
+				message.error('Failed to update');
+			}
+			isUpdatingReadRef.current = false;
+		},
+		[pendingActionsUpdate, getAISuggestedPendingActions],
+	);
 
 	const {
 		title,
@@ -420,109 +437,6 @@ const AISuggestionsModal = ({
 						<div className="drawer-header">
 							<div className="header-content">
 								<div className="left-container">
-									{shouldShowCards && (
-										<>
-											<div className="total-docs">
-												<div className="current-doc">
-													{selectedCardNumber}
-												</div>
-												<div className="doc-divider">/</div>
-												<div className="total">{totalDocs}</div>
-											</div>
-											<div className="prev-btn" onClick={handlePrevCardClick}>
-												<ChevronRightThinSvg
-													style={{ transform: 'rotate(270deg)' }}
-												/>
-											</div>
-											<div className="next-btn" onClick={handleNextCardClick}>
-												<ChevronRightThinSvg
-													style={{ transform: 'rotate(270deg)' }}
-												/>
-											</div>
-
-											{read && <div className="is-read">Read</div>}
-											<button
-												className="complete-btn"
-												onClick={() => handleCompleteBtnClick(data)}
-												style={{
-													cursor: isCompleted ? 'not-allowed' : 'pointer',
-												}}
-											>
-												{isCompleted ? 'Completed' : 'Not Completed'}
-											</button>
-										</>
-									)}
-								</div>
-
-								<div className="right-container">
-									{/* <div
-									className={`starLogoContainer ${
-										data?.isFavourite === true ? 'active' : ''
-									}`}
-									onClick={(e) => {
-										onFavouriteClick(data?._id);
-									}}
-								>
-									<StarSvg />
-								</div> */}
-									{selectedOption !== 'action' && (
-										<div
-											className="btn teach-me-btn"
-											onClick={handleOpenFeedbackPopup}
-										>
-											<AgentsSvg style={{ color: 'var(--primary-button)' }} />{' '}
-											Teach me
-										</div>
-									)}
-									{(info?.accessType !== 'view' || info?.hasFullAccess) && (
-										<ProactiveAIShare
-											proactiveAiId={data?._id}
-											proactiveAiData={data}
-										/>
-									)}
-
-									{/* <div className="btn download-btn">
-									<DownloadSvg />
-								</div> */}
-									{createdAt && (
-										<Tooltip
-											title={
-												<div className="tooltipOption">
-													Created At: {createdDate}
-												</div>
-											}
-											color="transparent"
-											arrow={false}
-										>
-											<div className="prioritySuggestionModal">
-												<div className="priority-text">{`${createdDate}`}</div>
-											</div>
-										</Tooltip>
-									)}
-									{creditUsed && (
-										<Tooltip
-											title={
-												<div className="tooltipOption">
-													Credits Used: {creditUsed}
-												</div>
-											}
-											color="transparent"
-											arrow={false}
-										>
-											<div className="prioritySuggestionModal">
-												{/* <div className="icon">
-												<img
-													src={CreditCoinImage}
-													width={16}
-													height={16}
-													alt="credit-coin"
-												/>
-											</div> */}
-												<div className="priority-text">{`${creditUsed} C`}</div>
-											</div>
-										</Tooltip>
-									)}
-
 									{priority && (
 										<Tooltip
 											title={
@@ -550,6 +464,34 @@ const AISuggestionsModal = ({
 										</Tooltip>
 									)}
 
+									{creditUsed && (
+										<Tooltip
+											title={
+												<div className="tooltipOption">
+													Credits Used: {creditUsed}
+												</div>
+											}
+											color="transparent"
+											arrow={false}
+										>
+											<div className="prioritySuggestionModal">
+												{/* <div className="icon">
+												<img
+													src={CreditCoinImage}
+													width={16}
+													height={16}
+													alt="credit-coin"
+												/>
+											</div> */}
+												<div className="priority-text">{`${creditUsed} C`}</div>
+											</div>
+										</Tooltip>
+									)}
+
+									{/* <div className="btn download-btn">
+									<DownloadSvg />
+								</div> */}
+
 									{confidence_score && (
 										<Tooltip
 											title={
@@ -569,21 +511,70 @@ const AISuggestionsModal = ({
 											</div>
 										</Tooltip>
 									)}
-									{selectedOption !== 'action' && (
+									{createdAt && (
 										<Tooltip
-											title={<div className="tooltipOption">Delete</div>}
-											placement="bottom"
+											title={
+												<div className="tooltipOption">
+													Created At: {createdDate}
+												</div>
+											}
 											color="transparent"
 											arrow={false}
 										>
-											<div
-												className="btn delete-btn"
-												onClick={handleDeleteCard}
-											>
-												<DeleteSvg />
+											<div className="prioritySuggestionModal">
+												<div className="priority-text">{`${createdDate}`}</div>
 											</div>
 										</Tooltip>
 									)}
+
+									{/* <>
+										<div className="total-docs">
+											<div className="current-doc">{selectedCardNumber}</div>
+											<div className="doc-divider">/</div>
+											<div className="total">{totalDocs}</div>
+										</div>
+										<div className="prev-btn" onClick={handlePrevCardClick}>
+											<ChevronRightThinSvg
+												style={{ transform: 'rotate(270deg)' }}
+											/>
+										</div>
+										<div className="next-btn" onClick={handleNextCardClick}>
+											<ChevronRightThinSvg
+												style={{ transform: 'rotate(270deg)' }}
+											/>
+										</div>
+									</> */}
+								</div>
+
+								<div className="right-container">
+									{/* <div
+									className={`starLogoContainer ${
+										data?.isFavourite === true ? 'active' : ''
+									}`}
+									onClick={(e) => {
+										onFavouriteClick(data?._id);
+									}}
+								>
+									<StarSvg />
+								</div> */}
+
+									{(info?.accessType !== 'view' || info?.hasFullAccess) && (
+										<ProactiveAIShare
+											proactiveAiId={data?._id}
+											proactiveAiData={data}
+										/>
+									)}
+
+									<Tooltip
+										title={<div className="tooltipOption">Delete</div>}
+										placement="bottom"
+										color="transparent"
+										arrow={false}
+									>
+										<div className="btn delete-btn" onClick={handleDeleteCard}>
+											<DeleteSvg />
+										</div>
+									</Tooltip>
 								</div>
 							</div>
 						</div>
@@ -605,8 +596,6 @@ const AISuggestionsModal = ({
 										</div>
 
 										<div className="suggestions-info">
-											<div className="info"></div>
-
 											<div className="more-info">
 												{data?.knowledgeBase?.[0]?.metadata
 													?.connectedEmail && (
@@ -863,7 +852,36 @@ const AISuggestionsModal = ({
 
 								<div className="footer">
 									<div className="footer-content">
+										<div className="footer-left-container">
+											<button
+												className="footer-left-btn"
+												style={{
+													cursor: read ? 'not-allowed' : 'pointer',
+												}}
+												onClick={() => handleReadBtnClick(data)}
+											>
+												{read ? 'Read' : 'Unread'}
+											</button>
+											<button
+												className="footer-left-btn"
+												onClick={() => handleCompleteBtnClick(data)}
+												style={{
+													cursor: isCompleted ? 'not-allowed' : 'pointer',
+												}}
+											>
+												{isCompleted ? 'Done' : 'Not Done'}
+											</button>
+										</div>
 										<div className="btns-container">
+											<button
+												className="teach-me-btn"
+												onClick={handleOpenFeedbackPopup}
+											>
+												<AgentsSvg
+													style={{ color: 'var(--primary-button)' }}
+												/>{' '}
+												Teach AI
+											</button>
 											<button
 												className="report-btn"
 												onClick={() => handleViewReportClick(data)}
