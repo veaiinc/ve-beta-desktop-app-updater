@@ -173,7 +173,13 @@ class LibraryPopup extends Images {
 										</div>
 									</div>
 								) : (
-									<div className="ilbb-images grid" id="veGalleryScrollableDiv">
+									<div
+										className="ilbb-images grid"
+										id="veGalleryScrollableDiv"
+										style={{
+											maxHeight: window.innerHeight - 200,
+										}}
+									>
 										{/* <a className="grid-item uploadeImageContainer">
 									<div className="uploadeLogo">
 										<Upload />
