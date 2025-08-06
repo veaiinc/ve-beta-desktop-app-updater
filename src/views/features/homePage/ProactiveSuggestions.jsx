@@ -183,6 +183,7 @@ const ProactiveSuggestions = () => {
 		settingsOpen: false,
 		hasCards: false,
 		trainedFeedbackIds: null,
+		selectedOptionData: null,
 	});
 
 	const promptsLength = promptsData?.data?.length ?? 0;
@@ -278,6 +279,7 @@ const ProactiveSuggestions = () => {
 				...prev,
 				selectedOption: selectedOptionRef.current,
 				options,
+				selectedOptionData: options?.[0],
 			}));
 		}
 	}, [insightTypes]);
@@ -654,7 +656,7 @@ const ProactiveSuggestions = () => {
 		setTouchEndX(null);
 	};
 
-	const handleOptionSelection = (option) => {
+	const handleOptionSelection = (option, optionData) => {
 		if (info?.selectedOption === option) return;
 
 		currentIndexRef.current = 0;
@@ -664,6 +666,7 @@ const ProactiveSuggestions = () => {
 			selectedOption: option,
 			currentIndex: 0,
 			loading: true,
+			selectedOptionData: optionData,
 		}));
 	};
 
@@ -701,7 +704,14 @@ const ProactiveSuggestions = () => {
 					</div>
 				)} */}
 						<div className="proactive-suggestions-title">
-							<span className="title-highlight">Ambient</span> Insights For You
+							{info?.selectedOptionData?.headline ? (
+								info?.selectedOptionData?.headline
+							) : (
+								<>
+									<span className="title-highlight">Ambient</span> Insights For
+									You
+								</>
+							)}
 						</div>
 
 						<div
@@ -1083,21 +1093,25 @@ const ProactiveSuggestions = () => {
 									className={`homepage__options-container`}
 									ref={optionsContainerRef}
 								>
-									{info?.options?.map(({ count, insight_type }, index) => (
+									{info?.options?.map((option, index) => (
 										<div
 											className={`option ${
-												info?.selectedOption === insight_type
+												info?.selectedOption === option?.insight_type
 													? 'active'
 													: ''
 											}`}
 											onClick={(e) => {
-												handleOptionSelection(insight_type);
+												handleOptionSelection(option?.insight_type, option);
 											}}
 											key={index}
 										>
 											<div className="option-label">
-												<span className="option-name">{insight_type}</span>
-												<span className="option-value">{count}</span>
+												<span className="option-name">
+													{option?.insight_type}
+												</span>
+												<span className="option-value">
+													{option?.count}
+												</span>
 											</div>
 										</div>
 									))}
