@@ -12,7 +12,7 @@ import { ReactComponent as ArrowDownSvg } from '../../../assets/svg/ai_agents/ar
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { ReactComponent as BulbSvg } from '../../../assets/svg/home_page/bulb.svg';
 import { ReactComponent as TrendUpSvg } from '../../../assets/svg/trendUp.svg';
-import { ReactComponent as StopIconSvg } from '../../../assets/svg/notesPage/cancelnCircle.svg';
+import { ReactComponent as StopIconSvg } from '../../../assets/svg/notesPage/cancel.svg';
 import CreditCoinImage from '../../../assets/images/creditCoin.png';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
@@ -40,6 +40,7 @@ import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import { ReactComponent as VoiceAgentSvg } from '../../../assets/svg/ai_agents/voiceagent.svg';
 import VoiceAgentParent from '../../features/voiceAgent/VoiceAgentParent';
 import useNote from '../../../hooks/useNote';
+import useAudioVisualizer from '../../../hooks/useAudioVisualizer';
 import { Track } from 'livekit-client';
 import { useTrackTranscription } from '@livekit/components-react';
 
@@ -126,7 +127,6 @@ This is because we want to avoid re-rendering the component when the state chang
 and useRef does not cause re-rendering when the state changes and it always gives the latest value of the state.
 Dont change this otherwise chat functionality will break.
 */
-
 const ChatBox = ({
 	onSend,
 	aiChatLoading,
@@ -250,6 +250,9 @@ const ChatBox = ({
 		token: liveKitToken,
 		isRecording: isTranscribing,
 	});
+
+	// Audio visualizer hook
+	const { canvasRef } = useAudioVisualizer(isTranscribing, localAudioTrack);
 
 	// Track reference for transcription
 	const trackRef =
@@ -1762,12 +1765,6 @@ const ChatBox = ({
 																: ''
 														}
 													/>
-													{isTranscribing && (
-														<div className="transcription-indicator">
-															<div className="pulse-dot"></div>
-															<span>Recording</span>
-														</div>
-													)}
 												</div>
 											</div>
 
@@ -2277,6 +2274,18 @@ const ChatBox = ({
 																						</div>
 																					</BuildTooltip>
 																				</div>
+																				{isTranscribing && (
+																					<div className="transcription-indicator">
+																						<canvas
+																							ref={
+																								canvasRef
+																							}
+																							className="audio-visualizer"
+																							width="200"
+																							height="50"
+																						/>
+																					</div>
+																				)}
 																			</div>
 																		</div>
 																	</Tooltip>
