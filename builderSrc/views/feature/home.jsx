@@ -49,6 +49,7 @@ import ThemeSettings from '../components/HomePopups/ThemeSettings';
 import { initialThemeState } from '../components/themeSettings/themeconstants';
 import DeleteTemplatePopup from '../components/HomePopups/DeleteTemplatePopup';
 import ObjectID from 'bson-objectid';
+import CheckMobileView from '../components/HomePopups/CheckMobileView';
 
 const query = gql`
 	query Query($getDetailedTemplateInfoId: ID!) {
@@ -624,6 +625,11 @@ class Home extends Proposals {
 			invoiceSentDate: null,
 			invoiceAcceptedDate: null,
 			imageUrl: null,
+			showCheckMobilePopup: false,
+			getModuleParams: {
+				id: null,
+				type: null,
+			},
 		};
 		this.componentRef = createRef();
 		this.addBlockRef = createRef();
@@ -1653,7 +1659,7 @@ class Home extends Proposals {
 					break;
 				}
 			}
-			await this.getModule(modules?.[i]?._id, modules?.[i]?.module);
+			await this.getModule(modules?.[i]?._id, modules?.[i]?.module, true);
 			this.setState({
 				singleEditClientRenderedOnce: true,
 			});
@@ -3244,7 +3250,7 @@ class Home extends Proposals {
 
 	// getProposalInfo = async (workflowId, proposalInfoId) => {}
 
-	getModule = async (id, type) => {
+	getModule = async (id, type, onUpdate = false) => {
 		if (this.state.module !== type) {
 			this.setState({
 				showSideBar: true,
@@ -3273,29 +3279,23 @@ class Home extends Proposals {
 				this.handleSaveSections();
 			}, 1000);
 		} else {
-			this.setState({
-				isLoading: true,
-				addBlock: false,
-				order: null,
-				prevOrder: null,
-				nextOrder: null,
-				sections: [],
-				sectionTables: [],
-			});
-
-			if (this.state.isWorkflow) {
-				this.setState({ activeModuleId: id }, async () => {
-					await this.getWorkflowModuleTemplate(moduleWorkflowQuery, {
-						getWorkflowModuleId: id,
-						module: type,
-					});
-				});
+			if (onUpdate) {
+				this.fetchGetModule(id, type);
 			} else {
-				await this.getModuleTemplate(moduleQuery, {
-					getModuleTemplateId: id,
-					module: type,
-				});
-				await this.handleSaveSections();
+				if (this.state?.getModuleParams?.id && this.state?.getModuleParams?.type) {
+					this.fetchGetModule(id, type);
+				} else {
+					this.setState({
+						previewMode: 'm',
+						previewType: 'm',
+						showCheckMobilePopup: true,
+						showSideBar: false,
+						getModuleParams: {
+							id,
+							type,
+						},
+					});
+				}
 			}
 		}
 	};
@@ -5721,6 +5721,44 @@ class Home extends Proposals {
 			});
 		}
 	};
+	handleCheckMobileViewOpt = async (option = 'yes') => {
+		if (option == 'yes') {
+			const { id, type } = this.state?.getModuleParams || {};
+			this.fetchGetModule(id, type);
+		} else {
+			this.setState({
+				showCheckMobilePopup: false,
+			});
+		}
+	};
+
+	fetchGetModule = async (id = '', type = '*') => {
+		this.setState({
+			isLoading: true,
+			addBlock: false,
+			order: null,
+			prevOrder: null,
+			nextOrder: null,
+			sections: [],
+			sectionTables: [],
+			showCheckMobilePopup: false,
+		});
+
+		if (this.state.isWorkflow) {
+			this.setState({ activeModuleId: id }, async () => {
+				await this.getWorkflowModuleTemplate(moduleWorkflowQuery, {
+					getWorkflowModuleId: id,
+					module: type,
+				});
+			});
+		} else {
+			await this.getModuleTemplate(moduleQuery, {
+				getModuleTemplateId: id,
+				module: type,
+			});
+			await this.handleSaveSections();
+		}
+	};
 	render() {
 		if (this.componentRef.current) {
 			const data = [
@@ -5910,7 +5948,9 @@ class Home extends Proposals {
 							/>
 						</div>
 					)}
-
+					{this.state?.showCheckMobilePopup && (
+						<CheckMobileView updatePreviewOption={this.handleCheckMobileViewOpt} />
+					)}
 					{this.state.isGeneratePreview ? (
 						''
 					) : (
