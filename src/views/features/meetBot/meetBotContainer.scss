@@ -453,3 +453,15 @@
 		}
 	}
 }
+
+.meet-transcript-empty {
+	height: 400px;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--secondary-font, #94989e);
+	font-size: 14px;
+	font-weight: 500;
+	line-height: 22px;
+}

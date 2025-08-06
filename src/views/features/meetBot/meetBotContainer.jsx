@@ -17,6 +17,7 @@ import { ReactComponent as ClockPersonIcon } from './clockPerson.svg';
 import './meetBot.scss';
 import './meetBotContainer.scss';
 import moment from 'moment';
+import Spinner from '../../components/loaders/Spinner';
 const initialState = {
 	files: [],
 	userQuestions: [],
@@ -29,7 +30,7 @@ const initialState = {
 	transcriptions: [],
 	transcriptionsPage: 1,
 	transcriptionsHasMore: true,
-	transcriptionsLoading: false,
+	transcriptionsLoading: true,
 	botJoined: false,
 	botJoinedTime: 0,
 	meetingPlatform: '',
@@ -82,6 +83,8 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			updateStateValues: updateNotesStateValues,
 			createBotInfo,
 			getMeetBotById,
+			getMeetSummary,
+			meetSummary,
 		},
 		templates: {
 			handleTranscriptionSuggestions,
@@ -190,9 +193,11 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			} else {
 				setTranscriptList([]);
 			}
+			handleInfoChange({ transcriptionsLoading: false });
 		} catch (error) {
 			console.error('Error fetching meeting bot transcriptions:', error);
 			setTranscriptList([]);
+			handleInfoChange({ transcriptionsLoading: false });
 		}
 	}, [meetingId, showTranscriptTabs, type, getMeetTranscriptHistory]);
 
@@ -280,6 +285,20 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			}));
 		}
 	}, [createBotInfo]);
+
+	useEffect(() => {
+		if ((activeTab === 'summary' || activeTab === 'all') && !meetSummary) {
+			getMeetSummary({ meetingId });
+		}
+	}, [activeTab, meetSummary]);
+
+	useEffect(() => {
+		if (meetSummary) {
+			handleTranscriptionSuggestions({
+				revampedPrompt: meetSummary?.revampedPrompt,
+			});
+		}
+	}, [meetSummary]);
 
 	// When new socket data comes in:
 	const handleSocketTranscription = useCallback((newTranscript) => {
@@ -408,6 +427,11 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					handleTranscriptionSuggestions(msg?.data);
 				} else if (msg?.event === 'transcript.done') {
 					closeRecallConnection();
+					setSearchParams({
+						...Object.fromEntries(searchParams.entries()),
+						history: 'true',
+					});
+					getMeetSummary({ meetingId });
 				} else if (msg?.noteTakerTranscript) {
 					// Handle noteTakerTranscript responses
 					handleSocketTranscription({
@@ -513,6 +537,10 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		}
 	}, [activeTab]);
 
+	const handleInfoChange = (data) => {
+		setInfo((prev) => ({ ...prev, ...data }));
+	};
+
 	return (
 		<div className="meetbot-container">
 			<div className="meeting-header">
@@ -592,7 +620,11 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					activeTab === 'transcript' &&
 					(type === 'desktop' || type === 'meeting_bot') && (
 						<div style={{ paddingBottom: 80, width: '100%' }}>
-							{info.transcriptions && info.transcriptions.length === 0 ? (
+							{info.transcriptionsLoading && info.transcriptions?.length === 0 ? (
+								<div className="meet-transcript-empty">
+									<Spinner size={24} />
+								</div>
+							) : info.transcriptions && info.transcriptions.length === 0 ? (
 								<div className="meet-transcript-empty">No transcript yet.</div>
 							) : (
 								<InfiniteScroll
@@ -649,6 +681,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 				{showTranscriptTabs && activeTab === 'summary' && (
 					<MeetSummary activeTab={activeTab} meetingId={meetingId} />
 				)}
+
 				{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
 					(activeTab === 'userQuestions' ||
 						activeTab === 'aiQuestions' ||
