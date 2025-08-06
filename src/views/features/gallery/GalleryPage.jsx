@@ -1740,9 +1740,10 @@ const GalleryPage = () => {
 	// ... rest of the code ...
 
 	const handleNavigateUpload = () => {
-		const uploadUrl = `/galleries/${galleryId}/${
-			info?.activeAlbumId
-		}/upload-photos?light-gallery=${info?.isLightGallery ? true : false}${
+		const region = localStorage.getItem('region');
+		const uploadUrl = `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos${
+			region === 'us-east-1' ? '-desktop' : ''
+		} ?light-gallery=${info?.isLightGallery ? true : false}${
 			info?.albumContains !== 'All' ? `&tag=${info?.albumContains}` : ''
 		}`;
 		navigate(uploadUrl);

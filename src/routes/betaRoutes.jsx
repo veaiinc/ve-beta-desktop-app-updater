@@ -189,6 +189,14 @@ const betaRoutes = [
 		path: '/galleries/:galleryId/:albumId/upload-photos',
 		element: (
 			<AuthWrapper title={'Upload Photos'} showBottomToolbar={false}>
+				<UploadPhotos />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/galleries/:galleryId/:albumId/upload-photos-desktop',
+		element: (
+			<AuthWrapper title={'Upload Photos'} showBottomToolbar={false}>
 				<UploadPhotosDesktop />
 			</AuthWrapper>
 		),
