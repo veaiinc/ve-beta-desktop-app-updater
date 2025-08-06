@@ -11,6 +11,7 @@ import { ReactComponent as SidebarClosingSvg } from '../../../../../../../assets
 import { ReactComponent as Delete } from '../../tabs/assets/delete.svg';
 import { ReactComponent as PlusIcon } from '../../tabs/assets/plus-icon.svg';
 import Spinner from '../../../../../loaders/Spinner';
+import DeleteFormModal from '../../../../../modalsV2/DeleteModal/DeleteModal';
 
 const actionPattern = /<([^>]+)>/g;
 
@@ -45,6 +46,7 @@ const PromptTab = () => {
 		connectedAccounts: [],
 		accountsLoading: false,
 		deletingAccountId: null,
+		deleteModal: { open: false, accountId: null, appName: null },
 	});
 
 	useEffect(() => {
@@ -85,17 +87,50 @@ const PromptTab = () => {
 	};
 
 	// Handle delete account
-	const handleDeleteAccount = async (accountId, appName, e) => {
-		if (info?.deletingAccountId === accountId) return;
-		e.stopPropagation();
+	// const handleDeleteAccount = async (accountId, appName, e) => {
+	// 	if (info?.deletingAccountId === accountId) return;
+	// 	e.stopPropagation();
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		deletingAccountId: accountId,
+	// 	}));
+
+	// 	const response = await deleteConnectedAccount({
+	// 		app: appName,
+	// 		account_id: accountId,
+	// 	});
+
+	// 	if (response?.[0] === true) {
+	// 		message.success('Account deleted successfully');
+	// 		fetchConnectedAccounts();
+	// 	} else {
+	// 		message.error('Failed to delete account');
+	// 	}
+
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		deletingAccountId: null,
+	// 	}));
+	// };
+
+	const handleOpenDeleteModal = (accountId, appName, e) => {
 		setInfo((prev) => ({
 			...prev,
-			deletingAccountId: accountId,
+			deleteModal: { open: true, accountId, appName },
+		}));
+	};
+
+	const handleConfirmDelete = async () => {
+		if (!info?.deleteModal?.accountId || !info?.deleteModal?.appName) return;
+
+		setInfo((prev) => ({
+			...prev,
+			deletingAccountId: info.deleteModal.accountId,
 		}));
 
 		const response = await deleteConnectedAccount({
-			app: appName,
-			account_id: accountId,
+			app: info.deleteModal.appName,
+			account_id: info.deleteModal.accountId,
 		});
 
 		if (response?.[0] === true) {
@@ -108,6 +143,14 @@ const PromptTab = () => {
 		setInfo((prev) => ({
 			...prev,
 			deletingAccountId: null,
+			deleteModal: { open: false, accountId: null, appName: null },
+		}));
+	};
+
+	const handleCancelDelete = () => {
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: false, accountId: null, appName: null },
 		}));
 	};
 
@@ -228,11 +271,10 @@ const PromptTab = () => {
 											</div>
 											<button
 												className={s.deleteButton}
-												onClick={(e) =>
-													handleDeleteAccount(
+												onClick={() =>
+													handleOpenDeleteModal(
 														account.id,
 														account.app.name_slug,
-														e,
 													)
 												}
 												disabled={info.deletingAccountId === account.id}
@@ -262,6 +304,20 @@ const PromptTab = () => {
 					</div>
 				)}
 			</div>
+
+			{/* Delete Connected Account Modal */}
+			<DeleteFormModal
+				isOpen={info?.deleteModal?.open}
+				onClose={handleCancelDelete}
+				onConfirm={handleConfirmDelete}
+				title="Disconnect Tool?"
+				itemType="connected tool"
+				description={`Are you sure you want to disconnect ${
+					info?.deleteModal?.appName || 'this tool'
+				}?`}
+				warning="This tool will be disconnected and you'll need to reconnect it to use it again."
+				confirmText="Disconnect"
+			/>
 		</div>
 	);
 };

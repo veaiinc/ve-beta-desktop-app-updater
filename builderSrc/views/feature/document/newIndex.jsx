@@ -14,7 +14,7 @@ import { ReactComponent as Plus } from '../../../assets/svg/document/plus.svg';
 import { ReactComponent as DocumentPreview } from '../../../assets/svg/document/documentrightside.svg';
 import { fetchOriginSelection } from '../../../helper';
 import PhoneInput from 'react-phone-number-input';
-import 'react-phone-number-input/style.css';
+// import 'react-phone-number-input/style.css';
 
 const origin = fetchOriginSelection();
 // ClientSelectionTooltip Component
@@ -104,6 +104,14 @@ const ClientSelectionTooltip = ({ handleOptionSelection, clientsList, getClientL
 			</div>
 		</div>
 	);
+};
+
+const phoneInputStyle = {
+	backgroundColor: 'inherit',
+	color: 'var(--primary-font)',
+	padding: '10px 14px',
+	borderRadius: '10px',
+	border: '1px solid var(--stroke)',
 };
 
 const CreateDocument = () => {
@@ -224,18 +232,33 @@ const CreateDocument = () => {
 				});
 			}
 
-			// Set warning message if duplicate found
+			// Set warning message if duplicate found AND the client has created documents
 			if (duplicate) {
 				const clientData = JSON.parse(duplicate.value);
-				const contactType = clientDetails.email ? 'email' : 'phone number';
-				const message = `A contact already exists with this ${contactType}, this document will be created for ${
-					clientData.name
-				}, ${clientData.email || 'No email'}, ${clientData.phoneNumber || 'No phone'}.`;
 
-				setStageInfo((prev) => ({
-					...prev,
-					duplicateWarning: { type: contactType, existingClient: clientData, message },
-				}));
+				// Check if the client has any workflows or template details (indicating they have documents)
+				const hasDocuments =
+					(clientData.workflows && clientData.workflows.length > 0) ||
+					(clientData.templateDetails && clientData.templateDetails.length > 0);
+
+				if (hasDocuments) {
+					const contactType = clientDetails.email ? 'email' : 'phone number';
+					const message = `A contact already exists with this ${contactType} and has created documents, this document will be created for ${
+						clientData.name
+					}, ${clientData.email || 'No email'}, ${clientData.phoneNumber || 'No phone'}.`;
+
+					setStageInfo((prev) => ({
+						...prev,
+						duplicateWarning: {
+							type: contactType,
+							existingClient: clientData,
+							message,
+						},
+					}));
+				} else {
+					// Client exists but has no documents, so no warning needed
+					setStageInfo((prev) => ({ ...prev, duplicateWarning: null }));
+				}
 			} else {
 				setStageInfo((prev) => ({ ...prev, duplicateWarning: null }));
 			}
@@ -755,10 +778,7 @@ const CreateDocument = () => {
 													className="phoneInputNumber"
 													countryCallingCodeEditable={true}
 													autoComplete="tel"
-													style={{
-														backgroundColor: 'none',
-														border: '1px solid var(--stroke)',
-													}}
+													style={phoneInputStyle}
 												/>
 												<Tooltip title="Phone Number" placement="top">
 													<div className="inputIcon">

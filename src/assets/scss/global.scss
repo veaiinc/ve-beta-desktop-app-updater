@@ -3868,3 +3868,13 @@ p {
 		overscroll-behavior: unset !important;
 	}
 }
+input {
+	background: inherit;
+	outline: none;
+	border: none;
+	color: var(--primary-font);
+
+	&::placeholder {
+		color: var(--secondary-font);
+	}
+}
