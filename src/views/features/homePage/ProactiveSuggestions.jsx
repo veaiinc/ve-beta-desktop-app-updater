@@ -88,58 +88,12 @@ const insightOptionsInOrder = {
 	others: 6,
 };
 
-const getDescription = (card) => {
-	if (card?.collectionType === 'workflows') {
-		if (card?.status === 'proposalAccepted') {
-			return `${
-				card?.clientDetails?.name || card?.clientDetails?.email || ''
-			} has accepted your proposal, awaiting your confirmation. Click to confirm.`;
-		} else if (card?.status === 'contractSigned') {
-			return `${
-				card?.clientDetails?.name || card?.clientDetails?.email || ''
-			} has signed your contract, awaiting your confirmation. Click to confirm.`;
-		}
-	} else if (card?.collectionType === 'forms') {
-		return 'Form response';
-	} else if (card?.insight_type === 'actions') {
-		return card?.crux;
-	}
-};
-
 const sortByInsightsOrder = (data, orderMap) => {
 	return data?.slice()?.sort((a, b) => {
 		const indexA = orderMap[a?.insight_type] ?? Infinity;
 		const indexB = orderMap[b?.insight_type] ?? Infinity;
 		return indexA - indexB;
 	});
-};
-
-const getName = (response) => {
-	if (!response?.response) return 'Unknown person';
-	const nameField = response?.response.find(
-		(item) => item?.variableId === '619f75683f381fd66dac4b65',
-	);
-	return nameField?.answer || 'Unknown person';
-};
-
-const getTitle = (card) => {
-	if (card?.collectionType === 'forms') {
-		return `a new Response from ${getName(card)}`;
-	} else if (card?.collectionType === 'workflows') {
-		return card?.title || '';
-	}
-};
-
-const getModuleType = (card) => {
-	if (card?.collectionType === 'forms') {
-		return 'Form Response';
-	} else if (card?.collectionType === 'workflows') {
-		if (card?.status === 'proposalAccepted') {
-			return 'Proposal Accepted';
-		} else if (card?.status === 'contractSigned') {
-			return 'Contract Signed';
-		}
-	}
 };
 
 // const infiniteScrollStyle = {
@@ -162,14 +116,13 @@ const sortOptions = {
 // const skeletonLoaders = Array.from({ length: 7 }, (_, index) => index + 1);
 
 const optionsList = [];
-const ProactiveSuggestions = ({ previousOption = null, option = null, handleModalOpen = null }) => {
+const ProactiveSuggestions = () => {
 	const navigate = useNavigate();
 	const currentIndexRef = useRef(0);
 	const totalCardsDataRef = useRef([]);
 	const isMountedRef = useRef(true);
 	const timeoutIdRef = useRef(null);
 	const searchFocusedRef = useRef(false);
-	const mainContainerRef = useRef(null);
 	const optionsContainerRef = useRef(null); // Ref for the options container
 	const searchInputRef = useRef(null);
 	const selectedFiltersRef = useRef([]);
@@ -410,7 +363,6 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 				const payload = {
 					...newUpdatedPayload,
 					page: nextPage,
-					...(option !== 'All' && { insightType: option }),
 				};
 
 				await getAISuggestedPendingActions(payload, false);
@@ -431,7 +383,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 			selectedCardNumber: index + 1,
 		}));
 		currentIndexRef.current = index;
-	}, [info?.isApiLoading, aiSuggestedPendingActions, info?.selectedOption]);
+	}, [info?.isApiLoading, aiSuggestedPendingActions]);
 
 	const handleKeyDown = useCallback(
 		(e) => {
@@ -547,11 +499,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 	};
 
 	const handleCardClick = async (card, index) => {
-		if (info?.selectedOption === 'action' && card?._id) {
-			navigate(`/builder/document/view/${card?._id}?workflow=true`);
-			return;
-		}
-		if (!card?.read && info?.selectedOption !== 'action') {
+		if (!card?.read) {
 			await pendingActionsUpdate(card?._id, { read: true });
 			const payload = { read: true },
 				reset = false;
@@ -564,7 +512,6 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 			currentIndex: index,
 			selectedCardNumber: index + 1,
 		}));
-		handleModalOpen?.(true);
 		currentIndexRef.current = index;
 	};
 
@@ -574,7 +521,6 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 			openModal: false,
 			selectedCardNumber: null,
 		}));
-		handleModalOpen?.(false);
 	};
 
 	const handleFilterClick = (option, group) => {
@@ -670,7 +616,7 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 			sortBy: info?.sortBy,
 			...(favourite && { isFavourited: favourite }),
 			search: info?.searchQuery,
-			...(info.selectedOption !== 'all' && { insightType: info?.selectedOption }),
+			insightType: info?.selectedOption,
 		};
 	}, [
 		payload,
@@ -735,424 +681,442 @@ const ProactiveSuggestions = ({ previousOption = null, option = null, handleModa
 	};
 
 	return (
-		<div className={`proactive-suggestions-container`} ref={mainContainerRef}>
-			{!info?.showExploreMore && (
-				<>
-					{/* {info?.activeBtn === 'questions' && (
-						<div className="ai-questions-wrapper">
-							<AIQuestions />
-						</div>
-					)} */}
-					<div className="proactive-suggestions-title">
-						<span className="title-highlight">Ambient</span> Insights For You
+		<div
+			className="proactive-suggestions-wrapper"
+			style={{
+				width: info?.openModal
+					? window?.innerWidth >= 1500
+						? 'calc(100% - 600px)'
+						: 'calc(100% - 450px)'
+					: '100%',
+			}}
+		>
+			<div className={`proactive-suggestions-container`}>
+				{!info?.showExploreMore && (
+					<>
+						{/* {info?.activeBtn === 'questions' && (
+					<div className="ai-questions-wrapper">
+						<AIQuestions />
 					</div>
+				)} */}
+						<div className="proactive-suggestions-title">
+							<span className="title-highlight">Ambient</span> Insights For You
+						</div>
 
-					<div
-						className="cards-container"
-						onTouchStart={handleTouchStart}
-						onTouchMove={handleTouchMove}
-						onTouchEnd={handleTouchEnd}
-					>
-						{info?.loading ? (
-							[
-								{ position: 0 },
-								{ position: 1 },
-								{ position: 2 },
-								{ position: -1 },
-								{ position: -2 },
-							]?.map((item, index) => {
-								const classList = [
-									'card',
-									'skeleton',
-									positionClassMap[item.position],
-								];
-								return (
-									<div key={index} className={classList.join(' ')}>
+						<div
+							className="cards-container"
+							onTouchStart={handleTouchStart}
+							onTouchMove={handleTouchMove}
+							onTouchEnd={handleTouchEnd}
+						>
+							{info?.loading ? (
+								[
+									{ position: 0 },
+									{ position: 1 },
+									{ position: 2 },
+									{ position: -1 },
+									{ position: -2 },
+								]?.map((item, index) => {
+									const classList = [
+										'card',
+										'skeleton',
+										positionClassMap[item.position],
+									];
+									return (
+										<div key={index} className={classList.join(' ')}>
+											<div
+												className="skeleton-container"
+												style={{
+													width: '100%',
+													height: '100%',
+													borderRadius: '10px',
+												}}
+											>
+												<Skeleton
+													height={'100%'}
+													width={'100%'}
+													highlightColor="var(--card-over-card)"
+													baseColor="var(--card)"
+													style={{
+														lineHeight: 'unset',
+													}}
+												/>
+											</div>
+										</div>
+									);
+								})
+							) : info?.cards?.length === 0 ? (
+								<div className="no-data" style={{ color: 'var(--primary-font)' }}>
+									No data available
+								</div>
+							) : (
+								info?.cards?.map((card, index) => {
+									if (card?.position === null) return null;
+									const classList = ['card', positionClassMap[card?.position]];
+									return (
 										<div
-											className="skeleton-container"
+											key={index}
+											className={classList?.join(' ')}
+											onClick={() => handleCardClick(card, index)}
 											style={{
-												width: '100%',
-												height: '100%',
-												borderRadius: '10px',
+												background:
+													classList?.[1] === 'selected'
+														? 'var(--popup)'
+														: 'var(--background-color)',
 											}}
 										>
-											<Skeleton
-												height={'100%'}
-												width={'100%'}
-												highlightColor="var(--card-over-card)"
-												baseColor="var(--card)"
-												style={{
-													lineHeight: 'unset',
-												}}
-											/>
-										</div>
-									</div>
-								);
-							})
-						) : info?.cards?.length === 0 ? (
-							<div className="no-data" style={{ color: 'var(--primary-font)' }}>
-								No data available
-							</div>
-						) : (
-							info?.cards?.map((card, index) => {
-								if (card?.position === null) return null;
-								const classList = ['card', positionClassMap[card?.position]];
-								return (
-									<div
-										key={index}
-										className={classList?.join(' ')}
-										onClick={() => handleCardClick(card, index)}
-										style={{
-											background:
-												classList?.[1] === 'selected'
-													? 'var(--popup)'
-													: 'var(--background-color)',
-										}}
-									>
-										{classList?.[1] === 'selected' && card?.read === false && (
-											<div className="unread-indicator" />
-										)}
-										<div className="header">
-											<div className="header__card-title">
-												{card?.collectionType && getTitle(card)}
-
-												{!card?.collectionType && card?.title}
+											{classList?.[1] === 'selected' &&
+												card?.read === false && (
+													<div className="unread-indicator" />
+												)}
+											<div className="header">
+												<div className="header__card-title">
+													{card?.title}
+												</div>
+												<div
+													className={`header__card-description ${
+														classList?.[1] === 'selected' ||
+														card?.insight_type === 'actions'
+															? 'showDescription'
+															: ''
+													}`}
+												>
+													{card?.description || card?.crux}
+												</div>
 											</div>
+											{classList?.[1] === 'selected' && (
+												<div className="footer">
+													<div className="module-type">
+														{card?.moduleType}
+													</div>
+													<div className="module-priority">
+														<span
+															style={{
+																backgroundColor:
+																	PriorityLevel[card?.priority],
+															}}
+														></span>
+														<div className="module-priority-text">
+															<div>{card?.priority}</div>
+															{card?.priority && card?.updatedAt && (
+																<div
+																	style={{
+																		color: 'var(--secondary-font)',
+																	}}
+																>
+																	|
+																</div>
+															)}
+															<Tooltip
+																title={dayjs(
+																	card?.updatedAt * 1000,
+																).format('MMMM D, YYYY h:mm A')}
+															>
+																<div>
+																	{dayjs(
+																		card?.updatedAt * 1000,
+																	)?.fromNow()}
+																</div>
+															</Tooltip>
+														</div>
+													</div>
+												</div>
+											)}
+										</div>
+									);
+								})
+							)}
+						</div>
+
+						<div
+							className={`actionMainContainer ${
+								info?.selectedOption !== 'All' ? 'onPrompt' : ''
+							}`}
+						>
+							{info?.hasCards && (
+								<div className="right-container">
+									<div className="options-container">
+										{/* ←— unified search bar */}
+										<div
+											className="searchMainContainer"
+											ref={searchContainerRef}
+										>
+											<button
+												className={`search-btn ${
+													info?.searchOpen ? 'expanded' : ''
+												}`}
+												onClick={handleSearchToggle}
+												aria-label="Toggle search"
+											>
+												<SearchSvg stroke="var(--secondary-font)" />
+											</button>
 											<div
-												className={`header__card-description ${
-													classList?.[1] === 'selected' ||
-													card?.insight_type === 'actions'
-														? 'showDescription'
-														: ''
+												className={`search-wrapper ${
+													info?.searchOpen ? 'expanded' : ''
 												}`}
 											>
-												{(!card?.collectionType && card?.description) ||
-													card?.crux}
-
-												{card?.collectionType && getDescription(card)}
-											</div>
-										</div>
-										{classList?.[1] === 'selected' && (
-											<div className="footer">
-												<div className="module-type">
-													{!card?.collectionType && card?.moduleType}
-													{card?.collectionType && getModuleType(card)}
-												</div>
-												<div className="module-priority">
-													<span
-														style={{
-															backgroundColor:
-																PriorityLevel[card?.priority],
-														}}
-													></span>
-													<div className="module-priority-text">
-														<div>{card?.priority}</div>
-														{card?.priority && card?.updatedAt && (
-															<div
-																style={{
-																	color: 'var(--secondary-font)',
-																}}
-															>
-																|
-															</div>
-														)}
-														<Tooltip
-															title={dayjs(
-																card?.updatedAt * 1000,
-															).format('MMMM D, YYYY h:mm A')}
-														>
-															<div>
-																{dayjs(
-																	card?.updatedAt * 1000,
-																)?.fromNow()}
-															</div>
-														</Tooltip>
+												<input
+													className="search-input"
+													placeholder="Search"
+													onChange={handleSearchQueryChange}
+													ref={searchInputRef}
+												/>
+												{info?.searchLoading && (
+													<div className="search-loader">
+														<Spinner
+															color="var(--primary-button)"
+															borderWidth={2}
+															width="15px"
+															height="15px"
+														/>
 													</div>
-												</div>
-											</div>
-										)}
-									</div>
-								);
-							})
-						)}
-					</div>
-
-					<div
-						className={`actionMainContainer ${
-							info?.selectedOption !== 'All' ? 'onPrompt' : ''
-						}`}
-					>
-						{info?.hasCards && (
-							<div className="right-container">
-								<div className="options-container">
-									{/* ←— unified search bar */}
-									<div className="searchMainContainer" ref={searchContainerRef}>
-										<button
-											className={`search-btn ${
-												info?.searchOpen ? 'expanded' : ''
-											}`}
-											onClick={handleSearchToggle}
-											aria-label="Toggle search"
-										>
-											<SearchSvg stroke="var(--secondary-font)" />
-										</button>
-										<div
-											className={`search-wrapper ${
-												info?.searchOpen ? 'expanded' : ''
-											}`}
-										>
-											<input
-												className="search-input"
-												placeholder="Search"
-												onChange={handleSearchQueryChange}
-												ref={searchInputRef}
-											/>
-											{info?.searchLoading && (
-												<div className="search-loader">
-													<Spinner
-														color="var(--primary-button)"
-														borderWidth={2}
-														width="15px"
-														height="15px"
-													/>
-												</div>
-											)}
-											{info?.searchOpen && (
-												<button
-													className="close-btn"
-													onClick={handleSearchToggle}
-													aria-label="Close search"
-												>
-													<CloseSearchbarIcon />
-												</button>
-											)}
-										</div>
-									</div>
-									{info?.hasCards && (
-										<div className="optionsRightMainContainer">
-											<div className="filter-wrapper">
-												<Tooltip
-													open={info?.openFilter}
-													onOpenChange={() =>
-														setInfo((prev) => ({
-															...prev,
-															openFilter: false,
-														}))
-													}
-													placement="top"
-													title={
-														<div className="filter-container">
-															<div className="filter-items">
-																{filterGroups?.map((group, idx) => (
-																	<div
-																		key={group?.title}
-																		style={{
-																			width: '100%',
-																		}}
-																	>
-																		<div className="filter-item">
-																			<div className="filter-item-title">
-																				{group?.title || ''}
-																			</div>
-																			<div className="filter-item-options">
-																				{group?.options?.map(
-																					(item) => {
-																						const itemWithGroup =
-																							{
-																								...item,
-																								group: group?.title,
-																							};
-
-																						const isSelected =
-																							info?.selectedFilters?.some(
-																								(
-																									option,
-																								) =>
-																									option?.title ===
-																										itemWithGroup?.title &&
-																									option?.group ===
-																										itemWithGroup?.group,
-																							);
-																						return (
-																							<div
-																								key={
-																									item?.id
-																								}
-																								className="eachOption"
-																								onClick={() =>
-																									handleFilterClick(
-																										itemWithGroup,
-																										group?.title,
-																									)
-																								}
-																							>
-																								{group?.title ===
-																									'Priority Level' && (
-																									<div
-																										className="indicator"
-																										style={{
-																											backgroundColor:
-																												item?.bgColor ||
-																												'',
-																										}}
-																									></div>
-																								)}
-																								<div className="option-text">
-																									<span className="option-text-content">
-																										{item?.title ||
-																											''}
-																									</span>
-																									{isSelected && (
-																										<TickIcon
-																											style={{
-																												marginLeft:
-																													'8px',
-																											}}
-																										/>
-																									)}
-																								</div>
-																							</div>
-																						);
-																					},
-																				)}
-																			</div>
-																		</div>
-																		{idx <
-																			filterGroups?.length -
-																				1 && (
-																			<hr
-																				style={{
-																					width: '100%',
-																					height: '1px',
-																					backgroundColor:
-																						'var(--stroke)',
-																					border: 'none',
-																					marginTop:
-																						'10px',
-																				}}
-																			/>
-																		)}
-																	</div>
-																))}
-															</div>
-														</div>
-													}
-													color="transparent"
-													trigger="click"
-													style={{
-														cursor: 'pointer',
-														userSelect: 'none',
-													}}
-												>
+												)}
+												{info?.searchOpen && (
 													<button
-														className={`filter-btn ${
-															info.openFilter ? 'active' : ''
-														}`}
-														onClick={(e) => {
-															e.stopPropagation();
-															e.preventDefault();
-															if (info.openFilter) return;
-															setInfo((prev) => ({
-																...prev,
-																openFilter: true,
-															}));
-														}}
-														data-tooltip="Filter"
+														className="close-btn"
+														onClick={handleSearchToggle}
+														aria-label="Close search"
 													>
-														<FilterIcon stroke="var(--secondary-font)" />
+														<CloseSearchbarIcon />
 													</button>
-												</Tooltip>
-
-												{info?.selectedFilters?.length > 0 && (
-													<div className="selected-filters">
-														Filters :{' '}
-														{`${info?.selectedFilters?.[0]?.title}`}
-														{info?.selectedFilters?.length > 1 && (
-															<span className="filter-count">
-																+{info?.selectedFilters?.length - 1}
-															</span>
-														)}
-													</div>
 												)}
 											</div>
 										</div>
-									)}
-								</div>
-							</div>
-						)}
+										{info?.hasCards && (
+											<div className="optionsRightMainContainer">
+												<div className="filter-wrapper">
+													<Tooltip
+														open={info?.openFilter}
+														onOpenChange={() =>
+															setInfo((prev) => ({
+																...prev,
+																openFilter: false,
+															}))
+														}
+														placement="top"
+														title={
+															<div className="filter-container">
+																<div className="filter-items">
+																	{filterGroups?.map(
+																		(group, idx) => (
+																			<div
+																				key={group?.title}
+																				style={{
+																					width: '100%',
+																				}}
+																			>
+																				<div className="filter-item">
+																					<div className="filter-item-title">
+																						{group?.title ||
+																							''}
+																					</div>
+																					<div className="filter-item-options">
+																						{group?.options?.map(
+																							(
+																								item,
+																							) => {
+																								const itemWithGroup =
+																									{
+																										...item,
+																										group: group?.title,
+																									};
 
-						{info?.cards?.length > 0 && (
-							<div className="optionsRightMainContainer">
-								<div className="action-right">
-									<button
-										className="card-change-btn"
-										onClick={(e) => {
-											e.stopPropagation();
-											e.preventDefault();
-											handleLeft();
-										}}
-									>
-										<ChevronRightThinSvg className="left-chevron" />
-									</button>
-									<div className="card-number">
-										<span>{currentIndexRef?.current + 1}</span>/
-										<span className="total-docs">
-											{aiSuggestedPendingActions?.metaInfo?.totalDocs}
-										</span>
+																								const isSelected =
+																									info?.selectedFilters?.some(
+																										(
+																											option,
+																										) =>
+																											option?.title ===
+																												itemWithGroup?.title &&
+																											option?.group ===
+																												itemWithGroup?.group,
+																									);
+																								return (
+																									<div
+																										key={
+																											item?.id
+																										}
+																										className="eachOption"
+																										onClick={() =>
+																											handleFilterClick(
+																												itemWithGroup,
+																												group?.title,
+																											)
+																										}
+																									>
+																										{group?.title ===
+																											'Priority Level' && (
+																											<div
+																												className="indicator"
+																												style={{
+																													backgroundColor:
+																														item?.bgColor ||
+																														'',
+																												}}
+																											></div>
+																										)}
+																										<div className="option-text">
+																											<span className="option-text-content">
+																												{item?.title ||
+																													''}
+																											</span>
+																											{isSelected && (
+																												<TickIcon
+																													style={{
+																														marginLeft:
+																															'8px',
+																													}}
+																												/>
+																											)}
+																										</div>
+																									</div>
+																								);
+																							},
+																						)}
+																					</div>
+																				</div>
+																				{idx <
+																					filterGroups?.length -
+																						1 && (
+																					<hr
+																						style={{
+																							width: '100%',
+																							height: '1px',
+																							backgroundColor:
+																								'var(--stroke)',
+																							border: 'none',
+																							marginTop:
+																								'10px',
+																						}}
+																					/>
+																				)}
+																			</div>
+																		),
+																	)}
+																</div>
+															</div>
+														}
+														color="transparent"
+														trigger="click"
+														style={{
+															cursor: 'pointer',
+															userSelect: 'none',
+														}}
+													>
+														<button
+															className={`filter-btn ${
+																info.openFilter ? 'active' : ''
+															}`}
+															onClick={(e) => {
+																e.stopPropagation();
+																e.preventDefault();
+																if (info.openFilter) return;
+																setInfo((prev) => ({
+																	...prev,
+																	openFilter: true,
+																}));
+															}}
+															data-tooltip="Filter"
+														>
+															<FilterIcon stroke="var(--secondary-font)" />
+														</button>
+													</Tooltip>
+
+													{info?.selectedFilters?.length > 0 && (
+														<div className="selected-filters">
+															Filters :{' '}
+															{`${info?.selectedFilters?.[0]?.title}`}
+															{info?.selectedFilters?.length > 1 && (
+																<span className="filter-count">
+																	+
+																	{info?.selectedFilters?.length -
+																		1}
+																</span>
+															)}
+														</div>
+													)}
+												</div>
+											</div>
+										)}
 									</div>
-									<button
-										className="card-change-btn"
-										onClick={(e) => {
-											e.stopPropagation();
-											e.preventDefault();
-											handleRight();
-										}}
-									>
-										<ChevronRightThinSvg />
-									</button>
 								</div>
-							</div>
-						)}
-					</div>
+							)}
 
-					{info?.options?.length && (
-						<div className="options-wrapper">
-							<div
-								className={`homepage__options-container`}
-								ref={optionsContainerRef}
-							>
-								{info?.options?.map(({ count, insight_type }, index) => (
-									<div
-										className={`option ${
-											info?.selectedOption === insight_type ? 'active' : ''
-										}`}
-										onClick={(e) => {
-											handleOptionSelection(insight_type);
-										}}
-										key={index}
-									>
-										<div className="option-label">
-											<span className="option-name">{insight_type}</span>
-											<span className="option-value">{count}</span>
+							{info?.cards?.length > 0 && (
+								<div className="optionsRightMainContainer">
+									<div className="action-right">
+										<button
+											className="card-change-btn"
+											onClick={(e) => {
+												e.stopPropagation();
+												e.preventDefault();
+												handleLeft();
+											}}
+										>
+											<ChevronRightThinSvg className="left-chevron" />
+										</button>
+										<div className="card-number">
+											<span>{currentIndexRef?.current + 1}</span>/
+											<span className="total-docs">
+												{aiSuggestedPendingActions?.metaInfo?.totalDocs}
+											</span>
 										</div>
+										<button
+											className="card-change-btn"
+											onClick={(e) => {
+												e.stopPropagation();
+												e.preventDefault();
+												handleRight();
+											}}
+										>
+											<ChevronRightThinSvg />
+										</button>
 									</div>
-								))}
-							</div>
+								</div>
+							)}
 						</div>
-					)}
-					<AISuggestionsModal
-						open={info?.openModal}
-						onClose={handleCloseModal}
-						data={info?.activeCardContent}
-						onNextCardClick={handleRight}
-						onPrevCardClick={handleLeft}
-						totalDocs={aiSuggestedPendingActions?.metaInfo?.totalDocs}
-						selectedCardNumber={currentIndexRef?.current + 1}
-						selectedOption={info?.selectedOption}
-						// onFavouriteClick={handleFavouriteClick}
-					/>
-				</>
-			)}
+
+						{info?.options?.length && (
+							<div className="options-wrapper">
+								<div
+									className={`homepage__options-container`}
+									ref={optionsContainerRef}
+								>
+									{info?.options?.map(({ count, insight_type }, index) => (
+										<div
+											className={`option ${
+												info?.selectedOption === insight_type
+													? 'active'
+													: ''
+											}`}
+											onClick={(e) => {
+												handleOptionSelection(insight_type);
+											}}
+											key={index}
+										>
+											<div className="option-label">
+												<span className="option-name">{insight_type}</span>
+												<span className="option-value">{count}</span>
+											</div>
+										</div>
+									))}
+								</div>
+							</div>
+						)}
+						<AISuggestionsModal
+							open={info?.openModal}
+							onClose={handleCloseModal}
+							data={info?.activeCardContent}
+							onNextCardClick={handleRight}
+							onPrevCardClick={handleLeft}
+							totalDocs={aiSuggestedPendingActions?.metaInfo?.totalDocs}
+							selectedCardNumber={currentIndexRef?.current + 1}
+							selectedOption={info?.selectedOption}
+							// onFavouriteClick={handleFavouriteClick}
+						/>
+					</>
+				)}
+			</div>
 		</div>
 	);
 };

@@ -688,7 +688,7 @@ const AutomationBuilder = () => {
 							}
 						}}
 						tabs={[
-							{ label: 'Workflow builder', value: 'workflowBuilder' },
+							{ label: 'Builder', value: 'workflowBuilder' },
 							{ label: 'Runs', value: 'run' },
 						]}
 					/>

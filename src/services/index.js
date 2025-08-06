@@ -29,7 +29,8 @@ const handleHeaders = (token, body, type, isPublicChat = false) => {
 			type === 'ai_predictions' ||
 			type === 'calendar_chat' ||
 			type === 'slack_api' ||
-			type === 'elastic_search_api'
+			type === 'elastic_search_api' ||
+			type === 'microsoft_integration_api'
 		) {
 			headers['Authorization'] = `Bearer ${token}`;
 		}
@@ -96,6 +97,8 @@ const apiFetch = async (url, method, body, token, type, isPublicChat = false) =>
 			calendar_api_US,
 			third_party_integrations_api,
 			third_party_integrations_api_US,
+			microsoft_integration_api,
+			microsoft_integration_api_US,
 			slack_api,
 			slack_api_US,
 			workflows_Api,
@@ -124,6 +127,7 @@ const apiFetch = async (url, method, body, token, type, isPublicChat = false) =>
 			calendar_chat: ai_predictions,
 			calendar_api,
 			third_party_integrations_api,
+			microsoft_integration_api,
 			slack_api,
 			workflow: workflows_Api,
 			multi_agent_chat,
@@ -145,6 +149,7 @@ const apiFetch = async (url, method, body, token, type, isPublicChat = false) =>
 			calendar_chat: ai_predictions_US,
 			calendar_api: calendar_api_US,
 			third_party_integrations_api: third_party_integrations_api_US,
+			microsoft_integration_api: microsoft_integration_api_US,
 			slack_api: slack_api_US,
 			workflow: workflows_Api_US,
 			multi_agent_chat: multi_agent_chat_US,

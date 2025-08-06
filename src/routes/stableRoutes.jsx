@@ -16,10 +16,10 @@ const Agent = lazy(() => import('../views/features/agents/agent/Agent'));
 const GlobalWorkflows = lazy(() => import('../views/features/sales/GlobalWorkflows'));
 const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
 const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
+const ProactiveSuggestions = lazy(() => import('../views/features/homePage/ProactiveSuggestions'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
-import AmbientAi from '../views/features/ambientAi/AmbientAi';
 
 const stableRoutes = [
 	// ========================================
@@ -30,7 +30,7 @@ const stableRoutes = [
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper title={'Ambient AI'}>
-					<AmbientAi />
+					<ProactiveSuggestions />
 				</AuthWrapper>
 			</Suspense>
 		),
@@ -154,16 +154,16 @@ const stableRoutes = [
 			</Suspense>
 		),
 	},
-	{
-		path: '/share-and-earn',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Share and Earn'}>
-					<ShareAndEarn />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
+	// {
+	// 	path: '/share-and-earn',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'Share and Earn'}>
+	// 				<ShareAndEarn />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
 
 	// ========================================
 	// FALLBACK ROUTE
