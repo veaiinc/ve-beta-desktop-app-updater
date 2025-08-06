@@ -30,7 +30,12 @@ const UploadPhotos = () => {
 			getImageDuplicatesList,
 			updateWaterMarkVisibility,
 		},
-		subscriptionInfo: { validateExpiryData, updateSubscriptionState, updateStateValues },
+		subscriptionInfo: {
+			validateExpiryData,
+			updateSubscriptionState,
+			updateStateValues,
+			currentPlan,
+		},
 	} = useContext(Context);
 
 	const [info, setinfo] = useState({
@@ -67,6 +72,7 @@ const UploadPhotos = () => {
 		isProcessingDuplicates: false, // New state for duplicate processing feedback
 	});
 
+	console.log(currentPlan, 'currentPlan');
 	const recentImageInitiatedRef = useRef(info.recentImageInitiated);
 	const params = new URLSearchParams(window.location.search);
 	const lightGallery = !tenantAlbums?.storeOriginals ? 'true' : 'false';
@@ -259,7 +265,7 @@ const UploadPhotos = () => {
 			isAIFacesEnabled:
 				lightGallery === 'true'
 					? info?.isAiEnabled && validateExpiryData?.liteImageLimitWithAiFace > 0
-					: true,
+					: currentPlan?.isAIFacesEnabled,
 		};
 
 		if (image?.isDuplicate === true && info?.isSkipDuplicates === false) {
