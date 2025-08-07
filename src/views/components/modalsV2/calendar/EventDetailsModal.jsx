@@ -12,6 +12,7 @@ import { ReactComponent as Status } from '../../../../assets/svg/calendar/events
 import { message } from '../../../components/globalComponents/CustomToast';
 import CategorySelector from '../../calendar/CategorySelector';
 import AttendeeSelector from '../../calendar/AttendeeSelector';
+import DeleteFormModal from '../DeleteModal/DeleteModal';
 import DateView from '../../tasks/listView/DateView.jsx';
 import Spinner from '../../../components/loaders/Spinner';
 import Context from '../../../../context/context';
@@ -117,6 +118,7 @@ const EventDetailsModal = ({
 	const [info, setInfo] = useState({ ...initialState });
 	const [showAddAttendee, setShowAddAttendee] = useState(false);
 	const [newAttendee, setNewAttendee] = useState('');
+	const [deleteModal, setDeleteModal] = useState({ open: false });
 	const resizableContainerRef = useRef(null);
 	const mouseXPosition = useRef(null);
 	const updateEventDebounceRef = useRef(null);
@@ -345,6 +347,19 @@ const EventDetailsModal = ({
 		updateSubscriptionState,
 		modifiedOnClose,
 	]);
+
+	const handleOpenDeleteModal = () => {
+		setDeleteModal({ open: true });
+	};
+
+	const handleConfirmDelete = async () => {
+		await deleteEvent();
+		setDeleteModal({ open: false });
+	};
+
+	const handleCancelDelete = () => {
+		setDeleteModal({ open: false });
+	};
 
 	const updateEventDetails = useCallback(
 		(field, value) => {
@@ -659,7 +674,7 @@ const EventDetailsModal = ({
 												width={20}
 												height={20}
 												className="deleteIcon"
-												onClick={deleteEvent}
+												onClick={handleOpenDeleteModal}
 											/>
 										)}
 									</div>
@@ -831,6 +846,16 @@ const EventDetailsModal = ({
 					)}
 				</div>
 			</div>
+
+			<DeleteFormModal
+				isOpen={deleteModal.open}
+				onClose={handleCancelDelete}
+				onConfirm={handleConfirmDelete}
+				title="Delete Event?"
+				itemType="event"
+				description="Are you sure you want to delete this event?"
+				warning="This event will be permanently removed and cannot be recovered."
+			/>
 		</Drawer>
 	);
 };

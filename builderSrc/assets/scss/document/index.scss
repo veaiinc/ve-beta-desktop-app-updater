@@ -447,6 +447,16 @@
 				display: flex;
 				flex-direction: column;
 				gap: 14px;
+				border: none;
+				background: inherit;
+				outline: none;
+
+				.phoneInputContainer {
+					border: none;
+					background: inherit;
+					outline: none;
+				}
+
 				.inputLabel {
 					color: var(--secondary-font, #7a7e85);
 					text-align: start;

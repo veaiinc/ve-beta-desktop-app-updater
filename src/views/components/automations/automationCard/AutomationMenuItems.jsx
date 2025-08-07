@@ -34,9 +34,6 @@ const AutomationMenuItems = ({
 	const navigateToAutomationBuilder = () => {
 		navigate(`/automation-builder/${automationId}`);
 	};
-	const [info, setInfo] = useState({
-		deleteLoader: false,
-	});
 
 	const handleAutomationMenu = async (action) => {
 		if (action === 'renameAutomation') {
@@ -45,15 +42,8 @@ const AutomationMenuItems = ({
 		} else if (action === 'openAutomationBuilder') {
 			navigateToAutomationBuilder();
 		} else if (action === 'deleteAutomation') {
-			setInfo((prev) => ({
-				...prev,
-				deleteLoader: true,
-			}));
-			await handleDeleteAutomation(automationId);
-			setInfo((prev) => ({
-				...prev,
-				deleteLoader: false,
-			}));
+			handleDeleteAutomation(automationId);
+			toggleAutomationMenu(); 
 		}
 	};
 
@@ -61,7 +51,6 @@ const AutomationMenuItems = ({
 		<ul className="menuItemsContainer">
 			{menuItems?.map((item) => {
 				const { id, title, value } = item;
-				const deleteAutomationLoader = info?.deleteLoader && value === 'deleteAutomation';
 				return (
 					<li
 						key={id}
@@ -70,7 +59,6 @@ const AutomationMenuItems = ({
 						onClick={() => handleAutomationMenu(value)}
 					>
 						<span className="title">{title}</span>
-						{deleteAutomationLoader && <Spinner width="16px" height="16px" />}
 					</li>
 				);
 			})}

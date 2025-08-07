@@ -1,6 +1,7 @@
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Context from '../context/context';
-import useLogout from './useLogout';
+import logout from '../helpers/logout';
+import useBroadcastChannel from './useBroadcastChannel';
 
 const calculateTokenTimeLeft = (token) => {
 	if (!token) return { isExpired: true };
@@ -30,8 +31,8 @@ const calculateTokenTimeLeft = (token) => {
 
 const useTokenExpiry = () => {
 	const timerRef = useRef({ timer: null, interval: null });
-	const logout = useLogout();
-	let {
+	const channel = useBroadcastChannel();
+	const {
 		subscriptionInfo: { updateTokenExpiryState },
 	} = useContext(Context);
 	// Cleanup on unmount
@@ -51,6 +52,7 @@ const useTokenExpiry = () => {
 			updateTokenExpiryState({ expiredTokenModal: true });
 			setTimeout(() => {
 				logout();
+				channel.postMessage('reload');
 				updateTokenExpiryState({ expiredTokenModal: false });
 			}, 5000);
 			return;

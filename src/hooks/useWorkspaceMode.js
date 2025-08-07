@@ -2,9 +2,10 @@ import { useContext, useEffect, useState } from 'react';
 import { matchPath, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import fallbackRoute from '../routes/fallbackRoute';
-import useLogout from './useLogout';
 import Context from '../context/context';
 import { fetchDomainName } from '../helpers';
+import logout from '../helpers/logout';
+import useBroadcastChannel from './useBroadcastChannel';
 
 export const publicRoutesList = [
 	'/',
@@ -43,8 +44,7 @@ const routeMap = {
 
 const useWorkspaceMode = () => {
 	const { pathname } = useLocation();
-	const logOut = useLogout();
-
+	const channel = useBroadcastChannel();
 	const {
 		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
@@ -88,8 +88,10 @@ const useWorkspaceMode = () => {
 					const success = response[0] === true;
 					if (!success) {
 						const { code } = response[1];
-						if (code === 401) logOut();
-						else if (code === 404) setWorkspaceNotFound(true);
+						if (code === 401) {
+							logout();
+							channel.postMessage('reload');
+						} else if (code === 404) setWorkspaceNotFound(true);
 					}
 				}
 			} catch (error) {

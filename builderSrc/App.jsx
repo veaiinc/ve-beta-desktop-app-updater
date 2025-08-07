@@ -2,28 +2,28 @@ import { Component } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import AuthenticatedRoute from './services/AuthenticatedRouteWrapper';
 import Template from './views/feature/home';
-import Generate from './views/feature/generate';
-import Prompt from './views/feature/prompt';
+// import Generate from './views/feature/generate';
+// import Prompt from './views/feature/prompt';
 import BuilderPreview from './views/feature/preview';
 
 import withRouter from './hooks'; // Import the withRouter HOC
-import EditWorkflow from './views/feature/EditWorkflow';
-import DesignBuilder from './views/feature/design-builder';
+// import EditWorkflow from './views/feature/EditWorkflow';
+// import DesignBuilder from './views/feature/design-builder';
 import { handleCookieSetupOnMounting } from './helper';
-import ShortBuilderPreview from './views/feature/ShortPreview';
+// import ShortBuilderPreview from './views/feature/ShortPreview';
 import './assets/scss/globalColorsAndTheme.scss';
 import CreatedDocument from './views/feature/document/newIndex';
 import ViewHomePage from './views/feature/document/viewHomePage';
 import EditDocument from './views/components/EditDocument/editDocument';
-import DocumentShare from './views/feature/document/DocumentShare';
+// import DocumentShare from './views/feature/document/DocumentShare';
 import NotFound from './views/feature/NotFound';
 const TemplateWithRouter = withRouter(Template);
 const BuilderPreviewWithRouter = withRouter(BuilderPreview);
-const ShortBuilderPreviewRouter = withRouter(ShortBuilderPreview);
+// const ShortBuilderPreviewRouter = withRouter(ShortBuilderPreview);
 const CreatedDocumentWithRouter = withRouter(CreatedDocument);
 const ViewHomePageWithRouter = withRouter(ViewHomePage);
 const EditDocumentWithRouter = withRouter(EditDocument);
-const DocumentShareWithRouter = withRouter(DocumentShare);
+// const DocumentShareWithRouter = withRouter(DocumentShare);
 class App extends Component {
 	render() {
 		const data = handleCookieSetupOnMounting();
@@ -63,7 +63,7 @@ class App extends Component {
 						</AuthenticatedRoute>
 					}
 				/>
-				<Route
+				{/* <Route
 					exact
 					path="/preview/short/:templateID"
 					element={
@@ -71,8 +71,8 @@ class App extends Component {
 							<ShortBuilderPreviewRouter />
 						</AuthenticatedRoute>
 					}
-				/>
-				<Route
+				/> */}
+				{/* <Route
 					exact
 					path="/generate/:templateID"
 					element={
@@ -89,7 +89,7 @@ class App extends Component {
 							<Generate />
 						</AuthenticatedRoute>
 					}
-				/>
+				/> */}
 				<Route
 					exact
 					path="/:templateID"
@@ -99,7 +99,7 @@ class App extends Component {
 						</AuthenticatedRoute>
 					}
 				/>
-				<Route
+				{/* <Route
 					exact
 					path="/workflow/:templateID"
 					element={
@@ -107,7 +107,7 @@ class App extends Component {
 							<EditWorkflow />
 						</AuthenticatedRoute>
 					}
-				/>
+				/> */}
 				<Route
 					exact
 					path="/:templateID/:type"
@@ -117,7 +117,7 @@ class App extends Component {
 						</AuthenticatedRoute>
 					}
 				/>
-				<Route
+				{/* <Route
 					exact
 					path="/design-builder"
 					element={
@@ -125,7 +125,7 @@ class App extends Component {
 							<DesignBuilder />
 						</AuthenticatedRoute>
 					}
-				/>
+				/> */}
 				<Route exact path="/not-found" element={<NotFound />} />
 
 				<Route exact path="*" element={<NotFound />} />

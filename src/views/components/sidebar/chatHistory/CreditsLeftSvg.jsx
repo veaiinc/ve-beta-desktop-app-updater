@@ -31,7 +31,7 @@ const CreditsLeftSvg = ({ totalAiCreditLimit, totalAiCreditUsed }) => {
 				fill="none"
 				strokeDasharray={strokeDasharray}
 				strokeDashoffset="0"
-				// transform="rotate(135 12 12)" // Start progress at left bottom (135° counterclockwise)
+				transform="rotate(-90 12 12)" // Start progress at top (0° = -90° in SVG)
 			/>
 		</svg>
 	);

@@ -4,13 +4,14 @@ import ReactModal from '../index';
 import Context from '../../../../context/context';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import Spinner from '../../loaders/Spinner';
-import useLogout from '../../../../hooks/useLogout';
+import logout from '../../../../helpers/logout';
+import useBroadcastChannel from '../../../../hooks/useBroadcastChannel';
+
 const ExpiredTokenModal = () => {
-	const logout = useLogout();
-	let {
+	const channel = useBroadcastChannel();
+	const {
 		subscriptionInfo: { updateTokenExpiryState, expiredTokenModal },
 	} = useContext(Context);
-
 	const closeModal = useCallback(() => {
 		updateTokenExpiryState({ expiredTokenModal: false });
 	}, []);
@@ -42,7 +43,7 @@ const ExpiredTokenModal = () => {
 						className="contactSupportButton"
 						onClick={() => {
 							logout();
-							closeModal();
+							channel.postMessage('reload');
 						}}
 					>
 						Log out

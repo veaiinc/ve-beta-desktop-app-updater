@@ -1,14 +1,9 @@
 import { Navigate } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
+import { lazy, Suspense } from 'react';
 
 // layouts
-import Public from '../views/layouts/Public';
-import AuthWrapper from '../views/layouts/authWrapper';
-
-// pages
-// import InitialHomePage from '../views/features/homePage/InitialHomePage';
-// import MeetBot from '../views/features/meetBot/meetBot';
-// import NotesWrapper from '../views/features/notesModule/NotesWrapper';
+const AuthWrapper = lazy(() => import('../views/layouts/authWrapper'));
+const Public = lazy(() => import('../views/layouts/Public'));
 
 // lazy loaded pages
 const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
@@ -16,153 +11,171 @@ const SettingsWrapper = lazy(() => import('../views/features/settings/SettingsWr
 const RecentChat = lazy(() => import('../views/features/chat/RecentChat'));
 const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
 const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
-const NotesWrapper = lazy(() => import('../views/features/notesModule/NotesWrapper'));
+const Agents = lazy(() => import('../views/features/agents/Agents'));
+const Agent = lazy(() => import('../views/features/agents/agent/Agent'));
+const GlobalWorkflows = lazy(() => import('../views/features/sales/GlobalWorkflows'));
+const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
+const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
+const ProactiveSuggestions = lazy(() => import('../views/features/homePage/ProactiveSuggestions'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
-import AmbientAi from '../views/features/ambientAi/AmbientAi';
-import CardMeetBot from '../views/features/meetBot/CardMeetBot';
-import Agents from '../views/features/agents/Agents';
-import Agent from '../views/features/agents/agent/Agent';
-import GlobalWorkflows from '../views/features/sales/GlobalWorkflows';
 
 const stableRoutes = [
-	// {
-	// 	path: '/home',
-	// 	element: (
-	// 		<AuthWrapper
-	// 			title={'Home'}
-	// 			outerContainerStyle={{ overflow: 'hidden' }}
-	// 			childrenContainerStyles={{ overflow: 'auto' }}
-	// 			showBottomToolbar={false}
-	// 		>
-	// 			<InitialHomePage />
-	// 		</AuthWrapper>
-	// 	),
-	// },
-	{
-		path: '/playbook',
-		element: (
-			<AuthWrapper title={'Sales'}>
-				<GlobalWorkflows />
-			</AuthWrapper>
-		),
-	},
+	// ========================================
+	// AI & ASSISTANT FEATURES
+	// ========================================
 	{
 		path: '/home',
 		element: (
-			<AuthWrapper title={'Ambient AI'}>
-				<AmbientAi />
-			</AuthWrapper>
-		),
-	},
-	{
-		path: '/create-workspace',
-		element: (
-			<Public>
-				<Suspense fallback={<SuspenseFallback />}>
-					<Onboarding />
-				</Suspense>
-			</Public>
-		),
-	},
-	{
-		path: '/share-and-earn',
-		element: (
-			<AuthWrapper title={'Share and Earn'}>
-				<Suspense fallback={<SuspenseFallback />}>
-					<ShareAndEarn />
-				</Suspense>
-			</AuthWrapper>
-		),
-	},
-	{
-		path: '/chats',
-		element: (
-			<AuthWrapper title={'Chats'}>
-				<Suspense fallback={<SuspenseFallback />}>
-					<ChatPage />
-				</Suspense>
-			</AuthWrapper>
-		),
-	},
-	{
-		path: '/settings/:type',
-		element: (
-			<AuthWrapper title={'Workspace Settings'}>
-				<Suspense fallback={<SuspenseFallback />}>
-					<SettingsWrapper />
-				</Suspense>
-			</AuthWrapper>
-		),
-	},
-	{
-		path: '/chat/:sessionId',
-		element: (
-			<AuthWrapper
-				title={'Chat'}
-				showBottomToolbar={false}
-				outerContainerStyle={{
-					paddingRight: '0px',
-					backgroundColor: 'var(--chat-background-color)',
-				}}
-				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
-				maxWidth="100%"
-			>
-				<Suspense fallback={<SuspenseFallback />}>
-					<RecentChat showChatHistory={true} showDeleteChat={true} showChats={true} />
-				</Suspense>
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Ambient AI'}>
+					<ProactiveSuggestions />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/agents',
 		element: (
-			<AuthWrapper
-				title="Agents"
-				outerContainerStyle={{ padding: '0' }}
-				sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
-			>
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title="Agents"
+					outerContainerStyle={{ padding: '0' }}
+					sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
+				>
 					<Agents />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/agent/:agentId',
 		element: (
-			<AuthWrapper title="Agent">
-				<Suspense fallback={<SuspenseFallback />}>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title="Agent">
 					<Agent />
-				</Suspense>
-			</AuthWrapper>
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+
+	// ========================================
+	// CHAT & COMMUNICATION
+	// ========================================
+	{
+		path: '/chats',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Chats'}>
+					<ChatPage />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/chat/:sessionId',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title={'Chat'}
+					showBottomToolbar={false}
+					outerContainerStyle={{
+						paddingRight: '0px',
+						backgroundColor: 'var(--chat-background-color)',
+					}}
+					authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
+					maxWidth="100%"
+				>
+					<RecentChat showChatHistory={true} showDeleteChat={true} showChats={true} />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
 		path: '/meet',
 		element: (
-			<AuthWrapper title={'Meet'}>
-				<CardMeetBot />
-			</AuthWrapper>
-		),
-	},
-	{	
-		path: '/meet/:meetingId',
-		element: (
-			<AuthWrapper title={'Meet'}>
-				<Suspense fallback={<SuspenseFallback />}>
-					<NotesWrapper />
-				</Suspense>
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Meet'}>
+					<CardMeetBot />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
+		path: '/meet/:meetingId',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Meet'}>
+					<MeetBotWrapper />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+
+	// ========================================
+	// Playbook
+	// ========================================
+	{
+		path: '/playbook',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Playbook'}>
+					<GlobalWorkflows />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+
+	// ========================================
+	// SETTINGS & ADMINISTRATION
+	// ========================================
+	{
+		path: '/settings/:type',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Workspace Settings'}>
+					<SettingsWrapper />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+
+	// ========================================
+	// ONBOARDING & FEATURES
+	// ========================================
+	{
+		path: '/create-workspace',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Onboarding'}>
+					<Onboarding />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	// {
+	// 	path: '/share-and-earn',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'Share and Earn'}>
+	// 				<ShareAndEarn />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
+
+	// ========================================
+	// FALLBACK ROUTE
+	// ========================================
+	{
 		path: '*',
 		element: (
-			<Public>
-				<Navigate to="/home" />
-			</Public>
+			<Suspense fallback={<SuspenseFallback />}>
+				<Public>
+					<Navigate to="/home" />
+				</Public>
+			</Suspense>
 		),
 	},
 ];

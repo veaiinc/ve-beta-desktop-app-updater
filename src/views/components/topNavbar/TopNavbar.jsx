@@ -3,6 +3,7 @@ import s from './topNavbar.module.scss';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
+import ShareAndEarnModal from '../../features/shareAndEarn/ShareAndEarnModal';
 
 // components
 import Settings from './components/settings/Settings';
@@ -25,7 +26,7 @@ const tooltipStyle = {
 	padding: 8,
 	borderRadius: 8,
 	color: 'var(--primary-font)',
-	background: 'var(--background-color)',
+	background: 'var(--navbar)',
 	border: '1px solid var(--dividers)',
 };
 
@@ -94,7 +95,12 @@ const TopNavbar = () => {
 	// pathname.includes('	plan-billing');
 
 	const {
-		profileInfo: { userDetailsData, tennantSettingsData },
+		profileInfo: {
+			userDetailsData,
+			tennantSettingsData,
+			userWorkSpaceList,
+			getUserWorkSpaceList,
+		},
 		templates: { updateStateValues },
 		subscriptionInfo: { currentPlan },
 		themeInfo: { theme, updateTheme },
@@ -109,6 +115,7 @@ const TopNavbar = () => {
 		toolsTooltipOpen: false,
 		addOnCardsModalOpen: false,
 		creditsLeftTooltipOpen: false,
+		shareAndEarnModalOpen: false,
 	});
 
 	const { firstName, lastName, dp_s3_500w_key, googleMeta } = userDetailsData;
@@ -137,6 +144,12 @@ const TopNavbar = () => {
 	})();
 
 	const showMiddleContainer = region !== 'ap-south-1';
+
+	useEffect(() => {
+		if (!userWorkSpaceList) {
+			getUserWorkSpaceList();
+		}
+	}, [userWorkSpaceList]);
 
 	useEffect(() => {
 		if (pathname.includes('/meet')) setInfo((prev) => ({ ...prev, activeMode: 3 }));
@@ -185,7 +198,10 @@ const TopNavbar = () => {
 			updateTheme(oppositeTheme);
 		}
 		if (id === 4) {
-			navigate('/share-and-earn');
+			setInfo((prev) => ({
+				...prev,
+				shareAndEarnModalOpen: true,
+			}));
 		}
 	};
 
@@ -516,6 +532,12 @@ const TopNavbar = () => {
 					closeModal={() => setInfo((prev) => ({ ...prev, addOnCardsModalOpen: false }))}
 					subscriptionState="addOnPlans"
 					selectedPeriodProp="One Time Purchase"
+				/>
+				<ShareAndEarnModal
+					isOpen={info.shareAndEarnModalOpen}
+					closeModal={() =>
+						setInfo((prev) => ({ ...prev, shareAndEarnModalOpen: false }))
+					}
 				/>
 			</>
 		)

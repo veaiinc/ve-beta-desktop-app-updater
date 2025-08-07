@@ -1591,6 +1591,50 @@ export const TemplatesState = (props) => {
 			console.log('errror ==>sendCustomEmailToClients', error);
 		}
 	};
+	const getAuthUrlForThirdParty = async (connectType) => {
+		try {
+			const token = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			let path, response;
+
+			switch (connectType) {
+				case 'gmail':
+					path = `/auth/gmail/${workspaceId}`;
+					response = await Service?.fetchGet(path, token, 'calendar_api');
+					break;
+				case 'google-calendar':
+					path = `/google-calendar/${workspaceId}/auth`;
+					response = await Service?.fetchGet(path, token, 'calendar_api');
+					break;
+				case 'slack':
+					path = `/slack/${workspaceId}/auth`;
+					response = await Service?.fetchGet(path, token, 'third_party_integrations_api');
+					break;
+				case 'outlook-calendar':
+					path = `/outlookcalendar/${workspaceId}/auth`;
+					response = await Service?.fetchGet(path, token, 'microsoft_integration_api');
+					break;
+				case 'outlook-mail':
+					path = `/outlookmail/${workspaceId}/auth`;
+					response = await Service?.fetchGet(path, token, 'microsoft_integration_api');
+					break;
+				default:
+					// For other integrations, use the generic pattern
+					path = `/${connectType}/${workspaceId}/auth`;
+					response = await Service?.fetchGet(path, token, 'third_party_integrations_api');
+					break;
+			}
+
+			if (response?.[0] === true) {
+				return response?.[1]?.connectUrl || response?.[1]?.url;
+			} else {
+				throw new Error(response?.[1]?.message || 'Failed to get authorization URL');
+			}
+		} catch (error) {
+			console.error('Error getting auth URL:', error);
+			throw error;
+		}
+	};
 
 	const connectThirdParty = async (connectType) => {
 		try {
@@ -1627,6 +1671,25 @@ export const TemplatesState = (props) => {
 						const connectUrl = response?.[1]?.connectUrl;
 						window.location.href = connectUrl;
 					}
+					break;
+				case 'outlook-calendar':
+					path = `/outlookcalendar/${workspaceId}/auth`;
+					response = await Service.fetchGet(path, token, 'microsoft_integration_api');
+					success = response?.[0] === true;
+					if (success) {
+						const connectUrl = response?.[1]?.connectUrl;
+						window.location.href = connectUrl;
+					}
+					break;
+				case 'outlook-mail':
+					path = `/outlookmail/${workspaceId}/auth`;
+					response = await Service.fetchGet(path, token, 'microsoft_integration_api');
+					success = response?.[0] === true;
+					if (success) {
+						const connectUrl = response?.[1]?.connectUrl;
+						window.location.href = connectUrl;
+					}
+					break;
 			}
 		} catch (error) {
 			console.log('error==>connectZoho', error);
@@ -2977,5 +3040,6 @@ export const TemplatesState = (props) => {
 		isSlugAvailable,
 		updateSlug,
 		getNotificationsList,
+		getAuthUrlForThirdParty,
 	};
 };

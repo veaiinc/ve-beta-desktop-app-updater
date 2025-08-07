@@ -4,7 +4,6 @@ import { ReactComponent as TimerIcon } from '../../../assets/svg/notes/timerIcon
 import Context from '../../../context/context';
 import moment from 'moment';
 
-
 const getSpeakerColor = (speakerName) => {
 	if (!speakerName) return '#9e9e9e';
 
@@ -82,7 +81,7 @@ const TranscriptionSidebar = () => {
 								<div className={styles.transcriptionItemDot}></div>
 								<div className={styles.transcriptionItemTimestamp}>
 									<TimerIcon />
-									{moment(item?.timestamp)?.format('HH:mm:ss')}
+									{item?.time}
 								</div>
 							</div>
 							<div className={styles.transcriptionItemTranscript}>

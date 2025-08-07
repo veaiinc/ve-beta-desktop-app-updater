@@ -400,6 +400,16 @@
 				}
 			}
 		}
+		.upload_status_aiface {
+			display: flex;
+			width: 100%;
+			padding: 12px 24px;
+			background: var(--card);
+			border-radius: 14px;
+			color: var(--pending);
+			gap: 6px;
+			align-items: center;
+		}
 
 		.upload_status_container {
 			display: flex;

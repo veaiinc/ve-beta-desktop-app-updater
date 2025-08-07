@@ -1039,6 +1039,8 @@ export const getMeetBotByIdQuery = gql`
 			agenda
 			isAiIntelligenceEnabled
 			status
+			botJoinedAt
+			meetingPlatform
 			meetingPreference {
 				threshold
 				askUser
@@ -1082,6 +1084,7 @@ export const meetBotCreateMutation = gql`
 			agenda
 			isAiIntelligenceEnabled
 			status
+			meetingPlatform
 			meetingPreference {
 				threshold
 				askUser

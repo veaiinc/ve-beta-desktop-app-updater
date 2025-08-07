@@ -42,7 +42,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 		selectedMode: 'meeting_bot',
 		meetingUrl: '',
 		creating: false,
-		isAiIntelligenceEnabled: false,
+		isAiIntelligenceEnabled: true,
 		meetingMode: '',
 		agenda: '',
 		title: '',
@@ -97,7 +97,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 			selectedMode: 'meeting_bot',
 			meetingUrl: '',
 			creating: false,
-			isAiIntelligenceEnabled: false,
+			isAiIntelligenceEnabled: true,
 			meetingMode: '',
 			agenda: '',
 			title: '',
@@ -189,34 +189,6 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 
 				<div className="modal-content">
 					<div className="content-container">
-						{/* Meeting Mode Selection */}
-						<div className="input-wrapper">
-							<div className="input-label">Meeting Mode</div>
-							<div className="select-container">
-								<select
-									className="select-field"
-									value={formData.meetingMode}
-									onChange={(e) =>
-										setFormData((prev) => ({
-											...prev,
-											meetingMode: e.target.value,
-										}))
-									}
-									disabled={formData.creating}
-								>
-									<option value="">Select meeting mode...</option>
-									{meetingModeOptions.map((option) => (
-										<option key={option.value} value={option.value}>
-											{option.label}
-										</option>
-									))}
-								</select>
-								<div className="select-arrow">
-									<ChevronDown />
-								</div>
-							</div>
-						</div>
-
 						{/* Ambient Assistance */}
 						<div className="ambient-assistance">
 							<div className="assistance-container">
@@ -295,8 +267,38 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 
 						{/* Agenda Text Field */}
 
-						{formData.selectedMode === 'meeting_bot' && (
-							<>
+						{/* Meeting Mode Selection */}
+						{formData?.isAiIntelligenceEnabled && (
+							<div className="input-wrapper">
+								<div className="input-label">Meeting Mode</div>
+								<div className="select-container">
+									<select
+										className="select-field"
+										value={formData.meetingMode}
+										onChange={(e) =>
+											setFormData((prev) => ({
+												...prev,
+												meetingMode: e.target.value,
+											}))
+										}
+										disabled={formData.creating}
+									>
+										<option value="">Select meeting mode...</option>
+										{meetingModeOptions.map((option) => (
+											<option key={option.value} value={option.value}>
+												{option.label}
+											</option>
+										))}
+									</select>
+									<div className="select-arrow">
+										<ChevronDown />
+									</div>
+								</div>
+							</div>
+						)}
+
+						{formData.selectedMode === 'meeting_bot' &&
+							formData?.isAiIntelligenceEnabled && (
 								<div className="input-wrapper">
 									<div className="input-label">Agenda</div>
 									<textarea
@@ -313,57 +315,55 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 										rows={3}
 									/>
 								</div>
+							)}
 
-								{/* Meeting URL Input (Online Mode) */}
-								{formData.selectedMode === 'meeting_bot' && (
-									<div className="meeting-link-wrapper">
-										<div className="meeting-link-header">
-											<div className="input-label">Record a live meeting</div>
-											<div className="input-sub-label">
-												Works with Zoom, Google meet, Microsoft Teams,
-												Webex, Slack
-											</div>
-										</div>
-										<div className="input-container">
-											<CameraIcon />
-
-											<input
-												className="input-field-title"
-												placeholder="Paste meeting URL"
-												value={formData.meetingUrl}
-												onChange={(e) =>
-													setFormData((prev) => ({
-														...prev,
-														meetingUrl: e.target.value,
-													}))
-												}
-												onKeyDown={handleInputKeyDown}
-												disabled={formData.creating}
-											/>
-											{!formData.creating && (
-												<button
-													className={`create-button`}
-													onClick={handleCreateMeet}
-													disabled={!isValidUrl(formData.meetingUrl)}
-												>
-													Create
-												</button>
-											)}
-											{formData.creating && (
-												<span className="loader">
-													<Spinner
-														width="16px"
-														height="16px"
-														color="var(--primary-button)"
-														borderTopColor="var(--background-color)"
-														borderWidth={1}
-													/>
-												</span>
-											)}
-										</div>
+						{/* Meeting URL Input (Online Mode) */}
+						{formData.selectedMode === 'meeting_bot' && (
+							<div className="meeting-link-wrapper">
+								<div className="meeting-link-header">
+									<div className="input-label">Record a live meeting</div>
+									<div className="input-sub-label">
+										Works with Zoom, Google meet, Microsoft Teams, Webex, Slack
 									</div>
-								)}
-							</>
+								</div>
+								<div className="input-container">
+									<CameraIcon />
+
+									<input
+										className="input-field-title"
+										placeholder="Paste meeting URL"
+										value={formData.meetingUrl}
+										onChange={(e) =>
+											setFormData((prev) => ({
+												...prev,
+												meetingUrl: e.target.value,
+											}))
+										}
+										onKeyDown={handleInputKeyDown}
+										disabled={formData.creating}
+									/>
+									{!formData.creating && (
+										<button
+											className={`create-button`}
+											onClick={handleCreateMeet}
+											disabled={!isValidUrl(formData.meetingUrl)}
+										>
+											Create
+										</button>
+									)}
+									{formData.creating && (
+										<span className="create-meeting-loader">
+											<Spinner
+												width="16px"
+												height="16px"
+												color="var(--primary-button)"
+												borderTopColor="var(--popup)"
+												borderWidth={1}
+											/>
+										</span>
+									)}
+								</div>
+							</div>
 						)}
 						{/* Record Button (Offline Mode) */}
 						{formData.selectedMode === 'desktop' && (

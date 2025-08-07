@@ -24,6 +24,7 @@ import { ReactComponent as EditIcon } from '../../../../../../../assets/svg/ai_a
 import moment from 'moment';
 import { message } from '../../../../../globalComponents/CustomToast';
 import AgentCredentials from '../../../agentCredentials/AgentCredentials';
+import DeleteModal from '../../../../../modalsV2/DeleteModal/DeleteModal';
 
 // Debounce hook
 const useDebounce = (func, timeout = 500) => {
@@ -66,6 +67,7 @@ const ToolsTab = ({ agentId }) => {
 		toolVariables: [],
 		openDropdowns: {}, // Track which dropdowns are open
 		variableSelections: {}, // Track selected options for each variable
+		deleteModal: { open: false, toolId: null }, // Track delete modal state
 	});
 
 	// Ref for the first input field
@@ -200,8 +202,31 @@ const ToolsTab = ({ agentId }) => {
 				message.error('Failed to delete action');
 			}
 		},
-		[info?.assistantId],
+		[agentId, deleteActionOfKnowledgeAgent],
 	);
+
+	const handleOpenDeleteModal = (toolId) => {
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: true, toolId },
+		}));
+	};
+
+	const handleConfirmDelete = async () => {
+		if (!info?.deleteModal?.toolId) return;
+		await handleDeleteAction(info?.deleteModal?.toolId);
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: false, toolId: null },
+		}));
+	};
+
+	const handleCancelDelete = () => {
+		setInfo((prev) => ({
+			...prev,
+			deleteModal: { open: false, toolId: null },
+		}));
+	};
 
 	const handleToggleChange = useCallback(
 		async (actionId, currentStatus, actionType) => {
@@ -466,7 +491,9 @@ const ToolsTab = ({ agentId }) => {
 								<div className={s.toolHeaderActions}>
 									<button
 										className={s.headerActionButton}
-										onClick={() => handleDeleteAction(info.selectedTool?._id)}
+										onClick={() =>
+											handleOpenDeleteModal(info.selectedTool?._id)
+										}
 									>
 										<DeleteSvg />
 										Delete
@@ -673,6 +700,17 @@ const ToolsTab = ({ agentId }) => {
 				}
 				tool={info.editToolModalTool}
 				onUpdate={(values) => console.log('EditToolVariablesModal updated values:', values)}
+			/>
+
+			{/* Delete Tool Modal */}
+			<DeleteModal
+				isOpen={info?.deleteModal?.open}
+				onClose={handleCancelDelete}
+				onConfirm={handleConfirmDelete}
+				title="Delete Tool?"
+				itemType="tool"
+				description="Are you sure you want to delete this tool?"
+				warning="This tool will be permanently removed and cannot be recovered."
 			/>
 		</div>
 	);

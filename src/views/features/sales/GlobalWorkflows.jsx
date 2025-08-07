@@ -1,27 +1,24 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/globalWorkflow.scss';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import GlobalWorkflowCard from '../../components/sales/globalWorkflowCard';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
-// import Spinner from '../../components/loaders/Spinner';
 import GlobalWorkflowModal from '../../components/modalsV2/workflowsModals/GlobalWorkflowModal';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
-import GlobalProposalsCard from '../../components/sales/globalProposalsCard';
 import Skeleton from 'react-loading-skeleton';
-import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
-
+import { FetchMoreLoaderComp } from '../../../helpers';
+import '../../../assets/scss/sales/globalProposalCard.scss';
+import { ReactComponent as SearchIcon } from '../../../assets/svg/search.svg';
 const options = [
 	{ id: 1, name: 'Design Files', value: '' },
-	{ id: 2, name: 'Form', value: 'form-submission' },
+	{ id: 2, name: 'Forms', value: 'form-submission' },
 	{ id: 3, name: 'Proposals', value: 'proposal' },
-	{ id: 4, name: 'Presentation', value: 'presentation' },
+	{ id: 4, name: 'Presentations', value: 'presentation' },
 	{ id: 5, name: 'Contract', value: 'contract' },
 	{ id: 6, name: 'Invoice', value: 'invoice' },
 	// { id: 7, name: 'Automation', value: 'automation' },
 ];
-
-const origin = fetchOriginSelection();
 
 const NoResultsFound = ({ searchQuery }) => (
 	<div
@@ -50,15 +47,11 @@ const GlobalWorkflows = () => {
 			getGlobalWorkflows,
 			globalMoreWorkflows,
 			globalWorkflows,
-			getModuleTemplate,
 			duplicateGlobalWorkflowTemplate,
 		},
+		profileInfo: { tennantSettingsData },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
-
-	const [selectedOption, setSelectedOption] = useState('Workflow');
-	const [moduleTemplateData, setModuleTemplateData] = useState(null);
-	const [searchQuery, setSearchQuery] = useState('');
 
 	const [info, setInfo] = useState({
 		loading: true,
@@ -74,12 +67,19 @@ const GlobalWorkflows = () => {
 		isExpanded: false,
 		searchChanged: false,
 		timeout: null,
+		selectedOption: 'Workflow',
+		moduleTemplateData: null,
+		searchQuery: '',
+		isSearchExpanded: false,
+		isFilterSearchExpanded: false,
 	});
 
-	const [moduleInfo, setModuleInfo] = useState({
-		currentPage: 1,
-		hasNextPage: false,
-	});
+	const workspaceImg = tennantSettingsData?.logo_s3_500w_key ?? null;
+
+	// const [moduleInfo, setModuleInfo] = useState({
+	// 	currentPage: 1,
+	// 	hasNextPage: false,
+	// });
 
 	//useEffects
 	useEffect(() => {
@@ -102,11 +102,11 @@ const GlobalWorkflows = () => {
 		if (info?.searchChanged) {
 			handleDebounceSearch();
 		}
-	}, [searchQuery, info?.searchChanged]);
+	}, [info?.searchQuery, info?.searchChanged]);
 
 	// const fetchFilteredTemplates = async (option) => {
 	// 	// setInfo((prev) => ({ ...prev, isLoading: true }));
-	// 	setModuleTemplateData(null);
+	// 	setInfo((prev) => ({ ...prev, moduleTemplateData: null }));
 
 	// 	const payload = {
 	// 		page: 1,
@@ -114,13 +114,13 @@ const GlobalWorkflows = () => {
 	// 		type: 'global',
 	// 		module: option.toLowerCase(),
 	// 	};
-	// 	if (searchQuery?.length) {
-	// 		payload.title = searchQuery;
+	// 	if (info?.searchQuery?.length) {
+	// 		payload.title = info?.searchQuery;
 	// 	}
 
 	// 	const [success, response] = await getModuleTemplate(payload);
 	// 	if (success) {
-	// 		setModuleTemplateData(response?.templates);
+	// 		setInfo((prev) => ({ ...prev, moduleTemplateData: response?.templates }));
 	// 		setModuleInfo({
 	// 			currentPage: 1,
 	// 			hasNextPage: response?.hasNextPage,
@@ -131,14 +131,14 @@ const GlobalWorkflows = () => {
 
 	const handleOptionSelect = useCallback(
 		(option) => {
-			if (option === selectedOption) return;
+			if (option === info?.selectedOption) return;
 			setInfo((prev) => ({ ...prev, isLoading: true }));
-			setSelectedOption(option?.value);
-			setSearchQuery('');
+			setInfo((prev) => ({ ...prev, selectedOption: option?.value }));
+			setInfo((prev) => ({ ...prev, searchQuery: '' }));
 			setModuleInfo({ currentPage: 1, hasNextPage: false });
 			getGlobalWorkflowTemplatesData(1, false, option?.value);
 		},
-		[selectedOption],
+		[info?.selectedOption],
 	);
 
 	const getGlobalWorkflowTemplatesData = useCallback(
@@ -159,7 +159,7 @@ const GlobalWorkflows = () => {
 			}
 			getGlobalWorkflows(payload, fetchMore);
 		},
-		[searchQuery],
+		[info?.searchQuery],
 	);
 
 	const globalWorkflowsDataParser = useCallback(
@@ -185,7 +185,7 @@ const GlobalWorkflows = () => {
 				hasNextPage,
 			}));
 		},
-		[selectedOption],
+		[info?.selectedOption],
 	);
 
 	const fetchMoreGlobalWorkflows = useCallback(
@@ -199,7 +199,7 @@ const GlobalWorkflows = () => {
 			info?.currentPage,
 			info?.isLoading,
 			getGlobalWorkflowTemplatesData,
-			selectedOption,
+			info?.selectedOption,
 		],
 	);
 
@@ -229,15 +229,14 @@ const GlobalWorkflows = () => {
 	const handleSearch = useCallback(
 		(e) => {
 			const newSearchQuery = e?.target?.value;
-			setSearchQuery(newSearchQuery);
-			setInfo((prev) => ({ ...prev, searchChanged: true }));
+			setInfo((prev) => ({ ...prev, searchQuery: newSearchQuery, searchChanged: true }));
 		},
 		[info],
 	);
 	const handleDebounceSearch = useCallback(async () => {
 		clearInterval(info?.timeout);
 		const timeout = setTimeout(async () => {
-			await getGlobalWorkflowTemplatesData(1, false, selectedOption, searchQuery);
+			await getGlobalWorkflowTemplatesData(1, false, info?.selectedOption, info?.searchQuery);
 			setInfo((prev) => ({
 				...prev,
 				searchLoading: false,
@@ -246,7 +245,7 @@ const GlobalWorkflows = () => {
 			}));
 		}, 800);
 		setInfo((prev) => ({ ...prev, timeout }));
-	}, [info?.timeout, selectedOption, searchQuery]);
+	}, [info?.timeout, info?.selectedOption, info?.searchQuery]);
 
 	const onCustomiseFunc = useCallback(async () => {
 		if (validateExpiryData?.isExpired) {
@@ -273,7 +272,7 @@ const GlobalWorkflows = () => {
 				return;
 			}
 		}
-	}, [info?.activeTemplateData, info?.duplicateApiLoading, selectedOption]);
+	}, [info?.activeTemplateData, info?.duplicateApiLoading, info?.activeTab]);
 
 	// const fetchMoreModuleTemplates = useCallback(async () => {
 	// 	if (!moduleInfo?.hasNextPage || info?.isLoading) return;
@@ -315,209 +314,253 @@ const GlobalWorkflows = () => {
 			{info?.loading ? (
 				<UpdatedPageLoader />
 			) : (
-				<div
-					className={`playbook-wrapper`}
-					style={{
-						// background: `url(${backgroundImage})`,
-						// backgroundSize: 'cover',
-						// backgroundPosition: 'top',
-						// backgroundRepeat: 'no-repeat',
-						height: '100vh',
-						width: '100%',
-					}}
-				>
-					<div className={`globalWorkflowContainer`}>
-						<div className={`left_div  ${info?.modalIsOpen ? 'modal-open' : ''}`}>
-							<div className="left_child_div">
-								<h2 className="side_heading">Templates</h2>
-								<p className="side_text">
-									We have specially curated best workflows and designs that suit
-									your business
-								</p>
+				<div className="playbook-wrapper">
+					<div className="globalWorkflowContainer">
+						{/* Top Navigation Bar */}
+						<div className="top-navigation">
+							<div className="nav-categories">
+								{options?.map((each, index) => (
+									<div
+										key={index}
+										className={`nav-category ${
+											info?.selectedOption === each?.value ? 'active' : ''
+										}`}
+										onClick={() => handleOptionSelect(each)}
+									>
+										{each?.name}
+									</div>
+								))}
+							</div>
+							<div className="nav-search">
+								{info?.isSearchExpanded ? (
+									<div className="search-expanded">
+										<div className="search-icon">
+											<SearchIcon />
+										</div>
+										<input
+											type="text"
+											placeholder="Search templates..."
+											className="search-input"
+											value={info?.searchQuery}
+											onChange={handleSearch}
+											autoFocus
+											onBlur={() => {
+												if (!info?.searchQuery) {
+													setInfo((prev) => ({
+														...prev,
+														isSearchExpanded: false,
+													}));
+												}
+											}}
+										/>
+									</div>
+								) : (
+									<div
+										className="search-icon"
+										onClick={() =>
+											setInfo((prev) => ({ ...prev, isSearchExpanded: true }))
+										}
+									>
+										<SearchIcon />
+									</div>
+								)}
+							</div>
+						</div>
+
+						{/* Main Content */}
+						<div className="main-content">
+							{/* Title */}
+							<div className="page-title">
+								<h1>
+									Use cases from <span>ve.ai</span>
+								</h1>
 							</div>
 
-							<div className="options_div">
-								<input
-									type="text"
-									placeholder="search"
-									className="search_bar"
-									style={{ color: 'var(--primary-font)' }}
-									value={searchQuery}
-									onChange={handleSearch}
-								/>
-								<h2
-									style={{
-										fontSize: '18px',
-										paddingBottom: '30px',
-										color: 'var(--primary-font)',
-										fontWeight: '400',
-									}}
-								>
-									What are you Offering?
-								</h2>
-								<div className="options">
-									{options?.map((each, index) => (
-										<div key={index}>
-											<li
-												className={`options_style ${
-													selectedOption === each ? 'selected' : ''
+							{/* Search and Filter Bar */}
+							<div className="search-and-filter-bar-conatiner">
+								<div className="filter-bar">
+									<div className="filter-categories">
+										{options?.map((each, index) => (
+											<div
+												key={index}
+												className={`filter-category ${
+													info?.selectedOption === each?.value
+														? 'active'
+														: ''
 												}`}
 												onClick={() => handleOptionSelect(each)}
 											>
 												{each?.name}
-											</li>
+											</div>
+										))}
+									</div>
+									<div className="search-container">
+										{info?.isFilterSearchExpanded ? (
+											<div className="search-expanded">
+												<div className="search-icon">
+													<SearchIcon />
+												</div>
+												<input
+													type="text"
+													placeholder="Search templates..."
+													className="search-input"
+													value={info?.searchQuery}
+													onChange={handleSearch}
+													autoFocus
+													onBlur={() => {
+														if (!info?.searchQuery) {
+															setInfo((prev) => ({
+																...prev,
+																isFilterSearchExpanded: false,
+															}));
+														}
+													}}
+												/>
+											</div>
+										) : (
+											<div
+												className="search-icon"
+												onClick={() =>
+													setInfo((prev) => ({
+														...prev,
+														isFilterSearchExpanded: true,
+													}))
+												}
+											>
+												<SearchIcon />
+											</div>
+										)}
+									</div>
+								</div>
+
+								{/* Templates Grid */}
+								<div className="templates-grid-container">
+									{info.isLoading || info.searchLoading ? (
+										<div className="skeleton-grid">
+											{[
+												...Array(
+													info?.selectedOption === 'Workflow' ? 3 : 6,
+												),
+											].map((_, index) => (
+												<Skeleton
+													key={index}
+													width="100%"
+													height={
+														info?.selectedOption === 'Workflow'
+															? '300px'
+															: '268px'
+													}
+													baseColor="transparent"
+													highlightColor="rgba(255, 255, 255, 0.20)"
+													opacity={0.5}
+												/>
+											))}
 										</div>
-									))}
+									) : (
+										<InfiniteScroll
+											dataLength={info?.globalWorkflowData?.length || 0}
+											next={fetchMoreGlobalWorkflows}
+											hasMore={info?.hasNextPage}
+											loader={<FetchMoreLoaderComp />}
+											className="templates-grid"
+										>
+											{info?.selectedOption !== 'automation' ? (
+												info?.moduleTemplateData?.length === 0 &&
+												info?.searchQuery ? (
+													<NoResultsFound
+														searchQuery={info?.searchQuery}
+													/>
+												) : (
+													<div className="mainProposalsCard">
+														{info?.globalWorkflowData?.map(
+															(template, index) => (
+																<div
+																	key={index}
+																	className="globalProposalsCardContainer"
+																	onClick={() => {
+																		if (!template?._id) {
+																			return;
+																		}
+																		openModal(
+																			template,
+																			template.module,
+																		);
+																	}}
+																>
+																	<div
+																		style={{
+																			background: `url(${
+																				template?.imageUrl ??
+																				workspaceImg
+																			}) no-repeat center center`,
+																		}}
+																		className="imageContainer2"
+																	>
+																		<div className="templateCard2">
+																			<div className="iframeContainer">
+																				{/* <iframe
+																					src={`/builder/preview/short/${template?._id}?module=${template?.moduleTemplates?.[0]?._id}&isPubic=${template?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
+																					title="Builder Preview"
+																					width="100%"
+																					height="100%"
+																					style={{
+																						cursor: 'pointer',
+																						pointerEvents:
+																							'none',
+																						border: 'none',
+																						backgroundColor:
+																							'#fff',
+																					}}
+																				/> */}
+																				{/* <img
+																					style={{
+																						position: 'absolute',
+																						top: 0,
+																						left: 0,
+																					}}
+																					width="100%"
+																					height="100%"
+																					src={
+																						template?.imageUrl ??
+																						workspaceImg
+																					}
+																					alt={
+																						template?._id
+																					}
+																				/> */}
+																			</div>
+																		</div>
+																	</div>
+																	<h4
+																		className="templateTitle"
+																		style={{ fontSize: '14px' }}
+																	>
+																		{template.title}
+																	</h4>
+																</div>
+															),
+														)}
+													</div>
+												)
+											) : info?.globalWorkflowData?.length === 0 &&
+											  info?.searchQuery ? (
+												<NoResultsFound searchQuery={info?.searchQuery} />
+											) : (
+												info?.globalWorkflowData?.map((ele, index) => (
+													<GlobalWorkflowCard
+														key={index}
+														data={ele}
+														onClickFunc={openModal}
+														isSelected={
+															ele?._id === info?.selectedWorkflowId
+														}
+													/>
+												))
+											)}
+										</InfiniteScroll>
+									)}
 								</div>
 							</div>
-						</div>
-						<div
-							className={`mainContentContainer ${
-								info?.modalIsOpen ? 'modal-open' : ''
-							}`}
-							id="templatesScrollableTarget"
-						>
-							{info?.isExpanded ? (
-								<div
-									style={{
-										position: 'absolute',
-										width: '420px',
-										display: 'flex',
-										// transition:
-										//  'opacity 0.3s ease-out, transform 0.3s ease-out',
-										opacity: info?.isExpanded ? 1 : 0,
-										transform: info?.isExpanded
-											? 'translateX(0)'
-											: 'translateX(-100%)',
-										flexDirection: 'column',
-										alignItems: 'flex-start',
-										gap: '32px',
-										marginTop: '25%',
-										marginLeft: '10%',
-									}}
-								>
-									<div>
-										<span className="dior-studio-text">By Ve.ai</span>
-									</div>
-									<div className="workflow-title-container">
-										<div className="workflow-title">
-											{info?.activeTemplateData?.title}
-										</div>
-										<div className="workflow-description">
-											{info?.activeTemplateData?.description ||
-												'Ideal for wedding photography business with multiple events, selectable packages and services, this workflow provides customisable design in enquiry forms, proposals, invoices for multiple payment schedule and hassle contracts with e-sign contracts'}
-										</div>
-										<div></div>
-										<div>
-											<button
-												className="buy-button"
-												onClick={onCustomiseFunc}
-												style={{ cursor: 'pointer' }}
-											>
-												Add to workspace
-											</button>
-										</div>
-									</div>
-								</div>
-							) : (
-								<div
-									style={{
-										position: 'relative',
-										opacity: info?.isExpanded ? 0 : 1,
-										transform: info?.isExpanded
-											? 'translateX(-100%)'
-											: 'translateX(0)',
-										transition:
-											'opacity 0.3s ease-out, transform 0.3s ease-out',
-										width: '100%',
-										visibility: info?.isExpanded ? 'hidden' : 'visible',
-										pointerEvents: info?.isExpanded ? 'none' : 'auto',
-									}}
-								>
-									<InfiniteScroll
-										dataLength={info?.globalWorkflowData?.length || 0}
-										next={fetchMoreGlobalWorkflows}
-										hasMore={info?.hasNextPage}
-										loader={<FetchMoreLoaderComp />}
-										scrollableTarget="templatesScrollableTarget"
-										// height="calc(100vh - 100px)"
-										height={'100vh'}
-									>
-										<div className="globalWorkflowParentCardContainer">
-											{info.isLoading || info.searchLoading ? (
-												<div
-													style={{
-														display: 'grid',
-														gridTemplateColumns:
-															selectedOption === 'Workflow'
-																? '1fr'
-																: 'repeat(2, 1fr)',
-														gap: '16px',
-														width: '100%',
-														maxWidth: '100%',
-													}}
-												>
-													{[
-														...Array(
-															selectedOption === 'Workflow' ? 3 : 6,
-														),
-													].map((_, index) => (
-														<Skeleton
-															key={index}
-															width="100%"
-															height={
-																selectedOption === 'Workflow'
-																	? '300px'
-																	: '268px'
-															}
-															baseColor="transparent"
-															highlightColor="rgba(255, 255, 255, 0.20)"
-															opacity={0.5}
-														/>
-													))}
-												</div>
-											) : (
-												<>
-													{selectedOption !== 'automation' ? (
-														moduleTemplateData?.length === 0 &&
-														searchQuery ? (
-															<NoResultsFound
-																searchQuery={searchQuery}
-															/>
-														) : (
-															<GlobalProposalsCard
-																data={
-																	info?.globalWorkflowData || []
-																}
-																onClickFunc={openModal}
-																modalIsOpen={info.modalIsOpen}
-																isLoading={info.isLoading}
-															/>
-														)
-													) : info?.globalWorkflowData?.length === 0 &&
-													  searchQuery ? (
-														<NoResultsFound searchQuery={searchQuery} />
-													) : (
-														info?.globalWorkflowData?.map(
-															(ele, index) => (
-																<GlobalWorkflowCard
-																	key={index}
-																	data={ele}
-																	onClickFunc={openModal}
-																	isSelected={
-																		ele?._id ===
-																		info?.selectedWorkflowId
-																	}
-																/>
-															),
-														)
-													)}
-												</>
-											)}
-										</div>
-									</InfiniteScroll>
-								</div>
-							)}
 						</div>
 
 						<GlobalWorkflowModal
@@ -525,7 +568,7 @@ const GlobalWorkflows = () => {
 							closeModal={closeModal}
 							globalTemplateId={info?.activeTemplateData?._id}
 							templateData={info?.activeTemplateData}
-							isProposal={selectedOption !== 'automation'}
+							isProposal={info?.selectedOption !== 'automation'}
 							isExpanded={info?.isExpanded}
 							setIsExpanded={(value) => {
 								setInfo((prev) => ({ ...prev, isExpanded: value }));

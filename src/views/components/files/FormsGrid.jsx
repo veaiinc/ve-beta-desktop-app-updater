@@ -26,7 +26,7 @@ import { ReactComponent as Add2 } from '../../../assets/svg/files/add2.svg';
 import { ReactComponent as FormIcon } from '../../../assets/svg/files/form.svg';
 import { ReactComponent as Delete } from '../../../assets/svg/files/delete.svg';
 import { ReactComponent as Edit } from '../../../assets/svg/files/edit.svg';
-import ReactModal from '../../../../builderSrc/views/components/ui-components/modal';
+import DeleteModal from '../modalsV2/DeleteModal/DeleteModal';
 
 const sortOptions = [
 	{ label: 'Recently Added', value: 'createdAt', sortType: -1 },
@@ -629,44 +629,15 @@ const FormsGrid = ({
 					</div>
 				)}
 			</div>
-			<ReactModal
+			<DeleteModal
 				isOpen={deleteModal.open}
-				closeModal={handleCancelDelete}
-				shouldCloseOnOverlayClick={true}
-			>
-				<div className="delete-form-modal">
-					<div className="delete-form-modal__header-group">
-						<h1 className="delete-form-modal__title">Delete Form?</h1>
-						<p className="delete-form-modal__desc">
-							{(() => {
-								const form = info.forms.find((f) => f._id === deleteModal.formId);
-								const count = form?.formResponsesCount || 0;
-								return `This form has ${count} response${count === 1 ? '' : 's'}.`;
-							})()}
-						</p>
-					</div>
-					<div className="delete-form-modal__desc-warning-group">
-						<p className="delete-form-modal__warning">
-							This action cannot be undone, and all responses collected will be
-							permanently removed.{' '}
-						</p>
-					</div>
-					<div className="delete-form-modal__button-group">
-						<button
-							className="delete-form-modal__button delete-form-modal__button--cancel"
-							onClick={handleCancelDelete}
-						>
-							Cancel
-						</button>
-						<button
-							className="delete-form-modal__button delete-form-modal__button--delete"
-							onClick={handleConfirmDelete}
-						>
-							Delete Permanently
-						</button>
-					</div>
-				</div>
-			</ReactModal>
+				onClose={handleCancelDelete}
+				onConfirm={handleConfirmDelete}
+				responseCount={(() => {
+					const form = info.forms.find((f) => f._id === deleteModal.formId);
+					return form?.formResponsesCount || 0;
+				})()}
+			/>
 		</div>
 	);
 };

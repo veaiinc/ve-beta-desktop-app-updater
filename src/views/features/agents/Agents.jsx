@@ -23,6 +23,7 @@ import { message } from '../../components/globalComponents/CustomToast';
 import { generateRandomAIAgentDetails } from '../../components/agents/agentsList/utils';
 import Skeleton from 'react-loading-skeleton';
 import { accessControlCheck } from '../../../helpers/accessControlCheck';
+import CreateAgentModal from '../../components/modalsV2/agents/CreateAgentModal';
 
 // constants
 const page = 1,
@@ -78,6 +79,7 @@ const Agents = () => {
 		cardsExists: false,
 		loading: false,
 		createAgentLoader: false,
+		createAgentModalOpen: false,
 	});
 
 	useEffect(() => {
@@ -493,16 +495,23 @@ const Agents = () => {
 				</div>
 			)}
 
-			{/* <div className={s.agentActionsContainer}>
-				<div className={s.createNewAgent} onClick={handleCreateNewAgent}>
+			<div className={s.agentActionsContainer}>
+				<div
+					className={s.createNewAgent}
+					onClick={() => setInfo((prev) => ({ ...prev, createAgentModalOpen: true }))}
+				>
 					<div className={s.iconContainer}>
 						<PlusIcon />
 					</div>
 					<div className={s.text}>Create New</div>
 				</div>
-			</div> */}
+			</div>
 
 			{/* <QuickActions /> */}
+			<CreateAgentModal
+				isOpen={info?.createAgentModalOpen}
+				closeModal={() => setInfo((prev) => ({ ...prev, createAgentModalOpen: false }))}
+			/>
 		</div>
 	);
 };

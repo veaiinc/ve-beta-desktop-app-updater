@@ -416,7 +416,6 @@ const CardMeetBot = () => {
 			</div>
 
 			<CreateMeetingModal isOpen={info.modalOpen} onClose={closeModal} />
-
 			<GuideMePopup
 				isOpen={info.guideMePopupOpen}
 				onClose={() => setInfo({ ...info, guideMePopupOpen: false })}
