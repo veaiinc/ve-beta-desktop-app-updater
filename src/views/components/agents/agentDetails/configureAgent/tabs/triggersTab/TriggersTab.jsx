@@ -141,14 +141,13 @@ const TriggersTab = () => {
 					title = app || 'App Trigger';
 					description = action || 'Trigger';
 				}
-			} else if (type === 'whatsapp') {
+			} else if (type === 'whatsapp' || type === 'pipedream' || app === 'whatsapp') {
 				icon = <WhatsApp />;
 				title = 'WhatsApp';
-				description = 'Get triggered when WhatsApp messages are received';
-			} else if (type === 'pipedream' || app === 'whatsapp') {
-				icon = <WhatsApp />;
-				title = 'WhatsApp';
-				description = 'WhatsApp Business trigger';
+				description =
+					type === 'pipedream'
+						? 'WhatsApp Business trigger'
+						: 'Get triggered when WhatsApp messages are received';
 			} else {
 				// Fallback for unknown/legacy triggers
 				icon = '❓';
@@ -326,8 +325,6 @@ const TriggersTab = () => {
 
 	const handleDisconnectTrigger = async (triggerId, type, app) => {
 		try {
-			console.log('handleDisconnectTrigger called with:', { triggerId, type, app });
-
 			if (info.disconnectTriggerLoader) return;
 
 			if (!triggerId || triggerId === 'undefined') {
@@ -340,14 +337,7 @@ const TriggersTab = () => {
 
 			let response;
 
-			console.log('Checking condition:', {
-				type,
-				app,
-				isWhatsApp: type === 'whatsapp' || app === 'whatsapp' || type === 'pipedream',
-			});
-
 			if (type === 'whatsapp' || app === 'whatsapp' || type === 'pipedream') {
-				console.log('Calling deleteWhatsAppTriggerWithBothAPIs for WhatsApp trigger');
 				// Call both APIs for WhatsApp triggers using the context function
 				const result = await deleteWhatsAppTriggerWithBothAPIs(triggerId);
 
@@ -425,7 +415,6 @@ const TriggersTab = () => {
 									</div>
 									<button
 										onClick={() => {
-											console.log('Trigger object:', trigger);
 											handleDisconnectTrigger(
 												trigger._id,
 												trigger.type,

@@ -49,7 +49,7 @@ const WhatsAppModal = ({ isOpen, onClose, handleConnectToWhatsAppTrigger, isLoad
 		if (!tenantUserId) return setShowTriggers(false);
 		setFetchingAccounts(true);
 		try {
-			const res = await getExistingconnectedAccounts({ tenatUserId: tenantUserId });
+			const res = await getExistingconnectedAccounts({ tenantUserId: tenantUserId });
 			const accounts = res?.data?.connected_accounts || [];
 			setConnectedAccounts(accounts);
 
@@ -96,7 +96,7 @@ const WhatsAppModal = ({ isOpen, onClose, handleConnectToWhatsAppTrigger, isLoad
 					app: 'whatsapp_business',
 					token: res.data.token,
 					onSuccess: async () => {
-						await new Promise((r) => setTimeout(r, 2000));
+						// await new Promise((r) => setTimeout(r, 2000));
 						try {
 							const accRes = await getExistingconnectedAccounts({
 								tenatUserId: tenantUserId,

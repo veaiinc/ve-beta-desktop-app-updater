@@ -739,28 +739,21 @@ export const KnowledgeAgentState = () => {
 
 	const deleteWhatsAppTriggerWithBothAPIs = async (triggerId) => {
 		try {
-			console.log('deleteWhatsAppTriggerWithBothAPIs called with triggerId:', triggerId);
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 
-			console.log('Calling Pipedream API...');
 			// 1. Call Pipedream DELETE API
 			const pipedreamUrl = `/pipedream/triggers/${workspaceId}/${triggerId}`;
-			console.log('pipedreamUrl', pipedreamUrl);
 
-			console.log('Pipedream URL:', pipedreamUrl);
 			const pipedreamResponse = await service?.fetchDelete(
 				pipedreamUrl,
 				usertoken,
 				null,
 				'third_party_integrations_api',
 			);
-			console.log('Pipedream response:', pipedreamResponse);
 
-			console.log('Calling normal disconnect API...');
 			// 2. Call the normal disconnect API
 			const normalResponse = await disconnectTrigger(triggerId);
-			console.log('Normal response:', normalResponse);
 
 			// Return both responses
 			const result = {
@@ -768,10 +761,9 @@ export const KnowledgeAgentState = () => {
 				normal: normalResponse,
 				success: pipedreamResponse?.[0] === true && normalResponse?.[0] === true,
 			};
-			console.log('Final result:', result);
 			return result;
 		} catch (error) {
-			console.log('error==>deleteWhatsAppTriggerWithBothAPIs', error);
+			console.error('error==>deleteWhatsAppTriggerWithBothAPIs', error);
 			return {
 				pipedream: [false, error],
 				normal: [false, error],
@@ -1253,11 +1245,16 @@ export const KnowledgeAgentState = () => {
 	};
 
 	const getPipeDreamAction = async (action) => {
+		try {
 		const workspaceId = localStorage.getItem('workspaceId');
 		const usertoken = localStorage.getItem('usertoken');
 		const url = `/${workspaceId}/${action}/agent-tools`;
-		const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
-		return response;
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+			return response;
+		} catch (error) {
+			console.log('error==>getPipeDreamAction', error);
+			return [false, error];
+		}
 	};
 
 	const getComposioAction = async (action) => {
