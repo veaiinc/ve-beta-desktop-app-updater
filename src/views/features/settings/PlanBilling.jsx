@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState, memo, useCallback } from 'react';
+import { useContext, useEffect, useState, memo, useCallback, Fragment } from 'react';
 import '../../../assets/scss/settings/planBilling.scss';
 import '../../../assets/scss/settings/notifications.scss';
 import Context from '../../../context/context';
@@ -304,8 +304,8 @@ const SubscribedUserPlanCard = ({
 
 	return (
 		<div className="subscriptionWrapperContainer">
-			<div className="subscriptionUpdatedPlanCard">
-				<div className="subscriptionPlanHeaderContainer">
+			{/* <div className="subscriptionUpdatedPlanCard"> */}
+			{/* <div className="subscriptionPlanHeaderContainer">
 					<span className="subscriptionPlanHeader">Current Perks</span>
 
 					<button
@@ -314,20 +314,20 @@ const SubscribedUserPlanCard = ({
 					>
 						{info?.manageSubscriptionLoader ? <Spin /> : `  Manage Billing`}
 					</button>
-				</div>
-				<div className="subscriptionPlanContent">
-					<div className="subscriptionPlanPricingDetails">
-						<span className="subscriptionPlanPricing">
-							{/* {currency === 'INR' ? '₹ ' : '$ '}
+				</div> */}
+			<div className="subscriptionPlanContent">
+				<div className="subscriptionPlanPricingDetails">
+					<span className="subscriptionPlanPricing">
+						{/* {currency === 'INR' ? '₹ ' : '$ '}
                             {data?.totalPrice
                                 ? data?.totalPrice?.toLocaleString('en-IN', {
                                         currency: currency,
                                   })
                                 : '0'} */}
-						</span>
-						<span className="subscritptionPlanPeriod"></span>
-					</div>
-					{/* <div className="subscritptionFeaturesContainer">
+					</span>
+					<span className="subscritptionPlanPeriod"></span>
+				</div>
+				{/* <div className="subscritptionFeaturesContainer">
                         {info?.features?.map((ele, index) => (
                             <div className="subscriptionFeature" key={index}>
                                 <Tick />
@@ -335,134 +335,123 @@ const SubscribedUserPlanCard = ({
                             </div>
                         ))}
                     </div> */}
-					{data?.addOns && Object.values(data?.addOns)?.length ? (
-						<div className="addOnContianer">
-							<span className="addOnStates">Current Add-on's</span>
+				{data?.addOns && Object.values(data?.addOns)?.length ? (
+					<div className="addOnContianer">
+						<span className="addOnStates">Current Add-on's</span>
 
-							<div className="addOnStuffsHolder">
-								{data?.addOns?.aiCredits ? (
-									<div className="addOnCards">
-										<div className="addOnCardsHeaderChanges">
-											<span className="addOnCardsTitle">AI Credits</span>
-											<span className="addOnCardPriceContainer">
-												<span style={{ color: '#fff' }}>
-													{data?.addOns?.aiCredits}
-												</span>
+						<div className="addOnStuffsHolder">
+							{data?.addOns?.aiCredits ? (
+								<div className="addOnCards">
+									<div className="addOnCardsHeaderChanges">
+										<span className="addOnCardsTitle">AI Credits</span>
+										<span className="addOnCardPriceContainer">
+											<span style={{ color: '#fff' }}>
+												{data?.addOns?.aiCredits}
 											</span>
+										</span>
+									</div>
+								</div>
+							) : (
+								''
+							)}
+						</div>
+					</div>
+				) : (
+					''
+				)}
+				<div className="storageContainer">
+					{progressData?.map((item, index) => {
+						return (
+							<Fragment key={index}>
+								{(item?.totalValue > 0 || item?.usedValue > 0) && (
+									<div className="storageContainerHolder">
+										<div className="storageContainerHeader">
+											<div className="storageTitle">{item?.title}</div>
+											<div className="storageUsed">
+												<span className="storageUsedValue">
+													{item?.usedValue}
+												</span>
+												<span className="storageUsedUnit">
+													{item?.title === 'Storage' ? ' GB' : ''}
+													{item?.title === 'AI Credits' ? ' Credits' : ''}
+												</span>{' '}
+												{item?.barGraph
+													? `used / ${item?.totalValue}${
+															item?.title === 'Storage' ? 'GB' : ''
+													  }`
+													: `/${item?.duration}`}
+											</div>
+										</div>
+
+										{item?.barGraph && (
+											<div className="storageProgress">
+												<div
+													className="storageProgressValue"
+													style={{
+														width: `${Math.min(
+															(item?.usedValue / item?.totalValue) *
+																100,
+															100,
+														)}%`,
+														background:
+															item?.usedValue / item?.totalValue >= 1
+																? '#FF0000'
+																: item?.usedValue /
+																		item?.totalValue >
+																  0.7
+																? '#e18e42'
+																: '#6055EC',
+													}}
+												></div>
+											</div>
+										)}
+
+										<div className="storageProgressText">
+											{Number(item?.usedValue) >= Number(item?.totalValue)
+												? 'Reached the limit'
+												: ''}
 										</div>
 									</div>
-								) : (
-									''
 								)}
-							</div>
-						</div>
-					) : (
-						''
-					)}
-					<div className="storageContainer">
-						{progressData?.map((item, index) => {
-							return (
-								<div key={index}>
-									{(item?.totalValue > 0 || item?.usedValue > 0) && (
-										<div className="storageContainerHolder">
-											<div className="storageContainerHeader">
-												<div className="storageTitle">{item?.title}</div>
-												<div className="storageUsed">
-													<span className="storageUsedValue">
-														{item?.usedValue}
-													</span>
-													<span className="storageUsedUnit">
-														{item?.title === 'Storage' ? ' GB' : ''}
-														{item?.title === 'AI Credits'
-															? ' Credits'
-															: ''}
-													</span>{' '}
-													{item?.barGraph
-														? `used / ${item?.totalValue}${
-																item?.title === 'Storage'
-																	? 'GB'
-																	: ''
-														  }`
-														: `/${item?.duration}`}
-												</div>
-											</div>
-
-											{item?.barGraph && (
-												<div className="storageProgress">
-													<div
-														className="storageProgressValue"
-														style={{
-															width: `${Math.min(
-																(item?.usedValue /
-																	item?.totalValue) *
-																	100,
-																100,
-															)}%`,
-															background:
-																item?.usedValue /
-																	item?.totalValue >=
-																1
-																	? '#FF0000'
-																	: item?.usedValue /
-																			item?.totalValue >
-																	  0.7
-																	? '#e18e42'
-																	: '#6055EC',
-														}}
-													></div>
-												</div>
-											)}
-
-											<div className="storageProgressText">
-												{Number(item?.usedValue) >= Number(item?.totalValue)
-													? 'Reached the limit'
-													: ''}
-											</div>
-										</div>
-									)}
-								</div>
-							);
-						})}
-					</div>
+							</Fragment>
+						);
+					})}
 				</div>
-				<span className="planbilling-separator"></span>
-				{/* {data?.addOnPlan && Object.values(data?.addOnPlan)?.length ? (
+			</div>
+			{/* <span className="planbilling-separator"></span> */}
+			{/* {data?.addOnPlan && Object.values(data?.addOnPlan)?.length ? (
                     <div className="subscriptionSeperator"></div>
                 ) : (
                     ''
                 )} */}
-				<div className="subscriptionActionContainer">
-					{data?.isPaidTenant ? (
-						<button
-							className="manageSubscriptionButton"
-							onClick={handleManageSubscriptionClick}
-						>
-							{info?.manageSubscriptionLoader ? <Spin /> : `  Manage Billing`}
-						</button>
-					) : (
-						''
-					)}
+			<div className="subscriptionActionContainer">
+				{!data?.isPaidTenant ? (
 					<button
 						className="manageSubscriptionButton"
-						onClick={handleUpgradeSubscriptionClick}
-						disabled={!subscriptionPlansExists || info?.subscriptionLoading}
+						onClick={handleManageSubscriptionClick}
 					>
-						{!subscriptionPlansExists || info?.subscriptionLoading ? (
-							<Spin />
-						) : (
-							'Upgrade'
-						)}
+						{info?.manageSubscriptionLoader ? <Spin /> : `  Manage Subscription`}
 					</button>
-					{/* <button className="manageSubscriptionButton" onClick={handleAddOnsClick}>
+				) : (
+					''
+				)}
+				<button
+					className="upgradeButton"
+					onClick={handleUpgradeSubscriptionClick}
+					disabled={!subscriptionPlansExists || info?.subscriptionLoading}
+				>
+					{!subscriptionPlansExists || info?.subscriptionLoading ? <Spin /> : 'Upgrade'}
+				</button>
+				{/* <button className="manageSubscriptionButton" onClick={handleAddOnsClick}>
                         {info?.addOnsLoading ? <Spin /> : 'Upgrade'}
                     </button> */}
 
-					{/* <div className="expiringText">
+				{/* <div className="expiringText">
                         {moment().unix() < +expiresAt ? 'Expiring' : 'Expired'} on{' '}
                         {moment.unix(`${expiresAt}`)?.format('DD MMM YYYY')}
                     </div> */}
-				</div>
 			</div>
+			{/* </div> */}
 			{/* <AICreditsUsage /> */}
 			<AddOnPlans
 				isOpen={info?.isOpen}
