@@ -26,6 +26,8 @@ export const TERMS_OF_SERVICE_URL = 'https://veai.ve.ai/page/terms-of-use';
 
 export const PRIVACY_POLICY_URL_PREVIEW = 'https://veai.ve.ai/page/privacy-policy';
 
+export const CONTACT_US_URL = 'https://veaihq.ve.ai/contact-us';
+
 export const createEmailBody = (referrerDiscount, referralLink) => `
 <html>
     <p>
