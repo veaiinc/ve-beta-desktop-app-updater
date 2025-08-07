@@ -1,9 +1,8 @@
 import { Navigate } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
 
 // layouts
-const AuthWrapper = lazy(() => import('../views/layouts/authWrapper'));
-const Public = lazy(() => import('../views/layouts/Public'));
+import AuthWrapper from '../views/layouts/authWrapper';
+import Public from '../views/layouts/Public';
 
 // lazy loaded pages
 // const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));

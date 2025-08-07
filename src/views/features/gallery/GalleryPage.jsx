@@ -1745,7 +1745,7 @@ const GalleryPage = () => {
 		const region = localStorage.getItem('region');
 		const uploadUrl = `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos${
 			region === 'us-east-1' ? '-desktop' : ''
-		} ?light-gallery=${info?.isLightGallery ? true : false}${
+		}?light-gallery=${info?.isLightGallery ? true : false}${
 			info?.albumContains !== 'All' ? `&tag=${info?.albumContains}` : ''
 		}`;
 		navigate(uploadUrl);
