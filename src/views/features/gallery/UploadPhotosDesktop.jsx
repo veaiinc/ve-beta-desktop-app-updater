@@ -345,7 +345,7 @@ const UploadPhotosDesktop = () => {
 					overAllProgress: Math.min((uploadedCount / nonDuplicates.length) * 100, 100),
 				}));
 			}
-		}, 3000);
+		}, 4000);
 
 		const processAndUploadOne = async () => {
 			while (processingQueue.length > 0) {
