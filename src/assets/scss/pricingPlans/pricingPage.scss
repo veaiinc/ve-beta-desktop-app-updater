@@ -3,7 +3,7 @@
 	background: var(--background-color);
 	width: 100%;
 	height: 100%;
-	overflow-y: auto;
+
 	display: flex;
 	gap: 48px;
 	flex-direction: column;
@@ -11,9 +11,10 @@
 	padding: 48px 0 0 0;
 	font-family: var(--primary-font-family);
 	color: var(--primary-font, #f2f2f3);
+	overflow: auto;
 	// z-index: 100;
 	// margin-top: 100px;
-	overflow: hidden;
+	// overflow: hidden;
 	.pricing-header {
 		display: flex;
 		flex-direction: column;
@@ -51,27 +52,51 @@
 			flex-wrap: wrap;
 			.toggle-group {
 				display: flex;
-				padding: 6px;
+				padding: 8px 16px;
 				align-items: center;
-				gap: 8px;
-				border-radius: 12px;
-				border: 1px solid var(--Stroke, #333334);
-				.toggle-btn {
+				gap: 16px;
+				border-radius: 100px;
+				border: 1px solid var(--stroke, #2c2d2e);
+
+				.toggle-text {
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					white-space: nowrap;
+				}
+
+				.toggle-switch {
 					display: flex;
-					width: 100px;
-					padding: 8px;
-					justify-content: center;
 					align-items: center;
-					border-radius: 8px;
+					border-radius: 100px;
+					background: var(--stroke, #2c2d2e);
+					position: relative;
+					width: 35px;
+					height: 20px;
 					cursor: pointer;
+					transition: all 0.3s ease;
+
 					&.active {
-						display: flex;
-						padding: 6px 16px;
-						justify-content: center;
-						align-items: center;
-						gap: 18px;
-						border-radius: 6px;
-						background: var(--card-over-card-hover, #27282b);
+						background: var(--primary-button, #79ecc9);
+					}
+
+					.toggle-slider {
+						position: absolute;
+						top: 2px;
+						left: 3px;
+						width: 16px;
+						height: 16px;
+						border-radius: 100px;
+						background: var(--background-color, #121212);
+						transition: all 0.3s ease;
+						box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+					}
+
+					&.active .toggle-slider {
+						transform: translateX(14px);
 					}
 				}
 			}
@@ -86,14 +111,19 @@
 		}
 
 		.pricing-cards {
-			height: 55vh;
-			overflow-y: scroll;
+			height: auto;
+			overflow-y: visible;
 			display: flex;
 			justify-content: center;
-			align-items: flex-start;
+			align-items: stretch;
 			gap: 16px;
 			align-self: stretch;
 			flex-wrap: wrap;
+			margin-top: 24px;
+			max-width: 1080px;
+			margin-left: auto;
+			margin-right: auto;
+			width: 100%;
 			.pricing-card {
 				display: flex;
 				gap: 24px;
@@ -455,6 +485,7 @@
 					gap: 4px;
 					.plan-table-name {
 						color: var(--primary-font, #f2f2f3);
+						font-family: var(--primary-font-family);
 						font-size: 15px;
 						font-weight: 600;
 						margin-bottom: 2px;
@@ -667,6 +698,7 @@
 			}
 			.feature-bold {
 				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
 				font-weight: 700;
 			}
 
@@ -727,6 +759,7 @@
 			margin-bottom: 0;
 			.ant-collapse-header {
 				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
 				font-size: 22px;
 				font-weight: 500;
 				padding: 18px 16px 6px 16px;
@@ -750,13 +783,15 @@
 				.ant-collapse-header {
 					background: #18191a;
 					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
 				}
 			}
 			.ant-collapse-content {
 				padding: 0 16px;
 				margin-top: 10px;
 				.ant-collapse-content-box {
-					color: #787e87;
+					color: var(--secondary-font, #787e87);
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					padding: 0 0 24px 0;
 				}
@@ -764,6 +799,7 @@
 		}
 		.ant-collapse-expand-icon {
 			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
 			font-size: 22px;
 			margin-left: 8px;
 		}
@@ -783,6 +819,11 @@
 	width: 353px;
 	min-height: 450px;
 	position: relative;
+	flex: 1;
+	max-width: 353px;
+	// &:hover {
+	// 	border: 1px solid var(--primary-button, #79ecc9);
+	// }
 
 	.pricingCardHeader {
 		display: flex;
@@ -838,11 +879,20 @@
 		.pricingCardBody {
 			align-self: stretch;
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 24px;
 			font-style: normal;
 			font-weight: 600;
 			line-height: normal;
+
+			.billing-period {
+				color: var(--secondary-font, #94989e);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
 		}
 	}
 
@@ -917,19 +967,13 @@
 				background: transparent;
 				cursor: pointer;
 				transition: all 0.2s ease;
-
 				&.primary {
+					border: 1px solid var(--stroke, #2c2d2e);
+					color: var(--primary-font, #121212);
+				}
+				&:hover {
 					background: var(--primary-button, #79ecc9);
 					color: var(--background-color, #121212);
-					border: 1px solid var(--primary-button, #79ecc9);
-
-					&:hover {
-						background: var(--primary-button-hover, #6dd4b8);
-					}
-				}
-
-				&:hover {
-					background: var(--card-hover, #242628);
 				}
 			}
 		}
@@ -937,18 +981,13 @@
 			width: 100%;
 			display: flex;
 			flex-direction: row;
-			align-items: flex-start;
-			gap: 8px;
+			justify-content: space-between;
+			align-items: center;
+			gap: 10px;
 			align-self: stretch;
-			.quantitySelectorOptionsCount {
-				display: flex;
-				padding: 14px 16px;
-				justify-content: center;
-				align-items: center;
-				gap: 10px;
-				flex: 1 0 0;
-				border-radius: 24px;
-				border: 1px solid var(--stroke, #2c2d2e);
+			padding: 8px 6px;
+
+			.quantitySelectorLabel {
 				color: var(--primary-font, #f2f2f3);
 				font-family: var(--primary-font-family);
 				font-size: 14px;
@@ -957,18 +996,43 @@
 				line-height: normal;
 				text-transform: capitalize;
 			}
-			.quantitySelectorOptions-minus {
+
+			.quantitySelectorControls {
 				display: flex;
-				width: 60px;
-				height: 45px;
-				padding: 14px 16px;
-				justify-content: center;
+				flex-direction: row;
 				align-items: center;
-				gap: 10px;
-				border-radius: 24px;
-				border: 1px solid var(--stroke, #2c2d2e);
-				cursor: pointer;
-				background: transparent;
+				gap: 16px;
+
+				.quantitySelectorButton {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+					padding: 6px;
+					border-radius: 24px;
+					border: 1px solid var(--stroke, #2c2d2e);
+					background: transparent;
+					cursor: pointer;
+					width: 30px;
+					height: 30px;
+
+					svg {
+						width: 20px;
+						height: 20px;
+					}
+				}
+
+				.quantitySelectorCount {
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					text-transform: capitalize;
+					min-width: 20px;
+					text-align: center;
+				}
 			}
 		}
 		.startTrailButton {
@@ -979,7 +1043,7 @@
 			gap: 10px;
 			align-self: stretch;
 			border-radius: 24px;
-			border: 1px solid var(--stroke, #2c2d2e);
+
 			color: var(--primary-font, #f2f2f3);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
@@ -990,6 +1054,10 @@
 			cursor: pointer;
 			background: transparent;
 			cursor: pointer;
+			border: 1px solid transparent;
+			&:hover {
+				border: 1px solid var(--stroke-hover);
+			}
 		}
 	}
 }
@@ -997,6 +1065,7 @@
 @media (max-width: 1200px) {
 	.pricing-page {
 		padding: 32px 16px 0 16px;
+		gap: 6px;
 
 		.pricing-features-table-section {
 			.features-table-wrapper {
@@ -1011,10 +1080,11 @@
 	.pricing-toggle-container {
 		.pricing-cards {
 			align-items: center;
-			gap: 40px;
+			gap: 16px;
 			width: 100%;
 			margin: 0 auto;
 			flex-wrap: wrap;
+			max-width: 750px;
 		}
 
 		.pricing-toggle-row {
@@ -1048,6 +1118,34 @@
 			}
 		}
 
+		.pricing-toggle-container {
+			.pricing-cards {
+				flex-direction: column;
+				align-items: center;
+				max-width: 100%;
+
+				.eachPricingCard {
+					width: 100%;
+					max-width: 353px;
+				}
+			}
+
+			.pricing-toggle-row {
+				.toggle-group {
+					gap: 12px;
+					padding: 12px 16px;
+
+					.toggle-text {
+						font-size: 12px;
+					}
+
+					.toggle-switch {
+						align-self: center;
+					}
+				}
+			}
+		}
+
 		.pricing-video-section {
 			.video-description {
 				.video-description-text,
@@ -1074,8 +1172,8 @@
 @media (max-width: 480px) {
 	.pricing-page {
 		padding: 24px 12px 0 12px;
-		gap: 32px;
-		margin-top: -100px;
+		gap: 16px;
+		margin-top: 0px;
 
 		.pricing-header {
 			.pricing-header-title {
