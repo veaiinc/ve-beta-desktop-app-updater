@@ -30,7 +30,12 @@ const UploadPhotos = () => {
 			getImageDuplicatesList,
 			updateWaterMarkVisibility,
 		},
-		subscriptionInfo: { validateExpiryData, updateSubscriptionState, updateStateValues },
+		subscriptionInfo: {
+			validateExpiryData,
+			updateSubscriptionState,
+			updateStateValues,
+			currentPlan,
+		},
 	} = useContext(Context);
 
 	const [info, setinfo] = useState({
@@ -259,7 +264,7 @@ const UploadPhotos = () => {
 			isAIFacesEnabled:
 				lightGallery === 'true'
 					? info?.isAiEnabled && validateExpiryData?.liteImageLimitWithAiFace > 0
-					: true,
+					: currentPlan?.isAIFacesEnabled,
 		};
 
 		if (image?.isDuplicate === true && info?.isSkipDuplicates === false) {
@@ -464,7 +469,6 @@ const UploadPhotos = () => {
 					}));
 					let waitTime = 2000 * attempts;
 					await new Promise((resolve) => {
-						console.log('waiting for ', waitTime, 'seconds');
 						setTimeout(() => resolve(), waitTime);
 					});
 				}

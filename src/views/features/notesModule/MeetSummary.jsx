@@ -10,14 +10,8 @@ const MeetSummary = ({ activeTab, meetingId }) => {
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		summary: '',
-		loading: false,
+		loading: true,
 	});
-	useEffect(() => {
-		if (activeTab === 'summary' && !meetSummary) {
-			getMeetSummary({ meetingId });
-			setInfo((prev) => ({ ...prev, loading: true }));
-		}
-	}, [activeTab]);
 
 	useEffect(() => {
 		if (meetSummary) {
@@ -29,14 +23,18 @@ const MeetSummary = ({ activeTab, meetingId }) => {
 		}
 	}, [meetSummary]);
 
+	const loading = meetSummary ? false : true;
+
 	return (
 		<div className={s.meetSummaryContainer}>
-			{info?.loading ? (
+			{loading ? (
 				<div className={s.loadingContainer}>
 					<Spinner />
 				</div>
-			) : (
+			) : info?.summary ? (
 				<Markdown>{info?.summary}</Markdown>
+			) : (
+				<div className={s.loadingContainer}>No summary.</div>
 			)}
 		</div>
 	);

@@ -367,6 +367,12 @@
 														}
 													}
 												}
+												.transcription-indicator {
+													position: relative;
+													left: 10px;
+													.audio-visualizer {
+													}
+												}
 											}
 											.chat-box-icon-container.active {
 												display: flex;
@@ -1331,46 +1337,21 @@
 
 	.transcription-indicator {
 		position: absolute;
-		top: -30px;
-		right: 0;
+		top: 50%;
+		right: 20px;
+		transform: translateY(-50%);
 		display: flex;
 		align-items: center;
-		gap: 6px;
-		padding: 4px 8px;
-		background: var(--error-color);
-		color: white;
-		border-radius: 12px;
-		font-size: 11px;
-		font-weight: 500;
+		gap: 8px;
+		padding: 6px 12px;
+		border-radius: 8px;
 		z-index: 10;
 
-		.pulse-dot {
-			width: 8px;
-			height: 8px;
-			background: white;
-			border-radius: 50%;
-			animation: pulse 1.5s ease-in-out infinite;
+		.audio-visualizer {
+			width: 160px;
+			height: 32px;
+			border-radius: 4px;
 		}
-
-		span {
-			font-size: 11px;
-			font-weight: 500;
-		}
-	}
-}
-
-@keyframes pulse {
-	0% {
-		opacity: 1;
-		transform: scale(1);
-	}
-	50% {
-		opacity: 0.5;
-		transform: scale(1.2);
-	}
-	100% {
-		opacity: 1;
-		transform: scale(1);
 	}
 }
 
