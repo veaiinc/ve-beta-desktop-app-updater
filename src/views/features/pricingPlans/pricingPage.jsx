@@ -274,9 +274,12 @@ const PricingPage = () => {
 													{plan?.currency === 'INR' ? '₹ ' : '$ '}
 													{info.billing === 'monthly'
 														? plan?.monthlyPrice *
-														  (info?.tenantUsersCount[plan?._id] || 1)
+														  (info?.tenantUsersCount[plan?._id] ||
+																currentPlan?.tenantUsers ||
+																1)
 														: plan?.yearlyPrice *
 														  (info?.tenantUsersCount[plan?._id] ||
+																currentPlan?.tenantUsers ||
 																1)}{' '}
 													<span className="billing-period">
 														Per{' '}
@@ -318,7 +321,9 @@ const PricingPage = () => {
 															<MinusIcon />
 														</button>
 														<span className="quantitySelectorCount">
-															{info.tenantUsersCount[plan._id] || 1}
+															{info.tenantUsersCount[plan._id] ||
+																currentPlan?.tenantUsers ||
+																1}
 														</span>
 														<button
 															onClick={() =>
