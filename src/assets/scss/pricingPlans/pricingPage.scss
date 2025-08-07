@@ -22,19 +22,16 @@
 		gap: 6px;
 		align-self: stretch;
 		.pricing-header-title {
-			height: 44px;
-			color: var(--primary-font, #f2f2f3);
 			text-align: center;
-			font-family: Manrope;
-			font-size: 32px;
+			font-family: var(--primary-font-family);
+			font-size: 50px;
 			font-style: normal;
-			font-weight: 700;
+			font-weight: 500;
 			line-height: normal;
-			align-self: stretch;
 		}
 		.pricing-header-description {
 			color: var(--primary-font, #f2f2f3);
-			font-family: Manrope;
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 400;
@@ -353,7 +350,7 @@
 		.video-title {
 			color: var(--primary-button, #00f3c5);
 			text-align: center;
-			font-family: Manrope;
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 600;
@@ -824,6 +821,14 @@
 				color: var(--primary-button, #79ecc9);
 				font-family: var(--primary-font-family);
 				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			.trailText {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;

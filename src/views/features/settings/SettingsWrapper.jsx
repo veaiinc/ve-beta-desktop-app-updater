@@ -44,6 +44,8 @@ const SettingsWrapper = (props) => {
 		}
 	}, [tennantSettingsData]);
 
+	const showSettingsSidebar = type !== 'pricing';
+
 	return (
 		<div
 			className={`${
@@ -59,11 +61,9 @@ const SettingsWrapper = (props) => {
 				mapper?.[type]
 			) : ( */}
 			<div
-				className={`${
-					type !== 'integrations' ? 'accountSettingsWrapper' : 'accountSettingsWrapper'
-				}`}
+				className="accountSettingsWrapper"
 				style={{
-					height: '100%',
+					paddingRight: showSettingsSidebar ? '190px' : '0px',
 				}}
 			>
 				<div
@@ -76,9 +76,11 @@ const SettingsWrapper = (props) => {
 				>
 					{mapper?.[type]}
 				</div>
-				<div className="accountSettingsSidebar">
-					<SettingsPageSideBar {...props} type={type} setType1={setType} />
-				</div>
+				{showSettingsSidebar && (
+					<div className="accountSettingsSidebar">
+						<SettingsPageSideBar {...props} type={type} setType1={setType} />
+					</div>
+				)}
 			</div>
 			{/* )} */}
 		</div>

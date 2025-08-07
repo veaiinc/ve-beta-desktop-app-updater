@@ -1,5 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useContext, useEffect } from 'react';
 import '../../../assets/scss/pricingPlans/pricingPage.scss';
 import 'antd/dist/reset.css';
 import { ReactComponent as MinusIcon } from '../../../assets/svg/Settings/minusIcon.svg';
@@ -11,16 +10,13 @@ import Spinner from '../../components/loaders/Spinner';
 import pricingPlansData from '../../../data/pricingPlans.json';
 
 const PricingPage = () => {
-	const navigate = useNavigate();
 	const {
 		subscriptionInfo: {
 			currentPlan,
 			subscriptionPlans,
 			getAllSubscriptionPlan,
 			purchaseSubscriptionPlan,
-			getCurrentSubscriptionPlan,
 		},
-		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -182,7 +178,9 @@ const PricingPage = () => {
 	return (
 		<div className="pricing-page" id="pricing-page-scroll">
 			<div className="pricing-header">
-				<div className="pricing-header-title">Choose Your Plan</div>
+				<div className="pricing-header-title">
+					Choose <span style={{ color: 'var(--primary-button)' }}>Your Plan</span>
+				</div>
 				<div className="pricing-header-description">
 					Select seats, pick billing cycle, then secure checkout in the next step.
 				</div>
