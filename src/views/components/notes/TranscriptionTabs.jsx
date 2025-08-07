@@ -16,12 +16,12 @@ const TranscriptionTabs = ({
 		<div className="notes-tabs-container">
 			<div
 				className="notes-tabs-header"
-				style={{
-					display: 'flex',
-					gap: 24,
-					borderBottom: '1px solid var(--stroke, #2c2d2e)',
-					marginBottom: 12,
-				}}
+				// style={{
+				// 	display: 'flex',
+				// 	gap: 24,
+				// 	borderBottom: '1px solid var(--stroke, #2c2d2e)',
+				// 	marginBottom: 12,
+				// }}
 			>
 				{history && type === 'meeting_bot' && (
 					<button
@@ -83,7 +83,7 @@ const TranscriptionTabs = ({
 							fontSize: 16,
 							padding: '8px 0',
 							borderBottom:
-								activeTab === 'userQuestions'
+								activeTab === 'all'
 									? '2px solid var(--primary-button, #cfff48)'
 									: '2px solid transparent',
 							cursor: 'pointer',
@@ -185,7 +185,7 @@ const TranscriptionTabs = ({
 						}}
 						onClick={() => setActiveTab('aiQuestions')}
 					>
-						Ask <VeAiLogo /> AI?
+						Ask <VeAiLogo width={20} height={20} />
 					</button>
 				)}
 

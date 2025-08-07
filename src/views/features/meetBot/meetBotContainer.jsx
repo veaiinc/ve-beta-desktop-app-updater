@@ -5,7 +5,6 @@ import Context from '../../../context/context';
 import useRecallStream from '../../../hooks/useRecallStream';
 import RecentChat from '../chat/RecentChat';
 import TranscriptionTabs from '../../components/notes/TranscriptionTabs';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import MeetSummary from '../notesModule/MeetSummary';
 import NoteTakerTranscript from '../notesModule/NoteTakerTranscript';
 import AiTranscriptionSuggestions from '../../components/chat/AiTranscriptionSuggestions';
@@ -18,6 +17,7 @@ import './meetBot.scss';
 import './meetBotContainer.scss';
 import moment from 'moment';
 import Spinner from '../../components/loaders/Spinner';
+import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 const initialState = {
 	files: [],
 	userQuestions: [],
@@ -67,6 +67,7 @@ const getSpeakerColor = (speakerName) => {
 const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const meetingId = useParams()?.meetingId;
+	const sentinalScrollRef = useRef(null);
 	const sessionId = meetingId;
 	const type = searchParams.get('type');
 	const history = searchParams.get('history') === 'true' ? true : false;
@@ -391,16 +392,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		});
 	}, []);
 
-	// Auto-scroll to bottom when new transcripts are added
-	useEffect(() => {
-		if (transcriptContainerRef.current && info.transcriptions?.length > 0) {
-			transcriptContainerRef.current.scrollTo({
-				top: transcriptContainerRef.current.scrollHeight,
-				behavior: 'smooth',
-			});
-		}
-	}, [info.transcriptions?.length]);
-
 	const handleSocketMessage = useCallback(
 		(event) => {
 			try {
@@ -541,6 +532,13 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		setInfo((prev) => ({ ...prev, ...data }));
 	};
 
+	const handleChatBoxClick = () => {
+		setInfo((prev) => ({
+			...prev,
+			chatClicked: !prev.chatClicked,
+		}));
+	};
+
 	return (
 		<div className="meetbot-container">
 			<div className="meeting-header">
@@ -619,7 +617,8 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 				{showTranscriptTabs &&
 					activeTab === 'transcript' &&
 					(type === 'desktop' || type === 'meeting_bot') && (
-						<div style={{ paddingBottom: 80, width: '100%' }}>
+						// <div style={{ paddingBottom: 80, width: '100%' }}>
+						<div className="transcript-list-container">
 							{info.transcriptionsLoading && info.transcriptions?.length === 0 ? (
 								<div className="meet-transcript-empty">
 									<Spinner size={24} />
@@ -631,8 +630,22 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 									dataLength={info.transcriptions?.length || 0}
 									next={loadMoreTranscriptions}
 									hasMore={info.transcriptionsHasMore}
-									height={'800px'}
-									style={{ width: '100%' }}
+									height={'100%'}
+									style={{ width: '100%', paddingBottom: 80 }}
+									loader={
+										<div
+											className=""
+											style={{
+												width: '100%',
+												display: 'flex',
+												justifyContent: 'center',
+												alignItems: 'center',
+												padding: 16,
+											}}
+										>
+											<Spinner size={24} />
+										</div>
+									}
 								>
 									<div
 										className="meet-transcript-list"
@@ -673,6 +686,10 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 												</div>
 											</div>
 										))}
+										<div
+											className="sentinalScrollRef"
+											ref={sentinalScrollRef}
+										/>
 									</div>
 								</InfiniteScroll>
 							)}
@@ -709,7 +726,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					/>
 				)}
 				{/* Always render NoteTakerTranscript at the root level */}
-				{showTranscriptTabs && type === 'desktop' && (
+				{showTranscriptTabs && type === 'desktop' && !history && (
 					<NoteTakerTranscript
 						sendMessage={recallSendMessage}
 						tenantId={tennantSettingsData?._id}
