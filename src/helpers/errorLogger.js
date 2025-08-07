@@ -1,5 +1,5 @@
 import jwtDecode from 'jwt-decode';
-import { getUserBrowser, getUserDevice } from '../../helpers';
+import { getUserBrowser, getUserDevice } from './index.jsx';
 
 const endpoint =
 	'https://us.api.ve.ai/workflows/1.0/betaworkspace/6878ad87193e83b4b3397b3b/6878ad87193e83b4b3397b3c/6878ad87193e83b4b3397b2e';
@@ -281,3 +281,4 @@ const logError = async (errorInfo) => {
 };
 
 export default logError;
+
