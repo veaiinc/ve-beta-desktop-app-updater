@@ -256,7 +256,7 @@ export const getBrowserUrls = async (sessionId, handleGlobalChatMessages) => {
 
 		try {
 			const response = await Service.fetchGet(
-				`/api/browser/${workspaceId}/live-stream/${sessionId}/status`,
+				`/api/browser/live-stream/status/${workspaceId}/${sessionId}`,
 				usertoken,
 				'browser_api',
 			);

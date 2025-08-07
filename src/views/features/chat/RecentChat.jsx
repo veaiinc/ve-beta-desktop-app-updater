@@ -84,6 +84,7 @@ const RecentChat = ({
 		citationsAiMessageIndex: null,
 		citationsModalIsOpen: false,
 		openBrowser: false,
+		browserDataAvailable: false,
 	});
 
 	const chatContentRef = useRef(null);
@@ -160,15 +161,15 @@ const RecentChat = ({
 		};
 	}, []);
 
-	useEffect(() => {
-		getBrowserSession({ sessionId });
-	}, []);
+	// useEffect(() => {
+	// 	getBrowserSession({ sessionId });
+	// }, []);
 
-	useEffect(() => {
-		if (sessionId) {
-			getBrowserUrls(sessionId, handleGlobalChatMessages);
-		}
-	}, [sessionId]);
+	// useEffect(() => {
+	// 	if (sessionId) {
+	// 		getBrowserUrls(sessionId, handleGlobalChatMessages);
+	// 	}
+	// }, [sessionId]);
 
 	useEffect(() => {
 		if (info?.getFollowUpQueries) {
@@ -229,6 +230,7 @@ const RecentChat = ({
 					scrollExecuted: false,
 					citationsModalIsOpen: false,
 					citationsAiMessageIndex: null,
+					browserDataAvailable: false,
 				}));
 			}
 			if (currentUserMessageTimeoutRef.current) {
@@ -336,6 +338,7 @@ const RecentChat = ({
 				return {
 					...prev,
 					openBrowser: true,
+					browserDataAvailable: true,
 				};
 			});
 		}
@@ -885,7 +888,17 @@ const RecentChat = ({
 					...(sessionId === currentSessionId && { getFollowUpQueries: true }),
 				}));
 			}
-			const { message_chunk_id } = data;
+			const { message_chunk_id, open_browser } = data;
+
+			if (open_browser) {
+				getBrowserUrls(sessionId, handleGlobalChatMessages);
+				setInfo((prev) => ({
+					...prev,
+					browserDataAvailable: true,
+					openBrowser: true,
+				}));
+			}
+
 			if (message_chunk_id) {
 				handleGlobalChatMessages({
 					payload: data,
@@ -1171,7 +1184,9 @@ const RecentChat = ({
 								animateChatBox={animateChatBox}
 								sessionId={sessionId}
 								handleBrowserButtonClick={handleBrowserButtonClick}
-								showBrowserButton={!info?.openBrowser && showBrowser}
+								showBrowserButton={
+									!info?.openBrowser && info?.browserDataAvailable && showBrowser
+								}
 							/>
 						</div>
 					</div>

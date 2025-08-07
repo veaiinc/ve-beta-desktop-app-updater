@@ -2234,6 +2234,7 @@ const ChatBox = ({
 
 															{/* {!isPublicChat && ( */}
 															{isBuildEnbled &&
+																!isPublicChat &&
 																workspaceMode !== 'stable' && (
 																	<Tooltip
 																		title={

@@ -2177,7 +2177,7 @@ export const TemplatesState = (props) => {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 			const response = await Service.fetchPost(
-				`/api/browser/${workspaceId}/task/${payload?.sessionId}`,
+				`/api/browser/task/${workspaceId}/${payload?.sessionId}`,
 				{
 					query: 'go to amazon.in and find me the best rated computer which has the best ratings. ignore sponsored ads. My max budget is 10000 INR.',
 					chat_history: [],
