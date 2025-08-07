@@ -1126,7 +1126,7 @@
 
 				.eachPricingCard {
 					width: 100%;
-					max-width: 353px;
+					max-width: none;
 				}
 			}
 
@@ -1182,6 +1182,9 @@
 		}
 
 		.pricing-toggle-container {
+			.trial-info {
+				font-size: 12px;
+			}
 			.pricing-toggle-row {
 				.toggle-group {
 					.toggle-btn {

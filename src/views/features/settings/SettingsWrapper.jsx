@@ -69,7 +69,7 @@ const SettingsWrapper = (props) => {
 				<div
 					className={`${
 						type !== 'integrations' ? 'accountSettingsMapper' : 'accountSettingsMapper'
-					}`}
+					} ${type === 'pricing' ? 'pricingSettingsMapper' : ''}`}
 					style={{
 						height: '100%',
 					}}
