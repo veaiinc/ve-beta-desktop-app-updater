@@ -278,14 +278,6 @@ const GalleryViewer = ({
 			getGalleryTagsList(activeGalleryId);
 		}
 	}, []);
-	useEffect(() => {
-		if (selectedImage) {
-			setInfo((prev) => ({
-				...prev,
-				activeImage: selectedImage,
-			}));
-		}
-	}, [selectedImage, info?.activeImage]);
 	const fetchMoreImages = () => {
 		const nextPage = info.page + 1;
 

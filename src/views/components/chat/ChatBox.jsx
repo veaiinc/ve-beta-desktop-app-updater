@@ -12,7 +12,7 @@ import { ReactComponent as ArrowDownSvg } from '../../../assets/svg/ai_agents/ar
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { ReactComponent as BulbSvg } from '../../../assets/svg/home_page/bulb.svg';
 import { ReactComponent as TrendUpSvg } from '../../../assets/svg/trendUp.svg';
-import { ReactComponent as StopIconSvg } from '../../../assets/svg/notesPage/cancelnCircle.svg';
+import { ReactComponent as StopIconSvg } from '../../../assets/svg/notesPage/cancel.svg';
 import CreditCoinImage from '../../../assets/images/creditCoin.png';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
@@ -40,6 +40,7 @@ import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import { ReactComponent as VoiceAgentSvg } from '../../../assets/svg/ai_agents/voiceagent.svg';
 import VoiceAgentParent from '../../features/voiceAgent/VoiceAgentParent';
 import useNote from '../../../hooks/useNote';
+import useAudioVisualizer from '../../../hooks/useAudioVisualizer';
 import { Track } from 'livekit-client';
 import { useTrackTranscription } from '@livekit/components-react';
 
@@ -126,7 +127,6 @@ This is because we want to avoid re-rendering the component when the state chang
 and useRef does not cause re-rendering when the state changes and it always gives the latest value of the state.
 Dont change this otherwise chat functionality will break.
 */
-
 const ChatBox = ({
 	onSend,
 	aiChatLoading,
@@ -147,6 +147,7 @@ const ChatBox = ({
 	animateChatBox = true,
 	sessionId = null,
 	getSuggestions = true,
+	placeholder = 'Start typing or use @ to mention a source.',
 }) => {
 	const location = useLocation();
 	const { handleConnect } = useUpdatedVoiceIntegration();
@@ -250,6 +251,9 @@ const ChatBox = ({
 		token: liveKitToken,
 		isRecording: isTranscribing,
 	});
+
+	// Audio visualizer hook
+	const { canvasRef } = useAudioVisualizer(isTranscribing, localAudioTrack);
 
 	// Track reference for transcription
 	const trackRef =
@@ -943,6 +947,8 @@ const ChatBox = ({
 						// recentFiles: [],// not clearing the recent files , because they want like sana
 						chatFilters: initialChatFilters,
 						chatboxMinimized: true,
+						suggestion: null,
+						showSuggestion: false,
 					}));
 					uploadedImagesRef.current = [];
 
@@ -1309,6 +1315,34 @@ const ChatBox = ({
 		[info, uploadedImagesRef],
 	);
 
+	// Comprehensive function to clear all transcription states
+	const clearTranscriptionStates = useCallback(() => {
+		// Clear all transcription-related states
+		setIsTranscribing(false);
+		setLiveKitToken(null);
+		setTranscriptionText('');
+
+		// Clear chat query if it was set by transcription
+		setInfo((prev) => ({
+			...prev,
+			chatQuery: '',
+			voiceIntegration: false,
+			suggestion: null,
+			showSuggestion: false,
+		}));
+
+		// Clear transcription session ID
+		transcriptionSessionId.current = ObjectID().toString();
+
+		// Disconnect LiveKit connection
+		disconnect();
+
+		// Clear any stored segments or transcription data
+		// The segments will be cleared automatically when trackRef becomes undefined
+
+		console.log('All transcription states cleared');
+	}, [disconnect]);
+
 	const handleMicIconClick = useCallback(
 		async (event) => {
 			try {
@@ -1322,6 +1356,9 @@ const ChatBox = ({
 				// Handle transcription toggle
 				if (!isTranscribing) {
 					try {
+						// Generate new session ID for each transcription start
+						transcriptionSessionId.current = ObjectID().toString();
+
 						// Get LiveKit token
 						const response = await getLiveKitToken({
 							meetingId: transcriptionSessionId.current,
@@ -1354,12 +1391,8 @@ const ChatBox = ({
 						message.error('Error starting transcription. Please try again.');
 					}
 				} else {
-					// Stop transcription
-					setIsTranscribing(false);
-					setLiveKitToken(null);
-					setTranscriptionText('');
-					// Reset voiceIntegration to false to keep chat interface visible
-					setInfo((prev) => ({ ...prev, voiceIntegration: false }));
+					// Stop transcription and clear all states
+					clearTranscriptionStates();
 				}
 
 				// Don't call handleConnect during transcription to avoid voiceIntegration conflicts
@@ -1396,11 +1429,22 @@ const ChatBox = ({
 					return {
 						...prev,
 						chatQuery: prev?.suggestion,
+						suggestion: null,
+						showSuggestion: false,
 					};
 				}
 				return prev;
 			});
 		}
+	};
+
+	const handleTextAreaFocus = () => {
+		// Clear suggestions when text field is focused
+		setInfo((prev) => ({
+			...prev,
+			suggestion: null,
+			showSuggestion: false,
+		}));
 	};
 
 	const handleTextAreaChange = (e) => {
@@ -1727,6 +1771,7 @@ const ChatBox = ({
 														onChange={handleTextAreaChange}
 														autoFocus={autoFocus}
 														onKeyDown={handleTextAreaKeyDown}
+														onFocus={handleTextAreaFocus}
 														className={`textArea ${
 															startPage ? 'startTextPage' : ''
 														} ${isTranscribing ? 'transcribing' : ''}`}
@@ -1736,16 +1781,10 @@ const ChatBox = ({
 															isTranscribing
 																? 'Listening... Speak now'
 																: !animatePlaceholder
-																? 'Start typing or use @ to mention a source.'
+																? placeholder
 																: ''
 														}
 													/>
-													{isTranscribing && (
-														<div className="transcription-indicator">
-															<div className="pulse-dot"></div>
-															<span>Recording</span>
-														</div>
-													)}
 												</div>
 											</div>
 
@@ -2255,6 +2294,18 @@ const ChatBox = ({
 																						</div>
 																					</BuildTooltip>
 																				</div>
+																				{isTranscribing && (
+																					<div className="transcription-indicator">
+																						<canvas
+																							ref={
+																								canvasRef
+																							}
+																							className="audio-visualizer"
+																							width="200"
+																							height="50"
+																						/>
+																					</div>
+																				)}
 																			</div>
 																		</div>
 																	</Tooltip>
