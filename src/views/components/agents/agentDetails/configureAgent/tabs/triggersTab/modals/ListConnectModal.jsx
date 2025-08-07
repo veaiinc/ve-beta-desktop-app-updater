@@ -7,73 +7,84 @@ import Spinner from '../../../../../../loaders/Spinner';
 import '../../../../../../../../assets/scss/ai_assistant/modal/apiKeyModal.scss';
 
 const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading = false }) => {
-	const [apiKey, setApiKey] = useState('');
-	const [showApiKey, setShowApiKey] = useState(false);
-	const [bearerToken, setBearerToken] = useState('');
-	const [showBearerToken, setShowBearerToken] = useState(false);
-	const [userId, setUserId] = useState('');
-	const [phoneNumberId, setPhoneNumberId] = useState('');
-	const [error, setError] = useState('');
+	// const [apiKey, setApiKey] = useState('');
+	// const [showApiKey, setShowApiKey] = useState(false);
+	// const [bearerToken, setBearerToken] = useState('');
+	// const [showBearerToken, setShowBearerToken] = useState(false);
+	// const [userId, setUserId] = useState('');
+	// const [phoneNumberId, setPhoneNumberId] = useState('');
+	// const [error, setError] = useState('');
+	const [info, setInfo] = useState({
+		apiKey: '',
+		showApiKey: false,
+		bearerToken: '',
+		showBearerToken: false,
+		userId: '',
+		phoneNumberId: '',
+		error: '',
+	});
 
 	const handleSubmit = async () => {
-		if (!apiKey.trim()) {
-			setError('API key is required');
+		if (!info.apiKey.trim()) {
+			setInfo({ ...info, error: 'API key is required' });
 			return;
 		}
 
 		// For WhatsApp, additional fields are required
 		if (action?.toolkit?.slug === 'whatsapp') {
-			if (!bearerToken.trim()) {
-				setError('Bearer token is required for WhatsApp');
+			if (!info.bearerToken.trim()) {
+				setInfo({ ...info, error: 'Bearer token is required for WhatsApp' });
 				return;
 			}
-			if (!userId.trim()) {
-				setError('User ID is required for WhatsApp');
+			if (!info.userId.trim()) {
+				setInfo({ ...info, error: 'User ID is required for WhatsApp' });
 				return;
 			}
-			if (!phoneNumberId.trim()) {
-				setError('Phone number ID is required for WhatsApp');
+			if (!info.phoneNumberId.trim()) {
+				setInfo({ ...info, error: 'Phone number ID is required for WhatsApp' });
 				return;
 			}
 		}
 
-		setError('');
+		setInfo({ ...info, error: '' });
 
 		if (onApiKeySubmit) {
 			// For WhatsApp, pass additional fields
 			if (action?.toolkit?.slug === 'whatsapp') {
 				await onApiKeySubmit(
 					{
-						apiKey,
-						bearer_token: bearerToken,
-						user_id: userId,
-						phone_number_id: phoneNumberId,
+						apiKey: info.apiKey,
+						bearer_token: info.bearerToken,
+						user_id: info.userId,
+						phone_number_id: info.phoneNumberId,
 					},
 					action,
 				);
 			} else {
-				await onApiKeySubmit(apiKey, action);
+				await onApiKeySubmit(info.apiKey, action);
 			}
 		}
 	};
 
 	const handleClose = () => {
-		setApiKey('');
-		setBearerToken('');
-		setUserId('');
-		setPhoneNumberId('');
-		setError('');
-		setShowApiKey(false);
-		setShowBearerToken(false);
+		setInfo({
+			apiKey: '',
+			showApiKey: false,
+			bearerToken: '',
+			showBearerToken: false,
+			userId: '',
+			phoneNumberId: '',
+			error: '',
+		});
 		onClose();
 	};
 
 	const toggleApiKeyVisibility = () => {
-		setShowApiKey(!showApiKey);
+		setInfo({ ...info, showApiKey: !info.showApiKey });
 	};
 
 	const toggleBearerTokenVisibility = () => {
-		setShowBearerToken(!showBearerToken);
+		setInfo({ ...info, showBearerToken: !info.showBearerToken });
 	};
 
 	return (
@@ -111,9 +122,9 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 						<div className="input-container">
 							<input
 								id="apiKey"
-								type={showApiKey ? 'text' : 'password'}
-								value={apiKey}
-								onChange={(e) => setApiKey(e.target.value)}
+								type={info.showApiKey ? 'text' : 'password'}
+								value={info.apiKey}
+								onChange={(e) => setInfo({ ...info, apiKey: e.target.value })}
 								placeholder="Enter your API key"
 								className="api-key-input"
 								disabled={isLoading}
@@ -124,7 +135,7 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 								onClick={toggleApiKeyVisibility}
 								disabled={isLoading}
 							>
-								{showApiKey ? <EyeSlashIcon /> : <EyeIcon />}
+								{info.showApiKey ? <EyeSlashIcon /> : <EyeIcon />}
 							</button>
 						</div>
 					</div>
@@ -155,9 +166,11 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 								<div className="input-container">
 									<input
 										id="bearerToken"
-										type={showBearerToken ? 'text' : 'password'}
-										value={bearerToken}
-										onChange={(e) => setBearerToken(e.target.value)}
+										type={info.showBearerToken ? 'text' : 'password'}
+										value={info.bearerToken}
+										onChange={(e) =>
+											setInfo({ ...info, bearerToken: e.target.value })
+										}
 										placeholder="Enter your bearer token"
 										className="api-key-input"
 										disabled={isLoading}
@@ -168,7 +181,7 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 										onClick={toggleBearerTokenVisibility}
 										disabled={isLoading}
 									>
-										{showBearerToken ? <EyeSlashIcon /> : <EyeIcon />}
+										{info.showBearerToken ? <EyeSlashIcon /> : <EyeIcon />}
 									</button>
 								</div>
 							</div>
@@ -181,8 +194,8 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 								<input
 									id="userId"
 									type="text"
-									value={userId}
-									onChange={(e) => setUserId(e.target.value)}
+									value={info.userId}
+									onChange={(e) => setInfo({ ...info, userId: e.target.value })}
 									placeholder="Enter your user ID"
 									className="api-key-input"
 									disabled={isLoading}
@@ -210,8 +223,10 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 								<input
 									id="phoneNumberId"
 									type="text"
-									value={phoneNumberId}
-									onChange={(e) => setPhoneNumberId(e.target.value)}
+									value={info.phoneNumberId}
+									onChange={(e) =>
+										setInfo({ ...info, phoneNumberId: e.target.value })
+									}
 									placeholder="Enter your phone number ID"
 									className="api-key-input"
 									disabled={isLoading}
@@ -220,7 +235,7 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 						</div>
 					)}
 
-					{error && <div className="field-error">{error}</div>}
+					{info.error && <div className="field-error">{info.error}</div>}
 				</div>
 
 				<div className="api-key-modal-footer">
@@ -238,9 +253,11 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 						onClick={handleSubmit}
 						disabled={
 							isLoading ||
-							!apiKey.trim() ||
+							!info.apiKey.trim() ||
 							(action?.toolkit?.slug === 'whatsapp' &&
-								(!bearerToken.trim() || !userId.trim() || !phoneNumberId.trim()))
+								(!info.bearerToken.trim() ||
+									!info.userId.trim() ||
+									!info.phoneNumberId.trim()))
 						}
 					>
 						{isLoading ? (

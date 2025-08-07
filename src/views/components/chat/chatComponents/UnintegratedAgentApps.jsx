@@ -24,10 +24,11 @@ const UnintegratedAgentApps = ({ apps = [] }) => {
 	const handleAddTool = async (appData, index) => {
 		if (info?.loading) return;
 
-		// Check the first auth scheme to determine the flow
-		const firstAuthScheme = appData?.auth_schemes?.[0];
+		// Check requires_auth and primary_auth_scheme to determine the flow
+		const requiresAuth = appData?.requires_auth;
+		const primaryAuthScheme = appData?.primary_auth_scheme;
 
-		if (firstAuthScheme === 'OAUTH2') {
+		if (requiresAuth === true && primaryAuthScheme === 'OAUTH2') {
 			// OAuth flow - make API call to get OAuth URL
 			setInfo((prev) => ({
 				...prev,
@@ -75,15 +76,8 @@ const UnintegratedAgentApps = ({ apps = [] }) => {
 					selectedIndex: null,
 				}));
 			}
-		} else if (firstAuthScheme === 'API_KEY') {
-			// API key flow - show modal directly
-			setInfo((prev) => ({
-				...prev,
-				showApiKeyModal: true,
-				selectedAppForApiKey: { app: appData.app, index, appData },
-			}));
 		} else {
-			// Unknown auth scheme, show API key modal as fallback
+			// Show API key modal for other cases (API_KEY, BEARER_TOKEN, etc.)
 			setInfo((prev) => ({
 				...prev,
 				showApiKeyModal: true,

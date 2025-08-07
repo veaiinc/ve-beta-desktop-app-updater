@@ -287,15 +287,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 			if (existingAccount) {
 				// Account is already connected, proceed with adding the tool
 				await handleCreateAction(action, existingAccount.id);
-			} else if (action.auth_type === 'api_key') {
-				setInfo((prev) => ({
-					...prev,
-					showApiKeyModal: true,
-					selectedActionForApiKey: action,
-					addLoading: { ...prev.addLoading, [action.slug]: false },
-					isConnecting: false,
-				}));
-			} else if (action.auth_type === 'oauth') {
+			} else if (action.requires_auth === true && action.primary_auth_scheme === 'OAUTH2') {
 				const [connectSuccess, response] = await connectTool({
 					slug: action.toolkit.slug,
 				});
@@ -312,7 +304,13 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 					throw new Error('Failed to initiate OAuth connection');
 				}
 			} else {
-				throw new Error('Unsupported authentication type');
+				setInfo((prev) => ({
+					...prev,
+					showApiKeyModal: true,
+					selectedActionForApiKey: action,
+					addLoading: { ...prev.addLoading, [action.slug]: false },
+					isConnecting: false,
+				}));
 			}
 		} catch (error) {
 			console.error('handleAddTool error:', error);
@@ -358,15 +356,19 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				name,
 				description,
 				variables,
-				isAuthenticated: true,
+				isAuthenticated: accountId !== null,
 				agent: 'knowledgeAgent',
 				app: action.toolkit.slug,
 				key: action.slug,
 				platform: 'composio',
 				logoUrl: action.toolkit.logo || '',
 				userId,
-				accountId,
 			};
+
+			// Only include accountId if it's not null
+			if (accountId !== null) {
+				payload.accountId = accountId;
+			}
 
 			const response = await addActionToKnowledgeAgent(agentId, payload);
 
