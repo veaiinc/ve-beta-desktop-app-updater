@@ -2190,46 +2190,6 @@ export const TemplatesState = (props) => {
 			console.log('error==>getBrowserSession', error);
 		}
 	};
-	const getBrowserUrls = async (sessionId) => {
-		const workspaceId = localStorage.getItem('workspaceId');
-		const usertoken = localStorage.getItem('usertoken');
-
-		let count = 0;
-		const MAX_COUNT = 10;
-		const INTERVAL_MS = 3000;
-
-		const poll = async () => {
-			if (count >= MAX_COUNT) return;
-
-			try {
-				const response = await Service.fetchPost(
-					`/api/browser/${workspaceId}/live-stream/${sessionId}/status`,
-					null,
-					usertoken,
-					'browser_api',
-				);
-
-				if (response?.[0] && response?.[1]?.success === true) {
-					console.log('response==>getBrowserUrls', response);
-					handleGlobalChatMessages({
-						sessionId: sessionId,
-						browserData: response?.[1],
-						updateExtraInfo: true,
-					});
-				} else {
-					return;
-				}
-			} catch (error) {
-				console.log('error==>getBrowserUrls', error);
-				return; // Optional: stop polling on error
-			}
-
-			count++;
-			setTimeout(poll, INTERVAL_MS); // Wait before next call
-		};
-
-		poll(); // Start polling
-	};
 
 	const updateAiChatMessageRating = async (payload, messageId, isPublicChat = false) => {
 		let workspaceId = localStorage.getItem('workspaceId');
@@ -3133,6 +3093,5 @@ export const TemplatesState = (props) => {
 		getNotificationsList,
 		getAuthUrlForThirdParty,
 		getBrowserSession,
-		getBrowserUrls,
 	};
 };

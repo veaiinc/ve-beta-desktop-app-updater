@@ -28,15 +28,15 @@
 	transition: width 0.2s ease-in-out;
 }
 
-@media (max-width: 1250px) {
-	.browser-container {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100% !important;
-		height: 100% !important;
-	}
-}
+// @media (max-width: 1250px) {
+// 	.browser-container {
+// 		position: fixed;
+// 		top: 0;
+// 		left: 0;
+// 		width: 100% !important;
+// 		height: 100% !important;
+// 	}
+// }
 
 .chat-container {
 	height: calc(100% - 25px);

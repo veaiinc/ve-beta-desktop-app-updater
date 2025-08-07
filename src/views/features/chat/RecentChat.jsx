@@ -3,6 +3,7 @@ import '../../../assets/scss/chat/chat.scss';
 import {
 	handleDeepSearchChainOfThought,
 	handleDeepResearchChainOfThought,
+	getBrowserUrls,
 } from '../../../helpers/chatHelpers';
 import Context from '../../../context/context';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
@@ -45,7 +46,6 @@ const RecentChat = ({
 			newChatSessionIds,
 			getFollowUpQueries,
 			getBrowserSession,
-			getBrowserUrls,
 		},
 		aiSetup: { updateAiChatSessions, aiChatSessions },
 		chatStream: { sendMessage, closeWebSocketConnection, removeCurrentSessionId },
@@ -163,7 +163,9 @@ const RecentChat = ({
 	}, []);
 
 	useEffect(() => {
-		getBrowserUrls(sessionId);
+		if (sessionId) {
+			getBrowserUrls(sessionId, handleGlobalChatMessages);
+		}
 	}, [sessionId]);
 
 	useEffect(() => {

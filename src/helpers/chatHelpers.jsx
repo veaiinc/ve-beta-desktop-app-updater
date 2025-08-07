@@ -1,4 +1,5 @@
 import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
+import Service from '../services/index';
 
 export const handleDeepSearchChainOfThought = (chainOfThought) => {
 	const cot = [];
@@ -230,4 +231,58 @@ export const handleCombinedChainOfThought = (chainOfThought) => {
 		deepResearches: deepResearchesArray,
 		hasChainOfThought: chainOfThought?.length > 0,
 	};
+};
+
+const activePollTimeouts = {};
+
+export const getBrowserUrls = async (sessionId, handleGlobalChatMessages) => {
+	const workspaceId = localStorage.getItem('workspaceId');
+	const usertoken = localStorage.getItem('usertoken');
+
+	if (activePollTimeouts[sessionId]) {
+		clearTimeout(activePollTimeouts[sessionId]);
+		delete activePollTimeouts[sessionId];
+	}
+
+	let count = 0;
+	const MAX_COUNT = 10;
+	const INTERVAL_MS = 3000;
+
+	const poll = async () => {
+		if (count >= MAX_COUNT) {
+			delete activePollTimeouts[sessionId];
+			return;
+		}
+
+		try {
+			const response = await Service.fetchGet(
+				`/api/browser/${workspaceId}/live-stream/${sessionId}/status`,
+				usertoken,
+				'browser_api',
+			);
+
+			if (response?.[0] && response?.[1]?.success === true) {
+				console.log('response==>getBrowserUrls', response);
+				handleGlobalChatMessages({
+					sessionId: sessionId,
+					browserData: response?.[1],
+					updateExtraInfo: true,
+				});
+			} else {
+				console.warn('Invalid response or success=false in browser status');
+				delete activePollTimeouts[sessionId];
+				return;
+			}
+		} catch (error) {
+			console.error('error==>getBrowserUrls', error);
+			delete activePollTimeouts[sessionId];
+			return;
+		}
+
+		count++;
+		const timeoutId = setTimeout(poll, INTERVAL_MS);
+		activePollTimeouts[sessionId] = timeoutId;
+	};
+
+	poll();
 };
