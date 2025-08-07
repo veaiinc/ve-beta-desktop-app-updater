@@ -223,12 +223,21 @@ const PricingPage = () => {
 							className={`toggle-switch ${
 								info.billing === 'anually' ? 'active' : ''
 							}`}
-							onClick={() =>
+							onClick={() => {
+								const newBilling =
+									info.billing === 'monthly' ? 'anually' : 'monthly';
 								setInfo((prev) => ({
 									...prev,
-									billing: prev.billing === 'monthly' ? 'anually' : 'monthly',
-								}))
-							}
+									billing: newBilling,
+								}));
+
+								// Show toast message
+								if (newBilling === 'anually') {
+									message.success('Switched to yearly billing');
+								} else {
+									message.success('Switched to monthly billing');
+								}
+							}}
 						>
 							<div className="toggle-slider"></div>
 						</div>
