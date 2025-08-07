@@ -2179,7 +2179,7 @@ export const TemplatesState = (props) => {
 			const response = await Service.fetchPost(
 				`/api/browser/${workspaceId}/task/${payload?.sessionId}`,
 				{
-					query: 'go to amazon.in and find me the best rated LED monitor which has the best ratings. ignore sponsored ads. My max budget is 10000 INR.',
+					query: 'go to amazon.in and find me the best rated computer which has the best ratings. ignore sponsored ads. My max budget is 10000 INR.',
 					chat_history: [],
 				},
 				usertoken,

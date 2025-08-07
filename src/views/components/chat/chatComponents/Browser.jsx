@@ -1,19 +1,22 @@
 import React, { memo, useEffect, useState } from 'react';
 import s from '../../../../assets/scss/chat/chatComponents/browser.module.scss';
 
-const Browser = ({ sessionId, browserData, handleBrowserButtonClick }) => {
+const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = false }) => {
 	const [info, setInfo] = useState({
 		activeTab: -1,
+		takeControl: false,
+		tabs: [],
 	});
 
 	useEffect(() => {
 		const tabs = browserData?.allTabUrls?.slice(1) || [];
 		const activeTabIndex = browserData?.activeTabIndex - 1 ?? -1;
 		if (browserData) {
-			setInfo({
+			setInfo((prev) => ({
+				...prev,
 				activeTab: activeTabIndex,
 				tabs,
-			});
+			}));
 		}
 	}, [browserData]);
 
@@ -21,14 +24,20 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick }) => {
 		if (index === info?.activeTab) {
 			return;
 		}
-		setInfo({
-			...info,
+		setInfo((prev) => ({
+			...prev,
 			activeTab: index,
-		});
+		}));
 	};
 
+	const handleTakeControl = () => {
+		setInfo((prev) => ({
+			...prev,
+			takeControl: !prev?.takeControl,
+		}));
+	};
 	return (
-		<div className={s.browserContainer}>
+		<div className={`${s.browserContainer} ${isOpen ? s.open : ''}`}>
 			<div className={s.header}>
 				<div className={s.closeBtn} onClick={handleBrowserButtonClick}>
 					X
@@ -36,7 +45,7 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick }) => {
 			</div>
 
 			<div className={s.body}>
-				{info?.tabs?.length && (
+				{info?.tabs?.length > 0 && (
 					<div className={s.tabsContainer}>
 						{info?.tabs?.map((tab, index) => (
 							<div
@@ -56,7 +65,11 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick }) => {
 							src={info?.tabs[info?.activeTab]?.debuggerUrl}
 							allowfullscreen
 							className={s.browserIframe}
+							style={{ pointerEvents: info?.takeControl ? 'auto' : 'none' }}
 						></iframe>
+						<div className={s.takeControl} onClick={handleTakeControl}>
+							{info?.takeControl ? 'Exit takeover' : 'Take control'}
+						</div>
 					</div>
 				)}
 			</div>

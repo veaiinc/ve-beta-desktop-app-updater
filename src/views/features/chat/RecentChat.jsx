@@ -104,6 +104,8 @@ const RecentChat = ({
 
 	sessionId = isPreview ? sId : sessionId;
 
+	const browserData = globalChatMessages?.[sessionId]?.browserData;
+
 	useEffect(() => {
 		document.addEventListener('mouseup', handleMouseUp);
 
@@ -327,6 +329,17 @@ const RecentChat = ({
 			}));
 		}
 	}, [globalChatMessages, sessionId]);
+
+	useEffect(() => {
+		if (globalChatMessages?.[sessionId]?.browserData) {
+			setInfo((prev) => {
+				return {
+					...prev,
+					openBrowser: true,
+				};
+			});
+		}
+	}, [globalChatMessages?.[sessionId]?.browserData]);
 
 	// useEffect(() => {
 	// 	if (!chatContentRef?.current || !tabsRefs?.current) return;
@@ -1158,11 +1171,7 @@ const RecentChat = ({
 								animateChatBox={animateChatBox}
 								sessionId={sessionId}
 								handleBrowserButtonClick={handleBrowserButtonClick}
-								showBrowserButton={
-									(!info?.openBrowser ||
-										Boolean(globalChatMessages?.[sessionId]?.browserData)) &&
-									showBrowser
-								}
+								showBrowserButton={!info?.openBrowser && showBrowser}
 							/>
 						</div>
 					</div>
@@ -1176,7 +1185,8 @@ const RecentChat = ({
 				>
 					<Browser
 						sessionId={sessionId}
-						browserData={globalChatMessages?.[sessionId]?.browserData}
+						isOpen={info?.openBrowser && showBrowser}
+						browserData={browserData}
 						handleBrowserButtonClick={handleBrowserButtonClick}
 					/>
 				</div>

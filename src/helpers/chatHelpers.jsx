@@ -261,17 +261,22 @@ export const getBrowserUrls = async (sessionId, handleGlobalChatMessages) => {
 				'browser_api',
 			);
 
-			if (response?.[0] && response?.[1]?.success === true) {
-				console.log('response==>getBrowserUrls', response);
+			if (
+				response?.[0] &&
+				response?.[1]?.success === true &&
+				response?.[1]?.activeTabIndex !== 0
+			) {
 				handleGlobalChatMessages({
 					sessionId: sessionId,
 					browserData: response?.[1],
 					updateExtraInfo: true,
 				});
-			} else {
-				console.warn('Invalid response or success=false in browser status');
 				delete activePollTimeouts[sessionId];
 				return;
+			} else {
+				console.warn('Invalid response or success=false in browser status');
+				// delete activePollTimeouts[sessionId];
+				// return;
 			}
 		} catch (error) {
 			console.error('error==>getBrowserUrls', error);
