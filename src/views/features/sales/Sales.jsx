@@ -8,8 +8,7 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 import { useNavigate } from 'react-router-dom';
 import CopiedModal from '../../components/modalsV2/workflowsModals/CopiedModal';
 import PublicLinkGeneratedModal from '../../components/modalsV2/workflowsModals/PublicLinkGeneratedModal';
-import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
-import InitialPageLoader from '../../components/loaders/PageLoader';
+import PageLoader from '../../components/loaders/PageLoader';
 import SalesInfo from './SalesInfo';
 import { getCurrentWorkspaceId } from '../../../helpers';
 import { Spin } from 'antd';
@@ -256,9 +255,9 @@ const Sales = ({ showSalesInfo = true }) => {
 			>
 				{info?.loading ? (
 					info?.shownInitialLoader ? (
-						<UpdatedPageLoader />
+						<PageLoader />
 					) : (
-						<InitialPageLoader />
+						<PageLoader />
 					)
 				) : (
 					<div className="salesParentContainer">
