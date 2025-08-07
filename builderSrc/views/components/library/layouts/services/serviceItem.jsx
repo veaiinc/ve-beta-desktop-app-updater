@@ -787,7 +787,8 @@ class ServiceItem extends Component {
 								</>
 							)}
 						</div>
-						{this.state.style.services_selection !== 2 ? (
+						{this.state.style.services_selection !== 2 &&
+						!this.state?.block?.hideButton ? (
 							<div
 								className={`button ${
 									this.props.getRowValue('isSelected', this.state.block._id)

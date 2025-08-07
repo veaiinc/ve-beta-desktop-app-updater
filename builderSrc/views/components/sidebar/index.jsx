@@ -2498,25 +2498,34 @@ class Sidebar extends Images {
 			},
 		);
 	};
-	handleSubBlockItemOptionForService = (key, val, label) => {
+	handleSubBlockItemOptionForService = (name, val, label) => {
 		let labels = _.filter(this.state?.activeSection?.blocks, {
 			_id: this.state?.activeServiceSubBlock,
 		})[0]?.labels;
 		let optionsArr = [];
-		_.map(labels, (opt, k) => {
-			if (Object.keys(opt)?.[0] === label) {
-				opt = { [_.keys(opt)[0]]: val };
-			}
-			optionsArr.push(opt);
-		});
-
 		let arr = [];
-		_.map(this.state?.activeSection.blocks, (block, k) => {
-			if (block._id === this.state.activeServiceSubBlock) {
-				block.labels = optionsArr;
-			}
-			arr.push(block);
-		});
+		if (name == 'button') {
+			_.map(this.state?.activeSection.blocks, (block, k) => {
+				if (block._id === this.state.activeServiceSubBlock) {
+					block.hideButton = val;
+				}
+				arr.push(block);
+			});
+		} else {
+			_.map(labels, (opt, k) => {
+				if (Object.keys(opt)?.[0] === label) {
+					opt = { [_.keys(opt)[0]]: val };
+				}
+				optionsArr.push(opt);
+			});
+
+			_.map(this.state?.activeSection.blocks, (block, k) => {
+				if (block._id === this.state.activeServiceSubBlock) {
+					block.labels = optionsArr;
+				}
+				arr.push(block);
+			});
+		}
 		let activeSection = {
 			...this.state.activeSection,
 			blocks: arr,
@@ -5295,6 +5304,29 @@ class Sidebar extends Images {
 											</label>
 										</div>
 									))}
+								{this.state?.activeSection?.style?.services_selection != 2 && (
+									<div className="bs-item bs-item-row animated-item">
+										<b>hide button</b>
+										<label className="switch">
+											<input
+												type="checkbox"
+												onChange={(e) =>
+													this.handleSubBlockItemOptionForService(
+														'button',
+														e.target.checked,
+														null,
+													)
+												}
+												checked={
+													_.filter(this.state?.activeSection?.blocks, {
+														_id: this.state?.activeServiceSubBlock,
+													})[0]?.hideButton ?? false
+												}
+											/>
+											<span className="slider-round round"></span>
+										</label>
+									</div>
+								)}
 							</div>
 						) : (
 							''
