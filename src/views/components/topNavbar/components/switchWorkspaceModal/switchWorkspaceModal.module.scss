@@ -232,3 +232,9 @@
 		}
 	}
 }
+@media screen and (max-width: 500px) {
+	.switchWorkspaceModal {
+		max-width: 380px;
+		padding: 24px;
+	}
+}
