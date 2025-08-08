@@ -139,9 +139,7 @@ export const ChatStreamState = () => {
 			const { chat_ws_api, chat_ws_api_US, guest_chat_ws_api, guest_chat_ws_api_US } = config;
 
 			let baseUrl = `${
-				region === 'ap-south-1'
-					? `wss://humbly-pleased-alien.ngrok-free.app`
-					: `wss://humbly-pleased-alien.ngrok-free.app`
+				region === 'ap-south-1' ? chat_ws_api : chat_ws_api_US
 			}/${workspaceId}/${sessionId}/${agent}?token=${usertoken}`;
 
 			if (isPublicChat) {
