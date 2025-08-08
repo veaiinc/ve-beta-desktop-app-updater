@@ -235,7 +235,7 @@ export const handleCombinedChainOfThought = (chainOfThought) => {
 
 const activePollTimeouts = {};
 
-export const getBrowserUrls = async (sessionId, handleGlobalChatMessages) => {
+export const getBrowserUrls = async (sessionId, handleGlobalChatMessages, previousActiveIndex) => {
 	const workspaceId = localStorage.getItem('workspaceId');
 	const usertoken = localStorage.getItem('usertoken');
 
@@ -261,7 +261,15 @@ export const getBrowserUrls = async (sessionId, handleGlobalChatMessages) => {
 				'browser_api',
 			);
 
-			if (response?.[0] && response?.[1]?.success === true) {
+			const { activeTabIndex, success } = response?.[1] || {};
+
+			if (
+				activeTabIndex === 0 ||
+				success === false ||
+				(previousActiveIndex && activeTabIndex && activeTabIndex === previousActiveIndex)
+			) {
+				console.log('making api call to get browser urls');
+			} else if (response?.[0] && success === true) {
 				handleGlobalChatMessages({
 					sessionId: sessionId,
 					browserData: response?.[1],
@@ -269,8 +277,6 @@ export const getBrowserUrls = async (sessionId, handleGlobalChatMessages) => {
 				});
 				delete activePollTimeouts[sessionId];
 				return;
-			} else if (response?.[1]?.activeTabIndex === 0 || response?.[1]?.success === false) {
-				console.log('making api call to get browser urls');
 			} else {
 				delete activePollTimeouts[sessionId];
 				return;

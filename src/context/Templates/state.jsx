@@ -2172,22 +2172,23 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getBrowserSession = async (payload) => {
+	const handleTakeBrowserControl = async (sessionId, takeControl) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
+			const payload = {
+				mode: takeControl ? 'take' : 'resume',
+			};
 			const response = await Service.fetchPost(
-				`/api/browser/task/${workspaceId}/${payload?.sessionId}`,
-				{
-					query: 'go to amazon.in and find me the best rated computer which has the best ratings. ignore sponsored ads. My max budget is 10000 INR.',
-					chat_history: [],
-				},
+				`/api/browser/control/${workspaceId}/${sessionId}`,
+				payload,
 				usertoken,
 				'browser_api',
 			);
-			console.log('response==>getBrowserSession', response);
+			return response;
 		} catch (error) {
-			console.log('error==>getBrowserSession', error);
+			console.log('error==>handleTakeBrowserControl', error);
+			return [false, error?.message];
 		}
 	};
 
@@ -3092,6 +3093,6 @@ export const TemplatesState = (props) => {
 		updateSlug,
 		getNotificationsList,
 		getAuthUrlForThirdParty,
-		getBrowserSession,
+		handleTakeBrowserControl,
 	};
 };

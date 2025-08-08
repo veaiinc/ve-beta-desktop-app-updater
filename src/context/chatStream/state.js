@@ -50,6 +50,11 @@ export const ChatStreamState = () => {
 
 	const sendMessage = useCallback(
 		({ data, sessionId, onMessageFunc, isPublicChat, agentType }) => {
+			socketsInfoRef.current[sessionId] = {
+				agentType,
+				isPublicChat,
+				onMessageFunc,
+			};
 			return new Promise((resolve, reject) => {
 				let attempts = 0;
 
@@ -163,6 +168,7 @@ export const ChatStreamState = () => {
 
 			socketRefs.current[sessionId].onmessage = (event) => {
 				resetInactivityTimeout();
+				const { onMessageFunc } = socketsInfoRef.current[sessionId];
 				if (onMessageFunc) {
 					onMessageFunc(event, currentSessionIdRef.current);
 				}

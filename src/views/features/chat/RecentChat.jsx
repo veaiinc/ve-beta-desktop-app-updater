@@ -85,6 +85,7 @@ const RecentChat = ({
 		citationsModalIsOpen: false,
 		openBrowser: false,
 		browserDataAvailable: false,
+		browserPreviousActiveTabIndex: null,
 	});
 
 	const chatContentRef = useRef(null);
@@ -172,6 +173,15 @@ const RecentChat = ({
 	// }, [sessionId]);
 
 	useEffect(() => {
+		if (browserData) {
+			setInfo((prev) => ({
+				...prev,
+				browserPreviousActiveTabIndex: browserData?.activeTabIndex,
+			}));
+		}
+	}, [browserData]);
+
+	useEffect(() => {
 		if (info?.getFollowUpQueries) {
 			if (agentType !== 'knowledge_agent' && info?.chatQuery?.trim()?.length === 0) {
 				followUpQueryTimeoutRef.current = setTimeout(() => {
@@ -231,6 +241,7 @@ const RecentChat = ({
 					citationsModalIsOpen: false,
 					citationsAiMessageIndex: null,
 					browserDataAvailable: false,
+					browserPreviousActiveTabIndex: null,
 				}));
 			}
 			if (currentUserMessageTimeoutRef.current) {
@@ -891,7 +902,11 @@ const RecentChat = ({
 			const { message_chunk_id, open_browser } = data;
 
 			if (open_browser) {
-				getBrowserUrls(sessionId, handleGlobalChatMessages);
+				getBrowserUrls(
+					sessionId,
+					handleGlobalChatMessages,
+					info?.browserPreviousActiveTabIndex,
+				);
 				setInfo((prev) => ({
 					...prev,
 					browserDataAvailable: true,
@@ -912,7 +927,7 @@ const RecentChat = ({
 				});
 			}
 		},
-		[globalChatMessages, sessionId],
+		[globalChatMessages, sessionId, info?.browserPreviousActiveTabIndex],
 	);
 
 	const handleSendWebsocketMessage = useCallback(

@@ -1,7 +1,11 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useContext, useEffect, useState } from 'react';
 import s from '../../../../assets/scss/chat/chatComponents/browser.module.scss';
+import Context from '../../../../context/context';
 
 const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = false }) => {
+	const {
+		templates: { handleTakeBrowserControl },
+	} = useContext(Context);
 	const [info, setInfo] = useState({
 		activeTab: -1,
 		takeControl: false,
@@ -31,10 +35,12 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 	};
 
 	const handleTakeControl = () => {
+		const takeControl = !info?.takeControl;
 		setInfo((prev) => ({
 			...prev,
-			takeControl: !prev?.takeControl,
+			takeControl,
 		}));
+		handleTakeBrowserControl(sessionId, takeControl);
 	};
 	return (
 		<div className={`${s.browserContainer} ${isOpen ? s.open : ''}`}>
@@ -44,7 +50,7 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 				</div>
 			</div>
 
-			<div className={s.body}>
+			<div className={`${s.body} ${info?.takeControl ? s.tookControl : ''}`}>
 				{info?.tabs?.length > 0 && (
 					<div className={s.tabsContainer}>
 						{info?.tabs?.map((tab, index) => (
@@ -60,18 +66,14 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 				)}
 
 				{info?.activeTab !== -1 && (
-					<div
-						className={`${s.browserIframeContainer} ${
-							info?.takeControl ? s.tookControl : ''
-						}`}
-					>
+					<div className={`${s.browserIframeContainer}`}>
 						<iframe
 							src={info?.tabs[info?.activeTab]?.debuggerUrl}
 							allowfullscreen
 							className={s.browserIframe}
 							style={{ pointerEvents: info?.takeControl ? 'auto' : 'none' }}
 						></iframe>
-						<div className={s.takeControl} onClick={handleTakeControl}>
+						<div className={s.takeControlBtn} onClick={handleTakeControl}>
 							{info?.takeControl ? 'Exit takeover' : 'Take control'}
 						</div>
 					</div>
