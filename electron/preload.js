@@ -29,4 +29,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 	processImageWithSharp: (data) => ipcRenderer.invoke('process-image-with-sharp', data),
 
 	extractImageMetadata: (data) => ipcRenderer.invoke('extract-image-metadata', data),
+
+	// New: Download album as ZIP(s)
+	downloadAlbumZip: (payload) => ipcRenderer.invoke('download-album-zip', payload),
 });

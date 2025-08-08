@@ -3768,7 +3768,105 @@ const GalleryPage = () => {
 	const updateSelectedVideo = () => {
 		setInfo((prev) => ({ ...prev, videoUploaded: true }));
 	};
+	const handleDesktopDownloadAlbum = async () => {
+		try {
+			// Prevent multiple clicks
+			if (info.isDownloading) return;
 
+			setInfo((prev) => ({ ...prev, isDownloading: true }));
+			showMessage('loading', 'Preparing download...');
+
+			// Start with already-loaded images
+			let allImages = [...(info.imagesList?.docs || [])];
+
+			// If more pages exist, fetch all
+			if (info.imagesList?.hasNextPage) {
+				showMessage('loading', 'Loading all images...');
+
+				const totalImages = [];
+				let page = 1;
+				const limit = info.limit || 40;
+
+				while (true) {
+					const response = await getGalleryImages(
+						galleryId,
+						info.activeAlbumId,
+						info.albumTagId,
+						page,
+						limit,
+						'',
+						true,
+					);
+
+					if (response?.[0] !== true || !response[1]?.docs?.length) break;
+
+					totalImages.push(...response[1].docs);
+
+					if (!response[1].hasNextPage) break;
+					page++;
+				}
+
+				// Deduplicate by _id
+				const seen = new Set();
+				allImages = totalImages.filter((img) => {
+					if (seen.has(img._id)) return false;
+					seen.add(img._id);
+					return true;
+				});
+			}
+
+			if (allImages.length === 0) {
+				showMessage('error', 'No images to download');
+				return;
+			}
+
+			// Build signed URLs
+			const downloadItems = allImages
+				.map((image) => {
+					const version = image.activeVersion;
+					const key = info.originalDownload
+						? version.s3_original?.key
+						: version.s3_optimized?.key;
+
+					if (!key) return null;
+
+					const url =
+						`${galleryCredentials.baseURL}/${key}` +
+						`?Key-Pair-Id=${galleryCredentials['Key-Pair-Id']}` +
+						`&Signature=${galleryCredentials.Signature}` +
+						`&Policy=${galleryCredentials.Policy}`;
+
+					return {
+						url,
+						filename: version.givenFileName || `${image._id}.jpg`,
+					};
+				})
+				.filter(Boolean);
+
+			if (downloadItems.length === 0) {
+				showMessage('error', 'No valid image URLs');
+				return;
+			}
+
+			// ✅ Trigger ZIP creation in main process
+			const result = await window.electronApi.downloadAlbumZip({
+				items: downloadItems,
+				folderName: `Album_${info.albumName || 'download'}`,
+				maxZipSize: 3 * 1024 * 1024 * 1024, // 3GB
+			});
+
+			if (result.success) {
+				showMessage('success', `Downloaded ${result.zips.length} ZIP(s)`);
+			} else {
+				throw new Error(result.error || 'Unknown error');
+			}
+		} catch (err) {
+			console.error('Download failed:', err);
+			showMessage('error', 'Download failed: ' + err.message);
+		} finally {
+			setInfo((prev) => ({ ...prev, isDownloading: false }));
+		}
+	};
 	return (
 		<>
 			<div className="galleryContainer" style={{ height: info?.isRearranging ? '100%' : '' }}>
@@ -5011,19 +5109,22 @@ const GalleryPage = () => {
 																</li>
 															)}
 															<li
-																onClick={() =>
-																	setInfo((prev) => ({
-																		...prev,
-																		showDownloadAlbum: true,
-																		showGalleryOptions: false,
-																		showOptions: false,
-																		activeTagId:
-																			albumDetails?.tags?.[0]
-																				?._id,
-																		originalDownload: false,
-																		webviewDownload: true,
-																	}))
-																}
+																// onClick={() =>
+																// 	setInfo((prev) => ({
+																// 		...prev,
+																// 		showDownloadAlbum: true,
+																// 		showGalleryOptions: false,
+																// 		showOptions: false,
+																// 		activeTagId:
+																// 			albumDetails?.tags?.[0]
+																// 				?._id,
+																// 		originalDownload: false,
+																// 		webviewDownload: true,
+																// 	}))
+																// }
+																onClick={() => {
+																	handleDesktopDownloadAlbum();
+																}}
 															>
 																<DownloadIcon />
 																Download album

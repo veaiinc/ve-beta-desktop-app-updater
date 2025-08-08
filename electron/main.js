@@ -7,6 +7,10 @@ const path = require('node:path');
 const sharp = require('sharp'); // Add sharp import
 const axios = require('axios'); // Add axios import
 const exifReader = require('exif-reader');
+const archiver = require('archiver');
+const fs = require('fs');
+const { dialog } = require('electron');
+
 let mainWindow = null;
 
 // Set the autoUpdater logger to electron-log
@@ -364,6 +368,91 @@ ipcMain.handle('extract-image-metadata', async (event, { imageBuffer }) => {
 		};
 	}
 });
+
+ipcMain.handle(
+	'download-album-zip',
+	async (event, { items, folderName, maxZipSize = 3 * 1024 * 1024 * 1024 }) => {
+		try {
+			// ✅ Open dialog without requiring a focused window
+			const { filePath } = await dialog.showSaveDialog({
+				title: 'Save Album ZIP',
+				defaultPath: `${folderName}_1.zip`,
+				filters: [{ name: 'ZIP Files', extensions: ['zip'] }],
+				properties: ['createDirectory'],
+			});
+
+			if (!filePath) {
+				return { success: false, error: 'User cancelled' };
+			}
+
+			let archive, output;
+			let currentSize = 0;
+			let zipIndex = 0;
+			const zipsCreated = [];
+
+			const startNewArchive = () => {
+				if (archive) archive.finalize();
+
+				zipIndex++;
+				const zipPath = filePath.replace(/(_\d+)?\.zip$/, `_${zipIndex}.zip`);
+				output = fs.createWriteStream(zipPath);
+				archive = archiver('zip', { zlib: { level: 6 } });
+				archive.pipe(output);
+				currentSize = 0;
+
+				zipsCreated.push(path.basename(zipPath));
+				console.log(`Created ZIP: ${zipPath}`);
+			};
+
+			startNewArchive();
+
+			for (const item of items) {
+				try {
+					const res = await axios({
+						method: 'GET',
+						url: item.url,
+						responseType: 'stream',
+						timeout: 30000,
+					});
+
+					const fileSize = parseInt(res.headers['content-length'], 10) || 0;
+
+					if (currentSize + fileSize > maxZipSize && currentSize > 0) {
+						await archive.finalize();
+						await new Promise((resolve, reject) => {
+							output.on('close', resolve);
+							output.on('error', reject);
+						});
+						startNewArchive();
+					}
+
+					archive.append(res.data, { name: item.filename });
+					currentSize += fileSize;
+				} catch (err) {
+					console.warn(`Failed to add ${item.filename}:`, err.message);
+					archive.append(`Download failed: ${err.message}`, {
+						name: `ERROR_${item.filename}.txt`,
+					});
+				}
+			}
+
+			// Finalize last archive
+			await archive.finalize();
+			await new Promise((resolve, reject) => {
+				output.on('close', resolve);
+				output.on('error', reject);
+			});
+
+			return {
+				success: true,
+				zips: zipsCreated,
+			};
+		} catch (err) {
+			console.error('ZIP creation failed:', err);
+			return { success: false, error: err.message };
+		}
+	},
+);
 // Graceful exit on macOS
 app.on('window-all-closed', () => {
 	app.quit();
