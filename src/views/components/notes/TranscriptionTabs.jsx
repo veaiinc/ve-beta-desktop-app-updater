@@ -14,15 +14,7 @@ const TranscriptionTabs = ({
 }) => {
 	return (
 		<div className="notes-tabs-container">
-			<div
-				className="notes-tabs-header"
-				// style={{
-				// 	display: 'flex',
-				// 	gap: 24,
-				// 	borderBottom: '1px solid var(--stroke, #2c2d2e)',
-				// 	marginBottom: 12,
-				// }}
-			>
+			<div className="notes-tabs-header">
 				{history && type === 'meeting_bot' && (
 					<button
 						className={activeTab === 'summary' ? 'notes-tab active' : 'notes-tab'}

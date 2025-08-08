@@ -64,6 +64,11 @@ const getSpeakerColor = (speakerName) => {
 	return colors[index];
 };
 
+const infiniteScrollStyles = {
+	width: '100%',
+	paddingBottom: 80,
+};
+
 const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const meetingId = useParams()?.meetingId;
@@ -102,7 +107,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	const [isLoadingMeetingDetails, setIsLoadingMeetingDetails] = useState(false);
 	const [meetingNotFound, setMeetingNotFound] = useState(false);
 	const location = useLocation();
-	const transcriptContainerRef = useRef(null);
 
 	// Add hooks for live intelligence and recall stream
 	const {
@@ -469,6 +473,12 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		// No cleanup needed, useRecallStream handles it
 	}, [showTranscriptTabs, sessionId, type]);
 
+	useEffect(() => {
+		if (showTranscriptTabs && type === 'desktop' && !history) {
+			sentinalScrollRef?.current?.scrollIntoView({ behavior: 'smooth' });
+		}
+	}, [info?.transcriptions?.length]);
+
 	const handleShowAiTranscriptionSuggestions = () => {
 		setInfo((prev) => ({
 			...prev,
@@ -631,26 +641,14 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 									next={loadMoreTranscriptions}
 									hasMore={info.transcriptionsHasMore}
 									height={'100%'}
-									style={{ width: '100%', paddingBottom: 80 }}
+									style={infiniteScrollStyles}
 									loader={
-										<div
-											className=""
-											style={{
-												width: '100%',
-												display: 'flex',
-												justifyContent: 'center',
-												alignItems: 'center',
-												padding: 16,
-											}}
-										>
+										<div className="infinite-loader-container">
 											<Spinner size={24} />
 										</div>
 									}
 								>
-									<div
-										className="meet-transcript-list"
-										ref={transcriptContainerRef}
-									>
+									<div className="meet-transcript-list">
 										{info.transcriptions?.map((item, idx) => (
 											<div
 												className={`meet-transcript-item`}
@@ -686,11 +684,8 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 												</div>
 											</div>
 										))}
-										<div
-											className="sentinalScrollRef"
-											ref={sentinalScrollRef}
-										/>
 									</div>
+									<div className="sentinalScrollRef" ref={sentinalScrollRef} />
 								</InfiniteScroll>
 							)}
 						</div>
