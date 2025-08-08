@@ -266,6 +266,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 
 	// Handle adding a tool
 	const handleAddTool = async (action) => {
+		console.log('action', action);
 		if (!action?.toolkit?.slug) {
 			message.error('Invalid tool data');
 			return;
@@ -280,10 +281,12 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		}));
 
 		try {
+			console.log('info.connectedAccounts', info.connectedAccounts);
 			const existingAccount = (
 				Array.isArray(info.connectedAccounts) ? info.connectedAccounts : []
-			).find((account) => account.app?.name_slug === action.toolkit.slug);
+			).find((account) => account?.toolkit_slug === action.toolkit?.slug);
 
+			console.log('existingAccount', existingAccount);
 			if (existingAccount) {
 				// Account is already connected, proceed with adding the tool
 				await handleCreateAction(action, existingAccount.id);

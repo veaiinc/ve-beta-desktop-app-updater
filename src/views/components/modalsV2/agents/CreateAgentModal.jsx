@@ -40,6 +40,7 @@ const CreateAgentModal = ({ isOpen, closeModal }) => {
 						sessionId={info?.sessionId}
 						animateChatBox={false}
 						placeholder="What should your agent help you with?"
+						isPublicChat={true}
 					/>
 				</div>
 			</div>

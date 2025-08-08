@@ -42,7 +42,7 @@ const PromptTab = () => {
 		prompt: '',
 		initialContent: '',
 		actionDetails: [],
-		drawerOpen: true,
+		drawerOpen: false,
 		connectedAccounts: [],
 		accountsLoading: false,
 		deletingAccountId: null,

@@ -18,25 +18,25 @@ const navItems = [
 		id: 1,
 		label: 'Prompt',
 		value: 'prompt',
-		icon : <PromptIcon />
+		icon: <PromptIcon />,
 	},
 	{
 		id: 4,
 		label: 'Tools',
 		value: 'tools',
-		icon : <ToolIcon />
+		icon: <ToolIcon />,
 	},
 	{
 		id: 2,
 		label: 'Knowledge Base',
 		value: 'knowledgeBase',
-		icon : <KnowledgeBaseIcon />
+		icon: <KnowledgeBaseIcon />,
 	},
 	{
 		id: 3,
 		label: 'Triggers',
 		value: 'trigger',
-		icon : <TriggerIcon />
+		icon: <TriggerIcon />,
 	},
 ];
 
@@ -52,14 +52,22 @@ const ConfigureAgent = ({ agentId }) => {
 
 	useEffect(() => {
 		if (!configParam) {
-			setSearchParams({ config: 'prompt' });
+			setSearchParams((prev) => {
+				const updated = new URLSearchParams(prev);
+				updated.set('config', 'prompt');
+				return updated;
+			});
 		}
 		setInfo((prev) => ({ ...prev, activeNavItem: initialNavItem }));
 	}, []);
 
 	const handleNavItemClick = (item) => {
 		setInfo((prev) => ({ ...prev, activeNavItem: item.id }));
-		setSearchParams({ config: item.value });
+		setSearchParams((prev) => {
+			const updated = new URLSearchParams(prev);
+			updated.set('config', item.value);
+			return updated;
+		});
 	};
 
 	const componentMapper = useMemo(() => {

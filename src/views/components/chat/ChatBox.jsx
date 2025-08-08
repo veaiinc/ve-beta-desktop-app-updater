@@ -2230,8 +2230,8 @@ const ChatBox = ({
 																</Tooltip>
 															)}
 
-															{/* {!isPublicChat && ( */}
 															{isBuildEnbled &&
+																!isPublicChat &&
 																workspaceMode !== 'stable' && (
 																	<Tooltip
 																		title={
@@ -2310,7 +2310,6 @@ const ChatBox = ({
 																		</div>
 																	</Tooltip>
 																)}
-															{/* )} */}
 														</div>
 
 														{/* <Tooltip title={'Add Filters'}>
@@ -2453,6 +2452,7 @@ const ChatBox = ({
 																<AudioSvg />
 															</div>
 														)}  */}
+
 														<div
 															className={`click-btn ${
 																info?.chatQuery?.trim()?.length > 0
@@ -2481,7 +2481,6 @@ const ChatBox = ({
 																<VoiceAgentSvg />
 															)}
 														</div>
-
 														{/* Separate Speech-to-Text Button */}
 														<div
 															className={`click-btn speech-to-text-btn ${
