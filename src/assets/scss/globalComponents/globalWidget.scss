@@ -34,6 +34,9 @@
 			border-radius: 100px;
 			cursor: pointer;
 			width: 200px;
+			transition: all 0.3s ease;
+			min-height: 44px;
+
 			&:hover {
 				background: var(--card, #1b1c1d);
 			}
@@ -75,6 +78,100 @@
 		.globalWidgetWrapper {
 			flex-direction: column;
 			max-width: 450px;
+		}
+	}
+}
+
+// Mobile styles
+@media screen and (max-width: 768px) {
+	.globalWidgetMainContainer {
+		flex-direction: column;
+		gap: 20px;
+		padding: 0 16px;
+
+		.widgetOptionsContainer {
+			// Transform desktop options into mobile tabs
+			flex-direction: row;
+			width: 100%;
+			max-width: 100%;
+			gap: 4px;
+			background: var(--card, #1b1c1d);
+			border-radius: 12px;
+			padding: 4px;
+			overflow-x: auto;
+			order: -1; // Move to top
+			margin-bottom: 16px;
+
+			.option {
+				width: auto;
+				min-width: fit-content;
+				padding: 8px 16px;
+				border-radius: 8px;
+				flex-shrink: 0;
+				white-space: nowrap;
+				min-height: 40px;
+
+				&.active {
+					background: var(--navbar, #141415);
+				}
+
+				&:not(.active) {
+					background: transparent;
+
+					span {
+						color: var(--secondary-font, #a0a0a0);
+					}
+
+					svg path {
+						color: var(--secondary-font, #a0a0a0);
+					}
+				}
+
+				span {
+					font-size: 14px;
+				}
+
+				svg {
+					width: 18px;
+					height: 18px;
+				}
+			}
+		}
+
+		.globalWidgetWrapper {
+			flex-direction: column;
+			max-width: 100%;
+			gap: 16px;
+			border-radius: 16px;
+		}
+	}
+}
+
+// Small mobile devices
+@media screen and (max-width: 480px) {
+	.globalWidgetMainContainer {
+		padding: 0 12px;
+		gap: 16px;
+
+		.widgetOptionsContainer {
+			.option {
+				padding: 6px 12px;
+				min-height: 36px;
+
+				span {
+					font-size: 13px;
+				}
+
+				svg {
+					width: 16px;
+					height: 16px;
+				}
+			}
+		}
+
+		.globalWidgetWrapper {
+			gap: 12px;
+			border-radius: 12px;
 		}
 	}
 }

@@ -1525,3 +1525,16 @@
 		display: none; /* Optionally hide buttons, or adjust their style */
 	}
 }
+@media screen and (max-width: 768px) {
+	.proactive-suggestions-wrapper .proactive-suggestions-container {
+		padding: 10px;
+		.ai-questions-wrapper {
+			overflow: scroll;
+			scrollbar-width: none;
+			-ms-overflow-style: none;
+			&::-webkit-scrollbar {
+				display: none;
+			}
+		}
+	}
+}

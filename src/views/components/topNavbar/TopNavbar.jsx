@@ -1,4 +1,4 @@
-import { Fragment, useContext, useEffect, useState } from 'react';
+import { Fragment, useContext, useEffect, useState, useRef } from 'react';
 import s from './topNavbar.module.scss';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -116,7 +116,10 @@ const TopNavbar = () => {
 		addOnCardsModalOpen: false,
 		creditsLeftTooltipOpen: false,
 		shareAndEarnModalOpen: false,
+		mobileMenuOpen: false,
 	});
+
+	const mobileMenuRef = useRef(null);
 
 	const { firstName, lastName, dp_s3_500w_key, googleMeta } = userDetailsData;
 	const firstInitial = firstName?.charAt(0) ?? '';
@@ -156,10 +159,33 @@ const TopNavbar = () => {
 		else setInfo((prev) => ({ ...prev, activeMode: 1 }));
 	}, [pathname]);
 
+	useEffect(() => {
+		setInfo((prev) => ({ ...prev, mobileMenuOpen: false }));
+	}, [pathname]);
+
+	useEffect(() => {
+		if (info.mobileMenuOpen) {
+			document.body.style.overflow = 'hidden';
+		} else {
+			document.body.style.overflow = 'unset';
+		}
+
+		return () => {
+			document.body.style.overflow = 'unset';
+		};
+	}, [info.mobileMenuOpen]);
+
+	useEffect(() => {
+		return () => {
+			document.body.style.overflow = 'unset';
+		};
+	}, []);
+
 	const handleNavigation = ({ navItemId, route }) => {
 		setInfo((prev) => ({
 			...prev,
 			activeNavItem: navItemId,
+			mobileMenuOpen: false,
 		}));
 
 		// reset chat data when navigating to chat
@@ -173,6 +199,7 @@ const TopNavbar = () => {
 				filesTooltipOpen: true,
 				toolsTooltipOpen: false,
 				settingsTooltipOpen: false,
+				mobileMenuOpen: false,
 			}));
 			navigate(`/files?active-tab=Documents&viewMode=card`);
 			return;
@@ -184,6 +211,7 @@ const TopNavbar = () => {
 		setInfo((prev) => ({
 			...prev,
 			activeMode: id,
+			mobileMenuOpen: false,
 		}));
 		if (id === 1) {
 			navigate('/home');
@@ -203,6 +231,20 @@ const TopNavbar = () => {
 				shareAndEarnModalOpen: true,
 			}));
 		}
+	};
+
+	const toggleMobileMenu = () => {
+		setInfo((prev) => ({
+			...prev,
+			mobileMenuOpen: !prev.mobileMenuOpen,
+		}));
+	};
+
+	const closeMobileMenu = () => {
+		setInfo((prev) => ({
+			...prev,
+			mobileMenuOpen: false,
+		}));
 	};
 
 	const baseRightContainerItems = [
@@ -523,10 +565,92 @@ const TopNavbar = () => {
 		!hideTopNavbar && (
 			<>
 				<nav className={s.topNavbarContainer}>
+					{/* Mobile Menu Button */}
+					<button
+						className={`${s.mobileMenuButton} ${info.mobileMenuOpen ? s.active : ''}`}
+						onClick={toggleMobileMenu}
+						aria-label="Toggle mobile menu"
+					>
+						<span></span>
+						<span></span>
+						<span></span>
+					</button>
+
+					{/* Mobile Mode Selector - Center */}
+					{showMiddleContainer && (
+						<div className={s.mobileModeSelector}>
+							{middleContainerItems.map((navItem) => (
+								<button
+									key={navItem.id}
+									className={`${s.mobileModeButton} ${
+										info.activeMode === navItem.id ? s.active : ''
+									}`}
+									onClick={() => handleMiddleNavigation(navItem)}
+								>
+									{info.activeMode === navItem.id
+										? navItem.activeLabel
+										: navItem.label}
+								</button>
+							))}
+						</div>
+					)}
+
+					{/* Desktop Navigation */}
 					{navItems.map((navItem) => {
 						return <Fragment key={navItem.id}>{navItem.element}</Fragment>;
 					})}
+
+					{/* Mobile Menu Overlay */}
+					{info.mobileMenuOpen && (
+						<div
+							className={`${s.mobileMenuOverlay} ${s.active}`}
+							onClick={closeMobileMenu}
+						></div>
+					)}
+
+					{/* Mobile Menu Content */}
+					<div
+						ref={mobileMenuRef}
+						className={`${s.mobileMenuContent} ${info.mobileMenuOpen ? s.active : ''}`}
+					>
+						<div className={s.mobileMenuHeader}>
+							<h3>Menu</h3>
+							<button
+								className={`${s.mobileMenuButton} ${
+									info.mobileMenuOpen ? s.active : ''
+								}`}
+								onClick={closeMobileMenu}
+								aria-label="Close mobile menu"
+							>
+								<span></span>
+								<span></span>
+								<span></span>
+							</button>
+						</div>
+
+						{/* Navigation Section */}
+						<div className={s.mobileMenuSection}>
+							<div className={s.sectionTitle}>Navigation</div>
+							{leftContainerItems.map((navItem) => (
+								<div
+									key={navItem.id}
+									className={`${s.mobileNavItem} ${
+										info.activeNavItem === navItem.id ? s.active : ''
+									}`}
+									onClick={() =>
+										handleNavigation({
+											navItemId: navItem.id,
+											route: navItem.route,
+										})
+									}
+								>
+									{navItem.label}
+								</div>
+							))}
+						</div>
+					</div>
 				</nav>
+
 				<AddOnCards
 					isOpen={info.addOnCardsModalOpen}
 					closeModal={() => setInfo((prev) => ({ ...prev, addOnCardsModalOpen: false }))}

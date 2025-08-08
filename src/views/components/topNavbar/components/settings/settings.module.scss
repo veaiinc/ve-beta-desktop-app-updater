@@ -175,3 +175,8 @@
 	border-radius: 12px;
 	border: 1px solid var(--dividers, #1e1f20);
 }
+@media (max-width: 768px) {
+	.settingsContainer {
+		right: 0;
+	}
+}
