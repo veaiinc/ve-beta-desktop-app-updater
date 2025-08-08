@@ -303,86 +303,178 @@ const TriggersTab = () => {
 
 	return (
 		<div className={s.container}>
-			<header className={s.titleSubtitleContainer}>
-				<h1 className={s.title}>Triggers</h1>
-				<h2 className={s.subtitle}>
-					Triggers are events that can be used to trigger actions.
-				</h2>
-			</header>
+			<div className={s.triggersWrapper}>
+				<header className={s.titleSubtitleContainer}>
+					<h1 className={s.title}>Triggers</h1>
+					<h2 className={s.subtitle}>
+						Triggers are events that can be used to trigger actions.
+					</h2>
+				</header>
 
-			<div className={s.connectedTriggersContainer}>
-				<h1 className={s.title}>Connected Triggers</h1>
-				{emptyConnectedTriggers ? (
-					<p className={s.emptyTriggersMessage}>{emptyConnectedTriggersMessage}</p>
-				) : (
-					<InfiniteScroll
-						dataLength={connectedTriggers?.length ?? 0}
-						next={fetchNextTriggers}
-						hasMore={hasNextPage}
-						height={'100%'}
-						loader={<FetchMoreLoaderComp />}
-					>
-						<ul className={s.triggersListContainer}>
-							{connectedTriggers.map((trigger) => (
-								<li key={trigger._id}>
-									{trigger.icon}
-									<div className={s.triggerItemContent}>
-										<h3>{trigger.title}</h3>
-										<p>{trigger.description}</p>
-										<p>
-											{trigger?.trigerConfig?.recurrence
-												? `Recurrence : ${trigger?.trigerConfig?.recurrence}`
-												: ''}
-										</p>
-									</div>
-									<button
-										onClick={() => handleDisconnectTrigger(trigger._id)}
-										className={s.disconnectTrigger}
-									>
-										<DustbinIcon />
-									</button>
-								</li>
-							))}
-						</ul>
-					</InfiniteScroll>
-				)}
-			</div>
-			<div className={s.divider}></div>
-			<div className={s.connectAppsContainer}>
-				<h1 className={s.title}>Connect</h1>
-				<ul className={s.connectAppsListContainer}>
-					{connectableTriggers.map((trigger) => (
-						<li
-							key={trigger.title}
-							onClick={() => {
-								if (trigger.triggerType === 'gmail') {
-									setInfo((prev) => ({
-										...prev,
-										ListEmailsModalOpen: true,
-										selectedAppType: 'gmail',
-									}));
-								} else if (trigger.triggerType === 'outlook') {
-									setInfo((prev) => ({
-										...prev,
-										ListEmailsModalOpen: true,
-										selectedAppType: 'outlook',
-									}));
-								} else if (trigger.triggerType === 'schedule') {
-									setInfo((prev) => ({
-										...prev,
-										schedulerModalOpen: true,
-									}));
-								}
-								// Add other trigger types here as needed
-							}}
+				<div className={s.connectedTriggersContainer}>
+					<h1 className={s.title}>Connected Triggers</h1>
+					{emptyConnectedTriggers ? (
+						<p className={s.emptyTriggersMessage}>{emptyConnectedTriggersMessage}</p>
+					) : (
+						<InfiniteScroll
+							dataLength={connectedTriggers?.length ?? 0}
+							next={fetchNextTriggers}
+							hasMore={hasNextPage}
+							height={'100%'}
+							loader={<FetchMoreLoaderComp />}
 						>
-							<span className={s.iconContainer}>{trigger.icon}</span>
-							<h3>{trigger.title}</h3>
-						</li>
-					))}
-				</ul>
-			</div>
-			{/* <div className={s.divider}></div>
+							<ul className={s.triggersListContainer}>
+								{connectedTriggers.map((trigger) => (
+									<li key={trigger._id}>
+										<div className={s.triggerItemIconContainer}>
+											{trigger.icon}
+										</div>
+										<div className={s.triggerItemContent}>
+											<h3>{trigger.title}</h3>
+											<p>{trigger.description}</p>
+											<p>
+												{trigger?.trigerConfig?.recurrence
+													? `Recurrence : ${trigger?.trigerConfig?.recurrence}`
+													: ''}
+											</p>
+										</div>
+										<div className={s.triggerActionsWrapper}>
+											<button
+												onClick={() => handleDisconnectTrigger(trigger._id)}
+												className={s.disconnectTrigger}
+											>
+												<DustbinIcon />
+											</button>
+										</div>
+									</li>
+								))}
+							</ul>
+						</InfiniteScroll>
+					)}
+				</div>
+				<div className={s.divider}></div>
+				<div className={s.connectAppsContainer}>
+					<h1 className={s.title}>Connect</h1>
+					<ul className={s.connectAppsListContainer}>
+						{connectableTriggers.map((trigger) => (
+							<li
+								key={trigger.title}
+								onClick={() => {
+									if (trigger.triggerType === 'gmail') {
+										setInfo((prev) => ({
+											...prev,
+											ListEmailsModalOpen: true,
+											selectedAppType: 'gmail',
+										}));
+									} else if (trigger.triggerType === 'outlook') {
+										setInfo((prev) => ({
+											...prev,
+											ListEmailsModalOpen: true,
+											selectedAppType: 'outlook',
+										}));
+									} else if (trigger.triggerType === 'schedule') {
+										setInfo((prev) => ({
+											...prev,
+											schedulerModalOpen: true,
+										}));
+									}
+									// Add other trigger types here as needed
+								}}
+							>
+								<span className={s.iconContainer}>{trigger.icon}</span>
+								<h3>{trigger.title}</h3>
+							</li>
+						))}
+						{connectableTriggers.map((trigger) => (
+							<li
+								key={trigger.title}
+								onClick={() => {
+									if (trigger.triggerType === 'gmail') {
+										setInfo((prev) => ({
+											...prev,
+											ListEmailsModalOpen: true,
+											selectedAppType: 'gmail',
+										}));
+									} else if (trigger.triggerType === 'outlook') {
+										setInfo((prev) => ({
+											...prev,
+											ListEmailsModalOpen: true,
+											selectedAppType: 'outlook',
+										}));
+									} else if (trigger.triggerType === 'schedule') {
+										setInfo((prev) => ({
+											...prev,
+											schedulerModalOpen: true,
+										}));
+									}
+									// Add other trigger types here as needed
+								}}
+							>
+								<span className={s.iconContainer}>{trigger.icon}</span>
+								<h3>{trigger.title}</h3>
+							</li>
+						))}
+						{connectableTriggers.map((trigger) => (
+							<li
+								key={trigger.title}
+								onClick={() => {
+									if (trigger.triggerType === 'gmail') {
+										setInfo((prev) => ({
+											...prev,
+											ListEmailsModalOpen: true,
+											selectedAppType: 'gmail',
+										}));
+									} else if (trigger.triggerType === 'outlook') {
+										setInfo((prev) => ({
+											...prev,
+											ListEmailsModalOpen: true,
+											selectedAppType: 'outlook',
+										}));
+									} else if (trigger.triggerType === 'schedule') {
+										setInfo((prev) => ({
+											...prev,
+											schedulerModalOpen: true,
+										}));
+									}
+									// Add other trigger types here as needed
+								}}
+							>
+								<span className={s.iconContainer}>{trigger.icon}</span>
+								<h3>{trigger.title}</h3>
+							</li>
+						))}
+						{connectableTriggers.map((trigger) => (
+							<li
+								key={trigger.title}
+								onClick={() => {
+									if (trigger.triggerType === 'gmail') {
+										setInfo((prev) => ({
+											...prev,
+											ListEmailsModalOpen: true,
+											selectedAppType: 'gmail',
+										}));
+									} else if (trigger.triggerType === 'outlook') {
+										setInfo((prev) => ({
+											...prev,
+											ListEmailsModalOpen: true,
+											selectedAppType: 'outlook',
+										}));
+									} else if (trigger.triggerType === 'schedule') {
+										setInfo((prev) => ({
+											...prev,
+											schedulerModalOpen: true,
+										}));
+									}
+									// Add other trigger types here as needed
+								}}
+							>
+								<span className={s.iconContainer}>{trigger.icon}</span>
+								<h3>{trigger.title}</h3>
+							</li>
+						))}
+					</ul>
+				</div>
+				{/* <div className={s.divider}></div>
 			<div className={s.connectAppsContainer}>
 				<h1 className={s.title}>Build your own triggers</h1>
 				<ul className={s.connectAppsListContainer}>
@@ -394,24 +486,25 @@ const TriggersTab = () => {
 					))}
 				</ul>
 			</div> */}
-			<ListEmailsModal
-				isOpen={info.ListEmailsModalOpen}
-				onClose={() =>
-					setInfo({ ...info, ListEmailsModalOpen: false, selectedAppType: null })
-				}
-				handleConnectToAppTrigger={handleConnectToAppTrigger}
-				connectedEmails={getConnectedEmailsForApp(info.selectedAppType)}
-				selectedAppType={info.selectedAppType}
-				isLoading={info.connectTriggerLoading}
-				connectedThirdParties={connectedThirdParties}
-			/>
-			<SchedulerModal
-				isOpen={info.schedulerModalOpen}
-				onClose={() => setInfo({ ...info, schedulerModalOpen: false })}
-				handleConnectToSchedulerTrigger={handleConnectToSchedulerTrigger}
-				isLoading={info.connectTriggerLoading}
-				connectThirdParty={connectThirdParty}
-			/>
+				<ListEmailsModal
+					isOpen={info.ListEmailsModalOpen}
+					onClose={() =>
+						setInfo({ ...info, ListEmailsModalOpen: false, selectedAppType: null })
+					}
+					handleConnectToAppTrigger={handleConnectToAppTrigger}
+					connectedEmails={getConnectedEmailsForApp(info.selectedAppType)}
+					selectedAppType={info.selectedAppType}
+					isLoading={info.connectTriggerLoading}
+					connectedThirdParties={connectedThirdParties}
+				/>
+				<SchedulerModal
+					isOpen={info.schedulerModalOpen}
+					onClose={() => setInfo({ ...info, schedulerModalOpen: false })}
+					handleConnectToSchedulerTrigger={handleConnectToSchedulerTrigger}
+					isLoading={info.connectTriggerLoading}
+					connectThirdParty={connectThirdParty}
+				/>
+			</div>
 		</div>
 	);
 };

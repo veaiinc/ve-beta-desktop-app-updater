@@ -90,7 +90,8 @@ const TopNavbar = () => {
 	const hideTopNavbar =
 		pathname.includes('builder') ||
 		pathname.includes('galleries') ||
-		pathname.includes('create-workspace');
+		pathname.includes('create-workspace') ||
+		pathname.includes('agent');
 	//  ||
 	// pathname.includes('	plan-billing');
 

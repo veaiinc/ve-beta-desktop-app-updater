@@ -6,189 +6,219 @@
 	overflow: auto;
 	gap: 34px;
 	background-color: var(--card);
-	padding: 28px;
+	padding: 36px;
 	border-radius: 14px;
 
-	.titleSubtitleContainer {
+	.triggersWrapper {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		align-items: flex-start;
+		gap: 36px;
+		max-width: 896px;
+		width: 100%;
+		margin: 0 auto;
 
-		.title {
-			color: var(--primary-font);
-			font-family: var(--font-family-inter);
-			font-size: 16px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-		}
-
-		.subtitle {
-			color: var(--secondary-font);
-			font-family: var(--font-family-inter);
-			font-size: 14px;
-			font-style: normal;
-			font-weight: 400;
-			line-height: 20px;
-		}
-	}
-
-	.connectedTriggersContainer {
-		display: flex;
-		flex-direction: column;
-		gap: 12px;
-
-		.title {
-			color: var(--primary-font);
-			font-family: var(--font-family-inter);
-			font-size: 16px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-		}
-
-		.emptyTriggersMessage {
-			margin: 0;
-			color: var(--secondary-font);
-			font-family: var(--font-family-inter);
-			font-size: 14px;
-			font-style: normal;
-			font-weight: 400;
-			line-height: 20px;
-		}
-
-		.triggersListContainer {
-			margin: 0;
+		.titleSubtitleContainer {
 			display: flex;
 			flex-direction: column;
-			align-items: flex-start;
 			gap: 8px;
-			padding-left: 0;
 
-			li {
-				width: 100%;
-				max-width: 896px;
-				list-style: none;
+			.title {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.subtitle {
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 20px;
+			}
+		}
+
+		.connectedTriggersContainer {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+			width: 100%;
+
+			.title {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.emptyTriggersMessage {
+				margin: 0;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 20px;
+			}
+
+			.triggersListContainer {
+				margin: 0;
 				display: flex;
-				align-items: center;
+				flex-direction: column;
+				align-items: flex-start;
 				gap: 12px;
-				padding: 16px 24px;
-				border-radius: 12px;
-				border: 1px solid var(--stroke);
-				background: var(--card);
-				position: relative;
+				padding-left: 0;
 
-				.triggerItemContent {
+				li {
 					display: flex;
-					flex-direction: column;
-					gap: 2px;
-
-					h3 {
-						color: var(--primary-font);
-						font-family: var(--font-family-inter);
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: 20px;
-					}
-
-					p {
-						color: var(--secondary-font);
-						font-family: var(--font-family-inter);
-						font-size: 12px;
-						font-style: normal;
-						font-weight: 400;
-						line-height: 18px;
-					}
-				}
-
-				.disconnectTrigger {
-					position: absolute;
-					right: 18px;
-					top: 50%;
-					transform: translateY(-50%);
-					width: 24px;
-					height: 24px;
-					display: flex;
-					justify-content: center;
+					padding: 16px 24px;
+					justify-content: space-between;
 					align-items: center;
-					border: none;
-					outline: none;
-					background: inherit;
-					cursor: pointer;
-					transition: all 0.2s ease-in;
+					align-self: stretch;
+					border-radius: 12px;
+					border: 1px solid var(--stroke, #2b2e31);
+					background: var(--card);
+					gap: 12px;
 
-					&:hover {
-						transform: translateY(-50%) scale(1.1);
+					.triggerItemIconContainer {
+						align-self: flex-start;
+						font-size: 18px;
+						svg {
+							width: 18px;
+							height: 18px;
+						}
+					}
+
+					.triggerItemContent {
+						display: flex;
+						flex-direction: column;
+						gap: 2px;
+						flex: 1;
+
+						h3 {
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: 20px;
+						}
+
+						p {
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: 18px;
+						}
+					}
+
+					.triggerActionsWrapper {
+						display: flex;
+						height: 100%;
+						justify-content: center;
+						align-items: center;
+						gap: 12px;
+
+						.disconnectTrigger {
+							background-color: transparent;
+							border: none;
+							outline: none;
+							cursor: pointer;
+							transition: all 0.2s ease-in;
+							display: flex;
+							justify-content: center;
+							align-items: center;
+
+							svg {
+								width: 16px;
+								height: 16px;
+								path {
+									stroke: var(--primary-font);
+								}
+							}
+						}
 					}
 				}
 			}
 		}
-	}
 
-	.divider {
-		width: 100%;
-		height: 1px;
-		background: var(--stroke);
-	}
-
-	.connectAppsContainer {
-		display: flex;
-		flex-direction: column;
-		gap: 12px;
-
-		&:last-child {
-			margin-bottom: 24px;
+		.divider {
+			width: 100%;
+			height: 1px;
+			background: var(--stroke);
 		}
 
-		.title {
-			color: var(--primary-font);
-			font-family: var(--font-family-inter);
-			font-size: 14px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: 22px;
-		}
-
-		.connectAppsListContainer {
-			margin: 0;
-			padding-left: 0;
+		.connectAppsContainer {
 			display: flex;
+			flex-direction: column;
 			gap: 12px;
 
-			li {
+			&:last-child {
+				margin-bottom: 24px;
+			}
+
+			.title {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 22px;
+			}
+
+			.connectAppsListContainer {
+				margin: 0;
+				padding-left: 0;
 				display: flex;
-				width: 215px;
-				padding: 8px 12px;
-				align-items: center;
-				align-content: center;
 				gap: 12px;
 				flex-wrap: wrap;
-				border-radius: 8px;
-				background: var(--card-over-card, #27282b);
-				cursor: pointer;
 
-				.iconContainer {
+				li {
 					display: flex;
-					width: 40px;
-					height: 40px;
-					justify-content: center;
+					width: 215px;
+					padding: 8px 12px;
 					align-items: center;
-					gap: 10px;
-					flex-shrink: 0;
+					align-content: center;
+					gap: 12px;
+					flex-wrap: wrap;
 					border-radius: 8px;
-					border: 1px solid var(--stroke, #2b2e31);
-					background: var(--card-over-card, #27282b);
-				}
+					// background: var(--card-over-card, #27282b);
+					cursor: pointer;
 
-				span,
-				h3 {
-					color: var(--primary-font);
-					font-family: var(--font-family-inter);
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: 22px;
+					.iconContainer {
+						display: flex;
+						width: 40px;
+						height: 40px;
+						justify-content: center;
+						align-items: center;
+						gap: 10px;
+						flex-shrink: 0;
+						border-radius: 8px;
+						border: 1px solid var(--stroke, #2b2e31);
+						// background: var(--card-over-card, #27282b);
+					}
+
+					span,
+					h3 {
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 22px;
+					}
+
+					&:hover {
+						background: var(--card-over-card, #27282b);
+					}
 				}
 			}
 		}

@@ -18,25 +18,25 @@ const navItems = [
 		id: 1,
 		label: 'Prompt',
 		value: 'prompt',
-		icon : <PromptIcon />
+		icon: <PromptIcon />,
 	},
 	{
 		id: 4,
 		label: 'Tools',
 		value: 'tools',
-		icon : <ToolIcon />
+		icon: <ToolIcon />,
 	},
 	{
 		id: 2,
 		label: 'Knowledge Base',
 		value: 'knowledgeBase',
-		icon : <KnowledgeBaseIcon />
+		icon: <KnowledgeBaseIcon />,
 	},
 	{
 		id: 3,
 		label: 'Triggers',
 		value: 'trigger',
-		icon : <TriggerIcon />
+		icon: <TriggerIcon />,
 	},
 ];
 
@@ -91,6 +91,7 @@ const ConfigureAgent = ({ agentId }) => {
 					))}
 				</ol>
 			</nav>
+			{/* <div className={s.contentContainer}></div> */}
 			<div className={s.contentContainer}>{componentMapper[info.activeNavItem]}</div>
 		</div>
 	);
