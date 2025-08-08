@@ -25,8 +25,6 @@ const NotesHeader = ({
 	handleDeletePage,
 	handleDuplicatePage,
 	restorePage,
-	showAiTranscriptionSuggestions,
-	handleShowAiTranscriptionSuggestions,
 }) => {
 	const navigate = useNavigate();
 
@@ -56,12 +54,6 @@ const NotesHeader = ({
 						<div className="notes-header-divider" />
 					</>
 				)}
-
-				{/* <Switch
-					checked={showAiTranscriptionSuggestions}
-					onChange={handleShowAiTranscriptionSuggestions}
-					size="small"
-				/> */}
 
 				<button className="notes-nav-button" onClick={() => handleFavorite(!isFavorite)}>
 					<StarSvg

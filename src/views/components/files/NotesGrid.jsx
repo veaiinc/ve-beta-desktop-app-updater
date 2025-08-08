@@ -42,6 +42,7 @@ const NotesGrid = ({ handleTotalChange, isDatabase = false }) => {
 		hasNextPage: false,
 		selectedFilter: { label: 'All', value: 'all' },
 		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
+		notesCreateLoading: false,
 	});
 
 	useEffect(() => {
@@ -185,6 +186,8 @@ const NotesGrid = ({ handleTotalChange, isDatabase = false }) => {
 
 	const handleCreateNoteOrDatabase = async () => {
 		if (!accessControlCheck('note')) return;
+		if (info?.notesCreateLoading) return;
+		setInfo((prevInfo) => ({ ...prevInfo, notesCreateLoading: true }));
 		const payload = {
 			input: {
 				title: 'New Note',
@@ -193,8 +196,9 @@ const NotesGrid = ({ handleTotalChange, isDatabase = false }) => {
 		const response = await createNotesList(payload, isDatabase);
 		if (response?.[1]?._id) {
 			const newNoteId = response[1]?._id;
-			navigate(`/note/${newNoteId}${isDatabase ? '/database' : ''}`);
+			navigate(`/note/${newNoteId}`);
 		}
+		setInfo((prevInfo) => ({ ...prevInfo, notesCreateLoading: false }));
 	};
 
 	return (
@@ -233,9 +237,16 @@ const NotesGrid = ({ handleTotalChange, isDatabase = false }) => {
 									<button
 										onClick={handleCreateNoteOrDatabase}
 										className="card-btn"
+										disabled={info?.notesCreateLoading}
 									>
-										<Plus />
-										{isDatabase ? 'Create Database' : 'Create Note'}
+										{info?.notesCreateLoading ? (
+											<Spinner />
+										) : (
+											<>
+												<Plus />
+											</>
+										)}
+										{info?.notesCreateLoading ? 'Creating...' : 'Create Note'}
 									</button>
 								</div>
 							</div>
@@ -243,11 +254,7 @@ const NotesGrid = ({ handleTotalChange, isDatabase = false }) => {
 								<div
 									className="card-item notes-grid-container tooltip"
 									key={index}
-									onClick={() =>
-										navigate(
-											`/note/${note?._id}${isDatabase ? '/database' : ''}`,
-										)
-									}
+									onClick={() => navigate(`/note/${note?._id}`)}
 									data-tooltip={note?.title}
 								>
 									<div className="card-item-style content-wrapper note-card-content">
@@ -282,6 +289,7 @@ const NotesGrid = ({ handleTotalChange, isDatabase = false }) => {
 							title={'No notes here'}
 							subtitle={'Try creating some notes'}
 							buttonOnClick={handleCreateNoteOrDatabase}
+							buttonLoading={info?.notesCreateLoading}
 							buttonText={'Create note'}
 						/>
 					</div>
