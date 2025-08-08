@@ -91,7 +91,7 @@ const Settings = ({
 	closeSettingsTooltip,
 }) => {
 	const { pathname } = useLocation();
-	const { launchIntercom, shutdownIntercom, showIntercom } = useIntercom();
+	const { shutdownIntercom, showIntercom } = useIntercom();
 	const channel = useBroadcastChannel();
 	const navigate = useNavigate();
 
@@ -117,7 +117,6 @@ const Settings = ({
 	}, [info.intercomOpen]);
 
 	const openIntercom = async () => {
-		await launchIntercom();
 		showIntercom();
 	};
 
