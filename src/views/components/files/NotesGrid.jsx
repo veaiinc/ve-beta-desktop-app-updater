@@ -239,13 +239,7 @@ const NotesGrid = ({ handleTotalChange, isDatabase = false }) => {
 										className="card-btn"
 										disabled={info?.notesCreateLoading}
 									>
-										{info?.notesCreateLoading ? (
-											<Spinner />
-										) : (
-											<>
-												<Plus />
-											</>
-										)}
+										{info?.notesCreateLoading ? <Spinner /> : <Plus />}
 										{info?.notesCreateLoading ? 'Creating...' : 'Create Note'}
 									</button>
 								</div>
