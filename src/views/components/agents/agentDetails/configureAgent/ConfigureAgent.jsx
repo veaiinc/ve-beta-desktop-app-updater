@@ -52,14 +52,22 @@ const ConfigureAgent = ({ agentId }) => {
 
 	useEffect(() => {
 		if (!configParam) {
-			setSearchParams({ config: 'prompt' });
+			setSearchParams((prev) => {
+				const updated = new URLSearchParams(prev);
+				updated.set('config', 'prompt');
+				return updated;
+			});
 		}
 		setInfo((prev) => ({ ...prev, activeNavItem: initialNavItem }));
 	}, []);
 
 	const handleNavItemClick = (item) => {
 		setInfo((prev) => ({ ...prev, activeNavItem: item.id }));
-		setSearchParams({ config: item.value });
+		setSearchParams((prev) => {
+			const updated = new URLSearchParams(prev);
+			updated.set('config', item.value);
+			return updated;
+		});
 	};
 
 	const componentMapper = useMemo(() => {

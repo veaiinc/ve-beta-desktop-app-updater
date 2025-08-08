@@ -550,7 +550,12 @@ export const KnowledgeAgentState = () => {
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
 			const response = await service?.fetchPost(path, payload, token, type);
-			return response;
+			const success = response?.[0] === true;
+			if (success) {
+				return response?.[1];
+			} else {
+				throw new Error(response?.[1]?.message || 'Failed to create action');
+			}
 		} catch (error) {
 			console.log('error==>addActionToKnowledgeAgent', error);
 			throw error;
@@ -712,6 +717,61 @@ export const KnowledgeAgentState = () => {
 		}
 	};
 
+	const getPipedreamTriggers = async () => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/pipedream/triggers/${workspaceId}/components`;
+			const response = await service?.fetchGet(
+				url,
+				usertoken,
+				'third_party_integrations_api',
+			);
+			if (response?.[0] === true) {
+				return [true, response[1]];
+			}
+			return [false, response?.[1]];
+		} catch (error) {
+			console.log('error==>getPipedreamTriggers', error);
+			return [false, error];
+		}
+	};
+
+	const deleteWhatsAppTriggerWithBothAPIs = async (triggerId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+
+			// 1. Call Pipedream DELETE API
+			const pipedreamUrl = `/pipedream/triggers/${workspaceId}/${triggerId}`;
+
+			const pipedreamResponse = await service?.fetchDelete(
+				pipedreamUrl,
+				usertoken,
+				null,
+				'third_party_integrations_api',
+			);
+
+			// 2. Call the normal disconnect API
+			const normalResponse = await disconnectTrigger(triggerId);
+
+			// Return both responses
+			const result = {
+				pipedream: pipedreamResponse,
+				normal: normalResponse,
+				success: pipedreamResponse?.[0] === true && normalResponse?.[0] === true,
+			};
+			return result;
+		} catch (error) {
+			console.error('error==>deleteWhatsAppTriggerWithBothAPIs', error);
+			return {
+				pipedream: [false, error],
+				normal: [false, error],
+				success: false,
+			};
+		}
+	};
+
 	const connectTrigger = async ({ triggerApp, triggerData }) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -743,6 +803,29 @@ export const KnowledgeAgentState = () => {
 						return [true, response?.[1]];
 					}
 					return [false, response?.[1]];
+				case 'whatsapp':
+					const resp = await service?.fetchPost(
+						url,
+						triggerData,
+						usertoken,
+						'ai_assistant_api',
+					);
+					if (resp?.[0] === true) {
+						const newTrigger = resp[1];
+						const data = [newTrigger, ...(state.triggers?.data || [])];
+						const payload = {
+							...state.triggers,
+							data: [newTrigger, ...(state.triggers?.data || [])],
+						};
+						dispatch({
+							type: Actions.CONNECT_TRIGGER,
+							payload,
+						});
+						return [true, resp?.[1]];
+					}
+					return [false, resp?.[1]];
+
+				// return [true, triggerData];
 				case 'googleMeet':
 					return [false, { message: 'Google Meet trigger not implemented yet' }]; // TODO: implement google meet trigger
 				default:
@@ -759,9 +842,7 @@ export const KnowledgeAgentState = () => {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 			const url = `/${workspaceId}/ai-assistant-triggers/${triggerId}`;
-			const type = 'ai_assistant_api';
-
-			const response = await service.fetchDelete(url, usertoken, null, type);
+			const response = await service.fetchDelete(url, usertoken, null, 'ai_assistant_api');
 			const success = response[0] === true;
 			if (success) {
 				const updatedTriggers = {
@@ -785,15 +866,51 @@ export const KnowledgeAgentState = () => {
 		}
 	};
 
+	const connectPipedreamTool = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = '/pipedream/connect-token/' + workspaceId + '/' + payload?.app;
+
+			const response = await service?.fetchPost(
+				url,
+				{},
+				usertoken,
+				'third_party_integrations_api',
+			);
+			if (response?.[0] === true) {
+				return [true, response?.[1]];
+			}
+			return [false, response?.[1]];
+		} catch (error) {
+			console.log('error==>connectTool', error);
+		}
+	};
+
 	const connectTool = async (payload) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 			const url = '/composio/auth-config-and-account/' + workspaceId;
 
+			// Prepare the request body based on payload type
+			const requestBody = {
+				toolkit_slug: payload?.slug,
+			};
+
+			// Special handling for WhatsApp - include additional fields
+			if (payload?.slug === 'whatsapp' && payload?.apiKey) {
+				requestBody.apiKey = payload.apiKey;
+				requestBody.bearer_token = payload.bearer_token || payload.apiKey;
+				requestBody.user_id = payload.user_id || '';
+				requestBody.phone_number_id = payload.phone_number_id || '';
+			} else if (payload?.apiKey) {
+				requestBody.apiKey = payload.apiKey;
+			}
+
 			const response = await service?.fetchPost(
 				url,
-				{ toolkit_slug: payload?.slug },
+				requestBody,
 				usertoken,
 				'third_party_integrations_api',
 			);
@@ -1038,6 +1155,7 @@ export const KnowledgeAgentState = () => {
 			return [false, error];
 		}
 	};
+
 	const listofAllappsActions = async (page = 1, limit = 10, search = '') => {
 		const workspaceId = localStorage.getItem('workspaceId');
 		const usertoken = localStorage.getItem('usertoken');
@@ -1126,6 +1244,19 @@ export const KnowledgeAgentState = () => {
 		}
 	};
 
+	const getPipeDreamAction = async (action) => {
+		try {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const url = `/${workspaceId}/${action}/agent-tools`;
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+			return response;
+		} catch (error) {
+			console.log('error==>getPipeDreamAction', error);
+			return [false, error];
+		}
+	};
+
 	const getComposioAction = async (action) => {
 		const workspaceId = localStorage.getItem('workspaceId');
 		const usertoken = localStorage.getItem('usertoken');
@@ -1207,6 +1338,8 @@ export const KnowledgeAgentState = () => {
 		getTriggers,
 		connectTrigger,
 		disconnectTrigger,
+		getPipedreamTriggers,
+		deleteWhatsAppTriggerWithBothAPIs,
 		connectTool,
 		getPipedreamApps,
 		getPipedreamAppActions,
@@ -1220,11 +1353,13 @@ export const KnowledgeAgentState = () => {
 		listofAllappsActions,
 		getKnowledgeAssistantsListForAutomation,
 		getActiveKnowledgeAgentForAutomation,
-		getComposioAction,
+		getPipeDreamAction,
 		addSharedAgentUser,
 		removeSharedAgentUser,
 		updateSharedAgentUser,
 		getSharedAgentUsers,
+		getComposioAction,
 		getComposioConnectedAccounts,
+		connectPipedreamTool,
 	};
 };

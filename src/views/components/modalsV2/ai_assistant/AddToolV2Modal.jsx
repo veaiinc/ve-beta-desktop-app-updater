@@ -266,6 +266,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 
 	// Handle adding a tool
 	const handleAddTool = async (action) => {
+		console.log('action', action);
 		if (!action?.toolkit?.slug) {
 			message.error('Invalid tool data');
 			return;
@@ -280,22 +281,16 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		}));
 
 		try {
+			console.log('info.connectedAccounts', info.connectedAccounts);
 			const existingAccount = (
 				Array.isArray(info.connectedAccounts) ? info.connectedAccounts : []
-			).find((account) => account.app?.name_slug === action.toolkit.slug);
+			).find((account) => account?.toolkit_slug === action.toolkit?.slug);
 
+			console.log('existingAccount', existingAccount);
 			if (existingAccount) {
 				// Account is already connected, proceed with adding the tool
 				await handleCreateAction(action, existingAccount.id);
-			} else if (action.auth_type === 'api_key') {
-				setInfo((prev) => ({
-					...prev,
-					showApiKeyModal: true,
-					selectedActionForApiKey: action,
-					addLoading: { ...prev.addLoading, [action.slug]: false },
-					isConnecting: false,
-				}));
-			} else if (action.auth_type === 'oauth') {
+			} else if (action.requires_auth === true && action.primary_auth_scheme === 'OAUTH2') {
 				const [connectSuccess, response] = await connectTool({
 					slug: action.toolkit.slug,
 				});
@@ -312,7 +307,13 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 					throw new Error('Failed to initiate OAuth connection');
 				}
 			} else {
-				throw new Error('Unsupported authentication type');
+				setInfo((prev) => ({
+					...prev,
+					showApiKeyModal: true,
+					selectedActionForApiKey: action,
+					addLoading: { ...prev.addLoading, [action.slug]: false },
+					isConnecting: false,
+				}));
 			}
 		} catch (error) {
 			console.error('handleAddTool error:', error);
@@ -358,15 +359,19 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				name,
 				description,
 				variables,
-				isAuthenticated: true,
+				isAuthenticated: accountId !== null,
 				agent: 'knowledgeAgent',
 				app: action.toolkit.slug,
 				key: action.slug,
 				platform: 'composio',
 				logoUrl: action.toolkit.logo || '',
 				userId,
-				accountId,
 			};
+
+			// Only include accountId if it's not null
+			if (accountId !== null) {
+				payload.accountId = accountId;
+			}
 
 			const response = await addActionToKnowledgeAgent(agentId, payload);
 
@@ -397,30 +402,51 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 	};
 
 	// Handle API key submission
-	const handleApiKeySubmit = async (apiKey, action) => {
+	const handleApiKeySubmit = async (apiKeyData, action) => {
 		setInfo((prev) => ({
 			...prev,
 			apiKeyModalLoading: true,
 		}));
 
 		try {
+			// Prepare payload based on whether it's WhatsApp or other tools
+			let payload = { slug: action.toolkit.slug };
+
+			if (action?.toolkit?.slug === 'whatsapp' && typeof apiKeyData === 'object') {
+				// For WhatsApp, apiKeyData is an object with multiple fields
+				payload = {
+					...payload,
+					...apiKeyData,
+				};
+			} else {
+				// For other tools, apiKeyData is just the API key string
+				payload.apiKey = apiKeyData;
+			}
+
 			// First, connect the tool with API key
-			const [connectSuccess, connectResponse] = await connectTool({
-				slug: action.toolkit.slug,
-				apiKey: apiKey,
-			});
+			const [connectSuccess, connectResponse] = await connectTool(payload);
 
-			if (connectSuccess && connectResponse?.data?.account_id) {
-				// Tool connected successfully, now add it to the knowledge agent
-				await handleCreateAction(action, connectResponse.data.account_id, true);
+			if (connectSuccess) {
+				// Get the account ID from the response
+				const accountId =
+					connectResponse?.data?.account_id ||
+					connectResponse?.data?.connected_account_id ||
+					connectResponse?.data?.auth_config_id;
 
-				// Close the API key modal
-				setInfo((prev) => ({
-					...prev,
-					showApiKeyModal: false,
-					selectedActionForApiKey: null,
-					apiKeyModalLoading: false,
-				}));
+				if (accountId) {
+					// Tool connected successfully, now add it to the knowledge agent
+					await handleCreateAction(action, accountId, true);
+
+					// Close the API key modal and clear inputs
+					setInfo((prev) => ({
+						...prev,
+						showApiKeyModal: false,
+						selectedActionForApiKey: null,
+						apiKeyModalLoading: false,
+					}));
+				} else {
+					throw new Error('No account ID found in response');
+				}
 			} else {
 				throw new Error(connectResponse?.message || 'Failed to connect tool with API key');
 			}

@@ -10,10 +10,12 @@ import { ReactComponent as GoogleMeetIcon } from '../assets/google-meet-icon.svg
 import { ReactComponent as CustomWebhookIcon } from '../assets/custom-webhook.svg';
 import { ReactComponent as RedirectIcon } from '../assets/redirect-icon.svg';
 import { ReactComponent as DustbinIcon } from '../assets/dustbin-icon.svg';
+import { ReactComponent as WhatsApp } from '../../../../../../../assets/svg/ai_assistant/whatsappicon.svg';
 
 // components
 import ListEmailsModal from './modals/ListEmailsModal';
 import SchedulerModal from './modals/SchedulerModal';
+import WhatsAppModal from './modals/WhatsAppModal';
 import InfiniteScroll from '../../../../../../components/globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../../../../../../src/helpers/';
 import { ReactComponent as OutlookIcon } from '../../../assets/outlook.svg';
@@ -55,6 +57,12 @@ const connectableTriggers = [
 		triggerType: 'schedule',
 		description: 'Schedule at specific time',
 	},
+	{
+		icon: <WhatsApp />,
+		title: 'WhatsApp',
+		triggerType: 'whatsapp',
+		description: 'Get triggered when WhatsApp messages are received',
+	},
 ];
 
 const emptyConnectedTriggersMessage =
@@ -64,13 +72,20 @@ const TriggersTab = () => {
 	const { agentId } = useParams();
 
 	const {
-		knowledgeAgent: { triggers, getTriggers, connectTrigger, disconnectTrigger },
+		knowledgeAgent: {
+			triggers,
+			getTriggers,
+			connectTrigger,
+			disconnectTrigger,
+			deleteWhatsAppTriggerWithBothAPIs,
+		},
 		templates: { connectedThirdParties, getConnectedThirdParties, connectThirdParty },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		ListEmailsModalOpen: false,
 		schedulerModalOpen: false,
+		whatsAppModalOpen: false,
 		disconnectTriggerLoader: false,
 		selectedAppType: null,
 		connectTriggerLoading: false,
@@ -122,10 +137,17 @@ const TriggersTab = () => {
 					title = 'Google Meet';
 					description = 'Google Meet';
 				} else {
-					icon = '📱';
+					icon = <WhatsApp width={24} height={24} />;
 					title = app || 'App Trigger';
 					description = action || 'Trigger';
 				}
+			} else if (type === 'whatsapp' || type === 'pipedream' || app === 'whatsapp') {
+				icon = <WhatsApp />;
+				title = 'WhatsApp';
+				description =
+					type === 'pipedream'
+						? 'WhatsApp Business trigger'
+						: 'Get triggered when WhatsApp messages are received';
 			} else {
 				// Fallback for unknown/legacy triggers
 				icon = '❓';
@@ -271,11 +293,40 @@ const TriggersTab = () => {
 		}
 	};
 
-	const handleDisconnectTrigger = async (triggerId) => {
+	const handleConnectToWhatsAppTrigger = async (triggerConfig) => {
+		try {
+			setInfo((prev) => ({ ...prev, connectTriggerLoading: true }));
+
+			const triggerData = {
+				...triggerConfig,
+			};
+
+			const response = await connectTrigger({ triggerApp: 'whatsapp', triggerData });
+
+			if (response?.[0] === true) {
+				message.success('WhatsApp trigger connected successfully');
+				// Refresh the triggers list to show the new trigger
+				await getTriggers(agentId);
+			} else {
+				const errorMessage =
+					response?.[1]?.message ||
+					response?.message ||
+					'Failed to connect WhatsApp trigger';
+				message.error(errorMessage);
+			}
+		} catch (error) {
+			console.error('WhatsApp Trigger Error:', error);
+			const errorMsg = error?.message || 'An unexpected error occurred';
+			message.error(errorMsg);
+		} finally {
+			setInfo((prev) => ({ ...prev, connectTriggerLoading: false }));
+		}
+	};
+
+	const handleDisconnectTrigger = async (triggerId, type, app) => {
 		try {
 			if (info.disconnectTriggerLoader) return;
 
-			// Validate triggerId
 			if (!triggerId || triggerId === 'undefined') {
 				console.error('Invalid trigger ID:', triggerId);
 				message.error('Invalid trigger ID. Please refresh the page and try again.');
@@ -283,15 +334,42 @@ const TriggersTab = () => {
 			}
 
 			setInfo((prev) => ({ ...prev, disconnectTriggerLoader: true }));
-			const response = await disconnectTrigger(triggerId);
 
-			const success = response?.[0] === true;
+			let response;
 
-			if (success) {
-				message.success('Trigger disconnected successfully!');
+			if (type === 'whatsapp' || app === 'whatsapp' || type === 'pipedream') {
+				// Call both APIs for WhatsApp triggers using the context function
+				const result = await deleteWhatsAppTriggerWithBothAPIs(triggerId);
+
+				if (result.success) {
+					message.success('Trigger disconnected successfully!');
+					getTriggers(agentId); // Refresh
+				} else {
+					// Log which API failed
+					if (result.pipedream?.[0] !== true) {
+						console.error('Pipedream API failed:', result.pipedream);
+					}
+					if (result.normal?.[0] !== true) {
+						console.error('Normal disconnect API failed:', result.normal);
+					}
+
+					const errorMessage =
+						result.pipedream?.[1]?.message ||
+						result.normal?.[1]?.message ||
+						'Failed to disconnect trigger!';
+					message.error(errorMessage);
+				}
 			} else {
-				const errorMessage = response?.[1]?.message || 'Failed to disconnect trigger!';
-				message.error(errorMessage);
+				// For other types, call the normal disconnect
+				response = await disconnectTrigger(triggerId);
+
+				if (response?.[0] === true) {
+					message.success('Trigger disconnected successfully!');
+					getTriggers(agentId); // Refresh
+				} else {
+					const errorMessage = response?.[1]?.message || 'Failed to disconnect trigger!';
+					message.error(errorMessage);
+				}
 			}
 		} catch (error) {
 			console.error('Error disconnecting trigger:', error);
@@ -340,7 +418,13 @@ const TriggersTab = () => {
 										</div>
 										<div className={s.triggerActionsWrapper}>
 											<button
-												onClick={() => handleDisconnectTrigger(trigger._id)}
+												onClick={() => {
+											handleDisconnectTrigger(
+												trigger._id,
+												trigger.type,
+												trigger.app,
+											);
+										}}
 												className={s.disconnectTrigger}
 											>
 												<DustbinIcon />
@@ -377,7 +461,12 @@ const TriggersTab = () => {
 											...prev,
 											schedulerModalOpen: true,
 										}));
-									}
+									} else if (trigger.triggerType === 'whatsapp') {
+									setInfo((prev) => ({
+										...prev,
+										whatsAppModalOpen: true,
+									}));
+								}
 									// Add other trigger types here as needed
 								}}
 							>
@@ -418,6 +507,12 @@ const TriggersTab = () => {
 					connectThirdParty={connectThirdParty}
 				/>
 			</div>
+			<WhatsAppModal
+				isOpen={info.whatsAppModalOpen}
+				onClose={() => setInfo({ ...info, whatsAppModalOpen: false })}
+				handleConnectToWhatsAppTrigger={handleConnectToWhatsAppTrigger}
+				isLoading={info.connectTriggerLoading}
+			/>
 		</div>
 	);
 };
