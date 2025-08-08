@@ -261,11 +261,10 @@ export const getBrowserUrls = async (sessionId, handleGlobalChatMessages) => {
 				'browser_api',
 			);
 
-			if (
-				response?.[0] &&
-				response?.[1]?.success === true &&
-				response?.[1]?.activeTabIndex !== 0
-			) {
+			if (response?.[0] && response?.[1]?.success === true) {
+				if (response?.[1]?.activeTabIndex === 0) {
+					return;
+				}
 				handleGlobalChatMessages({
 					sessionId: sessionId,
 					browserData: response?.[1],
@@ -273,10 +272,11 @@ export const getBrowserUrls = async (sessionId, handleGlobalChatMessages) => {
 				});
 				delete activePollTimeouts[sessionId];
 				return;
+			} else if (response?.[1]?.success === false) {
+				console.log('making api call to get browser urls');
 			} else {
-				console.warn('Invalid response or success=false in browser status');
-				// delete activePollTimeouts[sessionId];
-				// return;
+				delete activePollTimeouts[sessionId];
+				return;
 			}
 		} catch (error) {
 			console.error('error==>getBrowserUrls', error);
