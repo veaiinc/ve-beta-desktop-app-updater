@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from '@svgr/rollup';
-import { visualizer } from 'rollup-plugin-visualizer';
 import electron from 'vite-plugin-electron/simple';
 
 export default defineConfig({
@@ -9,11 +8,6 @@ export default defineConfig({
 	plugins: [
 		react(),
 		svgr(),
-		visualizer({
-			open: true,
-			filename: 'bundle-visualizer.html',
-			brotliSize: true,
-		}),
 		electron({
 			main: {
 				entry: 'electron/main',
