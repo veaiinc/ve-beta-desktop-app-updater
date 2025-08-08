@@ -15,6 +15,14 @@ import { getGreeting } from '../../../helpers';
 import jwtDecode from 'jwt-decode';
 import { Tooltip } from 'antd';
 
+const tooltipStyle = {
+	padding: 8,
+	borderRadius: 8,
+	color: 'var(--primary-font)',
+	background: 'var(--navbar)',
+	border: '1px solid var(--dividers)',
+};
+
 const getCardStyles = (index, activeIndex, dataLength) => {
 	const prev1 = (activeIndex - 1 + dataLength) % dataLength;
 	const prev2 = (activeIndex - 2 + dataLength) % dataLength;
@@ -560,12 +568,24 @@ const NewUi = ({ handleActiveChatChange }) => {
 										</div>
 									) : (
 										<>
-											<div
-												className="fullChat"
-												onClick={() => handleExpandChat(session)}
+											<Tooltip
+												title={
+													<div style={tooltipStyle}>
+														<span>Expand Chat</span>
+													</div>
+												}
+												placement="bottom"
+												arrow={false}
+												color={'transparent'}
 											>
-												<ArrowUpRightSvg />
-											</div>
+												<div
+													className="fullChat"
+													onClick={() => handleExpandChat(session)}
+												>
+													<ArrowUpRightSvg />
+												</div>
+											</Tooltip>
+
 											<ChatMessages
 												sessionId={session?._id}
 												messages={session?.messages}
