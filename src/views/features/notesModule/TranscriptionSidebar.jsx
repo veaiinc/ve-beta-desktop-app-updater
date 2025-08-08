@@ -81,7 +81,9 @@ const TranscriptionSidebar = () => {
 								<div className={styles.transcriptionItemDot}></div>
 								<div className={styles.transcriptionItemTimestamp}>
 									<TimerIcon />
-									{item?.time}
+									{item?.timestamp
+										? moment?.unix(item?.timestamp).format('HH:mm:ss')
+										: item?.time}
 								</div>
 							</div>
 							<div className={styles.transcriptionItemTranscript}>
