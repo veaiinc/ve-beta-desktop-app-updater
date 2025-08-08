@@ -69,6 +69,27 @@
 			align-items: center;
 			flex-grow: 1;
 			position: relative;
+			background-color: var(--card-hover);
+			transition: all 0.3s ease;
+
+			&.tookControl {
+				position: fixed;
+				bottom: 0;
+				right: 0;
+				width: 100vw;
+				height: 100vh;
+				z-index: 1000;
+
+				.browserIframe {
+					height: 80% !important;
+
+					.takeControl {
+						right: 0;
+						left: 50%;
+						transform: translateX(-50%);
+					}
+				}
+			}
 
 			.browserIframe {
 				width: 100%;
@@ -86,6 +107,7 @@
 				padding: 12px;
 				border-radius: 100px;
 				cursor: pointer;
+				transition: all 0.3s ease;
 				&:hover {
 					background-color: var(--stroke-hover);
 				}

@@ -60,7 +60,11 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 				)}
 
 				{info?.activeTab !== -1 && (
-					<div className={s.browserIframeContainer}>
+					<div
+						className={`${s.browserIframeContainer} ${
+							info?.takeControl ? s.tookControl : ''
+						}`}
+					>
 						<iframe
 							src={info?.tabs[info?.activeTab]?.debuggerUrl}
 							allowfullscreen
