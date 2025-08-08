@@ -787,18 +787,14 @@ const Files = () => {
 											{/* {info?.selectedView === option?.label && (
 												<span className="sidebar-option-active-indicator"></span>
 											)} */}
-											<div
-												style={{
-													display: 'flex',
-													alignItems: 'center',
-													justifyContent: 'space-between',
-												}}
-											>
+											<div className="sidebar-option-label">
 												{option?.label}
 											</div>
 											{info?.totalCount?.[option?.value] ? (
 												<div className="count-wrapper">
-													{info?.totalCount?.[option?.value]}
+													{info?.totalCount?.[option?.value] > 99
+														? '99+'
+														: info?.totalCount?.[option?.value]}
 												</div>
 											) : null}
 										</div>

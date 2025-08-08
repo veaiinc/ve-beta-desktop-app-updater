@@ -842,6 +842,11 @@
 			width: 100%;
 
 			.sidebar-option {
+				.sidebar-option-label {
+					display: flex;
+					align-items: center;
+					gap: 10px;
+				}
 				display: flex;
 				height: 40px;
 				width: 100%;
