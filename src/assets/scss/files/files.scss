@@ -877,11 +877,10 @@
 				}
 				.count-wrapper {
 					display: flex;
-					width: 20px;
+					min-width: 20px;
 					height: 20px;
 					justify-content: center;
 					align-items: center;
-					gap: 9.093px;
 					border-radius: 68px;
 					padding: 8px;
 					background: var(--primary-font, #f2f2f3);

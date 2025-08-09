@@ -1,0 +1,57 @@
+{
+	"plans": {
+		"plus": {
+			"name": "Plus",
+			"features": [
+				"Advanced user engagement analytics",
+				"Integrate with 50+ apps",
+				"Collaborate with 15 members",
+				"AI-powered content generation",
+				"Dedicated priority support",
+				"Custom workspace branding",
+				"250GB secure cloud storage"
+			],
+			"trialDays": 2,
+			"isSeatBased": false
+		},
+		"pro": {
+			"name": "Pro",
+			"features": [
+				"Advanced user engagement analytics",
+				"Integrate with 50+ apps",
+				"Collaborate with 15 members",
+				"AI-powered content generation",
+				"Dedicated priority support",
+				"Custom workspace branding",
+				"250GB secure cloud storage"
+			],
+			"isSeatBased": true,
+			"defaultUsers": 5,
+			"minUsers": 1,
+			"recommended": true
+		},
+		"enterprise": {
+			"name": "Enterprise",
+			"features": [
+				"Advanced user engagement analytics",
+				"Integrate with 50+ apps",
+				"Collaborate with 15 members",
+				"AI-powered content generation",
+				"Dedicated priority support",
+				"Custom workspace branding",
+				"250GB secure cloud storage"
+			],
+			"isSeatBased": false,
+			"contactSales": true
+		}
+	},
+	"commonFeatures": [
+		"Advanced user engagement analytics",
+		"Integrate with 50+ apps",
+		"Collaborate with 15 members",
+		"AI-powered content generation",
+		"Dedicated priority support",
+		"Custom workspace branding",
+		"250GB secure cloud storage"
+	]
+}

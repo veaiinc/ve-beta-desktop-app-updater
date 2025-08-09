@@ -7,11 +7,10 @@
 
 	.planBillingTitle {
 		color: var(--primary-font, #f2f2f3);
-		color: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
 		font-family: var(--primary-font-family);
 		font-size: 32px;
 		font-style: normal;
-		font-weight: 300;
+		font-weight: 500;
 		line-height: normal;
 	}
 
@@ -158,11 +157,11 @@
 			}
 		}
 	}
-	.planbilling-separator {
-		width: 100%;
-		background: var(--stroke, #313336);
-		height: 1px;
-	}
+	// .planbilling-separator {
+	// 	width: 100%;
+	// 	background: var(--stroke, #313336);
+	// 	height: 1px;
+	// }
 
 	.subscriptionWrapperContainer {
 		display: flex;
@@ -172,322 +171,96 @@
 		align-items: flex-start;
 		gap: 32px;
 
-		.subscriptionUpdatedPlanCard {
+		// .subscriptionUpdatedPlanCard {
+		// 	display: flex;
+		// 	width: 100%;
+		// 	flex-direction: column;
+		// 	border-radius: 0px 0px 16px 16px;
+		// 	border: 1px solid var(--stroke);
+		// 	border-radius: 16px;
+
+		// .subscriptionPlanHeaderContainer {
+		// 	display: flex;
+		// 	padding: 24px 32px;
+		// 	flex-direction: row;
+		// 	width: 100%;
+		// 	justify-content: space-between;
+		// 	align-items: center;
+		// 	gap: 6px;
+		// 	align-self: stretch;
+		// 	border-radius: 16px 16px 0px 0px;
+		// 	background: var(--card-over-card-hover, #27282b);
+
+		.subscriptionPlanHeader {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+		.manageSubscriptionButton {
 			display: flex;
-			width: 100%;
+			justify-content: center;
+			align-items: center;
+			gap: 6px;
+			cursor: pointer;
+			background: transparent;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			border: none;
+		}
+	}
+
+	.subscriptionPlanContent {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		// padding: 24px 32px; // align-items: center;
+		align-self: stretch;
+
+		.subscriptionPlanPricingDetails {
+			display: flex;
+			align-items: flex-end;
+			gap: 4px;
+			align-self: stretch;
+
+			.subscriptionPlanPricing {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 40px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 34px; /* 85% */
+			}
+			.subscritptionPlanPeriod {
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+
+		.subscriptionUsageContainer {
+			display: flex;
+			width: 224px;
 			flex-direction: column;
-			border-radius: 0px 0px 16px 16px;
-			border: 1px solid var(--stroke);
-			border-radius: 16px;
+			align-items: flex-start;
+			gap: 8px;
 
-			.subscriptionPlanHeaderContainer {
+			.subscriptionUsageDeatails {
 				display: flex;
-				padding: 24px 32px;
-				flex-direction: row;
-				width: 100%;
-				justify-content: space-between;
+				justify-content: center;
 				align-items: center;
-				gap: 6px;
-				align-self: stretch;
-				border-radius: 16px 16px 0px 0px;
-				background: var(--card-over-card-hover, #27282b);
+				gap: 8px;
 
-				.subscriptionPlanHeader {
-					color: var(--primary-font, #f2f2f3);
-					font-family: var(--primary-font-family);
-					font-size: 16px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-				}
-				.manageSubscriptionButton {
-					display: flex;
-					justify-content: center;
-					align-items: center;
-					gap: 6px;
-					cursor: pointer;
-					background: transparent;
-					color: var(--primary-font);
-					font-family: var(--primary-font-family);
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-					border: none;
-				}
-			}
-
-			.subscriptionPlanContent {
-				display: flex;
-				flex-direction: column;
-				align-items: flex-start;
-				padding: 24px 32px; // align-items: center;
-				align-self: stretch;
-
-				.subscriptionPlanPricingDetails {
-					display: flex;
-					align-items: flex-end;
-					gap: 4px;
-					align-self: stretch;
-
-					.subscriptionPlanPricing {
-						color: var(--primary-font);
-						font-family: var(--primary-font-family);
-						font-size: 40px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: 34px; /* 85% */
-					}
-					.subscritptionPlanPeriod {
-						color: var(--secondary-font);
-						font-family: var(--primary-font-family);
-						font-size: 16px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-					}
-				}
-
-				.subscriptionUsageContainer {
-					display: flex;
-					width: 224px;
-					flex-direction: column;
-					align-items: flex-start;
-					gap: 8px;
-
-					.subscriptionUsageDeatails {
-						display: flex;
-						justify-content: center;
-						align-items: center;
-						gap: 8px;
-
-						.subscriptionUsageData {
-							color: var(--secondary-font);
-							font-family: var(--primary-font-family);
-							font-size: 11px;
-							font-style: normal;
-							font-weight: 400;
-							line-height: normal;
-						}
-					}
-
-					.subscriptionPlanProgressBar {
-						width: 100%;
-						background-color: var(--card-over-card-hover);
-						height: 3px;
-						border-radius: 24px;
-
-						.subscriptionPlanProgressIndicator {
-							width: 50%;
-							background-color: var(--primary-font);
-							height: 3px;
-							border-radius: 24px;
-						}
-					}
-				}
-				.subscritptionFeaturesContainer {
-					display: flex;
-					flex-direction: column;
-					align-items: flex-start;
-					gap: 8px;
-					align-self: stretch;
-					padding-bottom: 16px;
-					margin-bottom: 8px;
-
-					.subscriptionFeature {
-						display: flex;
-						align-items: center;
-						gap: 12px;
-						align-self: stretch;
-
-						.subscriptionFeatureContent {
-							color: var(--secondary-font);
-							font-family: var(--primary-font-family);
-							font-size: 14px;
-							font-style: normal;
-							font-weight: 400;
-							line-height: 20px; /* 142.857% */
-						}
-					}
-				}
-
-				.addOnContianer {
-					display: flex;
-					width: 800px;
-					height: 650px;
-					max-width: 100%;
-					max-height: 90vh;
-					flex-direction: column;
-					align-items: flex-start;
-					border-radius: 24px;
-					border: 1px solid var(--stroke, #2c2d2e);
-
-					.addOnStates {
-						color: var(--primary-font);
-
-						font-family: var(--primary-font-family);
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: 20px; /* 142.857% */
-					}
-
-					.addOnStuffsHolder {
-						display: flex;
-						justify-content: space-between;
-						align-items: flex-start;
-						align-self: stretch;
-
-						.addOnCards {
-							display: flex;
-							width: 176px;
-							padding: 16px;
-							flex-direction: column;
-							align-items: flex-start;
-							gap: 16px;
-							border-radius: 16px;
-
-							.addOnCardsHeaderChanges {
-								display: flex;
-								width: 176px;
-								// padding: 16px;
-								flex-direction: column;
-								align-items: flex-start;
-								gap: 16px;
-								.addOnCardsTitle {
-									color: var(--primary-font);
-									font-family: var(--primary-font-family);
-									font-size: 11px;
-									font-style: normal;
-									font-weight: 500;
-									line-height: normal;
-								}
-								.addOnCardPriceContainer {
-									color: var(--secondary-font);
-									font-family: var(--primary-font-family);
-									font-size: 12px;
-									font-style: normal;
-									font-weight: 500;
-									line-height: normal;
-								}
-							}
-						}
-					}
-				}
-				.storageContainer {
-					display: flex;
-					flex-direction: column;
-					width: 100%;
-					gap: 24px;
-					.storageContainerHolder {
-						display: flex;
-						flex-direction: column;
-						justify-content: flex-start;
-						align-items: flex-start;
-						align-self: stretch;
-						gap: 8px;
-						.storageContainerHeader {
-							display: flex;
-							justify-content: space-between;
-							align-items: center;
-							align-self: stretch;
-							.storageTitle {
-								color: var(--primary-font);
-								font-family: var(--primary-font-family);
-								font-size: 12px;
-								font-style: normal;
-								font-weight: 500;
-								line-height: 18px; /* 150% */
-								text-transform: uppercase;
-							}
-							.storageUsed {
-								color: var(--secondary-font);
-								font-family: var(--primary-font-family);
-								font-size: 14px;
-								font-style: normal;
-								font-weight: 400;
-								line-height: normal;
-								.storageUsedValue {
-									color: var(--primary-font);
-									font-family: var(--primary-font-family);
-									font-size: 24px;
-									font-style: normal;
-									font-weight: 500;
-									line-height: normal;
-								}
-								.storageUsedUnit {
-									color: var(--primary-font);
-									font-family: var(--primary-font-family);
-									font-size: 14px;
-									font-style: normal;
-									font-weight: 500;
-									line-height: normal;
-								}
-							}
-						}
-
-						.storageProgress {
-							width: 100%;
-
-							height: 3px;
-							border-radius: 24px;
-							background: var(--card-over-card-hover);
-							position: relative;
-							.storageProgressValue {
-								height: 3px;
-								border-radius: 24px;
-								background: var(--primary-font);
-							}
-						}
-						.storageProgressText {
-							color: var(--error);
-							font-family: var(--primary-font-family);
-							font-size: 12px;
-							font-style: normal;
-							font-weight: 400;
-							line-height: normal;
-						}
-					}
-				}
-			}
-
-			.subscriptionSeperator {
-				width: 100%;
-				height: 1px;
-				background: var(--stroke);
-			}
-
-			.subscriptionActionContainer {
-				display: flex;
-				justify-content: end;
-				align-items: end;
-				align-self: stretch;
-				width: 100%;
-				padding: 24px 32px;
-				gap: 24px;
-
-				.manageSubscriptionButton {
-					display: flex;
-					padding: 14px 24px;
-					justify-content: center;
-					align-items: center;
-					gap: 6px;
-					border-radius: 59px;
-					background: var(--primary-button);
-					cursor: pointer;
-					color: var(--primary-button-font);
-					font-family: var(--primary-font-family);
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-					border: none;
-
-					&:disabled {
-						cursor: wait;
-					}
-				}
-				.expiringText {
+				.subscriptionUsageData {
 					color: var(--secondary-font);
 					font-family: var(--primary-font-family);
 					font-size: 11px;
@@ -496,7 +269,248 @@
 					line-height: normal;
 				}
 			}
+
+			.subscriptionPlanProgressBar {
+				width: 100%;
+				background-color: var(--card-over-card-hover);
+				height: 3px;
+				border-radius: 24px;
+
+				.subscriptionPlanProgressIndicator {
+					width: 50%;
+					background-color: var(--primary-font);
+					height: 3px;
+					border-radius: 24px;
+				}
+			}
 		}
+		.subscritptionFeaturesContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+			align-self: stretch;
+			padding-bottom: 16px;
+			margin-bottom: 8px;
+
+			.subscriptionFeature {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				align-self: stretch;
+
+				.subscriptionFeatureContent {
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 20px; /* 142.857% */
+				}
+			}
+		}
+
+		.addOnContianer {
+			display: flex;
+			width: 800px;
+			height: 650px;
+			max-width: 100%;
+			max-height: 90vh;
+			flex-direction: column;
+			align-items: flex-start;
+			border-radius: 24px;
+			border: 1px solid var(--stroke, #2c2d2e);
+
+			.addOnStates {
+				color: var(--primary-font);
+
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px; /* 142.857% */
+			}
+
+			.addOnStuffsHolder {
+				display: flex;
+				justify-content: space-between;
+				align-items: flex-start;
+				align-self: stretch;
+
+				.addOnCards {
+					display: flex;
+					width: 176px;
+					padding: 16px;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 16px;
+					border-radius: 16px;
+
+					.addOnCardsHeaderChanges {
+						display: flex;
+						width: 176px;
+						// padding: 16px;
+						flex-direction: column;
+						align-items: flex-start;
+						gap: 16px;
+						.addOnCardsTitle {
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
+							font-size: 11px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+						.addOnCardPriceContainer {
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+					}
+				}
+			}
+		}
+		.storageContainer {
+			display: flex;
+			flex-direction: column;
+			width: 100%;
+			gap: 24px;
+			.storageContainerHolder {
+				display: flex;
+				flex-direction: column;
+				justify-content: flex-start;
+				align-items: flex-start;
+				align-self: stretch;
+				gap: 8px;
+				.storageContainerHeader {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					align-self: stretch;
+					.storageTitle {
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 18px; /* 150% */
+						text-transform: uppercase;
+					}
+					.storageUsed {
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+						.storageUsedValue {
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
+							font-size: 24px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+						.storageUsedUnit {
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+					}
+				}
+
+				.storageProgress {
+					width: 100%;
+
+					height: 3px;
+					border-radius: 24px;
+					background: var(--card-over-card-hover);
+					position: relative;
+					.storageProgressValue {
+						height: 3px;
+						border-radius: 24px;
+						background: var(--primary-font);
+					}
+				}
+				.storageProgressText {
+					color: var(--error);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+				}
+			}
+		}
+	}
+
+	.subscriptionSeperator {
+		width: 100%;
+		height: 1px;
+		background: var(--stroke);
+	}
+
+	.subscriptionActionContainer {
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
+		align-self: stretch;
+		width: 100%;
+		// padding: 24px 32px;
+		gap: 4px;
+		.manageSubscriptionButton {
+			display: flex;
+			padding: 12px 16px;
+			justify-content: center;
+			align-items: center;
+			gap: 6px;
+			border-radius: 24px;
+			border: 1px solid var(--stroke, #2c2d2e);
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.upgradeButton {
+			display: flex;
+			padding: 14px 24px;
+			justify-content: center;
+			align-items: center;
+			gap: 6px;
+			border-radius: 59px;
+			background: var(--primary-button);
+			cursor: pointer;
+			color: var(--primary-button-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			border: none;
+
+			&:disabled {
+				cursor: wait;
+			}
+		}
+		.expiringText {
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 11px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+		}
+		// 	}
+		// }
 		.updateSubscriptionPlanContainer {
 			display: flex;
 			width: 100%;

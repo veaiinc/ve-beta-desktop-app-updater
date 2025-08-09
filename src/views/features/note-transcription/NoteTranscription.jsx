@@ -367,14 +367,18 @@ export default function NoteTranscription({
 	useEffect(() => {
 		let interval;
 		if (isRecording) {
-			interval = setInterval(() => {
-				setTimer((prev) => prev + 1);
-			}, 1000);
+			if (isMuted) {
+				clearInterval(interval);
+			} else {
+				interval = setInterval(() => {
+					setTimer((prev) => prev + 1);
+				}, 1000);
+			}
 		} else {
 			setTimer(0);
 		}
 		return () => clearInterval(interval);
-	}, [isRecording]);
+	}, [isRecording, isMuted]);
 
 	return (
 		<div className="note-transcription">
@@ -384,7 +388,11 @@ export default function NoteTranscription({
 				</span>
 				<span className="transcription-waveform">
 					{isRecording ? (
-						<img src={Waveform} alt="Waveform" />
+						isMuted ? (
+							<div className="straight-line"></div>
+						) : (
+							<img src={Waveform} alt="Waveform" />
+						)
 					) : (
 						<div className="transcription-waveform-placeholder">
 							<span className="transcription-waveform-placeholder-text">

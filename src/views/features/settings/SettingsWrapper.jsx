@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState, memo } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useContext, useEffect, memo } from 'react';
+import { useParams } from 'react-router-dom';
 import '../../../assets/scss/settings/SettingsWrapper.scss';
 import Context from '../../../context/context';
 import MyProfile from './MyProfile';
@@ -9,9 +9,10 @@ import TeamSettings from './TeamSettings';
 import PlanBilling from './PlanBilling';
 import AiSetup from '../aiSetup/AiSetup';
 import PricingPage from '../pricingPlans/pricingPage';
-// import Integrations from '../integrationsList/Integrations';
 import SettingsPageSideBar from '../../components/settings/SettingsPageSidebar';
 import Integrations from '../integrations/Integrations';
+import useWindowSize from '../../../hooks/useWindowSize.js';
+
 const mapper = {
 	'my-profile': <MyProfile />,
 	workspace: <SettingsWorkspace />,
@@ -26,13 +27,9 @@ const mapper = {
 
 const SettingsWrapper = (props) => {
 	const { type } = useParams();
-	const navigate = useNavigate();
-	const [urlType, setUrlype] = useState('');
+	const { width } = useWindowSize();
+	const toggleSidebar = width < 975;
 
-	const setType = (type) => {
-		navigate(`/settings/${type}`);
-		setUrlype(type);
-	};
 	const {
 		profileInfo: { getTenantSettings, tennantSettingsData },
 	} = useContext(Context);
@@ -43,6 +40,8 @@ const SettingsWrapper = (props) => {
 			getTenantSettings();
 		}
 	}, [tennantSettingsData]);
+
+	const showSettingsSidebar = type !== 'pricing';
 
 	return (
 		<div
@@ -59,28 +58,24 @@ const SettingsWrapper = (props) => {
 				mapper?.[type]
 			) : ( */}
 			<div
-				className={`${
-					type !== 'integrations' ? 'accountSettingsWrapper' : 'accountSettingsWrapper'
-				}`}
+				className="accountSettingsWrapper"
 				style={{
 					height: '100%',
+					paddingRight: toggleSidebar || !showSettingsSidebar ? '0px' : '190px',
+					flexDirection: toggleSidebar ? 'column-reverse' : 'row',
 				}}
 			>
 				<div
-					className={`${
-						type !== 'integrations' ? 'accountSettingsMapper' : 'accountSettingsMapper'
+					className={`accountSettingsMapper ${
+						type === 'pricing' ? 'pricingSettingsMapper' : ''
 					}`}
-					style={{
-						height: '100%',
-					}}
 				>
 					{mapper?.[type]}
 				</div>
-				<div className="accountSettingsSidebar">
-					<SettingsPageSideBar {...props} type={type} setType1={setType} />
-				</div>
+				{showSettingsSidebar && (
+					<SettingsPageSideBar {...props} type={type} toggleSidebar={toggleSidebar} />
+				)}
 			</div>
-			{/* )} */}
 		</div>
 	);
 };
