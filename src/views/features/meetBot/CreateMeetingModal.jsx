@@ -19,6 +19,7 @@ import { message } from '../../components/globalComponents/CustomToast';
 
 const meetingModeOptions = [
 	{ value: 'sales', label: 'Sales Mode' },
+	{ value: 'meeting', label: 'Meeting' },
 	{ value: 'support', label: 'Support' },
 	{ value: 'interview', label: 'Interview' },
 	{ value: 'ideas', label: 'Ideas' },

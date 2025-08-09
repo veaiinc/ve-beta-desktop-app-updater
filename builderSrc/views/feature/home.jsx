@@ -630,6 +630,8 @@ class Home extends Proposals {
 				id: null,
 				type: null,
 			},
+			alreadyCheckedMobileView: false,
+			didChangedSomething: false,
 		};
 		this.componentRef = createRef();
 		this.addBlockRef = createRef();
@@ -770,7 +772,8 @@ class Home extends Proposals {
 							},
 						);
 					}
-					await this.handleSaveSections();
+					// ! not needed
+					// await this.handleSaveSections();
 				}
 			},
 		);
@@ -3282,7 +3285,11 @@ class Home extends Proposals {
 			if (onUpdate) {
 				this.fetchGetModule(id, type);
 			} else {
-				if (this.state?.getModuleParams?.id && this.state?.getModuleParams?.type) {
+				if (
+					(this.state?.getModuleParams?.id && this.state?.getModuleParams?.type) ||
+					this.state?.alreadyCheckedMobileView ||
+					!this.state?.didChangedSomething
+				) {
 					this.fetchGetModule(id, type);
 				} else {
 					this.setState({
@@ -5728,6 +5735,7 @@ class Home extends Proposals {
 		} else {
 			this.setState({
 				showCheckMobilePopup: false,
+				alreadyCheckedMobileView: true,
 			});
 		}
 	};
@@ -5742,6 +5750,7 @@ class Home extends Proposals {
 			sections: [],
 			sectionTables: [],
 			showCheckMobilePopup: false,
+			alreadyCheckedMobileView: false,
 		});
 
 		if (this.state.isWorkflow) {
@@ -5756,7 +5765,8 @@ class Home extends Proposals {
 				getModuleTemplateId: id,
 				module: type,
 			});
-			await this.handleSaveSections();
+			// ! not needed
+			// await this.handleSaveSections();
 		}
 	};
 	render() {
@@ -5948,7 +5958,7 @@ class Home extends Proposals {
 							/>
 						</div>
 					)}
-					{this.state?.showCheckMobilePopup && (
+					{this.state?.showCheckMobilePopup && !this.state?.alreadyCheckedMobileView && (
 						<CheckMobileView updatePreviewOption={this.handleCheckMobileViewOpt} />
 					)}
 					{this.state.isGeneratePreview ? (
@@ -6011,6 +6021,10 @@ class Home extends Proposals {
 											previewMode: e,
 											previewType: e,
 											preview: type,
+											alreadyCheckedMobileView:
+												e === 'm'
+													? true
+													: this.state?.alreadyCheckedMobileView,
 										})
 									}
 									//saveSections={(e) => this.handleSave(e)}

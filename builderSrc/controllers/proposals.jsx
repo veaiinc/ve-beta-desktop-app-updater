@@ -1079,6 +1079,7 @@ class Proposals extends Component {
 					//preview: false,
 					//previewType: 'd',
 					isAutoSaving: false,
+					didChangedSomething: this.state?.previewType == 'm' ? false : true,
 				});
 				if (this.state.isWorkflow) {
 					this.setState({
@@ -1208,6 +1209,7 @@ class Proposals extends Component {
 					//preview: false,
 					//previewType: 'd',
 					isAutoSaving: false,
+					didChangedSomething: this.state?.previewType == 'm' ? false : true,
 				});
 				if (this.state.isWorkflow) {
 					this.setState({
@@ -1810,6 +1812,7 @@ class Proposals extends Component {
 						previewMode: 'd',
 						previewType: 'd',
 						showSideBar: false,
+						didChangedSomething: false,
 
 						//title: response[1].data[`${type}Info`].title,
 					},
@@ -1919,6 +1922,7 @@ class Proposals extends Component {
 						previewMode: 'd',
 						previewType: 'd',
 						showSideBar: false,
+						didChangedSomething: false,
 					},
 					() => {
 						if (this.state.isWorkflow && this.state.version === 0) {

@@ -549,16 +549,6 @@ const betaRoutes = [
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
-					<NotesPage />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/database',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
 					<NotesPage isDatabase={true} />
 				</AuthWrapper>
 			</Suspense>
@@ -566,25 +556,6 @@ const betaRoutes = [
 	},
 	{
 		path: '/note/:noteId',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper
-					title={'Notes'}
-					outerContainerStyle={{
-						backgroundColor: 'var(--background-color)',
-						padding: '0px',
-					}}
-					sidebarContainerStyles={{ padding: '0px' }}
-					maxWidth={'100%'}
-					sidebarContainerClassName={'auth-sidebar-container'}
-				>
-					<Notes />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/note/:noteId/database',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper
