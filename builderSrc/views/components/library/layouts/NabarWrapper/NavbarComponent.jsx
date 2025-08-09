@@ -1,8 +1,12 @@
 import React, { Component, useEffect } from 'react';
 import ImageItem from '../../elements/image';
-import { EditNavbar as Edit } from '../../../builder_client_common';
 import './NavbarCompStyles.scss';
-import { ElementSidebar, DownloadPDF, DropDownSvg } from '../../../builder_client_common';
+import {
+	ElementSidebar,
+	DownloadPDF,
+	Dropdown as DropDownSvg,
+	EditNavbar as Edit,
+} from '../../../builder_client_common';
 import CartIcons from '../NabarWrapper/CartIcons';
 import _ from 'lodash';
 import { Tooltip } from 'antd';
