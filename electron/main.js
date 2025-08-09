@@ -248,21 +248,16 @@ ipcMain.handle('process-image-with-sharp', async (event, data) => {
 				.toBuffer();
 		};
 
-		// First encode
+		// STEP 1: Lower quality until size fits or hits 65
 		optimizedBuffer = await encodeImage(targetWidth, targetQuality);
 
-		let attempts = 0; // limit to 3 adjustments total
-
-		// STEP 1: Lower quality until size fits or hits 65
-		while (optimizedBuffer.length > maxSizeBytes && targetQuality > 65 && attempts < 3) {
-			attempts++;
+		while (optimizedBuffer.length > maxSizeBytes && targetQuality > 65) {
 			targetQuality -= 5;
 			optimizedBuffer = await encodeImage(targetWidth, targetQuality);
 		}
 
 		// STEP 2: If still too big, start reducing width in 10% steps
-		while (optimizedBuffer.length > maxSizeBytes && targetWidth > 600 && attempts < 3) {
-			attempts++;
+		while (optimizedBuffer.length > maxSizeBytes && targetWidth > 600) {
 			targetWidth = Math.floor(targetWidth * 0.9);
 			optimizedBuffer = await encodeImage(targetWidth, targetQuality);
 		}
@@ -329,7 +324,6 @@ ipcMain.handle('process-image-with-sharp', async (event, data) => {
 		return { success: false, error: error.message };
 	}
 });
-
 
 ipcMain.handle('extract-image-metadata', async (event, { imageBuffer }) => {
 	const buffer = Buffer.from(imageBuffer);
