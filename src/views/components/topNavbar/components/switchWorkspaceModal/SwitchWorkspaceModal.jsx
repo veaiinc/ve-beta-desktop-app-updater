@@ -8,6 +8,11 @@ import useBroadcastChannel from '../../../../../hooks/useBroadcastChannel';
 import { ReactComponent as BackIcon } from '../../../../../assets/svg/mobile/back.svg';
 import { ReactComponent as CloseIcon } from '../../../../../assets/svg/mobile/close.svg';
 
+const desktopModalStyles = {
+	overlay: { zIndex: 1001 },
+	content: { borderRadius: '40px', zIndex: 1002 },
+};
+
 const intialState = {
 	searchWorkspace: '',
 	selectedWorkspaceIndex: 0,
@@ -19,6 +24,21 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 	const selectedWorkspaceRef = useRef(null);
 	const channel = useBroadcastChannel();
 	const [info, setInfo] = useState(intialState);
+	const [isMobileView, setIsMobileView] = useState(false);
+
+	useEffect(() => {
+		const query = window.matchMedia('(max-width: 768px)');
+		const update = () => setIsMobileView(query.matches);
+		update();
+		try {
+			query.addEventListener('change', update);
+			return () => query.removeEventListener('change', update);
+		} catch (e) {
+			// Safari fallback
+			query.addListener(update);
+			return () => query.removeListener(update);
+		}
+	}, []);
 
 	useEffect(() => {
 		if (selectedWorkspaceRef.current) {
@@ -109,6 +129,24 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 		}
 	};
 
+	const modalStyles = isMobileView
+		? {
+				overlay: { zIndex: 1001, backgroundColor: 'var(--navbar)' },
+				content: {
+					top: 0,
+					left: 0,
+					right: 0,
+					bottom: 0,
+					transform: 'none',
+					padding: 0,
+					border: '0px',
+					borderRadius: '0px',
+					backgroundColor: 'transparent',
+					zIndex: 1002,
+				},
+		  }
+		: desktopModalStyles;
+
 	return (
 		<ReactModal
 			isOpen={isOpen}
@@ -117,7 +155,7 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 				setInfo(intialState);
 			}}
 			modalType={'center'}
-			customStyles={{ className: s.modalContent }}
+			customStyles={modalStyles}
 		>
 			<div className={s.switchWorkspaceModal} onKeyDown={handleKeyboardNavigation}>
 				<header className={s.header}>
