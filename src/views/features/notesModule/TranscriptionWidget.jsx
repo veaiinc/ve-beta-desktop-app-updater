@@ -153,7 +153,9 @@ const TranscriptionWidget = ({ transcriptList = [], botJoinedTime, meetingPlatfo
 										<div className={s.transcriptionItemDot}></div>
 										<div className={s.transcriptionItemTimestamp}>
 											<TimerIcon />
-											{item?.time}
+											{item?.timestamp
+												? moment?.unix(item?.timestamp).format('HH:mm:ss')
+												: item?.time}
 										</div>
 									</div>
 									<div className={s.transcriptionItemTranscript}>
