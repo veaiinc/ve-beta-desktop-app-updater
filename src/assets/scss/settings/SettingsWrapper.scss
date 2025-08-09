@@ -73,18 +73,22 @@
 // Mobile responsive styles
 @media (max-width: 768px) {
 	.accountSettingsMainWrapper {
-		height: calc(100vh - 16px);
+		min-height: 100vh;
+		height: auto;
 		padding: 0 16px;
 
 		.accountSettingsWrapper {
 			gap: 0;
-			max-height: 100%;
+			max-height: none;
+			height: auto;
+			overflow: visible;
+			-webkit-overflow-scrolling: touch;
 			padding: 0;
 
 			.accountSettingsMapper {
 				max-width: 100%;
 				height: auto;
-				min-height: calc(100vh - 32px);
+				min-height: auto;
 				padding: 16px 0;
 
 				.settingsBoxContainer {
@@ -99,6 +103,14 @@
 						padding: 0 16px;
 					}
 				}
+			}
+
+			.accountSettingsSidebar {
+				position: static;
+				right: auto;
+				top: auto;
+				width: 100%;
+				justify-content: center;
 			}
 		}
 	}

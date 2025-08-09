@@ -90,11 +90,14 @@
 		padding: 0 16px;
 
 		.widgetOptionsContainer {
-			// Transform desktop options into mobile tabs
+			position: fixed;
+			top: 80px;
+			left: 50%;
+			transform: translateX(-50%);
+
 			flex-direction: row;
-			width: 100%;
 			max-width: 100%;
-			gap: 4px;
+			gap: 2px;
 			background: var(--card, #1b1c1d);
 			border-radius: 12px;
 			padding: 4px;
@@ -150,12 +153,13 @@
 // Small mobile devices
 @media screen and (max-width: 480px) {
 	.globalWidgetMainContainer {
+		margin-top: 55px;
 		padding: 0 12px;
 		gap: 16px;
 
 		.widgetOptionsContainer {
 			.option {
-				padding: 6px 12px;
+				padding: 6px 10px;
 				min-height: 36px;
 
 				span {

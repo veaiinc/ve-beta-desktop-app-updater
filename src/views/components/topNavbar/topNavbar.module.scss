@@ -153,8 +153,8 @@
 		display: none;
 		flex-direction: column;
 		justify-content: space-between;
-		width: 24px;
-		height: 20px;
+		width: 20px;
+		height: 18px;
 		background: transparent;
 		border: none;
 		cursor: pointer;
@@ -374,28 +374,28 @@
 		padding: 8px 12px;
 
 		.rightContainer {
-			gap: 12px;
+			gap: 16px;
 
 			.navItem {
 				svg {
-					width: 18px;
-					height: 18px;
+					width: 20px;
+					height: 20px;
 				}
 
 				.profileImg {
-					width: 18px;
-					height: 18px;
+					width: 22px;
+					height: 22px;
 				}
 
 				.nameInitials {
-					width: 18px;
-					height: 18px;
+					width: 20px;
+					height: 20px;
 					font-size: 9px;
 				}
 
 				.creditsLeftContainer {
-					width: 18px;
-					height: 18px;
+					width: 20px;
+					height: 20px;
 				}
 			}
 		}

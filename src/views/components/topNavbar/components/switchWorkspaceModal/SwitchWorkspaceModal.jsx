@@ -5,11 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { fetchDomainName } from '../../../../../helpers';
 import useBroadcastChannel from '../../../../../hooks/useBroadcastChannel';
-
-const customStyles = {
-	overlay: { zIndex: 1001 },
-	content: { borderRadius: '40px', zIndex: 1002 },
-};
+import { ReactComponent as BackIcon } from '../../../../../assets/svg/mobile/back.svg';
+import { ReactComponent as CloseIcon } from '../../../../../assets/svg/mobile/close.svg';
 
 const intialState = {
 	searchWorkspace: '',
@@ -59,6 +56,12 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 		return filteredList;
 	}, [userWorkSpaceList, currentWorkspaceId, info?.searchWorkspace]);
 	const showWorkspaceSearch = userWorkSpaceList?.length > 3;
+
+	const currentWorkspaceMeta = useMemo(() => {
+		return userWorkSpaceList?.find(
+			({ activeWorkspaceId }) => activeWorkspaceId === currentWorkspaceId,
+		);
+	}, [userWorkSpaceList, currentWorkspaceId]);
 
 	const handleSwitchWorkspace = (activeWorkspaceId, region) => {
 		if (activeWorkspaceId === currentWorkspaceId) {
@@ -114,11 +117,35 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 				setInfo(intialState);
 			}}
 			modalType={'center'}
-			customStyles={customStyles}
+			customStyles={{ className: s.modalContent }}
 		>
 			<div className={s.switchWorkspaceModal} onKeyDown={handleKeyboardNavigation}>
 				<header className={s.header}>
-					<h1 className={s.title}>Switch Workspace</h1>
+					<div className={s.leftHeader}>
+						<button
+							className={s.backButton}
+							onClick={() => {
+								closeWorkspaceModal();
+								setInfo(intialState);
+							}}
+							aria-label="Back"
+						>
+							<BackIcon />
+						</button>
+						<div className={s.titleGroup}>
+							<h1 className={s.title}>Switch workspace</h1>
+						</div>
+					</div>
+					<button
+						className={s.closeIconButton}
+						onClick={() => {
+							closeWorkspaceModal();
+							setInfo(intialState);
+						}}
+						aria-label="Close"
+					>
+						<CloseIcon />
+					</button>
 					<button
 						className={s.closeButton}
 						onClick={() => {

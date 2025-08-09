@@ -18,6 +18,8 @@ import { ReactComponent as DownloadMacSvg } from '../../assets/download-mac.svg'
 import { ReactComponent as TemplatesSvg } from '../../assets/templates.svg';
 import useIntercom from '../../../../../hooks/useIntercom';
 import useBroadcastChannel from '../../../../../hooks/useBroadcastChannel';
+import { ReactComponent as BackIcon } from '../../../../../assets/svg/mobile/back.svg';
+import { ReactComponent as CloseIcon } from '../../../../../assets/svg/mobile/close.svg';
 
 const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
 const isMac =
@@ -99,6 +101,7 @@ const Settings = ({
 		workspaceModalOpen: false,
 		intercomOpen: false,
 	});
+	const [isMobileView, setIsMobileView] = useState(false);
 
 	const {
 		profileInfo: { tenantUserAccessControls, userWorkSpaceList },
@@ -116,12 +119,47 @@ const Settings = ({
 		}
 	}, [info.intercomOpen]);
 
+	useEffect(() => {
+		const query = window.matchMedia('(max-width: 768px)');
+		const update = () => setIsMobileView(query.matches);
+		update();
+		try {
+			query.addEventListener('change', update);
+			return () => query.removeEventListener('change', update);
+		} catch (e) {
+			query.addListener(update);
+			return () => query.removeListener(update);
+		}
+	}, []);
+
 	const openIntercom = async () => {
 		showIntercom();
 	};
 
-	return (
-		<div className={s.settingsContainer}>
+	const Content = (
+		<div className={s.settingsContain}>
+			{/* Mobile header (shown only on small screens via CSS) */}
+			<div className={s.mobileHeader}>
+				<button
+					className={s.mobileIconButton}
+					onClick={() => {
+						closeSettingsTooltip();
+					}}
+					aria-label="Back"
+				>
+					<BackIcon />
+				</button>
+				<span className={s.mobileTitle}>Settings</span>
+				<button
+					className={s.mobileIconButton}
+					onClick={() => {
+						closeSettingsTooltip();
+					}}
+					aria-label="Close"
+				>
+					<CloseIcon />
+				</button>
+			</div>
 			<header className={s.userInfo}>
 				{profilePicExists ? (
 					<img className={s.profileImg} src={profilePic} alt="profile" />
@@ -135,31 +173,43 @@ const Settings = ({
 					</p>
 					<p className={s.businessName}>{businessName}</p>
 				</div>
-				<Tooltip
-					open={info.switchWorkspaceTooltipOpen}
-					title={
-						<div className={s.switchWorkspaceTooltip}>
-							<span>Switch Workspace</span>
-						</div>
-					}
-					placement="bottom"
-					arrow={false}
-					color="transparent"
-				>
+				{isMobileView ? (
 					<button
 						className={s.switchWorkspaceButton}
 						onClick={(e) => {
 							e.stopPropagation();
-							setInfo((prev) => ({
-								...prev,
-								workspaceModalOpen: true,
-							}));
+							setInfo((prev) => ({ ...prev, workspaceModalOpen: true }));
 							closeSettingsTooltip();
 						}}
 					>
 						<SwitchWorkspaceSvg />
 					</button>
-				</Tooltip>
+				) : (
+					<Tooltip
+						open={info.switchWorkspaceTooltipOpen}
+						title={
+							<div className={s.switchWorkspaceTooltip}>
+								<span>Switch Workspace</span>
+							</div>
+						}
+						placement="bottom"
+						arrow={false}
+						color="transparent"
+						trigger={['hover']}
+						destroyTooltipOnHide
+					>
+						<button
+							className={s.switchWorkspaceButton}
+							onClick={(e) => {
+								e.stopPropagation();
+								setInfo((prev) => ({ ...prev, workspaceModalOpen: true }));
+								closeSettingsTooltip();
+							}}
+						>
+							<SwitchWorkspaceSvg />
+						</button>
+					</Tooltip>
+				)}
 			</header>
 			<div className={s.settingsItems}>
 				{settingsItems.map((settingItem) => (
@@ -219,6 +269,20 @@ const Settings = ({
 					userWorkSpaceList={userWorkSpaceList}
 				/>
 			)}
+		</div>
+	);
+
+	return (
+		<div className={s.settingsContainer}>
+			{isMobileView && (
+				<div
+					className={s.mobileOverlay}
+					onClick={() => {
+						closeSettingsTooltip();
+					}}
+				/>
+			)}
+			{isMobileView ? <div className={s.mobileSheet}>{Content}</div> : Content}
 		</div>
 	);
 };
