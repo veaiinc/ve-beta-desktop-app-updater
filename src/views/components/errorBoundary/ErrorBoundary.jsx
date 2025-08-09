@@ -1,7 +1,7 @@
 import { Component } from 'react';
 import s from './errorBoundary.module.scss';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
-import logError from '../../../services/api/errorLogger';
+import logError from '../../../helpers/errorLogger';
 import logout from '../../../helpers/logout';
 import PageLoader from '../../features/app/PageLoader';
 

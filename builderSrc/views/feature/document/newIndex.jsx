@@ -866,6 +866,7 @@ const CreateDocument = () => {
 												countryCallingCodeEditable={true}
 												autoComplete="tel"
 												style={{
+													...phoneInputStyle,
 													backgroundColor: 'none',
 													border: '1px solid var(--stroke)',
 												}}
