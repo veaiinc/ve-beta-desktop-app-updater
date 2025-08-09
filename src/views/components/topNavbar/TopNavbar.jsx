@@ -117,6 +117,7 @@ const TopNavbar = () => {
 		creditsLeftTooltipOpen: false,
 		shareAndEarnModalOpen: false,
 		mobileMenuOpen: false,
+		notificationsTooltipOpen: false,
 	});
 
 	const mobileMenuRef = useRef(null);
@@ -309,7 +310,17 @@ const TopNavbar = () => {
 			label: 'Notifications',
 			icon: (
 				<Tooltip
-					title={<Notifications />}
+					open={info.notificationsTooltipOpen}
+					onOpenChange={(open) =>
+						setInfo((prev) => ({ ...prev, notificationsTooltipOpen: open }))
+					}
+					title={
+						<Notifications
+							onClose={() =>
+								setInfo((p) => ({ ...p, notificationsTooltipOpen: false }))
+							}
+						/>
+					}
 					placement="bottom"
 					arrow={false}
 					color={'transparent'}

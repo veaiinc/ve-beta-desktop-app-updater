@@ -29,6 +29,7 @@ import ProactiveAIShare from '../../../features/homePage/proactiveai/ProactiveAI
 import jwtDecode from 'jwt-decode';
 import ChainOfThoughtInterpreter from '../../homePage/ChainOfThoughtInterpreter';
 import FormDescription from '../../forms/FormDescription';
+import { ReactComponent as CloseIcon } from '../../../../assets/svg/mobile/close.svg';
 
 const tabOptions = [
 	{ label: 'Actions', value: 'actions' },
@@ -437,6 +438,17 @@ const AISuggestionsModal = ({
 					<div className="drag-handler" onMouseDown={handleMouseDown} />
 
 					<div className="ai-suggestions-container">
+						{/* Mobile-only header */}
+						<div className="mobile-header">
+							<span className="mobile-title">Insight</span>
+							<button
+								className="mobile-icon-button"
+								aria-label="Close"
+								onClick={onClose}
+							>
+								<CloseIcon />
+							</button>
+						</div>
 						<div className="drawer-header">
 							<div className="header-content">
 								<div className="left-container">

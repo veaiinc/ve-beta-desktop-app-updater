@@ -38,6 +38,40 @@
 			border-left: 1px solid var(--dividers, #2c2d2e);
 			background: var(--navbar, #202123);
 
+			/* Mobile header (visible only on small screens) */
+			.mobile-header {
+				display: none;
+				align-items: center;
+				justify-content: space-between;
+				gap: 12px;
+				padding: 12px 16px;
+				align-self: stretch;
+				border-bottom: 1px solid var(--dividers, #1e1f20);
+
+				.mobile-title {
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 1.35;
+				}
+
+				.mobile-icon-button {
+					background: transparent;
+					border: 1px solid var(--stroke, #2c2d2e);
+					border-radius: 8px;
+					padding: 4px;
+					width: 32px;
+					height: 32px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					cursor: pointer;
+					color: var(--primary-font, #f2f2f3);
+				}
+			}
+
 			.formDescription {
 				width: 100%;
 				margin: 12px;
@@ -791,5 +825,41 @@
 @media (max-width: 1500px) {
 	.ai-suggestions-wrapper {
 		width: 450px !important;
+	}
+}
+
+@media (max-width: 768px) {
+	.ai-suggestions-drawer {
+		.ant-drawer-content-wrapper {
+			width: 100% !important;
+			max-width: 100% !important;
+			height: 100% !important;
+		}
+
+		.ai-suggestions-wrapper {
+			width: 100% !important;
+		}
+
+		.ai-suggestions-container {
+			border-left: none;
+			background: var(--navbar, #141415);
+		}
+
+		/* Show mobile header and tighten paddings on mobile */
+		.mobile-header {
+			display: flex !important;
+		}
+
+		.drawer-header {
+			padding: 14px 16px;
+		}
+
+		.body {
+			padding: 0px 16px 16px 16px;
+		}
+
+		.footer {
+			padding: 12px 16px;
+		}
 	}
 }
