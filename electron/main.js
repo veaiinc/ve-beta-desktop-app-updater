@@ -210,76 +210,61 @@ ipcMain.handle('process-image-with-sharp', async (event, data) => {
 			scale,
 			opacity,
 			isWaterMarkApply,
-			resizeOptions = { maxWidth: 1200 }, // ← Default to 1K–1.2K
-			quality = 80,
+			resizeOptions = { maxWidth: 1200 },
+			quality = 85,
 		} = data;
 
-		let imageData;
-		if (typeof imageBuffer === 'string') {
-			imageData = Buffer.from(imageBuffer, 'base64');
-		} else {
-			imageData = Buffer.from(imageBuffer);
-		}
+		const maxSizeBytes = 2 * 1024 * 1024; // 2MB limit
+		let imageData =
+			typeof imageBuffer === 'string'
+				? Buffer.from(imageBuffer, 'base64')
+				: Buffer.from(imageBuffer);
 
 		let sharpImage = sharp(imageData);
 		const metadata = await sharpImage.metadata();
 
-		// 🔽 Resize to ensure file size stays under 2MB
-		let targetWidth = resizeOptions.maxWidth;
+		let targetWidth = Math.min(metadata.width, resizeOptions.maxWidth);
 		let targetQuality = quality;
-
-		// If image is larger than max width, resize it
-		if (metadata.width > resizeOptions.maxWidth) {
-			sharpImage = sharpImage.resize({
-				width: resizeOptions.maxWidth,
-				fit: 'inside',
-				withoutEnlargement: true,
-			});
-		}
-
-		// Apply progressive quality reduction if needed to stay under 2MB
-		const maxSizeBytes = 2 * 1024 * 1024; // 2MB limit
 		let optimizedBuffer;
 
-		for (let attempt = 0; attempt < 3; attempt++) {
-			// Reduce quality progressively if file is still too large
-			if (attempt > 0) {
-				targetQuality = Math.max(60, targetQuality - 10); // Reduce quality by 10, minimum 60
-			}
+		// Function to encode with given width & quality
+		const encodeImage = async (width, q) => {
+			let img = sharp(imageData);
 
-			optimizedBuffer = await sharpImage
-				.jpeg({
-					quality: targetQuality,
-					progressive: true,
-					mozjpeg: true,
-					trellisQuantisation: true,
-					overshootDeringing: true,
-					optimiseScans: true,
-					optimizeCoding: true,
-					quantisationTable: 3,
-				})
-				.toBuffer();
-
-			// If file size is acceptable, break
-			if (optimizedBuffer.length <= maxSizeBytes) {
-				break;
-			}
-
-			// If still too large and we can reduce quality further, continue
-			if (targetQuality > 60) {
-				continue;
-			}
-
-			// If quality is already at minimum and still too large, resize more aggressively
-			if (attempt === 2) {
-				const scaleFactor = Math.sqrt(maxSizeBytes / optimizedBuffer.length);
-				targetWidth = Math.floor(targetWidth * scaleFactor);
-				sharpImage = sharp(imageData).resize({
-					width: targetWidth,
+			if (metadata.width > width) {
+				img = img.resize({
+					width,
 					fit: 'inside',
 					withoutEnlargement: true,
 				});
 			}
+
+			return await img
+				.jpeg({
+					quality: q,
+					progressive: true,
+					mozjpeg: true,
+				})
+				.toBuffer();
+		};
+
+		// First encode
+		optimizedBuffer = await encodeImage(targetWidth, targetQuality);
+
+		let attempts = 0; // limit to 3 adjustments total
+
+		// STEP 1: Lower quality until size fits or hits 65
+		while (optimizedBuffer.length > maxSizeBytes && targetQuality > 65 && attempts < 3) {
+			attempts++;
+			targetQuality -= 5;
+			optimizedBuffer = await encodeImage(targetWidth, targetQuality);
+		}
+
+		// STEP 2: If still too big, start reducing width in 10% steps
+		while (optimizedBuffer.length > maxSizeBytes && targetWidth > 600 && attempts < 3) {
+			attempts++;
+			targetWidth = Math.floor(targetWidth * 0.9);
+			optimizedBuffer = await encodeImage(targetWidth, targetQuality);
 		}
 
 		// Apply watermark if enabled
@@ -291,7 +276,7 @@ ipcMain.handle('process-image-with-sharp', async (event, data) => {
 				const watermarkBuffer = Buffer.from(watermarkResponse.data);
 				const watermarkMetadata = await sharp(watermarkBuffer).metadata();
 
-				const watermarkWidth = Math.floor(metadata.width * scale);
+				const watermarkWidth = Math.floor(targetWidth * scale);
 				const watermarkHeight = Math.floor(
 					(watermarkMetadata.height / watermarkMetadata.width) * watermarkWidth,
 				);
@@ -304,26 +289,34 @@ ipcMain.handle('process-image-with-sharp', async (event, data) => {
 				const offset = 10;
 				if (watermarkPosition.name === 'southeast') {
 					position = {
-						left: metadata.width - watermarkWidth - offset,
-						top: metadata.height - watermarkHeight - offset,
+						left: targetWidth - watermarkWidth - offset,
+						top: Math.floor(
+							(metadata.height * targetWidth) / metadata.width -
+								watermarkHeight -
+								offset,
+						),
 					};
 				} else if (watermarkPosition.name === 'northwest') {
 					position = { left: offset, top: offset };
 				}
 
-				sharpImage = sharpImage.composite([
-					{
-						input: resizedWatermark,
-						top: position.top,
-						left: position.left,
-						blend: 'over',
-						opacity,
-					},
-				]);
+				optimizedBuffer = await sharp(optimizedBuffer)
+					.composite([
+						{
+							input: resizedWatermark,
+							top: position.top,
+							left: position.left,
+							blend: 'over',
+							opacity,
+						},
+					])
+					.jpeg({ quality: targetQuality, progressive: true, mozjpeg: true })
+					.toBuffer();
 			} catch (err) {
 				log.error('Watermark error:', err);
 			}
 		}
+
 		return {
 			success: true,
 			processedImage: optimizedBuffer.toString('base64'),
@@ -336,6 +329,8 @@ ipcMain.handle('process-image-with-sharp', async (event, data) => {
 		return { success: false, error: error.message };
 	}
 });
+
+
 ipcMain.handle('extract-image-metadata', async (event, { imageBuffer }) => {
 	const buffer = Buffer.from(imageBuffer);
 	try {

@@ -3708,7 +3708,11 @@ const GalleryPage = () => {
 			activeAlbumId: null,
 			albumContains: '',
 		}));
-		navigate(-1);
+		if (!info?.isLightGallery) {
+			navigate('/files?active-tab=Gallery');
+		} else {
+			navigate(`/files?active-tab=Lite+Gallery`);
+		}
 	};
 	const selectedFaceChange = (face) => {
 		setInfo((prev) => ({
