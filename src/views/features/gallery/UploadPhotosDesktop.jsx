@@ -541,8 +541,16 @@ const UploadPhotosDesktop = () => {
 
 	return (
 		<div className="upload-gallery-container">
-			<div onClick={() => navigate(-1)} className="backHeader">
+			<div
+				onClick={() =>
+					navigate(`/galleries/${galleryId}?albumId=${albumId}&activeTab=Albums`)
+				}
+				className="backHeader"
+			>
 				<BackIcon /> <p>{info.title}</p>
+				<p className="beta-notice">
+					Desktop uploads are currently in beta, you may experience some issues.
+				</p>
 			</div>
 			<div className="options_upload_container">
 				<AddLables info={info} setinfo={setInfo} searchParams={searchParams} />
