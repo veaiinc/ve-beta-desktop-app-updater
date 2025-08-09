@@ -5,7 +5,7 @@ import { Drawer } from 'antd';
 import Onboard from '../../../features/homePage/ambientAi/Onboard';
 import AskVe from '../../../features/homePage/ambientAi/AskVe';
 
-const AISuggestionsModal = ({
+const AmbientAiModal = ({
 	open,
 	onClose,
 	data,
@@ -106,4 +106,4 @@ const AISuggestionsModal = ({
 	);
 };
 
-export default memo(AISuggestionsModal);
+export default memo(AmbientAiModal);
