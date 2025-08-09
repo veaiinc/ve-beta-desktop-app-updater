@@ -1,6 +1,6 @@
 import { memo, useState, useEffect, useMemo } from 'react';
 import { ReactComponent as ShareSvg } from '../../../../assets/svg/calendar/share.svg';
-import '../../../../assets/scss/home_page/proactiveai/proactiveAIShare.scss';
+import '../../../../assets/scss/home_page/ambientAi/proactiveAIShare.scss';
 import { Tooltip } from 'antd';
 import ShareModal from '../../../components/globalComponents/globalShareModal';
 import Context from '../../../../context/context';
