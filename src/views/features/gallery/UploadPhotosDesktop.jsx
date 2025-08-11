@@ -51,7 +51,7 @@ const UploadPhotosDesktop = () => {
 		startedUploading: false,
 		uploadImages: {},
 		uploadSize: 0, // kb
-		uploadLimit: Math.min(navigator.hardwareConcurrency - 1, 6), // Dynamic upload limit based on CPU cores
+		uploadLimit: Math.min(navigator.hardwareConcurrency, 8), // Dynamic upload limit based on CPU cores
 		currentUpload: 1,
 		recentImageInitiated: null,
 		isSkipDuplicates: false,
@@ -345,7 +345,7 @@ const UploadPhotosDesktop = () => {
 					overAllProgress: Math.min((uploadedCount / nonDuplicates.length) * 100, 100),
 				}));
 			}
-		}, 4000);
+		}, 6000);
 
 		const processAndUploadOne = async () => {
 			while (processingQueue.length > 0) {
@@ -354,22 +354,18 @@ const UploadPhotosDesktop = () => {
 				if (!image) continue;
 
 				try {
-					// ✅ Check if it's a duplicate (but user doesn't want to skip)
 					let imageId;
 					if (image.isDuplicate && !info.isSkipDuplicates) {
-						// 🔥 Use existing image _id — no new ID
 						const existingId = image.originalImage?._id;
 						if (!existingId) {
 							console.error('No original _id found for duplicate:', key);
 							continue;
 						}
-						imageId = ObjectID(existingId); // Convert string to ObjectId
+						imageId = ObjectID(existingId);
 					} else {
-						// ✅ New image → generate new ID
 						imageId = ObjectID();
 					}
 
-					// Process only if not skipping or not duplicate
 					const result = await processSingleImage(image.file);
 					if (!result.success) continue;
 
@@ -384,34 +380,37 @@ const UploadPhotosDesktop = () => {
 
 					while (attempts < 3 && !uploaded) {
 						attempts++;
-
 						try {
-							const uploadResultOriginal = await uploadImage(
-								image.file,
-								'originals',
-								null,
-								policyData,
-								imageId,
-								(percent) => {
-									setInfo((prev) => ({
-										...prev,
-										uploadImages: {
-											...prev.uploadImages,
-											[key]: {
-												...prev.uploadImages[key],
-												uploadedPerct: percent,
-											},
+							// Upload original and optimized concurrently
+							const [uploadResultOriginal, uploadResultOptimized] = await Promise.all(
+								[
+									uploadImage(
+										image.file,
+										'originals',
+										null,
+										policyData,
+										imageId,
+										(percent) => {
+											setInfo((prev) => ({
+												...prev,
+												uploadImages: {
+													...prev.uploadImages,
+													[key]: {
+														...prev.uploadImages[key],
+														uploadedPerct: percent,
+													},
+												},
+											}));
 										},
-									}));
-								},
-							);
-
-							const uploadResultOptimized = await uploadImage(
-								result.processedFile,
-								'optimized',
-								null,
-								policyData,
-								imageId,
+									),
+									uploadImage(
+										result.processedFile,
+										'optimized',
+										null,
+										policyData,
+										imageId,
+									),
+								],
 							);
 
 							if (uploadResultOriginal.success && uploadResultOptimized.success) {
@@ -444,7 +443,7 @@ const UploadPhotosDesktop = () => {
 						} catch (e) {
 							console.error(`Upload error (attempt ${attempts}):`, e);
 							if (attempts < 3)
-								await new Promise((r) => setTimeout(r, 2000 * attempts));
+								await new Promise((r) => setTimeout(r, 1000 * attempts)); // Reduced from 2000
 						}
 					}
 

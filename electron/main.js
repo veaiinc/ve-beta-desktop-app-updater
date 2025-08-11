@@ -210,11 +210,11 @@ ipcMain.handle('process-image-with-sharp', async (event, data) => {
 			scale = 0.15,
 			opacity = 1,
 			isWaterMarkApply,
-			resizeOptions = { maxWidth: 1200 },
-			quality = 85,
+			resizeOptions = { maxWidth: 1000 }, // Reduced from 1200
+			quality = 75, // Reduced from 85
 		} = data;
 
-		const maxSizeBytes = 2 * 1024 * 1024; // 2MB limit
+		const maxSizeBytes = 2 * 1024 * 1024;
 		let imageData =
 			typeof imageBuffer === 'string'
 				? Buffer.from(imageBuffer, 'base64')
@@ -227,15 +227,12 @@ ipcMain.handle('process-image-with-sharp', async (event, data) => {
 			return { success: false, error: 'Invalid image metadata' };
 		}
 
-		// Start with high quality and full size
 		let targetWidth = Math.min(metadata.width, resizeOptions.maxWidth);
 		let targetQuality = quality;
 
-		// Function to encode and optionally apply watermark
 		const processImage = async (width, q, applyWatermark = false) => {
 			let img = sharp(imageData);
 
-			// Resize
 			if (metadata.width > width) {
 				img = img.resize({
 					width,
@@ -244,64 +241,57 @@ ipcMain.handle('process-image-with-sharp', async (event, data) => {
 				});
 			}
 
-			// Apply watermark if requested
 			if (applyWatermark && watermarkUrl) {
-				try {
+				let watermarkBuffer = watermarkCache.get(watermarkUrl);
+				if (!watermarkBuffer) {
 					const watermarkResponse = await axios.get(watermarkUrl, {
 						responseType: 'arraybuffer',
 					});
-					const watermarkBuffer = Buffer.from(watermarkResponse.data);
-					const wmMeta = await sharp(watermarkBuffer).metadata();
-
-					const wmWidth = Math.floor(width * scale);
-					const wmHeight = Math.floor((wmMeta.height / wmMeta.width) * wmWidth);
-
-					const resizedWatermark = await sharp(watermarkBuffer)
-						.resize({ width: wmWidth, height: wmHeight })
-						.toBuffer();
-
-					const pos =
-						watermarkPosition.name === 'northwest'
-							? { left: 10, top: 10 }
-							: {
-									left: width - wmWidth - 10,
-									top: Math.floor(
-										(metadata.height * width) / metadata.width - wmHeight - 10,
-									),
-							  };
-
-					img = img.composite([
-						{
-							input: resizedWatermark,
-							left: pos.left,
-							top: pos.top,
-							blend: 'over',
-							opacity,
-						},
-					]);
-				} catch (err) {
-					log.error('Watermark application error:', err);
-					// Continue without watermark if failed
+					watermarkBuffer = Buffer.from(watermarkResponse.data);
+					watermarkCache.set(watermarkUrl, watermarkBuffer); // Cache it
 				}
+
+				const wmMeta = await sharp(watermarkBuffer).metadata();
+				const wmWidth = Math.floor(width * scale);
+				const wmHeight = Math.floor((wmMeta.height / wmMeta.width) * wmWidth);
+
+				const resizedWatermark = await sharp(watermarkBuffer)
+					.resize({ width: wmWidth, height: wmHeight })
+					.toBuffer();
+
+				const pos =
+					watermarkPosition.name === 'northwest'
+						? { left: 10, top: 10 }
+						: {
+								left: width - wmWidth - 10,
+								top: Math.floor(
+									(metadata.height * width) / metadata.width - wmHeight - 10,
+								),
+						  };
+
+				img = img.composite([
+					{
+						input: resizedWatermark,
+						left: pos.left,
+						top: pos.top,
+						blend: 'over',
+						opacity,
+					},
+				]);
 			}
 
-			// Final JPEG encoding
 			return await img.jpeg({ quality: q, progressive: true, mozjpeg: true }).toBuffer();
 		};
 
-		// Try to produce a compliant image
 		let finalBuffer;
 		let attempts = 0;
-		const maxAttempts = 10; // Prevent infinite loops
+		const maxAttempts = 10;
 
 		while (attempts < maxAttempts) {
 			attempts++;
-
-			// Apply watermark only if enabled
 			finalBuffer = await processImage(targetWidth, targetQuality, isWaterMarkApply);
 
 			if (finalBuffer.length <= maxSizeBytes) {
-				// Success: within limit
 				return {
 					success: true,
 					processedImage: finalBuffer.toString('base64'),
@@ -311,19 +301,16 @@ ipcMain.handle('process-image-with-sharp', async (event, data) => {
 				};
 			}
 
-			// Still too big — reduce quality or size
 			if (targetQuality > 65) {
-				targetQuality = Math.max(65, targetQuality - 5); // Drop quality
+				targetQuality = Math.max(65, targetQuality - 5);
 			} else if (targetWidth > 600) {
-				targetWidth = Math.max(600, Math.floor(targetWidth * 0.9)); // Shrink width
+				targetWidth = Math.max(600, Math.floor(targetWidth * 0.9));
 			} else {
-				// Last resort: force quality down to 50 and width to 600
 				targetQuality = 50;
 				targetWidth = 600;
 			}
 		}
 
-		// Final fallback: try one last time at minimal settings
 		finalBuffer = await processImage(600, 50, isWaterMarkApply);
 
 		if (finalBuffer.length <= maxSizeBytes) {
@@ -336,7 +323,6 @@ ipcMain.handle('process-image-with-sharp', async (event, data) => {
 			};
 		}
 
-		// If still too big, reject
 		return {
 			success: false,
 			error: `Optimized image still exceeds 2MB (${Math.round(
