@@ -207,8 +207,8 @@ ipcMain.handle('process-image-with-sharp', async (event, data) => {
 			imageBuffer,
 			watermarkUrl,
 			watermarkPosition,
-			scale,
-			opacity,
+			scale = 0.15,
+			opacity = 1,
 			isWaterMarkApply,
 			resizeOptions = { maxWidth: 1200 },
 			quality = 85,
@@ -223,14 +223,19 @@ ipcMain.handle('process-image-with-sharp', async (event, data) => {
 		let sharpImage = sharp(imageData);
 		const metadata = await sharpImage.metadata();
 
+		if (!metadata.width || !metadata.height) {
+			return { success: false, error: 'Invalid image metadata' };
+		}
+
+		// Start with high quality and full size
 		let targetWidth = Math.min(metadata.width, resizeOptions.maxWidth);
 		let targetQuality = quality;
-		let optimizedBuffer;
 
-		// Function to encode with given width & quality
-		const encodeImage = async (width, q) => {
+		// Function to encode and optionally apply watermark
+		const processImage = async (width, q, applyWatermark = false) => {
 			let img = sharp(imageData);
 
+			// Resize
 			if (metadata.width > width) {
 				img = img.resize({
 					width,
@@ -239,85 +244,104 @@ ipcMain.handle('process-image-with-sharp', async (event, data) => {
 				});
 			}
 
-			return await img
-				.jpeg({
-					quality: q,
-					progressive: true,
-					mozjpeg: true,
-				})
-				.toBuffer();
-		};
+			// Apply watermark if requested
+			if (applyWatermark && watermarkUrl) {
+				try {
+					const watermarkResponse = await axios.get(watermarkUrl, {
+						responseType: 'arraybuffer',
+					});
+					const watermarkBuffer = Buffer.from(watermarkResponse.data);
+					const wmMeta = await sharp(watermarkBuffer).metadata();
 
-		// STEP 1: Lower quality until size fits or hits 65
-		optimizedBuffer = await encodeImage(targetWidth, targetQuality);
+					const wmWidth = Math.floor(width * scale);
+					const wmHeight = Math.floor((wmMeta.height / wmMeta.width) * wmWidth);
 
-		while (optimizedBuffer.length > maxSizeBytes && targetQuality > 65) {
-			targetQuality -= 5;
-			optimizedBuffer = await encodeImage(targetWidth, targetQuality);
-		}
+					const resizedWatermark = await sharp(watermarkBuffer)
+						.resize({ width: wmWidth, height: wmHeight })
+						.toBuffer();
 
-		// STEP 2: If still too big, start reducing width in 10% steps
-		while (optimizedBuffer.length > maxSizeBytes && targetWidth > 600) {
-			targetWidth = Math.floor(targetWidth * 0.9);
-			optimizedBuffer = await encodeImage(targetWidth, targetQuality);
-		}
+					const pos =
+						watermarkPosition.name === 'northwest'
+							? { left: 10, top: 10 }
+							: {
+									left: width - wmWidth - 10,
+									top: Math.floor(
+										(metadata.height * width) / metadata.width - wmHeight - 10,
+									),
+							  };
 
-		// Apply watermark if enabled
-		if (isWaterMarkApply && watermarkUrl) {
-			try {
-				const watermarkResponse = await axios.get(watermarkUrl, {
-					responseType: 'arraybuffer',
-				});
-				const watermarkBuffer = Buffer.from(watermarkResponse.data);
-				const watermarkMetadata = await sharp(watermarkBuffer).metadata();
-
-				const watermarkWidth = Math.floor(targetWidth * scale);
-				const watermarkHeight = Math.floor(
-					(watermarkMetadata.height / watermarkMetadata.width) * watermarkWidth,
-				);
-
-				const resizedWatermark = await sharp(watermarkBuffer)
-					.resize({ width: watermarkWidth, height: watermarkHeight })
-					.toBuffer();
-
-				let position = { top: 0, left: 0 };
-				const offset = 10;
-				if (watermarkPosition.name === 'southeast') {
-					position = {
-						left: targetWidth - watermarkWidth - offset,
-						top: Math.floor(
-							(metadata.height * targetWidth) / metadata.width -
-								watermarkHeight -
-								offset,
-						),
-					};
-				} else if (watermarkPosition.name === 'northwest') {
-					position = { left: offset, top: offset };
-				}
-
-				optimizedBuffer = await sharp(optimizedBuffer)
-					.composite([
+					img = img.composite([
 						{
 							input: resizedWatermark,
-							top: position.top,
-							left: position.left,
+							left: pos.left,
+							top: pos.top,
 							blend: 'over',
 							opacity,
 						},
-					])
-					.jpeg({ quality: targetQuality, progressive: true, mozjpeg: true })
-					.toBuffer();
-			} catch (err) {
-				log.error('Watermark error:', err);
+					]);
+				} catch (err) {
+					log.error('Watermark application error:', err);
+					// Continue without watermark if failed
+				}
+			}
+
+			// Final JPEG encoding
+			return await img.jpeg({ quality: q, progressive: true, mozjpeg: true }).toBuffer();
+		};
+
+		// Try to produce a compliant image
+		let finalBuffer;
+		let attempts = 0;
+		const maxAttempts = 10; // Prevent infinite loops
+
+		while (attempts < maxAttempts) {
+			attempts++;
+
+			// Apply watermark only if enabled
+			finalBuffer = await processImage(targetWidth, targetQuality, isWaterMarkApply);
+
+			if (finalBuffer.length <= maxSizeBytes) {
+				// Success: within limit
+				return {
+					success: true,
+					processedImage: finalBuffer.toString('base64'),
+					width: targetWidth,
+					height: Math.floor((metadata.height * targetWidth) / metadata.width),
+					size: finalBuffer.length,
+				};
+			}
+
+			// Still too big — reduce quality or size
+			if (targetQuality > 65) {
+				targetQuality = Math.max(65, targetQuality - 5); // Drop quality
+			} else if (targetWidth > 600) {
+				targetWidth = Math.max(600, Math.floor(targetWidth * 0.9)); // Shrink width
+			} else {
+				// Last resort: force quality down to 50 and width to 600
+				targetQuality = 50;
+				targetWidth = 600;
 			}
 		}
 
+		// Final fallback: try one last time at minimal settings
+		finalBuffer = await processImage(600, 50, isWaterMarkApply);
+
+		if (finalBuffer.length <= maxSizeBytes) {
+			return {
+				success: true,
+				processedImage: finalBuffer.toString('base64'),
+				width: 600,
+				height: Math.floor((metadata.height * 600) / metadata.width),
+				size: finalBuffer.length,
+			};
+		}
+
+		// If still too big, reject
 		return {
-			success: true,
-			processedImage: optimizedBuffer.toString('base64'),
-			width: targetWidth,
-			height: Math.floor((metadata.height * targetWidth) / metadata.width),
-			size: optimizedBuffer.length,
+			success: false,
+			error: `Optimized image still exceeds 2MB (${Math.round(
+				finalBuffer.length / 1024,
+			)} KB) after aggressive compression`,
 		};
 	} catch (error) {
 		log.error('Processing error:', error);
