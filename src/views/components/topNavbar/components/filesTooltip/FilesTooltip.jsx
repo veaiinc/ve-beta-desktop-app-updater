@@ -2,9 +2,10 @@ import s from './filesTooltip.module.scss';
 import { ReactComponent as Documents } from './assets/documents.svg';
 import { ReactComponent as Forms } from './assets/forms.svg';
 import { ReactComponent as Templates } from './assets/templates.svg';
-import { ReactComponent as Database } from './assets/database.svg';
 import { ReactComponent as Sites } from './assets/sites.svg';
 import { ReactComponent as Gallery } from './assets/gallery.svg';
+import { ReactComponent as NotesIcon } from './assets/noteIcon.svg';
+
 import { useNavigate } from 'react-router-dom';
 
 const files = [
@@ -38,10 +39,10 @@ const files = [
 	},
 	{
 		id: 5,
-		icon: <Database />,
-		label: 'Database',
+		icon: <NotesIcon />,
+		label: 'Notes',
 		description: 'Track structured data connected to memory.',
-		link: '/files?active-tab=Database&viewMode=card',
+		link: '/files?active-tab=Notes&viewMode=card',
 	},
 	{
 		id: 6,

@@ -15,31 +15,19 @@ import {
 import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import moment from 'moment';
-import CustomTextArea from '../../components/globalComponents/CustomTextArea';
-import { ReactComponent as CrossIcon } from '../../../assets/svg/notes/cross.svg';
 import { message } from '../../components/globalComponents/CustomToast';
 import { Helmet } from 'react-helmet';
 import ObjectID from 'bson-objectid';
 import jwtDecode from 'jwt-decode';
 import DatabaseSidebar from '../../components/modalsV2/notes/DatabaseSidebar';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
-// import '../../../assets/scss/notes/noteComponent.scss';
-import MeetTranscript from './MeetTranscript';
 import useLiveIntelligenceStream from '../../../hooks/useLiveIntelligenceStream';
 import useRecallStream from '../../../hooks/useRecallStream';
-import NoteTakerTranscript from './NoteTakerTranscript';
-import Spinner from '../../components/loaders/Spinner';
-import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
-import { FetchMoreLoaderComp } from '../../../helpers';
-import AiTranscriptionSuggestions from '../../components/chat/AiTranscriptionSuggestions';
 export const NotesRefContext = createContext(null);
 import RecentChat from '../chat/RecentChat';
 import NotesHeader from '../../components/notes/DatabseComponents/NotesHeader';
 import Editor from '../../components/notes/Editor';
-import TranscriptionTabs from '../../components/notes/TranscriptionTabs';
-import MeetSummary from './MeetSummary';
 import NotesTitleArea from '../../components/notes/DatabseComponents/NotesTitleArea';
-import TranscriptionWrapper from './TranscriptionWrapper';
 
 const initialState = {
 	title: '',
@@ -167,14 +155,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const { createWebSocketConnection: createLiveIntelligenceStream, updateCurrentContext } =
 		useLiveIntelligenceStream();
 
-
 	useEffect(() => {
 		if (!aiLiveIntelligenceHistory) {
 			getAiLiveIntelligenceHistory({ meetingId: meetingId, limit: 20, page: 1 }, false);
 		} else {
 			handleTranscriptionSuggestions({ data: aiLiveIntelligenceHistory?.data || [] });
 		}
-
 	}, [aiLiveIntelligenceHistory]);
 
 	// Function to fetch historical transcriptions for desktop
@@ -331,7 +317,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 			});
 			updateStateValues({
 				aiTranscriptionSuggestions: null,
-
 			});
 		};
 	}, []);
@@ -917,31 +902,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		}
 	};
 
-	// Fetch historical data when component mounts
-	useEffect(() => {
-		fetchHistoricalTranscriptions();
-		// Also fetch meeting bot transcriptions if needed
-		if (type === 'meeting_bot' && showTranscriptTabs) {
-			fetchMeetingBotTranscriptions();
-		}
-	}, []);
-
-	useEffect(() => {
-		if (showTranscriptTabs && location?.pathname?.includes('meet') && type === 'meeting_bot') {
-			recallConnection(sessionId, meetingId, handleSocketMessage, isAiIntelligenceEnabled);
-			// createLiveIntelligenceStream(
-			// 	sessionId,
-			// 	noteId,
-			// 	handleLiveIntelligenceMessageFunc,
-			// 	false,
-			// );
-		} else if (showTranscriptTabs && type === 'desktop') {
-			// Connect to recall for note taker mode as well
-			recallConnection(sessionId, meetingId, handleSocketMessage, isAiIntelligenceEnabled);
-		}
-		// No cleanup needed, useRecallStream handles it
-	}, [showTranscriptTabs, sessionId, type]);
-
 	const handleChatBoxClick = () => {
 		if (info?.chatClicked) return;
 
@@ -951,68 +911,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		}));
 	};
 
-	const handleShowAiTranscriptionSuggestions = () => {
-		setInfo((prev) => ({
-			...prev,
-			showAiTranscriptionSuggestions: !prev.showAiTranscriptionSuggestions,
-		}));
-	};
-
 	const handleInfoChange = useCallback((data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
 	}, []);
-
-	const fetchTranscriptionHistory = useCallback(
-		async (page = 1, append = false) => {
-			setInfo((prev) => ({ ...prev, transcriptionsLoading: true }));
-			try {
-				const response = await getMeetTranscriptHistory(
-					{ meetingId: meetingId, limit: 20, page },
-					append,
-				);
-				if (response?.[0]) {
-					const rawData = response[1]?.data?.listTranscriptions?.data || [];
-					const hasMore = response[1]?.data?.listTranscriptions?.hasNextPage;
-
-					// Transform the data to match UI expectations
-					const transformedData = rawData.map((item) => ({
-						...item,
-						text: item.transcript, // Map transcript to text
-						time: item.createdAt
-							? new Date(parseInt(item.createdAt) * 1000).toLocaleTimeString()
-							: '', // Convert timestamp to readable time
-						speakerName: item.speakerName || 'Note Taker', // Default speaker name
-					}));
-
-					setInfo((prev) => ({
-						...prev,
-						transcriptions: append
-							? [...(prev.transcriptions || []), ...transformedData]
-							: transformedData,
-						transcriptionsHasMore: hasMore,
-						transcriptionsPage: page,
-						transcriptionsLoading: false,
-					}));
-				} else {
-					setInfo((prev) => ({ ...prev, transcriptionsLoading: false }));
-				}
-			} catch {
-				setInfo((prev) => ({ ...prev, transcriptionsLoading: false }));
-			}
-		},
-		[meetingId],
-	);
-
-	const loadMoreTranscriptions = () => {
-		if (info.transcriptionsLoading || !info.transcriptionsHasMore) return;
-		fetchTranscriptionHistory((info.transcriptionsPage || 1) + 1, true);
-	};
-
-	useEffect(() => {
-		if (activeTab === 'transcript') {
-			fetchTranscriptionHistory(1, false);
-		}
-	}, [activeTab]);
 
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
@@ -1053,8 +954,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 					handleDeletePage={handleDeletePage}
 					handleDuplicatePage={handleDuplicatePage}
 					restorePage={restorePage}
-					showAiTranscriptionSuggestions={info?.showAiTranscriptionSuggestions}
-					handleShowAiTranscriptionSuggestions={handleShowAiTranscriptionSuggestions}
 					isDatabase={true}
 				/>
 
@@ -1100,122 +999,23 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 								title={info?.title}
 								showRemoveIconBtn={info?.showRemoveIconBtn}
 							/>
-
-							{showTranscriptTabs && (
-								<TranscriptionTabs
-									activeTab={activeTab}
-									setActiveTab={setActiveTab}
-									userQuestions={info?.userQuestions}
-									aiQuestions={info?.aiQuestions}
-									actions={info?.actions}
-									files={info?.files}
-									history={history}
-									allSuggestions={info?.allSuggestions}
-									type={type}
-								/>
-							)}
-							{showTranscriptTabs &&
-								activeTab === 'transcript' && 
-								(type === 'desktop' || type === 'meeting_bot') && (
-									<div style={{ paddingBottom: 80, width: '100%' }}>
-										{info.transcriptions && info.transcriptions.length === 0 ? (
-											<div className="meet-transcript-empty">
-												No transcript yet.
-											</div>
-										) : (
-											<InfiniteScroll
-												dataLength={info.transcriptions?.length || 0}
-												next={loadMoreTranscriptions}
-												hasMore={info.transcriptionsHasMore}
-												height={'800px'}
-												style={{ width: '100%' }}
-											>
-												<div
-													className="meet-transcript-list"
-													ref={transcriptContainerRef}
-												>
-													{info.transcriptions?.map((item, idx) => (
-														<div
-															className={`meet-transcript-item`}
-															key={item._id || item.id || idx}
-														>
-															<div className="meet-transcript-meta">
-																<span className="meet-transcript-participant">
-																	{item.speakerName ||
-																		'Note Taker'}
-																</span>
-																<span className="meet-transcript-time">
-																	{item.time || ''}
-																</span>
-															</div>
-															<div className="meet-transcript-text">
-																{item.text || item.transcript || ''}
-															</div>
-														</div>
-													))}
-												</div>
-											</InfiniteScroll>
-										)}
-									</div>
-								)}
-
-							{showTranscriptTabs && activeTab === 'summary' && (
-								<MeetSummary activeTab={activeTab} meetingId={meetingId} />
-							)}
-							{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
-								(activeTab === 'userQuestions' ||
-									activeTab === 'aiQuestions' ||
-									activeTab === 'actions' ||
-									activeTab === 'files' ||
-									activeTab === 'all') && (
-									<AiTranscriptionSuggestions
-										userQuestions={info?.userQuestions}
-										aiQuestions={info?.aiQuestions}
-										actions={info?.actions}
-										files={info?.files}
-										activeTab={activeTab}
-										allSuggestions={info?.allSuggestions}
-									/>
-								)}
-
-							{(!showTranscriptTabs) && (
-								<Editor
-									innerContainerStyle={innerContainerStyle}
-									myAccess={info?.myAccess}
-									isDeleted={info?.isDeleted}
-									customSendMessage={customSendMessage}
-									aiResonse={info?.aiResonse}
-									resetAiResponse={resetAiResponse}
-									noteId={noteId}
-									initialBlocks={blocks}
-									createBlock={createBlock}
-									updateBlock={updateBlock}
-									deleteBlock={deleteBlock}
-								/>
-							)}
-
-							{showTranscriptTabs && type === 'meeting_bot' && !history && (
-								<TranscriptionWrapper
-									chat={chat}
-									transcription={transcription}
-									transcriptList={transcriptList}
-								/>
-							)}
+							<Editor
+								innerContainerStyle={innerContainerStyle}
+								myAccess={info?.myAccess}
+								isDeleted={info?.isDeleted}
+								customSendMessage={customSendMessage}
+								aiResonse={info?.aiResonse}
+								resetAiResponse={resetAiResponse}
+								noteId={noteId}
+								initialBlocks={blocks}
+								createBlock={createBlock}
+								updateBlock={updateBlock}
+								deleteBlock={deleteBlock}
+							/>
 						</div>
 					</>
 				</div>
 			</div>
-			{/* Always render NoteTakerTranscript at the root level */}
-			{showTranscriptTabs && type === 'desktop' && (
-				<NoteTakerTranscript
-					sendMessage={recallSendMessage}
-					tenantId={tennantSettingsData?._id}
-					sessionId={sessionId}
-					pageId={noteId}
-					visible={activeTab === 'transcript'}
-					onTranscriptionUpdate={handleSocketTranscription}
-				/>
-			)}
 			<DatabaseSidebar pageId={noteId} />
 		</div>
 	);
