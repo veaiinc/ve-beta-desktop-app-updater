@@ -400,7 +400,6 @@ ipcMain.handle(
 				currentSize = 0;
 
 				zipsCreated.push(path.basename(zipPath));
-				console.log(`Created ZIP: ${zipPath}`);
 			};
 
 			startNewArchive();
