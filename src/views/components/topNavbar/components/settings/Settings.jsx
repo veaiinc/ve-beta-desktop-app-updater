@@ -18,6 +18,7 @@ import { ReactComponent as DownloadMacSvg } from '../../assets/download-mac.svg'
 import { ReactComponent as TemplatesSvg } from '../../assets/templates.svg';
 import useIntercom from '../../../../../hooks/useIntercom';
 import useBroadcastChannel from '../../../../../hooks/useBroadcastChannel';
+import { ReactComponent as PlusSvg } from '../../assets/plus.svg';
 
 const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
 const isMac =
@@ -101,12 +102,13 @@ const Settings = ({
 	});
 
 	const {
-		profileInfo: { tenantUserAccessControls, userWorkSpaceList },
+		profileInfo: { tenantUserAccessControls, userWorkSpaceList, tennantSettingsData },
 	} = useContext(Context);
 
 	const fullName = `${firstName ?? ''} ${lastName ?? ''}`;
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
 	const workspacesMoreThanOne = userWorkSpaceList?.length > 1;
+	const workspaceImage = tennantSettingsData?.logo_s3_500w_key ?? null;
 
 	useEffect(() => {
 		if (info.intercomOpen) {
@@ -128,6 +130,10 @@ const Settings = ({
 				) : (
 					<p className={s.nameInitials}>{nameInitials}</p>
 				)}
+				{workspaceImage && (
+					<img className={s.workspaceImage} src={workspaceImage} alt="workspaceImage" />
+				)}
+
 				<div className={s.userInfoDetails}>
 					<p className={s.nameAndRole}>
 						<span className={s.fullName}>{fullName}</span>{' '}
@@ -135,31 +141,6 @@ const Settings = ({
 					</p>
 					<p className={s.businessName}>{businessName}</p>
 				</div>
-				<Tooltip
-					open={info.switchWorkspaceTooltipOpen}
-					title={
-						<div className={s.switchWorkspaceTooltip}>
-							<span>Switch Workspace</span>
-						</div>
-					}
-					placement="bottom"
-					arrow={false}
-					color="transparent"
-				>
-					<button
-						className={s.switchWorkspaceButton}
-						onClick={(e) => {
-							e.stopPropagation();
-							setInfo((prev) => ({
-								...prev,
-								workspaceModalOpen: true,
-							}));
-							closeSettingsTooltip();
-						}}
-					>
-						<SwitchWorkspaceSvg />
-					</button>
-				</Tooltip>
 			</header>
 			<div className={s.settingsItems}>
 				{settingsItems.map((settingItem) => (
@@ -187,16 +168,46 @@ const Settings = ({
 					</div>
 				))}
 			</div>
-			<button
-				className={s.logoutButton}
-				onClick={() => {
-					logout();
-					channel.postMessage('reload');
-				}}
-			>
-				<LogoutSvg />
-				<span>Logout</span>
-			</button>
+			<div className={s.switchWorkspaceAndLogoutContainer}>
+				<button
+					onClick={(e) => {
+						e.stopPropagation();
+						if (workspacesMoreThanOne) {
+							setInfo((prev) => ({
+								...prev,
+								workspaceModalOpen: true,
+							}));
+							closeSettingsTooltip();
+						} else {
+							navigate('/create-workspace');
+							closeSettingsTooltip();
+						}
+					}}
+					className={s.switchWorkspaceButton}
+				>
+					{workspacesMoreThanOne ? (
+						<>
+							<SwitchWorkspaceSvg />
+							<span>Switch Workspace </span>
+						</>
+					) : (
+						<>
+							<PlusSvg />
+							<span>Create Workspace</span>
+						</>
+					)}
+				</button>
+				<button
+					className={s.logoutButton}
+					onClick={() => {
+						logout();
+						channel.postMessage('reload');
+					}}
+				>
+					<LogoutSvg />
+				</button>
+			</div>
+
 			{isMac && (
 				<button
 					className={s.downloadMacAppButton}

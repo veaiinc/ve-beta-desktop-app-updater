@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 
+// This hook handles reloading multiple browser tabs parallelly when a user logs out or switches workspace
 const useBroadcastChannel = () => {
 	const channel = new BroadcastChannel('ve-ai-channel');
 

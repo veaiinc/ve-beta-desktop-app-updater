@@ -33,8 +33,8 @@ const tooltipStyle = {
 const baseLeftContainerItems = [
 	{
 		id: 1,
-		label: 'Ambient',
-		route: '/ambient-ai',
+		label: 'Priority',
+		route: '/priority',
 	},
 	{
 		id: 2,
@@ -91,8 +91,6 @@ const TopNavbar = () => {
 		pathname.includes('builder') ||
 		pathname.includes('galleries') ||
 		pathname.includes('create-workspace');
-	//  ||
-	// pathname.includes('	plan-billing');
 
 	const {
 		profileInfo: {
@@ -234,6 +232,7 @@ const TopNavbar = () => {
 					placement="bottom"
 					arrow={false}
 					color={'transparent'}
+					rootClassName={s.topNavbarSettings}
 				>
 					<div className={s.creditsLeftContainer}>
 						<CreditsLeftSvg
@@ -257,6 +256,7 @@ const TopNavbar = () => {
 					placement="bottom"
 					arrow={false}
 					color={'transparent'}
+					rootClassName={s.themeTooltip}
 				>
 					{theme === 'dark' ? <LightMode /> : <DarkMode />}
 				</Tooltip>
@@ -291,6 +291,7 @@ const TopNavbar = () => {
 					}
 					placement="bottom"
 					arrow={false}
+					rootClassName={s.shareAndEarnTooltip}
 					color={'transparent'}
 				>
 					<ShareAndEarnSvg />
@@ -511,7 +512,6 @@ const TopNavbar = () => {
 							) : (
 								<p className={s.nameInitials}>{nameInitials}</p>
 							)}
-							{/* <DownCaret /> */}
 						</li>
 					</Tooltip>
 				</ul>
