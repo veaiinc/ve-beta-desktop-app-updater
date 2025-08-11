@@ -907,10 +907,10 @@
 
 		.addOnsCards {
 			display: flex;
-			height: 260px;
+			height: 450px;
 			width: calc((100% - 48px) / 3); // 48px accounts for the two gaps between 3 cards
-			max-width: 260px;
-			min-width: 260px;
+			max-width: 353px;
+			min-width: 353px;
 			padding: 24px;
 			flex-direction: column;
 			justify-content: space-between;
@@ -923,8 +923,8 @@
 			position: relative;
 			.currentPlanBadge {
 				position: absolute;
-				height: 275px;
-				width: 260px;
+				height: 474px;
+				width: 353px;
 				bottom: -1px;
 				left: 2px;
 				border-radius: 24px;
