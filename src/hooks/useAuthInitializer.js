@@ -1,6 +1,5 @@
 import useAuth from './useAuth';
 import useTheme from './useTheme';
-import useIntercom from './useIntercom';
 import useSubscription from './useSubscription';
 import useTokenExpiry from './useTokenExpiry';
 import useAccessControls from './useAccessControls';
@@ -10,7 +9,6 @@ const useAuthInitializer = () => {
 	const { authLoading } = useAuth();
 	const { workspaceModeLoading, workspaceMode } = useWorkspaceMode();
 	useTheme();
-	useIntercom();
 	useSubscription();
 	useTokenExpiry();
 	const { accessControlsLoading } = useAccessControls();
