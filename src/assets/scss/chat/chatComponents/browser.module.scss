@@ -51,6 +51,7 @@
 			.browserIframeContainer {
 				.browserIframe {
 					height: 100%;
+					top: 0;
 				}
 			}
 
@@ -98,8 +99,9 @@
 
 			.browserIframe {
 				width: 100%;
-				height: fit-content;
-				aspect-ratio: 16/9;
+				aspect-ratio: 5/4;
+				top: -50px;
+				position: relative;
 				border: none;
 			}
 
@@ -118,12 +120,6 @@
 				}
 			}
 		}
-	}
-}
-
-@media (max-width: 1700px) {
-	.browserIframe {
-		height: fit-content !important;
 	}
 }
 

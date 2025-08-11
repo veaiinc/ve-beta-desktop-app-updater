@@ -19,8 +19,8 @@ import ChatHeader from '../../components/chat/ChatHeader';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import { message } from '../../components/globalComponents/CustomToast';
 import ChatHistory from '../../components/sidebar/chatHistory/ChatHistory';
-import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import Browser from '../../components/chat/chatComponents/Browser';
+
 const RecentChat = ({
 	isPublicChat = false,
 	isPreview = false,
@@ -45,13 +45,11 @@ const RecentChat = ({
 			updateChatLoadingSessions,
 			newChatSessionIds,
 			getFollowUpQueries,
-			getBrowserSession,
 		},
-		aiSetup: { updateAiChatSessions, aiChatSessions },
+		aiSetup: { updateAiChatSessions },
 		chatStream: { sendMessage, closeWebSocketConnection, removeCurrentSessionId },
 	} = useContext(Context);
 
-	const { workspaceMode } = useWorkspaceMode();
 	let { sessionId } = useParams();
 	const [searchParams] = useSearchParams();
 	let agentType = searchParams?.get('agentType');
@@ -161,16 +159,6 @@ const RecentChat = ({
 			});
 		};
 	}, []);
-
-	// useEffect(() => {
-	// 	getBrowserSession({ sessionId });
-	// }, []);
-
-	// useEffect(() => {
-	// 	if (sessionId) {
-	// 		getBrowserUrls(sessionId, handleGlobalChatMessages);
-	// 	}
-	// }, [sessionId]);
 
 	useEffect(() => {
 		if (browserData) {
@@ -490,11 +478,15 @@ const RecentChat = ({
 	}, [moreRecentChatStorage?.[sessionId]]);
 
 	const handleBrowserButtonClick = useCallback(() => {
+		if (!location?.pathname?.includes('chat')) {
+			navigate(`/chat/${sessionId}`);
+			return;
+		}
 		setInfo((prev) => ({
 			...prev,
 			openBrowser: !prev?.openBrowser,
 		}));
-	}, []);
+	}, [sessionId]);
 
 	const handleChatQueryChange = useCallback((query) => {
 		setInfo((prev) => ({
@@ -1210,7 +1202,7 @@ const RecentChat = ({
 				<div
 					className="browser-container"
 					style={{
-						width: info?.openBrowser && showBrowser ? '40%' : '0px',
+						width: info?.openBrowser && showBrowser ? '42%' : '0px',
 					}}
 				>
 					<Browser

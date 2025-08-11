@@ -4,7 +4,7 @@ import Context from '../../../../context/context';
 
 const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = false }) => {
 	const {
-		templates: { handleTakeBrowserControl },
+		templates: { handleTakeBrowserControl, saveBrowserState },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		activeTab: -1,
@@ -41,7 +41,13 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 			takeControl,
 		}));
 		handleTakeBrowserControl(sessionId, takeControl);
+
+		//exiting take control
+		if (!takeControl) {
+			saveBrowserState(sessionId);
+		}
 	};
+
 	return (
 		<div className={`${s.browserContainer} ${isOpen ? s.open : ''}`}>
 			<div className={s.header}>

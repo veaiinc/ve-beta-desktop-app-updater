@@ -2192,6 +2192,21 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const saveBrowserState = async (sessionId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(
+				`/api/browser/${workspaceId}/task/${sessionId}/save-state`,
+				usertoken,
+				'browser_api',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>saveBrowserState', error);
+		}
+	};
+
 	const updateAiChatMessageRating = async (payload, messageId, isPublicChat = false) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
@@ -3094,5 +3109,6 @@ export const TemplatesState = (props) => {
 		getNotificationsList,
 		getAuthUrlForThirdParty,
 		handleTakeBrowserControl,
+		saveBrowserState,
 	};
 };
