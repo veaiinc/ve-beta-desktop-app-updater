@@ -5,7 +5,7 @@ import ChatBox from '../../chat/ChatBox';
 import ObjectID from 'bson-objectid';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../../context/context';
-const CreateAgentModal = ({ isOpen, closeModal }) => {
+const CreateAgentModal = ({ isOpen, closeModal, handleCreateNewAgent }) => {
 	const {
 		knowledgeAgent: { activeKnowledgeAssistant, getActiveKnowledgeAgentDetails },
 		templates: { updateStateValues, handleGlobalChatMessages },
@@ -43,6 +43,9 @@ const CreateAgentModal = ({ isOpen, closeModal }) => {
 						isPublicChat={true}
 					/>
 				</div>
+				<button className={s.createAgentButton} onClick={handleCreateNewAgent}>
+					I'll do it by myself
+				</button>
 			</div>
 		</ReactModal>
 	);

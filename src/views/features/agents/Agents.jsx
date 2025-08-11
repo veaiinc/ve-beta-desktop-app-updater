@@ -511,6 +511,7 @@ const Agents = () => {
 			<CreateAgentModal
 				isOpen={info?.createAgentModalOpen}
 				closeModal={() => setInfo((prev) => ({ ...prev, createAgentModalOpen: false }))}
+				handleCreateNewAgent={handleCreateNewAgent}
 			/>
 		</div>
 	);
