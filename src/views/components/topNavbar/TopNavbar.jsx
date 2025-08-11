@@ -18,6 +18,8 @@ import { ReactComponent as LightMode } from './assets/light-mode.svg';
 import { ReactComponent as DarkMode } from './assets/dark-mode.svg';
 import { ReactComponent as NotificationsSvg } from './assets/notification.svg';
 import { ReactComponent as ShareAndEarnSvg } from './assets/share-and-earn.svg';
+import { ReactComponent as MenuSvg } from '../../../assets/svg/mobile/menu.svg';
+import { ReactComponent as CloseSvg } from '../../../assets/svg/mobile/close.svg';
 import CreditsLeftSvg from '../sidebar/chatHistory/CreditsLeftSvg';
 import CreditsLeft from './components/creditsLeft/CreditsLeft';
 import AddOnCards from '../settings/planbilling/addOnCards';
@@ -578,33 +580,12 @@ const TopNavbar = () => {
 				<nav className={s.topNavbarContainer}>
 					{/* Mobile Menu Button */}
 					<button
-						className={`${s.mobileMenuButton} ${info.mobileMenuOpen ? s.active : ''}`}
+						className={s.mobileMenuButton}
 						onClick={toggleMobileMenu}
 						aria-label="Toggle mobile menu"
 					>
-						<span></span>
-						<span></span>
-						<span></span>
+						<MenuSvg />
 					</button>
-
-					{/* Mobile Mode Selector - Center */}
-					{showMiddleContainer && (
-						<div className={s.mobileModeSelector}>
-							{middleContainerItems.map((navItem) => (
-								<button
-									key={navItem.id}
-									className={`${s.mobileModeButton} ${
-										info.activeMode === navItem.id ? s.active : ''
-									}`}
-									onClick={() => handleMiddleNavigation(navItem)}
-								>
-									{info.activeMode === navItem.id
-										? navItem.activeLabel
-										: navItem.label}
-								</button>
-							))}
-						</div>
-					)}
 
 					{/* Desktop Navigation */}
 					{navItems.map((navItem) => {
@@ -627,17 +608,35 @@ const TopNavbar = () => {
 						<div className={s.mobileMenuHeader}>
 							<h3>Menu</h3>
 							<button
-								className={`${s.mobileMenuButton} ${
-									info.mobileMenuOpen ? s.active : ''
-								}`}
+								className={s.mobileCloseButton}
 								onClick={closeMobileMenu}
 								aria-label="Close mobile menu"
 							>
-								<span></span>
-								<span></span>
-								<span></span>
+								<CloseSvg />
 							</button>
 						</div>
+
+						{/* Mode Selector Section */}
+						{showMiddleContainer && (
+							<div className={s.mobileMenuSection}>
+								<div className={s.sectionTitle}>Mode</div>
+								<div className={s.mobileModeSelector}>
+									{middleContainerItems.map((navItem) => (
+										<button
+											key={navItem.id}
+											className={`${s.mobileModeButton} ${
+												info.activeMode === navItem.id ? s.active : ''
+											}`}
+											onClick={() => handleMiddleNavigation(navItem)}
+										>
+											{info.activeMode === navItem.id
+												? navItem.activeLabel
+												: navItem.label}
+										</button>
+									))}
+								</div>
+							</div>
+						)}
 
 						{/* Navigation Section */}
 						<div className={s.mobileMenuSection}>
