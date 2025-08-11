@@ -87,6 +87,7 @@ import { ReactComponent as DeleteSVG } from './library/svgs/vDelete.svg';
 //event popup
 import { ReactComponent as ActionDropDown } from './library/svgs/dropDown.svg';
 import { ReactComponent as Warn } from '../../assets/svg/document/warn.svg';
+import { DropDownSvg } from '../../assets/svg/DropDown/DropDownSvg.jsx';
 
 export {
 	IconIndexBaseClass,
@@ -147,4 +148,5 @@ export {
 	Threedots,
 	ActionDropDown,
 	Warn,
+	DropDownSvg,
 };
