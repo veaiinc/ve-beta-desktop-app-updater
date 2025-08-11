@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import Context from '../context/context';
 import useBroadcastChannel from './useBroadcastChannel';
 import logout from '../helpers/logout';
+import useIntercom from './useIntercom';
 
 const useAuth = () => {
 	const navigate = useNavigate();
 	const channel = useBroadcastChannel();
-
+	const { launchIntercom } = useIntercom();
 	const [info, setInfo] = useState({
 		authLoading: true,
 	});
@@ -20,6 +21,11 @@ const useAuth = () => {
 		getUserDetailsData();
 		checkUserAuthState();
 	}, []);
+
+	useEffect(() => {
+		if (info.authLoading) return;
+		launchIntercom();
+	}, [info.authLoading]);
 
 	const getUserDetailsData = async () => {
 		const { statusCode } = await getUserDetails();

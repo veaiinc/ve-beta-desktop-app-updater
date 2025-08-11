@@ -110,18 +110,6 @@ const Settings = ({
 	const workspacesMoreThanOne = userWorkSpaceList?.length > 1;
 	const workspaceImage = tennantSettingsData?.logo_s3_500w_key ?? null;
 
-	useEffect(() => {
-		if (info.intercomOpen) {
-			openIntercom();
-		} else {
-			shutdownIntercom();
-		}
-	}, [info.intercomOpen]);
-
-	const openIntercom = async () => {
-		showIntercom();
-	};
-
 	return (
 		<div className={s.settingsContainer}>
 			<header className={s.userInfo}>
@@ -149,10 +137,17 @@ const Settings = ({
 							if (settingItem.route) {
 								navigate(settingItem.route);
 							} else {
-								setInfo((prev) => ({
-									...prev,
-									intercomOpen: !prev.intercomOpen,
-								}));
+								if (settingItem.label === 'Help') {
+									if (info.intercomOpen) {
+										shutdownIntercom();
+									} else {
+										showIntercom();
+									}
+									setInfo((prev) => ({
+										...prev,
+										intercomOpen: !prev.intercomOpen,
+									}));
+								}
 							}
 							closeSettingsTooltip();
 						}}
