@@ -48,10 +48,6 @@ const options = [
 		label: 'Notes',
 		value: 'notes',
 	},
-	{
-		label: 'Database',
-		value: 'database',
-	},
 ];
 
 export const statusTextmapper = {
@@ -723,10 +719,10 @@ const Files = () => {
 				setViewMode={setViewMode}
 			/>
 		),
-		Notes: <NotesGrid handleTotalChange={(value) => handleTotalChange({ notes: value })} />,
-		Database: (
+		// Notes: <NotesGrid handleTotalChange={(value) => handleTotalChange({ notes: value })} />,
+		Notes: (
 			<NotesGrid
-				handleTotalChange={(value) => handleTotalChange({ database: value })}
+				handleTotalChange={(value) => handleTotalChange({ notes: value })}
 				isDatabase={true}
 			/>
 		),
