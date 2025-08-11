@@ -118,11 +118,11 @@ const betaRoutes = [
 	// AI & ASSISTANT FEATURES
 	// ========================================
 	{
-		path: '/ambient-ai',
+		path: '/priority',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper
-					title={'Ambient AI'}
+					title={'Priority'}
 					outerContainerStyle={{ overflow: 'hidden' }}
 					childrenContainerStyles={{ overflow: 'auto' }}
 					showBottomToolbar={false}
