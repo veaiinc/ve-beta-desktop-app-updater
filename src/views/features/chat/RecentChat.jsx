@@ -3,6 +3,7 @@ import '../../../assets/scss/chat/chat.scss';
 import {
 	handleDeepSearchChainOfThought,
 	handleDeepResearchChainOfThought,
+	getBrowserUrls,
 } from '../../../helpers/chatHelpers';
 import Context from '../../../context/context';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
@@ -19,17 +20,19 @@ import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import { message } from '../../components/globalComponents/CustomToast';
 import ChatHistory from '../../components/sidebar/chatHistory/ChatHistory';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
+import Browser from '../../components/chat/chatComponents/Browser';
 const RecentChat = ({
 	isPublicChat = false,
 	isPreview = false,
 	sId = null,
 	autoFocus = true,
 	customChatBoxClick = null,
-	showCitationsButton = true,
+	showCitationsButton = false,
 	showDeleteChat = false,
 	animateChatBox = true,
 	showChatHistory = false,
 	showChats = false,
+	showBrowser = false,
 }) => {
 	const {
 		templates: {
@@ -42,6 +45,7 @@ const RecentChat = ({
 			updateChatLoadingSessions,
 			newChatSessionIds,
 			getFollowUpQueries,
+			getBrowserSession,
 		},
 		aiSetup: { updateAiChatSessions, aiChatSessions },
 		chatStream: { sendMessage, closeWebSocketConnection, removeCurrentSessionId },
@@ -73,12 +77,16 @@ const RecentChat = ({
 		showViewDocument: false,
 		tooltipStyles: { visible: false, styles: { top: 0, left: 0 }, selectedText: '' },
 		deleteChatSessionLoading: false,
-		isNewChat: true,
+		isNewChat: false,
 		currentUserMessageIndex: null,
 		getFollowUpQueries: false,
 		chatQuery: '',
 		citationsAiMessageIndex: null,
 		citationsModalIsOpen: false,
+		openBrowser: false,
+		browserDataAvailable: false,
+		browserPreviousActiveTabIndex: null,
+		isMobileView: false,
 	});
 
 	const chatContentRef = useRef(null);
@@ -98,6 +106,21 @@ const RecentChat = ({
 	const followUpQueryTimeoutRef = useRef(null);
 
 	sessionId = isPreview ? sId : sessionId;
+
+	const browserData = globalChatMessages?.[sessionId]?.browserData;
+
+	useEffect(() => {
+		const query = window.matchMedia('(max-width: 768px)');
+		const update = () => setInfo((prev) => ({ ...prev, isMobileView: query.matches }));
+		update();
+		try {
+			query.addEventListener('change', update);
+			return () => query.removeEventListener('change', update);
+		} catch (e) {
+			query.addListener(update);
+			return () => query.removeListener(update);
+		}
+	}, []);
 
 	useEffect(() => {
 		document.addEventListener('mouseup', handleMouseUp);
@@ -152,6 +175,25 @@ const RecentChat = ({
 			});
 		};
 	}, []);
+
+	// useEffect(() => {
+	// 	getBrowserSession({ sessionId });
+	// }, []);
+
+	// useEffect(() => {
+	// 	if (sessionId) {
+	// 		getBrowserUrls(sessionId, handleGlobalChatMessages);
+	// 	}
+	// }, [sessionId]);
+
+	useEffect(() => {
+		if (browserData) {
+			setInfo((prev) => ({
+				...prev,
+				browserPreviousActiveTabIndex: browserData?.activeTabIndex,
+			}));
+		}
+	}, [browserData]);
 
 	useEffect(() => {
 		if (info?.getFollowUpQueries) {
@@ -212,6 +254,8 @@ const RecentChat = ({
 					scrollExecuted: false,
 					citationsModalIsOpen: false,
 					citationsAiMessageIndex: null,
+					browserDataAvailable: false,
+					browserPreviousActiveTabIndex: null,
 				}));
 			}
 			if (currentUserMessageTimeoutRef.current) {
@@ -296,12 +340,6 @@ const RecentChat = ({
 	}, [sessionId, agentType, assistantId]);
 
 	useEffect(() => {
-		if (globalChatMessages?.[sessionId]?.messages?.length && info?.isNewChat) {
-			setInfo((prev) => ({
-				...prev,
-				isNewChat: false,
-			}));
-		}
 		if (globalChatMessages?.[sessionId]?.messages?.length > 2 && !info?.scrollExecuted) {
 			setTimeout(() => {
 				smoothScrollToLastMessage();
@@ -312,6 +350,18 @@ const RecentChat = ({
 			}));
 		}
 	}, [globalChatMessages, sessionId]);
+
+	useEffect(() => {
+		if (globalChatMessages?.[sessionId]?.browserData) {
+			setInfo((prev) => {
+				return {
+					...prev,
+					openBrowser: true,
+					browserDataAvailable: true,
+				};
+			});
+		}
+	}, [globalChatMessages?.[sessionId]?.browserData]);
 
 	// useEffect(() => {
 	// 	if (!chatContentRef?.current || !tabsRefs?.current) return;
@@ -412,7 +462,7 @@ const RecentChat = ({
 	}, [globalChatMessages, sessionId]);
 
 	useEffect(() => {
-		if (recentChatStorage?.[sessionId]) {
+		if (recentChatStorage) {
 			const firstTimeApiCall = true;
 			recentChatHandler(recentChatStorage?.[sessionId], false, firstTimeApiCall);
 			// updateStateValues({
@@ -427,10 +477,10 @@ const RecentChat = ({
 				removeSessionId: true,
 			});
 		}
-	}, [recentChatStorage?.[sessionId]]);
+	}, [recentChatStorage]);
 
 	useEffect(() => {
-		if (moreRecentChatStorage?.[sessionId]) {
+		if (moreRecentChatStorage) {
 			const firstTimeApiCall = false;
 			recentChatHandler(moreRecentChatStorage?.[sessionId], true, firstTimeApiCall);
 			// updateStateValues({
@@ -446,6 +496,13 @@ const RecentChat = ({
 			});
 		}
 	}, [moreRecentChatStorage?.[sessionId]]);
+
+	const handleBrowserButtonClick = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			openBrowser: !prev?.openBrowser,
+		}));
+	}, []);
 
 	const handleChatQueryChange = useCallback((query) => {
 		setInfo((prev) => ({
@@ -850,7 +907,21 @@ const RecentChat = ({
 					...(sessionId === currentSessionId && { getFollowUpQueries: true }),
 				}));
 			}
-			const { message_chunk_id } = data;
+			const { message_chunk_id, open_browser } = data;
+
+			if (open_browser) {
+				getBrowserUrls(
+					sessionId,
+					handleGlobalChatMessages,
+					info?.browserPreviousActiveTabIndex,
+				);
+				setInfo((prev) => ({
+					...prev,
+					browserDataAvailable: true,
+					openBrowser: true,
+				}));
+			}
+
 			if (message_chunk_id) {
 				handleGlobalChatMessages({
 					payload: data,
@@ -864,7 +935,7 @@ const RecentChat = ({
 				});
 			}
 		},
-		[globalChatMessages, sessionId],
+		[globalChatMessages, sessionId, info?.browserPreviousActiveTabIndex],
 	);
 
 	const handleSendWebsocketMessage = useCallback(
@@ -934,7 +1005,7 @@ const RecentChat = ({
 					width: info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%',
 				}}
 			>
-				{showChatHistory && (
+				{showChatHistory && !info?.isMobileView && (
 					<div className="chat-history-wrapper">
 						<ChatHistory />
 					</div>
@@ -953,7 +1024,6 @@ const RecentChat = ({
 							isNewChat={info?.isNewChat}
 							smoothScrollToParticularMessage={smoothScrollToParticularMessage}
 							showDeleteChat={showDeleteChat}
-							showChats={showChats}
 						/>
 					)}
 
@@ -1135,9 +1205,27 @@ const RecentChat = ({
 								onChatQueryChange={handleChatQueryChange}
 								animateChatBox={animateChatBox}
 								sessionId={sessionId}
+								handleBrowserButtonClick={handleBrowserButtonClick}
+								showBrowserButton={
+									!info?.openBrowser && info?.browserDataAvailable && showBrowser
+								}
 							/>
 						</div>
 					</div>
+				</div>
+
+				<div
+					className="browser-container"
+					style={{
+						width: info?.openBrowser && showBrowser ? '40%' : '0px',
+					}}
+				>
+					<Browser
+						sessionId={sessionId}
+						isOpen={info?.openBrowser && showBrowser}
+						browserData={browserData}
+						handleBrowserButtonClick={handleBrowserButtonClick}
+					/>
 				</div>
 			</div>
 

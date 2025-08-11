@@ -195,33 +195,15 @@
 	}
 }
 
-@media screen and (max-width: 500px) {
-	.chats-drawer-container {
-		width: 100%;
-		.chats-container {
-			width: 100%;
-			.searchContainer {
-				width: 100%;
-				.search-input {
-					width: 100%;
-				}
-			}
-			.chat-container-wrapper {
-				width: 100%;
-				.chat-containers {
-					width: 100%;
-					.chat-title-and-query {
-						width: 100%;
-						.chat-title {
-							max-width: 320px;
-						}
-					}
-				}
-			}
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+	.chat-page-container-wrapper {
+		.chat-history-wrapper {
+			display: none !important;
 		}
-	}
-	.chat-page-container-wrapper .chat-history-wrapper {
-		width: 162px;
-		padding: 7px 5px 7px 5px;
+
+		.chat-container {
+			width: 100% !important;
+		}
 	}
 }
