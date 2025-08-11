@@ -1,5 +1,12 @@
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import s from '../../../../assets/scss/home_page/ambientAi/onboard.module.scss';
+import outlookCalendar from '../../../../assets/svg/Settings/outlook-calendar.svg';
+import outlookMail from '../../../../assets/svg/Settings/outlook-mail.svg';
+import googleCalendar from '../../../../assets/svg/Settings/google-calendar-logo.png';
+import google from '../../../../assets/svg/Settings/google.svg';
+import IntegrationConnectModel from '../../../components/modalsV2/integrations/IntegrationConnectModel';
+import Context from '../../../../context/context';
+import jwtDecode from 'jwt-decode';
 
 const onBoardConnectionsInfo = [
 	{
@@ -10,10 +17,16 @@ const onBoardConnectionsInfo = [
 			{
 				id: 1,
 				title: 'Outlook Calendar',
+				connectType: 'outlook-calendar',
+				icon: outlookCalendar,
+				connected: false,
 			},
 			{
 				id: 2,
 				title: 'Google Calendar',
+				connectType: 'google-calendar',
+				icon: googleCalendar,
+				connected: false,
 			},
 		],
 	},
@@ -25,19 +38,85 @@ const onBoardConnectionsInfo = [
 			{
 				id: 1,
 				title: 'Gmail',
+				connectType: 'gmail',
+				icon: google,
+				connected: false,
 			},
 			{
 				id: 2,
 				title: 'Outlook Mail',
+				connectType: 'outlook-mail',
+				icon: outlookMail,
+				connected: false,
 			},
 		],
 	},
 ];
 
 const Onboard = () => {
+	const {
+		templates: { getConnectedThirdParties, connectedThirdParties },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		isModalOpen: false,
+		connectingIntegration: null,
+		onBoardConnectionsInfo: onBoardConnectionsInfo,
+	});
+
+	useEffect(() => {
+		if (!connectedThirdParties) {
+			getConnectedThirdParties();
+		} else {
+			const data = connectedThirdParties?.data || [];
+			const token = localStorage.getItem('usertoken');
+			const { user_id } = jwtDecode(token);
+			const connectedIntegrations = {};
+			data?.forEach((item) => {
+				if (item?.tenantUserId === user_id) {
+					connectedIntegrations[item?.app] = true;
+				}
+			});
+
+			const updatedOnBoardConnectionsInfo = info?.onBoardConnectionsInfo?.map((item) => ({
+				...item,
+				connections: item?.connections?.map((connection) => ({
+					...connection,
+					connected: connectedIntegrations[connection?.connectType] ?? false,
+				})),
+			}));
+
+			setInfo((prev) => ({
+				...prev,
+				connectingIntegration: null,
+				onBoardConnectionsInfo: updatedOnBoardConnectionsInfo,
+			}));
+		}
+	}, [connectedThirdParties]);
+
 	const handleConnect = useCallback((connection) => {
-		console.log(connection);
+		setInfo((prev) => ({
+			...prev,
+			isModalOpen: true,
+			connectingIntegration: connection,
+		}));
 	}, []);
+
+	const handleConnectionSuccess = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			connectingIntegration: null,
+		}));
+		getConnectedThirdParties();
+
+		setTimeout(() => {
+			setInfo((prev) => ({
+				...prev,
+				isModalOpen: false,
+			}));
+		}, 1000);
+	}, []);
+
 	return (
 		<div className={s.onBoardContainer}>
 			<div className={s.title}>
@@ -45,8 +124,8 @@ const Onboard = () => {
 				<span className={s.text2}>Ve is getting ready to</span>
 			</div>
 
-			{/* <div className={s.onboardConnectionsContainer}>
-				{onBoardConnectionsInfo?.map((item, index) => (
+			<div className={s.onboardConnectionsContainer}>
+				{info?.onBoardConnectionsInfo?.map((item, index) => (
 					<div className={s.onboardConnection} key={index}>
 						<div className={s.textContainer}>
 							<div className={s.title}>{item?.title}</div>
@@ -56,15 +135,25 @@ const Onboard = () => {
 							{item?.connections?.map((connection, index) => (
 								<div className={s.connection} key={index}>
 									<div className={s.leftContainer}>
-										<div className={s.icon}></div>
+										<img
+											src={connection?.icon}
+											alt={connection?.title}
+											className={s.icon}
+										/>
 										<div className={s.name}>{connection?.title}</div>
 									</div>
 									<div className={s.rightContainer}>
 										<button
 											className={s.button}
 											onClick={() => handleConnect(connection)}
+											disabled={connection?.connected}
+											style={{
+												cursor: connection?.connected
+													? 'not-allowed'
+													: 'pointer',
+											}}
 										>
-											Connect Now
+											{connection?.connected ? 'Connected' : 'Connect'}
 										</button>
 									</div>
 								</div>
@@ -72,25 +161,6 @@ const Onboard = () => {
 						</div>
 					</div>
 				))}
-			</div> */}
-
-			<div className={s.content3}>
-				<ul className={s.listContainer}>
-					<li className={s.listItem}>Watch your meetings (once calendar is connected)</li>
-					<li className={s.listItem}>Track what you say you’ll do and remind you</li>
-					<li className={s.listItem}>Spot missed replies or follow-ups</li>
-					<li className={s.listItem}>Help you focus by showing just what matters</li>
-				</ul>
-			</div>
-
-			<div className={s.content4}>
-				<div className={s.title}>What you can do next</div>
-				<ul className={s.listContainer}>
-					<li className={s.listItem}>Set your first goal</li>
-					<li className={s.listItem}>Create a smart agent</li>
-					<li className={s.listItem}>Connect your integrations</li>
-					<li className={s.listItem}>Add a file or doc to begin working</li>
-				</ul>
 			</div>
 
 			<div className={s.content1}>
@@ -109,6 +179,13 @@ const Onboard = () => {
 					<li className={s.listItem}>The more you do, the smarter Ve gets.</li>
 				</ul>
 			</div>
+
+			<IntegrationConnectModel
+				isOpen={info?.isModalOpen}
+				closeModal={() => setInfo((prev) => ({ ...prev, isModalOpen: false }))}
+				integration={info?.connectingIntegration}
+				onConnectionSuccess={handleConnectionSuccess}
+			/>
 		</div>
 	);
 };

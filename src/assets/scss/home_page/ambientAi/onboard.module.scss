@@ -95,6 +95,11 @@
 						flex-grow: 1;
 						overflow-y: auto;
 
+						.icon {
+							width: 16px;
+							height: 16px;
+						}
+
 						.name {
 							flex-grow: 1;
 							overflow: hidden;
