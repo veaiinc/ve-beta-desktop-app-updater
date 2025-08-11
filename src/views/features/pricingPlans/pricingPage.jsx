@@ -169,7 +169,7 @@ const PricingPage = () => {
 		const payload = {
 			plan: {
 				planId: plan?._id,
-				quantity: currentPlan?.isSeatBasedPlan
+				quantity: plan?.isSeatBasedPlan
 					? info.tenantUsersCount[plan._id] || currentPlan?.tenantUsers || 1
 					: 1,
 				recurringType: info.billing === 'anually' ? 'yearly' : 'monthly',
