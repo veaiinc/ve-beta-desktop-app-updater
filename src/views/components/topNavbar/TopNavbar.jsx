@@ -511,7 +511,6 @@ const TopNavbar = () => {
 							) : (
 								<p className={s.nameInitials}>{nameInitials}</p>
 							)}
-							{/* <DownCaret /> */}
 						</li>
 					</Tooltip>
 				</ul>
