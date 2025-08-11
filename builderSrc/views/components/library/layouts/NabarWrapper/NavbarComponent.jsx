@@ -1,10 +1,15 @@
-import React, { Component } from 'react';
+import React, { Component, useEffect } from 'react';
 import ImageItem from '../../elements/image';
-import { EditNavbar as Edit } from '../../../builder_client_common';
 import './NavbarCompStyles.scss';
-import { ElementSidebar, DownloadPDF } from '../../../builder_client_common';
+import {
+	ElementSidebar,
+	DownloadPDF,
+	Dropdown as DropDownSvg,
+	EditNavbar as Edit,
+} from '../../../builder_client_common';
 import CartIcons from '../NabarWrapper/CartIcons';
 import _ from 'lodash';
+import { Tooltip } from 'antd';
 
 class NavbarComponent extends Component {
 	constructor(props) {
@@ -29,9 +34,13 @@ class NavbarComponent extends Component {
 			hoveredCart: false,
 			section: props.section,
 			showImageModalLibrary: false,
+			dropDown: false,
+			selectedDropdown: 0,
+			isNavigating: false,
 		};
 		this.navbarRef = React.createRef();
 		this.imageRef = React.createRef();
+		this.dropDownRef = React.createRef();
 	}
 	componentWillReceiveProps = (nextProps) => {
 		if (this.state.blocks !== nextProps.blocks) {
@@ -77,6 +86,16 @@ class NavbarComponent extends Component {
 		document.removeEventListener('mousedown', this.handleClickOutside);
 	}
 	handleClickOutside = (e) => {
+		// Handle dropdown close - only if dropdown is open
+		if (
+			this.dropDownRef.current &&
+			!this.dropDownRef.current.contains(e.target) &&
+			this.state.dropDown
+		) {
+			this.setState({
+				dropDown: false,
+			});
+		}
 		if (
 			this.navbarRef.current &&
 			this.navbarRef.current.getSidebarNode && // check if method exists
@@ -95,7 +114,13 @@ class NavbarComponent extends Component {
 		}
 	};
 	renderModules = () => {
-		let modules = [...(this.props?.modules || [])];
+		let originaModules = [...(this.props?.modules || [])];
+		// let modules = [...(this.props?.modules || [])];
+		let minPages = 5;
+		if (this.props?.activeModule?.showAsA4) {
+			minPages = 3;
+		}
+		let modules = originaModules?.slice(0, minPages);
 
 		// Filter out the public modules if isWorkflow is true (for live preview)
 		if (this.state.isWorkflow) {
@@ -129,7 +154,11 @@ class NavbarComponent extends Component {
 				return (
 					<React.Fragment key={module._id}>
 						<span
-							onClick={() => this.props.getModuleInfo(module._id, moduleType)}
+							onClick={(e) => {
+								e.stopPropagation();
+
+								this.props.getModuleInfo(module._id, moduleType);
+							}}
 							className={`navbar-module-item ${
 								this.state.activeModuleId == module._id ? 'active' : ''
 							}`}
@@ -139,6 +168,10 @@ class NavbarComponent extends Component {
 								opacity: this.state.activeModuleId == module._id ? 1 : 0.7,
 								fontWeight:
 									this.state.activeModuleId == module._id ? 'bolder' : 'normal',
+								// whiteSpace: 'nowrap',
+								// overflow: 'hidden',
+								// textOverflow: 'ellipsis',
+								// width: '100px',
 							}}
 						>
 							{module.label}
@@ -185,11 +218,11 @@ class NavbarComponent extends Component {
 			},
 		);
 	};
-	handleNavbarAlign = (align) => {
-		this.setState({
-			navbarAlign: align,
-		});
-	};
+	// handleNavbarAlign = (align) => {
+	// 	this.setState({
+	// 		navbarAlign: align,
+	// 	});
+	// };
 
 	// handleNavbarUpdate = (type, value) => {
 	// 	let newSection = { ...this.props.section };
@@ -207,9 +240,87 @@ class NavbarComponent extends Component {
 	// 	);
 	// };
 
+	// renderClientModules = () => {
+	// 	let modules = [...(this.props?.clientPortalModules || [])];
+
+	// 	// Filter out the public modules if isWorkflow is true (for live preview)
+	// 	if (this.state.isWorkflow) {
+	// 		modules = modules.filter((ele) => !ele?.isPublic);
+	// 	}
+
+	// 	// Find the index of the last module with isPublic: true
+	// 	const lastPublicIndex = modules.reduce((lastIndex, module, index) => {
+	// 		return module.isPublic ? index : lastIndex;
+	// 	}, -1);
+
+	// 	// Find the index of the "Invoice" module
+	// 	const invoiceIndex = modules.findIndex((module) => module.module === 'invoice');
+
+	// 	// Add the "Summary" module before the "Invoice" module
+	// 	if (invoiceIndex && invoiceIndex !== -1) {
+	// 		modules.splice(invoiceIndex, 0, {
+	// 			module: 'summary',
+	// 			_id: 'summaryModule', // Unique _id for the new module
+	// 			label: 'summary',
+	// 			isPublic: false, // Adjust properties as needed
+	// 		});
+	// 	}
+	// 	const summaryIndex = modules.findIndex((module) => module.module === 'summary');
+	// 	return modules.map((module, k) => {
+	// 		if (module !== this.state.module) {
+	// 			const isLastPublic = k === lastPublicIndex;
+	// 			const moduleType = _.has(module, 'module') ? module.module : module.type;
+
+	// 			return (
+	// 				<React.Fragment key={module._id}>
+	// 					<span
+	// 						onClick={() => this.props.renderClientModulesClickFunction(module)}
+	// 						className={`navbar-module-item ${
+	// 							this.props?.selectedLabelId === module._id ? 'active' : ''
+	// 						}`}
+	// 						style={{
+	// 							color: this.props?.section?.navigationColor || '#000000',
+	// 							position: 'relative',
+	// 							opacity: this.props?.selectedLabelId == module._id ? 1 : 0.7,
+	// 							fontWeight:
+	// 								this.props?.selectedLabelId == module._id ? 'bolder' : 'normal',
+	// 						}}
+	// 					>
+	// 						{module.label}
+	// 						{this.props?.selectedLabelId == module._id && (
+	// 							<span
+	// 								style={{
+	// 									height: '3px',
+	// 									width: '15px',
+	// 									position: 'absolute',
+	// 									borderRadius: '2px',
+	// 									bottom: '-8px',
+	// 									background: this.props.section.navigationColor || '#000000',
+	// 								}}
+	// 							></span>
+	// 						)}
+	// 					</span>
+
+	// 					{isLastPublic && (
+	// 						<div
+	// 							style={{
+	// 								width: '1px',
+	// 								height: '24px',
+	// 								backgroundColor: '#9B9290',
+	// 								display: 'inline-block',
+	// 								marginLeft: '5px',
+	// 							}}
+	// 						></div>
+	// 					)}
+	// 				</React.Fragment>
+	// 			);
+	// 		}
+	// 		return null; // Return null for the current module to avoid rendering it
+	// 	});
+	// };
+
 	renderClientModules = () => {
 		let modules = [...(this.props?.clientPortalModules || [])];
-
 		// Filter out the public modules if isWorkflow is true (for live preview)
 		if (this.state.isWorkflow) {
 			modules = modules.filter((ele) => !ele?.isPublic);
@@ -233,57 +344,268 @@ class NavbarComponent extends Component {
 			});
 		}
 		const summaryIndex = modules.findIndex((module) => module.module === 'summary');
-		return modules.map((module, k) => {
-			if (module !== this.state.module) {
-				const isLastPublic = k === lastPublicIndex;
-				const moduleType = _.has(module, 'module') ? module.module : module.type;
 
-				return (
-					<React.Fragment key={module._id}>
-						<span
-							onClick={() => this.props.renderClientModulesClickFunction(module)}
-							className={`navbar-module-item ${
-								this.props?.selectedLabelId === module._id ? 'active' : ''
-							}`}
-							style={{
-								color: this.props?.section?.navigationColor || '#000000',
-								position: 'relative',
-								opacity: this.props?.selectedLabelId == module._id ? 1 : 0.7,
-								fontWeight:
-									this.props?.selectedLabelId == module._id ? 'bolder' : 'normal',
+		let minPages = 5;
+		if (this.props?.activeModule?.showAsA4) {
+			minPages = 2;
+		}
+		const pages = modules.slice(0, minPages);
+		const currentPages = modules.slice(minPages);
+
+		const isDropdownPageSelected = currentPages.some(
+			(module) => this.props?.selectedLabelId === module._id,
+		);
+
+		if (modules.length > minPages) {
+			return (
+				<>
+					{minPages &&
+						pages.map((module, k) => {
+							if (module !== this.state.module) {
+								const isLastPublic = k === lastPublicIndex;
+								const moduleType = _.has(module, 'module')
+									? module.module
+									: module.type;
+
+								return (
+									<React.Fragment key={module._id}>
+										<span
+											key={k}
+											onClick={(e) => {
+												e.preventDefault();
+												e.stopPropagation();
+												this.props.renderClientModulesClickFunction(module);
+											}}
+											className={`navbar-module-item ${
+												this.props?.selectedLabelId === module._id
+													? 'active'
+													: ''
+											}`}
+											style={{
+												color:
+													this.props?.section?.navigationColor ||
+													'#000000',
+												position: 'relative',
+												opacity:
+													this.props?.selectedLabelId == module._id
+														? 1
+														: 0.7,
+												fontWeight:
+													this.props?.selectedLabelId == module._id
+														? 'bolder'
+														: 'normal',
+											}}
+										>
+											<span className="navbar-module-item-label">
+												{module.label}
+											</span>
+											{this.props?.selectedLabelId == module._id && (
+												<span
+													style={{
+														height: '3px',
+														width: '15px',
+														position: 'absolute',
+														borderRadius: '2px',
+														bottom: '-8px',
+														background:
+															this.props.section.navigationColor ||
+															'#000000',
+													}}
+												></span>
+											)}
+										</span>
+
+										{isLastPublic && (
+											<div
+												style={{
+													width: '1px',
+													height: '24px',
+													backgroundColor: '#9B9290',
+													display: 'inline-block',
+													marginLeft: '5px',
+												}}
+											></div>
+										)}
+									</React.Fragment>
+								);
+							}
+							return null; // Return null for the current module to avoid rendering it
+						})}
+
+					{currentPages.length > 0 && (
+						<div
+							// ref={this.dropDownRef}
+							className="select-section-main"
+							onClick={() => {
+								this.setState({
+									dropDown: !this.state.dropDown,
+								});
 							}}
 						>
-							{module.label}
-							{this.props?.selectedLabelId == module._id && (
-								<span
-									style={{
-										height: '3px',
-										width: '15px',
-										position: 'absolute',
-										borderRadius: '2px',
-										bottom: '-8px',
-										background: this.props.section.navigationColor || '#000000',
-									}}
-								></span>
-							)}
-						</span>
-
-						{isLastPublic && (
 							<div
+								className={`select-div ${isDropdownPageSelected ? 'active' : ''}`}
 								style={{
-									width: '1px',
-									height: '24px',
-									backgroundColor: '#9B9290',
-									display: 'inline-block',
-									marginLeft: '5px',
+									color: this.props?.section?.navigationColor || '#000000',
+									opacity: isDropdownPageSelected ? 1 : 0.7,
+									fontWeight: isDropdownPageSelected ? 'bolder' : 'normal',
+									cursor: 'pointer',
 								}}
-							></div>
-						)}
-					</React.Fragment>
-				);
-			}
-			return null; // Return null for the current module to avoid rendering it
-		});
+							>
+								+ {currentPages.length}
+								<span>
+									{/* <Dropdown
+										style={{
+											stroke: this.props.section?.style?.navigationColor,
+											cursor: 'pointer',
+										}}
+										className={`drop-icon${
+											this.state.dropDown === false ? 'rotate' : ''
+										}`}
+									/> */}
+									<DropDownSvg
+										className={`drop-icon${
+											this.state.dropDown === true ? 'rotate' : ''
+										}`}
+										fillColor={this.props?.section?.navigationColor}
+										style={{
+											transform: this.state.dropDown
+												? 'rotate(180deg)'
+												: 'rotate(0deg)',
+										}}
+									/>
+								</span>
+							</div>
+
+							<Tooltip
+								className="tooltip-container"
+								placement="bottomRight"
+								style={{
+									background:
+										this.props.section?.style?.sectionBackgroundColor.toLowerCase() ==
+										'transparent'
+											? '#ffffff'
+											: this.props.section?.style?.sectionBackgroundColor,
+								}}
+								title={
+									<div
+										className="select-section"
+										style={{
+											background:
+												this.props.section?.style?.sectionBackgroundColor.toLowerCase() ==
+												'transparent'
+													? '#ffffff'
+													: this.props.section?.style
+															?.sectionBackgroundColor,
+											cursor: 'pointer',
+										}}
+									>
+										{currentPages.map((module, i) => (
+											<p
+												style={{
+													color:
+														this.props?.section?.navigationColor ||
+														'#000000',
+													position: 'relative',
+													opacity:
+														this.props?.selectedLabelId == module._id
+															? 1
+															: 0.7,
+													fontWeight:
+														this.props?.selectedLabelId == module._id
+															? 'bolder'
+															: 'normal',
+												}}
+												onClick={(e) => {
+													e.preventDefault();
+
+													this.props.renderClientModulesClickFunction(
+														module,
+													);
+
+													this.setState({
+														dropDown: false,
+													});
+												}}
+												className={`options${
+													this.props?.selectedLabelId == module._id
+														? 'active'
+														: ''
+												}`}
+												value={module._id}
+												key={module._id}
+											>
+												{module.label}
+											</p>
+										))}
+									</div>
+								}
+								color={'var(--right-bar, #161618)'}
+								arrow={false}
+								trigger="click"
+								overlayClassName="tooltip-container"
+								open={this.state.dropDown}
+								onOpenChange={() => this.setState({ dropDown: false })}
+							></Tooltip>
+						</div>
+					)}
+				</>
+			);
+		} else {
+			return modules.map((module, k) => {
+				if (module !== this.state.module) {
+					const isLastPublic = k === lastPublicIndex;
+					const moduleType = _.has(module, 'module') ? module.module : module.type;
+
+					return (
+						<React.Fragment key={module._id}>
+							<span
+								onClick={() => this.props.renderClientModulesClickFunction(module)}
+								className={`navbar-module-item ${
+									this.props?.selectedLabelId === module._id ? 'active' : ''
+								}`}
+								style={{
+									color: this.props?.section?.navigationColor || '#000000',
+									position: 'relative',
+									opacity: this.props?.selectedLabelId == module._id ? 1 : 0.7,
+									fontWeight:
+										this.props?.selectedLabelId == module._id
+											? 'bolder'
+											: 'normal',
+								}}
+							>
+								<span className="navbar-module-item-label">{module.label}</span>
+								{this.props?.selectedLabelId == module._id && (
+									<span
+										style={{
+											height: '3px',
+											width: '15px',
+											position: 'absolute',
+											borderRadius: '2px',
+											bottom: '-8px',
+											background:
+												this.props.section.navigationColor || '#000000',
+										}}
+									></span>
+								)}
+							</span>
+
+							{isLastPublic && (
+								<div
+									style={{
+										width: '1px',
+										height: '24px',
+										backgroundColor: '#9B9290',
+										display: 'inline-block',
+										marginLeft: '5px',
+									}}
+								></div>
+							)}
+						</React.Fragment>
+					);
+				}
+				return null; // Return null for the current module to avoid rendering it
+			});
+		}
 	};
 	builderRenderNavbar = () => {
 		const properties =
@@ -293,6 +615,11 @@ class NavbarComponent extends Component {
 			height: '100%',
 			width: '100%',
 		};
+
+		let minPages = 5;
+		if (this.props?.activeModule?.showAsA4) {
+			minPages = 3;
+		}
 		return (
 			<>
 				<div className="navbar-component-wrapper">
@@ -317,7 +644,7 @@ class NavbarComponent extends Component {
 								width:
 									this.props?.section?.style?.navbarAlign === 'one' ||
 									!this.props?.section?.style?.navbarAlign
-										? 'auto'
+										? '474px'
 										: '100%',
 								justifyContent:
 									this.props?.section?.style?.navbarAlign === 'two'
@@ -337,28 +664,63 @@ class NavbarComponent extends Component {
 									border: this.state.hoveredModule
 										? '1px solid #f1f2f3'
 										: '1px solid transparent',
-									padding: '10px',
+									// padding: '10px',
 									justifyContent:
 										this.props?.section?.style?.navbarAlign === 'two'
 											? 'center'
+											: this.props?.section?.style?.navbarAlign === 'three'
+											? 'flex-end'
 											: 'flex-start',
+									width: 'auto',
 								}}
 								className="navbar-modules-inner-wrapper"
 							>
 								{this.renderModules()}
-
-								{this.state.hoveredModule && (
-									<div
-										style={{ cursor: 'pointer' }}
-										className="edit-module-wrapper"
+								{this.state.hoveredModule &&
+									this.props?.modules?.length <= minPages && (
+										<div
+											style={{
+												cursor: 'pointer',
+												background:
+													this.props.section?.style?.sectionBackgroundColor.toLowerCase() ==
+													'transparent'
+														? '#ffffff'
+														: this.props.section?.style
+																?.sectionBackgroundColor,
+											}}
+											className="edit-module-wrapper"
+											onClick={(e) => {
+												e.preventDefault();
+												e.stopPropagation();
+												this.props.managePages(e);
+											}}
+										>
+											{this.props?.modules?.length <= minPages && <Edit />}
+										</div>
+									)}
+								{this.props?.modules?.length > minPages && (
+									<p
 										onClick={(e) => {
 											e.preventDefault();
 											e.stopPropagation();
 											this.props.managePages(e);
 										}}
+										style={{
+											fontSize: '10px',
+											fontWeight: 'bold',
+											padding: '6px',
+											position:
+												this.props?.section?.navbarAlign === 'three'
+													? 'absolute'
+													: '',
+											top: '10px',
+											right: '-50px',
+											cursor: 'pointer',
+											color: this.props?.section?.navigationColor || 'black',
+										}}
 									>
-										<Edit />
-									</div>
+										+{this.props.modules.length - minPages}Pages
+									</p>
 								)}
 							</div>
 						</div>
@@ -528,6 +890,12 @@ class NavbarComponent extends Component {
 											width:
 												this.props?.section?.style?.navbarAlign === 'three'
 													? 'auto'
+													: this.props?.section?.style?.navbarAlign ===
+															'one' ||
+													  !this.props?.section?.style?.navbarAlign
+													? '474px'
+													: this.props?.activeModule?.showAsA4
+													? '150px'
 													: '200px',
 
 											// border:
@@ -669,13 +1037,17 @@ class NavbarComponent extends Component {
 		return (
 			<>
 				<div className="navbar-component-wrapper">
-					<div className="navbar-inner-div2">
+					<div className="navbar-inner-div2" style={{ padding: '10px' }}>
 						<div
 							style={{
 								width:
-									this.props?.section?.style?.navbarAlign === 'one' ||
-									!this.props?.section?.style?.navbarAlign
-										? 'auto'
+									this.props.activeModule.showAsA4 &&
+									(this.props?.section?.style?.navbarAlign === 'one' ||
+										!this.props?.section?.style?.navbarAlign)
+										? '200px'
+										: this.props?.section?.style?.navbarAlign === 'one' ||
+										  !this.props?.section?.style?.navbarAlign
+										? '474px'
 										: '100%',
 								justifyContent:
 									this.props?.section?.style?.navbarAlign === 'two'
@@ -685,8 +1057,7 @@ class NavbarComponent extends Component {
 										: this.props?.section?.style?.navbarAlign === 'four'
 										? 'flex-start'
 										: 'center',
-
-								transition: 'all 0.3s ease',
+								whiteSpace: 'nowrap',
 							}}
 							className="navbar-modules-wrapper"
 						>
@@ -698,7 +1069,20 @@ class NavbarComponent extends Component {
 									justifyContent:
 										this.props?.section?.style?.navbarAlign === 'two'
 											? 'center'
+											: this.props?.section?.style?.navbarAlign === 'three'
+											? 'flex-end'
 											: 'flex-start',
+									gap:
+										(this.props?.activeModule?.showAsA4 &&
+											this.props?.section?.style?.navbarAlign === 'one') ||
+										!this.props?.section?.style?.navbarAlign
+											? '0px'
+											: '10px',
+									minWidth:
+										this.props?.activeModule?.showAsA4 &&
+										this.props?.section?.style?.navbarAlign === 'one'
+											? '200px'
+											: '100%',
 								}}
 								className="navbar-modules-inner-wrapper"
 							>
@@ -719,10 +1103,13 @@ class NavbarComponent extends Component {
 									ref={this.imageRef}
 									className="navbar-image-wrapper"
 									style={{
-										width: '100px',
+										width:
+											this.props?.activeModule?.showAsA4 &&
+											this.props?.section?.style?.navbarAlign === 'one'
+												? '100px'
+												: '150px',
 										height: '60px',
 										background: 'transparent',
-
 										border: this.state.hoveredImage
 											? '1px solid #fff'
 											: ' 1px solid transparent',
@@ -769,12 +1156,24 @@ class NavbarComponent extends Component {
 									padding: '5px',
 									display: 'flex',
 									alignItems: 'center',
-									gap: '10px',
+									// gap: '10px',
 									width:
-										this.props?.section?.style?.navbarAlign === 'three'
-											? 'auto'
-											: '200px',
+										(this.props?.section?.style?.navbarAlign === 'one' ||
+											!this.props?.section?.style?.navbarAlign) &&
+										this.props?.activeModule?.showAsA4
+											? '200px'
+											: this.props?.activeModule?.showAsA4
+											? '160px'
+											: this.props?.activeModule?.showAsA4 &&
+											  this.props?.section?.style?.navbarAlign === 'three'
+											? '160px'
+											: this.props?.section?.style?.navbarAlign === 'one' ||
+											  !this.props?.section?.style?.navbarAlign
+											? '474px'
+											: '190px',
+
 									justifyContent: 'flex-end',
+									gap: this.props?.activeModule?.showAsA4 ? '0px' : '10px',
 								}}
 								className="cart-div"
 							>
@@ -867,6 +1266,8 @@ class NavbarComponent extends Component {
 													color:
 														this.props?.section?.navigationColor ||
 														'#000000',
+													flexWrap: 'wrap',
+													whiteSpace: 'nowrap',
 												}}
 												className="cart-count"
 											>
@@ -890,7 +1291,6 @@ class NavbarComponent extends Component {
 			</>
 		);
 	};
-
 	render() {
 		return this.props?.client ? this.clientRenderNavbar() : this.builderRenderNavbar();
 	}

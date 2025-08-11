@@ -33,161 +33,165 @@ class FormEvent extends Component {
 			eventsJSON: [
 				{
 					value: 0,
-					label: 'Wedding',
+					label: 'PreWedding',
 				},
 				{
 					value: 1,
-					label: 'Engagement',
+					label: 'Wedding',
 				},
 				{
 					value: 2,
-					label: 'Reception',
+					label: 'Engagement',
 				},
 				{
 					value: 3,
-					label: 'Pellikoduku',
+					label: 'Reception',
 				},
 				{
 					value: 4,
-					label: 'Mehendi',
+					label: 'Pellikoduku',
 				},
 				{
 					value: 5,
-					label: 'Mehendi - Bride',
+					label: 'Mehendi',
 				},
 				{
 					value: 6,
-					label: 'Mehendi - Groom',
+					label: 'Mehendi - Bride',
 				},
 				{
 					value: 7,
-					label: 'Sangeeth',
+					label: 'Mehendi - Groom',
 				},
 				{
 					value: 8,
-					label: 'Haldi',
+					label: 'Sangeeth',
 				},
 				{
 					value: 9,
-					label: 'Haldi - Bride',
+					label: 'Haldi',
 				},
 				{
 					value: 10,
-					label: 'Haldi - Groom',
+					label: 'Haldi - Bride',
 				},
 				{
 					value: 11,
-					label: 'Vratham',
+					label: 'Haldi - Groom',
 				},
 				{
 					value: 12,
-					label: 'Vratham - Bride',
+					label: 'Vratham',
 				},
 				{
 					value: 13,
-					label: 'Vratham - Groom',
+					label: 'Vratham - Bride',
 				},
 				{
 					value: 14,
-					label: 'Couple Shoot',
+					label: 'Vratham - Groom',
 				},
 				{
 					value: 15,
-					label: 'Bride Ceremony',
+					label: 'Couple Shoot',
 				},
 				{
 					value: 16,
-					label: 'Groom Ceremony ',
+					label: 'Bride Ceremony',
 				},
 				{
 					value: 17,
-					label: 'Cocktail Party',
+					label: 'Groom Ceremony ',
 				},
 				{
 					value: 18,
-					label: 'Mangalasnanam',
+					label: 'Cocktail Party',
 				},
 				{
 					value: 19,
-					label: 'Pooja',
+					label: 'Mangalasnanam',
 				},
 				{
 					value: 20,
-					label: 'Pooja - Bride',
+					label: 'Pooja',
 				},
 				{
 					value: 21,
+					label: 'Pooja - Bride',
+				},
+				{
+					value: 22,	
 					label: 'Pooja - Groom',
 				},
 				{
-					value: 22,
+					value: 23,
 					label: 'Pradhanam',
 				},
 				{
-					value: 23,
+					value: 24,
 					label: 'Lagnapatrika',
 				},
 				{
-					value: 24,
+					value: 25,
 					label: 'Pasupu',
 				},
 				{
-					value: 25,
+					value: 26,
 					label: 'Nalugu',
 				},
 				{
-					value: 26,
+					value: 27,
 					label: 'Nalugu - Bride',
 				},
 				{
-					value: 27,
+					value: 28,
 					label: 'Nalugu - Groom',
 				},
 				{
-					value: 28,
+					value: 29,
 					label: 'Upanayanam',
 				},
 				{
-					value: 29,
+					value: 30,
 					label: 'Bridal Shower',
 				},
 				{
-					value: 30,
+					value: 31,
 					label: 'Varapooja',
 				},
 				{
-					value: 31,
+					value: 32,
 					label: 'Shagun',
 				},
 				{
-					value: 32,
+					value: 33,
 					label: 'Baraath',
 				},
 				{
-					value: 33,
+					value: 34,
 					label: 'Edhurukollu',
 				},
 				{
-					value: 34,
+					value: 35,
 					label: 'Beegara Oota',
 				},
 				{
-					value: 35,
+					value: 36,
 					label: 'Pellikuthuru',
 				},
 				{
-					value: 36,
+					value: 37,
 					label: 'Reception Bride',
 				},
 				{
-					value: 37,
+					value: 38,
 					label: 'Reception Groom',
 				},
 				{
-					value: 38,
+					value: 39,
 					label: 'Muhurtham',
 				},
-				{ value: 39, label: 'Muhurat' },
+				{ value: 40, label: 'Muhurat' },
 			],
 		};
 		this.datePickerRef = React.createRef();
