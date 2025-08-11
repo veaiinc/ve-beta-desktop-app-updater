@@ -33,8 +33,8 @@ const tooltipStyle = {
 const baseLeftContainerItems = [
 	{
 		id: 1,
-		label: 'Ambient',
-		route: '/ambient-ai',
+		label: 'Priority',
+		route: '/priority',
 	},
 	{
 		id: 2,
