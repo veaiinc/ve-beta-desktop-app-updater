@@ -89,7 +89,13 @@ const stableRoutes = [
 					authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 					maxWidth="100%"
 				>
-					<RecentChat showChatHistory={true} showDeleteChat={true} showChats={true} />
+					<RecentChat
+						showChatHistory={true}
+						showDeleteChat={true}
+						showChats={true}
+						showChatsButton={true}
+						showBrowser={true}
+					/>
 				</AuthWrapper>
 			</Suspense>
 		),
