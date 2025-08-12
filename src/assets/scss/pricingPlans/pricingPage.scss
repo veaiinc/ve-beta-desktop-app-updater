@@ -896,43 +896,6 @@
 		}
 	}
 
-	.pricingFeatures {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 10px;
-		align-self: stretch;
-		width: 100%;
-
-		.feature-item {
-			display: flex;
-			align-items: center;
-			gap: 12px;
-			align-self: stretch;
-
-			.feature-check {
-				display: flex;
-				width: 13px;
-				height: 13px;
-				justify-content: center;
-				align-items: center;
-				border-radius: 2px;
-
-				svg {
-					fill: var(--primary-font, #f2f2f3);
-				}
-			}
-
-			.feature-text {
-				color: var(--primary-font, #f2f2f3);
-				font-family: var(--primary-font-family);
-				font-size: 13px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: normal;
-			}
-		}
-	}
 	.pricingButtonContainer {
 		width: 100%;
 		display: flex;
@@ -951,7 +914,7 @@
 			.pricingButton {
 				display: flex;
 				padding: 14px 16px;
-				justify-content: center;
+				justify-content: space-around;
 				align-items: center;
 				gap: 10px;
 				align-self: stretch;
@@ -1050,11 +1013,48 @@
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
-			text-transform: capitalize;
+			// text-transform: capitalize;
 			cursor: pointer;
 			background: transparent;
 			cursor: pointer;
 			border: 1px solid transparent;
+		}
+	}
+}
+.pricingFeatures {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 10px;
+	align-self: stretch;
+	width: 100%;
+
+	.feature-item {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		align-self: stretch;
+
+		.feature-check {
+			display: flex;
+			width: 13px;
+			height: 13px;
+			justify-content: center;
+			align-items: center;
+			border-radius: 2px;
+
+			svg {
+				fill: var(--primary-font, #f2f2f3);
+			}
+		}
+
+		.feature-text {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
 		}
 	}
 }

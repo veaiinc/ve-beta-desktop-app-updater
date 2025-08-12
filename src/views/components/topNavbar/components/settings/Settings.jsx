@@ -20,6 +20,7 @@ import useIntercom from '../../../../../hooks/useIntercom';
 import useBroadcastChannel from '../../../../../hooks/useBroadcastChannel';
 import { ReactComponent as BackIcon } from '../../../../../assets/svg/mobile/back.svg';
 import { ReactComponent as CloseIcon } from '../../../../../assets/svg/mobile/close.svg';
+import { ReactComponent as PlusSvg } from '../../assets/plus.svg';
 
 const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
 const isMac =
@@ -93,7 +94,7 @@ const Settings = ({
 	closeSettingsTooltip,
 }) => {
 	const { pathname } = useLocation();
-	const { shutdownIntercom, showIntercom } = useIntercom();
+	const { shutdownIntercom, showIntercom, launchIntercom } = useIntercom();
 	const channel = useBroadcastChannel();
 	const navigate = useNavigate();
 
@@ -104,21 +105,33 @@ const Settings = ({
 	const [isMobileView, setIsMobileView] = useState(false);
 
 	const {
-		profileInfo: { tenantUserAccessControls, userWorkSpaceList },
+		profileInfo: { tenantUserAccessControls, userWorkSpaceList, tennantSettingsData },
 	} = useContext(Context);
 
 	const fullName = `${firstName ?? ''} ${lastName ?? ''}`;
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
 	const workspacesMoreThanOne = userWorkSpaceList?.length > 1;
+	const workspaceImage = tennantSettingsData?.logo_s3_500w_key ?? null;
 
-	useEffect(() => {
-		if (info.intercomOpen) {
-			openIntercom();
+	const handleSettingItemClick = (settingItem) => async () => {
+		if (settingItem.route) {
+			navigate(settingItem.route);
 		} else {
-			shutdownIntercom();
+			if (settingItem.label === 'Help') {
+				if (info.intercomOpen) {
+					shutdownIntercom();
+				} else {
+					await launchIntercom();
+					showIntercom();
+				}
+				setInfo((prev) => ({
+					...prev,
+					intercomOpen: !prev.intercomOpen,
+				}));
+			}
 		}
-	}, [info.intercomOpen]);
-
+		closeSettingsTooltip();
+	};
 	useEffect(() => {
 		const query = window.matchMedia('(max-width: 768px)');
 		const update = () => setIsMobileView(query.matches);
@@ -131,11 +144,6 @@ const Settings = ({
 			return () => query.removeListener(update);
 		}
 	}, []);
-
-	const openIntercom = async () => {
-		showIntercom();
-	};
-
 	const Content = (
 		<div className={s.settingsContain}>
 			{/* Mobile header (shown only on small screens via CSS) */}
@@ -166,6 +174,10 @@ const Settings = ({
 				) : (
 					<p className={s.nameInitials}>{nameInitials}</p>
 				)}
+				{workspaceImage && (
+					<img className={s.workspaceImage} src={workspaceImage} alt="workspaceImage" />
+				)}
+
 				<div className={s.userInfoDetails}>
 					<p className={s.nameAndRole}>
 						<span className={s.fullName}>{fullName}</span>{' '}
@@ -214,17 +226,7 @@ const Settings = ({
 			<div className={s.settingsItems}>
 				{settingsItems.map((settingItem) => (
 					<div
-						onClick={() => {
-							if (settingItem.route) {
-								navigate(settingItem.route);
-							} else {
-								setInfo((prev) => ({
-									...prev,
-									intercomOpen: !prev.intercomOpen,
-								}));
-							}
-							closeSettingsTooltip();
-						}}
+						onClick={handleSettingItemClick(settingItem)}
 						key={settingItem.id}
 						className={`${s.settingItem} ${
 							settingItem.route && settingItem.route.includes(pathname)
@@ -237,16 +239,46 @@ const Settings = ({
 					</div>
 				))}
 			</div>
-			<button
-				className={s.logoutButton}
-				onClick={() => {
-					logout();
-					channel.postMessage('reload');
-				}}
-			>
-				<LogoutSvg />
-				<span>Logout</span>
-			</button>
+			<div className={s.switchWorkspaceAndLogoutContainer}>
+				<button
+					onClick={(e) => {
+						e.stopPropagation();
+						if (workspacesMoreThanOne) {
+							setInfo((prev) => ({
+								...prev,
+								workspaceModalOpen: true,
+							}));
+							closeSettingsTooltip();
+						} else {
+							navigate('/create-workspace');
+							closeSettingsTooltip();
+						}
+					}}
+					className={s.switchWorkspaceButton}
+				>
+					{workspacesMoreThanOne ? (
+						<>
+							<SwitchWorkspaceSvg />
+							<span>Switch Workspace </span>
+						</>
+					) : (
+						<>
+							<PlusSvg />
+							<span>Create Workspace</span>
+						</>
+					)}
+				</button>
+				<button
+					className={s.logoutButton}
+					onClick={() => {
+						logout();
+						channel.postMessage('reload');
+					}}
+				>
+					<LogoutSvg />
+				</button>
+			</div>
+
 			{isMac && (
 				<button
 					className={s.downloadMacAppButton}

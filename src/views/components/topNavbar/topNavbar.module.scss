@@ -5,6 +5,17 @@
 	height: 0;
 }
 
+.shareAndEarnTooltip,
+.themeTooltip,
+.topNavbarSettings,
+.topNavbarNotifications {
+	& > div {
+		& > div {
+			box-shadow: unset !important;
+		}
+	}
+}
+
 .topNavbarContainer {
 	width: 100%;
 	display: flex;
@@ -410,17 +421,6 @@
 			width: 100%;
 		}
 	}
-}
-
-.ant-tooltip-content {
-	background-color: red;
-	.ant-tooltip {
-		width: 320px;
-	}
-}
-
-.ant-tooltip {
-	background-color: red;
 }
 
 // Mobile tooltip adjustments

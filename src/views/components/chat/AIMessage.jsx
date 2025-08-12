@@ -1,4 +1,4 @@
-import { memo, useContext, useState, useCallback } from 'react';
+import { memo, useContext, useState, useCallback, useEffect } from 'react';
 import Context from '../../../context/context';
 import { Markdown } from '../../../helpers/markdownHelper';
 import { Tooltip } from 'antd';
@@ -22,6 +22,11 @@ const tooltipStyles = {
 	body: { color: 'var(--primary-font)' },
 };
 
+const builderAgentMapper = {
+	formBuilderAgent: true,
+	invoiceBuilderAgent: true,
+	contractBuilderAgent: true,
+};
 const pencilIconStyles = {
 	width: '20px',
 	height: '20px',
@@ -52,7 +57,13 @@ const AIMessage = ({
 		isCopiedToClipboard: false,
 		feedbackPopupOpen: false,
 		liked: null,
+		usedAgents: [],
 	});
+
+	useEffect(() => {
+		const usedAgents = messageData?.used_agents?.filter((agent) => builderAgentMapper[agent]);
+		setInfo((prev) => ({ ...prev, usedAgents: usedAgents }));
+	}, [messageData?.used_agents]);
 
 	const handleUpdateId = (workflowTemplateId, moduleTemplateId) => {
 		updateStateValues({
@@ -122,28 +133,26 @@ const AIMessage = ({
 
 	return (
 		<div className="ai-message-container">
-			{info?.feedbackPopupOpen && (
-				<PromptPopup
-					messageId={messageData?.messageId}
-					liked={messageData?.rating}
-					open={info?.feedbackPopupOpen}
-					feedbackMessage={messageData?.userRemarks}
-					feedbackPopupOpen={info?.feedbackPopupOpen}
-					selectedFeedback={messageData?.userFeedbackReasons}
-					handleFeedbackUpdateSuccess={handleFeedbackUpdateSuccess}
-					isTrained={
-						messageData?.rating ||
-						messageData?.userRemarks ||
-						messageData?.userFeedbackReasons?.length
-					}
-					closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
-				/>
-			)}
-			{messageData?.used_agents?.length > 0 &&
+			<PromptPopup
+				messageId={messageData?.messageId}
+				liked={messageData?.rating}
+				open={info?.feedbackPopupOpen}
+				feedbackMessage={messageData?.userRemarks}
+				feedbackPopupOpen={info?.feedbackPopupOpen}
+				selectedFeedback={messageData?.userFeedbackReasons}
+				handleFeedbackUpdateSuccess={handleFeedbackUpdateSuccess}
+				isTrained={
+					messageData?.rating ||
+					messageData?.userRemarks ||
+					messageData?.userFeedbackReasons?.length
+				}
+				closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
+			/>
+			{info?.usedAgents?.length > 0 &&
 				messageData?.workflow_template_id &&
 				messageData?.module_template_id &&
 				(showCanvas && !isNoteCanvas ? (
-					messageData?.used_agents?.map((agent, index) => (
+					info?.usedAgents?.map((agent, index) => (
 						<FormWidget
 							workflowTemplateId={messageData?.workflow_template_id}
 							moduleTemplateId={messageData?.module_template_id}

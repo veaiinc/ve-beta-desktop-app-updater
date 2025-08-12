@@ -1,0 +1,39 @@
+// .drawer-mask {
+// 	background-color: transparent !important;
+// }
+
+.ambient-ai-drawer {
+	.ant-drawer-mask {
+		display: none !important;
+	}
+
+	height: 100%;
+	.ant-drawer-content-wrapper {
+		box-shadow: unset !important;
+	}
+
+	.ambient-ai-wrapper {
+		height: 100%;
+		width: 600px;
+		position: relative;
+		border-left: 1px solid var(--dividers, #2c2d2e);
+		background-color: var(--navbar, #141415);
+
+		.drag-handler {
+			position: absolute;
+			height: 100%;
+			width: 2px;
+			top: 0;
+			left: 0;
+			background-color: transparent;
+			cursor: ew-resize;
+			z-index: 100;
+		}
+	}
+}
+
+@media (max-width: 1500px) {
+	.ambient-ai-wrapper {
+		width: 450px !important;
+	}
+}
