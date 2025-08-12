@@ -106,3 +106,19 @@
 		}
 	}
 }
+@media (max-width: 768px) {
+	.delete-modal {
+		width: 376px;
+		padding: 24px 16px;
+		border-radius: 16px;
+		&__title {
+			font-size: 20px;
+		}
+		&__desc {
+			font-size: 14px;
+		}
+		&__button-group {
+			margin-left: 0;
+		}
+	}
+}

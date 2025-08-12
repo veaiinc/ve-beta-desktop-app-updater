@@ -79,6 +79,7 @@ const RecentChat = ({
 		chatQuery: '',
 		citationsAiMessageIndex: null,
 		citationsModalIsOpen: false,
+		isMobileView: false,
 	});
 
 	const chatContentRef = useRef(null);
@@ -937,7 +938,7 @@ const RecentChat = ({
 					width: info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%',
 				}}
 			>
-				{showChatHistory && (
+				{showChatHistory && !info?.isMobileView && (
 					<div className="chat-history-wrapper">
 						<ChatHistory />
 					</div>

@@ -240,6 +240,10 @@
 				display: flex;
 				align-items: center;
 				padding: 2px;
+				@media screen and (max-width: 500px) {
+					flex-wrap: wrap;
+					gap: 0px !important;
+				}
 
 				.events-popup-time-label {
 					font-size: 14px;
