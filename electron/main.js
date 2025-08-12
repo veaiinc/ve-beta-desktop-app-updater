@@ -1,5 +1,5 @@
 // main.js
-const { app, BrowserWindow, Menu } = require('electron');
+const { app, BrowserWindow, Menu, desktopCapturer, globalShortcut, screen } = require('electron');
 const ipcMain = require('electron').ipcMain;
 const { autoUpdater } = require('electron-updater');
 const log = require('electron-log'); // Import electron-log
@@ -11,11 +11,285 @@ const archiver = require('archiver');
 const fs = require('fs');
 const { dialog } = require('electron');
 
+// Add watermark cache for image processing
+const watermarkCache = new Map();
+
+// Overlay window helper classes (commented out as not required)
+
+class WindowHelper {
+	constructor() {
+		this.overlayWindow = null;
+		this.isOverlayVisible = false;
+		this.windowPosition = { x: 0, y: 0 };
+		this.windowSize = { width: 400, height: 150 };
+		this.screenWidth = 0;
+		this.screenHeight = 0;
+		this.step = 0;
+		this.currentX = 0;
+		this.currentY = 0;
+	}
+
+	createOverlayWindow() {
+		if (this.overlayWindow !== null) return;
+
+		const primaryDisplay = screen.getPrimaryDisplay();
+		const workArea = primaryDisplay.workAreaSize;
+		this.screenWidth = workArea.width;
+		this.screenHeight = workArea.height;
+
+		this.step = Math.floor(this.screenWidth / 10);
+		this.currentX = Math.floor(this.screenWidth / 2) - Math.floor(this.windowSize.width / 2);
+		this.currentY = 50;
+
+		const windowSettings = {
+			width: this.windowSize.width,
+			height: this.windowSize.height,
+			x: this.currentX,
+			y: this.currentY,
+			webPreferences: {
+				nodeIntegration: false,
+				contextIsolation: true,
+				preload: path.join(__dirname, 'preload.js'),
+			},
+			show: false,
+			alwaysOnTop: true,
+			frame: false,
+			transparent: true,
+			fullscreenable: false,
+			hasShadow: false,
+			backgroundColor: '#00000000',
+			focusable: true,
+			skipTaskbar: true,
+		};
+
+		this.overlayWindow = new BrowserWindow(windowSettings);
+
+		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
+		const overlayUrl =
+			process.env.NODE_ENV === 'development'
+				? `${devURL}/overlay.html`
+				: `file://${path.join(__dirname, '..', 'build', 'overlay.html')}`;
+
+		this.overlayWindow.loadURL(overlayUrl).catch((err) => {
+			log.error('Failed to load overlay URL:', err);
+		});
+
+		if (process.platform === 'darwin') {
+			this.overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+			this.overlayWindow.setHiddenInMissionControl(true);
+			this.overlayWindow.setAlwaysOnTop(true, 'floating');
+		}
+
+		this.setupWindowListeners();
+
+		const bounds = this.overlayWindow.getBounds();
+		this.windowPosition = { x: bounds.x, y: bounds.y };
+		this.windowSize = { width: bounds.width, height: bounds.height };
+		this.currentX = bounds.x;
+		this.currentY = bounds.y;
+	}
+
+	setupWindowListeners() {
+		if (!this.overlayWindow) return;
+
+		this.overlayWindow.on('move', () => {
+			if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+				const bounds = this.overlayWindow.getBounds();
+				this.windowPosition = { x: bounds.x, y: bounds.y };
+				this.currentX = bounds.x;
+				this.currentY = bounds.y;
+			}
+		});
+
+		this.overlayWindow.on('resize', () => {
+			if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+				const bounds = this.overlayWindow.getBounds();
+				this.windowSize = { width: bounds.width, height: bounds.height };
+			}
+		});
+
+		this.overlayWindow.on('closed', () => {
+			this.overlayWindow = null;
+			this.isOverlayVisible = false;
+		});
+	}
+
+	getOverlayWindow() {
+		return this.overlayWindow;
+	}
+
+	isVisible() {
+		return this.isOverlayVisible && this.overlayWindow && !this.overlayWindow.isDestroyed();
+	}
+
+	hideOverlayWindow() {
+		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) return;
+		const bounds = this.overlayWindow.getBounds();
+		this.windowPosition = { x: bounds.x, y: bounds.y };
+		this.windowSize = { width: bounds.width, height: bounds.height };
+		this.overlayWindow.hide();
+		this.isOverlayVisible = false;
+	}
+
+	showOverlayWindow() {
+		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) return;
+		if (this.windowPosition && this.windowSize) {
+			this.overlayWindow.setBounds(
+				this.windowPosition.x,
+				this.windowPosition.y,
+				this.windowSize.width,
+				this.windowSize.height,
+			);
+		}
+		this.overlayWindow.showInactive();
+		this.isOverlayVisible = true;
+	}
+
+	toggleOverlayWindow() {
+		if (this.isOverlayVisible) {
+			this.hideOverlayWindow();
+		} else {
+			this.showOverlayWindow();
+		}
+	}
+
+	updateWindowDimensions(width, height) {
+		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) return;
+		const [currentX, currentY] = this.overlayWindow.getPosition();
+		const { screen } = require('electron');
+		const workArea = screen.getPrimaryDisplay().workAreaSize;
+		const newWidth = Math.min(width + 32, Math.floor(workArea.width * 0.6));
+		const newHeight = Math.ceil(height + 16);
+		const maxX = workArea.width - newWidth;
+		const newX = Math.min(Math.max(currentX, 0), maxX);
+		this.overlayWindow.setBounds({ x: newX, y: currentY, width: newWidth, height: newHeight });
+		this.windowPosition = { x: newX, y: currentY };
+		this.windowSize = { width: newWidth, height: newHeight };
+		this.currentX = newX;
+	}
+
+	moveWindowLeft() {
+		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) return;
+		this.currentX = Math.max(-this.windowSize.width / 2, this.currentX - this.step);
+		this.overlayWindow.setPosition(Math.round(this.currentX), Math.round(this.currentY));
+	}
+
+	moveWindowRight() {
+		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) return;
+		this.currentX = Math.min(
+			this.screenWidth - this.windowSize.width / 2,
+			this.currentX + this.step,
+		);
+		this.overlayWindow.setPosition(Math.round(this.currentX), Math.round(this.currentY));
+	}
+
+	moveWindowUp() {
+		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) return;
+		this.currentY = Math.max(-this.windowSize.height / 2, this.currentY - this.step);
+		this.overlayWindow.setPosition(Math.round(this.currentX), Math.round(this.currentY));
+	}
+
+	moveWindowDown() {
+		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) return;
+		this.currentY = Math.min(
+			this.screenHeight - this.windowSize.height / 2,
+			this.currentY + this.step,
+		);
+		this.overlayWindow.setPosition(Math.round(this.currentX), Math.round(this.currentY));
+	}
+}
+
+class ShortcutsHelper {
+	constructor(mainWindow) {
+		// this.windowHelper = windowHelper; // Commented out as not required
+		this.mainWindow = mainWindow;
+	}
+
+	registerGlobalShortcuts() {
+		// Simple Cmd+B shortcut to demonstrate ShortcutsHelper is working
+		// globalShortcut.register('CommandOrControl+B', () => {
+		// 	log.info('Cmd+B pressed - ShortcutsHelper is working! (No overlay window)');
+		// 	if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+		// 		this.mainWindow.webContents.send('shortcut-activated', {
+		// 			shortcut: 'Cmd+B',
+		// 			message: 'ShortcutsHelper is working correctly!',
+		// 		});
+		// 	}
+		// });
+
+		// Commented out overlay window shortcuts as not required
+		globalShortcut.register('CommandOrControl+B', () => {
+			log.info('Cmd+B pressed - toggling overlay window');
+
+			// if (!this.windowHelper.getOverlayWindow()) {
+			// 	this.windowHelper.createOverlayWindow();
+			// }
+
+			const isOverlayVisible = this.windowHelper.isVisible();
+
+			if (isOverlayVisible) {
+				this.windowHelper.hideOverlayWindow();
+				if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+					this.mainWindow.show();
+					this.mainWindow.focus();
+				}
+			} else {
+				this.windowHelper.showOverlayWindow();
+				if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+					this.mainWindow.hide();
+				}
+			}
+		});
+
+		globalShortcut.register('CommandOrControl+H', async () => {
+			if (!this.windowHelper.isVisible()) return;
+			log.info('Cmd+H pressed - taking screenshot');
+			try {
+				this.windowHelper.hideOverlayWindow();
+				await new Promise((resolve) => setTimeout(resolve, 200));
+				const overlayWindow = this.windowHelper.getOverlayWindow();
+				if (overlayWindow && !overlayWindow.isDestroyed()) {
+					overlayWindow.webContents.send('take-screenshot-requested');
+				}
+				setTimeout(() => this.windowHelper.showOverlayWindow(), 500);
+			} catch (error) {
+				log.error('Error taking screenshot:', error);
+				this.windowHelper.showOverlayWindow();
+			}
+		});
+
+		globalShortcut.register('CommandOrControl+Left', () => {
+			if (this.windowHelper.isVisible()) this.windowHelper.moveWindowLeft();
+		});
+
+		globalShortcut.register('CommandOrControl+Right', () => {
+			if (this.windowHelper.isVisible()) this.windowHelper.moveWindowRight();
+		});
+
+		globalShortcut.register('CommandOrControl+Up', () => {
+			if (this.windowHelper.isVisible()) this.windowHelper.moveWindowUp();
+		});
+
+		globalShortcut.register('CommandOrControl+Down', () => {
+			if (this.windowHelper.isVisible()) this.windowHelper.moveWindowDown();
+		});
+
+		app.on('will-quit', () => globalShortcut.unregisterAll());
+		log.info('Global shortcuts registered successfully');
+	}
+}
+
 let mainWindow = null;
+let windowHelper = null; // Commented out as not required
+let shortcutsHelper = null;
 
 // Set the autoUpdater logger to electron-log
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info'; // Adjust log level as needed
+
+// Disable console transport to prevent EPIPE errors
+log.transports.console = false;
+
 log.info('App started'); // Log app start
 
 let template = [];
@@ -54,8 +328,9 @@ function createWindow() {
 	});
 
 	// Load your front-end
-	if (process.env.VITE_DEV_SERVER_URL) {
-		mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
+	if (process.env.NODE_ENV === 'development') {
+		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
+		mainWindow.loadURL(devURL);
 	} else {
 		mainWindow.loadFile('build/index.html');
 	}
@@ -146,6 +421,87 @@ app.whenReady().then(() => {
 	// const menu = Menu.buildFromTemplate(template);
 	// Menu.setApplicationMenu(menu);
 	createWindow();
+
+	// Initialize overlay helpers (commented out as not required)
+	windowHelper = new WindowHelper();
+	// shortcutsHelper = new ShortcutsHelper(mainWindow);
+
+	// Register global shortcuts
+	windowHelper.registerGlobalShortcuts();
+});
+
+ipcMain.handle('toggle-overlay-window', async () => {
+	try {
+		if (!windowHelper) {
+			return { success: false, error: 'Window helper not initialized' };
+		}
+		windowHelper.toggleOverlayWindow();
+		return { success: true };
+	} catch (error) {
+		log.error('Error toggling overlay window:', error);
+		return { success: false, error: error.message };
+	}
+});
+
+// Overlay window IPC handlers (commented out as not required)
+/*
+ipcMain.handle('toggle-overlay-window', async () => {
+	try {
+		if (!windowHelper) {
+			return { success: false, error: 'Window helper not initialized' };
+		}
+		windowHelper.toggleOverlayWindow();
+		return { success: true };
+	} catch (error) {
+		log.error('Error toggling overlay window:', error);
+		return { success: false, error: error.message };
+	}
+});
+
+ipcMain.handle('update-overlay-dimensions', async (event, { width, height }) => {
+	try {
+		if (!windowHelper) {
+			return { success: false, error: 'Window helper not initialized' };
+		}
+		windowHelper.updateWindowDimensions(width, height);
+		return { success: true };
+	} catch (error) {
+		log.error('Error updating overlay dimensions:', error);
+		return { success: false, error: error.message };
+	}
+});
+*/
+
+ipcMain.handle('take-screenshot', async () => {
+	try {
+		const sources = await desktopCapturer.getSources({
+			types: ['screen'],
+			thumbnailSize: { width: 1920, height: 1080 },
+		});
+
+		if (sources.length > 0) {
+			const screenshot = sources[0];
+			const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+			const filename = `screenshot-${timestamp}.png`;
+
+			// Convert thumbnail to base64
+			const base64Data = screenshot.thumbnail.toPNG().toString('base64');
+
+			return {
+				success: true,
+				screenshot: {
+					filename,
+					data: base64Data,
+					timestamp: Date.now(),
+				},
+			};
+		} else {
+			return { success: false, error: 'No screen sources available' };
+		}
+	} catch (error) {
+		log.error('Error taking screenshot:', error);
+		return { success: false, error: error.message };
+	}
 });
 
 ipcMain.handle('check-for-updates', async () => {
@@ -357,7 +713,7 @@ ipcMain.handle('extract-image-metadata', async (event, { imageBuffer }) => {
 
 		return { success: true, metadata, width, height, format, originalDateTime };
 	} catch (err) {
-		console.error('Metadata extraction failed:', err);
+		log.error('Metadata extraction failed:', err);
 		return {
 			success: false,
 			width: null,
@@ -427,7 +783,7 @@ ipcMain.handle(
 					archive.append(res.data, { name: item.filename });
 					currentSize += fileSize;
 				} catch (err) {
-					console.warn(`Failed to add ${item.filename}:`, err.message);
+					log.warn(`Failed to add ${item.filename}:`, err.message);
 					archive.append(`Download failed: ${err.message}`, {
 						name: `ERROR_${item.filename}.txt`,
 					});
@@ -446,7 +802,7 @@ ipcMain.handle(
 				zips: zipsCreated,
 			};
 		} catch (err) {
-			console.error('ZIP creation failed:', err);
+			log.error('ZIP creation failed:', err);
 			return { success: false, error: err.message };
 		}
 	},

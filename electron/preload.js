@@ -32,4 +32,30 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	// New: Download album as ZIP(s)
 	downloadAlbumZip: (payload) => ipcRenderer.invoke('download-album-zip', payload),
+
+	// Shortcut activation listener
+	onShortcutActivated: (callback) => {
+		ipcRenderer.on('shortcut-activated', (event, data) => {
+			callback(data);
+		});
+	},
+
+	removeShortcutActivatedListener: () => {
+		ipcRenderer.removeAllListeners('shortcut-activated');
+	},
+
+	// Overlay window APIs (commented out as not required)
+	/*
+	overlay: {
+		toggleWindow: () => ipcRenderer.invoke('toggle-overlay-window'),
+		takeScreenshot: () => ipcRenderer.invoke('take-screenshot'),
+		updateDimensions: (dims) => ipcRenderer.invoke('update-overlay-dimensions', dims),
+		
+		// Listen for screenshot requests from shortcuts
+		onTakeScreenshotRequested: (callback) => {
+			ipcRenderer.on('take-screenshot-requested', callback);
+			return () => ipcRenderer.removeListener('take-screenshot-requested', callback);
+		},
+	},
+	*/
 });

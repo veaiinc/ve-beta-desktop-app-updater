@@ -15,6 +15,12 @@ export default defineConfig({
 					build: {
 						outDir: 'dist-electron',
 						emptyOutDir: false,
+						rollupOptions: {
+							external: [],
+							output: {
+								format: 'cjs'
+							}
+						}
 					},
 				},
 			},
@@ -37,6 +43,12 @@ export default defineConfig({
 		target: 'es2015',
 		sourcemap: true,
 		reportCompressedSize: false,
+		rollupOptions: {
+			input: {
+				main: './index.html',
+				overlay: './overlay.html'
+			}
+		},
 	},
 	css: {
 		devSourcemap: true,
