@@ -116,6 +116,10 @@
 		display: flex;
 		gap: 8px;
 
+		.skeletonContainer {
+			flex: 1;
+		}
+
 		.switchWorkspaceButton {
 			flex: 1;
 			cursor: pointer;

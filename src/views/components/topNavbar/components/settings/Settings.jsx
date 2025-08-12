@@ -1,10 +1,10 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState } from 'react';
 import s from './settings.module.scss';
 import Context from '../../../../../context/context';
 import { useLocation, useNavigate } from 'react-router-dom';
 import logout from '../../../../../helpers/logout';
 import SwitchWorkspaceModal from '../switchWorkspaceModal/SwitchWorkspaceModal';
-import { Tooltip } from 'antd';
+import Skeleton from 'react-loading-skeleton';
 import { ReactComponent as MyProfileSvg } from '../../assets/my-profile.svg';
 import { ReactComponent as WorkspaceSvg } from '../../assets/workspace.svg';
 import { ReactComponent as TeamMembersSvg } from '../../assets/team-members.svg';
@@ -108,6 +108,7 @@ const Settings = ({
 	const fullName = `${firstName ?? ''} ${lastName ?? ''}`;
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
 	const workspacesMoreThanOne = userWorkSpaceList?.length > 1;
+	const workspacesLoading = userWorkSpaceList === null;
 	const workspaceImage = tennantSettingsData?.logo_s3_500w_key ?? null;
 
 	const handleSettingItemClick = (settingItem) => async () => {
@@ -167,34 +168,48 @@ const Settings = ({
 				))}
 			</div>
 			<div className={s.switchWorkspaceAndLogoutContainer}>
-				<button
-					onClick={(e) => {
-						e.stopPropagation();
-						if (workspacesMoreThanOne) {
-							setInfo((prev) => ({
-								...prev,
-								workspaceModalOpen: true,
-							}));
-							closeSettingsTooltip();
-						} else {
-							navigate('/create-workspace');
-							closeSettingsTooltip();
-						}
-					}}
-					className={s.switchWorkspaceButton}
-				>
-					{workspacesMoreThanOne ? (
-						<>
-							<SwitchWorkspaceSvg />
-							<span>Switch Workspace </span>
-						</>
-					) : (
-						<>
-							<PlusSvg />
-							<span>Create Workspace</span>
-						</>
-					)}
-				</button>
+				{workspacesLoading ? (
+					<div className={s.skeletonContainer}>
+						<Skeleton
+							width="100%"
+							height="41px"
+							style={{
+								'--highlight-color': 'gray',
+								'--base-color': 'transparent',
+								borderRadius: '8px',
+							}}
+						/>
+					</div>
+				) : (
+					<button
+						onClick={(e) => {
+							e.stopPropagation();
+							if (workspacesMoreThanOne) {
+								setInfo((prev) => ({
+									...prev,
+									workspaceModalOpen: true,
+								}));
+								closeSettingsTooltip();
+							} else {
+								navigate('/create-workspace');
+								closeSettingsTooltip();
+							}
+						}}
+						className={s.switchWorkspaceButton}
+					>
+						{workspacesMoreThanOne ? (
+							<>
+								<SwitchWorkspaceSvg />
+								<span>Switch Workspace </span>
+							</>
+						) : (
+							<>
+								<PlusSvg />
+								<span>Create Workspace</span>
+							</>
+						)}
+					</button>
+				)}
 				<button
 					className={s.logoutButton}
 					onClick={() => {
