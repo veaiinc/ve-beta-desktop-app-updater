@@ -184,6 +184,11 @@
 }
 @media screen and (max-width: 1440px) {
 	.automation {
-		height: 500px !important;
+		height: 500px;
+	}
+}
+@media screen and (max-width: 480px) {
+	.automation {
+		max-width: 388px;
 	}
 }

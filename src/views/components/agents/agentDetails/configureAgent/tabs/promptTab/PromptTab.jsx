@@ -240,7 +240,7 @@ const PromptTab = () => {
 									<Spinner
 										width="20px"
 										height="20px"
-										color="var(--primary-font)"
+										color="var(--primary-button)"
 									/>
 									<span>Loading tools...</span>
 								</div>
@@ -283,7 +283,7 @@ const PromptTab = () => {
 													<Spinner
 														width="16px"
 														height="16px"
-														color="var(--primary-font)"
+														color="var(--primary-button)"
 													/>
 												) : (
 													<Delete />

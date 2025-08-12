@@ -482,3 +482,9 @@
 		stroke: var(--primary-font) !important;
 	}
 }
+@media screen and (max-width: 500px) {
+	.createTask-container {
+		max-width: 380px;
+		padding: 24px;
+	}
+}

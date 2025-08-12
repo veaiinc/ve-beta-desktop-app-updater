@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { ReactComponent as ArrowRightSvg } from '../../../../assets/svg/home_page/arrow-right.svg';
 import { ReactComponent as DeleteSvg } from '../../../../assets/svg/delete.svg';
 import { ReactComponent as AgentsSvg } from '../../../../assets/svg/sidebar/agentsIcon.svg';
+import { ReactComponent as MobileCloseSvg } from '../../../../assets/svg/mobile/close.svg';
 import {
 	handleCombinedChainOfThought,
 	updateCitationIdsWithCitations,
@@ -487,6 +488,10 @@ const AmbientAiInfo = ({
 								<DeleteSvg />
 							</div>
 						</Tooltip>
+
+						<div className="mobile-close-btn" onClick={onClose}>
+							<MobileCloseSvg />
+						</div>
 					</div>
 				</div>
 			</div>
