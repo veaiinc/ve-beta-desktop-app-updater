@@ -41,6 +41,53 @@
 			line-height: normal;
 			cursor: pointer;
 		}
+
+		/* New header groups for mobile */
+		.leftHeader {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+		.backButton {
+			display: none; /* show only on mobile */
+			background: none;
+			border-radius: 8px;
+			width: 32px;
+			height: 32px;
+			align-items: center;
+			justify-content: center;
+			color: var(--primary-font, #f2f2f3);
+			cursor: pointer;
+		}
+		.closeIconButton {
+			display: none; /* show only on mobile */
+			background: none;
+			border-radius: 8px;
+			width: 36px;
+			height: 36px;
+			display: none;
+			align-items: center;
+			justify-content: center;
+			color: var(--primary-font, #f2f2f3);
+			cursor: pointer;
+		}
+		.titleGroup {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+		.titleLogo {
+			width: 20px;
+			height: 20px;
+			border-radius: 100px;
+			object-fit: cover;
+		}
+		.titleLogoFallback {
+			width: 20px;
+			height: 20px;
+			border-radius: 100px;
+			background: var(--card-over-card);
+		}
 	}
 
 	.searchWorkspace {
@@ -228,6 +275,91 @@
 
 			&:hover {
 				background: var(--card, #1b1c1d);
+			}
+		}
+	}
+}
+@media screen and (max-width: 500px) {
+	.switchWorkspaceModal {
+		width: 343px;
+		max-width: 343px;
+		padding: 14px 16px;
+		align-items: stretch;
+
+		.header {
+			.title {
+				font-size: 13px;
+			}
+			.closeButton {
+				display: none; /* hide desktop close button on mobile */
+			}
+			.backButton {
+				display: inline-flex;
+			}
+			.closeIconButton {
+				display: inline-flex;
+			}
+		}
+
+		.searchWorkspace {
+			padding: 16px 12px;
+		}
+
+		.workspaceList {
+			height: 256px; /* allow more items on mobile */
+
+			.workspaceItem {
+				&::before {
+					display: none !important; /* remove hover hint text on mobile */
+				}
+			}
+		}
+	}
+}
+@media (max-width: 768px) {
+	.switchWorkspaceModal {
+		width: 100%;
+		max-width: 100%;
+		padding: 14px 16px;
+		align-items: stretch;
+		background: var(--navbar, #141415);
+		border: none;
+		border-radius: 0;
+		display: flex;
+		flex-direction: column;
+
+		.header {
+			padding: 8px 0 12px 0;
+			border-bottom: 1px solid var(--dividers, #1e1f20);
+
+			.title {
+				font-size: 13px;
+			}
+			.closeButton {
+				display: none;
+			}
+			.backButton {
+				display: inline-flex;
+			}
+			.closeIconButton {
+				display: inline-flex;
+			}
+		}
+
+		.searchWorkspace {
+			padding: 16px 12px;
+		}
+
+		.workspaceList {
+			flex: 1;
+			height: auto;
+			min-height: 0;
+			overflow-y: auto;
+
+			.workspaceItem {
+				&::before {
+					display: none !important;
+				}
 			}
 		}
 	}

@@ -541,3 +541,11 @@
 	// 	}
 	// }
 }
+@media screen and (max-width: 480px) {
+	.agentsContainer {
+		padding: 14px 32px 0 30px;
+		.agentCardsContainer {
+			max-width: 318px;
+		}
+	}
+}

@@ -5,8 +5,10 @@ import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { fetchDomainName } from '../../../../../helpers';
 import useBroadcastChannel from '../../../../../hooks/useBroadcastChannel';
+import { ReactComponent as BackIcon } from '../../../../../assets/svg/mobile/back.svg';
+import { ReactComponent as CloseIcon } from '../../../../../assets/svg/mobile/close.svg';
 
-const customStyles = {
+const desktopModalStyles = {
 	overlay: { zIndex: 1001 },
 	content: { borderRadius: '40px', zIndex: 1002 },
 };
@@ -22,6 +24,21 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 	const selectedWorkspaceRef = useRef(null);
 	const channel = useBroadcastChannel();
 	const [info, setInfo] = useState(intialState);
+	const [isMobileView, setIsMobileView] = useState(false);
+
+	useEffect(() => {
+		const query = window.matchMedia('(max-width: 768px)');
+		const update = () => setIsMobileView(query.matches);
+		update();
+		try {
+			query.addEventListener('change', update);
+			return () => query.removeEventListener('change', update);
+		} catch (e) {
+			// Safari fallback
+			query.addListener(update);
+			return () => query.removeListener(update);
+		}
+	}, []);
 
 	useEffect(() => {
 		if (selectedWorkspaceRef.current) {
@@ -59,6 +76,12 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 		return filteredList;
 	}, [userWorkSpaceList, currentWorkspaceId, info?.searchWorkspace]);
 	const showWorkspaceSearch = userWorkSpaceList?.length > 3;
+
+	const currentWorkspaceMeta = useMemo(() => {
+		return userWorkSpaceList?.find(
+			({ activeWorkspaceId }) => activeWorkspaceId === currentWorkspaceId,
+		);
+	}, [userWorkSpaceList, currentWorkspaceId]);
 
 	const handleSwitchWorkspace = (activeWorkspaceId, region) => {
 		if (activeWorkspaceId === currentWorkspaceId) {
@@ -106,6 +129,24 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 		}
 	};
 
+	const modalStyles = isMobileView
+		? {
+				overlay: { zIndex: 1001, backgroundColor: 'var(--navbar)' },
+				content: {
+					top: 0,
+					left: 0,
+					right: 0,
+					bottom: 0,
+					transform: 'none',
+					padding: 0,
+					border: '0px',
+					borderRadius: '0px',
+					backgroundColor: 'transparent',
+					zIndex: 1002,
+				},
+		  }
+		: desktopModalStyles;
+
 	return (
 		<ReactModal
 			isOpen={isOpen}
@@ -114,11 +155,35 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 				setInfo(intialState);
 			}}
 			modalType={'center'}
-			customStyles={customStyles}
+			customStyles={modalStyles}
 		>
 			<div className={s.switchWorkspaceModal} onKeyDown={handleKeyboardNavigation}>
 				<header className={s.header}>
-					<h1 className={s.title}>Switch Workspace</h1>
+					<div className={s.leftHeader}>
+						<button
+							className={s.backButton}
+							onClick={() => {
+								closeWorkspaceModal();
+								setInfo(intialState);
+							}}
+							aria-label="Back"
+						>
+							<BackIcon />
+						</button>
+						<div className={s.titleGroup}>
+							<h1 className={s.title}>Switch workspace</h1>
+						</div>
+					</div>
+					<button
+						className={s.closeIconButton}
+						onClick={() => {
+							closeWorkspaceModal();
+							setInfo(intialState);
+						}}
+						aria-label="Close"
+					>
+						<CloseIcon />
+					</button>
 					<button
 						className={s.closeButton}
 						onClick={() => {
