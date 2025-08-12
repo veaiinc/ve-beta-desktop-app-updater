@@ -210,7 +210,7 @@ const Settings = ({
 						trigger={['hover']}
 						destroyTooltipOnHide
 					>
-						<button
+						{/* <button
 							className={s.switchWorkspaceButton}
 							onClick={(e) => {
 								e.stopPropagation();
@@ -219,7 +219,7 @@ const Settings = ({
 							}}
 						>
 							<SwitchWorkspaceSvg />
-						</button>
+						</button> */}
 					</Tooltip>
 				)}
 			</header>
