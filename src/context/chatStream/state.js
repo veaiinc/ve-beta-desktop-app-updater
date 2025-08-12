@@ -139,7 +139,9 @@ export const ChatStreamState = () => {
 			const { chat_ws_api, chat_ws_api_US, guest_chat_ws_api, guest_chat_ws_api_US } = config;
 
 			let baseUrl = `${
-				region === 'ap-south-1' ? chat_ws_api : chat_ws_api_US
+				region === 'ap-south-1'
+					? chat_ws_api
+					: `https://dominant-ultimate-shrimp.ngrok-free.app`
 			}/${workspaceId}/${sessionId}/${agent}?token=${usertoken}`;
 
 			if (isPublicChat) {
@@ -147,8 +149,6 @@ export const ChatStreamState = () => {
 					region === 'ap-south-1' ? guest_chat_ws_api : guest_chat_ws_api_US
 				}/${sessionId}/guest_chat`;
 			}
-
-			console.log('baseUrl', baseUrl);
 
 			socketRefs.current[sessionId] = new WebSocket(baseUrl);
 

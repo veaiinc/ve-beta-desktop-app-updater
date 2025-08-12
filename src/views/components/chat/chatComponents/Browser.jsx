@@ -1,6 +1,8 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
 import s from '../../../../assets/scss/chat/chatComponents/browser.module.scss';
 import Context from '../../../../context/context';
+import { ReactComponent as ArrowsIn } from '../../../../assets/svg/chat/arrowsIn.svg';
+import { ReactComponent as Webcam } from '../../../../assets/svg/chat/webcam.svg';
 
 const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = false }) => {
 	const {
@@ -51,8 +53,9 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 	return (
 		<div className={`${s.browserContainer} ${isOpen ? s.open : ''}`}>
 			<div className={s.header}>
+				<div className={s.title}>Browser</div>
 				<div className={s.closeBtn} onClick={handleBrowserButtonClick}>
-					X
+					<ArrowsIn />
 				</div>
 			</div>
 
@@ -80,6 +83,7 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 							style={{ pointerEvents: info?.takeControl ? 'auto' : 'none' }}
 						></iframe>
 						<div className={s.takeControlBtn} onClick={handleTakeControl}>
+							<Webcam />
 							{info?.takeControl ? 'Exit takeover' : 'Take control'}
 						</div>
 					</div>
