@@ -66,7 +66,9 @@ const GalleryViewer = lazy(() => import('../views/features/gallery/GalleryViewer
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
-const ProactiveSuggestions = lazy(() => import('../views/features/homePage/ProactiveSuggestions'));
+const ProactiveSuggestions = lazy(() =>
+	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
+);
 const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
 const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
 

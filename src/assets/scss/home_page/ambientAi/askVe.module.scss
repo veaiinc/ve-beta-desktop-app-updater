@@ -1,0 +1,104 @@
+.askVeContainer {
+	width: 100%;
+	height: 100%;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 32px;
+	flex-shrink: 0;
+	padding: 24px;
+
+	.title {
+		.text1 {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 32px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+		.text2 {
+			color: var(--primary-button, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 32px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+
+	.cardsContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+		align-self: stretch;
+		flex-grow: 1;
+		overflow-y: auto;
+
+		.card {
+			display: flex;
+			padding: 16px;
+			flex-direction: column;
+			justify-content: center;
+			align-items: flex-end;
+			gap: 8px;
+			align-self: stretch;
+			border-radius: 8px;
+			background: var(--card, #1b1c1d);
+
+			.textContainer {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 2px;
+				align-self: stretch;
+
+				.title {
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 18px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+				.description {
+					color: var(--secondary-font, #94989e);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 22px;
+				}
+			}
+
+			.cardBtn {
+				display: flex;
+				padding: 10px 12px;
+				align-items: center;
+				gap: 16px;
+				border-radius: 8px;
+				border: 1px solid var(--primary-button, #79ecc9);
+				color: var(--primary-button, #79ecc9);
+				background: transparent;
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				cursor: pointer;
+
+				&:hover {
+					background: var(--card-over-card, #79ecc9);
+				}
+			}
+		}
+	}
+}
+
+@media (max-width: 1500px) {
+	.askVeContainer {
+		padding: 16px !important;
+	}
+}

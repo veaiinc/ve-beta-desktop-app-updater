@@ -8,8 +8,8 @@ import { message } from '../../globalComponents/CustomToast';
 import TeamSettingsModal from '../../../features/settings/TeamSettingsModal';
 import Spinner from '../../loaders/Spinner';
 const customStyles = {
-	content: { zIndex: 999 },
-	overlay: { zIndex: 998 },
+	content: { zIndex: 1006 },
+	overlay: { zIndex: 1005 },
 };
 const SubscriptionChange = ({
 	isOpen,
@@ -99,7 +99,7 @@ const SubscriptionChange = ({
 	};
 
 	return (
-		<ReactModal isOpen={isOpen} closeModal={closeModal} style={customStyles}>
+		<ReactModal isOpen={isOpen} closeModal={closeModal} customStyles={customStyles}>
 			<div className="subscriptionChange">
 				<div className="subscriptionChangeHeader">
 					<div className="planName">{selectedAddOn?.plan}</div>
