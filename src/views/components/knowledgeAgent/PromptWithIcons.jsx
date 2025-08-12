@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import './PromptWithIcons.scss';
+import Editor from '../notes/Editor';
 const actionPattern = /<([^>]+)>/g;
 const PromptWithIcons = ({
 	prompt = '',
@@ -40,12 +41,12 @@ const PromptWithIcons = ({
 			const actionDetail = actionMap[actionName];
 
 			// Add text before the action
-			if (lastIndex < match.index) {
-				parts.push({
-					type: 'text',
-					content: prompt.slice(lastIndex, match.index),
-				});
-			}
+			// if (lastIndex < match.index) {
+			// 	parts.push({
+			// 		type: 'text',
+			// 		content: prompt.slice(lastIndex, match.index),
+			// 	});
+			// }
 
 			// Add action with icon
 			parts.push({
@@ -57,13 +58,13 @@ const PromptWithIcons = ({
 			lastIndex = match.index + match[0].length;
 		}
 
-		// Add remaining text
-		if (lastIndex < prompt.length) {
-			parts.push({
-				type: 'text',
-				content: prompt.slice(lastIndex),
-			});
-		}
+		// // Add remaining text
+		// if (lastIndex < prompt.length) {
+		// 	parts.push({
+		// 		type: 'text',
+		// 		content: prompt.slice(lastIndex),
+		// 	});
+		// }
 
 		return parts;
 	};
@@ -102,7 +103,7 @@ const PromptWithIcons = ({
 
 	return (
 		<div ref={containerRef} className={`promptWithIconsContainer ${className}`} style={style}>
-			{isEditing ? (
+			{/* {isEditing ? (
 				<textarea
 					ref={textAreaRef}
 					value={prompt}
@@ -154,7 +155,12 @@ const PromptWithIcons = ({
 						}
 					})}
 				</div>
-			)}
+			)} */}
+			<Editor
+				markdown={true}
+				initialBlocks={{ data: prompt }}
+				customBlockData={{ actionDetails }}
+			/>
 		</div>
 	);
 };
