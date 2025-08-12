@@ -63,11 +63,11 @@ const AmbientAiModal = ({
 
 	const componentMapper = useMemo(() => {
 		return {
-			onboard: <Onboard />,
+			onboard: <Onboard onClose={onClose} />,
 			integration: <div>Integration</div>,
 			askVe: <AskVe />,
 		};
-	}, []);
+	}, [onClose]);
 
 	return (
 		<>

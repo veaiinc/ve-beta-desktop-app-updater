@@ -16,6 +16,25 @@
 		justify-content: center;
 		gap: 24px;
 		align-self: stretch;
+		position: relative;
+
+		.mobile-close-btn {
+			display: none;
+			cursor: pointer;
+			padding: 6px;
+			border-radius: 6px;
+			border: 1px solid var(--stroke, #2c2d2e);
+			transition: all 0.2s ease;
+
+			&:hover {
+				background: var(--card, #1f2123);
+			}
+
+			svg {
+				width: 18px;
+				height: 18px;
+			}
+		}
 
 		.header-content {
 			display: flex;
@@ -740,4 +759,236 @@
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
+}
+
+// Mobile styles
+@media (max-width: 768px) {
+	.ambient-ai-info-container {
+		width: 100vw;
+		height: 100vh;
+		overflow: hidden;
+		position: fixed;
+		top: 0;
+		left: 0;
+		z-index: 1000;
+
+		.header {
+			padding: 16px;
+			gap: 16px;
+
+			.mobile-close-btn {
+				display: flex;
+			}
+
+			.header-content {
+				.left-container {
+					flex-wrap: wrap;
+					gap: 4px;
+
+					.suggested-info {
+						padding: 8px;
+						height: 28px;
+
+						.suggested-info-text {
+							font-size: 11px;
+						}
+					}
+
+					.confidence {
+						padding: 8px;
+						height: 28px;
+
+						.value {
+							font-size: 11px;
+						}
+					}
+				}
+
+				.right-container {
+					gap: 4px;
+
+					.btn {
+						padding: 4px;
+
+						svg {
+							width: 16px;
+							height: 16px;
+						}
+					}
+				}
+			}
+		}
+
+		.body {
+			padding: 0 16px 16px 16px;
+			gap: 16px;
+			overflow-y: auto;
+			flex: 1;
+
+			.title-text {
+				font-size: 16px;
+			}
+
+			.body-wrapper {
+				gap: 8px;
+
+				.description-wrapper {
+					.description {
+						font-size: 14px;
+						line-height: 22px;
+					}
+				}
+
+				.suggestions-info {
+					.more-info {
+						gap: 6px;
+
+						.triggered-source-container {
+							.triggered-source-value {
+								padding: 4px 8px;
+								font-size: 11px;
+							}
+						}
+
+						.category {
+							padding: 8px;
+							height: 28px;
+							font-size: 11px;
+						}
+					}
+				}
+			}
+
+			.tabs-container {
+				.tab-buttons {
+					gap: 4px;
+
+					.tab-btn {
+						padding: 12px 8px;
+						font-size: 13px;
+					}
+				}
+			}
+
+			.situation-overview-container {
+				gap: 16px;
+
+				.suggested-actions-wrapper {
+					gap: 8px;
+
+					.suggested-actions-container {
+						grid-template-columns: 1fr;
+						gap: 6px;
+
+						.suggested-action {
+							min-height: 80px;
+							padding: 10px 12px;
+							font-size: 13px;
+							line-height: 20px;
+						}
+					}
+				}
+
+				.suggested-prompts-container {
+					gap: 8px;
+
+					.suggested-prompts {
+						gap: 6px;
+
+						.prompt-item {
+							padding: 12px 10px;
+							gap: 10px;
+
+							.logo {
+								height: 16px;
+
+								svg {
+									width: 16px;
+									height: 16px;
+								}
+							}
+
+							.item-text {
+								font-size: 14px;
+							}
+						}
+					}
+				}
+			}
+
+			.source-content {
+				gap: 8px;
+
+				.citation-item {
+					padding: 10px;
+
+					.citation-header {
+						gap: 10px;
+
+						.citation-icon {
+							.company-icon {
+								width: 28px;
+								height: 28px;
+								font-size: 12px;
+							}
+
+							.favicon-image {
+								width: 28px;
+								height: 28px;
+							}
+						}
+
+						.citation-details {
+							.website-name {
+								font-size: 14px;
+								line-height: 20px;
+							}
+
+							.citation-url {
+								font-size: 11px;
+								line-height: 14px;
+							}
+
+							.citation-title {
+								font-size: 12px;
+								line-height: 18px;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		.footer {
+			padding: 12px 16px;
+
+			.footer-content {
+				gap: 8px;
+
+				.footer-left-container {
+					gap: 6px;
+
+					.footer-left-btn {
+						padding: 8px 10px;
+						font-size: 11px;
+					}
+				}
+
+				.btns-container {
+					gap: 6px;
+
+					.teach-me-btn {
+						padding: 8px 12px;
+						font-size: 13px;
+						gap: 6px;
+					}
+
+					.report-btn {
+						padding: 8px 12px;
+						font-size: 13px;
+					}
+				}
+			}
+		}
+	}
 }
