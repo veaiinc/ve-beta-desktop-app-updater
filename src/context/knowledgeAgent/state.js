@@ -550,12 +550,7 @@ export const KnowledgeAgentState = () => {
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
 			const response = await service?.fetchPost(path, payload, token, type);
-			const success = response?.[0] === true;
-			if (success) {
-				return response?.[1];
-			} else {
-				throw new Error(response?.[1]?.message || 'Failed to create action');
-			}
+			return response;
 		} catch (error) {
 			console.log('error==>addActionToKnowledgeAgent', error);
 			throw error;
@@ -727,10 +722,7 @@ export const KnowledgeAgentState = () => {
 				usertoken,
 				'third_party_integrations_api',
 			);
-			if (response?.[0] === true) {
-				return [true, response[1]];
-			}
-			return [false, response?.[1]];
+			return response;
 		} catch (error) {
 			console.log('error==>getPipedreamTriggers', error);
 			return [false, error];
@@ -754,21 +746,12 @@ export const KnowledgeAgentState = () => {
 
 			// 2. Call the normal disconnect API
 			const normalResponse = await disconnectTrigger(triggerId);
+			const success = pipedreamResponse?.[0] === true && normalResponse?.[0] === true;
 
-			// Return both responses
-			const result = {
-				pipedream: pipedreamResponse,
-				normal: normalResponse,
-				success: pipedreamResponse?.[0] === true && normalResponse?.[0] === true,
-			};
-			return result;
+			return [success, pipedreamResponse];
 		} catch (error) {
 			console.error('error==>deleteWhatsAppTriggerWithBothAPIs', error);
-			return {
-				pipedream: [false, error],
-				normal: [false, error],
-				success: false,
-			};
+			return [false, error];
 		}
 	};
 
@@ -794,7 +777,7 @@ export const KnowledgeAgentState = () => {
 						const data = [newTrigger, ...(state.triggers?.data || [])];
 						const payload = {
 							...state.triggers,
-							data: [newTrigger, ...(state.triggers?.data || [])],
+							data,
 						};
 						dispatch({
 							type: Actions.CONNECT_TRIGGER,
@@ -815,15 +798,15 @@ export const KnowledgeAgentState = () => {
 						const data = [newTrigger, ...(state.triggers?.data || [])];
 						const payload = {
 							...state.triggers,
-							data: [newTrigger, ...(state.triggers?.data || [])],
+							data,
 						};
 						dispatch({
 							type: Actions.CONNECT_TRIGGER,
 							payload,
 						});
-						return [true, resp?.[1]];
+						return [true];
 					}
-					return [false, resp?.[1]];
+					return [false];
 
 				// return [true, triggerData];
 				case 'googleMeet':
@@ -898,14 +881,16 @@ export const KnowledgeAgentState = () => {
 				toolkit_slug: payload?.slug,
 			};
 
-			// Special handling for WhatsApp - include additional fields
-			if (payload?.slug === 'whatsapp' && payload?.apiKey) {
+			if (payload?.apiKey) {
 				requestBody.apiKey = payload.apiKey;
-				requestBody.bearer_token = payload.bearer_token || payload.apiKey;
-				requestBody.user_id = payload.user_id || '';
-				requestBody.phone_number_id = payload.phone_number_id || '';
-			} else if (payload?.apiKey) {
-				requestBody.apiKey = payload.apiKey;
+
+				if (payload?.slug === 'whatsapp') {
+					Object.assign(requestBody, {
+						bearer_token: payload.bearer_token || payload.apiKey,
+						user_id: payload.user_id || '',
+						phone_number_id: payload.phone_number_id || '',
+					});
+				}
 			}
 
 			const response = await service?.fetchPost(
@@ -1246,9 +1231,9 @@ export const KnowledgeAgentState = () => {
 
 	const getPipeDreamAction = async (action) => {
 		try {
-		const workspaceId = localStorage.getItem('workspaceId');
-		const usertoken = localStorage.getItem('usertoken');
-		const url = `/${workspaceId}/${action}/agent-tools`;
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/${action}/agent-tools`;
 			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
 			return response;
 		} catch (error) {

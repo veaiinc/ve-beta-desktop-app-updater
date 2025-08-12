@@ -848,7 +848,10 @@ const RecentChat = ({
 				setInfo((prev) => ({
 					...prev,
 					latestStreamMesage: data,
-					...(sessionId === currentSessionId && { getFollowUpQueries: true }),
+					...(sessionId === currentSessionId &&
+						!data?.used_agents?.includes('custom_agents_manager_agent') && {
+							getFollowUpQueries: true,
+						}),
 				}));
 			}
 			const { message_chunk_id } = data;

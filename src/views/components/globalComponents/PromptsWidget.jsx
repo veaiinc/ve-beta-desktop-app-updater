@@ -1,13 +1,13 @@
-import { useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { useContext, useState, useEffect, useRef } from 'react';
 import Context from '../../../context/context';
 // import InfiniteScroll from './InfiniteScroll';
 import '../../../assets/scss/globalComponents/promptWidget.scss';
 // import ChatBox from '../chat/ChatBox';
 // import Suggestions from '../../features/homePage/Suggestions';
 import Skeleton from 'react-loading-skeleton';
-import AISuggestionsModal from '../modalsV2/homePage/AISuggestionsModal';
 import { message } from '../../components/globalComponents/CustomToast';
 import { getRelativeDayLabel } from '../../../helpers';
+import AmbientAiModal from '../modalsV2/homePage/AmbientAiModal';
 
 const skeletonLoaders = [1, 2, 3, 4];
 
@@ -203,7 +203,7 @@ const PromptsWidget = ({ option, currentIndex, searchQuery }) => {
 					</div>
 				)}
 			</div>
-			<AISuggestionsModal
+			<AmbientAiModal
 				open={info?.openSuggestionsModal}
 				onClose={() => setInfo((prev) => ({ ...prev, openSuggestionsModal: false }))}
 				data={info?.selectedCard}

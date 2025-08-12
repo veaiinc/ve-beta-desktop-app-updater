@@ -297,11 +297,10 @@ const TriggersTab = () => {
 		try {
 			setInfo((prev) => ({ ...prev, connectTriggerLoading: true }));
 
-			const triggerData = {
-				...triggerConfig,
-			};
-
-			const response = await connectTrigger({ triggerApp: 'whatsapp', triggerData });
+			const response = await connectTrigger({
+				triggerApp: 'whatsapp',
+				triggerData: triggerConfig,
+			});
 
 			if (response?.[0] === true) {
 				message.success('WhatsApp trigger connected successfully');
@@ -335,28 +334,20 @@ const TriggersTab = () => {
 
 			setInfo((prev) => ({ ...prev, disconnectTriggerLoader: true }));
 
-			let response;
-
 			if (type === 'whatsapp' || app === 'whatsapp' || type === 'pipedream') {
 				// Call both APIs for WhatsApp triggers using the context function
-				const result = await deleteWhatsAppTriggerWithBothAPIs(triggerId);
+				const response = await deleteWhatsAppTriggerWithBothAPIs(triggerId);
 
-				if (result.success) {
+				if (response?.[0] === true) {
 					message.success('Trigger disconnected successfully!');
 					getTriggers(agentId); // Refresh
 				} else {
 					// Log which API failed
-					if (result.pipedream?.[0] !== true) {
-						console.error('Pipedream API failed:', result.pipedream);
-					}
-					if (result.normal?.[0] !== true) {
-						console.error('Normal disconnect API failed:', result.normal);
+					if (response?.[0] !== true) {
+						console.error('Pipedream API failed:', response?.[1]);
 					}
 
-					const errorMessage =
-						result.pipedream?.[1]?.message ||
-						result.normal?.[1]?.message ||
-						'Failed to disconnect trigger!';
+					const errorMessage = response?.[1]?.message || 'Failed to disconnect trigger!';
 					message.error(errorMessage);
 				}
 			} else {
@@ -509,7 +500,7 @@ const TriggersTab = () => {
 			</div>
 			<WhatsAppModal
 				isOpen={info.whatsAppModalOpen}
-				onClose={() => setInfo({ ...info, whatsAppModalOpen: false })}
+				onClose={() => setInfo((prev) => ({ ...prev, whatsAppModalOpen: false }))}
 				handleConnectToWhatsAppTrigger={handleConnectToWhatsAppTrigger}
 				isLoading={info.connectTriggerLoading}
 			/>
