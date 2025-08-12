@@ -8,6 +8,22 @@
 	gap: 32px;
 	flex-shrink: 0;
 	padding: 24px;
+	position: relative;
+
+	.mobileCloseBtn {
+		display: none;
+		position: absolute;
+		top: 24px;
+		right: 24px;
+		z-index: 10;
+		cursor: pointer;
+		padding: 8px;
+
+		svg {
+			width: 20px;
+			height: 20px;
+		}
+	}
 
 	.title {
 		.text1 {
@@ -163,5 +179,102 @@
 @media (max-width: 1500px) {
 	.onBoardContainer {
 		padding: 16px !important;
+	}
+}
+
+// Mobile styles
+@media (max-width: 768px) {
+	.onBoardContainer {
+		width: 100vw;
+		height: 100vh;
+		overflow: hidden;
+		position: fixed;
+		top: 0;
+		left: 0;
+		z-index: 1000;
+		padding: 16px;
+		gap: 24px;
+
+		.mobileCloseBtn {
+			display: flex;
+		}
+
+		.title {
+			.text1,
+			.text2 {
+				font-size: 20px;
+			}
+		}
+
+		.onboardConnectionsContainer {
+			gap: 12px;
+
+			.onboardConnection {
+				padding: 12px;
+				gap: 16px;
+
+				.textContainer {
+					gap: 4px;
+
+					.title {
+						font-size: 16px;
+					}
+
+					.description {
+						font-size: 13px;
+						line-height: 20px;
+					}
+				}
+
+				.connections {
+					gap: 4px;
+
+					.connection {
+						height: 40px;
+						padding: 10px 12px;
+
+						.leftContainer {
+							gap: 12px;
+
+							.icon {
+								width: 14px;
+								height: 14px;
+							}
+
+							.name {
+								font-size: 13px;
+							}
+						}
+
+						.rightContainer {
+							.button {
+								font-size: 13px;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		.content1,
+		.content2 {
+			.title {
+				font-size: 16px;
+				line-height: 32px;
+			}
+
+			.listContainer {
+				padding-left: 18px;
+
+				.listItem {
+					font-size: 14px;
+					line-height: 32px;
+
+					&::marker {
+						font-size: 13px;
+					}
+				}
+			}
+		}
 	}
 }

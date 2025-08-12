@@ -86,9 +86,21 @@ const ShareWidget = ({
 			}));
 			return;
 		}
-		message.success(`Updated your share url to ${baseUrl}${updatedSlug}`);
+		// message.success(`Updated your share url to ${baseUrl}${updatedSlug}`);
 		setInfo((prev) => ({ ...prev, editedSlug: updatedSlug, updateSlugLoading: false }));
+
+		const updatedLink = `${baseUrl}${updatedSlug}`;
+		navigator.clipboard.writeText(updatedLink);
+		message.success('Link copied to clipboard');
 		toggleEditShareUrlSlug();
+	};
+
+	const handleCancelEdit = () => {
+		setInfo((prev) => ({
+			...prev,
+			editedSlug: slug,
+			editShareUrlSlug: false,
+		}));
 	};
 
 	const handleCopyLink = () => {
@@ -166,31 +178,21 @@ const ShareWidget = ({
 									>
 										<span className="baseUrl">{baseUrl}</span>
 										{info.editShareUrlSlug ? (
-											<>
-												<input
-													name="slugEditInput"
-													value={info?.editedSlug}
-													onChange={handleEditSlug}
-													className="editShareUrlSlug"
-													autoFocus
-													onBlur={handleUpdateSlug}
-													onKeyDown={(e) => {
-														if (e.key === 'Enter') {
-															handleUpdateSlug();
-														}
-													}}
-													type="text"
-												/>
-												{info.updateSlugLoading && (
-													<Spinner
-														width="18px"
-														height="18px"
-														color="var(--primary-button)"
-														borderTopColor="transparent"
-														borderWidth={1.5}
-													/>
-												)}
-											</>
+											<input
+												name="slugEditInput"
+												value={info?.editedSlug}
+												onChange={handleEditSlug}
+												className="editShareUrlSlug"
+												autoFocus
+												onKeyDown={(e) => {
+													if (e.key === 'Enter') {
+														handleUpdateSlug();
+													} else if (e.key === 'Escape') {
+														handleCancelEdit();
+													}
+												}}
+												type="text"
+											/>
 										) : (
 											<span>{info.editedSlug}</span>
 										)}
@@ -207,7 +209,31 @@ const ShareWidget = ({
 						</div>
 					</div>
 					<div className="button-wrapper">
-						{!info.editShareUrlSlug && (
+						{info.editShareUrlSlug ? (
+							<>
+								{info.updateSlugLoading ? (
+									<Spinner
+										width="18px"
+										height="18px"
+										color="var(--primary-button)"
+										borderTopColor="transparent"
+										borderWidth={1.5}
+									/>
+								) : (
+									<>
+										<button
+											className="cancel-button"
+											onClick={handleCancelEdit}
+										>
+											Cancel
+										</button>
+										<button className="save-button" onClick={handleUpdateSlug}>
+											Save & Copy
+										</button>
+									</>
+								)}
+							</>
+						) : (
 							<>
 								{embeddedCode && (
 									<button className="action-button" onClick={handleCopyEmbedded}>

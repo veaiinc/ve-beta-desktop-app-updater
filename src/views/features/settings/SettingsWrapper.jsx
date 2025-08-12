@@ -50,9 +50,6 @@ const SettingsWrapper = (props) => {
 					? 'accountSettingsMainWrapper'
 					: 'accountSettingsMainWrapper'
 			}`}
-			style={{
-				height: '100%',
-			}}
 		>
 			{/* {type === 'ai-setup' ? (
 				mapper?.[type]
@@ -60,7 +57,6 @@ const SettingsWrapper = (props) => {
 			<div
 				className="accountSettingsWrapper"
 				style={{
-					height: '100%',
 					paddingRight: toggleSidebar || !showSettingsSidebar ? '0px' : '190px',
 					flexDirection: toggleSidebar ? 'column-reverse' : 'row',
 				}}

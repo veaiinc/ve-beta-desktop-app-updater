@@ -239,6 +239,12 @@
 
 @media screen and (max-width: 1150px) {
 	.contactsWidgetContainer {
-		max-width: 412px !important;
+		max-width: 412px;
+	}
+}
+
+@media screen and (max-width: 480px) {
+	.contactsWidgetContainer {
+		max-width: 388px;
 	}
 }
