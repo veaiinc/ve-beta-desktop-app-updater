@@ -269,20 +269,27 @@ const Agents = () => {
 		navigate(`/agent/${card?._id}?config=prompt`);
 	}, []);
 
-	const handleCreateNewAgent = useCallback(async () => {
-		if (!accessControlCheck('knowledgeAgent')) return;
-		if (info.createAgentLoader) return;
-		setInfo((prev) => ({ ...prev, createAgentLoader: true }));
-		const { agentName, agentDescription } = generateRandomAIAgentDetails();
-		const [success, data] = await createNewKnowledgeAgent(agentName, agentDescription);
-		if (success) {
-			const assistantId = data?.insertedId;
-			navigate(`/agent/${assistantId}?agentAction=runAgent`);
-		} else {
-			message.error(data?.message);
-		}
-		setInfo((prev) => ({ ...prev, createAgentLoader: true }));
-	}, [info?.createAgentLoader, createNewKnowledgeAgent]);
+	const handleCreateNewAgent = useCallback(
+		async (agentName, agentDescription) => {
+			if (!accessControlCheck('knowledgeAgent')) return;
+			if (info.createAgentLoader) return;
+			if (!agentName || !agentDescription) {
+				message.error('Please enter a title and description');
+				return;
+			}
+			setInfo((prev) => ({ ...prev, createAgentLoader: true }));
+			// const { agentName, agentDescription } = generateRandomAIAgentDetails();
+			const [success, data] = await createNewKnowledgeAgent(agentName, agentDescription);
+			if (success) {
+				const assistantId = data?.insertedId;
+				navigate(`/agent/${assistantId}?agentAction=runAgent`);
+			} else {
+				message.error(data?.message);
+			}
+			setInfo((prev) => ({ ...prev, createAgentLoader: true }));
+		},
+		[info?.createAgentLoader, createNewKnowledgeAgent],
+	);
 
 	return (
 		<div className={s.agentsContainer}>
@@ -512,6 +519,7 @@ const Agents = () => {
 				isOpen={info?.createAgentModalOpen}
 				closeModal={() => setInfo((prev) => ({ ...prev, createAgentModalOpen: false }))}
 				handleCreateNewAgent={handleCreateNewAgent}
+				loading={info?.createAgentLoader}
 			/>
 		</div>
 	);
