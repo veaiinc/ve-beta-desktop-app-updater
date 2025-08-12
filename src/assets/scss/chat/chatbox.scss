@@ -517,8 +517,15 @@
 			cursor: pointer;
 			background-color: var(--card-hover);
 			border-radius: 10px;
-			border: 1px solid var(--stroke, #333334);
+			border: 1px solid transparent;
 			box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+			position: relative;
+			&:hover {
+				border: 1px solid var(--stroke, #333334);
+				.expand-browser-button {
+					opacity: 1;
+				}
+			}
 
 			.browser-button {
 				display: flex;
@@ -531,6 +538,19 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+			}
+			.expand-browser-button {
+				position: absolute;
+				bottom: 0;
+				right: 0;
+				cursor: pointer;
+				opacity: 0;
+				padding: 2px;
+				height: 20px;
+				border-radius: 4px;
+				margin-bottom: 2px;
+				margin-right: 2px;
+				background-color: var(--stroke);
 			}
 		}
 

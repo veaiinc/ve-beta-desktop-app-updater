@@ -12,6 +12,7 @@ import { ReactComponent as ArrowDownSvg } from '../../../assets/svg/ai_agents/ar
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { ReactComponent as BulbSvg } from '../../../assets/svg/home_page/bulb.svg';
 import { ReactComponent as TrendUpSvg } from '../../../assets/svg/trendUp.svg';
+import { ReactComponent as ArrowsOut } from '../../../assets/svg/gallery/arrowsOut.svg';
 import { ReactComponent as StopIconSvg } from '../../../assets/svg/notesPage/cancel.svg';
 import CreditCoinImage from '../../../assets/images/creditCoin.png';
 import Context from '../../../context/context';
@@ -2556,6 +2557,9 @@ const ChatBox = ({
 						}}
 					>
 						<div className="browser-button">Browser</div>
+						<div className="expand-browser-button">
+							<ArrowsOut />
+						</div>
 					</div>
 				)}
 				{uploadedImagesRef?.current?.length > 0 ? (
