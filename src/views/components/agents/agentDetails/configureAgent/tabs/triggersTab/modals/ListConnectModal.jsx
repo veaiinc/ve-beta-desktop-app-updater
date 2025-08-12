@@ -4,39 +4,80 @@ import { ReactComponent as CrossIcon } from '../../../../../../../../assets/svg/
 import { ReactComponent as EyeIcon } from '../../../../../../../../assets/svg/activity/eye.svg';
 import { ReactComponent as EyeSlashIcon } from '../../../../../../../../assets/svg/gallery/crossedOpenEye.svg';
 import Spinner from '../../../../../../loaders/Spinner';
+import '../../../../../../../../assets/scss/ai_assistant/modal/apiKeyModal.scss';
 
 const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading = false }) => {
-	const [apiKey, setApiKey] = useState('');
-	const [showApiKey, setShowApiKey] = useState(false);
-	const [error, setError] = useState('');
+	const [info, setInfo] = useState({
+		apiKey: '',
+		showApiKey: false,
+		bearerToken: '',
+		showBearerToken: false,
+		userId: '',
+		phoneNumberId: '',
+		error: '',
+	});
 
 	const handleSubmit = async () => {
-		if (!apiKey.trim()) {
-			setError('API key is required');
+		if (!info.apiKey.trim()) {
+			setInfo((prev) => ({ ...prev, error: 'API key is required' }));
 			return;
 		}
 
-		setError('');
-
-		try {
-			if (onApiKeySubmit) {
-				await onApiKeySubmit(apiKey, action);
+		// For WhatsApp, additional fields are required
+		if (action?.toolkit?.slug === 'whatsapp') {
+			if (!info.bearerToken.trim()) {
+				setInfo((prev) => ({ ...prev, error: 'Bearer token is required for WhatsApp' }));
+				return;
 			}
-		} catch (error) {
-			console.error('API key submission error:', error);
-			setError(error.message || 'Failed to connect with API key');
+			if (!info.userId.trim()) {
+				setInfo((prev) => ({ ...prev, error: 'User ID is required for WhatsApp' }));
+				return;
+			}
+			if (!info.phoneNumberId.trim()) {
+				setInfo((prev) => ({ ...prev, error: 'Phone number ID is required for WhatsApp' }));
+				return;
+			}
+		}
+
+		setInfo((prev) => ({ ...prev, error: '' }));
+
+		if (onApiKeySubmit) {
+			// For WhatsApp, pass additional fields
+			if (action?.toolkit?.slug === 'whatsapp') {
+				await onApiKeySubmit(
+					{
+						apiKey: info.apiKey,
+						bearer_token: info.bearerToken,
+						user_id: info.userId,
+						phone_number_id: info.phoneNumberId,
+					},
+					action,
+				);
+			} else {
+				await onApiKeySubmit(info.apiKey, action);
+			}
 		}
 	};
 
 	const handleClose = () => {
-		setApiKey('');
-		setError('');
-		setShowApiKey(false);
+		setInfo({
+			apiKey: '',
+			showApiKey: false,
+			bearerToken: '',
+			showBearerToken: false,
+			userId: '',
+			phoneNumberId: '',
+			error: '',
+		});
 		onClose();
 	};
 
 	const toggleApiKeyVisibility = () => {
-		setShowApiKey(!showApiKey);
+		setInfo((prev) => ({ ...prev, showApiKey: !prev.showApiKey }));
+	};
+
+	const toggleBearerTokenVisibility = () => {
+		setInfo((prev) => ({ ...prev, showBearerToken: !prev.showBearerToken }));
 	};
 
 	return (
@@ -74,9 +115,11 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 						<div className="input-container">
 							<input
 								id="apiKey"
-								type={showApiKey ? 'text' : 'password'}
-								value={apiKey}
-								onChange={(e) => setApiKey(e.target.value)}
+								type={info.showApiKey ? 'text' : 'password'}
+								value={info.apiKey}
+								onChange={(e) =>
+									setInfo({ ...info, apiKey: e.target.value })
+								}
 								placeholder="Enter your API key"
 								className="api-key-input"
 								disabled={isLoading}
@@ -87,19 +130,115 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 								onClick={toggleApiKeyVisibility}
 								disabled={isLoading}
 							>
-								{showApiKey ? <EyeSlashIcon /> : <EyeIcon />}
+								{info.showApiKey ? <EyeSlashIcon /> : <EyeIcon />}
 							</button>
 						</div>
-						{error && <div className="field-error">{error}</div>}
 					</div>
 
-					<div className="help-text">
-						<p>
-							You can find your API key in your {action?.toolkit?.name || 'tool'}{' '}
-							account settings. This key will be securely stored and used to
-							authenticate your requests.
-						</p>
-					</div>
+					{/* WhatsApp specific fields */}
+					{action?.toolkit?.slug === 'whatsapp' && (
+						<div className="whatsapp-fields">
+							<div className="whatsapp-header">
+								<h4>WhatsApp Business API Settings</h4>
+								<p>Additional credentials required for WhatsApp integration</p>
+							</div>
+							<div className="form-field">
+								<label htmlFor="bearerToken">
+									Auth Token
+									<span className="required">*</span>
+								</label>
+								<p>
+									The auth token for WhatsApp API requests. Visit{' '}
+									<a
+										href="https://developers.facebook.com/blog/post/2022/12/05/auth-tokens"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										https://developers.facebook.com/blog/post/2022/12/05/auth-tokens
+									</a>{' '}
+									for more information
+								</p>
+								<div className="input-container">
+									<input
+										id="bearerToken"
+										type={info.showBearerToken ? 'text' : 'password'}
+										value={info.bearerToken}
+										onChange={(e) =>
+											setInfo((prev) => ({
+												...prev,
+												bearerToken: e.target.value,
+											}))
+										}
+										placeholder="Enter your bearer token"
+										className="api-key-input"
+										disabled={isLoading}
+									/>
+									<button
+										type="button"
+										className="toggle-visibility"
+										onClick={toggleBearerTokenVisibility}
+										disabled={isLoading}
+									>
+										{info.showBearerToken ? <EyeSlashIcon /> : <EyeIcon />}
+									</button>
+								</div>
+							</div>
+
+							<div className="form-field">
+								<label htmlFor="userId">
+									User ID
+									<span className="required">*</span>
+								</label>
+								<input
+									id="userId"
+									type="text"
+									value={info.userId}
+									onChange={(e) =>
+										setInfo((prev) => ({ ...prev, userId: e.target.value }))
+									}
+									placeholder="Enter your user ID"
+									className="api-key-input"
+									disabled={isLoading}
+								/>
+							</div>
+
+							<div className="form-field">
+								<label htmlFor="phoneNumberId">
+									Phone Number ID
+									<span className="required">*</span>
+								</label>
+								<p>
+									For phone number ID, go to a{' '}
+									<a
+										href="https://developers.facebook.com/apps"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										https://developers.facebook.com/apps
+									</a>{' '}
+									and select the app where you have added WhatsApp. On the left
+									side, click WhatsApp → API Setup. Select 'Start using the API'
+									On the next page you can find your Phone number ID:
+								</p>
+								<input
+									id="phoneNumberId"
+									type="text"
+									value={info.phoneNumberId}
+									onChange={(e) =>
+										setInfo((prev) => ({
+											...prev,
+											phoneNumberId: e.target.value,
+										}))
+									}
+									placeholder="Enter your phone number ID"
+									className="api-key-input"
+									disabled={isLoading}
+								/>
+							</div>
+						</div>
+					)}
+
+					{info.error && <div className="field-error">{info.error}</div>}
 				</div>
 
 				<div className="api-key-modal-footer">
@@ -115,7 +254,14 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 						type="button"
 						className="connect-button"
 						onClick={handleSubmit}
-						disabled={isLoading || !apiKey.trim()}
+						disabled={
+							isLoading ||
+							!info.apiKey.trim() ||
+							(action?.toolkit?.slug === 'whatsapp' &&
+								(!info.bearerToken.trim() ||
+									!info.userId.trim() ||
+									!info.phoneNumberId.trim()))
+						}
 					>
 						{isLoading ? (
 							<>
