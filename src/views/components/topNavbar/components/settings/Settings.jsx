@@ -92,7 +92,7 @@ const Settings = ({
 	closeSettingsTooltip,
 }) => {
 	const { pathname } = useLocation();
-	const { shutdownIntercom, showIntercom } = useIntercom();
+	const { shutdownIntercom, showIntercom, launchIntercom } = useIntercom();
 	const channel = useBroadcastChannel();
 	const navigate = useNavigate();
 
@@ -110,16 +110,24 @@ const Settings = ({
 	const workspacesMoreThanOne = userWorkSpaceList?.length > 1;
 	const workspaceImage = tennantSettingsData?.logo_s3_500w_key ?? null;
 
-	useEffect(() => {
-		if (info.intercomOpen) {
-			openIntercom();
+	const handleSettingItemClick = (settingItem) => async () => {
+		if (settingItem.route) {
+			navigate(settingItem.route);
 		} else {
-			shutdownIntercom();
+			if (settingItem.label === 'Help') {
+				if (info.intercomOpen) {
+					shutdownIntercom();
+				} else {
+					await launchIntercom();
+					showIntercom();
+				}
+				setInfo((prev) => ({
+					...prev,
+					intercomOpen: !prev.intercomOpen,
+				}));
+			}
 		}
-	}, [info.intercomOpen]);
-
-	const openIntercom = async () => {
-		showIntercom();
+		closeSettingsTooltip();
 	};
 
 	return (
@@ -145,17 +153,7 @@ const Settings = ({
 			<div className={s.settingsItems}>
 				{settingsItems.map((settingItem) => (
 					<div
-						onClick={() => {
-							if (settingItem.route) {
-								navigate(settingItem.route);
-							} else {
-								setInfo((prev) => ({
-									...prev,
-									intercomOpen: !prev.intercomOpen,
-								}));
-							}
-							closeSettingsTooltip();
-						}}
+						onClick={handleSettingItemClick(settingItem)}
 						key={settingItem.id}
 						className={`${s.settingItem} ${
 							settingItem.route && settingItem.route.includes(pathname)
