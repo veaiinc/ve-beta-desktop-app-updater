@@ -1,10 +1,10 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState } from 'react';
 import s from './settings.module.scss';
 import Context from '../../../../../context/context';
 import { useLocation, useNavigate } from 'react-router-dom';
 import logout from '../../../../../helpers/logout';
 import SwitchWorkspaceModal from '../switchWorkspaceModal/SwitchWorkspaceModal';
-import { Tooltip } from 'antd';
+import Skeleton from 'react-loading-skeleton';
 import { ReactComponent as MyProfileSvg } from '../../assets/my-profile.svg';
 import { ReactComponent as WorkspaceSvg } from '../../assets/workspace.svg';
 import { ReactComponent as TeamMembersSvg } from '../../assets/team-members.svg';
@@ -18,8 +18,6 @@ import { ReactComponent as DownloadMacSvg } from '../../assets/download-mac.svg'
 import { ReactComponent as TemplatesSvg } from '../../assets/templates.svg';
 import useIntercom from '../../../../../hooks/useIntercom';
 import useBroadcastChannel from '../../../../../hooks/useBroadcastChannel';
-import { ReactComponent as BackIcon } from '../../../../../assets/svg/mobile/back.svg';
-import { ReactComponent as CloseIcon } from '../../../../../assets/svg/mobile/close.svg';
 import { ReactComponent as PlusSvg } from '../../assets/plus.svg';
 
 const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
@@ -102,7 +100,6 @@ const Settings = ({
 		workspaceModalOpen: false,
 		intercomOpen: false,
 	});
-	const [isMobileView, setIsMobileView] = useState(false);
 
 	const {
 		profileInfo: { tenantUserAccessControls, userWorkSpaceList, tennantSettingsData },
@@ -111,6 +108,7 @@ const Settings = ({
 	const fullName = `${firstName ?? ''} ${lastName ?? ''}`;
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
 	const workspacesMoreThanOne = userWorkSpaceList?.length > 1;
+	const workspacesLoading = userWorkSpaceList === null;
 	const workspaceImage = tennantSettingsData?.logo_s3_500w_key ?? null;
 
 	const handleSettingItemClick = (settingItem) => async () => {
@@ -132,42 +130,9 @@ const Settings = ({
 		}
 		closeSettingsTooltip();
 	};
-	useEffect(() => {
-		const query = window.matchMedia('(max-width: 768px)');
-		const update = () => setIsMobileView(query.matches);
-		update();
-		try {
-			query.addEventListener('change', update);
-			return () => query.removeEventListener('change', update);
-		} catch (e) {
-			query.addListener(update);
-			return () => query.removeListener(update);
-		}
-	}, []);
-	const Content = (
-		<div className={s.settingsContain}>
-			{/* Mobile header (shown only on small screens via CSS) */}
-			<div className={s.mobileHeader}>
-				<button
-					className={s.mobileIconButton}
-					onClick={() => {
-						closeSettingsTooltip();
-					}}
-					aria-label="Back"
-				>
-					<BackIcon />
-				</button>
-				<span className={s.mobileTitle}>Settings</span>
-				<button
-					className={s.mobileIconButton}
-					onClick={() => {
-						closeSettingsTooltip();
-					}}
-					aria-label="Close"
-				>
-					<CloseIcon />
-				</button>
-			</div>
+
+	return (
+		<div className={s.settingsContainer}>
 			<header className={s.userInfo}>
 				{profilePicExists ? (
 					<img className={s.profileImg} src={profilePic} alt="profile" />
@@ -185,43 +150,6 @@ const Settings = ({
 					</p>
 					<p className={s.businessName}>{businessName}</p>
 				</div>
-				{isMobileView ? (
-					<button
-						className={s.switchWorkspaceButton}
-						onClick={(e) => {
-							e.stopPropagation();
-							setInfo((prev) => ({ ...prev, workspaceModalOpen: true }));
-							closeSettingsTooltip();
-						}}
-					>
-						<SwitchWorkspaceSvg />
-					</button>
-				) : (
-					<Tooltip
-						open={info.switchWorkspaceTooltipOpen}
-						title={
-							<div className={s.switchWorkspaceTooltip}>
-								<span>Switch Workspace</span>
-							</div>
-						}
-						placement="bottom"
-						arrow={false}
-						color="transparent"
-						trigger={['hover']}
-						destroyTooltipOnHide
-					>
-						{/* <button
-							className={s.switchWorkspaceButton}
-							onClick={(e) => {
-								e.stopPropagation();
-								setInfo((prev) => ({ ...prev, workspaceModalOpen: true }));
-								closeSettingsTooltip();
-							}}
-						>
-							<SwitchWorkspaceSvg />
-						</button> */}
-					</Tooltip>
-				)}
 			</header>
 			<div className={s.settingsItems}>
 				{settingsItems.map((settingItem) => (
@@ -240,34 +168,47 @@ const Settings = ({
 				))}
 			</div>
 			<div className={s.switchWorkspaceAndLogoutContainer}>
-				<button
-					onClick={(e) => {
-						e.stopPropagation();
-						if (workspacesMoreThanOne) {
-							setInfo((prev) => ({
-								...prev,
-								workspaceModalOpen: true,
-							}));
-							closeSettingsTooltip();
-						} else {
-							navigate('/create-workspace');
-							closeSettingsTooltip();
-						}
-					}}
-					className={s.switchWorkspaceButton}
-				>
-					{workspacesMoreThanOne ? (
-						<>
-							<SwitchWorkspaceSvg />
-							<span>Switch Workspace </span>
-						</>
-					) : (
-						<>
-							<PlusSvg />
-							<span>Create Workspace</span>
-						</>
-					)}
-				</button>
+				{workspacesLoading ? (
+					<div className={s.skeletonContainer}>
+						<Skeleton
+							width="100%"
+							style={{
+								'--highlight-color': 'gray',
+								'--base-color': 'transparent',
+								borderRadius: '8px',
+							}}
+						/>
+					</div>
+				) : (
+					<button
+						onClick={(e) => {
+							e.stopPropagation();
+							if (workspacesMoreThanOne) {
+								setInfo((prev) => ({
+									...prev,
+									workspaceModalOpen: true,
+								}));
+								closeSettingsTooltip();
+							} else {
+								navigate('/create-workspace');
+								closeSettingsTooltip();
+							}
+						}}
+						className={s.switchWorkspaceButton}
+					>
+						{workspacesMoreThanOne ? (
+							<>
+								<SwitchWorkspaceSvg />
+								<span>Switch Workspace </span>
+							</>
+						) : (
+							<>
+								<PlusSvg />
+								<span>Create Workspace</span>
+							</>
+						)}
+					</button>
+				)}
 				<button
 					className={s.logoutButton}
 					onClick={() => {
@@ -301,20 +242,6 @@ const Settings = ({
 					userWorkSpaceList={userWorkSpaceList}
 				/>
 			)}
-		</div>
-	);
-
-	return (
-		<div className={s.settingsContainer}>
-			{isMobileView && (
-				<div
-					className={s.mobileOverlay}
-					onClick={() => {
-						closeSettingsTooltip();
-					}}
-				/>
-			)}
-			{isMobileView ? <div className={s.mobileSheet}>{Content}</div> : Content}
 		</div>
 	);
 };
