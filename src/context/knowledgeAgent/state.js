@@ -722,10 +722,7 @@ export const KnowledgeAgentState = () => {
 				usertoken,
 				'third_party_integrations_api',
 			);
-			if (response?.[0] === true) {
-				return [true, response[1]];
-			}
-			return [false, response?.[1]];
+			return response;
 		} catch (error) {
 			console.log('error==>getPipedreamTriggers', error);
 			return [false, error];
@@ -749,21 +746,12 @@ export const KnowledgeAgentState = () => {
 
 			// 2. Call the normal disconnect API
 			const normalResponse = await disconnectTrigger(triggerId);
+			const success = pipedreamResponse?.[0] === true && normalResponse?.[0] === true;
 
-			// Return both responses
-			const result = {
-				pipedream: pipedreamResponse,
-				normal: normalResponse,
-				success: pipedreamResponse?.[0] === true && normalResponse?.[0] === true,
-			};
-			return result;
+			return [success, pipedreamResponse];
 		} catch (error) {
 			console.error('error==>deleteWhatsAppTriggerWithBothAPIs', error);
-			return {
-				pipedream: [false, error],
-				normal: [false, error],
-				success: false,
-			};
+			return [false, error];
 		}
 	};
 
@@ -789,7 +777,7 @@ export const KnowledgeAgentState = () => {
 						const data = [newTrigger, ...(state.triggers?.data || [])];
 						const payload = {
 							...state.triggers,
-							data: [newTrigger, ...(state.triggers?.data || [])],
+							data,
 						};
 						dispatch({
 							type: Actions.CONNECT_TRIGGER,
@@ -895,7 +883,7 @@ export const KnowledgeAgentState = () => {
 
 			if (payload?.apiKey) {
 				requestBody.apiKey = payload.apiKey;
-			
+
 				if (payload?.slug === 'whatsapp') {
 					Object.assign(requestBody, {
 						bearer_token: payload.bearer_token || payload.apiKey,
