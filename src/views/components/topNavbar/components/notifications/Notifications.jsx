@@ -90,7 +90,7 @@ const Notifications = ({ onClose }) => {
 					next={fetchNextNotificationsList}
 					hasMore={hasNextPage}
 					loader={<FetchMoreLoaderComp />}
-					height={isMobileView ? 'calc(100vh - 120px)' : '340px'}
+					height={isMobileView ? '100vh' : '340px'}
 				>
 					<div className={s.notificationsList}>
 						{notifications.map((notification) => {
