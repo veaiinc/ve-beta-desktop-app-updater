@@ -165,3 +165,9 @@
 		}
 	}
 }
+@media screen and (max-width: 500px) {
+	.CreateClientModal {
+		max-width: 380px;
+		padding: 24px;
+	}
+}

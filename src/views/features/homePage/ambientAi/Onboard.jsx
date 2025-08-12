@@ -4,6 +4,7 @@ import outlookCalendar from '../../../../assets/svg/Settings/outlook-calendar.sv
 import outlookMail from '../../../../assets/svg/Settings/outlook-mail.svg';
 import googleCalendar from '../../../../assets/svg/Settings/google-calendar-logo.png';
 import google from '../../../../assets/svg/Settings/google.svg';
+import { ReactComponent as MobileCloseSvg } from '../../../../assets/svg/mobile/close.svg';
 import IntegrationConnectModel from '../../../components/modalsV2/integrations/IntegrationConnectModel';
 import Context from '../../../../context/context';
 import jwtDecode from 'jwt-decode';
@@ -53,7 +54,7 @@ const onBoardConnectionsInfo = [
 	},
 ];
 
-const Onboard = () => {
+const Onboard = ({ onClose }) => {
 	const {
 		templates: { getConnectedThirdParties, connectedThirdParties },
 	} = useContext(Context);
@@ -119,6 +120,9 @@ const Onboard = () => {
 
 	return (
 		<div className={s.onBoardContainer}>
+			<div className={s.mobileCloseBtn} onClick={onClose}>
+				<MobileCloseSvg />
+			</div>
 			<div className={s.title}>
 				<span className={s.text1}>Right now,</span>{' '}
 				<span className={s.text2}>Ve is getting ready to</span>
