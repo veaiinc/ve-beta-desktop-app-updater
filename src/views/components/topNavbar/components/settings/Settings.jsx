@@ -172,7 +172,6 @@ const Settings = ({
 					<div className={s.skeletonContainer}>
 						<Skeleton
 							width="100%"
-							height="41px"
 							style={{
 								'--highlight-color': 'gray',
 								'--base-color': 'transparent',
