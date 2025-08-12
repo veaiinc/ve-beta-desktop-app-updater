@@ -66,7 +66,9 @@ const GalleryViewer = lazy(() => import('../views/features/gallery/GalleryViewer
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
-const ProactiveSuggestions = lazy(() => import('../views/features/homePage/ProactiveSuggestions'));
+const ProactiveSuggestions = lazy(() =>
+	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
+);
 const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
 const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
 
@@ -118,11 +120,11 @@ const betaRoutes = [
 	// AI & ASSISTANT FEATURES
 	// ========================================
 	{
-		path: '/ambient-ai',
+		path: '/priority',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper
-					title={'Ambient AI'}
+					title={'Priority'}
 					outerContainerStyle={{ overflow: 'hidden' }}
 					childrenContainerStyles={{ overflow: 'auto' }}
 					showBottomToolbar={false}
@@ -549,16 +551,6 @@ const betaRoutes = [
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
-					<NotesPage />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/database',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Notes'} outerContainerStyle={{ padding: '0' }}>
 					<NotesPage isDatabase={true} />
 				</AuthWrapper>
 			</Suspense>
@@ -566,25 +558,6 @@ const betaRoutes = [
 	},
 	{
 		path: '/note/:noteId',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper
-					title={'Notes'}
-					outerContainerStyle={{
-						backgroundColor: 'var(--background-color)',
-						padding: '0px',
-					}}
-					sidebarContainerStyles={{ padding: '0px' }}
-					maxWidth={'100%'}
-					sidebarContainerClassName={'auth-sidebar-container'}
-				>
-					<Notes />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/note/:noteId/database',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper

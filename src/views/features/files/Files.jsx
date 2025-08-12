@@ -48,10 +48,6 @@ const options = [
 		label: 'Notes',
 		value: 'notes',
 	},
-	{
-		label: 'Database',
-		value: 'database',
-	},
 ];
 
 export const statusTextmapper = {
@@ -723,10 +719,10 @@ const Files = () => {
 				setViewMode={setViewMode}
 			/>
 		),
-		Notes: <NotesGrid handleTotalChange={(value) => handleTotalChange({ notes: value })} />,
-		Database: (
+		// Notes: <NotesGrid handleTotalChange={(value) => handleTotalChange({ notes: value })} />,
+		Notes: (
 			<NotesGrid
-				handleTotalChange={(value) => handleTotalChange({ database: value })}
+				handleTotalChange={(value) => handleTotalChange({ notes: value })}
 				isDatabase={true}
 			/>
 		),
@@ -787,18 +783,14 @@ const Files = () => {
 											{/* {info?.selectedView === option?.label && (
 												<span className="sidebar-option-active-indicator"></span>
 											)} */}
-											<div
-												style={{
-													display: 'flex',
-													alignItems: 'center',
-													justifyContent: 'space-between',
-												}}
-											>
+											<div className="sidebar-option-label">
 												{option?.label}
 											</div>
 											{info?.totalCount?.[option?.value] ? (
 												<div className="count-wrapper">
-													{info?.totalCount?.[option?.value]}
+													{info?.totalCount?.[option?.value] > 99
+														? '99+'
+														: info?.totalCount?.[option?.value]}
 												</div>
 											) : null}
 										</div>
