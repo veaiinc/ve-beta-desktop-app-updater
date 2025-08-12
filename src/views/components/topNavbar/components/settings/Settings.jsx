@@ -133,18 +133,7 @@ const Settings = ({
 		}
 		closeSettingsTooltip();
 	};
-	useEffect(() => {
-		const query = window.matchMedia('(max-width: 768px)');
-		const update = () => setIsMobileView(query.matches);
-		update();
-		try {
-			query.addEventListener('change', update);
-			return () => query.removeEventListener('change', update);
-		} catch (e) {
-			query.addListener(update);
-			return () => query.removeListener(update);
-		}
-	}, []);
+
 	const Content = (
 		<div className={s.settingsContain}>
 			{/* Mobile header (shown only on small screens via CSS) */}
