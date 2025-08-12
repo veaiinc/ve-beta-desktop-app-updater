@@ -1,5 +1,5 @@
 .browserContainer {
-	width: 42vw;
+	width: 45vw;
 	height: 100%;
 	background-image: url('../../../images/chat/browserFrame.jpg');
 	background-size: cover;
@@ -7,15 +7,14 @@
 	background-repeat: no-repeat;
 	display: flex;
 	flex-direction: column;
-	gap: 16px;
+	gap: 24px;
 	box-sizing: border-box;
-	padding: 21px 36px 22px 36px;
+	padding: 21px 36px 36px 36px;
 
 	.header {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding: 10px;
 
 		.title {
 			color: var(--primary-font, #f2f2f3);
@@ -40,8 +39,10 @@
 		flex-direction: column;
 		width: 100%;
 		gap: 32px;
-		// transition: all 0.7s ease;
 		box-sizing: border-box;
+		border-radius: 16px;
+		background-color: #ffffff;
+		padding: 20px;
 
 		&.tookControl {
 			position: fixed;
@@ -51,9 +52,8 @@
 			height: 100%;
 			z-index: 1000;
 			margin: 0;
-			background-color: var(--card);
-			gap: 8px;
-			padding-top: 8px;
+			padding-bottom: 0px;
+			border-radius: 0;
 
 			.browserIframeContainer {
 				.browserIframe {
@@ -84,7 +84,7 @@
 				align-items: center;
 				gap: 10px;
 				border-radius: 100px;
-				background: rgba(242, 242, 243, 0.48);
+				background: var(--primary-font);
 				cursor: pointer;
 				color: var(--background-color, #121212);
 				font-family: var(--primary-font-family);
@@ -97,7 +97,7 @@
 
 				&.active {
 					background-color: var(--primary-font);
-					border: 2px solid var(--primary-button);
+					border: 2px solid var(--background-color);
 				}
 			}
 		}
@@ -122,7 +122,7 @@
 			.takeControlBtn {
 				position: absolute;
 				right: 0px;
-				bottom: 16px;
+				bottom: 0px;
 				color: var(--background-color);
 				display: inline-flex;
 				padding: 6px 14px;
@@ -130,10 +130,9 @@
 				align-items: center;
 				gap: 8px;
 				border-radius: 100px;
-				background: #fff;
+				background: var(--primary-font);
 				cursor: pointer;
 				transition: all 0.3s ease;
-				color: var(--background-color, #121212);
 				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
