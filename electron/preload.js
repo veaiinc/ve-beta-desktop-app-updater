@@ -32,4 +32,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	// New: Download album as ZIP(s)
 	downloadAlbumZip: (payload) => ipcRenderer.invoke('download-album-zip', payload),
+
+	// Download Original Images
+	createZipFromUrls: (args) => ipcRenderer.invoke('create-zip-from-urls', args),
+
+	
 });
