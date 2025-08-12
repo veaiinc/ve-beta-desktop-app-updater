@@ -297,11 +297,10 @@ const TriggersTab = () => {
 		try {
 			setInfo((prev) => ({ ...prev, connectTriggerLoading: true }));
 
-			const triggerData = {
-				...triggerConfig,
-			};
-
-			const response = await connectTrigger({ triggerApp: 'whatsapp', triggerData });
+			const response = await connectTrigger({
+				triggerApp: 'whatsapp',
+				triggerData: triggerConfig,
+			});
 
 			if (response?.[0] === true) {
 				message.success('WhatsApp trigger connected successfully');

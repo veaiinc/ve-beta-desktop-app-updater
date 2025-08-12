@@ -19,27 +19,27 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 
 	const handleSubmit = async () => {
 		if (!info.apiKey.trim()) {
-			setInfo({ ...info, error: 'API key is required' });
+			setInfo((prev) => ({ ...prev, error: 'API key is required' }));
 			return;
 		}
 
 		// For WhatsApp, additional fields are required
 		if (action?.toolkit?.slug === 'whatsapp') {
 			if (!info.bearerToken.trim()) {
-				setInfo({ ...info, error: 'Bearer token is required for WhatsApp' });
+				setInfo((prev) => ({ ...prev, error: 'Bearer token is required for WhatsApp' }));
 				return;
 			}
 			if (!info.userId.trim()) {
-				setInfo({ ...info, error: 'User ID is required for WhatsApp' });
+				setInfo((prev) => ({ ...prev, error: 'User ID is required for WhatsApp' }));
 				return;
 			}
 			if (!info.phoneNumberId.trim()) {
-				setInfo({ ...info, error: 'Phone number ID is required for WhatsApp' });
+				setInfo((prev) => ({ ...prev, error: 'Phone number ID is required for WhatsApp' }));
 				return;
 			}
 		}
 
-		setInfo({ ...info, error: '' });
+		setInfo((prev) => ({ ...prev, error: '' }));
 
 		if (onApiKeySubmit) {
 			// For WhatsApp, pass additional fields
@@ -73,11 +73,11 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 	};
 
 	const toggleApiKeyVisibility = () => {
-		setInfo({ ...info, showApiKey: !info.showApiKey });
+		setInfo((prev) => ({ ...prev, showApiKey: !prev.showApiKey }));
 	};
 
 	const toggleBearerTokenVisibility = () => {
-		setInfo({ ...info, showBearerToken: !info.showBearerToken });
+		setInfo((prev) => ({ ...prev, showBearerToken: !prev.showBearerToken }));
 	};
 
 	return (
@@ -117,7 +117,9 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 								id="apiKey"
 								type={info.showApiKey ? 'text' : 'password'}
 								value={info.apiKey}
-								onChange={(e) => setInfo({ ...info, apiKey: e.target.value })}
+								onChange={(e) =>
+									setInfo({ ...info, apiKey: e.target.value })
+								}
 								placeholder="Enter your API key"
 								className="api-key-input"
 								disabled={isLoading}
@@ -162,7 +164,10 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 										type={info.showBearerToken ? 'text' : 'password'}
 										value={info.bearerToken}
 										onChange={(e) =>
-											setInfo({ ...info, bearerToken: e.target.value })
+											setInfo((prev) => ({
+												...prev,
+												bearerToken: e.target.value,
+											}))
 										}
 										placeholder="Enter your bearer token"
 										className="api-key-input"
@@ -188,7 +193,9 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 									id="userId"
 									type="text"
 									value={info.userId}
-									onChange={(e) => setInfo({ ...info, userId: e.target.value })}
+									onChange={(e) =>
+										setInfo((prev) => ({ ...prev, userId: e.target.value }))
+									}
 									placeholder="Enter your user ID"
 									className="api-key-input"
 									disabled={isLoading}
@@ -218,7 +225,10 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 									type="text"
 									value={info.phoneNumberId}
 									onChange={(e) =>
-										setInfo({ ...info, phoneNumberId: e.target.value })
+										setInfo((prev) => ({
+											...prev,
+											phoneNumberId: e.target.value,
+										}))
 									}
 									placeholder="Enter your phone number ID"
 									className="api-key-input"

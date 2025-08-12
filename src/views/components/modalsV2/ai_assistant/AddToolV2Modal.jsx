@@ -214,15 +214,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 
 	// Filter actions based on selected filters
 	const filteredActions = (Array.isArray(info.actions) ? info.actions : []).filter((action) => {
-		// Debug logging
-		if (info.selectedApp) {
-			console.log('Filtering by app:', {
-				selectedApp: info.selectedApp.slug,
-				actionToolkitSlug: action.toolkit?.slug,
-				actionName: action.name,
-				matches: action.toolkit?.slug === info.selectedApp.slug,
-			});
-		}
+		
 
 		// Filter by app if selected
 		if (info.selectedApp && action.toolkit?.slug !== info.selectedApp.slug) {
