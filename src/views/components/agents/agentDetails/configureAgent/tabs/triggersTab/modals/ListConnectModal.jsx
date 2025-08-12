@@ -7,13 +7,6 @@ import Spinner from '../../../../../../loaders/Spinner';
 import '../../../../../../../../assets/scss/ai_assistant/modal/apiKeyModal.scss';
 
 const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading = false }) => {
-	// const [apiKey, setApiKey] = useState('');
-	// const [showApiKey, setShowApiKey] = useState(false);
-	// const [bearerToken, setBearerToken] = useState('');
-	// const [showBearerToken, setShowBearerToken] = useState(false);
-	// const [userId, setUserId] = useState('');
-	// const [phoneNumberId, setPhoneNumberId] = useState('');
-	// const [error, setError] = useState('');
 	const [info, setInfo] = useState({
 		apiKey: '',
 		showApiKey: false,
