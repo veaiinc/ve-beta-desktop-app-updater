@@ -4,6 +4,7 @@ import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross
 import { ReactComponent as BookMarkSvg } from '../../../../assets/svg/gallery/bookMark.svg';
 import { ReactComponent as GallerySvg } from '../../../../assets/svg/gallery/gallery.svg';
 import ToggleSlider from '../../../components/input/slider';
+import Spinner from '../../../components/loaders/Spinner';
 const DownloadAlbum = (props) => {
 	const {
 		open,
@@ -16,6 +17,7 @@ const DownloadAlbum = (props) => {
 		webviewDownload,
 		albumDetails,
 		isLightGallery,
+		isDownloading,
 	} = props;
 	const customStyles = {
 		content: { zIndex: 99999 },
@@ -96,7 +98,7 @@ const DownloadAlbum = (props) => {
 				</div>
 				<div style={{ alignSelf: 'flex-end' }}>
 					<button className="downloadAlbumPopupDownloadButton" onClick={onDownload}>
-						Download
+						{isDownloading ? <Spinner /> : 'Download'}
 					</button>
 				</div>
 			</div>
