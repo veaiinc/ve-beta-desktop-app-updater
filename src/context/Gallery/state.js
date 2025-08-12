@@ -1734,6 +1734,34 @@ export const Galleries = () => {
 			console.log('error==>getDownloadForMultipleImages', error);
 		}
 	};
+	const getSignedUrlsForImages = async (payload, galleryId) => {
+		const usertoken = localStorage.getItem('usertoken');
+		const workspaceId = localStorage.getItem('workspaceId');
+
+		const response = await service.fetchPost(
+			`/${workspaceId}/galleries/${galleryId}/download-images`,
+			payload,
+			usertoken,
+			'galleries',
+		);
+
+		if (response?.[0] === true && Array.isArray(response[1]?.signedUrls)) {
+			return response[1].signedUrls
+				.filter((item) => item.signedUrl)
+				.map((item) => {
+					const { signedUrl, imageId } = item;
+					const filenameMatch = signedUrl.split('/').pop()?.split('?')[0];
+					const rawFilename = decodeURIComponent(filenameMatch || `${imageId}.jpg`);
+					const sanitized = rawFilename.replace(/[/\\?%*:|"<>]/g, '_');
+					return {
+						url: signedUrl,
+						filename: sanitized,
+						imageId,
+					};
+				});
+		}
+		throw new Error('Failed to fetch signed URLs');
+	};
 
 	//{{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/download-images
 	const downloadImages = async (payload, galleryId, albumId) => {
@@ -2185,5 +2213,6 @@ export const Galleries = () => {
 		editAlbumAccessPin,
 		getUploadImagePolicy,
 		uploadDesktopImages,
+		getSignedUrlsForImages,
 	};
 };

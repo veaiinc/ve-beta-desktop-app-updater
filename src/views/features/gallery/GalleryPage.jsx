@@ -208,6 +208,7 @@ const GalleryPage = () => {
 			lightroomCopyList,
 			aiFace,
 			updateStateValues: updateGalleryStateValues,
+			getSignedUrlsForImages,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
@@ -2053,64 +2054,10 @@ const GalleryPage = () => {
 	};
 
 	const handleDownloadAlbum = async () => {
-		// If already downloading, return early
-		if (info.isDownloading) return;
-
-		try {
-			setInfo((prev) => ({
-				...prev,
-				isDownloading: true,
-			}));
-
-			showMessage('loading', 'Downloading album...');
-			// const id = message.loading('Downloading album...');
-
-			const payload = {
-				imageType: info?.originalDownload ? 'original' : 'optimized',
-			};
-
-			const response = await getDownloadLinkForTag(
-				payload,
-				galleryId,
-				info?.activeAlbumId,
-				info?.activeTagId || info?.albumTagId,
-			);
-
-			// message.destroy(id);
-
-			if (response?.[0] === true && response?.[1]?.downloadId) {
-				const region = localStorage.getItem('region');
-				const regionPath = region === 'ap-south-1' ? 'in' : 'us';
-				const downloadUrl = `https://downloads.ve.ai/${regionPath}/${response?.[1]?.downloadId}`;
-				window.open(downloadUrl, '_blank');
-
-				message.destroy();
-				showMessage('success', 'Download started');
-
-				setInfo((prev) => ({
-					...prev,
-					showDownloadAlbum: false,
-					isDownloading: false,
-				}));
-			} else {
-				showMessage('error', 'Failed to generate download link', handleDownloadAlbum);
-				setInfo((prev) => ({
-					...prev,
-					isDownloading: false,
-				}));
-			}
-		} catch (error) {
-			console.error('Download error:', error);
-			message.destroy();
-			showMessage(
-				'error',
-				'Something went wrong, please try again later',
-				handleDownloadAlbum,
-			);
-			setInfo((prev) => ({
-				...prev,
-				isDownloading: false,
-			}));
+		if (info?.originalDownload) {
+			handleDownloadEntireAlbumOriginals();
+		} else {
+			handleDesktopDownloadAlbum();
 		}
 	};
 	// ... existing code ...
@@ -3871,6 +3818,104 @@ const GalleryPage = () => {
 			setInfo((prev) => ({ ...prev, isDownloading: false }));
 		}
 	};
+	const handleDownloadEntireAlbumOriginals = async () => {
+		const { activeAlbumId, albumTagId, activeGallery, albumName } = info;
+		const galleryId = activeGallery?._id;
+
+		if (info?.isDownloading) return;
+
+		if (!galleryId) {
+			showMessage('error', 'Gallery not found');
+			return;
+		}
+		setInfo((prev) => ({
+			...prev,
+			isDownloading: true,
+		}));
+		let allImageIds = [];
+
+		try {
+			// Fetch all image IDs (same as before)
+			let page = 1;
+			const limit = 40;
+			while (true) {
+				const response = await getGalleryImages(
+					galleryId,
+					activeAlbumId,
+					albumTagId,
+					page,
+					limit,
+					'',
+					true,
+				);
+				if (response?.[0] === true && Array.isArray(response[1]?.docs)) {
+					const ids = response[1].docs.map((img) => img._id);
+					allImageIds.push(...ids);
+					if (!response[1].hasNextPage) break;
+					page++;
+				} else {
+					throw new Error('Failed to load images');
+				}
+			}
+
+			if (allImageIds.length === 0) {
+				showMessage('warning', 'No images in album');
+				return;
+			}
+
+			const batchSize = 10;
+			const folderName = `${albumName || 'Album'}_original`;
+			const maxZipSize = 3 * 1024 * 1024 * 1024;
+			const sessionId = `album-${activeAlbumId}-${Date.now()}`; // Unique session
+			let zipsCreated = [];
+
+			showMessage('loading', `Processing ${allImageIds.length} images...`);
+
+			for (let i = 0; i < allImageIds.length; i += batchSize) {
+				const isLastBatch = i + batchSize >= allImageIds.length;
+
+				const batchIds = allImageIds.slice(i, i + batchSize);
+				let items;
+
+				// Get signed URLs
+				try {
+					const payload = { image_ids: batchIds, imageType: 'original' };
+					items = await getSignedUrlsForImages(payload, galleryId);
+					if (!Array.isArray(items)) throw new Error('Invalid response');
+				} catch (err) {
+					console.error(`Failed to get URLs for batch ${i}:`, err);
+					continue;
+				}
+
+				if (items.length === 0) continue;
+
+				// Send to Electron (reuse same ZIP)
+				const result = await window.electronApi.createZipFromUrls({
+					items,
+					folderName,
+					maxZipSize,
+					sessionId,
+					isFinalBatch: isLastBatch,
+				});
+
+				if (result.success) {
+					if (isLastBatch) zipsCreated = result.zips;
+				} else {
+					console.error('Batch failed:', result.error);
+				}
+			}
+
+			if (zipsCreated.length > 0) {
+				showMessage('success', `Created: ${zipsCreated.join(', ')}`);
+			}
+		} catch (err) {
+			console.error('Download failed:', err);
+			showMessage('error', err.message);
+		} finally {
+			setInfo((prev) => ({ ...prev, isDownloading: false }));
+		}
+	};
+
 	return (
 		<>
 			<div className="galleryContainer" style={{ height: info?.isRearranging ? '100%' : '' }}>
@@ -5113,25 +5158,31 @@ const GalleryPage = () => {
 																</li>
 															)}
 															<li
-																// onClick={() =>
-																// 	setInfo((prev) => ({
-																// 		...prev,
-																// 		showDownloadAlbum: true,
-																// 		showGalleryOptions: false,
-																// 		showOptions: false,
-																// 		activeTagId:
-																// 			albumDetails?.tags?.[0]
-																// 				?._id,
-																// 		originalDownload: false,
-																// 		webviewDownload: true,
-																// 	}))
-																// }
-																onClick={() => {
-																	handleDesktopDownloadAlbum();
-																}}
+																onClick={() =>
+																	setInfo((prev) => ({
+																		...prev,
+																		showDownloadAlbum: true,
+																		showGalleryOptions: false,
+																		showOptions: false,
+																		activeTagId:
+																			albumDetails?.tags?.[0]
+																				?._id,
+																		originalDownload: false,
+																		webviewDownload: true,
+																	}))
+																}
+																// onClick={() => {
+																// 	// handleDesktopDownloadAlbum();
+																// 	handleDownloadEntireAlbumOriginals();
+																// }}
 															>
 																<DownloadIcon />
-																Download album
+																Download album{' '}
+																{info?.isDownloading ? (
+																	<Spinner />
+																) : (
+																	''
+																)}
 															</li>
 															<li onClick={handleLightRoomCopy}>
 																<LightRoomIcon />
@@ -6634,6 +6685,7 @@ const GalleryPage = () => {
 				webviewDownload={info.webviewDownload}
 				activeTagId={info.activeTagId}
 				isLightGallery={info.isLightGallery}
+				isDownloading={info?.isDownloading}
 			/>
 			<ShowLightRoomCopy
 				open={info.showLightRoomCopy}

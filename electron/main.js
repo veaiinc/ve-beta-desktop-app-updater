@@ -314,6 +314,24 @@ let template = [];
 // 	});
 // }
 
+const activeZips = new Map(); // Map<sessionId, { output, zip, size, filePath, zipsCreated[] }>
+
+function getActiveZip(sessionId) {
+	return activeZips.get(sessionId);
+}
+
+function setActiveZip(sessionId, data) {
+	activeZips.set(sessionId, data);
+}
+
+function removeActiveZip(sessionId) {
+	const session = activeZips.get(sessionId);
+	if (session && session.output && session.zip) {
+		session.zip.finalize(); // Try to close cleanly
+	}
+	activeZips.delete(sessionId);
+}
+
 function createWindow() {
 	mainWindow = new BrowserWindow({
 		title: 'Main window',
@@ -807,6 +825,147 @@ ipcMain.handle(
 		}
 	},
 );
+
+ipcMain.handle(
+	'create-zip-from-urls',
+	async (
+		event,
+		{ items, folderName, maxZipSize = 3 * 1024 * 1024 * 1024, sessionId, isFinalBatch = false },
+	) => {
+		const sanitizeFilename = (filename) => {
+			return (
+				filename
+					.replace(/[^a-zA-Z0-9._\-]/g, '_')
+					.replace(/\s+/g, '_')
+					.substring(0, 200) || 'unknown.jpg'
+			);
+		};
+
+		const finalizeZip = (session) => {
+			return new Promise((resolve) => {
+				if (!session.output) return resolve();
+
+				session.output.on('close', () => {
+					resolve();
+				});
+
+				session.zip.on('error', (err) => {
+					console.error('Archiver error:', err);
+					resolve();
+				});
+
+				session.zip.finalize();
+			});
+		};
+
+		try {
+			let session = getActiveZip(sessionId);
+
+			// 🟢 First batch: initialize
+			if (!session) {
+				const { filePath } = await dialog.showSaveDialog({
+					title: `Save Original Images: ${folderName}`,
+					defaultPath: `${folderName}_1.zip`,
+					filters: [{ name: 'ZIP Files', extensions: ['zip'] }],
+					properties: ['createDirectory'],
+				});
+
+				if (!filePath) {
+					return { success: false, error: 'User cancelled' };
+				}
+
+				const output = fs.createWriteStream(filePath);
+				const zip = archiver('zip', { zlib: { level: 9 } });
+				zip.pipe(output);
+
+				session = {
+					output,
+					zip,
+					size: 0,
+					filePath,
+					zipsCreated: [path.basename(filePath)],
+					firstFilePath: filePath,
+				};
+				setActiveZip(sessionId, session);
+			}
+
+			// Process each item
+			for (const item of items) {
+				const { url, filename } = item;
+				const safeName = sanitizeFilename(filename);
+
+				if (!url) {
+					session.zip.append(`No URL provided`, { name: `ERROR_${safeName}.txt` });
+					continue;
+				}
+
+				try {
+					const res = await axios({
+						method: 'GET',
+						url,
+						responseType: 'stream',
+						timeout: 30000,
+						headers: { 'User-Agent': 'Electron-Album-Downloader' },
+					});
+
+					if (res.status !== 200) throw new Error(`HTTP ${res.status}`);
+
+					const fileSize = parseInt(res.headers['content-length'], 10) || 0;
+
+					// 🟡 Check if adding this file would exceed limit
+					if (fileSize > 0 && session.size + fileSize > maxZipSize) {
+						await finalizeZip(session);
+
+						// 🔴 Start new ZIP
+						const newFilePath = session.firstFilePath.replace(
+							/(_\d+)?(\.zip)$/i,
+							`_${session.zipsCreated.length + 1}$2`,
+						);
+						const newOutput = fs.createWriteStream(newFilePath);
+						const newZip = archiver('zip', { zlib: { level: 9 } });
+						newZip.pipe(newOutput);
+
+						// Update session
+						session.output = newOutput;
+						session.zip = newZip;
+						session.size = 0;
+						session.filePath = newFilePath;
+						session.zipsCreated.push(path.basename(newFilePath));
+					}
+
+					session.zip.append(res.data, { name: safeName });
+					session.size += fileSize;
+
+					await new Promise((resolve, reject) => {
+						res.data.on('end', resolve);
+						res.data.on('error', reject);
+					});
+				} catch (err) {
+					session.zip.append(`Error: ${err.message}`, { name: `ERROR_${safeName}.txt` });
+				}
+			}
+
+			// 🟢 Final batch: finalize
+			if (isFinalBatch) {
+				await finalizeZip(session);
+				removeActiveZip(sessionId);
+			}
+
+			return {
+				success: true,
+				zips: session.zipsCreated,
+			};
+		} catch (error) {
+			console.error('ZIP error:', error);
+			removeActiveZip(sessionId);
+			return {
+				success: false,
+				error: error.message,
+			};
+		}
+	},
+);
+
 // Graceful exit on macOS
 app.on('window-all-closed', () => {
 	app.quit();
