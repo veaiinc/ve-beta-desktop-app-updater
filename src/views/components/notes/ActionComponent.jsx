@@ -2,6 +2,23 @@ import { createReactInlineContentSpec } from '@blocknote/react';
 import { memo, useContext } from 'react';
 import { EditorContext } from './Editor';
 
+const containerCss = {
+	display: 'inline-flex',
+	alignItems: 'center',
+	padding: '0 4px',
+	borderRadius: '4px',
+	fontSize: '0.9em',
+	border: '1px solid var(--primary-font)',
+	color: 'var(--primary-font)',
+};
+
+const imgCss = {
+	width: '16px',
+	height: '16px',
+	marginRight: '4px',
+	borderRadius: '4px',
+};
+
 // Inline component for rendering the action tag
 const ActionComponent = ({ inlineContent }) => {
 	const { customBlockData } = useContext(EditorContext);
@@ -23,47 +40,16 @@ const ActionComponent = ({ inlineContent }) => {
 	}
 
 	return (
-		<span
-			style={{
-				display: 'inline-flex',
-				alignItems: 'center',
-				padding: '0 4px',
-				borderRadius: '4px',
-				fontSize: '0.9em',
-				border: '1px solid var(--primary-font)',
-				color: 'var(--primary-font)',
-			}}
-		>
-			{action?.actionData?.image_src ? (
-				<img
-					src={action?.actionData?.image_src}
-					alt={`#tool@${inlineContent.props.action}`} // prevents browser from showing default alt text
-					onError={(e) => {
-						e.target.style.opacity = '0'; // hides the broken icon & alt text
-					}}
-					style={{
-						width: '16px',
-						height: '16px',
-						marginRight: '4px',
-						borderRadius: '4px',
-						backgroundColor: 'var(--primary-font)',
-					}}
-				/>
-			) : (
-				<img
-					src={action?.actionData?.image_src}
-					alt={`#tool@${inlineContent.props.action}`} // prevents browser from showing default alt text
-					style={{
-						opacity: '0',
-						visibility: 'hidden',
-						width: '0',
-						height: '0',
-						overflow: 'hidden',
-					}}
-				/>
+		<span style={containerCss}>
+			<span style={{ opacity: 0, visibility: 'hidden', display: 'none' }}>
+				{`<tool key="${inlineContent.props.action}">`}
+			</span>
+			{action?.actionData?.image_src && (
+				<img src={action?.actionData?.image_src} style={imgCss} />
 			)}
 
 			{inlineContent.props.action}
+			<span style={{ opacity: 0, visibility: 'hidden', display: 'none' }}>{`</tool>`}</span>
 		</span>
 	);
 };

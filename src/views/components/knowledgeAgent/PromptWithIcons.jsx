@@ -17,6 +17,14 @@ const PromptWithIcons = ({
 	const [isEditing, setIsEditing] = useState(false);
 	const textAreaRef = useRef(null);
 	const containerRef = useRef(null);
+	const initialBlocksRef = useRef(null);
+
+	// Initialize initialBlocks only once
+	useEffect(() => {
+		if (!initialBlocksRef.current) {
+			initialBlocksRef.current = { data: prompt };
+		}
+	}, []);
 
 	// Function to parse prompt and render with icons
 	const renderPromptWithIcons = () => {
@@ -158,8 +166,12 @@ const PromptWithIcons = ({
 			)} */}
 			<Editor
 				markdown={true}
-				initialBlocks={{ data: prompt }}
+				initialBlocks={initialBlocksRef.current}
 				customBlockData={{ actionDetails }}
+				onMarkdownChange={(markdown) => {
+					onChange?.(markdown);
+				}}
+				myAccess={readOnly || disabled ? 'view' : 'edit'}
 			/>
 		</div>
 	);

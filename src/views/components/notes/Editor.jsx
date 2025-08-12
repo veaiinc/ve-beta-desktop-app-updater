@@ -110,14 +110,14 @@ const Editor = ({
 			if (markdown) {
 				(async () => {
 					const markdown = await editor.blocksToMarkdownLossy(editor.document);
-					const regex = /!\[#tool@([^\]]+)\]\([^)]+\)([^\s]+)/g;
 
-					const fixedMarkdown = markdown.replace(
-						regex,
-						(match, toolName, trailingText) => {
-							return `<${toolName}>`;
-						},
-					);
+					// Matches <tool key="some-key">...</tool> or <tool key='some-key'>...</tool>
+					const regex = /<tool\s+key=["']([^"']+)["']>.*?<\/tool>/g;
+
+					const fixedMarkdown = markdown.replace(regex, (match, key) => {
+						return `<${key}>`;
+					});
+
 					onMarkdownChange(fixedMarkdown);
 				})();
 			}
