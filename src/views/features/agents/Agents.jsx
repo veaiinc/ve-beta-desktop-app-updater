@@ -24,6 +24,7 @@ import { generateRandomAIAgentDetails } from '../../components/agents/agentsList
 import Skeleton from 'react-loading-skeleton';
 import { accessControlCheck } from '../../../helpers/accessControlCheck';
 import CreateAgentModal from '../../components/modalsV2/agents/CreateAgentModal';
+import AgentDrawer from './AgentDrawer';
 
 // constants
 const page = 1,
@@ -80,6 +81,8 @@ const Agents = () => {
 		loading: false,
 		createAgentLoader: false,
 		createAgentModalOpen: false,
+		agentDrawerOpen: false,
+		agent: null,
 	});
 
 	useEffect(() => {
@@ -106,6 +109,14 @@ const Agents = () => {
 	useEffect(() => {
 		if (info?.totalCards?.length > 0) {
 			updateWindow(info?.currentIndex);
+			// Update current agent when cards or index changes
+			const currentAgent = info?.totalCards?.[info?.currentIndex];
+			if (currentAgent && (!info?.agent || info?.agent?._id !== currentAgent?._id)) {
+				setInfo((prev) => ({
+					...prev,
+					agent: currentAgent,
+				}));
+			}
 		}
 	}, [info?.totalCards, info?.currentIndex]);
 
@@ -115,6 +126,7 @@ const Agents = () => {
 		setInfo((prev) => ({
 			...prev,
 			currentIndex: index,
+			agent: info?.totalCards?.[index] || null,
 		}));
 	}, [info?.currentIndex, info?.totalCards]);
 
@@ -152,6 +164,7 @@ const Agents = () => {
 		setInfo((prev) => ({
 			...prev,
 			currentIndex: index,
+			agent: info?.totalCards?.[index] || null,
 		}));
 	}, [
 		info?.isApiLoading,
@@ -265,8 +278,34 @@ const Agents = () => {
 		}));
 	}, []);
 
-	const handleCardClick = useCallback((card, index) => {
-		navigate(`/agent/${card?._id}?config=prompt`);
+	const getCurrentAgent = useCallback(() => {
+		if (info?.totalCards?.length > 0 && info?.currentIndex >= 0) {
+			return info.totalCards[info.currentIndex];
+		}
+		return null;
+	}, [info?.totalCards, info?.currentIndex]);
+
+	const handleCardClick = useCallback(
+		(card, index) => {
+			// Find the index of the clicked card in totalCards
+			const cardIndex = info?.totalCards?.findIndex((item) => item._id === card._id);
+
+			// Set the current agent, update current index, and open drawer
+			setInfo((prev) => ({
+				...prev,
+				agent: card,
+				currentIndex: cardIndex >= 0 ? cardIndex : prev.currentIndex,
+				agentDrawerOpen: true,
+			}));
+		},
+		[info?.totalCards],
+	);
+
+	const handleDrawerClose = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			agentDrawerOpen: false,
+		}));
 	}, []);
 
 	const handleCreateNewAgent = useCallback(
@@ -520,6 +559,18 @@ const Agents = () => {
 				closeModal={() => setInfo((prev) => ({ ...prev, createAgentModalOpen: false }))}
 				handleCreateNewAgent={handleCreateNewAgent}
 				loading={info?.createAgentLoader}
+			/>
+			<AgentDrawer
+				open={info?.agentDrawerOpen}
+				closeDrawer={handleDrawerClose}
+				agent={info?.agent}
+				currentIndex={info?.currentIndex}
+				totalCount={knowledgeAssistantsList?.totalDocs}
+				handleCardClick={handleCardClick}
+				handleLeft={handleLeft}
+				handleRight={handleRight}
+				// handleDeleteAgent={handleDeleteAgent}
+				// handleEditAgent={handleEditAgent}
 			/>
 		</div>
 	);

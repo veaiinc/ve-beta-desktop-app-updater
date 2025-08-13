@@ -6,7 +6,12 @@ import jwtDecode from 'jwt-decode';
 import { useParams } from 'react-router-dom';
 import s from './agentShare.module.scss';
 
-const AgentShareComponent = ({ agentId, activeKnowledgeAssistant }) => {
+const AgentShareComponent = ({
+	agentId,
+	activeKnowledgeAssistant,
+	buttonText = 'Share',
+	buttonStyle = {},
+}) => {
 	const {
 		companyInfo: { getTeamMembers, tenantsUserList },
 		knowledgeAgent: {
@@ -41,8 +46,7 @@ const AgentShareComponent = ({ agentId, activeKnowledgeAssistant }) => {
 			? { isEnabled: true, access: workspaceUserAccess }
 			: { isEnabled: false, access: 'view' };
 
-	const { agentId: urlAgentId } = useParams();
-	const finalAgentId = urlAgentId;
+	const finalAgentId = agentId;
 
 	useEffect(() => {
 		const token = localStorage.getItem('usertoken');
@@ -255,8 +259,9 @@ const AgentShareComponent = ({ agentId, activeKnowledgeAssistant }) => {
 			<button
 				className={s.shareModalButton}
 				onClick={() => handleInfoChange({ isOpen: !info.isOpen })}
+				style={buttonStyle}
 			>
-				Share
+				{buttonText}
 			</button>
 			<ShareModal
 				isOpen={info.isOpen}

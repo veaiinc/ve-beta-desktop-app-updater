@@ -13,6 +13,7 @@ const PromptWithIcons = ({
 	readOnly = false,
 	disabled = false,
 	autoResize = true,
+	agentId,
 }) => {
 	const [isEditing, setIsEditing] = useState(false);
 	const textAreaRef = useRef(null);
@@ -24,7 +25,7 @@ const PromptWithIcons = ({
 		if (!initialBlocksRef.current) {
 			initialBlocksRef.current = { data: prompt };
 		}
-	}, []);
+	}, [agentId]);
 
 	// Function to parse prompt and render with icons
 	const renderPromptWithIcons = () => {

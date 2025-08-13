@@ -882,10 +882,10 @@ const ChatBox = ({
 						if (payload?.files && payload.files?.length > 0) {
 							payload.files = [
 								...payload.files,
-								...recentFilesRef?.current?.map((ele) => ({
+								...(recentFilesRef?.current?.map((ele) => ({
 									id: ele?._id || ele?.fileId || null,
 									name: ele?.originalFileName || ele?.title || 'Untitled File',
-								})),
+								})) || []),
 							];
 						} else {
 							payload.files = recentFilesRef?.current?.map((ele) => ({
