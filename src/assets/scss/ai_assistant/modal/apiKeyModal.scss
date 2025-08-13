@@ -139,6 +139,33 @@
 				}
 			}
 
+			// Direct input styling (for fields without toggle visibility)
+			.api-key-input {
+				width: 100%;
+				padding: 12px 16px;
+				border: 1px solid var(--stroke);
+				border-radius: 8px;
+				font-size: 14px;
+				font-family: var(--primary-font-family);
+				background: var(--card);
+				color: var(--primary-font);
+				transition: border-color 0.2s ease;
+
+				&:focus {
+					outline: none;
+					border-color: var(--stroke);
+				}
+
+				&:disabled {
+					opacity: 0.6;
+					cursor: not-allowed;
+				}
+
+				&::placeholder {
+					color: var(--secondary-font);
+				}
+			}
+
 			.field-error {
 				margin-top: 8px;
 				font-size: 12px;
@@ -155,6 +182,66 @@
 				font-family: var(--primary-font-family);
 				color: var(--secondary-font);
 				line-height: 1.5;
+			}
+		}
+
+		.whatsapp-fields {
+			margin-top: 16px;
+			padding: 16px;
+			border-top: 1px solid var(--stroke);
+			background: var(--card-over-card);
+			border-radius: 8px;
+
+			.whatsapp-header {
+				margin-bottom: 16px;
+				padding-bottom: 12px;
+				border-bottom: 1px solid var(--stroke);
+
+				h4 {
+					margin: 0 0 4px 0;
+					font-size: 14px;
+					font-weight: 600;
+					font-family: var(--primary-font-family);
+					color: var(--primary-font);
+				}
+
+				p {
+					margin: 0;
+					font-size: 12px;
+					font-family: var(--primary-font-family);
+					color: var(--secondary-font);
+					line-height: 1.4;
+				}
+			}
+
+			.form-field {
+				margin-bottom: 20px;
+
+				&:last-child {
+					margin-bottom: 0;
+				}
+				a {
+					color: var(--secondary-font);
+					text-decoration: underline;
+				}
+
+				p {
+					font-size: 12px;
+					font-family: var(--primary-font-family);
+					color: var(--secondary-font);
+					line-height: 1.4;
+					margin-bottom: 8px !important;
+				}
+
+				label {
+					font-size: 13px;
+					font-weight: 600;
+				}
+
+				.api-key-input {
+					font-size: 13px;
+					padding: 10px 14px;
+				}
 			}
 		}
 	}
@@ -262,6 +349,38 @@
 			.connect-button {
 				width: 100%;
 				justify-content: center;
+			}
+		}
+
+		// WhatsApp fields responsive styling
+		.whatsapp-fields {
+			margin-top: 12px;
+			padding: 12px;
+
+			.whatsapp-header {
+				margin-bottom: 12px;
+				padding-bottom: 8px;
+
+				h4 {
+					font-size: 13px;
+				}
+
+				p {
+					font-size: 11px;
+				}
+			}
+
+			.form-field {
+				margin-bottom: 14px;
+
+				label {
+					font-size: 12px;
+				}
+
+				.api-key-input {
+					font-size: 12px;
+					padding: 8px 12px;
+				}
 			}
 		}
 	}

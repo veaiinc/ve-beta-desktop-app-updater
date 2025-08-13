@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext } from 'react';
 import Intercom, { shutdown, show } from '@intercom/messenger-js-sdk';
 import Context from '../context/context';
 
@@ -28,10 +28,6 @@ const useIntercom = () => {
 			console.error('Intercom boot failed:', error);
 		}
 	};
-
-	useEffect(() => {
-		launchIntercom();
-	}, []);
 
 	return { showIntercom: show, shutdownIntercom: shutdown, launchIntercom };
 };

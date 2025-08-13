@@ -90,7 +90,37 @@ export const intialState = {
 	draftStateWorkflowtemplates: null,
 	moreDraftStateWorkflowtemplates: null,
 	createLeadModalContextState: false,
-	globalChatMessages: {}, // { type: 'AI', message: 'Hello, how can I help you today?' }
+	globalChatMessages: {
+		'6892ed1fec1c1966c5e14f6c': {
+			browserData: {
+				success: true,
+				sessionId: 'b719a760-ebd3-4d1b-bf50-07486c418136',
+				currentUrl: 'about:blank',
+				allTabUrls: [
+					{
+						url: 'about:blank',
+						debuggerUrl:
+							'https://www.browserbase.com/devtools-fullscreen/inspector.html?wss=connect.browserbase.com/debug/b719a760-ebd3-4d1b-bf50-07486c418136/devtools/page/F579266D09021B6259261E1331B1E0A9?debug=true',
+						title: 'Blank Tab',
+					},
+					{
+						url: 'https://www.amazon.in/',
+						debuggerUrl:
+							'https://www.browserbase.com/devtools-fullscreen/inspector.html?wss=connect.browserbase.com/debug/b719a760-ebd3-4d1b-bf50-07486c418136/devtools/page/93818EFF3F7902B010E9E990A504B54A?debug=true',
+						title: 'www.amazon.in',
+					},
+					{
+						url: 'https://www.amazon.in/',
+						debuggerUrl:
+							'https://www.browserbase.com/devtools-fullscreen/inspector.html?wss=connect.browserbase.com/debug/b719a760-ebd3-4d1b-bf50-07486c41813/devtools/page/93818EFF3F7902B010E9E990A504B54A?debug=true',
+						title: 'www.amazon.in',
+					},
+				],
+				activeTabIndex: 1,
+				timestamp: '2025-08-06T10:49:10.799Z',
+			},
+		},
+	}, // { type: 'AI', message: 'Hello, how can I help you today?' }
 	currentSessionId: null,
 	citations: null,
 	notificationsList: null,
@@ -2112,6 +2142,7 @@ export const TemplatesState = (props) => {
 		lastQuery = null,
 		chatBoxInfo = null,
 		chatInfo = null,
+		browserData = null,
 	}) => {
 		try {
 			dispatch({
@@ -2133,10 +2164,46 @@ export const TemplatesState = (props) => {
 					lastQuery,
 					chatBoxInfo,
 					chatInfo,
+					browserData,
 				},
 			});
 		} catch (error) {
 			console.log('error==>handleGlobalChatMessages', error);
+		}
+	};
+
+	const handleTakeBrowserControl = async (sessionId, takeControl) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const payload = {
+				mode: takeControl ? 'take' : 'resume',
+			};
+			const response = await Service.fetchPost(
+				`/api/browser/control/${workspaceId}/${sessionId}`,
+				payload,
+				usertoken,
+				'browser_api',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>handleTakeBrowserControl', error);
+			return [false, error?.message];
+		}
+	};
+
+	const saveBrowserState = async (sessionId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(
+				`/api/browser/${workspaceId}/task/${sessionId}/save-state`,
+				usertoken,
+				'browser_api',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>saveBrowserState', error);
 		}
 	};
 
@@ -3041,5 +3108,7 @@ export const TemplatesState = (props) => {
 		updateSlug,
 		getNotificationsList,
 		getAuthUrlForThirdParty,
+		handleTakeBrowserControl,
+		saveBrowserState,
 	};
 };

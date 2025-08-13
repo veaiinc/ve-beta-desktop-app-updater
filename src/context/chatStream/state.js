@@ -50,6 +50,11 @@ export const ChatStreamState = () => {
 
 	const sendMessage = useCallback(
 		({ data, sessionId, onMessageFunc, isPublicChat, agentType }) => {
+			socketsInfoRef.current[sessionId] = {
+				agentType,
+				isPublicChat,
+				onMessageFunc,
+			};
 			return new Promise((resolve, reject) => {
 				let attempts = 0;
 
@@ -69,7 +74,10 @@ export const ChatStreamState = () => {
 						!socketRefs.current[sessionId] ||
 						socketRefs.current[sessionId].readyState === WebSocket.CLOSED
 					) {
-						console.log('Connection closed, attempting to reconnect...');
+						console.log(
+							'Connection closed, attempting to reconnect...',
+							socketRefs.current[sessionId],
+						);
 						createWebSocketConnection(
 							sessionId,
 							onMessageFunc,
@@ -108,7 +116,7 @@ export const ChatStreamState = () => {
 	);
 	const createWebSocketConnection = useCallback(
 		async (sessionId, onMessageFunc, agentType, isPublicChat = false) => {
-			if (!sessionId && !isPublicChat) {
+			if (!sessionId) {
 				return;
 			}
 
@@ -129,7 +137,7 @@ export const ChatStreamState = () => {
 			const region = localStorage.getItem('region') || 'us-east-1';
 			const config = await getConfig();
 			const { chat_ws_api, chat_ws_api_US, guest_chat_ws_api, guest_chat_ws_api_US } = config;
-
+			// `https://dominant-ultimate-shrimp.ngrok-free.app`
 			let baseUrl = `${
 				region === 'ap-south-1' ? chat_ws_api : chat_ws_api_US
 			}/${workspaceId}/${sessionId}/${agent}?token=${usertoken}`;
@@ -156,6 +164,7 @@ export const ChatStreamState = () => {
 
 			socketRefs.current[sessionId].onmessage = (event) => {
 				resetInactivityTimeout();
+				const { onMessageFunc } = socketsInfoRef.current[sessionId];
 				if (onMessageFunc) {
 					onMessageFunc(event, currentSessionIdRef.current);
 				}

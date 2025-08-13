@@ -265,7 +265,7 @@ const Files = () => {
 		openProposalPopup: false,
 		initialDataFetched: false,
 		commonState: 'All',
-		options: [],
+		options: [...options],
 		totalCount: null,
 		showElasticSearchResults: false,
 		isFocused: false,
@@ -273,12 +273,19 @@ const Files = () => {
 		selectedIntegration: null,
 	});
 
-	const isAdmin = tenantUserAccessControls?.role === 'admin';
-	const appPaidMap = currentPlan?.apps?.reduce((acc, { app, isPaidPlan }) => {
-		acc[app] = isPaidPlan;
-		return acc;
-	}, {});
-	const liteGalleryPaidPlan = appPaidMap?.liteGallery;
+	// const isAdmin = tenantUserAccessControls?.role === 'admin';
+	const liteGalleryPaidPlan = currentPlan?.apps?.find(
+		({ app }) => app === 'liteGallery',
+	)?.isPaidPlan;
+
+	useEffect(() => {
+		if (!liteGalleryPaidPlan) {
+			setInfo((prev) => ({
+				...prev,
+				options: prev.options?.filter((item) => item?.value !== 'liteGallery'),
+			}));
+		}
+	}, [liteGalleryPaidPlan]);
 
 	useEffect(() => {
 		if (activeTab) {
@@ -307,44 +314,44 @@ const Files = () => {
 		}
 	}, [info?.createNewGalleryModal]);
 
-	useEffect(() => {
-		if (tenantUserAccessControls) {
-			let filteredOptions = options;
+	// useEffect(() => {
+	// 	if (tenantUserAccessControls) {
+	// 		let filteredOptions = options;
 
-			if (isAdmin) {
-				// Admins can see all, except liteGallery if it's not in the paid plan
-				filteredOptions = options?.filter((option) => {
-					if (option?.value === 'liteGallery') {
-						return liteGalleryPaidPlan; // Include only if paid
-					}
-					return true; // Include everything else
-				});
-			} else if (tenantUserAccessControls?.accessControls) {
-				// Non-admins: filter based on accessControls
-				const enabledApps = new Set(
-					tenantUserAccessControls?.accessControls
-						?.filter((permission) => {
-							if (permission?.app === 'liteGallery') {
-								return (
-									permission?.isEnabled &&
-									permission?.hasFullAccess &&
-									liteGalleryPaidPlan
-								);
-							}
-							return permission?.isEnabled;
-						})
-						?.map((permission) => permission?.app),
-				);
+	// 		if (isAdmin) {
+	// 			// Admins can see all, except liteGallery if it's not in the paid plan
+	// 			filteredOptions = options?.filter((option) => {
+	// 				if (option?.value === 'liteGallery') {
+	// 					return liteGalleryPaidPlan; // Include only if paid
+	// 				}
+	// 				return true; // Include everything else
+	// 			});
+	// 		} else if (tenantUserAccessControls?.accessControls) {
+	// 			// Non-admins: filter based on accessControls
+	// 			const enabledApps = new Set(
+	// 				tenantUserAccessControls?.accessControls
+	// 					?.filter((permission) => {
+	// 						if (permission?.app === 'liteGallery') {
+	// 							return (
+	// 								permission?.isEnabled &&
+	// 								permission?.hasFullAccess &&
+	// 								liteGalleryPaidPlan
+	// 							);
+	// 						}
+	// 						return permission?.isEnabled;
+	// 					})
+	// 					?.map((permission) => permission?.app),
+	// 			);
 
-				filteredOptions = options?.filter((option) => enabledApps?.has(option?.value));
-			}
+	// 			filteredOptions = options?.filter((option) => enabledApps?.has(option?.value));
+	// 		}
 
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				options: [...filteredOptions],
-			}));
-		}
-	}, [tenantUserAccessControls]);
+	// 		setInfo((prevInfo) => ({
+	// 			...prevInfo,
+	// 			options: [...filteredOptions],
+	// 		}));
+	// 	}
+	// }, [tenantUserAccessControls]);
 
 	const handleOutsideClick = useCallback((e) => {
 		if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
@@ -783,18 +790,14 @@ const Files = () => {
 											{/* {info?.selectedView === option?.label && (
 												<span className="sidebar-option-active-indicator"></span>
 											)} */}
-											<div
-												style={{
-													display: 'flex',
-													alignItems: 'center',
-													justifyContent: 'space-between',
-												}}
-											>
+											<div className="sidebar-option-label">
 												{option?.label}
 											</div>
 											{info?.totalCount?.[option?.value] ? (
 												<div className="count-wrapper">
-													{info?.totalCount?.[option?.value]}
+													{info?.totalCount?.[option?.value] > 99
+														? '99+'
+														: info?.totalCount?.[option?.value]}
 												</div>
 											) : null}
 										</div>

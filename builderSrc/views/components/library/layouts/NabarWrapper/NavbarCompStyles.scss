@@ -209,7 +209,91 @@
 			padding: 10px;
 			position: relative;
 		}
-
+		.select-section-main {
+			display: flex;
+			// padding: 2px 4px;
+			align-items: center;
+			gap: 6px;
+			border-radius: 6px;
+			background: rgba(17, 17, 19, 0.1);
+			background: color(display-p3 0.0667 0.0667 0.0745 / 0.1);
+			color: color(display-p3 0.5275 0.1512 0.2084);
+			// font-family: Manrope;
+			font-family: sans-serif;
+			font-size: 14px;
+			font-style: normal;
+			line-height: normal;
+			.select-div {
+				display: flex;
+				width: auto;
+				height: 18px;
+				padding: 6px;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				color: color(display-p3 0.5275 0.1512 0.2084);
+				// font-family: Manrope;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+				&:hover {
+					cursor: pointer;
+				}
+				// svg {
+				// 	path {
+				// 		// fill: #931a33;
+				// 		// stroke: rgba(0, 0, 0, 0.12) !important;
+				// 	}
+				// }
+				svg {
+					transform: translate(90deg);
+				}
+				.drop-icon {
+					transform: rotate(180deg);
+					.rotate {
+						transform: rotate(180deg);
+					}
+				}
+			}
+			.select-section {
+				position: absolute;
+				top: 90%;
+				right: 0%;
+				display: flex;
+				width: 175px;
+				padding: 16px;
+				flex-direction: column;
+				justify-content: center;
+				align-items: flex-start;
+				gap: 12px;
+				border-radius: 8px;
+				background: #f1eff6;
+				background: color(display-p3 0.9451 0.9373 0.9608);
+				box-shadow: 0 0 24px 0 rgba(0, 0, 0, 0.12);
+				box-shadow: 0 0 24px 0 color(display-p3 0 0 0 / 0.12);
+				cursor: pointer;
+				// .options {
+				// 	opacity: 0.5;
+				// 	width: 100%;
+				// 	height: fit-content;
+				// 	.active {
+				// 		opacity: 1;
+				// 		color: red;
+				// 		// font-family: Manrope;
+				// 		font-size: 14px;
+				// 		font-style: normal;
+				// 		font-weight: 600;
+				// 		line-height: normal;
+				// 		cursor: pointer;
+				// 	}
+				// 	&:hover {
+				// 		cursor: pointer;
+				// 		opacity: 1;
+				// 	}
+				// }
+			}
+		}
 		.navbar-options-wrapper {
 			display: flex;
 			flex-direction: row;
