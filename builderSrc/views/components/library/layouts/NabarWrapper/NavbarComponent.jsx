@@ -1,4 +1,4 @@
-import React, { Component, useEffect } from 'react';
+import React, { Component } from 'react';
 import ImageItem from '../../elements/image';
 import { EditNavbar as Edit } from '../../../builder_client_common';
 import './NavbarCompStyles.scss';
@@ -32,7 +32,6 @@ class NavbarComponent extends Component {
 			showImageModalLibrary: false,
 			dropDown: false,
 			selectedDropdown: 0,
-			isNavigating: false,
 		};
 		this.navbarRef = React.createRef();
 		this.imageRef = React.createRef();
@@ -109,101 +108,6 @@ class NavbarComponent extends Component {
 			);
 		}
 	};
-	renderModules = () => {
-		let originaModules = [...(this.props?.modules || [])];
-		// let modules = [...(this.props?.modules || [])];
-		let minPages = 5;
-		if (this.props?.activeModule?.showAsA4) {
-			minPages = 3;
-		}
-		let modules = originaModules?.slice(0, minPages);
-
-		// Filter out the public modules if isWorkflow is true (for live preview)
-		if (this.state.isWorkflow) {
-			modules = modules.filter((ele) => !ele?.isPublic);
-		}
-
-		// Find the index of the last module with isPublic: true
-		const lastPublicIndex = modules.reduce((lastIndex, module, index) => {
-			return module.isPublic ? index : lastIndex;
-		}, -1);
-
-		// Find the index of the "Invoice" module
-		const invoiceIndex = modules.findIndex((module) => module.module === 'invoice');
-
-		// Add the "Summary" module before the "Invoice" module
-		if (invoiceIndex && invoiceIndex !== -1) {
-			modules.splice(invoiceIndex, 0, {
-				module: 'summary',
-				_id: 'summaryModule', // Unique _id for the new module
-				label: 'summary',
-				isPublic: false, // Adjust properties as needed
-			});
-		}
-		const summaryIndex = modules.findIndex((module) => module.module === 'summary');
-
-		return modules.map((module, k) => {
-			if (module !== this.state.module) {
-				const isLastPublic = k === lastPublicIndex;
-				const moduleType = _.has(module, 'module') ? module.module : module.type;
-
-				return (
-					<React.Fragment key={module._id}>
-						<span
-							onClick={(e) => {
-								e.stopPropagation();
-
-								this.props.getModuleInfo(module._id, moduleType);
-							}}
-							className={`navbar-module-item ${
-								this.state.activeModuleId == module._id ? 'active' : ''
-							}`}
-							style={{
-								color: this.props?.section?.navigationColor || '#000000',
-								position: 'relative',
-								opacity: this.state.activeModuleId == module._id ? 1 : 0.7,
-								fontWeight:
-									this.state.activeModuleId == module._id ? 'bolder' : 'normal',
-								// whiteSpace: 'nowrap',
-								// overflow: 'hidden',
-								// textOverflow: 'ellipsis',
-								// width: '100px',
-							}}
-						>
-							{module.label}
-							{this.state.activeModuleId == module._id && (
-								<span
-									style={{
-										height: '3px',
-										width: '15px',
-										position: 'absolute',
-										borderRadius: '2px',
-										bottom: '-8px',
-										backgroundColor:
-											this.props?.section?.navigationColor || '#000000',
-									}}
-								></span>
-							)}
-						</span>
-
-						{isLastPublic && (
-							<div
-								style={{
-									width: '1px',
-									height: '24px',
-									backgroundColor: '#9B9290',
-									display: 'inline-block',
-									marginLeft: '5px',
-								}}
-							></div>
-						)}
-					</React.Fragment>
-				);
-			}
-			return null; // Return null for the current module to avoid rendering it
-		});
-	};
-
 	editDesign = () => {
 		this.setState(
 			{
@@ -214,11 +118,11 @@ class NavbarComponent extends Component {
 			},
 		);
 	};
-	// handleNavbarAlign = (align) => {
-	// 	this.setState({
-	// 		navbarAlign: align,
-	// 	});
-	// };
+	handleNavbarAlign = (align) => {
+		this.setState({
+			navbarAlign: align,
+		});
+	};
 
 	// handleNavbarUpdate = (type, value) => {
 	// 	let newSection = { ...this.props.section };
@@ -315,6 +219,101 @@ class NavbarComponent extends Component {
 	// 	});
 	// };
 
+	renderModules = () => {
+		let originaModules = [...(this.props?.modules || [])];
+		// let modules = [...(this.props?.modules || [])];
+		let minPages = 5;
+
+		if (this.props?.activeModule?.showAsA4) {
+			minPages = 2;
+		}
+		let modules = originaModules?.slice(0, minPages);
+
+		// Filter out the public modules if isWorkflow is true (for live preview)
+		if (this.state.isWorkflow) {
+			modules = modules.filter((ele) => !ele?.isPublic);
+		}
+
+		// Find the index of the last module with isPublic: true
+		const lastPublicIndex = modules.reduce((lastIndex, module, index) => {
+			return module.isPublic ? index : lastIndex;
+		}, -1);
+
+		// Find the index of the "Invoice" module
+		const invoiceIndex = modules.findIndex((module) => module.module === 'invoice');
+
+		// Add the "Summary" module before the "Invoice" module
+		if (invoiceIndex && invoiceIndex !== -1) {
+			modules.splice(invoiceIndex, 0, {
+				module: 'summary',
+				_id: 'summaryModule', // Unique _id for the new module
+				label: 'summary',
+				isPublic: false, // Adjust properties as needed
+			});
+		}
+		const summaryIndex = modules.findIndex((module) => module.module === 'summary');
+
+		return modules.map((module, k) => {
+			if (module !== this.state.module) {
+				const isLastPublic = k === lastPublicIndex;
+				const moduleType = _.has(module, 'module') ? module.module : module.type;
+
+				return (
+					<React.Fragment key={module._id}>
+						<span
+							onClick={(e) => {
+								e.stopPropagation();
+
+								this.props.getModuleInfo(module._id, moduleType);
+							}}
+							className={`navbar-module-item ${
+								this.state.activeModuleId == module._id ? 'active' : ''
+							}`}
+							style={{
+								color: this.props?.section?.navigationColor || '#000000',
+								position: 'relative',
+								opacity: this.state?.activeModuleId == module._id ? 1 : 0.7,
+								fontWeight:
+									this.state?.activeModuleId == module._id ? 'bolder' : 'normal',
+								// whiteSpace: 'nowrap',
+								// overflow: 'hidden',
+								// textOverflow: 'ellipsis',
+								// width: '100px',
+							}}
+						>
+							<span className="navbar-module-item-label">{module.label}</span>
+							{this.state.activeModuleId == module._id && (
+								<span
+									style={{
+										height: '3px',
+										width: '15px',
+										position: 'absolute',
+										borderRadius: '2px',
+										bottom: '-8px',
+										backgroundColor:
+											this.props?.section?.navigationColor || '#000000',
+									}}
+								></span>
+							)}
+						</span>
+
+						{isLastPublic && (
+							<div
+								style={{
+									width: '1px',
+									height: '24px',
+									backgroundColor: '#9B9290',
+									display: 'inline-block',
+									marginLeft: '5px',
+								}}
+							></div>
+						)}
+					</React.Fragment>
+				);
+			}
+			return null; // Return null for the current module to avoid rendering it
+		});
+	};
 	renderClientModules = () => {
 		let modules = [...(this.props?.clientPortalModules || [])];
 		// Filter out the public modules if isWorkflow is true (for live preview)
@@ -513,11 +512,9 @@ class NavbarComponent extends Component {
 												}}
 												onClick={(e) => {
 													e.preventDefault();
-
 													this.props.renderClientModulesClickFunction(
 														module,
 													);
-
 													this.setState({
 														dropDown: false,
 													});
@@ -614,8 +611,9 @@ class NavbarComponent extends Component {
 
 		let minPages = 5;
 		if (this.props?.activeModule?.showAsA4) {
-			minPages = 3;
+			minPages = 2;
 		}
+
 		return (
 			<>
 				<div className="navbar-component-wrapper">
@@ -636,10 +634,33 @@ class NavbarComponent extends Component {
 									hoveredModule: false,
 								});
 							}}
+							// style={{
+							// 	width:
+							// 		this.props?.section?.style?.navbarAlign === 'one' ||
+							// 		!this.props?.section?.style?.navbarAlign
+							// 			? '474px'
+							// 			: 'auto',
+							// 	justifyContent:
+							// 		this.props?.section?.style?.navbarAlign === 'two'
+							// 			? 'center'
+							// 			: this.props?.section?.style?.navbarAlign === 'three'
+							// 			? 'flex-end'
+							// 			: this.props?.section?.style?.navbarAlign === 'four' ||
+							// 			  this.props?.section?.style?.navbarAlign === 'one' ||
+							// 			  !this.props?.section?.style?.navbarAlign
+							// 			? 'flex-start'
+							// 			: 'center',
+
+							// 	transition: 'all 0.3s ease',
+							// }}
 							style={{
 								width:
-									this.props?.section?.style?.navbarAlign === 'one' ||
-									!this.props?.section?.style?.navbarAlign
+									this.props?.activeModule?.showAsA4 &&
+									(this.props?.section?.style?.navbarAlign === 'one' ||
+										!this.props?.section?.style?.navbarAlign)
+										? '200px'
+										: this.props?.section?.style?.navbarAlign === 'one' ||
+										  !this.props?.section?.style?.navbarAlign
 										? '474px'
 										: '100%',
 								justifyContent:
@@ -650,8 +671,7 @@ class NavbarComponent extends Component {
 										: this.props?.section?.style?.navbarAlign === 'four'
 										? 'flex-start'
 										: 'center',
-
-								transition: 'all 0.3s ease',
+								whiteSpace: 'nowrap',
 							}}
 							className="navbar-modules-wrapper"
 						>
@@ -875,45 +895,84 @@ class NavbarComponent extends Component {
 									// 		: '1px solid transparent',
 									// 	padding: '5px',
 									// }}
+									style={{
+										padding: '5px',
+										display: 'flex',
+										alignItems: 'center',
+										// gap: '10px',
+										width:
+											(this.props?.section?.style?.navbarAlign === 'one' ||
+												!this.props?.section?.style?.navbarAlign) &&
+											this.props?.activeModule?.showAsA4
+												? '200px'
+												: this.props?.activeModule?.showAsA4
+												? '160px'
+												: this.props?.activeModule?.showAsA4 &&
+												  this.props?.section?.style?.navbarAlign ===
+														'three'
+												? '160px'
+												: this.props?.section?.style?.navbarAlign ===
+														'one' ||
+												  !this.props?.section?.style?.navbarAlign
+												? '474px'
+												: '190px',
+
+										justifyContent: 'flex-end',
+										gap: this.props?.activeModule?.showAsA4 ? '0px' : '10px',
+									}}
 									className="cart-div"
 								>
 									<div
+										// style={{
+										// 	display: 'flex',
+										// 	flexDirection: 'row',
+										// 	gap: '10px',
+										// 	justifyContent: 'flex-end',
+										// 	width:
+										// 		this.props?.section?.style?.navbarAlign === 'three'
+										// 			? 'auto'
+										// 			: (this.props?.section?.style?.navbarAlign ==
+										// 					'one' ||
+										// 					!this.props?.section?.style
+										// 						?.navbarAlign) &&
+										// 			  this.props?.activeModule?.showAsA4
+										// 			? '300px'
+										// 			: this.props?.section?.style?.navbarAlign ==
+										// 					'one' ||
+										// 			  !this.props?.section?.style?.navbarAlign
+										// 			? '474px'
+										// 			: this.props?.activeModule?.showAsA4
+										// 			? '150px'
+										// 			: '200px',
+
+										// 	// border:
+										// 	// 	this.props?.section?.style?.cartBorder !== 'dash' &&
+										// 	// 	this.props?.section?.style?.cartBorder
+										// 	// 		? `1px solid ${
+										// 	// 				this.props?.section?.navigationColor ||
+										// 	// 				'#8B75BA'
+										// 	// 		  }`
+										// 	// 		: '1 px solid transparent',
+										// 	// borderRadius:
+										// 	// 	this.props?.section?.style?.cartBorder !== 'dash'
+										// 	// 		? this.props?.section?.style?.cartBorder ===
+										// 	// 		  'hexagon'
+										// 	// 			? '7px'
+										// 	// 			: this.props?.section?.style?.cartBorder ===
+										// 	// 			  'circle'
+										// 	// 			? '100px'
+										// 	// 			: ''
+										// 	// 		: '',
+										// 	// width: 'auto',
+										// 	// padding: '10px 5px',
+										// }}
 										style={{
 											display: 'flex',
 											flexDirection: 'row',
-											gap: '10px',
 											justifyContent: 'flex-end',
-											width:
-												this.props?.section?.style?.navbarAlign === 'three'
-													? 'auto'
-													: this.props?.section?.style?.navbarAlign ===
-															'one' ||
-													  !this.props?.section?.style?.navbarAlign
-													? '474px'
-													: this.props?.activeModule?.showAsA4
-													? '150px'
-													: '200px',
-
-											// border:
-											// 	this.props?.section?.style?.cartBorder !== 'dash' &&
-											// 	this.props?.section?.style?.cartBorder
-											// 		? `1px solid ${
-											// 				this.props?.section?.navigationColor ||
-											// 				'#8B75BA'
-											// 		  }`
-											// 		: '1 px solid transparent',
-											// borderRadius:
-											// 	this.props?.section?.style?.cartBorder !== 'dash'
-											// 		? this.props?.section?.style?.cartBorder ===
-											// 		  'hexagon'
-											// 			? '7px'
-											// 			: this.props?.section?.style?.cartBorder ===
-											// 			  'circle'
-											// 			? '100px'
-											// 			: ''
-											// 		: '',
-											// width: 'auto',
-											// padding: '10px 5px',
+											gap: '10px',
+											padding: '5px',
+											// marginRight: '20px',
 										}}
 										className="cart-icon"
 									>
@@ -1037,7 +1096,7 @@ class NavbarComponent extends Component {
 						<div
 							style={{
 								width:
-									this.props.activeModule.showAsA4 &&
+									this.props?.activeModule?.showAsA4 &&
 									(this.props?.section?.style?.navbarAlign === 'one' ||
 										!this.props?.section?.style?.navbarAlign)
 										? '200px'

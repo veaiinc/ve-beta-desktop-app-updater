@@ -3285,7 +3285,7 @@ class Home extends Proposals {
 				this.fetchGetModule(id, type);
 			} else {
 				if (
-					(this.state?.getModuleParams?.id && this.state?.getModuleParams?.type) ||
+					// (this.state?.getModuleParams?.id && this.state?.getModuleParams?.type) ||
 					!this.state?.didChangedSomething
 				) {
 					this.fetchGetModule(id, type);
