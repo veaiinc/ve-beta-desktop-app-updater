@@ -24,21 +24,7 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 	const selectedWorkspaceRef = useRef(null);
 	const channel = useBroadcastChannel();
 	const [info, setInfo] = useState(intialState);
-	const [isMobileView, setIsMobileView] = useState(false);
-
-	useEffect(() => {
-		const query = window.matchMedia('(max-width: 768px)');
-		const update = () => setIsMobileView(query.matches);
-		update();
-		try {
-			query.addEventListener('change', update);
-			return () => query.removeEventListener('change', update);
-		} catch (e) {
-			// Safari fallback
-			query.addListener(update);
-			return () => query.removeListener(update);
-		}
-	}, []);
+	const isMobileView = window.matchMedia('(max-width: 767px)').matches;
 
 	useEffect(() => {
 		if (selectedWorkspaceRef.current) {

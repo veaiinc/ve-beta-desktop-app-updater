@@ -45,7 +45,7 @@ const AddOnPlans = ({
 		},
 	} = useContext(Context);
 
-	const [info, setInfo] = useState({
+	const [info, setInfo] = useState(() => ({
 		addOnPurchaseLoader: false,
 		planPurchaseId: null,
 		totalPrice: 0,
@@ -60,10 +60,10 @@ const AddOnPlans = ({
 		cancelDowngradeLoading: false,
 		cancelSubscriptionLoading: false,
 		resumeSubscriptionLoading: false,
-		isMobile: false,
+		isMobile: window.matchMedia('(max-width: 767px)').matches,
 		startTrialLoading: false,
 		subscriptionState: subscriptionState || 'upgradeSubscription',
-	});
+	}));
 
 	// ID of the user's current plan
 	const currentPlanId = currentPlan?.currentPlanId;
@@ -76,11 +76,6 @@ const AddOnPlans = ({
 		currentPlan?.renewalType === 'yearly'
 			? currentPlanSubscribed?.yearlyPrice || 0
 			: currentPlanSubscribed?.monthlyPrice || 0;
-
-	// Populate mappableData whenever subscriptionState or selectedPeriod changes
-	useEffect(() => {
-		setInfo((prev) => ({ ...prev, isMobile: window.innerWidth < 500 }));
-	}, []);
 
 	useEffect(() => {
 		if (isOpen) {
@@ -424,11 +419,32 @@ const AddOnPlans = ({
 			isOpen={isOpen}
 			closeModal={closeModal}
 			contentLabel="AddOns Modal"
-			customStyles={{ ...customStyles, ...(info?.isMobile ? mobileStyles : {}) }}
+			customStyles={{
+				...customStyles,
+				...(info?.isMobile
+					? {
+							...mobileStyles,
+							content: {
+								...mobileStyles.content,
+								width: '95%',
+								maxWidth: '400px',
+								height: '90vh',
+								maxHeight: '90vh',
+								borderRadius: '16px',
+								padding: '0',
+								margin: '0',
+							},
+							overlay: {
+								...customStyles.overlay,
+								backgroundColor: 'rgba(0, 0, 0, 0.7)',
+							},
+					  }
+					: {}),
+			}}
 			ariaHideApp={false}
 			shouldCloseOnOverlayClick={true}
 			shouldCloseOnEsc={true}
-			className="addonmodel"
+			className={`addonmodel ${info?.isMobile ? 'mobile-modal' : ''}`}
 		>
 			<div className="addOnsHeader">
 				<div className="subscriptionTypeContainer">

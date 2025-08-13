@@ -20,24 +20,11 @@ const Notifications = ({ onClose }) => {
 		templates: { getNotificationsList, notificationsList },
 	} = useContext(Context);
 
-	const [info, setInfo] = useState({
+	const [info, setInfo] = useState(() => ({
 		selectedNotificationId: null,
 		showCaret: null,
-	});
-	const [isMobileView, setIsMobileView] = useState(false);
-
-	useEffect(() => {
-		const query = window.matchMedia('(max-width: 768px)');
-		const update = () => setIsMobileView(query.matches);
-		update();
-		try {
-			query.addEventListener('change', update);
-			return () => query.removeEventListener('change', update);
-		} catch (e) {
-			query.addListener(update);
-			return () => query.removeListener(update);
-		}
-	}, []);
+		isMobileView: window.matchMedia("(max-width: 767px)").matches,
+	}));
 
 	const notificationsLoading = notificationsList === null;
 	const notifications = notificationsList?.data ?? [];
@@ -90,7 +77,7 @@ const Notifications = ({ onClose }) => {
 					next={fetchNextNotificationsList}
 					hasMore={hasNextPage}
 					loader={<FetchMoreLoaderComp />}
-					height={isMobileView ? '100vh' : '340px'}
+					height={info.isMobileView ? '100vh' : '340px'}
 				>
 					<div className={s.notificationsList}>
 						{notifications.map((notification) => {

@@ -22,7 +22,8 @@ import {
 	DatabaseFilterNode,
 } from '../../components/automationBuilder/CustomNodes';
 import CustomEdges from '../../components/automationBuilder/CustomEdges';
-import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
+// import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
+import Spinner from '../../components/loaders/Spinner.jsx';
 import BuilderToolbar from '../../components/automationBuilder/BuilderToolbar';
 // import { Spin } from 'antd';
 import Configuration from '../../components/automationBuilder/AutomationBuilderSidebarComponents/Configuration';
@@ -710,7 +711,17 @@ const AutomationBuilder = () => {
 				</div>
 			</div>
 			{info?.loading ? (
-				<UpdatedPageLoader />
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+						height: '92%',
+						width: '100%',
+					}}
+				>
+					<Spinner />
+				</div>
 			) : (
 				<div className="updatedWorkflowBuilderContainer">
 					<div className="reactFlowContainer" ref={reactFlowWrapper}>

@@ -882,8 +882,8 @@
 		max-height: 600px;
 		@media screen and (max-width: 500px) {
 			width: 100%;
-			max-width: 300px;
-			min-width: 300px;
+			max-width: 380px;
+			min-width: 380px;
 			margin-bottom: 120px;
 		}
 
@@ -1057,9 +1057,11 @@
 			}
 			.buttonContainer {
 				display: flex;
-				gap: 8px;
+				gap: 12px;
 				width: 100%;
 				align-items: center;
+				justify-content: space-between;
+
 				.addOnsQuantityContainer {
 					display: flex;
 					height: 41px;
@@ -1070,9 +1072,10 @@
 					border-radius: 8px;
 					border: 1px solid var(--stroke, #2c2d2e);
 					background: var(--popup, #202123);
-					width: 100%;
-					align-items: center;
+					flex: 1;
+					max-width: 200px;
 					cursor: pointer;
+
 					.minussIcon {
 						padding: 6px 8px;
 						align-items: center;
@@ -1095,6 +1098,7 @@
 						line-height: normal;
 					}
 				}
+
 				.userCount {
 					color: var(--primary-font, #f2f2f3);
 					font-family: var(--primary-font-family);
@@ -1102,6 +1106,8 @@
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
+					white-space: nowrap;
+					min-width: fit-content;
 				}
 			}
 		}
@@ -1119,30 +1125,34 @@
 }
 .addOnsButtonContainer {
 	display: flex;
-	gap: 8px;
+	gap: 12px;
 	width: 100%;
-	flex-direction: column;
+	flex-direction: row;
 	align-items: center;
+	justify-content: space-between;
 }
-@media screen and (max-width: 500px) {
+/* Mobile Responsive Styles */
+@media screen and (max-width: 768px) {
 	.addOnsContainer {
 		width: 100%;
-		padding: 12px;
-		height: calc(100% - 120px);
+		height: calc(100vh - 140px);
+		max-height: calc(100vh - 140px);
+		padding: 16px;
 	}
 
 	.addOnsHeader {
-		padding: 12px;
+		padding: 16px;
 		height: auto;
-		min-height: 120px;
+		min-height: auto;
 		width: 100%;
+		border-radius: 16px 16px 0px 0px;
 
 		.subscriptionTypeContainer {
 			width: 100%;
 
 			.subscriptionTypeWrapper {
 				flex-direction: column;
-				gap: 12px;
+				gap: 16px;
 				width: 100%;
 
 				.subscriptionButtons {
@@ -1154,8 +1164,17 @@
 					.subscriptionType {
 						flex: 1;
 						text-align: center;
-						padding: 8px;
-						font-size: 12px;
+						padding: 12px 16px;
+						font-size: 14px;
+						border-radius: 12px;
+
+						&.subscription {
+							padding: 12px 16px;
+						}
+
+						&.addOns {
+							padding: 12px 16px;
+						}
 					}
 				}
 
@@ -1165,19 +1184,24 @@
 
 					.checkoutContainer {
 						width: 100%;
-						flex-direction: row;
-						gap: 8px;
+						flex-direction: column;
+						gap: 12px;
 						align-items: center;
-						padding: 8px;
+						padding: 12px;
+						border-radius: 12px;
+						background: var(--card-over-card-hover);
 
 						.total {
-							font-size: 12px;
+							font-size: 16px;
+							font-weight: 600;
 						}
 
 						.checkout {
-							width: auto;
-							padding: 8px 12px;
-							font-size: 12px;
+							width: 100%;
+							padding: 14px 24px;
+							font-size: 16px;
+							border-radius: 12px;
+							font-weight: 600;
 						}
 					}
 				}
@@ -1186,126 +1210,407 @@
 	}
 
 	.addOnsCardsContainer {
-		padding-top: 16px;
-		gap: 16px;
-		height: calc(100% - 60px);
+		padding: 16px 0;
+		gap: 20px;
+		height: calc(100% - 80px);
 		overflow-y: auto;
+		min-width: unset;
+		max-width: unset;
+		justify-content: center;
 
 		.addOnsCards {
 			width: 100%;
 			min-width: unset;
 			max-width: unset;
 			height: auto;
-			min-height: 260px;
+			min-height: 320px;
 			margin: 0;
+			padding: 20px;
+			border-radius: 16px;
+
+			.currentPlanBadge {
+				height: 100%;
+				width: 100%;
+				border-radius: 16px;
+
+				span {
+					font-size: 11px;
+					margin-top: 8px;
+				}
+			}
+
+			.addOnsCardsHeader {
+				gap: 12px;
+
+				.addOnPlanName {
+					font-size: 18px;
+					font-weight: 600;
+				}
+
+				.priceContainer {
+					gap: 6px;
+
+					.priceWrapper {
+						.currencySymbol,
+						.priceValue {
+							font-size: 20px;
+						}
+					}
+
+					.priceDuration {
+						font-size: 14px;
+					}
+				}
+
+				.addOnsStorageLimit {
+					font-size: 16px;
+
+					span {
+						font-size: 13px;
+					}
+				}
+			}
+
+			.pricingFeatures {
+				margin: 16px 0;
+
+				.feature-item {
+					gap: 10px;
+					margin-bottom: 8px;
+
+					.feature-check {
+						width: 16px;
+						height: 16px;
+						flex-shrink: 0;
+					}
+
+					.feature-text {
+						font-size: 13px;
+						line-height: 18px;
+					}
+				}
+			}
+
+			.addOnsButton {
+				height: 48px;
+				padding: 14px 20px;
+				font-size: 16px;
+				border-radius: 12px;
+				font-weight: 600;
+			}
+
+			.buttonContainer {
+				gap: 12px;
+				flex-direction: row;
+				width: 100%;
+				align-items: center;
+				justify-content: space-between;
+
+				.addOnsQuantityContainer {
+					height: 48px;
+					padding: 12px 16px;
+					border-radius: 12px;
+					gap: 24px;
+					flex: 1;
+					max-width: 180px;
+
+					.minussIcon {
+						padding: 8px 10px;
+						border-radius: 8px;
+					}
+
+					.countIndicators {
+						font-size: 16px;
+						font-weight: 600;
+					}
+				}
+
+				.userCount {
+					font-size: 14px;
+					font-weight: 600;
+					white-space: nowrap;
+					min-width: fit-content;
+				}
+			}
+
+			.scheduledDowngradeNotice {
+				gap: 12px;
+
+				.scheduledMessage {
+					font-size: 13px;
+					line-height: 18px;
+				}
+			}
 		}
 	}
 
 	.tabs-wrapper {
 		width: 100%;
-		height: 44px;
-		padding: 4px;
-		margin: 0;
+		height: 48px;
+		padding: 6px;
+		margin: 0 0 16px 0;
 		justify-content: center;
+		border-radius: 12px;
 
 		.addOnsTabsTime {
 			flex: 1;
 			text-align: center;
-			font-size: 11px;
-			padding: 6px 4px;
+			font-size: 13px;
+			padding: 8px 12px;
+			border-radius: 8px;
+			font-weight: 500;
+
+			&.active {
+				font-size: 13px;
+				padding: 8px 12px;
+				border-radius: 8px;
+			}
 		}
 	}
 
-	.planBillingContianer {
-		gap: 24px;
+	.seatBasedWarning {
+		font-size: 11px;
+		margin: 8px 0;
+		text-align: center;
+		line-height: 16px;
+	}
 
-		.planBillingTitle {
-			font-size: 24px;
-		}
-
-		.subscriptionDetailsComponent {
-			padding: 16px;
-
-			.subscriptionDiv {
-				.title {
-					width: 100%;
-				}
-
-				.planDetailsContainer {
-					width: 100%;
-					padding: 16px;
-				}
-			}
-		}
-
-		.subscriptionWrapperContainer {
-			.subscriptionUpdatedPlanCard {
-				.subscriptionPlanHeaderContainer {
-					padding: 16px;
-					flex-direction: column;
-					gap: 12px;
-					align-items: flex-start;
-				}
-
-				.subscriptionPlanContent {
-					padding: 16px;
-
-					.subscriptionPlanPricingDetails {
-						.subscriptionPlanPricing {
-							font-size: 32px;
-						}
-					}
-
-					.addOnContianer {
-						width: 100%;
-						height: auto;
-					}
-				}
-
-				.subscriptionActionContainer {
-					padding: 16px;
-					flex-direction: column;
-					align-items: stretch;
-					gap: 12px;
-
-					.manageSubscriptionButton {
-						width: 100%;
-					}
-				}
-			}
-
-			.updateSubscriptionPlanContainer {
-				.updatePlansCardHolder {
-					.updatePlansCardContainer {
-						flex: 1 1 100%;
-					}
-				}
-			}
-		}
-
-		.freePlanCardContainer {
-			padding: 24px;
-		}
+	.addOnsButtonContainer {
+		gap: 12px;
+		width: 100%;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
 	}
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 480px) {
 	.addOnsContainer {
-		width: 100%;
-		height: calc(100% - 120px);
+		height: calc(100vh - 120px);
+		max-height: calc(100vh - 120px);
 		padding: 12px;
 	}
 
 	.addOnsHeader {
-		width: 100%;
 		padding: 12px;
-		height: auto;
-		min-height: 120px;
+		min-height: auto;
+
+		.subscriptionTypeContainer {
+			.subscriptionTypeWrapper {
+				gap: 12px;
+
+				.subscriptionButtons {
+					gap: 6px;
+
+					.subscriptionType {
+						padding: 10px 12px;
+						font-size: 13px;
+					}
+				}
+
+				.priceCheckoutWrapper {
+					.checkoutContainer {
+						padding: 10px;
+
+						.total {
+							font-size: 14px;
+						}
+
+						.checkout {
+							padding: 12px 20px;
+							font-size: 14px;
+						}
+					}
+				}
+			}
+		}
 	}
 
 	.addOnsCardsContainer {
-		height: calc(100% - 60px);
-		padding: 12px;
+		padding: 12px 0;
+		gap: 16px;
+
+		.addOnsCards {
+			padding: 16px;
+			min-height: 280px;
+
+			.addOnsCardsHeader {
+				.addOnPlanName {
+					font-size: 16px;
+				}
+
+				.priceContainer {
+					.priceWrapper {
+						.currencySymbol,
+						.priceValue {
+							font-size: 18px;
+						}
+					}
+
+					.priceDuration {
+						font-size: 12px;
+					}
+				}
+			}
+
+			.pricingFeatures {
+				.feature-item {
+					.feature-text {
+						font-size: 12px;
+					}
+				}
+			}
+
+			.addOnsButton {
+				height: 44px;
+				padding: 12px 16px;
+				font-size: 14px;
+			}
+
+			.buttonContainer {
+				flex-direction: row;
+				align-items: center;
+				justify-content: space-between;
+
+				.addOnsQuantityContainer {
+					height: 44px;
+					padding: 10px 12px;
+					flex: 1;
+					max-width: 160px;
+
+					.countIndicators {
+						font-size: 14px;
+					}
+				}
+
+				.userCount {
+					white-space: nowrap;
+					min-width: fit-content;
+				}
+			}
+		}
+	}
+
+	.tabs-wrapper {
+		height: 44px;
+		padding: 4px;
+
+		.addOnsTabsTime {
+			font-size: 12px;
+			padding: 6px 8px;
+
+			&.active {
+				font-size: 12px;
+				padding: 6px 8px;
+			}
+		}
+	}
+}
+
+@media screen and (max-width: 360px) {
+	.addOnsContainer {
+		height: calc(100vh - 100px);
+		max-height: calc(100vh - 100px);
+		padding: 8px;
+	}
+
+	.addOnsHeader {
+		padding: 8px;
+
+		.subscriptionTypeContainer {
+			.subscriptionTypeWrapper {
+				gap: 8px;
+
+				.subscriptionButtons {
+					.subscriptionType {
+						padding: 8px 10px;
+						font-size: 12px;
+					}
+				}
+
+				.priceCheckoutWrapper {
+					.checkoutContainer {
+						padding: 8px;
+
+						.total {
+							font-size: 13px;
+						}
+
+						.checkout {
+							padding: 10px 16px;
+							font-size: 13px;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	.addOnsCardsContainer {
+		padding: 8px 0;
+		gap: 12px;
+
+		.addOnsCards {
+			padding: 12px;
+			min-height: 260px;
+
+			.addOnsCardsHeader {
+				.addOnPlanName {
+					font-size: 15px;
+				}
+
+				.priceContainer {
+					.priceWrapper {
+						.currencySymbol,
+						.priceValue {
+							font-size: 16px;
+						}
+					}
+				}
+			}
+
+			.addOnsButton {
+				height: 40px;
+				padding: 10px 12px;
+				font-size: 13px;
+			}
+
+			.buttonContainer {
+				flex-direction: row;
+				align-items: center;
+				justify-content: space-between;
+
+				.addOnsQuantityContainer {
+					height: 40px;
+					padding: 8px 10px;
+					flex: 1;
+					max-width: 140px;
+
+					.countIndicators {
+						font-size: 13px;
+					}
+				}
+
+				.userCount {
+					white-space: nowrap;
+					min-width: fit-content;
+				}
+			}
+		}
+	}
+
+	.tabs-wrapper {
+		height: 40px;
+
+		.addOnsTabsTime {
+			font-size: 11px;
+			padding: 5px 6px;
+
+			&.active {
+				font-size: 11px;
+				padding: 5px 6px;
+			}
+		}
 	}
 }
 
