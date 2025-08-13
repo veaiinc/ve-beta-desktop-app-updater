@@ -1,13 +1,13 @@
-import { memo, useMemo } from 'react';
+import { memo } from 'react';
 import s from '../../../../assets/scss/chat/chatComponents/browserTools.module.scss';
 
-const BrowserTools = ({ data = [] }) => {
-	const textMapper = {
-		get_all_tabs: 'Retreving all tabs',
-		go_back: 'Going back to previous page',
-		switch_tab: 'Switching to different tab',
-	};
+const textMapper = {
+	get_all_tabs: 'Retreving all tabs',
+	go_back: 'Going back to previous page',
+	switch_tab: 'Switching to different tab',
+};
 
+const BrowserTools = ({ data = [] }) => {
 	return (
 		<div className={s.browserTools}>
 			{data?.map((tool, index) => (
