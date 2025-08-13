@@ -885,10 +885,10 @@ const ChatBox = ({
 						if (payload?.files && payload.files?.length > 0) {
 							payload.files = [
 								...payload.files,
-								...recentFilesRef?.current?.map((ele) => ({
+								...(recentFilesRef?.current?.map((ele) => ({
 									id: ele?._id || ele?.fileId || null,
 									name: ele?.originalFileName || ele?.title || 'Untitled File',
-								})),
+								})) || []),
 							];
 						} else {
 							payload.files = recentFilesRef?.current?.map((ele) => ({
@@ -2233,7 +2233,6 @@ const ChatBox = ({
 																</Tooltip>
 															)}
 
-															{/* {!isPublicChat && ( */}
 															{isBuildEnbled &&
 																!isPublicChat &&
 																workspaceMode !== 'stable' && (
@@ -2314,7 +2313,6 @@ const ChatBox = ({
 																		</div>
 																	</Tooltip>
 																)}
-															{/* )} */}
 														</div>
 
 														{/* <Tooltip title={'Add Filters'}>
@@ -2457,6 +2455,7 @@ const ChatBox = ({
 																<AudioSvg />
 															</div>
 														)}  */}
+
 														<div
 															className={`click-btn ${
 																info?.chatQuery?.trim()?.length > 0
@@ -2485,7 +2484,6 @@ const ChatBox = ({
 																<VoiceAgentSvg />
 															)}
 														</div>
-
 														{/* Separate Speech-to-Text Button */}
 														<div
 															className={`click-btn speech-to-text-btn ${

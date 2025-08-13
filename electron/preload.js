@@ -55,4 +55,14 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	// Mouse event handling for click-through behavior
 	setIgnoreMouseEvents: (ignore) => ipcRenderer.invoke('set-ignore-mouse-events', ignore),
+	// Download progress listener
+	onDownloadProgress: (callback) => {
+		ipcRenderer.on('download-progress', (event, data) => {
+			callback(data);
+		});
+	},
+
+	removeDownloadProgressListener: () => {
+		ipcRenderer.removeAllListeners('download-progress');
+	},
 });

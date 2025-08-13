@@ -6,11 +6,14 @@ import NoteToolbar from './NoteToolbar';
 import SlashMenu from './SlashMenu';
 import { BlockNoteView } from '@blocknote/mantine';
 import { useCreateBlockNote } from '@blocknote/react';
-import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
+import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs } from '@blocknote/core';
 import { ImageBlock } from './ImageComponent';
 import { Database } from './Database';
+import { ActionInline } from './ActionComponent';
 import ObjectID from 'bson-objectid';
 import { isEqual } from 'lodash';
+import '../../../assets/scss/notes/editor.scss';
+import ActionsMenu from './ActionsMenu';
 
 export const EditorContext = createContext(null);
 
@@ -23,9 +26,12 @@ const Editor = ({
 	resetAiResponse,
 	noteId,
 	initialBlocks,
-	createBlock,
-	updateBlock,
-	deleteBlock,
+	createBlock = () => {},
+	updateBlock = () => {},
+	deleteBlock = () => {},
+	markdown = false,
+	customBlockData,
+	onMarkdownChange = () => {},
 }) => {
 	const pendingUpdatesRef = useRef(new Map());
 	const previousBlocksRef = useRef(new Map());
@@ -40,7 +46,12 @@ const Editor = ({
 			image: ImageBlock,
 			database: Database,
 		},
+		inlineContentSpecs: {
+			...defaultInlineContentSpecs,
+			action: ActionInline, // ✅ inline spec goes here
+		},
 	});
+
 	const editor = useCreateBlockNote({
 		schema,
 		tables: {
@@ -96,7 +107,20 @@ const Editor = ({
 				});
 				return; // Don't call onEditorUpdate for invalid changes
 			}
+			if (markdown) {
+				(async () => {
+					const markdown = await editor.blocksToMarkdownLossy(editor.document);
 
+					// Matches <tool key="some-key">...</tool> or <tool key='some-key'>...</tool>
+					const regex = /<tool\s+key=["']([^"']+)["']>.*?<\/tool>/g;
+
+					const fixedMarkdown = markdown.replace(regex, (match, key) => {
+						return `<${key}>`;
+					});
+
+					onMarkdownChange(fixedMarkdown);
+				})();
+			}
 			onEditorUpdate(currentBlocks);
 		});
 
@@ -105,11 +129,70 @@ const Editor = ({
 
 	useEffect(() => {
 		if (initialBlocks) {
-			const flatBlocks = flattenBlocksFromBackend(initialBlocks.data); // flatten nested tree
-			previousBlocksRef.current = new Map(flatBlocks.map((b) => [b.id, b]));
-			loadNotesContent(initialBlocks.data); // this can still use nested data if needed
+			(async () => {
+				let blocks = initialBlocks?.data;
+				if (markdown) {
+					const replaced = blocks
+						.replace(/\\n/g, '\n')
+						.replace(/<([^>]+)>/g, (_, inside) => {
+							// "inside" will be gmail-send-mail or notion-create-database
+							return `[[action#${inside}]]`;
+						});
+					blocks = injectCustomBlocks(await editor.tryParseMarkdownToBlocks(replaced));
+					// blocks = await editor.tryParseMarkdownToBlocks(replaced);
+				}
+				const flatBlocks = flattenBlocksFromBackend(blocks); // flatten nested tree
+				previousBlocksRef.current = new Map(flatBlocks.map((b) => [b.id, b]));
+				loadNotesContent(blocks); // this can still use nested data if needed
+			})();
 		}
 	}, [initialBlocks]);
+
+	function injectCustomBlocks(blocks) {
+		return blocks.map((block) => {
+			const newContent = [];
+
+			block.content.forEach((item) => {
+				if (typeof item.text === 'string') {
+					const regex = /\[\[action#([^\]]+)\]\]/g;
+					let lastIndex = 0;
+					let match;
+
+					while ((match = regex.exec(item.text)) !== null) {
+						// Add text before the match
+						if (match.index > lastIndex) {
+							newContent.push({
+								...item,
+								text: item.text.slice(lastIndex, match.index),
+							});
+						}
+
+						// Add our custom inline block
+						newContent.push({
+							type: 'action',
+							props: { action: match[1] },
+							content: [],
+						});
+
+						lastIndex = regex.lastIndex;
+					}
+
+					// Add remaining text after last match
+					if (lastIndex < item.text.length) {
+						newContent.push({ ...item, text: item.text.slice(lastIndex) });
+					}
+				} else {
+					// Non-text nodes get pushed as-is
+					newContent.push(item);
+				}
+			});
+
+			return {
+				...block,
+				content: newContent,
+			};
+		});
+	}
 
 	const flattenBlocksFromBackend = (blocks, parentId = null) => {
 		const flat = [];
@@ -475,7 +558,7 @@ const Editor = ({
 	};
 
 	return (
-		<EditorContext.Provider value={{ previousBlocksRef, pageId: noteId }}>
+		<EditorContext.Provider value={{ previousBlocksRef, pageId: noteId, customBlockData }}>
 			<BlockNoteView
 				editor={editor}
 				formattingToolbar={false}
@@ -493,6 +576,7 @@ const Editor = ({
 					/>
 				)}
 				<SlashMenu editor={editor} noteId={noteId} />
+				<ActionsMenu editor={editor} noteId={noteId} />
 			</BlockNoteView>
 		</EditorContext.Provider>
 	);

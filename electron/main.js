@@ -11,6 +11,24 @@ const archiver = require('archiver');
 const fs = require('fs');
 const { dialog } = require('electron');
 
+const http = require('http');
+const https = require('https');
+const { PassThrough } = require('stream');
+
+const sanitizeFilename = (name) => {
+	return (
+		name
+			.replace(/[^a-zA-Z0-9._\-]/g, '_')
+			.replace(/\s+/g, '_')
+			.substring(0, 200) || 'file.jpg'
+	);
+};
+// Add this near the top
+const keepAliveAgent = {
+	http: new http.Agent({ keepAlive: true, maxSockets: 100, maxFreeSockets: 50 }),
+	https: new https.Agent({ keepAlive: true, maxSockets: 100, maxFreeSockets: 50 }),
+};
+
 // Add watermark cache for image processing
 const watermarkCache = new Map();
 
@@ -82,16 +100,16 @@ class WindowHelper {
 		if (process.platform === 'darwin') {
 			// Use the highest window level for maximum visibility during desktop switching
 			this.overlayWindow.setAlwaysOnTop(true, 'floating');
-			
+
 			// Configure for all workspaces/desktops with fullscreen support
-			this.overlayWindow.setVisibleOnAllWorkspaces(true, { 
+			this.overlayWindow.setVisibleOnAllWorkspaces(true, {
 				visibleOnFullScreen: true,
-				skipTransformProcessType: true 
+				skipTransformProcessType: true,
 			});
-			
+
 			// Hide from Mission Control but keep visible during transitions
 			this.overlayWindow.setHiddenInMissionControl(true);
-			
+
 			// Start with click-through enabled - will be controlled dynamically
 			this.overlayWindow.setIgnoreMouseEvents(true, { forward: true });
 			this.overlayWindow.setMovable(true);
@@ -205,43 +223,43 @@ class WindowHelper {
 
 	showOverlayWindow() {
 		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) return;
-		
+
 		// Always position at center top when showing
 		const primaryDisplay = screen.getPrimaryDisplay();
 		const workArea = primaryDisplay.workAreaSize;
 		const centerX = Math.floor(workArea.width / 2) - Math.floor(this.windowSize.width / 2);
 		const topY = 30;
-		
+
 		this.overlayWindow.setBounds({
 			x: centerX,
 			y: topY,
 			width: this.windowSize.width,
 			height: this.windowSize.height,
 		});
-		
+
 		// Ensure window properties for all desktops/spaces on macOS
 		if (process.platform === 'darwin') {
 			this.overlayWindow.setAlwaysOnTop(true, 'floating');
-			this.overlayWindow.setVisibleOnAllWorkspaces(true, { 
+			this.overlayWindow.setVisibleOnAllWorkspaces(true, {
 				visibleOnFullScreen: true,
-				skipTransformProcessType: true 
+				skipTransformProcessType: true,
 			});
 		} else {
 			this.overlayWindow.setAlwaysOnTop(true, 'floating');
 		}
-		
+
 		// Update current position tracking
 		this.currentX = centerX;
 		this.currentY = topY;
 		this.windowPosition = { x: centerX, y: topY };
-		
+
 		// Show overlay and ensure main window is hidden
 		this.overlayWindow.show();
-		
+
 		if (this.mainWindow && !this.mainWindow.isDestroyed()) {
 			this.mainWindow.hide();
 		}
-		
+
 		this.isOverlayVisible = true;
 	}
 
@@ -259,11 +277,11 @@ class WindowHelper {
 		const workArea = screen.getPrimaryDisplay().workAreaSize;
 		const newWidth = Math.min(width + 32, Math.floor(workArea.width * 0.6));
 		const newHeight = Math.ceil(height + 16);
-		
+
 		// Keep window centered horizontally at top
 		const centerX = Math.floor(workArea.width / 2) - Math.floor(newWidth / 2);
 		const topY = 30;
-		
+
 		this.overlayWindow.setBounds({ x: centerX, y: topY, width: newWidth, height: newHeight });
 		this.windowPosition = { x: centerX, y: topY };
 		this.windowSize = { width: newWidth, height: newHeight };
@@ -303,7 +321,7 @@ class WindowHelper {
 
 	registerGlobalShortcuts(mainWindow) {
 		this.mainWindow = mainWindow;
-		
+
 		// Register Cmd+B to toggle overlay window
 		globalShortcut.register('CommandOrControl+B', () => {
 			log.info('Cmd+B pressed - toggling overlay window');
@@ -314,7 +332,7 @@ class WindowHelper {
 			}
 
 			const isOverlayVisible = this.isVisible();
-			
+
 			if (isOverlayVisible) {
 				// Hide overlay and show main window
 				this.hideOverlayWindow();
@@ -385,23 +403,7 @@ let template = [];
 // 	});
 // }
 
-const activeZips = new Map(); // Map<sessionId, { output, zip, size, filePath, zipsCreated[] }>
-
-function getActiveZip(sessionId) {
-	return activeZips.get(sessionId);
-}
-
-function setActiveZip(sessionId, data) {
-	activeZips.set(sessionId, data);
-}
-
-function removeActiveZip(sessionId) {
-	const session = activeZips.get(sessionId);
-	if (session && session.output && session.zip) {
-		session.zip.finalize(); // Try to close cleanly
-	}
-	activeZips.delete(sessionId);
-}
+const activeZips = new Map();
 
 function createWindow() {
 	mainWindow = new BrowserWindow({
@@ -557,7 +559,6 @@ ipcMain.handle('set-ignore-mouse-events', async (event, ignore) => {
 		return { success: false, error: error.message };
 	}
 });
-
 
 ipcMain.handle('check-for-updates', async () => {
 	log.info('Check for updates triggered by renderer'); // Log triggered update check
@@ -821,7 +822,18 @@ ipcMain.handle(
 						method: 'GET',
 						url: item.url,
 						responseType: 'stream',
-						timeout: 30000,
+						timeout: 60000, // Increased timeout for large files
+						maxContentLength: Infinity,
+						maxBodyLength: Infinity,
+						httpAgent: keepAliveAgent.http,
+						httpsAgent: keepAliveAgent.https,
+						headers: {
+							Accept: '*/*',
+							'Accept-Encoding': 'gzip, deflate, br',
+							Connection: 'keep-alive',
+							'User-Agent':
+								'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+						},
 					});
 
 					const fileSize = parseInt(res.headers['content-length'], 10) || 0;
@@ -863,142 +875,213 @@ ipcMain.handle(
 	},
 );
 
+const streamToPromise = (readable, writable) => {
+	return new Promise((resolve, reject) => {
+		readable.pipe(writable);
+		writable.on('finish', resolve);
+		writable.on('error', reject);
+		readable.on('error', reject);
+	});
+};
+
 ipcMain.handle(
 	'create-zip-from-urls',
 	async (
 		event,
-		{ items, folderName, maxZipSize = 3 * 1024 * 1024 * 1024, sessionId, isFinalBatch = false },
+		{
+			items,
+			folderName = 'Album',
+			maxZipSize = 3 * 1024 * 1024 * 1024,
+			sessionId,
+			parallelLimit = 50, // Increased from 20 to 50 for better performance
+		},
 	) => {
-		const sanitizeFilename = (filename) => {
-			return (
-				filename
-					.replace(/[^a-zA-Z0-9._\-]/g, '_')
-					.replace(/\s+/g, '_')
-					.substring(0, 200) || 'unknown.jpg'
-			);
-		};
+		const sanitize = (name) =>
+			name
+				.replace(/[^a-zA-Z0-9._\-]/g, '_')
+				.replace(/\s+/g, '_')
+				.substring(0, 200) || 'file.jpg';
 
-		const finalizeZip = (session) => {
-			return new Promise((resolve) => {
-				if (!session.output) return resolve();
-
-				session.output.on('close', () => {
-					resolve();
-				});
-
-				session.zip.on('error', (err) => {
-					console.error('Archiver error:', err);
-					resolve();
-				});
-
-				session.zip.finalize();
-			});
-		};
+		const tempDir = path.join(app.getPath('temp'), `album-download-${sessionId}`);
 
 		try {
-			let session = getActiveZip(sessionId);
-
-			// 🟢 First batch: initialize
-			if (!session) {
-				const { filePath } = await dialog.showSaveDialog({
-					title: `Save Original Images: ${folderName}`,
-					defaultPath: `${folderName}_1.zip`,
-					filters: [{ name: 'ZIP Files', extensions: ['zip'] }],
-					properties: ['createDirectory'],
-				});
-
-				if (!filePath) {
-					return { success: false, error: 'User cancelled' };
-				}
-
-				const output = fs.createWriteStream(filePath);
-				const zip = archiver('zip', { zlib: { level: 9 } });
-				zip.pipe(output);
-
-				session = {
-					output,
-					zip,
-					size: 0,
-					filePath,
-					zipsCreated: [path.basename(filePath)],
-					firstFilePath: filePath,
-				};
-				setActiveZip(sessionId, session);
+			if (!Array.isArray(items) || items.length === 0) {
+				return { success: false, error: 'No items to download' };
 			}
 
-			// Process each item
-			for (const item of items) {
-				const { url, filename } = item;
-				const safeName = sanitizeFilename(filename);
+			// Create temp directory
+			fs.mkdirSync(tempDir, { recursive: true });
+
+			const downloadedFiles = [];
+			const errors = [];
+			const total = items.length;
+
+			console.log(`Starting download of ${total} files to temp folder...`);
+
+			// --- PHASE 1: Download all to temp folder (truly parallel) ---
+			const startTime = Date.now();
+			let completedDownloads = 0;
+
+			// Create all download promises at once for maximum parallelism
+			const downloadPromises = items.map(async ({ url, filename }) => {
+				const safeName = sanitize(filename || 'unknown.jpg');
+				const filePath = path.join(tempDir, safeName);
 
 				if (!url) {
-					session.zip.append(`No URL provided`, { name: `ERROR_${safeName}.txt` });
-					continue;
+					fs.writeFileSync(path.join(tempDir, `ERROR_${safeName}.txt`), 'No URL');
+					errors.push({ file: safeName, error: 'No URL' });
+					return;
 				}
 
-				try {
-					const res = await axios({
-						method: 'GET',
-						url,
-						responseType: 'stream',
-						timeout: 30000,
-						headers: { 'User-Agent': 'Electron-Album-Downloader' },
-					});
+				const MAX_RETRIES = 3;
+				for (let retry = 0; retry < MAX_RETRIES; retry++) {
+					try {
+						const res = await axios({
+							method: 'GET',
+							url,
+							responseType: 'stream',
+							timeout: 60000, // Increased from 3000ms to 60 seconds for large files
+							maxContentLength: Infinity,
+							maxBodyLength: Infinity,
+							httpAgent: keepAliveAgent.http,
+							httpsAgent: keepAliveAgent.https,
+							headers: {
+								Accept: '*/*',
+								'Accept-Encoding': 'gzip, deflate, br',
+								Connection: 'keep-alive',
+								'User-Agent':
+									'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+							},
+						});
 
-					if (res.status !== 200) throw new Error(`HTTP ${res.status}`);
+						const writer = fs.createWriteStream(filePath);
+						await streamToPromise(res.data, writer);
 
-					const fileSize = parseInt(res.headers['content-length'], 10) || 0;
+						downloadedFiles.push({ path: filePath, name: safeName });
+						completedDownloads++;
 
-					// 🟡 Check if adding this file would exceed limit
-					if (fileSize > 0 && session.size + fileSize > maxZipSize) {
-						await finalizeZip(session);
+						// Calculate and send progress with speed info
+						const elapsed = (Date.now() - startTime) / 1000;
+						const speed = completedDownloads / elapsed;
+						const remaining = total - completedDownloads;
+						const eta = remaining / speed;
 
-						// 🔴 Start new ZIP
-						const newFilePath = session.firstFilePath.replace(
-							/(_\d+)?(\.zip)$/i,
-							`_${session.zipsCreated.length + 1}$2`,
-						);
-						const newOutput = fs.createWriteStream(newFilePath);
-						const newZip = archiver('zip', { zlib: { level: 9 } });
-						newZip.pipe(newOutput);
+						try {
+							event.sender.send('download-progress', {
+								sessionId,
+								current: completedDownloads,
+								total,
+								phase: 'download',
+								speed: Math.round(speed * 10) / 10,
+								eta: Math.round(eta),
+								elapsed: Math.round(elapsed),
+							});
+						} catch (e) {}
 
-						// Update session
-						session.output = newOutput;
-						session.zip = newZip;
-						session.size = 0;
-						session.filePath = newFilePath;
-						session.zipsCreated.push(path.basename(newFilePath));
+						return;
+					} catch (err) {
+						if (retry === MAX_RETRIES - 1) {
+							fs.writeFileSync(
+								path.join(tempDir, `ERROR_${safeName}.txt`),
+								`Download failed: ${err.message}`,
+							);
+							errors.push({ file: safeName, error: err.message });
+						} else {
+							// Exponential backoff: 2s, 4s, 8s
+							const delay = Math.min(2000 * Math.pow(2, retry), 8000);
+							await new Promise((r) => setTimeout(r, delay));
+						}
 					}
-
-					session.zip.append(res.data, { name: safeName });
-					session.size += fileSize;
-
-					await new Promise((resolve, reject) => {
-						res.data.on('end', resolve);
-						res.data.on('error', reject);
-					});
-				} catch (err) {
-					session.zip.append(`Error: ${err.message}`, { name: `ERROR_${safeName}.txt` });
 				}
+			});
+
+			// Process downloads in chunks to control concurrency
+			const chunkSize = parallelLimit;
+			for (let i = 0; i < downloadPromises.length; i += chunkSize) {
+				const chunk = downloadPromises.slice(i, i + chunkSize);
+				await Promise.all(chunk);
 			}
 
-			// 🟢 Final batch: finalize
-			if (isFinalBatch) {
-				await finalizeZip(session);
-				removeActiveZip(sessionId);
+			if (downloadedFiles.length === 0) {
+				fs.rmSync(tempDir, { recursive: true, force: true });
+				return { success: false, error: 'All downloads failed' };
 			}
 
-			return {
-				success: true,
-				zips: session.zipsCreated,
+			// --- PHASE 2: Show save dialog ---
+			const { filePath: baseZipPath } = await dialog.showSaveDialog({
+				browserWindow: BrowserWindow.getFocusedWindow() || null,
+				title: `Save Album: ${folderName}`,
+				defaultPath: `${folderName}_1.zip`,
+				filters: [{ name: 'ZIP Files', extensions: ['zip'] }],
+				properties: ['createDirectory'],
+			});
+
+			if (!baseZipPath) {
+				fs.rmSync(tempDir, { recursive: true, force: true });
+				return { success: false, error: 'User cancelled' };
+			}
+
+			// --- PHASE 3: Create ZIP from local files ---
+			const zipsCreated = [];
+			let currentSize = 0;
+			let zipIndex = 0;
+			let archive, output;
+
+			const startNewArchive = () => {
+				if (archive) archive.finalize();
+				zipIndex++;
+				const zipPath = baseZipPath.replace(/(_\d+)?\.zip$/i, `_${zipIndex}.zip`);
+				output = fs.createWriteStream(zipPath);
+				archive = archiver('zip', { zlib: { level: 0 }, forceZip64: true });
+				archive.pipe(output);
+				currentSize = 0;
+				zipsCreated.push(path.basename(zipPath));
 			};
-		} catch (error) {
-			console.error('ZIP error:', error);
-			removeActiveZip(sessionId);
-			return {
-				success: false,
-				error: error.message,
-			};
+
+			startNewArchive();
+
+			for (const { path: filePath, name } of downloadedFiles) {
+				const stats = fs.statSync(filePath);
+				const fileSize = stats.size;
+
+				if (currentSize > 0 && currentSize + fileSize > maxZipSize) {
+					await new Promise((resolve, reject) => {
+						archive.finalize();
+						output.on('close', resolve);
+						output.on('error', reject);
+					});
+					startNewArchive();
+				}
+
+				archive.file(filePath, { name });
+				currentSize += fileSize;
+			}
+
+			// Finalize last ZIP
+			await new Promise((resolve, reject) => {
+				archive.finalize();
+				output.on('close', resolve);
+				output.on('error', reject);
+			});
+
+			// Cleanup temp folder
+			fs.rmSync(tempDir, { recursive: true, force: true });
+
+			// Send final progress
+			try {
+				event.sender.send('download-progress', {
+					sessionId,
+					current: total,
+					total,
+					phase: 'complete',
+					zips: zipsCreated,
+				});
+			} catch (e) {}
+
+			return { success: true, zips: zipsCreated };
+		} catch (err) {
+			console.error('Failed:', err);
+			return { success: false, error: err.message };
 		}
 	},
 );

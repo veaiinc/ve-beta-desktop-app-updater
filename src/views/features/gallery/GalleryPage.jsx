@@ -3823,95 +3823,129 @@ const GalleryPage = () => {
 		const galleryId = activeGallery?._id;
 
 		if (info?.isDownloading) return;
-
 		if (!galleryId) {
 			showMessage('error', 'Gallery not found');
 			return;
 		}
-		setInfo((prev) => ({
-			...prev,
-			isDownloading: true,
-		}));
+
+		setInfo((prev) => ({ ...prev, isDownloading: true }));
+
 		let allImageIds = [];
 
-		try {
-			// Fetch all image IDs (same as before)
-			let page = 1;
-			const limit = 40;
-			while (true) {
-				const response = await getGalleryImages(
-					galleryId,
-					activeAlbumId,
-					albumTagId,
-					page,
-					limit,
-					'',
-					true,
-				);
-				if (response?.[0] === true && Array.isArray(response[1]?.docs)) {
-					const ids = response[1].docs.map((img) => img._id);
-					allImageIds.push(...ids);
-					if (!response[1].hasNextPage) break;
-					page++;
-				} else {
-					throw new Error('Failed to load images');
-				}
-			}
-
-			if (allImageIds.length === 0) {
-				showMessage('warning', 'No images in album');
+		// Fetch all image IDs
+		let page = 1;
+		const limit = 40;
+		while (true) {
+			const response = await getGalleryImages(
+				galleryId,
+				activeAlbumId,
+				albumTagId,
+				page,
+				limit,
+				'',
+				true,
+			);
+			if (response?.[0] === true && Array.isArray(response[1]?.docs)) {
+				allImageIds.push(...response[1].docs.map((img) => img._id));
+				if (!response[1].hasNextPage) break;
+				page++;
+			} else {
+				showMessage('error', 'Failed to load images');
+				setInfo((prev) => ({ ...prev, isDownloading: false }));
 				return;
 			}
+		}
 
-			const batchSize = 10;
-			const folderName = `${albumName || 'Album'}_original`;
-			const maxZipSize = 3 * 1024 * 1024 * 1024;
-			const sessionId = `album-${activeAlbumId}-${Date.now()}`; // Unique session
-			let zipsCreated = [];
+		if (allImageIds.length === 0) {
+			showMessage('warning', 'No images in album');
+			setInfo((prev) => ({ ...prev, isDownloading: false }));
+			return;
+		}
 
-			showMessage('loading', `Processing ${allImageIds.length} images...`);
+		// Fetch signed URLs
+		showMessage('loading', 'Fetching download links...');
 
+		const batchSize = 10;
+		let allItems = [];
+
+		try {
+			const fetchPromises = [];
 			for (let i = 0; i < allImageIds.length; i += batchSize) {
-				const isLastBatch = i + batchSize >= allImageIds.length;
+				fetchPromises.push(
+					(async () => {
+						const batchIds = allImageIds.slice(i, i + batchSize);
+						const payload = { image_ids: batchIds, imageType: 'original' };
+						try {
+							const result = await getSignedUrlsForImages(payload, galleryId);
+							if (Array.isArray(result)) {
+								allItems.push(
+									...result.map((item) => ({
+										url: item.url,
+										filename: item.filename || `${item.imageId}.jpg`,
+									})),
+								);
+							}
+						} catch (err) {
+							console.error('Failed to get signed URLs:', err);
+						}
+					})(),
+				);
+			}
+			await Promise.all(fetchPromises);
+		} catch (err) {
+			showMessage('error', 'Failed to fetch download links');
+			setInfo((prev) => ({ ...prev, isDownloading: false }));
+			return;
+		}
 
-				const batchIds = allImageIds.slice(i, i + batchSize);
-				let items;
+		if (allItems.length === 0) {
+			showMessage('error', 'No images to download');
+			setInfo((prev) => ({ ...prev, isDownloading: false }));
+			return;
+		}
 
-				// Get signed URLs
-				try {
-					const payload = { image_ids: batchIds, imageType: 'original' };
-					items = await getSignedUrlsForImages(payload, galleryId);
-					if (!Array.isArray(items)) throw new Error('Invalid response');
-				} catch (err) {
-					console.error(`Failed to get URLs for batch ${i}:`, err);
-					continue;
-				}
+		// Generate unique session ID
+		const sessionId = `album-${activeAlbumId}-${Date.now()}-${Math.random()
+			.toString(36)
+			.substr(2, 6)}`;
+		const folderName = `${albumName || 'Album'}_original`;
+		const maxZipSize = 3 * 1024 * 1024 * 1024;
 
-				if (items.length === 0) continue;
+		showMessage('loading', `Downloading ${allItems.length} originals...`);
 
-				// Send to Electron (reuse same ZIP)
-				const result = await window.electronApi.createZipFromUrls({
-					items,
-					folderName,
-					maxZipSize,
-					sessionId,
-					isFinalBatch: isLastBatch,
-				});
-
-				if (result.success) {
-					if (isLastBatch) zipsCreated = result.zips;
-				} else {
-					console.error('Batch failed:', result.error);
+		// Set up progress listener (silent - no toast notifications)
+		const progressListener = (data) => {
+			if (data.sessionId === sessionId) {
+				// Progress updates are handled silently - no toast notifications
+				// Only show completion message
+				if (data.phase === 'complete') {
+					showMessage('success', `Download completed! Files: ${data.zips?.join(', ')}`);
 				}
 			}
+		};
 
-			if (zipsCreated.length > 0) {
-				showMessage('success', `Created: ${zipsCreated.join(', ')}`);
+		window.electronApi.onDownloadProgress(progressListener);
+
+		try {
+			const result = await window.electronApi.createZipFromUrls({
+				items: allItems,
+				folderName,
+				maxZipSize,
+				sessionId,
+				parallelLimit: 50, // Increased from 20 to 50 for better performance
+			});
+
+			if (result.success && result.zips?.length > 0) {
+				showMessage('success', `Downloaded: ${result.zips.join(', ')}`);
+			} else {
+				showMessage('error', result.error || 'Download failed');
 			}
 		} catch (err) {
-			console.error('Download failed:', err);
-			showMessage('error', err.message);
+			console.error('IPC call failed:', err);
+			showMessage('error', 'Download failed: ' + err.message);
 		} finally {
+			// Clean up progress listener
+			window.electronApi.removeDownloadProgressListener();
 			setInfo((prev) => ({ ...prev, isDownloading: false }));
 		}
 	};
