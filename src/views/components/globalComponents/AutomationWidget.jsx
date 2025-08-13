@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import { message } from '../globalComponents/CustomToast';
 import AutomationLoaderModal from '../modalsV2/automationBuilder/AutomationLoaderModal';
+import { accessControlCheck } from '../../../helpers/accessControlCheck';
 
 const statusColors = {
 	published: 'var(--success)',

@@ -6,6 +6,8 @@ import { FetchMoreLoaderComp } from '../../../../../helpers';
 import moment from 'moment';
 import { ReactComponent as NotificationsSvg } from '../../assets/notification.svg';
 import DownCaret from '../../assets/DownCaret';
+import { ReactComponent as BackIcon } from '../../../../../assets/svg/mobile/back.svg';
+import { ReactComponent as CloseIcon } from '../../../../../assets/svg/mobile/close.svg';
 
 const ellipsisStyle = {
 	overflow: 'hidden',
@@ -13,7 +15,7 @@ const ellipsisStyle = {
 	whiteSpace: 'nowrap',
 };
 
-const Notifications = () => {
+const Notifications = ({ onClose }) => {
 	const {
 		templates: { getNotificationsList, notificationsList },
 	} = useContext(Context);
@@ -22,6 +24,20 @@ const Notifications = () => {
 		selectedNotificationId: null,
 		showCaret: null,
 	});
+	const [isMobileView, setIsMobileView] = useState(false);
+
+	useEffect(() => {
+		const query = window.matchMedia('(max-width: 768px)');
+		const update = () => setIsMobileView(query.matches);
+		update();
+		try {
+			query.addEventListener('change', update);
+			return () => query.removeEventListener('change', update);
+		} catch (e) {
+			query.addListener(update);
+			return () => query.removeListener(update);
+		}
+	}, []);
 
 	const notificationsLoading = notificationsList === null;
 	const notifications = notificationsList?.data ?? [];
@@ -41,11 +57,28 @@ const Notifications = () => {
 		});
 	};
 
+	const handleClose = () => {
+		if (onClose) return onClose();
+		try {
+			document.body.click();
+		} catch (e) {}
+	};
+
 	return (
 		<div className={s.notificationsContainer}>
 			<header className={s.notificationsHeader}>
-				<NotificationsSvg />
-				<h2 className={s.title}>Notifications</h2>
+				{/* Mobile-only back button */}
+				<button className={s.mobileIconButton} aria-label="Back" onClick={handleClose}>
+					<BackIcon />
+				</button>
+				<div className={s.headerCenter}>
+					<NotificationsSvg />
+					<h2 className={s.title}>Notifications</h2>
+				</div>
+				{/* Mobile-only close button */}
+				<button className={s.mobileIconButton} aria-label="Close" onClick={handleClose}>
+					<CloseIcon />
+				</button>
 			</header>
 			{notificationsLoading ? (
 				<p className={s.loadingText}>Loading...</p>
@@ -57,7 +90,7 @@ const Notifications = () => {
 					next={fetchNextNotificationsList}
 					hasMore={hasNextPage}
 					loader={<FetchMoreLoaderComp />}
-					height={'340px'}
+					height={isMobileView ? '100vh' : '340px'}
 				>
 					<div className={s.notificationsList}>
 						{notifications.map((notification) => {

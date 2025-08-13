@@ -103,10 +103,10 @@ const betaRoutes = [
 	// AI & ASSISTANT FEATURES
 	// ========================================
 	{
-		path: '/ambient-ai',
+		path: '/priority',
 		element: (
 			<AuthWrapper
-				title={'Ambient AI'}
+				title={'Priority'}
 				outerContainerStyle={{ overflow: 'hidden' }}
 				childrenContainerStyles={{ overflow: 'auto' }}
 				showBottomToolbar={false}
@@ -238,7 +238,13 @@ const betaRoutes = [
 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 				maxWidth="100%"
 			>
-				<RecentChat showChatHistory={true} showDeleteChat={true} showChats={true} />
+				<RecentChat
+					showChatHistory={true}
+					showDeleteChat={true}
+					showChats={true}
+					showCitationsButton={true}
+					showBrowser={true}
+				/>
 			</AuthWrapper>
 		),
 	},

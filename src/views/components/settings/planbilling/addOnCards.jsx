@@ -8,6 +8,8 @@ import ReactModal from '../../modalsV2';
 import { message } from '../../globalComponents/CustomToast';
 import SubscriptionChange from '../../modalsV2/subscription/SubscriptionChange';
 import '../../../../assets/scss/settings/planBilling.scss';
+import pricingPlansData from '../../../../../src/data/pricingPlans.json';
+import { ReactComponent as CheckIcon } from '../../../../assets/svg/Settings/PricingCheck.svg';
 
 const customStyles = {
 	content: { zIndex: 1003 },
@@ -163,7 +165,10 @@ const AddOnPlans = ({
 			totalPrice: 0,
 		}));
 	};
-
+	const getPlanFeatures = (planName) => {
+		const planKey = planName?.toLowerCase();
+		return pricingPlansData.plans[planKey]?.features || pricingPlansData.commonFeatures;
+	};
 	const handleCheckout = async () => {
 		if (info?.checkoutLoader) return;
 		if (info?.subscriptionState === 'upgradeSubscription' && info.addOns.length > 0) {
@@ -558,7 +563,7 @@ const AddOnPlans = ({
 										currentPlan?.renewalType === 'Yearly') ||
 									(info.selectedPeriod === 'Monthly' &&
 										currentPlan?.renewalType === 'monthly');
-
+								const planFeatures = getPlanFeatures(plan?.plan);
 								return (
 									<div className="addOnsCards" key={planId}>
 										{/* A) "Currently Active" badge */}
@@ -634,6 +639,16 @@ const AddOnPlans = ({
 													)}
 												</>
 											)}
+										</div>
+										<div className="pricingFeatures">
+											{planFeatures.map((feature, index) => (
+												<div className="feature-item" key={index}>
+													<div className="feature-check">
+														<CheckIcon />
+													</div>
+													<span className="feature-text">{feature}</span>
+												</div>
+											))}
 										</div>
 
 										{info?.subscriptionState === 'upgradeSubscription' &&

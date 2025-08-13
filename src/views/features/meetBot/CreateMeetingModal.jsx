@@ -15,6 +15,7 @@ import { ReactComponent as MeetIcon } from './micromeet.svg';
 import { ReactComponent as CameraIcon } from './cameraIcon.svg';
 import GuideMePopup from './guideMePopup';
 import CreateModalPreferences from './CreateModalPreferences';
+import { message } from '../../components/globalComponents/CustomToast';
 
 const meetingModeOptions = [
 	{ value: 'sales', label: 'Sales Mode' },
@@ -70,7 +71,10 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 		};
 
 		if (formData.selectedMode === 'meeting_bot') {
-			if (!isValidUrl(formData.meetingUrl)) return;
+			if (!isValidUrl(formData.meetingUrl)) {
+				message.error('Invalid meeting link');
+				return;
+			}
 			input.meetingLink = formData.meetingUrl;
 		}
 
@@ -78,6 +82,13 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 
 		try {
 			const response = await createMeetBot({ input });
+
+			const isSuccess = response?.[0];
+			if (!isSuccess) {
+				message.error('Invalid meeting link');
+				return; // Do not close modal
+			}
+
 			const meetingId = response?.[1]?.data?.startMeeting?._id;
 			const type = response?.[1]?.data?.startMeeting?.transcriptionSource;
 
@@ -85,9 +96,11 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 				navigate(
 					`/meet/${meetingId}?type=${type}&isAiIntelligenceEnabled=${formData.isAiIntelligenceEnabled}`,
 				);
+				handleClose();
+				return;
 			}
 
-			handleClose();
+			message.error('Invalid meeting link');
 		} finally {
 			setFormData((prev) => ({ ...prev, creating: false }));
 		}

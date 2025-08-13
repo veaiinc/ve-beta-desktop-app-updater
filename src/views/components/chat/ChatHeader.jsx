@@ -5,20 +5,22 @@ import { ReactComponent as DeleteSvg } from '../../../assets/svg/delete.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 import { ReactComponent as StarSvg } from '../../../assets/svg/home_page/star.svg';
-import { ReactComponent as CardsThreeSvg } from '../../../assets/svg/chat/cardsThree.svg';
+import { ReactComponent as CloseIcon } from '../../../assets/svg/mobile/close.svg';
+import { ReactComponent as ChevronDownSvg } from '../../../assets/svg/ai_assistant/chevron-down.svg';
+
 import { Tooltip } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import jwtDecode from 'jwt-decode';
 import { message } from '../globalComponents/CustomToast';
 import DeleteModal from '../modalsV2/DeleteModal/DeleteModal';
+import ChatHistory from '../sidebar/chatHistory/ChatHistory';
 
 const ChatHeader = ({
 	sessionId,
 	isNewChat = false,
 	smoothScrollToParticularMessage = null,
-	showDeleteChat = false,
-	showChats = false,
+	showDeleteChat = true,
 }) => {
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -39,9 +41,26 @@ const ChatHeader = ({
 		isFavourite: false,
 		userId: null,
 		deleteModal: { open: false },
+		mobileHistoryOpen: false,
+		isMobileView: false,
 	});
 	const deleteChatSessionLoadingRef = useRef(false);
 
+	// Mobile viewport detection
+	useEffect(() => {
+		const query = window.matchMedia('(max-width: 768px)');
+		const update = () => setInfo((prev) => ({ ...prev, isMobileView: query.matches }));
+		update();
+		try {
+			query.addEventListener('change', update);
+			return () => query.removeEventListener('change', update);
+		} catch (e) {
+			query.addListener(update);
+			return () => query.removeListener(update);
+		}
+	}, []);
+
+	// Extract user messages for desktop dropdown
 	useEffect(() => {
 		const messages = globalChatMessages?.[sessionId]?.messages || [];
 		const userMessages = [];
@@ -190,10 +209,6 @@ const ChatHeader = ({
 					favorites,
 				};
 			}
-			setInfo((prev) => ({
-				...prev,
-				isFavourite,
-			}));
 			updateStateValues({
 				aiChatSessions: {
 					...(aiChatSessions || {}),
@@ -214,9 +229,14 @@ const ChatHeader = ({
 		globalChatMessages,
 	]);
 
-	const handleChatsClick = useCallback(() => {
-		navigate('/chats');
-	}, []);
+	const toggleMobileHistory = () => {
+		setInfo((prev) => ({ ...prev, mobileHistoryOpen: !prev.mobileHistoryOpen }));
+	};
+
+	// Get current chat title
+	const getCurrentChatTitle = () => {
+		return currentChatData?.title || info?.userMessages?.[0]?.message || 'New Chat';
+	};
 
 	return (
 		<div className={s.wrapper}>
@@ -225,8 +245,9 @@ const ChatHeader = ({
 					info?.chatDropdownExpanded ? `${s.expanded} expanded` : ''
 				}`}
 			>
-				<div className={`${s.headerInfo} headerInfo`} onMouseLeave={handleMouseLeave}>
-					{info?.userMessages?.length > 3 && (
+				<div className={`${s.headerInfo} headerInfo`}>
+					{/* Desktop: Question dropdown */}
+					{!info?.isMobileView && info?.userMessages?.length > 3 && (
 						<div
 							className={`${s.nonActiveQuestionsContainer} nonActiveQuestionsContainer`}
 						>
@@ -248,11 +269,9 @@ const ChatHeader = ({
 							)}
 						</div>
 					)}
-					<div
-						className={s.leftContainer}
-						onMouseEnter={info?.userMessages?.length > 3 ? handleMouseEnter : undefined}
-					>
-						{info?.userMessages?.length > 3 && (
+
+					<div className={s.leftContainer}>
+						{!info?.isMobileView && info?.userMessages?.length > 3 && (
 							<div
 								className={`${s.questionWrapper} ${
 									info?.chatDropdownExpanded ? s.expanded : ''
@@ -279,19 +298,18 @@ const ChatHeader = ({
 					</div>
 
 					<div className={s.rightContainer}>
-						{showChats && (
-							<Tooltip
-								title={<div className={s.tooltip}>Chats</div>}
-								placement="bottom"
-								color="transparent"
-								arrow={false}
+						{/* Mobile: Chat title with dropdown */}
+						{info?.isMobileView && (
+							<div
+								className={s.mobileHeaderTitleContainer}
+								onClick={toggleMobileHistory}
 							>
-								<button className={s.chatsBtn} onClick={handleChatsClick}>
-									<CardsThreeSvg />
-								</button>
-							</Tooltip>
+								<span className={s.mobileHeaderTitle}>{getCurrentChatTitle()}</span>
+								<ChevronDownSvg width={12} height={12} />
+							</div>
 						)}
 
+						{/* Action buttons */}
 						{!isNewChat && (
 							<>
 								<Tooltip
@@ -335,11 +353,35 @@ const ChatHeader = ({
 					</div>
 				</div>
 			</div>
+
+			{/* Desktop overlay */}
 			{info?.chatDropdownExpanded && (
 				<div
 					className={s.overlay}
 					onClick={() => setInfo((prev) => ({ ...prev, chatDropdownExpanded: false }))}
 				/>
+			)}
+
+			{/* Mobile History Overlay */}
+			{info?.mobileHistoryOpen && info?.isMobileView && (
+				<div className={s.mobileHistoryOverlay}>
+					<div className={s.mobileHistoryHeader}>
+						<div className={s.mobileHistoryTitleContainer}>
+							<span className={s.mobileHistoryTitle}>{getCurrentChatTitle()}</span>
+							<ChevronDownSvg width={12} height={12} />
+						</div>
+						<button
+							className={s.mobileHistoryCloseBtn}
+							onClick={toggleMobileHistory}
+							aria-label="Close"
+						>
+							<CloseIcon />
+						</button>
+					</div>
+					<div className={s.mobileHistoryContent}>
+						<ChatHistory onChatSelect={toggleMobileHistory} />
+					</div>
+				</div>
 			)}
 
 			{/* Delete Chat Modal */}

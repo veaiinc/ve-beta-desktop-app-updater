@@ -18,17 +18,19 @@ const PricingPage = () => {
 			subscriptionPlans,
 			getAllSubscriptionPlan,
 			purchaseSubscriptionPlan,
+			updateBaseSubscription,
 		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		billing: 'anually',
-		tenantUsersCount: {}, // Object to store user counts by planId for seat-based plans
+		tenantUsersCount: {},
 		planLoading: false,
 		trailLoading: false,
 		selectedPlanId: null,
 		isTrialSelected: false,
 		isLoading: true,
+		subscriptionType: 'normal',
 	});
 
 	useEffect(() => {
@@ -40,7 +42,7 @@ const PricingPage = () => {
 		}
 	}, [subscriptionPlans]);
 
-	// Fallback plans if backend doesn't provide any
+	// Fallback plans
 	const fallbackPlans = [
 		{
 			_id: 'plus-fallback',
@@ -68,14 +70,11 @@ const PricingPage = () => {
 		},
 	];
 
-	// Combine backend plans with Enterprise plan
+	// Combine backend plans with Enterprise
 	const getPlansToShow = () => {
 		if (subscriptionPlans?.length > 0) {
-			// Check if Enterprise plan already exists in backend plans
 			const hasEnterprise = subscriptionPlans.some((plan) => plan.plan === 'Enterprise');
-
 			if (!hasEnterprise) {
-				// Add Enterprise plan to backend plans
 				const enterprisePlan = {
 					_id: 'enterprise-backend',
 					plan: 'Enterprise',
@@ -93,18 +92,18 @@ const PricingPage = () => {
 
 	const plansToShow = getPlansToShow();
 
-	// Get plan features from JSON data
+	// Get features and config
 	const getPlanFeatures = (planName) => {
 		const planKey = planName?.toLowerCase();
 		return pricingPlansData.plans[planKey]?.features || pricingPlansData.commonFeatures;
 	};
 
-	// Get plan config from JSON data
 	const getPlanConfig = (planName) => {
 		const planKey = planName?.toLowerCase();
 		return pricingPlansData.plans[planKey] || {};
 	};
 
+	// Quantity controls
 	const increaseTenantUsersCount = (planId) => {
 		setInfo((prev) => ({
 			...prev,
@@ -131,6 +130,7 @@ const PricingPage = () => {
 		}));
 	};
 
+	// Purchase handlers
 	const handleBuySubscriptionPlan = async (plan) => {
 		if (info.planLoading) return;
 		setInfo((prev) => ({ ...prev, planLoading: true }));
@@ -169,7 +169,7 @@ const PricingPage = () => {
 		const payload = {
 			plan: {
 				planId: plan?._id,
-				quantity: currentPlan?.isSeatBasedPlan
+				quantity: plan?.isSeatBasedPlan
 					? info.tenantUsersCount[plan._id] || currentPlan?.tenantUsers || 1
 					: 1,
 				recurringType: info.billing === 'anually' ? 'yearly' : 'monthly',
@@ -196,23 +196,50 @@ const PricingPage = () => {
 		}
 	};
 
-	const handleSelectPlan = (planId) => {
-		setInfo((prev) => ({ ...prev, selectedPlanId: planId, isTrialSelected: false }));
+	const handleSelectPlan = (planId, type = 'normal') => {
+		const initialCount = currentPlan?.tenantUsers || 1;
+
+		setInfo((prev) => ({
+			...prev,
+			selectedPlanId: planId,
+			isTrialSelected: false,
+			tenantUsersCount: {
+				...prev.tenantUsersCount,
+				[planId]: prev.tenantUsersCount[planId] || initialCount, // Only set if not already set
+			},
+			subscriptionType: type,
+		}));
 	};
 
 	const handleSelectTrial = (planId) => {
 		setInfo((prev) => ({ ...prev, selectedPlanId: planId, isTrialSelected: true }));
 	};
 
+	const handleUpdateSubscription = async (plan) => {
+		if (info?.planLoading) return;
+		setInfo((prev) => ({
+			...prev,
+			planLoading: true,
+		}));
+		const payload = {
+			plan: {
+				planId: plan?._id,
+				quantity: plan?.isSeatBasedPlan
+					? info.tenantUsersCount[plan._id] || currentPlan?.tenantUsers || 1
+					: 1,
+				recurringType: info?.billing === 'monthly' ? 'monthly' : 'yearly',
+			},
+		};
+		const response = await updateBaseSubscription(payload);
+	};
+	// Find current plan details
+	const currentPlanDetails = subscriptionPlans?.find((p) => p._id === currentPlan?.currentPlanId);
 	return (
 		<div className="pricing-page" id="pricing-page-scroll">
 			<div className="pricing-header">
 				<div className="pricing-header-title">
 					Choose <span style={{ color: 'var(--primary-button)' }}>Your Plan</span>
 				</div>
-				{/* <div className="pricing-header-description">
-					Select seats, pick billing cycle, then secure checkout in the next step.
-				</div> */}
 			</div>
 
 			<div className="pricing-toggle-container">
@@ -226,17 +253,12 @@ const PricingPage = () => {
 							onClick={() => {
 								const newBilling =
 									info.billing === 'monthly' ? 'anually' : 'monthly';
-								setInfo((prev) => ({
-									...prev,
-									billing: newBilling,
-								}));
-
-								// Show toast message
-								if (newBilling === 'anually') {
-									message.success('Switched to yearly billing');
-								} else {
-									message.success('Switched to monthly billing');
-								}
+								setInfo((prev) => ({ ...prev, billing: newBilling }));
+								message.success(
+									newBilling === 'anually'
+										? 'Switched to yearly billing'
+										: 'Switched to monthly billing',
+								);
 							}}
 						>
 							<div className="toggle-slider"></div>
@@ -246,16 +268,139 @@ const PricingPage = () => {
 
 				<div className="pricing-cards">
 					{info.isLoading ? (
-						<>
-							<div className="eachPricingCard">
-								<Skeleton height={450} />
-							</div>
-						</>
+						<div className="eachPricingCard">
+							<Skeleton height={450} />
+						</div>
 					) : (
-						plansToShow?.map((plan) => {
+						plansToShow.map((plan) => {
 							const planConfig = getPlanConfig(plan?.plan);
 							const planFeatures = getPlanFeatures(plan?.plan);
 							const isEnterprise = plan?.plan === 'Enterprise';
+
+							// Helper to render the correct action button
+							const renderActionButton = () => {
+								// Case 1: No current plan → show "Get X"
+								if (!currentPlan || !currentPlanDetails) {
+									return (
+										<button
+											className="pricingButton primary"
+											onClick={() =>
+												isEnterprise
+													? window.open(CONTACT_US_URL, '_blank')
+													: plan.isSeatBasedPlan
+													? handleSelectPlan(plan._id)
+													: handleBuySubscriptionPlan(plan)
+											}
+										>
+											Get {plan.plan}
+										</button>
+									);
+								}
+
+								// Case 2: This is the current plan
+								if (plan._id === currentPlan?.currentPlanId) {
+									return (
+										<button
+											className="pricingButton secondary"
+											disabled
+											style={{ cursor: 'default' }}
+										>
+											Current Plan
+										</button>
+									);
+								}
+
+								// Case 3: Enterprise or Custom pricing
+								if (
+									isEnterprise ||
+									currentPlanDetails.monthlyPrice === 'Custom' ||
+									plan.monthlyPrice === 'Custom'
+								) {
+									return (
+										<button
+											className="pricingButton primary"
+											onClick={() => window.open(CONTACT_US_URL, '_blank')}
+										>
+											Contact Sales
+										</button>
+									);
+								}
+
+								// Pick correct price based on billing
+								const currentPrice =
+									info.billing === 'monthly'
+										? currentPlanDetails.monthlyPrice
+										: currentPlanDetails.yearlyPrice;
+
+								const otherPlanPrice =
+									info.billing === 'monthly'
+										? plan.monthlyPrice
+										: plan.yearlyPrice;
+
+								if (
+									typeof currentPrice !== 'number' ||
+									typeof otherPlanPrice !== 'number'
+								) {
+									return (
+										<button
+											className="pricingButton primary"
+											onClick={() =>
+												plan.isSeatBasedPlan
+													? handleSelectPlan(plan._id)
+													: handleBuySubscriptionPlan(plan)
+											}
+										>
+											Get {plan.plan}
+										</button>
+									);
+								}
+
+								// Case 4: Upgrade
+								if (otherPlanPrice > currentPrice) {
+									return (
+										<button
+											className="pricingButton upgrade"
+											onClick={() =>
+												plan.isSeatBasedPlan
+													? handleSelectPlan(plan._id, 'Upgrade')
+													: handleBuySubscriptionPlan(plan)
+											}
+										>
+											Upgrade to {plan.plan}
+										</button>
+									);
+								}
+
+								// Case 5: Downgrade
+								if (otherPlanPrice < currentPrice) {
+									return (
+										<button
+											className="pricingButton downgrade"
+											onClick={() =>
+												plan.isSeatBasedPlan
+													? handleSelectPlan(plan._id, 'Downgrade')
+													: handleBuySubscriptionPlan(plan)
+											}
+										>
+											Downgrade to {plan.plan}
+										</button>
+									);
+								}
+
+								// Case 6: Same price
+								return (
+									<button
+										className="pricingButton primary"
+										onClick={() =>
+											plan.isSeatBasedPlan
+												? handleSelectPlan(plan._id)
+												: handleBuySubscriptionPlan(plan)
+										}
+									>
+										Get {plan.plan}
+									</button>
+								);
+							};
 
 							return (
 								<div className="eachPricingCard" key={plan._id}>
@@ -273,20 +418,9 @@ const PricingPage = () => {
 												<div>
 													{plan?.currency === 'INR' ? '₹ ' : '$ '}
 													{info.billing === 'monthly'
-														? plan?.monthlyPrice *
-														  (info?.tenantUsersCount[plan?._id] ||
-																currentPlan?.tenantUsers ||
-																1)
-														: plan?.yearlyPrice *
-														  (info?.tenantUsersCount[plan?._id] ||
-																currentPlan?.tenantUsers ||
-																1)}{' '}
-													<span className="billing-period">
-														Per{' '}
-														{info.billing === 'monthly'
-															? 'month'
-															: 'year'}
-													</span>
+														? plan?.monthlyPrice
+														: plan?.yearlyPrice}{' '}
+													<span className="billing-period">Per User</span>
 												</div>
 											)}
 										</div>
@@ -304,7 +438,7 @@ const PricingPage = () => {
 									</div>
 
 									<div className="pricingButtonContainer">
-										{/* Show user count selector if plan is selected and is seat-based */}
+										{/* Quantity selector for seat-based plans */}
 										{info.selectedPlanId === plan._id &&
 											plan?.isSeatBasedPlan && (
 												<div className="quantitySelectorContainer">
@@ -337,7 +471,7 @@ const PricingPage = () => {
 												</div>
 											)}
 
-										{/* Show Checkout button if plan is selected and is seat-based, otherwise show Get Plan/Trial buttons */}
+										{/* Action buttons */}
 										{info.selectedPlanId === plan._id &&
 										plan?.isSeatBasedPlan ? (
 											<div className="pricingButtonRow">
@@ -346,7 +480,9 @@ const PricingPage = () => {
 													onClick={() =>
 														info.isTrialSelected
 															? handleBuyTrialPlan(plan)
-															: handleBuySubscriptionPlan(plan)
+															: info?.subscriptionType === 'normal'
+															? handleBuySubscriptionPlan(plan)
+															: handleUpdateSubscription(plan)
 													}
 													disabled={info.planLoading || info.trailLoading}
 												>
@@ -358,13 +494,20 @@ const PricingPage = () => {
 															height="16px"
 														/>
 													) : (
-														'Checkout'
+														`Checkout: ${
+															(info.tenantUsersCount[plan._id] ||
+																currentPlan?.tenantUsers ||
+																1) *
+															(info.billing === 'monthly'
+																? plan.monthlyPrice
+																: plan.yearlyPrice)
+														}`
 													)}
 												</button>
 											</div>
 										) : (
 											<div className="pricingButtonRow">
-												{/* Show Free Trial button for Plus plan if not hidden */}
+												{/* Trial button for Plus */}
 												{!currentPlan?.showTrail &&
 													plan?.plan === 'Plus' &&
 													!isEnterprise &&
@@ -372,7 +515,7 @@ const PricingPage = () => {
 														<button
 															className="startTrailButton"
 															onClick={() =>
-																plan?.isSeatBasedPlan
+																plan.isSeatBasedPlan
 																	? handleSelectTrial(plan._id)
 																	: handleBuyTrialPlan(plan)
 															}
@@ -385,26 +528,9 @@ const PricingPage = () => {
 															trial
 														</button>
 													)}
-												{/* Show Get Plan button */}
-												<div className="pricingButtonRow">
-													<button
-														className="pricingButton primary"
-														onClick={() =>
-															isEnterprise
-																? window.open(
-																		CONTACT_US_URL,
-																		'_blank',
-																  )
-																: plan?.isSeatBasedPlan
-																? handleSelectPlan(plan._id)
-																: handleBuySubscriptionPlan(plan)
-														}
-													>
-														{isEnterprise
-															? 'Contact Sales'
-															: `Get ${plan?.plan}`}
-													</button>
-												</div>
+
+												{/* Upgrade/Downgrade/Get Plan */}
+												{renderActionButton()}
 											</div>
 										)}
 									</div>
@@ -414,7 +540,6 @@ const PricingPage = () => {
 					)}
 				</div>
 
-				{/* Trial information */}
 				<div className="trial-info">
 					You'll get full access for 2 days for Plus plan. We'll only charge you after the
 					trial ends.
