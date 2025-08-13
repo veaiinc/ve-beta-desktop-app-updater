@@ -93,7 +93,7 @@ const CreateAgentModal = ({ isOpen, closeModal, handleCreateNewAgent, loading })
 							sessionId={info?.sessionId}
 							animateChatBox={false}
 							placeholder="What should your agent help you with?"
-							isPublicChat={true}
+							showBottomTools={false}
 						/>
 					</div>
 				)}

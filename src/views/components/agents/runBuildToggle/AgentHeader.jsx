@@ -10,20 +10,31 @@ import { message } from '../../globalComponents/CustomToast';
 import RunAndBuildToggle from './RunAndBuildToggle';
 import AgentShareComponent from '../agentShare/AgentShareComponent';
 import DeleteFormModal from '../../modalsV2/DeleteModal/DeleteModal';
+import Spinner from '../../loaders/Spinner';
+import { ReactComponent as BotIcon } from './assets/botSvg.svg';
 
 const AgentHeader = ({ onEditClick, agentAction, setAgentAction, activeKnowledgeAssistant }) => {
 	const navigate = useNavigate();
 	const { agentId } = useParams();
 	const {
-		knowledgeAgent: { deleteKnowledgeAgent },
+		knowledgeAgent: { deleteKnowledgeAgent, updateKnowledgeAgent },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		loading: false,
 		deleteModal: { open: false },
+		publishLoading: false,
 	});
 	const handleBack = () => {
 		navigate('/agents');
 	};
+
+	const handlePublishToggle = async (value) => {
+		if (info?.publishLoading) return;
+		setInfo((prev) => ({ ...prev, publishLoading: true }));
+		await updateKnowledgeAgent(agentId, { isActive: value });
+		setInfo((prev) => ({ ...prev, publishLoading: false }));
+	};
+
 	const agentName = activeKnowledgeAssistant?.data?.name;
 	const listSharedUsers = activeKnowledgeAssistant?.data?.sharedWith;
 	const handleDeleteAgent = async (agentId) => {
@@ -66,6 +77,9 @@ const AgentHeader = ({ onEditClick, agentAction, setAgentAction, activeKnowledge
 			deleteModal: { open: false },
 		}));
 	};
+
+	console.log('activeKnowledgeAssistant', activeKnowledgeAssistant);
+
 	return (
 		<div className={s.agentHeaderWrapper}>
 			<div className={s.leftSection} onClick={handleBack}>
@@ -74,9 +88,31 @@ const AgentHeader = ({ onEditClick, agentAction, setAgentAction, activeKnowledge
 					<div className={s.profileImage}>
 						{/* <img  src={activeKnowledgeAssistant?.data?.profileImage} alt='agent' /> */}
 
-						<div className={s.profileImageText}>{agentName?.charAt(0)}</div>
+						{activeKnowledgeAssistant?.data?.knowledgeAgent_profile_picture_s3Key ? (
+							<img
+								src={
+									activeKnowledgeAssistant?.data
+										?.knowledgeAgent_profile_picture_s3Key
+								}
+								alt="agent"
+							/>
+						) : (
+							<div className={s.profileImageText}>
+								<BotIcon />
+							</div>
+						)}
 					</div>
-					<span className={s.backText}>{agentName}</span>
+					<div className={s.nameWrapper}>
+						<span className={s.agentName}>{agentName}</span>
+						<div className={s.publishIndicator}>
+							<span
+								className={`${s.indicator} ${
+									activeKnowledgeAssistant?.data?.isActive ? s.live : s.draft
+								}`}
+							></span>
+							{activeKnowledgeAssistant?.data?.isActive ? 'Live' : 'Draft'}
+						</div>
+					</div>
 				</div>
 			</div>
 			<RunAndBuildToggle agentAction={agentAction} setAgentAction={setAgentAction} />
@@ -84,15 +120,43 @@ const AgentHeader = ({ onEditClick, agentAction, setAgentAction, activeKnowledge
 				{/* <div className={s.iconBtn}>
 					<EditIcon onClick={onEditClick} />
 				</div> */}
-				<div className={s.iconBtn}>
-					<DeleteIcon onClick={handleOpenDeleteModal} />
-				</div>
 				<AgentShareComponent
 					agentId={agentId}
 					activeKnowledgeAssistant={activeKnowledgeAssistant}
+					buttonStyle={{
+						color: 'var(--secondary-font, #94989E)',
+						fontFamily: 'var(--primary-font-family)',
+						fontSize: '14px',
+						fontStyle: 'normal',
+						fontWeight: '500',
+						lineHeight: 'normal',
+						display: 'flex',
+						height: '32px',
+						padding: '8px 12px',
+						alignItems: 'center',
+						gap: '6px',
+						border: 'none',
+					}}
 				/>
+				<button
+					className={s.publishBtn}
+					onClick={() => handlePublishToggle(!activeKnowledgeAssistant?.data?.isActive)}
+				>
+					{info?.publishLoading ? (
+						<>
+							<Spinner width={16} height={16} />
+							<span>Updating...</span>
+						</>
+					) : activeKnowledgeAssistant?.data?.isActive ? (
+						'Unpublish Agent'
+					) : (
+						'Publish Agent'
+					)}
+				</button>
+				<div className={s.iconBtn}>
+					<DeleteIcon onClick={handleOpenDeleteModal} />
+				</div>
 				{/* <div className={s.divider} /> */}
-				{/* <div className={s.publishBtn}>Publish Agent</div> */}
 			</div>
 
 			{/* Delete Agent Modal */}

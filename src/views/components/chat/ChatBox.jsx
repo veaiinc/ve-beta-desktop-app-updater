@@ -151,6 +151,7 @@ const ChatBox = ({
 	placeholder = 'Start typing or use @ to mention a source.',
 	showBrowserButton = false,
 	handleBrowserButtonClick = null,
+	showBottomTools = true,
 }) => {
 	const location = useLocation();
 	const { handleConnect } = useUpdatedVoiceIntegration();
@@ -1923,7 +1924,7 @@ const ChatBox = ({
 											) : (
 												<div className="buttons-container">
 													<div className="chat-icons-container">
-														{!isPublicChat && (
+														{!isPublicChat && showBottomTools && (
 															<UploadFileTooltip
 																fileTypeIcons={fileTypeIcons}
 																handleChange={
@@ -1980,7 +1981,7 @@ const ChatBox = ({
 														)}
 
 														<div className="combined-chat-options">
-															{!isPublicChat && (
+															{!isPublicChat && showBottomTools && (
 																<Tooltip
 																	title={
 																		<div className="chatbox-icon-tooltip-container ask-option-tooltip-container">
@@ -2077,7 +2078,7 @@ const ChatBox = ({
 																</Tooltip>
 															)}
 
-															{!isPublicChat && (
+															{!isPublicChat && showBottomTools && (
 																<Tooltip
 																	title={
 																		<div className="chatbox-icon-tooltip-container deep-search-tooltip-container">
@@ -2183,7 +2184,7 @@ const ChatBox = ({
 																// </SearchTypeTooltip>
 															)} */}
 
-															{!isPublicChat && (
+															{!isPublicChat && showBottomTools && (
 																<Tooltip
 																	title={
 																		<div className="chatbox-icon-tooltip-container goals-tooltip-container">
@@ -2235,6 +2236,7 @@ const ChatBox = ({
 
 															{isBuildEnbled &&
 																!isPublicChat &&
+																showBottomTools &&
 																workspaceMode !== 'stable' && (
 																	<Tooltip
 																		title={

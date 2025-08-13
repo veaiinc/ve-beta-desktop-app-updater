@@ -225,6 +225,7 @@ const AgentDrawer = ({
 						sessionId={info?.sessionId}
 						animateChatBox={false}
 						placeholder="Guide me..."
+						showBottomTools={false}
 					/>
 				</div>
 				<DeleteFormModal
