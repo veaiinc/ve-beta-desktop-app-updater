@@ -13,7 +13,6 @@ import ToolsTooltip from './components/toolsTooltip/ToolsTooltip';
 import { Tooltip } from 'antd';
 
 // svg icons
-import DownCaret from './assets/DownCaret';
 import { ReactComponent as LightMode } from './assets/light-mode.svg';
 import { ReactComponent as DarkMode } from './assets/dark-mode.svg';
 import { ReactComponent as NotificationsSvg } from './assets/notification.svg';
