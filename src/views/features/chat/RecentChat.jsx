@@ -4,7 +4,8 @@ import {
 	handleDeepSearchChainOfThought,
 	handleDeepResearchChainOfThought,
 	getBrowserUrls,
-} from '../../../helpers/chatHelpers';
+} from '../../../helpers/chat/chatHelpers';
+import { connectBrowserSocket } from '../../../helpers/chat/browserSocket';
 import Context from '../../../context/context';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
@@ -88,7 +89,6 @@ const RecentChat = ({
 	});
 
 	const chatContentRef = useRef(null);
-	const chatMessagesRef = useRef([]);
 	const userMessagesRefs = useRef({});
 	// const previousAiMessagesRef = useRef([]);
 	// const aiCitationsByIdRef = useRef({});
@@ -160,6 +160,28 @@ const RecentChat = ({
 			});
 		};
 	}, []);
+
+	useEffect(() => {
+		if (globalChatMessages?.[sessionId]?.open_browser) {
+			setInfo((prev) => {
+				if (prev?.openBrowser && prev?.browserDataAvailable) return prev;
+				return {
+					...prev,
+					openBrowser: true,
+					browserDataAvailable: true,
+				};
+			});
+		} else {
+			setInfo((prev) => {
+				if (!prev?.openBrowser && !prev?.browserDataAvailable) return prev;
+				return {
+					...prev,
+					openBrowser: false,
+					browserDataAvailable: false,
+				};
+			});
+		}
+	}, [globalChatMessages?.[sessionId]?.open_browser]);
 
 	useEffect(() => {
 		if (browserData) {
@@ -332,17 +354,17 @@ const RecentChat = ({
 		}
 	}, [globalChatMessages, sessionId]);
 
-	useEffect(() => {
-		if (globalChatMessages?.[sessionId]?.browserData) {
-			setInfo((prev) => {
-				return {
-					...prev,
-					openBrowser: true,
-					browserDataAvailable: true,
-				};
-			});
-		}
-	}, [globalChatMessages?.[sessionId]?.browserData]);
+	// useEffect(() => {
+	// 	if (globalChatMessages?.[sessionId]?.browserData) {
+	// 		setInfo((prev) => {
+	// 			return {
+	// 				...prev,
+	// 				openBrowser: true,
+	// 				browserDataAvailable: true,
+	// 			};
+	// 		});
+	// 	}
+	// }, [globalChatMessages?.[sessionId]?.browserData]);
 
 	// useEffect(() => {
 	// 	if (!chatContentRef?.current || !tabsRefs?.current) return;
@@ -383,7 +405,6 @@ const RecentChat = ({
 	useEffect(() => {
 		globalChatMessagesRef.current = globalChatMessages;
 		if (!sessionId) return;
-		chatMessagesRef.current = [...(globalChatMessages?.[sessionId]?.messages || [])];
 
 		// const container = chatContentRef.current;
 		// if (!container) return;
@@ -829,20 +850,16 @@ const RecentChat = ({
 		[info, sessionId, isPublicChat],
 	);
 
+	const handleBrowserSocketConnection = useCallback(() => {
+		connectBrowserSocket({ sessionId });
+	}, [sessionId, connectBrowserSocket]);
+
 	// stream chat
 	const onMessageFunc = useCallback(
 		(event, currentSessionId) => {
 			let { data = '' } = event || {};
 			data = JSON?.parse(data);
 
-			if (data?.hasOwnProperty('intermediate_response')) {
-				handleGlobalChatMessages({
-					payload: data,
-					sessionId,
-					updateExtraInfo: true,
-				});
-				return;
-			}
 			if (data?.user_id) {
 				localStorage?.setItem('user_id', data?.user_id);
 			}
@@ -878,7 +895,7 @@ const RecentChat = ({
 					latestStreamMessage: data,
 				});
 
-				if (chatMessagesRef?.current?.length === 2) {
+				if (!globalChatMessages?.[sessionId]?.messages?.length) {
 					const payload = {
 						sessionId,
 						page: 1,
@@ -903,11 +920,7 @@ const RecentChat = ({
 					handleGlobalChatMessages,
 					info?.browserPreviousActiveTabIndex,
 				);
-				setInfo((prev) => ({
-					...prev,
-					browserDataAvailable: true,
-					openBrowser: true,
-				}));
+				// handleBrowserSocketConnection();
 			}
 
 			if (message_chunk_id) {
@@ -923,7 +936,12 @@ const RecentChat = ({
 				});
 			}
 		},
-		[globalChatMessages, sessionId, info?.browserPreviousActiveTabIndex],
+		[
+			globalChatMessages,
+			sessionId,
+			handleBrowserSocketConnection,
+			info?.browserPreviousActiveTabIndex,
+		],
 	);
 
 	const handleSendWebsocketMessage = useCallback(

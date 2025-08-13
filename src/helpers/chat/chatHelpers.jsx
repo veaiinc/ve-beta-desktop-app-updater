@@ -1,5 +1,5 @@
-import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
-import Service from '../services/index';
+import { CitationsTooltip } from '../../views/components/modalsV2/chat/CitationsTooltip';
+import Service from '../../services/index';
 
 export const handleDeepSearchChainOfThought = (chainOfThought) => {
 	const cot = [];

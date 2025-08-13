@@ -9,7 +9,7 @@ import Suggestions from './Suggestions';
 import {
 	handleDeepResearchChainOfThought,
 	handleDeepSearchChainOfThought,
-} from '../../../helpers/chatHelpers';
+} from '../../../helpers/chat/chatHelpers';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { getGreeting } from '../../../helpers';
 import jwtDecode from 'jwt-decode';

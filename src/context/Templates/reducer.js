@@ -323,9 +323,13 @@ const actionHandlers = {
 			info.memory_thinking = payload?.memory_thinking;
 		}
 
+		if (payload?.hasOwnProperty('open_browser')) {
+			info.open_browser = payload?.open_browser;
+		}
+
 		if (requiredIndex !== -1) {
 			const message = messages?.[requiredIndex];
-			const { processing } = message;
+			let { processing, browserTools = [] } = message;
 			if (processing === 'Deep Search') {
 				let deepSearch = message?.deepSearch || {};
 				let cot = deepSearch?.cot || [];
@@ -597,6 +601,7 @@ const actionHandlers = {
 				messages[requiredIndex] = {
 					...message,
 					...payload,
+					...(payload?.toolName && { browserTools: [...browserTools, payload] }),
 					message: (message?.message || '') + (payload?.answer || ''),
 					messageId: payload?.message_id,
 				};

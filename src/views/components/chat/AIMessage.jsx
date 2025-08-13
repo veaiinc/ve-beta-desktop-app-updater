@@ -17,6 +17,7 @@ import FormWidget from './FormWidget';
 import UnintegratedAgentApps from './chatComponents/UnintegratedAgentApps';
 import IntermediateSteps from './chatComponents/IntermediateSteps';
 import { fileTypeIcons, getFaviconUrl, getWebsiteName } from '../../../helpers';
+import BrowserTools from './chatComponents/BrowserTools';
 
 const tooltipStyles = {
 	body: { color: 'var(--primary-font)' },
@@ -179,6 +180,10 @@ const AIMessage = ({
 						<p>View Document</p>
 					</div>
 				))}
+
+			{messageData?.browserTools?.length > 0 && (
+				<BrowserTools data={messageData?.browserTools} />
+			)}
 
 			{messageData?.tool_invocations && (
 				<IntermediateSteps

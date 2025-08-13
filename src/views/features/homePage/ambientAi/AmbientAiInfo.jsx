@@ -9,7 +9,7 @@ import { ReactComponent as MobileCloseSvg } from '../../../../assets/svg/mobile/
 import {
 	handleCombinedChainOfThought,
 	updateCitationIdsWithCitations,
-} from '../../../../helpers/chatHelpers';
+} from '../../../../helpers/chat/chatHelpers';
 import { Markdown } from '../../../../helpers/markdownHelper';
 import ObjectID from 'bson-objectid';
 import { Tooltip } from 'antd';
