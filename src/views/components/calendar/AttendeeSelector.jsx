@@ -180,7 +180,7 @@ const AttendeeSelector = ({ options, value = [], onChange, className }) => {
 								alignItems: 'center',
 								gap: '8px',
 								color: 'var(--primary-font)',
-								backgroundColor: 'var(--hover-bg)',
+								backgroundColor: 'var(--card-hover)',
 								borderRadius: '4px',
 								marginBottom: '8px',
 							}}
