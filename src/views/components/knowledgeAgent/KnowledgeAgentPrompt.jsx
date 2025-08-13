@@ -278,6 +278,7 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [] }) => {
 								onChange={handlePromptChange}
 								placeholder="Enter your system prompt here"
 								autoResize={true}
+								agentId={agentId}
 							/>
 						</div>
 

@@ -1006,7 +1006,7 @@ const RecentChat = ({
 					}}
 				>
 					{/* header */}
-					{!isPublicChat && (
+					{!isPublicChat && showHeader && (
 						<ChatHeader
 							sessionId={sessionId}
 							isNewChat={info?.isNewChat}
