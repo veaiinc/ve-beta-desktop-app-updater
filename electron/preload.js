@@ -47,18 +47,12 @@ contextBridge.exposeInMainWorld('electronApi', {
 		ipcRenderer.removeAllListeners('shortcut-activated');
 	},
 
-	// Overlay window APIs (commented out as not required)
-	/*
+	// Overlay window APIs
 	overlay: {
 		toggleWindow: () => ipcRenderer.invoke('toggle-overlay-window'),
-		takeScreenshot: () => ipcRenderer.invoke('take-screenshot'),
 		updateDimensions: (dims) => ipcRenderer.invoke('update-overlay-dimensions', dims),
-		
-		// Listen for screenshot requests from shortcuts
-		onTakeScreenshotRequested: (callback) => {
-			ipcRenderer.on('take-screenshot-requested', callback);
-			return () => ipcRenderer.removeListener('take-screenshot-requested', callback);
-		},
 	},
-	*/
+
+	// Mouse event handling for click-through behavior
+	setIgnoreMouseEvents: (ignore) => ipcRenderer.invoke('set-ignore-mouse-events', ignore),
 });

@@ -1,5 +1,5 @@
 // main.js
-const { app, BrowserWindow, Menu, desktopCapturer, globalShortcut, screen } = require('electron');
+const { app, BrowserWindow, Menu, globalShortcut, screen } = require('electron');
 const ipcMain = require('electron').ipcMain;
 const { autoUpdater } = require('electron-updater');
 const log = require('electron-log'); // Import electron-log
@@ -14,7 +14,7 @@ const { dialog } = require('electron');
 // Add watermark cache for image processing
 const watermarkCache = new Map();
 
-// Overlay window helper classes (commented out as not required)
+// Overlay window helper class
 
 class WindowHelper {
 	constructor() {
@@ -38,8 +38,9 @@ class WindowHelper {
 		this.screenHeight = workArea.height;
 
 		this.step = Math.floor(this.screenWidth / 10);
+		// Position at center top
 		this.currentX = Math.floor(this.screenWidth / 2) - Math.floor(this.windowSize.width / 2);
-		this.currentY = 50;
+		this.currentY = 30; // Closer to top
 
 		const windowSettings = {
 			width: this.windowSize.width,
@@ -60,6 +61,10 @@ class WindowHelper {
 			backgroundColor: '#00000000',
 			focusable: true,
 			skipTaskbar: true,
+			visibleOnAllWorkspaces: true,
+			type: 'panel', // Use panel type for better desktop switching behavior
+			acceptFirstMouse: true,
+			disableAutoHideCursor: true,
 		};
 
 		this.overlayWindow = new BrowserWindow(windowSettings);
@@ -75,9 +80,26 @@ class WindowHelper {
 		});
 
 		if (process.platform === 'darwin') {
-			this.overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
-			this.overlayWindow.setHiddenInMissionControl(true);
+			// Use the highest window level for maximum visibility during desktop switching
 			this.overlayWindow.setAlwaysOnTop(true, 'floating');
+			
+			// Configure for all workspaces/desktops with fullscreen support
+			this.overlayWindow.setVisibleOnAllWorkspaces(true, { 
+				visibleOnFullScreen: true,
+				skipTransformProcessType: true 
+			});
+			
+			// Hide from Mission Control but keep visible during transitions
+			this.overlayWindow.setHiddenInMissionControl(true);
+			
+			// Start with click-through enabled - will be controlled dynamically
+			this.overlayWindow.setIgnoreMouseEvents(true, { forward: true });
+			this.overlayWindow.setMovable(true);
+		} else {
+			// For non-macOS platforms
+			this.overlayWindow.setAlwaysOnTop(true, 'floating');
+			// Start with click-through enabled - will be controlled dynamically
+			this.overlayWindow.setIgnoreMouseEvents(true, { forward: true });
 		}
 
 		this.setupWindowListeners();
@@ -112,6 +134,56 @@ class WindowHelper {
 			this.overlayWindow = null;
 			this.isOverlayVisible = false;
 		});
+
+		// Set up mouse event handling for precise click-through behavior
+		this.overlayWindow.webContents.on('dom-ready', () => {
+			// Inject JavaScript to handle mouse events more precisely
+			this.overlayWindow.webContents.executeJavaScript(`
+				let isOverContent = false;
+				
+				// Function to check if mouse is over actual overlay content
+				function isMouseOverContent(x, y) {
+					const overlayContent = document.querySelector('.overlay-content, .overlay-container, [data-overlay-content]');
+					if (!overlayContent) return false;
+					
+					const rect = overlayContent.getBoundingClientRect();
+					return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+				}
+				
+				// Handle mouse movement to determine if over content area
+				document.addEventListener('mousemove', (e) => {
+					const overContent = isMouseOverContent(e.clientX, e.clientY);
+					
+					if (overContent !== isOverContent) {
+						isOverContent = overContent;
+						window.electronApi?.setIgnoreMouseEvents?.(!isOverContent);
+					}
+				});
+				
+				// Handle mouse entering the window
+				document.addEventListener('mouseenter', (e) => {
+					const overContent = isMouseOverContent(e.clientX, e.clientY);
+					isOverContent = overContent;
+					window.electronApi?.setIgnoreMouseEvents?.(!isOverContent);
+				});
+				
+				// Handle mouse leaving the window - always enable click-through
+				document.addEventListener('mouseleave', () => {
+					isOverContent = false;
+					window.electronApi?.setIgnoreMouseEvents?.(true);
+				});
+				
+				// Fallback: check every 100ms if content area has changed
+				setInterval(() => {
+					const overlayContent = document.querySelector('.overlay-content, .overlay-container, [data-overlay-content]');
+					if (overlayContent && !isOverContent) {
+						// If we have content but click-through is enabled, check mouse position
+						const rect = overlayContent.getBoundingClientRect();
+						// This is just a safety check - main logic is in mousemove
+					}
+				}, 100);
+			`);
+		});
 	}
 
 	getOverlayWindow() {
@@ -133,15 +205,43 @@ class WindowHelper {
 
 	showOverlayWindow() {
 		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) return;
-		if (this.windowPosition && this.windowSize) {
-			this.overlayWindow.setBounds(
-				this.windowPosition.x,
-				this.windowPosition.y,
-				this.windowSize.width,
-				this.windowSize.height,
-			);
+		
+		// Always position at center top when showing
+		const primaryDisplay = screen.getPrimaryDisplay();
+		const workArea = primaryDisplay.workAreaSize;
+		const centerX = Math.floor(workArea.width / 2) - Math.floor(this.windowSize.width / 2);
+		const topY = 30;
+		
+		this.overlayWindow.setBounds({
+			x: centerX,
+			y: topY,
+			width: this.windowSize.width,
+			height: this.windowSize.height,
+		});
+		
+		// Ensure window properties for all desktops/spaces on macOS
+		if (process.platform === 'darwin') {
+			this.overlayWindow.setAlwaysOnTop(true, 'floating');
+			this.overlayWindow.setVisibleOnAllWorkspaces(true, { 
+				visibleOnFullScreen: true,
+				skipTransformProcessType: true 
+			});
+		} else {
+			this.overlayWindow.setAlwaysOnTop(true, 'floating');
 		}
-		this.overlayWindow.showInactive();
+		
+		// Update current position tracking
+		this.currentX = centerX;
+		this.currentY = topY;
+		this.windowPosition = { x: centerX, y: topY };
+		
+		// Show overlay and ensure main window is hidden
+		this.overlayWindow.show();
+		
+		if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+			this.mainWindow.hide();
+		}
+		
 		this.isOverlayVisible = true;
 	}
 
@@ -155,17 +255,20 @@ class WindowHelper {
 
 	updateWindowDimensions(width, height) {
 		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) return;
-		const [currentX, currentY] = this.overlayWindow.getPosition();
 		const { screen } = require('electron');
 		const workArea = screen.getPrimaryDisplay().workAreaSize;
 		const newWidth = Math.min(width + 32, Math.floor(workArea.width * 0.6));
 		const newHeight = Math.ceil(height + 16);
-		const maxX = workArea.width - newWidth;
-		const newX = Math.min(Math.max(currentX, 0), maxX);
-		this.overlayWindow.setBounds({ x: newX, y: currentY, width: newWidth, height: newHeight });
-		this.windowPosition = { x: newX, y: currentY };
+		
+		// Keep window centered horizontally at top
+		const centerX = Math.floor(workArea.width / 2) - Math.floor(newWidth / 2);
+		const topY = 30;
+		
+		this.overlayWindow.setBounds({ x: centerX, y: topY, width: newWidth, height: newHeight });
+		this.windowPosition = { x: centerX, y: topY };
 		this.windowSize = { width: newWidth, height: newHeight };
-		this.currentX = newX;
+		this.currentX = centerX;
+		this.currentY = topY;
 	}
 
 	moveWindowLeft() {
@@ -197,81 +300,50 @@ class WindowHelper {
 		);
 		this.overlayWindow.setPosition(Math.round(this.currentX), Math.round(this.currentY));
 	}
-}
 
-class ShortcutsHelper {
-	constructor(mainWindow) {
-		// this.windowHelper = windowHelper; // Commented out as not required
+	registerGlobalShortcuts(mainWindow) {
 		this.mainWindow = mainWindow;
-	}
-
-	registerGlobalShortcuts() {
-		// Simple Cmd+B shortcut to demonstrate ShortcutsHelper is working
-		// globalShortcut.register('CommandOrControl+B', () => {
-		// 	log.info('Cmd+B pressed - ShortcutsHelper is working! (No overlay window)');
-		// 	if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-		// 		this.mainWindow.webContents.send('shortcut-activated', {
-		// 			shortcut: 'Cmd+B',
-		// 			message: 'ShortcutsHelper is working correctly!',
-		// 		});
-		// 	}
-		// });
-
-		// Commented out overlay window shortcuts as not required
+		
+		// Register Cmd+B to toggle overlay window
 		globalShortcut.register('CommandOrControl+B', () => {
 			log.info('Cmd+B pressed - toggling overlay window');
 
-			// if (!this.windowHelper.getOverlayWindow()) {
-			// 	this.windowHelper.createOverlayWindow();
-			// }
+			// Create overlay window if it doesn't exist
+			if (!this.getOverlayWindow()) {
+				this.createOverlayWindow();
+			}
 
-			const isOverlayVisible = this.windowHelper.isVisible();
-
+			const isOverlayVisible = this.isVisible();
+			
 			if (isOverlayVisible) {
-				this.windowHelper.hideOverlayWindow();
+				// Hide overlay and show main window
+				this.hideOverlayWindow();
 				if (this.mainWindow && !this.mainWindow.isDestroyed()) {
 					this.mainWindow.show();
 					this.mainWindow.focus();
+					this.mainWindow.moveTop(); // Ensure main window is brought to front
 				}
 			} else {
-				this.windowHelper.showOverlayWindow();
-				if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-					this.mainWindow.hide();
-				}
+				// Show overlay (which will automatically hide main window)
+				this.showOverlayWindow();
 			}
 		});
 
-		globalShortcut.register('CommandOrControl+H', async () => {
-			if (!this.windowHelper.isVisible()) return;
-			log.info('Cmd+H pressed - taking screenshot');
-			try {
-				this.windowHelper.hideOverlayWindow();
-				await new Promise((resolve) => setTimeout(resolve, 200));
-				const overlayWindow = this.windowHelper.getOverlayWindow();
-				if (overlayWindow && !overlayWindow.isDestroyed()) {
-					overlayWindow.webContents.send('take-screenshot-requested');
-				}
-				setTimeout(() => this.windowHelper.showOverlayWindow(), 500);
-			} catch (error) {
-				log.error('Error taking screenshot:', error);
-				this.windowHelper.showOverlayWindow();
-			}
-		});
-
+		// Register arrow keys for window movement
 		globalShortcut.register('CommandOrControl+Left', () => {
-			if (this.windowHelper.isVisible()) this.windowHelper.moveWindowLeft();
+			if (this.isVisible()) this.moveWindowLeft();
 		});
 
 		globalShortcut.register('CommandOrControl+Right', () => {
-			if (this.windowHelper.isVisible()) this.windowHelper.moveWindowRight();
+			if (this.isVisible()) this.moveWindowRight();
 		});
 
 		globalShortcut.register('CommandOrControl+Up', () => {
-			if (this.windowHelper.isVisible()) this.windowHelper.moveWindowUp();
+			if (this.isVisible()) this.moveWindowUp();
 		});
 
 		globalShortcut.register('CommandOrControl+Down', () => {
-			if (this.windowHelper.isVisible()) this.windowHelper.moveWindowDown();
+			if (this.isVisible()) this.moveWindowDown();
 		});
 
 		app.on('will-quit', () => globalShortcut.unregisterAll());
@@ -280,8 +352,7 @@ class ShortcutsHelper {
 }
 
 let mainWindow = null;
-let windowHelper = null; // Commented out as not required
-let shortcutsHelper = null;
+let windowHelper = null;
 
 // Set the autoUpdater logger to electron-log
 autoUpdater.logger = log;
@@ -440,29 +511,13 @@ app.whenReady().then(() => {
 	// Menu.setApplicationMenu(menu);
 	createWindow();
 
-	// Initialize overlay helpers (commented out as not required)
+	// Initialize overlay window helper
 	windowHelper = new WindowHelper();
-	// shortcutsHelper = new ShortcutsHelper(mainWindow);
 
 	// Register global shortcuts
-	windowHelper.registerGlobalShortcuts();
+	windowHelper.registerGlobalShortcuts(mainWindow);
 });
 
-ipcMain.handle('toggle-overlay-window', async () => {
-	try {
-		if (!windowHelper) {
-			return { success: false, error: 'Window helper not initialized' };
-		}
-		windowHelper.toggleOverlayWindow();
-		return { success: true };
-	} catch (error) {
-		log.error('Error toggling overlay window:', error);
-		return { success: false, error: error.message };
-	}
-});
-
-// Overlay window IPC handlers (commented out as not required)
-/*
 ipcMain.handle('toggle-overlay-window', async () => {
 	try {
 		if (!windowHelper) {
@@ -488,39 +543,21 @@ ipcMain.handle('update-overlay-dimensions', async (event, { width, height }) => 
 		return { success: false, error: error.message };
 	}
 });
-*/
 
-ipcMain.handle('take-screenshot', async () => {
+ipcMain.handle('set-ignore-mouse-events', async (event, ignore) => {
 	try {
-		const sources = await desktopCapturer.getSources({
-			types: ['screen'],
-			thumbnailSize: { width: 1920, height: 1080 },
-		});
-
-		if (sources.length > 0) {
-			const screenshot = sources[0];
-			const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-			const filename = `screenshot-${timestamp}.png`;
-
-			// Convert thumbnail to base64
-			const base64Data = screenshot.thumbnail.toPNG().toString('base64');
-
-			return {
-				success: true,
-				screenshot: {
-					filename,
-					data: base64Data,
-					timestamp: Date.now(),
-				},
-			};
-		} else {
-			return { success: false, error: 'No screen sources available' };
+		if (!windowHelper || !windowHelper.getOverlayWindow()) {
+			return { success: false, error: 'Overlay window not available' };
 		}
+		const overlayWindow = windowHelper.getOverlayWindow();
+		overlayWindow.setIgnoreMouseEvents(ignore, { forward: true });
+		return { success: true };
 	} catch (error) {
-		log.error('Error taking screenshot:', error);
+		log.error('Error setting ignore mouse events:', error);
 		return { success: false, error: error.message };
 	}
 });
+
 
 ipcMain.handle('check-for-updates', async () => {
 	log.info('Check for updates triggered by renderer'); // Log triggered update check

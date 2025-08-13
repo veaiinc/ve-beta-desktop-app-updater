@@ -1,10 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
 import OverlayCommands from './OverlayCommands';
+import ShortcutBar from './components/ShortcutBar';
+import ScreenQueryBar from './components/ScreenQueryBar';
 import './overlay.scss';
 
 const OverlayApp = () => {
 	const containerRef = useRef(null);
-	const [screenshots, setScreenshots] = useState([]);
+	const [showScreenQuery, setShowScreenQuery] = useState(false);
+
+	const handleAskAIClick = () => {
+		setShowScreenQuery(prev => !prev);
+	};
+
+	const handleCloseScreenQuery = () => {
+		setShowScreenQuery(false);
+	};
 
 	useEffect(() => {
 		// Update window dimensions when content changes
@@ -44,72 +54,47 @@ const OverlayApp = () => {
 		};
 	}, []);
 
+	// Handle click outside to close screen query
 	useEffect(() => {
-		// Listen for screenshot requests from global shortcut
-		if (window.electronApi?.overlay?.onTakeScreenshotRequested) {
-			const cleanup = window.electronApi.overlay.onTakeScreenshotRequested(() => {
-				handleTakeScreenshot();
-			});
-			
-			return cleanup;
-		}
-	}, []);
+		if (!showScreenQuery) return;
 
-	const handleTakeScreenshot = async () => {
-		try {
-			if (window.electronApi?.overlay?.takeScreenshot) {
-				const result = await window.electronApi.overlay.takeScreenshot();
-				
-				if (result.success) {
-					// Add screenshot to the list
-					setScreenshots(prev => [result.screenshot, ...prev.slice(0, 4)]); // Keep only 5 screenshots
-					
-					// Show success notification
-					console.log('Screenshot taken successfully:', result.screenshot.filename);
-				} else {
-					console.error('Failed to take screenshot:', result.error);
-				}
+		const handleClickOutside = (event) => {
+			if (containerRef.current && !containerRef.current.contains(event.target)) {
+				setShowScreenQuery(false);
 			}
-		} catch (error) {
-			console.error('Error taking screenshot:', error);
-		}
-	};
+		};
 
-	const handleDeleteScreenshot = (index) => {
-		setScreenshots(prev => prev.filter((_, i) => i !== index));
-	};
+		const handleEscapeKey = (event) => {
+			if (event.key === 'Escape') {
+				setShowScreenQuery(false);
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		document.addEventListener('keydown', handleEscapeKey);
+
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+			document.removeEventListener('keydown', handleEscapeKey);
+		};
+	}, [showScreenQuery]);
 
 	return (
 		<div ref={containerRef} className="overlay-app">
-			<div className="overlay-container">
-				{/* Screenshots display */}
-				{screenshots.length > 0 && (
-					<div className="overlay-screenshots">
-						{screenshots.slice(0, 3).map((screenshot, index) => (
-							<div key={screenshot.timestamp} className="screenshot-item">
-								<img 
-									src={`data:image/png;base64,${screenshot.data}`} 
-									alt={screenshot.filename}
-									className="screenshot-thumbnail"
-								/>
-								<button 
-									className="screenshot-delete"
-									onClick={() => handleDeleteScreenshot(index)}
-									title="Delete screenshot"
-								>
-									×
-								</button>
-							</div>
-						))}
-					</div>
-				)}
-
+			<div className="overlay-container overlay-content" data-overlay-content="true">
+				{/* Shortcut bar */}
+				<ShortcutBar onAskAIClick={handleAskAIClick} isQueryBarOpen={showScreenQuery} />
+				
 				{/* Commands section */}
-				<OverlayCommands 
-					screenshots={screenshots}
-					onTakeScreenshot={handleTakeScreenshot}
-				/>
+				<OverlayCommands />
 			</div>
+			
+			{/* Screen query bar - separate window below with gap */}
+			{showScreenQuery && (
+				<div className="screen-query-container">
+					<ScreenQueryBar onClose={handleCloseScreenQuery} />
+				</div>
+			)}
 		</div>
 	);
 };
