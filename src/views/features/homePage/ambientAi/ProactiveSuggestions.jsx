@@ -4,6 +4,7 @@ import Context from '../../../../context/context';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as FilterIcon } from '../../../../assets/svg/tasks/newFiltersIcon.svg';
 import { ReactComponent as TickIcon } from '../../../../assets/svg/tick.svg';
+import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { Tooltip } from 'antd';
@@ -66,6 +67,7 @@ export const filterGroups = [
 			{ id: 14, title: 'Last 30 days', value: 'last30days' },
 		],
 	},
+
 	{
 		title: 'Other',
 		options: [
@@ -597,6 +599,17 @@ const ProactiveSuggestions = () => {
 		});
 	};
 
+	const removeFilter = (index) => {
+		setInfo((prev) => {
+			const updatedFilters = prev.selectedFilters.filter((_, i) => i !== index);
+			selectedFiltersRef.current = updatedFilters;
+			return {
+				...prev,
+				selectedFilters: updatedFilters,
+			};
+		});
+	};
+
 	const fetchPendingActions = async () => {
 		const reset = true;
 		getAISuggestedPendingActions(newUpdatedPayload, reset);
@@ -1014,6 +1027,13 @@ const ProactiveSuggestions = () => {
 																			?.length - 1}
 																	</span>
 																)}
+																<button
+																	className="remove-filter-btn"
+																	onClick={() => removeFilter(0)}
+																	aria-label="Remove filter"
+																>
+																	<CloseSvg />
+																</button>
 															</div>
 														)}
 													</div>
