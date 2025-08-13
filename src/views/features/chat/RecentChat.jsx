@@ -33,6 +33,7 @@ const RecentChat = ({
 	showChatHistory = false,
 	showChats = false,
 	showBrowser = false,
+	showHeader = true,
 }) => {
 	const {
 		templates: {
