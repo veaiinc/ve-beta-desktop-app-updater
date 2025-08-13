@@ -214,7 +214,7 @@ const Settings = ({
 					className={s.logoutButton}
 					onClick={() => {
 						logout();
-						channel.postMessage('reload');
+						channel.postMessage('logout');
 					}}
 				>
 					<LogoutSvg />
