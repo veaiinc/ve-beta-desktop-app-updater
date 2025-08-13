@@ -55,10 +55,10 @@ const AgentShareComponent = ({
 	}, []);
 
 	useEffect(() => {
-		if (finalAgentId) {
+		if (finalAgentId && info.isOpen) {
 			fetchSharedUsers();
 		}
-	}, [finalAgentId]);
+	}, [finalAgentId, info.isOpen]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {

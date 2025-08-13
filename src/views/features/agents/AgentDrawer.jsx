@@ -1,12 +1,11 @@
-import { Drawer } from 'antd';
-import React, { useEffect, useState, useContext, useCallback } from 'react';
+import { useEffect, useState, useContext, useCallback } from 'react';
 import s from './agentDrawer.module.scss';
 import { ReactComponent as ChevronRight } from './assets/chevronRight.svg';
 import { ReactComponent as LucidBotIcon } from './assets/lucid-bot.svg';
 import { ReactComponent as ArrowCorner } from './assets/arrowCorner.svg';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import Spinner from '../../components/loaders/Spinner';
+// import Spinner from '../../components/loaders/Spinner';
 import ChatBox from '../../components/chat/ChatBox';
 import ObjectID from 'bson-objectid';
 import { ReactComponent as DeleteSvg } from './assets/deleteSvg.svg';
@@ -62,8 +61,10 @@ const AgentDrawer = ({
 	}, [agent]);
 
 	useEffect(() => {
-		if (activeKnowledgeAssistant === null || activeKnowledgeAssistant?._id !== agent?._id) {
-			getActiveKnowledgeAgentDetails(agent?._id);
+		if (agent?._id) {
+			if (activeKnowledgeAssistant === null || activeKnowledgeAssistant?._id !== agent?._id) {
+				getActiveKnowledgeAgentDetails(agent?._id);
+			}
 		}
 	}, [agent?._id]);
 

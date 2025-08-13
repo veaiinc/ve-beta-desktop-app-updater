@@ -130,7 +130,7 @@
 			transition: all 0.2s ease;
 
 			&:hover {
-				background: var(--hover-bg, #1a1a1a);
+				background: var(--card-hover, #1a1a1a);
 			}
 
 			svg {
