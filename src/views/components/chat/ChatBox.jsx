@@ -12,6 +12,7 @@ import { ReactComponent as ArrowDownSvg } from '../../../assets/svg/ai_agents/ar
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { ReactComponent as BulbSvg } from '../../../assets/svg/home_page/bulb.svg';
 import { ReactComponent as TrendUpSvg } from '../../../assets/svg/trendUp.svg';
+import { ReactComponent as ArrowsOut } from '../../../assets/svg/gallery/arrowsOut.svg';
 import { ReactComponent as StopIconSvg } from '../../../assets/svg/notesPage/cancel.svg';
 import CreditCoinImage from '../../../assets/images/creditCoin.png';
 import Context from '../../../context/context';
@@ -148,6 +149,8 @@ const ChatBox = ({
 	sessionId = null,
 	getSuggestions = false,
 	placeholder = 'Start typing or use @ to mention a source.',
+	showBrowserButton = false,
+	handleBrowserButtonClick = null,
 }) => {
 	const location = useLocation();
 	const { handleConnect } = useUpdatedVoiceIntegration();
@@ -2540,6 +2543,21 @@ const ChatBox = ({
 						<button className="scroll-button" onClick={handleScrollButtonClick}>
 							<ArrowUpRightSvg className="arrow-up" />
 						</button>
+					</div>
+				)}
+
+				{showBrowserButton && (
+					<div
+						className="browser-button-container"
+						onClick={(e) => {
+							e.stopPropagation();
+							handleBrowserButtonClick?.(e);
+						}}
+					>
+						<div className="browser-button">Browser</div>
+						<div className="expand-browser-button">
+							<ArrowsOut />
+						</div>
 					</div>
 				)}
 				{uploadedImagesRef?.current?.length > 0 ? (

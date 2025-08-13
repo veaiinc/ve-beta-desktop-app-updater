@@ -222,6 +222,7 @@ const actionHandlers = {
 			lastQuery,
 			chatBoxInfo,
 			chatInfo,
+			browserData,
 		} = action?.payload;
 		let messages = [...(state?.globalChatMessages?.[sessionId]?.messages || [])];
 
@@ -236,6 +237,10 @@ const actionHandlers = {
 
 			if (chatBoxInfo) {
 				sessionIdData.chatBoxInfo = chatBoxInfo;
+			}
+
+			if (browserData) {
+				sessionIdData.browserData = browserData;
 			}
 
 			if (chatInfo) {
