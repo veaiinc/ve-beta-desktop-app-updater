@@ -1,13 +1,13 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/knowledgeAgent/agentDetails.scss';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Drawer } from 'antd';
-import CreateAgentHeader from '../../components/ai_assistant/CreateAgentHeader';
+// import CreateAgentHeader from '../../components/ai_assistant/CreateAgentHeader';
 // import TabHeader from '../../components/ai_assistant/TabHeader';
 import Context from '../../../context/context';
 // import AiPlayGround from '../../components/ai_assistant/AiPlayGround';
 // import AiChatLogs from '../../components/ai_assistant/AiChatLogs';
-import EditSvg from '../../../assets/svg/ai_assistant/EditSvg';
+// import EditSvg from '../../../assets/svg/ai_assistant/EditSvg';
 import { message } from '../../components/globalComponents/CustomToast';
 import jwtDecode from 'jwt-decode';
 import ChatBox from '../../components/chat/ChatBox';
@@ -16,7 +16,7 @@ import AgentActivities from '../../components/agents/agentDetails/AgentActivitie
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 
 import { ReactComponent as Delete } from '../../components/agents/agentDetails/configureAgent/tabs/assets/delete.svg';
-import Spinner from '../../components/loaders/Spinner';
+// import Spinner from '../../components/loaders/Spinner';
 import ObjectID from 'bson-objectid';
 import { ReactComponent as AgentIcon } from './agenticon.svg';
 import { ReactComponent as StatusIcon } from './status.svg';
@@ -165,26 +165,26 @@ const KnowledgeAgentDetails = () => {
 		},
 	};
 
-	const handleDeleteAccount = async (accountId, appName, e) => {
-		if (info?.deletingAccountId === accountId) return;
-		e.stopPropagation();
-		setInfo((prev) => ({
-			...prev,
-			deletingAccountId: accountId,
-		}));
+	// const handleDeleteAccount = async (accountId, appName, e) => {
+	// 	if (info?.deletingAccountId === accountId) return;
+	// 	e.stopPropagation();
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		deletingAccountId: accountId,
+	// 	}));
 
-		// Simulate API call delay
-		setTimeout(() => {
-			setInfo((prev) => ({
-				...prev,
-				connectedAccounts: prev.connectedAccounts.filter(
-					(account) => account.id !== accountId,
-				),
-				deletingAccountId: null,
-			}));
-			message.success('Account deleted successfully');
-		}, 1000);
-	};
+	// 	// Simulate API call delay
+	// 	setTimeout(() => {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			connectedAccounts: prev.connectedAccounts.filter(
+	// 				(account) => account.id !== accountId,
+	// 			),
+	// 			deletingAccountId: null,
+	// 		}));
+	// 		message.success('Account deleted successfully');
+	// 	}, 1000);
+	// };
 
 	return (
 		<div className="agent-details-wrappe-container">
@@ -261,23 +261,25 @@ const KnowledgeAgentDetails = () => {
 									</div>
 									<div className="agent-details__divider"></div>
 									<div className="agent-details__tools-list">
-										<p className="agent-details__tools-list-header">Linked tools</p>
+										<p className="agent-details__tools-list-header">
+											Linked tools
+										</p>
 										<div className="agent-details__tools-list-content">
-										{info.connectedAccounts.map((account) => (
-											<div
-												key={account.id}
-												className="agent-details__tool-card"
-											>
-												<div className="agent-details__tool-icon">
-													<img
-														src={account.app.img_src}
-														alt={account.app.name}
-														className="agent-details__app-icon"
-													/>
-												</div>
-												<p className="agent-details__tool-name">
-													{account.app.name}
-												</p>
+											{info.connectedAccounts.map((account) => (
+												<div
+													key={account.id}
+													className="agent-details__tool-card"
+												>
+													<div className="agent-details__tool-icon">
+														<img
+															src={account.app.img_src}
+															alt={account.app.name}
+															className="agent-details__app-icon"
+														/>
+													</div>
+													<p className="agent-details__tool-name">
+														{account.app.name}
+													</p>
 												</div>
 											))}
 										</div>

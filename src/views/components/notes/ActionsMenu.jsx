@@ -52,8 +52,6 @@ const ActionsMenu = ({ editor, noteId }) => {
 			<SuggestionMenuController
 				triggerCharacter={'<'}
 				getItems={async (query) => {
-					console.log('query', query);
-
 					// handleSearchChange(query);
 					const items = info?.actions.map((action) => ({
 						title: action.typeDependencies.name,

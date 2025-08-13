@@ -68,8 +68,8 @@
 	}
 
 	blockquote.bn-inline-content {
-		color: #f2f2f3;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 15px;
 		font-style: normal;
 		font-weight: 400;

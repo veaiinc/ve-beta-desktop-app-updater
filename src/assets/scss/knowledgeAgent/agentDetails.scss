@@ -170,8 +170,6 @@
 			align-self: stretch;
 			border-radius: 12px;
 			background: var(--card, #1b1c1d);
-			&--open {
-			}
 		}
 
 		.agent-details__sidebar-closing {
@@ -186,7 +184,7 @@
 			transition: all 0.2s ease;
 
 			&:hover {
-				background: var(--hover-bg, #1a1a1a);
+				background: var(--card-hover, #1a1a1a);
 			}
 
 			svg {
@@ -385,7 +383,7 @@
 			transition: all 0.2s ease;
 
 			&:hover:not(:disabled) {
-				background: var(--hover-bg, #1a1a1a);
+				background: var(--card-hover, #212223);
 			}
 
 			&:disabled {

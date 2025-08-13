@@ -410,12 +410,12 @@ const TriggersTab = () => {
 										<div className={s.triggerActionsWrapper}>
 											<button
 												onClick={() => {
-											handleDisconnectTrigger(
-												trigger._id,
-												trigger.type,
-												trigger.app,
-											);
-										}}
+													handleDisconnectTrigger(
+														trigger._id,
+														trigger.type,
+														trigger.app,
+													);
+												}}
 												className={s.disconnectTrigger}
 											>
 												<DustbinIcon />
@@ -453,11 +453,11 @@ const TriggersTab = () => {
 											schedulerModalOpen: true,
 										}));
 									} else if (trigger.triggerType === 'whatsapp') {
-									setInfo((prev) => ({
-										...prev,
-										whatsAppModalOpen: true,
-									}));
-								}
+										setInfo((prev) => ({
+											...prev,
+											whatsAppModalOpen: true,
+										}));
+									}
 									// Add other trigger types here as needed
 								}}
 							>
@@ -482,7 +482,11 @@ const TriggersTab = () => {
 				<ListEmailsModal
 					isOpen={info.ListEmailsModalOpen}
 					onClose={() =>
-						setInfo({ ...info, ListEmailsModalOpen: false, selectedAppType: null })
+						setInfo((prev) => ({
+							...prev,
+							ListEmailsModalOpen: false,
+							selectedAppType: null,
+						}))
 					}
 					handleConnectToAppTrigger={handleConnectToAppTrigger}
 					connectedEmails={getConnectedEmailsForApp(info.selectedAppType)}
@@ -492,7 +496,12 @@ const TriggersTab = () => {
 				/>
 				<SchedulerModal
 					isOpen={info.schedulerModalOpen}
-					onClose={() => setInfo({ ...info, schedulerModalOpen: false })}
+					onClose={() =>
+						setInfo((prev) => ({
+							...prev,
+							schedulerModalOpen: false,
+						}))
+					}
 					handleConnectToSchedulerTrigger={handleConnectToSchedulerTrigger}
 					isLoading={info.connectTriggerLoading}
 					connectThirdParty={connectThirdParty}
@@ -500,7 +509,12 @@ const TriggersTab = () => {
 			</div>
 			<WhatsAppModal
 				isOpen={info.whatsAppModalOpen}
-				onClose={() => setInfo((prev) => ({ ...prev, whatsAppModalOpen: false }))}
+				onClose={() =>
+					setInfo((prev) => ({
+						...prev,
+						whatsAppModalOpen: false,
+					}))
+				}
 				handleConnectToWhatsAppTrigger={handleConnectToWhatsAppTrigger}
 				isLoading={info.connectTriggerLoading}
 			/>
