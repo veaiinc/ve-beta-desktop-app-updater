@@ -15,7 +15,7 @@ import Agent from '../views/features/agents/agent/Agent';
 import GlobalWorkflows from '../views/features/sales/GlobalWorkflows';
 import CardMeetBot from '../views/features/meetBot/CardMeetBot';
 import MeetBotWrapper from '../views/features/meetBot/meetBotWrapper';
-import ProactiveSuggestions from '../views/features/homePage/ProactiveSuggestions';
+import ProactiveSuggestions from '../views/features/homePage/ambientAi/ProactiveSuggestions';
 
 // components
 
