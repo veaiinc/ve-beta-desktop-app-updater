@@ -1,4 +1,4 @@
-// socketManager.js
+// socketManager.js;
 import { io } from 'socket.io-client';
 
 const socketInstances = {}; // { key: socket }
@@ -38,5 +38,72 @@ const connectBrowserSocket = ({ sessionId, onData }) => {
 
 	socketInstances[sessionId] = socket;
 };
+
+// const socketInstances = {};
+// const workspaceId = localStorage?.getItem('workspaceId');
+// const MAX_RETRY_ATTEMPTS = 30;
+// const RETRY_DELAY = 1000;
+
+// const createWebSocketConnection = (sessionId) => {
+// 	const url = `wss://browser.us-east-1.ve.ai/socket.io?token=${usertoken}`;
+// 	socketInstances[sessionId] = new WebSocket(url);
+
+// 	socketInstances[sessionId].onopen = () => {
+// 		console.log('Browser WebSocket connection opened');
+// 	};
+
+// 	socketInstances[sessionId].onmessage = (event) => {
+// 		console.log('Browser WebSocket message received', event);
+// 	};
+
+// 	socketInstances[sessionId].onclose = () => {
+// 		console.log('Browser WebSocket connection closed');
+// 		delete socketInstances[sessionId];
+// 	};
+
+// 	socketInstances[sessionId].onerror = (event) => {
+// 		console.log('BrowserWebSocket error', event);
+// 	};
+// };
+
+// const establishSocketConnection = (sessionId) => {
+// 	let attempts = 0;
+
+// 	const attemptConnection = () => {
+// 		if (attempts >= MAX_RETRY_ATTEMPTS) {
+// 			console.log('Max retry attempts reached. Giving up.');
+// 			return;
+// 		}
+
+// 		// If socket doesn't exist or is closed, try to reconnect
+// 		if (
+// 			!socketInstances[sessionId] ||
+// 			socketInstances[sessionId]?.readyState === WebSocket.CLOSED
+// 		) {
+// 			createWebSocketConnection(sessionId);
+// 			attempts++;
+// 			setTimeout(attemptConnection, RETRY_DELAY);
+// 			return;
+// 		}
+
+// 		// If socket is still connecting, wait and retry
+// 		if (socketInstances[sessionId].readyState === WebSocket.CONNECTING) {
+// 			console.log('Connection not ready, waiting...');
+// 			attempts++;
+// 			setTimeout(attemptConnection, RETRY_DELAY);
+// 			return;
+// 		}
+
+// 		// If socket is ready, send the message
+// 		if (socketInstances[sessionId].readyState === WebSocket.OPEN) {
+// 			console.log('Browser WebSocket connection ready');
+// 			return;
+// 		}
+// 	};
+
+// 	attemptConnection();
+// };
+
+// export { establishSocketConnection };
 
 export { connectBrowserSocket };
