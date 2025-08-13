@@ -23,7 +23,7 @@ const Notifications = ({ onClose }) => {
 	const [info, setInfo] = useState(() => ({
 		selectedNotificationId: null,
 		showCaret: null,
-		isMobileView: window.matchMedia("(max-width: 767px)").matches,
+		isMobileView: window.matchMedia('(max-width: 767px)').matches,
 	}));
 
 	const notificationsLoading = notificationsList === null;
@@ -77,7 +77,7 @@ const Notifications = ({ onClose }) => {
 					next={fetchNextNotificationsList}
 					hasMore={hasNextPage}
 					loader={<FetchMoreLoaderComp />}
-					height={info.isMobileView ? '100vh' : '340px'}
+					height={info.isMobileView ? '' : '340px'}
 				>
 					<div className={s.notificationsList}>
 						{notifications.map((notification) => {
