@@ -205,7 +205,7 @@ const actionHandlers = {
 		},
 	}),
 	HANDLE_STREAM_MESSAGE_CHUNK: (state, action) => {
-		const {
+		let {
 			payload,
 			chunkId,
 			sessionId,
@@ -225,6 +225,9 @@ const actionHandlers = {
 			browserData,
 		} = action?.payload;
 		let messages = [...(state?.globalChatMessages?.[sessionId]?.messages || [])];
+		if (payload?.browserMetadata) {
+			updateExtraInfo = true;
+		}
 
 		if (removeChatSession) {
 			const globalChatMessages = { ...state?.globalChatMessages };
@@ -240,6 +243,11 @@ const actionHandlers = {
 			}
 
 			if (browserData) {
+				let browserData = sessionIdData?.browserData || {};
+				browserData = {
+					...browserData,
+					browserMetadata: payload?.browserMetadata,
+				};
 				sessionIdData.browserData = browserData;
 			}
 
@@ -598,10 +606,13 @@ const actionHandlers = {
 					normalSearch,
 				};
 			} else {
+				if (payload?.toolName) {
+					browserTools = [...(browserTools || []), payload];
+				}
 				messages[requiredIndex] = {
 					...message,
 					...payload,
-					...(payload?.toolName && { browserTools: [...browserTools, payload] }),
+					browserTools,
 					message: (message?.message || '') + (payload?.answer || ''),
 					messageId: payload?.message_id,
 				};

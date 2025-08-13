@@ -5,6 +5,10 @@ const textMapper = {
 	get_all_tabs: 'Retreving all tabs',
 	go_back: 'Going back to previous page',
 	switch_tab: 'Switching to different tab',
+	extract_page_content: 'Extracting page content',
+	screenshot_and_html: 'Capturing screenshot',
+	scroll_mouse_wheel: 'Scrolling down',
+	wait: 'Waiting for the page to load',
 };
 
 const BrowserTools = ({ data = [] }) => {
