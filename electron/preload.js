@@ -36,5 +36,14 @@ contextBridge.exposeInMainWorld('electronApi', {
 	// Download Original Images
 	createZipFromUrls: (args) => ipcRenderer.invoke('create-zip-from-urls', args),
 
-	
+	// Download progress listener
+	onDownloadProgress: (callback) => {
+		ipcRenderer.on('download-progress', (event, data) => {
+			callback(data);
+		});
+	},
+
+	removeDownloadProgressListener: () => {
+		ipcRenderer.removeAllListeners('download-progress');
+	},
 });
