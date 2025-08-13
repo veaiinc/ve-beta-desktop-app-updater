@@ -78,11 +78,9 @@ const middleContainerItems = [
 ];
 
 const activeNavItemMap = {
-	'/priority': 1,
+	'/home': 5,
 	'/chats': 2,
 	'/agents': 3,
-	'/files': 4,
-	'/home': 5,
 };
 
 const TopNavbar = () => {
@@ -158,12 +156,7 @@ const TopNavbar = () => {
 
 	useEffect(() => {
 		if (pathname.includes('/meet')) setInfo((prev) => ({ ...prev, activeMode: 3 }));
-		else
-			setInfo((prev) => ({
-				...prev,
-				activeMode: 1,
-				activeNavItem: activeNavItemMap[pathname],
-			}));
+		else setInfo((prev) => ({ ...prev, activeMode: 1 }));
 	}, [pathname]);
 
 	useEffect(() => {
@@ -221,10 +214,7 @@ const TopNavbar = () => {
 			mobileMenuOpen: false,
 		}));
 		if (id === 1) {
-			const path = baseLeftContainerItems.find(
-				(item) => item.id === info.activeNavItem,
-			)?.route;
-			navigate(path);
+			navigate('/home');
 		}
 		if (id === 3) {
 			navigate('/meet');
@@ -423,7 +413,7 @@ const TopNavbar = () => {
 									>
 										<li
 											className={`${s.navItem} ${s.profileItem} ${
-												info.activeNavItem === navItem.id ? s.active : ''
+												pathname.includes('/files') ? s.active : ''
 											}`}
 											onClick={() =>
 												handleNavigation({
@@ -473,7 +463,7 @@ const TopNavbar = () => {
 												}));
 											}}
 											className={`${s.navItem} ${s.profileItem} ${
-												info.activeNavItem === navItem.id ? s.active : ''
+												pathname.includes('/home') ? s.active : ''
 											}`}
 										>
 											{navItem.label}
