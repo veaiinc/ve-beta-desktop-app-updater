@@ -4,6 +4,7 @@ import { insertImage } from './ImageComponent';
 import { insertDatabase } from './Database';
 import { filterSuggestionItems } from '@blocknote/core';
 import SlashMenuComponent from './SlashMenuComponent';
+import { insertAction } from './ActionComponent';
 
 const SlashMenu = ({ editor, noteId }) => {
 	const getItems = async (query) => {
@@ -21,6 +22,7 @@ const SlashMenu = ({ editor, noteId }) => {
 		);
 		// Insert the database item after Advanced group
 		defaultItems.splice(lastAdvanceBlockIndex + 1, 0, insertDatabase(editor, noteId));
+		defaultItems.splice(lastAdvanceBlockIndex + 2, 0, insertAction(editor, noteId));
 
 		defaultItems = defaultItems.filter(
 			(item) => item?.group !== 'Media' || item?.key === 'image',

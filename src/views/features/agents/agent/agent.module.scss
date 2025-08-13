@@ -11,10 +11,22 @@
 		flex-direction: column;
 		flex-shrink: 0;
 		justify-content: space-between;
-		padding: 32px 24px;
+		padding: 26px 24px 55px 24px;
+		height: 100%;
 		position: relative;
 		width: clamp(300px, 29vw, 461px);
 		height: 100%;
+		transition: width 0.3s ease;
+
+		&.collapsed {
+			display: flex;
+			width: 64px;
+			padding-bottom: 12px;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+		}
+
 		:global(.chat-container) {
 			padding: 0 !important;
 			height: 100% !important;
@@ -27,6 +39,104 @@
 		:global(.headerInfo) {
 			padding: 0 0 0 25px !important;
 			background-color: transparent !important;
+		}
+
+		.chatNav {
+			display: flex;
+			padding: 0px 16px 12px 12px;
+			justify-items: baseline;
+			align-items: center;
+			gap: 12px;
+			flex-shrink: 0;
+			align-self: stretch;
+			border-bottom: 1px solid var(--stroke, #2c2d2e);
+			.invBtn {
+				display: flex;
+				height: 32px;
+				padding: 4px 10px;
+				justify-content: center;
+				align-items: center;
+				gap: 6px;
+				border-radius: 8px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				background: var(--primary-button, #79ecc9);
+				color: var(--background-color, #121212);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px;
+				letter-spacing: 0.2px;
+			}
+			.invTitle {
+				color: var(--primary-font, #f2f2f3);
+				text-align: center;
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 18px;
+			}
+		}
+
+		.collapsedContent {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: flex-start;
+			height: 100%;
+			width: 100%;
+		}
+
+		.magicWandBtn {
+			display: flex;
+			width: 44px;
+			height: 44px;
+			padding: 8px;
+			justify-content: center;
+			align-items: center;
+			border-radius: 8px;
+			border: 1px solid var(--stroke, #2c2d2e);
+			background: var(--primary-button, #79ecc9);
+			color: var(--background-color, #121212);
+			cursor: pointer;
+			transition: all 0.2s ease;
+
+			&:hover {
+				background: var(--primary-button-hover, #6dd4b8);
+			}
+
+			svg {
+				width: 20px;
+				height: 20px;
+			}
+		}
+
+		.collapseBtn {
+			position: absolute;
+			top: 16px;
+			right: 16px;
+			display: flex;
+			width: 32px;
+			height: 32px;
+			padding: 6px;
+			justify-content: center;
+			align-items: center;
+			border-radius: 6px;
+			border: 1px solid var(--stroke, #2c2d2e);
+			background: var(--card);
+			color: var(--primary-font, #f2f2f3);
+			cursor: pointer;
+			transition: all 0.2s ease;
+
+			&:hover {
+				background: var(--card-hover, #1a1a1a);
+			}
+
+			svg {
+				width: 16px;
+				height: 16px;
+			}
 		}
 	}
 	.agentBlock {

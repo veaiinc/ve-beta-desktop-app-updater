@@ -1,0 +1,55 @@
+.toolsSuggestionMenu {
+	display: flex;
+	width: 297px;
+	max-height: 447px;
+	overflow-y: auto;
+	flex-direction: column;
+	align-items: center;
+	border-radius: 16px;
+	background: var(--card, #18191b);
+	padding: 12px 8px;
+	border: 1px solid var(--stroke);
+	gap: 2px;
+
+	.toolItem {
+		display: flex;
+		height: 40px;
+		padding: 4px 8px;
+		align-items: center;
+		gap: 20px;
+		align-self: stretch;
+		gap: 7px;
+		cursor: pointer;
+		flex-shrink: 0;
+		border-radius: 8px;
+
+		.icon {
+			width: 20px;
+			height: 20px;
+			border-radius: 4px;
+			object-position: center;
+			object-fit: contain;
+			background-color: var(--secondary-font);
+			border-radius: 4px;
+		}
+
+		.name {
+			overflow: hidden;
+			color: var(--primary-font, #f2f2f3);
+			text-overflow: ellipsis;
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 20px;
+		}
+
+		&:hover {
+			background-color: var(--card-hover);
+		}
+
+		&.selected {
+			background-color: var(--card-hover);
+		}
+	}
+}
