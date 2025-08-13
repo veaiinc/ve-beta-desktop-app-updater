@@ -579,17 +579,13 @@
 							background: none;
 							border: none;
 							cursor: pointer;
-							padding: 2px;
+							padding: 4px 2px 2px 2px;
 							border-radius: 3px;
 							transition: all 0.2s ease;
 
-							&:hover {
-								background: var(--stroke, #2c2d2e);
-							}
-
 							svg {
-								width: 12px;
-								height: 12px;
+								width: 14px;
+								height: 14px;
 								path {
 									fill: var(--secondary-font, #7a7e85);
 								}
