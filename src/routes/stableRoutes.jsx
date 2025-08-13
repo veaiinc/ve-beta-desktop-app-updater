@@ -5,7 +5,7 @@ import AuthWrapper from '../views/layouts/authWrapper';
 import Public from '../views/layouts/Public';
 
 // lazy loaded pages
-// const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
+// import ShareAndEarn from '../views/features/shareAndEarn/ShareAndEarn';
 import SettingsWrapper from '../views/features/settings/SettingsWrapper';
 import RecentChat from '../views/features/chat/RecentChat';
 import Onboarding from '../views/features/onboarding/Onboarding';
@@ -15,7 +15,7 @@ import Agent from '../views/features/agents/agent/Agent';
 import GlobalWorkflows from '../views/features/sales/GlobalWorkflows';
 import CardMeetBot from '../views/features/meetBot/CardMeetBot';
 import MeetBotWrapper from '../views/features/meetBot/meetBotWrapper';
-import ProactiveSuggestions from '../views/features/homePage/ProactiveSuggestions';
+import ProactiveSuggestions from '../views/features/homePage/ambientAi/ProactiveSuggestions';
 
 // components
 
@@ -76,7 +76,13 @@ const stableRoutes = [
 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 				maxWidth="100%"
 			>
-				<RecentChat showChatHistory={true} showDeleteChat={true} showChats={true} />
+				<RecentChat
+					showChatHistory={true}
+					showDeleteChat={true}
+					showChats={true}
+					showChatsButton={true}
+					showBrowser={true}
+				/>
 			</AuthWrapper>
 		),
 	},

@@ -425,6 +425,8 @@ class Proposals extends Component {
 		if (response[0] === true) {
 			this.setState({
 				sections: this.reorderSections(response[1].sections),
+				didChangedSomething:
+					this.state?.previewType == 'm' ? this.state?.didChangedSomething : true,
 			});
 		}
 	};
@@ -446,6 +448,8 @@ class Proposals extends Component {
 		if (response[0] === true) {
 			this.setState({
 				sections: this.reorderSections(response[1].versions[0].sections),
+				didChangedSomething:
+					this.state?.previewType == 'm' ? this.state?.didChangedSomething : true,
 			});
 		}
 	};
@@ -562,6 +566,8 @@ class Proposals extends Component {
 					order: null,
 					nextOrder: null,
 					prevOrder: null,
+					didChangedSomething:
+						this.state?.previewType == 'm' ? this.state?.didChangedSomething : true,
 				},
 				() => {
 					let invoiceTables = [...this.state.invoiceTables];
@@ -656,6 +662,8 @@ class Proposals extends Component {
 			if (isService) {
 				this.setState({
 					sectionTables: response[1].tables ? response[1].tables : [],
+					didChangedSomething:
+						this.state?.previewType == 'm' ? this.state?.didChangedSomething : true,
 				});
 				this.addServiceVariable(
 					_.filter(sections, { type: 'services', order: json.order })[0]._id,
@@ -672,6 +680,8 @@ class Proposals extends Component {
 					order: null,
 					nextOrder: null,
 					prevOrder: null,
+					didChangedSomething:
+						this.state?.previewType == 'm' ? this.state?.didChangedSomething : true,
 				});
 				if (this.state.isWorkflow) {
 					this.setState({
@@ -727,6 +737,8 @@ class Proposals extends Component {
 					sectionTables: response[1]?.versions?.[0]?.tables
 						? response[1]?.versions?.[0]?.tables
 						: [],
+					didChangedSomething:
+						this.state?.previewType == 'm' ? this.state?.didChangedSomething : true,
 				});
 				this.addServiceVariable(
 					_.filter(sections, { type: 'services', order: json.order })[0]._id,
@@ -745,6 +757,8 @@ class Proposals extends Component {
 						order: null,
 						nextOrder: null,
 						prevOrder: null,
+						didChangedSomething:
+							this.state?.previewType == 'm' ? this.state?.didChangedSomething : true,
 					},
 					() => {
 						if (this.state.isWorkflow) {
@@ -1079,7 +1093,8 @@ class Proposals extends Component {
 					//preview: false,
 					//previewType: 'd',
 					isAutoSaving: false,
-					didChangedSomething: this.state?.previewType == 'm' ? false : true,
+					didChangedSomething:
+						this.state?.previewType == 'm' ? this.state?.didChangedSomething : true,
 				});
 				if (this.state.isWorkflow) {
 					this.setState({
@@ -1095,6 +1110,8 @@ class Proposals extends Component {
 					//sectionTables: response[1].tables ? response[1].tables : [],
 					isAutoSaving: false,
 					callApi: true,
+					didChangedSomething:
+						this.state?.previewType == 'm' ? this.state?.didChangedSomething : true,
 				});
 			}
 
@@ -1209,7 +1226,8 @@ class Proposals extends Component {
 					//preview: false,
 					//previewType: 'd',
 					isAutoSaving: false,
-					didChangedSomething: this.state?.previewType == 'm' ? false : true,
+					didChangedSomething:
+						this.state?.previewType == 'm' ? this.state?.didChangedSomething : true,
 				});
 				if (this.state.isWorkflow) {
 					this.setState({

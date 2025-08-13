@@ -2,7 +2,7 @@ import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/onboarding/stages.scss';
 import Context from '../../../context/context';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import CustomToast, { message } from '../globalComponents/CustomToast';
+import { message } from '../globalComponents/CustomToast';
 import 'react-loading-skeleton/dist/skeleton.css';
 import 'react-phone-number-input/style.css';
 import { formatUsername, fetchDomainName } from '../../../helpers';
@@ -682,7 +682,6 @@ const Stages = ({ onNext }) => {
 					</button>
 				)}
 			</div>
-			<CustomToast />
 		</>
 	);
 };
