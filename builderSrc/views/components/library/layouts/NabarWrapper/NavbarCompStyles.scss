@@ -567,3 +567,64 @@
 	box-shadow: 3.2px 3.2px 12.16px 0px rgba(0, 0, 0, 0.24);
 	z-index: 1000000000000000001;
 }
+
+.tooltip-container {
+	// background: white !important;
+	.ant-tooltip-content {
+		padding: 0px !important;
+		border-radius: 8px !important;
+		background: white !important;
+		width: 0px !important;
+		height: 0px !important;
+		option {
+			&:hover {
+				opacity: 1 !important;
+			}
+		}
+	}
+	.ant-tooltip-inner {
+		padding: 0px !important;
+		border-radius: 8px !important;
+		background: white !important;
+		width: 0px !important;
+		height: 0px !important;
+		option {
+			&:hover {
+				opacity: 1 !important;
+			}
+		}
+	}
+	.select-section {
+		display: flex;
+		width: 175px;
+		padding: 16px;
+		flex-direction: column;
+		justify-content: center;
+		align-items: flex-start;
+		gap: 12px;
+		border-radius: 8px;
+		background: #f1eff6;
+		background: color(display-p3 0.9451 0.9373 0.9608);
+		box-shadow: 0 0 24px 0 rgba(0, 0, 0, 0.12);
+		box-shadow: 0 0 24px 0 color(display-p3 0 0 0 / 0.12);
+		cursor: pointer;
+		.options {
+			opacity: 0.5;
+			width: 100%;
+			height: fit-content;
+			.active {
+				opacity: 1;
+				// font-family: Manrope;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+				cursor: pointer;
+			}
+			&:hover {
+				cursor: pointer;
+				opacity: 1;
+			}
+		}
+	}
+}
