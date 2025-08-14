@@ -186,6 +186,7 @@ const ChatBox = ({
 			chatReplyData,
 			deleteMultiAgentFile,
 			proactiveInfoForChat,
+			isDirectSearchAgent,
 		},
 		chatBoxSuggestionsSocket: { sendMessage, closeWebSocketConnection },
 		subscriptionInfo: { currentPlan },
@@ -927,6 +928,13 @@ const ChatBox = ({
 						payload.module_id = params?.meetingId;
 					}
 
+					if (isDirectSearchAgent) {
+						payload.direct_search_agent = true;
+						updateStateValues({
+							isDirectSearchAgent: false,
+						});
+					}
+
 					let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
 
 					if (!location_details) {
@@ -1004,6 +1012,7 @@ const ChatBox = ({
 			proactiveInfoForChat,
 			onChatQueryChange,
 			aiChatSessions,
+			isDirectSearchAgent,
 		],
 	);
 
