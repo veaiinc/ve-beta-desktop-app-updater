@@ -26,7 +26,7 @@ export const guest_chat_ws_api = 'wss://guestsearch.ap-south-1.ve.ai';
 export const meeting_ws_api = 'wss://recall.ap-south-1.ve.ai';
 
 // US region
-export const auth_Api_US = 'https://auth.ve.ai';
+export const auth_Api_US = 'https://us.api.ve.ai/auth/dev'; // TODO: change to 'https://auth.ve.ai' after testing
 export const tenant_api_US = 'https://us.api.ve.ai/tenants/1.0';
 export const tenant_users_api_US = 'https://us.api.ve.ai/tenant-users/1.0';
 export const ve_conversations_api_US = 'https://us.api.ve.ai/ve-conversations/1.0';

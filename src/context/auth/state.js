@@ -6,6 +6,8 @@ import Cookies from 'js-cookie';
 import { fetchDomainName } from '../../helpers';
 import { NEWSLETTER_SUBSCRIPTION_URL } from '../../helpers/ConstantUrls';
 import { auth_Api as authBaseUrl } from '../../services/config.live';
+import requestPushNotificationPermission from '../../services/pushNotifications/requestPushNotificationPermission';
+import generateFCMToken from '../../services/pushNotifications/generateFCMToken';
 
 export const initialState = {
 	currentPlanAddOns: null,
@@ -118,7 +120,11 @@ export const AuthState = () => {
 
 	const verifyEmailVerificationCode = async (email, verificationCode, emailVerified) => {
 		const path = emailVerified ? '/login-with-otp' : '/verify-signup-email';
-		const body = emailVerified ? { email, otp: verificationCode } : { email, verificationCode };
+		const permission = await requestPushNotificationPermission();
+		const fcmToken = permission === 'granted' ? await generateFCMToken() : '';
+		const body = emailVerified
+			? { email, otp: verificationCode, fcmToken }
+			: { email, verificationCode };
 
 		try {
 			const response = await service?.fetchPost(path, body, null, 'auth');
