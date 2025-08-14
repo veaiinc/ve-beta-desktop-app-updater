@@ -884,37 +884,105 @@ export const KnowledgeAgentState = () => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
-			const url = '/composio/auth-config-and-account/' + workspaceId;
 
-			// Prepare the request body based on payload type
-			const requestBody = {
+			// Step 1: Create App Auth Configuration
+			const authUrl = `/composio/app-auth/${workspaceId}`;
+			const authScheme = payload?.auth_scheme || 'OAUTH2';
+
+			const authRequestBody = {
 				toolkit_slug: payload?.slug,
+				auth_scheme: authScheme,
+				credentials: {},
+				app_name: payload?.app_name || payload?.slug,
+				app_description: payload?.app_description || `Integration for ${payload?.slug}`,
 			};
 
-			if (payload?.apiKey) {
-				requestBody.apiKey = payload.apiKey;
+			// Fill credentials depending on the scheme
+			switch (authScheme) {
+				case 'OAUTH2':
+					authRequestBody.credentials = {
+						client_id: payload?.client_id || '',
+						client_secret: payload?.client_secret || '',
+						redirect_uri: payload?.oauth_redirect_uri || payload?.redirect_uri || '',
+						scopes: Array.isArray(payload?.scopes)
+							? payload.scopes
+							: payload?.scopes
+							? payload.scopes.split(',').map((s) => s.trim())
+							: [],
+					};
+					break;
 
-				if (payload?.slug === 'whatsapp') {
-					Object.assign(requestBody, {
-						bearer_token: payload.bearer_token || payload.apiKey,
-						user_id: payload.user_id || '',
-						phone_number_id: payload.phone_number_id || '',
-					});
-				}
+				case 'API_KEY':
+					authRequestBody.credentials = { api_key: payload?.api_key || '' };
+					break;
+
+				case 'BEARER_TOKEN':
+					authRequestBody.credentials = { bearer_token: payload?.bearer_token || '' };
+					break;
+
+				case 'BASIC':
+					authRequestBody.credentials = {
+						username: payload?.username || '',
+						password: payload?.password || '',
+					};
+					break;
 			}
 
-			const response = await service?.fetchPost(
-				url,
-				requestBody,
+			// Create app auth config
+			const authResponse = await service?.fetchPost(
+				authUrl,
+				authRequestBody,
 				usertoken,
 				'third_party_integrations_api',
 			);
-			if (response?.[0] === true) {
-				return [true, response?.[1]];
+
+			if (!authResponse?.[0]) {
+				return [false, authResponse?.[1]];
 			}
-			return [false, response?.[1]];
+
+			const authConfigId = authResponse?.[1]?.data?.auth_config_id;
+			if (!authConfigId) {
+				console.error('Auth config ID missing in response:', authResponse);
+				return [false, { message: 'Failed to retrieve auth config ID' }];
+			}
+
+			// Step 2: Handle OAuth redirect flow (if applicable)
+			if (authScheme === 'OAUTH2' && payload?.oauth_redirect_uri) {
+				// Check if state.js or similar handler is present for OAuth flow
+				if (typeof window?.redirectToOAuth === 'function') {
+					window.redirectToOAuth(authResponse?.[1]?.data);
+				} else {
+					// Fallback: direct browser redirect
+					const redirectUrl = authResponse?.[1]?.data?.redirect_url;
+					if (redirectUrl) {
+						window.location.href = redirectUrl;
+						return;
+					}
+				}
+			}
+
+			// Step 3: Connect the app
+			const connectUrl = `/composio/connect-app/${workspaceId}`;
+			const connectRequestBody = {
+				auth_config_id: authConfigId,
+				connection_name: payload?.connection_name || `${payload?.slug}_connection`,
+				connection_type: payload?.connection_type || 'api',
+				connection_data: payload?.connection_data || {},
+				webhook_url: payload?.webhook_url,
+				custom_headers: payload?.custom_headers || {},
+			};
+
+			const connectResponse = await service?.fetchPost(
+				connectUrl,
+				connectRequestBody,
+				usertoken,
+				'third_party_integrations_api',
+			);
+
+			return connectResponse;
 		} catch (error) {
-			console.log('error==>connectTool', error);
+			console.error('Error in connectTool:', error);
+			return [false, error];
 		}
 	};
 

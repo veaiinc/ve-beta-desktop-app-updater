@@ -185,6 +185,359 @@
 			}
 		}
 
+		// Auth scheme selector styling
+		.auth-scheme-selector {
+			margin-bottom: 24px;
+			padding: 16px;
+			border: 1px solid var(--stroke);
+			border-radius: 8px;
+			background: var(--card-over-card);
+
+			.auth-scheme-header {
+				margin-bottom: 16px;
+				padding-bottom: 12px;
+				border-bottom: 1px solid var(--stroke);
+
+				h4 {
+					margin: 0 0 4px 0;
+					font-size: 14px;
+					font-weight: 600;
+					font-family: var(--primary-font-family);
+					color: var(--primary-font);
+				}
+
+				p {
+					margin: 0;
+					font-size: 12px;
+					font-family: var(--primary-font-family);
+					color: var(--secondary-font);
+					line-height: 1.4;
+				}
+			}
+
+			.form-field {
+				margin-bottom: 0;
+
+				select {
+					width: 100%;
+					padding: 10px 14px;
+					border: 1px solid var(--stroke);
+					border-radius: 8px;
+					font-size: 13px;
+					font-family: var(--primary-font-family);
+					background: var(--card);
+					color: var(--primary-font);
+					transition: border-color 0.2s ease;
+
+					&:focus {
+						outline: none;
+						border-color: var(--stroke);
+					}
+
+					&:disabled {
+						opacity: 0.6;
+						cursor: not-allowed;
+					}
+				}
+			}
+		}
+
+		// Dynamic auth fields styling
+		.auth-fields {
+			margin-bottom: 24px;
+			padding: 16px;
+			border: 1px solid var(--stroke);
+			border-radius: 8px;
+			background: var(--card-over-card);
+
+			.auth-header {
+				margin-bottom: 16px;
+				padding-bottom: 12px;
+				border-bottom: 1px solid var(--stroke);
+
+				h4 {
+					margin: 0 0 4px 0;
+					font-size: 14px;
+					font-weight: 600;
+					font-family: var(--primary-font-family);
+					color: var(--primary-font);
+				}
+
+				p {
+					margin: 0;
+					font-size: 12px;
+					font-family: var(--primary-font-family);
+					color: var(--secondary-font);
+					line-height: 1.4;
+				}
+			}
+
+			.form-field {
+				margin-bottom: 20px;
+
+				&:last-child {
+					margin-bottom: 0;
+				}
+
+				label {
+					font-size: 13px;
+					font-weight: 600;
+				}
+
+				.help-text {
+					margin: 4px 0 8px 0;
+					font-size: 12px;
+					font-family: var(--primary-font-family);
+					color: var(--secondary-font);
+					line-height: 1.4;
+				}
+
+				.api-key-input {
+					font-size: 13px;
+					padding: 10px 14px;
+				}
+			}
+		}
+
+		// OAuth2 fields styling
+		.oauth2-fields {
+			margin-bottom: 24px;
+			padding: 16px;
+			border: 1px solid var(--stroke);
+			border-radius: 8px;
+			background: var(--card-over-card);
+
+			.oauth2-header {
+				margin-bottom: 16px;
+				padding-bottom: 12px;
+				border-bottom: 1px solid var(--stroke);
+
+				h4 {
+					margin: 0 0 4px 0;
+					font-size: 14px;
+					font-weight: 600;
+					font-family: var(--primary-font-family);
+					color: var(--primary-font);
+				}
+
+				p {
+					margin: 0;
+					font-size: 12px;
+					font-family: var(--primary-font-family);
+					color: var(--secondary-font);
+					line-height: 1.4;
+				}
+			}
+
+			.form-field {
+				margin-bottom: 20px;
+
+				&:last-child {
+					margin-bottom: 0;
+				}
+
+				label {
+					font-size: 13px;
+					font-weight: 600;
+				}
+
+				.api-key-input {
+					font-size: 13px;
+					padding: 10px 14px;
+				}
+			}
+		}
+
+		// API Key fields styling
+		.api-key-fields {
+			margin-bottom: 24px;
+			padding: 16px;
+			border: 1px solid var(--stroke);
+			border-radius: 8px;
+			background: var(--card-over-card);
+
+			.api-key-header {
+				margin-bottom: 16px;
+				padding-bottom: 12px;
+				border-bottom: 1px solid var(--stroke);
+
+				h4 {
+					margin: 0 0 4px 0;
+					font-size: 14px;
+					font-weight: 600;
+					font-family: var(--primary-font-family);
+					color: var(--primary-font);
+				}
+
+				p {
+					margin: 0;
+					font-size: 12px;
+					font-family: var(--primary-font-family);
+					color: var(--secondary-font);
+					line-height: 1.4;
+				}
+			}
+
+			.form-field {
+				margin-bottom: 0;
+			}
+		}
+
+		// Bearer Token fields styling
+		.bearer-token-fields {
+			margin-bottom: 24px;
+			padding: 16px;
+			border: 1px solid var(--stroke);
+			border-radius: 8px;
+			background: var(--card-over-card);
+
+			.bearer-token-header {
+				margin-bottom: 16px;
+				padding-bottom: 12px;
+				border-bottom: 1px solid var(--stroke);
+
+				h4 {
+					margin: 0 0 4px 0;
+					font-size: 14px;
+					font-weight: 600;
+					font-family: var(--primary-font-family);
+					color: var(--primary-font);
+				}
+
+				p {
+					margin: 0;
+					font-size: 12px;
+					font-family: var(--primary-font-family);
+					color: var(--secondary-font);
+					line-height: 1.4;
+				}
+			}
+
+			.form-field {
+				margin-bottom: 0;
+			}
+		}
+
+		// Basic Auth fields styling
+		.basic-auth-fields {
+			margin-bottom: 24px;
+			padding: 16px;
+			border: 1px solid var(--stroke);
+			border-radius: 8px;
+			background: var(--card-over-card);
+
+			.basic-auth-header {
+				margin-bottom: 16px;
+				padding-bottom: 12px;
+				border-bottom: 1px solid var(--stroke);
+
+				h4 {
+					margin: 0 0 4px 0;
+					font-size: 14px;
+					font-weight: 600;
+					font-family: var(--primary-font-family);
+					color: var(--primary-font);
+				}
+
+				p {
+					margin: 0;
+					font-size: 12px;
+					font-family: var(--primary-font-family);
+					color: var(--secondary-font);
+					line-height: 1.4;
+				}
+			}
+
+			.form-field {
+				margin-bottom: 20px;
+
+				&:last-child {
+					margin-bottom: 0;
+				}
+
+				label {
+					font-size: 13px;
+					font-weight: 600;
+				}
+
+				.api-key-input {
+					font-size: 13px;
+					padding: 10px 14px;
+				}
+			}
+		}
+
+		// Connection fields styling
+		.connection-fields {
+			margin-bottom: 24px;
+			padding: 16px;
+			border: 1px solid var(--stroke);
+			border-radius: 8px;
+			background: var(--card-over-card);
+
+			.connection-header {
+				margin-bottom: 16px;
+				padding-bottom: 12px;
+				border-bottom: 1px solid var(--stroke);
+
+				h4 {
+					margin: 0 0 4px 0;
+					font-size: 14px;
+					font-weight: 600;
+					font-family: var(--primary-font-family);
+					color: var(--primary-font);
+				}
+
+				p {
+					margin: 0;
+					font-size: 12px;
+					font-family: var(--primary-font-family);
+					color: var(--secondary-font);
+					line-height: 1.4;
+				}
+			}
+
+			.form-field {
+				margin-bottom: 20px;
+
+				&:last-child {
+					margin-bottom: 0;
+				}
+
+				label {
+					font-size: 13px;
+					font-weight: 600;
+				}
+
+				.api-key-input {
+					font-size: 13px;
+					padding: 10px 14px;
+				}
+
+				select {
+					width: 100%;
+					padding: 10px 14px;
+					border: 1px solid var(--stroke);
+					border-radius: 8px;
+					font-size: 13px;
+					font-family: var(--primary-font-family);
+					background: var(--card);
+					color: var(--primary-font);
+					transition: border-color 0.2s ease;
+
+					&:focus {
+						outline: none;
+						border-color: var(--stroke);
+					}
+
+					&:disabled {
+						opacity: 0.6;
+						cursor: not-allowed;
+					}
+				}
+			}
+		}
+
 		.whatsapp-fields {
 			margin-top: 16px;
 			padding: 16px;
@@ -339,6 +692,55 @@
 
 		.api-key-modal-body {
 			padding: 20px;
+
+			// Responsive styling for auth scheme sections
+			.auth-scheme-selector,
+			.auth-fields,
+			.oauth2-fields,
+			.api-key-fields,
+			.bearer-token-fields,
+			.basic-auth-fields,
+			.connection-fields {
+				margin-bottom: 16px;
+				padding: 12px;
+
+				.auth-scheme-header,
+				.auth-header,
+				.oauth2-header,
+				.api-key-header,
+				.bearer-token-header,
+				.basic-auth-header,
+				.connection-header {
+					margin-bottom: 12px;
+					padding-bottom: 8px;
+
+					h4 {
+						font-size: 13px;
+					}
+
+					p {
+						font-size: 11px;
+					}
+				}
+
+				.form-field {
+					margin-bottom: 14px;
+
+					label {
+						font-size: 12px;
+					}
+
+					.help-text {
+						font-size: 11px;
+					}
+
+					.api-key-input,
+					select {
+						font-size: 12px;
+						padding: 8px 12px;
+					}
+				}
+			}
 		}
 
 		.api-key-modal-footer {
