@@ -74,7 +74,6 @@ import GalleryVideos from '../../components/gallery/galleryVideos/GalleryVideos'
 import { ReactComponent as ChevronLeft } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as MoveToIcon } from '../../../assets/svg/gallery/moveToIcon.svg';
 import Spinner from '../../components/loaders/Spinner';
-import DesktopAppIntimation from '../../components/gallery/galleryPage/DesktopAppIntimation';
 // const workspaceId = localStorage.getItem('workspaceId');
 
 const dummyImagesArray = Array.from({ length: 10 }, () => ({ isPlaceholderImg: true }));
@@ -128,16 +127,11 @@ const filterOptions = [
 	{ label: 'Random', value: 'custom', sortType: 1, noArrow: true },
 ];
 
-const isMac =
-	navigator.userAgentData?.platform === 'macOS' ||
-	navigator.userAgent.toLowerCase().indexOf('mac') !== -1;
-
 const GalleryPage = () => {
 	const { galleryId } = useParams();
 	const navigate = useNavigate();
 	const location = useLocation();
 	const [searchkeys, setsearchkeys] = useSearchParams();
-	const region = localStorage.getItem('region');
 	const {
 		galleryInfo: {
 			getAlbums,
@@ -352,7 +346,6 @@ const GalleryPage = () => {
 		uploadImageLoader: false,
 		selectingImages: false,
 		videoUploadPopup: false,
-		showDesktopAppIntimation: false, // New state for desktop app intimation popup
 		selectVideo: null,
 		videosList: null,
 		coverLoading: false,
@@ -1749,29 +1742,6 @@ const GalleryPage = () => {
 	// ... rest of the code ...
 
 	const handleNavigateUpload = () => {
-		// Show desktop app intimation popup for Mac users in us-east-1 region
-		if (isMac && region === 'us-east-1') {
-			setInfo((prev) => ({ ...prev, showDesktopAppIntimation: true }));
-			return;
-		}
-
-		// For non-Mac users or users not in us-east-1 region, proceed with normal upload
-		proceedWithUpload();
-	};
-
-	// Function to handle desktop app intimation modal close (when clicking outside)
-	const handleDesktopAppIntimationClose = () => {
-		setInfo((prev) => ({ ...prev, showDesktopAppIntimation: false }));
-	};
-
-	// Function to handle "standard upload" click and proceed with upload
-	const handleStandardUploadClick = () => {
-		setInfo((prev) => ({ ...prev, showDesktopAppIntimation: false }));
-		proceedWithUpload();
-	};
-
-	// Function to proceed with upload (used by both Mac and non-Mac users)
-	const proceedWithUpload = () => {
 		const uploadUrl =
 			info?.albumContains === 'All'
 				? `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos?light-gallery=${
@@ -6605,11 +6575,6 @@ const GalleryPage = () => {
 					updateSelectedVideo={updateSelectedVideo}
 				/>
 			)}
-			<DesktopAppIntimation
-				open={info.showDesktopAppIntimation}
-				closeModal={handleDesktopAppIntimationClose}
-				onStandardUploadClick={handleStandardUploadClick}
-			/>
 		</>
 	);
 };
