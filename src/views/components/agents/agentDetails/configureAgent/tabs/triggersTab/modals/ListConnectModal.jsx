@@ -28,7 +28,8 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 	// Get selected auth scheme
 	const getSelectedAuthScheme = () => {
 		const schemes = getAuthSchemes();
-		return schemes[info.selectedAuthSchemeIndex] || schemes[0];
+		const selectedScheme = schemes[info.selectedAuthSchemeIndex] || schemes[0];
+		return selectedScheme || { mode: 'API_KEY', name: 'API Key', fields: {} };
 	};
 
 	// Find the best default auth scheme index
@@ -88,11 +89,11 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 			}
 		}
 
-		if (onApiKeySubmit) {
+		if (onApiKeySubmit && selectedAuthScheme) {
 			// Prepare payload based on auth scheme
 			let payload = {
 				slug: action?.toolkit?.slug,
-				auth_scheme: selectedAuthScheme.mode,
+				auth_scheme: selectedAuthScheme.mode || 'API_KEY',
 				// Set sensible defaults for connection settings
 				connection_name: `${action?.toolkit?.slug}_connection`,
 				connection_type: 'api',
@@ -108,16 +109,16 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 
 			// Map legacy field names
 			if (payload.generic_api_key) {
-				if (selectedAuthScheme.mode === 'API_KEY') {
+				if (selectedAuthScheme?.mode === 'API_KEY') {
 					payload.api_key = payload.generic_api_key;
-				} else if (selectedAuthScheme.mode === 'BEARER_TOKEN') {
+				} else if (selectedAuthScheme?.mode === 'BEARER_TOKEN') {
 					payload.bearer_token = payload.generic_api_key;
 				}
 				delete payload.generic_api_key;
 			}
 
 			// Handle scopes for OAuth2
-			if (selectedAuthScheme.mode === 'OAUTH2' && payload.scopes) {
+			if (selectedAuthScheme?.mode === 'OAUTH2' && payload.scopes) {
 				// Convert scopes to array if it's a string
 				if (typeof payload.scopes === 'string') {
 					payload.scopes = payload.scopes
@@ -206,8 +207,8 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 		if (!selectedAuthScheme) return null;
 
 		const authSchemeName = selectedAuthScheme.name
-			.replace(/_/g, ' ')
-			.replace(/\b\w/g, (l) => l.toUpperCase());
+			? selectedAuthScheme.name.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
+			: selectedAuthScheme.mode || 'Authentication';
 
 		return (
 			<div className="auth-fields">
