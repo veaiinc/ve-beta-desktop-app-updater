@@ -144,6 +144,7 @@ export const intialState = {
 	newChatSessionIds: [],
 	aiMessagesInfo: null,
 	proactiveInfoForChat: null,
+	isDirectSearchAgent: false,
 };
 
 export const TemplatesState = (props) => {

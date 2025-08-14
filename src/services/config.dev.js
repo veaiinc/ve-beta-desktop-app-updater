@@ -24,6 +24,7 @@ export const chat_ws_api = 'wss://ai.ap-south-1.ve.ai';
 export const guest_chat_ws_api = 'wss://guestsearch.ap-south-1.ve.ai';
 export const meeting_ws_api = 'wss://recall.ap-south-1.ve.ai';
 export const browser_ws_api = 'wss://browser.us-east-1.ve.ai';
+export const meeting_summary_api = 'https://live.ap-south-1.ve.ai';
 
 // US region
 export const auth_Api_US = 'https://auth.ve.ai';
@@ -47,6 +48,8 @@ export const page_notes_api_database_US = 'https://us.api.ve.ai/page-notes/1.0';
 export const elastic_search_api_US = 'https://ap.api.ve.ai/elastic-search/1.0';
 export const workspace_images_api_US = 'https://us.api.ve.ai/images/1.0/';
 export const custom_domain_api_US = 'https://us.api.ve.ai/custom-domain/1.0';
+export const meeting_summary_api_US = 'https://live.us-east-1.ve.ai';
+
 //socket endpoints
 export const chat_ws_api_US = 'wss://ai.us-east-1.ve.ai';
 export const guest_chat_ws_api_US = 'wss://guestsearch.us-east-1.ve.ai';
