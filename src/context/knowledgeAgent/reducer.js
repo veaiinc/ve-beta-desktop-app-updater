@@ -58,6 +58,12 @@ const actionHandlers = {
 		...state,
 		currentAgentAutomation: action?.payload,
 	}),
+
+	SET_FETCHED_KNOWLEDGE_AGENTS: (state, action) => ({
+		...state,
+		fetchedKnowledgeAgents: action?.payload,
+	}),
+
 	RESET_STATE: () => initialState,
 };
 
