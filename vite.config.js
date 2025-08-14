@@ -17,10 +17,23 @@ export default defineConfig({
 						emptyOutDir: false,
 						rollupOptions: {
 							external: [],
+							input: {
+								main: 'electron/main',
+								windowHelper: 'electron/helpers/windowHelper.js',
+								galleryHelper: 'electron/galleryHelper.js',
+								updateHelper: 'electron/updateHelper.js',
+								overlayWindowHelper: 'electron/overlayWindowHelper.js',
+							},
 							output: {
-								format: 'cjs'
-							}
-						}
+								format: 'cjs',
+								entryFileNames: (chunkInfo) => {
+									if (chunkInfo.name === 'windowHelper') {
+										return 'helpers/[name].js';
+									}
+									return '[name].js';
+								},
+							},
+						},
 					},
 				},
 			},
@@ -46,8 +59,8 @@ export default defineConfig({
 		rollupOptions: {
 			input: {
 				main: './index.html',
-				overlay: './overlay.html'
-			}
+				overlay: './overlay.html',
+			},
 		},
 	},
 	css: {

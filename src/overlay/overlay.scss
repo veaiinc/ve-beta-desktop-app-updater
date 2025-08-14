@@ -49,6 +49,20 @@
 		margin-top: 16px;
 		padding: 6px;
 	}
+	
+	.live-intelligence-container {
+		width: 100%;
+		max-width: 300px;
+		margin-top: 16px;
+		padding: 6px;
+	}
+	
+	.transcript-container {
+		width: 100%;
+		max-width: 450px;
+		margin-top: 16px;
+		padding: 6px;
+	}
 }
 
 // Screen Query Container
@@ -59,6 +73,38 @@
 	backdrop-filter: blur(12px);
 	-webkit-backdrop-filter: blur(12px);
 	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	padding: 8px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+	animation: slideInDown 0.3s ease-out;
+	box-sizing: border-box;
+	overflow: hidden;
+	z-index: 10000;
+	position: relative;
+}
+
+// Live Intelligence Container
+.live-intelligence-container {
+	width: 320px;
+	margin-top: 16px;
+	background: var(--card, #2d2d2d);
+	opacity: 1;
+	border-radius: 12px;
+	padding: 8px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+	animation: slideInDown 0.3s ease-out;
+	box-sizing: border-box;
+	overflow: hidden;
+	z-index: 10000;
+	position: relative;
+}
+
+// Transcript Container
+.transcript-container {
+	width: 480px;
+	margin-top: 16px;
+	background: var(--card, #2d2d2d);
+	opacity: 1;
 	border-radius: 12px;
 	padding: 8px;
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
