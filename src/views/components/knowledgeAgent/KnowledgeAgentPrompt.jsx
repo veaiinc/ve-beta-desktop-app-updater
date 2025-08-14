@@ -187,7 +187,7 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [] }) => {
 					<Tooltip
 						open={info.isSelectModelOpen}
 						onOpenChange={handleModelDropdownVisibility}
-						placement="bottom"
+						placement="bottomRight"
 						title={
 							<div className="modelDropdown">
 								{info?.aiModelOptions?.map((option, index) => (
@@ -270,6 +270,8 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [] }) => {
                                 </div>
                             </Tooltip>
                         </div> */}
+
+						<div className="systemPromptHint">{`Type '<' to add tools`}</div>
 
 						<div className="systemPromptTextArea promptWithIconsWrapper">
 							<PromptWithIcons

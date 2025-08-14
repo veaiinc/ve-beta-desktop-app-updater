@@ -39,7 +39,7 @@ export default function NoteTranscription({
 	const sessionIdRef = useRef(null); // Unique session ID for live intelligence
 
 	const {
-		notes: { getLiveKitToken, deleteLiveKitRoom },
+		notes: { getLiveKitToken, deleteLiveKitRoom, initializeMeetingSummary },
 	} = useContext(Context);
 
 	// Initialize useNote unconditionally
@@ -346,6 +346,7 @@ export default function NoteTranscription({
 		transcriptionsMapRef.current.clear();
 		displayedTextMapRef.current.clear();
 		processedSegmentsRef.current.clear();
+		initializeMeetingSummary({ meeting_id: meetingId });
 	};
 
 	// Handle live intelligence messages
