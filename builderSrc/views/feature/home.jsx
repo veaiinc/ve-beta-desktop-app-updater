@@ -5733,6 +5733,7 @@ class Home extends Proposals {
 		} else {
 			this.setState({
 				showCheckMobilePopup: false,
+				didChangedSomething: false,
 			});
 		}
 	};
