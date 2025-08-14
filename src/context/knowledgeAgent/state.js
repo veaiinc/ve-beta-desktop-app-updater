@@ -6,6 +6,7 @@ import ObjectID from 'bson-objectid';
 export const initialState = {
 	knowledgeAssistantsList: null,
 	activeKnowledgeAssistant: null,
+	fetchedKnowledgeAgents: null,
 	allAiPrompts: null,
 	knowledgeBaseInfo: null,
 	knowledgeBaseFilesActiveStatus: null,
@@ -99,7 +100,7 @@ export const KnowledgeAgentState = () => {
 		}
 	};
 
-	const getActiveKnowledgeAgentDetails = async (aiAssistantId) => {
+	const getActiveKnowledgeAgentDetails = async (aiAssistantId, addToFetched = false) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const path = '/' + workspaceId + '/knowledge-agents/' + aiAssistantId;
@@ -112,6 +113,15 @@ export const KnowledgeAgentState = () => {
 					type: Actions?.SET_ACTIVE_KNOWLEDGE_ASSISTANT,
 					payload: { data: response?.[1] },
 				});
+				if (addToFetched) {
+					dispatch({
+						type: Actions?.SET_FETCHED_KNOWLEDGE_AGENTS,
+						payload: {
+							...state?.fetchedKnowledgeAgents,
+							[aiAssistantId]: response?.[1],
+						},
+					});
+				}
 			} else {
 				dispatch({
 					type: Actions?.SET_ACTIVE_KNOWLEDGE_ASSISTANT,

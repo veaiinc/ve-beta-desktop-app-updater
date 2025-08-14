@@ -39,6 +39,7 @@ const AgentDrawer = ({
 			deleteKnowledgeAgent,
 			activeKnowledgeAssistant,
 			getActiveKnowledgeAgentDetails,
+			fetchedKnowledgeAgents,
 		},
 		templates: { updateStateValues, handleGlobalChatMessages },
 	} = useContext(Context);
@@ -62,8 +63,11 @@ const AgentDrawer = ({
 
 	useEffect(() => {
 		if (agent?._id) {
-			if (activeKnowledgeAssistant === null || activeKnowledgeAssistant?._id !== agent?._id) {
-				getActiveKnowledgeAgentDetails(agent?._id);
+			if (
+				fetchedKnowledgeAgents === null ||
+				fetchedKnowledgeAgents?.[agent?._id] === undefined
+			) {
+				getActiveKnowledgeAgentDetails(agent?._id, true);
 			}
 		}
 	}, [agent?._id]);
@@ -119,6 +123,10 @@ const AgentDrawer = ({
 		}));
 	};
 
+	const activeAgent = fetchedKnowledgeAgents?.[agent?._id]
+		? { data: fetchedKnowledgeAgents?.[agent?._id] }
+		: null;
+
 	return (
 		<>
 			<div className={`${s.agentMask} ${open ? s.open : ''}`} onClick={closeDrawer}></div>
@@ -138,7 +146,7 @@ const AgentDrawer = ({
 					</div>
 					<div className={s.headerActions}>
 						<AgentShareComponent
-							activeKnowledgeAssistant={activeKnowledgeAssistant}
+							activeKnowledgeAssistant={activeAgent}
 							buttonText={<ShareSvg />}
 							buttonStyle={shareButtonStyle}
 							agentId={agent?._id}

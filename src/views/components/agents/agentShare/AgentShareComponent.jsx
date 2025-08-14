@@ -225,7 +225,7 @@ const AgentShareComponent = ({
 			const response = await updateSharedAgentUser(finalAgentId, payload);
 			if (response?.[0] === true) {
 				message.success('Global access updated');
-				await getActiveKnowledgeAgentDetails(finalAgentId);
+				await getActiveKnowledgeAgentDetails(finalAgentId, true);
 				// await fetchSharedUsers();
 			} else {
 				// Handle specific error cases
