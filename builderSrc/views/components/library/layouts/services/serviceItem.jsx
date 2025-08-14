@@ -275,9 +275,10 @@ class ServiceItem extends Component {
 			<div
 				key={this.state.index}
 				className={`st-row ${
-					this.state.previewType === 'm' && this.state.client == true
-						? 'flex-direction-column-imp'
-						: _.has(this.state.style, 'services_style')
+					// this.state.previewType === 'm' && this.state.client == true
+					// 	? 'flex-direction-column-imp'
+					// 	:
+					_.has(this.state.style, 'services_style')
 						? this.state.style.services_style !== 0
 							? 'flex-direction-column-imp'
 							: ''
