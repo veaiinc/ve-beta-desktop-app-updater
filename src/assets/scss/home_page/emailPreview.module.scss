@@ -1,0 +1,69 @@
+.emailPreviewContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+	align-self: stretch;
+	.emailPreviewTitle {
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 550;
+		line-height: normal;
+	}
+	.emailPreviewBody {
+		display: flex;
+		padding: 20px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 10px;
+		align-self: stretch;
+		border-radius: 16px;
+		border: 1px solid var(--stroke, #2c2d2e);
+		span {
+			align-self: stretch;
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: italic;
+			font-weight: 500;
+			line-height: 24px; /* 171.429% */
+		}
+	}
+	.buttonsContainer {
+		display: flex;
+		align-items: flex-start;
+		gap: 8px;
+		align-self: stretch;
+		.eachButton {
+			display: flex;
+			padding: 12px;
+			justify-content: center;
+			align-items: center;
+			gap: 8px;
+			flex: 1 0 0;
+			border-radius: 8px;
+			background: var(--card-over-card, #1f2123);
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			svg {
+				path {
+					fill: var(--secondary-font);
+				}
+			}
+		}
+		.sendSvg {
+			svg {
+				path {
+					fill: none !important;
+					stroke: var(--secondary-font);
+				}
+			}
+		}
+	}
+}
