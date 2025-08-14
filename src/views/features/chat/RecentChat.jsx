@@ -856,8 +856,7 @@ const RecentChat = ({
 		(event) => {
 			let { data = '' } = event || {};
 			data = JSON?.parse(data);
-			console.log(data, 'data');
-			if (data?.type === 'new-tab-detected') {
+			if (data?.type === 'new-tab-activated') {
 				handleGlobalChatMessages({
 					sessionId,
 					browserTabsInfo: {

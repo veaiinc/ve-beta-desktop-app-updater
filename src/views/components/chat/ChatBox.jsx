@@ -2563,11 +2563,7 @@ const ChatBox = ({
 					{browserImage ? (
 						<div className="browser-image-wrapper">
 							<div className="browser-text">Browser</div>
-							<img
-								src={`https://m.media-amazon.com/images/I/51NwMqEnC3L._UF1000,1000_QL80_.jpg`}
-								className="browser-image"
-								alt="browser"
-							/>
+							<img src={browserImage} className="browser-image" alt="browser" />
 						</div>
 					) : (
 						<div className="browser-button">Browser</div>

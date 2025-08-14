@@ -15,12 +15,12 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 	});
 
 	useEffect(() => {
-		const tabs = browserData?.allTabUrls?.slice(1) || [];
-		const activeTabIndex = (browserData?.activeTabIndex || 0) - 1 ?? -1;
 		if (browserData) {
+			const tabs = browserData?.tabs?.slice(1) || [];
+			const currentTabIndex = (browserData?.currentTabIndex || 0) - 1 ?? -1;
 			setInfo((prev) => ({
 				...prev,
-				activeTab: activeTabIndex,
+				activeTab: currentTabIndex,
 				tabs,
 			}));
 		}
