@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import ReactModal from '../../../../../../../components/modalsV2/';
 import { ReactComponent as CrossIcon } from '../../../../../../../../assets/svg/docs/cross.svg';
 import { ReactComponent as EyeIcon } from '../../../../../../../../assets/svg/activity/eye.svg';
@@ -20,59 +20,46 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 		selectedAuthSchemeIndex: 0, // Default to first auth scheme
 	});
 
-	// Get available auth schemes
-	const getAuthSchemes = () => {
-		return action?.toolkit?.auth_schemes || [];
-	};
+	const authSchemes = action?.toolkit?.auth_schemes || [];
 
-	// Get selected auth scheme
-	const getSelectedAuthScheme = () => {
-		const schemes = getAuthSchemes();
-		const selectedScheme = schemes[info.selectedAuthSchemeIndex] || schemes[0];
-		return selectedScheme || { mode: 'API_KEY', name: 'API Key', fields: {} };
-	};
-
-	// Find the best default auth scheme index
-	const getDefaultAuthSchemeIndex = () => {
-		const schemes = getAuthSchemes();
-		if (!schemes.length) return 0;
-
-		const apiKeyIndex = schemes.findIndex((s) => s.mode === 'API_KEY');
+	// // Get selected auth scheme
+	const defaultAuthSchemeIndex = (() => {
+		if (!authSchemes.length) return 0;
+		const apiKeyIndex = authSchemes.findIndex((s) => s.mode === 'API_KEY');
 		if (apiKeyIndex !== -1) return apiKeyIndex;
-
-		const bearerIndex = schemes.findIndex((s) => s.mode === 'BEARER_TOKEN');
+		const bearerIndex = authSchemes.findIndex((s) => s.mode === 'BEARER_TOKEN');
 		if (bearerIndex !== -1) return bearerIndex;
-
 		return 0;
-	};
+	})();
 
-	// Initialize with the best default auth scheme
-	React.useEffect(() => {
-		if (isOpen && action?.toolkit?.auth_schemes) {
-			const defaultIndex = getDefaultAuthSchemeIndex();
+	// Selected auth scheme
+	const selectedAuthScheme = useMemo(() => {
+		return (
+			authSchemes[info.selectedAuthSchemeIndex] ||
+			authSchemes[defaultAuthSchemeIndex] ||
+			authSchemes[0] || { mode: 'API_KEY', name: 'API Key', fields: {} }
+		);
+	}, [authSchemes, info.selectedAuthSchemeIndex, defaultAuthSchemeIndex]);
+
+	// Required fields
+	const requiredFields = useMemo(() => {
+		if (!selectedAuthScheme) return [];
+		const authConfigFields = selectedAuthScheme.fields?.auth_config_creation?.required || [];
+		const connectedAccountFields =
+			selectedAuthScheme.fields?.connected_account_initiation?.required || [];
+		return [...authConfigFields, ...connectedAccountFields];
+	}, [selectedAuthScheme]);
+
+	// Initialize when opened
+	useEffect(() => {
+		if (isOpen && authSchemes.length) {
 			setInfo((prev) => ({
 				...prev,
-				selectedAuthSchemeIndex: defaultIndex,
+				selectedAuthSchemeIndex: defaultAuthSchemeIndex,
 				dynamicFields: {},
 			}));
 		}
-	}, [isOpen, action?.toolkit?.auth_schemes]);
-
-	// Get all required fields from auth scheme
-	const getRequiredFields = () => {
-		const authScheme = getSelectedAuthScheme();
-		if (!authScheme) return [];
-
-		const authConfigFields = authScheme.fields?.auth_config_creation?.required || [];
-		const connectedAccountFields =
-			authScheme.fields?.connected_account_initiation?.required || [];
-
-		return [...authConfigFields, ...connectedAccountFields];
-	};
-
-	const authSchemes = getAuthSchemes();
-	const selectedAuthScheme = getSelectedAuthScheme();
-	const requiredFields = getRequiredFields();
+	}, [isOpen, authSchemes, defaultAuthSchemeIndex]);
 
 	const handleSubmit = async () => {
 		setInfo((prev) => ({ ...prev, error: '' }));

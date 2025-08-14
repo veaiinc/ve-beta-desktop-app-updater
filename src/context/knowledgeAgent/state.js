@@ -885,11 +885,6 @@ export const KnowledgeAgentState = () => {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 
-			if (!workspaceId || !usertoken) {
-				console.error('Missing workspaceId or usertoken in localStorage.');
-				return [false, { message: 'Authentication data missing' }];
-			}
-
 			// Step 1: Create App Auth Configuration
 			const authUrl = `/composio/app-auth/${workspaceId}`;
 			const authScheme = payload?.auth_scheme || 'OAUTH2';
@@ -984,9 +979,7 @@ export const KnowledgeAgentState = () => {
 				'third_party_integrations_api',
 			);
 
-			return connectResponse?.[0]
-				? [true, connectResponse?.[1]]
-				: [false, connectResponse?.[1]];
+			return connectResponse;
 		} catch (error) {
 			console.error('Error in connectTool:', error);
 			return [false, error];
