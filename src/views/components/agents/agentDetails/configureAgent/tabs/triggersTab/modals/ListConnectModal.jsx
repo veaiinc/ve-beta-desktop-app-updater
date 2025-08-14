@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import ReactModal from '../../../../../../../components/modalsV2/';
 import { ReactComponent as CrossIcon } from '../../../../../../../../assets/svg/docs/cross.svg';
 import { ReactComponent as EyeIcon } from '../../../../../../../../assets/svg/activity/eye.svg';
@@ -8,76 +8,286 @@ import '../../../../../../../../assets/scss/ai_assistant/modal/apiKeyModal.scss'
 
 const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading = false }) => {
 	const [info, setInfo] = useState({
-		apiKey: '',
-		showApiKey: false,
-		bearerToken: '',
-		showBearerToken: false,
-		userId: '',
-		phoneNumberId: '',
+		// Dynamic fields based on auth scheme
+		dynamicFields: {},
+
+		// Connection fields
+		connectionName: '',
+		connectionType: 'api',
+		webhookUrl: '',
+
 		error: '',
+		selectedAuthSchemeIndex: 0, // Default to first auth scheme
 	});
 
+	// Get available auth schemes
+	const getAuthSchemes = () => {
+		return action?.toolkit?.auth_schemes || [];
+	};
+
+	// Get selected auth scheme
+	const getSelectedAuthScheme = () => {
+		const schemes = getAuthSchemes();
+		return schemes[info.selectedAuthSchemeIndex] || schemes[0];
+	};
+
+	// Find the best default auth scheme index
+	const getDefaultAuthSchemeIndex = () => {
+		const schemes = getAuthSchemes();
+		if (!schemes.length) return 0;
+
+		const apiKeyIndex = schemes.findIndex((s) => s.mode === 'API_KEY');
+		if (apiKeyIndex !== -1) return apiKeyIndex;
+
+		const bearerIndex = schemes.findIndex((s) => s.mode === 'BEARER_TOKEN');
+		if (bearerIndex !== -1) return bearerIndex;
+
+		return 0;
+	};
+
+	// Initialize with the best default auth scheme
+	React.useEffect(() => {
+		if (isOpen && action?.toolkit?.auth_schemes) {
+			const defaultIndex = getDefaultAuthSchemeIndex();
+			setInfo((prev) => ({
+				...prev,
+				selectedAuthSchemeIndex: defaultIndex,
+				dynamicFields: {},
+			}));
+		}
+	}, [isOpen, action?.toolkit?.auth_schemes]);
+
+	// Get all required fields from auth scheme
+	const getRequiredFields = () => {
+		const authScheme = getSelectedAuthScheme();
+		if (!authScheme) return [];
+
+		const authConfigFields = authScheme.fields?.auth_config_creation?.required || [];
+		const connectedAccountFields =
+			authScheme.fields?.connected_account_initiation?.required || [];
+
+		return [...authConfigFields, ...connectedAccountFields];
+	};
+
+	const authSchemes = getAuthSchemes();
+	const selectedAuthScheme = getSelectedAuthScheme();
+	const requiredFields = getRequiredFields();
+
 	const handleSubmit = async () => {
-		if (!info.apiKey.trim()) {
-			setInfo((prev) => ({ ...prev, error: 'API key is required' }));
-			return;
-		}
-
-		// For WhatsApp, additional fields are required
-		if (action?.toolkit?.slug === 'whatsapp') {
-			if (!info.bearerToken.trim()) {
-				setInfo((prev) => ({ ...prev, error: 'Bearer token is required for WhatsApp' }));
-				return;
-			}
-			if (!info.userId.trim()) {
-				setInfo((prev) => ({ ...prev, error: 'User ID is required for WhatsApp' }));
-				return;
-			}
-			if (!info.phoneNumberId.trim()) {
-				setInfo((prev) => ({ ...prev, error: 'Phone number ID is required for WhatsApp' }));
-				return;
-			}
-		}
-
 		setInfo((prev) => ({ ...prev, error: '' }));
 
-		if (onApiKeySubmit) {
-			// For WhatsApp, pass additional fields
-			if (action?.toolkit?.slug === 'whatsapp') {
-				await onApiKeySubmit(
-					{
-						apiKey: info.apiKey,
-						bearer_token: info.bearerToken,
-						user_id: info.userId,
-						phone_number_id: info.phoneNumberId,
-					},
-					action,
-				);
-			} else {
-				await onApiKeySubmit(info.apiKey, action);
+		// Validate all required fields
+		for (const field of requiredFields) {
+			const fieldValue = info.dynamicFields[field.name];
+			if (field.required && (!fieldValue || !fieldValue.trim())) {
+				setInfo((prev) => ({
+					...prev,
+					error: `${field.displayName || field.name} is required`,
+				}));
+				return;
 			}
+		}
+
+		if (onApiKeySubmit) {
+			// Prepare payload based on auth scheme
+			let payload = {
+				slug: action?.toolkit?.slug,
+				auth_scheme: selectedAuthScheme.mode,
+				// Set sensible defaults for connection settings
+				connection_name: `${action?.toolkit?.slug}_connection`,
+				connection_type: 'api',
+			};
+
+			// Add all dynamic fields to payload
+			Object.keys(info.dynamicFields).forEach((fieldName) => {
+				const fieldValue = info.dynamicFields[fieldName];
+				if (fieldValue && fieldValue.trim()) {
+					payload[fieldName] = fieldValue.trim();
+				}
+			});
+
+			// Map legacy field names
+			if (payload.generic_api_key) {
+				if (selectedAuthScheme.mode === 'API_KEY') {
+					payload.api_key = payload.generic_api_key;
+				} else if (selectedAuthScheme.mode === 'BEARER_TOKEN') {
+					payload.bearer_token = payload.generic_api_key;
+				}
+				delete payload.generic_api_key;
+			}
+
+			// Handle scopes for OAuth2
+			if (selectedAuthScheme.mode === 'OAUTH2' && payload.scopes) {
+				// Convert scopes to array if it's a string
+				if (typeof payload.scopes === 'string') {
+					payload.scopes = payload.scopes
+						.split(',')
+						.map((s) => s.trim())
+						.filter((s) => s);
+				}
+			}
+
+			await onApiKeySubmit(payload, action);
 		}
 	};
 
 	const handleClose = () => {
 		setInfo({
-			apiKey: '',
-			showApiKey: false,
-			bearerToken: '',
-			showBearerToken: false,
-			userId: '',
-			phoneNumberId: '',
+			dynamicFields: {},
+			connectionName: '',
+			connectionType: 'api',
+			webhookUrl: '',
 			error: '',
+			selectedAuthSchemeIndex: 0,
 		});
 		onClose();
 	};
 
-	const toggleApiKeyVisibility = () => {
-		setInfo((prev) => ({ ...prev, showApiKey: !prev.showApiKey }));
+	const handleFieldChange = (fieldName, value) => {
+		setInfo((prev) => ({
+			...prev,
+			dynamicFields: {
+				...prev.dynamicFields,
+				[fieldName]: value,
+			},
+		}));
 	};
 
-	const toggleBearerTokenVisibility = () => {
-		setInfo((prev) => ({ ...prev, showBearerToken: !prev.showBearerToken }));
+	const toggleFieldVisibility = (fieldName) => {
+		setInfo((prev) => ({
+			...prev,
+			dynamicFields: {
+				...prev.dynamicFields,
+				[fieldName + '_show']: !prev.dynamicFields[fieldName + '_show'],
+			},
+		}));
+	};
+
+	const renderAuthSchemeSelector = () => {
+		if (authSchemes.length <= 1) return null;
+
+		return (
+			<div className="auth-scheme-selector">
+				<div className="auth-scheme-header">
+					<h4>Authentication Method</h4>
+					<p>
+						Choose how you want to authenticate with{' '}
+						{action?.toolkit?.name || 'this tool'}
+					</p>
+				</div>
+
+				<div className="form-field">
+					<select
+						value={info.selectedAuthSchemeIndex}
+						onChange={(e) =>
+							setInfo((prev) => ({
+								...prev,
+								selectedAuthSchemeIndex: parseInt(e.target.value),
+								dynamicFields: {}, // Reset fields when changing auth scheme
+							}))
+						}
+						className="api-key-input"
+						disabled={isLoading}
+					>
+						{authSchemes.map((scheme, index) => (
+							<option key={index} value={index}>
+								{scheme.name
+									.replace(/_/g, ' ')
+									.replace(/\b\w/g, (l) => l.toUpperCase())}
+							</option>
+						))}
+					</select>
+				</div>
+			</div>
+		);
+	};
+
+	const renderAuthFields = () => {
+		if (!selectedAuthScheme) return null;
+
+		const authSchemeName = selectedAuthScheme.name
+			.replace(/_/g, ' ')
+			.replace(/\b\w/g, (l) => l.toUpperCase());
+
+		return (
+			<div className="auth-fields">
+				<div className="auth-header">
+					<h4>{authSchemeName} Configuration</h4>
+					<p>Enter your {authSchemeName.toLowerCase()} credentials</p>
+				</div>
+
+				{requiredFields.map((field) => {
+					const fieldValue = info.dynamicFields[field.name] || '';
+					const showField = info.dynamicFields[field.name + '_show'] || false;
+					const isPasswordField =
+						field.name.includes('secret') ||
+						field.name.includes('password') ||
+						field.name.includes('token') ||
+						field.name.includes('key');
+
+					return (
+						<div key={field.name} className="form-field">
+							<label htmlFor={field.name}>
+								{field.displayName ||
+									field.name
+										.replace(/_/g, ' ')
+										.replace(/\b\w/g, (l) => l.toUpperCase())}
+								{field.required && <span className="required">*</span>}
+							</label>
+
+							{field.description && <p className="help-text">{field.description}</p>}
+
+							{isPasswordField ? (
+								<div className="input-container">
+									<input
+										id={field.name}
+										type={showField ? 'text' : 'password'}
+										value={fieldValue}
+										onChange={(e) =>
+											handleFieldChange(field.name, e.target.value)
+										}
+										placeholder={`Enter your ${
+											field.displayName || field.name
+										}`}
+										className="api-key-input"
+										disabled={isLoading}
+									/>
+									<button
+										type="button"
+										className="toggle-visibility"
+										onClick={() => toggleFieldVisibility(field.name)}
+										disabled={isLoading}
+									>
+										{showField ? <EyeSlashIcon /> : <EyeIcon />}
+									</button>
+								</div>
+							) : (
+								<input
+									id={field.name}
+									type={field.type === 'url' ? 'url' : 'text'}
+									value={fieldValue}
+									onChange={(e) => handleFieldChange(field.name, e.target.value)}
+									placeholder={
+										field.default ||
+										`Enter your ${field.displayName || field.name}`
+									}
+									className="api-key-input"
+									disabled={isLoading}
+								/>
+							)}
+						</div>
+					);
+				})}
+			</div>
+		);
+	};
+
+	const isFormValid = () => {
+		return requiredFields.every((field) => {
+			if (!field.required) return true;
+			const fieldValue = info.dynamicFields[field.name];
+			return fieldValue && fieldValue.trim();
+		});
 	};
 
 	return (
@@ -100,143 +310,17 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 						/>
 						<div className="tool-info">
 							<h2>Connect {action?.toolkit?.name || 'Tool'}</h2>
-							<p>Enter your API key to connect this tool</p>
+							<p>
+								Configure authentication for {action?.toolkit?.name || 'this tool'}
+							</p>
 						</div>
 					</div>
 					<CrossIcon onClick={handleClose} className="cross-icon" />
 				</div>
 
 				<div className="api-key-modal-body">
-					<div className="form-field">
-						<label htmlFor="apiKey">
-							API Key
-							<span className="required">*</span>
-						</label>
-						<div className="input-container">
-							<input
-								id="apiKey"
-								type={info.showApiKey ? 'text' : 'password'}
-								value={info.apiKey}
-								onChange={(e) =>
-									setInfo({ ...info, apiKey: e.target.value })
-								}
-								placeholder="Enter your API key"
-								className="api-key-input"
-								disabled={isLoading}
-							/>
-							<button
-								type="button"
-								className="toggle-visibility"
-								onClick={toggleApiKeyVisibility}
-								disabled={isLoading}
-							>
-								{info.showApiKey ? <EyeSlashIcon /> : <EyeIcon />}
-							</button>
-						</div>
-					</div>
-
-					{/* WhatsApp specific fields */}
-					{action?.toolkit?.slug === 'whatsapp' && (
-						<div className="whatsapp-fields">
-							<div className="whatsapp-header">
-								<h4>WhatsApp Business API Settings</h4>
-								<p>Additional credentials required for WhatsApp integration</p>
-							</div>
-							<div className="form-field">
-								<label htmlFor="bearerToken">
-									Auth Token
-									<span className="required">*</span>
-								</label>
-								<p>
-									The auth token for WhatsApp API requests. Visit{' '}
-									<a
-										href="https://developers.facebook.com/blog/post/2022/12/05/auth-tokens"
-										target="_blank"
-										rel="noopener noreferrer"
-									>
-										https://developers.facebook.com/blog/post/2022/12/05/auth-tokens
-									</a>{' '}
-									for more information
-								</p>
-								<div className="input-container">
-									<input
-										id="bearerToken"
-										type={info.showBearerToken ? 'text' : 'password'}
-										value={info.bearerToken}
-										onChange={(e) =>
-											setInfo((prev) => ({
-												...prev,
-												bearerToken: e.target.value,
-											}))
-										}
-										placeholder="Enter your bearer token"
-										className="api-key-input"
-										disabled={isLoading}
-									/>
-									<button
-										type="button"
-										className="toggle-visibility"
-										onClick={toggleBearerTokenVisibility}
-										disabled={isLoading}
-									>
-										{info.showBearerToken ? <EyeSlashIcon /> : <EyeIcon />}
-									</button>
-								</div>
-							</div>
-
-							<div className="form-field">
-								<label htmlFor="userId">
-									User ID
-									<span className="required">*</span>
-								</label>
-								<input
-									id="userId"
-									type="text"
-									value={info.userId}
-									onChange={(e) =>
-										setInfo((prev) => ({ ...prev, userId: e.target.value }))
-									}
-									placeholder="Enter your user ID"
-									className="api-key-input"
-									disabled={isLoading}
-								/>
-							</div>
-
-							<div className="form-field">
-								<label htmlFor="phoneNumberId">
-									Phone Number ID
-									<span className="required">*</span>
-								</label>
-								<p>
-									For phone number ID, go to a{' '}
-									<a
-										href="https://developers.facebook.com/apps"
-										target="_blank"
-										rel="noopener noreferrer"
-									>
-										https://developers.facebook.com/apps
-									</a>{' '}
-									and select the app where you have added WhatsApp. On the left
-									side, click WhatsApp → API Setup. Select 'Start using the API'
-									On the next page you can find your Phone number ID:
-								</p>
-								<input
-									id="phoneNumberId"
-									type="text"
-									value={info.phoneNumberId}
-									onChange={(e) =>
-										setInfo((prev) => ({
-											...prev,
-											phoneNumberId: e.target.value,
-										}))
-									}
-									placeholder="Enter your phone number ID"
-									className="api-key-input"
-									disabled={isLoading}
-								/>
-							</div>
-						</div>
-					)}
+					{renderAuthSchemeSelector()}
+					{renderAuthFields()}
 
 					{info.error && <div className="field-error">{info.error}</div>}
 				</div>
@@ -254,18 +338,11 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 						type="button"
 						className="connect-button"
 						onClick={handleSubmit}
-						disabled={
-							isLoading ||
-							!info.apiKey.trim() ||
-							(action?.toolkit?.slug === 'whatsapp' &&
-								(!info.bearerToken.trim() ||
-									!info.userId.trim() ||
-									!info.phoneNumberId.trim()))
-						}
+						disabled={isLoading || !isFormValid()}
 					>
 						{isLoading ? (
 							<>
-								<Spinner width="16px" height="16px" color="var(--primary-font)" />
+								<Spinner width="16px" height="16px" />
 								<span>Connecting...</span>
 							</>
 						) : (
