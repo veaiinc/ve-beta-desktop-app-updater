@@ -1,7 +1,7 @@
-import { act, useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import s from './agentHeader.module.scss';
 import { ReactComponent as BackSvg } from './assets/back.svg';
-import { ReactComponent as EditIcon } from './assets/edit.svg';
+// import { ReactComponent as EditIcon } from './assets/edit.svg';
 import { ReactComponent as DeleteIcon } from './assets/delete.svg';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../../context/context';
@@ -78,7 +78,20 @@ const AgentHeader = ({ onEditClick, agentAction, setAgentAction, activeKnowledge
 		}));
 	};
 
-	console.log('activeKnowledgeAssistant', activeKnowledgeAssistant);
+	const buttonStyle = {
+		color: 'var(--secondary-font, #94989E)',
+		fontFamily: 'var(--primary-font-family)',
+		fontSize: '14px',
+		fontStyle: 'normal',
+		fontWeight: '500',
+		lineHeight: 'normal',
+		display: 'flex',
+		height: '32px',
+		padding: '8px 12px',
+		alignItems: 'center',
+		gap: '6px',
+		border: 'none',
+	};
 
 	return (
 		<div className={s.agentHeaderWrapper}>
@@ -123,20 +136,7 @@ const AgentHeader = ({ onEditClick, agentAction, setAgentAction, activeKnowledge
 				<AgentShareComponent
 					agentId={agentId}
 					activeKnowledgeAssistant={activeKnowledgeAssistant}
-					buttonStyle={{
-						color: 'var(--secondary-font, #94989E)',
-						fontFamily: 'var(--primary-font-family)',
-						fontSize: '14px',
-						fontStyle: 'normal',
-						fontWeight: '500',
-						lineHeight: 'normal',
-						display: 'flex',
-						height: '32px',
-						padding: '8px 12px',
-						alignItems: 'center',
-						gap: '6px',
-						border: 'none',
-					}}
+					buttonStyle={buttonStyle}
 				/>
 				<button
 					className={s.publishBtn}
