@@ -2143,6 +2143,7 @@ export const TemplatesState = (props) => {
 		chatBoxInfo = null,
 		chatInfo = null,
 		browserData = null,
+		browserTabsInfo = null,
 	}) => {
 		try {
 			dispatch({
@@ -2165,6 +2166,7 @@ export const TemplatesState = (props) => {
 					chatBoxInfo,
 					chatInfo,
 					browserData,
+					browserTabsInfo,
 				},
 			});
 		} catch (error) {

@@ -222,7 +222,7 @@ const actionHandlers = {
 			lastQuery,
 			chatBoxInfo,
 			chatInfo,
-			browserData,
+			browserTabsInfo,
 		} = action?.payload;
 		let messages = [...(state?.globalChatMessages?.[sessionId]?.messages || [])];
 		if (payload?.browserMetadata) {
@@ -230,6 +230,9 @@ const actionHandlers = {
 		}
 
 		if (removeChatSession) {
+			if (state?.globalChatMessages?.[sessionId]?.open_browser) {
+				return state;
+			}
 			const globalChatMessages = { ...state?.globalChatMessages };
 			delete globalChatMessages[sessionId];
 			return { ...state, globalChatMessages };
@@ -242,11 +245,20 @@ const actionHandlers = {
 				sessionIdData.chatBoxInfo = chatBoxInfo;
 			}
 
-			if (browserData) {
+			if (payload?.browserMetadata) {
 				let browserData = sessionIdData?.browserData || {};
 				browserData = {
 					...browserData,
 					browserMetadata: payload?.browserMetadata,
+				};
+				sessionIdData.browserData = browserData;
+			}
+
+			if (browserTabsInfo) {
+				let browserData = sessionIdData?.browserData || {};
+				browserData = {
+					...browserData,
+					...browserTabsInfo,
 				};
 				sessionIdData.browserData = browserData;
 			}
@@ -271,7 +283,11 @@ const actionHandlers = {
 			if (removeChatSessions) {
 				let globalChatMessages = { ...state?.globalChatMessages };
 				globalChatMessages = Object.keys(globalChatMessages)?.reduce((acc, key) => {
-					if (globalChatMessages[key]?.isStreaming || key === sessionId) {
+					if (
+						globalChatMessages[key]?.isStreaming ||
+						key === sessionId ||
+						globalChatMessages[key]?.open_browser
+					) {
 						acc[key] = globalChatMessages[key];
 					}
 					return acc;

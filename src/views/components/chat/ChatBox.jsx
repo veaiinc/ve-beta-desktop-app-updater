@@ -151,6 +151,7 @@ const ChatBox = ({
 	placeholder = 'Start typing or use @ to mention a source.',
 	showBrowserButton = false,
 	handleBrowserButtonClick = null,
+	browserImage = null,
 }) => {
 	const location = useLocation();
 	const { handleConnect } = useUpdatedVoiceIntegration();
@@ -2546,20 +2547,34 @@ const ChatBox = ({
 					</div>
 				)}
 
-				{showBrowserButton && (
-					<div
-						className="browser-button-container"
-						onClick={(e) => {
-							e.stopPropagation();
-							handleBrowserButtonClick?.(e);
-						}}
-					>
-						<div className="browser-button">Browser</div>
-						<div className="expand-browser-button">
-							<ArrowsOut />
+				{/* {showBrowserButton && ( */}
+				<div
+					className="browser-button-container"
+					onClick={(e) => {
+						e.stopPropagation();
+						handleBrowserButtonClick?.(e);
+					}}
+					style={{
+						display: showBrowserButton ? 'flex' : 'none',
+					}}
+				>
+					{browserImage ? (
+						<div className="browser-image-wrapper">
+							<div className="browser-text">Browser</div>
+							<img
+								src={`https://m.media-amazon.com/images/I/51NwMqEnC3L._UF1000,1000_QL80_.jpg`}
+								className="browser-image"
+								alt="browser"
+							/>
 						</div>
+					) : (
+						<div className="browser-button">Browser</div>
+					)}
+					<div className="expand-browser-button">
+						<ArrowsOut />
 					</div>
-				)}
+				</div>
+				{/* )} */}
 				{uploadedImagesRef?.current?.length > 0 ? (
 					<div className="imagePreviewBar">
 						{uploadedImagesRef?.current?.map((ele, index) => (

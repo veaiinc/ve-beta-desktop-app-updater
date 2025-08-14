@@ -1,109 +1,73 @@
-// socketManager.js;
-import { io } from 'socket.io-client';
-
-const socketInstances = {}; // { key: socket }
+import { browser_ws_api_US, browser_ws_api } from '../../services/config.live';
+const socketInstances = {};
 const workspaceId = localStorage?.getItem('workspaceId');
+const usertoken = localStorage?.getItem('usertoken');
+const MAX_RETRY_ATTEMPTS = 15;
+const RETRY_DELAY = 1000;
 
-const connectBrowserSocket = ({ sessionId, onData }) => {
-	// If already connected, just return
-	if (socketInstances[sessionId] && socketInstances[sessionId]?.connected) {
-		console.log(`[Browser Socket] Already connected: ${sessionId}`);
-		return;
-	}
+const createWebSocketConnection = (sessionId, onMessageFunc) => {
+	const region = localStorage?.getItem('region');
+	const browserUrl = region === 'ap-south-1' ? browser_ws_api : browser_ws_api_US;
 
-	const socket = io('wss://browser.us-east-1.ve.ai', {
-		transports: ['websocket'],
-		autoConnect: true,
-		path: '/socket.io',
-		reconnection: false,
-	});
+	const url = `${browserUrl}/api/browser/${workspaceId}/live-stream/${sessionId}?token=${usertoken}`;
+	socketInstances[sessionId] = new WebSocket(url);
 
-	socket.on('connect', () => {
-		console.log(`[Browser Socket] Connected: ${sessionId}`);
-		// Automatically join + subscribe
-		socket.emit('join-session', sessionId);
-		socket.emit('subscribe', { workspaceId, sessionId });
-	});
+	socketInstances[sessionId].onopen = () => {
+		console.log('Browser WebSocket connection opened');
+	};
 
-	socket.on('disconnect', (reason) => {
-		console.log(`[Browser Socket] Disconnected (${sessionId}): ${reason}`);
+	socketInstances[sessionId].onmessage = (event) => {
+		if (onMessageFunc) {
+			onMessageFunc(event);
+		}
+	};
+
+	socketInstances[sessionId].onclose = () => {
+		console.log('Browser WebSocket connection closed');
 		delete socketInstances[sessionId];
-	});
+	};
 
-	// Example events - handle inside socket and forward to onData
-	socket.on('new-tab-detected', (data) => console.log('new-tab-detected', data));
-	socket.on('tab-activated', (data) => console.log('tab-activated', data));
-	socket.on('live-stream-update', (data) => console.log('live-stream-update', data));
-	socket.on('tab-deleted', (data) => console.log('tab-deleted', data));
-
-	socketInstances[sessionId] = socket;
+	socketInstances[sessionId].onerror = (event) => {
+		console.log('BrowserWebSocket error', event);
+	};
 };
 
-// const socketInstances = {};
-// const workspaceId = localStorage?.getItem('workspaceId');
-// const MAX_RETRY_ATTEMPTS = 30;
-// const RETRY_DELAY = 1000;
+const establishSocketConnection = (sessionId, onMessageFunc) => {
+	let attempts = 0;
 
-// const createWebSocketConnection = (sessionId) => {
-// 	const url = `wss://browser.us-east-1.ve.ai/socket.io?token=${usertoken}`;
-// 	socketInstances[sessionId] = new WebSocket(url);
+	const attemptConnection = () => {
+		if (attempts >= MAX_RETRY_ATTEMPTS) {
+			console.log('Max retry attempts reached. Giving up.');
+			return;
+		}
 
-// 	socketInstances[sessionId].onopen = () => {
-// 		console.log('Browser WebSocket connection opened');
-// 	};
+		// If socket doesn't exist or is closed, try to reconnect
+		if (
+			!socketInstances[sessionId] ||
+			socketInstances[sessionId]?.readyState === WebSocket.CLOSED
+		) {
+			createWebSocketConnection(sessionId, onMessageFunc);
+			attempts++;
+			setTimeout(attemptConnection, RETRY_DELAY);
+			return;
+		}
 
-// 	socketInstances[sessionId].onmessage = (event) => {
-// 		console.log('Browser WebSocket message received', event);
-// 	};
+		// If socket is still connecting, wait and retry
+		if (socketInstances[sessionId].readyState === WebSocket.CONNECTING) {
+			console.log('Connection not ready, waiting...');
+			attempts++;
+			setTimeout(attemptConnection, RETRY_DELAY);
+			return;
+		}
 
-// 	socketInstances[sessionId].onclose = () => {
-// 		console.log('Browser WebSocket connection closed');
-// 		delete socketInstances[sessionId];
-// 	};
+		// If socket is ready, send the message
+		if (socketInstances[sessionId].readyState === WebSocket.OPEN) {
+			console.log('Browser WebSocket connection ready');
+			return;
+		}
+	};
 
-// 	socketInstances[sessionId].onerror = (event) => {
-// 		console.log('BrowserWebSocket error', event);
-// 	};
-// };
+	attemptConnection();
+};
 
-// const establishSocketConnection = (sessionId) => {
-// 	let attempts = 0;
-
-// 	const attemptConnection = () => {
-// 		if (attempts >= MAX_RETRY_ATTEMPTS) {
-// 			console.log('Max retry attempts reached. Giving up.');
-// 			return;
-// 		}
-
-// 		// If socket doesn't exist or is closed, try to reconnect
-// 		if (
-// 			!socketInstances[sessionId] ||
-// 			socketInstances[sessionId]?.readyState === WebSocket.CLOSED
-// 		) {
-// 			createWebSocketConnection(sessionId);
-// 			attempts++;
-// 			setTimeout(attemptConnection, RETRY_DELAY);
-// 			return;
-// 		}
-
-// 		// If socket is still connecting, wait and retry
-// 		if (socketInstances[sessionId].readyState === WebSocket.CONNECTING) {
-// 			console.log('Connection not ready, waiting...');
-// 			attempts++;
-// 			setTimeout(attemptConnection, RETRY_DELAY);
-// 			return;
-// 		}
-
-// 		// If socket is ready, send the message
-// 		if (socketInstances[sessionId].readyState === WebSocket.OPEN) {
-// 			console.log('Browser WebSocket connection ready');
-// 			return;
-// 		}
-// 	};
-
-// 	attemptConnection();
-// };
-
-// export { establishSocketConnection };
-
-export { connectBrowserSocket };
+export { establishSocketConnection };

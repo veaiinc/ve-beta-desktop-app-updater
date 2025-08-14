@@ -5,7 +5,7 @@ import {
 	handleDeepResearchChainOfThought,
 	getBrowserUrls,
 } from '../../../helpers/chat/chatHelpers';
-import { connectBrowserSocket } from '../../../helpers/chat/browserSocket';
+import { establishSocketConnection } from '../../../helpers/chat/browserSocket';
 import Context from '../../../context/context';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
@@ -266,16 +266,16 @@ const RecentChat = ({
 				agentTimeoutIdRef.current = null;
 			}
 
-			// if (!globalChatMessages?.[sessionId]) {
-			getRecentChatMessages({
-				sessionId,
-				page: 1,
-				fetchMore: false,
-				limit: 1000,
-				isPublicChat,
-				removeSessionId: false,
-			});
-			// }
+			if (!globalChatMessages?.[sessionId]?.open_browser) {
+				getRecentChatMessages({
+					sessionId,
+					page: 1,
+					fetchMore: false,
+					limit: 1000,
+					isPublicChat,
+					removeSessionId: false,
+				});
+			}
 
 			const sessionIdsToClose = newChatSessionIds?.filter(
 				(id) => !globalChatMessages?.[id]?.isStreaming,
@@ -851,9 +851,29 @@ const RecentChat = ({
 		[info, sessionId, isPublicChat],
 	);
 
+	// browser socket
+	const onBrowserMessageFunc = useCallback(
+		(event) => {
+			let { data = '' } = event || {};
+			data = JSON?.parse(data);
+			console.log(data, 'data');
+			if (data?.type === 'new-tab-detected') {
+				handleGlobalChatMessages({
+					sessionId,
+					browserTabsInfo: {
+						...data,
+						browserDisconnected: false,
+					},
+					updateExtraInfo: true,
+				});
+			}
+		},
+		[sessionId],
+	);
+
 	const handleBrowserSocketConnection = useCallback(() => {
-		connectBrowserSocket({ sessionId });
-	}, [sessionId, connectBrowserSocket]);
+		establishSocketConnection(sessionId, onBrowserMessageFunc);
+	}, [sessionId, establishSocketConnection, onBrowserMessageFunc]);
 
 	// stream chat
 	const onMessageFunc = useCallback(
@@ -916,12 +936,12 @@ const RecentChat = ({
 			const { message_chunk_id, open_browser } = data;
 
 			if (open_browser) {
-				getBrowserUrls(
-					sessionId,
-					handleGlobalChatMessages,
-					info?.browserPreviousActiveTabIndex,
-				);
-				// handleBrowserSocketConnection();
+				// getBrowserUrls(
+				// 	sessionId,
+				// 	handleGlobalChatMessages,
+				// 	info?.browserPreviousActiveTabIndex,
+				// );
+				handleBrowserSocketConnection();
 			}
 
 			if (message_chunk_id) {
@@ -971,7 +991,14 @@ const RecentChat = ({
 				// Handle error appropriately (show notification, etc.)
 			}
 		},
-		[sendMessage, sessionId, onMessageFunc, agentType, isPublicChat],
+		[
+			sendMessage,
+			sessionId,
+			onMessageFunc,
+			agentType,
+			isPublicChat,
+			handleBrowserSocketConnection,
+		],
 	);
 
 	const handleViewDocument = useCallback((value) => {
@@ -1216,6 +1243,10 @@ const RecentChat = ({
 								handleBrowserButtonClick={handleBrowserButtonClick}
 								showBrowserButton={
 									!info?.openBrowser && info?.browserDataAvailable && showBrowser
+								}
+								browserImage={
+									globalChatMessages?.[sessionId]?.browserData?.browserMetadata
+										?.signedUrl
 								}
 							/>
 						</div>
