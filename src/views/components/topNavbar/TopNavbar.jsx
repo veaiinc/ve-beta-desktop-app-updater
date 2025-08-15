@@ -138,7 +138,10 @@ const TopNavbar = () => {
 		let items = [...baseLeftContainerItems];
 
 		if (workspaceMode === 'stable') {
-			items = items.filter((item) => item.label !== 'Files' && item.label !== 'Tools');
+			items = items.filter(
+				(item) =>
+					item.label !== 'Files' && item.label !== 'Tools' && item.label !== 'Priority',
+			);
 		}
 
 		if (region === 'ap-south-1') {
