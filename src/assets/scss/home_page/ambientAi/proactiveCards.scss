@@ -1,0 +1,52 @@
+.card {
+	.onboarding__header {
+		display: flex;
+		flex-direction: column;
+		gap: 14px;
+		flex-grow: 1;
+		.onboarding-title {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 22px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 24px;
+		}
+
+		.onboarding-description {
+			color: var(--secondary-font, #94989e);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 20px;
+			display: none;
+
+			&.showDescription {
+				display: block;
+			}
+		}
+	}
+
+	.onboarding-footer {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		align-self: stretch;
+		color: var(--primary-font, #f2f2f3);
+		text-align: center;
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+
+		svg {
+			width: 16px;
+			height: 16px;
+			path {
+				stroke: var(--secondary-font, #f2f2f3);
+			}
+		}
+	}
+}

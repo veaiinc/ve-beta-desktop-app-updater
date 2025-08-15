@@ -346,6 +346,12 @@
 
 @media screen and (max-width: 1150px) {
 	.calender-main-container {
-		max-width: 412px !important;
+		max-width: 412px;
+	}
+}
+
+@media screen and (max-width: 480px) {
+	.calender-main-container {
+		max-width: 388px;
 	}
 }

@@ -57,7 +57,7 @@ import GalleryViewer from '../views/features/gallery/GalleryViewer';
 import UploadPhotosDesktop from '../views/features/gallery/UploadPhotosDesktop';
 // components
 import MeetBotWrapper from '../views/features/meetBot/meetBotWrapper';
-import ProactiveSuggestions from '../views/features/homePage/ProactiveSuggestions';
+import ProactiveSuggestions from '../views/features/homePage/ambientAi/ProactiveSuggestions';
 import CardMeetBot from '../views/features/meetBot/CardMeetBot';
 import ChatPage from '../views/components/homePage/ChatPage';
 import NotesWrapper from '../views/features/notesModule/NotesWrapper';
@@ -103,10 +103,10 @@ const betaRoutes = [
 	// AI & ASSISTANT FEATURES
 	// ========================================
 	{
-		path: '/ambient-ai',
+		path: '/priority',
 		element: (
 			<AuthWrapper
-				title={'Ambient AI'}
+				title={'Priority'}
 				outerContainerStyle={{ overflow: 'hidden' }}
 				childrenContainerStyles={{ overflow: 'auto' }}
 				showBottomToolbar={false}
@@ -238,7 +238,13 @@ const betaRoutes = [
 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 				maxWidth="100%"
 			>
-				<RecentChat showChatHistory={true} showDeleteChat={true} showChats={true} />
+				<RecentChat
+					showChatHistory={true}
+					showDeleteChat={true}
+					showChats={true}
+					showCitationsButton={true}
+					showBrowser={true}
+				/>
 			</AuthWrapper>
 		),
 	},

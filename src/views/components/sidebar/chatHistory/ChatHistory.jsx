@@ -22,7 +22,7 @@ const page = 1;
 const limit = 10;
 const append = true;
 
-const ChatHistory = () => {
+const ChatHistory = ({ onChatSelect }) => {
 	const navigate = useNavigate();
 	const {
 		aiSetup: { getAiChatSessions, aiChatSessions },
@@ -100,6 +100,11 @@ const ChatHistory = () => {
 				updateChatLoadingSessions({ sessionId: chat?._id, removeSessionId: true });
 			}
 
+			// Close mobile dropdown when chat is selected
+			if (onChatSelect) {
+				onChatSelect();
+			}
+
 			if (chat?.agentType === 'knowledge_agent') {
 				navigate(
 					`/chat/${chat?._id}?agentType=knowledge_agent&assistantId=${chat?.assistantId}`,
@@ -108,7 +113,7 @@ const ChatHistory = () => {
 				navigate(`/chat/${chat?._id}`);
 			}
 		},
-		[currentSessionId, updateChatLoadingSessions],
+		[currentSessionId, updateChatLoadingSessions, onChatSelect],
 	);
 
 	const getChatDateGroup = useCallback((timestamp) => {

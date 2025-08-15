@@ -19,6 +19,15 @@
 	}
 }
 
+.browser-container {
+	width: 0px;
+	height: 100%;
+	flex-shrink: 0;
+	z-index: 1000;
+	overflow: hidden;
+	transition: width 0.4s ease-in-out;
+}
+
 .chat-container {
 	height: calc(100% - 25px);
 	width: 100%;
@@ -148,6 +157,38 @@
 	border-radius: 12px;
 	padding: 12px 14px;
 }
+/* Improve infinite scroll container */
+.infinite-scroll-component {
+	transition: all 0.3s ease;
+	scroll-behavior: smooth;
+}
+
+/* Add smooth transition for chat container width changes */
+.chatBodyContainer {
+	transition: width 0.3s ease;
+}
+
+/* Smooth loading state transitions */
+.loader {
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+.loader.visible {
+	opacity: 1;
+}
+
+.recent-chat-tooltip {
+	background-color: var(--card);
+	color: var(--primary-font);
+	padding: 10px;
+	border-radius: 10px;
+	font-family: var(--chat-primary-font-family);
+	font-size: 13px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+}
 
 @keyframes fadeInUp {
 	from {
@@ -179,43 +220,10 @@
 		pointer-events: auto;
 	}
 }
-/* Improve infinite scroll container */
-.infinite-scroll-component {
-	transition: all 0.3s ease;
-	scroll-behavior: smooth;
-}
 
-/* Add smooth transition for chat container width changes */
-.chatBodyContainer {
-	transition: width 0.3s ease;
-}
-
-/* Smooth loading state transitions */
-.loader {
-	opacity: 0;
-	transition: opacity 0.3s ease;
-}
-
-.loader.visible {
-	opacity: 1;
-}
-
-// .chat-message.user-message {
-// 	.message-content {
-// 		overflow: auto;
-// 	}
-// }
-
-.fade-in {
-	animation: fadeIn 1s ease-in forwards;
-}
-
-@keyframes fadeIn {
-	0% {
-		opacity: 0; /* Start fully transparent */
-	}
-	100% {
-		opacity: 1; /* End fully opaque */
+@media screen and (max-width: 1250px) {
+	.browser-container {
+		width: 0px !important;
 	}
 }
 
@@ -230,25 +238,3 @@
 		}
 	}
 }
-
-.recent-chat-tooltip {
-	background-color: var(--card);
-	color: var(--primary-font);
-	padding: 10px;
-	border-radius: 10px;
-	font-family: var(--chat-primary-font-family);
-	font-size: 13px;
-	font-style: normal;
-	font-weight: 500;
-	line-height: normal;
-}
-
-// @media screen and (max-width: 1200px) {
-// 	.chat-container {
-// 		height: calc(100% - 62px);
-
-// 		.chat-header {
-// 			position: relative !important;
-// 		}
-// 	}
-// }
