@@ -4,7 +4,7 @@ export const tenant_users_api = 'https://ap.api.ve.ai/tenant-users/1.0';
 export const ve_conversations_api = 'https://api.ve.co/ve-conversations/1.0';
 export const proposals_api = 'https://ap.api.ve.ai/proposals/1.0';
 export const workflows_Api = 'https://ap.api.ve.ai/workflows/1.0';
-export const auth_Api = 'https://auth.ve.ai';
+export const auth_Api = 'https://us.api.ve.ai/auth/dev'; // NOTE: previous value was 'https://auth.ve.ai'
 export const activity_api = 'https://ap.api.ve.ai/workflow-user-analytics/1.0';
 export const galleries = 'https://ap.api.ve.ai/galleries/1.0';
 export const ai_assistant_api = 'https://ap.api.ve.ai/agents/1.0';
@@ -26,7 +26,7 @@ export const meeting_ws_api = 'wss://recall.ap-south-1.ve.ai';
 export const meeting_summary_api = 'https://live.ap-south-1.ve.ai';
 
 // US region
-export const auth_Api_US = 'https://auth.ve.ai';
+export const auth_Api_US = 'https://us.api.ve.ai/auth/dev'; // NOTE: previous value was 'https://auth.ve.ai'
 export const tenant_api_US = 'https://us.api.ve.ai/tenants/1.0';
 export const tenant_users_api_US = 'https://us.api.ve.ai/tenant-users/1.0';
 export const ve_conversations_api_US = 'https://us.api.ve.ai/ve-conversations/1.0';
