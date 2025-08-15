@@ -18,13 +18,13 @@
 		align-items: flex-start;
 		gap: 8px;
 		align-self: stretch;
-		.subject {
+		.wrapper {
 			display: flex;
 			gap: 8px;
 			align-self: stretch;
 			flex-direction: column;
 
-			.subjectTitle {
+			.title {
 				color: var(--primary-font, #f2f2f3);
 				font-family: var(--primary-font-family);
 				font-size: 14px;
@@ -32,7 +32,7 @@
 				font-weight: 550;
 				line-height: normal;
 			}
-			.subjectInput {
+			.input {
 				background-color: transparent;
 				border: none;
 				resize: none;
@@ -49,33 +49,40 @@
 			}
 		}
 
-		.to {
+		.ccBccContainer {
 			display: flex;
 			gap: 8px;
 			align-self: stretch;
 			flex-direction: column;
-			.toTitle {
-				color: var(--primary-font, #f2f2f3);
-				font-family: var(--primary-font-family);
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 550;
-				line-height: normal;
-			}
-			.toInput {
-				background-color: transparent;
-				border: none;
-				resize: none;
+			.ccBccHeader {
+				display: flex;
+				gap: 8px;
 				align-self: stretch;
-				padding: 12px;
-				border-radius: 12px;
-				border: 1px solid var(--stroke, #2c2d2e);
-				font-family: var(--primary-font-family);
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-				color: var(--primary-font, #f2f2f3);
+				justify-content: flex-end;
+				margin-top: 10px;
+				.ccButton,
+				.bccButton {
+					background-color: transparent;
+					border: none;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					padding: 8px 12px;
+					line-height: normal;
+					cursor: pointer;
+					border-radius: 8px;
+
+					&:hover {
+						background-color: var(--card-hover, #1f2123);
+					}
+				}
+				.active {
+					font-family: var(--primary-font-family);
+					font-style: normal;
+					background-color: var(--card-over-card, #1f2123);
+				}
 			}
 		}
 
