@@ -18,6 +18,36 @@
 		align-items: flex-start;
 		gap: 8px;
 		align-self: stretch;
+		.subject {
+			display: flex;
+			gap: 8px;
+			align-self: stretch;
+			flex-direction: column;
+
+			.subjectTitle {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 550;
+				line-height: normal;
+			}
+			.subjectInput {
+				background-color: transparent;
+				border: none;
+				resize: none;
+				align-self: stretch;
+				padding: 12px;
+				border-radius: 12px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				color: var(--primary-font, #f2f2f3);
+			}
+		}
 
 		.to {
 			display: flex;
