@@ -68,6 +68,9 @@
 				&:hover {
 					background: var(--card, #242628);
 				}
+				&.active {
+					background: var(--card);
+				}
 
 				.chatTitle {
 					white-space: nowrap;
