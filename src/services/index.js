@@ -30,7 +30,8 @@ const handleHeaders = (token, body, type, isPublicChat = false) => {
 			type === 'calendar_chat' ||
 			type === 'slack_api' ||
 			type === 'elastic_search_api' ||
-			type === 'microsoft_integration_api'
+			type === 'microsoft_integration_api' ||
+			type === 'meeting_summary_api'
 		) {
 			headers['Authorization'] = `Bearer ${token}`;
 		}
@@ -115,6 +116,8 @@ const apiFetch = async (url, method, body, token, type, isPublicChat = false) =>
 			custom_domain_api_US,
 			browser_api,
 			browser_api_US,
+			meeting_summary_api,
+			meeting_summary_api_US,
 		} = config;
 
 		const apiEndpoints = {
@@ -138,6 +141,7 @@ const apiFetch = async (url, method, body, token, type, isPublicChat = false) =>
 			workspace_images_api,
 			custom_domain_api,
 			browser_api,
+			meeting_summary_api,
 		};
 
 		const apiEndpointsUS = {
@@ -161,6 +165,7 @@ const apiFetch = async (url, method, body, token, type, isPublicChat = false) =>
 			workspace_images_api: workspace_images_api_US,
 			custom_domain_api: custom_domain_api_US,
 			browser_api: browser_api_US,
+			meeting_summary_api: meeting_summary_api_US,
 		};
 
 		const region = localStorage.getItem('region') || 'us-east-1';

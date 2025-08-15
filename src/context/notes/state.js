@@ -2029,6 +2029,21 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const initializeMeetingSummary = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			await Service?.fetchPost(
+				`/${workspaceId}/generate_summary`,
+				payload,
+				usertoken,
+				'meeting_summary_api',
+			);
+		} catch (error) {
+			console.error('error==>initializeMeetingSummary', error);
+		}
+	};
+
 	const updateStateValues = async (updatedVaribaleValuesObj) => {
 		try {
 			dispatch({
@@ -2104,5 +2119,6 @@ export const NotesState = (props) => {
 		getMeetingPreferences,
 		updateMeetingPreferences,
 		getAiLiveIntelligenceHistory,
+		initializeMeetingSummary,
 	};
 };
