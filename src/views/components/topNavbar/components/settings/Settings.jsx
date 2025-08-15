@@ -136,6 +136,44 @@ const Settings = ({
 		closeSettingsTooltip();
 	};
 
+	const handleLogout = async () => {
+		try {
+			setInfo((prev) => ({
+				...prev,
+				logoutLoading: true,
+			}));
+			const isLoggedOut = await logout();
+			if (isLoggedOut) {
+				channel.postMessage('logout');
+			} else {
+				message.error('Failed to logout! This was reported to the team.');
+				const payload = {
+					errorType: 'Logout',
+					errorMessage: 'Failed to logout! This was reported to the team.',
+					errorPath: '/src/views/components/topNavbar/components/settings/Settings.jsx',
+					errorComponent: 'Settings',
+					errorComponentStack: 'Not Available',
+				};
+				const success = await logError(payload);
+				if (success) {
+					console.log('Error logged successfully');
+				} else {
+					console.error('Error logging failed');
+				}
+			}
+			setInfo((prev) => ({
+				...prev,
+				logoutLoading: false,
+			}));
+		} catch (error) {
+			console.error('Error logging out:', error);
+			setInfo((prev) => ({
+				...prev,
+				logoutLoading: false,
+			}));
+		}
+	};
+
 	const Content = (
 		<div className={s.settingsContain}>
 			{/* Mobile header (shown only on small screens via CSS) */}
