@@ -483,22 +483,6 @@ export const AuthState = () => {
 		}
 	};
 
-	const logoutAPI = async () => {
-		try {
-			const path = '/logout';
-			const token = localStorage?.getItem('usertoken');
-			const fcmToken = localStorage?.getItem('fcmToken') || Cookies.get('fcmToken') || '';
-			const body = {
-				fcmToken,
-			};
-			const response = await service?.fetchPost(path, body, token, 'auth');
-			return response;
-		} catch (error) {
-			console.error('Error logging out:', error);
-			throw error;
-		}
-	};
-
 	return {
 		...state,
 		checkAccountExistsUsingEmail,
@@ -514,6 +498,5 @@ export const AuthState = () => {
 		subscribeToNewsletter,
 		getAddOnsForCurrentPlan,
 		purchaseAddOn,
-		logoutAPI,
 	};
 };
