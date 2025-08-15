@@ -78,9 +78,11 @@ const middleContainerItems = [
 ];
 
 const activeNavItemMap = {
-	'/home': 5,
+	'/priority': 1,
 	'/chats': 2,
 	'/agents': 3,
+	'/files': 4,
+	'/home': 5,
 };
 
 const TopNavbar = () => {
@@ -91,7 +93,10 @@ const TopNavbar = () => {
 	const hideTopNavbar =
 		pathname.includes('builder') ||
 		pathname.includes('galleries') ||
-		pathname.includes('create-workspace');
+		pathname.includes('create-workspace') ||
+		pathname.includes('agent/');
+	//  ||
+	// pathname.includes('	plan-billing');
 
 	const {
 		profileInfo: {
@@ -156,7 +161,12 @@ const TopNavbar = () => {
 
 	useEffect(() => {
 		if (pathname.includes('/meet')) setInfo((prev) => ({ ...prev, activeMode: 3 }));
-		else setInfo((prev) => ({ ...prev, activeMode: 1 }));
+		else
+			setInfo((prev) => ({
+				...prev,
+				activeMode: 1,
+				activeNavItem: activeNavItemMap[pathname],
+			}));
 	}, [pathname]);
 
 	useEffect(() => {

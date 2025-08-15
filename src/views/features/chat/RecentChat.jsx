@@ -34,6 +34,7 @@ const RecentChat = ({
 	showChatHistory = false,
 	showChats = false,
 	showBrowser = false,
+	showHeader = true,
 }) => {
 	const {
 		templates: {
@@ -1054,7 +1055,7 @@ const RecentChat = ({
 					}}
 				>
 					{/* header */}
-					{!isPublicChat && (
+					{!isPublicChat && showHeader && (
 						<ChatHeader
 							sessionId={sessionId}
 							isNewChat={info?.isNewChat}

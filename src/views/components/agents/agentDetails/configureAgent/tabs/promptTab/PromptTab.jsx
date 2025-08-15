@@ -42,7 +42,7 @@ const PromptTab = () => {
 		prompt: '',
 		initialContent: '',
 		actionDetails: [],
-		drawerOpen: true,
+		drawerOpen: false,
 		connectedAccounts: [],
 		accountsLoading: false,
 		deletingAccountId: null,
@@ -296,13 +296,13 @@ const PromptTab = () => {
 						</div>
 					</div>
 				</Drawer>
-				{!info.drawerOpen && (
+				{/* {!info.drawerOpen && (
 					<div className={s.sidebarClosingSvg}>
 						<SidebarClosingSvg
 							onClick={() => setInfo((prev) => ({ ...prev, drawerOpen: true }))}
 						/>
 					</div>
-				)}
+				)} */}
 			</div>
 
 			{/* Delete Connected Account Modal */}

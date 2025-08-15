@@ -197,6 +197,7 @@ const Settings = ({
 					<div className={s.skeletonContainer}>
 						<Skeleton
 							width="100%"
+							height={41}
 							style={{
 								'--highlight-color': 'gray',
 								'--base-color': 'transparent',
@@ -238,7 +239,7 @@ const Settings = ({
 					className={s.logoutButton}
 					onClick={() => {
 						logout();
-						channel.postMessage('reload');
+						channel.postMessage('logout');
 					}}
 				>
 					<LogoutSvg />

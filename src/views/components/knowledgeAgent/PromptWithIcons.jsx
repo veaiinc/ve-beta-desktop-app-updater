@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import './PromptWithIcons.scss';
+import Editor from '../notes/Editor';
 const actionPattern = /<([^>]+)>/g;
 const PromptWithIcons = ({
 	prompt = '',
@@ -12,10 +13,19 @@ const PromptWithIcons = ({
 	readOnly = false,
 	disabled = false,
 	autoResize = true,
+	agentId,
 }) => {
 	const [isEditing, setIsEditing] = useState(false);
 	const textAreaRef = useRef(null);
 	const containerRef = useRef(null);
+	const initialBlocksRef = useRef(null);
+
+	// Initialize initialBlocks only once
+	useEffect(() => {
+		if (!initialBlocksRef.current) {
+			initialBlocksRef.current = { data: prompt };
+		}
+	}, [agentId]);
 
 	// Function to parse prompt and render with icons
 	const renderPromptWithIcons = () => {
@@ -40,12 +50,12 @@ const PromptWithIcons = ({
 			const actionDetail = actionMap[actionName];
 
 			// Add text before the action
-			if (lastIndex < match.index) {
-				parts.push({
-					type: 'text',
-					content: prompt.slice(lastIndex, match.index),
-				});
-			}
+			// if (lastIndex < match.index) {
+			// 	parts.push({
+			// 		type: 'text',
+			// 		content: prompt.slice(lastIndex, match.index),
+			// 	});
+			// }
 
 			// Add action with icon
 			parts.push({
@@ -57,13 +67,13 @@ const PromptWithIcons = ({
 			lastIndex = match.index + match[0].length;
 		}
 
-		// Add remaining text
-		if (lastIndex < prompt.length) {
-			parts.push({
-				type: 'text',
-				content: prompt.slice(lastIndex),
-			});
-		}
+		// // Add remaining text
+		// if (lastIndex < prompt.length) {
+		// 	parts.push({
+		// 		type: 'text',
+		// 		content: prompt.slice(lastIndex),
+		// 	});
+		// }
 
 		return parts;
 	};
@@ -102,7 +112,7 @@ const PromptWithIcons = ({
 
 	return (
 		<div ref={containerRef} className={`promptWithIconsContainer ${className}`} style={style}>
-			{isEditing ? (
+			{/* {isEditing ? (
 				<textarea
 					ref={textAreaRef}
 					value={prompt}
@@ -154,7 +164,16 @@ const PromptWithIcons = ({
 						}
 					})}
 				</div>
-			)}
+			)} */}
+			<Editor
+				markdown={true}
+				initialBlocks={initialBlocksRef.current}
+				customBlockData={{ actionDetails }}
+				onMarkdownChange={(markdown) => {
+					onChange?.(markdown);
+				}}
+				myAccess={readOnly || disabled ? 'view' : 'edit'}
+			/>
 		</div>
 	);
 };

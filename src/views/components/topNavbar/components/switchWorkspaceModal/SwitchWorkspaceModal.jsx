@@ -85,7 +85,7 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 			sameSite: 'lax',
 			domain: host,
 		});
-		channel.postMessage('reload');
+		channel.postMessage('switchWorkspace');
 	};
 
 	const handleKeyboardNavigation = (e) => {
