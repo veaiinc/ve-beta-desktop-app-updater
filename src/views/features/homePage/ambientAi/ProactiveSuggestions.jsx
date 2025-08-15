@@ -170,12 +170,12 @@ const ProactiveSuggestions = () => {
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		totalCardsData: onboardingCards,
-		cards: onboardingCards,
+		totalCardsData: [],
+		cards: [],
 		activeCardContent: null,
 		openModal: false,
 		currentIndex: 0,
-		loading: false,
+		loading: true,
 		openFilter: false,
 		selectedFilters: [
 			{
@@ -194,8 +194,8 @@ const ProactiveSuggestions = () => {
 		sortOptions,
 		searchQuery: '',
 		chatQuery: '',
-		options: optionsList,
-		selectedOption: 'onboarding',
+		options: [],
+		selectedOption: '',
 		showArrows: {
 			left: false,
 			right: false,
@@ -291,13 +291,34 @@ const ProactiveSuggestions = () => {
 			getAiInsightTypes();
 		} else {
 			const { insights, headline } = insightTypes || {};
-			const options = sortByInsightsOrder(insights, insightOptionsInOrder);
-			const updatedOptions = [...info?.options, ...options];
-			insightTypesRef.current = updatedOptions;
+
+			// Sort insights by predefined order
+			const sortedInsights = sortByInsightsOrder(insights, insightOptionsInOrder);
+
+			// Extract the first insight (to be placed first)
+			const firstInsight = sortedInsights[0];
+			// Remaining insights (excluding the first one)
+			const remainingInsights = sortedInsights.slice(1);
+
+			// Define the onboarding option
+			const onboardingOption = {
+				insight_type: 'onboarding',
+				count: 2,
+			};
+
+			// Build final options: [firstInsight, onboarding, ...rest]
+			const finalOptions = firstInsight
+				? [firstInsight, onboardingOption, ...remainingInsights]
+				: [onboardingOption, ...sortedInsights]; // fallback if no insights
+
+			// Update refs and state
+			insightTypesRef.current = finalOptions;
+
 			setInfo((prev) => ({
 				...prev,
-				options: updatedOptions,
+				options: finalOptions,
 				headline,
+				selectedOption: finalOptions?.[0]?.insight_type,
 			}));
 		}
 	}, [insightTypes]);
