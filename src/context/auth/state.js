@@ -123,7 +123,9 @@ export const AuthState = () => {
 		const permission = await requestPushNotificationPermission();
 		const fcmToken = permission === 'granted' ? await generateFCMToken() : '';
 		const body = emailVerified
-			? { email, otp: verificationCode, fcmToken }
+			? fcmToken
+				? { email, otp: verificationCode, fcmToken }
+				: { email, otp: verificationCode }
 			: { email, verificationCode };
 
 		try {
