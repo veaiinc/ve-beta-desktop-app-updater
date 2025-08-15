@@ -1711,7 +1711,11 @@ const ChatBox = ({
 													handleChange={handleFileAttachmentChange}
 													isUploadFileOpen={info?.isUploadFileOpen}
 													setIsUploadFileOpen={(value) => {
-														if (info?.chatBoxInfo?.deepResearch) return;
+														if (
+															info?.chatBoxInfo?.deepResearch ||
+															totalCreditsUsed >= totalCreditsLimit
+														)
+															return;
 														setInfo((prev) => ({
 															...prev,
 															isUploadFileOpen: value,

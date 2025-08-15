@@ -28,6 +28,7 @@ import jwtDecode from 'jwt-decode';
 import PromptPopup from '../../../components/homePage/PromptPopup';
 import { message } from '../../../components/globalComponents/CustomToast';
 import ChainOfThoughtInterpreter from '../../../components/homePage/ChainOfThoughtInterpreter';
+import GmailWidget from '../../../components/globalComponents/widgets/GmailWidget';
 
 const tabOptions = [
 	{ label: 'Actions', value: 'actions' },
@@ -352,6 +353,7 @@ const AmbientAiInfo = ({
 		sessionId,
 		read,
 		isCompleted,
+		widgets,
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
@@ -562,6 +564,11 @@ const AmbientAiInfo = ({
 					</div>
 					{info?.activeTab === 'actions' && (
 						<div className="situation-overview-container">
+							{widgets
+								?.filter((item) => item?.module_type === 'gmail')
+								?.map((item, index) => (
+									<GmailWidget key={index} widgetData={item?.metadata} />
+								))}
 							{suggested_actions?.length > 0 && (
 								<div className="suggested-actions-wrapper">
 									<div className="suggested-action-text">Actions</div>
