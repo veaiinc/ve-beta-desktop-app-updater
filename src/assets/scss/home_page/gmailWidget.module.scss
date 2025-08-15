@@ -12,25 +12,82 @@
 		font-weight: 550;
 		line-height: normal;
 	}
-	.gmailWidgetBody {
+	.gmailContent {
 		display: flex;
-		padding: 20px;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 10px;
+		gap: 8px;
 		align-self: stretch;
-		border-radius: 16px;
-		border: 1px solid var(--stroke, #2c2d2e);
-		span {
+
+		.to {
+			display: flex;
+			gap: 8px;
 			align-self: stretch;
-			color: var(--primary-font, #f2f2f3);
-			font-family: var(--primary-font-family);
-			font-size: 14px;
-			font-style: italic;
-			font-weight: 500;
-			line-height: 24px; /* 171.429% */
+			flex-direction: column;
+			.toTitle {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 550;
+				line-height: normal;
+			}
+			.toInput {
+				background-color: transparent;
+				border: none;
+				resize: none;
+				align-self: stretch;
+				padding: 12px;
+				border-radius: 12px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				color: var(--primary-font, #f2f2f3);
+			}
+		}
+
+		.body {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+			align-self: stretch;
+			width: 100%;
+
+			.bodyHeader {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 550;
+			}
+
+			.gmailWidgetBody {
+				padding: 20px;
+				border-radius: 16px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				width: 100%;
+
+				.textarea {
+					width: 100%;
+					background-color: transparent;
+					border: none;
+					resize: none;
+					align-self: stretch;
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: italic;
+					font-weight: 500;
+					line-height: 24px;
+				}
+			}
 		}
 	}
+
 	.buttonsContainer {
 		display: flex;
 		align-items: flex-start;
