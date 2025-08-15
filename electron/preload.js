@@ -46,4 +46,6 @@ contextBridge.exposeInMainWorld('electronApi', {
 	removeDownloadProgressListener: () => {
 		ipcRenderer.removeAllListeners('download-progress');
 	},
+
+	onProtocolUrl: (callback) => ipcRenderer.on('protocol-url', (_, url) => callback(url)),
 });

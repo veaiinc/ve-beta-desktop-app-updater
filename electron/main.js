@@ -29,6 +29,7 @@ const keepAliveAgent = {
 };
 
 let mainWindow = null;
+let deeplinkingUrl;
 
 // Set the autoUpdater logger to electron-log
 autoUpdater.logger = log;
@@ -89,6 +90,30 @@ function createWindow() {
 		autoUpdater.checkForUpdatesAndNotify();
 	}
 }
+
+app.on('open-url', (event, url) => {
+	event.preventDefault();
+	if (mainWindow) {
+		mainWindow.webContents.send('protocol-url', url);
+	}
+});
+
+// 🔹 Register protocol handler
+app.whenReady().then(() => {
+	if (!app.isDefaultProtocolClient('myapp')) {
+		app.setAsDefaultProtocolClient('myapp');
+	}
+	createWindow();
+
+	app.on('activate', () => {
+		if (BrowserWindow.getAllWindows().length === 0) createWindow();
+	});
+});
+
+// Quit when all windows are closed.
+app.on('window-all-closed', () => {
+	if (process.platform !== 'darwin') app.quit();
+});
 
 // Setup update events and log them
 autoUpdater.on('checking-for-update', () => {
@@ -521,8 +546,6 @@ ipcMain.handle(
 			const downloadedFiles = [];
 			const errors = [];
 			const total = items.length;
-
-			console.log(`Starting download of ${total} files to temp folder...`);
 
 			// --- PHASE 1: Download all to temp folder (truly parallel) ---
 			const startTime = Date.now();

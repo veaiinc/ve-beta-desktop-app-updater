@@ -120,6 +120,14 @@
 		"npmRebuild": false,
 		"appId": "com.veai.dashboard",
 		"productName": "Ve AI",
+		"protocols": [
+			{
+				"name": "VEAI Protocol",
+				"schemes": [
+					"veai"
+				]
+			}
+		],
 		"files": [
 			"build/**",
 			"dist-electron/**",
