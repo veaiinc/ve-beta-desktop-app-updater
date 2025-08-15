@@ -4,6 +4,9 @@ import { Clock, Copy, Expand, Mic, X } from 'lucide-react';
 
 const TranscriptPanel = ({ onClose, onShowLiveIntelligence }) => {
 	const [isRecording, setIsRecording] = useState(false);
+	
+	// Debug: Log component render
+	console.log('TranscriptPanel component rendered');
 
 	const transcriptData = [
 		{

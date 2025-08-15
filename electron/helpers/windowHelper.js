@@ -38,6 +38,7 @@ class WindowHelper {
 				nodeIntegration: false,
 				contextIsolation: true,
 				preload: path.join(__dirname, '..', 'preload.js'),
+				devTools: true, // Enable developer tools
 			},
 			show: false,
 			alwaysOnTop: true,
@@ -49,9 +50,10 @@ class WindowHelper {
 			focusable: true,
 			skipTaskbar: true,
 			visibleOnAllWorkspaces: true,
-			type: 'panel', // Use panel type for better desktop switching behavior
+			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel', // Use normal window type in development
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
+			resizable: process.env.NODE_ENV === 'development', // Allow resizing in development
 		};
 
 		this.overlayWindow = new BrowserWindow(windowSettings);
@@ -130,45 +132,98 @@ class WindowHelper {
 				
 				// Function to check if mouse is over actual overlay content
 				function isMouseOverContent(x, y) {
-					const overlayContent = document.querySelector('.overlay-content, .overlay-container, [data-overlay-content]');
-					if (!overlayContent) return false;
+					// Look for multiple possible selectors
+					const selectors = [
+						'[data-overlay-content]',
+						'.overlay-content', 
+						'.overlay-container',
+						'.overlay-app',
+						'.live-intelligence-panel',
+						'.transcript-panel',
+						'.shortcut-bar'
+					];
 					
-					const rect = overlayContent.getBoundingClientRect();
-					return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+					for (const selector of selectors) {
+						const element = document.querySelector(selector);
+						if (element) {
+							const rect = element.getBoundingClientRect();
+							const isOver = x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+							if (isOver) {
+								console.log('Mouse over content element:', selector, 'at', x, y);
+								return true;
+							}
+						}
+					}
+					
+					// Also check if mouse is over any button or interactive element
+					const elementAtPoint = document.elementFromPoint(x, y);
+					if (elementAtPoint) {
+						const tagName = elementAtPoint.tagName.toLowerCase();
+						const isInteractive = tagName === 'button' || tagName === 'input' || 
+											 tagName === 'a' || elementAtPoint.onclick ||
+											 elementAtPoint.closest('button') ||
+											 elementAtPoint.closest('[data-overlay-content]');
+						if (isInteractive) {
+							console.log('Mouse over interactive element:', elementAtPoint);
+							return true;
+						}
+					}
+					
+					return false;
 				}
+				
+				// Function to disable click-through for the entire overlay area
+				function disableClickThrough() {
+					console.log('Disabling click-through');
+					window.electronApi?.setIgnoreMouseEvents?.(false);
+					isOverContent = true;
+				}
+				
+				// Function to enable click-through
+				function enableClickThrough() {
+					console.log('Enabling click-through');
+					window.electronApi?.setIgnoreMouseEvents?.(true);
+					isOverContent = false;
+				}
+				
+				// Initially disable click-through when DOM is ready
+				setTimeout(() => {
+					console.log('DOM ready - disabling click-through initially');
+					disableClickThrough();
+				}, 100);
 				
 				// Handle mouse movement to determine if over content area
 				document.addEventListener('mousemove', (e) => {
 					const overContent = isMouseOverContent(e.clientX, e.clientY);
 					
 					if (overContent !== isOverContent) {
-						isOverContent = overContent;
-						window.electronApi?.setIgnoreMouseEvents?.(!isOverContent);
+						if (overContent) {
+							disableClickThrough();
+						} else {
+							enableClickThrough();
+						}
 					}
 				});
 				
-				// Handle mouse entering the window
+				// Handle mouse entering the window - disable click-through
 				document.addEventListener('mouseenter', (e) => {
-					const overContent = isMouseOverContent(e.clientX, e.clientY);
-					isOverContent = overContent;
-					window.electronApi?.setIgnoreMouseEvents?.(!isOverContent);
+					console.log('Mouse entered overlay window');
+					disableClickThrough();
 				});
 				
-				// Handle mouse leaving the window - always enable click-through
+				// Handle mouse leaving the window - enable click-through after delay
 				document.addEventListener('mouseleave', () => {
-					isOverContent = false;
-					window.electronApi?.setIgnoreMouseEvents?.(true);
+					console.log('Mouse left overlay window');
+					setTimeout(() => {
+						enableClickThrough();
+					}, 100); // Small delay to prevent flicker
 				});
 				
-				// Fallback: check every 100ms if content area has changed
-				setInterval(() => {
-					const overlayContent = document.querySelector('.overlay-content, .overlay-container, [data-overlay-content]');
-					if (overlayContent && !isOverContent) {
-						// If we have content but click-through is enabled, check mouse position
-						const rect = overlayContent.getBoundingClientRect();
-						// This is just a safety check - main logic is in mousemove
-					}
-				}, 100);
+				// Disable click-through when clicking anywhere in the overlay
+				document.addEventListener('click', (e) => {
+					console.log('Click detected in overlay');
+					disableClickThrough();
+				});
 			`);
 		});
 	}
@@ -331,6 +386,28 @@ class WindowHelper {
 
 		globalShortcut.register('CommandOrControl+Down', () => {
 			if (this.isVisible()) this.moveWindowDown();
+		});
+
+		// Register F12 to toggle developer tools for overlay window
+		globalShortcut.register('F12', () => {
+			if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+				if (this.overlayWindow.webContents.isDevToolsOpened()) {
+					this.overlayWindow.webContents.closeDevTools();
+				} else {
+					this.overlayWindow.webContents.openDevTools({ mode: 'detach' });
+				}
+			}
+		});
+
+		// Register Cmd+Shift+I as alternative for developer tools
+		globalShortcut.register('CommandOrControl+Shift+I', () => {
+			if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+				if (this.overlayWindow.webContents.isDevToolsOpened()) {
+					this.overlayWindow.webContents.closeDevTools();
+				} else {
+					this.overlayWindow.webContents.openDevTools({ mode: 'detach' });
+				}
+			}
 		});
 
 		app.on('will-quit', () => globalShortcut.unregisterAll());

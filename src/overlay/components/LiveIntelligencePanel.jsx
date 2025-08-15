@@ -33,7 +33,15 @@ const LiveIntelligencePanel = ({ onClose, onShowTranscript }) => {
 				<div className="live-intelligence-panel__controls">
 					<button
 						className="live-intelligence-panel__control-button"
-						onClick={onShowTranscript}
+						onClick={() => {
+							if (onShowTranscript) {
+								console.log('Calling onShowTranscript');
+								onShowTranscript();
+							} else {
+								console.log('onShowTranscript is not available');
+							}
+						}}
+						style={{ pointerEvents: 'auto' }}
 					>
 						<div className="live-intelligence-panel__icon">
 							<svg
