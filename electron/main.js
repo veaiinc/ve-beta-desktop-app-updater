@@ -90,18 +90,31 @@ function createWindow() {
 		autoUpdater.checkForUpdatesAndNotify();
 	}
 }
-
 app.on('open-url', (event, url) => {
 	event.preventDefault();
-	if (mainWindow) {
-		mainWindow.webContents.send('protocol-url', url);
+	log.info('Deep link received:', url);
+
+	// Store globally for later use
+	deeplinkingUrl = url;
+
+	if (mainWindow && !mainWindow.isDestroyed()) {
+		if (mainWindow.webContents && !mainWindow.webContents.isDestroyed()) {
+			mainWindow.webContents.send('protocol-url', url);
+		} else {
+			log.warn('webContents destroyed, will send on load');
+			// It will be sent in dom-ready
+		}
+	} else {
+		log.warn('mainWindow destroyed or missing, recreating...');
+		mainWindow = null;
+		createWindow();
 	}
 });
 
 // 🔹 Register protocol handler
 app.whenReady().then(() => {
-	if (!app.isDefaultProtocolClient('myapp')) {
-		app.setAsDefaultProtocolClient('myapp');
+	if (!app.isDefaultProtocolClient('veai')) {
+		app.setAsDefaultProtocolClient('veai');
 	}
 	createWindow();
 
