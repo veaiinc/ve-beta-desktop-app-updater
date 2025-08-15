@@ -19,6 +19,7 @@ import { ReactComponent as TemplatesSvg } from '../../assets/templates.svg';
 import useIntercom from '../../../../../hooks/useIntercom';
 import useBroadcastChannel from '../../../../../hooks/useBroadcastChannel';
 import { ReactComponent as PlusSvg } from '../../assets/plus.svg';
+import logError from '../../../../../helpers/errorLogger';
 
 const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
 const isMac =
@@ -99,6 +100,7 @@ const Settings = ({
 	const [info, setInfo] = useState({
 		workspaceModalOpen: false,
 		intercomOpen: false,
+		logoutLoading: false,
 	});
 
 	const {
@@ -129,6 +131,44 @@ const Settings = ({
 			}
 		}
 		closeSettingsTooltip();
+	};
+
+	const handleLogout = async () => {
+		try {
+			setInfo((prev) => ({
+				...prev,
+				logoutLoading: true,
+			}));
+			const isLoggedOut = await logout();
+			if (isLoggedOut) {
+				channel.postMessage('logout');
+			} else {
+				message.error('Failed to logout! This was reported to the team.');
+				const payload = {
+					errorType: 'Logout',
+					errorMessage: 'Failed to logout! This was reported to the team.',
+					errorPath: '/src/views/components/topNavbar/components/settings/Settings.jsx',
+					errorComponent: 'Settings',
+					errorComponentStack: 'Not Available',
+				};
+				const success = await logError(payload);
+				if (success) {
+					console.log('Error logged successfully');
+				} else {
+					console.error('Error logging failed');
+				}
+			}
+			setInfo((prev) => ({
+				...prev,
+				logoutLoading: false,
+			}));
+		} catch (error) {
+			console.error('Error logging out:', error);
+			setInfo((prev) => ({
+				...prev,
+				logoutLoading: false,
+			}));
+		}
 	};
 
 	return (
@@ -212,12 +252,14 @@ const Settings = ({
 				)}
 				<button
 					className={s.logoutButton}
-					onClick={() => {
-						logout();
-						channel.postMessage('logout');
+					onClick={handleLogout}
+					style={{
+						opacity: info.logoutLoading ? 0.5 : 1,
+						cursor: info.logoutLoading ? 'not-allowed' : 'pointer',
 					}}
+					disabled={info.logoutLoading}
 				>
-					<LogoutSvg />
+					{info.logoutLoading ? <Skeleton width={24} height={24} /> : <LogoutSvg />}
 				</button>
 			</div>
 
