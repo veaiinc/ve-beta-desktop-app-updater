@@ -5,7 +5,6 @@ import { ReactComponent as EditSvg } from '../../../../assets/svg/files/edit.svg
 import { ReactComponent as SendSvg } from '../../../../assets/svg/calendar/send.svg';
 import validator from 'validator';
 import { message } from '../CustomToast';
-import SendEmailModal from '../../modalsV2/proposalModals/SendEmailModal';
 import Context from '../../../../context/context';
 
 const GmailWidget = ({ widgetData = null, title = 'Draft Email Preview' }) => {
@@ -65,7 +64,7 @@ const GmailWidget = ({ widgetData = null, title = 'Draft Email Preview' }) => {
 			return;
 		}
 		if (!validator?.isEmail(info?.data?.to)) {
-			message.error('Invalid sender email');
+			message.error('Invalid receiver email');
 			return;
 		} else if (info?.data?.cc && !validator?.isEmail(info?.data?.cc)) {
 			message.error('Invalid cc email');
@@ -81,23 +80,26 @@ const GmailWidget = ({ widgetData = null, title = 'Draft Email Preview' }) => {
 			return { ...prev, sendEmailLoader: true };
 		});
 		const payload = {
-			clientEmail: info?.data?.from || 'rupesh@ve.ai',
+			clientEmail: info?.data?.to,
 			mailContent: {
 				htmlBody: info?.data?.body || '',
 				subject: info?.data?.subject || '',
 			},
 		};
 		if (info?.data?.cc?.length) {
-			payload.mailContent.cc = info?.data?.cc;
+			payload.mailContent.cc = [info?.data?.cc];
 		}
 		if (info?.data?.bcc?.length) {
-			payload.mailContent.bcc = info?.data?.bcc;
+			payload.mailContent.bcc = [info?.data?.bcc];
 		}
 		const response = await sendCustomEmailToClients(payload);
 
 		if (response?.[0]) {
 			message.success('Email sent successfully');
+		} else {
+			message.error('Unable to send email, please check if you connected your gmail account');
 		}
+
 		setInfo((prev) => {
 			return { ...prev, sendEmailLoader: false };
 		});
@@ -209,7 +211,6 @@ const GmailWidget = ({ widgetData = null, title = 'Draft Email Preview' }) => {
 					</button>
 				</div>
 			</div>
-			{/* <SendEmailModal open={true} /> */}
 		</div>
 	);
 };
