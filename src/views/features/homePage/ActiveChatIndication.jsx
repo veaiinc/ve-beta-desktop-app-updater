@@ -4,6 +4,7 @@ import { Tooltip } from 'antd';
 import RecentChatsTooltip from './RecentChatsTooltip';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
+import ObjectID from 'bson-objectid';
 
 const page = 1;
 const limit = 10;
@@ -44,17 +45,24 @@ const ActiveChatIndication = ({ activeChatData }) => {
 
 	useEffect(() => {
 		if (activeChatData && aiChatSessions?.data) {
-			const index = aiChatSessions?.data?.findIndex(
+			let index = aiChatSessions?.data?.findIndex(
 				(chat) => chat?._id === activeChatData?._id,
 			);
+
+			// if (index === -1) {
+			// 	if (activeChatData?._id === 'chatbox') {
+			// 		index = 0;
+			// 	}
+			// }
 
 			if (index !== -1) {
 				setInfo((prev) => ({
 					...prev,
-					previousChats: index + 1,
+					previousChats: index,
 					activeChatIndex: index % 10,
 				}));
 			} else {
+				index = 0;
 				setInfo((prev) => ({
 					...prev,
 					previousChats: 0,
@@ -103,6 +111,9 @@ const ActiveChatIndication = ({ activeChatData }) => {
 				navigate?.(
 					`/chat/${chat?._id}?agentType=knowledge_agent&assistantId=${chat?.assistantId}`,
 				);
+			} else if (chat?._id === 'chatbox') {
+				const sessionId = ObjectID()?.toString();
+				navigate?.(`/chat/${sessionId}`);
 			} else {
 				navigate?.(`/chat/${chat?._id}`);
 			}
