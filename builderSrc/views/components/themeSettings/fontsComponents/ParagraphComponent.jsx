@@ -319,7 +319,7 @@ const ParagraphComponent = () => {
 							dropdownRender={(menu) => (
 								<div
 									onMouseDown={handleMouseDown}
-									onMouseUp={handleMouseDown}
+									// onMouseUp={handleMouseDown}
 									onClick={handleMouseDown}
 								>
 									{menu}
@@ -372,7 +372,7 @@ const ParagraphComponent = () => {
 							dropdownRender={(menu) => (
 								<div
 									onMouseDown={handleMouseDown}
-									onMouseUp={handleMouseDown}
+									// onMouseUp={handleMouseDown}
 									onClick={handleMouseDown}
 								>
 									{menu}
@@ -408,7 +408,7 @@ const ParagraphComponent = () => {
 							dropdownRender={(menu) => (
 								<div
 									onMouseDown={handleMouseDown}
-									onMouseUp={handleMouseDown}
+									// onMouseUp={handleMouseDown}
 									onClick={handleMouseDown}
 								>
 									{menu}
