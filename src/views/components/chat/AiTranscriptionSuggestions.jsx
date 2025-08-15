@@ -121,7 +121,7 @@ const AiTranscriptionSuggestions = ({
 	// }, [files?.length]);
 
 	const handleActionClick = useCallback(
-		(prompt) => {
+		(prompt, isAskAi = false) => {
 			if (prompt && sessionId) {
 				const newParams = new URLSearchParams(searchParams);
 				newParams.set('chat', 'true');
@@ -131,6 +131,9 @@ const AiTranscriptionSuggestions = ({
 						prompt,
 						sessionId,
 					},
+					...(isAskAi && {
+						isDirectSearchAgent: true,
+					}),
 				});
 			}
 		},
@@ -236,6 +239,7 @@ const AiTranscriptionSuggestions = ({
 														onClick={() =>
 															handleActionClick(
 																suggestion?.query || '',
+																true,
 															)
 														}
 													>
@@ -339,7 +343,9 @@ const AiTranscriptionSuggestions = ({
 									<div className={s.header}>Need help?</div>
 									<div
 										className={s.body}
-										onClick={() => handleActionClick(question?.query || '')}
+										onClick={() =>
+											handleActionClick(question?.query || '', true)
+										}
 									>
 										<div className={s.questionText}>
 											<div className={s.text}>{question?.query || ''}</div>
