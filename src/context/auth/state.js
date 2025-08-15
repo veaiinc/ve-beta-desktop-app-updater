@@ -122,6 +122,13 @@ export const AuthState = () => {
 		const path = emailVerified ? '/login-with-otp' : '/verify-signup-email';
 		const permission = await requestPushNotificationPermission();
 		const fcmToken = permission === 'granted' ? await generateFCMToken() : '';
+		if (fcmToken) {
+			localStorage.setItem('fcmToken', fcmToken);
+			Cookies.set('fcmToken', fcmToken, {
+				sameSite: 'lax',
+				domain: fetchDomainName(),
+			});
+		}
 		const body = emailVerified
 			? fcmToken
 				? { email, otp: verificationCode, fcmToken }
@@ -476,6 +483,22 @@ export const AuthState = () => {
 		}
 	};
 
+	const logoutAPI = async () => {
+		try {
+			const path = '/logout';
+			const token = localStorage?.getItem('usertoken');
+			const fcmToken = localStorage?.getItem('fcmToken') || Cookies.get('fcmToken') || '';
+			const body = {
+				fcmToken,
+			};
+			const response = await service?.fetchPost(path, body, token, 'auth');
+			return response;
+		} catch (error) {
+			console.error('Error logging out:', error);
+			throw error;
+		}
+	};
+
 	return {
 		...state,
 		checkAccountExistsUsingEmail,
@@ -491,5 +514,6 @@ export const AuthState = () => {
 		subscribeToNewsletter,
 		getAddOnsForCurrentPlan,
 		purchaseAddOn,
+		logoutAPI,
 	};
 };
