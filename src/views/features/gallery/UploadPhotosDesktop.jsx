@@ -122,7 +122,7 @@ const UploadPhotosDesktop = () => {
 		}
 	}, [tenantAlbums]);
 
-	console.log(tenantAlbums);
+	// console.log(tenantAlbums);
 
 	// Cleanup on unmount
 	useEffect(() => {
@@ -387,7 +387,7 @@ const UploadPhotosDesktop = () => {
 					let attempts = 0;
 					const versionId = Date.now();
 
-					console.log(galleryId);
+					// console.log(galleryId);
 
 					while (attempts < 3 && !uploaded) {
 						attempts++;
@@ -431,20 +431,21 @@ const UploadPhotosDesktop = () => {
 							);
 
 							if (uploadResultOriginal.success && uploadResultOptimized.success) {
-								const payload = generateUploadPayload(
+								const payload = generateUploadPayload({
 									image,
-									result.processedFile,
+									processedFile: result.processedFile,
 									imageId,
 									policyData,
 									uploadResultOriginal,
 									uploadResultOptimized,
-									{
+									extractedMetadata: {
 										width: result.width,
 										height: result.height,
 										format: result.format,
 										originalDateTime: result.originalDateTime,
 									},
-								);
+									versionId,
+								});
 
 								const [success, response] = await uploadDesktopImages(
 									galleryId,
@@ -494,7 +495,7 @@ const UploadPhotosDesktop = () => {
 		updateStateValues({ reFetchSubscription: true, reFetchGallery: true });
 	};
 
-	const generateUploadPayload = (
+	const generateUploadPayload = ({
 		image,
 		processedFile,
 		imageId, // ← will be existing _id for duplicates
@@ -502,8 +503,8 @@ const UploadPhotosDesktop = () => {
 		uploadResultOriginal,
 		uploadResultOptimized,
 		extractedMetadata,
-	) => {
-		const versionId = uploadResultOriginal?.epoch;
+		versionId,
+	}) => {
 		const givenFileName = `${imageId.toHexString()}_${versionId}.jpeg`;
 
 		// Use metadata from processSingleImage

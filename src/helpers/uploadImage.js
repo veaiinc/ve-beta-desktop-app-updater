@@ -14,7 +14,7 @@ async function uploadImage({
 	tenantId,
 }) {
 	try {
-		console.log('upload policy ', uploadPolicy);
+		// console.log('upload policy ', uploadPolicy);
 		if (!(file instanceof File)) {
 			throw new Error('Invalid file: Please provide a valid File object');
 		}
