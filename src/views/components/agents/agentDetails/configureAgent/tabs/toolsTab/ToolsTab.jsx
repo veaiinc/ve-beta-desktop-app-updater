@@ -41,7 +41,7 @@ const useDebounce = (func, timeout = 500) => {
 	};
 };
 
-const ToolsTab = ({ agentId }) => {
+const ToolsTab = ({ agentId, myAccess }) => {
 	const {
 		aiSetup: { updateAiAction },
 		knowledgeAgent: {
@@ -410,7 +410,7 @@ const ToolsTab = ({ agentId }) => {
 
 	return (
 		<div className={s?.actionsTabContainer}>
-			<AgentCredentials />
+			<AgentCredentials agentId={agentId} myAccess={myAccess} />
 			{/* <div className={s?.actionsHeader}>
 					<div className={s?.searchInputContainer}>
 					<div className={s?.searchIcon}>
@@ -439,12 +439,13 @@ const ToolsTab = ({ agentId }) => {
 				<div className={s.leftPanel}>
 					<div
 						className={s?.addActionButton}
-						onClick={() =>
+						onClick={() => {
+							if (myAccess === 'view') return;
 							setInfo((prevStates) => ({
 								...prevStates,
 								addToolModalOpen: true,
-							}))
-						}
+							}));
+						}}
 					>
 						<PlusSvg />
 						<span>Add tool</span>
@@ -457,7 +458,10 @@ const ToolsTab = ({ agentId }) => {
 									className={`${s.toolItem} ${
 										info.selectedTool?._id === item?._id ? s.selected : ''
 									}`}
-									onClick={() => handleToolSelect(item)}
+									onClick={() => {
+										if (myAccess === 'view') return;
+										handleToolSelect(item);
+									}}
 								>
 									<div className={s.toolIcon}>
 										{getToolLogoUrl(item?.typeDependencies) && (
@@ -503,12 +507,14 @@ const ToolsTab = ({ agentId }) => {
 										onClick={() =>
 											handleOpenDeleteModal(info.selectedTool?._id)
 										}
+										disabled={myAccess === 'view'}
 									>
 										<DeleteSvg />
 										Delete
 									</button>
 									<button
 										className={s.headerActionButton}
+										disabled={myAccess === 'view'}
 										onClick={() => {
 											setTimeout(() => {
 												if (firstInputRef.current) {
@@ -534,6 +540,7 @@ const ToolsTab = ({ agentId }) => {
 												info.selectedTool?.type,
 											)
 										}
+										editable={myAccess !== 'view'}
 									/>
 								</div>
 							</div>
@@ -678,8 +685,9 @@ const ToolsTab = ({ agentId }) => {
 								<button
 									className={s.updateButton}
 									onClick={handleUpdateToolVariables}
+									disabled={myAccess === 'view'}
 								>
-									Update Variables
+									{myAccess === 'view' ? 'View Variables' : 'Update Variables'}
 								</button>
 							</div>
 						</div>

@@ -116,6 +116,24 @@
 		align-items: center;
 		gap: 8px;
 
+		.addWorkspaceButton {
+			display: flex;
+			height: 32px;
+			padding: 8px 12px;
+			align-items: center;
+			gap: 6px;
+			border-radius: 8px;
+			color: var(--secondary-font, #94989e);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			background-color: transparent;
+			border: none;
+			cursor: pointer;
+		}
+
 		.iconBtn {
 			display: flex;
 			width: 32px;

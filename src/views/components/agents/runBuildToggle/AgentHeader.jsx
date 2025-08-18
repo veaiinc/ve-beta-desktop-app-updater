@@ -13,11 +13,17 @@ import DeleteFormModal from '../../modalsV2/DeleteModal/DeleteModal';
 import Spinner from '../../loaders/Spinner';
 import { ReactComponent as BotIcon } from './assets/botSvg.svg';
 
-const AgentHeader = ({ onEditClick, agentAction, setAgentAction, activeKnowledgeAssistant }) => {
+const AgentHeader = ({
+	onEditClick,
+	agentAction,
+	setAgentAction,
+	activeKnowledgeAssistant,
+	isTemplate,
+}) => {
 	const navigate = useNavigate();
 	const { agentId } = useParams();
 	const {
-		knowledgeAgent: { deleteKnowledgeAgent, updateKnowledgeAgent },
+		knowledgeAgent: { deleteKnowledgeAgent, updateKnowledgeAgent, addTemplateAgentToWorkspace },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		loading: false,
@@ -42,7 +48,10 @@ const AgentHeader = ({ onEditClick, agentAction, setAgentAction, activeKnowledge
 		setInfo((prev) => ({ ...prev, loading: true }));
 
 		try {
-			const [success, data] = await deleteKnowledgeAgent(agentId);
+			const [success, data] = await deleteKnowledgeAgent(
+				agentId,
+				activeKnowledgeAssistant?.data?.isActive,
+			);
 			if (success) {
 				message.success('Agent deleted successfully');
 				navigate('/agents');
@@ -93,6 +102,18 @@ const AgentHeader = ({ onEditClick, agentAction, setAgentAction, activeKnowledge
 		border: 'none',
 	};
 
+	const handleAddTemplateToWorkspace = async (agentId) => {
+		const [success, data] = await addTemplateAgentToWorkspace({
+			agentTemplateId: agentId,
+		});
+		if (success) {
+			message.success('Agent added to workspace successfully');
+			navigate(`/agent/${data?._id}?agentAction=runAgent`);
+		} else {
+			message.error('Failed to add agent to workspace');
+		}
+	};
+
 	return (
 		<div className={s.agentHeaderWrapper}>
 			<div className={s.leftSection} onClick={handleBack}>
@@ -133,29 +154,43 @@ const AgentHeader = ({ onEditClick, agentAction, setAgentAction, activeKnowledge
 				{/* <div className={s.iconBtn}>
 					<EditIcon onClick={onEditClick} />
 				</div> */}
-				<AgentShareComponent
-					agentId={agentId}
-					activeKnowledgeAssistant={activeKnowledgeAssistant}
-					buttonStyle={buttonStyle}
-				/>
-				<button
-					className={s.publishBtn}
-					onClick={() => handlePublishToggle(!activeKnowledgeAssistant?.data?.isActive)}
-				>
-					{info?.publishLoading ? (
-						<>
-							<Spinner width={16} height={16} />
-							<span>Updating...</span>
-						</>
-					) : activeKnowledgeAssistant?.data?.isActive ? (
-						'Unpublish Agent'
-					) : (
-						'Publish Agent'
-					)}
-				</button>
-				<div className={s.iconBtn}>
-					<DeleteIcon onClick={handleOpenDeleteModal} />
-				</div>
+				{isTemplate ? (
+					<button
+						className={s.addWorkspaceButton}
+						onClick={() => handleAddTemplateToWorkspace(agentId)}
+					>
+						Add to workspace
+					</button>
+				) : (
+					<>
+						<AgentShareComponent
+							agentId={agentId}
+							activeKnowledgeAssistant={activeKnowledgeAssistant}
+							buttonStyle={buttonStyle}
+						/>
+						<button
+							className={s.publishBtn}
+							onClick={() =>
+								handlePublishToggle(!activeKnowledgeAssistant?.data?.isActive)
+							}
+						>
+							{info?.publishLoading ? (
+								<>
+									<Spinner width={16} height={16} />
+									<span>Updating...</span>
+								</>
+							) : activeKnowledgeAssistant?.data?.isActive ? (
+								'Unpublish Agent'
+							) : (
+								'Publish Agent'
+							)}
+						</button>
+						<div className={s.iconBtn}>
+							<DeleteIcon onClick={handleOpenDeleteModal} />
+						</div>
+					</>
+				)}
+
 				{/* <div className={s.divider} /> */}
 			</div>
 
