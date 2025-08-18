@@ -1,8 +1,9 @@
 import React, { memo } from 'react';
-import Skeleton from 'react-loading-skeleton';
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 import { getInitials } from '../../../../helpers/index';
-import { ReactComponent as TickSvg } from '../../../../assets/svg/tick.svg';
-import { ReactComponent as DownArrow } from '../../../../assets/svg/Settings/Downarrowwhite.svg';
+// import { ReactComponent as TickSvg } from '../../../../assets/svg/tick.svg';
+// import { ReactComponent as DownArrow } from '../../../../assets/svg/Settings/Downarrowwhite.svg';
 import { useContext } from 'react';
 import { Select } from 'antd';
 import Context from '../../../../context/context';
@@ -69,9 +70,24 @@ const TeamAccessListComponent = ({
 					value={info.searchQuery}
 				/>
 			</div>
-			<div>
-				<div>
-					{filteredUsers?.map((user, index) => (
+			<div className="tenantDetailsContainerDiv">
+				{info.isloading ? (
+					<div className="skeletonDiv">
+						{Array.from({ length: 10 }).map((_, index) => (
+							<Skeleton
+								key={index}
+								width="100%"
+								height="52px"
+								style={{
+									'--highlight-color': 'gray',
+									'--base-color': 'transparent',
+									borderRadius: '8px',
+								}}
+							/>
+						))}
+					</div>
+				) : (
+					filteredUsers?.map((user, index) => (
 						<div
 							className="tenantDetailsContainer"
 							key={user?._id}
@@ -132,20 +148,8 @@ const TeamAccessListComponent = ({
 								</div>
 							</div>
 						</div>
-					))}
-				</div>
-				<div>
-					{info.isloading ? (
-						<div className="skeletonDiv">
-							<Skeleton height={52} />
-							<Skeleton height={52} />
-							<Skeleton height={52} />
-							<Skeleton height={52} />
-						</div>
-					) : (
-						' '
-					)}
-				</div>
+					))
+				)}
 			</div>
 		</>
 	);

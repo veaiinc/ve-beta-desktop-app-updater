@@ -81,123 +81,128 @@
 			}
 		}
 
-		.tenantDetailsContainer {
-			display: flex;
-			padding: 12px 16px;
-			align-items: center;
-			gap: 12px;
-			align-self: stretch;
-			justify-content: space-between;
-			border-radius: 8px;
-			cursor: pointer;
-			margin-bottom: 8px;
-			border-radius: 12px;
-			background: var(--card, #171819);
-
-			&:hover {
-				background-color: var(--card-hover);
-			}
-
-			.tenantProfileContainer {
-				display: flex;
-				gap: 16px;
-				align-items: center;
-
-				.tenantLogo {
-					display: flex;
-					justify-content: center;
-					align-items: center;
-					border-radius: 6px;
-					width: 40px;
-					height: 40px;
-					overflow: hidden;
-					background: var(--card-hover);
-
-					img {
-						width: 100%;
-						height: 100%;
-						border-radius: 100%;
-						object-fit: cover;
-					}
-
-					p {
-						color: var(--primary-font);
-						font-family: var(--primary-font-family);
-						font-size: 14px;
-						font-weight: 500;
-						margin: 0;
-					}
-				}
-
-				.tenantProfileName {
-					display: flex;
-					flex-direction: column;
-					justify-content: center;
-
-					h1 {
-						margin: 0;
-						color: var(--primary-font);
-						font-family: var(--primary-font-family);
-						font-size: 14px;
-						font-weight: 500;
-						line-height: 20px;
-					}
-
-					p {
-						color: var(--secondary-font);
-						font-family: var(--primary-font-family);
-						font-size: 13px;
-						font-weight: 400;
-						line-height: 20px;
-						margin: 0;
-					}
-				}
-			}
-
-			.AccessControl {
-				.owner {
-					border-radius: 6px;
-					background-color: var(--card);
-					padding: 8px 16px;
-					display: inline-block;
-					color: var(--primary-font);
-					font-size: 14px;
-				}
-
-				.editAccessControl {
-					position: relative;
-					min-width: 120px;
-
-					.ant-select {
-						width: 100%;
-					}
-
-					.ant-select-selector {
-						color: var(--primary-font) !important;
-						background: none !important;
-						border: none !important;
-						padding: 0 8px !important;
-						height: 32px !important;
-					}
-
-					.ant-select-arrow {
-						color: var(--primary-font) !important;
-					}
-
-					.ant-select-selection-item {
-						color: var(--primary-font) !important;
-						font-size: 14px;
-						line-height: 32px !important;
-					}
-				}
-			}
-		}
-
-		.skeletonDiv {
+		.tenantDetailsContainerDiv {
 			display: flex;
 			flex-direction: column;
-			gap: 10px;
-			margin-top: 10px;
+			gap: 8px;
+
+			.tenantDetailsContainer {
+				display: flex;
+				padding: 12px 16px;
+				align-items: center;
+				gap: 12px;
+				align-self: stretch;
+				justify-content: space-between;
+				border-radius: 8px;
+				cursor: pointer;
+				border-radius: 12px;
+				background: var(--card, #171819);
+
+				&:hover {
+					background-color: var(--card-hover);
+				}
+
+				.tenantProfileContainer {
+					display: flex;
+					gap: 16px;
+					align-items: center;
+
+					.tenantLogo {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						border-radius: 6px;
+						width: 40px;
+						height: 40px;
+						overflow: hidden;
+						background: var(--card-hover);
+
+						img {
+							width: 100%;
+							height: 100%;
+							border-radius: 100%;
+							object-fit: cover;
+						}
+
+						p {
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
+							font-size: 14px;
+							font-weight: 500;
+							margin: 0;
+						}
+					}
+
+					.tenantProfileName {
+						display: flex;
+						flex-direction: column;
+						justify-content: center;
+
+						h1 {
+							margin: 0;
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
+							font-size: 14px;
+							font-weight: 500;
+							line-height: 20px;
+						}
+
+						p {
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
+							font-size: 13px;
+							font-weight: 400;
+							line-height: 20px;
+							margin: 0;
+						}
+					}
+				}
+
+				.AccessControl {
+					.owner {
+						border-radius: 6px;
+						background-color: var(--card);
+						padding: 8px 16px;
+						display: inline-block;
+						color: var(--primary-font);
+						font-size: 14px;
+					}
+
+					.editAccessControl {
+						position: relative;
+						min-width: 120px;
+
+						.ant-select {
+							width: 100%;
+						}
+
+						.ant-select-selector {
+							color: var(--primary-font) !important;
+							background: none !important;
+							border: none !important;
+							padding: 0 8px !important;
+							height: 32px !important;
+						}
+
+						.ant-select-arrow {
+							color: var(--primary-font) !important;
+						}
+
+						.ant-select-selection-item {
+							color: var(--primary-font) !important;
+							font-size: 14px;
+							line-height: 32px !important;
+						}
+					}
+				}
+			}
+
+			.skeletonDiv {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				margin-top: 8px;
+			}
 		}
 	}
 }
