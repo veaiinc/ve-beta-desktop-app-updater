@@ -15,6 +15,25 @@ export default defineConfig({
 					build: {
 						outDir: 'dist-electron',
 						emptyOutDir: false,
+						rollupOptions: {
+							external: [],
+							input: {
+								main: 'electron/main',
+								windowHelper: 'electron/helpers/windowHelper.js',
+								galleryHelper: 'electron/galleryHelper.js',
+								updateHelper: 'electron/updateHelper.js',
+								overlayWindowHelper: 'electron/overlayWindowHelper.js',
+							},
+							output: {
+								format: 'cjs',
+								entryFileNames: (chunkInfo) => {
+									if (chunkInfo.name === 'windowHelper') {
+										return 'helpers/[name].js';
+									}
+									return '[name].js';
+								},
+							},
+						},
 					},
 				},
 			},
@@ -37,6 +56,12 @@ export default defineConfig({
 		target: 'es2015',
 		sourcemap: true,
 		reportCompressedSize: false,
+		rollupOptions: {
+			input: {
+				main: './index.html',
+				overlay: './overlay.html',
+			},
+		},
 	},
 	css: {
 		devSourcemap: true,
