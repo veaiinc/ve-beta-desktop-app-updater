@@ -8,7 +8,7 @@ const messaging = getMessaging(app);
 const generateFCMToken = async () => {
 	try {
 		const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
-			scope: '/firebase-cloud-messaging-push-scope',
+			type: 'module',
 		});
 
 		const token = await getToken(messaging, {
