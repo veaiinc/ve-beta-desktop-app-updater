@@ -14,6 +14,9 @@ export const initialState = {
 	triggers: null,
 	assistantListForAutomation: null,
 	currentAgentAutomation: null,
+	activeAgents: null,
+	draftAgents: null,
+	agentTemplates: null,
 };
 
 export const KnowledgeAgentState = () => {
@@ -73,6 +76,89 @@ export const KnowledgeAgentState = () => {
 		}
 	};
 
+	const getKnowledgeAssistantsListWithFilter = async (args = {}) => {
+		try {
+			const {
+				page = 1,
+				limit = 10,
+				search = '',
+				sortBy = 'createdAt',
+				sortOrder = -1,
+				reset = true,
+				filter = 'active',
+			} = args;
+			const workspaceId = localStorage.getItem('workspaceId');
+			const searchParam =
+				search && search.trim() ? `&search=${encodeURIComponent(search.trim())}` : '';
+			const sortParam = `&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+			const path = `/${workspaceId}/knowledge-agents?page=${page}&limit=${limit}${searchParam}${sortParam}&${
+				filter === 'template'
+					? 'globalAgentTemplate=true'
+					: `isActive=${filter === 'active' ? true : false}`
+			}`;
+			const token = localStorage.getItem('usertoken');
+			const type = 'ai_assistant_api';
+			const response = await service?.fetchGet(path, token, type);
+			const success = response?.[0] === true;
+			const actionKey =
+				filter === 'template'
+					? Actions?.SET_AGENT_TEMPLATES
+					: filter === 'active'
+					? Actions?.SET_ACTIVE_AGENTS
+					: Actions?.SET_DRAFT_AGENTS;
+			if (success) {
+				const key =
+					filter === 'template'
+						? 'agentTemplates'
+						: filter === 'active'
+						? 'activeAgents'
+						: 'draftAgents';
+
+				const data = reset
+					? [...(response?.[1]?.data || [])]
+					: (() => {
+							const existingData = state?.[key]?.data || [];
+							const newData = response?.[1]?.data || [];
+							const combinedData = [...existingData, ...newData];
+
+							// Remove duplicates based on _id
+							const uniqueData = combinedData.filter(
+								(item, index, self) =>
+									index === self.findIndex((t) => t._id === item._id),
+							);
+
+							return uniqueData;
+					  })();
+				const payload = {
+					data,
+					currentPage: response?.[1]?.currentPage ?? 1,
+					hasNextPage: response?.[1]?.hasNextPage ?? false,
+					totalDocs: response?.[1]?.totalDocs ?? 0,
+				};
+
+				dispatch({
+					type: actionKey,
+					payload,
+				});
+				return [true, payload];
+			} else {
+				dispatch({
+					type: actionKey,
+					payload: {
+						data: [],
+						hasNextPage: false,
+						currentPage: 1,
+						totalDocs: 0,
+					},
+				});
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('error==>getKnowledgeAssistantsList', error);
+			return [false, error];
+		}
+	};
+
 	const createNewKnowledgeAgent = async (name, description) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -89,6 +175,13 @@ export const KnowledgeAgentState = () => {
 				dispatch({
 					type: Actions?.SET_ACTIVE_KNOWLEDGE_ASSISTANT,
 					payload: { data: response?.[1]?.insertData },
+				});
+				dispatch({
+					type: Actions?.SET_DRAFT_AGENTS,
+					payload: {
+						data: [...(state?.draftAgents?.data || []), response?.[1]?.insertData],
+						totalDocs: state?.draftAgents?.totalDocs + 1,
+					},
 				});
 				return [true, response?.[1]];
 			} else {
@@ -147,6 +240,53 @@ export const KnowledgeAgentState = () => {
 					type: Actions?.SET_ACTIVE_KNOWLEDGE_ASSISTANT,
 					payload: { data: response?.[1] },
 				});
+				if (updateData?.isActive !== undefined) {
+					if (updateData?.isActive) {
+						let currentAgent = null;
+						dispatch({
+							type: Actions?.SET_DRAFT_AGENTS,
+							payload: {
+								data: state?.draftAgents?.data?.filter((agent) => {
+									if (agent?._id === aiAssistantId) {
+										currentAgent = agent;
+										return false;
+									}
+									return true;
+								}),
+								totalDocs: state?.draftAgents?.totalDocs - 1,
+							},
+						});
+						dispatch({
+							type: Actions?.SET_ACTIVE_AGENTS,
+							payload: {
+								data: [...(state?.activeAgents?.data || []), currentAgent],
+								totalDocs: state?.activeAgents?.totalDocs + 1,
+							},
+						});
+					} else {
+						let currentAgent = null;
+						dispatch({
+							type: Actions?.SET_ACTIVE_AGENTS,
+							payload: {
+								data: state?.activeAgents?.data?.filter((agent) => {
+									if (agent?._id === aiAssistantId) {
+										currentAgent = agent;
+										return false;
+									}
+									return true;
+								}),
+								totalDocs: state?.activeAgents?.totalDocs - 1,
+							},
+						});
+						dispatch({
+							type: Actions?.SET_DRAFT_AGENTS,
+							payload: {
+								data: [...(state?.draftAgents?.data || []), currentAgent],
+								totalDocs: state?.draftAgents?.totalDocs + 1,
+							},
+						});
+					}
+				}
 				return [true, response?.[1]];
 			} else {
 				return [false, response?.[1]];
@@ -1178,7 +1318,7 @@ export const KnowledgeAgentState = () => {
 		}
 	};
 
-	const deleteKnowledgeAgent = async (agentId) => {
+	const deleteKnowledgeAgent = async (agentId, isActive) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const path = `/${workspaceId}/knowledge-agents/${agentId}`;
@@ -1212,6 +1352,27 @@ export const KnowledgeAgentState = () => {
 					type: Actions?.SET_KNOWLEDGE_ASSISTANTS_LIST,
 					payload: updatedAgentsList,
 				});
+				if (isActive) {
+					dispatch({
+						type: Actions?.SET_ACTIVE_AGENTS,
+						payload: {
+							data: state?.activeAgents?.data?.filter(
+								(agent) => agent._id !== agentId,
+							),
+							totalDocs: state?.activeAgents?.totalDocs - 1,
+						},
+					});
+				} else {
+					dispatch({
+						type: Actions?.SET_DRAFT_AGENTS,
+						payload: {
+							data: state?.draftAgents?.data?.filter(
+								(agent) => agent._id !== agentId,
+							),
+							totalDocs: state?.draftAgents?.totalDocs - 1,
+						},
+					});
+				}
 				return [true, response?.[1]];
 			} else {
 				return [false, response?.[1]];
@@ -1375,6 +1536,35 @@ export const KnowledgeAgentState = () => {
 		return [false, response?.[1]];
 	};
 
+	const addTemplateAgentToWorkspace = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/knowledge-agents/add-agent-template`;
+			const response = await service?.fetchPost(url, payload, usertoken, 'ai_assistant_api');
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions?.SET_ACTIVE_KNOWLEDGE_ASSISTANT,
+					payload: {
+						data: response?.[1],
+					},
+				});
+				dispatch({
+					type: Actions?.SET_DRAFT_AGENTS,
+					payload: {
+						data: [...(state?.draftAgents?.data || []), response?.[1]],
+					},
+				});
+
+				return [true, response?.[1]];
+			}
+			return [false, response?.[1]];
+		} catch (error) {
+			console.log('error==>addTemplateAgentToWorkspace', error);
+			return [false, error];
+		}
+	};
+
 	return {
 		...state,
 		createNewKnowledgeAgent,
@@ -1427,5 +1617,7 @@ export const KnowledgeAgentState = () => {
 		getComposioAction,
 		getComposioConnectedAccounts,
 		connectPipedreamTool,
+		getKnowledgeAssistantsListWithFilter,
+		addTemplateAgentToWorkspace,
 	};
 };
