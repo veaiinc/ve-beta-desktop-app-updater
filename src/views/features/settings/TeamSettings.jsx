@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useCallback, useState, memo } from 'react';
+import React, { useContext, useEffect, useState, memo } from 'react';
 import '../../../assets/scss/settings/teamMembers.scss';
 import search from '../../../assets/svg/workspaceSettings/searchSettings.svg';
 import validator from 'validator';
@@ -14,12 +14,11 @@ const TeamSettings = () => {
 		companyInfo: {
 			getTeamMembers,
 			tenantsUserList,
-			inviteNewuser,
 			updateTenantRole,
 			removeTenantRole,
 			addTenantUser,
 		},
-		subscriptionInfo: { validateExpiryData, updateSubscriptionState, currentPlan },
+		subscriptionInfo: { currentPlan },
 	} = useContext(Context);
 
 	// useStates
