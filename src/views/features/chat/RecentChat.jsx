@@ -3,7 +3,6 @@ import '../../../assets/scss/chat/chat.scss';
 import {
 	handleDeepSearchChainOfThought,
 	handleDeepResearchChainOfThought,
-	getBrowserUrls,
 } from '../../../helpers/chatHelpers';
 import Context from '../../../context/context';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
@@ -19,7 +18,6 @@ import ChatHeader from '../../components/chat/ChatHeader';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import { message } from '../../components/globalComponents/CustomToast';
 import ChatHistory from '../../components/sidebar/chatHistory/ChatHistory';
-import Browser from '../../components/chat/chatComponents/Browser';
 import { ReactComponent as DoubleRightArrowSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 
 const RecentChat = ({
@@ -33,7 +31,6 @@ const RecentChat = ({
 	animateChatBox = true,
 	showChatHistory = false,
 	showChats = false,
-	showBrowser = false,
 	showHeader = true,
 }) => {
 	const {
@@ -97,9 +94,6 @@ const RecentChat = ({
 			chatQuery: '',
 			citationsAiMessageIndex: null,
 			citationsModalIsOpen: false,
-			openBrowser: false,
-			browserDataAvailable: false,
-			browserPreviousActiveTabIndex: null,
 			isMobileView: false,
 			isChatHistoryClosed,
 		};
@@ -122,8 +116,6 @@ const RecentChat = ({
 	const followUpQueryTimeoutRef = useRef(null);
 
 	sessionId = isPreview ? sId : sessionId;
-
-	const browserData = globalChatMessages?.[sessionId]?.browserData;
 
 	// Save whenever it changes
 	useEffect(() => {
@@ -185,15 +177,6 @@ const RecentChat = ({
 	}, []);
 
 	useEffect(() => {
-		if (browserData) {
-			setInfo((prev) => ({
-				...prev,
-				browserPreviousActiveTabIndex: browserData?.activeTabIndex,
-			}));
-		}
-	}, [browserData]);
-
-	useEffect(() => {
 		if (info?.getFollowUpQueries) {
 			if (agentType !== 'knowledge_agent' && info?.chatQuery?.trim()?.length === 0) {
 				followUpQueryTimeoutRef.current = setTimeout(() => {
@@ -252,8 +235,6 @@ const RecentChat = ({
 					scrollExecuted: false,
 					citationsModalIsOpen: false,
 					citationsAiMessageIndex: null,
-					browserDataAvailable: false,
-					browserPreviousActiveTabIndex: null,
 				}));
 			}
 			if (currentUserMessageTimeoutRef.current) {
@@ -354,18 +335,6 @@ const RecentChat = ({
 			}));
 		}
 	}, [globalChatMessages, sessionId]);
-
-	useEffect(() => {
-		if (globalChatMessages?.[sessionId]?.browserData) {
-			setInfo((prev) => {
-				return {
-					...prev,
-					openBrowser: true,
-					browserDataAvailable: true,
-				};
-			});
-		}
-	}, [globalChatMessages?.[sessionId]?.browserData]);
 
 	// useEffect(() => {
 	// 	if (!chatContentRef?.current || !tabsRefs?.current) return;
@@ -500,17 +469,6 @@ const RecentChat = ({
 			});
 		}
 	}, [moreRecentChatStorage?.[sessionId]]);
-
-	const handleBrowserButtonClick = useCallback(() => {
-		if (!location?.pathname?.includes('chat')) {
-			navigate(`/chat/${sessionId}`);
-			return;
-		}
-		setInfo((prev) => ({
-			...prev,
-			openBrowser: !prev?.openBrowser,
-		}));
-	}, [sessionId]);
 
 	const handleChatHistoryToggle = useCallback(() => {
 		setInfo((prev) => ({
@@ -925,20 +883,7 @@ const RecentChat = ({
 						}),
 				}));
 			}
-			const { message_chunk_id, open_browser } = data;
-
-			if (open_browser) {
-				getBrowserUrls(
-					sessionId,
-					handleGlobalChatMessages,
-					info?.browserPreviousActiveTabIndex,
-				);
-				setInfo((prev) => ({
-					...prev,
-					browserDataAvailable: true,
-					openBrowser: true,
-				}));
-			}
+			const { message_chunk_id } = data;
 
 			if (message_chunk_id) {
 				handleGlobalChatMessages({
@@ -1243,27 +1188,9 @@ const RecentChat = ({
 								onChatQueryChange={handleChatQueryChange}
 								animateChatBox={animateChatBox}
 								sessionId={sessionId}
-								handleBrowserButtonClick={handleBrowserButtonClick}
-								showBrowserButton={
-									!info?.openBrowser && info?.browserDataAvailable && showBrowser
-								}
 							/>
 						</div>
 					</div>
-				</div>
-
-				<div
-					className="browser-container"
-					style={{
-						width: info?.openBrowser && showBrowser ? '45vw' : '0px',
-					}}
-				>
-					<Browser
-						sessionId={sessionId}
-						isOpen={info?.openBrowser && showBrowser}
-						browserData={browserData}
-						handleBrowserButtonClick={handleBrowserButtonClick}
-					/>
 				</div>
 			</div>
 
