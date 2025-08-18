@@ -151,6 +151,7 @@ const ChatBox = ({
 	placeholder = 'Start typing or use @ to mention a source.',
 	showBrowserButton = false,
 	handleBrowserButtonClick = null,
+	showBottomTools = true,
 }) => {
 	const location = useLocation();
 	const { handleConnect } = useUpdatedVoiceIntegration();
@@ -185,6 +186,7 @@ const ChatBox = ({
 			chatReplyData,
 			deleteMultiAgentFile,
 			proactiveInfoForChat,
+			isDirectSearchAgent,
 		},
 		chatBoxSuggestionsSocket: { sendMessage, closeWebSocketConnection },
 		subscriptionInfo: { currentPlan },
@@ -926,6 +928,13 @@ const ChatBox = ({
 						payload.module_id = params?.meetingId;
 					}
 
+					if (isDirectSearchAgent) {
+						payload.direct_search_agent = true;
+						updateStateValues({
+							isDirectSearchAgent: false,
+						});
+					}
+
 					let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
 
 					if (!location_details) {
@@ -1003,6 +1012,7 @@ const ChatBox = ({
 			proactiveInfoForChat,
 			onChatQueryChange,
 			aiChatSessions,
+			isDirectSearchAgent,
 		],
 	);
 
@@ -1701,7 +1711,11 @@ const ChatBox = ({
 													handleChange={handleFileAttachmentChange}
 													isUploadFileOpen={info?.isUploadFileOpen}
 													setIsUploadFileOpen={(value) => {
-														if (info?.chatBoxInfo?.deepResearch) return;
+														if (
+															info?.chatBoxInfo?.deepResearch ||
+															totalCreditsUsed >= totalCreditsLimit
+														)
+															return;
 														setInfo((prev) => ({
 															...prev,
 															isUploadFileOpen: value,
@@ -1923,7 +1937,7 @@ const ChatBox = ({
 											) : (
 												<div className="buttons-container">
 													<div className="chat-icons-container">
-														{!isPublicChat && (
+														{!isPublicChat && showBottomTools && (
 															<UploadFileTooltip
 																fileTypeIcons={fileTypeIcons}
 																handleChange={
@@ -1980,7 +1994,7 @@ const ChatBox = ({
 														)}
 
 														<div className="combined-chat-options">
-															{!isPublicChat && (
+															{!isPublicChat && showBottomTools && (
 																<Tooltip
 																	title={
 																		<div className="chatbox-icon-tooltip-container ask-option-tooltip-container">
@@ -2077,7 +2091,7 @@ const ChatBox = ({
 																</Tooltip>
 															)}
 
-															{!isPublicChat && (
+															{!isPublicChat && showBottomTools && (
 																<Tooltip
 																	title={
 																		<div className="chatbox-icon-tooltip-container deep-search-tooltip-container">
@@ -2183,7 +2197,7 @@ const ChatBox = ({
 																// </SearchTypeTooltip>
 															)} */}
 
-															{!isPublicChat && (
+															{!isPublicChat && showBottomTools && (
 																<Tooltip
 																	title={
 																		<div className="chatbox-icon-tooltip-container goals-tooltip-container">
@@ -2235,6 +2249,7 @@ const ChatBox = ({
 
 															{isBuildEnbled &&
 																!isPublicChat &&
+																showBottomTools &&
 																workspaceMode !== 'stable' && (
 																	<Tooltip
 																		title={
@@ -2455,7 +2470,33 @@ const ChatBox = ({
 																<AudioSvg />
 															</div>
 														)}  */}
-
+														{/* Separate Speech-to-Text Button */}
+														<div
+															className={`click-btn speech-to-text-btn ${
+																isTranscribing ? 'transcribing' : ''
+															}`}
+															onClick={(e) => {
+																e.stopPropagation();
+																handleMicIconClick(e);
+															}}
+															style={{
+																backgroundColor: isTranscribing
+																	? 'var(--error-color)'
+																	: 'none',
+																marginLeft: '8px',
+															}}
+															title={
+																isTranscribing
+																	? 'Stop Recording'
+																	: 'Start Speech-to-Text'
+															}
+														>
+															{isTranscribing ? (
+																<StopIconSvg />
+															) : (
+																<SpeechMicSvg />
+															)}
+														</div>
 														<div
 															className={`click-btn ${
 																info?.chatQuery?.trim()?.length > 0
@@ -2482,33 +2523,6 @@ const ChatBox = ({
 																<ArrowUp />
 															) : (
 																<VoiceAgentSvg />
-															)}
-														</div>
-														{/* Separate Speech-to-Text Button */}
-														<div
-															className={`click-btn speech-to-text-btn ${
-																isTranscribing ? 'transcribing' : ''
-															}`}
-															onClick={(e) => {
-																e.stopPropagation();
-																handleMicIconClick(e);
-															}}
-															style={{
-																backgroundColor: isTranscribing
-																	? 'var(--error-color)'
-																	: 'var(--secondary-button)',
-																marginLeft: '8px',
-															}}
-															title={
-																isTranscribing
-																	? 'Stop Recording'
-																	: 'Start Speech-to-Text'
-															}
-														>
-															{isTranscribing ? (
-																<StopIconSvg />
-															) : (
-																<SpeechMicSvg />
 															)}
 														</div>
 													</div>

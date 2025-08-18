@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import s from '../../../assets/scss/home_page/recentChatsTooltip.module.scss';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../helpers';
@@ -22,6 +22,11 @@ const RecentChatsTooltip = ({
 	const chatsLength = chats?.length || 0;
 	const emptyChatsState = chatsLength === 0;
 	const loadingState = chats === undefined;
+
+	const chatsWithNew = useMemo(() => {
+		if (!Array.isArray(chats)) return [];
+		return [...chats, { _id: 'chatbox', title: 'New Chat' }];
+	}, [chats]);
 
 	return (
 		<div className={s.recentChatTooltip}>
@@ -58,9 +63,11 @@ const RecentChatsTooltip = ({
 								height="100%"
 								style={infinityScrollStyles}
 							>
-								{chats?.map((chat) => (
+								{chatsWithNew?.map((chat) => (
 									<div
-										className={s.chatItem}
+										className={`${s.chatItem} ${
+											activeChatData?._id === chat?._id ? s.active : ''
+										}`}
 										key={chat?._id}
 										onClick={() => handleChatNavigation?.(chat)}
 									>

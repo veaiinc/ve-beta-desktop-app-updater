@@ -6,8 +6,11 @@ const useBroadcastChannel = () => {
 
 	useEffect(() => {
 		channel.onmessage = (e) => {
-			if (e.data === 'reload') {
-				window.location.reload();
+			if (e.data === 'switchWorkspace') {
+				window.location.href = '/home';
+			}
+			if (e.data === 'logout') {
+				window.location.href = '/';
 			}
 		};
 

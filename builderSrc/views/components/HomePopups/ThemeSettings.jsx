@@ -291,7 +291,7 @@ const ThemeSettings = memo((props) => {
 				header: { display: 'none' },
 			}}
 			rootClassName="settingsDrawerWrapper"
-			mask={true}
+			mask={false}
 		>
 			<div className="themeSettingsParentContainer">
 				<div className="themeSettingsHeader">
