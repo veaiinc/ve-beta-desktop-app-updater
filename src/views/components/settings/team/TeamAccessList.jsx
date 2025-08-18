@@ -70,70 +70,68 @@ const TeamAccessListComponent = ({
 				/>
 			</div>
 			<div>
-				<div>
-					{filteredUsers?.map((user, index) => (
-						<div
-							className="tenantDetailsContainer"
-							key={user?._id}
-							onClick={() => {
-								handleUserClick(user);
-							}}
-						>
-							<div className="tenantProfileContainer">
-								<div className="tenantLogo">
-									<p>{getInitials(user?.firstName, user?.lastName)}</p>
-								</div>
-								<div className="tenantProfileName">
-									<h1>
-										{!user?.firstName && !user?.lastName
-											? 'No Name'
-											: user?.firstName
-											? user.firstName + ' ' + (user?.lastName || '')
-											: user?.lastName || ''}
-									</h1>
-									<p>{user?.email || ''}</p>
-								</div>
+				{filteredUsers?.map((user, index) => (
+					<div
+						className="tenantDetailsContainer"
+						key={user?._id}
+						onClick={() => {
+							handleUserClick(user);
+						}}
+					>
+						<div className="tenantProfileContainer">
+							<div className="tenantLogo">
+								<p>{getInitials(user?.firstName, user?.lastName)}</p>
 							</div>
-							<div>
-								<div className="AccessControl">
-									{user?.isOwner ? (
-										<p className="owner">Owner</p>
-									) : (
-										<div
-											className="editAccessControl"
-											onClick={(e) => e.stopPropagation()}
-										>
-											<Select
-												defaultValue={user?.role}
-												style={{
-													width: 120,
-												}}
-												onSelect={(value) => {
-													updateUserRoleFunction(user, value);
-												}}
-												options={[
-													{
-														value: 'admin',
-														label: 'Admin',
-													},
-													{
-														value: 'default',
-														label: 'Member',
-													},
-													{
-														value: 'remove',
-														label: 'Remove',
-													},
-												]}
-												variant="borderless"
-											/>
-										</div>
-									)}
-								</div>
+							<div className="tenantProfileName">
+								<h1>
+									{!user?.firstName && !user?.lastName
+										? 'No Name'
+										: user?.firstName
+										? user.firstName + ' ' + (user?.lastName || '')
+										: user?.lastName || ''}
+								</h1>
+								<p>{user?.email || ''}</p>
 							</div>
 						</div>
-					))}
-				</div>
+						<div>
+							<div className="AccessControl">
+								{user?.isOwner ? (
+									<p className="owner">Owner</p>
+								) : (
+									<div
+										className="editAccessControl"
+										onClick={(e) => e.stopPropagation()}
+									>
+										<Select
+											defaultValue={user?.role}
+											style={{
+												width: 120,
+											}}
+											onSelect={(value) => {
+												updateUserRoleFunction(user, value);
+											}}
+											options={[
+												{
+													value: 'admin',
+													label: 'Admin',
+												},
+												{
+													value: 'default',
+													label: 'Member',
+												},
+												{
+													value: 'remove',
+													label: 'Remove',
+												},
+											]}
+											variant="borderless"
+										/>
+									</div>
+								)}
+							</div>
+						</div>
+					</div>
+				))}
 				<div>
 					{info.isloading ? (
 						<div className="skeletonDiv">
