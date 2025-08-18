@@ -922,6 +922,17 @@
 			user-select: none;
 			position: relative;
 			color: var(--primary-font);
+			font-size: 14px;
+			.pricingFeatures {
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+				.feature-item {
+					display: flex;
+					align-items: center;
+					gap: 10px;
+				}
+			}
 			.currentPlanBadge {
 				position: absolute;
 				height: 474px;
