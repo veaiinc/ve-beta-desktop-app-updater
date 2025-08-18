@@ -276,7 +276,6 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [] }) => {
 						<div className="systemPromptTextArea promptWithIconsWrapper">
 							<PromptWithIcons
 								prompt={info?.systemPrompt}
-								actionDetails={actionDetails}
 								onChange={handlePromptChange}
 								placeholder="Enter your system prompt here"
 								autoResize={true}

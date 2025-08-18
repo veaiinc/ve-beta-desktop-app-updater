@@ -544,7 +544,10 @@ export const KnowledgeAgentState = () => {
 			if (success) {
 				dispatch({
 					type: Actions?.SET_ACTIONS_INFO,
-					payload: response?.[1],
+					payload: {
+						...response?.[1],
+						agentId,
+					},
 				});
 			}
 		} catch (error) {
