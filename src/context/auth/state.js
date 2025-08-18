@@ -119,51 +119,49 @@ export const AuthState = () => {
 	};
 
 	const verifyEmailVerificationCode = async (email, verificationCode, emailVerified) => {
-		// console.log('[Verify] Starting verification process...');
+		console.log('[Verify] Starting verification process...');
 		const path = emailVerified ? '/login-with-otp' : '/verify-signup-email';
-		// console.log('[Verify] Using API path:', path);
+		console.log('[Verify] Using API path:', path);
 
-		// let permission;
-		// try {
-		// 	permission = await requestPushNotificationPermission();
-		// 	console.log('[Verify] Push notification permission:', permission);
-		// } catch (err) {
-		// 	console.error('[Verify] Failed while requesting push notification permission:', err);
-		// 	return [
-		// 		false,
-		// 		{
-		// 			message:
-		// 				'An unexpected error occurred while requesting notification permission.',
-		// 		},
-		// 	];
-		// }
+		let permission;
+		try {
+			permission = await requestPushNotificationPermission();
+			console.log('[Verify] Push notification permission:', permission);
+		} catch (err) {
+			console.error('[Verify] Failed while requesting push notification permission:', err);
+			return [
+				false,
+				{
+					message:
+						'An unexpected error occurred while requesting notification permission.',
+				},
+			];
+		}
 
-		// if (permission === 'error') {
-		// 	console.warn('[Verify] Permission returned error');
-		// 	return [false, { message: 'An unexpected error occurred. Please try again!' }];
-		// }
+		if (permission === 'error') {
+			console.warn('[Verify] Permission returned error');
+			return [false, { message: 'An unexpected error occurred. Please try again!' }];
+		}
 
-		// const fcmToken = permission === 'granted' ? await generateFCMToken() : '';
-		// console.log('[Verify] Generated FCM token:', fcmToken || 'No token generated');
+		const fcmToken = permission === 'granted' ? await generateFCMToken() : '';
+		console.log('[Verify] Generated FCM token:', fcmToken || 'No token generated');
 
-		// if (fcmToken) {
-		// 	localStorage.setItem('fcmToken', fcmToken);
-		// 	Cookies.set('fcmToken', fcmToken, {
-		// 		sameSite: 'lax',
-		// 		domain: fetchDomainName(),
-		// 	});
-		// 	console.log('[Verify] Stored FCM token in localStorage and cookies');
-		// }
+		if (fcmToken) {
+			localStorage.setItem('fcmToken', fcmToken);
+			Cookies.set('fcmToken', fcmToken, {
+				sameSite: 'lax',
+				domain: fetchDomainName(),
+			});
+			console.log('[Verify] Stored FCM token in localStorage and cookies');
+		}
 
-		// const body = emailVerified
-		// 	? fcmToken
-		// 		? { email, otp: verificationCode, fcmToken }
-		// 		: { email, otp: verificationCode }
-		// 	: { email, verificationCode };
+		const body = emailVerified
+			? fcmToken
+				? { email, otp: verificationCode, fcmToken }
+				: { email, otp: verificationCode }
+			: { email, verificationCode };
 
-		const body = emailVerified ? { email, otp: verificationCode } : { email, verificationCode };
-
-		// console.log('[Verify] Request body prepared:', body);
+		console.log('[Verify] Request body prepared:', body);
 
 		try {
 			console.log('[Verify] Sending API request...');
