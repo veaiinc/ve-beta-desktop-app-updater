@@ -29,6 +29,7 @@ const AgentHeader = ({
 		loading: false,
 		deleteModal: { open: false },
 		publishLoading: false,
+		templateAddLoading: false,
 	});
 	const handleBack = () => {
 		navigate('/agents');
@@ -103,15 +104,18 @@ const AgentHeader = ({
 	};
 
 	const handleAddTemplateToWorkspace = async (agentId) => {
+		if (info?.templateAddLoading) return;
+		setInfo((prev) => ({ ...prev, templateAddLoading: true }));
 		const [success, data] = await addTemplateAgentToWorkspace({
 			agentTemplateId: agentId,
 		});
 		if (success) {
 			message.success('Agent added to workspace successfully');
-			navigate(`/agent/${data?._id}?agentAction=runAgent`);
+			navigate(`/agent/${data?._id}?agentAction=buildAgent`);
 		} else {
 			message.error('Failed to add agent to workspace');
 		}
+		setInfo((prev) => ({ ...prev, templateAddLoading: false }));
 	};
 
 	return (
@@ -158,8 +162,9 @@ const AgentHeader = ({
 					<button
 						className={s.addWorkspaceButton}
 						onClick={() => handleAddTemplateToWorkspace(agentId)}
+						disabled={info?.templateAddLoading}
 					>
-						Add to workspace
+						{info?.templateAddLoading ? 'Adding...' : 'Add to workspace'}
 					</button>
 				) : (
 					<>
