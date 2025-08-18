@@ -6,9 +6,7 @@ import { ReactComponent as BackIcon } from '../../../assets/svg/gallery/back-gra
 import WaterMarkComponent from '../../components/gallery/addGallery/WaterMarkComponent';
 import UploadStatusComponent from '../../components/gallery/addGallery/UploadStatusComponent';
 import randomize from 'randomatic';
-import moment from 'moment';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import axios from 'axios';
 import UploadCompletedPopup from '../../components/gallery/addGallery/UploadCompletedPopup';
 import { message } from '../../components/globalComponents/CustomToast';
 import Context from '../../../context/context';
@@ -33,6 +31,7 @@ const UploadPhotosDesktop = () => {
 			getUploadImagePolicy,
 			uploadDesktopImages,
 		},
+		// profileInfo: { getUserDetailsFromTenantAPI, userDetailsFromTenantAPI },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState, updateStateValues },
 	} = useContext(Context);
 
@@ -123,12 +122,20 @@ const UploadPhotosDesktop = () => {
 		}
 	}, [tenantAlbums]);
 
+	console.log(tenantAlbums);
+
 	// Cleanup on unmount
 	useEffect(() => {
 		return () => {
 			if (intervalRef.current) clearInterval(intervalRef.current);
 		};
 	}, []);
+
+	// useEffect(() => {
+	// 	if (!userDetailsFromTenantAPI) {
+	// 		getUserDetailsFromTenantAPI();
+	// 	}
+	// }, []);
 
 	// --- Helpers ---
 	const getDuplicateSet = () => {
@@ -191,7 +198,7 @@ const UploadPhotosDesktop = () => {
 			let processedBuffer = null;
 			let processedFile = originalFile;
 
-			if (info.isWaterMarkApply || true) {
+			if (info.isWaterMarkApply) {
 				// Always process for compression/resize
 				const watermarkUrl = getWatermarkUrl();
 				const result = await window.electronApi.processImageWithSharp({
@@ -351,6 +358,7 @@ const UploadPhotosDesktop = () => {
 			while (processingQueue.length > 0) {
 				const key = processingQueue.shift();
 				const image = info.uploadImages[key];
+
 				if (!image) continue;
 
 				try {
@@ -377,6 +385,9 @@ const UploadPhotosDesktop = () => {
 
 					let uploaded = false;
 					let attempts = 0;
+					const versionId = Date.now();
+
+					console.log(galleryId);
 
 					while (attempts < 3 && !uploaded) {
 						attempts++;
@@ -384,13 +395,13 @@ const UploadPhotosDesktop = () => {
 							// Upload original and optimized concurrently
 							const [uploadResultOriginal, uploadResultOptimized] = await Promise.all(
 								[
-									uploadImage(
-										image.file,
-										'originals',
-										null,
-										policyData,
+									uploadImage({
+										file: image.file,
+										bucketType: 'originals',
+										customFileName: null,
+										uploadPolicy: policyData,
 										imageId,
-										(percent) => {
+										onUploadProgress(percent) {
 											setInfo((prev) => ({
 												...prev,
 												uploadImages: {
@@ -402,14 +413,20 @@ const UploadPhotosDesktop = () => {
 												},
 											}));
 										},
-									),
-									uploadImage(
-										result.processedFile,
-										'optimized',
-										null,
-										policyData,
+										galleryId,
+										versionId,
+										tenantId: tenantAlbums?.tenantId,
+									}),
+									uploadImage({
+										file: result.processedFile,
+										bucketType: 'optimized',
+										customFileName: null,
+										uploadPolicy: policyData,
 										imageId,
-									),
+										galleryId,
+										versionId,
+										tenantId: tenantAlbums?.tenantId,
+									}),
 								],
 							);
 
@@ -469,7 +486,7 @@ const UploadPhotosDesktop = () => {
 			}
 		};
 
-		const workers = Array.from({ length: info.uploadLimit }, () => processAndUploadOne());
+		const workers = Array.from({ length: info.uploadLimit }, processAndUploadOne);
 		await Promise.all(workers);
 
 		if (intervalRef.current) clearInterval(intervalRef.current);
@@ -486,7 +503,7 @@ const UploadPhotosDesktop = () => {
 		uploadResultOptimized,
 		extractedMetadata,
 	) => {
-		const versionId = Date.now().toString();
+		const versionId = uploadResultOriginal?.epoch;
 		const givenFileName = `${imageId.toHexString()}_${versionId}.jpeg`;
 
 		// Use metadata from processSingleImage
@@ -521,9 +538,7 @@ const UploadPhotosDesktop = () => {
 				},
 				watermark: {
 					applied: info.isWaterMarkApply,
-					profile: info.watermarkProfileId
-						? `watermark/${info.watermarkProfileId}_${versionId}-300w`
-						: null,
+					profile: info.watermarkProfileId ?? null,
 					position: info.watermarkPosition.name,
 				},
 				originalWidth,
