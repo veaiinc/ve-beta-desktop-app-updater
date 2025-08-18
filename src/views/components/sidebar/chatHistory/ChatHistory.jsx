@@ -22,7 +22,7 @@ const page = 1;
 const limit = 10;
 const append = true;
 
-const ChatHistory = ({ onChatSelect }) => {
+const ChatHistory = ({ onChatSelect, isClosed = false }) => {
 	const navigate = useNavigate();
 	const {
 		aiSetup: { getAiChatSessions, aiChatSessions },
@@ -138,7 +138,7 @@ const ChatHistory = ({ onChatSelect }) => {
 	const currentPage = aiChatSessions?.currentPage || 1;
 
 	return (
-		<div className="chats-drawer-container">
+		<div className={`chats-drawer-container${isClosed ? ' closed' : ''}`}>
 			<div className="chats-container">
 				{/* {(chats?.length > 10 || previousSearchQuery.current) && (
 					<div className="searchContainer">

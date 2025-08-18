@@ -21,6 +21,7 @@ import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import { message } from '../../components/globalComponents/CustomToast';
 import ChatHistory from '../../components/sidebar/chatHistory/ChatHistory';
 import Browser from '../../components/chat/chatComponents/Browser';
+import { ReactComponent as DoubleRightArrowSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 
 const RecentChat = ({
 	isPublicChat = false,
@@ -57,36 +58,52 @@ const RecentChat = ({
 	let agentType = searchParams?.get('agentType');
 	let assistantId = searchParams?.get('assistantId');
 
-	const [info, setInfo] = useState({
-		position: { x: window?.innerWidth / 2 - 900, y: 0 },
-		chatSessionId: null,
-		uploadedImages: [],
-		chatLoading: false,
-		voiceIntegration: false,
-		noteModalIsOpen: false,
-		page: 1,
-		currentPage: true,
-		latestStreamMesage: null,
-		activeAIMessageIndex: null,
-		activeAIMessageId: null,
-		activeUserMessageIndex: null,
-		renderingTwice: false,
-		initialRendering: false,
-		previousAgentType: null,
-		showScrollButton: false,
-		showViewDocument: false,
-		tooltipStyles: { visible: false, styles: { top: 0, left: 0 }, selectedText: '' },
-		deleteChatSessionLoading: false,
-		isNewChat: true,
-		currentUserMessageIndex: null,
-		getFollowUpQueries: false,
-		chatQuery: '',
-		citationsAiMessageIndex: null,
-		citationsModalIsOpen: false,
-		openBrowser: false,
-		browserDataAvailable: false,
-		browserPreviousActiveTabIndex: null,
-		isMobileView: false,
+	const [info, setInfo] = useState(() => {
+		let isChatHistoryClosed = false;
+		try {
+			const stored = localStorage.getItem('chatHistorySidebarClosed');
+			if (stored) {
+				const parsed = JSON.parse(stored);
+				if (typeof parsed === 'boolean') {
+					isChatHistoryClosed = parsed;
+				}
+			}
+		} catch (e) {
+			isChatHistoryClosed = false;
+		}
+
+		return {
+			position: { x: window?.innerWidth / 2 - 900, y: 0 },
+			chatSessionId: null,
+			uploadedImages: [],
+			chatLoading: false,
+			voiceIntegration: false,
+			noteModalIsOpen: false,
+			page: 1,
+			currentPage: true,
+			latestStreamMesage: null,
+			activeAIMessageIndex: null,
+			activeAIMessageId: null,
+			activeUserMessageIndex: null,
+			renderingTwice: false,
+			initialRendering: false,
+			previousAgentType: null,
+			showScrollButton: false,
+			showViewDocument: false,
+			tooltipStyles: { visible: false, styles: { top: 0, left: 0 }, selectedText: '' },
+			deleteChatSessionLoading: false,
+			isNewChat: true,
+			currentUserMessageIndex: null,
+			getFollowUpQueries: false,
+			chatQuery: '',
+			citationsAiMessageIndex: null,
+			citationsModalIsOpen: false,
+			openBrowser: false,
+			browserDataAvailable: false,
+			browserPreviousActiveTabIndex: null,
+			isMobileView: false,
+			isChatHistoryClosed,
+		};
 	});
 
 	const chatContentRef = useRef(null);
@@ -107,6 +124,11 @@ const RecentChat = ({
 	sessionId = isPreview ? sId : sessionId;
 
 	const browserData = globalChatMessages?.[sessionId]?.browserData;
+
+	// Save whenever it changes
+	useEffect(() => {
+		localStorage.setItem('chatHistorySidebarClosed', JSON.stringify(info.isChatHistoryClosed));
+	}, [info.isChatHistoryClosed]);
 
 	useEffect(() => {
 		document.addEventListener('mouseup', handleMouseUp);
@@ -510,6 +532,13 @@ const RecentChat = ({
 			openBrowser: !prev?.openBrowser,
 		}));
 	}, [sessionId]);
+
+	const handleChatHistoryToggle = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			isChatHistoryClosed: !Boolean(prev?.isChatHistoryClosed),
+		}));
+	}, []);
 
 	const handleChatQueryChange = useCallback((query) => {
 		setInfo((prev) => ({
@@ -1036,8 +1065,27 @@ const RecentChat = ({
 				}}
 			>
 				{showChatHistory && !info?.isMobileView && (
-					<div className="chat-history-wrapper">
-						<ChatHistory />
+					<div
+						className={`chat-history-wrapper${
+							info?.isChatHistoryClosed ? ' closed' : ''
+						}`}
+					>
+						<div
+							className={`chat-history-toggle-btn${
+								info?.isChatHistoryClosed ? ' closed' : ''
+							}`}
+							onClick={handleChatHistoryToggle}
+						>
+							<DoubleRightArrowSvg
+								className="chat-history-toggle-btn__icon"
+								style={{
+									transform: info?.isChatHistoryClosed
+										? 'none'
+										: 'rotate(180deg)',
+								}}
+							/>
+						</div>
+						<ChatHistory isClosed={info?.isChatHistoryClosed} />
 					</div>
 				)}
 

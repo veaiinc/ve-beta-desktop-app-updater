@@ -1712,7 +1712,11 @@ const ChatBox = ({
 													handleChange={handleFileAttachmentChange}
 													isUploadFileOpen={info?.isUploadFileOpen}
 													setIsUploadFileOpen={(value) => {
-														if (info?.chatBoxInfo?.deepResearch) return;
+														if (
+															info?.chatBoxInfo?.deepResearch ||
+															totalCreditsUsed >= totalCreditsLimit
+														)
+															return;
 														setInfo((prev) => ({
 															...prev,
 															isUploadFileOpen: value,
@@ -2467,7 +2471,33 @@ const ChatBox = ({
 																<AudioSvg />
 															</div>
 														)}  */}
-
+														{/* Separate Speech-to-Text Button */}
+														<div
+															className={`click-btn speech-to-text-btn ${
+																isTranscribing ? 'transcribing' : ''
+															}`}
+															onClick={(e) => {
+																e.stopPropagation();
+																handleMicIconClick(e);
+															}}
+															style={{
+																backgroundColor: isTranscribing
+																	? 'var(--error-color)'
+																	: 'none',
+																marginLeft: '8px',
+															}}
+															title={
+																isTranscribing
+																	? 'Stop Recording'
+																	: 'Start Speech-to-Text'
+															}
+														>
+															{isTranscribing ? (
+																<StopIconSvg />
+															) : (
+																<SpeechMicSvg />
+															)}
+														</div>
 														<div
 															className={`click-btn ${
 																info?.chatQuery?.trim()?.length > 0
@@ -2494,33 +2524,6 @@ const ChatBox = ({
 																<ArrowUp />
 															) : (
 																<VoiceAgentSvg />
-															)}
-														</div>
-														{/* Separate Speech-to-Text Button */}
-														<div
-															className={`click-btn speech-to-text-btn ${
-																isTranscribing ? 'transcribing' : ''
-															}`}
-															onClick={(e) => {
-																e.stopPropagation();
-																handleMicIconClick(e);
-															}}
-															style={{
-																backgroundColor: isTranscribing
-																	? 'var(--error-color)'
-																	: 'var(--secondary-button)',
-																marginLeft: '8px',
-															}}
-															title={
-																isTranscribing
-																	? 'Stop Recording'
-																	: 'Start Speech-to-Text'
-															}
-														>
-															{isTranscribing ? (
-																<StopIconSvg />
-															) : (
-																<SpeechMicSvg />
 															)}
 														</div>
 													</div>

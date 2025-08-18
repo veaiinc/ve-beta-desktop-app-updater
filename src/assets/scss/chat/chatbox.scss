@@ -1353,6 +1353,7 @@
 		}
 	}
 }
+
 .active {
 	opacity: 1;
 }
@@ -1410,13 +1411,18 @@
 
 // Speech-to-text button styles
 .speech-to-text-btn {
-	background: var(--secondary-button) !important;
+	background: none !important;
 	opacity: 0.8;
 	transition: all 0.2s ease-in-out;
 
 	&:hover {
 		opacity: 1;
-		background: var(--secondary-button-hover) !important;
+		background: var(--stroke) !important;
+	}
+	svg {
+		path {
+			stroke: var(--primary-font) !important;
+		}
 	}
 
 	&.transcribing {
