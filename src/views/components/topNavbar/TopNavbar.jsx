@@ -78,9 +78,11 @@ const middleContainerItems = [
 ];
 
 const activeNavItemMap = {
-	'/home': 5,
+	'/priority': 1,
 	'/chats': 2,
 	'/agents': 3,
+	'/files': 4,
+	'/home': 5,
 };
 
 const TopNavbar = () => {
@@ -136,7 +138,10 @@ const TopNavbar = () => {
 		let items = [...baseLeftContainerItems];
 
 		if (workspaceMode === 'stable') {
-			items = items.filter((item) => item.label !== 'Files' && item.label !== 'Tools');
+			items = items.filter(
+				(item) =>
+					item.label !== 'Files' && item.label !== 'Tools' && item.label !== 'Priority',
+			);
 		}
 
 		if (region === 'ap-south-1') {
@@ -159,7 +164,12 @@ const TopNavbar = () => {
 
 	useEffect(() => {
 		if (pathname.includes('/meet')) setInfo((prev) => ({ ...prev, activeMode: 3 }));
-		else setInfo((prev) => ({ ...prev, activeMode: 1 }));
+		else
+			setInfo((prev) => ({
+				...prev,
+				activeMode: 1,
+				activeNavItem: activeNavItemMap[pathname],
+			}));
 	}, [pathname]);
 
 	useEffect(() => {
@@ -367,24 +377,8 @@ const TopNavbar = () => {
 			id: 1,
 			element: (
 				<ul className={s.leftContainer}>
-					{info.activeMode === 3
-						? [leftContainerItems[0]].map((navItem, index) => (
-								<li
-									className={`${s.navItem} ${
-										info.activeNavItem === navItem.id ? s.active : ''
-									}`}
-									onClick={() =>
-										handleNavigation({
-											navItemId: navItem.id,
-											route: navItem.route,
-										})
-									}
-									key={`${navItem.id}-${index}`}
-								>
-									{navItem.label}
-								</li>
-						  ))
-						: leftContainerItems.map((navItem, index) =>
+					{info.activeMode !== 3
+						? leftContainerItems.map((navItem, index) =>
 								navItem.id === 4 ? (
 									<Tooltip
 										open={info.filesTooltipOpen}
@@ -488,7 +482,8 @@ const TopNavbar = () => {
 										{navItem.label}
 									</li>
 								),
-						  )}
+						  )
+						: null}
 				</ul>
 			),
 		},

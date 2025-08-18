@@ -21,6 +21,12 @@
 	width: 100%;
 	flex-grow: 1;
 	overflow-y: auto;
+	transition: opacity 0.3s ease-in-out;
+
+	&.closed {
+		opacity: 0;
+		pointer-events: none;
+	}
 	.header {
 		padding: 24px;
 		display: flex;

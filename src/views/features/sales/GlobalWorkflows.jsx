@@ -5,7 +5,8 @@ import GlobalWorkflowCard from '../../components/sales/globalWorkflowCard';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import GlobalWorkflowModal from '../../components/modalsV2/workflowsModals/GlobalWorkflowModal';
-import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
+// import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
+import Spinner from '../../components/loaders/Spinner.jsx';
 import Skeleton from 'react-loading-skeleton';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import '../../../assets/scss/sales/globalProposalCard.scss';
@@ -312,61 +313,20 @@ const GlobalWorkflows = () => {
 	return (
 		<>
 			{info?.loading ? (
-				<UpdatedPageLoader />
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+						height: '100vh',
+						width: '100%',
+					}}
+				>
+					<Spinner />
+				</div>
 			) : (
 				<div className="playbook-wrapper">
 					<div className="globalWorkflowContainer">
-						{/* Top Navigation Bar */}
-						<div className="top-navigation">
-							<div className="nav-categories">
-								{options?.map((each, index) => (
-									<div
-										key={index}
-										className={`nav-category ${
-											info?.selectedOption === each?.value ? 'active' : ''
-										}`}
-										onClick={() => handleOptionSelect(each)}
-									>
-										{each?.name}
-									</div>
-								))}
-							</div>
-							<div className="nav-search">
-								{info?.isSearchExpanded ? (
-									<div className="search-expanded">
-										<div className="search-icon">
-											<SearchIcon />
-										</div>
-										<input
-											type="text"
-											placeholder="Search templates..."
-											className="search-input"
-											value={info?.searchQuery}
-											onChange={handleSearch}
-											autoFocus
-											onBlur={() => {
-												if (!info?.searchQuery) {
-													setInfo((prev) => ({
-														...prev,
-														isSearchExpanded: false,
-													}));
-												}
-											}}
-										/>
-									</div>
-								) : (
-									<div
-										className="search-icon"
-										onClick={() =>
-											setInfo((prev) => ({ ...prev, isSearchExpanded: true }))
-										}
-									>
-										<SearchIcon />
-									</div>
-								)}
-							</div>
-						</div>
-
 						{/* Main Content */}
 						<div className="main-content">
 							{/* Title */}

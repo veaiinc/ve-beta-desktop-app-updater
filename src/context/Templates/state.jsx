@@ -174,6 +174,7 @@ export const intialState = {
 	newChatSessionIds: [],
 	aiMessagesInfo: null,
 	proactiveInfoForChat: null,
+	isDirectSearchAgent: false,
 };
 
 export const TemplatesState = (props) => {
@@ -1615,7 +1616,7 @@ export const TemplatesState = (props) => {
 				return [true];
 			} else {
 				message.error('Error sending Email');
-				return [false];
+				return response;
 			}
 		} catch (error) {
 			console.log('errror ==>sendCustomEmailToClients', error);

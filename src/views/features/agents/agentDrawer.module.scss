@@ -176,6 +176,7 @@
 					align-items: flex-start;
 					justify-content: space-between;
 					gap: 4px;
+					align-self: flex-start;
 
 					.name {
 						color: var(--primary-font, #f2f2f3);
@@ -216,6 +217,7 @@
 					letter-spacing: 0.2px;
 					margin-left: auto;
 					cursor: pointer;
+					text-wrap: nowrap;
 				}
 			}
 

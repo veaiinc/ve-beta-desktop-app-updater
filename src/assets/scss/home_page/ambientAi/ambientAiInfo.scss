@@ -173,8 +173,16 @@
 				flex-wrap: wrap;
 
 				.starLogoContainer {
-					height: 18px;
+					transition: all 0.2s ease;
+					border: 1px solid var(--stroke, #2c2d2e);
+					height: 32px;
+					width: 32px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
 					cursor: pointer;
+					border-radius: 6px;
+
 					&:hover {
 						svg {
 							path {
@@ -182,11 +190,12 @@
 							}
 						}
 					}
+
 					&.active {
 						svg {
-							fill: #79ecc9;
 							path {
-								stroke: #79ecc9;
+								stroke: var(--primary-font);
+								fill: var(--primary-font);
 							}
 						}
 					}
