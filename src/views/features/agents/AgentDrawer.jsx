@@ -191,7 +191,7 @@ const AgentDrawer = ({
 								className={s.gotoAgentPage}
 								onClick={() => navigate(`/agent/${agent?._id}?config=prompt`)}
 							>
-								Preview flow <ArrowCorner />
+								Customize <ArrowCorner />
 							</button>
 						</div>
 						<div className={s.descriptionSection}>

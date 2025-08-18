@@ -11,7 +11,7 @@ const ToolsSuggestionMenu = ({ items, selectedIndex }) => {
 					className={`${s.toolItem} ${selectedIndex === index ? s.selected : ''}`}
 					onClick={item.onItemClick}
 				>
-					<div className={s.icon}></div>
+					<div className={s.icon}>{item.icon}</div>
 					<div className={s.name}>{item.title}</div>
 				</div>
 			))}

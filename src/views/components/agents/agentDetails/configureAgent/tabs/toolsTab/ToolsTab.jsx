@@ -9,7 +9,7 @@ import EditAgentTool from '../../../../modals/editAgentTool/EditAgentTool';
 import ToggleSwitch from '../../../../../../components/input/slider';
 import AddToolV2Modal from '../../../../../modalsV2/ai_assistant/AddToolV2Modal';
 import EditToolVariablesModal from './EditToolVariablesModal';
-import Spinner from '../../../../../loaders/Spinner';
+// import Spinner from '../../../../../loaders/Spinner';
 // svgs
 import { ReactComponent as SearchSvg } from '../assets/search-icon.svg';
 import { ReactComponent as DeleteSvg } from '../assets/delete-icon.svg';
@@ -74,22 +74,22 @@ const ToolsTab = ({ agentId }) => {
 	const firstInputRef = useRef(null);
 
 	// Debounced search function
-	const debouncedSearch = useDebounce((searchValue) => {
-		if (agentId) {
-			setInfo((prev) => ({ ...prev, searchLoading: true }));
-			getActionsForKnowledgeAgent(agentId, searchValue);
-		}
-	}, 500);
+	// const debouncedSearch = useDebounce((searchValue) => {
+	// 	if (agentId) {
+	// 		setInfo((prev) => ({ ...prev, searchLoading: true }));
+	// 		getActionsForKnowledgeAgent(agentId, searchValue);
+	// 	}
+	// }, 500);
 
 	// Handle search input change
-	const handleSearchChange = useCallback(
-		(e) => {
-			const searchValue = e.target.value;
-			setInfo((prev) => ({ ...prev, search: searchValue }));
-			debouncedSearch(searchValue);
-		},
-		[debouncedSearch],
-	);
+	// const handleSearchChange = useCallback(
+	// 	(e) => {
+	// 		const searchValue = e.target.value;
+	// 		setInfo((prev) => ({ ...prev, search: searchValue }));
+	// 		debouncedSearch(searchValue);
+	// 	},
+	// 	[debouncedSearch],
+	// );
 
 	const getToolLogoUrl = useCallback((typeDependencies) => {
 		try {
@@ -107,7 +107,9 @@ const ToolsTab = ({ agentId }) => {
 	}, []);
 
 	useEffect(() => {
-		if (agentId) {
+		const needToFetch = !actionsInfo || actionsInfo?.agentId !== agentId;
+
+		if (agentId && needToFetch) {
 			getActionsForKnowledgeAgent(agentId, info?.search);
 		}
 	}, [agentId]);
