@@ -71,7 +71,7 @@ const TeamAccessListComponent = ({
 				/>
 			</div>
 			<div className="tenantDetailsContainerDiv">
-				{!info.isloading ? (
+				{info.isloading ? (
 					<div className="skeletonDiv">
 						{Array.from({ length: 10 }).map((_, index) => (
 							<Skeleton
