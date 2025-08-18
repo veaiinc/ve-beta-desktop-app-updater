@@ -1,22 +1,19 @@
 // Overlay App Styles
 .overlay-app {
-	width: 100vw;
-	height: 100vh;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: flex-start;
 	padding: 0;
 	margin: 0;
-	background: rgba(0, 0, 0, 0.1); /* Semi-transparent background for debugging */
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 	user-select: none;
 	-webkit-app-region: no-drag;
 	z-index: 9999;
 	position: relative;
 	opacity: 1;
-	min-width: 100vw; /* Ensure full width */
 	overflow-x: auto; /* Allow horizontal scrolling if needed */
+	width: 800px;
 }
 
 .overlay-container {
@@ -70,7 +67,7 @@
 	border-radius: 12px;
 	padding: 8px;
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-	animation: slideInDown 0.3s ease-out;
+	// animation: slideInDown 0.3s ease-out;
 	box-sizing: border-box;
 	overflow: hidden;
 	z-index: 10000;
@@ -107,16 +104,16 @@
 }
 
 // Animations
-@keyframes fadeIn {
-	from {
-		opacity: 0;
-		transform: translateY(-10px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
+// @keyframes fadeIn {
+// 	from {
+// 		opacity: 0;
+// 		transform: translateY(-10px);
+// 	}
+// 	to {
+// 		opacity: 1;
+// 		transform: translateY(0);
+// 	}
+// }
 
 @keyframes slideInDown {
 	from {
@@ -129,6 +126,6 @@
 	}
 }
 
-.help-tooltip {
-	animation: fadeIn 0.2s ease-out;
-}
+// .help-tooltip {
+// 	animation: fadeIn 0.2s ease-out;
+// }

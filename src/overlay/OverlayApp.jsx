@@ -177,13 +177,13 @@ const OverlayApp = () => {
 
 			if (msg?.event === 'live_intelligence.response' && msg?.data?.suggested_prompt) {
 				const suggestion = msg.data.suggested_prompt;
-				
+
 				// Add timestamp from the message
 				const enhancedSuggestion = {
 					...suggestion,
-					timestamp: msg.data.timestamps?.start_timestamp ? 
-						msg.data.timestamps.start_timestamp * 1000 : // Convert to milliseconds
-						Date.now()
+					timestamp: msg.data.timestamps?.start_timestamp
+						? msg.data.timestamps.start_timestamp * 1000 // Convert to milliseconds
+						: Date.now(),
 				};
 
 				setLiveIntelligenceData((prev) => {
@@ -239,7 +239,12 @@ const OverlayApp = () => {
 	// Send transcription to Recall socket
 	const sendTranscriptionToRecall = useCallback(
 		(transcriptionData) => {
-			if (transcriptionData?.isFinal && sendRecallMessage && recallSessionId && tennantSettingsData?._id) {
+			if (
+				transcriptionData?.isFinal &&
+				sendRecallMessage &&
+				recallSessionId &&
+				tennantSettingsData?._id
+			) {
 				const message = {
 					tenantId: tennantSettingsData._id,
 					sessionId: recallSessionId,
@@ -606,24 +611,6 @@ const OverlayApp = () => {
 						onUnmuteAudio={unmuteAudio}
 						onClearTranscripts={handleClearTranscripts}
 					/>
-				</div>
-			)}
-
-			{/* Debug: Show current activePanel state */}
-			{process.env.NODE_ENV === 'development' && (
-				<div
-					style={{
-						position: 'fixed',
-						top: '10px',
-						right: '10px',
-						background: 'red',
-						color: 'white',
-						padding: '5px',
-						fontSize: '12px',
-						zIndex: 99999,
-					}}
-				>
-					activePanel: {activePanel || 'null'}
 				</div>
 			)}
 		</div>
