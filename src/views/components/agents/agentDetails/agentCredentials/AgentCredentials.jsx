@@ -11,7 +11,7 @@ import s from './agentCredentials.module.scss';
 import Context from '../../../../../context/context';
 import { message } from '../../../../components/globalComponents/CustomToast';
 import PencilIcon from '../assets/PencilIcon';
-import CatIcon from '../assets/cat.png';
+import { ReactComponent as Botsvg } from '../assets/botSvg.svg';
 
 const AgentCredentials = forwardRef(({ agentId, agentForRunAgent = false }, ref) => {
 	const agentNameInputRef = useRef(null);
@@ -142,11 +142,14 @@ const AgentCredentials = forwardRef(({ agentId, agentForRunAgent = false }, ref)
 	return (
 		<div className={`${s.agentCredentialsContainer} ${agentForRunAgent ? s.runAgent : ''}`}>
 			<div className={s.agentProfilePicContainer}>
-				<img
-					src={info.agentProfilePic ?? CatIcon}
-					alt="agent icon"
-					className={s.agentIcon}
-				/>
+				{info.agentProfilePic ? (
+					<img src={info.agentProfilePic} alt="agent icon" className={s.agentIcon} />
+				) : (
+					<div className={`${s.agentIcon} ${s.border}`}>
+						<Botsvg />
+					</div>
+				)}
+
 				<input
 					type="file"
 					onChange={handleUploadAgentProfilePic}
@@ -155,10 +158,7 @@ const AgentCredentials = forwardRef(({ agentId, agentForRunAgent = false }, ref)
 			</div>
 
 			<div className={s.agentDetails}>
-				<div
-					className={s.agentName}
-					
-				>
+				<div className={s.agentName}>
 					{info.editAgentDetails.agentName ? (
 						<input
 							type="text"
@@ -191,7 +191,9 @@ const AgentCredentials = forwardRef(({ agentId, agentForRunAgent = false }, ref)
 										toggleEditAgentDetails('agentName');
 									}
 								}}
-								style={{ justifyContent: agentForRunAgent ? 'center' : 'flex-start' }}
+								style={{
+									justifyContent: agentForRunAgent ? 'center' : 'flex-start',
+								}}
 							>
 								{info.agentName || activeKnowledgeAssistant?.data?.name}
 							</span>
