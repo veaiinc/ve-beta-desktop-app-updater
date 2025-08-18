@@ -900,21 +900,28 @@ export const KnowledgeAgentState = () => {
 					authRequestBody.credentials = {
 						client_id: payload?.client_id || '',
 						client_secret: payload?.client_secret || '',
-						redirect_uri: payload?.oauth_redirect_uri || payload?.redirect_uri || 'https://backend.composio.dev/api/v1/auth-apps/add',
+						redirect_uri:
+							payload?.oauth_redirect_uri ||
+							payload?.redirect_uri ||
+							'https://backend.composio.dev/api/v1/auth-apps/add',
 						scopes: payload?.scopes || '',
 						bearer_token: payload?.bearer_token || '',
 					};
 					break;
 
 				case 'API_KEY':
-					authRequestBody.credentials = { 
-						api_key: payload?.api_key || '',
+					authRequestBody.credentials = {
+						api_key: payload?.api_key || 'temp_key',
+						subdomain: payload?.subdomain || '',
+						basic_encoded: payload?.basic_encoded || '',
+						callback_url:
+							payload?.callback_url || 'https://platform.composio.dev/redirect',
 						bearer_token: payload?.bearer_token || '',
 					};
 					break;
 
 				case 'BEARER_TOKEN':
-					authRequestBody.credentials = { 
+					authRequestBody.credentials = {
 						bearer_token: payload?.bearer_token || '',
 					};
 					break;
@@ -931,7 +938,10 @@ export const KnowledgeAgentState = () => {
 					authRequestBody.credentials = {
 						client_id: payload?.client_id || '',
 						client_secret: payload?.client_secret || '',
-						redirect_uri: payload?.oauth_redirect_uri || payload?.redirect_uri || 'https://backend.composio.dev/api/v1/auth-apps/add',
+						redirect_uri:
+							payload?.oauth_redirect_uri ||
+							payload?.redirect_uri ||
+							'https://backend.composio.dev/api/v1/auth-apps/add',
 						scopes: payload?.scopes || '',
 						bearer_token: payload?.bearer_token || '',
 					};
@@ -976,7 +986,9 @@ export const KnowledgeAgentState = () => {
 			const connectUrl = `/composio/connect-app/${workspaceId}`;
 			const connectRequestBody = {
 				auth_config_id: authConfigId,
-				connection_name: payload?.connection_name || `${payload?.slug || payload?.toolkit_slug}_connection`,
+				connection_name:
+					payload?.connection_name ||
+					`${payload?.slug || payload?.toolkit_slug}_connection`,
 				connection_type: payload?.connection_type || 'api',
 				connection_data: payload?.connection_data || {},
 				webhook_url: payload?.webhook_url,
