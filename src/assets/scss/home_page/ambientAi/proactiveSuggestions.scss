@@ -569,6 +569,32 @@
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
+						flex-wrap: wrap;
+						align-items: center;
+
+						.remove-filter-btn {
+							display: flex;
+							align-items: center;
+							justify-content: center;
+							background: none;
+							border: none;
+							cursor: pointer;
+							padding: 4px 2px 2px 2px;
+							border-radius: 3px;
+							transition: all 0.2s ease;
+
+							svg {
+								width: 14px;
+								height: 14px;
+								path {
+									fill: var(--secondary-font, #7a7e85);
+								}
+							}
+
+							&:hover svg path {
+								fill: var(--primary-font, #f2f2f3);
+							}
+						}
 
 						.filter-count {
 							color: var(--secondary-font, #7a7e85);

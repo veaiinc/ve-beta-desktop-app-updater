@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import s from './settings.module.scss';
 import Context from '../../../../../context/context';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -18,6 +18,8 @@ import { ReactComponent as DownloadMacSvg } from '../../assets/download-mac.svg'
 import { ReactComponent as TemplatesSvg } from '../../assets/templates.svg';
 import useIntercom from '../../../../../hooks/useIntercom';
 import useBroadcastChannel from '../../../../../hooks/useBroadcastChannel';
+import { ReactComponent as BackIcon } from '../../../../../assets/svg/mobile/back.svg';
+import { ReactComponent as CloseIcon } from '../../../../../assets/svg/mobile/close.svg';
 import { ReactComponent as PlusSvg } from '../../assets/plus.svg';
 
 const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
@@ -96,10 +98,11 @@ const Settings = ({
 	const channel = useBroadcastChannel();
 	const navigate = useNavigate();
 
-	const [info, setInfo] = useState({
+	const [info, setInfo] = useState(() => ({
 		workspaceModalOpen: false,
 		intercomOpen: false,
-	});
+		isMobileView: window.matchMedia('(max-width: 767px)').matches,
+	}));
 
 	const {
 		profileInfo: { tenantUserAccessControls, userWorkSpaceList, tennantSettingsData },
@@ -131,8 +134,30 @@ const Settings = ({
 		closeSettingsTooltip();
 	};
 
-	return (
-		<div className={s.settingsContainer}>
+	const Content = (
+		<div className={s.settingsContain}>
+			{/* Mobile header (shown only on small screens via CSS) */}
+			<div className={s.mobileHeader}>
+				<button
+					className={s.mobileIconButton}
+					onClick={() => {
+						closeSettingsTooltip();
+					}}
+					aria-label="Back"
+				>
+					<BackIcon />
+				</button>
+				<span className={s.mobileTitle}>Settings</span>
+				<button
+					className={s.mobileIconButton}
+					onClick={() => {
+						closeSettingsTooltip();
+					}}
+					aria-label="Close"
+				>
+					<CloseIcon />
+				</button>
+			</div>
 			<header className={s.userInfo}>
 				{profilePicExists ? (
 					<img className={s.profileImg} src={profilePic} alt="profile" />
@@ -243,6 +268,20 @@ const Settings = ({
 					userWorkSpaceList={userWorkSpaceList}
 				/>
 			)}
+		</div>
+	);
+
+	return (
+		<div className={s.settingsContainer}>
+			{info.isMobileView && (
+				<div
+					className={s.mobileOverlay}
+					onClick={() => {
+						closeSettingsTooltip();
+					}}
+				/>
+			)}
+			{info.isMobileView ? <div className={s.mobileSheet}>{Content}</div> : Content}
 		</div>
 	);
 };

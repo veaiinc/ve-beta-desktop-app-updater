@@ -138,7 +138,10 @@ const TopNavbar = () => {
 		let items = [...baseLeftContainerItems];
 
 		if (workspaceMode === 'stable') {
-			items = items.filter((item) => item.label !== 'Files' && item.label !== 'Tools');
+			items = items.filter(
+				(item) =>
+					item.label !== 'Files' && item.label !== 'Tools' && item.label !== 'Priority',
+			);
 		}
 
 		if (region === 'ap-south-1') {
@@ -374,24 +377,8 @@ const TopNavbar = () => {
 			id: 1,
 			element: (
 				<ul className={s.leftContainer}>
-					{info.activeMode === 3
-						? [leftContainerItems[0]].map((navItem, index) => (
-								<li
-									className={`${s.navItem} ${
-										info.activeNavItem === navItem.id ? s.active : ''
-									}`}
-									onClick={() =>
-										handleNavigation({
-											navItemId: navItem.id,
-											route: navItem.route,
-										})
-									}
-									key={`${navItem.id}-${index}`}
-								>
-									{navItem.label}
-								</li>
-						  ))
-						: leftContainerItems.map((navItem, index) =>
+					{info.activeMode !== 3
+						? leftContainerItems.map((navItem, index) =>
 								navItem.id === 4 ? (
 									<Tooltip
 										open={info.filesTooltipOpen}
@@ -495,7 +482,8 @@ const TopNavbar = () => {
 										{navItem.label}
 									</li>
 								),
-						  )}
+						  )
+						: null}
 				</ul>
 			),
 		},
