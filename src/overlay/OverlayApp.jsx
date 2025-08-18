@@ -1,4 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
+import { Track } from 'livekit-client';
+import { useTrackTranscription } from '@livekit/components-react';
+import Context from '../context/context';
+import useNote from '../hooks/useNote';
+import useLiveIntelligenceStream from '../hooks/useLiveIntelligenceStream';
+import useRecallStream from '../hooks/useRecallStream';
+import { message } from 'antd';
+import ObjectID from 'bson-objectid';
 import OverlayCommands from './OverlayCommands';
 import ShortcutBar from './components/ShortcutBar';
 import ScreenQueryBar from './components/ScreenQueryBar';
@@ -11,11 +19,387 @@ const OverlayApp = () => {
 	const [showScreenQuery, setShowScreenQuery] = useState(false);
 	// Single state to control which panel is shown: 'live-intelligence' or 'transcript'
 	const [activePanel, setActivePanel] = useState('live-intelligence');
-	
+
+	// Shared Recording State
+	const wsUrl = 'wss://ve-ai-transcriptions-8p8k0b44.livekit.cloud';
+	const [liveKitToken, setLiveKitToken] = useState(null);
+	const [transcriptions, setTranscriptions] = useState([]);
+	const [isRecording, setIsRecording] = useState(false);
+	const [timer, setTimer] = useState(0);
+
+	// Live Intelligence Socket Data
+	const [liveIntelligenceData, setLiveIntelligenceData] = useState({
+		allThreads: [],
+		askUser: [],
+		needHelp: [],
+		actions: [],
+		files: [],
+	});
+	const [recallSessionId, setRecallSessionId] = useState(null);
+
+	// Refs for data management
+	const transcriptionsMapRef = useRef(new Map());
+	const displayedTextMapRef = useRef(new Map());
+	const typingIntervalsRef = useRef(new Map());
+	const processedSegmentsRef = useRef(new Map());
+	const isMountedRef = useRef(false);
+	const sessionIdRef = useRef(null);
+
+	// Context
+	const {
+		notes: { getLiveKitToken, deleteLiveKitRoom },
+		profileInfo: { tennantSettingsData, getTenantSettings },
+	} = useContext(Context);
+
+	// Custom Hooks
+	const {
+		disconnect,
+		isConnected,
+		localAudioTrack,
+		localParticipant,
+		isMuted,
+		muteAudio,
+		unmuteAudio,
+	} = useNote({
+		wsUrl,
+		token: liveKitToken,
+		isRecording,
+	});
+
+	const { closeWebSocketConnection: closeLiveIntelligenceConnection } =
+		useLiveIntelligenceStream();
+
+	// Recall Stream Hook for Live Intelligence
+	const {
+		createWebSocketConnection: createRecallConnection,
+		closeWebSocketConnection: closeRecallConnection,
+		sendMessage: sendRecallMessage,
+	} = useRecallStream();
+
+	// Track reference for transcription
+	const trackRef =
+		localParticipant && localAudioTrack
+			? {
+					publication: localParticipant.getTrackPublication(Track.Source.Microphone),
+					source: Track.Source.Microphone,
+					participant: localParticipant,
+			  }
+			: undefined;
+
+	const { segments } = useTrackTranscription(trackRef);
+
+	// Utility Functions
+	const formatTime = (seconds) => {
+		const m = Math.floor(seconds / 60)
+			.toString()
+			.padStart(1, '0');
+		const s = (seconds % 60).toString().padStart(2, '0');
+		return `${m}:${s}`;
+	};
+
+	const formatTimestamp = () => {
+		const now = new Date();
+		const minutes = now.getMinutes().toString().padStart(2, '0');
+		const seconds = now.getSeconds().toString().padStart(2, '0');
+		return `${minutes}:${seconds}`;
+	};
+
+	// Typing Effect Function
+	const startTypingEffect = useCallback((id, fullText, isFinal) => {
+		// Clear any existing interval for this transcription
+		if (typingIntervalsRef.current.has(id)) {
+			clearInterval(typingIntervalsRef.current.get(id));
+			typingIntervalsRef.current.delete(id);
+		}
+
+		const currentDisplayed = displayedTextMapRef.current.get(id) || '';
+		const remainingText = fullText.slice(currentDisplayed.length);
+
+		if (remainingText.length === 0) {
+			if (isFinal) {
+				displayedTextMapRef.current.set(id, fullText);
+			}
+			const updatedTranscriptions = Array.from(transcriptionsMapRef.current.values()).map(
+				(transcription) => ({
+					id: transcription.id,
+					speaker: transcription.speaker,
+					text: displayedTextMapRef.current.get(transcription.id) || '',
+					timestamp: transcription.timestamp,
+					isFinal: transcription.isFinal,
+				}),
+			);
+			setTranscriptions(updatedTranscriptions);
+			return;
+		}
+
+		let index = 0;
+		const interval = setInterval(() => {
+			if (!isMountedRef.current) {
+				clearInterval(interval);
+				typingIntervalsRef.current.delete(id);
+				return;
+			}
+
+			index += 1;
+			const newDisplayedText = currentDisplayed + remainingText.slice(0, index);
+			displayedTextMapRef.current.set(id, newDisplayedText);
+
+			const updatedTranscriptions = Array.from(transcriptionsMapRef.current.values()).map(
+				(transcription) => ({
+					id: transcription.id,
+					speaker: transcription.speaker,
+					text: displayedTextMapRef.current.get(transcription.id) || '',
+					timestamp: transcription.timestamp,
+					isFinal: transcription.isFinal,
+				}),
+			);
+			setTranscriptions(updatedTranscriptions);
+
+			if (index >= remainingText.length) {
+				clearInterval(interval);
+				typingIntervalsRef.current.delete(id);
+			}
+		}, 30);
+
+		typingIntervalsRef.current.set(id, interval);
+	}, []);
+
+	useEffect(() => {
+		if (!tennantSettingsData) {
+			getTenantSettings();
+		}
+	}, []);
+	// Handle Recall Socket Messages for Live Intelligence
+	const handleRecallSocketMessage = useCallback((event) => {
+		try {
+			const msg = JSON.parse(event?.data || null);
+			console.log('Received socket message:', msg); // Debug log
+
+			if (msg?.event === 'live_intelligence.response' && msg?.data?.suggested_prompt) {
+				const suggestion = msg.data.suggested_prompt;
+				
+				// Add timestamp from the message
+				const enhancedSuggestion = {
+					...suggestion,
+					timestamp: msg.data.timestamps?.start_timestamp ? 
+						msg.data.timestamps.start_timestamp * 1000 : // Convert to milliseconds
+						Date.now()
+				};
+
+				setLiveIntelligenceData((prev) => {
+					const userQuestions = [...prev.askUser];
+					const aiQuestions = [...prev.needHelp];
+					const actions = [...prev.actions];
+					const files = [...prev.files];
+					let allThreads = [...prev.allThreads];
+
+					// Categorize the new suggestion
+					if (suggestion?.entity === 'user' || suggestion?.entity === 'other_user') {
+						userQuestions.push(enhancedSuggestion);
+						console.log('Added to askUser:', enhancedSuggestion);
+					} else if (
+						suggestion?.entity === 'agent' ||
+						suggestion?.entity?.includes('agent')
+					) {
+						if (suggestion?.type === 'search') {
+							aiQuestions.push(enhancedSuggestion);
+							console.log('Added to needHelp:', enhancedSuggestion);
+						} else if (suggestion?.type === 'action') {
+							actions.push(enhancedSuggestion);
+							console.log('Added to actions:', enhancedSuggestion);
+						}
+					} else if (suggestion?.entity === 'file') {
+						files.push(enhancedSuggestion);
+						console.log('Added to files:', enhancedSuggestion);
+					}
+
+					// Add to all threads
+					allThreads.push(enhancedSuggestion);
+
+					// Sort all threads by timestamp (newest first)
+					allThreads.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+					const newData = {
+						allThreads,
+						askUser: userQuestions,
+						needHelp: aiQuestions,
+						actions,
+						files,
+					};
+
+					console.log('Updated liveIntelligenceData:', newData);
+					return newData;
+				});
+			}
+		} catch (error) {
+			console.error('Error parsing recall socket message:', error);
+		}
+	}, []);
+
+	// Send transcription to Recall socket
+	const sendTranscriptionToRecall = useCallback(
+		(transcriptionData) => {
+			if (transcriptionData?.isFinal && sendRecallMessage && recallSessionId && tennantSettingsData?._id) {
+				const message = {
+					tenantId: tennantSettingsData._id,
+					sessionId: recallSessionId,
+					pageId: '688b653dde81dd3d71a41584', // Default pageId from NoteTakerTranscript
+					meetingId: recallSessionId,
+					speakerName: 'VE Note Taker',
+					transcript: transcriptionData.text || transcriptionData.transcript,
+					description: '',
+				};
+				sendRecallMessage({ noteTakerTranscript: message });
+			}
+		},
+		[sendRecallMessage, recallSessionId, tennantSettingsData?._id],
+	);
+
+	// Recording Controls (called from TranscriptPanel)
+	const handleStartTranscription = async () => {
+		const newSessionId = ObjectID().toString();
+		sessionIdRef.current = newSessionId;
+		setRecallSessionId(newSessionId);
+
+		try {
+			const response = await getLiveKitToken({ meetingId: newSessionId });
+			if (response && response[0] === true && response[1]?.accessToken) {
+				setLiveKitToken(response[1].accessToken);
+				setIsRecording(true);
+
+				// Start Recall connection for Live Intelligence
+				createRecallConnection(
+					newSessionId,
+					newSessionId,
+					handleRecallSocketMessage,
+					true, // isAiIntelligenceEnabled
+				);
+			} else {
+				console.error('Failed to fetch LiveKit token: Invalid response format', response);
+				message.error('Failed to fetch transcription token. Please try again.');
+			}
+		} catch (err) {
+			console.error('Error fetching LiveKit token:', err);
+			message.error('Error fetching transcription token. Please try again.');
+		}
+	};
+
+	const handleStopTranscription = () => {
+		setIsRecording(false);
+		setLiveKitToken(null);
+		typingIntervalsRef.current.forEach((interval) => clearInterval(interval));
+		typingIntervalsRef.current.clear();
+		if (sessionIdRef.current) {
+			deleteLiveKitRoom({ meetingId: sessionIdRef.current });
+		}
+		disconnect();
+		closeLiveIntelligenceConnection();
+		closeRecallConnection();
+		setTimer(0);
+		setRecallSessionId(null);
+		// Clear Live Intelligence data
+		setLiveIntelligenceData({
+			allThreads: [],
+			askUser: [],
+			needHelp: [],
+			actions: [],
+			files: [],
+		});
+	};
+
+	const handleClearTranscripts = () => {
+		setTranscriptions([]);
+		transcriptionsMapRef.current.clear();
+		displayedTextMapRef.current.clear();
+		processedSegmentsRef.current.clear();
+	};
+
+	// Effects
+	useEffect(() => {
+		isMountedRef.current = true;
+
+		return () => {
+			isMountedRef.current = false;
+			typingIntervalsRef.current.forEach((interval) => clearInterval(interval));
+			typingIntervalsRef.current.clear();
+		};
+	}, []);
+
+	// Timer Effect
+	useEffect(() => {
+		let interval;
+		if (isRecording && !isMuted) {
+			interval = setInterval(() => {
+				setTimer((prev) => prev + 1);
+			}, 1000);
+		}
+		return () => clearInterval(interval);
+	}, [isRecording, isMuted]);
+
+	// Process transcription segments
+	useEffect(() => {
+		if (!segments || segments.length === 0) return;
+
+		const transcriptionsMap = transcriptionsMapRef.current;
+
+		segments.forEach((segment) => {
+			const fullText = segment.final ? segment.text : `${segment.text}...`;
+			const existing = transcriptionsMap.get(segment.id);
+
+			// Single speaker - VE Note Taker
+			const speaker = 'VE Note Taker';
+
+			if (!existing || existing.fullText !== fullText || existing.isFinal !== segment.final) {
+				transcriptionsMap.set(segment.id, {
+					id: segment.id,
+					fullText,
+					speaker,
+					isFinal: segment.final,
+					timestamp: formatTimestamp(),
+				});
+				startTypingEffect(segment.id, fullText, segment.final);
+			}
+
+			const processed = processedSegmentsRef.current.get(segment.id);
+			if (
+				!processed ||
+				processed.text !== segment.text ||
+				(!processed.isFinal && segment.final)
+			) {
+				processedSegmentsRef.current.set(segment.id, {
+					text: segment.text,
+					isFinal: segment.final,
+				});
+
+				// Send to Recall socket for Live Intelligence if it's a final transcript
+				if (segment.final) {
+					sendTranscriptionToRecall({
+						id: segment.id,
+						text: segment.text,
+						transcript: segment.text,
+						isFinal: segment.final,
+						speaker: speaker,
+					});
+				}
+			}
+		});
+
+		const updatedTranscriptions = Array.from(transcriptionsMap.values()).map(
+			(transcription) => ({
+				id: transcription.id,
+				speaker: transcription.speaker,
+				text: displayedTextMapRef.current.get(transcription.id) || '',
+				timestamp: transcription.timestamp,
+				isFinal: transcription.isFinal,
+			}),
+		);
+		setTranscriptions(updatedTranscriptions);
+	}, [segments, startTypingEffect, sendTranscriptionToRecall]);
+
 	// Debug: Log state changes and update dimensions when panel changes
 	useEffect(() => {
 		console.log('activePanel state changed to:', activePanel);
-		
+
 		// Update dimensions when panel changes
 		setTimeout(() => {
 			if (containerRef.current) {
@@ -50,7 +434,7 @@ const OverlayApp = () => {
 		const handleGlobalClick = (event) => {
 			console.log('Global click detected on:', event.target);
 		};
-		
+
 		document.addEventListener('click', handleGlobalClick);
 		return () => document.removeEventListener('click', handleGlobalClick);
 	}, []);
@@ -65,7 +449,7 @@ const OverlayApp = () => {
 
 	const handleListenClick = () => {
 		// Toggle LiveIntelligencePanel when listen button is clicked
-		setActivePanel(prev => prev === 'live-intelligence' ? null : 'live-intelligence');
+		setActivePanel((prev) => (prev === 'live-intelligence' ? null : 'live-intelligence'));
 	};
 
 	const handleCloseLiveIntelligence = () => {
@@ -110,7 +494,7 @@ const OverlayApp = () => {
 		const resizeObserver = new ResizeObserver(() => {
 			updateDimensions();
 		});
-		
+
 		if (containerRef.current) {
 			resizeObserver.observe(containerRef.current);
 		}
@@ -119,7 +503,7 @@ const OverlayApp = () => {
 		const mutationObserver = new MutationObserver(() => {
 			updateDimensions();
 		});
-		
+
 		if (containerRef.current) {
 			mutationObserver.observe(containerRef.current, {
 				childList: true,
@@ -127,7 +511,7 @@ const OverlayApp = () => {
 				attributes: true,
 				characterData: true,
 				attributeOldValue: true,
-				characterDataOldValue: true
+				characterDataOldValue: true,
 			});
 		}
 
@@ -191,6 +575,13 @@ const OverlayApp = () => {
 					<LiveIntelligencePanel
 						onClose={handleCloseLiveIntelligence}
 						onShowTranscript={handleShowTranscript}
+						// Pass transcription data for future Live Intelligence features
+						transcriptions={transcriptions}
+						isRecording={isRecording}
+						timer={timer}
+						formatTime={formatTime}
+						// Pass socket data for tabs
+						socketData={liveIntelligenceData}
 					/>
 				</div>
 			)}
@@ -201,22 +592,37 @@ const OverlayApp = () => {
 					<TranscriptPanel
 						onClose={handleCloseTranscript}
 						onShowLiveIntelligence={handleShowLiveIntelligence}
+						// Pass shared recording state and controls
+						transcriptions={transcriptions}
+						isRecording={isRecording}
+						timer={timer}
+						isMuted={isMuted}
+						isConnected={isConnected}
+						localAudioTrack={localAudioTrack}
+						formatTime={formatTime}
+						onStartTranscription={handleStartTranscription}
+						onStopTranscription={handleStopTranscription}
+						onMuteAudio={muteAudio}
+						onUnmuteAudio={unmuteAudio}
+						onClearTranscripts={handleClearTranscripts}
 					/>
 				</div>
 			)}
-			
+
 			{/* Debug: Show current activePanel state */}
 			{process.env.NODE_ENV === 'development' && (
-				<div style={{
-					position: 'fixed',
-					top: '10px',
-					right: '10px',
-					background: 'red',
-					color: 'white',
-					padding: '5px',
-					fontSize: '12px',
-					zIndex: 99999
-				}}>
+				<div
+					style={{
+						position: 'fixed',
+						top: '10px',
+						right: '10px',
+						background: 'red',
+						color: 'white',
+						padding: '5px',
+						fontSize: '12px',
+						zIndex: 99999,
+					}}
+				>
 					activePanel: {activePanel || 'null'}
 				</div>
 			)}

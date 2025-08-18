@@ -47,7 +47,7 @@ const ShortcutBar = ({ onAskAIClick, isQueryBarOpen, onListenClick, isLiveIntell
 			</div>
 
 			{/* Help tooltip */}
-			<div 
+			{/* <div 
 				className="shortcut-bar__help"
 				onMouseEnter={handleMouseEnter}
 				onMouseLeave={handleMouseLeave}
@@ -78,7 +78,7 @@ const ShortcutBar = ({ onAskAIClick, isQueryBarOpen, onListenClick, isLiveIntell
 						</div>
 					</div>
 				)}
-			</div>
+			</div> */}
 		</div>
 	);
 };

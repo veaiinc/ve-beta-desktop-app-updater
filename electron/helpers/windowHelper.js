@@ -149,7 +149,6 @@ class WindowHelper {
 							const rect = element.getBoundingClientRect();
 							const isOver = x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
 							if (isOver) {
-								console.log('Mouse over content element:', selector, 'at', x, y);
 								return true;
 							}
 						}
