@@ -18,7 +18,7 @@ const createWebSocketConnection = (sessionId, onMessageFunc) => {
 
 	socketInstances[sessionId].onmessage = (event) => {
 		if (onMessageFunc) {
-			onMessageFunc(event);
+			onMessageFunc(event, sessionId);
 		}
 	};
 

@@ -852,27 +852,24 @@ const RecentChat = ({
 	);
 
 	// browser socket
-	const onBrowserMessageFunc = useCallback(
-		(event) => {
-			let { data = '' } = event || {};
-			data = JSON?.parse(data);
-			if (data?.type === 'new-tab-activated') {
-				handleGlobalChatMessages({
-					sessionId,
-					browserTabsInfo: {
-						...data,
-						browserDisconnected: false,
-					},
-					updateExtraInfo: true,
-				});
-			}
-		},
-		[sessionId],
-	);
+	const onBrowserMessageFunc = useCallback((event, sessionId) => {
+		let { data = '' } = event || {};
+		data = JSON?.parse(data);
+		if (data?.type === 'new-tab-activated') {
+			handleGlobalChatMessages({
+				sessionId,
+				browserTabsInfo: {
+					...data,
+					browserDisconnected: false,
+				},
+				updateExtraInfo: true,
+			});
+		}
+	}, []);
 
-	const handleBrowserSocketConnection = useCallback(() => {
+	const handleBrowserSocketConnection = useCallback((sessionId) => {
 		establishSocketConnection(sessionId, onBrowserMessageFunc);
-	}, [sessionId, establishSocketConnection, onBrowserMessageFunc]);
+	}, []);
 
 	// stream chat
 	const onMessageFunc = useCallback(
@@ -940,7 +937,7 @@ const RecentChat = ({
 				// 	handleGlobalChatMessages,
 				// 	info?.browserPreviousActiveTabIndex,
 				// );
-				handleBrowserSocketConnection();
+				handleBrowserSocketConnection(sessionId);
 			}
 
 			if (message_chunk_id) {
