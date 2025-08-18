@@ -77,9 +77,16 @@ const ConfigureAgent = ({ agentId, isTemplate }) => {
 				const currentUser = activeKnowledgeAssistant?.data?.sharedWith?.find(
 					(user) => user?.userId === userId,
 				);
-				if (currentUser) {
-					setInfo((prev) => ({ ...prev, myAccess: currentUser.access }));
+				const rank = { 'no-access': -1, view: 0, edit: 1, full: 2 };
+
+				let access = currentUser?.access || 'view';
+				const workspaceAccess = activeKnowledgeAssistant?.data?.workspaceUserAccess;
+
+				if (workspaceAccess) {
+					access = rank[workspaceAccess] > rank[access] ? workspaceAccess : access;
 				}
+
+				setInfo((prev) => ({ ...prev, myAccess: access }));
 			}
 		}
 	}, [activeKnowledgeAssistant]);
