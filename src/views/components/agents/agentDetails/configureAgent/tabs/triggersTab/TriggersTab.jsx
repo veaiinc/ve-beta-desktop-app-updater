@@ -68,7 +68,7 @@ const connectableTriggers = [
 const emptyConnectedTriggersMessage =
 	'No connected triggers yet! Your connected triggers will appear here! Choose a trigger to connect to your agent from below.';
 
-const TriggersTab = () => {
+const TriggersTab = ({ myAccess }) => {
 	const { agentId } = useParams();
 
 	const {
@@ -417,6 +417,7 @@ const TriggersTab = () => {
 													);
 												}}
 												className={s.disconnectTrigger}
+												disabled={myAccess === 'view'}
 											>
 												<DustbinIcon />
 											</button>
@@ -435,6 +436,7 @@ const TriggersTab = () => {
 							<li
 								key={trigger.title}
 								onClick={() => {
+									if (myAccess === 'view') return;
 									if (trigger.triggerType === 'gmail') {
 										setInfo((prev) => ({
 											...prev,
