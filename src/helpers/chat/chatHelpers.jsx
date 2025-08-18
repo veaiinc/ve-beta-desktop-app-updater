@@ -239,58 +239,80 @@ export const getBrowserUrls = async (sessionId, handleGlobalChatMessages, previo
 	const workspaceId = localStorage.getItem('workspaceId');
 	const usertoken = localStorage.getItem('usertoken');
 
-	if (activePollTimeouts[sessionId]) {
-		clearTimeout(activePollTimeouts[sessionId]);
-		delete activePollTimeouts[sessionId];
+	try {
+		const response = await Service.fetchGet(
+			`/api/browser/${workspaceId}/${sessionId}/debug-url`,
+			usertoken,
+			'browser_api',
+		);
+
+		const { success } = response?.[1] || {};
+
+		if (response?.[0] && success === true) {
+			handleGlobalChatMessages({
+				sessionId: sessionId,
+				browserTabsInfo: response?.[1],
+				updateExtraInfo: true,
+			});
+			return;
+		}
+	} catch (error) {
+		console.error('error==>getBrowserUrls', error);
+		return;
 	}
 
-	let count = 0;
-	const MAX_COUNT = 10;
-	const INTERVAL_MS = 3000;
+	// if (activePollTimeouts[sessionId]) {
+	// 	clearTimeout(activePollTimeouts[sessionId]);
+	// 	delete activePollTimeouts[sessionId];
+	// }
 
-	const poll = async () => {
-		if (count >= MAX_COUNT) {
-			delete activePollTimeouts[sessionId];
-			return;
-		}
+	// let count = 0;
+	// const MAX_COUNT = 10;
+	// const INTERVAL_MS = 3000;
 
-		try {
-			const response = await Service.fetchGet(
-				`/api/browser/live-stream/status/${workspaceId}/${sessionId}`,
-				usertoken,
-				'browser_api',
-			);
+	// const poll = async () => {
+	// 	if (count >= MAX_COUNT) {
+	// 		delete activePollTimeouts[sessionId];
+	// 		return;
+	// 	}
 
-			const { activeTabIndex, success } = response?.[1] || {};
+	// 	try {
+	// 		const response = await Service.fetchGet(
+	// 			`/api/browser/live-stream/status/${workspaceId}/${sessionId}`,
+	// 			usertoken,
+	// 			'browser_api',
+	// 		);
 
-			if (
-				activeTabIndex === 0 ||
-				success === false ||
-				(previousActiveIndex && activeTabIndex && activeTabIndex === previousActiveIndex)
-			) {
-				console.log('making api call to get browser urls');
-			} else if (response?.[0] && success === true) {
-				handleGlobalChatMessages({
-					sessionId: sessionId,
-					browserData: response?.[1],
-					updateExtraInfo: true,
-				});
-				delete activePollTimeouts[sessionId];
-				return;
-			} else {
-				delete activePollTimeouts[sessionId];
-				return;
-			}
-		} catch (error) {
-			console.error('error==>getBrowserUrls', error);
-			delete activePollTimeouts[sessionId];
-			return;
-		}
+	// 		const { activeTabIndex, success } = response?.[1] || {};
 
-		count++;
-		const timeoutId = setTimeout(poll, INTERVAL_MS);
-		activePollTimeouts[sessionId] = timeoutId;
-	};
+	// 		if (
+	// 			activeTabIndex === 0 ||
+	// 			success === false ||
+	// 			(previousActiveIndex && activeTabIndex && activeTabIndex === previousActiveIndex)
+	// 		) {
+	// 			console.log('making api call to get browser urls');
+	// 		} else if (response?.[0] && success === true) {
+	// 			handleGlobalChatMessages({
+	// 				sessionId: sessionId,
+	// 				browserData: response?.[1],
+	// 				updateExtraInfo: true,
+	// 			});
+	// 			delete activePollTimeouts[sessionId];
+	// 			return;
+	// 		} else {
+	// 			delete activePollTimeouts[sessionId];
+	// 			return;
+	// 		}
+	// 	} catch (error) {
+	// 		console.error('error==>getBrowserUrls', error);
+	// 		delete activePollTimeouts[sessionId];
+	// 		return;
+	// 	}
 
-	poll();
+	// 	count++;
+	// 	const timeoutId = setTimeout(poll, INTERVAL_MS);
+	// 	activePollTimeouts[sessionId] = timeoutId;
+	// };
+
+	// poll();
 };

@@ -958,15 +958,15 @@ const RecentChat = ({
 						}),
 				}));
 			}
-			const { message_chunk_id, open_browser } = data;
+			const { message_chunk_id, type } = data;
 
-			if (open_browser) {
-				// getBrowserUrls(
-				// 	sessionId,
-				// 	handleGlobalChatMessages,
-				// 	info?.browserPreviousActiveTabIndex,
-				// );
-				handleBrowserSocketConnection(sessionId);
+			if (type === 'tool') {
+				getBrowserUrls(
+					sessionId,
+					handleGlobalChatMessages,
+					info?.browserPreviousActiveTabIndex,
+				);
+				// handleBrowserSocketConnection(sessionId);
 			}
 
 			if (message_chunk_id) {
