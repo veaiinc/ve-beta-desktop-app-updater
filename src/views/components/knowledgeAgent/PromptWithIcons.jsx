@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useContext } from 'react';
+import { useState, useRef, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import './PromptWithIcons.scss';
 import Editor from '../notes/Editor';
