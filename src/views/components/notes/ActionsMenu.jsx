@@ -12,7 +12,7 @@ import { useParams } from 'react-router-dom';
 const ActionsMenu = ({ editor, noteId }) => {
 	const { agentId } = useParams();
 	const {
-		knowledgeAgent: { getActionsForKnowledgeAgent, actionsInfo },
+		knowledgeAgent: { actionsInfo },
 	} = useContext(Context);
 
 	// State to manage actions data and UI states
@@ -35,12 +35,6 @@ const ActionsMenu = ({ editor, noteId }) => {
 	});
 
 	useEffect(() => {
-		if (agentId) {
-			getActionsForKnowledgeAgent(agentId, '');
-		}
-	}, [agentId]);
-
-	useEffect(() => {
 		if (actionsInfo) {
 			setInfo((prev) => ({ ...prev, actions: actionsInfo?.data || [] }));
 		}
@@ -56,7 +50,9 @@ const ActionsMenu = ({ editor, noteId }) => {
 					const items = info?.actions.map((action) => ({
 						title: action.typeDependencies.name,
 						key: action.typeDependencies.key,
+						icon: <img src={action.typeDependencies.logoUrl} alt="" />,
 						onItemClick: () => {
+							editor.suggestionMenus.clearQuery();
 							editor.insertInlineContent([
 								{
 									type: 'action',
