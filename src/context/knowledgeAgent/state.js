@@ -1028,50 +1028,71 @@ export const KnowledgeAgentState = () => {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 
-			// Step 1: Create App Auth Configuration
-			const authUrl = `/composio/app-auth/${workspaceId}`;
-			const authScheme = payload?.auth_scheme || 'OAUTH2';
-
+			// Prepare the new payload structure
 			const authRequestBody = {
-				toolkit_slug: payload?.slug,
-				auth_scheme: authScheme,
+				toolkit_slug: payload?.slug || payload?.toolkit_slug,
+				auth_scheme: payload?.auth_scheme || 'OAUTH2',
+				variant: payload?.variant || 'use_custom_auth',
 				credentials: {},
-				app_name: payload?.app_name || payload?.slug,
-				app_description: payload?.app_description || `Integration for ${payload?.slug}`,
 			};
 
-			// Fill credentials depending on the scheme
+			// Fill credentials based on the auth scheme
+			const authScheme = payload?.auth_scheme || 'OAUTH2';
 			switch (authScheme) {
 				case 'OAUTH2':
 					authRequestBody.credentials = {
 						client_id: payload?.client_id || '',
 						client_secret: payload?.client_secret || '',
-						redirect_uri: payload?.oauth_redirect_uri || payload?.redirect_uri || '',
-						scopes: Array.isArray(payload?.scopes)
-							? payload.scopes
-							: payload?.scopes
-							? payload.scopes.split(',').map((s) => s.trim())
-							: [],
+						redirect_uri:
+							payload?.oauth_redirect_uri ||
+							payload?.redirect_uri ||
+							'https://backend.composio.dev/api/v1/auth-apps/add',
+						scopes: payload?.scopes || '',
+						bearer_token: payload?.bearer_token || '',
 					};
 					break;
 
 				case 'API_KEY':
-					authRequestBody.credentials = { api_key: payload?.api_key || '' };
+					authRequestBody.credentials = {
+						api_key: payload?.api_key || 'temp_key',
+						subdomain: payload?.subdomain || '',
+						basic_encoded: payload?.basic_encoded || '',
+						callback_url:
+							payload?.callback_url || 'https://platform.composio.dev/redirect',
+						bearer_token: payload?.bearer_token || '',
+					};
 					break;
 
 				case 'BEARER_TOKEN':
-					authRequestBody.credentials = { bearer_token: payload?.bearer_token || '' };
+					authRequestBody.credentials = {
+						bearer_token: payload?.bearer_token || '',
+					};
 					break;
 
 				case 'BASIC':
 					authRequestBody.credentials = {
 						username: payload?.username || '',
 						password: payload?.password || '',
+						bearer_token: payload?.bearer_token || '',
+					};
+					break;
+
+				default:
+					authRequestBody.credentials = {
+						client_id: payload?.client_id || '',
+						client_secret: payload?.client_secret || '',
+						redirect_uri:
+							payload?.oauth_redirect_uri ||
+							payload?.redirect_uri ||
+							'https://backend.composio.dev/api/v1/auth-apps/add',
+						scopes: payload?.scopes || '',
+						bearer_token: payload?.bearer_token || '',
 					};
 					break;
 			}
 
-			// Create app auth config
+			// Make the API call with the new payload structure
+			const authUrl = `/composio/app-auth/${workspaceId}`;
 			const authResponse = await service?.fetchPost(
 				authUrl,
 				authRequestBody,
@@ -1089,7 +1110,7 @@ export const KnowledgeAgentState = () => {
 				return [false, { message: 'Failed to retrieve auth config ID' }];
 			}
 
-			// Step 2: Handle OAuth redirect flow (if applicable)
+			// Handle OAuth redirect flow (if applicable)
 			if (authScheme === 'OAUTH2' && payload?.oauth_redirect_uri) {
 				// Check if state.js or similar handler is present for OAuth flow
 				if (typeof window?.redirectToOAuth === 'function') {
@@ -1104,11 +1125,13 @@ export const KnowledgeAgentState = () => {
 				}
 			}
 
-			// Step 3: Connect the app
+			// Connect the app
 			const connectUrl = `/composio/connect-app/${workspaceId}`;
 			const connectRequestBody = {
 				auth_config_id: authConfigId,
-				connection_name: payload?.connection_name || `${payload?.slug}_connection`,
+				connection_name:
+					payload?.connection_name ||
+					`${payload?.slug || payload?.toolkit_slug}_connection`,
 				connection_type: payload?.connection_type || 'api',
 				connection_data: payload?.connection_data || {},
 				webhook_url: payload?.webhook_url,
