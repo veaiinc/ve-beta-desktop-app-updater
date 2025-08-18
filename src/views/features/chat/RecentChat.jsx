@@ -958,9 +958,9 @@ const RecentChat = ({
 						}),
 				}));
 			}
-			const { message_chunk_id, type } = data;
+			const { message_chunk_id, toolName } = data;
 
-			if (type === 'tool') {
+			if (toolName) {
 				getBrowserUrls(
 					sessionId,
 					handleGlobalChatMessages,
