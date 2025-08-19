@@ -6,9 +6,10 @@ import '../../assets/scss/authWrapper.scss';
 import ExpiredSubscriptionModal from '../components/modalsV2/subscription/ExpiredSubscriptionModal';
 import ExpiredTokenModal from '../components/modalsV2/subscription/ExpiredTokenModal';
 import AccessDeniedPopup from '../components/accessPopups/accessDeniedPopup';
-import CustomToast from '../components/globalComponents/CustomToast';
+import CustomToast, { message } from '../components/globalComponents/CustomToast';
 import PageLoader from '../features/app/PageLoader';
 import useAuthInitializer from '../../hooks/useAuthInitializer';
+import usePushNotifications from '../../hooks/usePushNotifications';
 
 const AuthWrapper = ({
 	title,
@@ -21,7 +22,11 @@ const AuthWrapper = ({
 	childrenContainerStyles = {},
 	showSidebar = true,
 }) => {
-	const { authInitialized, workspaceMode } = useAuthInitializer();
+	const { authInitialized } = useAuthInitializer();
+	usePushNotifications((payload) => {
+		const { title, body } = payload.notification || {};
+		message.success(`${title || 'Notification'}: ${body || ''}`);
+	});
 
 	// const layoutMode = showSidebar && workspaceMode !== 'stable' ? 'sidebar' : 'topNavbar';
 	// const layoutModeComponentMap = {
