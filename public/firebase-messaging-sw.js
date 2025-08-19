@@ -1,7 +1,7 @@
-importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
-importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js');
+importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js');
 
-const firebaseConfig = {
+firebase.initializeApp({
 	apiKey: 'AIzaSyCoWbQyV42a2GNWIAcHPf3PBbm9D3glDJU',
 	authDomain: 'veai-notifications.firebaseapp.com',
 	projectId: 'veai-notifications',
@@ -9,21 +9,17 @@ const firebaseConfig = {
 	messagingSenderId: '719556623749',
 	appId: '1:719556623749:web:5834eb840431480e5318ec',
 	measurementId: 'G-B7K087ZV97',
-};
-
-firebase.initializeApp(firebaseConfig);
+});
 
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
-	console.log('Background message received: ', payload);
+	console.log('[firebase-messaging-sw.js] Background message received:', payload);
 
-	const notificationTitle = payload.notification?.title || 'New Message';
-	const notificationOptions = {
-		body: payload.notification?.body,
-		icon: payload.notification?.icon || '/icon-192x192.png',
-		badge: '/badge.png',
-	};
+	const { title, body, image } = payload.notification || {};
 
-	self.registration.showNotification(notificationTitle, notificationOptions);
+	self.registration.showNotification(title || 'New Notification', {
+		body: body || 'You have a new message.',
+		icon: image || '/icon-192x192.png',
+	});
 });
