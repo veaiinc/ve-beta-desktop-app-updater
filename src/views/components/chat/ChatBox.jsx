@@ -149,8 +149,6 @@ const ChatBox = ({
 	sessionId = null,
 	getSuggestions = false,
 	placeholder = 'Start typing or use @ to mention a source.',
-	showBrowserButton = false,
-	handleBrowserButtonClick = null,
 	showBottomTools = true,
 }) => {
 	const location = useLocation();
@@ -2557,21 +2555,6 @@ const ChatBox = ({
 						<button className="scroll-button" onClick={handleScrollButtonClick}>
 							<ArrowUpRightSvg className="arrow-up" />
 						</button>
-					</div>
-				)}
-
-				{showBrowserButton && (
-					<div
-						className="browser-button-container"
-						onClick={(e) => {
-							e.stopPropagation();
-							handleBrowserButtonClick?.(e);
-						}}
-					>
-						<div className="browser-button">Browser</div>
-						<div className="expand-browser-button">
-							<ArrowsOut />
-						</div>
 					</div>
 				)}
 				{uploadedImagesRef?.current?.length > 0 ? (
