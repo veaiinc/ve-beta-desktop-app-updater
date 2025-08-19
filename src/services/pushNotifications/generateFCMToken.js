@@ -7,7 +7,9 @@ const messaging = getMessaging(app);
 
 const generateFCMToken = async () => {
 	try {
-		const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+		const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
+			type: 'module',
+		});
 
 		const token = await getToken(messaging, {
 			vapidKey: import.meta.env.VITE_APP_FIREBASE_VAPID_KEY,
