@@ -24,7 +24,7 @@ const styles = {
 	},
 };
 
-const PromptTab = () => {
+const PromptTab = ({ myAccess }) => {
 	const { agentId } = useParams();
 	const {
 		knowledgeAgent: {
@@ -41,7 +41,6 @@ const PromptTab = () => {
 		title: '',
 		prompt: '',
 		initialContent: '',
-		actionDetails: [],
 		drawerOpen: false,
 		connectedAccounts: [],
 		accountsLoading: false,
@@ -50,7 +49,7 @@ const PromptTab = () => {
 	});
 
 	useEffect(() => {
-		if (agentId) {
+		if (agentId && activeKnowledgeAssistant?.data?._id !== agentId) {
 			getActiveKnowledgeAgentDetails(agentId);
 		}
 	}, [agentId]);
@@ -167,42 +166,12 @@ const PromptTab = () => {
 		return actions;
 	}
 
-	useEffect(() => {
-		const fetchPipeDreamAction = async () => {
-			const actionNames = getActionNamefromPrompt(agentData?.prompt?.customEditedPrompt);
-			const actionDetailsArray = [];
-
-			for (const actionName of actionNames) {
-				try {
-					const response = await getPipeDreamAction(actionName);
-					if (response?.[0] === true) {
-						actionDetailsArray.push({
-							actionName,
-							actionData: response?.[1],
-						});
-					}
-				} catch (error) {
-					message.error(`Error fetching action ${actionName}:`, error);
-				}
-			}
-
-			setInfo((prev) => ({ ...prev, actionDetails: actionDetailsArray }));
-		};
-
-		if (agentData?.prompt?.customEditedPrompt) {
-			fetchPipeDreamAction();
-		}
-	}, [agentData?.prompt?.customEditedPrompt]);
-
 	return (
 		<div className={s.promptTabContainer}>
 			<div className={s.leftContainer}>
 				<div className={s.listContainer}>
 					<div className={s.left}>
-						<KnowledgeAgentPrompt
-							assistant={agentData}
-							actionDetails={info?.actionDetails}
-						/>
+						<KnowledgeAgentPrompt assistant={agentData} myAccess={myAccess} />
 					</div>
 				</div>
 			</div>

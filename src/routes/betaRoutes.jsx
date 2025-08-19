@@ -243,7 +243,6 @@ const betaRoutes = [
 					showDeleteChat={true}
 					showChats={true}
 					showCitationsButton={true}
-					showBrowser={true}
 				/>
 			</AuthWrapper>
 		),

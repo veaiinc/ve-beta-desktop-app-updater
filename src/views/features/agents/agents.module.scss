@@ -403,6 +403,56 @@
 				}
 			}
 		}
+
+		.actionItem {
+			display: flex;
+			padding: 8px;
+			justify-content: center;
+			align-items: center;
+			gap: 6px;
+			cursor: pointer;
+
+			.indicatorDot {
+				width: 5px;
+				height: 5px;
+				background-color: var(--primary-button);
+				border-radius: 5px;
+				display: none;
+			}
+			.text {
+				color: var(--secondary-font, #94989e);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			.count {
+				color: var(--secondary-font, #94989e);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			&.active {
+				.indicatorDot {
+					display: inline-block;
+				}
+
+				.text {
+					color: var(--primary-font, #f2f2f3);
+				}
+			}
+
+			&:hover {
+				.text {
+					color: var(--primary-font, #f2f2f3);
+					opacity: 0.8;
+				}
+			}
+		}
 	}
 
 	// .agentsListAndSuggestedAgentsContainer {

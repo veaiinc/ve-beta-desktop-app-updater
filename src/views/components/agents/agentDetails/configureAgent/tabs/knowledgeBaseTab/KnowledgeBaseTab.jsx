@@ -12,7 +12,7 @@ import { ReactComponent as Delete } from '../assets/delete.svg';
 const page = 1;
 const limit = 10;
 
-const KnowledgeBaseTab = ({ agentId }) => {
+const KnowledgeBaseTab = ({ agentId, myAccess }) => {
 	const {
 		aiSetup: { updateKnowledgeBaseFile },
 		knowledgeAgent: {
@@ -167,6 +167,7 @@ const KnowledgeBaseTab = ({ agentId }) => {
 						setInfo((prev) => ({ ...prev, knowledgeModalOpen: true }));
 					}}
 					className={s?.addKnowledgeBaseButton}
+					disabled={myAccess === 'view'}
 				>
 					<div className={s?.iconContainer}>
 						<PlusSvg />
@@ -227,6 +228,7 @@ const KnowledgeBaseTab = ({ agentId }) => {
 										<td className={s?.assistantItemActive} role="cell">
 											<Switch
 												checked={isActive || false}
+												disabled={myAccess === 'view'}
 												onChange={(checked) =>
 													handleToggleChange(_id, checked)
 												}
@@ -265,6 +267,7 @@ const KnowledgeBaseTab = ({ agentId }) => {
 					<span className={s.toggleSwitchContainer}>
 						<ToggleSwitch
 							value={fullWorkspaceAccess}
+							editable={myAccess !== 'view'}
 							onChange={(value) =>
 								handleSearchWebOrFullAccessChange({ fullWorkspaceAccess: value })
 							}
@@ -283,6 +286,7 @@ const KnowledgeBaseTab = ({ agentId }) => {
 					<span className={s.toggleSwitchContainer}>
 						<ToggleSwitch
 							value={info?.websearch}
+							editable={myAccess !== 'view'}
 							onChange={(value) =>
 								handleSearchWebOrFullAccessChange({ websearch: value })
 							}

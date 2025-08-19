@@ -21,7 +21,7 @@ const customPromptItem = {
 	isDefault: false,
 };
 
-const KnowledgeAgentPrompt = ({ assistant, actionDetails = [] }) => {
+const KnowledgeAgentPrompt = ({ assistant, actionDetails = [], myAccess }) => {
 	const {
 		knowledgeAgent: {
 			allAiPrompts,
@@ -176,7 +176,7 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [] }) => {
 	return (
 		<div className="aiPromptParentContainer">
 			<div className="agentPromptDetailsContainer">
-				<AgentCredentials agentId={agentId} />
+				<AgentCredentials agentId={agentId} myAccess={myAccess} />
 				{/* <div className="aiModalContainer">
 					<div className="aiModalHeader">
 						<span className="lineone">Model </span>
@@ -185,7 +185,7 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [] }) => {
 				</div> */}
 				<div className="chooseModelContainer">
 					<Tooltip
-						open={info.isSelectModelOpen}
+						open={myAccess !== 'view' && info.isSelectModelOpen}
 						onOpenChange={handleModelDropdownVisibility}
 						placement="bottomRight"
 						title={
@@ -194,7 +194,11 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [] }) => {
 									<div
 										key={index}
 										className="modelListItem"
-										onClick={() => handleChooseModalChange(option)}
+										onClick={
+											myAccess !== 'view'
+												? () => handleChooseModalChange(option)
+												: undefined
+										}
 									>
 										{option.label}
 									</div>
@@ -276,11 +280,11 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [] }) => {
 						<div className="systemPromptTextArea promptWithIconsWrapper">
 							<PromptWithIcons
 								prompt={info?.systemPrompt}
-								actionDetails={actionDetails}
 								onChange={handlePromptChange}
 								placeholder="Enter your system prompt here"
 								autoResize={true}
 								agentId={agentId}
+								myAccess={myAccess === 'view' ? 'view' : 'edit'}
 							/>
 						</div>
 

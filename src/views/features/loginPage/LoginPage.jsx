@@ -3,7 +3,7 @@ import '../../../assets/scss/login_page/index.scss';
 import Email from '../../components/login_page/Email';
 import VerificationCode from '../../components/login_page/VerificationCode';
 import LoginDescription from '../../components/login_page/LoginDescription';
-import CookiesImg from '../../../assets/images/login_page/cookies.png';
+// import CookiesImg from '../../../assets/images/login_page/cookies.png';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
@@ -135,37 +135,37 @@ const LoginPage = () => {
 		),
 	};
 
-	const footerLinks = [
-		{
-			id: 1,
-			label: 'Privacy Policy',
-			handleClick: () => navigate('/privacy-policy'),
-		},
-		{
-			id: 2,
-			label: 'Terms & Conditions',
-			handleClick: () => navigate('/terms-of-service'),
-		},
-		{
-			id: 3,
-			label: 'Cookie Policy',
-			handleClick: () => navigate('/cookie-policy'),
-		},
-		{
-			id: 4,
-			label: 'Help',
-			handleClick: () => {
-				let iframe = document.getElementById('ve-ai-chat-iframe');
-				if (iframe) {
-					const requiredStyle = iframe.style.display === 'block' ? 'none' : 'block';
-					iframe.style.display = requiredStyle;
-				} else {
-					console.log('Iframe not found');
-				}
-				return;
-			},
-		},
-	];
+	// const footerLinks = [
+	// 	{
+	// 		id: 1,
+	// 		label: 'Privacy Policy',
+	// 		handleClick: () => navigate('/privacy-policy'),
+	// 	},
+	// 	{
+	// 		id: 2,
+	// 		label: 'Terms & Conditions',
+	// 		handleClick: () => navigate('/terms-of-service'),
+	// 	},
+	// 	{
+	// 		id: 3,
+	// 		label: 'Cookie Policy',
+	// 		handleClick: () => navigate('/cookie-policy'),
+	// 	},
+	// 	{
+	// 		id: 4,
+	// 		label: 'Help',
+	// 		handleClick: () => {
+	// 			let iframe = document.getElementById('ve-ai-chat-iframe');
+	// 			if (iframe) {
+	// 				const requiredStyle = iframe.style.display === 'block' ? 'none' : 'block';
+	// 				iframe.style.display = requiredStyle;
+	// 			} else {
+	// 				console.log('Iframe not found');
+	// 			}
+	// 			return;
+	// 		},
+	// 	},
+	// ];
 
 	return (
 		<div className="login-page-container-wrapper">

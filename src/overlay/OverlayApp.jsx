@@ -285,7 +285,12 @@ const OverlayApp = () => {
 			}
 		} catch (err) {
 			console.error('Error fetching LiveKit token:', err);
-			message.error('Error fetching transcription token. Please try again.');
+			// Check if it's a microphone permission error
+			if (err.message && err.message.includes('Microphone permission')) {
+				message.error(err.message);
+			} else {
+				message.error('Error fetching transcription token. Please try again.');
+			}
 		}
 	};
 

@@ -20,7 +20,7 @@ export const EditorContext = createContext(null);
 const Editor = ({
 	innerContainerStyle,
 	myAccess,
-	isDeleted,
+	isDeleted = false,
 	customSendMessage,
 	aiResonse,
 	resetAiResponse,
@@ -565,10 +565,10 @@ const Editor = ({
 				// onChange={onChange}
 				style={innerContainerStyle || {}}
 				theme={'dark'}
-				editable={myAccess !== 'view' || !isDeleted}
+				editable={myAccess !== 'view' && !isDeleted}
 				slashMenu={false}
 			>
-				{(myAccess !== 'view' || !isDeleted) && (
+				{myAccess !== 'view' && !isDeleted && (
 					<NoteToolbar
 						sendMessage={customSendMessage}
 						aiResonse={aiResonse}
