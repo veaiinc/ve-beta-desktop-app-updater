@@ -172,28 +172,29 @@ export const AuthState = () => {
 
 				if (!hasWorkspaces) {
 					localStorage.setItem('isOnboard', false);
+					Cookies.set('isOnboard', false, {
+						sameSite: 'Lax',
+						domain: host,
+					});
 					return [true, { hasWorkspaces: false, isOnboard: false }];
 				}
 
 				const { isOnboard, workspaceId } = accessibleWorkspaces?.[0];
 
-				localStorage.setItem('isOnboard', JSON.stringify(isOnboard));
-				Cookies.set('isOnboard', JSON.stringify(isOnboard), {
+				localStorage.setItem('isOnboard', isOnboard);
+				Cookies.set('isOnboard', isOnboard, {
 					sameSite: 'Lax',
 					domain: host,
 				});
 				if (hasWorkspaces)
-					localStorage.setItem(
-						'accessibleWorkspaces',
-						JSON.stringify(accessibleWorkspaces),
-					);
-				Cookies.set('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces), {
+					localStorage.setItem('accessibleWorkspaces', accessibleWorkspaces);
+				Cookies.set('accessibleWorkspaces', accessibleWorkspaces, {
 					sameSite: 'Lax',
 					domain: host,
 				});
 				if (workspaceId) {
-					localStorage.setItem('workspaceId', JSON.stringify(workspaceId));
-					Cookies.set('workspaceId', JSON.stringify(workspaceId), {
+					localStorage.setItem('workspaceId', workspaceId);
+					Cookies.set('workspaceId', workspaceId, {
 						sameSite: 'Lax',
 						domain: host,
 					});

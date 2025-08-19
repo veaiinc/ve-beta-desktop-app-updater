@@ -41,8 +41,6 @@ const useAuth = () => {
 
 		if (!isOnboard) {
 			navigate('/early-access');
-		} else {
-			navigate('/home');
 		}
 	}, []);
 

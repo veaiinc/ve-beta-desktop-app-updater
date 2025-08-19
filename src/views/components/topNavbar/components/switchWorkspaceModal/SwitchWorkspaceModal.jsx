@@ -77,17 +77,14 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 			return;
 		}
 
-		localStorage.setItem('workspaceId', JSON.stringify(activeWorkspaceId));
-		localStorage.setItem('region', JSON.stringify(region));
-		localStorage.setItem('isOnboard', JSON.stringify(isOnboard));
+		localStorage.setItem('workspaceId', activeWorkspaceId);
+		localStorage.setItem('region', region);
+		localStorage.setItem('isOnboard', isOnboard);
 
 		const host = fetchDomainName();
-		Cookies.set('workspaceId', JSON.stringify(activeWorkspaceId), {
-			sameSite: 'lax',
-			domain: host,
-		});
-		Cookies.set('region', JSON.stringify(region), { sameSite: 'lax', domain: host });
-		Cookies.set('isOnboard', JSON.stringify(isOnboard), { sameSite: 'lax', domain: host });
+		Cookies.set('workspaceId', activeWorkspaceId, { sameSite: 'lax', domain: host });
+		Cookies.set('region', region, { sameSite: 'lax', domain: host });
+		Cookies.set('isOnboard', isOnboard, { sameSite: 'lax', domain: host });
 
 		channel.postMessage('switchWorkspace');
 	};
