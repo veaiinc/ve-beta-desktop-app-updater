@@ -134,21 +134,6 @@ const AIMessage = ({
 
 	return (
 		<div className="ai-message-container">
-			<PromptPopup
-				messageId={messageData?.messageId}
-				liked={messageData?.rating}
-				open={info?.feedbackPopupOpen}
-				feedbackMessage={messageData?.userRemarks}
-				feedbackPopupOpen={info?.feedbackPopupOpen}
-				selectedFeedback={messageData?.userFeedbackReasons}
-				handleFeedbackUpdateSuccess={handleFeedbackUpdateSuccess}
-				isTrained={
-					messageData?.rating ||
-					messageData?.userRemarks ||
-					messageData?.userFeedbackReasons?.length
-				}
-				closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
-			/>
 			{info?.usedAgents?.length > 0 &&
 				messageData?.workflow_template_id &&
 				messageData?.module_template_id &&
@@ -181,15 +166,19 @@ const AIMessage = ({
 					</div>
 				))}
 
-			{messageData?.browserTools?.length > 0 && (
+			{messageData?.browserTools?.length > 0 ? (
 				<BrowserTools data={messageData?.browserTools} />
+			) : (
+				''
 			)}
 
-			{messageData?.tool_invocations && (
+			{messageData?.tool_invocations ? (
 				<IntermediateSteps
 					steps={messageData?.tool_invocations}
 					isStreaming={messageData?.stream_end === false}
 				/>
+			) : (
+				''
 			)}
 
 			{messageData?.moduleType === 'ai_suggestion_report' ? (
@@ -200,11 +189,13 @@ const AIMessage = ({
 				<Markdown citations={citations}>{text}</Markdown>
 			)}
 
-			{messageData?.unintegrated_apps?.length > 0 && (
+			{messageData?.unintegrated_apps?.length > 0 ? (
 				<UnintegratedAgentApps apps={messageData?.unintegrated_apps} />
+			) : (
+				''
 			)}
 
-			{messageData?.messageId && (
+			{messageData?.messageId ? (
 				<div
 					className="hover-actions-container"
 					style={{
@@ -304,6 +295,8 @@ const AIMessage = ({
 						)}
 					</div>
 				</div>
+			) : (
+				''
 			)}
 
 			{(aiMessagesInfo?.[messageData?.messageId]?.followUpQuery?.length > 0 ||
@@ -336,6 +329,22 @@ const AIMessage = ({
 					)}
 				</div>
 			)}
+
+			<PromptPopup
+				messageId={messageData?.messageId}
+				liked={messageData?.rating}
+				open={info?.feedbackPopupOpen}
+				feedbackMessage={messageData?.userRemarks}
+				feedbackPopupOpen={info?.feedbackPopupOpen}
+				selectedFeedback={messageData?.userFeedbackReasons}
+				handleFeedbackUpdateSuccess={handleFeedbackUpdateSuccess}
+				isTrained={
+					messageData?.rating ||
+					messageData?.userRemarks ||
+					messageData?.userFeedbackReasons?.length
+				}
+				closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
+			/>
 		</div>
 	);
 };
