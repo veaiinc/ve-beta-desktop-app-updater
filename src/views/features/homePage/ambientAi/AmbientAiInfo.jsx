@@ -32,6 +32,7 @@ import { message } from '../../../components/globalComponents/CustomToast';
 import ChainOfThoughtInterpreter from '../../../components/homePage/ChainOfThoughtInterpreter';
 import GmailWidget from '../../../components/globalComponents/widgets/GmailWidget';
 import CalendarWidget from '../../../components/globalComponents/widgets/calendar/CalendarWidget';
+import TaskWidget from '../../../components/globalComponents/widgets/TaskWidget';
 
 const tabOptions = [
 	{ label: 'Actions', value: 'actions' },
@@ -397,6 +398,10 @@ const AmbientAiInfo = ({
 		if (item?.module_type === 'calendar') {
 			return <CalendarWidget widgetData={item?.metadata} action={item?.action} />;
 		}
+		if (item?.module_type === 'tasks' && item?.action === 'create_task') {
+			return <TaskWidget widgetData={item?.metadata} />;
+		}
+
 		return null;
 	}, []);
 
@@ -628,17 +633,11 @@ const AmbientAiInfo = ({
 						<div className="situation-overview-container">
 							{widgets?.length > 0 && (
 								<div className="widgets-container">
-									{widgets
-										?.filter(
-											(item) =>
-												item?.module_type === 'gmail' ||
-												item?.module_type === 'calendar',
-										)
-										?.map((item, index) => (
-											<div className="widget" key={index}>
-												{getWidget(item)}
-											</div>
-										))}
+									{widgets?.map((item, index) => (
+										<div className="widget" key={index}>
+											{getWidget(item)}
+										</div>
+									))}
 								</div>
 							)}
 

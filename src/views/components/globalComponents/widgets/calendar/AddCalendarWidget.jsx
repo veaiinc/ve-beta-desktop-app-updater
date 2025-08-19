@@ -40,12 +40,12 @@ const AddCalendarWidget = ({ widgetData = null }) => {
 	useEffect(() => {
 		if (widgetData) {
 			const { start_time, end_time, title } = widgetData;
-
+			const currentTime = Math.floor(Date.now() / 1000);
 			setInfo((prev) => ({
 				...prev,
-				startTime: start_time || null,
-				endTime: end_time || null,
-				selectedDate: moment?.unix(start_time),
+				startTime: start_time || currentTime,
+				endTime: end_time || currentTime,
+				selectedDate: moment?.unix(start_time || currentTime),
 				title: title || '',
 			}));
 		}
