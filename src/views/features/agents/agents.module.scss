@@ -105,13 +105,32 @@
 
 				.imageContainer {
 					padding: 8px;
-					width: 40px;
-					height: 40px;
+					width: 60px;
+					height: 60px;
 					border-radius: 8px;
 					border: 1px solid var(--stroke);
+					display: flex;
+					justify-content: center;
+					align-items: center;
 					svg {
 						transform: rotate(-3deg);
 					}
+				}
+
+				.agentDescription {
+					color: var(--secondary-font, #94989e);
+					text-align: center;
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: italic;
+					font-weight: 500;
+					line-height: 22px;
+
+					display: -webkit-box;
+					-webkit-line-clamp: 2;
+					line-clamp: 2;
+					-webkit-box-orient: vertical;
+					overflow: hidden;
 				}
 			}
 		}
