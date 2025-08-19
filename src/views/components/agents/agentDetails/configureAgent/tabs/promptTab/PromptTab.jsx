@@ -24,7 +24,7 @@ const styles = {
 	},
 };
 
-const PromptTab = () => {
+const PromptTab = ({ myAccess }) => {
 	const { agentId } = useParams();
 	const {
 		knowledgeAgent: {
@@ -171,7 +171,7 @@ const PromptTab = () => {
 			<div className={s.leftContainer}>
 				<div className={s.listContainer}>
 					<div className={s.left}>
-						<KnowledgeAgentPrompt assistant={agentData} />
+						<KnowledgeAgentPrompt assistant={agentData} myAccess={myAccess} />
 					</div>
 				</div>
 			</div>

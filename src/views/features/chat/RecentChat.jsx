@@ -20,7 +20,6 @@ import ChatHeader from '../../components/chat/ChatHeader';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import { message } from '../../components/globalComponents/CustomToast';
 import ChatHistory from '../../components/sidebar/chatHistory/ChatHistory';
-import Browser from '../../components/chat/chatComponents/Browser';
 import { ReactComponent as DoubleRightArrowSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 
 const RecentChat = ({
@@ -34,7 +33,6 @@ const RecentChat = ({
 	animateChatBox = true,
 	showChatHistory = false,
 	showChats = false,
-	showBrowser = false,
 	showHeader = true,
 }) => {
 	const {
@@ -98,9 +96,6 @@ const RecentChat = ({
 			chatQuery: '',
 			citationsAiMessageIndex: null,
 			citationsModalIsOpen: false,
-			openBrowser: false,
-			browserDataAvailable: false,
-			browserPreviousActiveTabIndex: null,
 			isMobileView: false,
 			isChatHistoryClosed,
 		};
@@ -122,8 +117,6 @@ const RecentChat = ({
 	const followUpQueryTimeoutRef = useRef(null);
 
 	sessionId = isPreview ? sId : sessionId;
-
-	const browserData = globalChatMessages?.[sessionId]?.browserData;
 
 	// Save whenever it changes
 	useEffect(() => {
@@ -274,8 +267,6 @@ const RecentChat = ({
 					scrollExecuted: false,
 					citationsModalIsOpen: false,
 					citationsAiMessageIndex: null,
-					browserDataAvailable: false,
-					browserPreviousActiveTabIndex: null,
 				}));
 			}
 			if (currentUserMessageTimeoutRef.current) {
@@ -521,17 +512,6 @@ const RecentChat = ({
 			});
 		}
 	}, [moreRecentChatStorage?.[sessionId]]);
-
-	const handleBrowserButtonClick = useCallback(() => {
-		if (!location?.pathname?.includes('chat')) {
-			navigate(`/chat/${sessionId}`);
-			return;
-		}
-		setInfo((prev) => ({
-			...prev,
-			openBrowser: !prev?.openBrowser,
-		}));
-	}, [sessionId]);
 
 	const handleChatHistoryToggle = useCallback(() => {
 		setInfo((prev) => ({

@@ -42,8 +42,9 @@ const UnintegratedAgentApps = ({ apps = [] }) => {
 
 			try {
 				const [connectSuccess, response] = await connectTool({
-					slug: appData.app,
+					toolkit_slug: appData.app,
 					auth_scheme: 'OAUTH2',
+					variant: 'use_custom_auth',
 				});
 
 				if (connectSuccess && response?.data?.oauth_url) {

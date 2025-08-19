@@ -32,6 +32,9 @@ const AgentDrawer = ({
 	handleCardClick,
 	handleLeft,
 	handleRight,
+	isTemplate,
+	handleAddTemplateToWorkspace,
+	addTemplateAgentLoader,
 }) => {
 	const navigate = useNavigate();
 	const {
@@ -145,15 +148,29 @@ const AgentDrawer = ({
 						</button>
 					</div>
 					<div className={s.headerActions}>
-						<AgentShareComponent
-							activeKnowledgeAssistant={activeAgent}
-							buttonText={<ShareSvg />}
-							buttonStyle={shareButtonStyle}
-							agentId={agent?._id}
-						/>
-						<button className={s.deleteButton} onClick={handleOpenDeleteModal}>
-							<DeleteSvg />
-						</button>
+						{isTemplate ? (
+							<>
+								<button
+									className={s.addWorkspaceButton}
+									onClick={() => handleAddTemplateToWorkspace(agent?._id)}
+									disabled={addTemplateAgentLoader}
+								>
+									{addTemplateAgentLoader ? 'Adding...' : 'Add to workspace'}
+								</button>
+							</>
+						) : (
+							<>
+								<AgentShareComponent
+									activeKnowledgeAssistant={activeAgent}
+									buttonText={<ShareSvg />}
+									buttonStyle={shareButtonStyle}
+									agentId={agent?._id}
+								/>
+								<button className={s.deleteButton} onClick={handleOpenDeleteModal}>
+									<DeleteSvg />
+								</button>
+							</>
+						)}
 					</div>
 				</div>
 				<div className={s.contentWtrapper}>
@@ -189,9 +206,11 @@ const AgentDrawer = ({
 
 							<button
 								className={s.gotoAgentPage}
-								onClick={() => navigate(`/agent/${agent?._id}?config=prompt`)}
+								onClick={() =>
+									navigate(`/agent/${agent?._id}?agentAction=buildAgent`)
+								}
 							>
-								Customize <ArrowCorner />
+								{isTemplate ? 'Preview flow' : 'Customize'} <ArrowCorner />
 							</button>
 						</div>
 						<div className={s.descriptionSection}>
