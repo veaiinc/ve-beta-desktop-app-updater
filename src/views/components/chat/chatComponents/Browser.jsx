@@ -22,6 +22,12 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 				activeTab: tabs?.length - 1,
 				tabs,
 			}));
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				activeTab: -1,
+				tabs: [],
+			}));
 		}
 	}, [browserData]);
 

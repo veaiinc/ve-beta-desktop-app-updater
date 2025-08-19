@@ -20,6 +20,7 @@ import ChatHeader from '../../components/chat/ChatHeader';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import { message } from '../../components/globalComponents/CustomToast';
 import ChatHistory from '../../components/sidebar/chatHistory/ChatHistory';
+import Browser from '../../components/chat/chatComponents/Browser';
 import { ReactComponent as DoubleRightArrowSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 
 const RecentChat = ({
@@ -34,6 +35,7 @@ const RecentChat = ({
 	showChatHistory = false,
 	showChats = false,
 	showHeader = true,
+	showBrowser = false,
 }) => {
 	const {
 		templates: {
@@ -118,6 +120,8 @@ const RecentChat = ({
 
 	sessionId = isPreview ? sId : sessionId;
 
+	const browserData = globalChatMessages?.[sessionId]?.browserData;
+
 	// Save whenever it changes
 	useEffect(() => {
 		localStorage.setItem('chatHistorySidebarClosed', JSON.stringify(info.isChatHistoryClosed));
@@ -199,14 +203,14 @@ const RecentChat = ({
 		}
 	}, [globalChatMessages?.[sessionId]?.open_browser]);
 
-	useEffect(() => {
-		if (browserData) {
-			setInfo((prev) => ({
-				...prev,
-				browserPreviousActiveTabIndex: browserData?.activeTabIndex,
-			}));
-		}
-	}, [browserData]);
+	// useEffect(() => {
+	// 	if (browserData) {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			browserPreviousActiveTabIndex: browserData?.activeTabIndex,
+	// 		}));
+	// 	}
+	// }, [browserData]);
 
 	useEffect(() => {
 		if (info?.getFollowUpQueries) {
@@ -860,6 +864,10 @@ const RecentChat = ({
 		[info, sessionId, isPublicChat],
 	);
 
+	const handleBrowserButtonClick = useCallback(() => {
+		setInfo((prev) => ({ ...prev, openBrowser: !prev?.openBrowser }));
+	}, []);
+
 	// browser socket
 	const onBrowserMessageFunc = useCallback((event, sessionId) => {
 		let { data = '' } = event || {};
@@ -1265,9 +1273,7 @@ const RecentChat = ({
 								animateChatBox={animateChatBox}
 								sessionId={sessionId}
 								handleBrowserButtonClick={handleBrowserButtonClick}
-								showBrowserButton={
-									!info?.openBrowser && info?.browserDataAvailable && showBrowser
-								}
+								showBrowserButton={!info?.openBrowser && info?.browserDataAvailable}
 								browserImage={
 									globalChatMessages?.[sessionId]?.browserData?.browserMetadata
 										?.signedUrl
