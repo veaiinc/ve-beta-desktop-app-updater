@@ -11,13 +11,13 @@ import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 const LoginPage = () => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
-		activeStage: 'email',
-		email: '',
-		emailVerified: false,
+		activeStage: sessionStorage.getItem('loginActiveStage') || 'email',
+		email: sessionStorage.getItem('loginEmail') || '',
+		emailVerified: sessionStorage.getItem('loginEmailVerified') === 'true',
 		accountExists: false,
 		cookiesAccepted: false,
 		isDarkMode: false,
-		lastOtpEmail: '',
+		lastOtpEmail: sessionStorage.getItem('loginLastOtpEmail') || '',
 		showCookiesNotice: true,
 	});
 
@@ -38,6 +38,7 @@ const LoginPage = () => {
 		const workspaceId = localStorage.getItem('workspaceId');
 		const isLoggedIn = localStorage.getItem('usertoken');
 		if (usertoken && region && workspaceId) {
+			clearLoginSession(); // Clear login session data when user is already logged in
 			if (isLoggedIn) return navigate('/home');
 			else return navigate('/');
 		}
@@ -50,6 +51,17 @@ const LoginPage = () => {
 		} else {
 			setInfo((prev) => ({ ...prev, cookiesAccepted: false, showCookiesNotice: true }));
 		}
+	}, []);
+
+	// Cleanup session storage when component unmounts (user navigates away from login page)
+	useEffect(() => {
+		return () => {
+			// Only clear if user is actually logged in (has completed the flow)
+			const usertoken = localStorage.getItem('usertoken');
+			if (usertoken) {
+				clearLoginSession();
+			}
+		};
 	}, []);
 
 	const handleDeclineCookies = () => {
@@ -68,21 +80,33 @@ const LoginPage = () => {
 
 	const setEmail = (email) => {
 		setInfo((prev) => ({ ...prev, email }));
+		sessionStorage.setItem('loginEmail', email);
 	};
 
 	const setLastOtpEmail = (email) => {
 		setInfo((prev) => ({ ...prev, lastOtpEmail: email }));
+		sessionStorage.setItem('loginLastOtpEmail', email);
 	};
 
 	const setActiveStage = (activeStage) => {
 		setInfo((prev) => ({ ...prev, activeStage }));
+		sessionStorage.setItem('loginActiveStage', activeStage);
 	};
 
 	const setEmailVerified = (emailVerified) => {
 		setInfo((prev) => ({ ...prev, emailVerified }));
+		sessionStorage.setItem('loginEmailVerified', emailVerified.toString());
+	};
+
+	const clearLoginSession = () => {
+		sessionStorage.removeItem('loginActiveStage');
+		sessionStorage.removeItem('loginEmail');
+		sessionStorage.removeItem('loginEmailVerified');
+		sessionStorage.removeItem('loginLastOtpEmail');
 	};
 
 	const handleLogoClick = () => {
+		clearLoginSession();
 		navigate('/');
 	};
 
