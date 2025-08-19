@@ -21,6 +21,7 @@ Ve AI Dashboard is a cross-platform Electron-based desktop application built wit
 
 -   You should update the plan as you work.
 -   After you complete tasks in the plan, you should update and append detailed descriptions of the changes you made, so following tasks can be easily hand over to other engineers.
+-   Try to use lucide-react icons, if they are not there then create an svg file and use it as ReactComponent import.
 
 ### Essential Commands
 

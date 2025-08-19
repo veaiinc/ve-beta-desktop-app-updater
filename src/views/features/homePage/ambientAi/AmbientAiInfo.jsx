@@ -6,6 +6,8 @@ import { ReactComponent as ArrowRightSvg } from '../../../../assets/svg/home_pag
 import { ReactComponent as DeleteSvg } from '../../../../assets/svg/delete.svg';
 import { ReactComponent as AgentsSvg } from '../../../../assets/svg/sidebar/agentsIcon.svg';
 import { ReactComponent as MobileCloseSvg } from '../../../../assets/svg/mobile/close.svg';
+import { ReactComponent as StarSvg } from '../../../../assets/svg/smartFiles/formResponse/star.svg';
+
 import {
 	handleCombinedChainOfThought,
 	updateCitationIdsWithCitations,
@@ -28,6 +30,7 @@ import jwtDecode from 'jwt-decode';
 import PromptPopup from '../../../components/homePage/PromptPopup';
 import { message } from '../../../components/globalComponents/CustomToast';
 import ChainOfThoughtInterpreter from '../../../components/homePage/ChainOfThoughtInterpreter';
+import GmailWidget from '../../../components/globalComponents/widgets/GmailWidget';
 
 const tabOptions = [
 	{ label: 'Actions', value: 'actions' },
@@ -69,6 +72,7 @@ const AmbientAiInfo = ({
 		accessType: 'view',
 		hasFullAccess: false,
 		selectedFeedback: 'thumbsUp',
+		isFavourite: false,
 	});
 
 	const isUpdatingCompletedRef = useRef(false);
@@ -130,6 +134,7 @@ const AmbientAiInfo = ({
 			accessType,
 			tabOptions: options,
 			activeTab: options?.[0]?.value,
+			isFavourite: data?.isFavourite || false,
 		}));
 		if (bodyRef?.current) {
 			bodyRef?.current?.scrollTo({
@@ -337,6 +342,53 @@ const AmbientAiInfo = ({
 		[pendingActionsUpdate, getAISuggestedPendingActions],
 	);
 
+	const handleFavouriteClick = useCallback(
+		async (id) => {
+			if (info?.accessType === 'view' && !info?.hasFullAccess) {
+				message.error('You do not have access to favourite this insight');
+				return;
+			}
+
+			if (!id) return;
+
+			setInfo((prev) => {
+				const newFavouriteState = !prev.isFavourite;
+				//ui update
+				const checkedInfo = { ...prev, isFavourite: newFavouriteState };
+
+				// API request after state update
+				(async () => {
+					try {
+						const res = await pendingActionsUpdate(id, {
+							isFavourite: newFavouriteState,
+						});
+						if (res?.[0] === true) {
+							getAISuggestedPendingActions(
+								{ isFavourite: newFavouriteState },
+								false,
+								'update',
+								id,
+							);
+							message.success(
+								newFavouriteState
+									? 'Added to favourites'
+									: 'Removed from favourites',
+							);
+						} else {
+							throw new Error();
+						}
+					} catch {
+						setInfo((p) => ({ ...p, isFavourite: !newFavouriteState }));
+						message.error('Failed to update favourite status');
+					}
+				})();
+
+				return checkedInfo;
+			});
+		},
+		[info?.accessType, info?.hasFullAccess, pendingActionsUpdate, getAISuggestedPendingActions],
+	);
+
 	const {
 		title,
 		description,
@@ -352,6 +404,7 @@ const AmbientAiInfo = ({
 		sessionId,
 		read,
 		isCompleted,
+		widgets,
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
@@ -463,16 +516,16 @@ const AmbientAiInfo = ({
 					</div>
 
 					<div className="right-container">
-						{/* <div
-									className={`starLogoContainer ${
-										data?.isFavourite === true ? 'active' : ''
-									}`}
-									onClick={(e) => {
-										onFavouriteClick(data?._id);
-									}}
-								>
-									<StarSvg />
-								</div> */}
+						<div
+							className={`starLogoContainer ${
+								info?.isFavourite === true ? 'active' : ''
+							}`}
+							onClick={(e) => {
+								handleFavouriteClick(data?._id);
+							}}
+						>
+							<StarSvg />
+						</div>
 
 						{(info?.accessType !== 'view' || info?.hasFullAccess) && (
 							<ProactiveAIShare proactiveAiId={data?._id} proactiveAiData={data} />
@@ -562,6 +615,11 @@ const AmbientAiInfo = ({
 					</div>
 					{info?.activeTab === 'actions' && (
 						<div className="situation-overview-container">
+							{widgets
+								?.filter((item) => item?.module_type === 'gmail')
+								?.map((item, index) => (
+									<GmailWidget key={index} widgetData={item?.metadata} />
+								))}
 							{suggested_actions?.length > 0 && (
 								<div className="suggested-actions-wrapper">
 									<div className="suggested-action-text">Actions</div>

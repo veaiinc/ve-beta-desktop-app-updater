@@ -34,7 +34,7 @@ const ChatHeader = ({
 		aiSetup: { aiChatSessions, updateStateValues, updateAiChatSessions },
 	} = useContext(Context);
 
-	const [info, setInfo] = useState({
+	const [info, setInfo] = useState(() => ({
 		chatDropdownExpanded: false,
 		userMessages: [],
 		activeUserMessageIndex: -1,
@@ -42,23 +42,11 @@ const ChatHeader = ({
 		userId: null,
 		deleteModal: { open: false },
 		mobileHistoryOpen: false,
-		isMobileView: false,
-	});
+		isMobileView: window.matchMedia('(max-width: 767px)').matches,
+	}));
 	const deleteChatSessionLoadingRef = useRef(false);
 
-	// Mobile viewport detection
-	useEffect(() => {
-		const query = window.matchMedia('(max-width: 768px)');
-		const update = () => setInfo((prev) => ({ ...prev, isMobileView: query.matches }));
-		update();
-		try {
-			query.addEventListener('change', update);
-			return () => query.removeEventListener('change', update);
-		} catch (e) {
-			query.addListener(update);
-			return () => query.removeListener(update);
-		}
-	}, []);
+
 
 	// Extract user messages for desktop dropdown
 	useEffect(() => {

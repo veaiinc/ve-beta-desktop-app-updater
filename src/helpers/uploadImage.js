@@ -1,17 +1,20 @@
 import axios from 'axios';
-import ObjectId from 'bson-objectid';
 
 // helpers/uploadImage.js
 
-async function uploadImage(
+async function uploadImage({
 	file,
 	bucketType = 'originals',
 	customFileName = null,
 	uploadPolicy,
 	imageId,
 	onUploadProgress = null, // 👈 Add this
-) {
+	galleryId,
+	versionId,
+	tenantId,
+}) {
 	try {
+		// console.log('upload policy ', uploadPolicy);
 		if (!(file instanceof File)) {
 			throw new Error('Invalid file: Please provide a valid File object');
 		}
@@ -25,10 +28,8 @@ async function uploadImage(
 		if (new Date() > expiresAt) {
 			throw new Error(`Upload policy has expired at ${policy.expiresAt}`);
 		}
-
-		const epoch = Math.floor(Date.now() / 1000);
 		const originalExt = file.name.split('.').pop().toLowerCase() || 'jpg';
-		const fileName = customFileName || `${imageId.toHexString()}_${epoch}.${originalExt}`;
+		const fileName = customFileName || `${imageId.toHexString()}_${versionId}.${originalExt}`;
 		const fileKey =
 			bucketType === 'optimized'
 				? `${policy.keyPrefix}optimized/${fileName}`
@@ -51,6 +52,14 @@ async function uploadImage(
 		formData.append('Content-Type', contentType);
 		formData.append('file', file);
 
+		// formData.append('x-amz-meta-gallery-id', galleryId);
+		// formData.append('x-amz-meta-given-image-id', imageId);
+		// formData.append('x-amz-meta-given-image-version-id', `${imageId}_versionId`);
+		// formData.append('x-amz-meta-is-ai-faces-enabled');
+		// formData.append('x-amz-meta-original-file-name', file?.name);
+		// formData.append('x-amz-meta-tenant-id', tenantId);
+		// formData.append('x-amz-meta-upload-batch-id');
+
 		const uploadUrl = policy.url.trim();
 
 		// ✅ Pass onUploadProgress to axios
@@ -71,7 +80,7 @@ async function uploadImage(
 			fileKey,
 			bucketName: policy.bucketName,
 			imageId: imageId.toHexString(),
-			epoch,
+			versionId,
 			fileName,
 		};
 	} catch (error) {

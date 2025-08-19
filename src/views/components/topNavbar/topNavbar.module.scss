@@ -18,12 +18,14 @@
 
 .topNavbarContainer {
 	width: 100%;
+	min-height: 67px;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	padding: 8px 32px;
+	padding: 15px 32px;
 	border-bottom: 1px solid var(--dividers, #1e1f20);
 	background: var(--navbar, #141415);
+	position: relative;
 	z-index: 1;
 
 	ul {
@@ -65,6 +67,10 @@
 		border-radius: 100px;
 		border: 1px solid var(--dividers, #1e1f20);
 		padding: 4px;
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
 
 		.navItem {
 			display: flex;
@@ -335,7 +341,7 @@
 }
 
 // Mobile responsive styles
-@media (max-width: 768px) {
+@media (max-width: 1040px) {
 	.topNavbarContainer {
 		padding: 8px 16px;
 
@@ -389,6 +395,7 @@
 	.topNavbarContainer {
 		padding: 8px 12px;
 		align-items: center;
+		margin-top: -12px;
 
 		.rightContainer {
 			gap: 16px;

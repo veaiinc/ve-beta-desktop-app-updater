@@ -91,30 +91,19 @@ const ToolsTab = ({ agentId }) => {
 		[debouncedSearch],
 	);
 
-	const getToolFaviconUrl = useCallback((typeDependencies) => {
+	const getToolLogoUrl = useCallback((typeDependencies) => {
 		try {
-			if (typeDependencies?.description) {
-				// Extract URL from description using regex
-				const urlMatch = typeDependencies.description.match(
-					/\[.*?\]\((https?:\/\/[^)]+)\)/,
-				);
-				if (urlMatch && urlMatch[1]) {
-					const url = urlMatch[1];
-					return getFaviconUrl(url);
-				}
-			}
-			return null;
+			return typeDependencies?.logoUrl || null;
 		} catch (error) {
-			console.error('Error extracting tool favicon:', error);
+			console.error('Error getting tool logo:', error);
 			return null;
 		}
 	}, []);
 
-	// Helper function to extract description text before square bracket
+	// Helper function to get clean description
 	const getCleanDescription = useCallback((description) => {
 		if (!description) return '';
-		const bracketIndex = description.indexOf('[');
-		return bracketIndex > 0 ? description.substring(0, bracketIndex).trim() : description;
+		return description;
 	}, []);
 
 	useEffect(() => {
@@ -133,9 +122,9 @@ const ToolsTab = ({ agentId }) => {
 				const defaultSelections = {};
 
 				// Set default selection to 'ai' for all variables
-				// variables.forEach((variable) => {
-				// 	defaultSelections[variable.name] = 'ai';
-				// });
+				Object.keys(variables).forEach((variableName) => {
+					defaultSelections[variableName] = 'ai';
+				});
 
 				return {
 					...prev,
@@ -144,7 +133,11 @@ const ToolsTab = ({ agentId }) => {
 					searchLoading: false,
 					// Auto-select the first tool if no tool is currently selected
 					selectedTool: firstTool,
-					// toolVariables: variables.map((v) => ({ ...v, value: '' })),
+					toolVariables: Object.keys(variables).map((key) => ({
+						name: key,
+						...variables[key],
+						value: '',
+					})),
 					variableSelections: {
 						...prev.variableSelections,
 						...defaultSelections,
@@ -276,18 +269,22 @@ const ToolsTab = ({ agentId }) => {
 	}, [agentId, info?.search]);
 
 	const handleToolSelect = useCallback((tool) => {
-		const variables = tool?.typeDependencies?.variables || [];
+		const variables = tool?.typeDependencies?.variables || {};
 		const defaultSelections = {};
 
 		// Set default selection to 'ai' for all variables
-		variables.forEach((variable) => {
-			defaultSelections[variable.name] = 'ai';
+		Object.keys(variables).forEach((variableName) => {
+			defaultSelections[variableName] = 'ai';
 		});
 
 		setInfo((prev) => ({
 			...prev,
 			selectedTool: tool,
-			// toolVariables: variables.map((v) => ({ ...v, value: '' })),
+			toolVariables: Object.keys(variables).map((key) => ({
+				name: key,
+				...variables[key],
+				value: '',
+			})),
 			variableSelections: {
 				...prev.variableSelections,
 				...defaultSelections,
@@ -306,32 +303,42 @@ const ToolsTab = ({ agentId }) => {
 		if (!info.selectedTool) return;
 
 		try {
-			const headers = info.toolVariables.map((field, idx) => {
-				const original = info.selectedTool.typeDependencies.variables[idx];
-				const result = {};
-				Object.keys(original).forEach((key) => {
-					if (key === 'description') {
-						// Check if user selected manual mode and provided input
-						const isManualMode = info.variableSelections[field.name] === 'manual';
-						const hasUserInput = field.value && field.value.trim() !== '';
+			const updatedVariables = [];
 
-						if (isManualMode && hasUserInput) {
-							// Use user input value
-							result[key] = field.value;
-						} else {
-							// Use original Pipedream description
-							result[key] = original[key];
-						}
-					} else {
-						result[key] = field[key];
-					}
-				});
-				return result;
+			info.toolVariables.forEach((variable) => {
+				const isManualMode = info.variableSelections[variable.name] === 'manual';
+				const hasUserInput = variable.value && variable.value.trim() !== '';
+
+				const variableData = {
+					name: variable.name,
+					description: variable.description,
+					type: variable.type,
+				};
+
+				// Add other properties if they exist
+				if (variable.default !== undefined) variableData.default = variable.default;
+				if (variable.examples) variableData.examples = variable.examples;
+				if (variable.required) variableData.required = variable.required;
+				if (variable.properties) variableData.properties = variable.properties;
+				if (variable.items) variableData.items = variable.items;
+				if (variable.nullable !== undefined) variableData.nullable = variable.nullable;
+				if (variable.file_uploadable !== undefined)
+					variableData.file_uploadable = variable.file_uploadable;
+
+				if (isManualMode && hasUserInput) {
+					// Use user input value
+					variableData.value = variable.value;
+				} else {
+					// Use original description as value
+					variableData.value = variable.description;
+				}
+
+				updatedVariables.push(variableData);
 			});
 
 			const payload = {
 				type: 'executeAPIRequest',
-				variables: headers,
+				variables: updatedVariables,
 			};
 
 			const response = await updateToolVariables(agentId, info.selectedTool._id, payload);
@@ -451,9 +458,9 @@ const ToolsTab = ({ agentId }) => {
 									onClick={() => handleToolSelect(item)}
 								>
 									<div className={s.toolIcon}>
-										{getToolFaviconUrl(item?.typeDependencies) && (
+										{getToolLogoUrl(item?.typeDependencies) && (
 											<img
-												src={getToolFaviconUrl(item?.typeDependencies)}
+												src={getToolLogoUrl(item?.typeDependencies)}
 												alt="Tool icon"
 												className={s.toolFavicon}
 											/>
@@ -555,7 +562,7 @@ const ToolsTab = ({ agentId }) => {
 											<div key={variable.name} className={s.variableCard}>
 												<div className={s.variableHeader}>
 													<span className={s.variableName}>
-														{variable.name}
+														{variable.title || variable.name}
 													</span>
 													<div className={s.dropdownContainer}>
 														<button
@@ -639,6 +646,14 @@ const ToolsTab = ({ agentId }) => {
 												</div>
 												<p className={s.variableDescription}>
 													{variable.description}
+													{variable.examples &&
+														variable.examples.length > 0 && (
+															<span className={s.variableExamples}>
+																{' '}
+																Examples:{' '}
+																{variable.examples.join(', ')}
+															</span>
+														)}
 												</p>
 												<input
 													ref={idx === 0 ? firstInputRef : null}
@@ -647,7 +662,9 @@ const ToolsTab = ({ agentId }) => {
 													onChange={(e) =>
 														handleVariableChange(idx, e.target.value)
 													}
-													placeholder="Type here..."
+													placeholder={`Enter ${
+														variable.title || variable.name
+													}...`}
 												/>
 											</div>
 										))}

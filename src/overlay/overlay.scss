@@ -1,0 +1,131 @@
+// Overlay App Styles
+.overlay-app {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	padding: 0;
+	margin: 0;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	user-select: none;
+	-webkit-app-region: no-drag;
+	z-index: 9999;
+	position: relative;
+	opacity: 1;
+	overflow-x: auto; /* Allow horizontal scrolling if needed */
+	width: 800px;
+}
+
+.overlay-container {
+	opacity: 1;
+	padding: 8px 12px;
+	display: flex;
+}
+
+// Commands Section (now empty since moved to ShortcutBar)
+.overlay-commands {
+	width: 100%;
+}
+
+// Responsive adjustments
+@media (max-width: 480px) {
+	.overlay-container {
+		min-width: 280px;
+		padding: 6px 10px;
+	}
+
+	.screen-query-container {
+		width: 100%;
+		max-width: 400px;
+		margin-top: 16px;
+		padding: 6px;
+	}
+
+	.live-intelligence-container {
+		width: 100%;
+		max-width: 300px;
+		margin-top: 16px;
+		padding: 6px;
+	}
+
+	.transcript-container {
+		width: 100%;
+		max-width: 450px;
+		margin-top: 16px;
+		padding: 6px;
+	}
+}
+
+// Screen Query Container
+.screen-query-container {
+	width: 500px;
+	margin-top: 16px;
+	background: rgba(0, 0, 0, 0.7);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	padding: 8px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+	// animation: slideInDown 0.3s ease-out;
+	box-sizing: border-box;
+	overflow: hidden;
+	z-index: 10000;
+	position: relative;
+}
+
+// Live Intelligence Container
+.live-intelligence-container {
+	display: flex;
+	padding: 8px 10px;
+	flex-direction: column;
+	align-items: flex-start;
+	border-radius: 6px;
+	opacity: 1;
+	overflow: hidden;
+	z-index: 10000;
+	position: relative;
+}
+
+// Transcript Container
+.transcript-container {
+	width: auto;
+	min-width: 500px;
+	max-width: 600px;
+	margin-top: 16px;
+	border-radius: 6px;
+	opacity: 1;
+	padding: 8px;
+	animation: slideInDown 0.3s ease-out;
+	box-sizing: border-box;
+	overflow: hidden;
+	z-index: 10000;
+	position: relative;
+}
+
+// Animations
+// @keyframes fadeIn {
+// 	from {
+// 		opacity: 0;
+// 		transform: translateY(-10px);
+// 	}
+// 	to {
+// 		opacity: 1;
+// 		transform: translateY(0);
+// 	}
+// }
+
+@keyframes slideInDown {
+	from {
+		opacity: 0;
+		transform: translateY(-20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+// .help-tooltip {
+// 	animation: fadeIn 0.2s ease-out;
+// }

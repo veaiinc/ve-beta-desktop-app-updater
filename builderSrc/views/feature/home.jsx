@@ -3285,7 +3285,7 @@ class Home extends Proposals {
 				this.fetchGetModule(id, type);
 			} else {
 				if (
-					(this.state?.getModuleParams?.id && this.state?.getModuleParams?.type) ||
+					// (this.state?.getModuleParams?.id && this.state?.getModuleParams?.type) ||
 					!this.state?.didChangedSomething
 				) {
 					this.fetchGetModule(id, type);
@@ -5733,6 +5733,7 @@ class Home extends Proposals {
 		} else {
 			this.setState({
 				showCheckMobilePopup: false,
+				didChangedSomething: false,
 			});
 		}
 	};

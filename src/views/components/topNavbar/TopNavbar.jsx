@@ -13,7 +13,6 @@ import ToolsTooltip from './components/toolsTooltip/ToolsTooltip';
 import { Tooltip } from 'antd';
 
 // svg icons
-import DownCaret from './assets/DownCaret';
 import { ReactComponent as LightMode } from './assets/light-mode.svg';
 import { ReactComponent as DarkMode } from './assets/dark-mode.svg';
 import { ReactComponent as NotificationsSvg } from './assets/notification.svg';
@@ -94,7 +93,10 @@ const TopNavbar = () => {
 	const hideTopNavbar =
 		pathname.includes('builder') ||
 		pathname.includes('galleries') ||
-		pathname.includes('create-workspace');
+		pathname.includes('create-workspace') ||
+		pathname.includes('agent/');
+	//  ||
+	// pathname.includes('	plan-billing');
 
 	const {
 		profileInfo: {
@@ -136,7 +138,10 @@ const TopNavbar = () => {
 		let items = [...baseLeftContainerItems];
 
 		if (workspaceMode === 'stable') {
-			items = items.filter((item) => item.label !== 'Files' && item.label !== 'Tools');
+			items = items.filter(
+				(item) =>
+					item.label !== 'Files' && item.label !== 'Tools' && item.label !== 'Priority',
+			);
 		}
 
 		if (region === 'ap-south-1') {
@@ -222,10 +227,7 @@ const TopNavbar = () => {
 			mobileMenuOpen: false,
 		}));
 		if (id === 1) {
-			const path = baseLeftContainerItems.find(
-				(item) => item.id === info.activeNavItem,
-			)?.route;
-			navigate(path);
+			navigate('/home');
 		}
 		if (id === 3) {
 			navigate('/meet');
@@ -375,24 +377,8 @@ const TopNavbar = () => {
 			id: 1,
 			element: (
 				<ul className={s.leftContainer}>
-					{info.activeMode === 3
-						? [leftContainerItems[0]].map((navItem, index) => (
-								<li
-									className={`${s.navItem} ${
-										info.activeNavItem === navItem.id ? s.active : ''
-									}`}
-									onClick={() =>
-										handleNavigation({
-											navItemId: navItem.id,
-											route: navItem.route,
-										})
-									}
-									key={`${navItem.id}-${index}`}
-								>
-									{navItem.label}
-								</li>
-						  ))
-						: leftContainerItems.map((navItem, index) =>
+					{info.activeMode !== 3
+						? leftContainerItems.map((navItem, index) =>
 								navItem.id === 4 ? (
 									<Tooltip
 										open={info.filesTooltipOpen}
@@ -424,7 +410,7 @@ const TopNavbar = () => {
 									>
 										<li
 											className={`${s.navItem} ${s.profileItem} ${
-												info.activeNavItem === navItem.id ? s.active : ''
+												pathname.includes('/files') ? s.active : ''
 											}`}
 											onClick={() =>
 												handleNavigation({
@@ -474,7 +460,7 @@ const TopNavbar = () => {
 												}));
 											}}
 											className={`${s.navItem} ${s.profileItem} ${
-												info.activeNavItem === navItem.id ? s.active : ''
+												pathname.includes('/home') ? s.active : ''
 											}`}
 										>
 											{navItem.label}
@@ -496,7 +482,8 @@ const TopNavbar = () => {
 										{navItem.label}
 									</li>
 								),
-						  )}
+						  )
+						: null}
 				</ul>
 			),
 		},

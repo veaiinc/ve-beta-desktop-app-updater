@@ -1,4 +1,4 @@
-import React, { Component, useEffect } from 'react';
+import React, { Component } from 'react';
 import ImageItem from '../../elements/image';
 import './NavbarCompStyles.scss';
 import {
@@ -36,7 +36,6 @@ class NavbarComponent extends Component {
 			showImageModalLibrary: false,
 			dropDown: false,
 			selectedDropdown: 0,
-			isNavigating: false,
 		};
 		this.navbarRef = React.createRef();
 		this.imageRef = React.createRef();
@@ -218,11 +217,11 @@ class NavbarComponent extends Component {
 			},
 		);
 	};
-	// handleNavbarAlign = (align) => {
-	// 	this.setState({
-	// 		navbarAlign: align,
-	// 	});
-	// };
+	handleNavbarAlign = (align) => {
+		this.setState({
+			navbarAlign: align,
+		});
+	};
 
 	// handleNavbarUpdate = (type, value) => {
 	// 	let newSection = { ...this.props.section };
@@ -351,11 +350,6 @@ class NavbarComponent extends Component {
 		}
 		const pages = modules.slice(0, minPages);
 		const currentPages = modules.slice(minPages);
-
-		const isDropdownPageSelected = currentPages.some(
-			(module) => this.props?.selectedLabelId === module._id,
-		);
-
 		if (modules.length > minPages) {
 			return (
 				<>
@@ -443,11 +437,11 @@ class NavbarComponent extends Component {
 							}}
 						>
 							<div
-								className={`select-div ${isDropdownPageSelected ? 'active' : ''}`}
+								className="select-div"
 								style={{
 									color: this.props?.section?.navigationColor || '#000000',
-									opacity: isDropdownPageSelected ? 1 : 0.7,
-									fontWeight: isDropdownPageSelected ? 'bolder' : 'normal',
+									opacity: 0.7,
+									fontWeight: 'normal',
 									cursor: 'pointer',
 								}}
 							>
@@ -517,11 +511,9 @@ class NavbarComponent extends Component {
 												}}
 												onClick={(e) => {
 													e.preventDefault();
-
 													this.props.renderClientModulesClickFunction(
 														module,
 													);
-
 													this.setState({
 														dropDown: false,
 													});
@@ -888,13 +880,16 @@ class NavbarComponent extends Component {
 											gap: '10px',
 											justifyContent: 'flex-end',
 											width:
-												this.props?.section?.style?.navbarAlign === 'three'
-													? 'auto'
+												this.props?.activeModule?.showAsA4 &&
+												(this.props?.section?.style?.navbarAlign ===
+													'one' ||
+													!this.props?.section?.style?.navbarAlign)
+													? '325px'
 													: this.props?.section?.style?.navbarAlign ===
 															'one' ||
 													  !this.props?.section?.style?.navbarAlign
 													? '474px'
-													: this.props?.activeModule?.showAsA4
+													: this.props.activeModule?.showAsA4
 													? '150px'
 													: '200px',
 

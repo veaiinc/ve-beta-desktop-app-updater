@@ -2,10 +2,10 @@ import s from './pageLoader.module.scss';
 import Spinner from '../../components/loaders/Spinner';
 import useTheme from '../../../hooks/useTheme';
 
-const PageLoader = () => {
+const PageLoader = ({ customStyles }) => {
 	useTheme();
 	return (
-		<div className={s.loaderContainer}>
+		<div className={s.loaderContainer} style={customStyles}>
 			<Spinner
 				width="32px"
 				height="32px"

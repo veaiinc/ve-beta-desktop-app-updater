@@ -28,6 +28,10 @@ const UnintegratedAgentApps = ({ apps = [] }) => {
 		const requiresAuth = appData?.requires_auth;
 		const primaryAuthScheme = appData?.primary_auth_scheme;
 
+		// Check if we have auth_schemes data
+		// const authSchemes = appData?.auth_schemes;
+		// const firstAuthScheme = authSchemes && authSchemes.length > 0 ? authSchemes[0] : null;
+
 		if (requiresAuth === true && primaryAuthScheme === 'OAUTH2') {
 			// OAuth flow - make API call to get OAuth URL
 			setInfo((prev) => ({
@@ -39,6 +43,7 @@ const UnintegratedAgentApps = ({ apps = [] }) => {
 			try {
 				const [connectSuccess, response] = await connectTool({
 					slug: appData.app,
+					auth_scheme: 'OAUTH2',
 				});
 
 				if (connectSuccess && response?.data?.oauth_url) {
@@ -87,28 +92,28 @@ const UnintegratedAgentApps = ({ apps = [] }) => {
 	};
 
 	// Handle API key submission
-	const handleApiKeySubmit = async (apiKeyData, action) => {
+	const handleApiKeySubmit = async (payload) => {
 		setInfo((prev) => ({
 			...prev,
 			apiKeyModalLoading: true,
 		}));
 
 		try {
-			const { app, index } = info.selectedAppForApiKey;
+			const { index } = info.selectedAppForApiKey;
 
-			// Prepare payload based on whether it's WhatsApp or other tools
-			let payload = { slug: app };
+			// // Prepare payload based on whether it's WhatsApp or other tools
+			// let payload = { slug: app };
 
-			if (action?.toolkit?.slug === 'whatsapp' && typeof apiKeyData === 'object') {
-				// For WhatsApp, apiKeyData is an object with multiple fields
-				payload = {
-					...payload,
-					...apiKeyData,
-				};
-			} else {
-				// For other tools, apiKeyData is just the API key string
-				payload.apiKey = apiKeyData;
-			}
+			// if (action?.toolkit?.slug === 'whatsapp' && typeof apiKeyData === 'object') {
+			// 	// For WhatsApp, apiKeyData is an object with multiple fields
+			// 	payload = {
+			// 		...payload,
+			// 		...apiKeyData,
+			// 	};
+			// } else {
+			// 	// For other tools, apiKeyData is just the API key string
+			// 	payload.apiKey = apiKeyData;
+			// }
 
 			// Connect tool with payload
 			const [connectSuccess, connectResponse] = await connectTool(payload);
@@ -195,6 +200,11 @@ const UnintegratedAgentApps = ({ apps = [] }) => {
 										info.selectedAppForApiKey.appData?.app ||
 										info.selectedAppForApiKey.app,
 									logo: info.selectedAppForApiKey.appData?.image_url || '',
+									auth_scheme:
+										info.selectedAppForApiKey.appData?.primary_auth_scheme ||
+										'API_KEY',
+									auth_schemes:
+										info.selectedAppForApiKey.appData?.auth_schemes || [],
 								},
 						  }
 						: null

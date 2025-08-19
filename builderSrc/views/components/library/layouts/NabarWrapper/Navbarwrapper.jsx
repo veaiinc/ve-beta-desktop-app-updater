@@ -206,6 +206,7 @@ class NavbarWrapper extends React.Component {
 									returnCartValue={this.props?.returnCartValue}
 									selectedLabelId={this.props?.selectedLabelId}
 									handleDownload={this.props?.handleDownload}
+									activeModule={this.props.activeModule}
 								/>
 								{this.state.showEditDesignOptions && !this.state.isEditElement && (
 									<div className="navbar-edit-design">
