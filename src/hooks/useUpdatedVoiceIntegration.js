@@ -4,7 +4,7 @@ import Context from '../context/context';
 const useUpdatedVoiceIntegration = () => {
 	const [shouldConnect, setShouldConnect] = useState(false);
 	const [token, setToken] = useState('');
-	const [serverUrl, setServerUrl] = useState('wss://veai-naymm7ww.livekit.cloud');
+	const [serverUrl, setServerUrl] = useState('wss://test-76fgwd7p.livekit.cloud');
 
 	let {
 		aiSetup: { getTokenForVoice, updateAiSetupState, triggerVoiceDisconnect },
@@ -18,24 +18,37 @@ const useUpdatedVoiceIntegration = () => {
 	}, [triggerVoiceDisconnect]);
 
 	const fetchToken = useCallback(async () => {
-		const { token } = await getTokenForVoice();
+		const response = await getTokenForVoice({ timezone: 'Asia/Calcutta' });
+		console.log('Raw response from getTokenForVoice:', response);
+		
+		// Handle the actual response format from backend:
+		// { message: "...", session_info: { user_token: "...", url: "...", room_name: "..." } }
+		const token = response?.session_info?.user_token || response?.token || response;
+		const url = response?.session_info?.url || response?.url || serverUrl;
+		const roomName = response?.session_info?.room_name;
+		
+		console.log('Extracted:', { token: !!token, url, roomName });
+		
 		setToken(token);
+		if (url && url !== serverUrl) {
+			setServerUrl(url);
+		}
 		return token;
-	}, []);
+	}, [getTokenForVoice, serverUrl]);
 
 	const handleConnect = useCallback(async () => {
 		if (!shouldConnect) {
-			const token = await fetchToken();
+			const fetchedToken = await fetchToken();
 			setShouldConnect(true);
 			updateAiSetupState({
 				voiceIntegrationData: {
-					token,
-					serverUrl,
+					token: fetchedToken,
+					serverUrl, // This will be the updated serverUrl from fetchToken
 					shouldConnect: true,
 				},
 			});
 		}
-	}, [token, serverUrl, shouldConnect]);
+	}, [fetchToken, serverUrl, shouldConnect, updateAiSetupState]);
 
 	const handleDisconnect = useCallback(() => {
 		if (shouldConnect) {

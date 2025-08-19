@@ -55,3 +55,6 @@ export const chat_ws_api_US = 'wss://ai-dev.us-east-1.ve.ai';
 export const guest_chat_ws_api_US = 'wss://guestsearch.us-east-1.ve.ai';
 export const meeting_ws_api_US = 'wss://recall-dev.us-east-1.ve.ai';
 export const voice_agent_api_US = 'wss://voice.us-east-1.ve.ai/ws';
+
+// Voice agent token generation API
+export const generate_voice_agent_token_api = 'https://68d442ce9544.ngrok-free.app';

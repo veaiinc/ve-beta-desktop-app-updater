@@ -65,6 +65,7 @@ const GalleryViewer = lazy(() => import('../views/features/gallery/GalleryViewer
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
+import VoiceWrapper from '../views/layouts/VoiceWrapper';
 const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
 const ProactiveSuggestions = lazy(() =>
 	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
@@ -714,6 +715,16 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
+	{
+		path:'/voice',
+		element:(
+			<Suspense fallback={<SuspenseFallback />}>
+			<AuthWrapper title={'Voice'}>
+				<VoiceWrapper/>
+			</AuthWrapper>
+		</Suspense>
+		)
+	}
 ];
 
 export default betaRoutes;
