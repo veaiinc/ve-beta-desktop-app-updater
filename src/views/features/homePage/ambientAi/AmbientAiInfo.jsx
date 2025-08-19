@@ -31,6 +31,7 @@ import PromptPopup from '../../../components/homePage/PromptPopup';
 import { message } from '../../../components/globalComponents/CustomToast';
 import ChainOfThoughtInterpreter from '../../../components/homePage/ChainOfThoughtInterpreter';
 import GmailWidget from '../../../components/globalComponents/widgets/GmailWidget';
+import CalendarWidget from '../../../components/globalComponents/widgets/calendar/CalendarWidget';
 
 const tabOptions = [
 	{ label: 'Actions', value: 'actions' },
@@ -389,6 +390,16 @@ const AmbientAiInfo = ({
 		[info?.accessType, info?.hasFullAccess, pendingActionsUpdate, getAISuggestedPendingActions],
 	);
 
+	const getWidget = useCallback((item) => {
+		if (item?.module_type === 'gmail') {
+			return <GmailWidget widgetData={item?.metadata} />;
+		}
+		if (item?.module_type === 'calendar') {
+			return <CalendarWidget widgetData={item?.metadata} action={item?.action} />;
+		}
+		return null;
+	}, []);
+
 	const {
 		title,
 		description,
@@ -615,11 +626,22 @@ const AmbientAiInfo = ({
 					</div>
 					{info?.activeTab === 'actions' && (
 						<div className="situation-overview-container">
-							{widgets
-								?.filter((item) => item?.module_type === 'gmail')
-								?.map((item, index) => (
-									<GmailWidget key={index} widgetData={item?.metadata} />
-								))}
+							{widgets?.length > 0 && (
+								<div className="widgets-container">
+									{widgets
+										?.filter(
+											(item) =>
+												item?.module_type === 'gmail' ||
+												item?.module_type === 'calendar',
+										)
+										?.map((item, index) => (
+											<div className="widget" key={index}>
+												{getWidget(item)}
+											</div>
+										))}
+								</div>
+							)}
+
 							{suggested_actions?.length > 0 && (
 								<div className="suggested-actions-wrapper">
 									<div className="suggested-action-text">Actions</div>

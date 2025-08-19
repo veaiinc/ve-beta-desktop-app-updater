@@ -1,0 +1,183 @@
+.addCalendarWidgetContainer {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+	align-self: stretch;
+
+	.calendarTitle {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		align-self: stretch;
+		gap: 12px;
+		.titleHeader {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+		.titleInput {
+			width: 100%;
+			padding: 10px;
+			border-radius: 8px;
+			border: 1px solid var(--dividers, #1e1f20);
+			background-color: transparent;
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 15px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+
+	.addCalendarWidgetWrapper {
+		display: flex;
+		align-items: flex-start;
+		gap: 16px;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		.calendarInfo {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: flex-start;
+			gap: 16px;
+			width: 324px;
+
+			.calendarDate {
+				display: flex;
+				padding: 14px;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				gap: 6px;
+				flex: 1 0 0;
+				align-self: stretch;
+				border-radius: 8px;
+				border: 1px solid var(--dividers, #1e1f20);
+				background: var(--card, #1b1c1d);
+
+				.selectedDate {
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+
+				.selectedTime {
+					color: var(--primary-button, #79ecc9);
+					font-family: var(--primary-font-family);
+					font-size: 18px;
+					font-style: normal;
+					font-weight: 600;
+					line-height: normal;
+				}
+			}
+
+			.time {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: flex-start;
+				gap: 8px;
+				align-self: stretch;
+
+				.timeLabel {
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+				.timeInput {
+					width: 100%;
+					display: flex;
+					align-items: flex-start;
+					gap: 6px;
+					align-self: stretch;
+
+					.timeInputElement {
+						border-radius: 8px;
+						border: 1px solid var(--dividers, #1e1f20);
+						padding: 10px;
+						color: var(--primary-font, #f2f2f3);
+						font-family: var(--primary-font-family);
+						font-size: 16px;
+						font-style: normal;
+						font-weight: 500;
+						flex-grow: 1;
+
+						&::-webkit-calendar-picker-indicator {
+							background-repeat: no-repeat;
+							background-position: center;
+							background-size: 20px 20px;
+							cursor: pointer;
+							opacity: 1;
+							width: 20px;
+							height: 20px;
+							border: none;
+							padding: 0;
+							margin: 0;
+							filter: invert(0.5);
+						}
+					}
+					.am,
+					.pm {
+						display: flex;
+						width: 47px;
+						height: 47px;
+						padding: 14px;
+						justify-content: center;
+						align-items: center;
+						gap: 16px;
+						border-radius: 8px;
+						color: var(--primary-font, #f2f2f3);
+						font-family: var(--primary-font-family);
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+
+						&.active {
+							background-color: var(--card-over-card);
+						}
+					}
+				}
+			}
+
+			.buttonsContainer {
+				display: flex;
+				align-items: flex-start;
+				gap: 8px;
+				align-self: stretch;
+				width: 100%;
+				.button {
+					display: flex;
+					padding: 12px;
+					justify-content: center;
+					align-items: center;
+					gap: 8px;
+					cursor: pointer;
+					flex: 1 0 0;
+					border-radius: 8px;
+					background: var(--card-over-card, #1f2123);
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+		}
+	}
+}
