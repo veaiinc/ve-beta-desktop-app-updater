@@ -77,10 +77,11 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 		}
 
 		if (onApiKeySubmit && selectedAuthScheme) {
-			// Prepare payload based on auth scheme
+			// Prepare payload based on auth scheme with new structure
 			let payload = {
-				slug: action?.toolkit?.slug,
+				toolkit_slug: action?.toolkit?.slug,
 				auth_scheme: selectedAuthScheme.mode || 'API_KEY',
+				variant: 'use_custom_auth',
 				// Set sensible defaults for connection settings
 				connection_name: `${action?.toolkit?.slug}_connection`,
 				connection_type: 'api',
@@ -104,14 +105,11 @@ const ListConnectModal = ({ isOpen, onClose, action, onApiKeySubmit, isLoading =
 				delete payload.generic_api_key;
 			}
 
-			// Handle scopes for OAuth2
+			// Handle scopes for OAuth2 - keep as string for new structure
 			if (selectedAuthScheme?.mode === 'OAUTH2' && payload.scopes) {
-				// Convert scopes to array if it's a string
-				if (typeof payload.scopes === 'string') {
-					payload.scopes = payload.scopes
-						.split(',')
-						.map((s) => s.trim())
-						.filter((s) => s);
+				// Keep scopes as string for the new payload structure
+				if (Array.isArray(payload.scopes)) {
+					payload.scopes = payload.scopes.join(', ');
 				}
 			}
 

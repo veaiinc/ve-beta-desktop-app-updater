@@ -14,6 +14,7 @@ const PromptWithIcons = ({
 	disabled = false,
 	autoResize = true,
 	agentId,
+	myAccess,
 }) => {
 	const [isEditing, setIsEditing] = useState(false);
 	const textAreaRef = useRef(null);
@@ -146,9 +147,11 @@ const PromptWithIcons = ({
 				initialBlocks={initialBlocksRef.current}
 				customBlockData={{ actionDetails: info?.actionsData }}
 				onMarkdownChange={(markdown) => {
-					onChange?.(markdown);
+					if (myAccess !== 'view') {
+						onChange?.(markdown);
+					}
 				}}
-				myAccess={readOnly || disabled ? 'view' : 'edit'}
+				myAccess={myAccess}
 			/>
 		</div>
 	);
