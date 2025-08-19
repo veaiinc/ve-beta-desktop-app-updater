@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Room, createLocalTracks, RoomEvent } from 'livekit-client';
+import { requestMicrophonePermission } from '../utils/permissionUtils';
 
 export default function useNote({ wsUrl, token, isRecording }) {
 	const roomRef = useRef(null);
@@ -29,6 +30,21 @@ export default function useNote({ wsUrl, token, isRecording }) {
 			if (!token) {
 				console.error('Cannot connect to LiveKit: Token is not available');
 				return;
+			}
+
+			// Request microphone permission explicitly before connecting
+			const permissionResult = await requestMicrophonePermission({
+				audio: {
+					sampleRate: 16000,
+					channelCount: 1,
+					echoCancellation: true,
+					noiseSuppression: true,
+					autoGainControl: true,
+				}
+			});
+			
+			if (!permissionResult.success) {
+				throw new Error(permissionResult.message);
 			}
 
 			isConnectingRef.current = true;
@@ -146,6 +162,7 @@ export default function useNote({ wsUrl, token, isRecording }) {
 				// Wait for the engine to be fully ready before publishing
 				await waitForEngine;
 
+				console.log('Creating local audio tracks...');
 				const tracks = await createLocalTracks({
 					audio: {
 						sampleRate: 16000,
@@ -156,29 +173,52 @@ export default function useNote({ wsUrl, token, isRecording }) {
 					},
 					video: false,
 				});
+				console.log('Created tracks:', tracks.map(t => ({ kind: t.kind, enabled: t.enabled, muted: t.muted })));
+				
 				const audioTrack = tracks.find((t) => t.kind === 'audio');
 				if (audioTrack) {
+					console.log('Audio track found:', {
+						sid: audioTrack.sid,
+						enabled: audioTrack.enabled,
+						muted: audioTrack.muted,
+						source: audioTrack.source,
+						mediaStreamTrack: !!audioTrack.mediaStreamTrack
+					});
 					audioTrackRef.current = audioTrack;
 					setLocalAudioTrack(audioTrack); // Expose the audio track
 
 					// Monitor audio activity
 					if (audioTrack.mediaStreamTrack) {
-						const audioContext = new AudioContext();
-						const source = audioContext.createMediaStreamSource(
-							new MediaStream([audioTrack.mediaStreamTrack]),
-						);
-						const analyser = audioContext.createAnalyser();
-						source.connect(analyser);
-						const dataArray = new Uint8Array(analyser.frequencyBinCount);
-						const checkAudioActivity = () => {
-							analyser.getByteFrequencyData(dataArray);
-							const average =
-								dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
-							if (audioTrackRef.current && isRecording) {
-								setTimeout(checkAudioActivity, 1000);
-							}
-						};
-						checkAudioActivity();
+						try {
+							console.log('Setting up audio monitoring...');
+							const audioContext = new AudioContext();
+							const source = audioContext.createMediaStreamSource(
+								new MediaStream([audioTrack.mediaStreamTrack]),
+							);
+							const analyser = audioContext.createAnalyser();
+							source.connect(analyser);
+							const dataArray = new Uint8Array(analyser.frequencyBinCount);
+							
+							const checkAudioActivity = () => {
+								analyser.getByteFrequencyData(dataArray);
+								const average = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
+								
+								// Log audio activity for debugging
+								if (average > 0) {
+									console.log('Audio activity detected, level:', average);
+								}
+								
+								if (audioTrackRef.current && isRecording) {
+									setTimeout(checkAudioActivity, 1000);
+								}
+							};
+							checkAudioActivity();
+							console.log('Audio monitoring setup complete');
+						} catch (audioError) {
+							console.error('Error setting up audio monitoring:', audioError);
+						}
+					} else {
+						console.warn('No mediaStreamTrack available for audio monitoring');
 					}
 
 					// Wait for the track to be published

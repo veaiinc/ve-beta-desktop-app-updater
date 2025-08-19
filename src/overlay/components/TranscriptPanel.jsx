@@ -1,5 +1,5 @@
 import { useEffect, useRef, memo, useState } from 'react';
-import { Clock, Expand, Mic, MicOff, X, ChevronDown } from 'lucide-react';
+import { Clock, Expand, Mic, MicOff, X, ChevronDown, AlertCircle } from 'lucide-react';
 import './transcript-panel.scss';
 
 // Memoized TranscriptionItem component
