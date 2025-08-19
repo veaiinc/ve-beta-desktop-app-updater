@@ -622,13 +622,18 @@ const actionHandlers = {
 					normalSearch,
 				};
 			} else {
+				let browserPlan = null;
 				if (payload?.toolName) {
 					browserTools = [...(browserTools || []), payload];
+				}
+				if (payload?.type === 'plan') {
+					browserPlan = payload;
 				}
 				messages[requiredIndex] = {
 					...message,
 					...payload,
 					browserTools,
+					...(browserPlan && { browserPlan }),
 					message: (message?.message || '') + (payload?.answer || ''),
 					messageId: payload?.message_id,
 				};
