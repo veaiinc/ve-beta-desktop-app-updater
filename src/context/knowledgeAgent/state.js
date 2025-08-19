@@ -260,7 +260,7 @@ export const KnowledgeAgentState = () => {
 							type: Actions?.SET_ACTIVE_AGENTS,
 							payload: {
 								data: [...(state?.activeAgents?.data || []), currentAgent],
-								totalDocs: state?.activeAgents?.totalDocs + 1,
+								totalDocs: (state?.activeAgents?.totalDocs ?? 0) + 1,
 							},
 						});
 					} else {
@@ -282,7 +282,7 @@ export const KnowledgeAgentState = () => {
 							type: Actions?.SET_DRAFT_AGENTS,
 							payload: {
 								data: [...(state?.draftAgents?.data || []), currentAgent],
-								totalDocs: state?.draftAgents?.totalDocs + 1,
+								totalDocs: (state?.draftAgents?.totalDocs ?? 0) + 1,
 							},
 						});
 					}
