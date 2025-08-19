@@ -180,7 +180,7 @@ export const KnowledgeAgentState = () => {
 					type: Actions?.SET_DRAFT_AGENTS,
 					payload: {
 						data: [...(state?.draftAgents?.data || []), response?.[1]?.insertData],
-						totalDocs: state?.draftAgents?.totalDocs + 1,
+						totalDocs: (state?.draftAgents?.totalDocs ?? 0) + 1,
 					},
 				});
 				return [true, response?.[1]];
