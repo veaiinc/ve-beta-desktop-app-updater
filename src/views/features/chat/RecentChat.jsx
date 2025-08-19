@@ -3,7 +3,6 @@ import '../../../assets/scss/chat/chat.scss';
 import {
 	handleDeepSearchChainOfThought,
 	handleDeepResearchChainOfThought,
-	getBrowserUrls,
 } from '../../../helpers/chatHelpers';
 import Context from '../../../context/context';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
@@ -19,7 +18,7 @@ import ChatHeader from '../../components/chat/ChatHeader';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import { message } from '../../components/globalComponents/CustomToast';
 import ChatHistory from '../../components/sidebar/chatHistory/ChatHistory';
-import Browser from '../../components/chat/chatComponents/Browser';
+import { ReactComponent as DoubleRightArrowSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 
 const RecentChat = ({
 	isPublicChat = false,
@@ -32,7 +31,6 @@ const RecentChat = ({
 	animateChatBox = true,
 	showChatHistory = false,
 	showChats = false,
-	showBrowser = false,
 	showHeader = true,
 }) => {
 	const {
@@ -56,36 +54,49 @@ const RecentChat = ({
 	let agentType = searchParams?.get('agentType');
 	let assistantId = searchParams?.get('assistantId');
 
-	const [info, setInfo] = useState({
-		position: { x: window?.innerWidth / 2 - 900, y: 0 },
-		chatSessionId: null,
-		uploadedImages: [],
-		chatLoading: false,
-		voiceIntegration: false,
-		noteModalIsOpen: false,
-		page: 1,
-		currentPage: true,
-		latestStreamMesage: null,
-		activeAIMessageIndex: null,
-		activeAIMessageId: null,
-		activeUserMessageIndex: null,
-		renderingTwice: false,
-		initialRendering: false,
-		previousAgentType: null,
-		showScrollButton: false,
-		showViewDocument: false,
-		tooltipStyles: { visible: false, styles: { top: 0, left: 0 }, selectedText: '' },
-		deleteChatSessionLoading: false,
-		isNewChat: true,
-		currentUserMessageIndex: null,
-		getFollowUpQueries: false,
-		chatQuery: '',
-		citationsAiMessageIndex: null,
-		citationsModalIsOpen: false,
-		openBrowser: false,
-		browserDataAvailable: false,
-		browserPreviousActiveTabIndex: null,
-		isMobileView: false,
+	const [info, setInfo] = useState(() => {
+		let isChatHistoryClosed = false;
+		try {
+			const stored = localStorage.getItem('chatHistorySidebarClosed');
+			if (stored) {
+				const parsed = JSON.parse(stored);
+				if (typeof parsed === 'boolean') {
+					isChatHistoryClosed = parsed;
+				}
+			}
+		} catch (e) {
+			isChatHistoryClosed = false;
+		}
+
+		return {
+			position: { x: window?.innerWidth / 2 - 900, y: 0 },
+			chatSessionId: null,
+			uploadedImages: [],
+			chatLoading: false,
+			voiceIntegration: false,
+			noteModalIsOpen: false,
+			page: 1,
+			currentPage: true,
+			latestStreamMesage: null,
+			activeAIMessageIndex: null,
+			activeAIMessageId: null,
+			activeUserMessageIndex: null,
+			renderingTwice: false,
+			initialRendering: false,
+			previousAgentType: null,
+			showScrollButton: false,
+			showViewDocument: false,
+			tooltipStyles: { visible: false, styles: { top: 0, left: 0 }, selectedText: '' },
+			deleteChatSessionLoading: false,
+			isNewChat: true,
+			currentUserMessageIndex: null,
+			getFollowUpQueries: false,
+			chatQuery: '',
+			citationsAiMessageIndex: null,
+			citationsModalIsOpen: false,
+			isMobileView: false,
+			isChatHistoryClosed,
+		};
 	});
 
 	const chatContentRef = useRef(null);
@@ -106,7 +117,10 @@ const RecentChat = ({
 
 	sessionId = isPreview ? sId : sessionId;
 
-	const browserData = globalChatMessages?.[sessionId]?.browserData;
+	// Save whenever it changes
+	useEffect(() => {
+		localStorage.setItem('chatHistorySidebarClosed', JSON.stringify(info.isChatHistoryClosed));
+	}, [info.isChatHistoryClosed]);
 
 	useEffect(() => {
 		document.addEventListener('mouseup', handleMouseUp);
@@ -161,15 +175,6 @@ const RecentChat = ({
 			});
 		};
 	}, []);
-
-	useEffect(() => {
-		if (browserData) {
-			setInfo((prev) => ({
-				...prev,
-				browserPreviousActiveTabIndex: browserData?.activeTabIndex,
-			}));
-		}
-	}, [browserData]);
 
 	useEffect(() => {
 		if (info?.getFollowUpQueries) {
@@ -230,8 +235,6 @@ const RecentChat = ({
 					scrollExecuted: false,
 					citationsModalIsOpen: false,
 					citationsAiMessageIndex: null,
-					browserDataAvailable: false,
-					browserPreviousActiveTabIndex: null,
 				}));
 			}
 			if (currentUserMessageTimeoutRef.current) {
@@ -332,18 +335,6 @@ const RecentChat = ({
 			}));
 		}
 	}, [globalChatMessages, sessionId]);
-
-	useEffect(() => {
-		if (globalChatMessages?.[sessionId]?.browserData) {
-			setInfo((prev) => {
-				return {
-					...prev,
-					openBrowser: true,
-					browserDataAvailable: true,
-				};
-			});
-		}
-	}, [globalChatMessages?.[sessionId]?.browserData]);
 
 	// useEffect(() => {
 	// 	if (!chatContentRef?.current || !tabsRefs?.current) return;
@@ -479,16 +470,12 @@ const RecentChat = ({
 		}
 	}, [moreRecentChatStorage?.[sessionId]]);
 
-	const handleBrowserButtonClick = useCallback(() => {
-		if (!location?.pathname?.includes('chat')) {
-			navigate(`/chat/${sessionId}`);
-			return;
-		}
+	const handleChatHistoryToggle = useCallback(() => {
 		setInfo((prev) => ({
 			...prev,
-			openBrowser: !prev?.openBrowser,
+			isChatHistoryClosed: !Boolean(prev?.isChatHistoryClosed),
 		}));
-	}, [sessionId]);
+	}, []);
 
 	const handleChatQueryChange = useCallback((query) => {
 		setInfo((prev) => ({
@@ -896,20 +883,7 @@ const RecentChat = ({
 						}),
 				}));
 			}
-			const { message_chunk_id, open_browser } = data;
-
-			if (open_browser) {
-				getBrowserUrls(
-					sessionId,
-					handleGlobalChatMessages,
-					info?.browserPreviousActiveTabIndex,
-				);
-				setInfo((prev) => ({
-					...prev,
-					browserDataAvailable: true,
-					openBrowser: true,
-				}));
-			}
+			const { message_chunk_id } = data;
 
 			if (message_chunk_id) {
 				handleGlobalChatMessages({
@@ -995,8 +969,27 @@ const RecentChat = ({
 				}}
 			>
 				{showChatHistory && !info?.isMobileView && (
-					<div className="chat-history-wrapper">
-						<ChatHistory />
+					<div
+						className={`chat-history-wrapper${
+							info?.isChatHistoryClosed ? ' closed' : ''
+						}`}
+					>
+						<div
+							className={`chat-history-toggle-btn${
+								info?.isChatHistoryClosed ? ' closed' : ''
+							}`}
+							onClick={handleChatHistoryToggle}
+						>
+							<DoubleRightArrowSvg
+								className="chat-history-toggle-btn__icon"
+								style={{
+									transform: info?.isChatHistoryClosed
+										? 'none'
+										: 'rotate(180deg)',
+								}}
+							/>
+						</div>
+						<ChatHistory isClosed={info?.isChatHistoryClosed} />
 					</div>
 				)}
 
@@ -1195,27 +1188,9 @@ const RecentChat = ({
 								onChatQueryChange={handleChatQueryChange}
 								animateChatBox={animateChatBox}
 								sessionId={sessionId}
-								handleBrowserButtonClick={handleBrowserButtonClick}
-								showBrowserButton={
-									!info?.openBrowser && info?.browserDataAvailable && showBrowser
-								}
 							/>
 						</div>
 					</div>
-				</div>
-
-				<div
-					className="browser-container"
-					style={{
-						width: info?.openBrowser && showBrowser ? '45vw' : '0px',
-					}}
-				>
-					<Browser
-						sessionId={sessionId}
-						isOpen={info?.openBrowser && showBrowser}
-						browserData={browserData}
-						handleBrowserButtonClick={handleBrowserButtonClick}
-					/>
 				</div>
 			</div>
 

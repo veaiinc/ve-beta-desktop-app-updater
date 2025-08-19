@@ -149,8 +149,6 @@ const ChatBox = ({
 	sessionId = null,
 	getSuggestions = false,
 	placeholder = 'Start typing or use @ to mention a source.',
-	showBrowserButton = false,
-	handleBrowserButtonClick = null,
 	showBottomTools = true,
 }) => {
 	const location = useLocation();
@@ -1711,7 +1709,11 @@ const ChatBox = ({
 													handleChange={handleFileAttachmentChange}
 													isUploadFileOpen={info?.isUploadFileOpen}
 													setIsUploadFileOpen={(value) => {
-														if (info?.chatBoxInfo?.deepResearch) return;
+														if (
+															info?.chatBoxInfo?.deepResearch ||
+															totalCreditsUsed >= totalCreditsLimit
+														)
+															return;
 														setInfo((prev) => ({
 															...prev,
 															isUploadFileOpen: value,
@@ -2466,7 +2468,33 @@ const ChatBox = ({
 																<AudioSvg />
 															</div>
 														)}  */}
-
+														{/* Separate Speech-to-Text Button */}
+														<div
+															className={`click-btn speech-to-text-btn ${
+																isTranscribing ? 'transcribing' : ''
+															}`}
+															onClick={(e) => {
+																e.stopPropagation();
+																handleMicIconClick(e);
+															}}
+															style={{
+																backgroundColor: isTranscribing
+																	? 'var(--error-color)'
+																	: 'none',
+																marginLeft: '8px',
+															}}
+															title={
+																isTranscribing
+																	? 'Stop Recording'
+																	: 'Start Speech-to-Text'
+															}
+														>
+															{isTranscribing ? (
+																<StopIconSvg />
+															) : (
+																<SpeechMicSvg />
+															)}
+														</div>
 														<div
 															className={`click-btn ${
 																info?.chatQuery?.trim()?.length > 0
@@ -2493,33 +2521,6 @@ const ChatBox = ({
 																<ArrowUp />
 															) : (
 																<VoiceAgentSvg />
-															)}
-														</div>
-														{/* Separate Speech-to-Text Button */}
-														<div
-															className={`click-btn speech-to-text-btn ${
-																isTranscribing ? 'transcribing' : ''
-															}`}
-															onClick={(e) => {
-																e.stopPropagation();
-																handleMicIconClick(e);
-															}}
-															style={{
-																backgroundColor: isTranscribing
-																	? 'var(--error-color)'
-																	: 'var(--secondary-button)',
-																marginLeft: '8px',
-															}}
-															title={
-																isTranscribing
-																	? 'Stop Recording'
-																	: 'Start Speech-to-Text'
-															}
-														>
-															{isTranscribing ? (
-																<StopIconSvg />
-															) : (
-																<SpeechMicSvg />
 															)}
 														</div>
 													</div>
@@ -2554,21 +2555,6 @@ const ChatBox = ({
 						<button className="scroll-button" onClick={handleScrollButtonClick}>
 							<ArrowUpRightSvg className="arrow-up" />
 						</button>
-					</div>
-				)}
-
-				{showBrowserButton && (
-					<div
-						className="browser-button-container"
-						onClick={(e) => {
-							e.stopPropagation();
-							handleBrowserButtonClick?.(e);
-						}}
-					>
-						<div className="browser-button">Browser</div>
-						<div className="expand-browser-button">
-							<ArrowsOut />
-						</div>
 					</div>
 				)}
 				{uploadedImagesRef?.current?.length > 0 ? (

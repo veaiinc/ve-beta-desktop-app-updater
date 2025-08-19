@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import s from './settings.module.scss';
 import Context from '../../../../../context/context';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -18,7 +18,10 @@ import { ReactComponent as DownloadMacSvg } from '../../assets/download-mac.svg'
 import { ReactComponent as TemplatesSvg } from '../../assets/templates.svg';
 import useIntercom from '../../../../../hooks/useIntercom';
 import useBroadcastChannel from '../../../../../hooks/useBroadcastChannel';
+import { ReactComponent as BackIcon } from '../../../../../assets/svg/mobile/back.svg';
+import { ReactComponent as CloseIcon } from '../../../../../assets/svg/mobile/close.svg';
 import { ReactComponent as PlusSvg } from '../../assets/plus.svg';
+import logError from '../../../../../helpers/errorLogger';
 
 const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
 const isMac =
@@ -96,10 +99,12 @@ const Settings = ({
 	const channel = useBroadcastChannel();
 	const navigate = useNavigate();
 
-	const [info, setInfo] = useState({
+	const [info, setInfo] = useState(() => ({
 		workspaceModalOpen: false,
 		intercomOpen: false,
-	});
+		isMobileView: window.matchMedia('(max-width: 767px)').matches,
+		logoutLoading: false,
+	}));
 
 	const {
 		profileInfo: { tenantUserAccessControls, userWorkSpaceList, tennantSettingsData },
@@ -131,8 +136,68 @@ const Settings = ({
 		closeSettingsTooltip();
 	};
 
-	return (
-		<div className={s.settingsContainer}>
+	const handleLogout = async () => {
+		try {
+			setInfo((prev) => ({
+				...prev,
+				logoutLoading: true,
+			}));
+			const isLoggedOut = await logout();
+			if (isLoggedOut) {
+				channel.postMessage('logout');
+			} else {
+				message.error('Failed to logout! This was reported to the team.');
+				const payload = {
+					errorType: 'Logout',
+					errorMessage: 'Failed to logout! This was reported to the team.',
+					errorPath: '/src/views/components/topNavbar/components/settings/Settings.jsx',
+					errorComponent: 'Settings',
+					errorComponentStack: 'Not Available',
+				};
+				const success = await logError(payload);
+				if (success) {
+					console.log('Error logged successfully');
+				} else {
+					console.error('Error logging failed');
+				}
+			}
+			setInfo((prev) => ({
+				...prev,
+				logoutLoading: false,
+			}));
+		} catch (error) {
+			console.error('Error logging out:', error);
+			setInfo((prev) => ({
+				...prev,
+				logoutLoading: false,
+			}));
+		}
+	};
+
+	const Content = (
+		<div className={s.settingsContain}>
+			{/* Mobile header (shown only on small screens via CSS) */}
+			<div className={s.mobileHeader}>
+				<button
+					className={s.mobileIconButton}
+					onClick={() => {
+						closeSettingsTooltip();
+					}}
+					aria-label="Back"
+				>
+					<BackIcon />
+				</button>
+				<span className={s.mobileTitle}>Settings</span>
+				<button
+					className={s.mobileIconButton}
+					onClick={() => {
+						closeSettingsTooltip();
+					}}
+					aria-label="Close"
+				>
+					<CloseIcon />
+				</button>
+			</div>
 			<header className={s.userInfo}>
 				{profilePicExists ? (
 					<img className={s.profileImg} src={profilePic} alt="profile" />
@@ -212,12 +277,14 @@ const Settings = ({
 				)}
 				<button
 					className={s.logoutButton}
-					onClick={() => {
-						logout();
-						channel.postMessage('logout');
+					onClick={handleLogout}
+					style={{
+						opacity: info.logoutLoading ? 0.5 : 1,
+						cursor: info.logoutLoading ? 'not-allowed' : 'pointer',
 					}}
+					disabled={info.logoutLoading}
 				>
-					<LogoutSvg />
+					{info.logoutLoading ? <Skeleton width={24} height={24} /> : <LogoutSvg />}
 				</button>
 			</div>
 
@@ -243,6 +310,20 @@ const Settings = ({
 					userWorkSpaceList={userWorkSpaceList}
 				/>
 			)}
+		</div>
+	);
+
+	return (
+		<div className={s.settingsContainer}>
+			{info.isMobileView && (
+				<div
+					className={s.mobileOverlay}
+					onClick={() => {
+						closeSettingsTooltip();
+					}}
+				/>
+			)}
+			{info.isMobileView ? <div className={s.mobileSheet}>{Content}</div> : Content}
 		</div>
 	);
 };

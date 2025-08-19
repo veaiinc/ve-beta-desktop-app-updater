@@ -6,6 +6,8 @@ import Cookies from 'js-cookie';
 import { fetchDomainName } from '../../helpers';
 import { NEWSLETTER_SUBSCRIPTION_URL } from '../../helpers/ConstantUrls';
 import { auth_Api as authBaseUrl } from '../../services/config.live';
+import requestPushNotificationPermission from '../../services/pushNotifications/requestPushNotificationPermission';
+import generateFCMToken from '../../services/pushNotifications/generateFCMToken';
 
 export const initialState = {
 	currentPlanAddOns: null,
@@ -118,71 +120,92 @@ export const AuthState = () => {
 
 	const verifyEmailVerificationCode = async (email, verificationCode, emailVerified) => {
 		const path = emailVerified ? '/login-with-otp' : '/verify-signup-email';
-		const body = emailVerified ? { email, otp: verificationCode } : { email, verificationCode };
 
+		let permission;
+		try {
+			permission = await requestPushNotificationPermission();
+		} catch (err) {
+			return [
+				false,
+				{
+					message:
+						'An unexpected error occurred while requesting notification permission.',
+				},
+			];
+		}
+		if (permission === 'error') {
+			return [false, { message: 'An unexpected error occurred. Please try again!' }];
+		}
+
+		const fcmToken = permission === 'granted' ? await generateFCMToken() : '';
+		if (fcmToken) {
+			localStorage.setItem('fcmToken', fcmToken);
+			Cookies.set('fcmToken', fcmToken, {
+				sameSite: 'lax',
+				domain: fetchDomainName(),
+			});
+		}
+
+		const body = emailVerified
+			? fcmToken
+				? { email, otp: verificationCode, fcmToken }
+				: { email, otp: verificationCode }
+			: { email, verificationCode };
 		try {
 			const response = await service?.fetchPost(path, body, null, 'auth');
+
 			const host = fetchDomainName();
+
 			if (response[0] === true) {
+				console.log('[Verify] Verification successful');
 				const { accessToken, accessibleWorkspaces } = response?.[1] || {};
 				const hasWorkspaces = accessibleWorkspaces?.length > 0;
 
 				if (accessToken?.length) {
 					localStorage.setItem('usertoken', accessToken);
-					// localStorage.setItem('region', region || 'us-east-1');
-
 					Cookies.set('usertoken', accessToken, {
 						sameSite: 'lax',
 						domain: host,
 					});
-					// Cookies.set('region', region || 'us-east-1', {
-					// 	sameSite: 'lax',
-					// 	domain: host,
-					// });
+					console.log('[Verify] Saved accessToken in localStorage and cookies');
 				}
 
 				if (!hasWorkspaces) {
 					localStorage.setItem('isOnboard', false);
-					return [
-						true,
-						{
-							hasWorkspaces: false,
-							isOnboard: false,
-						},
-					];
+					Cookies.set('isOnboard', false, {
+						sameSite: 'Lax',
+						domain: host,
+					});
+					return [true, { hasWorkspaces: false, isOnboard: false }];
 				}
 
 				const { isOnboard, workspaceId } = accessibleWorkspaces?.[0];
-				if (isOnboard) localStorage.setItem('isOnboard', JSON.stringify(isOnboard));
-				if (hasWorkspaces)
-					localStorage.setItem(
-						'accessibleWorkspaces',
-						JSON.stringify(accessibleWorkspaces),
-					);
-				if (workspaceId) localStorage.setItem('workspaceId', workspaceId);
-				Cookies.set('workspaceId', workspaceId, {
-					sameSite: 'lax',
+
+				localStorage.setItem('isOnboard', isOnboard);
+				Cookies.set('isOnboard', isOnboard, {
+					sameSite: 'Lax',
 					domain: host,
 				});
+				if (hasWorkspaces)
+					localStorage.setItem('accessibleWorkspaces', accessibleWorkspaces);
+				Cookies.set('accessibleWorkspaces', accessibleWorkspaces, {
+					sameSite: 'Lax',
+					domain: host,
+				});
+				if (workspaceId) {
+					localStorage.setItem('workspaceId', workspaceId);
+					Cookies.set('workspaceId', workspaceId, {
+						sameSite: 'Lax',
+						domain: host,
+					});
+				}
 
-				return [
-					true,
-					{
-						hasWorkspaces,
-						isOnboard,
-						workspaceId,
-					},
-				];
+				return [true, { hasWorkspaces, isOnboard, workspaceId }];
 			} else {
-				return [
-					false,
-					{
-						message: response?.[1]?.message?.trim() + '. Please try again!',
-					},
-				];
+				return [false, { message: response?.[1]?.message?.trim() + '. Please try again!' }];
 			}
 		} catch (error) {
-			console.error('Error verifying email verification code:', error);
+			console.error('[Verify] Error verifying email verification code:', error);
 			throw error;
 		}
 	};

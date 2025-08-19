@@ -1,4 +1,4 @@
-import { memo, useMemo, useState, useEffect } from 'react';
+import { memo, useMemo, useState, useEffect, useContext } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import s from './configureAgent.module.scss';
 
@@ -12,6 +12,8 @@ import { ReactComponent as PromptIcon } from '../configureAgent/tabs/assets/Note
 import { ReactComponent as KnowledgeBaseIcon } from '../configureAgent/tabs/assets/PencilRuler.svg';
 import { ReactComponent as TriggerIcon } from '../configureAgent/tabs/assets/BookOpenText.svg';
 import { ReactComponent as ToolIcon } from '../configureAgent/tabs/assets/Lightning.svg';
+import jwtDecode from 'jwt-decode';
+import Context from '../../../../../context/context';
 
 const navItems = [
 	{
@@ -40,14 +42,18 @@ const navItems = [
 	},
 ];
 
-const ConfigureAgent = ({ agentId }) => {
+const ConfigureAgent = ({ agentId, isTemplate }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
+	const {
+		knowledgeAgent: { activeKnowledgeAssistant },
+	} = useContext(Context);
 
 	const configParam = searchParams.get('config');
 	const initialNavItem = navItems.find((item) => item.value === configParam)?.id || 1;
 
 	const [info, setInfo] = useState({
 		activeNavItem: initialNavItem,
+		myAccess: 'view',
 	});
 
 	useEffect(() => {
@@ -61,6 +67,30 @@ const ConfigureAgent = ({ agentId }) => {
 		setInfo((prev) => ({ ...prev, activeNavItem: initialNavItem }));
 	}, []);
 
+	useEffect(() => {
+		if (activeKnowledgeAssistant) {
+			const userToken = localStorage.getItem('usertoken');
+			const userId = jwtDecode(userToken).user_id;
+			if (isTemplate) {
+				setInfo((prev) => ({ ...prev, myAccess: 'view' }));
+			} else {
+				const currentUser = activeKnowledgeAssistant?.data?.sharedWith?.find(
+					(user) => user?.userId === userId,
+				);
+				const rank = { 'no-access': -1, view: 0, edit: 1, full: 2 };
+
+				let access = currentUser?.access || 'view';
+				const workspaceAccess = activeKnowledgeAssistant?.data?.workspaceUserAccess;
+
+				if (workspaceAccess) {
+					access = rank[workspaceAccess] > rank[access] ? workspaceAccess : access;
+				}
+
+				setInfo((prev) => ({ ...prev, myAccess: access }));
+			}
+		}
+	}, [activeKnowledgeAssistant]);
+
 	const handleNavItemClick = (item) => {
 		setInfo((prev) => ({ ...prev, activeNavItem: item.id }));
 		setSearchParams((prev) => {
@@ -72,12 +102,12 @@ const ConfigureAgent = ({ agentId }) => {
 
 	const componentMapper = useMemo(() => {
 		return {
-			1: <PromptTab />,
-			2: <KnowledgeBaseTab agentId={agentId} />,
-			3: <TriggersTab />,
-			4: <ToolsTab agentId={agentId} />,
+			1: <PromptTab isTemplate={isTemplate} myAccess={info.myAccess} />,
+			2: <KnowledgeBaseTab agentId={agentId} myAccess={info.myAccess} />,
+			3: <TriggersTab isTemplate={isTemplate} myAccess={info.myAccess} />,
+			4: <ToolsTab agentId={agentId} myAccess={info.myAccess} />,
 		};
-	}, [agentId]);
+	}, [agentId, isTemplate, info.myAccess]);
 
 	return (
 		<div className={s.configureAgentContainer}>

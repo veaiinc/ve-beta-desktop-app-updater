@@ -18,6 +18,7 @@
 
 .topNavbarContainer {
 	width: 100%;
+	min-height: 67px;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -394,6 +395,7 @@
 	.topNavbarContainer {
 		padding: 8px 12px;
 		align-items: center;
+		margin-top: -12px;
 
 		.rightContainer {
 			gap: 16px;

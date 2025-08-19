@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useState, useCallback, useRef } from 'react';
+import { memo, useContext, useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import s from './agents.module.scss';
 import Context from '../../../context/context';
 
@@ -22,6 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import { message } from '../../components/globalComponents/CustomToast';
 import { generateRandomAIAgentDetails } from '../../components/agents/agentsList/utils';
 import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 import { accessControlCheck } from '../../../helpers/accessControlCheck';
 import CreateAgentModal from '../../components/modalsV2/agents/CreateAgentModal';
 import AgentDrawer from './AgentDrawer';
@@ -53,12 +54,32 @@ const positionClassMap = {
 	'-2': s.left2,
 };
 
+const agentTabs = [
+	{
+		label: 'Active Agents',
+		value: 'active',
+	},
+	{
+		label: 'Draft Agents',
+		value: 'draft',
+	},
+	{
+		label: 'Suggested for you',
+		value: 'template',
+	},
+];
+
 const Agents = () => {
 	const {
 		knowledgeAgent: {
-			knowledgeAssistantsList,
-			getKnowledgeAssistantsList,
+			// knowledgeAssistantsList,
+			// getKnowledgeAssistantsList,
 			createNewKnowledgeAgent,
+			activeAgents,
+			draftAgents,
+			agentTemplates,
+			getKnowledgeAssistantsListWithFilter,
+			addTemplateAgentToWorkspace,
 		},
 	} = useContext(Context);
 
@@ -83,28 +104,47 @@ const Agents = () => {
 		createAgentModalOpen: false,
 		agentDrawerOpen: false,
 		agent: null,
+		activeTab: 'active',
+		addTemplateAgentLoader: false,
 	});
 
+	const assistantList = useMemo(() => {
+		if (info?.activeTab === 'active') {
+			return activeAgents;
+		} else if (info?.activeTab === 'draft') {
+			return draftAgents;
+		} else if (info?.activeTab === 'template') {
+			return agentTemplates;
+		}
+		return [];
+	}, [info?.activeTab, activeAgents, draftAgents, agentTemplates]);
+
 	useEffect(() => {
-		if (!knowledgeAssistantsList) {
-			getKnowledgeAssistantsList(page, limit, '', 'createdAt', -1);
+		if (!assistantList) {
+			getKnowledgeAssistantsListWithFilter({
+				limit,
+				filter: info?.activeTab,
+			});
 			setInfo((prev) => ({
 				...prev,
 				loading: true,
 			}));
 		} else {
-			updateCardsData(knowledgeAssistantsList?.data || []);
+			updateCardsData(assistantList?.data || []);
 			setInfo((prev) => ({
 				...prev,
 				searchLoading: false,
 				currentIndex: 0,
 				loading: false,
-				...(knowledgeAssistantsList?.data?.length > 0 && {
+			}));
+			setInfo((prev) => ({
+				...prev,
+				...(assistantList?.data?.length > 0 && {
 					cardsExists: true,
 				}),
 			}));
 		}
-	}, [knowledgeAssistantsList]);
+	}, [info?.activeTab, assistantList]);
 
 	useEffect(() => {
 		if (info?.totalCards?.length > 0) {
@@ -136,21 +176,22 @@ const Agents = () => {
 		const totalCards = info?.totalCards?.length;
 
 		if (isLastCard) {
-			if (knowledgeAssistantsList?.hasNextPage) {
+			if (assistantList?.hasNextPage) {
 				setInfo((prev) => ({
 					...prev,
 					isApiLoading: true,
 				}));
-				const nextPage = knowledgeAssistantsList?.currentPage + 1;
+				const nextPage = assistantList?.currentPage + 1;
 
-				await getKnowledgeAssistantsList(
-					nextPage,
+				await getKnowledgeAssistantsListWithFilter({
+					page: nextPage,
 					limit,
-					info?.search,
-					info?.sortBy,
-					info?.sortOrder,
-					false,
-				);
+					search: info?.search,
+					sortBy: info?.sortBy,
+					sortOrder: info?.sortOrder,
+					reset: false,
+					filter: info?.activeTab,
+				});
 				setInfo((prev) => ({
 					...prev,
 					isApiLoading: false,
@@ -168,10 +209,10 @@ const Agents = () => {
 		}));
 	}, [
 		info?.isApiLoading,
-		knowledgeAssistantsList,
+		assistantList,
 		info?.currentIndex,
 		info?.totalCards,
-		getKnowledgeAssistantsList,
+		getKnowledgeAssistantsListWithFilter,
 		info?.search,
 		info?.sortBy,
 		info?.sortOrder,
@@ -194,6 +235,7 @@ const Agents = () => {
 			window.removeEventListener('keydown', handleKeyDown);
 		};
 	}, [handleKeyDown]);
+	console.log('assistant list', assistantList);
 
 	const updateWindow = useCallback(
 		(index) => {
@@ -241,7 +283,14 @@ const Agents = () => {
 	// Debounced search function
 	const debouncedSearch = useDebounce((searchValue, sortBy, sortOrder) => {
 		setInfo((prev) => ({ ...prev, searchLoading: true }));
-		getKnowledgeAssistantsList(page, limit, searchValue, sortBy, sortOrder);
+		getKnowledgeAssistantsListWithFilter({
+			page,
+			limit,
+			search: searchValue,
+			sortBy,
+			sortOrder,
+		});
+		setInfo((prev) => ({ ...prev, searchLoading: false }));
 	}, 500);
 
 	// Handle search input change
@@ -321,7 +370,7 @@ const Agents = () => {
 			const [success, data] = await createNewKnowledgeAgent(agentName, agentDescription);
 			if (success) {
 				const assistantId = data?.insertedId;
-				navigate(`/agent/${assistantId}?agentAction=runAgent`);
+				navigate(`/agent/${assistantId}?agentAction=buildAgent`);
 			} else {
 				message.error(data?.message);
 			}
@@ -329,6 +378,25 @@ const Agents = () => {
 		},
 		[info?.createAgentLoader, createNewKnowledgeAgent],
 	);
+
+	const handleAddTemplateToWorkspace = async (agentId) => {
+		if (info?.addTemplateAgentLoader) return;
+		setInfo((prev) => ({ ...prev, addTemplateAgentLoader: true }));
+		const [success, data] = await addTemplateAgentToWorkspace({
+			agentTemplateId: agentId,
+		});
+		if (success) {
+			message.success('Agent added to workspace successfully');
+			navigate(`/agent/${data?._id}?agentAction=runAgent`);
+		} else {
+			message.error('Failed to add agent to workspace');
+		}
+		setInfo((prev) => ({ ...prev, addTemplateAgentLoader: false }));
+	};
+
+	const handleTabChange = useCallback((tab) => {
+		setInfo((prev) => ({ ...prev, activeTab: tab }));
+	}, []);
 
 	return (
 		<div className={s.agentsContainer}>
@@ -460,6 +528,11 @@ const Agents = () => {
 									<div className={s.agentName}>
 										{card?.name || 'Untitled Agent'}
 									</div>
+									{card?.position === 0 && (
+										<div className={s.agentDescription}>
+											{card?.description || 'No description'}
+										</div>
+									)}
 								</div>
 							</div>
 						);
@@ -524,9 +597,7 @@ const Agents = () => {
 						</button>
 						<div className={s.cardNumber}>
 							<span>{info?.currentIndex + 1}</span>/
-							<span className={s.totalDocs}>
-								{knowledgeAssistantsList?.totalDocs}
-							</span>
+							<span className={s.totalDocs}>{assistantList?.totalDocs}</span>
 						</div>
 						<button
 							className={s.cardChangeBtn}
@@ -551,6 +622,22 @@ const Agents = () => {
 					</div>
 					<div className={s.text}>Create New</div>
 				</div>
+				{agentTabs.map((tab) => {
+					return (
+						<div
+							className={`${s.actionItem} ${
+								info?.activeTab === tab.value ? s.active : ''
+							}`}
+							onClick={() => handleTabChange(tab.value)}
+						>
+							<div className={s.indicatorDot}></div>
+							<div className={s.text}>{tab.label}</div>
+							{info?.activeTab === tab?.value && (
+								<div className={s.count}>{assistantList?.totalDocs}</div>
+							)}
+						</div>
+					);
+				})}
 			</div>
 
 			{/* <QuickActions /> */}
@@ -565,12 +652,15 @@ const Agents = () => {
 				closeDrawer={handleDrawerClose}
 				agent={info?.agent}
 				currentIndex={info?.currentIndex}
-				totalCount={knowledgeAssistantsList?.totalDocs}
+				totalCount={assistantList?.totalDocs}
 				handleCardClick={handleCardClick}
 				handleLeft={handleLeft}
 				handleRight={handleRight}
+				isTemplate={info?.activeTab === 'template'}
 				// handleDeleteAgent={handleDeleteAgent}
 				// handleEditAgent={handleEditAgent}
+				handleAddTemplateToWorkspace={handleAddTemplateToWorkspace}
+				addTemplateAgentLoader={info?.addTemplateAgentLoader}
 			/>
 		</div>
 	);

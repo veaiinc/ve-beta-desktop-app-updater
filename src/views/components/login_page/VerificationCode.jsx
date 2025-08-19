@@ -1,7 +1,7 @@
 import { memo, useState, useEffect, useRef, useContext, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../../../assets/scss/login_page/verification_code.scss';
-import { ReactComponent as LeftArrowBackBtn } from '../../../assets/svg/login_page/left-arrow-back-btn.svg';
+// import { ReactComponent as LeftArrowBackBtn } from '../../../assets/svg/login_page/left-arrow-back-btn.svg';
 import { message } from '../globalComponents/CustomToast';
 import { getLocationsDetails } from '../../../helpers';
 import Context from '../../../context/context';

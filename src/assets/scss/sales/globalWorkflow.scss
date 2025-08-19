@@ -144,7 +144,7 @@
 			.page-title {
 				display: flex;
 				justify-content: center;
-				padding-top: 40px;
+				padding-top: 100px;
 
 				h1 {
 					color: var(--primary-font, #f2f2f3);
@@ -180,6 +180,7 @@
 					.filter-categories {
 						display: flex;
 						gap: 3px;
+						flex-wrap: wrap;
 
 						.filter-category {
 							display: flex;
@@ -195,7 +196,7 @@
 							transition: all 0.2s ease;
 
 							&.active {
-								color: var(--primary-font, #F2F2F3);
+								color: var(--primary-font, #f2f2f3);
 								font-family: var(--primary-font-family);
 								font-size: 15px;
 								font-style: normal;
@@ -449,3 +450,58 @@
 // 		}
 // 	}
 // }
+@media screen and (max-width: 768px) {
+	.playbook-wrapper {
+		.globalWorkflowContainer {
+			.mainProposalsCard .globalProposalsCardContainer {
+				height: 160px;
+				width: 160px;
+				border: 1px solid var(--stroke, #1e1f20);
+				.templateTitle {
+					padding: 6px 8px;
+				}
+			}
+
+			.main-content {
+				padding: 0;
+				gap: 20px;
+				.search-and-filter-bar-conatiner {
+					.filter-bar {
+						flex-direction: column;
+						gap: 10px;
+						align-items: flex-start;
+						.filter-categories {
+							gap: 10px;
+							.filter-category {
+								background: var(--card, #1b1c1d);
+								border-radius: 20px;
+								padding: 6px 12px;
+							}
+						}
+					}
+				}
+				.page-title {
+					h1 {
+						font-size: 24px;
+						span {
+							font-size: 32px;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+@media screen and (max-width: 375px) {
+	.playbook-wrapper {
+		.globalWorkflowContainer {
+			.mainProposalsCard .globalProposalsCardContainer {
+				height: 140px;
+				width: 140px;
+				.templateTitle {
+					padding: 4px 6px;
+				}
+			}
+		}
+	}
+}
