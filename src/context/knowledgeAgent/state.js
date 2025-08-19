@@ -14,6 +14,9 @@ export const initialState = {
 	triggers: null,
 	assistantListForAutomation: null,
 	currentAgentAutomation: null,
+	activeAgents: null,
+	draftAgents: null,
+	agentTemplates: null,
 };
 
 export const KnowledgeAgentState = () => {
@@ -73,6 +76,89 @@ export const KnowledgeAgentState = () => {
 		}
 	};
 
+	const getKnowledgeAssistantsListWithFilter = async (args = {}) => {
+		try {
+			const {
+				page = 1,
+				limit = 10,
+				search = '',
+				sortBy = 'createdAt',
+				sortOrder = -1,
+				reset = true,
+				filter = 'active',
+			} = args;
+			const workspaceId = localStorage.getItem('workspaceId');
+			const searchParam =
+				search && search.trim() ? `&search=${encodeURIComponent(search.trim())}` : '';
+			const sortParam = `&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+			const path = `/${workspaceId}/knowledge-agents?page=${page}&limit=${limit}${searchParam}${sortParam}&${
+				filter === 'template'
+					? 'globalAgentTemplate=true'
+					: `isActive=${filter === 'active' ? true : false}`
+			}`;
+			const token = localStorage.getItem('usertoken');
+			const type = 'ai_assistant_api';
+			const response = await service?.fetchGet(path, token, type);
+			const success = response?.[0] === true;
+			const actionKey =
+				filter === 'template'
+					? Actions?.SET_AGENT_TEMPLATES
+					: filter === 'active'
+					? Actions?.SET_ACTIVE_AGENTS
+					: Actions?.SET_DRAFT_AGENTS;
+			if (success) {
+				const key =
+					filter === 'template'
+						? 'agentTemplates'
+						: filter === 'active'
+						? 'activeAgents'
+						: 'draftAgents';
+
+				const data = reset
+					? [...(response?.[1]?.data || [])]
+					: (() => {
+							const existingData = state?.[key]?.data || [];
+							const newData = response?.[1]?.data || [];
+							const combinedData = [...existingData, ...newData];
+
+							// Remove duplicates based on _id
+							const uniqueData = combinedData.filter(
+								(item, index, self) =>
+									index === self.findIndex((t) => t._id === item._id),
+							);
+
+							return uniqueData;
+					  })();
+				const payload = {
+					data,
+					currentPage: response?.[1]?.currentPage ?? 1,
+					hasNextPage: response?.[1]?.hasNextPage ?? false,
+					totalDocs: response?.[1]?.totalDocs ?? 0,
+				};
+
+				dispatch({
+					type: actionKey,
+					payload,
+				});
+				return [true, payload];
+			} else {
+				dispatch({
+					type: actionKey,
+					payload: {
+						data: [],
+						hasNextPage: false,
+						currentPage: 1,
+						totalDocs: 0,
+					},
+				});
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('error==>getKnowledgeAssistantsList', error);
+			return [false, error];
+		}
+	};
+
 	const createNewKnowledgeAgent = async (name, description) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -89,6 +175,13 @@ export const KnowledgeAgentState = () => {
 				dispatch({
 					type: Actions?.SET_ACTIVE_KNOWLEDGE_ASSISTANT,
 					payload: { data: response?.[1]?.insertData },
+				});
+				dispatch({
+					type: Actions?.SET_DRAFT_AGENTS,
+					payload: {
+						data: [...(state?.draftAgents?.data || []), response?.[1]?.insertData],
+						totalDocs: state?.draftAgents?.totalDocs + 1,
+					},
 				});
 				return [true, response?.[1]];
 			} else {
@@ -147,6 +240,53 @@ export const KnowledgeAgentState = () => {
 					type: Actions?.SET_ACTIVE_KNOWLEDGE_ASSISTANT,
 					payload: { data: response?.[1] },
 				});
+				if (updateData?.isActive !== undefined) {
+					if (updateData?.isActive) {
+						let currentAgent = null;
+						dispatch({
+							type: Actions?.SET_DRAFT_AGENTS,
+							payload: {
+								data: state?.draftAgents?.data?.filter((agent) => {
+									if (agent?._id === aiAssistantId) {
+										currentAgent = agent;
+										return false;
+									}
+									return true;
+								}),
+								totalDocs: state?.draftAgents?.totalDocs - 1,
+							},
+						});
+						dispatch({
+							type: Actions?.SET_ACTIVE_AGENTS,
+							payload: {
+								data: [...(state?.activeAgents?.data || []), currentAgent],
+								totalDocs: state?.activeAgents?.totalDocs + 1,
+							},
+						});
+					} else {
+						let currentAgent = null;
+						dispatch({
+							type: Actions?.SET_ACTIVE_AGENTS,
+							payload: {
+								data: state?.activeAgents?.data?.filter((agent) => {
+									if (agent?._id === aiAssistantId) {
+										currentAgent = agent;
+										return false;
+									}
+									return true;
+								}),
+								totalDocs: state?.activeAgents?.totalDocs - 1,
+							},
+						});
+						dispatch({
+							type: Actions?.SET_DRAFT_AGENTS,
+							payload: {
+								data: [...(state?.draftAgents?.data || []), currentAgent],
+								totalDocs: state?.draftAgents?.totalDocs + 1,
+							},
+						});
+					}
+				}
 				return [true, response?.[1]];
 			} else {
 				return [false, response?.[1]];
@@ -544,7 +684,10 @@ export const KnowledgeAgentState = () => {
 			if (success) {
 				dispatch({
 					type: Actions?.SET_ACTIONS_INFO,
-					payload: response?.[1],
+					payload: {
+						...response?.[1],
+						agentId,
+					},
 				});
 			}
 		} catch (error) {
@@ -885,50 +1028,71 @@ export const KnowledgeAgentState = () => {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 
-			// Step 1: Create App Auth Configuration
-			const authUrl = `/composio/app-auth/${workspaceId}`;
-			const authScheme = payload?.auth_scheme || 'OAUTH2';
-
+			// Prepare the new payload structure
 			const authRequestBody = {
-				toolkit_slug: payload?.slug,
-				auth_scheme: authScheme,
+				toolkit_slug: payload?.slug || payload?.toolkit_slug,
+				auth_scheme: payload?.auth_scheme || 'OAUTH2',
+				variant: payload?.variant || 'use_custom_auth',
 				credentials: {},
-				app_name: payload?.app_name || payload?.slug,
-				app_description: payload?.app_description || `Integration for ${payload?.slug}`,
 			};
 
-			// Fill credentials depending on the scheme
+			// Fill credentials based on the auth scheme
+			const authScheme = payload?.auth_scheme || 'OAUTH2';
 			switch (authScheme) {
 				case 'OAUTH2':
 					authRequestBody.credentials = {
 						client_id: payload?.client_id || '',
 						client_secret: payload?.client_secret || '',
-						redirect_uri: payload?.oauth_redirect_uri || payload?.redirect_uri || '',
-						scopes: Array.isArray(payload?.scopes)
-							? payload.scopes
-							: payload?.scopes
-							? payload.scopes.split(',').map((s) => s.trim())
-							: [],
+						redirect_uri:
+							payload?.oauth_redirect_uri ||
+							payload?.redirect_uri ||
+							'https://backend.composio.dev/api/v1/auth-apps/add',
+						scopes: payload?.scopes || '',
+						bearer_token: payload?.bearer_token || '',
 					};
 					break;
 
 				case 'API_KEY':
-					authRequestBody.credentials = { api_key: payload?.api_key || '' };
+					authRequestBody.credentials = {
+						api_key: payload?.api_key || 'temp_key',
+						subdomain: payload?.subdomain || '',
+						basic_encoded: payload?.basic_encoded || '',
+						callback_url:
+							payload?.callback_url || 'https://platform.composio.dev/redirect',
+						bearer_token: payload?.bearer_token || '',
+					};
 					break;
 
 				case 'BEARER_TOKEN':
-					authRequestBody.credentials = { bearer_token: payload?.bearer_token || '' };
+					authRequestBody.credentials = {
+						bearer_token: payload?.bearer_token || '',
+					};
 					break;
 
 				case 'BASIC':
 					authRequestBody.credentials = {
 						username: payload?.username || '',
 						password: payload?.password || '',
+						bearer_token: payload?.bearer_token || '',
+					};
+					break;
+
+				default:
+					authRequestBody.credentials = {
+						client_id: payload?.client_id || '',
+						client_secret: payload?.client_secret || '',
+						redirect_uri:
+							payload?.oauth_redirect_uri ||
+							payload?.redirect_uri ||
+							'https://backend.composio.dev/api/v1/auth-apps/add',
+						scopes: payload?.scopes || '',
+						bearer_token: payload?.bearer_token || '',
 					};
 					break;
 			}
 
-			// Create app auth config
+			// Make the API call with the new payload structure
+			const authUrl = `/composio/app-auth/${workspaceId}`;
 			const authResponse = await service?.fetchPost(
 				authUrl,
 				authRequestBody,
@@ -946,7 +1110,7 @@ export const KnowledgeAgentState = () => {
 				return [false, { message: 'Failed to retrieve auth config ID' }];
 			}
 
-			// Step 2: Handle OAuth redirect flow (if applicable)
+			// Handle OAuth redirect flow (if applicable)
 			if (authScheme === 'OAUTH2' && payload?.oauth_redirect_uri) {
 				// Check if state.js or similar handler is present for OAuth flow
 				if (typeof window?.redirectToOAuth === 'function') {
@@ -961,11 +1125,13 @@ export const KnowledgeAgentState = () => {
 				}
 			}
 
-			// Step 3: Connect the app
+			// Connect the app
 			const connectUrl = `/composio/connect-app/${workspaceId}`;
 			const connectRequestBody = {
 				auth_config_id: authConfigId,
-				connection_name: payload?.connection_name || `${payload?.slug}_connection`,
+				connection_name:
+					payload?.connection_name ||
+					`${payload?.slug || payload?.toolkit_slug}_connection`,
 				connection_type: payload?.connection_type || 'api',
 				connection_data: payload?.connection_data || {},
 				webhook_url: payload?.webhook_url,
@@ -1175,7 +1341,7 @@ export const KnowledgeAgentState = () => {
 		}
 	};
 
-	const deleteKnowledgeAgent = async (agentId) => {
+	const deleteKnowledgeAgent = async (agentId, isActive) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const path = `/${workspaceId}/knowledge-agents/${agentId}`;
@@ -1209,6 +1375,27 @@ export const KnowledgeAgentState = () => {
 					type: Actions?.SET_KNOWLEDGE_ASSISTANTS_LIST,
 					payload: updatedAgentsList,
 				});
+				if (isActive) {
+					dispatch({
+						type: Actions?.SET_ACTIVE_AGENTS,
+						payload: {
+							data: state?.activeAgents?.data?.filter(
+								(agent) => agent._id !== agentId,
+							),
+							totalDocs: state?.activeAgents?.totalDocs - 1,
+						},
+					});
+				} else {
+					dispatch({
+						type: Actions?.SET_DRAFT_AGENTS,
+						payload: {
+							data: state?.draftAgents?.data?.filter(
+								(agent) => agent._id !== agentId,
+							),
+							totalDocs: state?.draftAgents?.totalDocs - 1,
+						},
+					});
+				}
 				return [true, response?.[1]];
 			} else {
 				return [false, response?.[1]];
@@ -1372,6 +1559,35 @@ export const KnowledgeAgentState = () => {
 		return [false, response?.[1]];
 	};
 
+	const addTemplateAgentToWorkspace = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/knowledge-agents/add-agent-template`;
+			const response = await service?.fetchPost(url, payload, usertoken, 'ai_assistant_api');
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions?.SET_ACTIVE_KNOWLEDGE_ASSISTANT,
+					payload: {
+						data: response?.[1],
+					},
+				});
+				dispatch({
+					type: Actions?.SET_DRAFT_AGENTS,
+					payload: {
+						data: [...(state?.draftAgents?.data || []), response?.[1]],
+					},
+				});
+
+				return [true, response?.[1]];
+			}
+			return [false, response?.[1]];
+		} catch (error) {
+			console.log('error==>addTemplateAgentToWorkspace', error);
+			return [false, error];
+		}
+	};
+
 	return {
 		...state,
 		createNewKnowledgeAgent,
@@ -1424,5 +1640,7 @@ export const KnowledgeAgentState = () => {
 		getComposioAction,
 		getComposioConnectedAccounts,
 		connectPipedreamTool,
+		getKnowledgeAssistantsListWithFilter,
+		addTemplateAgentToWorkspace,
 	};
 };

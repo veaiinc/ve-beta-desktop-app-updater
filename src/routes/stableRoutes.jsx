@@ -81,7 +81,6 @@ const stableRoutes = [
 					showDeleteChat={true}
 					showChats={true}
 					showChatsButton={true}
-					showBrowser={true}
 				/>
 			</AuthWrapper>
 		),
