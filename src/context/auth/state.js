@@ -153,7 +153,7 @@ export const AuthState = () => {
 				}
 
 				const { isOnboard, workspaceId } = accessibleWorkspaces?.[0];
-				if (isOnboard) localStorage.setItem('isOnboard', JSON.stringify(isOnboard));
+				localStorage.setItem('isOnboard', JSON.stringify(isOnboard));
 				if (hasWorkspaces)
 					localStorage.setItem(
 						'accessibleWorkspaces',

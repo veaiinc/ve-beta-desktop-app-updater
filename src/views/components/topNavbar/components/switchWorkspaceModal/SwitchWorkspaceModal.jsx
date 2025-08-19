@@ -69,13 +69,14 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 		);
 	}, [userWorkSpaceList, currentWorkspaceId]);
 
-	const handleSwitchWorkspace = (activeWorkspaceId, region) => {
+	const handleSwitchWorkspace = (activeWorkspaceId, region, isOnboard) => {
 		if (activeWorkspaceId === currentWorkspaceId) {
 			closeWorkspaceModal();
 			return;
 		}
 		localStorage.setItem('workspaceId', activeWorkspaceId);
 		localStorage.setItem('region', region);
+		localStorage.setItem('isOnboard', isOnboard);
 		const host = fetchDomainName();
 		Cookies.set('workspaceId', activeWorkspaceId, {
 			sameSite: 'lax',
@@ -113,6 +114,7 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 			handleSwitchWorkspace(
 				workspaceList[newIndex].activeWorkspaceId,
 				workspaceList[newIndex].region,
+				workspaceList[newIndex].isOnboard,
 			);
 		}
 
@@ -255,11 +257,20 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 				</button>
 				<div className={s.workspaceList}>
 					{workspaceList?.map(
-						({ activeWorkspaceId, businessName, logo_s3_500w_key, region }, index) => (
+						(
+							{
+								activeWorkspaceId,
+								businessName,
+								logo_s3_500w_key,
+								region,
+								isOnboard,
+							},
+							index,
+						) => (
 							<button
 								key={activeWorkspaceId}
 								onClick={() =>
-									handleSwitchWorkspace(activeWorkspaceId, region, businessName)
+									handleSwitchWorkspace(activeWorkspaceId, region, isOnboard)
 								}
 								className={`${s.workspaceItem} ${
 									activeWorkspaceId === currentWorkspaceId
