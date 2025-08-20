@@ -127,7 +127,7 @@ class Proposals extends Component {
 		return response;
 	};
 
-	getVariables = async (moduleId, moduleType = null, version = 0) => {
+	getVariables = async (moduleId, moduleType = null, version = 0, isService) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 		let module;
@@ -146,39 +146,40 @@ class Proposals extends Component {
 
 		if (response[0] == true) {
 			let variables = { ...response[1] };
-
-			if (
-				_.has(response[1], 'custom') &&
-				moduleType !== null &&
-				(moduleType === 'proposal' || moduleType === '*')
-			) {
-				//variables = [...variables, ...response[1].custom];
-				if (_.size(_.filter(response[1].custom, { displayName: 'Grand Total' })) == 0) {
-					let json = {
-						displayName: 'Grand Total',
-						inputType: 'amount',
-						defaultValue: '0',
-						templateId: moduleId,
-					};
-					this.postVariables(json, moduleId);
-				}
-				if (
-					_.size(_.filter(response[1].custom, { displayName: 'Grand Total In Words' })) ==
-					0
-				) {
-					let json = {
-						displayName: 'Grand Total In Words',
-						inputType: 'amount',
-						defaultValue: 'zero',
-						templateId: moduleId,
-					};
-					this.postVariables(json, moduleId);
-				}
-			}
+			// ! commented coz creating this in backend
+			// if (
+			// 	_.has(response[1], 'custom') &&
+			// 	moduleType !== null &&
+			// 	(moduleType === 'proposal' || moduleType === '*')
+			// ) {
+			//variables = [...variables, ...response[1].custom];
+			// if (_.size(_.filter(response[1].custom, { displayName: 'Grand Total' })) == 0) {
+			// 	let json = {
+			// 		displayName: 'Grand Total',
+			// 		inputType: 'amount',
+			// 		defaultValue: '0',
+			// 		templateId: moduleId,
+			// 	};
+			// 	this.postVariables(json, moduleId);
+			// }
+			// if (
+			// 	_.size(_.filter(response[1].custom, { displayName: 'Grand Total In Words' })) ==
+			// 	0
+			// ) {
+			// 	let json = {
+			// 		displayName: 'Grand Total In Words',
+			// 		inputType: 'amount',
+			// 		defaultValue: 'zero',
+			// 		templateId: moduleId,
+			// 	};
+			// 	this.postVariables(json, moduleId);
+			// }
+			// }
 			this.setState({
 				isVariabelsLoading: false,
 				variables,
 				fieldData: variables,
+				updateVariableIds: isService,
 			});
 		}
 	};
@@ -248,17 +249,24 @@ class Proposals extends Component {
 				() => {
 					// update the state variables
 					// this.getVariables(this.props.params.templateID);
-					let variableType = response[1].type;
-					let updatedVariables = { ...this.state.variables };
-					updatedVariables[variableType] = updatedVariables[variableType].map(
-						(variable) => {
-							if (variable._id === variableId) {
-								return response[1];
-							}
-							return variable;
-						},
-					);
-					this.setState({ variables: updatedVariables });
+					// let variableType = response[1].type;
+					// let updatedVariables = { ...this.state.variables };
+					// updatedVariables[variableType] = updatedVariables[variableType]?.map(
+					// 	(variable) => {
+					// 		if (variable._id === variableId) {
+					// 			return response[1];
+					// 		}
+					// 		return variable;
+					// 	},
+					// );
+					// this.setState({ variables: updatedVariables });
+					setTimeout(() => {
+						if (this.state?.isWorkflow) {
+							this.getVariables(this.state?.workflow_id, this.state?.module, 1);
+						} else {
+							this.getVariables(this.props?.params?.templateID);
+						}
+					}, 1000);
 				},
 			);
 		}
@@ -660,15 +668,36 @@ class Proposals extends Component {
 			let sections = [...response[1].sections];
 			let updatedSectionId = response?.[1]?.sectionId;
 			if (isService) {
-				this.setState({
-					sectionTables: response[1].tables ? response[1].tables : [],
-					didChangedSomething:
-						this.state?.previewType == 'm' ? this.state?.didChangedSomething : true,
-				});
-				this.addServiceVariable(
-					_.filter(sections, { type: 'services', order: json.order })[0]._id,
-					sections,
-					response[1].tables ? response[1].tables : [],
+				// this.setState({
+				// 	sectionTables: response[1].tables ? response[1].tables : [],
+				// });
+				// ! commented coz we are creating it in backend
+				// this.addServiceVariable(
+				// 	_.filter(sections, { type: 'services', order: json.order })[0]._id,
+				// 	sections,
+				// 	response[1].tables ? response[1].tables : [],
+				// );
+
+				this.setState(
+					{
+						showAddBlock: false,
+						sections: this.reorderSections(sections),
+						sectionTables: response[1].tables ? response[1].tables : [],
+						didChangedSomething:
+							this.state?.previewType == 'm' ? this.state?.didChangedSomething : true,
+					},
+					() => {
+						if (this.state.isWorkflow) {
+							this.getVariables(
+								this.state.workflow_id,
+								this.state.module,
+								1,
+								isService,
+							);
+						} else {
+							this.getVariables(this.props.params.templateID, null, 0, isService);
+						}
+					},
 				);
 			} else {
 				let invoiceTables = [...this.state.invoiceTables];
@@ -730,49 +759,46 @@ class Proposals extends Component {
 		);
 
 		if (response[0] === true) {
-			let sections = [...response[1]?.versions?.[0]?.sections];
+			// let sections = [...response[1]?.versions?.[0]?.sections];
 
-			if (isService) {
-				this.setState({
-					sectionTables: response[1]?.versions?.[0]?.tables
-						? response[1]?.versions?.[0]?.tables
+			// if (isService) {
+			// 	this.setState({
+			// 		sectionTables: response[1]?.versions?.[0]?.tables
+			// 			? response[1]?.versions?.[0]?.tables
+			// 			: [],
+			// 	});
+			// 	this.addServiceVariable(
+			// 		_.filter(sections, { type: 'services', order: json.order })[0]._id,
+			// 		sections,
+			// 		response[1]?.versions?.[0]?.tables ? response[1]?.versions?.[0]?.tables : [],
+			// 	);
+			// } else {
+			let invoiceTables = [...this.state.invoiceTables];
+			this.setState(
+				{
+					showAddBlock: false,
+					sections: this.reorderSections(response[1].versions[0].sections),
+					sectionTables: response[1].versions[0].tables
+						? response[1].versions[0].tables
 						: [],
+					order: null,
+					nextOrder: null,
+					prevOrder: null,
+					invoiceTables: response[1].versions[0].tables
+						? invoiceTables.concat(response[1].versions[0].tables)
+						: invoiceTables,
 					didChangedSomething:
 						this.state?.previewType == 'm' ? this.state?.didChangedSomething : true,
-				});
-				this.addServiceVariable(
-					_.filter(sections, { type: 'services', order: json.order })[0]._id,
-					sections,
-					response[1]?.versions?.[0]?.tables ? response[1]?.versions?.[0]?.tables : [],
-				);
-			} else {
-				let invoiceTables = [...this.state.invoiceTables];
-				this.setState(
-					{
-						showAddBlock: false,
-						sections: this.reorderSections(response[1].versions[0].sections),
-						sectionTables: response[1].versions[0].tables
-							? response[1].versions[0].tables
-							: [],
-						order: null,
-						nextOrder: null,
-						prevOrder: null,
-						didChangedSomething:
-							this.state?.previewType == 'm' ? this.state?.didChangedSomething : true,
-					},
-					() => {
-						if (this.state.isWorkflow) {
-							this.setState({
-								invoiceTables: response[1].versions[0].tables
-									? invoiceTables.concat(response[1].versions[0].tables)
-									: invoiceTables,
-							});
-						}
-					},
-				);
-				//return true;
-			}
+				},
+				() => {
+					if (isService) {
+						this.getVariables(this.state.workflow_id, this.state.module, 1, isService);
+					}
+				},
+			);
+			//return true;
 		}
+		// }
 	};
 
 	addQuestionForForm = async (sectionID, order) => {
@@ -856,7 +882,7 @@ class Proposals extends Component {
 		}
 	};
 
-	deleteSectionItem = async (sectionID) => {
+	deleteSectionItem = async (sectionID, isServiceSection = null) => {
 		let templateID = this.state?.activeModuleId;
 		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
@@ -867,43 +893,45 @@ class Proposals extends Component {
 
 			userToken,
 		);
-		let sections = [...this.state.sections];
+		// let sections = [...this.state.sections];
 		this.setState({
 			saveProposalState: 'Saving...',
 		});
+		// ! commented coz we are deleting it in backend
+		// let variables = _.filter(this.state?.variables?.custom, { blockId: sectionID });
+		// if (_.size(variables) > 0) {
+		// await this.deleteVariable(this.state.activeModuleId, variables[0]._id);
 
-		let variables = _.filter(this.state?.variables?.custom, { blockId: sectionID });
-
-		if (_.size(variables) > 0) {
-			await this.deleteVariable(this.state.activeModuleId, variables[0]._id);
-
-			if (response[0] == true) {
-				let invoiceTables = [...this.state.invoiceTables];
-				this.setState(
-					{
-						sections: this.reorderSections(response[1].sections),
-						sectionVariables: response[1].variables ? response[1].variables : [],
-						sectionTables: response[1].tables ? response[1].tables : [],
-						module: response[1].module,
-						isAutoSaving: false,
-					},
-					() => {
-						if (this.state.isWorkflow) {
-							this.setState({
-								invoiceTables: response[1].tables
-									? invoiceTables.concat(response[1].tables)
-									: invoiceTables,
-							});
-						}
-					},
-				);
-			} else {
-				return false;
-			}
+		if (response[0] == true) {
+			let invoiceTables = [...this.state.invoiceTables];
+			this.setState(
+				{
+					sections: this.reorderSections(response[1].sections),
+					sectionVariables: response[1].variables ? response[1].variables : [],
+					sectionTables: response[1].tables ? response[1].tables : [],
+					module: response[1].module,
+					isAutoSaving: false,
+				},
+				() => {
+					if (this.state.isWorkflow) {
+						this.setState({
+							invoiceTables: response[1].tables
+								? invoiceTables.concat(response[1].tables)
+								: invoiceTables,
+						});
+					}
+					if (isServiceSection) {
+						this.getVariables(this.props.params.templateID);
+					}
+				},
+			);
+		} else {
+			return false;
 		}
+		// }
 	};
 
-	deleteWorkflowSectionItem = async (sectionID) => {
+	deleteWorkflowSectionItem = async (sectionID, isServiceSection = null) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let userToken = localStorage.getItem('usertoken');
 		let response = await Action.deleteWorkflowSection(
@@ -919,15 +947,24 @@ class Proposals extends Component {
 		});
 		if (response[0] === true) {
 			let invoiceTables = [...this.state.invoiceTables];
-			this.setState({
-				sections: this.reorderSections(response[1].versions[0].sections),
-				sectionVariables: response[1].versions[0].variables
-					? response[1].versions[0].variables
-					: [],
-				sectionTables: response[1].versions[0].tables ? response[1].versions[0].tables : [],
-				module: response[1].versions[0].module || this.state.module,
-				isAutoSaving: false,
-			});
+			this.setState(
+				{
+					sections: this.reorderSections(response[1].versions[0].sections),
+					sectionVariables: response[1].versions[0].variables
+						? response[1].versions[0].variables
+						: [],
+					sectionTables: response[1].versions[0].tables
+						? response[1].versions[0].tables
+						: [],
+					module: response[1].versions[0].module || this.state.module,
+					isAutoSaving: false,
+				},
+				() => {
+					if (isServiceSection) {
+						this.getVariables(this.state.workflow_id, this.state.module, 1);
+					}
+				},
+			);
 			if (this.state.isWorkflow) {
 				this.setState({
 					invoiceTables: response[1].versions[0].tables
@@ -999,6 +1036,7 @@ class Proposals extends Component {
 					: [],
 				sectionTables: response[1].versions[0].tables ? response[1].versions[0].tables : [],
 				module: response[1].versions[0].module || this.state.module,
+				shouldSaveSections: true,
 			});
 			if (this.state.isWorkflow) {
 				this.setState({
@@ -1277,17 +1315,18 @@ class Proposals extends Component {
 			workspaceId,
 		);
 		if (response[0] === true) {
-			let sections = [...response[1].sections];
+			// let sections = [...response[1].sections];
 			let invoiceTables = [...this.state.invoiceTables];
 			let isService =
 				_.filter(response[1].sections, { _id: sectionId })[0].type === 'services';
-			if (isService) {
-				this.addServiceVariable(
-					_.filter(sections, { type: 'services', order: json.order })[0]._id,
-					sections,
-					response[1].tables ? response[1].tables : [],
-				);
-			}
+			// ! commented coz creating in backend
+			// if (isService) {
+			// 	this.addServiceVariable(
+			// 		_.filter(sections, { type: 'services', order: json.order })[0]._id,
+			// 		sections,
+			// 		response[1].tables ? response[1].tables : [],
+			// 	);
+			// }
 			if (this.state.isWorkflow) {
 				this.setState({
 					invoiceTables: response[1].tables
@@ -1295,10 +1334,26 @@ class Proposals extends Component {
 						: invoiceTables,
 				});
 			}
-			this.setState({
-				sections: this.reorderSections(response[1].sections),
-				sectionTables: response[1].tables ? response[1].tables : [],
-			});
+			this.setState(
+				{
+					sections: this.reorderSections(response[1].sections),
+					sectionTables: response[1].tables ? response[1].tables : [],
+				},
+				() => {
+					if (isService) {
+						if (this.state.isWorkflow) {
+							this.getVariables(
+								this.state.workflow_id,
+								this.state.module,
+								1,
+								isService,
+							);
+						} else {
+							this.getVariables(this.props.params.templateID, null, 0, isService);
+						}
+					}
+				},
+			);
 		}
 	};
 
@@ -1316,10 +1371,31 @@ class Proposals extends Component {
 			userToken,
 		);
 		if (response[0] === true) {
-			this.setState({
-				sections: this.reorderSections(response[1].versions[0].sections),
-				sectionTables: response[1].versions[0].tables ? response[1].versions[0].tables : [],
-			});
+			let isService =
+				_.filter(response[1].versions?.[0]?.sections, { _id: sectionId })[0]?.type ===
+				'services';
+			this.setState(
+				{
+					sections: this.reorderSections(response[1].versions[0].sections),
+					sectionTables: response[1].versions[0].tables
+						? response[1].versions[0].tables
+						: [],
+				},
+				() => {
+					if (isService) {
+						if (this.state.isWorkflow) {
+							this.getVariables(
+								this.state.workflow_id,
+								this.state.module,
+								1,
+								isService,
+							);
+						} else {
+							this.getVariables(this.props.params.templateID, null, 0, isService);
+						}
+					}
+				},
+			);
 		}
 	};
 
@@ -1369,6 +1445,7 @@ class Proposals extends Component {
 		type = null,
 		isWorkflow = false,
 		isSidebar = false,
+		callGetVariables = false,
 	) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
@@ -1401,6 +1478,15 @@ class Proposals extends Component {
 						duplicateModules: modules,
 						modules: modules,
 					});
+				}
+				if (callGetVariables) {
+					setTimeout(() => {
+						if (this.state?.isWorkflow) {
+							this.getVariables(this.state?.workflow_id, this.state?.module, 1);
+						} else {
+							this.getVariables(this.props?.params?.templateID, null, 0);
+						}
+					}, 800);
 				}
 			}
 		} else {

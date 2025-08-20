@@ -3244,7 +3244,7 @@ class Sidebar extends Images {
 		let arr = [];
 		let vals;
 		const re = /^[0-9\b]+$/;
-		let recalculatedSubtotalValue = 0;
+		// let recalculatedSubtotalValue = 0;
 		if (type !== 'unit') {
 			if (val === '' || re.test(val)) {
 				vals = val;
@@ -3264,15 +3264,17 @@ class Sidebar extends Images {
 					}
 				});
 			}
-			const { amount, quantity } = table?.subBlocks?.[0];
-			recalculatedSubtotalValue += (+amount || 0) * (+quantity || 0);
+			// ! commented coz not needed in new logic
+			// const { amount, quantity } = table?.subBlocks?.[0];
+			// recalculatedSubtotalValue += (+amount || 0) * (+quantity || 0);
 			arr.push(table);
 		});
 		let section = { ...this.state.activeSection, blocks: arr };
-		section = {
-			...section,
-			style: { ...section.style, subTotalValue: recalculatedSubtotalValue },
-		};
+		// ! commented coz not needed in new logic
+		// section = {
+		// 	...section,
+		// 	style: { ...section.style, subTotalValue: recalculatedSubtotalValue },
+		// };
 
 		this.setState(
 			{
