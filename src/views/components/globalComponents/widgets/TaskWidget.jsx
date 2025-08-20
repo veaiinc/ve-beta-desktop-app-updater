@@ -116,6 +116,7 @@ const TaskWidget = ({ widgetData = null }) => {
 						inProgress: info?.taskMetadata?.inProgressGroupLabels,
 						completed: info?.taskMetadata?.completedGroupLabels,
 					},
+					placement: 'bottomRight',
 				},
 			},
 			priority: {
@@ -185,6 +186,7 @@ const TaskWidget = ({ widgetData = null }) => {
 							}
 							title={'Due Date'}
 							showIcon={true}
+							placement="bottomRight"
 						/>
 					</div>
 				</div>
@@ -232,6 +234,7 @@ const TaskWidget = ({ widgetData = null }) => {
 							title={'Status'}
 							options={responseMetadata?.status?.props?.options}
 							setDefault={true}
+							placement="bottomRight"
 						/>
 					</div>
 				</div>
