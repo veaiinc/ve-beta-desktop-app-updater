@@ -235,7 +235,6 @@ const Agents = () => {
 			window.removeEventListener('keydown', handleKeyDown);
 		};
 	}, [handleKeyDown]);
-	console.log('assistant list', assistantList);
 
 	const updateWindow = useCallback(
 		(index) => {
