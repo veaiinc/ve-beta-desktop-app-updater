@@ -865,8 +865,12 @@ const RecentChat = ({
 	);
 
 	const handleBrowserButtonClick = useCallback(() => {
+		if (location?.pathname?.split('/')?.[1] !== 'chat') {
+			navigate(`/chat/${sessionId}`);
+			return;
+		}
 		setInfo((prev) => ({ ...prev, openBrowser: !prev?.openBrowser }));
-	}, []);
+	}, [location, sessionId]);
 
 	// browser socket
 	const onBrowserMessageFunc = useCallback((event, sessionId) => {

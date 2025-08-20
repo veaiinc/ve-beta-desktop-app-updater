@@ -626,7 +626,7 @@ const actionHandlers = {
 				if (payload?.toolName) {
 					browserTools = [...(browserTools || []), payload];
 				}
-				if (payload?.type === 'plan') {
+				if (payload?.plan_type === 'plan') {
 					browserPlan = payload;
 				}
 				messages[requiredIndex] = {

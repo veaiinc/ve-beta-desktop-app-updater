@@ -186,6 +186,7 @@
 .browser-container {
 	transition: width 0.4s ease-in-out;
 	overflow: hidden;
+	flex-shrink: 0;
 }
 
 .message-content-user {
