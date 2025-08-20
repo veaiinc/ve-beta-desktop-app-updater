@@ -40,11 +40,15 @@ const CardMeetBot = () => {
 		searchOpen: false,
 		cards: [],
 		guideMePopupOpen: false,
+		apiFetching: true,
 	});
 	const searchInputRef = useRef(null);
 
 	const meetings = useMemo(() => existingBots?.data || [], [existingBots?.data]);
 	const loadingMeetings = existingBots ? false : true;
+	const hasNextPage = existingBots?.hasNextPage || false;
+	const nextPage = existingBots?.nextPage || 1;
+	const totalDocs = existingBots?.totalDocs;
 
 	// Load existing bots when component mounts
 	useEffect(() => {
@@ -52,6 +56,12 @@ const CardMeetBot = () => {
 			getExistingBots({ page: 1, limit: 10, append: false });
 		}
 	}, []);
+
+	useEffect(() => {
+		if (existingBots) {
+			setInfo((prevInfo) => ({ ...prevInfo, apiFetching: false }));
+		}
+	}, [existingBots]);
 
 	// Carousel navigation handlers
 	const handleLeft = () => {
@@ -61,6 +71,12 @@ const CardMeetBot = () => {
 		}));
 	};
 	const handleRight = () => {
+		if (hasNextPage && info?.currentIndex > meetings?.length - 5) {
+			if (!info?.apiFetching) {
+				setInfo((prevInfo) => ({ ...prevInfo, apiFetching: true }));
+				getExistingBots({ page: nextPage, limit: 10, append: true });
+			}
+		}
 		setInfo((prev) => ({
 			...prev,
 			currentIndex: (prev.currentIndex + 1) % meetings.length,
@@ -389,9 +405,7 @@ const CardMeetBot = () => {
 											</button>
 											<div className="card-number">
 												<span>{info.currentIndex + 1}</span>/
-												<span className="total-docs">
-													{meetings.length}
-												</span>
+												<span className="total-docs">{totalDocs}</span>
 											</div>
 											<button
 												className={styles.cardMeetBot_cardChangeBtn}
