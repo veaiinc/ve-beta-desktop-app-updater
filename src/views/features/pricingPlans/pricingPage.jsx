@@ -426,7 +426,7 @@ const PricingPage = () => {
 										</div>
 									</div>
 
-									<div className="pricingFeatures">
+									{/* <div className="pricingFeatures">
 										{planFeatures.map((feature, index) => (
 											<div className="feature-item" key={index}>
 												<div className="feature-check">
@@ -435,7 +435,7 @@ const PricingPage = () => {
 												<span className="feature-text">{feature}</span>
 											</div>
 										))}
-									</div>
+									</div> */}
 
 									<div className="pricingButtonContainer">
 										{/* Quantity selector for seat-based plans */}
