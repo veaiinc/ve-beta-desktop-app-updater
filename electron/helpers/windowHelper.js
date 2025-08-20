@@ -634,11 +634,6 @@ class WindowHelper {
 		const askAIX = startX + this.windowSize.width + 20;
 		const topY = 30;
 
-		console.log('WindowHelper: Updating Ask AI dimensions', { 
-			requested: { width, height },
-			calculated: { width: newWidth, height: newHeight }
-		});
-
 		this.askAIWindow.setBounds({ x: askAIX, y: topY, width: newWidth, height: newHeight });
 		this.askAIWindowPosition = { x: askAIX, y: topY };
 		this.askAIWindowSize = { width: newWidth, height: newHeight };
