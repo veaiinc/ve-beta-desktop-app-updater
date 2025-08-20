@@ -4,17 +4,25 @@ import { useEffect } from 'react';
 const useBroadcastChannel = () => {
 	const channel = new BroadcastChannel('ve-ai-channel');
 
+	const reloadApp = () => {
+		if (window.api && typeof window.api.reloadApp === 'function') {
+			window.api.reloadApp();
+		} else {
+			window.location.reload();
+		}
+	};
+
 	useEffect(() => {
 		channel.onmessage = (e) => {
 			// reloads all the tabs in the browser to the home page
-			if (e.data === 'switchWorkspace' || e.data === 'logout') {
+			if (e.data === 'switchWorkspace') {
 				window.location.hash = '/home';
+				reloadApp();
+			}
 
-				if (window.api && typeof window.api.reloadApp === 'function') {
-					window.api.reloadApp();
-				} else {
-					window.location.reload();
-				}
+			if (e.data === 'logout') {
+				window.location.hash = '/';
+				reloadApp();
 			}
 		};
 
