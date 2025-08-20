@@ -11,13 +11,13 @@ import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 const LoginPage = () => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
-		activeStage: sessionStorage.getItem('loginActiveStage') || 'email',
-		email: sessionStorage.getItem('loginEmail') || '',
-		emailVerified: sessionStorage.getItem('loginEmailVerified') === 'true',
+		activeStage: localStorage.getItem('loginActiveStage') || 'email',
+		email: localStorage.getItem('loginEmail') || '',
+		emailVerified: localStorage.getItem('loginEmailVerified') === 'true',
 		accountExists: false,
 		cookiesAccepted: false,
 		isDarkMode: false,
-		lastOtpEmail: sessionStorage.getItem('loginLastOtpEmail') || '',
+		lastOtpEmail: localStorage.getItem('loginLastOtpEmail') || '',
 		showCookiesNotice: true,
 	});
 
@@ -80,29 +80,29 @@ const LoginPage = () => {
 
 	const setEmail = (email) => {
 		setInfo((prev) => ({ ...prev, email }));
-		sessionStorage.setItem('loginEmail', email);
+		localStorage.setItem('loginEmail', email);
 	};
 
 	const setLastOtpEmail = (email) => {
 		setInfo((prev) => ({ ...prev, lastOtpEmail: email }));
-		sessionStorage.setItem('loginLastOtpEmail', email);
+		localStorage.setItem('loginLastOtpEmail', email);
 	};
 
 	const setActiveStage = (activeStage) => {
 		setInfo((prev) => ({ ...prev, activeStage }));
-		sessionStorage.setItem('loginActiveStage', activeStage);
+		localStorage.setItem('loginActiveStage', activeStage);
 	};
 
 	const setEmailVerified = (emailVerified) => {
 		setInfo((prev) => ({ ...prev, emailVerified }));
-		sessionStorage.setItem('loginEmailVerified', emailVerified.toString());
+		localStorage.setItem('loginEmailVerified', emailVerified.toString());
 	};
 
 	const clearLoginSession = () => {
-		sessionStorage.removeItem('loginActiveStage');
-		sessionStorage.removeItem('loginEmail');
-		sessionStorage.removeItem('loginEmailVerified');
-		sessionStorage.removeItem('loginLastOtpEmail');
+		localStorage.removeItem('loginActiveStage');
+		localStorage.removeItem('loginEmail');
+		localStorage.removeItem('loginEmailVerified');
+		localStorage.removeItem('loginLastOtpEmail');
 	};
 
 	const handleLogoClick = () => {
