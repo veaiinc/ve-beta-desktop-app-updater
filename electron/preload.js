@@ -46,4 +46,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 	removeDownloadProgressListener: () => {
 		ipcRenderer.removeAllListeners('download-progress');
 	},
+
+	overlay: {
+		toggleWindow: () => ipcRenderer.invoke('toggle-overlay-window'),
+		updateDimensions: (dims) => ipcRenderer.invoke('update-overlay-dimensions', dims),
+	},
 });

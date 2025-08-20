@@ -12,7 +12,8 @@ const fs = require('fs');
 const { dialog } = require('electron');
 const http = require('http');
 const https = require('https');
-const { PassThrough } = require('stream');
+const { toggleOverlayWindow, updateOverlayDimensions } = require('./overlayWindowHelper');
+const { WindowHelper } = require('./helpers/windowHelper');
 
 const sanitizeFilename = (name) => {
 	return (
@@ -29,6 +30,7 @@ const keepAliveAgent = {
 };
 
 let mainWindow = null;
+let windowHelper = null;
 
 // Set the autoUpdater logger to electron-log
 autoUpdater.logger = log;
@@ -57,6 +59,7 @@ let template = [];
 // }
 
 const activeZips = new Map();
+const watermarkCache = new Map();
 
 function createWindow() {
 	mainWindow = new BrowserWindow({
@@ -164,6 +167,30 @@ app.whenReady().then(() => {
 	// const menu = Menu.buildFromTemplate(template);
 	// Menu.setApplicationMenu(menu);
 	createWindow();
+	
+	// Initialize window helper and register global shortcuts
+	windowHelper = new WindowHelper();
+	windowHelper.registerGlobalShortcuts(mainWindow);
+});
+
+ipcMain.handle('toggle-overlay-window', () => toggleOverlayWindow(windowHelper));
+
+ipcMain.handle('update-overlay-dimensions', (event, { width, height }) =>
+	updateOverlayDimensions(event, { width, height }, windowHelper),
+);
+
+ipcMain.handle('set-ignore-mouse-events', async (event, ignore) => {
+	try {
+		if (!windowHelper || !windowHelper.getOverlayWindow()) {
+			return { success: false, error: 'Overlay window not available' };
+		}
+		const overlayWindow = windowHelper.getOverlayWindow();
+		overlayWindow.setIgnoreMouseEvents(ignore, { forward: true });
+		return { success: true };
+	} catch (error) {
+		log.error('Error setting ignore mouse events:', error);
+		return { success: false, error: error.message };
+	}
 });
 
 ipcMain.handle('check-for-updates', async () => {
