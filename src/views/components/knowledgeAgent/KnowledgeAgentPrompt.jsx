@@ -55,11 +55,6 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [], myAccess }) => {
 
 	useEffect(() => {
 		if (assistant && agentId === assistant?._id) {
-			// selectedSystemPrompt;
-			// systemPrompt = assistant?.prompt?.customEditedPrompt;
-			// currentPromptId = assistant?.prompt?.promptId;
-			// console.log('assistant', assistant);
-
 			setInfo((prev) => ({
 				...prev,
 				systemPromptOptions: allAiPrompts || [],
@@ -69,7 +64,6 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [], myAccess }) => {
 				promptLoading: false,
 			}));
 		}
-		return () => {};
 	}, [assistant?._id]);
 
 	// useEffect(() => {
