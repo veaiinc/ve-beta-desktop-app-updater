@@ -10,11 +10,15 @@ import { ReactComponent as InfoIcon } from '../../../assets/svg/Settings/Info.sv
 import { ReactComponent as ChevronDownIcon } from '../../../assets/svg/smartFile/downArrow.svg';
 import { ReactComponent as EmailIcon } from '../../../views/components/library/svgs/logicform/email.svg';
 import { ReactComponent as AssistantIcon } from '../../../views/components/library/svgs/LeftBar/AIassit.svg';
+// import { ReactComponent as ChartBarIcon } from '../../../assets/svg/document/chartBar.svg';
+import { ReactComponent as NoImageIcon } from '../../../assets/svg/document/noImage.svg';
 import { DatePicker, Modal, Input, Button } from 'antd';
+import dummyImage from '../../../assets/images/dummyImg2.jpg';
 import dayjs from 'dayjs';
 import Context from '../../../context/context';
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import SendEmailModal from '../../components/SmartFileDetails/SendEmailModal';
 
 const DocumentShare = ({
 	isOpen,
@@ -68,17 +72,12 @@ const DocumentShare = ({
 		workflowId: smartFileInfo?._id || '',
 		copyLink: '',
 		isAlChatEnabled: smartFileInfo?.isAlChatEnabled || false,
-		clientDetails: '',
+		clientDetails: smartFileInfo?.clientDetails || null,
 		workspaceId: '',
 	});
 
 	const [pendingExpirySelection, setPendingExpirySelection] = useState(null);
 	const [showEmailModal, setShowEmailModal] = useState(false);
-	const [emailInfo, setEmailInfo] = useState({
-		subject: '',
-		body: '',
-		sending: false,
-	});
 
 	const expiryDropdownRef = useRef(null);
 	const accessDropdownRef = useRef(null);
@@ -121,6 +120,7 @@ const DocumentShare = ({
 
 	// Sync info with smartFileInfo changes
 	useEffect(() => {
+		console.log(smartFileInfo, 'rakesh');
 		if (smartFileInfo) {
 			setInfo((prev) => {
 				// Only update expiry if no pending selection
@@ -177,6 +177,7 @@ const DocumentShare = ({
 		if (info.editSlug && inputRef.current) {
 			inputRef.current.focus();
 		}
+		console.log(workflowInfoDetails);
 	}, [info.editSlug]);
 
 	// Update parent state (mimics updateWorkflowSlug in DocsFullView)
@@ -536,43 +537,25 @@ const DocumentShare = ({
 	};
 
 	useEffect(() => {
-		setInfo((prev) => ({ ...prev, clientDetails: workflowInfoDetails?.clientDetails }));
-	}, [workflowInfoDetails]);
+		// console.log(workflowInfoDetails, 'work flow rakesh');
+		// Prioritize workflowInfoDetails.clientDetails but fallback to smartFileInfo.clientDetails
+		const clientDetails =
+			workflowInfoDetails?.clientDetails || smartFileInfo?.clientDetails || null;
 
-	// Add Send via Email button and modal
-	const handleOpenEmailModal = () => {
-		setEmailInfo({
-			subject: `Access your document: ${info.slugHolder}`,
-			body: `Hi ${info.clientDetails?.name || ''},\n\nHere is your document link: ${
-				info.copyLink
-			}\n\nBest regards,`,
-			sending: false,
-		});
-		setShowEmailModal(true);
-	};
-
-	const handleSendEmail = async () => {
-		setEmailInfo((prev) => ({ ...prev, sending: true }));
-		try {
-			// Use sendCustomEmailToClients from context
-			const payload = {
-				clientEmail: info.clientDetails?.email,
-				mailContent: {
-					htmlBody: emailInfo.body.replace(/\n/g, '<br/>'),
-					subject: emailInfo.subject,
-				},
-			};
-			const response = await sendCustomEmailToClients(payload);
-			if (response?.[0]) {
-				message.success('Email sent successfully');
-				setShowEmailModal(false);
-			} else {
-				message.error('Failed to send email');
-			}
-		} catch (err) {
-			message.error('Error sending email');
+		if (clientDetails) {
+			setInfo((prev) => ({ ...prev, clientDetails }));
 		}
-		setEmailInfo((prev) => ({ ...prev, sending: false }));
+	}, [workflowInfoDetails, smartFileInfo]);
+
+	// Handle opening the email modal
+	const handleOpenEmailModal = () => {
+		// If no client details, try to fetch them first
+		if (!info.clientDetails || (!info.clientDetails.name && !info.clientDetails.email)) {
+			if (smartFileInfo?._id) {
+				getSmartFileData({ getWorkflowWithModulesId: smartFileInfo._id });
+			}
+		}
+		setShowEmailModal(true);
 	};
 
 	useEffect(() => {
@@ -616,6 +599,7 @@ const DocumentShare = ({
 		};
 	}, []);
 	const isCustomDomainExists = tennantSettingsData?.customDomain;
+	const [showConfigureMetadata, setShowConfigureMetadata] = useState(false);
 	return (
 		<ReactModal
 			isOpen={isOpen}
@@ -643,6 +627,10 @@ const DocumentShare = ({
 							Public
 						</button>
 					</div> */}
+					<div className="copy-link-fab" onClick={handleCopy}>
+						<CopyIcon className="copy-link-fab-icon" />
+						<span>Copy Link</span>
+					</div>
 				</div>
 				<div className="url-display">
 					<div className="url-section">
@@ -682,6 +670,11 @@ const DocumentShare = ({
 						>
 							Send via Email
 						</Button> */}
+						<CopyIcon
+							className="copy-link-fab-icon"
+							onClick={handleCopy}
+							style={{ cursor: 'pointer' }}
+						/>
 						<div className="live-status">
 							<ShareDotIcon className="share-dot-icon" />
 							<span className="live-text">Live</span>
@@ -788,8 +781,8 @@ const DocumentShare = ({
 							: 'Access restricted to AI assistant clients.'}
 					</div>
 				</div>
-				{/* <span className="divider"></span>
-				<div className="settings-section">
+				<span className="divider"></span>
+				{/* <div className="settings-section">
 					<div className="section-header">
 						<span className="title">AI Assistant</span>
 						<InfoIcon className="info-icon" />
@@ -830,38 +823,84 @@ const DocumentShare = ({
 						</div>
 					)}
 				</div> */}
-				<div className="copy-link-fab-container">
-					<div className="copy-link-fab" onClick={handleCopy}>
-						<CopyIcon className="copy-link-fab-icon" />
-						<span>Copy Link</span>
-					</div>
+				<div
+					className={`configure-metadata-container ${
+						showConfigureMetadata ? 'expanded' : ''
+					}`}
+					onClick={() => setShowConfigureMetadata(!showConfigureMetadata)}
+				>
+					<span className="configure-metadata-button">Configure Metadata</span>
+					<span
+						style={{
+							transition: 'transform 0.3s ease',
+							transform: showConfigureMetadata ? 'rotate(180deg)' : 'rotate(0deg)',
+							display: 'inline-block',
+						}}
+					>
+						<ChevronDownIcon />
+					</span>
 				</div>
+
+				{showConfigureMetadata && (
+					<div className="configure-metadata-content">
+						{/* <div className="configure-metadata-content-item1">
+							<ChartBarIcon /> Meta Description
+						</div>
+						<div className="configure-metadata-content-item2">
+							A beautifully designed wedding proposal template with customizable
+							sections and pricing options.
+						</div> */}
+						<div className="configure-metadata-content-item3">
+							<span className="configure-metadata-content-item3-text">
+								<NoImageIcon />
+								{workflowInfoDetails?.title
+									? workflowInfoDetails?.title
+									: 'Set a thumbnail to give your file a visual identity'}
+							</span>
+							<span className="configure-metadata-content-item3-image">
+								{workflowInfoDetails?.imageUrl ? (
+									<img
+										className="configure-metadata-content-item3-image-img"
+										src={workflowInfoDetails?.imageUrl}
+										alt="dummyImage"
+									/>
+								) : (
+									<div
+										style={{
+											height: '100px',
+											width: '300px',
+											display: 'flex',
+											justifyContent: 'center',
+											alignItems: 'center',
+											cursor: 'pointer',
+										}}
+									>
+										<p
+											style={{
+												color: '#ffff',
+												fontSize: '12px',
+												fontFamily: 'inherit',
+											}}
+										>
+											Upload Meta Image
+										</p>
+									</div>
+								)}
+							</span>
+						</div>
+					</div>
+				)}
 			</div>
 
-			<Modal
-				title="Send Document Link via Email"
+			<SendEmailModal
 				open={showEmailModal}
-				onCancel={() => setShowEmailModal(false)}
-				onOk={handleSendEmail}
-				confirmLoading={emailInfo.sending}
-				okText="Send"
-			>
-				<div style={{ marginBottom: 8 }}>
-					<b>To:</b> {info.clientDetails?.email}
-				</div>
-				<Input
-					value={emailInfo.subject}
-					onChange={(e) => setEmailInfo((prev) => ({ ...prev, subject: e.target.value }))}
-					placeholder="Subject"
-					style={{ marginBottom: 8 }}
-				/>
-				<Input.TextArea
-					value={emailInfo.body}
-					onChange={(e) => setEmailInfo((prev) => ({ ...prev, body: e.target.value }))}
-					rows={5}
-					placeholder="Email body"
-				/>
-			</Modal>
+				closeModal={() => setShowEmailModal(false)}
+				clientDetails={
+					info.clientDetails ||
+					smartFileInfo?.clientDetails ||
+					workflowInfoDetails?.clientDetails
+				}
+			/>
 		</ReactModal>
 	);
 };
