@@ -80,8 +80,8 @@
 				border: 1px solid var(--stroke, #2c2d2e);
 				background: var(--card-over-card, #1f2123);
 				cursor: pointer;
-				visibility: hidden;
-				pointer-events: none;
+				visibility: visible;
+				pointer-events: auto;
 
 				color: var(--secondary-font, #94989e);
 				font-family: var(--primary-font-family);
