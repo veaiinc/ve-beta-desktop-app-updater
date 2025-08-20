@@ -147,6 +147,50 @@ ipcMain.handle('set-ignore-mouse-events', async (event, ignore) => {
 	}
 });
 
+// Ask AI window handlers
+ipcMain.handle('toggle-askAI-window', async (event) => {
+	try {
+		if (!windowHelper) {
+			return { success: false, error: 'Window helper not available' };
+		}
+		if (!windowHelper.getAskAIWindow()) {
+			windowHelper.createAskAIWindow();
+		}
+		windowHelper.toggleAskAIWindow();
+		return { success: true };
+	} catch (error) {
+		log.error('Error toggling Ask AI window:', error);
+		return { success: false, error: error.message };
+	}
+});
+
+ipcMain.handle('update-askAI-dimensions', (event, { width, height }) => {
+	try {
+		if (!windowHelper) {
+			return { success: false, error: 'Window helper not available' };
+		}
+		windowHelper.updateAskAIWindowDimensions(width, height);
+		return { success: true };
+	} catch (error) {
+		log.error('Error updating Ask AI window dimensions:', error);
+		return { success: false, error: error.message };
+	}
+});
+
+ipcMain.handle('set-askAI-ignore-mouse-events', async (event, ignore) => {
+	try {
+		if (!windowHelper || !windowHelper.getAskAIWindow()) {
+			return { success: false, error: 'Ask AI window not available' };
+		}
+		const askAIWindow = windowHelper.getAskAIWindow();
+		askAIWindow.setIgnoreMouseEvents(ignore, { forward: true });
+		return { success: true };
+	} catch (error) {
+		log.error('Error setting Ask AI ignore mouse events:', error);
+		return { success: false, error: error.message };
+	}
+});
+
 ipcMain.handle('check-for-updates', async () => {
 	log.info('Check for updates triggered by renderer'); // Log triggered update check
 	try {

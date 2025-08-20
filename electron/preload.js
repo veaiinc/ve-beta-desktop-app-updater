@@ -53,6 +53,13 @@ contextBridge.exposeInMainWorld('electronApi', {
 		updateDimensions: (dims) => ipcRenderer.invoke('update-overlay-dimensions', dims),
 	},
 
+	// Ask AI window APIs
+	askAI: {
+		toggleWindow: () => ipcRenderer.invoke('toggle-askAI-window'),
+		updateDimensions: (dims) => ipcRenderer.invoke('update-askAI-dimensions', dims),
+		setIgnoreMouseEvents: (ignore) => ipcRenderer.invoke('set-askAI-ignore-mouse-events', ignore),
+	},
+
 	// Mouse event handling for click-through behavior
 	setIgnoreMouseEvents: (ignore) => ipcRenderer.invoke('set-ignore-mouse-events', ignore),
 	// Download progress listener
