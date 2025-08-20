@@ -974,6 +974,16 @@ $font-inter: 'Inter', sans-serif;
 					display: flex;
 					flex-direction: column;
 					gap: 14px;
+
+					.clientEmailInput {
+						height: 40px;
+					}
+					input {
+						width: 100%;
+						height: 40px;
+						color: #ffffff;
+						// padding: 2px 8px;
+					}
 					.inputLabel {
 						color: var(--secondary-font, #7a7e85);
 						text-align: start;
@@ -1965,7 +1975,7 @@ $font-inter: 'Inter', sans-serif;
 				.chooseClientTriggerContainer {
 					display: flex;
 					width: 100%;
-					padding: 12px 14px;
+					padding: 10px 14px;
 					align-items: center;
 					gap: 12px;
 					border-radius: 10px;
