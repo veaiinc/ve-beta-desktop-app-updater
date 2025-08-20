@@ -22,6 +22,7 @@ import { ReactComponent as BackIcon } from '../../../../../assets/svg/mobile/bac
 import { ReactComponent as CloseIcon } from '../../../../../assets/svg/mobile/close.svg';
 import { ReactComponent as PlusSvg } from '../../assets/plus.svg';
 import logError from '../../../../../helpers/errorLogger';
+import Spinner from '../../../loaders/Spinner';
 
 const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
 const isMac =
@@ -284,7 +285,7 @@ const Settings = ({
 					}}
 					disabled={info.logoutLoading}
 				>
-					{info.logoutLoading ? <Skeleton width={24} height={24} /> : <LogoutSvg />}
+					{info.logoutLoading ? <Spinner width={24} height={24} /> : <LogoutSvg />}
 				</button>
 			</div>
 
