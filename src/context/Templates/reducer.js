@@ -623,10 +623,10 @@ const actionHandlers = {
 				};
 			} else {
 				let browserPlan = null;
-				if (payload?.tool_type === 'tool') {
+				if (payload?.toolType === 'tool') {
 					browserTools = [...(browserTools || []), payload];
 				}
-				if (payload?.plan_type === 'plan') {
+				if (payload?.planType === 'plan') {
 					browserPlan = payload;
 				}
 				messages[requiredIndex] = {

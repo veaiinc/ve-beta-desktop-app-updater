@@ -6,11 +6,11 @@ import ErrorBoundary from './views/components/errorBoundary/ErrorBoundary';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-	<ErrorBoundary>
+	<BrowserRouter>
 		<ContextState>
-			<BrowserRouter>
+			<ErrorBoundary>
 				<App />
-			</BrowserRouter>
+			</ErrorBoundary>
 		</ContextState>
-	</ErrorBoundary>,
+	</BrowserRouter>,
 );
