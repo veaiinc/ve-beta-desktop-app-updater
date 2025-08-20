@@ -16,7 +16,7 @@ export const ChatStreamState = () => {
 	const [state, dispatch] = useReducer(Reducer, initialChatStreamState);
 	const socketRefs = useRef({});
 	const socketsInfoRef = useRef({});
-	const inactivityTimeoutsRef = useRef({});
+	const inactivityTimeoutRef = useRef(null);
 	const currentSessionIdRef = useRef(null);
 	const MAX_RETRY_ATTEMPTS = 30;
 	const RETRY_DELAY = 1000; // 1 second
@@ -34,16 +34,16 @@ export const ChatStreamState = () => {
 	// }, []);
 
 	// Helper function to reset the inactivity timer
-	const resetInactivityTimeout = useCallback((sessionId) => {
-		if (inactivityTimeoutsRef.current[sessionId]) {
-			clearTimeout(inactivityTimeoutsRef.current[sessionId]);
+	const resetInactivityTimeout = useCallback(() => {
+		if (inactivityTimeoutRef.current) {
+			clearTimeout(inactivityTimeoutRef.current);
 		}
 
-		inactivityTimeoutsRef.current[sessionId] = setTimeout(() => {
-			if (socketRefs.current[sessionId]) {
+		inactivityTimeoutRef.current = setTimeout(() => {
+			if (socketRefs.current[currentSessionIdRef.current]) {
 				console.log('Disconnecting due to inactivity');
-				socketRefs.current[sessionId].close();
-				delete socketRefs.current[sessionId];
+				socketRefs.current[currentSessionIdRef.current].close();
+				delete socketRefs.current[currentSessionIdRef.current];
 			}
 		}, 5 * 60 * 1000); // 5 minutes in milliseconds
 	}, []);
@@ -101,7 +101,7 @@ export const ChatStreamState = () => {
 					if (socketRefs.current[sessionId].readyState === WebSocket.OPEN) {
 						try {
 							socketRefs.current[sessionId].send(JSON.stringify(data));
-							resetInactivityTimeout(sessionId);
+							resetInactivityTimeout();
 							resolve();
 						} catch (error) {
 							reject(error);
@@ -152,19 +152,18 @@ export const ChatStreamState = () => {
 
 			socketRefs.current[sessionId].onopen = () => {
 				console.log('Connected to WebSocket server');
-				resetInactivityTimeout(sessionId);
+				resetInactivityTimeout();
 			};
 
 			socketRefs.current[sessionId].onclose = () => {
 				console.log('Disconnected from WebSocket server');
-				if (inactivityTimeoutsRef.current[sessionId]) {
-					clearTimeout(inactivityTimeoutsRef.current[sessionId]);
-					delete inactivityTimeoutsRef.current[sessionId];
+				if (inactivityTimeoutRef.current) {
+					clearTimeout(inactivityTimeoutRef.current);
 				}
 			};
 
 			socketRefs.current[sessionId].onmessage = (event) => {
-				resetInactivityTimeout(sessionId);
+				resetInactivityTimeout();
 				const { onMessageFunc } = socketsInfoRef.current[sessionId];
 				if (onMessageFunc) {
 					onMessageFunc(event, currentSessionIdRef.current);
