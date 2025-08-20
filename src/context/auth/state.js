@@ -187,8 +187,11 @@ export const AuthState = () => {
 					domain: host,
 				});
 				if (hasWorkspaces)
-					localStorage.setItem('accessibleWorkspaces', accessibleWorkspaces);
-				Cookies.set('accessibleWorkspaces', accessibleWorkspaces, {
+					localStorage.setItem(
+						'accessibleWorkspaces',
+						JSON.stringify(accessibleWorkspaces),
+					);
+				Cookies.set('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces), {
 					sameSite: 'Lax',
 					domain: host,
 				});
