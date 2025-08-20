@@ -1,45 +1,50 @@
-const archiver = require('archiver');
-import { dialog } from 'electron';
-const { autoUpdater } = require('electron-updater');
-const log = require('electron-log'); // Import electron-log
-const path = require('node:path');
-const sharp = require('sharp'); // Add sharp import
-const axios = require('axios'); // Add axios import
+// galleryUtils.js
+
+const sharp = require('sharp');
+const axios = require('axios');
 const exifReader = require('exif-reader');
+const archiver = require('archiver');
 const fs = require('fs');
+const { dialog, ipcMain } = require('electron');
 const http = require('http');
 const https = require('https');
+const { PassThrough } = require('stream');
+const path = require('path');
+const log = require('electron-log');
+
+// ———————————————————————
+// 🔧 Shared Utilities
+// ———————————————————————
 
 const keepAliveAgent = {
 	http: new http.Agent({ keepAlive: true, maxSockets: 100, maxFreeSockets: 50 }),
 	https: new https.Agent({ keepAlive: true, maxSockets: 100, maxFreeSockets: 50 }),
 };
 
+const sanitizeFilename = (name) => {
+	return (
+		name
+			.replace(/[^a-zA-Z0-9._\-]/g, '_')
+			.replace(/\s+/g, '_')
+			.substring(0, 200) || 'file.jpg'
+	);
+};
+
+const streamToPromise = (readable, writable) => {
+	return new Promise((resolve, reject) => {
+		readable.pipe(writable);
+		writable.on('finish', resolve);
+		writable.on('error', reject);
+		readable.on('error', reject);
+	});
+};
+
 const watermarkCache = new Map();
 
-// if (process.platform === 'darwin') {
-// 	const name = app.getName();
-// 	template.unshift({
-// 		label: name,
-// 		submenu: [
-// 			{
-// 				label: 'About ' + name,
-// 				role: 'about',
-// 			},
-// 			{
-// 				label: 'Quit',
-// 				accelerator: 'Command+Q',
-// 				click() {
-// 					app.quit();
-// 				},
-// 			},
-// 		],
-// 	});
-// }
-
-// const activeZips = new Map();
-
-export const processImageWithSharp = async (event, data) => {
+// ———————————————————————————————————————
+// ✅ 1. Process Image with Sharp
+// ———————————————————————————————————————
+const processImageWithSharp = async (event, data) => {
 	try {
 		const {
 			imageBuffer,
@@ -48,8 +53,8 @@ export const processImageWithSharp = async (event, data) => {
 			scale = 0.15,
 			opacity = 1,
 			isWaterMarkApply,
-			resizeOptions = { maxWidth: 1000 }, // Reduced from 1200
-			quality = 75, // Reduced from 85
+			resizeOptions = { maxWidth: 1000 },
+			quality = 75,
 		} = data;
 
 		const maxSizeBytes = 2 * 1024 * 1024;
@@ -58,8 +63,7 @@ export const processImageWithSharp = async (event, data) => {
 				? Buffer.from(imageBuffer, 'base64')
 				: Buffer.from(imageBuffer);
 
-		let sharpImage = sharp(imageData);
-		const metadata = await sharpImage.metadata();
+		const metadata = await sharp(imageData).metadata();
 
 		if (!metadata.width || !metadata.height) {
 			return { success: false, error: 'Invalid image metadata' };
@@ -70,23 +74,16 @@ export const processImageWithSharp = async (event, data) => {
 
 		const processImage = async (width, q, applyWatermark = false) => {
 			let img = sharp(imageData);
-
 			if (metadata.width > width) {
-				img = img.resize({
-					width,
-					fit: 'inside',
-					withoutEnlargement: true,
-				});
+				img = img.resize({ width, fit: 'inside', withoutEnlargement: true });
 			}
 
 			if (applyWatermark && watermarkUrl) {
 				let watermarkBuffer = watermarkCache.get(watermarkUrl);
 				if (!watermarkBuffer) {
-					const watermarkResponse = await axios.get(watermarkUrl, {
-						responseType: 'arraybuffer',
-					});
-					watermarkBuffer = Buffer.from(watermarkResponse.data);
-					watermarkCache.set(watermarkUrl, watermarkBuffer); // Cache it
+					const res = await axios.get(watermarkUrl, { responseType: 'arraybuffer' });
+					watermarkBuffer = Buffer.from(res.data);
+					watermarkCache.set(watermarkUrl, watermarkBuffer);
 				}
 
 				const wmMeta = await sharp(watermarkBuffer).metadata();
@@ -165,15 +162,18 @@ export const processImageWithSharp = async (event, data) => {
 			success: false,
 			error: `Optimized image still exceeds 2MB (${Math.round(
 				finalBuffer.length / 1024,
-			)} KB) after aggressive compression`,
+			)} KB)`,
 		};
 	} catch (error) {
-		log.error('Processing error:', error);
+		log.error('Image processing error:', error);
 		return { success: false, error: error.message };
 	}
 };
 
-export const extractImageMetadata = async (event, { imageBuffer }) => {
+// ———————————————————————————————————————
+// ✅ 2. Extract Image Metadata
+// ———————————————————————————————————————
+const extractImageMetadata = async (event, { imageBuffer }) => {
 	const buffer = Buffer.from(imageBuffer);
 	try {
 		const metadata = await sharp(buffer).metadata();
@@ -188,14 +188,13 @@ export const extractImageMetadata = async (event, { imageBuffer }) => {
 			}
 		}
 
-		// Fallback to current time if no EXIF
 		if (!originalDateTime) {
 			originalDateTime = Math.floor(Date.now() / 1000);
 		}
 
-		return { success: true, metadata, width, height, format, originalDateTime };
+		return { success: true, width, height, format, originalDateTime };
 	} catch (err) {
-		log.error('Metadata extraction failed:', err);
+		console.error('Metadata extraction failed:', err);
 		return {
 			success: false,
 			width: null,
@@ -206,12 +205,16 @@ export const extractImageMetadata = async (event, { imageBuffer }) => {
 	}
 };
 
-export const downloadAlbumZip = async (
+// ———————————————————————————————————————
+// ✅ 3. download-album-zip (Streaming ZIP)
+// Fast, low memory — but fragile
+// Use when URLs are stable and fast
+// ———————————————————————————————————————
+const downloadAlbumZip = async (
 	event,
 	{ items, folderName, maxZipSize = 3 * 1024 * 1024 * 1024 },
 ) => {
 	try {
-		// ✅ Open dialog without requiring a focused window
 		const { filePath } = await dialog.showSaveDialog({
 			title: 'Save Album ZIP',
 			defaultPath: `${folderName}_1.zip`,
@@ -219,9 +222,7 @@ export const downloadAlbumZip = async (
 			properties: ['createDirectory'],
 		});
 
-		if (!filePath) {
-			return { success: false, error: 'User cancelled' };
-		}
+		if (!filePath) return { success: false, error: 'User cancelled' };
 
 		let archive, output;
 		let currentSize = 0;
@@ -230,14 +231,12 @@ export const downloadAlbumZip = async (
 
 		const startNewArchive = () => {
 			if (archive) archive.finalize();
-
 			zipIndex++;
 			const zipPath = filePath.replace(/(_\d+)?\.zip$/, `_${zipIndex}.zip`);
 			output = fs.createWriteStream(zipPath);
 			archive = archiver('zip', { zlib: { level: 6 } });
 			archive.pipe(output);
 			currentSize = 0;
-
 			zipsCreated.push(path.basename(zipPath));
 		};
 
@@ -249,7 +248,7 @@ export const downloadAlbumZip = async (
 					method: 'GET',
 					url: item.url,
 					responseType: 'stream',
-					timeout: 60000, // Increased timeout for large files
+					timeout: 60000,
 					maxContentLength: Infinity,
 					maxBodyLength: Infinity,
 					httpAgent: keepAliveAgent.http,
@@ -277,26 +276,234 @@ export const downloadAlbumZip = async (
 				archive.append(res.data, { name: item.filename });
 				currentSize += fileSize;
 			} catch (err) {
-				log.warn(`Failed to add ${item.filename}:`, err.message);
+				console.warn(`Failed to add ${item.filename}:`, err.message);
 				archive.append(`Download failed: ${err.message}`, {
 					name: `ERROR_${item.filename}.txt`,
 				});
 			}
 		}
 
-		// Finalize last archive
 		await archive.finalize();
 		await new Promise((resolve, reject) => {
 			output.on('close', resolve);
 			output.on('error', reject);
 		});
 
-		return {
-			success: true,
-			zips: zipsCreated,
-		};
+		return { success: true, zips: zipsCreated };
 	} catch (err) {
-		log.error('ZIP creation failed:', err);
+		console.error('Streaming ZIP failed:', err);
 		return { success: false, error: err.message };
 	}
+};
+
+// ———————————————————————————————————————
+// ✅ 4. create-zip-from-urls (Reliable, with temp files)
+// Best for production — handles retries, progress, errors
+// ———————————————————————————————————————
+const createZipFromUrls = async (
+	event,
+	{
+		items,
+		folderName = 'Album',
+		maxZipSize = 3 * 1024 * 1024 * 1024,
+		sessionId,
+		parallelLimit = 50,
+	},
+) => {
+	const sanitize = sanitizeFilename;
+	const tempDir = path.join(
+		require('electron').app.getPath('temp'),
+		`album-download-${sessionId}`,
+	);
+
+	try {
+		if (!Array.isArray(items) || items.length === 0) {
+			return { success: false, error: 'No items to download' };
+		}
+
+		fs.mkdirSync(tempDir, { recursive: true });
+
+		const downloadedFiles = [];
+		const errors = [];
+		const total = items.length;
+		let completedDownloads = 0;
+		const startTime = Date.now();
+
+		const downloadPromises = items.map(async ({ url, filename }) => {
+			const safeName = sanitize(filename || 'unknown.jpg');
+			const filePath = path.join(tempDir, safeName);
+
+			if (!url) {
+				fs.writeFileSync(path.join(tempDir, `ERROR_${safeName}.txt`), 'No URL');
+				errors.push({ file: safeName, error: 'No URL' });
+				return;
+			}
+
+			const MAX_RETRIES = 3;
+			for (let retry = 0; retry < MAX_RETRIES; retry++) {
+				try {
+					const res = await axios({
+						method: 'GET',
+						url,
+						responseType: 'stream',
+						timeout: 60000,
+						maxContentLength: Infinity,
+						maxBodyLength: Infinity,
+						httpAgent: keepAliveAgent.http,
+						httpsAgent: keepAliveAgent.https,
+						headers: {
+							Accept: 'image/webp,image/apng,image/*,*/*',
+							'Accept-Encoding': 'gzip, deflate, br',
+							Connection: 'keep-alive',
+							Referer: new URL(url).origin + '/',
+							'User-Agent':
+								'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+						},
+						validateStatus: (status) => status < 400,
+					});
+
+					const contentType = res.headers['content-type'] || '';
+					if (!contentType.startsWith('image/')) {
+						throw new Error(`Not an image: ${contentType}`);
+					}
+
+					const writer = fs.createWriteStream(filePath);
+					await streamToPromise(res.data, writer);
+
+					const stats = fs.statSync(filePath);
+					if (stats.size === 0) {
+						fs.unlinkSync(filePath);
+						throw new Error('Empty file');
+					}
+
+					downloadedFiles.push({ path: filePath, name: safeName });
+					completedDownloads++;
+
+					const elapsed = (Date.now() - startTime) / 1000;
+					const speed = completedDownloads / elapsed;
+					const eta = (total - completedDownloads) / speed;
+
+					try {
+						event.sender.send('download-progress', {
+							sessionId,
+							current: completedDownloads,
+							total,
+							phase: 'download',
+							speed: Math.round(speed * 10) / 10,
+							eta: Math.round(eta),
+							elapsed: Math.round(elapsed),
+						});
+					} catch (e) {}
+
+					return;
+				} catch (err) {
+					if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+
+					const errMsg = err.response
+						? `HTTP ${err.response.status}`
+						: err.code === 'ECONNABORTED'
+						? 'Timeout'
+						: err.message;
+
+					if (retry === MAX_RETRIES - 1) {
+						fs.writeFileSync(
+							path.join(tempDir, `ERROR_${safeName}.txt`),
+							`Download failed: ${errMsg}`,
+						);
+						errors.push({ file: safeName, error: errMsg });
+					} else {
+						const delay = Math.min(2000 * Math.pow(2, retry), 8000);
+						await new Promise((r) => setTimeout(r, delay));
+					}
+				}
+			}
+		});
+
+		for (let i = 0; i < downloadPromises.length; i += parallelLimit) {
+			const chunk = downloadPromises.slice(i, i + parallelLimit);
+			await Promise.all(chunk);
+		}
+
+		if (downloadedFiles.length === 0) {
+			fs.rmSync(tempDir, { recursive: true, force: true });
+			return { success: false, error: 'All downloads failed' };
+		}
+
+		const { filePath: baseZipPath } = await dialog.showSaveDialog({
+			title: `Save Album: ${folderName}`,
+			defaultPath: `${folderName}_1.zip`,
+			filters: [{ name: 'ZIP Files', extensions: ['zip'] }],
+			properties: ['createDirectory'],
+		});
+
+		if (!baseZipPath) {
+			fs.rmSync(tempDir, { recursive: true, force: true });
+			return { success: false, error: 'User cancelled' };
+		}
+
+		const zipsCreated = [];
+		let currentSize = 0;
+		let zipIndex = 0;
+		let archive, output;
+
+		const startNewArchive = () => {
+			if (archive) archive.finalize();
+			zipIndex++;
+			const zipPath = baseZipPath.replace(/(_\d+)?\.zip$/i, `_${zipIndex}.zip`);
+			output = fs.createWriteStream(zipPath);
+			archive = archiver('zip', { zlib: { level: 0 }, forceZip64: true });
+			archive.pipe(output);
+			currentSize = 0;
+			zipsCreated.push(path.basename(zipPath));
+		};
+
+		startNewArchive();
+
+		for (const { path: filePath, name } of downloadedFiles) {
+			const fileSize = fs.statSync(filePath).size;
+			if (currentSize > 0 && currentSize + fileSize > maxZipSize) {
+				await new Promise((resolve, reject) => {
+					archive.finalize();
+					output.on('close', resolve);
+					output.on('error', reject);
+				});
+				startNewArchive();
+			}
+			archive.file(filePath, { name });
+			currentSize += fileSize;
+		}
+
+		await new Promise((resolve, reject) => {
+			archive.finalize();
+			output.on('close', resolve);
+			output.on('error', reject);
+		});
+
+		fs.rmSync(tempDir, { recursive: true, force: true });
+
+		try {
+			event.sender.send('download-progress', {
+				sessionId,
+				current: total,
+				total,
+				phase: 'complete',
+				zips: zipsCreated,
+			});
+		} catch (e) {}
+
+		return { success: true, zips: zipsCreated };
+	} catch (err) {
+		console.error('ZIP creation failed:', err);
+		return { success: false, error: err.message };
+	}
+};
+
+// ———————————————————————
+// ✅ Export All
+// ———————————————————————
+module.exports = {
+	processImageWithSharp,
+	extractImageMetadata,
+	downloadAlbumZip,
+	createZipFromUrls,
 };
