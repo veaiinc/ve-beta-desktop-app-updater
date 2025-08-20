@@ -8,6 +8,7 @@ import Skeleton from 'react-loading-skeleton';
 import PromptWithIcons from './PromptWithIcons';
 import AgentCredentials from '../agents/agentDetails/agentCredentials/AgentCredentials';
 import { useParams } from 'react-router-dom';
+import Spinner from '../loaders/Spinner';
 
 const tooltipStyles = {
 	body: { minWidth: 'fit-content', padding: '0' },
@@ -53,7 +54,7 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [], myAccess }) => {
 	});
 
 	useEffect(() => {
-		if (assistant) {
+		if (assistant && agentId === assistant?._id) {
 			// selectedSystemPrompt;
 			// systemPrompt = assistant?.prompt?.customEditedPrompt;
 			// currentPromptId = assistant?.prompt?.promptId;
@@ -249,19 +250,17 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [], myAccess }) => {
                 </div> */}
 
 				{info?.promptLoading ? (
-					<div className="promptLoadingContainer">
-						<div
-							className="promptDropdownLoader"
-							style={{ width: '100%', height: '100%' }}
-						>
-							<Skeleton height={43} className="promptDropdownLoader" />
-						</div>
-						<div
-							className="promptTextAreaLoader"
-							style={{ width: '100%', height: '100%' }}
-						>
-							<Skeleton className="promptTextAreaLoader" height={130} />
-						</div>
+					<div
+						className="promptLoadingContainer"
+						style={{
+							width: '100%',
+							height: '300px',
+							display: 'flex',
+							justifyContent: 'center',
+							alignItems: 'center',
+						}}
+					>
+						<Spinner />
 					</div>
 				) : (
 					<>
