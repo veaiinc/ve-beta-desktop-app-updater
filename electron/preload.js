@@ -36,6 +36,33 @@ contextBridge.exposeInMainWorld('electronApi', {
 	// Download Original Images
 	createZipFromUrls: (args) => ipcRenderer.invoke('create-zip-from-urls', args),
 
+	// Shortcut activation listener
+	onShortcutActivated: (callback) => {
+		ipcRenderer.on('shortcut-activated', (event, data) => {
+			callback(data);
+		});
+	},
+
+	removeShortcutActivatedListener: () => {
+		ipcRenderer.removeAllListeners('shortcut-activated');
+	},
+
+	// Overlay window APIs
+	overlay: {
+		toggleWindow: () => ipcRenderer.invoke('toggle-overlay-window'),
+		updateDimensions: (dims) => ipcRenderer.invoke('update-overlay-dimensions', dims),
+	},
+
+	// Ask AI window APIs
+	askAI: {
+		toggleWindow: () => ipcRenderer.invoke('toggle-askAI-window'),
+		updateDimensions: (dims) => ipcRenderer.invoke('update-askAI-dimensions', dims),
+		setIgnoreMouseEvents: (ignore) =>
+			ipcRenderer.invoke('set-askAI-ignore-mouse-events', ignore),
+	},
+
+	// Mouse event handling for click-through behavior
+	setIgnoreMouseEvents: (ignore) => ipcRenderer.invoke('set-ignore-mouse-events', ignore),
 	// Download progress listener
 	onDownloadProgress: (callback) => {
 		ipcRenderer.on('download-progress', (event, data) => {

@@ -9,16 +9,14 @@ import { message } from 'antd';
 import ObjectID from 'bson-objectid';
 import OverlayCommands from './OverlayCommands';
 import ShortcutBar from './components/ShortcutBar';
-import ScreenQueryBar from './components/ScreenQueryBar';
 import LiveIntelligencePanel from './components/LiveIntelligencePanel';
 import TranscriptPanel from './components/TranscriptPanel';
 import './overlay.scss';
 
 const OverlayApp = () => {
 	const containerRef = useRef(null);
-	const [showScreenQuery, setShowScreenQuery] = useState(false);
-	// Single state to control which panel is shown: 'live-intelligence' or 'transcript'
-	const [activePanel, setActivePanel] = useState('live-intelligence');
+	// State to control which panel is shown: 'live-intelligence', 'transcript', or null
+	const [activePanel, setActivePanel] = useState(null);
 
 	// Shared Recording State
 	const wsUrl = 'wss://ve-ai-transcriptions-8p8k0b44.livekit.cloud';
@@ -406,69 +404,36 @@ const OverlayApp = () => {
 		setTranscriptions(updatedTranscriptions);
 	}, [segments, startTypingEffect, sendTranscriptionToRecall]);
 
-	// Debug: Log state changes and update dimensions when panel changes
-	useEffect(() => {
-		console.log('activePanel state changed to:', activePanel);
+	// These effects are now handled by the main dimension update effect above
 
-		// Update dimensions when panel changes
-		setTimeout(() => {
-			if (containerRef.current) {
-				const rect = containerRef.current.getBoundingClientRect();
-				const height = Math.max(containerRef.current.scrollHeight, rect.height);
-				const width = Math.max(containerRef.current.scrollWidth, rect.width);
 
-				if (window.electronApi?.overlay?.updateDimensions) {
-					window.electronApi.overlay.updateDimensions({ width, height });
-				}
+
+	const handleListenClick = async () => {
+		// Toggle live intelligence panel and automatically start recording when opening
+		if (activePanel === 'live-intelligence') {
+			// If panel is open, close it and stop recording
+			setActivePanel(null);
+			if (isRecording) {
+				handleStopTranscription();
 			}
-		}, 100); // Slightly longer delay for panel transitions
-	}, [activePanel]);
-
-	// Update dimensions when screen query state changes
-	useEffect(() => {
-		setTimeout(() => {
-			if (containerRef.current) {
-				const rect = containerRef.current.getBoundingClientRect();
-				const height = Math.max(containerRef.current.scrollHeight, rect.height);
-				const width = Math.max(containerRef.current.scrollWidth, rect.width);
-
-				if (window.electronApi?.overlay?.updateDimensions) {
-					window.electronApi.overlay.updateDimensions({ width, height });
-				}
+		} else {
+			// Open live intelligence panel and start recording automatically
+			setActivePanel('live-intelligence');
+			if (!isRecording) {
+				await handleStartTranscription();
 			}
-		}, 100);
-	}, [showScreenQuery]);
-
-	// Debug: Global click handler
-	useEffect(() => {
-		const handleGlobalClick = (event) => {
-			console.log('Global click detected on:', event.target);
-		};
-
-		document.addEventListener('click', handleGlobalClick);
-		return () => document.removeEventListener('click', handleGlobalClick);
-	}, []);
-
-	const handleAskAIClick = () => {
-		setShowScreenQuery((prev) => !prev);
+		}
 	};
 
-	const handleCloseScreenQuery = () => {
-		setShowScreenQuery(false);
-	};
-
-	const handleListenClick = () => {
-		// Toggle LiveIntelligencePanel when listen button is clicked
-		setActivePanel((prev) => (prev === 'live-intelligence' ? null : 'live-intelligence'));
-	};
-
-	const handleCloseLiveIntelligence = () => {
-		// Close both panels by setting to null or hide completely
+	const handleClosePanel = () => {
+		// Close panel and stop recording
 		setActivePanel(null);
+		if (isRecording) {
+			handleStopTranscription();
+		}
 	};
 
 	const handleShowTranscript = () => {
-		console.log('handleShowTranscript called - switching to transcript panel');
 		setActivePanel('transcript');
 	};
 
@@ -476,9 +441,37 @@ const OverlayApp = () => {
 		setActivePanel('live-intelligence');
 	};
 
-	const handleCloseTranscript = () => {
-		setActivePanel('live-intelligence');
+	const handleAskAIClick = () => {
+		// Open Ask AI window via electron API
+		if (window.electronApi?.askAI?.toggleWindow) {
+			window.electronApi.askAI.toggleWindow();
+		}
 	};
+
+	const calculateDynamicDimensions = useCallback(() => {
+		if (!containerRef.current) return { width: 800, height: 150 };
+
+		const rect = containerRef.current.getBoundingClientRect();
+		let calculatedWidth = rect.width;
+		let calculatedHeight = rect.height;
+
+		// Dynamic width calculation based on layout
+		if (activePanel === 'live-intelligence' || activePanel === 'transcript') {
+			// Single panel: Panel width + padding
+			calculatedWidth = 768 + 32; // ~800px
+		} else {
+			// Only shortcut bar: minimal width
+			calculatedWidth = 400;
+		}
+
+		// Add some buffer for safe scrolling
+		calculatedHeight = Math.max(calculatedHeight, 150);
+
+		return {
+			width: Math.min(calculatedWidth, window.screen.width * 0.8), // Max 80% of screen width
+			height: Math.min(calculatedHeight + 32, window.screen.height * 0.8), // Max 80% of screen height
+		};
+	}, [activePanel]);
 
 	useEffect(() => {
 		// Update window dimensions when content changes
@@ -486,9 +479,7 @@ const OverlayApp = () => {
 			if (containerRef.current) {
 				// Use a small delay to allow CSS transitions to complete
 				setTimeout(() => {
-					const rect = containerRef.current.getBoundingClientRect();
-					const height = Math.max(containerRef.current.scrollHeight, rect.height);
-					const width = Math.max(containerRef.current.scrollWidth, rect.width);
+					const { width, height } = calculateDynamicDimensions();
 
 					if (window.electronApi?.overlay?.updateDimensions) {
 						window.electronApi.overlay.updateDimensions({ width, height });
@@ -529,80 +520,62 @@ const OverlayApp = () => {
 			resizeObserver.disconnect();
 			mutationObserver.disconnect();
 		};
-	}, []);
+	}, [calculateDynamicDimensions]);
 
-	// Handle click outside to close screen query
+	// Update dimensions when layout state changes
 	useEffect(() => {
-		if (!showScreenQuery) return;
-
-		const handleClickOutside = (event) => {
-			if (containerRef.current && !containerRef.current.contains(event.target)) {
-				console.log('Click outside detected, closing screen query');
-				setShowScreenQuery(false);
+		if (containerRef.current) {
+			const { width, height } = calculateDynamicDimensions();
+			console.log('Layout state changed, updating dimensions:', { 
+				activePanel, 
+				width, 
+				height 
+			});
+			
+			if (window.electronApi?.overlay?.updateDimensions) {
+				// Small delay to ensure DOM has updated
+				setTimeout(() => {
+					window.electronApi.overlay.updateDimensions({ width, height });
+				}, 100);
 			}
-		};
-
-		const handleEscapeKey = (event) => {
-			if (event.key === 'Escape') {
-				setShowScreenQuery(false);
-			}
-		};
-
-		document.addEventListener('mousedown', handleClickOutside);
-		document.addEventListener('keydown', handleEscapeKey);
-
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside);
-			document.removeEventListener('keydown', handleEscapeKey);
-		};
-	}, [showScreenQuery]);
+		}
+	}, [activePanel, calculateDynamicDimensions]);
 
 	return (
 		<div ref={containerRef} className="overlay-app">
 			<div className="overlay-container overlay-content" data-overlay-content="true">
 				{/* Shortcut bar */}
 				<ShortcutBar
-					onAskAIClick={handleAskAIClick}
-					isQueryBarOpen={showScreenQuery}
 					onListenClick={handleListenClick}
 					isLiveIntelligenceOpen={activePanel === 'live-intelligence'}
+					onAskAIClick={handleAskAIClick}
 				/>
 
 				{/* Commands section */}
 				<OverlayCommands />
 			</div>
 
-			{/* Screen query bar - separate window below with gap */}
-			{showScreenQuery && (
-				<div className="screen-query-container">
-					<ScreenQueryBar onClose={handleCloseScreenQuery} />
-				</div>
-			)}
-
-			{/* Live Intelligence panel - separate window below with gap */}
+			{/* Live Intelligence panel */}
 			{activePanel === 'live-intelligence' && (
 				<div className="live-intelligence-container">
 					<LiveIntelligencePanel
-						onClose={handleCloseLiveIntelligence}
+						onClose={handleClosePanel}
 						onShowTranscript={handleShowTranscript}
-						// Pass transcription data for future Live Intelligence features
 						transcriptions={transcriptions}
 						isRecording={isRecording}
 						timer={timer}
 						formatTime={formatTime}
-						// Pass socket data for tabs
 						socketData={liveIntelligenceData}
 					/>
 				</div>
 			)}
 
-			{/* Transcript panel - separate window below with gap */}
+			{/* Transcript panel */}
 			{activePanel === 'transcript' && (
 				<div className="transcript-container">
 					<TranscriptPanel
-						onClose={handleCloseTranscript}
+						onClose={handleClosePanel}
 						onShowLiveIntelligence={handleShowLiveIntelligence}
-						// Pass shared recording state and controls
 						transcriptions={transcriptions}
 						isRecording={isRecording}
 						timer={timer}

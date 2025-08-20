@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './shortcut-bar.scss';
 
-const ShortcutBar = ({ onAskAIClick, isQueryBarOpen, onListenClick, isLiveIntelligenceOpen }) => {
+const ShortcutBar = ({ onListenClick, isLiveIntelligenceOpen, onAskAIClick }) => {
 	const [isTooltipVisible, setIsTooltipVisible] = useState(false);
 
 	const handleMouseEnter = () => setIsTooltipVisible(true);
@@ -28,21 +28,19 @@ const ShortcutBar = ({ onAskAIClick, isQueryBarOpen, onListenClick, isLiveIntell
 			<div className="shortcut-bar__separator" />
 
 			<div 
-				className={`shortcut-bar__item shortcut-bar__item--clickable ${isQueryBarOpen ? 'shortcut-bar__item--active' : ''}`} 
+				className="shortcut-bar__item shortcut-bar__item--clickable"
 				onClick={onAskAIClick}
 			>
 				<span className="shortcut-bar__label">Ask AI</span>
-				<div className="shortcut-bar__keys">
-					<kbd className="shortcut-bar__key">⌘</kbd>
-					<kbd className="shortcut-bar__key">⏎</kbd>
-				</div>
 			</div>
+
+			<div className="shortcut-bar__separator" />
 
 			<div className="shortcut-bar__item">
 				<span className="shortcut-bar__label">Hide</span>
 				<div className="shortcut-bar__keys">
 					<kbd className="shortcut-bar__key">⌘</kbd>
-					<kbd className="shortcut-bar__key">⏎</kbd>
+					<kbd className="shortcut-bar__key">B</kbd>
 				</div>
 			</div>
 
