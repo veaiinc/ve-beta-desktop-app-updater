@@ -266,8 +266,8 @@ const Email = ({
 						>
 							{info.isLoading ? (
 								<Spinner
-									width="20px"
-									height="20px"
+									width="10px"
+									height="10px"
 									borderTopColor="transparent"
 									color="var(--background-color)"
 								/>

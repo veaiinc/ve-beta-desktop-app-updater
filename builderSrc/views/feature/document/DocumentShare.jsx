@@ -10,15 +10,16 @@ import { ReactComponent as InfoIcon } from '../../../assets/svg/Settings/Info.sv
 import { ReactComponent as ChevronDownIcon } from '../../../assets/svg/smartFile/downArrow.svg';
 import { ReactComponent as EmailIcon } from '../../../views/components/library/svgs/logicform/email.svg';
 import { ReactComponent as AssistantIcon } from '../../../views/components/library/svgs/LeftBar/AIassit.svg';
-// import { ReactComponent as ChartBarIcon } from '../../../assets/svg/document/chartBar.svg';
 import { ReactComponent as NoImageIcon } from '../../../assets/svg/document/noImage.svg';
 import { DatePicker, Modal, Input, Button } from 'antd';
-import dummyImage from '../../../assets/images/dummyImg2.jpg';
 import dayjs from 'dayjs';
 import Context from '../../../context/context';
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import SendEmailModal from '../../components/SmartFileDetails/SendEmailModal';
+import { UploadFileSVG } from '../../components/builder_client_common';
+import LibraryPopup from '../../components/imageLibrary/LibraryPopup';
+import { ReactComponent as Delete } from '../../../assets/svg/delete.svg';
 
 const DocumentShare = ({
 	isOpen,
@@ -37,6 +38,7 @@ const DocumentShare = ({
 			updateSendSmartFileSettings,
 			workflowInfoDetails,
 			sendCustomEmailToClients,
+			updateWorkflowInfo,
 		},
 		profileInfo: { tennantSettingsData, getTenantSettings },
 		aiSetup: {
@@ -120,7 +122,6 @@ const DocumentShare = ({
 
 	// Sync info with smartFileInfo changes
 	useEffect(() => {
-		console.log(smartFileInfo, 'rakesh');
 		if (smartFileInfo) {
 			setInfo((prev) => {
 				// Only update expiry if no pending selection
@@ -177,7 +178,7 @@ const DocumentShare = ({
 		if (info.editSlug && inputRef.current) {
 			inputRef.current.focus();
 		}
-		console.log(workflowInfoDetails);
+		// console.log(workflowInfoDetails);
 	}, [info.editSlug]);
 
 	// Update parent state (mimics updateWorkflowSlug in DocsFullView)
@@ -600,6 +601,30 @@ const DocumentShare = ({
 	}, []);
 	const isCustomDomainExists = tennantSettingsData?.customDomain;
 	const [showConfigureMetadata, setShowConfigureMetadata] = useState(false);
+
+	const [showImageModal, setShowImageModal] = useState(false);
+
+	const handleCloseModal = () => {
+		setShowImageModal(false);
+		// setModalRef(false);
+	};
+
+	const handleSetLibraryImage = (imageUrl) => {
+		updateWorkflowInfo({
+			updateWorkflowId: workflowInfoDetails?._id,
+			updateWorkflowInput: {
+				imageUrl: imageUrl,
+			},
+		});
+	};
+	const handleDeleteImage = () => {
+		updateWorkflowInfo({
+			updateWorkflowId: workflowInfoDetails?._id,
+			updateWorkflowInput: {
+				imageUrl: '',
+			},
+		});
+	};
 	return (
 		<ReactModal
 			isOpen={isOpen}
@@ -859,30 +884,63 @@ const DocumentShare = ({
 							</span>
 							<span className="configure-metadata-content-item3-image">
 								{workflowInfoDetails?.imageUrl ? (
-									<img
-										className="configure-metadata-content-item3-image-img"
-										src={workflowInfoDetails?.imageUrl}
-										alt="dummyImage"
-									/>
+									<div className="image-container">
+										<Delete
+											onClick={handleDeleteImage}
+											style={{
+												cursor: 'pointer',
+											}}
+										/>
+										<img
+											className="configure-metadata-content-item3-image-img"
+											src={workflowInfoDetails?.imageUrl}
+											alt="dummyImage"
+											style={{
+												width: '300px',
+												height: '150px',
+												borderRadius: '10px',
+												objectFit: 'contain',
+											}}
+										/>
+									</div>
 								) : (
 									<div
 										style={{
 											height: '100px',
 											width: '300px',
 											display: 'flex',
+											flexDirection: 'column',
 											justifyContent: 'center',
 											alignItems: 'center',
 											cursor: 'pointer',
+											color: '#ffffff',
+											border: '1px dashed var(--stroke, #2c2e31)',
+											borderRadius: '10px',
+										}}
+										onClick={() => {
+											setShowImageModal(!showImageModal);
 										}}
 									>
+										<span>
+											<UploadFileSVG />
+										</span>
 										<p
 											style={{
 												color: '#ffff',
-												fontSize: '12px',
-												fontFamily: 'inherit',
+												fontSize: '10px',
+												padding: '5px',
 											}}
 										>
-											Upload Meta Image
+											Upload
+										</p>
+										<p
+											style={{
+												color: '#ffff',
+												fontSize: '10px',
+												padding: '5px',
+											}}
+										>
+											Image Format: JPG && PNG
 										</p>
 									</div>
 								)}
@@ -891,6 +949,14 @@ const DocumentShare = ({
 					</div>
 				)}
 			</div>
+
+			{showImageModal && (
+				<LibraryPopup
+					className="Library-popup"
+					close={handleCloseModal}
+					setLibraryImage={handleSetLibraryImage}
+				/>
+			)}
 
 			<SendEmailModal
 				open={showEmailModal}

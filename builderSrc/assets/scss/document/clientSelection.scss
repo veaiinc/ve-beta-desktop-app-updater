@@ -30,7 +30,7 @@ $font-inter: 'Inter', sans-serif;
 		border: 1px solid var(--stroke, #2c2d2e);
 		input {
 			width: 100%;
-			color: var(--stroke-hover, #424548);
+			color: #ffffff;
 			font-family: $font-general-sans;
 			font-size: 14px;
 			font-style: normal;
@@ -39,6 +39,7 @@ $font-inter: 'Inter', sans-serif;
 			background: transparent;
 			background-origin: padding-box;
 			border: none;
+			padding: 10px;
 			// width: 400px;
 		}
 	}
@@ -176,6 +177,9 @@ $font-inter: 'Inter', sans-serif;
 // }
 .inputWithIconContainer .PhoneInput {
 	border: none !important;
+	border: 1px solid var(--stroke, #2c2d2e) !important;
+	padding: 10px;
+	border-radius: 10px;
 }
 // Responsive tooltip styles
 .responsive-tooltip {
@@ -250,12 +254,12 @@ $font-inter: 'Inter', sans-serif;
 	}
 }
 
-input:not([type='range']) {
-	touch-action: manipulation;
-	background-color: transparent;
-	border: 0.1px solid var(--stroke, #2b2e31);
-	color: white;
-	padding: 12px 14px;
-	border-radius: 10px;
-	font-size: 14px;
-}
+// input:not([type='range']) {
+// 	touch-action: manipulation;
+// 	background-color: transparent;
+// 	border: 0.1px solid var(--stroke, #2b2e31);
+// 	color: white;
+// 	padding: 12px 14px;
+// 	border-radius: 10px;
+// 	font-size: 14px;
+// }

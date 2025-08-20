@@ -513,28 +513,39 @@ $font-inter: 'Inter', sans-serif;
 				font-weight: 500;
 				line-height: 18px; /* 150% */
 			}
-			.configure-metadata-content-item3-image {
-				display: flex;
-				// padding: 16px;
-				height: 150px;
+			.image-container {
+				position: relative;
+				height: 200px;
 				width: 300px;
-				justify-content: space-between;
-				align-items: center;
-				flex: 1 0 0;
-				align-self: stretch;
-				border-radius: 16px;
-				border: 1px solid var(--dark-theme-text-field-stroke-pop-up, #2c2d2e);
-				// background: url(<path-to-image>) lightgray 0px -24.768px / 100% 179.87% no-repeat;
-				.configure-metadata-content-item3-image-img {
-					width: 100%;
-					height: 100%;
-					object-fit: cover;
-					border-radius: 16px;
-					transition: transform 0.3s ease; // Smooth transition
+				display: flex;
+				flex-direction: column;
+				gap: 5px;
+				justify-content: flex-start;
+				align-items: flex-end;
 
-					&:hover {
-						cursor: pointer;
-						transform: scale(1.03); // Use transform instead of scale property
+				.configure-metadata-content-item3-image {
+					display: flex;
+					// padding: 16px;
+					height: 150px;
+					width: 300px;
+					justify-content: space-between;
+					align-items: center;
+					flex: 1 0 0;
+					align-self: stretch;
+					border-radius: 16px;
+					border: 1px solid var(--dark-theme-text-field-stroke-pop-up, #2c2d2e);
+					// background: url(<path-to-image>) lightgray 0px -24.768px / 100% 179.87% no-repeat;
+					.configure-metadata-content-item3-image-img {
+						position: absolute;
+						top: 10px;
+						right: 4px;
+						object-fit: cover;
+						border-radius: 16px;
+						transition: transform 0.3s ease; // Smooth transition
+						&:hover {
+							cursor: pointer;
+							transform: scale(1.03); // Use transform instead of scale property
+						}
 					}
 				}
 			}
@@ -555,6 +566,13 @@ $font-inter: 'Inter', sans-serif;
 			}
 		}
 	}
+}
+.image-library-popup {
+	width: 80%;
+	height: 350px;
+	position: absolute;
+	top: 25%;
+	left: 10%;
 }
 
 // Responsive styles for Document Share Modal

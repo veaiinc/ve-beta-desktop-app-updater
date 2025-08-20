@@ -1686,6 +1686,14 @@ $font-inter: 'Inter', sans-serif;
 											rgba(121, 236, 201, 0.1),
 											transparent
 										);
+										background: linear-gradient(
+											135deg,
+											#000000 0%,
+											#222222 25%,
+											#ffffff 100%,
+											#222222 75%,
+											#000000 100%
+										);
 										animation: avatar-glow 3s ease-in-out infinite;
 									}
 								}

@@ -70,6 +70,7 @@ const ClientSelectionTooltip = ({
 			<div className="clientSearch">
 				{/* <SearchIcon /> */}
 				<input
+					className="clientSearchInput"
 					type="text"
 					placeholder="Search client here"
 					value={searchQuery}
@@ -1221,7 +1222,10 @@ const CreateDocument = () => {
 													<span className="inputLabel">Client Phone</span>
 													<PhoneInput
 														placeholder="Client Phone"
-														value={stageInfo.clientDetails.phoneNumber}
+														value={
+															stageInfo.clientDetails.phoneNumber ||
+															undefined
+														}
 														onChange={(value) =>
 															setStageInfo((prev) => ({
 																...prev,
@@ -1250,8 +1254,9 @@ const CreateDocument = () => {
 														countryCallingCodeEditable={true}
 														autoComplete="tel"
 														style={{
+															color: '#ffffff',
 															backgroundColor: 'none',
-															border: '1px solid var(--stroke)',
+															border: '1px solid var(--stroke, #2b2e31)',
 														}}
 													/>
 													<Tooltip title="Phone Number" placement="top">
@@ -1260,33 +1265,37 @@ const CreateDocument = () => {
 														</div>
 													</Tooltip>
 												</div>
+												{stageInfo.selectedTemplate && (
+													<div className="inputWithIconContainer">
+														<span className="inputLabel">
+															Document Name
+														</span>
+														<input
+															className="inputBoxContainer withIcon"
+															placeholder="Enter document name"
+															value={stageInfo.documentName}
+															disabled={!stageInfo.clientEditable}
+															onChange={handleDocumentNameChange}
+														/>
 
-												<div className="inputWithIconContainer">
-													<span className="inputLabel">
-														Document Name
-													</span>
-													<input
-														className="inputBoxContainer withIcon"
-														placeholder="Enter document name"
-														value={stageInfo.documentName}
-														disabled={!stageInfo.clientEditable}
-														onChange={handleDocumentNameChange}
-													/>
-
-													<Tooltip title="Document Name" placement="top">
-														<div className="inputIcon">
-															{/* You can add a document icon here or use an existing one */}
-															<svg
-																width="18"
-																height="18"
-																viewBox="0 0 24 24"
-																fill="currentColor"
-															>
-																<path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
-															</svg>
-														</div>
-													</Tooltip>
-												</div>
+														<Tooltip
+															title="Document Name"
+															placement="top"
+														>
+															<div className="inputIcon">
+																{/* You can add a document icon here or use an existing one */}
+																<svg
+																	width="18"
+																	height="18"
+																	viewBox="0 0 24 24"
+																	fill="currentColor"
+																>
+																	<path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+																</svg>
+															</div>
+														</Tooltip>
+													</div>
+												)}
 
 												{/* template selection section */}
 												<div className="templateSelectionSection">
@@ -1511,6 +1520,7 @@ const CreateDocument = () => {
 														</div>
 													)}
 												</div>
+
 												<button
 													className="createDocumentButton create-Button"
 													onClick={handleCreate}
@@ -1625,9 +1635,12 @@ const CreateDocument = () => {
 
 												<div
 													// className="existingClientContainer"
-													className={`existingClientContainer 
-`}
+													className={`existingClientContainer `}
 												>
+													{!filteredClients.length && (
+														<div class="loading-spinner"></div>
+													)}
+
 													{filteredClients.length > 0 ? (
 														filteredClients.map((client) => {
 															const clientData = JSON.parse(
