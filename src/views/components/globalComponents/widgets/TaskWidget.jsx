@@ -27,7 +27,6 @@ const TaskWidget = ({ widgetData = null }) => {
 	useEffect(() => {
 		if (widgetData) {
 			const { title, description, dueDate, priority } = widgetData || {};
-			console.log(title, widgetData);
 			setInfo((prev) => ({
 				...prev,
 				title,
@@ -85,7 +84,6 @@ const TaskWidget = ({ widgetData = null }) => {
 		setInfo((prev) => ({ ...prev, creatingTask: true }));
 		const response = await addListItem({ input: payload });
 		setInfo((prev) => ({ ...prev, creatingTask: false }));
-		console.log(response);
 	}, [info]);
 
 	const handleBtnClick = useCallback(() => {
