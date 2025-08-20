@@ -155,7 +155,6 @@ const UploadPhotos = () => {
 
 		// ✅ Optional: Notify user if only hidden files were dropped
 		if (filteredFiles.length === 0) {
-			console.log('No valid files: Only hidden/system files (e.g. .DS_Store) were dropped.');
 			return; // 🔥 Exit early — no files to process
 		}
 
@@ -174,19 +173,46 @@ const UploadPhotos = () => {
 			});
 		}
 
+		// if (
+		// 	lightGallery === 'false' &&
+		// 	validateExpiryData &&
+		// 	validateExpiryData?.restrictGalleries &&
+		// 	!validateExpiryData?.uploadAllowedForClassicGallery
+		// ) {
+		// 	return updateSubscriptionState({
+		// 		expiredSubscriptionModal: true,
+		// 		expiredSubscriptionType: 'Classic-Gallery',
+		// 	});
+		// }
+		// if (
+		// 	lightGallery === 'false' &&
+		// 	validateExpiryData &&
+		// 	validateExpiryData?.restrictGalleries &&
+		// 	!validateExpiryData?.uploadAllowed
+		// ) {
+		// 	return updateSubscriptionState({
+		// 		expiredSubscriptionModal: true,
+		// 		expiredSubscriptionType: 'Classic-Gallery-Upload',
+		// 	});
+		// }
 		if (
 			lightGallery === 'false' &&
 			validateExpiryData &&
-			validateExpiryData?.restrictGalleries &&
-			(!validateExpiryData?.uploadAllowed ||
-				!validateExpiryData?.uploadAllowedForClassicGallery)
+			validateExpiryData?.restrictGalleries
 		) {
-			return updateSubscriptionState({
-				expiredSubscriptionModal: true,
-				expiredSubscriptionType: 'Classic-Gallery-Upload',
-			});
+			if (!validateExpiryData?.uploadAllowedForClassicGallery) {
+				return updateSubscriptionState({
+					expiredSubscriptionModal: true,
+					expiredSubscriptionType: 'Classic-Gallery',
+				});
+			}
+			if (!validateExpiryData?.uploadAllowed) {
+				return updateSubscriptionState({
+					expiredSubscriptionModal: true,
+					expiredSubscriptionType: 'Classic-Gallery-Upload',
+				});
+			}
 		}
-
 		// Show processing indicator
 		setinfo((prev) => ({ ...prev, isProcessingDuplicates: true }));
 
