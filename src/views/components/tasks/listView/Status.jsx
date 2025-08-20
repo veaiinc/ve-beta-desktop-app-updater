@@ -26,6 +26,7 @@ const Status = ({
 	title = 'Status',
 	showTitle = false,
 	disabled = false,
+	placement = 'bottom',
 }) => {
 	const [info, setInfo] = useState({
 		selected: null,
@@ -100,10 +101,11 @@ const Status = ({
 					valueField={valueField}
 				/>
 			}
-			placement="bottom"
+			placement={placement}
 			classNames={{ root: 'status-dropdown' }}
 			color="transparent"
 			trigger={['click']}
+			arrow={false}
 			onClick={(e) => {
 				e?.stopPropagation();
 			}}
