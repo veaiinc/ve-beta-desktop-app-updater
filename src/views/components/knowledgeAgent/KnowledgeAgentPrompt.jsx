@@ -21,6 +21,13 @@ const customPromptItem = {
 	tag: 'custom',
 	isDefault: false,
 };
+const loaderDivStyles = {
+	width: '100%',
+	height: '300px',
+	display: 'flex',
+	justifyContent: 'center',
+	alignItems: 'center',
+};
 
 const KnowledgeAgentPrompt = ({ assistant, actionDetails = [], myAccess }) => {
 	const {
@@ -244,16 +251,7 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [], myAccess }) => {
                 </div> */}
 
 				{info?.promptLoading ? (
-					<div
-						className="promptLoadingContainer"
-						style={{
-							width: '100%',
-							height: '300px',
-							display: 'flex',
-							justifyContent: 'center',
-							alignItems: 'center',
-						}}
-					>
+					<div className="promptLoadingContainer" style={loaderDivStyles}>
 						<Spinner />
 					</div>
 				) : (
