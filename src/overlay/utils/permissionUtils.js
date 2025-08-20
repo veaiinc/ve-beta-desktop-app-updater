@@ -71,3 +71,198 @@ export const getMicrophoneDevices = async () => {
 		return [];
 	}
 };
+
+export const requestAndTestMicrophoneAccess = async () => {
+	console.log('=== Requesting and Testing Microphone Access ===');
+	
+	// 1. Check if getUserMedia is available
+	console.log('navigator.mediaDevices available:', !!navigator.mediaDevices);
+	console.log('getUserMedia available:', !!navigator.mediaDevices?.getUserMedia);
+	
+	if (!navigator.mediaDevices?.getUserMedia) {
+		return {
+			success: false,
+			error: { name: 'NotSupportedError', message: 'getUserMedia is not supported in this browser' },
+			needsPermission: false
+		};
+	}
+	
+	// 2. Check current permission state (if available)
+	let currentPermissionState = 'unknown';
+	if (navigator.permissions) {
+		try {
+			const permission = await navigator.permissions.query({ name: 'microphone' });
+			currentPermissionState = permission.state;
+			console.log('Current permission state:', permission.state);
+		} catch (e) {
+			console.log('Permission query failed, will attempt direct access:', e.message);
+		}
+	}
+	
+	// 3. If permission is already denied, inform user they need to manually enable it
+	if (currentPermissionState === 'denied') {
+		return {
+			success: false,
+			error: { 
+				name: 'PermissionPreviouslyDenied', 
+				message: 'Microphone permission was previously denied. Please enable it manually in your browser or system settings.' 
+			},
+			needsPermission: true,
+			needsManualEnable: true
+		};
+	}
+	
+	// 4. Attempt to request microphone access (this will prompt user if needed)
+	try {
+		console.log('Requesting microphone access with LiveKit constraints...');
+		const stream = await navigator.mediaDevices.getUserMedia({ 
+			audio: {
+				sampleRate: 16000,
+				channelCount: 1,
+				echoCancellation: true,
+				noiseSuppression: true,
+				autoGainControl: true,
+			}
+		});
+		
+		console.log('✅ Microphone access successful');
+		console.log('Audio tracks:', stream.getAudioTracks().length);
+		
+		// Log track details
+		stream.getAudioTracks().forEach((track, index) => {
+			console.log(`Track ${index}:`, {
+				kind: track.kind,
+				label: track.label,
+				enabled: track.enabled,
+				muted: track.muted,
+				readyState: track.readyState,
+				settings: track.getSettings?.() || 'Not available',
+				constraints: track.getConstraints?.() || 'Not available'
+			});
+		});
+		
+		// Test audio activity detection briefly
+		if (stream.getAudioTracks().length > 0) {
+			try {
+				const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+				const source = audioContext.createMediaStreamSource(stream);
+				const analyser = audioContext.createAnalyser();
+				source.connect(analyser);
+				
+				const dataArray = new Uint8Array(analyser.frequencyBinCount);
+				analyser.getByteFrequencyData(dataArray);
+				const average = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
+				console.log('Audio activity level:', average);
+				
+				await audioContext.close();
+			} catch (audioError) {
+				console.log('Audio context test failed, but microphone access successful:', audioError);
+			}
+		}
+		
+		// Clean up the test stream
+		stream.getTracks().forEach(track => track.stop());
+		
+		return { success: true, needsPermission: false };
+		
+	} catch (error) {
+		console.log('❌ Microphone access failed:');
+		console.log('Error name:', error.name);
+		console.log('Error message:', error.message);
+		console.log('Error constraint:', error.constraint);
+		
+		// Analyze the error and provide appropriate response
+		let needsPermission = false;
+		let needsManualEnable = false;
+		let troubleshootingTips = [];
+		
+		if (error.name === 'NotAllowedError') {
+			needsPermission = true;
+			// If user just denied the permission prompt, they need to enable it manually
+			needsManualEnable = true;
+			troubleshootingTips.push('🔧 Microphone permission denied');
+			troubleshootingTips.push('🔧 Look for a microphone icon in your browser\'s address bar and click "Allow"');
+			troubleshootingTips.push('🔧 On macOS: System Preferences > Privacy & Security > Microphone');
+			troubleshootingTips.push('🔧 You may need to restart the app after granting system permissions');
+		} else if (error.name === 'NotFoundError') {
+			troubleshootingTips.push('🔧 No microphone device found');
+			troubleshootingTips.push('🔧 Check if microphone is properly connected');
+			troubleshootingTips.push('🔧 Try a different microphone or USB port');
+		} else if (error.name === 'NotReadableError') {
+			troubleshootingTips.push('🔧 Microphone is being used by another application');
+			troubleshootingTips.push('🔧 Close other apps that might be using the microphone');
+			troubleshootingTips.push('🔧 Check for background recording apps');
+		} else if (error.name === 'OverconstrainedError') {
+			troubleshootingTips.push('🔧 Microphone constraints not supported');
+			troubleshootingTips.push('🔧 Try with different audio settings');
+		} else {
+			troubleshootingTips.push('🔧 Unknown error - check browser console for details');
+		}
+		
+		console.log('Troubleshooting tips:');
+		troubleshootingTips.forEach(tip => console.log(tip));
+		
+		return { 
+			success: false, 
+			error, 
+			troubleshootingTips, 
+			needsPermission,
+			needsManualEnable
+		};
+	}
+};
+
+// Keep the original debug function for troubleshooting
+export const debugMicrophoneAccess = requestAndTestMicrophoneAccess;
+
+export const testLiveKitCompatibility = async () => {
+	console.log('=== LiveKit Compatibility Test ===');
+	
+	try {
+		// Test LiveKit-specific constraints
+		const liveKitConstraints = {
+			audio: {
+				sampleRate: 16000,
+				channelCount: 1,
+				echoCancellation: true,
+				noiseSuppression: true,
+				autoGainControl: true,
+			}
+		};
+		
+		console.log('Testing with LiveKit constraints:', liveKitConstraints);
+		const stream = await navigator.mediaDevices.getUserMedia(liveKitConstraints);
+		
+		const audioTrack = stream.getAudioTracks()[0];
+		if (audioTrack) {
+			const settings = audioTrack.getSettings();
+			console.log('✅ LiveKit compatible settings achieved:', {
+				sampleRate: settings.sampleRate,
+				channelCount: settings.channelCount,
+				echoCancellation: settings.echoCancellation,
+				noiseSuppression: settings.noiseSuppression,
+				autoGainControl: settings.autoGainControl,
+			});
+			
+			// Check if settings match what was requested
+			const settingsMatch = {
+				sampleRate: settings.sampleRate === 16000,
+				channelCount: settings.channelCount === 1,
+				echoCancellation: settings.echoCancellation === true,
+				noiseSuppression: settings.noiseSuppression === true,
+				autoGainControl: settings.autoGainControl === true,
+			};
+			
+			console.log('Settings compatibility:', settingsMatch);
+			const allMatch = Object.values(settingsMatch).every(match => match);
+			console.log(allMatch ? '✅ All LiveKit constraints satisfied' : '⚠️ Some constraints not fully satisfied');
+		}
+		
+		stream.getTracks().forEach(track => track.stop());
+		return { success: true, compatible: true };
+		
+	} catch (error) {
+		console.log('❌ LiveKit compatibility test failed:', error.name, error.message);
+		return { success: false, error };
+	}
+};

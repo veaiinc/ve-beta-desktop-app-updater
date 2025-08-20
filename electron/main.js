@@ -1,5 +1,5 @@
 // main.js
-const { app, BrowserWindow, Menu } = require('electron');
+const { app, BrowserWindow, Menu, session, systemPreferences } = require('electron');
 const ipcMain = require('electron').ipcMain;
 const { autoUpdater } = require('electron-updater');
 const log = require('electron-log'); // Import electron-log
@@ -164,10 +164,51 @@ autoUpdater.on('update-downloaded', (info) => {
 });
 
 app.whenReady().then(() => {
+	// Set up permission request handler for microphone access
+	session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
+		const allowedPermissions = [
+			'media', // ✅ This is the key one - covers getUserMedia requests
+			'audioCapture',
+			'microphone',
+			'camera',
+			'displayCapture', // For screen sharing if needed
+			'geolocation',
+			'notifications'
+		];
+
+		log.info('Permission requested:', permission);
+
+		if (allowedPermissions.includes(permission)) {
+			log.info('✅ Granted permission for:', permission);
+			callback(true);
+		} else {
+			log.info('❌ Denied permission for:', permission);
+			callback(false);
+		}
+	});
+
+	// Check macOS microphone permission status
+	if (process.platform === 'darwin') {
+		const { systemPreferences } = require('electron');
+
+		const microphone = systemPreferences.askForMediaAccess('microphone');
+		const camera = systemPreferences.askForMediaAccess('camera');
+
+		log.info('macOS Microphone permission status:', microphone);
+
+		if (microphone === 'denied') {
+			log.warn(
+				'Microphone access denied. Users need to grant permission in System Preferences > Privacy & Security > Microphone.',
+			);
+		} else if (microphone === 'not-determined') {
+			log.info('Microphone permission not yet determined. Will prompt user on first access.');
+		}
+	}
+
 	// const menu = Menu.buildFromTemplate(template);
 	// Menu.setApplicationMenu(menu);
 	createWindow();
-	
+
 	// Initialize window helper and register global shortcuts
 	windowHelper = new WindowHelper();
 	windowHelper.registerGlobalShortcuts(mainWindow);

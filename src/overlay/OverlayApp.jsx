@@ -5,18 +5,23 @@ import Context from '../context/context';
 import useNote from '../hooks/useNote';
 import useLiveIntelligenceStream from '../hooks/useLiveIntelligenceStream';
 import useRecallStream from '../hooks/useRecallStream';
-import { message } from 'antd';
+import { requestAndTestMicrophoneAccess, testLiveKitCompatibility } from './utils/permissionUtils';
 import ObjectID from 'bson-objectid';
 import OverlayCommands from './OverlayCommands';
 import ShortcutBar from './components/ShortcutBar';
 import LiveIntelligencePanel from './components/LiveIntelligencePanel';
 import TranscriptPanel from './components/TranscriptPanel';
+import OverlayNotification, { useOverlayNotification } from './components/OverlayNotification';
 import './overlay.scss';
 
 const OverlayApp = () => {
 	const containerRef = useRef(null);
 	// State to control which panel is shown: 'live-intelligence', 'transcript', or null
 	const [activePanel, setActivePanel] = useState(null);
+
+	// Custom notification system
+	const notification = useOverlayNotification();
+
 
 	// Shared Recording State
 	const wsUrl = 'wss://ve-ai-transcriptions-8p8k0b44.livekit.cloud';
@@ -265,10 +270,59 @@ const OverlayApp = () => {
 		setRecallSessionId(newSessionId);
 
 		try {
+			// First, request and test microphone access - this will prompt user if needed
+			console.log('Starting transcription - requesting microphone access...');
+			
+			// Show info notification that we're requesting permission
+			const permissionNotificationId = notification.info(
+				'Requesting microphone access', 
+				'Please allow microphone access when prompted by your browser.',
+				0 // Don't auto-dismiss
+			);
+			
+			const permissionResult = await requestAndTestMicrophoneAccess();
+			
+			// Dismiss the permission request notification
+			notification.dismissNotification(permissionNotificationId);
+			
+			if (!permissionResult.success) {
+				let errorMessage = 'Microphone access failed';
+				let errorDescription = 'Please check your microphone settings and try again.';
+				
+				if (permissionResult.needsPermission) {
+					if (permissionResult.needsManualEnable) {
+						errorMessage = 'Microphone permission required';
+						errorDescription = 'Please enable microphone access in your browser/system settings and restart the app.';
+					} else {
+						errorMessage = 'Microphone permission needed';
+						errorDescription = 'Please allow microphone access when prompted and try again.';
+					}
+				} else {
+					// Handle other errors (no device, device busy, etc.)
+					errorMessage = permissionResult.error?.name === 'NotFoundError' 
+						? 'No microphone found'
+						: 'Microphone access failed';
+					errorDescription = permissionResult.error?.message || errorDescription;
+				}
+				
+				console.error('Microphone access failed before LiveKit connection:', permissionResult);
+				notification.error(errorMessage, errorDescription);
+				return;
+			}
+
+			// Test LiveKit compatibility
+			const compatibilityResult = await testLiveKitCompatibility();
+			if (!compatibilityResult.success) {
+				console.warn('LiveKit compatibility test failed, but proceeding with connection attempt:', compatibilityResult.error);
+			}
+
 			const response = await getLiveKitToken({ meetingId: newSessionId });
 			if (response && response[0] === true && response[1]?.accessToken) {
 				setLiveKitToken(response[1].accessToken);
 				setIsRecording(true);
+
+				// Show success notification
+				notification.success('Recording started', 'Microphone connected successfully');
 
 				// Start Recall connection for Live Intelligence
 				createRecallConnection(
@@ -279,15 +333,15 @@ const OverlayApp = () => {
 				);
 			} else {
 				console.error('Failed to fetch LiveKit token: Invalid response format', response);
-				message.error('Failed to fetch transcription token. Please try again.');
+				notification.error('Connection failed', 'Failed to fetch transcription token. Please try again.');
 			}
 		} catch (err) {
 			console.error('Error fetching LiveKit token:', err);
 			// Check if it's a microphone permission error
 			if (err.message && err.message.includes('Microphone permission')) {
-				message.error(err.message);
+				notification.error('Microphone permission error', err.message);
 			} else {
-				message.error('Error fetching transcription token. Please try again.');
+				notification.error('Connection error', 'Error fetching transcription token. Please try again.');
 			}
 		}
 	};
@@ -448,6 +502,18 @@ const OverlayApp = () => {
 		}
 	};
 
+
+	// Debug function to test notifications (remove after testing)
+	const handleTestNotifications = () => {
+		notification.success('Test Success', 'This is a success notification');
+		setTimeout(() => {
+			notification.error('Test Error', 'This is an error notification with a longer description to test wrapping');
+		}, 500);
+		setTimeout(() => {
+			notification.info('Test Info', 'This is an info notification');
+		}, 1000);
+	};
+
 	const calculateDynamicDimensions = useCallback(() => {
 		if (!containerRef.current) return { width: 800, height: 150 };
 
@@ -591,6 +657,13 @@ const OverlayApp = () => {
 					/>
 				</div>
 			)}
+
+			{/* Custom notification system - appears above everything */}
+			<OverlayNotification
+				notifications={notification.notifications}
+				onDismiss={notification.dismissNotification}
+			/>
+
 		</div>
 	);
 };
