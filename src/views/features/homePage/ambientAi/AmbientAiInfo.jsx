@@ -111,7 +111,7 @@ const AmbientAiInfo = ({
 	useEffect(() => {
 		if (!data) return;
 
-		const { research_report, suggested_actions, suggested_prompts, thinker_sources } =
+		const { research_report, suggested_actions, suggested_prompts, thinker_sources, widgets } =
 			data || {};
 
 		const { chain_of_thought } = data;
@@ -122,7 +122,7 @@ const AmbientAiInfo = ({
 			)?.[0]?.access || 'view';
 
 		const visibilityMap = {
-			actions: suggested_actions?.length || suggested_prompts?.length,
+			actions: suggested_actions?.length || suggested_prompts?.length || widgets?.length,
 			report: research_report?.length || chainOfThoughtData?.hasChainOfThought,
 			sources: thinker_sources?.length,
 		};
