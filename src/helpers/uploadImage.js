@@ -58,7 +58,7 @@ async function uploadImage(
 		if (bucketType !== 'optimised') {
 			formData.append('x-amz-meta-gallery-id', galleryId);
 			formData.append('x-amz-meta-given-image-id', imageId);
-			formData.append('x-amz-meta-given-image-version-id', fileNameOnly);
+			formData.append('x-amz-meta-given-image-version-id', versionId);
 			formData.append('x-amz-meta-is-ai-faces-enabled', true);
 			formData.append('x-amz-meta-original-file-name', file?.name);
 			formData.append('x-amz-meta-tenant-id', tenantId);
