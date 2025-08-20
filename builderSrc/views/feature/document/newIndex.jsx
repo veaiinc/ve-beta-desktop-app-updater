@@ -11,7 +11,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ReactComponent as MailIcon } from '../../../views/components/library/svgs/logicform/email.svg';
 import { ReactComponent as PhoneIcon } from '../../../assets/svg/questionTypes/phoneNumber.svg';
 import { ReactComponent as Plus } from '../../../assets/svg/document/plus.svg';
-import { ReactComponent as DocumentPreview } from '../../../assets/svg/document/documentrightside.svg';
+// import { ReactComponent as DocumentPreview } from '../../../assets/svg/document/documentrightside.svg';
 import { ReactComponent as ChevronDownIcon } from '../../../assets/svg/smartFile/downArrow.svg';
 import { fetchOriginSelection } from '../../../helper';
 import PhoneInput from 'react-phone-number-input';
