@@ -53,40 +53,60 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [], myAccess }) => {
 	});
 
 	useEffect(() => {
-		if (allAiPrompts) {
-			let selectedSystemPrompt;
-			let systemPrompt;
-			let currentPromptId;
+		if (assistant) {
+			// selectedSystemPrompt;
+			// systemPrompt = assistant?.prompt?.customEditedPrompt;
+			// currentPromptId = assistant?.prompt?.promptId;
+			// console.log('assistant', assistant);
 
-			if (assistant?.prompt?.customEditedPrompt) {
-				selectedSystemPrompt = 'Custom';
-				systemPrompt = assistant?.prompt?.customEditedPrompt;
-				currentPromptId = assistant?.prompt?.promptId;
-			} else if (assistant?.prompt?.promptId) {
-				const selectedPrompt = allAiPrompts?.find(
-					(prompt) => prompt?._id === assistant?.prompt?.promptId,
-				);
-				selectedSystemPrompt = selectedPrompt?.label;
-				systemPrompt = selectedPrompt?.prompt;
-				currentPromptId = selectedPrompt?._id;
-			} else {
-				const defaultPrompt = allAiPrompts?.find((prompt) => prompt?.isDefault);
-				selectedSystemPrompt = defaultPrompt?.label;
-				systemPrompt = defaultPrompt?.prompt;
-				currentPromptId = defaultPrompt?._id;
-			}
 			setInfo((prev) => ({
 				...prev,
 				systemPromptOptions: allAiPrompts || [],
-				selectedSystemPrompt,
-				systemPrompt,
-				currentPromptId,
+				selectedSystemPrompt: 'Custom',
+				systemPrompt: assistant?.prompt?.customEditedPrompt,
+				currentPromptId: assistant?.prompt?.promptId,
 				promptLoading: false,
 			}));
-		} else if (assistant?._id) {
-			getAiPrompts(assistant?._id);
 		}
-	}, [allAiPrompts, assistant?._id]);
+		return () => {};
+	}, [assistant?._id]);
+
+	// useEffect(() => {
+	// 	if (allAiPrompts) {
+	// 		let selectedSystemPrompt;
+	// 		let systemPrompt;
+	// 		let currentPromptId;
+
+	// 		if (assistant?.prompt?.customEditedPrompt) {
+	// 			selectedSystemPrompt = 'Custom';
+	// 			systemPrompt = assistant?.prompt?.customEditedPrompt;
+	// 			currentPromptId = assistant?.prompt?.promptId;
+	// 		}
+	// 		// else if (assistant?.prompt?.promptId) {
+	// 		// 	const selectedPrompt = allAiPrompts?.find(
+	// 		// 		(prompt) => prompt?._id === assistant?.prompt?.promptId,
+	// 		// 	);
+	// 		// 	selectedSystemPrompt = selectedPrompt?.label;
+	// 		// 	systemPrompt = selectedPrompt?.prompt;
+	// 		// 	currentPromptId = selectedPrompt?._id;
+	// 		// } else {
+	// 		// 	const defaultPrompt = allAiPrompts?.find((prompt) => prompt?.isDefault);
+	// 		// 	selectedSystemPrompt = defaultPrompt?.label;
+	// 		// 	systemPrompt = defaultPrompt?.prompt;
+	// 		// 	currentPromptId = defaultPrompt?._id;
+	// 		// }
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			systemPromptOptions: allAiPrompts || [],
+	// 			selectedSystemPrompt,
+	// 			systemPrompt,
+	// 			currentPromptId,
+	// 			promptLoading: false,
+	// 		}));
+	// 	} else if (assistant?._id) {
+	// 		getAiPrompts(assistant?._id);
+	// 	}
+	// }, [allAiPrompts, assistant?._id]);
 
 	useEffect(() => {
 		const selectedModel = info?.aiModelOptions?.find(
@@ -107,7 +127,7 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [], myAccess }) => {
 	const handleDebounceUpdate = useCallback(() => {
 		clearTimeout(info?.timeout);
 		const timeout = setTimeout(() => {
-			if (info?.editedPrompt && assistant?._id && info?.currentPromptId) {
+			if (assistant?._id && info?.currentPromptId) {
 				editAiPrompt(assistant?._id, info?.currentPromptId, {
 					prompt: info?.editedPrompt,
 				});
@@ -134,44 +154,48 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [], myAccess }) => {
 		if (!response[0]) message.error('Failed to update model for the agent!');
 	};
 
-	const handleSystemPromptChange = useCallback(
-		(option) => {
+	// const handleSystemPromptChange = useCallback(
+	// 	(option) => {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			selectedSystemPrompt: option.label,
+	// 			systemPrompt: option.prompt || '',
+	// 			currentPromptId: option._id,
+	// 			isSelectSystemPromptOpen: false,
+	// 		}));
+	// 		if (assistant?._id && option._id) {
+	// 			selectAiPrompt(assistant?._id, option._id);
+	// 		}
+	// 	},
+	// 	[assistant, selectAiPrompt],
+	// );
+
+	const handlePromptChange = useCallback(
+		(value) => {
+			if (value === info?.systemPrompt) return;
 			setInfo((prev) => ({
 				...prev,
-				selectedSystemPrompt: option.label,
-				systemPrompt: option.prompt || '',
-				currentPromptId: option._id,
-				isSelectSystemPromptOpen: false,
+				systemPrompt: value,
+				editedPrompt: value,
+				selectedSystemPrompt: 'Custom',
+				currentPromptId: prev.currentPromptId,
 			}));
-			if (assistant?._id && option._id) {
-				selectAiPrompt(assistant?._id, option._id);
-			}
 		},
-		[assistant, selectAiPrompt],
+		[info?.systemPrompt],
 	);
 
-	const handlePromptChange = useCallback((value) => {
-		setInfo((prev) => ({
-			...prev,
-			systemPrompt: value,
-			editedPrompt: value,
-			selectedSystemPrompt: 'Custom',
-			currentPromptId: prev.currentPromptId,
-		}));
-	}, []);
-
-	const handleResetPrompt = useCallback(async () => {
-		const response = await resetAiPrompt(assistant?._id);
-		if (response?.[0] === true) {
-			const { label, prompt } = response[1];
-			setInfo((prev) => ({
-				...prev,
-				selectedSystemPrompt: label,
-				systemPrompt: prompt,
-				editedPrompt: '',
-			}));
-		}
-	}, [assistant]);
+	// const handleResetPrompt = useCallback(async () => {
+	// 	const response = await resetAiPrompt(assistant?._id);
+	// 	if (response?.[0] === true) {
+	// 		const { label, prompt } = response[1];
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			selectedSystemPrompt: label,
+	// 			systemPrompt: prompt,
+	// 			editedPrompt: '',
+	// 		}));
+	// 	}
+	// }, [assistant]);
 
 	return (
 		<div className="aiPromptParentContainer">
@@ -288,9 +312,9 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [], myAccess }) => {
 							/>
 						</div>
 
-						<div className="resetPromptContainer">
+						{/* <div className="resetPromptContainer">
 							<button onClick={handleResetPrompt}>Reset</button>
-						</div>
+						</div> */}
 					</>
 				)}
 			</div>

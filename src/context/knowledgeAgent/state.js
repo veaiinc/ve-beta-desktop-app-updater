@@ -428,10 +428,19 @@ export const KnowledgeAgentState = () => {
 			const type = 'ai_assistant_api';
 			const response = await service?.fetchPut(path, updateData, token, type);
 			const success = response?.[0] === true;
+
 			if (success) {
 				dispatch({
-					type: Actions?.SELECT_AI_PROMPT,
-					payload: { data: response?.[1] },
+					type: Actions?.SET_ACTIVE_KNOWLEDGE_ASSISTANT,
+					payload: {
+						data: {
+							...(state?.activeKnowledgeAssistant?.data || {}),
+							prompt: {
+								...(state?.activeKnowledgeAssistant?.data?.prompt || {}),
+								...(response?.[1] || {}),
+							},
+						},
+					},
 				});
 			}
 		} catch (error) {
