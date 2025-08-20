@@ -499,7 +499,7 @@ const UploadPhotosDesktop = () => {
 		versionId,
 	) => {
 		const givenFileName = uploadResultOriginal.fileKey.split('/').pop();
-
+		const updatedVersionId = versionId.toString();
 		// Use metadata from processSingleImage
 		const {
 			width: originalWidth,
@@ -512,6 +512,7 @@ const UploadPhotosDesktop = () => {
 			tag_ids: info.selectedGalleryTags.map((tag) => tag._id || ''),
 			image_id: imageId.toHexString(), // ← This will be reused ID for duplicates
 			activeVersion: {
+				versionId: updatedVersionId,
 				uploadBatchId: info.uploadBatchID,
 				isAIFacesEnabled:
 					lightGallery === 'true'
