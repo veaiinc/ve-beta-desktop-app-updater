@@ -13,6 +13,7 @@ const {
 } = require('./galleryHelper');
 
 let mainWindow = null;
+let windowHelper = null;
 
 // Auto-updater setup
 autoUpdater.logger = log;

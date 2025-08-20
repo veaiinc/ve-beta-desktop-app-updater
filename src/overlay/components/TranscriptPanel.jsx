@@ -108,7 +108,7 @@ const TranscriptPanel = ({
 						))
 					) : (
 						<div className="transcript-placeholder">
-							{isRecording ? 'Listening...' : 'Start recording to see transcript'}
+							{isRecording ? 'Listening...' : 'Click Listen to start recording and see transcript'}
 						</div>
 					)}
 				</div>
@@ -139,12 +139,12 @@ const TranscriptPanel = ({
 							<div className="status-recording">Recording...</div>
 						)
 					) : (
-						<div className="status-inactive">Ready to record</div>
+						<div className="status-inactive">Click Listen to start recording</div>
 					)}
 				</div>
 
 				<div className="transcript-actions">
-					{isRecording ? (
+					{isRecording && (
 						<>
 							<button
 								className="control-btn stop-btn"
@@ -162,14 +162,6 @@ const TranscriptPanel = ({
 								{isMuted ? <MicOff size={18} /> : <Mic size={18} />}
 							</button>
 						</>
-					) : (
-						<button
-							className="control-btn start-btn"
-							onClick={onStartTranscription}
-							title="Start Recording"
-						>
-							<Mic size={18} />
-						</button>
 					)}
 				</div>
 			</div>

@@ -4,7 +4,8 @@ import Service from '../services';
 const logoutAPI = async () => {
 	try {
 		const path = '/logout';
-		const token = localStorage?.getItem('usertoken');
+		const token = localStorage?.getItem('usertoken') ?? false;
+		if (!token) window.location.href = '/';
 		const fcmToken = localStorage?.getItem('fcmToken') || Cookies.get('fcmToken') || '';
 
 		let body = null;
