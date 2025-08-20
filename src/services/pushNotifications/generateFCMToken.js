@@ -7,12 +7,25 @@ const messaging = getMessaging(app);
 
 const generateFCMToken = async () => {
 	try {
-		const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+		// Ensure service worker is registered
+		await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+
+		// Wait until it's active/ready
+		const registration = await navigator.serviceWorker.ready;
+
+		// Now safely request FCM token
 		const token = await getToken(messaging, {
 			vapidKey: import.meta.env.VITE_APP_FIREBASE_VAPID_KEY,
 			serviceWorkerRegistration: registration,
 		});
-		return token;
+
+		if (token) {
+			console.log('FCM Token:', token);
+			return token;
+		} else {
+			console.warn('No FCM token retrieved. Permission might not be granted.');
+			return null;
+		}
 	} catch (error) {
 		console.error('Error generating FCM token:', error);
 		throw error;
