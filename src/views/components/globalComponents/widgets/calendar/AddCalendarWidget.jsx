@@ -80,7 +80,7 @@ const AddCalendarWidget = ({ widgetData = null }) => {
 		if (info?.addingCalendarEvent) return;
 
 		const { title, startTime, endTime, selectedDate } = info;
-		const now = moment()?.startOf('day');
+		const now = moment();
 
 		const startDateTime = moment
 			?.unix(startTime)
