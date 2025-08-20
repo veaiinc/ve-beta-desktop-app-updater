@@ -36,25 +36,6 @@ contextBridge.exposeInMainWorld('electronApi', {
 	// Download Original Images
 	createZipFromUrls: (args) => ipcRenderer.invoke('create-zip-from-urls', args),
 
-	// Shortcut activation listener
-	onShortcutActivated: (callback) => {
-		ipcRenderer.on('shortcut-activated', (event, data) => {
-			callback(data);
-		});
-	},
-
-	removeShortcutActivatedListener: () => {
-		ipcRenderer.removeAllListeners('shortcut-activated');
-	},
-
-	// Overlay window APIs
-	overlay: {
-		toggleWindow: () => ipcRenderer.invoke('toggle-overlay-window'),
-		updateDimensions: (dims) => ipcRenderer.invoke('update-overlay-dimensions', dims),
-	},
-
-	// Mouse event handling for click-through behavior
-	setIgnoreMouseEvents: (ignore) => ipcRenderer.invoke('set-ignore-mouse-events', ignore),
 	// Download progress listener
 	onDownloadProgress: (callback) => {
 		ipcRenderer.on('download-progress', (event, data) => {
@@ -65,6 +46,4 @@ contextBridge.exposeInMainWorld('electronApi', {
 	removeDownloadProgressListener: () => {
 		ipcRenderer.removeAllListeners('download-progress');
 	},
-
-	onProtocolUrl: (callback) => ipcRenderer.on('protocol-url', (_, url) => callback(url)),
 });
