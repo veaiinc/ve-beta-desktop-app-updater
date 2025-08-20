@@ -907,7 +907,8 @@
 
 		.addOnsCards {
 			display: flex;
-			height: 450px;
+			// height: 450px;
+			gap: 24px;
 			width: calc((100% - 48px) / 3); // 48px accounts for the two gaps between 3 cards
 			max-width: 353px;
 			min-width: 353px;
