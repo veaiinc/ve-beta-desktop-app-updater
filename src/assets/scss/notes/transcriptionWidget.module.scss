@@ -116,6 +116,17 @@
 					}
 				}
 			}
+
+			.noTranscript {
+				color: var(--secondary-font, #94989e);
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				width: 100%;
+				text-align: center;
+			}
 		}
 	}
 
@@ -167,6 +178,17 @@
 					// height: 100%;
 					object-fit: cover;
 				}
+			}
+
+			.wavePaused {
+				background-color: var(--secondary-font);
+				height: 2px;
+				width: 70px;
+				align-items: center;
+				flex-grow: 1;
+				max-width: 84px;
+				margin: 0 6px;
+				border-radius: 2px;
 			}
 
 			.statusDiv {
