@@ -391,19 +391,55 @@ const AmbientAiInfo = ({
 		[info?.accessType, info?.hasFullAccess, pendingActionsUpdate, getAISuggestedPendingActions],
 	);
 
-	const getWidget = useCallback((item) => {
-		if (item?.module_type === 'gmail') {
-			return <GmailWidget widgetData={item?.metadata} />;
-		}
-		if (item?.module_type === 'calendar') {
-			return <CalendarWidget widgetData={item?.metadata} action={item?.action} />;
-		}
-		if (item?.module_type === 'tasks' && item?.action === 'create_task') {
-			return <TaskWidget widgetData={item?.metadata} />;
-		}
+	const handleWidgetDataUpdate = useCallback(
+		async ({ updatedData = null, skip = false, action = null, module_type = null }) => {
+			let { _id, widgets } = data || {};
 
-		return null;
-	}, []);
+			if (skip === true) {
+				widgets = widgets?.filter(
+					(widget) => widget?.action !== action && widget?.module_type !== module_type,
+				);
+				try {
+					const res = await pendingActionsUpdate(_id, {
+						widgets,
+					});
+					if (res?.[0] === true) {
+						getAISuggestedPendingActions({ widgets }, false, 'update', _id);
+						message.success('Skipped action');
+					} else {
+						throw new Error();
+					}
+				} catch (e) {
+					message.error('Failed to skip action');
+				}
+			}
+		},
+		[data],
+	);
+
+	const getWidget = useCallback(
+		(item) => {
+			if (item?.module_type === 'gmail') {
+				return <GmailWidget widgetData={item?.metadata} />;
+			}
+			if (item?.module_type === 'calendar') {
+				return (
+					<CalendarWidget
+						widgetData={item?.metadata}
+						action={item?.action}
+						module_type={item?.module_type}
+						onChange={handleWidgetDataUpdate}
+					/>
+				);
+			}
+			if (item?.module_type === 'tasks' && item?.action === 'create_task') {
+				return <TaskWidget widgetData={item?.metadata} />;
+			}
+
+			return null;
+		},
+		[handleWidgetDataUpdate],
+	);
 
 	const {
 		title,
