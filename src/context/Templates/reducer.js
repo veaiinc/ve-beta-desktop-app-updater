@@ -623,7 +623,7 @@ const actionHandlers = {
 				};
 			} else {
 				let browserPlan = null;
-				if (payload?.toolName) {
+				if (payload?.tool_type === 'tool') {
 					browserTools = [...(browserTools || []), payload];
 				}
 				if (payload?.plan_type === 'plan') {
