@@ -180,7 +180,7 @@ export const KnowledgeAgentState = () => {
 					type: Actions?.SET_DRAFT_AGENTS,
 					payload: {
 						data: [...(state?.draftAgents?.data || []), response?.[1]?.insertData],
-						totalDocs: state?.draftAgents?.totalDocs + 1,
+						totalDocs: (state?.draftAgents?.totalDocs ?? 0) + 1,
 					},
 				});
 				return [true, response?.[1]];
@@ -260,7 +260,7 @@ export const KnowledgeAgentState = () => {
 							type: Actions?.SET_ACTIVE_AGENTS,
 							payload: {
 								data: [...(state?.activeAgents?.data || []), currentAgent],
-								totalDocs: state?.activeAgents?.totalDocs + 1,
+								totalDocs: (state?.activeAgents?.totalDocs ?? 0) + 1,
 							},
 						});
 					} else {
@@ -282,7 +282,7 @@ export const KnowledgeAgentState = () => {
 							type: Actions?.SET_DRAFT_AGENTS,
 							payload: {
 								data: [...(state?.draftAgents?.data || []), currentAgent],
-								totalDocs: state?.draftAgents?.totalDocs + 1,
+								totalDocs: (state?.draftAgents?.totalDocs ?? 0) + 1,
 							},
 						});
 					}
@@ -428,10 +428,19 @@ export const KnowledgeAgentState = () => {
 			const type = 'ai_assistant_api';
 			const response = await service?.fetchPut(path, updateData, token, type);
 			const success = response?.[0] === true;
+
 			if (success) {
 				dispatch({
-					type: Actions?.SELECT_AI_PROMPT,
-					payload: { data: response?.[1] },
+					type: Actions?.SET_ACTIVE_KNOWLEDGE_ASSISTANT,
+					payload: {
+						data: {
+							...(state?.activeKnowledgeAssistant?.data || {}),
+							prompt: {
+								...(state?.activeKnowledgeAssistant?.data?.prompt || {}),
+								...(response?.[1] || {}),
+							},
+						},
+					},
 				});
 			}
 		} catch (error) {
@@ -1040,16 +1049,18 @@ export const KnowledgeAgentState = () => {
 			const authScheme = payload?.auth_scheme || 'OAUTH2';
 			switch (authScheme) {
 				case 'OAUTH2':
-					authRequestBody.credentials = {
-						client_id: payload?.client_id || '',
-						client_secret: payload?.client_secret || '',
-						redirect_uri:
-							payload?.oauth_redirect_uri ||
-							payload?.redirect_uri ||
-							'https://backend.composio.dev/api/v1/auth-apps/add',
-						scopes: payload?.scopes || '',
-						bearer_token: payload?.bearer_token || '',
-					};
+					// authRequestBody.credentials = {
+					// 	client_id: payload?.client_id || '',
+					// 	client_secret: payload?.client_secret || '',
+					// 	redirect_uri:
+					// 		payload?.oauth_redirect_uri ||
+					// 		payload?.redirect_uri ||
+					// 		'https://backend.composio.dev/api/v1/auth-apps/add',
+					// 	scopes: payload?.scopes || '',
+					// 	bearer_token: payload?.bearer_token || '',
+					// };
+					delete authRequestBody['credentials'];
+					delete authRequestBody['variant'];
 					break;
 
 				case 'API_KEY':

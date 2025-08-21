@@ -1,0 +1,165 @@
+// Overlay Notification Styles
+.overlay-notification-container {
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	z-index: 99999; // Higher than overlay z-index (10000)
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	pointer-events: none; // Allow clicks to pass through container
+	max-width: 400px;
+}
+
+.overlay-notification {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 12px 16px;
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	backdrop-filter: blur(10px);
+	pointer-events: auto; // Re-enable clicks for the notification itself
+	animation: slideInRight 0.3s ease-out;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	font-size: 14px;
+	line-height: 1.4;
+	position: relative;
+	overflow: hidden;
+
+	// Base colors - using modern notification design
+	&::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 0;
+		bottom: 0;
+		width: 4px;
+		border-radius: 2px 0 0 2px;
+	}
+
+	// Success notification
+	&--success {
+		background: rgba(34, 197, 94, 0.95);
+		color: white;
+		border: 1px solid rgba(34, 197, 94, 0.3);
+
+		&::before {
+			background: rgba(255, 255, 255, 0.9);
+		}
+
+		.overlay-notification__icon {
+			color: rgba(255, 255, 255, 0.9);
+		}
+	}
+
+	// Error notification
+	&--error {
+		background: rgba(239, 68, 68, 0.95);
+		color: white;
+		border: 1px solid rgba(239, 68, 68, 0.3);
+
+		&::before {
+			background: rgba(255, 255, 255, 0.9);
+		}
+
+		.overlay-notification__icon {
+			color: rgba(255, 255, 255, 0.9);
+		}
+	}
+
+	// Info notification
+	&--info {
+		background: rgba(59, 130, 246, 0.95);
+		color: white;
+		border: 1px solid rgba(59, 130, 246, 0.3);
+
+		&::before {
+			background: rgba(255, 255, 255, 0.9);
+		}
+
+		.overlay-notification__icon {
+			color: rgba(255, 255, 255, 0.9);
+		}
+	}
+}
+
+.overlay-notification__icon {
+	flex-shrink: 0;
+	margin-top: 2px;
+	opacity: 0.9;
+}
+
+.overlay-notification__content {
+	flex: 1;
+	min-width: 0; // Allow text to wrap properly
+}
+
+.overlay-notification__message {
+	font-weight: 500;
+	margin-bottom: 4px;
+}
+
+.overlay-notification__description {
+	font-size: 13px;
+	opacity: 0.9;
+	font-weight: 400;
+}
+
+.overlay-notification__close {
+	flex-shrink: 0;
+	background: none;
+	border: none;
+	color: inherit;
+	cursor: pointer;
+	padding: 2px;
+	border-radius: 4px;
+	opacity: 0.7;
+	transition: opacity 0.2s ease;
+	margin-top: 1px;
+	margin-left: 8px;
+
+	&:hover {
+		opacity: 1;
+		background: rgba(255, 255, 255, 0.1);
+	}
+
+	&:active {
+		transform: scale(0.95);
+	}
+}
+
+// Animation
+@keyframes slideInRight {
+	from {
+		opacity: 0;
+		transform: translateX(100%);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+// Dark mode support (if needed later)
+@media (prefers-color-scheme: dark) {
+	.overlay-notification {
+		// Dark mode styles could go here if needed
+		// The current design already works well in dark contexts
+	}
+}
+
+// Responsive adjustments
+@media (max-width: 480px) {
+	.overlay-notification-container {
+		top: 10px;
+		right: 10px;
+		left: 10px;
+		max-width: none;
+	}
+
+	.overlay-notification {
+		font-size: 13px;
+		padding: 10px 12px;
+	}
+}

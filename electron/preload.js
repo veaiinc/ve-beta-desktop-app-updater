@@ -57,7 +57,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 	askAI: {
 		toggleWindow: () => ipcRenderer.invoke('toggle-askAI-window'),
 		updateDimensions: (dims) => ipcRenderer.invoke('update-askAI-dimensions', dims),
-		setIgnoreMouseEvents: (ignore) => ipcRenderer.invoke('set-askAI-ignore-mouse-events', ignore),
+		setIgnoreMouseEvents: (ignore) =>
+			ipcRenderer.invoke('set-askAI-ignore-mouse-events', ignore),
 	},
 
 	// Mouse event handling for click-through behavior
@@ -71,5 +72,10 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	removeDownloadProgressListener: () => {
 		ipcRenderer.removeAllListeners('download-progress');
+	},
+
+	overlay: {
+		toggleWindow: () => ipcRenderer.invoke('toggle-overlay-window'),
+		updateDimensions: (dims) => ipcRenderer.invoke('update-overlay-dimensions', dims),
 	},
 });

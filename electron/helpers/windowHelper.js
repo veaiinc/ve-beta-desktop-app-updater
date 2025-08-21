@@ -88,14 +88,14 @@ class WindowHelper {
 			// Hide from Mission Control but keep visible during transitions
 			this.overlayWindow.setHiddenInMissionControl(true);
 
-			// Start with click-through enabled - will be controlled dynamically
-			this.overlayWindow.setIgnoreMouseEvents(true, { forward: true });
+			// Disable click-through - overlay should be interactive
+			this.overlayWindow.setIgnoreMouseEvents(false);
 			this.overlayWindow.setMovable(true);
 		} else {
 			// For non-macOS platforms
 			this.overlayWindow.setAlwaysOnTop(true, 'floating');
-			// Start with click-through enabled - will be controlled dynamically
-			this.overlayWindow.setIgnoreMouseEvents(true, { forward: true });
+			// Disable click-through - overlay should be interactive
+			this.overlayWindow.setIgnoreMouseEvents(false);
 		}
 
 		this.setupWindowListeners();
@@ -206,106 +206,9 @@ class WindowHelper {
 			this.isOverlayVisible = false;
 		});
 
-		// Set up mouse event handling for precise click-through behavior
+		// Set up basic window event handling
 		this.overlayWindow.webContents.on('dom-ready', () => {
-			// Inject JavaScript to handle mouse events more precisely
-			this.overlayWindow.webContents.executeJavaScript(`
-				let isOverContent = false;
-				
-				// Function to check if mouse is over actual overlay content
-				function isMouseOverContent(x, y) {
-					// Look for multiple possible selectors
-					const selectors = [
-						'[data-overlay-content]',
-						'.overlay-content', 
-						'.overlay-container',
-						'.overlay-app',
-						'.live-intelligence-panel',
-						'.transcript-panel',
-						'.shortcut-bar'
-					];
-					
-					for (const selector of selectors) {
-						const element = document.querySelector(selector);
-						if (element) {
-							const rect = element.getBoundingClientRect();
-							const isOver = x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
-							if (isOver) {
-								return true;
-							}
-						}
-					}
-					
-					// Also check if mouse is over any button or interactive element
-					const elementAtPoint = document.elementFromPoint(x, y);
-					if (elementAtPoint) {
-						const tagName = elementAtPoint.tagName.toLowerCase();
-						const isInteractive = tagName === 'button' || tagName === 'input' || 
-											 tagName === 'a' || elementAtPoint.onclick ||
-											 elementAtPoint.closest('button') ||
-											 elementAtPoint.closest('[data-overlay-content]');
-						if (isInteractive) {
-							console.log('Mouse over interactive element:', elementAtPoint);
-							return true;
-						}
-					}
-					
-					return false;
-				}
-				
-				// Function to disable click-through for the entire overlay area
-				function disableClickThrough() {
-					console.log('Disabling click-through');
-					window.electronApi?.setIgnoreMouseEvents?.(false);
-					isOverContent = true;
-				}
-				
-				// Function to enable click-through
-				function enableClickThrough() {
-					console.log('Enabling click-through');
-					window.electronApi?.setIgnoreMouseEvents?.(true);
-					isOverContent = false;
-				}
-				
-				// Initially disable click-through when DOM is ready
-				setTimeout(() => {
-					console.log('DOM ready - disabling click-through initially');
-					disableClickThrough();
-				}, 100);
-				
-				// Handle mouse movement to determine if over content area
-				document.addEventListener('mousemove', (e) => {
-					const overContent = isMouseOverContent(e.clientX, e.clientY);
-					
-					if (overContent !== isOverContent) {
-						if (overContent) {
-							disableClickThrough();
-						} else {
-							enableClickThrough();
-						}
-					}
-				});
-				
-				// Handle mouse entering the window - disable click-through
-				document.addEventListener('mouseenter', (e) => {
-					console.log('Mouse entered overlay window');
-					disableClickThrough();
-				});
-				
-				// Handle mouse leaving the window - enable click-through after delay
-				document.addEventListener('mouseleave', () => {
-					console.log('Mouse left overlay window');
-					setTimeout(() => {
-						enableClickThrough();
-					}, 100); // Small delay to prevent flicker
-				});
-				
-				// Disable click-through when clicking anywhere in the overlay
-				document.addEventListener('click', (e) => {
-					console.log('Click detected in overlay');
-					disableClickThrough();
-				});
-			`);
+			console.log('Overlay window DOM ready - click-through disabled');
 		});
 	}
 

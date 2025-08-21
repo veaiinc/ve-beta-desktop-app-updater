@@ -193,21 +193,14 @@ export const AuthState = () => {
 				}
 
 				const { isOnboard, workspaceId } = accessibleWorkspaces?.[0];
-				console.log('[Verify] Workspaces found. First workspace:', {
-					isOnboard,
-					workspaceId,
-				});
-
-				if (isOnboard) localStorage.setItem('isOnboard', JSON.stringify(isOnboard));
+				localStorage.setItem('isOnboard', JSON.stringify(isOnboard));
 				if (hasWorkspaces)
 					localStorage.setItem(
 						'accessibleWorkspaces',
 						JSON.stringify(accessibleWorkspaces),
 					);
-				if (workspaceId) localStorage.setItem('workspaceId', workspaceId);
-
-				Cookies.set('workspaceId', workspaceId, {
-					sameSite: 'lax',
+				Cookies.set('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces), {
+					sameSite: 'Lax',
 					domain: host,
 				});
 				console.log('[Verify] Workspace data stored in localStorage and cookies');

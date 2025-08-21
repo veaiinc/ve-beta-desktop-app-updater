@@ -6,7 +6,9 @@ import { ReactComponent as BackIcon } from '../../../assets/svg/gallery/back-gra
 import WaterMarkComponent from '../../components/gallery/addGallery/WaterMarkComponent';
 import UploadStatusComponent from '../../components/gallery/addGallery/UploadStatusComponent';
 import randomize from 'randomatic';
+import moment from 'moment';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import axios from 'axios';
 import UploadCompletedPopup from '../../components/gallery/addGallery/UploadCompletedPopup';
 import { message } from '../../components/globalComponents/CustomToast';
 import Context from '../../../context/context';
@@ -31,7 +33,6 @@ const UploadPhotosDesktop = () => {
 			getUploadImagePolicy,
 			uploadDesktopImages,
 		},
-		// profileInfo: { getUserDetailsFromTenantAPI, userDetailsFromTenantAPI },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState, updateStateValues },
 	} = useContext(Context);
 
@@ -122,20 +123,12 @@ const UploadPhotosDesktop = () => {
 		}
 	}, [tenantAlbums]);
 
-	// console.log(tenantAlbums);
-
 	// Cleanup on unmount
 	useEffect(() => {
 		return () => {
 			if (intervalRef.current) clearInterval(intervalRef.current);
 		};
 	}, []);
-
-	// useEffect(() => {
-	// 	if (!userDetailsFromTenantAPI) {
-	// 		getUserDetailsFromTenantAPI();
-	// 	}
-	// }, []);
 
 	// --- Helpers ---
 	const getDuplicateSet = () => {
@@ -198,7 +191,7 @@ const UploadPhotosDesktop = () => {
 			let processedBuffer = null;
 			let processedFile = originalFile;
 
-			if (info.isWaterMarkApply) {
+			if (info.isWaterMarkApply || true) {
 				// Always process for compression/resize
 				const watermarkUrl = getWatermarkUrl();
 				const result = await window.electronApi.processImageWithSharp({
@@ -358,7 +351,6 @@ const UploadPhotosDesktop = () => {
 			while (processingQueue.length > 0) {
 				const key = processingQueue.shift();
 				const image = info.uploadImages[key];
-
 				if (!image) continue;
 
 				try {
@@ -387,21 +379,19 @@ const UploadPhotosDesktop = () => {
 					let attempts = 0;
 					const versionId = Date.now();
 
-					// console.log(galleryId);
-
 					while (attempts < 3 && !uploaded) {
 						attempts++;
 						try {
 							// Upload original and optimized concurrently
 							const [uploadResultOriginal, uploadResultOptimized] = await Promise.all(
 								[
-									uploadImage({
-										file: image.file,
-										bucketType: 'originals',
-										customFileName: null,
-										uploadPolicy: policyData,
+									uploadImage(
+										image.file,
+										'originals',
+										null,
+										policyData,
 										imageId,
-										onUploadProgress(percent) {
+										(percent) => {
 											setInfo((prev) => ({
 												...prev,
 												uploadImages: {
@@ -415,37 +405,40 @@ const UploadPhotosDesktop = () => {
 										},
 										galleryId,
 										versionId,
-										tenantId: tenantAlbums?.tenantId,
-									}),
-									uploadImage({
-										file: result.processedFile,
-										bucketType: 'optimized',
-										customFileName: null,
-										uploadPolicy: policyData,
+										tenantAlbums?.tenant_id,
+										info?.uploadBatchID,
+									),
+									uploadImage(
+										result.processedFile,
+										'optimized',
+										null,
+										policyData,
 										imageId,
+										null,
 										galleryId,
 										versionId,
-										tenantId: tenantAlbums?.tenantId,
-									}),
+										tenantAlbums?.tenant_id,
+										info?.uploadBatchID,
+									),
 								],
 							);
 
 							if (uploadResultOriginal.success && uploadResultOptimized.success) {
-								const payload = generateUploadPayload({
+								const payload = generateUploadPayload(
 									image,
-									processedFile: result.processedFile,
+									result.processedFile,
 									imageId,
 									policyData,
 									uploadResultOriginal,
 									uploadResultOptimized,
-									extractedMetadata: {
+									{
 										width: result.width,
 										height: result.height,
 										format: result.format,
 										originalDateTime: result.originalDateTime,
 									},
 									versionId,
-								});
+								);
 
 								const [success, response] = await uploadDesktopImages(
 									galleryId,
@@ -487,7 +480,7 @@ const UploadPhotosDesktop = () => {
 			}
 		};
 
-		const workers = Array.from({ length: info.uploadLimit }, processAndUploadOne);
+		const workers = Array.from({ length: info.uploadLimit }, () => processAndUploadOne());
 		await Promise.all(workers);
 
 		if (intervalRef.current) clearInterval(intervalRef.current);
@@ -495,7 +488,7 @@ const UploadPhotosDesktop = () => {
 		updateStateValues({ reFetchSubscription: true, reFetchGallery: true });
 	};
 
-	const generateUploadPayload = ({
+	const generateUploadPayload = (
 		image,
 		processedFile,
 		imageId, // ← will be existing _id for duplicates
@@ -504,9 +497,9 @@ const UploadPhotosDesktop = () => {
 		uploadResultOptimized,
 		extractedMetadata,
 		versionId,
-	}) => {
-		const givenFileName = `${imageId.toHexString()}_${versionId}.jpeg`;
-
+	) => {
+		const givenFileName = uploadResultOriginal.fileKey.split('/').pop();
+		const updatedVersionId = versionId.toString();
 		// Use metadata from processSingleImage
 		const {
 			width: originalWidth,
@@ -519,6 +512,7 @@ const UploadPhotosDesktop = () => {
 			tag_ids: info.selectedGalleryTags.map((tag) => tag._id || ''),
 			image_id: imageId.toHexString(), // ← This will be reused ID for duplicates
 			activeVersion: {
+				versionId: updatedVersionId,
 				uploadBatchId: info.uploadBatchID,
 				isAIFacesEnabled:
 					lightGallery === 'true'
