@@ -18,7 +18,7 @@ import ProactiveCards from './ProactiveCards';
 
 const payload = {
 	page: 1,
-	limit: 20,
+	limit: 10,
 	sortBy: 'createdAt',
 	// sortOrder: '-1',
 };

@@ -393,7 +393,7 @@ const AmbientAiInfo = ({
 
 	const handleWidgetDataUpdate = useCallback(
 		async ({ updatedData = null, skip = false, action = null, module_type = null }) => {
-			let { _id, widgets } = data || {};
+			let { _id, widgets = [] } = data || {};
 
 			if (skip === true) {
 				widgets = widgets?.filter(
