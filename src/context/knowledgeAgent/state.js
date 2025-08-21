@@ -1140,13 +1140,13 @@ export const KnowledgeAgentState = () => {
 			const connectUrl = `/composio/connect-app/${workspaceId}`;
 			const connectRequestBody = {
 				auth_config_id: authConfigId,
-				connection_name:
-					payload?.connection_name ||
-					`${payload?.slug || payload?.toolkit_slug}_connection`,
-				connection_type: payload?.connection_type || 'api',
-				connection_data: payload?.connection_data || {},
-				webhook_url: payload?.webhook_url,
-				custom_headers: payload?.custom_headers || {},
+				auth_scheme: payload?.auth_scheme || 'API_KEY',
+				credentials: payload?.connection_data || {
+					api_key: payload?.api_key || '',
+				},
+				// connection_data: payload?.connection_data || {},
+				// webhook_url: payload?.webhook_url,
+				// custom_headers: payload?.custom_headers || {},
 			};
 
 			const connectResponse = await service?.fetchPost(
