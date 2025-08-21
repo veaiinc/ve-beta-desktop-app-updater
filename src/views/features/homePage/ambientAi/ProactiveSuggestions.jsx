@@ -632,6 +632,7 @@ const ProactiveSuggestions = () => {
 			return {
 				...prev,
 				selectedFilters: updatedFilters,
+				loading: true,
 			};
 		});
 	};
@@ -832,8 +833,10 @@ const ProactiveSuggestions = () => {
 									);
 								})
 							) : info?.cards?.length === 0 ? (
-								<div className="no-data" style={{ color: 'var(--primary-font)' }}>
-									No data available
+								<div className="no-data">
+									{info?.selectedFilters?.length > 0
+										? 'No insights found for the selected filters'
+										: 'No insights found'}
 								</div>
 							) : (
 								<ProactiveCards

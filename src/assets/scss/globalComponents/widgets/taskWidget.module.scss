@@ -1,0 +1,135 @@
+.taskWidgetContainer {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+	align-self: stretch;
+
+	.header {
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+	.taskInfo {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+		align-self: stretch;
+		.titleContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+			align-self: stretch;
+
+			.titleText {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.titleInput {
+				width: 100%;
+				padding: 10px;
+				border: 1px solid var(--stroke);
+				border-radius: 8px;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+
+		.descriptionContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+			align-self: stretch;
+
+			.descriptionText {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.descriptionInput {
+				width: 100%;
+				background-color: transparent;
+				font-family: var(--primary-font-family);
+				padding: 10px;
+				resize: none;
+				border: 1px solid var(--stroke);
+				border-radius: 8px;
+				color: var(--primary-font);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+
+		.taskField {
+			display: flex;
+			padding: 12px;
+			justify-content: space-between;
+			align-items: center;
+			align-self: stretch;
+			border-radius: 8px;
+			background: var(--card, #1b1c1d);
+
+			.leftContainer {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+	}
+
+	.buttonsContainer {
+		display: flex;
+		align-items: flex-start;
+		gap: 8px;
+		align-self: stretch;
+		margin-top: 12px;
+
+		.btn {
+			display: flex;
+			padding: 12px;
+			justify-content: center;
+			align-items: center;
+			gap: 8px;
+			flex: 1 0 0;
+			border-radius: 8px;
+			cursor: pointer;
+			border: 1px solid transparent;
+			background: var(--card, #1b1c1d);
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+
+			&:hover {
+				border: 1px solid var(--stroke);
+			}
+		}
+	}
+}
