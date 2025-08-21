@@ -263,7 +263,7 @@ const Settings = ({
 					}}
 				>
 					<DownloadMacSvg />
-					<span>Download Mac app</span>
+					<span>Download Mac App</span>
 				</button>
 			)}
 			{workspacesMoreThanOne && (
