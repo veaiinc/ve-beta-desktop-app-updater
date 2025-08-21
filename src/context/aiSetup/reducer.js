@@ -200,6 +200,11 @@ const actionHandlers = {
 		aiSetupDataUser: action?.payload,
 	}),
 
+	SET_PROACTIVE_HEADINGS: (state, action) => ({
+		...state,
+		proactiveHeadings: action?.payload,
+	}),
+
 	RESET_STATE: () => initialState,
 };
 

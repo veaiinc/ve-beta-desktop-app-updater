@@ -56,6 +56,7 @@ export const initialState = {
 	voiceIntegrationData: null, //{token,serverUrl,shouldConnect	}
 	triggerVoiceDisconnect: null,
 	aiTranscriptionSuggestions: null,
+	proactiveHeadings: null,
 };
 
 export const AiSetupState = () => {
@@ -1188,6 +1189,26 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const getProactiveHeadings = async () => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const url = '/' + workspaceId + '/knowledge-bases/proactive-headlines';
+			const token = localStorage.getItem('usertoken');
+			const type = 'tenant';
+
+			const response = await service?.fetchGet(url, token, type);
+
+			if (response?.[0] === true) {
+				dispatch({ type: Actions.SET_PROACTIVE_HEADINGS, payload: response?.[1] });
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('error==>editAiSetupData', error);
+			return [false, error];
+		}
+	};
+
 	const updateStateValues = async (updatedVaribaleValuesObj) => {
 		try {
 			dispatch({
@@ -1251,5 +1272,6 @@ export const AiSetupState = () => {
 		deleteAiSetupData,
 		editAiSetupData,
 		updateAiChatSessions,
+		getProactiveHeadings,
 	};
 };
