@@ -28,6 +28,8 @@ import RecentChat from '../chat/RecentChat';
 import NotesHeader from '../../components/notes/DatabseComponents/NotesHeader';
 import Editor from '../../components/notes/Editor';
 import NotesTitleArea from '../../components/notes/DatabseComponents/NotesTitleArea';
+import { ReactComponent as DoubleRightArrowSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
+import Spinner from '../../components/loaders/Spinner';
 
 const initialState = {
 	title: '',
@@ -64,6 +66,7 @@ const initialState = {
 	transcriptionsPage: 1,
 	transcriptionsHasMore: true,
 	transcriptionsLoading: false,
+	chatOpen: true,
 };
 
 const accessLevels = {
@@ -915,23 +918,26 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		setInfo((prev) => ({ ...prev, ...data }));
 	}, []);
 
+	const blockLoading = blocks === null;
+
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
-			{!(type === 'meeting_bot' || type === 'desktop') && (
-				<div className="notesChatArea">
-					<RecentChat
-						showIconText={false}
-						isPreview={true}
-						autoFocus={false}
-						customChatBoxClick={handleChatBoxClick}
-						// {...(info?.chatClicked && {
-						// 	sId: info?.chatSessionId,
-						// })}
-						sId={info?.chatSessionId}
-						showCitationsButton={false}
-					/>
-				</div>
-			)}
+			<NotesHeader
+				isDeleted={info?.isDeleted}
+				title={info?.title}
+				isFavorite={info?.isFavorite}
+				noteId={noteId}
+				notesConfigs={info?.notesConfigs}
+				myAccess={info?.myAccess}
+				lastUpdated={info?.lastUpdated}
+				updatedAt={info?.updatedAt}
+				handleFavorite={handleFavorite}
+				handleMoreOptionsChange={handleMoreOptionsChange}
+				handleDeletePage={handleDeletePage}
+				handleDuplicatePage={handleDuplicatePage}
+				restorePage={restorePage}
+				isDatabase={true}
+			/>
 			<div className="notesContentWrapper">
 				{info?.title && (
 					<Helmet>
@@ -939,23 +945,30 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 						<title>VE - {info?.title}</title>
 					</Helmet>
 				)}
-
-				<NotesHeader
-					isDeleted={info?.isDeleted}
-					title={info?.title}
-					isFavorite={info?.isFavorite}
-					noteId={noteId}
-					notesConfigs={info?.notesConfigs}
-					myAccess={info?.myAccess}
-					lastUpdated={info?.lastUpdated}
-					updatedAt={info?.updatedAt}
-					handleFavorite={handleFavorite}
-					handleMoreOptionsChange={handleMoreOptionsChange}
-					handleDeletePage={handleDeletePage}
-					handleDuplicatePage={handleDuplicatePage}
-					restorePage={restorePage}
-					isDatabase={true}
-				/>
+				<div className={`notesChatArea ${info?.chatOpen ? `chatOpen` : ''}`}>
+					<div className="notesChatHeader">
+						<div
+							className="notesChatCloseBtn"
+							onClick={() => handleInfoChange({ chatOpen: !info?.chatOpen })}
+						>
+							<DoubleRightArrowSvg />
+						</div>
+					</div>
+					<div className={`chatWrapper ${info?.chatOpen ? 'chatOpen' : ''}`}>
+						<RecentChat
+							showIconText={false}
+							isPreview={true}
+							autoFocus={false}
+							customChatBoxClick={handleChatBoxClick}
+							// {...(info?.chatClicked && {
+							// 	sId: info?.chatSessionId,
+							// })}
+							sId={info?.chatSessionId}
+							showCitationsButton={false}
+							showHeader={false}
+						/>
+					</div>
+				</div>
 
 				<div className="notes-editor-container">
 					<>
@@ -999,19 +1012,25 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 								title={info?.title}
 								showRemoveIconBtn={info?.showRemoveIconBtn}
 							/>
-							<Editor
-								innerContainerStyle={innerContainerStyle}
-								myAccess={info?.myAccess}
-								isDeleted={info?.isDeleted}
-								customSendMessage={customSendMessage}
-								aiResonse={info?.aiResonse}
-								resetAiResponse={resetAiResponse}
-								noteId={noteId}
-								initialBlocks={blocks}
-								createBlock={createBlock}
-								updateBlock={updateBlock}
-								deleteBlock={deleteBlock}
-							/>
+							{blockLoading ? (
+								<div className="notesBlockLoading">
+									<Spinner />
+								</div>
+							) : (
+								<Editor
+									innerContainerStyle={innerContainerStyle}
+									myAccess={info?.myAccess}
+									isDeleted={info?.isDeleted}
+									customSendMessage={customSendMessage}
+									aiResonse={info?.aiResonse}
+									resetAiResponse={resetAiResponse}
+									noteId={noteId}
+									initialBlocks={blocks}
+									createBlock={createBlock}
+									updateBlock={updateBlock}
+									deleteBlock={deleteBlock}
+								/>
+							)}
 						</div>
 					</>
 				</div>
