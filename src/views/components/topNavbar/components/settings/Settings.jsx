@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState } from 'react';
 import s from './settings.module.scss';
 import Context from '../../../../../context/context';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -21,8 +21,6 @@ import useBroadcastChannel from '../../../../../hooks/useBroadcastChannel';
 import { ReactComponent as BackIcon } from '../../../../../assets/svg/mobile/back.svg';
 import { ReactComponent as CloseIcon } from '../../../../../assets/svg/mobile/close.svg';
 import { ReactComponent as PlusSvg } from '../../assets/plus.svg';
-import logError from '../../../../../helpers/errorLogger';
-import Spinner from '../../../loaders/Spinner';
 
 const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
 const isMac =
@@ -104,7 +102,6 @@ const Settings = ({
 		workspaceModalOpen: false,
 		intercomOpen: false,
 		isMobileView: window.matchMedia('(max-width: 767px)').matches,
-		logoutLoading: false,
 	}));
 
 	const {
@@ -137,42 +134,9 @@ const Settings = ({
 		closeSettingsTooltip();
 	};
 
-	const handleLogout = async () => {
-		try {
-			setInfo((prev) => ({
-				...prev,
-				logoutLoading: true,
-			}));
-			const isLoggedOut = await logout();
-			if (isLoggedOut) {
-				channel.postMessage('logout');
-			} else {
-				message.error('Failed to logout! This was reported to the team.');
-				const payload = {
-					errorType: 'Logout',
-					errorMessage: 'Failed to logout! This was reported to the team.',
-					errorPath: '/src/views/components/topNavbar/components/settings/Settings.jsx',
-					errorComponent: 'Settings',
-					errorComponentStack: 'Not Available',
-				};
-				const success = await logError(payload);
-				if (success) {
-					console.log('Error logged successfully');
-				} else {
-					console.error('Error logging failed');
-				}
-			}
-			setInfo((prev) => ({
-				...prev,
-				logoutLoading: false,
-			}));
-		} catch (error) {
-			console.error('Error logging out:', error);
-			setInfo((prev) => ({
-				...prev,
-				logoutLoading: false,
-			}));
-		}
+	const handleLogout = () => {
+		logout();
+		channel.postMessage('logout');
 	};
 
 	const Content = (
@@ -285,7 +249,7 @@ const Settings = ({
 					}}
 					disabled={info.logoutLoading}
 				>
-					{info.logoutLoading ? <Spinner width={24} height={24} /> : <LogoutSvg />}
+					<LogoutSvg />
 				</button>
 			</div>
 
