@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { getInitials } from '../../../../helpers/index';
@@ -8,6 +8,7 @@ import { useContext } from 'react';
 import { Select } from 'antd';
 import Context from '../../../../context/context';
 import ExpiredSubscriptionModal from '../../../components/modalsV2/subscription/ExpiredSubscriptionModal';
+import { message } from '../../../components/globalComponents/CustomToast';
 
 const TeamAccessListComponent = ({
 	search,
@@ -20,12 +21,18 @@ const TeamAccessListComponent = ({
 }) => {
 	const {
 		subscriptionInfo: { currentPlan, updateSubscriptionState },
+		companyInfo: { updateTenantRole, removeTenantRole },
 	} = useContext(Context);
+	const [localUsers, setLocalUsers] = useState([]);
 
 	const tenantUsersLimit = currentPlan?.tenantUsersLimit;
 	const tenantUsersCount = filteredUsers?.length;
 	const tenantUserLimitReached = tenantUsersCount >= tenantUsersLimit;
 	const showTeamMembersCount = tenantUsersCount && tenantUsersLimit ? true : false;
+
+	useEffect(() => {
+		setLocalUsers(filteredUsers?.map((user) => ({ ...user }))); // deep-ish copy
+	}, [filteredUsers]);
 
 	const handleInviteMembersAndExpiredSubscriptionModal = () => {
 		if (tenantUserLimitReached) {
@@ -38,8 +45,34 @@ const TeamAccessListComponent = ({
 		}
 	};
 
-	const updateUserRoleFunction = (tenantid, role) => {
-		updateTenantRoleFunc(tenantid, role);
+	const updateUserRoleFunction = async (user, newRole) => {
+		const userId = user._id;
+
+		// Find current role before change
+		const currentUser = localUsers.find((u) => u._id === userId);
+		const previousRole = currentUser?.role;
+
+		// Optimistically update UI
+		setLocalUsers((prev) => prev.map((u) => (u._id === userId ? { ...u, role: newRole } : u)));
+
+		const response =
+			newRole === 'remove'
+				? await removeTenantRole(userId)
+				: await updateTenantRole(userId, { role: newRole });
+
+		if (response?.[0] === true) {
+			message.success(response[1]?.message);
+			// Keep the change
+			if (userDetailsData?._id === userId) {
+				window.location.reload();
+			}
+		} else {
+			// ❌ Revert on error
+			message.error(response?.[1]?.message || 'Failed to update role');
+			setLocalUsers((prev) =>
+				prev.map((u) => (u._id === userId ? { ...u, role: previousRole } : u)),
+			);
+		}
 	};
 
 	return (
@@ -87,7 +120,7 @@ const TeamAccessListComponent = ({
 						))}
 					</div>
 				) : (
-					filteredUsers?.map((user, index) => (
+					localUsers?.map((user, index) => (
 						<div
 							className="tenantDetailsContainer"
 							key={user?._id}
@@ -120,7 +153,7 @@ const TeamAccessListComponent = ({
 											onClick={(e) => e.stopPropagation()}
 										>
 											<Select
-												defaultValue={user?.role}
+												value={user.role}
 												style={{
 													width: 120,
 												}}
