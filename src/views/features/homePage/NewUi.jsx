@@ -204,6 +204,7 @@ const NewUi = ({ handleActiveChatChange }) => {
 		aiSetup: { aiChatSessions },
 		templates: { updateStateValues, handleGlobalChatMessages },
 		profileInfo: { userDetailsData },
+		aiSetup: { proactiveHeadings, getProactiveHeadings },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -356,6 +357,9 @@ const NewUi = ({ handleActiveChatChange }) => {
 	useEffect(() => {
 		containerRef?.current?.addEventListener('wheel', handleWheel, { passive: false });
 		return () => containerRef?.current?.removeEventListener('wheel', handleWheel);
+	}, []);
+	useEffect(() => {
+		getProactiveHeadings();
 	}, []);
 
 	useEffect(() => {
@@ -564,12 +568,18 @@ const NewUi = ({ handleActiveChatChange }) => {
 													<div className="backdrop4 backdrop" />
 													<div className={`title-container `}>
 														<div className="title-text">
-															<h2 className="title-one">
-																{greeting}!
-															</h2>
-															<span className="title-two">
-																{userName}
-															</span>
+															{proactiveHeadings?.chat_headlines ? (
+																proactiveHeadings?.chat_headlines
+															) : (
+																<>
+																	<h2 className="title-one">
+																		{greeting}!
+																	</h2>
+																	<span className="title-two">
+																		{userName}
+																	</span>
+																</>
+															)}
 														</div>
 													</div>
 													<ChatBox
