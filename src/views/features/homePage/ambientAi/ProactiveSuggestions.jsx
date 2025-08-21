@@ -166,6 +166,7 @@ const ProactiveSuggestions = () => {
 			// getAiQuestions,
 			// aiQuestions,
 		},
+		aiSetup: { proactiveHeadings, getProactiveHeadings },
 		profileInfo: { insightTypes, getAiInsightTypes },
 	} = useContext(Context);
 
@@ -322,6 +323,10 @@ const ProactiveSuggestions = () => {
 			}));
 		}
 	}, [insightTypes]);
+
+	useEffect(() => {
+		getProactiveHeadings();
+	}, []);
 
 	useEffect(() => {
 		if (info?.totalCardsData?.length > 0) {
@@ -627,6 +632,7 @@ const ProactiveSuggestions = () => {
 			return {
 				...prev,
 				selectedFilters: updatedFilters,
+				loading: true,
 			};
 		});
 	};
@@ -774,8 +780,8 @@ const ProactiveSuggestions = () => {
 					</div>
 				)} */}
 						<div className="proactive-suggestions-title">
-							{info?.headline ? (
-								info?.headline
+							{proactiveHeadings?.priority_headlines ? (
+								proactiveHeadings?.priority_headlines
 							) : (
 								<>
 									<span className="title-highlight">Ambient</span> Insights For
@@ -827,8 +833,10 @@ const ProactiveSuggestions = () => {
 									);
 								})
 							) : info?.cards?.length === 0 ? (
-								<div className="no-data" style={{ color: 'var(--primary-font)' }}>
-									No data available
+								<div className="no-data">
+									{info?.selectedFilters?.length > 0
+										? 'No insights found for the selected filters'
+										: 'No insights found'}
 								</div>
 							) : (
 								<ProactiveCards

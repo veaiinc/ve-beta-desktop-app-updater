@@ -1150,7 +1150,7 @@
 			justify-content: center;
 			align-items: center;
 			gap: 30px;
-			span {
+			button {
 				padding: 10px 40px;
 				// box-shadow: 2px 2px 0px 1px black;
 				border-radius: 20px;
@@ -1158,6 +1158,8 @@
 				border: 1px solid #e8e8e8;
 				cursor: pointer;
 				transition: all 0.2s ease-in;
+				background: none;
+				transition: all 0.3s ease-in;
 				&:hover {
 					background-color: #e8e8e8;
 					color: #202123;

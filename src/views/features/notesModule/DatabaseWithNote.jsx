@@ -28,6 +28,8 @@ import RecentChat from '../chat/RecentChat';
 import NotesHeader from '../../components/notes/DatabseComponents/NotesHeader';
 import Editor from '../../components/notes/Editor';
 import NotesTitleArea from '../../components/notes/DatabseComponents/NotesTitleArea';
+import { ReactComponent as DoubleRightArrowSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
+import Spinner from '../../components/loaders/Spinner';
 
 const initialState = {
 	title: '',
@@ -52,18 +54,9 @@ const initialState = {
 	selectedEmoji: null,
 	coverImageRemoved: false,
 	iconImageRemoved: false,
-	files: [],
-	userQuestions: [],
-	aiQuestions: [],
-	actions: [],
-	allSuggestions: [],
 	sessionId: ObjectID()?.toString(),
 	chatSessionId: ObjectID()?.toString(),
-	chatClicked: false,
-	transcriptions: [],
-	transcriptionsPage: 1,
-	transcriptionsHasMore: true,
-	transcriptionsLoading: false,
+	chatOpen: true,
 };
 
 const accessLevels = {
@@ -86,17 +79,7 @@ const skeletonLines = [...Array(10)]?.map(() => ({
 }));
 
 const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptTabs = false }) => {
-	const { workspaceMode } = useWorkspaceMode();
-	const [searchParams] = useSearchParams();
 	const noteId = useParams()?.noteId;
-	const meetingId = useParams()?.meetingId;
-	const sessionId = meetingId;
-	const type = searchParams.get('type');
-	const history = searchParams.get('history') === 'true' ? true : false;
-	const chat = searchParams.get('chat') === 'true' ? true : false;
-	const transcription = searchParams.get('transcription') === 'true' ? true : false;
-	const isAiIntelligenceEnabled =
-		searchParams.get('isAiIntelligenceEnabled') === 'true' ? true : false;
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
 	const originalFaviconRef = useRef(null);
@@ -106,9 +89,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 
 	const {
 		notes: {
-			getMeetTranscriptHistory,
-			aiLiveIntelligenceHistory,
-			getAiLiveIntelligenceHistory,
+			// getMeetTranscriptHistory,
+			// aiLiveIntelligenceHistory,
+			// getAiLiveIntelligenceHistory,
 			getNotesPageData,
 			notesPageData,
 			notesAccess,
@@ -131,19 +114,11 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		},
 		chatStream: { createWebSocketConnection, sendMessage, closeWebSocketConnection },
 		companyInfo: { getTeamMembers, tenantsUserList },
-		templates: {
-			handleTranscriptionSuggestions,
-			aiTranscriptionSuggestions,
-			updateStateValues,
-		},
 		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState(initialState);
 	const [transcriptList, setTranscriptList] = useState([]);
-	const [activeTab, setActiveTab] = useState(type === 'desktop' ? 'transcript' : 'all');
-	const [isLoadingHistory, setIsLoadingHistory] = useState(false);
-	const location = useLocation();
 	const transcriptContainerRef = useRef(null);
 
 	// Add hooks for live intelligence and recall stream
@@ -155,96 +130,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	const { createWebSocketConnection: createLiveIntelligenceStream, updateCurrentContext } =
 		useLiveIntelligenceStream();
 
-	useEffect(() => {
-		if (!aiLiveIntelligenceHistory) {
-			getAiLiveIntelligenceHistory({ meetingId: meetingId, limit: 20, page: 1 }, false);
-		} else {
-			handleTranscriptionSuggestions({ data: aiLiveIntelligenceHistory?.data || [] });
-		}
-	}, [aiLiveIntelligenceHistory]);
-
-	// Function to fetch historical transcriptions for desktop
-	const fetchHistoricalTranscriptions = useCallback(async () => {
-		if (!meetingId || !showTranscriptTabs || type !== 'desktop') return;
-
-		setIsLoadingHistory(true);
-		try {
-			// Fetch historical transcriptions for desktop
-			const response = await getMeetTranscriptHistory(
-				{ meetingId: meetingId, limit: 20, page: 1 },
-				false,
-			);
-			if (response?.[0]) {
-				const rawData = response[1]?.data?.listTranscriptions?.data || [];
-				const hasMore = response[1]?.data?.listTranscriptions?.hasNextPage;
-
-				// Transform the data to match UI expectations
-				const transformedData = rawData.map((item) => ({
-					...item,
-					text: item.transcript, // Map transcript to text
-					time: item.createdAt
-						? new Date(parseInt(item.createdAt) * 1000).toLocaleTimeString()
-						: '', // Convert timestamp to readable time
-					speakerName: item.speakerName || 'Note Taker', // Default speaker name
-				}));
-
-				setInfo((prev) => ({
-					...prev,
-					transcriptions: transformedData,
-					transcriptionsHasMore: hasMore,
-					transcriptionsPage: 1,
-					transcriptionsLoading: false,
-				}));
-			} else {
-				setInfo((prev) => ({
-					...prev,
-					transcriptions: [],
-					transcriptionsLoading: false,
-				}));
-			}
-		} catch (error) {
-			console.error('Error fetching historical transcriptions:', error);
-			setInfo((prev) => ({
-				...prev,
-				transcriptions: [],
-				transcriptionsLoading: false,
-			}));
-		} finally {
-			setIsLoadingHistory(false);
-		}
-	}, [meetingId, showTranscriptTabs, type]);
-
-	// Function to fetch historical transcriptions for meeting_bot
-	const fetchMeetingBotTranscriptions = useCallback(async () => {
-		if (!meetingId || !showTranscriptTabs || type !== 'meeting_bot') return;
-
-		try {
-			const response = await getMeetTranscriptHistory(
-				{ meetingId: meetingId, limit: 20, page: 1 },
-				false,
-			);
-			if (response?.[0]) {
-				const rawData = response[1]?.data?.listTranscriptions?.data || [];
-				// Transform the data to match the existing transcriptList format
-				const transformedData = rawData.map((item) => ({
-					...item,
-					text: item.transcript,
-					time: item.createdAt
-						? new Date(parseInt(item.createdAt) * 1000).toLocaleTimeString()
-						: '',
-					speakerName: item.speakerName || 'Note Taker',
-				}));
-
-				setTranscriptList(transformedData);
-			} else {
-				setTranscriptList([]);
-			}
-		} catch (error) {
-			console.error('Error fetching meeting bot transcriptions:', error);
-			setTranscriptList([]);
-		}
-	}, [meetingId, showTranscriptTabs, type, getMeetTranscriptHistory]);
-
 	// Handler for transcript socket messages
 	// const handleLiveIntelligenceMessageFunc = useCallback(
 	// 	(event) => {
@@ -253,223 +138,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 	// 	},
 	// 	[handleTranscriptionSuggestions],
 	// );
-
-	// Handler for noteTakerTranscript socket messages
-	const handleNoteTakerTranscriptMessage = useCallback((event) => {
-		try {
-			const data = JSON.parse(event?.data || '{}');
-			console.log('🔍 Received socket message:', data);
-
-			// Check if this is a noteTakerTranscript response
-			if (data.noteTakerTranscript) {
-				console.log('🔍 Processing noteTakerTranscript:', data.noteTakerTranscript);
-				handleSocketTranscription({
-					...data.noteTakerTranscript,
-					isFinal: true, // Assume final since it's from server
-					id: data.noteTakerTranscript._id || Date.now().toString(),
-				});
-			}
-		} catch (error) {
-			console.error('Error parsing socket message:', error);
-		}
-	}, []);
-	useEffect(() => {
-		if (aiTranscriptionSuggestions) {
-			const userQuestions = [];
-			const aiQuestions = [];
-			const actions = [];
-			const files = [];
-
-			for (const suggestion of aiTranscriptionSuggestions?.suggestions || []) {
-				if (suggestion?.entity === 'user' || suggestion?.entity === 'other_user') {
-					userQuestions.push(suggestion);
-				} else if (
-					suggestion?.entity === 'agent' ||
-					suggestion?.entity?.includes('agent')
-				) {
-					if (suggestion?.type === 'search') {
-						aiQuestions.push(suggestion);
-					} else if (suggestion?.type === 'action') {
-						actions.push(suggestion);
-					}
-				} else {
-					files.push(suggestion);
-				}
-			}
-
-			setInfo((prev) => ({
-				...prev,
-				userQuestions,
-				aiQuestions,
-				actions,
-				files,
-				allSuggestions: aiTranscriptionSuggestions?.suggestions || [],
-			}));
-		}
-	}, [aiTranscriptionSuggestions]);
-
-	useEffect(() => {
-		return () => {
-			updateNotesStateValues({
-				meetSummary: null,
-				aiLiveIntelligenceHistory: null,
-				transcriptHistory: null,
-			});
-			updateStateValues({
-				aiTranscriptionSuggestions: null,
-			});
-		};
-	}, []);
-
-	useEffect(() => {
-		if (transcriptList?.length > 0) {
-			updateNotesStateValues({
-				transcriptionList: transcriptList,
-			});
-		}
-	}, [transcriptList]);
-
-	// When new socket data comes in:
-	const handleSocketTranscription = useCallback((newTranscript) => {
-		setInfo((prev) => {
-			const transcriptions = prev.transcriptions || [];
-
-			// Get the transcript text from various possible sources
-			const transcriptText =
-				newTranscript.transcript || newTranscript.displayedText || newTranscript.text || '';
-
-			// Check if this transcript already exists (to avoid duplicates)
-			const existingTranscript = transcriptions.find(
-				(t) =>
-					t.text === transcriptText ||
-					t.transcript === transcriptText ||
-					t.id === newTranscript.id, // Also check by ID
-			);
-
-			if (existingTranscript) {
-				return prev; // Don't add duplicate
-			}
-
-			// Check if this is a continuation of the last transcript (same session)
-			const lastTranscript = transcriptions[transcriptions.length - 1];
-			const isContinuation =
-				lastTranscript &&
-				!lastTranscript.isFinal &&
-				// Check if the new text contains the last text (continuation)
-				transcriptText.includes(lastTranscript.text || lastTranscript.transcript || '');
-
-			if (!newTranscript.isFinal) {
-				// Partial transcript - update the last entry if it's a continuation
-				if (isContinuation) {
-					// Update the last entry with the new partial text
-					const updated = [...transcriptions];
-					updated[updated.length - 1] = {
-						...updated[updated.length - 1],
-						...newTranscript,
-						text: transcriptText,
-						transcript: transcriptText,
-						time: new Date().toLocaleTimeString(),
-					};
-					return { ...prev, transcriptions: updated };
-				} else {
-					// New partial transcript - add as new entry
-					return {
-						...prev,
-						transcriptions: [
-							...transcriptions,
-							{
-								...newTranscript,
-								text: transcriptText,
-								transcript: transcriptText,
-								time: new Date().toLocaleTimeString(),
-							},
-						],
-					};
-				}
-			} else {
-				// Final transcript - update the last entry if it's a continuation, otherwise append
-				if (isContinuation) {
-					// Finalize the last entry
-					const updated = [...transcriptions];
-					updated[updated.length - 1] = {
-						...updated[updated.length - 1],
-						...newTranscript,
-						text: transcriptText,
-						transcript: transcriptText,
-						time: new Date().toLocaleTimeString(),
-						isFinal: true,
-					};
-					return { ...prev, transcriptions: updated };
-				} else {
-					// New final transcript - append as new entry
-					return {
-						...prev,
-						transcriptions: [
-							...transcriptions,
-							{
-								...newTranscript,
-								text: transcriptText,
-								transcript: transcriptText,
-								time: new Date().toLocaleTimeString(),
-								isFinal: true,
-							},
-						],
-					};
-				}
-			}
-		});
-	}, []);
-
-	// Auto-scroll to bottom when new transcripts are added
-	useEffect(() => {
-		if (transcriptContainerRef.current && info.transcriptions?.length > 0) {
-			transcriptContainerRef.current.scrollTo({
-				top: transcriptContainerRef.current.scrollHeight,
-				behavior: 'smooth',
-			});
-		}
-	}, [info.transcriptions?.length]);
-
-	const handleSocketMessage = useCallback(
-		(event) => {
-			try {
-				const msg = JSON.parse(event?.data || null);
-
-				if (msg?.event === 'transcript.received' && msg?.data) {
-					// Append new transcript data to existing list
-					setTranscriptList((prev) => [
-						...prev,
-						{
-							speakerName: msg?.data?.speakerName,
-							transcript: msg?.data?.transcript,
-							timestamp: msg?.data?.timestamp,
-						},
-					]);
-					// const data = msg?.data;
-					// if (data?.speakerName?.length > 0 || data?.transcript?.length > 0) {
-					// 	updateCurrentContext &&
-					// 		updateCurrentContext(
-					// 			(data?.speakerName || '') + ' : ' + (data?.transcript || ''),
-					// 		);
-					// }
-				} else if (msg?.event === 'live_intelligence.response' && msg?.data) {
-					handleTranscriptionSuggestions(msg?.data);
-				} else if (msg?.event === 'transcript.done') {
-					closeRecallConnection();
-				} else if (msg?.noteTakerTranscript) {
-					// Handle noteTakerTranscript responses
-					handleSocketTranscription({
-						...msg.noteTakerTranscript,
-						isFinal: true, // Assume final since it's from server
-						id: msg.noteTakerTranscript._id || Date.now().toString(),
-					});
-				}
-			} catch (e) {
-				console.error('Error in handleSocketMessage:', e);
-			}
-		},
-		[updateCurrentContext, handleSocketTranscription],
-	);
 
 	// Derived states
 	const coverImage = useMemo(() => {
@@ -915,23 +583,26 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 		setInfo((prev) => ({ ...prev, ...data }));
 	}, []);
 
+	const blockLoading = blocks === null;
+
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
-			{!(type === 'meeting_bot' || type === 'desktop') && (
-				<div className="notesChatArea">
-					<RecentChat
-						showIconText={false}
-						isPreview={true}
-						autoFocus={false}
-						customChatBoxClick={handleChatBoxClick}
-						// {...(info?.chatClicked && {
-						// 	sId: info?.chatSessionId,
-						// })}
-						sId={info?.chatSessionId}
-						showCitationsButton={false}
-					/>
-				</div>
-			)}
+			<NotesHeader
+				isDeleted={info?.isDeleted}
+				title={info?.title}
+				isFavorite={info?.isFavorite}
+				noteId={noteId}
+				notesConfigs={info?.notesConfigs}
+				myAccess={info?.myAccess}
+				lastUpdated={info?.lastUpdated}
+				updatedAt={info?.updatedAt}
+				handleFavorite={handleFavorite}
+				handleMoreOptionsChange={handleMoreOptionsChange}
+				handleDeletePage={handleDeletePage}
+				handleDuplicatePage={handleDuplicatePage}
+				restorePage={restorePage}
+				isDatabase={true}
+			/>
 			<div className="notesContentWrapper">
 				{info?.title && (
 					<Helmet>
@@ -939,23 +610,30 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 						<title>VE - {info?.title}</title>
 					</Helmet>
 				)}
-
-				<NotesHeader
-					isDeleted={info?.isDeleted}
-					title={info?.title}
-					isFavorite={info?.isFavorite}
-					noteId={noteId}
-					notesConfigs={info?.notesConfigs}
-					myAccess={info?.myAccess}
-					lastUpdated={info?.lastUpdated}
-					updatedAt={info?.updatedAt}
-					handleFavorite={handleFavorite}
-					handleMoreOptionsChange={handleMoreOptionsChange}
-					handleDeletePage={handleDeletePage}
-					handleDuplicatePage={handleDuplicatePage}
-					restorePage={restorePage}
-					isDatabase={true}
-				/>
+				<div className={`notesChatArea ${info?.chatOpen ? `chatOpen` : ''}`}>
+					<div className="notesChatHeader">
+						<div
+							className="notesChatCloseBtn"
+							onClick={() => handleInfoChange({ chatOpen: !info?.chatOpen })}
+						>
+							<DoubleRightArrowSvg />
+						</div>
+					</div>
+					<div className={`chatWrapper ${info?.chatOpen ? 'chatOpen' : ''}`}>
+						<RecentChat
+							showIconText={false}
+							isPreview={true}
+							autoFocus={false}
+							customChatBoxClick={handleChatBoxClick}
+							// {...(info?.chatClicked && {
+							// 	sId: info?.chatSessionId,
+							// })}
+							sId={info?.chatSessionId}
+							showCitationsButton={false}
+							showHeader={false}
+						/>
+					</div>
+				</div>
 
 				<div className="notes-editor-container">
 					<>
@@ -999,19 +677,25 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle, showTranscriptT
 								title={info?.title}
 								showRemoveIconBtn={info?.showRemoveIconBtn}
 							/>
-							<Editor
-								innerContainerStyle={innerContainerStyle}
-								myAccess={info?.myAccess}
-								isDeleted={info?.isDeleted}
-								customSendMessage={customSendMessage}
-								aiResonse={info?.aiResonse}
-								resetAiResponse={resetAiResponse}
-								noteId={noteId}
-								initialBlocks={blocks}
-								createBlock={createBlock}
-								updateBlock={updateBlock}
-								deleteBlock={deleteBlock}
-							/>
+							{blockLoading ? (
+								<div className="notesBlockLoading">
+									<Spinner />
+								</div>
+							) : (
+								<Editor
+									innerContainerStyle={innerContainerStyle}
+									myAccess={info?.myAccess}
+									isDeleted={info?.isDeleted}
+									customSendMessage={customSendMessage}
+									aiResonse={info?.aiResonse}
+									resetAiResponse={resetAiResponse}
+									noteId={noteId}
+									initialBlocks={blocks}
+									createBlock={createBlock}
+									updateBlock={updateBlock}
+									deleteBlock={deleteBlock}
+								/>
+							)}
 						</div>
 					</>
 				</div>
