@@ -3,13 +3,13 @@ import s from './topNavbar.module.scss';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import ShareAndEarnModal from '../../features/shareAndEarn/ShareAndEarnModal';
 
 // components
 import Settings from './components/settings/Settings';
 import Notifications from './components/notifications/Notifications';
 import FilesTooltip from './components/filesTooltip/FilesTooltip';
 import ToolsTooltip from './components/toolsTooltip/ToolsTooltip';
+import ShareAndEarnModal from '../../features/shareAndEarn/ShareAndEarnModal';
 import { Tooltip } from 'antd';
 
 // svg icons
@@ -86,7 +86,8 @@ const TopNavbar = () => {
 		pathname.includes('builder') ||
 		pathname.includes('galleries') ||
 		pathname.includes('create-workspace') ||
-		pathname.includes('agent/');
+		pathname.includes('agent/') ||
+		pathname.includes('note/');
 
 	const {
 		profileInfo: {

@@ -1049,16 +1049,18 @@ export const KnowledgeAgentState = () => {
 			const authScheme = payload?.auth_scheme || 'OAUTH2';
 			switch (authScheme) {
 				case 'OAUTH2':
-					authRequestBody.credentials = {
-						client_id: payload?.client_id || '',
-						client_secret: payload?.client_secret || '',
-						redirect_uri:
-							payload?.oauth_redirect_uri ||
-							payload?.redirect_uri ||
-							'https://backend.composio.dev/api/v1/auth-apps/add',
-						scopes: payload?.scopes || '',
-						bearer_token: payload?.bearer_token || '',
-					};
+					// authRequestBody.credentials = {
+					// 	client_id: payload?.client_id || '',
+					// 	client_secret: payload?.client_secret || '',
+					// 	redirect_uri:
+					// 		payload?.oauth_redirect_uri ||
+					// 		payload?.redirect_uri ||
+					// 		'https://backend.composio.dev/api/v1/auth-apps/add',
+					// 	scopes: payload?.scopes || '',
+					// 	bearer_token: payload?.bearer_token || '',
+					// };
+					delete authRequestBody['credentials'];
+					delete authRequestBody['variant'];
 					break;
 
 				case 'API_KEY':
@@ -1138,13 +1140,13 @@ export const KnowledgeAgentState = () => {
 			const connectUrl = `/composio/connect-app/${workspaceId}`;
 			const connectRequestBody = {
 				auth_config_id: authConfigId,
-				connection_name:
-					payload?.connection_name ||
-					`${payload?.slug || payload?.toolkit_slug}_connection`,
-				connection_type: payload?.connection_type || 'api',
-				connection_data: payload?.connection_data || {},
-				webhook_url: payload?.webhook_url,
-				custom_headers: payload?.custom_headers || {},
+				auth_scheme: payload?.auth_scheme || 'API_KEY',
+				credentials: payload?.connection_data || {
+					api_key: payload?.api_key || '',
+				},
+				// connection_data: payload?.connection_data || {},
+				// webhook_url: payload?.webhook_url,
+				// custom_headers: payload?.custom_headers || {},
 			};
 
 			const connectResponse = await service?.fetchPost(
