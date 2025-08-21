@@ -2637,8 +2637,14 @@ function LogicalForm(props) {
 							// Find actions that correspond to this condition
 							// Assuming actions array matches conditions array by index
 							const correspondingAction = currentField.actions[conditionIndex];
-							if (correspondingAction && (correspondingAction.type === 'show' || correspondingAction.type === 'hide' || correspondingAction.type === 'require')) {
-								handleAction(correspondingAction);
+							console.log('Found corresponding action:', correspondingAction);
+							if (correspondingAction) {
+								console.log('Action type:', correspondingAction.type);
+								if (correspondingAction.type === 'show' || correspondingAction.type === 'hide' || correspondingAction.type === 'require' || correspondingAction.type === 'skip_to_end') {
+									handleAction(correspondingAction);
+								} else {
+									console.log('Action type not handled in single-page mode:', correspondingAction.type);
+								}
 							}
 						}
 					});
@@ -2942,6 +2948,7 @@ function LogicalForm(props) {
 					const correspondingAction = pendingConditions.actions[conditionIndex];
 					if (correspondingAction) {
 						console.log('Multi-page executing action for condition', conditionIndex, ':', correspondingAction);
+						console.log('Multi-page action type:', correspondingAction.type);
 						const actionResult = handleAction(correspondingAction);
 						console.log('Multi-page action result:', actionResult);
 
@@ -3708,11 +3715,11 @@ function LogicalForm(props) {
 	// Update handleAction to properly handle different action types
 	const handleAction = (action) => {
 		if (!action || !action.type) {
-			// console.log('Invalid action:', action);
+			console.log('Invalid action:', action);
 			return false;
 		}
 
-		// console.log('Processing action:', action); // Debug log
+		console.log('Processing action:', action); // Debug log
 
 		switch (action.type) {
 			case 'jump':
@@ -3820,9 +3827,38 @@ function LogicalForm(props) {
 				return false;
 
 			case 'skip_to_end':
-				// Set current question to the last question (length - 1)
-				const lastQuestionIndex = visibleBlocks.length - 1;
-				setCurrentQuestionIndex(lastQuestionIndex);
+				if (isSinglePage) {
+					// For single-page mode, keep first and last fields, hide middle fields
+					const firstField = props.blocks[0];
+					const lastField = props.blocks[props.blocks.length - 1];
+					const fieldsToHide = props.blocks.slice(1, -1).map(field => field.id); // Hide middle fields (not first, not last)
+					
+					console.log('Single-page skip to end - hiding middle fields:', fieldsToHide);
+					console.log('Single-page skip to end - keeping first field:', firstField.id);
+					console.log('Single-page skip to end - showing last field:', lastField.id);
+					console.log('All blocks:', props.blocks.map((b, i) => `${i}: ${b.questionLabel || b.placeholder || b.id}`));
+					
+					// Hide middle fields only
+					setHiddenFields(prev => {
+						const updated = { ...prev };
+						fieldsToHide.forEach(fieldId => {
+							updated[fieldId] = true;
+						});
+						return updated;
+					});
+					
+					// Show first and last fields
+					setShownFields(prev => ({
+						...prev,
+						[firstField.id]: true,
+						[lastField.id]: true
+					}));
+				} else {
+					// For multi-page mode, jump to last question
+					const lastQuestionIndex = props.blocks.length - 1;
+					console.log('Multi-page skip to end - last question index:', lastQuestionIndex);
+					setCurrentQuestionIndex(lastQuestionIndex);
+				}
 				setIsSubmitted(false);
 				return true;
 
