@@ -379,6 +379,7 @@ const ProactiveSuggestions = () => {
 		setInfo((prev) => ({
 			...prev,
 			searchLoading: true,
+			loading: true,
 		}));
 		timeoutIdRef.current = setTimeout(async () => {
 			await fetchPendingActions();
@@ -616,6 +617,7 @@ const ProactiveSuggestions = () => {
 			return {
 				...prev,
 				selectedFilters: updatedFilters,
+				loading: true,
 			};
 		});
 	};
