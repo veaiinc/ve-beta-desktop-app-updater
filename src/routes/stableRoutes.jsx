@@ -22,6 +22,7 @@ const ProactiveSuggestions = lazy(() =>
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
+import publicRoutes from './publicRoutes';
 
 const stableRoutes = [
 	// ========================================
@@ -185,6 +186,10 @@ const stableRoutes = [
 			</Suspense>
 		),
 	},
+	// ========================================
+	// PUBLIC ROUTES
+	// ========================================
+	...publicRoutes,
 ];
 
 export default stableRoutes;

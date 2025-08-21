@@ -65,6 +65,7 @@ const GalleryViewer = lazy(() => import('../views/features/gallery/GalleryViewer
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
+import publicRoutes from './publicRoutes';
 const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
 const ProactiveSuggestions = lazy(() =>
 	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
@@ -714,6 +715,10 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
+	// ========================================
+	// PUBLIC ROUTES
+	// ========================================
+	...publicRoutes,
 ];
 
 export default betaRoutes;
