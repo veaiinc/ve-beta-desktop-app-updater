@@ -21,20 +21,21 @@ const GmailWidget = ({ widgetData = null, title = 'Draft Email Preview' }) => {
 
 	useEffect(() => {
 		if (widgetData) {
+			const { body, to, from, subject, cc, bcc } = widgetData || {};
 			setInfo((prev) => {
 				return {
 					...prev,
 					data: {
-						body: widgetData?.body || '',
-						to: widgetData?.to || '',
-						from: widgetData?.from || '',
-						subject: widgetData?.subject || '',
-						cc: widgetData?.cc || '',
-						bcc: widgetData?.bcc || '',
+						body: body || '',
+						to: to || '',
+						from: from || '',
+						subject: subject || '',
+						cc: cc || '',
+						bcc: bcc || '',
 					},
 					editEnabled: false,
-					showCC: widgetData?.cc ? true : false,
-					showBCC: widgetData?.bcc ? true : false,
+					showCC: cc ? true : false,
+					showBCC: bcc ? true : false,
 					sendEmailLoader: false,
 				};
 			});

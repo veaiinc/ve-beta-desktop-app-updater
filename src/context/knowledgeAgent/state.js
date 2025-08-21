@@ -1049,16 +1049,18 @@ export const KnowledgeAgentState = () => {
 			const authScheme = payload?.auth_scheme || 'OAUTH2';
 			switch (authScheme) {
 				case 'OAUTH2':
-					authRequestBody.credentials = {
-						client_id: payload?.client_id || '',
-						client_secret: payload?.client_secret || '',
-						redirect_uri:
-							payload?.oauth_redirect_uri ||
-							payload?.redirect_uri ||
-							'https://backend.composio.dev/api/v1/auth-apps/add',
-						scopes: payload?.scopes || '',
-						bearer_token: payload?.bearer_token || '',
-					};
+					// authRequestBody.credentials = {
+					// 	client_id: payload?.client_id || '',
+					// 	client_secret: payload?.client_secret || '',
+					// 	redirect_uri:
+					// 		payload?.oauth_redirect_uri ||
+					// 		payload?.redirect_uri ||
+					// 		'https://backend.composio.dev/api/v1/auth-apps/add',
+					// 	scopes: payload?.scopes || '',
+					// 	bearer_token: payload?.bearer_token || '',
+					// };
+					delete authRequestBody['credentials'];
+					delete authRequestBody['variant'];
 					break;
 
 				case 'API_KEY':
