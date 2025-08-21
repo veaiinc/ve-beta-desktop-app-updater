@@ -1,10 +1,8 @@
-// helpers/uploadImage.js
 import axios from 'axios';
-import ObjectId from 'bson-objectid';
 
 async function uploadImage(
 	file,
-	bucketType = 'originals', // ← now supports: 'originals', 'optimized', 'thumbnails_300w'
+	bucketType = 'originals', // supports: 'originals', 'optimized', 'thumbnails_300w', 'thumbnails_100h'
 	customFileName = null,
 	uploadPolicy,
 	imageId,
@@ -19,13 +17,10 @@ async function uploadImage(
 			throw new Error('Invalid file: Please provide a valid File object');
 		}
 
-		// ✅ Support for 'thumbnails_300w'
 		const policy = uploadPolicy[bucketType];
-		console.log(policy, 'policy');
-
 		if (!policy) {
 			throw new Error(
-				`Invalid bucket type: ${bucketType}. Use 'originals', 'optimized', or 'thumbnails_300w'`,
+				`Invalid bucket type: ${bucketType}. Use 'originals', 'optimized', 'thumbnails_300w', or 'thumbnails_100h'`,
 			);
 		}
 
@@ -42,8 +37,9 @@ async function uploadImage(
 		if (bucketType === 'optimized') {
 			fileKey = `${policy.keyPrefix}optimized/${fileName}`;
 		} else if (bucketType === 'thumbnails_300w') {
-			// 🔥 Important: Use 'thumbnails-300w/' with a hyphen, not underscore
 			fileKey = `${policy.keyPrefix}thumbnails-300w/${fileName}`;
+		} else if (bucketType === 'thumbnails_100h') {
+			fileKey = `${policy.keyPrefix}thumbnails-100h/${fileName}`;
 		} else {
 			// 'originals'
 			fileKey = `${policy.keyPrefix}${fileName}`;
@@ -58,9 +54,11 @@ async function uploadImage(
 		}
 		formData.append('X-Amz-Signature', policy.fields['X-Amz-Signature']);
 
-		// ✅ Add storage class only for optimized (or thumbnails if needed)
+		// Add storage class for non-originals
 		if (
-			(bucketType === 'optimized' || bucketType === 'thumbnails_300w') &&
+			(bucketType === 'optimized' ||
+				bucketType === 'thumbnails_300w' ||
+				bucketType === 'thumbnails_100h') &&
 			policy.fields['x-amz-storage-class']
 		) {
 			formData.append('x-amz-storage-class', policy.fields['x-amz-storage-class']);
@@ -72,7 +70,7 @@ async function uploadImage(
 		formData.append('Content-Type', contentType);
 		formData.append('file', file);
 
-		// ✅ Only add metadata for originals and optimized — skip for thumbnails
+		// Add metadata only for originals
 		if (bucketType === 'originals') {
 			formData.append('x-amz-meta-gallery-id', galleryId);
 			formData.append('x-amz-meta-given-image-id', imageId);
@@ -99,7 +97,7 @@ async function uploadImage(
 		return {
 			success: true,
 			uploadUrl: `${policy.url}${fileKey}`,
-			fileKey, // ← This will be like: "prefix/thumbnails-300w/abc_123.jpg"
+			fileKey,
 			bucketName: policy.bucketName,
 			imageId: imageId.toHexString(),
 			versionId,

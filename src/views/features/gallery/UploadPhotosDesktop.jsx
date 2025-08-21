@@ -159,8 +159,10 @@ const UploadPhotosDesktop = () => {
 
 			let processedFile = originalFile;
 			let thumbnailFile = null;
+			let thumbnail100hFile = null;
 			let processedBuffer = null;
 			let thumbnailBuffer = null;
+			let thumbnail100hBuffer = null;
 
 			const watermarkUrl = getWatermarkUrl();
 
@@ -208,6 +210,30 @@ const UploadPhotosDesktop = () => {
 				{ type: 'image/jpeg' },
 			);
 
+			// --- Process Thumbnail 100h (NO watermark, cropped to 100px height) ---
+			const resultThumbnail100h = await window.electronApi.processImageWithSharp({
+				imageBuffer: Array.from(uint8Array),
+				watermarkUrl: null,
+				watermarkPosition: info.watermarkPosition,
+				scale: 0.15,
+				opacity: 1,
+				isWaterMarkApply: false,
+				resizeOptions: { height: 100, fit: 'cover', position: 'center' }, // Cover + center crop
+				quality: 70,
+				forceJpeg: true,
+			});
+
+			if (!resultThumbnail100h.success) throw new Error(resultThumbnail100h.error);
+
+			thumbnail100hBuffer = Uint8Array.from(atob(resultThumbnail100h.processedImage), (c) =>
+				c.charCodeAt(0),
+			);
+			thumbnail100hFile = new File(
+				[thumbnail100hBuffer],
+				`thumb100_${originalFile.name.split('.')[0]}.jpg`,
+				{ type: 'image/jpeg' },
+			);
+
 			setInfo((prev) => ({
 				...prev,
 				processedCount: prev.processedCount + 1,
@@ -218,6 +244,7 @@ const UploadPhotosDesktop = () => {
 				success: true,
 				processedFile,
 				thumbnailFile,
+				thumbnail100hFile,
 				width,
 				height,
 				format,
@@ -225,6 +252,7 @@ const UploadPhotosDesktop = () => {
 				originalSize: originalFile.size,
 				processedSize: processedBuffer.length,
 				thumbnailSize: thumbnailBuffer.length,
+				thumbnail100hSize: thumbnail100hBuffer.length,
 			};
 		} catch (error) {
 			console.error('Failed to process:', originalFile.name, error);
@@ -380,7 +408,7 @@ const UploadPhotosDesktop = () => {
 						uploadImages: { ...prev.uploadImages, [key]: processedImage },
 					}));
 
-					// --- Create modified policy for thumbnail ---
+					// Create policies for thumbnails
 					const optimizedPolicy = policyData.optimized;
 					if (!optimizedPolicy) {
 						console.error('Missing optimized policy');
@@ -394,20 +422,26 @@ const UploadPhotosDesktop = () => {
 						continue;
 					}
 
-					const thumbnailKeyPrefix = optimizedPolicy.keyPrefix.replace(
-						/optimized\/?$/,
-						'thumbnails-300w/',
-					);
-
-					const thumbnailPolicy = {
+					const thumbnail300wPolicy = {
 						...optimizedPolicy,
-						keyPrefix: thumbnailKeyPrefix,
+						keyPrefix: optimizedPolicy.keyPrefix.replace(
+							/optimized\/?$/,
+							'thumbnails-300w/',
+						),
 					};
 
-					// Inject modified policy into fakePolicyData
-					const fakePolicyDataForThumbnail = {
+					const thumbnail100hPolicy = {
+						...optimizedPolicy,
+						keyPrefix: optimizedPolicy.keyPrefix.replace(
+							/optimized\/?$/,
+							'thumbnails-100h/',
+						),
+					};
+
+					const fakePolicyData = {
 						...policyData,
-						thumbnails_300w: thumbnailPolicy,
+						thumbnails_300w: thumbnail300wPolicy,
+						thumbnails_100h: thumbnail100hPolicy,
 					};
 
 					let uploaded = false;
@@ -420,7 +454,8 @@ const UploadPhotosDesktop = () => {
 							const [
 								uploadResultOriginal,
 								uploadResultOptimized,
-								uploadResultThumbnail,
+								uploadResultThumbnail300w,
+								uploadResultThumbnail100h,
 							] = await Promise.all([
 								// Upload original
 								uploadImage(
@@ -459,12 +494,25 @@ const UploadPhotosDesktop = () => {
 									tenantAlbums?.tenant_id,
 									info?.uploadBatchID,
 								),
-								// Upload thumbnail with modified policy
+								// Upload thumbnail 300w
 								uploadImage(
 									result.thumbnailFile,
 									'thumbnails_300w',
 									null,
-									fakePolicyDataForThumbnail, // ✅ Critical: use modified policy
+									fakePolicyData,
+									imageId,
+									null,
+									galleryId,
+									versionId,
+									tenantAlbums?.tenant_id,
+									info?.uploadBatchID,
+								),
+								// Upload thumbnail 100h
+								uploadImage(
+									result.thumbnail100hFile,
+									'thumbnails_100h',
+									null,
+									fakePolicyData,
 									imageId,
 									null,
 									galleryId,
@@ -477,9 +525,10 @@ const UploadPhotosDesktop = () => {
 							if (
 								!uploadResultOriginal.success ||
 								!uploadResultOptimized.success ||
-								!uploadResultThumbnail.success
+								!uploadResultThumbnail300w.success ||
+								!uploadResultThumbnail100h.success
 							) {
-								throw new Error('Upload failed');
+								throw new Error('One or more uploads failed');
 							}
 
 							const payload = generateUploadPayload(
@@ -489,7 +538,8 @@ const UploadPhotosDesktop = () => {
 								policyData,
 								uploadResultOriginal,
 								uploadResultOptimized,
-								uploadResultThumbnail,
+								uploadResultThumbnail300w,
+								uploadResultThumbnail100h,
 								{
 									width: result.width,
 									height: result.height,
@@ -555,7 +605,8 @@ const UploadPhotosDesktop = () => {
 		policyData,
 		uploadResultOriginal,
 		uploadResultOptimized,
-		uploadResultThumbnail,
+		uploadResultThumbnail300w,
+		uploadResultThumbnail100h,
 		extractedMetadata,
 		versionId,
 	) => {
@@ -590,7 +641,10 @@ const UploadPhotosDesktop = () => {
 					size: processedFile.size,
 				},
 				s3_thumbnail_300w: {
-					key: uploadResultThumbnail.fileKey, // ✅ Now has correct path
+					key: uploadResultThumbnail300w.fileKey,
+				},
+				s3_thumbnail_100h: {
+					key: uploadResultThumbnail100h.fileKey, // ✅ New
 				},
 				watermark: {
 					applied: info.isWaterMarkApply,
