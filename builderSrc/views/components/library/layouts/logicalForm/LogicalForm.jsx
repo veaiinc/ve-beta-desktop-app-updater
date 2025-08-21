@@ -3749,11 +3749,28 @@ function LogicalForm(props) {
 					const fieldIds = action.jumpTo.split(',').filter(id => id.trim());
 					console.log('Executing SHOW action for fields:', fieldIds);
 					
+					// Smart SHOW: Automatically hide all fields that come after the specified ones
+					const lastSpecifiedFieldIndex = Math.max(...fieldIds.map(fieldId => 
+						props.blocks.findIndex(block => block.id === fieldId.trim())
+					));
+					
+					// Hide all fields that come after the last specified field
+					const fieldsToHide = props.blocks
+						.slice(lastSpecifiedFieldIndex + 1)
+						.map(field => field.id);
+					
+					console.log('SHOW: Showing fields:', fieldIds);
+					console.log('SHOW: Auto-hiding remaining fields:', fieldsToHide);
+					
 					setHiddenFields((prev) => {
 						const updated = { ...prev };
-						// Remove all specified fields from hidden fields
+						// Remove specified fields from hidden fields
 						fieldIds.forEach(fieldId => {
 							delete updated[fieldId.trim()];
+						});
+						// Hide all fields after the last specified field
+						fieldsToHide.forEach(fieldId => {
+							updated[fieldId] = true;
 						});
 						console.log('Updated hiddenFields after SHOW:', updated);
 						return updated;
@@ -3773,6 +3790,8 @@ function LogicalForm(props) {
 					return true;
 				}
 				return false;
+
+
 
 			case 'hide':
 				if (action.jumpTo) {
