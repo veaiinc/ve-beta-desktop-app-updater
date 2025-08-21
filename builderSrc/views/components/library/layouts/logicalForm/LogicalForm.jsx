@@ -2587,15 +2587,10 @@ function LogicalForm(props) {
 
 				// For single-page mode, immediately process Show/Hide actions if conditions are met
 				if (isSinglePage && currentField.actions) {
-					console.log('Single-page mode: checking conditions for field:', currentField.id);
-					
 					// Reset shown/hidden fields for this specific field's actions to avoid conflicts
 					const fieldsToReset = currentField.actions
 						.filter(action => action.type === 'show' || action.type === 'hide')
 						.flatMap(action => action.jumpTo ? action.jumpTo.split(',').map(id => id.trim()) : []);
-					
-					console.log('Fields that might be affected by this field\'s actions:', fieldsToReset);
-					console.log('Before processing conditions - shownFields:', shownFields, 'hiddenFields:', hiddenFields);
 					
 					// Reset the specific fields that this field controls
 					if (fieldsToReset.length > 0) {
@@ -2635,7 +2630,7 @@ function LogicalForm(props) {
 						}
 						
 						const result = evaluateCondition(condition, valueToCheck);
-						console.log('Single-page condition check:', { condition, valueToCheck, result, conditionIndex });
+						console.log('Condition check details:', { condition, valueToCheck, result });
 						
 						// If this specific condition is met, execute its corresponding action(s)
 						if (result) {
@@ -2643,7 +2638,6 @@ function LogicalForm(props) {
 							// Assuming actions array matches conditions array by index
 							const correspondingAction = currentField.actions[conditionIndex];
 							if (correspondingAction && (correspondingAction.type === 'show' || correspondingAction.type === 'hide' || correspondingAction.type === 'require')) {
-								console.log('Single-page executing action for condition', conditionIndex, ':', correspondingAction);
 								handleAction(correspondingAction);
 							}
 						}
@@ -3024,6 +3018,10 @@ function LogicalForm(props) {
 
 			switch (condition.operator) {
 				case 'equals':
+					// Special handling for "Other" values in single/multiple choice
+					if (conditionValue?.toLowerCase() === 'other' && (textValue?.toLowerCase() === 'other' || textValue?.toLowerCase().startsWith('other'))) {
+						return true; // "Other" or "Other: text" should match condition "Other"
+					}
 					return textValue?.toLowerCase() === conditionValue?.toLowerCase();
 
 				case 'not_equals':
@@ -3676,8 +3674,12 @@ function LogicalForm(props) {
 		// 	areEqual: normalizedValue === normalizedConditionValue,
 		// });
 
-		switch (operator) {
+					switch (operator) {
 			case 'equals':
+				// Special handling for "Other" values in single/multiple choice
+				if (normalizedConditionValue === 'Other' && (normalizedValue === 'Other' || normalizedValue.startsWith('Other'))) {
+					return true; // "Other" or "Other: text" should match condition "Other"
+				}
 				return normalizedValue === normalizedConditionValue;
 			case 'not_equals':
 				return normalizedValue !== normalizedConditionValue;
@@ -3916,7 +3918,6 @@ function LogicalForm(props) {
 		);
 		
 		if (isTargetOfShowAction) {
-			console.log('Field is target of show action, hiding by default:', field.id);
 			return false; // Hide by default if it's a target of show actions
 		}
 
@@ -4412,7 +4413,6 @@ function LogicalForm(props) {
 		);
 		
 		if (isTargetOfShowAction && !shownFields[field.id]) {
-			console.log('Single-page: Field is target of show action, hiding by default:', field.id);
 			return false; // Hide by default if it's a target of show actions and not explicitly shown
 		}
 
