@@ -186,14 +186,10 @@ const ProactiveSuggestions = () => {
 			},
 		],
 		selectedCardNumber: null,
-		hoveredCard: null,
-		isListView: false,
 		isApiLoading: false,
 		sortBy: 'createdAt',
-		activeBtn: 'insights',
 		sortOptions,
 		searchQuery: '',
-		chatQuery: '',
 		options: [],
 		selectedOption: '',
 		showArrows: {
@@ -201,7 +197,6 @@ const ProactiveSuggestions = () => {
 			right: false,
 		},
 		searchOpen: false,
-		settingsOpen: false,
 		hasCards: true,
 		trainedFeedbackIds: null,
 		headline: null,
@@ -747,13 +742,6 @@ const ProactiveSuggestions = () => {
 		setInfo((prev) => ({
 			...prev,
 			searchOpen: !prev.searchOpen,
-		}));
-	};
-
-	const handleSettingsToggle = () => {
-		setInfo((prev) => ({
-			...prev,
-			settingsOpen: !prev.settingsOpen,
 		}));
 	};
 
