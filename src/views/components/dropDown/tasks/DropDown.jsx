@@ -18,6 +18,7 @@ const DropDown = ({
 	titleStyles,
 	onOptionClick,
 	selectedOptionStyles = {},
+	placement = 'bottom',
 }) => {
 	const [info, setInfo] = useState({ isOpen: false });
 	const handlePropagation = useCallback((e) => {
@@ -31,7 +32,7 @@ const DropDown = ({
 	return (
 		<Tooltip
 			// className="dropdown-parent"
-			placement="bottom"
+			placement={placement}
 			open={info?.isOpen}
 			onOpenChange={(open) => {
 				if (!open) {

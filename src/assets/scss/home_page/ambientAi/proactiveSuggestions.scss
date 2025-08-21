@@ -297,6 +297,13 @@
 					border: 1.5px solid var(--primary-button);
 				}
 			}
+
+			.no-data {
+				display: flex;
+				align-items: center;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+			}
 		}
 		.actionMainContainer {
 			width: 100%;
