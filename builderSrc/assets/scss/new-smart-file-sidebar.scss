@@ -1,3 +1,6 @@
+$font-general-sans: 'General Sans', sans-serif;
+$font-inter: 'Inter', sans-serif;
+
 .testing {
 	.ant-drawer-content-wrapper {
 		height: calc(100% - 74px);
@@ -30,7 +33,7 @@
 			cursor: pointer;
 			color: var(--primary-font, #f2f2f3);
 			text-align: center;
-			font-family: Inter;
+			font-family: $font-general-sans;
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -41,7 +44,7 @@
 			width: 16px;
 			height: 16px;
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: $font-inter;
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -90,7 +93,7 @@
 			border-radius: 100px;
 			background: var(--primary-button, #79ecc9);
 			color: var(--background-color, #121212);
-			font-family: 'General Sans Variable';
+			font-family: $font-general-sans;
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -138,7 +141,7 @@
 			.doc-header-title-container-text {
 				color: var(--primary-font, #f2f2f3);
 				text-align: start;
-				font-family: 'General Sans Variable';
+				font-family: $font-general-sans;
 				font-size: 20px;
 				font-style: normal;
 				font-weight: 500;
@@ -154,7 +157,7 @@
 		align-self: stretch;
 		color: var(--primary-font, #f2f2f3);
 		text-align: center;
-		font-family: Inter;
+		font-family: $font-inter;
 		font-size: 16px;
 		font-style: normal;
 		font-weight: 500;
@@ -163,7 +166,7 @@
 		span {
 			color: var(--primary-font, #f2f2f3);
 			text-align: center;
-			font-family: Inter;
+			font-family: $font-inter;
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -185,8 +188,8 @@
 		}
 		.sidebar-title-value {
 			color: var(--secondary-font, #94989e);
-			font-family: 'General Sans Variable';
-			font-size: 12px;
+			font-family: $font-general-sans;
+			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: 18px; /* 150% */
@@ -239,7 +242,7 @@
 		padding: 8px;
 		.workflow-warnings-container {
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: $font-inter;
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -446,7 +449,7 @@
 					.step-text {
 						color: var(--primary-button, #79ecc9);
 						text-align: center;
-						font-family: 'General Sans Variable';
+						font-family: $font-general-sans;
 						font-size: 10px;
 						font-style: normal;
 						font-weight: 400;
@@ -456,7 +459,7 @@
 					.details-text {
 						color: var(--primary-font, #f2f2f3);
 						text-align: center;
-						font-family: 'General Sans Variable';
+						font-family: $font-general-sans;
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -482,7 +485,7 @@
 				.step-text {
 					color: var(--primary-button, #79ecc9);
 					text-align: center;
-					font-family: 'General Sans Variable';
+					font-family: $font-general-sans;
 					font-size: 10px;
 					font-style: normal;
 					font-weight: 400;
@@ -492,7 +495,7 @@
 				.details-text {
 					color: var(--primary-font, #f2f2f3);
 					text-align: center;
-					font-family: 'General Sans Variable';
+					font-family: $font-general-sans;
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -647,7 +650,7 @@
 	border: none;
 	color: var(--secondary-font, #787e87);
 	color: var(--secondary-font, color(display-p3 0.4784 0.4941 0.5216));
-	font-family: Inter;
+	font-family: $font-inter;
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 500;
@@ -660,7 +663,7 @@
 		align-self: stretch;
 		color: var(--primary-font, #f2f2f3);
 		color: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
-		font-family: Inter;
+		font-family: $font-inter;
 		font-size: 16px;
 		font-style: normal;
 		font-weight: 500;
@@ -737,7 +740,7 @@
 .smartFileSideBarParentContainer .workflow-warnings .workflow-warning-item p {
 	color: #ffb300 !important;
 	font-size: 13px !important;
-	font-family: Inter, sans-serif !important;
+	font-family: $font-inter, sans-serif !important;
 	font-weight: 500 !important;
 	line-height: 1.5 !important;
 	background: none !important;

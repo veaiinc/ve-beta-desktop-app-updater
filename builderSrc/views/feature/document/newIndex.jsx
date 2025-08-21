@@ -26,6 +26,8 @@ const ClientSelectionTooltip = ({
 	clientsList,
 	getClientList,
 	newContainer = false,
+	isTemplateSelected = false,
+	handleOptionSelectionReset,
 }) => {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [searchTimeout, setSearchTimeout] = useState(null);
@@ -92,7 +94,13 @@ const ClientSelectionTooltip = ({
 								<div
 									className="clientDetailsCard"
 									key={client._id}
-									onClick={() => handleOptionSelection('existing', clientData)}
+									onClick={() => {
+										if (isTemplateSelected) {
+											handleOptionSelectionReset('templateReset', clientData);
+										} else {
+											handleOptionSelection('existing', clientData);
+										}
+									}}
 								>
 									<div className="clientAvatar-div">
 										<div className="clientAvatar">
@@ -365,6 +373,37 @@ const CreateDocument = () => {
 			setStageInfo((prev) => ({
 				...prev,
 				currentStep: prev.currentStep + 1,
+			}));
+		}
+	};
+	const handleOptionSelectionReset = (type, clientData = null) => {
+		if (type === 'templateReset' && clientData) {
+			// Client is changing but template is already selected
+			// Update client details and document name but keep the template
+			setStageInfo((prev) => ({
+				...prev,
+				clientDetails: {
+					name: clientData.name || '',
+					email: clientData.email || '',
+					phoneNumber: clientData.phoneNumber || '',
+				},
+				documentName: prev.selectedTemplate
+					? `${prev.selectedTemplate.title} for ${clientData.name || ''}`
+					: '',
+				clientEditable: false,
+				isNewClient: false,
+				clientSelection: true,
+				showClientSelectionToolTip: false,
+			}));
+			// Auto-advance to step 2 when existing client is selected
+			setTimeout(() => handleClickStep(2), 100);
+		} else {
+			// Original reset behavior - reset template selection
+			setStageInfo((prev) => ({
+				...prev,
+				selectedTemplate: null,
+				showDocumentName: false,
+				documentName: '',
 			}));
 		}
 	};
@@ -1174,6 +1213,12 @@ const CreateDocument = () => {
 															}
 															clientsList={stageInfo.clientData}
 															getClientList={getClientList}
+															isTemplateSelected={
+																stageInfo.selectedTemplate
+															}
+															handleOptionSelectionReset={
+																handleOptionSelectionReset
+															}
 														/>
 													}
 													color={'var(--right-bar, #161618)'}
@@ -1613,7 +1658,7 @@ const CreateDocument = () => {
 												onChange={handleSearchChange}
 												onClick={(e) => {
 													e.stopPropagation();
-													setShowClient(!showClient);
+													setShowClient(true);
 													// console.log('clicked');
 												}}
 											/>
