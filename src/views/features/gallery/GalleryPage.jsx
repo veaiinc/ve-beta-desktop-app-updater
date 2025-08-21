@@ -1007,9 +1007,6 @@ const GalleryPage = () => {
 		}
 	}, [info?.currentWorkspaceId, tennantSettingsData, info?.activeGallery]);
 	useEffect(() => {
-		console.log(info?.imagesList, 'imagesList');
-	}, [info?.imagesList]);
-	useEffect(() => {
 		if (!location?.state?.returnFromViewer) return;
 
 		const galleryLocation = location.pathname;
