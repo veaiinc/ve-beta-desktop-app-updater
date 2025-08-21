@@ -166,6 +166,7 @@ const ProactiveSuggestions = () => {
 			// getAiQuestions,
 			// aiQuestions,
 		},
+		aiSetup: { proactiveHeadings, getProactiveHeadings },
 		profileInfo: { insightTypes, getAiInsightTypes },
 	} = useContext(Context);
 
@@ -317,6 +318,10 @@ const ProactiveSuggestions = () => {
 			}));
 		}
 	}, [insightTypes]);
+
+	useEffect(() => {
+		getProactiveHeadings();
+	}, []);
 
 	useEffect(() => {
 		if (info?.totalCardsData?.length > 0) {
@@ -765,8 +770,8 @@ const ProactiveSuggestions = () => {
 					</div>
 				)} */}
 						<div className="proactive-suggestions-title">
-							{info?.headline ? (
-								info?.headline
+							{proactiveHeadings?.priority_headlines ? (
+								proactiveHeadings?.priority_headlines
 							) : (
 								<>
 									<span className="title-highlight">Ambient</span> Insights For

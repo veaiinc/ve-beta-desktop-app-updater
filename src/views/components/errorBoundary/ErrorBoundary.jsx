@@ -42,12 +42,16 @@ class ErrorBoundary extends Component {
 	async componentDidCatch(error, errorInfo) {
 		console.error('Error caught in ErrorBoundary:', error, errorInfo);
 		const { component, path } = extractErrorDetails(errorInfo?.componentStack);
-
 		// It happens if you are on a page and you release a new version. The file that contains the dynamically imported module, does not exist anymore (https://stackoverflow.com/questions/72376333/failed-to-fetch-dynamically-imported-module)
+		// Logic for lazy-loading errors:
+		// - Failed dynamic import
+		// - Invalid MIME type
+		// - Suspense in component stack
 		const isLazyLoadingErr =
-			error instanceof TypeError &&
-			(error.message.includes('Failed to fetch dynamically imported module') ||
-				error.message.includes(`'text/html' is not a valid JavaScript MIME type`));
+			(error instanceof TypeError &&
+				(error.message.includes('Failed to fetch dynamically imported module') ||
+					error.message.includes(`'text/html' is not a valid JavaScript MIME type`))) ||
+			(errorInfo?.componentStack && errorInfo.componentStack.includes('Suspense'));
 
 		if (isLazyLoadingErr) {
 			this.setState({ isLazyLoadingError: true });

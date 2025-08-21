@@ -1,9 +1,17 @@
 import s from './pageLoader.module.scss';
 import Spinner from '../../components/loaders/Spinner';
 import useTheme from '../../../hooks/useTheme';
+import logout from '../../../helpers/logout';
+import { useEffect } from 'react';
 
 const PageLoader = ({ customStyles }) => {
 	useTheme();
+	useEffect(() => {
+		const timeoutId = setTimeout(() => {
+			logout();
+		}, 20000);
+		return () => clearTimeout(timeoutId);
+	}, []);
 	return (
 		<div className={s.loaderContainer} style={customStyles}>
 			<Spinner
