@@ -1,3 +1,4 @@
+// ... imports unchanged ...
 import React, { useState, useContext, useEffect, useRef, memo } from 'react';
 import '../../../assets/scss/gallery/uploadGallery.scss';
 import AddLables from '../../components/gallery/addGallery/AddLablesComponent';
@@ -50,8 +51,8 @@ const UploadPhotosDesktop = () => {
 		initialUpload: false,
 		startedUploading: false,
 		uploadImages: {},
-		uploadSize: 0, // kb
-		uploadLimit: Math.min(navigator.hardwareConcurrency, 8), // Dynamic upload limit based on CPU cores
+		uploadSize: 0,
+		uploadLimit: Math.min(navigator.hardwareConcurrency, 8),
 		currentUpload: 1,
 		recentImageInitiated: null,
 		isSkipDuplicates: false,
@@ -67,11 +68,10 @@ const UploadPhotosDesktop = () => {
 		isUploadComplete: false,
 		scaleWatermark: 0.15,
 		watermarkOpacity: 1,
-		isProcessingDuplicates: false, // New state for duplicate processing feedback
+		isProcessingDuplicates: false,
 	});
 
 	const intervalRef = useRef(null);
-	const recentImageInitiatedRef = useRef(null);
 	const lightGallery = !tenantAlbums?.storeOriginals ? 'true' : 'false';
 	const aiFacesLogic =
 		lightGallery === 'true' &&
@@ -79,7 +79,7 @@ const UploadPhotosDesktop = () => {
 		(validateExpiryData?.liteImageLimitWithAiFace === 0 ||
 			validateExpiryData?.liteImageLimitWithAiFace <= validateExpiryData?.liteImageUsed);
 
-	// --- Effects ---
+	// --- Effects (unchanged) ---
 	useEffect(() => {
 		if (
 			lightGallery === 'true' &&
@@ -123,7 +123,6 @@ const UploadPhotosDesktop = () => {
 		}
 	}, [tenantAlbums]);
 
-	// Cleanup on unmount
 	useEffect(() => {
 		return () => {
 			if (intervalRef.current) clearInterval(intervalRef.current);
@@ -143,41 +142,12 @@ const UploadPhotosDesktop = () => {
 		return wm?.url || null;
 	};
 
-	// --- Concurrent Processing Helper ---
-	const processImagesConcurrently = async (images, concurrencyLimit) => {
-		const results = [];
-		const executing = [];
-
-		const processOne = async (image, index) => {
-			const result = await processSingleImage(image.file, index);
-			results.push({
-				...image,
-				...result,
-				processedFile: result.processedFile || null,
-			});
-		};
-
-		for (let i = 0; i < images.length; i++) {
-			const p = processOne(images[i], i).then(() => {
-				executing.splice(executing.indexOf(p), 1);
-			});
-			executing.push(p);
-
-			if (executing.length >= concurrencyLimit) {
-				await Promise.race(executing);
-			}
-		}
-
-		await Promise.all(executing);
-		return results;
-	};
 	// --- Process Image with Sharp ---
 	const processSingleImage = async (originalFile) => {
 		try {
 			const imageBuffer = await originalFile.arrayBuffer();
 			const uint8Array = new Uint8Array(imageBuffer);
 
-			// 👉 Extract metadata from original image
 			const { metadata, width, height, format, originalDateTime } =
 				await window.electronApi.extractImageMetadata({
 					imageBuffer: Array.from(uint8Array),
@@ -187,34 +157,56 @@ const UploadPhotosDesktop = () => {
 				throw new Error('Unable to extract image dimensions');
 			}
 
-			// 👉 Only process optimized version if watermark is enabled or resize needed
-			let processedBuffer = null;
 			let processedFile = originalFile;
+			let thumbnailFile = null;
+			let processedBuffer = null;
+			let thumbnailBuffer = null;
 
-			if (info.isWaterMarkApply || true) {
-				// Always process for compression/resize
-				const watermarkUrl = getWatermarkUrl();
-				const result = await window.electronApi.processImageWithSharp({
-					imageBuffer: Array.from(uint8Array),
-					watermarkUrl,
-					watermarkPosition: info.watermarkPosition,
-					scale: info.scaleWatermark,
-					opacity: info.watermarkOpacity,
-					isWaterMarkApply: info.isWaterMarkApply,
-					resizeOptions: { width: 1200 },
-					quality: 85,
-					forceJpeg: true,
-				});
+			const watermarkUrl = getWatermarkUrl();
 
-				if (!result.success) throw new Error(result.error);
+			// --- Process Optimized (WITH watermark) ---
+			const resultOptimized = await window.electronApi.processImageWithSharp({
+				imageBuffer: Array.from(uint8Array),
+				watermarkUrl: info.isWaterMarkApply ? watermarkUrl : null,
+				watermarkPosition: info.watermarkPosition,
+				scale: info.scaleWatermark,
+				opacity: info.watermarkOpacity,
+				isWaterMarkApply: info.isWaterMarkApply,
+				resizeOptions: { width: 1200 },
+				quality: 85,
+				forceJpeg: true,
+			});
 
-				processedBuffer = Uint8Array.from(atob(result.processedImage), (c) =>
-					c.charCodeAt(0),
-				);
-				processedFile = new File([processedBuffer], originalFile.name, {
-					type: 'image/jpeg',
-				});
-			}
+			if (!resultOptimized.success) throw new Error(resultOptimized.error);
+
+			processedBuffer = Uint8Array.from(atob(resultOptimized.processedImage), (c) =>
+				c.charCodeAt(0),
+			);
+			processedFile = new File([processedBuffer], originalFile.name, { type: 'image/jpeg' });
+
+			// --- Process Thumbnail 300w (NO watermark) ---
+			const resultThumbnail = await window.electronApi.processImageWithSharp({
+				imageBuffer: Array.from(uint8Array),
+				watermarkUrl: null,
+				watermarkPosition: info.watermarkPosition,
+				scale: 0.15,
+				opacity: 1,
+				isWaterMarkApply: false,
+				resizeOptions: { width: 300 },
+				quality: 70,
+				forceJpeg: true,
+			});
+
+			if (!resultThumbnail.success) throw new Error(resultThumbnail.error);
+
+			thumbnailBuffer = Uint8Array.from(atob(resultThumbnail.processedImage), (c) =>
+				c.charCodeAt(0),
+			);
+			thumbnailFile = new File(
+				[thumbnailBuffer],
+				`thumb_${originalFile.name.split('.')[0]}.jpg`,
+				{ type: 'image/jpeg' },
+			);
 
 			setInfo((prev) => ({
 				...prev,
@@ -225,12 +217,14 @@ const UploadPhotosDesktop = () => {
 			return {
 				success: true,
 				processedFile,
+				thumbnailFile,
 				width,
 				height,
 				format,
 				originalDateTime,
 				originalSize: originalFile.size,
-				processedSize: processedBuffer ? processedBuffer.length : originalFile.size,
+				processedSize: processedBuffer.length,
+				thumbnailSize: thumbnailBuffer.length,
 			};
 		} catch (error) {
 			console.error('Failed to process:', originalFile.name, error);
@@ -247,6 +241,7 @@ const UploadPhotosDesktop = () => {
 			return { success: false, error };
 		}
 	};
+
 	// --- On Drop: Just Store Raw Files ---
 	const onDropFunction = async (files) => {
 		if (
@@ -319,6 +314,7 @@ const UploadPhotosDesktop = () => {
 			updateStateValues({ reFetchSubscription: true });
 			return;
 		}
+
 		const policyResponse = await getUploadImagePolicy(galleryId);
 		const policyData = policyResponse?.[1];
 
@@ -367,13 +363,52 @@ const UploadPhotosDesktop = () => {
 					}
 
 					const result = await processSingleImage(image.file);
-					if (!result.success) continue;
+					if (!result.success) {
+						setInfo((prev) => ({
+							...prev,
+							uploadImages: {
+								...prev.uploadImages,
+								[key]: { ...image, isFailed: true },
+							},
+						}));
+						continue;
+					}
 
 					const processedImage = { ...image, processedFile: result.processedFile };
 					setInfo((prev) => ({
 						...prev,
 						uploadImages: { ...prev.uploadImages, [key]: processedImage },
 					}));
+
+					// --- Create modified policy for thumbnail ---
+					const optimizedPolicy = policyData.optimized;
+					if (!optimizedPolicy) {
+						console.error('Missing optimized policy');
+						setInfo((prev) => ({
+							...prev,
+							uploadImages: {
+								...prev.uploadImages,
+								[key]: { ...image, isFailed: true },
+							},
+						}));
+						continue;
+					}
+
+					const thumbnailKeyPrefix = optimizedPolicy.keyPrefix.replace(
+						/optimized\/?$/,
+						'thumbnails-300w/',
+					);
+
+					const thumbnailPolicy = {
+						...optimizedPolicy,
+						keyPrefix: thumbnailKeyPrefix,
+					};
+
+					// Inject modified policy into fakePolicyData
+					const fakePolicyDataForThumbnail = {
+						...policyData,
+						thumbnails_300w: thumbnailPolicy,
+					};
 
 					let uploaded = false;
 					let attempts = 0;
@@ -382,79 +417,103 @@ const UploadPhotosDesktop = () => {
 					while (attempts < 3 && !uploaded) {
 						attempts++;
 						try {
-							// Upload original and optimized concurrently
-							const [uploadResultOriginal, uploadResultOptimized] = await Promise.all(
-								[
-									uploadImage(
-										image.file,
-										'originals',
-										null,
-										policyData,
-										imageId,
-										(percent) => {
-											setInfo((prev) => ({
-												...prev,
-												uploadImages: {
-													...prev.uploadImages,
-													[key]: {
-														...prev.uploadImages[key],
-														uploadedPerct: percent,
-													},
+							const [
+								uploadResultOriginal,
+								uploadResultOptimized,
+								uploadResultThumbnail,
+							] = await Promise.all([
+								// Upload original
+								uploadImage(
+									image.file,
+									'originals',
+									null,
+									policyData,
+									imageId,
+									(percent) => {
+										setInfo((prev) => ({
+											...prev,
+											uploadImages: {
+												...prev.uploadImages,
+												[key]: {
+													...prev.uploadImages[key],
+													uploadedPerct: percent,
 												},
-											}));
-										},
-										galleryId,
-										versionId,
-										tenantAlbums?.tenant_id,
-										info?.uploadBatchID,
-									),
-									uploadImage(
-										result.processedFile,
-										'optimized',
-										null,
-										policyData,
-										imageId,
-										null,
-										galleryId,
-										versionId,
-										tenantAlbums?.tenant_id,
-										info?.uploadBatchID,
-									),
-								],
+											},
+										}));
+									},
+									galleryId,
+									versionId,
+									tenantAlbums?.tenant_id,
+									info?.uploadBatchID,
+								),
+								// Upload optimized
+								uploadImage(
+									result.processedFile,
+									'optimized',
+									null,
+									policyData,
+									imageId,
+									null,
+									galleryId,
+									versionId,
+									tenantAlbums?.tenant_id,
+									info?.uploadBatchID,
+								),
+								// Upload thumbnail with modified policy
+								uploadImage(
+									result.thumbnailFile,
+									'thumbnails_300w',
+									null,
+									fakePolicyDataForThumbnail, // ✅ Critical: use modified policy
+									imageId,
+									null,
+									galleryId,
+									versionId,
+									tenantAlbums?.tenant_id,
+									info?.uploadBatchID,
+								),
+							]);
+
+							if (
+								!uploadResultOriginal.success ||
+								!uploadResultOptimized.success ||
+								!uploadResultThumbnail.success
+							) {
+								throw new Error('Upload failed');
+							}
+
+							const payload = generateUploadPayload(
+								image,
+								result.processedFile,
+								imageId,
+								policyData,
+								uploadResultOriginal,
+								uploadResultOptimized,
+								uploadResultThumbnail,
+								{
+									width: result.width,
+									height: result.height,
+									format: result.format,
+									originalDateTime: result.originalDateTime,
+								},
+								versionId,
 							);
 
-							if (uploadResultOriginal.success && uploadResultOptimized.success) {
-								const payload = generateUploadPayload(
-									image,
-									result.processedFile,
-									imageId,
-									policyData,
-									uploadResultOriginal,
-									uploadResultOptimized,
-									{
-										width: result.width,
-										height: result.height,
-										format: result.format,
-										originalDateTime: result.originalDateTime,
-									},
-									versionId,
-								);
-
-								const [success, response] = await uploadDesktopImages(
-									galleryId,
-									albumId,
-									payload,
-								);
-								if (success) {
-									uploaded = true;
-								} else {
-									console.error('Failed to register image:', response);
-								}
+							const [success, response] = await uploadDesktopImages(
+								galleryId,
+								albumId,
+								payload,
+							);
+							if (success) {
+								uploaded = true;
+							} else {
+								console.error('Failed to register image:', response);
 							}
 						} catch (e) {
 							console.error(`Upload error (attempt ${attempts}):`, e);
-							if (attempts < 3)
-								await new Promise((r) => setTimeout(r, 1000 * attempts)); // Reduced from 2000
+							if (attempts < 3) {
+								await new Promise((r) => setTimeout(r, 1000 * attempts));
+							}
 						}
 					}
 
@@ -488,19 +547,21 @@ const UploadPhotosDesktop = () => {
 		updateStateValues({ reFetchSubscription: true, reFetchGallery: true });
 	};
 
+	// --- Generate Payload ---
 	const generateUploadPayload = (
 		image,
 		processedFile,
-		imageId, // ← will be existing _id for duplicates
+		imageId,
 		policyData,
 		uploadResultOriginal,
 		uploadResultOptimized,
+		uploadResultThumbnail,
 		extractedMetadata,
 		versionId,
 	) => {
 		const givenFileName = uploadResultOriginal.fileKey.split('/').pop();
 		const updatedVersionId = versionId.toString();
-		// Use metadata from processSingleImage
+
 		const {
 			width: originalWidth,
 			height: originalHeight,
@@ -510,7 +571,7 @@ const UploadPhotosDesktop = () => {
 
 		return {
 			tag_ids: info.selectedGalleryTags.map((tag) => tag._id || ''),
-			image_id: imageId.toHexString(), // ← This will be reused ID for duplicates
+			image_id: imageId.toHexString(),
 			activeVersion: {
 				versionId: updatedVersionId,
 				uploadBatchId: info.uploadBatchID,
@@ -529,7 +590,7 @@ const UploadPhotosDesktop = () => {
 					size: processedFile.size,
 				},
 				s3_thumbnail_300w: {
-					key: uploadResultOptimized.fileKey.replace(/optimized\//, 'thumbnails_300w/'),
+					key: uploadResultThumbnail.fileKey, // ✅ Now has correct path
 				},
 				watermark: {
 					applied: info.isWaterMarkApply,
