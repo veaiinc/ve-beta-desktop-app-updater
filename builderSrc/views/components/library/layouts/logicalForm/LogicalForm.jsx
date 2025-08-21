@@ -1677,6 +1677,15 @@ function LogicalForm(props) {
 		};
 	}, []);
 
+	// Debug effect to monitor show/hide state changes
+	useEffect(() => {
+		console.log('Show/Hide states changed:', {
+			hiddenFields: Object.keys(hiddenFields),
+			shownFields: Object.keys(shownFields),
+			requiredFields: Object.keys(requiredFields)
+		});
+	}, [hiddenFields, shownFields, requiredFields]);
+
 	// Add new field
 	const handleAddField = (type) => {
 		const newField = createNewField(type?.toLowerCase(), 0); // Set initial order to 0
@@ -2194,8 +2203,9 @@ function LogicalForm(props) {
 		visibleFields.forEach((field) => {
 			const answer = previewAnswers[field.id];
 
-			// Check required fields
-			if (field.required && (!answer || answer === '')) {
+			// Check required fields (both static and dynamic)
+			const isFieldRequired = field.required || requiredFields[field.id];
+			if (isFieldRequired && (!answer || answer === '')) {
 				validationErrors.push({
 					fieldId: field.id,
 					error: ` ${'This field'} is required`,
@@ -2575,6 +2585,22 @@ function LogicalForm(props) {
 					actions: currentField.actions,
 				});
 
+				// For single-page mode, immediately process Show/Hide actions if conditions are met
+				if (isSinglePage && currentField.actions) {
+					const allConditionsMet = processedConditions.every((condition) => {
+						return evaluateCondition(condition, String(value));
+					});
+
+					if (allConditionsMet) {
+						// Execute Show and Hide actions immediately
+						for (const action of currentField.actions) {
+							if (action.type === 'show' || action.type === 'hide') {
+								handleAction(action);
+							}
+						}
+					}
+				}
+
 				// console.log('Stored conditions:', processedConditions); // Debug log
 			}
 		}
@@ -2595,7 +2621,8 @@ function LogicalForm(props) {
 	// Update handleNextQuestion to execute pending conditions
 	const handleNextQuestion = () => {
 		const currentField = visibleBlocks[currentQuestionIndex];
-		if (currentField?.required) {
+		const isFieldRequired = currentField?.required || requiredFields[currentField?.id];
+		if (isFieldRequired) {
 			const currentAnswer = previewAnswers[currentField.id];
 
 			// Handle different field types
@@ -3638,38 +3665,75 @@ function LogicalForm(props) {
 
 			case 'show':
 				if (action.jumpTo) {
+					// Handle multiple field IDs (comma-separated)
+					const fieldIds = action.jumpTo.split(',').filter(id => id.trim());
+					console.log('Executing SHOW action for fields:', fieldIds);
+					
 					setHiddenFields((prev) => {
 						const updated = { ...prev };
-						delete updated[action.jumpTo];
+						// Remove all specified fields from hidden fields
+						fieldIds.forEach(fieldId => {
+							delete updated[fieldId.trim()];
+						});
+						console.log('Updated hiddenFields after SHOW:', updated);
 						return updated;
 					});
-					setShownFields((prev) => ({
-						...prev,
-						[action.jumpTo]: true,
-					}));
+					
+					setShownFields((prev) => {
+						const updated = { ...prev };
+						// Add all specified fields to shown fields
+						fieldIds.forEach(fieldId => {
+							updated[fieldId.trim()] = true;
+						});
+						console.log('Updated shownFields after SHOW:', updated);
+						return updated;
+					});
 				}
 				return false;
 
 			case 'hide':
 				if (action.jumpTo) {
+					// Handle multiple field IDs (comma-separated)
+					const fieldIds = action.jumpTo.split(',').filter(id => id.trim());
+					console.log('Executing HIDE action for fields:', fieldIds);
+					
 					setShownFields((prev) => {
 						const updated = { ...prev };
-						delete updated[action.jumpTo];
+						// Remove all specified fields from shown fields
+						fieldIds.forEach(fieldId => {
+							delete updated[fieldId.trim()];
+						});
+						console.log('Updated shownFields after HIDE:', updated);
 						return updated;
 					});
-					setHiddenFields((prev) => ({
-						...prev,
-						[action.jumpTo]: true,
-					}));
+					
+					setHiddenFields((prev) => {
+						const updated = { ...prev };
+						// Add all specified fields to hidden fields
+						fieldIds.forEach(fieldId => {
+							updated[fieldId.trim()] = true;
+						});
+						console.log('Updated hiddenFields after HIDE:', updated);
+						return updated;
+					});
 				}
 				return false;
 
 			case 'require':
 				if (action.jumpTo) {
-					setRequiredFields((prev) => ({
-						...prev,
-						[action.jumpTo]: true,
-					}));
+					// Handle multiple field IDs (comma-separated)
+					const fieldIds = action.jumpTo.split(',').filter(id => id.trim());
+					console.log('Executing REQUIRE action for fields:', fieldIds);
+					
+					setRequiredFields((prev) => {
+						const updated = { ...prev };
+						// Add all specified fields to required fields
+						fieldIds.forEach(fieldId => {
+							updated[fieldId.trim()] = true;
+						});
+						console.log('Updated requiredFields after REQUIRE:', updated);
+						return updated;
+					});
 				}
 				return false;
 
@@ -3744,6 +3808,14 @@ function LogicalForm(props) {
 			const targetAnswer = previewAnswers[condition.targetField];
 			return evaluateCondition(condition, targetAnswer);
 		});
+	};
+
+	// Helper function to reset Show/Hide states
+	const resetShowHideStates = () => {
+		setHiddenFields({});
+		setShownFields({});
+		setRequiredFields({});
+		console.log('Reset all Show/Hide states');
 	};
 
 	// Add these styles
@@ -4205,6 +4277,10 @@ function LogicalForm(props) {
 
 	// Update the input rendering for client side
 	const shouldShowFieldInSinglePage = (field, index, blocks, answers) => {
+		// First check show/hide logic - this takes precedence
+		if (hiddenFields[field.id]) return false;
+		if (shownFields[field.id]) return true;
+		
 		// Always show the first field
 		if (index === 0) return true;
 
@@ -5385,6 +5461,11 @@ function LogicalForm(props) {
 		if (!client && !isPreview) return blocks;
 
 		return blocks.filter((field) => {
+			// First check show/hide logic
+			if (hiddenFields[field.id]) return false;
+			if (shownFields[field.id]) return true;
+			
+			// Then check field-specific visibility logic
 			switch (field.type) {
 				case 'image':
 					// return !!field.imageURL;
@@ -5396,7 +5477,8 @@ function LogicalForm(props) {
 				case 'embed':
 					return !!field.embedCode;
 				default:
-					return true;
+					// For regular question fields, also check conditions
+					return shouldShowField(field);
 			}
 		});
 	};
@@ -5437,6 +5519,7 @@ function LogicalForm(props) {
 	};
 
 	// In the render section, use the filtered blocks
+	// Re-calculate visible blocks whenever show/hide states change
 	const visibleBlocks = getSortedBlocks(getVisibleBlocks(props.blocks));
 
 	// Update the question counter and navigation
@@ -5553,6 +5636,9 @@ function LogicalForm(props) {
 			setPreviewAnswers({}); // Clear all answers
 			setCurrentQuestionIndex(0); // Return to first question
 			setHasStarted(false); // Reset to landing page if applicable
+
+			// Reset Show/Hide states
+			resetShowHideStates();
 
 			// If using form answer state from props, clear that too
 			if (props.handleFormAnswer) {
