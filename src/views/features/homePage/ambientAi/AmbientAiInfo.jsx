@@ -392,8 +392,9 @@ const AmbientAiInfo = ({
 	);
 
 	const handleWidgetDataUpdate = useCallback(
-		async ({ updatedData = null, skip = false, action = null, module_type = null }) => {
+		async ({ updatedData = null, skip = false, widgetInfo }) => {
 			let { _id, widgets = [] } = data || {};
+			const { action, module_type } = widgetInfo;
 
 			if (skip === true) {
 				widgets = widgets?.filter(
@@ -419,15 +420,25 @@ const AmbientAiInfo = ({
 
 	const getWidget = useCallback(
 		(item) => {
+			const widgetInfo = {
+				action: item?.action,
+				module_type: item?.module_type,
+			};
+
 			if (item?.module_type === 'gmail') {
-				return <GmailWidget widgetData={item?.metadata} />;
+				return (
+					<GmailWidget
+						widgetData={item?.metadata}
+						widgetInfo={widgetInfo}
+						onChange={handleWidgetDataUpdate}
+					/>
+				);
 			}
 			if (item?.module_type === 'calendar') {
 				return (
 					<CalendarWidget
 						widgetData={item?.metadata}
-						action={item?.action}
-						module_type={item?.module_type}
+						widgetInfo={widgetInfo}
 						onChange={handleWidgetDataUpdate}
 					/>
 				);
