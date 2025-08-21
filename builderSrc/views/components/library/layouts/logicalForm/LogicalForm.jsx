@@ -1080,6 +1080,9 @@ export const ConditionRow = ({ condition, onUpdate, onRemove, fieldType, field }
 					/>
 				) : (
 					<select
+					style={{
+						width: '100%',
+					}}
 						className="condition-input"
 						value={condition.value}
 						onChange={(e) => onUpdate({ ...condition, value: e.target.value })}

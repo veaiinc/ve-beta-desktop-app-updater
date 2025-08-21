@@ -6377,8 +6377,9 @@ const SortableComponent = ({
 												action.jumpTo &&
 												action.jumpTo.split(',').includes(f.id)
 											}
-											dangerouslySetInnerHTML={{ __html: f.question }}
-										/>
+										>
+											{f.question ? f.question.replace(/<[^>]*>/g, '') : 'Untitled Question'}
+										</option>
 									))}
 									<option value="thank_you">Default thank you page</option>
 								</select>
@@ -6424,7 +6425,7 @@ const SortableComponent = ({
 																		: 'black',
 															}}
 														>
-															{question.question}
+															{question.question ? question.question.replace(/<[^>]*>/g, '') : 'Untitled Question'}
 														</span>
 														<button
 															onClick={(e) => {
