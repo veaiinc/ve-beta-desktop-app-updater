@@ -32,6 +32,8 @@ const actionHandlers = {
 			updateSession,
 			sessionData,
 			reset,
+			agentType,
+			assistantId,
 		} = action?.payload;
 
 		let aiChatSessions = { ...(state?.aiChatSessions || {}) };
@@ -44,6 +46,8 @@ const actionHandlers = {
 					title: 'New Chat',
 					createdAt: Math.floor(Date.now() / 1000),
 					isNewSession: true,
+					agentType,
+					assistantId,
 				};
 				if (!sessions?.length) {
 					sessions = [{ ...newSession }];
