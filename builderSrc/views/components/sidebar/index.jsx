@@ -604,6 +604,7 @@ class Sidebar extends Images {
 			],
 			showLineTypeDropDown: false,
 			searchFont: '',
+			searchSmartField: '',
 			isLogo: props?.isLogo,
 			logoStickerFill: props?.logoStickerFill,
 			timeout: null,
@@ -3240,6 +3241,10 @@ class Sidebar extends Images {
 	// 	return value;
 	// };
 	setServiceItemValue = (val, type) => {
+		// Store the input value in local state to prevent flickering
+		const inputKey = `input_${type}_${this.state.activeServiceSubBlock}`;
+		this.setState({ [inputKey]: val });
+
 		let blocks = _.cloneDeep(this.state?.activeSection.blocks);
 		let arr = [];
 		let vals;
@@ -3274,6 +3279,7 @@ class Sidebar extends Images {
 			style: { ...section.style, subTotalValue: recalculatedSubtotalValue },
 		};
 
+		// Update the main state without triggering re-render of input
 		this.setState(
 			{
 				activeSection: section,
@@ -3288,6 +3294,8 @@ class Sidebar extends Images {
 						this.state.activeServiceSubBlock,
 						section._id,
 					);
+					// Clear the local input state after API call is complete
+					this.setState({ [inputKey]: undefined });
 				}, 500);
 				this.setState({ timeout });
 			},
@@ -5135,9 +5143,15 @@ class Sidebar extends Images {
 									<input
 										className="w-25"
 										value={
-											_.filter(this.state?.activeSection?.blocks, {
-												_id: this.state?.activeServiceSubBlock,
-											})[0]?.subBlocks[0]['quantity']
+											this.state[
+												`input_quantity_${this.state.activeServiceSubBlock}`
+											] !== undefined
+												? this.state[
+														`input_quantity_${this.state.activeServiceSubBlock}`
+												  ]
+												: _.filter(this.state?.activeSection?.blocks, {
+														_id: this.state?.activeServiceSubBlock,
+												  })[0]?.subBlocks[0]['quantity'] || null
 										}
 										onChange={(e) =>
 											this.setServiceItemValue(e.target.value, 'quantity')
@@ -5246,9 +5260,15 @@ class Sidebar extends Images {
 									<input
 										className="w-25"
 										value={
-											_.filter(this.state?.activeSection?.blocks, {
-												_id: this.state?.activeServiceSubBlock,
-											})[0]?.subBlocks[0]['amount']
+											this.state[
+												`input_amount_${this.state.activeServiceSubBlock}`
+											] !== undefined
+												? this.state[
+														`input_amount_${this.state.activeServiceSubBlock}`
+												  ]
+												: _.filter(this.state?.activeSection?.blocks, {
+														_id: this.state?.activeServiceSubBlock,
+												  })[0]?.subBlocks[0]['amount']
 										}
 										onChange={(e) =>
 											this.setServiceItemValue(e.target.value, 'amount')
