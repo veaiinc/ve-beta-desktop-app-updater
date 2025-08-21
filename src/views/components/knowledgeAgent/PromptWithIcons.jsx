@@ -29,7 +29,7 @@ const PromptWithIcons = ({
 
 	// Initialize initialBlocks only once
 	useEffect(() => {
-		if (!initialBlocksRef.current) {
+		if (agentId && !initialBlocksRef.current) {
 			initialBlocksRef.current = { data: prompt };
 		}
 	}, [agentId]);

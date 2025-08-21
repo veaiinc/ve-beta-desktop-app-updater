@@ -405,6 +405,13 @@
 			gap: 24px;
 			align-self: stretch;
 
+			.widgets-container {
+				width: 100%;
+				.widget {
+					width: 100%;
+				}
+			}
+
 			.suggested-actions-wrapper {
 				display: flex;
 				flex-direction: column;
