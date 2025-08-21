@@ -1940,7 +1940,7 @@ const SortableComponent = ({
 								</span>
 							</div>
 						)}
-						{!client && !isPreview && (
+						{!client && !isPreview && !field.hideDescription && (
 							<div
 								className="description-field"
 								style={{
@@ -2020,7 +2020,8 @@ const SortableComponent = ({
 						{/* Display description in client/preview mode */}
 						{(client || isPreview) &&
 							field.description &&
-							field.description.trim() !== '' && (
+							field.description.trim() !== '' &&
+							!field.hideDescription && (
 								<div
 									className="description-text"
 									style={{
@@ -2379,6 +2380,63 @@ const SortableComponent = ({
 																					...f,
 																					required:
 																						!f.required,
+																				};
+																			}
+																			return f;
+																		},
+																	);
+																	const updateSections =
+																		sections.map((section) => {
+																			if (
+																				section._id === _id
+																			) {
+																				return {
+																					...section,
+																					blocks: updateBlocks,
+																				};
+																			}
+																			return section;
+																		});
+																	saveSections(updateSections);
+																}}
+															/>
+															<span className="slider"></span>
+														</div>
+													</label>
+												</div>
+											)}
+
+											{/* Hide description toggle */}
+											{!['image'].includes(field.type) && (
+												<div
+													className="setting-item"
+													style={{ marginBottom: '16px' }}
+												>
+													<label
+														style={{
+															display: 'flex',
+															justifyContent: 'space-between',
+															alignItems: 'center',
+															marginBottom: '8px',
+															color: '#F1F1F1',
+															fontFamily:
+																'-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+															fontSize: '12px',
+															fontWeight: 500,
+														}}
+													>
+														Hide description
+														<div className="toggle-switch">
+															<input
+																type="checkbox"
+																checked={field.hideDescription || false}
+																onChange={(e) => {
+																	const updateBlocks = blocks.map(
+																		(f) => {
+																			if (f.id === field.id) {
+																				return {
+																					...f,
+																					hideDescription: !f.hideDescription,
 																				};
 																			}
 																			return f;
