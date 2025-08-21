@@ -6885,6 +6885,9 @@ function LogicalForm(props) {
 															saveSections={props?.saveSections}
 															isPreview={true}
 															client={props?.client}
+															hiddenFields={hiddenFields}
+															shownFields={shownFields}
+															requiredFields={requiredFields}
 														/>
 													</div>
 												))}
@@ -7244,7 +7247,7 @@ function LogicalForm(props) {
 																		visibleIndex + 1
 																  }.</span>
       ${field?.question}
-      ${field.required ? '<span style="color: red; margin-left: 4px;"></span>' : ''}
+      ${field.required || requiredFields[field.id] ? '<span style="color: red; margin-left: 4px;"></span>' : ''}
     </span>`
 																: field?.question,
 														}}
@@ -7268,6 +7271,9 @@ function LogicalForm(props) {
 														isPreview={true}
 														client={props?.client}
 														isSinglePage={isSinglePage} // Add this prop
+														hiddenFields={hiddenFields}
+														shownFields={shownFields}
+														requiredFields={requiredFields}
 													/>
 												</div>
 											) : null;

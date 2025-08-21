@@ -110,6 +110,11 @@ const SortableComponent = ({
 	isSinglePage,
 	newTheme,
 
+	// Show/Hide state props
+	hiddenFields,
+	shownFields,
+	requiredFields,
+
 	// text props
 	handleBSelection,
 	handleSetTab,
@@ -1871,7 +1876,7 @@ const SortableComponent = ({
 									/>
 								</Popover>
 
-								{field.required && (
+								{(field.required || requiredFields?.[field.id]) && (
 									<span
 										className="required-asterisk"
 										style={{
@@ -1920,7 +1925,7 @@ const SortableComponent = ({
 										style={{ display: 'inline' }}
 										dangerouslySetInnerHTML={{ __html: field.question }}
 									/>
-									{field.required && (
+									{(field.required || requiredFields?.[field.id]) && (
 										<span
 											className="required-asterisk"
 											style={{
