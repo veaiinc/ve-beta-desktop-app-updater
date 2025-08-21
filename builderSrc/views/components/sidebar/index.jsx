@@ -3243,7 +3243,23 @@ class Sidebar extends Images {
 	setServiceItemValue = (val, type) => {
 		// Store the input value in local state to prevent flickering
 		const inputKey = `input_${type}_${this.state.activeServiceSubBlock}`;
-		this.setState({ [inputKey]: val });
+
+		// Clear any previous local input states for different fields to prevent stale data
+		const currentBlock = this.state.activeServiceSubBlock;
+		const statesToClear = {};
+		['quantity', 'amount', 'unit'].forEach((fieldType) => {
+			if (fieldType !== type) {
+				const otherInputKey = `input_${fieldType}_${currentBlock}`;
+				if (this.state[otherInputKey] !== undefined) {
+					statesToClear[otherInputKey] = undefined;
+				}
+			}
+		});
+
+		this.setState({
+			[inputKey]: val,
+			...statesToClear,
+		});
 
 		let blocks = _.cloneDeep(this.state?.activeSection.blocks);
 		let arr = [];
@@ -3279,13 +3295,15 @@ class Sidebar extends Images {
 			style: { ...section.style, subTotalValue: recalculatedSubtotalValue },
 		};
 
+		// Clear any existing timeout to prevent race conditions
+		clearTimeout(this.state.timeout);
+
 		// Update the main state without triggering re-render of input
 		this.setState(
 			{
 				activeSection: section,
 			},
 			() => {
-				clearTimeout(this.state.timeout);
 				const timeout = setTimeout(() => {
 					this.props.setActiveSection(section, true);
 					this.props.setActiveTable(
@@ -3294,8 +3312,8 @@ class Sidebar extends Images {
 						this.state.activeServiceSubBlock,
 						section._id,
 					);
-					// Clear the local input state after API call is complete
-					this.setState({ [inputKey]: undefined });
+					// Don't clear the local input state immediately - keep it until next input change
+					// This prevents flickering completely
 				}, 500);
 				this.setState({ timeout });
 			},
