@@ -1,11 +1,15 @@
 import Cookies from 'js-cookie';
 import Service from '../services';
+import { reloadApp } from '../hooks/useBroadcastChannel';
 
 const logoutAPI = async () => {
 	try {
 		const path = '/logout';
 		const token = localStorage?.getItem('usertoken') ?? false;
-		if (!token) window.location.href = '/';
+		if (!token) {
+			window.location.hash = '/';
+			reloadApp();
+		}
 		const fcmToken = localStorage?.getItem('fcmToken') || Cookies.get('fcmToken') || '';
 
 		let body = null;
