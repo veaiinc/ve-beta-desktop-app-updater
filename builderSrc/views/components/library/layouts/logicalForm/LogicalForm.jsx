@@ -2588,7 +2588,35 @@ function LogicalForm(props) {
 				// For single-page mode, immediately process Show/Hide actions if conditions are met
 				if (isSinglePage && currentField.actions) {
 					console.log('Single-page mode: checking conditions for field:', currentField.id);
-					const allConditionsMet = processedConditions.every((condition) => {
+					
+					// Reset shown/hidden fields for this specific field's actions to avoid conflicts
+					const fieldsToReset = currentField.actions
+						.filter(action => action.type === 'show' || action.type === 'hide')
+						.flatMap(action => action.jumpTo ? action.jumpTo.split(',').map(id => id.trim()) : []);
+					
+					console.log('Fields that might be affected by this field\'s actions:', fieldsToReset);
+					console.log('Before processing conditions - shownFields:', shownFields, 'hiddenFields:', hiddenFields);
+					
+					// Reset the specific fields that this field controls
+					if (fieldsToReset.length > 0) {
+						setShownFields(prev => {
+							const updated = { ...prev };
+							fieldsToReset.forEach(fieldId => {
+								delete updated[fieldId];
+							});
+							return updated;
+						});
+						setHiddenFields(prev => {
+							const updated = { ...prev };
+							fieldsToReset.forEach(fieldId => {
+								delete updated[fieldId];
+							});
+							return updated;
+						});
+					}
+					
+					// Check each condition individually and execute corresponding actions
+					processedConditions.forEach((condition, conditionIndex) => {
 						// If condition has targetField, evaluate against that field's value
 						// Otherwise, evaluate against current field's value
 						let valueToCheck;
@@ -2607,22 +2635,19 @@ function LogicalForm(props) {
 						}
 						
 						const result = evaluateCondition(condition, valueToCheck);
-						console.log('Single-page condition check:', { condition, valueToCheck, result });
-						return result;
-					});
-
-					console.log('Single-page all conditions met:', allConditionsMet);
-					console.log('Available actions for this field:', currentField.actions);
-					if (allConditionsMet) {
-						// Execute Show, Hide, and Require actions immediately
-						console.log('Single-page executing actions:', currentField.actions);
-						for (const action of currentField.actions) {
-							if (action.type === 'show' || action.type === 'hide' || action.type === 'require') {
-								console.log('Single-page executing action:', action);
-								handleAction(action);
+						console.log('Single-page condition check:', { condition, valueToCheck, result, conditionIndex });
+						
+						// If this specific condition is met, execute its corresponding action(s)
+						if (result) {
+							// Find actions that correspond to this condition
+							// Assuming actions array matches conditions array by index
+							const correspondingAction = currentField.actions[conditionIndex];
+							if (correspondingAction && (correspondingAction.type === 'show' || correspondingAction.type === 'hide' || correspondingAction.type === 'require')) {
+								console.log('Single-page executing action for condition', conditionIndex, ':', correspondingAction);
+								handleAction(correspondingAction);
 							}
 						}
-					}
+					});
 				}
 
 				// console.log('Stored conditions:', processedConditions); // Debug log
@@ -2889,7 +2914,9 @@ function LogicalForm(props) {
 			console.log('Checking pending conditions:', pendingConditions);
 			console.log('Current answer:', currentAnswer);
 
-			const allConditionsMet = pendingConditions.conditions.every((condition) => {
+			// Check each condition individually and execute corresponding actions
+			let hasNavigationAction = false;
+			pendingConditions.conditions.forEach((condition, conditionIndex) => {
 				// If condition has targetField, evaluate against that field's value
 				// Otherwise, evaluate against current field's value
 				let valueToCheck;
@@ -2908,36 +2935,33 @@ function LogicalForm(props) {
 				}
 				
 				const result = evaluateCondition(condition, valueToCheck);
-				console.log('Condition evaluation:', {
+				console.log('Multi-page condition evaluation:', {
 					condition,
 					valueToCheck,
 					result,
 					expectedValue: condition.value,
+					conditionIndex
 				});
-				return result;
-			});
+				
+				// If this specific condition is met, execute its corresponding action
+				if (result && pendingConditions.actions) {
+					const correspondingAction = pendingConditions.actions[conditionIndex];
+					if (correspondingAction) {
+						console.log('Multi-page executing action for condition', conditionIndex, ':', correspondingAction);
+						const actionResult = handleAction(correspondingAction);
+						console.log('Multi-page action result:', actionResult);
 
-			console.log('All conditions met:', allConditionsMet);
-
-			if (allConditionsMet && pendingConditions.actions) {
-				// Execute actions only if conditions are met
-				let shouldReturn = false;
-				for (const action of pendingConditions.actions) {
-					console.log('Executing action:', action);
-					const actionResult = handleAction(action);
-					console.log('Action result:', actionResult);
-
-					// Only return early for navigation actions (jump), not for show/hide/require actions
-					if (actionResult && (action.type === 'jump' || action.type === 'skip_to_end')) {
-						shouldReturn = true;
-						break;
+						// Only return early for navigation actions (jump), not for show/hide/require actions
+						if (actionResult && (correspondingAction.type === 'jump' || correspondingAction.type === 'skip_to_end')) {
+							hasNavigationAction = true;
+						}
 					}
 				}
-				
-				if (shouldReturn) {
-					setPendingConditions(null);
-					return;
-				}
+			});
+
+			if (hasNavigationAction) {
+				setPendingConditions(null);
+				return;
 			}
 		}
 
@@ -3883,6 +3907,19 @@ function LogicalForm(props) {
 			}
 		}
 
+		// Check if this field is a target of any show action - if so, hide it by default
+		const isTargetOfShowAction = props.blocks.some(block => 
+			block.actions && block.actions.some(action => 
+				action.type === 'show' && action.jumpTo && 
+				action.jumpTo.split(',').some(id => id.trim() === field.id)
+			)
+		);
+		
+		if (isTargetOfShowAction) {
+			console.log('Field is target of show action, hiding by default:', field.id);
+			return false; // Hide by default if it's a target of show actions
+		}
+
 		if (!field?.conditions || field.conditions.length === 0) return true;
 
 		return field.conditions.every((condition) => {
@@ -4365,6 +4402,19 @@ function LogicalForm(props) {
 		
 		// Always show the first field
 		if (index === 0) return true;
+
+		// Check if this field is a target of any show action - if so, hide it by default
+		const isTargetOfShowAction = blocks.some(block => 
+			block.actions && block.actions.some(action => 
+				action.type === 'show' && action.jumpTo && 
+				action.jumpTo.split(',').some(id => id.trim() === field.id)
+			)
+		);
+		
+		if (isTargetOfShowAction && !shownFields[field.id]) {
+			console.log('Single-page: Field is target of show action, hiding by default:', field.id);
+			return false; // Hide by default if it's a target of show actions and not explicitly shown
+		}
 
 		// If any field has been explicitly shown via show actions,
 		// hide fields that come between the triggering field and shown field
