@@ -34,7 +34,7 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 import { Tooltip } from 'antd';
 import ChildTaskComponent from '../tasks/listView/ChildTaskComponent';
 
-const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
+const skeletonLoaders = Array.from({ length: 9 }, (_, index) => index + 1);
 
 const options = [
 	{ id: 1, title: 'Pending Tasks', value: 'pending' },
@@ -787,7 +787,7 @@ const TaskWidget = ({ width, height, clientId, onTaskCountUpdate }) => {
 						{info.loading ? (
 							skeletonLoaders?.map((_, index) => (
 								<Skeleton
-									width="300px"
+									width="390px"
 									height="36px"
 									style={{
 										'--highlight-color': 'gray',

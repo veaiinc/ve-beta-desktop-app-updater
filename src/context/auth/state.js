@@ -199,10 +199,8 @@ export const AuthState = () => {
 						'accessibleWorkspaces',
 						JSON.stringify(accessibleWorkspaces),
 					);
-				if (workspaceId) localStorage.setItem('workspaceId', workspaceId);
-
-				Cookies.set('workspaceId', workspaceId, {
-					sameSite: 'lax',
+				Cookies.set('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces), {
+					sameSite: 'Lax',
 					domain: host,
 				});
 				console.log('[Verify] Workspace data stored in localStorage and cookies');
