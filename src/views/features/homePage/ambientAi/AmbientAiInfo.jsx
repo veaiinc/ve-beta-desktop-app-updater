@@ -31,6 +31,8 @@ import PromptPopup from '../../../components/homePage/PromptPopup';
 import { message } from '../../../components/globalComponents/CustomToast';
 import ChainOfThoughtInterpreter from '../../../components/homePage/ChainOfThoughtInterpreter';
 import GmailWidget from '../../../components/globalComponents/widgets/GmailWidget';
+import CalendarWidget from '../../../components/globalComponents/widgets/calendar/CalendarWidget';
+import TaskWidget from '../../../components/globalComponents/widgets/TaskWidget';
 
 const tabOptions = [
 	{ label: 'Actions', value: 'actions' },
@@ -109,7 +111,7 @@ const AmbientAiInfo = ({
 	useEffect(() => {
 		if (!data) return;
 
-		const { research_report, suggested_actions, suggested_prompts, thinker_sources } =
+		const { research_report, suggested_actions, suggested_prompts, thinker_sources, widgets } =
 			data || {};
 
 		const { chain_of_thought } = data;
@@ -120,7 +122,7 @@ const AmbientAiInfo = ({
 			)?.[0]?.access || 'view';
 
 		const visibilityMap = {
-			actions: suggested_actions?.length || suggested_prompts?.length,
+			actions: suggested_actions?.length || suggested_prompts?.length || widgets?.length,
 			report: research_report?.length || chainOfThoughtData?.hasChainOfThought,
 			sources: thinker_sources?.length,
 		};
@@ -389,6 +391,56 @@ const AmbientAiInfo = ({
 		[info?.accessType, info?.hasFullAccess, pendingActionsUpdate, getAISuggestedPendingActions],
 	);
 
+	const handleWidgetDataUpdate = useCallback(
+		async ({ updatedData = null, skip = false, action = null, module_type = null }) => {
+			let { _id, widgets } = data || {};
+
+			if (skip === true) {
+				widgets = widgets?.filter(
+					(widget) => widget?.action !== action && widget?.module_type !== module_type,
+				);
+				try {
+					const res = await pendingActionsUpdate(_id, {
+						widgets,
+					});
+					if (res?.[0] === true) {
+						getAISuggestedPendingActions({ widgets }, false, 'update', _id);
+						message.success('Skipped action');
+					} else {
+						throw new Error();
+					}
+				} catch (e) {
+					message.error('Failed to skip action');
+				}
+			}
+		},
+		[data],
+	);
+
+	const getWidget = useCallback(
+		(item) => {
+			if (item?.module_type === 'gmail') {
+				return <GmailWidget widgetData={item?.metadata} />;
+			}
+			if (item?.module_type === 'calendar') {
+				return (
+					<CalendarWidget
+						widgetData={item?.metadata}
+						action={item?.action}
+						module_type={item?.module_type}
+						onChange={handleWidgetDataUpdate}
+					/>
+				);
+			}
+			if (item?.module_type === 'tasks' && item?.action === 'create_task') {
+				return <TaskWidget widgetData={item?.metadata} />;
+			}
+
+			return null;
+		},
+		[handleWidgetDataUpdate],
+	);
+
 	const {
 		title,
 		description,
@@ -615,11 +667,16 @@ const AmbientAiInfo = ({
 					</div>
 					{info?.activeTab === 'actions' && (
 						<div className="situation-overview-container">
-							{widgets
-								?.filter((item) => item?.module_type === 'gmail')
-								?.map((item, index) => (
-									<GmailWidget key={index} widgetData={item?.metadata} />
-								))}
+							{widgets?.length > 0 && (
+								<div className="widgets-container">
+									{widgets?.map((item, index) => (
+										<div className="widget" key={index}>
+											{getWidget(item)}
+										</div>
+									))}
+								</div>
+							)}
+
 							{suggested_actions?.length > 0 && (
 								<div className="suggested-actions-wrapper">
 									<div className="suggested-action-text">Actions</div>
