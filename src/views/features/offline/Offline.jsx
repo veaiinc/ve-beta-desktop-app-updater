@@ -8,8 +8,8 @@ const Offline = () => {
 				<VeAILogo />
 			</nav>
 			<main className={s.body}>
-				<h1 className={s.header}>Connect to the internet</h1>
-				<p className={s.para}>Your're offline. Check your connection</p>
+				<span className={s.header}>Connect to the internet</span>
+				<span className={s.para}>Your're offline. Check your connection</span>
 				<button className={s.button}>Retry</button>
 			</main>
 		</div>
