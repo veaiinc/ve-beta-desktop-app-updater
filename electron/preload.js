@@ -78,4 +78,10 @@ contextBridge.exposeInMainWorld('electronApi', {
 		toggleWindow: () => ipcRenderer.invoke('toggle-overlay-window'),
 		updateDimensions: (dims) => ipcRenderer.invoke('update-overlay-dimensions', dims),
 	},
+
+	// Clipboard APIs for copy/paste functionality
+	clipboard: {
+		writeText: (text) => ipcRenderer.invoke('clipboard-write-text', text),
+		readText: () => ipcRenderer.invoke('clipboard-read-text'),
+	},
 });

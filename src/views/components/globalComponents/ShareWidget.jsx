@@ -33,6 +33,34 @@ const ShareWidget = ({
 		updateSlugLoading: false,
 	});
 
+	// Helper function to copy text to clipboard with fallback
+	const copyToClipboard = async (text) => {
+		try {
+			// Use Electron clipboard API if available
+			if (window.electronApi?.clipboard?.writeText) {
+				try {
+					await window.electronApi.clipboard.writeText(text);
+					return true;
+				} catch (clipboardError) {
+					console.warn(
+						'Electron clipboard failed, trying browser fallback:',
+						clipboardError,
+					);
+					// Fallback to browser clipboard
+					await navigator.clipboard.writeText(text);
+					return true;
+				}
+			} else {
+				// Fallback to browser clipboard if Electron API not available
+				await navigator.clipboard.writeText(text);
+				return true;
+			}
+		} catch (error) {
+			console.error('Failed to copy to clipboard:', error);
+			return false;
+		}
+	};
+
 	const toggleEditShareUrlSlug = () =>
 		setInfo((prev) => ({ ...prev, editShareUrlSlug: !prev.editShareUrlSlug }));
 
@@ -90,7 +118,7 @@ const ShareWidget = ({
 		setInfo((prev) => ({ ...prev, editedSlug: updatedSlug, updateSlugLoading: false }));
 
 		const updatedLink = `${baseUrl}${updatedSlug}`;
-		navigator.clipboard.writeText(updatedLink);
+		await copyToClipboard(updatedLink);
 		message.success('Link copied to clipboard');
 		toggleEditShareUrlSlug();
 	};
@@ -103,10 +131,14 @@ const ShareWidget = ({
 		}));
 	};
 
-	const handleCopyLink = () => {
+	const handleCopyLink = async () => {
 		if (info.editedSlug !== slug) {
-			navigator.clipboard.writeText(`${baseUrl}${info.editedSlug}`);
-			message.success('Form link copied to clipboard');
+			const success = await copyToClipboard(`${baseUrl}${info.editedSlug}`);
+			if (success) {
+				message.success('Form link copied to clipboard');
+			} else {
+				message.error('Failed to copy link to clipboard. Please try again.');
+			}
 			return;
 		}
 		if (onCopyLink) {
@@ -120,12 +152,16 @@ const ShareWidget = ({
 			return;
 		}
 
-		navigator.clipboard.writeText(shareUrl);
-		message.success('Link copied to clipboard');
-		onClose();
+		const success = await copyToClipboard(shareUrl);
+		if (success) {
+			message.success('Link copied to clipboard');
+			onClose();
+		} else {
+			message.error('Failed to copy link to clipboard. Please try again.');
+		}
 	};
 
-	const handleCopyEmbedded = () => {
+	const handleCopyEmbedded = async () => {
 		if (onCopyEmbedded) {
 			onCopyEmbedded();
 			onClose();
@@ -137,9 +173,13 @@ const ShareWidget = ({
 			return;
 		}
 
-		navigator.clipboard.writeText(embeddedCode);
-		message.success('Embedded code copied to clipboard');
-		onClose();
+		const success = await copyToClipboard(embeddedCode);
+		if (success) {
+			message.success('Embedded code copied to clipboard');
+			onClose();
+		} else {
+			message.error('Failed to copy embedded code to clipboard. Please try again.');
+		}
 	};
 
 	return (
