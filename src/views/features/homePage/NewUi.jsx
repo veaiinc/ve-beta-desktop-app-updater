@@ -568,7 +568,16 @@ const NewUi = ({ handleActiveChatChange }) => {
 													<div className={`title-container `}>
 														<div className="title-text">
 															{proactiveHeadings?.chat_headlines ? (
-																proactiveHeadings?.chat_headlines
+																<span
+																	className="title-one"
+																	style={{
+																		fontSize: '2rem',
+																	}}
+																>
+																	{
+																		proactiveHeadings?.chat_headlines
+																	}
+																</span>
 															) : (
 																<>
 																	<h2 className="title-one">
