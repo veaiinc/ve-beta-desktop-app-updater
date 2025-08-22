@@ -12,6 +12,9 @@ const {
 	createZipFromUrls,
 } = require('./galleryHelper');
 
+// Import WindowHelper for overlay window functionality
+const { WindowHelper } = require('./helpers/windowHelper');
+
 let mainWindow = null;
 let windowHelper = null;
 
@@ -165,6 +168,123 @@ app.whenReady().then(() => {
 	}
 
 	createWindow();
+
+	// Initialize WindowHelper for overlay window functionality
+	windowHelper = new WindowHelper();
+	windowHelper.registerGlobalShortcuts(mainWindow);
+
+	// Check if global shortcuts are working (especially important on macOS)
+	if (process.platform === 'darwin') {
+		const { systemPreferences } = require('electron');
+
+		// Check if the app has accessibility permissions
+		const hasAccessibilityPermission = systemPreferences.isTrustedAccessibilityClient(false);
+
+		if (!hasAccessibilityPermission) {
+			log.warn('⚠️ Global shortcuts may not work! The app needs accessibility permissions.');
+			log.warn(
+				'Please go to System Preferences > Security & Privacy > Privacy > Accessibility',
+			);
+			log.warn('and add this app to the list of allowed applications.');
+
+			// Show a dialog to the user
+			const { dialog } = require('electron');
+			dialog.showMessageBox(mainWindow, {
+				type: 'warning',
+				title: 'Accessibility Permission Required',
+				message: 'Global shortcuts (Cmd+B) require accessibility permissions',
+				detail: 'Please go to System Preferences > Security & Privacy > Privacy > Accessibility and add this app to the allowed applications list.',
+				buttons: ['OK'],
+			});
+		} else {
+			log.info('✅ Accessibility permissions granted - global shortcuts should work');
+		}
+	}
+
+	// Register overlay window IPC handlers
+	ipcMain.handle('toggle-overlay-window', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.toggleOverlayWindow();
+			return { success: true };
+		} catch (error) {
+			log.error('Error toggling overlay window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('update-overlay-dimensions', async (event, { width, height }) => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.updateWindowDimensions(width, height);
+			return { success: true };
+		} catch (error) {
+			log.error('Error updating overlay dimensions:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('toggle-askAI-window', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.toggleAskAIWindow();
+			return { success: true };
+		} catch (error) {
+			log.error('Error toggling Ask AI window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('update-askAI-dimensions', async (event, { width, height }) => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.updateAskAIWindowDimensions(width, height);
+			return { success: true };
+		} catch (error) {
+			log.error('Error updating Ask AI dimensions:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('set-ignore-mouse-events', async (event, ignore) => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			const overlayWindow = windowHelper.getOverlayWindow();
+			if (overlayWindow && !overlayWindow.isDestroyed()) {
+				overlayWindow.setIgnoreMouseEvents(ignore);
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error setting ignore mouse events:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('set-askAI-ignore-mouse-events', async (event, ignore) => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			const askAIWindow = windowHelper.getAskAIWindow();
+			if (askAIWindow && !askAIWindow.isDestroyed()) {
+				askAIWindow.setIgnoreMouseEvents(ignore);
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error setting Ask AI ignore mouse events:', error);
+			return { success: false, error: error.message };
+		}
+	});
 
 	// Register gallery IPC handlers from galleryUtils
 	ipcMain.handle('process-image-with-sharp', processImageWithSharp);

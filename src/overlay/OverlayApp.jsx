@@ -615,6 +615,8 @@ const OverlayApp = () => {
 					onListenClick={handleListenClick}
 					isLiveIntelligenceOpen={activePanel === 'live-intelligence'}
 					onAskAIClick={handleAskAIClick}
+					isRecording={isRecording}
+					onStopRecording={handleStopTranscription}
 				/>
 
 				{/* Commands section */}

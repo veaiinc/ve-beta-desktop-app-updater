@@ -4,6 +4,7 @@ import './askAI.scss';
 import { useAskAISocket } from './socketState';
 import ObjectID from 'bson-objectid';
 import { getLocationsDetails } from '../helpers';
+import { Markdown } from '../helpers/markdownHelper';
 
 const sessionId = ObjectID().toString();
 
@@ -20,20 +21,19 @@ const AskAIApp = () => {
 
 	// Initialize socket
 	const { createWebSocketConnection, sendMessage, closeWebSocketConnection } = useAskAISocket();
-	// Update dimensions when content changes
-	const updateDimensions = useCallback(() => {
-		if (containerRef.current) {
+	// Update dimensions only when necessary
+	const updateDimensions = useCallback((forceUpdate = false) => {
+		if (containerRef.current && forceUpdate) {
 			setTimeout(() => {
-				const rect = containerRef.current.getBoundingClientRect();
-				const height = Math.max(containerRef.current.scrollHeight, rect.height, 400);
-				const width = 500; // Fixed width for Ask AI window
+				const width = 1000; // Fixed width for Ask AI window
+				const height = hasResponse ? 600 : 120; // Better heights for proper display
 
 				if (window.electronApi?.askAI?.updateDimensions) {
 					window.electronApi.askAI.updateDimensions({ width, height });
 				}
 			}, 50);
 		}
-	}, []);
+	}, [hasResponse]);
 
 	useEffect(() => {
 		// Focus on the input when the component mounts
@@ -44,36 +44,13 @@ const AskAIApp = () => {
 		}
 
 		// Initial dimension update
-		updateDimensions();
-
-		// Set up observers for dimension updates
-		const resizeObserver = new ResizeObserver(() => {
-			updateDimensions();
-		});
-
-		const mutationObserver = new MutationObserver(() => {
-			updateDimensions();
-		});
-
-		if (containerRef.current) {
-			resizeObserver.observe(containerRef.current);
-			mutationObserver.observe(containerRef.current, {
-				childList: true,
-				subtree: true,
-				attributes: true,
-			});
-		}
-
-		return () => {
-			resizeObserver.disconnect();
-			mutationObserver.disconnect();
-		};
+		updateDimensions(true);
 	}, [updateDimensions]);
 
-	// Update dimensions when response state changes
+	// Update dimensions only when response state significantly changes
 	useEffect(() => {
-		updateDimensions();
-	}, [response, isExpanded, updateDimensions]);
+		updateDimensions(true);
+	}, [hasResponse, updateDimensions]);
 
 	// Clean up socket connection on unmount
 	useEffect(() => {
@@ -149,6 +126,8 @@ const AskAIApp = () => {
 		if (!inputValue.trim()) return;
 
 		console.log('🚀 Starting new message submission...');
+		const queryValue = inputValue.trim();
+		setInputValue(''); // Clear input immediately after submission
 		setIsLoading(true);
 		setResponse('');
 		setStreamingResponse('');
@@ -157,7 +136,7 @@ const AskAIApp = () => {
 		try {
 			// Send the message
 			const messageData = {
-				query: inputValue.trim(),
+				query: queryValue,
 				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 				web_search: true,
 				knowledge_base_search: true,
@@ -262,9 +241,15 @@ const AskAIApp = () => {
 							</div>
 						) : (
 							<div className="response-text">
-								{response || streamingResponse || 'No response content'}
-								{isLoading && streamingResponse && (
-									<span className="streaming-cursor">|</span>
+								{response || streamingResponse ? (
+									<>
+										<Markdown>{response || streamingResponse}</Markdown>
+										{isLoading && streamingResponse && (
+											<span className="streaming-cursor">|</span>
+										)}
+									</>
+								) : (
+									'No response content'
 								)}
 							</div>
 						)}
