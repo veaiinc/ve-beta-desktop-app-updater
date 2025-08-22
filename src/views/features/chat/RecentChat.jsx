@@ -90,7 +90,7 @@ const RecentChat = ({
 			deleteChatSessionLoading: false,
 			isNewChat: true,
 			currentUserMessageIndex: null,
-			getFollowUpQueries: false,
+			// getFollowUpQueries: false,
 			chatQuery: '',
 			citationsAiMessageIndex: null,
 			citationsModalIsOpen: false,
@@ -176,19 +176,19 @@ const RecentChat = ({
 		};
 	}, []);
 
-	useEffect(() => {
-		if (info?.getFollowUpQueries) {
-			if (agentType !== 'knowledge_agent' && info?.chatQuery?.trim()?.length === 0) {
-				followUpQueryTimeoutRef.current = setTimeout(() => {
-					getFollowUpQueries(sessionId, info?.latestStreamMesage?.message_id);
-				}, 5000);
-			}
-			setInfo((prev) => ({
-				...prev,
-				getFollowUpQueries: false,
-			}));
-		}
-	}, [info?.getFollowUpQueries]);
+	// useEffect(() => {
+	// 	if (info?.getFollowUpQueries) {
+	// 		if (agentType !== 'knowledge_agent' && info?.chatQuery?.trim()?.length === 0) {
+	// 			followUpQueryTimeoutRef.current = setTimeout(() => {
+	// 				getFollowUpQueries(sessionId, info?.latestStreamMesage?.message_id);
+	// 			}, 5000);
+	// 		}
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			getFollowUpQueries: false,
+	// 		}));
+	// 	}
+	// }, [info?.getFollowUpQueries]);
 
 	useEffect(() => {
 		if (info?.chatQuery?.trim()?.length > 0) {
@@ -877,10 +877,10 @@ const RecentChat = ({
 				setInfo((prev) => ({
 					...prev,
 					latestStreamMesage: data,
-					...(sessionId === currentSessionId &&
-						!data?.used_agents?.includes('custom_agents_manager_agent') && {
-							getFollowUpQueries: true,
-						}),
+					// ...(sessionId === currentSessionId &&
+					// 	!data?.used_agents?.includes('custom_agents_manager_agent') && {
+					// 		getFollowUpQueries: true,
+					// 	}),
 				}));
 			}
 			const { message_chunk_id } = data;
