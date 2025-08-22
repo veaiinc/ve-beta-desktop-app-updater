@@ -1453,6 +1453,7 @@ class Proposals extends Component {
 			const duplicateModules = [...(modules || [])].sort((a, b) => {
 				return a?.isPublic === b?.isPublic ? 0 : a?.isPublic ? -1 : 1;
 			});
+
 			if (workflow == null) {
 				this.setState({
 					isPromptLoading: false,
@@ -1626,7 +1627,6 @@ class Proposals extends Component {
 			let modules = [];
 			const params = new URLSearchParams(window.location.search);
 			const stemplateId = params.get('templateId');
-
 			if (moduleVersion === 1) {
 				await this.getVariables(workflow_id, template?.module, 1);
 			} else {

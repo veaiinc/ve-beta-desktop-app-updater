@@ -22,7 +22,8 @@ const ListView = ({
 		return [...Array(6)].map((_, index) => (
 			<div className="listItemSkeleton" key={index}>
 				<Skeleton
-					color="var(--primary-font)"
+					baseColor="var(--card-over-card, #f3f3f3)" // 👈 Background color
+					highlightColor="var(--card-over-card-hover, #e0e0e0)"
 					width="100%"
 					height="38px"
 					borderRadius="12px"

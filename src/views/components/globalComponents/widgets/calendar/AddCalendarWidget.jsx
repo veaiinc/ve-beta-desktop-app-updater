@@ -6,7 +6,12 @@ import { message } from '../../CustomToast';
 import Context from '../../../../../context/context';
 import Spinner from '../../../loaders/Spinner';
 
-const AddCalendarWidget = ({ widgetData = null }) => {
+const AddCalendarWidget = ({
+	widgetData = null,
+	widgetInfo,
+	onChange = null,
+	showSkipBtn = false,
+}) => {
 	const {
 		calendarInfo: { createCalendarEvent, getCalendarCategories, calendarCategoriesList },
 	} = useContext(Context);
@@ -16,6 +21,8 @@ const AddCalendarWidget = ({ widgetData = null }) => {
 		title: '',
 		selectedDate: null,
 		addingCalendarEvent: false,
+		skipping: false,
+		showSkipBtn: false,
 	});
 
 	const startTimeDisplay = info?.startTime ? moment?.unix(info.startTime)?.format('HH:mm') : '';
@@ -75,6 +82,15 @@ const AddCalendarWidget = ({ widgetData = null }) => {
 	const handleDateChange = (date) => {
 		setInfo((prev) => ({ ...prev, selectedDate: date }));
 	};
+
+	const handleSkip = useCallback(async () => {
+		if (info?.skipping) return;
+		setInfo((prev) => ({
+			...prev,
+			skipping: true,
+		}));
+		onChange?.({ widgetInfo, skip: true });
+	}, [onChange, info?.skipping, widgetInfo]);
 
 	const handleAddToCalendar = useCallback(async () => {
 		if (info?.addingCalendarEvent) return;
@@ -206,6 +222,13 @@ const AddCalendarWidget = ({ widgetData = null }) => {
 						</div>
 					</div>
 					<div className={s.buttonsContainer}>
+						{showSkipBtn && (
+							<button className={s.button} onClick={handleSkip}>
+								Skip
+								{info?.skipping && <Spinner width={16} height={16} />}
+							</button>
+						)}
+
 						<button className={s.button} onClick={handleAddToCalendar}>
 							Add To Calendar
 							{info?.addingCalendarEvent && <Spinner width={16} height={16} />}

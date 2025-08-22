@@ -25,12 +25,6 @@ const logoutAPI = async () => {
 
 const logout = async () => {
 	try {
-		const response = await logoutAPI();
-		const isLoggedOut = response?.[0] === true;
-		if (!isLoggedOut) {
-			return false;
-		}
-
 		const theme = localStorage.getItem('theme');
 		const cookieTheme = Cookies.get('theme');
 
@@ -51,6 +45,7 @@ const logout = async () => {
 		}
 
 		window.location.replace('/');
+		logoutAPI();
 		return true;
 	} catch (err) {
 		console.error('Failed to perform logout:', err);
