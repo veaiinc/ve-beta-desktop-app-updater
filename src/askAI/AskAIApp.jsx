@@ -5,6 +5,7 @@ import { useAskAISocket } from './socketState';
 import ObjectID from 'bson-objectid';
 import { getLocationsDetails } from '../helpers';
 import { Markdown } from '../helpers/markdownHelper';
+import { copyToClipboard } from '../helpers/clipboardHelper';
 
 const sessionId = ObjectID().toString();
 
@@ -177,8 +178,8 @@ const AskAIApp = () => {
 		}
 	};
 
-	const handleCopyResponse = () => {
-		navigator.clipboard.writeText(response);
+	const handleCopyResponse = async () => {
+		await copyToClipboard(response);
 	};
 
 	const toggleExpanded = () => {
@@ -237,7 +238,7 @@ const AskAIApp = () => {
 									<span></span>
 									<span></span>
 								</div>
-								<span>Analyzing...</span>
+								<span>Thinking...</span>
 							</div>
 						) : (
 							<div className="response-text">
@@ -245,7 +246,7 @@ const AskAIApp = () => {
 									<>
 										<Markdown>{response || streamingResponse}</Markdown>
 										{isLoading && streamingResponse && (
-											<span className="streaming-cursor">|</span>
+											<span className="thinking-indicator">Thinking...</span>
 										)}
 									</>
 								) : (

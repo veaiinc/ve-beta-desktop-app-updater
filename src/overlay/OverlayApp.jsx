@@ -29,6 +29,7 @@ const OverlayApp = () => {
 	const [transcriptions, setTranscriptions] = useState([]);
 	const [isRecording, setIsRecording] = useState(false);
 	const [timer, setTimer] = useState(0);
+	const [recordingStartTime, setRecordingStartTime] = useState(null);
 
 	// Live Intelligence Socket Data
 	const [liveIntelligenceData, setLiveIntelligenceData] = useState({
@@ -47,6 +48,7 @@ const OverlayApp = () => {
 	const processedSegmentsRef = useRef(new Map());
 	const isMountedRef = useRef(false);
 	const sessionIdRef = useRef(null);
+	const isStoppingRef = useRef(false);
 
 	// Context
 	const {
@@ -101,10 +103,11 @@ const OverlayApp = () => {
 	};
 
 	const formatTimestamp = () => {
+		// Show current time
 		const now = new Date();
+		const hours = now.getHours().toString().padStart(2, '0');
 		const minutes = now.getMinutes().toString().padStart(2, '0');
-		const seconds = now.getSeconds().toString().padStart(2, '0');
-		return `${minutes}:${seconds}`;
+		return `${hours}:${minutes}`;
 	};
 
 	// Typing Effect Function
@@ -265,6 +268,28 @@ const OverlayApp = () => {
 
 	// Recording Controls (called from TranscriptPanel)
 	const handleStartTranscription = async () => {
+		// Reset stopping flag
+		isStoppingRef.current = false;
+		
+		// Clear all previous state before starting new recording
+		setTranscriptions([]);
+		transcriptionsMapRef.current.clear();
+		displayedTextMapRef.current.clear();
+		processedSegmentsRef.current.clear();
+		typingIntervalsRef.current.forEach((interval) => clearInterval(interval));
+		typingIntervalsRef.current.clear();
+		setTimer(0);
+		setRecordingStartTime(null);
+		
+		// Clear Live Intelligence data
+		setLiveIntelligenceData({
+			allThreads: [],
+			askUser: [],
+			needHelp: [],
+			actions: [],
+			files: [],
+		});
+		
 		const newSessionId = ObjectID().toString();
 		sessionIdRef.current = newSessionId;
 		setRecallSessionId(newSessionId);
@@ -320,6 +345,7 @@ const OverlayApp = () => {
 			if (response && response[0] === true && response[1]?.accessToken) {
 				setLiveKitToken(response[1].accessToken);
 				setIsRecording(true);
+				setRecordingStartTime(Date.now()); // Set the start time
 
 				// Show success notification
 				notification.success('Recording started', 'Microphone connected successfully');
@@ -347,17 +373,35 @@ const OverlayApp = () => {
 	};
 
 	const handleStopTranscription = () => {
+		// Set stopping flag to prevent further processing
+		isStoppingRef.current = true;
+		
+		// Immediately clear UI and session
+		setTranscriptions([]);
 		setIsRecording(false);
 		setLiveKitToken(null);
+		setRecordingStartTime(null);
+		setTimer(0);
+		
+		// Clear session reference immediately
+		const currentSessionId = sessionIdRef.current;
+		sessionIdRef.current = null;
+		
+		// Clear all refs and intervals
+		transcriptionsMapRef.current.clear();
+		displayedTextMapRef.current.clear();
+		processedSegmentsRef.current.clear();
 		typingIntervalsRef.current.forEach((interval) => clearInterval(interval));
 		typingIntervalsRef.current.clear();
-		if (sessionIdRef.current) {
-			deleteLiveKitRoom({ meetingId: sessionIdRef.current });
+		
+		// Clean up connections
+		if (currentSessionId) {
+			deleteLiveKitRoom({ meetingId: currentSessionId });
 		}
 		disconnect();
 		closeLiveIntelligenceConnection();
 		closeRecallConnection();
-		setTimer(0);
+		
 		setRecallSessionId(null);
 		// Clear Live Intelligence data
 		setLiveIntelligenceData({
@@ -367,6 +411,11 @@ const OverlayApp = () => {
 			actions: [],
 			files: [],
 		});
+		
+		// Reset stopping flag after cleanup
+		setTimeout(() => {
+			isStoppingRef.current = false;
+		}, 100);
 	};
 
 	const handleClearTranscripts = () => {
@@ -400,7 +449,7 @@ const OverlayApp = () => {
 
 	// Process transcription segments
 	useEffect(() => {
-		if (!segments || segments.length === 0) return;
+		if (!segments || segments.length === 0 || isStoppingRef.current) return;
 
 		const transcriptionsMap = transcriptionsMapRef.current;
 

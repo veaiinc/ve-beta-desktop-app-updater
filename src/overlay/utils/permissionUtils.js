@@ -215,6 +215,140 @@ export const requestAndTestMicrophoneAccess = async () => {
 // Keep the original debug function for troubleshooting
 export const debugMicrophoneAccess = requestAndTestMicrophoneAccess;
 
+export const checkClipboardPermission = async () => {
+	try {
+		// Check if navigator.permissions is available
+		if (navigator.permissions) {
+			const permissionStatus = await navigator.permissions.query({ name: 'clipboard-write' });
+			return {
+				granted: permissionStatus.state === 'granted',
+				denied: permissionStatus.state === 'denied',
+				prompt: permissionStatus.state === 'prompt',
+				state: permissionStatus.state
+			};
+		}
+		
+		// Fallback: check if clipboard API is available
+		if (navigator.clipboard && navigator.clipboard.writeText) {
+			return { granted: true, state: 'granted' };
+		}
+		
+		return { granted: false, state: 'unknown' };
+	} catch (error) {
+		console.error('Error checking clipboard permission:', error);
+		return { granted: false, state: 'unknown' };
+	}
+};
+
+export const requestClipboardPermission = async () => {
+	try {
+		console.log('Requesting clipboard permission...');
+		
+		// Try to write a test string to clipboard
+		await navigator.clipboard.writeText('test');
+		console.log('Clipboard permission granted successfully');
+		
+		return { success: true };
+	} catch (error) {
+		console.error('Clipboard permission request failed:', error);
+		
+		let errorMessage = 'Clipboard access denied. ';
+		
+		if (error.name === 'NotAllowedError') {
+			errorMessage += 'Please allow clipboard access in your browser settings and try again.';
+		} else {
+			errorMessage += 'Please check your browser settings and try again.';
+		}
+		
+		return { 
+			success: false, 
+			error: error.name,
+			message: errorMessage
+		};
+	}
+};
+
+export const requestAndTestClipboardAccess = async () => {
+	console.log('=== Requesting and Testing Clipboard Access ===');
+	
+	// 1. Check if clipboard API is available
+	console.log('navigator.clipboard available:', !!navigator.clipboard);
+	console.log('clipboard.writeText available:', !!navigator.clipboard?.writeText);
+	
+	if (!navigator.clipboard?.writeText) {
+		return {
+			success: false,
+			error: { name: 'NotSupportedError', message: 'Clipboard API is not supported in this browser' },
+			needsPermission: false
+		};
+	}
+	
+	// 2. Check current permission state (if available)
+	let currentPermissionState = 'unknown';
+	if (navigator.permissions) {
+		try {
+			const permission = await navigator.permissions.query({ name: 'clipboard-write' });
+			currentPermissionState = permission.state;
+			console.log('Current clipboard permission state:', permission.state);
+		} catch (e) {
+			console.log('Clipboard permission query failed, will attempt direct access:', e.message);
+		}
+	}
+	
+	// 3. If permission is already denied, inform user they need to manually enable it
+	if (currentPermissionState === 'denied') {
+		return {
+			success: false,
+			error: { 
+				name: 'PermissionPreviouslyDenied', 
+				message: 'Clipboard permission was previously denied. Please enable it manually in your browser settings.' 
+			},
+			needsPermission: true,
+			needsManualEnable: true
+		};
+	}
+	
+	// 4. Attempt to request clipboard access (this will prompt user if needed)
+	try {
+		console.log('Requesting clipboard access...');
+		await navigator.clipboard.writeText(''); // Empty string test
+		
+		console.log('✅ Clipboard access successful');
+		return { success: true, needsPermission: false };
+		
+	} catch (error) {
+		console.log('❌ Clipboard access failed:');
+		console.log('Error name:', error.name);
+		console.log('Error message:', error.message);
+		
+		// Analyze the error and provide appropriate response
+		let needsPermission = false;
+		let needsManualEnable = false;
+		let troubleshootingTips = [];
+		
+		if (error.name === 'NotAllowedError') {
+			needsPermission = true;
+			needsManualEnable = true;
+			troubleshootingTips.push('🔧 Clipboard permission denied');
+			troubleshootingTips.push('🔧 Look for a clipboard icon in your browser\'s address bar and click "Allow"');
+			troubleshootingTips.push('🔧 Check your browser\'s site permissions settings');
+		} else {
+			troubleshootingTips.push('🔧 Unknown error - check browser console for details');
+		}
+		
+		console.log('Troubleshooting tips:');
+		troubleshootingTips.forEach(tip => console.log(tip));
+		
+		return { 
+			success: false, 
+			error, 
+			troubleshootingTips, 
+			needsPermission,
+			needsManualEnable
+		};
+	}
+};
+
 export const testLiveKitCompatibility = async () => {
 	console.log('=== LiveKit Compatibility Test ===');
 	
