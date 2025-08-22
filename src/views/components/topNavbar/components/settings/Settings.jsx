@@ -262,7 +262,7 @@ const Settings = ({
 				</button>
 			</div>
 
-			{isMac && isDesktop && (
+			{isMac && !info?.isDesktop && (
 				<button
 					className={s.downloadMacAppButton}
 					onClick={() => {
