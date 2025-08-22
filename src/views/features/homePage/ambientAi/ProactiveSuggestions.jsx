@@ -18,7 +18,7 @@ import ProactiveCards from './ProactiveCards';
 
 const payload = {
 	page: 1,
-	limit: 20,
+	limit: 10,
 	sortBy: 'createdAt',
 	// sortOrder: '-1',
 };
@@ -187,14 +187,10 @@ const ProactiveSuggestions = () => {
 			},
 		],
 		selectedCardNumber: null,
-		hoveredCard: null,
-		isListView: false,
 		isApiLoading: false,
 		sortBy: 'createdAt',
-		activeBtn: 'insights',
 		sortOptions,
 		searchQuery: '',
-		chatQuery: '',
 		options: [],
 		selectedOption: '',
 		showArrows: {
@@ -202,7 +198,6 @@ const ProactiveSuggestions = () => {
 			right: false,
 		},
 		searchOpen: false,
-		settingsOpen: false,
 		hasCards: true,
 		trainedFeedbackIds: null,
 		headline: null,
@@ -384,6 +379,7 @@ const ProactiveSuggestions = () => {
 		setInfo((prev) => ({
 			...prev,
 			searchLoading: true,
+			loading: true,
 		}));
 		timeoutIdRef.current = setTimeout(async () => {
 			await fetchPendingActions();
@@ -621,6 +617,7 @@ const ProactiveSuggestions = () => {
 			return {
 				...prev,
 				selectedFilters: updatedFilters,
+				loading: true,
 			};
 		});
 	};
@@ -750,13 +747,6 @@ const ProactiveSuggestions = () => {
 		setInfo((prev) => ({
 			...prev,
 			searchOpen: !prev.searchOpen,
-		}));
-	};
-
-	const handleSettingsToggle = () => {
-		setInfo((prev) => ({
-			...prev,
-			settingsOpen: !prev.settingsOpen,
 		}));
 	};
 

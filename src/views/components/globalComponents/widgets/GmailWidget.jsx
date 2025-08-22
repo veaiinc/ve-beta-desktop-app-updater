@@ -6,8 +6,14 @@ import { ReactComponent as SendSvg } from '../../../../assets/svg/calendar/send.
 import validator from 'validator';
 import { message } from '../CustomToast';
 import Context from '../../../../context/context';
-
-const GmailWidget = ({ widgetData = null, title = 'Draft Email Preview' }) => {
+import Spinner from '../../loaders/Spinner';
+const GmailWidget = ({
+	widgetData = null,
+	title = 'Draft Email Preview',
+	widgetInfo,
+	onChange,
+	showSkipBtn = false,
+}) => {
 	const {
 		templates: { sendCustomEmailToClients },
 	} = useContext(Context);
@@ -17,6 +23,7 @@ const GmailWidget = ({ widgetData = null, title = 'Draft Email Preview' }) => {
 		showCC: false,
 		showBCC: false,
 		sendEmailLoader: false,
+		skipping: false,
 	});
 
 	useEffect(() => {
@@ -106,6 +113,15 @@ const GmailWidget = ({ widgetData = null, title = 'Draft Email Preview' }) => {
 		});
 	}, [info?.data, info?.sendEmailLoader]);
 
+	const handleSkip = useCallback(() => {
+		if (info?.skipping) return;
+		setInfo((prev) => ({
+			...prev,
+			skipping: true,
+		}));
+		onChange?.({ skip: true, widgetInfo });
+	}, [onChange, widgetInfo, info?.skipping]);
+
 	return (
 		<div className={styles.gmailWidgetContainer}>
 			<div className={styles.gmailWidgetTitle}>{title}</div>
@@ -194,10 +210,14 @@ const GmailWidget = ({ widgetData = null, title = 'Draft Email Preview' }) => {
 					</div>
 				</div>
 				<div className={styles.buttonsContainer}>
-					{/* <button className={styles.eachButton}>
-					<CrossSvg />
-					Dismiss
-				</button> */}
+					{showSkipBtn && (
+						<button className={styles.eachButton} onClick={handleSkip}>
+							<CrossSvg />
+							Dismiss
+							{info?.skipping && <Spinner width={16} height={16} />}
+						</button>
+					)}
+
 					<button className={styles.eachButton} onClick={handleEditClick}>
 						<EditSvg />
 						{info?.editEnabled ? 'Stop Editing' : 'Edit First'}
