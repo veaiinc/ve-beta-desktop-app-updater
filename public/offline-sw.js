@@ -27,7 +27,18 @@ self.addEventListener('activate', (event) => {
 
 // Intercept fetch requests
 self.addEventListener('fetch', (event) => {
-	if (!navigator.onLine) {
-		event.respondWith(caches.match(OFFLINE_URL, { ignoreSearch: true }));
+	if (event.request.mode === 'navigate') {
+		// This is a navigation request (user trying to load a page)
+		event.respondWith(
+			(async () => {
+				try {
+					// Try network first
+					return await fetch(event.request);
+				} catch (error) {
+					// If offline, return offline.html
+					return await caches.match(OFFLINE_URL, { ignoreSearch: true });
+				}
+			})(),
+		);
 	}
 });
