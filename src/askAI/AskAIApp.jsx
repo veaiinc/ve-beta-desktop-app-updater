@@ -1,6 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { X, Send, Copy, ChevronDown, ChevronUp } from 'lucide-react';
 import './askAI.scss';
+import { useAskAISocket } from './socketState';
+import ObjectID from 'bson-objectid';
+import { getLocationsDetails } from '../helpers';
+import { Markdown } from '../helpers/markdownHelper';
+
+const sessionId = ObjectID().toString();
 
 const AskAIApp = () => {
 	const containerRef = useRef(null);
@@ -8,26 +14,26 @@ const AskAIApp = () => {
 	const [response, setResponse] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [isExpanded, setIsExpanded] = useState(false);
+	const [hasResponse, setHasResponse] = useState(false);
 	const inputRef = useRef(null);
 	const responseRef = useRef(null);
+	const [streamingResponse, setStreamingResponse] = useState('');
 
-	// Sample response for demo - will be replaced with actual AI response
-	const sampleResponse = "Based on the conversation, the key takeaways are: The team has aligned on a Q4 2024 launch for Project Nova, targeting November 15th to leverage holiday sales. The marketing strategy will prioritize social media and influencer collaborations to reach a younger demographic. Sarah highlighted potential budget constraints for influencer marketing, and the team agreed to explore a tiered compensation model. For next steps, Alex is tasked with finalizing the influencer list by next week, and the marketing department will deliver a full content calendar within two weeks.";
-
-	// Update dimensions when content changes
-	const updateDimensions = useCallback(() => {
-		if (containerRef.current) {
+	// Initialize socket
+	const { createWebSocketConnection, sendMessage, closeWebSocketConnection } = useAskAISocket();
+	// Update dimensions only when necessary
+	const updateDimensions = useCallback((forceUpdate = false) => {
+		if (containerRef.current && forceUpdate) {
 			setTimeout(() => {
-				const rect = containerRef.current.getBoundingClientRect();
-				const height = Math.max(containerRef.current.scrollHeight, rect.height, 400);
-				const width = 500; // Fixed width for Ask AI window
+				const width = 1000; // Fixed width for Ask AI window
+				const height = hasResponse ? 600 : 120; // Better heights for proper display
 
 				if (window.electronApi?.askAI?.updateDimensions) {
 					window.electronApi.askAI.updateDimensions({ width, height });
 				}
 			}, 50);
 		}
-	}, []);
+	}, [hasResponse]);
 
 	useEffect(() => {
 		// Focus on the input when the component mounts
@@ -38,52 +44,135 @@ const AskAIApp = () => {
 		}
 
 		// Initial dimension update
-		updateDimensions();
+		updateDimensions(true);
+	}, [updateDimensions]);
 
-		// Set up observers for dimension updates
-		const resizeObserver = new ResizeObserver(() => {
-			updateDimensions();
-		});
+	// Update dimensions only when response state significantly changes
+	useEffect(() => {
+		updateDimensions(true);
+	}, [hasResponse, updateDimensions]);
 
-		const mutationObserver = new MutationObserver(() => {
-			updateDimensions();
-		});
+	// Clean up socket connection on unmount
+	useEffect(() => {
+		return () => {
+			closeWebSocketConnection();
+		};
+	}, [closeWebSocketConnection]);
 
-		if (containerRef.current) {
-			resizeObserver.observe(containerRef.current);
-			mutationObserver.observe(containerRef.current, {
-				childList: true,
-				subtree: true,
-				attributes: true,
+	// Handle incoming WebSocket messages
+	const onMessageFunc = useCallback((event, currentSessionId) => {
+		let { data = '' } = event || {};
+		try {
+			data = JSON.parse(data);
+		} catch (error) {
+			console.error('Failed to parse WebSocket message:', error);
+			return;
+		}
+
+		console.log('📨 Received message:', data);
+
+		// Handle streaming messages
+		if (data?.message_chunk_id) {
+			const newChunk = data?.answer || '';
+			console.log('📝 Adding chunk:', newChunk);
+			setStreamingResponse((prev) => {
+				const updated = prev + newChunk;
+				console.log('📝 Updated streaming response:', updated);
+				return updated;
 			});
 		}
 
-		return () => {
-			resizeObserver.disconnect();
-			mutationObserver.disconnect();
-		};
-	}, [updateDimensions]);
+		// Handle stream end
+		if (data?.stream_end) {
+			console.log('🏁 Stream ended, finalizing response...');
+			setStreamingResponse((currentStreaming) => {
+				const finalResponse = currentStreaming + (data?.answer || '');
+				console.log('🏁 Final response calculated:', finalResponse);
 
-	// Update dimensions when response state changes
+				// Set the final response
+				setResponse(finalResponse);
+				setIsLoading(false);
+				setIsExpanded(true);
+				setHasResponse(true);
+
+				console.log('✅ Final response set:', finalResponse);
+				console.log('✅ Response window should stay visible now');
+
+				return ''; // Clear streaming response
+			});
+		}
+	}, []);
+
+	// Update response display with streaming content
 	useEffect(() => {
-		updateDimensions();
-	}, [response, isExpanded, updateDimensions]);
+		if (streamingResponse && !response) {
+			// Show streaming content in real-time
+			setResponse(streamingResponse);
+		}
+	}, [streamingResponse, response]);
+
+	// Debug response state changes
+	useEffect(() => {
+		console.log('🔄 Response state changed:', {
+			response,
+			streamingResponse,
+			isLoading,
+			hasResponse,
+			isExpanded,
+		});
+	}, [response, streamingResponse, isLoading, hasResponse, isExpanded]);
 
 	const handleSubmit = async () => {
 		if (!inputValue.trim()) return;
-		
+
+		console.log('🚀 Starting new message submission...');
+		const queryValue = inputValue.trim();
+		setInputValue(''); // Clear input immediately after submission
 		setIsLoading(true);
-		// Simulate AI response - replace with actual AI call
-		setTimeout(() => {
-			setResponse(sampleResponse);
+		setResponse('');
+		setStreamingResponse('');
+		// Don't reset hasResponse here - keep the window visible
+
+		try {
+			// Send the message
+			const messageData = {
+				query: queryValue,
+				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+				web_search: true,
+				knowledge_base_search: true,
+				deep_research: false,
+				deep_search: false,
+				modules: [],
+				date: [],
+				selected_model: null,
+			};
+
+			let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
+
+			if (!location_details) {
+				location_details = await getLocationsDetails();
+			}
+			messageData.location = location_details;
+
+			console.log('📤 Sending message data:', messageData);
+			await sendMessage({
+				data: messageData,
+				sessionId,
+				onMessageFunc,
+				agentType: 'multi_agent_chat_streaming',
+			});
+		} catch (error) {
+			console.error('Failed to send message:', error);
 			setIsLoading(false);
+			setResponse('Error: Failed to send message. Please try again.');
 			setIsExpanded(true);
-		}, 1500);
+		}
 	};
 
 	const handleKeyDown = (e) => {
+		console.log('🔥 AskAI: Key down event:', e);
 		if (e.key === 'Enter' && !e.shiftKey) {
-			e.preventDefault();
+			console.log('🔥 AskAI: Key down event:', e);
 			handleSubmit();
 		}
 	};
@@ -105,24 +194,28 @@ const AskAIApp = () => {
 	return (
 		<div ref={containerRef} className="ask-ai-app">
 			{/* Response Window - Top */}
-			{(response || isLoading) && (
+			{(response || isLoading || streamingResponse || isExpanded || hasResponse) && (
 				<div className={`ai-response-window ${isExpanded ? 'expanded' : 'collapsed'}`}>
 					<div className="ai-response-header">
 						<div className="ai-response-title">
 							<span>AI Response</span>
 							{response && (
-								<button 
+								<button
 									className="expand-button"
 									onClick={toggleExpanded}
 									title={isExpanded ? 'Collapse' : 'Expand'}
 								>
-									{isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+									{isExpanded ? (
+										<ChevronUp size={16} />
+									) : (
+										<ChevronDown size={16} />
+									)}
 								</button>
 							)}
 						</div>
 						<div className="ai-response-controls">
 							{response && (
-								<button 
+								<button
 									className="copy-button"
 									onClick={handleCopyResponse}
 									title="Copy response"
@@ -130,18 +223,14 @@ const AskAIApp = () => {
 									<Copy size={14} />
 								</button>
 							)}
-							<button 
-								className="close-button"
-								onClick={handleClose}
-								title="Close"
-							>
+							<button className="close-button" onClick={handleClose} title="Close">
 								<X size={16} />
 							</button>
 						</div>
 					</div>
-					
+
 					<div className="ai-response-content" ref={responseRef}>
-						{isLoading ? (
+						{isLoading && !response && !streamingResponse ? (
 							<div className="loading-indicator">
 								<div className="loading-dots">
 									<span></span>
@@ -151,7 +240,18 @@ const AskAIApp = () => {
 								<span>Analyzing...</span>
 							</div>
 						) : (
-							<div className="response-text">{response}</div>
+							<div className="response-text">
+								{response || streamingResponse ? (
+									<>
+										<Markdown>{response || streamingResponse}</Markdown>
+										{isLoading && streamingResponse && (
+											<span className="streaming-cursor">|</span>
+										)}
+									</>
+								) : (
+									'No response content'
+								)}
+							</div>
 						)}
 					</div>
 				</div>
@@ -169,8 +269,8 @@ const AskAIApp = () => {
 						onKeyDown={handleKeyDown}
 						rows={1}
 					/>
-					
-					<button 
+
+					<button
 						className={`ask-ai-input__submit ${inputValue.trim() ? 'active' : ''}`}
 						onClick={handleSubmit}
 						disabled={!inputValue.trim() || isLoading}

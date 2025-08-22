@@ -12,6 +12,9 @@ const {
 	createZipFromUrls,
 } = require('./galleryHelper');
 
+// Import window helper for overlay functionality
+const WindowHelper = require('./helpers/windowHelper');
+
 let mainWindow = null;
 let windowHelper = null;
 
@@ -126,13 +129,15 @@ app.whenReady().then(() => {
 	// Set up permission request handler for microphone access
 	session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
 		const allowedPermissions = [
-			'media', // ✅ This is the key one - covers getUserMedia requests
+			'media', // Covers getUserMedia requests
 			'audioCapture',
 			'microphone',
 			'camera',
 			'displayCapture', // For screen sharing if needed
 			'geolocation',
 			'notifications',
+			'clipboard-read', // Clipboard read permission
+			'clipboard-write', // Clipboard write permission
 		];
 
 		log.info('Permission requested:', permission);
@@ -144,6 +149,15 @@ app.whenReady().then(() => {
 			log.info('❌ Denied permission for:', permission);
 			callback(false);
 		}
+	});
+
+	// Set default permissions for clipboard access
+	session.defaultSession.setPermissionCheckHandler((webContents, permission) => {
+		if (permission === 'clipboard-read' || permission === 'clipboard-write') {
+			log.info('Permission check for clipboard:', permission);
+			return true;
+		}
+		return false;
 	});
 
 	// Check macOS microphone permission status
@@ -166,11 +180,163 @@ app.whenReady().then(() => {
 
 	createWindow();
 
+	// Initialize WindowHelper for overlay window functionality
+	windowHelper = new WindowHelper();
+	windowHelper.registerGlobalShortcuts(mainWindow);
+
+	// Check if global shortcuts are working (especially important on macOS)
+	if (process.platform === 'darwin') {
+		const { systemPreferences } = require('electron');
+
+		// Check if the app has accessibility permissions
+		const hasAccessibilityPermission = systemPreferences.isTrustedAccessibilityClient(false);
+
+		if (!hasAccessibilityPermission) {
+			log.warn('⚠️ Global shortcuts may not work! The app needs accessibility permissions.');
+			log.warn(
+				'Please go to System Preferences > Security & Privacy > Privacy > Accessibility',
+			);
+			log.warn('and add this app to the list of allowed applications.');
+
+			// Show a dialog to the user
+			// const { dialog } = require('electron');
+			// dialog.showMessageBox(mainWindow, {
+			// 	type: 'warning',
+			// 	title: 'Accessibility Permission Required',
+			// 	message: 'Global shortcuts (Cmd+B) require accessibility permissions',
+			// 	detail: 'Please go to System Preferences > Security & Privacy > Privacy > Accessibility and add this app to the allowed applications list.',
+			// 	buttons: ['OK'],
+			// });
+		} else {
+			log.info('✅ Accessibility permissions granted - global shortcuts should work');
+		}
+	}
+
+	// Register overlay window IPC handlers
+	ipcMain.handle('toggle-overlay-window', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.toggleOverlayWindow();
+			return { success: true };
+		} catch (error) {
+			log.error('Error toggling overlay window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('update-overlay-dimensions', async (event, { width, height }) => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.updateWindowDimensions(width, height);
+			return { success: true };
+		} catch (error) {
+			log.error('Error updating overlay dimensions:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('toggle-askAI-window', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.toggleAskAIWindow();
+			return { success: true };
+		} catch (error) {
+			log.error('Error toggling Ask AI window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('update-askAI-dimensions', async (event, { width, height }) => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.updateAskAIWindowDimensions(width, height);
+			return { success: true };
+		} catch (error) {
+			log.error('Error updating Ask AI dimensions:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('set-ignore-mouse-events', async (event, ignore) => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			const overlayWindow = windowHelper.getOverlayWindow();
+			if (overlayWindow && !overlayWindow.isDestroyed()) {
+				overlayWindow.setIgnoreMouseEvents(ignore);
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error setting ignore mouse events:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('set-askAI-ignore-mouse-events', async (event, ignore) => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			const askAIWindow = windowHelper.getAskAIWindow();
+			if (askAIWindow && !askAIWindow.isDestroyed()) {
+				askAIWindow.setIgnoreMouseEvents(ignore);
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error setting Ask AI ignore mouse events:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	// Register gallery IPC handlers from galleryUtils
 	ipcMain.handle('process-image-with-sharp', processImageWithSharp);
 	ipcMain.handle('extract-image-metadata', extractImageMetadata);
 	ipcMain.handle('download-album-zip', downloadAlbumZip);
 	ipcMain.handle('create-zip-from-urls', createZipFromUrls);
+
+	// Clipboard IPC handlers
+	ipcMain.handle('clipboard-write-text', async (event, text) => {
+		try {
+			// Verify clipboard module is available
+			const { clipboard } = require('electron');
+			if (!clipboard) {
+				log.error('Clipboard module not available');
+				return { success: false, error: 'Clipboard module not available' };
+			}
+
+			clipboard.writeText(text);
+			return { success: true };
+		} catch (error) {
+			log.error('Clipboard write error:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('clipboard-read-text', async () => {
+		try {
+			// Verify clipboard module is available
+			const { clipboard } = require('electron');
+			if (!clipboard) {
+				log.error('Clipboard module not available');
+				return { success: false, error: 'Clipboard module not available' };
+			}
+
+			const text = clipboard.readText();
+			return { success: true, text };
+		} catch (error) {
+			log.error('Clipboard read error:', error);
+			return { success: false, error: error.message };
+		}
+	});
 });
 
 app.on('window-all-closed', () => {

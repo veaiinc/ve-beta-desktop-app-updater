@@ -1,7 +1,7 @@
 {
 	"name": "VEAI",
 	"description": "Your living intelligence remembers everything, sees what you see, figures out your goals, and doesn’t stop until they're done.",
-	"version": "v0.2.6",
+	"version": "v0.2.7",
 	"private": true,
 	"main": "dist-electron/main.js",
 	"author": "Ve AI",
@@ -135,6 +135,13 @@
 			"build/**",
 			"dist-electron/**",
 			"node_modules/**",
+			"!node_modules/.cache/**",
+			"!node_modules/**/*.map",
+			"!node_modules/**/*.d.ts",
+			"!node_modules/**/test/**",
+			"!node_modules/**/tests/**",
+			"!node_modules/**/docs/**",
+			"!node_modules/**/examples/**",
 			"package.json",
 			"entitlements/**"
 		],
@@ -163,7 +170,8 @@
 			"asar": true,
 			"asarUnpack": [
 				"resources/**",
-				"node_modules/sharp/**"
+				"**/node_modules/sharp/**/*",
+				"**/node_modules/@img/**/*"
 			],
 			"extendInfo": {
 				"NSMicrophoneUsageDescription": "Please give us access to your microphone",

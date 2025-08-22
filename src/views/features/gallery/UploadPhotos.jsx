@@ -148,6 +148,17 @@ const UploadPhotos = () => {
 
 	// Optimized onDropFunction with batched state updates
 	const onDropFunction = async (files) => {
+		// ✅ Step 1: Convert FileList to array and remove hidden files (starting with '.')
+		const filteredFiles = Array.from(files).filter((file) => {
+			return file.name && !file.name.startsWith('.');
+		});
+
+		// ✅ Optional: Notify user if only hidden files were dropped
+		if (filteredFiles.length === 0) {
+			return; // 🔥 Exit early — no files to process
+		}
+
+		// 🔒 Subscription checks
 		if (
 			lightGallery === 'true' &&
 			validateExpiryData &&
@@ -162,33 +173,68 @@ const UploadPhotos = () => {
 			});
 		}
 
+		// if (
+		// 	lightGallery === 'false' &&
+		// 	validateExpiryData &&
+		// 	validateExpiryData?.restrictGalleries &&
+		// 	!validateExpiryData?.uploadAllowedForClassicGallery
+		// ) {
+		// 	return updateSubscriptionState({
+		// 		expiredSubscriptionModal: true,
+		// 		expiredSubscriptionType: 'Classic-Gallery',
+		// 	});
+		// }
+		// if (
+		// 	lightGallery === 'false' &&
+		// 	validateExpiryData &&
+		// 	validateExpiryData?.restrictGalleries &&
+		// 	!validateExpiryData?.uploadAllowed
+		// ) {
+		// 	return updateSubscriptionState({
+		// 		expiredSubscriptionModal: true,
+		// 		expiredSubscriptionType: 'Classic-Gallery-Upload',
+		// 	});
+		// }
 		if (
 			lightGallery === 'false' &&
 			validateExpiryData &&
-			validateExpiryData?.restrictGalleries &&
-			(!validateExpiryData?.uploadAllowed ||
-				!validateExpiryData?.uploadAllowedForClassicGallery)
+			validateExpiryData?.restrictGalleries
 		) {
-			return updateSubscriptionState({
-				expiredSubscriptionModal: true,
-				expiredSubscriptionType: 'Classic-Gallery-Upload',
-			});
+			if (!validateExpiryData?.uploadAllowedForClassicGallery) {
+				return updateSubscriptionState({
+					expiredSubscriptionModal: true,
+					expiredSubscriptionType: 'Classic-Gallery',
+				});
+			}
+			if (!validateExpiryData?.uploadAllowed) {
+				return updateSubscriptionState({
+					expiredSubscriptionModal: true,
+					expiredSubscriptionType: 'Classic-Gallery-Upload',
+				});
+			}
 		}
+		// Show processing indicator
+		setinfo((prev) => ({ ...prev, isProcessingDuplicates: true }));
 
-		setinfo((prev) => ({ ...prev, isProcessingDuplicates: true })); // Show processing feedback
-
-		const duplicateSet = getDuplicateSet(); // O(n) for creating the set
+		const duplicateSet = getDuplicateSet();
 		let totalSize = 0;
 		const imagesLimit = validateExpiryData?.liteImageLimit - validateExpiryData?.liteImageUsed;
 		let uploadImagesLength = Object.keys(info?.uploadImages).length;
-		let duplciatesFound = info.duplciatesFound || 0;
+		let duplicatesFound = info.duplicatesFound || 0; // 🔴 Fixed typo: "duplciatesFound"
 		const updatedUploadImages = { ...info.uploadImages };
 
-		// Batch process files
-		const validFiles = files.filter(
-			(file) => file?.type === 'image/jpeg' || file?.type === 'image/png',
+		// ✅ Step 2: Filter only valid image types from the already-cleaned `filteredFiles`
+		const validFiles = filteredFiles.filter(
+			(file) => file.type === 'image/jpeg' || file.type === 'image/png',
 		);
 
+		// If no valid image files remain
+		if (validFiles.length === 0) {
+			setinfo((prev) => ({ ...prev, isProcessingDuplicates: false }));
+			return;
+		}
+
+		// ✅ Check image limit *after* filtering
 		if (uploadImagesLength + validFiles.length > imagesLimit && lightGallery === 'true') {
 			setinfo((prev) => ({ ...prev, isProcessingDuplicates: false }));
 			return updateSubscriptionState({
@@ -197,6 +243,7 @@ const UploadPhotos = () => {
 			});
 		}
 
+		// ✅ Process only clean, valid files
 		validFiles.forEach((file) => {
 			if (!updatedUploadImages[file.name]) {
 				const isDuplicate = duplicateSet.has(file.name);
@@ -215,31 +262,27 @@ const UploadPhotos = () => {
 				};
 				totalSize += file.size;
 				if (isDuplicate) {
-					duplciatesFound += 1;
+					duplicatesFound += 1;
 				}
 			} else {
+				// Handle re-upload of same file
 				updatedUploadImages[file.name] = {
+					...updatedUploadImages[file.name],
 					file,
 					isUploaded: false,
 					uploadedPerct: 0,
-					isDuplicate: duplicateSet.has(file.name),
-					originalImage: duplicateSet.has(file.name)
-						? imageDuplicatesList?.list?.find(
-								(image) => image?.displayName === file?.name,
-						  )
-						: null,
 					isFailed: false,
 				};
 			}
 		});
 
-		// Single state update
+		// ✅ Final state update with only valid, visible, supported image files
 		setinfo((prev) => ({
 			...prev,
 			uploadImages: updatedUploadImages,
 			uploadSize: prev.uploadSize + totalSize / 1024,
-			duplciatesFound,
-			isProcessingDuplicates: false, // Reset processing feedback
+			duplicatesFound,
+			isProcessingDuplicates: false,
 		}));
 	};
 

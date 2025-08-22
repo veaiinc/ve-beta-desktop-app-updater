@@ -197,8 +197,25 @@ const DocumentShare = ({
 	const handleCopy = useCallback(async () => {
 		try {
 			if (info.copyLink) {
-				await navigator.clipboard.writeText(info.copyLink);
-				message.success('Link copied to clipboard');
+				// Use Electron clipboard API if available
+				if (window.electronApi?.clipboard?.writeText) {
+					try {
+						await window.electronApi.clipboard.writeText(info.copyLink);
+						message.success('Link copied to clipboard');
+					} catch (clipboardError) {
+						console.warn(
+							'Electron clipboard failed, trying browser fallback:',
+							clipboardError,
+						);
+						// Fallback to browser clipboard
+						await navigator.clipboard.writeText(info.copyLink);
+						message.success('Link copied to clipboard');
+					}
+				} else {
+					// Fallback to browser clipboard if Electron API not available
+					await navigator.clipboard.writeText(info.copyLink);
+					message.success('Link copied to clipboard');
+				}
 
 				// Call onCopy callback if status is enquiry or draft
 				if (status === 'enquiry' || status === 'draft') {
