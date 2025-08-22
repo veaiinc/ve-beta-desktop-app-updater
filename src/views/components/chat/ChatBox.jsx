@@ -52,6 +52,7 @@ const moduleHelper = {
 	'smart-file': 'form_filling',
 	calendar: 'calendar',
 	meet: 'meeting',
+	note: 'notes',
 };
 
 const initialChatFilters = {
@@ -927,6 +928,10 @@ const ChatBox = ({
 
 					if (routeName === 'meet') {
 						payload.module_id = params?.meetingId;
+					}
+
+					if (routeName === 'note') {
+						payload.module_id = params?.noteId;
 					}
 
 					if (isDirectSearchAgent) {

@@ -130,7 +130,7 @@ export default class InvoiceCardPopup extends Images {
 				const blob = new Blob(byteArrays, { type: 'image/jpeg' });
 				file = new File([blob], 'ai-generated-image.jpg', { type: 'image/jpeg' });
 			} catch (error) {
-				console.error('Error processing base64 image:', error);
+				
 				return;
 			}
 		} else {
@@ -408,6 +408,7 @@ export default class InvoiceCardPopup extends Images {
 				},
 			};
 		}
+		
 		this.setState(
 			{ activeComponent: newComponent, activeBgtype: newComponent?.style?.backgroundType },
 			() => {
@@ -428,6 +429,20 @@ export default class InvoiceCardPopup extends Images {
 				}
 			},
 		);
+	};
+	handleGlobalShowLabel = (type, value) => {
+		let newComponent = { ...this.state.activeComponent };
+		newComponent = {
+			...newComponent,
+			style: {
+				...newComponent?.style,
+				labels: { ...newComponent?.style?.labels, [type]: value },
+			},
+		};
+		
+		this.setState({ activeComponent: newComponent }, () => {
+			this.props?.handleCardPopupProps(newComponent);
+		});
 	};
 
 	// ! bgvideo related functions
@@ -1065,10 +1080,13 @@ export default class InvoiceCardPopup extends Images {
 								<label
 									className="switch"
 									onClick={() => {
-										this.handleActiveCardStyles(
+										this.handleGlobalShowLabel(
 											'showDescription',
-											!this.state?.activeComponent?.style?.labels
-												?.showDescription ?? false,
+											this.state?.activeComponent?.style?.labels
+												?.showDescription == undefined
+												? false
+												: !this.state?.activeComponent?.style?.labels
+														?.showDescription,
 										);
 									}}
 								>
@@ -1106,10 +1124,13 @@ export default class InvoiceCardPopup extends Images {
 								<label
 									className="switch"
 									onClick={() => {
-										this.handleActiveCardStyles(
+										this.handleGlobalShowLabel(
 											'showImage',
-											!this.state?.activeComponent?.style?.labels
-												?.showImage ?? false,
+											this.state?.activeComponent?.style?.labels?.showImage ==
+												undefined
+												? false
+												: !this.state?.activeComponent?.style?.labels
+														?.showImage,
 										);
 									}}
 								>
@@ -1147,10 +1168,13 @@ export default class InvoiceCardPopup extends Images {
 								<label
 									className="switch"
 									onClick={() => {
-										this.handleActiveCardStyles(
+										this.handleGlobalShowLabel(
 											'showQuantity',
-											!this.state?.activeComponent?.style?.labels
-												?.showQuantity ?? false,
+											this.state?.activeComponent?.style?.labels
+												?.showQuantity == undefined
+												? false
+												: !this.state?.activeComponent?.style?.labels
+														?.showQuantity,
 										);
 									}}
 								>
@@ -1188,10 +1212,13 @@ export default class InvoiceCardPopup extends Images {
 								<label
 									className="switch"
 									onClick={() => {
-										this.handleActiveCardStyles(
+										this.handleGlobalShowLabel(
 											'showUnit',
-											!this.state?.activeComponent?.style?.labels?.showUnit ??
-												false,
+											this.state?.activeComponent?.style?.labels?.showUnit ==
+												undefined
+												? false
+												: !this.state?.activeComponent?.style?.labels
+														?.showUnit,
 										);
 									}}
 								>
@@ -1229,10 +1256,13 @@ export default class InvoiceCardPopup extends Images {
 								<label
 									className="switch"
 									onClick={() => {
-										this.handleActiveCardStyles(
+										this.handleGlobalShowLabel(
 											'showUnitPrice',
-											!this.state?.activeComponent?.style?.labels
-												?.showUnitPrice ?? false,
+											this.state?.activeComponent?.style?.labels
+												?.showUnitPrice == undefined
+												? false
+												: !this.state?.activeComponent?.style?.labels
+														?.showUnitPrice,
 										);
 									}}
 								>
