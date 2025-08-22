@@ -1006,7 +1006,6 @@ const GalleryPage = () => {
 			setInfo((prev) => ({ ...prev, galleryLink }));
 		}
 	}, [info?.currentWorkspaceId, tennantSettingsData, info?.activeGallery]);
-
 	useEffect(() => {
 		if (!location?.state?.returnFromViewer) return;
 
@@ -3721,57 +3720,74 @@ const GalleryPage = () => {
 	};
 	const handleDesktopDownloadAlbum = async () => {
 		try {
-			// Prevent multiple clicks
 			if (info.isDownloading) return;
 
 			setInfo((prev) => ({ ...prev, isDownloading: true }));
 			showMessage('loading', 'Preparing download...');
 
-			// Start with already-loaded images
-			let allImages = [...(info.imagesList?.docs || [])];
+			// Use already-loaded images from state
+			const allImagesMap = new Map();
 
-			// If more pages exist, fetch all
+			// Add existing images from info.imagesList
+			info.imagesList?.docs?.forEach((img) => allImagesMap.set(img._id, img));
+
+			let currentPage = info.page; // Already loaded up to this page
+			const limit = info.limit || 40;
+
+			// Only fetch next pages if more exist
 			if (info.imagesList?.hasNextPage) {
-				showMessage('loading', 'Loading all images...');
-
-				const totalImages = [];
-				let page = 1;
-				const limit = info.limit || 40;
+				showMessage('loading', 'Loading remaining images...');
 
 				while (true) {
+					const nextPage = currentPage + 1;
+
 					const response = await getGalleryImages(
 						galleryId,
 						info.activeAlbumId,
 						info.albumTagId,
-						page,
+						nextPage,
 						limit,
 						'',
-						true,
+						false, // ← Critical: do NOT reset
 					);
 
-					if (response?.[0] !== true || !response[1]?.docs?.length) break;
+					if (response?.[0] !== true || !response[1]?.docs?.length) {
+						console.warn('No more images or error fetching page', nextPage);
+						break;
+					}
 
-					totalImages.push(...response[1].docs);
+					// Add new images to the map (deduplicate by _id)
+					response[1].docs.forEach((img) => allImagesMap.set(img._id, img));
 
-					if (!response[1].hasNextPage) break;
-					page++;
+					// ✅ Optionally: update local state so UI reflects progress
+					setInfo((prev) => ({
+						...prev,
+						imagesList: {
+							...prev.imagesList,
+							docs: Array.from(allImagesMap.values()),
+							hasNextPage: response[1].hasNextPage,
+						},
+					}));
+
+					// Update current page
+					currentPage = nextPage;
+
+					// Stop if no more pages
+					if (!response[1].hasNextPage) {
+						break;
+					}
 				}
-
-				// Deduplicate by _id
-				const seen = new Set();
-				allImages = totalImages.filter((img) => {
-					if (seen.has(img._id)) return false;
-					seen.add(img._id);
-					return true;
-				});
 			}
+
+			// Final list of all images
+			const allImages = Array.from(allImagesMap.values());
 
 			if (allImages.length === 0) {
 				showMessage('error', 'No images to download');
 				return;
 			}
 
-			// Build signed URLs
+			// ✅ Build download URLs
 			const downloadItems = allImages
 				.map((image) => {
 					const version = image.activeVersion;
@@ -3799,7 +3815,7 @@ const GalleryPage = () => {
 				return;
 			}
 
-			// ✅ Trigger ZIP creation in main process
+			// ✅ Trigger ZIP creation
 			const result = await window.electronApi.downloadAlbumZip({
 				items: downloadItems,
 				folderName: `Album_${info.albumName || 'download'}`,
@@ -3811,6 +3827,17 @@ const GalleryPage = () => {
 			} else {
 				throw new Error(result.error || 'Unknown error');
 			}
+
+			// ✅ Final state update: ensure full list is saved and infinite scroll stops
+			setInfo((prev) => ({
+				...prev,
+				imagesList: {
+					...prev.imagesList,
+					docs: allImages,
+					hasNextPage: false,
+				},
+				page: currentPage,
+			}));
 		} catch (err) {
 			console.error('Download failed:', err);
 			showMessage('error', 'Download failed: ' + err.message);
@@ -3819,61 +3846,75 @@ const GalleryPage = () => {
 		}
 	};
 	const handleDownloadEntireAlbumOriginals = async () => {
-		const { activeAlbumId, albumTagId, activeGallery, albumName } = info;
+		const { activeAlbumId, albumTagId, activeGallery } = info;
 		const galleryId = activeGallery?._id;
 
-		if (info?.isDownloading) return;
-		if (!galleryId) {
-			showMessage('error', 'Gallery not found');
-			return;
-		}
+		if (info.isDownloading || !galleryId) return;
 
 		setInfo((prev) => ({ ...prev, isDownloading: true }));
 
-		let allImageIds = [];
+		// Start with images already in context
+		const allImageIds = new Set(info.imagesList?.docs?.map((img) => img._id) || []);
 
-		// Fetch all image IDs
-		let page = 1;
+		let currentPage = info.page; // Already loaded up to this page
 		const limit = 40;
-		while (true) {
-			const response = await getGalleryImages(
-				galleryId,
-				activeAlbumId,
-				albumTagId,
-				page,
-				limit,
-				'',
-				true,
-			);
-			if (response?.[0] === true && Array.isArray(response[1]?.docs)) {
-				allImageIds.push(...response[1].docs.map((img) => img._id));
-				if (!response[1].hasNextPage) break;
-				page++;
-			} else {
-				showMessage('error', 'Failed to load images');
+
+		try {
+			// Only fetch from next page onward
+			while (true) {
+				const nextPage = currentPage + 1;
+
+				const response = await getGalleryImages(
+					galleryId,
+					activeAlbumId,
+					albumTagId,
+					nextPage,
+					limit,
+					'',
+					false, // ← Append, don't reset
+				);
+
+				if (response?.[0] !== true || !response[1]?.docs?.length) {
+					break;
+				}
+
+				// Add new image IDs
+				response[1].docs.forEach((img) => allImageIds.add(img._id));
+
+				// Update context/state so UI doesn’t re-fetch
+				setInfo((prev) => ({
+					...prev,
+					imagesList: {
+						...prev.imagesList,
+						docs: [...prev.imagesList.docs, ...response[1].docs],
+					},
+				}));
+
+				if (!response[1].hasNextPage) {
+					// Update hasMore or hasNextPage in state
+					setInfo((prev) => ({ ...prev, hasMore: false }));
+					break;
+				}
+
+				currentPage = nextPage;
+			}
+
+			const imageIds = Array.from(allImageIds);
+			if (imageIds.length === 0) {
+				showMessage('warning', 'No images to download');
 				setInfo((prev) => ({ ...prev, isDownloading: false }));
 				return;
 			}
-		}
 
-		if (allImageIds.length === 0) {
-			showMessage('warning', 'No images in album');
-			setInfo((prev) => ({ ...prev, isDownloading: false }));
-			return;
-		}
+			// Now fetch signed URLs (same as before)
+			const batchSize = 10;
+			const allItems = [];
 
-		// Fetch signed URLs
-		showMessage('loading', 'Fetching download links...');
-
-		const batchSize = 10;
-		let allItems = [];
-
-		try {
 			const fetchPromises = [];
-			for (let i = 0; i < allImageIds.length; i += batchSize) {
+			for (let i = 0; i < imageIds.length; i += batchSize) {
 				fetchPromises.push(
 					(async () => {
-						const batchIds = allImageIds.slice(i, i + batchSize);
+						const batchIds = imageIds.slice(i, i + batchSize);
 						const payload = { image_ids: batchIds, imageType: 'original' };
 						try {
 							const result = await getSignedUrlsForImages(payload, galleryId);
@@ -3891,62 +3932,43 @@ const GalleryPage = () => {
 					})(),
 				);
 			}
+
 			await Promise.all(fetchPromises);
-		} catch (err) {
-			showMessage('error', 'Failed to fetch download links');
-			setInfo((prev) => ({ ...prev, isDownloading: false }));
-			return;
-		}
 
-		if (allItems.length === 0) {
-			showMessage('error', 'No images to download');
-			setInfo((prev) => ({ ...prev, isDownloading: false }));
-			return;
-		}
-
-		// Generate unique session ID
-		const sessionId = `album-${activeAlbumId}-${Date.now()}-${Math.random()
-			.toString(36)
-			.substr(2, 6)}`;
-		const folderName = `${albumName || 'Album'}_original`;
-		const maxZipSize = 3 * 1024 * 1024 * 1024;
-
-		showMessage('loading', `Downloading ${allItems.length} originals...`);
-
-		// Set up progress listener (silent - no toast notifications)
-		const progressListener = (data) => {
-			if (data.sessionId === sessionId) {
-				// Progress updates are handled silently - no toast notifications
-				// Only show completion message
-				if (data.phase === 'complete') {
-					showMessage('success', `Download completed! Files: ${data.zips?.join(', ')}`);
-				}
+			if (allItems.length === 0) {
+				showMessage('error', 'No valid URLs generated');
+				setInfo((prev) => ({ ...prev, isDownloading: false }));
+				return;
 			}
-		};
 
-		window.electronApi.onDownloadProgress(progressListener);
+			// Trigger ZIP download
+			const sessionId = `album-${activeAlbumId}-${Date.now()}`;
+			const folderName = `${info.albumName || 'Album'}_original`;
+			const maxZipSize = 3 * 1024 * 1024 * 1024;
 
-		try {
+			window.electronApi.onDownloadProgress((data) => {
+				if (data.sessionId === sessionId && data.phase === 'complete') {
+					showMessage('success', `Download completed: ${data.zips.join(', ')}`);
+				}
+			});
+
 			const result = await window.electronApi.createZipFromUrls({
 				items: allItems,
 				folderName,
 				maxZipSize,
 				sessionId,
-				parallelLimit: 50, // Increased from 20 to 50 for better performance
+				parallelLimit: 50,
 			});
 
-			if (result.success && result.zips?.length > 0) {
-				showMessage('success', `Downloaded: ${result.zips.join(', ')}`);
-			} else {
+			if (!result.success) {
 				showMessage('error', result.error || 'Download failed');
 			}
 		} catch (err) {
-			console.error('IPC call failed:', err);
+			console.error('Download failed:', err);
 			showMessage('error', 'Download failed: ' + err.message);
 		} finally {
-			// Clean up progress listener
-			window.electronApi.removeDownloadProgressListener();
 			setInfo((prev) => ({ ...prev, isDownloading: false }));
+			window.electronApi.removeDownloadProgressListener();
 		}
 	};
 

@@ -53,32 +53,34 @@ const processImageWithSharp = async (event, data) => {
 			scale = 0.15,
 			opacity = 1,
 			isWaterMarkApply,
-			resizeOptions = { maxWidth: 1000 },
-			quality = 75,
+			resizeOptions = { maxWidth: 1600 },
 		} = data;
 
-		const maxSizeBytes = 2 * 1024 * 1024;
+		const MAX_SIZE_BYTES = 2 * 1024 * 1024; // 2,097,152 — S3 limit
+		const MIN_WIDTH = 1200; // Don't go below this
+		const TARGET_QUALITY = 85; // Max allowed
+
 		let imageData =
 			typeof imageBuffer === 'string'
 				? Buffer.from(imageBuffer, 'base64')
 				: Buffer.from(imageBuffer);
 
 		const metadata = await sharp(imageData).metadata();
-
 		if (!metadata.width || !metadata.height) {
 			return { success: false, error: 'Invalid image metadata' };
 		}
 
-		let targetWidth = Math.min(metadata.width, resizeOptions.maxWidth);
-		let targetQuality = quality;
+		// Start with largest allowed width
+		let currentWidth = Math.min(metadata.width, resizeOptions.maxWidth);
 
-		const processImage = async (width, q, applyWatermark = false) => {
+		const processImage = async (width) => {
 			let img = sharp(imageData);
 			if (metadata.width > width) {
 				img = img.resize({ width, fit: 'inside', withoutEnlargement: true });
 			}
 
-			if (applyWatermark && watermarkUrl) {
+			// Apply watermark if needed
+			if (isWaterMarkApply && watermarkUrl) {
 				let watermarkBuffer = watermarkCache.get(watermarkUrl);
 				if (!watermarkBuffer) {
 					const res = await axios.get(watermarkUrl, { responseType: 'arraybuffer' });
@@ -115,54 +117,55 @@ const processImageWithSharp = async (event, data) => {
 				]);
 			}
 
-			return await img.jpeg({ quality: q, progressive: true, mozjpeg: true }).toBuffer();
+			// ✅ Always use quality 85 — never higher
+			return await img
+				.jpeg({
+					quality: TARGET_QUALITY,
+					chromaSubsampling: '4:4:4',
+					trellisQuantization: true,
+					optimizationMode: 3,
+					progressive: true,
+					mozjpeg: true,
+				})
+				.toBuffer();
 		};
 
-		let finalBuffer;
-		let attempts = 0;
-		const maxAttempts = 10;
+		// Try from currentWidth downward in steps
+		while (currentWidth >= MIN_WIDTH) {
+			const buffer = await processImage(currentWidth);
 
-		while (attempts < maxAttempts) {
-			attempts++;
-			finalBuffer = await processImage(targetWidth, targetQuality, isWaterMarkApply);
-
-			if (finalBuffer.length <= maxSizeBytes) {
+			if (buffer.length <= MAX_SIZE_BYTES) {
 				return {
 					success: true,
-					processedImage: finalBuffer.toString('base64'),
-					width: targetWidth,
-					height: Math.floor((metadata.height * targetWidth) / metadata.width),
-					size: finalBuffer.length,
+					processedImage: buffer.toString('base64'),
+					width: currentWidth,
+					height: Math.floor((metadata.height * currentWidth) / metadata.width),
+					size: buffer.length,
 				};
 			}
 
-			if (targetQuality > 65) {
-				targetQuality = Math.max(65, targetQuality - 5);
-			} else if (targetWidth > 600) {
-				targetWidth = Math.max(600, Math.floor(targetWidth * 0.9));
-			} else {
-				targetQuality = 50;
-				targetWidth = 600;
-			}
+			// Too big → reduce width
+			currentWidth = Math.max(MIN_WIDTH, Math.floor(currentWidth * 0.95)); // shrink by 5%
 		}
 
-		finalBuffer = await processImage(600, 50, isWaterMarkApply);
-
-		if (finalBuffer.length <= maxSizeBytes) {
+		// Final try at 1200px
+		const finalBuffer = await processImage(MIN_WIDTH);
+		if (finalBuffer.length <= MAX_SIZE_BYTES) {
 			return {
 				success: true,
 				processedImage: finalBuffer.toString('base64'),
-				width: 600,
-				height: Math.floor((metadata.height * 600) / metadata.width),
+				width: MIN_WIDTH,
+				height: Math.floor((metadata.height * MIN_WIDTH) / metadata.width),
 				size: finalBuffer.length,
 			};
 		}
 
+		// Still too big? This is rare — but possible with huge, complex images
 		return {
 			success: false,
-			error: `Optimized image still exceeds 2MB (${Math.round(
+			error: `Image still exceeds 2MB (${Math.round(
 				finalBuffer.length / 1024,
-			)} KB)`,
+			)} KB) even at 1200px, quality 85`,
 		};
 	} catch (error) {
 		log.error('Image processing error:', error);

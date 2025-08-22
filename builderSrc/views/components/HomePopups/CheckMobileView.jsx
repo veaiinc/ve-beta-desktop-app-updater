@@ -1,6 +1,6 @@
 import { memo } from 'react';
 
-const CheckMobileView = ({ updatePreviewOption }) => {
+const CheckMobileView = ({ updatePreviewOption, isAutoSaving }) => {
 	return (
 		<div className="updateClientPopup">
 			<div className="checkMobileViewWrapper">
@@ -8,22 +8,32 @@ const CheckMobileView = ({ updatePreviewOption }) => {
 					Are you sure you don't want to check mobile view
 				</div>
 				<div className="checkMobileViewWrapperContent">
-					<span
+					<button
 						onClick={(e) => {
 							e.stopPropagation();
 							updatePreviewOption('yes');
 						}}
+						style={{
+							opacity: isAutoSaving ? 0.5 : 1,
+							cursor: isAutoSaving ? 'not-allowed' : 'pointer',
+						}}
+						disabled={isAutoSaving}
 					>
 						Check later
-					</span>
-					<span
+					</button>
+					<button
 						onClick={(e) => {
 							e.stopPropagation();
 							updatePreviewOption('no');
 						}}
+						style={{
+							opacity: isAutoSaving ? 0.5 : 1,
+							cursor: isAutoSaving ? 'not-allowed' : 'pointer',
+						}}
+						disabled={isAutoSaving}
 					>
 						Check now
-					</span>
+					</button>
 				</div>
 			</div>
 		</div>

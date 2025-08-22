@@ -81,6 +81,7 @@ const Agents = () => {
 			getKnowledgeAssistantsListWithFilter,
 			addTemplateAgentToWorkspace,
 		},
+		aiSetup: { proactiveHeadings, getProactiveHeadings },
 	} = useContext(Context);
 
 	const searchContainerRef = useRef(null);
@@ -158,6 +159,10 @@ const Agents = () => {
 			}
 		}
 	}, [info?.totalCards, info?.currentIndex]);
+
+	useEffect(() => {
+		getProactiveHeadings();
+	}, []);
 
 	const handleLeft = useCallback(() => {
 		const index =
@@ -399,8 +404,14 @@ const Agents = () => {
 	return (
 		<div className={s.agentsContainer}>
 			<div className={s.titleContainer}>
-				<span className={s.titleOne}>Agents</span>
-				in motion.
+				{proactiveHeadings?.agent_headlines ? (
+					proactiveHeadings?.agent_headlines
+				) : (
+					<>
+						<span className={s.titleOne}>Agents</span>
+						in motion.
+					</>
+				)}
 			</div>
 			{/* <div className={s.agentsListAndSuggestedAgentsContainer}>
 				<div className={s.agentActionsContainer}>

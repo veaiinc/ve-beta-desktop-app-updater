@@ -12,8 +12,8 @@ const {
 	createZipFromUrls,
 } = require('./galleryHelper');
 
-// Import WindowHelper for overlay window functionality
-const { WindowHelper } = require('./helpers/windowHelper');
+// Import window helper for overlay functionality
+const WindowHelper = require('./helpers/windowHelper');
 
 let mainWindow = null;
 let windowHelper = null;
@@ -129,13 +129,15 @@ app.whenReady().then(() => {
 	// Set up permission request handler for microphone access
 	session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
 		const allowedPermissions = [
-			'media', // ✅ This is the key one - covers getUserMedia requests
+			'media', // Covers getUserMedia requests
 			'audioCapture',
 			'microphone',
 			'camera',
 			'displayCapture', // For screen sharing if needed
 			'geolocation',
 			'notifications',
+			'clipboard-read', // Clipboard read permission
+			'clipboard-write', // Clipboard write permission
 		];
 
 		log.info('Permission requested:', permission);
@@ -147,6 +149,15 @@ app.whenReady().then(() => {
 			log.info('❌ Denied permission for:', permission);
 			callback(false);
 		}
+	});
+
+	// Set default permissions for clipboard access
+	session.defaultSession.setPermissionCheckHandler((webContents, permission) => {
+		if (permission === 'clipboard-read' || permission === 'clipboard-write') {
+			log.info('Permission check for clipboard:', permission);
+			return true;
+		}
+		return false;
 	});
 
 	// Check macOS microphone permission status
@@ -188,14 +199,14 @@ app.whenReady().then(() => {
 			log.warn('and add this app to the list of allowed applications.');
 
 			// Show a dialog to the user
-			const { dialog } = require('electron');
-			dialog.showMessageBox(mainWindow, {
-				type: 'warning',
-				title: 'Accessibility Permission Required',
-				message: 'Global shortcuts (Cmd+B) require accessibility permissions',
-				detail: 'Please go to System Preferences > Security & Privacy > Privacy > Accessibility and add this app to the allowed applications list.',
-				buttons: ['OK'],
-			});
+			// const { dialog } = require('electron');
+			// dialog.showMessageBox(mainWindow, {
+			// 	type: 'warning',
+			// 	title: 'Accessibility Permission Required',
+			// 	message: 'Global shortcuts (Cmd+B) require accessibility permissions',
+			// 	detail: 'Please go to System Preferences > Security & Privacy > Privacy > Accessibility and add this app to the allowed applications list.',
+			// 	buttons: ['OK'],
+			// });
 		} else {
 			log.info('✅ Accessibility permissions granted - global shortcuts should work');
 		}
@@ -291,6 +302,41 @@ app.whenReady().then(() => {
 	ipcMain.handle('extract-image-metadata', extractImageMetadata);
 	ipcMain.handle('download-album-zip', downloadAlbumZip);
 	ipcMain.handle('create-zip-from-urls', createZipFromUrls);
+
+	// Clipboard IPC handlers
+	ipcMain.handle('clipboard-write-text', async (event, text) => {
+		try {
+			// Verify clipboard module is available
+			const { clipboard } = require('electron');
+			if (!clipboard) {
+				log.error('Clipboard module not available');
+				return { success: false, error: 'Clipboard module not available' };
+			}
+
+			clipboard.writeText(text);
+			return { success: true };
+		} catch (error) {
+			log.error('Clipboard write error:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('clipboard-read-text', async () => {
+		try {
+			// Verify clipboard module is available
+			const { clipboard } = require('electron');
+			if (!clipboard) {
+				log.error('Clipboard module not available');
+				return { success: false, error: 'Clipboard module not available' };
+			}
+
+			const text = clipboard.readText();
+			return { success: true, text };
+		} catch (error) {
+			log.error('Clipboard read error:', error);
+			return { success: false, error: error.message };
+		}
+	});
 });
 
 app.on('window-all-closed', () => {
