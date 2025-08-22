@@ -1080,6 +1080,9 @@ export const ConditionRow = ({ condition, onUpdate, onRemove, fieldType, field }
 					/>
 				) : (
 					<select
+					style={{
+						width: '100%',
+					}}
 						className="condition-input"
 						value={condition.value}
 						onChange={(e) => onUpdate({ ...condition, value: e.target.value })}
@@ -1677,6 +1680,15 @@ function LogicalForm(props) {
 		};
 	}, []);
 
+	// Debug effect to monitor show/hide state changes
+	useEffect(() => {
+		console.log('Show/Hide states changed:', {
+			hiddenFields: Object.keys(hiddenFields),
+			shownFields: Object.keys(shownFields),
+			requiredFields: Object.keys(requiredFields)
+		});
+	}, [hiddenFields, shownFields, requiredFields]);
+
 	// Add new field
 	const handleAddField = (type) => {
 		const newField = createNewField(type?.toLowerCase(), 0); // Set initial order to 0
@@ -2194,8 +2206,9 @@ function LogicalForm(props) {
 		visibleFields.forEach((field) => {
 			const answer = previewAnswers[field.id];
 
-			// Check required fields
-			if (field.required && (!answer || answer === '')) {
+			// Check required fields (both static and dynamic)
+			const isFieldRequired = field.required || requiredFields[field.id];
+			if (isFieldRequired && (!answer || answer === '')) {
 				validationErrors.push({
 					fieldId: field.id,
 					error: ` ${'This field'} is required`,
@@ -2575,6 +2588,71 @@ function LogicalForm(props) {
 					actions: currentField.actions,
 				});
 
+				// For single-page mode, immediately process Show/Hide actions if conditions are met
+				if (isSinglePage && currentField.actions) {
+					// Reset shown/hidden fields for this specific field's actions to avoid conflicts
+					const fieldsToReset = currentField.actions
+						.filter(action => action.type === 'show' || action.type === 'hide')
+						.flatMap(action => action.jumpTo ? action.jumpTo.split(',').map(id => id.trim()) : []);
+					
+					// Reset the specific fields that this field controls
+					if (fieldsToReset.length > 0) {
+						setShownFields(prev => {
+							const updated = { ...prev };
+							fieldsToReset.forEach(fieldId => {
+								delete updated[fieldId];
+							});
+							return updated;
+						});
+						setHiddenFields(prev => {
+							const updated = { ...prev };
+							fieldsToReset.forEach(fieldId => {
+								delete updated[fieldId];
+							});
+							return updated;
+						});
+					}
+					
+					// Check each condition individually and execute corresponding actions
+					processedConditions.forEach((condition, conditionIndex) => {
+						// If condition has targetField, evaluate against that field's value
+						// Otherwise, evaluate against current field's value
+						let valueToCheck;
+						if (condition.targetField) {
+							// If targetField is the current field, use the current value
+							if (condition.targetField === currentField.id) {
+								valueToCheck = String(value);
+								console.log('TargetField is current field, using current value:', { targetField: condition.targetField, value: valueToCheck });
+							} else {
+								valueToCheck = previewAnswers[condition.targetField];
+								console.log('Using targetField value:', { targetField: condition.targetField, value: valueToCheck });
+							}
+						} else {
+							valueToCheck = String(value);
+							console.log('Using current field value:', { currentField: currentField.id, value: valueToCheck });
+						}
+						
+						const result = evaluateCondition(condition, valueToCheck);
+						console.log('Condition check details:', { condition, valueToCheck, result });
+						
+						// If this specific condition is met, execute its corresponding action(s)
+						if (result) {
+							// Find actions that correspond to this condition
+							// Assuming actions array matches conditions array by index
+							const correspondingAction = currentField.actions[conditionIndex];
+							console.log('Found corresponding action:', correspondingAction);
+							if (correspondingAction) {
+								console.log('Action type:', correspondingAction.type);
+								if (correspondingAction.type === 'show' || correspondingAction.type === 'hide' || correspondingAction.type === 'require' || correspondingAction.type === 'skip_to_end') {
+									handleAction(correspondingAction);
+								} else {
+									console.log('Action type not handled in single-page mode:', correspondingAction.type);
+								}
+							}
+						}
+					});
+				}
+
 				// console.log('Stored conditions:', processedConditions); // Debug log
 			}
 		}
@@ -2595,7 +2673,8 @@ function LogicalForm(props) {
 	// Update handleNextQuestion to execute pending conditions
 	const handleNextQuestion = () => {
 		const currentField = visibleBlocks[currentQuestionIndex];
-		if (currentField?.required) {
+		const isFieldRequired = currentField?.required || requiredFields[currentField?.id];
+		if (isFieldRequired) {
 			const currentAnswer = previewAnswers[currentField.id];
 
 			// Handle different field types
@@ -2835,35 +2914,58 @@ function LogicalForm(props) {
 
 		// Check and execute pending conditions
 		if (pendingConditions && pendingConditions.fieldId === currentField.id) {
-			// console.log('Checking pending conditions:', pendingConditions);
-			// console.log('Current answer:', currentAnswer);
+			console.log('Checking pending conditions:', pendingConditions);
+			console.log('Current answer:', currentAnswer);
 
-			const allConditionsMet = pendingConditions.conditions.every((condition) => {
-				// Use the current answer value instead of pendingConditions.value
-				const result = evaluateCondition(condition, String(currentAnswer));
-				// console.log('Condition evaluation:', {
-				// 	condition,
-				// 	currentAnswer,
-				// 	result,
-				// 	expectedValue: condition.value,
-				// });
-				return result;
-			});
+			// Check each condition individually and execute corresponding actions
+			let hasNavigationAction = false;
+			pendingConditions.conditions.forEach((condition, conditionIndex) => {
+				// If condition has targetField, evaluate against that field's value
+				// Otherwise, evaluate against current field's value
+				let valueToCheck;
+				if (condition.targetField) {
+					// If targetField is the current field, use the current value
+					if (condition.targetField === pendingConditions.fieldId) {
+						valueToCheck = String(currentAnswer);
+						console.log('Multi-page targetField is current field, using current value:', { targetField: condition.targetField, value: valueToCheck });
+					} else {
+						valueToCheck = previewAnswers[condition.targetField];
+						console.log('Multi-page using targetField value:', { targetField: condition.targetField, value: valueToCheck });
+					}
+				} else {
+					valueToCheck = String(currentAnswer);
+					console.log('Multi-page using current field value:', { currentField: pendingConditions.fieldId, value: valueToCheck });
+				}
+				
+				const result = evaluateCondition(condition, valueToCheck);
+				console.log('Multi-page condition evaluation:', {
+					condition,
+					valueToCheck,
+					result,
+					expectedValue: condition.value,
+					conditionIndex
+				});
+				
+				// If this specific condition is met, execute its corresponding action
+				if (result && pendingConditions.actions) {
+					const correspondingAction = pendingConditions.actions[conditionIndex];
+					if (correspondingAction) {
+						console.log('Multi-page executing action for condition', conditionIndex, ':', correspondingAction);
+						console.log('Multi-page action type:', correspondingAction.type);
+						const actionResult = handleAction(correspondingAction);
+						console.log('Multi-page action result:', actionResult);
 
-			// console.log('All conditions met:', allConditionsMet);
-
-			if (allConditionsMet && pendingConditions.actions) {
-				// Execute actions only if conditions are met
-				for (const action of pendingConditions.actions) {
-					// console.log('Executing action:', action);
-					const actionResult = handleAction(action);
-					// console.log('Action result:', actionResult);
-
-					if (actionResult) {
-						setPendingConditions(null);
-						return;
+						// Only return early for navigation actions (jump), not for show/hide/require actions
+						if (actionResult && (correspondingAction.type === 'jump' || correspondingAction.type === 'skip_to_end')) {
+							hasNavigationAction = true;
+						}
 					}
 				}
+			});
+
+			if (hasNavigationAction) {
+				setPendingConditions(null);
+				return;
 			}
 		}
 
@@ -2926,6 +3028,10 @@ function LogicalForm(props) {
 
 			switch (condition.operator) {
 				case 'equals':
+					// Special handling for "Other" values in single/multiple choice
+					if (conditionValue?.toLowerCase() === 'other' && (textValue?.toLowerCase() === 'other' || textValue?.toLowerCase().startsWith('other'))) {
+						return true; // "Other" or "Other: text" should match condition "Other"
+					}
 					return textValue?.toLowerCase() === conditionValue?.toLowerCase();
 
 				case 'not_equals':
@@ -3578,8 +3684,12 @@ function LogicalForm(props) {
 		// 	areEqual: normalizedValue === normalizedConditionValue,
 		// });
 
-		switch (operator) {
+					switch (operator) {
 			case 'equals':
+				// Special handling for "Other" values in single/multiple choice
+				if (normalizedConditionValue === 'Other' && (normalizedValue === 'Other' || normalizedValue.startsWith('Other'))) {
+					return true; // "Other" or "Other: text" should match condition "Other"
+				}
 				return normalizedValue === normalizedConditionValue;
 			case 'not_equals':
 				return normalizedValue !== normalizedConditionValue;
@@ -3608,11 +3718,11 @@ function LogicalForm(props) {
 	// Update handleAction to properly handle different action types
 	const handleAction = (action) => {
 		if (!action || !action.type) {
-			// console.log('Invalid action:', action);
+			console.log('Invalid action:', action);
 			return false;
 		}
 
-		// console.log('Processing action:', action); // Debug log
+		console.log('Processing action:', action); // Debug log
 
 		switch (action.type) {
 			case 'jump':
@@ -3638,45 +3748,139 @@ function LogicalForm(props) {
 
 			case 'show':
 				if (action.jumpTo) {
+					// Handle multiple field IDs (comma-separated)
+					const fieldIds = action.jumpTo.split(',').filter(id => id.trim());
+					console.log('Executing SHOW action for fields:', fieldIds);
+					
+					// Smart SHOW: Automatically hide all fields that come after the specified ones
+					const lastSpecifiedFieldIndex = Math.max(...fieldIds.map(fieldId => 
+						props.blocks.findIndex(block => block.id === fieldId.trim())
+					));
+					
+					// Hide all fields that come after the last specified field
+					const fieldsToHide = props.blocks
+						.slice(lastSpecifiedFieldIndex + 1)
+						.map(field => field.id);
+					
+					console.log('SHOW: Showing fields:', fieldIds);
+					console.log('SHOW: Auto-hiding remaining fields:', fieldsToHide);
+					
 					setHiddenFields((prev) => {
 						const updated = { ...prev };
-						delete updated[action.jumpTo];
+						// Remove specified fields from hidden fields
+						fieldIds.forEach(fieldId => {
+							delete updated[fieldId.trim()];
+						});
+						// Hide all fields after the last specified field
+						fieldsToHide.forEach(fieldId => {
+							updated[fieldId] = true;
+						});
+						console.log('Updated hiddenFields after SHOW:', updated);
 						return updated;
 					});
-					setShownFields((prev) => ({
-						...prev,
-						[action.jumpTo]: true,
-					}));
+					
+					setShownFields((prev) => {
+						const updated = { ...prev };
+						// Add all specified fields to shown fields
+						fieldIds.forEach(fieldId => {
+							updated[fieldId.trim()] = true;
+						});
+						console.log('Updated shownFields after SHOW:', updated);
+						return updated;
+					});
+					
+					// Return true to indicate the action was successful
+					return true;
 				}
 				return false;
 
+
+
 			case 'hide':
 				if (action.jumpTo) {
+					// Handle multiple field IDs (comma-separated)
+					const fieldIds = action.jumpTo.split(',').filter(id => id.trim());
+					console.log('Executing HIDE action for fields:', fieldIds);
+					
 					setShownFields((prev) => {
 						const updated = { ...prev };
-						delete updated[action.jumpTo];
+						// Remove all specified fields from shown fields
+						fieldIds.forEach(fieldId => {
+							delete updated[fieldId.trim()];
+						});
+						console.log('Updated shownFields after HIDE:', updated);
 						return updated;
 					});
-					setHiddenFields((prev) => ({
-						...prev,
-						[action.jumpTo]: true,
-					}));
+					
+					setHiddenFields((prev) => {
+						const updated = { ...prev };
+						// Add all specified fields to hidden fields
+						fieldIds.forEach(fieldId => {
+							updated[fieldId.trim()] = true;
+						});
+						console.log('Updated hiddenFields after HIDE:', updated);
+						return updated;
+					});
+					
+					// Return true to indicate the action was successful
+					return true;
 				}
 				return false;
 
 			case 'require':
 				if (action.jumpTo) {
-					setRequiredFields((prev) => ({
-						...prev,
-						[action.jumpTo]: true,
-					}));
+					// Handle multiple field IDs (comma-separated)
+					const fieldIds = action.jumpTo.split(',').filter(id => id.trim());
+					console.log('Executing REQUIRE action for fields:', fieldIds);
+					
+					setRequiredFields((prev) => {
+						const updated = { ...prev };
+						// Add all specified fields to required fields
+						fieldIds.forEach(fieldId => {
+							updated[fieldId.trim()] = true;
+						});
+						console.log('Updated requiredFields after REQUIRE:', updated);
+						return updated;
+					});
+					
+					// Return true to indicate the action was successful
+					return true;
 				}
 				return false;
 
 			case 'skip_to_end':
-				// Set current question to the last question (length - 1)
-				const lastQuestionIndex = visibleBlocks.length - 1;
-				setCurrentQuestionIndex(lastQuestionIndex);
+				if (isSinglePage) {
+					// For single-page mode, keep first and last fields, hide middle fields
+					const firstField = props.blocks[0];
+					const lastField = props.blocks[props.blocks.length - 1];
+					const fieldsToHide = props.blocks.slice(1, -1).map(field => field.id); // Hide middle fields (not first, not last)
+					
+					console.log('Single-page skip to end - hiding middle fields:', fieldsToHide);
+					console.log('Single-page skip to end - keeping first field:', firstField.id);
+					console.log('Single-page skip to end - showing last field:', lastField.id);
+					console.log('All blocks:', props.blocks.map((b, i) => `${i}: ${b.questionLabel || b.placeholder || b.id}`));
+					
+					// Hide middle fields only
+					setHiddenFields(prev => {
+						const updated = { ...prev };
+						fieldsToHide.forEach(fieldId => {
+							updated[fieldId] = true;
+						});
+						return updated;
+					});
+					
+					// Show first and last fields
+					setShownFields(prev => ({
+						...prev,
+						[firstField.id]: true,
+						[lastField.id]: true
+					}));
+				} else {
+					// For multi-page mode, jump to last question
+					const lastQuestionIndex = props.blocks.length - 1;
+					console.log('Multi-page skip to end - last question index:', lastQuestionIndex);
+					setCurrentQuestionIndex(lastQuestionIndex);
+				}
 				setIsSubmitted(false);
 				return true;
 
@@ -3737,6 +3941,44 @@ function LogicalForm(props) {
 		if (hiddenFields[field.id]) return false;
 		if (shownFields[field.id]) return true;
 
+		// If any field has been explicitly shown via show actions, 
+		// hide fields that come between the triggering field and shown field
+		if (Object.keys(shownFields).length > 0) {
+			const fieldIndex = props.blocks.findIndex(block => block.id === field.id);
+			const hasShowActions = Object.keys(shownFields).some(shownFieldId => {
+				const shownFieldIndex = props.blocks.findIndex(block => block.id === shownFieldId);
+				// If current field is between a field with conditions and the shown field, hide it
+				for (let i = 0; i < fieldIndex; i++) {
+					const prevField = props.blocks[i];
+					if (prevField.conditions && prevField.conditions.length > 0 && 
+						prevField.actions && prevField.actions.some(action => action.type === 'show')) {
+						// If current field is between the conditional field and shown field, hide it
+						if (i < fieldIndex && fieldIndex < shownFieldIndex) {
+							return true; // This field should be hidden
+						}
+					}
+				}
+				return false;
+			});
+			
+			if (hasShowActions) {
+				console.log('Hiding field due to show action:', field.id);
+				return false; // Hide this field as it's between conditional field and shown field
+			}
+		}
+
+		// Check if this field is a target of any show action - if so, hide it by default
+		const isTargetOfShowAction = props.blocks.some(block => 
+			block.actions && block.actions.some(action => 
+				action.type === 'show' && action.jumpTo && 
+				action.jumpTo.split(',').some(id => id.trim() === field.id)
+			)
+		);
+		
+		if (isTargetOfShowAction) {
+			return false; // Hide by default if it's a target of show actions
+		}
+
 		if (!field?.conditions || field.conditions.length === 0) return true;
 
 		return field.conditions.every((condition) => {
@@ -3744,6 +3986,14 @@ function LogicalForm(props) {
 			const targetAnswer = previewAnswers[condition.targetField];
 			return evaluateCondition(condition, targetAnswer);
 		});
+	};
+
+	// Helper function to reset Show/Hide states
+	const resetShowHideStates = () => {
+		setHiddenFields({});
+		setShownFields({});
+		setRequiredFields({});
+		console.log('Reset all Show/Hide states');
 	};
 
 	// Add these styles
@@ -4205,8 +4455,54 @@ function LogicalForm(props) {
 
 	// Update the input rendering for client side
 	const shouldShowFieldInSinglePage = (field, index, blocks, answers) => {
+		// First check show/hide logic - this takes precedence
+		if (hiddenFields[field.id]) return false;
+		if (shownFields[field.id]) return true;
+		
 		// Always show the first field
 		if (index === 0) return true;
+
+		// Check if this field is a target of any show action - if so, hide it by default
+		const isTargetOfShowAction = blocks.some(block => 
+			block.actions && block.actions.some(action => 
+				action.type === 'show' && action.jumpTo && 
+				action.jumpTo.split(',').some(id => id.trim() === field.id)
+			)
+		);
+		
+		if (isTargetOfShowAction && !shownFields[field.id]) {
+			return false; // Hide by default if it's a target of show actions and not explicitly shown
+		}
+
+		// If any field has been explicitly shown via show actions,
+		// hide fields that come between the triggering field and shown field
+		if (Object.keys(shownFields).length > 0) {
+			for (let i = 0; i < index; i++) {
+				const prevField = blocks[i];
+				if (prevField.conditions && prevField.conditions.length > 0 && 
+					prevField.actions && prevField.actions.some(action => action.type === 'show')) {
+					// Check if any shown field comes after current field
+					const hasLaterShownField = Object.keys(shownFields).some(shownFieldId => {
+						const shownFieldIndex = blocks.findIndex(block => block.id === shownFieldId);
+						return shownFieldIndex > index;
+					});
+					
+					if (hasLaterShownField) {
+						// Check if current field should be skipped
+						const shouldSkip = Object.keys(shownFields).some(shownFieldId => {
+							const shownFieldIndex = blocks.findIndex(block => block.id === shownFieldId);
+							// If current field is between conditional field and shown field, skip it
+							return i < index && index < shownFieldIndex;
+						});
+						
+						if (shouldSkip) {
+							console.log('Skipping field due to show action:', field.id, 'at index:', index);
+							return false;
+						}
+					}
+				}
+			}
+		}
 
 		let shouldShow = true;
 		let currentIndex = index;
@@ -5385,6 +5681,11 @@ function LogicalForm(props) {
 		if (!client && !isPreview) return blocks;
 
 		return blocks.filter((field) => {
+			// First check show/hide logic
+			if (hiddenFields[field.id]) return false;
+			if (shownFields[field.id]) return true;
+			
+			// Then check field-specific visibility logic
 			switch (field.type) {
 				case 'image':
 					// return !!field.imageURL;
@@ -5396,7 +5697,8 @@ function LogicalForm(props) {
 				case 'embed':
 					return !!field.embedCode;
 				default:
-					return true;
+					// For regular question fields, also check conditions
+					return shouldShowField(field);
 			}
 		});
 	};
@@ -5437,6 +5739,7 @@ function LogicalForm(props) {
 	};
 
 	// In the render section, use the filtered blocks
+	// Re-calculate visible blocks whenever show/hide states change
 	const visibleBlocks = getSortedBlocks(getVisibleBlocks(props.blocks));
 
 	// Update the question counter and navigation
@@ -5553,6 +5856,9 @@ function LogicalForm(props) {
 			setPreviewAnswers({}); // Clear all answers
 			setCurrentQuestionIndex(0); // Return to first question
 			setHasStarted(false); // Reset to landing page if applicable
+
+			// Reset Show/Hide states
+			resetShowHideStates();
 
 			// If using form answer state from props, clear that too
 			if (props.handleFormAnswer) {
@@ -6799,6 +7105,9 @@ function LogicalForm(props) {
 															saveSections={props?.saveSections}
 															isPreview={true}
 															client={props?.client}
+															hiddenFields={hiddenFields}
+															shownFields={shownFields}
+															requiredFields={requiredFields}
 														/>
 													</div>
 												))}
@@ -7158,7 +7467,7 @@ function LogicalForm(props) {
 																		visibleIndex + 1
 																  }.</span>
       ${field?.question}
-      ${field.required ? '<span style="color: red; margin-left: 4px;"></span>' : ''}
+      ${field.required || requiredFields[field.id] ? '<span style="color: red; margin-left: 4px;"></span>' : ''}
     </span>`
 																: field?.question,
 														}}
@@ -7182,6 +7491,9 @@ function LogicalForm(props) {
 														isPreview={true}
 														client={props?.client}
 														isSinglePage={isSinglePage} // Add this prop
+														hiddenFields={hiddenFields}
+														shownFields={shownFields}
+														requiredFields={requiredFields}
 													/>
 												</div>
 											) : null;

@@ -208,7 +208,7 @@ export const AuthState = () => {
 				return [true, { hasWorkspaces, isOnboard, workspaceId }];
 			} else {
 				console.warn('[Verify] Verification failed with message:', response?.[1]?.message);
-				return [false, { message: response?.[1]?.message?.trim() + '. Please try again!' }];
+				return [false, { message: response?.[1]?.message?.trim() }];
 			}
 		} catch (error) {
 			console.error('[Verify] Error verifying email verification code:', error);

@@ -32,6 +32,7 @@ const CardMeetBot = () => {
 	const {
 		notes: { getExistingBots, createMeetBot, existingBots },
 		templates: { updateStateValues },
+		aiSetup: { proactiveHeadings, getProactiveHeadings },
 	} = useContext(Context);
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
@@ -142,6 +143,9 @@ const CardMeetBot = () => {
 			searchInputRef.current.focus();
 		}
 	}, [info.searchOpen]);
+	useEffect(() => {
+		getProactiveHeadings();
+	}, []);
 
 	// Search open/close toggle handler
 	const handleSearchToggle = () => {
@@ -213,7 +217,13 @@ const CardMeetBot = () => {
 					<div className={styles.cardMeetBot_left}>
 						<div className={styles.cardMeetBot_container}>
 							<div className={styles.cardMeetBot_title}>
-								<span className="title-highlight">Smart</span> Live Chat
+								{proactiveHeadings?.meeting_headlines ? (
+									proactiveHeadings?.meeting_headlines
+								) : (
+									<>
+										<span className="title-highlight">Smart</span> Meetings
+									</>
+								)}
 							</div>
 							<div
 								className={styles.cardMeetBot_cardsContainer}

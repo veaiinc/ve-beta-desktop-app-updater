@@ -188,14 +188,14 @@ app.whenReady().then(() => {
 			log.warn('and add this app to the list of allowed applications.');
 
 			// Show a dialog to the user
-			const { dialog } = require('electron');
-			dialog.showMessageBox(mainWindow, {
-				type: 'warning',
-				title: 'Accessibility Permission Required',
-				message: 'Global shortcuts (Cmd+B) require accessibility permissions',
-				detail: 'Please go to System Preferences > Security & Privacy > Privacy > Accessibility and add this app to the allowed applications list.',
-				buttons: ['OK'],
-			});
+			// const { dialog } = require('electron');
+			// dialog.showMessageBox(mainWindow, {
+			// 	type: 'warning',
+			// 	title: 'Accessibility Permission Required',
+			// 	message: 'Global shortcuts (Cmd+B) require accessibility permissions',
+			// 	detail: 'Please go to System Preferences > Security & Privacy > Privacy > Accessibility and add this app to the allowed applications list.',
+			// 	buttons: ['OK'],
+			// });
 		} else {
 			log.info('✅ Accessibility permissions granted - global shortcuts should work');
 		}
