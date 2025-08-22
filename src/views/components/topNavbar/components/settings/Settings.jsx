@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import s from './settings.module.scss';
 import Context from '../../../../../context/context';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -102,6 +102,7 @@ const Settings = ({
 		workspaceModalOpen: false,
 		intercomOpen: false,
 		isMobileView: window.matchMedia('(max-width: 767px)').matches,
+		isDesktop: false,
 	}));
 
 	const {
@@ -114,6 +115,14 @@ const Settings = ({
 	const workspacesLoading = userWorkSpaceList === null;
 	const workspaceImage = tennantSettingsData?.logo_s3_500w_key ?? null;
 
+	useEffect(() => {
+		if (window?.electronApi) {
+			setInfo((prev) => ({
+				...prev,
+				isDesktop: true,
+			}));
+		}
+	}, []);
 	const handleSettingItemClick = (settingItem) => async () => {
 		if (settingItem.route) {
 			navigate(settingItem.route);
@@ -253,7 +262,7 @@ const Settings = ({
 				</button>
 			</div>
 
-			{isMac && (
+			{isMac && !info?.isDesktop && (
 				<button
 					className={s.downloadMacAppButton}
 					onClick={() => {
