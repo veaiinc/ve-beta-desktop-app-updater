@@ -2,15 +2,22 @@ import React, { memo, useMemo } from 'react';
 import s from '../../../../../assets/scss/globalComponents/widgets/calendar/calendarWidget.module.scss';
 import AddCalendarWidget from './AddCalendarWidget';
 
-const CalendarWidget = ({ action, widgetData }) => {
+const CalendarWidget = ({ widgetInfo, widgetData, showSkipBtn = false, onChange = null }) => {
 	const widgetMapper = useMemo(() => {
 		return {
-			create_event: <AddCalendarWidget widgetData={widgetData} />,
+			create_event: (
+				<AddCalendarWidget
+					widgetData={widgetData}
+					showSkipBtn={showSkipBtn}
+					onChange={onChange}
+					widgetInfo={widgetInfo}
+				/>
+			),
 		};
-	}, [action, widgetData]);
+	}, [widgetData, showSkipBtn, onChange, widgetInfo]);
 
-	return widgetMapper[action] ? (
-		<div className={s.calendarWidgetContainer}>{widgetMapper[action]}</div>
+	return widgetMapper[widgetInfo?.action] ? (
+		<div className={s.calendarWidgetContainer}>{widgetMapper[widgetInfo?.action]}</div>
 	) : (
 		''
 	);
