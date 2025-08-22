@@ -1136,18 +1136,26 @@ export const KnowledgeAgentState = () => {
 				}
 			}
 
-			// Connect the app
 			const connectUrl = `/composio/connect-app/${workspaceId}`;
-			const connectRequestBody = {
+
+			let connectRequestBody = {
 				auth_config_id: authConfigId,
-				connection_name:
-					payload?.connection_name ||
-					`${payload?.slug || payload?.toolkit_slug}_connection`,
-				connection_type: payload?.connection_type || 'api',
-				connection_data: payload?.connection_data || {},
-				webhook_url: payload?.webhook_url,
-				custom_headers: payload?.custom_headers || {},
+				auth_scheme: payload?.auth_scheme || 'API_KEY',
+				credentials: {},
 			};
+
+			if (authScheme !== 'OAUTH2') {
+				// Credentials for non-OAUTH2 schemes
+				let credentials = payload?.connection_data || null;
+
+				if (!credentials && payload?.api_key) {
+					credentials = { api_key: payload?.api_key };
+				}
+
+				connectRequestBody.credentials = credentials || {
+					api_key: '',
+				};
+			}
 
 			const connectResponse = await service?.fetchPost(
 				connectUrl,

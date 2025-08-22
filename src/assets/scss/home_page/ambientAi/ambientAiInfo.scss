@@ -680,6 +680,15 @@
 				font-size: 14px;
 			}
 		}
+
+		.other-tab {
+			width: 100%;
+			.formDescription {
+				width: 100%;
+				padding: 10px;
+				border-radius: 16px;
+			}
+		}
 	}
 	.footer {
 		background: var(--popup, #202123);

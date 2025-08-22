@@ -9,7 +9,7 @@ const PageLoader = ({ customStyles }) => {
 	useEffect(() => {
 		const timeoutId = setTimeout(() => {
 			logout();
-		}, 20000);
+		}, 60000);
 		return () => clearTimeout(timeoutId);
 	}, []);
 	return (
