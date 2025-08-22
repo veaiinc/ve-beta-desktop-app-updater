@@ -23,18 +23,21 @@ const AskAIApp = () => {
 	// Initialize socket
 	const { createWebSocketConnection, sendMessage, closeWebSocketConnection } = useAskAISocket();
 	// Update dimensions only when necessary
-	const updateDimensions = useCallback((forceUpdate = false) => {
-		if (containerRef.current && forceUpdate) {
-			setTimeout(() => {
-				const width = 1000; // Fixed width for Ask AI window
-				const height = hasResponse ? 600 : 120; // Better heights for proper display
+	const updateDimensions = useCallback(
+		(forceUpdate = false) => {
+			if (containerRef.current && forceUpdate) {
+				setTimeout(() => {
+					const width = 1000; // Fixed width for Ask AI window
+					const height = hasResponse ? 600 : 120; // Better heights for proper display
 
-				if (window.electronApi?.askAI?.updateDimensions) {
-					window.electronApi.askAI.updateDimensions({ width, height });
-				}
-			}, 50);
-		}
-	}, [hasResponse]);
+					if (window.electronApi?.askAI?.updateDimensions) {
+						window.electronApi.askAI.updateDimensions({ width, height });
+					}
+				}, 50);
+			}
+		},
+		[hasResponse],
+	);
 
 	useEffect(() => {
 		// Focus on the input when the component mounts
@@ -179,7 +182,24 @@ const AskAIApp = () => {
 	};
 
 	const handleCopyResponse = async () => {
-		await copyToClipboard(response);
+		try {
+			const success = await copyToClipboard(response, {
+				onSuccess: () => {
+					console.log('✅ Response copied to clipboard successfully');
+					// You could add a toast notification here if you have a notification system
+				},
+				onError: (error) => {
+					console.error('❌ Failed to copy response:', error);
+					// You could add an error toast notification here
+				},
+			});
+
+			if (!success) {
+				console.error('Copy operation failed');
+			}
+		} catch (error) {
+			console.error('Error in handleCopyResponse:', error);
+		}
 	};
 
 	const toggleExpanded = () => {

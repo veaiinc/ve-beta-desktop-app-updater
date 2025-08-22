@@ -63,6 +63,19 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	// Mouse event handling for click-through behavior
 	setIgnoreMouseEvents: (ignore) => ipcRenderer.invoke('set-ignore-mouse-events', ignore),
+
+	// Microphone permission APIs
+	microphone: {
+		checkPermission: () => ipcRenderer.invoke('check-microphone-permission'),
+		requestPermission: () => ipcRenderer.invoke('request-microphone-permission'),
+	},
+
+	// Clipboard APIs
+	clipboard: {
+		writeText: (text) => ipcRenderer.invoke('clipboard-write-text', text),
+		readText: () => ipcRenderer.invoke('clipboard-read-text'),
+	},
+
 	// Download progress listener
 	onDownloadProgress: (callback) => {
 		ipcRenderer.on('download-progress', (event, data) => {

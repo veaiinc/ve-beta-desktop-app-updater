@@ -13,7 +13,7 @@ const {
 } = require('./galleryHelper');
 
 // Import window helper for overlay functionality
-const WindowHelper = require('./helpers/windowHelper');
+const { WindowHelper } = require('./helpers/windowHelper');
 
 let mainWindow = null;
 let windowHelper = null;
@@ -164,17 +164,23 @@ app.whenReady().then(() => {
 	if (process.platform === 'darwin') {
 		const { systemPreferences } = require('electron');
 
-		const microphone = systemPreferences.askForMediaAccess('microphone');
-		const camera = systemPreferences.askForMediaAccess('camera');
+		// Check microphone permission status (this is synchronous)
+		const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
+		const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
 
-		log.info('macOS Microphone permission status:', microphone);
+		log.info('macOS Microphone permission status:', microphoneStatus);
+		log.info('macOS Camera permission status:', cameraStatus);
 
-		if (microphone === 'denied') {
+		if (microphoneStatus === 'denied') {
 			log.warn(
 				'Microphone access denied. Users need to grant permission in System Preferences > Privacy & Security > Microphone.',
 			);
-		} else if (microphone === 'not-determined') {
+		} else if (microphoneStatus === 'not-determined') {
 			log.info('Microphone permission not yet determined. Will prompt user on first access.');
+		} else if (microphoneStatus === 'granted') {
+			log.info('✅ Microphone permission already granted');
+		} else if (microphoneStatus === 'restricted') {
+			log.warn('Microphone access is restricted by system policy');
 		}
 	}
 
@@ -314,6 +320,7 @@ app.whenReady().then(() => {
 			}
 
 			clipboard.writeText(text);
+			log.info('Text copied to clipboard successfully');
 			return { success: true };
 		} catch (error) {
 			log.error('Clipboard write error:', error);
@@ -335,6 +342,70 @@ app.whenReady().then(() => {
 		} catch (error) {
 			log.error('Clipboard read error:', error);
 			return { success: false, error: error.message };
+		}
+	});
+
+	// Microphone permission check handler
+	ipcMain.handle('check-microphone-permission', async () => {
+		try {
+			if (process.platform === 'darwin') {
+				const { systemPreferences } = require('electron');
+				const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
+
+				log.info('Checking microphone permission from renderer:', microphoneStatus);
+
+				return {
+					success: true,
+					permission: microphoneStatus,
+					hasPermission: microphoneStatus === 'granted',
+				};
+			} else {
+				// For non-macOS platforms, assume permission is available
+				return {
+					success: true,
+					permission: 'granted',
+					hasPermission: true,
+				};
+			}
+		} catch (error) {
+			log.error('Error checking microphone permission:', error);
+			return {
+				success: false,
+				error: error.message,
+				hasPermission: false,
+			};
+		}
+	});
+
+	// Request microphone permission handler
+	ipcMain.handle('request-microphone-permission', async () => {
+		try {
+			if (process.platform === 'darwin') {
+				const { systemPreferences } = require('electron');
+
+				// Request microphone access (this will show the system dialog)
+				const granted = await systemPreferences.askForMediaAccess('microphone');
+
+				log.info('Microphone permission request result:', granted);
+
+				return {
+					success: true,
+					granted: granted,
+				};
+			} else {
+				// For non-macOS platforms, assume permission is available
+				return {
+					success: true,
+					granted: true,
+				};
+			}
+		} catch (error) {
+			log.error('Error requesting microphone permission:', error);
+			return {
+				success: false,
+				error: error.message,
+				granted: false,
+			};
 		}
 	});
 });

@@ -15,11 +15,23 @@ export const copyToClipboard = async (text, options = {}) => {
 	const {
 		onSuccess = () => console.log('✅ Copied to clipboard successfully'),
 		onError = (error) => console.error('❌ Failed to copy to clipboard:', error),
-		requestPermission = true
+		requestPermission = true,
 	} = options;
 
 	try {
-		// Check if clipboard API is available
+		// First, try to use Electron's clipboard API (no permission issues)
+		if (window.electronApi?.clipboard?.writeText) {
+			const result = await window.electronApi.clipboard.writeText(text);
+			if (result.success) {
+				console.log('✅ Copied to clipboard via Electron API');
+				onSuccess();
+				return true;
+			} else {
+				console.log('❌ Electron clipboard failed, falling back to browser API');
+			}
+		}
+
+		// Fallback to browser clipboard API
 		if (!navigator.clipboard || !navigator.clipboard.writeText) {
 			throw new Error('Clipboard API not supported in this browser');
 		}
@@ -28,9 +40,11 @@ export const copyToClipboard = async (text, options = {}) => {
 		if (requestPermission && navigator.permissions) {
 			try {
 				const permission = await navigator.permissions.query({ name: 'clipboard-write' });
-				
+
 				if (permission.state === 'denied') {
-					const error = new Error('Clipboard permission denied. Please allow clipboard access in your browser settings.');
+					const error = new Error(
+						'Clipboard permission denied. Please allow clipboard access in your browser settings.',
+					);
 					error.name = 'PermissionDeniedError';
 					throw error;
 				}
@@ -49,11 +63,12 @@ export const copyToClipboard = async (text, options = {}) => {
 		await navigator.clipboard.writeText(text);
 		onSuccess();
 		return true;
-
 	} catch (error) {
 		// Handle specific error types
 		if (error.name === 'NotAllowedError') {
-			const permissionError = new Error('Clipboard permission denied. Please allow clipboard access and try again.');
+			const permissionError = new Error(
+				'Clipboard permission denied. Please allow clipboard access and try again.',
+			);
 			permissionError.name = 'PermissionDeniedError';
 			onError(permissionError);
 		} else if (error.name === 'PermissionDeniedError') {
@@ -83,14 +98,20 @@ export const copyToClipboardWithNotification = async (text, notification = null)
 		onError: (error) => {
 			if (notification) {
 				if (error.name === 'PermissionDeniedError') {
-					notification.error('Permission required', 'Please allow clipboard access in your browser settings and try again.');
+					notification.error(
+						'Permission required',
+						'Please allow clipboard access in your browser settings and try again.',
+					);
 				} else {
-					notification.error('Copy failed', 'Failed to copy to clipboard. Please try again.');
+					notification.error(
+						'Copy failed',
+						'Failed to copy to clipboard. Please try again.',
+					);
 				}
 			} else {
 				console.error('❌ Failed to copy to clipboard:', error);
 			}
-		}
+		},
 	});
 };
 
@@ -101,10 +122,10 @@ export const copyToClipboardWithNotification = async (text, notification = null)
 export const checkClipboardWritePermission = async () => {
 	try {
 		if (!navigator.clipboard || !navigator.clipboard.writeText) {
-			return { 
-				available: false, 
-				state: 'not-supported', 
-				message: 'Clipboard API not supported' 
+			return {
+				available: false,
+				state: 'not-supported',
+				message: 'Clipboard API not supported',
 			};
 		}
 
@@ -114,14 +135,14 @@ export const checkClipboardWritePermission = async () => {
 				return {
 					available: true,
 					state: permission.state,
-					message: `Clipboard permission: ${permission.state}`
+					message: `Clipboard permission: ${permission.state}`,
 				};
 			} catch (e) {
 				// Fallback for browsers that don't support clipboard-write permission query
 				return {
 					available: true,
 					state: 'unknown',
-					message: 'Clipboard permission query not supported, but API available'
+					message: 'Clipboard permission query not supported, but API available',
 				};
 			}
 		}
@@ -129,13 +150,13 @@ export const checkClipboardWritePermission = async () => {
 		return {
 			available: true,
 			state: 'unknown',
-			message: 'Clipboard API available, permissions API not supported'
+			message: 'Clipboard API available, permissions API not supported',
 		};
 	} catch (error) {
 		return {
 			available: false,
 			state: 'error',
-			message: error.message
+			message: error.message,
 		};
 	}
 };
@@ -149,7 +170,7 @@ export const testClipboard = async () => {
 		const testText = 'clipboard_test';
 		const success = await copyToClipboard(testText, {
 			onSuccess: () => console.log('Clipboard test successful'),
-			onError: (error) => console.log('Clipboard test failed:', error)
+			onError: (error) => console.log('Clipboard test failed:', error),
 		});
 		return success;
 	} catch (error) {
