@@ -215,12 +215,18 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const updateAiChatSessions = async ({ sessionId, addNewSession, type = null }) => {
+	const updateAiChatSessions = async ({
+		sessionId,
+		addNewSession,
+		type = null,
+		agentType = null,
+		assistantId = null,
+	}) => {
 		try {
 			if (type === 'update') {
 				dispatch({
 					type: Actions?.SET_AI_CHAT_SESSIONS,
-					payload: { type, addNewSession, sessionId },
+					payload: { type, addNewSession, sessionId, agentType, assistantId },
 				});
 				return;
 			} else if (type === 'delete') {
