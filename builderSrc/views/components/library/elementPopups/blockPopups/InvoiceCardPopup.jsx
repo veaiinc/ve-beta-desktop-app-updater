@@ -130,7 +130,7 @@ export default class InvoiceCardPopup extends Images {
 				const blob = new Blob(byteArrays, { type: 'image/jpeg' });
 				file = new File([blob], 'ai-generated-image.jpg', { type: 'image/jpeg' });
 			} catch (error) {
-				console.error('Error processing base64 image:', error);
+				
 				return;
 			}
 		} else {
@@ -408,7 +408,7 @@ export default class InvoiceCardPopup extends Images {
 				},
 			};
 		}
-		console.log('newComponent jeevan', newComponent);
+		
 		this.setState(
 			{ activeComponent: newComponent, activeBgtype: newComponent?.style?.backgroundType },
 			() => {
@@ -439,7 +439,7 @@ export default class InvoiceCardPopup extends Images {
 				labels: { ...newComponent?.style?.labels, [type]: value },
 			},
 		};
-		console.log('newComponent jeevan', newComponent);
+		
 		this.setState({ activeComponent: newComponent }, () => {
 			this.props?.handleCardPopupProps(newComponent);
 		});

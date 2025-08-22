@@ -36,6 +36,7 @@ export const initialState = {
 		currentPage: 1,
 	},
 	aiChatSessions: null,
+	aiChatSessionsFilters: null,
 	aiAssistant: null,
 	aiInstructions: null,
 	aiPrompt: null,
@@ -186,24 +187,33 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const getAiChatSessions = async (page = 1, limit = 10, reset = false, title = '') => {
+	const getAiChatSessions = async ({ reset = false, filters = {} }) => {
 		try {
 			const token = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
 			const type = 'ai_assistant_api';
-			const params = {
-				page,
-				limit,
-				title,
+
+			const generateParams = (filters) => {
+				const { page = 1, limit = 10, title = '', agentType = [] } = filters;
+				let str = `?page=${page}&limit=${limit}&title=${title}`;
+				if (agentType?.length > 0) {
+					agentType?.forEach((type) => {
+						str += `&agentType[]=${type}`;
+					});
+				}
+				return str;
 			};
+			const paramsString = generateParams(filters);
+
 			const url = '/' + workspaceId + '/ai-chat/list-multiagent-sessions';
-			const response = await service?.fetchGet(url, token, type, params);
+			const response = await service?.fetchGet(url + paramsString, token, type, {});
 			if (response?.[0]) {
 				const aiChatSessions = {
 					data: response?.[1]?.data,
 					hasMore: response?.[1]?.hasNextPage,
 					currentPage: response?.[1]?.currentPage,
 					reset,
+					filters: { agentType: filters?.agentType?.[0] },
 				};
 				dispatch({
 					type: Actions?.SET_AI_CHAT_SESSIONS,
@@ -221,12 +231,20 @@ export const AiSetupState = () => {
 		type = null,
 		agentType = null,
 		assistantId = null,
+		filters = {},
 	}) => {
 		try {
 			if (type === 'update') {
 				dispatch({
 					type: Actions?.SET_AI_CHAT_SESSIONS,
-					payload: { type, addNewSession, sessionId, agentType, assistantId },
+					payload: {
+						type,
+						addNewSession,
+						sessionId,
+						agentType,
+						assistantId,
+						filters,
+					},
 				});
 				return;
 			} else if (type === 'delete') {

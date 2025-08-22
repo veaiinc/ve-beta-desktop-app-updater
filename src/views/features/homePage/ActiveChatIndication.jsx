@@ -8,12 +8,17 @@ import ObjectID from 'bson-objectid';
 
 const page = 1;
 const limit = 10;
-const append = true;
+const reset = true;
 
 const ActiveChatIndication = ({ activeChatData }) => {
 	const navigate = useNavigate();
 	const {
-		aiSetup: { getAiChatSessions, aiChatSessions },
+		aiSetup: {
+			getAiChatSessions,
+			aiChatSessions,
+			updateStateValues: updateAiSetupStateValues,
+			aiChatSessionsFilters,
+		},
 		templates: {
 			refetchChatHistoryList,
 			updateStateValues,
@@ -38,7 +43,11 @@ const ActiveChatIndication = ({ activeChatData }) => {
 	const tabArray = Array.from({ length: totalIndicators });
 
 	useEffect(() => {
-		if (!aiChatSessions || aiChatSessions?.getData) {
+		if (
+			!aiChatSessions ||
+			aiChatSessions?.getData ||
+			aiChatSessionsFilters?.agentType !== 'multi_agent'
+		) {
 			fetchChats();
 		}
 	}, []);
@@ -89,13 +98,20 @@ const ActiveChatIndication = ({ activeChatData }) => {
 	}, [refetchChatHistoryList]);
 
 	const fetchChats = useCallback(() => {
-		getAiChatSessions?.(page, limit, append);
+		getAiChatSessions?.({
+			reset,
+			filters: { agentType: ['multi_agent'], page, limit },
+		});
+		updateAiSetupStateValues({ aiChatSessionsFilters: { agentType: 'multi_agent' } });
 	}, []);
 
 	const fetchMoreChats = () => {
 		if (hasNextPage) {
 			const nextPage = currentPage + 1;
-			getAiChatSessions?.(nextPage, limit, !append);
+			getAiChatSessions?.({
+				reset: !reset,
+				filters: { agentType: ['multi_agent'], page: nextPage, limit },
+			});
 		}
 	};
 
