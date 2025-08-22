@@ -302,7 +302,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 							<span className="doc-info-badge-accept-text-accepted">Accepted</span>
 						) : (
 						)} */}
-						<span className="doc-info-badge-accept-text-accept">Accept</span>
+						<span className="doc-info-badge-accept-text-accept">Confirm</span>
 					</span>
 				</div>
 			</div>

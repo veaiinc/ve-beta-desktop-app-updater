@@ -1140,7 +1140,6 @@ export const TemplatesState = (props) => {
 	};
 
 	const updateSendSmartFileSettings = async (payload) => {
-		console.log('yes im the one');
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');

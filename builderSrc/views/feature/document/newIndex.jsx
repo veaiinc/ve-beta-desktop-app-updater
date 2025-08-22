@@ -219,7 +219,6 @@ const CreateDocument = () => {
 
 	const handleInputChange = useCallback((e, type) => {
 		const value = e.target.value;
-		// console.log(value);
 		setStageInfo((prev) => {
 			const updatedClientDetails = { ...prev.clientDetails, [type]: value };
 			return {
@@ -661,6 +660,7 @@ const CreateDocument = () => {
 						message.error('Please select a template and provide a document title');
 						return;
 					}
+					console.log(clientDetails, 'jeevan');
 					const payload = {
 						workflowInput: {
 							clientDetails,
@@ -687,6 +687,7 @@ const CreateDocument = () => {
 						title: stageInfo.documentName,
 					},
 				};
+				console.log(payload, 'jeevan');
 				if (
 					!payload.smartFileInput.clientId ||
 					!payload.smartFileInput.templateId ||
@@ -1252,7 +1253,7 @@ const CreateDocument = () => {
 														className="inputBoxContainer withIcon"
 														placeholder="Client Email"
 														value={stageInfo.clientDetails.email}
-														disabled={!stageInfo.clientEditable}
+														// disabled={!stageInfo.clientEditable}
 														onChange={(e) =>
 															handleInputChange(e, 'email')
 														}
