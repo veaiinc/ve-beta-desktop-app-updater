@@ -10,7 +10,6 @@ const textMapper = {
 	scroll_mouse_wheel: 'Scrolling',
 	wait: 'Waiting for the page to load',
 	input_text: 'Typing',
-	go_back: 'Going back to previous page in history',
 	click_element: 'Clicking element',
 	hover_to_element: 'Hovering on element',
 	scroll_to_element: 'Scrolling to an element',
