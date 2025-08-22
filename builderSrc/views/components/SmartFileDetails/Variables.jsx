@@ -67,9 +67,23 @@ const Variables = ({
 				const prevVars = prev.variablesData || [];
 				const mergedVars = Object.values(variableMapper).map((newVar) => {
 					const prevVar = prevVars.find((v) => v._id === newVar._id);
-					// Only overwrite if backend value is different from local value
-					if (prevVar && prevVar.value !== undefined && prevVar.value !== newVar.value) {
-						return { ...newVar, value: prevVar.value };
+
+					// Don't overwrite if variable is currently being updated (prevents flicker)
+					if (updatingVariables.has(newVar._id)) {
+						return prevVar || newVar;
+					}
+
+					// Preserve user's current defaultValue if it exists and is different from backend
+					if (
+						prevVar &&
+						prevVar.defaultValue !== undefined &&
+						prevVar.defaultValue !== newVar.defaultValue
+					) {
+						return {
+							...newVar,
+							value: prevVar.defaultValue,
+							defaultValue: prevVar.defaultValue,
+						};
 					}
 					return newVar;
 				});
@@ -80,7 +94,7 @@ const Variables = ({
 				};
 			});
 		}
-	}, [data, clientDetails]);
+	}, [data, clientDetails, updatingVariables]);
 
 	const onChangeVariablesData = useCallback(
 		(e, index, valueOverride = null) => {
@@ -90,6 +104,9 @@ const Variables = ({
 
 			// Update the data array with new value
 			newData[index] = { ...newData[index], value, defaultValue: value };
+
+			// Mark this variable as being updated to prevent flicker during API calls
+			setUpdatingVariables((prev) => new Set(prev).add(oldData?._id));
 
 			// Update state immediately for responsive UI
 			setInfo((prev) => ({ ...prev, variablesData: newData }));
@@ -129,7 +146,10 @@ const Variables = ({
 							clientDetails: { ...(response?.[1] || {}) },
 						});
 						if (onVariableUpdate) {
-							onVariableUpdate();
+							// Delay the data refresh to prevent flicker
+							setTimeout(() => {
+								onVariableUpdate();
+							}, 100);
 						}
 					} else {
 						// Revert on error
@@ -170,17 +190,22 @@ const Variables = ({
 					} else {
 						// Don't update state again - it's already updated optimistically
 						if (onVariableUpdate) {
-							onVariableUpdate();
+							// Delay the data refresh to prevent flicker
+							setTimeout(() => {
+								onVariableUpdate();
+							}, 100);
 						}
 					}
 				}
 			} finally {
-				// Remove from updating set
-				setUpdatingVariables((prev) => {
-					const newSet = new Set(prev);
-					newSet.delete(updatedVariablesData._id);
-					return newSet;
-				});
+				// Remove from updating set after a delay to prevent flicker from data refresh
+				setTimeout(() => {
+					setUpdatingVariables((prev) => {
+						const newSet = new Set(prev);
+						newSet.delete(updatedVariablesData._id);
+						return newSet;
+					});
+				}, 200);
 			}
 		},
 		[

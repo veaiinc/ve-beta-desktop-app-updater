@@ -3241,6 +3241,13 @@ class Sidebar extends Images {
 	// 	return value;
 	// };
 	setServiceItemValue = (val, type) => {
+		// Validate input for numeric fields only
+		const re = /^[0-9\b]*$/;
+		if (type !== 'unit' && val !== '' && !re.test(val)) {
+			// If input is not valid for numeric fields, don't proceed
+			return;
+		}
+
 		// Store the input value in local state to prevent flickering
 		const inputKey = `input_${type}_${this.state.activeServiceSubBlock}`;
 
@@ -3264,7 +3271,6 @@ class Sidebar extends Images {
 		let blocks = _.cloneDeep(this.state?.activeSection.blocks);
 		let arr = [];
 		let vals;
-		const re = /^[0-9\b]+$/;
 		let recalculatedSubtotalValue = 0;
 		if (type !== 'unit') {
 			if (val === '' || re.test(val)) {
