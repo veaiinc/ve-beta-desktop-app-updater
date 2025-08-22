@@ -302,7 +302,7 @@ const AIMessage = ({
 				''
 			)}
 
-			{(aiMessagesInfo?.[messageData?.messageId]?.followUpQuery?.length > 0 ||
+			{/* {(aiMessagesInfo?.[messageData?.messageId]?.followUpQuery?.length > 0 ||
 				((messageData?.['follow_up_query'] || [])?.length > 0 &&
 					typeof messageData?.['follow_up_query'] === 'object')) && (
 				<div className="chat-suggestions-container">
@@ -331,7 +331,7 @@ const AIMessage = ({
 						</div>
 					)}
 				</div>
-			)}
+			)} */}
 
 			<PromptPopup
 				messageId={messageData?.messageId}

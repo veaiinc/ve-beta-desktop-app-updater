@@ -973,7 +973,13 @@ const ChatBox = ({
 							aiChatSessions?.data?.findIndex((ele) => ele?._id === sessionId) !== -1
 						)
 					) {
-						const payload = { sessionId, addNewSession: true, type: 'update' };
+						const payload = {
+							sessionId,
+							addNewSession: true,
+							type: 'update',
+							agentType: chatInfo?.agentType ?? 'multi_agent',
+							assistantId: chatInfo?.assistantId,
+						};
 						updateAiChatSessions(payload);
 					}
 					if (customChatActions) {

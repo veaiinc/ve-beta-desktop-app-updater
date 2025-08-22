@@ -33,6 +33,7 @@ import ChainOfThoughtInterpreter from '../../../components/homePage/ChainOfThoug
 import GmailWidget from '../../../components/globalComponents/widgets/GmailWidget';
 import CalendarWidget from '../../../components/globalComponents/widgets/calendar/CalendarWidget';
 import TaskWidget from '../../../components/globalComponents/widgets/TaskWidget';
+import FormDescription from '../../../components/forms/FormDescription';
 
 const tabOptions = [
 	{ label: 'Actions', value: 'actions' },
@@ -111,8 +112,14 @@ const AmbientAiInfo = ({
 	useEffect(() => {
 		if (!data) return;
 
-		const { research_report, suggested_actions, suggested_prompts, thinker_sources, widgets } =
-			data || {};
+		const {
+			research_report,
+			suggested_actions,
+			suggested_prompts,
+			thinker_sources,
+			widgets,
+			form_response,
+		} = data || {};
 
 		const { chain_of_thought } = data;
 		const chainOfThoughtData = handleCombinedChainOfThought(chain_of_thought || null);
@@ -128,6 +135,10 @@ const AmbientAiInfo = ({
 		};
 
 		const options = tabOptions?.filter((option) => visibilityMap[option?.value]);
+
+		if (form_response) {
+			options?.push({ label: 'Form Response', value: 'other' });
+		}
 
 		setInfo((prev) => ({
 			...prev,
@@ -392,8 +403,9 @@ const AmbientAiInfo = ({
 	);
 
 	const handleWidgetDataUpdate = useCallback(
-		async ({ updatedData = null, skip = false, action = null, module_type = null }) => {
-			let { _id, widgets } = data || {};
+		async ({ updatedData = null, skip = false, widgetInfo }) => {
+			let { _id, widgets = [] } = data || {};
+			const { action, module_type } = widgetInfo;
 
 			if (skip === true) {
 				widgets = widgets?.filter(
@@ -419,15 +431,25 @@ const AmbientAiInfo = ({
 
 	const getWidget = useCallback(
 		(item) => {
+			const widgetInfo = {
+				action: item?.action,
+				module_type: item?.module_type,
+			};
+
 			if (item?.module_type === 'gmail') {
-				return <GmailWidget widgetData={item?.metadata} />;
+				return (
+					<GmailWidget
+						widgetData={item?.metadata}
+						widgetInfo={widgetInfo}
+						onChange={handleWidgetDataUpdate}
+					/>
+				);
 			}
 			if (item?.module_type === 'calendar') {
 				return (
 					<CalendarWidget
 						widgetData={item?.metadata}
-						action={item?.action}
-						module_type={item?.module_type}
+						widgetInfo={widgetInfo}
 						onChange={handleWidgetDataUpdate}
 					/>
 				);
@@ -457,6 +479,7 @@ const AmbientAiInfo = ({
 		read,
 		isCompleted,
 		widgets,
+		form_response,
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
@@ -834,6 +857,16 @@ const AmbientAiInfo = ({
 									<div className="citation-divider" />
 								</div>
 							))}
+						</div>
+					)}
+
+					{info?.activeTab === 'other' && (
+						<div className="other-tab">
+							<FormDescription
+								response={form_response}
+								activeTab={'responses'}
+								showCreateDocumentBtn={false}
+							/>
 						</div>
 					)}
 				</div>
