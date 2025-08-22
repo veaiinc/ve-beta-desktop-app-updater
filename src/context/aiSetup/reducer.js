@@ -34,6 +34,7 @@ const actionHandlers = {
 			reset,
 			agentType,
 			assistantId,
+			filters,
 		} = action?.payload;
 
 		let aiChatSessions = { ...(state?.aiChatSessions || {}) };
@@ -88,10 +89,14 @@ const actionHandlers = {
 				},
 			};
 		} else {
-			// sessions = sessions?.filter((session) => session?.isNewSession);
-
 			if (reset) {
-				sessions = data;
+				sessions =
+					sessions?.filter(
+						(session) =>
+							session?.isNewSession &&
+							(filters?.agentType ? session?.agentType === filters?.agentType : true),
+					) || [];
+				sessions = [...sessions, ...data];
 			} else {
 				sessions = [...sessions, ...data];
 			}
