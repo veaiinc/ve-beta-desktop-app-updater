@@ -13,6 +13,11 @@ import CartIcons from './CartIcons';
 // import { HamburgerOne } from '../../svgs/Navbar/Hamburger/HamburgerComponent';
 import _ from 'lodash';
 import ImageItem from '../../elements/image';
+
+// Utility function to detect iOS devices
+const isIOSDevice = () => {
+	return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+};
 class MobileNavbarComponent extends Component {
 	constructor(props) {
 		super(props);
@@ -259,7 +264,8 @@ class MobileNavbarComponent extends Component {
 									// }}
 								>
 									{(this.props?.navBar?.style?.downloadIcon ||
-										!_.has(this.props?.navBar?.style, 'downloadIcon')) && (
+										!_.has(this.props?.navBar?.style, 'downloadIcon')) && 
+										!isIOSDevice() && (
 										<div>
 											<DownloadPDF
 												fillColor={
@@ -608,7 +614,8 @@ class MobileNavbarComponent extends Component {
 							>
 								{/* <DownloadIcon onClick={this.props?.handleDownload} /> */}
 								{(this.props?.navBar?.style?.downloadIcon ||
-									!_.has(this.props?.navBar?.style, 'downloadIcon')) && (
+									!_.has(this.props?.navBar?.style, 'downloadIcon')) && 
+									!isIOSDevice() && (
 									<>
 										<div
 											style={{ cursor: 'pointer' }}
