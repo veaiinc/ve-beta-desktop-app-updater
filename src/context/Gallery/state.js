@@ -1749,13 +1749,13 @@ export const Galleries = () => {
 			return response[1].signedUrls
 				.filter((item) => item.signedUrl)
 				.map((item) => {
-					const { signedUrl, imageId } = item;
+					const { signedUrl, imageId, originalFileName } = item;
 					const filenameMatch = signedUrl.split('/').pop()?.split('?')[0];
 					const rawFilename = decodeURIComponent(filenameMatch || `${imageId}.jpg`);
 					const sanitized = rawFilename.replace(/[/\\?%*:|"<>]/g, '_');
 					return {
 						url: signedUrl,
-						filename: sanitized,
+						filename: originalFileName,
 						imageId,
 					};
 				});
