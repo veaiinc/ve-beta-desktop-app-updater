@@ -3805,7 +3805,7 @@ const GalleryPage = () => {
 
 					return {
 						url,
-						filename: version.givenFileName || `${image._id}.jpg`,
+						filename: version.originalFileName || `${image._id}.jpg`,
 					};
 				})
 				.filter(Boolean);
