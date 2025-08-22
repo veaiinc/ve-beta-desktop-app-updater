@@ -1531,10 +1531,7 @@ class Invoice extends Component {
 											}}
 										>
 											{/* {value?.imageURL && ( */}
-											{_.has(this.state?.style, 'labels') &&
-											!this.state?.style?.labels?.showImage ? (
-												''
-											) : (
+											{(this.state?.style?.labels?.showImage ?? true) && (
 												<>
 													{!this.props?.client ? (
 														<div
@@ -1674,10 +1671,8 @@ class Invoice extends Component {
 														disabled={this.props?.client}
 													/>
 												</span>
-												{_.has(this.state?.style, 'labels') &&
-												!this.state?.style?.labels?.showDescription ? (
-													''
-												) : (
+												{(this.state?.style?.labels?.showDescription ??
+													true) && (
 													<span
 														className="serv-content-desc"
 														style={{
@@ -3397,6 +3392,7 @@ class Invoice extends Component {
 							isWorkflow={this.props.isWorkflow}
 							previewType={this.props.previewType}
 							handleCardPopupProps={(e) => {
+								console.log('e in invoice jeevan', e);
 								if (e?.shouldClose) {
 									this.setState({ showPopup: false });
 								} else {

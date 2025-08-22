@@ -33,9 +33,13 @@ const CreateAgentModal = ({ isOpen, closeModal, handleCreateNewAgent, loading })
 		closeModal();
 	}, []);
 
+	const keyDownPreventPropogation = (e) => {
+		e.stopPropagation();
+	};
+
 	return (
 		<ReactModal isOpen={isOpen} closeModal={handleCloseModal} modalType={'center'}>
-			<div className={s.createAgentContainer}>
+			<div className={s.createAgentContainer} onKeyDown={keyDownPreventPropogation}>
 				{/* <div className={s.toggleWrapper}>
 					<button
 						className={`${s.buildAgentButton} ${!info?.manualMode ? s.active : ''}`}

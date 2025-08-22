@@ -799,37 +799,41 @@ const HeadersTab = ({ headers, onAddHeader, onHeaderChange, onHeaderDelete }) =>
 				<div>Value</div>
 				<div />
 			</div>
-			{headers?.map((header) => (
-				<div key={header?.id} className="headerRow">
-					<div className="headerInputs">
-						<input
-							type="text"
-							placeholder="Authorization"
-							className="headerInput"
-							value={header?.parameter}
-							onChange={(e) =>
-								onHeaderChange(header?.id, 'parameter', e.target.value)
-							}
-						/>
-						<input
-							type="text"
-							placeholder="Token"
-							className="headerInput"
-							value={header?.value}
-							onChange={(e) => onHeaderChange(header?.id, 'value', e.target.value)}
-						/>
+			<div className="headersContent">
+				{headers?.map((header) => (
+					<div key={header?.id} className="headerRow">
+						<div className="headerInputs">
+							<input
+								type="text"
+								placeholder="Authorization"
+								className="headerInput"
+								value={header?.parameter}
+								onChange={(e) =>
+									onHeaderChange(header?.id, 'parameter', e.target.value)
+								}
+							/>
+							<input
+								type="text"
+								placeholder="Token"
+								className="headerInput"
+								value={header?.value}
+								onChange={(e) =>
+									onHeaderChange(header?.id, 'value', e.target.value)
+								}
+							/>
+						</div>
+						<div className="deleteHeader" onClick={() => onHeaderDelete(header?.id)}>
+							<TrashSvg className="trash" />
+						</div>
 					</div>
-					<div className="deleteHeader" onClick={() => onHeaderDelete(header?.id)}>
-						<TrashSvg className="trash" />
+				))}
+				{headers?.length === 0 && (
+					<div className="emptyState">
+						<p>No headers added</p>
+						<p>Add headers to the API call</p>
 					</div>
-				</div>
-			))}
-			{headers?.length === 0 && (
-				<div className="emptyState">
-					<p>No headers added</p>
-					<p>Add headers to the API call</p>
-				</div>
-			)}
+				)}
+			</div>
 			<div className="addHeaderButton" onClick={onAddHeader}>
 				+ Add
 			</div>
