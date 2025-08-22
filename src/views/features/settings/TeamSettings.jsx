@@ -339,44 +339,6 @@ const TeamSettings = () => {
 		}
 	};
 
-	const updateTenantRoleFunc = async (user, role) => {
-		const json = {
-			role,
-		};
-		if (role === 'default') {
-			setInfo((prev) => ({
-				...prev,
-				showAddTenantUserModal: true,
-				selectedUser: user,
-				userEmail: user?.email,
-				selectedOption: role,
-			}));
-			setAccessControls({
-				accessControls:
-					user?.accessControls ||
-					currentPlan?.apps?.map((option) => ({
-						app: option,
-						isEnabled: false,
-						hasFullAccess: false,
-					})),
-			});
-			return;
-		}
-
-		const response =
-			role === 'remove'
-				? await removeTenantRole(user?._id)
-				: await updateTenantRole(user?._id, json);
-		if (response?.[0] === true) {
-			message.success(response?.[1]?.message);
-			if (userDetailsData?._id === user?._id) {
-				window.location.reload();
-			}
-		} else {
-			message.error(response?.[1]?.message);
-		}
-	};
-
 	const handleInviteMembers = () => {
 		setInfo((prev) => ({
 			...prev,
@@ -462,7 +424,6 @@ const TeamSettings = () => {
 						handleInputChange={handleInputChange}
 						info={info}
 						filteredUsers={filteredUsers}
-						updateTenantRoleFunc={updateTenantRoleFunc}
 						handleInviteMembers={handleInviteMembers}
 						handleUserClick={handleUserClick}
 					/>

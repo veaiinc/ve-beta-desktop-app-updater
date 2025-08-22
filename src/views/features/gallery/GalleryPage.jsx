@@ -74,6 +74,7 @@ import GalleryVideos from '../../components/gallery/galleryVideos/GalleryVideos'
 import { ReactComponent as ChevronLeft } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as MoveToIcon } from '../../../assets/svg/gallery/moveToIcon.svg';
 import Spinner from '../../components/loaders/Spinner';
+import DesktopAppIntimation from '../../components/gallery/galleryPage/DesktopAppIntimation';
 // const workspaceId = localStorage.getItem('workspaceId');
 
 const dummyImagesArray = Array.from({ length: 10 }, () => ({ isPlaceholderImg: true }));
@@ -354,6 +355,8 @@ const GalleryPage = () => {
 		selectedScreenType: 'desktop',
 		selectedAlbumToMove: null,
 		imagesMovingToAlbum: false,
+		desktopPopup: false,
+		isDesktop: false,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -493,6 +496,15 @@ const GalleryPage = () => {
 			fetchThumbnails();
 		}
 	}, [info?.videosList]);
+
+	useEffect(() => {
+		if (window?.electronApi) {
+			setInfo((prev) => ({
+				...prev,
+				isDesktop: true,
+			}));
+		}
+	}, []);
 
 	const fetchThumbnails = async () => {
 		const entries = await Promise.all(
@@ -1754,7 +1766,16 @@ const GalleryPage = () => {
 		// Open in new tab
 		window.open(uploadUrl, '_blank');
 	};
-
+	const handleUploadClicked = () => {
+		if (!info?.isDesktop) {
+			setInfo((prev) => ({
+				...prev,
+				desktopPopup: true,
+			}));
+		} else {
+			handleNavigateUpload();
+		}
+	};
 	const handleCallToAction = useCallback(() => {
 		const payload = {
 			ctaPreferences: {
@@ -5193,7 +5214,7 @@ const GalleryPage = () => {
 												<Masonry gutter="20px" columnsCount={4}>
 													<div
 														className="imageContainer"
-														onClick={handleNavigateUpload}
+														onClick={handleUploadClicked}
 													>
 														<div className="imageUpload">
 															<CloudUpload className="uploadIcon" />
@@ -6575,6 +6596,13 @@ const GalleryPage = () => {
 					updateSelectedVideo={updateSelectedVideo}
 				/>
 			)}
+			<DesktopAppIntimation
+				open={info?.desktopPopup}
+				closeModal={() => {
+					setInfo((prev) => ({ ...prev, desktopPopup: false }));
+				}}
+				onStandardUploadClick={handleNavigateUpload}
+			/>
 		</>
 	);
 };

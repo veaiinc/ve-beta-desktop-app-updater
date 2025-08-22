@@ -15,4 +15,21 @@
 		font-weight: 500;
 		line-height: 22px;
 	}
+
+	.popover {
+		position: absolute;
+		transform: translate(-50%, -100%);
+		background-color: var(--primary-button);
+		color: var(--primary-button-font);
+		padding: 6px 8px;
+		border-radius: 6px;
+		white-space: nowrap;
+		transition: all 0.3s ease;
+		cursor: pointer;
+		z-index: 1000;
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+	}
 }
