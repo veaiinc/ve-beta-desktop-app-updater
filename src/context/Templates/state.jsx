@@ -52,8 +52,6 @@ import { Actions } from './Actions';
 import Service from '../../services/index';
 import { sendCustomMailMutation } from '../subscription/graphqlFunctions';
 import { getBase64 } from '../../helpers';
-import Skeleton from 'react-loading-skeleton';
-import AIMessageLoader from '../../views/components/chat/AIMessageLoader';
 
 export const intialState = {
 	workflowslist: null,
@@ -111,19 +109,6 @@ export const intialState = {
 	recentChatStorage: null,
 	moreRecentChatStorage: null,
 	llmModels: null,
-	chatInfo: {
-		deepResearch: false,
-		agentType: null,
-		assistantId: null,
-		build: false,
-		webSearch: true,
-		workspaceSearch: true,
-		ask: true,
-		reason: {
-			workspaceSearch: false,
-			webSearch: false,
-		},
-	},
 	aiTranscriptionSuggestions: null,
 	chatSources: null,
 	chatLoadingSessions: {},
@@ -137,6 +122,7 @@ export const intialState = {
 		workflowTemplateId: null,
 		moduleTemplateId: null,
 	},
+	isBrowserScreenActive: false,
 	refetchChatHistoryList: false,
 	aiQuestions: null,
 	proactiveAiData: null,

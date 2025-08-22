@@ -159,6 +159,7 @@ const RecentChat = ({
 					},
 					chatReplyData: null,
 					aiMessagesInfo: null,
+					isBrowserScreenActive: false,
 				});
 			}, 0);
 
@@ -191,6 +192,7 @@ const RecentChat = ({
 					browserDataAvailable: true,
 				};
 			});
+			updateStateValues({ isBrowserScreenActive: true });
 		} else {
 			setInfo((prev) => {
 				if (!prev?.openBrowser && !prev?.browserDataAvailable) return prev;
@@ -263,6 +265,7 @@ const RecentChat = ({
 						moduleTemplateId: null,
 					},
 					aiMessagesInfo: null,
+					isBrowserScreenActive: false,
 				});
 				tabsRefs.current = {};
 				userMessagesRefs.current = {};
@@ -869,8 +872,11 @@ const RecentChat = ({
 			navigate(`/chat/${sessionId}`);
 			return;
 		}
-		setInfo((prev) => ({ ...prev, openBrowser: !prev?.openBrowser }));
-	}, [location, sessionId]);
+		setInfo((prev) => {
+			updateStateValues({ isBrowserScreenActive: !prev?.openBrowser });
+			return { ...prev, openBrowser: !prev?.openBrowser };
+		});
+	}, [location, sessionId, updateStateValues]);
 
 	// browser socket
 	const onBrowserMessageFunc = useCallback((event, sessionId) => {

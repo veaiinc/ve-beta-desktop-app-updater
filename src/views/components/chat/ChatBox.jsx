@@ -181,14 +181,13 @@ const ChatBox = ({
 			handleStreamSendMessage,
 			activePayloadForChat,
 			activeInputForChat,
-			// chatInfo,
 			userEditedQuery,
 			galleryFile,
-			currentSessionId,
 			chatReplyData,
 			deleteMultiAgentFile,
 			proactiveInfoForChat,
 			isDirectSearchAgent,
+			isBrowserScreenActive,
 		},
 		chatBoxSuggestionsSocket: { sendMessage, closeWebSocketConnection },
 		subscriptionInfo: { currentPlan },
@@ -941,6 +940,8 @@ const ChatBox = ({
 						});
 					}
 
+					payload.is_browser_screen_active = isBrowserScreenActive;
+
 					let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
 
 					if (!location_details) {
@@ -1025,6 +1026,7 @@ const ChatBox = ({
 			onChatQueryChange,
 			aiChatSessions,
 			isDirectSearchAgent,
+			isBrowserScreenActive,
 		],
 	);
 
