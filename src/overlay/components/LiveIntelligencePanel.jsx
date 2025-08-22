@@ -67,7 +67,7 @@ const LiveIntelligencePanel = ({
 										{getCategoryLabel(thread.entity, thread.type)}
 									</div>
 									<div className="thread-question">
-										{thread.query || thread.name || 'No content available'}
+										{thread.prompt || thread.name || 'No content available'}
 									</div>
 									{thread.description && (
 										<div className="thread-description">
@@ -91,7 +91,7 @@ const LiveIntelligencePanel = ({
 							socketData.askUser.map((item, index) => (
 								<div key={index} className="thread-item">
 									<div className="thread-category">Ask user</div>
-									<div className="thread-question">{item.query}</div>
+									<div className="thread-question">{item.prompt}</div>
 									{item.description && (
 										<div className="thread-description">({item.description})</div>
 									)}
@@ -112,7 +112,7 @@ const LiveIntelligencePanel = ({
 							socketData.needHelp.map((item, index) => (
 								<div key={index} className="thread-item">
 									<div className="thread-category">Need help?</div>
-									<div className="thread-question">{item.query}</div>
+									<div className="thread-question">{item.prompt}</div>
 									{item.description && (
 										<div className="thread-description">({item.description})</div>
 									)}
@@ -133,7 +133,7 @@ const LiveIntelligencePanel = ({
 							socketData.actions.map((item, index) => (
 								<div key={index} className="thread-item">
 									<div className="thread-category">Actions</div>
-									<div className="thread-question">{item.query}</div>
+									<div className="thread-question">{item.prompt}</div>
 									{item.description && (
 										<div className="thread-description">({item.description})</div>
 									)}
@@ -154,7 +154,7 @@ const LiveIntelligencePanel = ({
 							socketData.files.map((item, index) => (
 								<div key={index} className="thread-item">
 									<div className="thread-category">Files</div>
-									<div className="thread-question">{item.name || item.query}</div>
+									<div className="thread-question">{item.name || item.prompt}</div>
 									{item.description && (
 										<div className="thread-description">({item.description})</div>
 									)}
