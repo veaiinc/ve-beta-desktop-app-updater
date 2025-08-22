@@ -201,7 +201,7 @@ let scrollLocked = false;
 
 const NewUi = ({ handleActiveChatChange }) => {
 	const {
-		aiSetup: { aiChatSessions },
+		aiSetup: { aiChatSessions, aiChatSessionsFilters },
 		templates: { updateStateValues, handleGlobalChatMessages },
 		profileInfo: { userDetailsData },
 		aiSetup: { proactiveHeadings, getProactiveHeadings },
@@ -220,8 +220,7 @@ const NewUi = ({ handleActiveChatChange }) => {
 	const containerRef = useRef(null);
 
 	useEffect(() => {
-		setInfo((prev) => ({ ...prev, isProcessingSessions: true }));
-		if (aiChatSessions?.data?.length) {
+		if (aiChatSessions?.data?.length && aiChatSessionsFilters?.agentType === 'multi_agent') {
 			let sessions = [...(aiChatSessions?.data || [])];
 			sessions =
 				sessions?.length === 1
