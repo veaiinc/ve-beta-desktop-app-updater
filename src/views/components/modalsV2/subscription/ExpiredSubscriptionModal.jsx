@@ -65,10 +65,13 @@ const ExpiredSubscriptionModal = () => {
 		},
 		'Classic-Gallery-Upload': {
 			dataUsed: currentPlan?.cumulativeStorageUsedInBytes
-				? Number((currentPlan.cumulativeStorageUsedInBytes / BYTES_PER_GB).toFixed(2))
+				? Number((currentPlan.storageUsedInBytes / BYTES_PER_GB).toFixed(2))
 				: 0,
 			dataLimit: currentPlan?.storageLimitInBytes
 				? Number((currentPlan.storageLimitInBytes / BYTES_PER_GB).toFixed(2))
+				: 0,
+			dataUsedForUpload: currentPlan?.cumulativeStorageUsedInBytes
+				? Number((currentPlan.cumulativeStorageUsedInBytes / BYTES_PER_GB).toFixed(2))
 				: 0,
 			dataLimitForUpload: currentPlan?.storageLimitInBytes
 				? Number((currentPlan.storageLimitInBytes / BYTES_PER_GB) * 1.5).toFixed(2)
@@ -76,7 +79,7 @@ const ExpiredSubscriptionModal = () => {
 		},
 	};
 
-	const { dataUsed, dataLimit, dataLimitForUpload } =
+	const { dataUsed, dataLimit, dataLimitForUpload, dataUsedForUpload } =
 		subscriptionTypeConfig[expiredSubscriptionType] || {};
 
 	const closeModal = useCallback(() => {
@@ -221,7 +224,7 @@ const ExpiredSubscriptionModal = () => {
 											</div>
 										)}
 										<span className="Progress">
-											{dataUsed} out of {dataLimitForUpload}
+											{dataUsedForUpload} out of {dataLimitForUpload}
 										</span>
 									</div>
 									<div className="progressBarContainer">
@@ -231,7 +234,8 @@ const ExpiredSubscriptionModal = () => {
 												width: `${
 													dataLimitForUpload
 														? Math.min(
-																(dataUsed / dataLimitForUpload) *
+																(dataUsedForUpload /
+																	dataLimitForUpload) *
 																	100,
 																100,
 														  )
