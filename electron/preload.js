@@ -97,4 +97,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 		writeText: (text) => ipcRenderer.invoke('clipboard-write-text', text),
 		readText: () => ipcRenderer.invoke('clipboard-read-text'),
 	},
+	desktop: {
+		// ✅ This is the key addition
+		captureScreen: () => ipcRenderer.invoke('desktop:capture-screen'),
+	},
 });

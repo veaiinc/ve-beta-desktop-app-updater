@@ -135,10 +135,22 @@ const AskAIApp = () => {
 		setIsLoading(true);
 		setResponse('');
 		setStreamingResponse('');
-		// Don't reset hasResponse here - keep the window visible
 
 		try {
-			// Send the message
+			// 📸 Capture screenshot using Electron API
+			let base64Image = null;
+			if (window.electronApi?.desktop?.captureScreen) {
+				try {
+					base64Image = await window.electronApi.desktop.captureScreen();
+					console.log('🖼️ Screenshot captured and converted to Base64');
+				} catch (err) {
+					console.warn('Failed to capture screenshot:', err);
+					// Optionally continue without image
+				}
+			}
+			console.log(base64Image, 'base64Image');
+
+			// Prepare message data
 			const messageData = {
 				query: queryValue,
 				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -149,10 +161,16 @@ const AskAIApp = () => {
 				modules: [],
 				date: [],
 				selected_model: null,
+				location: null,
 			};
 
-			let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
+			// Add image only if captured
+			if (base64Image) {
+				messageData.image = base64Image; // e.g., "data:image/png;base64,iVBORw0KGgoAAAANSUh..."
+			}
 
+			// Add location details
+			let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
 			if (!location_details) {
 				location_details = await getLocationsDetails();
 			}

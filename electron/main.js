@@ -1,5 +1,13 @@
 // main.js
-const { app, BrowserWindow, Menu, session, systemPreferences, ipcMain } = require('electron');
+const {
+	app,
+	BrowserWindow,
+	Menu,
+	session,
+	systemPreferences,
+	ipcMain,
+	desktopCapturer,
+} = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
 const { autoUpdater } = require('electron-updater');
@@ -91,6 +99,42 @@ ipcMain.handle('restart-app', () => {
 	if (process.env.NODE_ENV === 'development') return { success: false };
 	autoUpdater.quitAndInstall();
 	return { success: true };
+});
+
+ipcMain.handle('desktop:capture-screen', async () => {
+	try {
+		const sources = await desktopCapturer.getSources({
+			types: ['screen'],
+			thumbnailSize: { width: 1920, height: 1080 },
+		});
+
+		if (!sources || sources.length === 0) {
+			console.warn('⚠️ No screen sources returned. Permission may be denied.');
+			return null;
+		}
+
+		const screenSource = sources[0];
+		const thumbnail = screenSource.thumbnail;
+
+		if (!thumbnail) {
+			console.warn('⚠️ Screen source has no thumbnail');
+			return null;
+		}
+
+		// Optional: resize to reduce size
+		const resized = thumbnail.resize({
+			width: 1200,
+			height: 800,
+		});
+
+		const base64 = resized.toDataURL(); // Returns "data:image/png;base64,..."
+
+		console.log('✅ Screenshot captured! Base64 length:', base64.length);
+		return base64; // Return string
+	} catch (err) {
+		console.error('❌ Unexpected error in desktop:capture-screen:', err);
+		return null; // Never throw — just return null
+	}
 });
 
 // Window creation
