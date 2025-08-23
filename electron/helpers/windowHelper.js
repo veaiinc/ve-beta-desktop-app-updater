@@ -684,10 +684,10 @@ class WindowHelper {
 				}
 			}
 		});
-		const cmdEnterRegistered = globalShortcut.register('CommandOrControl+Enter', () => {
-			log.info('Cmd+Enter pressed - toggling Ask AI window');
-			this.toggleAskAIWindow();
-		});
+		// const cmdEnterRegistered = globalShortcut.register('CommandOrControl+Enter', () => {
+		// 	log.info('Cmd+Enter pressed - toggling Ask AI window');
+		// 	this.toggleAskAIWindow();
+		// });
 
 		// Log registration status
 		log.info('Global shortcut registration status:');
