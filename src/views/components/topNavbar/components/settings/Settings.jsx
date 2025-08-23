@@ -23,6 +23,7 @@ import { ReactComponent as CloseIcon } from '../../../../../assets/svg/mobile/cl
 import { ReactComponent as PlusSvg } from '../../assets/plus.svg';
 
 const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
+const deepLinkUrl = 'veai://open';
 const isMac =
 	navigator.userAgentData?.platform === 'macOS' ||
 	navigator.userAgent.toLowerCase().indexOf('mac') !== -1;
@@ -123,6 +124,24 @@ const Settings = ({
 			}));
 		}
 	}, []);
+	const handleInstallOrOpen = () => {
+		window.location.href = deepLinkUrl;
+
+		const timer = setTimeout(() => {
+			if (desktopAppDownloadUrl) {
+				window.open(desktopAppDownloadUrl, '_blank');
+			}
+		}, 2000);
+
+		// If user switches focus (e.g., app opened), cancel fallback
+		window.addEventListener(
+			'blur',
+			() => {
+				clearTimeout(timer);
+			},
+			{ once: true },
+		);
+	};
 	const handleSettingItemClick = (settingItem) => async () => {
 		if (settingItem.route) {
 			navigate(settingItem.route);
@@ -263,14 +282,7 @@ const Settings = ({
 			</div>
 
 			{isMac && !info?.isDesktop && (
-				<button
-					className={s.downloadMacAppButton}
-					onClick={() => {
-						if (desktopAppDownloadUrl) {
-							window.open(desktopAppDownloadUrl, '_blank');
-						}
-					}}
-				>
+				<button className={s.downloadMacAppButton} onClick={handleInstallOrOpen}>
 					<DownloadMacSvg />
 					<span>Download Mac app</span>
 				</button>

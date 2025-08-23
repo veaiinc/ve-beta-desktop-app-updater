@@ -1767,7 +1767,9 @@ const GalleryPage = () => {
 		window.open(uploadUrl, '_blank');
 	};
 	const handleUploadClicked = () => {
-		if (!info?.isDesktop) {
+		const region = localStorage.getItem('region');
+		const isMac = navigator.userAgentData?.platform === 'macOS';
+		if (!info?.isDesktop && region === 'us-east-1' && isMac) {
 			setInfo((prev) => ({
 				...prev,
 				desktopPopup: true,
