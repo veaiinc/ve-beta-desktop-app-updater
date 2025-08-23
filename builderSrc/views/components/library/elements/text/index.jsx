@@ -1738,7 +1738,7 @@ class App extends BaseClass {
 					? '0'
 					: currencySymbol +
 					  (currentSubTotal || 0)?.toLocaleString(
-							'en-US',
+							`en-${this.props?.currencySymbol == '$' ? 'US' : 'IN'}`,
 							// 	 {
 							// 		currency: 'INR',
 							//   }
@@ -1799,7 +1799,9 @@ class App extends BaseClass {
 				) {
 					variableValue =
 						this.props?.currencySymbol +
-						this?.props?.clientGrandTotal?.toLocaleString('en-US');
+						this?.props?.clientGrandTotal?.toLocaleString(
+							`en-${this.props?.currencySymbol == '$' ? 'US' : 'IN'}`,
+						);
 				}
 
 				if (
