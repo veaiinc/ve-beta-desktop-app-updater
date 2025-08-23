@@ -872,7 +872,17 @@ const ChatBox = ({
 					}
 					let localPayload = {};
 					if (uploadedImagesRef?.current?.length) {
-						payload.files = uploadedImagesRef?.current?.map((ele) => ({
+						const imagesPngJpeg =
+							uploadedImagesRef?.current?.filter(
+								(file) => file?.type === 'image/png' || file?.type === 'image/jpeg',
+							) || [];
+
+						payload.image_data_base64 = imagesPngJpeg?.map((file) => file?.preview);
+
+						const remainingImages = uploadedImagesRef?.current?.filter(
+							(file) => !(file?.type === 'image/png' || file?.type === 'image/jpeg'),
+						);
+						payload.files = remainingImages?.map((ele) => ({
 							id: ele?.fileId || null,
 							name: ele?.name || 'Untitled Image',
 						}));
@@ -1281,6 +1291,9 @@ const ChatBox = ({
 			file.uniqueId = Date?.now() + '_' + Math?.floor(Math?.random() * 1000000);
 
 			if (file?.type?.includes('image')) {
+				if (file?.type === 'image/png' || file?.type === 'image/jpeg') {
+					file.loading = false;
+				}
 				uploadedImages?.push(file);
 				uploadedImagesRef.current = uploadedImages;
 			} else {
@@ -1289,8 +1302,9 @@ const ChatBox = ({
 				recentFiles?.unshift(file);
 				recentFilesRef.current = recentFiles;
 			}
-
-			handleGlobalImageProcessing(file);
+			if (!(file?.type === 'image/png' || file?.type === 'image/jpeg')) {
+				handleGlobalImageProcessing(file);
+			}
 
 			setInfo((prev) => ({
 				...prev,
@@ -1468,6 +1482,25 @@ const ChatBox = ({
 			showSuggestion: false,
 		}));
 	};
+
+	const handleTextAreaPaste = useCallback(
+		(e) => {
+			const items = e?.clipboardData?.items || [];
+
+			for (let i = 0; i < items?.length; i++) {
+				const item = items[i];
+				if (item?.kind === 'file' && item?.type?.startsWith('image/')) {
+					e?.preventDefault(); // stop pasting as text
+					const file = item?.getAsFile();
+					if (file) {
+						// Call your upload logic
+						handleFileAttachmentChange({ file });
+					}
+				}
+			}
+		},
+		[handleFileAttachmentChange],
+	);
 
 	const handleTextAreaChange = (e) => {
 		const textArea = textAreaRef?.current;
@@ -1803,6 +1836,7 @@ const ChatBox = ({
 														} ${isTranscribing ? 'transcribing' : ''}`}
 														rows={1}
 														ref={textAreaRef}
+														onPaste={handleTextAreaPaste}
 														placeholder={
 															isTranscribing
 																? 'Listening... Speak now'
