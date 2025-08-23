@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import './live-intelligence-panel.scss';
 import { AudioLines, X } from 'lucide-react';
 
-const LiveIntelligencePanel = ({ 
-	onClose, 
+const LiveIntelligencePanel = ({
+	onClose,
 	onShowTranscript,
 	// Shared transcription data from parent (for future socket integration)
 	transcriptions = [],
@@ -16,20 +16,26 @@ const LiveIntelligencePanel = ({
 		askUser: [],
 		needHelp: [],
 		actions: [],
-		files: []
-	}
+		files: [],
+	},
 }) => {
 	const [activeTab, setActiveTab] = useState('all-threads');
 
 	// Get badge counts from socket data
 	const getBadgeCount = (tabKey) => {
 		switch (tabKey) {
-			case 'all-threads': return socketData.allThreads?.length || 0;
-			case 'ask-user': return socketData.askUser?.length || 0;
-			case 'need-help': return socketData.needHelp?.length || 0;
-			case 'actions': return socketData.actions?.length || 0;
-			case 'files': return socketData.files?.length || 0;
-			default: return 0;
+			case 'all-threads':
+				return socketData.allThreads?.length || 0;
+			case 'ask-user':
+				return socketData.askUser?.length || 0;
+			case 'need-help':
+				return socketData.needHelp?.length || 0;
+			case 'actions':
+				return socketData.actions?.length || 0;
+			case 'files':
+				return socketData.files?.length || 0;
+			default:
+				return 0;
 		}
 	};
 
@@ -67,7 +73,7 @@ const LiveIntelligencePanel = ({
 										{getCategoryLabel(thread.entity, thread.type)}
 									</div>
 									<div className="thread-question">
-										{thread.query || thread.name || 'No content available'}
+										{thread.prompt || thread.name || 'No content available'}
 									</div>
 									{thread.description && (
 										<div className="thread-description">
@@ -80,7 +86,10 @@ const LiveIntelligencePanel = ({
 								</div>
 							))
 						) : (
-							<div className="empty-content">No threads yet. Start recording to see live intelligence suggestions.</div>
+							<div className="empty-content">
+								No threads yet. Start recording to see live intelligence
+								suggestions.
+							</div>
 						)}
 					</div>
 				);
@@ -91,9 +100,11 @@ const LiveIntelligencePanel = ({
 							socketData.askUser.map((item, index) => (
 								<div key={index} className="thread-item">
 									<div className="thread-category">Ask user</div>
-									<div className="thread-question">{item.query}</div>
+									<div className="thread-question">{item.prompt}</div>
 									{item.description && (
-										<div className="thread-description">({item.description})</div>
+										<div className="thread-description">
+											({item.description})
+										</div>
 									)}
 									<div className="thread-time">
 										{formatTime(item.timestamp || item.created_at)}
@@ -112,9 +123,11 @@ const LiveIntelligencePanel = ({
 							socketData.needHelp.map((item, index) => (
 								<div key={index} className="thread-item">
 									<div className="thread-category">Need help?</div>
-									<div className="thread-question">{item.query}</div>
+									<div className="thread-question">{item.prompt}</div>
 									{item.description && (
-										<div className="thread-description">({item.description})</div>
+										<div className="thread-description">
+											({item.description})
+										</div>
 									)}
 									<div className="thread-time">
 										{formatTime(item.timestamp || item.created_at)}
@@ -133,9 +146,11 @@ const LiveIntelligencePanel = ({
 							socketData.actions.map((item, index) => (
 								<div key={index} className="thread-item">
 									<div className="thread-category">Actions</div>
-									<div className="thread-question">{item.query}</div>
+									<div className="thread-question">{item.prompt}</div>
 									{item.description && (
-										<div className="thread-description">({item.description})</div>
+										<div className="thread-description">
+											({item.description})
+										</div>
 									)}
 									<div className="thread-time">
 										{formatTime(item.timestamp || item.created_at)}
@@ -154,9 +169,13 @@ const LiveIntelligencePanel = ({
 							socketData.files.map((item, index) => (
 								<div key={index} className="thread-item">
 									<div className="thread-category">Files</div>
-									<div className="thread-question">{item.name || item.query}</div>
+									<div className="thread-question">
+										{item.name || item.prompt}
+									</div>
 									{item.description && (
-										<div className="thread-description">({item.description})</div>
+										<div className="thread-description">
+											({item.description})
+										</div>
 									)}
 									<div className="thread-time">
 										{formatTime(item.timestamp || item.created_at)}
@@ -182,20 +201,17 @@ const LiveIntelligencePanel = ({
 				<div className="live-intelligence-panel__title">
 					<span className="live-intelligence-panel__title-text">Live Intelligence</span>
 					{isRecording && formatTime && (
-						<span className="recording-indicator">
-							● {formatTime(timer)}
-						</span>
+						<span className="recording-indicator">● {formatTime(timer)}</span>
 					)}
 				</div>
 
 				<div className="live-intelligence-panel__controls">
-
 					<button
 						className="live-intelligence-panel__control-button"
 						onClick={() => {
 							if (onShowTranscript) {
 								onShowTranscript();
-							} 
+							}
 						}}
 						style={{ pointerEvents: 'auto' }}
 					>
@@ -228,18 +244,13 @@ const LiveIntelligencePanel = ({
 						onClick={() => setActiveTab(tab.key)}
 					>
 						<span className="tab-label">{tab.label}</span>
-						{tab.count > 0 && (
-							<span className="tab-badge">{tab.count}</span>
-						)}
+						{tab.count > 0 && <span className="tab-badge">{tab.count}</span>}
 					</button>
 				))}
 			</div>
 
 			{/* Tab Content */}
-			<div className="live-intelligence-panel__content">
-				{renderTabContent()}
-			</div>
-
+			<div className="live-intelligence-panel__content">{renderTabContent()}</div>
 		</div>
 	);
 };
