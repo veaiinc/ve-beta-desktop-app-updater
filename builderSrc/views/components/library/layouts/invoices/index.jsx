@@ -1641,6 +1641,8 @@ class Invoice extends Component {
 														style={{
 															width: '100%',
 															color: this.state?.style?.valueColor,
+															WebkitTextFillColor:
+																this.state?.style?.valueColor,
 															resize: 'none', // Disables manual resizing
 															minHeight: '30px',
 															overflow: 'hidden', // Prevent scrollbars
@@ -1695,6 +1697,8 @@ class Invoice extends Component {
 																width: '100%',
 																color: this.state?.style
 																	?.valueColor,
+																WebkitTextFillColor:
+																	this.state?.style?.valueColor,
 																resize: 'none',
 																minHeight: '30px',
 																overflow: 'hidden',
@@ -2493,7 +2497,7 @@ class Invoice extends Component {
 									className="component"
 									style={{
 										...this.props?.blocks[0]?.subBlocks[0]?.divStyles,
-										zoom: this.state?.previewType === 'm' ? 0.65 : 1,
+										// zoom: this.state?.previewType === 'm' ? 0.65 : 1,
 									}}
 								>
 									<Text
