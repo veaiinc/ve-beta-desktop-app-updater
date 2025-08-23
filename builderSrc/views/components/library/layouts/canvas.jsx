@@ -8298,10 +8298,10 @@ class Layout extends Component {
 					// )}px`,
 					height: 'fit-content',
 					padding: '0px',
-					border:
-						this.props._id === this.state.activeSectionID
-							? '3px solid #79ecc9'
-							: 'none',
+					// border:
+					// 	this.props._id === this.state.activeSectionID
+					// 		? '3px solid #79ecc9'
+					// 		: 'none',
 
 					...(this.state.previewType === 'm' && deviceType !== 'Android'
 						? { zoom: this.getZoomScale() }
