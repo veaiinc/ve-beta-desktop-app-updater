@@ -8260,7 +8260,7 @@ class Layout extends Component {
 			width: '12px',
 			height: '12px',
 			backgroundColor: 'white',
-			border: '2px solid #2196F3',
+			border: '2px solid #79ecc9',
 			position: 'absolute',
 			zIndex: 1,
 		};
@@ -8298,10 +8298,10 @@ class Layout extends Component {
 					// )}px`,
 					height: 'fit-content',
 					padding: '0px',
-					border:
-						this.props._id === this.state.activeSectionID
-							? '3px solid #3B82F6'
-							: 'none',
+					// border:
+					// 	this.props._id === this.state.activeSectionID
+					// 		? '3px solid #79ecc9'
+					// 		: 'none',
 
 					...(this.state.previewType === 'm' && deviceType !== 'Android'
 						? { zoom: this.getZoomScale() }
@@ -8792,10 +8792,10 @@ class Layout extends Component {
 												? this.state?.placeholderPosition?.mGridArea
 												: this.state?.placeholderPosition?.gridArea,
 										//backgroundColor: 'rgba(59, 130, 246, 0.2)',
-										border: '4px solid #3B82F6',
+										border: '4px solid #79ecc9',
 										borderBottom: this.state.textError
 											? '4px solid red'
-											: '4px solid #3B82F6',
+											: '4px solid #79ecc9',
 										pointerEvents: 'none',
 										zIndex: 999999999999999,
 
@@ -9143,10 +9143,10 @@ class Layout extends Component {
 																: 0.8
 															: 1,
 														outline: this.state.isDragging
-															? '3px solid #3B82F6'
+															? '3px solid #79ecc9'
 															: this.state.activeComponentID ===
 															  component?._id
-															? '3px solid #3B82F6'
+															? '3px solid #79ecc9'
 															: 'none',
 														wordBreak: 'break-word',
 
