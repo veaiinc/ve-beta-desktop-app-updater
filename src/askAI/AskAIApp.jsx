@@ -162,6 +162,7 @@ const AskAIApp = () => {
 				}
 			}
 
+			const imageArray = base64Image ? [base64Image] : [];
 			// Prepare message data
 			const messageData = {
 				query: queryValue,
@@ -174,7 +175,7 @@ const AskAIApp = () => {
 				date: [],
 				selected_model: null,
 				location: null,
-				image_data_base64: base64Image,
+				image_data_base64: imageArray,
 			};
 
 			// Add location details
