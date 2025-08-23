@@ -687,6 +687,7 @@ const RecentChat = ({
 							break;
 						} else if (open_browser) {
 							openBrowser = true;
+							break;
 						}
 					}
 
