@@ -490,7 +490,10 @@ const NewUi = ({ handleActiveChatChange }) => {
 						<div className="loader-container">
 							{skeletonArray?.map((s, index) => {
 								return (
-									<div className={`skeleton-container skeleton-${index + 1}`}>
+									<div
+										key={index}
+										className={`skeleton-container skeleton-${index + 1}`}
+									>
 										<Skeleton
 											height={'100%'}
 											width={'100%'}
