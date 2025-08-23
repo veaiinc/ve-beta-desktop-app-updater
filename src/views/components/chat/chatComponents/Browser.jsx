@@ -48,7 +48,7 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 			...prev,
 			takeControl,
 		}));
-		handleTakeBrowserControl(sessionId, takeControl);
+		// handleTakeBrowserControl(sessionId, takeControl);
 
 		//exiting take control
 		if (!takeControl) {
@@ -66,7 +66,7 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 			</div>
 
 			<div className={`${s.body} ${info?.takeControl ? s.tookControl : ''}`}>
-				{!(info?.tabs?.length > 0) && (
+				{!(info?.tabs?.length > 0) && isOpen && (
 					<div className={s.loader}>
 						<Spinner />
 					</div>
