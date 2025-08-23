@@ -1646,6 +1646,7 @@ class Invoice extends Component {
 															resize: 'none', // Disables manual resizing
 															minHeight: '30px',
 															overflow: 'hidden', // Prevent scrollbars
+															opacity: 1,
 														}}
 														value={value?.title}
 														placeholder="enter Title here"
@@ -1702,6 +1703,7 @@ class Invoice extends Component {
 																resize: 'none',
 																minHeight: '30px',
 																overflow: 'hidden',
+																opacity: 1,
 															}}
 															value={value?.description}
 															placeholder="enter description here"
