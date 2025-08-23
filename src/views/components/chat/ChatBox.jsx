@@ -150,6 +150,9 @@ const ChatBox = ({
 	sessionId = null,
 	getSuggestions = false,
 	placeholder = 'Start typing or use @ to mention a source.',
+	showBrowserButton = false,
+	handleBrowserButtonClick = null,
+	browserImage = null,
 	showBottomTools = true,
 }) => {
 	const location = useLocation();
@@ -178,14 +181,13 @@ const ChatBox = ({
 			handleStreamSendMessage,
 			activePayloadForChat,
 			activeInputForChat,
-			// chatInfo,
 			userEditedQuery,
 			galleryFile,
-			currentSessionId,
 			chatReplyData,
 			deleteMultiAgentFile,
 			proactiveInfoForChat,
 			isDirectSearchAgent,
+			isBrowserScreenActive,
 		},
 		chatBoxSuggestionsSocket: { sendMessage, closeWebSocketConnection },
 		subscriptionInfo: { currentPlan },
@@ -938,6 +940,8 @@ const ChatBox = ({
 						});
 					}
 
+					payload.is_browser_screen_active = isBrowserScreenActive;
+
 					let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
 
 					if (!location_details) {
@@ -1022,6 +1026,7 @@ const ChatBox = ({
 			onChatQueryChange,
 			aiChatSessions,
 			isDirectSearchAgent,
+			isBrowserScreenActive,
 		],
 	);
 
@@ -2568,6 +2573,31 @@ const ChatBox = ({
 						</button>
 					</div>
 				)}
+
+				{/* {showBrowserButton && ( */}
+				<div
+					className="browser-button-container"
+					onClick={(e) => {
+						e.stopPropagation();
+						handleBrowserButtonClick?.(e);
+					}}
+					style={{
+						display: showBrowserButton ? 'flex' : 'none',
+					}}
+				>
+					{browserImage ? (
+						<div className="browser-image-wrapper">
+							<div className="browser-text">Browser</div>
+							<img src={browserImage} className="browser-image" alt="browser" />
+						</div>
+					) : (
+						<div className="browser-button">Browser</div>
+					)}
+					<div className="expand-browser-button">
+						<ArrowsOut />
+					</div>
+				</div>
+				{/* )} */}
 				{uploadedImagesRef?.current?.length > 0 ? (
 					<div className="imagePreviewBar">
 						{uploadedImagesRef?.current?.map((ele, index) => (

@@ -1,5 +1,5 @@
-import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
-import Service from '../services/index';
+import { CitationsTooltip } from '../../views/components/modalsV2/chat/CitationsTooltip';
+import Service from '../../services/index';
 
 export const handleDeepSearchChainOfThought = (chainOfThought) => {
 	const cot = [];
@@ -231,4 +231,47 @@ export const handleCombinedChainOfThought = (chainOfThought) => {
 		deepResearches: deepResearchesArray,
 		hasChainOfThought: chainOfThought?.length > 0,
 	};
+};
+
+export const handleBrowserData = (chainOfThought) => {
+	const browserTools = [];
+	let browserPlan = null;
+	for (let i = 0; i < chainOfThought?.length; i++) {
+		const data = chainOfThought?.[i] || {};
+		const { planType, toolType } = data;
+
+		if (planType === 'plan') {
+			browserPlan = data;
+		} else if (toolType === 'tool') {
+			browserTools?.push(data);
+		}
+	}
+	return { browserTools, browserPlan };
+};
+
+export const getBrowserUrls = async (sessionId, handleGlobalChatMessages) => {
+	const workspaceId = localStorage.getItem('workspaceId');
+	const usertoken = localStorage.getItem('usertoken');
+
+	try {
+		const response = await Service.fetchGet(
+			`/api/browser/${workspaceId}/${sessionId}/debug-url`,
+			usertoken,
+			'browser_api',
+		);
+
+		const { success } = response?.[1] || {};
+
+		if (response?.[0] && success === true) {
+			handleGlobalChatMessages({
+				sessionId: sessionId,
+				browserTabsInfo: response?.[1],
+				updateExtraInfo: true,
+			});
+			return;
+		}
+	} catch (error) {
+		console.error('error==>getBrowserUrls', error);
+		return;
+	}
 };
