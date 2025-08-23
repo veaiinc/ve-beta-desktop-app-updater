@@ -80,7 +80,13 @@ const Table = ({ tableData, thead, loading, scrollLoading, tableHeader }) => {
 											{row.email ? row.email.charAt(0).toUpperCase() : 'A'}
 										</div>
 										<div className="details">
-											<p>{row?.email || 'Anonymous'}</p>
+											<p>
+												{row?.email
+													? row?.email
+													: row?.gallery?.shareContactWithTenant
+													? row?.contact
+													: 'Anonymous'}
+											</p>
 										</div>
 									</td>
 									<td style={{ textAlign: 'center', width: '20%' }}>
