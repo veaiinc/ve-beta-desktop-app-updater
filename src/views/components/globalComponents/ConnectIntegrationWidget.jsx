@@ -35,7 +35,7 @@ const ConnectIntegrationWidget = ({ integrationType, buttonText }) => {
 					className={`connectIntegrationButton ${
 						integration.isConnected ? 'connected' : ''
 					}`}
-					onClick={() => navigate(`/integrations`)}
+					onClick={() => navigate(`/settings/integrations`)}
 				>
 					{buttonText}
 				</div>
