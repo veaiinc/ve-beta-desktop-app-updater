@@ -16,6 +16,7 @@ const textMapper = {
 	select_option: 'Selecting element',
 	get_select_options: 'Retrieving available options for selected element',
 	navigate_to: 'Browsing',
+	current_page: 'Getting current page',
 };
 
 const BrowserTools = ({ data = [] }) => {

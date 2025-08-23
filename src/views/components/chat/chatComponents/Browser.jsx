@@ -3,6 +3,7 @@ import s from '../../../../assets/scss/chat/chatComponents/browser.module.scss';
 import Context from '../../../../context/context';
 import { ReactComponent as ArrowsIn } from '../../../../assets/svg/chat/arrowsIn.svg';
 import { ReactComponent as Webcam } from '../../../../assets/svg/chat/webcam.svg';
+import Spinner from '../../loaders/Spinner';
 
 const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = false }) => {
 	const {
@@ -65,6 +66,11 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 			</div>
 
 			<div className={`${s.body} ${info?.takeControl ? s.tookControl : ''}`}>
+				{!(info?.tabs?.length > 0) && (
+					<div className={s.loader}>
+						<Spinner />
+					</div>
+				)}
 				{info?.tabs?.length > 0 && (
 					<div className={s.tabsContainer}>
 						{info?.tabs?.map((tab, index) => (
@@ -73,7 +79,7 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 								className={`${s.tab} ${info?.activeTab === index ? s.active : ''}`}
 								onClick={() => handleTabClick(index)}
 							>
-								{tab.title}
+								{tab?.title}
 							</div>
 						))}
 					</div>

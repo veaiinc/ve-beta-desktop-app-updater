@@ -353,7 +353,7 @@ const actionHandlers = {
 
 		if (requiredIndex !== -1) {
 			const message = messages?.[requiredIndex];
-			let { processing, browserTools = [] } = message;
+			let { processing, browserChainOfThought = {} } = message;
 			if (processing === 'Deep Search') {
 				let deepSearch = message?.deepSearch || {};
 				let cot = deepSearch?.cot || [];
@@ -622,20 +622,29 @@ const actionHandlers = {
 					normalSearch,
 				};
 			} else {
-				let browserPlan = null;
-				if (payload?.toolType === 'tool') {
-					browserTools = [...(browserTools || []), payload];
-				}
-				if (payload?.planType === 'plan') {
-					browserPlan = payload;
+				const { toolType, planType } = payload;
+				let hasBrowserChainOfThought = false;
+				if (toolType && toolType === 'tool') {
+					let browserTools = browserChainOfThought?.browserTools || [];
+					browserTools = [...browserTools, payload];
+					browserChainOfThought = {
+						...browserChainOfThought,
+						browserTools,
+					};
+					hasBrowserChainOfThought = true;
+				} else if (planType && planType === 'plan') {
+					browserChainOfThought = {
+						...browserChainOfThought,
+						browserPlan: payload,
+					};
+					hasBrowserChainOfThought = true;
 				}
 				messages[requiredIndex] = {
 					...message,
 					...payload,
-					browserTools,
-					...(browserPlan && { browserPlan }),
 					message: (message?.message || '') + (payload?.answer || ''),
 					messageId: payload?.message_id,
+					...(hasBrowserChainOfThought && { browserChainOfThought }),
 				};
 			}
 		} else {

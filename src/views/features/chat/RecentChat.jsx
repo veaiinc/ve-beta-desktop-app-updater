@@ -656,8 +656,7 @@ const RecentChat = ({
 				}
 				let processing = null,
 					memoryThinking = null,
-					browserTools = null,
-					browserPlan = null,
+					browserChainOfThought = null,
 					openBrowser = false;
 
 				let deepSearch = {},
@@ -698,9 +697,7 @@ const RecentChat = ({
 					} else if (processing === 'Normal Search') {
 						normalSearch = handleDeepSearchChainOfThought(chainOfThought);
 					} else if (openBrowser) {
-						const data = handleBrowserData(chainOfThought);
-						browserTools = data?.browserTools;
-						browserPlan = data?.browserPlan;
+						browserChainOfThought = handleBrowserData(chainOfThought);
 					}
 				}
 
@@ -730,8 +727,7 @@ const RecentChat = ({
 						...(processing === 'Deep Research' && { deepResearch }),
 						...(processing === 'Normal Search' && { normalSearch }),
 						...(memoryThinking && { memory_thinking: memoryThinking }),
-						...(browserTools && { browserTools }),
-						...(browserPlan && { browserPlan }),
+						...(browserChainOfThought && { browserChainOfThought }),
 					},
 				]?.concat(messages);
 			}

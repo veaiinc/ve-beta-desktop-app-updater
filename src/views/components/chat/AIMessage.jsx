@@ -8,8 +8,6 @@ import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../../../assets/svg/ai_agents/copy.svg';
 import { ReactComponent as ViewDocumentIcon } from '../../../assets/svg/chat/viewDocument.svg';
 import AISuggestionsReportAiComponent from './chatComponents/AiSuggestionsReportAiComponent';
-import { ReactComponent as PlusSvg } from '../../../assets/svg/ai_assistant/plus.svg';
-import { ReactComponent as VeLogoSvg } from '../../../assets/svg/veLogo.svg';
 import '../../../assets/scss/chat/aiMessage.scss';
 import PromptPopup from '../homePage/PromptPopup';
 import ClarifyWidget from './chatWidgets/ClarifyWidget';
@@ -17,8 +15,7 @@ import FormWidget from './FormWidget';
 import UnintegratedAgentApps from './chatComponents/UnintegratedAgentApps';
 import IntermediateSteps from './chatComponents/IntermediateSteps';
 import { fileTypeIcons, getFaviconUrl, getWebsiteName } from '../../../helpers';
-import BrowserTools from './chatComponents/BrowserTools';
-import BrowserPlan from './chatComponents/BrowserPlan';
+import BrowserChainOfThought from './chatComponents/BrowserChainOfThought';
 
 const tooltipStyles = {
 	body: { color: 'var(--primary-font)' },
@@ -167,10 +164,8 @@ const AIMessage = ({
 					</div>
 				))}
 
-			{messageData?.browserPlan ? <BrowserPlan browserPlan={messageData?.browserPlan} /> : ''}
-
-			{messageData?.browserTools?.length > 0 ? (
-				<BrowserTools data={messageData?.browserTools} />
+			{messageData?.browserChainOfThought ? (
+				<BrowserChainOfThought chainOfThought={messageData?.browserChainOfThought} />
 			) : (
 				''
 			)}

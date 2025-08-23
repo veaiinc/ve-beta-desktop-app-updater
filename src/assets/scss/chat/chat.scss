@@ -74,7 +74,8 @@
 
 .chat-container {
 	height: calc(100% - 25px);
-	width: 100%;
+	flex-grow: 1;
+	overflow-x: auto;
 	box-sizing: border-box;
 	padding: 0px;
 	display: flex;
