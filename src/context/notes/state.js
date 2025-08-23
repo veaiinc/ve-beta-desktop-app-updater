@@ -671,10 +671,17 @@ export const NotesState = (props) => {
 			return false;
 		}
 	};
-	const getLiveKitToken = async (payload) => {
+	const getLiveKitToken = async ({ meetingId, sessionId }) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
+			const locationString = localStorage.getItem('locationDetails') || {};
+			const location = JSON.parse(locationString);
+
+			const payload = {
+				input: { meetingId, sessionId, location, timezone: location.timezone },
+			};
+
 			const response = await service.mutation(
 				getLiveKitTokenQuery,
 				payload,
