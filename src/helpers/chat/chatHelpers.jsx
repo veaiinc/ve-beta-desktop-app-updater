@@ -249,9 +249,7 @@ export const handleBrowserData = (chainOfThought) => {
 	return { browserTools, browserPlan };
 };
 
-const activePollTimeouts = {};
-
-export const getBrowserUrls = async (sessionId, handleGlobalChatMessages, previousActiveIndex) => {
+export const getBrowserUrls = async (sessionId, handleGlobalChatMessages) => {
 	const workspaceId = localStorage.getItem('workspaceId');
 	const usertoken = localStorage.getItem('usertoken');
 
@@ -276,59 +274,4 @@ export const getBrowserUrls = async (sessionId, handleGlobalChatMessages, previo
 		console.error('error==>getBrowserUrls', error);
 		return;
 	}
-
-	// if (activePollTimeouts[sessionId]) {
-	// 	clearTimeout(activePollTimeouts[sessionId]);
-	// 	delete activePollTimeouts[sessionId];
-	// }
-
-	// let count = 0;
-	// const MAX_COUNT = 10;
-	// const INTERVAL_MS = 3000;
-
-	// const poll = async () => {
-	// 	if (count >= MAX_COUNT) {
-	// 		delete activePollTimeouts[sessionId];
-	// 		return;
-	// 	}
-
-	// 	try {
-	// 		const response = await Service.fetchGet(
-	// 			`/api/browser/live-stream/status/${workspaceId}/${sessionId}`,
-	// 			usertoken,
-	// 			'browser_api',
-	// 		);
-
-	// 		const { activeTabIndex, success } = response?.[1] || {};
-
-	// 		if (
-	// 			activeTabIndex === 0 ||
-	// 			success === false ||
-	// 			(previousActiveIndex && activeTabIndex && activeTabIndex === previousActiveIndex)
-	// 		) {
-	// 			console.log('making api call to get browser urls');
-	// 		} else if (response?.[0] && success === true) {
-	// 			handleGlobalChatMessages({
-	// 				sessionId: sessionId,
-	// 				browserData: response?.[1],
-	// 				updateExtraInfo: true,
-	// 			});
-	// 			delete activePollTimeouts[sessionId];
-	// 			return;
-	// 		} else {
-	// 			delete activePollTimeouts[sessionId];
-	// 			return;
-	// 		}
-	// 	} catch (error) {
-	// 		console.error('error==>getBrowserUrls', error);
-	// 		delete activePollTimeouts[sessionId];
-	// 		return;
-	// 	}
-
-	// 	count++;
-	// 	const timeoutId = setTimeout(poll, INTERVAL_MS);
-	// 	activePollTimeouts[sessionId] = timeoutId;
-	// };
-
-	// poll();
 };

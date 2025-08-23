@@ -6,7 +6,6 @@ import {
 	getBrowserUrls,
 	handleBrowserData,
 } from '../../../helpers/chat/chatHelpers';
-import { establishSocketConnection } from '../../../helpers/chat/browserSocket';
 import Context from '../../../context/context';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
@@ -110,7 +109,6 @@ const RecentChat = ({
 	// const aiCitationsByIdRef = useRef({});
 	const tabsRefs = useRef({});
 	const previousTabsRefs = useRef({});
-	const isFirstTimeConnectingToPublicChatRef = useRef(true);
 	const agentTimeoutIdRef = useRef(null);
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -205,15 +203,6 @@ const RecentChat = ({
 			});
 		}
 	}, [globalChatMessages?.[sessionId]?.open_browser]);
-
-	// useEffect(() => {
-	// 	if (browserData) {
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			browserPreviousActiveTabIndex: browserData?.activeTabIndex,
-	// 		}));
-	// 	}
-	// }, [browserData]);
 
 	// useEffect(() => {
 	// 	if (info?.getFollowUpQueries) {
@@ -894,26 +883,6 @@ const RecentChat = ({
 		});
 	}, [location, sessionId, updateStateValues]);
 
-	// browser socket
-	const onBrowserMessageFunc = useCallback((event, sessionId) => {
-		let { data = '' } = event || {};
-		data = JSON?.parse(data);
-		if (data?.type === 'new-tab-activated') {
-			handleGlobalChatMessages({
-				sessionId,
-				browserTabsInfo: {
-					...data,
-					browserDisconnected: false,
-				},
-				updateExtraInfo: true,
-			});
-		}
-	}, []);
-
-	const handleBrowserSocketConnection = useCallback((sessionId) => {
-		establishSocketConnection(sessionId, onBrowserMessageFunc);
-	}, []);
-
 	// stream chat
 	const onMessageFunc = useCallback(
 		(event, currentSessionId) => {
@@ -975,12 +944,7 @@ const RecentChat = ({
 			const { message_chunk_id, toolName } = data;
 
 			if (toolName) {
-				getBrowserUrls(
-					sessionId,
-					handleGlobalChatMessages,
-					info?.browserPreviousActiveTabIndex,
-				);
-				// handleBrowserSocketConnection(sessionId);
+				getBrowserUrls(sessionId, handleGlobalChatMessages);
 			}
 
 			if (message_chunk_id) {
@@ -996,12 +960,7 @@ const RecentChat = ({
 				});
 			}
 		},
-		[
-			globalChatMessages,
-			sessionId,
-			handleBrowserSocketConnection,
-			info?.browserPreviousActiveTabIndex,
-		],
+		[globalChatMessages, sessionId],
 	);
 
 	const handleSendWebsocketMessage = useCallback(
@@ -1030,14 +989,7 @@ const RecentChat = ({
 				// Handle error appropriately (show notification, etc.)
 			}
 		},
-		[
-			sendMessage,
-			sessionId,
-			onMessageFunc,
-			agentType,
-			isPublicChat,
-			handleBrowserSocketConnection,
-		],
+		[sendMessage, sessionId, onMessageFunc, agentType, isPublicChat],
 	);
 
 	const handleViewDocument = useCallback((value) => {
