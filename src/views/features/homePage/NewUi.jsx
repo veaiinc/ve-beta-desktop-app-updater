@@ -359,7 +359,7 @@ const NewUi = ({ handleActiveChatChange }) => {
 	}, [info?.isLoadingChats]);
 
 	useEffect(() => {
-		getProactiveHeadings();
+		getProactiveHeadings({ module: 'chat' });
 	}, []);
 
 	useEffect(() => {

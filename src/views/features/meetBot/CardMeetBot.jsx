@@ -144,7 +144,7 @@ const CardMeetBot = () => {
 		}
 	}, [info.searchOpen]);
 	useEffect(() => {
-		getProactiveHeadings();
+		getProactiveHeadings({ module: 'meeting' });
 	}, []);
 
 	// Search open/close toggle handler
