@@ -175,6 +175,7 @@ const AskAIApp = () => {
 				date: [],
 				selected_model: null,
 				location: null,
+				image_data_base64: base64Image,
 			};
 
 			// Add location details
