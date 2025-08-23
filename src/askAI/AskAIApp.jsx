@@ -143,7 +143,6 @@ const AskAIApp = () => {
 		if (!inputValue.trim()) return;
 
 		const hasPermission = await requestScreenPermissionIfNeeded();
-		if (!hasPermission) return;
 
 		const queryValue = inputValue.trim();
 		setInputValue(''); // Clear input immediately after submission
