@@ -4,6 +4,7 @@ import {
 	handleDeepSearchChainOfThought,
 	handleDeepResearchChainOfThought,
 	getBrowserUrls,
+	handleBrowserData,
 } from '../../../helpers/chat/chatHelpers';
 import { establishSocketConnection } from '../../../helpers/chat/browserSocket';
 import Context from '../../../context/context';
@@ -654,15 +655,24 @@ const RecentChat = ({
 					};
 				}
 				let processing = null,
-					memoryThinking = null;
+					memoryThinking = null,
+					browserTools = null,
+					browserPlan = null,
+					openBrowser = false;
+
 				let deepSearch = {},
 					deepResearch = {},
 					normalSearch = {};
 
 				if (chainOfThought?.length > 0) {
 					for (let i = 0; i < chainOfThought?.length; i++) {
-						const { deep_search, deep_research, memory_thinking, normal_search } =
-							chainOfThought?.[i] || {};
+						const {
+							deep_search,
+							deep_research,
+							memory_thinking,
+							normal_search,
+							open_browser,
+						} = chainOfThought?.[i] || {};
 						if (deep_search) {
 							processing = 'Deep Search';
 							break;
@@ -674,6 +684,9 @@ const RecentChat = ({
 							break;
 						} else if (memory_thinking) {
 							memoryThinking = memory_thinking;
+							break;
+						} else if (open_browser) {
+							openBrowser = true;
 						}
 					}
 
@@ -683,6 +696,10 @@ const RecentChat = ({
 						deepResearch = handleDeepResearchChainOfThought(chainOfThought);
 					} else if (processing === 'Normal Search') {
 						normalSearch = handleDeepSearchChainOfThought(chainOfThought);
+					} else if (openBrowser) {
+						const data = handleBrowserData(chainOfThought);
+						browserTools = data?.browserTools;
+						browserPlan = data?.browserPlan;
 					}
 				}
 
@@ -712,6 +729,8 @@ const RecentChat = ({
 						...(processing === 'Deep Research' && { deepResearch }),
 						...(processing === 'Normal Search' && { normalSearch }),
 						...(memoryThinking && { memory_thinking: memoryThinking }),
+						...(browserTools && { browserTools }),
+						...(browserPlan && { browserPlan }),
 					},
 				]?.concat(messages);
 			}

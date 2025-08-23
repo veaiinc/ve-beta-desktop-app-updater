@@ -233,6 +233,22 @@ export const handleCombinedChainOfThought = (chainOfThought) => {
 	};
 };
 
+export const handleBrowserData = (chainOfThought) => {
+	const browserTools = [];
+	let browserPlan = null;
+	for (let i = 0; i < chainOfThought?.length; i++) {
+		const data = chainOfThought?.[i] || {};
+		const { planType, toolType } = data;
+
+		if (planType === 'plan') {
+			browserPlan = data;
+		} else if (toolType === 'tool') {
+			browserTools?.push(data);
+		}
+	}
+	return { browserTools, browserPlan };
+};
+
 const activePollTimeouts = {};
 
 export const getBrowserUrls = async (sessionId, handleGlobalChatMessages, previousActiveIndex) => {
