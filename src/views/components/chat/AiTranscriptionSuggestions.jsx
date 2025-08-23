@@ -208,7 +208,9 @@ const AiTranscriptionSuggestions = ({
 												<div className={s.header}>Ask User</div>
 												<div className={s.body}>
 													<div className={s.questionText}>
-														{suggestion?.query || ''}
+														{suggestion?.query ||
+															suggestion?.prompt ||
+															''}
 													</div>
 												</div>
 											</div>,
@@ -238,14 +240,18 @@ const AiTranscriptionSuggestions = ({
 														className={s.body}
 														onClick={() =>
 															handleActionClick(
-																suggestion?.query || '',
+																suggestion?.query ||
+																	suggestion?.prompt ||
+																	'',
 																true,
 															)
 														}
 													>
 														<div className={s.questionText}>
 															<div className={s.text}>
-																{suggestion?.query || ''}
+																{suggestion?.query ||
+																	suggestion?.prompt ||
+																	''}
 															</div>
 														</div>
 														{suggestion?.is_memory_used && (
@@ -267,12 +273,16 @@ const AiTranscriptionSuggestions = ({
 														className={s.actionContainer}
 														onClick={() =>
 															handleActionClick(
-																suggestion?.query || '',
+																suggestion?.query ||
+																	suggestion?.prompt ||
+																	'',
 															)
 														}
 													>
 														<div className={s.iconContainer}></div>
-														{suggestion?.query || ''}
+														{suggestion?.query ||
+															suggestion?.prompt ||
+															''}
 													</div>
 													<div className={s.horizontalLine} />
 												</div>,
@@ -326,7 +336,7 @@ const AiTranscriptionSuggestions = ({
 									<div className={s.header}>Ask User</div>
 									<div className={s.body}>
 										<div className={s.questionText}>
-											{question?.query || ''}
+											{question?.query || question?.prompt || ''}
 										</div>
 									</div>
 								</div>
@@ -344,11 +354,16 @@ const AiTranscriptionSuggestions = ({
 									<div
 										className={s.body}
 										onClick={() =>
-											handleActionClick(question?.query || '', true)
+											handleActionClick(
+												question?.query || question?.prompt || '',
+												true,
+											)
 										}
 									>
 										<div className={s.questionText}>
-											<div className={s.text}>{question?.query || ''}</div>
+											<div className={s.text}>
+												{question?.query || question?.prompt || ''}
+											</div>
 										</div>
 										{question?.is_memory_used && (
 											<div className={s.memoryUsedContainer}>
@@ -373,10 +388,12 @@ const AiTranscriptionSuggestions = ({
 								<div
 									className={s.actionContainer}
 									key={index}
-									onClick={() => handleActionClick(action?.query || '')}
+									onClick={() =>
+										handleActionClick(action?.query || action?.prompt || '')
+									}
 								>
 									<div className={s.iconContainer}></div>
-									{action?.query || ''}
+									{action?.query || action?.prompt || ''}
 								</div>
 								<div className={s.horizontalLine} />
 							</>

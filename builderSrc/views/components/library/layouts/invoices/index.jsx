@@ -535,6 +535,8 @@ class Invoice extends Component {
 									const unit =
 										value?.unit == 'none' || value?.unit == 0 || !value?.unit
 											? ''
+											: value?.unit?.toLowerCase() == 'upi'
+											? value?.unit
 											: value?.unit?.slice(0, -1);
 									const isTotalFixed = table?.styles?.services_selection == 2;
 									return (
@@ -1487,6 +1489,8 @@ class Invoice extends Component {
 						const unit =
 							value?.unit == 'none' || value?.unit == 0 || !value?.unit
 								? ''
+								: value?.unit?.toLowerCase() == 'upi'
+								? value?.unit
 								: value?.unit?.slice(0, -1);
 						return (
 							<div className="invoice-wrapper">
@@ -1531,10 +1535,7 @@ class Invoice extends Component {
 											}}
 										>
 											{/* {value?.imageURL && ( */}
-											{_.has(this.state?.style, 'labels') &&
-											!this.state?.style?.labels?.showImage ? (
-												''
-											) : (
+											{(this.state?.style?.labels?.showImage ?? true) && (
 												<>
 													{!this.props?.client ? (
 														<div
@@ -1644,9 +1645,12 @@ class Invoice extends Component {
 														style={{
 															width: '100%',
 															color: this.state?.style?.valueColor,
+															WebkitTextFillColor:
+																this.state?.style?.valueColor,
 															resize: 'none', // Disables manual resizing
 															minHeight: '30px',
 															overflow: 'hidden', // Prevent scrollbars
+															opacity: 1,
 														}}
 														value={value?.title}
 														placeholder="enter Title here"
@@ -1674,10 +1678,8 @@ class Invoice extends Component {
 														disabled={this.props?.client}
 													/>
 												</span>
-												{_.has(this.state?.style, 'labels') &&
-												!this.state?.style?.labels?.showDescription ? (
-													''
-												) : (
+												{(this.state?.style?.labels?.showDescription ??
+													true) && (
 													<span
 														className="serv-content-desc"
 														style={{
@@ -1700,9 +1702,12 @@ class Invoice extends Component {
 																width: '100%',
 																color: this.state?.style
 																	?.valueColor,
+																WebkitTextFillColor:
+																	this.state?.style?.valueColor,
 																resize: 'none',
 																minHeight: '30px',
 																overflow: 'hidden',
+																opacity: 1,
 															}}
 															value={value?.description}
 															placeholder="enter description here"
@@ -2498,7 +2503,7 @@ class Invoice extends Component {
 									className="component"
 									style={{
 										...this.props?.blocks[0]?.subBlocks[0]?.divStyles,
-										zoom: this.state?.previewType === 'm' ? 0.65 : 1,
+										// zoom: this.state?.previewType === 'm' ? 0.65 : 1,
 									}}
 								>
 									<Text
@@ -3397,6 +3402,7 @@ class Invoice extends Component {
 							isWorkflow={this.props.isWorkflow}
 							previewType={this.props.previewType}
 							handleCardPopupProps={(e) => {
+								console.log('e in invoice jeevan', e);
 								if (e?.shouldClose) {
 									this.setState({ showPopup: false });
 								} else {

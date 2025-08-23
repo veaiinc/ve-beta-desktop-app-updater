@@ -1,7 +1,7 @@
 {
 	"name": "VEAI",
 	"description": "Your living intelligence remembers everything, sees what you see, figures out your goals, and doesn’t stop until they're done.",
-	"version": "v0.2.7",
+	"version": "v0.2.9",
 	"private": true,
 	"main": "dist-electron/main.js",
 	"author": "Ve AI",
@@ -158,6 +158,22 @@
 			"publishAutoUpdate": true
 		},
 		"mac": {
+			"target": [
+				{
+					"target": "dmg",
+					"arch": [
+						"x64",
+						"arm64"
+					]
+				},
+				{
+					"target": "zip",
+					"arch": [
+						"x64",
+						"arm64"
+					]
+				}
+			],
 			"icon": "./electron/assets/app-logo.icns",
 			"artifactName": "Ve.AI-${arch}-${os}.${ext}",
 			"category": "public.app-category.business",
