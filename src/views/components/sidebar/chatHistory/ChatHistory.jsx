@@ -5,9 +5,10 @@ import Context from '../../../../context/context';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import InfiniteScroll from '../../../components/globalComponents/InfiniteScroll';
 import moment from 'moment';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 // import ObjectID from 'bson-objectid';
 import Spinner from '../../loaders/Spinner';
+
 const infiniteScrollStyle = {
 	display: 'flex',
 	flexDirection: 'column',
@@ -20,12 +21,18 @@ const infiniteScrollStyle = {
 const skeletonLoaders = Array?.from({ length: 30 }, (_, index) => index + 1);
 const page = 1;
 const limit = 10;
-const append = true;
+const reset = true;
 
 const ChatHistory = ({ onChatSelect, isClosed = false }) => {
 	const navigate = useNavigate();
+	const [searchParams] = useSearchParams();
 	const {
-		aiSetup: { getAiChatSessions, aiChatSessions },
+		aiSetup: {
+			getAiChatSessions,
+			aiChatSessions,
+			aiChatSessionsFilters,
+			updateStateValues: updateAiSetupStateValues,
+		},
 		templates: {
 			refetchChatHistoryList,
 			updateStateValues,
@@ -48,7 +55,10 @@ const ChatHistory = ({ onChatSelect, isClosed = false }) => {
 	// );
 
 	useEffect(() => {
-		if (!aiChatSessions || aiChatSessions?.getData) {
+		const filterAgentType = aiChatSessionsFilters?.agentType ?? 'multi_agent';
+		const paramsAgentType = searchParams?.get('agentType') ?? 'multi_agent';
+
+		if (!aiChatSessions || aiChatSessions?.getData || filterAgentType !== paramsAgentType) {
 			fetchChats();
 		}
 		// const timeoutId = setTimeout(() => {
@@ -81,14 +91,23 @@ const ChatHistory = ({ onChatSelect, isClosed = false }) => {
 		}
 	}, [refetchChatHistoryList]);
 
-	const fetchChats = useCallback(() => {
-		getAiChatSessions(page, limit, append);
-	}, []);
+	const fetchChats = useCallback(async () => {
+		const agentType = searchParams?.get('agentType') ?? 'multi_agent';
+		await getAiChatSessions({ reset, filters: { page, limit, agentType: [agentType] } });
+		updateAiSetupStateValues({
+			aiChatSessionsFilters: { agentType },
+		});
+	}, [searchParams]);
 
 	const fetchMoreChats = () => {
+		const agentType = searchParams?.get('agentType') ?? 'multi_agent';
+
 		if (hasNextPage) {
 			const nextPage = currentPage + 1;
-			getAiChatSessions(nextPage, limit, !append);
+			getAiChatSessions({
+				reset: !reset,
+				filters: { page: nextPage, limit, agentType: [agentType] },
+			});
 		}
 	};
 
@@ -131,9 +150,11 @@ const ChatHistory = ({ onChatSelect, isClosed = false }) => {
 		return 'Older';
 	}, []);
 
+	const paramsAgentType = searchParams?.get('agentType') ?? 'multi_agent';
 	const chats = aiChatSessions?.data;
 	const emptyChatsState = aiChatSessions?.data?.length === 0;
-	const loadingState = aiChatSessions?.data === undefined;
+	const loadingState =
+		aiChatSessions?.data === undefined || paramsAgentType !== aiChatSessionsFilters?.agentType;
 	const hasNextPage = aiChatSessions?.hasMore || false;
 	const currentPage = aiChatSessions?.currentPage || 1;
 

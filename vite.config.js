@@ -60,6 +60,7 @@ export default defineConfig({
 			input: {
 				main: './index.html',
 				overlay: './overlay.html',
+				askAI: './askAI.html',
 			},
 		},
 	},

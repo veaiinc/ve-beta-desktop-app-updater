@@ -73,7 +73,7 @@ const ProgressCircles = () => (
 	<div className="progress-circles">
 		<ProgressCircle color="#8B5CF6" isActive={true} />
 		<ProgressCircle color="#EF4444" isActive={false} />
-		<ProgressCircle color="#3B82F6" isActive={false} />
+		<ProgressCircle color="#79ecc9" isActive={false} />
 		<div className="add-button">
 			<Plus />
 		</div>
