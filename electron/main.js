@@ -369,6 +369,42 @@ app.whenReady().then(() => {
 		}
 	});
 
+	// New handler to track ask AI input focus state
+	ipcMain.handle('set-askAI-input-focus', async (event, isFocused) => {
+		try {
+			// Store the focus state globally so overlay can access it
+			global.askAIInputFocused = isFocused;
+			return { success: true };
+		} catch (error) {
+			log.error('Error setting ask AI input focus state:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Handler to get ask AI input focus state
+	ipcMain.handle('get-askAI-input-focus', async () => {
+		try {
+			return { success: true, isFocused: global.askAIInputFocused || false };
+		} catch (error) {
+			log.error('Error getting ask AI input focus state:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// New handler to hide all windows (overlay and ask AI)
+	ipcMain.handle('hide-all-windows', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.hideAllWindows();
+			return { success: true };
+		} catch (error) {
+			log.error('Error hiding all windows:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	// Register gallery IPC handlers from galleryUtils
 	ipcMain.handle('process-image-with-sharp', processImageWithSharp);
 	ipcMain.handle('extract-image-metadata', extractImageMetadata);
@@ -471,6 +507,39 @@ app.whenReady().then(() => {
 				success: false,
 				error: error.message,
 				granted: false,
+			};
+		}
+	});
+
+	// Send tab content to Ask AI handler
+	ipcMain.handle('send-tab-content-to-askai', async (event, tabContent) => {
+		try {
+			log.info('Sending tab content to Ask AI:', tabContent);
+
+			// Get the Ask AI window through windowHelper
+			const askAIWindow = windowHelper.getAskAIWindow();
+
+			// Send the content to Ask AI window if it exists
+			if (askAIWindow && !askAIWindow.isDestroyed()) {
+				askAIWindow.webContents.send('receive-tab-content', tabContent);
+				return { success: true };
+			} else {
+				// If Ask AI window doesn't exist, create it and send content
+				windowHelper.showAskAIWindow();
+				// Wait a bit for the window to be ready
+				setTimeout(() => {
+					const newAskAIWindow = windowHelper.getAskAIWindow();
+					if (newAskAIWindow && !newAskAIWindow.isDestroyed()) {
+						newAskAIWindow.webContents.send('receive-tab-content', tabContent);
+					}
+				}, 500);
+				return { success: true };
+			}
+		} catch (error) {
+			log.error('Error sending tab content to Ask AI:', error);
+			return {
+				success: false,
+				error: error.message,
 			};
 		}
 	});

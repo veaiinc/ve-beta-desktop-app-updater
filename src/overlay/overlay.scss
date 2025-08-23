@@ -58,7 +58,6 @@
 	}
 }
 
-
 // Live Intelligence Container
 .live-intelligence-container {
 	display: flex;
@@ -70,6 +69,10 @@
 	overflow: hidden;
 	z-index: 10000;
 	position: relative;
+	background: rgba(0, 0, 0, 0.65);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 // Transcript Container
@@ -86,8 +89,11 @@
 	overflow: hidden;
 	z-index: 10000;
 	position: relative;
+	background: rgba(0, 0, 0, 0.65);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	border: 1px solid rgba(255, 255, 255, 0.1);
 }
-
 
 // Animations
 // @keyframes fadeIn {

@@ -5,10 +5,10 @@
 	align-items: center;
 	gap: 6px;
 	border-radius: 6px;
-	border: 0.5px solid rgba(255, 255, 255, 0.15);
-	background: linear-gradient(0deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.1) 100%),
-		rgba(0, 0, 0, 0.5);
-	backdrop-filter: blur(5px);
+	border: 0.5px solid rgba(255, 255, 255, 0.1);
+	background: rgba(0, 0, 0, 0.65);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
 
 	&__item {
 		display: flex;
@@ -73,6 +73,29 @@
 
 			.shortcut-bar__icon {
 				color: #dc3545;
+			}
+		}
+
+		&--paused {
+			background: rgba(255, 193, 7, 0.1);
+			border: 1px solid rgba(255, 193, 7, 0.2);
+
+			&:hover {
+				background: rgba(255, 193, 7, 0.2);
+				border-color: rgba(255, 193, 7, 0.4);
+			}
+
+			&:active {
+				background: rgba(255, 193, 7, 0.3);
+				transform: scale(0.98);
+			}
+
+			.shortcut-bar__label {
+				color: #ffc107;
+			}
+
+			.shortcut-bar__icon {
+				color: #ffc107;
 			}
 		}
 	}
@@ -183,7 +206,7 @@
 		background: rgba(0, 0, 0, 0.85);
 		backdrop-filter: blur(16px);
 		-webkit-backdrop-filter: blur(16px);
-		border: 1px solid rgba(255, 255, 255, 0.15);
+		border: 1px solid rgba(255, 255, 255, 0.1);
 		border-radius: 10px;
 		padding: 16px;
 		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);

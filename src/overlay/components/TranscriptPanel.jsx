@@ -23,12 +23,13 @@ const TranscriptionItem = memo(({ speaker, text, timestamp }) => {
 	);
 });
 
-const TranscriptPanel = ({ 
-	onClose, 
+const TranscriptPanel = ({
+	onClose,
 	onShowLiveIntelligence,
 	// Shared state from parent
 	transcriptions,
 	isRecording,
+	isPaused = false,
 	timer,
 	isMuted,
 	isConnected,
@@ -39,7 +40,7 @@ const TranscriptPanel = ({
 	onStopTranscription,
 	onMuteAudio,
 	onUnmuteAudio,
-	onClearTranscripts
+	onClearTranscripts,
 }) => {
 	const containerRef = useRef(null);
 	const [showScrollButton, setShowScrollButton] = useState(false);
@@ -67,25 +68,28 @@ const TranscriptPanel = ({
 			<div className="transcript-panel-header">
 				<div className="transcript-panel-header-left">
 					<h2 className="transcript-panel-header-left-title">
-						Transcript {isRecording && formatTime(timer)}
+						Transcript{' '}
+						{isRecording && (
+							<span className={`recording-timer ${isPaused ? 'paused' : ''}`}>
+								{isPaused ? '⏸ ' : ''}
+								{formatTime(timer)}
+							</span>
+						)}
 					</h2>
 				</div>
 				<div className="transcript-panel-header-right">
-					<button 
-						className="transcript-panel-header-right-button" 
+					<button
+						className="transcript-panel-header-right-button"
 						onClick={onShowLiveIntelligence}
 						title="Show Live Intelligence"
 					>
 						<Clock size={16} />
 						<span>Show Live Intelligence</span>
 					</button>
-					<button 
-						className="transcript-panel-header-action"
-						title="Expand"
-					>
+					<button className="transcript-panel-header-action" title="Expand">
 						<Expand size={16} />
 					</button>
-					<button 
+					<button
 						className="transcript-panel-header-action"
 						onClick={onClose}
 						title="Close"
@@ -94,7 +98,7 @@ const TranscriptPanel = ({
 					</button>
 				</div>
 			</div>
-			
+
 			<div className="transcript-content-container">
 				<div className="transcript-content" ref={containerRef} onScroll={handleScroll}>
 					{transcriptions.length > 0 ? (
@@ -108,14 +112,16 @@ const TranscriptPanel = ({
 						))
 					) : (
 						<div className="transcript-placeholder">
-							{isRecording ? 'Listening...' : 'Click Listen to start recording and see transcript'}
+							{isRecording
+								? 'Listening...'
+								: 'Click Listen to start recording and see transcript'}
 						</div>
 					)}
 				</div>
-				
+
 				{/* Scroll to bottom button */}
 				{showScrollButton && (
-					<button 
+					<button
 						className="scroll-to-bottom-btn"
 						onClick={scrollToBottom}
 						title="View Latest"
@@ -127,13 +133,13 @@ const TranscriptPanel = ({
 			</div>
 
 			<div className="transcript-controls">
-				<div className="transcript-timer">
-					{formatTime(timer)}
-				</div>
-				
+				<div className="transcript-timer">{formatTime(timer)}</div>
+
 				<div className="transcript-status">
 					{isRecording ? (
-						isMuted ? (
+						isPaused ? (
+							<div className="status-paused">Paused</div>
+						) : isMuted ? (
 							<div className="status-muted">Muted</div>
 						) : (
 							<div className="status-recording">Recording...</div>
@@ -145,23 +151,14 @@ const TranscriptPanel = ({
 
 				<div className="transcript-actions">
 					{isRecording && (
-						<>
-							<button
-								className="control-btn stop-btn"
-								onClick={onStopTranscription}
-								title="Stop Recording"
-							>
-								<X size={18} />
-							</button>
-							<button
-								className={`control-btn mic-btn ${isMuted ? 'muted' : ''}`}
-								onClick={isMuted ? onUnmuteAudio : onMuteAudio}
-								disabled={!localAudioTrack || !isConnected}
-								title={isMuted ? 'Unmute' : 'Mute'}
-							>
-								{isMuted ? <MicOff size={18} /> : <Mic size={18} />}
-							</button>
-						</>
+						<button
+							className={`control-btn mic-btn ${isMuted ? 'muted' : ''}`}
+							onClick={isMuted ? onUnmuteAudio : onMuteAudio}
+							disabled={!localAudioTrack || !isConnected}
+							title={isMuted ? 'Unmute' : 'Mute'}
+						>
+							{isMuted ? <MicOff size={18} /> : <Mic size={18} />}
+						</button>
 					)}
 				</div>
 			</div>

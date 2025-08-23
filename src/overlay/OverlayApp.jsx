@@ -13,6 +13,15 @@ import LiveIntelligencePanel from './components/LiveIntelligencePanel';
 import TranscriptPanel from './components/TranscriptPanel';
 import OverlayNotification, { useOverlayNotification } from './components/OverlayNotification';
 import './overlay.scss';
+import { transcription_socket } from '../services/config.live';
+
+const initialState = {
+	allThreads: [],
+	askUser: [],
+	needHelp: [],
+	actions: [],
+	files: [],
+};
 
 const OverlayApp = () => {
 	const containerRef = useRef(null);
@@ -23,22 +32,20 @@ const OverlayApp = () => {
 	const notification = useOverlayNotification();
 
 	// Shared Recording State
-	const wsUrl = 'wss://ve-ai-transcriptions-8p8k0b44.livekit.cloud';
+	const wsUrl = transcription_socket;
 	const [liveKitToken, setLiveKitToken] = useState(null);
 	const [transcriptions, setTranscriptions] = useState([]);
 	const [isRecording, setIsRecording] = useState(false);
+	const [isPaused, setIsPaused] = useState(false);
 	const [timer, setTimer] = useState(0);
 	const [recordingStartTime, setRecordingStartTime] = useState(null);
 
 	// Live Intelligence Socket Data
-	const [liveIntelligenceData, setLiveIntelligenceData] = useState({
-		allThreads: [],
-		askUser: [],
-		needHelp: [],
-		actions: [],
-		files: [],
-	});
+	const [liveIntelligenceData, setLiveIntelligenceData] = useState(initialState);
 	const [recallSessionId, setRecallSessionId] = useState(null);
+
+	// Ask AI input state
+	const [isAskAIInputFocused, setIsAskAIInputFocused] = useState(false);
 
 	// Refs for data management
 	const transcriptionsMapRef = useRef(new Map());
@@ -68,6 +75,7 @@ const OverlayApp = () => {
 		wsUrl,
 		token: liveKitToken,
 		isRecording,
+		isPaused,
 	});
 
 	const { closeWebSocketConnection: closeLiveIntelligenceConnection } =
@@ -90,7 +98,31 @@ const OverlayApp = () => {
 			  }
 			: undefined;
 
+	// Log trackRef changes for debugging
+	useEffect(() => {
+		console.log('🎯 TrackRef updated:', {
+			hasLocalParticipant: !!localParticipant,
+			hasLocalAudioTrack: !!localAudioTrack,
+			hasTrackRef: !!trackRef,
+			isRecording,
+			isPaused,
+			isConnected,
+		});
+	}, [trackRef, localParticipant, localAudioTrack, isRecording, isPaused, isConnected]);
+
 	const { segments } = useTrackTranscription(trackRef);
+
+	// Log segments changes for debugging
+	useEffect(() => {
+		console.log('📝 Segments updated:', {
+			segmentsCount: segments?.length || 0,
+			hasSegments: !!segments && segments.length > 0,
+			isRecording,
+			isPaused,
+			isConnected,
+			hasTrackRef: !!trackRef,
+		});
+	}, [segments, isRecording, isPaused, isConnected, trackRef]);
 
 	// Utility Functions
 	const formatTime = (seconds) => {
@@ -271,23 +303,7 @@ const OverlayApp = () => {
 		isStoppingRef.current = false;
 
 		// Clear all previous state before starting new recording
-		setTranscriptions([]);
-		transcriptionsMapRef.current.clear();
-		displayedTextMapRef.current.clear();
-		processedSegmentsRef.current.clear();
-		typingIntervalsRef.current.forEach((interval) => clearInterval(interval));
-		typingIntervalsRef.current.clear();
-		setTimer(0);
-		setRecordingStartTime(null);
-
-		// Clear Live Intelligence data
-		setLiveIntelligenceData({
-			allThreads: [],
-			askUser: [],
-			needHelp: [],
-			actions: [],
-			files: [],
-		});
+		clearAllTranscriptionData();
 
 		const newSessionId = ObjectID().toString();
 		sessionIdRef.current = newSessionId;
@@ -300,7 +316,9 @@ const OverlayApp = () => {
 			// Show info notification that we're requesting permission
 			const permissionNotificationId = notification.info(
 				'Requesting microphone access',
+				'Requesting microphone access',
 				'Please allow microphone access when prompted by your browser.',
+				0, // Don't auto-dismiss
 				0, // Don't auto-dismiss
 			);
 
@@ -318,8 +336,12 @@ const OverlayApp = () => {
 						errorMessage = 'Microphone permission required';
 						errorDescription =
 							'Please enable microphone access in your browser/system settings and restart the app.';
+						errorDescription =
+							'Please enable microphone access in your browser/system settings and restart the app.';
 					} else {
 						errorMessage = 'Microphone permission needed';
+						errorDescription =
+							'Please allow microphone access when prompted and try again.';
 						errorDescription =
 							'Please allow microphone access when prompted and try again.';
 					}
@@ -329,8 +351,17 @@ const OverlayApp = () => {
 						permissionResult.error?.name === 'NotFoundError'
 							? 'No microphone found'
 							: 'Microphone access failed';
+					errorMessage =
+						permissionResult.error?.name === 'NotFoundError'
+							? 'No microphone found'
+							: 'Microphone access failed';
 					errorDescription = permissionResult.error?.message || errorDescription;
 				}
+
+				console.error(
+					'Microphone access failed before LiveKit connection:',
+					permissionResult,
+				);
 
 				console.error(
 					'Microphone access failed before LiveKit connection:',
@@ -343,6 +374,10 @@ const OverlayApp = () => {
 			// Test LiveKit compatibility
 			const compatibilityResult = await testLiveKitCompatibility();
 			if (!compatibilityResult.success) {
+				console.warn(
+					'LiveKit compatibility test failed, but proceeding with connection attempt:',
+					compatibilityResult.error,
+				);
 				console.warn(
 					'LiveKit compatibility test failed, but proceeding with connection attempt:',
 					compatibilityResult.error,
@@ -374,6 +409,10 @@ const OverlayApp = () => {
 					'Connection failed',
 					'Failed to fetch transcription token. Please try again.',
 				);
+				notification.error(
+					'Connection failed',
+					'Failed to fetch transcription token. Please try again.',
+				);
 			}
 		} catch (err) {
 			console.error('Error fetching LiveKit token:', err);
@@ -385,8 +424,28 @@ const OverlayApp = () => {
 					'Connection error',
 					'Error fetching transcription token. Please try again.',
 				);
+				notification.error(
+					'Connection error',
+					'Error fetching transcription token. Please try again.',
+				);
 			}
 		}
+	};
+
+	const handlePauseTranscription = () => {
+		console.log('🔄 Pausing transcription...');
+		setIsPaused(true);
+		// Pause the timer
+		setTimer((prev) => prev);
+		console.log('✅ Transcription paused');
+	};
+
+	const handleResumeTranscription = () => {
+		console.log('🔄 Resuming transcription...');
+		setIsPaused(false);
+		// Resume the timer
+		setTimer((prev) => prev);
+		console.log('✅ Transcription resumed');
 	};
 
 	const handleStopTranscription = () => {
@@ -394,22 +453,14 @@ const OverlayApp = () => {
 		isStoppingRef.current = true;
 
 		// Immediately clear UI and session
-		setTranscriptions([]);
+		clearAllTranscriptionData();
 		setIsRecording(false);
+		setIsPaused(false);
 		setLiveKitToken(null);
-		setRecordingStartTime(null);
-		setTimer(0);
 
 		// Clear session reference immediately
 		const currentSessionId = sessionIdRef.current;
 		sessionIdRef.current = null;
-
-		// Clear all refs and intervals
-		transcriptionsMapRef.current.clear();
-		displayedTextMapRef.current.clear();
-		processedSegmentsRef.current.clear();
-		typingIntervalsRef.current.forEach((interval) => clearInterval(interval));
-		typingIntervalsRef.current.clear();
 
 		// Clean up connections
 		if (currentSessionId) {
@@ -420,14 +471,6 @@ const OverlayApp = () => {
 		closeRecallConnection();
 
 		setRecallSessionId(null);
-		// Clear Live Intelligence data
-		setLiveIntelligenceData({
-			allThreads: [],
-			askUser: [],
-			needHelp: [],
-			actions: [],
-			files: [],
-		});
 
 		// Reset stopping flag after cleanup
 		setTimeout(() => {
@@ -436,10 +479,7 @@ const OverlayApp = () => {
 	};
 
 	const handleClearTranscripts = () => {
-		setTranscriptions([]);
-		transcriptionsMapRef.current.clear();
-		displayedTextMapRef.current.clear();
-		processedSegmentsRef.current.clear();
+		clearAllTranscriptionData();
 	};
 
 	// Effects
@@ -453,20 +493,52 @@ const OverlayApp = () => {
 		};
 	}, []);
 
+	// Check ask AI input focus state periodically
+	useEffect(() => {
+		const checkAskAIFocus = async () => {
+			if (window.electronApi?.askAI?.getInputFocus) {
+				try {
+					const result = await window.electronApi.askAI.getInputFocus();
+					if (result.success) {
+						setIsAskAIInputFocused(result.isFocused);
+					}
+				} catch (error) {
+					console.error('Error checking ask AI input focus:', error);
+				}
+			}
+		};
+
+		// Check immediately
+		checkAskAIFocus();
+
+		// Check every 500ms to stay in sync
+		const interval = setInterval(checkAskAIFocus, 500);
+
+		return () => clearInterval(interval);
+	}, []);
+
 	// Timer Effect
 	useEffect(() => {
 		let interval;
-		if (isRecording && !isMuted) {
+		if (isRecording && !isMuted && !isPaused) {
 			interval = setInterval(() => {
 				setTimer((prev) => prev + 1);
 			}, 1000);
 		}
 		return () => clearInterval(interval);
-	}, [isRecording, isMuted]);
+	}, [isRecording, isMuted, isPaused]);
 
 	// Process transcription segments
 	useEffect(() => {
 		if (!segments || segments.length === 0 || isStoppingRef.current) return;
+
+		console.log('🎤 Processing transcription segments:', {
+			segmentsCount: segments.length,
+			isRecording,
+			isPaused,
+			isConnected,
+			hasLocalAudioTrack: !!localAudioTrack,
+		});
 
 		const transcriptionsMap = transcriptionsMapRef.current;
 
@@ -512,22 +584,23 @@ const OverlayApp = () => {
 			}
 		});
 
-		const updatedTranscriptions = Array.from(transcriptionsMap.values()).map(
-			(transcription) => ({
-				id: transcription.id,
-				speaker: transcription.speaker,
-				text: displayedTextMapRef.current.get(transcription.id) || '',
-				timestamp: transcription.timestamp,
-				isFinal: transcription.isFinal,
-			}),
-		);
-		setTranscriptions(updatedTranscriptions);
+		// const updatedTranscriptions = Array.from(transcriptionsMap.values()).map(
+		// 	(transcription) => ({
+		// 		id: transcription.id,
+		// 		speaker: transcription.speaker,
+		// 		text: displayedTextMapRef.current.get(transcription.id) || '',
+		// 		timestamp: transcription.timestamp,
+		// 		isFinal: transcription.isFinal,
+		// 	}),
+		// );
+		// setTranscriptions(updatedTranscriptions);
 	}, [segments, startTypingEffect, sendTranscriptionToRecall]);
 
 	// These effects are now handled by the main dimension update effect above
 
 	const handleListenClick = async () => {
 		// Toggle live intelligence panel and automatically start recording when opening
+		clearAllTranscriptionData();
 		if (activePanel === 'live-intelligence') {
 			// If panel is open, close it and stop recording
 			setActivePanel(null);
@@ -537,6 +610,9 @@ const OverlayApp = () => {
 		} else {
 			// Open live intelligence panel and start recording automatically
 			setActivePanel('live-intelligence');
+
+			// Always clear previous transcriptions and data when starting fresh
+
 			if (!isRecording) {
 				await handleStartTranscription();
 			}
@@ -549,6 +625,10 @@ const OverlayApp = () => {
 		if (isRecording) {
 			handleStopTranscription();
 		}
+
+		// Clear transcriptions and data when panel is closed
+		// This ensures a fresh start when reopening
+		clearAllTranscriptionData();
 	};
 
 	const handleShowTranscript = () => {
@@ -557,6 +637,21 @@ const OverlayApp = () => {
 
 	const handleShowLiveIntelligence = () => {
 		setActivePanel('live-intelligence');
+	};
+
+	// Helper function to clear all transcription data
+	const clearAllTranscriptionData = () => {
+		setTranscriptions([]);
+		transcriptionsMapRef.current.clear();
+		displayedTextMapRef.current.clear();
+		processedSegmentsRef.current.clear();
+		typingIntervalsRef.current.forEach((interval) => clearInterval(interval));
+		typingIntervalsRef.current.clear();
+		setTimer(0);
+		setRecordingStartTime(null);
+
+		// Clear Live Intelligence data
+		setLiveIntelligenceData(initialState);
 	};
 
 	const handleAskAIClick = () => {
@@ -570,6 +665,10 @@ const OverlayApp = () => {
 	const handleTestNotifications = () => {
 		notification.success('Test Success', 'This is a success notification');
 		setTimeout(() => {
+			notification.error(
+				'Test Error',
+				'This is an error notification with a longer description to test wrapping',
+			);
 			notification.error(
 				'Test Error',
 				'This is an error notification with a longer description to test wrapping',
@@ -683,6 +782,10 @@ const OverlayApp = () => {
 					onAskAIClick={handleAskAIClick}
 					isRecording={isRecording}
 					onStopRecording={handleStopTranscription}
+					onPauseRecording={handlePauseTranscription}
+					onResumeRecording={handleResumeTranscription}
+					isPaused={isPaused}
+					isAskAIInputFocused={isAskAIInputFocused}
 				/>
 
 				{/* Commands section */}
@@ -697,6 +800,7 @@ const OverlayApp = () => {
 						onShowTranscript={handleShowTranscript}
 						transcriptions={transcriptions}
 						isRecording={isRecording}
+						isPaused={isPaused}
 						timer={timer}
 						formatTime={formatTime}
 						socketData={liveIntelligenceData}
@@ -712,6 +816,7 @@ const OverlayApp = () => {
 						onShowLiveIntelligence={handleShowLiveIntelligence}
 						transcriptions={transcriptions}
 						isRecording={isRecording}
+						isPaused={isPaused}
 						timer={timer}
 						isMuted={isMuted}
 						isConnected={isConnected}

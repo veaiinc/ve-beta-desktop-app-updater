@@ -8,6 +8,7 @@ const LiveIntelligencePanel = ({
 	// Shared transcription data from parent (for future socket integration)
 	transcriptions = [],
 	isRecording = false,
+	isPaused = false,
 	timer = 0,
 	formatTime,
 	// Socket data for tabs (will be passed from parent)
@@ -20,6 +21,34 @@ const LiveIntelligencePanel = ({
 	},
 }) => {
 	const [activeTab, setActiveTab] = useState('all-threads');
+
+	// Handle tab click - only change active tab, don't send content to Ask AI
+	const handleTabClick = (tabKey) => {
+		setActiveTab(tabKey);
+		// Removed the content sending logic - tabs should only change the view
+		// Individual thread items will handle sending content to Ask AI
+	};
+
+	// Handle individual thread item click and send specific content to Ask AI
+	const handleThreadItemClick = (item, tabKey) => {
+		// Extract the main content text
+		const contentText = item.prompt || item.name || item.description || 'No content available';
+
+		// Prepare item content to send to Ask AI
+		const itemContent = {
+			type: 'individual-item',
+			tabKey,
+			tabLabel: tabs.find((tab) => tab.key === tabKey)?.label || tabKey,
+			itemContent: contentText,
+			itemData: item,
+			timestamp: new Date().toISOString(),
+		};
+
+		// Send specific item content to Ask AI
+		if (window.electronApi?.overlay?.sendTabContentToAskAI) {
+			window.electronApi.overlay.sendTabContentToAskAI(itemContent);
+		}
+	};
 
 	// Get badge counts from socket data
 	const getBadgeCount = (tabKey) => {
@@ -41,10 +70,18 @@ const LiveIntelligencePanel = ({
 
 	const tabs = [
 		{ key: 'all-threads', label: 'All Threads', count: getBadgeCount('all-threads') },
-		{ key: 'ask-user', label: 'Ask user', count: getBadgeCount('ask-user') },
-		{ key: 'need-help', label: 'Need help?', count: getBadgeCount('need-help') },
-		{ key: 'actions', label: 'Actions', count: getBadgeCount('actions') },
-		{ key: 'files', label: 'Files', count: getBadgeCount('files') },
+		...(getBadgeCount('ask-user') > 0
+			? [{ key: 'ask-user', label: 'Ask user', count: getBadgeCount('ask-user') }]
+			: []),
+		...(getBadgeCount('need-help') > 0
+			? [{ key: 'need-help', label: 'Need help?', count: getBadgeCount('need-help') }]
+			: []),
+		...(getBadgeCount('actions') > 0
+			? [{ key: 'actions', label: 'Actions', count: getBadgeCount('actions') }]
+			: []),
+		...(getBadgeCount('files') > 0
+			? [{ key: 'files', label: 'Files', count: getBadgeCount('files') }]
+			: []),
 	];
 
 	const renderTabContent = () => {
@@ -68,7 +105,12 @@ const LiveIntelligencePanel = ({
 					<div className="tab-content">
 						{socketData.allThreads?.length > 0 ? (
 							socketData.allThreads.map((thread, index) => (
-								<div key={index} className="thread-item">
+								<div
+									key={index}
+									className="thread-item clickable"
+									onClick={() => handleThreadItemClick(thread, 'all-threads')}
+									title="Click to ask AI about this thread"
+								>
 									<div className="thread-category">
 										{getCategoryLabel(thread.entity, thread.type)}
 									</div>
@@ -98,7 +140,12 @@ const LiveIntelligencePanel = ({
 					<div className="tab-content">
 						{socketData.askUser?.length > 0 ? (
 							socketData.askUser.map((item, index) => (
-								<div key={index} className="thread-item">
+								<div
+									key={index}
+									className="thread-item clickable"
+									onClick={() => handleThreadItemClick(item, 'ask-user')}
+									title="Click to ask AI about this question"
+								>
 									<div className="thread-category">Ask user</div>
 									<div className="thread-question">{item.prompt}</div>
 									{item.description && (
@@ -121,7 +168,12 @@ const LiveIntelligencePanel = ({
 					<div className="tab-content">
 						{socketData.needHelp?.length > 0 ? (
 							socketData.needHelp.map((item, index) => (
-								<div key={index} className="thread-item">
+								<div
+									key={index}
+									className="thread-item clickable"
+									onClick={() => handleThreadItemClick(item, 'need-help')}
+									title="Click to ask AI about this help suggestion"
+								>
 									<div className="thread-category">Need help?</div>
 									<div className="thread-question">{item.prompt}</div>
 									{item.description && (
@@ -144,7 +196,12 @@ const LiveIntelligencePanel = ({
 					<div className="tab-content">
 						{socketData.actions?.length > 0 ? (
 							socketData.actions.map((item, index) => (
-								<div key={index} className="thread-item">
+								<div
+									key={index}
+									className="thread-item clickable"
+									onClick={() => handleThreadItemClick(item, 'actions')}
+									title="Click to ask AI about this action item"
+								>
 									<div className="thread-category">Actions</div>
 									<div className="thread-question">{item.prompt}</div>
 									{item.description && (
@@ -167,7 +224,12 @@ const LiveIntelligencePanel = ({
 					<div className="tab-content">
 						{socketData.files?.length > 0 ? (
 							socketData.files.map((item, index) => (
-								<div key={index} className="thread-item">
+								<div
+									key={index}
+									className="thread-item clickable"
+									onClick={() => handleThreadItemClick(item, 'files')}
+									title="Click to ask AI about this file"
+								>
 									<div className="thread-category">Files</div>
 									<div className="thread-question">
 										{item.name || item.prompt}
@@ -201,7 +263,9 @@ const LiveIntelligencePanel = ({
 				<div className="live-intelligence-panel__title">
 					<span className="live-intelligence-panel__title-text">Live Intelligence</span>
 					{isRecording && formatTime && (
-						<span className="recording-indicator">● {formatTime(timer)}</span>
+						<span className={`recording-indicator ${isPaused ? 'paused' : ''}`}>
+							{isPaused ? '⏸' : '●'} {formatTime(timer)}
+						</span>
 					)}
 				</div>
 
@@ -241,7 +305,7 @@ const LiveIntelligencePanel = ({
 					<button
 						key={tab.key}
 						className={`tab-button ${activeTab === tab.key ? 'active' : ''}`}
-						onClick={() => setActiveTab(tab.key)}
+						onClick={() => handleTabClick(tab.key)}
 					>
 						<span className="tab-label">{tab.label}</span>
 						{tab.count > 0 && <span className="tab-badge">{tab.count}</span>}
