@@ -1,0 +1,336 @@
+.dynamic-island {
+	width: 250px;
+	height: 15px;
+	position: absolute;
+	top: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	background: black;
+	border-radius: 8px;
+	transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+	transform-origin: center;
+	cursor: pointer;
+	flex-shrink: 0;
+	
+
+	&:hover {
+		width: 555px !important;
+		height: 160px !important;
+		border-radius: 16px !important;
+		transform: translateX(-50%) scale(1.02);
+
+	}
+
+	&.expanded {
+		width: 555px;
+		height: 160px;
+		border-radius: 16px;
+	}
+
+	&.collapsed {
+		width: 250px;
+		height: 15px;
+		border-radius: 8px;
+	}
+}
+
+// UI Container - hidden by default, shown on hover
+.ui-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	opacity: 0;
+	visibility: hidden;
+	transition: all 0.4s ease;
+	pointer-events: none;
+	display: flex;
+	flex-direction: column;
+	padding: 8px;
+
+	.dynamic-island:hover & {
+		opacity: 1 !important;
+		visibility: visible !important;
+		pointer-events: auto !important;
+	}
+}
+
+// Top row with icons
+.top-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 16px;
+}
+
+.icon-button {
+	width: 24px;
+	height: 24px;
+	background: rgba(255, 255, 255, 0.15);
+	border-radius: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: all 0.3s ease;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.25);
+		transform: scale(1.1);
+	}
+
+	svg {
+		width: 18px;
+		height: 18px;
+	}
+}
+
+// Main content area
+.main-content {
+	display: flex;
+	gap: 8px;
+	flex: 1;
+}
+
+// Audio visualizer section
+.audio-section {
+	width: 150px;
+	height: 100px;
+	background: linear-gradient(
+		180deg,
+		rgba(121, 236, 201, 0.05) 0%,
+		rgba(121, 236, 201, 0.3) 100%
+	);
+	border: 0.3px solid #2c2d2e;
+	border-radius: 10px;
+	position: relative;
+	overflow: hidden;
+	cursor: pointer;
+	transition: all 0.3s ease;
+
+	&:hover {
+		transform: scale(1.02);
+		box-shadow: 0 4px 12px rgba(121, 236, 201, 0.2);
+	}
+}
+
+.audio-bars {
+	position: absolute;
+	bottom: 29px;
+	left: 60px;
+	display: flex;
+	gap: 2px;
+	align-items: flex-end;
+}
+
+.audio-bar {
+	background: #79ecc9;
+	border-radius: 1px;
+
+	&:nth-child(1) {
+		width: 1.6px;
+		height: 6px;
+	}
+	&:nth-child(2) {
+		width: 1.6px;
+		height: 14px;
+	}
+	&:nth-child(3) {
+		width: 1.6px;
+		height: 10px;
+	}
+	&:nth-child(4) {
+		width: 1.6px;
+		height: 4px;
+	}
+	&:nth-child(5) {
+		width: 1.6px;
+		height: 6px;
+	}
+}
+
+.audio-label {
+	position: absolute;
+	bottom: 10px;
+	left: 50%;
+	transform: translateX(-50%);
+	color: #79ecc9;
+	font-size: 12px;
+	font-weight: 500;
+}
+
+// Webcam section
+.webcam-section {
+	width: 100px;
+	height: 100px;
+	background: #1b1c1d;
+	border-radius: 100px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+
+	&:hover {
+		transform: scale(1.05);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+	}
+
+	svg {
+		width: 24px;
+		height: 24px;
+	}
+}
+
+.webcam-label {
+	color: #94989e;
+	font-size: 12px;
+	font-weight: 500;
+}
+
+// Chat input section
+.chat-section {
+	flex: 1;
+	height: 100px;
+	background: #1b1c1d;
+	border: 0.5px solid #2c2d2e;
+	border-radius: 16px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	padding: 8px 10px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+
+	&:hover {
+		transform: scale(1.02);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+		border-color: #79ecc9;
+	}
+}
+
+.chat-input {
+	color: #94989e;
+	font-size: 12px;
+	font-weight: 500;
+}
+
+.chat-arrow {
+	align-self: flex-end;
+	width: 14px;
+	height: 14px;
+	color: #94989e;
+}
+
+// Glow effects
+.glow-effect {
+	position: absolute;
+	background: #79ecc9;
+	border-radius: 50%;
+	filter: blur(40px);
+
+	&.glow-1 {
+		width: 40px;
+		height: 30px;
+		top: 67px;
+		left: 65px;
+	}
+
+	&.glow-2 {
+		width: 60px;
+		height: 50px;
+		top: 37px;
+		left: 0;
+	}
+
+	&.glow-3 {
+		width: 20px;
+		height: 40px;
+		top: 79px;
+		right: 20px;
+	}
+
+	&.glow-4 {
+		width: 20px;
+		height: 40px;
+		top: 0;
+		right: 0;
+	}
+
+	&.glow-5 {
+		width: 30px;
+		height: 25px;
+		bottom: 0;
+		left: 30px;
+	}
+
+	&.glow-6 {
+		width: 70px;
+		height: 55px;
+		top: 58px;
+		left: 35px;
+		background: rgba(18, 18, 18, 0.86);
+	}
+
+	&.glow-7 {
+		width: 70px;
+		height: 25px;
+		top: 44px;
+		left: 4px;
+		background: #121212;
+	}
+
+	&.glow-8 {
+		width: 50px;
+		height: 60px;
+		top: 69px;
+		right: 0;
+		background: #121212;
+	}
+}
+
+// Hide content when collapsed
+.island-content {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	color: white;
+	font-size: 10px;
+	font-weight: 400;
+	text-align: center;
+	opacity: 1;
+	transition: all 0.4s ease;
+	pointer-events: none;
+	white-space: nowrap;
+	z-index: 10;
+	// background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+	// padding: 12px 10px;
+	// border-radius: 24px;
+	// backdrop-filter: blur(15px);
+	// border: 1px solid rgba(255, 255, 255, 0.2);
+	// box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(255, 255, 255, 0.1);
+	// letter-spacing: 0.5px;
+	// text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+	.dynamic-island:hover & {
+		opacity: 0 !important;
+	}
+}
+
+// Smooth transitions for all properties
+* {
+	transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+// Force hover state to work
+.dynamic-island:hover,
+.dynamic-island:hover * {
+	transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}

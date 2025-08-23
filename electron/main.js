@@ -14,9 +14,192 @@ const {
 
 // Import window helper for overlay functionality
 const { WindowHelper } = require('./helpers/windowHelper');
+// Import dynamic island helper
+// const { DynamicIslandHelper } = require('./dynamicIslandHelper');
+
+// Temporary inline DynamicIslandHelper class
+class DynamicIslandHelper {
+	constructor() {
+		this.dynamicIslandWindow = null;
+		this.isExpanded = false; // Start collapsed by default
+		this.isVisible = true;
+		this.screenWidth = 0;
+		this.screenHeight = 0;
+		
+		// Default positions and sizes - start with collapsed pill size
+		this.collapsedSize = { width: 250, height: 15 };
+		this.expandedSize = { width: 580, height: 180, flexShrink: 0 };
+		this.position = { x: 0, y: 0 };
+		
+		this.setupScreenDimensions();
+	}
+
+	setupScreenDimensions() {
+		const { screen } = require('electron');
+		const primaryDisplay = screen.getPrimaryDisplay();
+		const workArea = primaryDisplay.workAreaSize;
+		this.screenWidth = workArea.width;
+		this.screenHeight = workArea.height;
+		
+		// Position at center top - use expanded size for positioning
+		this.position.x = Math.floor(this.screenWidth / 2) - Math.floor(this.expandedSize.width / 2);
+		this.position.y = 30; // Close to top
+	}
+
+	createDynamicIslandWindow() {
+		if (this.dynamicIslandWindow !== null) return;
+
+		log.info(`Creating Dynamic Island window at ${this.position.x},${this.position.y} with size ${this.expandedSize.width}x${this.expandedSize.height}`);
+
+		const { BrowserWindow } = require('electron');
+		const path = require('node:path');
+
+		const windowSettings = {
+			width: this.expandedSize.width, // Start with expanded size (555x150)
+			height: this.expandedSize.height, // Start with expanded size (555x150)
+			x: this.position.x,
+			y: this.position.y,
+			webPreferences: {
+				nodeIntegration: false,
+				contextIsolation: true,
+				preload: path.join(__dirname, 'preload.js'),
+				devTools: process.env.NODE_ENV === 'development',
+			},
+			show: false,
+			alwaysOnTop: true,
+			frame: false,
+			transparent: true,
+			fullscreenable: false,
+			hasShadow: false,
+			backgroundColor: '#00000000',
+			focusable: false, // Don't steal focus
+			skipTaskbar: true,
+			visibleOnAllWorkspaces: true,
+			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
+			acceptFirstMouse: true,
+			disableAutoHideCursor: true,
+			resizable: false, // Disable resizing - fixed size
+			movable: false,
+			minimizable: false,
+			maximizable: false,
+			closable: false,
+		};
+
+		this.dynamicIslandWindow = new BrowserWindow(windowSettings);
+
+		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
+		const dynamicIslandUrl = process.env.NODE_ENV === 'development'
+            ? `${devURL}/dynamic-island.html`
+            : `file://${path.join(__dirname, '..', 'build', 'dynamic-island.html')}`;
+
+
+		this.dynamicIslandWindow.loadURL(dynamicIslandUrl).catch((err) => {
+			log.error('Failed to load dynamic island URL:', err);
+		});
+
+		// Configure for macOS
+		if (process.platform === 'darwin') {
+			this.dynamicIslandWindow.setAlwaysOnTop(true, 'floating');
+			this.dynamicIslandWindow.setVisibleOnAllWorkspaces(true, {
+				visibleOnFullScreen: true,
+				skipTransformProcessType: true,
+			});
+			this.dynamicIslandWindow.setHiddenInMissionControl(true);
+			this.dynamicIslandWindow.setIgnoreMouseEvents(false);
+			this.dynamicIslandWindow.setMovable(true);
+		} else {
+			this.dynamicIslandWindow.setAlwaysOnTop(true, 'floating');
+			this.dynamicIslandWindow.setIgnoreMouseEvents(false);
+		}
+
+		// Show the window
+		this.dynamicIslandWindow.show();
+		log.info('Dynamic Island window created and shown');
+
+		// Listen for resize events from the renderer
+		this.dynamicIslandWindow.webContents.on('did-finish-load', () => {
+			log.info('Dynamic Island content loaded, setting up resize listener');
+			
+			// Enable click-through by default when collapsed - ignore mouse events
+			this.dynamicIslandWindow.setIgnoreMouseEvents(true, { forward: true });
+		});
+	}
+
+	expand() {
+		if (!this.dynamicIslandWindow || this.isExpanded) return;
+		
+		this.isExpanded = true;
+		log.info('Dynamic Island content expanded (window size remains 555x150)');
+		
+		// Disable click-through when expanded - allow interaction
+		this.dynamicIslandWindow.setIgnoreMouseEvents(false);
+		
+		// Notify renderer - window size stays the same
+		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: true });
+		log.info('Dynamic Island expanded');
+	}
+
+	collapse() {
+		if (!this.dynamicIslandWindow || !this.isExpanded) return;
+		
+		this.isExpanded = false;
+		log.info('Dynamic Island content collapsed (window size remains 555x150)');
+		
+		// Re-enable click-through when collapsed - ignore mouse events
+		this.dynamicIslandWindow.setIgnoreMouseEvents(true, { forward: true });
+		
+		// Notify renderer - window size stays the same
+		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: false });
+		log.info('Dynamic Island collapsed');
+	}
+
+	show() {
+		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+			this.dynamicIslandWindow.show();
+			this.isVisible = true;
+			log.info('Dynamic Island shown');
+		}
+	}
+
+	hide() {
+		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+			this.dynamicIslandWindow.hide();
+			this.isVisible = false;
+			log.info('Dynamic Island hidden');
+		}
+	}
+
+	toggleVisibility() {
+		if (this.isVisible) {
+			this.hide();
+		} else {
+			this.show();
+		}
+	}
+
+	getDynamicIslandWindow() {
+		return this.dynamicIslandWindow;
+	}
+
+	isDynamicIslandVisible() {
+		return this.isVisible;
+	}
+
+	isDynamicIslandExpanded() {
+		return this.isExpanded;
+	}
+
+	destroy() {
+		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+			this.dynamicIslandWindow.destroy();
+			this.dynamicIslandWindow = null;
+		}
+	}
+}
 
 let mainWindow = null;
 let windowHelper = null;
+let dynamicIslandHelper = null;
 
 // Auto-updater setup
 autoUpdater.logger = log;
@@ -190,6 +373,25 @@ app.whenReady().then(() => {
 	windowHelper = new WindowHelper();
 	windowHelper.registerGlobalShortcuts(mainWindow);
 
+	// Initialize DynamicIslandHelper for dynamic island functionality
+	dynamicIslandHelper = new DynamicIslandHelper();
+	dynamicIslandHelper.createDynamicIslandWindow();
+
+	// Register global shortcut for dynamic island (Cmd+I)
+	const { globalShortcut } = require('electron');
+	const cmdIRegistered = globalShortcut.register('CommandOrControl+I', () => {
+		log.info('Cmd+I pressed - toggling dynamic island');
+		if (dynamicIslandHelper) {
+			dynamicIslandHelper.toggleVisibility();
+		}
+	});
+
+	if (cmdIRegistered) {
+		log.info('✅ Cmd+I shortcut registered successfully for dynamic island');
+	} else {
+		log.error('❌ Failed to register Cmd+I shortcut for dynamic island');
+	}
+
 	// Check if global shortcuts are working (especially important on macOS)
 	if (process.platform === 'darwin') {
 		const { systemPreferences } = require('electron');
@@ -217,6 +419,88 @@ app.whenReady().then(() => {
 			log.info('✅ Accessibility permissions granted - global shortcuts should work');
 		}
 	}
+
+	// Register dynamic island IPC handlers
+	ipcMain.handle('dynamic-island-expand', async () => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+			dynamicIslandHelper.expand();
+			return { success: true };
+		} catch (error) {
+			log.error('Error expanding dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('dynamic-island-collapse', async () => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+			dynamicIslandHelper.collapse();
+			return { success: true };
+		} catch (error) {
+			log.error('Error collapsing dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('dynamic-island-toggle', async () => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+			dynamicIslandHelper.toggleVisibility();
+			return { success: true };
+		} catch (error) {
+			log.error('Error toggling dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('dynamic-island-show', async () => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+			dynamicIslandHelper.show();
+			return { success: true };
+		} catch (error) {
+			log.error('Error showing dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('dynamic-island-hide', async () => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+			dynamicIslandHelper.hide();
+			return { success: true };
+		} catch (error) {
+			log.error('Error hiding dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('dynamic-island-set-ignore-mouse-events', async (event, ignore) => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+			const dynamicIslandWindow = dynamicIslandHelper.getDynamicIslandWindow();
+			if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
+				dynamicIslandWindow.setIgnoreMouseEvents(ignore, { forward: true });
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error setting ignore mouse events:', error);
+			return { success: false, error: error.message };
+		}
+	});
 
 	// Register overlay window IPC handlers
 	ipcMain.handle('toggle-overlay-window', async () => {
@@ -411,5 +695,14 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
+	// Clean up dynamic island
+	if (dynamicIslandHelper) {
+		dynamicIslandHelper.destroy();
+	}
 	app.quit();
+});
+
+app.on('will-quit', () => {
+	// Unregister all global shortcuts
+	globalShortcut.unregisterAll();
 });

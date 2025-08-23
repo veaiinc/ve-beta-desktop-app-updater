@@ -97,4 +97,22 @@ contextBridge.exposeInMainWorld('electronApi', {
 		writeText: (text) => ipcRenderer.invoke('clipboard-write-text', text),
 		readText: () => ipcRenderer.invoke('clipboard-read-text'),
 	},
+
+	// Dynamic Island APIs
+	dynamicIsland: {
+		expand: () => ipcRenderer.invoke('dynamic-island-expand'),
+		collapse: () => ipcRenderer.invoke('dynamic-island-collapse'),
+		toggle: () => ipcRenderer.invoke('dynamic-island-toggle'),
+		show: () => ipcRenderer.invoke('dynamic-island-show'),
+		hide: () => ipcRenderer.invoke('dynamic-island-hide'),
+		setIgnoreMouseEvents: (ignore) => ipcRenderer.invoke('dynamic-island-set-ignore-mouse-events', ignore),
+		onStateChange: (callback) => {
+			ipcRenderer.on('dynamic-island-state', (event, data) => {
+				callback(data);
+			});
+		},
+		removeStateChangeListener: () => {
+			ipcRenderer.removeAllListeners('dynamic-island-state');
+		},
+	},
 });
