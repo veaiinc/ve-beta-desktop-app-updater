@@ -11,6 +11,7 @@ const ShortcutBar = ({
 	onPauseRecording,
 	onResumeRecording,
 	isPaused,
+	isAskAIInputFocused = false,
 }) => {
 	return (
 		<div className="shortcut-bar">
@@ -61,8 +62,11 @@ const ShortcutBar = ({
 			<div className="shortcut-bar__separator" />
 
 			<div
-				className="shortcut-bar__item shortcut-bar__item--clickable"
+				className={`shortcut-bar__item shortcut-bar__item--clickable ${
+					isAskAIInputFocused ? 'shortcut-bar__item--active' : ''
+				}`}
 				onClick={onAskAIClick}
+				title={isAskAIInputFocused ? 'Ask AI (Input Active)' : 'Ask AI'}
 			>
 				<span className="shortcut-bar__label">Ask AI</span>
 			</div>
@@ -72,8 +76,8 @@ const ShortcutBar = ({
 			<div
 				className="shortcut-bar__item shortcut-bar__item--clickable"
 				onClick={() => {
-					if (window.electronApi?.overlay?.toggleWindow) {
-						window.electronApi.overlay.toggleWindow();
+					if (window.electronApi?.overlay?.hideAllWindows) {
+						window.electronApi.overlay.hideAllWindows();
 					}
 				}}
 			>
@@ -104,9 +108,9 @@ const ShortcutBar = ({
 									</div>
 								</div>
 								<div className="shortcut-bar__shortcut-item">
-									<span className="shortcut-bar__shortcut-desc">Hide Overlay</span>
+									<span className="shortcut-bar__shortcut-desc">Hide All Windows</span>
 									<div className="shortcut-bar__shortcut-keys">
-										<kbd>⌘</kbd><kbd>⏎</kbd>
+										<kbd>⌘</kbd><kbd>\</kbd>
 									</div>
 								</div>
 							</div>

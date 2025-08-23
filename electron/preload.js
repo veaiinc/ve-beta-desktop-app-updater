@@ -51,6 +51,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 	overlay: {
 		toggleWindow: () => ipcRenderer.invoke('toggle-overlay-window'),
 		updateDimensions: (dims) => ipcRenderer.invoke('update-overlay-dimensions', dims),
+		hideAllWindows: () => ipcRenderer.invoke('hide-all-windows'),
+		sendTabContentToAskAI: (tabContent) =>
+			ipcRenderer.invoke('send-tab-content-to-askai', tabContent),
 	},
 
 	// Ask AI window APIs
@@ -59,6 +62,16 @@ contextBridge.exposeInMainWorld('electronApi', {
 		updateDimensions: (dims) => ipcRenderer.invoke('update-askAI-dimensions', dims),
 		setIgnoreMouseEvents: (ignore) =>
 			ipcRenderer.invoke('set-askAI-ignore-mouse-events', ignore),
+		setInputFocus: (isFocused) => ipcRenderer.invoke('set-askAI-input-focus', isFocused),
+		getInputFocus: () => ipcRenderer.invoke('get-askAI-input-focus'),
+		onReceiveTabContent: (callback) => {
+			ipcRenderer.on('receive-tab-content', (event, data) => {
+				callback(data);
+			});
+		},
+		removeTabContentListener: () => {
+			ipcRenderer.removeAllListeners('receive-tab-content');
+		},
 	},
 
 	// Mouse event handling for click-through behavior
@@ -85,16 +98,5 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	removeDownloadProgressListener: () => {
 		ipcRenderer.removeAllListeners('download-progress');
-	},
-
-	overlay: {
-		toggleWindow: () => ipcRenderer.invoke('toggle-overlay-window'),
-		updateDimensions: (dims) => ipcRenderer.invoke('update-overlay-dimensions', dims),
-	},
-
-	// Clipboard APIs for copy/paste functionality
-	clipboard: {
-		writeText: (text) => ipcRenderer.invoke('clipboard-write-text', text),
-		readText: () => ipcRenderer.invoke('clipboard-read-text'),
 	},
 });
