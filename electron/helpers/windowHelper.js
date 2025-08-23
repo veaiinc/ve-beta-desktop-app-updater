@@ -116,8 +116,10 @@ class WindowHelper {
 		this.screenHeight = workArea.height;
 
 		// Center Ask AI window on screen
-		const askAIX = Math.floor(this.screenWidth / 2) - Math.floor(this.askAIWindowSize.width / 2);
-		const askAIY = Math.floor(this.screenHeight / 2) - Math.floor(this.askAIWindowSize.height / 2);
+		const askAIX =
+			Math.floor(this.screenWidth / 2) - Math.floor(this.askAIWindowSize.width / 2);
+		const askAIY =
+			Math.floor(this.screenHeight / 2) - Math.floor(this.askAIWindowSize.height / 2);
 
 		const windowSettings = {
 			width: this.askAIWindowSize.width,
@@ -380,7 +382,8 @@ class WindowHelper {
 
 		// Center the Ask AI window
 		const askAIX = Math.floor(workArea.width / 2) - Math.floor(this.askAIWindowSize.width / 2);
-		const askAIY = Math.floor(workArea.height / 2) - Math.floor(this.askAIWindowSize.height / 2);
+		const askAIY =
+			Math.floor(workArea.height / 2) - Math.floor(this.askAIWindowSize.height / 2);
 
 		this.askAIWindow.setBounds({
 			x: askAIX,
@@ -561,35 +564,78 @@ class WindowHelper {
 	registerGlobalShortcuts(mainWindow) {
 		this.mainWindow = mainWindow;
 
-		// Register Cmd+B to toggle overlay window
-		const cmdBRegistered = globalShortcut.register('CommandOrControl+B', () => {
-			log.info('Cmd+B pressed - toggling overlay window');
+		// Register Cmd+\ to toggle between main window and all other windows
+		const cmdBackslashRegistered = globalShortcut.register('CommandOrControl+\\', () => {
+			log.info('Cmd+\\ pressed - toggling between main window and other windows');
 
-			// Create overlay window if it doesn't exist
-			if (!this.getOverlayWindow()) {
-				this.createOverlayWindow();
-			}
-
+			// Check if any other window is visible
 			const isOverlayVisible = this.isVisible();
+			const isAskAIVisible = this.isAskAIWindowVisible();
 
-			if (isOverlayVisible) {
-				// Hide overlay and show main window
-				this.hideOverlayWindow();
+			if (isOverlayVisible || isAskAIVisible) {
+				// Hide all other windows and show main window
+				if (isOverlayVisible) {
+					this.hideOverlayWindow();
+				}
+				if (isAskAIVisible) {
+					this.hideAskAIWindow();
+				}
+
+				// Show and focus main window
 				if (this.mainWindow && !this.mainWindow.isDestroyed()) {
 					this.mainWindow.show();
 					this.mainWindow.focus();
 					this.mainWindow.moveTop(); // Ensure main window is brought to front
 				}
 			} else {
-				// Show overlay (which will automatically hide main window)
+				// Show overlay window (which will automatically hide main window)
+				// Create overlay window if it doesn't exist
+				if (!this.getOverlayWindow()) {
+					this.createOverlayWindow();
+				}
 				this.showOverlayWindow();
 			}
 		});
 
-		if (cmdBRegistered) {
-			log.info('✅ Cmd+B shortcut registered successfully');
+		if (cmdBackslashRegistered) {
+			log.info('✅ Cmd+\\ shortcut registered successfully');
 		} else {
-			log.error('❌ Failed to register Cmd+B shortcut');
+			log.error('❌ Failed to register Cmd+\\ shortcut');
+		}
+
+		// Register Cmd+Enter to toggle ask AI window
+		const cmdEnterRegistered = globalShortcut.register('CommandOrControl+Return', () => {
+			log.info('Cmd+Enter pressed - toggling ask AI window');
+
+			// Create ask AI window if it doesn't exist
+			if (!this.getAskAIWindow()) {
+				this.createAskAIWindow();
+			}
+
+			const isAskAIVisible = this.isAskAIWindowVisible();
+
+			if (isAskAIVisible) {
+				// Hide ask AI window and show main window
+				this.hideAskAIWindow();
+				if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+					this.mainWindow.show();
+					this.mainWindow.focus();
+					this.mainWindow.moveTop(); // Ensure main window is brought to front
+				}
+			} else {
+				// If overlay window is visible, hide it first
+				if (this.isVisible()) {
+					this.hideOverlayWindow();
+				}
+				// Show ask AI window (which will automatically hide main window)
+				this.showAskAIWindow();
+			}
+		});
+
+		if (cmdEnterRegistered) {
+			log.info('✅ Cmd+Enter shortcut registered successfully');
+		} else {
+			log.error('❌ Failed to register Cmd+Enter shortcut');
 		}
 
 		// Register arrow keys for window movement (only when Ask AI window is not visible)
@@ -633,7 +679,8 @@ class WindowHelper {
 
 		// Log registration status
 		log.info('Global shortcut registration status:');
-		log.info(`  Cmd+B: ${cmdBRegistered ? '✅' : '❌'}`);
+		log.info(`  Cmd+\\: ${cmdBackslashRegistered ? '✅' : '❌'}`);
+		log.info(`  Cmd+Enter: ${cmdEnterRegistered ? '✅' : '❌'}`);
 		log.info(`  Cmd+Left: ${leftRegistered ? '✅' : '❌'}`);
 		log.info(`  Cmd+Right: ${rightRegistered ? '✅' : '❌'}`);
 		log.info(`  Cmd+Up: ${upRegistered ? '✅' : '❌'}`);

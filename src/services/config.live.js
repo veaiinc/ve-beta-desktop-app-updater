@@ -55,3 +55,4 @@ export const chat_ws_api_US = 'wss://ai.us-east-1.ve.ai';
 export const guest_chat_ws_api_US = 'wss://guestsearch.us-east-1.ve.ai';
 export const meeting_ws_api_US = 'wss://recall.us-east-1.ve.ai';
 export const voice_agent_api_US = 'wss://voice.us-east-1.ve.ai/ws';
+export const transcription_socket = 'wss://ve-ai-transcriptions-8p8k0b44.livekit.cloud';

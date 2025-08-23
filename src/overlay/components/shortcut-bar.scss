@@ -75,6 +75,29 @@
 				color: #dc3545;
 			}
 		}
+
+		&--paused {
+			background: rgba(255, 193, 7, 0.1);
+			border: 1px solid rgba(255, 193, 7, 0.2);
+
+			&:hover {
+				background: rgba(255, 193, 7, 0.2);
+				border-color: rgba(255, 193, 7, 0.4);
+			}
+
+			&:active {
+				background: rgba(255, 193, 7, 0.3);
+				transform: scale(0.98);
+			}
+
+			.shortcut-bar__label {
+				color: #ffc107;
+			}
+
+			.shortcut-bar__icon {
+				color: #ffc107;
+			}
+		}
 	}
 
 	&__label {

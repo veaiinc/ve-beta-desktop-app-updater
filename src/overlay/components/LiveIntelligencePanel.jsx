@@ -8,6 +8,7 @@ const LiveIntelligencePanel = ({
 	// Shared transcription data from parent (for future socket integration)
 	transcriptions = [],
 	isRecording = false,
+	isPaused = false,
 	timer = 0,
 	formatTime,
 	// Socket data for tabs (will be passed from parent)
@@ -201,7 +202,9 @@ const LiveIntelligencePanel = ({
 				<div className="live-intelligence-panel__title">
 					<span className="live-intelligence-panel__title-text">Live Intelligence</span>
 					{isRecording && formatTime && (
-						<span className="recording-indicator">● {formatTime(timer)}</span>
+						<span className={`recording-indicator ${isPaused ? 'paused' : ''}`}>
+							{isPaused ? '⏸' : '●'} {formatTime(timer)}
+						</span>
 					)}
 				</div>
 
