@@ -2609,8 +2609,8 @@ const ChatBox = ({
 				)}
 				{recentFilesRef?.current?.length > 0 && (
 					<div className="recent-files-container">
-						{recentFilesRef?.current?.map((file) => (
-							<div className="recent-file" key={file?._id}>
+						{recentFilesRef?.current?.map((file, index) => (
+							<div className="recent-file" key={index}>
 								<div className="file-type-icon">
 									{fileTypeIcons?.[file?.sourceType]}
 								</div>
