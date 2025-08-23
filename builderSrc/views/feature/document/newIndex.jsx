@@ -157,13 +157,17 @@ const CreateDocument = () => {
 			myWorkflows,
 			createSmartfile,
 			createLeadfromTemplates,
+			updateClientVariablesData, // Already imported
 		},
 	} = useContext(Context);
 
+	// Update the initial state to include client tracking
 	const [stageInfo, setStageInfo] = useState({
 		clientDetails: { name: '', email: '', phoneNumber: '' },
 		clientEditable: false,
 		isNewClient: false,
+		selectedClientId: null, // Add this back to track existing client ID
+		updateTimeout: null, // Add this back for debouncing API calls
 		clientSelection: false,
 		showClientSelectionToolTip: false,
 		showTemplateList: false,
@@ -181,7 +185,7 @@ const CreateDocument = () => {
 		currentStep: 1,
 		isCreateButtonActive: false,
 		isNewClientFromUrl: false,
-		duplicateWarning: null, // Add this new property for duplicate warning
+		duplicateWarning: null,
 	});
 
 	const steps = [
@@ -217,16 +221,94 @@ const CreateDocument = () => {
 		getTemplatesData(1);
 	}, []);
 
-	const handleInputChange = useCallback((e, type) => {
-		const value = e.target.value;
-		setStageInfo((prev) => {
-			const updatedClientDetails = { ...prev.clientDetails, [type]: value };
-			return {
-				...prev,
-				clientDetails: updatedClientDetails,
-			};
-		});
-	}, []);
+	// Add function to update existing client details using the API
+	const updateExistingClientDetails = useCallback(
+		async (clientId, updateField) => {
+			try {
+				const response = await updateClientVariablesData({
+					updateClientId: clientId,
+					updateClientInput: updateField,
+				});
+
+				if (response?.[0]) {
+					// Don't show success message for every keystroke, just update silently
+					console.log('Client details updated successfully');
+					// Refresh the client list to get updated data
+					getClientList({
+						filters: { page: 1, limit: 100 },
+					});
+				} else {
+					console.error('Failed to update client details');
+				}
+			} catch (error) {
+				console.error('Error updating client details:', error);
+			}
+		},
+		[updateClientVariablesData, getClientList],
+	);
+
+	// Update the handleInputChange function to handle both new and existing clients
+	const handleInputChange = useCallback(
+		(e, type) => {
+			const value = e.target.value;
+
+			setStageInfo((prev) => {
+				const updatedClientDetails = { ...prev.clientDetails, [type]: value };
+
+				// Clear any existing timeout
+				if (prev.updateTimeout) {
+					clearTimeout(prev.updateTimeout);
+				}
+
+				// If it's an existing client and we have the client ID, set up API call with debouncing
+				let newTimeout = null;
+				if (!prev.isNewClient && prev.selectedClientId && value.trim() !== '') {
+					newTimeout = setTimeout(() => {
+						updateExistingClientDetails(prev.selectedClientId, { [type]: value });
+					}, 2000); // 2 second delay to avoid too many API calls
+				}
+
+				return {
+					...prev,
+					clientDetails: updatedClientDetails,
+					updateTimeout: newTimeout,
+				};
+			});
+		},
+		[updateExistingClientDetails],
+	);
+
+	// Add a separate handler for phone number changes
+	const handlePhoneNumberChange = useCallback(
+		(value) => {
+			setStageInfo((prev) => {
+				const updatedClientDetails = {
+					...prev.clientDetails,
+					phoneNumber: value || '',
+				};
+
+				// Clear any existing timeout
+				if (prev.updateTimeout) {
+					clearTimeout(prev.updateTimeout);
+				}
+
+				// If it's an existing client and we have the client ID, set up API call with debouncing
+				let newTimeout = null;
+				if (!prev.isNewClient && prev.selectedClientId && value && value.trim() !== '') {
+					newTimeout = setTimeout(() => {
+						updateExistingClientDetails(prev.selectedClientId, { phoneNumber: value });
+					}, 2000); // 2 second delay to avoid too many API calls
+				}
+
+				return {
+					...prev,
+					clientDetails: updatedClientDetails,
+					updateTimeout: newTimeout,
+				};
+			});
+		},
+		[updateExistingClientDetails],
+	);
 
 	// Function to normalize phone number for comparison
 	const normalizePhoneNumber = useCallback((phone) => {
@@ -445,6 +527,7 @@ const CreateDocument = () => {
 		}));
 	}, []);
 
+	// Update the handleOptionSelection function to store client ID and make existing clients editable
 	const handleOptionSelection = useCallback((type, data) => {
 		let obj = {};
 		if (type === 'addNew') {
@@ -452,8 +535,9 @@ const CreateDocument = () => {
 				clientDetails: { name: '', email: '', phoneNumber: '' },
 				clientEditable: true,
 				isNewClient: true,
+				selectedClientId: null, // No ID for new clients
 				clientSelection: true,
-				duplicateWarning: null, // Clear duplicate warning
+				duplicateWarning: null,
 			};
 		} else {
 			obj = {
@@ -462,10 +546,11 @@ const CreateDocument = () => {
 					email: data.email || '',
 					phoneNumber: data.phoneNumber || '',
 				},
-				clientEditable: false,
+				clientEditable: true, // Make existing clients editable
 				isNewClient: false,
+				selectedClientId: data._id, // Store the client ID for updates
 				clientSelection: true,
-				duplicateWarning: null, // Clear duplicate warning
+				duplicateWarning: null,
 			};
 		}
 		// Auto-advance to step 2 when existing client is selected
@@ -516,6 +601,7 @@ const CreateDocument = () => {
 		if (stageInfo.isCreating) return;
 		try {
 			setStageInfo((prev) => ({ ...prev, isCreating: true }));
+
 			if (stageInfo.isNewClientFromUrl) {
 				// Always treat as new client, call createLeadfromTemplates
 				const clientDetails = {};
@@ -618,11 +704,37 @@ const CreateDocument = () => {
 				}
 			} else {
 				message.info('Creating document for existing client...');
-				const selectedClient = stageInfo.clientData?.find(
-					(client) => JSON.parse(client.value).name === stageInfo.clientDetails.name,
-				);
-				if (!selectedClient) {
-					// Treat as new client if not found in list
+
+				// Use the stored selectedClientId instead of searching by name
+				if (stageInfo.selectedClientId) {
+					const payload = {
+						smartFileInput: {
+							clientId: stageInfo.selectedClientId, // Use the stored ID directly
+							templateId: stageInfo.selectedTemplate?._id,
+							title: stageInfo.documentName,
+						},
+					};
+					console.log(payload, 'jeevan');
+
+					if (
+						!payload.smartFileInput.clientId ||
+						!payload.smartFileInput.templateId ||
+						!payload.smartFileInput.title
+					) {
+						message.error('Missing required fields');
+						return;
+					}
+
+					const response = await createSmartfile(payload);
+					if (response?.[0]) {
+						message.success('Document created successfully');
+						navigate(`/builder/document/edit/${response[1]._id}?workflow=true`);
+					} else {
+						message.error('Failed to create document');
+					}
+				} else {
+					// Fallback: treat as new client if no selectedClientId
+					message.info('No client ID found, creating as new client...');
 					const clientDetails = {};
 					if (stageInfo.clientDetails.name)
 						clientDetails.name = stageInfo.clientDetails.name;
@@ -633,6 +745,7 @@ const CreateDocument = () => {
 							stageInfo.clientDetails.phoneNumber,
 						);
 					}
+
 					// Validate required fields
 					if (!clientDetails.name) {
 						message.error('Client name is required');
@@ -660,7 +773,7 @@ const CreateDocument = () => {
 						message.error('Please select a template and provide a document title');
 						return;
 					}
-					console.log(clientDetails, 'jeevan');
+
 					const payload = {
 						workflowInput: {
 							clientDetails,
@@ -669,6 +782,7 @@ const CreateDocument = () => {
 							formResponseId: formResponseIdfromParams,
 						},
 					};
+
 					const response = await createLeadfromTemplates(payload);
 					if (response?.[0]) {
 						message.success('Document created successfully for new client');
@@ -677,31 +791,6 @@ const CreateDocument = () => {
 					} else {
 						message.error('Failed to create document for new client');
 					}
-					return;
-				}
-				const clientData = JSON.parse(selectedClient.value);
-				const payload = {
-					smartFileInput: {
-						clientId: clientData._id,
-						templateId: stageInfo.selectedTemplate?._id,
-						title: stageInfo.documentName,
-					},
-				};
-				console.log(payload, 'jeevan');
-				if (
-					!payload.smartFileInput.clientId ||
-					!payload.smartFileInput.templateId ||
-					!payload.smartFileInput.title
-				) {
-					message.error('Missing required fields');
-					return;
-				}
-				const response = await createSmartfile(payload);
-				if (response?.[0]) {
-					message.success('Document created successfully');
-					navigate(`/builder/document/edit/${response[1]._id}?workflow=true`);
-				} else {
-					message.error('Failed to create document');
 				}
 			}
 		} catch (error) {
@@ -797,6 +886,16 @@ const CreateDocument = () => {
 			document.removeEventListener('click', handleClickOutside);
 		};
 	}, [handleClickOutside]);
+
+	// Add cleanup for timeouts on component unmount
+	useEffect(() => {
+		return () => {
+			if (stageInfo.updateTimeout) {
+				clearTimeout(stageInfo.updateTimeout);
+			}
+		};
+	}, [stageInfo.updateTimeout]);
+
 	return (
 		<div className="createDocumentParentContainer">
 			<div className="createDocumentContentContainer">
@@ -871,17 +970,9 @@ const CreateDocument = () => {
 												<label className="inputLabel">Client Phone</label>
 												<div className="inputWithIconContainer">
 													<PhoneInput
-														placeholder="Enter  phone number"
+														placeholder="Enter phone number"
 														value={stageInfo.clientDetails.phoneNumber}
-														onChange={(value) =>
-															setStageInfo((prev) => ({
-																...prev,
-																clientDetails: {
-																	...prev.clientDetails,
-																	phoneNumber: value || '',
-																},
-															}))
-														}
+														onChange={handlePhoneNumberChange}
 														defaultCountry={(() => {
 															try {
 																const locationDetails = JSON.parse(
@@ -1272,15 +1363,7 @@ const CreateDocument = () => {
 															stageInfo.clientDetails.phoneNumber ||
 															undefined
 														}
-														onChange={(value) =>
-															setStageInfo((prev) => ({
-																...prev,
-																clientDetails: {
-																	...prev.clientDetails,
-																	phoneNumber: value || '',
-																},
-															}))
-														}
+														onChange={handlePhoneNumberChange}
 														defaultCountry={(() => {
 															try {
 																const locationDetails = JSON.parse(
