@@ -41,7 +41,7 @@ class MultiSelectionComp extends Component {
 						height: Math.abs(
 							this.props.selectionBox.endY - this.props.selectionBox.startY,
 						),
-						border: '2px solid #3B82F6',
+						border: '2px solid #79ecc9',
 						backgroundColor: 'rgba(59, 130, 246, 0.1)',
 						cursor: 'move',
 						zIndex: 9999,
