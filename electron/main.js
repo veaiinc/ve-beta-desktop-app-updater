@@ -105,38 +105,50 @@ ipcMain.handle('desktop:capture-screen', async () => {
 	try {
 		const sources = await desktopCapturer.getSources({
 			types: ['screen'],
-			thumbnailSize: { width: 1920, height: 1080 },
+			thumbnailSize: { width: 1200, height: 800 },
 		});
 
 		if (!sources || sources.length === 0) {
-			console.warn('⚠️ No screen sources returned. Permission may be denied.');
+			console.warn('⚠️ No screen sources. Permission denied or not granted.');
 			return null;
 		}
 
-		const screenSource = sources[0];
-		const thumbnail = screenSource.thumbnail;
+		const thumbnail = sources[0].thumbnail?.resize({ width: 1000, height: 700 });
+		if (!thumbnail) return null;
 
-		if (!thumbnail) {
-			console.warn('⚠️ Screen source has no thumbnail');
-			return null;
-		}
-
-		// Optional: resize to reduce size
-		const resized = thumbnail.resize({
-			width: 1200,
-			height: 800,
-		});
-
-		const base64 = resized.toDataURL(); // Returns "data:image/png;base64,..."
-
-		console.log('✅ Screenshot captured! Base64 length:', base64.length);
-		return base64; // Return string
+		return thumbnail.toDataURL(); // "image/png;base64,..."
 	} catch (err) {
-		console.error('❌ Unexpected error in desktop:capture-screen:', err);
-		return null; // Never throw — just return null
+		console.error('❌ Error in desktop:capture-screen:', err);
+		return null;
 	}
 });
 
+ipcMain.handle('check-screen-recording-permission', async () => {
+	if (process.platform !== 'darwin') {
+		return { success: true, hasPermission: true };
+	}
+
+	const { systemPreferences } = require('electron');
+	const status = systemPreferences.getMediaAccessStatus('screen');
+
+	return {
+		success: true,
+		permission: status,
+		hasPermission: status === 'granted',
+	};
+});
+
+// Request screen recording permission
+ipcMain.handle('request-screen-recording-permission', async () => {
+	if (process.platform !== 'darwin') {
+		return { success: true, granted: true };
+	}
+
+	const { systemPreferences } = require('electron');
+	const granted = await systemPreferences.askForMediaAccess('screen');
+
+	return { success: true, granted };
+});
 // Window creation
 function createWindow() {
 	mainWindow = new BrowserWindow({
@@ -226,6 +238,16 @@ app.whenReady().then(() => {
 		} else if (microphoneStatus === 'restricted') {
 			log.warn('Microphone access is restricted by system policy');
 		}
+	}
+
+	// ✅ ADD THE DEBUG SCREEN PERMISSION PROMPT HERE
+	if (process.platform === 'darwin') {
+		setTimeout(async () => {
+			const { systemPreferences } = require('electron');
+			console.log('🔧 Forcing screen permission prompt...');
+			const granted = await systemPreferences.askForMediaAccess('screen');
+			console.log('🎯 Screen permission granted:', granted);
+		}, 2000);
 	}
 
 	createWindow();

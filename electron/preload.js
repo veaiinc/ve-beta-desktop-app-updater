@@ -97,6 +97,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 		writeText: (text) => ipcRenderer.invoke('clipboard-write-text', text),
 		readText: () => ipcRenderer.invoke('clipboard-read-text'),
 	},
+	checkScreenPermission: () => ipcRenderer.invoke('check-screen-recording-permission'),
+	requestScreenPermission: () => ipcRenderer.invoke('request-screen-recording-permission'),
 	desktop: {
 		// ✅ This is the key addition
 		captureScreen: () => ipcRenderer.invoke('desktop:capture-screen'),

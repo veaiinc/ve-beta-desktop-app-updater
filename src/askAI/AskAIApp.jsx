@@ -126,8 +126,37 @@ const AskAIApp = () => {
 		});
 	}, [response, streamingResponse, isLoading, hasResponse, isExpanded]);
 
+	const requestScreenPermissionIfNeeded = async () => {
+		try {
+			// ✅ Use the exposed API method, not .invoke()
+			const checkResult = await window.electronApi.checkScreenPermission();
+			if (checkResult.hasPermission) {
+				console.log('✅ Screen permission already granted');
+				return true;
+			}
+
+			// ✅ Use the exposed request method
+			const requestResult = await window.electronApi.requestScreenPermission();
+			if (requestResult.granted) {
+				console.log('✅ User granted screen permission');
+				return true;
+			} else {
+				alert(
+					'Please enable screen recording in System Settings > Privacy & Security > Screen Recording.',
+				);
+				return false;
+			}
+		} catch (err) {
+			console.error('Permission check failed:', err);
+			return false;
+		}
+	};
+
 	const handleSubmit = async () => {
 		if (!inputValue.trim()) return;
+
+		const hasPermission = await requestScreenPermissionIfNeeded();
+		if (!hasPermission) return;
 
 		console.log('🚀 Starting new message submission...');
 		const queryValue = inputValue.trim();
@@ -148,7 +177,6 @@ const AskAIApp = () => {
 					// Optionally continue without image
 				}
 			}
-			console.log(base64Image, 'base64Image');
 
 			// Prepare message data
 			const messageData = {
@@ -163,11 +191,6 @@ const AskAIApp = () => {
 				selected_model: null,
 				location: null,
 			};
-
-			// Add image only if captured
-			if (base64Image) {
-				messageData.image = base64Image; // e.g., "data:image/png;base64,iVBORw0KGgoAAAANSUh..."
-			}
 
 			// Add location details
 			let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
