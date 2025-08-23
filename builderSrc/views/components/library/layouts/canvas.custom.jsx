@@ -2862,7 +2862,7 @@ class Layout extends Component {
 										display: 'grid',
 										gridArea: this.state?.placeholderPosition?.gridArea,
 										//backgroundColor: 'rgba(59, 130, 246, 0.2)',
-										border: '4px solid #3B82F6',
+										border: '4px solid #79ecc9',
 										pointerEvents: 'none',
 										zIndex: 1,
 										//width: `${this.state?.placeholderPosition?.width}px`,
@@ -3135,7 +3135,7 @@ class Layout extends Component {
 														border:
 															this.state.activeComponentID ===
 															component?._id
-																? '1px solid #3B82F6'
+																? '1px solid #79ecc9'
 																: 'none',
 
 														background: `${
@@ -3432,7 +3432,7 @@ class Layout extends Component {
 							height: Math.abs(
 								this.state.selectionBox.endY - this.state.selectionBox.startY,
 							),
-							border: '2px solid #3B82F6',
+							border: '2px solid #79ecc9',
 							backgroundColor: 'rgba(59, 130, 246, 0.1)',
 							pointerEvents: 'none',
 							zIndex: 9999,
@@ -3454,7 +3454,7 @@ class Layout extends Component {
 								style={{
 									// ... existing styles
 									border: this.state.selectedComponents.includes(component._id)
-										? '2px solid #3B82F6'
+										? '2px solid #79ecc9'
 										: 'none',
 								}}
 							>

@@ -118,8 +118,8 @@
 		position: absolute;
 		/* Use inset instead of top, left, right, bottom */
 		inset: 0;
-		border: 2px solid #fff;
-		mix-blend-mode: difference;
+		border: 3px solid #79ecc9;
+		// mix-blend-mode: difference;
 		pointer-events: none;
 		transition: border 300ms ease-in-out;
 	}
