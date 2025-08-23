@@ -115,30 +115,17 @@ const AskAIApp = () => {
 		}
 	}, [streamingResponse, response]);
 
-	// Debug response state changes
-	useEffect(() => {
-		console.log('🔄 Response state changed:', {
-			response,
-			streamingResponse,
-			isLoading,
-			hasResponse,
-			isExpanded,
-		});
-	}, [response, streamingResponse, isLoading, hasResponse, isExpanded]);
-
 	const requestScreenPermissionIfNeeded = async () => {
 		try {
 			// ✅ Use the exposed API method, not .invoke()
 			const checkResult = await window.electronApi.checkScreenPermission();
 			if (checkResult.hasPermission) {
-				console.log('✅ Screen permission already granted');
 				return true;
 			}
 
 			// ✅ Use the exposed request method
 			const requestResult = await window.electronApi.requestScreenPermission();
 			if (requestResult.granted) {
-				console.log('✅ User granted screen permission');
 				return true;
 			} else {
 				alert(
@@ -158,7 +145,6 @@ const AskAIApp = () => {
 		const hasPermission = await requestScreenPermissionIfNeeded();
 		if (!hasPermission) return;
 
-		console.log('🚀 Starting new message submission...');
 		const queryValue = inputValue.trim();
 		setInputValue(''); // Clear input immediately after submission
 		setIsLoading(true);
@@ -171,7 +157,6 @@ const AskAIApp = () => {
 			if (window.electronApi?.desktop?.captureScreen) {
 				try {
 					base64Image = await window.electronApi.desktop.captureScreen();
-					console.log('🖼️ Screenshot captured and converted to Base64');
 				} catch (err) {
 					console.warn('Failed to capture screenshot:', err);
 					// Optionally continue without image
@@ -199,7 +184,6 @@ const AskAIApp = () => {
 			}
 			messageData.location = location_details;
 
-			console.log('📤 Sending message data:', messageData);
 			await sendMessage({
 				data: messageData,
 				sessionId,
@@ -215,9 +199,7 @@ const AskAIApp = () => {
 	};
 
 	const handleKeyDown = (e) => {
-		console.log('🔥 AskAI: Key down event:', e);
 		if (e.key === 'Enter' && !e.shiftKey) {
-			console.log('🔥 AskAI: Key down event:', e);
 			handleSubmit();
 		}
 	};
