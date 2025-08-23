@@ -9,9 +9,11 @@
 		<key>com.apple.security.cs.allow-dyld-environment-variables</key>
 		<true/>
 		<key>com.apple.security.device.audio-input</key>
-<true/>
-<key>com.apple.security.device.camera</key>
-<true/>
+		<true/>
+		<key>com.apple.security.device.camera</key>
+		<true/>
+		<key>com.apple.security.device.screen</key>
+		<true/>
 
 	</dict>
 </plist>

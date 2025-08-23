@@ -116,8 +116,10 @@ class WindowHelper {
 		this.screenHeight = workArea.height;
 
 		// Center Ask AI window on screen
-		const askAIX = Math.floor(this.screenWidth / 2) - Math.floor(this.askAIWindowSize.width / 2);
-		const askAIY = Math.floor(this.screenHeight / 2) - Math.floor(this.askAIWindowSize.height / 2);
+		const askAIX =
+			Math.floor(this.screenWidth / 2) - Math.floor(this.askAIWindowSize.width / 2);
+		const askAIY =
+			Math.floor(this.screenHeight / 2) - Math.floor(this.askAIWindowSize.height / 2);
 
 		const windowSettings = {
 			width: this.askAIWindowSize.width,
@@ -380,7 +382,8 @@ class WindowHelper {
 
 		// Center the Ask AI window
 		const askAIX = Math.floor(workArea.width / 2) - Math.floor(this.askAIWindowSize.width / 2);
-		const askAIY = Math.floor(workArea.height / 2) - Math.floor(this.askAIWindowSize.height / 2);
+		const askAIY =
+			Math.floor(workArea.height / 2) - Math.floor(this.askAIWindowSize.height / 2);
 
 		this.askAIWindow.setBounds({
 			x: askAIX,
@@ -562,6 +565,7 @@ class WindowHelper {
 		this.mainWindow = mainWindow;
 
 		// Register Cmd+B to toggle overlay window
+
 		const cmdBRegistered = globalShortcut.register('CommandOrControl+B', () => {
 			log.info('Cmd+B pressed - toggling overlay window');
 
@@ -573,6 +577,9 @@ class WindowHelper {
 			const isOverlayVisible = this.isVisible();
 
 			if (isOverlayVisible) {
+				if (this.isAskAIVisible) {
+					this.hideAskAIWindow(); // This hides and updates state
+				}
 				// Hide overlay and show main window
 				this.hideOverlayWindow();
 				if (this.mainWindow && !this.mainWindow.isDestroyed()) {
@@ -630,6 +637,10 @@ class WindowHelper {
 				}
 			}
 		});
+		const cmdEnterRegistered = globalShortcut.register('CommandOrControl+Enter', () => {
+			log.info('Cmd+Enter pressed - toggling Ask AI window');
+			this.toggleAskAIWindow();
+		});
 
 		// Log registration status
 		log.info('Global shortcut registration status:');
@@ -640,6 +651,7 @@ class WindowHelper {
 		log.info(`  Cmd+Down: ${downRegistered ? '✅' : '❌'}`);
 		log.info(`  F12: ${f12Registered ? '✅' : '❌'}`);
 		log.info(`  Cmd+Shift+I: ${cmdShiftIRegistered ? '✅' : '❌'}`);
+		log.info(`  Cmd+Enter: ${cmdEnterRegistered ? '✅' : '❌'}`);
 
 		app.on('will-quit', () => globalShortcut.unregisterAll());
 		log.info('Global shortcuts registered successfully');

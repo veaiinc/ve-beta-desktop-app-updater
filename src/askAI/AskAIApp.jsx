@@ -115,30 +115,55 @@ const AskAIApp = () => {
 		}
 	}, [streamingResponse, response]);
 
-	// Debug response state changes
-	useEffect(() => {
-		console.log('🔄 Response state changed:', {
-			response,
-			streamingResponse,
-			isLoading,
-			hasResponse,
-			isExpanded,
-		});
-	}, [response, streamingResponse, isLoading, hasResponse, isExpanded]);
+	const requestScreenPermissionIfNeeded = async () => {
+		try {
+			// ✅ Use the exposed API method, not .invoke()
+			const checkResult = await window.electronApi.checkScreenPermission();
+			if (checkResult.hasPermission) {
+				return true;
+			}
+
+			// ✅ Use the exposed request method
+			const requestResult = await window.electronApi.requestScreenPermission();
+			if (requestResult.granted) {
+				return true;
+			} else {
+				alert(
+					'Please enable screen recording in System Settings > Privacy & Security > Screen Recording.',
+				);
+				return false;
+			}
+		} catch (err) {
+			console.error('Permission check failed:', err);
+			return false;
+		}
+	};
 
 	const handleSubmit = async () => {
 		if (!inputValue.trim()) return;
 
-		console.log('🚀 Starting new message submission...');
+		const hasPermission = await requestScreenPermissionIfNeeded();
+
 		const queryValue = inputValue.trim();
 		setInputValue(''); // Clear input immediately after submission
 		setIsLoading(true);
 		setResponse('');
 		setStreamingResponse('');
-		// Don't reset hasResponse here - keep the window visible
 
 		try {
-			// Send the message
+			// 📸 Capture screenshot using Electron API
+			let base64Image = null;
+			if (window.electronApi?.desktop?.captureScreen) {
+				try {
+					base64Image = await window.electronApi.desktop.captureScreen();
+				} catch (err) {
+					console.warn('Failed to capture screenshot:', err);
+					// Optionally continue without image
+				}
+			}
+
+			const imageArray = base64Image ? [base64Image] : [];
+			// Prepare message data
 			const messageData = {
 				query: queryValue,
 				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -149,16 +174,17 @@ const AskAIApp = () => {
 				modules: [],
 				date: [],
 				selected_model: null,
+				location: null,
+				image_data_base64: imageArray,
 			};
 
+			// Add location details
 			let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
-
 			if (!location_details) {
 				location_details = await getLocationsDetails();
 			}
 			messageData.location = location_details;
 
-			console.log('📤 Sending message data:', messageData);
 			await sendMessage({
 				data: messageData,
 				sessionId,
@@ -174,9 +200,7 @@ const AskAIApp = () => {
 	};
 
 	const handleKeyDown = (e) => {
-		console.log('🔥 AskAI: Key down event:', e);
 		if (e.key === 'Enter' && !e.shiftKey) {
-			console.log('🔥 AskAI: Key down event:', e);
 			handleSubmit();
 		}
 	};
