@@ -10,7 +10,9 @@ const Offline = () => {
 			<main className={s.body}>
 				<span className={s.header}>Connect to the internet</span>
 				<span className={s.para}>Your're offline. Check your connection</span>
-				<button className={s.button}>Retry</button>
+				<button onClick={() => window.location.reload()} className={s.button}>
+					Retry
+				</button>
 			</main>
 		</div>
 	);

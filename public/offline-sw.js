@@ -1,11 +1,12 @@
-const CACHE_NAME = 'offline-cache-v1';
+const CACHE_NAME = 'offline-cache-v6';
 const OFFLINE_URL = '/offline.html';
+const FONTS_URL = '/src/assets/fonts/generalSans/general-sans.css';
 
 // Install SW and cache offline.html
 self.addEventListener('install', (event) => {
 	event.waitUntil(
 		caches.open(CACHE_NAME).then((cache) => {
-			return cache.addAll([OFFLINE_URL]);
+			return cache.addAll([OFFLINE_URL, FONTS_URL]);
 		}),
 	);
 	self.skipWaiting();

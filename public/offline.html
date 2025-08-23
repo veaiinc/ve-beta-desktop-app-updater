@@ -5,9 +5,11 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Ve AI</title>
 		<link rel="icon" href="/ve-black-circle-logo.png" />
+		<link rel="stylesheet" href="/src/assets/fonts/generalSans/general-sans.css" />
 		<style>
 			:root,
 			[theme='dark'] {
+				--primary-font-family: 'GeneralSans';
 				--primary-font: #f2f2f2;
 				--background-color: #121212;
 				--primary-button: rgba(121, 236, 201, 1);
@@ -62,10 +64,21 @@
 					gap: 16px;
 				"
 			>
-				<span style="color: var(--primary-font); margin: 0px; font-size: 36px"
+				<span
+					style="
+						color: var(--primary-font);
+						margin: 0px;
+						font-size: 36px;
+						font-family: var(--primary-font-family);
+					"
 					>Connect to the internet</span
 				>
-				<span style="color: var(--primary-font); font-size: 16px"
+				<span
+					style="
+						color: var(--primary-font);
+						font-size: 16px;
+						font-family: var(--primary-font-family);
+					"
 					>Your're offline. Check your connection</span
 				>
 				<button
