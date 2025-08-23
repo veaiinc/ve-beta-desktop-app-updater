@@ -440,7 +440,7 @@ const betaRoutes = [
 		element: (
 			<AuthWrapper
 				title={'Calendar'}
-				outerContainerStyle={{ overflow: 'hidden', padding: '0 32px 0 0 ' }}
+				outerContainerStyle={{ overflow: 'hidden' }}
 				childrenContainerStyles={{ maxWidth: '100%' }}
 			>
 				<CalendarModule />
