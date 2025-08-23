@@ -308,7 +308,10 @@ export default function NoteTranscription({
 		sessionIdRef.current = ObjectID().toString();
 		// Fetch a new LiveKit token
 		try {
-			const response = await getLiveKitToken({ meetingId: sessionIdRef.current });
+			const response = await getLiveKitToken({
+				meetingId: sessionIdRef.current,
+				sessionId: sessionIdRef.current,
+			});
 			if (response && response[0] === true && response[1]?.accessToken) {
 				setLiveKitToken(response[1].accessToken);
 				setIsRecording(true);
