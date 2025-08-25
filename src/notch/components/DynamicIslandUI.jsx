@@ -231,7 +231,7 @@ const DynamicIslandUI = () => {
 					? isRecording
 						? `● Recording ${formatTime(timer)}`
 						: '🏝️ Dynamic Island Active'
-					: 'Ve.Ai Live Intelligence'}
+					: 'Living Intelligence'}
 			</div>
 
 			{/* Rich UI when expanded */}
