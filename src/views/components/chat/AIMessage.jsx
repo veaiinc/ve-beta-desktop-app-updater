@@ -16,6 +16,7 @@ import UnintegratedAgentApps from './chatComponents/UnintegratedAgentApps';
 import IntermediateSteps from './chatComponents/IntermediateSteps';
 import { fileTypeIcons, getFaviconUrl, getWebsiteName } from '../../../helpers';
 import BrowserChainOfThought from './chatComponents/BrowserChainOfThought';
+import { ReactComponent as VeLogoSvg } from '../../../assets/svg/veLogo.svg';
 
 const tooltipStyles = {
 	body: { color: 'var(--primary-font)' },
