@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useContext } from 'react';
 import { Helmet } from 'react-helmet';
 // import Sidebar from '../components/sidebar/Sidebar';
 import TopNavbar from '../components/topNavbar/TopNavbar';
@@ -10,6 +10,8 @@ import CustomToast, { message } from '../components/globalComponents/CustomToast
 import PageLoader from '../features/app/PageLoader';
 import useAuthInitializer from '../../hooks/useAuthInitializer';
 import usePushNotifications from '../../hooks/usePushNotifications';
+import VoiceWrapper from './VoiceWrapper';
+import Context from '../../context/context';
 import useNetworkStatus from '../../hooks/useNetworkStatus';
 import Offline from '../features/offline/Offline';
 
@@ -26,6 +28,10 @@ const AuthWrapper = ({
 }) => {
 	const { isOnline } = useNetworkStatus();
 	const { authInitialized } = useAuthInitializer();
+	const {
+		aiSetup: { showVoiceWidget },
+	} = useContext(Context);
+
 	usePushNotifications((payload) => {
 		const { title, body } = payload.notification || {};
 		message.success(`${title || 'Notification'}: ${body || ''}`);
@@ -99,6 +105,7 @@ const AuthWrapper = ({
 				<ExpiredTokenModal />
 				<AccessDeniedPopup />
 				<CustomToast />
+				{showVoiceWidget && <VoiceWrapper />}
 			</main>
 		)
 	) : (

@@ -28,7 +28,6 @@ import { Image, Spin, Tooltip } from 'antd';
 // import AIMessageLoader from './AIMessageLoader';
 import WebSvg from '../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../assets/svg/ai_agents/bookSvg';
-import useUpdatedVoiceIntegration from '../../../hooks/useUpdatedVoiceIntegration';
 import { message } from '../globalComponents/CustomToast';
 // import SearchTypeTooltip from './SearchTypeTooltip';
 import ChatBoxPlaceholder from './ChatBoxPlaceholder';
@@ -44,7 +43,6 @@ import useNote from '../../../hooks/useNote';
 import useAudioVisualizer from '../../../hooks/useAudioVisualizer';
 import { Track } from 'livekit-client';
 import { useTrackTranscription } from '@livekit/components-react';
-
 // import VoiceWrapper from '../../layouts/VoiceWrapper';
 
 const moduleHelper = {
@@ -156,7 +154,6 @@ const ChatBox = ({
 	showBottomTools = true,
 }) => {
 	const location = useLocation();
-	const { handleConnect } = useUpdatedVoiceIntegration();
 	const params = useParams();
 	const { workspaceMode } = useWorkspaceMode();
 
@@ -193,7 +190,7 @@ const ChatBox = ({
 		subscriptionInfo: { currentPlan },
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
-		aiSetup: { voiceIntegrationData, updateAiChatSessions, aiChatSessions },
+		aiSetup: { voiceIntegrationData, updateAiChatSessions, aiChatSessions, updateAiSetupState },
 		notes: { getLiveKitToken },
 	} = useContext(Context);
 
@@ -227,7 +224,6 @@ const ChatBox = ({
 		chatBoxInfo: initialChatBoxInfo,
 		chatboxMinimized: true,
 		chatBoxContainerHeight: 60,
-		showVoiceAgent: false, // New state for voice agent visibility
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -1459,7 +1455,7 @@ const ChatBox = ({
 			}
 		},
 
-		[info, handleConnect, isTranscribing, getLiveKitToken],
+		[info, isTranscribing, getLiveKitToken],
 	);
 
 	const handleSendBtnClick = (e) => {
@@ -1713,18 +1709,10 @@ const ChatBox = ({
 
 	const handleVoiceAgentClick = useCallback((e) => {
 		e?.stopPropagation();
-		setInfo((prev) => ({
-			...prev,
-			showVoiceAgent: true,
-		}));
-	}, []);
+		// Show the global voice widget and trigger auto-connect
+		updateAiSetupState({ showVoiceWidget: true });
+	}, [updateAiSetupState]);
 
-	const handleCloseVoiceAgent = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			showVoiceAgent: false,
-		}));
-	}, []);
 
 	return (
 		<div className="chatParentWrapper" onClick={handleChatBoxClick}>
@@ -2553,13 +2541,13 @@ const ChatBox = ({
 															}
 														>
 															{isTranscribing ? (
-																<StopIconSvg />
+																<StopIconSvg className='voice-icon' />
 															) : (
-																<SpeechMicSvg />
+																<SpeechMicSvg className='voice-icon' />
 															)}
 														</div>
 														<div
-															className={`click-btn ${
+															className={`click-btn voice-agent-btn ${
 																info?.chatQuery?.trim()?.length > 0
 																	? 'active'
 																	: ''
@@ -2581,9 +2569,9 @@ const ChatBox = ({
 															}}
 														>
 															{info?.chatQuery?.trim()?.length > 0 ? (
-																<ArrowUp />
+																<ArrowUp className='voice-wave-icon' />
 															) : (
-																<VoiceAgentSvg />
+																<VoiceAgentSvg className="voice-wave-icon" width={20} height={20} />
 															)}
 														</div>
 													</div>
@@ -2747,7 +2735,6 @@ const ChatBox = ({
 				closeModal={handleCloseUpgrageModal}
 				subscriptionState="addOnPlans"
 			/>
-			{info?.showVoiceAgent && <VoiceAgentParent />}
 		</div>
 	);
 };
