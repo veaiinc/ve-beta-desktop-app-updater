@@ -59,6 +59,7 @@ export const initialState = {
 	aiTranscriptionSuggestions: null,
 	showVoiceWidget: false, // Global state for voice widget visibility
 	proactiveHeadings: null,
+	showVoiceWidget: false, // Global state for voice widget visibility
 };
 
 export const AiSetupState = () => {
@@ -950,10 +951,8 @@ export const AiSetupState = () => {
 			);
 
 			if (response?.[0]) {
-				console.log('Voice token response:', response?.[1]);
 				return response?.[1];
 			} else {
-				console.error('Voice token API returned error:', response);
 				throw new Error(`Failed to fetch token: ${JSON.stringify(response?.[1])}`);
 			}
 		} catch (error) {

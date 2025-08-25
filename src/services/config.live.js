@@ -25,9 +25,9 @@ export const meeting_summary_api = 'https://live.us-east-1.ve.ai';
 export const chat_ws_api = 'wss://ai.ap-south-1.ve.ai';
 export const guest_chat_ws_api = 'wss://guestsearch.ap-south-1.ve.ai';
 export const meeting_ws_api = 'wss://recall.ap-south-1.ve.ai';
-
 export const generate_voice_agent_token_api = 'https://voice.us-east-1.ve.ai';
 export const browser_ws_api = 'wss://browser.us-east-1.ve.ai';
+
 // US region
 export const auth_Api_US = 'https://auth.ve.ai';
 export const tenant_api_US = 'https://us.api.ve.ai/tenants/1.0';
