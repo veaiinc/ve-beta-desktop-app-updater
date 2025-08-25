@@ -27,8 +27,8 @@ class DynamicIslandHelper {
 		this.screenHeight = 0;
 		
 		// Default positions and sizes - start with collapsed pill size
-		this.collapsedSize = { width: 250, height: 15 };
-		this.expandedSize = { width: 580, height: 180, flexShrink: 0 };
+		this.collapsedSize = { width: 250, height: 18 };
+		this.expandedSize = { width: 575, height: 180, flexShrink: 0 };
 		this.position = { x: 0, y: 0 };
 		
 		this.setupScreenDimensions();
@@ -119,9 +119,6 @@ class DynamicIslandHelper {
 		// Listen for resize events from the renderer
 		this.dynamicIslandWindow.webContents.on('did-finish-load', () => {
 			log.info('Dynamic Island content loaded, setting up resize listener');
-			
-			// Enable click-through by default when collapsed - ignore mouse events
-			this.dynamicIslandWindow.setIgnoreMouseEvents(true, { forward: true });
 		});
 	}
 
@@ -130,9 +127,6 @@ class DynamicIslandHelper {
 		
 		this.isExpanded = true;
 		log.info('Dynamic Island content expanded (window size remains 555x150)');
-		
-		// Disable click-through when expanded - allow interaction
-		this.dynamicIslandWindow.setIgnoreMouseEvents(false);
 		
 		// Notify renderer - window size stays the same
 		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: true });
@@ -144,9 +138,6 @@ class DynamicIslandHelper {
 		
 		this.isExpanded = false;
 		log.info('Dynamic Island content collapsed (window size remains 555x150)');
-		
-		// Re-enable click-through when collapsed - ignore mouse events
-		this.dynamicIslandWindow.setIgnoreMouseEvents(true, { forward: true });
 		
 		// Notify renderer - window size stays the same
 		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: false });
@@ -482,22 +473,6 @@ app.whenReady().then(() => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error hiding dynamic island:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('dynamic-island-set-ignore-mouse-events', async (event, ignore) => {
-		try {
-			if (!dynamicIslandHelper) {
-				return { success: false, error: 'Dynamic Island helper not initialized' };
-			}
-			const dynamicIslandWindow = dynamicIslandHelper.getDynamicIslandWindow();
-			if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
-				dynamicIslandWindow.setIgnoreMouseEvents(ignore, { forward: true });
-			}
-			return { success: true };
-		} catch (error) {
-			log.error('Error setting ignore mouse events:', error);
 			return { success: false, error: error.message };
 		}
 	});

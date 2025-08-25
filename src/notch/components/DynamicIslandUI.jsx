@@ -22,10 +22,6 @@ const DynamicIslandUI = () => {
 	// Hover events
 	const handleMouseEnter = () => {
 		console.log('🎯 MOUSE ENTER - Expanding to show rich UI!');
-		// Enable mouse events when hovering over the dynamic island
-		if (isConnected) {
-			window.electronAPI.dynamicIsland.setIgnoreMouseEvents(false);
-		}
 		if (!isExpanded && isConnected) {
 			expand();
 		}
@@ -36,12 +32,6 @@ const DynamicIslandUI = () => {
 		if (isExpanded && isConnected) {
 			collapse();
 		}
-		// Re-enable click-through after a short delay
-		setTimeout(() => {
-			if (isConnected) {
-				window.electronAPI.dynamicIsland.setIgnoreMouseEvents(true);
-			}
-		}, 100);
 	};
 
 	const expand = async () => {

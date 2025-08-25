@@ -14,19 +14,18 @@
 	transform-origin: center;
 	cursor: pointer;
 	flex-shrink: 0;
-	
 
 	&:hover {
 		width: 555px !important;
 		height: 160px !important;
 		border-radius: 16px !important;
 		transform: translateX(-50%) scale(1.02);
-
+		// filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.4));
 	}
 
 	&.expanded {
-		width: 555px;
-		height: 160px;
+		width: 575px;
+		height: 180px;
 		border-radius: 16px;
 	}
 

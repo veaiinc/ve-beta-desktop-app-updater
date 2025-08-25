@@ -105,7 +105,6 @@ contextBridge.exposeInMainWorld('electronApi', {
 		toggle: () => ipcRenderer.invoke('dynamic-island-toggle'),
 		show: () => ipcRenderer.invoke('dynamic-island-show'),
 		hide: () => ipcRenderer.invoke('dynamic-island-hide'),
-		setIgnoreMouseEvents: (ignore) => ipcRenderer.invoke('dynamic-island-set-ignore-mouse-events', ignore),
 		onStateChange: (callback) => {
 			ipcRenderer.on('dynamic-island-state', (event, data) => {
 				callback(data);
