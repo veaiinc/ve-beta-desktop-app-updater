@@ -7,6 +7,24 @@
 	width: 100%;
 	gap: 10px;
 
+	.uploaded-images-container {
+		width: fit-content;
+		max-width: 530px;
+		overflow-y: auto;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: flex-end;
+		gap: 6px;
+		height: 128px;
+
+		.uploaded-image {
+			width: 128px;
+			height: 128px;
+			cursor: pointer;
+			border-radius: 8px;
+		}
+	}
+
 	.user-message-wrapper {
 		width: fit-content;
 		max-width: 520px;
@@ -147,4 +165,13 @@
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
+}
+
+.chat-preview-image-container {
+	.ant-image-preview-mask {
+		background-color: var(--backdrop);
+	}
+	.ant-image-preview-wrap {
+		z-index: 1080 !important;
+	}
 }
