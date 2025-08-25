@@ -1,11 +1,28 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { HomeIcon, LockIcon, WebcamIcon, ArrowIcon, ClockIcon } from './DynamicIslandIcons';
+import { HomeIcon, LockIcon, WebcamIcon, ArrowIcon, ClockIcon, PlayIcon, PauseIcon, StopIcon, PlusIcon } from './DynamicIslandIcons';
 import './DynamicIslandUI.scss';
 
 const DynamicIslandUI = () => {
 	const dynamicIslandRef = useRef(null);
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [isConnected, setIsConnected] = useState(false);
+	const [isRecording, setIsRecording] = useState(false);
+	const [isPaused, setIsPaused] = useState(false);
+	const [timer, setTimer] = useState(0);
+	const [transcriptions, setTranscriptions] = useState([
+		{
+			id: 1,
+			speaker: 'You',
+			text: 'Thanks for joining today! To kick things off, can you tell me how you typically use our product in your day-to-day work?',
+			time: '0:05'
+		},
+		{
+			id: 2,
+			speaker: 'Other',
+			text: 'Sure. I mostly use it to manage client proposals and share timelines internally. I really like the auto-fill templates, but sometimes I wish there was a faster way to switch between different document types.',
+			time: '0:08'
+		}
+	]);
 
 	useEffect(() => {
 		// Check if we're in Electron environment
@@ -18,6 +35,17 @@ const DynamicIslandUI = () => {
 			});
 		}
 	}, []);
+
+	// Timer effect for recording
+	useEffect(() => {
+		let interval;
+		if (isRecording && !isPaused) {
+			interval = setInterval(() => {
+				setTimer(prev => prev + 1);
+			}, 1000);
+		}
+		return () => clearInterval(interval);
+	}, [isRecording, isPaused]);
 
 	// Hover events
 	const handleMouseEnter = () => {
@@ -71,8 +99,17 @@ const DynamicIslandUI = () => {
 		console.log('🔒 Security icon clicked');
 	};
 
+	const handleSettingsClick = () => {
+		console.log('⚙️ Settings icon clicked');
+	};
+
 	const handleAudioClick = () => {
-		console.log('🎵 Audio section clicked');
+		console.log('🎵 Start recording clicked');
+		if (!isRecording) {
+			setIsRecording(true);
+			setIsPaused(false);
+			setTimer(0);
+		}
 	};
 
 	const handleWebcamClick = () => {
@@ -81,6 +118,33 @@ const DynamicIslandUI = () => {
 
 	const handleChatClick = () => {
 		console.log('💬 Chat section clicked');
+	};
+
+	// Recording control handlers
+	const handleStartRecording = () => {
+		console.log('🎤 Start recording clicked');
+		setIsRecording(true);
+		setIsPaused(false);
+		setTimer(0);
+	};
+
+	const handleStopRecording = () => {
+		console.log('⏹️ Stop recording clicked');
+		setIsRecording(false);
+		setIsPaused(false);
+		setTimer(0);
+	};
+
+	const handlePauseResume = () => {
+		console.log('⏸️/▶️ Pause/Resume clicked');
+		setIsPaused(!isPaused);
+	};
+
+	// Format time for display
+	const formatTime = (seconds) => {
+		const m = Math.floor(seconds / 60).toString().padStart(1, '0');
+		const s = (seconds % 60).toString().padStart(2, '0');
+		return `${m}:${s}`;
 	};
 
 	// Initialize
@@ -100,7 +164,7 @@ const DynamicIslandUI = () => {
 		<div
 			ref={dynamicIslandRef}
 			id="dynamicIsland"
-			className={`dynamic-island ${isExpanded ? 'expanded' : 'collapsed'}`}
+			className={`dynamic-island ${isExpanded ? 'expanded' : 'collapsed'} ${isRecording ? 'recording' : ''}`}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
 		>
@@ -109,22 +173,45 @@ const DynamicIslandUI = () => {
 
 			{/* Rich UI when expanded */}
 			<div className="ui-container">
-				{/* Top row with notification and icons */}
+				{/* Top row with start button and icons */}
 				<div className="top-row">
-					{/* Notification badge */}
-					<div className="notification-badge" onClick={handleAudioClick}>
-						<div className="badge-content">
-							<div className="audio-visualizer">
-								<div className="audio-bar"></div>
-								<div className="audio-bar"></div>
-								<div className="audio-bar"></div>
-								<div className="audio-bar"></div>
-								<div className="audio-bar"></div>
+					{/* Start button section */}
+					<div className="start-section">
+						{!isRecording ? (
+							<div className="start-button" onClick={handleAudioClick}>
+								<div className="start-icon">
+									<PlayIcon />
+								</div>
+								<span className="start-text">start</span>
 							</div>
+						) : (
+							<div className="recording-controls">
+								<div className="control-button pause-resume-button" onClick={handlePauseResume}>
+									<div className="control-icon">
+										{isPaused ? <PlayIcon /> : <PauseIcon />}
+									</div>
+								</div>
+								<div className="control-button stop-button" onClick={handleStopRecording}>
+									<div className="control-icon">
+										<StopIcon />
+									</div>
+								</div>
+								
+								{/* Meeting mode label */}
+								<div className="meeting-mode-label">
+									Meeting mode
+								</div>
+							</div>
+						)}
+						
+						{/* Audio visualizer */}
+						<div className="audio-visualizer">
+							<div className="audio-bar"></div>
+							<div className="audio-bar"></div>
+							<div className="audio-bar"></div>
+							<div className="audio-bar"></div>
+							<div className="audio-bar"></div>
 						</div>
-						<span className="badge-number">
-							start
-						</span>
 					</div>
 
 					{/* Right side icons */}
@@ -140,16 +227,39 @@ const DynamicIslandUI = () => {
 
 				{/* Main content area */}
 				<div className="main-content">
-					{/* Product Interview section */}
-					<div className="product-interview-section">
-						<div className="interview-header">
-							<span className="interview-title">Product Interview</span>
+					{/* Live transcription section */}
+					{isRecording && transcriptions.length > 0 ? (
+						<div className="transcription-section">
+							{transcriptions.slice(-3).map((transcription, index) => (
+								<div key={transcription.id || index} className="transcription-bubble">
+									<div className="bubble-header">
+										<span className="speaker-name">{transcription.speaker}</span>
+										<div className="speaker-avatar"></div>
+										<div className="time-info">
+											<ClockIcon />
+											<span className="time-text">{transcription.time}</span>
+										</div>
+									</div>
+									<div className="bubble-text">
+										{transcription.text}
+									</div>
+								</div>
+							))}
 						</div>
-						<div className="interview-timer">
-							<ClockIcon />
-							<span className="timer-text">In 5 min</span>
-						</div>
-					</div>
+					) : (
+						<>
+							{/* Product Interview section */}
+							<div className="product-interview-section">
+								<div className="interview-header">
+									<span className="interview-title">Product Interview</span>
+								</div>
+								<div className="interview-timer">
+									<ClockIcon />
+									<span className="timer-text">In 5 min</span>
+								</div>
+							</div>
+						</>
+					)}
 
 					{/* Chat input section */}
 					<div className="chat-section" onClick={handleChatClick}>

@@ -33,6 +33,22 @@
 		width: 250px;
 		height: 15px;
 		border-radius: 8px;
+		
+	}
+
+	// Recording mode - different dimensions
+	&.recording {
+		&:hover {
+			width: 765px !important;
+			height: 200px !important;
+			border-radius: 0px 0px 8px 8px !important;
+		}
+
+		&.expanded {
+			width: 765px;
+			height: 200px;
+			border-radius: 0px 0px 8px 8px;
+		}
 	}
 }
 
@@ -58,7 +74,7 @@
 	}
 }
 
-// Top row with notification and icons
+// Top row with start button and icons
 .top-row {
 	display: flex;
 	align-items: center;
@@ -67,11 +83,17 @@
 	margin-bottom: 16px;
 }
 
-// Notification badge
-.notification-badge {
+// Start button section
+.start-section {
 	display: flex;
 	align-items: center;
-	gap: 2px;
+	gap: 8px;
+}
+
+.start-button {
+	display: flex;
+	align-items: center;
+	gap: 4px;
 	padding: 2px 10px;
 	height: 24px;
 	background: #79ECC9;
@@ -81,57 +103,110 @@
 
 	&:hover {
 		transform: scale(1.05);
+		background: #6dd4b8;
 	}
 }
 
-.badge-content {
+.start-icon {
+	width: 14px;
+	height: 14px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 3px;
-	padding: 3px 4.5px;
-	width: 18px;
-	height: 18px;
-	background: rgba(255, 255, 255, 0.2);
-	border-radius: 2px;
 }
 
-.audio-visualizer {
-	display: flex;
-	align-items: center;
-	gap: 1.5px;
-}
-
-.audio-bar {
-	background: #0E2F2A;
-	border-radius: 1.2px;
-
-	&:nth-child(1) {
-		width: 1.2px;
-		height: 4.5px;
-	}
-	&:nth-child(2) {
-		width: 1.2px;
-		height: 10.5px;
-	}
-	&:nth-child(3) {
-		width: 1.2px;
-		height: 7.5px;
-	}
-	&:nth-child(4) {
-		width: 1.2px;
-		height: 3px;
-	}
-	&:nth-child(5) {
-		width: 1.2px;
-		height: 4.5px;
-	}
-}
-
-.badge-number {
+.start-text {
 	color: #0E2F2A;
 	font-size: 12px;
 	font-weight: 500;
+}
+
+// Recording controls (shown when recording)
+.recording-controls {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.control-button {
+	width: 24px;
+	height: 24px;
+	border-radius: 100px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: all 0.3s ease;
+
+	&:hover {
+		transform: scale(1.05);
+	}
+
+	&.start-button {
+		background: #1B1C1D;
+	}
+
+	&.pause-resume-button {
+		background: #1B1C1D;
+	}
+
+	&.stop-button {
+		background: #CF3635;
+	}
+}
+
+.control-icon {
+	width: 14px;
+	height: 14px;
+}
+
+// Meeting mode label
+.meeting-mode-label {
+	background: #1B1C1D;
+	border-radius: 24px;
+	padding: 4px 10px;
+	color: #F2F2F3;
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 1.35;
+}
+
+// Audio visualizer
+.audio-visualizer {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	padding: 4px 6px;
+	width: 24px;
+	height: 24px;
+	background: rgba(255, 255, 255, 0.2);
+	border-radius: 4px;
+}
+
+.audio-bar {
+	background: #79ECC9;
+	border-radius: 1.6px;
+
+	&:nth-child(1) {
+		width: 1.6px;
+		height: 6px;
+	}
+	&:nth-child(2) {
+		width: 1.6px;
+		height: 14px;
+	}
+	&:nth-child(3) {
+		width: 1.6px;
+		height: 10px;
+	}
+	&:nth-child(4) {
+		width: 1.6px;
+		height: 4px;
+	}
+	&:nth-child(5) {
+		width: 1.6px;
+		height: 6px;
+	}
 }
 
 // Right side icons
@@ -168,6 +243,67 @@
 	display: flex;
 	gap: 8px;
 	flex: 1;
+}
+
+// Transcription section
+.transcription-section {
+	width: 350px;
+	height: 150px;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.transcription-bubble {
+	background: #1B1C1D;
+	border-radius: 8px;
+	padding: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.bubble-header {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	justify-content: flex-end;
+}
+
+.speaker-name {
+	color: #94989E;
+	font-size: 9px;
+	font-weight: 500;
+	line-height: 1.35;
+}
+
+.speaker-avatar {
+	width: 2.72px;
+	height: 2.72px;
+	background: #2C2D2E;
+	border-radius: 50%;
+}
+
+.time-info {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.time-text {
+	color: #94989E;
+	font-size: 9px;
+	font-weight: 500;
+	line-height: 1.35;
+}
+
+.bubble-text {
+	color: #F2F2F3;
+	font-size: 11px;
+	font-weight: 500;
+	line-height: 1.36;
+	text-align: right;
 }
 
 // Product Interview section

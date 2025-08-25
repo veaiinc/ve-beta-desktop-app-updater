@@ -36,7 +36,7 @@ class DynamicIslandHelper {
 		
 		// Default positions and sizes - start with collapsed pill size
 		this.collapsedSize = { width: 250, height: 18 };
-		this.expandedSize = { width: 875, height: 280, flexShrink: 0 };
+		this.expandedSize = { width: 875, height: 380, flexShrink: 0 };
 		this.position = { x: 0, y: 0 };
 		
 		this.setupScreenDimensions();

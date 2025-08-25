@@ -115,3 +115,65 @@ export const ClockIcon = () => (
 		/>
 	</svg>
 );
+
+export const PlayIcon = () => (
+	<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+		<path 
+			d="M3.5 1.31L12.13 7L3.5 12.69V1.31Z" 
+			fill="#F2F2F3"
+		/>
+	</svg>
+);
+
+export const PauseIcon = () => (
+	<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+		<path 
+			d="M2.19 2.19H5.81V11.81H2.19V2.19Z" 
+			fill="#F2F2F3"
+		/>
+		<path 
+			d="M8.19 2.19H11.81V11.81H8.19V2.19Z" 
+			fill="#F2F2F3"
+		/>
+	</svg>
+);
+
+export const StopIcon = () => (
+	<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+		<path 
+			d="M2.19 2.19H11.81V11.81H2.19V2.19Z" 
+			fill="#F2F2F3"
+		/>
+	</svg>
+);
+
+export const SettingsIcon = () => (
+	<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+		<path 
+			d="M6.19 6.19L9 9L6.19 11.81" 
+			stroke="#F2F2F3" 
+			strokeWidth="1.125" 
+			strokeLinecap="round" 
+			strokeLinejoin="round"
+		/>
+		<path 
+			d="M1.69 2.25L14.62 13.5" 
+			stroke="#F2F2F3" 
+			strokeWidth="1.125" 
+			strokeLinecap="round" 
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
+
+export const PlusIcon = () => (
+	<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+		<path 
+			d="M2.19 7H11.81M7 2.19V11.81" 
+			stroke="#F2F2F3" 
+			strokeWidth="0.875" 
+			strokeLinecap="round" 
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
