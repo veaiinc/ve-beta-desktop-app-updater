@@ -883,6 +883,7 @@ const ChatBox = ({
 						payload.files = remainingImages?.map((ele) => ({
 							id: ele?.fileId || null,
 							name: ele?.name || 'Untitled Image',
+							is_uploaded: ele?.is_uploaded || false,
 						}));
 
 						localPayload = {
@@ -897,14 +898,19 @@ const ChatBox = ({
 								...(recentFilesRef?.current?.map((ele) => ({
 									id: ele?._id || ele?.fileId || null,
 									name: ele?.originalFileName || ele?.title || 'Untitled File',
+									is_uploaded: ele?.is_uploaded || false,
 								})) || []),
 							];
 						} else {
 							payload.files = recentFilesRef?.current?.map((ele) => ({
 								id: ele?._id || ele?.fileId || null,
 								name: ele?.originalFileName || ele?.title || 'Untitled File',
+								is_uploaded: ele?.is_uploaded || false,
 							}));
 						}
+						recentFilesRef?.current?.forEach((file) => {
+							file.is_uploaded = false;
+						});
 					}
 
 					if (proactiveInfoForChat) {
@@ -1303,6 +1309,7 @@ const ChatBox = ({
 			file.preview = await getBase64(file);
 			file.loading = true;
 			file.uniqueId = Date?.now() + '_' + Math?.floor(Math?.random() * 1000000);
+			file.is_uploaded = true;
 
 			if (file?.type?.includes('image')) {
 				if (file?.type === 'image/png' || file?.type === 'image/jpeg') {
@@ -1707,12 +1714,14 @@ const ChatBox = ({
 		[smoothScrollToBottom],
 	);
 
-	const handleVoiceAgentClick = useCallback((e) => {
-		e?.stopPropagation();
-		// Show the global voice widget and trigger auto-connect
-		updateAiSetupState({ showVoiceWidget: true });
-	}, [updateAiSetupState]);
-
+	const handleVoiceAgentClick = useCallback(
+		(e) => {
+			e?.stopPropagation();
+			// Show the global voice widget and trigger auto-connect
+			updateAiSetupState({ showVoiceWidget: true });
+		},
+		[updateAiSetupState],
+	);
 
 	return (
 		<div className="chatParentWrapper" onClick={handleChatBoxClick}>
@@ -2541,9 +2550,9 @@ const ChatBox = ({
 															}
 														>
 															{isTranscribing ? (
-																<StopIconSvg className='voice-icon' />
+																<StopIconSvg className="voice-icon" />
 															) : (
-																<SpeechMicSvg className='voice-icon' />
+																<SpeechMicSvg className="voice-icon" />
 															)}
 														</div>
 														<div
@@ -2569,9 +2578,13 @@ const ChatBox = ({
 															}}
 														>
 															{info?.chatQuery?.trim()?.length > 0 ? (
-																<ArrowUp className='voice-wave-icon' />
+																<ArrowUp className="voice-wave-icon" />
 															) : (
-																<VoiceAgentSvg className="voice-wave-icon" width={20} height={20} />
+																<VoiceAgentSvg
+																	className="voice-wave-icon"
+																	width={20}
+																	height={20}
+																/>
 															)}
 														</div>
 													</div>
