@@ -134,7 +134,7 @@ const Editor = ({
 				if (markdown) {
 					const replaced = blocks
 						.replace(/\\n/g, '\n')
-						.replace(/<([a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*)>/g, (_, inside) => {
+						.replace(/<([a-zA-Z0-9]+(?:[-_][a-zA-Z0-9]+)*)>/g, (_, inside) => {
 							return `[[action#${inside}]]`;
 						});
 					blocks = injectCustomBlocks(await editor.tryParseMarkdownToBlocks(replaced));
