@@ -2664,7 +2664,7 @@ const GalleryPage = () => {
 					uploadImageId: null,
 					imageURL: '',
 					coverImageDetails: updatedCoverImage,
-					selectedImages: [],
+					// Preserve selectedImages to maintain the current image in GalleryViewer
 					crop: {
 						desktop: {
 							x: desktopSettings.focalPoint?.x || 0,
