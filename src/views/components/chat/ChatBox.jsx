@@ -1286,13 +1286,13 @@ const ChatBox = ({
 		async ({ file }) => {
 			if (
 				(file?.size >= 3145728 && file?.type?.includes?.('image')) ||
-				uploadedImagesRef?.current?.length === 5
+				uploadedImagesRef?.current?.length === 3
 			) {
 				if (file?.size >= 3145728) {
 					message?.error('Image size should be less than 3mb');
 					return;
 				}
-				if (uploadedImagesRef.current?.length === 5) {
+				if (uploadedImagesRef.current?.length === 3) {
 					message?.error('Only 5 images are allowed for a message');
 					return;
 				}
