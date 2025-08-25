@@ -14,6 +14,7 @@
 		"build:win": "set NODE_ENV=production && node --max-old-space-size=12288 node_modules/vite/bin/vite.js build --mode production",
 		"package": "npm run build && electron-builder",
 		"package:win": "npm run build:win && electron-builder --win",
+		"package:win:unsigned": "npm run build:win && electron-builder --win --config.win.signAndEditExecutable=false",
 		"build:analyze": "npm run build && npx vite-bundle-analyzer build",
 		"preview": "vite preview",
 		"delete-maps": "rm ./build/static/js/*.map && rm ./build/static/css/*.map",
@@ -216,10 +217,10 @@
 					]
 				}
 			],
-			"icon": "./electron/assets/app-logo.ico",
 			"artifactName": "Ve.AI-${arch}-${os}.${ext}",
 			"requestedExecutionLevel": "asInvoker",
-			"verifyUpdateCodeSignature": false
+			"verifyUpdateCodeSignature": false,
+			"signAndEditExecutable": false
 		},
 		"linux": {
 			"target": [
