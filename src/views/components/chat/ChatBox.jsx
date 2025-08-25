@@ -1274,6 +1274,19 @@ const ChatBox = ({
 
 	const handleFileAttachmentChange = useCallback(
 		async ({ file }) => {
+			if (
+				(file?.size >= 3145728 && file?.type?.includes?.('image')) ||
+				uploadedImagesRef?.current?.length === 5
+			) {
+				if (file?.size >= 3145728) {
+					message?.error('Image size should be less than 3mb');
+					return;
+				}
+				if (uploadedImagesRef.current?.length === 5) {
+					message?.error('Only 5 images are allowed for a message');
+					return;
+				}
+			}
 			if (file?.size >= 5242880) {
 				message?.error('File size must be less than 5MB');
 				return;
