@@ -1,5 +1,13 @@
 // main.js
-const { app, BrowserWindow, Menu, session, systemPreferences, ipcMain } = require('electron');
+const {
+	app,
+	BrowserWindow,
+	Menu,
+	session,
+	systemPreferences,
+	ipcMain,
+	desktopCapturer,
+} = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
 const { autoUpdater } = require('electron-updater');
@@ -267,6 +275,54 @@ ipcMain.handle('restart-app', () => {
 	return { success: true };
 });
 
+ipcMain.handle('desktop:capture-screen', async () => {
+	try {
+		const sources = await desktopCapturer.getSources({
+			types: ['screen'],
+			thumbnailSize: { width: 1200, height: 800 },
+		});
+
+		if (!sources || sources.length === 0) {
+			console.warn('⚠️ No screen sources. Permission denied or not granted.');
+			return null;
+		}
+
+		const thumbnail = sources[0].thumbnail?.resize({ width: 1000, height: 700 });
+		if (!thumbnail) return null;
+
+		return thumbnail.toDataURL(); // "image/png;base64,..."
+	} catch (err) {
+		console.error('❌ Error in desktop:capture-screen:', err);
+		return null;
+	}
+});
+
+ipcMain.handle('check-screen-recording-permission', async () => {
+	if (process.platform !== 'darwin') {
+		return { success: true, hasPermission: true };
+	}
+
+	const { systemPreferences } = require('electron');
+	const status = systemPreferences.getMediaAccessStatus('screen');
+
+	return {
+		success: true,
+		permission: status,
+		hasPermission: status === 'granted',
+	};
+});
+
+// Request screen recording permission
+ipcMain.handle('request-screen-recording-permission', async () => {
+	if (process.platform !== 'darwin') {
+		return { success: true, granted: true };
+	}
+
+	const { systemPreferences } = require('electron');
+	const granted = await systemPreferences.askForMediaAccess('screen');
+
+	return { success: true, granted };
+});
 // Window creation
 function createWindow() {
 	mainWindow = new BrowserWindow({
@@ -356,6 +412,16 @@ app.whenReady().then(() => {
 		} else if (microphoneStatus === 'restricted') {
 			log.warn('Microphone access is restricted by system policy');
 		}
+	}
+
+	// ✅ ADD THE DEBUG SCREEN PERMISSION PROMPT HERE
+	if (process.platform === 'darwin') {
+		setTimeout(async () => {
+			const { systemPreferences } = require('electron');
+			console.log('🔧 Forcing screen permission prompt...');
+			const granted = await systemPreferences.askForMediaAccess('screen');
+			console.log('🎯 Screen permission granted:', granted);
+		}, 2000);
 	}
 
 	createWindow();
@@ -562,6 +628,42 @@ app.whenReady().then(() => {
 		}
 	});
 
+	// New handler to track ask AI input focus state
+	ipcMain.handle('set-askAI-input-focus', async (event, isFocused) => {
+		try {
+			// Store the focus state globally so overlay can access it
+			global.askAIInputFocused = isFocused;
+			return { success: true };
+		} catch (error) {
+			log.error('Error setting ask AI input focus state:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Handler to get ask AI input focus state
+	ipcMain.handle('get-askAI-input-focus', async () => {
+		try {
+			return { success: true, isFocused: global.askAIInputFocused || false };
+		} catch (error) {
+			log.error('Error getting ask AI input focus state:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// New handler to hide all windows (overlay and ask AI)
+	ipcMain.handle('hide-all-windows', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.hideAllWindows();
+			return { success: true };
+		} catch (error) {
+			log.error('Error hiding all windows:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	// Register gallery IPC handlers from galleryUtils
 	ipcMain.handle('process-image-with-sharp', processImageWithSharp);
 	ipcMain.handle('extract-image-metadata', extractImageMetadata);
@@ -664,6 +766,39 @@ app.whenReady().then(() => {
 				success: false,
 				error: error.message,
 				granted: false,
+			};
+		}
+	});
+
+	// Send tab content to Ask AI handler
+	ipcMain.handle('send-tab-content-to-askai', async (event, tabContent) => {
+		try {
+			log.info('Sending tab content to Ask AI:', tabContent);
+
+			// Get the Ask AI window through windowHelper
+			const askAIWindow = windowHelper.getAskAIWindow();
+
+			// Send the content to Ask AI window if it exists
+			if (askAIWindow && !askAIWindow.isDestroyed()) {
+				askAIWindow.webContents.send('receive-tab-content', tabContent);
+				return { success: true };
+			} else {
+				// If Ask AI window doesn't exist, create it and send content
+				windowHelper.showAskAIWindow();
+				// Wait a bit for the window to be ready
+				setTimeout(() => {
+					const newAskAIWindow = windowHelper.getAskAIWindow();
+					if (newAskAIWindow && !newAskAIWindow.isDestroyed()) {
+						newAskAIWindow.webContents.send('receive-tab-content', tabContent);
+					}
+				}, 500);
+				return { success: true };
+			}
+		} catch (error) {
+			log.error('Error sending tab content to Ask AI:', error);
+			return {
+				success: false,
+				error: error.message,
 			};
 		}
 	});

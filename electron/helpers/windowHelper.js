@@ -291,57 +291,48 @@ class WindowHelper {
 		this.isAskAIVisible = false;
 	}
 
+	// Helper method to hide both windows
+	hideAllWindows() {
+		this.hideOverlayWindow();
+		this.hideAskAIWindow();
+	}
+
 	showOverlayWindow() {
 		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) return;
+
+		// Don't hide ask AI window - allow both to be visible
+		// if (this.isAskAIWindowVisible() && this.askAIWindow && !this.askAIWindow.isDestroyed()) {
+		// 	this.hideAskAIWindow();
+		// }
 
 		const primaryDisplay = screen.getPrimaryDisplay();
 		const workArea = primaryDisplay.workAreaSize;
 		const topY = 30;
 
-		// Check if Ask AI window is already visible
-		if (this.isAskAIVisible && this.askAIWindow && !this.askAIWindow.isDestroyed()) {
-			// Position side by side with existing Ask AI window
-			const totalWidth = this.windowSize.width + this.askAIWindowSize.width + 10; // Reduced gap
+		// Position overlay to allow space for ask AI on the right
+		let overlayX;
+		if (this.isAskAIWindowVisible() && this.askAIWindow && !this.askAIWindow.isDestroyed()) {
+			// Position overlay to the left to make room for ask AI on the right
+			const gap = 20; // Gap between windows
+			const totalWidth = this.windowSize.width + this.askAIWindowSize.width + gap;
 			const startX = Math.floor(workArea.width / 2) - Math.floor(totalWidth / 2);
-			const overlayX = startX;
-			const askAIX = startX + this.windowSize.width + 10;
-
-			this.overlayWindow.setBounds({
-				x: overlayX,
-				y: 30, // Keep overlay at top
-				width: this.windowSize.width,
-				height: this.windowSize.height,
-			});
-
-			// Reposition Ask AI window
-			this.askAIWindow.setBounds({
-				x: askAIX,
-				y: 60, // Ask AI moved down
-				width: this.askAIWindowSize.width,
-				height: this.askAIWindowSize.height,
-			});
-
-			// Update current position tracking
-			this.currentX = overlayX;
-			this.currentY = 30;
-			this.windowPosition = { x: overlayX, y: 30 };
-			this.askAIWindowPosition = { x: askAIX, y: 60 };
+			overlayX = startX;
 		} else {
-			// Standard center positioning when Ask AI is not visible
-			const centerX = Math.floor(workArea.width / 2) - Math.floor(this.windowSize.width / 2);
-
-			this.overlayWindow.setBounds({
-				x: centerX,
-				y: topY,
-				width: this.windowSize.width,
-				height: this.windowSize.height,
-			});
-
-			// Update current position tracking
-			this.currentX = centerX;
-			this.currentY = topY;
-			this.windowPosition = { x: centerX, y: topY };
+			// Center overlay when ask AI is not visible
+			overlayX = Math.floor(workArea.width / 2) - Math.floor(this.windowSize.width / 2);
 		}
+
+		this.overlayWindow.setBounds({
+			x: overlayX,
+			y: topY,
+			width: this.windowSize.width,
+			height: this.windowSize.height,
+		});
+
+		// Update current position tracking
+		this.currentX = overlayX;
+		this.currentY = topY;
+		this.windowPosition = { x: overlayX, y: topY };
 
 		// Ensure window properties for all desktops/spaces on macOS
 		if (process.platform === 'darwin') {
@@ -354,19 +345,13 @@ class WindowHelper {
 			this.overlayWindow.setAlwaysOnTop(true, 'floating');
 		}
 
-		// Show overlay and ensure main window is hidden
+		// Show overlay window
 		this.overlayWindow.show();
 
-		// If Ask AI window is visible, make sure it stays on top
-		if (this.isAskAIVisible && this.askAIWindow && !this.askAIWindow.isDestroyed()) {
-			setTimeout(() => {
-				this.askAIWindow.moveTop();
-			}, 50);
-		}
-
-		if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-			this.mainWindow.hide();
-		}
+		// Don't hide main window - keep it independent
+		// if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+		// 	this.mainWindow.hide();
+		// }
 
 		this.isOverlayVisible = true;
 	}
@@ -376,14 +361,26 @@ class WindowHelper {
 			this.createAskAIWindow();
 		}
 
-		// Position Ask AI window centered on screen
+		// Don't hide overlay window - allow both to be visible
+		// if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+		// 	this.hideOverlayWindow();
+		// }
+
+		// Position Ask AI window to the right of overlay with gap
 		const primaryDisplay = screen.getPrimaryDisplay();
 		const workArea = primaryDisplay.workAreaSize;
+		const gap = 20; // Gap between windows
 
-		// Center the Ask AI window
-		const askAIX = Math.floor(workArea.width / 2) - Math.floor(this.askAIWindowSize.width / 2);
-		const askAIY =
-			Math.floor(workArea.height / 2) - Math.floor(this.askAIWindowSize.height / 2);
+		let askAIX, askAIY;
+		if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+			// Position ask AI to the right of overlay
+			askAIX = this.currentX + this.windowSize.width + gap;
+			askAIY = 30; // Same Y level as overlay
+		} else {
+			// Center ask AI when overlay is not visible
+			askAIX = Math.floor(workArea.width / 2) - Math.floor(this.askAIWindowSize.width / 2);
+			askAIY = Math.floor(workArea.height / 2) - Math.floor(this.askAIWindowSize.height / 2);
+		}
 
 		this.askAIWindow.setBounds({
 			x: askAIX,
@@ -408,7 +405,7 @@ class WindowHelper {
 		// Update position tracking
 		this.askAIWindowPosition = { x: askAIX, y: askAIY };
 
-		// Show Ask AI window and ensure main window is hidden
+		// Show Ask AI window
 		this.askAIWindow.show();
 
 		// Make sure Ask AI window is on top after showing
@@ -419,9 +416,10 @@ class WindowHelper {
 			}
 		}, 100);
 
-		if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-			this.mainWindow.hide();
-		}
+		// Don't hide main window - keep it independent
+		// if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+		// 	this.mainWindow.hide();
+		// }
 
 		this.isAskAIVisible = true;
 	}
@@ -447,35 +445,38 @@ class WindowHelper {
 		const { screen } = require('electron');
 		const workArea = screen.getPrimaryDisplay().workAreaSize;
 
-		// Allow for larger widths to accommodate side-by-side layout
+		// Allow for larger widths for side-by-side layout
 		// Dynamic width limits based on requested width
 		let maxWidthPercent = 0.6; // default 60%
 		if (width > 1200) {
 			maxWidthPercent = 0.9; // Allow up to 90% for side-by-side layout
 		} else if (width > 800) {
-			maxWidthPercent = 0.75; // Allow up to 75% for single large panels
+			maxWidthPercent = 0.75; // Allow up to 75% for side-by-side layout
 		}
 
 		const newWidth = Math.min(width + 32, Math.floor(workArea.width * maxWidthPercent));
 		const newHeight = Math.ceil(height + 16);
 
-		// Maintain side-by-side positioning if Ask AI window is visible
-		if (this.isAskAIVisible && this.askAIWindow && !this.askAIWindow.isDestroyed()) {
-			// Calculate side-by-side positions
-			const totalWidth = newWidth + this.askAIWindowSize.width + 10; // Reduced gap
+		// Update overlay positioning and maintain side-by-side layout if ask AI is visible
+		if (this.isAskAIWindowVisible() && this.askAIWindow && !this.askAIWindow.isDestroyed()) {
+			// Calculate side-by-side positions with gap
+			const gap = 20;
+			const totalWidth = newWidth + this.askAIWindowSize.width + gap;
 			const startX = Math.floor(workArea.width / 2) - Math.floor(totalWidth / 2);
 			const overlayX = startX;
-			const askAIX = startX + newWidth + 10;
+			const askAIX = startX + newWidth + gap;
 			const overlayY = 30;
-			const askAIY = 60; // Ask AI positioned lower
+			const askAIY = 30; // Same Y level as overlay
 
-			// Update both windows
+			// Update overlay window
 			this.overlayWindow.setBounds({
 				x: overlayX,
 				y: overlayY,
 				width: newWidth,
 				height: newHeight,
 			});
+
+			// Update ask AI window position to maintain side-by-side layout
 			this.askAIWindow.setBounds({
 				x: askAIX,
 				y: askAIY,
@@ -489,14 +490,14 @@ class WindowHelper {
 			this.currentX = overlayX;
 			this.currentY = overlayY;
 
-			// Make sure Ask AI stays on top
+			// Make sure ask AI stays on top
 			setTimeout(() => {
 				if (this.askAIWindow && !this.askAIWindow.isDestroyed()) {
 					this.askAIWindow.moveTop();
 				}
 			}, 50);
 		} else {
-			// Standard centering when Ask AI is not visible
+			// Standard centering when ask AI is not visible
 			const centerX = Math.floor(workArea.width / 2) - Math.floor(newWidth / 2);
 			const topY = 30;
 
@@ -522,13 +523,42 @@ class WindowHelper {
 		const newWidth = Math.min(width, 1000); // Allow up to 1000px width
 		const newHeight = Math.min(height, 700); // Max height 700px
 
-		// Keep Ask AI window centered
-		const askAIX = Math.floor(workArea.width / 2) - Math.floor(newWidth / 2);
-		const askAIY = Math.floor(workArea.height / 2) - Math.floor(newHeight / 2);
+		// Update ask AI positioning and maintain side-by-side layout if overlay is visible
+		if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+			// Position ask AI to the right of overlay with gap
+			const gap = 20;
+			const askAIX = this.currentX + this.windowSize.width + gap;
+			const askAIY = 30; // Same Y level as overlay
 
-		this.askAIWindow.setBounds({ x: askAIX, y: askAIY, width: newWidth, height: newHeight });
-		this.askAIWindowPosition = { x: askAIX, y: askAIY };
-		this.askAIWindowSize = { width: newWidth, height: newHeight };
+			this.askAIWindow.setBounds({
+				x: askAIX,
+				y: askAIY,
+				width: newWidth,
+				height: newHeight,
+			});
+			this.askAIWindowPosition = { x: askAIX, y: askAIY };
+			this.askAIWindowSize = { width: newWidth, height: newHeight };
+
+			// Make sure ask AI stays on top
+			setTimeout(() => {
+				if (this.askAIWindow && !this.askAIWindow.isDestroyed()) {
+					this.askAIWindow.moveTop();
+				}
+			}, 50);
+		} else {
+			// Keep Ask AI window centered when overlay is not visible
+			const askAIX = Math.floor(workArea.width / 2) - Math.floor(newWidth / 2);
+			const askAIY = Math.floor(workArea.height / 2) - Math.floor(newHeight / 2);
+
+			this.askAIWindow.setBounds({
+				x: askAIX,
+				y: askAIY,
+				width: newWidth,
+				height: newHeight,
+			});
+			this.askAIWindowPosition = { x: askAIX, y: askAIY };
+			this.askAIWindowSize = { width: newWidth, height: newHeight };
+		}
 	}
 
 	moveWindowLeft() {
@@ -564,31 +594,18 @@ class WindowHelper {
 	registerGlobalShortcuts(mainWindow) {
 		this.mainWindow = mainWindow;
 
-		// Register Cmd+\ to toggle between main window and all other windows
+		// Register Cmd+\ to toggle overlay window only (independent of main window)
 		const cmdBackslashRegistered = globalShortcut.register('CommandOrControl+\\', () => {
-			log.info('Cmd+\\ pressed - toggling between main window and other windows');
+			log.info('Cmd+\\ pressed - toggling overlay window only');
 
-			// Check if any other window is visible
+			// Check if overlay window is visible
 			const isOverlayVisible = this.isVisible();
-			const isAskAIVisible = this.isAskAIWindowVisible();
 
-			if (isOverlayVisible || isAskAIVisible) {
-				// Hide all other windows and show main window
-				if (isOverlayVisible) {
-					this.hideOverlayWindow();
-				}
-				if (isAskAIVisible) {
-					this.hideAskAIWindow();
-				}
-
-				// Show and focus main window
-				if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-					this.mainWindow.show();
-					this.mainWindow.focus();
-					this.mainWindow.moveTop(); // Ensure main window is brought to front
-				}
+			if (isOverlayVisible) {
+				// Hide overlay window only (keep ask AI visible if it's open)
+				this.hideOverlayWindow();
 			} else {
-				// Show overlay window (which will automatically hide main window)
+				// Show overlay window only
 				// Create overlay window if it doesn't exist
 				if (!this.getOverlayWindow()) {
 					this.createOverlayWindow();
@@ -603,9 +620,9 @@ class WindowHelper {
 			log.error('❌ Failed to register Cmd+\\ shortcut');
 		}
 
-		// Register Cmd+Enter to toggle ask AI window
+		// Register Cmd+Enter to toggle ask AI window only (independent of main window)
 		const cmdEnterRegistered = globalShortcut.register('CommandOrControl+Return', () => {
-			log.info('Cmd+Enter pressed - toggling ask AI window');
+			log.info('Cmd+Enter pressed - toggling ask AI window only');
 
 			// Create ask AI window if it doesn't exist
 			if (!this.getAskAIWindow()) {
@@ -615,19 +632,10 @@ class WindowHelper {
 			const isAskAIVisible = this.isAskAIWindowVisible();
 
 			if (isAskAIVisible) {
-				// Hide ask AI window and show main window
+				// Hide ask AI window only
 				this.hideAskAIWindow();
-				if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-					this.mainWindow.show();
-					this.mainWindow.focus();
-					this.mainWindow.moveTop(); // Ensure main window is brought to front
-				}
 			} else {
-				// If overlay window is visible, hide it first
-				if (this.isVisible()) {
-					this.hideOverlayWindow();
-				}
-				// Show ask AI window (which will automatically hide main window)
+				// Show ask AI window only
 				this.showAskAIWindow();
 			}
 		});
@@ -638,21 +646,21 @@ class WindowHelper {
 			log.error('❌ Failed to register Cmd+Enter shortcut');
 		}
 
-		// Register arrow keys for window movement (only when Ask AI window is not visible)
+		// Register arrow keys for window movement (only when overlay is visible)
 		const leftRegistered = globalShortcut.register('CommandOrControl+Left', () => {
-			if (this.isVisible() && !this.isAskAIVisible) this.moveWindowLeft();
+			if (this.isVisible()) this.moveWindowLeft();
 		});
 
 		const rightRegistered = globalShortcut.register('CommandOrControl+Right', () => {
-			if (this.isVisible() && !this.isAskAIVisible) this.moveWindowRight();
+			if (this.isVisible()) this.moveWindowRight();
 		});
 
 		const upRegistered = globalShortcut.register('CommandOrControl+Up', () => {
-			if (this.isVisible() && !this.isAskAIVisible) this.moveWindowUp();
+			if (this.isVisible()) this.moveWindowUp();
 		});
 
 		const downRegistered = globalShortcut.register('CommandOrControl+Down', () => {
-			if (this.isVisible() && !this.isAskAIVisible) this.moveWindowDown();
+			if (this.isVisible()) this.moveWindowDown();
 		});
 
 		// Register F12 to toggle developer tools for overlay window
@@ -676,6 +684,10 @@ class WindowHelper {
 				}
 			}
 		});
+		// const cmdEnterRegistered = globalShortcut.register('CommandOrControl+Enter', () => {
+		// 	log.info('Cmd+Enter pressed - toggling Ask AI window');
+		// 	this.toggleAskAIWindow();
+		// });
 
 		// Log registration status
 		log.info('Global shortcut registration status:');
@@ -687,6 +699,7 @@ class WindowHelper {
 		log.info(`  Cmd+Down: ${downRegistered ? '✅' : '❌'}`);
 		log.info(`  F12: ${f12Registered ? '✅' : '❌'}`);
 		log.info(`  Cmd+Shift+I: ${cmdShiftIRegistered ? '✅' : '❌'}`);
+		log.info(`  Cmd+Enter: ${cmdEnterRegistered ? '✅' : '❌'}`);
 
 		app.on('will-quit', () => globalShortcut.unregisterAll());
 		log.info('Global shortcuts registered successfully');

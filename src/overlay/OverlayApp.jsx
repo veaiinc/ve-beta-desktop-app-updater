@@ -44,6 +44,9 @@ const OverlayApp = () => {
 	const [liveIntelligenceData, setLiveIntelligenceData] = useState(initialState);
 	const [recallSessionId, setRecallSessionId] = useState(null);
 
+	// Ask AI input state
+	const [isAskAIInputFocused, setIsAskAIInputFocused] = useState(false);
+
 	// Refs for data management
 	const transcriptionsMapRef = useRef(new Map());
 	const displayedTextMapRef = useRef(new Map());
@@ -72,6 +75,7 @@ const OverlayApp = () => {
 		wsUrl,
 		token: liveKitToken,
 		isRecording,
+		isPaused,
 	});
 
 	const { closeWebSocketConnection: closeLiveIntelligenceConnection } =
@@ -94,7 +98,31 @@ const OverlayApp = () => {
 			  }
 			: undefined;
 
+	// Log trackRef changes for debugging
+	useEffect(() => {
+		console.log('🎯 TrackRef updated:', {
+			hasLocalParticipant: !!localParticipant,
+			hasLocalAudioTrack: !!localAudioTrack,
+			hasTrackRef: !!trackRef,
+			isRecording,
+			isPaused,
+			isConnected,
+		});
+	}, [trackRef, localParticipant, localAudioTrack, isRecording, isPaused, isConnected]);
+
 	const { segments } = useTrackTranscription(trackRef);
+
+	// Log segments changes for debugging
+	useEffect(() => {
+		console.log('📝 Segments updated:', {
+			segmentsCount: segments?.length || 0,
+			hasSegments: !!segments && segments.length > 0,
+			isRecording,
+			isPaused,
+			isConnected,
+			hasTrackRef: !!trackRef,
+		});
+	}, [segments, isRecording, isPaused, isConnected, trackRef]);
 
 	// Utility Functions
 	const formatTime = (seconds) => {
@@ -405,15 +433,19 @@ const OverlayApp = () => {
 	};
 
 	const handlePauseTranscription = () => {
+		console.log('🔄 Pausing transcription...');
 		setIsPaused(true);
 		// Pause the timer
 		setTimer((prev) => prev);
+		console.log('✅ Transcription paused');
 	};
 
 	const handleResumeTranscription = () => {
+		console.log('🔄 Resuming transcription...');
 		setIsPaused(false);
 		// Resume the timer
 		setTimer((prev) => prev);
+		console.log('✅ Transcription resumed');
 	};
 
 	const handleStopTranscription = () => {
@@ -461,6 +493,30 @@ const OverlayApp = () => {
 		};
 	}, []);
 
+	// Check ask AI input focus state periodically
+	useEffect(() => {
+		const checkAskAIFocus = async () => {
+			if (window.electronApi?.askAI?.getInputFocus) {
+				try {
+					const result = await window.electronApi.askAI.getInputFocus();
+					if (result.success) {
+						setIsAskAIInputFocused(result.isFocused);
+					}
+				} catch (error) {
+					console.error('Error checking ask AI input focus:', error);
+				}
+			}
+		};
+
+		// Check immediately
+		checkAskAIFocus();
+
+		// Check every 500ms to stay in sync
+		const interval = setInterval(checkAskAIFocus, 500);
+
+		return () => clearInterval(interval);
+	}, []);
+
 	// Timer Effect
 	useEffect(() => {
 		let interval;
@@ -475,6 +531,14 @@ const OverlayApp = () => {
 	// Process transcription segments
 	useEffect(() => {
 		if (!segments || segments.length === 0 || isStoppingRef.current) return;
+
+		console.log('🎤 Processing transcription segments:', {
+			segmentsCount: segments.length,
+			isRecording,
+			isPaused,
+			isConnected,
+			hasLocalAudioTrack: !!localAudioTrack,
+		});
 
 		const transcriptionsMap = transcriptionsMapRef.current;
 
@@ -721,6 +785,7 @@ const OverlayApp = () => {
 					onPauseRecording={handlePauseTranscription}
 					onResumeRecording={handleResumeTranscription}
 					isPaused={isPaused}
+					isAskAIInputFocused={isAskAIInputFocused}
 				/>
 
 				{/* Commands section */}

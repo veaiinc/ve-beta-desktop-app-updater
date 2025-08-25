@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { Room, createLocalTracks, RoomEvent } from 'livekit-client';
 import { requestMicrophonePermission } from '../utils/permissionUtils';
 
-export default function useNote({ wsUrl, token, isRecording }) {
+export default function useNote({ wsUrl, token, isRecording, isPaused = false }) {
 	const roomRef = useRef(null);
 	const desiredMutedRef = useRef(false); // Track user's mute preference
 	const [isConnected, setIsConnected] = useState(false);
@@ -18,8 +18,8 @@ export default function useNote({ wsUrl, token, isRecording }) {
 
 	const connect = useCallback(async () => {
 		try {
-			// Only connect if recording is active
-			if (!isRecording) {
+			// Only connect if recording is active AND not paused
+			if (!isRecording || isPaused) {
 				return;
 			}
 
@@ -40,9 +40,9 @@ export default function useNote({ wsUrl, token, isRecording }) {
 					echoCancellation: true,
 					noiseSuppression: true,
 					autoGainControl: true,
-				}
+				},
 			});
-			
+
 			if (!permissionResult.success) {
 				throw new Error(permissionResult.message);
 			}
@@ -59,22 +59,37 @@ export default function useNote({ wsUrl, token, isRecording }) {
 				roomRef.current = room;
 
 				room.on(RoomEvent.ConnectionStateChanged, (state) => {
+					console.log('🔗 LiveKit connection state changed:', {
+						state,
+						isRecording,
+						isPaused,
+						isConnecting: isConnectingRef.current,
+						isIntentionalDisconnect: isIntentionalDisconnectRef.current,
+					});
 					setIsConnected(state === 'connected');
 					if (
 						state === 'disconnected' &&
 						!isConnectingRef.current &&
 						!isIntentionalDisconnectRef.current
 					) {
-						if (reconnectAttemptsRef.current < maxReconnectAttempts && isRecording) {
+						if (
+							reconnectAttemptsRef.current < maxReconnectAttempts &&
+							isRecording &&
+							!isPaused
+						) {
 							reconnectAttemptsRef.current += 1;
+							console.log(
+								`🔄 Attempting to reconnect (${reconnectAttemptsRef.current}/${maxReconnectAttempts})...`,
+							);
 							setTimeout(connect, 1000 * reconnectAttemptsRef.current); // Exponential backoff
 						} else {
 							console.error(
-								'Max reconnect attempts reached or recording stopped. Giving up.',
+								'❌ Max reconnect attempts reached, recording stopped, or paused. Giving up.',
 							);
 							setIsConnected(false);
 						}
 					} else if (state === 'connected') {
+						console.log('✅ LiveKit connection established successfully');
 						reconnectAttemptsRef.current = 0; // Reset on successful connection
 						isIntentionalDisconnectRef.current = false; // Reset on connect
 					}
@@ -173,8 +188,11 @@ export default function useNote({ wsUrl, token, isRecording }) {
 					},
 					video: false,
 				});
-				console.log('Created tracks:', tracks.map(t => ({ kind: t.kind, enabled: t.enabled, muted: t.muted })));
-				
+				console.log(
+					'Created tracks:',
+					tracks.map((t) => ({ kind: t.kind, enabled: t.enabled, muted: t.muted })),
+				);
+
 				const audioTrack = tracks.find((t) => t.kind === 'audio');
 				if (audioTrack) {
 					console.log('Audio track found:', {
@@ -182,7 +200,7 @@ export default function useNote({ wsUrl, token, isRecording }) {
 						enabled: audioTrack.enabled,
 						muted: audioTrack.muted,
 						source: audioTrack.source,
-						mediaStreamTrack: !!audioTrack.mediaStreamTrack
+						mediaStreamTrack: !!audioTrack.mediaStreamTrack,
 					});
 					audioTrackRef.current = audioTrack;
 					setLocalAudioTrack(audioTrack); // Expose the audio track
@@ -198,16 +216,18 @@ export default function useNote({ wsUrl, token, isRecording }) {
 							const analyser = audioContext.createAnalyser();
 							source.connect(analyser);
 							const dataArray = new Uint8Array(analyser.frequencyBinCount);
-							
+
 							const checkAudioActivity = () => {
 								analyser.getByteFrequencyData(dataArray);
-								const average = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
-								
+								const average =
+									dataArray.reduce((sum, value) => sum + value, 0) /
+									dataArray.length;
+
 								// Log audio activity for debugging
 								if (average > 0) {
 									console.log('Audio activity detected, level:', average);
 								}
-								
+
 								if (audioTrackRef.current && isRecording) {
 									setTimeout(checkAudioActivity, 1000);
 								}
@@ -225,14 +245,18 @@ export default function useNote({ wsUrl, token, isRecording }) {
 					const waitForPublish = new Promise((resolve, reject) => {
 						room.on(RoomEvent.LocalTrackPublished, (publication) => {
 							if (publication.trackSid === audioTrack.sid) {
-								// console.log('Audio track successfully published to LiveKit');
+								console.log('✅ Audio track successfully published to LiveKit:', {
+									trackSid: publication.trackSid,
+									kind: publication.kind,
+									source: publication.source,
+								});
 								resolve();
 							}
 						});
 						room.on(RoomEvent.LocalTrackFailed, (publication) => {
 							if (publication.trackSid === audioTrack.sid) {
 								console.error(
-									'Local track failed to publish:',
+									'❌ Local track failed to publish:',
 									publication.trackSid,
 								);
 								reject(new Error('Local track failed to publish'));
@@ -245,17 +269,27 @@ export default function useNote({ wsUrl, token, isRecording }) {
 					const maxAttempts = 3;
 					while (attempts < maxAttempts) {
 						try {
+							console.log(
+								`🔄 Publishing audio track (attempt ${
+									attempts + 1
+								}/${maxAttempts})...`,
+							);
 							await room.localParticipant.publishTrack(audioTrack, {
 								audioBitrate: 32000,
 								timeout: 15000,
 							});
 							await waitForPublish;
 							setIsPublished(true); // Mark track as published
+							console.log(
+								'✅ Audio track published successfully after',
+								attempts + 1,
+								'attempts',
+							);
 							break;
 						} catch (err) {
 							attempts += 1;
 							console.warn(
-								`Failed to publish audio track (attempt ${attempts}/${maxAttempts}):`,
+								`⚠️ Failed to publish audio track (attempt ${attempts}/${maxAttempts}):`,
 								err,
 							);
 							if (attempts === maxAttempts) {
@@ -276,7 +310,7 @@ export default function useNote({ wsUrl, token, isRecording }) {
 			setIsConnected(false);
 			isConnectingRef.current = false;
 		}
-	}, [isConnected, token, wsUrl, isRecording]);
+	}, [isConnected, token, wsUrl, isRecording, isPaused]);
 
 	const muteAudio = useCallback(() => {
 		desiredMutedRef.current = true;
@@ -295,6 +329,12 @@ export default function useNote({ wsUrl, token, isRecording }) {
 	}, [localAudioTrack, isPublished]);
 
 	const disconnect = useCallback(() => {
+		console.log('🔌 Disconnecting from LiveKit:', {
+			isIntentionalDisconnect: isIntentionalDisconnectRef.current,
+			isRecording,
+			isPaused,
+			hasRoom: !!roomRef.current,
+		});
 		isIntentionalDisconnectRef.current = true; // Mark as intentional
 		if (roomRef.current) {
 			roomRef.current.disconnect();
@@ -312,16 +352,19 @@ export default function useNote({ wsUrl, token, isRecording }) {
 		}
 		isConnectingRef.current = false;
 		reconnectAttemptsRef.current = 0;
+		console.log('✅ Disconnection complete');
 	}, []);
 
 	// Auto-connect when conditions are met
 	useEffect(() => {
-		if (isRecording && token && !isConnected && !isConnectingRef.current) {
+		// Only connect when recording is active AND not paused
+		if (isRecording && !isPaused && token && !isConnected && !isConnectingRef.current) {
 			connect();
-		} else if (!isRecording && isConnected) {
+		} else if ((!isRecording || isPaused) && isConnected) {
+			// Disconnect when recording stops OR when paused
 			disconnect();
 		}
-	}, [isRecording, token, isConnected, connect, disconnect]);
+	}, [isRecording, isPaused, token, isConnected, connect, disconnect]);
 
 	useEffect(() => {
 		return () => {

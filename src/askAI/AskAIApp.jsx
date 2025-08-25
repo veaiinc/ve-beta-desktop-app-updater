@@ -19,6 +19,7 @@ const AskAIApp = () => {
 	const inputRef = useRef(null);
 	const responseRef = useRef(null);
 	const [streamingResponse, setStreamingResponse] = useState('');
+	const [receivedTabContent, setReceivedTabContent] = useState(null);
 
 	// Initialize socket
 	const { createWebSocketConnection, sendMessage, closeWebSocketConnection } = useAskAISocket();
@@ -51,6 +52,34 @@ const AskAIApp = () => {
 		updateDimensions(true);
 	}, [updateDimensions]);
 
+	// Track input focus state for overlay
+	useEffect(() => {
+		const handleFocus = () => {
+			if (window.electronApi?.askAI?.setInputFocus) {
+				window.electronApi.askAI.setInputFocus(true);
+			}
+		};
+
+		const handleBlur = () => {
+			if (window.electronApi?.askAI?.setInputFocus) {
+				window.electronApi.askAI.setInputFocus(false);
+			}
+		};
+
+		const inputElement = inputRef.current;
+		if (inputElement) {
+			inputElement.addEventListener('focus', handleFocus);
+			inputElement.addEventListener('blur', handleBlur);
+		}
+
+		return () => {
+			if (inputElement) {
+				inputElement.removeEventListener('focus', handleFocus);
+				inputElement.removeEventListener('blur', handleBlur);
+			}
+		};
+	}, []);
+
 	// Update dimensions only when response state significantly changes
 	useEffect(() => {
 		updateDimensions(true);
@@ -62,6 +91,84 @@ const AskAIApp = () => {
 			closeWebSocketConnection();
 		};
 	}, [closeWebSocketConnection]);
+
+	// Listen for tab content from overlay
+	useEffect(() => {
+		const handleTabContent = (tabContent) => {
+			console.log('Received tab content from overlay:', tabContent);
+			setReceivedTabContent(tabContent);
+
+			// Auto-generate a prompt based on the tab content
+			const prompt = generatePromptFromTabContent(tabContent);
+
+			// Don't show the prompt in the input field - keep it clean
+			// setInputValue(prompt); // Removed - don't populate input for automatic requests
+
+			// Auto-focus the input
+			if (inputRef.current) {
+				inputRef.current.focus();
+			}
+
+			// Automatically send the request to Ask AI with the generated prompt
+			setTimeout(() => {
+				handleSubmit(prompt);
+			}, 100); // Small delay to ensure everything is ready
+		};
+
+		// Set up listener
+		if (window.electronApi?.askAI?.onReceiveTabContent) {
+			window.electronApi.askAI.onReceiveTabContent(handleTabContent);
+		}
+
+		// Cleanup
+		return () => {
+			if (window.electronApi?.askAI?.removeTabContentListener) {
+				window.electronApi.askAI.removeTabContentListener();
+			}
+		};
+	}, []);
+
+	// Generate prompt based on tab content
+	const generatePromptFromTabContent = (tabContent) => {
+		const { tabKey, tabLabel, content, type, itemContent, itemData } = tabContent;
+
+		// Handle individual item clicks
+		if (type === 'individual-item' && itemContent) {
+			return `Please help me with this: "${itemContent}". Provide insights, suggestions, or guidance on how to approach this.`;
+		}
+
+		// Handle empty content
+		if (!content || content.length === 0) {
+			return `I'm looking at the "${tabLabel}" tab but there's no content yet. Can you help me understand what this tab is for and how I might use it?`;
+		}
+
+		const itemCount = content.length;
+		const firstItem = content[0];
+
+		switch (tabKey) {
+			case 'all-threads':
+				return `I have ${itemCount} threads in my conversation history. The latest one is: "${
+					firstItem.prompt || firstItem.name || 'No prompt available'
+				}". Please analyze these threads and provide insights or suggestions.`;
+
+			case 'ask-user':
+				return `I have ${itemCount} questions that need user input. The latest one is: "${firstItem.prompt}". Please help me formulate better questions or suggest how to approach these user interactions.`;
+
+			case 'need-help':
+				return `I have ${itemCount} help suggestions. The latest one is: "${firstItem.prompt}". Please help me understand these suggestions better or provide additional guidance.`;
+
+			case 'actions':
+				return `I have ${itemCount} action items. The latest one is: "${firstItem.prompt}". Please help me prioritize these actions or suggest the best approach to handle them.`;
+
+			case 'files':
+				return `I have ${itemCount} files to work with. The latest one is: "${
+					firstItem.prompt || firstItem.name
+				}". Please help me understand how to work with these files or suggest next steps.`;
+
+			default:
+				return `I'm looking at the "${tabLabel}" tab with ${itemCount} items. Please help me understand and work with this content.`;
+		}
+	};
 
 	// Handle incoming WebSocket messages
 	const onMessageFunc = useCallback((event, currentSessionId) => {
@@ -115,30 +222,69 @@ const AskAIApp = () => {
 		}
 	}, [streamingResponse, response]);
 
-	// Debug response state changes
-	useEffect(() => {
-		console.log('🔄 Response state changed:', {
-			response,
-			streamingResponse,
-			isLoading,
-			hasResponse,
-			isExpanded,
+	const requestScreenPermissionIfNeeded = async () => {
+		try {
+			// ✅ Use the exposed API method, not .invoke()
+			const checkResult = await window.electronApi.checkScreenPermission();
+			if (checkResult.hasPermission) {
+				return true;
+			}
+
+			// ✅ Use the exposed request method
+			const requestResult = await window.electronApi.requestScreenPermission();
+			if (requestResult.granted) {
+				return true;
+			} else {
+				alert(
+					'Please enable screen recording in System Settings > Privacy & Security > Screen Recording.',
+				);
+				return false;
+			}
+		} catch (err) {
+			console.error('Permission check failed:', err);
+			return false;
+		}
+	};
+
+	const handleSubmit = async (customInput = null) => {
+		const queryValue = customInput || inputValue.trim();
+		if (!queryValue) return;
+
+		console.log('🚀 Starting new message submission...', {
+			customInput,
+			inputValue: inputValue.trim(),
 		});
-	}, [response, streamingResponse, isLoading, hasResponse, isExpanded]);
 
-	const handleSubmit = async () => {
-		if (!inputValue.trim()) return;
+		// Clear input only if it's a manual submission (not automatic)
+		if (!customInput) {
+			setInputValue('');
+		}
 
-		console.log('🚀 Starting new message submission...');
-		const queryValue = inputValue.trim();
+		const hasPermission = await requestScreenPermissionIfNeeded();
 		setInputValue(''); // Clear input immediately after submission
 		setIsLoading(true);
 		setResponse('');
 		setStreamingResponse('');
-		// Don't reset hasResponse here - keep the window visible
+
+		// Clear input only if it's a manual submission (not automatic)
+		if (!customInput) {
+			setInputValue('');
+		}
 
 		try {
-			// Send the message
+			// 📸 Capture screenshot using Electron API
+			let base64Image = null;
+			if (window.electronApi?.desktop?.captureScreen) {
+				try {
+					base64Image = await window.electronApi.desktop.captureScreen();
+				} catch (err) {
+					console.warn('Failed to capture screenshot:', err);
+					// Optionally continue without image
+				}
+			}
+
+			const imageArray = base64Image ? [base64Image] : [];
+			// Prepare message data
 			const messageData = {
 				query: queryValue,
 				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -149,16 +295,17 @@ const AskAIApp = () => {
 				modules: [],
 				date: [],
 				selected_model: null,
+				location: null,
+				image_data_base64: imageArray,
 			};
 
+			// Add location details
 			let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
-
 			if (!location_details) {
 				location_details = await getLocationsDetails();
 			}
 			messageData.location = location_details;
 
-			console.log('📤 Sending message data:', messageData);
 			await sendMessage({
 				data: messageData,
 				sessionId,
@@ -174,9 +321,7 @@ const AskAIApp = () => {
 	};
 
 	const handleKeyDown = (e) => {
-		console.log('🔥 AskAI: Key down event:', e);
 		if (e.key === 'Enter' && !e.shiftKey) {
-			console.log('🔥 AskAI: Key down event:', e);
 			handleSubmit();
 		}
 	};
@@ -280,6 +425,31 @@ const AskAIApp = () => {
 
 			{/* Input Bar - Bottom */}
 			<div className="ask-ai-input">
+				{/* Tab Content Indicator - Removed for cleaner interface */}
+				{/* {receivedTabContent && (
+					<div className="ask-ai-input__tab-indicator">
+						<span className="tab-indicator__label">
+							📋{' '}
+							{receivedTabContent.type === 'individual-item'
+								? `Item from: ${receivedTabContent.tabLabel}`
+								: `Content from: ${receivedTabContent.tabLabel}`}
+							{isLoading && (
+								<span className="tab-indicator__status">
+									{' '}
+									• Asking AI automatically...
+								</span>
+							)}
+						</span>
+						<button
+							className="tab-indicator__clear"
+							onClick={() => setReceivedTabContent(null)}
+							title="Clear tab content"
+						>
+							<X size={12} />
+						</button>
+					</div>
+				)} */}
+
 				<div className="ask-ai-input__container">
 					<textarea
 						ref={inputRef}
