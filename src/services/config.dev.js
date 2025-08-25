@@ -59,4 +59,4 @@ export const browser_ws_api_US = 'wss://browser.us-east-1.ve.ai';
 export const voice_agent_api_US = 'wss://voice.us-east-1.ve.ai/ws';
 
 // Voice agent token generation API
-export const generate_voice_agent_token_api = 'https://ai-dev.us-east-1.ve.ai';
+export const generate_voice_agent_token_api = 'https://voice.us-east-1.ve.ai';

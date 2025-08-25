@@ -4,7 +4,7 @@ import Context from '../context/context';
 const useUpdatedVoiceIntegration = () => {
 	const [shouldConnect, setShouldConnect] = useState(false);
 	const [token, setToken] = useState('');
-	const [serverUrl, setServerUrl] = useState('wss://test-76fgwd7p.livekit.cloud');
+	const [serverUrl, setServerUrl] = useState('wss://ve-voice-agent-g4ptyv6v.livekit.cloud');
 
 	let {
 		aiSetup: { getTokenForVoice, updateAiSetupState, triggerVoiceDisconnect },
