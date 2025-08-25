@@ -625,8 +625,6 @@ class Home extends Proposals {
 			invoiceSentDate: null,
 			invoiceAcceptedDate: null,
 			imageUrl: null,
-			updateVariableIds: false,
-			shouldSaveSections: false,
 			showCheckMobilePopup: false,
 			getModuleParams: {
 				id: null,
@@ -1672,18 +1670,6 @@ class Home extends Proposals {
 		if (this.state.globalTables !== prevState.globalTables) {
 			this.handleGlobalTables();
 		}
-		if (
-			this.state?.updateVariableIds !== prevState?.updateVariableIds &&
-			this.state.updateVariableIds == true
-		) {
-			this.updateVarIdsToSection();
-		}
-		if (
-			this.state?.shouldSaveSections !== prevState?.shouldSaveSections &&
-			this.state.shouldSaveSections == true
-		) {
-			this.handleSaveSections();
-		}
 	};
 
 	renderModules = () => {
@@ -1965,14 +1951,12 @@ class Home extends Proposals {
 	};
 	deleteSection = (e) => {
 		let sections = [...this.state.sections];
-		const isServiceSection =
-			sections.filter((section) => section?._id == e)[0]?.type == 'services';
 		sections = this.removeSectionById(sections, e);
 		this.setState({ sections, isAutoSaving: true });
 		if (this.state.isWorkflow) {
-			this.deleteWorkflowSectionItem(e, isServiceSection);
+			this.deleteWorkflowSectionItem(e);
 		} else {
-			this.deleteSectionItem(e, isServiceSection);
+			this.deleteSectionItem(e);
 		}
 	};
 	removeSectionById = (sections, idToRemove) => {
@@ -2497,7 +2481,6 @@ class Home extends Proposals {
 		this.setState(
 			{
 				isAutoSaving: true,
-				shouldSaveSections: false,
 			},
 			async () => {
 				let data = this.setVariables();
@@ -2652,35 +2635,20 @@ class Home extends Proposals {
 							? serviceVariableId?.code
 							: tempDisplayName;
 
-					let tempTotal = 0;
-
-					section?.blocks?.forEach((block) => {
-						const subBlock = block?.subBlocks?.[0];
-						if (
-							subBlock?.isSelected == true ||
-							section?.style?.services_selection == 2
-						) {
-							const { amount, quantity } = subBlock;
-							tempTotal += (+amount || 0) * (+quantity || 0);
-						}
-					});
-
 					variables.push({
 						...serviceVariableId,
 						displayName: tempDisplayName,
 						value: parseInt(this.removeTags(section.style.subTotalValue)),
-						defaultValue: parseInt(tempTotal),
 					});
+
 					if (
-						this.removeTags(section?.style?.subTotalTitle) !==
-							serviceVariableId.displayName ||
-						tempTotal !== parseInt(this.removeTags(section?.style?.subTotalValue))
+						this.removeTags(section.style.subTotalTitle) !==
+						serviceVariableId.displayName
 					) {
 						serviceVariableId.displayName = tempDisplayName;
-						serviceVariableId.defaultValue =
-							`${tempTotal}` || this.removeTags(section?.style?.subTotalValue);
-
-						section.style.subTotalValue = `${tempTotal}`;
+						serviceVariableId.defaultValue = this.removeTags(
+							section.style.subTotalValue,
+						);
 						await this.updateVariables(
 							_.omit(serviceVariableId, [
 								'_id',
@@ -2694,7 +2662,6 @@ class Home extends Proposals {
 								'createdBy',
 								'workspaceId',
 								'code',
-								'workflowId',
 							]),
 							null,
 							serviceVariableId._id,
@@ -2769,159 +2736,159 @@ class Home extends Proposals {
 			});
 			arr.push(sections);
 		});
-		// ! commented coz handling grand total variables in backend
-		// const toWords = new ToWords({
-		// 	localeCode: 'en-IN',
-		// 	converterOptions: {
-		// 		currency: true,
-		// 		ignoreDecimal: false,
-		// 		ignoreZeroCurrency: false,
-		// 		doNotAddOnly: false,
-		// 	},
-		// });
-		// if (
-		// 	_.size(_.filter(sections, { type: 'services' })) > 0 &&
-		// 	_.size(_.filter(this.state?.variables?.custom || [], { displayName: 'Grand Total' })) >
-		// 		0
-		// ) {
-		// 	let grandTotalInWords = 'Zero';
-		// 	if (grandTotal) {
-		// 		grandTotalInWords = toWords.convert(grandTotal);
-		// 	}
-		// 	let kVariables = this.state?.variables?.custom;
-		// 	let grandTotalVariable = _.filter(kVariables, { displayName: 'Grand Total' })[0];
-		// 	let value =
-		// 		typeof grandTotalVariable?.defaultValue === 'string'
-		// 			? grandTotalVariable?.defaultValue
-		// 			: grandTotalVariable?.defaultValue.toString();
-		// 	if (value !== grandTotal.toString()) {
-		// 		grandTotalVariable.defaultValue = grandTotal.toString();
 
-		// 		this.updateVariables(
-		// 			_.omit(grandTotalVariable, [
-		// 				'_id',
-		// 				'type',
-		// 				'updatedBy',
-		// 				'blockId',
-		// 				'templateId',
-		// 				'tenantId',
-		// 				'createdAt',
-		// 				'updatedAt',
-		// 				'createdBy',
-		// 				'workspaceId',
-		// 				'code',
-		// 			]),
-		// 			null,
-		// 			grandTotalVariable._id,
-		// 		);
-		// 	}
+		const toWords = new ToWords({
+			localeCode: 'en-IN',
+			converterOptions: {
+				currency: true,
+				ignoreDecimal: false,
+				ignoreZeroCurrency: false,
+				doNotAddOnly: false,
+			},
+		});
+		if (
+			_.size(_.filter(sections, { type: 'services' })) > 0 &&
+			_.size(_.filter(this.state?.variables?.custom || [], { displayName: 'Grand Total' })) >
+				0
+		) {
+			let grandTotalInWords = 'Zero';
+			if (grandTotal) {
+				grandTotalInWords = toWords.convert(grandTotal);
+			}
+			let kVariables = this.state?.variables?.custom;
+			let grandTotalVariable = _.filter(kVariables, { displayName: 'Grand Total' })[0];
+			let value =
+				typeof grandTotalVariable?.defaultValue === 'string'
+					? grandTotalVariable?.defaultValue
+					: grandTotalVariable?.defaultValue.toString();
+			if (value !== grandTotal.toString()) {
+				grandTotalVariable.defaultValue = grandTotal.toString();
 
-		// 	let grandTotalInWordsVariable = _.filter(kVariables, {
-		// 		displayName: 'Grand Total In Words',
-		// 	})[0];
-		// 	let val = grandTotalInWordsVariable?.defaultValue;
-		// 	if (val !== grandTotalInWords) {
-		// 		grandTotalInWordsVariable.defaultValue = grandTotalInWords;
+				this.updateVariables(
+					_.omit(grandTotalVariable, [
+						'_id',
+						'type',
+						'updatedBy',
+						'blockId',
+						'templateId',
+						'tenantId',
+						'createdAt',
+						'updatedAt',
+						'createdBy',
+						'workspaceId',
+						'code',
+					]),
+					null,
+					grandTotalVariable._id,
+				);
+			}
 
-		// 		this.updateVariables(
-		// 			_.omit(grandTotalInWordsVariable, [
-		// 				'_id',
-		// 				'type',
-		// 				'updatedBy',
-		// 				'blockId',
-		// 				'templateId',
-		// 				'tenantId',
-		// 				'createdAt',
-		// 				'updatedAt',
-		// 				'createdBy',
-		// 				'workspaceId',
-		// 				'code',
-		// 			]),
-		// 			null,
-		// 			grandTotalInWordsVariable._id,
-		// 		);
-		// 	}
-		// }
-		// if (_.size(_.filter(sections, { type: 'services' })) > 0) {
-		// 	let grandTotalInWords = 'Zero';
-		// 	if (grandTotal) {
-		// 		grandTotalInWords = toWords.convert(grandTotal);
-		// 	}
+			let grandTotalInWordsVariable = _.filter(kVariables, {
+				displayName: 'Grand Total In Words',
+			})[0];
+			let val = grandTotalInWordsVariable?.defaultValue;
+			if (val !== grandTotalInWords) {
+				grandTotalInWordsVariable.defaultValue = grandTotalInWords;
 
-		// 	// Add safety check for variables
-		// 	let kVariables =
-		// 		[
-		// 			...(this.state?.variables?.module || []),
-		// 			...(this.state?.variables?.workspace || []),
-		// 			...(this.state?.variables?.custom || []),
-		// 		] || [];
+				this.updateVariables(
+					_.omit(grandTotalInWordsVariable, [
+						'_id',
+						'type',
+						'updatedBy',
+						'blockId',
+						'templateId',
+						'tenantId',
+						'createdAt',
+						'updatedAt',
+						'createdBy',
+						'workspaceId',
+						'code',
+					]),
+					null,
+					grandTotalInWordsVariable._id,
+				);
+			}
+		}
+		if (_.size(_.filter(sections, { type: 'services' })) > 0) {
+			let grandTotalInWords = 'Zero';
+			if (grandTotal) {
+				grandTotalInWords = toWords.convert(grandTotal);
+			}
 
-		// 	// Add safety check for Grand Total variable
-		// 	let grandTotalVariable = _.filter(kVariables, { displayName: 'Grand Total' })[0];
-		// 	if (grandTotalVariable) {
-		// 		// Add this check
-		// 		let value = grandTotalVariable?.defaultValue?.toString() || '0';
-		// 		if (value !== grandTotal.toString()) {
-		// 			// Create new object instead of direct modification
-		// 			grandTotalVariable = {
-		// 				...grandTotalVariable,
-		// 				defaultValue: grandTotal.toString(),
-		// 			};
+			// Add safety check for variables
+			let kVariables =
+				[
+					...(this.state?.variables?.module || []),
+					...(this.state?.variables?.workspace || []),
+					...(this.state?.variables?.custom || []),
+				] || [];
 
-		// 			this.updateVariables(
-		// 				_.omit(grandTotalVariable, [
-		// 					'_id',
-		// 					'type',
-		// 					'updatedBy',
-		// 					'blockId',
-		// 					'templateId',
-		// 					'tenantId',
-		// 					'createdAt',
-		// 					'updatedAt',
-		// 					'createdBy',
-		// 					'workspaceId',
-		// 					'code',
-		// 				]),
-		// 				null,
-		// 				grandTotalVariable._id,
-		// 			);
-		// 		}
-		// 	}
+			// Add safety check for Grand Total variable
+			let grandTotalVariable = _.filter(kVariables, { displayName: 'Grand Total' })[0];
+			if (grandTotalVariable) {
+				// Add this check
+				let value = grandTotalVariable?.defaultValue?.toString() || '0';
+				if (value !== grandTotal.toString()) {
+					// Create new object instead of direct modification
+					grandTotalVariable = {
+						...grandTotalVariable,
+						defaultValue: grandTotal.toString(),
+					};
 
-		// 	// Add safety check for Grand Total In Words variable
-		// 	let grandTotalInWordsVariable = _.filter(kVariables, {
-		// 		displayName: 'Grand Total In Words',
-		// 	})[0];
-		// 	if (grandTotalInWordsVariable) {
-		// 		// Add this check
-		// 		let val = grandTotalInWordsVariable?.defaultValue || '';
-		// 		if (val !== grandTotalInWords) {
-		// 			// Create new object instead of direct modification
-		// 			grandTotalInWordsVariable = {
-		// 				...grandTotalInWordsVariable,
-		// 				defaultValue: grandTotalInWords,
-		// 			};
+					this.updateVariables(
+						_.omit(grandTotalVariable, [
+							'_id',
+							'type',
+							'updatedBy',
+							'blockId',
+							'templateId',
+							'tenantId',
+							'createdAt',
+							'updatedAt',
+							'createdBy',
+							'workspaceId',
+							'code',
+						]),
+						null,
+						grandTotalVariable._id,
+					);
+				}
+			}
 
-		// 			this.updateVariables(
-		// 				_.omit(grandTotalInWordsVariable, [
-		// 					'_id',
-		// 					'type',
-		// 					'updatedBy',
-		// 					'blockId',
-		// 					'templateId',
-		// 					'tenantId',
-		// 					'createdAt',
-		// 					'updatedAt',
-		// 					'createdBy',
-		// 					'workspaceId',
-		// 					'code',
-		// 				]),
-		// 				null,
-		// 				grandTotalInWordsVariable._id,
-		// 			);
-		// 		}
-		// 	}
-		// }
+			// Add safety check for Grand Total In Words variable
+			let grandTotalInWordsVariable = _.filter(kVariables, {
+				displayName: 'Grand Total In Words',
+			})[0];
+			if (grandTotalInWordsVariable) {
+				// Add this check
+				let val = grandTotalInWordsVariable?.defaultValue || '';
+				if (val !== grandTotalInWords) {
+					// Create new object instead of direct modification
+					grandTotalInWordsVariable = {
+						...grandTotalInWordsVariable,
+						defaultValue: grandTotalInWords,
+					};
+
+					this.updateVariables(
+						_.omit(grandTotalInWordsVariable, [
+							'_id',
+							'type',
+							'updatedBy',
+							'blockId',
+							'templateId',
+							'tenantId',
+							'createdAt',
+							'updatedAt',
+							'createdBy',
+							'workspaceId',
+							'code',
+						]),
+						null,
+						grandTotalInWordsVariable._id,
+					);
+				}
+			}
+		}
 		let finalVariables = this.removeDuplicatesFromArray(variables, '_id');
 		let invoiceVariables = variables.filter(
 			(varObj) => varObj.code === 'client-name' || varObj.code === 'client-email-id',
@@ -4596,8 +4563,6 @@ class Home extends Proposals {
 			true,
 			'duplicate',
 			this.state.isWorkflow,
-			false,
-			true,
 		);
 	};
 	deleteModule = async (e) => {
@@ -4611,8 +4576,6 @@ class Home extends Proposals {
 			true,
 			'remove',
 			this.state.isWorkflow,
-			false,
-			true,
 		);
 	};
 	addPage = async (module) => {
@@ -5744,27 +5707,6 @@ class Home extends Proposals {
 				this.handleSaveSections();
 			},
 		);
-	};
-	updateVarIdsToSection = () => {
-		const newVariables = { ...(this.state?.variables || {}) };
-		let newSections = [];
-		if (newVariables?.custom?.length > 0) {
-			this.state?.sections?.map((section) => {
-				if (section?.type == 'services') {
-					const currentVariable = newVariables?.custom?.find(
-						(item) => item?.blockId == section?._id,
-					);
-					if (currentVariable) {
-						section.style = { ...section?.style, variableId: currentVariable?._id };
-					}
-				}
-				newSections.push(section);
-			});
-		}
-		this.setState({
-			updateVariableIds: false,
-			sections: newSections,
-		});
 	};
 	handleTriggerAdjustGridAreas = async (e) => {};
 	handleImageUploadGlobal = (url) => {

@@ -11,7 +11,7 @@ import { ReactComponent as StarSvg } from '../../../../assets/svg/smartFiles/for
 import {
 	handleCombinedChainOfThought,
 	updateCitationIdsWithCitations,
-} from '../../../../helpers/chatHelpers';
+} from '../../../../helpers/chat/chatHelpers';
 import { Markdown } from '../../../../helpers/markdownHelper';
 import ObjectID from 'bson-objectid';
 import { Tooltip } from 'antd';
