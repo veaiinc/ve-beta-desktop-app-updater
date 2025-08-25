@@ -13,6 +13,9 @@ const Thumbnails = ({
 	isAiFace,
 	activeImageIndex,
 }) => {
+	// Calculate the correct index in the full image list
+	const currentImages = isAiFace ? imagesList?.images : imagesList?.docs;
+	const correctActiveIndex = currentImages?.findIndex((img) => img?._id === info?.activeImage) ?? -1;
 	useEffect(() => {
 		if (info?.activeImage) {
 			const thumbnail = document.getElementById('thumbnail' + info.activeImage);
@@ -30,8 +33,8 @@ const Thumbnails = ({
 				dataLength={
 					isAiFace ? imagesList?.images?.length || 0 : imagesList?.docs?.length || 0
 				}
-				next={selectedImages ? () => {} : fetchMoreImages}
-				hasMore={selectedImages ? false : imagesList?.hasNextPage || false}
+				next={fetchMoreImages}
+				hasMore={imagesList?.hasNextPage || false}
 				horizontal={true}
 				style={{
 					display: 'flex',
@@ -41,16 +44,13 @@ const Thumbnails = ({
 			>
 				{galleryCredentials && imagesList
 					? (isAiFace ? imagesList?.images : imagesList?.docs)
-							?.filter(
-								(image) => selectedImages?.includes(image?._id) || !selectedImages,
-							)
 							?.map((image, index) => {
 								const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 								const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
 								return (
 									<div
 										className={`imageContainer ${
-											activeImageIndex === index ? 'active' : ''
+											correctActiveIndex === index ? 'active' : ''
 										}`}
 										id={'thumbnail' + image?._id}
 										key={image?._id || 'key-thumbnail' + index}

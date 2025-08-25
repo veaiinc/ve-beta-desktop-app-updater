@@ -161,7 +161,7 @@ const Agents = () => {
 	}, [info?.totalCards, info?.currentIndex]);
 
 	useEffect(() => {
-		getProactiveHeadings();
+		getProactiveHeadings({ module: 'agent' });
 	}, []);
 
 	const handleLeft = useCallback(() => {

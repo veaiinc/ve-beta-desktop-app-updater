@@ -5,7 +5,7 @@ import ReactModal from '../../modalsV2';
 const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
 const deepLinkUrl = 'veai://open';
 
-const DesktopPopup = ({ open, closeModal, onStandardUploadClick }) => {
+const DesktopPopup = ({ open, closeModal, onStandardUploadClick, selectedAction }) => {
 	const handleInstallOrOpen = () => {
 		window.location.href = deepLinkUrl;
 
@@ -54,7 +54,7 @@ const DesktopPopup = ({ open, closeModal, onStandardUploadClick }) => {
 						onClick={onStandardUploadClick}
 						style={{ cursor: 'pointer', textDecoration: 'underline' }}
 					>
-						standard upload
+						{`standard ${selectedAction === 'download' ? 'download' : 'upload'}`}
 					</span>
 				</div>
 			</div>

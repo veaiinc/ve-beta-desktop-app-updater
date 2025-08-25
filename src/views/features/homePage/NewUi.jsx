@@ -8,7 +8,7 @@ import ObjectID from 'bson-objectid';
 import {
 	handleDeepResearchChainOfThought,
 	handleDeepSearchChainOfThought,
-} from '../../../helpers/chatHelpers';
+} from '../../../helpers/chat/chatHelpers';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { getGreeting } from '../../../helpers';
 import jwtDecode from 'jwt-decode';
@@ -359,7 +359,7 @@ const NewUi = ({ handleActiveChatChange }) => {
 	}, [info?.isLoadingChats]);
 
 	useEffect(() => {
-		getProactiveHeadings();
+		getProactiveHeadings({ module: 'chat' });
 	}, []);
 
 	useEffect(() => {
@@ -490,7 +490,10 @@ const NewUi = ({ handleActiveChatChange }) => {
 						<div className="loader-container">
 							{skeletonArray?.map((s, index) => {
 								return (
-									<div className={`skeleton-container skeleton-${index + 1}`}>
+									<div
+										key={index}
+										className={`skeleton-container skeleton-${index + 1}`}
+									>
 										<Skeleton
 											height={'100%'}
 											width={'100%'}
