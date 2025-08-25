@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useState } from 'react';
 import s from '../../../../assets/scss/chat/chatComponents/browser.module.scss';
 import Context from '../../../../context/context';
 import { ReactComponent as ArrowsIn } from '../../../../assets/svg/chat/arrowsIn.svg';
@@ -20,7 +20,7 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 			const tabs = browserData?.allTabUrls || [];
 			setInfo((prev) => ({
 				...prev,
-				activeTab: tabs?.length - 1,
+				activeTab: 0,
 				tabs,
 			}));
 		} else {

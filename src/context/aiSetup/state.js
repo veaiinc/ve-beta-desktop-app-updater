@@ -1213,17 +1213,24 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const getProactiveHeadings = async () => {
+	const getProactiveHeadings = async ({ module }) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
-			const url = '/' + workspaceId + '/knowledge-bases/proactive-headlines';
+			const url =
+				'/' + workspaceId + `/knowledge-bases/proactive-headlines?moduleType=${module}`;
 			const token = localStorage.getItem('usertoken');
 			const type = 'tenant';
 
 			const response = await service?.fetchGet(url, token, type);
 
 			if (response?.[0] === true) {
-				dispatch({ type: Actions.SET_PROACTIVE_HEADINGS, payload: response?.[1] });
+				dispatch({
+					type: Actions.SET_PROACTIVE_HEADINGS,
+					payload: {
+						...state?.proactiveHeadings,
+						[`${module}_headlines`]: response?.[1]?.headline,
+					},
+				});
 			} else {
 				return [false, response?.[1]];
 			}
