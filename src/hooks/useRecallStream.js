@@ -1,6 +1,6 @@
 import { useCallback, useRef, useEffect } from 'react';
 import { message } from 'antd/lib';
-import { getConfig } from '../services/index.js';
+import { config } from '../services/index.js';
 
 const useRecallStream = () => {
 	const socketRef = useRef(null);

@@ -1,5 +1,5 @@
 import { useReducer, useRef, useCallback } from 'react';
-import { getConfig } from '../../services/index';
+import { config } from '../../services/index';
 
 export const initialChatStreamState = {};
 
@@ -135,7 +135,6 @@ export const ChatStreamState = () => {
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
 			const region = localStorage.getItem('region') || 'us-east-1';
-			const config = await getConfig();
 			const { chat_ws_api, chat_ws_api_US, guest_chat_ws_api, guest_chat_ws_api_US } = config;
 			// `https://direct-garfish-smooth.ngrok-free.app`
 			let baseUrl = `${
