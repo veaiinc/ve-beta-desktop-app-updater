@@ -107,9 +107,9 @@ const TranscriptionWidget = ({ transcriptList = [], botJoinedTime, meetingPlatfo
 		setSearchParams(newParams, { replace: true });
 	};
 	const handleMouseEnter = () => {
-		if (transcriptList?.length > 0) {
-			setInfo((prev) => ({ ...prev, expand: true }));
-		}
+		// if (transcriptList?.length > 0) {
+		setInfo((prev) => ({ ...prev, expand: true }));
+		// }
 	};
 	const handleMouseLeave = () => {
 		setInfo((prev) => ({ ...prev, expand: false }));
@@ -125,19 +125,21 @@ const TranscriptionWidget = ({ transcriptList = [], botJoinedTime, meetingPlatfo
 				height: info.expand ? '500px' : '52px',
 			}}
 		>
-			{transcriptList?.length > 0 ? (
-				<div className={s.transcriptionContainer}>
-					<div className={s.transcriptionHeader}>
-						<div className={s.transcriptionHeaderText}>Transcription</div>
-						<div className={s.expandIcon} onClick={handleExpand}>
-							<ExpandIcon />
-						</div>
+			<div className={s.transcriptionContainer}>
+				<div className={s.transcriptionHeader}>
+					<div className={s.transcriptionHeaderText}>Transcription</div>
+					<div className={s.expandIcon} onClick={handleExpand}>
+						<ExpandIcon />
 					</div>
-					<div className={s.transcriptionListContainer} ref={listContainerRef}>
-						{transcriptList?.map((item, index) => (
+				</div>
+				<div className={s.transcriptionListContainer} ref={listContainerRef}>
+					{transcriptList?.length >= 1 ? (
+						transcriptList?.map((item, index) => (
 							<div key={index} className={s.transcriptionItem}>
 								<div
-									style={{ backgroundColor: getSpeakerColor(item.speakerName) }}
+									style={{
+										backgroundColor: getSpeakerColor(item.speakerName),
+									}}
 									className={s.transcriptionItemSpeaker}
 								>
 									{item.speakerName
@@ -163,11 +165,15 @@ const TranscriptionWidget = ({ transcriptList = [], botJoinedTime, meetingPlatfo
 									</div>
 								</div>
 							</div>
-						))}
-					</div>
+						))
+					) : (
+						<div className={s.noTranscript}>
+							Transcript not available yet. Please try speaking.
+						</div>
+					)}
 				</div>
-			) : // <div className={s.noTranscription}>No transcription yet.</div>
-			null}
+			</div>
+
 			<div
 				className={s.transcriptionContent}
 				style={{
@@ -178,9 +184,14 @@ const TranscriptionWidget = ({ transcriptList = [], botJoinedTime, meetingPlatfo
 				{!info?.expand && (
 					<div className={s.transcriptionContentWrapper}>
 						<div className={s.timerDiv}>{formatElapsedTime(elapsedTime)}</div>
-						<div className={s.waveDiv}>
-							<img src={Waveform} alt="wave" />
-						</div>
+						{transcriptList?.length >= 1 ? (
+							<div className={s.waveDiv}>
+								<img src={Waveform} alt="wave" />
+							</div>
+						) : (
+							<div className={s.wavePaused}></div>
+						)}
+
 						<div className={s.statusDiv}>
 							{logoMapper[meetingPlatform]}
 							Connected to {nameMapper[meetingPlatform]}

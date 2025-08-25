@@ -6,7 +6,7 @@ import WebSvg from '../../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../../assets/svg/ai_agents/bookSvg';
 import Sources from './Sources';
 import SmoothExpand from './SmoothExpand';
-import { updateCitationIdsWithCitations } from '../../../../helpers/chatHelpers';
+import { updateCitationIdsWithCitations } from '../../../../helpers/chat/chatHelpers';
 
 const DeepResearchChainOfThought = ({ data, showLastIndicatorLine = false, streamEnd = true }) => {
 	return (

@@ -21,9 +21,9 @@ import useBroadcastChannel from '../../../../../hooks/useBroadcastChannel';
 import { ReactComponent as BackIcon } from '../../../../../assets/svg/mobile/back.svg';
 import { ReactComponent as CloseIcon } from '../../../../../assets/svg/mobile/close.svg';
 import { ReactComponent as PlusSvg } from '../../assets/plus.svg';
-import logError from '../../../../../helpers/errorLogger';
 
 const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
+const deepLinkUrl = 'veai://open';
 const isMac =
 	navigator.userAgentData?.platform === 'macOS' ||
 	navigator.userAgent.toLowerCase().indexOf('mac') !== -1;
@@ -103,7 +103,7 @@ const Settings = ({
 		workspaceModalOpen: false,
 		intercomOpen: false,
 		isMobileView: window.matchMedia('(max-width: 767px)').matches,
-		logoutLoading: false,
+		isDesktop: false,
 	}));
 
 	const {
@@ -116,6 +116,32 @@ const Settings = ({
 	const workspacesLoading = userWorkSpaceList === null;
 	const workspaceImage = tennantSettingsData?.logo_s3_500w_key ?? null;
 
+	useEffect(() => {
+		if (window?.electronApi) {
+			setInfo((prev) => ({
+				...prev,
+				isDesktop: true,
+			}));
+		}
+	}, []);
+	const handleInstallOrOpen = () => {
+		window.location.href = deepLinkUrl;
+
+		const timer = setTimeout(() => {
+			if (desktopAppDownloadUrl) {
+				window.open(desktopAppDownloadUrl, '_blank');
+			}
+		}, 2000);
+
+		// If user switches focus (e.g., app opened), cancel fallback
+		window.addEventListener(
+			'blur',
+			() => {
+				clearTimeout(timer);
+			},
+			{ once: true },
+		);
+	};
 	const handleSettingItemClick = (settingItem) => async () => {
 		if (settingItem.route) {
 			navigate(settingItem.route);
@@ -136,42 +162,9 @@ const Settings = ({
 		closeSettingsTooltip();
 	};
 
-	const handleLogout = async () => {
-		try {
-			setInfo((prev) => ({
-				...prev,
-				logoutLoading: true,
-			}));
-			const isLoggedOut = await logout();
-			if (isLoggedOut) {
-				channel.postMessage('logout');
-			} else {
-				message.error('Failed to logout! This was reported to the team.');
-				const payload = {
-					errorType: 'Logout',
-					errorMessage: 'Failed to logout! This was reported to the team.',
-					errorPath: '/src/views/components/topNavbar/components/settings/Settings.jsx',
-					errorComponent: 'Settings',
-					errorComponentStack: 'Not Available',
-				};
-				const success = await logError(payload);
-				if (success) {
-					console.log('Error logged successfully');
-				} else {
-					console.error('Error logging failed');
-				}
-			}
-			setInfo((prev) => ({
-				...prev,
-				logoutLoading: false,
-			}));
-		} catch (error) {
-			console.error('Error logging out:', error);
-			setInfo((prev) => ({
-				...prev,
-				logoutLoading: false,
-			}));
-		}
+	const handleLogout = () => {
+		logout();
+		channel.postMessage('logout');
 	};
 
 	const Content = (
@@ -284,19 +277,12 @@ const Settings = ({
 					}}
 					disabled={info.logoutLoading}
 				>
-					{info.logoutLoading ? <Skeleton width={24} height={24} /> : <LogoutSvg />}
+					<LogoutSvg />
 				</button>
 			</div>
 
-			{isMac && (
-				<button
-					className={s.downloadMacAppButton}
-					onClick={() => {
-						if (desktopAppDownloadUrl) {
-							window.open(desktopAppDownloadUrl, '_blank');
-						}
-					}}
-				>
+			{isMac && !info?.isDesktop && (
+				<button className={s.downloadMacAppButton} onClick={handleInstallOrOpen}>
 					<DownloadMacSvg />
 					<span>Download Mac app</span>
 				</button>

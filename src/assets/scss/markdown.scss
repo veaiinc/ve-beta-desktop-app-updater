@@ -177,7 +177,7 @@
 		.li {
 			list-style-type: disc;
 			&::marker {
-				font-size: calc(var(--font-size) * 0.85);
+				font-size: calc(var(--font-size) * 1);
 				color: var(--primary-font);
 				margin-right: 5px;
 			}

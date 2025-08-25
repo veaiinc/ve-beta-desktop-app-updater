@@ -134,8 +134,7 @@ const Editor = ({
 				if (markdown) {
 					const replaced = blocks
 						.replace(/\\n/g, '\n')
-						.replace(/<([^>]+)>/g, (_, inside) => {
-							// "inside" will be gmail-send-mail or notion-create-database
+						.replace(/<([a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*)>/g, (_, inside) => {
 							return `[[action#${inside}]]`;
 						});
 					blocks = injectCustomBlocks(await editor.tryParseMarkdownToBlocks(replaced));

@@ -13,8 +13,9 @@
 	background-color: var(--popup);
 	position: absolute;
 	bottom: 20px;
+	left: 50%;
+	transform: translateX(-50%);
 
-	left: calc(35% + 50px);
 	.transcription-bar {
 		display: flex;
 		align-items: center;

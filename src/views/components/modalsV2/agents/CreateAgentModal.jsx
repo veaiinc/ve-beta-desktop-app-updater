@@ -33,10 +33,14 @@ const CreateAgentModal = ({ isOpen, closeModal, handleCreateNewAgent, loading })
 		closeModal();
 	}, []);
 
+	const keyDownPreventPropogation = (e) => {
+		e.stopPropagation();
+	};
+
 	return (
 		<ReactModal isOpen={isOpen} closeModal={handleCloseModal} modalType={'center'}>
-			<div className={s.createAgentContainer}>
-				<div className={s.toggleWrapper}>
+			<div className={s.createAgentContainer} onKeyDown={keyDownPreventPropogation}>
+				{/* <div className={s.toggleWrapper}>
 					<button
 						className={`${s.buildAgentButton} ${!info?.manualMode ? s.active : ''}`}
 						onClick={() => handleToggleMode(false)}
@@ -49,7 +53,7 @@ const CreateAgentModal = ({ isOpen, closeModal, handleCreateNewAgent, loading })
 					>
 						Build Manually
 					</button>
-				</div>
+				</div> */}
 				<div className={s.headerWrapper}>
 					<h2 className={s.title}>
 						{info?.manualMode ? 'Create Agent on Your Own' : 'Design Your Agent’s Role'}

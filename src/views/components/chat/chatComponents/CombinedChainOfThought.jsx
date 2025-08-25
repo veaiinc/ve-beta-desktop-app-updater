@@ -2,7 +2,7 @@ import { memo } from 'react';
 import '../../../../assets/scss/chat/chatComponents/combinedChainOfThought.scss';
 import DeepSearchChainOfThought from './DeepSearchChainOfThought';
 import DeepResearchChainOfThought from './DeepResearchChainOfThought';
-import { updateCitationIdsWithCitations } from '../../../../helpers/chatHelpers';
+import { updateCitationIdsWithCitations } from '../../../../helpers/chat/chatHelpers';
 
 const CombinedChainOfThought = ({ data, citations = null }) => {
 	const { thoughts, deepSearches, deepResearches } = data;

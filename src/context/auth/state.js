@@ -187,8 +187,11 @@ export const AuthState = () => {
 					domain: host,
 				});
 				if (hasWorkspaces)
-					localStorage.setItem('accessibleWorkspaces', accessibleWorkspaces);
-				Cookies.set('accessibleWorkspaces', accessibleWorkspaces, {
+					localStorage.setItem(
+						'accessibleWorkspaces',
+						JSON.stringify(accessibleWorkspaces),
+					);
+				Cookies.set('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces), {
 					sameSite: 'Lax',
 					domain: host,
 				});
@@ -202,7 +205,7 @@ export const AuthState = () => {
 
 				return [true, { hasWorkspaces, isOnboard, workspaceId }];
 			} else {
-				return [false, { message: response?.[1]?.message?.trim() + '. Please try again!' }];
+				return [false, { message: response?.[1]?.message?.trim() }];
 			}
 		} catch (error) {
 			console.error('[Verify] Error verifying email verification code:', error);

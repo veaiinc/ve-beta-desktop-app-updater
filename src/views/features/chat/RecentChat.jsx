@@ -3,7 +3,9 @@ import '../../../assets/scss/chat/chat.scss';
 import {
 	handleDeepSearchChainOfThought,
 	handleDeepResearchChainOfThought,
-} from '../../../helpers/chatHelpers';
+	getBrowserUrls,
+	handleBrowserData,
+} from '../../../helpers/chat/chatHelpers';
 import Context from '../../../context/context';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
@@ -18,6 +20,7 @@ import ChatHeader from '../../components/chat/ChatHeader';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import { message } from '../../components/globalComponents/CustomToast';
 import ChatHistory from '../../components/sidebar/chatHistory/ChatHistory';
+import Browser from '../../components/chat/chatComponents/Browser';
 import { ReactComponent as DoubleRightArrowSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 
 const RecentChat = ({
@@ -32,6 +35,7 @@ const RecentChat = ({
 	showChatHistory = false,
 	showChats = false,
 	showHeader = true,
+	showBrowser = false,
 }) => {
 	const {
 		templates: {
@@ -90,7 +94,7 @@ const RecentChat = ({
 			deleteChatSessionLoading: false,
 			isNewChat: true,
 			currentUserMessageIndex: null,
-			getFollowUpQueries: false,
+			// getFollowUpQueries: false,
 			chatQuery: '',
 			citationsAiMessageIndex: null,
 			citationsModalIsOpen: false,
@@ -100,13 +104,11 @@ const RecentChat = ({
 	});
 
 	const chatContentRef = useRef(null);
-	const chatMessagesRef = useRef([]);
 	const userMessagesRefs = useRef({});
 	// const previousAiMessagesRef = useRef([]);
 	// const aiCitationsByIdRef = useRef({});
 	const tabsRefs = useRef({});
 	const previousTabsRefs = useRef({});
-	const isFirstTimeConnectingToPublicChatRef = useRef(true);
 	const agentTimeoutIdRef = useRef(null);
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -116,6 +118,8 @@ const RecentChat = ({
 	const followUpQueryTimeoutRef = useRef(null);
 
 	sessionId = isPreview ? sId : sessionId;
+
+	const browserData = globalChatMessages?.[sessionId]?.browserData;
 
 	// Save whenever it changes
 	useEffect(() => {
@@ -154,6 +158,7 @@ const RecentChat = ({
 					},
 					chatReplyData: null,
 					aiMessagesInfo: null,
+					isBrowserScreenActive: false,
 				});
 			}, 0);
 
@@ -177,18 +182,41 @@ const RecentChat = ({
 	}, []);
 
 	useEffect(() => {
-		if (info?.getFollowUpQueries) {
-			if (agentType !== 'knowledge_agent' && info?.chatQuery?.trim()?.length === 0) {
-				followUpQueryTimeoutRef.current = setTimeout(() => {
-					getFollowUpQueries(sessionId, info?.latestStreamMesage?.message_id);
-				}, 5000);
-			}
-			setInfo((prev) => ({
-				...prev,
-				getFollowUpQueries: false,
-			}));
+		if (globalChatMessages?.[sessionId]?.open_browser) {
+			setInfo((prev) => {
+				if (prev?.openBrowser && prev?.browserDataAvailable) return prev;
+				return {
+					...prev,
+					openBrowser: true,
+					browserDataAvailable: true,
+				};
+			});
+			updateStateValues({ isBrowserScreenActive: true });
+		} else {
+			setInfo((prev) => {
+				if (!prev?.openBrowser && !prev?.browserDataAvailable) return prev;
+				return {
+					...prev,
+					openBrowser: false,
+					browserDataAvailable: false,
+				};
+			});
 		}
-	}, [info?.getFollowUpQueries]);
+	}, [globalChatMessages?.[sessionId]?.open_browser]);
+
+	// useEffect(() => {
+	// 	if (info?.getFollowUpQueries) {
+	// 		if (agentType !== 'knowledge_agent' && info?.chatQuery?.trim()?.length === 0) {
+	// 			followUpQueryTimeoutRef.current = setTimeout(() => {
+	// 				getFollowUpQueries(sessionId, info?.latestStreamMesage?.message_id);
+	// 			}, 5000);
+	// 		}
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			getFollowUpQueries: false,
+	// 		}));
+	// 	}
+	// }, [info?.getFollowUpQueries]);
 
 	useEffect(() => {
 		if (info?.chatQuery?.trim()?.length > 0) {
@@ -227,6 +255,7 @@ const RecentChat = ({
 						moduleTemplateId: null,
 					},
 					aiMessagesInfo: null,
+					isBrowserScreenActive: false,
 				});
 				tabsRefs.current = {};
 				userMessagesRefs.current = {};
@@ -247,16 +276,16 @@ const RecentChat = ({
 				agentTimeoutIdRef.current = null;
 			}
 
-			// if (!globalChatMessages?.[sessionId]) {
-			getRecentChatMessages({
-				sessionId,
-				page: 1,
-				fetchMore: false,
-				limit: 1000,
-				isPublicChat,
-				removeSessionId: false,
-			});
-			// }
+			if (!globalChatMessages?.[sessionId]?.open_browser) {
+				getRecentChatMessages({
+					sessionId,
+					page: 1,
+					fetchMore: false,
+					limit: 1000,
+					isPublicChat,
+					removeSessionId: false,
+				});
+			}
 
 			const sessionIdsToClose = newChatSessionIds?.filter(
 				(id) => !globalChatMessages?.[id]?.isStreaming,
@@ -337,6 +366,18 @@ const RecentChat = ({
 	}, [globalChatMessages, sessionId]);
 
 	// useEffect(() => {
+	// 	if (globalChatMessages?.[sessionId]?.browserData) {
+	// 		setInfo((prev) => {
+	// 			return {
+	// 				...prev,
+	// 				openBrowser: true,
+	// 				browserDataAvailable: true,
+	// 			};
+	// 		});
+	// 	}
+	// }, [globalChatMessages?.[sessionId]?.browserData]);
+
+	// useEffect(() => {
 	// 	if (!chatContentRef?.current || !tabsRefs?.current) return;
 	// 	previousTabsRefs.current = tabsRefs.current;
 	// 	const observer = new IntersectionObserver(
@@ -375,7 +416,6 @@ const RecentChat = ({
 	useEffect(() => {
 		globalChatMessagesRef.current = globalChatMessages;
 		if (!sessionId) return;
-		chatMessagesRef.current = [...(globalChatMessages?.[sessionId]?.messages || [])];
 
 		// const container = chatContentRef.current;
 		// if (!container) return;
@@ -604,15 +644,23 @@ const RecentChat = ({
 					};
 				}
 				let processing = null,
-					memoryThinking = null;
+					memoryThinking = null,
+					browserChainOfThought = null,
+					openBrowser = false;
+
 				let deepSearch = {},
 					deepResearch = {},
 					normalSearch = {};
 
 				if (chainOfThought?.length > 0) {
 					for (let i = 0; i < chainOfThought?.length; i++) {
-						const { deep_search, deep_research, memory_thinking, normal_search } =
-							chainOfThought?.[i] || {};
+						const {
+							deep_search,
+							deep_research,
+							memory_thinking,
+							normal_search,
+							open_browser,
+						} = chainOfThought?.[i] || {};
 						if (deep_search) {
 							processing = 'Deep Search';
 							break;
@@ -624,6 +672,10 @@ const RecentChat = ({
 							break;
 						} else if (memory_thinking) {
 							memoryThinking = memory_thinking;
+							break;
+						} else if (open_browser) {
+							openBrowser = true;
+							break;
 						}
 					}
 
@@ -633,6 +685,8 @@ const RecentChat = ({
 						deepResearch = handleDeepResearchChainOfThought(chainOfThought);
 					} else if (processing === 'Normal Search') {
 						normalSearch = handleDeepSearchChainOfThought(chainOfThought);
+					} else if (openBrowser) {
+						browserChainOfThought = handleBrowserData(chainOfThought);
 					}
 				}
 
@@ -662,6 +716,7 @@ const RecentChat = ({
 						...(processing === 'Deep Research' && { deepResearch }),
 						...(processing === 'Normal Search' && { normalSearch }),
 						...(memoryThinking && { memory_thinking: memoryThinking }),
+						...(browserChainOfThought && { browserChainOfThought }),
 					},
 				]?.concat(messages);
 			}
@@ -817,20 +872,23 @@ const RecentChat = ({
 		[info, sessionId, isPublicChat],
 	);
 
+	const handleBrowserButtonClick = useCallback(() => {
+		if (location?.pathname?.split('/')?.[1] !== 'chat') {
+			navigate(`/chat/${sessionId}`);
+			return;
+		}
+		setInfo((prev) => {
+			updateStateValues({ isBrowserScreenActive: !prev?.openBrowser });
+			return { ...prev, openBrowser: !prev?.openBrowser };
+		});
+	}, [location, sessionId, updateStateValues]);
+
 	// stream chat
 	const onMessageFunc = useCallback(
 		(event, currentSessionId) => {
 			let { data = '' } = event || {};
 			data = JSON?.parse(data);
 
-			if (data?.hasOwnProperty('intermediate_response')) {
-				handleGlobalChatMessages({
-					payload: data,
-					sessionId,
-					updateExtraInfo: true,
-				});
-				return;
-			}
 			if (data?.user_id) {
 				localStorage?.setItem('user_id', data?.user_id);
 			}
@@ -866,7 +924,7 @@ const RecentChat = ({
 					latestStreamMessage: data,
 				});
 
-				if (chatMessagesRef?.current?.length === 2) {
+				if (!globalChatMessages?.[sessionId]?.messages?.length) {
 					const payload = {
 						sessionId,
 						page: 1,
@@ -877,13 +935,17 @@ const RecentChat = ({
 				setInfo((prev) => ({
 					...prev,
 					latestStreamMesage: data,
-					...(sessionId === currentSessionId &&
-						!data?.used_agents?.includes('custom_agents_manager_agent') && {
-							getFollowUpQueries: true,
-						}),
+					// ...(sessionId === currentSessionId &&
+					// 	!data?.used_agents?.includes('custom_agents_manager_agent') && {
+					// 		getFollowUpQueries: true,
+					// 	}),
 				}));
 			}
-			const { message_chunk_id } = data;
+			const { message_chunk_id, toolName } = data;
+
+			if (toolName) {
+				getBrowserUrls(sessionId, handleGlobalChatMessages);
+			}
 
 			if (message_chunk_id) {
 				handleGlobalChatMessages({
@@ -898,7 +960,7 @@ const RecentChat = ({
 				});
 			}
 		},
-		[globalChatMessages, sessionId, info?.browserPreviousActiveTabIndex],
+		[globalChatMessages, sessionId],
 	);
 
 	const handleSendWebsocketMessage = useCallback(
@@ -1188,9 +1250,29 @@ const RecentChat = ({
 								onChatQueryChange={handleChatQueryChange}
 								animateChatBox={animateChatBox}
 								sessionId={sessionId}
+								handleBrowserButtonClick={handleBrowserButtonClick}
+								showBrowserButton={!info?.openBrowser && info?.browserDataAvailable}
+								browserImage={
+									globalChatMessages?.[sessionId]?.browserData?.browserMetadata
+										?.signedUrl
+								}
 							/>
 						</div>
 					</div>
+				</div>
+
+				<div
+					className="browser-container"
+					style={{
+						width: info?.openBrowser && showBrowser ? '50vw' : '0px',
+					}}
+				>
+					<Browser
+						sessionId={sessionId}
+						isOpen={info?.openBrowser && showBrowser}
+						browserData={browserData}
+						handleBrowserButtonClick={handleBrowserButtonClick}
+					/>
 				</div>
 			</div>
 

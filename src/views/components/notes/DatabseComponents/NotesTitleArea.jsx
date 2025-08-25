@@ -92,7 +92,7 @@ const NotesTitleArea = ({
 			<div
 				className={s.notesIconContainer}
 				style={{
-					paddingTop: coverImage ? '0px' : '32px',
+					paddingTop: coverImage ? '0px' : '48px',
 				}}
 			>
 				{iconImage && (

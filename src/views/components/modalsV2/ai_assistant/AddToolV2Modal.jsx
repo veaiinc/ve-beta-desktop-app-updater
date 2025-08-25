@@ -11,6 +11,7 @@ import { ReactComponent as SearchIcon } from '../../../../assets/svg/ai_assistan
 import { ReactComponent as AddIcon } from '../../../../assets/svg/ai_assistant/add.svg';
 import { message } from '../../globalComponents/CustomToast';
 import ListConnectModal from '../../agents/agentDetails/configureAgent/tabs/triggersTab/modals/ListConnectModal';
+import ActionsModal from './ActionsModal';
 
 // AddToolV2Modal component for adding tools to a knowledge agent
 const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
@@ -49,6 +50,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		selectedCategory: 'all',
 		selectedUseCase: null,
 		selectedApp: null,
+		showCustomApiModal: false, // New state for custom API modal
 	});
 
 	const searchTimeoutRef = useRef(null);
@@ -57,6 +59,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 	// Categories for left panel
 	const categories = [
 		{ id: 'all', name: 'All tools', active: true },
+		{ id: 'custom-api', name: 'Custom API', active: false }, // New custom API category
 		// { id: 'premium', name: 'Premium' },
 		// { id: 'trending', name: 'Trending' },
 		// { id: 'your-tools', name: 'Your tools' },
@@ -150,6 +153,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				selectedCategory: 'all',
 				selectedUseCase: null,
 				selectedApp: null,
+				showCustomApiModal: false, // Reset custom API modal state
 			}));
 			fetchConnectedAccounts();
 		}
@@ -179,6 +183,13 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 	// Handle category selection
 	const handleCategorySelect = (categoryId) => {
 		setInfo((prev) => ({ ...prev, selectedCategory: categoryId }));
+
+		// If custom API is selected, open the ActionsModal
+		if (categoryId === 'custom-api') {
+			setInfo((prev) => ({ ...prev, showCustomApiModal: true }));
+			return;
+		}
+
 		// Reset filters when changing category
 		setInfo((prev) => ({
 			...prev,
@@ -358,8 +369,6 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				userId,
 			};
 
-			
-
 			const response = await addActionToKnowledgeAgent(agentId, payload);
 
 			if (response?.[0] === true) {
@@ -458,6 +467,38 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 		}));
 	};
 
+	// Handle custom API modal close
+	const handleCustomApiModalClose = () => {
+		setInfo((prev) => ({
+			...prev,
+			showCustomApiModal: false,
+		}));
+	};
+
+	// Handle custom API action added
+	const handleCustomApiActionAdded = (newAction) => {
+		// Close the custom API modal
+		setInfo((prev) => ({ ...prev, showCustomApiModal: false }));
+
+		// Call the parent callback to refresh the tool list
+		if (onToolAdded) onToolAdded();
+
+		// Show success message
+		message.success('Custom API tool added successfully');
+	};
+
+	// Handle custom API action updated
+	const handleCustomApiActionUpdated = (updatedAction) => {
+		// Close the custom API modal
+		setInfo((prev) => ({ ...prev, showCustomApiModal: false }));
+
+		// Call the parent callback to refresh the tool list
+		if (onToolAdded) onToolAdded();
+
+		// Show success message
+		message.success('Custom API tool updated successfully');
+	};
+
 	return (
 		<div className="add-tool-v2-modal-container">
 			<ReactModal
@@ -498,6 +539,7 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 													? 'active'
 													: ''
 											}`}
+											data-category={category.id}
 											onClick={() => handleCategorySelect(category.id)}
 										>
 											{category.name}
@@ -560,136 +602,197 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 							</div>
 						</div>
 
-						{/* Right Panel - Tools Grid */}
+						{/* Right Panel - Tools Grid or Custom API Interface */}
 						<div className="right-panel">
 							{/* <div className="right-panel-header">
 								<CrossIcon onClick={onClose} className="cross-icon" />
 							</div> */}
 
-							<div className="tools-header">
-								<h2 className="tools-title">All Tools</h2>
-								<p className="tools-subtitle">
-									Your Personal Tools & Community Picks
-								</p>
-							</div>
+							{/* Show different content based on selected category */}
+							{info.selectedCategory === 'custom-api' ? (
+								// Custom API Interface
+								<div className="custom-api-interface">
+									<div className="tools-header">
+										<h2 className="tools-title">Create Custom API Tool</h2>
+										<p className="tools-subtitle">
+											Build your own API integration with custom endpoints,
+											headers, and parameters
+										</p>
+									</div>
 
-							{info.checkingAccounts ? (
-								<div className="centered-loading">
-									<Spinner
-										width="20px"
-										height="20px"
-										color="var(--primary-font)"
-									/>
-									<span className="centered-loading-text">
-										Checking existing accounts...
-									</span>
+									<div className="custom-api-content">
+										<div className="custom-api-description">
+											<p>Create a custom API tool that can:</p>
+											<ul>
+												<li>Connect to any REST API endpoint</li>
+												<li>Define custom headers and authentication</li>
+												<li>Set up input variables for dynamic data</li>
+												<li>Configure request body templates</li>
+											</ul>
+										</div>
+
+										<div className="custom-api-actions">
+											<button
+												className="create-custom-api-btn"
+												onClick={() =>
+													setInfo((prev) => ({
+														...prev,
+														showCustomApiModal: true,
+													}))
+												}
+											>
+												<AddIcon className="add-icon" />
+												Create Custom API Tool
+											</button>
+										</div>
+									</div>
 								</div>
-							) : info.isLoading && filteredActions.length === 0 ? (
-								<div className="centered-loading">
-									<Spinner
-										width="20px"
-										height="20px"
-										color="var(--primary-font)"
-									/>
-									<span className="centered-loading-text">Loading tools...</span>
-								</div>
-							) : info.error ? (
-								<div className="error-message">{info.error}</div>
 							) : (
+								// Regular Tools Grid
 								<>
-									<InfiniteScroll
-										dataLength={filteredActions.length || 0}
-										next={fetchMoreActions}
-										hasMore={info.hasNextPage}
-										loader={
-											<div className="centered-loading">
-												<Spinner
-													width="16px"
-													height="16px"
-													color="var(--primary-font)"
-												/>
-												Loading more...
-											</div>
-										}
-										height={535}
-										style={{
-											overflowY: 'auto',
-											width: '100%',
-										}}
-									>
-										<div className="tools-grid">
-											{filteredActions.length === 0 ? (
-												<div className="error-message centered">
-													No tools found.
-												</div>
-											) : (
-												filteredActions.map((action) => {
-													const isAdded = addedActionKeys.includes(
-														action.toolkit.slug,
-													);
-													return (
-														<div
-															key={action.slug}
-															className="tool-item"
-															onClick={() => handleAddTool(action)}
-														>
-															<div className="tool-icon-container">
-																<img
-																	src={action.toolkit.logo || ''}
-																	alt={action.name || 'Tool'}
-																	className="tool-icon"
-																/>
-															</div>
-															<div className="tool-info">
-																<span className="tool-name">
-																	{action.name || 'Unnamed'}
-																</span>
-															</div>
-															{isAdded ? (
-																<span className="added-badge">
-																	✓ Added
-																</span>
-															) : (
-																<button
-																	className="add-button"
-																	disabled={
-																		!!info.addLoading[
-																			action.slug
-																		] || info.isConnecting
+									<div className="tools-header">
+										<h2 className="tools-title">All Tools</h2>
+										<p className="tools-subtitle">
+											Your Personal Tools & Community Picks
+										</p>
+									</div>
+
+									{info.checkingAccounts ? (
+										<div className="centered-loading">
+											<Spinner
+												width="20px"
+												height="20px"
+												color="var(--primary-font)"
+											/>
+											<span className="centered-loading-text">
+												Checking existing accounts...
+											</span>
+										</div>
+									) : info.isLoading && filteredActions.length === 0 ? (
+										<div className="centered-loading">
+											<Spinner
+												width="20px"
+												height="20px"
+												color="var(--primary-font)"
+											/>
+											<span className="centered-loading-text">
+												Loading tools...
+											</span>
+										</div>
+									) : info.error ? (
+										<div className="error-message">{info.error}</div>
+									) : (
+										<>
+											<InfiniteScroll
+												dataLength={filteredActions.length || 0}
+												next={fetchMoreActions}
+												hasMore={info.hasNextPage}
+												loader={
+													<div className="centered-loading">
+														<Spinner
+															width="16px"
+															height="16px"
+															color="var(--primary-font)"
+														/>
+														Loading more...
+													</div>
+												}
+												height={615}
+												style={{
+													overflowY: 'auto',
+													width: '100%',
+												}}
+											>
+												<div className="tools-grid">
+													{filteredActions.length === 0 ? (
+														<div className="error-message centered">
+															No tools found.
+														</div>
+													) : (
+														filteredActions.map((action) => {
+															const isAdded =
+																addedActionKeys.includes(
+																	action.toolkit.slug,
+																);
+															return (
+																<div
+																	key={action.slug}
+																	className="tool-item"
+																	onClick={() =>
+																		handleAddTool(action)
 																	}
 																>
-																	{info.addLoading[
-																		action.slug
-																	] ? (
-																		<div className="add-button-container">
-																			<Spinner
-																				width="16px"
-																				height="16px"
-																				color="var(--primary-font)"
-																			/>
-																			{info.isConnecting
-																				? 'Connecting...'
-																				: 'Adding...'}
-																		</div>
+																	<div className="tool-icon-container">
+																		<img
+																			src={
+																				action.toolkit
+																					.logo || ''
+																			}
+																			alt={
+																				action.name ||
+																				'Tool'
+																			}
+																			className="tool-icon"
+																		/>
+																	</div>
+																	<div className="tool-info">
+																		<span className="tool-name">
+																			{action.name ||
+																				'Unnamed'}
+																		</span>
+																	</div>
+																	{isAdded ? (
+																		<span className="added-badge">
+																			✓ Added
+																		</span>
 																	) : (
-																		<div className="add-button-container">
-																			<AddIcon className="add-icon" />
-																			Add
+																		<button
+																			className="add-button"
+																			disabled={
+																				!!info.addLoading[
+																					action.slug
+																				] ||
+																				info.isConnecting
+																			}
+																		>
+																			{info.addLoading[
+																				action.slug
+																			] ? (
+																				<div className="add-button-container">
+																					<Spinner
+																						width="16px"
+																						height="16px"
+																						color="var(--primary-font)"
+																					/>
+																					{info.isConnecting
+																						? 'Connecting...'
+																						: 'Adding...'}
+																				</div>
+																			) : (
+																				<div className="add-button-container">
+																					<AddIcon className="add-icon" />
+																					Add
+																				</div>
+																			)}
+																		</button>
+																	)}
+																	{info.addError[action.slug] && (
+																		<div className="field-error">
+																			{
+																				info.addError[
+																					action.slug
+																				]
+																			}
 																		</div>
 																	)}
-																</button>
-															)}
-															{info.addError[action.slug] && (
-																<div className="field-error">
-																	{info.addError[action.slug]}
 																</div>
-															)}
-														</div>
-													);
-												})
-											)}
-										</div>
-									</InfiniteScroll>
+															);
+														})
+													)}
+												</div>
+											</InfiniteScroll>
+										</>
+									)}
 								</>
 							)}
 						</div>
@@ -704,6 +807,17 @@ const AddToolV2Modal = ({ isOpen, onClose, onToolAdded }) => {
 				action={info.selectedActionForApiKey}
 				onApiKeySubmit={handleApiKeySubmit}
 				isLoading={info.apiKeyModalLoading}
+			/>
+
+			{/* Custom API Modal */}
+			<ActionsModal
+				isOpen={info.showCustomApiModal}
+				onClose={handleCustomApiModalClose}
+				assistantId={agentId}
+				aiActionList={[]}
+				onActionAdded={handleCustomApiActionAdded}
+				onActionUpdated={handleCustomApiActionUpdated}
+				selectedAction={null}
 			/>
 		</div>
 	);

@@ -25,7 +25,7 @@ export const meeting_summary_api = 'https://live.us-east-1.ve.ai';
 export const chat_ws_api = 'wss://ai.ap-south-1.ve.ai';
 export const guest_chat_ws_api = 'wss://guestsearch.ap-south-1.ve.ai';
 export const meeting_ws_api = 'wss://recall.ap-south-1.ve.ai';
-
+export const browser_ws_api = 'wss://browser.us-east-1.ve.ai';
 // Voice agent token generation API
 export const generate_voice_agent_token_api = 'https://ai-dev.us-east-1.ve.ai';
 
@@ -58,3 +58,5 @@ export const chat_ws_api_US = 'wss://ai.us-east-1.ve.ai';
 export const guest_chat_ws_api_US = 'wss://guestsearch.us-east-1.ve.ai';
 export const meeting_ws_api_US = 'wss://recall.us-east-1.ve.ai';
 export const voice_agent_api_US = 'wss://voice.us-east-1.ve.ai/ws';
+export const browser_ws_api_US = 'wss://browser.us-east-1.ve.ai';
+// export const browser_ws_api_US = 'wss://gladly-divine-urchin.ngrok-free.app';

@@ -8,12 +8,12 @@ import ObjectID from 'bson-objectid';
 import {
 	handleDeepResearchChainOfThought,
 	handleDeepSearchChainOfThought,
-} from '../../../helpers/chatHelpers';
+} from '../../../helpers/chat/chatHelpers';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { getGreeting } from '../../../helpers';
 import jwtDecode from 'jwt-decode';
 import { Tooltip } from 'antd';
-import PageLoader from '../../features/app/PageLoader';
+import Skeleton from 'react-loading-skeleton';
 
 const tooltipStyle = {
 	padding: 8,
@@ -22,8 +22,6 @@ const tooltipStyle = {
 	background: 'var(--navbar)',
 	border: '1px solid var(--dividers)',
 };
-
-const customStyles = { position: 'absolute', top: '0', left: '0', zIndex: '1' };
 
 const getCardStyles = (index, activeIndex, dataLength) => {
 	const prev1 = (activeIndex - 1 + dataLength) % dataLength;
@@ -193,6 +191,8 @@ const getNewActiveCardIndex = (scrollDirection, prevActiveIndex, dataLength) => 
 	return newIndex;
 };
 
+const skeletonArray = [{}, {}, {}];
+
 const SCROLL_THRESHOLD = 10;
 const SCROLL_STOP_DELAY = 40; // time between wheel events to detect gesture end
 
@@ -201,9 +201,10 @@ let scrollLocked = false;
 
 const NewUi = ({ handleActiveChatChange }) => {
 	const {
-		aiSetup: { aiChatSessions },
+		aiSetup: { aiChatSessions, aiChatSessionsFilters },
 		templates: { updateStateValues, handleGlobalChatMessages },
 		profileInfo: { userDetailsData },
+		aiSetup: { proactiveHeadings, getProactiveHeadings },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -213,14 +214,13 @@ const NewUi = ({ handleActiveChatChange }) => {
 		sessionId: ObjectID()?.toString(),
 		chatQuery: '',
 		scrollDirection: null,
-		isProcessingSessions: true,
+		isLoadingChats: true,
 	});
 	const navigate = useNavigate();
 	const containerRef = useRef(null);
 
 	useEffect(() => {
-		setInfo((prev) => ({ ...prev, isProcessingSessions: true }));
-		if (aiChatSessions?.data?.length) {
+		if (aiChatSessions?.data?.length && aiChatSessionsFilters?.agentType === 'multi_agent') {
 			let sessions = [...(aiChatSessions?.data || [])];
 			sessions =
 				sessions?.length === 1
@@ -343,12 +343,12 @@ const NewUi = ({ handleActiveChatChange }) => {
 				dataLength,
 				data: sessions,
 				scrollDirection: null,
-				isProcessingSessions: false,
+				isLoadingChats: false,
 			}));
 		} else if (aiChatSessions?.data?.length === 0) {
 			setInfo((prev) => ({
 				...prev,
-				isProcessingSessions: false,
+				isLoadingChats: false,
 			}));
 		}
 	}, [aiChatSessions]);
@@ -356,54 +356,66 @@ const NewUi = ({ handleActiveChatChange }) => {
 	useEffect(() => {
 		containerRef?.current?.addEventListener('wheel', handleWheel, { passive: false });
 		return () => containerRef?.current?.removeEventListener('wheel', handleWheel);
+	}, [info?.isLoadingChats]);
+
+	useEffect(() => {
+		getProactiveHeadings({ module: 'chat' });
 	}, []);
 
 	useEffect(() => {
 		handleActiveChatChange(info.data?.[info.activeIndex]);
 	}, [info.activeIndex]);
 
-	const handleWheel = useCallback((e) => {
-		const delta = e.deltaY;
+	const handleWheel = useCallback(
+		(e) => {
+			if (info?.isLoadingChats) return;
+			const delta = e.deltaY;
 
-		// Ignore tiny scrolls
-		if (Math.abs(delta) < SCROLL_THRESHOLD) return;
+			// Ignore tiny scrolls
+			if (Math.abs(delta) < SCROLL_THRESHOLD) return;
 
-		// If not locked, this is a new scroll gesture
-		if (!scrollLocked) {
-			scrollLocked = true;
+			// If not locked, this is a new scroll gesture
+			if (!scrollLocked) {
+				scrollLocked = true;
 
-			setInfo((prev) => {
-				if (prev?.dataLength === 1) {
-					return prev;
-				}
-				let { activeIndex: prevActiveIndex = 0, dataLength } = prev;
-				const scrollDirection = delta > 0 ? 'down' : 'up';
-				let newIndex = getNewActiveCardIndex(scrollDirection, prevActiveIndex, dataLength);
+				setInfo((prev) => {
+					if (prev?.dataLength === 1) {
+						return prev;
+					}
+					let { activeIndex: prevActiveIndex = 0, dataLength } = prev;
+					const scrollDirection = delta > 0 ? 'down' : 'up';
+					let newIndex = getNewActiveCardIndex(
+						scrollDirection,
+						prevActiveIndex,
+						dataLength,
+					);
 
-				return {
-					...prev,
-					activeIndex: newIndex,
-					scrollDirection,
-				};
-			});
+					return {
+						...prev,
+						activeIndex: newIndex,
+						scrollDirection,
+					};
+				});
 
-			// let { activeIndex = 0, dataLength } = prev;
-			// const newIndex =
-			// 	delta > 0
-			// 		? (activeIndex + 1) % dataLength
-			// 		: activeIndex - 1 < 0
-			// 		? dataLength - 1
-			// 		: activeIndex - 1;
+				// let { activeIndex = 0, dataLength } = prev;
+				// const newIndex =
+				// 	delta > 0
+				// 		? (activeIndex + 1) % dataLength
+				// 		: activeIndex - 1 < 0
+				// 		? dataLength - 1
+				// 		: activeIndex - 1;
 
-			// return { ...prev, activeIndex: newIndex };
-		}
+				// return { ...prev, activeIndex: newIndex };
+			}
 
-		// Reset the timeout on every wheel event
-		clearTimeout(scrollTimeout);
-		scrollTimeout = setTimeout(() => {
-			scrollLocked = false; // Allow next gesture
-		}, SCROLL_STOP_DELAY);
-	}, []);
+			// Reset the timeout on every wheel event
+			clearTimeout(scrollTimeout);
+			scrollTimeout = setTimeout(() => {
+				scrollLocked = false; // Allow next gesture
+			}, SCROLL_STOP_DELAY);
+		},
+		[info?.isLoadingChats],
+	);
 
 	const handleCustomOnSendFunction = useCallback((sessionId, data, agentType, assistantId) => {
 		updateStateValues({ activePayloadForChat: data });
@@ -467,17 +479,33 @@ const NewUi = ({ handleActiveChatChange }) => {
 
 	return (
 		<div className="new-ui-container" ref={containerRef}>
-			{!aiChatSessions || info?.isProcessingSessions ? (
-				<PageLoader customStyles={customStyles} />
-			) : (
-				<>
-					<div
-						className="new-ui-wrapper"
-						style={{
-							height: info?.data?.length === 1 ? '60vh' : '80vh',
-						}}
-					>
-						{info?.data?.map((session, index) => {
+			<>
+				<div
+					className="new-ui-wrapper"
+					style={{
+						height: info?.data?.length === 1 && !info?.isLoadingChats ? '60vh' : '80vh',
+					}}
+				>
+					{info?.isLoadingChats ? (
+						<div className="loader-container">
+							{skeletonArray?.map((s, index) => {
+								return (
+									<div
+										key={index}
+										className={`skeleton-container skeleton-${index + 1}`}
+									>
+										<Skeleton
+											height={'100%'}
+											width={'100%'}
+											highlightColor="var(--card-over-card)"
+											baseColor="var(--card)"
+										/>
+									</div>
+								);
+							})}
+						</div>
+					) : (
+						info?.data?.map((session, index) => {
 							const animationClass = getClassName(
 								index,
 								info?.activeIndex,
@@ -564,12 +592,27 @@ const NewUi = ({ handleActiveChatChange }) => {
 													<div className="backdrop4 backdrop" />
 													<div className={`title-container `}>
 														<div className="title-text">
-															<h2 className="title-one">
-																{greeting}!
-															</h2>
-															<span className="title-two">
-																{userName}
-															</span>
+															{proactiveHeadings?.chat_headlines ? (
+																<span
+																	className="title-one"
+																	style={{
+																		fontSize: '2rem',
+																	}}
+																>
+																	{
+																		proactiveHeadings?.chat_headlines
+																	}
+																</span>
+															) : (
+																<>
+																	<h2 className="title-one">
+																		{greeting}!
+																	</h2>
+																	<span className="title-two">
+																		{userName}
+																	</span>
+																</>
+															)}
 														</div>
 													</div>
 													<ChatBox
@@ -588,12 +631,12 @@ const NewUi = ({ handleActiveChatChange }) => {
 														animateChatBox={true}
 													/>
 													{/* <Suggestions
-												chatQuery={info?.chatQuery}
-												styles={{
-													backgroundColor: 'var(--card)',
-													position: 'relative',
-												}}
-											/> */}
+													chatQuery={info?.chatQuery}
+													styles={{
+														backgroundColor: 'var(--card)',
+														position: 'relative',
+													}}
+												/> */}
 												</div>
 											) : (
 												<>
@@ -645,46 +688,43 @@ const NewUi = ({ handleActiveChatChange }) => {
 									</div>
 								</div>
 							);
-						})}
-					</div>
-					<div className="new-ui-footer">
-						<div className="footer-left-container">
-							<div className="active-card-title">
-								<Tooltip title="Chat Title">
-									{info?.data?.[info?.activeIndex]?.title
-										? info?.data?.[info?.activeIndex]?.title
-										: 'New Chat'}
-								</Tooltip>
-							</div>
-							<div className="chat-created-at">
-								{info?.data?.[info?.activeIndex]?.createdAt
-									? new Date(
-											info?.data?.[info?.activeIndex]?.createdAt * 1000,
-									  ).toLocaleTimeString('en-US', {
-											hour: 'numeric',
-											minute: '2-digit',
-											hour12: true,
-									  })
-									: ''}
-							</div>
+						})
+					)}
+				</div>
+				<div className="new-ui-footer">
+					<div className="footer-left-container">
+						<div className="active-card-title">
+							<Tooltip title="Chat Title">
+								{info?.data?.[info?.activeIndex]?.title
+									? info?.data?.[info?.activeIndex]?.title
+									: 'New Chat'}
+							</Tooltip>
 						</div>
+						<div className="chat-created-at">
+							{info?.data?.[info?.activeIndex]?.createdAt
+								? new Date(
+										info?.data?.[info?.activeIndex]?.createdAt * 1000,
+								  ).toLocaleTimeString('en-US', {
+										hour: 'numeric',
+										minute: '2-digit',
+										hour12: true,
+								  })
+								: ''}
+						</div>
+					</div>
 
-						<div
-							className={`new-btn ${
-								!(
-									info?.activeIndex === 0 ||
-									info?.activeIndex === info?.dataLength - 2
-								)
-									? 'active'
-									: ''
-							}`}
-							onClick={handleNewChat}
-						>
-							New
-						</div>
+					<div
+						className={`new-btn ${
+							!(info?.activeIndex === 0 || info?.activeIndex === info?.dataLength - 2)
+								? 'active'
+								: ''
+						}`}
+						onClick={handleNewChat}
+					>
+						New
 					</div>
-				</>
-			)}
+				</div>
+			</>
 		</div>
 	);
 };

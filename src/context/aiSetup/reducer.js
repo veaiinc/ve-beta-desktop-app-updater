@@ -32,6 +32,9 @@ const actionHandlers = {
 			updateSession,
 			sessionData,
 			reset,
+			agentType,
+			assistantId,
+			filters,
 		} = action?.payload;
 
 		let aiChatSessions = { ...(state?.aiChatSessions || {}) };
@@ -44,6 +47,8 @@ const actionHandlers = {
 					title: 'New Chat',
 					createdAt: Math.floor(Date.now() / 1000),
 					isNewSession: true,
+					agentType,
+					assistantId,
 				};
 				if (!sessions?.length) {
 					sessions = [{ ...newSession }];
@@ -84,10 +89,14 @@ const actionHandlers = {
 				},
 			};
 		} else {
-			// sessions = sessions?.filter((session) => session?.isNewSession);
-
 			if (reset) {
-				sessions = data;
+				sessions =
+					sessions?.filter(
+						(session) =>
+							session?.isNewSession &&
+							(filters?.agentType ? session?.agentType === filters?.agentType : true),
+					) || [];
+				sessions = [...sessions, ...data];
 			} else {
 				sessions = [...sessions, ...data];
 			}
@@ -198,6 +207,11 @@ const actionHandlers = {
 	SET_AI_SETUP_DATA_USER: (state, action) => ({
 		...state,
 		aiSetupDataUser: action?.payload,
+	}),
+
+	SET_PROACTIVE_HEADINGS: (state, action) => ({
+		...state,
+		proactiveHeadings: action?.payload,
 	}),
 
 	RESET_STATE: () => initialState,
