@@ -63,6 +63,20 @@ class WindowHelper {
 			resizable: process.env.NODE_ENV === 'development', // Allow resizing in development
 		};
 
+		// Platform-specific window settings
+		if (process.platform === 'win32') {
+			// Windows-specific settings
+			windowSettings.type = 'toolbar'; // Use toolbar type for Windows overlay windows
+			windowSettings.alwaysOnTop = true;
+			windowSettings.skipTaskbar = true;
+			windowSettings.focusable = true;
+			windowSettings.transparent = true;
+			windowSettings.hasShadow = false;
+		} else if (process.platform === 'darwin') {
+			// macOS-specific settings
+			windowSettings.type = process.env.NODE_ENV === 'development' ? 'normal' : 'panel';
+		}
+
 		this.overlayWindow = new BrowserWindow(windowSettings);
 
 		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
@@ -91,8 +105,15 @@ class WindowHelper {
 			// Disable click-through - overlay should be interactive
 			this.overlayWindow.setIgnoreMouseEvents(false);
 			this.overlayWindow.setMovable(true);
+		} else if (process.platform === 'win32') {
+			// Windows-specific window behavior
+			this.overlayWindow.setAlwaysOnTop(true, 'floating');
+			this.overlayWindow.setIgnoreMouseEvents(false);
+			this.overlayWindow.setMovable(true);
+			// Windows doesn't have the same workspace concept as macOS
+			this.overlayWindow.setVisibleOnAllWorkspaces(true);
 		} else {
-			// For non-macOS platforms
+			// For Linux and other platforms
 			this.overlayWindow.setAlwaysOnTop(true, 'floating');
 			// Disable click-through - overlay should be interactive
 			this.overlayWindow.setIgnoreMouseEvents(false);
@@ -148,6 +169,20 @@ class WindowHelper {
 			resizable: process.env.NODE_ENV === 'development',
 		};
 
+		// Platform-specific window settings
+		if (process.platform === 'win32') {
+			// Windows-specific settings
+			windowSettings.type = 'toolbar'; // Use toolbar type for Windows overlay windows
+			windowSettings.alwaysOnTop = true;
+			windowSettings.skipTaskbar = true;
+			windowSettings.focusable = true;
+			windowSettings.transparent = true;
+			windowSettings.hasShadow = false;
+		} else if (process.platform === 'darwin') {
+			// macOS-specific settings
+			windowSettings.type = process.env.NODE_ENV === 'development' ? 'normal' : 'panel';
+		}
+
 		this.askAIWindow = new BrowserWindow(windowSettings);
 
 		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
@@ -170,7 +205,15 @@ class WindowHelper {
 			// Ask AI window should always be interactive - no click-through
 			this.askAIWindow.setIgnoreMouseEvents(false);
 			this.askAIWindow.setMovable(true);
+		} else if (process.platform === 'win32') {
+			// Windows-specific window behavior
+			this.askAIWindow.setAlwaysOnTop(true, 'floating');
+			this.askAIWindow.setIgnoreMouseEvents(false);
+			this.askAIWindow.setMovable(true);
+			// Windows doesn't have the same workspace concept as macOS
+			this.askAIWindow.setVisibleOnAllWorkspaces(true);
 		} else {
+			// For Linux and other platforms
 			this.askAIWindow.setAlwaysOnTop(true, 'floating');
 			// Ask AI window should always be interactive - no click-through
 			this.askAIWindow.setIgnoreMouseEvents(false);
@@ -341,6 +384,10 @@ class WindowHelper {
 				visibleOnFullScreen: true,
 				skipTransformProcessType: true,
 			});
+		} else if (process.platform === 'win32') {
+			// Windows-specific window behavior
+			this.overlayWindow.setAlwaysOnTop(true, 'floating');
+			this.overlayWindow.setVisibleOnAllWorkspaces(true);
 		} else {
 			this.overlayWindow.setAlwaysOnTop(true, 'floating');
 		}
@@ -397,6 +444,11 @@ class WindowHelper {
 				skipTransformProcessType: true,
 			});
 			// Ensure Ask AI window is above overlay window
+			this.askAIWindow.moveTop();
+		} else if (process.platform === 'win32') {
+			// Windows-specific window behavior
+			this.askAIWindow.setAlwaysOnTop(true, 'floating');
+			this.askAIWindow.setVisibleOnAllWorkspaces(true);
 			this.askAIWindow.moveTop();
 		} else {
 			this.askAIWindow.setAlwaysOnTop(true, 'floating');
@@ -618,6 +670,26 @@ class WindowHelper {
 			log.info('✅ Cmd+\\ shortcut registered successfully');
 		} else {
 			log.error('❌ Failed to register Cmd+\\ shortcut');
+			// On Windows, try alternative shortcuts if the main one fails
+			if (process.platform === 'win32') {
+				log.info('Attempting to register Windows alternative shortcuts...');
+				// Try Ctrl+Alt+O as alternative for overlay
+				const altOverlayRegistered = globalShortcut.register('Ctrl+Alt+O', () => {
+					log.info('Ctrl+Alt+O pressed - toggling overlay window');
+					const isOverlayVisible = this.isVisible();
+					if (isOverlayVisible) {
+						this.hideOverlayWindow();
+					} else {
+						if (!this.getOverlayWindow()) {
+							this.createOverlayWindow();
+						}
+						this.showOverlayWindow();
+					}
+				});
+				if (altOverlayRegistered) {
+					log.info('✅ Ctrl+Alt+O shortcut registered as alternative');
+				}
+			}
 		}
 
 		// Register Cmd+Enter to toggle ask AI window only (independent of main window)
@@ -644,6 +716,26 @@ class WindowHelper {
 			log.info('✅ Cmd+Enter shortcut registered successfully');
 		} else {
 			log.error('❌ Failed to register Cmd+Enter shortcut');
+			// On Windows, try alternative shortcuts if the main one fails
+			if (process.platform === 'win32') {
+				log.info('Attempting to register Windows alternative shortcuts...');
+				// Try Ctrl+Alt+A as alternative for Ask AI
+				const altAskAIRegistered = globalShortcut.register('Ctrl+Alt+A', () => {
+					log.info('Ctrl+Alt+A pressed - toggling ask AI window');
+					if (!this.getAskAIWindow()) {
+						this.createAskAIWindow();
+					}
+					const isAskAIVisible = this.isAskAIWindowVisible();
+					if (isAskAIVisible) {
+						this.hideAskAIWindow();
+					} else {
+						this.showAskAIWindow();
+					}
+				});
+				if (altAskAIRegistered) {
+					log.info('✅ Ctrl+Alt+A shortcut registered as alternative');
+				}
+			}
 		}
 
 		// Register arrow keys for window movement (only when overlay is visible)

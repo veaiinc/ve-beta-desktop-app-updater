@@ -124,6 +124,7 @@ ipcMain.handle('desktop:capture-screen', async () => {
 });
 
 ipcMain.handle('check-screen-recording-permission', async () => {
+	// Windows doesn't have the same permission system as macOS
 	if (process.platform !== 'darwin') {
 		return { success: true, hasPermission: true };
 	}
@@ -140,6 +141,7 @@ ipcMain.handle('check-screen-recording-permission', async () => {
 
 // Request screen recording permission
 ipcMain.handle('request-screen-recording-permission', async () => {
+	// Windows doesn't have the same permission system as macOS
 	if (process.platform !== 'darwin') {
 		return { success: true, granted: true };
 	}
@@ -216,7 +218,7 @@ app.whenReady().then(() => {
 		return false;
 	});
 
-	// Check macOS microphone permission status
+	// Check macOS microphone permission status (macOS only)
 	if (process.platform === 'darwin') {
 		const { systemPreferences } = require('electron');
 
@@ -238,9 +240,12 @@ app.whenReady().then(() => {
 		} else if (microphoneStatus === 'restricted') {
 			log.warn('Microphone access is restricted by system policy');
 		}
+	} else {
+		// Windows and Linux don't have the same permission system
+		log.info('Platform is not macOS - using default permission handling');
 	}
 
-	// ✅ ADD THE DEBUG SCREEN PERMISSION PROMPT HERE
+	// ✅ ADD THE DEBUG SCREEN PERMISSION PROMPT HERE (macOS only)
 	if (process.platform === 'darwin') {
 		setTimeout(async () => {
 			const { systemPreferences } = require('electron');
@@ -282,6 +287,9 @@ app.whenReady().then(() => {
 		} else {
 			log.info('✅ Accessibility permissions granted - global shortcuts should work');
 		}
+	} else {
+		// Windows and Linux global shortcut handling
+		log.info('Platform is not macOS - global shortcuts should work by default');
 	}
 
 	// Register overlay window IPC handlers

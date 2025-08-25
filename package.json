@@ -8,15 +8,18 @@
 	"repository": "https://github.com/veaiinc/ve-desktop-app-updater",
 	"scripts": {
 		"dev": "NODE_ENV=development npm run clean:build && vite",
+		"dev:win": "set NODE_ENV=development && npm run clean:build:win && vite",
 		"start": "electron .",
 		"build": "NODE_ENV=production node --max-old-space-size=12288 node_modules/vite/bin/vite.js build --mode production",
+		"build:win": "set NODE_ENV=production && node --max-old-space-size=12288 node_modules/vite/bin/vite.js build --mode production",
 		"package": "npm run build && electron-builder",
+		"package:win": "npm run build:win && electron-builder --win",
 		"build:analyze": "npm run build && npx vite-bundle-analyzer build",
 		"preview": "vite preview",
 		"delete-maps": "rm ./build/static/js/*.map && rm ./build/static/css/*.map",
+		"delete-maps:win": "del /q .\\build\\static\\js\\*.map && del /q .\\build\\static\\css\\*.map",
 		"format": "prettier --write \"**/*.+(js|jsx|json|yml|yaml|css|md|vue)\"",
 		"package:mac": "npm run clean:build && npm run build && electron-builder --mac",
-		"package:win": "npm run clean:build && npm run build && electron-builder --win",
 		"package:linux": "npm run clean:build && npm run build && electron-builder --linux",
 		"publish:mac": "npm run clean:build && npm run build && electron-builder --mac --publish=always",
 		"publish:win": "npm run clean:build && npm run build && electron-builder --win --publish=always",
@@ -26,7 +29,8 @@
 		"test:watch": "vitest watch",
 		"test:ui": "vitest --ui",
 		"test:coverage": "vitest run --coverage",
-		"clean:build": "rm -rf dist-electron && rm -rf build && rm -rf dist"
+		"clean:build": "rm -rf dist-electron && rm -rf build && rm -rf dist",
+		"clean:build:win": "if exist dist-electron rmdir /s /q dist-electron && if exist build rmdir /s /q build && if exist dist rmdir /s /q dist"
 	},
 	"dependencies": {
 		"@apollo/client": "^3.13.5",
@@ -70,7 +74,7 @@
 		"katex": "^0.16.21",
 		"livekit-client": "^2.8.1",
 		"lodash": "^4.17.21",
-		"lucide-react": "^0.539.0",
+		"lucide-react": "^0.541.0",
 		"masonry-layout": "^4.2.2",
 		"moment": "^2.30.1",
 		"randomatic": "^3.1.1",
@@ -204,10 +208,18 @@
 					"arch": [
 						"x64"
 					]
+				},
+				{
+					"target": "portable",
+					"arch": [
+						"x64"
+					]
 				}
 			],
 			"icon": "./electron/assets/app-logo.ico",
-			"artifactName": "Ve.AI-${arch}-${os}.${ext}"
+			"artifactName": "Ve.AI-${arch}-${os}.${ext}",
+			"requestedExecutionLevel": "asInvoker",
+			"verifyUpdateCodeSignature": false
 		},
 		"linux": {
 			"target": [
@@ -264,6 +276,7 @@
 		"dotenv": "^17.1.0",
 		"electron": "^37.2.0",
 		"electron-builder": "^26.0.12",
+		"electron-icon-builder": "^2.0.1",
 		"eslint": "^9.27.0",
 		"eslint-config-prettier": "^6.15.0",
 		"eslint-plugin-prettier": "^3.2.0",
