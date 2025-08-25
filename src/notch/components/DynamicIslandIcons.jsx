@@ -96,3 +96,22 @@ export const ArrowIcon = () => (
 		/>
 	</svg>
 );
+
+export const ClockIcon = () => (
+	<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+		<path 
+			d="M7 1.75C10.4518 1.75 13.25 4.54822 13.25 8C13.25 11.4518 10.4518 14.25 7 14.25C3.54822 14.25 0.75 11.4518 0.75 8C0.75 4.54822 3.54822 7.5 7 7.5V8" 
+			stroke="#79ECC9" 
+			strokeWidth="0.875" 
+			strokeLinecap="round" 
+			strokeLinejoin="round"
+		/>
+		<path 
+			d="M7 3.94C7 3.94 7.94 3.94 7.94 4.94C7.94 5.94 7 5.94 7 5.94" 
+			stroke="#79ECC9" 
+			strokeWidth="0.875" 
+			strokeLinecap="round" 
+			strokeLinejoin="round"
+		/>
+	</svg>
+);

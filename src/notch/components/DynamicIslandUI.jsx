@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { HomeIcon, LockIcon, WebcamIcon, ArrowIcon } from './DynamicIslandIcons';
+import { HomeIcon, LockIcon, WebcamIcon, ArrowIcon, ClockIcon } from './DynamicIslandIcons';
 import './DynamicIslandUI.scss';
 
 const DynamicIslandUI = () => {
@@ -109,40 +109,48 @@ const DynamicIslandUI = () => {
 
 			{/* Rich UI when expanded */}
 			<div className="ui-container">
-				{/* Top row with icons */}
+				{/* Top row with notification and icons */}
 				<div className="top-row">
-					<div className="icon-button" title="Home" onClick={handleHomeClick}>
-						<HomeIcon />
+					{/* Notification badge */}
+					<div className="notification-badge" onClick={handleAudioClick}>
+						<div className="badge-content">
+							<div className="audio-visualizer">
+								<div className="audio-bar"></div>
+								<div className="audio-bar"></div>
+								<div className="audio-bar"></div>
+								<div className="audio-bar"></div>
+								<div className="audio-bar"></div>
+							</div>
+						</div>
+						<span className="badge-number">
+							start
+						</span>
 					</div>
 
-					<div className="icon-button" title="Security" onClick={handleSecurityClick}>
-						<LockIcon />
+					{/* Right side icons */}
+					<div className="right-icons">
+						<div className="icon-button" title="Home" onClick={handleHomeClick}>
+							<HomeIcon />
+						</div>
+						<div className="icon-button" title="Security" onClick={handleSecurityClick}>
+							<LockIcon />
+						</div>
 					</div>
 				</div>
 
 				{/* Main content area */}
 				<div className="main-content">
-					{/* Audio visualizer section */}
-					<div className="audio-section" onClick={handleAudioClick}>
-						<div className="glow-effect glow-1"></div>
-						<div className="glow-effect glow-2"></div>
-						<div className="glow-effect glow-3"></div>
-						<div className="glow-effect glow-4"></div>
-						<div className="glow-effect glow-5"></div>
-						<div className="glow-effect glow-6"></div>
-						<div className="glow-effect glow-7"></div>
-						<div className="glow-effect glow-8"></div>
-
-						<div className="audio-bars">
-							<div className="audio-bar"></div>
-							<div className="audio-bar"></div>
-							<div className="audio-bar"></div>
-							<div className="audio-bar"></div>
-							<div className="audio-bar"></div>
+					{/* Product Interview section */}
+					<div className="product-interview-section">
+						<div className="interview-header">
+							<span className="interview-title">Product Interview</span>
 						</div>
-
-						<div className="audio-label">Start</div>
+						<div className="interview-timer">
+							<ClockIcon />
+							<span className="timer-text">In 5 min</span>
+						</div>
 					</div>
+
 					{/* Chat input section */}
 					<div className="chat-section" onClick={handleChatClick}>
 						<div className="chat-input">Ask about screen or audio</div>
@@ -150,6 +158,7 @@ const DynamicIslandUI = () => {
 							<ArrowIcon />
 						</div>
 					</div>
+
 					{/* Webcam section */}
 					<div className="webcam-section" onClick={handleWebcamClick}>
 						<WebcamIcon />
