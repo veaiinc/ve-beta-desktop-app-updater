@@ -30,7 +30,7 @@ const LiveIntelligencePanel = ({
 	};
 
 	// Handle individual thread item click and send specific content to Ask AI
-	const handleThreadItemClick = (item, tabKey) => {
+	const handleThreadItemClick = async (item, tabKey) => {
 		// Extract the main content text
 		const contentText = item.prompt || item.name || item.description || 'No content available';
 
@@ -44,9 +44,49 @@ const LiveIntelligencePanel = ({
 			timestamp: new Date().toISOString(),
 		};
 
-		// Send specific item content to Ask AI
-		if (window.electronApi?.overlay?.sendTabContentToAskAI) {
-			window.electronApi.overlay.sendTabContentToAskAI(itemContent);
+		// Check if window is already visible, if not, show it
+		try {
+			if (window.electronApi?.askAI?.isWindowVisible) {
+				const result = await window.electronApi.askAI.isWindowVisible();
+				if (!result.success || !result.isVisible) {
+					// Window is not visible, show it
+					if (window.electronApi?.askAI?.showWindow) {
+						await window.electronApi.askAI.showWindow();
+					}
+					// Wait for window to be ready after opening
+					setTimeout(() => {
+						if (window.electronApi?.overlay?.sendTabContentToAskAI) {
+							window.electronApi.overlay.sendTabContentToAskAI(itemContent);
+						}
+					}, 300);
+				} else {
+					// Window is already visible, send content immediately
+					if (window.electronApi?.overlay?.sendTabContentToAskAI) {
+						window.electronApi.overlay.sendTabContentToAskAI(itemContent);
+					}
+				}
+			} else {
+				// Fallback to toggle if new API not available
+				if (window.electronApi?.askAI?.toggleWindow) {
+					window.electronApi.askAI.toggleWindow();
+				}
+				setTimeout(() => {
+					if (window.electronApi?.overlay?.sendTabContentToAskAI) {
+						window.electronApi.overlay.sendTabContentToAskAI(itemContent);
+					}
+				}, 300);
+			}
+		} catch (error) {
+			console.error('Error checking/showing Ask AI window:', error);
+			// Fallback to toggle if there's an error
+			if (window.electronApi?.askAI?.toggleWindow) {
+				window.electronApi.askAI.toggleWindow();
+			}
+			setTimeout(() => {
+				if (window.electronApi?.overlay?.sendTabContentToAskAI) {
+					window.electronApi.overlay.sendTabContentToAskAI(itemContent);
+				}
+			}, 300);
 		}
 	};
 

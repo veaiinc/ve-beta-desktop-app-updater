@@ -324,6 +324,32 @@ app.whenReady().then(() => {
 		}
 	});
 
+	ipcMain.handle('show-askAI-window', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.showAskAIWindow();
+			return { success: true };
+		} catch (error) {
+			log.error('Error showing Ask AI window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('is-askAI-window-visible', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			const isVisible = windowHelper.isAskAIWindowVisible();
+			return { success: true, isVisible };
+		} catch (error) {
+			log.error('Error checking Ask AI window visibility:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	ipcMain.handle('update-askAI-dimensions', async (event, { width, height }) => {
 		try {
 			if (!windowHelper) {
