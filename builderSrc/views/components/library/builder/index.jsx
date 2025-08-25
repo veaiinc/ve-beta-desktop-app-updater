@@ -207,17 +207,9 @@ class Builder extends Component {
 			});
 		}
 		if (this.state.sections !== nextProps.sections) {
-			this.setState(
-				{
-					sections: nextProps.sections,
-				},
-				() => {
-					if (this.props?.client) {
-						// ! commented coz handling it in module
-						// this.props?.updateClientServiceVariable();
-					}
-				},
-			);
+			this.setState({
+				sections: nextProps.sections,
+			});
 		}
 		if (this.state.actionType !== nextProps.actionType) {
 			this.setState({
