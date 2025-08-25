@@ -19,16 +19,10 @@ const useUpdatedVoiceIntegration = () => {
 
 	const fetchToken = useCallback(async () => {
 		const response = await getTokenForVoice({ timezone: 'Asia/Calcutta' });
-		console.log('Raw response from getTokenForVoice:', response);
-		
-		// Handle the actual response format from backend:
-		// { message: "...", session_info: { user_token: "...", url: "...", room_name: "..." } }
+
 		const token = response?.session_info?.user_token || response?.token || response;
 		const url = response?.session_info?.url || response?.url || serverUrl;
-		const roomName = response?.session_info?.room_name;
-		
-		console.log('Extracted:', { token: !!token, url, roomName });
-		
+
 		setToken(token);
 		if (url && url !== serverUrl) {
 			setServerUrl(url);

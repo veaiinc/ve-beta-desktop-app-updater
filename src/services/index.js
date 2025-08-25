@@ -21,11 +21,6 @@ const handleHeaders = (token, body, type, isPublicChat = false) => {
 	const headers = { 'Content-Type': 'application/json' };
 	const x_access_key = 'QWxsb3dBY2Nlc3NUb0ZlZWRiYWNrQVBJ';
 
-	// Debug logging for voice agent token API
-	if (type === 'generate_voice_agent_token_api') {
-		console.log('Setting up headers for voice agent token API:', { token: !!token, type });
-	}
-
 	if (token) {
 		headers['x-access-token'] = token;
 		if (
@@ -41,24 +36,12 @@ const handleHeaders = (token, body, type, isPublicChat = false) => {
 		) {
 			headers['Authorization'] = `Bearer ${token}`;
 		}
-	} else if (type === 'generate_voice_agent_token_api') {
-		console.error('No token provided for voice agent token API!');
 	}
-	
-	// Add ngrok-specific headers to avoid browser warning for ngrok endpoints
-	if (type === 'generate_voice_agent_token_api') {
-		headers['ngrok-skip-browser-warning'] = 'true';
-	}
-	
+
 	if (isPublicChat && type === 'ai_assistant_api') {
 		headers['x-access-key'] = x_access_key;
 	}
-	
-	// Debug final headers for voice agent token API
-	if (type === 'generate_voice_agent_token_api') {
-		console.log('Final headers for voice agent token API:', headers);
-	}
-	
+
 	return headers;
 };
 
