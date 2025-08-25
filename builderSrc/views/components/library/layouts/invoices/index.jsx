@@ -535,6 +535,8 @@ class Invoice extends Component {
 									const unit =
 										value?.unit == 'none' || value?.unit == 0 || !value?.unit
 											? ''
+											: value?.unit?.toLowerCase() == 'upi'
+											? value?.unit
 											: value?.unit?.slice(0, -1);
 									const isTotalFixed = table?.styles?.services_selection == 2;
 									return (
@@ -1487,6 +1489,8 @@ class Invoice extends Component {
 						const unit =
 							value?.unit == 'none' || value?.unit == 0 || !value?.unit
 								? ''
+								: value?.unit?.toLowerCase() == 'upi'
+								? value?.unit
 								: value?.unit?.slice(0, -1);
 						return (
 							<div className="invoice-wrapper">
@@ -1646,6 +1650,7 @@ class Invoice extends Component {
 															resize: 'none', // Disables manual resizing
 															minHeight: '30px',
 															overflow: 'hidden', // Prevent scrollbars
+															opacity: 1,
 														}}
 														value={value?.title}
 														placeholder="enter Title here"
@@ -1702,6 +1707,7 @@ class Invoice extends Component {
 																resize: 'none',
 																minHeight: '30px',
 																overflow: 'hidden',
+																opacity: 1,
 															}}
 															value={value?.description}
 															placeholder="enter description here"

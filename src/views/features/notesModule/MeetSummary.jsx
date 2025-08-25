@@ -67,8 +67,6 @@ const MeetSummary = ({ activeTab, meetingId }) => {
 				summary: meetSummary?.summary,
 				loading: false,
 			}));
-		} else {
-			getMeetSummary();
 		}
 	}, [meetSummary]);
 

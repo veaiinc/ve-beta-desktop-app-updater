@@ -150,6 +150,9 @@ const ChatBox = ({
 	sessionId = null,
 	getSuggestions = false,
 	placeholder = 'Start typing or use @ to mention a source.',
+	showBrowserButton = false,
+	handleBrowserButtonClick = null,
+	browserImage = null,
 	showBottomTools = true,
 }) => {
 	const location = useLocation();
@@ -178,14 +181,13 @@ const ChatBox = ({
 			handleStreamSendMessage,
 			activePayloadForChat,
 			activeInputForChat,
-			// chatInfo,
 			userEditedQuery,
 			galleryFile,
-			currentSessionId,
 			chatReplyData,
 			deleteMultiAgentFile,
 			proactiveInfoForChat,
 			isDirectSearchAgent,
+			isBrowserScreenActive,
 		},
 		chatBoxSuggestionsSocket: { sendMessage, closeWebSocketConnection },
 		subscriptionInfo: { currentPlan },
@@ -872,7 +874,17 @@ const ChatBox = ({
 					}
 					let localPayload = {};
 					if (uploadedImagesRef?.current?.length) {
-						payload.files = uploadedImagesRef?.current?.map((ele) => ({
+						const imagesPngJpeg =
+							uploadedImagesRef?.current?.filter(
+								(file) => file?.type === 'image/png' || file?.type === 'image/jpeg',
+							) || [];
+
+						payload.image_data_base64 = imagesPngJpeg?.map((file) => file?.preview);
+
+						const remainingImages = uploadedImagesRef?.current?.filter(
+							(file) => !(file?.type === 'image/png' || file?.type === 'image/jpeg'),
+						);
+						payload.files = remainingImages?.map((ele) => ({
 							id: ele?.fileId || null,
 							name: ele?.name || 'Untitled Image',
 						}));
@@ -937,6 +949,8 @@ const ChatBox = ({
 							isDirectSearchAgent: false,
 						});
 					}
+
+					payload.is_browser_screen_active = isBrowserScreenActive;
 
 					let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
 
@@ -1022,6 +1036,7 @@ const ChatBox = ({
 			onChatQueryChange,
 			aiChatSessions,
 			isDirectSearchAgent,
+			isBrowserScreenActive,
 		],
 	);
 
@@ -1281,6 +1296,9 @@ const ChatBox = ({
 			file.uniqueId = Date?.now() + '_' + Math?.floor(Math?.random() * 1000000);
 
 			if (file?.type?.includes('image')) {
+				if (file?.type === 'image/png' || file?.type === 'image/jpeg') {
+					file.loading = false;
+				}
 				uploadedImages?.push(file);
 				uploadedImagesRef.current = uploadedImages;
 			} else {
@@ -1289,8 +1307,9 @@ const ChatBox = ({
 				recentFiles?.unshift(file);
 				recentFilesRef.current = recentFiles;
 			}
-
-			handleGlobalImageProcessing(file);
+			if (!(file?.type === 'image/png' || file?.type === 'image/jpeg')) {
+				handleGlobalImageProcessing(file);
+			}
 
 			setInfo((prev) => ({
 				...prev,
@@ -1468,6 +1487,25 @@ const ChatBox = ({
 			showSuggestion: false,
 		}));
 	};
+
+	const handleTextAreaPaste = useCallback(
+		(e) => {
+			const items = e?.clipboardData?.items || [];
+
+			for (let i = 0; i < items?.length; i++) {
+				const item = items[i];
+				if (item?.kind === 'file' && item?.type?.startsWith('image/')) {
+					e?.preventDefault(); // stop pasting as text
+					const file = item?.getAsFile();
+					if (file) {
+						// Call your upload logic
+						handleFileAttachmentChange({ file });
+					}
+				}
+			}
+		},
+		[handleFileAttachmentChange],
+	);
 
 	const handleTextAreaChange = (e) => {
 		const textArea = textAreaRef?.current;
@@ -1803,6 +1841,7 @@ const ChatBox = ({
 														} ${isTranscribing ? 'transcribing' : ''}`}
 														rows={1}
 														ref={textAreaRef}
+														onPaste={handleTextAreaPaste}
 														placeholder={
 															isTranscribing
 																? 'Listening... Speak now'
@@ -2568,6 +2607,31 @@ const ChatBox = ({
 						</button>
 					</div>
 				)}
+
+				{/* {showBrowserButton && ( */}
+				<div
+					className="browser-button-container"
+					onClick={(e) => {
+						e.stopPropagation();
+						handleBrowserButtonClick?.(e);
+					}}
+					style={{
+						display: showBrowserButton ? 'flex' : 'none',
+					}}
+				>
+					{browserImage ? (
+						<div className="browser-image-wrapper">
+							<div className="browser-text">Browser</div>
+							<img src={browserImage} className="browser-image" alt="browser" />
+						</div>
+					) : (
+						<div className="browser-button">Browser</div>
+					)}
+					<div className="expand-browser-button">
+						<ArrowsOut />
+					</div>
+				</div>
+				{/* )} */}
 				{uploadedImagesRef?.current?.length > 0 ? (
 					<div className="imagePreviewBar">
 						{uploadedImagesRef?.current?.map((ele, index) => (
@@ -2609,8 +2673,8 @@ const ChatBox = ({
 				)}
 				{recentFilesRef?.current?.length > 0 && (
 					<div className="recent-files-container">
-						{recentFilesRef?.current?.map((file) => (
-							<div className="recent-file" key={file?._id}>
+						{recentFilesRef?.current?.map((file, index) => (
+							<div className="recent-file" key={index}>
 								<div className="file-type-icon">
 									{fileTypeIcons?.[file?.sourceType]}
 								</div>

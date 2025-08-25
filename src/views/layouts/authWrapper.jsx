@@ -10,6 +10,8 @@ import CustomToast, { message } from '../components/globalComponents/CustomToast
 import PageLoader from '../features/app/PageLoader';
 import useAuthInitializer from '../../hooks/useAuthInitializer';
 import usePushNotifications from '../../hooks/usePushNotifications';
+import useNetworkStatus from '../../hooks/useNetworkStatus';
+import Offline from '../features/offline/Offline';
 
 const AuthWrapper = ({
 	title,
@@ -22,6 +24,7 @@ const AuthWrapper = ({
 	childrenContainerStyles = {},
 	showSidebar = true,
 }) => {
+	const { isOnline } = useNetworkStatus();
 	const { authInitialized } = useAuthInitializer();
 	usePushNotifications((payload) => {
 		const { title, body } = payload.notification || {};
@@ -47,52 +50,59 @@ const AuthWrapper = ({
 	// 	topNavbar: <TopNavbar />,
 	// };
 
-	return authInitialized ? (
-		<PageLoader />
-	) : (
-		<main className="main-container">
-			<div className="authParentContainer" style={{ ...(authParentContainerStyle || {}) }}>
-				<Helmet>
-					<meta charSet="utf-8" />
-					<title>{title}</title>
-				</Helmet>
+	return isOnline ? (
+		authInitialized ? (
+			<PageLoader />
+		) : (
+			<main className="main-container">
 				<div
-					style={{
-						display: 'flex',
-						// flexDirection: layoutMode === 'topNavbar' ? 'column' : 'row',
-						flexDirection: 'column',
-						height: '100dvh',
-						padding: '0',
-						...outerContainerStyle,
-					}}
-					className="auth-wrapper-container"
+					className="authParentContainer"
+					style={{ ...(authParentContainerStyle || {}) }}
 				>
-					{/* {layoutModeComponentMap[layoutMode]} */}
-					<TopNavbar />
+					<Helmet>
+						<meta charSet="utf-8" />
+						<title>{title}</title>
+					</Helmet>
 					<div
 						style={{
-							flex: 1,
-							overflowY: 'auto',
-							maxHeight: '100%',
-							height: '100%',
-							padding: ' 0',
+							display: 'flex',
+							// flexDirection: layoutMode === 'topNavbar' ? 'column' : 'row',
+							flexDirection: 'column',
+							height: '100dvh',
+							padding: '0',
+							...outerContainerStyle,
 						}}
-						id="scrollableTarget"
+						className="auth-wrapper-container"
 					>
+						{/* {layoutModeComponentMap[layoutMode]} */}
+						<TopNavbar />
 						<div
-							className="childrenContainer"
-							style={{ maxWidth: maxWidth || '', ...childrenContainerStyles }}
+							style={{
+								flex: 1,
+								overflowY: 'auto',
+								maxHeight: '100%',
+								height: '100%',
+								padding: ' 0',
+							}}
+							id="scrollableTarget"
 						>
-							{children}
+							<div
+								className="childrenContainer"
+								style={{ maxWidth: maxWidth || '', ...childrenContainerStyles }}
+							>
+								{children}
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-			<ExpiredSubscriptionModal />
-			<ExpiredTokenModal />
-			<AccessDeniedPopup />
-			<CustomToast />
-		</main>
+				<ExpiredSubscriptionModal />
+				<ExpiredTokenModal />
+				<AccessDeniedPopup />
+				<CustomToast />
+			</main>
+		)
+	) : (
+		<Offline />
 	);
 };
 
