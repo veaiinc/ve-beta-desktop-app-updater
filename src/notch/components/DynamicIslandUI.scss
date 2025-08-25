@@ -1,0 +1,493 @@
+.dynamic-island {
+	width: 250px;
+	height: 15px;
+	position: absolute;
+	top: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	background: black;
+	border-radius: 8px;
+	transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+	transform-origin: center;
+	cursor: pointer;
+	flex-shrink: 0;
+
+	&:hover {
+		width: 555px !important;
+		height: 160px !important;
+		border-radius: 16px !important;
+		transform: translateX(-50%) scale(1.02);
+		// filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.4));
+	}
+
+	&.expanded {
+		width: 575px;
+		height: 180px;
+		border-radius: 16px;
+	}
+
+	&.collapsed {
+		width: 250px;
+		height: 20px;
+		border-radius: 8px;
+	}
+
+	// Recording mode - different dimensions
+	&.recording {
+		&:hover {
+			width: 765px !important;
+			height: 200px !important;
+			border-radius: 0px 0px 8px 8px !important;
+		}
+
+		&.expanded {
+			width: 765px;
+			height: 200px;
+			border-radius: 0px 0px 8px 8px;
+		}
+	}
+
+	// Active state when controlling overlay
+	&.controlled-by-dynamic-island {
+		border: 1px solid rgba(121, 236, 201, 0.3);
+		box-shadow: 0 0 8px rgba(121, 236, 201, 0.2);
+	}
+}
+
+// UI Container - hidden by default, shown on hover
+.ui-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	opacity: 0;
+	visibility: hidden;
+	transition: all 0.4s ease;
+	pointer-events: none;
+	display: flex;
+	flex-direction: column;
+	padding: 8px;
+
+	.dynamic-island:hover & {
+		opacity: 1 !important;
+		visibility: visible !important;
+		pointer-events: auto !important;
+	}
+}
+
+// Top row with start button and icons
+.top-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin-bottom: 16px;
+}
+
+// Start button section
+.start-section {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.start-button {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 2px 10px;
+	height: 24px;
+	background: #79ecc9;
+	border-radius: 100px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+
+	&:hover {
+		transform: scale(1.05);
+		background: #6dd4b8;
+	}
+}
+
+.start-icon {
+	width: 14px;
+	height: 14px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.start-text {
+	color: #0e2f2a;
+	font-size: 12px;
+	font-weight: 500;
+}
+
+// Recording controls (shown when recording)
+.recording-controls {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.control-button {
+	width: 24px;
+	height: 24px;
+	border-radius: 100px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: all 0.3s ease;
+
+	&:hover {
+		transform: scale(1.05);
+	}
+
+	&.start-button {
+		background: #1b1c1d;
+	}
+
+	&.pause-resume-button {
+		background: #1b1c1d;
+	}
+
+	&.stop-button {
+		background: #cf3635;
+	}
+}
+
+.control-icon {
+	width: 14px;
+	height: 14px;
+}
+
+// Meeting mode label
+.meeting-mode-label {
+	background: #1b1c1d;
+	border-radius: 24px;
+	padding: 4px 10px;
+	color: #f2f2f3;
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 1.35;
+}
+
+// Audio visualizer
+.audio-visualizer {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	padding: 4px 6px;
+	width: 24px;
+	height: 24px;
+	background: rgba(255, 255, 255, 0.2);
+	border-radius: 4px;
+}
+
+.audio-bar {
+	background: #79ecc9;
+	border-radius: 1.6px;
+
+	&:nth-child(1) {
+		width: 1.6px;
+		height: 6px;
+	}
+	&:nth-child(2) {
+		width: 1.6px;
+		height: 14px;
+	}
+	&:nth-child(3) {
+		width: 1.6px;
+		height: 10px;
+	}
+	&:nth-child(4) {
+		width: 1.6px;
+		height: 4px;
+	}
+	&:nth-child(5) {
+		width: 1.6px;
+		height: 6px;
+	}
+}
+
+// Right side icons
+.right-icons {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.icon-button {
+	width: 24px;
+	height: 24px;
+	background: rgba(255, 255, 255, 0.15);
+	border-radius: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: all 0.3s ease;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.25);
+		transform: scale(1.1);
+	}
+
+	svg {
+		width: 18px;
+		height: 18px;
+	}
+}
+
+// Main content area
+.main-content {
+	display: flex;
+	gap: 8px;
+	flex: 1;
+}
+
+// Transcription section
+.transcription-section {
+	width: 350px;
+	height: 150px;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.transcription-bubble {
+	background: #1b1c1d;
+	border-radius: 8px;
+	padding: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.bubble-header {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	justify-content: flex-end;
+}
+
+.speaker-name {
+	color: #94989e;
+	font-size: 9px;
+	font-weight: 500;
+	line-height: 1.35;
+}
+
+.speaker-avatar {
+	width: 2.72px;
+	height: 2.72px;
+	background: #2c2d2e;
+	border-radius: 50%;
+}
+
+.time-info {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.time-text {
+	color: #94989e;
+	font-size: 9px;
+	font-weight: 500;
+	line-height: 1.35;
+}
+
+.bubble-text {
+	color: #f2f2f3;
+	font-size: 11px;
+	font-weight: 500;
+	line-height: 1.36;
+	text-align: right;
+}
+
+// Product Interview section
+.product-interview-section {
+	width: 150px;
+	height: 100px;
+	background: #1b1c1d;
+	border-radius: 12px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: flex-end;
+	gap: 2px;
+	padding: 8px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+
+	&:hover {
+		transform: scale(1.02);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+	}
+}
+
+.interview-header {
+	display: flex;
+	align-items: center;
+	align-self: stretch;
+	gap: 10px;
+}
+
+.interview-title {
+	color: #f2f2f3;
+	font-size: 14px;
+	font-weight: 500;
+	line-height: 1.14;
+}
+
+.interview-timer {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 4px;
+}
+
+.timer-text {
+	color: #79ecc9;
+	font-size: 12px;
+	font-weight: 500;
+}
+
+// Chat input section
+.chat-section {
+	flex: 1;
+	height: 100px;
+	background: #1b1c1d;
+	border: 0.5px solid #2c2d2e;
+	border-radius: 16px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	gap: 36px;
+	padding: 8px 10px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+
+	&:hover {
+		transform: scale(1.02);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+		border-color: #79ecc9;
+	}
+}
+
+.chat-input {
+	color: #94989e;
+	font-size: 12px;
+	font-weight: 500;
+}
+
+.chat-arrow {
+	align-self: flex-end;
+	width: 14px;
+	height: 14px;
+	color: #94989e;
+}
+
+// Webcam section
+.webcam-section {
+	width: 100px;
+	height: 100px;
+	background: #1b1c1d;
+	border-radius: 100px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+
+	&:hover {
+		transform: scale(1.05);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+	}
+
+	svg {
+		width: 24px;
+		height: 24px;
+	}
+}
+
+.webcam-label {
+	color: #94989e;
+	font-size: 12px;
+	font-weight: 500;
+}
+
+// Test section
+.test-section {
+	width: 100px;
+	height: 100px;
+	background: rgba(255, 193, 7, 0.1);
+	border: 1px solid rgba(255, 193, 7, 0.3);
+	border-radius: 16px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+
+	&:hover {
+		transform: scale(1.05);
+		background: rgba(255, 193, 7, 0.2);
+		border-color: rgba(255, 193, 7, 0.5);
+	}
+
+	.test-button {
+		color: #ffc107;
+		font-size: 12px;
+		font-weight: 500;
+		text-align: center;
+	}
+}
+
+// Hide content when collapsed
+.island-content {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	color: white;
+	font-size: 10px;
+	font-weight: 400;
+	text-align: center;
+	opacity: 1;
+	transition: all 0.4s ease;
+	pointer-events: none;
+	white-space: nowrap;
+	z-index: 10;
+
+	.dynamic-island:hover & {
+		opacity: 0 !important;
+	}
+
+	// Special styling when controlled by Dynamic Island
+	.controlled-by-dynamic-island & {
+		color: #79ecc9;
+		font-weight: 500;
+	}
+}
+
+// Smooth transitions for all properties
+* {
+	transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+// Force hover state to work
+.dynamic-island:hover,
+.dynamic-island:hover * {
+	transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}

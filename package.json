@@ -1,7 +1,7 @@
 {
 	"name": "VEAI",
 	"description": "Your living intelligence remembers everything, sees what you see, figures out your goals, and doesn’t stop until they're done.",
-	"version": "v0.3.0",
+	"version": "v0.3.1",
 	"private": true,
 	"main": "dist-electron/main.js",
 	"author": "Ve AI",
@@ -197,6 +197,7 @@
 			"extendInfo": {
 				"NSMicrophoneUsageDescription": "Please give us access to your microphone",
 				"NSCameraUsageDescription": "Please give us access to your camera",
+				"NSCameraUseContinuityCameraDeviceType": true,
 				"NSScreenCaptureUsageDescription": "We need permission to capture your screen so you can ask AI questions about what you see.",
 				"com.apple.security.device.audio-input": true,
 				"com.apple.security.device.camera": true

@@ -47,20 +47,20 @@ class ErrorBoundary extends Component {
 		// - Failed dynamic import
 		// - Invalid MIME type
 		// - Suspense in component stack
-		// const isLazyLoadingErr =
-		// 	(error instanceof TypeError &&
-		// 		(error.message.includes('Failed to fetch dynamically imported module') ||
-		// 			error.message.includes(`'text/html' is not a valid JavaScript MIME type`))) ||
-		// 	(errorInfo?.componentStack && errorInfo.componentStack.includes('Suspense'));
+		const isLazyLoadingErr =
+			(error instanceof TypeError &&
+				(error.message.includes('Failed to fetch dynamically imported module') ||
+					error.message.includes(`'text/html' is not a valid JavaScript MIME type`))) ||
+			(errorInfo?.componentStack && errorInfo.componentStack.includes('Suspense'));
 
-		// if (isLazyLoadingErr) {
-		// 	this.setState({ isLazyLoadingError: true });
+		if (isLazyLoadingErr) {
+			this.setState({ isLazyLoadingError: true });
 
-		// 	setTimeout(() => {
-		// 		window.location.reload(true);
-		// 	}, 300);
-		// 	return;
-		// }
+			setTimeout(() => {
+				window.location.reload(true);
+			}, 300);
+			return;
+		}
 
 		if (window.location.hostname !== 'localhost') {
 			const payload = {

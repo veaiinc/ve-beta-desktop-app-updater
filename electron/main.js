@@ -22,9 +22,186 @@ const {
 
 // Import window helper for overlay functionality
 const { WindowHelper } = require('./helpers/windowHelper');
+// Import dynamic island helper
+// const { DynamicIslandHelper } = require('./dynamicIslandHelper');
+
+// Temporary inline DynamicIslandHelper class
+class DynamicIslandHelper {
+	constructor() {
+		this.dynamicIslandWindow = null;
+		this.isExpanded = false; // Start collapsed by default
+		this.isVisible = true;
+		this.screenWidth = 0;
+		this.screenHeight = 0;
+
+		// Default positions and sizes - start with collapsed pill size
+		this.collapsedSize = { width: 250, height: 18 };
+		this.expandedSize = { width: 875, height: 380, flexShrink: 0 };
+		this.position = { x: 0, y: 0 };
+
+		this.setupScreenDimensions();
+	}
+
+	setupScreenDimensions() {
+		const { screen } = require('electron');
+		const primaryDisplay = screen.getPrimaryDisplay();
+		const workArea = primaryDisplay.workAreaSize;
+		this.screenWidth = workArea.width;
+		this.screenHeight = workArea.height;
+
+		// Position at center top - use expanded size for positioning
+		this.position.x =
+			Math.floor(this.screenWidth / 2) - Math.floor(this.expandedSize.width / 2);
+		this.position.y = 30; // Close to top
+	}
+
+	createDynamicIslandWindow() {
+		if (this.dynamicIslandWindow !== null) return;
+
+		log.info(
+			`Creating Dynamic Island window at ${this.position.x},${this.position.y} with size ${this.expandedSize.width}x${this.expandedSize.height}`,
+		);
+
+		const { BrowserWindow } = require('electron');
+		const path = require('node:path');
+
+		const windowSettings = {
+			width: this.expandedSize.width, // Start with expanded size (555x150)
+			height: this.expandedSize.height, // Start with expanded size (555x150)
+			x: this.position.x,
+			y: this.position.y,
+			webPreferences: {
+				nodeIntegration: false,
+				contextIsolation: true,
+				preload: path.join(__dirname, 'preload.js'),
+				devTools: process.env.NODE_ENV === 'development',
+			},
+			show: false,
+			alwaysOnTop: true,
+			frame: false,
+			transparent: true,
+			fullscreenable: false,
+			hasShadow: false,
+			backgroundColor: '#00000000',
+			focusable: false, // Don't steal focus
+			skipTaskbar: true,
+			visibleOnAllWorkspaces: true,
+			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
+			acceptFirstMouse: true,
+			disableAutoHideCursor: true,
+			resizable: false, // Disable resizing - fixed size
+			movable: false,
+			minimizable: false,
+			maximizable: false,
+			closable: false,
+		};
+
+		this.dynamicIslandWindow = new BrowserWindow(windowSettings);
+
+		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
+		const dynamicIslandUrl =
+			process.env.NODE_ENV === 'development'
+				? `${devURL}/dynamic-island.html`
+				: `file://${path.join(__dirname, '..', 'build', 'dynamic-island.html')}`;
+
+		this.dynamicIslandWindow.loadURL(dynamicIslandUrl).catch((err) => {
+			log.error('Failed to load dynamic island URL:', err);
+		});
+
+		// Configure for macOS
+		if (process.platform === 'darwin') {
+			this.dynamicIslandWindow.setAlwaysOnTop(true, 'floating');
+			this.dynamicIslandWindow.setVisibleOnAllWorkspaces(true, {
+				visibleOnFullScreen: true,
+				skipTransformProcessType: true,
+			});
+			this.dynamicIslandWindow.setHiddenInMissionControl(true);
+			this.dynamicIslandWindow.setIgnoreMouseEvents(false);
+			this.dynamicIslandWindow.setMovable(true);
+		} else {
+			this.dynamicIslandWindow.setAlwaysOnTop(true, 'floating');
+			this.dynamicIslandWindow.setIgnoreMouseEvents(false);
+		}
+
+		// Show the window
+		this.dynamicIslandWindow.show();
+		log.info('Dynamic Island window created and shown');
+
+		// Listen for resize events from the renderer
+		this.dynamicIslandWindow.webContents.on('did-finish-load', () => {
+			log.info('Dynamic Island content loaded, setting up resize listener');
+		});
+	}
+
+	expand() {
+		if (!this.dynamicIslandWindow || this.isExpanded) return;
+
+		this.isExpanded = true;
+		log.info('Dynamic Island content expanded (window size remains 555x150)');
+
+		// Notify renderer - window size stays the same
+		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: true });
+		log.info('Dynamic Island expanded');
+	}
+
+	collapse() {
+		if (!this.dynamicIslandWindow || !this.isExpanded) return;
+
+		this.isExpanded = false;
+		log.info('Dynamic Island content collapsed (window size remains 555x150)');
+
+		// Notify renderer - window size stays the same
+		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: false });
+		log.info('Dynamic Island collapsed');
+	}
+
+	show() {
+		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+			this.dynamicIslandWindow.show();
+			this.isVisible = true;
+			log.info('Dynamic Island shown');
+		}
+	}
+
+	hide() {
+		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+			this.dynamicIslandWindow.hide();
+			this.isVisible = false;
+			log.info('Dynamic Island hidden');
+		}
+	}
+
+	toggleVisibility() {
+		if (this.isVisible) {
+			this.hide();
+		} else {
+			this.show();
+		}
+	}
+
+	getDynamicIslandWindow() {
+		return this.dynamicIslandWindow;
+	}
+
+	isDynamicIslandVisible() {
+		return this.isVisible;
+	}
+
+	isDynamicIslandExpanded() {
+		return this.isExpanded;
+	}
+
+	destroy() {
+		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+			this.dynamicIslandWindow.destroy();
+			this.dynamicIslandWindow = null;
+		}
+	}
+}
 
 let mainWindow = null;
 let windowHelper = null;
+let dynamicIslandHelper = null;
 
 // Auto-updater setup
 autoUpdater.logger = log;
@@ -261,6 +438,25 @@ app.whenReady().then(() => {
 	windowHelper = new WindowHelper();
 	windowHelper.registerGlobalShortcuts(mainWindow);
 
+	// Initialize DynamicIslandHelper for dynamic island functionality
+	dynamicIslandHelper = new DynamicIslandHelper();
+	dynamicIslandHelper.createDynamicIslandWindow();
+
+	// Register global shortcut for dynamic island (Cmd+I)
+	const { globalShortcut } = require('electron');
+	const cmdIRegistered = globalShortcut.register('CommandOrControl+I', () => {
+		log.info('Cmd+I pressed - toggling dynamic island');
+		if (dynamicIslandHelper) {
+			dynamicIslandHelper.toggleVisibility();
+		}
+	});
+
+	if (cmdIRegistered) {
+		log.info('✅ Cmd+I shortcut registered successfully for dynamic island');
+	} else {
+		log.error('❌ Failed to register Cmd+I shortcut for dynamic island');
+	}
+
 	// Check if global shortcuts are working (especially important on macOS)
 	if (process.platform === 'darwin') {
 		const { systemPreferences } = require('electron');
@@ -292,6 +488,72 @@ app.whenReady().then(() => {
 		log.info('Platform is not macOS - global shortcuts should work by default');
 	}
 
+	// Register dynamic island IPC handlers
+	ipcMain.handle('dynamic-island-expand', async () => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+			dynamicIslandHelper.expand();
+			return { success: true };
+		} catch (error) {
+			log.error('Error expanding dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('dynamic-island-collapse', async () => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+			dynamicIslandHelper.collapse();
+			return { success: true };
+		} catch (error) {
+			log.error('Error collapsing dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('dynamic-island-toggle', async () => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+			dynamicIslandHelper.toggleVisibility();
+			return { success: true };
+		} catch (error) {
+			log.error('Error toggling dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('dynamic-island-show', async () => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+			dynamicIslandHelper.show();
+			return { success: true };
+		} catch (error) {
+			log.error('Error showing dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('dynamic-island-hide', async () => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+			dynamicIslandHelper.hide();
+			return { success: true };
+		} catch (error) {
+			log.error('Error hiding dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	// Register overlay window IPC handlers
 	ipcMain.handle('toggle-overlay-window', async () => {
 		try {
@@ -319,6 +581,192 @@ app.whenReady().then(() => {
 		}
 	});
 
+	// Dynamic Island to Overlay communication handlers
+	log.info('=== Dynamic Island to Overlay Communication ===');
+
+	ipcMain.handle('overlay-start-recording', async () => {
+		try {
+			let overlayWindow = windowHelper?.getOverlayWindow();
+			if (!overlayWindow) {
+				// Create overlay window if it doesn't exist
+				windowHelper?.createOverlayWindow();
+				// Wait a moment for the window to be created
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+				// Get the window reference again after creating it
+				overlayWindow = windowHelper?.getOverlayWindow();
+			}
+
+			if (overlayWindow) {
+				// Show the window if it's not visible
+				if (!overlayWindow.isVisible()) {
+					windowHelper?.showOverlayWindow();
+					// Wait a moment for the window to be shown
+					await new Promise((resolve) => setTimeout(resolve, 500));
+				}
+
+				// Send command to overlay window to start recording
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'startRecording',
+				});
+				log.info('Sent startRecording command to overlay window');
+			} else {
+				log.error('Overlay window not available after creating');
+				return { success: false, error: 'Overlay window not available' };
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error starting recording from dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('overlay-stop-recording', async () => {
+		try {
+			const overlayWindow = windowHelper?.getOverlayWindow();
+			if (overlayWindow) {
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'stopRecording',
+				});
+				log.info('Sent stopRecording command to overlay window');
+			} else {
+				log.warn('Overlay window not available for stopRecording');
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error stopping recording from dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('overlay-pause-recording', async () => {
+		try {
+			const overlayWindow = windowHelper?.getOverlayWindow();
+			if (overlayWindow) {
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'pauseRecording',
+				});
+				log.info('Sent pauseRecording command to overlay window');
+			} else {
+				log.warn('Overlay window not available for pauseRecording');
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error pausing recording from dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('overlay-resume-recording', async () => {
+		try {
+			const overlayWindow = windowHelper?.getOverlayWindow();
+			if (overlayWindow) {
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'resumeRecording',
+				});
+				log.info('Sent resumeRecording command to overlay window');
+			} else {
+				log.warn('Overlay window not available for resumeRecording');
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error resuming recording from dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('overlay-toggle-live-intelligence', async () => {
+		try {
+			let overlayWindow = windowHelper?.getOverlayWindow();
+			if (!overlayWindow) {
+				// Create overlay window if it doesn't exist
+				windowHelper?.createOverlayWindow();
+				// Wait a moment for the window to be created
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+				// Get the window reference again after creating it
+				overlayWindow = windowHelper?.getOverlayWindow();
+			}
+
+			if (overlayWindow) {
+				// Show the window if it's not visible
+				if (!overlayWindow.isVisible()) {
+					windowHelper?.showOverlayWindow();
+					// Wait a moment for the window to be shown
+					await new Promise((resolve) => setTimeout(resolve, 500));
+				}
+
+				// Send command to overlay window to toggle live intelligence
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'toggleLiveIntelligence',
+				});
+				log.info('Sent toggleLiveIntelligence command to overlay window');
+			} else {
+				log.error('Overlay window not available after creating');
+				return { success: false, error: 'Overlay window not available' };
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error toggling live intelligence from dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('overlay-get-recording-state', async () => {
+		try {
+			const overlayWindow = windowHelper?.getOverlayWindow();
+			if (overlayWindow) {
+				// Request state from overlay window
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'getRecordingState',
+				});
+				log.info('Sent getRecordingState command to overlay window');
+			} else {
+				log.warn('Overlay window not available for getRecordingState');
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error getting recording state from dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Handle state updates from overlay to Dynamic Island
+	ipcMain.handle('overlay-state-update', async (event, state) => {
+		try {
+			const dynamicIslandWindow = dynamicIslandHelper?.dynamicIslandWindow;
+			if (dynamicIslandWindow) {
+				// Forward state to Dynamic Island window
+				dynamicIslandWindow.webContents.send('overlay-state-changed', state);
+				log.info('Forwarded state to Dynamic Island:', state);
+			} else {
+				log.warn('Dynamic Island window not available for state update');
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error forwarding state to dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Test handler for debugging
+	ipcMain.handle('test-overlay-connection', async () => {
+		try {
+			log.info('🧪 Testing overlay connection...');
+			const overlayWindow = windowHelper?.getOverlayWindow();
+			if (overlayWindow) {
+				log.info('✅ Overlay window exists');
+				log.info('Overlay window visible:', overlayWindow.isVisible());
+				log.info('Overlay window destroyed:', overlayWindow.isDestroyed());
+				return { success: true, exists: true, visible: overlayWindow.isVisible() };
+			} else {
+				log.info('❌ Overlay window does not exist');
+				return { success: true, exists: false, visible: false };
+			}
+		} catch (error) {
+			log.error('Error testing overlay connection:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	ipcMain.handle('toggle-askAI-window', async () => {
 		try {
 			if (!windowHelper) {
@@ -328,6 +776,32 @@ app.whenReady().then(() => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error toggling Ask AI window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('show-askAI-window', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.showAskAIWindow();
+			return { success: true };
+		} catch (error) {
+			log.error('Error showing Ask AI window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('is-askAI-window-visible', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			const isVisible = windowHelper.isAskAIWindowVisible();
+			return { success: true, isVisible };
+		} catch (error) {
+			log.error('Error checking Ask AI window visibility:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -554,5 +1028,14 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
+	// Clean up dynamic island
+	if (dynamicIslandHelper) {
+		dynamicIslandHelper.destroy();
+	}
 	app.quit();
+});
+
+app.on('will-quit', () => {
+	// Unregister all global shortcuts
+	globalShortcut.unregisterAll();
 });

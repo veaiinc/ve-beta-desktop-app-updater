@@ -59,7 +59,6 @@ export const initialState = {
 	aiTranscriptionSuggestions: null,
 	showVoiceWidget: false, // Global state for voice widget visibility
 	proactiveHeadings: null,
-	showVoiceWidget: false, // Global state for voice widget visibility
 };
 
 export const AiSetupState = () => {
