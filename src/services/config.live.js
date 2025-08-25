@@ -26,7 +26,8 @@ export const chat_ws_api = 'wss://ai.ap-south-1.ve.ai';
 export const guest_chat_ws_api = 'wss://guestsearch.ap-south-1.ve.ai';
 export const meeting_ws_api = 'wss://recall.ap-south-1.ve.ai';
 
-export const generate_voice_agent_token_api = 'https://68d442ce9544.ngrok-free.app';
+// Voice agent token generation API
+export const generate_voice_agent_token_api = 'https://ai-dev.us-east-1.ve.ai';
 
 // US region
 export const auth_Api_US = 'https://auth.ve.ai';
