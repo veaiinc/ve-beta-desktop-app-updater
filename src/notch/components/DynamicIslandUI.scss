@@ -33,7 +33,6 @@
 		width: 250px;
 		height: 15px;
 		border-radius: 8px;
-		
 	}
 
 	// Recording mode - different dimensions
@@ -49,6 +48,12 @@
 			height: 200px;
 			border-radius: 0px 0px 8px 8px;
 		}
+	}
+
+	// Active state when controlling overlay
+	&.controlled-by-dynamic-island {
+		border: 1px solid rgba(121, 236, 201, 0.3);
+		box-shadow: 0 0 8px rgba(121, 236, 201, 0.2);
 	}
 }
 
@@ -96,7 +101,7 @@
 	gap: 4px;
 	padding: 2px 10px;
 	height: 24px;
-	background: #79ECC9;
+	background: #79ecc9;
 	border-radius: 100px;
 	cursor: pointer;
 	transition: all 0.3s ease;
@@ -116,7 +121,7 @@
 }
 
 .start-text {
-	color: #0E2F2A;
+	color: #0e2f2a;
 	font-size: 12px;
 	font-weight: 500;
 }
@@ -143,15 +148,15 @@
 	}
 
 	&.start-button {
-		background: #1B1C1D;
+		background: #1b1c1d;
 	}
 
 	&.pause-resume-button {
-		background: #1B1C1D;
+		background: #1b1c1d;
 	}
 
 	&.stop-button {
-		background: #CF3635;
+		background: #cf3635;
 	}
 }
 
@@ -162,10 +167,10 @@
 
 // Meeting mode label
 .meeting-mode-label {
-	background: #1B1C1D;
+	background: #1b1c1d;
 	border-radius: 24px;
 	padding: 4px 10px;
-	color: #F2F2F3;
+	color: #f2f2f3;
 	font-size: 12px;
 	font-weight: 500;
 	line-height: 1.35;
@@ -184,7 +189,7 @@
 }
 
 .audio-bar {
-	background: #79ECC9;
+	background: #79ecc9;
 	border-radius: 1.6px;
 
 	&:nth-child(1) {
@@ -256,7 +261,7 @@
 }
 
 .transcription-bubble {
-	background: #1B1C1D;
+	background: #1b1c1d;
 	border-radius: 8px;
 	padding: 8px;
 	display: flex;
@@ -272,7 +277,7 @@
 }
 
 .speaker-name {
-	color: #94989E;
+	color: #94989e;
 	font-size: 9px;
 	font-weight: 500;
 	line-height: 1.35;
@@ -281,7 +286,7 @@
 .speaker-avatar {
 	width: 2.72px;
 	height: 2.72px;
-	background: #2C2D2E;
+	background: #2c2d2e;
 	border-radius: 50%;
 }
 
@@ -292,14 +297,14 @@
 }
 
 .time-text {
-	color: #94989E;
+	color: #94989e;
 	font-size: 9px;
 	font-weight: 500;
 	line-height: 1.35;
 }
 
 .bubble-text {
-	color: #F2F2F3;
+	color: #f2f2f3;
 	font-size: 11px;
 	font-weight: 500;
 	line-height: 1.36;
@@ -310,7 +315,7 @@
 .product-interview-section {
 	width: 150px;
 	height: 100px;
-	background: #1B1C1D;
+	background: #1b1c1d;
 	border-radius: 12px;
 	display: flex;
 	flex-direction: column;
@@ -335,7 +340,7 @@
 }
 
 .interview-title {
-	color: #F2F2F3;
+	color: #f2f2f3;
 	font-size: 14px;
 	font-weight: 500;
 	line-height: 1.14;
@@ -349,7 +354,7 @@
 }
 
 .timer-text {
-	color: #79ECC9;
+	color: #79ecc9;
 	font-size: 12px;
 	font-weight: 500;
 }
@@ -358,8 +363,8 @@
 .chat-section {
 	flex: 1;
 	height: 100px;
-	background: #1B1C1D;
-	border: 0.5px solid #2C2D2E;
+	background: #1b1c1d;
+	border: 0.5px solid #2c2d2e;
 	border-radius: 16px;
 	display: flex;
 	flex-direction: column;
@@ -377,7 +382,7 @@
 }
 
 .chat-input {
-	color: #94989E;
+	color: #94989e;
 	font-size: 12px;
 	font-weight: 500;
 }
@@ -386,14 +391,14 @@
 	align-self: flex-end;
 	width: 14px;
 	height: 14px;
-	color: #94989E;
+	color: #94989e;
 }
 
 // Webcam section
 .webcam-section {
 	width: 100px;
 	height: 100px;
-	background: #1B1C1D;
+	background: #1b1c1d;
 	border-radius: 100px;
 	display: flex;
 	flex-direction: column;
@@ -415,9 +420,38 @@
 }
 
 .webcam-label {
-	color: #94989E;
+	color: #94989e;
 	font-size: 12px;
 	font-weight: 500;
+}
+
+// Test section
+.test-section {
+	width: 100px;
+	height: 100px;
+	background: rgba(255, 193, 7, 0.1);
+	border: 1px solid rgba(255, 193, 7, 0.3);
+	border-radius: 16px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+
+	&:hover {
+		transform: scale(1.05);
+		background: rgba(255, 193, 7, 0.2);
+		border-color: rgba(255, 193, 7, 0.5);
+	}
+
+	.test-button {
+		color: #ffc107;
+		font-size: 12px;
+		font-weight: 500;
+		text-align: center;
+	}
 }
 
 // Hide content when collapsed
@@ -438,6 +472,12 @@
 
 	.dynamic-island:hover & {
 		opacity: 0 !important;
+	}
+
+	// Special styling when controlled by Dynamic Island
+	.controlled-by-dynamic-island & {
+		color: #79ecc9;
+		font-weight: 500;
 	}
 }
 

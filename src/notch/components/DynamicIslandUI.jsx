@@ -1,51 +1,61 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { HomeIcon, LockIcon, WebcamIcon, ArrowIcon, ClockIcon, PlayIcon, PauseIcon, StopIcon, PlusIcon } from './DynamicIslandIcons';
+import {
+	HomeIcon,
+	LockIcon,
+	WebcamIcon,
+	ArrowIcon,
+	ClockIcon,
+	PlayIcon,
+	PauseIcon,
+	StopIcon,
+	PlusIcon,
+} from './DynamicIslandIcons';
 import './DynamicIslandUI.scss';
 
 const DynamicIslandUI = () => {
 	const dynamicIslandRef = useRef(null);
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [isConnected, setIsConnected] = useState(false);
+	// Overlay state - synced from overlay window
 	const [isRecording, setIsRecording] = useState(false);
 	const [isPaused, setIsPaused] = useState(false);
 	const [timer, setTimer] = useState(0);
-	const [transcriptions, setTranscriptions] = useState([
-		{
-			id: 1,
-			speaker: 'You',
-			text: 'Thanks for joining today! To kick things off, can you tell me how you typically use our product in your day-to-day work?',
-			time: '0:05'
-		},
-		{
-			id: 2,
-			speaker: 'Other',
-			text: 'Sure. I mostly use it to manage client proposals and share timelines internally. I really like the auto-fill templates, but sometimes I wish there was a faster way to switch between different document types.',
-			time: '0:08'
-		}
-	]);
+	const [isLiveIntelligenceOpen, setIsLiveIntelligenceOpen] = useState(false);
+	const [controlledByDynamicIsland, setControlledByDynamicIsland] = useState(false);
 
 	useEffect(() => {
 		// Check if we're in Electron environment
-		if (window.electronAPI && window.electronAPI.dynamicIsland) {
+		if (window.electronApi && window.electronApi.dynamicIsland) {
 			setIsConnected(true);
 
 			// Listen for dynamic island state changes
-			window.electronAPI.dynamicIsland.onStateChange((data) => {
+			window.electronApi.dynamicIsland.onStateChange((data) => {
 				setIsExpanded(data.expanded);
 			});
+
+			// Listen for overlay state changes to sync recording state
+			window.electronApi.dynamicIsland.onOverlayStateChange((state) => {
+				console.log('Dynamic Island received overlay state:', state);
+				setIsRecording(state.isRecording);
+				setIsPaused(state.isPaused);
+				setTimer(state.timer);
+				setIsLiveIntelligenceOpen(state.isLiveIntelligenceOpen);
+				setControlledByDynamicIsland(state.controlledByDynamicIsland || false);
+			});
 		}
+
+		return () => {
+			// Clean up listeners
+			if (window.electronApi?.dynamicIsland?.removeStateChangeListener) {
+				window.electronApi.dynamicIsland.removeStateChangeListener();
+			}
+			if (window.electronApi?.dynamicIsland?.removeOverlayStateListener) {
+				window.electronApi.dynamicIsland.removeOverlayStateListener();
+			}
+		};
 	}, []);
 
-	// Timer effect for recording
-	useEffect(() => {
-		let interval;
-		if (isRecording && !isPaused) {
-			interval = setInterval(() => {
-				setTimer(prev => prev + 1);
-			}, 1000);
-		}
-		return () => clearInterval(interval);
-	}, [isRecording, isPaused]);
+	// Timer is now managed by overlay system, no local timer effect needed
 
 	// Hover events
 	const handleMouseEnter = () => {
@@ -103,12 +113,23 @@ const DynamicIslandUI = () => {
 		console.log('⚙️ Settings icon clicked');
 	};
 
-	const handleAudioClick = () => {
-		console.log('🎵 Start recording clicked');
+	const handleAudioClick = async () => {
+		console.log('🎵 Start recording clicked - triggering overlay');
 		if (!isRecording) {
-			setIsRecording(true);
-			setIsPaused(false);
-			setTimer(0);
+			// Check if overlay API is available
+			if (!window.electronApi?.overlay?.toggleLiveIntelligence) {
+				console.error('Overlay API not available in Dynamic Island');
+				return;
+			}
+
+			// Trigger overlay to start recording and show Live Intelligence panel
+			try {
+				console.log('Calling overlay.toggleLiveIntelligence()...');
+				const result = await window.electronApi.overlay.toggleLiveIntelligence();
+				console.log('Overlay toggle result:', result);
+			} catch (error) {
+				console.error('Error triggering overlay from Dynamic Island:', error);
+			}
 		}
 	};
 
@@ -120,29 +141,63 @@ const DynamicIslandUI = () => {
 		console.log('💬 Chat section clicked');
 	};
 
-	// Recording control handlers
-	const handleStartRecording = () => {
-		console.log('🎤 Start recording clicked');
-		setIsRecording(true);
-		setIsPaused(false);
-		setTimer(0);
+	// Recording control handlers - now use overlay API
+	const handleStartRecording = async () => {
+		console.log('🎤 Start recording clicked - triggering overlay');
+		if (!window.electronApi?.overlay?.startRecording) {
+			console.error('Overlay startRecording API not available');
+			return;
+		}
+		try {
+			const result = await window.electronApi.overlay.startRecording();
+			console.log('Start recording result:', result);
+		} catch (error) {
+			console.error('Error starting recording from Dynamic Island:', error);
+		}
 	};
 
-	const handleStopRecording = () => {
-		console.log('⏹️ Stop recording clicked');
-		setIsRecording(false);
-		setIsPaused(false);
-		setTimer(0);
+	const handleStopRecording = async () => {
+		console.log('⏹️ Stop recording clicked - triggering overlay');
+		if (!window.electronApi?.overlay?.stopRecording) {
+			console.error('Overlay stopRecording API not available');
+			return;
+		}
+		try {
+			const result = await window.electronApi.overlay.stopRecording();
+			console.log('Stop recording result:', result);
+		} catch (error) {
+			console.error('Error stopping recording from Dynamic Island:', error);
+		}
 	};
 
-	const handlePauseResume = () => {
-		console.log('⏸️/▶️ Pause/Resume clicked');
-		setIsPaused(!isPaused);
+	const handlePauseResume = async () => {
+		console.log('⏸️/▶️ Pause/Resume clicked - triggering overlay');
+		try {
+			if (isPaused) {
+				if (!window.electronApi?.overlay?.resumeRecording) {
+					console.error('Overlay resumeRecording API not available');
+					return;
+				}
+				const result = await window.electronApi.overlay.resumeRecording();
+				console.log('Resume recording result:', result);
+			} else {
+				if (!window.electronApi?.overlay?.pauseRecording) {
+					console.error('Overlay pauseRecording API not available');
+					return;
+				}
+				const result = await window.electronApi.overlay.pauseRecording();
+				console.log('Pause recording result:', result);
+			}
+		} catch (error) {
+			console.error('Error toggling pause/resume from Dynamic Island:', error);
+		}
 	};
 
 	// Format time for display
 	const formatTime = (seconds) => {
-		const m = Math.floor(seconds / 60).toString().padStart(1, '0');
+		const m = Math.floor(seconds / 60)
+			.toString()
+			.padStart(1, '0');
 		const s = (seconds % 60).toString().padStart(2, '0');
 		return `${m}:${s}`;
 	};
@@ -164,12 +219,20 @@ const DynamicIslandUI = () => {
 		<div
 			ref={dynamicIslandRef}
 			id="dynamicIsland"
-			className={`dynamic-island ${isExpanded ? 'expanded' : 'collapsed'} ${isRecording ? 'recording' : ''}`}
+			className={`dynamic-island ${isExpanded ? 'expanded' : 'collapsed'} ${
+				isRecording ? 'recording' : ''
+			} ${controlledByDynamicIsland ? 'controlled-by-dynamic-island' : ''}`}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
 		>
 			{/* Simple content when collapsed */}
-			<div className="island-content">Ve.Ai Live Intelligence</div>
+			<div className="island-content">
+				{controlledByDynamicIsland
+					? isRecording
+						? `● Recording ${formatTime(timer)}`
+						: '🏝️ Dynamic Island Active'
+					: 'Ve.Ai Live Intelligence'}
+			</div>
 
 			{/* Rich UI when expanded */}
 			<div className="ui-container">
@@ -186,24 +249,32 @@ const DynamicIslandUI = () => {
 							</div>
 						) : (
 							<div className="recording-controls">
-								<div className="control-button pause-resume-button" onClick={handlePauseResume}>
+								<div
+									className="control-button pause-resume-button"
+									onClick={handlePauseResume}
+								>
 									<div className="control-icon">
 										{isPaused ? <PlayIcon /> : <PauseIcon />}
 									</div>
 								</div>
-								<div className="control-button stop-button" onClick={handleStopRecording}>
+								<div
+									className="control-button stop-button"
+									onClick={handleStopRecording}
+								>
 									<div className="control-icon">
 										<StopIcon />
 									</div>
 								</div>
-								
-								{/* Meeting mode label */}
+
+								{/* Control mode label */}
 								<div className="meeting-mode-label">
-									Meeting mode
+									{controlledByDynamicIsland
+										? 'Dynamic Island Control'
+										: 'Meeting mode'}
 								</div>
 							</div>
 						)}
-						
+
 						{/* Audio visualizer */}
 						<div className="audio-visualizer">
 							<div className="audio-bar"></div>
@@ -227,40 +298,6 @@ const DynamicIslandUI = () => {
 
 				{/* Main content area */}
 				<div className="main-content">
-					{/* Live transcription section */}
-					{isRecording && transcriptions.length > 0 ? (
-						<div className="transcription-section">
-							{transcriptions.slice(-3).map((transcription, index) => (
-								<div key={transcription.id || index} className="transcription-bubble">
-									<div className="bubble-header">
-										<span className="speaker-name">{transcription.speaker}</span>
-										<div className="speaker-avatar"></div>
-										<div className="time-info">
-											<ClockIcon />
-											<span className="time-text">{transcription.time}</span>
-										</div>
-									</div>
-									<div className="bubble-text">
-										{transcription.text}
-									</div>
-								</div>
-							))}
-						</div>
-					) : (
-						<>
-							{/* Product Interview section */}
-							<div className="product-interview-section">
-								<div className="interview-header">
-									<span className="interview-title">Product Interview</span>
-								</div>
-								<div className="interview-timer">
-									<ClockIcon />
-									<span className="timer-text">In 5 min</span>
-								</div>
-							</div>
-						</>
-					)}
-
 					{/* Chat input section */}
 					<div className="chat-section" onClick={handleChatClick}>
 						<div className="chat-input">Ask about screen or audio</div>

@@ -54,6 +54,34 @@ contextBridge.exposeInMainWorld('electronApi', {
 		hideAllWindows: () => ipcRenderer.invoke('hide-all-windows'),
 		sendTabContentToAskAI: (tabContent) =>
 			ipcRenderer.invoke('send-tab-content-to-askai', tabContent),
+		// New methods for Dynamic Island integration
+		startRecording: () => ipcRenderer.invoke('overlay-start-recording'),
+		stopRecording: () => ipcRenderer.invoke('overlay-stop-recording'),
+		pauseRecording: () => ipcRenderer.invoke('overlay-pause-recording'),
+		resumeRecording: () => ipcRenderer.invoke('overlay-resume-recording'),
+		toggleLiveIntelligence: () => ipcRenderer.invoke('overlay-toggle-live-intelligence'),
+		getRecordingState: () => ipcRenderer.invoke('overlay-get-recording-state'),
+		onRecordingStateChange: (callback) => {
+			ipcRenderer.on('overlay-recording-state-changed', (event, data) => {
+				callback(data);
+			});
+		},
+		removeRecordingStateListener: () => {
+			ipcRenderer.removeAllListeners('overlay-recording-state-changed');
+		},
+		// Command listener for Dynamic Island integration
+		onCommand: (callback) => {
+			ipcRenderer.on('overlay-command', (event, data) => {
+				callback(event, data);
+			});
+		},
+		removeCommandListener: () => {
+			ipcRenderer.removeAllListeners('overlay-command');
+		},
+		// Send state updates to Dynamic Island
+		sendStateUpdate: (state) => ipcRenderer.invoke('overlay-state-update', state),
+		// Test connection
+		testConnection: () => ipcRenderer.invoke('test-overlay-connection'),
 	},
 
 	// Ask AI window APIs
@@ -120,6 +148,15 @@ contextBridge.exposeInMainWorld('electronApi', {
 		},
 		removeStateChangeListener: () => {
 			ipcRenderer.removeAllListeners('dynamic-island-state');
+		},
+		// Listen for overlay state changes
+		onOverlayStateChange: (callback) => {
+			ipcRenderer.on('overlay-state-changed', (event, data) => {
+				callback(data);
+			});
+		},
+		removeOverlayStateListener: () => {
+			ipcRenderer.removeAllListeners('overlay-state-changed');
 		},
 	},
 });
