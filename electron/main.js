@@ -437,6 +437,11 @@ app.whenReady().then(() => {
 	// Initialize WindowHelper for overlay window functionality
 	windowHelper = new WindowHelper();
 	windowHelper.registerGlobalShortcuts(mainWindow);
+	
+	// Test shortcuts after registration
+	setTimeout(() => {
+		windowHelper.testShortcuts();
+	}, 2000); // Wait 2 seconds for app to fully initialize
 
 	// Initialize DynamicIslandHelper for dynamic island functionality
 	dynamicIslandHelper = new DynamicIslandHelper();
