@@ -1,3 +1,4 @@
+import mitt from 'mitt';
 const DEV_ENVIRONMENT = import.meta.env.VITE_APP_DEV_ENVIRONMENT || 'development';
 
 async function loadConfig() {
@@ -45,12 +46,17 @@ const handleHeaders = (token, body, type, isPublicChat = false) => {
 	return headers;
 };
 
+export const internalServerEmitter = mitt();
+
 const processResponse = async (response) => {
 	const jsonData = await response.json();
 	if (response.status >= 200 && response.status < 300) {
 		return [true, jsonData];
 	} else if (response.status === 401) {
 		// onUserKickedOut();
+		return [false, jsonData];
+	} else if (response.status === 500) {
+		internalServerEmitter.emit('serverError', jsonData);
 		return [false, jsonData];
 	} else {
 		return [response.status, jsonData];

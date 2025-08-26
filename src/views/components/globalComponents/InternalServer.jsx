@@ -9,14 +9,12 @@ const InternalServer = () => {
 	return (
 		<div className={s.internalServerContainer}>
 			<div className={s.internalServerMainContainer}>
-				<div>
-					<BridgeIcon />
-				</div>
+				<BridgeIcon />
 				<div className={s.internalServerTitle}>500 Internal Server Error</div>
-				<div className={s.internalServerDescription}>
+				<p className={s.internalServerDescription}>
 					An unexpected error occurred. We’re on it. If the issue persists, share this ID
 					with support
-				</div>
+				</p>
 				<button className={s.internalServerButton} onClick={handleReloadClick}>
 					Reload Page
 				</button>
