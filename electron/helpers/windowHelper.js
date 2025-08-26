@@ -13,7 +13,7 @@ class WindowHelper {
 		this.askAIWindow = null;
 		this.isAskAIVisible = false;
 		this.askAIWindowPosition = { x: 0, y: 0 };
-		this.askAIWindowSize = { width: 1000, height: 600 };
+		this.askAIWindowSize = { width: 600, height: 500 };
 
 		this.screenWidth = 0;
 		this.screenHeight = 0;
@@ -375,7 +375,7 @@ class WindowHelper {
 		if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
 			// Position ask AI to the right of overlay
 			askAIX = this.currentX + this.windowSize.width + gap;
-			askAIY = 30; // Same Y level as overlay
+			askAIY = 80; // Same Y level as overlay
 		} else {
 			// Center ask AI when overlay is not visible
 			askAIX = Math.floor(workArea.width / 2) - Math.floor(this.askAIWindowSize.width / 2);
@@ -466,7 +466,7 @@ class WindowHelper {
 			const overlayX = startX;
 			const askAIX = startX + newWidth + gap;
 			const overlayY = 30;
-			const askAIY = 30; // Same Y level as overlay
+			const askAIY = 80; // Same Y level as overlay
 
 			// Update overlay window
 			this.overlayWindow.setBounds({
@@ -520,15 +520,15 @@ class WindowHelper {
 		const { screen } = require('electron');
 		const workArea = screen.getPrimaryDisplay().workAreaSize;
 
-		const newWidth = Math.min(width, 1000); // Allow up to 1000px width
-		const newHeight = Math.min(height, 700); // Max height 700px
+		const newWidth = Math.min(width, 600); // Allow up to 600px width
+		const newHeight = Math.min(height, 500); // Max height 400px
 
 		// Update ask AI positioning and maintain side-by-side layout if overlay is visible
 		if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
 			// Position ask AI to the right of overlay with gap
 			const gap = 20;
 			const askAIX = this.currentX + this.windowSize.width + gap;
-			const askAIY = 30; // Same Y level as overlay
+			const askAIY = 80; // Same Y level as overlay
 
 			this.askAIWindow.setBounds({
 				x: askAIX,
