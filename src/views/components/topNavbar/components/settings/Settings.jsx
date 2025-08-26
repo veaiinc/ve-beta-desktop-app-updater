@@ -23,6 +23,7 @@ import { ReactComponent as CloseIcon } from '../../../../../assets/svg/mobile/cl
 import { ReactComponent as PlusSvg } from '../../assets/plus.svg';
 
 const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
+const desktopAppDownloadWindows = import.meta.env.VITE_APP_DESKTOP_APP_WINDOWS_DOWNLOAD_URL || null;
 const deepLinkUrl = 'veai://open';
 const isMac =
 	navigator.userAgentData?.platform === 'macOS' ||
@@ -128,8 +129,14 @@ const Settings = ({
 		window.location.href = deepLinkUrl;
 
 		const timer = setTimeout(() => {
-			if (desktopAppDownloadUrl) {
-				window.open(desktopAppDownloadUrl, '_blank');
+			if (isMac) {
+				if (desktopAppDownloadUrl) {
+					window.open(desktopAppDownloadUrl, '_blank');
+				}
+			} else {
+				if (desktopAppDownloadWindows) {
+					window.open(desktopAppDownloadWindows, '_blank');
+				}
 			}
 		}, 2000);
 
