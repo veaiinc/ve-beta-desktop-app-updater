@@ -1,5 +1,5 @@
 import { useRef, useCallback, useReducer } from 'react';
-import { config } from '../../services';
+import getBaseUrl from '../../services/baseUrls.js';
 
 export const initialChatBoxSuggestionsState = {};
 
@@ -104,9 +104,9 @@ export const ChatBoxSuggestionsState = () => {
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
 			const region = localStorage.getItem('region') || 'us-east-1';
-			const wsUrl = `${
-				region === 'ap-south-1' ? config.chat_ws_api : config.chat_ws_api_US
-			}/${workspaceId}/${sessionId}/suggestions?token=${usertoken}`;
+			const type = 'chat_ws_api';
+			const chat_ws_api = getBaseUrl(region, type);
+			const wsUrl = `${chat_ws_api}/${workspaceId}/${sessionId}/suggestions?token=${usertoken}`;
 
 			socketRefs.current[sessionId] = new WebSocket(wsUrl);
 
