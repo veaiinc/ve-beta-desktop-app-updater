@@ -87,6 +87,7 @@ const GalleryViewer = ({
 	const hasRunFakeLoading = useRef(true);
 	const navigate = useNavigate();
 	const isThumbnailClicked = useRef(false); // New ref to track thumbnail clicks
+	const lastActiveImageRef = useRef(null); // Ref to preserve the last active image
 
 	const isLightGallery = searchkeys.get('lite-gallery') === 'true';
 
@@ -188,6 +189,32 @@ const GalleryViewer = ({
 					image.scrollIntoView({ behavior: 'smooth', block: 'center' });
 				}
 			}, 1000);
+		}
+
+		// Preserve the last active image when selectedImages changes
+		if (info?.activeImage) {
+			lastActiveImageRef.current = info.activeImage;
+		}
+
+		// If selectedImages becomes empty but we have a last active image, restore it
+		if (
+			!selectedImages &&
+			lastActiveImageRef.current &&
+			info?.activeImage !== lastActiveImageRef.current
+		) {
+			const currentImages = aiface ? aiFaceImages?.images : imagesList?.docs;
+			if (currentImages) {
+				const newIndex = currentImages.findIndex(
+					(img) => img?._id === lastActiveImageRef.current,
+				);
+				if (newIndex !== -1) {
+					setInfo((prev) => ({
+						...prev,
+						activeImage: lastActiveImageRef.current,
+						activeImageIndex: newIndex,
+					}));
+				}
+			}
 		}
 
 		if (!galleryCredentials) {
@@ -371,9 +398,9 @@ const GalleryViewer = ({
 		? aiFaceImages?.images?.find((image) => image?._id === info?.activeImage)
 		: imagesList?.docs?.find((image) => image?._id === info?.activeImage);
 
-	const displayedImages = (aiface ? aiFaceImages?.images : imagesList?.docs)?.filter(
-		(image) => selectedImages?.includes(image?._id) || !selectedImages,
-	);
+	// In GalleryViewer, we want to show all images regardless of selectedImages
+	// selectedImages is only used to preserve the current image position
+	const displayedImages = aiface ? aiFaceImages?.images : imagesList?.docs;
 	const handleNavigation = (direction) => {
 		if (!displayedImages || displayedImages.length === 0) return;
 
@@ -406,7 +433,6 @@ const GalleryViewer = ({
 		if (
 			direction === 'next' &&
 			newIndex === displayedImages.length - 1 &&
-			!selectedImages &&
 			imagesList?.hasNextPage
 		) {
 			fetchMoreImages();
@@ -827,11 +853,7 @@ const GalleryViewer = ({
 						/>
 						<span className="currentImageCountContainerText">
 							{info?.activeImageIndex + 1} /{' '}
-							{!currentSelectedImages
-								? aiface
-									? aiFaceImages?.totalDocs
-									: imagesList?.totalDocs
-								: displayedImages?.length}
+							{aiface ? aiFaceImages?.totalDocs : imagesList?.totalDocs}
 						</span>
 						<ChevronLeft
 							onClick={() => handleNavigation('next')}

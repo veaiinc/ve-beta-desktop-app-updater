@@ -137,7 +137,7 @@ export const ChatStreamState = () => {
 			const region = localStorage.getItem('region') || 'us-east-1';
 			const config = await getConfig();
 			const { chat_ws_api, chat_ws_api_US, guest_chat_ws_api, guest_chat_ws_api_US } = config;
-			// `https://dominant-ultimate-shrimp.ngrok-free.app`
+			// `https://direct-garfish-smooth.ngrok-free.app`
 			let baseUrl = `${
 				region === 'ap-south-1' ? chat_ws_api : chat_ws_api_US
 			}/${workspaceId}/${sessionId}/${agent}?token=${usertoken}`;

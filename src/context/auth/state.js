@@ -173,7 +173,6 @@ export const AuthState = () => {
 			const host = fetchDomainName();
 
 			if (response[0] === true) {
-				console.log('[Verify] Verification successful');
 				const { accessToken, accessibleWorkspaces } = response?.[1] || {};
 				const hasWorkspaces = accessibleWorkspaces?.length > 0;
 
@@ -183,7 +182,6 @@ export const AuthState = () => {
 						sameSite: 'lax',
 						domain: host,
 					});
-					console.log('[Verify] Saved accessToken in localStorage and cookies');
 				}
 
 				if (!hasWorkspaces) {
@@ -211,7 +209,7 @@ export const AuthState = () => {
 				return [false, { message: response?.[1]?.message?.trim() }];
 			}
 		} catch (error) {
-			console.error('[Verify] Error verifying email verification code:', error);
+			console.error('Error verifying email verification code:', error);
 			throw error;
 		}
 	};

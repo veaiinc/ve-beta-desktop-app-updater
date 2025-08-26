@@ -28,6 +28,9 @@ const OverlayApp = () => {
 	// State to control which panel is shown: 'live-intelligence', 'transcript', or null
 	const [activePanel, setActivePanel] = useState(null);
 
+	// State to control whether to show ShortcutBar (false when controlled by Dynamic Island)
+	const [showShortcutBar, setShowShortcutBar] = useState(true);
+
 	// Custom notification system
 	const notification = useOverlayNotification();
 
@@ -99,30 +102,16 @@ const OverlayApp = () => {
 			: undefined;
 
 	// Log trackRef changes for debugging
-	useEffect(() => {
-		console.log('🎯 TrackRef updated:', {
-			hasLocalParticipant: !!localParticipant,
-			hasLocalAudioTrack: !!localAudioTrack,
-			hasTrackRef: !!trackRef,
-			isRecording,
-			isPaused,
-			isConnected,
-		});
-	}, [trackRef, localParticipant, localAudioTrack, isRecording, isPaused, isConnected]);
+	useEffect(() => {}, [
+		trackRef,
+		localParticipant,
+		localAudioTrack,
+		isRecording,
+		isPaused,
+		isConnected,
+	]);
 
 	const { segments } = useTrackTranscription(trackRef);
-
-	// Log segments changes for debugging
-	useEffect(() => {
-		console.log('📝 Segments updated:', {
-			segmentsCount: segments?.length || 0,
-			hasSegments: !!segments && segments.length > 0,
-			isRecording,
-			isPaused,
-			isConnected,
-			hasTrackRef: !!trackRef,
-		});
-	}, [segments, isRecording, isPaused, isConnected, trackRef]);
 
 	// Utility Functions
 	const formatTime = (seconds) => {
@@ -433,11 +422,9 @@ const OverlayApp = () => {
 	};
 
 	const handlePauseTranscription = () => {
-		console.log('🔄 Pausing transcription...');
 		setIsPaused(true);
 		// Pause the timer
 		setTimer((prev) => prev);
-		console.log('✅ Transcription paused');
 	};
 
 	const handleResumeTranscription = () => {
@@ -486,10 +473,52 @@ const OverlayApp = () => {
 	useEffect(() => {
 		isMountedRef.current = true;
 
+		// Listen for commands from Dynamic Island via main process
+		const handleOverlayCommand = (event, command) => {
+			// When commands come from Dynamic Island, hide ShortcutBar
+			setShowShortcutBar(false);
+
+			switch (command.action) {
+				case 'startRecording':
+					handleDynamicIslandListenClick();
+					break;
+				case 'stopRecording':
+					console.log('⏹️ Dynamic Island STOP: Stopping recording...');
+					handleStopTranscription();
+					break;
+				case 'pauseRecording':
+					console.log('⏸️ Dynamic Island PAUSE: Pausing recording...');
+					handlePauseTranscription();
+					break;
+				case 'resumeRecording':
+					console.log('▶️ Dynamic Island RESUME: Resuming recording...');
+					handleResumeTranscription();
+					break;
+				case 'toggleLiveIntelligence':
+					handleDynamicIslandListenClick();
+					break;
+				case 'getRecordingState':
+					// Send current state back to Dynamic Island
+					sendRecordingStateUpdate();
+					break;
+				default:
+					console.warn('Unknown Dynamic Island command:', command.action);
+			}
+		};
+
+		// Set up listener for overlay commands from Dynamic Island
+		if (window.electronApi?.overlay?.onCommand) {
+			window.electronApi.overlay.onCommand(handleOverlayCommand);
+		}
+
 		return () => {
 			isMountedRef.current = false;
 			typingIntervalsRef.current.forEach((interval) => clearInterval(interval));
 			typingIntervalsRef.current.clear();
+			// Clean up overlay command listener
+			if (window.electronApi?.overlay?.removeCommandListener) {
+				window.electronApi.overlay.removeCommandListener();
+			}
 		};
 	}, []);
 
@@ -600,6 +629,8 @@ const OverlayApp = () => {
 
 	const handleListenClick = async () => {
 		// Toggle live intelligence panel and automatically start recording when opening
+		// This is used by ShortcutBar - shows ShortcutBar
+		setShowShortcutBar(true);
 		clearAllTranscriptionData();
 		if (activePanel === 'live-intelligence') {
 			// If panel is open, close it and stop recording
@@ -619,6 +650,19 @@ const OverlayApp = () => {
 		}
 	};
 
+	const handleDynamicIslandListenClick = async () => {
+		// Open live intelligence panel for Dynamic Island - hides ShortcutBar
+		setShowShortcutBar(false);
+		clearAllTranscriptionData();
+
+		// Always open live intelligence panel when triggered from Dynamic Island
+		setActivePanel('live-intelligence');
+
+		if (!isRecording) {
+			await handleStartTranscription();
+		}
+	};
+
 	const handleClosePanel = () => {
 		// Close panel and stop recording
 		setActivePanel(null);
@@ -629,6 +673,9 @@ const OverlayApp = () => {
 		// Clear transcriptions and data when panel is closed
 		// This ensures a fresh start when reopening
 		clearAllTranscriptionData();
+
+		// Restore ShortcutBar when panel is closed
+		setShowShortcutBar(true);
 	};
 
 	const handleShowTranscript = () => {
@@ -654,29 +701,29 @@ const OverlayApp = () => {
 		setLiveIntelligenceData(initialState);
 	};
 
+	// Function to send recording state updates to Dynamic Island
+	const sendRecordingStateUpdate = () => {
+		const state = {
+			isRecording,
+			isPaused,
+			timer,
+			isLiveIntelligenceOpen: activePanel === 'live-intelligence',
+			transcriptionsCount: transcriptions.length,
+			showShortcutBar, // Include ShortcutBar visibility state
+			controlledByDynamicIsland: !showShortcutBar, // Indicate control source
+		};
+
+		// Use IPC to send state update to main process, which will forward to Dynamic Island
+		if (window.electronApi?.overlay?.sendStateUpdate) {
+			window.electronApi.overlay.sendStateUpdate(state);
+		}
+	};
+
 	const handleAskAIClick = () => {
 		// Open Ask AI window via electron API
 		if (window.electronApi?.askAI?.toggleWindow) {
 			window.electronApi.askAI.toggleWindow();
 		}
-	};
-
-	// Debug function to test notifications (remove after testing)
-	const handleTestNotifications = () => {
-		notification.success('Test Success', 'This is a success notification');
-		setTimeout(() => {
-			notification.error(
-				'Test Error',
-				'This is an error notification with a longer description to test wrapping',
-			);
-			notification.error(
-				'Test Error',
-				'This is an error notification with a longer description to test wrapping',
-			);
-		}, 500);
-		setTimeout(() => {
-			notification.info('Test Info', 'This is an info notification');
-		}, 1000);
 	};
 
 	const calculateDynamicDimensions = useCallback(() => {
@@ -688,21 +735,33 @@ const OverlayApp = () => {
 
 		// Dynamic width calculation based on layout
 		if (activePanel === 'live-intelligence' || activePanel === 'transcript') {
-			// Single panel: Panel width + padding
+			// Panel is open: Panel width + padding
 			calculatedWidth = 768 + 32; // ~800px
-		} else {
-			// Only shortcut bar: minimal width
+		} else if (showShortcutBar) {
+			// Only shortcut bar visible: minimal width
 			calculatedWidth = 400;
+		} else {
+			// Controlled by Dynamic Island: minimal width (no ShortcutBar)
+			calculatedWidth = 32; // Just padding
 		}
 
-		// Add some buffer for safe scrolling
-		calculatedHeight = Math.max(calculatedHeight, 150);
+		// Dynamic height calculation
+		if (activePanel === 'live-intelligence' || activePanel === 'transcript') {
+			// Panel is open: use actual height
+			calculatedHeight = Math.max(calculatedHeight, 400);
+		} else if (showShortcutBar) {
+			// Only shortcut bar: minimal height
+			calculatedHeight = Math.max(calculatedHeight, 150);
+		} else {
+			// Controlled by Dynamic Island: hide overlay (minimal height)
+			calculatedHeight = 32; // Minimal height when hidden
+		}
 
 		return {
 			width: Math.min(calculatedWidth, window.screen.width * 0.8), // Max 80% of screen width
 			height: Math.min(calculatedHeight + 32, window.screen.height * 0.8), // Max 80% of screen height
 		};
-	}, [activePanel]);
+	}, [activePanel, showShortcutBar]);
 
 	useEffect(() => {
 		// Update window dimensions when content changes
@@ -757,11 +816,6 @@ const OverlayApp = () => {
 	useEffect(() => {
 		if (containerRef.current) {
 			const { width, height } = calculateDynamicDimensions();
-			console.log('Layout state changed, updating dimensions:', {
-				activePanel,
-				width,
-				height,
-			});
 
 			if (window.electronApi?.overlay?.updateDimensions) {
 				// Small delay to ensure DOM has updated
@@ -772,24 +826,31 @@ const OverlayApp = () => {
 		}
 	}, [activePanel, calculateDynamicDimensions]);
 
+	// Send state updates to Dynamic Island when recording state changes
+	useEffect(() => {
+		sendRecordingStateUpdate();
+	}, [isRecording, isPaused, timer, activePanel, transcriptions.length, showShortcutBar]);
+
 	return (
 		<div ref={containerRef} className="overlay-app">
 			<div className="overlay-container overlay-content" data-overlay-content="true">
-				{/* Shortcut bar */}
-				<ShortcutBar
-					onListenClick={handleListenClick}
-					isLiveIntelligenceOpen={activePanel === 'live-intelligence'}
-					onAskAIClick={handleAskAIClick}
-					isRecording={isRecording}
-					onStopRecording={handleStopTranscription}
-					onPauseRecording={handlePauseTranscription}
-					onResumeRecording={handleResumeTranscription}
-					isPaused={isPaused}
-					isAskAIInputFocused={isAskAIInputFocused}
-				/>
+				{/* Shortcut bar - only show when not controlled by Dynamic Island */}
+				{showShortcutBar && (
+					<ShortcutBar
+						onListenClick={handleListenClick}
+						isLiveIntelligenceOpen={activePanel === 'live-intelligence'}
+						onAskAIClick={handleAskAIClick}
+						isRecording={isRecording}
+						onStopRecording={handleStopTranscription}
+						onPauseRecording={handlePauseTranscription}
+						onResumeRecording={handleResumeTranscription}
+						isPaused={isPaused}
+						isAskAIInputFocused={isAskAIInputFocused}
+					/>
+				)}
 
-				{/* Commands section */}
-				<OverlayCommands />
+				{/* Commands section - only show when not controlled by Dynamic Island */}
+				{showShortcutBar && <OverlayCommands />}
 			</div>
 
 			{/* Live Intelligence panel */}

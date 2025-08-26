@@ -4,7 +4,7 @@ export const tenant_users_api = 'https://ap.api.ve.ai/tenant-users/1.0';
 export const ve_conversations_api = 'https://api.ve.co/ve-conversations/1.0';
 export const proposals_api = 'https://ap.api.ve.ai/proposals/1.0';
 export const workflows_Api = 'https://ap.api.ve.ai/workflows/1.0';
-export const auth_Api = 'https://us.api.ve.ai/auth/dev'; // NOTE: previous value was 'https://auth.ve.ai'
+export const auth_Api = 'https://auth.ve.ai'; // NOTE: previous value was 'https://us.api.ve.ai/auth/dev'
 export const activity_api = 'https://ap.api.ve.ai/workflow-user-analytics/1.0';
 export const galleries = 'https://ap.api.ve.ai/galleries/1.0';
 export const ai_assistant_api = 'https://ap.api.ve.ai/agents/1.0';
@@ -25,9 +25,10 @@ export const meeting_summary_api = 'https://live.us-east-1.ve.ai';
 export const chat_ws_api = 'wss://ai.ap-south-1.ve.ai';
 export const guest_chat_ws_api = 'wss://guestsearch.ap-south-1.ve.ai';
 export const meeting_ws_api = 'wss://recall.ap-south-1.ve.ai';
+export const browser_ws_api = 'wss://browser.us-east-1.ve.ai';
 
 // US region
-export const auth_Api_US = 'https://us.api.ve.ai/auth/dev'; // NOTE: previous value was 'https://auth.ve.ai'
+export const auth_Api_US = 'https://auth.ve.ai'; // NOTE: previous value was 'https://us.api.ve.ai/auth/dev'
 export const tenant_api_US = 'https://us.api.ve.ai/tenants/1.0';
 export const tenant_users_api_US = 'https://us.api.ve.ai/tenant-users/1.0';
 export const ve_conversations_api_US = 'https://us.api.ve.ai/ve-conversations/1.0';
@@ -54,4 +55,8 @@ export const meeting_summary_api_US = 'https://live-dev.us-east-1.ve.ai';
 export const chat_ws_api_US = 'wss://ai-dev.us-east-1.ve.ai';
 export const guest_chat_ws_api_US = 'wss://guestsearch.us-east-1.ve.ai';
 export const meeting_ws_api_US = 'wss://recall-dev.us-east-1.ve.ai';
+export const browser_ws_api_US = 'wss://browser.us-east-1.ve.ai';
 export const voice_agent_api_US = 'wss://voice.us-east-1.ve.ai/ws';
+
+// Voice agent token generation API
+export const generate_voice_agent_token_api = 'https://voice.us-east-1.ve.ai';

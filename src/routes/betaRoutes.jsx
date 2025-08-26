@@ -61,6 +61,7 @@ import ProactiveSuggestions from '../views/features/homePage/ambientAi/Proactive
 import CardMeetBot from '../views/features/meetBot/CardMeetBot';
 import ChatPage from '../views/components/homePage/ChatPage';
 import NotesWrapper from '../views/features/notesModule/NotesWrapper';
+import DynamicIslandControls from '../notch/components/DynamicIslandControls';
 const betaRoutes = [
 	// ========================================
 	// ONBOARDING, HOME & FEATURES
@@ -96,6 +97,14 @@ const betaRoutes = [
 		element: (
 			<AuthWrapper title={'Early Access'}>
 				<EarlyAccess />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/dynamic-island',
+		element: (
+			<AuthWrapper title={'Dynamic Island Demo'}>
+				<DynamicIslandControls />
 			</AuthWrapper>
 		),
 	},
@@ -243,6 +252,7 @@ const betaRoutes = [
 					showDeleteChat={true}
 					showChats={true}
 					showCitationsButton={true}
+					showBrowser={true}
 				/>
 			</AuthWrapper>
 		),
