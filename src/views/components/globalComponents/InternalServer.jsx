@@ -12,8 +12,7 @@ const InternalServer = () => {
 				<BridgeIcon />
 				<div className={s.internalServerTitle}>500 Internal Server Error</div>
 				<p className={s.internalServerDescription}>
-					An unexpected error occurred. We’re on it. If the issue persists, share this ID
-					with support
+					An unexpected error occurred. We’re on it.
 				</p>
 				<button className={s.internalServerButton} onClick={handleReloadClick}>
 					Reload Page
