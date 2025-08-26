@@ -68,9 +68,8 @@ const AssemblyTranscriptWrapper = ({
 			const formatted = {
 				type: 'text',
 				text: transcription.displayedText || '',
-				styles: transcription.isFinal
-					? { italic: false, textColor: 'var(--primary-font)' }
-					: { italic: true, textColor: 'var(--secondary-font)' },
+				isFinal: transcription?.isFinal,
+				isTurnFormatted: transcription?.isTurnFormatted,
 				time: new Date().toLocaleTimeString(),
 				id: transcription.id,
 			};

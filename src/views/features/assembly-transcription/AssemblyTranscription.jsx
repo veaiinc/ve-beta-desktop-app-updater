@@ -62,7 +62,7 @@ export default function AssemblyTranscription({
 		}
 
 		try {
-			const ws = new WebSocket(wsUrl);
+			const ws = new WebSocket(wsUrl + `/${meetingId}?token=${jwtToken}`);
 			websocketRef.current = ws;
 
 			return new Promise((resolve, reject) => {
@@ -109,6 +109,7 @@ export default function AssemblyTranscription({
 									id: Date.now().toString(),
 									displayedText: data.text,
 									isFinal: data.is_final || data.end_of_turn,
+									isTurnFormatted: data.isTurnFormatted,
 									timestamp: new Date().toISOString(),
 								};
 

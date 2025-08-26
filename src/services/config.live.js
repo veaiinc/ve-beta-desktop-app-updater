@@ -53,5 +53,6 @@ export const meeting_summary_api_US = 'https://live.us-east-1.ve.ai';
 //socket endpoints
 export const chat_ws_api_US = 'wss://ai.us-east-1.ve.ai';
 export const guest_chat_ws_api_US = 'wss://guestsearch.us-east-1.ve.ai';
-export const meeting_ws_api_US = 'wss://63b28c1e4865.ngrok-free.app/stt';
+// export const meeting_ws_api_US = 'wss://63b28c1e4865.ngrok-free.app/stt';
+export const meeting_ws_api_US = 'wss://gazelle-ruling-monster.ngrok-free.app/frontend/ws';
 export const voice_agent_api_US = 'wss://voice.us-east-1.ve.ai/ws';

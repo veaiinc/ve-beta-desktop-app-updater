@@ -312,7 +312,104 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	}, [meetSummary]);
 
 	// When new socket data comes in:
-	const handleSocketTranscription = useCallback((newTranscript) => {
+	// const handleSocketTranscription = useCallback(
+	// 	(newTranscript) => {
+	// 		const lastTranscript = info.transcriptions?.at(-1);
+	// 		console.log(lastTranscript, info?.transcriptions);
+
+	// 		setInfo((prev) => {
+	// 			const transcriptions = prev.transcriptions || [];
+
+	// 			// Get the transcript text from various possible sources
+	// 			const transcriptText =
+	// 				newTranscript.transcript ||
+	// 				newTranscript.displayedText ||
+	// 				newTranscript.text ||
+	// 				'';
+
+	// 			// Check if this transcript already exists (to avoid duplicates)
+	// 			const existingTranscript = transcriptions.find(
+	// 				(t) =>
+	// 					t.text === transcriptText ||
+	// 					t.transcript === transcriptText ||
+	// 					t.id === newTranscript.id, // Also check by ID
+	// 			);
+
+	// 			if (existingTranscript) {
+	// 				return prev; // Don't add duplicate
+	// 			}
+
+	// 			// Check if this is a continuation of the last transcript (same session)
+	// 			const lastTranscript = transcriptions[transcriptions.length - 1];
+	// 			const isContinuation = lastTranscript && !lastTranscript.isFinal;
+
+	// 			// console.log('is continuation', isContinuation);
+
+	// 			if (!newTranscript.isFinal) {
+	// 				// Partial transcript - update the last entry if it's a continuation
+	// 				if (isContinuation) {
+	// 					// Update the last entry with the new partial text
+	// 					const updated = [...transcriptions];
+	// 					updated[updated.length - 1] = {
+	// 						...updated[updated.length - 1],
+	// 						...newTranscript,
+	// 						text: transcriptText,
+	// 						transcript: transcriptText,
+	// 						time: new Date().toLocaleTimeString(),
+	// 					};
+	// 					return { ...prev, transcriptions: updated };
+	// 				} else {
+	// 					// New partial transcript - add as new entry
+	// 					return {
+	// 						...prev,
+	// 						transcriptions: [
+	// 							...transcriptions,
+	// 							{
+	// 								...newTranscript,
+	// 								text: transcriptText,
+	// 								transcript: transcriptText,
+	// 								time: new Date().toLocaleTimeString(),
+	// 							},
+	// 						],
+	// 					};
+	// 				}
+	// 			} else {
+	// 				// Final transcript - update the last entry if it's a continuation, otherwise append
+	// 				if (isContinuation) {
+	// 					// Finalize the last entry
+	// 					const updated = [...transcriptions];
+	// 					updated[updated.length - 1] = {
+	// 						...updated[updated.length - 1],
+	// 						...newTranscript,
+	// 						text: transcriptText,
+	// 						transcript: transcriptText,
+	// 						time: new Date().toLocaleTimeString(),
+	// 						isFinal: true,
+	// 					};
+	// 					return { ...prev, transcriptions: updated };
+	// 				} else {
+	// 					// New final transcript - append as new entry
+	// 					return {
+	// 						...prev,
+	// 						transcriptions: [
+	// 							...transcriptions,
+	// 							{
+	// 								...newTranscript,
+	// 								text: transcriptText,
+	// 								transcript: transcriptText,
+	// 								time: new Date().toLocaleTimeString(),
+	// 								isFinal: true,
+	// 							},
+	// 						],
+	// 					};
+	// 				}
+	// 			}
+	// 		});
+	// 	},
+	// 	[info.transcriptions],
+	// );
+
+	const handleSocketTranscription = (newTranscript) => {
 		setInfo((prev) => {
 			const transcriptions = prev.transcriptions || [];
 
@@ -334,11 +431,14 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 
 			// Check if this is a continuation of the last transcript (same session)
 			const lastTranscript = transcriptions[transcriptions.length - 1];
-			const isContinuation =
-				lastTranscript &&
-				!lastTranscript.isFinal &&
-				// Check if the new text contains the last text (continuation)
-				transcriptText.includes(lastTranscript.text || lastTranscript.transcript || '');
+			let isContinuation = false;
+			if (newTranscript?.isTurnFormatted) {
+				isContinuation = true;
+			} else {
+				isContinuation = lastTranscript && !lastTranscript.isFinal;
+			}
+
+			// console.log('is continuation', isContinuation);
 
 			if (!newTranscript.isFinal) {
 				// Partial transcript - update the last entry if it's a continuation
@@ -400,7 +500,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 				}
 			}
 		});
-	}, []);
+	};
 
 	const handleSocketMessage = useCallback(
 		(event) => {
