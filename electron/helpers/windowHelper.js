@@ -655,6 +655,25 @@ class WindowHelper {
 
 	registerGlobalShortcuts(mainWindow) {
 		this.mainWindow = mainWindow;
+		
+		log.info('🚀 Starting global shortcut registration...');
+		log.info(`🖥️  Platform: ${process.platform}`);
+		log.info(`🖥️  OS: ${process.platform === 'win32' ? 'Windows' : process.platform === 'darwin' ? 'macOS' : 'Linux'}`);
+		log.info(`⏰ Registration time: ${new Date().toISOString()}`);
+		log.info(`🔧 Node.js version: ${process.version}`);
+		log.info(`🔧 Electron version: ${process.versions.electron}`);
+		log.info(`🔧 Chrome version: ${process.versions.chrome}`);
+		
+		// Check if globalShortcut is available
+		if (!globalShortcut) {
+			log.error('❌ globalShortcut module not available!');
+			return;
+		}
+		
+		log.info('✅ globalShortcut module available, proceeding with registration...');
+		
+		// Log system-specific information
+		this.logSystemInfo();
 
 		// Register Cmd+\ to toggle overlay window only (independent of main window)
 		const cmdBackslashRegistered = globalShortcut.register('CommandOrControl+\\', () => {
@@ -704,28 +723,67 @@ class WindowHelper {
 
 		// Register Cmd+/ (Ctrl+/ on Windows) to toggle overlay window
 		const cmdSlashRegistered = globalShortcut.register('CommandOrControl+/', () => {
-			log.info('Cmd+/ pressed - toggling overlay window');
+			log.info('🔍 Cmd+/ (Ctrl+/) SHORTCUT TRIGGERED!');
+			log.info(`📱 Platform: ${process.platform}`);
+			log.info(`🖥️  OS: ${process.platform === 'win32' ? 'Windows' : process.platform === 'darwin' ? 'macOS' : 'Linux'}`);
+			log.info(`⏰ Timestamp: ${new Date().toISOString()}`);
+			log.info('🔄 Toggling overlay window...');
 
 			// Check if overlay window is visible
 			const isOverlayVisible = this.isVisible();
+			log.info(`👁️  Overlay window currently visible: ${isOverlayVisible}`);
 
 			if (isOverlayVisible) {
+				log.info('🙈 Hiding overlay window...');
 				// Hide overlay window only (keep ask AI visible if it's open)
 				this.hideOverlayWindow();
+				log.info('✅ Overlay window hidden successfully');
 			} else {
+				log.info('👁️  Showing overlay window...');
 				// Show overlay window only
 				// Create overlay window if it doesn't exist
 				if (!this.getOverlayWindow()) {
+					log.info('🏗️  Creating new overlay window...');
 					this.createOverlayWindow();
 				}
 				this.showOverlayWindow();
+				log.info('✅ Overlay window shown successfully');
 			}
+			
+			log.info('🎯 Cmd+/ (Ctrl+/) shortcut execution completed');
 		});
 
 		if (cmdSlashRegistered) {
-			log.info('✅ Cmd+/ shortcut registered successfully');
+			log.info('✅ Cmd+/ (Ctrl+/) shortcut registered successfully');
+			log.info(`🔧 Shortcut key: CommandOrControl+/`);
+			log.info(`🖥️  Platform: ${process.platform}`);
 		} else {
-			log.error('❌ Failed to register Cmd+/ shortcut');
+			log.error('❌ Failed to register Cmd+/ (Ctrl+/) shortcut');
+			log.error(`🔧 Attempted shortcut key: CommandOrControl+/`);
+			log.error(`🖥️  Platform: ${process.platform}`);
+			
+			// On Windows, try alternative shortcuts if the main one fails
+			if (process.platform === 'win32') {
+				log.info('🔄 Attempting to register Windows alternative shortcuts for Ctrl+/...');
+				// Try Ctrl+Alt+Slash as alternative
+				const altSlashRegistered = globalShortcut.register('Ctrl+Alt+/', () => {
+					log.info('🔍 Ctrl+Alt+/ pressed - alternative shortcut for overlay window');
+					const isOverlayVisible = this.isVisible();
+					if (isOverlayVisible) {
+						this.hideOverlayWindow();
+					} else {
+						if (!this.getOverlayWindow()) {
+							this.createOverlayWindow();
+						}
+						this.showOverlayWindow();
+					}
+				});
+				if (altSlashRegistered) {
+					log.info('✅ Ctrl+Alt+/ shortcut registered as alternative');
+				} else {
+					log.error('❌ Failed to register Ctrl+Alt+/ alternative shortcut');
+				}
+			}
 		}
 
 		// Register Cmd+Enter to toggle ask AI window only (independent of main window)
@@ -818,19 +876,85 @@ class WindowHelper {
 		// });
 
 		// Log registration status
-		log.info('Global shortcut registration status:');
-		log.info(`  Cmd+\\: ${cmdBackslashRegistered ? '✅' : '❌'}`);
-		log.info(`  Cmd+/: ${cmdSlashRegistered ? '✅' : '❌'}`);
-		log.info(`  Cmd+Enter: ${cmdEnterRegistered ? '✅' : '❌'}`);
-		log.info(`  Cmd+Left: ${leftRegistered ? '✅' : '❌'}`);
-		log.info(`  Cmd+Right: ${rightRegistered ? '✅' : '❌'}`);
-		log.info(`  Cmd+Up: ${upRegistered ? '✅' : '❌'}`);
-		log.info(`  Cmd+Down: ${downRegistered ? '✅' : '❌'}`);
-		log.info(`  F12: ${f12Registered ? '✅' : '❌'}`);
-		log.info(`  Cmd+Shift+I: ${cmdShiftIRegistered ? '✅' : '❌'}`);
+		log.info('📊 Global shortcut registration status:');
+		log.info('='.repeat(50));
+		log.info(`🔧 Cmd+\\ (Ctrl+\\): ${cmdBackslashRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
+		log.info(`🔧 Cmd+/ (Ctrl+/) : ${cmdSlashRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
+		log.info(`🔧 Cmd+Enter (Ctrl+Enter): ${cmdEnterRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
+		log.info(`🔧 Cmd+Left (Ctrl+Left): ${leftRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
+		log.info(`🔧 Cmd+Right (Ctrl+Right): ${rightRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
+		log.info(`🔧 Cmd+Up (Ctrl+Up): ${upRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
+		log.info(`🔧 Cmd+Down (Ctrl+Down): ${downRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
+		log.info(`🔧 F12: ${f12Registered ? '✅ REGISTERED' : '❌ FAILED'}`);
+		log.info(`🔧 Cmd+Shift+I (Ctrl+Shift+I): ${cmdShiftIRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
+		log.info('='.repeat(50));
+		
+		// Summary for Ctrl+/ specifically
+		if (cmdSlashRegistered) {
+			log.info('🎉 Ctrl+/ shortcut is READY for testing!');
+			log.info('💡 To test: Press Ctrl+/ (Windows) or Cmd+/ (macOS)');
+			log.info('📝 Check console logs for detailed execution info');
+		} else {
+			log.warn('⚠️  Ctrl+/ shortcut registration FAILED!');
+			log.warn('🔍 Check if another app is using this shortcut');
+			log.warn('🔄 Alternative shortcuts may be available');
+		}
 
 		app.on('will-quit', () => globalShortcut.unregisterAll());
-		log.info('Global shortcuts registered successfully');
+		log.info('✅ Global shortcuts registration process completed');
+	}
+
+	// Test function to verify shortcuts are working
+	testShortcuts() {
+		log.info('🧪 Testing global shortcuts...');
+		log.info('🔍 Press Ctrl+/ (Windows) or Cmd+/ (macOS) to test overlay toggle');
+		log.info('🔍 Press Ctrl+Enter (Windows) or Cmd+Enter (macOS) to test Ask AI toggle');
+		log.info('🔍 Press F12 to test developer tools toggle');
+		log.info('📝 Watch console logs for detailed execution logs');
+		
+		// Check if shortcuts are already registered by other apps
+		this.checkShortcutConflicts();
+	}
+	
+	// Check for potential shortcut conflicts
+	checkShortcutConflicts() {
+		log.info('🔍 Checking for potential shortcut conflicts...');
+		
+		const shortcutsToCheck = [
+			'CommandOrControl+/',
+			'CommandOrControl+\\',
+			'CommandOrControl+Return',
+			'F12'
+		];
+		
+		shortcutsToCheck.forEach(shortcut => {
+			const isRegistered = globalShortcut.isRegistered(shortcut);
+			log.info(`🔧 ${shortcut}: ${isRegistered ? '✅ REGISTERED' : '❌ NOT REGISTERED'}`);
+		});
+		
+		log.info('💡 If shortcuts show as NOT REGISTERED, they may be used by other applications');
+		log.info('🔄 Try closing other applications that might use these shortcuts');
+	}
+	
+	// Log system-specific information for debugging
+	logSystemInfo() {
+		log.info('📋 System Information:');
+		log.info(`   Architecture: ${process.arch}`);
+		log.info(`   Platform: ${process.platform}`);
+		log.info(`   Version: ${process.version}`);
+		
+		if (process.platform === 'win32') {
+			log.info('   Windows-specific info:');
+			log.info(`     Windows version: ${process.getSystemVersion()}`);
+			log.info('     Note: Windows global shortcuts should work by default');
+		} else if (process.platform === 'darwin') {
+			log.info('   macOS-specific info:');
+			log.info('     Note: macOS requires accessibility permissions for global shortcuts');
+			log.info('     Check System Preferences > Security & Privacy > Privacy > Accessibility');
+		} else {
+			log.info('   Linux-specific info:');
+			log.info('     Note: Linux global shortcuts should work by default');
+		}
 	}
 }
 
