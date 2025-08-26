@@ -35,6 +35,4 @@ bundle-visualizer.html
 script.sh
 notarize_for_intel.sh
 
-NotchDrop
-
-notchdrop-addon
+**/node_modules

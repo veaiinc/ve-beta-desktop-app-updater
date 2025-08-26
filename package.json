@@ -34,6 +34,7 @@
 		"clean:build:win": "if exist dist-electron rmdir /s /q dist-electron && if exist build rmdir /s /q build && if exist dist rmdir /s /q dist"
 	},
 	"dependencies": {
+		"notchdrop-addon": "file:./notchdrop-addon",
 		"@apollo/client": "^3.13.5",
 		"@blocknote/core": "0.30.0",
 		"@blocknote/mantine": "0.30.0",

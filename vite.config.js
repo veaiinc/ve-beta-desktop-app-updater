@@ -23,12 +23,16 @@ export default defineConfig({
 								galleryHelper: 'electron/galleryHelper.js',
 								updateHelper: 'electron/updateHelper.js',
 								overlayWindowHelper: 'electron/overlayWindowHelper.js',
+								notchDropService: 'electron/services/notchDropService.js',
 							},
 							output: {
 								format: 'cjs',
 								entryFileNames: (chunkInfo) => {
 									if (chunkInfo.name === 'windowHelper') {
 										return 'helpers/[name].js';
+									}
+									if (chunkInfo.name === 'notchDropService') {
+										return 'services/[name].js';
 									}
 									return '[name].js';
 								},

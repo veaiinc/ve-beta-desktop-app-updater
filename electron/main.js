@@ -22,6 +22,8 @@ const {
 
 // Import window helper for overlay functionality
 const { WindowHelper } = require('./helpers/windowHelper');
+// Import NotchDrop service
+const NotchDropService = require('./services/notchDropService');
 // Import dynamic island helper
 // const { DynamicIslandHelper } = require('./dynamicIslandHelper');
 
@@ -202,6 +204,7 @@ class DynamicIslandHelper {
 let mainWindow = null;
 let windowHelper = null;
 let dynamicIslandHelper = null;
+let notchDropService = null;
 
 // Auto-updater setup
 autoUpdater.logger = log;
@@ -328,6 +331,260 @@ ipcMain.handle('request-screen-recording-permission', async () => {
 
 	return { success: true, granted };
 });
+// Menu bar creation
+function createMenuBar() {
+	const template = [
+		{
+			label: 'Application',
+			submenu: [
+				{
+					label: 'About',
+					role: 'about',
+				},
+				{
+					type: 'separator',
+				},
+				{
+					label: 'Quit',
+					accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Ctrl+Q',
+					click: () => {
+						app.quit();
+					},
+				},
+			],
+		},
+		{
+			label: 'NotchDrop',
+			submenu: [
+				{
+					label: 'Open NotchDrop',
+					accelerator: 'CmdOrCtrl+N',
+					click: async () => {
+						try {
+							if (notchDropService) {
+								const result = await notchDropService.enable();
+								if (result) {
+									log.info('✅ NotchDrop opened from menu');
+									updateMenuBarState();
+								}
+							}
+						} catch (error) {
+							log.error('❌ Failed to open NotchDrop from menu:', error);
+						}
+					},
+				},
+				{
+					label: 'Close NotchDrop',
+					accelerator: 'CmdOrCtrl+Shift+N',
+					click: async () => {
+						try {
+							if (notchDropService) {
+								const result = await notchDropService.disable();
+								if (result) {
+									log.info('✅ NotchDrop closed from menu');
+									updateMenuBarState();
+								}
+							}
+						} catch (error) {
+							log.error('❌ Failed to close NotchDrop from menu:', error);
+						}
+					},
+				},
+				{
+					type: 'separator',
+				},
+				{
+					label: 'Toggle NotchDrop',
+					accelerator: 'CmdOrCtrl+T',
+					click: async () => {
+						try {
+							if (notchDropService) {
+								const result = await notchDropService.toggle();
+								if (result) {
+									log.info('✅ NotchDrop toggled from menu');
+									updateMenuBarState();
+								}
+							}
+						} catch (error) {
+							log.error('❌ Failed to toggle NotchDrop from menu:', error);
+						}
+					},
+				},
+				{
+					type: 'separator',
+				},
+				{
+					label: 'Status',
+					enabled: false,
+					id: 'notchdrop-status',
+				},
+				{
+					type: 'separator',
+				},
+				{
+					label: 'Auto-open on Startup',
+					type: 'checkbox',
+					checked: true,
+					click: async (menuItem) => {
+						try {
+							if (notchDropService) {
+								const result = await notchDropService.setAutoOpenOnStartup(
+									menuItem.checked,
+								);
+								if (result) {
+									log.info(
+										`🔧 Auto-open on startup ${
+											menuItem.checked ? 'enabled' : 'disabled'
+										} from menu`,
+									);
+								}
+							}
+						} catch (error) {
+							log.error('❌ Failed to set auto-open setting from menu:', error);
+						}
+					},
+				},
+			],
+		},
+		{
+			label: 'View',
+			submenu: [
+				{
+					label: 'Toggle Developer Tools',
+					accelerator: 'F12',
+					click: () => {
+						mainWindow.webContents.toggleDevTools();
+					},
+				},
+				{
+					label: 'Reload',
+					accelerator: 'CmdOrCtrl+R',
+					click: () => {
+						mainWindow.reload();
+					},
+				},
+			],
+		},
+		{
+			label: 'Window',
+			submenu: [
+				{
+					label: 'Minimize',
+					accelerator: 'CmdOrCtrl+M',
+					role: 'minimize',
+				},
+				{
+					label: 'Close',
+					accelerator: 'CmdOrCtrl+W',
+					role: 'close',
+				},
+			],
+		},
+	];
+
+	// macOS specific menu adjustments
+	if (process.platform === 'darwin') {
+		// Add macOS specific items to the Application menu
+		template[0].submenu = [
+			{
+				label: 'About',
+				role: 'about',
+			},
+			{
+				type: 'separator',
+			},
+			{
+				label: 'Services',
+				role: 'services',
+				submenu: [],
+			},
+			{
+				type: 'separator',
+			},
+			{
+				label: 'Hide',
+				accelerator: 'Cmd+H',
+				role: 'hide',
+			},
+			{
+				label: 'Hide Others',
+				accelerator: 'Cmd+Shift+H',
+				role: 'hideOthers',
+			},
+			{
+				label: 'Show All',
+				role: 'unhide',
+			},
+			{
+				type: 'separator',
+			},
+			{
+				label: 'Quit',
+				accelerator: 'Cmd+Q',
+				click: () => {
+					app.quit();
+				},
+			},
+		];
+	}
+
+	const menu = Menu.buildFromTemplate(template);
+	Menu.setApplicationMenu(menu);
+
+	// Update menu state after creation
+	setTimeout(() => {
+		updateMenuBarState();
+	}, 2000); // Wait for NotchDrop service to initialize
+}
+
+// Set up listeners for NotchDrop status changes to update menu
+function setupNotchDropMenuUpdates() {
+	if (!notchDropService) return;
+
+	// Listen for status changes from NotchDrop service
+	// Since the service emits events to the renderer, we'll listen for IPC messages
+	// that indicate status changes and update the menu accordingly
+
+	// Set up a periodic check to update menu state (as a fallback)
+	setInterval(() => {
+		updateMenuBarState();
+	}, 5000); // Update every 5 seconds
+
+	log.info('✅ NotchDrop menu update listeners set up');
+}
+
+// Update menu bar to reflect current NotchDrop state
+function updateMenuBarState() {
+	try {
+		const menu = Menu.getApplicationMenu();
+		if (!menu) return;
+
+		const notchDropMenu = menu.getMenuItemById('notchdrop-status');
+		if (notchDropMenu && notchDropService) {
+			const isVisible = notchDropService.isVisible();
+			const status = notchDropService.getStatus();
+			const autoOpen = notchDropService.getAutoOpenOnStartup();
+
+			// Update status label
+			notchDropMenu.label = `Status: ${status} (${isVisible ? 'Visible' : 'Hidden'})`;
+
+			// Update auto-open checkbox
+			const autoOpenMenu = menu.items
+				.find((item) => item.label === 'NotchDrop')
+				?.submenu?.items.find((item) => item.label === 'Auto-open on Startup');
+			if (autoOpenMenu) {
+				autoOpenMenu.checked = autoOpen;
+			}
+
+			log.info(
+				`📊 Menu updated - Status: ${status}, Visible: ${isVisible}, Auto-open: ${autoOpen}`,
+			);
+		}
+	} catch (error) {
+		log.error('❌ Failed to update menu bar state:', error);
+	}
+}
+
 // Window creation
 function createWindow() {
 	mainWindow = new BrowserWindow({
@@ -360,7 +617,7 @@ function createWindow() {
 }
 
 // App lifecycle
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
 	// Set up permission request handler for microphone access
 	session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
 		const allowedPermissions = [
@@ -434,6 +691,9 @@ app.whenReady().then(() => {
 
 	createWindow();
 
+	// Create application menu bar
+	createMenuBar();
+
 	// Initialize WindowHelper for overlay window functionality
 	windowHelper = new WindowHelper();
 	windowHelper.registerGlobalShortcuts(mainWindow);
@@ -441,6 +701,14 @@ app.whenReady().then(() => {
 	// Initialize DynamicIslandHelper for dynamic island functionality
 	dynamicIslandHelper = new DynamicIslandHelper();
 	dynamicIslandHelper.createDynamicIslandWindow();
+
+	// Initialize NotchDrop service
+	notchDropService = new NotchDropService();
+	notchDropService.setMainWindow(mainWindow);
+	await notchDropService.initialize();
+
+	// Set up NotchDrop status change listener to update menu
+	setupNotchDropMenuUpdates();
 
 	// Register global shortcut for dynamic island (Cmd+I)
 	const { globalShortcut } = require('electron');
@@ -551,6 +819,258 @@ app.whenReady().then(() => {
 		} catch (error) {
 			log.error('Error hiding dynamic island:', error);
 			return { success: false, error: error.message };
+		}
+	});
+
+	// Register NotchDrop IPC handlers
+	ipcMain.handle('notchdrop-enable', async () => {
+		try {
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = notchDropService.enable();
+			return { success: result };
+		} catch (error) {
+			log.error('Error enabling NotchDrop:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-disable', async () => {
+		try {
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = notchDropService.disable();
+			return { success: result };
+		} catch (error) {
+			log.error('Error disabling NotchDrop:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-toggle', async () => {
+		try {
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = notchDropService.toggle();
+			return { success: result };
+		} catch (error) {
+			log.error('Error toggling NotchDrop:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-is-visible', async () => {
+		try {
+			if (!notchDropService) {
+				return {
+					success: false,
+					visible: false,
+					error: 'NotchDrop service not initialized',
+				};
+			}
+			const visible = notchDropService.isVisible();
+			return { success: true, visible };
+		} catch (error) {
+			log.error('Error checking NotchDrop visibility:', error);
+			return { success: false, visible: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-set-status', async (event, status) => {
+		try {
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = notchDropService.setStatus(status);
+			return { success: result };
+		} catch (error) {
+			log.error('Error setting NotchDrop status:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-get-status', async () => {
+		try {
+			if (!notchDropService) {
+				return {
+					success: false,
+					status: 'closed',
+					error: 'NotchDrop service not initialized',
+				};
+			}
+			const status = notchDropService.getStatus();
+			return { success: true, status };
+		} catch (error) {
+			log.error('Error getting NotchDrop status:', error);
+			return { success: false, status: 'closed', error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-handle-files', async (event, filePaths) => {
+		try {
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = notchDropService.handleDroppedFiles(filePaths);
+			return { success: result };
+		} catch (error) {
+			log.error('Error handling dropped files:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Auto-open settings
+	ipcMain.handle('notchdrop-set-auto-open', async (event, enabled) => {
+		try {
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = notchDropService.setAutoOpenOnStartup(enabled);
+			return { success: result };
+		} catch (error) {
+			log.error('Error setting auto-open setting:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-get-auto-open', async () => {
+		try {
+			if (!notchDropService) {
+				return {
+					success: false,
+					enabled: true,
+					error: 'NotchDrop service not initialized',
+				};
+			}
+			const enabled = notchDropService.getAutoOpenOnStartup();
+			return { success: true, enabled };
+		} catch (error) {
+			log.error('Error getting auto-open setting:', error);
+			return { success: false, enabled: true, error: error.message };
+		}
+	});
+
+	// Menu update handler
+	ipcMain.handle('update-notchdrop-menu', async () => {
+		try {
+			updateMenuBarState();
+			return { success: true };
+		} catch (error) {
+			log.error('Error updating NotchDrop menu:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Additional NotchDrop IPC handlers for UI integration
+	ipcMain.handle('notchdrop-set-haptic-feedback', async (event, enabled) => {
+		try {
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = notchDropService.setHapticFeedback(enabled);
+			return { success: result };
+		} catch (error) {
+			log.error('Error setting haptic feedback:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-get-haptic-feedback', async () => {
+		try {
+			if (!notchDropService) {
+				return {
+					success: false,
+					enabled: true,
+					error: 'NotchDrop service not initialized',
+				};
+			}
+			const enabled = notchDropService.getHapticFeedback();
+			return { success: true, enabled };
+		} catch (error) {
+			log.error('Error getting haptic feedback:', error);
+			return { success: false, enabled: true, error: error.message };
+		}
+	});
+
+	// New NotchDropLatest IPC handlers
+	ipcMain.handle('notchdrop-open-airdrop', async () => {
+		try {
+			log.info('Opening AirDrop from NotchDropLatest');
+			// Open AirDrop sharing dialog
+			const { exec } = require('child_process');
+			exec('open -a AirDrop', (error) => {
+				if (error) {
+					log.error('Error opening AirDrop:', error);
+				}
+			});
+			return { success: true };
+		} catch (error) {
+			log.error('Error opening AirDrop:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-open-share', async () => {
+		try {
+			log.info('Opening share dialog from NotchDropLatest');
+			// Open file picker for sharing
+			const { dialog } = require('electron');
+			const result = await dialog.showOpenDialog(mainWindow, {
+				properties: ['openFile', 'multiSelections'],
+				title: 'Select files to share',
+			});
+			return { success: true, files: result.filePaths };
+		} catch (error) {
+			log.error('Error opening share dialog:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-open-file', async (event, filePath) => {
+		try {
+			log.info('Opening file from NotchDropLatest:', filePath);
+			const { shell } = require('electron');
+			await shell.openPath(filePath);
+			return { success: true };
+		} catch (error) {
+			log.error('Error opening file:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-delete-file', async (event, fileId) => {
+		try {
+			log.info('Deleting file from NotchDropLatest:', fileId);
+			// This would integrate with the file storage system
+			// For now, just return success
+			return { success: true };
+		} catch (error) {
+			log.error('Error deleting file:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-set-storage-time', async (event, time) => {
+		try {
+			log.info('Setting storage time from NotchDropLatest:', time);
+			// This would save the storage time preference
+			return { success: true };
+		} catch (error) {
+			log.error('Error setting storage time:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-get-storage-time', async () => {
+		try {
+			// Return default storage time
+			return { success: true, time: '1 day' };
+		} catch (error) {
+			log.error('Error getting storage time:', error);
+			return { success: false, time: '1 day', error: error.message };
 		}
 	});
 
@@ -1032,6 +1552,12 @@ app.on('window-all-closed', () => {
 	if (dynamicIslandHelper) {
 		dynamicIslandHelper.destroy();
 	}
+
+	// Clean up NotchDrop service
+	if (notchDropService) {
+		notchDropService.cleanup();
+	}
+
 	app.quit();
 });
 

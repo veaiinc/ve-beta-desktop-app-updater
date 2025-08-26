@@ -1,0 +1,25 @@
+{
+	"name": "notchdrop-addon",
+	"version": "1.0.0",
+	"description": "Native NotchDrop integration for Electron",
+	"main": "index.js",
+	"scripts": {
+		"build": "node-gyp rebuild",
+		"install": "node-gyp rebuild",
+		"clean": "node-gyp clean"
+	},
+	"keywords": [
+		"electron",
+		"notchdrop",
+		"native",
+		"addon"
+	],
+	"author": "VEAI Team",
+	"license": "MIT",
+	"dependencies": {
+		"node-addon-api": "^7.0.0"
+	},
+	"devDependencies": {
+		"node-gyp": "^10.0.1"
+	}
+}
