@@ -7,6 +7,7 @@ import RecentChat from '../chat/RecentChat';
 import TranscriptionTabs from '../../components/notes/TranscriptionTabs';
 import MeetSummary from '../notesModule/MeetSummary';
 import NoteTakerTranscript from '../notesModule/NoteTakerTranscript';
+import AssemblyTranscriptWrapper from '../assembly-transcription/AssemblyTranscriptWrapper';
 import AiTranscriptionSuggestions from '../../components/chat/AiTranscriptionSuggestions';
 import TranscriptionWrapper from '../notesModule/TranscriptionWrapper';
 import '../../../assets/scss/notes/noteComponent.scss';
@@ -18,6 +19,8 @@ import './meetBotContainer.scss';
 import moment from 'moment';
 import Spinner from '../../components/loaders/Spinner';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
+import { meeting_ws_api_US } from '../../../services/config.live';
+
 const initialState = {
 	files: [],
 	userQuestions: [],
@@ -35,7 +38,7 @@ const initialState = {
 	botJoinedTime: 0,
 	meetingPlatform: '',
 };
-
+const userToken = localStorage.getItem('usertoken');
 const getSpeakerColor = (speakerName) => {
 	if (!speakerName) return '#9e9e9e';
 
@@ -78,6 +81,9 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	const history = searchParams.get('history') === 'true' ? true : false;
 	const chat = searchParams.get('chat') === 'true' ? true : false;
 	const transcription = searchParams.get('transcription') === 'true' ? true : false;
+	const useAssemblyAI =
+		searchParams.get('useAssemblyAI') === 'true' ||
+		(type === 'desktop' && searchParams.get('useAssemblyAI') !== 'false');
 	const isAiIntelligenceEnabled =
 		searchParams.get('isAiIntelligenceEnabled') === 'true' ? true : false;
 
@@ -466,10 +472,11 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			// 	handleLiveIntelligenceMessageFunc,
 			// 	false,
 			// );
-		} else if (showTranscriptTabs && type === 'desktop') {
-			// Connect to recall for note taker mode as well
-			recallConnection(sessionId, meetingId, handleSocketMessage, isAiIntelligenceEnabled);
 		}
+		//  else if (showTranscriptTabs && type === 'desktop') {
+		// 	// Connect to recall for note taker mode as well
+		// 	recallConnection(sessionId, meetingId, handleSocketMessage, isAiIntelligenceEnabled);
+		// }
 		// No cleanup needed, useRecallStream handles it
 	}, [showTranscriptTabs, sessionId, type]);
 
@@ -720,8 +727,8 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						meetingPlatform={info?.meetingPlatform}
 					/>
 				)}
-				{/* Always render NoteTakerTranscript at the root level */}
-				{showTranscriptTabs && type === 'desktop' && !history && (
+				{/* Always render NoteTakerTranscript or AssemblyTranscript at the root level */}
+				{showTranscriptTabs && type === 'desktop' && !history && !useAssemblyAI && (
 					<NoteTakerTranscript
 						sendMessage={recallSendMessage}
 						tenantId={tennantSettingsData?._id}
@@ -729,6 +736,31 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						pageId={'688b653dde81dd3d71a41584'}
 						visible={activeTab === 'transcript'}
 						onTranscriptionUpdate={handleSocketTranscription}
+					/>
+				)}
+				{/* Assembly AI Transcription option */}
+				{showTranscriptTabs && type === 'desktop' && !history && useAssemblyAI && (
+					<AssemblyTranscriptWrapper
+						sendMessage={recallSendMessage}
+						tenantId={tennantSettingsData?._id}
+						sessionId={sessionId}
+						visible={activeTab === 'transcript'}
+						onTranscriptionUpdate={handleSocketTranscription}
+						wsUrl={meeting_ws_api_US}
+						jwtToken={userToken}
+						userName={'siva'}
+						location={{
+							countryCode: 'IN',
+							countryRegionCode: 'TS',
+							countryRegion: 'Telangana',
+							country: 'India',
+							city: 'Hyderabad',
+							timezone: 'Asia/Kolkata',
+							postalCode: '500003',
+							currency: 'INR',
+							region: 'ap-south-1',
+						}}
+						timezone="Asia/Kolkata"
 					/>
 				)}
 			</div>
