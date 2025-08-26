@@ -18,6 +18,17 @@ const InternalServer = () => {
 					Reload Page
 				</button>
 			</div>
+			<p className={s.internalServerFooter}>
+				Need Help? Contact our support team at{' '}
+				<a
+					href="mailto:support@ve.ai?subject=500 Internal Server Error Report&body=Hi, I encountered a 500 error on your website. Please help resolve it."
+					className={s.supportEmail}
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					support@ve.ai
+				</a>
+			</p>
 		</div>
 	);
 };
