@@ -4,7 +4,8 @@
 
 ### Main Window Toggle
 
--   \*\*Cmd+\*\* - Toggle between main window (index.html) and all other windows
+-   **Cmd+\** - Toggle between main window (index.html) and all other windows
+-   **Cmd+/** - Toggle overlay window (alternative shortcut)
 
 ### Ask AI Window
 

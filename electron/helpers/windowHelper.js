@@ -80,10 +80,17 @@ class WindowHelper {
 		this.overlayWindow = new BrowserWindow(windowSettings);
 
 		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
-		const overlayUrl =
-			process.env.NODE_ENV === 'development'
-				? `${devURL}/overlay.html`
-				: `file://${path.join(__dirname, '..', '..', 'build', 'overlay.html')}`;
+		const isDevelopment = process.env.NODE_ENV === 'development' || process.env.NODE_ENV?.trim() === 'development';
+		
+		log.info(`Environment: ${process.env.NODE_ENV}`);
+		log.info(`Dev URL: ${devURL}`);
+		log.info(`Is Development: ${isDevelopment}`);
+		
+		const overlayUrl = isDevelopment
+			? `${devURL}/overlay.html`
+			: `file://${path.join(__dirname, '..', '..', 'build', 'overlay.html')}`;
+		
+		log.info(`Loading overlay URL: ${overlayUrl}`);
 
 		this.overlayWindow.loadURL(overlayUrl).catch((err) => {
 			log.error('Failed to load overlay URL:', err);
@@ -186,10 +193,13 @@ class WindowHelper {
 		this.askAIWindow = new BrowserWindow(windowSettings);
 
 		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
-		const askAIUrl =
-			process.env.NODE_ENV === 'development'
-				? `${devURL}/askAI.html`
-				: `file://${path.join(__dirname, '..', '..', 'build', 'askAI.html')}`;
+		const isDevelopment = process.env.NODE_ENV === 'development' || process.env.NODE_ENV?.trim() === 'development';
+		
+		const askAIUrl = isDevelopment
+			? `${devURL}/askAI.html`
+			: `file://${path.join(__dirname, '..', '..', 'build', 'askAI.html')}`;
+		
+		log.info(`Loading Ask AI URL: ${askAIUrl}`);
 
 		this.askAIWindow.loadURL(askAIUrl).catch((err) => {
 			log.error('Failed to load Ask AI URL:', err);
@@ -692,6 +702,32 @@ class WindowHelper {
 			}
 		}
 
+		// Register Cmd+/ (Ctrl+/ on Windows) to toggle overlay window
+		const cmdSlashRegistered = globalShortcut.register('CommandOrControl+/', () => {
+			log.info('Cmd+/ pressed - toggling overlay window');
+
+			// Check if overlay window is visible
+			const isOverlayVisible = this.isVisible();
+
+			if (isOverlayVisible) {
+				// Hide overlay window only (keep ask AI visible if it's open)
+				this.hideOverlayWindow();
+			} else {
+				// Show overlay window only
+				// Create overlay window if it doesn't exist
+				if (!this.getOverlayWindow()) {
+					this.createOverlayWindow();
+				}
+				this.showOverlayWindow();
+			}
+		});
+
+		if (cmdSlashRegistered) {
+			log.info('✅ Cmd+/ shortcut registered successfully');
+		} else {
+			log.error('❌ Failed to register Cmd+/ shortcut');
+		}
+
 		// Register Cmd+Enter to toggle ask AI window only (independent of main window)
 		const cmdEnterRegistered = globalShortcut.register('CommandOrControl+Return', () => {
 			log.info('Cmd+Enter pressed - toggling ask AI window only');
@@ -784,6 +820,7 @@ class WindowHelper {
 		// Log registration status
 		log.info('Global shortcut registration status:');
 		log.info(`  Cmd+\\: ${cmdBackslashRegistered ? '✅' : '❌'}`);
+		log.info(`  Cmd+/: ${cmdSlashRegistered ? '✅' : '❌'}`);
 		log.info(`  Cmd+Enter: ${cmdEnterRegistered ? '✅' : '❌'}`);
 		log.info(`  Cmd+Left: ${leftRegistered ? '✅' : '❌'}`);
 		log.info(`  Cmd+Right: ${rightRegistered ? '✅' : '❌'}`);
@@ -791,7 +828,6 @@ class WindowHelper {
 		log.info(`  Cmd+Down: ${downRegistered ? '✅' : '❌'}`);
 		log.info(`  F12: ${f12Registered ? '✅' : '❌'}`);
 		log.info(`  Cmd+Shift+I: ${cmdShiftIRegistered ? '✅' : '❌'}`);
-		log.info(`  Cmd+Enter: ${cmdEnterRegistered ? '✅' : '❌'}`);
 
 		app.on('will-quit', () => globalShortcut.unregisterAll());
 		log.info('Global shortcuts registered successfully');
