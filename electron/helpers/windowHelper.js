@@ -32,9 +32,13 @@ class WindowHelper {
 		this.screenHeight = workArea.height;
 
 		this.step = Math.floor(this.screenWidth / 10);
-		// Position at center top
+		// Position at center, below Dynamic Island with proper spacing
 		this.currentX = Math.floor(this.screenWidth / 2) - Math.floor(this.windowSize.width / 2);
-		this.currentY = 30; // Closer to top
+
+		// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
+		const dynamicIslandHeight = 180; // Height of expanded Dynamic Island
+		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+		this.currentY = 10 + dynamicIslandHeight + gapFromDynamicIsland;
 
 		const windowSettings = {
 			width: this.windowSize.width,
@@ -115,11 +119,14 @@ class WindowHelper {
 		this.screenWidth = workArea.width;
 		this.screenHeight = workArea.height;
 
-		// Center Ask AI window on screen
+		// Center Ask AI window on screen, below Dynamic Island with proper spacing
 		const askAIX =
 			Math.floor(this.screenWidth / 2) - Math.floor(this.askAIWindowSize.width / 2);
-		const askAIY =
-			Math.floor(this.screenHeight / 2) - Math.floor(this.askAIWindowSize.height / 2);
+
+		// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
+		const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
+		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+		const askAIY = 10 + dynamicIslandHeight + gapFromDynamicIsland;
 
 		const windowSettings = {
 			width: this.askAIWindowSize.width,
@@ -307,13 +314,18 @@ class WindowHelper {
 
 		const primaryDisplay = screen.getPrimaryDisplay();
 		const workArea = primaryDisplay.workAreaSize;
-		const topY = 30;
+
+		// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
+		// Position overlay below Dynamic Island with a gap
+		const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
+		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+		const topY = 30 + dynamicIslandHeight + gapFromDynamicIsland;
 
 		// Position overlay to allow space for ask AI on the right
 		let overlayX;
 		if (this.isAskAIWindowVisible() && this.askAIWindow && !this.askAIWindow.isDestroyed()) {
 			// Position overlay to the left to make room for ask AI on the right
-			const gap = 20; // Gap between windows
+			const gap = 30; // Gap between windows
 			const totalWidth = this.windowSize.width + this.askAIWindowSize.width + gap;
 			const startX = Math.floor(workArea.width / 2) - Math.floor(totalWidth / 2);
 			overlayX = startX;
@@ -375,11 +387,15 @@ class WindowHelper {
 		if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
 			// Position ask AI to the right of overlay
 			askAIX = this.currentX + this.windowSize.width + gap;
-			askAIY = 30; // Same Y level as overlay
+			askAIY = this.currentY; // Same Y level as overlay
 		} else {
-			// Center ask AI when overlay is not visible
+			// Center ask AI when overlay is not visible, below Dynamic Island with proper spacing
 			askAIX = Math.floor(workArea.width / 2) - Math.floor(this.askAIWindowSize.width / 2);
-			askAIY = Math.floor(workArea.height / 2) - Math.floor(this.askAIWindowSize.height / 2);
+
+			// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
+			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
+			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+			askAIY = 30 + dynamicIslandHeight + gapFromDynamicIsland;
 		}
 
 		this.askAIWindow.setBounds({
@@ -465,8 +481,13 @@ class WindowHelper {
 			const startX = Math.floor(workArea.width / 2) - Math.floor(totalWidth / 2);
 			const overlayX = startX;
 			const askAIX = startX + newWidth + gap;
-			const overlayY = 30;
-			const askAIY = 30; // Same Y level as overlay
+
+			// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
+			// Position overlay below Dynamic Island with a gap
+			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
+			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+			const overlayY = 30 + dynamicIslandHeight + gapFromDynamicIsland;
+			const askAIY = overlayY; // Same Y level as overlay
 
 			// Update overlay window
 			this.overlayWindow.setBounds({
@@ -499,7 +520,12 @@ class WindowHelper {
 		} else {
 			// Standard centering when ask AI is not visible
 			const centerX = Math.floor(workArea.width / 2) - Math.floor(newWidth / 2);
-			const topY = 30;
+
+			// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
+			// Position overlay below Dynamic Island with a gap
+			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
+			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+			const topY = 30 + dynamicIslandHeight + gapFromDynamicIsland;
 
 			this.overlayWindow.setBounds({
 				x: centerX,
@@ -528,7 +554,7 @@ class WindowHelper {
 			// Position ask AI to the right of overlay with gap
 			const gap = 20;
 			const askAIX = this.currentX + this.windowSize.width + gap;
-			const askAIY = 30; // Same Y level as overlay
+			const askAIY = this.currentY; // Same Y level as overlay
 
 			this.askAIWindow.setBounds({
 				x: askAIX,
@@ -546,9 +572,13 @@ class WindowHelper {
 				}
 			}, 50);
 		} else {
-			// Keep Ask AI window centered when overlay is not visible
+			// Keep Ask AI window centered when overlay is not visible, below Dynamic Island with proper spacing
 			const askAIX = Math.floor(workArea.width / 2) - Math.floor(newWidth / 2);
-			const askAIY = Math.floor(workArea.height / 2) - Math.floor(newHeight / 2);
+
+			// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
+			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
+			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+			const askAIY = 10 + dynamicIslandHeight + gapFromDynamicIsland;
 
 			this.askAIWindow.setBounds({
 				x: askAIX,

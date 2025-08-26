@@ -29,7 +29,8 @@ const OverlayApp = () => {
 	const [activePanel, setActivePanel] = useState(null);
 
 	// State to control whether to show ShortcutBar (false when controlled by Dynamic Island)
-	const [showShortcutBar, setShowShortcutBar] = useState(true);
+	const [showShortcutBar, setShowShortcutBar] = useState(false);
+	const [isDynamicIslandControlled, setIsDynamicIslandControlled] = useState(false);
 
 	// Custom notification system
 	const notification = useOverlayNotification();
@@ -102,16 +103,30 @@ const OverlayApp = () => {
 			: undefined;
 
 	// Log trackRef changes for debugging
-	useEffect(() => {}, [
-		trackRef,
-		localParticipant,
-		localAudioTrack,
-		isRecording,
-		isPaused,
-		isConnected,
-	]);
+	useEffect(() => {
+		console.log('🎯 TrackRef updated:', {
+			hasLocalParticipant: !!localParticipant,
+			hasLocalAudioTrack: !!localAudioTrack,
+			hasTrackRef: !!trackRef,
+			isRecording,
+			isPaused,
+			isConnected,
+		});
+	}, [trackRef, localParticipant, localAudioTrack, isRecording, isPaused, isConnected]);
 
 	const { segments } = useTrackTranscription(trackRef);
+
+	// Log segments changes for debugging
+	useEffect(() => {
+		console.log('📝 Segments updated:', {
+			segmentsCount: segments?.length || 0,
+			hasSegments: !!segments && segments.length > 0,
+			isRecording,
+			isPaused,
+			isConnected,
+			hasTrackRef: !!trackRef,
+		});
+	}, [segments, isRecording, isPaused, isConnected, trackRef]);
 
 	// Utility Functions
 	const formatTime = (seconds) => {
@@ -422,9 +437,11 @@ const OverlayApp = () => {
 	};
 
 	const handlePauseTranscription = () => {
+		console.log('🔄 Pausing transcription...');
 		setIsPaused(true);
 		// Pause the timer
 		setTimer((prev) => prev);
+		console.log('✅ Transcription paused');
 	};
 
 	const handleResumeTranscription = () => {
@@ -475,11 +492,17 @@ const OverlayApp = () => {
 
 		// Listen for commands from Dynamic Island via main process
 		const handleOverlayCommand = (event, command) => {
-			// When commands come from Dynamic Island, hide ShortcutBar
+			console.log('🏝️ Dynamic Island Command Received:', command);
+
+			// Mark as Dynamic Island controlled and hide ShortcutBar permanently
+			setIsDynamicIslandControlled(true);
 			setShowShortcutBar(false);
 
 			switch (command.action) {
 				case 'startRecording':
+					console.log(
+						'🚀 Dynamic Island START: Opening Live Intelligence without ShortcutBar...',
+					);
 					handleDynamicIslandListenClick();
 					break;
 				case 'stopRecording':
@@ -495,20 +518,37 @@ const OverlayApp = () => {
 					handleResumeTranscription();
 					break;
 				case 'toggleLiveIntelligence':
+					console.log(
+						'🧠 Dynamic Island: Opening Live Intelligence without ShortcutBar...',
+					);
 					handleDynamicIslandListenClick();
 					break;
 				case 'getRecordingState':
+					console.log('📊 Dynamic Island: Getting recording state...');
 					// Send current state back to Dynamic Island
 					sendRecordingStateUpdate();
 					break;
 				default:
-					console.warn('Unknown Dynamic Island command:', command.action);
+					console.warn('❓ Unknown Dynamic Island command:', command.action);
 			}
 		};
 
 		// Set up listener for overlay commands from Dynamic Island
+		console.log('🔍 Setting up overlay command listener...');
+		console.log(
+			'window.electronApi?.overlay?.onCommand available:',
+			!!window.electronApi?.overlay?.onCommand,
+		);
+
 		if (window.electronApi?.overlay?.onCommand) {
+			console.log('✅ Setting up overlay command listener');
 			window.electronApi.overlay.onCommand(handleOverlayCommand);
+		} else {
+			console.error('❌ Overlay command listener not available');
+			console.log(
+				'Available overlay methods:',
+				Object.keys(window.electronApi?.overlay || {}),
+			);
 		}
 
 		return () => {
@@ -651,7 +691,9 @@ const OverlayApp = () => {
 	};
 
 	const handleDynamicIslandListenClick = async () => {
-		// Open live intelligence panel for Dynamic Island - hides ShortcutBar
+		// Open live intelligence panel for Dynamic Island - NO ShortcutBar
+		console.log('🏝️ Dynamic Island Control: Opening Live Intelligence - ShortcutBar DISABLED');
+		setIsDynamicIslandControlled(true);
 		setShowShortcutBar(false);
 		clearAllTranscriptionData();
 
@@ -674,8 +716,12 @@ const OverlayApp = () => {
 		// This ensures a fresh start when reopening
 		clearAllTranscriptionData();
 
-		// Restore ShortcutBar when panel is closed
-		setShowShortcutBar(true);
+		// Only restore ShortcutBar if NOT controlled by Dynamic Island
+		if (!isDynamicIslandControlled) {
+			setShowShortcutBar(true);
+		} else {
+			console.log('🏝️ Panel closed but keeping Dynamic Island control - NO ShortcutBar');
+		}
 	};
 
 	const handleShowTranscript = () => {
@@ -709,9 +755,12 @@ const OverlayApp = () => {
 			timer,
 			isLiveIntelligenceOpen: activePanel === 'live-intelligence',
 			transcriptionsCount: transcriptions.length,
-			showShortcutBar, // Include ShortcutBar visibility state
-			controlledByDynamicIsland: !showShortcutBar, // Indicate control source
+			showShortcutBar,
+			controlledByDynamicIsland: isDynamicIslandControlled,
+			isDynamicIslandControlled,
 		};
+
+		console.log('📡 Sending state to Dynamic Island:', state);
 
 		// Use IPC to send state update to main process, which will forward to Dynamic Island
 		if (window.electronApi?.overlay?.sendStateUpdate) {
@@ -726,6 +775,24 @@ const OverlayApp = () => {
 		}
 	};
 
+	// Debug function to test notifications (remove after testing)
+	const handleTestNotifications = () => {
+		notification.success('Test Success', 'This is a success notification');
+		setTimeout(() => {
+			notification.error(
+				'Test Error',
+				'This is an error notification with a longer description to test wrapping',
+			);
+			notification.error(
+				'Test Error',
+				'This is an error notification with a longer description to test wrapping',
+			);
+		}, 500);
+		setTimeout(() => {
+			notification.info('Test Info', 'This is an info notification');
+		}, 1000);
+	};
+
 	const calculateDynamicDimensions = useCallback(() => {
 		if (!containerRef.current) return { width: 800, height: 150 };
 
@@ -737,11 +804,11 @@ const OverlayApp = () => {
 		if (activePanel === 'live-intelligence' || activePanel === 'transcript') {
 			// Panel is open: Panel width + padding
 			calculatedWidth = 768 + 32; // ~800px
-		} else if (showShortcutBar) {
-			// Only shortcut bar visible: minimal width
+		} else if (showShortcutBar && !isDynamicIslandControlled) {
+			// Only shortcut bar visible (traditional mode): minimal width
 			calculatedWidth = 400;
 		} else {
-			// Controlled by Dynamic Island: minimal width (no ShortcutBar)
+			// Controlled by Dynamic Island or no controls: minimal width
 			calculatedWidth = 32; // Just padding
 		}
 
@@ -749,11 +816,11 @@ const OverlayApp = () => {
 		if (activePanel === 'live-intelligence' || activePanel === 'transcript') {
 			// Panel is open: use actual height
 			calculatedHeight = Math.max(calculatedHeight, 400);
-		} else if (showShortcutBar) {
-			// Only shortcut bar: minimal height
+		} else if (showShortcutBar && !isDynamicIslandControlled) {
+			// Only shortcut bar visible (traditional mode): minimal height
 			calculatedHeight = Math.max(calculatedHeight, 150);
 		} else {
-			// Controlled by Dynamic Island: hide overlay (minimal height)
+			// Controlled by Dynamic Island: minimal height (controls are in Dynamic Island)
 			calculatedHeight = 32; // Minimal height when hidden
 		}
 
@@ -761,7 +828,7 @@ const OverlayApp = () => {
 			width: Math.min(calculatedWidth, window.screen.width * 0.8), // Max 80% of screen width
 			height: Math.min(calculatedHeight + 32, window.screen.height * 0.8), // Max 80% of screen height
 		};
-	}, [activePanel, showShortcutBar]);
+	}, [activePanel, showShortcutBar, isDynamicIslandControlled]);
 
 	useEffect(() => {
 		// Update window dimensions when content changes
@@ -816,6 +883,11 @@ const OverlayApp = () => {
 	useEffect(() => {
 		if (containerRef.current) {
 			const { width, height } = calculateDynamicDimensions();
+			console.log('Layout state changed, updating dimensions:', {
+				activePanel,
+				width,
+				height,
+			});
 
 			if (window.electronApi?.overlay?.updateDimensions) {
 				// Small delay to ensure DOM has updated
@@ -829,7 +901,15 @@ const OverlayApp = () => {
 	// Send state updates to Dynamic Island when recording state changes
 	useEffect(() => {
 		sendRecordingStateUpdate();
-	}, [isRecording, isPaused, timer, activePanel, transcriptions.length, showShortcutBar]);
+	}, [
+		isRecording,
+		isPaused,
+		timer,
+		activePanel,
+		transcriptions.length,
+		showShortcutBar,
+		isDynamicIslandControlled,
+	]);
 
 	return (
 		<div ref={containerRef} className="overlay-app">
