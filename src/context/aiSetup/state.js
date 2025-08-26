@@ -57,6 +57,7 @@ export const initialState = {
 	voiceIntegrationData: null, //{token,serverUrl,shouldConnect	}
 	triggerVoiceDisconnect: null,
 	aiTranscriptionSuggestions: null,
+	showVoiceWidget: false, // Global state for voice widget visibility
 	proactiveHeadings: null,
 };
 
@@ -933,25 +934,35 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const getTokenForVoice = async () => {
+	const getTokenForVoice = async (payload) => {
 		try {
-			const usertoken = localStorage.getItem('usertoken');
+			const token = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
-
+			const url = `/${workspaceId}/generate-voice-agent-token`;
+			if (!token) {
+				throw new Error('No authentication token found in localStorage');
+			}
 			const response = await service?.fetchPost(
-				`/${workspaceId}/generate-livekit-token`,
-				{},
-				usertoken,
-				'ai_predictions',
+				url,
+				payload,
+				token,
+				'generate_voice_agent_token_api',
 			);
 
 			if (response?.[0]) {
 				return response?.[1];
 			} else {
-				throw new Error('Failed to fetch token');
+				throw new Error(`Failed to fetch token: ${JSON.stringify(response?.[1])}`);
 			}
 		} catch (error) {
-			console.error('Error fetching token:', error);
+			console.error('Error fetching voice token:', error);
+			// If CORS error, provide helpful debugging info
+			if (error.message.includes('CORS') || error.message.includes('fetch')) {
+				console.error(
+					'CORS issue detected. Backend needs to enable CORS for origin:',
+					window.location.origin,
+				);
+			}
 			throw error;
 		}
 	};

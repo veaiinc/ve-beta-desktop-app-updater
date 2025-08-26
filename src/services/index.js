@@ -31,14 +31,17 @@ const handleHeaders = (token, body, type, isPublicChat = false) => {
 			type === 'slack_api' ||
 			type === 'elastic_search_api' ||
 			type === 'microsoft_integration_api' ||
-			type === 'meeting_summary_api'
+			type === 'meeting_summary_api' ||
+			type === 'generate_voice_agent_token_api'
 		) {
 			headers['Authorization'] = `Bearer ${token}`;
 		}
 	}
+
 	if (isPublicChat && type === 'ai_assistant_api') {
 		headers['x-access-key'] = x_access_key;
 	}
+
 	return headers;
 };
 
@@ -118,6 +121,7 @@ const apiFetch = async (url, method, body, token, type, isPublicChat = false) =>
 			browser_api_US,
 			meeting_summary_api,
 			meeting_summary_api_US,
+			generate_voice_agent_token_api,
 		} = config;
 
 		const apiEndpoints = {
@@ -142,6 +146,7 @@ const apiFetch = async (url, method, body, token, type, isPublicChat = false) =>
 			custom_domain_api,
 			browser_api,
 			meeting_summary_api,
+			generate_voice_agent_token_api,
 		};
 
 		const apiEndpointsUS = {
@@ -166,6 +171,7 @@ const apiFetch = async (url, method, body, token, type, isPublicChat = false) =>
 			custom_domain_api: custom_domain_api_US,
 			browser_api: browser_api_US,
 			meeting_summary_api: meeting_summary_api_US,
+			generate_voice_agent_token_api,
 		};
 
 		const region = localStorage.getItem('region') || 'us-east-1';

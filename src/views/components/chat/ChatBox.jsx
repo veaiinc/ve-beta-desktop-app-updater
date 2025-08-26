@@ -28,7 +28,6 @@ import { Image, Spin, Tooltip } from 'antd';
 // import AIMessageLoader from './AIMessageLoader';
 import WebSvg from '../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../assets/svg/ai_agents/bookSvg';
-import useUpdatedVoiceIntegration from '../../../hooks/useUpdatedVoiceIntegration';
 import { message } from '../globalComponents/CustomToast';
 // import SearchTypeTooltip from './SearchTypeTooltip';
 import ChatBoxPlaceholder from './ChatBoxPlaceholder';
@@ -44,7 +43,6 @@ import useNote from '../../../hooks/useNote';
 import useAudioVisualizer from '../../../hooks/useAudioVisualizer';
 import { Track } from 'livekit-client';
 import { useTrackTranscription } from '@livekit/components-react';
-
 // import VoiceWrapper from '../../layouts/VoiceWrapper';
 
 const moduleHelper = {
@@ -156,7 +154,6 @@ const ChatBox = ({
 	showBottomTools = true,
 }) => {
 	const location = useLocation();
-	const { handleConnect } = useUpdatedVoiceIntegration();
 	const params = useParams();
 	const { workspaceMode } = useWorkspaceMode();
 
@@ -193,7 +190,7 @@ const ChatBox = ({
 		subscriptionInfo: { currentPlan },
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
-		aiSetup: { voiceIntegrationData, updateAiChatSessions, aiChatSessions },
+		aiSetup: { voiceIntegrationData, updateAiChatSessions, aiChatSessions, updateAiSetupState },
 		notes: { getLiveKitToken },
 	} = useContext(Context);
 
@@ -227,7 +224,6 @@ const ChatBox = ({
 		chatBoxInfo: initialChatBoxInfo,
 		chatboxMinimized: true,
 		chatBoxContainerHeight: 60,
-		showVoiceAgent: false, // New state for voice agent visibility
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -887,6 +883,7 @@ const ChatBox = ({
 						payload.files = remainingImages?.map((ele) => ({
 							id: ele?.fileId || null,
 							name: ele?.name || 'Untitled Image',
+							is_uploaded: ele?.is_uploaded || false,
 						}));
 
 						localPayload = {
@@ -901,14 +898,19 @@ const ChatBox = ({
 								...(recentFilesRef?.current?.map((ele) => ({
 									id: ele?._id || ele?.fileId || null,
 									name: ele?.originalFileName || ele?.title || 'Untitled File',
+									is_uploaded: ele?.is_uploaded || false,
 								})) || []),
 							];
 						} else {
 							payload.files = recentFilesRef?.current?.map((ele) => ({
 								id: ele?._id || ele?.fileId || null,
 								name: ele?.originalFileName || ele?.title || 'Untitled File',
+								is_uploaded: ele?.is_uploaded || false,
 							}));
 						}
+						recentFilesRef?.current?.forEach((file) => {
+							file.is_uploaded = false;
+						});
 					}
 
 					if (proactiveInfoForChat) {
@@ -1284,6 +1286,19 @@ const ChatBox = ({
 
 	const handleFileAttachmentChange = useCallback(
 		async ({ file }) => {
+			if (
+				(file?.size >= 3145728 && file?.type?.includes?.('image')) ||
+				uploadedImagesRef?.current?.length === 3
+			) {
+				if (file?.size >= 3145728) {
+					message?.error('Image size should be less than 3mb');
+					return;
+				}
+				if (uploadedImagesRef.current?.length === 3) {
+					message?.error('Only 5 images are allowed for a message');
+					return;
+				}
+			}
 			if (file?.size >= 5242880) {
 				message?.error('File size must be less than 5MB');
 				return;
@@ -1294,6 +1309,7 @@ const ChatBox = ({
 			file.preview = await getBase64(file);
 			file.loading = true;
 			file.uniqueId = Date?.now() + '_' + Math?.floor(Math?.random() * 1000000);
+			file.is_uploaded = true;
 
 			if (file?.type?.includes('image')) {
 				if (file?.type === 'image/png' || file?.type === 'image/jpeg') {
@@ -1446,7 +1462,7 @@ const ChatBox = ({
 			}
 		},
 
-		[info, handleConnect, isTranscribing, getLiveKitToken],
+		[info, isTranscribing, getLiveKitToken],
 	);
 
 	const handleSendBtnClick = (e) => {
@@ -1698,20 +1714,14 @@ const ChatBox = ({
 		[smoothScrollToBottom],
 	);
 
-	const handleVoiceAgentClick = useCallback((e) => {
-		e?.stopPropagation();
-		setInfo((prev) => ({
-			...prev,
-			showVoiceAgent: true,
-		}));
-	}, []);
-
-	const handleCloseVoiceAgent = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			showVoiceAgent: false,
-		}));
-	}, []);
+	const handleVoiceAgentClick = useCallback(
+		(e) => {
+			e?.stopPropagation();
+			// Show the global voice widget and trigger auto-connect
+			updateAiSetupState({ showVoiceWidget: true });
+		},
+		[updateAiSetupState],
+	);
 
 	return (
 		<div className="chatParentWrapper" onClick={handleChatBoxClick}>
@@ -2540,13 +2550,13 @@ const ChatBox = ({
 															}
 														>
 															{isTranscribing ? (
-																<StopIconSvg />
+																<StopIconSvg className="voice-icon" />
 															) : (
-																<SpeechMicSvg />
+																<SpeechMicSvg className="voice-icon" />
 															)}
 														</div>
 														<div
-															className={`click-btn ${
+															className={`click-btn voice-agent-btn ${
 																info?.chatQuery?.trim()?.length > 0
 																	? 'active'
 																	: ''
@@ -2568,9 +2578,13 @@ const ChatBox = ({
 															}}
 														>
 															{info?.chatQuery?.trim()?.length > 0 ? (
-																<ArrowUp />
+																<ArrowUp className="voice-wave-icon" />
 															) : (
-																<VoiceAgentSvg />
+																<VoiceAgentSvg
+																	className="voice-wave-icon"
+																	width={20}
+																	height={20}
+																/>
 															)}
 														</div>
 													</div>
@@ -2734,7 +2748,6 @@ const ChatBox = ({
 				closeModal={handleCloseUpgrageModal}
 				subscriptionState="addOnPlans"
 			/>
-			{info?.showVoiceAgent && <VoiceAgentParent />}
 		</div>
 	);
 };
