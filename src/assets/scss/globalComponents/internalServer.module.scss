@@ -1,0 +1,49 @@
+.internalServerContainer {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	.internalServerMainContainer {
+		display: flex;
+		width: 100%;
+		flex-direction: column;
+		align-items: center;
+		gap: 24px;
+		.internalServerTitle {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 40px;
+			font-style: normal;
+			font-weight: 450;
+			line-height: 50px; /* 125% */
+		}
+		.internalServerDescription {
+			color: var(--primary-font, #f2f2f3);
+			text-align: center;
+			font-family: var(--primary-font-family);
+			font-size: 15px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 24px; /* 160% */
+			align-self: stretch;
+			width: 443px;
+		}
+		.internalServerButton {
+			display: flex;
+			height: 45px;
+			padding: 14px 24px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			border-radius: 24px;
+			background: var(--primary-button, #79ecc9);
+			color: var(--background-color, #0c0c0d);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			text-transform: capitalize;
+			cursor: pointer;
+		}
+	}
+}
