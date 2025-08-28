@@ -54,7 +54,8 @@ export const meeting_summary_api_US = 'https://live-dev.us-east-1.ve.ai';
 //socket endpoints
 export const chat_ws_api_US = 'wss://ai-dev.us-east-1.ve.ai';
 export const guest_chat_ws_api_US = 'wss://guestsearch.us-east-1.ve.ai';
-export const meeting_ws_api_US = 'wss://recall-dev.us-east-1.ve.ai';
+// export const meeting_ws_api_US = 'wss://recall-dev.us-east-1.ve.ai';
+export const meeting_ws_api_US = 'wss://recall-dev.us-east-1.ve.ai/frontend/ws';
 export const browser_ws_api_US = 'wss://browser.us-east-1.ve.ai';
 export const voice_agent_api_US = 'wss://voice.us-east-1.ve.ai/ws';
 
