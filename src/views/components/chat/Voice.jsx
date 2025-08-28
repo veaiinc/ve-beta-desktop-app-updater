@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useState, useRef, useContext } from 'react';
 import '../../../assets/scss/chat/voice.scss';
 // import { ReactComponent as PauseSvg } from '../../../assets/svg/ai_agents/pause.svg';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
@@ -21,6 +21,8 @@ import {
 import { useKrispNoiseFilter } from '@livekit/components-react/krisp';
 // import webgazer from 'webgazer';
 import { throttle } from 'lodash';
+import Context from '../../../context/context';
+import useUpdatedVoiceIntegration from '../../../hooks/useUpdatedVoiceIntegration';
 // window.webgazer = webgazer;
 const Voice = ({ handleDisconnect, deviceInfo }) => {
 	const { name = '' } = useRoomInfo();
@@ -34,6 +36,19 @@ const Voice = ({ handleDisconnect, deviceInfo }) => {
 	const tracks = useTracks();
 	const room = useRoomContext();
 	const micBtnRef = useRef(null);
+
+	// Add voice integration hook
+	const {
+		shouldConnect,
+		token,
+		serverUrl,
+		handleConnect,
+		handleDisconnect: voiceIntegrationDisconnect,
+	} = useUpdatedVoiceIntegration();
+
+	const {
+		aiSetup: { updateAiSetupState, voiceIntegrationData },
+	} = useContext(Context);
 	const localTracks = tracks.filter(({ participant }) => participant instanceof LocalParticipant);
 	const localVideoTrack = localTracks.find(({ source }) => source === Track.Source.Camera);
 	const localMicTrack = localTracks.find(({ source }) => source === Track.Source.Microphone);
@@ -65,6 +80,13 @@ const Voice = ({ handleDisconnect, deviceInfo }) => {
 	useEffect(() => {
 		krisp.setNoiseFilterEnabled(true);
 	}, []);
+
+	// Auto-connect when component mounts (triggered from ChatBox voice-agent-btn)
+	useEffect(() => {
+		if (!shouldConnect && !voiceIntegrationData?.shouldConnect) {
+			handleConnect();
+		}
+	}, [shouldConnect, voiceIntegrationData, handleConnect]);
 
 	useEffect(() => {
 		if (voiceAssistant.state === 'disconnected') {
@@ -193,13 +215,26 @@ const Voice = ({ handleDisconnect, deviceInfo }) => {
 		// webgazer.clearGazeListener();
 		// webgazer.end();
 
-		handleDisconnect();
+		// Use voice integration disconnect and hide the voice widget
+		voiceIntegrationDisconnect();
+		updateAiSetupState({ showVoiceWidget: false });
+
+		if (handleDisconnect) {
+			handleDisconnect();
+		}
 	}, [
+		voiceIntegrationDisconnect,
+		updateAiSetupState,
 		handleDisconnect,
 		//  webgazer
 	]);
 
 	const getStatusText = () => {
+		// If voice integration is not connected, show connection status
+		if (!shouldConnect) {
+			return 'Connecting...';
+		}
+
 		if (localParticipant?.isSpeaking) {
 			return 'Listening to you...';
 		}
@@ -223,7 +258,11 @@ const Voice = ({ handleDisconnect, deviceInfo }) => {
 	};
 
 	const shouldShowAnimation = () => {
-		return voiceAssistant.state !== 'disconnected' && voiceAssistant.state !== 'connecting';
+		return (
+			shouldConnect &&
+			voiceAssistant.state !== 'disconnected' &&
+			voiceAssistant.state !== 'connecting'
+		);
 	};
 
 	const getStateClass = () => {
@@ -275,12 +314,16 @@ const Voice = ({ handleDisconnect, deviceInfo }) => {
 			)} */}
 
 			<div className="controls">
-				<TrackToggle
-					className="px-2 py-1 bg-gray-900 text-gray-300 border border-gray-800 rounded-sm hover:bg-gray-800 chat-mic-icon-container icon-container custom-mic-button-toggle"
-					source={Track.Source.Microphone}
-					style={{ border: 'none' }}
-					ref={micBtnRef}
-				/>
+				{/* Show mic toggle when connected */}
+				{shouldConnect && (
+					<TrackToggle
+						className="px-2 py-1 bg-gray-900 text-gray-300 border border-gray-800 rounded-sm hover:bg-gray-800 chat-mic-icon-container icon-container custom-mic-button-toggle"
+						source={Track.Source.Microphone}
+						style={{ border: 'none' }}
+						ref={micBtnRef}
+					/>
+				)}
+
 				{/* <TrackToggle
 					className="px-2 py-1 bg-gray-900 text-gray-300 border border-gray-800 rounded-sm hover:bg-gray-800 chat-mic-icon-container icon-container"
 					source={Track.Source.Camera}

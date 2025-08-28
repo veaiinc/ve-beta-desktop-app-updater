@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import s from './settings.module.scss';
 import Context from '../../../../../context/context';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -23,6 +23,8 @@ import { ReactComponent as CloseIcon } from '../../../../../assets/svg/mobile/cl
 import { ReactComponent as PlusSvg } from '../../assets/plus.svg';
 
 const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
+const desktopAppDownloadWindows = import.meta.env.VITE_APP_DESKTOP_APP_WINDOWS_DOWNLOAD_URL || null;
+const deepLinkUrl = 'veai://open';
 const isMac =
 	navigator.userAgentData?.platform === 'macOS' ||
 	navigator.userAgent.toLowerCase().indexOf('mac') !== -1;
@@ -102,6 +104,7 @@ const Settings = ({
 		workspaceModalOpen: false,
 		intercomOpen: false,
 		isMobileView: window.matchMedia('(max-width: 767px)').matches,
+		isDesktop: false,
 	}));
 
 	const {
@@ -114,6 +117,38 @@ const Settings = ({
 	const workspacesLoading = userWorkSpaceList === null;
 	const workspaceImage = tennantSettingsData?.logo_s3_500w_key ?? null;
 
+	useEffect(() => {
+		if (window?.electronApi) {
+			setInfo((prev) => ({
+				...prev,
+				isDesktop: true,
+			}));
+		}
+	}, []);
+	const handleInstallOrOpen = () => {
+		window.location.href = deepLinkUrl;
+
+		const timer = setTimeout(() => {
+			if (isMac) {
+				if (desktopAppDownloadUrl) {
+					window.open(desktopAppDownloadUrl, '_blank');
+				}
+			} else {
+				if (desktopAppDownloadWindows) {
+					window.open(desktopAppDownloadWindows, '_blank');
+				}
+			}
+		}, 2000);
+
+		// If user switches focus (e.g., app opened), cancel fallback
+		window.addEventListener(
+			'blur',
+			() => {
+				clearTimeout(timer);
+			},
+			{ once: true },
+		);
+	};
 	const handleSettingItemClick = (settingItem) => async () => {
 		if (settingItem.route) {
 			navigate(settingItem.route);
@@ -253,15 +288,8 @@ const Settings = ({
 				</button>
 			</div>
 
-			{isMac && (
-				<button
-					className={s.downloadMacAppButton}
-					onClick={() => {
-						if (desktopAppDownloadUrl) {
-							window.open(desktopAppDownloadUrl, '_blank');
-						}
-					}}
-				>
+			{isMac && !info?.isDesktop && (
+				<button className={s.downloadMacAppButton} onClick={handleInstallOrOpen}>
 					<DownloadMacSvg />
 					<span>Download Mac App</span>
 				</button>

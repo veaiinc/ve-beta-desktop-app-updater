@@ -224,7 +224,7 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 													account?.isActive ? 'active' : 'inactive'
 												}`}
 											>
-												{account?.isActive ? 'Connected' : 'Disconnected'}
+												{account?.isActive ? 'Connected' : ''}
 											</span>
 										</div>
 										<div className="table-cell last-updated-cell">
