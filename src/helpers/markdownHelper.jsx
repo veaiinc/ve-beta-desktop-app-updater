@@ -425,6 +425,46 @@ export const Markdown = memo(NonMemoizedMarkdown, (prevProps, nextProps) => {
 	return prevProps.children === nextProps.children && citationsEqual;
 });
 
+// AskAI-specific components without hr elements
+const askAIBaseComponents = {
+	...baseComponents,
+	hr: () => null, // Remove hr elements for askAI
+};
+
+const NonMemoizedAskAIMarkdown = ({ children, citations }) => {
+	const markdown = children;
+
+	// Memoize the combined components object for askAI
+	const components = useMemo(
+		() => ({
+			...askAIBaseComponents,
+			...createCustomComponents(citations, markdown),
+		}),
+		[citations, markdown],
+	);
+
+	return (
+		<ReactMarkdown
+			remarkPlugins={remarkPlugins}
+			rehypePlugins={rehypePlugins}
+			components={components}
+			className="markdown-custom-content"
+		>
+			{markdown}
+		</ReactMarkdown>
+	);
+};
+
+// AskAI-specific markdown component without hr elements
+export const AskAIMarkdown = memo(NonMemoizedAskAIMarkdown, (prevProps, nextProps) => {
+	const citationsEqual =
+		(!prevProps.citations && !nextProps.citations) ||
+		(prevProps.citations?.length === nextProps.citations?.length &&
+			JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations));
+
+	return prevProps.children === nextProps.children && citationsEqual;
+});
+
 export const UserMessageRenderer = memo(({ messageData }) => {
 	const {
 		templates: { updateStateValues },

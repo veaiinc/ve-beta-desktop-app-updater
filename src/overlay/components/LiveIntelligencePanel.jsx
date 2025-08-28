@@ -44,6 +44,9 @@ const LiveIntelligencePanel = ({
 			timestamp: new Date().toISOString(),
 		};
 
+		console.log('🚀 Sending item content to Ask AI:', itemContent);
+		console.log('🎯 Is need-help tab?', tabKey === 'need-help');
+
 		// Check if window is already visible, if not, show it
 		try {
 			if (window.electronApi?.askAI?.isWindowVisible) {
@@ -144,7 +147,7 @@ const LiveIntelligencePanel = ({
 				return (
 					<div className="tab-content">
 						{socketData.allThreads?.length > 0 ? (
-							socketData.allThreads.map((thread, index) => (
+							[...socketData.allThreads].reverse().map((thread, index) => (
 								<div
 									key={index}
 									className="thread-item clickable"
@@ -179,11 +182,11 @@ const LiveIntelligencePanel = ({
 				return (
 					<div className="tab-content">
 						{socketData.askUser?.length > 0 ? (
-							socketData.askUser.map((item, index) => (
+							[...socketData.askUser].reverse().map((item, index) => (
 								<div
 									key={index}
 									className="thread-item clickable"
-									onClick={() => handleThreadItemClick(item, 'ask-user')}
+									//onClick={() => handleThreadItemClick(item, 'ask-user')}
 									title="Click to ask AI about this question"
 								>
 									<div className="thread-category">Ask user</div>
@@ -207,7 +210,7 @@ const LiveIntelligencePanel = ({
 				return (
 					<div className="tab-content">
 						{socketData.needHelp?.length > 0 ? (
-							socketData.needHelp.map((item, index) => (
+							socketData.needHelp?.reverse().map((item, index) => (
 								<div
 									key={index}
 									className="thread-item clickable"
@@ -235,7 +238,7 @@ const LiveIntelligencePanel = ({
 				return (
 					<div className="tab-content">
 						{socketData.actions?.length > 0 ? (
-							socketData.actions.map((item, index) => (
+							[...socketData.actions].reverse().map((item, index) => (
 								<div
 									key={index}
 									className="thread-item clickable"
@@ -263,7 +266,7 @@ const LiveIntelligencePanel = ({
 				return (
 					<div className="tab-content">
 						{socketData.files?.length > 0 ? (
-							socketData.files.map((item, index) => (
+							[...socketData.files].reverse().map((item, index) => (
 								<div
 									key={index}
 									className="thread-item clickable"
@@ -321,9 +324,9 @@ const LiveIntelligencePanel = ({
 					>
 						<AudioLines size={15} />
 						<span>Show Transcript</span>
-						{transcriptions.length > 0 && (
+						{/* {transcriptions.length > 0 && (
 							<span className="transcript-count">({transcriptions.length})</span>
-						)}
+						)} */}
 					</button>
 
 					<button

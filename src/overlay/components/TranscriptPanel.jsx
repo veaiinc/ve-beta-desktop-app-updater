@@ -86,9 +86,9 @@ const TranscriptPanel = ({
 						<Clock size={16} />
 						<span>Show Live Intelligence</span>
 					</button>
-					<button className="transcript-panel-header-action" title="Expand">
+					{/* <button className="transcript-panel-header-action" title="Expand">
 						<Expand size={16} />
-					</button>
+					</button> */}
 					<button
 						className="transcript-panel-header-action"
 						onClick={onClose}

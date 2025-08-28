@@ -4,7 +4,7 @@ import './askAI.scss';
 import { useAskAISocket } from './socketState';
 import ObjectID from 'bson-objectid';
 import { getLocationsDetails } from '../helpers';
-import { Markdown } from '../helpers/markdownHelper';
+import { AskAIMarkdown } from '../helpers/markdownHelper';
 import { copyToClipboard } from '../helpers/clipboardHelper';
 
 const sessionId = ObjectID().toString();
@@ -19,8 +19,10 @@ const AskAIApp = () => {
 	const inputRef = useRef(null);
 	const responseRef = useRef(null);
 	const [streamingResponse, setStreamingResponse] = useState('');
+	const [displayedResponse, setDisplayedResponse] = useState('');
 	const [receivedTabContent, setReceivedTabContent] = useState(null);
-
+	const [copied, setCopied] = useState(false);
+	const [isNeedHelpRequest, setIsNeedHelpRequest] = useState(false);
 	// Initialize socket
 	const { createWebSocketConnection, sendMessage, closeWebSocketConnection } = useAskAISocket();
 	// Update dimensions only when necessary
@@ -29,7 +31,7 @@ const AskAIApp = () => {
 			if (containerRef.current && forceUpdate) {
 				setTimeout(() => {
 					const width = 600; // Fixed width for Ask AI window to match design
-					const height = (hasResponse || isLoading || streamingResponse) ? 500 : 120; // Taller height to accommodate response + input
+					const height = hasResponse || isLoading || displayedResponse ? 500 : 120; // Taller height to accommodate response + input
 
 					if (window.electronApi?.askAI?.updateDimensions) {
 						window.electronApi.askAI.updateDimensions({ width, height });
@@ -37,7 +39,7 @@ const AskAIApp = () => {
 				}, 50);
 			}
 		},
-		[hasResponse, isLoading, streamingResponse],
+		[hasResponse, isLoading, displayedResponse],
 	);
 
 	useEffect(() => {
@@ -101,6 +103,11 @@ const AskAIApp = () => {
 			// Auto-generate a prompt based on the tab content
 			const prompt = generatePromptFromTabContent(tabContent);
 
+			// Check if this is from "All Threads" or "Need Help" tabs
+			const shouldUseDirectSearch =
+				tabContent.tabKey === 'all-threads' || tabContent.tabKey === 'need-help';
+			setIsNeedHelpRequest(shouldUseDirectSearch);
+
 			// Don't show the prompt in the input field - keep it clean
 			// setInputValue(prompt); // Removed - don't populate input for automatic requests
 
@@ -111,7 +118,7 @@ const AskAIApp = () => {
 
 			// Automatically send the request to Ask AI with the generated prompt
 			setTimeout(() => {
-				handleSubmit(prompt);
+				handleSubmit(prompt, shouldUseDirectSearch);
 			}, 100); // Small delay to ensure everything is ready
 		};
 
@@ -202,6 +209,7 @@ const AskAIApp = () => {
 
 				// Set the final response
 				setResponse(finalResponse);
+				setDisplayedResponse(finalResponse); // Ensure displayed matches final
 				setIsLoading(false);
 				setIsExpanded(true);
 				setHasResponse(true);
@@ -214,13 +222,30 @@ const AskAIApp = () => {
 		}
 	}, []);
 
-	// Update response display with streaming content
+	// Character-by-character streaming display
 	useEffect(() => {
+		let timeoutId;
+
 		if (streamingResponse && !response) {
-			// Show streaming content in real-time
-			setResponse(streamingResponse);
+			const currentDisplayed = displayedResponse;
+			const targetText = streamingResponse;
+
+			// Only animate if there's new content to show
+			if (targetText.length > currentDisplayed.length) {
+				const nextChar = targetText[currentDisplayed.length];
+
+				timeoutId = setTimeout(() => {
+					setDisplayedResponse((prev) => prev + nextChar);
+				}, 20); // Adjust speed: lower = faster, higher = slower
+			}
 		}
-	}, [streamingResponse, response]);
+
+		return () => {
+			if (timeoutId) {
+				clearTimeout(timeoutId);
+			}
+		};
+	}, [streamingResponse, displayedResponse, response]);
 
 	const requestScreenPermissionIfNeeded = async () => {
 		try {
@@ -246,14 +271,12 @@ const AskAIApp = () => {
 		}
 	};
 
-	const handleSubmit = async (customInput = null) => {
+	const handleSubmit = async (customInput = null, isNeedHelp = null) => {
 		const queryValue = customInput || inputValue.trim();
 		if (!queryValue) return;
 
-		console.log('🚀 Starting new message submission...', {
-			customInput,
-			inputValue: inputValue.trim(),
-		});
+		// Use the passed isNeedHelp parameter if provided, otherwise use state
+		const shouldUseDirectSearch = isNeedHelp !== null ? isNeedHelp : isNeedHelpRequest;
 
 		// Clear input only if it's a manual submission (not automatic)
 		if (!customInput) {
@@ -261,14 +284,19 @@ const AskAIApp = () => {
 		}
 
 		const hasPermission = await requestScreenPermissionIfNeeded();
-		setInputValue(''); // Clear input immediately after submission
 		setIsLoading(true);
 		setResponse('');
 		setStreamingResponse('');
+		setDisplayedResponse('');
 
 		// Clear input only if it's a manual submission (not automatic)
 		if (!customInput) {
 			setInputValue('');
+		}
+
+		// Reset need help flag for manual submissions
+		if (!customInput) {
+			setIsNeedHelpRequest(false);
 		}
 
 		try {
@@ -299,6 +327,11 @@ const AskAIApp = () => {
 				image_data_base64: imageArray,
 			};
 
+			// Only set direct_search_agent to true for "Need Help" tab requests
+			if (shouldUseDirectSearch) {
+				messageData.direct_search_agent = true;
+			}
+
 			// Add location details
 			let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
 			if (!location_details) {
@@ -312,11 +345,16 @@ const AskAIApp = () => {
 				onMessageFunc,
 				agentType: 'multi_agent_chat_streaming',
 			});
+
+			// Reset the need help flag after sending the message
+			setIsNeedHelpRequest(false);
 		} catch (error) {
 			console.error('Failed to send message:', error);
 			setIsLoading(false);
 			setResponse('Error: Failed to send message. Please try again.');
 			setIsExpanded(true);
+			// Reset the need help flag on error as well
+			setIsNeedHelpRequest(false);
 		}
 	};
 
@@ -332,6 +370,10 @@ const AskAIApp = () => {
 				onSuccess: () => {
 					console.log('✅ Response copied to clipboard successfully');
 					// You could add a toast notification here if you have a notification system
+					setCopied(true);
+					setTimeout(() => {
+						setCopied(false);
+					}, 1000);
 				},
 				onError: (error) => {
 					console.error('❌ Failed to copy response:', error);
@@ -360,7 +402,7 @@ const AskAIApp = () => {
 	return (
 		<div ref={containerRef} className="ask-ai-app">
 			{/* Response Window - Top */}
-			{(response || isLoading || streamingResponse || isExpanded || hasResponse) && (
+			{(response || isLoading || displayedResponse || isExpanded || hasResponse) && (
 				<div className={`ai-response-window ${isExpanded ? 'expanded' : 'collapsed'}`}>
 					<div className="ai-response-header">
 						<div className="ai-response-title">
@@ -386,7 +428,7 @@ const AskAIApp = () => {
 									onClick={handleCopyResponse}
 									title="Copy response"
 								>
-									<Copy size={14} />
+									{copied ? 'copied' : <Copy size={14} />}
 								</button>
 							)}
 							<button className="close-button" onClick={handleClose} title="Close">
@@ -397,7 +439,7 @@ const AskAIApp = () => {
 
 					<div className="divider"></div>
 					<div className="ai-response-content" ref={responseRef}>
-						{isLoading && !response && !streamingResponse ? (
+						{isLoading && !response && !displayedResponse ? (
 							<div className="loading-indicator">
 								<div className="loading-dots">
 									<span></span>
@@ -408,10 +450,12 @@ const AskAIApp = () => {
 							</div>
 						) : (
 							<div className="response-text">
-								{response || streamingResponse ? (
+								{response || displayedResponse ? (
 									<>
-										<Markdown>{response || streamingResponse}</Markdown>
-										{isLoading && streamingResponse && (
+										<AskAIMarkdown>
+											{response || displayedResponse}
+										</AskAIMarkdown>
+										{isLoading && displayedResponse && !response && (
 											<span className="thinking-indicator">Thinking...</span>
 										)}
 									</>
