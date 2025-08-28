@@ -116,12 +116,13 @@ class DynamicIslandHelper {
 				skipTransformProcessType: true,
 			});
 			this.dynamicIslandWindow.setHiddenInMissionControl(true);
-			this.dynamicIslandWindow.setIgnoreMouseEvents(false);
 			this.dynamicIslandWindow.setMovable(true);
 		} else {
 			this.dynamicIslandWindow.setAlwaysOnTop(true, 'floating');
-			this.dynamicIslandWindow.setIgnoreMouseEvents(false);
 		}
+
+		// Set initial mouse event handling - start with mouse events ignored since it's collapsed
+		this.setMouseEventHandling(true);
 
 		// Show the window
 		this.dynamicIslandWindow.show();
@@ -139,6 +140,9 @@ class DynamicIslandHelper {
 		this.isExpanded = true;
 		log.info('Dynamic Island content expanded (window size remains 555x150)');
 
+		// Enable mouse events when expanded so user can interact with it
+		this.setMouseEventHandling(false);
+
 		// Notify renderer - window size stays the same
 		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: true });
 		log.info('Dynamic Island expanded');
@@ -150,9 +154,33 @@ class DynamicIslandHelper {
 		this.isExpanded = false;
 		log.info('Dynamic Island content collapsed (window size remains 555x150)');
 
+		// Disable mouse events when collapsed so clicks pass through
+		this.setMouseEventHandling(true);
+
 		// Notify renderer - window size stays the same
 		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: false });
 		log.info('Dynamic Island collapsed');
+	}
+
+	setMouseEventHandling(ignore) {
+		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
+
+		try {
+			if (process.platform === 'darwin') {
+				// On macOS, use the forward option to allow clicks to pass through
+				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore, { forward: true });
+			} else {
+				// On other platforms, just ignore mouse events
+				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore);
+			}
+			log.info(
+				`Dynamic Island mouse events ${
+					ignore ? 'ignored' : 'enabled'
+				} (expanded: ${!ignore})`,
+			);
+		} catch (error) {
+			log.error('Error setting mouse event handling:', error);
+		}
 	}
 
 	show() {
@@ -437,7 +465,7 @@ app.whenReady().then(() => {
 	// Initialize WindowHelper for overlay window functionality
 	windowHelper = new WindowHelper();
 	windowHelper.registerGlobalShortcuts(mainWindow);
-	
+
 	// Test shortcuts after registration
 	setTimeout(() => {
 		windowHelper.testShortcuts();
@@ -555,6 +583,19 @@ app.whenReady().then(() => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error hiding dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('dynamic-island-set-mouse-events', async (event, ignore) => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+			dynamicIslandHelper.setMouseEventHandling(ignore);
+			return { success: true };
+		} catch (error) {
+			log.error('Error setting dynamic island mouse events:', error);
 			return { success: false, error: error.message };
 		}
 	});
