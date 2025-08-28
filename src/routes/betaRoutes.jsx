@@ -57,12 +57,12 @@ import GalleryViewer from '../views/features/gallery/GalleryViewer';
 import UploadPhotosDesktop from '../views/features/gallery/UploadPhotosDesktop';
 // components
 import publicRoutes from './publicRoutes';
-const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
-const ProactiveSuggestions = lazy(() =>
-	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
-);
-const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
-const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
+import MeetBotWrapper from '../views/features/meetBot/meetBotWrapper';
+import ProactiveSuggestions from '../views/features/homePage/ambientAi/ProactiveSuggestions';
+import CardMeetBot from '../views/features/meetBot/CardMeetBot';
+import ChatPage from '../views/components/homePage/ChatPage';
+import DynamicIslandControls from '../notch/components/DynamicIslandControls';
+import NotesWrapper from '../views/features/meetBot/NotesWrapper';
 
 const betaRoutes = [
 	// ========================================
