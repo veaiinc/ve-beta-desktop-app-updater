@@ -35,15 +35,16 @@
 				outline: none;
 				border-radius: 12px;
 				border: 1px solid var(--stroke);
-				background: var(--card);
+				// background: var(--card);
 				width: 60px;
 				height: 60px;
-				color: var(--primary-font);
+				// color: var(--primary-font);
+				color: black;
 				text-align: center;
 
 				// Corrected padding
 				padding: 14px 0;
-				font-size: 14px;
+				font-size: 16px;
 
 				&:focus {
 					border-color: var(--stroke-hover);
