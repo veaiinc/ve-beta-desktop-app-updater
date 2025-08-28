@@ -273,6 +273,7 @@ const betaRoutes = [
 						showDeleteChat={true}
 						showChats={true}
 						showCitationsButton={true}
+						showBrowser={true}
 					/>
 				</AuthWrapper>
 			</Suspense>
@@ -493,7 +494,7 @@ const betaRoutes = [
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper
 					title={'Calendar'}
-					outerContainerStyle={{ overflow: 'hidden', padding: '0 32px 0 0 ' }}
+					outerContainerStyle={{ overflow: 'hidden' }}
 					childrenContainerStyles={{ maxWidth: '100%' }}
 				>
 					<CalendarModule />

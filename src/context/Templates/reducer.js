@@ -205,7 +205,7 @@ const actionHandlers = {
 		},
 	}),
 	HANDLE_STREAM_MESSAGE_CHUNK: (state, action) => {
-		const {
+		let {
 			payload,
 			chunkId,
 			sessionId,
@@ -222,11 +222,17 @@ const actionHandlers = {
 			lastQuery,
 			chatBoxInfo,
 			chatInfo,
-			browserData,
+			browserTabsInfo,
 		} = action?.payload;
 		let messages = [...(state?.globalChatMessages?.[sessionId]?.messages || [])];
+		if (payload?.browserMetadata) {
+			updateExtraInfo = true;
+		}
 
 		if (removeChatSession) {
+			if (state?.globalChatMessages?.[sessionId]?.open_browser) {
+				return state;
+			}
 			const globalChatMessages = { ...state?.globalChatMessages };
 			delete globalChatMessages[sessionId];
 			return { ...state, globalChatMessages };
@@ -239,7 +245,21 @@ const actionHandlers = {
 				sessionIdData.chatBoxInfo = chatBoxInfo;
 			}
 
-			if (browserData) {
+			if (payload?.browserMetadata) {
+				let browserData = sessionIdData?.browserData || {};
+				browserData = {
+					...browserData,
+					browserMetadata: payload?.browserMetadata,
+				};
+				sessionIdData.browserData = browserData;
+			}
+
+			if (browserTabsInfo) {
+				let browserData = sessionIdData?.browserData || {};
+				browserData = {
+					...browserData,
+					...browserTabsInfo,
+				};
 				sessionIdData.browserData = browserData;
 			}
 
@@ -263,7 +283,11 @@ const actionHandlers = {
 			if (removeChatSessions) {
 				let globalChatMessages = { ...state?.globalChatMessages };
 				globalChatMessages = Object.keys(globalChatMessages)?.reduce((acc, key) => {
-					if (globalChatMessages[key]?.isStreaming || key === sessionId) {
+					if (
+						globalChatMessages[key]?.isStreaming ||
+						key === sessionId ||
+						globalChatMessages[key]?.open_browser
+					) {
 						acc[key] = globalChatMessages[key];
 					}
 					return acc;
@@ -323,9 +347,13 @@ const actionHandlers = {
 			info.memory_thinking = payload?.memory_thinking;
 		}
 
+		if (payload?.hasOwnProperty('open_browser')) {
+			info.open_browser = payload?.open_browser;
+		}
+
 		if (requiredIndex !== -1) {
 			const message = messages?.[requiredIndex];
-			const { processing } = message;
+			let { processing, browserChainOfThought = {} } = message;
 			if (processing === 'Deep Search') {
 				let deepSearch = message?.deepSearch || {};
 				let cot = deepSearch?.cot || [];
@@ -594,11 +622,29 @@ const actionHandlers = {
 					normalSearch,
 				};
 			} else {
+				const { toolType, planType } = payload;
+				let hasBrowserChainOfThought = false;
+				if (toolType && toolType === 'tool') {
+					let browserTools = browserChainOfThought?.browserTools || [];
+					browserTools = [...browserTools, payload];
+					browserChainOfThought = {
+						...browserChainOfThought,
+						browserTools,
+					};
+					hasBrowserChainOfThought = true;
+				} else if (planType && planType === 'plan') {
+					browserChainOfThought = {
+						...browserChainOfThought,
+						browserPlan: payload,
+					};
+					hasBrowserChainOfThought = true;
+				}
 				messages[requiredIndex] = {
 					...message,
 					...payload,
 					message: (message?.message || '') + (payload?.answer || ''),
 					messageId: payload?.message_id,
+					...(hasBrowserChainOfThought && { browserChainOfThought }),
 				};
 			}
 		} else {

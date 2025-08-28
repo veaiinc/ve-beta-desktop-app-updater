@@ -18,7 +18,7 @@ import CreditCoinImage from '../../../assets/images/creditCoin.png';
 import {
 	handleCombinedChainOfThought,
 	updateCitationIdsWithCitations,
-} from '../../../helpers/chatHelpers';
+} from '../../../helpers/chat/chatHelpers';
 import { Markdown } from '../../../helpers/markdownHelper';
 import ObjectID from 'bson-objectid';
 import { ReactComponent as ArrowRightIcon } from '../../../assets/svg/ai_agents/ArrowLineUpRight.svg';

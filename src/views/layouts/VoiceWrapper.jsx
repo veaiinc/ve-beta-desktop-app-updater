@@ -80,9 +80,9 @@ const VoiceWrapper = () => {
 	return (
 		<div
 			ref={containerRef}
-			className={`voiceContainer ${
-				voiceIntegrationData?.shouldConnect ? 'active' : 'inactive'
-			} ${isHomePage ? 'home-page' : 'other-page'}`}
+			className={`voiceContainer 
+				${voiceIntegrationData?.shouldConnect ? 'active' : 'active'}	
+			 ${isHomePage ? 'home-page' : 'other-page'}`}
 			onMouseDown={handleMouseDown}
 			style={{
 				position: 'fixed',

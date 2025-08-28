@@ -18,7 +18,7 @@ class LayoutResizeHandle extends Component {
 					transform: 'translateX(-50%)',
 					width: '40px',
 					height: '14px',
-					background: '#3474e0',
+					background: '#79ecc9',
 					borderRadius: '4px 4px 0 0',
 					cursor: 'grab',
 					display: 'flex',

@@ -3,7 +3,6 @@ import { useLocation, useParams, useSearchParams } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
 import Context from '../../../context/context';
 import useRecallStream from '../../../hooks/useRecallStream';
-import RecentChat from '../chat/RecentChat';
 import TranscriptionTabs from '../../components/notes/TranscriptionTabs';
 import MeetSummary from '../notesModule/MeetSummary';
 import NoteTakerTranscript from '../notesModule/NoteTakerTranscript';
@@ -705,21 +704,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					</div>
 				) : null}
 			</div>
-			{!(type === 'meeting_bot' || type === 'desktop') && (
-				<div className="notesChatArea">
-					<RecentChat
-						showIconText={false}
-						isPreview={true}
-						autoFocus={false}
-						customChatBoxClick={handleChatBoxClick}
-						// {...(info?.chatClicked && {
-						// 	sId: info?.chatSessionId,
-						// })}
-						sId={info?.chatSessionId}
-						showCitationsButton={false}
-					/>
-				</div>
-			)}
 			<div className="transcript-tabs-container">
 				{showTranscriptTabs && (
 					<TranscriptionTabs

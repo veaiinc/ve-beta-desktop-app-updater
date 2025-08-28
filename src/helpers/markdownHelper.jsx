@@ -6,7 +6,7 @@ import { ReactComponent as PencilSparkleIcon } from '../assets/svg/notes/pencilS
 import { ReactComponent as TickSvg } from '../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
 import Context from '../context/context';
-import { Tooltip } from 'antd';
+import { Image, Tooltip } from 'antd';
 import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -439,6 +439,9 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 		isOverflowing: false,
 	});
 
+	const [previewOpen, setPreviewOpen] = useState(false);
+	const [previewImage, setPreviewImage] = useState('');
+
 	// useEffect(() => {
 	// 	adjustFontSize();
 	// }, [messageData?.message]);
@@ -515,8 +518,28 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 		setinfo((prev) => ({ ...prev, isExpanded: !prev.isExpanded }));
 	}, []);
 
+	const handlePreview = async (file) => {
+		if (!file.url && !file.preview) {
+			file.preview = await getBase64(file?.originFileObj);
+		}
+		setPreviewImage(file.url || file.preview);
+		setPreviewOpen(true);
+	};
+
 	return (
 		<div className="user-message-renderer-wrapper">
+			{messageData?.images?.length > 0 && (
+				<div className="uploaded-images-container">
+					{messageData?.images?.map((image, index) => (
+						<img
+							key={index}
+							src={image?.preview}
+							className="uploaded-image"
+							onClick={() => handlePreview(image)}
+						/>
+					))}
+				</div>
+			)}
 			{!info?.editUserQuery ? (
 				<div className="user-message-wrapper">
 					{messageData?.moduleType === 'ai_suggestion_report' ? (
@@ -596,6 +619,21 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 				</div>
 			) : (
 				''
+			)}
+
+			{previewImage && (
+				<Image
+					wrapperStyle={{
+						display: 'none',
+					}}
+					rootClassName="chat-preview-image-container"
+					preview={{
+						visible: previewOpen,
+						onVisibleChange: (visible) => setPreviewOpen(visible),
+						afterOpenChange: (visible) => !visible && setPreviewImage(''),
+					}}
+					src={previewImage}
+				/>
 			)}
 		</div>
 	);

@@ -291,14 +291,18 @@ const AiTranscriptionSuggestions = ({
 														className={s.body}
 														onClick={() =>
 															handleActionClick(
-																suggestion?.query || '',
+																suggestion?.query ||
+																	suggestion?.prompt ||
+																	'',
 																true,
 															)
 														}
 													>
 														<div className={s.questionText}>
 															<div className={s.text}>
-																{suggestion?.query || ''}
+																{suggestion?.query ||
+																	suggestion?.prompt ||
+																	''}
 															</div>
 														</div>
 														{suggestion?.is_memory_used && (
@@ -320,12 +324,16 @@ const AiTranscriptionSuggestions = ({
 														className={s.actionContainer}
 														onClick={() =>
 															handleActionClick(
-																suggestion?.query || '',
+																suggestion?.query ||
+																	suggestion?.prompt ||
+																	'',
 															)
 														}
 													>
 														<div className={s.iconContainer}></div>
-														{suggestion?.query || ''}
+														{suggestion?.query ||
+															suggestion?.prompt ||
+															''}
 													</div>
 													<div className={s.horizontalLine} />
 												</div>,
@@ -397,7 +405,10 @@ const AiTranscriptionSuggestions = ({
 									<div
 										className={s.body}
 										onClick={() =>
-											handleActionClick(question?.query || '', true)
+											handleActionClick(
+												question?.query || question?.prompt || '',
+												true,
+											)
 										}
 									>
 										<div className={s.questionText}>
@@ -428,7 +439,9 @@ const AiTranscriptionSuggestions = ({
 								<div
 									className={s.actionContainer}
 									key={index}
-									onClick={() => handleActionClick(action?.query || '')}
+									onClick={() =>
+										handleActionClick(action?.query || action?.prompt || '')
+									}
 								>
 									<div className={s.iconContainer}></div>
 									{action?.name || ''}

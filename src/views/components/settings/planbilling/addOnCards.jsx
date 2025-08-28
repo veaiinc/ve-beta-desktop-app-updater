@@ -8,7 +8,7 @@ import ReactModal from '../../modalsV2';
 import { message } from '../../globalComponents/CustomToast';
 import SubscriptionChange from '../../modalsV2/subscription/SubscriptionChange';
 import '../../../../assets/scss/settings/planBilling.scss';
-import pricingPlansData from '../../../../../src/data/pricingPlans.json';
+import { pricingPlansData } from '../../../../helpers/pricingPlans';
 import { ReactComponent as CheckIcon } from '../../../../assets/svg/Settings/PricingCheck.svg';
 
 const customStyles = {

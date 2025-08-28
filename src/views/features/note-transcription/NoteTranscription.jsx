@@ -11,6 +11,7 @@ import { ReactComponent as Mic } from '../../../assets/svg/microphone.svg';
 import { ReactComponent as MuteMic } from '../../../assets/svg/ai_agents/mutemic.svg';
 import { ReactComponent as Close } from '../../../assets/svg/ai_agents/close.svg';
 import ObjectID from 'bson-objectid';
+import { checkDevices } from '../../../helpers';
 // Memoized TranscriptionItem to prevent unnecessary re-renders
 const TranscriptionItem = memo(({ displayedText, isFinal }) => {
 	return (
@@ -293,10 +294,18 @@ export default function NoteTranscription({
 	}, [transcriptions]);
 	// Handle start transcription
 	const handleStartTranscription = async () => {
+		const { hasMic = false } = await checkDevices();
+		if (!hasMic) {
+			message?.error('No microphone detected.');
+			return;
+		}
 		sessionIdRef.current = ObjectID().toString();
 		// Fetch a new LiveKit token
 		try {
-			const response = await getLiveKitToken({ meetingId: sessionIdRef.current });
+			const response = await getLiveKitToken({
+				meetingId: sessionIdRef.current,
+				sessionId: sessionIdRef.current,
+			});
 			if (response && response[0] === true && response[1]?.accessToken) {
 				const token = response[1].accessToken;
 				setLiveKitToken(token);

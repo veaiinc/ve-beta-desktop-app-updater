@@ -74,6 +74,7 @@ import GalleryVideos from '../../components/gallery/galleryVideos/GalleryVideos'
 import { ReactComponent as ChevronLeft } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as MoveToIcon } from '../../../assets/svg/gallery/moveToIcon.svg';
 import Spinner from '../../components/loaders/Spinner';
+import DesktopAppIntimation from '../../components/gallery/galleryPage/DesktopAppIntimation';
 // const workspaceId = localStorage.getItem('workspaceId');
 
 const dummyImagesArray = Array.from({ length: 10 }, () => ({ isPlaceholderImg: true }));
@@ -354,6 +355,9 @@ const GalleryPage = () => {
 		selectedScreenType: 'desktop',
 		selectedAlbumToMove: null,
 		imagesMovingToAlbum: false,
+		desktopPopup: false,
+		isDesktop: false,
+		selectedAction: null,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -493,6 +497,15 @@ const GalleryPage = () => {
 			fetchThumbnails();
 		}
 	}, [info?.videosList]);
+
+	useEffect(() => {
+		if (window?.electronApi) {
+			setInfo((prev) => ({
+				...prev,
+				isDesktop: true,
+			}));
+		}
+	}, []);
 
 	const fetchThumbnails = async () => {
 		const entries = await Promise.all(
@@ -1741,6 +1754,21 @@ const GalleryPage = () => {
 
 	// ... rest of the code ...
 
+	const handleSelectedAction = () => {
+		if (info?.selectedAction !== 'download') {
+			handleNavigateUpload();
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				showDownloadAlbum: true,
+				showGalleryOptions: false,
+				showOptions: false,
+				activeTagId: albumDetails?.tags?.[0]?._id,
+				originalDownload: false,
+				webviewDownload: true,
+			}));
+		}
+	};
 	const handleNavigateUpload = () => {
 		const uploadUrl =
 			info?.albumContains === 'All'
@@ -1754,7 +1782,30 @@ const GalleryPage = () => {
 		// Open in new tab
 		window.open(uploadUrl, '_blank');
 	};
-
+	const handleUploadClicked = (option = 'uploading') => {
+		const region = localStorage.getItem('region');
+		const isMac = navigator.userAgentData?.platform === 'macOS';
+		if (!info?.isDesktop && region === 'us-east-1' && isMac) {
+			setInfo((prev) => ({
+				...prev,
+				desktopPopup: true,
+			}));
+		} else {
+			if (option === 'uploading') {
+				handleNavigateUpload();
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					showDownloadAlbum: true,
+					showGalleryOptions: false,
+					showOptions: false,
+					activeTagId: albumDetails?.tags?.[0]?._id,
+					originalDownload: false,
+					webviewDownload: true,
+				}));
+			}
+		}
+	};
 	const handleCallToAction = useCallback(() => {
 		const payload = {
 			ctaPreferences: {
@@ -2613,7 +2664,7 @@ const GalleryPage = () => {
 					uploadImageId: null,
 					imageURL: '',
 					coverImageDetails: updatedCoverImage,
-					selectedImages: [],
+					// Preserve selectedImages to maintain the current image in GalleryViewer
 					crop: {
 						desktop: {
 							x: desktopSettings.focalPoint?.x || 0,
@@ -5015,19 +5066,28 @@ const GalleryPage = () => {
 																</li>
 															)}
 															<li
-																onClick={() =>
+																// onClick={() =>
+																// 	setInfo((prev) => ({
+																// 		...prev,
+																// 		showDownloadAlbum: true,
+																// 		showGalleryOptions: false,
+																// 		showOptions: false,
+																// 		activeTagId:
+																// 			albumDetails?.tags?.[0]
+																// 				?._id,
+																// 		originalDownload: false,
+																// 		webviewDownload: true,
+																// 	}))
+																// }
+																onClick={() => {
 																	setInfo((prev) => ({
 																		...prev,
-																		showDownloadAlbum: true,
-																		showGalleryOptions: false,
-																		showOptions: false,
-																		activeTagId:
-																			albumDetails?.tags?.[0]
-																				?._id,
-																		originalDownload: false,
-																		webviewDownload: true,
-																	}))
-																}
+																		selectedAction: 'download',
+																	}));
+																	handleUploadClicked(
+																		'downloading',
+																	);
+																}}
 															>
 																<DownloadIcon />
 																Download album
@@ -5193,7 +5253,7 @@ const GalleryPage = () => {
 												<Masonry gutter="20px" columnsCount={4}>
 													<div
 														className="imageContainer"
-														onClick={handleNavigateUpload}
+														onClick={() => handleUploadClicked()}
 													>
 														<div className="imageUpload">
 															<CloudUpload className="uploadIcon" />
@@ -6573,6 +6633,16 @@ const GalleryPage = () => {
 					galleryId={galleryId}
 					selectedVideo={null}
 					updateSelectedVideo={updateSelectedVideo}
+				/>
+			)}
+			{info?.desktopPopup && (
+				<DesktopAppIntimation
+					open={info?.desktopPopup}
+					closeModal={() => {
+						setInfo((prev) => ({ ...prev, desktopPopup: false, selectedAction: null }));
+					}}
+					onStandardUploadClick={handleSelectedAction}
+					selectedAction={info?.selectedAction}
 				/>
 			)}
 		</>

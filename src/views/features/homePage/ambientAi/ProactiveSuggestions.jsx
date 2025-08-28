@@ -320,7 +320,7 @@ const ProactiveSuggestions = () => {
 	}, [insightTypes]);
 
 	useEffect(() => {
-		getProactiveHeadings();
+		getProactiveHeadings({ module: 'priority' });
 	}, []);
 
 	useEffect(() => {

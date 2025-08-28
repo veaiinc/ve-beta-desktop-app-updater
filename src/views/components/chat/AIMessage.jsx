@@ -8,8 +8,6 @@ import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../../../assets/svg/ai_agents/copy.svg';
 import { ReactComponent as ViewDocumentIcon } from '../../../assets/svg/chat/viewDocument.svg';
 import AISuggestionsReportAiComponent from './chatComponents/AiSuggestionsReportAiComponent';
-import { ReactComponent as PlusSvg } from '../../../assets/svg/ai_assistant/plus.svg';
-import { ReactComponent as VeLogoSvg } from '../../../assets/svg/veLogo.svg';
 import '../../../assets/scss/chat/aiMessage.scss';
 import PromptPopup from '../homePage/PromptPopup';
 import ClarifyWidget from './chatWidgets/ClarifyWidget';
@@ -17,6 +15,8 @@ import FormWidget from './FormWidget';
 import UnintegratedAgentApps from './chatComponents/UnintegratedAgentApps';
 import IntermediateSteps from './chatComponents/IntermediateSteps';
 import { fileTypeIcons, getFaviconUrl, getWebsiteName } from '../../../helpers';
+import BrowserChainOfThought from './chatComponents/BrowserChainOfThought';
+import { ReactComponent as VeLogoSvg } from '../../../assets/svg/veLogo.svg';
 
 const tooltipStyles = {
 	body: { color: 'var(--primary-font)' },
@@ -133,21 +133,6 @@ const AIMessage = ({
 
 	return (
 		<div className="ai-message-container">
-			<PromptPopup
-				messageId={messageData?.messageId}
-				liked={messageData?.rating}
-				open={info?.feedbackPopupOpen}
-				feedbackMessage={messageData?.userRemarks}
-				feedbackPopupOpen={info?.feedbackPopupOpen}
-				selectedFeedback={messageData?.userFeedbackReasons}
-				handleFeedbackUpdateSuccess={handleFeedbackUpdateSuccess}
-				isTrained={
-					messageData?.rating ||
-					messageData?.userRemarks ||
-					messageData?.userFeedbackReasons?.length
-				}
-				closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
-			/>
 			{info?.usedAgents?.length > 0 &&
 				messageData?.workflow_template_id &&
 				messageData?.module_template_id &&
@@ -180,11 +165,19 @@ const AIMessage = ({
 					</div>
 				))}
 
-			{messageData?.tool_invocations && (
+			{messageData?.browserChainOfThought ? (
+				<BrowserChainOfThought chainOfThought={messageData?.browserChainOfThought} />
+			) : (
+				''
+			)}
+
+			{messageData?.tool_invocations ? (
 				<IntermediateSteps
 					steps={messageData?.tool_invocations}
 					isStreaming={messageData?.stream_end === false}
 				/>
+			) : (
+				''
 			)}
 
 			{messageData?.moduleType === 'ai_suggestion_report' ? (
@@ -195,11 +188,13 @@ const AIMessage = ({
 				<Markdown citations={citations}>{text}</Markdown>
 			)}
 
-			{messageData?.unintegrated_apps?.length > 0 && (
+			{messageData?.unintegrated_apps?.length > 0 ? (
 				<UnintegratedAgentApps apps={messageData?.unintegrated_apps} />
+			) : (
+				''
 			)}
 
-			{messageData?.messageId && (
+			{messageData?.messageId ? (
 				<div
 					className="hover-actions-container"
 					style={{
@@ -299,6 +294,8 @@ const AIMessage = ({
 						)}
 					</div>
 				</div>
+			) : (
+				''
 			)}
 
 			{/* {(aiMessagesInfo?.[messageData?.messageId]?.followUpQuery?.length > 0 ||
@@ -331,6 +328,22 @@ const AIMessage = ({
 					)}
 				</div>
 			)} */}
+
+			<PromptPopup
+				messageId={messageData?.messageId}
+				liked={messageData?.rating}
+				open={info?.feedbackPopupOpen}
+				feedbackMessage={messageData?.userRemarks}
+				feedbackPopupOpen={info?.feedbackPopupOpen}
+				selectedFeedback={messageData?.userFeedbackReasons}
+				handleFeedbackUpdateSuccess={handleFeedbackUpdateSuccess}
+				isTrained={
+					messageData?.rating ||
+					messageData?.userRemarks ||
+					messageData?.userFeedbackReasons?.length
+				}
+				closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
+			/>
 		</div>
 	);
 };
