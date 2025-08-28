@@ -25,47 +25,6 @@ import Loader from '../../components/loaders/Spinner';
 
 // import { Background } from '@xyflow/react';
 
-const FakeLoadingComponent = () => {
-	return (
-		<div
-			className="galleryViewerCotnainer"
-			style={{ position: 'absolute', top: '80px', left: 0 }}
-		>
-			<div className="galleryThumbnails" id="galleryThumbnails-target">
-				<div
-					style={{
-						display: 'flex',
-						flexDirection: 'column',
-						gap: '24px',
-					}}
-				>
-					{[...Array(15)].map((_, index) => (
-						<div key={index} className="imageContainer">
-							<Skeleton width="79px" height="50px" />
-						</div>
-					))}
-				</div>
-			</div>
-
-			<div className="activeImageContainer">
-				<div className="activeImageWrapper" id="activeImageWrapper-target">
-					{[...Array(1)].map((_, index) => (
-						<div key={index} className="imageContainer" style={{ width: '800px' }}>
-							<Skeleton width="1000px" height="900px" />
-						</div>
-					))}
-				</div>
-
-				<div className="galleryViewerNavbarContainer">
-					<div className="galleryViewerNavbar"></div>
-
-					<div className="gallerySelectionContainer"></div>
-				</div>
-			</div>
-		</div>
-	);
-};
-
 const GalleryViewer = ({
 	open,
 	closeModal,
@@ -380,18 +339,6 @@ const GalleryViewer = ({
 	};
 	const handleCloseGallery = () => {
 		closeModal();
-	};
-
-	const handleRotateImage = async (degree) => {
-		const payload = {
-			rotation: degree,
-		};
-		const response = await updateImageDetail(payload, info?.imageDetailId);
-		if (response[0] === true) {
-			message.success('Image rotated successfully');
-		} else {
-			message.error('Failed to rotate image');
-		}
 	};
 
 	const currentActiveImage = aiface

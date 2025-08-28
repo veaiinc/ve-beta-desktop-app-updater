@@ -1,3 +1,4 @@
+import mitt from 'mitt';
 import Cookies from 'js-cookie';
 
 // const x_access_key = import.meta.env.VITE_APP_X_ACCESS_KEY || 'QWxsb3dBY2Nlc3NUb0ZlZWRiYWNrQVBJ';
@@ -32,11 +33,16 @@ const handleHeaders = (token, type, isPublicChat = false) => {
 	return headers;
 };
 
+export const internalServerEmitter = mitt();
+
 const processResponse = async (response) => {
 	const jsonData = await response.json();
 	if (response.status >= 200 && response.status < 300) {
 		return [true, jsonData];
 	} else if (response.status === 401) {
+		return [false, jsonData];
+	} else if (response.status === 500) {
+		internalServerEmitter.emit('serverError', jsonData);
 		return [false, jsonData];
 	} else {
 		return [response.status, jsonData];
