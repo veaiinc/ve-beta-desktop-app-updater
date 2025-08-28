@@ -57,9 +57,9 @@ const Browser = ({
 		// handleTakeBrowserControl(sessionId, takeControl);
 
 		//exiting take control
-		if (!takeControl) {
-			saveBrowserState(sessionId);
-		}
+		// if (!takeControl) {
+		// 	saveBrowserState(sessionId);
+		// }
 	};
 
 	return (
