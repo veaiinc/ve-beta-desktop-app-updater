@@ -56,12 +56,14 @@ import GalleryPage from '../views/features/gallery/GalleryPage';
 import GalleryViewer from '../views/features/gallery/GalleryViewer';
 import UploadPhotosDesktop from '../views/features/gallery/UploadPhotosDesktop';
 // components
-import MeetBotWrapper from '../views/features/meetBot/meetBotWrapper';
-import ProactiveSuggestions from '../views/features/homePage/ambientAi/ProactiveSuggestions';
-import CardMeetBot from '../views/features/meetBot/CardMeetBot';
-import ChatPage from '../views/components/homePage/ChatPage';
-import NotesWrapper from '../views/features/notesModule/NotesWrapper';
-import DynamicIslandControls from '../notch/components/DynamicIslandControls';
+import publicRoutes from './publicRoutes';
+const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
+const ProactiveSuggestions = lazy(() =>
+	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
+);
+const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
+const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
+
 const betaRoutes = [
 	// ========================================
 	// ONBOARDING, HOME & FEATURES
@@ -825,5 +827,9 @@ const betaRoutes = [
 			</Public>
 		),
 	},
+	// ========================================
+	// PUBLIC ROUTES
+	// ========================================
+	...publicRoutes,
 ];
 export default betaRoutes;

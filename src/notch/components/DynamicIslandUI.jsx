@@ -564,6 +564,21 @@ const DynamicIslandUI = () => {
 		}
 	}, []);
 
+	// Manual mouse event control (for debugging or special cases)
+	const setMouseEvents = async (ignore) => {
+		if (!isConnected) return;
+
+		try {
+			console.log(`🔧 Manually setting mouse events to ${ignore ? 'ignore' : 'enable'}`);
+			const result = await window.electronApi.dynamicIsland.setMouseEvents(ignore);
+			if (result.success) {
+				console.log(`✅ Mouse events ${ignore ? 'ignored' : 'enabled'} successfully`);
+			}
+		} catch (error) {
+			console.error('❌ Error setting mouse events:', error);
+		}
+	};
+
 	return (
 		<div
 			ref={dynamicIslandRef}

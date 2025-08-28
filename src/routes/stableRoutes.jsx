@@ -16,9 +16,9 @@ import GlobalWorkflows from '../views/features/sales/GlobalWorkflows';
 import CardMeetBot from '../views/features/meetBot/CardMeetBot';
 import MeetBotWrapper from '../views/features/meetBot/meetBotWrapper';
 import ProactiveSuggestions from '../views/features/homePage/ambientAi/ProactiveSuggestions';
+import publicRoutes from './publicRoutes';
 
 // components
-
 const stableRoutes = [
 	// ========================================
 	// AI & ASSISTANT FEATURES
@@ -160,6 +160,10 @@ const stableRoutes = [
 			</Public>
 		),
 	},
+	// ========================================
+	// PUBLIC ROUTES
+	// ========================================
+	...publicRoutes,
 ];
 
 export default stableRoutes;

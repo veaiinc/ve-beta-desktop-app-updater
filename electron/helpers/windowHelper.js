@@ -1012,6 +1012,41 @@ class WindowHelper {
 			log.info('     Note: Linux global shortcuts should work by default');
 		}
 	}
+
+	// Cleanup method to properly close all windows and resources
+	cleanup() {
+		log.info('🧹 WindowHelper cleanup started...');
+
+		try {
+			// Clean up overlay window
+			if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+				log.info('🧹 Closing overlay window...');
+				this.overlayWindow.destroy();
+				this.overlayWindow = null;
+				this.isOverlayVisible = false;
+			}
+
+			// Clean up Ask AI window
+			if (this.askAIWindow && !this.askAIWindow.isDestroyed()) {
+				log.info('🧹 Closing Ask AI window...');
+				this.askAIWindow.destroy();
+				this.askAIWindow = null;
+				this.isAskAIVisible = false;
+			}
+
+			// Unregister all global shortcuts
+			try {
+				globalShortcut.unregisterAll();
+				log.info('✅ WindowHelper global shortcuts unregistered');
+			} catch (error) {
+				log.error('Error unregistering WindowHelper global shortcuts:', error);
+			}
+
+			log.info('✅ WindowHelper cleanup completed');
+		} catch (error) {
+			log.error('Error during WindowHelper cleanup:', error);
+		}
+	}
 }
 
 module.exports = { WindowHelper };

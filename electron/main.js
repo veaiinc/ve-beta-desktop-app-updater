@@ -116,12 +116,13 @@ class DynamicIslandHelper {
 				skipTransformProcessType: true,
 			});
 			this.dynamicIslandWindow.setHiddenInMissionControl(true);
-			this.dynamicIslandWindow.setIgnoreMouseEvents(false);
 			this.dynamicIslandWindow.setMovable(true);
 		} else {
 			this.dynamicIslandWindow.setAlwaysOnTop(true, 'floating');
-			this.dynamicIslandWindow.setIgnoreMouseEvents(false);
 		}
+
+		// Set initial mouse event handling - start with mouse events ignored since it's collapsed
+		this.setMouseEventHandling(true);
 
 		// Show the window
 		this.dynamicIslandWindow.show();
@@ -139,6 +140,9 @@ class DynamicIslandHelper {
 		this.isExpanded = true;
 		log.info('Dynamic Island content expanded (window size remains 555x150)');
 
+		// Enable mouse events when expanded so user can interact with it
+		this.setMouseEventHandling(false);
+
 		// Notify renderer - window size stays the same
 		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: true });
 		log.info('Dynamic Island expanded');
@@ -150,9 +154,33 @@ class DynamicIslandHelper {
 		this.isExpanded = false;
 		log.info('Dynamic Island content collapsed (window size remains 555x150)');
 
+		// Disable mouse events when collapsed so clicks pass through
+		this.setMouseEventHandling(true);
+
 		// Notify renderer - window size stays the same
 		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: false });
 		log.info('Dynamic Island collapsed');
+	}
+
+	setMouseEventHandling(ignore) {
+		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
+
+		try {
+			if (process.platform === 'darwin') {
+				// On macOS, use the forward option to allow clicks to pass through
+				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore, { forward: true });
+			} else {
+				// On other platforms, just ignore mouse events
+				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore);
+			}
+			log.info(
+				`Dynamic Island mouse events ${
+					ignore ? 'ignored' : 'enabled'
+				} (expanded: ${!ignore})`,
+			);
+		} catch (error) {
+			log.error('Error setting mouse event handling:', error);
+		}
 	}
 
 	show() {
@@ -192,9 +220,22 @@ class DynamicIslandHelper {
 	}
 
 	destroy() {
-		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
-			this.dynamicIslandWindow.destroy();
-			this.dynamicIslandWindow = null;
+		log.info('🧹 DynamicIslandHelper destroy started...');
+
+		try {
+			if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+				log.info('🧹 Destroying Dynamic Island window...');
+				this.dynamicIslandWindow.destroy();
+				this.dynamicIslandWindow = null;
+			}
+
+			// Reset state
+			this.isExpanded = false;
+			this.isVisible = false;
+
+			log.info('✅ DynamicIslandHelper destroy completed');
+		} catch (error) {
+			log.error('Error destroying DynamicIslandHelper:', error);
 		}
 	}
 }
@@ -425,10 +466,15 @@ app.whenReady().then(() => {
 	// ✅ ADD THE DEBUG SCREEN PERMISSION PROMPT HERE (macOS only)
 	if (process.platform === 'darwin') {
 		setTimeout(async () => {
-			const { systemPreferences } = require('electron');
-			console.log('🔧 Forcing screen permission prompt...');
-			const granted = await systemPreferences.askForMediaAccess('screen');
-			console.log('🎯 Screen permission granted:', granted);
+			try {
+				const { systemPreferences } = require('electron');
+				console.log('🔧 Forcing screen permission prompt...');
+				const granted = await systemPreferences.askForMediaAccess('screen');
+				console.log('🎯 Screen permission granted:', granted);
+			} catch (error) {
+				console.log('⚠️ Screen permission request failed:', error.message);
+				// This is expected in some cases, not a critical error
+			}
 		}, 2000);
 
 		// Also request camera permission
@@ -635,6 +681,19 @@ app.whenReady().then(() => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error hiding dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('dynamic-island-set-mouse-events', async (event, ignore) => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+			dynamicIslandHelper.setMouseEventHandling(ignore);
+			return { success: true };
+		} catch (error) {
+			log.error('Error setting dynamic island mouse events:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -1191,15 +1250,115 @@ app.whenReady().then(() => {
 	});
 });
 
-app.on('window-all-closed', () => {
-	// Clean up dynamic island
-	if (dynamicIslandHelper) {
-		dynamicIslandHelper.destroy();
+// Handle app quit properly
+app.on('before-quit', (event) => {
+	log.info('🔄 App quit requested - cleaning up...');
+
+	// Prevent default quit behavior to allow cleanup
+	event.preventDefault();
+
+	// Clean up all windows and processes
+	cleanupAndQuit();
+});
+
+// Handle macOS dock quit
+app.on('quit', (event, exitCode) => {
+	log.info('🔄 App quit event triggered with exit code:', exitCode);
+
+	// Ensure cleanup happens even if before-quit didn't trigger
+	if (dynamicIslandHelper || windowHelper) {
+		log.info('🔄 Force cleanup on quit event...');
+		cleanupAndQuit();
 	}
-	app.quit();
+});
+
+app.on('window-all-closed', () => {
+	log.info('🔄 All windows closed - cleaning up...');
+
+	// Clean up all windows and processes
+	cleanupAndQuit();
 });
 
 app.on('will-quit', () => {
+	log.info('🔄 Will quit - final cleanup...');
+
 	// Unregister all global shortcuts
-	globalShortcut.unregisterAll();
+	try {
+		const { globalShortcut } = require('electron');
+		globalShortcut.unregisterAll();
+		log.info('✅ Global shortcuts unregistered');
+	} catch (error) {
+		log.error('Error unregistering global shortcuts:', error);
+	}
+});
+
+// Function to handle cleanup and quit
+function cleanupAndQuit() {
+	log.info('🧹 Starting cleanup process...');
+
+	try {
+		// 1. Clean up Dynamic Island
+		if (dynamicIslandHelper) {
+			log.info('🧹 Cleaning up Dynamic Island...');
+			dynamicIslandHelper.destroy();
+			dynamicIslandHelper = null;
+		}
+
+		// 2. Clean up Window Helper and all its windows
+		if (windowHelper) {
+			log.info('🧹 Cleaning up Window Helper...');
+			windowHelper.cleanup();
+			windowHelper = null;
+		}
+
+		// 3. Close main window if it exists
+		if (mainWindow && !mainWindow.isDestroyed()) {
+			log.info('🧹 Closing main window...');
+			mainWindow.close();
+		}
+
+		// 4. Force quit all remaining windows
+		const { BrowserWindow } = require('electron');
+		BrowserWindow.getAllWindows().forEach((window) => {
+			if (!window.isDestroyed()) {
+				log.info('🧹 Force closing window:', window.getTitle());
+				window.destroy();
+			}
+		});
+
+		// 5. Unregister all global shortcuts
+		try {
+			const { globalShortcut } = require('electron');
+			globalShortcut.unregisterAll();
+			log.info('✅ Global shortcuts unregistered');
+		} catch (error) {
+			log.error('Error unregistering global shortcuts:', error);
+		}
+
+		log.info('✅ Cleanup completed - quitting app');
+
+		// Force quit the app
+		setTimeout(() => {
+			app.exit(0);
+		}, 100);
+	} catch (error) {
+		log.error('Error during cleanup:', error);
+		// Force quit even if cleanup fails
+		app.exit(0);
+	}
+}
+
+// Handle process exit to ensure cleanup
+process.on('exit', (code) => {
+	log.info('🔄 Process exiting with code:', code);
+});
+
+process.on('SIGINT', () => {
+	log.info('🔄 SIGINT received - cleaning up...');
+	cleanupAndQuit();
+});
+
+process.on('SIGTERM', () => {
+	log.info('🔄 SIGTERM received - cleaning up...');
+	cleanupAndQuit();
 });
