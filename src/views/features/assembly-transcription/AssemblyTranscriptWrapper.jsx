@@ -11,7 +11,6 @@ const AssemblyTranscriptWrapper = ({
 	onTranscriptionUpdate,
 	wsUrl = meeting_ws_api_US,
 	jwtToken,
-	userName,
 	location,
 	timezone = 'Asia/Kolkata',
 	isAiIntelligenceEnabled,
@@ -64,8 +63,6 @@ const AssemblyTranscriptWrapper = ({
 
 	const handleUpdateTranscription = useCallback(
 		(transcription = null) => {
-			console.log('getting 2', transcription);
-
 			if (!transcription) return;
 
 			const formatted = {
@@ -108,7 +105,6 @@ const AssemblyTranscriptWrapper = ({
 	const handleLiveIntelligenceResponse = useCallback(
 		(data) => {
 			// Handle live intelligence responses
-			console.log('Live Intelligence Response:', data);
 
 			// You can process live intelligence data here and send to parent if needed
 			if (sendMessage) {
@@ -151,7 +147,6 @@ const AssemblyTranscriptWrapper = ({
 				tenantId={tenantId}
 				sessionId={sessionId}
 				meetingId={meetingId}
-				userName={userName}
 				location={location}
 				timezone={timezone}
 				wsUrl={wsUrl}

@@ -119,7 +119,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		sendMessage: recallSendMessage,
 		closeWebSocketConnection: closeRecallConnection,
 	} = useRecallStream();
-	console.log('aiTranscriptionSuggestions', aiTranscriptionSuggestions);
 
 	// useEffect(() => {
 	// 	if (!aiLiveIntelligenceHistory) {
@@ -410,8 +409,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	// );
 
 	const handleSocketTranscription = (newTranscript) => {
-		console.log('getting here', newTranscript);
-
 		setInfo((prev) => {
 			const transcriptions = prev.transcriptions || [];
 
@@ -439,8 +436,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			} else {
 				isContinuation = lastTranscript && !lastTranscript.isFinal;
 			}
-
-			// console.log('is continuation', isContinuation);
 
 			if (!newTranscript.isFinal) {
 				// Partial transcript - update the last entry if it's a continuation
@@ -642,7 +637,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	};
 
 	useEffect(() => {
-		if (activeTab === 'transcript') {
+		if (activeTab === 'transcript' && history) {
 			fetchTranscriptionHistory(1, false);
 		}
 	}, [activeTab]);
@@ -670,7 +665,11 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					<div className="meeting-info">
 						<div className="meeting-title-container">
 							<h2 className="meeting-title">{createBotInfo.title}</h2>
-							{createBotInfo?.createdBy && (
+							<DotIcon />
+							<span className="meeting-created-by-time">
+								{moment.unix(createBotInfo?.createdAt).format('dddd, MMMM D, YYYY')}
+							</span>
+							{/* {createBotInfo?.createdBy && (
 								<div className="meeting-meta-info">
 									<span className="meeting-created-by-name">
 										{createBotInfo?.createdBy?.name}
@@ -686,17 +685,21 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 											.format('DD MMM YYYY HH:mm')}
 									</span>
 								</div>
-							)}
+							)} */}
 						</div>
-						{/* <div className="meeting-meta">
-							<span className="meeting-share">
-								Share
-								<ShareIcon />
-							</span>
-							{createBotInfo.isAiIntelligenceEnabled && (
-								<span className="meeting-guide">Guide me</span>
-							)}
-						</div> */}
+						{showTranscriptTabs && (
+							<TranscriptionTabs
+								activeTab={activeTab}
+								setActiveTab={setActiveTab}
+								userQuestions={info?.userQuestions}
+								aiQuestions={info?.aiQuestions}
+								actions={info?.actions}
+								files={info?.files}
+								history={history}
+								allSuggestions={info?.allSuggestions}
+								type={type}
+							/>
+						)}
 					</div>
 				) : meetingNotFound ? (
 					<div className="meeting-error">
@@ -705,7 +708,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 				) : null}
 			</div>
 			<div className="transcript-tabs-container">
-				{showTranscriptTabs && (
+				{/* {showTranscriptTabs && (
 					<TranscriptionTabs
 						activeTab={activeTab}
 						setActiveTab={setActiveTab}
@@ -717,7 +720,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						allSuggestions={info?.allSuggestions}
 						type={type}
 					/>
-				)}
+				)} */}
 				{showTranscriptTabs &&
 					activeTab === 'transcript' &&
 					(type === 'desktop' || type === 'meeting_bot') && (
@@ -835,7 +838,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						onTranscriptionUpdate={handleSocketTranscription}
 						wsUrl={meeting_ws_api_US}
 						jwtToken={userToken}
-						userName={'siva'}
 						location={{
 							countryCode: 'IN',
 							countryRegionCode: 'TS',

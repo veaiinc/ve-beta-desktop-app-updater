@@ -9,58 +9,6 @@ import Context from '../../../context/context';
 import { fileTypeIcons, redirectTo, redirectTypeMapper } from '../../../helpers';
 import { useSearchParams } from 'react-router-dom';
 
-const allSuggestions = [
-	{
-		entity: 'agent',
-		prompt: 'create a new task as requested by Nandu',
-		name: 'Create Task for Nandu',
-		confidence_score: 9,
-		type: 'action',
-	},
-	{
-		entity: 'agent',
-		prompt: 'find the distance between Kacholi and Tolchoki',
-		name: 'Distance Kacholi-Tolchoki',
-		confidence_score: 8,
-		type: 'search',
-	},
-	{
-		entity: 'agent',
-		prompt: 'summarize key features and benefits of Node.js for backend development',
-		name: 'Node.js Backend Benefits',
-		confidence_score: 8,
-		type: 'search',
-	},
-	{
-		entity: 'agent',
-		prompt: 'list best practices for Node.js application development',
-		name: 'Node.js Best Practices',
-		confidence_score: 10,
-		type: 'search',
-	},
-	{
-		entity: 'user',
-		prompt: 'What challenges have you faced using Node.js in past projects?',
-		name: 'Node.js Challenges',
-		confidence_score: 8,
-		type: null,
-	},
-	{
-		entity: 'user',
-		prompt: 'How do you prioritize security when developing with Node.js?',
-		name: 'Node.js Security Focus',
-		confidence_score: 8,
-		type: null,
-	},
-	{
-		entity: 'user',
-		prompt: 'What features are most important for your new Node.js website?',
-		name: 'Node.js Website Features',
-		confidence_score: 8,
-		type: null,
-	},
-];
-
 const AiTranscriptionSuggestions = ({
 	closeModal,
 	showAmbientAssistance,
@@ -69,7 +17,7 @@ const AiTranscriptionSuggestions = ({
 	actions = [],
 	files = [],
 	activeTab = null,
-	// allSuggestions = [],
+	allSuggestions = [],
 }) => {
 	const {
 		templates: { updateStateValues },
@@ -206,6 +154,53 @@ const AiTranscriptionSuggestions = ({
 		}
 	});
 
+	const renderAllSuggestions = (suggestion) => {
+		if (suggestion.entity === 'user') {
+			return (
+				<div
+					className={s.userQuestionContainer}
+					onClick={() => handleActionClick(suggestion?.prompt || '')}
+				>
+					<div className={s.questionText}>{suggestion?.prompt || ''}</div>
+					<button className={s.askUserButton}>Ask User</button>
+				</div>
+			);
+		}
+		if (suggestion.entity === 'agent' && suggestion.type === 'search') {
+			return (
+				<div
+					className={s.aiQuestionContainer}
+					onClick={() => handleActionClick(suggestion?.prompt || '', true)}
+				>
+					<div className={s.questionText}>{suggestion?.prompt || ''}</div>
+					<div className={s.needHelpButton}>Need help?</div>
+				</div>
+			);
+		}
+		if (suggestion.entity === 'agent' && suggestion.type === 'action') {
+			return (
+				<div
+					className={s.actionsContainer}
+					onClick={() => handleActionClick(suggestion?.prompt || '')}
+				>
+					<div className={s.dot}></div>
+					<div className={s.actionDetails}>
+						<div className={s.actionName}>{suggestion?.name}</div>
+						<div className={s.promptText}>{suggestion?.prompt || ''}</div>
+						<button className={s.takeActionButton}>Run</button>
+					</div>
+				</div>
+			);
+		}
+		if (suggestion.entity === 'file') {
+			return (
+				<div className={s.filesContainer} onClick={() => handleFileClick(suggestion)}>
+					<div className={s.file}>{suggestion?.name}</div>
+				</div>
+			);
+		}
+	};
+
 	return (
 		<div
 			className={s.aiTranscriptionSuggestions}
@@ -231,7 +226,11 @@ const AiTranscriptionSuggestions = ({
 			>
 				{activeTab === 'all' && (
 					<div className={s.allSuggestionsContainer}>
-						{(() => {
+						{allSuggestions?.map((suggestion, index) => {
+							return renderAllSuggestions(suggestion);
+						})}
+
+						{/* {(() => {
 							const result = [];
 							let currentFileGroup = [];
 
@@ -372,7 +371,7 @@ const AiTranscriptionSuggestions = ({
 							}
 
 							return result;
-						})()}
+						})()} */}
 						{allSuggestions?.length === 0 && (
 							<div className="meet-transcript-empty">No data.</div>
 						)}
@@ -383,13 +382,8 @@ const AiTranscriptionSuggestions = ({
 					<div className={s.userQuestionsContainer}>
 						{userQuestions?.map((question, index) => {
 							return (
-								<div className={s.userQuestionContainer} key={index}>
-									<div className={s.header}>Ask User</div>
-									<div className={s.body}>
-										<div className={s.questionText}>
-											{question?.prompt || ''}
-										</div>
-									</div>
+								<div className={s.userQuestion} key={index}>
+									<div className={s.questionText}>{question?.prompt || ''}</div>
 								</div>
 							);
 						})}
@@ -400,31 +394,18 @@ const AiTranscriptionSuggestions = ({
 					<div className={s.aiQuestionsContainer}>
 						{aiQuestions?.map((question, index) => {
 							return (
-								<div className={s.aiQuestionContainer} key={index}>
-									<div className={s.header}>Need help?</div>
-									<div
-										className={s.body}
-										onClick={() =>
-											handleActionClick(
-												question?.query || question?.prompt || '',
-												true,
-											)
-										}
-									>
-										<div className={s.questionText}>
-											<div className={s.text}>
-												{question?.query || question?.name}
-											</div>
-										</div>
-										{question?.is_memory_used && (
-											<div className={s.memoryUsedContainer}>
-												<div className={s.memoryUsedText}>
-													<MemorySvg />
-													Memory Used
-												</div>
-												<div className={s.verticalLine} />
-											</div>
-										)}
+								<div
+									className={s.aiQuestion}
+									key={index}
+									onClick={() =>
+										handleActionClick(
+											question?.query || question?.prompt || '',
+											true,
+										)
+									}
+								>
+									<div className={s.questionText}>
+										{question?.query || question?.name}
 									</div>
 								</div>
 							);
@@ -435,19 +416,20 @@ const AiTranscriptionSuggestions = ({
 				{activeTab === 'actions' && (
 					<div className={s.actionsContainer}>
 						{actions?.map((action, index) => (
-							<>
-								<div
-									className={s.actionContainer}
-									key={index}
-									onClick={() =>
-										handleActionClick(action?.query || action?.prompt || '')
-									}
-								>
-									<div className={s.iconContainer}></div>
-									{action?.name || ''}
+							<div
+								className={s.action}
+								key={index}
+								onClick={() =>
+									handleActionClick(action?.query || action?.prompt || '')
+								}
+							>
+								<div className={s.dot}></div>
+								<div className={s.actionDetails}>
+									<div className={s.actionName}>{action?.name || ''}</div>
+									<div className={s.promptText}>{action?.prompt || ''}</div>
+									<button className={s.takeActionButton}>Run</button>
 								</div>
-								<div className={s.horizontalLine} />
-							</>
+							</div>
 						))}
 					</div>
 				)}

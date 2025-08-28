@@ -13,7 +13,6 @@ export default function AssemblyTranscription({
 	tenantId,
 	sessionId,
 	meetingId,
-	userName,
 	location,
 	timezone = 'Asia/Kolkata',
 	wsUrl = meeting_ws_api_US,
@@ -57,7 +56,7 @@ export default function AssemblyTranscription({
 	);
 
 	const connect = useCallback(async () => {
-		if (!jwtToken || !tenantId || !sessionId || !meetingId || !userName) {
+		if (!jwtToken || !tenantId || !sessionId || !meetingId) {
 			message.error('Missing required authentication parameters');
 			return false;
 		}
@@ -77,7 +76,6 @@ export default function AssemblyTranscription({
 						tenant_id: tenantId,
 						session_id: sessionId,
 						meeting_id: meetingId,
-						userName: userName,
 						location: location || {
 							countryCode: 'IN',
 							countryRegionCode: 'TS',
@@ -114,7 +112,6 @@ export default function AssemblyTranscription({
 									isTurnFormatted: data.isTurnFormatted,
 									timestamp: new Date().toISOString(),
 								};
-								console.log('this is a response', transcriptionData);
 
 								if (onTranscriptionUpdate) {
 									onTranscriptionUpdate(transcriptionData);
@@ -130,8 +127,6 @@ export default function AssemblyTranscription({
 						} else {
 							// Handle live intelligence or other responses
 							if (onLiveIntelligenceResponse) {
-								console.log(data?.data, 'from live ig');
-
 								onLiveIntelligenceResponse(data?.data);
 							}
 							log(`Live Intelligence response: ${JSON.stringify(data)}`);
@@ -165,7 +160,6 @@ export default function AssemblyTranscription({
 		tenantId,
 		sessionId,
 		meetingId,
-		userName,
 		location,
 		timezone,
 		wsUrl,
@@ -270,7 +264,6 @@ export default function AssemblyTranscription({
 			processor.connect(audioContext.destination);
 
 			setIsRecording(true);
-			console.log('getting here on button click');
 
 			setTimer(0);
 
@@ -344,8 +337,9 @@ export default function AssemblyTranscription({
 		const s = (seconds % 60).toString().padStart(2, '0');
 		return `${m}:${s}`;
 	};
+	const isElectron = !!window.electronApi;
 
-	return (
+	return isElectron ? null : (
 		<div className="note-transcription">
 			<div className="transcription-bar">
 				<span className="transcription-timer">

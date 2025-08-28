@@ -725,7 +725,6 @@ const actionHandlers = {
 		if (action?.payload?.type) {
 			payload = action?.payload?.data || {};
 		}
-		console.log('action ', payload);
 
 		let { suggested_prompt, similar_files, data = [], revampedPrompt = [] } = payload || {};
 		const aiTranscriptionSuggestions = state?.aiTranscriptionSuggestions || {};

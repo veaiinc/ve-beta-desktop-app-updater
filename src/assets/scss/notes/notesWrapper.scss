@@ -3,6 +3,7 @@
 	width: 100%;
 	display: flex;
 	flex-direction: row;
+	background-color: red;
 	.notes-nav-menu {
 		display: none !important;
 	}
@@ -11,96 +12,6 @@
 		display: flex;
 		flex-direction: row;
 		flex-grow: 1;
-		.noteChatWrapper {
-			flex-shrink: 0;
-			transition: width 0.5s ease;
-			width: 400px;
-			display: flex;
-			flex-direction: column;
-			overflow: hidden;
-			background-color: var(--card);
-			position: relative;
-
-			.note-sidebar-header {
-				display: flex;
-				align-items: center;
-				padding-top: 10px;
-				padding-left: 20px;
-				gap: 15px;
-				height: 72px;
-
-				&.header-absolute {
-					position: absolute;
-					top: 0;
-					left: 0;
-					right: 0;
-					z-index: 100;
-				}
-
-				.sidebar-title {
-					color: var(--primary-font, #f2f2f3);
-					font-family: var(--primary-font-family);
-					font-size: 16px;
-					font-style: normal;
-					font-weight: 550;
-					line-height: normal;
-				}
-				.sidebar-close-icon {
-					cursor: pointer;
-					height: 20px;
-				}
-			}
-
-			.note-sidebar-content {
-				flex-grow: 1;
-				width: 400px;
-				position: relative;
-				.transcription-wrapper {
-					width: 100%;
-					height: 100%;
-					opacity: 0;
-					position: absolute;
-					z-index: 10;
-
-					&.active {
-						opacity: 1;
-						z-index: 20;
-					}
-				}
-				.chat-wrapper {
-					width: 100%;
-					height: 100%;
-					flex-grow: 1;
-					background-color: var(--card);
-					transition: transform 0.5s ease;
-					position: absolute;
-					opacity: 0;
-					z-index: 10;
-
-					&.active {
-						opacity: 1;
-						z-index: 20;
-					}
-
-					.headerInfo {
-						padding: 24px 24px 16px 24px;
-						background-color: var(--card) !important;
-					}
-
-					.chatBodyWrapper {
-						padding: 0 20px !important;
-					}
-
-					.markdown-custom-content {
-						--font-size: 15px !important;
-					}
-
-					.nonActiveQuestionsContainer {
-						background-color: var(--card) !important;
-					}
-				}
-			}
-		}
 
 		.notesContainerWrapper {
 			flex-grow: 1;
@@ -118,5 +29,96 @@
 	.rightWrapper {
 		height: 100%;
 		width: 400px;
+	}
+}
+
+.noteChatWrapper {
+	flex-shrink: 0;
+	transition: width 0.5s ease;
+	width: 400px;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	background-color: var(--card);
+	position: relative;
+
+	.note-sidebar-header {
+		display: flex;
+		align-items: center;
+		padding-top: 10px;
+		padding-left: 20px;
+		gap: 15px;
+		height: 72px;
+
+		&.header-absolute {
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			z-index: 100;
+		}
+
+		.sidebar-title {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 550;
+			line-height: normal;
+		}
+		.sidebar-close-icon {
+			cursor: pointer;
+			height: 20px;
+		}
+	}
+
+	.note-sidebar-content {
+		flex-grow: 1;
+		width: 400px;
+		position: relative;
+		.transcription-wrapper {
+			width: 100%;
+			height: 100%;
+			opacity: 0;
+			position: absolute;
+			z-index: 10;
+
+			&.active {
+				opacity: 1;
+				z-index: 20;
+			}
+		}
+		.chat-wrapper {
+			width: 100%;
+			height: 100%;
+			flex-grow: 1;
+			background-color: var(--card);
+			transition: transform 0.5s ease;
+			position: absolute;
+			opacity: 0;
+			z-index: 10;
+
+			&.active {
+				opacity: 1;
+				z-index: 20;
+			}
+
+			.headerInfo {
+				padding: 24px 24px 16px 24px;
+				background-color: var(--card) !important;
+			}
+
+			.chatBodyWrapper {
+				padding: 0 20px !important;
+			}
+
+			.markdown-custom-content {
+				--font-size: 15px !important;
+			}
+
+			.nonActiveQuestionsContainer {
+				background-color: var(--card) !important;
+			}
+		}
 	}
 }
