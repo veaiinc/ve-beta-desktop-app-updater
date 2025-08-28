@@ -296,16 +296,16 @@ const DynamicIslandUI = () => {
 
 		if (!isRecording) {
 			// Check if overlay API is available
-			if (!window.electronApi?.overlay?.toggleLiveIntelligence) {
-				console.error('Overlay API not available in Dynamic Island');
+			if (!window.electronApi?.overlay?.startRecording) {
+				console.error('Overlay startRecording API not available in Dynamic Island');
 				return;
 			}
 
 			// Trigger overlay to start recording and show Live Intelligence panel
 			try {
-				console.log('Calling overlay.toggleLiveIntelligence()...');
-				const result = await window.electronApi.overlay.toggleLiveIntelligence();
-				console.log('Overlay toggle result:', result);
+				console.log('Calling overlay.startRecording()...');
+				const result = await window.electronApi.overlay.startRecording();
+				console.log('Overlay start recording result:', result);
 			} catch (error) {
 				console.error('Error triggering overlay from Dynamic Island:', error);
 			}
