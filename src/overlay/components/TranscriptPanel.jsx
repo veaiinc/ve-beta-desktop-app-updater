@@ -1,5 +1,5 @@
 import { useEffect, useRef, memo, useState } from 'react';
-import { Clock, Expand, Mic, MicOff, X, ChevronDown, AlertCircle } from 'lucide-react';
+import { Clock, Expand, Mic, MicOff, X, AlertCircle } from 'lucide-react';
 import './transcript-panel.scss';
 
 // Memoized TranscriptionItem component
@@ -43,25 +43,13 @@ const TranscriptPanel = ({
 	onClearTranscripts,
 }) => {
 	const containerRef = useRef(null);
-	const [showScrollButton, setShowScrollButton] = useState(false);
 
-	// Check if user has scrolled up from bottom
-	const handleScroll = () => {
-		if (containerRef.current) {
-			const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-			const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px threshold
-			setShowScrollButton(!isAtBottom && transcriptions.length > 0);
-		}
-	};
-
-	// Scroll to bottom function
-	const scrollToBottom = () => {
+	// Auto-scroll to bottom when new transcriptions are added
+	useEffect(() => {
 		if (containerRef.current) {
 			containerRef.current.scrollTop = containerRef.current.scrollHeight;
 		}
-	};
-
-	// No auto-scroll - user controls scrolling manually
+	}, [transcriptions]);
 
 	return (
 		<div className="transcript-panel">
@@ -100,7 +88,7 @@ const TranscriptPanel = ({
 			</div>
 
 			<div className="transcript-content-container">
-				<div className="transcript-content" ref={containerRef} onScroll={handleScroll}>
+				<div className="transcript-content" ref={containerRef}>
 					{transcriptions.length > 0 ? (
 						transcriptions.map((item) => (
 							<TranscriptionItem
@@ -118,18 +106,6 @@ const TranscriptPanel = ({
 						</div>
 					)}
 				</div>
-
-				{/* Scroll to bottom button */}
-				{showScrollButton && (
-					<button
-						className="scroll-to-bottom-btn"
-						onClick={scrollToBottom}
-						title="View Latest"
-					>
-						<ChevronDown size={16} />
-						<span>View Latest</span>
-					</button>
-				)}
 			</div>
 
 			<div className="transcript-controls">
