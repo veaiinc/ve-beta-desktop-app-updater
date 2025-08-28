@@ -38,7 +38,7 @@ class DynamicIslandHelper {
 
 		// Default positions and sizes - start with collapsed pill size
 		this.collapsedSize = { width: 250, height: 18 };
-		this.expandedSize = { width: 875, height: 380, flexShrink: 0 };
+		this.expandedSize = { width: 875, height: 280, flexShrink: 0 };
 		this.position = { x: 0, y: 0 };
 
 		this.setupScreenDimensions();
@@ -697,6 +697,11 @@ app.whenReady().then(async () => {
 	// Initialize WindowHelper for overlay window functionality
 	windowHelper = new WindowHelper();
 	windowHelper.registerGlobalShortcuts(mainWindow);
+	
+	// Test shortcuts after registration
+	setTimeout(() => {
+		windowHelper.testShortcuts();
+	}, 2000); // Wait 2 seconds for app to fully initialize
 
 	// Initialize DynamicIslandHelper for dynamic island functionality
 	dynamicIslandHelper = new DynamicIslandHelper();

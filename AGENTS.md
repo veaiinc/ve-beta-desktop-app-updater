@@ -4,7 +4,8 @@
 
 ### Main Window Toggle
 
--   \*\*Cmd+\*\* - Toggle between main window (index.html) and all other windows
+-   **Cmd+\** - Toggle between main window (index.html) and all other windows
+-   **Cmd+/** - Toggle overlay window (alternative shortcut)
 
 ### Ask AI Window
 
@@ -44,3 +45,47 @@
 
 -   macOS: Requires accessibility permissions for global shortcuts to work
 -   The app must be added to System Preferences > Security & Privacy > Privacy > Accessibility
+
+## Debugging Global Shortcuts
+
+### Enhanced Console Logging
+
+The app now includes comprehensive console logging for debugging global shortcuts:
+
+1. **Startup Logs**: When the app starts, you'll see detailed registration status for all shortcuts
+2. **Execution Logs**: When shortcuts are pressed, detailed execution information is logged
+3. **System Information**: Platform, OS version, and Electron version information
+4. **Conflict Detection**: Checks for potential conflicts with other applications
+
+### How to Test Ctrl+/ Shortcut
+
+1. **Start the app** and open Developer Tools (F12 or Ctrl+Shift+I)
+2. **Look for startup logs** showing shortcut registration status
+3. **Press Ctrl+/** (Windows) or Cmd+/ (macOS)
+4. **Check console logs** for detailed execution information
+
+### Expected Console Output
+
+When Ctrl+/ is pressed, you should see:
+```
+🔍 Cmd+/ (Ctrl+/) SHORTCUT TRIGGERED!
+📱 Platform: win32
+🖥️  OS: Windows
+⏰ Timestamp: 2024-01-01T12:00:00.000Z
+🔄 Toggling overlay window...
+👁️  Overlay window currently visible: false
+👁️  Showing overlay window...
+✅ Overlay window shown successfully
+🎯 Cmd+/ (Ctrl+/) shortcut execution completed
+```
+
+### Troubleshooting
+
+- **If shortcuts don't register**: Check if other applications are using the same shortcuts
+- **If shortcuts register but don't work**: Check accessibility permissions (macOS) or run as administrator (Windows)
+- **If overlay doesn't appear**: Check for window creation errors in console logs
+- **Alternative shortcuts**: Try Ctrl+Alt+/ if the main shortcut fails
+
+### Test Script
+
+Run `node test-shortcuts.js` for a comprehensive testing guide.

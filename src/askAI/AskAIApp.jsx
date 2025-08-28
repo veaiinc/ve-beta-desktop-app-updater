@@ -28,8 +28,8 @@ const AskAIApp = () => {
 		(forceUpdate = false) => {
 			if (containerRef.current && forceUpdate) {
 				setTimeout(() => {
-					const width = 1000; // Fixed width for Ask AI window
-					const height = hasResponse ? 600 : 120; // Better heights for proper display
+					const width = 600; // Fixed width for Ask AI window to match design
+					const height = (hasResponse || isLoading || streamingResponse) ? 500 : 120; // Taller height to accommodate response + input
 
 					if (window.electronApi?.askAI?.updateDimensions) {
 						window.electronApi.askAI.updateDimensions({ width, height });
@@ -37,7 +37,7 @@ const AskAIApp = () => {
 				}, 50);
 			}
 		},
-		[hasResponse],
+		[hasResponse, isLoading, streamingResponse],
 	);
 
 	useEffect(() => {
@@ -371,11 +371,11 @@ const AskAIApp = () => {
 									onClick={toggleExpanded}
 									title={isExpanded ? 'Collapse' : 'Expand'}
 								>
-									{isExpanded ? (
+									{/* {isExpanded ? (
 										<ChevronUp size={16} />
 									) : (
 										<ChevronDown size={16} />
-									)}
+									)} */}
 								</button>
 							)}
 						</div>
@@ -395,6 +395,7 @@ const AskAIApp = () => {
 						</div>
 					</div>
 
+					<div className="divider"></div>
 					<div className="ai-response-content" ref={responseRef}>
 						{isLoading && !response && !streamingResponse ? (
 							<div className="loading-indicator">

@@ -13,7 +13,7 @@ class WindowHelper {
 		this.askAIWindow = null;
 		this.isAskAIVisible = false;
 		this.askAIWindowPosition = { x: 0, y: 0 };
-		this.askAIWindowSize = { width: 1000, height: 600 };
+		this.askAIWindowSize = { width: 600, height: 500 };
 
 		this.screenWidth = 0;
 		this.screenHeight = 0;
@@ -32,9 +32,13 @@ class WindowHelper {
 		this.screenHeight = workArea.height;
 
 		this.step = Math.floor(this.screenWidth / 10);
-		// Position at center top
+		// Position at center, below Dynamic Island with proper spacing
 		this.currentX = Math.floor(this.screenWidth / 2) - Math.floor(this.windowSize.width / 2);
-		this.currentY = 30; // Closer to top
+
+		// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
+		const dynamicIslandHeight = 180; // Height of expanded Dynamic Island
+		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+		this.currentY = 10 + dynamicIslandHeight + gapFromDynamicIsland;
 
 		const windowSettings = {
 			width: this.windowSize.width,
@@ -80,10 +84,19 @@ class WindowHelper {
 		this.overlayWindow = new BrowserWindow(windowSettings);
 
 		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
-		const overlayUrl =
-			process.env.NODE_ENV === 'development'
-				? `${devURL}/overlay.html`
-				: `file://${path.join(__dirname, '..', '..', 'build', 'overlay.html')}`;
+		const isDevelopment =
+			process.env.NODE_ENV === 'development' ||
+			process.env.NODE_ENV?.trim() === 'development';
+
+		log.info(`Environment: ${process.env.NODE_ENV}`);
+		log.info(`Dev URL: ${devURL}`);
+		log.info(`Is Development: ${isDevelopment}`);
+
+		const overlayUrl = isDevelopment
+			? `${devURL}/overlay.html`
+			: `file://${path.join(__dirname, '..', '..', 'build', 'overlay.html')}`;
+
+		log.info(`Loading overlay URL: ${overlayUrl}`);
 
 		this.overlayWindow.loadURL(overlayUrl).catch((err) => {
 			log.error('Failed to load overlay URL:', err);
@@ -136,11 +149,14 @@ class WindowHelper {
 		this.screenWidth = workArea.width;
 		this.screenHeight = workArea.height;
 
-		// Center Ask AI window on screen
+		// Center Ask AI window on screen, below Dynamic Island with proper spacing
 		const askAIX =
 			Math.floor(this.screenWidth / 2) - Math.floor(this.askAIWindowSize.width / 2);
-		const askAIY =
-			Math.floor(this.screenHeight / 2) - Math.floor(this.askAIWindowSize.height / 2);
+
+		// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
+		const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
+		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+		const askAIY = 10 + dynamicIslandHeight + gapFromDynamicIsland;
 
 		const windowSettings = {
 			width: this.askAIWindowSize.width,
@@ -186,10 +202,15 @@ class WindowHelper {
 		this.askAIWindow = new BrowserWindow(windowSettings);
 
 		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
-		const askAIUrl =
-			process.env.NODE_ENV === 'development'
-				? `${devURL}/askAI.html`
-				: `file://${path.join(__dirname, '..', '..', 'build', 'askAI.html')}`;
+		const isDevelopment =
+			process.env.NODE_ENV === 'development' ||
+			process.env.NODE_ENV?.trim() === 'development';
+
+		const askAIUrl = isDevelopment
+			? `${devURL}/askAI.html`
+			: `file://${path.join(__dirname, '..', '..', 'build', 'askAI.html')}`;
+
+		log.info(`Loading Ask AI URL: ${askAIUrl}`);
 
 		this.askAIWindow.loadURL(askAIUrl).catch((err) => {
 			log.error('Failed to load Ask AI URL:', err);
@@ -350,13 +371,18 @@ class WindowHelper {
 
 		const primaryDisplay = screen.getPrimaryDisplay();
 		const workArea = primaryDisplay.workAreaSize;
-		const topY = 30;
+
+		// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
+		// Position overlay below Dynamic Island with a gap
+		const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
+		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+		const topY = 30 + dynamicIslandHeight + gapFromDynamicIsland;
 
 		// Position overlay to allow space for ask AI on the right
 		let overlayX;
 		if (this.isAskAIWindowVisible() && this.askAIWindow && !this.askAIWindow.isDestroyed()) {
 			// Position overlay to the left to make room for ask AI on the right
-			const gap = 20; // Gap between windows
+			const gap = 30; // Gap between windows
 			const totalWidth = this.windowSize.width + this.askAIWindowSize.width + gap;
 			const startX = Math.floor(workArea.width / 2) - Math.floor(totalWidth / 2);
 			overlayX = startX;
@@ -422,11 +448,15 @@ class WindowHelper {
 		if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
 			// Position ask AI to the right of overlay
 			askAIX = this.currentX + this.windowSize.width + gap;
-			askAIY = 30; // Same Y level as overlay
+			askAIY = 80; // Same Y level as overlay
 		} else {
-			// Center ask AI when overlay is not visible
+			// Center ask AI when overlay is not visible, below Dynamic Island with proper spacing
 			askAIX = Math.floor(workArea.width / 2) - Math.floor(this.askAIWindowSize.width / 2);
-			askAIY = Math.floor(workArea.height / 2) - Math.floor(this.askAIWindowSize.height / 2);
+
+			// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
+			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
+			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+			askAIY = 30 + dynamicIslandHeight + gapFromDynamicIsland;
 		}
 
 		this.askAIWindow.setBounds({
@@ -517,8 +547,13 @@ class WindowHelper {
 			const startX = Math.floor(workArea.width / 2) - Math.floor(totalWidth / 2);
 			const overlayX = startX;
 			const askAIX = startX + newWidth + gap;
-			const overlayY = 30;
-			const askAIY = 30; // Same Y level as overlay
+
+			// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
+			// Position overlay below Dynamic Island with a gap
+			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
+			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+			const overlayY = 30 + dynamicIslandHeight + gapFromDynamicIsland;
+			const askAIY = overlayY; // Same Y level as overlay
 
 			// Update overlay window
 			this.overlayWindow.setBounds({
@@ -551,7 +586,12 @@ class WindowHelper {
 		} else {
 			// Standard centering when ask AI is not visible
 			const centerX = Math.floor(workArea.width / 2) - Math.floor(newWidth / 2);
-			const topY = 30;
+
+			// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
+			// Position overlay below Dynamic Island with a gap
+			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
+			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+			const topY = 30 + dynamicIslandHeight + gapFromDynamicIsland;
 
 			this.overlayWindow.setBounds({
 				x: centerX,
@@ -572,15 +612,15 @@ class WindowHelper {
 		const { screen } = require('electron');
 		const workArea = screen.getPrimaryDisplay().workAreaSize;
 
-		const newWidth = Math.min(width, 1000); // Allow up to 1000px width
-		const newHeight = Math.min(height, 700); // Max height 700px
+		const newWidth = Math.min(width, 600); // Allow up to 600px width
+		const newHeight = Math.min(height, 500); // Max height 400px
 
 		// Update ask AI positioning and maintain side-by-side layout if overlay is visible
 		if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
 			// Position ask AI to the right of overlay with gap
 			const gap = 20;
 			const askAIX = this.currentX + this.windowSize.width + gap;
-			const askAIY = 30; // Same Y level as overlay
+			const askAIY = this.currentY; // Same Y level as overlay
 
 			this.askAIWindow.setBounds({
 				x: askAIX,
@@ -598,9 +638,13 @@ class WindowHelper {
 				}
 			}, 50);
 		} else {
-			// Keep Ask AI window centered when overlay is not visible
+			// Keep Ask AI window centered when overlay is not visible, below Dynamic Island with proper spacing
 			const askAIX = Math.floor(workArea.width / 2) - Math.floor(newWidth / 2);
-			const askAIY = Math.floor(workArea.height / 2) - Math.floor(newHeight / 2);
+
+			// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
+			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
+			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+			const askAIY = 10 + dynamicIslandHeight + gapFromDynamicIsland;
 
 			this.askAIWindow.setBounds({
 				x: askAIX,
@@ -646,6 +690,33 @@ class WindowHelper {
 	registerGlobalShortcuts(mainWindow) {
 		this.mainWindow = mainWindow;
 
+		log.info('🚀 Starting global shortcut registration...');
+		log.info(`🖥️  Platform: ${process.platform}`);
+		log.info(
+			`🖥️  OS: ${
+				process.platform === 'win32'
+					? 'Windows'
+					: process.platform === 'darwin'
+					? 'macOS'
+					: 'Linux'
+			}`,
+		);
+		log.info(`⏰ Registration time: ${new Date().toISOString()}`);
+		log.info(`🔧 Node.js version: ${process.version}`);
+		log.info(`🔧 Electron version: ${process.versions.electron}`);
+		log.info(`🔧 Chrome version: ${process.versions.chrome}`);
+
+		// Check if globalShortcut is available
+		if (!globalShortcut) {
+			log.error('❌ globalShortcut module not available!');
+			return;
+		}
+
+		log.info('✅ globalShortcut module available, proceeding with registration...');
+
+		// Log system-specific information
+		this.logSystemInfo();
+
 		// Register Cmd+\ to toggle overlay window only (independent of main window)
 		const cmdBackslashRegistered = globalShortcut.register('CommandOrControl+\\', () => {
 			log.info('Cmd+\\ pressed - toggling overlay window only');
@@ -688,6 +759,79 @@ class WindowHelper {
 				});
 				if (altOverlayRegistered) {
 					log.info('✅ Ctrl+Alt+O shortcut registered as alternative');
+				}
+			}
+		}
+
+		// Register Cmd+/ (Ctrl+/ on Windows) to toggle overlay window
+		const cmdSlashRegistered = globalShortcut.register('CommandOrControl+/', () => {
+			log.info('🔍 Cmd+/ (Ctrl+/) SHORTCUT TRIGGERED!');
+			log.info(`📱 Platform: ${process.platform}`);
+			log.info(
+				`🖥️  OS: ${
+					process.platform === 'win32'
+						? 'Windows'
+						: process.platform === 'darwin'
+						? 'macOS'
+						: 'Linux'
+				}`,
+			);
+			log.info(`⏰ Timestamp: ${new Date().toISOString()}`);
+			log.info('🔄 Toggling overlay window...');
+
+			// Check if overlay window is visible
+			const isOverlayVisible = this.isVisible();
+			log.info(`👁️  Overlay window currently visible: ${isOverlayVisible}`);
+
+			if (isOverlayVisible) {
+				log.info('🙈 Hiding overlay window...');
+				// Hide overlay window only (keep ask AI visible if it's open)
+				this.hideOverlayWindow();
+				log.info('✅ Overlay window hidden successfully');
+			} else {
+				log.info('👁️  Showing overlay window...');
+				// Show overlay window only
+				// Create overlay window if it doesn't exist
+				if (!this.getOverlayWindow()) {
+					log.info('🏗️  Creating new overlay window...');
+					this.createOverlayWindow();
+				}
+				this.showOverlayWindow();
+				log.info('✅ Overlay window shown successfully');
+			}
+
+			log.info('🎯 Cmd+/ (Ctrl+/) shortcut execution completed');
+		});
+
+		if (cmdSlashRegistered) {
+			log.info('✅ Cmd+/ (Ctrl+/) shortcut registered successfully');
+			log.info(`🔧 Shortcut key: CommandOrControl+/`);
+			log.info(`🖥️  Platform: ${process.platform}`);
+		} else {
+			log.error('❌ Failed to register Cmd+/ (Ctrl+/) shortcut');
+			log.error(`🔧 Attempted shortcut key: CommandOrControl+/`);
+			log.error(`🖥️  Platform: ${process.platform}`);
+
+			// On Windows, try alternative shortcuts if the main one fails
+			if (process.platform === 'win32') {
+				log.info('🔄 Attempting to register Windows alternative shortcuts for Ctrl+/...');
+				// Try Ctrl+Alt+Slash as alternative
+				const altSlashRegistered = globalShortcut.register('Ctrl+Alt+/', () => {
+					log.info('🔍 Ctrl+Alt+/ pressed - alternative shortcut for overlay window');
+					const isOverlayVisible = this.isVisible();
+					if (isOverlayVisible) {
+						this.hideOverlayWindow();
+					} else {
+						if (!this.getOverlayWindow()) {
+							this.createOverlayWindow();
+						}
+						this.showOverlayWindow();
+					}
+				});
+				if (altSlashRegistered) {
+					log.info('✅ Ctrl+Alt+/ shortcut registered as alternative');
+				} else {
+					log.error('❌ Failed to register Ctrl+Alt+/ alternative shortcut');
 				}
 			}
 		}
@@ -782,19 +926,91 @@ class WindowHelper {
 		// });
 
 		// Log registration status
-		log.info('Global shortcut registration status:');
-		log.info(`  Cmd+\\: ${cmdBackslashRegistered ? '✅' : '❌'}`);
-		log.info(`  Cmd+Enter: ${cmdEnterRegistered ? '✅' : '❌'}`);
-		log.info(`  Cmd+Left: ${leftRegistered ? '✅' : '❌'}`);
-		log.info(`  Cmd+Right: ${rightRegistered ? '✅' : '❌'}`);
-		log.info(`  Cmd+Up: ${upRegistered ? '✅' : '❌'}`);
-		log.info(`  Cmd+Down: ${downRegistered ? '✅' : '❌'}`);
-		log.info(`  F12: ${f12Registered ? '✅' : '❌'}`);
-		log.info(`  Cmd+Shift+I: ${cmdShiftIRegistered ? '✅' : '❌'}`);
-		log.info(`  Cmd+Enter: ${cmdEnterRegistered ? '✅' : '❌'}`);
+		log.info('📊 Global shortcut registration status:');
+		log.info('='.repeat(50));
+		log.info(`🔧 Cmd+\\ (Ctrl+\\): ${cmdBackslashRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
+		log.info(`🔧 Cmd+/ (Ctrl+/) : ${cmdSlashRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
+		log.info(
+			`🔧 Cmd+Enter (Ctrl+Enter): ${cmdEnterRegistered ? '✅ REGISTERED' : '❌ FAILED'}`,
+		);
+		log.info(`🔧 Cmd+Left (Ctrl+Left): ${leftRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
+		log.info(`🔧 Cmd+Right (Ctrl+Right): ${rightRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
+		log.info(`🔧 Cmd+Up (Ctrl+Up): ${upRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
+		log.info(`🔧 Cmd+Down (Ctrl+Down): ${downRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
+		log.info(`🔧 F12: ${f12Registered ? '✅ REGISTERED' : '❌ FAILED'}`);
+		log.info(
+			`🔧 Cmd+Shift+I (Ctrl+Shift+I): ${cmdShiftIRegistered ? '✅ REGISTERED' : '❌ FAILED'}`,
+		);
+		log.info('='.repeat(50));
+
+		// Summary for Ctrl+/ specifically
+		if (cmdSlashRegistered) {
+			log.info('🎉 Ctrl+/ shortcut is READY for testing!');
+			log.info('💡 To test: Press Ctrl+/ (Windows) or Cmd+/ (macOS)');
+			log.info('📝 Check console logs for detailed execution info');
+		} else {
+			log.warn('⚠️  Ctrl+/ shortcut registration FAILED!');
+			log.warn('🔍 Check if another app is using this shortcut');
+			log.warn('🔄 Alternative shortcuts may be available');
+		}
 
 		app.on('will-quit', () => globalShortcut.unregisterAll());
-		log.info('Global shortcuts registered successfully');
+		log.info('✅ Global shortcuts registration process completed');
+	}
+
+	// Test function to verify shortcuts are working
+	testShortcuts() {
+		log.info('🧪 Testing global shortcuts...');
+		log.info('🔍 Press Ctrl+/ (Windows) or Cmd+/ (macOS) to test overlay toggle');
+		log.info('🔍 Press Ctrl+Enter (Windows) or Cmd+Enter (macOS) to test Ask AI toggle');
+		log.info('🔍 Press F12 to test developer tools toggle');
+		log.info('📝 Watch console logs for detailed execution logs');
+
+		// Check if shortcuts are already registered by other apps
+		this.checkShortcutConflicts();
+	}
+
+	// Check for potential shortcut conflicts
+	checkShortcutConflicts() {
+		log.info('🔍 Checking for potential shortcut conflicts...');
+
+		const shortcutsToCheck = [
+			'CommandOrControl+/',
+			'CommandOrControl+\\',
+			'CommandOrControl+Return',
+			'F12',
+		];
+
+		shortcutsToCheck.forEach((shortcut) => {
+			const isRegistered = globalShortcut.isRegistered(shortcut);
+			log.info(`🔧 ${shortcut}: ${isRegistered ? '✅ REGISTERED' : '❌ NOT REGISTERED'}`);
+		});
+
+		log.info('💡 If shortcuts show as NOT REGISTERED, they may be used by other applications');
+		log.info('🔄 Try closing other applications that might use these shortcuts');
+	}
+
+	// Log system-specific information for debugging
+	logSystemInfo() {
+		log.info('📋 System Information:');
+		log.info(`   Architecture: ${process.arch}`);
+		log.info(`   Platform: ${process.platform}`);
+		log.info(`   Version: ${process.version}`);
+
+		if (process.platform === 'win32') {
+			log.info('   Windows-specific info:');
+			log.info(`     Windows version: ${process.getSystemVersion()}`);
+			log.info('     Note: Windows global shortcuts should work by default');
+		} else if (process.platform === 'darwin') {
+			log.info('   macOS-specific info:');
+			log.info('     Note: macOS requires accessibility permissions for global shortcuts');
+			log.info(
+				'     Check System Preferences > Security & Privacy > Privacy > Accessibility',
+			);
+		} else {
+			log.info('   Linux-specific info:');
+			log.info('     Note: Linux global shortcuts should work by default');
+		}
 	}
 }
 
