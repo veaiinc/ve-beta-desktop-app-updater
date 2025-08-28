@@ -73,6 +73,24 @@ const useWorkspaceMode = () => {
 	const workspaceModeLoading =
 		isPublicRoute || workspaceNotFound ? false : workspaceMode === null;
 
+	const fetchMode = async () => {
+		try {
+			if (workspaceMode === null) {
+				const response = await getTenantSettings();
+				const success = response[0] === true;
+				if (!success) {
+					const { code } = response[1];
+					if (code === 401) {
+						logout();
+						channel.postMessage('reload');
+					} else if (code === 404) setWorkspaceNotFound(true);
+				}
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
 	useEffect(() => {
 		if (workspaceMode) {
 			localStorage.setItem('workspaceMode', workspaceMode);
@@ -81,23 +99,6 @@ const useWorkspaceMode = () => {
 
 	useEffect(() => {
 		if (isPublicRoute) return;
-		const fetchMode = async () => {
-			try {
-				if (workspaceMode === null) {
-					const response = await getTenantSettings();
-					const success = response[0] === true;
-					if (!success) {
-						const { code } = response[1];
-						if (code === 401) {
-							logout();
-							channel.postMessage('reload');
-						} else if (code === 404) setWorkspaceNotFound(true);
-					}
-				}
-			} catch (error) {
-				console.error(error);
-			}
-		};
 		fetchMode();
 	}, [isPublicRoute]);
 

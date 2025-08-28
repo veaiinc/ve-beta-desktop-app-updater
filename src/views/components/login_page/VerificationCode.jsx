@@ -255,7 +255,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 						We sent you a <span className="verification-code-title-span">code</span>
 					</h1>
 					<p className="verification-code-subtitle">
-						A 4-digit verification code has been sent to <strong>{email}</strong>.
+						A 4-digit verification code has been sent to <span>{email}</span>.
 					</p>
 				</div>
 
@@ -299,9 +299,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			</div>
 
 			<div className="acknowledge-container">
-				<span className="acknowledge-text">
-					By continuing, you acknowledge that you understand and agree to the{' '}
-				</span>
+				<span className="acknowledge-text">By signing in, you agree to our </span>
 				<span
 					className="acknowledge-text-link"
 					onClick={() => window.open('/terms-of-service', '_blank')}
