@@ -82,7 +82,6 @@ const UploadStatusComponent = ({
 
 		uploadFilesConcurrently();
 	};
-
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '12px' }}>
 			{lightGallery === 'true' && (

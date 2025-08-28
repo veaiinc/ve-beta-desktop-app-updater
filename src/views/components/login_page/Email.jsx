@@ -3,11 +3,12 @@ import validator from 'validator';
 // import '../../../assets/scss/login_page/index.scss';
 import '../../../assets/scss/login_page/email.scss';
 import { ReactComponent as GoogleLogo } from '../../../assets/svg/login_page/google.svg';
-import { ReactComponent as AppleLogo } from '../../../assets/svg/apple.svg';
-import { ReactComponent as MicrosoftLogo } from '../../../assets/svg/microsoft.svg';
+import { ReactComponent as DesktopImage } from '../../../assets/svg/login_page/desktopImageNew.svg';
 import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/uparrow-grey.svg';
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
 import { ReactComponent as EmailIcon } from '../../../assets/svg/footer/email.svg';
+import { ReactComponent as AgentsIcon } from '../../../assets/svg/login_page/newAgents.svg';
+import { ReactComponent as InfinityIcon } from '../../../assets/svg/login_page/infinityIcon.svg';
 import Context from '../../../context/context';
 import { getLocationsDetails } from '../../../helpers';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -235,20 +236,83 @@ const Email = ({
 						<span className="referrer-name">{`Invited by ${info?.referrerUserDetails?.referrerName}`}</span>
 					</h1>
 				)}
-				<h1 className="login-page-title">
+				<div className="login-page-title">
 					{/* <span className="title-one">AI.&nbsp; </span> */}
-					<span className="title-two">
-						LIVING <span className="title-two-span"> INTELLIGENCE</span>
+					<span className="meetVeIndicator">MEET VE</span>
+					<div className="titleContainer">
+						<span className="title-two">Your Living Intelligence </span>
+						<span className="title-three">OS for work</span>
+					</div>
+					<span className="login-page-subtitle">
+						An always-on, Real time, Proactive AI
 					</span>
-					<span className="login-page-subtitle">Ambient AI</span>
-				</h1>
+				</div>
 			</div>
+			<div className="loginOptionsViewer">
+				<div className="eachLoginOption">
+					<div className="eachOptionIcon">
+						<DesktopImage />
+					</div>
+					<div className="eachOptionDetails">
+						<div className="eachOptionTitle">Meeting & Desktop intelligence</div>
+						<div className="eachOptionDesc">
+							Sees what’s said. Remembers what matters.
+						</div>
+					</div>
+				</div>
+				<div className="eachLoginOption">
+					<div className="eachOptionIcon">
+						<AgentsIcon />
+					</div>
+					<div className="eachOptionDetails">
+						<div className="eachOptionTitle">Super Agent</div>
+						<div className="eachOptionDesc">
+							Tasks, risks, and insights appear as you work.
+						</div>
+					</div>
+				</div>
+				<div className="eachLoginOption">
+					<div className="eachOptionIcon">
+						<InfinityIcon />
+					</div>
+					<div className="eachOptionDetails">
+						<div className="eachOptionTitle">Ambient Cards</div>
+						<div className="eachOptionDesc">Plans, builds, and acts end to end.</div>
+					</div>
+				</div>
+			</div>
+			{info?.isHostnameVeDotAi && (
+				<>
+					<div className="service-container">
+						<div
+							disabled={info?.googleLoading}
+							className="google-login-button"
+							onClick={handleContinueWithGoogle}
+						>
+							<div className="google-logo-container">
+								<GoogleLogo />
+								<p>Continue with Google</p>
+							</div>
+							{info?.googleLoading && (
+								<Spinner
+									width="18px"
+									height="18px"
+									color="var(--primary-button)"
+									borderTopColor="transparent"
+									borderWidth={1.5}
+								/>
+							)}
+						</div>
+					</div>
+					<div className="or-divider">
+						<div className="line"></div>
+						<span className="or-text">OR</span>
+					</div>
+				</>
+			)}
 
 			<div className="login-content-wrapper">
 				<div className="login-button-container">
-					<div className="email-input-container-title">
-						<span>Email</span>
-					</div>
 					<div className="email-input-container">
 						<input
 							value={email}
@@ -256,7 +320,7 @@ const Email = ({
 							onKeyDown={handleContinueWithEmail}
 							autoFocus
 							type="email"
-							placeholder="example@acme.com"
+							placeholder="Enter your Email Address"
 							className="email-input"
 						/>
 						<button
@@ -287,38 +351,39 @@ const Email = ({
 						</button>
 					</div>
 				</div>
-
-				<>
-					<div className="or-divider">
-						<div className="line"></div>
-						<span className="or-text">OR</span>
-					</div>
-					<div className="service-container">
-						<div
-							disabled={info?.googleLoading}
-							className="google-login-button"
-							onClick={handleContinueWithGoogle}
-						>
-							<div className="google-logo-container">
-								<GoogleLogo />
-								<p>Continue with Google</p>
-							</div>
-							{info?.googleLoading && (
-								<Spinner
-									width="18px"
-									height="18px"
-									color="var(--primary-button)"
-									borderTopColor="transparent"
-									borderWidth={1.5}
-								/>
-							)}
+				{info?.isHostnameVeDotAi && (
+					<>
+						<div className="or-divider">
+							<div className="line"></div>
+							<span className="or-text">OR</span>
 						</div>
-					</div>
-				</>
+						<div className="service-container">
+							<div
+								disabled={info?.googleLoading}
+								className="google-login-button"
+								onClick={handleContinueWithGoogle}
+							>
+								<div className="google-logo-container">
+									<GoogleLogo />
+									<p>Continue with Google</p>
+								</div>
+								{info?.googleLoading && (
+									<Spinner
+										width="18px"
+										height="18px"
+										color="var(--primary-button)"
+										borderTopColor="transparent"
+										borderWidth={1.5}
+									/>
+								)}
+							</div>
+						</div>
+					</>
+				)}
 			</div>
 			<div className="acknowledge-container">
 				<p className="acknowledge-text">
-					By continuing, you acknowledge that you understand and agree to the{' '}
+					By signing in, you agree to our{' '}
 					<span
 						className="acknowledge-text-link"
 						onClick={() => window.open('/terms-of-service', '_blank')}

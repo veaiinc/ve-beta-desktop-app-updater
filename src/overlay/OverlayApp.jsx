@@ -47,6 +47,7 @@ const OverlayApp = () => {
 	// Live Intelligence Socket Data
 	const [liveIntelligenceData, setLiveIntelligenceData] = useState(initialState);
 	const [recallSessionId, setRecallSessionId] = useState(null);
+	const [meetingData, setMeetingData] = useState(null);
 
 	// Ask AI input state
 	const [isAskAIInputFocused, setIsAskAIInputFocused] = useState(false);
@@ -62,7 +63,7 @@ const OverlayApp = () => {
 
 	// Context
 	const {
-		notes: { getLiveKitToken, deleteLiveKitRoom },
+		notes: { getLiveKitToken, deleteLiveKitRoom, createMeetBot },
 		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
 
@@ -289,7 +290,7 @@ const OverlayApp = () => {
 				const message = {
 					tenantId: tennantSettingsData._id,
 					sessionId: recallSessionId,
-					pageId: '688b653dde81dd3d71a41584', // Default pageId from NoteTakerTranscript
+					pageId: recallSessionId, // Use meeting ID as page ID since it's the same meeting
 					meetingId: recallSessionId,
 					speakerName: 'VE Note Taker',
 					transcript: transcriptionData.text || transcriptionData.transcript,
@@ -314,7 +315,47 @@ const OverlayApp = () => {
 		setRecallSessionId(newSessionId);
 
 		try {
-			// First, request and test microphone access - this will prompt user if needed
+			// First, create a meeting via API
+			console.log('Creating meeting via API...');
+
+			// Generate default title with current date and time
+			const now = new Date();
+			const day = now.getDate().toString().padStart(2, '0');
+			const month = now.toLocaleString('en-US', { month: 'short' });
+			const year = now.getFullYear();
+			const hours = now.getHours().toString().padStart(2, '0');
+			const minutes = now.getMinutes().toString().padStart(2, '0');
+			const defaultTitle = `${day} ${month} ${year} ${hours}:${minutes}`;
+
+			const meetingInput = {
+				title: defaultTitle,
+				transcriptionSource: 'desktop',
+				isAiIntelligenceEnabled: true,
+				meetingMode: 'meeting',
+				agenda: '',
+			};
+
+			// Create meeting via API
+			const meetingResponse = await createMeetBot({ input: meetingInput });
+
+			if (meetingResponse && meetingResponse[0] === true) {
+				const meetingData = meetingResponse[1]?.data?.startMeeting;
+				console.log('Meeting created successfully:', meetingData);
+
+				// Store meeting data and ID for later use
+				setMeetingData(meetingData);
+				sessionIdRef.current = meetingData._id;
+				setRecallSessionId(meetingData._id);
+			} else {
+				console.error('Failed to create meeting:', meetingResponse);
+				notification.error(
+					'Meeting creation failed',
+					'Failed to create meeting. Please try again.',
+				);
+				return;
+			}
+
+			// Request and test microphone access - this will prompt user if needed
 			console.log('Starting transcription - requesting microphone access...');
 
 			// Show info notification that we're requesting permission
@@ -388,9 +429,11 @@ const OverlayApp = () => {
 				);
 			}
 
+			// Use the meeting ID from the API response for LiveKit token
+			const meetingId = sessionIdRef.current;
 			const response = await getLiveKitToken({
-				meetingId: newSessionId,
-				sessionId: newSessionId,
+				meetingId: meetingId,
+				sessionId: meetingId,
 			});
 			if (response && response[0] === true && response[1]?.accessToken) {
 				setLiveKitToken(response[1].accessToken);
@@ -398,12 +441,15 @@ const OverlayApp = () => {
 				setRecordingStartTime(Date.now()); // Set the start time
 
 				// Show success notification
-				notification.success('Recording started', 'Microphone connected successfully');
+				notification.success(
+					'Recording started',
+					'Meeting created and microphone connected successfully',
+				);
 
 				// Start Recall connection for Live Intelligence
 				createRecallConnection(
-					newSessionId,
-					newSessionId,
+					meetingId,
+					meetingId,
 					handleRecallSocketMessage,
 					true, // isAiIntelligenceEnabled
 				);
@@ -419,18 +465,18 @@ const OverlayApp = () => {
 				);
 			}
 		} catch (err) {
-			console.error('Error fetching LiveKit token:', err);
+			console.error('Error starting transcription:', err);
 			// Check if it's a microphone permission error
 			if (err.message && err.message.includes('Microphone permission')) {
 				notification.error('Microphone permission error', err.message);
 			} else {
 				notification.error(
 					'Connection error',
-					'Error fetching transcription token. Please try again.',
+					'Error starting transcription. Please try again.',
 				);
 				notification.error(
 					'Connection error',
-					'Error fetching transcription token. Please try again.',
+					'Error starting transcription. Please try again.',
 				);
 			}
 		}
@@ -745,6 +791,7 @@ const OverlayApp = () => {
 
 		// Clear Live Intelligence data
 		setLiveIntelligenceData(initialState);
+		setMeetingData(null);
 	};
 
 	// Function to send recording state updates to Dynamic Island

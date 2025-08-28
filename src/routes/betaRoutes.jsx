@@ -56,12 +56,14 @@ import GalleryPage from '../views/features/gallery/GalleryPage';
 import GalleryViewer from '../views/features/gallery/GalleryViewer';
 import UploadPhotosDesktop from '../views/features/gallery/UploadPhotosDesktop';
 // components
+import publicRoutes from './publicRoutes';
 import MeetBotWrapper from '../views/features/meetBot/meetBotWrapper';
 import ProactiveSuggestions from '../views/features/homePage/ambientAi/ProactiveSuggestions';
 import CardMeetBot from '../views/features/meetBot/CardMeetBot';
 import ChatPage from '../views/components/homePage/ChatPage';
-import NotesWrapper from '../views/features/notesModule/NotesWrapper';
 import DynamicIslandControls from '../notch/components/DynamicIslandControls';
+import NotesWrapper from '../views/features/meetBot/NotesWrapper';
+
 const betaRoutes = [
 	// ========================================
 	// ONBOARDING, HOME & FEATURES
@@ -825,5 +827,9 @@ const betaRoutes = [
 			</Public>
 		),
 	},
+	// ========================================
+	// PUBLIC ROUTES
+	// ========================================
+	...publicRoutes,
 ];
 export default betaRoutes;

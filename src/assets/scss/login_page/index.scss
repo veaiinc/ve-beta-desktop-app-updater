@@ -15,6 +15,7 @@
 		.main-content-container {
 			display: flex;
 			flex-direction: column;
+			background: #e3e3e3;
 
 			.header-container {
 				display: flex;
@@ -57,8 +58,8 @@
 			align-items: center;
 			gap: 16px;
 			border-radius: 8px;
-			border: 1px solid var(--stroke, #2c2d2e);
-			background: var(--card, #1b1c1d);
+			border: 1px solid grey;
+			background: #e3e3e3;
 
 			.cookie-container {
 				display: flex;
@@ -73,7 +74,7 @@
 				}
 
 				.cookie-text {
-					color: var(--primary-font, #f2f2f3);
+					color: #18181b;
 					text-align: center;
 					font-family: var(--primary-font-family);
 					font-size: 13px;
@@ -82,7 +83,7 @@
 					line-height: 22px; /* 169.231% */
 
 					.cookie-policy-link {
-						color: var(--primary-font, #f2f2f3);
+						color: #18181b;
 						font-family: var(--primary-font-family);
 						font-size: 13px;
 						font-style: normal;
@@ -126,6 +127,10 @@
 					}
 				}
 
+				.accept-button {
+					color: #18181b;
+				}
+
 				.decline-button {
 					display: flex;
 					padding: 8px 16px;
@@ -137,7 +142,7 @@
 					gap: 10px;
 					border-radius: 100px;
 					border: 1px solid var(--stroke, #2c2d2e);
-					color: var(--primary-font, #f2f2f3);
+					color: #18181b;
 					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;

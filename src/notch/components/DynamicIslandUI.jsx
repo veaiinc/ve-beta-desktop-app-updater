@@ -13,8 +13,16 @@ import {
 } from './DynamicIslandIcons';
 import './DynamicIslandUI.scss';
 
+// Camera permission utilities - simplified for Electron
+const stopCamera = (stream) => {
+	if (stream) {
+		stream.getTracks().forEach((track) => track.stop());
+	}
+};
+
 const DynamicIslandUI = () => {
 	const dynamicIslandRef = useRef(null);
+	const videoRef = useRef(null);
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [isConnected, setIsConnected] = useState(false);
 	// Overlay state - synced from overlay window
@@ -27,6 +35,13 @@ const DynamicIslandUI = () => {
 	// Chat mode state
 	const [isChatMode, setIsChatMode] = useState(false);
 	const [chatInput, setChatInput] = useState('');
+	// Camera state
+	const [isCameraActive, setIsCameraActive] = useState(false);
+	const [cameraStream, setCameraStream] = useState(null);
+	const [cameraPermission, setCameraPermission] = useState('not-determined');
+	const [cameraError, setCameraError] = useState(null);
+	const [isCameraStarting, setIsCameraStarting] = useState(false);
+	const [cameraStatus, setCameraStatus] = useState('idle'); // 'idle', 'starting', 'active', 'error'
 
 	useEffect(() => {
 		// Check authentication status
@@ -87,6 +102,131 @@ const DynamicIslandUI = () => {
 			}
 		};
 	}, []);
+
+	// Check camera permission on mount and when app gains focus
+	useEffect(() => {
+		const checkCameraPermission = async () => {
+			if (window.electronApi?.askAI?.camera?.checkPermission) {
+				try {
+					const result = await window.electronApi.askAI.camera.checkPermission();
+					if (result.success) {
+						setCameraPermission(result.permission);
+						console.log('Camera permission status:', result.permission);
+					}
+				} catch (error) {
+					console.error('Error checking camera permission:', error);
+					setCameraPermission('error');
+				}
+			}
+		};
+
+		// Initial check
+		checkCameraPermission();
+
+		// Check permission when app gains focus (user might have changed system settings)
+		const handleFocus = () => {
+			console.log('App gained focus - checking camera permission...');
+			checkCameraPermission();
+		};
+
+		// Listen for focus events
+		window.addEventListener('focus', handleFocus);
+		window.addEventListener('visibilitychange', () => {
+			if (!document.hidden) {
+				handleFocus();
+			}
+		});
+
+		return () => {
+			window.removeEventListener('focus', handleFocus);
+			window.removeEventListener('visibilitychange', handleFocus);
+		};
+	}, []);
+
+	// Cleanup camera stream on unmount
+	useEffect(() => {
+		return () => {
+			if (cameraStream) {
+				console.log('Cleaning up camera stream on unmount');
+				stopCamera(cameraStream);
+				setCameraStream(null);
+				setIsCameraActive(false);
+				setCameraStatus('idle');
+			}
+		};
+	}, [cameraStream]);
+
+	// Handle camera device changes - simplified
+	useEffect(() => {
+		const handleDeviceChange = () => {
+			console.log('Camera device changed');
+		};
+
+		navigator.mediaDevices.addEventListener('devicechange', handleDeviceChange);
+
+		return () => {
+			navigator.mediaDevices.removeEventListener('devicechange', handleDeviceChange);
+		};
+	}, []);
+
+	// Handle camera stream errors - simplified
+	useEffect(() => {
+		if (cameraStream) {
+			const handleTrackEnded = () => {
+				console.log('Camera track ended');
+			};
+
+			cameraStream.getVideoTracks().forEach((track) => {
+				track.addEventListener('ended', handleTrackEnded);
+			});
+
+			return () => {
+				cameraStream.getVideoTracks().forEach((track) => {
+					track.removeEventListener('ended', handleTrackEnded);
+				});
+			};
+		}
+	}, [cameraStream]);
+
+	// Handle video element setup when camera stream changes
+	useEffect(() => {
+		if (cameraStream && videoRef.current) {
+			try {
+				console.log('Setting up video element with camera stream...');
+				videoRef.current.srcObject = cameraStream;
+
+				// Add event listeners for debugging
+				videoRef.current.onloadedmetadata = () => {
+					console.log('✅ Video metadata loaded');
+					console.log(
+						'Video dimensions:',
+						videoRef.current.videoWidth,
+						'x',
+						videoRef.current.videoHeight,
+					);
+				};
+
+				videoRef.current.oncanplay = () => {
+					console.log('✅ Video can play');
+				};
+
+				videoRef.current.onplay = () => {
+					console.log('✅ Video started playing');
+				};
+
+				videoRef.current.onerror = (e) => {
+					console.error('❌ Video error:', e);
+				};
+
+				// Start playing the video
+				videoRef.current.play().catch((e) => {
+					console.error('Error playing video:', e);
+				});
+			} catch (error) {
+				console.error('Error setting up video element:', error);
+			}
+		}
+	}, [cameraStream]);
 
 	// Timer is now managed by overlay system, no local timer effect needed
 
@@ -156,28 +296,167 @@ const DynamicIslandUI = () => {
 
 		if (!isRecording) {
 			// Check if overlay API is available
-			if (!window.electronApi?.overlay?.toggleLiveIntelligence) {
-				console.error('Overlay API not available in Dynamic Island');
+			if (!window.electronApi?.overlay?.startRecording) {
+				console.error('Overlay startRecording API not available in Dynamic Island');
 				return;
 			}
 
 			// Trigger overlay to start recording and show Live Intelligence panel
 			try {
-				console.log('Calling overlay.toggleLiveIntelligence()...');
-				const result = await window.electronApi.overlay.toggleLiveIntelligence();
-				console.log('Overlay toggle result:', result);
+				console.log('Calling overlay.startRecording()...');
+				const result = await window.electronApi.overlay.startRecording();
+				console.log('Overlay start recording result:', result);
 			} catch (error) {
 				console.error('Error triggering overlay from Dynamic Island:', error);
 			}
 		}
 	};
 
-	const handleWebcamClick = () => {
+	const handleWebcamClick = async () => {
 		console.log('📹 Webcam section clicked');
+
 		// Exit chat mode when webcam is clicked
 		if (isChatMode) {
 			setIsChatMode(false);
 			setChatInput('');
+		}
+
+		// Clear any previous errors
+		setCameraError(null);
+
+		// If camera is already active, stop it
+		if (isCameraActive) {
+			console.log('Stopping active camera...');
+			stopCamera(cameraStream);
+			setCameraStream(null);
+			setIsCameraActive(false);
+			setCameraStatus('idle');
+			return;
+		}
+
+		// Check if getUserMedia is available
+		if (!navigator.mediaDevices?.getUserMedia) {
+			setCameraError('Camera not supported in this browser');
+			return;
+		}
+
+		// Check current camera permission status first
+		if (window.electronApi?.askAI?.camera?.checkPermission) {
+			try {
+				console.log('Checking current camera permission status...');
+				const checkResult = await window.electronApi.askAI.camera.checkPermission();
+				console.log('Camera permission check result:', checkResult);
+
+				if (checkResult.success) {
+					if (checkResult.permission === 'denied') {
+						setCameraError(
+							'Camera access denied. Please enable camera access in System Preferences > Security & Privacy > Privacy > Camera.',
+						);
+						return;
+					} else if (checkResult.permission === 'restricted') {
+						setCameraError('Camera access is restricted by system policy.');
+						return;
+					}
+				}
+			} catch (error) {
+				console.error('Error checking camera permission:', error);
+			}
+		}
+
+		// Request camera permission if not determined
+		if (window.electronApi?.askAI?.camera?.requestPermission) {
+			try {
+				console.log('Requesting camera permission through Electron...');
+				const permissionResult = await window.electronApi.askAI.camera.requestPermission();
+				console.log('Camera permission result:', permissionResult);
+
+				if (!permissionResult.success || !permissionResult.granted) {
+					setCameraError(
+						permissionResult.error ||
+							'Camera permission denied. Please allow camera access in system settings.',
+					);
+					return;
+				}
+
+				// Update permission status
+				setCameraPermission(permissionResult.status);
+			} catch (error) {
+				console.error('Error requesting camera permission:', error);
+				setCameraError('Failed to request camera permission');
+				return;
+			}
+		}
+
+		// Start camera immediately
+		console.log('Starting camera...');
+		setIsCameraStarting(true);
+		setCameraStatus('starting');
+
+		try {
+			// Simple camera start with basic constraints
+			const stream = await navigator.mediaDevices.getUserMedia({
+				video: {
+					width: { ideal: 200 },
+					height: { ideal: 200 },
+					frameRate: { ideal: 24 },
+				},
+			});
+
+			console.log('Camera started successfully');
+			setCameraStream(stream);
+			setIsCameraActive(true);
+			setIsCameraStarting(false);
+			setCameraStatus('active');
+
+			// Set up video element
+			if (videoRef.current) {
+				console.log('Setting up video element in handleWebcamClick...');
+				videoRef.current.srcObject = stream;
+				console.log('Video srcObject set:', videoRef.current.srcObject);
+
+				// Force video to be visible
+				videoRef.current.style.display = 'block';
+				videoRef.current.style.visibility = 'visible';
+
+				videoRef.current.play().catch((e) => {
+					console.error('Error playing video:', e);
+				});
+			} else {
+				console.error('Video ref not available');
+			}
+		} catch (error) {
+			console.error('Camera start failed:', error);
+			setCameraError(`Camera error: ${error.message}`);
+			setIsCameraStarting(false);
+			setCameraStatus('error');
+		}
+	};
+
+	// Clear camera error when user interacts with webcam section
+	const handleWebcamMouseEnter = () => {
+		if (cameraError) {
+			setCameraError(null);
+		}
+	};
+
+	// Function to manually refresh camera permissions
+	const refreshCameraPermissions = async () => {
+		if (window.electronApi?.askAI?.camera?.checkPermission) {
+			try {
+				console.log('Manually refreshing camera permissions...');
+				const result = await window.electronApi.askAI.camera.checkPermission();
+				if (result.success) {
+					setCameraPermission(result.permission);
+					console.log('Updated camera permission status:', result.permission);
+
+					// Clear any errors if permission is now granted
+					if (result.permission === 'granted' && cameraError) {
+						setCameraError(null);
+					}
+				}
+			} catch (error) {
+				console.error('Error refreshing camera permissions:', error);
+			}
 		}
 	};
 
@@ -284,6 +563,21 @@ const DynamicIslandUI = () => {
 			);
 		}
 	}, []);
+
+	// Manual mouse event control (for debugging or special cases)
+	const setMouseEvents = async (ignore) => {
+		if (!isConnected) return;
+
+		try {
+			console.log(`🔧 Manually setting mouse events to ${ignore ? 'ignore' : 'enable'}`);
+			const result = await window.electronApi.dynamicIsland.setMouseEvents(ignore);
+			if (result.success) {
+				console.log(`✅ Mouse events ${ignore ? 'ignored' : 'enabled'} successfully`);
+			}
+		} catch (error) {
+			console.error('❌ Error setting mouse events:', error);
+		}
+	};
 
 	return (
 		<div
@@ -430,9 +724,101 @@ const DynamicIslandUI = () => {
 									</div>
 
 									{/* Webcam section */}
-									<div className="webcam-section" onClick={handleWebcamClick}>
-										<WebcamIcon />
-										<div className="webcam-label">Webcam</div>
+									<div
+										className={`webcam-section ${
+											isCameraActive ? 'camera-active' : ''
+										} ${
+											cameraPermission === 'denied' ||
+											cameraPermission === 'restricted'
+												? 'camera-denied'
+												: ''
+										}`}
+										onClick={
+											cameraPermission === 'denied' ||
+											cameraPermission === 'restricted'
+												? (e) => {
+														e.stopPropagation();
+														if (
+															window.electronApi?.askAI?.camera
+																?.showPermissionHelp
+														) {
+															window.electronApi.askAI.camera.showPermissionHelp();
+														}
+												  }
+												: handleWebcamClick
+										}
+										onMouseEnter={handleWebcamMouseEnter}
+										title={
+											isCameraActive
+												? 'Click to stop camera'
+												: cameraPermission === 'denied' ||
+												  cameraPermission === 'restricted'
+												? 'Click to open system permissions'
+												: 'Click to start camera'
+										}
+									>
+										{isCameraStarting ? (
+											<div className="camera-loading">
+												<div className="loading-spinner"></div>
+												<div className="loading-text">Starting...</div>
+											</div>
+										) : isCameraActive && cameraStream ? (
+											<>
+												<video
+													ref={videoRef}
+													autoPlay
+													playsInline
+													muted
+													className="webcam-video"
+													style={{
+														width: '100%',
+														height: '100%',
+														objectFit: 'cover',
+														borderRadius: '100px',
+														display: 'block',
+														visibility: 'visible',
+													}}
+												/>
+												{/* Debug info */}
+												<div className="camera-live-indicator">Live</div>
+												{/* Hover overlay to show "Click to stop" */}
+												<div className="camera-hover-overlay">
+													Click to stop
+												</div>
+											</>
+										) : cameraPermission === 'denied' ||
+										  cameraPermission === 'restricted' ? (
+											<>
+												<div className="webcam-label permission-required">
+													Permission Required
+												</div>
+											</>
+										) : (
+											<>
+												<WebcamIcon />
+												<div className="webcam-label">Webcam</div>
+												{/* Debug info */}
+												<div className="camera-click-instruction">
+													Click to start
+												</div>
+											</>
+										)}
+
+										{/* Camera error display */}
+										{cameraError && (
+											<div className="camera-error">{cameraError}</div>
+										)}
+
+										{/* Camera status for different states */}
+										{cameraStatus === 'starting' && (
+											<div className="camera-status starting">
+												Starting...
+											</div>
+										)}
+
+										{cameraStatus === 'error' && (
+											<div className="camera-status error">⚠ Error</div>
+										)}
 									</div>
 								</>
 							)}
