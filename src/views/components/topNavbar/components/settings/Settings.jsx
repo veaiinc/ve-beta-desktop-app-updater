@@ -15,6 +15,7 @@ import { ReactComponent as HelpSvg } from '../../assets/help.svg';
 import { ReactComponent as SwitchWorkspaceSvg } from '../../assets/switch-workspace.svg';
 import { ReactComponent as LogoutSvg } from '../../assets/logout.svg';
 import { ReactComponent as DownloadMacSvg } from '../../assets/download-mac.svg';
+import { ReactComponent as DownloadWindowsSvg } from '../../assets/download-windows.svg';
 import { ReactComponent as TemplatesSvg } from '../../assets/templates.svg';
 import useIntercom from '../../../../../hooks/useIntercom';
 import useBroadcastChannel from '../../../../../hooks/useBroadcastChannel';
@@ -288,10 +289,19 @@ const Settings = ({
 				</button>
 			</div>
 
-			{isMac && !info?.isDesktop && (
+			{!info?.isDesktop && (
 				<button className={s.downloadMacAppButton} onClick={handleInstallOrOpen}>
-					<DownloadMacSvg />
-					<span>Download Mac app</span>
+					{isMac ? (
+						<>
+							<DownloadMacSvg />
+							<span>Download Mac App</span>
+						</>
+					) : (
+						<>
+							<DownloadWindowsSvg />
+							<span>Download Windows App</span>
+						</>
+					)}
 				</button>
 			)}
 			{workspacesMoreThanOne && (
