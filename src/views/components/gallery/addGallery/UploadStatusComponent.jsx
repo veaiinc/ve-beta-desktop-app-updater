@@ -82,7 +82,6 @@ const UploadStatusComponent = ({
 
 		uploadFilesConcurrently();
 	};
-	console.log(info?.duplciatesFound, 'duplicateImage');
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '12px' }}>
 			{lightGallery === 'true' && (
