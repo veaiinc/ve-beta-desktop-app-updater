@@ -2940,6 +2940,9 @@ export const TemplatesState = (props) => {
 	};
 
 	const handleTranscriptionSuggestions = async (payload) => {
+		console.log(payload, 'context');
+		
+
 		try {
 			dispatch({
 				type: Actions.HANDLE_TRANSCRIPTION_SUGGESTIONS,

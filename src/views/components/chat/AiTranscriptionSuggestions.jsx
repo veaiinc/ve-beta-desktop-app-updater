@@ -348,7 +348,9 @@ const AiTranscriptionSuggestions = ({
 										}
 									>
 										<div className={s.questionText}>
-											<div className={s.text}>{question?.query || ''}</div>
+											<div className={s.text}>
+												{question?.query || question?.name}
+											</div>
 										</div>
 										{question?.is_memory_used && (
 											<div className={s.memoryUsedContainer}>
@@ -376,7 +378,7 @@ const AiTranscriptionSuggestions = ({
 									onClick={() => handleActionClick(action?.query || '')}
 								>
 									<div className={s.iconContainer}></div>
-									{action?.query || ''}
+									{action?.name || ''}
 								</div>
 								<div className={s.horizontalLine} />
 							</>

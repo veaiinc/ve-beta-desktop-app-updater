@@ -18,6 +18,7 @@ export default function AssemblyTranscription({
 	timezone = 'Asia/Kolkata',
 	wsUrl = meeting_ws_api_US,
 	jwtToken,
+	isAiIntelligenceEnabled,
 }) {
 	const [isConnected, setIsConnected] = useState(false);
 	const [isRecording, setIsRecording] = useState(false);
@@ -89,6 +90,7 @@ export default function AssemblyTranscription({
 							region: 'ap-south-1',
 						},
 						timezone: timezone,
+						is_ai_intelligence_enabled: isAiIntelligenceEnabled,
 					};
 
 					ws.send(JSON.stringify(authData));
@@ -107,11 +109,12 @@ export default function AssemblyTranscription({
 							if (data.text && data.text.trim()) {
 								const transcriptionData = {
 									id: Date.now().toString(),
-									displayedText: data.text,
+									text: data.text,
 									isFinal: data.is_final || data.end_of_turn,
 									isTurnFormatted: data.isTurnFormatted,
 									timestamp: new Date().toISOString(),
 								};
+								console.log('this is a response', transcriptionData);
 
 								if (onTranscriptionUpdate) {
 									onTranscriptionUpdate(transcriptionData);
@@ -127,7 +130,9 @@ export default function AssemblyTranscription({
 						} else {
 							// Handle live intelligence or other responses
 							if (onLiveIntelligenceResponse) {
-								onLiveIntelligenceResponse(data);
+								console.log(data?.data, 'from live ig');
+
+								onLiveIntelligenceResponse(data?.data);
 							}
 							log(`Live Intelligence response: ${JSON.stringify(data)}`);
 						}
@@ -180,8 +185,9 @@ export default function AssemblyTranscription({
 	}, []);
 
 	const startRecording = useCallback(async () => {
-		if (!websocketRef.current || websocketRef.current.readyState !== WebSocket.OPEN) {
+		if (!websocketRef.current) {
 			const connected = await connect();
+
 			if (!connected) {
 				return;
 			}
@@ -264,6 +270,8 @@ export default function AssemblyTranscription({
 			processor.connect(audioContext.destination);
 
 			setIsRecording(true);
+			console.log('getting here on button click');
+
 			setTimer(0);
 
 			// Start timer

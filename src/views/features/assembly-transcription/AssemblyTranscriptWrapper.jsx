@@ -14,6 +14,7 @@ const AssemblyTranscriptWrapper = ({
 	userName,
 	location,
 	timezone = 'Asia/Kolkata',
+	isAiIntelligenceEnabled,
 }) => {
 	const meetingId = useParams()?.meetingId;
 	const [transcriptions, setTranscriptions] = useState([]);
@@ -63,11 +64,13 @@ const AssemblyTranscriptWrapper = ({
 
 	const handleUpdateTranscription = useCallback(
 		(transcription = null) => {
+			console.log('getting 2', transcription);
+
 			if (!transcription) return;
 
 			const formatted = {
 				type: 'text',
-				text: transcription.displayedText || '',
+				text: transcription.text || '',
 				isFinal: transcription?.isFinal,
 				isTurnFormatted: transcription?.isTurnFormatted,
 				time: new Date().toLocaleTimeString(),
@@ -153,6 +156,7 @@ const AssemblyTranscriptWrapper = ({
 				timezone={timezone}
 				wsUrl={wsUrl}
 				jwtToken={jwtToken}
+				isAiIntelligenceEnabled={isAiIntelligenceEnabled}
 			/>
 		</div>
 	);

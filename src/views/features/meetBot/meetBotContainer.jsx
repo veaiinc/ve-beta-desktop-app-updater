@@ -120,6 +120,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		sendMessage: recallSendMessage,
 		closeWebSocketConnection: closeRecallConnection,
 	} = useRecallStream();
+	console.log('aiTranscriptionSuggestions', aiTranscriptionSuggestions);
 
 	// useEffect(() => {
 	// 	if (!aiLiveIntelligenceHistory) {
@@ -410,6 +411,8 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	// );
 
 	const handleSocketTranscription = (newTranscript) => {
+		console.log('getting here', newTranscript);
+
 		setInfo((prev) => {
 			const transcriptions = prev.transcriptions || [];
 
@@ -841,7 +844,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 				{/* Assembly AI Transcription option */}
 				{showTranscriptTabs && type === 'desktop' && !history && useAssemblyAI && (
 					<AssemblyTranscriptWrapper
-						sendMessage={recallSendMessage}
+						sendMessage={(data) => handleTranscriptionSuggestions(data)}
 						tenantId={tennantSettingsData?._id}
 						sessionId={sessionId}
 						visible={activeTab === 'transcript'}
@@ -861,6 +864,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 							region: 'ap-south-1',
 						}}
 						timezone="Asia/Kolkata"
+						isAiIntelligenceEnabled={isAiIntelligenceEnabled}
 					/>
 				)}
 			</div>
