@@ -62,7 +62,7 @@ import ProactiveSuggestions from '../views/features/homePage/ambientAi/Proactive
 import CardMeetBot from '../views/features/meetBot/CardMeetBot';
 import ChatPage from '../views/components/homePage/ChatPage';
 import DynamicIslandControls from '../notch/components/DynamicIslandControls';
-import NotesWrapper from '../views/features/meetBot/NotesWrapper';
+import NotesWrapper from '../views/features/notesModule/NotesWrapper';
 
 const betaRoutes = [
 	// ========================================
