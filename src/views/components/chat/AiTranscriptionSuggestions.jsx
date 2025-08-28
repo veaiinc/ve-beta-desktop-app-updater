@@ -9,6 +9,58 @@ import Context from '../../../context/context';
 import { fileTypeIcons, redirectTo, redirectTypeMapper } from '../../../helpers';
 import { useSearchParams } from 'react-router-dom';
 
+const allSuggestions = [
+	{
+		entity: 'agent',
+		prompt: 'create a new task as requested by Nandu',
+		name: 'Create Task for Nandu',
+		confidence_score: 9,
+		type: 'action',
+	},
+	{
+		entity: 'agent',
+		prompt: 'find the distance between Kacholi and Tolchoki',
+		name: 'Distance Kacholi-Tolchoki',
+		confidence_score: 8,
+		type: 'search',
+	},
+	{
+		entity: 'agent',
+		prompt: 'summarize key features and benefits of Node.js for backend development',
+		name: 'Node.js Backend Benefits',
+		confidence_score: 8,
+		type: 'search',
+	},
+	{
+		entity: 'agent',
+		prompt: 'list best practices for Node.js application development',
+		name: 'Node.js Best Practices',
+		confidence_score: 10,
+		type: 'search',
+	},
+	{
+		entity: 'user',
+		prompt: 'What challenges have you faced using Node.js in past projects?',
+		name: 'Node.js Challenges',
+		confidence_score: 8,
+		type: null,
+	},
+	{
+		entity: 'user',
+		prompt: 'How do you prioritize security when developing with Node.js?',
+		name: 'Node.js Security Focus',
+		confidence_score: 8,
+		type: null,
+	},
+	{
+		entity: 'user',
+		prompt: 'What features are most important for your new Node.js website?',
+		name: 'Node.js Website Features',
+		confidence_score: 8,
+		type: null,
+	},
+];
+
 const AiTranscriptionSuggestions = ({
 	closeModal,
 	showAmbientAssistance,
@@ -17,7 +69,7 @@ const AiTranscriptionSuggestions = ({
 	actions = [],
 	files = [],
 	activeTab = null,
-	allSuggestions = [],
+	// allSuggestions = [],
 }) => {
 	const {
 		templates: { updateStateValues },
@@ -208,7 +260,7 @@ const AiTranscriptionSuggestions = ({
 												<div className={s.header}>Ask User</div>
 												<div className={s.body}>
 													<div className={s.questionText}>
-														{suggestion?.query || ''}
+														{suggestion?.prompt || ''}
 													</div>
 												</div>
 											</div>,
@@ -225,6 +277,7 @@ const AiTranscriptionSuggestions = ({
 													key={`files-${index}`}
 												>
 													{currentFileGroup}
+													{suggestion?.name}
 												</div>,
 											);
 											currentFileGroup = [];
@@ -326,7 +379,7 @@ const AiTranscriptionSuggestions = ({
 									<div className={s.header}>Ask User</div>
 									<div className={s.body}>
 										<div className={s.questionText}>
-											{question?.query || ''}
+											{question?.prompt || ''}
 										</div>
 									</div>
 								</div>
