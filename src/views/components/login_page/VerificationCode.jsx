@@ -255,7 +255,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 						We sent you a <span className="verification-code-title-span">code</span>
 					</h1>
 					<p className="verification-code-subtitle">
-						A 4-digit verification code has been sent to <strong>{email}</strong>.
+						A 4-digit verification code has been sent to <span>{email}</span>.
 					</p>
 				</div>
 

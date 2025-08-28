@@ -20,7 +20,7 @@
 			align-self: stretch;
 
 			.verification-code-title {
-				color: var(--primary-font, #f2f2f3);
+				color: #18181b;
 				text-align: center;
 				font-family: var(--primary-font-family);
 				font-size: 40px;
@@ -29,18 +29,23 @@
 				line-height: normal;
 
 				.verification-code-title-span {
-					color: var(--primary-button, #79ecc9);
+					color: #34ad9b;
+					font-family: var(--primary-font-family);
+					font-size: 40px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
 				}
 			}
 
 			.verification-code-subtitle {
-				color: var(--primary-font, #f2f2f3);
+				color: #18181b;
 				text-align: center;
 				font-family: var(--primary-font-family);
 				font-size: 18px;
 				font-style: normal;
 				font-weight: 400;
-				line-height: 26px;
+				line-height: 26px; /* 144.444% */
 			}
 		}
 
@@ -85,19 +90,23 @@
 
 					.ant-otp {
 						.ant-input {
-							background-color: var(--card);
-							border: none;
-							outline: none;
-							border-radius: 12px;
-							border: 1px solid var(--stroke);
-							background: var(--card);
+							display: flex;
+							width: 60px;
+							height: 60px;
 							padding: 14px 19px;
-							width: 50px;
-							height: 50px;
-							color: var(--primary-font);
+							justify-content: center;
+							align-items: center;
+							gap: 10px;
+							aspect-ratio: 1/1;
+							color: #18181b;
+							font-family: var(--primary-font-family);
+							font-size: 16px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
 
 							&::placeholder {
-								color: var(--primary-font);
+								color: black;
 							}
 						}
 						.ant-input-otp-input::placeholder {
