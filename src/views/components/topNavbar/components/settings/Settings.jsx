@@ -291,7 +291,7 @@ const Settings = ({
 			{isMac && !info?.isDesktop && (
 				<button className={s.downloadMacAppButton} onClick={handleInstallOrOpen}>
 					<DownloadMacSvg />
-					<span>Download Mac app</span>
+					<span>Download Mac App</span>
 				</button>
 			)}
 			{workspacesMoreThanOne && (
