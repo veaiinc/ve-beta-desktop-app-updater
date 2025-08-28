@@ -220,7 +220,7 @@ const UploadPhotos = () => {
 		let totalSize = 0;
 		const imagesLimit = validateExpiryData?.liteImageLimit - validateExpiryData?.liteImageUsed;
 		let uploadImagesLength = Object.keys(info?.uploadImages).length;
-		let duplicatesFound = info.duplicatesFound || 0; // 🔴 Fixed typo: "duplciatesFound"
+		let duplicatesFound = info.duplciatesFound || 0; // 🔴 Fixed typo: "duplciatesFound"
 		const updatedUploadImages = { ...info.uploadImages };
 
 		// ✅ Step 2: Filter only valid image types from the already-cleaned `filteredFiles`
@@ -281,7 +281,7 @@ const UploadPhotos = () => {
 			...prev,
 			uploadImages: updatedUploadImages,
 			uploadSize: prev.uploadSize + totalSize / 1024,
-			duplicatesFound,
+			duplciatesFound: duplicatesFound,
 			isProcessingDuplicates: false,
 		}));
 	};
