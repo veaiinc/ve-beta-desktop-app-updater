@@ -299,9 +299,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			</div>
 
 			<div className="acknowledge-container">
-				<span className="acknowledge-text">
-					By continuing, you acknowledge that you understand and agree to the{' '}
-				</span>
+				<span className="acknowledge-text">By signing in, you agree to our </span>
 				<span
 					className="acknowledge-text-link"
 					onClick={() => window.open('/terms-of-service', '_blank')}
