@@ -57,8 +57,17 @@ const handleParams = (params) => {
 
 const apiFetch = async (url, method, body, token, type, isPublicChat = false) => {
 	try {
-		const region = Cookies.get('region') ?? localStorage.getItem('region') ?? null;
-		const baseUrl = getBaseUrl(region, type);
+		const region = Cookies.get('region') ?? localStorage.getItem('region') ?? 'us-east-1';
+		const baseUrl = getBaseUrl({ type, region });
+
+		if (!baseUrl) {
+			console.error(`No base URL found for type: ${type} and region: ${region}`);
+			return [
+				false,
+				{ message: `No base URL found for type: ${type} and region: ${region}` },
+			];
+		}
+
 		const endpoint = baseUrl + url;
 
 		const headers = handleHeaders(token, type, isPublicChat);

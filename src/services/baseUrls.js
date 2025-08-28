@@ -238,7 +238,8 @@ const regionBaseUrls = {
 	},
 };
 
-const getBaseUrl = (region, type) => {
+// region is only mandatory for region based urls
+const getBaseUrl = ({ type, region = 'us-east-1' }) => {
 	const baseUrlMapper = {
 		global: globalBaseUrls[type] ?? null,
 		region: regionBaseUrls[region]?.[type] ?? null,
