@@ -430,6 +430,33 @@ app.whenReady().then(() => {
 			const granted = await systemPreferences.askForMediaAccess('screen');
 			console.log('🎯 Screen permission granted:', granted);
 		}, 2000);
+
+		// Also request camera permission
+		setTimeout(async () => {
+			const { systemPreferences } = require('electron');
+			console.log('📹 Requesting camera permission...');
+			const cameraGranted = await systemPreferences.askForMediaAccess('camera');
+			console.log('📹 Camera permission granted:', cameraGranted);
+		}, 3000);
+
+		// Log initial camera permission status
+		setTimeout(async () => {
+			const { systemPreferences } = require('electron');
+			const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
+			console.log('📹 Initial camera permission status:', cameraStatus);
+
+			if (cameraStatus === 'denied') {
+				console.log(
+					'⚠️ Camera access denied. User needs to enable it in System Preferences > Security & Privacy > Privacy > Camera',
+				);
+			} else if (cameraStatus === 'restricted') {
+				console.log('🚫 Camera access restricted by system policy');
+			} else if (cameraStatus === 'granted') {
+				console.log('✅ Camera access already granted');
+			} else {
+				console.log('❓ Camera permission not yet determined');
+			}
+		}, 4000);
 	}
 
 	createWindow();
@@ -437,7 +464,7 @@ app.whenReady().then(() => {
 	// Initialize WindowHelper for overlay window functionality
 	windowHelper = new WindowHelper();
 	windowHelper.registerGlobalShortcuts(mainWindow);
-	
+
 	// Test shortcuts after registration
 	setTimeout(() => {
 		windowHelper.testShortcuts();
@@ -497,10 +524,10 @@ app.whenReady().then(() => {
 	ipcMain.handle('dynamic-island-expand', async () => {
 		try {
 			if (!dynamicIslandHelper) {
-				return { success: false, error: 'Dynamic Island helper not initialized' };
+				return { success: false, error: 'Dynamic Island Helper not initialized' };
 			}
-			dynamicIslandHelper.expand();
-			return { success: true };
+			const result = await dynamicIslandHelper.expand();
+			return { success: true, result };
 		} catch (error) {
 			log.error('Error expanding dynamic island:', error);
 			return { success: false, error: error.message };
@@ -510,13 +537,66 @@ app.whenReady().then(() => {
 	ipcMain.handle('dynamic-island-collapse', async () => {
 		try {
 			if (!dynamicIslandHelper) {
-				return { success: false, error: 'Dynamic Island helper not initialized' };
+				return { success: false, error: 'Dynamic Island Helper not initialized' };
 			}
-			dynamicIslandHelper.collapse();
-			return { success: true };
+			const result = await dynamicIslandHelper.collapse();
+			return { success: true, result };
 		} catch (error) {
 			log.error('Error collapsing dynamic island:', error);
 			return { success: false, error: error.message };
+		}
+	});
+
+	// Camera permission handler
+	ipcMain.handle('request-camera-permission', async () => {
+		try {
+			if (process.platform === 'darwin') {
+				const { systemPreferences } = require('electron');
+
+				// First check current permission status
+				const currentStatus = systemPreferences.getMediaAccessStatus('camera');
+				log.info('Current camera permission status:', currentStatus);
+
+				if (currentStatus === 'granted') {
+					log.info('Camera permission already granted');
+					return { success: true, granted: true, status: currentStatus };
+				}
+
+				if (currentStatus === 'denied') {
+					log.warn('Camera permission denied by user');
+					return {
+						success: false,
+						granted: false,
+						status: currentStatus,
+						error: 'Camera access denied. Please enable camera access in System Preferences > Security & Privacy > Privacy > Camera.',
+					};
+				}
+
+				// Request permission if not determined
+				log.info('Requesting camera permission...');
+				const cameraGranted = await systemPreferences.askForMediaAccess('camera');
+				log.info('Camera permission request result:', cameraGranted);
+
+				return {
+					success: true,
+					granted: cameraGranted,
+					status: cameraGranted ? 'granted' : 'denied',
+					message: cameraGranted
+						? 'Camera permission granted'
+						: 'Camera permission denied',
+				};
+			} else {
+				// On other platforms, assume permission is available
+				log.info('Non-macOS platform - camera permission assumed available');
+				return { success: true, granted: true, status: 'granted' };
+			}
+		} catch (error) {
+			log.error('Error requesting camera permission:', error);
+			return {
+				success: false,
+				error: error.message,
+				status: 'error',
+			};
 		}
 	});
 
@@ -962,6 +1042,85 @@ app.whenReady().then(() => {
 				success: false,
 				error: error.message,
 				hasPermission: false,
+			};
+		}
+	});
+
+	// Show camera permission help dialog
+	ipcMain.handle('show-camera-permission-help', async () => {
+		try {
+			if (process.platform === 'darwin') {
+				const { dialog } = require('electron');
+				const result = await dialog.showMessageBox(mainWindow, {
+					type: 'info',
+					title: 'Camera Permission Required',
+					message: 'Camera access is needed for webcam functionality',
+					detail: 'To enable camera access:\n\n1. Go to System Preferences > Security & Privacy > Privacy\n2. Select "Camera" from the left sidebar\n3. Check the box next to this app\n4. Restart the app if needed',
+					buttons: ['Open System Preferences', 'Cancel'],
+					defaultId: 0,
+					cancelId: 1,
+				});
+
+				if (result.response === 0) {
+					// Open System Preferences to Camera section
+					const { exec } = require('child_process');
+					exec(
+						'open "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera"',
+					);
+				}
+
+				return { success: true, openedSystemPrefs: result.response === 0 };
+			} else {
+				return {
+					success: true,
+					openedSystemPrefs: false,
+					message: 'Camera permissions handled by system',
+				};
+			}
+		} catch (error) {
+			log.error('Error showing camera permission help:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Check camera permission status handler
+	ipcMain.handle('check-camera-permission', async () => {
+		try {
+			if (process.platform === 'darwin') {
+				const { systemPreferences } = require('electron');
+				const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
+
+				log.info('Checking camera permission status:', cameraStatus);
+
+				return {
+					success: true,
+					permission: cameraStatus,
+					hasPermission: cameraStatus === 'granted',
+					message:
+						cameraStatus === 'granted'
+							? 'Camera access granted'
+							: cameraStatus === 'denied'
+							? 'Camera access denied'
+							: cameraStatus === 'not-determined'
+							? 'Camera permission not yet determined'
+							: 'Camera access restricted',
+				};
+			} else {
+				// For non-macOS platforms, assume permission is available
+				return {
+					success: true,
+					permission: 'granted',
+					hasPermission: true,
+					message: 'Camera access available',
+				};
+			}
+		} catch (error) {
+			log.error('Error checking camera permission:', error);
+			return {
+				success: false,
+				error: error.message,
+				hasPermission: false,
+				permission: 'error',
 			};
 		}
 	});

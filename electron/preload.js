@@ -99,6 +99,13 @@ contextBridge.exposeInMainWorld('electronApi', {
 				callback(data);
 			});
 		},
+
+		// Camera permission API
+		camera: {
+			checkPermission: () => ipcRenderer.invoke('check-camera-permission'),
+			requestPermission: () => ipcRenderer.invoke('request-camera-permission'),
+			showPermissionHelp: () => ipcRenderer.invoke('show-camera-permission-help'),
+		},
 		removeTabContentListener: () => {
 			ipcRenderer.removeAllListeners('receive-tab-content');
 		},
