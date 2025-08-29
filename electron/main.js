@@ -25,17 +25,6 @@ const { WindowHelper } = require('./helpers/windowHelper');
 // Import dynamic island helper
 // const { DynamicIslandHelper } = require('./dynamicIslandHelper');
 
-// Windows-specific app configuration
-if (process.platform === 'win32') {
-	// Set Windows app user model ID for proper taskbar integration
-	app.setAppUserModelId('com.veai.dashboard');
-	
-	// Set Windows-specific app properties
-	app.setPath('userData', path.join(process.env.APPDATA || process.env.USERPROFILE, 'VeAI'));
-	
-	log.info('✅ Windows-specific app configuration applied');
-}
-
 // Temporary inline DynamicIslandHelper class
 class DynamicIslandHelper {
 	constructor() {
@@ -97,7 +86,7 @@ class DynamicIslandHelper {
 			focusable: false, // Don't steal focus
 			skipTaskbar: true,
 			visibleOnAllWorkspaces: true,
-			type: process.env.NODE_ENV === 'development' ? 'normal' : (process.platform === 'win32' ? 'normal' : 'panel'),
+			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
 			resizable: false, // Disable resizing - fixed size
@@ -110,30 +99,13 @@ class DynamicIslandHelper {
 		this.dynamicIslandWindow = new BrowserWindow(windowSettings);
 
 		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
-		
-		// Better development mode detection
-		const isDevelopment = 
-			process.env.NODE_ENV === 'development' || 
-			process.env.NODE_ENV?.trim() === 'development' ||
-			!app.isPackaged; // Electron's built-in way to detect dev mode
-			
-		const dynamicIslandUrl = isDevelopment
-			? `${devURL}/dynamic-island.html`
-			: `file://${path.join(__dirname, '..', 'build', 'dynamic-island.html')}`;
-
-		log.info(`Dynamic Island URL: ${dynamicIslandUrl} (Development: ${isDevelopment})`);
+		const dynamicIslandUrl =
+			process.env.NODE_ENV === 'development'
+				? `${devURL}/dynamic-island.html`
+				: `file://${path.join(__dirname, '..', 'build', 'dynamic-island.html')}`;
 
 		this.dynamicIslandWindow.loadURL(dynamicIslandUrl).catch((err) => {
 			log.error('Failed to load dynamic island URL:', err);
-			
-			// Fallback: try to load from localhost if the first attempt failed
-			if (isDevelopment) {
-				log.info('Retrying with fallback URL...');
-				const fallbackUrl = 'http://localhost:5173/dynamic-island.html';
-				this.dynamicIslandWindow.loadURL(fallbackUrl).catch((fallbackErr) => {
-					log.error('Fallback URL also failed:', fallbackErr);
-				});
-			}
 		});
 
 		// Configure for macOS
@@ -146,33 +118,15 @@ class DynamicIslandHelper {
 			this.dynamicIslandWindow.setHiddenInMissionControl(true);
 			this.dynamicIslandWindow.setMovable(true);
 		} else {
-			// Windows-specific configuration for better click-through behavior
 			this.dynamicIslandWindow.setAlwaysOnTop(true, 'floating');
-			
-			// On Windows, we need to ensure the window can receive mouse events for hover
-			// but also allow clicks to pass through when appropriate
-			this.dynamicIslandWindow.setIgnoreMouseEvents(false);
 		}
 
-		// Show the window first
-		this.dynamicIslandWindow.show();
-		
 		// Set initial mouse event handling - start with mouse events ignored since it's collapsed
-		// Use a small delay on Windows to ensure the window is fully ready
-		if (process.platform === 'win32') {
-			setTimeout(() => {
-				this.setMouseEventHandling(true);
-			}, 100);
-		} else {
-			this.setMouseEventHandling(true);
-		}
+		this.setMouseEventHandling(true);
+
+		// Show the window
+		this.dynamicIslandWindow.show();
 		log.info('Dynamic Island window created and shown');
-		
-		// Debug window position and size
-		const bounds = this.dynamicIslandWindow.getBounds();
-		log.info(`Dynamic Island window bounds: x=${bounds.x}, y=${bounds.y}, width=${bounds.width}, height=${bounds.height}`);
-		log.info(`Dynamic Island window isVisible: ${this.dynamicIslandWindow.isVisible()}`);
-		log.info(`Dynamic Island window isAlwaysOnTop: ${this.dynamicIslandWindow.isAlwaysOnTop()}`);
 
 		// Listen for resize events from the renderer
 		this.dynamicIslandWindow.webContents.on('did-finish-load', () => {
@@ -212,35 +166,20 @@ class DynamicIslandHelper {
 		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
 
 		try {
-			log.info(`🖱️ Setting mouse event handling: ignore=${ignore}, platform=${process.platform}`);
-			
 			if (process.platform === 'darwin') {
 				// On macOS, use the forward option to allow clicks to pass through
-				// But still allow mouse events for hover detection
-				this.dynamicIslandWindow.setIgnoreMouseEvents(false, { forward: true });
-				log.info('✅ macOS: Mouse events enabled with forward option');
+				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore, { forward: true });
 			} else {
-				// On Windows and other platforms, implement click-through behavior
-				if (ignore) {
-					// When collapsed/ignoring, allow clicks to pass through
-					// but still detect mouse movement for hover
-					this.dynamicIslandWindow.setIgnoreMouseEvents(true, { forward: true });
-					log.info('✅ Windows: Mouse events ignored with forward option (click-through enabled)');
-				} else {
-					// When expanded, capture all mouse events for interaction
-					this.dynamicIslandWindow.setIgnoreMouseEvents(false);
-					log.info('✅ Windows: Mouse events fully enabled for interaction');
-				}
+				// On other platforms, just ignore mouse events
+				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore);
 			}
-			
-			// Verify the setting was applied
-			const bounds = this.dynamicIslandWindow.getBounds();
-			log.info(`📍 Window bounds: x=${bounds.x}, y=${bounds.y}, width=${bounds.width}, height=${bounds.height}`);
-			log.info(`👁️ Window visible: ${this.dynamicIslandWindow.isVisible()}`);
-			log.info(`🔝 Always on top: ${this.dynamicIslandWindow.isAlwaysOnTop()}`);
-			
+			log.info(
+				`Dynamic Island mouse events ${
+					ignore ? 'ignored' : 'enabled'
+				} (expanded: ${!ignore})`,
+			);
 		} catch (error) {
-			log.error('❌ Error setting mouse event handling:', error);
+			log.error('Error setting mouse event handling:', error);
 		}
 	}
 
@@ -278,31 +217,6 @@ class DynamicIslandHelper {
 
 	isDynamicIslandExpanded() {
 		return this.isExpanded;
-	}
-
-	// Test method to verify click-through behavior
-	testClickThrough() {
-		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) {
-			log.info('❌ Dynamic Island window not available for testing');
-			return;
-		}
-
-		log.info('🧪 Testing click-through behavior...');
-		log.info(`📍 Current state: expanded=${this.isExpanded}, visible=${this.isVisible}`);
-		
-		// Test current mouse event handling
-		try {
-			const bounds = this.dynamicIslandWindow.getBounds();
-			log.info(`📍 Window bounds: x=${bounds.x}, y=${bounds.y}, width=${bounds.width}, height=${bounds.height}`);
-			log.info(`👁️ Window visible: ${this.dynamicIslandWindow.isVisible()}`);
-			log.info(`🔝 Always on top: ${this.dynamicIslandWindow.isAlwaysOnTop()}`);
-			
-			// Force refresh of mouse event handling
-			this.setMouseEventHandling(this.isExpanded ? false : true);
-			
-		} catch (error) {
-			log.error('❌ Error during click-through test:', error);
-		}
 	}
 
 	destroy() {
@@ -480,34 +394,10 @@ function createWindow() {
 		log.info('Window ready-to-show');
 	});
 
-	// Handle window close events - X button vs manual quit
-	mainWindow.on('close', (event) => {
-		// Check if this is a manual quit or just window close
-		if (app.isQuiting) {
-			log.info('🔄 Manual quit requested - allowing window to close');
-			// Allow normal close behavior for manual quit
-			return;
-		} else {
-			log.info('🔄 X button clicked - hiding window but keeping app running in background');
-			// Prevent default close behavior
-			event.preventDefault();
-			// Hide the window instead of closing it
-			mainWindow.hide();
-			
-			// Show system tray notification (optional)
-			if (process.platform === 'win32') {
-				log.info('📱 App minimized to system tray - still running in background');
-			}
-		}
-	});
-
 	// Check for updates in production
 	if (process.env.NODE_ENV !== 'development') {
 		autoUpdater.checkForUpdatesAndNotify();
 	}
-
-	// Create application menu
-	createApplicationMenu();
 }
 
 // App lifecycle
@@ -644,8 +534,6 @@ app.whenReady().then(() => {
 	} else {
 		log.error('❌ Failed to register Cmd+I shortcut for dynamic island');
 	}
-
-
 
 	// Check if global shortcuts are working (especially important on macOS)
 	if (process.platform === 'darwin') {
@@ -806,20 +694,6 @@ app.whenReady().then(() => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error setting dynamic island mouse events:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	// Test handler for click-through behavior
-	ipcMain.handle('dynamic-island-test-click-through', async () => {
-		try {
-			if (!dynamicIslandHelper) {
-				return { success: false, error: 'Dynamic Island helper not initialized' };
-			}
-			dynamicIslandHelper.testClickThrough();
-			return { success: true };
-		} catch (error) {
-			log.error('Error testing dynamic island click-through:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -1163,114 +1037,6 @@ app.whenReady().then(() => {
 	ipcMain.handle('download-album-zip', downloadAlbumZip);
 	ipcMain.handle('create-zip-from-urls', createZipFromUrls);
 
-	// Main Window Management IPC handlers
-	ipcMain.handle('main-window-show', async () => {
-		try {
-			if (!mainWindow) {
-				return { success: false, error: 'Main window not available' };
-			}
-			
-			if (!mainWindow.isVisible()) {
-				mainWindow.show();
-				log.info('Main window shown');
-			}
-			
-			return { success: true };
-		} catch (error) {
-			log.error('Error showing main window:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('main-window-restore', async () => {
-		try {
-			if (!mainWindow) {
-				return { success: false, error: 'Main window not available' };
-			}
-			
-			if (mainWindow.isMinimized()) {
-				mainWindow.restore();
-				log.info('Main window restored from minimized state');
-			}
-			
-			return { success: true };
-		} catch (error) {
-			log.error('Error restoring main window:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('main-window-focus', async () => {
-		try {
-			if (!mainWindow) {
-				return { success: false, error: 'Main window not available' };
-			}
-			
-			mainWindow.focus();
-			log.info('Main window focused');
-			
-			return { success: true };
-		} catch (error) {
-			log.error('Error focusing main window:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('main-window-show-and-focus', async () => {
-		try {
-			if (!mainWindow) {
-				return { success: false, error: 'Main window not available' };
-			}
-			
-			// Show window if not visible
-			if (!mainWindow.isVisible()) {
-				mainWindow.show();
-				log.info('Main window shown');
-			}
-			
-			// Restore if minimized
-			if (mainWindow.isMinimized()) {
-				mainWindow.restore();
-				log.info('Main window restored from minimized state');
-			}
-			
-			// Focus the window
-			mainWindow.focus();
-			log.info('Main window focused');
-			
-			return { success: true };
-		} catch (error) {
-			log.error('Error showing and focusing main window:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('main-window-is-visible', async () => {
-		try {
-			if (!mainWindow) {
-				return { success: false, isVisible: false };
-			}
-			
-			return { success: true, isVisible: mainWindow.isVisible() };
-		} catch (error) {
-			log.error('Error checking main window visibility:', error);
-			return { success: false, isVisible: false };
-		}
-	});
-
-	ipcMain.handle('main-window-is-minimized', async () => {
-		try {
-			if (!mainWindow) {
-				return { success: false, isMinimized: false };
-			}
-			
-			return { success: true, isMinimized: mainWindow.isMinimized() };
-		} catch (error) {
-			log.error('Error checking main window minimized state:', error);
-			return { success: false, isMinimized: false };
-		}
-	});
-
 	// Clipboard IPC handlers
 	ipcMain.handle('clipboard-write-text', async (event, text) => {
 		try {
@@ -1488,9 +1254,6 @@ app.whenReady().then(() => {
 app.on('before-quit', (event) => {
 	log.info('🔄 App quit requested - cleaning up...');
 
-	// Set flag to indicate manual quit is requested
-	app.isQuiting = true;
-
 	// Prevent default quit behavior to allow cleanup
 	event.preventDefault();
 
@@ -1509,43 +1272,12 @@ app.on('quit', (event, exitCode) => {
 	}
 });
 
-// Windows-specific quit handling
-if (process.platform === 'win32') {
-	// Handle Windows-specific quit events
-	app.on('second-instance', () => {
-		log.info('🔄 Second instance detected on Windows - focusing existing window');
-		if (mainWindow) {
-			if (mainWindow.isMinimized()) mainWindow.restore();
-			mainWindow.focus();
-		}
-	});
+app.on('window-all-closed', () => {
+	log.info('🔄 All windows closed - cleaning up...');
 
-	// Handle app activation (clicking app icon in dock/taskbar)
-	app.on('activate', () => {
-		log.info('🔄 App activated - showing main window');
-		if (mainWindow) {
-			if (mainWindow.isMinimized()) mainWindow.restore();
-			if (!mainWindow.isVisible()) mainWindow.show();
-			mainWindow.focus();
-		}
-	});
-
-	// Windows-specific window close handling
-	app.on('window-all-closed', () => {
-		log.info('🔄 All windows closed on Windows - app will continue running in background');
-		// On Windows, we want the app to stay running in background when main window is closed
-		// Only quit when explicitly requested through tray menu or other means
-		// Don't call cleanupAndQuit() here - let the app run in background
-	});
-} else {
-	// macOS and Linux behavior
-	app.on('window-all-closed', () => {
-		log.info('🔄 All windows closed - app will continue running in background');
-		// On macOS/Linux, we also want the app to stay running in background when main window is closed
-		// Only quit when explicitly requested through menu or other means
-		// Don't call cleanupAndQuit() here - let the app run in background
-	});
-}
+	// Clean up all windows and processes
+	cleanupAndQuit();
+});
 
 app.on('will-quit', () => {
 	log.info('🔄 Will quit - final cleanup...');
@@ -1559,88 +1291,6 @@ app.on('will-quit', () => {
 		log.error('Error unregistering global shortcuts:', error);
 	}
 });
-
-
-
-function createApplicationMenu() {
-	// Create application menu
-	const template = [
-		{
-			label: 'File',
-			submenu: [
-				{
-					label: 'Quit',
-					accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Ctrl+Q',
-					click: () => {
-						app.isQuiting = true;
-						app.quit();
-					}
-				}
-			]
-		},
-		{
-			label: 'View',
-			submenu: [
-				{
-					label: 'Toggle Developer Tools',
-					accelerator: process.platform === 'darwin' ? 'Cmd+Alt+I' : 'Ctrl+Shift+I',
-					click: (item, focusedWindow) => {
-						if (focusedWindow) {
-							focusedWindow.webContents.toggleDevTools();
-						}
-					}
-				}
-			]
-		}
-	];
-	
-	// Add macOS-specific menu items
-	if (process.platform === 'darwin') {
-		template.unshift({
-			label: app.getName(),
-			submenu: [
-				{
-					label: 'About ' + app.getName(),
-					role: 'about'
-				},
-				{ type: 'separator' },
-				{
-					label: 'Services',
-					role: 'services'
-				},
-				{ type: 'separator' },
-				{
-					label: 'Hide ' + app.getName(),
-					accelerator: 'Cmd+H',
-					role: 'hide'
-				},
-				{
-					label: 'Hide Others',
-					accelerator: 'Cmd+Alt+H',
-					role: 'hideothers'
-				},
-				{
-					label: 'Show All',
-					role: 'unhide'
-				},
-				{ type: 'separator' },
-				{
-					label: 'Quit ' + app.getName(),
-					accelerator: 'Cmd+Q',
-					click: () => {
-						app.isQuiting = true;
-						app.quit();
-					}
-				}
-			]
-		});
-	}
-	
-	const menu = Menu.buildFromTemplate(template);
-	Menu.setApplicationMenu(menu);
-	
-	log.info('✅ Application menu created');
-}
 
 // Function to handle cleanup and quit
 function cleanupAndQuit() {
@@ -1685,75 +1335,16 @@ function cleanupAndQuit() {
 			log.error('Error unregistering global shortcuts:', error);
 		}
 
-		// 6. Windows-specific cleanup
-		if (process.platform === 'win32') {
-			log.info('🧹 Performing Windows-specific cleanup...');
-			
-			// Force garbage collection on Windows
-			if (global.gc) {
-				try {
-					global.gc();
-					log.info('✅ Garbage collection triggered on Windows');
-				} catch (error) {
-					log.error('Error triggering garbage collection on Windows:', error);
-				}
-			}
-			
-			// Clear any remaining timers and handles
-			try {
-				// Clear any remaining timeouts/intervals
-				const activeTimers = process._getActiveHandles();
-				if (activeTimers && activeTimers.length > 0) {
-					log.info(`🧹 Found ${activeTimers.length} active handles on Windows`);
-				}
-			} catch (error) {
-				log.error('Error checking active handles on Windows:', error);
-			}
-			
-			// Force close any remaining windows more aggressively
-			try {
-				const { BrowserWindow } = require('electron');
-				const allWindows = BrowserWindow.getAllWindows();
-				log.info(`🧹 Force destroying ${allWindows.length} remaining windows on Windows`);
-				
-				allWindows.forEach((window, index) => {
-					if (!window.isDestroyed()) {
-						log.info(`🧹 Force destroying window ${index + 1}: ${window.getTitle()}`);
-						// Force destroy without waiting
-						window.destroy();
-					}
-				});
-			} catch (error) {
-				log.error('Error force destroying windows on Windows:', error);
-			}
-		}
-
 		log.info('✅ Cleanup completed - quitting app');
 
-		// Force quit the app with platform-specific timing and method
-		const quitDelay = process.platform === 'win32' ? 100 : 100;
+		// Force quit the app
 		setTimeout(() => {
-			log.info(`🔄 Force quitting app after ${quitDelay}ms delay...`);
-			
-					// On Windows, be more direct with the exit
-		if (process.platform === 'win32') {
-			log.info('🧹 Windows: Using app.quit() for proper termination');
-			// Use app.quit() which is more appropriate for Electron apps
-			app.quit();
-		} else {
-			// Use app.exit for macOS/Linux
 			app.exit(0);
-		}
-		}, quitDelay);
+		}, 100);
 	} catch (error) {
 		log.error('Error during cleanup:', error);
 		// Force quit even if cleanup fails
-		if (process.platform === 'win32') {
-			log.error('🧹 Windows: Force quitting due to cleanup error');
-			app.quit();
-		} else {
-			app.exit(0);
-		}
+		app.exit(0);
 	}
 }
 
@@ -1761,21 +1352,6 @@ function cleanupAndQuit() {
 process.on('exit', (code) => {
 	log.info('🔄 Process exiting with code:', code);
 });
-
-// Windows-specific process signal handling
-if (process.platform === 'win32') {
-	// Handle Windows process termination signals
-	process.on('SIGBREAK', () => {
-		log.info('🔄 SIGBREAK received on Windows - cleaning up...');
-		cleanupAndQuit();
-	});
-	
-	// Handle Windows console close
-	process.on('SIGHUP', () => {
-		log.info('🔄 SIGHUP received on Windows - cleaning up...');
-		cleanupAndQuit();
-	});
-}
 
 process.on('SIGINT', () => {
 	log.info('🔄 SIGINT received - cleaning up...');

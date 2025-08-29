@@ -487,47 +487,6 @@
 		width: 24px;
 		height: 24px;
 	}
-	
-	// Device checking state
-	&.device-checking {
-		cursor: default;
-		opacity: 0.7;
-		
-		&:hover {
-			transform: none;
-			box-shadow: none;
-		}
-		
-		.loading-spinner {
-			width: 20px;
-			height: 20px;
-			border: 2px solid #333;
-			border-top: 2px solid #79ecc9;
-			border-radius: 50%;
-			animation: spin 1s linear infinite;
-		}
-	}
-	
-	// No camera state - simple and clean
-	&.no-camera {
-		cursor: default;
-		opacity: 0.5;
-		
-		&:hover {
-			transform: none;
-			box-shadow: none;
-		}
-		
-		svg {
-			opacity: 0.3;
-		}
-		
-		.webcam-label {
-			color: #94989e;
-			font-size: 11px;
-			font-weight: 500;
-		}
-	}
 }
 
 .webcam-label {

@@ -151,7 +151,6 @@ contextBridge.exposeInMainWorld('electronApi', {
 		show: () => ipcRenderer.invoke('dynamic-island-show'),
 		hide: () => ipcRenderer.invoke('dynamic-island-hide'),
 		setMouseEvents: (ignore) => ipcRenderer.invoke('dynamic-island-set-mouse-events', ignore),
-		testClickThrough: () => ipcRenderer.invoke('dynamic-island-test-click-through'),
 		onStateChange: (callback) => {
 			ipcRenderer.on('dynamic-island-state', (event, data) => {
 				callback(data);
@@ -169,15 +168,5 @@ contextBridge.exposeInMainWorld('electronApi', {
 		removeOverlayStateListener: () => {
 			ipcRenderer.removeAllListeners('overlay-state-changed');
 		},
-	},
-
-	// Main Window Management APIs
-	mainWindow: {
-		show: () => ipcRenderer.invoke('main-window-show'),
-		restore: () => ipcRenderer.invoke('main-window-restore'),
-		focus: () => ipcRenderer.invoke('main-window-focus'),
-		showAndFocus: () => ipcRenderer.invoke('main-window-show-and-focus'),
-		isVisible: () => ipcRenderer.invoke('main-window-is-visible'),
-		isMinimized: () => ipcRenderer.invoke('main-window-is-minimized'),
 	},
 });

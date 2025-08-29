@@ -5,7 +5,7 @@ import service from '../../services/';
 import Cookies from 'js-cookie';
 import { fetchDomainName } from '../../helpers';
 import { NEWSLETTER_SUBSCRIPTION_URL } from '../../helpers/ConstantUrls';
-import getBaseUrl from '../../services/baseUrls';
+import { auth_Api as authBaseUrl } from '../../services/config.live';
 import requestPushNotificationPermission from '../../services/pushNotifications/requestPushNotificationPermission';
 import generateFCMToken from '../../services/pushNotifications/generateFCMToken';
 
@@ -434,9 +434,6 @@ export const AuthState = () => {
 			})?.toString();
 		}
 
-		const type = 'auth';
-		const authBaseUrl = getBaseUrl({ region: null, type });
-		console.log('authBaseUrl', authBaseUrl);
 		window.location.href = `${authBaseUrl}${path}?${params}`;
 	};
 

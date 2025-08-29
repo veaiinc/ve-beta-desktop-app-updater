@@ -1,21 +1,18 @@
 import Context from '../../../context/context';
 import { useContext, useEffect, useState, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
 import RecentChat from '../chat/RecentChat';
 import TranscriptionSidebar from '../notesModule/TranscriptionSidebar';
-import { ReactComponent as BackArrow } from './backArrow.svg';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosingPrimary.svg';
 import '../../../assets/scss/notes/notesWrapper.scss';
 import MeetBotContainer from './meetBotContainer';
-import s from './meetBotWrapper.module.scss';
 
 const MeetBotWrapper = () => {
 	const {
 		templates: { updateStateValues },
 	} = useContext(Context);
 	const [searchParams, setSearchParams] = useSearchParams();
-	const navigate = useNavigate();
 	const isAiIntelligenceEnabled = searchParams.get('isAiIntelligenceEnabled');
 	const [info, setInfo] = useState({
 		modalIsOpen: true,
@@ -60,126 +57,51 @@ const MeetBotWrapper = () => {
 	}, [searchParams]);
 
 	return (
-		// <div className={'notes-parent-wrapper'}>
-		// 	<div className="leftWrapper">
-		// 		<div className="notesContainerWrapper">
-		// 			<MeetBotContainer
-		// 				showTranscriptTabs={true}
-		// 				showAmbientAssistance={info?.showAmbientAssistance}
-		// 			/>
-		// 		</div>
-		// 		<div
-		// 			className="noteChatWrapper"
-		// 			style={{
-		// 				width: info?.sidebarOpen ? '400px' : '0px',
-		// 				borderLeft: info?.sidebarOpen ? '1px solid var(--stroke)' : 'none',
-		// 			}}
-		// 		>
-		// 			<div
-		// 				className={`note-sidebar-header ${
-		// 					info?.chatActive ? 'header-absolute' : ''
-		// 				}`}
-		// 			>
-		// 				<div className="sidebar-close-icon" onClick={handleCloseSidebar}>
-		// 					<SidebarClosingSvg />
-		// 				</div>
-		// 				<div className="sidebar-title">
-		// 					{info?.chatActive && 'Chat'}
-		// 					{info?.transcriptionActive && 'Transcription'}
-		// 				</div>
-		// 			</div>
-		// 			<div className="note-sidebar-content">
-		// 				<div className={`${info?.chatActive ? 'active' : ''} chat-wrapper`}>
-		// 					<RecentChat
-		// 						isPreview={true}
-		// 						showCitationsButton={false}
-		// 						// customChatBoxClick={handleCustomChatBoxClick}
-		// 						sId={sessionId}
-		// 						animateChatBox={true}
-		// 					/>
-		// 				</div>
-		// 				<div
-		// 					className={`${
-		// 						info?.transcriptionActive ? 'active' : ''
-		// 					} transcription-wrapper`}
-		// 				>
-		// 					<TranscriptionSidebar />
-		// 				</div>
-		// 			</div>
-		// 		</div>
-		// 	</div>
-		// 	{/* <div
-		//             className={`switchContainer ${
-		//                 info?.showAmbientAssistance ? 'SuggestionSidebarActive' : ''
-		//             }`}
-		//         >
-		//             <ToggleSlider
-		//                 value={info?.showAmbientAssistance}
-		//                 onChange={(checked) => {
-		//                     setInfo((prev) => ({
-		//                         ...prev,
-		//                         showAmbientAssistance: checked,
-		//                     }));
-		//                 }}
-		//             />
-		//         </div> */}
-		// 	{/* {info?.showAmbientAssistance && (
-		//             <AiTranscriptionSuggestions
-		//                 data={aiTranscriptionSuggestions || []}
-		//                 modalIsOpen={info?.modalIsOpen}
-		//                 closeModal={handleCloseModal}
-		//                 showAmbientAssistance={info?.showAmbientAssistance}
-		//             />
-		//         )} */}
-		// </div>
-
-		<div className={s.meetingContainer}>
-			<div className={s.innerContainer}>
-				<div className={s.headerArea}>
-					<button className={s.backButton} onClick={() => navigate('/meet')}>
-						<BackArrow /> Back
-					</button>
-				</div>
-				<div className={s.contentWrapper}>
+		<div className={'notes-parent-wrapper'}>
+			<div className="leftWrapper">
+				<div className="notesContainerWrapper">
 					<MeetBotContainer
 						showTranscriptTabs={true}
 						showAmbientAssistance={info?.showAmbientAssistance}
 					/>
 				</div>
-			</div>
-			<div
-				className="noteChatWrapper"
-				style={{
-					width: info?.sidebarOpen ? '400px' : '0px',
-					borderLeft: info?.sidebarOpen ? '1px solid var(--stroke)' : 'none',
-				}}
-			>
-				<div className={`note-sidebar-header`}>
-					<div className="sidebar-close-icon" onClick={handleCloseSidebar}>
-						<SidebarClosingSvg />
-					</div>
-					<div className="sidebar-title">
-						{info?.chatActive && 'Chat'}
-						{info?.transcriptionActive && 'Transcription'}
-					</div>
-				</div>
-				<div className="note-sidebar-content">
-					<div className={`${info?.chatActive ? 'active' : ''} chat-wrapper`}>
-						<RecentChat
-							isPreview={true}
-							showCitationsButton={false}
-							// customChatBoxClick={handleCustomChatBoxClick}
-							sId={sessionId}
-							animateChatBox={true}
-							showHeader={false}
-						/>
-					</div>
+				<div
+					className="noteChatWrapper"
+					style={{
+						width: info?.sidebarOpen ? '400px' : '0px',
+						borderLeft: info?.sidebarOpen ? '1px solid var(--stroke)' : 'none',
+					}}
+				>
 					<div
-						className={`${
-							info?.transcriptionActive ? 'active' : ''
-						} transcription-wrapper`}
+						className={`note-sidebar-header ${
+							info?.chatActive ? 'header-absolute' : ''
+						}`}
 					>
-						<TranscriptionSidebar />
+						<div className="sidebar-close-icon" onClick={handleCloseSidebar}>
+							<SidebarClosingSvg />
+						</div>
+						<div className="sidebar-title">
+							{info?.chatActive && 'Chat'}
+							{info?.transcriptionActive && 'Transcription'}
+						</div>
+					</div>
+					<div className="note-sidebar-content">
+						<div className={`${info?.chatActive ? 'active' : ''} chat-wrapper`}>
+							<RecentChat
+								isPreview={true}
+								showCitationsButton={false}
+								// customChatBoxClick={handleCustomChatBoxClick}
+								sId={sessionId}
+								animateChatBox={true}
+							/>
+						</div>
+						<div
+							className={`${
+								info?.transcriptionActive ? 'active' : ''
+							} transcription-wrapper`}
+						>
+							<TranscriptionSidebar />
+						</div>
 					</div>
 				</div>
 			</div>

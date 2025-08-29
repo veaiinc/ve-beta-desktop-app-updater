@@ -87,8 +87,7 @@ const TopNavbar = () => {
 		pathname.includes('galleries') ||
 		pathname.includes('create-workspace') ||
 		pathname.includes('agent/') ||
-		pathname.includes('note/') ||
-		pathname.includes('meet/');
+		pathname.includes('note/');
 
 	const {
 		profileInfo: {

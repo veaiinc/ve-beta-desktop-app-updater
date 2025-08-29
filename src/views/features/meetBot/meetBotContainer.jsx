@@ -6,7 +6,6 @@ import useRecallStream from '../../../hooks/useRecallStream';
 import TranscriptionTabs from '../../components/notes/TranscriptionTabs';
 import MeetSummary from '../notesModule/MeetSummary';
 import NoteTakerTranscript from '../notesModule/NoteTakerTranscript';
-import AssemblyTranscriptWrapper from '../assembly-transcription/AssemblyTranscriptWrapper';
 import AiTranscriptionSuggestions from '../../components/chat/AiTranscriptionSuggestions';
 import TranscriptionWrapper from '../notesModule/TranscriptionWrapper';
 import '../../../assets/scss/notes/noteComponent.scss';
@@ -18,7 +17,6 @@ import './meetBotContainer.scss';
 import moment from 'moment';
 import Spinner from '../../components/loaders/Spinner';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
-
 const initialState = {
 	files: [],
 	userQuestions: [],
@@ -36,7 +34,7 @@ const initialState = {
 	botJoinedTime: 0,
 	meetingPlatform: '',
 };
-const userToken = localStorage.getItem('usertoken');
+
 const getSpeakerColor = (speakerName) => {
 	if (!speakerName) return '#9e9e9e';
 
@@ -79,9 +77,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	const history = searchParams.get('history') === 'true' ? true : false;
 	const chat = searchParams.get('chat') === 'true' ? true : false;
 	const transcription = searchParams.get('transcription') === 'true' ? true : false;
-	const useAssemblyAI =
-		searchParams.get('useAssemblyAI') === 'true' ||
-		(type === 'desktop' && searchParams.get('useAssemblyAI') !== 'false');
 	const isAiIntelligenceEnabled =
 		searchParams.get('isAiIntelligenceEnabled') === 'true' ? true : false;
 
@@ -310,104 +305,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	}, [meetSummary]);
 
 	// When new socket data comes in:
-	// const handleSocketTranscription = useCallback(
-	// 	(newTranscript) => {
-	// 		const lastTranscript = info.transcriptions?.at(-1);
-	// 		console.log(lastTranscript, info?.transcriptions);
-
-	// 		setInfo((prev) => {
-	// 			const transcriptions = prev.transcriptions || [];
-
-	// 			// Get the transcript text from various possible sources
-	// 			const transcriptText =
-	// 				newTranscript.transcript ||
-	// 				newTranscript.displayedText ||
-	// 				newTranscript.text ||
-	// 				'';
-
-	// 			// Check if this transcript already exists (to avoid duplicates)
-	// 			const existingTranscript = transcriptions.find(
-	// 				(t) =>
-	// 					t.text === transcriptText ||
-	// 					t.transcript === transcriptText ||
-	// 					t.id === newTranscript.id, // Also check by ID
-	// 			);
-
-	// 			if (existingTranscript) {
-	// 				return prev; // Don't add duplicate
-	// 			}
-
-	// 			// Check if this is a continuation of the last transcript (same session)
-	// 			const lastTranscript = transcriptions[transcriptions.length - 1];
-	// 			const isContinuation = lastTranscript && !lastTranscript.isFinal;
-
-	// 			// console.log('is continuation', isContinuation);
-
-	// 			if (!newTranscript.isFinal) {
-	// 				// Partial transcript - update the last entry if it's a continuation
-	// 				if (isContinuation) {
-	// 					// Update the last entry with the new partial text
-	// 					const updated = [...transcriptions];
-	// 					updated[updated.length - 1] = {
-	// 						...updated[updated.length - 1],
-	// 						...newTranscript,
-	// 						text: transcriptText,
-	// 						transcript: transcriptText,
-	// 						time: new Date().toLocaleTimeString(),
-	// 					};
-	// 					return { ...prev, transcriptions: updated };
-	// 				} else {
-	// 					// New partial transcript - add as new entry
-	// 					return {
-	// 						...prev,
-	// 						transcriptions: [
-	// 							...transcriptions,
-	// 							{
-	// 								...newTranscript,
-	// 								text: transcriptText,
-	// 								transcript: transcriptText,
-	// 								time: new Date().toLocaleTimeString(),
-	// 							},
-	// 						],
-	// 					};
-	// 				}
-	// 			} else {
-	// 				// Final transcript - update the last entry if it's a continuation, otherwise append
-	// 				if (isContinuation) {
-	// 					// Finalize the last entry
-	// 					const updated = [...transcriptions];
-	// 					updated[updated.length - 1] = {
-	// 						...updated[updated.length - 1],
-	// 						...newTranscript,
-	// 						text: transcriptText,
-	// 						transcript: transcriptText,
-	// 						time: new Date().toLocaleTimeString(),
-	// 						isFinal: true,
-	// 					};
-	// 					return { ...prev, transcriptions: updated };
-	// 				} else {
-	// 					// New final transcript - append as new entry
-	// 					return {
-	// 						...prev,
-	// 						transcriptions: [
-	// 							...transcriptions,
-	// 							{
-	// 								...newTranscript,
-	// 								text: transcriptText,
-	// 								transcript: transcriptText,
-	// 								time: new Date().toLocaleTimeString(),
-	// 								isFinal: true,
-	// 							},
-	// 						],
-	// 					};
-	// 				}
-	// 			}
-	// 		});
-	// 	},
-	// 	[info.transcriptions],
-	// );
-
-	const handleSocketTranscription = (newTranscript) => {
+	const handleSocketTranscription = useCallback((newTranscript) => {
 		setInfo((prev) => {
 			const transcriptions = prev.transcriptions || [];
 
@@ -429,12 +327,11 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 
 			// Check if this is a continuation of the last transcript (same session)
 			const lastTranscript = transcriptions[transcriptions.length - 1];
-			let isContinuation = false;
-			if (newTranscript?.isTurnFormatted) {
-				isContinuation = true;
-			} else {
-				isContinuation = lastTranscript && !lastTranscript.isFinal;
-			}
+			const isContinuation =
+				lastTranscript &&
+				!lastTranscript.isFinal &&
+				// Check if the new text contains the last text (continuation)
+				transcriptText.includes(lastTranscript.text || lastTranscript.transcript || '');
 
 			if (!newTranscript.isFinal) {
 				// Partial transcript - update the last entry if it's a continuation
@@ -496,7 +393,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 				}
 			}
 		});
-	};
+	}, []);
 
 	const handleSocketMessage = useCallback(
 		(event) => {
@@ -568,11 +465,10 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			// 	handleLiveIntelligenceMessageFunc,
 			// 	false,
 			// );
+		} else if (showTranscriptTabs && type === 'desktop') {
+			// Connect to recall for note taker mode as well
+			recallConnection(sessionId, meetingId, handleSocketMessage, isAiIntelligenceEnabled);
 		}
-		//  else if (showTranscriptTabs && type === 'desktop') {
-		// 	// Connect to recall for note taker mode as well
-		// 	recallConnection(sessionId, meetingId, handleSocketMessage, isAiIntelligenceEnabled);
-		// }
 		// No cleanup needed, useRecallStream handles it
 	}, [showTranscriptTabs, sessionId, type]);
 
@@ -636,7 +532,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	};
 
 	useEffect(() => {
-		if (activeTab === 'transcript' && history) {
+		if (activeTab === 'transcript') {
 			fetchTranscriptionHistory(1, false);
 		}
 	}, [activeTab]);
@@ -664,11 +560,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					<div className="meeting-info">
 						<div className="meeting-title-container">
 							<h2 className="meeting-title">{createBotInfo.title}</h2>
-							<DotIcon />
-							<span className="meeting-created-by-time">
-								{moment.unix(createBotInfo?.createdAt).format('dddd, MMMM D, YYYY')}
-							</span>
-							{/* {createBotInfo?.createdBy && (
+							{createBotInfo?.createdBy && (
 								<div className="meeting-meta-info">
 									<span className="meeting-created-by-name">
 										{createBotInfo?.createdBy?.name}
@@ -684,21 +576,17 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 											.format('DD MMM YYYY HH:mm')}
 									</span>
 								</div>
-							)} */}
+							)}
 						</div>
-						{showTranscriptTabs && (
-							<TranscriptionTabs
-								activeTab={activeTab}
-								setActiveTab={setActiveTab}
-								userQuestions={info?.userQuestions}
-								aiQuestions={info?.aiQuestions}
-								actions={info?.actions}
-								files={info?.files}
-								history={history}
-								allSuggestions={info?.allSuggestions}
-								type={type}
-							/>
-						)}
+						{/* <div className="meeting-meta">
+							<span className="meeting-share">
+								Share
+								<ShareIcon />
+							</span>
+							{createBotInfo.isAiIntelligenceEnabled && (
+								<span className="meeting-guide">Guide me</span>
+							)}
+						</div> */}
 					</div>
 				) : meetingNotFound ? (
 					<div className="meeting-error">
@@ -707,7 +595,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 				) : null}
 			</div>
 			<div className="transcript-tabs-container">
-				{/* {showTranscriptTabs && (
+				{showTranscriptTabs && (
 					<TranscriptionTabs
 						activeTab={activeTab}
 						setActiveTab={setActiveTab}
@@ -719,7 +607,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						allSuggestions={info?.allSuggestions}
 						type={type}
 					/>
-				)} */}
+				)}
 				{showTranscriptTabs &&
 					activeTab === 'transcript' &&
 					(type === 'desktop' || type === 'meeting_bot') && (
@@ -816,8 +704,8 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						meetingPlatform={info?.meetingPlatform}
 					/>
 				)}
-				{/* Always render NoteTakerTranscript or AssemblyTranscript at the root level */}
-				{showTranscriptTabs && type === 'desktop' && !history && !useAssemblyAI && (
+				{/* Always render NoteTakerTranscript at the root level */}
+				{showTranscriptTabs && type === 'desktop' && !history && (
 					<NoteTakerTranscript
 						sendMessage={recallSendMessage}
 						tenantId={tennantSettingsData?._id}
@@ -825,18 +713,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						pageId={'688b653dde81dd3d71a41584'}
 						visible={activeTab === 'transcript'}
 						onTranscriptionUpdate={handleSocketTranscription}
-					/>
-				)}
-				{/* Assembly AI Transcription option */}
-				{showTranscriptTabs && type === 'desktop' && !history && useAssemblyAI && (
-					<AssemblyTranscriptWrapper
-						sendMessage={(data) => handleTranscriptionSuggestions(data)}
-						tenantId={tennantSettingsData?._id}
-						sessionId={sessionId}
-						visible={activeTab === 'transcript'}
-						onTranscriptionUpdate={handleSocketTranscription}
-						jwtToken={userToken}
-						isAiIntelligenceEnabled={isAiIntelligenceEnabled}
 					/>
 				)}
 			</div>

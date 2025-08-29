@@ -1,7 +1,15 @@
 import { ApolloClient, ApolloLink, HttpLink, from, InMemoryCache } from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
-import Cookies from 'js-cookie';
-import getBaseUrl from './baseUrls.js';
+
+const DEV_ENVIRONMENT = import.meta.env.VITE_APP_DEV_ENVIRONMENT || 'development';
+
+async function loadConfig() {
+	if (DEV_ENVIRONMENT === 'production') {
+		return await import('./config.live.js');
+	} else {
+		return await import('./config.dev.js');
+	}
+}
 
 const errorLink = onError(({ graphQLErrors, networkError, forward, operation }) => {
 	if (graphQLErrors) {
@@ -25,20 +33,70 @@ const defaultOptions = {
 	query: { fetchPolicy: 'no-cache' },
 };
 
+let cachedConfig = null;
+
+async function getConfig() {
+	if (!cachedConfig) {
+		cachedConfig = await loadConfig();
+	}
+	return cachedConfig;
+}
+
 const Service = {
 	query: async (query, variables, workspaceId, usertoken, type = null) => {
-		const region = Cookies.get('region') || localStorage.getItem('region') || 'us-east-1';
-		const baseUrl = getBaseUrl({ type, region });
+		const config = await getConfig();
 
-		if (!baseUrl) {
-			console.error(`No base URL found for type: ${type} and region: ${region}`);
-			return [
-				false,
-				{ message: `No base URL found for type: ${type} and region: ${region}` },
-			];
+		const {
+			ve_conversations_api,
+			workflows_Api,
+			ve_conversations_api_US,
+			workflows_Api_US,
+			activity_api,
+			activity_api_US,
+			multi_agent_chat,
+			multi_agent_chat_US,
+			automation_builder_api,
+			automation_builder_api_US,
+			page_notes_api,
+			page_notes_api_US,
+			page_notes_api_database,
+			page_notes_api_database_US,
+			meeting_summary_api,
+			meeting_summary_api_US,
+		} = config;
+
+		const graphQLAPICall = {
+			ve_conversations_api,
+			workflows_Api,
+			activity_api,
+			multi_agent_chat,
+			automation_builder_api,
+			page_notes_api,
+			page_notes_api_database,
+			meeting_summary_api,
+		};
+
+		const graphQLAPICallUS = {
+			ve_conversations_api: ve_conversations_api_US,
+			workflows_Api: workflows_Api_US,
+			activity_api: activity_api_US,
+			multi_agent_chat: multi_agent_chat_US,
+			automation_builder_api: automation_builder_api_US,
+			page_notes_api: page_notes_api_US,
+			page_notes_api_database: page_notes_api_database_US,
+			meeting_summary_api: meeting_summary_api_US,
+		};
+
+		// hotfix
+		// const region = localStorage.getItem('region') || 'us-east-1';
+		let region;
+		if (workspaceId === 'framemax') {
+			const region = 'us-north-1';
+		} else {
+			region = localStorage.getItem('region') || 'us-east-1';
 		}
-
-		const httpLink = new HttpLink({ uri: `${baseUrl}/${workspaceId}/graphql` });
+		const subUrl = region === 'ap-south-1' ? graphQLAPICall[type] : graphQLAPICallUS[type];
+		const httpLink = new HttpLink({ uri: `${subUrl}/${workspaceId}/graphql` });
 
 		const apolloClient = new ApolloClient({
 			cache: new InMemoryCache({ resultCaching: true }),
@@ -66,18 +124,52 @@ const Service = {
 	},
 
 	mutation: async (mutation, variables, workspaceId, usertoken, type = null) => {
-		const region = Cookies.get('region') || localStorage.getItem('region') || 'us-east-1';
-		const baseUrl = getBaseUrl({ type, region });
+		const config = await getConfig();
 
-		if (!baseUrl) {
-			console.error(`No base URL found for type: ${type} and region: ${region}`);
-			return [
-				false,
-				{ message: `No base URL found for type: ${type} and region: ${region}` },
-			];
-		}
+		const {
+			ve_conversations_api,
+			workflows_Api,
+			ve_conversations_api_US,
+			workflows_Api_US,
+			activity_api,
+			activity_api_US,
+			multi_agent_chat,
+			multi_agent_chat_US,
+			automation_builder_api,
+			automation_builder_api_US,
+			page_notes_api,
+			page_notes_api_US,
+			page_notes_api_database,
+			page_notes_api_database_US,
+			meeting_summary_api,
+			meeting_summary_api_US,
+		} = config;
 
-		const httpLink = new HttpLink({ uri: `${baseUrl}/${workspaceId}/graphql` });
+		const graphQLAPICall = {
+			ve_conversations_api,
+			workflows_Api,
+			activity_api,
+			multi_agent_chat,
+			automation_builder_api,
+			page_notes_api,
+			page_notes_api_database,
+			meeting_summary_api,
+		};
+
+		const graphQLAPICallUS = {
+			ve_conversations_api: ve_conversations_api_US,
+			workflows_Api: workflows_Api_US,
+			activity_api: activity_api_US,
+			multi_agent_chat: multi_agent_chat_US,
+			automation_builder_api: automation_builder_api_US,
+			page_notes_api: page_notes_api_US,
+			page_notes_api_database: page_notes_api_database_US,
+			meeting_summary_api: meeting_summary_api_US,
+		};
+
+		const region = localStorage.getItem('region') || 'us-east-1';
+		const subUrl = region === 'ap-south-1' ? graphQLAPICall[type] : graphQLAPICallUS[type];
+		const httpLink = new HttpLink({ uri: `${subUrl}/${workspaceId}/graphql` });
 		const link = ApolloLink.from([errorLink, httpLink]);
 
 		const apolloClient = new ApolloClient({
