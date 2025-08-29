@@ -6,6 +6,7 @@ import { ReactComponent as Mic } from '../../../assets/svg/microphone.svg';
 import { ReactComponent as MuteMic } from '../../../assets/svg/ai_agents/mutemic.svg';
 import { ReactComponent as Close } from '../../../assets/svg/ai_agents/close.svg';
 import { meeting_ws_api_US } from '../../../services/config.live';
+const wsUrl = meeting_ws_api_US;
 
 export default function AssemblyTranscription({
 	onTranscriptionUpdate,
@@ -13,9 +14,6 @@ export default function AssemblyTranscription({
 	tenantId,
 	sessionId,
 	meetingId,
-	location,
-	timezone = 'Asia/Kolkata',
-	wsUrl = meeting_ws_api_US,
 	jwtToken,
 	isAiIntelligenceEnabled,
 }) {
@@ -71,23 +69,15 @@ export default function AssemblyTranscription({
 					updateStatus('Connected', 'connected');
 					setIsConnected(true);
 
+					const location = JSON.parse(localStorage.getItem('locationDetails'));
+
 					const authData = {
 						token: jwtToken,
 						tenant_id: tenantId,
 						session_id: sessionId,
 						meeting_id: meetingId,
-						location: location || {
-							countryCode: 'IN',
-							countryRegionCode: 'TS',
-							countryRegion: 'Telangana',
-							country: 'India',
-							city: 'Hyderabad',
-							timezone: 'Asia/Kolkata',
-							postalCode: '500003',
-							currency: 'INR',
-							region: 'ap-south-1',
-						},
-						timezone: timezone,
+						location: location,
+						timezone: location?.timezone,
 						is_ai_intelligence_enabled: isAiIntelligenceEnabled,
 					};
 
@@ -160,9 +150,6 @@ export default function AssemblyTranscription({
 		tenantId,
 		sessionId,
 		meetingId,
-		location,
-		timezone,
-		wsUrl,
 		onTranscriptionUpdate,
 		onLiveIntelligenceResponse,
 		log,

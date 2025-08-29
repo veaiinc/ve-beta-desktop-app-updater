@@ -18,7 +18,6 @@ import './meetBotContainer.scss';
 import moment from 'moment';
 import Spinner from '../../components/loaders/Spinner';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
-import { meeting_ws_api_US } from '../../../services/config.live';
 
 const initialState = {
 	files: [],
@@ -836,20 +835,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						sessionId={sessionId}
 						visible={activeTab === 'transcript'}
 						onTranscriptionUpdate={handleSocketTranscription}
-						wsUrl={meeting_ws_api_US}
 						jwtToken={userToken}
-						location={{
-							countryCode: 'IN',
-							countryRegionCode: 'TS',
-							countryRegion: 'Telangana',
-							country: 'India',
-							city: 'Hyderabad',
-							timezone: 'Asia/Kolkata',
-							postalCode: '500003',
-							currency: 'INR',
-							region: 'ap-south-1',
-						}}
-						timezone="Asia/Kolkata"
 						isAiIntelligenceEnabled={isAiIntelligenceEnabled}
 					/>
 				)}

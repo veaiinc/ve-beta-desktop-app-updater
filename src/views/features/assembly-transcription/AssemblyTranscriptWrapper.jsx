@@ -2,17 +2,13 @@ import React, { useState, useCallback, useRef, useEffect, useContext } from 'rea
 import AssemblyTranscription from './AssemblyTranscription';
 import { useParams } from 'react-router-dom';
 import Context from '../../../context/context';
-import { meeting_ws_api_US } from '../../../services/config.live';
 
 const AssemblyTranscriptWrapper = ({
 	sendMessage,
 	tenantId,
 	sessionId,
 	onTranscriptionUpdate,
-	wsUrl = meeting_ws_api_US,
 	jwtToken,
-	location,
-	timezone = 'Asia/Kolkata',
 	isAiIntelligenceEnabled,
 }) => {
 	const meetingId = useParams()?.meetingId;
@@ -147,9 +143,6 @@ const AssemblyTranscriptWrapper = ({
 				tenantId={tenantId}
 				sessionId={sessionId}
 				meetingId={meetingId}
-				location={location}
-				timezone={timezone}
-				wsUrl={wsUrl}
 				jwtToken={jwtToken}
 				isAiIntelligenceEnabled={isAiIntelligenceEnabled}
 			/>
