@@ -143,6 +143,9 @@ class DynamicIslandHelper {
 		// Enable mouse events when expanded so user can interact with it
 		this.setMouseEventHandling(false);
 
+		// Make window focusable when expanded so input fields can receive focus
+		this.dynamicIslandWindow.setFocusable(true);
+
 		// Notify renderer - window size stays the same
 		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: true });
 		log.info('Dynamic Island expanded');
@@ -156,6 +159,9 @@ class DynamicIslandHelper {
 
 		// Disable mouse events when collapsed so clicks pass through
 		this.setMouseEventHandling(true);
+
+		// Make window non-focusable when collapsed to prevent stealing focus
+		this.dynamicIslandWindow.setFocusable(false);
 
 		// Notify renderer - window size stays the same
 		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: false });
@@ -576,6 +582,31 @@ app.whenReady().then(() => {
 			return { success: true, result };
 		} catch (error) {
 			log.error('Error expanding dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Handle chat mode activation to ensure input field can receive focus
+	ipcMain.handle('dynamic-island-chat-mode', async (event, isChatMode) => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island Helper not initialized' };
+			}
+
+			const dynamicIslandWindow = dynamicIslandHelper.getDynamicIslandWindow();
+			if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
+				// Make window focusable when entering chat mode
+				dynamicIslandWindow.setFocusable(isChatMode);
+				log.info(
+					`Dynamic Island chat mode ${
+						isChatMode ? 'enabled' : 'disabled'
+					}, focusable: ${isChatMode}`,
+				);
+			}
+
+			return { success: true };
+		} catch (error) {
+			log.error('Error setting dynamic island chat mode:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -1246,6 +1277,78 @@ app.whenReady().then(() => {
 				success: false,
 				error: error.message,
 			};
+		}
+	});
+
+	// Send chat message from Dynamic Island to Ask AI handler
+	ipcMain.handle('send-chat-message-to-askai', async (event, chatMessage) => {
+		try {
+			log.info('Sending chat message from Dynamic Island to Ask AI:', chatMessage);
+
+			// Get the Ask AI window through windowHelper
+			let askAIWindow = windowHelper.getAskAIWindow();
+
+			// If Ask AI window doesn't exist or is destroyed, create it
+			if (!askAIWindow || askAIWindow.isDestroyed()) {
+				log.info('Ask AI window not available, creating new window...');
+				windowHelper.createAskAIWindow();
+
+				// Wait for window to be created and ready
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+
+				// Get the window reference again after creating it
+				askAIWindow = windowHelper.getAskAIWindow();
+			}
+
+			// Ensure window is visible
+			if (askAIWindow && !askAIWindow.isDestroyed()) {
+				if (!askAIWindow.isVisible()) {
+					log.info('Ask AI window exists but not visible, showing it...');
+					windowHelper.showAskAIWindow();
+					// Wait a bit for the window to be fully visible
+					await new Promise((resolve) => setTimeout(resolve, 500));
+				}
+
+				// Send the chat message to Ask AI window
+				askAIWindow.webContents.send('receive-chat-message', chatMessage);
+				log.info('Chat message sent to Ask AI window successfully');
+				return { success: true };
+			} else {
+				log.error('Ask AI window not available after creation attempts');
+				return { success: false, error: 'Ask AI window not available' };
+			}
+		} catch (error) {
+			log.error('Error sending chat message to Ask AI:', error);
+			return {
+				success: false,
+				error: error.message,
+			};
+		}
+	});
+
+	// Force open AskAI window handler (fallback for Dynamic Island)
+	ipcMain.handle('force-open-askai-window', async () => {
+		try {
+			log.info('Force opening AskAI window...');
+
+			// Try to create and show the window
+			windowHelper.createAskAIWindow();
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
+			windowHelper.showAskAIWindow();
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
+			const askAIWindow = windowHelper.getAskAIWindow();
+			if (askAIWindow && !askAIWindow.isDestroyed() && askAIWindow.isVisible()) {
+				log.info('AskAI window opened successfully');
+				return { success: true };
+			} else {
+				log.error('Failed to open AskAI window');
+				return { success: false, error: 'Window not available or visible' };
+			}
+		} catch (error) {
+			log.error('Error forcing open AskAI window:', error);
+			return { success: false, error: error.message };
 		}
 	});
 });

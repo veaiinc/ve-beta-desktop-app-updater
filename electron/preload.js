@@ -54,6 +54,11 @@ contextBridge.exposeInMainWorld('electronApi', {
 		hideAllWindows: () => ipcRenderer.invoke('hide-all-windows'),
 		sendTabContentToAskAI: (tabContent) =>
 			ipcRenderer.invoke('send-tab-content-to-askai', tabContent),
+		// Send chat message from Dynamic Island to Ask AI
+		sendChatMessageToAskAI: (chatMessage) =>
+			ipcRenderer.invoke('send-chat-message-to-askai', chatMessage),
+		// Force open AskAI window
+		forceOpenAskAIWindow: () => ipcRenderer.invoke('force-open-askai-window'),
 		// New methods for Dynamic Island integration
 		startRecording: () => ipcRenderer.invoke('overlay-start-recording'),
 		stopRecording: () => ipcRenderer.invoke('overlay-stop-recording'),
@@ -100,6 +105,13 @@ contextBridge.exposeInMainWorld('electronApi', {
 			});
 		},
 
+		// Listen for chat messages from Dynamic Island
+		onReceiveChatMessage: (callback) => {
+			ipcRenderer.on('receive-chat-message', (event, data) => {
+				callback(data);
+			});
+		},
+
 		// Camera permission API
 		camera: {
 			checkPermission: () => ipcRenderer.invoke('check-camera-permission'),
@@ -108,6 +120,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 		},
 		removeTabContentListener: () => {
 			ipcRenderer.removeAllListeners('receive-tab-content');
+		},
+		removeChatMessageListener: () => {
+			ipcRenderer.removeAllListeners('receive-chat-message');
 		},
 	},
 
@@ -151,6 +166,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 		show: () => ipcRenderer.invoke('dynamic-island-show'),
 		hide: () => ipcRenderer.invoke('dynamic-island-hide'),
 		setMouseEvents: (ignore) => ipcRenderer.invoke('dynamic-island-set-mouse-events', ignore),
+		setChatMode: (isChatMode) => ipcRenderer.invoke('dynamic-island-chat-mode', isChatMode),
+		// Send chat message directly to AskAI
+		sendChatMessage: (message) => ipcRenderer.invoke('send-chat-message-to-askai', message),
 		onStateChange: (callback) => {
 			ipcRenderer.on('dynamic-island-state', (event, data) => {
 				callback(data);

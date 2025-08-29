@@ -10,6 +10,7 @@ import {
 	StopIcon,
 	PlusIcon,
 	BackIcon,
+	VoiceModeIcon,
 } from './DynamicIslandIcons';
 import './DynamicIslandUI.scss';
 
@@ -35,6 +36,7 @@ const DynamicIslandUI = () => {
 	// Chat mode state
 	const [isChatMode, setIsChatMode] = useState(false);
 	const [chatInput, setChatInput] = useState('');
+	const [isSendingMessage, setIsSendingMessage] = useState(false);
 	// Camera state
 	const [isCameraActive, setIsCameraActive] = useState(false);
 	const [cameraStream, setCameraStream] = useState(null);
@@ -253,6 +255,10 @@ const DynamicIslandUI = () => {
 			const result = await window.electronApi.dynamicIsland.expand();
 			if (result.success) {
 				setIsExpanded(true);
+				// Ensure window is focusable when expanded
+				if (window.electronApi?.dynamicIsland?.setChatMode) {
+					window.electronApi.dynamicIsland.setChatMode(true);
+				}
 			}
 		} catch (error) {
 			console.error('❌ Expand IPC error:', error);
@@ -267,6 +273,10 @@ const DynamicIslandUI = () => {
 			const result = await window.electronApi.dynamicIsland.collapse();
 			if (result.success) {
 				setIsExpanded(false);
+				// Disable focus when collapsing
+				if (window.electronApi?.dynamicIsland?.setChatMode) {
+					window.electronApi.dynamicIsland.setChatMode(false);
+				}
 			}
 		} catch (error) {
 			console.error('❌ Collapse IPC error:', error);
@@ -278,8 +288,8 @@ const DynamicIslandUI = () => {
 		console.log('🏠 Home icon clicked');
 	};
 
-	const handleSecurityClick = () => {
-		console.log('🔒 Security icon clicked');
+	const handleLockClick = () => {
+		console.log('🔒 Lock icon clicked');
 	};
 
 	const handleSettingsClick = () => {
@@ -310,6 +320,10 @@ const DynamicIslandUI = () => {
 				console.error('Error triggering overlay from Dynamic Island:', error);
 			}
 		}
+	};
+
+	const handleVoiceModeClick = () => {
+		console.log('🎤 Clicked for voice mode');
 	};
 
 	const handleWebcamClick = async () => {
@@ -468,19 +482,100 @@ const DynamicIslandUI = () => {
 			if (!isExpanded && isConnected) {
 				expand();
 			}
+			// Enable focus for input field when entering chat mode
+			if (window.electronApi?.dynamicIsland?.setChatMode) {
+				console.log('🔧 Enabling focus for chat mode...');
+				window.electronApi.dynamicIsland
+					.setChatMode(true)
+					.then((result) => {
+						console.log('✅ Chat mode focus result:', result);
+					})
+					.catch((error) => {
+						console.error('❌ Error setting chat mode focus:', error);
+					});
+			}
 		}
 	};
 
-	const handleChatSubmit = () => {
-		if (chatInput.trim()) {
+	const handleChatSubmit = async () => {
+		if (chatInput.trim() && !isSendingMessage) {
 			console.log('💬 Chat submitted:', chatInput);
-			// Here you can add logic to send the chat message
-			// For now, just clear the input
-			setChatInput('');
+			setIsSendingMessage(true);
+
+			try {
+				// Send the chat message to AskAI via Dynamic Island API
+				if (window.electronApi?.dynamicIsland?.sendChatMessage) {
+					console.log(
+						'🚀 Sending chat message to AskAI via Dynamic Island API:',
+						chatInput,
+					);
+
+					const chatMessage = {
+						type: 'dynamic-island-chat',
+						message: chatInput.trim(),
+						timestamp: new Date().toISOString(),
+						source: 'dynamic-island',
+					};
+
+					const result = await window.electronApi.dynamicIsland.sendChatMessage(
+						chatMessage,
+					);
+
+					if (result.success) {
+						console.log('✅ Chat message sent successfully to AskAI');
+						// Clear the input after successful send
+						setChatInput('');
+					} else {
+						console.error('❌ Failed to send chat message:', result.error);
+						// Keep the input if sending failed
+					}
+				} else {
+					console.error('❌ sendChatMessage API not available, trying overlay API...');
+
+					// Fallback to overlay API
+					if (window.electronApi?.overlay?.sendChatMessageToAskAI) {
+						const chatMessage = {
+							type: 'dynamic-island-chat',
+							message: chatInput.trim(),
+							timestamp: new Date().toISOString(),
+							source: 'dynamic-island',
+						};
+
+						const result = await window.electronApi.overlay.sendChatMessageToAskAI(
+							chatMessage,
+						);
+
+						if (result.success) {
+							console.log('✅ Chat message sent successfully via overlay API');
+							setChatInput('');
+						} else {
+							console.error(
+								'❌ Failed to send chat message via overlay API:',
+								result.error,
+							);
+						}
+					} else {
+						console.error('❌ Both APIs not available');
+						// Fallback: just clear the input
+						setChatInput('');
+					}
+				}
+			} catch (error) {
+				console.error('❌ Error sending chat message:', error);
+				// Keep the input if sending failed
+			} finally {
+				setIsSendingMessage(false);
+			}
 		}
 	};
 
 	const handleChatInputChange = (e) => {
+		console.log('💬 Chat input changed:', e.target.value);
+		console.log('💬 Input element:', e.target);
+		console.log('💬 Input value:', e.target.value);
+		console.log('💬 Input type:', e.target.type);
+		console.log('💬 Input disabled:', e.target.disabled);
+		console.log('💬 Input readOnly:', e.target.readOnly);
 		setChatInput(e.target.value);
 	};
 
@@ -562,7 +657,22 @@ const DynamicIslandUI = () => {
 				dynamicIslandRef.current.offsetHeight,
 			);
 		}
+
+		// Debug initial state
+		console.log('🔍 Initial state:', {
+			isConnected,
+			isExpanded,
+			isChatMode,
+			isAuthenticated,
+			chatInput,
+		});
 	}, []);
+
+	// Debug chat mode changes
+	useEffect(() => {
+		console.log('🔍 Chat mode changed:', isChatMode);
+		console.log('🔍 Chat input value:', chatInput);
+	}, [isChatMode, chatInput]);
 
 	// Manual mouse event control (for debugging or special cases)
 	const setMouseEvents = async (ignore) => {
@@ -620,7 +730,13 @@ const DynamicIslandUI = () => {
 								{!isRecording ? (
 									<div className="start-button" onClick={handleAudioClick}>
 										<div className="start-icon">
-											<PlayIcon />
+											<div className="audio-visualizer">
+												<div className="audio-bar"></div>
+												<div className="audio-bar"></div>
+												<div className="audio-bar"></div>
+												<div className="audio-bar"></div>
+												<div className="audio-bar"></div>
+											</div>
 										</div>
 										<span className="start-text">start</span>
 									</div>
@@ -651,15 +767,6 @@ const DynamicIslandUI = () => {
 										</div>
 									</div>
 								)}
-
-								{/* Audio visualizer */}
-								<div className="audio-visualizer">
-									<div className="audio-bar"></div>
-									<div className="audio-bar"></div>
-									<div className="audio-bar"></div>
-									<div className="audio-bar"></div>
-									<div className="audio-bar"></div>
-								</div>
 							</div>
 
 							{/* Right side icons */}
@@ -671,6 +778,10 @@ const DynamicIslandUI = () => {
 										onClick={() => {
 											setIsChatMode(false);
 											setChatInput('');
+											// Disable focus when exiting chat mode
+											if (window.electronApi?.dynamicIsland?.setChatMode) {
+												window.electronApi.dynamicIsland.setChatMode(false);
+											}
 										}}
 									>
 										<BackIcon />
@@ -680,11 +791,7 @@ const DynamicIslandUI = () => {
 								<div className="icon-button" title="Home" onClick={handleHomeClick}>
 									<HomeIcon />
 								</div>
-								<div
-									className="icon-button"
-									title="Security"
-									onClick={handleSecurityClick}
-								>
+								<div className="icon-button" title="Lock" onClick={handleLockClick}>
 									<LockIcon />
 								</div>
 							</div>
@@ -703,12 +810,42 @@ const DynamicIslandUI = () => {
 											value={chatInput}
 											onChange={handleChatInputChange}
 											onKeyPress={handleChatInputKeyPress}
+											onFocus={() => {
+												console.log('💬 Chat input focused');
+												// Ensure window is focusable when input is focused
+												if (
+													window.electronApi?.dynamicIsland?.setChatMode
+												) {
+													window.electronApi.dynamicIsland.setChatMode(
+														true,
+													);
+												}
+											}}
+											onClick={() => {
+												console.log('💬 Chat input clicked');
+												// Ensure window is focusable when input is clicked
+												if (
+													window.electronApi?.dynamicIsland?.setChatMode
+												) {
+													window.electronApi.dynamicIsland.setChatMode(
+														true,
+													);
+												}
+											}}
+											autoFocus={isChatMode}
 										/>
 										<div
-											className="chat-submit-button"
+											className={`chat-submit-button ${
+												isSendingMessage ? 'sending' : ''
+											}`}
 											onClick={handleChatSubmit}
+											title={isSendingMessage ? 'Sending...' : 'Send message'}
 										>
-											<ArrowIcon />
+											{isSendingMessage ? (
+												<div className="sending-spinner"></div>
+											) : (
+												<ArrowIcon />
+											)}
 										</div>
 									</div>
 								</div>
@@ -723,7 +860,7 @@ const DynamicIslandUI = () => {
 										</div>
 									</div>
 
-									{/* Webcam section */}
+									{/* Voice mode / Webcam section */}
 									<div
 										className={`webcam-section ${
 											isCameraActive ? 'camera-active' : ''
@@ -734,90 +871,113 @@ const DynamicIslandUI = () => {
 												: ''
 										}`}
 										onClick={
-											cameraPermission === 'denied' ||
-											cameraPermission === 'restricted'
-												? (e) => {
-														e.stopPropagation();
-														if (
-															window.electronApi?.askAI?.camera
-																?.showPermissionHelp
-														) {
-															window.electronApi.askAI.camera.showPermissionHelp();
-														}
-												  }
-												: handleWebcamClick
+											isRecording
+												? cameraPermission === 'denied' ||
+												  cameraPermission === 'restricted'
+													? (e) => {
+															e.stopPropagation();
+															if (
+																window.electronApi?.askAI?.camera
+																	?.showPermissionHelp
+															) {
+																window.electronApi.askAI.camera.showPermissionHelp();
+															}
+													  }
+													: handleWebcamClick
+												: handleVoiceModeClick
 										}
 										onMouseEnter={handleWebcamMouseEnter}
 										title={
-											isCameraActive
-												? 'Click to stop camera'
-												: cameraPermission === 'denied' ||
-												  cameraPermission === 'restricted'
-												? 'Click to open system permissions'
-												: 'Click to start camera'
+											isRecording
+												? isCameraActive
+													? 'Click to stop camera'
+													: cameraPermission === 'denied' ||
+													  cameraPermission === 'restricted'
+													? 'Click to open system permissions'
+													: 'Click to start camera'
+												: 'Voice mode'
 										}
 									>
-										{isCameraStarting ? (
-											<div className="camera-loading">
-												<div className="loading-spinner"></div>
-												<div className="loading-text">Starting...</div>
-											</div>
-										) : isCameraActive && cameraStream ? (
+										{isRecording ? (
+											/* Show camera when recording is active */
 											<>
-												<video
-													ref={videoRef}
-													autoPlay
-													playsInline
-													muted
-													className="webcam-video"
-													style={{
-														width: '100%',
-														height: '100%',
-														objectFit: 'cover',
-														borderRadius: '100px',
-														display: 'block',
-														visibility: 'visible',
-													}}
-												/>
-												{/* Debug info */}
-												<div className="camera-live-indicator">Live</div>
-												{/* Hover overlay to show "Click to stop" */}
-												<div className="camera-hover-overlay">
-													Click to stop
-												</div>
-											</>
-										) : cameraPermission === 'denied' ||
-										  cameraPermission === 'restricted' ? (
-											<>
-												<div className="webcam-label permission-required">
-													Permission Required
-												</div>
+												{isCameraStarting ? (
+													<div className="camera-loading">
+														<div className="loading-spinner"></div>
+														<div className="loading-text">
+															Starting...
+														</div>
+													</div>
+												) : isCameraActive && cameraStream ? (
+													<>
+														<video
+															ref={videoRef}
+															autoPlay
+															playsInline
+															muted
+															className="webcam-video"
+															style={{
+																width: '100%',
+																height: '100%',
+																objectFit: 'cover',
+																borderRadius: '100px',
+																display: 'block',
+																visibility: 'visible',
+															}}
+														/>
+														{/* Debug info */}
+														<div className="camera-live-indicator">
+															Live
+														</div>
+														{/* Hover overlay to show "Click to stop" */}
+														<div className="camera-hover-overlay">
+															Click to stop
+														</div>
+													</>
+												) : cameraPermission === 'denied' ||
+												  cameraPermission === 'restricted' ? (
+													<>
+														<div className="webcam-label permission-required">
+															Permission Required
+														</div>
+													</>
+												) : (
+													<>
+														<WebcamIcon />
+														<div className="webcam-label">Webcam</div>
+														{/* Debug info */}
+														<div className="camera-click-instruction">
+															Click to start
+														</div>
+													</>
+												)}
+
+												{/* Camera error display */}
+												{cameraError && (
+													<div className="camera-error">
+														{cameraError}
+													</div>
+												)}
+
+												{/* Camera status for different states */}
+												{cameraStatus === 'starting' && (
+													<div className="camera-status starting">
+														Starting...
+													</div>
+												)}
+
+												{cameraStatus === 'error' && (
+													<div className="camera-status error">
+														⚠ Error
+													</div>
+												)}
 											</>
 										) : (
+											/* Show voice mode when not recording */
 											<>
-												<WebcamIcon />
-												<div className="webcam-label">Webcam</div>
-												{/* Debug info */}
-												<div className="camera-click-instruction">
-													Click to start
-												</div>
+												<VoiceModeIcon />
+												<div className="webcam-label">Voice Mode</div>
 											</>
-										)}
-
-										{/* Camera error display */}
-										{cameraError && (
-											<div className="camera-error">{cameraError}</div>
-										)}
-
-										{/* Camera status for different states */}
-										{cameraStatus === 'starting' && (
-											<div className="camera-status starting">
-												Starting...
-											</div>
-										)}
-
-										{cameraStatus === 'error' && (
-											<div className="camera-status error">⚠ Error</div>
 										)}
 									</div>
 								</>

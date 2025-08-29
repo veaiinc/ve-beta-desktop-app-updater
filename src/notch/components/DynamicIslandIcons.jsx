@@ -171,3 +171,15 @@ export const BackIcon = () => (
 		<path d="M6 11L1 6L6 1" stroke="#F2F2F3" strokeLinecap="round" strokeLinejoin="round" />
 	</svg>
 );
+
+export const VoiceModeIcon = () => (
+	<svg xmlns="http://www.w3.org/2000/svg" width="14" height="16" viewBox="0 0 14 16" fill="none">
+		<path
+			d="M7 14.562V1.43701M13 10.2195V5.77951M1 10.2195V5.77951M10 12.4335V3.56551M4 12.4335V3.56551"
+			stroke="#79ECC9"
+			strokeWidth="1.125"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);

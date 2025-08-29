@@ -1,6 +1,6 @@
 .dynamic-island {
-	width: 250px;
-	height: 15px;
+	width: 320px;
+	height: 32px;
 	position: absolute;
 	top: 0;
 	left: 50%;
@@ -16,21 +16,21 @@
 	flex-shrink: 0;
 
 	&:hover {
-		width: 555px !important;
+		width: 640px !important;
 		height: 160px !important;
 		border-radius: 16px !important;
 		transform: translateX(-50%) scale(1.02);
 	}
 
 	&.expanded {
-		width: 575px;
+		width: 640px;
 		height: 180px;
 		border-radius: 16px;
 	}
 
 	&.collapsed {
-		width: 250px;
-		height: 20px;
+		width: 320px;
+		height: 32px;
 		border-radius: 8px;
 	}
 
@@ -94,6 +94,36 @@
 	font-weight: 500;
 }
 
+// Collapsed recording state styling
+.collapsed-recording {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 0 24px;
+	gap: 16px;
+
+	.audio-visualizer-container {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 24px;
+		height: 24px;
+		background: rgba(255, 255, 255, 0.2);
+		border-radius: 4px;
+		padding: 4px 6px;
+	}
+
+	.recording-text {
+		color: #f2f2f3;
+		font-family: Inter;
+		font-size: 13px;
+		font-weight: 500;
+		line-height: 1.21;
+		white-space: nowrap;
+	}
+}
+
 // UI Container - hidden by default, shown on hover
 .ui-container {
 	position: absolute;
@@ -126,6 +156,25 @@
 	width: 100%;
 	color: white;
 	text-align: center;
+	position: relative;
+	z-index: 1;
+
+	// Ensure background is isolated to content area only
+	&::before {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 200px;
+		height: 200px;
+		background-image: url('./bg.svg');
+		background-size: cover;
+		background-repeat: no-repeat;
+		background-position: center;
+		z-index: -1;
+		pointer-events: none;
+	}
 }
 
 .welcome-message {
@@ -266,12 +315,12 @@
 	padding: 4px 6px;
 	width: 24px;
 	height: 24px;
-	background: rgba(255, 255, 255, 0.2);
+
 	border-radius: 4px;
 }
 
 .audio-bar {
-	background: #79ecc9;
+	background-color: #000;
 	border-radius: 1.6px;
 
 	&:nth-child(1) {
@@ -412,9 +461,32 @@
 	margin-right: 4px;
 	transition: all 0.2s ease;
 
-	&:hover {
+	&:hover:not(.sending) {
 		color: #79ecc9;
 		transform: scale(1.1);
+	}
+
+	&.sending {
+		cursor: not-allowed;
+		opacity: 0.7;
+	}
+
+	.sending-spinner {
+		width: 10px;
+		height: 10px;
+		border: 2px solid transparent;
+		border-top: 2px solid #79ecc9;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
 	}
 }
 
@@ -903,5 +975,23 @@
 	// Override for permission required state
 	.webcam-label.permission-required {
 		color: white;
+	}
+}
+
+// Chat status message styling
+.chat-status-message {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 11px;
+	font-weight: 500;
+	padding: 8px;
+	margin-top: 8px;
+	border-radius: 8px;
+
+	&.sending {
+		color: #ffa726;
+		background: rgba(255, 167, 38, 0.1);
+		border: 1px solid rgba(255, 167, 38, 0.3);
 	}
 }
