@@ -12,17 +12,23 @@ struct NotchHeaderView: View {
 
     var body: some View {
         HStack {
-            Text(
-                vm.contentType == .settings
-                    ? "Version: \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown") (Build: \(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"))"
-                    : "Notch Drop"
-            )
-            .contentTransition(.numericText())
+            Text("Living Intelligence")
+                .font(.system(.headline, design: .rounded))
+                .foregroundColor(.white)
             Spacer()
-            Image(systemName: "ellipsis")
+            Button(action: {
+                vm.showSettings()
+            }) {
+                Image(systemName: "ellipsis")
+                    .font(.system(size: 16))
+                    .foregroundColor(.white)
+                    .frame(width: 24, height: 24)
+                    .background(Color.white.opacity(0.15))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .buttonStyle(PlainButtonStyle())
         }
         .animation(vm.animation, value: vm.contentType)
-        .font(.system(.headline, design: .rounded))
     }
 }
 

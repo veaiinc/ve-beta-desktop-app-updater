@@ -10,11 +10,11 @@ import {
 	StopIcon,
 	PlusIcon,
 	BackIcon,
-} from './DynamicIslandIcons';
-import './DynamicIslandUI.scss';
+} from './NotchDropIcons';
+import './NotchDropUI.scss';
 
-const DynamicIslandUI = () => {
-	const dynamicIslandRef = useRef(null);
+const NotchDropUI = () => {
+	const notchDropRef = useRef(null);
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [isConnected, setIsConnected] = useState(false);
 	// Overlay state - synced from overlay window
@@ -22,7 +22,7 @@ const DynamicIslandUI = () => {
 	const [isPaused, setIsPaused] = useState(false);
 	const [timer, setTimer] = useState(0);
 	const [isLiveIntelligenceOpen, setIsLiveIntelligenceOpen] = useState(false);
-	const [controlledByDynamicIsland, setControlledByDynamicIsland] = useState(false);
+	const [controlledByNotchDrop, setControlledByNotchDrop] = useState(false);
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 	// Chat mode state
 	const [isChatMode, setIsChatMode] = useState(false);
@@ -48,128 +48,45 @@ const DynamicIslandUI = () => {
 		window.addEventListener('storage', handleStorageChange);
 
 		// Check if we're in Electron environment
-		if (window.electronApi && window.electronApi.dynamicIsland) {
+		if (window.electronApi && window.electronApi.notchDrop) {
 			setIsConnected(true);
 
-			// Listen for dynamic island state changes
-			window.electronApi.dynamicIsland.onStateChange((data) => {
+			// Listen for notch drop state changes
+			window.electronApi.notchDrop.onStateChange((data) => {
 				setIsExpanded(data.expanded);
 			});
 
 			// Listen for overlay state changes to sync recording state
-			window.electronApi.dynamicIsland.onOverlayStateChange((state) => {
-				console.log('🏝️ Dynamic Island received overlay state:', state);
+			window.electronApi.notchDrop.onOverlayStateChange((state) => {
+				console.log('🏝️ NotchDrop received overlay state:', state);
 				setIsRecording(state.isRecording);
 				setIsPaused(state.isPaused);
 				setTimer(state.timer);
 				setIsLiveIntelligenceOpen(state.isLiveIntelligenceOpen);
-				setControlledByDynamicIsland(
-					state.isDynamicIslandControlled || state.controlledByDynamicIsland || false,
+				setControlledByNotchDrop(
+					state.isNotchDropControlled || state.controlledByNotchDrop || false,
 				);
 
-				console.log('🎯 Dynamic Island Control State:', {
-					isDynamicIslandControlled: state.isDynamicIslandControlled,
-					controlledByDynamicIsland: state.controlledByDynamicIsland,
+				console.log('🎯 NotchDrop Control State:', {
+					isNotchDropControlled: state.isNotchDropControlled,
+					controlledByNotchDrop: state.controlledByNotchDrop,
 					showShortcutBar: state.showShortcutBar,
 					isRecording: state.isRecording,
 				});
 			});
 		}
 
-		// Listen for Swift control events
-		if (window.electronApi && window.electronApi.ipcRenderer) {
-			window.electronApi.ipcRenderer.on('swift:control', (event, data) => {
-				console.log('🎯 Swift control received:', data);
-				handleSwiftControl(data.action, data.data);
-			});
-
-			// Listen for state requests from Swift
-			window.electronApi.ipcRenderer.on('swift:getState', () => {
-				console.log('📊 State request from Swift');
-				sendStateToSwift();
-			});
-		}
-
 		return () => {
 			// Clean up listeners
 			window.removeEventListener('storage', handleStorageChange);
-			if (window.electronApi?.dynamicIsland?.removeStateChangeListener) {
-				window.electronApi.dynamicIsland.removeStateChangeListener();
+			if (window.electronApi?.notchDrop?.removeStateChangeListener) {
+				window.electronApi.notchDrop.removeStateChangeListener();
 			}
-			if (window.electronApi?.dynamicIsland?.removeOverlayStateListener) {
-				window.electronApi.dynamicIsland.removeOverlayStateListener();
+			if (window.electronApi?.notchDrop?.removeOverlayStateListener) {
+				window.electronApi.notchDrop.removeOverlayStateListener();
 			}
 		};
 	}, []);
-
-	// Handle Swift control actions
-	const handleSwiftControl = (action, data) => {
-		console.log('🎯 Handling Swift control:', action, data);
-
-		switch (action) {
-			case 'startRecording':
-				console.log('🎤 Swift requested start recording');
-				handleStartRecording();
-				break;
-			case 'stopRecording':
-				console.log('⏹️ Swift requested stop recording');
-				handleStopRecording();
-				break;
-			case 'pauseRecording':
-				console.log('⏸️ Swift requested pause recording');
-				handlePauseResume();
-				break;
-			case 'resumeRecording':
-				console.log('▶️ Swift requested resume recording');
-				handlePauseResume();
-				break;
-			case 'toggleChatMode':
-				console.log('💬 Swift requested chat mode toggle');
-				setIsChatMode(!isChatMode);
-				break;
-			case 'submitChat':
-				console.log('💬 Swift submitted chat:', data);
-				// Handle chat submission from Swift
-				break;
-			case 'setAuthenticated':
-				console.log('🔐 Swift set authentication:', data);
-				setIsAuthenticated(data);
-				break;
-			case 'expand':
-				console.log('📏 Swift requested expand');
-				if (!isExpanded && isConnected) {
-					expand();
-				}
-				break;
-			case 'collapse':
-				console.log('📏 Swift requested collapse');
-				if (isExpanded && isConnected) {
-					collapse();
-				}
-				break;
-			default:
-				console.warn('⚠️ Unknown Swift action:', action);
-		}
-	};
-
-	// Send current state to Swift
-	const sendStateToSwift = () => {
-		if (window.electronApi?.ipcRenderer) {
-			const state = {
-				isExpanded,
-				isRecording,
-				isPaused,
-				timer,
-				isChatMode,
-				isAuthenticated,
-				chatInput,
-			};
-			console.log('📊 Sending state to Swift:', state);
-			window.electronApi.ipcRenderer.send('js:state', state);
-		}
-	};
-
-	// Timer is now managed by overlay system, no local timer effect needed
 
 	// Hover events
 	const handleMouseEnter = () => {
@@ -190,8 +107,8 @@ const DynamicIslandUI = () => {
 		if (isExpanded || !isConnected) return;
 
 		try {
-			console.log('📏 Expanding Dynamic Island to show rich UI');
-			const result = await window.electronApi.dynamicIsland.expand();
+			console.log('📏 Expanding NotchDrop to show rich UI');
+			const result = await window.electronApi.notchDrop.expand();
 			if (result.success) {
 				setIsExpanded(true);
 			}
@@ -204,8 +121,8 @@ const DynamicIslandUI = () => {
 		if (!isExpanded || !isConnected) return;
 
 		try {
-			console.log('📏 Collapsing Dynamic Island to pill');
-			const result = await window.electronApi.dynamicIsland.collapse();
+			console.log('📏 Collapsing NotchDrop to pill');
+			const result = await window.electronApi.notchDrop.collapse();
 			if (result.success) {
 				setIsExpanded(false);
 			}
@@ -238,7 +155,7 @@ const DynamicIslandUI = () => {
 		if (!isRecording) {
 			// Check if overlay API is available
 			if (!window.electronApi?.overlay?.toggleLiveIntelligence) {
-				console.error('Overlay API not available in Dynamic Island');
+				console.error('Overlay API not available in NotchDrop');
 				return;
 			}
 
@@ -248,7 +165,7 @@ const DynamicIslandUI = () => {
 				const result = await window.electronApi.overlay.toggleLiveIntelligence();
 				console.log('Overlay toggle result:', result);
 			} catch (error) {
-				console.error('Error triggering overlay from Dynamic Island:', error);
+				console.error('Error triggering overlay from NotchDrop:', error);
 			}
 		}
 	};
@@ -266,7 +183,7 @@ const DynamicIslandUI = () => {
 		console.log('💬 Chat section clicked');
 		if (!isChatMode) {
 			setIsChatMode(true);
-			// Ensure Dynamic Island is expanded for chat mode
+			// Ensure NotchDrop is expanded for chat mode
 			if (!isExpanded && isConnected) {
 				expand();
 			}
@@ -303,7 +220,7 @@ const DynamicIslandUI = () => {
 			const result = await window.electronApi.overlay.startRecording();
 			console.log('Start recording result:', result);
 		} catch (error) {
-			console.error('Error starting recording from Dynamic Island:', error);
+			console.error('Error starting recording from NotchDrop:', error);
 		}
 	};
 
@@ -317,7 +234,7 @@ const DynamicIslandUI = () => {
 			const result = await window.electronApi.overlay.stopRecording();
 			console.log('Stop recording result:', result);
 		} catch (error) {
-			console.error('Error stopping recording from Dynamic Island:', error);
+			console.error('Error stopping recording from NotchDrop:', error);
 		}
 	};
 
@@ -340,7 +257,7 @@ const DynamicIslandUI = () => {
 				console.log('Pause recording result:', result);
 			}
 		} catch (error) {
-			console.error('Error toggling pause/resume from Dynamic Island:', error);
+			console.error('Error toggling pause/resume from NotchDrop:', error);
 		}
 	};
 
@@ -355,24 +272,24 @@ const DynamicIslandUI = () => {
 
 	// Initialize
 	useEffect(() => {
-		if (dynamicIslandRef.current) {
-			console.log('✅ DOM loaded, Dynamic Island UI ready');
+		if (notchDropRef.current) {
+			console.log('✅ DOM loaded, NotchDrop UI ready');
 			console.log(
-				'Dynamic Island dimensions:',
-				dynamicIslandRef.current.offsetWidth,
+				'NotchDrop dimensions:',
+				notchDropRef.current.offsetWidth,
 				'x',
-				dynamicIslandRef.current.offsetHeight,
+				notchDropRef.current.offsetHeight,
 			);
 		}
 	}, []);
 
 	return (
 		<div
-			ref={dynamicIslandRef}
-			id="dynamicIsland"
-			className={`dynamic-island ${isExpanded ? 'expanded' : 'collapsed'} ${
+			ref={notchDropRef}
+			id="notchDrop"
+			className={`notch-drop ${isExpanded ? 'expanded' : 'collapsed'} ${
 				isRecording ? 'recording' : ''
-			} ${controlledByDynamicIsland ? 'controlled-by-dynamic-island' : ''} ${
+			} ${controlledByNotchDrop ? 'controlled-by-notch-drop' : ''} ${
 				isChatMode ? 'chat-mode' : ''
 			}`}
 			onMouseEnter={handleMouseEnter}
@@ -380,7 +297,7 @@ const DynamicIslandUI = () => {
 		>
 			{/* Simple content when collapsed */}
 			<div className="island-content">
-				{controlledByDynamicIsland
+				{controlledByNotchDrop
 					? isRecording
 						? `● Recording ${formatTime(timer)}`
 						: 'Living Intelligence'
@@ -432,8 +349,8 @@ const DynamicIslandUI = () => {
 
 										{/* Control mode label */}
 										<div className="meeting-mode-label">
-											{controlledByDynamicIsland
-												? 'Dynamic Island Control'
+											{controlledByNotchDrop
+												? 'NotchDrop Control'
 												: 'Meeting mode'}
 										</div>
 									</div>
@@ -525,4 +442,4 @@ const DynamicIslandUI = () => {
 	);
 };
 
-export default DynamicIslandUI;
+export default NotchDropUI;

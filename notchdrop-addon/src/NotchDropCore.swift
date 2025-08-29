@@ -20,6 +20,7 @@ import Combine
     private var fileDroppedCallback: ((String) -> Void)?
     private var itemAddedCallback: ((String) -> Void)?
     private var itemRemovedCallback: ((String) -> Void)?
+    private var swiftActionCallback: ((String, String) -> Void)?
 
     // MARK: - Singleton
     @objc public static let shared = NotchDropCore()
@@ -312,5 +313,9 @@ import Combine
 
     @objc public func setItemRemovedCallback(_ callback: @escaping (String) -> Void) {
         itemRemovedCallback = callback
+    }
+
+    @objc public func setSwiftActionCallback(_ callback: @escaping (String, String) -> Void) {
+        swiftActionCallback = callback
     }
 }

@@ -8,6 +8,7 @@ static void (^statusChangedCallback)(NSString*);
 static void (^fileDroppedCallback)(NSString*);
 static void (^itemAddedCallback)(NSString*);
 static void (^itemRemovedCallback)(NSString*);
+static void (^swiftActionCallback)(NSString*, NSString*);
 
 // MARK: - Core NotchDrop functionality
 + (void)initializeNotchDrop {
@@ -100,6 +101,18 @@ static void (^itemRemovedCallback)(NSString*);
 + (void)setItemRemovedCallback:(void(^)(NSString*))callback {
     itemRemovedCallback = callback;
     [NotchDropCore.shared setItemRemovedCallback:callback];
+}
+
+// MARK: - Swift Action Callback
++ (void)setSwiftActionCallback:(void(^)(NSString*, NSString*))callback {
+    swiftActionCallback = callback;
+    [NotchDropCore.shared setSwiftActionCallback:callback];
+}
+
++ (void)triggerSwiftAction:(NSString*)action data:(NSString*)data {
+    if (swiftActionCallback) {
+        swiftActionCallback(action, data);
+    }
 }
 
 @end

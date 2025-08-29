@@ -100,6 +100,7 @@ public:
             };
         };
 
+        // Set up callbacks for NotchDrop events
         [NotchDropBridge setNotchDropStatusChangedCallback:makeCallback("statusChanged")];
         [NotchDropBridge setFileDroppedCallback:makeCallback("fileDropped")];
         [NotchDropBridge setItemAddedCallback:makeCallback("itemAdded")];

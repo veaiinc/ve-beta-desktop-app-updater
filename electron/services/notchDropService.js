@@ -7,6 +7,9 @@ class NotchDropService {
 		this.isInitialized = false;
 		this.isEnabled = false;
 		this.autoOpenOnStartup = true; // Auto-open NotchDrop when app starts
+
+		// Swift-JS Bridge integration
+		this.swiftJSBridge = null;
 	}
 
 	async initialize() {
@@ -24,6 +27,9 @@ class NotchDropService {
 			// Initialize the addon
 			this.notchDropAddon.initialize();
 			this.isInitialized = true;
+
+			// Initialize Swift-JS Bridge for overlay integration
+			await this.initializeSwiftJSBridge();
 
 			log.info('✅ NotchDrop service initialized successfully');
 
@@ -287,6 +293,43 @@ class NotchDropService {
 			} catch (error) {
 				log.error('❌ Error during NotchDrop cleanup:', error);
 			}
+		}
+	}
+
+	async initializeSwiftJSBridge() {
+		try {
+			// Load the Swift-JS bridge
+			const bridgePath = path.join(__dirname, '../../notchdrop-addon/swift-js-bridge.js');
+			log.info('Loading Swift-JS bridge from:', bridgePath);
+			const SwiftJSBridge = require(bridgePath);
+
+			this.swiftJSBridge = SwiftJSBridge.bridge;
+
+			// Initialize the bridge
+			await this.swiftJSBridge.initialize();
+
+			log.info('✅ Swift-JS Bridge initialized successfully');
+			return true;
+		} catch (error) {
+			log.error('❌ Failed to initialize Swift-JS Bridge:', error);
+			return false;
+		}
+	}
+
+	// Handle Swift actions for overlay integration
+	async handleSwiftAction(action, data) {
+		try {
+			if (!this.swiftJSBridge) {
+				log.warn('Swift-JS Bridge not initialized, cannot handle Swift action');
+				return { success: false, error: 'Swift-JS Bridge not initialized' };
+			}
+
+			log.info('🎯 Handling Swift action:', action, data);
+			const result = await this.swiftJSBridge.handleSwiftAction(action, data);
+			return result;
+		} catch (error) {
+			log.error('❌ Error handling Swift action:', error);
+			return { success: false, error: error.message };
 		}
 	}
 }

@@ -7,6 +7,7 @@ const {
 	systemPreferences,
 	ipcMain,
 	desktopCapturer,
+	globalShortcut,
 } = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
@@ -697,7 +698,7 @@ app.whenReady().then(async () => {
 	// Initialize WindowHelper for overlay window functionality
 	windowHelper = new WindowHelper();
 	windowHelper.registerGlobalShortcuts(mainWindow);
-	
+
 	// Test shortcuts after registration
 	setTimeout(() => {
 		windowHelper.testShortcuts();
@@ -958,6 +959,53 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// Swift action handlers for overlay integration
+	ipcMain.handle('swift:action', async (event, action, data) => {
+		try {
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = await notchDropService.handleSwiftAction(action, data);
+			return result;
+		} catch (error) {
+			log.error('Error handling Swift action:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Enhanced overlay integration handlers for Swift UI
+	ipcMain.handle('swift:triggerOverlayRecording', async (event, data) => {
+		try {
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = await notchDropService.handleSwiftAction(
+				'triggerOverlayRecording',
+				data,
+			);
+			return result;
+		} catch (error) {
+			log.error('Error triggering overlay recording from Swift:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('swift:triggerOverlayToggleLiveIntelligence', async (event, data) => {
+		try {
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = await notchDropService.handleSwiftAction(
+				'triggerOverlayToggleLiveIntelligence',
+				data,
+			);
+			return result;
+		} catch (error) {
+			log.error('Error triggering overlay toggle live intelligence from Swift:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	// Menu update handler
 	ipcMain.handle('update-notchdrop-menu', async () => {
 		try {
@@ -1093,15 +1141,128 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	ipcMain.handle('update-overlay-dimensions', async (event, { width, height }) => {
+	// NotchDrop overlay integration handlers
+	ipcMain.handle('notchdrop:triggerOverlayRecording', async () => {
 		try {
-			if (!windowHelper) {
-				return { success: false, error: 'Window helper not initialized' };
+			log.info('🎤 NotchDrop requested overlay recording');
+			let overlayWindow = windowHelper?.getOverlayWindow();
+			if (!overlayWindow) {
+				// Create overlay window if it doesn't exist
+				windowHelper?.createOverlayWindow();
+				await new Promise(resolve => setTimeout(resolve, 100)); // Small delay
+				overlayWindow = windowHelper?.getOverlayWindow();
 			}
-			windowHelper.updateWindowDimensions(width, height);
+
+			if (overlayWindow) {
+				// Show overlay window if not visible
+				if (!overlayWindow.isVisible()) {
+					windowHelper?.showOverlayWindow();
+				}
+
+				// Send command to overlay window to start recording
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'startRecording',
+				});
+				log.info('Sent startRecording command to overlay window from NotchDrop');
+			} else {
+				log.error('Overlay window not available after creating');
+				return { success: false, error: 'Overlay window not available' };
+			}
+
 			return { success: true };
 		} catch (error) {
-			log.error('Error updating overlay dimensions:', error);
+			log.error('Error handling NotchDrop overlay recording:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop:triggerOverlayStopRecording', async () => {
+		try {
+			log.info('⏹️ NotchDrop requested overlay stop recording');
+			const overlayWindow = windowHelper?.getOverlayWindow();
+			if (overlayWindow) {
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'stopRecording',
+				});
+				log.info('Sent stopRecording command to overlay window from NotchDrop');
+			} else {
+				log.warn('Overlay window not available for stopRecording');
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error handling NotchDrop overlay stop recording:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop:triggerOverlayPauseRecording', async () => {
+		try {
+			log.info('⏸️ NotchDrop requested overlay pause recording');
+			const overlayWindow = windowHelper?.getOverlayWindow();
+			if (overlayWindow) {
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'pauseRecording',
+				});
+				log.info('Sent pauseRecording command to overlay window from NotchDrop');
+			} else {
+				log.warn('Overlay window not available for pauseRecording');
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error handling NotchDrop overlay pause recording:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop:triggerOverlayResumeRecording', async () => {
+		try {
+			log.info('▶️ NotchDrop requested overlay resume recording');
+			const overlayWindow = windowHelper?.getOverlayWindow();
+			if (overlayWindow) {
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'resumeRecording',
+				});
+				log.info('Sent resumeRecording command to overlay window from NotchDrop');
+			} else {
+				log.warn('Overlay window not available for resumeRecording');
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error handling NotchDrop overlay resume recording:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop:triggerOverlayToggleLiveIntelligence', async () => {
+		try {
+			log.info('🧠 NotchDrop requested overlay toggle live intelligence');
+			let overlayWindow = windowHelper?.getOverlayWindow();
+			if (!overlayWindow) {
+				// Create overlay window if it doesn't exist
+				windowHelper?.createOverlayWindow();
+				await new Promise(resolve => setTimeout(resolve, 100)); // Small delay
+				overlayWindow = windowHelper?.getOverlayWindow();
+			}
+
+			if (overlayWindow) {
+				// Show overlay window if not visible
+				if (!overlayWindow.isVisible()) {
+					windowHelper?.showOverlayWindow();
+				}
+
+				// Send command to overlay window to toggle live intelligence
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'toggleLiveIntelligence',
+				});
+				log.info('Sent toggleLiveIntelligence command to overlay window from NotchDrop');
+			} else {
+				log.error('Overlay window not available after creating');
+				return { success: false, error: 'Overlay window not available' };
+			}
+
+			return { success: true };
+		} catch (error) {
+			log.error('Error handling NotchDrop overlay toggle live intelligence:', error);
 			return { success: false, error: error.message };
 		}
 	});

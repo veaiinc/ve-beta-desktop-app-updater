@@ -39,6 +39,16 @@ struct NotchView: View {
         case .popping: 10
         }
     }
+    
+    var collapsedContentText: String {
+        if vm.isRecording {
+            return "● Recording \(vm.formatTime(vm.timer))"
+        } else if vm.isChatMode {
+            return "Chat Mode"
+        } else {
+            return "Living Intelligence"
+        }
+    }
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -46,6 +56,16 @@ struct NotchView: View {
                 .zIndex(0)
                 .disabled(true)
                 .opacity(vm.notchVisible ? 1 : 0.3)
+            
+            // Collapsed state content
+            if vm.status == .closed {
+                Text(collapsedContentText)
+                    .font(.system(size: 10, weight: .regular))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .zIndex(1)
+            }
+            
             Group {
                 if vm.status == .opened {
                     VStack(spacing: vm.spacing) {

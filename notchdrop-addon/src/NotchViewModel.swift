@@ -80,18 +80,50 @@ class NotchViewModel: NSObject, ObservableObject {
     var hapticFeedback: Bool
 
     let hapticSender = PassthroughSubject<Void, Never>()
+    
+    // Dynamic Island UI state
+    @Published var isRecording: Bool = false
+    @Published var isPaused: Bool = false
+    @Published var timer: Int = 0
+    @Published var isChatMode: Bool = false
+    @Published var chatInput: String = ""
+    @Published var isAuthenticated: Bool = false
+    
+    // Event emitters for JavaScript integration
+    let swiftActionSender = PassthroughSubject<SwiftAction, Never>()
+    
+    enum SwiftAction {
+        case startRecording
+        case stopRecording
+        case pauseRecording
+        case resumeRecording
+        case toggleChatMode
+        case submitChat(String)
+        case setAuthenticated(Bool)
+        case expand
+        case collapse
+        case triggerOverlayToggleLiveIntelligence
+    }
+    
+    private var timerCancellable: AnyCancellable?
 
     func notchOpen(_ reason: OpenReason) {
         openReason = reason
         status = .opened
         contentType = .normal
         NSApp.activate(ignoringOtherApps: true)
+        
+        // Emit expand action for JavaScript
+        swiftActionSender.send(.expand)
     }
 
     func notchClose() {
         openReason = .unknown
         status = .closed
         contentType = .normal
+        
+        // Emit collapse action for JavaScript
+        swiftActionSender.send(.collapse)
     }
 
     func showSettings() {
@@ -101,5 +133,98 @@ class NotchViewModel: NSObject, ObservableObject {
     func notchPop() {
         openReason = .unknown
         status = .popping
+    }
+    
+    // Dynamic Island UI functions
+    func startRecording() {
+        isRecording = true
+        isPaused = false
+        timer = 0
+        startTimer()
+        
+        // Emit action for JavaScript
+        swiftActionSender.send(.startRecording)
+        
+        // Trigger overlay integration - this is the key addition
+        // This will communicate with the overlay system to actually start recording
+        // and show the Live Intelligence panel, just like the JavaScript version
+        swiftActionSender.send(.triggerOverlayToggleLiveIntelligence)
+    }
+    
+    func stopRecording() {
+        isRecording = false
+        isPaused = false
+        timer = 0
+        stopTimer()
+        
+        // Emit action for JavaScript
+        swiftActionSender.send(.stopRecording)
+    }
+    
+    func pauseRecording() {
+        isPaused = true
+        stopTimer()
+        
+        // Emit action for JavaScript
+        swiftActionSender.send(.pauseRecording)
+    }
+    
+    func resumeRecording() {
+        isPaused = false
+        startTimer()
+        
+        // Emit action for JavaScript
+        swiftActionSender.send(.resumeRecording)
+    }
+    
+    func toggleChatMode() {
+        isChatMode.toggle()
+        if !isChatMode {
+            chatInput = ""
+        }
+        
+        // Emit action for JavaScript
+        swiftActionSender.send(.toggleChatMode)
+    }
+    
+    func submitChat() {
+        if !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            // Handle chat submission here
+            print("Chat submitted: \(chatInput)")
+            let message = chatInput
+            chatInput = ""
+            
+            // Emit action for JavaScript
+            swiftActionSender.send(.submitChat(message))
+        }
+    }
+    
+    func setAuthenticated(_ authenticated: Bool) {
+        isAuthenticated = authenticated
+        
+        // Emit action for JavaScript
+        swiftActionSender.send(.setAuthenticated(authenticated))
+    }
+    
+    private func startTimer() {
+        timerCancellable?.cancel()
+        timerCancellable = Timer.publish(every: 1, on: .main, in: .common)
+            .autoconnect()
+            .sink { _ in
+                if self.isRecording && !self.isPaused {
+                    self.timer += 1
+                }
+            }
+    }
+    
+    private func stopTimer() {
+        timerCancellable?.cancel()
+        timerCancellable = nil
+    }
+    
+    func formatTime(_ seconds: Int) -> String {
+        let minutes = seconds / 60
+        let remainingSeconds = seconds % 60
+        return String(format: "%d:%02d", minutes, remainingSeconds)
     }
 }

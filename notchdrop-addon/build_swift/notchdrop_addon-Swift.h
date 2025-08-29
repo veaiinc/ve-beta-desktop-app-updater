@@ -344,6 +344,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) NotchDropCor
 - (void)setFileDroppedCallback:(void (^ _Nonnull)(NSString * _Nonnull))callback;
 - (void)setItemAddedCallback:(void (^ _Nonnull)(NSString * _Nonnull))callback;
 - (void)setItemRemovedCallback:(void (^ _Nonnull)(NSString * _Nonnull))callback;
+- (void)setSwiftActionCallback:(void (^ _Nonnull)(NSString * _Nonnull, NSString * _Nonnull))callback;
 @end
 
 #endif
