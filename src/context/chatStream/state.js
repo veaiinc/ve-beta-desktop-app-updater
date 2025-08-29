@@ -138,13 +138,13 @@ export const ChatStreamState = () => {
 			// const { chat_ws_api, chat_ws_api_US, guest_chat_ws_api, guest_chat_ws_api_US } = config;
 			const region = Cookies.get('region') || localStorage.getItem('region') || 'us-east-1';
 			const type = 'chat_ws_api';
-			const chat_ws_api = getBaseUrl(region, type);
+			const chat_ws_api = getBaseUrl({ region, type });
 			// `https://direct-garfish-smooth.ngrok-free.app`
 			let baseUrl = `${chat_ws_api}/${workspaceId}/${sessionId}/${agent}?token=${usertoken}`;
 
 			if (isPublicChat) {
 				const type = 'guest_chat_ws_api';
-				const guest_chat_ws_api = getBaseUrl(region, type);
+				const guest_chat_ws_api = getBaseUrl({ region, type });
 				baseUrl = `${guest_chat_ws_api}/${sessionId}/guest_chat`;
 			}
 
