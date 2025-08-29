@@ -1,5 +1,5 @@
 // src/pages/LandingPage.jsx
-import { memo, useContext, useEffect, useState, useRef } from 'react';
+import { memo, useEffect, useState, useRef } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 
@@ -17,6 +17,7 @@ import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 import { ReactComponent as PlayIcon } from './assets/playIcon.svg';
 import { ReactComponent as PauseIcon } from './assets/pauseIcon.svg';
 import HeroSection from './heroSection/HeroSection';
+import VeSvg from '../../../assets/svg/veSvg';
 
 import '../../../assets/scss/landingScreen/index.scss';
 
@@ -175,7 +176,7 @@ const LandingPage = () => {
 				<header className={`page-header${info.navVisible ? '' : ' hidden'}`}>
 					<div className="page-header-wrapper">
 						<Link to="/">
-							<VeLogo className="ve-logo" />
+							<VeSvg width={36} height={24} fill="var(--primary-font)" />
 						</Link>
 						<div className="middle-container">
 							{!mobileMenuOpen && (

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import ObjectID from 'bson-objectid';
-import { voice_agent_api_US } from '../../../services/config.live';
+import getBaseUrl from '../../../services/baseUrls';
 
 // Generate a simple session ID
 const sessionId = ObjectID()?.toString();
@@ -255,7 +255,9 @@ export const useVoiceAgent = (token) => {
 			setIsConnecting(true);
 			setMicStatus('Connecting...');
 
-			wsRef.current = new WebSocket(voice_agent_api_US);
+			const type = 'voice_agent_api';
+			const voice_agent_api = getBaseUrl({ region: null, type });
+			wsRef.current = new WebSocket(voice_agent_api);
 
 			wsRef.current.onopen = () => {
 				wsRef.current.send(
