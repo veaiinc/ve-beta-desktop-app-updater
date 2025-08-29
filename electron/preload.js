@@ -99,6 +99,13 @@ contextBridge.exposeInMainWorld('electronApi', {
 				callback(data);
 			});
 		},
+
+		// Camera permission API
+		camera: {
+			checkPermission: () => ipcRenderer.invoke('check-camera-permission'),
+			requestPermission: () => ipcRenderer.invoke('request-camera-permission'),
+			showPermissionHelp: () => ipcRenderer.invoke('show-camera-permission-help'),
+		},
 		removeTabContentListener: () => {
 			ipcRenderer.removeAllListeners('receive-tab-content');
 		},
@@ -143,6 +150,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 		toggle: () => ipcRenderer.invoke('dynamic-island-toggle'),
 		show: () => ipcRenderer.invoke('dynamic-island-show'),
 		hide: () => ipcRenderer.invoke('dynamic-island-hide'),
+		setMouseEvents: (ignore) => ipcRenderer.invoke('dynamic-island-set-mouse-events', ignore),
 		onStateChange: (callback) => {
 			ipcRenderer.on('dynamic-island-state', (event, data) => {
 				callback(data);

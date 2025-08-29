@@ -1,4 +1,13 @@
-import React, { memo, useCallback, useState, useRef, useEffect, useContext, Fragment } from 'react';
+import React, {
+	memo,
+	useCallback,
+	useState,
+	useRef,
+	useEffect,
+	useContext,
+	Fragment,
+	useMemo,
+} from 'react';
 import '../../../assets/scss/chat/chat.scss';
 import {
 	handleDeepSearchChainOfThought,
@@ -122,6 +131,7 @@ const RecentChat = ({
 	const browserData = globalChatMessages?.[sessionId]?.browserData;
 
 	// Save whenever it changes
+
 	useEffect(() => {
 		localStorage.setItem('chatHistorySidebarClosed', JSON.stringify(info.isChatHistoryClosed));
 	}, [info.isChatHistoryClosed]);
@@ -809,7 +819,17 @@ const RecentChat = ({
 		},
 		[chatContentRef?.current, info?.initialRendering],
 	);
-
+	const liveViewUrl = useMemo(() => {
+		const messages = globalChatMessages?.[sessionId]?.messages || [];
+		// Find the latest AI message with live_view
+		for (let i = messages.length - 1; i >= 0; i--) {
+			const msg = messages[i];
+			if (msg.type === 'AI' && msg.url_type === 'live_view' && msg.url) {
+				return msg.url;
+			}
+		}
+		return null;
+	}, [globalChatMessages, sessionId]);
 	const smoothScrollToLastMessage = useCallback(() => {
 		const scrollElement = chatContentRef?.current;
 		const lastUserMessage = Object?.values(userMessagesRefs.current)?.[
@@ -943,9 +963,9 @@ const RecentChat = ({
 			}
 			const { message_chunk_id, toolName } = data;
 
-			if (toolName) {
-				getBrowserUrls(sessionId, handleGlobalChatMessages);
-			}
+			// if (toolName) {
+			// 	getBrowserUrls(sessionId, handleGlobalChatMessages);
+			// }
 
 			if (message_chunk_id) {
 				handleGlobalChatMessages({
@@ -1261,19 +1281,22 @@ const RecentChat = ({
 					</div>
 				</div>
 
-				<div
-					className="browser-container"
-					style={{
-						width: info?.openBrowser && showBrowser ? '50vw' : '0px',
-					}}
-				>
-					<Browser
-						sessionId={sessionId}
-						isOpen={info?.openBrowser && showBrowser}
-						browserData={browserData}
-						handleBrowserButtonClick={handleBrowserButtonClick}
-					/>
-				</div>
+				{liveViewUrl && (
+					<div
+						className="browser-container"
+						style={{
+							width: info?.openBrowser && showBrowser ? '50vw' : '0px',
+						}}
+					>
+						<Browser
+							sessionId={sessionId}
+							isOpen={info?.openBrowser && showBrowser}
+							browserData={browserData}
+							liveViewUrl={liveViewUrl}
+							handleBrowserButtonClick={handleBrowserButtonClick}
+						/>
+					</div>
+				)}
 			</div>
 
 			<CitationsModal

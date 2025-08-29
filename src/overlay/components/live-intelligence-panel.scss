@@ -107,7 +107,6 @@
 		align-items: center;
 		gap: 0;
 		align-self: stretch;
-		border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
 		.tab-button {
 			display: flex;
@@ -127,7 +126,10 @@
 
 			&.active {
 				color: #fff;
-				border-bottom-color: #00d4aa;
+				border-bottom-color: #79ECC9;
+				stroke-width: 1px;
+				stroke: #79ECC9;
+				filter: drop-shadow(0 0 3.6px #79ECC9);
 			}
 
 			&:hover:not(.active) {

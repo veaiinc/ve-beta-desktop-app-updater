@@ -119,12 +119,13 @@ class DynamicIslandHelper {
 				skipTransformProcessType: true,
 			});
 			this.dynamicIslandWindow.setHiddenInMissionControl(true);
-			this.dynamicIslandWindow.setIgnoreMouseEvents(false);
 			this.dynamicIslandWindow.setMovable(true);
 		} else {
 			this.dynamicIslandWindow.setAlwaysOnTop(true, 'floating');
-			this.dynamicIslandWindow.setIgnoreMouseEvents(false);
 		}
+
+		// Set initial mouse event handling - start with mouse events ignored since it's collapsed
+		this.setMouseEventHandling(true);
 
 		// Show the window
 		this.dynamicIslandWindow.show();
@@ -142,6 +143,9 @@ class DynamicIslandHelper {
 		this.isExpanded = true;
 		log.info('Dynamic Island content expanded (window size remains 555x150)');
 
+		// Enable mouse events when expanded so user can interact with it
+		this.setMouseEventHandling(false);
+
 		// Notify renderer - window size stays the same
 		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: true });
 		log.info('Dynamic Island expanded');
@@ -153,9 +157,33 @@ class DynamicIslandHelper {
 		this.isExpanded = false;
 		log.info('Dynamic Island content collapsed (window size remains 555x150)');
 
+		// Disable mouse events when collapsed so clicks pass through
+		this.setMouseEventHandling(true);
+
 		// Notify renderer - window size stays the same
 		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: false });
 		log.info('Dynamic Island collapsed');
+	}
+
+	setMouseEventHandling(ignore) {
+		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
+
+		try {
+			if (process.platform === 'darwin') {
+				// On macOS, use the forward option to allow clicks to pass through
+				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore, { forward: true });
+			} else {
+				// On other platforms, just ignore mouse events
+				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore);
+			}
+			log.info(
+				`Dynamic Island mouse events ${
+					ignore ? 'ignored' : 'enabled'
+				} (expanded: ${!ignore})`,
+			);
+		} catch (error) {
+			log.error('Error setting mouse event handling:', error);
+		}
 	}
 
 	show() {
@@ -195,9 +223,22 @@ class DynamicIslandHelper {
 	}
 
 	destroy() {
-		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
-			this.dynamicIslandWindow.destroy();
-			this.dynamicIslandWindow = null;
+		log.info('🧹 DynamicIslandHelper destroy started...');
+
+		try {
+			if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+				log.info('🧹 Destroying Dynamic Island window...');
+				this.dynamicIslandWindow.destroy();
+				this.dynamicIslandWindow = null;
+			}
+
+			// Reset state
+			this.isExpanded = false;
+			this.isVisible = false;
+
+			log.info('✅ DynamicIslandHelper destroy completed');
+		} catch (error) {
+			log.error('Error destroying DynamicIslandHelper:', error);
 		}
 	}
 }
@@ -683,11 +724,43 @@ app.whenReady().then(async () => {
 	// ✅ ADD THE DEBUG SCREEN PERMISSION PROMPT HERE (macOS only)
 	if (process.platform === 'darwin') {
 		setTimeout(async () => {
-			const { systemPreferences } = require('electron');
-			console.log('🔧 Forcing screen permission prompt...');
-			const granted = await systemPreferences.askForMediaAccess('screen');
-			console.log('🎯 Screen permission granted:', granted);
+			try {
+				const { systemPreferences } = require('electron');
+				console.log('🔧 Forcing screen permission prompt...');
+				const granted = await systemPreferences.askForMediaAccess('screen');
+				console.log('🎯 Screen permission granted:', granted);
+			} catch (error) {
+				console.log('⚠️ Screen permission request failed:', error.message);
+				// This is expected in some cases, not a critical error
+			}
 		}, 2000);
+
+		// Also request camera permission
+		setTimeout(async () => {
+			const { systemPreferences } = require('electron');
+			console.log('📹 Requesting camera permission...');
+			const cameraGranted = await systemPreferences.askForMediaAccess('camera');
+			console.log('📹 Camera permission granted:', cameraGranted);
+		}, 3000);
+
+		// Log initial camera permission status
+		setTimeout(async () => {
+			const { systemPreferences } = require('electron');
+			const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
+			console.log('📹 Initial camera permission status:', cameraStatus);
+
+			if (cameraStatus === 'denied') {
+				console.log(
+					'⚠️ Camera access denied. User needs to enable it in System Preferences > Security & Privacy > Privacy > Camera',
+				);
+			} else if (cameraStatus === 'restricted') {
+				console.log('🚫 Camera access restricted by system policy');
+			} else if (cameraStatus === 'granted') {
+				console.log('✅ Camera access already granted');
+			} else {
+				console.log('❓ Camera permission not yet determined');
+			}
+		}, 4000);
 	}
 
 	createWindow();
@@ -766,10 +839,10 @@ app.whenReady().then(async () => {
 	ipcMain.handle('dynamic-island-expand', async () => {
 		try {
 			if (!dynamicIslandHelper) {
-				return { success: false, error: 'Dynamic Island helper not initialized' };
+				return { success: false, error: 'Dynamic Island Helper not initialized' };
 			}
-			dynamicIslandHelper.expand();
-			return { success: true };
+			const result = await dynamicIslandHelper.expand();
+			return { success: true, result };
 		} catch (error) {
 			log.error('Error expanding dynamic island:', error);
 			return { success: false, error: error.message };
@@ -779,13 +852,66 @@ app.whenReady().then(async () => {
 	ipcMain.handle('dynamic-island-collapse', async () => {
 		try {
 			if (!dynamicIslandHelper) {
-				return { success: false, error: 'Dynamic Island helper not initialized' };
+				return { success: false, error: 'Dynamic Island Helper not initialized' };
 			}
-			dynamicIslandHelper.collapse();
-			return { success: true };
+			const result = await dynamicIslandHelper.collapse();
+			return { success: true, result };
 		} catch (error) {
 			log.error('Error collapsing dynamic island:', error);
 			return { success: false, error: error.message };
+		}
+	});
+
+	// Camera permission handler
+	ipcMain.handle('request-camera-permission', async () => {
+		try {
+			if (process.platform === 'darwin') {
+				const { systemPreferences } = require('electron');
+
+				// First check current permission status
+				const currentStatus = systemPreferences.getMediaAccessStatus('camera');
+				log.info('Current camera permission status:', currentStatus);
+
+				if (currentStatus === 'granted') {
+					log.info('Camera permission already granted');
+					return { success: true, granted: true, status: currentStatus };
+				}
+
+				if (currentStatus === 'denied') {
+					log.warn('Camera permission denied by user');
+					return {
+						success: false,
+						granted: false,
+						status: currentStatus,
+						error: 'Camera access denied. Please enable camera access in System Preferences > Security & Privacy > Privacy > Camera.',
+					};
+				}
+
+				// Request permission if not determined
+				log.info('Requesting camera permission...');
+				const cameraGranted = await systemPreferences.askForMediaAccess('camera');
+				log.info('Camera permission request result:', cameraGranted);
+
+				return {
+					success: true,
+					granted: cameraGranted,
+					status: cameraGranted ? 'granted' : 'denied',
+					message: cameraGranted
+						? 'Camera permission granted'
+						: 'Camera permission denied',
+				};
+			} else {
+				// On other platforms, assume permission is available
+				log.info('Non-macOS platform - camera permission assumed available');
+				return { success: true, granted: true, status: 'granted' };
+			}
+		} catch (error) {
+			log.error('Error requesting camera permission:', error);
+			return {
+				success: false,
+				error: error.message,
+				status: 'error',
+			};
 		}
 	});
 
@@ -1127,6 +1253,19 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	ipcMain.handle('dynamic-island-set-mouse-events', async (event, ignore) => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+			dynamicIslandHelper.setMouseEventHandling(ignore);
+			return { success: true };
+		} catch (error) {
+			log.error('Error setting dynamic island mouse events:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	// Register overlay window IPC handlers
 	ipcMain.handle('toggle-overlay-window', async () => {
 		try {
@@ -1149,7 +1288,7 @@ app.whenReady().then(async () => {
 			if (!overlayWindow) {
 				// Create overlay window if it doesn't exist
 				windowHelper?.createOverlayWindow();
-				await new Promise(resolve => setTimeout(resolve, 100)); // Small delay
+				await new Promise((resolve) => setTimeout(resolve, 100)); // Small delay
 				overlayWindow = windowHelper?.getOverlayWindow();
 			}
 
@@ -1240,7 +1379,7 @@ app.whenReady().then(async () => {
 			if (!overlayWindow) {
 				// Create overlay window if it doesn't exist
 				windowHelper?.createOverlayWindow();
-				await new Promise(resolve => setTimeout(resolve, 100)); // Small delay
+				await new Promise((resolve) => setTimeout(resolve, 100)); // Small delay
 				overlayWindow = windowHelper?.getOverlayWindow();
 			}
 
@@ -1647,6 +1786,85 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// Show camera permission help dialog
+	ipcMain.handle('show-camera-permission-help', async () => {
+		try {
+			if (process.platform === 'darwin') {
+				const { dialog } = require('electron');
+				const result = await dialog.showMessageBox(mainWindow, {
+					type: 'info',
+					title: 'Camera Permission Required',
+					message: 'Camera access is needed for webcam functionality',
+					detail: 'To enable camera access:\n\n1. Go to System Preferences > Security & Privacy > Privacy\n2. Select "Camera" from the left sidebar\n3. Check the box next to this app\n4. Restart the app if needed',
+					buttons: ['Open System Preferences', 'Cancel'],
+					defaultId: 0,
+					cancelId: 1,
+				});
+
+				if (result.response === 0) {
+					// Open System Preferences to Camera section
+					const { exec } = require('child_process');
+					exec(
+						'open "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera"',
+					);
+				}
+
+				return { success: true, openedSystemPrefs: result.response === 0 };
+			} else {
+				return {
+					success: true,
+					openedSystemPrefs: false,
+					message: 'Camera permissions handled by system',
+				};
+			}
+		} catch (error) {
+			log.error('Error showing camera permission help:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Check camera permission status handler
+	ipcMain.handle('check-camera-permission', async () => {
+		try {
+			if (process.platform === 'darwin') {
+				const { systemPreferences } = require('electron');
+				const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
+
+				log.info('Checking camera permission status:', cameraStatus);
+
+				return {
+					success: true,
+					permission: cameraStatus,
+					hasPermission: cameraStatus === 'granted',
+					message:
+						cameraStatus === 'granted'
+							? 'Camera access granted'
+							: cameraStatus === 'denied'
+							? 'Camera access denied'
+							: cameraStatus === 'not-determined'
+							? 'Camera permission not yet determined'
+							: 'Camera access restricted',
+				};
+			} else {
+				// For non-macOS platforms, assume permission is available
+				return {
+					success: true,
+					permission: 'granted',
+					hasPermission: true,
+					message: 'Camera access available',
+				};
+			}
+		} catch (error) {
+			log.error('Error checking camera permission:', error);
+			return {
+				success: false,
+				error: error.message,
+				hasPermission: false,
+				permission: 'error',
+			};
+		}
+	});
+
 	// Request microphone permission handler
 	ipcMain.handle('request-microphone-permission', async () => {
 		try {
@@ -1713,21 +1931,115 @@ app.whenReady().then(async () => {
 	});
 });
 
+// Handle app quit properly
+app.on('before-quit', (event) => {
+	log.info('🔄 App quit requested - cleaning up...');
+
+	// Prevent default quit behavior to allow cleanup
+	event.preventDefault();
+
+	// Clean up all windows and processes
+	cleanupAndQuit();
+});
+
+// Handle macOS dock quit
+app.on('quit', (event, exitCode) => {
+	log.info('🔄 App quit event triggered with exit code:', exitCode);
+
+	// Ensure cleanup happens even if before-quit didn't trigger
+	if (dynamicIslandHelper || windowHelper) {
+		log.info('🔄 Force cleanup on quit event...');
+		cleanupAndQuit();
+	}
+});
+
 app.on('window-all-closed', () => {
-	// Clean up dynamic island
-	if (dynamicIslandHelper) {
-		dynamicIslandHelper.destroy();
-	}
+	log.info('🔄 All windows closed - cleaning up...');
 
-	// Clean up NotchDrop service
-	if (notchDropService) {
-		notchDropService.cleanup();
-	}
-
-	app.quit();
+	// Clean up all windows and processes
+	cleanupAndQuit();
 });
 
 app.on('will-quit', () => {
+	log.info('🔄 Will quit - final cleanup...');
+
 	// Unregister all global shortcuts
-	globalShortcut.unregisterAll();
+	try {
+		const { globalShortcut } = require('electron');
+		globalShortcut.unregisterAll();
+		log.info('✅ Global shortcuts unregistered');
+	} catch (error) {
+		log.error('Error unregistering global shortcuts:', error);
+	}
+});
+
+// Function to handle cleanup and quit
+function cleanupAndQuit() {
+	log.info('🧹 Starting cleanup process...');
+
+	try {
+		// 1. Clean up Dynamic Island
+		if (dynamicIslandHelper) {
+			log.info('🧹 Cleaning up Dynamic Island...');
+			dynamicIslandHelper.destroy();
+			dynamicIslandHelper = null;
+		}
+
+		// 2. Clean up Window Helper and all its windows
+		if (windowHelper) {
+			log.info('🧹 Cleaning up Window Helper...');
+			windowHelper.cleanup();
+			windowHelper = null;
+		}
+
+		// 3. Close main window if it exists
+		if (mainWindow && !mainWindow.isDestroyed()) {
+			log.info('🧹 Closing main window...');
+			mainWindow.close();
+		}
+
+		// 4. Force quit all remaining windows
+		const { BrowserWindow } = require('electron');
+		BrowserWindow.getAllWindows().forEach((window) => {
+			if (!window.isDestroyed()) {
+				log.info('🧹 Force closing window:', window.getTitle());
+				window.destroy();
+			}
+		});
+
+		// 5. Unregister all global shortcuts
+		try {
+			const { globalShortcut } = require('electron');
+			globalShortcut.unregisterAll();
+			log.info('✅ Global shortcuts unregistered');
+		} catch (error) {
+			log.error('Error unregistering global shortcuts:', error);
+		}
+
+		log.info('✅ Cleanup completed - quitting app');
+
+		// Force quit the app
+		setTimeout(() => {
+			app.exit(0);
+		}, 100);
+	} catch (error) {
+		log.error('Error during cleanup:', error);
+		// Force quit even if cleanup fails
+		app.exit(0);
+	}
+}
+
+// Handle process exit to ensure cleanup
+process.on('exit', (code) => {
+	log.info('🔄 Process exiting with code:', code);
+});
+
+process.on('SIGINT', () => {
+	log.info('🔄 SIGINT received - cleaning up...');
+	cleanupAndQuit();
+});
+
+process.on('SIGTERM', () => {
+	log.info('🔄 SIGTERM received - cleaning up...');
+	cleanupAndQuit();
 });

@@ -26,10 +26,6 @@ public:
             InstanceMethod("on", &NotchDropAddon::On)
         });
 
-        Napi::FunctionReference* constructor = new Napi::FunctionReference();
-        *constructor = Napi::Persistent(func);
-        env.SetInstanceData(constructor);
-
         exports.Set("NotchDropAddon", func);
         return exports;
     }

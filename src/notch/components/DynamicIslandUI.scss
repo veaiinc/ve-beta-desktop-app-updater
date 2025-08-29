@@ -475,6 +475,8 @@
 	gap: 8px;
 	cursor: pointer;
 	transition: all 0.3s ease;
+	position: relative;
+	overflow: hidden;
 
 	&:hover {
 		transform: scale(1.05);
@@ -491,6 +493,169 @@
 	color: #94989e;
 	font-size: 12px;
 	font-weight: 500;
+	text-align: center;
+	line-height: 1.2;
+}
+
+// Webcam video styling
+.webcam-video {
+	width: 100%;
+	height: 100%;
+	border-radius: 100px;
+	object-fit: cover;
+	background: #000;
+	transition: all 0.3s ease;
+	transform: scale(1.01); // Slight scale to prevent edge clipping
+
+	&:hover {
+		transform: scale(1.02);
+	}
+
+	// Ensure video fills the circular area properly
+	&::-webkit-media-controls {
+		display: none;
+	}
+
+	&::-webkit-media-controls-panel {
+		display: none;
+	}
+
+	&::-webkit-media-controls-play-button {
+		display: none;
+	}
+
+	&::-webkit-media-controls-start-playback-button {
+		display: none;
+	}
+}
+
+// Camera status indicator
+.camera-status {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	background: var(--primary-button);
+	color: #000;
+	font-size: 10px;
+	font-weight: 600;
+	padding: 2px 6px;
+	border-radius: 10px;
+	z-index: 10;
+
+	&.starting {
+		background: var(--card);
+		color: #000;
+	}
+
+	&.error {
+		background: var(-error);
+		color: white;
+	}
+}
+
+// Camera error display
+.camera-error {
+	position: absolute;
+	bottom: -30px;
+	left: 50%;
+	transform: translateX(-50%);
+	background: var(--error);
+	color: white;
+	font-size: 10px;
+	font-weight: 500;
+	padding: 4px 8px;
+	border-radius: 6px;
+	white-space: nowrap;
+	z-index: 10;
+	max-width: 200px;
+	text-align: center;
+}
+
+// Camera loading state
+.camera-loading {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	color: #94989e;
+	width: 100%;
+	height: 100%;
+
+	.loading-spinner {
+		width: 20px;
+		height: 20px;
+		border: 2px solid var(--stroke);
+		border-top: 2px solid var(--primary-button);
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+
+	.loading-text {
+		font-size: 11px;
+		font-weight: 500;
+		text-align: center;
+	}
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+// Update webcam section for video mode
+.webcam-section {
+	position: relative;
+	overflow: hidden;
+
+	&.camera-active {
+		.webcam-label {
+			display: none;
+		}
+
+		&:hover {
+			.camera-status {
+				opacity: 0.8;
+			}
+		}
+	}
+
+	// Add a subtle border when camera is active
+	&.camera-active {
+		border: 2px solid var(--primary-button);
+		box-shadow: 0 0 10px var(--primary-button);
+	}
+
+	// Improve hover effects
+	&:hover {
+		&.camera-active {
+			border-color: var(--primary-button);
+			box-shadow: 0 0 15px var(--primary-button);
+		}
+	}
+}
+
+// Improve video element appearance
+.webcam-video {
+	width: 100%;
+	height: 100%;
+	border-radius: 100px;
+	object-fit: cover;
+	background: #000;
+	transition: all 0.3s ease;
+
+	&:hover {
+		transform: scale(1.02);
+	}
+}
+
+// Add smooth transitions for camera state changes
+.webcam-section {
+	transition: all 0.3s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 // Transcription section
@@ -504,7 +669,7 @@
 }
 
 .transcription-bubble {
-	background: #1b1c1d;
+	background: var(--card);
 	border-radius: 8px;
 	padding: 8px;
 	display: flex;
@@ -640,4 +805,103 @@
 .dynamic-island:hover,
 .dynamic-island:hover * {
 	transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}
+
+// Camera hover overlay
+.camera-hover-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.7);
+	color: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 12px;
+	font-weight: 500;
+	border-radius: 100px;
+	opacity: 0;
+	transition: opacity 0.2s ease;
+	pointer-events: none;
+	z-index: 5;
+}
+
+.webcam-section:hover .camera-hover-overlay {
+	opacity: 1;
+}
+
+// Camera live indicator
+.camera-live-indicator {
+	position: absolute;
+	bottom: 4px;
+	left: 4px;
+	font-size: 8px;
+	color: white;
+	background: rgba(0, 0, 0, 0.7);
+	padding: 2px 4px;
+	border-radius: 4px;
+}
+
+// Camera click instruction
+.camera-click-instruction {
+	font-size: 8px;
+	color: #666;
+	margin-top: 4px;
+}
+
+// Permission required styling
+.webcam-section.camera-denied .webcam-label.permission-required {
+	color: white;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	font-size: 12px;
+	font-weight: 500;
+	text-align: center;
+	margin-top: 8px;
+
+	&:hover {
+		color: #f0f0f0;
+		transform: scale(1.05);
+	}
+}
+
+// Center the permission required text properly
+.webcam-section.camera-denied {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+
+	.webcam-label.permission-required {
+		margin: 0;
+		padding: 0;
+	}
+}
+
+// Camera denied state
+.webcam-section.camera-denied {
+	border: 2px solid #ff6b6b;
+	background: rgba(255, 107, 107, 0.1);
+
+	&:hover {
+		border-color: #ff5252;
+		background: rgba(255, 107, 107, 0.2);
+		transform: scale(1.05);
+	}
+
+	.webcam-label {
+		color: #ff6b6b;
+	}
+
+	svg {
+		color: #ff6b6b;
+	}
+
+	// Override for permission required state
+	.webcam-label.permission-required {
+		color: white;
+	}
 }

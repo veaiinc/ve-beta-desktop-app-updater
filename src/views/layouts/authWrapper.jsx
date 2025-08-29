@@ -1,4 +1,4 @@
-import { memo, useContext } from 'react';
+import { memo, useContext, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 // import Sidebar from '../components/sidebar/Sidebar';
 import TopNavbar from '../components/topNavbar/TopNavbar';
@@ -14,6 +14,8 @@ import VoiceWrapper from './VoiceWrapper';
 import Context from '../../context/context';
 import useNetworkStatus from '../../hooks/useNetworkStatus';
 import Offline from '../features/offline/Offline';
+import { internalServerEmitter } from '../../services';
+import InternalServer from '../components/globalComponents/InternalServer';
 
 const AuthWrapper = ({
 	title,
@@ -31,12 +33,21 @@ const AuthWrapper = ({
 	const {
 		aiSetup: { showVoiceWidget },
 	} = useContext(Context);
-
+	const [showServerError, setShowServerError] = useState(false);
 	usePushNotifications((payload) => {
 		const { title, body } = payload.notification || {};
 		message.success(`${title || 'Notification'}: ${body || ''}`);
 	});
 
+	useEffect(() => {
+		const handler = () => setShowServerError(true);
+
+		internalServerEmitter.on('serverError', handler);
+
+		return () => {
+			internalServerEmitter.off('serverError', handler);
+		};
+	});
 	// const layoutMode = showSidebar && workspaceMode !== 'stable' ? 'sidebar' : 'topNavbar';
 	// const layoutModeComponentMap = {
 	// 	sidebar: (
@@ -96,7 +107,7 @@ const AuthWrapper = ({
 								className="childrenContainer"
 								style={{ maxWidth: maxWidth || '', ...childrenContainerStyles }}
 							>
-								{children}
+								{showServerError ? <InternalServer /> : children}
 							</div>
 						</div>
 					</div>

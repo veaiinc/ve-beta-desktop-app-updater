@@ -162,7 +162,7 @@ struct NotchView: View {
             .contentShape(Rectangle())
             .frame(width: notchSize.width + vm.dropDetectorRange, height: notchSize.height + vm.dropDetectorRange)
             .onDrop(of: [.data], isTargeted: $dropTargeting) { _ in true }
-            .onChange(of: dropTargeting) { isTargeted in
+            .onChange(of: dropTargeting) { oldValue, isTargeted in
                 if isTargeted, vm.status == .closed {
                     // Open the notch when a file is dragged over it
                     vm.notchOpen(.drag)
