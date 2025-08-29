@@ -15,7 +15,7 @@ const globalBaseUrls = {
 	// Auth
 	auth: environment === 'production' ? 'https://auth.ve.ai' : 'https://us.api.ve.ai/auth/dev',
 
-	meeting_ws_api: 'wss://recall.us-east-1.ve.ai',
+	meeting_ws_api: 'wss://recall-dev.us-east-1.ve.ai/frontend/ws',
 	voice_agent_api: 'wss://ve-voice-agent-g4ptyv6v.livekit.cloud',
 	browser_ws_api: 'wss://browser.us-east-1.ve.ai', // Browser Agent
 
@@ -31,7 +31,7 @@ const regionBaseUrls = {
 		tenant:
 			environment === 'production'
 				? 'https://ap.api.ve.ai/tenants/1.0'
-				: 'https://ap.api.ve.ai/tenants/1.0',
+				: 'https://api.ve.co/tenants/dev',
 		'tenant-users':
 			environment === 'production'
 				? 'https://ap.api.ve.ai/tenant-users/1.0'
@@ -134,7 +134,7 @@ const regionBaseUrls = {
 		tenant:
 			environment === 'production'
 				? 'https://us.api.ve.ai/tenants/1.0'
-				: 'https://us.api.ve.ai/tenants/1.0',
+				: 'https://api.ve.co/tenants/dev',
 		'tenant-users':
 			environment === 'production'
 				? 'https://us.api.ve.ai/tenant-users/1.0'
