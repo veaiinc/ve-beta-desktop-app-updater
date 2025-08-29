@@ -618,12 +618,10 @@ const Stages = ({ onNext }) => {
 												setWorkspaceTypeContainerOpen
 											}
 										/>
-										{/*
 										<ThemeSelector
 											themePreference={info?.themePreference}
 											handleSetThemePreference={handleSetThemePreference}
-										/> 
-										*/}
+										/>
 									</div>
 								)}
 							</div>

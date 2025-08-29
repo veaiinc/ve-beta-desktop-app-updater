@@ -273,7 +273,7 @@
 						flex-wrap: wrap;
 
 						:nth-child(1) {
-							// width: 60%;
+							width: 60%;
 							display: flex;
 							justify-content: center;
 							align-items: center;
@@ -282,18 +282,19 @@
 						.themeOption {
 							display: flex;
 							height: 45px;
+							width: fit-content;
+							white-space: nowrap;
 							padding: 14px 16px;
 							justify-content: center;
 							align-items: center;
 							gap: 10px;
 							border-radius: 8px;
-							border: 1px solid #f0f0f0;
-							background: #fff;
+							border: 1px solid var(--stroke, #2c2d2e);
 
 							cursor: pointer;
 
 							.themeOptionLabel {
-								color: #18181b;
+								color: var(--primary-font);
 								font-family: var(--primary-font-family);
 								font-size: 14px;
 								font-style: normal;
@@ -303,7 +304,14 @@
 
 							&.active {
 								border-radius: 8px;
-								border: 1px solid #34ad9b;
+								border: 1px solid var(--primary-button);
+								background-color: var(--card, #1b1c1d);
+							}
+							&:hover {
+								background-color: var(--card-over-card-hover);
+								&:not(.active) {
+									border: 1px solid var(--card-over-card-hover);
+								}
 							}
 						}
 					}
@@ -500,7 +508,7 @@
 				position: relative;
 
 				.question {
-					color: #18181b;
+					color: var(--primary-font);
 					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
@@ -954,7 +962,8 @@
 		gap: 10px;
 		align-self: stretch;
 		border-radius: 8px;
-		background: #fff;
+		background: var(--card, #1b1c1d);
+		border: 1px solid transparent;
 
 		&:has(.companyNameInput:focus) {
 			border: 1px solid var(--secondary-font);
@@ -988,7 +997,8 @@
 	gap: 10px;
 	align-self: stretch;
 	border-radius: 8px;
-	background: #fff;
+	background-color: var(--card);
+	border: 1px solid transparent;
 	&:has(.workspaceTypeInput:focus) {
 		border: 1px solid var(--secondary-font);
 	}
