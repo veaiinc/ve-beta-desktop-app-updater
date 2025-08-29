@@ -28,7 +28,6 @@ import { Image, Spin, Tooltip } from 'antd';
 // import AIMessageLoader from './AIMessageLoader';
 import WebSvg from '../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../assets/svg/ai_agents/bookSvg';
-import useUpdatedVoiceIntegration from '../../../hooks/useUpdatedVoiceIntegration';
 import { message } from '../globalComponents/CustomToast';
 // import SearchTypeTooltip from './SearchTypeTooltip';
 import ChatBoxPlaceholder from './ChatBoxPlaceholder';
@@ -44,7 +43,6 @@ import useNote from '../../../hooks/useNote';
 import useAudioVisualizer from '../../../hooks/useAudioVisualizer';
 import { Track } from 'livekit-client';
 import { useTrackTranscription } from '@livekit/components-react';
-
 // import VoiceWrapper from '../../layouts/VoiceWrapper';
 
 const moduleHelper = {
@@ -150,10 +148,12 @@ const ChatBox = ({
 	sessionId = null,
 	getSuggestions = false,
 	placeholder = 'Start typing or use @ to mention a source.',
+	showBrowserButton = false,
+	handleBrowserButtonClick = null,
+	browserImage = null,
 	showBottomTools = true,
 }) => {
 	const location = useLocation();
-	const { handleConnect } = useUpdatedVoiceIntegration();
 	const params = useParams();
 	const { workspaceMode } = useWorkspaceMode();
 
@@ -178,20 +178,19 @@ const ChatBox = ({
 			handleStreamSendMessage,
 			activePayloadForChat,
 			activeInputForChat,
-			// chatInfo,
 			userEditedQuery,
 			galleryFile,
-			currentSessionId,
 			chatReplyData,
 			deleteMultiAgentFile,
 			proactiveInfoForChat,
 			isDirectSearchAgent,
+			isBrowserScreenActive,
 		},
 		chatBoxSuggestionsSocket: { sendMessage, closeWebSocketConnection },
 		subscriptionInfo: { currentPlan },
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
-		aiSetup: { voiceIntegrationData, updateAiChatSessions, aiChatSessions },
+		aiSetup: { voiceIntegrationData, updateAiChatSessions, aiChatSessions, updateAiSetupState },
 		notes: { getLiveKitToken },
 	} = useContext(Context);
 
@@ -225,7 +224,6 @@ const ChatBox = ({
 		chatBoxInfo: initialChatBoxInfo,
 		chatboxMinimized: true,
 		chatBoxContainerHeight: 60,
-		showVoiceAgent: false, // New state for voice agent visibility
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -872,9 +870,20 @@ const ChatBox = ({
 					}
 					let localPayload = {};
 					if (uploadedImagesRef?.current?.length) {
-						payload.files = uploadedImagesRef?.current?.map((ele) => ({
+						const imagesPngJpeg =
+							uploadedImagesRef?.current?.filter(
+								(file) => file?.type === 'image/png' || file?.type === 'image/jpeg',
+							) || [];
+
+						payload.image_data_base64 = imagesPngJpeg?.map((file) => file?.preview);
+
+						const remainingImages = uploadedImagesRef?.current?.filter(
+							(file) => !(file?.type === 'image/png' || file?.type === 'image/jpeg'),
+						);
+						payload.files = remainingImages?.map((ele) => ({
 							id: ele?.fileId || null,
 							name: ele?.name || 'Untitled Image',
+							is_uploaded: ele?.is_uploaded || false,
 						}));
 
 						localPayload = {
@@ -889,14 +898,19 @@ const ChatBox = ({
 								...(recentFilesRef?.current?.map((ele) => ({
 									id: ele?._id || ele?.fileId || null,
 									name: ele?.originalFileName || ele?.title || 'Untitled File',
+									is_uploaded: ele?.is_uploaded || false,
 								})) || []),
 							];
 						} else {
 							payload.files = recentFilesRef?.current?.map((ele) => ({
 								id: ele?._id || ele?.fileId || null,
 								name: ele?.originalFileName || ele?.title || 'Untitled File',
+								is_uploaded: ele?.is_uploaded || false,
 							}));
 						}
+						recentFilesRef?.current?.forEach((file) => {
+							file.is_uploaded = false;
+						});
 					}
 
 					if (proactiveInfoForChat) {
@@ -937,6 +951,8 @@ const ChatBox = ({
 							isDirectSearchAgent: false,
 						});
 					}
+
+					payload.is_browser_screen_active = isBrowserScreenActive;
 
 					let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
 
@@ -1022,6 +1038,7 @@ const ChatBox = ({
 			onChatQueryChange,
 			aiChatSessions,
 			isDirectSearchAgent,
+			isBrowserScreenActive,
 		],
 	);
 
@@ -1269,6 +1286,19 @@ const ChatBox = ({
 
 	const handleFileAttachmentChange = useCallback(
 		async ({ file }) => {
+			if (
+				(file?.size >= 3145728 && file?.type?.includes?.('image')) ||
+				uploadedImagesRef?.current?.length === 3
+			) {
+				if (file?.size >= 3145728) {
+					message?.error('Image size should be less than 3mb');
+					return;
+				}
+				if (uploadedImagesRef.current?.length === 3) {
+					message?.error('Only 5 images are allowed for a message');
+					return;
+				}
+			}
 			if (file?.size >= 5242880) {
 				message?.error('File size must be less than 5MB');
 				return;
@@ -1279,8 +1309,12 @@ const ChatBox = ({
 			file.preview = await getBase64(file);
 			file.loading = true;
 			file.uniqueId = Date?.now() + '_' + Math?.floor(Math?.random() * 1000000);
+			file.is_uploaded = true;
 
 			if (file?.type?.includes('image')) {
+				if (file?.type === 'image/png' || file?.type === 'image/jpeg') {
+					file.loading = false;
+				}
 				uploadedImages?.push(file);
 				uploadedImagesRef.current = uploadedImages;
 			} else {
@@ -1289,8 +1323,9 @@ const ChatBox = ({
 				recentFiles?.unshift(file);
 				recentFilesRef.current = recentFiles;
 			}
-
-			handleGlobalImageProcessing(file);
+			if (!(file?.type === 'image/png' || file?.type === 'image/jpeg')) {
+				handleGlobalImageProcessing(file);
+			}
 
 			setInfo((prev) => ({
 				...prev,
@@ -1427,7 +1462,7 @@ const ChatBox = ({
 			}
 		},
 
-		[info, handleConnect, isTranscribing, getLiveKitToken],
+		[info, isTranscribing, getLiveKitToken],
 	);
 
 	const handleSendBtnClick = (e) => {
@@ -1468,6 +1503,25 @@ const ChatBox = ({
 			showSuggestion: false,
 		}));
 	};
+
+	const handleTextAreaPaste = useCallback(
+		(e) => {
+			const items = e?.clipboardData?.items || [];
+
+			for (let i = 0; i < items?.length; i++) {
+				const item = items[i];
+				if (item?.kind === 'file' && item?.type?.startsWith('image/')) {
+					e?.preventDefault(); // stop pasting as text
+					const file = item?.getAsFile();
+					if (file) {
+						// Call your upload logic
+						handleFileAttachmentChange({ file });
+					}
+				}
+			}
+		},
+		[handleFileAttachmentChange],
+	);
 
 	const handleTextAreaChange = (e) => {
 		const textArea = textAreaRef?.current;
@@ -1660,20 +1714,14 @@ const ChatBox = ({
 		[smoothScrollToBottom],
 	);
 
-	const handleVoiceAgentClick = useCallback((e) => {
-		e?.stopPropagation();
-		setInfo((prev) => ({
-			...prev,
-			showVoiceAgent: true,
-		}));
-	}, []);
-
-	const handleCloseVoiceAgent = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			showVoiceAgent: false,
-		}));
-	}, []);
+	const handleVoiceAgentClick = useCallback(
+		(e) => {
+			e?.stopPropagation();
+			// Show the global voice widget and trigger auto-connect
+			updateAiSetupState({ showVoiceWidget: true });
+		},
+		[updateAiSetupState],
+	);
 
 	return (
 		<div className="chatParentWrapper" onClick={handleChatBoxClick}>
@@ -1803,6 +1851,7 @@ const ChatBox = ({
 														} ${isTranscribing ? 'transcribing' : ''}`}
 														rows={1}
 														ref={textAreaRef}
+														onPaste={handleTextAreaPaste}
 														placeholder={
 															isTranscribing
 																? 'Listening... Speak now'
@@ -2501,13 +2550,13 @@ const ChatBox = ({
 															}
 														>
 															{isTranscribing ? (
-																<StopIconSvg />
+																<StopIconSvg className="voice-icon" />
 															) : (
-																<SpeechMicSvg />
+																<SpeechMicSvg className="voice-icon" />
 															)}
 														</div>
 														<div
-															className={`click-btn ${
+															className={`click-btn voice-agent-btn ${
 																info?.chatQuery?.trim()?.length > 0
 																	? 'active'
 																	: ''
@@ -2529,9 +2578,13 @@ const ChatBox = ({
 															}}
 														>
 															{info?.chatQuery?.trim()?.length > 0 ? (
-																<ArrowUp />
+																<ArrowUp className="voice-wave-icon" />
 															) : (
-																<VoiceAgentSvg />
+																<VoiceAgentSvg
+																	className="voice-wave-icon"
+																	width={20}
+																	height={20}
+																/>
 															)}
 														</div>
 													</div>
@@ -2568,6 +2621,31 @@ const ChatBox = ({
 						</button>
 					</div>
 				)}
+
+				{/* {showBrowserButton && ( */}
+				<div
+					className="browser-button-container"
+					onClick={(e) => {
+						e.stopPropagation();
+						handleBrowserButtonClick?.(e);
+					}}
+					style={{
+						display: showBrowserButton ? 'flex' : 'none',
+					}}
+				>
+					{browserImage ? (
+						<div className="browser-image-wrapper">
+							<div className="browser-text">Browser</div>
+							<img src={browserImage} className="browser-image" alt="browser" />
+						</div>
+					) : (
+						<div className="browser-button">Browser</div>
+					)}
+					<div className="expand-browser-button">
+						<ArrowsOut />
+					</div>
+				</div>
+				{/* )} */}
 				{uploadedImagesRef?.current?.length > 0 ? (
 					<div className="imagePreviewBar">
 						{uploadedImagesRef?.current?.map((ele, index) => (
@@ -2609,8 +2687,8 @@ const ChatBox = ({
 				)}
 				{recentFilesRef?.current?.length > 0 && (
 					<div className="recent-files-container">
-						{recentFilesRef?.current?.map((file) => (
-							<div className="recent-file" key={file?._id}>
+						{recentFilesRef?.current?.map((file, index) => (
+							<div className="recent-file" key={index}>
 								<div className="file-type-icon">
 									{fileTypeIcons?.[file?.sourceType]}
 								</div>
@@ -2670,7 +2748,6 @@ const ChatBox = ({
 				closeModal={handleCloseUpgrageModal}
 				subscriptionState="addOnPlans"
 			/>
-			{info?.showVoiceAgent && <VoiceAgentParent />}
 		</div>
 	);
 };

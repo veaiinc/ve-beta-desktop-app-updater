@@ -5,7 +5,7 @@ import service from '../../services/';
 import Cookies from 'js-cookie';
 import { fetchDomainName } from '../../helpers';
 import { NEWSLETTER_SUBSCRIPTION_URL } from '../../helpers/ConstantUrls';
-import { auth_Api as authBaseUrl } from '../../services/config.live';
+import getBaseUrl from '../../services/baseUrls';
 import requestPushNotificationPermission from '../../services/pushNotifications/requestPushNotificationPermission';
 import generateFCMToken from '../../services/pushNotifications/generateFCMToken';
 
@@ -157,7 +157,6 @@ export const AuthState = () => {
 			const host = fetchDomainName();
 
 			if (response[0] === true) {
-				console.log('[Verify] Verification successful');
 				const { accessToken, accessibleWorkspaces } = response?.[1] || {};
 				const hasWorkspaces = accessibleWorkspaces?.length > 0;
 
@@ -167,7 +166,6 @@ export const AuthState = () => {
 						sameSite: 'lax',
 						domain: host,
 					});
-					console.log('[Verify] Saved accessToken in localStorage and cookies');
 				}
 
 				if (!hasWorkspaces) {
@@ -208,7 +206,7 @@ export const AuthState = () => {
 				return [false, { message: response?.[1]?.message?.trim() }];
 			}
 		} catch (error) {
-			console.error('[Verify] Error verifying email verification code:', error);
+			console.error('Error verifying email verification code:', error);
 			throw error;
 		}
 	};
@@ -433,6 +431,9 @@ export const AuthState = () => {
 			})?.toString();
 		}
 
+		const type = 'auth';
+		const authBaseUrl = getBaseUrl({ region: null, type });
+		console.log('authBaseUrl', authBaseUrl);
 		window.location.href = `${authBaseUrl}${path}?${params}`;
 	};
 
