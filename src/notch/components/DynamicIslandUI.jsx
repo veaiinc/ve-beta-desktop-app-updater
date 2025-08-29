@@ -284,8 +284,34 @@ const DynamicIslandUI = () => {
 	};
 
 	// Click handlers for interactive elements
-	const handleHomeClick = () => {
-		console.log('🏠 Home icon clicked');
+	const handleHomeClick = async () => {
+		console.log('🏠 Home icon clicked - opening main app window');
+		
+		try {
+			// Check if main window API is available
+			if (!window.electronApi?.mainWindow?.showAndFocus) {
+				console.error('Main window API not available in Dynamic Island');
+				return;
+			}
+
+			// Show, restore (if minimized), and focus the main window
+			const result = await window.electronApi.mainWindow.showAndFocus();
+			
+			if (result.success) {
+				console.log('✅ Main window opened and focused successfully');
+				
+				// Optionally collapse the dynamic island after opening main window
+				if (isExpanded && isConnected) {
+					setTimeout(() => {
+						collapse();
+					}, 500); // Small delay to show the action was successful
+				}
+			} else {
+				console.error('❌ Failed to open main window:', result.error);
+			}
+		} catch (error) {
+			console.error('❌ Error opening main window:', error);
+		}
 	};
 
 	const handleSecurityClick = () => {

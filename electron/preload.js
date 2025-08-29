@@ -170,4 +170,14 @@ contextBridge.exposeInMainWorld('electronApi', {
 			ipcRenderer.removeAllListeners('overlay-state-changed');
 		},
 	},
+
+	// Main Window Management APIs
+	mainWindow: {
+		show: () => ipcRenderer.invoke('main-window-show'),
+		restore: () => ipcRenderer.invoke('main-window-restore'),
+		focus: () => ipcRenderer.invoke('main-window-focus'),
+		showAndFocus: () => ipcRenderer.invoke('main-window-show-and-focus'),
+		isVisible: () => ipcRenderer.invoke('main-window-is-visible'),
+		isMinimized: () => ipcRenderer.invoke('main-window-is-minimized'),
+	},
 });

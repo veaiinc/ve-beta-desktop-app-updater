@@ -480,28 +480,34 @@ function createWindow() {
 		log.info('Window ready-to-show');
 	});
 
-	// Windows-specific: Add close handler to ensure proper cleanup
-	if (process.platform === 'win32') {
-		mainWindow.on('close', (event) => {
-			log.info('🔄 Main window close event on Windows - preventing default and cleaning up...');
-			// Prevent default close behavior to ensure cleanup runs
+	// Handle window close events - X button vs manual quit
+	mainWindow.on('close', (event) => {
+		// Check if this is a manual quit or just window close
+		if (app.isQuiting) {
+			log.info('🔄 Manual quit requested - allowing window to close');
+			// Allow normal close behavior for manual quit
+			return;
+		} else {
+			log.info('🔄 X button clicked - hiding window but keeping app running in background');
+			// Prevent default close behavior
 			event.preventDefault();
-			// Trigger cleanup immediately
-			cleanupAndQuit();
-		});
-		
-		// Also add a closed event handler to ensure app quits
-		mainWindow.on('closed', () => {
-			log.info('🔄 Main window closed on Windows - ensuring app quits completely...');
-			// Force the app to quit completely
-			app.quit();
-		});
-	}
+			// Hide the window instead of closing it
+			mainWindow.hide();
+			
+			// Show system tray notification (optional)
+			if (process.platform === 'win32') {
+				log.info('📱 App minimized to system tray - still running in background');
+			}
+		}
+	});
 
 	// Check for updates in production
 	if (process.env.NODE_ENV !== 'development') {
 		autoUpdater.checkForUpdatesAndNotify();
 	}
+
+	// Create application menu
+	createApplicationMenu();
 }
 
 // App lifecycle
@@ -638,6 +644,8 @@ app.whenReady().then(() => {
 	} else {
 		log.error('❌ Failed to register Cmd+I shortcut for dynamic island');
 	}
+
+
 
 	// Check if global shortcuts are working (especially important on macOS)
 	if (process.platform === 'darwin') {
@@ -1155,6 +1163,114 @@ app.whenReady().then(() => {
 	ipcMain.handle('download-album-zip', downloadAlbumZip);
 	ipcMain.handle('create-zip-from-urls', createZipFromUrls);
 
+	// Main Window Management IPC handlers
+	ipcMain.handle('main-window-show', async () => {
+		try {
+			if (!mainWindow) {
+				return { success: false, error: 'Main window not available' };
+			}
+			
+			if (!mainWindow.isVisible()) {
+				mainWindow.show();
+				log.info('Main window shown');
+			}
+			
+			return { success: true };
+		} catch (error) {
+			log.error('Error showing main window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('main-window-restore', async () => {
+		try {
+			if (!mainWindow) {
+				return { success: false, error: 'Main window not available' };
+			}
+			
+			if (mainWindow.isMinimized()) {
+				mainWindow.restore();
+				log.info('Main window restored from minimized state');
+			}
+			
+			return { success: true };
+		} catch (error) {
+			log.error('Error restoring main window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('main-window-focus', async () => {
+		try {
+			if (!mainWindow) {
+				return { success: false, error: 'Main window not available' };
+			}
+			
+			mainWindow.focus();
+			log.info('Main window focused');
+			
+			return { success: true };
+		} catch (error) {
+			log.error('Error focusing main window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('main-window-show-and-focus', async () => {
+		try {
+			if (!mainWindow) {
+				return { success: false, error: 'Main window not available' };
+			}
+			
+			// Show window if not visible
+			if (!mainWindow.isVisible()) {
+				mainWindow.show();
+				log.info('Main window shown');
+			}
+			
+			// Restore if minimized
+			if (mainWindow.isMinimized()) {
+				mainWindow.restore();
+				log.info('Main window restored from minimized state');
+			}
+			
+			// Focus the window
+			mainWindow.focus();
+			log.info('Main window focused');
+			
+			return { success: true };
+		} catch (error) {
+			log.error('Error showing and focusing main window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('main-window-is-visible', async () => {
+		try {
+			if (!mainWindow) {
+				return { success: false, isVisible: false };
+			}
+			
+			return { success: true, isVisible: mainWindow.isVisible() };
+		} catch (error) {
+			log.error('Error checking main window visibility:', error);
+			return { success: false, isVisible: false };
+		}
+	});
+
+	ipcMain.handle('main-window-is-minimized', async () => {
+		try {
+			if (!mainWindow) {
+				return { success: false, isMinimized: false };
+			}
+			
+			return { success: true, isMinimized: mainWindow.isMinimized() };
+		} catch (error) {
+			log.error('Error checking main window minimized state:', error);
+			return { success: false, isMinimized: false };
+		}
+	});
+
 	// Clipboard IPC handlers
 	ipcMain.handle('clipboard-write-text', async (event, text) => {
 		try {
@@ -1372,6 +1488,9 @@ app.whenReady().then(() => {
 app.on('before-quit', (event) => {
 	log.info('🔄 App quit requested - cleaning up...');
 
+	// Set flag to indicate manual quit is requested
+	app.isQuiting = true;
+
 	// Prevent default quit behavior to allow cleanup
 	event.preventDefault();
 
@@ -1401,28 +1520,30 @@ if (process.platform === 'win32') {
 		}
 	});
 
-	// Handle Windows-specific window close behavior
+	// Handle app activation (clicking app icon in dock/taskbar)
 	app.on('activate', () => {
-		log.info('🔄 Windows app activated - ensuring main window is visible');
-		if (mainWindow && !mainWindow.isVisible()) {
-			mainWindow.show();
+		log.info('🔄 App activated - showing main window');
+		if (mainWindow) {
+			if (mainWindow.isMinimized()) mainWindow.restore();
+			if (!mainWindow.isVisible()) mainWindow.show();
+			mainWindow.focus();
 		}
 	});
 
 	// Windows-specific window close handling
 	app.on('window-all-closed', () => {
-		log.info('🔄 All windows closed on Windows - performing cleanup...');
-		// On Windows, we want to quit the app when all windows are closed
-		// This is different from macOS where the app stays running
-		cleanupAndQuit();
+		log.info('🔄 All windows closed on Windows - app will continue running in background');
+		// On Windows, we want the app to stay running in background when main window is closed
+		// Only quit when explicitly requested through tray menu or other means
+		// Don't call cleanupAndQuit() here - let the app run in background
 	});
 } else {
 	// macOS and Linux behavior
 	app.on('window-all-closed', () => {
-		log.info('🔄 All windows closed - cleaning up...');
-
-		// Clean up all windows and processes
-		cleanupAndQuit();
+		log.info('🔄 All windows closed - app will continue running in background');
+		// On macOS/Linux, we also want the app to stay running in background when main window is closed
+		// Only quit when explicitly requested through menu or other means
+		// Don't call cleanupAndQuit() here - let the app run in background
 	});
 }
 
@@ -1438,6 +1559,88 @@ app.on('will-quit', () => {
 		log.error('Error unregistering global shortcuts:', error);
 	}
 });
+
+
+
+function createApplicationMenu() {
+	// Create application menu
+	const template = [
+		{
+			label: 'File',
+			submenu: [
+				{
+					label: 'Quit',
+					accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Ctrl+Q',
+					click: () => {
+						app.isQuiting = true;
+						app.quit();
+					}
+				}
+			]
+		},
+		{
+			label: 'View',
+			submenu: [
+				{
+					label: 'Toggle Developer Tools',
+					accelerator: process.platform === 'darwin' ? 'Cmd+Alt+I' : 'Ctrl+Shift+I',
+					click: (item, focusedWindow) => {
+						if (focusedWindow) {
+							focusedWindow.webContents.toggleDevTools();
+						}
+					}
+				}
+			]
+		}
+	];
+	
+	// Add macOS-specific menu items
+	if (process.platform === 'darwin') {
+		template.unshift({
+			label: app.getName(),
+			submenu: [
+				{
+					label: 'About ' + app.getName(),
+					role: 'about'
+				},
+				{ type: 'separator' },
+				{
+					label: 'Services',
+					role: 'services'
+				},
+				{ type: 'separator' },
+				{
+					label: 'Hide ' + app.getName(),
+					accelerator: 'Cmd+H',
+					role: 'hide'
+				},
+				{
+					label: 'Hide Others',
+					accelerator: 'Cmd+Alt+H',
+					role: 'hideothers'
+				},
+				{
+					label: 'Show All',
+					role: 'unhide'
+				},
+				{ type: 'separator' },
+				{
+					label: 'Quit ' + app.getName(),
+					accelerator: 'Cmd+Q',
+					click: () => {
+						app.isQuiting = true;
+						app.quit();
+					}
+				}
+			]
+		});
+	}
+	
+	const menu = Menu.buildFromTemplate(template);
+	Menu.setApplicationMenu(menu);
+	
+	log.info('✅ Application menu created');
+}
 
 // Function to handle cleanup and quit
 function cleanupAndQuit() {
