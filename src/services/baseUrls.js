@@ -1,13 +1,6 @@
 const environment = import.meta.env.VITE_APP_DEV_ENVIRONMENT ?? 'development';
 
-const globalTypes = [
-	'auth',
-	'meeting_ws_api',
-	'voice_agent_api',
-	'browser_ws_api',
-	'generate_voice_agent_token_api',
-	'slack_api',
-];
+const globalTypes = ['auth', 'slack_api'];
 
 const globalBaseUrls = {
 	// Auth
