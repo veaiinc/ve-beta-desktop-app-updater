@@ -99,13 +99,30 @@ class DynamicIslandHelper {
 		this.dynamicIslandWindow = new BrowserWindow(windowSettings);
 
 		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
-		const dynamicIslandUrl =
-			process.env.NODE_ENV === 'development'
-				? `${devURL}/dynamic-island.html`
-				: `file://${path.join(__dirname, '..', 'build', 'dynamic-island.html')}`;
+		
+		// Better development mode detection
+		const isDevelopment = 
+			process.env.NODE_ENV === 'development' || 
+			process.env.NODE_ENV?.trim() === 'development' ||
+			!app.isPackaged; // Electron's built-in way to detect dev mode
+			
+		const dynamicIslandUrl = isDevelopment
+			? `${devURL}/dynamic-island.html`
+			: `file://${path.join(__dirname, '..', 'build', 'dynamic-island.html')}`;
+
+		log.info(`Dynamic Island URL: ${dynamicIslandUrl} (Development: ${isDevelopment})`);
 
 		this.dynamicIslandWindow.loadURL(dynamicIslandUrl).catch((err) => {
 			log.error('Failed to load dynamic island URL:', err);
+			
+			// Fallback: try to load from localhost if the first attempt failed
+			if (isDevelopment) {
+				log.info('Retrying with fallback URL...');
+				const fallbackUrl = 'http://localhost:5173/dynamic-island.html';
+				this.dynamicIslandWindow.loadURL(fallbackUrl).catch((fallbackErr) => {
+					log.error('Fallback URL also failed:', fallbackErr);
+				});
+			}
 		});
 
 		// Configure for macOS
@@ -127,6 +144,12 @@ class DynamicIslandHelper {
 		// Show the window
 		this.dynamicIslandWindow.show();
 		log.info('Dynamic Island window created and shown');
+		
+		// Debug window position and size
+		const bounds = this.dynamicIslandWindow.getBounds();
+		log.info(`Dynamic Island window bounds: x=${bounds.x}, y=${bounds.y}, width=${bounds.width}, height=${bounds.height}`);
+		log.info(`Dynamic Island window isVisible: ${this.dynamicIslandWindow.isVisible()}`);
+		log.info(`Dynamic Island window isAlwaysOnTop: ${this.dynamicIslandWindow.isAlwaysOnTop()}`);
 
 		// Listen for resize events from the renderer
 		this.dynamicIslandWindow.webContents.on('did-finish-load', () => {
@@ -166,17 +189,19 @@ class DynamicIslandHelper {
 		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
 
 		try {
+			// Always allow mouse events for hover detection, even when "ignoring"
+			// This ensures hover expansion works in all states
 			if (process.platform === 'darwin') {
 				// On macOS, use the forward option to allow clicks to pass through
-				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore, { forward: true });
+				// But still allow mouse events for hover detection
+				this.dynamicIslandWindow.setIgnoreMouseEvents(false, { forward: true });
 			} else {
-				// On other platforms, just ignore mouse events
-				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore);
+				// On other platforms, never ignore mouse events completely
+				// This ensures hover always works
+				this.dynamicIslandWindow.setIgnoreMouseEvents(false);
 			}
 			log.info(
-				`Dynamic Island mouse events ${
-					ignore ? 'ignored' : 'enabled'
-				} (expanded: ${!ignore})`,
+				`Dynamic Island mouse events enabled for hover (expanded: ${!ignore})`,
 			);
 		} catch (error) {
 			log.error('Error setting mouse event handling:', error);
