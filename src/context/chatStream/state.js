@@ -1,5 +1,6 @@
 import { useReducer, useRef, useCallback } from 'react';
-import { getConfig } from '../../services/index';
+import getBaseUrl from '../../services/baseUrls';
+import Cookies from 'js-cookie';
 
 export const initialChatStreamState = {};
 
@@ -134,18 +135,17 @@ export const ChatStreamState = () => {
 
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
-			const region = localStorage.getItem('region') || 'us-east-1';
-			const config = await getConfig();
-			const { chat_ws_api, chat_ws_api_US, guest_chat_ws_api, guest_chat_ws_api_US } = config;
+			// const { chat_ws_api, chat_ws_api_US, guest_chat_ws_api, guest_chat_ws_api_US } = config;
+			const region = Cookies.get('region') || localStorage.getItem('region') || 'us-east-1';
+			const type = 'chat_ws_api';
+			const chat_ws_api = getBaseUrl(region, type);
 			// `https://direct-garfish-smooth.ngrok-free.app`
-			let baseUrl = `${
-				region === 'ap-south-1' ? chat_ws_api : chat_ws_api_US
-			}/${workspaceId}/${sessionId}/${agent}?token=${usertoken}`;
+			let baseUrl = `${chat_ws_api}/${workspaceId}/${sessionId}/${agent}?token=${usertoken}`;
 
 			if (isPublicChat) {
-				baseUrl = `${
-					region === 'ap-south-1' ? guest_chat_ws_api : guest_chat_ws_api_US
-				}/${sessionId}/guest_chat`;
+				const type = 'guest_chat_ws_api';
+				const guest_chat_ws_api = getBaseUrl(region, type);
+				baseUrl = `${guest_chat_ws_api}/${sessionId}/guest_chat`;
 			}
 
 			socketRefs.current[sessionId] = new WebSocket(baseUrl);
