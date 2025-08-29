@@ -1,26 +1,10 @@
 const environment = import.meta.env.VITE_APP_DEV_ENVIRONMENT ?? 'development';
 
-const globalTypes = [
-	'auth',
-	'chat_ws_api',
-	'guest_chat_ws_api',
-	'meeting_ws_api',
-	'voice_agent_api',
-	'browser_ws_api',
-	'generate_voice_agent_token_api',
-	'slack_api',
-];
+const globalTypes = ['auth', 'slack_api'];
 
 const globalBaseUrls = {
 	// Auth
 	auth: environment === 'production' ? 'https://auth.ve.ai' : 'https://us.api.ve.ai/auth/dev',
-
-	meeting_ws_api: 'wss://recall-dev.us-east-1.ve.ai/frontend/ws',
-	voice_agent_api: 'wss://ve-voice-agent-g4ptyv6v.livekit.cloud',
-	browser_ws_api: 'wss://browser.us-east-1.ve.ai', // Browser Agent
-
-	// Voice Agent
-	generate_voice_agent_token_api: 'https://voice.us-east-1.ve.ai',
 
 	// Slack
 	slack_api: 'https://slack.com/api',
@@ -235,6 +219,13 @@ const regionBaseUrls = {
 			environment === 'production'
 				? 'wss://guestsearch.us-east-1.ve.ai'
 				: 'wss://guestsearch.us-east-1.ve.ai',
+		meeting_ws_api:
+			environment === 'production'
+				? 'wss://recall.us-east-1.ve.ai/frontend/ws'
+				: 'wss://recall-dev.us-east-1.ve.ai/frontend/ws',
+		voice_agent_api: 'wss://ve-voice-agent-g4ptyv6v.livekit.cloud',
+		browser_ws_api: 'wss://browser.us-east-1.ve.ai', // Browser Agent
+		generate_voice_agent_token_api: 'https://voice.us-east-1.ve.ai',
 	},
 };
 
