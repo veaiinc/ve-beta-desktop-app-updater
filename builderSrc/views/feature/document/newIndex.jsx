@@ -939,7 +939,7 @@ const CreateDocument = () => {
 													</button> */}
 											</div>
 											<div className="inputFieldContainer">
-												<label className="inputLabel">Client Name </label>
+												<label className="inputLabel">Client Name *</label>
 												<input
 													className="inputBoxContainer"
 													placeholder="Enter client name"
@@ -949,7 +949,7 @@ const CreateDocument = () => {
 												/>
 											</div>
 											<div className="inputFieldContainer">
-												<label className="inputLabel">Client Email</label>
+												<label className="inputLabel">Client Email *</label>
 												<div className="inputWithIconContainer">
 													<input
 														className="inputBoxContainer withIcon"
@@ -967,7 +967,7 @@ const CreateDocument = () => {
 												</div>
 											</div>
 											<div className="inputFieldContainer">
-												<label className="inputLabel">Client Phone</label>
+												<label className="inputLabel">Client Phone *</label>
 												<div className="inputWithIconContainer">
 													<PhoneInput
 														placeholder="Enter phone number"
@@ -1254,10 +1254,11 @@ const CreateDocument = () => {
 														>
 															{stageInfo.isCreating ? (
 																<>
-																	<Spinner
+																	{/* <Spinner
 																		height="16px"
 																		width="16px"
-																	/>
+																	/> */}
+																	<CustomSpinner size="small" />
 																	<span
 																		style={{
 																			marginLeft: '8px',

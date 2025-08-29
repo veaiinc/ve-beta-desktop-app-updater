@@ -1496,7 +1496,6 @@ $font-inter: 'Inter', sans-serif;
 						font-weight: 500;
 						line-height: 20px;
 						cursor: pointer;
-						border-radius: 8px;
 						position: relative;
 						overflow: hidden;
 						transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1522,13 +1521,7 @@ $font-inter: 'Inter', sans-serif;
 						}
 
 						&:hover {
-							background: rgba(121, 236, 201, 0.1);
-							transform: translateX(4px);
-
-							&::before {
-								width: 200px;
-								height: 200px;
-							}
+							background: var(--card-over-card-hover);
 						}
 
 						&:active {

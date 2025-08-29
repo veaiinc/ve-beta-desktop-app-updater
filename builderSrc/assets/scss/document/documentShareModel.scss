@@ -404,6 +404,7 @@ $font-inter: 'Inter', sans-serif;
 			.ant-picker {
 				background: #252728;
 				color: #f2f2f3;
+				border: 1px solid #2c2e31;
 				svg {
 					path {
 						fill: var(--primary-font, #f2f2f3);
@@ -435,12 +436,10 @@ $font-inter: 'Inter', sans-serif;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
-				border: 1px solid #f2f2f3;
+				border: 1px solid #2c2e31;
 				&:hover {
 					cursor: pointer;
-					// background: #f2f2f3;
-					// color: #252728;
-					border: 1px solid rgb(26, 130, 248);
+					background: #1a1a1a;
 				}
 			}
 		}
@@ -989,5 +988,48 @@ $font-inter: 'Inter', sans-serif;
 	to {
 		opacity: 1;
 		transform: scale(1);
+	}
+}
+
+.ant-picker-panel-layout {
+	background: #252728;
+	color: #f2f2f3 !important;
+	border: 1px solid #2c2e31;
+	.ant-picker-header {
+		color: #f2f2f3 !important;
+		button {
+			color: #ffff !important;
+		}
+	}
+	.ant-picker-body {
+		.ant-picker-content {
+			color: #f2f2f3 !important;
+			thead {
+				tr {
+					th {
+						color: #f2f2f3 !important;
+					}
+				}
+			}
+			tbody {
+				tr {
+					td {
+						.ant-picker-cell {
+							background-color: red !important;
+							.ant-picker-cell-disabled {
+								background: red !important;
+							}
+						}
+
+						color: #f2f2f3 !important;
+					}
+				}
+			}
+		}
+	}
+	.ant-picker-footer {
+		.ant-picker-now-btn {
+			color: #f2f2f3 !important;
+		}
 	}
 }

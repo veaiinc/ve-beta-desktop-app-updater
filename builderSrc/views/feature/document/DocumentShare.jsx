@@ -11,7 +11,7 @@ import { ReactComponent as ChevronDownIcon } from '../../../assets/svg/smartFile
 import { ReactComponent as EmailIcon } from '../../../views/components/library/svgs/logicform/email.svg';
 import { ReactComponent as AssistantIcon } from '../../../views/components/library/svgs/LeftBar/AIassit.svg';
 import { ReactComponent as NoImageIcon } from '../../../assets/svg/document/noImage.svg';
-import { DatePicker, Modal, Input, Button } from 'antd';
+import { DatePicker, Modal, Input, Button, TimePicker } from 'antd';
 import dayjs from 'dayjs';
 import Context from '../../../context/context';
 import { message } from 'antd';
@@ -875,15 +875,17 @@ const DocumentShare = ({
 							>
 							Send via Email
 						</Button> */}
-						<CopyIcon
-							className="copy-link-fab-icon"
-							onClick={handleCopy}
-							style={{ cursor: 'pointer' }}
-						/>
-						<div className="live-status">
-							<ShareDotIcon className="share-dot-icon" />
-							<span className="live-text">Live</span>
-						</div>
+								<CopyIcon
+									className="copy-link-fab-icon"
+									onClick={handleCopy}
+									style={{ cursor: 'pointer' }}
+								/>
+								<div className="live-status">
+									<ShareDotIcon className="share-dot-icon" />
+									<span className="live-text">Live</span>
+								</div>
+							</div>
+						)}
 					</div>
 				</div>
 				<div className="shared-with">
@@ -952,6 +954,17 @@ const DocumentShare = ({
 										: '00:00'
 								}
 							/>
+							{/* <TimePicker
+								value={info.customTime}
+								onChange={handleCustomTimeChange}
+								className="time-input"
+								type="time"
+								min={
+									info.customDate && info.customDate.isSame(dayjs(), 'day')
+										? dayjs().format('HH:mm')
+										: '00:00'
+								}
+							/> */}
 						</div>
 					)}
 					<div className="description">{getExpiryDescription()}</div>
