@@ -1,34 +1,47 @@
 import mitt from 'mitt';
-import Cookies from 'js-cookie';
+const DEV_ENVIRONMENT = import.meta.env.VITE_APP_DEV_ENVIRONMENT || 'development';
 
-// const x_access_key = import.meta.env.VITE_APP_X_ACCESS_KEY || 'QWxsb3dBY2Nlc3NUb0ZlZWRiYWNrQVBJ';
-import getBaseUrl from './baseUrls.js';
+async function loadConfig() {
+	if (DEV_ENVIRONMENT === 'production') {
+		return await import('./config.live.js');
+	} else {
+		return await import('./config.dev.js');
+	}
+}
 
-const authBearerTypes = new Set([
-	'form',
-	'ai_setup',
-	'ai_predictions',
-	'calendar_chat',
-	'slack_api',
-	'elastic_search_api',
-	'microsoft_integration_api',
-	'meeting_summary_api',
-	'generate_voice_agent_token_api',
-]);
+let cachedConfig = null;
+async function getConfig() {
+	if (!cachedConfig) {
+		cachedConfig = await loadConfig();
+	}
+	return cachedConfig;
+}
+export { getConfig };
 
-const handleHeaders = (token, type, isPublicChat = false) => {
+const handleHeaders = (token, body, type, isPublicChat = false) => {
 	const headers = { 'Content-Type': 'application/json' };
+	const x_access_key = 'QWxsb3dBY2Nlc3NUb0ZlZWRiYWNrQVBJ';
 
 	if (token) {
 		headers['x-access-token'] = token;
-		if (authBearerTypes.has(type)) {
+		if (
+			type === 'form' ||
+			type === 'ai_setup' ||
+			type === 'ai_predictions' ||
+			type === 'calendar_chat' ||
+			type === 'slack_api' ||
+			type === 'elastic_search_api' ||
+			type === 'microsoft_integration_api' ||
+			type === 'meeting_summary_api' ||
+			type === 'generate_voice_agent_token_api'
+		) {
 			headers['Authorization'] = `Bearer ${token}`;
 		}
 	}
 
-	// if (isPublicChat && type === 'ai_assistant_api') {
-	// 	headers['x-access-key'] = x_access_key;
-	// }
+	if (isPublicChat && type === 'ai_assistant_api') {
+		headers['x-access-key'] = x_access_key;
+	}
 
 	return headers;
 };
@@ -40,6 +53,7 @@ const processResponse = async (response) => {
 	if (response.status >= 200 && response.status < 300) {
 		return [true, jsonData];
 	} else if (response.status === 401) {
+		// onUserKickedOut();
 		return [false, jsonData];
 	} else if (response.status === 500) {
 		internalServerEmitter.emit('serverError', jsonData);
@@ -61,28 +75,125 @@ const handleParams = (params) => {
 	return subUrl;
 };
 
+const onFailure = async (res, url) => {
+	console.log('API FAILED ' + url);
+};
+
+const onUserKickedOut = async (res, url) => {
+	localStorage.clear();
+	window.location.reload();
+};
+
 const apiFetch = async (url, method, body, token, type, isPublicChat = false) => {
 	try {
-		const region = Cookies.get('region') ?? localStorage.getItem('region') ?? 'us-east-1';
-		const baseUrl = getBaseUrl({ type, region });
+		const config = await getConfig();
 
-		if (!baseUrl) {
-			console.error(`No base URL found for type: ${type} and region: ${region}`);
-			return [
-				false,
-				{ message: `No base URL found for type: ${type} and region: ${region}` },
-			];
+		const {
+			tenant_users_api,
+			tenant_api,
+			proposals_api,
+			auth_Api,
+			auth_Api_US,
+			tenant_users_api_US,
+			tenant_api_US,
+			proposals_api_US,
+			galleries,
+			ai_assistant_api,
+			ai_assistant_api_US,
+			galleries_api_US,
+			ai_predictions_US,
+			ai_predictions,
+			calendar_api,
+			calendar_api_US,
+			third_party_integrations_api,
+			third_party_integrations_api_US,
+			microsoft_integration_api,
+			microsoft_integration_api_US,
+			slack_api,
+			slack_api_US,
+			workflows_Api,
+			workflows_Api_US,
+			multi_agent_chat,
+			multi_agent_chat_US,
+			automation_builder_api,
+			automation_builder_api_US,
+			elastic_search_api,
+			elastic_search_api_US,
+			workspace_images_api,
+			workspace_images_api_US,
+			custom_domain_api,
+			custom_domain_api_US,
+			browser_api,
+			browser_api_US,
+			meeting_summary_api,
+			meeting_summary_api_US,
+			generate_voice_agent_token_api,
+		} = config;
+
+		const apiEndpoints = {
+			tenant_users_api,
+			tenant: tenant_api,
+			'tenant-users': tenant_users_api,
+			proposals_api,
+			auth: auth_Api,
+			galleries,
+			ai_assistant_api,
+			ai_predictions,
+			calendar_chat: ai_predictions,
+			calendar_api,
+			third_party_integrations_api,
+			microsoft_integration_api,
+			slack_api,
+			workflow: workflows_Api,
+			multi_agent_chat,
+			automation_builder_api,
+			elastic_search_api,
+			workspace_images_api,
+			custom_domain_api,
+			browser_api,
+			meeting_summary_api,
+			generate_voice_agent_token_api,
+		};
+
+		const apiEndpointsUS = {
+			tenant_users_api: tenant_users_api_US,
+			tenant: tenant_api_US,
+			'tenant-users': tenant_users_api_US,
+			proposals_api: proposals_api_US,
+			auth: auth_Api_US,
+			ai_assistant_api: ai_assistant_api_US,
+			galleries: galleries_api_US,
+			ai_predictions: ai_predictions_US,
+			calendar_chat: ai_predictions_US,
+			calendar_api: calendar_api_US,
+			third_party_integrations_api: third_party_integrations_api_US,
+			microsoft_integration_api: microsoft_integration_api_US,
+			slack_api: slack_api_US,
+			workflow: workflows_Api_US,
+			multi_agent_chat: multi_agent_chat_US,
+			automation_builder_api: automation_builder_api_US,
+			elastic_search_api: elastic_search_api_US,
+			workspace_images_api: workspace_images_api_US,
+			custom_domain_api: custom_domain_api_US,
+			browser_api: browser_api_US,
+			meeting_summary_api: meeting_summary_api_US,
+			generate_voice_agent_token_api,
+		};
+
+		const region = localStorage.getItem('region') || 'us-east-1';
+		const endpoint =
+			(region === 'ap-south-1' ? apiEndpoints[type] : apiEndpointsUS?.[type]) + url;
+
+		const headers = handleHeaders(token, body, type, isPublicChat);
+
+		if (body) {
+			body = JSON.stringify(body);
 		}
-
-		const endpoint = baseUrl + url;
-
-		const headers = handleHeaders(token, type, isPublicChat);
-
-		body && (body = JSON.stringify(body));
 
 		const response = await fetch(endpoint, { method, headers, body });
 		return await processResponse(response);
 	} catch (error) {
+		onFailure('network', url);
 		console.log('Api Failed: ' + error.message);
 		return [false];
 	}
