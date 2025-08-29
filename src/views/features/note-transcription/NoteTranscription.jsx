@@ -127,32 +127,21 @@ export default function NoteTranscription({
 		[debounce],
 	);
 
-	// Function to send transcription to recall socket
-	const sendTranscriptionToRecall = useCallback(
-		(transcriptionData) => {
-			if (
-				transcriptionData.isFinal &&
-				sendMessage &&
-				tenantId &&
-				sessionId &&
-				recallPageId &&
-				meetingId
-			) {
-				if (sendMessage && tenantId && sessionId && recallPageId) {
-					const message = {
-						tenantId,
-						sessionId,
-						pageId: recallPageId,
-						meetingId: meetingId,
-						speakerName: '',
-						transcript: transcriptionData.displayedText,
-						description: '',
-					};
-					sendMessage({ noteTakerTranscript: message });
-				}
+	// Function to send LiveKit token to recall socket (one time only)
+	const sendLiveKitTokenToSocket = useCallback(
+		(token) => {
+			if (sendMessage && token) {
+				const message = {
+					liveKitToken: token,
+					tenantId,
+					sessionId,
+					pageId: recallPageId,
+					meetingId: meetingId,
+				};
+				sendMessage({ liveKitTokenData: message });
 			}
 		},
-		[sendMessage, tenantId, sessionId, recallPageId],
+		[sendMessage, tenantId, sessionId, recallPageId, meetingId],
 	);
 
 	// Typing effect for a single transcription
@@ -276,8 +265,7 @@ export default function NoteTranscription({
 						debouncedUpdateTranscription(updateTranscription, transcriptionData);
 					}
 
-					// Send transcription to recall socket for live intelligence (always send)
-					sendTranscriptionToRecall(transcriptionData);
+					// Note: No longer sending transcription data to recall socket
 				}
 			}
 		});
@@ -319,14 +307,17 @@ export default function NoteTranscription({
 				sessionId: sessionIdRef.current,
 			});
 			if (response && response[0] === true && response[1]?.accessToken) {
-				setLiveKitToken(response[1].accessToken);
+				const token = response[1].accessToken;
+				setLiveKitToken(token);
 				setIsRecording(true);
+
+				// Send LiveKit token to recall socket (one time only)
+				sendLiveKitTokenToSocket(token);
 
 				// Start live intelligence connection
 				// createLiveIntelligenceConnection(
 				// 	sessionIdRef.current,
 				// 	pageId,
-				// 	handleLiveIntelligenceMessage,
 				// );
 			} else {
 				console.error('Failed to fetch LiveKit token: Invalid response format', response);
@@ -358,11 +349,6 @@ export default function NoteTranscription({
 		initializeMeetingSummary({ meeting_id: meetingId });
 	};
 
-	// Handle live intelligence messages
-	const handleLiveIntelligenceMessage = useCallback((event) => {
-		const data = JSON.parse(event?.data || null);
-		console.log(data, 'data');
-	}, []);
 
 	// Helper for formatting time
 	const formatTime = (seconds) => {
