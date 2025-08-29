@@ -105,7 +105,7 @@ const AskAIApp = () => {
 
 			// Check if this is from "All Threads" or "Need Help" tabs
 			const shouldUseDirectSearch =
-				tabContent.tabKey === 'all-threads' || tabContent.tabKey === 'need-help';
+				tabContent.tabKey === 'all-threads' && tabContent.tabKey === 'need-help';
 			setIsNeedHelpRequest(shouldUseDirectSearch);
 
 			// Don't show the prompt in the input field - keep it clean
@@ -326,6 +326,7 @@ const AskAIApp = () => {
 				location: null,
 				image_data_base64: imageArray,
 			};
+			console.log(shouldUseDirectSearch, 'shouldUseDirectSearch');
 
 			// Only set direct_search_agent to true for "Need Help" tab requests
 			if (shouldUseDirectSearch) {
