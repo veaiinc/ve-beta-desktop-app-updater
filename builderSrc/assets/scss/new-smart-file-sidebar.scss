@@ -140,7 +140,7 @@ $font-inter: 'Inter', sans-serif;
 
 			.doc-header-title-container-text {
 				color: var(--secondary-font, #7a7e85);
-				font-family: var(--primary-font);
+				font-family: $font-general-sans;
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -195,6 +195,7 @@ $font-inter: 'Inter', sans-serif;
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
+			font-family: $font-general-sans;
 		}
 		.edit-icon {
 			cursor: pointer;
@@ -431,7 +432,7 @@ $font-inter: 'Inter', sans-serif;
 				transform: translateY(0);
 				color: var(--secondary-font, #94989e);
 				text-align: center;
-				font-family: 'General Sans Variable';
+				font-family: $font-general-sans;
 				font-size: 10px;
 				font-style: normal;
 				font-weight: 400;
