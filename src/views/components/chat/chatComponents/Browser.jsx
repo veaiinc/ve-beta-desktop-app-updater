@@ -5,7 +5,13 @@ import { ReactComponent as ArrowsIn } from '../../../../assets/svg/chat/arrowsIn
 import { ReactComponent as Webcam } from '../../../../assets/svg/chat/webcam.svg';
 import Spinner from '../../loaders/Spinner';
 
-const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = false }) => {
+const Browser = ({
+	sessionId,
+	browserData,
+	handleBrowserButtonClick,
+	isOpen = false,
+	liveViewUrl,
+}) => {
 	const {
 		templates: { handleTakeBrowserControl, saveBrowserState },
 	} = useContext(Context);
@@ -51,9 +57,9 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 		// handleTakeBrowserControl(sessionId, takeControl);
 
 		//exiting take control
-		if (!takeControl) {
-			saveBrowserState(sessionId);
-		}
+		// if (!takeControl) {
+		// 	saveBrowserState(sessionId);
+		// }
 	};
 
 	return (
@@ -66,7 +72,7 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 			</div>
 
 			<div className={`${s.body} ${info?.takeControl ? s.tookControl : ''}`}>
-				{!(info?.tabs?.length > 0) && isOpen && (
+				{/* {!(info?.tabs?.length > 0) && isOpen && (
 					<div className={s.loader}>
 						<Spinner />
 					</div>
@@ -83,22 +89,22 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 							</div>
 						))}
 					</div>
-				)}
+				)} */}
 
-				{info?.activeTab !== -1 && (
-					<div className={`${s.browserIframeContainer}`}>
-						<iframe
-							src={info?.tabs[info?.activeTab]?.debuggerUrl}
-							allowfullscreen
-							className={s.browserIframe}
-							style={{ pointerEvents: info?.takeControl ? 'auto' : 'none' }}
-						></iframe>
-						<div className={s.takeControlBtn} onClick={handleTakeControl}>
-							<Webcam />
-							{info?.takeControl ? 'Exit takeover' : 'Take control'}
-						</div>
+				{/* {info?.activeTab !== -1 && ( */}
+				<div className={`${s.browserIframeContainer}`}>
+					<iframe
+						src={liveViewUrl}
+						allowfullscreen
+						className={s.browserIframe}
+						style={{ pointerEvents: info?.takeControl ? 'auto' : 'none' }}
+					></iframe>
+					<div className={s.takeControlBtn} onClick={handleTakeControl}>
+						<Webcam />
+						{info?.takeControl ? 'Exit takeover' : 'Take control'}
 					</div>
-				)}
+				</div>
+				{/* )} */}
 			</div>
 		</div>
 	);
