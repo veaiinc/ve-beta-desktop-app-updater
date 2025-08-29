@@ -25,6 +25,17 @@ const { WindowHelper } = require('./helpers/windowHelper');
 // Import dynamic island helper
 // const { DynamicIslandHelper } = require('./dynamicIslandHelper');
 
+// Windows-specific app configuration
+if (process.platform === 'win32') {
+	// Set Windows app user model ID for proper taskbar integration
+	app.setAppUserModelId('com.veai.dashboard');
+	
+	// Set Windows-specific app properties
+	app.setPath('userData', path.join(process.env.APPDATA || process.env.USERPROFILE, 'VeAI'));
+	
+	log.info('✅ Windows-specific app configuration applied');
+}
+
 // Temporary inline DynamicIslandHelper class
 class DynamicIslandHelper {
 	constructor() {
@@ -468,6 +479,24 @@ function createWindow() {
 		mainWindow.show();
 		log.info('Window ready-to-show');
 	});
+
+	// Windows-specific: Add close handler to ensure proper cleanup
+	if (process.platform === 'win32') {
+		mainWindow.on('close', (event) => {
+			log.info('🔄 Main window close event on Windows - preventing default and cleaning up...');
+			// Prevent default close behavior to ensure cleanup runs
+			event.preventDefault();
+			// Trigger cleanup immediately
+			cleanupAndQuit();
+		});
+		
+		// Also add a closed event handler to ensure app quits
+		mainWindow.on('closed', () => {
+			log.info('🔄 Main window closed on Windows - ensuring app quits completely...');
+			// Force the app to quit completely
+			app.quit();
+		});
+	}
 
 	// Check for updates in production
 	if (process.env.NODE_ENV !== 'development') {
@@ -1361,12 +1390,41 @@ app.on('quit', (event, exitCode) => {
 	}
 });
 
-app.on('window-all-closed', () => {
-	log.info('🔄 All windows closed - cleaning up...');
+// Windows-specific quit handling
+if (process.platform === 'win32') {
+	// Handle Windows-specific quit events
+	app.on('second-instance', () => {
+		log.info('🔄 Second instance detected on Windows - focusing existing window');
+		if (mainWindow) {
+			if (mainWindow.isMinimized()) mainWindow.restore();
+			mainWindow.focus();
+		}
+	});
 
-	// Clean up all windows and processes
-	cleanupAndQuit();
-});
+	// Handle Windows-specific window close behavior
+	app.on('activate', () => {
+		log.info('🔄 Windows app activated - ensuring main window is visible');
+		if (mainWindow && !mainWindow.isVisible()) {
+			mainWindow.show();
+		}
+	});
+
+	// Windows-specific window close handling
+	app.on('window-all-closed', () => {
+		log.info('🔄 All windows closed on Windows - performing cleanup...');
+		// On Windows, we want to quit the app when all windows are closed
+		// This is different from macOS where the app stays running
+		cleanupAndQuit();
+	});
+} else {
+	// macOS and Linux behavior
+	app.on('window-all-closed', () => {
+		log.info('🔄 All windows closed - cleaning up...');
+
+		// Clean up all windows and processes
+		cleanupAndQuit();
+	});
+}
 
 app.on('will-quit', () => {
 	log.info('🔄 Will quit - final cleanup...');
@@ -1424,16 +1482,75 @@ function cleanupAndQuit() {
 			log.error('Error unregistering global shortcuts:', error);
 		}
 
+		// 6. Windows-specific cleanup
+		if (process.platform === 'win32') {
+			log.info('🧹 Performing Windows-specific cleanup...');
+			
+			// Force garbage collection on Windows
+			if (global.gc) {
+				try {
+					global.gc();
+					log.info('✅ Garbage collection triggered on Windows');
+				} catch (error) {
+					log.error('Error triggering garbage collection on Windows:', error);
+				}
+			}
+			
+			// Clear any remaining timers and handles
+			try {
+				// Clear any remaining timeouts/intervals
+				const activeTimers = process._getActiveHandles();
+				if (activeTimers && activeTimers.length > 0) {
+					log.info(`🧹 Found ${activeTimers.length} active handles on Windows`);
+				}
+			} catch (error) {
+				log.error('Error checking active handles on Windows:', error);
+			}
+			
+			// Force close any remaining windows more aggressively
+			try {
+				const { BrowserWindow } = require('electron');
+				const allWindows = BrowserWindow.getAllWindows();
+				log.info(`🧹 Force destroying ${allWindows.length} remaining windows on Windows`);
+				
+				allWindows.forEach((window, index) => {
+					if (!window.isDestroyed()) {
+						log.info(`🧹 Force destroying window ${index + 1}: ${window.getTitle()}`);
+						// Force destroy without waiting
+						window.destroy();
+					}
+				});
+			} catch (error) {
+				log.error('Error force destroying windows on Windows:', error);
+			}
+		}
+
 		log.info('✅ Cleanup completed - quitting app');
 
-		// Force quit the app
+		// Force quit the app with platform-specific timing and method
+		const quitDelay = process.platform === 'win32' ? 100 : 100;
 		setTimeout(() => {
+			log.info(`🔄 Force quitting app after ${quitDelay}ms delay...`);
+			
+					// On Windows, be more direct with the exit
+		if (process.platform === 'win32') {
+			log.info('🧹 Windows: Using app.quit() for proper termination');
+			// Use app.quit() which is more appropriate for Electron apps
+			app.quit();
+		} else {
+			// Use app.exit for macOS/Linux
 			app.exit(0);
-		}, 100);
+		}
+		}, quitDelay);
 	} catch (error) {
 		log.error('Error during cleanup:', error);
 		// Force quit even if cleanup fails
-		app.exit(0);
+		if (process.platform === 'win32') {
+			log.error('🧹 Windows: Force quitting due to cleanup error');
+			app.quit();
+		} else {
+			app.exit(0);
+		}
 	}
 }
 
@@ -1441,6 +1558,21 @@ function cleanupAndQuit() {
 process.on('exit', (code) => {
 	log.info('🔄 Process exiting with code:', code);
 });
+
+// Windows-specific process signal handling
+if (process.platform === 'win32') {
+	// Handle Windows process termination signals
+	process.on('SIGBREAK', () => {
+		log.info('🔄 SIGBREAK received on Windows - cleaning up...');
+		cleanupAndQuit();
+	});
+	
+	// Handle Windows console close
+	process.on('SIGHUP', () => {
+		log.info('🔄 SIGHUP received on Windows - cleaning up...');
+		cleanupAndQuit();
+	});
+}
 
 process.on('SIGINT', () => {
 	log.info('🔄 SIGINT received - cleaning up...');
