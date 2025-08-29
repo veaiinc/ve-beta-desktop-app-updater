@@ -86,7 +86,7 @@ class DynamicIslandHelper {
 			focusable: false, // Don't steal focus
 			skipTaskbar: true,
 			visibleOnAllWorkspaces: true,
-			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
+			type: process.env.NODE_ENV === 'development' ? 'normal' : (process.platform === 'win32' ? 'normal' : 'panel'),
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
 			resizable: false, // Disable resizing - fixed size
@@ -135,14 +135,26 @@ class DynamicIslandHelper {
 			this.dynamicIslandWindow.setHiddenInMissionControl(true);
 			this.dynamicIslandWindow.setMovable(true);
 		} else {
+			// Windows-specific configuration for better click-through behavior
 			this.dynamicIslandWindow.setAlwaysOnTop(true, 'floating');
+			
+			// On Windows, we need to ensure the window can receive mouse events for hover
+			// but also allow clicks to pass through when appropriate
+			this.dynamicIslandWindow.setIgnoreMouseEvents(false);
 		}
 
-		// Set initial mouse event handling - start with mouse events ignored since it's collapsed
-		this.setMouseEventHandling(true);
-
-		// Show the window
+		// Show the window first
 		this.dynamicIslandWindow.show();
+		
+		// Set initial mouse event handling - start with mouse events ignored since it's collapsed
+		// Use a small delay on Windows to ensure the window is fully ready
+		if (process.platform === 'win32') {
+			setTimeout(() => {
+				this.setMouseEventHandling(true);
+			}, 100);
+		} else {
+			this.setMouseEventHandling(true);
+		}
 		log.info('Dynamic Island window created and shown');
 		
 		// Debug window position and size
@@ -189,22 +201,35 @@ class DynamicIslandHelper {
 		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
 
 		try {
-			// Always allow mouse events for hover detection, even when "ignoring"
-			// This ensures hover expansion works in all states
+			log.info(`🖱️ Setting mouse event handling: ignore=${ignore}, platform=${process.platform}`);
+			
 			if (process.platform === 'darwin') {
 				// On macOS, use the forward option to allow clicks to pass through
 				// But still allow mouse events for hover detection
 				this.dynamicIslandWindow.setIgnoreMouseEvents(false, { forward: true });
+				log.info('✅ macOS: Mouse events enabled with forward option');
 			} else {
-				// On other platforms, never ignore mouse events completely
-				// This ensures hover always works
-				this.dynamicIslandWindow.setIgnoreMouseEvents(false);
+				// On Windows and other platforms, implement click-through behavior
+				if (ignore) {
+					// When collapsed/ignoring, allow clicks to pass through
+					// but still detect mouse movement for hover
+					this.dynamicIslandWindow.setIgnoreMouseEvents(true, { forward: true });
+					log.info('✅ Windows: Mouse events ignored with forward option (click-through enabled)');
+				} else {
+					// When expanded, capture all mouse events for interaction
+					this.dynamicIslandWindow.setIgnoreMouseEvents(false);
+					log.info('✅ Windows: Mouse events fully enabled for interaction');
+				}
 			}
-			log.info(
-				`Dynamic Island mouse events enabled for hover (expanded: ${!ignore})`,
-			);
+			
+			// Verify the setting was applied
+			const bounds = this.dynamicIslandWindow.getBounds();
+			log.info(`📍 Window bounds: x=${bounds.x}, y=${bounds.y}, width=${bounds.width}, height=${bounds.height}`);
+			log.info(`👁️ Window visible: ${this.dynamicIslandWindow.isVisible()}`);
+			log.info(`🔝 Always on top: ${this.dynamicIslandWindow.isAlwaysOnTop()}`);
+			
 		} catch (error) {
-			log.error('Error setting mouse event handling:', error);
+			log.error('❌ Error setting mouse event handling:', error);
 		}
 	}
 
@@ -242,6 +267,31 @@ class DynamicIslandHelper {
 
 	isDynamicIslandExpanded() {
 		return this.isExpanded;
+	}
+
+	// Test method to verify click-through behavior
+	testClickThrough() {
+		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) {
+			log.info('❌ Dynamic Island window not available for testing');
+			return;
+		}
+
+		log.info('🧪 Testing click-through behavior...');
+		log.info(`📍 Current state: expanded=${this.isExpanded}, visible=${this.isVisible}`);
+		
+		// Test current mouse event handling
+		try {
+			const bounds = this.dynamicIslandWindow.getBounds();
+			log.info(`📍 Window bounds: x=${bounds.x}, y=${bounds.y}, width=${bounds.width}, height=${bounds.height}`);
+			log.info(`👁️ Window visible: ${this.dynamicIslandWindow.isVisible()}`);
+			log.info(`🔝 Always on top: ${this.dynamicIslandWindow.isAlwaysOnTop()}`);
+			
+			// Force refresh of mouse event handling
+			this.setMouseEventHandling(this.isExpanded ? false : true);
+			
+		} catch (error) {
+			log.error('❌ Error during click-through test:', error);
+		}
 	}
 
 	destroy() {
@@ -719,6 +769,20 @@ app.whenReady().then(() => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error setting dynamic island mouse events:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Test handler for click-through behavior
+	ipcMain.handle('dynamic-island-test-click-through', async () => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+			dynamicIslandHelper.testClickThrough();
+			return { success: true };
+		} catch (error) {
+			log.error('Error testing dynamic island click-through:', error);
 			return { success: false, error: error.message };
 		}
 	});
