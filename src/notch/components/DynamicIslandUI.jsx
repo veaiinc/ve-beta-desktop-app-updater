@@ -42,6 +42,10 @@ const DynamicIslandUI = () => {
 	const [cameraError, setCameraError] = useState(null);
 	const [isCameraStarting, setIsCameraStarting] = useState(false);
 	const [cameraStatus, setCameraStatus] = useState('idle'); // 'idle', 'starting', 'active', 'error'
+	
+	// Device detection state
+	const [hasCamera, setHasCamera] = useState(true); // Default to true, will be updated
+	const [isCheckingDevices, setIsCheckingDevices] = useState(true);
 
 	useEffect(() => {
 		// Check authentication status
@@ -52,6 +56,7 @@ const DynamicIslandUI = () => {
 
 		// Initial check
 		checkAuthStatus();
+		checkDeviceAvailability();
 
 		// Listen for storage changes to detect login/logout
 		const handleStorageChange = (e) => {
@@ -159,13 +164,18 @@ const DynamicIslandUI = () => {
 	// Handle camera device changes - simplified
 	useEffect(() => {
 		const handleDeviceChange = () => {
-			console.log('Camera device changed');
+			console.log('📹 Camera device changed, rechecking availability...');
+			checkDeviceAvailability();
 		};
 
-		navigator.mediaDevices.addEventListener('devicechange', handleDeviceChange);
+		if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
+			navigator.mediaDevices.addEventListener('devicechange', handleDeviceChange);
+		}
 
 		return () => {
-			navigator.mediaDevices.removeEventListener('devicechange', handleDeviceChange);
+			if (navigator.mediaDevices && navigator.mediaDevices.removeEventListener) {
+				navigator.mediaDevices.removeEventListener('devicechange', handleDeviceChange);
+			}
 		};
 	}, []);
 
@@ -579,6 +589,23 @@ const DynamicIslandUI = () => {
 		}
 	};
 
+			// Check device availability
+		const checkDeviceAvailability = async () => {
+			try {
+				setIsCheckingDevices(true);
+				const devices = await checkDevices();
+				if (devices) {
+					setHasCamera(devices.hasCamera);
+					console.log('📹 Camera available:', devices.hasCamera);
+				}
+			} catch (error) {
+				console.error('Error checking device availability:', error);
+				setHasCamera(false); // Assume no camera on error
+			} finally {
+				setIsCheckingDevices(false);
+			}
+		};
+
 	return (
 		<div
 			ref={dynamicIslandRef}
@@ -723,40 +750,46 @@ const DynamicIslandUI = () => {
 										</div>
 									</div>
 
-									{/* Webcam section */}
-									<div
-										className={`webcam-section ${
-											isCameraActive ? 'camera-active' : ''
-										} ${
-											cameraPermission === 'denied' ||
-											cameraPermission === 'restricted'
-												? 'camera-denied'
-												: ''
-										}`}
-										onClick={
-											cameraPermission === 'denied' ||
-											cameraPermission === 'restricted'
-												? (e) => {
-														e.stopPropagation();
-														if (
-															window.electronApi?.askAI?.camera
-																?.showPermissionHelp
-														) {
-															window.electronApi.askAI.camera.showPermissionHelp();
-														}
-												  }
-												: handleWebcamClick
-										}
-										onMouseEnter={handleWebcamMouseEnter}
-										title={
-											isCameraActive
-												? 'Click to stop camera'
-												: cameraPermission === 'denied' ||
-												  cameraPermission === 'restricted'
-												? 'Click to open system permissions'
-												: 'Click to start camera'
-										}
-									>
+									{/* Webcam section - always show, with different states */}
+									{isCheckingDevices ? (
+										<div className="webcam-section device-checking">
+											<div className="loading-spinner"></div>
+											<div className="webcam-label">Checking devices...</div>
+										</div>
+									) : hasCamera ? (
+										<div
+											className={`webcam-section ${
+												isCameraActive ? 'camera-active' : ''
+											} ${
+												cameraPermission === 'denied' ||
+												cameraPermission === 'restricted'
+													? 'camera-denied'
+													: ''
+											}`}
+											onClick={
+												cameraPermission === 'denied' ||
+												cameraPermission === 'restricted'
+													? (e) => {
+															e.stopPropagation();
+															if (
+																window.electronApi?.askAI?.camera
+																	?.showPermissionHelp
+															) {
+																window.electronApi.askAI.camera.showPermissionHelp();
+															}
+													  }
+													: handleWebcamClick
+											}
+											onMouseEnter={handleWebcamMouseEnter}
+											title={
+												isCameraActive
+													? 'Click to stop camera'
+													: cameraPermission === 'denied' ||
+													  cameraPermission === 'restricted'
+													? 'Click to open system permissions'
+													: 'Click to start camera'
+											}
+										>
 										{isCameraStarting ? (
 											<div className="camera-loading">
 												<div className="loading-spinner"></div>
@@ -820,6 +853,15 @@ const DynamicIslandUI = () => {
 											<div className="camera-status error">⚠ Error</div>
 										)}
 									</div>
+									) : (
+										<div 
+											className="webcam-section no-camera"
+											title="No camera found"
+										>
+											<WebcamIcon />
+											<div className="webcam-label">No camera found</div>
+										</div>
+									)}
 								</>
 							)}
 						</div>
