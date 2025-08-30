@@ -2,16 +2,23 @@ import s from './pageLoader.module.scss';
 import Spinner from '../../components/loaders/Spinner';
 import useTheme from '../../../hooks/useTheme';
 import logout from '../../../helpers/logout';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 const PageLoader = ({ customStyles }) => {
 	useTheme();
+	const timeoutRef = useRef(null);
+
 	useEffect(() => {
-		const timeoutId = setTimeout(() => {
+		timeoutRef.current = setTimeout(() => {
 			logout();
 		}, 60000);
-		return () => clearTimeout(timeoutId);
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+		};
 	}, []);
+
 	return (
 		<div className={s.loaderContainer} style={customStyles}>
 			<Spinner
