@@ -83,7 +83,7 @@ class DynamicIslandHelper {
 			fullscreenable: false,
 			hasShadow: false,
 			backgroundColor: '#00000000',
-			focusable: false, // Don't steal focus
+			focusable: true, // Make focusable by default for better Windows support
 			skipTaskbar: true,
 			visibleOnAllWorkspaces: true,
 			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
@@ -175,6 +175,16 @@ class DynamicIslandHelper {
 			if (process.platform === 'darwin') {
 				// On macOS, use the forward option to allow clicks to pass through
 				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore, { forward: true });
+			} else if (process.platform === 'win32') {
+				// On Windows, when collapsed, allow clicks to pass through to overlay
+				// When expanded, capture all mouse events
+				if (ignore) {
+					// Collapsed state - allow clicks to pass through to overlay underneath
+					this.dynamicIslandWindow.setIgnoreMouseEvents(true, { forward: true });
+				} else {
+					// Expanded state - capture all mouse events
+					this.dynamicIslandWindow.setIgnoreMouseEvents(false);
+				}
 			} else {
 				// On other platforms, just ignore mouse events
 				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore);
@@ -182,7 +192,7 @@ class DynamicIslandHelper {
 			log.info(
 				`Dynamic Island mouse events ${
 					ignore ? 'ignored' : 'enabled'
-				} (expanded: ${!ignore})`,
+				} (expanded: ${!ignore}) on ${process.platform}`,
 			);
 		} catch (error) {
 			log.error('Error setting mouse event handling:', error);
@@ -223,6 +233,19 @@ class DynamicIslandHelper {
 
 	isDynamicIslandExpanded() {
 		return this.isExpanded;
+	}
+
+	focus() {
+		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+			try {
+				// Focus the window and bring it to front
+				this.dynamicIslandWindow.focus();
+				this.dynamicIslandWindow.show();
+				log.info('Dynamic Island window focused');
+			} catch (error) {
+				log.error('Error focusing Dynamic Island window:', error);
+			}
+		}
 	}
 
 	destroy() {
@@ -597,10 +620,27 @@ app.whenReady().then(() => {
 			if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
 				// Make window focusable when entering chat mode
 				dynamicIslandWindow.setFocusable(isChatMode);
+				
+				// Windows-specific focus handling
+				if (process.platform === 'win32' && isChatMode) {
+					// Force focus on Windows with multiple methods
+					dynamicIslandWindow.focus();
+					dynamicIslandWindow.show();
+					
+					// Additional Windows focus method with delay
+					setTimeout(() => {
+						if (!dynamicIslandWindow.isDestroyed()) {
+							dynamicIslandWindow.focus();
+							// Send a focus event to the renderer
+							dynamicIslandWindow.webContents.send('force-focus');
+						}
+					}, 100);
+				}
+				
 				log.info(
 					`Dynamic Island chat mode ${
 						isChatMode ? 'enabled' : 'disabled'
-					}, focusable: ${isChatMode}`,
+					}, focusable: ${isChatMode}, platform: ${process.platform}`,
 				);
 			}
 
@@ -623,6 +663,8 @@ app.whenReady().then(() => {
 			return { success: false, error: error.message };
 		}
 	});
+
+
 
 	// Camera permission handler
 	ipcMain.handle('request-camera-permission', async () => {
@@ -712,6 +754,19 @@ app.whenReady().then(() => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error hiding dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('dynamic-island-focus', async () => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+			dynamicIslandHelper.focus();
+			return { success: true };
+		} catch (error) {
+			log.error('Error focusing dynamic island:', error);
 			return { success: false, error: error.message };
 		}
 	});
