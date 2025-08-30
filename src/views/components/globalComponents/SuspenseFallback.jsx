@@ -1,4 +1,5 @@
-import Spinner from '../loaders/Spinner';
+// import Spinner from '../loaders/Spinner';
+import VeLoader from '../loaders/VeLoader';
 
 const SuspenseFallback = () => {
 	return (
@@ -12,13 +13,14 @@ const SuspenseFallback = () => {
 				alignItems: 'center',
 			}}
 		>
-			<Spinner
+			{/* <Spinner
 				width="32px"
 				height="32px"
 				color="var(--primary-button)"
 				borderTopColor="var(--background-color)"
 				borderWidth="1.5"
-			/>
+			/> */}
+			<VeLoader />
 		</div>
 	);
 };
