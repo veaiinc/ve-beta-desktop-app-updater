@@ -38,7 +38,7 @@ This guide will help you set up and run the Ve AI Desktop App on Windows.
 The app uses the following global shortcuts on Windows:
 
 - **Ctrl+\\** - Toggle overlay window
-- **Ctrl+/** - Toggle overlay window (alternative shortcut)
+
 - **Ctrl+Enter** - Toggle Ask AI window
 - **Ctrl+Alt+O** - Alternative overlay window shortcut (if main fails)
 - **Ctrl+Alt+A** - Alternative Ask AI window shortcut (if main fails)
