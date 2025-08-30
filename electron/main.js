@@ -175,6 +175,16 @@ class DynamicIslandHelper {
 			if (process.platform === 'darwin') {
 				// On macOS, use the forward option to allow clicks to pass through
 				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore, { forward: true });
+			} else if (process.platform === 'win32') {
+				// On Windows, when collapsed, allow clicks to pass through to overlay
+				// When expanded, capture all mouse events
+				if (ignore) {
+					// Collapsed state - allow clicks to pass through to overlay underneath
+					this.dynamicIslandWindow.setIgnoreMouseEvents(true, { forward: true });
+				} else {
+					// Expanded state - capture all mouse events
+					this.dynamicIslandWindow.setIgnoreMouseEvents(false);
+				}
 			} else {
 				// On other platforms, just ignore mouse events
 				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore);
@@ -182,7 +192,7 @@ class DynamicIslandHelper {
 			log.info(
 				`Dynamic Island mouse events ${
 					ignore ? 'ignored' : 'enabled'
-				} (expanded: ${!ignore})`,
+				} (expanded: ${!ignore}) on ${process.platform}`,
 			);
 		} catch (error) {
 			log.error('Error setting mouse event handling:', error);
@@ -223,6 +233,19 @@ class DynamicIslandHelper {
 
 	isDynamicIslandExpanded() {
 		return this.isExpanded;
+	}
+
+	focus() {
+		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+			try {
+				// Focus the window and bring it to front
+				this.dynamicIslandWindow.focus();
+				this.dynamicIslandWindow.show();
+				log.info('Dynamic Island window focused');
+			} catch (error) {
+				log.error('Error focusing Dynamic Island window:', error);
+			}
+		}
 	}
 
 	destroy() {
@@ -624,6 +647,8 @@ app.whenReady().then(() => {
 		}
 	});
 
+
+
 	// Camera permission handler
 	ipcMain.handle('request-camera-permission', async () => {
 		try {
@@ -712,6 +737,19 @@ app.whenReady().then(() => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error hiding dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('dynamic-island-focus', async () => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+			dynamicIslandHelper.focus();
+			return { success: true };
+		} catch (error) {
+			log.error('Error focusing dynamic island:', error);
 			return { success: false, error: error.message };
 		}
 	});
