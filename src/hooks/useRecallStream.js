@@ -10,7 +10,7 @@ const useRecallStream = () => {
 	const isIntentionallyClosedRef = useRef(false);
 	const RECONNECT_ATTEMPTS = 5;
 	const RECONNECT_DELAY = 2000; // 2 seconds
-	const location = localStorage.getItem('locationDetails') || {};
+	const location = localStorage.getItem('locationDetails') || '{}';
 	const locationData = JSON.parse(location);
 	useEffect(() => {
 		return () => {
