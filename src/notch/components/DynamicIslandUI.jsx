@@ -24,6 +24,7 @@ const stopCamera = (stream) => {
 const DynamicIslandUI = () => {
 	const dynamicIslandRef = useRef(null);
 	const videoRef = useRef(null);
+	const chatInputRef = useRef(null); // Add ref for chat input
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [isConnected, setIsConnected] = useState(false);
 	// Overlay state - synced from overlay window
@@ -37,6 +38,7 @@ const DynamicIslandUI = () => {
 	const [isChatMode, setIsChatMode] = useState(false);
 	const [chatInput, setChatInput] = useState('');
 	const [isSendingMessage, setIsSendingMessage] = useState(false);
+	const [isSettingChatMode, setIsSettingChatMode] = useState(false); // Prevent rapid focus changes
 	// Camera state
 	const [isCameraActive, setIsCameraActive] = useState(false);
 	const [cameraStream, setCameraStream] = useState(null);
@@ -255,9 +257,16 @@ const DynamicIslandUI = () => {
 			const result = await window.electronApi.dynamicIsland.expand();
 			if (result.success) {
 				setIsExpanded(true);
-				// Ensure window is focusable when expanded
-				if (window.electronApi?.dynamicIsland?.setChatMode) {
-					window.electronApi.dynamicIsland.setChatMode(true);
+				// Ensure window is focusable when expanded, but only if not already setting
+				if (window.electronApi?.dynamicIsland?.setChatMode && !isSettingChatMode) {
+					setIsSettingChatMode(true);
+					window.electronApi.dynamicIsland.setChatMode(true)
+						.then(() => {
+							setIsSettingChatMode(false);
+						})
+						.catch(() => {
+							setIsSettingChatMode(false);
+						});
 				}
 			}
 		} catch (error) {
@@ -476,7 +485,7 @@ const DynamicIslandUI = () => {
 
 	const handleChatClick = () => {
 		console.log('💬 Chat section clicked');
-		if (!isChatMode) {
+		if (!isChatMode && !isSettingChatMode) {
 			setIsChatMode(true);
 			// Ensure Dynamic Island is expanded for chat mode
 			if (!isExpanded && isConnected) {
@@ -485,13 +494,16 @@ const DynamicIslandUI = () => {
 			// Enable focus for input field when entering chat mode
 			if (window.electronApi?.dynamicIsland?.setChatMode) {
 				console.log('🔧 Enabling focus for chat mode...');
+				setIsSettingChatMode(true);
 				window.electronApi.dynamicIsland
 					.setChatMode(true)
 					.then((result) => {
 						console.log('✅ Chat mode focus result:', result);
+						setIsSettingChatMode(false);
 					})
 					.catch((error) => {
 						console.error('❌ Error setting chat mode focus:', error);
+						setIsSettingChatMode(false);
 					});
 			}
 		}
@@ -672,7 +684,19 @@ const DynamicIslandUI = () => {
 	useEffect(() => {
 		console.log('🔍 Chat mode changed:', isChatMode);
 		console.log('🔍 Chat input value:', chatInput);
-	}, [isChatMode, chatInput]);
+		
+		// Handle initial focus when entering chat mode with a delay to prevent rapid blinking
+		if (isChatMode && chatInputRef.current && !isSettingChatMode) {
+			const timer = setTimeout(() => {
+				if (chatInputRef.current && isChatMode) {
+					chatInputRef.current.focus();
+					console.log('💬 Chat input focused after delay');
+				}
+			}, 150); // Small delay to prevent rapid focus changes
+			
+			return () => clearTimeout(timer);
+		}
+	}, [isChatMode, chatInput, isSettingChatMode]);
 
 	// Manual mouse event control (for debugging or special cases)
 	const setMouseEvents = async (ignore) => {
@@ -804,6 +828,7 @@ const DynamicIslandUI = () => {
 								<div className="chat-expanded">
 									<div className="chat-input-container">
 										<input
+											ref={chatInputRef}
 											type="text"
 											className="chat-input-field"
 											placeholder="Ask me anything..."
@@ -812,26 +837,22 @@ const DynamicIslandUI = () => {
 											onKeyPress={handleChatInputKeyPress}
 											onFocus={() => {
 												console.log('💬 Chat input focused');
-												// Ensure window is focusable when input is focused
+												// Only set chat mode if not already setting to prevent rapid focus changes
 												if (
-													window.electronApi?.dynamicIsland?.setChatMode
+													window.electronApi?.dynamicIsland?.setChatMode &&
+													!isSettingChatMode
 												) {
-													window.electronApi.dynamicIsland.setChatMode(
-														true,
-													);
+													setIsSettingChatMode(true);
+													window.electronApi.dynamicIsland.setChatMode(true)
+														.then(() => {
+															setIsSettingChatMode(false);
+														})
+														.catch(() => {
+															setIsSettingChatMode(false);
+														});
 												}
 											}}
-											onClick={() => {
-												console.log('💬 Chat input clicked');
-												// Ensure window is focusable when input is clicked
-												if (
-													window.electronApi?.dynamicIsland?.setChatMode
-												) {
-													window.electronApi.dynamicIsland.setChatMode(
-														true,
-													);
-												}
-											}}
+											// Remove onClick handler to prevent duplicate focus events
 											autoFocus={isChatMode}
 										/>
 										<div

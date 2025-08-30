@@ -83,7 +83,7 @@ class DynamicIslandHelper {
 			fullscreenable: false,
 			hasShadow: false,
 			backgroundColor: '#00000000',
-			focusable: false, // Don't steal focus
+			focusable: true, // Make focusable by default for better Windows support
 			skipTaskbar: true,
 			visibleOnAllWorkspaces: true,
 			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
@@ -620,10 +620,27 @@ app.whenReady().then(() => {
 			if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
 				// Make window focusable when entering chat mode
 				dynamicIslandWindow.setFocusable(isChatMode);
+				
+				// Windows-specific focus handling
+				if (process.platform === 'win32' && isChatMode) {
+					// Force focus on Windows with multiple methods
+					dynamicIslandWindow.focus();
+					dynamicIslandWindow.show();
+					
+					// Additional Windows focus method with delay
+					setTimeout(() => {
+						if (!dynamicIslandWindow.isDestroyed()) {
+							dynamicIslandWindow.focus();
+							// Send a focus event to the renderer
+							dynamicIslandWindow.webContents.send('force-focus');
+						}
+					}, 100);
+				}
+				
 				log.info(
 					`Dynamic Island chat mode ${
 						isChatMode ? 'enabled' : 'disabled'
-					}, focusable: ${isChatMode}`,
+					}, focusable: ${isChatMode}, platform: ${process.platform}`,
 				);
 			}
 

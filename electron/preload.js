@@ -188,5 +188,14 @@ contextBridge.exposeInMainWorld('electronApi', {
 		removeOverlayStateListener: () => {
 			ipcRenderer.removeAllListeners('overlay-state-changed');
 		},
+		setChatMode: (isChatMode) => ipcRenderer.invoke('dynamic-island-chat-mode', isChatMode),
+		onForceFocus: (callback) => {
+			ipcRenderer.on('force-focus', (event) => {
+				callback();
+			});
+		},
+		removeForceFocusListener: () => {
+			ipcRenderer.removeAllListeners('force-focus');
+		},
 	},
 });
