@@ -607,11 +607,55 @@ const DynamicIslandUI = () => {
 		console.log('💬 Current chatInput state:', chatInput);
 		setChatInput(e.target.value);
 		console.log('💬 chatInput state after setChatInput:', e.target.value);
+		
+		// Auto-resize textarea with better scrolling support
+		if (chatInputRef.current) {
+			const textarea = chatInputRef.current;
+			const maxHeight = 200; // Maximum height before enabling scroll
+			
+			// Reset height to calculate actual content height
+			textarea.style.height = 'auto';
+			const scrollHeight = textarea.scrollHeight;
+			
+			// Set height based on content, but cap it at maxHeight
+			if (scrollHeight <= maxHeight) {
+				textarea.style.height = scrollHeight + 'px';
+			} else {
+				textarea.style.height = maxHeight + 'px';
+				// Ensure scrollbar is visible when content exceeds maxHeight
+				textarea.style.overflowY = 'auto';
+			}
+			
+			// Auto-scroll to bottom when typing (common chat UX pattern)
+			textarea.scrollTop = textarea.scrollHeight;
+		}
 	};
 
 	const handleChatInputKeyPress = (e) => {
-		if (e.key === 'Enter') {
+		if (e.key === 'Enter' && !e.shiftKey) {
+			e.preventDefault(); // Prevent default textarea behavior
 			handleChatSubmit();
+		}
+		// Allow Shift+Enter for new lines in textarea
+		
+		// Keyboard shortcuts for navigation in long text
+		if (e.ctrlKey || e.metaKey) { // Ctrl (Windows) or Cmd (Mac)
+			switch (e.key) {
+				case 'Home':
+				case 'ArrowUp':
+					e.preventDefault();
+					if (chatInputRef.current) {
+						chatInputRef.current.scrollTop = 0; // Scroll to top
+					}
+					break;
+				case 'End':
+				case 'ArrowDown':
+					e.preventDefault();
+					if (chatInputRef.current) {
+						chatInputRef.current.scrollTop = chatInputRef.current.scrollHeight; // Scroll to bottom
+					}
+					break;
+			}
 		}
 	};
 
@@ -714,7 +758,19 @@ const DynamicIslandUI = () => {
 			
 			return () => clearTimeout(timer);
 		}
-	}, [isChatMode, chatInput, isSettingChatMode]);
+		
+		// Reset textarea height when chat mode changes
+		if (chatInputRef.current) {
+			chatInputRef.current.style.height = 'auto';
+		}
+	}, [isChatMode, isSettingChatMode]);
+	
+	// Reset textarea height when chat input is cleared
+	useEffect(() => {
+		if (chatInputRef.current && !chatInput) {
+			chatInputRef.current.style.height = 'auto';
+		}
+	}, [chatInput]);
 
 	// Manual mouse event control (for debugging or special cases)
 	const setMouseEvents = async (ignore) => {
@@ -845,9 +901,8 @@ const DynamicIslandUI = () => {
 								/* Chat mode - expanded chat interface */
 								<div className="chat-expanded">
 									<div className="chat-input-container">
-										<input
+										<textarea
 											ref={chatInputRef}
-											type="text"
 											className="chat-input-field"
 											placeholder="Ask me anything..."
 											value={chatInput}
@@ -872,6 +927,8 @@ const DynamicIslandUI = () => {
 											}}
 											// Remove onClick handler to prevent duplicate focus events
 											autoFocus={isChatMode}
+											rows={1}
+											style={{ resize: 'none' }}
 										/>
 										<div
 											className={`chat-submit-button ${

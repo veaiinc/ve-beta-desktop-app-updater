@@ -419,7 +419,7 @@
 
 .chat-input-container {
 	width: 100%;
-	height: 100px;
+	min-height: 100px; // Changed from fixed height to min-height for dynamic sizing
 	background: #1b1c1d;
 	border: 0.5px solid #79ecc9;
 	border-radius: 16px;
@@ -449,8 +449,36 @@
 	-webkit-user-select: text; // Webkit support
 	-moz-user-select: text; // Firefox support
 	-ms-user-select: text; // IE/Edge support
-	word-break: break-all;
-
+	
+	// Text wrapping and overflow handling
+	word-wrap: break-word; // Break long words
+	word-break: break-word; // Better word breaking
+	white-space: pre-wrap; // Preserve whitespace and wrap
+	overflow-wrap: break-word; // Modern word wrapping
+	resize: none; // Prevent manual resizing
+	
+	// Scrolling functionality
+	overflow-y: auto; // Enable vertical scrolling
+	overflow-x: hidden; // Hide horizontal scrolling
+	
+	// Custom scrollbar styling for better appearance
+	&::-webkit-scrollbar {
+		width: 6px;
+	}
+	
+	&::-webkit-scrollbar-track {
+		background: transparent;
+	}
+	
+	&::-webkit-scrollbar-thumb {
+		background: rgba(121, 236, 201, 0.3);
+		border-radius: 3px;
+		
+		&:hover {
+			background: rgba(121, 236, 201, 0.5);
+		}
+	}
+	
 	// Control cursor blinking to prevent rapid flickering
 	caret-color: #79ecc9; // Set cursor color
 	caret-shape: block; // Use block cursor for better visibility
