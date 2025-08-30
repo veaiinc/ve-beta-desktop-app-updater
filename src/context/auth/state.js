@@ -433,7 +433,6 @@ export const AuthState = () => {
 
 		const type = 'auth';
 		const authBaseUrl = getBaseUrl({ region: null, type });
-		console.log('authBaseUrl', authBaseUrl);
 		window.location.href = `${authBaseUrl}${path}?${params}`;
 	};
 
