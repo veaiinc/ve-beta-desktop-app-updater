@@ -15,4 +15,4 @@ const Spinner = ({ width, height, color, cssstyle = {}, borderTopColor, borderWi
 	return <VeLoader />;
 };
 
-export default CustomSpinner;
+export default Spinner;

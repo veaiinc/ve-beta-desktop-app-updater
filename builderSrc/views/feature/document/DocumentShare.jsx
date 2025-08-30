@@ -472,9 +472,10 @@ const DocumentShare = ({
 		[updateExpiryWithSpecificDateTime],
 	);
 
+	// Update the handleCustomTimeChange function to work with TimePicker
 	const handleCustomTimeChange = useCallback(
-		(e) => {
-			const newTime = e.target.value;
+		(time, timeString) => {
+			const newTime = timeString; // TimePicker passes timeString directly
 			setInfo((prev) => {
 				const newInfo = {
 					...prev,
@@ -943,28 +944,38 @@ const DocumentShare = ({
 								}
 								format="YYYY-MM-DD"
 							/>
-							<input
-								type="time"
-								value={info.customTime}
-								onChange={handleCustomTimeChange}
+							<TimePicker
 								className="time-input"
-								min={
-									info.customDate && info.customDate.isSame(dayjs(), 'day')
-										? dayjs().format('HH:mm')
-										: '00:00'
-								}
+								value={info.customTime ? dayjs(info.customTime, 'HH:mm') : null}
+								onChange={handleCustomTimeChange}
+								format="HH:mm"
+								disabledTime={() => {
+									// Disable past times if the selected date is today
+									if (info.customDate && info.customDate.isSame(dayjs(), 'day')) {
+										const now = dayjs();
+										return {
+											disabledHours: () => {
+												const hours = [];
+												for (let i = 0; i < now.hour(); i++) {
+													hours.push(i);
+												}
+												return hours;
+											},
+											disabledMinutes: (selectedHour) => {
+												if (selectedHour === now.hour()) {
+													const minutes = [];
+													for (let i = 0; i <= now.minute(); i++) {
+														minutes.push(i);
+													}
+													return minutes;
+												}
+												return [];
+											},
+										};
+									}
+									return {};
+								}}
 							/>
-							{/* <TimePicker
-								value={info.customTime}
-								onChange={handleCustomTimeChange}
-								className="time-input"
-								type="time"
-								min={
-									info.customDate && info.customDate.isSame(dayjs(), 'day')
-										? dayjs().format('HH:mm')
-										: '00:00'
-								}
-							/> */}
 						</div>
 					)}
 					<div className="description">{getExpiryDescription()}</div>

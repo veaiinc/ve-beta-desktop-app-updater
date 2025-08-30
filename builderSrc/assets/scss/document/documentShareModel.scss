@@ -30,7 +30,7 @@ $font-inter: 'Inter', sans-serif;
 			border-radius: 100px;
 			background: #79ecc9;
 			color: var(--background-color, #111113);
-			font-family: $font-inter;
+			font-family: $font-general-sans;
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -54,7 +54,7 @@ $font-inter: 'Inter', sans-serif;
 		.document-share-modal-header-title {
 			color: var(--primary-font, #f2f2f3);
 			text-align: center;
-			font-family: $font-inter;
+			font-family: $font-general-sans;
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -73,7 +73,7 @@ $font-inter: 'Inter', sans-serif;
 				border: none;
 				background: transparent;
 				color: var(--secondary-font, #a1a1aa);
-				font-family: $font-inter;
+				font-family: $font-general-sans;
 				font-size: 14px;
 				font-weight: 500;
 				cursor: pointer;
@@ -133,7 +133,7 @@ $font-inter: 'Inter', sans-serif;
 				overflow: hidden;
 				color: var(--primary-font, #f2f2f3);
 				text-overflow: ellipsis;
-				font-family: $font-inter;
+				font-family: $font-general-sans;
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 400;
@@ -147,7 +147,7 @@ $font-inter: 'Inter', sans-serif;
 							background: transparent;
 							border: none;
 							color: var(--primary-font, #f2f2f3);
-							font-family: Inter;
+							font-family: $font-general-sans;
 							font-size: 14px;
 							&:hover {
 								background-color: var(--card-over-card-hover);
@@ -195,7 +195,7 @@ $font-inter: 'Inter', sans-serif;
 
 				.live-text {
 					color: var(--primary-font, #f2f2f3);
-					font-family: $font-inter;
+					font-family: $font-general-sans;
 					font-size: 14px;
 					font-weight: 500;
 				}
@@ -214,7 +214,7 @@ $font-inter: 'Inter', sans-serif;
 				overflow: hidden;
 				color: var(--primary-font, #f2f2f3);
 				text-overflow: ellipsis;
-				font-family: Inter;
+				font-family: $font-general-sans;
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -235,7 +235,7 @@ $font-inter: 'Inter', sans-serif;
 		.shared-with-title {
 			color: var(--secondary-font, #7a7e85);
 			text-align: center;
-			font-family: Inter;
+			font-family: $font-general-sans;
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -273,7 +273,7 @@ $font-inter: 'Inter', sans-serif;
 
 					.shared-with-item-text-name {
 						color: var(--primary-font, #f2f2f3);
-						font-family: $font-inter;
+						font-family: $font-general-sans;
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -282,7 +282,7 @@ $font-inter: 'Inter', sans-serif;
 
 					.shared-with-item-text-email {
 						color: var(--secondary-font, #a1a1aa);
-						font-family: $font-inter;
+						font-family: $font-general-sans;
 						font-size: 12px;
 					}
 				}
@@ -311,7 +311,7 @@ $font-inter: 'Inter', sans-serif;
 
 			.title {
 				color: var(--primary-font, #f2f2f3);
-				font-family: $font-inter;
+				font-family: $font-general-sans;
 				font-size: 14px;
 				font-weight: 500;
 				line-height: normal;
@@ -334,7 +334,7 @@ $font-inter: 'Inter', sans-serif;
 				// border: 1px solid var(--stroke, #2c2e31);
 				// background: var(--card-over-card, #252728);
 				color: var(--primary-font, #f2f2f3);
-				font-family: $font-inter;
+				font-family: $font-general-sans;
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -380,7 +380,7 @@ $font-inter: 'Inter', sans-serif;
 				border-radius: 8px;
 				cursor: pointer;
 				color: var(--primary-font, #f2f2f3);
-				font-family: $font-inter;
+				font-family: $font-general-sans;
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -431,7 +431,7 @@ $font-inter: 'Inter', sans-serif;
 				margin-left: 10px;
 				background: #252728;
 				color: #f2f2f3;
-				font-family: $font-inter;
+				font-family: $font-general-sans;
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -448,7 +448,7 @@ $font-inter: 'Inter', sans-serif;
 			overflow: hidden;
 			color: var(--secondary-font, #7a7e85);
 			text-overflow: ellipsis;
-			font-family: $font-inter;
+			font-family: $font-general-sans;
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -474,7 +474,7 @@ $font-inter: 'Inter', sans-serif;
 
 			span {
 				color: var(--primary-font, #f2f2f3);
-				font-family: $font-inter;
+				font-family: $font-general-sans;
 				font-size: 14px;
 				font-weight: 500;
 			}
@@ -492,7 +492,7 @@ $font-inter: 'Inter', sans-serif;
 	// 		border: none;
 	// 		border-radius: 24px;
 	// 		padding: 8px 10px;
-	// 		font-family: $font-inter, sans-serif;
+	// 		font-family: $font-general-sans, sans-serif;
 	// 		font-size: 14px;
 	// 		font-weight: 600;
 	// 		cursor: pointer;
@@ -518,7 +518,7 @@ $font-inter: 'Inter', sans-serif;
 		padding: 5px;
 		color: var(--primary-font, #f2f2f3);
 		text-align: center;
-		font-family: $font-inter;
+		font-family: $font-general-sans;
 		font-size: 18px;
 		font-style: normal;
 		font-weight: 500;
@@ -526,7 +526,7 @@ $font-inter: 'Inter', sans-serif;
 		cursor: pointer;
 		.configure-metadata-button {
 			color: var(--primary-font, #f2f2f3);
-			font-family: sans-serif;
+			font-family: $font-general-sans;
 			font-size: 14px;
 			font-weight: 500;
 			line-height: normal;
@@ -545,7 +545,7 @@ $font-inter: 'Inter', sans-serif;
 			gap: 4px;
 			align-self: stretch;
 			color: var(--primary-font, #f2f2f3);
-			font-family: $font-inter;
+			font-family: $font-general-sans;
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -562,7 +562,7 @@ $font-inter: 'Inter', sans-serif;
 			border: 1px solid var(--stroke, #2b2e31);
 			background: var(--navbar, #202123);
 			color: var(--secondary-font, #7a7e85);
-			font-family: sans-serif;
+			font-family: $font-general-sans;
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -581,7 +581,7 @@ $font-inter: 'Inter', sans-serif;
 				align-items: center;
 				gap: 8px;
 				color: var(--primary-font, #f2f2f3);
-				font-family: $font-inter;
+				font-family: $font-general-sans;
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -1001,6 +1001,7 @@ $font-inter: 'Inter', sans-serif;
 			color: #ffff !important;
 		}
 	}
+
 	.ant-picker-body {
 		.ant-picker-content {
 			color: #f2f2f3 !important;
@@ -1030,6 +1031,30 @@ $font-inter: 'Inter', sans-serif;
 	.ant-picker-footer {
 		.ant-picker-now-btn {
 			color: #f2f2f3 !important;
+		}
+	}
+}
+
+.ant-picker-time-panel-container {
+	.ant-picker-panel-layout {
+		.ant-picker-panel {
+			.ant-picker-time-panel {
+				.ant-picker-content {
+					.ant-picker-time-panel-column {
+						.ant-picker-time-panel-cell {
+							color: #f2f2f3 !important;
+						}
+					}
+				}
+			}
+		}
+	}
+	.ant-picker-footer {
+		.ant-picker-ranges {
+			color: #f2f2f3 !important;
+			.ant-picker-ok {
+				color: #f2f2f3 !important;
+			}
 		}
 	}
 }
