@@ -21,6 +21,9 @@ const {
 	createZipFromUrls,
 } = require('./galleryHelper');
 
+// Import Windows compatibility fixes
+const { loadSharpModule, safeProcessImageWithSharp, safeExtractImageMetadata } = require('./windowsCompatibility');
+
 // Import window helper for overlay functionality
 const { WindowHelper } = require('./helpers/windowHelper');
 // Import dynamic island helper
@@ -598,6 +601,20 @@ app.whenReady().then(() => {
 
 	createWindow();
 	createTray(); // Create system tray for Windows
+
+	// Windows compatibility startup message
+	if (process.platform === 'win32') {
+		log.info('🪟 Windows platform detected - initializing compatibility features...');
+		// Pre-load sharp module to ensure Windows compatibility
+		setTimeout(() => {
+			try {
+				loadSharpModule();
+				log.info('✅ Windows compatibility features initialized successfully');
+			} catch (error) {
+				log.warn('⚠️ Windows compatibility initialization had issues:', error.message);
+			}
+		}, 1000);
+	}
 
 	// Initialize WindowHelper for overlay window functionality
 	windowHelper = new WindowHelper();
@@ -1199,8 +1216,8 @@ app.whenReady().then(() => {
 	});
 
 	// Register gallery IPC handlers from galleryUtils
-	ipcMain.handle('process-image-with-sharp', processImageWithSharp);
-	ipcMain.handle('extract-image-metadata', extractImageMetadata);
+	ipcMain.handle('process-image-with-sharp', (event, data) => safeProcessImageWithSharp(data, processImageWithSharp));
+	ipcMain.handle('extract-image-metadata', (event, data) => safeExtractImageMetadata(data, extractImageMetadata));
 	ipcMain.handle('download-album-zip', downloadAlbumZip);
 	ipcMain.handle('create-zip-from-urls', createZipFromUrls);
 
