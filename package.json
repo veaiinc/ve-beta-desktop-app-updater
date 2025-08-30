@@ -7,6 +7,8 @@
 	"author": "Ve AI",
 	"repository": "https://github.com/veaiinc/ve-desktop-app-updater",
 	"scripts": {
+		"postinstall": "electron-builder install-app-deps",
+		"postinstall:win": "npm rebuild sharp --platform=win32 --arch=x64",
 		"dev": "cross-env NODE_ENV=development npm run clean:build:cross && vite",
 		"dev:win": "set NODE_ENV=development && npm run clean:build:win && vite",
 		"dev:win:no-clean": "set NODE_ENV=development && vite",
@@ -227,7 +229,12 @@
 			"artifactName": "Ve.AI-${arch}-${os}.${ext}",
 			"requestedExecutionLevel": "asInvoker",
 			"verifyUpdateCodeSignature": false,
-			"signAndEditExecutable": false
+			"signAndEditExecutable": false,
+			"asar": true,
+			"asarUnpack": [
+				"**/node_modules/sharp/**/*",
+				"**/node_modules/@img/**/*"
+			]
 		},
 		"linux": {
 			"target": [

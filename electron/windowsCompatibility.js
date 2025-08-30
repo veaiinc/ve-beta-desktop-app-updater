@@ -3,9 +3,13 @@ const log = require('electron-log');
 
 // Robust sharp module loader for Windows compatibility
 let sharpModule = null;
+let sharpLoadAttempted = false;
 
 function loadSharpModule() {
 	if (sharpModule) return sharpModule;
+	if (sharpLoadAttempted) return null;
+	
+	sharpLoadAttempted = true;
 	
 	try {
 		// Try to load sharp normally first
@@ -23,15 +27,19 @@ function loadSharpModule() {
 				
 				// Try to rebuild sharp for Windows
 				log.info('🔧 Rebuilding sharp module for Windows...');
-				execSync('npm rebuild sharp', { 
-					cwd: path.join(__dirname, '..'),
-					stdio: 'pipe'
-				});
-				
-				// Try loading again
-				sharpModule = require('sharp');
-				log.info('✅ Sharp module rebuilt and loaded successfully for Windows');
-				return sharpModule;
+				try {
+					execSync('npm rebuild sharp --platform=win32 --arch=x64', { 
+						cwd: path.join(__dirname, '..'),
+						stdio: 'pipe'
+					});
+					
+					// Try loading again
+					sharpModule = require('sharp');
+					log.info('✅ Sharp module rebuilt and loaded successfully for Windows');
+					return sharpModule;
+				} catch (rebuildError) {
+					log.error('❌ Failed to rebuild sharp module:', rebuildError.message);
+				}
 			}
 		} catch (rebuildError) {
 			log.error('❌ Failed to rebuild sharp module:', rebuildError.message);
@@ -55,6 +63,9 @@ function loadSharpModule() {
 function safeProcessImageWithSharp(data, originalFunction) {
 	try {
 		const sharp = loadSharpModule();
+		if (!sharp) {
+			return { success: false, error: 'Image processing not available on this platform' };
+		}
 		return originalFunction(data, sharp);
 	} catch (error) {
 		log.error('Error in safeProcessImageWithSharp:', error);
@@ -65,10 +76,27 @@ function safeProcessImageWithSharp(data, originalFunction) {
 function safeExtractImageMetadata(data, originalFunction) {
 	try {
 		const sharp = loadSharpModule();
+		if (!sharp) {
+			return { 
+				success: false, 
+				width: null, 
+				height: null, 
+				format: 'jpeg', 
+				originalDateTime: Math.floor(Date.now() / 1000),
+				error: 'Image metadata extraction not available on this platform'
+			};
+		}
 		return originalFunction(data, sharp);
 	} catch (error) {
 		log.error('Error in safeExtractImageMetadata:', error);
-		return { success: false, error: 'Image metadata extraction not available on this platform' };
+		return { 
+			success: false, 
+			width: null, 
+			height: null, 
+			format: 'jpeg', 
+			originalDateTime: Math.floor(Date.now() / 1000),
+			error: 'Image metadata extraction not available on this platform'
+		};
 	}
 }
 

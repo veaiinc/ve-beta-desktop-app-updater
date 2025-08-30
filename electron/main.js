@@ -13,16 +13,23 @@ const path = require('node:path');
 const log = require('electron-log');
 const { autoUpdater } = require('electron-updater');
 
-// Import gallery processing functions
-const {
-	processImageWithSharp,
-	extractImageMetadata,
-	downloadAlbumZip,
-	createZipFromUrls,
-} = require('./galleryHelper');
-
 // Import Windows compatibility fixes
 const { loadSharpModule, safeProcessImageWithSharp, safeExtractImageMetadata } = require('./windowsCompatibility');
+
+// Gallery processing functions will be loaded lazily when needed
+let galleryHelper = null;
+
+const loadGalleryHelper = () => {
+	if (!galleryHelper) {
+		try {
+			galleryHelper = require('./galleryHelper');
+		} catch (error) {
+			log.error('Failed to load gallery helper:', error);
+			return null;
+		}
+	}
+	return galleryHelper;
+};
 
 // Import window helper for overlay functionality
 const { WindowHelper } = require('./helpers/windowHelper');
@@ -32,6 +39,17 @@ const { WindowHelper } = require('./helpers/windowHelper');
 // Windows-specific variables
 let tray = null;
 let isQuitting = false;
+
+// Add global error handler to prevent crashes
+process.on('uncaughtException', (error) => {
+	log.error('Uncaught Exception:', error);
+	// Don't exit the process, just log the error
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+	log.error('Unhandled Rejection at:', promise, 'reason:', reason);
+	// Don't exit the process, just log the error
+});
 
 // Temporary inline DynamicIslandHelper class
 class DynamicIslandHelper {
@@ -1216,10 +1234,37 @@ app.whenReady().then(() => {
 	});
 
 	// Register gallery IPC handlers from galleryUtils
-	ipcMain.handle('process-image-with-sharp', (event, data) => safeProcessImageWithSharp(data, processImageWithSharp));
-	ipcMain.handle('extract-image-metadata', (event, data) => safeExtractImageMetadata(data, extractImageMetadata));
-	ipcMain.handle('download-album-zip', downloadAlbumZip);
-	ipcMain.handle('create-zip-from-urls', createZipFromUrls);
+	ipcMain.handle('process-image-with-sharp', (event, data) => {
+		const helper = loadGalleryHelper();
+		if (!helper) {
+			return { success: false, error: 'Gallery helper not available' };
+		}
+		return safeProcessImageWithSharp(data, helper.processImageWithSharp);
+	});
+	
+	ipcMain.handle('extract-image-metadata', (event, data) => {
+		const helper = loadGalleryHelper();
+		if (!helper) {
+			return { success: false, error: 'Gallery helper not available' };
+		}
+		return safeExtractImageMetadata(data, helper.extractImageMetadata);
+	});
+	
+	ipcMain.handle('download-album-zip', (event, data) => {
+		const helper = loadGalleryHelper();
+		if (!helper) {
+			return { success: false, error: 'Gallery helper not available' };
+		}
+		return helper.downloadAlbumZip(event, data);
+	});
+	
+	ipcMain.handle('create-zip-from-urls', (event, data) => {
+		const helper = loadGalleryHelper();
+		if (!helper) {
+			return { success: false, error: 'Gallery helper not available' };
+		}
+		return helper.createZipFromUrls(event, data);
+	});
 
 	// Clipboard IPC handlers
 	ipcMain.handle('clipboard-write-text', async (event, text) => {

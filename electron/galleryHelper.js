@@ -1,6 +1,22 @@
 // galleryUtils.js
 
-const sharp = require('sharp');
+// Conditional sharp import - only load when needed to prevent Windows crashes
+let sharp = null;
+let sharpLoaded = false;
+
+const loadSharp = () => {
+	if (sharpLoaded) return sharp;
+	
+	try {
+		sharp = require('sharp');
+		sharpLoaded = true;
+		return sharp;
+	} catch (error) {
+		console.warn('Sharp module not available:', error.message);
+		return null;
+	}
+};
+
 const axios = require('axios');
 const exifReader = require('exif-reader');
 const archiver = require('archiver');
@@ -11,6 +27,16 @@ const https = require('https');
 const { PassThrough } = require('stream');
 const path = require('path');
 const log = require('electron-log');
+
+// Add error handling wrapper
+const safeExecute = (fn, fallback) => {
+	try {
+		return fn();
+	} catch (error) {
+		log.error('Error in gallery helper:', error);
+		return fallback;
+	}
+};
 
 // ———————————————————————
 // 🔧 Shared Utilities
@@ -46,6 +72,12 @@ const watermarkCache = new Map();
 // ———————————————————————————————————————
 const processImageWithSharp = async (event, data) => {
 	try {
+		// Load sharp module when needed
+		const sharpModule = loadSharp();
+		if (!sharpModule) {
+			return { success: false, error: 'Image processing not available on this platform' };
+		}
+
 		const {
 			imageBuffer,
 			watermarkUrl,
@@ -65,7 +97,7 @@ const processImageWithSharp = async (event, data) => {
 				? Buffer.from(imageBuffer, 'base64')
 				: Buffer.from(imageBuffer);
 
-		const metadata = await sharp(imageData).metadata();
+		const metadata = await sharpModule(imageData).metadata();
 		if (!metadata.width || !metadata.height) {
 			return { success: false, error: 'Invalid image metadata' };
 		}
@@ -74,7 +106,7 @@ const processImageWithSharp = async (event, data) => {
 		let currentWidth = Math.min(metadata.width, resizeOptions.maxWidth);
 
 		const processImage = async (width) => {
-			let img = sharp(imageData);
+			let img = sharpModule(imageData);
 			if (metadata.width > width) {
 				img = img.resize({ width, fit: 'inside', withoutEnlargement: true });
 			}
@@ -88,11 +120,11 @@ const processImageWithSharp = async (event, data) => {
 					watermarkCache.set(watermarkUrl, watermarkBuffer);
 				}
 
-				const wmMeta = await sharp(watermarkBuffer).metadata();
+				const wmMeta = await sharpModule(watermarkBuffer).metadata();
 				const wmWidth = Math.floor(width * scale);
 				const wmHeight = Math.floor((wmMeta.height / wmMeta.width) * wmWidth);
 
-				const resizedWatermark = await sharp(watermarkBuffer)
+				const resizedWatermark = await sharpModule(watermarkBuffer)
 					.resize({ width: wmWidth, height: wmHeight })
 					.toBuffer();
 
@@ -177,9 +209,22 @@ const processImageWithSharp = async (event, data) => {
 // ✅ 2. Extract Image Metadata
 // ———————————————————————————————————————
 const extractImageMetadata = async (event, { imageBuffer }) => {
+	// Load sharp module when needed
+	const sharpModule = loadSharp();
+	if (!sharpModule) {
+		return { 
+			success: false, 
+			width: null, 
+			height: null, 
+			format: 'jpeg', 
+			originalDateTime: Math.floor(Date.now() / 1000),
+			error: 'Image metadata extraction not available on this platform'
+		};
+	}
+
 	const buffer = Buffer.from(imageBuffer);
 	try {
-		const metadata = await sharp(buffer).metadata();
+		const metadata = await sharpModule(buffer).metadata();
 		const { width, height, format } = metadata;
 
 		let originalDateTime = null;
