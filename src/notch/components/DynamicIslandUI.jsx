@@ -510,11 +510,19 @@ const DynamicIslandUI = () => {
 	};
 
 	const handleChatSubmit = async () => {
+		console.log('🚀 handleChatSubmit called with:', { chatInput, isSendingMessage });
+		
 		if (chatInput.trim() && !isSendingMessage) {
 			console.log('💬 Chat submitted:', chatInput);
 			setIsSendingMessage(true);
 
 			try {
+				// Check if the API is available
+				console.log('🔍 Checking if sendChatMessage API is available...');
+				console.log('🔍 window.electronApi:', window.electronApi);
+				console.log('🔍 window.electronApi?.dynamicIsland:', window.electronApi?.dynamicIsland);
+				console.log('🔍 window.electronApi?.dynamicIsland?.sendChatMessage:', window.electronApi?.dynamicIsland?.sendChatMessage);
+				
 				// Send the chat message to AskAI via Dynamic Island API
 				if (window.electronApi?.dynamicIsland?.sendChatMessage) {
 					console.log(
@@ -529,9 +537,11 @@ const DynamicIslandUI = () => {
 						source: 'dynamic-island',
 					};
 
+					console.log('📤 Sending chat message:', chatMessage);
 					const result = await window.electronApi.dynamicIsland.sendChatMessage(
 						chatMessage,
 					);
+					console.log('📥 Received result:', result);
 
 					if (result.success) {
 						console.log('✅ Chat message sent successfully to AskAI');
@@ -546,6 +556,7 @@ const DynamicIslandUI = () => {
 
 					// Fallback to overlay API
 					if (window.electronApi?.overlay?.sendChatMessageToAskAI) {
+						console.log('🔄 Using overlay API fallback...');
 						const chatMessage = {
 							type: 'dynamic-island-chat',
 							message: chatInput.trim(),
@@ -578,6 +589,11 @@ const DynamicIslandUI = () => {
 			} finally {
 				setIsSendingMessage(false);
 			}
+		} else {
+			console.log('⚠️ Chat submit blocked:', { 
+				hasInput: !!chatInput.trim(), 
+				isSending: isSendingMessage 
+			});
 		}
 	};
 
@@ -588,7 +604,9 @@ const DynamicIslandUI = () => {
 		console.log('💬 Input type:', e.target.type);
 		console.log('💬 Input disabled:', e.target.disabled);
 		console.log('💬 Input readOnly:', e.target.readOnly);
+		console.log('💬 Current chatInput state:', chatInput);
 		setChatInput(e.target.value);
+		console.log('💬 chatInput state after setChatInput:', e.target.value);
 	};
 
 	const handleChatInputKeyPress = (e) => {

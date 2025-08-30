@@ -159,18 +159,19 @@ contextBridge.exposeInMainWorld('electronApi', {
 	},
 
 			// Dynamic Island APIs
-		dynamicIsland: {
-			expand: () => ipcRenderer.invoke('dynamic-island-expand'),
-			collapse: () => ipcRenderer.invoke('dynamic-island-collapse'),
-			toggle: () => ipcRenderer.invoke('dynamic-island-toggle'),
-			show: () => ipcRenderer.invoke('dynamic-island-show'),
-			hide: () => ipcRenderer.invoke('dynamic-island-hide'),
-			focus: () => ipcRenderer.invoke('dynamic-island-focus'),
-			setMouseEvents: (ignore) => ipcRenderer.invoke('dynamic-island-set-mouse-events', ignore),
-			setChatMode: (isChatMode) => ipcRenderer.invoke('dynamic-island-chat-mode', isChatMode),
-
-			// Send chat message directly to AskAI
-			sendChatMessage: (message) => ipcRenderer.invoke('send-chat-message-to-askai', message),
+	dynamicIsland: {
+		expand: () => ipcRenderer.invoke('dynamic-island-expand'),
+		collapse: () => ipcRenderer.invoke('dynamic-island-collapse'),
+		toggle: () => ipcRenderer.invoke('dynamic-island-toggle'),
+		show: () => ipcRenderer.invoke('dynamic-island-show'),
+		hide: () => ipcRenderer.invoke('dynamic-island-hide'),
+		focus: () => ipcRenderer.invoke('dynamic-island-focus'),
+		setMouseEvents: (ignore) => ipcRenderer.invoke('dynamic-island-set-mouse-events', ignore),
+		setChatMode: (isChatMode) => ipcRenderer.invoke('dynamic-island-chat-mode', isChatMode),
+		
+		// Send chat message directly to AskAI
+		sendChatMessage: (message) => ipcRenderer.invoke('send-chat-message-to-askai', message),
+		
 		onStateChange: (callback) => {
 			ipcRenderer.on('dynamic-island-state', (event, data) => {
 				callback(data);
@@ -188,7 +189,6 @@ contextBridge.exposeInMainWorld('electronApi', {
 		removeOverlayStateListener: () => {
 			ipcRenderer.removeAllListeners('overlay-state-changed');
 		},
-		setChatMode: (isChatMode) => ipcRenderer.invoke('dynamic-island-chat-mode', isChatMode),
 		onForceFocus: (callback) => {
 			ipcRenderer.on('force-focus', (event) => {
 				callback();
