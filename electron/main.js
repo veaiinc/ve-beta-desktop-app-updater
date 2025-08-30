@@ -7,6 +7,7 @@ const {
 	systemPreferences,
 	ipcMain,
 	desktopCapturer,
+	Tray,
 } = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
@@ -24,6 +25,10 @@ const {
 const { WindowHelper } = require('./helpers/windowHelper');
 // Import dynamic island helper
 // const { DynamicIslandHelper } = require('./dynamicIslandHelper');
+
+// Windows-specific variables
+let tray = null;
+let isQuitting = false;
 
 // Temporary inline DynamicIslandHelper class
 class DynamicIslandHelper {
@@ -423,9 +428,66 @@ function createWindow() {
 		log.info('Window ready-to-show');
 	});
 
+	// Windows-specific close behavior
+	if (process.platform === 'win32') {
+		mainWindow.on('close', (event) => {
+			if (!isQuitting) {
+				event.preventDefault();
+				mainWindow.hide();
+				log.info('Main window hidden to tray (Windows)');
+			}
+		});
+	}
+
 	// Check for updates in production
 	if (process.env.NODE_ENV !== 'development') {
 		autoUpdater.checkForUpdatesAndNotify();
+	}
+}
+
+// Create system tray for Windows
+function createTray() {
+	if (process.platform !== 'win32') return;
+
+	try {
+		// Use the app icon for the tray
+		const iconPath = path.join(__dirname, 'assets', 've-black-circle-logo.png');
+		tray = new Tray(iconPath);
+		tray.setToolTip('VE Desktop App');
+
+		// Create tray menu
+		const contextMenu = Menu.buildFromTemplate([
+			{
+				label: 'Show App',
+				click: () => {
+					if (mainWindow && !mainWindow.isDestroyed()) {
+						mainWindow.show();
+						mainWindow.focus();
+					}
+				}
+			},
+			{
+				label: 'Quit',
+				click: () => {
+					isQuitting = true;
+					app.quit();
+				}
+			}
+		]);
+
+		tray.setContextMenu(contextMenu);
+
+		// Double-click tray icon to show app
+		tray.on('double-click', () => {
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				mainWindow.show();
+				mainWindow.focus();
+			}
+		});
+
+		log.info('System tray created for Windows');
+	} catch (error) {
+		log.error('Error creating system tray:', error);
 	}
 }
 
@@ -535,6 +597,7 @@ app.whenReady().then(() => {
 	}
 
 	createWindow();
+	createTray(); // Create system tray for Windows
 
 	// Initialize WindowHelper for overlay window functionality
 	windowHelper = new WindowHelper();
@@ -1114,6 +1177,24 @@ app.whenReady().then(() => {
 		} catch (error) {
 			log.error('Error hiding all windows:', error);
 			return { success: false, error: error.message };
+		}
+	});
+
+	// Home icon click handler for Windows - restore main window
+	ipcMain.handle('restore-main-window', async () => {
+		try {
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				mainWindow.show();
+				mainWindow.focus();
+				log.info('Main window restored from home icon click (Windows)');
+				return { success: true };
+			} else {
+				log.warn('Main window not available to restore');
+				return { success: false, error: 'Main window not available' };
+			}
+		} catch (error) {
+		log.error('Error restoring main window:', error);
+		return { success: false, error: error.message };
 		}
 	});
 

@@ -126,6 +126,11 @@ contextBridge.exposeInMainWorld('electronApi', {
 		},
 	},
 
+	// Home icon click handler for Windows
+	home: {
+		restoreMainWindow: () => ipcRenderer.invoke('restore-main-window'),
+	},
+
 	// Mouse event handling for click-through behavior
 	setIgnoreMouseEvents: (ignore) => ipcRenderer.invoke('set-ignore-mouse-events', ignore),
 

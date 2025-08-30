@@ -295,6 +295,21 @@ const DynamicIslandUI = () => {
 	// Click handlers for interactive elements
 	const handleHomeClick = () => {
 		console.log('🏠 Home icon clicked');
+		
+		// On Windows, restore main window when home icon is clicked
+		if (window.electronApi?.home?.restoreMainWindow) {
+			window.electronApi.home.restoreMainWindow()
+				.then((result) => {
+					if (result.success) {
+						console.log('✅ Main window restored successfully');
+					} else {
+						console.warn('⚠️ Failed to restore main window:', result.error);
+					}
+				})
+				.catch((error) => {
+					console.error('❌ Error restoring main window:', error);
+				});
+		}
 	};
 
 	const handleLockClick = () => {
