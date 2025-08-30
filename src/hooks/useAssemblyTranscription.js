@@ -4,7 +4,7 @@ import getBaseUrl from '../services/baseUrls';
 
 const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
 
-export default function useAssemblyTranscription({
+const useAssemblyTranscription = ({
 	onTranscriptionUpdate,
 	onLiveIntelligenceResponse,
 	tenantId,
@@ -12,7 +12,7 @@ export default function useAssemblyTranscription({
 	meetingId,
 	jwtToken,
 	isAiIntelligenceEnabled,
-}) {
+}) => {
 	const [isConnected, setIsConnected] = useState(false);
 	const [isRecording, setIsRecording] = useState(false);
 	const [isMuted, setIsMuted] = useState(false);
@@ -591,4 +591,6 @@ export default function useAssemblyTranscription({
 		formatTime,
 		startRecording,
 	};
-}
+};
+
+export default useAssemblyTranscription;

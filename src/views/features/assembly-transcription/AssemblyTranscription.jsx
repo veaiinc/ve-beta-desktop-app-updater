@@ -5,7 +5,7 @@ import { ReactComponent as MuteMic } from '../../../assets/svg/ai_agents/mutemic
 import { ReactComponent as Close } from '../../../assets/svg/ai_agents/close.svg';
 import useAssemblyTranscription from '../../../hooks/useAssemblyTranscription';
 
-export default function AssemblyTranscription(props) {
+const AssemblyTranscription = (props) => {
 	const {
 		isConnected,
 		isRecording,
@@ -97,4 +97,6 @@ export default function AssemblyTranscription(props) {
 			</div>
 		</div>
 	);
-}
+};
+
+export default AssemblyTranscription;
