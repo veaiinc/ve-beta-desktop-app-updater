@@ -8,7 +8,7 @@ const PageLoader = ({ customStyles }) => {
 	useTheme();
 	useEffect(() => {
 		const timeoutId = setTimeout(() => {
-			// logout();
+			logout();
 		}, 60000);
 		return () => clearTimeout(timeoutId);
 	}, []);
