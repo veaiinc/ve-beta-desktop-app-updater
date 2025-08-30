@@ -31,6 +31,7 @@ export default function useAssemblyTranscription({
 	const connectionPromiseRef = useRef(null);
 	const reconnectTimeoutRef = useRef(null);
 	const reconnectAttemptsRef = useRef(0);
+	const muteRef = useRef(false);
 	const maxReconnectAttempts = 3;
 
 	useEffect(() => {
@@ -350,7 +351,7 @@ export default function useAssemblyTranscription({
 		});
 
 		try {
-			return await connectionPromiseRef.current;
+			return connectionPromiseRef.current;
 		} catch (error) {
 			connectionPromiseRef.current = null;
 			message.error('Failed to connect to transcription service');
@@ -455,7 +456,10 @@ export default function useAssemblyTranscription({
 					// Send audio data in chunks
 					if (sampleCountRef.current >= 8000) {
 						// CRITICAL: Check mute state right before sending
-						if (!isMuted && websocketRef.current?.readyState === WebSocket.OPEN) {
+						if (
+							!muteRef.current &&
+							websocketRef.current?.readyState === WebSocket.OPEN
+						) {
 							const audioData = new Int16Array(audioBufferRef.current.length);
 
 							// Convert float32 to int16 efficiently
@@ -508,21 +512,21 @@ export default function useAssemblyTranscription({
 	const startRecording = useCallback(async () => {
 		try {
 			// First ensure WebSocket connection
+			await startAudioCapture();
 			if (!websocketRef.current || websocketRef.current.readyState !== WebSocket.OPEN) {
 				log('Establishing connection...');
 				await connect();
 			}
-
-			// Then start audio capture
-			await startAudioCapture();
 		} catch (error) {
+			stopRecording();
 			log(`Failed to start recording: ${error.message}`);
 		}
-	}, [connect, startAudioCapture, log]);
+	}, [connect, startAudioCapture, log, setIsRecording]);
 
 	const toggleMute = useCallback(() => {
 		const newMutedState = !isMuted;
 		setIsMuted(newMutedState);
+		muteRef.current = newMutedState;
 
 		log(`${newMutedState ? 'Muting' : 'Unmuting'} microphone`);
 

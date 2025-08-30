@@ -106,7 +106,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 
 	const [info, setInfo] = useState(initialState);
 	const [transcriptList, setTranscriptList] = useState([]);
-	const [activeTab, setActiveTab] = useState(type === 'desktop' ? 'transcript' : 'all');
+	const [activeTab, setActiveTab] = useState(type === 'desktop' ? 'all' : 'all');
 	const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 	const [isLoadingMeetingDetails, setIsLoadingMeetingDetails] = useState(false);
 	const [meetingNotFound, setMeetingNotFound] = useState(false);
@@ -735,12 +735,12 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 								<InfiniteScroll
 									dataLength={info.transcriptions?.length || 0}
 									next={loadMoreTranscriptions}
-									hasMore={info.transcriptionsHasMore}
+									hasMore={!history ? false : info.transcriptionsHasMore}
 									height={'100%'}
 									style={infiniteScrollStyles}
 									loader={
 										<div className="infinite-loader-container">
-											<Spinner size={24} />
+											{<Spinner size={24} />}
 										</div>
 									}
 								>
