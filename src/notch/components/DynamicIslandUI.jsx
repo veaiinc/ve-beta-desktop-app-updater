@@ -11,6 +11,9 @@ import {
 	PlusIcon,
 	BackIcon,
 	VoiceModeIcon,
+	CloseIcon,
+	MicrophoneIcon,
+	MutedMicrophoneIcon,
 } from './DynamicIslandIcons';
 import './DynamicIslandUI.scss';
 import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
@@ -60,9 +63,10 @@ const DynamicIslandUI = () => {
 	const [deviceInfo, setDeviceInfo] = useState({});
 	const [voiceMessages, setVoiceMessages] = useState([]);
 	const [currentVoiceStatus, setCurrentVoiceStatus] = useState('Listening');
+	const [isMicrophoneMuted, setIsMicrophoneMuted] = useState(false);
 
 	// Voice integration hook
-	const { shouldConnect, token, serverUrl, handleConnect, handleDisconnect } =
+	const { shouldConnect, token, serverUrl, handleConnect, handleDisconnect, resetState } =
 		useUpdatedVoiceIntegration();
 
 	// Get voice integration data from context
@@ -428,11 +432,21 @@ const DynamicIslandUI = () => {
 
 				// Don't show external voice widget, we're showing it inline
 				updateAiSetupState({ showVoiceWidget: false });
+
+				// Reset the voice integration hook state if available
+				if (resetState) {
+					resetState();
+				}
 			} else {
-				// Connect to voice assistant
+				// Connect to voice assistant - clear previous data for fresh start
 				console.log('Connecting to voice assistant...');
 				setVoiceConnectionStatus('connecting');
 				setVoiceError(null);
+
+				// Clear previous voice data for fresh start
+				setVoiceMessages([]);
+				setCurrentVoiceStatus('Listening');
+				setIsMicrophoneMuted(false);
 
 				await handleConnect();
 
@@ -456,11 +470,30 @@ const DynamicIslandUI = () => {
 		setShowVoiceInterface(false);
 		setVoiceMessages([]); // Clear messages
 		setCurrentVoiceStatus('Listening');
+		setIsMicrophoneMuted(false); // Reset microphone state
 		await handleDisconnect();
 		setVoiceConnectionStatus('disconnected');
 		setIsVoiceModeActive(false);
 		setVoiceError(null);
 		updateAiSetupState({ showVoiceWidget: false });
+
+		// Reset voice integration data to restart fresh
+		if (updateAiSetupState) {
+			updateAiSetupState({
+				showVoiceWidget: false,
+				voiceIntegrationData: {
+					...voiceIntegrationData,
+					shouldConnect: false,
+					token: null,
+					serverUrl: null,
+				},
+			});
+		}
+
+		// Reset the voice integration hook state if available
+		if (resetState) {
+			resetState();
+		}
 	};
 
 	// Handle voice messages from the Voice component
@@ -470,25 +503,61 @@ const DynamicIslandUI = () => {
 
 	// Handle voice status updates
 	const handleVoiceStatusUpdate = (status) => {
-		setCurrentVoiceStatus(status);
-
-		// Update voice status based on LiveKit states
-		switch (status) {
-			case 'listening':
-			case 'Listening...':
-				setCurrentVoiceStatus('Listening');
-				break;
-			case 'thinking':
-			case 'Thinking...':
-				setCurrentVoiceStatus('Thinking');
-				break;
-			case 'speaking':
-			case 'Speaking...':
-				setCurrentVoiceStatus('Speaking');
-				break;
-			default:
-				setCurrentVoiceStatus('Listening');
+		// Don't override mute status unless it's a significant state change
+		if (status === 'disconnected' || status === 'connecting') {
+			setCurrentVoiceStatus(status);
+		} else if (!isMicrophoneMuted) {
+			// Only update status if microphone is not muted
+			switch (status) {
+				case 'listening':
+				case 'Listening...':
+					setCurrentVoiceStatus('Listening');
+					break;
+				case 'thinking':
+				case 'Thinking...':
+					setCurrentVoiceStatus('Thinking');
+					break;
+				case 'speaking':
+				case 'Speaking...':
+					setCurrentVoiceStatus('Speaking');
+					break;
+				default:
+					setCurrentVoiceStatus('Listening');
+			}
 		}
+	};
+
+	// Handle real-time transcription updates from Voice component
+	const handleTranscriptionUpdate = (transcripts) => {
+		if (transcripts && transcripts.length > 0) {
+			const newMessages = transcripts.map((msg) => ({
+				text: msg.message || msg.text || '',
+				isUser: msg.isSelf || msg.name === 'You',
+				timestamp: msg.timestamp || Date.now(),
+			}));
+
+			setVoiceMessages(newMessages);
+		}
+	};
+
+	// Handle microphone mute/unmute toggle
+	const handleMicrophoneToggle = () => {
+		const newMuteState = !isMicrophoneMuted;
+		setIsMicrophoneMuted(newMuteState);
+
+		// Update voice status based on mute state
+		if (newMuteState) {
+			setCurrentVoiceStatus('Microphone Muted');
+		} else {
+			setCurrentVoiceStatus('Listening');
+		}
+
+		// Disable/enable microphone access in LiveKit when toggling
+		if (window.electronApi?.dynamicIsland?.setMicrophoneAccess) {
+			window.electronApi.dynamicIsland.setMicrophoneAccess(!newMuteState);
+		}
+
+		console.log('🎤 Microphone toggled:', newMuteState ? 'Muted' : 'Unmuted');
 	};
 
 	const handleWebcamClick = async () => {
@@ -968,6 +1037,8 @@ const DynamicIslandUI = () => {
 					? isRecording
 						? `● Recording ${formatTime(timer)}`
 						: 'Living Intelligence'
+					: showVoiceInterface
+					? 'Voice Mode'
 					: isChatMode
 					? 'Chat Mode'
 					: 'Living Intelligence'}
@@ -988,7 +1059,7 @@ const DynamicIslandUI = () => {
 						<div className="top-row">
 							{/* Start button section */}
 							<div className="start-section">
-								{!isRecording ? (
+								{!isRecording && !showVoiceInterface ? (
 									<div className="start-button" onClick={handleAudioClick}>
 										<div className="start-icon">
 											<div className="audio-visualizer">
@@ -1000,6 +1071,13 @@ const DynamicIslandUI = () => {
 											</div>
 										</div>
 										<span className="start-text">start</span>
+									</div>
+								) : showVoiceInterface ? (
+									<div className="voice-mode-indicator">
+										<div className="voice-mode-icon">
+											<VoiceModeIcon />
+										</div>
+										<span className="voice-mode-text">Voice Mode</span>
 									</div>
 								) : (
 									<div className="recording-controls">
@@ -1074,57 +1152,44 @@ const DynamicIslandUI = () => {
 									{/* Left side: Conversation messages */}
 									<div className="voice-conversation-left">
 										<div className="voice-messages-area">
-											{/* Sample conversation messages - matches Figma design */}
-											<div className="voice-message-frame">
-												<div className="voice-message-sender">Agent</div>
-												<div className="voice-message-text">
-													I use it to manage client proposals and share
-													timelines.
-												</div>
-											</div>
-											<div className="voice-message-frame">
-												<div className="voice-message-sender">Agent</div>
-												<div className="voice-message-text">
-													I use it to manage client proposals and share
-													timelines.
-												</div>
-											</div>
-											<div className="voice-message-frame">
-												<div className="voice-message-sender">Agent</div>
-												<div className="voice-message-text">
-													I use it to manage client proposals and share
-													timelines.
-												</div>
-											</div>
-											<div className="voice-message-frame">
-												<div className="voice-message-sender">You</div>
-												<div className="voice-message-text">
-													I utilize this tool to streamline client
-													proposals and effectively communicate project
-													timelines.
-												</div>
-											</div>
-											<div className="voice-message-frame">
-												<div className="voice-message-sender">Agent</div>
-												<div className="voice-message-text">
-													I use it to manage client proposals and share
-													timelines.
-												</div>
-											</div>
-											{/* Dynamic messages from voice integration */}
-											{voiceMessages.map((msg, index) => (
-												<div
-													key={`dynamic-${index}`}
-													className="voice-message-frame"
-												>
-													<div className="voice-message-sender">
-														{msg.isUser ? 'You' : 'Agent'}
+											{/* Show real-time voice messages or fallback to sample */}
+											{voiceMessages.length > 0 ? (
+												voiceMessages.map((msg, index) => (
+													<div
+														key={`voice-msg-${index}`}
+														className="voice-message-frame"
+													>
+														<div className="voice-message-sender">
+															{msg.isUser ? 'You' : 'Agent'}
+														</div>
+														<div className="voice-message-text">
+															{msg.text || 'Listening...'}
+														</div>
 													</div>
-													<div className="voice-message-text">
-														{msg.text}
+												))
+											) : (
+												/* Fallback sample messages when no real-time data */
+												<>
+													<div className="voice-message-frame">
+														<div className="voice-message-sender">
+															Agent
+														</div>
+														<div className="voice-message-text">
+															Hello, how can I help you today?
+														</div>
 													</div>
-												</div>
-											))}
+													<div className="voice-message-frame">
+														<div className="voice-message-sender">
+															You
+														</div>
+														<div className="voice-message-text">
+															{currentVoiceStatus === 'Listening'
+																? 'Listening...'
+																: 'Ready to speak'}
+														</div>
+													</div>
+												</>
+											)}
 										</div>
 									</div>
 
@@ -1150,10 +1215,18 @@ const DynamicIslandUI = () => {
 													}}
 												>
 													<Voice
+														key={`voice-${
+															isMicrophoneMuted ? 'muted' : 'unmuted'
+														}`}
 														handleDisconnect={
 															handleInlineVoiceDisconnect
 														}
 														deviceInfo={deviceInfo}
+														onTranscriptUpdate={
+															handleTranscriptionUpdate
+														}
+														onStatusUpdate={handleVoiceStatusUpdate}
+														isMicrophoneMuted={isMicrophoneMuted}
 													/>
 													<RoomAudioRenderer />
 													<StartAudio label="Click to enable audio playback" />
@@ -1161,19 +1234,32 @@ const DynamicIslandUI = () => {
 											)}
 
 										{/* Voice controls section - positioned on right side */}
-										<div className="voice-controls-section">
+										<div
+											className={`voice-controls-section ${
+												currentVoiceStatus === 'Listening' &&
+												!isMicrophoneMuted
+													? 'listening'
+													: ''
+											}`}
+										>
 											<div className="voice-status-area">
-												<div className="voice-animation-container">
-													<div className="voice-visualizer">
-														<div className="audio-bar"></div>
-														<div className="audio-bar"></div>
-														<div className="audio-bar"></div>
-														<div className="audio-bar"></div>
-														<div className="audio-bar"></div>
+												{/* Only show animation when not muted */}
+												{!isMicrophoneMuted && (
+													<div className="voice-animation-container">
+														<div className="voice-visualizer">
+															<div className="audio-bar"></div>
+															<div className="audio-bar"></div>
+															<div className="audio-bar"></div>
+															<div className="audio-bar"></div>
+															<div className="audio-bar"></div>
+														</div>
 													</div>
-												</div>
+												)}
 												<div className="voice-status-text">
 													{currentVoiceStatus}
+													{isMicrophoneMuted && (
+														<span className="mute-indicator"> 🔇</span>
+													)}
 												</div>
 											</div>
 
@@ -1182,10 +1268,24 @@ const DynamicIslandUI = () => {
 													className="voice-close-btn"
 													onClick={handleInlineVoiceDisconnect}
 												>
-													<BackIcon />
+													<CloseIcon />
 												</div>
-												<div className="voice-mic-btn">
-													<VoiceModeIcon />
+												<div
+													className={`voice-mic-btn ${
+														isMicrophoneMuted ? 'muted' : ''
+													}`}
+													onClick={handleMicrophoneToggle}
+													title={
+														isMicrophoneMuted
+															? 'Click to unmute'
+															: 'Click to mute'
+													}
+												>
+													{isMicrophoneMuted ? (
+														<MutedMicrophoneIcon />
+													) : (
+														<MicrophoneIcon />
+													)}
 												</div>
 											</div>
 										</div>
