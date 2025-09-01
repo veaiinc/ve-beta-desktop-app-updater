@@ -225,9 +225,6 @@ const actionHandlers = {
 			browserTabsInfo,
 		} = action?.payload;
 		let messages = [...(state?.globalChatMessages?.[sessionId]?.messages || [])];
-		if (payload?.browserMetadata) {
-			updateExtraInfo = true;
-		}
 
 		if (removeChatSession) {
 			if (state?.globalChatMessages?.[sessionId]?.open_browser) {
@@ -245,11 +242,11 @@ const actionHandlers = {
 				sessionIdData.chatBoxInfo = chatBoxInfo;
 			}
 
-			if (payload?.browserMetadata) {
+			if (payload?.url_type === 'live_view' || payload?.browserMetadata) {
 				let browserData = sessionIdData?.browserData || {};
 				browserData = {
 					...browserData,
-					browserMetadata: payload?.browserMetadata,
+					...payload,
 				};
 				sessionIdData.browserData = browserData;
 			}
@@ -357,66 +354,6 @@ const actionHandlers = {
 			if (processing === 'Deep Search') {
 				let deepSearch = message?.deepSearch || {};
 				let cot = deepSearch?.cot || [];
-				// let cot_refined = deepSearch?.cot_refined || [];
-				// let initial_answer = deepSearch?.initial_answer || {};
-				// let final_answer = deepSearch?.final_answer || {};
-
-				// if (payload?.sub_query_id && payload?.reading && payload?.reading?.sub_query) {
-				// 	let index = cot?.findIndex(
-				// 		(item) => item?.sub_query_id === payload?.sub_query_id,
-				// 	);
-				// 	if (index !== -1) {
-				// 		let readings = cot[index]?.readings || [];
-				// 		readings?.push({ reading: payload?.reading });
-				// 		cot[index] = {
-				// 			...cot[index],
-				// 			readings,
-				// 		};
-				// 	} else {
-				// 		cot?.push({
-				// 			sub_query_id: payload?.sub_query_id,
-				// 			readings: [{ reading: payload?.reading }],
-				// 		});
-				// 	}
-				// }
-
-				// if (
-				// 	payload?.refined_sub_query_id &&
-				// 	payload?.reading &&
-				// 	payload?.reading?.refined_sub_query
-				// ) {
-				// 	let index = cot_refined?.findIndex(
-				// 		(item) => item?.refined_sub_query_id === payload?.refined_sub_query_id,
-				// 	);
-				// 	if (index !== -1) {
-				// 		let readings = cot_refined[index]?.readings || [];
-				// 		readings?.push({ reading: payload?.reading });
-				// 		cot_refined[index] = {
-				// 			...cot_refined[index],
-				// 			readings,
-				// 		};
-				// 	} else {
-				// 		cot_refined?.push({
-				// 			refined_sub_query_id: payload?.refined_sub_query_id,
-				// 			readings: [{ reading: payload?.reading }],
-				// 		});
-				// 	}
-				// }
-
-				// if (payload?.initial_answer) {
-				// 	initial_answer = {
-				// 		...initial_answer,
-				// 		...payload,
-				// 	};
-				// }
-
-				// if (payload?.final_answer) {
-				// 	final_answer = {
-				// 		...final_answer,
-				// 		...payload,
-				// 	};
-				// }
-
 				if (payload?.step && payload?.step_id) {
 					cot?.push({
 						step: payload?.step,
