@@ -17,6 +17,7 @@ import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 import { ReactComponent as PlayIcon } from './assets/playIcon.svg';
 import { ReactComponent as PauseIcon } from './assets/pauseIcon.svg';
 import HeroSection from './heroSection/HeroSection';
+import VeSvg from '../../../assets/svg/veSvg';
 
 import '../../../assets/scss/landingScreen/index.scss';
 
