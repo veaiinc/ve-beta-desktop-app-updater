@@ -18,6 +18,7 @@ const options = [
 	{ id: 4, name: 'Presentations', value: 'presentation' },
 	{ id: 5, name: 'Contract', value: 'contract' },
 	{ id: 6, name: 'Invoice', value: 'invoice' },
+	{ id: 7, name: 'Agents', value: 'agent' },
 	// { id: 7, name: 'Automation', value: 'automation' },
 ];
 
@@ -77,10 +78,10 @@ const GlobalWorkflows = () => {
 
 	const workspaceImg = tennantSettingsData?.logo_s3_500w_key ?? null;
 
-	// const [moduleInfo, setModuleInfo] = useState({
-	// 	currentPage: 1,
-	// 	hasNextPage: false,
-	// });
+	const [moduleInfo, setModuleInfo] = useState({
+		currentPage: 1,
+		hasNextPage: false,
+	});
 
 	//useEffects
 	useEffect(() => {
@@ -331,9 +332,7 @@ const GlobalWorkflows = () => {
 						<div className="main-content">
 							{/* Title */}
 							<div className="page-title">
-								<h1>
-									Use cases from <span>ve.ai</span>
-								</h1>
+								<h1>Use cases</h1>
 							</div>
 
 							{/* Search and Filter Bar */}
@@ -417,6 +416,12 @@ const GlobalWorkflows = () => {
 											))}
 										</div>
 									) : (
+										info?.selectedOption === 'agent' ? (
+											<div>
+												<h1>Agents</h1>
+											</div>
+										) : (
+
 										<InfiniteScroll
 											dataLength={info?.globalWorkflowData?.length || 0}
 											next={fetchMoreGlobalWorkflows}
@@ -516,8 +521,9 @@ const GlobalWorkflows = () => {
 														}
 													/>
 												))
-											)}
-										</InfiniteScroll>
+												)}
+											</InfiniteScroll>
+										)
 									)}
 								</div>
 							</div>
