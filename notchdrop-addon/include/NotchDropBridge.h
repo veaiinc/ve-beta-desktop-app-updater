@@ -34,6 +34,7 @@
 + (void)setFileDroppedCallback:(void(^)(NSString*))callback;
 + (void)setItemAddedCallback:(void(^)(NSString*))callback;
 + (void)setItemRemovedCallback:(void(^)(NSString*))callback;
++ (void)setSwiftActionCallback:(void(^)(NSString*, NSString*))callback;
 
 // Advanced SwiftUI Components
 + (void)showAdvancedView;

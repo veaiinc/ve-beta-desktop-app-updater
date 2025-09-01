@@ -16,6 +16,7 @@ class SwiftJSBridge {
 
 		try {
 			// Set up IPC handlers for Swift actions
+			// Note: Primary swift:action handler is managed by main.js
 			this.setupIPCHandlers();
 
 			this.isInitialized = true;
@@ -75,19 +76,40 @@ class SwiftJSBridge {
 	}
 
 	setupIPCHandlers() {
-		// Handle Swift action events
-		ipcMain.handle('swift:action', async (event, action, data) => {
-			console.log('🔄 Swift action received:', action, data);
-			return await this.handleSwiftAction(action, data);
-		});
+		// Check if handlers are already registered to prevent duplicates
+		const registeredHandlers = new Set();
+
+		// Helper function to safely register IPC handlers
+		const safeRegisterHandler = (channel, handler) => {
+			if (!registeredHandlers.has(channel)) {
+				try {
+					ipcMain.handle(channel, handler);
+					registeredHandlers.add(channel);
+					console.log(`✅ Registered IPC handler: ${channel}`);
+				} catch (error) {
+					if (error.message.includes('second handler')) {
+						console.warn(`⚠️ Handler ${channel} already registered, skipping...`);
+					} else {
+						throw error;
+					}
+				}
+			} else {
+				console.warn(
+					`⚠️ Handler ${channel} already registered in this session, skipping...`,
+				);
+			}
+		};
+
+		// Note: swift:action is handled by main.js to route to NotchDrop service
+		// This bridge focuses on UI-specific handlers
 
 		// Handle JavaScript UI state requests
-		ipcMain.handle('js:getState', async () => {
+		safeRegisterHandler('js:getState', async () => {
 			return this.getJavaScriptUIState();
 		});
 
 		// Handle JavaScript UI control requests
-		ipcMain.handle('js:control', async (event, action, data) => {
+		safeRegisterHandler('js:control', async (event, action, data) => {
 			return await this.controlJavaScriptUI(action, data);
 		});
 	}

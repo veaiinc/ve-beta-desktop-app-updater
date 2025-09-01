@@ -103,6 +103,7 @@ class NotchViewModel: NSObject, ObservableObject {
         case expand
         case collapse
         case triggerOverlayToggleLiveIntelligence
+        case sendLog(String)
     }
     
     private var timerCancellable: AnyCancellable?
@@ -204,6 +205,14 @@ class NotchViewModel: NSObject, ObservableObject {
         
         // Emit action for JavaScript
         swiftActionSender.send(.setAuthenticated(authenticated))
+    }
+    
+    // New method to send log messages to Electron
+    func sendLogToElectron(_ message: String) {
+        print("📝 Swift sending log to Electron: \(message)")
+        
+        // Emit action for JavaScript
+        swiftActionSender.send(.sendLog(message))
     }
     
     private func startTimer() {

@@ -125,7 +125,7 @@ INCS_Debug := \
 	-I/Users/gowtham/Library/Caches/node-gyp/20.19.0/deps/uv/include \
 	-I/Users/gowtham/Library/Caches/node-gyp/20.19.0/deps/zlib \
 	-I/Users/gowtham/Library/Caches/node-gyp/20.19.0/deps/v8/include \
-	-I/Users/gowtham/Desktop/workspace/github/ve-desktop-app/node_modules/node-addon-api \
+	-I/Users/gowtham/Desktop/workspace/github/ve-desktop-app/notchdrop-addon/node_modules/node-addon-api \
 	-I$(srcdir)/include \
 	-I$(srcdir)/build_swift
 
@@ -185,7 +185,7 @@ INCS_Release := \
 	-I/Users/gowtham/Library/Caches/node-gyp/20.19.0/deps/uv/include \
 	-I/Users/gowtham/Library/Caches/node-gyp/20.19.0/deps/zlib \
 	-I/Users/gowtham/Library/Caches/node-gyp/20.19.0/deps/v8/include \
-	-I/Users/gowtham/Desktop/workspace/github/ve-desktop-app/node_modules/node-addon-api \
+	-I/Users/gowtham/Desktop/workspace/github/ve-desktop-app/notchdrop-addon/node_modules/node-addon-api \
 	-I$(srcdir)/include \
 	-I$(srcdir)/build_swift
 
@@ -212,25 +212,25 @@ $(OBJS): GYP_OBJCXXFLAGS := $(DEFS_$(BUILDTYPE)) $(INCS_$(BUILDTYPE))  $(CFLAGS_
 
 # Suffix rules, putting all outputs into $(obj).
 
-$(obj).$(TOOLSET)/$(TARGET)/%.o: $(srcdir)/%.m FORCE_DO_CMD
-	@$(call do_cmd,objc,1)
-
 $(obj).$(TOOLSET)/$(TARGET)/%.o: $(srcdir)/%.mm FORCE_DO_CMD
 	@$(call do_cmd,objcxx,1)
 
-# Try building from generated source, too.
-
-$(obj).$(TOOLSET)/$(TARGET)/%.o: $(obj).$(TOOLSET)/%.m FORCE_DO_CMD
+$(obj).$(TOOLSET)/$(TARGET)/%.o: $(srcdir)/%.m FORCE_DO_CMD
 	@$(call do_cmd,objc,1)
+
+# Try building from generated source, too.
 
 $(obj).$(TOOLSET)/$(TARGET)/%.o: $(obj).$(TOOLSET)/%.mm FORCE_DO_CMD
 	@$(call do_cmd,objcxx,1)
 
-$(obj).$(TOOLSET)/$(TARGET)/%.o: $(obj)/%.m FORCE_DO_CMD
+$(obj).$(TOOLSET)/$(TARGET)/%.o: $(obj).$(TOOLSET)/%.m FORCE_DO_CMD
 	@$(call do_cmd,objc,1)
 
 $(obj).$(TOOLSET)/$(TARGET)/%.o: $(obj)/%.mm FORCE_DO_CMD
 	@$(call do_cmd,objcxx,1)
+
+$(obj).$(TOOLSET)/$(TARGET)/%.o: $(obj)/%.m FORCE_DO_CMD
+	@$(call do_cmd,objc,1)
 
 # End of this set of suffix rules
 ### Rules for final target.

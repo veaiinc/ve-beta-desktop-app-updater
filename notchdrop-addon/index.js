@@ -44,7 +44,7 @@ class NotchDropAddonWrapper {
 
 			switch (action) {
 				case 'startRecording':
-					console.log('🎤 Swift requested start recording');
+					console.log('🎤 Swift requested start recording - opening overlay window');
 					this.triggerOverlayRecording();
 					break;
 				case 'stopRecording':
@@ -83,6 +83,10 @@ class NotchDropAddonWrapper {
 					console.log('🔐 Swift set authenticated:', data);
 					this.emit('setAuthenticated', data === 'true');
 					break;
+				case 'sendLog':
+					console.log('📝 Swift sent log message:', data);
+					this.handleSwiftLog(data);
+					break;
 				default:
 					console.warn('⚠️ Unknown Swift action:', action);
 			}
@@ -91,10 +95,34 @@ class NotchDropAddonWrapper {
 		}
 	}
 
+	// Handle Swift log messages
+	handleSwiftLog(message) {
+		try {
+			console.log('📝 Processing Swift log message:', message);
+
+			// Emit the log event for Electron to handle
+			this.emit('swiftLog', message);
+
+			// Also try to send to overlay if available
+			this.sendLogToOverlay(message);
+		} catch (error) {
+			console.error('❌ Error handling Swift log:', error);
+		}
+	}
+
+	// Send log message to overlay window
+	sendLogToOverlay(message) {
+		// This method is not fully implemented in the original file,
+		// so it's left as a placeholder.
+		// In a real scenario, you would try to send the message
+		// to the overlay window via ipcRenderer or direct window communication.
+		console.log('Attempting to send log to overlay:', message);
+	}
+
 	// Overlay integration methods
 	async triggerOverlayRecording() {
 		try {
-			console.log('🎤 Triggering overlay recording from Swift');
+			console.log('🎤 Triggering overlay recording from Swift UI');
 
 			// Check if we're in main process or renderer process
 			if (typeof require !== 'undefined') {
@@ -102,34 +130,33 @@ class NotchDropAddonWrapper {
 					// Try to use ipcRenderer (renderer process)
 					const { ipcRenderer } = require('electron');
 					if (ipcRenderer) {
-						const result = await ipcRenderer.invoke('overlay-start-recording');
-						console.log('Overlay recording result:', result);
-						return;
+						// Use the correct IPC channel that creates/shows overlay window
+						const result = await ipcRenderer.invoke(
+							'notchdrop:triggerOverlayRecording',
+						);
+						console.log('✅ Overlay recording result:', result);
+						return result;
 					}
 				} catch (e) {
 					// ipcRenderer not available, we're in main process
-					console.log('Running in main process, using direct window communication');
+					console.log('Running in main process, using direct IPC call');
 				}
 
-				// Main process approach - find overlay window and send command directly
-				const { BrowserWindow } = require('electron');
-				const windows = BrowserWindow.getAllWindows();
-				for (const window of windows) {
-					if (window.webContents && !window.isDestroyed()) {
-						const title = window.getTitle();
-						if (title.includes('Overlay') || title.includes('Live Intelligence')) {
-							window.webContents.send('overlay-command', {
-								action: 'startRecording',
-							});
-							console.log('✅ Overlay recording command sent directly to window');
-							return;
-						}
-					}
+				// Main process approach - call the IPC handler directly
+				try {
+					const { ipcMain } = require('electron');
+					// Simulate the IPC call directly since we're in main process
+					// We'll emit the action to be handled by the existing IPC handler
+					this.emit('requestOverlayRecording');
+					console.log('✅ Overlay recording request emitted from main process');
+					return { success: true };
+				} catch (error) {
+					console.error('❌ Error in main process overlay trigger:', error);
 				}
-				console.warn('⚠️ Overlay window not found');
 			}
 		} catch (error) {
 			console.error('❌ Error triggering overlay recording:', error);
+			return { success: false, error: error.message };
 		}
 	}
 

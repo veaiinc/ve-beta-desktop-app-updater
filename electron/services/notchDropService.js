@@ -75,6 +75,18 @@ class NotchDropService {
 			log.info('Item removed from NotchDrop:', itemData);
 			this.emitToRenderer('notchdrop-item-removed', itemData);
 		});
+
+		// Listen for Swift log messages
+		this.notchDropAddon.on('swiftLog', (message) => {
+			log.info('📝 Swift UI sent log message:', message);
+			this.handleSwiftLog(message);
+		});
+
+		// Listen for overlay recording requests from Swift UI
+		this.notchDropAddon.on('requestOverlayRecording', () => {
+			log.info('🎤 Swift UI requested overlay recording');
+			this.handleOverlayRecordingRequest();
+		});
 	}
 
 	enable() {
@@ -329,6 +341,55 @@ class NotchDropService {
 			return result;
 		} catch (error) {
 			log.error('❌ Error handling Swift action:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	// Handle Swift log messages
+	handleSwiftLog(message) {
+		try {
+			log.info('📝 Swift UI Log Message:', message);
+
+			// Log to Electron's log system
+			log.info(`[Swift UI] ${message}`);
+
+			// Emit to renderer process for UI display
+			this.emitToRenderer('swift-log-message', {
+				timestamp: new Date().toISOString(),
+				message: message,
+				source: 'Swift UI',
+			});
+
+			// You can add additional processing here:
+			// - Save to a log file
+			// - Send to a monitoring service
+			// - Display in the app's UI
+			// - Trigger other actions based on the message
+
+			log.info('✅ Swift log message processed successfully');
+		} catch (error) {
+			log.error('❌ Error handling Swift log message:', error);
+		}
+	}
+
+	// Handle overlay recording requests from Swift UI
+	async handleOverlayRecordingRequest() {
+		try {
+			log.info('🎤 Processing overlay recording request from Swift UI');
+
+			// We'll trigger the overlay by calling the same logic as the existing IPC handler
+			// This ensures consistency with the existing overlay functionality
+
+			// The overlay logic is in main.js, so we need to access the windowHelper
+			// We'll use a global reference or require the windowHelper
+
+			// For now, let's emit an event that main.js can listen to
+			process.emit('swift-ui-trigger-overlay-recording');
+			log.info('✅ Emitted swift-ui-trigger-overlay-recording event');
+
+			return { success: true };
+		} catch (error) {
+			log.error('❌ Error handling overlay recording request:', error);
 			return { success: false, error: error.message };
 		}
 	}

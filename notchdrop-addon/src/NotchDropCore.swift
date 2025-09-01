@@ -110,6 +110,13 @@ import Combine
             }
             .store(in: &vm.cancellables)
 
+        // Set up Swift action monitoring
+        vm.swiftActionSender
+            .sink { [weak self] action in
+                self?.handleSwiftAction(action)
+            }
+            .store(in: &vm.cancellables)
+
         let hostingView = NSHostingView(rootView: notchView)
         window.contentView = hostingView
         
@@ -317,5 +324,33 @@ import Combine
 
     @objc public func setSwiftActionCallback(_ callback: @escaping (String, String) -> Void) {
         swiftActionCallback = callback
+    }
+    
+    // MARK: - Swift Action Handling
+    private func handleSwiftAction(_ action: NotchViewModel.SwiftAction) {
+        switch action {
+        case .startRecording:
+            swiftActionCallback?("startRecording", "")
+        case .stopRecording:
+            swiftActionCallback?("stopRecording", "")
+        case .pauseRecording:
+            swiftActionCallback?("pauseRecording", "")
+        case .resumeRecording:
+            swiftActionCallback?("resumeRecording", "")
+        case .toggleChatMode:
+            swiftActionCallback?("toggleChatMode", "")
+        case .submitChat(let message):
+            swiftActionCallback?("submitChat", message)
+        case .setAuthenticated(let authenticated):
+            swiftActionCallback?("setAuthenticated", authenticated ? "true" : "false")
+        case .expand:
+            swiftActionCallback?("expand", "")
+        case .collapse:
+            swiftActionCallback?("collapse", "")
+        case .triggerOverlayToggleLiveIntelligence:
+            swiftActionCallback?("triggerOverlayToggleLiveIntelligence", "")
+        case .sendLog(let message):
+            swiftActionCallback?("sendLog", message)
+        }
     }
 }

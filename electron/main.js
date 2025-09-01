@@ -786,6 +786,39 @@ app.whenReady().then(async () => {
 	notchDropService.setMainWindow(mainWindow);
 	await notchDropService.initialize();
 
+	// Listen for Swift UI overlay recording requests
+	process.on('swift-ui-trigger-overlay-recording', async () => {
+		try {
+			log.info('🎤 Received Swift UI overlay recording request');
+
+			// Use the same logic as the existing notchdrop:triggerOverlayRecording handler
+			let overlayWindow = windowHelper?.getOverlayWindow();
+			if (!overlayWindow) {
+				// Create overlay window if it doesn't exist
+				windowHelper?.createOverlayWindow();
+				await new Promise((resolve) => setTimeout(resolve, 100)); // Small delay
+				overlayWindow = windowHelper?.getOverlayWindow();
+			}
+
+			if (overlayWindow) {
+				// Show overlay window if not visible
+				if (!overlayWindow.isVisible()) {
+					windowHelper?.showOverlayWindow();
+				}
+
+				// Send command to overlay window to start recording
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'startRecording',
+				});
+				log.info('✅ Sent startRecording command to overlay window from Swift UI');
+			} else {
+				log.error('❌ Overlay window not available after creating');
+			}
+		} catch (error) {
+			log.error('❌ Error handling Swift UI overlay recording request:', error);
+		}
+	});
+
 	// Set up NotchDrop status change listener to update menu
 	setupNotchDropMenuUpdates();
 
@@ -1086,21 +1119,48 @@ app.whenReady().then(async () => {
 	});
 
 	// Swift action handlers for overlay integration
-	ipcMain.handle('swift:action', async (event, action, data) => {
-		try {
-			if (!notchDropService) {
-				return { success: false, error: 'NotchDrop service not initialized' };
+	// Use try-catch to handle potential duplicate handler registration
+	try {
+		ipcMain.handle('swift:action', async (event, action, data) => {
+			try {
+				if (!notchDropService) {
+					return { success: false, error: 'NotchDrop service not initialized' };
+				}
+				log.info('🎯 Swift action received in main.js:', action, data);
+				const result = await notchDropService.handleSwiftAction(action, data);
+				return result;
+			} catch (error) {
+				log.error('Error handling Swift action:', error);
+				return { success: false, error: error.message };
 			}
-			const result = await notchDropService.handleSwiftAction(action, data);
-			return result;
-		} catch (error) {
-			log.error('Error handling Swift action:', error);
-			return { success: false, error: error.message };
+		});
+		log.info('✅ Registered swift:action IPC handler in main.js');
+	} catch (error) {
+		if (error.message.includes('second handler')) {
+			log.warn('⚠️ swift:action handler already registered, skipping...');
+		} else {
+			log.error('Error registering swift:action handler:', error);
+			throw error;
 		}
-	});
+	}
 
 	// Enhanced overlay integration handlers for Swift UI
-	ipcMain.handle('swift:triggerOverlayRecording', async (event, data) => {
+	// Helper function to safely register Swift IPC handlers
+	const safeRegisterSwiftHandler = (channel, handler) => {
+		try {
+			ipcMain.handle(channel, handler);
+			log.info(`✅ Registered ${channel} IPC handler`);
+		} catch (error) {
+			if (error.message.includes('second handler')) {
+				log.warn(`⚠️ ${channel} handler already registered, skipping...`);
+			} else {
+				log.error(`Error registering ${channel} handler:`, error);
+				throw error;
+			}
+		}
+	};
+
+	safeRegisterSwiftHandler('swift:triggerOverlayRecording', async (event, data) => {
 		try {
 			if (!notchDropService) {
 				return { success: false, error: 'NotchDrop service not initialized' };
@@ -1116,7 +1176,7 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	ipcMain.handle('swift:triggerOverlayToggleLiveIntelligence', async (event, data) => {
+	safeRegisterSwiftHandler('swift:triggerOverlayToggleLiveIntelligence', async (event, data) => {
 		try {
 			if (!notchDropService) {
 				return { success: false, error: 'NotchDrop service not initialized' };

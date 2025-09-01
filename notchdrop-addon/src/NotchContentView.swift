@@ -57,6 +57,18 @@ struct DynamicIslandContentView: View {
                     .background(Color.blue.opacity(0.3))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     .buttonStyle(PlainButtonStyle())
+                    
+                    // Test button to send log message to Electron
+                    Button("Send Log to Electron") {
+                        vm.sendLogToElectron("Hello from Swift UI! Button clicked at \(Date())")
+                    }
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Color.green.opacity(0.3))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .buttonStyle(PlainButtonStyle())
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {

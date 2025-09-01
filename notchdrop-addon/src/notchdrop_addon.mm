@@ -101,6 +101,20 @@ public:
         [NotchDropBridge setFileDroppedCallback:makeCallback("fileDropped")];
         [NotchDropBridge setItemAddedCallback:makeCallback("itemAdded")];
         [NotchDropBridge setItemRemovedCallback:makeCallback("itemRemoved")];
+        
+        // Set up Swift action callback - THIS WAS MISSING!
+        [NotchDropBridge setSwiftActionCallback:^(NSString* action, NSString* data) {
+            if (tsfn_ != nullptr) {
+                // Combine action and data into a single string for JavaScript
+                NSString* actionData = [NSString stringWithFormat:@"%@:%@", action, data];
+                auto* callbackData = new CallbackData{
+                    "swiftAction",
+                    std::string([actionData UTF8String]),
+                    this
+                };
+                napi_call_threadsafe_function(tsfn_, callbackData, napi_tsfn_blocking);
+            }
+        }];
     }
 
     ~NotchDropAddon() {
