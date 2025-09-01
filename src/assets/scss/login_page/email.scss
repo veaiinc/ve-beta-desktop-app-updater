@@ -252,6 +252,9 @@
 			font-weight: 500;
 			line-height: normal;
 			transition: all 0.3s ease;
+			&:hover {
+				background: #34a0901a;
+			}
 
 			.google-logo-container {
 				display: flex;
@@ -280,7 +283,7 @@
 			font-style: normal;
 			font-weight: 400;
 			line-height: normal;
-			background-color: #e3e3e3;
+			background: #f3f6f5;
 			padding: 0 24px;
 			position: absolute;
 			top: 50%;

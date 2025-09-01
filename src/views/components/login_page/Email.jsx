@@ -281,7 +281,7 @@ const Email = ({
 					</div>
 				</div>
 			</div>
-			{info?.isHostnameVeDotAi && (
+			{!info?.isHostnameVeDotAi && (
 				<>
 					<div className="service-container">
 						<div
