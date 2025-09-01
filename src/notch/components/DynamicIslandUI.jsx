@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import {
 	HomeIcon,
 	LockIcon,
@@ -13,6 +13,11 @@ import {
 	VoiceModeIcon,
 } from './DynamicIslandIcons';
 import './DynamicIslandUI.scss';
+import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
+import Context from '../../context/context';
+import { LiveKitRoom, RoomAudioRenderer, StartAudio } from '@livekit/components-react';
+import Voice from '../../views/components/chat/Voice';
+import { checkDevices } from '../../helpers';
 
 // Camera permission utilities - simplified for Electron
 const stopCamera = (stream) => {
@@ -46,6 +51,24 @@ const DynamicIslandUI = () => {
 	const [cameraError, setCameraError] = useState(null);
 	const [isCameraStarting, setIsCameraStarting] = useState(false);
 	const [cameraStatus, setCameraStatus] = useState('idle'); // 'idle', 'starting', 'active', 'error'
+
+	// Voice mode state
+	const [isVoiceModeActive, setIsVoiceModeActive] = useState(false);
+	const [voiceConnectionStatus, setVoiceConnectionStatus] = useState('disconnected'); // 'disconnected', 'connecting', 'connected', 'error'
+	const [voiceError, setVoiceError] = useState(null);
+	const [showVoiceInterface, setShowVoiceInterface] = useState(false);
+	const [deviceInfo, setDeviceInfo] = useState({});
+	const [voiceMessages, setVoiceMessages] = useState([]);
+	const [currentVoiceStatus, setCurrentVoiceStatus] = useState('Listening');
+
+	// Voice integration hook
+	const { shouldConnect, token, serverUrl, handleConnect, handleDisconnect } =
+		useUpdatedVoiceIntegration();
+
+	// Get voice integration data from context
+	const {
+		aiSetup: { voiceIntegrationData, updateAiSetupState },
+	} = useContext(Context);
 
 	useEffect(() => {
 		// Check authentication status
@@ -106,6 +129,47 @@ const DynamicIslandUI = () => {
 			}
 		};
 	}, []);
+
+	// Initialize device info
+	useEffect(() => {
+		const getDeviceInfo = async () => {
+			try {
+				const devices = await checkDevices();
+				setDeviceInfo(devices);
+			} catch (error) {
+				console.error('Error getting device info:', error);
+			}
+		};
+		getDeviceInfo();
+	}, []);
+
+	// Monitor voice connection status changes
+	useEffect(() => {
+		if (shouldConnect && token) {
+			setVoiceConnectionStatus('connected');
+			setIsVoiceModeActive(true);
+			setVoiceError(null);
+			setShowVoiceInterface(true);
+		} else if (!shouldConnect) {
+			setVoiceConnectionStatus('disconnected');
+			setIsVoiceModeActive(false);
+			setShowVoiceInterface(false);
+		}
+	}, [shouldConnect, token]);
+
+	// Monitor voice integration data from context
+	useEffect(() => {
+		if (voiceIntegrationData?.shouldConnect) {
+			setVoiceConnectionStatus('connected');
+			setIsVoiceModeActive(true);
+			setVoiceError(null);
+			setShowVoiceInterface(true);
+		} else if (!voiceIntegrationData?.shouldConnect) {
+			setVoiceConnectionStatus('disconnected');
+			setIsVoiceModeActive(false);
+			setShowVoiceInterface(false);
+		}
+	}, [voiceIntegrationData]);
 
 	// Check camera permission on mount and when app gains focus
 	useEffect(() => {
@@ -260,7 +324,8 @@ const DynamicIslandUI = () => {
 				// Ensure window is focusable when expanded, but only if not already setting
 				if (window.electronApi?.dynamicIsland?.setChatMode && !isSettingChatMode) {
 					setIsSettingChatMode(true);
-					window.electronApi.dynamicIsland.setChatMode(true)
+					window.electronApi.dynamicIsland
+						.setChatMode(true)
 						.then(() => {
 							setIsSettingChatMode(false);
 						})
@@ -295,10 +360,11 @@ const DynamicIslandUI = () => {
 	// Click handlers for interactive elements
 	const handleHomeClick = () => {
 		console.log('🏠 Home icon clicked');
-		
+
 		// On Windows, restore main window when home icon is clicked
 		if (window.electronApi?.home?.restoreMainWindow) {
-			window.electronApi.home.restoreMainWindow()
+			window.electronApi.home
+				.restoreMainWindow()
 				.then((result) => {
 					if (result.success) {
 						console.log('✅ Main window restored successfully');
@@ -346,8 +412,83 @@ const DynamicIslandUI = () => {
 		}
 	};
 
-	const handleVoiceModeClick = () => {
+	const handleVoiceModeClick = async () => {
 		console.log('🎤 Clicked for voice mode');
+
+		try {
+			if (isVoiceModeActive) {
+				// Disconnect voice assistant
+				console.log('Disconnecting voice assistant...');
+				setVoiceConnectionStatus('disconnecting');
+				setShowVoiceInterface(false);
+				await handleDisconnect();
+				setVoiceConnectionStatus('disconnected');
+				setIsVoiceModeActive(false);
+				setVoiceError(null);
+
+				// Don't show external voice widget, we're showing it inline
+				updateAiSetupState({ showVoiceWidget: false });
+			} else {
+				// Connect to voice assistant
+				console.log('Connecting to voice assistant...');
+				setVoiceConnectionStatus('connecting');
+				setVoiceError(null);
+
+				await handleConnect();
+
+				// Don't show external voice widget, we'll show it inline
+				updateAiSetupState({ showVoiceWidget: false });
+
+				// The useEffect will handle the status update when shouldConnect changes
+				console.log('Voice assistant connection initiated');
+			}
+		} catch (error) {
+			console.error('Error in voice mode:', error);
+			setVoiceConnectionStatus('error');
+			setVoiceError(error.message || 'Failed to connect to voice assistant');
+		}
+	};
+
+	// Custom disconnect handler for inline voice component
+	const handleInlineVoiceDisconnect = async () => {
+		console.log('🔌 Disconnecting inline voice assistant...');
+		setVoiceConnectionStatus('disconnecting');
+		setShowVoiceInterface(false);
+		setVoiceMessages([]); // Clear messages
+		setCurrentVoiceStatus('Listening');
+		await handleDisconnect();
+		setVoiceConnectionStatus('disconnected');
+		setIsVoiceModeActive(false);
+		setVoiceError(null);
+		updateAiSetupState({ showVoiceWidget: false });
+	};
+
+	// Handle voice messages from the Voice component
+	const handleVoiceMessage = (message, isUser = false) => {
+		setVoiceMessages((prev) => [...prev, { text: message, isUser, timestamp: Date.now() }]);
+	};
+
+	// Handle voice status updates
+	const handleVoiceStatusUpdate = (status) => {
+		setCurrentVoiceStatus(status);
+
+		// Update voice status based on LiveKit states
+		switch (status) {
+			case 'listening':
+			case 'Listening...':
+				setCurrentVoiceStatus('Listening');
+				break;
+			case 'thinking':
+			case 'Thinking...':
+				setCurrentVoiceStatus('Thinking');
+				break;
+			case 'speaking':
+			case 'Speaking...':
+				setCurrentVoiceStatus('Speaking');
+				break;
+			default:
+				setCurrentVoiceStatus('Listening');
+		}
 	};
 
 	const handleWebcamClick = async () => {
@@ -526,7 +667,7 @@ const DynamicIslandUI = () => {
 
 	const handleChatSubmit = async () => {
 		console.log('🚀 handleChatSubmit called with:', { chatInput, isSendingMessage });
-		
+
 		if (chatInput.trim() && !isSendingMessage) {
 			console.log('💬 Chat submitted:', chatInput);
 			setIsSendingMessage(true);
@@ -535,9 +676,15 @@ const DynamicIslandUI = () => {
 				// Check if the API is available
 				console.log('🔍 Checking if sendChatMessage API is available...');
 				console.log('🔍 window.electronApi:', window.electronApi);
-				console.log('🔍 window.electronApi?.dynamicIsland:', window.electronApi?.dynamicIsland);
-				console.log('🔍 window.electronApi?.dynamicIsland?.sendChatMessage:', window.electronApi?.dynamicIsland?.sendChatMessage);
-				
+				console.log(
+					'🔍 window.electronApi?.dynamicIsland:',
+					window.electronApi?.dynamicIsland,
+				);
+				console.log(
+					'🔍 window.electronApi?.dynamicIsland?.sendChatMessage:',
+					window.electronApi?.dynamicIsland?.sendChatMessage,
+				);
+
 				// Send the chat message to AskAI via Dynamic Island API
 				if (window.electronApi?.dynamicIsland?.sendChatMessage) {
 					console.log(
@@ -605,9 +752,9 @@ const DynamicIslandUI = () => {
 				setIsSendingMessage(false);
 			}
 		} else {
-			console.log('⚠️ Chat submit blocked:', { 
-				hasInput: !!chatInput.trim(), 
-				isSending: isSendingMessage 
+			console.log('⚠️ Chat submit blocked:', {
+				hasInput: !!chatInput.trim(),
+				isSending: isSendingMessage,
 			});
 		}
 	};
@@ -622,16 +769,16 @@ const DynamicIslandUI = () => {
 		console.log('💬 Current chatInput state:', chatInput);
 		setChatInput(e.target.value);
 		console.log('💬 chatInput state after setChatInput:', e.target.value);
-		
+
 		// Auto-resize textarea with better scrolling support
 		if (chatInputRef.current) {
 			const textarea = chatInputRef.current;
 			const maxHeight = 200; // Maximum height before enabling scroll
-			
+
 			// Reset height to calculate actual content height
 			textarea.style.height = 'auto';
 			const scrollHeight = textarea.scrollHeight;
-			
+
 			// Set height based on content, but cap it at maxHeight
 			if (scrollHeight <= maxHeight) {
 				textarea.style.height = scrollHeight + 'px';
@@ -640,7 +787,7 @@ const DynamicIslandUI = () => {
 				// Ensure scrollbar is visible when content exceeds maxHeight
 				textarea.style.overflowY = 'auto';
 			}
-			
+
 			// Auto-scroll to bottom when typing (common chat UX pattern)
 			textarea.scrollTop = textarea.scrollHeight;
 		}
@@ -652,9 +799,10 @@ const DynamicIslandUI = () => {
 			handleChatSubmit();
 		}
 		// Allow Shift+Enter for new lines in textarea
-		
+
 		// Keyboard shortcuts for navigation in long text
-		if (e.ctrlKey || e.metaKey) { // Ctrl (Windows) or Cmd (Mac)
+		if (e.ctrlKey || e.metaKey) {
+			// Ctrl (Windows) or Cmd (Mac)
 			switch (e.key) {
 				case 'Home':
 				case 'ArrowUp':
@@ -761,7 +909,7 @@ const DynamicIslandUI = () => {
 	useEffect(() => {
 		console.log('🔍 Chat mode changed:', isChatMode);
 		console.log('🔍 Chat input value:', chatInput);
-		
+
 		// Handle initial focus when entering chat mode with a delay to prevent rapid blinking
 		if (isChatMode && chatInputRef.current && !isSettingChatMode) {
 			const timer = setTimeout(() => {
@@ -770,16 +918,16 @@ const DynamicIslandUI = () => {
 					console.log('💬 Chat input focused after delay');
 				}
 			}, 150); // Small delay to prevent rapid focus changes
-			
+
 			return () => clearTimeout(timer);
 		}
-		
+
 		// Reset textarea height when chat mode changes
 		if (chatInputRef.current) {
 			chatInputRef.current.style.height = 'auto';
 		}
 	}, [isChatMode, isSettingChatMode]);
-	
+
 	// Reset textarea height when chat input is cleared
 	useEffect(() => {
 		if (chatInputRef.current && !chatInput) {
@@ -884,16 +1032,24 @@ const DynamicIslandUI = () => {
 
 							{/* Right side icons */}
 							<div className="right-icons">
-								{isChatMode && (
+								{(isChatMode || showVoiceInterface) && (
 									<div
 										className="back-button"
 										title="Back to main view"
 										onClick={() => {
-											setIsChatMode(false);
-											setChatInput('');
-											// Disable focus when exiting chat mode
-											if (window.electronApi?.dynamicIsland?.setChatMode) {
-												window.electronApi.dynamicIsland.setChatMode(false);
+											if (showVoiceInterface) {
+												handleInlineVoiceDisconnect();
+											} else if (isChatMode) {
+												setIsChatMode(false);
+												setChatInput('');
+												// Disable focus when exiting chat mode
+												if (
+													window.electronApi?.dynamicIsland?.setChatMode
+												) {
+													window.electronApi.dynamicIsland.setChatMode(
+														false,
+													);
+												}
 											}
 										}}
 									>
@@ -912,7 +1068,130 @@ const DynamicIslandUI = () => {
 
 						{/* Main content area */}
 						<div className="main-content">
-							{isChatMode ? (
+							{showVoiceInterface ? (
+								/* Voice Assistant Mode - Split layout: Left=Conversation, Right=Assistant UI */
+								<div className="voice-split-layout">
+									{/* Left side: Conversation messages */}
+									<div className="voice-conversation-left">
+										<div className="voice-messages-area">
+											{/* Sample conversation messages - matches Figma design */}
+											<div className="voice-message-frame">
+												<div className="voice-message-sender">Agent</div>
+												<div className="voice-message-text">
+													I use it to manage client proposals and share
+													timelines.
+												</div>
+											</div>
+											<div className="voice-message-frame">
+												<div className="voice-message-sender">Agent</div>
+												<div className="voice-message-text">
+													I use it to manage client proposals and share
+													timelines.
+												</div>
+											</div>
+											<div className="voice-message-frame">
+												<div className="voice-message-sender">Agent</div>
+												<div className="voice-message-text">
+													I use it to manage client proposals and share
+													timelines.
+												</div>
+											</div>
+											<div className="voice-message-frame">
+												<div className="voice-message-sender">You</div>
+												<div className="voice-message-text">
+													I utilize this tool to streamline client
+													proposals and effectively communicate project
+													timelines.
+												</div>
+											</div>
+											<div className="voice-message-frame">
+												<div className="voice-message-sender">Agent</div>
+												<div className="voice-message-text">
+													I use it to manage client proposals and share
+													timelines.
+												</div>
+											</div>
+											{/* Dynamic messages from voice integration */}
+											{voiceMessages.map((msg, index) => (
+												<div
+													key={`dynamic-${index}`}
+													className="voice-message-frame"
+												>
+													<div className="voice-message-sender">
+														{msg.isUser ? 'You' : 'Agent'}
+													</div>
+													<div className="voice-message-text">
+														{msg.text}
+													</div>
+												</div>
+											))}
+										</div>
+									</div>
+
+									{/* Right side: Assistant UI with voice controls */}
+									<div className="voice-assistant-right">
+										{/* Hidden LiveKit integration */}
+										{voiceIntegrationData?.shouldConnect &&
+											voiceIntegrationData?.token && (
+												<LiveKitRoom
+													className="hidden-livekit-room"
+													serverUrl={voiceIntegrationData.serverUrl || ''}
+													token={voiceIntegrationData.token || ''}
+													connect={
+														voiceIntegrationData.shouldConnect || false
+													}
+													onError={(e) => {
+														console.error(
+															'LiveKit connection error:',
+															e,
+														);
+														setVoiceError(e.message);
+														setVoiceConnectionStatus('error');
+													}}
+												>
+													<Voice
+														handleDisconnect={
+															handleInlineVoiceDisconnect
+														}
+														deviceInfo={deviceInfo}
+													/>
+													<RoomAudioRenderer />
+													<StartAudio label="Click to enable audio playback" />
+												</LiveKitRoom>
+											)}
+
+										{/* Voice controls section - positioned on right side */}
+										<div className="voice-controls-section">
+											<div className="voice-status-area">
+												<div className="voice-animation-container">
+													<div className="voice-visualizer">
+														<div className="audio-bar"></div>
+														<div className="audio-bar"></div>
+														<div className="audio-bar"></div>
+														<div className="audio-bar"></div>
+														<div className="audio-bar"></div>
+													</div>
+												</div>
+												<div className="voice-status-text">
+													{currentVoiceStatus}
+												</div>
+											</div>
+
+											<div className="voice-action-buttons">
+												<div
+													className="voice-close-btn"
+													onClick={handleInlineVoiceDisconnect}
+												>
+													<BackIcon />
+												</div>
+												<div className="voice-mic-btn">
+													<VoiceModeIcon />
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							) : isChatMode ? (
 								/* Chat mode - expanded chat interface */
 								<div className="chat-expanded">
 									<div className="chat-input-container">
@@ -927,11 +1206,13 @@ const DynamicIslandUI = () => {
 												console.log('💬 Chat input focused');
 												// Only set chat mode if not already setting to prevent rapid focus changes
 												if (
-													window.electronApi?.dynamicIsland?.setChatMode &&
+													window.electronApi?.dynamicIsland
+														?.setChatMode &&
 													!isSettingChatMode
 												) {
 													setIsSettingChatMode(true);
-													window.electronApi.dynamicIsland.setChatMode(true)
+													window.electronApi.dynamicIsland
+														.setChatMode(true)
 														.then(() => {
 															setIsSettingChatMode(false);
 														})
@@ -1006,7 +1287,13 @@ const DynamicIslandUI = () => {
 													  cameraPermission === 'restricted'
 													? 'Click to open system permissions'
 													: 'Click to start camera'
-												: 'Voice mode'
+												: voiceConnectionStatus === 'connected'
+												? 'Click to stop voice assistant'
+												: voiceConnectionStatus === 'connecting'
+												? 'Connecting to voice assistant...'
+												: voiceConnectionStatus === 'error'
+												? 'Voice assistant error - Click to retry'
+												: 'Click to start voice assistant'
 										}
 									>
 										{isRecording ? (
@@ -1086,8 +1373,52 @@ const DynamicIslandUI = () => {
 										) : (
 											/* Show voice mode when not recording */
 											<>
-												<VoiceModeIcon />
-												<div className="webcam-label">Voice Mode</div>
+												{voiceConnectionStatus === 'connecting' ? (
+													<>
+														<div className="voice-loading">
+															<div className="loading-spinner"></div>
+															<div className="loading-text">
+																Connecting...
+															</div>
+														</div>
+													</>
+												) : voiceConnectionStatus === 'connected' ? (
+													<>
+														<VoiceModeIcon />
+														<div className="webcam-label voice-connected">
+															Voice Active
+														</div>
+														<div className="voice-status-indicator">
+															<div className="voice-pulse"></div>
+														</div>
+														{/* Voice hover overlay - similar to camera */}
+														<div className="voice-hover-overlay">
+															Click to stop
+														</div>
+													</>
+												) : voiceConnectionStatus === 'error' ? (
+													<>
+														<VoiceModeIcon />
+														<div className="webcam-label voice-error">
+															Voice Error
+														</div>
+														{voiceError && (
+															<div className="voice-error-message">
+																{voiceError}
+															</div>
+														)}
+													</>
+												) : (
+													<>
+														<VoiceModeIcon />
+														<div className="webcam-label">
+															Voice Mode
+														</div>
+														<div className="voice-click-instruction">
+															Click to start
+														</div>
+													</>
+												)}
 											</>
 										)}
 									</div>

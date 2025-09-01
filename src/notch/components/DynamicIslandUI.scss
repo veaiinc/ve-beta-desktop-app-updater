@@ -449,36 +449,36 @@
 	-webkit-user-select: text; // Webkit support
 	-moz-user-select: text; // Firefox support
 	-ms-user-select: text; // IE/Edge support
-	
+
 	// Text wrapping and overflow handling
 	word-wrap: break-word; // Break long words
 	word-break: break-word; // Better word breaking
 	white-space: pre-wrap; // Preserve whitespace and wrap
 	overflow-wrap: break-word; // Modern word wrapping
 	resize: none; // Prevent manual resizing
-	
+
 	// Scrolling functionality
 	overflow-y: auto; // Enable vertical scrolling
 	overflow-x: hidden; // Hide horizontal scrolling
-	
+
 	// Custom scrollbar styling for better appearance
 	&::-webkit-scrollbar {
 		width: 6px;
 	}
-	
+
 	&::-webkit-scrollbar-track {
 		background: transparent;
 	}
-	
+
 	&::-webkit-scrollbar-thumb {
 		background: rgba(121, 236, 201, 0.3);
 		border-radius: 3px;
-		
+
 		&:hover {
 			background: rgba(121, 236, 201, 0.5);
 		}
 	}
-	
+
 	// Control cursor blinking to prevent rapid flickering
 	caret-color: #79ecc9; // Set cursor color
 	caret-shape: block; // Use block cursor for better visibility
@@ -598,6 +598,94 @@
 	svg {
 		width: 24px;
 		height: 24px;
+	}
+}
+
+// Voice mode specific styles
+.voice-loading {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+
+	.loading-spinner {
+		width: 20px;
+		height: 20px;
+		border: 2px solid #94989e;
+		border-top: 2px solid #79ecc9;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+
+	.loading-text {
+		color: #94989e;
+		font-size: 10px;
+		font-weight: 500;
+	}
+}
+
+.voice-connected {
+	color: #79ecc9 !important;
+	font-weight: 600 !important;
+}
+
+.voice-error {
+	color: #ff6b6b !important;
+	font-weight: 600 !important;
+}
+
+.voice-status-indicator {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+
+	.voice-pulse {
+		width: 8px;
+		height: 8px;
+		background: #79ecc9;
+		border-radius: 50%;
+		animation: pulse 2s ease-in-out infinite;
+	}
+}
+
+.voice-error-message {
+	color: #ff6b6b;
+	font-size: 9px;
+	font-weight: 400;
+	text-align: center;
+	line-height: 1.2;
+	max-width: 80px;
+	margin-top: 4px;
+}
+
+.voice-click-instruction {
+	color: #94989e;
+	font-size: 9px;
+	font-weight: 400;
+	text-align: center;
+	line-height: 1.2;
+	margin-top: 4px;
+}
+
+// Voice mode animations
+@keyframes pulse {
+	0%,
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+	50% {
+		opacity: 0.7;
+		transform: scale(1.2);
+	}
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
 	}
 }
 
@@ -942,6 +1030,248 @@
 
 .webcam-section:hover .camera-hover-overlay {
 	opacity: 1;
+}
+
+// Voice hover overlay - similar to camera
+.voice-hover-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.7);
+	color: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 12px;
+	font-weight: 500;
+	border-radius: 100px;
+	opacity: 0;
+	transition: opacity 0.2s ease;
+	pointer-events: none;
+	z-index: 5;
+}
+
+.webcam-section:hover .voice-hover-overlay {
+	opacity: 1;
+}
+
+// Voice split layout - Left=Conversation, Right=Assistant UI
+.voice-split-layout {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: row;
+	animation: slideInFromRight 0.3s ease-out;
+}
+
+// Left side: Conversation messages
+.voice-conversation-left {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	overflow: hidden;
+}
+
+.voice-messages-area {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 6px 19px;
+	overflow-y: auto;
+	position: relative;
+}
+
+// Right side: Assistant UI
+.voice-assistant-right {
+	width: 100px;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	position: relative;
+}
+
+.voice-message-frame {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 4px;
+	align-self: stretch;
+}
+
+.voice-message-sender {
+	color: #79ecc9;
+	font-family: 'General Sans Variable', sans-serif;
+	font-weight: 500;
+	font-size: 9px;
+	line-height: 1.35em;
+	text-align: left;
+}
+
+.voice-message-text {
+	color: #f2f2f3;
+	font-family: 'General Sans Variable', sans-serif;
+	font-weight: 500;
+	font-size: 11px;
+	line-height: 1.36em;
+	text-align: left;
+	fill: 1;
+}
+
+.hidden-livekit-room {
+	position: absolute;
+	visibility: hidden;
+	pointer-events: none;
+	width: 0;
+	height: 0;
+	overflow: hidden;
+}
+
+// Voice controls section (positioned on right side like Figma)
+.voice-controls-section {
+	position: relative;
+	width: 100px;
+	height: 100px;
+	background: #6b6b6b;
+	border: 0.5px solid rgba(121, 236, 201, 0.2);
+	border-radius: 100px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0px 0px 30px 0px rgba(121, 236, 201, 0.5);
+}
+
+.voice-status-area {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 15px;
+}
+
+.voice-animation-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.voice-visualizer {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+
+	.audio-bar {
+		width: 3px;
+		height: 12px;
+		background: #79ecc9;
+		border-radius: 2px;
+		animation: audioViz 1.5s ease-in-out infinite;
+
+		&:nth-child(1) {
+			animation-delay: 0s;
+		}
+		&:nth-child(2) {
+			animation-delay: 0.2s;
+		}
+		&:nth-child(3) {
+			animation-delay: 0.4s;
+		}
+		&:nth-child(4) {
+			animation-delay: 0.6s;
+		}
+		&:nth-child(5) {
+			animation-delay: 0.8s;
+		}
+	}
+}
+
+@keyframes audioViz {
+	0%,
+	100% {
+		height: 12px;
+		opacity: 0.7;
+	}
+	50% {
+		height: 20px;
+		opacity: 1;
+	}
+}
+
+.voice-status-text {
+	color: #f2f2f3;
+	font-family: 'General Sans Variable', sans-serif;
+	font-weight: 500;
+	font-size: 10px;
+	text-align: center;
+}
+
+.voice-action-buttons {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 15px;
+}
+
+.voice-close-btn,
+.voice-mic-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	svg {
+		width: 18px;
+		height: 18px;
+		color: #f2f2f3;
+	}
+
+	&:hover {
+		transform: scale(1.1);
+
+		svg {
+			color: #79ecc9;
+		}
+	}
+}
+
+.voice-connecting-state {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+}
+
+// Voice interface animations
+@keyframes slideInFromRight {
+	from {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+@keyframes slideOutToRight {
+	from {
+		transform: translateX(0);
+		opacity: 1;
+	}
+	to {
+		transform: translateX(100%);
+		opacity: 0;
+	}
 }
 
 // Camera live indicator
