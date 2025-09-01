@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 // import Sidebar from '../components/sidebar/Sidebar';
 import TopNavbar from '../components/topNavbar/TopNavbar';
@@ -29,15 +29,12 @@ const AuthWrapper = ({
 	showSidebar = true,
 }) => {
 	const { isOnline } = useNetworkStatus();
+	usePushNotifications(showPushNotification);
 	const { authInitialized } = useAuthInitializer();
 	const {
 		aiSetup: { showVoiceWidget },
 	} = useContext(Context);
 	const [showServerError, setShowServerError] = useState(false);
-	usePushNotifications((payload) => {
-		const { title, body } = payload.notification || {};
-		message.success(`${title || 'Notification'}: ${body || ''}`);
-	});
 
 	useEffect(() => {
 		const handler = () => setShowServerError(true);
@@ -48,6 +45,12 @@ const AuthWrapper = ({
 			internalServerEmitter.off('serverError', handler);
 		};
 	});
+
+	const showPushNotification = useCallback((payload) => {
+		const { title, body } = payload.notification || {};
+		message.success(`${title || 'Notification'}: ${body || ''}`);
+	}, []);
+
 	// const layoutMode = showSidebar && workspaceMode !== 'stable' ? 'sidebar' : 'topNavbar';
 	// const layoutModeComponentMap = {
 	// 	sidebar: (
