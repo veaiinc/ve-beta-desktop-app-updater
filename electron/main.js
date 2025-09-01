@@ -7,6 +7,7 @@ const {
 	systemPreferences,
 	ipcMain,
 	desktopCapturer,
+	Notification,
 } = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
@@ -292,6 +293,24 @@ autoUpdater.on('update-downloaded', (info) => {
 	setTimeout(() => autoUpdater.quitAndInstall(), 3000);
 });
 
+function showNotification(title, body) {
+	try {
+		const notification = new Notification({
+			title: title || 'Alert',
+			body: body || 'This is a test',
+			silent: false, // Plays default sound
+		});
+
+		notification.on('click', () => {
+			if (mainWindow) mainWindow.focus();
+		});
+		notification.on('error', (err) => console.error('Notification error:', err));
+
+		notification.show();
+	} catch (err) {
+		console.error('Failed to show notification:', err);
+	}
+}
 // IPC Handlers for updates
 ipcMain.handle('check-for-updates', async () => {
 	log.info('Manual update check triggered');
@@ -511,6 +530,19 @@ app.whenReady().then(() => {
 		}, 4000);
 	}
 
+	let lastNotificationTime = 0;
+	const NOTIFICATION_INTERVAL = 10 * 60 * 1000; // 10 minutes
+
+	ipcMain.on('mic-activity-detected', (event, data) => {
+		const now = Date.now();
+		if (now - lastNotificationTime < NOTIFICATION_INTERVAL) return;
+
+		lastNotificationTime = now;
+		showNotification('Meeting Detected', 'Want V.E. Bot to join?');
+	});
+
+	// 🎤 IPC: Start Mic Monitoring
+
 	createWindow();
 
 	// Initialize WindowHelper for overlay window functionality
@@ -526,6 +558,19 @@ app.whenReady().then(() => {
 	dynamicIslandHelper = new DynamicIslandHelper();
 	dynamicIslandHelper.createDynamicIslandWindow();
 
+	mainWindow.webContents.once('did-finish-load', () => {
+		mainWindow.webContents.send('start-mic-monitoring');
+	});
+
+	// Optional: Fallback in case it never fires
+	setTimeout(() => {
+		if (mainWindow && !mainWindow.isDestroyed()) {
+			const hasFinished = mainWindow.webContents.isLoading();
+			if (!hasFinished) {
+				mainWindow.webContents.send('start-mic-monitoring');
+			}
+		}
+	}, 5000);
 	// Register global shortcut for dynamic island (Cmd+I)
 	const { globalShortcut } = require('electron');
 	const cmdIRegistered = globalShortcut.register('CommandOrControl+I', () => {
