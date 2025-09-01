@@ -5,16 +5,20 @@ class NotchDropAddonWrapper {
 		this.addon = new NotchDropAddon();
 		this.isInitialized = false;
 		
-		// CRITICAL FIX: Add bridge readiness tracking
-		this.bridgeReady = false;
+		// CRITICAL FIX: Immediate response capability
+		this.bridgeReady = true; // Start as ready for immediate response
 		this.initializationPromise = null;
 		this.pendingActions = [];
-		this.electronProcessReady = false;
+		this.electronProcessReady = true; // Assume ready for immediate actions
+		this.immediateMode = true; // Enable immediate action execution
 		
 		this.setupEventListeners();
 		
-		// CRITICAL FIX: Start bridge initialization immediately
-		this.initializeBridge();
+		// CRITICAL FIX: Initialize bridge in background, don't wait
+		this.initializeBridge().catch(console.error);
+		
+		// Signal readiness immediately for first-click responsiveness
+		this.signalReadiness();
 	}
 
 	setupEventListeners() {
@@ -100,6 +104,25 @@ class NotchDropAddonWrapper {
 		});
 		
 		return this.initializationPromise;
+	}
+
+	// Signal immediate readiness for first-click responsiveness
+	signalReadiness() {
+		console.log('🚀 NotchDropAddon: Signaling immediate readiness for first-click response');
+		
+		// Emit readiness signal immediately
+		this.emit('bridgeReady');
+		
+		// Signal to Swift UI that we're ready for immediate actions
+		try {
+			if (typeof global !== 'undefined' && global.notchDropSwiftCallback) {
+				global.notchDropSwiftCallback('bridgeReady', 'immediate');
+			}
+		} catch (error) {
+			// Ignore callback errors in immediate mode
+		}
+		
+		console.log('✅ NotchDropAddon: Immediate readiness signaled');
 	}
 	
 	// CRITICAL FIX: Wait for core Electron services to be ready
@@ -246,14 +269,20 @@ class NotchDropAddonWrapper {
 		});
 	}
 
-	// CRITICAL FIX: Enhanced Swift action handling with queuing
+	// CRITICAL FIX: Immediate action execution for first-click responsiveness
 	handleSwiftAction(actionData) {
 		try {
 			const [action, data] = actionData.split(':');
-			console.log('🎯 Processing Swift action:', action, 'with data:', data);
+			console.log('⚡ IMMEDIATE: Processing Swift action:', action, 'with data:', data);
 			
-			// CRITICAL FIX: Queue actions if bridge not ready
-			if (!this.bridgeReady) {
+			// CRITICAL FIX: Execute critical actions immediately regardless of bridge state
+			if (this.isCriticalAction(action)) {
+				console.log('🚀 CRITICAL ACTION: Executing immediately for first-click responsiveness');
+				return this.executeImmediately(action, data);
+			}
+			
+			// For non-critical actions, check bridge readiness
+			if (!this.bridgeReady && !this.immediateMode) {
 				console.log('⏳ Bridge not ready, queuing action:', action);
 				this.pendingActions.push(actionData);
 				
@@ -264,56 +293,100 @@ class NotchDropAddonWrapper {
 				return;
 			}
 
-			switch (action) {
-				case 'startRecording':
-					console.log('🎤 Swift requested start recording - opening overlay window IMMEDIATELY');
-					this.triggerOverlayRecording();
-					break;
-				case 'stopRecording':
-					console.log('⏹️ Swift requested stop recording');
-					this.triggerOverlayStopRecording();
-					break;
-				case 'pauseRecording':
-					console.log('⏸️ Swift requested pause recording');
-					this.triggerOverlayPauseRecording();
-					break;
-				case 'resumeRecording':
-					console.log('▶️ Swift requested resume recording');
-					this.triggerOverlayResumeRecording();
-					break;
-				case 'triggerOverlayToggleLiveIntelligence':
-					console.log('🧠 Swift requested overlay toggle live intelligence');
-					this.triggerOverlayToggleLiveIntelligence();
-					break;
-				case 'expand':
-					console.log('📏 Swift requested expand');
-					this.emit('expand');
-					break;
-				case 'collapse':
-					console.log('📐 Swift requested collapse');
-					this.emit('collapse');
-					break;
-				case 'toggleChatMode':
-					console.log('💬 Swift requested toggle chat mode');
-					this.emit('toggleChatMode');
-					break;
-				case 'submitChat':
-					console.log('📝 Swift submitted chat:', data);
-					this.emit('submitChat', data);
-					break;
-				case 'setAuthenticated':
-					console.log('🔐 Swift set authenticated:', data);
-					this.emit('setAuthenticated', data === 'true');
-					break;
-				case 'sendLog':
-					console.log('📝 Swift sent log message:', data);
-					this.handleSwiftLog(data);
-					break;
-				default:
-					console.warn('⚠️ Unknown Swift action:', action);
-			}
+			// Execute action immediately
+			this.executeAction(action, data);
 		} catch (error) {
 			console.error('❌ Error handling Swift action:', error);
+		}
+	}
+
+	// Determine if action is critical and needs immediate execution
+	isCriticalAction(action) {
+		const criticalActions = [
+			'startRecording',
+			'triggerOverlayToggleLiveIntelligence',
+			'stopRecording',
+			'pauseRecording',
+			'resumeRecording'
+		];
+		return criticalActions.includes(action);
+	}
+
+	// Execute critical actions immediately without waiting for bridge
+	executeImmediately(action, data) {
+		console.log('⚡ EXECUTING IMMEDIATELY:', action);
+		
+		switch (action) {
+			case 'startRecording':
+				console.log('🎤 IMMEDIATE: Swift start recording - opening overlay NOW');
+				return this.triggerOverlayRecordingImmediate();
+			case 'triggerOverlayToggleLiveIntelligence':
+				console.log('🧠 IMMEDIATE: Swift toggle live intelligence - opening overlay NOW');
+				return this.triggerOverlayToggleLiveIntelligenceImmediate();
+			case 'stopRecording':
+				console.log('⏹️ IMMEDIATE: Swift stop recording');
+				return this.triggerOverlayStopRecordingImmediate();
+			case 'pauseRecording':
+				console.log('⏸️ IMMEDIATE: Swift pause recording');
+				return this.triggerOverlayPauseRecordingImmediate();
+			case 'resumeRecording':
+				console.log('▶️ IMMEDIATE: Swift resume recording');
+				return this.triggerOverlayResumeRecordingImmediate();
+			default:
+				// Fallback to normal execution
+				return this.executeAction(action, data);
+		}
+	}
+
+	// Normal action execution
+	executeAction(action, data) {
+		switch (action) {
+			case 'startRecording':
+				console.log('🎤 Swift requested start recording - opening overlay window');
+				this.triggerOverlayRecording();
+				break;
+			case 'stopRecording':
+				console.log('⏹️ Swift requested stop recording');
+				this.triggerOverlayStopRecording();
+				break;
+			case 'pauseRecording':
+				console.log('⏸️ Swift requested pause recording');
+				this.triggerOverlayPauseRecording();
+				break;
+			case 'resumeRecording':
+				console.log('▶️ Swift requested resume recording');
+				this.triggerOverlayResumeRecording();
+				break;
+			case 'triggerOverlayToggleLiveIntelligence':
+				console.log('🧠 Swift requested overlay toggle live intelligence');
+				this.triggerOverlayToggleLiveIntelligence();
+				break;
+			case 'expand':
+				console.log('📏 Swift requested expand');
+				this.emit('expand');
+				break;
+			case 'collapse':
+				console.log('📐 Swift requested collapse');
+				this.emit('collapse');
+				break;
+			case 'toggleChatMode':
+				console.log('💬 Swift requested toggle chat mode');
+				this.emit('toggleChatMode');
+				break;
+			case 'submitChat':
+				console.log('📝 Swift submitted chat:', data);
+				this.emit('submitChat', data);
+				break;
+			case 'setAuthenticated':
+				console.log('🔐 Swift set authenticated:', data);
+				this.emit('setAuthenticated', data === 'true');
+				break;
+			case 'sendLog':
+				console.log('📝 Swift sent log message:', data);
+				this.handleSwiftLog(data);
+				break;
+			default:
+				console.warn('⚠️ Unknown Swift action:', action);
 		}
 	}
 
@@ -843,6 +916,143 @@ class NotchDropAddonWrapper {
 			if (index > -1) {
 				this.listeners[event].splice(index, 1);
 			}
+		}
+	}
+
+	// CRITICAL FIX: Immediate overlay trigger methods for first-click responsiveness
+	async triggerOverlayRecordingImmediate() {
+		console.log('⚡ IMMEDIATE: Triggering overlay recording NOW - no waiting');
+		
+		try {
+			// Method 1: Direct IPC call to main process
+			if (typeof require !== 'undefined') {
+				try {
+					const { ipcRenderer } = require('electron');
+					if (ipcRenderer) {
+						console.log('📡 Using ipcRenderer for immediate overlay trigger');
+						const result = await ipcRenderer.invoke('notchdrop:triggerOverlayRecording');
+						console.log('✅ Immediate overlay recording triggered via ipcRenderer:', result);
+						return result;
+					}
+				} catch (e) {
+					// Not in renderer process, try main process method
+				}
+
+				try {
+					const { ipcMain } = require('electron');
+					if (ipcMain) {
+						console.log('📡 Using process emit for immediate overlay trigger');
+						process.emit('swift-ui-trigger-overlay-recording-immediate');
+						console.log('✅ Immediate overlay recording event emitted');
+						return { success: true, method: 'process-emit' };
+					}
+				} catch (e) {
+					// Neither renderer nor main process IPC available
+				}
+			}
+
+			// Method 2: Global callback fallback
+			if (typeof global !== 'undefined' && global.notchDropOverlayCallback) {
+				console.log('📡 Using global callback for immediate overlay trigger');
+				global.notchDropOverlayCallback('startRecording', { immediate: true });
+				console.log('✅ Immediate overlay recording triggered via global callback');
+				return { success: true, method: 'global-callback' };
+			}
+
+			// Method 3: Event emission fallback
+			console.log('📡 Using event emission for immediate overlay trigger');
+			this.emit('triggerOverlayRecording', { immediate: true });
+			console.log('✅ Immediate overlay recording event emitted');
+			return { success: true, method: 'event-emission' };
+
+		} catch (error) {
+			console.error('❌ Failed to trigger immediate overlay recording:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	async triggerOverlayToggleLiveIntelligenceImmediate() {
+		console.log('⚡ IMMEDIATE: Triggering overlay live intelligence NOW - no waiting');
+		
+		try {
+			// Method 1: Direct IPC call to main process
+			if (typeof require !== 'undefined') {
+				try {
+					const { ipcRenderer } = require('electron');
+					if (ipcRenderer) {
+						console.log('📡 Using ipcRenderer for immediate live intelligence trigger');
+						const result = await ipcRenderer.invoke('notchdrop:triggerOverlayToggleLiveIntelligence');
+						console.log('✅ Immediate live intelligence triggered via ipcRenderer:', result);
+						return result;
+					}
+				} catch (e) {
+					// Not in renderer process, try main process method
+				}
+
+				try {
+					const { ipcMain } = require('electron');
+					if (ipcMain) {
+						console.log('📡 Using process emit for immediate live intelligence trigger');
+						process.emit('swift-ui-trigger-overlay-live-intelligence-immediate');
+						console.log('✅ Immediate live intelligence event emitted');
+						return { success: true, method: 'process-emit' };
+					}
+				} catch (e) {
+					// Neither renderer nor main process IPC available
+				}
+			}
+
+			// Method 2: Global callback fallback
+			if (typeof global !== 'undefined' && global.notchDropOverlayCallback) {
+				console.log('📡 Using global callback for immediate live intelligence trigger');
+				global.notchDropOverlayCallback('toggleLiveIntelligence', { immediate: true });
+				console.log('✅ Immediate live intelligence triggered via global callback');
+				return { success: true, method: 'global-callback' };
+			}
+
+			// Method 3: Event emission fallback
+			console.log('📡 Using event emission for immediate live intelligence trigger');
+			this.emit('triggerOverlayToggleLiveIntelligence', { immediate: true });
+			console.log('✅ Immediate live intelligence event emitted');
+			return { success: true, method: 'event-emission' };
+
+		} catch (error) {
+			console.error('❌ Failed to trigger immediate overlay live intelligence:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	// Immediate stop/pause/resume methods for completeness
+	async triggerOverlayStopRecordingImmediate() {
+		console.log('⚡ IMMEDIATE: Stopping overlay recording NOW');
+		try {
+			this.emit('triggerOverlayStopRecording', { immediate: true });
+			return { success: true };
+		} catch (error) {
+			console.error('❌ Failed to stop recording immediately:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	async triggerOverlayPauseRecordingImmediate() {
+		console.log('⚡ IMMEDIATE: Pausing overlay recording NOW');
+		try {
+			this.emit('triggerOverlayPauseRecording', { immediate: true });
+			return { success: true };
+		} catch (error) {
+			console.error('❌ Failed to pause recording immediately:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	async triggerOverlayResumeRecordingImmediate() {
+		console.log('⚡ IMMEDIATE: Resuming overlay recording NOW');
+		try {
+			this.emit('triggerOverlayResumeRecording', { immediate: true });
+			return { success: true };
+		} catch (error) {
+			console.error('❌ Failed to resume recording immediately:', error);
+			return { success: false, error: error.message };
 		}
 	}
 }

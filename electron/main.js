@@ -776,6 +776,19 @@ app.whenReady().then(async () => {
 	windowHelper = new WindowHelper();
 	windowHelper.registerGlobalShortcuts(mainWindow);
 
+	// Phase 1.5: CRITICAL FIX: Pre-create overlay window for immediate response
+	log.info('📋 Phase 1.5: Pre-creating overlay window for instant Swift UI response...');
+	try {
+		if (windowHelper && typeof windowHelper.preCreateOverlayWindow === 'function') {
+			await windowHelper.preCreateOverlayWindow();
+			log.info('✅ Overlay window pre-created successfully for immediate response');
+		} else {
+			log.warn('⚠️ WindowHelper pre-creation method not available, will create on-demand');
+		}
+	} catch (error) {
+		log.error('❌ Error pre-creating overlay window:', error);
+	}
+
 	// Phase 2: Initialize DynamicIslandHelper (UI component)
 	log.info('📋 Phase 2: Initializing DynamicIslandHelper...');
 	dynamicIslandHelper = new DynamicIslandHelper();
@@ -855,38 +868,119 @@ app.whenReady().then(async () => {
 		}
 	}, 3000); // Extended wait time for complete initialization
 
-	// Listen for Swift UI overlay recording requests
+	// CRITICAL FIX: Enhanced Swift UI overlay recording requests with immediate response
 	process.on('swift-ui-trigger-overlay-recording', async () => {
 		try {
 			log.info('🎤 Received Swift UI overlay recording request');
-
-			// Use the same logic as the existing notchdrop:triggerOverlayRecording handler
-			let overlayWindow = windowHelper?.getOverlayWindow();
-			if (!overlayWindow) {
-				// Create overlay window if it doesn't exist
-				windowHelper?.createOverlayWindow();
-				await new Promise((resolve) => setTimeout(resolve, 100)); // Small delay
-				overlayWindow = windowHelper?.getOverlayWindow();
-			}
-
-			if (overlayWindow) {
-				// Show overlay window if not visible
-				if (!overlayWindow.isVisible()) {
-					windowHelper?.showOverlayWindow();
-				}
-
-				// Send command to overlay window to start recording
-				overlayWindow.webContents.send('overlay-command', {
-					action: 'startRecording',
-				});
-				log.info('✅ Sent startRecording command to overlay window from Swift UI');
-			} else {
-				log.error('❌ Overlay window not available after creating');
-			}
+			await handleSwiftOverlayRequest('startRecording');
 		} catch (error) {
 			log.error('❌ Error handling Swift UI overlay recording request:', error);
 		}
 	});
+
+	// CRITICAL FIX: Immediate overlay recording request handler
+	process.on('swift-ui-trigger-overlay-recording-immediate', async () => {
+		try {
+			log.info('⚡ IMMEDIATE: Received Swift UI overlay recording request');
+			await handleSwiftOverlayRequestImmediate('startRecording');
+		} catch (error) {
+			log.error('❌ Error handling immediate Swift UI overlay recording request:', error);
+		}
+	});
+
+	// CRITICAL FIX: Immediate live intelligence request handler
+	process.on('swift-ui-trigger-overlay-live-intelligence-immediate', async () => {
+		try {
+			log.info('⚡ IMMEDIATE: Received Swift UI live intelligence request');
+			await handleSwiftOverlayRequestImmediate('toggleLiveIntelligence');
+		} catch (error) {
+			log.error('❌ Error handling immediate Swift UI live intelligence request:', error);
+		}
+	});
+
+	// CRITICAL FIX: Pre-create overlay window signal handler
+	process.on('pre-create-overlay-window', async () => {
+		try {
+			log.info('🔧 Received pre-create overlay window signal');
+			if (windowHelper && typeof windowHelper.preCreateOverlayWindow === 'function') {
+				await windowHelper.preCreateOverlayWindow();
+				log.info('✅ Overlay window pre-created via process signal');
+			} else {
+				log.warn('⚠️ WindowHelper not available for overlay pre-creation');
+			}
+		} catch (error) {
+			log.error('❌ Error pre-creating overlay window via signal:', error);
+		}
+	});
+
+	// CRITICAL FIX: Common handler for Swift overlay requests
+	async function handleSwiftOverlayRequest(action) {
+		let overlayWindow = windowHelper?.getOverlayWindow();
+		if (!overlayWindow) {
+			// Create overlay window if it doesn't exist
+			windowHelper?.createOverlayWindow();
+			await new Promise((resolve) => setTimeout(resolve, 100)); // Small delay
+			overlayWindow = windowHelper?.getOverlayWindow();
+		}
+
+		if (overlayWindow) {
+			// Show overlay window if not visible
+			if (!overlayWindow.isVisible()) {
+				windowHelper?.showOverlayWindow();
+			}
+
+			// Send command to overlay window
+			overlayWindow.webContents.send('overlay-command', {
+				action: action,
+			});
+			log.info(`✅ Sent ${action} command to overlay window from Swift UI`);
+		} else {
+			log.error(`❌ Overlay window not available after creating for ${action}`);
+		}
+	}
+
+	// CRITICAL FIX: Immediate handler for Swift overlay requests (no waiting)
+	async function handleSwiftOverlayRequestImmediate(action) {
+		log.info(`⚡ IMMEDIATE: Handling Swift ${action} request with zero delay`);
+		
+		// Try to use pre-created overlay first
+		let overlayWindow = windowHelper?.getOverlayWindow();
+		
+		if (!overlayWindow && windowHelper && typeof windowHelper.showOverlayImmediate === 'function') {
+			// Use immediate show method
+			const success = windowHelper.showOverlayImmediate();
+			if (success) {
+				overlayWindow = windowHelper.getOverlayWindow();
+			}
+		}
+		
+		if (!overlayWindow) {
+			// Fallback to normal creation but don't wait
+			windowHelper?.createOverlayWindow();
+			overlayWindow = windowHelper?.getOverlayWindow();
+		}
+
+		if (overlayWindow) {
+			// Show immediately without delay
+			if (!overlayWindow.isVisible()) {
+				overlayWindow.show();
+				overlayWindow.focus();
+				overlayWindow.moveTop();
+			}
+			
+			// Send command immediately
+			overlayWindow.webContents.send('overlay-command', {
+				action: action,
+				immediate: true,
+			});
+			
+			log.info(`⚡ IMMEDIATE: Sent ${action} command to overlay window - NO DELAY`);
+			return { success: true };
+		} else {
+			log.error(`❌ IMMEDIATE: Failed to get overlay window for Swift ${action} request`);
+			return { success: false, error: 'Overlay window not available' };
+		}
+	}
 
 	// Set up NotchDrop status change listener to update menu
 	setupNotchDropMenuUpdates();
@@ -1409,10 +1503,19 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	// CRITICAL FIX: Enhanced NotchDrop overlay integration handlers
+	// CRITICAL FIX: Enhanced NotchDrop overlay integration handlers with immediate response
 	ipcMain.handle('notchdrop:triggerOverlayRecording', async () => {
 		try {
-			log.info('🎤 SWIFT UI START BUTTON: NotchDrop requested overlay recording - IMMEDIATE RESPONSE');
+			log.info('⚡ SWIFT UI START BUTTON: Immediate overlay recording - ZERO DELAY MODE');
+			
+			// CRITICAL FIX: Try immediate response method first
+			const immediateResult = await handleSwiftOverlayRequestImmediate('startRecording');
+			if (immediateResult.success) {
+				log.info('🚀 SUCCESS: Immediate overlay recording triggered instantly!');
+				return immediateResult;
+			}
+			
+			log.info('🔄 Immediate failed, using fallback method...');
 			
 			// CRITICAL FIX: Verify windowHelper is available
 			if (!windowHelper) {

@@ -14,31 +14,41 @@ class NotchDropService {
 
 	async initialize() {
 		try {
-			// Load the native addon wrapper
+			log.info('🚀 Starting NotchDrop service with bridge pre-initialization...');
+			
+			// Phase 1: Pre-warm bridge BEFORE addon initialization
+			await this.preWarmBridge();
+			log.info('✅ Phase 1: Bridge pre-warmed successfully');
+
+			// Phase 2: Load and initialize addon with bridge ready
 			const addonPath = path.join(__dirname, '../../notchdrop-addon/index.js');
 			log.info('Loading NotchDrop addon from:', addonPath);
 			const NotchDropAddonWrapper = require(addonPath);
 
 			this.notchDropAddon = new NotchDropAddonWrapper();
 
-			// Set up event listeners
+			// Phase 3: Set up event listeners
 			this.setupEventListeners();
 
-			// Initialize the addon
+			// Phase 4: Initialize the addon with bridge ready
 			this.notchDropAddon.initialize();
 			this.isInitialized = true;
 
-			// Initialize Swift-JS Bridge for overlay integration
-			await this.initializeSwiftJSBridge();
+			// Phase 5: Ensure Swift-JS Bridge is ready for immediate actions
+			await this.ensureSwiftJSBridgeReady();
+			log.info('✅ Phase 5: Swift-JS Bridge ready for immediate actions');
 
-			log.info('✅ NotchDrop service initialized successfully');
+			// Phase 6: Pre-create overlay window for instant response
+			await this.preCreateOverlayWindow();
+			log.info('✅ Phase 6: Overlay window pre-created for instant response');
+
+			log.info('🎉 NotchDrop service initialized with immediate response capability');
 
 			// Auto-open NotchDrop after initialization if enabled
 			if (this.autoOpenOnStartup) {
-				setTimeout(() => {
-					this.enable();
-					log.info('🚀 Auto-opening NotchDrop on startup');
-				}, 1000); // 1 second delay to ensure everything is ready
+				// No delay needed since everything is pre-warmed
+				this.enable();
+				log.info('🚀 Auto-opening NotchDrop immediately (pre-warmed)');
 			}
 
 			return true;
@@ -308,17 +318,89 @@ class NotchDropService {
 		}
 	}
 
+	// CRITICAL FIX: Pre-warm bridge for immediate response
+	async preWarmBridge() {
+		try {
+			log.info('🔧 Pre-warming Swift-JS bridge...');
+			
+			// Pre-load bridge dependencies
+			const bridgePath = path.join(__dirname, '../../notchdrop-addon/swift-js-bridge.js');
+			const SwiftJSBridge = require(bridgePath);
+			
+			// Store bridge reference immediately
+			this.swiftJSBridge = SwiftJSBridge.bridge;
+			
+			// Pre-initialize bridge components
+			if (this.swiftJSBridge && this.swiftJSBridge.initialize) {
+				await this.swiftJSBridge.initialize();
+			}
+			
+			log.info('✅ Swift-JS bridge pre-warmed successfully');
+			return true;
+		} catch (error) {
+			log.warn('⚠️ Bridge pre-warming failed, will retry during normal initialization:', error);
+			return false;
+		}
+	}
+
+	// Enhanced bridge readiness verification
+	async ensureSwiftJSBridgeReady() {
+		try {
+			if (!this.swiftJSBridge) {
+				// Fallback to normal initialization if pre-warming failed
+				return await this.initializeSwiftJSBridge();
+			}
+			
+			// Verify bridge is functional
+			if (typeof this.swiftJSBridge.handleSwiftAction !== 'function') {
+				log.warn('⚠️ Bridge loaded but not functional, re-initializing...');
+				return await this.initializeSwiftJSBridge();
+			}
+			
+			log.info('✅ Swift-JS Bridge verified ready for immediate actions');
+			return true;
+		} catch (error) {
+			log.error('❌ Failed to ensure Swift-JS Bridge readiness:', error);
+			return false;
+		}
+	}
+
+	// Pre-create overlay window for instant response
+	async preCreateOverlayWindow() {
+		try {
+			log.info('🔧 Pre-creating overlay window for instant response...');
+			
+			// Signal to main process to pre-create overlay window
+			if (this.mainWindow && this.mainWindow.webContents) {
+				this.mainWindow.webContents.send('pre-create-overlay-window');
+				log.info('✅ Overlay window pre-creation signal sent');
+			} else {
+				// Use process event as fallback
+				process.emit('pre-create-overlay-window');
+				log.info('✅ Overlay window pre-creation event emitted');
+			}
+			
+			return true;
+		} catch (error) {
+			log.warn('⚠️ Overlay window pre-creation failed:', error);
+			return false;
+		}
+	}
+
 	async initializeSwiftJSBridge() {
 		try {
-			// Load the Swift-JS bridge
-			const bridgePath = path.join(__dirname, '../../notchdrop-addon/swift-js-bridge.js');
-			log.info('Loading Swift-JS bridge from:', bridgePath);
-			const SwiftJSBridge = require(bridgePath);
-
-			this.swiftJSBridge = SwiftJSBridge.bridge;
+			// Load the Swift-JS bridge if not already loaded
+			if (!this.swiftJSBridge) {
+				const bridgePath = path.join(__dirname, '../../notchdrop-addon/swift-js-bridge.js');
+				log.info('Loading Swift-JS bridge from:', bridgePath);
+				const SwiftJSBridge = require(bridgePath);
+				this.swiftJSBridge = SwiftJSBridge.bridge;
+			}
 
 			// Initialize the bridge
-			await this.swiftJSBridge.initialize();
+			if (this.swiftJSBridge && this.swiftJSBridge.initialize) {
+				await this.swiftJSBridge.initialize();
+			}
 
 			log.info('✅ Swift-JS Bridge initialized successfully');
 			return true;
