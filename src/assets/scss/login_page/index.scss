@@ -15,7 +15,7 @@
 		.main-content-container {
 			display: flex;
 			flex-direction: column;
-			background: #e3e3e3;
+			background: #f3f6f5;
 
 			.header-container {
 				display: flex;
@@ -24,6 +24,9 @@
 				justify-content: space-between;
 				align-items: center;
 				flex-shrink: 0;
+				.logo {
+					cursor: pointer;
+				}
 			}
 
 			.content-container {
@@ -50,22 +53,21 @@
 			left: 50%;
 			transform: translateX(-50%);
 			display: flex;
-			max-width: 400px;
-			width: 100%;
-			padding: 16px;
+			width: 250px;
 			flex-direction: column;
-			justify-content: center;
-			align-items: center;
-			gap: 16px;
-			border-radius: 8px;
-			border: 1px solid grey;
-			background: #e3e3e3;
+			align-items: flex-start;
+			border-radius: 14px;
+			background: #fff;
+			box-shadow: 80px 204px 61px 0 rgba(0, 0, 0, 0), 51px 130px 56px 0 rgba(0, 0, 0, 0.01),
+				29px 73px 47px 0 rgba(0, 0, 0, 0.03), 13px 33px 35px 0 rgba(0, 0, 0, 0.05),
+				3px 8px 19px 0 rgba(0, 0, 0, 0.05);
 
 			.cookie-container {
 				display: flex;
+				padding: 10px;
+				justify-content: center;
 				align-items: center;
-				gap: 16px;
-				width: fit-content;
+				gap: 10px;
 
 				.cookie-icon {
 					display: flex;
@@ -76,27 +78,26 @@
 				.cookie-text {
 					color: #18181b;
 					text-align: center;
-					font-family: var(--primary-font-family);
-					font-size: 13px;
+					font-family: 'GeneralSans';
+					font-size: 10px;
 					font-style: normal;
 					font-weight: 500;
-					line-height: 22px; /* 169.231% */
+					line-height: 15px; /* 169.231% */
 
 					.cookie-policy-link {
-						color: #18181b;
-						font-family: var(--primary-font-family);
-						font-size: 13px;
+						color: #34ad9b;
+						font-family: 'GeneralSans';
+						font-size: 11px;
 						font-style: normal;
 						font-weight: 500;
-						line-height: 22px;
+						line-height: 15px;
+						background: #fff;
 						text-decoration-line: underline;
 						text-decoration-style: solid;
 						text-decoration-skip-ink: auto;
 						text-decoration-thickness: auto;
 						text-underline-offset: auto;
-						text-underline-position: from-font;
 						cursor: pointer;
-						background-color: transparent;
 					}
 				}
 			}
@@ -104,53 +105,74 @@
 			.buttons-container {
 				display: flex;
 				align-items: center;
-				gap: 12px;
+				// gap: 12px;
+				width: 100%;
+				justify-content: space-between;
+
+				// .accept-button {
+				// 	display: flex;
+				// 	padding: 8px 16px;
+				// 	justify-content: center;
+				// 	align-items: center;
+				// 	gap: 10px;
+				// 	border-radius: 100px;
+				// 	border: 1px solid var(--primary-button);
+				// 	color: var(--primary-font);
+				// 	font-family: var(--primary-font-family);
+				// 	font-size: 14px;
+				// 	font-style: normal;
+				// 	font-weight: 500;
+				// 	line-height: normal;
+				// 	cursor: pointer;
+				// 	&:hover {
+				// 		background-color: var(--primary-button);
+				// 		color: var(--primary-button-font);
+				// 	}
+				// }
 
 				.accept-button {
 					display: flex;
-					padding: 8px 16px;
+					padding: 8px 12px;
 					justify-content: center;
 					align-items: center;
 					gap: 10px;
-					border-radius: 100px;
-					border: 1px solid var(--primary-button);
-					color: var(--primary-font);
-					font-family: var(--primary-font-family);
-					font-size: 14px;
+					flex: 1 0 0;
+					background: #34ad9b;
+					color: #fff;
+					text-align: center;
+					font-family: 'GeneralSans';
+					font-size: 10px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
+					border-bottom-right-radius: 12px;
 					cursor: pointer;
 					&:hover {
-						background-color: var(--primary-button);
-						color: var(--primary-button-font);
+						background: #2e8679;
 					}
-				}
-
-				.accept-button {
-					color: #18181b;
 				}
 
 				.decline-button {
 					display: flex;
-					padding: 8px 16px;
-					width: fit-content;
-					flex-wrap: nowrap;
-					white-space: nowrap;
+					padding: 8px 12px;
 					justify-content: center;
 					align-items: center;
+					background: #e3e3e3;
 					gap: 10px;
-					border-radius: 100px;
-					border: 1px solid grey;
+					flex: 1 0 0;
+					border-top: 0.6px solid #e3e3e3;
 					color: #18181b;
-					font-family: var(--primary-font-family);
-					font-size: 14px;
+					text-align: center;
+					font-family: 'GeneralSans';
+					font-size: 10px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
 					cursor: pointer;
+					border-bottom-left-radius: 12px;
 					&:hover {
-						border: 1px solid grey;
+						background: rgb(30, 29, 29);
+						color: #fff;
 					}
 				}
 			}
