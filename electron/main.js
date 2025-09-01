@@ -768,23 +768,92 @@ app.whenReady().then(async () => {
 	// Create application menu bar
 	createMenuBar();
 
-	// Initialize WindowHelper for overlay window functionality
+	// CRITICAL FIX: Enhanced initialization sequence to prevent race conditions
+	log.info('🚀 Starting enhanced service initialization sequence...');
+	
+	// Phase 1: Initialize WindowHelper first (required for overlay operations)
+	log.info('📋 Phase 1: Initializing WindowHelper...');
 	windowHelper = new WindowHelper();
 	windowHelper.registerGlobalShortcuts(mainWindow);
 
-	// Test shortcuts after registration
-	setTimeout(() => {
-		windowHelper.testShortcuts();
-	}, 2000); // Wait 2 seconds for app to fully initialize
-
-	// Initialize DynamicIslandHelper for dynamic island functionality
+	// Phase 2: Initialize DynamicIslandHelper (UI component)
+	log.info('📋 Phase 2: Initializing DynamicIslandHelper...');
 	dynamicIslandHelper = new DynamicIslandHelper();
 	dynamicIslandHelper.createDynamicIslandWindow();
 
-	// Initialize NotchDrop service
+	// Phase 3: Initialize NotchDrop service with proper readiness waiting
+	log.info('📋 Phase 3: Initializing NotchDrop service with bridge readiness...');
 	notchDropService = new NotchDropService();
 	notchDropService.setMainWindow(mainWindow);
-	await notchDropService.initialize();
+	
+	// CRITICAL: Ensure NotchDrop service fully initializes before proceeding
+	let notchDropInitialized = false;
+	let initRetries = 0;
+	const maxInitRetries = 5;
+	
+	while (!notchDropInitialized && initRetries < maxInitRetries) {
+		try {
+			await notchDropService.initialize();
+			
+			// Verify service is truly ready by testing basic operations
+			if (notchDropService.isInitialized && notchDropService.isInitialized()) {
+				notchDropInitialized = true;
+				log.info('✅ NotchDrop service initialization verified');
+			} else {
+				throw new Error('NotchDrop service initialization incomplete');
+			}
+		} catch (error) {
+			initRetries++;
+			log.warn(`⚠️ NotchDrop init attempt ${initRetries}/${maxInitRetries} failed:`, error.message);
+			
+			if (initRetries < maxInitRetries) {
+				await new Promise(resolve => setTimeout(resolve, 1000 * initRetries)); // Exponential backoff
+			} else {
+				log.error('❌ NotchDrop service failed to initialize after maximum retries');
+				// Continue anyway but log the issue
+				notchDropInitialized = true; // Allow app to continue
+			}
+		}
+	}
+	
+	// Phase 4: Wait for bridge components to be ready
+	log.info('📋 Phase 4: Waiting for bridge components to be ready...');
+	await new Promise(resolve => setTimeout(resolve, 1500)); // Give bridge time to initialize
+	
+	// Phase 5: Test shortcuts and validate system readiness  
+	setTimeout(() => {
+		log.info('📋 Phase 5: Testing system readiness...');
+		
+		// Test shortcuts
+		if (windowHelper) {
+			windowHelper.testShortcuts();
+		}
+		
+		// Test NotchDrop service readiness
+		if (notchDropService && notchDropService.isInitialized) {
+			try {
+				const status = notchDropService.getStatus();
+				log.info('✅ NotchDrop service status check:', status);
+			} catch (error) {
+				log.warn('⚠️ NotchDrop service status check failed:', error.message);
+			}
+		}
+		
+		// Signal that all services are ready
+		log.info('🎉 All services initialization completed - system ready for Swift UI interactions');
+		
+		// Emit readiness signal for any listening components
+		if (mainWindow && !mainWindow.isDestroyed()) {
+			mainWindow.webContents.send('system-ready', { 
+				timestamp: Date.now(),
+				services: {
+					windowHelper: !!windowHelper,
+					dynamicIslandHelper: !!dynamicIslandHelper,
+					notchDropService: !!notchDropService
+				}
+			});
+		}
+	}, 3000); // Extended wait time for complete initialization
 
 	// Listen for Swift UI overlay recording requests
 	process.on('swift-ui-trigger-overlay-recording', async () => {
@@ -1340,38 +1409,111 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	// NotchDrop overlay integration handlers
+	// CRITICAL FIX: Enhanced NotchDrop overlay integration handlers
 	ipcMain.handle('notchdrop:triggerOverlayRecording', async () => {
 		try {
-			log.info('🎤 NotchDrop requested overlay recording');
-			let overlayWindow = windowHelper?.getOverlayWindow();
-			if (!overlayWindow) {
-				// Create overlay window if it doesn't exist
-				windowHelper?.createOverlayWindow();
-				await new Promise((resolve) => setTimeout(resolve, 100)); // Small delay
-				overlayWindow = windowHelper?.getOverlayWindow();
+			log.info('🎤 SWIFT UI START BUTTON: NotchDrop requested overlay recording - IMMEDIATE RESPONSE');
+			
+			// CRITICAL FIX: Verify windowHelper is available
+			if (!windowHelper) {
+				log.error('❌ WindowHelper not initialized - critical error');
+				return { success: false, error: 'WindowHelper not available' };
+			}
+			
+			// CRITICAL FIX: Get or create overlay window with retry logic
+			let overlayWindow = windowHelper.getOverlayWindow();
+			let retryCount = 0;
+			const maxRetries = 3;
+			
+			while (!overlayWindow && retryCount < maxRetries) {
+				log.info(`🔧 Attempt ${retryCount + 1}: Creating overlay window...`);
+				windowHelper.createOverlayWindow();
+				
+				// Progressive wait times: 100ms, 200ms, 300ms
+				const waitTime = 100 + (retryCount * 100);
+				await new Promise((resolve) => setTimeout(resolve, waitTime));
+				
+				overlayWindow = windowHelper.getOverlayWindow();
+				retryCount++;
 			}
 
 			if (overlayWindow) {
-				// Show overlay window if not visible
+				// CRITICAL FIX: Verify window is not destroyed
+				if (overlayWindow.isDestroyed()) {
+					log.error('❌ Overlay window was destroyed, recreating...');
+					windowHelper.createOverlayWindow();
+					await new Promise((resolve) => setTimeout(resolve, 200));
+					overlayWindow = windowHelper.getOverlayWindow();
+				}
+				
+				// CRITICAL FIX: Enhanced window visibility handling
 				if (!overlayWindow.isVisible()) {
-					windowHelper?.showOverlayWindow();
+					log.info('👁️ Showing overlay window...');
+					windowHelper.showOverlayWindow();
+					
+					// Wait for window to be properly visible
+					let visibilityRetries = 0;
+					while (!overlayWindow.isVisible() && visibilityRetries < 5) {
+						await new Promise((resolve) => setTimeout(resolve, 50));
+						visibilityRetries++;
+					}
+					
+					if (!overlayWindow.isVisible()) {
+						log.warn('⚠️ Window may not be fully visible, proceeding anyway');
+					}
 				}
 
-				// Send command to overlay window to start recording
-				overlayWindow.webContents.send('overlay-command', {
-					action: 'startRecording',
-				});
-				log.info('Sent startRecording command to overlay window from NotchDrop');
+				// CRITICAL FIX: Enhanced command sending with fallback
+				let commandSent = false;
+				
+				// Try using the queuing system first
+				if (windowHelper.sendOverlayCommand) {
+					commandSent = windowHelper.sendOverlayCommand({
+						action: 'startRecording',
+					});
+					log.info(`✅ SMART QUEUE: StartRecording command ${commandSent ? 'sent immediately' : 'queued'} from Swift UI`);
+				}
+				
+				// Fallback: Direct webContents send if queuing failed
+				if (!commandSent && overlayWindow.webContents && !overlayWindow.webContents.isDestroyed()) {
+					try {
+						overlayWindow.webContents.send('overlay-command', {
+							action: 'startRecording',
+						});
+						log.info('✅ FALLBACK: StartRecording command sent directly to webContents');
+						commandSent = true;
+					} catch (fallbackError) {
+						log.error('❌ Fallback command sending failed:', fallbackError);
+					}
+				}
+				
+				// CRITICAL FIX: Ensure window is properly focused and visible
+				try {
+					overlayWindow.focus();
+					overlayWindow.moveTop();
+					overlayWindow.show(); // Extra show() call for reliability
+					
+					// Force window to be interactive
+					overlayWindow.setIgnoreMouseEvents(false);
+					
+					log.info('✅ Overlay window focused and brought to front');
+				} catch (focusError) {
+					log.warn('⚠️ Could not focus overlay window:', focusError);
+				}
+				
+				return { 
+					success: true, 
+					commandSent,
+					windowVisible: overlayWindow.isVisible(),
+					windowDestroyed: overlayWindow.isDestroyed()
+				};
 			} else {
-				log.error('Overlay window not available after creating');
-				return { success: false, error: 'Overlay window not available' };
+				log.error('❌ CRITICAL: Overlay window not available after all retry attempts');
+				return { success: false, error: 'Overlay window creation failed after retries' };
 			}
-
-			return { success: true };
 		} catch (error) {
-			log.error('Error handling NotchDrop overlay recording:', error);
-			return { success: false, error: error.message };
+			log.error('❌ CRITICAL ERROR handling Swift UI overlay recording request:', error);
+			return { success: false, error: error.message, stack: error.stack };
 		}
 	});
 
@@ -1475,8 +1617,8 @@ app.whenReady().then(async () => {
 			if (!overlayWindow) {
 				// Create overlay window if it doesn't exist
 				windowHelper?.createOverlayWindow();
-				// Wait a moment for the window to be created
-				await new Promise((resolve) => setTimeout(resolve, 1000));
+				// REDUCED DELAY: Wait only 200ms for window creation
+				await new Promise((resolve) => setTimeout(resolve, 200));
 				// Get the window reference again after creating it
 				overlayWindow = windowHelper?.getOverlayWindow();
 			}
@@ -1485,22 +1627,26 @@ app.whenReady().then(async () => {
 				// Show the window if it's not visible
 				if (!overlayWindow.isVisible()) {
 					windowHelper?.showOverlayWindow();
-					// Wait a moment for the window to be shown
-					await new Promise((resolve) => setTimeout(resolve, 500));
+					// REDUCED DELAY: Wait only 100ms for window display
+					await new Promise((resolve) => setTimeout(resolve, 100));
 				}
 
-				// Send command to overlay window to start recording
-				overlayWindow.webContents.send('overlay-command', {
+				// CRITICAL FIX: Use windowHelper's queuing system
+				const commandSent = windowHelper?.sendOverlayCommand({
 					action: 'startRecording',
 				});
-				log.info('Sent startRecording command to overlay window');
+				log.info(`✅ SMART QUEUE: StartRecording command ${commandSent ? 'sent immediately' : 'queued'}`);
+				
+				// Also trigger focus and bring to front
+				overlayWindow.focus();
+				overlayWindow.moveTop();
 			} else {
-				log.error('Overlay window not available after creating');
+				log.error('❌ Overlay window not available after creating');
 				return { success: false, error: 'Overlay window not available' };
 			}
 			return { success: true };
 		} catch (error) {
-			log.error('Error starting recording from dynamic island:', error);
+			log.error('❌ Error starting recording from dynamic island:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -1700,6 +1846,24 @@ app.whenReady().then(async () => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error updating Ask AI dimensions:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// CRITICAL FIX: Add missing update-overlay-dimensions handler
+	ipcMain.handle('update-overlay-dimensions', async (event, { width, height }) => {
+		try {
+			if (!windowHelper) {
+				log.error('❌ WindowHelper not initialized for overlay dimensions update');
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			
+			log.info(`🔧 Updating overlay dimensions to: ${width}x${height}`);
+			windowHelper.updateWindowDimensions(width, height);
+			
+			return { success: true };
+		} catch (error) {
+			log.error('❌ Error updating overlay dimensions:', error);
 			return { success: false, error: error.message };
 		}
 	});

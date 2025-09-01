@@ -9,6 +9,10 @@ class WindowHelper {
 		this.windowPosition = { x: 0, y: 0 };
 		this.windowSize = { width: 500, height: 150 };
 
+		// CRITICAL FIX: Track overlay window readiness
+		this.overlayWindowReady = false;
+		this.pendingOverlayActions = [];
+
 		// Ask AI window properties
 		this.askAIWindow = null;
 		this.isAskAIVisible = false;
@@ -25,6 +29,10 @@ class WindowHelper {
 
 	createOverlayWindow() {
 		if (this.overlayWindow !== null) return;
+
+		// CRITICAL FIX: Reset readiness state when creating new window
+		this.overlayWindowReady = false;
+		this.pendingOverlayActions = [];
 
 		const primaryDisplay = screen.getPrimaryDisplay();
 		const workArea = primaryDisplay.workAreaSize;
@@ -269,11 +277,29 @@ class WindowHelper {
 		this.overlayWindow.on('closed', () => {
 			this.overlayWindow = null;
 			this.isOverlayVisible = false;
+			// CRITICAL FIX: Reset readiness state when window closes
+			this.overlayWindowReady = false;
+			this.pendingOverlayActions = [];
 		});
 
-		// Set up basic window event handling
+		// CRITICAL FIX: Track if overlay is fully loaded and ready
 		this.overlayWindow.webContents.on('dom-ready', () => {
-			console.log('Overlay window DOM ready - click-through disabled');
+			console.log('🔧 Overlay window DOM ready - click-through disabled');
+		});
+
+		// CRITICAL FIX: Wait for complete loading before marking as ready
+		this.overlayWindow.webContents.on('did-finish-load', () => {
+			console.log('✅ Overlay window FULLY LOADED and ready for commands');
+			this.overlayWindowReady = true;
+			
+			// If there are any pending actions, execute them now
+			if (this.pendingOverlayActions && this.pendingOverlayActions.length > 0) {
+				console.log(`🎯 Executing ${this.pendingOverlayActions.length} pending overlay actions`);
+				this.pendingOverlayActions.forEach(action => {
+					this.overlayWindow.webContents.send('overlay-command', action);
+				});
+				this.pendingOverlayActions = [];
+			}
 		});
 	}
 
@@ -329,12 +355,37 @@ class WindowHelper {
 		return this.askAIWindow;
 	}
 
+	// CRITICAL FIX: Send command to overlay with proper queuing if not ready
+	sendOverlayCommand(action) {
+		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) {
+			console.warn('⚠️ Cannot send overlay command: window not available');
+			return false;
+		}
+
+		if (this.overlayWindowReady) {
+			// Window is ready, send command immediately
+			console.log(`✅ IMMEDIATE: Sending overlay command: ${action.action}`);
+			this.overlayWindow.webContents.send('overlay-command', action);
+			return true;
+		} else {
+			// Window not ready yet, queue the command
+			console.log(`⏳ QUEUING: Overlay not ready, queuing command: ${action.action}`);
+			this.pendingOverlayActions.push(action);
+			return false;
+		}
+	}
+
 	isVisible() {
 		return this.isOverlayVisible && this.overlayWindow && !this.overlayWindow.isDestroyed();
 	}
 
 	isAskAIWindowVisible() {
 		return this.isAskAIVisible && this.askAIWindow && !this.askAIWindow.isDestroyed();
+	}
+
+	// CRITICAL FIX: Check if overlay is ready for commands
+	isOverlayReady() {
+		return this.overlayWindow && !this.overlayWindow.isDestroyed() && this.overlayWindowReady;
 	}
 
 	hideOverlayWindow() {
