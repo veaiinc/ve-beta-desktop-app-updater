@@ -30,6 +30,13 @@
 				gap: 10px;
 				border-radius: 100px;
 				background: rgba(52, 160, 144, 0.1);
+				color: #18181b;
+				font-family: 'GeneralSans';
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				text-transform: uppercase;
 			}
 			.title-one {
 				color: var(--primary-font, #f2f2f3);
@@ -315,6 +322,18 @@
 				text-underline-offset: auto;
 				text-underline-position: from-font;
 				cursor: pointer;
+			}
+		}
+	}
+}
+
+@media (max-width: 500px) {
+	.verify-user-container {
+		.login-page-content {
+			.login-page-title {
+				.titleContainer {
+					width: auto;
+				}
 			}
 		}
 	}
