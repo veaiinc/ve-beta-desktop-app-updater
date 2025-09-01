@@ -434,6 +434,8 @@ export const AuthState = () => {
 			})?.toString();
 		}
 
+		const type = 'auth';
+		const authBaseUrl = getBaseUrl({ region: null, type });
 		window.location.href = `${authBaseUrl}${path}?${params}`;
 	};
 
