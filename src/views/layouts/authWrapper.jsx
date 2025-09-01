@@ -29,8 +29,15 @@ const AuthWrapper = ({
 	showSidebar = true,
 }) => {
 	const { isOnline } = useNetworkStatus();
+
+	const showPushNotification = useCallback((payload) => {
+		const { title, body } = payload.notification || {};
+		message.success(`${title || 'Notification'}: ${body || ''}`);
+	}, []);
+
 	usePushNotifications(showPushNotification);
 	const { authInitialized } = useAuthInitializer();
+
 	const {
 		aiSetup: { showVoiceWidget },
 	} = useContext(Context);
@@ -45,11 +52,6 @@ const AuthWrapper = ({
 			internalServerEmitter.off('serverError', handler);
 		};
 	});
-
-	const showPushNotification = useCallback((payload) => {
-		const { title, body } = payload.notification || {};
-		message.success(`${title || 'Notification'}: ${body || ''}`);
-	}, []);
 
 	// const layoutMode = showSidebar && workspaceMode !== 'stable' ? 'sidebar' : 'topNavbar';
 	// const layoutModeComponentMap = {
