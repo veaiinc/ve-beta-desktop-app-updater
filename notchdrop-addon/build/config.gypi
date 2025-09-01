@@ -434,7 +434,6 @@
     "userconfig": "/Users/gowtham/.npmrc",
     "npm_version": "11.5.2",
     "node_gyp": "/Users/gowtham/.nvm/versions/node/v20.19.0/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js",
-    "yes": "true",
     "cache": "/Users/gowtham/.npm",
     "user_agent": "npm/11.5.2 node/v20.19.0 darwin arm64 workspaces/false",
     "prefix": "/Users/gowtham/.nvm/versions/node/v20.19.0"

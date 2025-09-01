@@ -337,7 +337,7 @@ endif
 
 quiet_cmd_regen_makefile = ACTION Regenerating $@
 cmd_regen_makefile = cd $(srcdir); /Users/gowtham/.nvm/versions/node/v20.19.0/lib/node_modules/npm/node_modules/node-gyp/gyp/gyp_main.py -fmake --ignore-environment "-Dlibrary=shared_library" "-Dvisibility=default" "-Dnode_root_dir=/Users/gowtham/Library/Caches/node-gyp/20.19.0" "-Dnode_gyp_dir=/Users/gowtham/.nvm/versions/node/v20.19.0/lib/node_modules/npm/node_modules/node-gyp" "-Dnode_lib_file=/Users/gowtham/Library/Caches/node-gyp/20.19.0/<(target_arch)/node.lib" "-Dmodule_root_dir=/Users/gowtham/Desktop/workspace/github/ve-desktop-app/notchdrop-addon" "-Dnode_engine=v8" "--depth=." "-Goutput_dir=." "--generator-output=build" -I/Users/gowtham/Desktop/workspace/github/ve-desktop-app/notchdrop-addon/build/config.gypi -I/Users/gowtham/.nvm/versions/node/v20.19.0/lib/node_modules/npm/node_modules/node-gyp/addon.gypi -I/Users/gowtham/Library/Caches/node-gyp/20.19.0/include/node/common.gypi "--toplevel-dir=." binding.gyp
-Makefile: $(srcdir)/build/config.gypi $(srcdir)/node_modules/node-addon-api/node_api.gyp $(srcdir)/../../../../../Library/Caches/node-gyp/20.19.0/include/node/common.gypi $(srcdir)/../../../../../.nvm/versions/node/v20.19.0/lib/node_modules/npm/node_modules/node-gyp/addon.gypi $(srcdir)/binding.gyp
+Makefile: $(srcdir)/../../../../../Library/Caches/node-gyp/20.19.0/include/node/common.gypi $(srcdir)/../../../../../.nvm/versions/node/v20.19.0/lib/node_modules/npm/node_modules/node-gyp/addon.gypi $(srcdir)/node_modules/node-addon-api/node_api.gyp $(srcdir)/binding.gyp $(srcdir)/build/config.gypi
 	$(call do_cmd,regen_makefile)
 
 # "all" is a concatenation of the "all" targets from all the included

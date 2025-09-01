@@ -1,0 +1,32 @@
+{
+	"name": "notchdrop-addon",
+	"version": "1.0.0",
+	"description": "Native NotchDrop addon with React UI",
+	"main": "index.js",
+	"scripts": {
+		"build": "node-gyp rebuild",
+		"build:ui": "vite build",
+		"dev:ui": "vite",
+		"test": "node test-enhanced.js",
+		"test:ui": "node test-ui.js"
+	},
+	"dependencies": {
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0"
+	},
+	"devDependencies": {
+		"@types/react": "^18.2.0",
+		"@types/react-dom": "^18.2.0",
+		"@vitejs/plugin-react": "^4.0.0",
+		"vite": "^4.4.0",
+		"sass": "^1.64.0"
+	},
+	"keywords": [
+		"notchdrop",
+		"native",
+		"addon",
+		"ui"
+	],
+	"author": "Your Name",
+	"license": "MIT"
+}
