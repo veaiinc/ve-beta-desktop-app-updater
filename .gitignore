@@ -38,3 +38,5 @@ notarize_for_intel.sh
 NotchDrop
 
 notchdrop-addon
+
+build-and-notarize.sh
