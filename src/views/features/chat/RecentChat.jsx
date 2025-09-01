@@ -1283,22 +1283,21 @@ const RecentChat = ({
 					</div>
 				</div>
 
-				{/* {browserData && ( */}
-				<div
-					className="browser-container"
-					style={{
-						width: info?.openBrowser && showBrowser ? '50vw' : '0px',
-					}}
-				>
-					<Browser
-						sessionId={sessionId}
-						isOpen={info?.openBrowser && showBrowser}
-						browserData={browserData}
-						// liveViewUrl={liveViewUrl}
-						handleBrowserButtonClick={handleBrowserButtonClick}
-					/>
-				</div>
-				{/* )} */}
+				{showBrowser && (
+					<div
+						className="browser-container"
+						style={{
+							width: info?.openBrowser ? '50vw' : '0px',
+						}}
+					>
+						<Browser
+							sessionId={sessionId}
+							isOpen={info?.openBrowser}
+							browserData={browserData}
+							handleBrowserButtonClick={handleBrowserButtonClick}
+						/>
+					</div>
+				)}
 			</div>
 
 			<CitationsModal

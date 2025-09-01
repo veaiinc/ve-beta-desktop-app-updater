@@ -51,9 +51,9 @@
 			height: 100%;
 			z-index: 1500;
 			margin: 0;
-			padding-bottom: 0px;
-			border-radius: 0;
+			padding: 0px;
 			background-color: var(--card-over-card-hover);
+			border-radius: 0;
 
 			.browserIframeContainer {
 				overflow-y: auto;
@@ -61,6 +61,7 @@
 				border-radius: 0;
 				.browserIframe {
 					height: 100%;
+					max-width: 1500px;
 				}
 			}
 
@@ -123,11 +124,10 @@
 
 			.browserIframe {
 				width: 100%;
-				aspect-ratio: 5/4;
+				aspect-ratio: 5 / 4;
 				position: relative;
 				border: none;
 				box-shadow: 0px 4px 60px 0 rgba(0, 0, 0, 0.16);
-				border-radius: 12px;
 			}
 
 			.takeControlBtn {
