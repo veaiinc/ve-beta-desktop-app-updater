@@ -372,11 +372,19 @@ class WindowHelper {
 		const primaryDisplay = screen.getPrimaryDisplay();
 		const workArea = primaryDisplay.workAreaSize;
 
-		// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
-		// Position overlay below Dynamic Island with a gap
+		// Add proper spacing from Dynamic Island with platform-specific positioning
 		const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
 		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-		const topY = 30 + dynamicIslandHeight + gapFromDynamicIsland;
+		
+		// Platform-specific Dynamic Island Y position
+		let dynamicIslandY;
+		if (process.platform === 'win32') {
+			dynamicIslandY = 0 // Higher position on Windows
+		} else {
+			dynamicIslandY = 30; // Normal position on Mac/Linux
+		}
+		
+		const topY = dynamicIslandY + dynamicIslandHeight + gapFromDynamicIsland;
 
 		// Position overlay to allow space for ask AI on the right
 		let overlayX;
@@ -453,10 +461,19 @@ class WindowHelper {
 			// Center ask AI when overlay is not visible, below Dynamic Island with proper spacing
 			askAIX = Math.floor(workArea.width / 2) - Math.floor(this.askAIWindowSize.width / 2);
 
-			// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
+			// Add proper spacing from Dynamic Island with platform-specific positioning
 			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
 			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-			askAIY = 30 + dynamicIslandHeight + gapFromDynamicIsland;
+			
+			// Platform-specific Dynamic Island Y position
+			let dynamicIslandY;
+			if (process.platform === 'win32') {
+				dynamicIslandY = 15; // Higher position on Windows
+			} else {
+				dynamicIslandY = 30; // Normal position on Mac/Linux
+			}
+			
+			askAIY = dynamicIslandY + dynamicIslandHeight + gapFromDynamicIsland;
 		}
 
 		this.askAIWindow.setBounds({

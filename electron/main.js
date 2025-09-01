@@ -78,7 +78,13 @@ class DynamicIslandHelper {
 		// Position at center top - use expanded size for positioning
 		this.position.x =
 			Math.floor(this.screenWidth / 2) - Math.floor(this.expandedSize.width / 2);
-		this.position.y = 30; // Close to top
+		
+		// Platform-specific positioning
+		if (process.platform === 'win32') {
+			this.position.y=0; // Higher position on Windows
+		} else {
+			this.position.y = 30; // Normal position on Mac/Linux
+		}
 	}
 
 	createDynamicIslandWindow() {
@@ -261,6 +267,22 @@ class DynamicIslandHelper {
 		return this.isExpanded;
 	}
 
+	// Method to reposition Dynamic Island based on platform
+	repositionForPlatform() {
+		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
+
+		// Recalculate position based on current platform
+		if (process.platform === 'win32') {
+			this.position.y = 15; // Higher position on Windows
+		} else {
+			this.position.y = 30; // Normal position on Mac/Linux
+		}
+
+		// Update window position
+		this.dynamicIslandWindow.setPosition(this.position.x, this.position.y);
+		log.info(`Dynamic Island repositioned for ${process.platform} at ${this.position.x},${this.position.y}`);
+	}
+
 	focus() {
 		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
 			try {
@@ -420,31 +442,40 @@ ipcMain.handle('restart-app', () => {
 	return { success: true };
 });
 
-// Add manual download handler for Windows checksum issues
-ipcMain.handle('force-download-update', async () => {
-	if (process.env.NODE_ENV === 'development') {
-		return { success: false, error: 'Not available in dev' };
-	}
-	
-	try {
-		log.info('Force downloading update (skipping checksum verification)...');
+	// Add manual download handler for Windows checksum issues
+	ipcMain.handle('force-download-update', async () => {
+		if (process.env.NODE_ENV === 'development') {
+			return { success: false, error: 'Not available in dev' };
+		}
 		
-		// Temporarily disable autoDownload if it was enabled
-		const originalAutoDownload = autoUpdater.autoDownload;
-		autoUpdater.autoDownload = false;
-		
-		// Start download
-		await autoUpdater.downloadUpdate();
-		
-		// Restore original setting
-		autoUpdater.autoDownload = originalAutoDownload;
-		
-		return { success: true, message: 'Force download initiated' };
-	} catch (error) {
-		log.error('Force download failed:', error);
-		return { success: false, error: error.message };
-	}
-});
+		try {
+			log.info('Force downloading update (skipping checksum verification)...');
+			
+			// Temporarily disable autoDownload if it was enabled
+			const originalAutoDownload = autoUpdater.autoDownload;
+			autoUpdater.autoDownload = false;
+			
+			// Start download
+			await autoUpdater.downloadUpdate();
+			
+			// Restore original setting
+			autoUpdater.autoDownload = originalAutoDownload;
+			
+			return { success: true, message: 'Force download initiated' };
+		} catch (error) {
+			log.error('Force download failed:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Dynamic Island repositioning handler
+	ipcMain.handle('reposition-dynamic-island', () => {
+		if (dynamicIslandHelper) {
+			dynamicIslandHelper.repositionForPlatform();
+			return { success: true, platform: process.platform };
+		}
+		return { success: false, error: 'Dynamic Island helper not available' };
+	});
 
 ipcMain.handle('desktop:capture-screen', async () => {
 	try {
