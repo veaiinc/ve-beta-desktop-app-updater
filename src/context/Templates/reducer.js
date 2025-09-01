@@ -225,9 +225,6 @@ const actionHandlers = {
 			browserTabsInfo,
 		} = action?.payload;
 		let messages = [...(state?.globalChatMessages?.[sessionId]?.messages || [])];
-		if (payload?.browserMetadata) {
-			updateExtraInfo = true;
-		}
 
 		if (removeChatSession) {
 			if (state?.globalChatMessages?.[sessionId]?.open_browser) {
@@ -245,11 +242,11 @@ const actionHandlers = {
 				sessionIdData.chatBoxInfo = chatBoxInfo;
 			}
 
-			if (payload?.browserMetadata) {
+			if (payload?.url_type === 'live_view' || payload?.browserMetadata) {
 				let browserData = sessionIdData?.browserData || {};
 				browserData = {
 					...browserData,
-					browserMetadata: payload?.browserMetadata,
+					...payload,
 				};
 				sessionIdData.browserData = browserData;
 			}

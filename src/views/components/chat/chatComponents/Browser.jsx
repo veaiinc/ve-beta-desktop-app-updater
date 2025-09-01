@@ -5,13 +5,7 @@ import { ReactComponent as ArrowsIn } from '../../../../assets/svg/chat/arrowsIn
 import { ReactComponent as Webcam } from '../../../../assets/svg/chat/webcam.svg';
 import Spinner from '../../loaders/Spinner';
 
-const Browser = ({
-	sessionId,
-	browserData,
-	handleBrowserButtonClick,
-	isOpen = false,
-	liveViewUrl,
-}) => {
+const Browser = ({ browserData, handleBrowserButtonClick, isOpen = false }) => {
 	const {
 		templates: { handleTakeBrowserControl, saveBrowserState },
 	} = useContext(Context);
@@ -94,7 +88,7 @@ const Browser = ({
 				{/* {info?.activeTab !== -1 && ( */}
 				<div className={`${s.browserIframeContainer}`}>
 					<iframe
-						src={liveViewUrl}
+						src={browserData?.url}
 						allowfullscreen
 						className={s.browserIframe}
 						style={{ pointerEvents: info?.takeControl ? 'auto' : 'none' }}
