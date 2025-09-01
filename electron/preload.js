@@ -146,6 +146,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 		readText: () => ipcRenderer.invoke('clipboard-read-text'),
 	},
 
+	// Developer tools API for WebSocket debugging
+	openDevTools: (options) => ipcRenderer.invoke('open-dev-tools', options),
+
 	// Download progress listener
 	onDownloadProgress: (callback) => {
 		ipcRenderer.on('download-progress', (event, data) => {

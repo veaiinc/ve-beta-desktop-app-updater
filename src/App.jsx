@@ -1,6 +1,8 @@
 import { Route, Routes } from 'react-router-dom';
 import { useEffect } from 'react';
 import useWorkspaceMode from './hooks/useWorkspaceMode';
+import WebSocketDebugHelper from './components/WebSocketDebugHelper';
+import QuickDebugAccess from './components/QuickDebugAccess';
 
 const App = () => {
 	const { routes } = useWorkspaceMode();
@@ -73,11 +75,19 @@ const App = () => {
 	}, []);
 
 	return (
-		<Routes>
-			{routes?.map((route) => (
-				<Route key={route.path} path={route.path} element={route.element} />
-			))}
-		</Routes>
+		<>
+			<Routes>
+				{routes?.map((route) => (
+					<Route key={route.path} path={route.path} element={route.element} />
+				))}
+			</Routes>
+			{process.env.NODE_ENV === 'development' && (
+				<>
+					<WebSocketDebugHelper />
+					<QuickDebugAccess />
+				</>
+			)}
+		</>
 	);
 };
 

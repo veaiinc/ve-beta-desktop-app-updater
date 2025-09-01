@@ -447,6 +447,11 @@ function createWindow() {
 	mainWindow.once('ready-to-show', () => {
 		mainWindow.show();
 		log.info('Window ready-to-show');
+		
+		// Enable developer tools for main window in development
+		if (process.env.NODE_ENV === 'development') {
+			log.info('Development mode - dev tools available with F12 or Ctrl+Shift+I');
+		}
 	});
 
 	// Windows-specific close behavior
@@ -471,8 +476,27 @@ function createTray() {
 	if (process.platform !== 'win32') return;
 
 	try {
-		// Use the app icon for the tray
-		const iconPath = path.join(__dirname, 'assets', 've-black-circle-logo.png');
+		// Use the app icon for the tray - try multiple paths
+		let iconPath;
+		const possiblePaths = [
+			path.join(__dirname, '..', 'electron', 'assets', 've-black-circle-logo.png'), // Development
+			path.join(__dirname, 'assets', 've-black-circle-logo.png'), // Built app
+			path.join(__dirname, '..', 'public', 've-black-circle-logo.png'), // Fallback
+		];
+		
+		// Find the first path that exists
+		const fs = require('fs');
+		for (const testPath of possiblePaths) {
+			if (fs.existsSync(testPath)) {
+				iconPath = testPath;
+				break;
+			}
+		}
+		
+		if (!iconPath) {
+			log.warn('Tray icon not found, skipping tray creation');
+			return;
+		}
 		tray = new Tray(iconPath);
 		tray.setToolTip('VE Desktop App');
 
@@ -1475,6 +1499,41 @@ app.whenReady().then(() => {
 				success: false,
 				error: error.message,
 			};
+		}
+	});
+
+	// Open developer tools handler for WebSocket debugging
+	ipcMain.handle('open-dev-tools', async (event, options = {}) => {
+		try {
+			const { targetWindow = 'current', mode = 'detach' } = options;
+			let window = null;
+			
+			if (targetWindow === 'current') {
+				// Use the window that sent the request
+				window = BrowserWindow.fromWebContents(event.sender);
+			} else if (targetWindow === 'main') {
+				window = mainWindow;
+			} else if (targetWindow === 'overlay') {
+				window = windowHelper?.getOverlayWindow();
+			} else if (targetWindow === 'askAI') {
+				window = windowHelper?.getAskAIWindow();
+			}
+			
+			if (window && !window.isDestroyed()) {
+				if (window.webContents.isDevToolsOpened()) {
+					window.webContents.closeDevTools();
+					log.info(`Closed dev tools for ${targetWindow} window`);
+				} else {
+					window.webContents.openDevTools({ mode });
+					log.info(`Opened dev tools for ${targetWindow} window in ${mode} mode`);
+				}
+				return { success: true, action: window.webContents.isDevToolsOpened() ? 'opened' : 'closed' };
+			} else {
+				return { success: false, error: `${targetWindow} window not available` };
+			}
+		} catch (error) {
+			log.error('Error opening dev tools:', error);
+			return { success: false, error: error.message };
 		}
 	});
 
