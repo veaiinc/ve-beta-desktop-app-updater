@@ -1516,9 +1516,9 @@ const DynamicIslandUI = () => {
 														<div className="webcam-label">
 															Voice Mode
 														</div>
-														<div className="voice-click-instruction">
+														{/* <div className="voice-click-instruction">
 															Click to start
-														</div>
+														</div> */}
 													</>
 												)}
 											</>
