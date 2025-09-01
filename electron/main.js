@@ -100,7 +100,7 @@ class DynamicIslandHelper {
 				nodeIntegration: false,
 				contextIsolation: true,
 				preload: path.join(__dirname, 'preload.js'),
-				devTools: process.env.NODE_ENV === 'development',
+				devTools: true, // Enable dev tools in production too
 			},
 			show: false,
 			alwaysOnTop: true,
@@ -435,6 +435,7 @@ function createWindow() {
 			preload: path.join(__dirname, 'preload.js'),
 			nodeIntegration: false,
 			contextIsolation: true,
+			devTools: true, // Enable developer tools in production
 		},
 	});
 
@@ -448,10 +449,8 @@ function createWindow() {
 		mainWindow.show();
 		log.info('Window ready-to-show');
 		
-		// Enable developer tools for main window in development
-		if (process.env.NODE_ENV === 'development') {
-			log.info('Development mode - dev tools available with F12 or Ctrl+Shift+I');
-		}
+		// Enable developer tools for main window in both development and production
+		log.info('Dev tools available with F12, Ctrl+F12, or Ctrl+Shift+I in all modes');
 	});
 
 	// Windows-specific close behavior
