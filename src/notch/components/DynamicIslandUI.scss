@@ -297,13 +297,28 @@
 
 // Meeting mode label
 .meeting-mode-label {
-	background: #1b1c1d;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 12px;
+	background: rgba(121, 236, 201, 0.1);
+	border: 1px solid rgba(121, 236, 201, 0.3);
 	border-radius: 24px;
-	padding: 4px 10px;
-	color: #f2f2f3;
+	color: #79ecc9;
 	font-size: 12px;
 	font-weight: 500;
 	line-height: 1.35;
+
+	svg {
+		width: 14px;
+		height: 16px;
+		color: #79ecc9;
+	}
+
+	span {
+		color: #79ecc9;
+		font-weight: 500;
+	}
 }
 
 // Voice mode indicator

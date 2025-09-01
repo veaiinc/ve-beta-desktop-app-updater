@@ -1081,6 +1081,15 @@ const DynamicIslandUI = () => {
 									</div>
 								) : (
 									<div className="recording-controls">
+										{/* Control mode label */}
+										<div className="meeting-mode-label">
+											{controlledByDynamicIsland && (
+												<>
+													<VoiceModeIcon />
+													<span>Meeting mode</span>
+												</>
+											)}
+										</div>
 										<div
 											className="control-button pause-resume-button"
 											onClick={handlePauseResume}
@@ -1096,13 +1105,6 @@ const DynamicIslandUI = () => {
 											<div className="control-icon">
 												<StopIcon />
 											</div>
-										</div>
-
-										{/* Control mode label */}
-										<div className="meeting-mode-label">
-											{controlledByDynamicIsland
-												? 'Dynamic Island Control'
-												: 'Meeting mode'}
 										</div>
 									</div>
 								)}
@@ -1138,9 +1140,9 @@ const DynamicIslandUI = () => {
 								<div className="icon-button" title="Home" onClick={handleHomeClick}>
 									<HomeIcon />
 								</div>
-								<div className="icon-button" title="Lock" onClick={handleLockClick}>
+								{/* <div className="icon-button" title="Lock" onClick={handleLockClick}>
 									<LockIcon />
-								</div>
+								</div> */}
 							</div>
 						</div>
 
