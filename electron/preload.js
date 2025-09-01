@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
 	downloadUpdate: () => ipcRenderer.invoke('download-update'),
+	forceDownloadUpdate: () => ipcRenderer.invoke('force-download-update'),
 
 	onUpdateStatus: (callback) => {
 		ipcRenderer.on('update-status', (event, data) => {

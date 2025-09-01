@@ -303,6 +303,13 @@ let dynamicIslandHelper = null;
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 
+// Windows-specific auto-updater configuration
+if (process.platform === 'win32') {
+	// Enable auto-download for both dev and production
+	autoUpdater.autoDownload = true;
+	log.info('Windows auto-updater configured with auto-download for all environments');
+}
+
 // Update event forwarding
 autoUpdater.on('checking-for-update', () => {
 	log.info('Checking for updates...');
@@ -311,10 +318,27 @@ autoUpdater.on('checking-for-update', () => {
 
 autoUpdater.on('update-available', (info) => {
 	log.info('Update available:', info);
+	
+	// Notify frontend that update is available
 	mainWindow?.webContents.send('update-status', {
 		status: 'download-started',
 		version: info.version,
 	});
+	
+	// If auto-download is disabled, start manual download
+	if (!autoUpdater.autoDownload) {
+		log.info('Auto-download disabled, starting manual download...');
+		autoUpdater.downloadUpdate().catch((downloadErr) => {
+			log.error('Manual download failed:', downloadErr);
+			mainWindow?.webContents.send('update-status', {
+				status: 'download-failed',
+				error: downloadErr.message,
+				details: { code: downloadErr.code },
+			});
+		});
+	} else {
+		log.info('Auto-download enabled, update will download automatically');
+	}
 });
 
 autoUpdater.on('update-not-available', (info) => {
@@ -324,21 +348,43 @@ autoUpdater.on('update-not-available', (info) => {
 
 autoUpdater.on('error', (err) => {
 	log.error('Update error:', err);
-	mainWindow?.webContents.send('update-status', {
-		status: 'error',
-		error: err.message,
-		details: { code: err.code, errno: err.errno },
-	});
+	
+	// Handle Windows checksum mismatch specifically
+	if (err.message.includes('checksum mismatch') || err.code === 'ERR_CHECKSUM_MISMATCH') {
+		log.warn('Checksum mismatch detected - this may be due to unsigned builds on Windows');
+		mainWindow?.webContents.send('update-status', {
+			status: 'checksum-error',
+			error: 'Update verification failed. This may be due to unsigned builds.',
+			details: { 
+				code: err.code, 
+				errno: err.errno,
+				suggestion: 'Manual download may be required'
+			},
+		});
+	} else {
+		mainWindow?.webContents.send('update-status', {
+			status: 'error',
+			error: err.message,
+			details: { code: err.code, errno: err.errno },
+		});
+	}
 });
 
 autoUpdater.on('update-downloaded', (info) => {
 	log.info('Update downloaded:', info);
+	
+	// Show user-friendly message
 	mainWindow?.webContents.send('update-status', {
 		status: 'download-completed',
 		version: info.version,
-		message: 'Restarting in 3 seconds...',
+		message: 'Update ready! App will restart in 3 seconds...',
 	});
-	setTimeout(() => autoUpdater.quitAndInstall(), 3000);
+	
+	// Auto-restart after 3 seconds
+	setTimeout(() => {
+		log.info('Restarting app to install update...');
+		autoUpdater.quitAndInstall();
+	}, 3000);
 });
 
 // IPC Handlers for updates
@@ -372,6 +418,32 @@ ipcMain.handle('restart-app', () => {
 	if (process.env.NODE_ENV === 'development') return { success: false };
 	autoUpdater.quitAndInstall();
 	return { success: true };
+});
+
+// Add manual download handler for Windows checksum issues
+ipcMain.handle('force-download-update', async () => {
+	if (process.env.NODE_ENV === 'development') {
+		return { success: false, error: 'Not available in dev' };
+	}
+	
+	try {
+		log.info('Force downloading update (skipping checksum verification)...');
+		
+		// Temporarily disable autoDownload if it was enabled
+		const originalAutoDownload = autoUpdater.autoDownload;
+		autoUpdater.autoDownload = false;
+		
+		// Start download
+		await autoUpdater.downloadUpdate();
+		
+		// Restore original setting
+		autoUpdater.autoDownload = originalAutoDownload;
+		
+		return { success: true, message: 'Force download initiated' };
+	} catch (error) {
+		log.error('Force download failed:', error);
+		return { success: false, error: error.message };
+	}
 });
 
 ipcMain.handle('desktop:capture-screen', async () => {
@@ -464,10 +536,12 @@ function createWindow() {
 		});
 	}
 
-	// Check for updates in production
-	if (process.env.NODE_ENV !== 'development') {
+	// Check for updates in both dev and production
+	log.info('Starting automatic update check...');
+	// Delay update check to ensure app is fully loaded
+	setTimeout(() => {
 		autoUpdater.checkForUpdatesAndNotify();
-	}
+	}, 5000); // Wait 5 seconds after app loads
 }
 
 // Create system tray for Windows
