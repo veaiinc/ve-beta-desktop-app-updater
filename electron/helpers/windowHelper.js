@@ -763,78 +763,7 @@ class WindowHelper {
 			}
 		}
 
-		// Register Cmd+/ (Ctrl+/ on Windows) to toggle overlay window
-		const cmdSlashRegistered = globalShortcut.register('CommandOrControl+/', () => {
-			log.info('🔍 Cmd+/ (Ctrl+/) SHORTCUT TRIGGERED!');
-			log.info(`📱 Platform: ${process.platform}`);
-			log.info(
-				`🖥️  OS: ${
-					process.platform === 'win32'
-						? 'Windows'
-						: process.platform === 'darwin'
-						? 'macOS'
-						: 'Linux'
-				}`,
-			);
-			log.info(`⏰ Timestamp: ${new Date().toISOString()}`);
-			log.info('🔄 Toggling overlay window...');
 
-			// Check if overlay window is visible
-			const isOverlayVisible = this.isVisible();
-			log.info(`👁️  Overlay window currently visible: ${isOverlayVisible}`);
-
-			if (isOverlayVisible) {
-				log.info('🙈 Hiding overlay window...');
-				// Hide overlay window only (keep ask AI visible if it's open)
-				this.hideOverlayWindow();
-				log.info('✅ Overlay window hidden successfully');
-			} else {
-				log.info('👁️  Showing overlay window...');
-				// Show overlay window only
-				// Create overlay window if it doesn't exist
-				if (!this.getOverlayWindow()) {
-					log.info('🏗️  Creating new overlay window...');
-					this.createOverlayWindow();
-				}
-				this.showOverlayWindow();
-				log.info('✅ Overlay window shown successfully');
-			}
-
-			log.info('🎯 Cmd+/ (Ctrl+/) shortcut execution completed');
-		});
-
-		if (cmdSlashRegistered) {
-			log.info('✅ Cmd+/ (Ctrl+/) shortcut registered successfully');
-			log.info(`🔧 Shortcut key: CommandOrControl+/`);
-			log.info(`🖥️  Platform: ${process.platform}`);
-		} else {
-			log.error('❌ Failed to register Cmd+/ (Ctrl+/) shortcut');
-			log.error(`🔧 Attempted shortcut key: CommandOrControl+/`);
-			log.error(`🖥️  Platform: ${process.platform}`);
-
-			// On Windows, try alternative shortcuts if the main one fails
-			if (process.platform === 'win32') {
-				log.info('🔄 Attempting to register Windows alternative shortcuts for Ctrl+/...');
-				// Try Ctrl+Alt+Slash as alternative
-				const altSlashRegistered = globalShortcut.register('Ctrl+Alt+/', () => {
-					log.info('🔍 Ctrl+Alt+/ pressed - alternative shortcut for overlay window');
-					const isOverlayVisible = this.isVisible();
-					if (isOverlayVisible) {
-						this.hideOverlayWindow();
-					} else {
-						if (!this.getOverlayWindow()) {
-							this.createOverlayWindow();
-						}
-						this.showOverlayWindow();
-					}
-				});
-				if (altSlashRegistered) {
-					log.info('✅ Ctrl+Alt+/ shortcut registered as alternative');
-				} else {
-					log.error('❌ Failed to register Ctrl+Alt+/ alternative shortcut');
-				}
-			}
-		}
 
 		// Register Cmd+Enter to toggle ask AI window only (independent of main window)
 		const cmdEnterRegistered = globalShortcut.register('CommandOrControl+Return', () => {
@@ -929,7 +858,7 @@ class WindowHelper {
 		log.info('📊 Global shortcut registration status:');
 		log.info('='.repeat(50));
 		log.info(`🔧 Cmd+\\ (Ctrl+\\): ${cmdBackslashRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
-		log.info(`🔧 Cmd+/ (Ctrl+/) : ${cmdSlashRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
+
 		log.info(
 			`🔧 Cmd+Enter (Ctrl+Enter): ${cmdEnterRegistered ? '✅ REGISTERED' : '❌ FAILED'}`,
 		);
@@ -943,16 +872,7 @@ class WindowHelper {
 		);
 		log.info('='.repeat(50));
 
-		// Summary for Ctrl+/ specifically
-		if (cmdSlashRegistered) {
-			log.info('🎉 Ctrl+/ shortcut is READY for testing!');
-			log.info('💡 To test: Press Ctrl+/ (Windows) or Cmd+/ (macOS)');
-			log.info('📝 Check console logs for detailed execution info');
-		} else {
-			log.warn('⚠️  Ctrl+/ shortcut registration FAILED!');
-			log.warn('🔍 Check if another app is using this shortcut');
-			log.warn('🔄 Alternative shortcuts may be available');
-		}
+
 
 		app.on('will-quit', () => globalShortcut.unregisterAll());
 		log.info('✅ Global shortcuts registration process completed');
@@ -961,7 +881,7 @@ class WindowHelper {
 	// Test function to verify shortcuts are working
 	testShortcuts() {
 		log.info('🧪 Testing global shortcuts...');
-		log.info('🔍 Press Ctrl+/ (Windows) or Cmd+/ (macOS) to test overlay toggle');
+		log.info('🔍 Press Ctrl+\\ (Windows) or Cmd+\\ (macOS) to test main window toggle');
 		log.info('🔍 Press Ctrl+Enter (Windows) or Cmd+Enter (macOS) to test Ask AI toggle');
 		log.info('🔍 Press F12 to test developer tools toggle');
 		log.info('📝 Watch console logs for detailed execution logs');
@@ -975,7 +895,6 @@ class WindowHelper {
 		log.info('🔍 Checking for potential shortcut conflicts...');
 
 		const shortcutsToCheck = [
-			'CommandOrControl+/',
 			'CommandOrControl+\\',
 			'CommandOrControl+Return',
 			'F12',

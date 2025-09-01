@@ -38,6 +38,8 @@ const useTheme = () => {
 		if (pathname.startsWith('/builder')) return 'light';
 		return theme || localStorage?.getItem('theme') || Cookies.get('theme') || 'light';
 	}, [pathname, theme]);
+
+	return theme;
 };
 
 export default useTheme;

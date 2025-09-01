@@ -232,6 +232,11 @@ contextBridge.exposeInMainWorld('electronApi', {
 		},
 	},
 
+	// Home icon click handler for Windows
+	home: {
+		restoreMainWindow: () => ipcRenderer.invoke('restore-main-window'),
+	},
+
 	// Mouse event handling for click-through behavior
 	setIgnoreMouseEvents: (ignore) => ipcRenderer.invoke('set-ignore-mouse-events', ignore),
 
@@ -264,17 +269,20 @@ contextBridge.exposeInMainWorld('electronApi', {
 		captureScreen: () => ipcRenderer.invoke('desktop:capture-screen'),
 	},
 
-	// Dynamic Island APIs
+			// Dynamic Island APIs
 	dynamicIsland: {
 		expand: () => ipcRenderer.invoke('dynamic-island-expand'),
 		collapse: () => ipcRenderer.invoke('dynamic-island-collapse'),
 		toggle: () => ipcRenderer.invoke('dynamic-island-toggle'),
 		show: () => ipcRenderer.invoke('dynamic-island-show'),
 		hide: () => ipcRenderer.invoke('dynamic-island-hide'),
+		focus: () => ipcRenderer.invoke('dynamic-island-focus'),
 		setMouseEvents: (ignore) => ipcRenderer.invoke('dynamic-island-set-mouse-events', ignore),
 		setChatMode: (isChatMode) => ipcRenderer.invoke('dynamic-island-chat-mode', isChatMode),
+		
 		// Send chat message directly to AskAI
 		sendChatMessage: (message) => ipcRenderer.invoke('send-chat-message-to-askai', message),
+		
 		onStateChange: (callback) => {
 			ipcRenderer.on('dynamic-island-state', (event, data) => {
 				callback(data);
@@ -291,6 +299,14 @@ contextBridge.exposeInMainWorld('electronApi', {
 		},
 		removeOverlayStateListener: () => {
 			ipcRenderer.removeAllListeners('overlay-state-changed');
+		},
+		onForceFocus: (callback) => {
+			ipcRenderer.on('force-focus', (event) => {
+				callback();
+			});
+		},
+		removeForceFocusListener: () => {
+			ipcRenderer.removeAllListeners('force-focus');
 		},
 	},
 });

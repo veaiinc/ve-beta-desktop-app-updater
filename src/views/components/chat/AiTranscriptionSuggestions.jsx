@@ -154,6 +154,53 @@ const AiTranscriptionSuggestions = ({
 		}
 	});
 
+	const renderAllSuggestions = (suggestion) => {
+		if (suggestion.entity === 'user') {
+			return (
+				<div
+					className={s.userQuestionContainer}
+					onClick={() => handleActionClick(suggestion?.prompt || '')}
+				>
+					<div className={s.questionText}>{suggestion?.prompt || ''}</div>
+					<button className={s.askUserButton}>Ask User</button>
+				</div>
+			);
+		}
+		if (suggestion.entity === 'agent' && suggestion.type === 'search') {
+			return (
+				<div
+					className={s.aiQuestionContainer}
+					onClick={() => handleActionClick(suggestion?.prompt || '', true)}
+				>
+					<div className={s.questionText}>{suggestion?.prompt || ''}</div>
+					<div className={s.needHelpButton}>Need help?</div>
+				</div>
+			);
+		}
+		if (suggestion.entity === 'agent' && suggestion.type === 'action') {
+			return (
+				<div
+					className={s.actionsContainer}
+					onClick={() => handleActionClick(suggestion?.prompt || '')}
+				>
+					<div className={s.dot}></div>
+					<div className={s.actionDetails}>
+						<div className={s.actionName}>{suggestion?.prompt}</div>
+						{/* <div className={s.promptText}>{suggestion?.prompt || ''}</div> */}
+						<button className={s.takeActionButton}>Run</button>
+					</div>
+				</div>
+			);
+		}
+		if (suggestion.entity === 'file') {
+			return (
+				<div className={s.filesContainer} onClick={() => handleFileClick(suggestion)}>
+					<div className={s.file}>{suggestion?.name}</div>
+				</div>
+			);
+		}
+	};
+
 	return (
 		<div
 			className={s.aiTranscriptionSuggestions}
@@ -179,149 +226,10 @@ const AiTranscriptionSuggestions = ({
 			>
 				{activeTab === 'all' && (
 					<div className={s.allSuggestionsContainer}>
-						{(() => {
-							const result = [];
-							let currentFileGroup = [];
+						{allSuggestions?.map((suggestion, index) => {
+							return renderAllSuggestions(suggestion);
+						})}
 
-							allSuggestions
-								?.filter((suggestion) => suggestion?.entity !== undefined)
-								?.forEach((suggestion, index) => {
-									if (
-										suggestion?.entity === 'user' ||
-										suggestion?.entity === 'other_user'
-									) {
-										// Flush any pending file group
-										if (currentFileGroup.length > 0) {
-											result.push(
-												<div
-													className={s.filesContainer}
-													key={`files-${index}`}
-												>
-													{currentFileGroup}
-												</div>,
-											);
-											currentFileGroup = [];
-										}
-
-										result.push(
-											<div className={s.userQuestionContainer} key={index}>
-												<div className={s.header}>Ask User</div>
-												<div className={s.body}>
-													<div className={s.questionText}>
-														{suggestion?.query ||
-															suggestion?.prompt ||
-															''}
-													</div>
-												</div>
-											</div>,
-										);
-									} else if (
-										suggestion?.entity === 'agent' ||
-										suggestion?.entity?.includes('agent')
-									) {
-										// Flush any pending file group
-										if (currentFileGroup.length > 0) {
-											result.push(
-												<div
-													className={s.filesContainer}
-													key={`files-${index}`}
-												>
-													{currentFileGroup}
-												</div>,
-											);
-											currentFileGroup = [];
-										}
-
-										if (suggestion?.type === 'search') {
-											result.push(
-												<div className={s.aiQuestionContainer} key={index}>
-													<div className={s.header}>Need help?</div>
-													<div
-														className={s.body}
-														onClick={() =>
-															handleActionClick(
-																suggestion?.query ||
-																	suggestion?.prompt ||
-																	'',
-																true,
-															)
-														}
-													>
-														<div className={s.questionText}>
-															<div className={s.text}>
-																{suggestion?.query ||
-																	suggestion?.prompt ||
-																	''}
-															</div>
-														</div>
-														{suggestion?.is_memory_used && (
-															<div className={s.memoryUsedContainer}>
-																<div className={s.memoryUsedText}>
-																	<MemorySvg />
-																	Memory Used
-																</div>
-																<div className={s.verticalLine} />
-															</div>
-														)}
-													</div>
-												</div>,
-											);
-										} else {
-											result.push(
-												<div className={s.actionsContainer} key={index}>
-													<div
-														className={s.actionContainer}
-														onClick={() =>
-															handleActionClick(
-																suggestion?.query ||
-																	suggestion?.prompt ||
-																	'',
-															)
-														}
-													>
-														<div className={s.iconContainer}></div>
-														{suggestion?.query ||
-															suggestion?.prompt ||
-															''}
-													</div>
-													<div className={s.horizontalLine} />
-												</div>,
-											);
-										}
-									} else if (suggestion?.entity === 'file') {
-										// This is a file - add to current file group
-										currentFileGroup.push(
-											<div
-												className={s.file}
-												key={index}
-												onClick={() => handleFileClick(suggestion)}
-											>
-												<div className={s.fileIcon}>
-													{fileTypeIcons[
-														suggestion?.type === 's3_key'
-															? suggestion?.name?.match(
-																	/\.(\w+)$/,
-															  )?.[1] // to check the file format
-															: suggestion?.type
-													] || <VeLogoSvg />}
-												</div>
-												<div className={s.fileName}>{suggestion?.name}</div>
-											</div>,
-										);
-									}
-								});
-
-							// Flush any remaining file group
-							if (currentFileGroup.length > 0) {
-								result.push(
-									<div className={s.filesContainer} key="files-final">
-										{currentFileGroup}
-									</div>,
-								);
-							}
-
-							return result;
-						})()}
 						{allSuggestions?.length === 0 && (
 							<div className="meet-transcript-empty">No data.</div>
 						)}
@@ -349,31 +257,18 @@ const AiTranscriptionSuggestions = ({
 					<div className={s.aiQuestionsContainer}>
 						{aiQuestions?.map((question, index) => {
 							return (
-								<div className={s.aiQuestionContainer} key={index}>
-									<div className={s.header}>Need help?</div>
-									<div
-										className={s.body}
-										onClick={() =>
-											handleActionClick(
-												question?.query || question?.prompt || '',
-												true,
-											)
-										}
-									>
-										<div className={s.questionText}>
-											<div className={s.text}>
-												{question?.query || question?.prompt || ''}
-											</div>
-										</div>
-										{question?.is_memory_used && (
-											<div className={s.memoryUsedContainer}>
-												<div className={s.memoryUsedText}>
-													<MemorySvg />
-													Memory Used
-												</div>
-												<div className={s.verticalLine} />
-											</div>
-										)}
+								<div
+									className={s.aiQuestion}
+									key={index}
+									onClick={() =>
+										handleActionClick(
+											question?.query || question?.prompt || '',
+											true,
+										)
+									}
+								>
+									<div className={s.questionText}>
+										{question?.query || question?.prompt}
 									</div>
 								</div>
 							);
@@ -384,19 +279,20 @@ const AiTranscriptionSuggestions = ({
 				{activeTab === 'actions' && (
 					<div className={s.actionsContainer}>
 						{actions?.map((action, index) => (
-							<>
-								<div
-									className={s.actionContainer}
-									key={index}
-									onClick={() =>
-										handleActionClick(action?.query || action?.prompt || '')
-									}
-								>
-									<div className={s.iconContainer}></div>
-									{action?.query || action?.prompt || ''}
+							<div
+								className={s.action}
+								key={index}
+								onClick={() =>
+									handleActionClick(action?.query || action?.prompt || '')
+								}
+							>
+								<div className={s.dot}></div>
+								<div className={s.actionDetails}>
+									<div className={s.actionName}>{action?.prompt || ''}</div>
+									<button className={s.takeActionButton}>Run</button>
 								</div>
 								<div className={s.horizontalLine} />
-							</>
+							</div>
 						))}
 					</div>
 				)}

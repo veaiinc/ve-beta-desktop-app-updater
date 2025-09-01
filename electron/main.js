@@ -8,23 +8,49 @@ const {
 	ipcMain,
 	desktopCapturer,
 	Notification,
+	Tray,
 } = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
 const { autoUpdater } = require('electron-updater');
 
-// Import gallery processing functions
-const {
-	processImageWithSharp,
-	extractImageMetadata,
-	downloadAlbumZip,
-	createZipFromUrls,
-} = require('./galleryHelper');
+// Import Windows compatibility fixes
+const { loadSharpModule, safeProcessImageWithSharp, safeExtractImageMetadata } = require('./windowsCompatibility');
+
+// Gallery processing functions will be loaded lazily when needed
+let galleryHelper = null;
+
+const loadGalleryHelper = () => {
+	if (!galleryHelper) {
+		try {
+			galleryHelper = require('./galleryHelper');
+		} catch (error) {
+			log.error('Failed to load gallery helper:', error);
+			return null;
+		}
+	}
+	return galleryHelper;
+};
 
 // Import window helper for overlay functionality
 const { WindowHelper } = require('./helpers/windowHelper');
 // Import dynamic island helper
 // const { DynamicIslandHelper } = require('./dynamicIslandHelper');
+
+// Windows-specific variables
+let tray = null;
+let isQuitting = false;
+
+// Add global error handler to prevent crashes
+process.on('uncaughtException', (error) => {
+	log.error('Uncaught Exception:', error);
+	// Don't exit the process, just log the error
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+	log.error('Unhandled Rejection at:', promise, 'reason:', reason);
+	// Don't exit the process, just log the error
+});
 
 // Temporary inline DynamicIslandHelper class
 class DynamicIslandHelper {
@@ -84,7 +110,7 @@ class DynamicIslandHelper {
 			fullscreenable: false,
 			hasShadow: false,
 			backgroundColor: '#00000000',
-			focusable: false, // Don't steal focus
+			focusable: true, // Make focusable by default for better Windows support
 			skipTaskbar: true,
 			visibleOnAllWorkspaces: true,
 			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
@@ -176,6 +202,16 @@ class DynamicIslandHelper {
 			if (process.platform === 'darwin') {
 				// On macOS, use the forward option to allow clicks to pass through
 				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore, { forward: true });
+			} else if (process.platform === 'win32') {
+				// On Windows, when collapsed, allow clicks to pass through to overlay
+				// When expanded, capture all mouse events
+				if (ignore) {
+					// Collapsed state - allow clicks to pass through to overlay underneath
+					this.dynamicIslandWindow.setIgnoreMouseEvents(true, { forward: true });
+				} else {
+					// Expanded state - capture all mouse events
+					this.dynamicIslandWindow.setIgnoreMouseEvents(false);
+				}
 			} else {
 				// On other platforms, just ignore mouse events
 				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore);
@@ -183,7 +219,7 @@ class DynamicIslandHelper {
 			log.info(
 				`Dynamic Island mouse events ${
 					ignore ? 'ignored' : 'enabled'
-				} (expanded: ${!ignore})`,
+				} (expanded: ${!ignore}) on ${process.platform}`,
 			);
 		} catch (error) {
 			log.error('Error setting mouse event handling:', error);
@@ -224,6 +260,19 @@ class DynamicIslandHelper {
 
 	isDynamicIslandExpanded() {
 		return this.isExpanded;
+	}
+
+	focus() {
+		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+			try {
+				// Focus the window and bring it to front
+				this.dynamicIslandWindow.focus();
+				this.dynamicIslandWindow.show();
+				log.info('Dynamic Island window focused');
+			} catch (error) {
+				log.error('Error focusing Dynamic Island window:', error);
+			}
+		}
 	}
 
 	destroy() {
@@ -419,9 +468,66 @@ function createWindow() {
 		log.info('Window ready-to-show');
 	});
 
+	// Windows-specific close behavior
+	if (process.platform === 'win32') {
+		mainWindow.on('close', (event) => {
+			if (!isQuitting) {
+				event.preventDefault();
+				mainWindow.hide();
+				log.info('Main window hidden to tray (Windows)');
+			}
+		});
+	}
+
 	// Check for updates in production
 	if (process.env.NODE_ENV !== 'development') {
 		autoUpdater.checkForUpdatesAndNotify();
+	}
+}
+
+// Create system tray for Windows
+function createTray() {
+	if (process.platform !== 'win32') return;
+
+	try {
+		// Use the app icon for the tray
+		const iconPath = path.join(__dirname, 'assets', 've-black-circle-logo.png');
+		tray = new Tray(iconPath);
+		tray.setToolTip('VE Desktop App');
+
+		// Create tray menu
+		const contextMenu = Menu.buildFromTemplate([
+			{
+				label: 'Show App',
+				click: () => {
+					if (mainWindow && !mainWindow.isDestroyed()) {
+						mainWindow.show();
+						mainWindow.focus();
+					}
+				}
+			},
+			{
+				label: 'Quit',
+				click: () => {
+					isQuitting = true;
+					app.quit();
+				}
+			}
+		]);
+
+		tray.setContextMenu(contextMenu);
+
+		// Double-click tray icon to show app
+		tray.on('double-click', () => {
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				mainWindow.show();
+				mainWindow.focus();
+			}
+		});
+
+		log.info('System tray created for Windows');
+	} catch (error) {
+		log.error('Error creating system tray:', error);
 	}
 }
 
@@ -544,6 +650,21 @@ app.whenReady().then(() => {
 	// 🎤 IPC: Start Mic Monitoring
 
 	createWindow();
+	createTray(); // Create system tray for Windows
+
+	// Windows compatibility startup message
+	if (process.platform === 'win32') {
+		log.info('🪟 Windows platform detected - initializing compatibility features...');
+		// Pre-load sharp module to ensure Windows compatibility
+		setTimeout(() => {
+			try {
+				loadSharpModule();
+				log.info('✅ Windows compatibility features initialized successfully');
+			} catch (error) {
+				log.warn('⚠️ Windows compatibility initialization had issues:', error.message);
+			}
+		}, 1000);
+	}
 
 	// Initialize WindowHelper for overlay window functionality
 	windowHelper = new WindowHelper();
@@ -642,10 +763,27 @@ app.whenReady().then(() => {
 			if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
 				// Make window focusable when entering chat mode
 				dynamicIslandWindow.setFocusable(isChatMode);
+				
+				// Windows-specific focus handling
+				if (process.platform === 'win32' && isChatMode) {
+					// Force focus on Windows with multiple methods
+					dynamicIslandWindow.focus();
+					dynamicIslandWindow.show();
+					
+					// Additional Windows focus method with delay
+					setTimeout(() => {
+						if (!dynamicIslandWindow.isDestroyed()) {
+							dynamicIslandWindow.focus();
+							// Send a focus event to the renderer
+							dynamicIslandWindow.webContents.send('force-focus');
+						}
+					}, 100);
+				}
+				
 				log.info(
 					`Dynamic Island chat mode ${
 						isChatMode ? 'enabled' : 'disabled'
-					}, focusable: ${isChatMode}`,
+					}, focusable: ${isChatMode}, platform: ${process.platform}`,
 				);
 			}
 
@@ -668,6 +806,8 @@ app.whenReady().then(() => {
 			return { success: false, error: error.message };
 		}
 	});
+
+
 
 	// Camera permission handler
 	ipcMain.handle('request-camera-permission', async () => {
@@ -757,6 +897,19 @@ app.whenReady().then(() => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error hiding dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('dynamic-island-focus', async () => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+			dynamicIslandHelper.focus();
+			return { success: true };
+		} catch (error) {
+			log.error('Error focusing dynamic island:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -1107,11 +1260,56 @@ app.whenReady().then(() => {
 		}
 	});
 
+	// Home icon click handler for Windows - restore main window
+	ipcMain.handle('restore-main-window', async () => {
+		try {
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				mainWindow.show();
+				mainWindow.focus();
+				log.info('Main window restored from home icon click (Windows)');
+				return { success: true };
+			} else {
+				log.warn('Main window not available to restore');
+				return { success: false, error: 'Main window not available' };
+			}
+		} catch (error) {
+		log.error('Error restoring main window:', error);
+		return { success: false, error: error.message };
+		}
+	});
+
 	// Register gallery IPC handlers from galleryUtils
-	ipcMain.handle('process-image-with-sharp', processImageWithSharp);
-	ipcMain.handle('extract-image-metadata', extractImageMetadata);
-	ipcMain.handle('download-album-zip', downloadAlbumZip);
-	ipcMain.handle('create-zip-from-urls', createZipFromUrls);
+	ipcMain.handle('process-image-with-sharp', (event, data) => {
+		const helper = loadGalleryHelper();
+		if (!helper) {
+			return { success: false, error: 'Gallery helper not available' };
+		}
+		return safeProcessImageWithSharp(data, helper.processImageWithSharp);
+	});
+	
+	ipcMain.handle('extract-image-metadata', (event, data) => {
+		const helper = loadGalleryHelper();
+		if (!helper) {
+			return { success: false, error: 'Gallery helper not available' };
+		}
+		return safeExtractImageMetadata(data, helper.extractImageMetadata);
+	});
+	
+	ipcMain.handle('download-album-zip', (event, data) => {
+		const helper = loadGalleryHelper();
+		if (!helper) {
+			return { success: false, error: 'Gallery helper not available' };
+		}
+		return helper.downloadAlbumZip(event, data);
+	});
+	
+	ipcMain.handle('create-zip-from-urls', (event, data) => {
+		const helper = loadGalleryHelper();
+		if (!helper) {
+			return { success: false, error: 'Gallery helper not available' };
+		}
+		return helper.createZipFromUrls(event, data);
+	});
 
 	// Clipboard IPC handlers
 	ipcMain.handle('clipboard-write-text', async (event, text) => {
