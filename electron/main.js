@@ -15,7 +15,11 @@ const log = require('electron-log');
 const { autoUpdater } = require('electron-updater');
 
 // Import Windows compatibility fixes
-const { loadSharpModule, safeProcessImageWithSharp, safeExtractImageMetadata } = require('./windowsCompatibility');
+const {
+	loadSharpModule,
+	safeProcessImageWithSharp,
+	safeExtractImageMetadata,
+} = require('./windowsCompatibility');
 
 // Gallery processing functions will be loaded lazily when needed
 let galleryHelper = null;
@@ -299,6 +303,7 @@ class DynamicIslandHelper {
 let mainWindow = null;
 let windowHelper = null;
 let dynamicIslandHelper = null;
+let pendingNotificationAction = null;
 
 // Auto-updater setup
 autoUpdater.logger = log;
@@ -343,21 +348,60 @@ autoUpdater.on('update-downloaded', (info) => {
 });
 
 function showNotification(title, body) {
-	try {
-		const notification = new Notification({
-			title: title || 'Alert',
-			body: body || 'This is a test',
-			silent: false, // Plays default sound
-		});
+	const notification = new Notification({
+		title: title || 'Alert',
+		body: body || 'This is a test',
+		silent: false,
+		actions: [
+			{ type: 'button', text: 'Join Meet' },
+			{ type: 'button', text: 'Not Now' },
+		],
+	});
 
-		notification.on('click', () => {
-			if (mainWindow) mainWindow.focus();
-		});
-		notification.on('error', (err) => console.error('Notification error:', err));
+	notification.on('action', (event, index) => {
+		if (index === 0) {
+			log.info('User clicked "Join Meet"');
+			handleNotificationAction('join-meet');
+		} else {
+			log.info('User clicked "Not Now"');
+		}
+	});
 
-		notification.show();
-	} catch (err) {
-		console.error('Failed to show notification:', err);
+	notification.on('click', () => {
+		log.info('Notification clicked - treating as "Join Meet"');
+		handleNotificationAction('join-meet');
+		if (mainWindow) mainWindow.focus();
+	});
+
+	notification.show();
+}
+function handleNotificationAction(action) {
+	pendingNotificationAction = action;
+	log.info('Notification action triggered:', action);
+
+	if (action === 'join-meet') {
+		if (windowHelper) {
+			log.info('Executing "Join Meet" — showing overlay and starting recording');
+
+			windowHelper.showOverlayWindow();
+
+			const overlayWindow = windowHelper.getOverlayWindow();
+			if (overlayWindow && !overlayWindow.isDestroyed()) {
+				overlayWindow.webContents.once('dom-ready', () => {
+					overlayWindow.webContents.send('overlay-command', {
+						action: 'startRecording',
+					});
+				});
+				pendingNotificationAction;
+			}
+
+			dynamicIslandHelper?.show();
+			dynamicIslandHelper?.expand();
+
+			pendingNotificationAction = null;
+		} else {
+			log.info('windowHelper not ready — action queued');
+		}
 	}
 }
 // IPC Handlers for updates
@@ -504,15 +548,15 @@ function createTray() {
 						mainWindow.show();
 						mainWindow.focus();
 					}
-				}
+				},
 			},
 			{
 				label: 'Quit',
 				click: () => {
 					isQuitting = true;
 					app.quit();
-				}
-			}
+				},
+			},
 		]);
 
 		tray.setContextMenu(contextMenu);
@@ -642,7 +686,6 @@ app.whenReady().then(() => {
 	ipcMain.on('mic-activity-detected', (event, data) => {
 		const now = Date.now();
 		if (now - lastNotificationTime < NOTIFICATION_INTERVAL) return;
-
 		lastNotificationTime = now;
 		showNotification('Meeting Detected', 'Want V.E. Bot to join?');
 	});
@@ -678,6 +721,11 @@ app.whenReady().then(() => {
 	// Initialize DynamicIslandHelper for dynamic island functionality
 	dynamicIslandHelper = new DynamicIslandHelper();
 	dynamicIslandHelper.createDynamicIslandWindow();
+
+	if (pendingNotificationAction === 'join-meet') {
+		log.info('Replaying "Join Meet" action after app init');
+		handleNotificationAction('join-meet'); // This will now work
+	}
 
 	mainWindow.webContents.once('did-finish-load', () => {
 		mainWindow.webContents.send('start-mic-monitoring');
@@ -763,13 +811,13 @@ app.whenReady().then(() => {
 			if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
 				// Make window focusable when entering chat mode
 				dynamicIslandWindow.setFocusable(isChatMode);
-				
+
 				// Windows-specific focus handling
 				if (process.platform === 'win32' && isChatMode) {
 					// Force focus on Windows with multiple methods
 					dynamicIslandWindow.focus();
 					dynamicIslandWindow.show();
-					
+
 					// Additional Windows focus method with delay
 					setTimeout(() => {
 						if (!dynamicIslandWindow.isDestroyed()) {
@@ -779,7 +827,7 @@ app.whenReady().then(() => {
 						}
 					}, 100);
 				}
-				
+
 				log.info(
 					`Dynamic Island chat mode ${
 						isChatMode ? 'enabled' : 'disabled'
@@ -806,8 +854,6 @@ app.whenReady().then(() => {
 			return { success: false, error: error.message };
 		}
 	});
-
-
 
 	// Camera permission handler
 	ipcMain.handle('request-camera-permission', async () => {
@@ -938,6 +984,21 @@ app.whenReady().then(() => {
 		} catch (error) {
 			log.error('Error toggling overlay window:', error);
 			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.on('notification-action', (event, action) => {
+		if (action === 'join-meet') {
+			log.info('Handling: User wants to join the meeting');
+			// ✅ Trigger logic to join meeting
+			// e.g., show overlay, start recording, etc.
+			windowHelper?.createOverlayWindow(); // or toggle
+			dynamicIslandHelper?.show();
+			dynamicIslandHelper?.expand();
+		} else if (action === 'not-now') {
+			log.info('User chose to skip joining the meeting');
+			// Optionally, disable auto-detection for a while
+			// e.g., set a cooldown timer
 		}
 	});
 
@@ -1273,8 +1334,8 @@ app.whenReady().then(() => {
 				return { success: false, error: 'Main window not available' };
 			}
 		} catch (error) {
-		log.error('Error restoring main window:', error);
-		return { success: false, error: error.message };
+			log.error('Error restoring main window:', error);
+			return { success: false, error: error.message };
 		}
 	});
 
@@ -1286,7 +1347,7 @@ app.whenReady().then(() => {
 		}
 		return safeProcessImageWithSharp(data, helper.processImageWithSharp);
 	});
-	
+
 	ipcMain.handle('extract-image-metadata', (event, data) => {
 		const helper = loadGalleryHelper();
 		if (!helper) {
@@ -1294,7 +1355,7 @@ app.whenReady().then(() => {
 		}
 		return safeExtractImageMetadata(data, helper.extractImageMetadata);
 	});
-	
+
 	ipcMain.handle('download-album-zip', (event, data) => {
 		const helper = loadGalleryHelper();
 		if (!helper) {
@@ -1302,7 +1363,7 @@ app.whenReady().then(() => {
 		}
 		return helper.downloadAlbumZip(event, data);
 	});
-	
+
 	ipcMain.handle('create-zip-from-urls', (event, data) => {
 		const helper = loadGalleryHelper();
 		if (!helper) {

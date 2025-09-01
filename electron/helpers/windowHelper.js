@@ -145,7 +145,7 @@ class WindowHelper {
 		if (this.askAIWindow !== null) return;
 
 		const primaryDisplay = screen.getPrimaryDisplay();
-		const workArea = primaryDisplay.workAreaSize;
+		const workArea = primaryDisplay.workAreaSize;c
 		this.screenWidth = workArea.width;
 		this.screenHeight = workArea.height;
 
