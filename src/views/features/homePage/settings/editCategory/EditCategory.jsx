@@ -40,7 +40,7 @@ const frequency = [
 	},
 ];
 
-const EditCategory = ({handleClose}) => {
+const EditCategory = ({ handleClose }) => {
 	const handleSubmit = () => {};
 	const [info, setInfo] = useState({
 		categoryName: '',
@@ -97,7 +97,9 @@ const EditCategory = ({handleClose}) => {
 				</div>
 			</div>
 			<div className={s.footerContainer}>
-				<button className={s.cancelButton} type="button" onClick={handleClose}>Cancel</button>
+				<button className={s.cancelButton} type="button" onClick={handleClose}>
+					Cancel
+				</button>
 				<button className={s.submitButton} type="submit">
 					Update
 				</button>
