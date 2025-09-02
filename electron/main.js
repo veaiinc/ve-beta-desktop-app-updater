@@ -2380,12 +2380,15 @@ app.whenReady().then(async () => {
 	// Handler to get ask AI input focus state
 	ipcMain.handle('get-askAI-input-focus', async () => {
 		try {
-			return { success: true, isFocused: global.askAIInputFocused || false };
+			const focusState = global.askAIInputFocused || false;
+			log.info(`🔍 Getting ask AI input focus state: ${focusState}`);
+			return { success: true, isFocused: focusState };
 		} catch (error) {
 			log.error('Error getting ask AI input focus state:', error);
 			return { success: false, error: error.message };
 		}
 	});
+	log.info('✅ Registered get-askAI-input-focus IPC handler');
 
 	// New handler to hide all windows (overlay and ask AI)
 	ipcMain.handle('hide-all-windows', async () => {
