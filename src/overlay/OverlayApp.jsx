@@ -522,6 +522,12 @@ const OverlayApp = () => {
 
 		setRecallSessionId(null);
 
+		// Reset Dynamic Island control state when stopping
+		setIsDynamicIslandControlled(false);
+
+		// Don't show shortcut bar - keep overlay minimal
+		setShowShortcutBar(false);
+
 		// Reset stopping flag after cleanup
 		setTimeout(() => {
 			isStoppingRef.current = false;
@@ -762,12 +768,13 @@ const OverlayApp = () => {
 		// This ensures a fresh start when reopening
 		clearAllTranscriptionData();
 
-		// Only restore ShortcutBar if NOT controlled by Dynamic Island
-		if (!isDynamicIslandControlled) {
-			setShowShortcutBar(true);
-		} else {
-			console.log('🏝️ Panel closed but keeping Dynamic Island control - NO ShortcutBar');
-		}
+		// Reset Dynamic Island control state when panel is closed
+		setIsDynamicIslandControlled(false);
+
+		// Don't show shortcut bar - keep overlay minimal
+		setShowShortcutBar(false);
+
+		console.log('🏝️ Panel closed - resetting Dynamic Island control state');
 	};
 
 	const handleShowTranscript = () => {
@@ -820,6 +827,13 @@ const OverlayApp = () => {
 		if (window.electronApi?.askAI?.toggleWindow) {
 			window.electronApi.askAI.toggleWindow();
 		}
+	};
+
+	// Function to manually reset Dynamic Island control state
+	const resetDynamicIslandControl = () => {
+		console.log('🔄 Manually resetting Dynamic Island control state');
+		setIsDynamicIslandControlled(false);
+		setShowShortcutBar(false);
 	};
 
 	// Debug function to test notifications (remove after testing)

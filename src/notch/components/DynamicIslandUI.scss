@@ -138,6 +138,12 @@
 	width: 100%;
 	height: 100%;
 	padding: 0 24px;
+
+	// When in chat mode, adjust layout
+	&:has(.collapsed-chat-recording) {
+		padding: 0 16px;
+		justify-content: center;
+	}
 }
 
 .collapsed-voice-animation {
@@ -202,6 +208,69 @@
 	50% {
 		height: 14px;
 		opacity: 1;
+	}
+}
+
+// Collapsed chat recording mode
+.collapsed-chat-recording {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	height: 100%;
+	padding: 0 16px;
+}
+
+.collapsed-chat-input {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	height: 20px;
+}
+
+.collapsed-chat-field {
+	width: 100%;
+	height: 100%;
+	background: transparent;
+	border: none;
+	outline: none;
+	color: #79ecc9;
+	font-size: 10px;
+	font-weight: 500;
+	font-family: 'General Sans Variable', sans-serif;
+	caret-color: #79ecc9;
+
+	&::placeholder {
+		color: rgba(121, 236, 201, 0.6);
+		font-size: 9px;
+	}
+
+	&:focus {
+		background: rgba(121, 236, 201, 0.1);
+		border-radius: 4px;
+		padding: 0 4px;
+	}
+}
+
+.collapsed-chat-submit {
+	width: 16px;
+	height: 16px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	color: #79ecc9;
+	transition: all 0.2s ease;
+	border-radius: 4px;
+
+	&:hover {
+		background: rgba(121, 236, 201, 0.2);
+		transform: scale(1.1);
+	}
+
+	svg {
+		width: 12px;
+		height: 12px;
 	}
 }
 
@@ -304,6 +373,35 @@
 	&:hover {
 		transform: scale(1.05);
 		background: #6dd4b8;
+	}
+
+	&.processing {
+		background: #6dd4b8;
+		cursor: not-allowed;
+		opacity: 0.7;
+		transform: scale(0.98);
+
+		&:hover {
+			transform: scale(0.98);
+			background: #6dd4b8;
+		}
+
+		.start-text {
+			color: #0e2f2a;
+			font-weight: 600;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+
+			.start-loading-spinner {
+				width: 12px;
+				height: 12px;
+				border: 1.5px solid rgba(14, 47, 42, 0.3);
+				border-top: 1.5px solid #0e2f2a;
+				border-radius: 50%;
+				animation: spin 1s linear infinite;
+			}
+		}
 	}
 }
 
