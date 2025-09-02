@@ -525,6 +525,7 @@ const AskAIApp = () => {
 				</div>
 			)}
 
+
 			{/* Input Bar - Botdtom */}
 			<div className="ask-ai-input">
 				{/* Dynamic Island Message Indicator */}
