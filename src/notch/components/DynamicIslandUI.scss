@@ -138,6 +138,12 @@
 	width: 100%;
 	height: 100%;
 	padding: 0 24px;
+
+	// When in chat mode, adjust layout
+	&:has(.collapsed-chat-recording) {
+		padding: 0 16px;
+		justify-content: center;
+	}
 }
 
 .collapsed-voice-animation {
@@ -163,7 +169,7 @@
 	.audio-bar {
 		width: 2px;
 		height: 8px;
-		background: #79ecc9;
+		background: #ffffff;
 		border-radius: 1px;
 		animation: collapsedAudioViz 1.5s ease-in-out infinite;
 		transform-origin: center bottom;
@@ -202,6 +208,69 @@
 	50% {
 		height: 14px;
 		opacity: 1;
+	}
+}
+
+// Collapsed chat recording mode
+.collapsed-chat-recording {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	height: 100%;
+	padding: 0 16px;
+}
+
+.collapsed-chat-input {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	height: 20px;
+}
+
+.collapsed-chat-field {
+	width: 100%;
+	height: 100%;
+	background: transparent;
+	border: none;
+	outline: none;
+	color: #79ecc9;
+	font-size: 10px;
+	font-weight: 500;
+	font-family: 'General Sans Variable', sans-serif;
+	caret-color: #79ecc9;
+
+	&::placeholder {
+		color: rgba(121, 236, 201, 0.6);
+		font-size: 9px;
+	}
+
+	&:focus {
+		background: rgba(121, 236, 201, 0.1);
+		border-radius: 4px;
+		padding: 0 4px;
+	}
+}
+
+.collapsed-chat-submit {
+	width: 16px;
+	height: 16px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	color: #79ecc9;
+	transition: all 0.2s ease;
+	border-radius: 4px;
+
+	&:hover {
+		background: rgba(121, 236, 201, 0.2);
+		transform: scale(1.1);
+	}
+
+	svg {
+		width: 12px;
+		height: 12px;
 	}
 }
 
@@ -296,14 +365,42 @@
 	gap: 4px;
 	padding: 2px 10px;
 	height: 24px;
-	background: #79ecc9;
+	background: #ffffff;
 	border-radius: 100px;
 	cursor: pointer;
 	transition: all 0.3s ease;
 
 	&:hover {
 		transform: scale(1.05);
-		background: #6dd4b8;
+	}
+
+	&.processing {
+		cursor: not-allowed;
+		opacity: 0.7;
+		transform: scale(0.98);
+		font-family: 'General Sans Variable';
+
+		&:hover {
+			transform: scale(0.98);
+		}
+
+		.start-text {
+			color: var(--background-color, #121212);
+			font-family: 'General Sans Variable';
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+
+			.start-loading-spinner {
+				color: var(--background-color, #121212);
+				font-family: 'General Sans Variable';
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
 	}
 }
 
@@ -393,7 +490,7 @@
 	svg {
 		width: 14px;
 		height: 16px;
-		color: #79ecc9;
+		stroke: #79ecc9;
 	}
 
 	span {
@@ -436,44 +533,6 @@
 	}
 }
 
-// Audio visualizer
-.audio-visualizer {
-	display: flex;
-	align-items: center;
-	gap: 2px;
-	padding: 4px 6px;
-	width: 24px;
-	height: 24px;
-
-	border-radius: 4px;
-}
-
-.audio-bar {
-	background-color: #000;
-	border-radius: 1.6px;
-
-	&:nth-child(1) {
-		width: 1.6px;
-		height: 6px;
-	}
-	&:nth-child(2) {
-		width: 1.6px;
-		height: 14px;
-	}
-	&:nth-child(3) {
-		width: 1.6px;
-		height: 10px;
-	}
-	&:nth-child(4) {
-		width: 1.6px;
-		height: 4px;
-	}
-	&:nth-child(5) {
-		width: 1.6px;
-		height: 6px;
-	}
-}
-
 // Right side icons
 .right-icons {
 	display: flex;
@@ -510,7 +569,6 @@
 .icon-button {
 	width: 24px;
 	height: 24px;
-	background: rgba(255, 255, 255, 0.15);
 	border-radius: 8px;
 	display: flex;
 	align-items: center;
@@ -721,10 +779,15 @@
 	transition: all 0.3s ease;
 	position: relative;
 	overflow: hidden;
+	&.voice-mode {
+		border: 0.7px solid rgba(255, 255, 255, 0.1);
+		background: linear-gradient(180deg, #8cf2d3 0%, #8eadf6 63.16%, #c19ef2 100%);
+		box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.5) inset, 0 0 20px 0 rgba(112, 199, 216, 0.6);
+	}
 
 	&:hover {
-		transform: scale(1.05);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+		transform: scale(0.95);
+		// box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 	}
 
 	svg {
@@ -744,7 +807,7 @@
 		width: 20px;
 		height: 20px;
 		border: 2px solid #94989e;
-		border-top: 2px solid #79ecc9;
+		border-top: 2px solid #ffffff;
 		border-radius: 50%;
 		animation: spin 1s linear infinite;
 	}
@@ -1332,14 +1395,14 @@
 	position: relative;
 	width: 100px;
 	height: 100px;
-	background: #6b6b6b;
-	border: 0.5px solid rgba(69, 134, 114, 0.2);
 	border-radius: 100px;
+	border: 0.7px solid rgba(255, 255, 255, 0.1);
+	background: linear-gradient(180deg, #8cf2d3 0%, #8eadf6 63.16%, #c19ef2 100%);
+	box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.5) inset, 0 0 20px 0 rgba(112, 199, 216, 0.6);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	box-shadow: 0 0 30px 0 rgba(121, 236, 201, 0.5);
 	margin-left: 10px; // Add left margin for gap
 
 	// Add the custom SVG background
@@ -1427,7 +1490,7 @@
 	.audio-bar {
 		width: 3px;
 		height: 12px;
-		background: #79ecc9;
+		background: #ffffff;
 		border-radius: 2px;
 		animation: audioViz 1.5s ease-in-out infinite;
 		transform-origin: center bottom; // Animate from bottom center

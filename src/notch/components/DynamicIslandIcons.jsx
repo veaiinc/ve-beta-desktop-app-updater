@@ -184,6 +184,18 @@ export const VoiceModeIcon = () => (
 	</svg>
 );
 
+export const VoiceModeIconWhite = () => (
+	<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none">
+		<path
+			d="M13.9993 24.2096V3.79297M23.3327 17.4546V10.548M4.66602 17.4546V10.548M18.666 20.8986V7.10397M9.33268 20.8986V7.10397"
+			stroke="white"
+			strokeWidth="1.75"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
+
 export const CloseIcon = () => (
 	<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 20" fill="none">
 		<g clipPath="url(#clip0_13584_766)">
@@ -294,5 +306,17 @@ export const MutedMicrophoneIcon = () => (
 				<rect width="20" height="20" fill="white" />
 			</clipPath>
 		</defs>
+	</svg>
+);
+
+export const AudioVisualizerIcon = () => (
+	<svg xmlns="http://www.w3.org/2000/svg" width="11" height="12" viewBox="0 0 11 12" fill="none">
+		<path
+			d="M5.49967 11.1048V0.896484M10.1663 7.72732V4.27398M0.833008 7.72732V4.27398M7.83301 9.44932V2.55198M3.16634 9.44932V2.55198"
+			stroke="#121212"
+			strokeWidth="0.875"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
 	</svg>
 );
