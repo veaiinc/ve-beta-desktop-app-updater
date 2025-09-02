@@ -47,7 +47,7 @@
 			max-width: 1700px;
 			width: 100%;
 			box-sizing: border-box;
-			padding-top: 10px;
+			// padding-top: 10px;
 
 			.left-container {
 				display: flex;
@@ -56,9 +56,10 @@
 				z-index: 1000;
 				cursor: pointer;
 
-				.ve-logo {
-					width: 40px;
-					height: 27px;
+				.ve-logo-container {
+					width: 32px;
+					height: 40px;
+					cursor: pointer;
 				}
 
 				.sidebar-button {
@@ -70,6 +71,12 @@
 					justify-content: center;
 					align-items: center;
 				}
+			}
+			.ve-logo-container {
+				width: 40px;
+				height: 42px;
+				cursor: pointer;
+				padding: 10px;
 			}
 
 			.middle-container {

@@ -36,3 +36,5 @@ script.sh
 notarize_for_intel.sh
 
 **/node_modules
+
+build-and-notarize.sh

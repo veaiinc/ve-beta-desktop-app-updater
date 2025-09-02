@@ -532,11 +532,19 @@ class WindowHelper {
 		const primaryDisplay = screen.getPrimaryDisplay();
 		const workArea = primaryDisplay.workAreaSize;
 
-		// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
-		// Position overlay below Dynamic Island with a gap
+		// Add proper spacing from Dynamic Island with platform-specific positioning
 		const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
 		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-		const topY = 30 + dynamicIslandHeight + gapFromDynamicIsland;
+		
+		// Platform-specific Dynamic Island Y position
+		let dynamicIslandY;
+		if (process.platform === 'win32') {
+			dynamicIslandY = 0 // Higher position on Windows
+		} else {
+			dynamicIslandY = 30; // Normal position on Mac/Linux
+		}
+		
+		const topY = dynamicIslandY + dynamicIslandHeight + gapFromDynamicIsland;
 
 		// Position overlay to allow space for ask AI on the right
 		let overlayX;
@@ -613,10 +621,19 @@ class WindowHelper {
 			// Center ask AI when overlay is not visible, below Dynamic Island with proper spacing
 			askAIX = Math.floor(workArea.width / 2) - Math.floor(this.askAIWindowSize.width / 2);
 
-			// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
+			// Add proper spacing from Dynamic Island with platform-specific positioning
 			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
 			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-			askAIY = 30 + dynamicIslandHeight + gapFromDynamicIsland;
+			
+			// Platform-specific Dynamic Island Y position
+			let dynamicIslandY;
+			if (process.platform === 'win32') {
+				dynamicIslandY = 15; // Higher position on Windows
+			} else {
+				dynamicIslandY = 30; // Normal position on Mac/Linux
+			}
+			
+			askAIY = dynamicIslandY + dynamicIslandHeight + gapFromDynamicIsland;
 		}
 
 		this.askAIWindow.setBounds({
@@ -923,78 +940,7 @@ class WindowHelper {
 			}
 		}
 
-		// Register Cmd+/ (Ctrl+/ on Windows) to toggle overlay window
-		const cmdSlashRegistered = globalShortcut.register('CommandOrControl+/', () => {
-			log.info('🔍 Cmd+/ (Ctrl+/) SHORTCUT TRIGGERED!');
-			log.info(`📱 Platform: ${process.platform}`);
-			log.info(
-				`🖥️  OS: ${
-					process.platform === 'win32'
-						? 'Windows'
-						: process.platform === 'darwin'
-						? 'macOS'
-						: 'Linux'
-				}`,
-			);
-			log.info(`⏰ Timestamp: ${new Date().toISOString()}`);
-			log.info('🔄 Toggling overlay window...');
 
-			// Check if overlay window is visible
-			const isOverlayVisible = this.isVisible();
-			log.info(`👁️  Overlay window currently visible: ${isOverlayVisible}`);
-
-			if (isOverlayVisible) {
-				log.info('🙈 Hiding overlay window...');
-				// Hide overlay window only (keep ask AI visible if it's open)
-				this.hideOverlayWindow();
-				log.info('✅ Overlay window hidden successfully');
-			} else {
-				log.info('👁️  Showing overlay window...');
-				// Show overlay window only
-				// Create overlay window if it doesn't exist
-				if (!this.getOverlayWindow()) {
-					log.info('🏗️  Creating new overlay window...');
-					this.createOverlayWindow();
-				}
-				this.showOverlayWindow();
-				log.info('✅ Overlay window shown successfully');
-			}
-
-			log.info('🎯 Cmd+/ (Ctrl+/) shortcut execution completed');
-		});
-
-		if (cmdSlashRegistered) {
-			log.info('✅ Cmd+/ (Ctrl+/) shortcut registered successfully');
-			log.info(`🔧 Shortcut key: CommandOrControl+/`);
-			log.info(`🖥️  Platform: ${process.platform}`);
-		} else {
-			log.error('❌ Failed to register Cmd+/ (Ctrl+/) shortcut');
-			log.error(`🔧 Attempted shortcut key: CommandOrControl+/`);
-			log.error(`🖥️  Platform: ${process.platform}`);
-
-			// On Windows, try alternative shortcuts if the main one fails
-			if (process.platform === 'win32') {
-				log.info('🔄 Attempting to register Windows alternative shortcuts for Ctrl+/...');
-				// Try Ctrl+Alt+Slash as alternative
-				const altSlashRegistered = globalShortcut.register('Ctrl+Alt+/', () => {
-					log.info('🔍 Ctrl+Alt+/ pressed - alternative shortcut for overlay window');
-					const isOverlayVisible = this.isVisible();
-					if (isOverlayVisible) {
-						this.hideOverlayWindow();
-					} else {
-						if (!this.getOverlayWindow()) {
-							this.createOverlayWindow();
-						}
-						this.showOverlayWindow();
-					}
-				});
-				if (altSlashRegistered) {
-					log.info('✅ Ctrl+Alt+/ shortcut registered as alternative');
-				} else {
-					log.error('❌ Failed to register Ctrl+Alt+/ alternative shortcut');
-				}
-			}
-		}
 
 		// Register Cmd+Enter to toggle ask AI window only (independent of main window)
 		const cmdEnterRegistered = globalShortcut.register('CommandOrControl+Return', () => {
@@ -1060,23 +1006,128 @@ class WindowHelper {
 		});
 
 		// Register F12 to toggle developer tools for overlay window
-		const f12Registered = globalShortcut.register('F12', () => {
+		let f12Registered = false;
+		try {
+			f12Registered = globalShortcut.register('F12', () => {
+			log.info('F12 pressed - attempting to open developer tools');
+			
+			// First, try to open dev tools for overlay window if visible
 			if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+				log.info('Opening dev tools for overlay window');
 				if (this.overlayWindow.webContents.isDevToolsOpened()) {
 					this.overlayWindow.webContents.closeDevTools();
 				} else {
 					this.overlayWindow.webContents.openDevTools({ mode: 'detach' });
 				}
+				return;
 			}
-		});
+			
+			// If overlay not visible, try Ask AI window
+			if (this.askAIWindow && !this.askAIWindow.isDestroyed() && this.askAIWindow.isVisible()) {
+				log.info('Opening dev tools for Ask AI window');
+				if (this.askAIWindow.webContents.isDevToolsOpened()) {
+					this.askAIWindow.webContents.closeDevTools();
+				} else {
+					this.askAIWindow.webContents.openDevTools({ mode: 'detach' });
+				}
+				return;
+			}
+			
+			// If no overlay windows, open for main window
+			const mainWindow = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				log.info('Opening dev tools for main/focused window');
+				if (mainWindow.webContents.isDevToolsOpened()) {
+					mainWindow.webContents.closeDevTools();
+				} else {
+					mainWindow.webContents.openDevTools({ mode: 'detach' });
+				}
+			}
+			});
+		} catch (error) {
+			log.warn(`Failed to register F12 shortcut: ${error.message}`);
+			log.info('F12 may be used by another application - trying alternative Ctrl+F12');
+			
+			// Try alternative F12 shortcut
+			try {
+				f12Registered = globalShortcut.register('CommandOrControl+F12', () => {
+					log.info('Ctrl+F12 pressed - attempting to open developer tools');
+					
+					// First, try to open dev tools for overlay window if visible
+					if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+						log.info('Opening dev tools for overlay window');
+						if (this.overlayWindow.webContents.isDevToolsOpened()) {
+							this.overlayWindow.webContents.closeDevTools();
+						} else {
+							this.overlayWindow.webContents.openDevTools({ mode: 'detach' });
+						}
+						return;
+					}
+					
+					// If overlay not visible, try Ask AI window
+					if (this.askAIWindow && !this.askAIWindow.isDestroyed() && this.askAIWindow.isVisible()) {
+						log.info('Opening dev tools for Ask AI window');
+						if (this.askAIWindow.webContents.isDevToolsOpened()) {
+							this.askAIWindow.webContents.closeDevTools();
+						} else {
+							this.askAIWindow.webContents.openDevTools({ mode: 'detach' });
+						}
+						return;
+					}
+					
+					// If no overlay windows, open for main window
+					const mainWindow = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
+					if (mainWindow && !mainWindow.isDestroyed()) {
+						log.info('Opening dev tools for main/focused window');
+						if (mainWindow.webContents.isDevToolsOpened()) {
+							mainWindow.webContents.closeDevTools();
+						} else {
+							mainWindow.webContents.openDevTools({ mode: 'detach' });
+						}
+					}
+				});
+				if (f12Registered) {
+					log.info('✅ Ctrl+F12 shortcut registered as F12 alternative');
+				}
+			} catch (altError) {
+				log.warn(`Failed to register Ctrl+F12 alternative: ${altError.message}`);
+			}
+		}
 
 		// Register Cmd+Shift+I as alternative for developer tools
 		const cmdShiftIRegistered = globalShortcut.register('CommandOrControl+Shift+I', () => {
+			log.info('Ctrl+Shift+I pressed - attempting to open developer tools');
+			
+			// First, try to open dev tools for overlay window if visible
 			if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+				log.info('Opening dev tools for overlay window');
 				if (this.overlayWindow.webContents.isDevToolsOpened()) {
 					this.overlayWindow.webContents.closeDevTools();
 				} else {
 					this.overlayWindow.webContents.openDevTools({ mode: 'detach' });
+				}
+				return;
+			}
+			
+			// If overlay not visible, try Ask AI window
+			if (this.askAIWindow && !this.askAIWindow.isDestroyed() && this.askAIWindow.isVisible()) {
+				log.info('Opening dev tools for Ask AI window');
+				if (this.askAIWindow.webContents.isDevToolsOpened()) {
+					this.askAIWindow.webContents.closeDevTools();
+				} else {
+					this.askAIWindow.webContents.openDevTools({ mode: 'detach' });
+				}
+				return;
+			}
+			
+			// If no overlay windows, open for main window
+			const mainWindow = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				log.info('Opening dev tools for main/focused window');
+				if (mainWindow.webContents.isDevToolsOpened()) {
+					mainWindow.webContents.closeDevTools();
+				} else {
+					mainWindow.webContents.openDevTools({ mode: 'detach' });
 				}
 			}
 		});
@@ -1089,7 +1140,7 @@ class WindowHelper {
 		log.info('📊 Global shortcut registration status:');
 		log.info('='.repeat(50));
 		log.info(`🔧 Cmd+\\ (Ctrl+\\): ${cmdBackslashRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
-		log.info(`🔧 Cmd+/ (Ctrl+/) : ${cmdSlashRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
+
 		log.info(
 			`🔧 Cmd+Enter (Ctrl+Enter): ${cmdEnterRegistered ? '✅ REGISTERED' : '❌ FAILED'}`,
 		);
@@ -1097,22 +1148,13 @@ class WindowHelper {
 		log.info(`🔧 Cmd+Right (Ctrl+Right): ${rightRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
 		log.info(`🔧 Cmd+Up (Ctrl+Up): ${upRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
 		log.info(`🔧 Cmd+Down (Ctrl+Down): ${downRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
-		log.info(`🔧 F12: ${f12Registered ? '✅ REGISTERED' : '❌ FAILED'}`);
+		log.info(`🔧 F12 or Ctrl+F12: ${f12Registered ? '✅ REGISTERED' : '❌ FAILED'}`);
 		log.info(
 			`🔧 Cmd+Shift+I (Ctrl+Shift+I): ${cmdShiftIRegistered ? '✅ REGISTERED' : '❌ FAILED'}`,
 		);
 		log.info('='.repeat(50));
 
-		// Summary for Ctrl+/ specifically
-		if (cmdSlashRegistered) {
-			log.info('🎉 Ctrl+/ shortcut is READY for testing!');
-			log.info('💡 To test: Press Ctrl+/ (Windows) or Cmd+/ (macOS)');
-			log.info('📝 Check console logs for detailed execution info');
-		} else {
-			log.warn('⚠️  Ctrl+/ shortcut registration FAILED!');
-			log.warn('🔍 Check if another app is using this shortcut');
-			log.warn('🔄 Alternative shortcuts may be available');
-		}
+
 
 		app.on('will-quit', () => globalShortcut.unregisterAll());
 		log.info('✅ Global shortcuts registration process completed');
@@ -1121,9 +1163,9 @@ class WindowHelper {
 	// Test function to verify shortcuts are working
 	testShortcuts() {
 		log.info('🧪 Testing global shortcuts...');
-		log.info('🔍 Press Ctrl+/ (Windows) or Cmd+/ (macOS) to test overlay toggle');
+		log.info('🔍 Press Ctrl+\\ (Windows) or Cmd+\\ (macOS) to test main window toggle');
 		log.info('🔍 Press Ctrl+Enter (Windows) or Cmd+Enter (macOS) to test Ask AI toggle');
-		log.info('🔍 Press F12 to test developer tools toggle');
+		log.info('🔍 Press F12 or Ctrl+F12 to test developer tools toggle');
 		log.info('📝 Watch console logs for detailed execution logs');
 
 		// Check if shortcuts are already registered by other apps
@@ -1135,10 +1177,11 @@ class WindowHelper {
 		log.info('🔍 Checking for potential shortcut conflicts...');
 
 		const shortcutsToCheck = [
-			'CommandOrControl+/',
 			'CommandOrControl+\\',
 			'CommandOrControl+Return',
 			'F12',
+			'CommandOrControl+F12',
+			'CommandOrControl+Shift+I',
 		];
 
 		shortcutsToCheck.forEach((shortcut) => {

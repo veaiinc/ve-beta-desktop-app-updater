@@ -171,3 +171,128 @@ export const BackIcon = () => (
 		<path d="M6 11L1 6L6 1" stroke="#F2F2F3" strokeLinecap="round" strokeLinejoin="round" />
 	</svg>
 );
+
+export const VoiceModeIcon = () => (
+	<svg xmlns="http://www.w3.org/2000/svg" width="14" height="16" viewBox="0 0 14 16" fill="none">
+		<path
+			d="M7 14.562V1.43701M13 10.2195V5.77951M1 10.2195V5.77951M10 12.4335V3.56551M4 12.4335V3.56551"
+			stroke="#79ECC9"
+			strokeWidth="1.125"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
+
+export const CloseIcon = () => (
+	<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 20" fill="none">
+		<g clipPath="url(#clip0_13584_766)">
+			<path
+				d="M15.625 4.375L4.375 15.625"
+				stroke="#F2F2F3"
+				strokeWidth="1.25"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M15.625 15.625L4.375 4.375"
+				stroke="#F2F2F3"
+				strokeWidth="1.25"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</g>
+		<defs>
+			<clipPath id="clip0_13584_766">
+				<rect width="20" height="20" fill="white" />
+			</clipPath>
+		</defs>
+	</svg>
+);
+
+export const MicrophoneIcon = () => (
+	<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 20" fill="none">
+		<g clipPath="url(#clip0_13584_770)">
+			<path
+				d="M13.125 5C13.125 3.27411 11.7259 1.875 10 1.875C8.27411 1.875 6.875 3.27411 6.875 5V10C6.875 11.7259 8.27411 13.125 10 13.125C11.7259 13.125 13.125 11.7259 13.125 10V5Z"
+				stroke="#F2F2F3"
+				strokeWidth="1.25"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M10 15.625V18.75"
+				stroke="#F2F2F3"
+				strokeWidth="1.25"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M15.625 10C15.625 11.4918 15.0324 12.9226 13.9775 13.9775C12.9226 15.0324 11.4918 15.625 10 15.625C8.50816 15.625 7.07742 15.0324 6.02252 13.9775C4.96763 12.9226 4.375 11.4918 4.375 10"
+				stroke="#F2F2F3"
+				strokeWidth="1.25"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</g>
+		<defs>
+			<clipPath id="clip0_13584_770">
+				<rect width="20" height="20" fill="white" />
+			</clipPath>
+		</defs>
+	</svg>
+);
+
+export const MutedMicrophoneIcon = () => (
+	<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 20" fill="none">
+		<g clipPath="url(#clip0_13448_797)">
+			<path
+				d="M10 15.625V18.75"
+				stroke="#F2F2F3"
+				strokeWidth="1.25"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M3.75 3.75L16.25 17.5"
+				stroke="#F2F2F3"
+				strokeWidth="1.25"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M13.4625 14.4336C12.6318 15.0824 11.6355 15.4848 10.5873 15.5948C9.53899 15.7049 8.48088 15.5182 7.53357 15.056C6.58626 14.5938 5.78786 13.8748 5.2294 12.9808C4.67094 12.0869 4.37489 11.054 4.375 10"
+				stroke="#F2F2F3"
+				strokeWidth="1.25"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M15.6252 10C15.6265 10.8559 15.4317 11.7007 15.0557 12.4695"
+				stroke="#F2F2F3"
+				strokeWidth="1.25"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M11.7719 12.5781C11.2507 12.9365 10.6325 13.1273 10 13.125C9.1712 13.125 8.37634 12.7958 7.79029 12.2097C7.20424 11.6237 6.875 10.8288 6.875 10V7.1875"
+				stroke="#F2F2F3"
+				strokeWidth="1.25"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M7.13184 3.75469C7.37456 3.19604 7.77526 2.7205 8.28465 2.38655C8.79404 2.0526 9.38992 1.8758 9.99902 1.875C10.8278 1.875 11.6227 2.20424 12.2087 2.79029C12.7948 3.37634 13.124 4.1712 13.124 5V10C13.1242 10.1093 13.1185 10.2186 13.1068 10.3273"
+				stroke="#F2F2F3"
+				strokeWidth="1.25"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</g>
+		<defs>
+			<clipPath id="clip0_13448_797">
+				<rect width="20" height="20" fill="white" />
+			</clipPath>
+		</defs>
+	</svg>
+);

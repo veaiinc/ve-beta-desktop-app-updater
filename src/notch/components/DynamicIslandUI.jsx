@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import {
 	HomeIcon,
 	LockIcon,
@@ -10,8 +10,17 @@ import {
 	StopIcon,
 	PlusIcon,
 	BackIcon,
+	VoiceModeIcon,
+	CloseIcon,
+	MicrophoneIcon,
+	MutedMicrophoneIcon,
 } from './DynamicIslandIcons';
 import './DynamicIslandUI.scss';
+import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
+import Context from '../../context/context';
+import { LiveKitRoom, RoomAudioRenderer, StartAudio } from '@livekit/components-react';
+import Voice from '../../views/components/chat/Voice';
+import { checkDevices } from '../../helpers';
 
 // Camera permission utilities - simplified for Electron
 const stopCamera = (stream) => {
@@ -23,6 +32,7 @@ const stopCamera = (stream) => {
 const DynamicIslandUI = () => {
 	const dynamicIslandRef = useRef(null);
 	const videoRef = useRef(null);
+	const chatInputRef = useRef(null); // Add ref for chat input
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [isConnected, setIsConnected] = useState(false);
 	// Overlay state - synced from overlay window
@@ -35,6 +45,8 @@ const DynamicIslandUI = () => {
 	// Chat mode state
 	const [isChatMode, setIsChatMode] = useState(false);
 	const [chatInput, setChatInput] = useState('');
+	const [isSendingMessage, setIsSendingMessage] = useState(false);
+	const [isSettingChatMode, setIsSettingChatMode] = useState(false); // Prevent rapid focus changes
 	// Camera state
 	const [isCameraActive, setIsCameraActive] = useState(false);
 	const [cameraStream, setCameraStream] = useState(null);
@@ -42,6 +54,25 @@ const DynamicIslandUI = () => {
 	const [cameraError, setCameraError] = useState(null);
 	const [isCameraStarting, setIsCameraStarting] = useState(false);
 	const [cameraStatus, setCameraStatus] = useState('idle'); // 'idle', 'starting', 'active', 'error'
+
+	// Voice mode state
+	const [isVoiceModeActive, setIsVoiceModeActive] = useState(false);
+	const [voiceConnectionStatus, setVoiceConnectionStatus] = useState('disconnected'); // 'disconnected', 'connecting', 'connected', 'error'
+	const [voiceError, setVoiceError] = useState(null);
+	const [showVoiceInterface, setShowVoiceInterface] = useState(false);
+	const [deviceInfo, setDeviceInfo] = useState({});
+	const [voiceMessages, setVoiceMessages] = useState([]);
+	const [currentVoiceStatus, setCurrentVoiceStatus] = useState('Listening');
+	const [isMicrophoneMuted, setIsMicrophoneMuted] = useState(false);
+
+	// Voice integration hook
+	const { shouldConnect, token, serverUrl, handleConnect, handleDisconnect, resetState } =
+		useUpdatedVoiceIntegration();
+
+	// Get voice integration data from context
+	const {
+		aiSetup: { voiceIntegrationData, updateAiSetupState },
+	} = useContext(Context);
 
 	useEffect(() => {
 		// Check authentication status
@@ -116,6 +147,47 @@ const DynamicIslandUI = () => {
 			}
 		};
 	}, []);
+
+	// Initialize device info
+	useEffect(() => {
+		const getDeviceInfo = async () => {
+			try {
+				const devices = await checkDevices();
+				setDeviceInfo(devices);
+			} catch (error) {
+				console.error('Error getting device info:', error);
+			}
+		};
+		getDeviceInfo();
+	}, []);
+
+	// Monitor voice connection status changes
+	useEffect(() => {
+		if (shouldConnect && token) {
+			setVoiceConnectionStatus('connected');
+			setIsVoiceModeActive(true);
+			setVoiceError(null);
+			setShowVoiceInterface(true);
+		} else if (!shouldConnect) {
+			setVoiceConnectionStatus('disconnected');
+			setIsVoiceModeActive(false);
+			setShowVoiceInterface(false);
+		}
+	}, [shouldConnect, token]);
+
+	// Monitor voice integration data from context
+	useEffect(() => {
+		if (voiceIntegrationData?.shouldConnect) {
+			setVoiceConnectionStatus('connected');
+			setIsVoiceModeActive(true);
+			setVoiceError(null);
+			setShowVoiceInterface(true);
+		} else if (!voiceIntegrationData?.shouldConnect) {
+			setVoiceConnectionStatus('disconnected');
+			setIsVoiceModeActive(false);
+			setShowVoiceInterface(false);
+		}
+	}, [voiceIntegrationData]);
 
 	// Check camera permission on mount and when app gains focus
 	useEffect(() => {
@@ -334,6 +406,18 @@ const DynamicIslandUI = () => {
 			const result = await window.electronApi.dynamicIsland.expand();
 			if (result.success) {
 				setIsExpanded(true);
+				// Ensure window is focusable when expanded, but only if not already setting
+				if (window.electronApi?.dynamicIsland?.setChatMode && !isSettingChatMode) {
+					setIsSettingChatMode(true);
+					window.electronApi.dynamicIsland
+						.setChatMode(true)
+						.then(() => {
+							setIsSettingChatMode(false);
+						})
+						.catch(() => {
+							setIsSettingChatMode(false);
+						});
+				}
 			}
 		} catch (error) {
 			console.error('❌ Expand IPC error:', error);
@@ -348,6 +432,10 @@ const DynamicIslandUI = () => {
 			const result = await window.electronApi.dynamicIsland.collapse();
 			if (result.success) {
 				setIsExpanded(false);
+				// Disable focus when collapsing
+				if (window.electronApi?.dynamicIsland?.setChatMode) {
+					window.electronApi.dynamicIsland.setChatMode(false);
+				}
 			}
 		} catch (error) {
 			console.error('❌ Collapse IPC error:', error);
@@ -357,10 +445,26 @@ const DynamicIslandUI = () => {
 	// Click handlers for interactive elements
 	const handleHomeClick = () => {
 		console.log('🏠 Home icon clicked');
+
+		// On Windows, restore main window when home icon is clicked
+		if (window.electronApi?.home?.restoreMainWindow) {
+			window.electronApi.home
+				.restoreMainWindow()
+				.then((result) => {
+					if (result.success) {
+						console.log('✅ Main window restored successfully');
+					} else {
+						console.warn('⚠️ Failed to restore main window:', result.error);
+					}
+				})
+				.catch((error) => {
+					console.error('❌ Error restoring main window:', error);
+				});
+		}
 	};
 
-	const handleSecurityClick = () => {
-		console.log('🔒 Security icon clicked');
+	const handleLockClick = () => {
+		console.log('🔒 Lock icon clicked');
 	};
 
 	const handleSettingsClick = () => {
@@ -391,6 +495,153 @@ const DynamicIslandUI = () => {
 				console.error('Error triggering overlay from Dynamic Island:', error);
 			}
 		}
+	};
+
+	const handleVoiceModeClick = async () => {
+		console.log('🎤 Clicked for voice mode');
+
+		try {
+			if (isVoiceModeActive) {
+				// Disconnect voice assistant
+				console.log('Disconnecting voice assistant...');
+				setVoiceConnectionStatus('disconnecting');
+				setShowVoiceInterface(false);
+				await handleDisconnect();
+				setVoiceConnectionStatus('disconnected');
+				setIsVoiceModeActive(false);
+				setVoiceError(null);
+
+				// Don't show external voice widget, we're showing it inline
+				updateAiSetupState({ showVoiceWidget: false });
+
+				// Reset the voice integration hook state if available
+				if (resetState) {
+					resetState();
+				}
+			} else {
+				// Connect to voice assistant - clear previous data for fresh start
+				console.log('Connecting to voice assistant...');
+				setVoiceConnectionStatus('connecting');
+				setVoiceError(null);
+
+				// Clear previous voice data for fresh start
+				setVoiceMessages([]);
+				setCurrentVoiceStatus('Listening');
+				setIsMicrophoneMuted(false);
+
+				await handleConnect();
+
+				// Don't show external voice widget, we'll show it inline
+				updateAiSetupState({ showVoiceWidget: false });
+
+				// The useEffect will handle the status update when shouldConnect changes
+				console.log('Voice assistant connection initiated');
+			}
+		} catch (error) {
+			console.error('Error in voice mode:', error);
+			setVoiceConnectionStatus('error');
+			setVoiceError(error.message || 'Failed to connect to voice assistant');
+		}
+	};
+
+	// Custom disconnect handler for inline voice component
+	const handleInlineVoiceDisconnect = async () => {
+		console.log('🔌 Disconnecting inline voice assistant...');
+		setVoiceConnectionStatus('disconnecting');
+		setShowVoiceInterface(false);
+		setVoiceMessages([]); // Clear messages
+		setCurrentVoiceStatus('Listening');
+		setIsMicrophoneMuted(false); // Reset microphone state
+		await handleDisconnect();
+		setVoiceConnectionStatus('disconnected');
+		setIsVoiceModeActive(false);
+		setVoiceError(null);
+		updateAiSetupState({ showVoiceWidget: false });
+
+		// Reset voice integration data to restart fresh
+		if (updateAiSetupState) {
+			updateAiSetupState({
+				showVoiceWidget: false,
+				voiceIntegrationData: {
+					...voiceIntegrationData,
+					shouldConnect: false,
+					token: null,
+					serverUrl: null,
+				},
+			});
+		}
+
+		// Reset the voice integration hook state if available
+		if (resetState) {
+			resetState();
+		}
+	};
+
+	// Handle voice messages from the Voice component
+	const handleVoiceMessage = (message, isUser = false) => {
+		setVoiceMessages((prev) => [...prev, { text: message, isUser, timestamp: Date.now() }]);
+	};
+
+	// Handle voice status updates
+	const handleVoiceStatusUpdate = (status) => {
+		// Don't override mute status unless it's a significant state change
+		if (status === 'disconnected' || status === 'connecting') {
+			setCurrentVoiceStatus(status);
+		} else if (!isMicrophoneMuted) {
+			// Only update status if microphone is not muted
+			switch (status) {
+				case 'listening':
+				case 'Listening...':
+					setCurrentVoiceStatus('Listening');
+					break;
+				case 'thinking':
+				case 'Thinking...':
+					setCurrentVoiceStatus('Thinking');
+					break;
+				case 'speaking':
+				case 'Speaking...':
+					setCurrentVoiceStatus('Speaking');
+					break;
+				default:
+					setCurrentVoiceStatus('Listening');
+			}
+		} else {
+			// When muted, always show "Muted" status
+			setCurrentVoiceStatus('Muted');
+		}
+	};
+
+	// Handle real-time transcription updates from Voice component
+	const handleTranscriptionUpdate = (transcripts) => {
+		if (transcripts && transcripts.length > 0) {
+			const newMessages = transcripts.map((msg) => ({
+				text: msg.message || msg.text || '',
+				isUser: msg.isSelf || msg.name === 'You',
+				timestamp: msg.timestamp || Date.now(),
+			}));
+
+			setVoiceMessages(newMessages);
+		}
+	};
+
+	// Handle microphone mute/unmute toggle
+	const handleMicrophoneToggle = () => {
+		const newMuteState = !isMicrophoneMuted;
+		setIsMicrophoneMuted(newMuteState);
+
+		// Update voice status based on mute state
+		if (newMuteState) {
+			setCurrentVoiceStatus('Muted');
+		} else {
+			setCurrentVoiceStatus('Listening');
+		}
+
+		// Disable/enable microphone access in LiveKit when toggling
+		if (window.electronApi?.dynamicIsland?.setMicrophoneAccess) {
+			window.electronApi.dynamicIsland.setMicrophoneAccess(!newMuteState);
+		}
+
+		console.log('🎤 Microphone toggled:', newMuteState ? 'Muted' : 'Unmuted');
 	};
 
 	const handleWebcamClick = async () => {
@@ -543,31 +794,184 @@ const DynamicIslandUI = () => {
 
 	const handleChatClick = () => {
 		console.log('💬 Chat section clicked');
-		if (!isChatMode) {
+		if (!isChatMode && !isSettingChatMode) {
 			setIsChatMode(true);
 			// Ensure Dynamic Island is expanded for chat mode
 			if (!isExpanded && isConnected) {
 				expand();
 			}
+			// Enable focus for input field when entering chat mode
+			if (window.electronApi?.dynamicIsland?.setChatMode) {
+				console.log('🔧 Enabling focus for chat mode...');
+				setIsSettingChatMode(true);
+				window.electronApi.dynamicIsland
+					.setChatMode(true)
+					.then((result) => {
+						console.log('✅ Chat mode focus result:', result);
+						setIsSettingChatMode(false);
+					})
+					.catch((error) => {
+						console.error('❌ Error setting chat mode focus:', error);
+						setIsSettingChatMode(false);
+					});
+			}
 		}
 	};
 
-	const handleChatSubmit = () => {
-		if (chatInput.trim()) {
+	const handleChatSubmit = async () => {
+		console.log('🚀 handleChatSubmit called with:', { chatInput, isSendingMessage });
+
+		if (chatInput.trim() && !isSendingMessage) {
 			console.log('💬 Chat submitted:', chatInput);
-			// Here you can add logic to send the chat message
-			// For now, just clear the input
-			setChatInput('');
+			setIsSendingMessage(true);
+
+			try {
+				// Check if the API is available
+				console.log('🔍 Checking if sendChatMessage API is available...');
+				console.log('🔍 window.electronApi:', window.electronApi);
+				console.log(
+					'🔍 window.electronApi?.dynamicIsland:',
+					window.electronApi?.dynamicIsland,
+				);
+				console.log(
+					'🔍 window.electronApi?.dynamicIsland?.sendChatMessage:',
+					window.electronApi?.dynamicIsland?.sendChatMessage,
+				);
+
+				// Send the chat message to AskAI via Dynamic Island API
+				if (window.electronApi?.dynamicIsland?.sendChatMessage) {
+					console.log(
+						'🚀 Sending chat message to AskAI via Dynamic Island API:',
+						chatInput,
+					);
+
+					const chatMessage = {
+						type: 'dynamic-island-chat',
+						message: chatInput.trim(),
+						timestamp: new Date().toISOString(),
+						source: 'dynamic-island',
+					};
+
+					console.log('📤 Sending chat message:', chatMessage);
+					const result = await window.electronApi.dynamicIsland.sendChatMessage(
+						chatMessage,
+					);
+					console.log('📥 Received result:', result);
+
+					if (result.success) {
+						console.log('✅ Chat message sent successfully to AskAI');
+						// Clear the input after successful send
+						setChatInput('');
+					} else {
+						console.error('❌ Failed to send chat message:', result.error);
+						// Keep the input if sending failed
+					}
+				} else {
+					console.error('❌ sendChatMessage API not available, trying overlay API...');
+
+					// Fallback to overlay API
+					if (window.electronApi?.overlay?.sendChatMessageToAskAI) {
+						console.log('🔄 Using overlay API fallback...');
+						const chatMessage = {
+							type: 'dynamic-island-chat',
+							message: chatInput.trim(),
+							timestamp: new Date().toISOString(),
+							source: 'dynamic-island',
+						};
+
+						const result = await window.electronApi.overlay.sendChatMessageToAskAI(
+							chatMessage,
+						);
+
+						if (result.success) {
+							console.log('✅ Chat message sent successfully via overlay API');
+							setChatInput('');
+						} else {
+							console.error(
+								'❌ Failed to send chat message via overlay API:',
+								result.error,
+							);
+						}
+					} else {
+						console.error('❌ Both APIs not available');
+						// Fallback: just clear the input
+						setChatInput('');
+					}
+				}
+			} catch (error) {
+				console.error('❌ Error sending chat message:', error);
+				// Keep the input if sending failed
+			} finally {
+				setIsSendingMessage(false);
+			}
+		} else {
+			console.log('⚠️ Chat submit blocked:', {
+				hasInput: !!chatInput.trim(),
+				isSending: isSendingMessage,
+			});
 		}
 	};
 
 	const handleChatInputChange = (e) => {
+		console.log('💬 Chat input changed:', e.target.value);
+		console.log('💬 Input element:', e.target);
+		console.log('💬 Input value:', e.target.value);
+		console.log('💬 Input type:', e.target.type);
+		console.log('💬 Input disabled:', e.target.disabled);
+		console.log('💬 Input readOnly:', e.target.readOnly);
+		console.log('💬 Current chatInput state:', chatInput);
 		setChatInput(e.target.value);
+		console.log('💬 chatInput state after setChatInput:', e.target.value);
+
+		// Auto-resize textarea with better scrolling support
+		if (chatInputRef.current) {
+			const textarea = chatInputRef.current;
+			const maxHeight = 200; // Maximum height before enabling scroll
+
+			// Reset height to calculate actual content height
+			textarea.style.height = 'auto';
+			const scrollHeight = textarea.scrollHeight;
+
+			// Set height based on content, but cap it at maxHeight
+			if (scrollHeight <= maxHeight) {
+				textarea.style.height = scrollHeight + 'px';
+			} else {
+				textarea.style.height = maxHeight + 'px';
+				// Ensure scrollbar is visible when content exceeds maxHeight
+				textarea.style.overflowY = 'auto';
+			}
+
+			// Auto-scroll to bottom when typing (common chat UX pattern)
+			textarea.scrollTop = textarea.scrollHeight;
+		}
 	};
 
 	const handleChatInputKeyPress = (e) => {
-		if (e.key === 'Enter') {
+		if (e.key === 'Enter' && !e.shiftKey) {
+			e.preventDefault(); // Prevent default textarea behavior
 			handleChatSubmit();
+		}
+		// Allow Shift+Enter for new lines in textarea
+
+		// Keyboard shortcuts for navigation in long text
+		if (e.ctrlKey || e.metaKey) {
+			// Ctrl (Windows) or Cmd (Mac)
+			switch (e.key) {
+				case 'Home':
+				case 'ArrowUp':
+					e.preventDefault();
+					if (chatInputRef.current) {
+						chatInputRef.current.scrollTop = 0; // Scroll to top
+					}
+					break;
+				case 'End':
+				case 'ArrowDown':
+					e.preventDefault();
+					if (chatInputRef.current) {
+						chatInputRef.current.scrollTop = chatInputRef.current.scrollHeight; // Scroll to bottom
+					}
+					break;
+			}
 		}
 	};
 
@@ -643,7 +1047,46 @@ const DynamicIslandUI = () => {
 				dynamicIslandRef.current.offsetHeight,
 			);
 		}
+
+		// Debug initial state
+		console.log('🔍 Initial state:', {
+			isConnected,
+			isExpanded,
+			isChatMode,
+			isAuthenticated,
+			chatInput,
+		});
 	}, []);
+
+	// Debug chat mode changes
+	useEffect(() => {
+		console.log('🔍 Chat mode changed:', isChatMode);
+		console.log('🔍 Chat input value:', chatInput);
+
+		// Handle initial focus when entering chat mode with a delay to prevent rapid blinking
+		if (isChatMode && chatInputRef.current && !isSettingChatMode) {
+			const timer = setTimeout(() => {
+				if (chatInputRef.current && isChatMode) {
+					chatInputRef.current.focus();
+					console.log('💬 Chat input focused after delay');
+				}
+			}, 150); // Small delay to prevent rapid focus changes
+
+			return () => clearTimeout(timer);
+		}
+
+		// Reset textarea height when chat mode changes
+		if (chatInputRef.current) {
+			chatInputRef.current.style.height = 'auto';
+		}
+	}, [isChatMode, isSettingChatMode]);
+
+	// Reset textarea height when chat input is cleared
+	useEffect(() => {
+		if (chatInputRef.current && !chatInput) {
+			chatInputRef.current.style.height = 'auto';
+		}
+	}, [chatInput]);
 
 	// Manual mouse event control (for debugging or special cases)
 	const setMouseEvents = async (ignore) => {
@@ -674,13 +1117,33 @@ const DynamicIslandUI = () => {
 		>
 			{/* Simple content when collapsed */}
 			<div className="island-content">
-				{controlledByDynamicIsland
-					? isRecording
-						? `● Recording ${formatTime(timer)}`
-						: 'Living Intelligence'
-					: isChatMode
-					? 'Chat Mode'
-					: 'Living Intelligence'}
+				{controlledByDynamicIsland ? (
+					isRecording ? (
+						<div className="collapsed-recording-content">
+							<span className="collapsed-recording-text">
+								{' '}
+								Recording {formatTime(timer)}
+							</span>
+							<div className="collapsed-voice-animation">
+								<div className="collapsed-voice-visualizer">
+									<div className="audio-bar"></div>
+									<div className="audio-bar"></div>
+									<div className="audio-bar"></div>
+									<div className="audio-bar"></div>
+									<div className="audio-bar"></div>
+								</div>
+							</div>
+						</div>
+					) : (
+						'Living Intelligence'
+					)
+				) : showVoiceInterface ? (
+					'Voice Mode'
+				) : isChatMode ? (
+					'Chat Mode'
+				) : (
+					'Living Intelligence'
+				)}
 			</div>
 
 			{/* Rich UI when expanded */}
@@ -698,15 +1161,37 @@ const DynamicIslandUI = () => {
 						<div className="top-row">
 							{/* Start button section */}
 							<div className="start-section">
-								{!isRecording ? (
+								{!isRecording && !showVoiceInterface ? (
 									<div className="start-button" onClick={handleAudioClick}>
 										<div className="start-icon">
-											<PlayIcon />
+											<div className="audio-visualizer">
+												<div className="audio-bar"></div>
+												<div className="audio-bar"></div>
+												<div className="audio-bar"></div>
+												<div className="audio-bar"></div>
+												<div className="audio-bar"></div>
+											</div>
 										</div>
 										<span className="start-text">start</span>
 									</div>
+								) : showVoiceInterface ? (
+									<div className="voice-mode-indicator">
+										<div className="voice-mode-icon">
+											<VoiceModeIcon />
+										</div>
+										<span className="voice-mode-text">Voice Mode</span>
+									</div>
 								) : (
 									<div className="recording-controls">
+										{/* Control mode label */}
+										<div className="meeting-mode-label">
+											{controlledByDynamicIsland && (
+												<>
+													<VoiceModeIcon />
+													<span>Meeting mode</span>
+												</>
+											)}
+										</div>
 										<div
 											className="control-button pause-resume-button"
 											onClick={handlePauseResume}
@@ -723,35 +1208,31 @@ const DynamicIslandUI = () => {
 												<StopIcon />
 											</div>
 										</div>
-
-										{/* Control mode label */}
-										<div className="meeting-mode-label">
-											{controlledByDynamicIsland
-												? 'Dynamic Island Control'
-												: 'Meeting mode'}
-										</div>
 									</div>
 								)}
-
-								{/* Audio visualizer */}
-								<div className="audio-visualizer">
-									<div className="audio-bar"></div>
-									<div className="audio-bar"></div>
-									<div className="audio-bar"></div>
-									<div className="audio-bar"></div>
-									<div className="audio-bar"></div>
-								</div>
 							</div>
 
 							{/* Right side icons */}
 							<div className="right-icons">
-								{isChatMode && (
+								{(isChatMode || showVoiceInterface) && (
 									<div
 										className="back-button"
 										title="Back to main view"
 										onClick={() => {
-											setIsChatMode(false);
-											setChatInput('');
+											if (showVoiceInterface) {
+												handleInlineVoiceDisconnect();
+											} else if (isChatMode) {
+												setIsChatMode(false);
+												setChatInput('');
+												// Disable focus when exiting chat mode
+												if (
+													window.electronApi?.dynamicIsland?.setChatMode
+												) {
+													window.electronApi.dynamicIsland.setChatMode(
+														false,
+													);
+												}
+											}
 										}}
 									>
 										<BackIcon />
@@ -761,35 +1242,206 @@ const DynamicIslandUI = () => {
 								<div className="icon-button" title="Home" onClick={handleHomeClick}>
 									<HomeIcon />
 								</div>
-								<div
-									className="icon-button"
-									title="Security"
-									onClick={handleSecurityClick}
-								>
+								{/* <div className="icon-button" title="Lock" onClick={handleLockClick}>
 									<LockIcon />
-								</div>
+								</div> */}
 							</div>
 						</div>
 
 						{/* Main content area */}
 						<div className="main-content">
-							{isChatMode ? (
+							{showVoiceInterface ? (
+								/* Voice Assistant Mode - Split layout: Left=Conversation, Right=Assistant UI */
+								<div className="voice-split-layout">
+									{/* Left side: Conversation messages */}
+									<div className="voice-conversation-left">
+										<div className="voice-messages-area">
+											{/* Show real-time voice messages or fallback to sample */}
+											{voiceMessages.length > 0 ? (
+												voiceMessages.map((msg, index) => (
+													<div
+														key={`voice-msg-${index}`}
+														className="voice-message-frame"
+													>
+														<div className="voice-message-sender">
+															{msg.isUser ? 'You' : 'Agent'}
+														</div>
+														<div className="voice-message-text">
+															{msg.text || 'Listening...'}
+														</div>
+													</div>
+												))
+											) : (
+												/* Fallback sample messages when no real-time data */
+												<>
+													<div className="voice-message-frame">
+														<div className="voice-message-sender">
+															Agent
+														</div>
+														<div className="voice-message-text">
+															Hello, how can I help you today?
+														</div>
+													</div>
+													<div className="voice-message-frame">
+														<div className="voice-message-sender">
+															You
+														</div>
+														<div className="voice-message-text">
+															{currentVoiceStatus === 'Listening'
+																? 'Listening...'
+																: 'Ready to speak'}
+														</div>
+													</div>
+												</>
+											)}
+										</div>
+									</div>
+
+									{/* Right side: Assistant UI with voice controls */}
+									<div className="voice-assistant-right">
+										{/* Hidden LiveKit integration */}
+										{voiceIntegrationData?.shouldConnect &&
+											voiceIntegrationData?.token && (
+												<LiveKitRoom
+													className="hidden-livekit-room"
+													serverUrl={voiceIntegrationData.serverUrl || ''}
+													token={voiceIntegrationData.token || ''}
+													connect={
+														voiceIntegrationData.shouldConnect || false
+													}
+													onError={(e) => {
+														console.error(
+															'LiveKit connection error:',
+															e,
+														);
+														setVoiceError(e.message);
+														setVoiceConnectionStatus('error');
+													}}
+												>
+													<Voice
+														key={`voice-${
+															isMicrophoneMuted ? 'muted' : 'unmuted'
+														}`}
+														handleDisconnect={
+															handleInlineVoiceDisconnect
+														}
+														deviceInfo={deviceInfo}
+														onTranscriptUpdate={
+															handleTranscriptionUpdate
+														}
+														onStatusUpdate={handleVoiceStatusUpdate}
+														isMicrophoneMuted={isMicrophoneMuted}
+													/>
+													<RoomAudioRenderer />
+													<StartAudio label="Click to enable audio playback" />
+												</LiveKitRoom>
+											)}
+
+										{/* Voice controls section - positioned on right side */}
+										<div
+											className={`voice-controls-section ${
+												currentVoiceStatus === 'Listening' &&
+												!isMicrophoneMuted
+													? 'listening'
+													: ''
+											}`}
+										>
+											<div className="voice-status-area">
+												{/* Only show animation when not muted */}
+												{!isMicrophoneMuted && (
+													<div className="voice-animation-container">
+														<div className="voice-visualizer">
+															<div className="audio-bar"></div>
+															<div className="audio-bar"></div>
+															<div className="audio-bar"></div>
+															<div className="audio-bar"></div>
+															<div className="audio-bar"></div>
+														</div>
+													</div>
+												)}
+												<div className="voice-status-text">
+													{currentVoiceStatus}
+													{isMicrophoneMuted && (
+														<span className="mute-indicator"> 🔇</span>
+													)}
+												</div>
+											</div>
+
+											<div className="voice-action-buttons">
+												<div
+													className="voice-close-btn"
+													onClick={handleInlineVoiceDisconnect}
+												>
+													<CloseIcon />
+												</div>
+												<div
+													className={`voice-mic-btn ${
+														isMicrophoneMuted ? 'muted' : ''
+													}`}
+													onClick={handleMicrophoneToggle}
+													title={
+														isMicrophoneMuted
+															? 'Click to unmute'
+															: 'Click to mute'
+													}
+												>
+													{isMicrophoneMuted ? (
+														<MutedMicrophoneIcon />
+													) : (
+														<MicrophoneIcon />
+													)}
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							) : isChatMode ? (
 								/* Chat mode - expanded chat interface */
 								<div className="chat-expanded">
 									<div className="chat-input-container">
-										<input
-											type="text"
+										<textarea
+											ref={chatInputRef}
 											className="chat-input-field"
 											placeholder="Ask me anything..."
 											value={chatInput}
 											onChange={handleChatInputChange}
 											onKeyPress={handleChatInputKeyPress}
+											onFocus={() => {
+												console.log('💬 Chat input focused');
+												// Only set chat mode if not already setting to prevent rapid focus changes
+												if (
+													window.electronApi?.dynamicIsland
+														?.setChatMode &&
+													!isSettingChatMode
+												) {
+													setIsSettingChatMode(true);
+													window.electronApi.dynamicIsland
+														.setChatMode(true)
+														.then(() => {
+															setIsSettingChatMode(false);
+														})
+														.catch(() => {
+															setIsSettingChatMode(false);
+														});
+												}
+											}}
+											// Remove onClick handler to prevent duplicate focus events
+											autoFocus={isChatMode}
+											rows={1}
+											style={{ resize: 'none' }}
 										/>
 										<div
-											className="chat-submit-button"
+											className={`chat-submit-button ${
+												isSendingMessage ? 'sending' : ''
+											}`}
 											onClick={handleChatSubmit}
+											title={isSendingMessage ? 'Sending...' : 'Send message'}
 										>
-											<ArrowIcon />
+											{isSendingMessage ? (
+												<div className="sending-spinner"></div>
+											) : (
+												<ArrowIcon />
+											)}
 										</div>
 									</div>
 								</div>
@@ -804,7 +1456,7 @@ const DynamicIslandUI = () => {
 										</div>
 									</div>
 
-									{/* Webcam section */}
+									{/* Voice mode / Webcam section */}
 									<div
 										className={`webcam-section ${
 											isCameraActive ? 'camera-active' : ''
@@ -815,90 +1467,163 @@ const DynamicIslandUI = () => {
 												: ''
 										}`}
 										onClick={
-											cameraPermission === 'denied' ||
-											cameraPermission === 'restricted'
-												? (e) => {
-														e.stopPropagation();
-														if (
-															window.electronApi?.askAI?.camera
-																?.showPermissionHelp
-														) {
-															window.electronApi.askAI.camera.showPermissionHelp();
-														}
-												  }
-												: handleWebcamClick
+											isRecording
+												? cameraPermission === 'denied' ||
+												  cameraPermission === 'restricted'
+													? (e) => {
+															e.stopPropagation();
+															if (
+																window.electronApi?.askAI?.camera
+																	?.showPermissionHelp
+															) {
+																window.electronApi.askAI.camera.showPermissionHelp();
+															}
+													  }
+													: handleWebcamClick
+												: handleVoiceModeClick
 										}
 										onMouseEnter={handleWebcamMouseEnter}
 										title={
-											isCameraActive
-												? 'Click to stop camera'
-												: cameraPermission === 'denied' ||
-												  cameraPermission === 'restricted'
-												? 'Click to open system permissions'
-												: 'Click to start camera'
+											isRecording
+												? isCameraActive
+													? 'Click to stop camera'
+													: cameraPermission === 'denied' ||
+													  cameraPermission === 'restricted'
+													? 'Click to open system permissions'
+													: 'Click to start camera'
+												: voiceConnectionStatus === 'connected'
+												? 'Click to stop voice assistant'
+												: voiceConnectionStatus === 'connecting'
+												? 'Connecting to voice assistant...'
+												: voiceConnectionStatus === 'error'
+												? 'Voice assistant error - Click to retry'
+												: 'Click to start voice assistant'
 										}
 									>
-										{isCameraStarting ? (
-											<div className="camera-loading">
-												<div className="loading-spinner"></div>
-												<div className="loading-text">Starting...</div>
-											</div>
-										) : isCameraActive && cameraStream ? (
+										{isRecording ? (
+											/* Show camera when recording is active */
 											<>
-												<video
-													ref={videoRef}
-													autoPlay
-													playsInline
-													muted
-													className="webcam-video"
-													style={{
-														width: '100%',
-														height: '100%',
-														objectFit: 'cover',
-														borderRadius: '100px',
-														display: 'block',
-														visibility: 'visible',
-													}}
-												/>
-												{/* Debug info */}
-												<div className="camera-live-indicator">Live</div>
-												{/* Hover overlay to show "Click to stop" */}
-												<div className="camera-hover-overlay">
-													Click to stop
-												</div>
-											</>
-										) : cameraPermission === 'denied' ||
-										  cameraPermission === 'restricted' ? (
-											<>
-												<div className="webcam-label permission-required">
-													Permission Required
-												</div>
+												{isCameraStarting ? (
+													<div className="camera-loading">
+														<div className="loading-spinner"></div>
+														<div className="loading-text">
+															Starting...
+														</div>
+													</div>
+												) : isCameraActive && cameraStream ? (
+													<>
+														<video
+															ref={videoRef}
+															autoPlay
+															playsInline
+															muted
+															className="webcam-video"
+															style={{
+																width: '100%',
+																height: '100%',
+																objectFit: 'cover',
+																borderRadius: '100px',
+																display: 'block',
+																visibility: 'visible',
+															}}
+														/>
+														{/* Debug info */}
+														<div className="camera-live-indicator">
+															Live
+														</div>
+														{/* Hover overlay to show "Click to stop" */}
+														<div className="camera-hover-overlay">
+															Click to stop
+														</div>
+													</>
+												) : cameraPermission === 'denied' ||
+												  cameraPermission === 'restricted' ? (
+													<>
+														<div className="webcam-label permission-required">
+															Permission Required
+														</div>
+													</>
+												) : (
+													<>
+														<WebcamIcon />
+														<div className="webcam-label">Webcam</div>
+														{/* Debug info */}
+														<div className="camera-click-instruction">
+															Click to start
+														</div>
+													</>
+												)}
+
+												{/* Camera error display */}
+												{cameraError && (
+													<div className="camera-error">
+														{cameraError}
+													</div>
+												)}
+
+												{/* Camera status for different states */}
+												{cameraStatus === 'starting' && (
+													<div className="camera-status starting">
+														Starting...
+													</div>
+												)}
+
+												{cameraStatus === 'error' && (
+													<div className="camera-status error">
+														⚠ Error
+													</div>
+												)}
 											</>
 										) : (
+											/* Show voice mode when not recording */
 											<>
-												<WebcamIcon />
-												<div className="webcam-label">Webcam</div>
-												{/* Debug info */}
-												<div className="camera-click-instruction">
-													Click to start
-												</div>
+												{voiceConnectionStatus === 'connecting' ? (
+													<>
+														<div className="voice-loading">
+															<div className="loading-spinner"></div>
+															<div className="loading-text">
+																Connecting...
+															</div>
+														</div>
+													</>
+												) : voiceConnectionStatus === 'connected' ? (
+													<>
+														<VoiceModeIcon />
+														<div className="webcam-label voice-connected">
+															Voice Active
+														</div>
+														<div className="voice-status-indicator">
+															<div className="voice-pulse"></div>
+														</div>
+														{/* Voice hover overlay - similar to camera */}
+														<div className="voice-hover-overlay">
+															Click to stop
+														</div>
+													</>
+												) : voiceConnectionStatus === 'error' ? (
+													<>
+														<VoiceModeIcon />
+														<div className="webcam-label voice-error">
+															Voice Error
+														</div>
+														{voiceError && (
+															<div className="voice-error-message">
+																{voiceError}
+															</div>
+														)}
+													</>
+												) : (
+													<>
+														<VoiceModeIcon />
+														<div className="webcam-label">
+															Voice Mode
+														</div>
+														{/* <div className="voice-click-instruction">
+															Click to start
+														</div> */}
+													</>
+												)}
 											</>
-										)}
-
-										{/* Camera error display */}
-										{cameraError && (
-											<div className="camera-error">{cameraError}</div>
-										)}
-
-										{/* Camera status for different states */}
-										{cameraStatus === 'starting' && (
-											<div className="camera-status starting">
-												Starting...
-											</div>
-										)}
-
-										{cameraStatus === 'error' && (
-											<div className="camera-status error">⚠ Error</div>
 										)}
 									</div>
 								</>

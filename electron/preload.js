@@ -14,6 +14,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
 	downloadUpdate: () => ipcRenderer.invoke('download-update'),
+	forceDownloadUpdate: () => ipcRenderer.invoke('force-download-update'),
+	repositionDynamicIsland: () => ipcRenderer.invoke('reposition-dynamic-island'),
 
 	onUpdateStatus: (callback) => {
 		ipcRenderer.on('update-status', (event, data) => {
@@ -54,6 +56,11 @@ contextBridge.exposeInMainWorld('electronApi', {
 		hideAllWindows: () => ipcRenderer.invoke('hide-all-windows'),
 		sendTabContentToAskAI: (tabContent) =>
 			ipcRenderer.invoke('send-tab-content-to-askai', tabContent),
+		// Send chat message from Dynamic Island to Ask AI
+		sendChatMessageToAskAI: (chatMessage) =>
+			ipcRenderer.invoke('send-chat-message-to-askai', chatMessage),
+		// Force open AskAI window
+		forceOpenAskAIWindow: () => ipcRenderer.invoke('force-open-askai-window'),
 		// New methods for Dynamic Island integration
 		startRecording: () => ipcRenderer.invoke('overlay-start-recording'),
 		stopRecording: () => ipcRenderer.invoke('overlay-stop-recording'),
@@ -100,6 +107,13 @@ contextBridge.exposeInMainWorld('electronApi', {
 			});
 		},
 
+		// Listen for chat messages from Dynamic Island
+		onReceiveChatMessage: (callback) => {
+			ipcRenderer.on('receive-chat-message', (event, data) => {
+				callback(data);
+			});
+		},
+
 		// Camera permission API
 		camera: {
 			checkPermission: () => ipcRenderer.invoke('check-camera-permission'),
@@ -109,6 +123,14 @@ contextBridge.exposeInMainWorld('electronApi', {
 		removeTabContentListener: () => {
 			ipcRenderer.removeAllListeners('receive-tab-content');
 		},
+		removeChatMessageListener: () => {
+			ipcRenderer.removeAllListeners('receive-chat-message');
+		},
+	},
+
+	// Home icon click handler for Windows
+	home: {
+		restoreMainWindow: () => ipcRenderer.invoke('restore-main-window'),
 	},
 
 	// Mouse event handling for click-through behavior
@@ -125,6 +147,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 		writeText: (text) => ipcRenderer.invoke('clipboard-write-text', text),
 		readText: () => ipcRenderer.invoke('clipboard-read-text'),
 	},
+
+	// Developer tools API for WebSocket debugging
+	openDevTools: (options) => ipcRenderer.invoke('open-dev-tools', options),
 
 	// Download progress listener
 	onDownloadProgress: (callback) => {
@@ -150,7 +175,18 @@ contextBridge.exposeInMainWorld('electronApi', {
 		toggle: () => ipcRenderer.invoke('dynamic-island-toggle'),
 		show: () => ipcRenderer.invoke('dynamic-island-show'),
 		hide: () => ipcRenderer.invoke('dynamic-island-hide'),
+		focus: () => ipcRenderer.invoke('dynamic-island-focus'),
 		setMouseEvents: (ignore) => ipcRenderer.invoke('dynamic-island-set-mouse-events', ignore),
+		setChatMode: (isChatMode) => ipcRenderer.invoke('dynamic-island-chat-mode', isChatMode),
+
+		// Send chat message directly to AskAI
+		sendChatMessage: (message) => ipcRenderer.invoke('send-chat-message-to-askai', message),
+
+		// Voice integration APIs for Dynamic Island
+		connectVoice: () => ipcRenderer.invoke('dynamic-island-voice-connect'),
+		disconnectVoice: () => ipcRenderer.invoke('dynamic-island-voice-disconnect'),
+		getVoiceStatus: () => ipcRenderer.invoke('dynamic-island-voice-status'),
+
 		onStateChange: (callback) => {
 			ipcRenderer.on('dynamic-island-state', (event, data) => {
 				callback(data);
@@ -167,6 +203,23 @@ contextBridge.exposeInMainWorld('electronApi', {
 		},
 		removeOverlayStateListener: () => {
 			ipcRenderer.removeAllListeners('overlay-state-changed');
+		},
+		// Listen for voice status changes
+		onVoiceStatusChange: (callback) => {
+			ipcRenderer.on('voice-status-changed', (event, data) => {
+				callback(data);
+			});
+		},
+		removeVoiceStatusListener: () => {
+			ipcRenderer.removeAllListeners('voice-status-changed');
+		},
+		onForceFocus: (callback) => {
+			ipcRenderer.on('force-focus', (event) => {
+				callback();
+			});
+		},
+		removeForceFocusListener: () => {
+			ipcRenderer.removeAllListeners('force-focus');
 		},
 	},
 

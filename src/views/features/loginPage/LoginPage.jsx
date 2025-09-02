@@ -139,10 +139,10 @@ const LoginPage = () => {
 						</div>
 						<div className="buttons-container">
 							<div className="decline-button" onClick={handleDeclineCookies}>
-								Deny all
+								Deny Cookie
 							</div>
 							<div className="accept-button" onClick={handleAcceptCookies}>
-								Accept
+								Accept all
 							</div>
 						</div>
 					</div>

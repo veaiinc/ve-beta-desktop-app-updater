@@ -34,7 +34,7 @@
 			.otp-input {
 				outline: none;
 				border-radius: 12px;
-				border: 1px solid var(--stroke);
+				border: 1px solid grey;
 				// background: var(--card);
 				width: 60px;
 				height: 60px;
@@ -47,7 +47,7 @@
 				font-size: 16px;
 
 				&:focus {
-					border-color: var(--stroke-hover);
+					border-color: grey;
 					box-shadow: 0 0 0 2px rgba(5, 147, 255, 0.052);
 				}
 			}
