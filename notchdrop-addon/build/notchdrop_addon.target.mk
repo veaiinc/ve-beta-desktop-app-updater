@@ -73,11 +73,19 @@ DEFS_Debug := \
 	'-DUSING_V8_SHARED=1' \
 	'-DV8_DEPRECATION_WARNINGS=1' \
 	'-D_GLIBCXX_USE_CXX11_ABI=1' \
+	'-D_FILE_OFFSET_BITS=64' \
+	'-DELECTRON_ENSURE_CONFIG_GYPI' \
 	'-D_DARWIN_USE_64_BIT_INODE=1' \
 	'-D_LARGEFILE_SOURCE' \
-	'-D_FILE_OFFSET_BITS=64' \
+	'-DUSING_ELECTRON_CONFIG_GYPI' \
+	'-DV8_COMPRESS_POINTERS' \
+	'-DV8_COMPRESS_POINTERS_IN_SHARED_CAGE' \
+	'-DV8_31BIT_SMIS_ON_64BIT_ARCH' \
+	'-DV8_ENABLE_SANDBOX' \
+	'-DV8_EXTERNAL_CODE_SPACE' \
 	'-DOPENSSL_NO_PINSHARED' \
 	'-DOPENSSL_THREADS' \
+	'-DOPENSSL_NO_ASM' \
 	'-DBUILDING_NODE_EXTENSION' \
 	'-DDEBUG' \
 	'-D_DEBUG'
@@ -86,6 +94,7 @@ DEFS_Debug := \
 CFLAGS_Debug := \
 	-O0 \
 	-gdwarf-2 \
+	-fno-strict-aliasing \
 	-mmacosx-version-min=11.0 \
 	-arch \
 	arm64 \
@@ -96,16 +105,14 @@ CFLAGS_Debug := \
 
 # Flags passed to only C files.
 CFLAGS_C_Debug := \
-	-fno-strict-aliasing \
 	-ObjC++ \
 	-fobjc-arc
 
 # Flags passed to only C++ files.
 CFLAGS_CC_Debug := \
-	-std=gnu++17 \
+	-std=gnu++20 \
 	-stdlib=libc++ \
 	-fno-rtti \
-	-fno-strict-aliasing \
 	-ObjC++ \
 	-fobjc-arc
 
@@ -118,14 +125,14 @@ CFLAGS_OBJCC_Debug := \
 	-fobjc-arc
 
 INCS_Debug := \
-	-I/Users/gowtham/Library/Caches/node-gyp/20.19.0/include/node \
-	-I/Users/gowtham/Library/Caches/node-gyp/20.19.0/src \
-	-I/Users/gowtham/Library/Caches/node-gyp/20.19.0/deps/openssl/config \
-	-I/Users/gowtham/Library/Caches/node-gyp/20.19.0/deps/openssl/openssl/include \
-	-I/Users/gowtham/Library/Caches/node-gyp/20.19.0/deps/uv/include \
-	-I/Users/gowtham/Library/Caches/node-gyp/20.19.0/deps/zlib \
-	-I/Users/gowtham/Library/Caches/node-gyp/20.19.0/deps/v8/include \
-	-I/Users/gowtham/Desktop/workspace/github/ve-desktop-app/notchdrop-addon/node_modules/node-addon-api \
+	-I/Users/gowtham/.electron-gyp/37.4.0/include/node \
+	-I/Users/gowtham/.electron-gyp/37.4.0/src \
+	-I/Users/gowtham/.electron-gyp/37.4.0/deps/openssl/config \
+	-I/Users/gowtham/.electron-gyp/37.4.0/deps/openssl/openssl/include \
+	-I/Users/gowtham/.electron-gyp/37.4.0/deps/uv/include \
+	-I/Users/gowtham/.electron-gyp/37.4.0/deps/zlib \
+	-I/Users/gowtham/.electron-gyp/37.4.0/deps/v8/include \
+	-I/Users/gowtham/Desktop/workspace/github/ve-desktop-app/node_modules/node-addon-api \
 	-I$(srcdir)/include \
 	-I$(srcdir)/build_swift
 
@@ -135,17 +142,26 @@ DEFS_Release := \
 	'-DUSING_V8_SHARED=1' \
 	'-DV8_DEPRECATION_WARNINGS=1' \
 	'-D_GLIBCXX_USE_CXX11_ABI=1' \
+	'-D_FILE_OFFSET_BITS=64' \
+	'-DELECTRON_ENSURE_CONFIG_GYPI' \
 	'-D_DARWIN_USE_64_BIT_INODE=1' \
 	'-D_LARGEFILE_SOURCE' \
-	'-D_FILE_OFFSET_BITS=64' \
+	'-DUSING_ELECTRON_CONFIG_GYPI' \
+	'-DV8_COMPRESS_POINTERS' \
+	'-DV8_COMPRESS_POINTERS_IN_SHARED_CAGE' \
+	'-DV8_31BIT_SMIS_ON_64BIT_ARCH' \
+	'-DV8_ENABLE_SANDBOX' \
+	'-DV8_EXTERNAL_CODE_SPACE' \
 	'-DOPENSSL_NO_PINSHARED' \
 	'-DOPENSSL_THREADS' \
+	'-DOPENSSL_NO_ASM' \
 	'-DBUILDING_NODE_EXTENSION'
 
 # Flags passed to all source files.
 CFLAGS_Release := \
 	-O3 \
 	-gdwarf-2 \
+	-fno-strict-aliasing \
 	-mmacosx-version-min=11.0 \
 	-arch \
 	arm64 \
@@ -156,16 +172,14 @@ CFLAGS_Release := \
 
 # Flags passed to only C files.
 CFLAGS_C_Release := \
-	-fno-strict-aliasing \
 	-ObjC++ \
 	-fobjc-arc
 
 # Flags passed to only C++ files.
 CFLAGS_CC_Release := \
-	-std=gnu++17 \
+	-std=gnu++20 \
 	-stdlib=libc++ \
 	-fno-rtti \
-	-fno-strict-aliasing \
 	-ObjC++ \
 	-fobjc-arc
 
@@ -178,14 +192,14 @@ CFLAGS_OBJCC_Release := \
 	-fobjc-arc
 
 INCS_Release := \
-	-I/Users/gowtham/Library/Caches/node-gyp/20.19.0/include/node \
-	-I/Users/gowtham/Library/Caches/node-gyp/20.19.0/src \
-	-I/Users/gowtham/Library/Caches/node-gyp/20.19.0/deps/openssl/config \
-	-I/Users/gowtham/Library/Caches/node-gyp/20.19.0/deps/openssl/openssl/include \
-	-I/Users/gowtham/Library/Caches/node-gyp/20.19.0/deps/uv/include \
-	-I/Users/gowtham/Library/Caches/node-gyp/20.19.0/deps/zlib \
-	-I/Users/gowtham/Library/Caches/node-gyp/20.19.0/deps/v8/include \
-	-I/Users/gowtham/Desktop/workspace/github/ve-desktop-app/notchdrop-addon/node_modules/node-addon-api \
+	-I/Users/gowtham/.electron-gyp/37.4.0/include/node \
+	-I/Users/gowtham/.electron-gyp/37.4.0/src \
+	-I/Users/gowtham/.electron-gyp/37.4.0/deps/openssl/config \
+	-I/Users/gowtham/.electron-gyp/37.4.0/deps/openssl/openssl/include \
+	-I/Users/gowtham/.electron-gyp/37.4.0/deps/uv/include \
+	-I/Users/gowtham/.electron-gyp/37.4.0/deps/zlib \
+	-I/Users/gowtham/.electron-gyp/37.4.0/deps/v8/include \
+	-I/Users/gowtham/Desktop/workspace/github/ve-desktop-app/node_modules/node-addon-api \
 	-I$(srcdir)/include \
 	-I$(srcdir)/build_swift
 
