@@ -524,6 +524,9 @@ const DynamicIslandUI = () => {
 				default:
 					setCurrentVoiceStatus('Listening');
 			}
+		} else {
+			// When muted, always show "Muted" status
+			setCurrentVoiceStatus('Muted');
 		}
 	};
 
@@ -547,7 +550,7 @@ const DynamicIslandUI = () => {
 
 		// Update voice status based on mute state
 		if (newMuteState) {
-			setCurrentVoiceStatus('Microphone Muted');
+			setCurrentVoiceStatus('Muted');
 		} else {
 			setCurrentVoiceStatus('Listening');
 		}
@@ -1033,15 +1036,33 @@ const DynamicIslandUI = () => {
 		>
 			{/* Simple content when collapsed */}
 			<div className="island-content">
-				{controlledByDynamicIsland
-					? isRecording
-						? `● Recording ${formatTime(timer)}`
-						: 'Living Intelligence'
-					: showVoiceInterface
-					? 'Voice Mode'
-					: isChatMode
-					? 'Chat Mode'
-					: 'Living Intelligence'}
+				{controlledByDynamicIsland ? (
+					isRecording ? (
+						<div className="collapsed-recording-content">
+							<span className="collapsed-recording-text">
+								{' '}
+								Recording {formatTime(timer)}
+							</span>
+							<div className="collapsed-voice-animation">
+								<div className="collapsed-voice-visualizer">
+									<div className="audio-bar"></div>
+									<div className="audio-bar"></div>
+									<div className="audio-bar"></div>
+									<div className="audio-bar"></div>
+									<div className="audio-bar"></div>
+								</div>
+							</div>
+						</div>
+					) : (
+						'Living Intelligence'
+					)
+				) : showVoiceInterface ? (
+					'Voice Mode'
+				) : isChatMode ? (
+					'Chat Mode'
+				) : (
+					'Living Intelligence'
+				)}
 			</div>
 
 			{/* Rich UI when expanded */}
