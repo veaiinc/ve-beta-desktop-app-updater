@@ -3,8 +3,7 @@ import { message } from 'antd';
 import getBaseUrl from '../services/baseUrls';
 import Context from '../context/context';
 
-// const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
-const wsUrl = 'wss://gazelle-ruling-monster.ngrok-free.app/frontend/ws';
+const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
 
 const useAssemblyTranscription = ({
 	onTranscriptionUpdate,
