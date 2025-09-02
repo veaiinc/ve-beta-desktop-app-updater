@@ -14,7 +14,11 @@ const log = require('electron-log');
 const { autoUpdater } = require('electron-updater');
 
 // Import Windows compatibility fixes
-const { loadSharpModule, safeProcessImageWithSharp, safeExtractImageMetadata } = require('./windowsCompatibility');
+const {
+	loadSharpModule,
+	safeProcessImageWithSharp,
+	safeExtractImageMetadata,
+} = require('./windowsCompatibility');
 
 // Gallery processing functions will be loaded lazily when needed
 let galleryHelper = null;
@@ -613,15 +617,15 @@ function createTray() {
 						mainWindow.show();
 						mainWindow.focus();
 					}
-				}
+				},
 			},
 			{
 				label: 'Quit',
 				click: () => {
 					isQuitting = true;
 					app.quit();
-				}
-			}
+				},
+			},
 		]);
 
 		tray.setContextMenu(contextMenu);
@@ -846,13 +850,13 @@ app.whenReady().then(() => {
 			if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
 				// Make window focusable when entering chat mode
 				dynamicIslandWindow.setFocusable(isChatMode);
-				
+
 				// Windows-specific focus handling
 				if (process.platform === 'win32' && isChatMode) {
 					// Force focus on Windows with multiple methods
 					dynamicIslandWindow.focus();
 					dynamicIslandWindow.show();
-					
+
 					// Additional Windows focus method with delay
 					setTimeout(() => {
 						if (!dynamicIslandWindow.isDestroyed()) {
@@ -862,7 +866,7 @@ app.whenReady().then(() => {
 						}
 					}, 100);
 				}
-				
+
 				log.info(
 					`Dynamic Island chat mode ${
 						isChatMode ? 'enabled' : 'disabled'
@@ -889,8 +893,6 @@ app.whenReady().then(() => {
 			return { success: false, error: error.message };
 		}
 	});
-
-
 
 	// Camera permission handler
 	ipcMain.handle('request-camera-permission', async () => {
@@ -1006,6 +1008,43 @@ app.whenReady().then(() => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error setting dynamic island mouse events:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Voice integration handlers for Dynamic Island
+	ipcMain.handle('dynamic-island-voice-connect', async () => {
+		try {
+			log.info('Dynamic Island voice connect requested');
+			// In the future, this could trigger specific voice setup for Dynamic Island
+			return { success: true, message: 'Voice connection initiated from Dynamic Island' };
+		} catch (error) {
+			log.error('Error connecting voice from Dynamic Island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('dynamic-island-voice-disconnect', async () => {
+		try {
+			log.info('Dynamic Island voice disconnect requested');
+			// In the future, this could trigger specific voice cleanup for Dynamic Island
+			return { success: true, message: 'Voice disconnection initiated from Dynamic Island' };
+		} catch (error) {
+			log.error('Error disconnecting voice from Dynamic Island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('dynamic-island-voice-status', async () => {
+		try {
+			// Return voice status for Dynamic Island
+			return {
+				success: true,
+				status: 'ready',
+				message: 'Voice integration ready for Dynamic Island',
+			};
+		} catch (error) {
+			log.error('Error getting voice status for Dynamic Island:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -1356,8 +1395,8 @@ app.whenReady().then(() => {
 				return { success: false, error: 'Main window not available' };
 			}
 		} catch (error) {
-		log.error('Error restoring main window:', error);
-		return { success: false, error: error.message };
+			log.error('Error restoring main window:', error);
+			return { success: false, error: error.message };
 		}
 	});
 
@@ -1369,7 +1408,7 @@ app.whenReady().then(() => {
 		}
 		return safeProcessImageWithSharp(data, helper.processImageWithSharp);
 	});
-	
+
 	ipcMain.handle('extract-image-metadata', (event, data) => {
 		const helper = loadGalleryHelper();
 		if (!helper) {
@@ -1377,7 +1416,7 @@ app.whenReady().then(() => {
 		}
 		return safeExtractImageMetadata(data, helper.extractImageMetadata);
 	});
-	
+
 	ipcMain.handle('download-album-zip', (event, data) => {
 		const helper = loadGalleryHelper();
 		if (!helper) {
@@ -1385,7 +1424,7 @@ app.whenReady().then(() => {
 		}
 		return helper.downloadAlbumZip(event, data);
 	});
-	
+
 	ipcMain.handle('create-zip-from-urls', (event, data) => {
 		const helper = loadGalleryHelper();
 		if (!helper) {
