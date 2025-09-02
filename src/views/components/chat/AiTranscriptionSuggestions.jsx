@@ -199,6 +199,16 @@ const AiTranscriptionSuggestions = ({
 				</div>
 			);
 		}
+		if (suggestion.entity === '') {
+			return (
+				<div
+					className={s.aiQuestionContainer}
+					onClick={() => handleActionClick(suggestion?.prompt || '', true)}
+				>
+					<div className={s.questionText}>{suggestion?.prompt || ''}</div>
+				</div>
+			);
+		}
 	};
 
 	return (
