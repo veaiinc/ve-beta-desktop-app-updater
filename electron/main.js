@@ -377,24 +377,30 @@ function showNotification(title, body) {
 }
 function handleNotificationAction(action) {
 	pendingNotificationAction = action;
-	log.info('Notification action triggered:', action);
 
 	if (action === 'join-meet') {
 		if (windowHelper) {
-			log.info('Executing "Join Meet" — showing overlay and starting recording');
+			// First, ensure overlay window exists and is created
+			let overlayWindow = windowHelper.getOverlayWindow();
 
-			windowHelper.showOverlayWindow();
+			if (!overlayWindow || overlayWindow.isDestroyed()) {
+				windowHelper.createOverlayWindow();
 
-			const overlayWindow = windowHelper.getOverlayWindow();
-			if (overlayWindow && !overlayWindow.isDestroyed()) {
-				overlayWindow.webContents.once('dom-ready', () => {
-					overlayWindow.webContents.send('overlay-command', {
-						action: 'startRecording',
-					});
-				});
-				pendingNotificationAction;
+				// Wait a moment for the window to be created
+				setTimeout(() => {
+					overlayWindow = windowHelper.getOverlayWindow();
+					if (overlayWindow && !overlayWindow.isDestroyed()) {
+						handleOverlayWindowReady(overlayWindow);
+					} else {
+						log.error('Failed to create overlay window');
+					}
+				}, 1000);
+			} else {
+				// Window exists, handle it directly
+				handleOverlayWindowReady(overlayWindow);
 			}
 
+			// Show and expand dynamic island
 			dynamicIslandHelper?.show();
 			dynamicIslandHelper?.expand();
 
@@ -403,6 +409,42 @@ function handleNotificationAction(action) {
 			log.info('windowHelper not ready — action queued');
 		}
 	}
+}
+
+// Helper function to handle overlay window when it's ready
+function handleOverlayWindowReady(overlayWindow) {
+	// Show the overlay window first
+	windowHelper.showOverlayWindow();
+
+	// Focus the window to ensure it's visible
+	overlayWindow.focus();
+	overlayWindow.show();
+
+	// Wait for DOM to be ready before sending commands
+	overlayWindow.webContents.once('dom-ready', () => {
+		// Small delay to ensure React has mounted
+		setTimeout(() => {
+			// Send the startRecording command
+			overlayWindow.webContents.send('overlay-command', {
+				action: 'startRecording',
+			});
+		}, 500);
+	});
+
+	// Also listen for the window to finish loading
+	overlayWindow.webContents.once('did-finish-load', () => {
+		log.info('Overlay window finished loading');
+	});
+
+	// Additional safety check - if DOM ready doesn't fire within 3 seconds, try sending anyway
+	setTimeout(() => {
+		if (overlayWindow && !overlayWindow.isDestroyed()) {
+			log.info('Fallback: sending startRecording command after timeout');
+			overlayWindow.webContents.send('overlay-command', {
+				action: 'startRecording',
+			});
+		}
+	}, 3000);
 }
 // IPC Handlers for updates
 ipcMain.handle('check-for-updates', async () => {
@@ -681,7 +723,7 @@ app.whenReady().then(() => {
 	}
 
 	let lastNotificationTime = 0;
-	const NOTIFICATION_INTERVAL = 10 * 60 * 1000; // 10 minutes
+	const NOTIFICATION_INTERVAL = 60 * 1000; // 10 minutes
 
 	ipcMain.on('mic-activity-detected', (event, data) => {
 		const now = Date.now();
@@ -1197,6 +1239,72 @@ app.whenReady().then(() => {
 			}
 		} catch (error) {
 			log.error('Error testing overlay connection:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Test handler for sending commands directly
+	ipcMain.handle('test-overlay-command', async (event, command) => {
+		try {
+			log.info('🧪 Testing overlay command:', command);
+			const overlayWindow = windowHelper?.getOverlayWindow();
+			if (overlayWindow && !overlayWindow.isDestroyed()) {
+				overlayWindow.webContents.send('overlay-command', command);
+				log.info('✅ Test command sent to overlay window');
+				return { success: true, commandSent: true };
+			} else {
+				log.info('❌ Overlay window not available for test command');
+				return {
+					success: false,
+					commandSent: false,
+					error: 'Overlay window not available',
+				};
+			}
+		} catch (error) {
+			log.error('Error testing overlay command:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Test handler for creating and showing overlay window
+	ipcMain.handle('test-overlay-window', async () => {
+		try {
+			log.info('🧪 Testing overlay window creation...');
+
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+
+			// Create overlay window
+			windowHelper.createOverlayWindow();
+			log.info('✅ Overlay window creation initiated');
+
+			// Wait a moment for the window to be created
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// Get the window reference
+			const overlayWindow = windowHelper.getOverlayWindow();
+			if (overlayWindow && !overlayWindow.isDestroyed()) {
+				log.info('✅ Overlay window created successfully');
+				log.info('Window visible:', overlayWindow.isVisible());
+				log.info('Window destroyed:', overlayWindow.isDestroyed());
+
+				// Show the window
+				windowHelper.showOverlayWindow();
+				overlayWindow.focus();
+
+				return {
+					success: true,
+					exists: true,
+					visible: overlayWindow.isVisible(),
+					destroyed: overlayWindow.isDestroyed(),
+				};
+			} else {
+				log.info('❌ Overlay window not available after creation');
+				return { success: false, error: 'Overlay window not available after creation' };
+			}
+		} catch (error) {
+			log.error('Error testing overlay window creation:', error);
 			return { success: false, error: error.message };
 		}
 	});

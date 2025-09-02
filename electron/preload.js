@@ -193,6 +193,10 @@ contextBridge.exposeInMainWorld('electronApi', {
 		sendStateUpdate: (state) => ipcRenderer.invoke('overlay-state-update', state),
 		// Test connection
 		testConnection: () => ipcRenderer.invoke('test-overlay-connection'),
+		// Test command sending
+		testCommand: (command) => ipcRenderer.invoke('test-overlay-command', command),
+		// Test overlay window creation
+		testWindow: () => ipcRenderer.invoke('test-overlay-window'),
 	},
 
 	// Ask AI window APIs
@@ -269,7 +273,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 		captureScreen: () => ipcRenderer.invoke('desktop:capture-screen'),
 	},
 
-			// Dynamic Island APIs
+	// Dynamic Island APIs
 	dynamicIsland: {
 		expand: () => ipcRenderer.invoke('dynamic-island-expand'),
 		collapse: () => ipcRenderer.invoke('dynamic-island-collapse'),
@@ -279,10 +283,10 @@ contextBridge.exposeInMainWorld('electronApi', {
 		focus: () => ipcRenderer.invoke('dynamic-island-focus'),
 		setMouseEvents: (ignore) => ipcRenderer.invoke('dynamic-island-set-mouse-events', ignore),
 		setChatMode: (isChatMode) => ipcRenderer.invoke('dynamic-island-chat-mode', isChatMode),
-		
+
 		// Send chat message directly to AskAI
 		sendChatMessage: (message) => ipcRenderer.invoke('send-chat-message-to-askai', message),
-		
+
 		onStateChange: (callback) => {
 			ipcRenderer.on('dynamic-island-state', (event, data) => {
 				callback(data);
