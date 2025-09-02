@@ -11,9 +11,11 @@ import {
 	PlusIcon,
 	BackIcon,
 	VoiceModeIcon,
+	VoiceModeIconWhite,
 	CloseIcon,
 	MicrophoneIcon,
 	MutedMicrophoneIcon,
+	AudioVisualizerIcon,
 } from './DynamicIslandIcons';
 import './DynamicIslandUI.scss';
 import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
@@ -1207,13 +1209,7 @@ const DynamicIslandUI = () => {
 										}}
 									>
 										<div className="start-icon">
-											<div className="audio-visualizer">
-												<div className="audio-bar"></div>
-												<div className="audio-bar"></div>
-												<div className="audio-bar"></div>
-												<div className="audio-bar"></div>
-												<div className="audio-bar"></div>
-											</div>
+											<AudioVisualizerIcon />
 										</div>
 										<span className="start-text">
 											{isAudioClickProcessing ? (
@@ -1222,7 +1218,7 @@ const DynamicIslandUI = () => {
 													Starting...
 												</>
 											) : (
-												'start'
+												'Start'
 											)}
 										</span>
 									</div>
@@ -1231,7 +1227,7 @@ const DynamicIslandUI = () => {
 										<div className="voice-mode-icon">
 											<VoiceModeIcon />
 										</div>
-										<span className="voice-mode-text">Voice Mode</span>
+										<span className="voice-mode-text">Voice Agent</span>
 									</div>
 								) : (
 									<div className="recording-controls">
@@ -1517,7 +1513,7 @@ const DynamicIslandUI = () => {
 											cameraPermission === 'restricted'
 												? 'camera-denied'
 												: ''
-										}`}
+										} ${!isRecording ? 'voice-mode' : ''}`}
 										onClick={
 											isRecording
 												? cameraPermission === 'denied' ||
@@ -1666,10 +1662,10 @@ const DynamicIslandUI = () => {
 													</>
 												) : (
 													<>
-														<VoiceModeIcon />
-														<div className="webcam-label">
+														<VoiceModeIconWhite />
+														{/* <div className="webcam-label">
 															Voice Mode
-														</div>
+														</div> */}
 														{/* <div className="voice-click-instruction">
 															Click to start
 														</div> */}
