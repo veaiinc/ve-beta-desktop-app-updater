@@ -401,7 +401,30 @@ const AskAIApp = () => {
 
 	const handleCopyResponse = async () => {
 		try {
-			const success = await copyToClipboard(response, {
+			let textToCopy = '';
+
+			// Try to get the actual displayed text from the rendered markdown
+			if (responseRef.current) {
+				const markdownElement = responseRef.current.querySelector(
+					'.markdown-custom-content',
+				);
+				if (markdownElement) {
+					// Extract text content from the rendered markdown, preserving structure
+					textToCopy = markdownElement.innerText || markdownElement.textContent;
+				}
+			}
+
+			// Fallback to raw markdown if DOM extraction fails
+			if (!textToCopy) {
+				textToCopy = response || displayedResponse;
+			}
+
+			if (!textToCopy) {
+				console.warn('No content to copy');
+				return;
+			}
+
+			const success = await copyToClipboard(textToCopy, {
 				onSuccess: () => {
 					console.log('✅ Response copied to clipboard successfully');
 					// You could add a toast notification here if you have a notification system
@@ -433,7 +456,6 @@ const AskAIApp = () => {
 			window.electronApi.askAI.toggleWindow();
 		}
 	};
-
 	return (
 		<div ref={containerRef} className="ask-ai-app">
 			{/* Response Window - Top */}
@@ -457,7 +479,7 @@ const AskAIApp = () => {
 							)}
 						</div>
 						<div className="ai-response-controls">
-							{response && (
+							{(response || displayedResponse) && (
 								<button
 									className="copy-button"
 									onClick={handleCopyResponse}
@@ -558,13 +580,13 @@ const AskAIApp = () => {
 						placeholder="Ask about this"
 						value={inputValue}
 						onChange={(e) => setInputValue(e.target.value)}
-						onKeyDown={handleKeyDown}
+						onKeyDown={response && handleKeyDown}
 						rows={1}
 					/>
 
 					<button
 						className={`ask-ai-input__submit ${inputValue.trim() ? 'active' : ''}`}
-						onClick={handleSubmit}
+						onClick={() => handleSubmit()}
 						disabled={!inputValue.trim() || isLoading}
 						title="Ask"
 					>

@@ -7,11 +7,11 @@
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 8px;
-	// border-radius: 6px;
-	// border: 0.5px solid rgba(255, 255, 255, 0.15);
-	// background: linear-gradient(0deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.1) 100%),
-	// 	rgba(0, 0, 0, 0.5);
-	// backdrop-filter: blur(5px);
+	border-radius: 12px;
+	border: 0.5px solid rgba(255, 255, 255, 0.1);
+	background: rgba(0, 0, 0, 0.15);
+	backdrop-filter: blur(3px) saturate(1.05);
+	-webkit-backdrop-filter: blur(3px) saturate(1.05);
 
 	.transcript-panel-header {
 		display: flex;
@@ -34,6 +34,7 @@
 				font-weight: 600;
 				line-height: normal;
 				margin: 0;
+				text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 
 				.recording-timer {
 					color: #10b981;
@@ -102,10 +103,16 @@
 		flex: 1;
 		width: 100%;
 		overflow-y: auto;
-		padding: 8px 0;
+		padding: 12px;
 		display: flex;
 		flex-direction: column;
 		gap: 12px;
+		background: rgba(0, 0, 0, 0.05);
+		backdrop-filter: blur(2px) saturate(1.02);
+		-webkit-backdrop-filter: blur(2px) saturate(1.02);
+		border-radius: 8px;
+		margin: 4px;
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 1px 2px rgba(0, 0, 0, 0.05);
 
 		&::-webkit-scrollbar {
 			width: 4px;
@@ -132,9 +139,9 @@
 			text-align: center;
 			padding: 40px 20px;
 			font-style: italic;
+			text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 		}
 	}
-
 
 	.transcript-item {
 		display: flex;
@@ -173,6 +180,7 @@
 					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-weight: 600;
+					text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 				}
 
 				.transcript-item-time {
@@ -183,11 +191,12 @@
 					display: flex;
 					align-items: center;
 					gap: 2px;
+					text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 				}
 			}
 
 			.transcript-item-text {
-				color: rgba(255, 255, 255, 0.85);
+				color: rgba(255, 255, 255, 0.95);
 				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-weight: 400;
@@ -196,7 +205,8 @@
 				overflow-x: auto;
 				white-space: pre-wrap;
 				max-width: 100%;
-				
+				text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+
 				&::-webkit-scrollbar {
 					height: 4px;
 				}
