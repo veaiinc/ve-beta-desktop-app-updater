@@ -6,7 +6,7 @@ let sharpLoaded = false;
 
 const loadSharp = () => {
 	if (sharpLoaded) return sharp;
-	
+
 	try {
 		sharp = require('sharp');
 		sharpLoaded = true;
@@ -212,13 +212,13 @@ const extractImageMetadata = async (event, { imageBuffer }) => {
 	// Load sharp module when needed
 	const sharpModule = loadSharp();
 	if (!sharpModule) {
-		return { 
-			success: false, 
-			width: null, 
-			height: null, 
-			format: 'jpeg', 
+		return {
+			success: false,
+			width: null,
+			height: null,
+			format: 'jpeg',
 			originalDateTime: Math.floor(Date.now() / 1000),
-			error: 'Image metadata extraction not available on this platform'
+			error: 'Image metadata extraction not available on this platform',
 		};
 	}
 

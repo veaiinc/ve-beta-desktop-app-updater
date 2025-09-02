@@ -4,8 +4,7 @@
 
 ### Main Window Toggle
 
--   **Cmd+\** - Toggle between main window (index.html) and all other windows
-
+-   \*\*Cmd+\*\* - Toggle between main window (index.html) and all other windows
 
 ### Ask AI Window
 
@@ -57,14 +56,12 @@ The app now includes comprehensive console logging for debugging global shortcut
 3. **System Information**: Platform, OS version, and Electron version information
 4. **Conflict Detection**: Checks for potential conflicts with other applications
 
-
-
 ### Troubleshooting
 
-- **If shortcuts don't register**: Check if other applications are using the same shortcuts
-- **If shortcuts register but don't work**: Check accessibility permissions (macOS) or run as administrator (Windows)
-- **If overlay doesn't appear**: Check for window creation errors in console logs
-- **Alternative shortcuts**: Try Ctrl+Alt+/ if the main shortcut fails
+-   **If shortcuts don't register**: Check if other applications are using the same shortcuts
+-   **If shortcuts register but don't work**: Check accessibility permissions (macOS) or run as administrator (Windows)
+-   **If overlay doesn't appear**: Check for window creation errors in console logs
+-   **Alternative shortcuts**: Try Ctrl+Alt+/ if the main shortcut fails
 
 ### Test Script
 

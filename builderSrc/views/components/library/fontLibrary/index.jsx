@@ -11,8 +11,7 @@ export const loadFont = (fontName, fontUrl) => {
 	// Return a promise that resolves when the font is loaded
 	return font
 		.load()
-		.then(() => {
-		})
+		.then(() => {})
 		.catch((error) => {
 			console.error(`Failed to load font "${fontName}":`, error);
 		});

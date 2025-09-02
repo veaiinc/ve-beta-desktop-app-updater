@@ -398,19 +398,22 @@ const DynamicIslandUI = () => {
 	const handleHomeClick = () => {
 		console.log('🏠 Home icon clicked');
 
-		// On Windows, restore main window when home icon is clicked
+		// Restore or recreate main window when home icon is clicked (cross-platform)
 		if (window.electronApi?.home?.restoreMainWindow) {
 			window.electronApi.home
 				.restoreMainWindow()
 				.then((result) => {
 					if (result.success) {
-						console.log('✅ Main window restored successfully');
+						console.log('✅ Main window restored/recreated successfully');
+						if (result.message) {
+							console.log('ℹ️', result.message);
+						}
 					} else {
-						console.warn('⚠️ Failed to restore main window:', result.error);
+						console.warn('⚠️ Failed to restore/recreate main window:', result.error);
 					}
 				})
 				.catch((error) => {
-					console.error('❌ Error restoring main window:', error);
+					console.error('❌ Error restoring/recreating main window:', error);
 				});
 		}
 	};
