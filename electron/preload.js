@@ -82,6 +82,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
 	downloadUpdate: () => ipcRenderer.invoke('download-update'),
+	forceDownloadUpdate: () => ipcRenderer.invoke('force-download-update'),
+	repositionDynamicIsland: () => ipcRenderer.invoke('reposition-dynamic-island'),
 
 	onUpdateStatus: (callback) => {
 		ipcRenderer.on('update-status', (event, data) => {
@@ -256,6 +258,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 		readText: () => ipcRenderer.invoke('clipboard-read-text'),
 	},
 
+	// Developer tools API for WebSocket debugging
+	openDevTools: (options) => ipcRenderer.invoke('open-dev-tools', options),
+
 	// Download progress listener
 	onDownloadProgress: (callback) => {
 		ipcRenderer.on('download-progress', (event, data) => {
@@ -287,6 +292,11 @@ contextBridge.exposeInMainWorld('electronApi', {
 		// Send chat message directly to AskAI
 		sendChatMessage: (message) => ipcRenderer.invoke('send-chat-message-to-askai', message),
 
+		// Voice integration APIs for Dynamic Island
+		connectVoice: () => ipcRenderer.invoke('dynamic-island-voice-connect'),
+		disconnectVoice: () => ipcRenderer.invoke('dynamic-island-voice-disconnect'),
+		getVoiceStatus: () => ipcRenderer.invoke('dynamic-island-voice-status'),
+
 		onStateChange: (callback) => {
 			ipcRenderer.on('dynamic-island-state', (event, data) => {
 				callback(data);
@@ -303,6 +313,15 @@ contextBridge.exposeInMainWorld('electronApi', {
 		},
 		removeOverlayStateListener: () => {
 			ipcRenderer.removeAllListeners('overlay-state-changed');
+		},
+		// Listen for voice status changes
+		onVoiceStatusChange: (callback) => {
+			ipcRenderer.on('voice-status-changed', (event, data) => {
+				callback(data);
+			});
+		},
+		removeVoiceStatusListener: () => {
+			ipcRenderer.removeAllListeners('voice-status-changed');
 		},
 		onForceFocus: (callback) => {
 			ipcRenderer.on('force-focus', (event) => {

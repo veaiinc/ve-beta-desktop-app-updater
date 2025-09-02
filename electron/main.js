@@ -83,7 +83,13 @@ class DynamicIslandHelper {
 		// Position at center top - use expanded size for positioning
 		this.position.x =
 			Math.floor(this.screenWidth / 2) - Math.floor(this.expandedSize.width / 2);
-		this.position.y = 30; // Close to top
+		
+		// Platform-specific positioning
+		if (process.platform === 'win32') {
+			this.position.y=0; // Higher position on Windows
+		} else {
+			this.position.y = 30; // Normal position on Mac/Linux
+		}
 	}
 
 	createDynamicIslandWindow() {
@@ -105,7 +111,7 @@ class DynamicIslandHelper {
 				nodeIntegration: false,
 				contextIsolation: true,
 				preload: path.join(__dirname, 'preload.js'),
-				devTools: process.env.NODE_ENV === 'development',
+				devTools: true, // Enable dev tools in production too
 			},
 			show: false,
 			alwaysOnTop: true,
@@ -266,6 +272,22 @@ class DynamicIslandHelper {
 		return this.isExpanded;
 	}
 
+	// Method to reposition Dynamic Island based on platform
+	repositionForPlatform() {
+		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
+
+		// Recalculate position based on current platform
+		if (process.platform === 'win32') {
+			this.position.y = 15; // Higher position on Windows
+		} else {
+			this.position.y = 30; // Normal position on Mac/Linux
+		}
+
+		// Update window position
+		this.dynamicIslandWindow.setPosition(this.position.x, this.position.y);
+		log.info(`Dynamic Island repositioned for ${process.platform} at ${this.position.x},${this.position.y}`);
+	}
+
 	focus() {
 		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
 			try {
@@ -309,6 +331,13 @@ let pendingNotificationAction = null;
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 
+// Windows-specific auto-updater configuration
+if (process.platform === 'win32') {
+	// Enable auto-download for both dev and production
+	autoUpdater.autoDownload = true;
+	log.info('Windows auto-updater configured with auto-download for all environments');
+}
+
 // Update event forwarding
 autoUpdater.on('checking-for-update', () => {
 	log.info('Checking for updates...');
@@ -317,10 +346,27 @@ autoUpdater.on('checking-for-update', () => {
 
 autoUpdater.on('update-available', (info) => {
 	log.info('Update available:', info);
+	
+	// Notify frontend that update is available
 	mainWindow?.webContents.send('update-status', {
 		status: 'download-started',
 		version: info.version,
 	});
+	
+	// If auto-download is disabled, start manual download
+	if (!autoUpdater.autoDownload) {
+		log.info('Auto-download disabled, starting manual download...');
+		autoUpdater.downloadUpdate().catch((downloadErr) => {
+			log.error('Manual download failed:', downloadErr);
+			mainWindow?.webContents.send('update-status', {
+				status: 'download-failed',
+				error: downloadErr.message,
+				details: { code: downloadErr.code },
+			});
+		});
+	} else {
+		log.info('Auto-download enabled, update will download automatically');
+	}
 });
 
 autoUpdater.on('update-not-available', (info) => {
@@ -330,21 +376,43 @@ autoUpdater.on('update-not-available', (info) => {
 
 autoUpdater.on('error', (err) => {
 	log.error('Update error:', err);
-	mainWindow?.webContents.send('update-status', {
-		status: 'error',
-		error: err.message,
-		details: { code: err.code, errno: err.errno },
-	});
+	
+	// Handle Windows checksum mismatch specifically
+	if (err.message.includes('checksum mismatch') || err.code === 'ERR_CHECKSUM_MISMATCH') {
+		log.warn('Checksum mismatch detected - this may be due to unsigned builds on Windows');
+		mainWindow?.webContents.send('update-status', {
+			status: 'checksum-error',
+			error: 'Update verification failed. This may be due to unsigned builds.',
+			details: { 
+				code: err.code, 
+				errno: err.errno,
+				suggestion: 'Manual download may be required'
+			},
+		});
+	} else {
+		mainWindow?.webContents.send('update-status', {
+			status: 'error',
+			error: err.message,
+			details: { code: err.code, errno: err.errno },
+		});
+	}
 });
 
 autoUpdater.on('update-downloaded', (info) => {
 	log.info('Update downloaded:', info);
+	
+	// Show user-friendly message
 	mainWindow?.webContents.send('update-status', {
 		status: 'download-completed',
 		version: info.version,
-		message: 'Restarting in 3 seconds...',
+		message: 'Update ready! App will restart in 3 seconds...',
 	});
-	setTimeout(() => autoUpdater.quitAndInstall(), 3000);
+	
+	// Auto-restart after 3 seconds
+	setTimeout(() => {
+		log.info('Restarting app to install update...');
+		autoUpdater.quitAndInstall();
+	}, 3000);
 });
 
 function showNotification(title, body) {
@@ -479,6 +547,41 @@ ipcMain.handle('restart-app', () => {
 	return { success: true };
 });
 
+	// Add manual download handler for Windows checksum issues
+	ipcMain.handle('force-download-update', async () => {
+		if (process.env.NODE_ENV === 'development') {
+			return { success: false, error: 'Not available in dev' };
+		}
+		
+		try {
+			log.info('Force downloading update (skipping checksum verification)...');
+			
+			// Temporarily disable autoDownload if it was enabled
+			const originalAutoDownload = autoUpdater.autoDownload;
+			autoUpdater.autoDownload = false;
+			
+			// Start download
+			await autoUpdater.downloadUpdate();
+			
+			// Restore original setting
+			autoUpdater.autoDownload = originalAutoDownload;
+			
+			return { success: true, message: 'Force download initiated' };
+		} catch (error) {
+			log.error('Force download failed:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Dynamic Island repositioning handler
+	ipcMain.handle('reposition-dynamic-island', () => {
+		if (dynamicIslandHelper) {
+			dynamicIslandHelper.repositionForPlatform();
+			return { success: true, platform: process.platform };
+		}
+		return { success: false, error: 'Dynamic Island helper not available' };
+	});
+
 ipcMain.handle('desktop:capture-screen', async () => {
 	try {
 		const sources = await desktopCapturer.getSources({
@@ -540,6 +643,7 @@ function createWindow() {
 			preload: path.join(__dirname, 'preload.js'),
 			nodeIntegration: false,
 			contextIsolation: true,
+			devTools: true, // Enable developer tools in production
 		},
 	});
 
@@ -552,6 +656,9 @@ function createWindow() {
 	mainWindow.once('ready-to-show', () => {
 		mainWindow.show();
 		log.info('Window ready-to-show');
+		
+		// Enable developer tools for main window in both development and production
+		log.info('Dev tools available with F12, Ctrl+F12, or Ctrl+Shift+I in all modes');
 	});
 
 	// Windows-specific close behavior
@@ -565,10 +672,12 @@ function createWindow() {
 		});
 	}
 
-	// Check for updates in production
-	if (process.env.NODE_ENV !== 'development') {
+	// Check for updates in both dev and production
+	log.info('Starting automatic update check...');
+	// Delay update check to ensure app is fully loaded
+	setTimeout(() => {
 		autoUpdater.checkForUpdatesAndNotify();
-	}
+	}, 5000); // Wait 5 seconds after app loads
 }
 
 // Create system tray for Windows
@@ -576,8 +685,27 @@ function createTray() {
 	if (process.platform !== 'win32') return;
 
 	try {
-		// Use the app icon for the tray
-		const iconPath = path.join(__dirname, 'assets', 've-black-circle-logo.png');
+		// Use the app icon for the tray - try multiple paths
+		let iconPath;
+		const possiblePaths = [
+			path.join(__dirname, '..', 'electron', 'assets', 've-black-circle-logo.png'), // Development
+			path.join(__dirname, 'assets', 've-black-circle-logo.png'), // Built app
+			path.join(__dirname, '..', 'public', 've-black-circle-logo.png'), // Fallback
+		];
+		
+		// Find the first path that exists
+		const fs = require('fs');
+		for (const testPath of possiblePaths) {
+			if (fs.existsSync(testPath)) {
+				iconPath = testPath;
+				break;
+			}
+		}
+		
+		if (!iconPath) {
+			log.warn('Tray icon not found, skipping tray creation');
+			return;
+		}
 		tray = new Tray(iconPath);
 		tray.setToolTip('VE Desktop App');
 
@@ -1011,6 +1139,43 @@ app.whenReady().then(() => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error setting dynamic island mouse events:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Voice integration handlers for Dynamic Island
+	ipcMain.handle('dynamic-island-voice-connect', async () => {
+		try {
+			log.info('Dynamic Island voice connect requested');
+			// In the future, this could trigger specific voice setup for Dynamic Island
+			return { success: true, message: 'Voice connection initiated from Dynamic Island' };
+		} catch (error) {
+			log.error('Error connecting voice from Dynamic Island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('dynamic-island-voice-disconnect', async () => {
+		try {
+			log.info('Dynamic Island voice disconnect requested');
+			// In the future, this could trigger specific voice cleanup for Dynamic Island
+			return { success: true, message: 'Voice disconnection initiated from Dynamic Island' };
+		} catch (error) {
+			log.error('Error disconnecting voice from Dynamic Island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('dynamic-island-voice-status', async () => {
+		try {
+			// Return voice status for Dynamic Island
+			return {
+				success: true,
+				status: 'ready',
+				message: 'Voice integration ready for Dynamic Island',
+			};
+		} catch (error) {
+			log.error('Error getting voice status for Dynamic Island:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -1689,6 +1854,41 @@ app.whenReady().then(() => {
 				success: false,
 				error: error.message,
 			};
+		}
+	});
+
+	// Open developer tools handler for WebSocket debugging
+	ipcMain.handle('open-dev-tools', async (event, options = {}) => {
+		try {
+			const { targetWindow = 'current', mode = 'detach' } = options;
+			let window = null;
+			
+			if (targetWindow === 'current') {
+				// Use the window that sent the request
+				window = BrowserWindow.fromWebContents(event.sender);
+			} else if (targetWindow === 'main') {
+				window = mainWindow;
+			} else if (targetWindow === 'overlay') {
+				window = windowHelper?.getOverlayWindow();
+			} else if (targetWindow === 'askAI') {
+				window = windowHelper?.getAskAIWindow();
+			}
+			
+			if (window && !window.isDestroyed()) {
+				if (window.webContents.isDevToolsOpened()) {
+					window.webContents.closeDevTools();
+					log.info(`Closed dev tools for ${targetWindow} window`);
+				} else {
+					window.webContents.openDevTools({ mode });
+					log.info(`Opened dev tools for ${targetWindow} window in ${mode} mode`);
+				}
+				return { success: true, action: window.webContents.isDevToolsOpened() ? 'opened' : 'closed' };
+			} else {
+				return { success: false, error: `${targetWindow} window not available` };
+			}
+		} catch (error) {
+			log.error('Error opening dev tools:', error);
+			return { success: false, error: error.message };
 		}
 	});
 

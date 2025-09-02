@@ -845,6 +845,7 @@
 				display: flex;
 				justify-content: center;
 				align-items: center;
+				color: var(--primary-button-font);
 				gap: 8px;
 			}
 
@@ -854,12 +855,18 @@
 				border: 1px solid var(--stroke);
 			}
 			&:disabled {
-				background-color: var(--card-hover);
-				border: 1px solid var(--card-hover);
+				// background-color: var(--card-hover);
+				// border: 1px solid var(--card-hover);
 				color: var(--secondary-font);
+				color: var(--primary-button-font);
 				cursor: not-allowed;
 				&:hover {
 					opacity: 0.8;
+				}
+
+				.loader {
+					color: var(--primary-button-font);
+					opacity: 1;
 				}
 			}
 		}
