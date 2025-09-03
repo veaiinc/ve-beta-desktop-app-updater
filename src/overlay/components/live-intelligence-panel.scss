@@ -1,15 +1,24 @@
 .live-intelligence-panel {
+	// display: flex;
+	// width: 768px;
+	// // padding: 8px 10px;
+	// flex-direction: column;
+	// align-items: flex-start;
+	// // background-color: red;
+	// gap: 8px;
+	// // border-radius: 6px;
+	// // border: 0.5px solid rgba(255, 255, 255, 0.1);
+	// // background: rgba(0, 0, 0, 0.65);
+	// // backdrop-filter: blur(12px);
+	// // -webkit-backdrop-filter: blur(12px);
+
 	display: flex;
-	width: 768px;
-	padding: 8px 10px;
+	width: 745px;
 	flex-direction: column;
 	align-items: flex-start;
-	gap: 8px;
-	// border-radius: 6px;
-	// border: 0.5px solid rgba(255, 255, 255, 0.1);
-	// background: rgba(0, 0, 0, 0.65);
-	// backdrop-filter: blur(12px);
-	// -webkit-backdrop-filter: blur(12px);
+	gap: 12px;
+	padding: 4px 0px;
+	min-height: 300px;
 
 	.live-intelligence-panel__header {
 		display: flex;
@@ -17,9 +26,9 @@
 		align-items: center;
 		align-self: stretch;
 		// background: rgba(255, 255, 255, 0.05);
-		padding: 8px 10px;
+		// padding: 8px 10px;
 		border-radius: 6px 6px 0 0;
-		margin: -8px -10px 0 -10px;
+		// margin: -8px -10px 0 -10px;
 		// border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 		.live-intelligence-panel__title {
 			display: flex;
@@ -54,13 +63,16 @@
 		.live-intelligence-panel__controls {
 			display: flex;
 			justify-content: flex-end;
-			align-items: baseline;
+			align-items: center;
 			gap: 10px;
 
 			.live-intelligence-panel__control-button {
-				display: flex;
-				align-items: center;
-				gap: 4px;
+				color: #fff;
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
 				background-color: transparent;
 				border: none;
 				cursor: pointer;
@@ -96,6 +108,12 @@
 				-webkit-app-region: no-drag; /* Prevent dragging on icon buttons */
 				app-region: no-drag; /* Standard property for non-draggable regions */
 			}
+
+			.live-intelligence-panel__control-divider {
+				width: 0.5px;
+				height: 18px;
+				background: rgba(255, 255, 255, 0.1);
+			}
 		}
 	}
 
@@ -103,7 +121,7 @@
 		width: 100%;
 		height: 1px;
 		background: rgba(255, 255, 255, 0.1);
-		margin: 4px 0;
+		// margin: 4px 0;
 	}
 
 	.live-intelligence-panel__tabs {
@@ -114,28 +132,41 @@
 
 		.tab-button {
 			display: flex;
+			height: 36px;
+			padding: 8px 16px;
+			justify-content: center;
 			align-items: center;
-			gap: 8px;
-			padding: 8px 12px;
-			background: transparent;
+			gap: 10px;
 			border: none;
+			background-color: transparent;
 			cursor: pointer;
-			color: rgba(255, 255, 255, 0.7);
+			color: #fff;
 			font-family: var(--primary-font-family);
-			font-size: 12px;
-			font-weight: 400;
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 500;
 			line-height: normal;
-			border-bottom: 2px solid transparent;
+			border-bottom: 1px solid transparent;
 			transition: all 0.2s ease;
 			-webkit-app-region: no-drag; /* Prevent dragging on tab buttons */
 			app-region: no-drag; /* Standard property for non-draggable regions */
+			position: relative;
+			cursor: pointer;
 
-			&.active {
-				color: #fff;
-				border-bottom-color: #79ECC9;
-				stroke-width: 1px;
-				stroke: #79ECC9;
-				filter: drop-shadow(0 0 3.6px #79ECC9);
+			&::after {
+				content: '';
+				position: absolute;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				height: 1px;
+				transition: all 0.2s ease;
+			}
+
+			&.active::after {
+				background: var(--primary-button, #79ecc9);
+				filter: drop-shadow(0 0 4.6px var(--primary-button, #79ecc9));
+				border-radius: 2px;
 			}
 
 			&:hover:not(.active) {
@@ -148,16 +179,24 @@
 
 			.tab-badge {
 				display: flex;
-				align-items: center;
+				min-width: 20px;
 				justify-content: center;
-				min-width: 16px;
-				height: 16px;
-				padding: 0 4px;
-				background: rgba(255, 255, 255, 0.2);
-				border-radius: 8px;
-				font-size: 10px;
-				font-weight: 500;
+				align-items: center;
 				color: #fff;
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px;
+				border-radius: 4px;
+				background: rgba(255, 255, 255, 0.15);
+				padding: 0 2px;
+			}
+			&:last-child {
+				padding-right: 8px;
+			}
+			&:first-child {
+				padding-left: 8px;
 			}
 		}
 	}
