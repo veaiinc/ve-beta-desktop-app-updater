@@ -158,7 +158,9 @@ const LiveIntelligencePanel = ({
 							[...socketData.allThreads].reverse().map((thread, index) => (
 								<div
 									key={index}
-									className="thread-item clickable"
+									className={`thread-item ${
+										thread.entity === 'user' ? 'ask-user-item' : 'clickable'
+									}`}
 									onClick={() => handleThreadItemClick(thread, 'all-threads')}
 									title="Click to ask AI about this thread"
 								>
@@ -192,7 +194,7 @@ const LiveIntelligencePanel = ({
 							[...socketData.askUser].reverse().map((item, index) => (
 								<div
 									key={index}
-									className="thread-item clickable"
+									className="thread-item ask-user-item"
 									//onClick={() => handleThreadItemClick(item, 'ask-user')}
 									title="Click to ask AI about this question"
 								>

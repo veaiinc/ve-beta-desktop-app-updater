@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import getBaseUrl from '../../services/baseUrls';
+import Context from '../../context/context';
 
 const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
 
@@ -8,9 +9,9 @@ const useAssemblyTranscription = ({
 	onLiveIntelligenceResponse,
 	notification = {},
 }) => {
-	// const {
-	// 	notes: { initializeMeetingSummary },
-	// } = useContext(Context);
+	const {
+		notes: { initializeMeetingSummary },
+	} = useContext(Context);
 	const [isConnected, setIsConnected] = useState(false);
 	const [isRecording, setIsRecording] = useState(false);
 	const [isMuted, setIsMuted] = useState(false);
@@ -152,7 +153,7 @@ const useAssemblyTranscription = ({
 		}, delay);
 	}, [isConnected]);
 
-	const stopRecording = useCallback(() => {
+	const stopRecording = useCallback(({ meetingId }) => {
 		if (!isMountedRef.current) return;
 
 		log('Stopping recording...');
@@ -210,7 +211,7 @@ const useAssemblyTranscription = ({
 		audioBufferRef.current = [];
 		sampleCountRef.current = 0;
 		cleanup();
-		// initializeMeetingSummary({ meeting_id: meetingId });
+		initializeMeetingSummary({ meeting_id: meetingId });
 	}, [log]);
 
 	const connect = useCallback(
@@ -517,6 +518,8 @@ const useAssemblyTranscription = ({
 		async ({ tenantId, sessionId, meetingId, jwtToken, isAiIntelligenceEnabled }) => {
 			try {
 				// First ensure WebSocket connection
+				setIsMuted(false);
+				muteRef.current = false;
 				await startAudioCapture();
 				if (!websocketRef.current || websocketRef.current.readyState !== WebSocket.OPEN) {
 					log('Establishing connection...');

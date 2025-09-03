@@ -242,6 +242,11 @@
 					}
 				}
 
+				&.ask-user-item {
+					border: 1px solid transparent;
+					pointer-events: none;
+				}
+
 				.thread-category {
 					display: inline-flex;
 					padding: 2px 8px;
