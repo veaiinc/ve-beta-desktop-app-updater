@@ -25,10 +25,10 @@ const OverlayApp = () => {
 	const notification = useOverlayNotification();
 
 	const [info, setInfo] = useState({
-		meetingId: null,
 		isMeetIsOngoing: false,
 		transcriptions: [],
 		isPaused: false,
+		meetingData: null,
 		liveIntelligenceData: {
 			askUser: [],
 			needHelp: [],
@@ -275,7 +275,7 @@ const OverlayApp = () => {
 
 		sessionIdRef.current = null;
 
-		stopRecording();
+		stopRecording({ meetingId: info?.meetingData?._id });
 		closeLiveIntelligenceConnection();
 		closeRecallConnection();
 
