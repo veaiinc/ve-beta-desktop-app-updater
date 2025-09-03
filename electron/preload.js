@@ -51,19 +51,10 @@ contextBridge.exposeInMainWorld('electronApi', {
 		ipcRenderer.removeAllListeners('shortcut-activated');
 	},
 
-	startMicMonitoring: () => window.electronInternal.startMicMonitoring(),
-	stopMicMonitoring: () => ipcRenderer.invoke('stop-mic-monitoring'),
-
 	// 🔔 Notifications
 	showNotification: (title, body) => ipcRenderer.invoke('show-notification', { title, body }),
 
 	// 📣 Listen for mic activity
-	onMicActivity: (callback) => {
-		ipcRenderer.on('mic-activity-detected', (event, data) => callback(data));
-	},
-	removeMicActivityListener: () => {
-		ipcRenderer.removeAllListeners('mic-activity-detected');
-	},
 
 	// Optional: Listen for notifications (if you want renderer-side handling)
 	onNotification: (callback) => {
