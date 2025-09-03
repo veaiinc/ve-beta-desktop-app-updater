@@ -21,7 +21,6 @@ const SchedulerModal = ({
 		recurrence: 'Select Recurrence',
 	});
 
-
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
