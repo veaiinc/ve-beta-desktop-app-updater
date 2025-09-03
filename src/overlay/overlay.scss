@@ -8,20 +8,38 @@
 	margin: 0;
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 	user-select: none;
-	-webkit-app-region: no-drag;
+	-webkit-app-region: no-drag; /* Remove drag from main container */
+	app-region: no-drag; /* Standard property for non-draggable regions */
 	z-index: 9999;
 	position: relative;
 	opacity: 1;
 	overflow-x: visible; /* Allow content to expand naturally */
 	width: auto; /* Dynamic width based on content */
-	min-width: 400px;
+	min-width: 100px;
 	max-width: 100vw; /* Don't exceed viewport width */
 }
 
 .overlay-container {
 	opacity: 1;
-	// padding: 8px 12px;
+	// padding: 0;
 	display: flex;
+	position: relative;
+}
+
+// Drag handle for moving the overlay - positioned to not interfere with content
+.overlay-container::before {
+	content: '';
+	position: absolute;
+	top: 0; /* Position above the container */
+	left: 0;
+	right: 0;
+	height: 16px; /* Small drag area above the content */
+	-webkit-app-region: drag;
+	app-region: drag;
+	z-index: 1;
+	pointer-events: auto;
+	background: transparent; /* Make it invisible but functional */
+	
 }
 
 // Commands Section (now empty since moved to ShortcutBar)
@@ -39,21 +57,21 @@
 	.screen-query-container {
 		width: 100%;
 		max-width: 400px;
-		margin-top: 16px;
+		margin-top: 0;
 		padding: 6px;
 	}
 
 	.live-intelligence-container {
 		width: 100%;
 		max-width: 300px;
-		margin-top: 16px;
+		margin-top: 0;
 		padding: 6px;
 	}
 
 	.transcript-container {
 		width: 100%;
 		max-width: 450px;
-		margin-top: 16px;
+		margin-top: 0;
 		padding: 6px;
 	}
 }
@@ -61,7 +79,7 @@
 // Live Intelligence Container
 .live-intelligence-container {
 	display: flex;
-	padding: 12px;
+	padding: 24px 10px;
 	flex-direction: column;
 	align-items: flex-start;
 	border-radius: 6px;
@@ -69,6 +87,7 @@
 	overflow: hidden;
 	z-index: 10000;
 	position: relative;
+	
 	// background: rgba(0, 0, 0, 0.65);
 	// backdrop-filter: blur(12px);
 	// -webkit-backdrop-filter: blur(12px);
@@ -78,6 +97,40 @@
 	border: 0.5px solid rgba(255, 255, 255, 0.15);
 	background: rgba(0, 0, 0, 0.7);
 	backdrop-filter: blur(4px);
+	-webkit-app-region: no-drag; /* Ensure panel content is not draggable */
+	app-region: no-drag; /* Standard property for non-draggable regions */
+}
+
+// Add drag area to live intelligence panel
+.live-intelligence-container::before {
+	content: '';
+	position: absolute;
+	top: -4px;
+	left: 0;
+	right: 0;
+	height: 16px;
+	
+	-webkit-app-region: drag;
+	app-region: drag;
+	z-index: 1;
+	pointer-events: auto;
+	background: rgba(0, 0, 0, 0.199);
+	border: 1px solid rgba(255, 255, 255, 0.146);
+}
+
+// Live intelligence drag handle with grip icon
+.live-intelligence-drag-handle {
+	position: absolute;
+	top: -2px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 16px;
+	height: 16px;
+	z-index: 2;
+	pointer-events: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 // Transcript Container
@@ -100,6 +153,39 @@
 	border: 0.5px solid rgba(255, 255, 255, 0.15);
 	background: rgba(0, 0, 0, 0.7);
 	backdrop-filter: blur(4px);
+	-webkit-app-region: no-drag; /* Ensure panel content is not draggable */
+	app-region: no-drag; /* Standard property for non-draggable regions */
+}
+
+// Add drag area to transcript panel
+.transcript-container::before {
+	content: '';
+	position: absolute;
+	top: -4px;
+	left: 0;
+	right: 0;
+	height: 16px;
+	-webkit-app-region: drag;
+	app-region: drag;
+	z-index: 1;
+	pointer-events: auto;
+	background:   rgba(0, 0, 0, 0.199);
+	border: 1px solid  rgba(255, 255, 255, 0.146);
+}
+
+// Transcript drag handle with grip icon
+.transcript-drag-handle {
+	position: absolute;
+	top: -2px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 16px;
+	height: 16px;
+	z-index: 2;
+	pointer-events: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 // Animations

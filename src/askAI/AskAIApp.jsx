@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Send, Copy, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Send, Copy, ChevronDown, ChevronUp, GripHorizontal } from 'lucide-react';
 import './askAI.scss';
 import { useAskAISocket } from './socketState';
 import { Square } from 'lucide-react';
@@ -469,6 +469,9 @@ const AskAIApp = () => {
 			{(response || isLoading || displayedResponse || isExpanded || hasResponse) && (
 				<div className={`ai-response-window ${isExpanded ? 'expanded' : 'collapsed'}`}>
 					<div className="ai-response-header">
+						<div className="ai-response-drag-handle">
+							<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
+						</div>
 						<div className="ai-response-title">
 							<span>AI Response</span>
 							{response && (
@@ -534,6 +537,9 @@ const AskAIApp = () => {
 
 			{/* Input Bar - Botdtom */}
 			<div className="ask-ai-input">
+				<div className="ask-ai-input-drag-handle">
+					<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
+				</div>
 				{/* Dynamic Island Message Indicator */}
 				{receivedDynamicIslandMessage && (
 					<div className="ask-ai-input__dynamic-island-indicator">
