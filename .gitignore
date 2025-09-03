@@ -39,6 +39,8 @@ notarize_for_intel.sh
 
 build-and-notarize.sh
 
+@img
+
 *.md
 *.sh
 

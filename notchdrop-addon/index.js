@@ -444,7 +444,6 @@ class NotchDropAddonWrapper {
 			if (typeof require !== 'undefined') {
 				try {
 					// Try to use ipcRenderer (renderer process)
-					const { ipcRenderer } = require('electron');
 					if (ipcRenderer) {
 						console.log('🔗 Using ipcRenderer to trigger overlay recording');
 						// Use the correct IPC channel that creates/shows overlay window
@@ -461,7 +460,6 @@ class NotchDropAddonWrapper {
 
 				// Main process approach - call the IPC handler directly
 				try {
-					const { ipcMain } = require('electron');
 					console.log('🔗 Using main process approach for overlay recording');
 					// Simulate the IPC call directly since we're in main process
 					// We'll emit the action to be handled by the existing IPC handler
@@ -505,7 +503,6 @@ class NotchDropAddonWrapper {
 				}
 
 				// Main process approach - find overlay window and send command directly
-				const { BrowserWindow } = require('electron');
 				const windows = BrowserWindow.getAllWindows();
 				for (const window of windows) {
 					if (window.webContents && !window.isDestroyed()) {
@@ -536,7 +533,6 @@ class NotchDropAddonWrapper {
 			if (typeof require !== 'undefined') {
 				try {
 					// Try to use ipcRenderer (renderer process)
-					const { ipcRenderer } = require('electron');
 					if (ipcRenderer) {
 						const result = await ipcRenderer.invoke('overlay-pause-recording');
 						console.log('Overlay pause recording result:', result);
@@ -548,7 +544,6 @@ class NotchDropAddonWrapper {
 				}
 
 				// Main process approach - find overlay window and send command directly
-				const { BrowserWindow } = require('electron');
 				const windows = BrowserWindow.getAllWindows();
 				for (const window of windows) {
 					if (window.webContents && !window.isDestroyed()) {
@@ -579,7 +574,6 @@ class NotchDropAddonWrapper {
 			if (typeof require !== 'undefined') {
 				try {
 					// Try to use ipcRenderer (renderer process)
-					const { ipcRenderer } = require('electron');
 					if (ipcRenderer) {
 						const result = await ipcRenderer.invoke('overlay-resume-recording');
 						console.log('Overlay resume recording result:', result);
@@ -589,9 +583,8 @@ class NotchDropAddonWrapper {
 					// ipcRenderer not available, we're in main process
 					console.log('Running in main process, using direct window communication');
 				}
-
 				// Main process approach - find overlay window and send command directly
-				const { BrowserWindow } = require('electron');
+
 				const windows = BrowserWindow.getAllWindows();
 				for (const window of windows) {
 					if (window.webContents && !window.isDestroyed()) {
@@ -622,7 +615,6 @@ class NotchDropAddonWrapper {
 			if (typeof require !== 'undefined') {
 				try {
 					// Try to use ipcRenderer (renderer process)
-					const { ipcRenderer } = require('electron');
 					if (ipcRenderer) {
 						const result = await ipcRenderer.invoke('overlay-toggle-live-intelligence');
 						console.log('Overlay toggle live intelligence result:', result);
@@ -634,7 +626,6 @@ class NotchDropAddonWrapper {
 				}
 
 				// Main process approach - find overlay window and send command directly
-				const { BrowserWindow } = require('electron');
 				const windows = BrowserWindow.getAllWindows();
 				for (const window of windows) {
 					if (window.webContents && !window.isDestroyed()) {
@@ -943,7 +934,6 @@ class NotchDropAddonWrapper {
 			// Method 1: Direct IPC call to main process
 			if (typeof require !== 'undefined') {
 				try {
-					const { ipcRenderer } = require('electron');
 					if (ipcRenderer) {
 						console.log('📡 Using ipcRenderer for immediate overlay trigger');
 						const result = await ipcRenderer.invoke(
@@ -960,7 +950,6 @@ class NotchDropAddonWrapper {
 				}
 
 				try {
-					const { ipcMain } = require('electron');
 					if (ipcMain) {
 						console.log('📡 Using process emit for immediate overlay trigger');
 						process.emit('swift-ui-trigger-overlay-recording-immediate');
@@ -998,7 +987,6 @@ class NotchDropAddonWrapper {
 			// Method 1: Direct IPC call to main process
 			if (typeof require !== 'undefined') {
 				try {
-					const { ipcRenderer } = require('electron');
 					if (ipcRenderer) {
 						console.log('📡 Using ipcRenderer for immediate live intelligence trigger');
 						const result = await ipcRenderer.invoke(
@@ -1015,7 +1003,6 @@ class NotchDropAddonWrapper {
 				}
 
 				try {
-					const { ipcMain } = require('electron');
 					if (ipcMain) {
 						console.log(
 							'📡 Using process emit for immediate live intelligence trigger',
