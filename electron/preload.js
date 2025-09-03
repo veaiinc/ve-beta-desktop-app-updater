@@ -1,6 +1,8 @@
 // preload.js
 const { contextBridge, ipcRenderer } = require('electron/renderer');
 
+// Helper
+
 contextBridge.exposeInMainWorld('electronApi', {
 	send(channel, data) {
 		ipcRenderer.invoke(channel, data);
@@ -49,6 +51,35 @@ contextBridge.exposeInMainWorld('electronApi', {
 		ipcRenderer.removeAllListeners('shortcut-activated');
 	},
 
+	// 🔔 Notifications
+	showNotification: (title, body) => ipcRenderer.invoke('show-notification', { title, body }),
+
+	// 📣 Listen for mic activity
+
+	// Optional: Listen for notifications (if you want renderer-side handling)
+	onNotification: (callback) => {
+		ipcRenderer.on('notification-payload', (event, data) => callback(data));
+	},
+
+	// In preload.js, inside contextBridge.exposeInMainWorld('electronApi', { ... })
+
+	// ✅ Safe way to listen to any allowed channel
+	on: (channel, callback) => {
+		const validChannels = [
+			'start-mic-monitoring',
+			'notification-payload',
+			'mic-activity-detected',
+		];
+
+		if (!validChannels.includes(channel)) {
+			console.warn(`Attempted to listen to blocked channel: ${channel}`);
+			return;
+		}
+
+		ipcRenderer.on(channel, (event, ...args) => {
+			callback(...args);
+		});
+	},
 	// Overlay window APIs
 	overlay: {
 		toggleWindow: () => ipcRenderer.invoke('toggle-overlay-window'),
@@ -89,6 +120,10 @@ contextBridge.exposeInMainWorld('electronApi', {
 		sendStateUpdate: (state) => ipcRenderer.invoke('overlay-state-update', state),
 		// Test connection
 		testConnection: () => ipcRenderer.invoke('test-overlay-connection'),
+		// Test command sending
+		testCommand: (command) => ipcRenderer.invoke('test-overlay-command', command),
+		// Test overlay window creation
+		testWindow: () => ipcRenderer.invoke('test-overlay-window'),
 	},
 
 	// Ask AI window APIs

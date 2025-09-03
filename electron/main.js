@@ -7,6 +7,7 @@ const {
 	systemPreferences,
 	ipcMain,
 	desktopCapturer,
+	Notification,
 	Tray,
 } = require('electron');
 const path = require('node:path');
@@ -19,6 +20,8 @@ const {
 	safeProcessImageWithSharp,
 	safeExtractImageMetadata,
 } = require('./windowsCompatibility');
+
+const meetingMonitor = require('./notificationHelper'); // Adjust path if needed
 
 // Gallery processing functions will be loaded lazily when needed
 let galleryHelper = null;
@@ -332,6 +335,7 @@ class DynamicIslandHelper {
 let mainWindow = null;
 let windowHelper = null;
 let dynamicIslandHelper = null;
+let pendingNotificationAction = null;
 
 // Auto-updater setup
 autoUpdater.logger = log;
@@ -421,6 +425,105 @@ autoUpdater.on('update-downloaded', (info) => {
 	}, 3000);
 });
 
+function showNotification(title, body) {
+	const notification = new Notification({
+		title: title || 'Alert',
+		body: body || 'This is a test',
+		silent: false,
+		actions: [
+			{ type: 'button', text: 'Join Meet' },
+			{ type: 'button', text: 'Not Now' },
+		],
+	});
+
+	notification.on('action', (event, index) => {
+		if (index === 0) {
+			log.info('User clicked "Join Meet"');
+			handleNotificationAction('join-meet');
+		} else {
+			log.info('User clicked "Not Now"');
+		}
+	});
+
+	notification.on('click', () => {
+		log.info('Notification clicked - treating as "Join Meet"');
+		handleNotificationAction('join-meet');
+		if (mainWindow) mainWindow.focus();
+	});
+
+	notification.show();
+}
+function handleNotificationAction(action) {
+	pendingNotificationAction = action;
+
+	if (action === 'join-meet') {
+		if (windowHelper) {
+			// First, ensure overlay window exists and is created
+			let overlayWindow = windowHelper.getOverlayWindow();
+
+			if (!overlayWindow || overlayWindow.isDestroyed()) {
+				windowHelper.createOverlayWindow();
+
+				// Wait a moment for the window to be created
+				setTimeout(() => {
+					overlayWindow = windowHelper.getOverlayWindow();
+					if (overlayWindow && !overlayWindow.isDestroyed()) {
+						handleOverlayWindowReady(overlayWindow);
+					} else {
+						log.error('Failed to create overlay window');
+					}
+				}, 1000);
+			} else {
+				// Window exists, handle it directly
+				handleOverlayWindowReady(overlayWindow);
+			}
+
+			// Show and expand dynamic island
+			dynamicIslandHelper?.show();
+			dynamicIslandHelper?.expand();
+
+			pendingNotificationAction = null;
+		} else {
+			log.info('windowHelper not ready — action queued');
+		}
+	}
+}
+
+// Helper function to handle overlay window when it's ready
+function handleOverlayWindowReady(overlayWindow) {
+	// Show the overlay window first
+	windowHelper.showOverlayWindow();
+
+	// Focus the window to ensure it's visible
+	overlayWindow.focus();
+	overlayWindow.show();
+
+	// Wait for DOM to be ready before sending commands
+	overlayWindow.webContents.once('dom-ready', () => {
+		// Small delay to ensure React has mounted
+		setTimeout(() => {
+			// Send the startRecording command
+			overlayWindow.webContents.send('overlay-command', {
+				action: 'startRecording',
+			});
+		}, 500);
+	});
+
+	// Also listen for the window to finish loading
+	overlayWindow.webContents.once('did-finish-load', () => {
+		log.info('Overlay window finished loading');
+	});
+
+	// Additional safety check - if DOM ready doesn't fire within 3 seconds, try sending anyway
+	setTimeout(() => {
+		if (overlayWindow && !overlayWindow.isDestroyed()) {
+			log.info('Fallback: sending startRecording command after timeout');
+			overlayWindow.webContents.send('overlay-command', {
+				action: 'startRecording',
+			});
+		}
+	}, 3000);
+}
 // IPC Handlers for updates
 ipcMain.handle('check-for-updates', async () => {
 	log.info('Manual update check triggered');
@@ -579,7 +682,6 @@ function createWindow(restoreState = false) {
 	mainWindow.once('ready-to-show', () => {
 		mainWindow.show();
 		log.info('Window ready-to-show');
-
 		// Enable developer tools for main window in both development and production
 		log.info('Dev tools available with F12, Ctrl+F12, or Ctrl+Shift+I in all modes');
 
@@ -785,6 +887,11 @@ app.whenReady().then(() => {
 		}, 4000);
 	}
 
+	meetingMonitor.setNotificationHandler(showNotification);
+	meetingMonitor.startMeetingMonitor();
+
+	// 🎤 IPC: Start Mic Monitoring
+
 	createWindow();
 	createTray(); // Create system tray for Windows
 
@@ -814,6 +921,11 @@ app.whenReady().then(() => {
 	// Initialize DynamicIslandHelper for dynamic island functionality
 	dynamicIslandHelper = new DynamicIslandHelper();
 	dynamicIslandHelper.createDynamicIslandWindow();
+
+	if (pendingNotificationAction === 'join-meet') {
+		log.info('Replaying "Join Meet" action after app init');
+		handleNotificationAction('join-meet'); // This will now work
+	}
 
 	// Register global shortcut for dynamic island (Cmd+I)
 	const { globalShortcut } = require('electron');
@@ -1099,6 +1211,21 @@ app.whenReady().then(() => {
 		}
 	});
 
+	ipcMain.on('notification-action', (event, action) => {
+		if (action === 'join-meet') {
+			log.info('Handling: User wants to join the meeting');
+			// ✅ Trigger logic to join meeting
+			// e.g., show overlay, start recording, etc.
+			windowHelper?.createOverlayWindow(); // or toggle
+			dynamicIslandHelper?.show();
+			dynamicIslandHelper?.expand();
+		} else if (action === 'not-now') {
+			log.info('User chose to skip joining the meeting');
+			// Optionally, disable auto-detection for a while
+			// e.g., set a cooldown timer
+		}
+	});
+
 	ipcMain.handle('update-overlay-dimensions', async (event, { width, height }) => {
 		try {
 			if (!windowHelper) {
@@ -1294,6 +1421,72 @@ app.whenReady().then(() => {
 			}
 		} catch (error) {
 			log.error('Error testing overlay connection:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Test handler for sending commands directly
+	ipcMain.handle('test-overlay-command', async (event, command) => {
+		try {
+			log.info('🧪 Testing overlay command:', command);
+			const overlayWindow = windowHelper?.getOverlayWindow();
+			if (overlayWindow && !overlayWindow.isDestroyed()) {
+				overlayWindow.webContents.send('overlay-command', command);
+				log.info('✅ Test command sent to overlay window');
+				return { success: true, commandSent: true };
+			} else {
+				log.info('❌ Overlay window not available for test command');
+				return {
+					success: false,
+					commandSent: false,
+					error: 'Overlay window not available',
+				};
+			}
+		} catch (error) {
+			log.error('Error testing overlay command:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Test handler for creating and showing overlay window
+	ipcMain.handle('test-overlay-window', async () => {
+		try {
+			log.info('🧪 Testing overlay window creation...');
+
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+
+			// Create overlay window
+			windowHelper.createOverlayWindow();
+			log.info('✅ Overlay window creation initiated');
+
+			// Wait a moment for the window to be created
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// Get the window reference
+			const overlayWindow = windowHelper.getOverlayWindow();
+			if (overlayWindow && !overlayWindow.isDestroyed()) {
+				log.info('✅ Overlay window created successfully');
+				log.info('Window visible:', overlayWindow.isVisible());
+				log.info('Window destroyed:', overlayWindow.isDestroyed());
+
+				// Show the window
+				windowHelper.showOverlayWindow();
+				overlayWindow.focus();
+
+				return {
+					success: true,
+					exists: true,
+					visible: overlayWindow.isVisible(),
+					destroyed: overlayWindow.isDestroyed(),
+				};
+			} else {
+				log.info('❌ Overlay window not available after creation');
+				return { success: false, error: 'Overlay window not available after creation' };
+			}
+		} catch (error) {
+			log.error('Error testing overlay window creation:', error);
 			return { success: false, error: error.message };
 		}
 	});
