@@ -35,10 +35,10 @@ class WindowHelper {
 		// Position at center, below Dynamic Island with proper spacing
 		this.currentX = Math.floor(this.screenWidth / 2) - Math.floor(this.windowSize.width / 2);
 
-		// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
+		// Add proper spacing from Dynamic Island (which is now at Y=-8 with height ~280)
 		const dynamicIslandHeight = 180; // Height of expanded Dynamic Island
 		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-		this.currentY = 10 + dynamicIslandHeight + gapFromDynamicIsland;
+		this.currentY = 0 + dynamicIslandHeight + gapFromDynamicIsland;
 
 		const windowSettings = {
 			width: this.windowSize.width,
@@ -64,7 +64,8 @@ class WindowHelper {
 			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel', // Use normal window type in development
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
-			resizable: process.env.NODE_ENV === 'development', // Allow resizing in development
+			resizable: false, // Disable resizing
+			movable: true, // Explicitly enable window movement
 		};
 
 		// Platform-specific window settings
@@ -88,15 +89,9 @@ class WindowHelper {
 			process.env.NODE_ENV === 'development' ||
 			process.env.NODE_ENV?.trim() === 'development';
 
-		log.info(`Environment: ${process.env.NODE_ENV}`);
-		log.info(`Dev URL: ${devURL}`);
-		log.info(`Is Development: ${isDevelopment}`);
-
 		const overlayUrl = isDevelopment
 			? `${devURL}/overlay.html`
 			: `file://${path.join(__dirname, '..', '..', 'build', 'overlay.html')}`;
-
-		log.info(`Loading overlay URL: ${overlayUrl}`);
 
 		this.overlayWindow.loadURL(overlayUrl).catch((err) => {
 			log.error('Failed to load overlay URL:', err);
@@ -146,6 +141,7 @@ class WindowHelper {
 
 		const primaryDisplay = screen.getPrimaryDisplay();
 		const workArea = primaryDisplay.workAreaSize;
+		c;
 		this.screenWidth = workArea.width;
 		this.screenHeight = workArea.height;
 
@@ -153,10 +149,10 @@ class WindowHelper {
 		const askAIX =
 			Math.floor(this.screenWidth / 2) - Math.floor(this.askAIWindowSize.width / 2);
 
-		// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
+		// Add proper spacing from Dynamic Island (which is now at Y=-8 with height ~280)
 		const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
 		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-		const askAIY = 10 + dynamicIslandHeight + gapFromDynamicIsland;
+		const askAIY = -8 + dynamicIslandHeight + gapFromDynamicIsland;
 
 		const windowSettings = {
 			width: this.askAIWindowSize.width,
@@ -182,7 +178,8 @@ class WindowHelper {
 			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
-			resizable: process.env.NODE_ENV === 'development',
+			resizable: false, // Disable resizing - keep only movable functionality
+			movable: true, // Explicitly enable window movement
 		};
 
 		// Platform-specific window settings
@@ -259,12 +256,7 @@ class WindowHelper {
 			}
 		});
 
-		this.overlayWindow.on('resize', () => {
-			if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
-				const bounds = this.overlayWindow.getBounds();
-				this.windowSize = { width: bounds.width, height: bounds.height };
-			}
-		});
+		// Resize event listener removed - resizing is disabled
 
 		this.overlayWindow.on('closed', () => {
 			this.overlayWindow = null;
@@ -287,12 +279,7 @@ class WindowHelper {
 			}
 		});
 
-		this.askAIWindow.on('resize', () => {
-			if (this.askAIWindow && !this.askAIWindow.isDestroyed()) {
-				const bounds = this.askAIWindow.getBounds();
-				this.askAIWindowSize = { width: bounds.width, height: bounds.height };
-			}
-		});
+		// Resize event listener removed - resizing is disabled
 
 		this.askAIWindow.on('closed', () => {
 			this.askAIWindow = null;
@@ -372,11 +359,19 @@ class WindowHelper {
 		const primaryDisplay = screen.getPrimaryDisplay();
 		const workArea = primaryDisplay.workAreaSize;
 
-		// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
-		// Position overlay below Dynamic Island with a gap
+		// Add proper spacing from Dynamic Island with platform-specific positioning
 		const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
 		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-		const topY = 30 + dynamicIslandHeight + gapFromDynamicIsland;
+
+		// Platform-specific Dynamic Island Y position - eliminate gap with menu bar
+		let dynamicIslandY;
+		if (process.platform === 'win32') {
+			dynamicIslandY = 0; // Slightly above screen edge on Windows
+		} else {
+			dynamicIslandY = -8; // Slightly above screen edge on Mac/Linux to eliminate menu bar gap
+		}
+
+		const topY = dynamicIslandY + dynamicIslandHeight + gapFromDynamicIsland;
 
 		// Position overlay to allow space for ask AI on the right
 		let overlayX;
@@ -453,10 +448,19 @@ class WindowHelper {
 			// Center ask AI when overlay is not visible, below Dynamic Island with proper spacing
 			askAIX = Math.floor(workArea.width / 2) - Math.floor(this.askAIWindowSize.width / 2);
 
-			// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
+			// Add proper spacing from Dynamic Island with platform-specific positioning
 			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
 			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-			askAIY = 30 + dynamicIslandHeight + gapFromDynamicIsland;
+
+			// Platform-specific Dynamic Island Y position - eliminate gap with menu bar
+			let dynamicIslandY;
+			if (process.platform === 'win32') {
+				dynamicIslandY = -5; // Slightly above screen edge on Windows
+			} else {
+				dynamicIslandY = -8; // Slightly above screen edge on Mac/Linux to eliminate menu bar gap
+			}
+
+			askAIY = dynamicIslandY + dynamicIslandHeight + gapFromDynamicIsland;
 		}
 
 		this.askAIWindow.setBounds({
@@ -536,34 +540,34 @@ class WindowHelper {
 			maxWidthPercent = 0.75; // Allow up to 75% for side-by-side layout
 		}
 
-		const newWidth = Math.min(width + 32, Math.floor(workArea.width * maxWidthPercent));
-		const newHeight = Math.ceil(height + 16);
+		const newWidth = Math.min(width, Math.floor(workArea.width * maxWidthPercent));
+		const newHeight = Math.ceil(height);
 
-		// Update overlay positioning and maintain side-by-side layout if ask AI is visible
+		// Get current window position to preserve user's manual positioning
+		const currentBounds = this.overlayWindow.getBounds();
+		const currentX = currentBounds.x;
+		const currentY = currentBounds.y;
+
+		// Only update the size, preserve the current position
+		this.overlayWindow.setBounds({
+			x: currentX,
+			y: currentY,
+			width: newWidth,
+			height: newHeight,
+		});
+
+		// Update position tracking to reflect current position
+		this.windowPosition = { x: currentX, y: currentY };
+		this.currentX = currentX;
+		this.currentY = currentY;
+
+		// Update ask AI window position only if it's visible and we need to maintain side-by-side layout
 		if (this.isAskAIWindowVisible() && this.askAIWindow && !this.askAIWindow.isDestroyed()) {
-			// Calculate side-by-side positions with gap
+			// Position ask AI to the right of overlay with gap
 			const gap = 20;
-			const totalWidth = newWidth + this.askAIWindowSize.width + gap;
-			const startX = Math.floor(workArea.width / 2) - Math.floor(totalWidth / 2);
-			const overlayX = startX;
-			const askAIX = startX + newWidth + gap;
+			const askAIX = currentX + newWidth + gap;
+			const askAIY = currentY; // Same Y level as overlay
 
-			// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
-			// Position overlay below Dynamic Island with a gap
-			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
-			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-			const overlayY = 30 + dynamicIslandHeight + gapFromDynamicIsland;
-			const askAIY = overlayY; // Same Y level as overlay
-
-			// Update overlay window
-			this.overlayWindow.setBounds({
-				x: overlayX,
-				y: overlayY,
-				width: newWidth,
-				height: newHeight,
-			});
-
-			// Update ask AI window position to maintain side-by-side layout
 			this.askAIWindow.setBounds({
 				x: askAIX,
 				y: askAIY,
@@ -571,11 +575,8 @@ class WindowHelper {
 				height: this.askAIWindowSize.height,
 			});
 
-			// Update position tracking for both windows
-			this.windowPosition = { x: overlayX, y: overlayY };
+			// Update ask AI position tracking
 			this.askAIWindowPosition = { x: askAIX, y: askAIY };
-			this.currentX = overlayX;
-			this.currentY = overlayY;
 
 			// Make sure ask AI stays on top
 			setTimeout(() => {
@@ -583,25 +584,6 @@ class WindowHelper {
 					this.askAIWindow.moveTop();
 				}
 			}, 50);
-		} else {
-			// Standard centering when ask AI is not visible
-			const centerX = Math.floor(workArea.width / 2) - Math.floor(newWidth / 2);
-
-			// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
-			// Position overlay below Dynamic Island with a gap
-			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
-			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-			const topY = 30 + dynamicIslandHeight + gapFromDynamicIsland;
-
-			this.overlayWindow.setBounds({
-				x: centerX,
-				y: topY,
-				width: newWidth,
-				height: newHeight,
-			});
-			this.windowPosition = { x: centerX, y: topY };
-			this.currentX = centerX;
-			this.currentY = topY;
 		}
 
 		this.windowSize = { width: newWidth, height: newHeight };
@@ -613,48 +595,31 @@ class WindowHelper {
 		const workArea = screen.getPrimaryDisplay().workAreaSize;
 
 		const newWidth = Math.min(width, 600); // Allow up to 600px width
-		const newHeight = Math.min(height, 500); // Max height 400px
+		const newHeight = Math.min(height, 500); // Max height 500px
 
-		// Update ask AI positioning and maintain side-by-side layout if overlay is visible
-		if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
-			// Position ask AI to the right of overlay with gap
-			const gap = 20;
-			const askAIX = this.currentX + this.windowSize.width + gap;
-			const askAIY = this.currentY; // Same Y level as overlay
+		// Get current window position to preserve user's manual positioning
+		const currentBounds = this.askAIWindow.getBounds();
+		const currentX = currentBounds.x;
+		const currentY = currentBounds.y;
 
-			this.askAIWindow.setBounds({
-				x: askAIX,
-				y: askAIY,
-				width: newWidth,
-				height: newHeight,
-			});
-			this.askAIWindowPosition = { x: askAIX, y: askAIY };
-			this.askAIWindowSize = { width: newWidth, height: newHeight };
+		// Only update the size, preserve the current position
+		this.askAIWindow.setBounds({
+			x: currentX,
+			y: currentY,
+			width: newWidth,
+			height: newHeight,
+		});
 
-			// Make sure ask AI stays on top
-			setTimeout(() => {
-				if (this.askAIWindow && !this.askAIWindow.isDestroyed()) {
-					this.askAIWindow.moveTop();
-				}
-			}, 50);
-		} else {
-			// Keep Ask AI window centered when overlay is not visible, below Dynamic Island with proper spacing
-			const askAIX = Math.floor(workArea.width / 2) - Math.floor(newWidth / 2);
+		// Update position tracking to reflect current position
+		this.askAIWindowPosition = { x: currentX, y: currentY };
+		this.askAIWindowSize = { width: newWidth, height: newHeight };
 
-			// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
-			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
-			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-			const askAIY = 10 + dynamicIslandHeight + gapFromDynamicIsland;
-
-			this.askAIWindow.setBounds({
-				x: askAIX,
-				y: askAIY,
-				width: newWidth,
-				height: newHeight,
-			});
-			this.askAIWindowPosition = { x: askAIX, y: askAIY };
-			this.askAIWindowSize = { width: newWidth, height: newHeight };
-		}
+		// Make sure ask AI stays on top
+		setTimeout(() => {
+			if (this.askAIWindow && !this.askAIWindow.isDestroyed()) {
+				this.askAIWindow.moveTop();
+			}
+		}, 50);
 	}
 
 	moveWindowLeft() {
@@ -763,8 +728,6 @@ class WindowHelper {
 			}
 		}
 
-
-
 		// Register Cmd+Enter to toggle ask AI window only (independent of main window)
 		const cmdEnterRegistered = globalShortcut.register('CommandOrControl+Return', () => {
 			log.info('Cmd+Enter pressed - toggling ask AI window only');
@@ -829,62 +792,149 @@ class WindowHelper {
 		});
 
 		// Register F12 to toggle developer tools for overlay window
-		const f12Registered = globalShortcut.register('F12', () => {
-			if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
-				if (this.overlayWindow.webContents.isDevToolsOpened()) {
-					this.overlayWindow.webContents.closeDevTools();
-				} else {
-					this.overlayWindow.webContents.openDevTools({ mode: 'detach' });
+		let f12Registered = false;
+		try {
+			f12Registered = globalShortcut.register('F12', () => {
+				log.info('F12 pressed - attempting to open developer tools');
+
+				// First, try to open dev tools for overlay window if visible
+				if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+					log.info('Opening dev tools for overlay window');
+					if (this.overlayWindow.webContents.isDevToolsOpened()) {
+						this.overlayWindow.webContents.closeDevTools();
+					} else {
+						this.overlayWindow.webContents.openDevTools({ mode: 'detach' });
+					}
+					return;
 				}
+
+				// If overlay not visible, try Ask AI window
+				if (
+					this.askAIWindow &&
+					!this.askAIWindow.isDestroyed() &&
+					this.askAIWindow.isVisible()
+				) {
+					log.info('Opening dev tools for Ask AI window');
+					if (this.askAIWindow.webContents.isDevToolsOpened()) {
+						this.askAIWindow.webContents.closeDevTools();
+					} else {
+						this.askAIWindow.webContents.openDevTools({ mode: 'detach' });
+					}
+					return;
+				}
+
+				// If no overlay windows, open for main window
+				const mainWindow =
+					BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
+				if (mainWindow && !mainWindow.isDestroyed()) {
+					log.info('Opening dev tools for main/focused window');
+					if (mainWindow.webContents.isDevToolsOpened()) {
+						mainWindow.webContents.closeDevTools();
+					} else {
+						mainWindow.webContents.openDevTools({ mode: 'detach' });
+					}
+				}
+			});
+		} catch (error) {
+			log.warn(`Failed to register F12 shortcut: ${error.message}`);
+			log.info('F12 may be used by another application - trying alternative Ctrl+F12');
+
+			// Try alternative F12 shortcut
+			try {
+				f12Registered = globalShortcut.register('CommandOrControl+F12', () => {
+					log.info('Ctrl+F12 pressed - attempting to open developer tools');
+
+					// First, try to open dev tools for overlay window if visible
+					if (
+						this.isVisible() &&
+						this.overlayWindow &&
+						!this.overlayWindow.isDestroyed()
+					) {
+						log.info('Opening dev tools for overlay window');
+						if (this.overlayWindow.webContents.isDevToolsOpened()) {
+							this.overlayWindow.webContents.closeDevTools();
+						} else {
+							this.overlayWindow.webContents.openDevTools({ mode: 'detach' });
+						}
+						return;
+					}
+
+					// If overlay not visible, try Ask AI window
+					if (
+						this.askAIWindow &&
+						!this.askAIWindow.isDestroyed() &&
+						this.askAIWindow.isVisible()
+					) {
+						log.info('Opening dev tools for Ask AI window');
+						if (this.askAIWindow.webContents.isDevToolsOpened()) {
+							this.askAIWindow.webContents.closeDevTools();
+						} else {
+							this.askAIWindow.webContents.openDevTools({ mode: 'detach' });
+						}
+						return;
+					}
+
+					// If no overlay windows, open for main window
+					const mainWindow =
+						BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
+					if (mainWindow && !mainWindow.isDestroyed()) {
+						log.info('Opening dev tools for main/focused window');
+						if (mainWindow.webContents.isDevToolsOpened()) {
+							mainWindow.webContents.closeDevTools();
+						} else {
+							mainWindow.webContents.openDevTools({ mode: 'detach' });
+						}
+					}
+				});
+				if (f12Registered) {
+					log.info('✅ Ctrl+F12 shortcut registered as F12 alternative');
+				}
+			} catch (altError) {
+				log.warn(`Failed to register Ctrl+F12 alternative: ${altError.message}`);
 			}
-		});
+		}
 
 		// Register Cmd+Shift+I as alternative for developer tools
 		const cmdShiftIRegistered = globalShortcut.register('CommandOrControl+Shift+I', () => {
+			log.info('Ctrl+Shift+I pressed - attempting to open developer tools');
+
+			// First, try to open dev tools for overlay window if visible
 			if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+				log.info('Opening dev tools for overlay window');
 				if (this.overlayWindow.webContents.isDevToolsOpened()) {
 					this.overlayWindow.webContents.closeDevTools();
 				} else {
 					this.overlayWindow.webContents.openDevTools({ mode: 'detach' });
 				}
+				return;
+			}
+
+			// If overlay not visible, try Ask AI window
+			if (
+				this.askAIWindow &&
+				!this.askAIWindow.isDestroyed() &&
+				this.askAIWindow.isVisible()
+			) {
+				log.info('Opening dev tools for Ask AI window');
+				if (this.askAIWindow.webContents.isDevToolsOpened()) {
+					this.askAIWindow.webContents.closeDevTools();
+				} else {
+					this.askAIWindow.webContents.openDevTools({ mode: 'detach' });
+				}
+				return;
+			}
+
+			// If no overlay windows, open for main window
+			const mainWindow = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				log.info('Opening dev tools for main/focused window');
+				if (mainWindow.webContents.isDevToolsOpened()) {
+					mainWindow.webContents.closeDevTools();
+				} else {
+					mainWindow.webContents.openDevTools({ mode: 'detach' });
+				}
 			}
 		});
-		// const cmdEnterRegistered = globalShortcut.register('CommandOrControl+Enter', () => {
-		// 	log.info('Cmd+Enter pressed - toggling Ask AI window');
-		// 	this.toggleAskAIWindow();
-		// });
-
-		// Log registration status
-		log.info('📊 Global shortcut registration status:');
-		log.info('='.repeat(50));
-		log.info(`🔧 Cmd+\\ (Ctrl+\\): ${cmdBackslashRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
-
-		log.info(
-			`🔧 Cmd+Enter (Ctrl+Enter): ${cmdEnterRegistered ? '✅ REGISTERED' : '❌ FAILED'}`,
-		);
-		log.info(`🔧 Cmd+Left (Ctrl+Left): ${leftRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
-		log.info(`🔧 Cmd+Right (Ctrl+Right): ${rightRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
-		log.info(`🔧 Cmd+Up (Ctrl+Up): ${upRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
-		log.info(`🔧 Cmd+Down (Ctrl+Down): ${downRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
-		log.info(`🔧 F12: ${f12Registered ? '✅ REGISTERED' : '❌ FAILED'}`);
-		log.info(
-			`🔧 Cmd+Shift+I (Ctrl+Shift+I): ${cmdShiftIRegistered ? '✅ REGISTERED' : '❌ FAILED'}`,
-		);
-		log.info('='.repeat(50));
-
-
-
-		app.on('will-quit', () => globalShortcut.unregisterAll());
-		log.info('✅ Global shortcuts registration process completed');
-	}
-
-	// Test function to verify shortcuts are working
-	testShortcuts() {
-		log.info('🧪 Testing global shortcuts...');
-		log.info('🔍 Press Ctrl+\\ (Windows) or Cmd+\\ (macOS) to test main window toggle');
-		log.info('🔍 Press Ctrl+Enter (Windows) or Cmd+Enter (macOS) to test Ask AI toggle');
-		log.info('🔍 Press F12 to test developer tools toggle');
-		log.info('📝 Watch console logs for detailed execution logs');
 
 		// Check if shortcuts are already registered by other apps
 		this.checkShortcutConflicts();
@@ -892,21 +942,18 @@ class WindowHelper {
 
 	// Check for potential shortcut conflicts
 	checkShortcutConflicts() {
-		log.info('🔍 Checking for potential shortcut conflicts...');
-
 		const shortcutsToCheck = [
 			'CommandOrControl+\\',
 			'CommandOrControl+Return',
 			'F12',
+			'CommandOrControl+F12',
+			'CommandOrControl+Shift+I',
 		];
 
 		shortcutsToCheck.forEach((shortcut) => {
 			const isRegistered = globalShortcut.isRegistered(shortcut);
 			log.info(`🔧 ${shortcut}: ${isRegistered ? '✅ REGISTERED' : '❌ NOT REGISTERED'}`);
 		});
-
-		log.info('💡 If shortcuts show as NOT REGISTERED, they may be used by other applications');
-		log.info('🔄 Try closing other applications that might use these shortcuts');
 	}
 
 	// Log system-specific information for debugging
@@ -926,20 +973,14 @@ class WindowHelper {
 			log.info(
 				'     Check System Preferences > Security & Privacy > Privacy > Accessibility',
 			);
-		} else {
-			log.info('   Linux-specific info:');
-			log.info('     Note: Linux global shortcuts should work by default');
 		}
 	}
 
 	// Cleanup method to properly close all windows and resources
 	cleanup() {
-		log.info('🧹 WindowHelper cleanup started...');
-
 		try {
 			// Clean up overlay window
 			if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
-				log.info('🧹 Closing overlay window...');
 				this.overlayWindow.destroy();
 				this.overlayWindow = null;
 				this.isOverlayVisible = false;
@@ -947,7 +988,6 @@ class WindowHelper {
 
 			// Clean up Ask AI window
 			if (this.askAIWindow && !this.askAIWindow.isDestroyed()) {
-				log.info('🧹 Closing Ask AI window...');
 				this.askAIWindow.destroy();
 				this.askAIWindow = null;
 				this.isAskAIVisible = false;
@@ -956,12 +996,9 @@ class WindowHelper {
 			// Unregister all global shortcuts
 			try {
 				globalShortcut.unregisterAll();
-				log.info('✅ WindowHelper global shortcuts unregistered');
 			} catch (error) {
 				log.error('Error unregistering WindowHelper global shortcuts:', error);
 			}
-
-			log.info('✅ WindowHelper cleanup completed');
 		} catch (error) {
 			log.error('Error during WindowHelper cleanup:', error);
 		}

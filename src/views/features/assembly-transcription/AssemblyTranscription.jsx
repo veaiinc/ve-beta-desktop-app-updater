@@ -4,6 +4,7 @@ import { ReactComponent as Mic } from '../../../assets/svg/microphone.svg';
 import { ReactComponent as MuteMic } from '../../../assets/svg/ai_agents/mutemic.svg';
 import { ReactComponent as Close } from '../../../assets/svg/ai_agents/close.svg';
 import useAssemblyTranscription from '../../../hooks/useAssemblyTranscription';
+import { useEffect } from 'react';
 
 const AssemblyTranscription = (props) => {
 	const {

@@ -90,7 +90,12 @@ const ShareAndEarnModal = ({ isOpen, closeModal }) => {
 						<div className="codeInput">
 							<span className="codeText" onClick={handleCopyLink}>
 								{info?.isLoading ? (
-									<Skeleton width={200} height={20} baseColor="var(--card)" highlightColor="gray" />
+									<Skeleton
+										width={200}
+										height={20}
+										baseColor="var(--card)"
+										highlightColor="gray"
+									/>
 								) : (
 									displayValue
 								)}
