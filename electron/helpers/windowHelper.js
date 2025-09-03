@@ -64,7 +64,7 @@ class WindowHelper {
 			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel', // Use normal window type in development
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
-			resizable: false, // Disable resizing 
+			resizable: false, // Disable resizing
 			movable: true, // Explicitly enable window movement
 		};
 
@@ -89,15 +89,9 @@ class WindowHelper {
 			process.env.NODE_ENV === 'development' ||
 			process.env.NODE_ENV?.trim() === 'development';
 
-		log.info(`Environment: ${process.env.NODE_ENV}`);
-		log.info(`Dev URL: ${devURL}`);
-		log.info(`Is Development: ${isDevelopment}`);
-
 		const overlayUrl = isDevelopment
 			? `${devURL}/overlay.html`
 			: `file://${path.join(__dirname, '..', '..', 'build', 'overlay.html')}`;
-
-		log.info(`Loading overlay URL: ${overlayUrl}`);
 
 		this.overlayWindow.loadURL(overlayUrl).catch((err) => {
 			log.error('Failed to load overlay URL:', err);
@@ -146,7 +140,8 @@ class WindowHelper {
 		if (this.askAIWindow !== null) return;
 
 		const primaryDisplay = screen.getPrimaryDisplay();
-		const workArea = primaryDisplay.workAreaSize;c
+		const workArea = primaryDisplay.workAreaSize;
+		c;
 		this.screenWidth = workArea.width;
 		this.screenHeight = workArea.height;
 
@@ -940,40 +935,6 @@ class WindowHelper {
 				}
 			}
 		});
-		// const cmdEnterRegistered = globalShortcut.register('CommandOrControl+Enter', () => {
-		// 	log.info('Cmd+Enter pressed - toggling Ask AI window');
-		// 	this.toggleAskAIWindow();
-		// });
-
-		// Log registration status
-		log.info('📊 Global shortcut registration status:');
-		log.info('='.repeat(50));
-		log.info(`🔧 Cmd+\\ (Ctrl+\\): ${cmdBackslashRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
-
-		log.info(
-			`🔧 Cmd+Enter (Ctrl+Enter): ${cmdEnterRegistered ? '✅ REGISTERED' : '❌ FAILED'}`,
-		);
-		log.info(`🔧 Cmd+Left (Ctrl+Left): ${leftRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
-		log.info(`🔧 Cmd+Right (Ctrl+Right): ${rightRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
-		log.info(`🔧 Cmd+Up (Ctrl+Up): ${upRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
-		log.info(`🔧 Cmd+Down (Ctrl+Down): ${downRegistered ? '✅ REGISTERED' : '❌ FAILED'}`);
-		log.info(`🔧 F12 or Ctrl+F12: ${f12Registered ? '✅ REGISTERED' : '❌ FAILED'}`);
-		log.info(
-			`🔧 Cmd+Shift+I (Ctrl+Shift+I): ${cmdShiftIRegistered ? '✅ REGISTERED' : '❌ FAILED'}`,
-		);
-		log.info('='.repeat(50));
-
-		app.on('will-quit', () => globalShortcut.unregisterAll());
-		log.info('✅ Global shortcuts registration process completed');
-	}
-
-	// Test function to verify shortcuts are working
-	testShortcuts() {
-		log.info('🧪 Testing global shortcuts...');
-		log.info('🔍 Press Ctrl+\\ (Windows) or Cmd+\\ (macOS) to test main window toggle');
-		log.info('🔍 Press Ctrl+Enter (Windows) or Cmd+Enter (macOS) to test Ask AI toggle');
-		log.info('🔍 Press F12 or Ctrl+F12 to test developer tools toggle');
-		log.info('📝 Watch console logs for detailed execution logs');
 
 		// Check if shortcuts are already registered by other apps
 		this.checkShortcutConflicts();
@@ -981,8 +942,6 @@ class WindowHelper {
 
 	// Check for potential shortcut conflicts
 	checkShortcutConflicts() {
-		log.info('🔍 Checking for potential shortcut conflicts...');
-
 		const shortcutsToCheck = [
 			'CommandOrControl+\\',
 			'CommandOrControl+Return',
@@ -995,9 +954,6 @@ class WindowHelper {
 			const isRegistered = globalShortcut.isRegistered(shortcut);
 			log.info(`🔧 ${shortcut}: ${isRegistered ? '✅ REGISTERED' : '❌ NOT REGISTERED'}`);
 		});
-
-		log.info('💡 If shortcuts show as NOT REGISTERED, they may be used by other applications');
-		log.info('🔄 Try closing other applications that might use these shortcuts');
 	}
 
 	// Log system-specific information for debugging
@@ -1017,20 +973,14 @@ class WindowHelper {
 			log.info(
 				'     Check System Preferences > Security & Privacy > Privacy > Accessibility',
 			);
-		} else {
-			log.info('   Linux-specific info:');
-			log.info('     Note: Linux global shortcuts should work by default');
 		}
 	}
 
 	// Cleanup method to properly close all windows and resources
 	cleanup() {
-		log.info('🧹 WindowHelper cleanup started...');
-
 		try {
 			// Clean up overlay window
 			if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
-				log.info('🧹 Closing overlay window...');
 				this.overlayWindow.destroy();
 				this.overlayWindow = null;
 				this.isOverlayVisible = false;
@@ -1038,7 +988,6 @@ class WindowHelper {
 
 			// Clean up Ask AI window
 			if (this.askAIWindow && !this.askAIWindow.isDestroyed()) {
-				log.info('🧹 Closing Ask AI window...');
 				this.askAIWindow.destroy();
 				this.askAIWindow = null;
 				this.isAskAIVisible = false;
@@ -1047,12 +996,9 @@ class WindowHelper {
 			// Unregister all global shortcuts
 			try {
 				globalShortcut.unregisterAll();
-				log.info('✅ WindowHelper global shortcuts unregistered');
 			} catch (error) {
 				log.error('Error unregistering WindowHelper global shortcuts:', error);
 			}
-
-			log.info('✅ WindowHelper cleanup completed');
 		} catch (error) {
 			log.error('Error during WindowHelper cleanup:', error);
 		}

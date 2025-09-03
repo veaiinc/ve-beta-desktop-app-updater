@@ -103,10 +103,6 @@ class DynamicIslandHelper {
 	createDynamicIslandWindow() {
 		if (this.dynamicIslandWindow !== null) return;
 
-		log.info(
-			`Creating Dynamic Island window at ${this.position.x},${this.position.y} with size ${this.expandedSize.width}x${this.expandedSize.height}`,
-		);
-
 		const { BrowserWindow } = require('electron');
 		const path = require('node:path');
 
@@ -171,19 +167,12 @@ class DynamicIslandHelper {
 
 		// Show the window
 		this.dynamicIslandWindow.show();
-		log.info('Dynamic Island window created and shown');
-
-		// Listen for resize events from the renderer
-		this.dynamicIslandWindow.webContents.on('did-finish-load', () => {
-			log.info('Dynamic Island content loaded, setting up resize listener');
-		});
 	}
 
 	expand() {
 		if (!this.dynamicIslandWindow || this.isExpanded) return;
 
 		this.isExpanded = true;
-		log.info('Dynamic Island content expanded (window size remains 555x150)');
 
 		// Enable mouse events when expanded so user can interact with it
 		this.setMouseEventHandling(false);
@@ -193,14 +182,12 @@ class DynamicIslandHelper {
 
 		// Notify renderer - window size stays the same
 		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: true });
-		log.info('Dynamic Island expanded');
 	}
 
 	collapse() {
 		if (!this.dynamicIslandWindow || !this.isExpanded) return;
 
 		this.isExpanded = false;
-		log.info('Dynamic Island content collapsed (window size remains 555x150)');
 
 		// Disable mouse events when collapsed so clicks pass through
 		this.setMouseEventHandling(true);
@@ -210,7 +197,6 @@ class DynamicIslandHelper {
 
 		// Notify renderer - window size stays the same
 		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: false });
-		log.info('Dynamic Island collapsed');
 	}
 
 	setMouseEventHandling(ignore) {
@@ -234,11 +220,6 @@ class DynamicIslandHelper {
 				// On other platforms, just ignore mouse events
 				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore);
 			}
-			log.info(
-				`Dynamic Island mouse events ${
-					ignore ? 'ignored' : 'enabled'
-				} (expanded: ${!ignore}) on ${process.platform}`,
-			);
 		} catch (error) {
 			log.error('Error setting mouse event handling:', error);
 		}
@@ -248,7 +229,6 @@ class DynamicIslandHelper {
 		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
 			this.dynamicIslandWindow.show();
 			this.isVisible = true;
-			log.info('Dynamic Island shown');
 		}
 	}
 
@@ -256,7 +236,6 @@ class DynamicIslandHelper {
 		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
 			this.dynamicIslandWindow.hide();
 			this.isVisible = false;
-			log.info('Dynamic Island hidden');
 		}
 	}
 
@@ -293,9 +272,6 @@ class DynamicIslandHelper {
 
 		// Update window position
 		this.dynamicIslandWindow.setPosition(this.position.x, this.position.y);
-		log.info(
-			`Dynamic Island repositioned for ${process.platform} at ${this.position.x},${this.position.y}`,
-		);
 	}
 
 	focus() {
@@ -304,7 +280,6 @@ class DynamicIslandHelper {
 				// Focus the window and bring it to front
 				this.dynamicIslandWindow.focus();
 				this.dynamicIslandWindow.show();
-				log.info('Dynamic Island window focused');
 			} catch (error) {
 				log.error('Error focusing Dynamic Island window:', error);
 			}
@@ -312,11 +287,8 @@ class DynamicIslandHelper {
 	}
 
 	destroy() {
-		log.info('🧹 DynamicIslandHelper destroy started...');
-
 		try {
 			if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
-				log.info('🧹 Destroying Dynamic Island window...');
 				this.dynamicIslandWindow.destroy();
 				this.dynamicIslandWindow = null;
 			}
@@ -324,8 +296,6 @@ class DynamicIslandHelper {
 			// Reset state
 			this.isExpanded = false;
 			this.isVisible = false;
-
-			log.info('✅ DynamicIslandHelper destroy completed');
 		} catch (error) {
 			log.error('Error destroying DynamicIslandHelper:', error);
 		}
@@ -345,12 +315,10 @@ autoUpdater.logger.transports.file.level = 'info';
 if (process.platform === 'win32') {
 	// Enable auto-download for both dev and production
 	autoUpdater.autoDownload = true;
-	log.info('Windows auto-updater configured with auto-download for all environments');
 }
 
 // Update event forwarding
 autoUpdater.on('checking-for-update', () => {
-	log.info('Checking for updates...');
 	mainWindow?.webContents.send('update-status', { status: 'checking' });
 });
 
@@ -365,7 +333,6 @@ autoUpdater.on('update-available', (info) => {
 
 	// If auto-download is disabled, start manual download
 	if (!autoUpdater.autoDownload) {
-		log.info('Auto-download disabled, starting manual download...');
 		autoUpdater.downloadUpdate().catch((downloadErr) => {
 			log.error('Manual download failed:', downloadErr);
 			mainWindow?.webContents.send('update-status', {
@@ -812,7 +779,6 @@ app.whenReady().then(() => {
 	// Set default permissions for clipboard access
 	session.defaultSession.setPermissionCheckHandler((webContents, permission) => {
 		if (permission === 'clipboard-read' || permission === 'clipboard-write') {
-			log.info('Permission check for clipboard:', permission);
 			return true;
 		}
 		return false;
