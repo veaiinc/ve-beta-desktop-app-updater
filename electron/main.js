@@ -1,4 +1,5 @@
 // main.js
+import debug from 'electron-debug';
 const {
 	app,
 	BrowserWindow,
@@ -682,6 +683,15 @@ function createTray() {
 
 // App lifecycle
 app.whenReady().then(() => {
+	// Enable DevTools only in development (unpackaged app)
+	if (!app.isPackaged) {
+		debug({ showDevTools: true });
+		log.info(
+			'🔧 DevTools enabled - Use Ctrl+Shift+I or F12 to inspect any window (Development only)',
+		);
+	} else {
+		log.info('🔒 DevTools disabled in production');
+	}
 	// Set up permission request handler for microphone access
 	session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
 		const allowedPermissions = [
@@ -828,6 +838,21 @@ app.whenReady().then(() => {
 		log.info('✅ Cmd+I shortcut registered successfully for dynamic island');
 	} else {
 		log.error('❌ Failed to register Cmd+I shortcut for dynamic island');
+	}
+
+	// Register F12 for DevTools on focused window
+	const f12Registered = globalShortcut.register('F12', () => {
+		const focusedWindow = BrowserWindow.getFocusedWindow();
+		if (focusedWindow) {
+			focusedWindow.webContents.toggleDevTools();
+			log.info('DevTools toggled for:', focusedWindow.getTitle());
+		}
+	});
+
+	if (f12Registered) {
+		log.info('✅ F12 shortcut registered for DevTools');
+	} else {
+		log.error('❌ Failed to register F12 shortcut');
 	}
 
 	// Check if global shortcuts are working (especially important on macOS)

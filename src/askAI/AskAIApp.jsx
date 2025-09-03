@@ -2,10 +2,12 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { X, Send, Copy, ChevronDown, ChevronUp } from 'lucide-react';
 import './askAI.scss';
 import { useAskAISocket } from './socketState';
+import { Square } from 'lucide-react';
 import ObjectID from 'bson-objectid';
 import { getLocationsDetails } from '../helpers';
 import { AskAIMarkdown } from '../helpers/markdownHelper';
 import { copyToClipboard } from '../helpers/clipboardHelper';
+import Spinner from '../views/components/loaders/Spinner';
 
 const sessionId = ObjectID().toString();
 
@@ -589,14 +591,16 @@ const AskAIApp = () => {
 						rows={1}
 					/>
 
-					<button
-						className={`ask-ai-input__submit ${inputValue.trim() ? 'active' : ''}`}
-						onClick={() => handleSubmit()}
-						disabled={!inputValue.trim() || isLoading}
-						title="Ask"
-					>
-						Ask
-					</button>
+					{
+						<button
+							className={`ask-ai-input__submit ${inputValue.trim() ? 'active' : ''}`}
+							onClick={() => handleSubmit()}
+							disabled={!inputValue.trim() || isLoading}
+							title="Ask"
+						>
+							{isLoading ? <Square size={20} /> : 'Ask'}
+						</button>
+					}
 				</div>
 			</div>
 		</div>
