@@ -21,6 +21,8 @@ const {
 	safeExtractImageMetadata,
 } = require('./windowsCompatibility');
 
+const meetingMonitor = require('./notificationHelper'); // Adjust path if needed
+
 // Gallery processing functions will be loaded lazily when needed
 let galleryHelper = null;
 
@@ -83,10 +85,10 @@ class DynamicIslandHelper {
 		// Position at center top - use expanded size for positioning
 		this.position.x =
 			Math.floor(this.screenWidth / 2) - Math.floor(this.expandedSize.width / 2);
-		
+
 		// Platform-specific positioning
 		if (process.platform === 'win32') {
-			this.position.y=0; // Higher position on Windows
+			this.position.y = 0; // Higher position on Windows
 		} else {
 			this.position.y = 30; // Normal position on Mac/Linux
 		}
@@ -285,7 +287,9 @@ class DynamicIslandHelper {
 
 		// Update window position
 		this.dynamicIslandWindow.setPosition(this.position.x, this.position.y);
-		log.info(`Dynamic Island repositioned for ${process.platform} at ${this.position.x},${this.position.y}`);
+		log.info(
+			`Dynamic Island repositioned for ${process.platform} at ${this.position.x},${this.position.y}`,
+		);
 	}
 
 	focus() {
@@ -346,13 +350,13 @@ autoUpdater.on('checking-for-update', () => {
 
 autoUpdater.on('update-available', (info) => {
 	log.info('Update available:', info);
-	
+
 	// Notify frontend that update is available
 	mainWindow?.webContents.send('update-status', {
 		status: 'download-started',
 		version: info.version,
 	});
-	
+
 	// If auto-download is disabled, start manual download
 	if (!autoUpdater.autoDownload) {
 		log.info('Auto-download disabled, starting manual download...');
@@ -376,17 +380,17 @@ autoUpdater.on('update-not-available', (info) => {
 
 autoUpdater.on('error', (err) => {
 	log.error('Update error:', err);
-	
+
 	// Handle Windows checksum mismatch specifically
 	if (err.message.includes('checksum mismatch') || err.code === 'ERR_CHECKSUM_MISMATCH') {
 		log.warn('Checksum mismatch detected - this may be due to unsigned builds on Windows');
 		mainWindow?.webContents.send('update-status', {
 			status: 'checksum-error',
 			error: 'Update verification failed. This may be due to unsigned builds.',
-			details: { 
-				code: err.code, 
+			details: {
+				code: err.code,
 				errno: err.errno,
-				suggestion: 'Manual download may be required'
+				suggestion: 'Manual download may be required',
 			},
 		});
 	} else {
@@ -400,14 +404,14 @@ autoUpdater.on('error', (err) => {
 
 autoUpdater.on('update-downloaded', (info) => {
 	log.info('Update downloaded:', info);
-	
+
 	// Show user-friendly message
 	mainWindow?.webContents.send('update-status', {
 		status: 'download-completed',
 		version: info.version,
 		message: 'Update ready! App will restart in 3 seconds...',
 	});
-	
+
 	// Auto-restart after 3 seconds
 	setTimeout(() => {
 		log.info('Restarting app to install update...');
@@ -547,40 +551,40 @@ ipcMain.handle('restart-app', () => {
 	return { success: true };
 });
 
-	// Add manual download handler for Windows checksum issues
-	ipcMain.handle('force-download-update', async () => {
-		if (process.env.NODE_ENV === 'development') {
-			return { success: false, error: 'Not available in dev' };
-		}
-		
-		try {
-			log.info('Force downloading update (skipping checksum verification)...');
-			
-			// Temporarily disable autoDownload if it was enabled
-			const originalAutoDownload = autoUpdater.autoDownload;
-			autoUpdater.autoDownload = false;
-			
-			// Start download
-			await autoUpdater.downloadUpdate();
-			
-			// Restore original setting
-			autoUpdater.autoDownload = originalAutoDownload;
-			
-			return { success: true, message: 'Force download initiated' };
-		} catch (error) {
-			log.error('Force download failed:', error);
-			return { success: false, error: error.message };
-		}
-	});
+// Add manual download handler for Windows checksum issues
+ipcMain.handle('force-download-update', async () => {
+	if (process.env.NODE_ENV === 'development') {
+		return { success: false, error: 'Not available in dev' };
+	}
 
-	// Dynamic Island repositioning handler
-	ipcMain.handle('reposition-dynamic-island', () => {
-		if (dynamicIslandHelper) {
-			dynamicIslandHelper.repositionForPlatform();
-			return { success: true, platform: process.platform };
-		}
-		return { success: false, error: 'Dynamic Island helper not available' };
-	});
+	try {
+		log.info('Force downloading update (skipping checksum verification)...');
+
+		// Temporarily disable autoDownload if it was enabled
+		const originalAutoDownload = autoUpdater.autoDownload;
+		autoUpdater.autoDownload = false;
+
+		// Start download
+		await autoUpdater.downloadUpdate();
+
+		// Restore original setting
+		autoUpdater.autoDownload = originalAutoDownload;
+
+		return { success: true, message: 'Force download initiated' };
+	} catch (error) {
+		log.error('Force download failed:', error);
+		return { success: false, error: error.message };
+	}
+});
+
+// Dynamic Island repositioning handler
+ipcMain.handle('reposition-dynamic-island', () => {
+	if (dynamicIslandHelper) {
+		dynamicIslandHelper.repositionForPlatform();
+		return { success: true, platform: process.platform };
+	}
+	return { success: false, error: 'Dynamic Island helper not available' };
+});
 
 ipcMain.handle('desktop:capture-screen', async () => {
 	try {
@@ -656,7 +660,6 @@ function createWindow() {
 	mainWindow.once('ready-to-show', () => {
 		mainWindow.show();
 		log.info('Window ready-to-show');
-		
 		// Enable developer tools for main window in both development and production
 		log.info('Dev tools available with F12, Ctrl+F12, or Ctrl+Shift+I in all modes');
 	});
@@ -692,7 +695,7 @@ function createTray() {
 			path.join(__dirname, 'assets', 've-black-circle-logo.png'), // Built app
 			path.join(__dirname, '..', 'public', 've-black-circle-logo.png'), // Fallback
 		];
-		
+
 		// Find the first path that exists
 		const fs = require('fs');
 		for (const testPath of possiblePaths) {
@@ -701,7 +704,7 @@ function createTray() {
 				break;
 			}
 		}
-		
+
 		if (!iconPath) {
 			log.warn('Tray icon not found, skipping tray creation');
 			return;
@@ -850,15 +853,8 @@ app.whenReady().then(() => {
 		}, 4000);
 	}
 
-	let lastNotificationTime = 0;
-	const NOTIFICATION_INTERVAL = 60 * 1000; // 10 minutes
-
-	ipcMain.on('mic-activity-detected', (event, data) => {
-		const now = Date.now();
-		if (now - lastNotificationTime < NOTIFICATION_INTERVAL) return;
-		lastNotificationTime = now;
-		showNotification('Meeting Detected', 'Want V.E. Bot to join?');
-	});
+	meetingMonitor.setNotificationHandler(showNotification);
+	meetingMonitor.startMeetingMonitor();
 
 	// 🎤 IPC: Start Mic Monitoring
 
@@ -897,19 +893,6 @@ app.whenReady().then(() => {
 		handleNotificationAction('join-meet'); // This will now work
 	}
 
-	mainWindow.webContents.once('did-finish-load', () => {
-		mainWindow.webContents.send('start-mic-monitoring');
-	});
-
-	// Optional: Fallback in case it never fires
-	setTimeout(() => {
-		if (mainWindow && !mainWindow.isDestroyed()) {
-			const hasFinished = mainWindow.webContents.isLoading();
-			if (!hasFinished) {
-				mainWindow.webContents.send('start-mic-monitoring');
-			}
-		}
-	}, 5000);
 	// Register global shortcut for dynamic island (Cmd+I)
 	const { globalShortcut } = require('electron');
 	const cmdIRegistered = globalShortcut.register('CommandOrControl+I', () => {
@@ -1862,7 +1845,7 @@ app.whenReady().then(() => {
 		try {
 			const { targetWindow = 'current', mode = 'detach' } = options;
 			let window = null;
-			
+
 			if (targetWindow === 'current') {
 				// Use the window that sent the request
 				window = BrowserWindow.fromWebContents(event.sender);
@@ -1873,7 +1856,7 @@ app.whenReady().then(() => {
 			} else if (targetWindow === 'askAI') {
 				window = windowHelper?.getAskAIWindow();
 			}
-			
+
 			if (window && !window.isDestroyed()) {
 				if (window.webContents.isDevToolsOpened()) {
 					window.webContents.closeDevTools();
@@ -1882,7 +1865,10 @@ app.whenReady().then(() => {
 					window.webContents.openDevTools({ mode });
 					log.info(`Opened dev tools for ${targetWindow} window in ${mode} mode`);
 				}
-				return { success: true, action: window.webContents.isDevToolsOpened() ? 'opened' : 'closed' };
+				return {
+					success: true,
+					action: window.webContents.isDevToolsOpened() ? 'opened' : 'closed',
+				};
 			} else {
 				return { success: false, error: `${targetWindow} window not available` };
 			}

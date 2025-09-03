@@ -1,73 +1,7 @@
 // preload.js
 const { contextBridge, ipcRenderer } = require('electron/renderer');
 
-// 🎤 Private internal API (only available in renderer)
-window.electronInternal = {
-	async startMicMonitoring() {
-		try {
-			// ✅ Now safe: we are in renderer context
-			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-			// Setup Web Audio API
-			const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-			const analyser = audioContext.createAnalyser();
-			analyser.fftSize = 2048;
-			const source = audioContext.createMediaStreamSource(stream);
-			source.connect(analyser);
-
-			const buffer = new Uint8Array(analyser.frequencyBinCount);
-			let isMonitoring = true;
-
-			// VAD Settings
-			const SPEAKING_THRESHOLD = 0.01;
-			let speakingFrameCount = 0;
-			const MIN_FRAMES = 3;
-
-			const checkAudio = () => {
-				if (!isMonitoring) return;
-
-				analyser.getByteFrequencyData(buffer);
-				const rms = computeRMS(buffer);
-
-				if (rms > SPEAKING_THRESHOLD) {
-					speakingFrameCount++;
-					if (speakingFrameCount >= MIN_FRAMES) {
-						// Send event to main process
-						ipcRenderer.send('mic-activity-detected', { rms, timestamp: Date.now() });
-
-						// Prevent spam
-						speakingFrameCount = MIN_FRAMES;
-					}
-				} else {
-					speakingFrameCount = 0;
-				}
-
-				requestAnimationFrame(checkAudio);
-			};
-
-			checkAudio();
-
-			// Return stop function if needed
-			return {
-				stop: () => {
-					isMonitoring = false;
-				},
-			};
-		} catch (err) {
-			ipcRenderer.send('mic-error', { message: err.message });
-		}
-	},
-};
-
 // Helper
-function computeRMS(data) {
-	let sum = 0;
-	for (let i = 0; i < data.length; i++) {
-		const v = data[i] / 255;
-		sum += v * v;
-	}
-	return Math.sqrt(sum / data.length);
-}
 
 contextBridge.exposeInMainWorld('electronApi', {
 	send(channel, data) {
