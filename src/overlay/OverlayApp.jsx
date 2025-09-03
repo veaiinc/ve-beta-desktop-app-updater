@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState, useCallback, useContext } from 'rea
 import Context from '../context/context';
 import useLiveIntelligenceStream from '../hooks/useLiveIntelligenceStream';
 import useRecallStream from '../hooks/useRecallStream';
+import useMeetingAudioRecorder from '../hooks/useMeetingAudioRecorder';
+import audioStorageService from '../services/audioStorageService';
 import ObjectID from 'bson-objectid';
 import OverlayCommands from './OverlayCommands';
 import ShortcutBar from './components/ShortcutBar';
@@ -45,6 +47,7 @@ const OverlayApp = () => {
 	const isMountedRef = useRef(false);
 	const sessionIdRef = useRef(null);
 	const isStoppingRef = useRef(false);
+	const meetingIdRef = useRef(null);
 
 	// Context
 	const {
@@ -164,6 +167,19 @@ const OverlayApp = () => {
 		onLiveIntelligenceResponse: handleTranscriptionSuggestions,
 	});
 
+	// Audio recording hook for local audio storage
+	const meetingId = info.meetingData?._id || null;
+	console.log('OverlayApp: Current meeting ID:', meetingId);
+	
+	const {
+		isRecording: isAudioRecording,
+		startRecording: startAudioRecording,
+		stopRecording: stopAudioRecording,
+		audioBlob,
+		recordingDuration,
+		error: audioError,
+	} = useMeetingAudioRecorder(meetingId);
+
 	const { closeWebSocketConnection: closeLiveIntelligenceConnection } =
 		useLiveIntelligenceStream();
 
@@ -228,6 +244,8 @@ const OverlayApp = () => {
 			console.log('Meeting created successfully:', meetingData);
 
 			// Store meeting data and ID for later use
+			meetingIdRef.current = meetingData._id;
+			console.log('OverlayApp: Stored meeting ID in ref:', meetingData._id);
 
 			setInfo((prev) => ({
 				...prev,
@@ -242,6 +260,16 @@ const OverlayApp = () => {
 				jwtToken: localStorage.getItem('usertoken'),
 				isAiIntelligenceEnabled: meetingData.isAiIntelligenceEnabled,
 			});
+
+			// Start audio recording for local storage
+			try {
+				console.log('OverlayApp: Starting audio recording for meeting:', meetingData._id);
+				console.log('OverlayApp: startAudioRecording function available:', typeof startAudioRecording);
+				await startAudioRecording();
+				console.log('OverlayApp: Audio recording started successfully');
+			} catch (error) {
+				console.error('OverlayApp: Error starting audio recording:', error);
+			}
 
 			updateStateValues({ aiTranscriptionSuggestions: null });
 
@@ -272,11 +300,25 @@ const OverlayApp = () => {
 		// Set stopping flag to prevent further processing
 		isStoppingRef.current = true;
 
+		// Use stored meeting ID from ref (more reliable than state)
+		const currentMeetingId = meetingIdRef.current;
+		console.log('OverlayApp: Using meeting ID from ref:', currentMeetingId);
+
 		sessionIdRef.current = null;
 
 		stopRecording();
 		closeLiveIntelligenceConnection();
 		closeRecallConnection();
+
+		// Stop audio recording for local storage
+		try {
+			console.log('OverlayApp: Stopping audio recording for meeting:', currentMeetingId);
+			console.log('OverlayApp: stopAudioRecording function available:', typeof stopAudioRecording);
+			stopAudioRecording();
+			console.log('OverlayApp: Audio recording stopped successfully');
+		} catch (error) {
+			console.error('OverlayApp: Error stopping audio recording:', error);
+		}
 
 		setInfo((prev) => ({
 			...prev,
@@ -296,6 +338,8 @@ const OverlayApp = () => {
 		setTimeout(() => {
 			isStoppingRef.current = false;
 		}, 100);
+
+		// Note: meetingIdRef will be cleared after audio is successfully saved
 	};
 
 	const handleTogglePause = () => {
@@ -668,6 +712,35 @@ const OverlayApp = () => {
 			}));
 		}
 	}, [aiTranscriptionSuggestions]);
+
+	// Save audio when recording stops
+	useEffect(() => {
+		const saveAudio = async () => {
+			// Use the meeting ID from the ref (which should persist until after saving)
+			const currentMeetingId = meetingIdRef.current;
+			console.log('OverlayApp: Audio save useEffect triggered - audioBlob:', !!audioBlob, 'isAudioRecording:', isAudioRecording, 'meetingId:', currentMeetingId);
+			if (audioBlob && !isAudioRecording && currentMeetingId) {
+				try {
+					console.log('OverlayApp: Saving audio for meeting:', currentMeetingId, 'Blob size:', audioBlob.size);
+					const result = await audioStorageService.saveAudio(currentMeetingId, audioBlob);
+					if (result.success) {
+						console.log('OverlayApp: Audio saved successfully:', result.filePath);
+						// Clear the meeting ID ref ONLY after successful save
+						meetingIdRef.current = null;
+						console.log('OverlayApp: Cleared meeting ID ref after successful audio save');
+					} else {
+						console.error('OverlayApp: Failed to save audio:', result.error);
+					}
+				} catch (error) {
+					console.error('OverlayApp: Error saving audio:', error);
+				}
+			} else if (audioBlob && !isAudioRecording && !currentMeetingId) {
+				console.error('OverlayApp: Cannot save audio - no meeting ID available');
+			}
+		};
+
+		saveAudio();
+	}, [audioBlob, isAudioRecording]);
 
 	return (
 		<div

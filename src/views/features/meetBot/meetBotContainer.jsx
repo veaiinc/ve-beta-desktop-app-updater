@@ -3,11 +3,14 @@ import { useLocation, useParams, useSearchParams } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
 import Context from '../../../context/context';
 import useRecallStream from '../../../hooks/useRecallStream';
+import useMeetingAudioRecorder from '../../../hooks/useMeetingAudioRecorder';
 import TranscriptionTabs from '../../components/notes/TranscriptionTabs';
 import MeetSummary from '../notesModule/MeetSummary';
 import NoteTakerTranscript from '../notesModule/NoteTakerTranscript';
 import AiTranscriptionSuggestions from '../../components/chat/AiTranscriptionSuggestions';
 import TranscriptionWrapper from '../notesModule/TranscriptionWrapper';
+import AudioPlayback from '../../components/notes/AudioPlayback';
+import audioStorageService from '../../../services/audioStorageService';
 import '../../../assets/scss/notes/noteComponent.scss';
 import { ReactComponent as ShareIcon } from '../../../assets/svg/docs/meetshare.svg';
 import { ReactComponent as DotIcon } from '../../../assets/svg/docs/dot.svg';
@@ -33,6 +36,8 @@ const initialState = {
 	botJoined: false,
 	botJoinedTime: 0,
 	meetingPlatform: '',
+	hasAudioRecording: false,
+	audioRecordingStarted: false,
 };
 
 const getSpeakerColor = (speakerName) => {
@@ -80,6 +85,20 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	const isAiIntelligenceEnabled =
 		searchParams.get('isAiIntelligenceEnabled') === 'true' ? true : false;
 
+	// Audio recording hook
+	const {
+		isRecording,
+		startRecording,
+		stopRecording,
+		pauseRecording,
+		resumeRecording,
+		audioBlob,
+		recordingDuration,
+		error: audioError,
+		getAudioInfo,
+		formatDuration,
+	} = useMeetingAudioRecorder(meetingId);
+
 	const {
 		notes: {
 			getMeetTranscriptHistory,
@@ -103,6 +122,66 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	const [transcriptList, setTranscriptList] = useState([]);
 	const [activeTab, setActiveTab] = useState(type === 'desktop' ? 'all' : 'all');
 	const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
+	// Check if audio recording exists for this meeting
+	const checkAudioRecording = useCallback(async () => {
+		try {
+			console.log('Checking audio recording for meeting:', meetingId);
+			const hasAudio = await audioStorageService.hasAudio(meetingId);
+			console.log('Audio recording exists:', hasAudio);
+			setInfo((prev) => ({ ...prev, hasAudioRecording: hasAudio }));
+		} catch (error) {
+			console.error('Error checking audio recording:', error);
+		}
+	}, [meetingId]);
+
+	// Save audio when recording stops
+	const saveAudioRecording = useCallback(async () => {
+		if (!audioBlob) {
+			console.log('No audio blob to save');
+			return;
+		}
+
+		try {
+			console.log('Saving audio for meeting:', meetingId, 'Blob size:', audioBlob.size);
+			const result = await audioStorageService.saveAudio(meetingId, audioBlob);
+			if (result.success) {
+				setInfo((prev) => ({ ...prev, hasAudioRecording: true }));
+				console.log('Audio saved successfully:', result.filePath);
+			} else {
+				console.error('Failed to save audio:', result.error);
+			}
+		} catch (error) {
+			console.error('Error saving audio:', error);
+		}
+	}, [audioBlob, meetingId]);
+
+	// Start audio recording when meeting starts (for live meetings)
+	const initializeAudioRecording = useCallback(async () => {
+		console.log('initializeAudioRecording called - history:', history, 'audioRecordingStarted:', info.audioRecordingStarted);
+		if (!history && !info.audioRecordingStarted) {
+			try {
+				console.log('Starting audio recording for meeting:', meetingId);
+				await startRecording();
+				setInfo((prev) => ({ ...prev, audioRecordingStarted: true }));
+				console.log('Audio recording started successfully');
+			} catch (error) {
+				console.error('Error starting audio recording:', error);
+			}
+		}
+	}, [history, info.audioRecordingStarted, startRecording, meetingId]);
+
+	// Stop audio recording when meeting ends
+	const stopAudioRecording = useCallback(async () => {
+		if (isRecording) {
+			try {
+				await stopRecording();
+				// Audio will be saved automatically when recording stops
+			} catch (error) {
+				console.error('Error stopping audio recording:', error);
+			}
+		}
+	}, [isRecording, stopRecording]);
 	const [isLoadingMeetingDetails, setIsLoadingMeetingDetails] = useState(false);
 	const [meetingNotFound, setMeetingNotFound] = useState(false);
 	const location = useLocation();
@@ -537,6 +616,40 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		}
 	}, [activeTab]);
 
+	// Check for existing audio recording when component mounts
+	useEffect(() => {
+		if (meetingId) {
+			checkAudioRecording();
+		}
+	}, [meetingId, checkAudioRecording]);
+
+	// Save audio when recording stops
+	useEffect(() => {
+		if (audioBlob && !isRecording) {
+			saveAudioRecording();
+		}
+	}, [audioBlob, isRecording, saveAudioRecording]);
+
+	// Start audio recording for live meetings
+	useEffect(() => {
+		if (!history && meetingId && !info.audioRecordingStarted) {
+			// Small delay to ensure meeting is properly initialized
+			const timer = setTimeout(() => {
+				initializeAudioRecording();
+			}, 2000);
+			return () => clearTimeout(timer);
+		}
+	}, [history, meetingId, info.audioRecordingStarted, initializeAudioRecording]);
+
+	// Cleanup audio recording on unmount
+	useEffect(() => {
+		return () => {
+			if (isRecording) {
+				stopAudioRecording();
+			}
+		};
+	}, [isRecording, stopAudioRecording]);
+
 	const handleInfoChange = (data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
 	};
@@ -606,8 +719,14 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						history={history}
 						allSuggestions={info?.allSuggestions}
 						type={type}
+						hasAudioRecording={info?.hasAudioRecording}
 					/>
 				)}
+				{/* Debug info */}
+				{(() => {
+					console.log('TranscriptionTabs props - hasAudioRecording:', info?.hasAudioRecording, 'history:', history);
+					return null;
+				})()}
 				{showTranscriptTabs &&
 					activeTab === 'transcript' &&
 					(type === 'desktop' || type === 'meeting_bot') && (
@@ -676,6 +795,10 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					)}
 				{showTranscriptTabs && activeTab === 'summary' && (
 					<MeetSummary activeTab={activeTab} meetingId={meetingId} />
+				)}
+
+				{showTranscriptTabs && activeTab === 'audio' && (
+					<AudioPlayback meetingId={meetingId} />
 				)}
 
 				{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
