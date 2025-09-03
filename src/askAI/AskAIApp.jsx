@@ -395,7 +395,12 @@ const AskAIApp = () => {
 
 	const handleKeyDown = (e) => {
 		if (e.key === 'Enter' && !e.shiftKey) {
-			handleSubmit();
+			e.preventDefault();
+
+			// Only submit if NOT loading and has input text
+			if (!isLoading && inputValue.trim()) {
+				handleSubmit();
+			}
 		}
 	};
 
@@ -525,7 +530,6 @@ const AskAIApp = () => {
 				</div>
 			)}
 
-
 			{/* Input Bar - Botdtom */}
 			<div className="ask-ai-input">
 				{/* Dynamic Island Message Indicator */}
@@ -581,7 +585,7 @@ const AskAIApp = () => {
 						placeholder="Ask about this"
 						value={inputValue}
 						onChange={(e) => setInputValue(e.target.value)}
-						onKeyDown={response && handleKeyDown}
+						onKeyDown={handleKeyDown}
 						rows={1}
 					/>
 
