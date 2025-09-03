@@ -41,3 +41,7 @@ build-and-notarize.sh
 
 *.md
 *.sh
+
+notchdrop-addon/build
+notchdrop-addon/build_swift
+notchdrop-addon/dist
