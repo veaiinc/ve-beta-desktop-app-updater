@@ -29,19 +29,25 @@ class SwiftJSBridge {
 
 	setupSwiftActionHandlers() {
 		// Map Swift actions to JavaScript UI control functions
-		this.swiftActionHandlers.set('startRecording', (data) => {
+		this.swiftActionHandlers.set('startRecording', async (data) => {
+			// Try overlay first for reliability, then update UI
+			await this.triggerOverlayRecording(data);
 			this.controlJavaScriptUI('startRecording', data);
 		});
 
-		this.swiftActionHandlers.set('stopRecording', (data) => {
+		this.swiftActionHandlers.set('stopRecording', async (data) => {
+			// Ensure overlay is stopped even if UI window isn't present
+			await this.triggerOverlayStopRecording(data);
 			this.controlJavaScriptUI('stopRecording', data);
 		});
 
-		this.swiftActionHandlers.set('pauseRecording', (data) => {
+		this.swiftActionHandlers.set('pauseRecording', async (data) => {
+			await this.triggerOverlayPauseRecording(data);
 			this.controlJavaScriptUI('pauseRecording', data);
 		});
 
-		this.swiftActionHandlers.set('resumeRecording', (data) => {
+		this.swiftActionHandlers.set('resumeRecording', async (data) => {
+			await this.triggerOverlayResumeRecording(data);
 			this.controlJavaScriptUI('resumeRecording', data);
 		});
 
@@ -223,6 +229,105 @@ class SwiftJSBridge {
 			return { success: true };
 		} catch (error) {
 			console.error('❌ Error triggering overlay recording:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	async triggerOverlayStopRecording(data) {
+		try {
+			console.log('⏹️ Triggering overlay stop recording from Swift-JS bridge');
+
+			try {
+				const { ipcRenderer } = require('electron');
+				if (ipcRenderer) {
+					const result = await ipcRenderer.invoke('notchdrop:triggerOverlayStopRecording');
+					console.log('✅ Overlay stop recording result:', result);
+				}
+			} catch (e) {
+				console.log('Running in main process, using direct window communication');
+				const { BrowserWindow } = require('electron');
+				const windows = BrowserWindow.getAllWindows();
+				for (const window of windows) {
+					if (window.webContents && !window.isDestroyed()) {
+						const title = window.getTitle();
+						if (title.includes('Overlay') || title.includes('Live Intelligence')) {
+							window.webContents.send('overlay-command', { action: 'stopRecording' });
+							console.log('✅ Overlay stop command sent directly to window');
+							break;
+						}
+					}
+				}
+			}
+
+			return { success: true };
+		} catch (error) {
+			console.error('❌ Error triggering overlay stop recording:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	async triggerOverlayPauseRecording(data) {
+		try {
+			console.log('⏸️ Triggering overlay pause recording from Swift-JS bridge');
+
+			try {
+				const { ipcRenderer } = require('electron');
+				if (ipcRenderer) {
+					const result = await ipcRenderer.invoke('notchdrop:triggerOverlayPauseRecording');
+					console.log('✅ Overlay pause recording result:', result);
+				}
+			} catch (e) {
+				console.log('Running in main process, using direct window communication');
+				const { BrowserWindow } = require('electron');
+				const windows = BrowserWindow.getAllWindows();
+				for (const window of windows) {
+					if (window.webContents && !window.isDestroyed()) {
+						const title = window.getTitle();
+						if (title.includes('Overlay') || title.includes('Live Intelligence')) {
+							window.webContents.send('overlay-command', { action: 'pauseRecording' });
+							console.log('✅ Overlay pause command sent directly to window');
+							break;
+						}
+					}
+				}
+			}
+
+			return { success: true };
+		} catch (error) {
+			console.error('❌ Error triggering overlay pause recording:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	async triggerOverlayResumeRecording(data) {
+		try {
+			console.log('▶️ Triggering overlay resume recording from Swift-JS bridge');
+
+			try {
+				const { ipcRenderer } = require('electron');
+				if (ipcRenderer) {
+					const result = await ipcRenderer.invoke('notchdrop:triggerOverlayResumeRecording');
+					console.log('✅ Overlay resume recording result:', result);
+				}
+			} catch (e) {
+				console.log('Running in main process, using direct window communication');
+				const { BrowserWindow } = require('electron');
+				const windows = BrowserWindow.getAllWindows();
+				for (const window of windows) {
+					if (window.webContents && !window.isDestroyed()) {
+						const title = window.getTitle();
+						if (title.includes('Overlay') || title.includes('Live Intelligence')) {
+							window.webContents.send('overlay-command', { action: 'resumeRecording' });
+							console.log('✅ Overlay resume command sent directly to window');
+							break;
+						}
+					}
+				}
+			}
+
+			return { success: true };
+		} catch (error) {
+			console.error('❌ Error triggering overlay resume recording:', error);
 			return { success: false, error: error.message };
 		}
 	}

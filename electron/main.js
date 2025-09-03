@@ -1212,6 +1212,23 @@ app.whenReady().then(async () => {
 	});
 
 	// Swift UI -> AskAI chat submission (bypass IPC, reuse windowHelper directly)
+	async function waitForAskAIReady(win) {
+		try {
+			if (!win || win.isDestroyed()) return false;
+			const wc = win.webContents;
+			if (!wc || wc.isDestroyed()) return false;
+			if (wc.isLoading && wc.isLoading()) {
+				await new Promise((resolve) => wc.once('did-finish-load', resolve));
+			}
+			// tiny buffer to allow React to mount listeners
+			await new Promise((r) => setTimeout(r, 200));
+			return true;
+		} catch (e) {
+			log.warn('⚠️ waitForAskAIReady error:', e);
+			return false;
+		}
+	}
+
 	process.on('swift-ui-submit-chat', async (chatMessage) => {
 		try {
 			log.info('💬 Received Swift UI chat for AskAI:', chatMessage);
@@ -1223,17 +1240,34 @@ app.whenReady().then(async () => {
 			let askAIWindow = windowHelper.getAskAIWindow();
 			if (!askAIWindow || askAIWindow.isDestroyed()) {
 				windowHelper.createAskAIWindow();
-				await new Promise((r) => setTimeout(r, 500));
+				// Wait for the window to load fully
+				await new Promise((r) => setTimeout(r, 100));
 				askAIWindow = windowHelper.getAskAIWindow();
+				if (askAIWindow) {
+					await waitForAskAIReady(askAIWindow);
+				}
 			}
 
 			if (askAIWindow && !askAIWindow.isDestroyed()) {
 				// Ensure visible and focused
 				if (!askAIWindow.isVisible()) {
 					windowHelper.showAskAIWindow();
-					await new Promise((r) => setTimeout(r, 300));
+					await new Promise((r) => setTimeout(r, 200));
 				}
+				// Ensure listeners are mounted
+				await waitForAskAIReady(askAIWindow);
 				askAIWindow.webContents.send('receive-chat-message', chatMessage);
+				// Resend once shortly after as a safety net in case listener attached late
+				setTimeout(() => {
+					try {
+						if (askAIWindow && !askAIWindow.isDestroyed()) {
+							askAIWindow.webContents.send('receive-chat-message', chatMessage);
+							log.info('🔁 Re-forwarded Swift UI chat to AskAI (safety resend)');
+						}
+					} catch (e) {
+						log.warn('⚠️ Safety resend failed:', e);
+					}
+				}, 400);
 				log.info('✅ Forwarded Swift UI chat to AskAI');
 			} else {
 				log.error('❌ AskAI window unavailable after creation');
@@ -2812,10 +2846,13 @@ app.whenReady().then(async () => {
 				windowHelper.createAskAIWindow();
 
 				// Wait for window to be created and ready
-				await new Promise((resolve) => setTimeout(resolve, 1000));
+				await new Promise((resolve) => setTimeout(resolve, 150));
 
 				// Get the window reference again after creating it
 				askAIWindow = windowHelper.getAskAIWindow();
+				if (askAIWindow) {
+					await waitForAskAIReady(askAIWindow);
+				}
 			}
 
 			// Ensure window is visible
@@ -2824,11 +2861,22 @@ app.whenReady().then(async () => {
 					log.info('Ask AI window exists but not visible, showing it...');
 					windowHelper.showAskAIWindow();
 					// Wait a bit for the window to be fully visible
-					await new Promise((resolve) => setTimeout(resolve, 500));
+					await new Promise((resolve) => setTimeout(resolve, 200));
 				}
 
-				// Send the chat message to Ask AI window
+				// Ensure listeners are ready; then send and do a safety resend
+				await waitForAskAIReady(askAIWindow);
 				askAIWindow.webContents.send('receive-chat-message', chatMessage);
+				setTimeout(() => {
+					try {
+						if (askAIWindow && !askAIWindow.isDestroyed()) {
+							askAIWindow.webContents.send('receive-chat-message', chatMessage);
+							log.info('🔁 Re-sent chat to Ask AI (safety resend)');
+						}
+					} catch (e) {
+						log.warn('⚠️ Safety resend (AskAI) failed:', e);
+					}
+				}, 400);
 				log.info('Chat message sent to Ask AI window successfully');
 				return { success: true };
 			} else {

@@ -42,7 +42,10 @@ struct NotchView: View {
     
     var collapsedContentText: String {
         if vm.isRecording {
-            return "● Recording \(vm.formatTime(vm.timer))"
+            if vm.isPaused {
+                return "Paused \(vm.formatTime(vm.timer))"
+            }
+            return "Recording \(vm.formatTime(vm.timer))"
         } else if vm.isChatMode {
             return "Chat Mode"
         } else {
@@ -61,12 +64,14 @@ struct NotchView: View {
             if vm.status == .closed {
                 HStack(spacing: 8) {
                     if vm.isRecording {
-                        Text("Recording \(vm.formatTime(vm.timer))")
+                        Text(vm.isPaused ? "Paused \(vm.formatTime(vm.timer))" : "Recording \(vm.formatTime(vm.timer))")
                             .font(.system(size: 10, weight: .medium))
                             .foregroundColor(DynamicIslandTheme.primaryGreen)
-                        CollapsedAudioViz()
+                        if !vm.isPaused {
+                            CollapsedAudioViz()
+                        }
                     } else if vm.showVoiceInterface {
-                        Text("Voice Mode")
+                        Text("Voice Agent")
                             .font(.system(size: 10, weight: .regular))
                             .foregroundColor(.white)
                     } else if vm.isChatMode {

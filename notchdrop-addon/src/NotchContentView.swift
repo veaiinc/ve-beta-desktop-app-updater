@@ -93,7 +93,7 @@ struct DynamicIslandContentView: View {
                                             }
                                         }
                                         .frame(width: 24, height: 24)
-                                        Text("start")
+                                        Text("Start")
                                             .font(.system(size: 12, weight: .medium))
                                             .foregroundColor(Color(red: 0.055, green: 0.184, blue: 0.165)) // #0E2F2A
                                     }
@@ -111,7 +111,7 @@ struct DynamicIslandContentView: View {
                                     Image(systemName: "waveform")
                                         .font(.system(size: 16))
                                         .foregroundColor(DynamicIslandTheme.primaryGreen)
-                                    Text("Voice Mode")
+                                    Text("Voice Agent")
                                         .font(.system(size: 12, weight: .medium))
                                         .foregroundColor(DynamicIslandTheme.primaryGreen)
                                 }
@@ -180,6 +180,26 @@ struct DynamicIslandContentView: View {
                                 }
                             }
                             
+                            // Recording status + timer (parity with React)
+                            if vm.isRecording {
+                                HStack(spacing: 6) {
+                                    Circle()
+                                        .fill(vm.isPaused ? Color.yellow : DynamicIslandTheme.primaryGreen)
+                                        .frame(width: 6, height: 6)
+                                    Text(vm.isPaused ? "Paused \(vm.formatTime(vm.timer))" : "Recording \(vm.formatTime(vm.timer))")
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .foregroundColor(DynamicIslandTheme.textPrimary)
+                                }
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(DynamicIslandTheme.card)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(DynamicIslandTheme.stroke, lineWidth: 0.5)
+                                )
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
+
                             // Audio visualizer
                             HStack(spacing: 2) {
                                 ForEach(0..<5, id: \.self) { index in
@@ -196,7 +216,7 @@ struct DynamicIslandContentView: View {
                         
                         Spacer()
                         
-                        // Right side icons
+                        // Right side icons (parity: Back + Home only)
                         HStack(spacing: 8) {
                             if vm.isChatMode || vm.showVoiceInterface {
                                 // Back button
@@ -221,38 +241,12 @@ struct DynamicIslandContentView: View {
                                 }
                                 .buttonStyle(PlainButtonStyle())
                             }
-                            
+
                             // Home icon
                             Button(action: {
-                                // Home action
+                                // Home action (placeholder for parity)
                             }) {
                                 Image(systemName: "house.fill")
-                                    .font(.system(size: 18))
-                                    .foregroundColor(.white)
-                                    .frame(width: 24, height: 24)
-                                    .background(Color.white.opacity(0.15))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            // Security icon
-                            Button(action: {
-                                // Security action
-                            }) {
-                                Image(systemName: "lock.fill")
-                                    .font(.system(size: 18))
-                                    .foregroundColor(.white)
-                                    .frame(width: 24, height: 24)
-                                    .background(Color.white.opacity(0.15))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            // Test logout button
-                            Button(action: {
-                                vm.setAuthenticated(false)
-                            }) {
-                                Image(systemName: "person.crop.circle")
                                     .font(.system(size: 18))
                                     .foregroundColor(.white)
                                     .frame(width: 24, height: 24)
