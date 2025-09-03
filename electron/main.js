@@ -37,12 +37,15 @@ const loadGalleryHelper = () => {
 
 // Import window helper for overlay functionality
 const { WindowHelper } = require('./helpers/windowHelper');
+// Import wake word service
+const { WakeWordService } = require('./wakeWordService');
 // Import dynamic island helper
 // const { DynamicIslandHelper } = require('./dynamicIslandHelper');
 
 // Windows-specific variables
 let tray = null;
 let isQuitting = false;
+let wakeWordService = null;
 
 // Window state management
 let lastWindowState = {
@@ -304,6 +307,39 @@ class DynamicIslandHelper {
 				log.info('Dynamic Island window focused');
 			} catch (error) {
 				log.error('Error focusing Dynamic Island window:', error);
+			}
+		}
+	}
+
+	showDynamicIsland() {
+		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+			try {
+				this.dynamicIslandWindow.show();
+				this.isVisible = true;
+				log.info('Dynamic Island shown');
+			} catch (error) {
+				log.error('Error showing Dynamic Island:', error);
+			}
+		}
+	}
+
+	expandDynamicIsland() {
+		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+			try {
+				// Set expanded size and position
+				this.dynamicIslandWindow.setSize(this.expandedSize.width, this.expandedSize.height);
+				this.dynamicIslandWindow.setPosition(this.position.x, this.position.y);
+				this.isExpanded = true;
+				
+				// Send state change to the window
+				this.dynamicIslandWindow.webContents.send('dynamic-island-state', {
+					expanded: true,
+					visible: true
+				});
+				
+				log.info('Dynamic Island expanded');
+			} catch (error) {
+				log.error('Error expanding Dynamic Island:', error);
 			}
 		}
 	}
@@ -806,6 +842,32 @@ app.whenReady().then(() => {
 	windowHelper = new WindowHelper();
 	windowHelper.registerGlobalShortcuts(mainWindow);
 
+	// Initialize wake word service
+	wakeWordService = new WakeWordService();
+	
+	// Add wake word detection handler
+	wakeWordService.addListener((event) => {
+		log.info('Wake word detected, triggering Dynamic Island voice mode:', event);
+		
+		// Trigger Dynamic Island voice mode - like "Hey Siri" behavior
+		if (dynamicIslandHelper) {
+			// Show and expand the dynamic island
+			dynamicIslandHelper.showDynamicIsland();
+			dynamicIslandHelper.expandDynamicIsland();
+			
+			// Trigger voice mode connection
+			// Send IPC message to dynamic island to start voice mode
+			if (dynamicIslandHelper.getDynamicIslandWindow()) {
+				dynamicIslandHelper.getDynamicIslandWindow().webContents.send('trigger-voice-mode');
+			}
+			
+			log.info('Dynamic Island voice mode triggered via wake word');
+		}
+	});
+
+	// Start wake word detection
+	wakeWordService.start();
+
 	// Test shortcuts after registration
 	setTimeout(() => {
 		windowHelper.testShortcuts();
@@ -1083,6 +1145,12 @@ app.whenReady().then(() => {
 			log.error('Error getting voice status for Dynamic Island:', error);
 			return { success: false, error: error.message };
 		}
+	});
+
+	// Listen for voice mode trigger from wake word
+	ipcMain.on('trigger-voice-mode', (event) => {
+		log.info('Voice mode triggered from wake word');
+		// The dynamic island will handle this message
 	});
 
 	// Register overlay window IPC handlers
@@ -1541,6 +1609,30 @@ app.whenReady().then(() => {
 		}
 	});
 
+	// Wake word service IPC handlers
+	ipcMain.handle('wake-word-start', () => {
+		if (wakeWordService) {
+			wakeWordService.start();
+			return { success: true };
+		}
+		return { success: false, error: 'Wake word service not initialized' };
+	});
+
+	ipcMain.handle('wake-word-stop', () => {
+		if (wakeWordService) {
+			wakeWordService.stop();
+			return { success: true };
+		}
+		return { success: false, error: 'Wake word service not initialized' };
+	});
+
+	ipcMain.handle('wake-word-status', () => {
+		return { 
+			success: true, 
+			isRunning: wakeWordService ? wakeWordService.isRunning : false 
+		};
+	});
+
 	// Microphone permission check handler
 	ipcMain.handle('check-microphone-permission', async () => {
 		try {
@@ -1887,6 +1979,13 @@ function cleanupAndQuit() {
 			log.info('🧹 Cleaning up Window Helper...');
 			windowHelper.cleanup();
 			windowHelper = null;
+		}
+
+		// 3. Clean up Wake Word Service
+		if (wakeWordService) {
+			log.info('🧹 Cleaning up Wake Word Service...');
+			wakeWordService.stop();
+			wakeWordService = null;
 		}
 
 		// 3. Close main window if it exists

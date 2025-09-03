@@ -124,6 +124,19 @@ const DynamicIslandUI = () => {
 					isRecording: state.isRecording,
 				});
 			});
+
+			// Listen for voice mode trigger from wake word
+			window.electronApi.ipcRenderer.on('trigger-voice-mode', () => {
+				console.log('🎤 Voice mode triggered from wake word');
+				// Like "Hey Siri" - always start voice mode if not already active
+				// Don't toggle off if already active, just ensure it's running
+				if (!isVoiceModeActive) {
+					console.log('🎤 Starting voice mode from wake word');
+					handleVoiceModeClick();
+				} else {
+					console.log('🎤 Voice mode already active, keeping it running');
+				}
+			});
 		}
 
 		return () => {
@@ -134,6 +147,9 @@ const DynamicIslandUI = () => {
 			}
 			if (window.electronApi?.dynamicIsland?.removeOverlayStateListener) {
 				window.electronApi.dynamicIsland.removeOverlayStateListener();
+			}
+			if (window.electronApi?.ipcRenderer?.removeAllListeners) {
+				window.electronApi.ipcRenderer.removeAllListeners('trigger-voice-mode');
 			}
 		};
 	}, []);

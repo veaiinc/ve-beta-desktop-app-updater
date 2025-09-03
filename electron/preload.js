@@ -151,6 +151,13 @@ contextBridge.exposeInMainWorld('electronApi', {
 		requestPermission: () => ipcRenderer.invoke('request-microphone-permission'),
 	},
 
+	// Wake word APIs
+	wakeWord: {
+		start: () => ipcRenderer.invoke('wake-word-start'),
+		stop: () => ipcRenderer.invoke('wake-word-stop'),
+		getStatus: () => ipcRenderer.invoke('wake-word-status'),
+	},
+
 	// Clipboard APIs
 	clipboard: {
 		writeText: (text) => ipcRenderer.invoke('clipboard-write-text', text),
