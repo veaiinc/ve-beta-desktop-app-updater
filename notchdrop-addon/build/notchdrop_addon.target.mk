@@ -4,7 +4,7 @@ TOOLSET := target
 TARGET := notchdrop_addon
 ### Rules for action "build_swift":
 quiet_cmd_binding_gyp_notchdrop_addon_target_build_swift = ACTION binding_gyp_notchdrop_addon_target_build_swift $@
-cmd_binding_gyp_notchdrop_addon_target_build_swift = LD_LIBRARY_PATH=$(builddir)/lib.host:$(builddir)/lib.target:$$LD_LIBRARY_PATH; export LD_LIBRARY_PATH; cd $(srcdir)/.; mkdir -p build_swift; swiftc src/NotchDropCore.swift src/NotchView.swift src/NotchViewModel.swift src/NotchViewModel+Events.swift src/NotchContentView.swift src/NotchHeaderView.swift src/NotchMenuView.swift src/NotchSettingsView.swift src/ShareView.swift src/Share.swift src/TrayView.swift src/TrayDrop.swift src/TrayDrop+DropItem.swift src/TrayDrop+DropItemView.swift src/PublishedPersist.swift src/Language.swift src/EventMonitor.swift src/EventMonitors.swift src/Ext+URL.swift src/Ext+NSScreen.swift src/Ext+NSImage.swift src/Ext+NSAlert.swift src/Ext+FileProvider.swift src/NotchViewController.swift -emit-objc-header-path ./build_swift/notchdrop_addon-Swift.h -emit-library -o ./build_swift/libNotchDropCore.a -emit-module -module-name notchdrop_addon -module-link-name NotchDropCore
+cmd_binding_gyp_notchdrop_addon_target_build_swift = LD_LIBRARY_PATH=$(builddir)/lib.host:$(builddir)/lib.target:$$LD_LIBRARY_PATH; export LD_LIBRARY_PATH; cd $(srcdir)/.; mkdir -p build_swift; swiftc src/NotchDropCore.swift src/DynamicIslandTheme.swift src/NotchView.swift src/NotchViewModel.swift src/NotchViewModel+Events.swift src/NotchContentView.swift src/NotchHeaderView.swift src/NotchMenuView.swift src/NotchSettingsView.swift src/ShareView.swift src/Share.swift src/TrayView.swift src/TrayDrop.swift src/TrayDrop+DropItem.swift src/TrayDrop+DropItemView.swift src/PublishedPersist.swift src/Language.swift src/EventMonitor.swift src/EventMonitors.swift src/Ext+URL.swift src/Ext+NSScreen.swift src/Ext+NSImage.swift src/Ext+NSAlert.swift src/Ext+FileProvider.swift src/NotchViewController.swift -emit-objc-header-path ./build_swift/notchdrop_addon-Swift.h -emit-library -o ./build_swift/libNotchDropCore.a -emit-module -module-name notchdrop_addon -module-link-name NotchDropCore
 
 build_swift/libNotchDropCore.a: obj := $(abs_obj)
 build_swift/libNotchDropCore.a: builddir := $(abs_builddir)
@@ -29,7 +29,7 @@ build_swift/libNotchDropCore.a: TOOLSET := $(TOOLSET)
 build_swift/libNotchDropCore.a build_swift/notchdrop_addon-Swift.h: ca8e10199f0c48d530a92c998dcef812742046c2.intermediate
 	@:
 .INTERMEDIATE: ca8e10199f0c48d530a92c998dcef812742046c2.intermediate
-ca8e10199f0c48d530a92c998dcef812742046c2.intermediate: $(srcdir)/src/NotchDropCore.swift $(srcdir)/src/NotchView.swift $(srcdir)/src/NotchViewModel.swift $(srcdir)/src/NotchViewModel+Events.swift $(srcdir)/src/NotchContentView.swift $(srcdir)/src/NotchHeaderView.swift $(srcdir)/src/NotchMenuView.swift $(srcdir)/src/NotchSettingsView.swift $(srcdir)/src/ShareView.swift $(srcdir)/src/Share.swift $(srcdir)/src/TrayView.swift $(srcdir)/src/TrayDrop.swift $(srcdir)/src/TrayDrop+DropItem.swift $(srcdir)/src/TrayDrop+DropItemView.swift $(srcdir)/src/PublishedPersist.swift $(srcdir)/src/Language.swift $(srcdir)/src/EventMonitor.swift $(srcdir)/src/EventMonitors.swift $(srcdir)/src/Ext+URL.swift $(srcdir)/src/Ext+NSScreen.swift $(srcdir)/src/Ext+NSImage.swift $(srcdir)/src/Ext+NSAlert.swift $(srcdir)/src/Ext+FileProvider.swift $(srcdir)/src/NotchViewController.swift FORCE_DO_CMD
+ca8e10199f0c48d530a92c998dcef812742046c2.intermediate: $(srcdir)/src/NotchDropCore.swift $(srcdir)/src/DynamicIslandTheme.swift $(srcdir)/src/NotchView.swift $(srcdir)/src/NotchViewModel.swift $(srcdir)/src/NotchViewModel+Events.swift $(srcdir)/src/NotchContentView.swift $(srcdir)/src/NotchHeaderView.swift $(srcdir)/src/NotchMenuView.swift $(srcdir)/src/NotchSettingsView.swift $(srcdir)/src/ShareView.swift $(srcdir)/src/Share.swift $(srcdir)/src/TrayView.swift $(srcdir)/src/TrayDrop.swift $(srcdir)/src/TrayDrop+DropItem.swift $(srcdir)/src/TrayDrop+DropItemView.swift $(srcdir)/src/PublishedPersist.swift $(srcdir)/src/Language.swift $(srcdir)/src/EventMonitor.swift $(srcdir)/src/EventMonitors.swift $(srcdir)/src/Ext+URL.swift $(srcdir)/src/Ext+NSScreen.swift $(srcdir)/src/Ext+NSImage.swift $(srcdir)/src/Ext+NSAlert.swift $(srcdir)/src/Ext+FileProvider.swift $(srcdir)/src/NotchViewController.swift FORCE_DO_CMD
 	$(call do_cmd,touch)
 	$(call do_cmd,binding_gyp_notchdrop_addon_target_build_swift)
 
@@ -73,19 +73,11 @@ DEFS_Debug := \
 	'-DUSING_V8_SHARED=1' \
 	'-DV8_DEPRECATION_WARNINGS=1' \
 	'-D_GLIBCXX_USE_CXX11_ABI=1' \
-	'-D_FILE_OFFSET_BITS=64' \
-	'-DELECTRON_ENSURE_CONFIG_GYPI' \
 	'-D_DARWIN_USE_64_BIT_INODE=1' \
 	'-D_LARGEFILE_SOURCE' \
-	'-DUSING_ELECTRON_CONFIG_GYPI' \
-	'-DV8_COMPRESS_POINTERS' \
-	'-DV8_COMPRESS_POINTERS_IN_SHARED_CAGE' \
-	'-DV8_31BIT_SMIS_ON_64BIT_ARCH' \
-	'-DV8_ENABLE_SANDBOX' \
-	'-DV8_EXTERNAL_CODE_SPACE' \
+	'-D_FILE_OFFSET_BITS=64' \
 	'-DOPENSSL_NO_PINSHARED' \
 	'-DOPENSSL_THREADS' \
-	'-DOPENSSL_NO_ASM' \
 	'-DBUILDING_NODE_EXTENSION' \
 	'-DDEBUG' \
 	'-D_DEBUG'
@@ -110,7 +102,7 @@ CFLAGS_C_Debug := \
 
 # Flags passed to only C++ files.
 CFLAGS_CC_Debug := \
-	-std=gnu++20 \
+	-std=gnu++17 \
 	-stdlib=libc++ \
 	-fno-rtti \
 	-ObjC++ \
@@ -125,14 +117,14 @@ CFLAGS_OBJCC_Debug := \
 	-fobjc-arc
 
 INCS_Debug := \
-	-I/Users/gowtham/.electron-gyp/37.4.0/include/node \
-	-I/Users/gowtham/.electron-gyp/37.4.0/src \
-	-I/Users/gowtham/.electron-gyp/37.4.0/deps/openssl/config \
-	-I/Users/gowtham/.electron-gyp/37.4.0/deps/openssl/openssl/include \
-	-I/Users/gowtham/.electron-gyp/37.4.0/deps/uv/include \
-	-I/Users/gowtham/.electron-gyp/37.4.0/deps/zlib \
-	-I/Users/gowtham/.electron-gyp/37.4.0/deps/v8/include \
-	-I/Users/gowtham/Desktop/workspace/github/ve-desktop-app/node_modules/node-addon-api \
+	-I/Users/gowtham/Library/Caches/node-gyp/22.14.0/include/node \
+	-I/Users/gowtham/Library/Caches/node-gyp/22.14.0/src \
+	-I/Users/gowtham/Library/Caches/node-gyp/22.14.0/deps/openssl/config \
+	-I/Users/gowtham/Library/Caches/node-gyp/22.14.0/deps/openssl/openssl/include \
+	-I/Users/gowtham/Library/Caches/node-gyp/22.14.0/deps/uv/include \
+	-I/Users/gowtham/Library/Caches/node-gyp/22.14.0/deps/zlib \
+	-I/Users/gowtham/Library/Caches/node-gyp/22.14.0/deps/v8/include \
+	-I/Users/gowtham/Desktop/workspace/github/ve-desktop-app/notchdrop-addon/node_modules/node-addon-api \
 	-I$(srcdir)/include \
 	-I$(srcdir)/build_swift
 
@@ -142,19 +134,11 @@ DEFS_Release := \
 	'-DUSING_V8_SHARED=1' \
 	'-DV8_DEPRECATION_WARNINGS=1' \
 	'-D_GLIBCXX_USE_CXX11_ABI=1' \
-	'-D_FILE_OFFSET_BITS=64' \
-	'-DELECTRON_ENSURE_CONFIG_GYPI' \
 	'-D_DARWIN_USE_64_BIT_INODE=1' \
 	'-D_LARGEFILE_SOURCE' \
-	'-DUSING_ELECTRON_CONFIG_GYPI' \
-	'-DV8_COMPRESS_POINTERS' \
-	'-DV8_COMPRESS_POINTERS_IN_SHARED_CAGE' \
-	'-DV8_31BIT_SMIS_ON_64BIT_ARCH' \
-	'-DV8_ENABLE_SANDBOX' \
-	'-DV8_EXTERNAL_CODE_SPACE' \
+	'-D_FILE_OFFSET_BITS=64' \
 	'-DOPENSSL_NO_PINSHARED' \
 	'-DOPENSSL_THREADS' \
-	'-DOPENSSL_NO_ASM' \
 	'-DBUILDING_NODE_EXTENSION'
 
 # Flags passed to all source files.
@@ -177,7 +161,7 @@ CFLAGS_C_Release := \
 
 # Flags passed to only C++ files.
 CFLAGS_CC_Release := \
-	-std=gnu++20 \
+	-std=gnu++17 \
 	-stdlib=libc++ \
 	-fno-rtti \
 	-ObjC++ \
@@ -192,14 +176,14 @@ CFLAGS_OBJCC_Release := \
 	-fobjc-arc
 
 INCS_Release := \
-	-I/Users/gowtham/.electron-gyp/37.4.0/include/node \
-	-I/Users/gowtham/.electron-gyp/37.4.0/src \
-	-I/Users/gowtham/.electron-gyp/37.4.0/deps/openssl/config \
-	-I/Users/gowtham/.electron-gyp/37.4.0/deps/openssl/openssl/include \
-	-I/Users/gowtham/.electron-gyp/37.4.0/deps/uv/include \
-	-I/Users/gowtham/.electron-gyp/37.4.0/deps/zlib \
-	-I/Users/gowtham/.electron-gyp/37.4.0/deps/v8/include \
-	-I/Users/gowtham/Desktop/workspace/github/ve-desktop-app/node_modules/node-addon-api \
+	-I/Users/gowtham/Library/Caches/node-gyp/22.14.0/include/node \
+	-I/Users/gowtham/Library/Caches/node-gyp/22.14.0/src \
+	-I/Users/gowtham/Library/Caches/node-gyp/22.14.0/deps/openssl/config \
+	-I/Users/gowtham/Library/Caches/node-gyp/22.14.0/deps/openssl/openssl/include \
+	-I/Users/gowtham/Library/Caches/node-gyp/22.14.0/deps/uv/include \
+	-I/Users/gowtham/Library/Caches/node-gyp/22.14.0/deps/zlib \
+	-I/Users/gowtham/Library/Caches/node-gyp/22.14.0/deps/v8/include \
+	-I/Users/gowtham/Desktop/workspace/github/ve-desktop-app/notchdrop-addon/node_modules/node-addon-api \
 	-I$(srcdir)/include \
 	-I$(srcdir)/build_swift
 
@@ -226,25 +210,25 @@ $(OBJS): GYP_OBJCXXFLAGS := $(DEFS_$(BUILDTYPE)) $(INCS_$(BUILDTYPE))  $(CFLAGS_
 
 # Suffix rules, putting all outputs into $(obj).
 
-$(obj).$(TOOLSET)/$(TARGET)/%.o: $(srcdir)/%.m FORCE_DO_CMD
-	@$(call do_cmd,objc,1)
-
 $(obj).$(TOOLSET)/$(TARGET)/%.o: $(srcdir)/%.mm FORCE_DO_CMD
 	@$(call do_cmd,objcxx,1)
 
-# Try building from generated source, too.
-
-$(obj).$(TOOLSET)/$(TARGET)/%.o: $(obj).$(TOOLSET)/%.m FORCE_DO_CMD
+$(obj).$(TOOLSET)/$(TARGET)/%.o: $(srcdir)/%.m FORCE_DO_CMD
 	@$(call do_cmd,objc,1)
+
+# Try building from generated source, too.
 
 $(obj).$(TOOLSET)/$(TARGET)/%.o: $(obj).$(TOOLSET)/%.mm FORCE_DO_CMD
 	@$(call do_cmd,objcxx,1)
 
-$(obj).$(TOOLSET)/$(TARGET)/%.o: $(obj)/%.m FORCE_DO_CMD
+$(obj).$(TOOLSET)/$(TARGET)/%.o: $(obj).$(TOOLSET)/%.m FORCE_DO_CMD
 	@$(call do_cmd,objc,1)
 
 $(obj).$(TOOLSET)/$(TARGET)/%.o: $(obj)/%.mm FORCE_DO_CMD
 	@$(call do_cmd,objcxx,1)
+
+$(obj).$(TOOLSET)/$(TARGET)/%.o: $(obj)/%.m FORCE_DO_CMD
+	@$(call do_cmd,objc,1)
 
 # End of this set of suffix rules
 ### Rules for final target.

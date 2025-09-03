@@ -48,3 +48,5 @@ notchdrop-addon/*.xcworkspace/
 notchdrop-addon/*.xcodeproj/xcuserdata/
 notchdrop-addon/*.xcodeproj/project.xcworkspace/xcuserdata/
 notchdrop-addon/DerivedData/
+
+notchdrop-addon/build

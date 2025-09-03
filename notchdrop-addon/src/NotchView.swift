@@ -34,8 +34,8 @@ struct NotchView: View {
 
     var notchCornerRadius: CGFloat {
         switch vm.status {
-        case .closed: 8
-        case .opened: 32
+        case .closed: DynamicIslandTheme.collapsedRadius
+        case .opened: DynamicIslandTheme.expandedRadius
         case .popping: 10
         }
     }
@@ -59,17 +59,33 @@ struct NotchView: View {
             
             // Collapsed state content
             if vm.status == .closed {
-                Text(collapsedContentText)
-                    .font(.system(size: 10, weight: .regular))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .zIndex(1)
+                HStack(spacing: 8) {
+                    if vm.isRecording {
+                        Text("Recording \(vm.formatTime(vm.timer))")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(DynamicIslandTheme.primaryGreen)
+                        CollapsedAudioViz()
+                    } else if vm.isChatMode {
+                        Text("Chat Mode")
+                            .font(.system(size: 10, weight: .regular))
+                            .foregroundColor(.white)
+                    } else {
+                        Text("Living Intelligence")
+                            .font(.system(size: 10, weight: .regular))
+                            .foregroundColor(.white)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .zIndex(1)
             }
             
             Group {
                 if vm.status == .opened {
                     VStack(spacing: vm.spacing) {
-                        NotchHeaderView(vm: vm)
+                        // Header is not part of the JS Dynamic Island design; keep for non-normal modes
+                        if vm.contentType != .normal {
+                            NotchHeaderView(vm: vm)
+                        }
                         NotchContentView(vm: vm)
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
@@ -104,6 +120,38 @@ struct NotchView: View {
                 color: .black.opacity(([.opened, .popping].contains(vm.status)) ? 1 : 0),
                 radius: 16
             )
+            // Soft glows for states (approximate box-shadow)
+            .shadow(
+                color: vm.controlledByDynamicIsland ? DynamicIslandTheme.primaryGreen.opacity(0.2) : .clear,
+                radius: vm.controlledByDynamicIsland ? 8 : 0
+            )
+            .shadow(
+                color: vm.isChatMode ? DynamicIslandTheme.primaryGreen.opacity(0.3) : .clear,
+                radius: vm.isChatMode ? 12 : 0
+            )
+    }
+
+    // Mini collapsed audio visualizer (5 bars)
+    struct CollapsedAudioViz: View {
+        @State private var phase: CGFloat = 0
+        var body: some View {
+            HStack(spacing: 1) {
+                ForEach(0..<5, id: \.self) { i in
+                    let base: CGFloat = 8
+                    let peak: CGFloat = 14
+                    let progress = abs(sin((phase + CGFloat(i) * 0.4)))
+                    let h = base + (peak - base) * progress
+                    RoundedRectangle(cornerRadius: 1)
+                        .fill(DynamicIslandTheme.primaryGreen)
+                        .frame(width: 2, height: h)
+                }
+            }
+            .onAppear {
+                withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
+                    phase = .pi
+                }
+            }
+        }
     }
 
     var notchBackgroundMaskGroup: some View {

@@ -22,7 +22,19 @@ class NotchViewModel: NSObject, ObservableObject {
         extraBounce: 0.25,
         blendDuration: 0.125
     )
-    let notchOpenedSize: CGSize = .init(width: 600, height: 160)
+    // Dynamic opened size matches React spec; width adjusts when recording
+    var notchOpenedSize: CGSize {
+        if isRecording {
+            return .init(
+                width: DynamicIslandTheme.recordingExpandedWidth,
+                height: DynamicIslandTheme.recordingExpandedHeight
+            )
+        }
+        return .init(
+            width: DynamicIslandTheme.expandedWidth,
+            height: DynamicIslandTheme.expandedHeight
+        )
+    }
     let dropDetectorRange: CGFloat = 32
 
     enum Status: String, Codable, Hashable, Equatable {
@@ -88,6 +100,7 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var isChatMode: Bool = false
     @Published var chatInput: String = ""
     @Published var isAuthenticated: Bool = false
+    @Published var controlledByDynamicIsland: Bool = false
     
     // Event emitters for JavaScript integration
     let swiftActionSender = PassthroughSubject<SwiftAction, Never>()

@@ -7,6 +7,7 @@
                   "src/notchdrop_addon.mm",
                   "src/NotchDropBridge.m",
                   "src/NotchDropCore.swift",
+                  "src/DynamicIslandTheme.swift",
                   "src/NotchView.swift",
                   "src/NotchViewModel.swift",
                   "src/NotchViewModel+Events.swift",
@@ -71,6 +72,7 @@
                    "action_name": "build_swift",
                                "inputs": [
               "src/NotchDropCore.swift",
+              "src/DynamicIslandTheme.swift",
               "src/NotchView.swift",
               "src/NotchViewModel.swift",
               "src/NotchViewModel+Events.swift",
@@ -102,6 +104,7 @@
             "action": [
               "swiftc",
               "src/NotchDropCore.swift",
+              "src/DynamicIslandTheme.swift",
               "src/NotchView.swift",
               "src/NotchViewModel.swift",
               "src/NotchViewModel+Events.swift",

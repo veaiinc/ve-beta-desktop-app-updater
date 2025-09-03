@@ -84,15 +84,22 @@ struct DynamicIslandContentView: View {
                                     vm.startRecording()
                                 }) {
                                     HStack(spacing: 4) {
-                                        Image(systemName: "play.fill")
-                                            .font(.system(size: 14))
+                                        // Black bars on green pill (start button)
+                                        HStack(spacing: 2) {
+                                            ForEach(0..<5, id: \.self) { idx in
+                                                RoundedRectangle(cornerRadius: 1.6)
+                                                    .fill(DynamicIslandTheme.black)
+                                                    .frame(width: 1.6, height: [6.0, 14.0, 10.0, 4.0, 6.0][idx])
+                                            }
+                                        }
+                                        .frame(width: 24, height: 24)
                                         Text("start")
                                             .font(.system(size: 12, weight: .medium))
+                                            .foregroundColor(Color(red: 0.055, green: 0.184, blue: 0.165)) // #0E2F2A
                                     }
-                                    .foregroundColor(Color(red: 0.055, green: 0.184, blue: 0.165))
                                     .padding(.horizontal, 10)
                                     .padding(.vertical, 2)
-                                    .background(Color(red: 0.475, green: 0.925, blue: 0.788))
+                                    .background(DynamicIslandTheme.primaryGreen)
                                     .clipShape(Capsule())
                                 }
                                 .buttonStyle(PlainButtonStyle())
@@ -113,7 +120,7 @@ struct DynamicIslandContentView: View {
                                             .font(.system(size: 14))
                                             .foregroundColor(.white)
                                             .frame(width: 24, height: 24)
-                                            .background(Color(red: 0.106, green: 0.110, blue: 0.114))
+                                            .background(DynamicIslandTheme.card)
                                             .clipShape(Circle())
                                     }
                                     .buttonStyle(PlainButtonStyle())
@@ -128,7 +135,7 @@ struct DynamicIslandContentView: View {
                                             .font(.system(size: 14))
                                             .foregroundColor(.white)
                                             .frame(width: 24, height: 24)
-                                            .background(Color(red: 0.812, green: 0.212, blue: 0.208))
+                                            .background(DynamicIslandTheme.stopRed)
                                             .clipShape(Circle())
                                     }
                                     .buttonStyle(PlainButtonStyle())
@@ -136,25 +143,30 @@ struct DynamicIslandContentView: View {
                                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isRecording)
                                     
                                     // Meeting mode label
-                                    Text("Meeting mode")
-                                        .font(.system(size: 12, weight: .medium))
-                                        .foregroundColor(.white)
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 4)
-                                        .background(Color(red: 0.106, green: 0.110, blue: 0.114))
-                                        .clipShape(Capsule())
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "waveform")
+                                            .font(.system(size: 14))
+                                            .foregroundColor(DynamicIslandTheme.primaryGreen)
+                                        Text("Meeting mode")
+                                            .font(.system(size: 12, weight: .medium))
+                                            .foregroundColor(DynamicIslandTheme.primaryGreen)
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 4)
+                                    .background(DynamicIslandTheme.primaryGreen.opacity(0.1))
+                                    .overlay(
+                                        Capsule().stroke(DynamicIslandTheme.primaryGreen.opacity(0.3), lineWidth: 1)
+                                    )
+                                    .clipShape(Capsule())
                                 }
                             }
                             
                             // Audio visualizer
                             HStack(spacing: 2) {
                                 ForEach(0..<5, id: \.self) { index in
-                                    Rectangle()
-                                        .fill(Color(red: 0.475, green: 0.925, blue: 0.788))
+                                    RoundedRectangle(cornerRadius: 1.6)
+                                        .fill(DynamicIslandTheme.primaryGreen)
                                         .frame(width: 1.6, height: [6, 14, 10, 4, 6][index])
-                                        .clipShape(RoundedRectangle(cornerRadius: 1.6))
-                                        .scaleEffect(vm.isRecording ? 1.2 : 1.0)
-                                        .animation(.easeInOut(duration: 0.3).repeatForever(autoreverses: true), value: vm.isRecording)
                                 }
                             }
                             .padding(.horizontal, 6)
@@ -174,11 +186,11 @@ struct DynamicIslandContentView: View {
                                 }) {
                                     HStack(spacing: 8) {
                                         Image(systemName: "chevron.left")
-                                            .font(.system(size: 7))
+                                            .font(.system(size: 12))
                                         Text("Back")
                                             .font(.system(size: 11, weight: .medium))
                                     }
-                                    .foregroundColor(.white)
+                                    .foregroundColor(DynamicIslandTheme.textPrimary)
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 2)
                                     .background(Color.clear)
@@ -237,7 +249,7 @@ struct DynamicIslandContentView: View {
                                     TextField("Ask me anything...", text: $vm.chatInput)
                                         .textFieldStyle(PlainTextFieldStyle())
                                         .font(.system(size: 12, weight: .medium))
-                                        .foregroundColor(.white)
+                                        .foregroundColor(DynamicIslandTheme.textPrimary)
                                         .padding(.horizontal, 10)
                                         .padding(.vertical, 8)
                                         .background(Color.clear)
@@ -252,7 +264,7 @@ struct DynamicIslandContentView: View {
                                     }) {
                                         Image(systemName: "arrow.right")
                                             .font(.system(size: 14))
-                                            .foregroundColor(.white)
+                                            .foregroundColor(DynamicIslandTheme.textPrimary)
                                     }
                                     .buttonStyle(PlainButtonStyle())
                                     .padding(.trailing, 4)
@@ -260,11 +272,12 @@ struct DynamicIslandContentView: View {
                                 Spacer()
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(Color(red: 0.106, green: 0.110, blue: 0.114))
+                            .background(DynamicIslandTheme.card)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .stroke(Color(red: 0.475, green: 0.925, blue: 0.788), lineWidth: 0.5)
+                                    .stroke(DynamicIslandTheme.primaryGreen, lineWidth: 0.5)
                             )
+                            .shadow(color: DynamicIslandTheme.primaryGreen.opacity(0.2), radius: 8)
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                         } else {
                             // Normal mode - chat and webcam sections
@@ -274,20 +287,20 @@ struct DynamicIslandContentView: View {
                                 HStack {
                                     Text("Ask about screen or audio")
                                         .font(.system(size: 12, weight: .medium))
-                                        .foregroundColor(Color(red: 0.580, green: 0.596, blue: 0.620))
+                                        .foregroundColor(DynamicIslandTheme.textMuted)
                                     Spacer()
                                     Image(systemName: "arrow.right")
                                         .font(.system(size: 14))
-                                        .foregroundColor(Color(red: 0.580, green: 0.596, blue: 0.620))
+                                        .foregroundColor(DynamicIslandTheme.textMuted)
                                 }
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 8)
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(Color(red: 0.106, green: 0.110, blue: 0.114))
+                            .background(DynamicIslandTheme.card)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .stroke(Color(red: 0.173, green: 0.176, blue: 0.180), lineWidth: 0.5)
+                                    .stroke(DynamicIslandTheme.stroke, lineWidth: 0.5)
                             )
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                             .onTapGesture {
@@ -301,10 +314,10 @@ struct DynamicIslandContentView: View {
                                     .foregroundColor(.white)
                                 Text("Webcam")
                                     .font(.system(size: 12, weight: .medium))
-                                    .foregroundColor(Color(red: 0.580, green: 0.596, blue: 0.620))
+                                    .foregroundColor(DynamicIslandTheme.textMuted)
                             }
                             .frame(width: 100, height: 100)
-                            .background(Color(red: 0.106, green: 0.110, blue: 0.114))
+                            .background(DynamicIslandTheme.card)
                             .clipShape(Circle())
                             .onTapGesture {
                                 // Webcam action
