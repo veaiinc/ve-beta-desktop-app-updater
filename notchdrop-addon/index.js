@@ -1,8 +1,10 @@
 const { NotchDropAddon } = require('./build/Release/notchdrop_addon.node');
 const { ipcRenderer, BrowserWindow, ipcMain } = require('electron');
+const { EventEmitter } = require('events');
 
-class NotchDropAddonWrapper {
+class NotchDropAddonWrapper extends EventEmitter {
 	constructor() {
+		super();
 		this.addon = new NotchDropAddon();
 		this.isInitialized = false;
 

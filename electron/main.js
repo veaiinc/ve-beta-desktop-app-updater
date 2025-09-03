@@ -1101,8 +1101,8 @@ app.whenReady().then(async () => {
 		try {
 			await notchDropService.initialize();
 
-			// Verify service is truly ready by testing basic operations
-			if (notchDropService.isInitialized && notchDropService.isInitialized()) {
+			// Verify service is truly ready
+			if (notchDropService && notchDropService.isInitialized) {
 				notchDropInitialized = true;
 				log.info('✅ NotchDrop service initialization verified');
 			} else {

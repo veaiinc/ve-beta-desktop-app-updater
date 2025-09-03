@@ -7,6 +7,7 @@ class NotchDropService {
 		this.isInitialized = false;
 		this.isEnabled = false;
 		this.autoOpenOnStartup = true; // Auto-open NotchDrop when app starts
+		this.platformSupported = process.platform === 'darwin';
 
 		// Swift-JS Bridge integration
 		this.swiftJSBridge = null;
@@ -20,10 +21,57 @@ class NotchDropService {
 			await this.preWarmBridge();
 			log.info('✅ Phase 1: Bridge pre-warmed successfully');
 
-			// Phase 2: Load and initialize addon with bridge ready
-			const addonPath = path.join(__dirname, '../../notchdrop-addon/index.js');
-			log.info('Loading NotchDrop addon from:', addonPath);
-			const NotchDropAddonWrapper = require(addonPath);
+
+			// Phase 2: Load and initialize addon with bridge ready (macOS only)
+			if (!this.platformSupported) {
+				log.info('NotchDrop addon is only supported on macOS; skipping initialization');
+				this.isInitialized = false;
+				return false;
+			}
+
+			// Enhanced module resolution for both dev and packaged environments
+			log.info('Loading NotchDrop addon module: notchdrop-addon');
+			let NotchDropAddonWrapper;
+			
+			try {
+				// Try module resolution first (works in packaged apps)
+				NotchDropAddonWrapper = require('notchdrop-addon');
+				log.info('✅ NotchDrop addon loaded via module resolution');
+			} catch (moduleError) {
+				log.warn('⚠️ Module resolution failed, trying fallback paths:', moduleError.message);
+				
+				// Enhanced fallback paths for development and packaged environments
+				const fallbackPaths = [
+					// Development paths
+					path.join(__dirname, '../../notchdrop-addon'),
+					path.join(__dirname, '../../notchdrop-addon/index.js'),
+					
+					// Packaged app paths
+					path.join(process.resourcesPath, 'app.asar.unpacked/notchdrop-addon'),
+					path.join(process.resourcesPath, 'notchdrop-addon'),
+					path.join(process.resourcesPath, 'notchdrop-addon/index.js'),
+					
+					// Alternative packaged paths
+					path.join(__dirname, '../../../Resources/notchdrop-addon'),
+					path.join(__dirname, '../../../Resources/app.asar.unpacked/notchdrop-addon')
+				];
+				
+				let loaded = false;
+				for (const fallbackPath of fallbackPaths) {
+					try {
+						NotchDropAddonWrapper = require(fallbackPath);
+						log.info(`✅ NotchDrop addon loaded via fallback: ${fallbackPath}`);
+						loaded = true;
+						break;
+					} catch (fallbackError) {
+						log.warn(`⚠️ Fallback path failed: ${fallbackPath} - ${fallbackError.message}`);
+					}
+				}
+				
+				if (!loaded) {
+					throw new Error('Failed to load NotchDrop addon via any resolution path');
+				}
+			}
 
 			this.notchDropAddon = new NotchDropAddonWrapper();
 
@@ -340,11 +388,14 @@ class NotchDropService {
 	// CRITICAL FIX: Pre-warm bridge for immediate response
 	async preWarmBridge() {
 		try {
+			if (process.platform !== 'darwin') {
+				// Skip bridge pre-warm on non-macOS platforms
+				return false;
+			}
 			log.info('🔧 Pre-warming Swift-JS bridge...');
 
-			// Pre-load bridge dependencies
-			const bridgePath = path.join(__dirname, '../../notchdrop-addon/swift-js-bridge.js');
-			const SwiftJSBridge = require(bridgePath);
+			// Pre-load bridge dependencies (resolve from node_modules)
+			const SwiftJSBridge = require('notchdrop-addon/swift-js-bridge.js');
 
 			// Store bridge reference immediately
 			this.swiftJSBridge = SwiftJSBridge.bridge;
@@ -411,11 +462,13 @@ class NotchDropService {
 
 	async initializeSwiftJSBridge() {
 		try {
-			// Load the Swift-JS bridge if not already loaded
+			if (process.platform !== 'darwin') {
+				return false;
+			}
+			// Load the Swift-JS bridge if not already loaded (resolve from node_modules)
 			if (!this.swiftJSBridge) {
-				const bridgePath = path.join(__dirname, '../../notchdrop-addon/swift-js-bridge.js');
-				log.info('Loading Swift-JS bridge from:', bridgePath);
-				const SwiftJSBridge = require(bridgePath);
+				log.info('Loading Swift-JS bridge from node module');
+				const SwiftJSBridge = require('notchdrop-addon/swift-js-bridge.js');
 				this.swiftJSBridge = SwiftJSBridge.bridge;
 			}
 
