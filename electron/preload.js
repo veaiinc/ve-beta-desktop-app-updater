@@ -163,9 +163,18 @@ contextBridge.exposeInMainWorld('electronApi', {
 		},
 	},
 
-	// Home icon click handler for Windows
+	// Home icon click handler (cross-platform)
 	home: {
 		restoreMainWindow: () => ipcRenderer.invoke('restore-main-window'),
+		saveCurrentRoute: (route) => ipcRenderer.invoke('save-current-route', route),
+		onRestoreWindowState: (callback) => {
+			ipcRenderer.on('restore-window-state', (event, state) => {
+				callback(state);
+			});
+		},
+		removeRestoreWindowStateListener: () => {
+			ipcRenderer.removeAllListeners('restore-window-state');
+		},
 	},
 
 	// Mouse event handling for click-through behavior

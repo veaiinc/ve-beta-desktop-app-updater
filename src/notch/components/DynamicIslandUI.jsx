@@ -11,9 +11,11 @@ import {
 	PlusIcon,
 	BackIcon,
 	VoiceModeIcon,
+	VoiceModeIconWhite,
 	CloseIcon,
 	MicrophoneIcon,
 	MutedMicrophoneIcon,
+	AudioVisualizerIcon,
 } from './DynamicIslandIcons';
 import './DynamicIslandUI.scss';
 import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
@@ -47,6 +49,8 @@ const DynamicIslandUI = () => {
 	const [chatInput, setChatInput] = useState('');
 	const [isSendingMessage, setIsSendingMessage] = useState(false);
 	const [isSettingChatMode, setIsSettingChatMode] = useState(false); // Prevent rapid focus changes
+	// Audio recording state to prevent rapid clicks
+	const [isAudioClickProcessing, setIsAudioClickProcessing] = useState(false);
 	// Camera state
 	const [isCameraActive, setIsCameraActive] = useState(false);
 	const [cameraStream, setCameraStream] = useState(null);
@@ -174,6 +178,35 @@ const DynamicIslandUI = () => {
 			setShowVoiceInterface(false);
 		}
 	}, [voiceIntegrationData]);
+
+	// Reset audio click processing state when recording starts
+	useEffect(() => {
+		if (isRecording && isAudioClickProcessing) {
+			console.log('✅ Recording started - resetting audio click processing state');
+			setIsAudioClickProcessing(false);
+		} else if (isRecording && !isAudioClickProcessing) {
+			console.log('🔍 Recording is active but processing state was already reset');
+		} else if (!isRecording && isAudioClickProcessing) {
+			console.log('🔍 Not recording but processing state is still active');
+		}
+	}, [isRecording, isAudioClickProcessing]);
+
+	// Fallback timeout to reset processing state if something goes wrong
+	useEffect(() => {
+		if (isAudioClickProcessing) {
+			const timeout = setTimeout(() => {
+				console.warn('⚠️ Audio click processing timeout - resetting state');
+				setIsAudioClickProcessing(false);
+			}, 10000); // 10 second timeout
+
+			return () => clearTimeout(timeout);
+		}
+	}, [isAudioClickProcessing]);
+
+	// Debug audio click processing state changes
+	useEffect(() => {
+		console.log('🎯 Audio click processing state changed:', isAudioClickProcessing);
+	}, [isAudioClickProcessing]);
 
 	// Check camera permission on mount and when app gains focus
 	useEffect(() => {
@@ -365,19 +398,22 @@ const DynamicIslandUI = () => {
 	const handleHomeClick = () => {
 		console.log('🏠 Home icon clicked');
 
-		// On Windows, restore main window when home icon is clicked
+		// Restore or recreate main window when home icon is clicked (cross-platform)
 		if (window.electronApi?.home?.restoreMainWindow) {
 			window.electronApi.home
 				.restoreMainWindow()
 				.then((result) => {
 					if (result.success) {
-						console.log('✅ Main window restored successfully');
+						console.log('✅ Main window restored/recreated successfully');
+						if (result.message) {
+							console.log('ℹ️', result.message);
+						}
 					} else {
-						console.warn('⚠️ Failed to restore main window:', result.error);
+						console.warn('⚠️ Failed to restore/recreate main window:', result.error);
 					}
 				})
 				.catch((error) => {
-					console.error('❌ Error restoring main window:', error);
+					console.error('❌ Error restoring/recreating main window:', error);
 				});
 		}
 	};
@@ -392,27 +428,50 @@ const DynamicIslandUI = () => {
 
 	const handleAudioClick = async () => {
 		console.log('🎵 Start recording clicked - triggering overlay');
+
+		// Prevent rapid clicking and multiple API calls
+		if (isAudioClickProcessing || isRecording) {
+			console.log('⚠️ Audio click blocked - already processing or recording in progress');
+			return;
+		}
+
+		// Additional safety check for API availability
+		if (!window.electronApi?.overlay?.startRecording) {
+			console.error('❌ Overlay startRecording API not available in Dynamic Island');
+			return;
+		}
+
 		// Exit chat mode when starting recording
 		if (isChatMode) {
 			setIsChatMode(false);
 			setChatInput('');
 		}
 
-		if (!isRecording) {
-			// Check if overlay API is available
-			if (!window.electronApi?.overlay?.startRecording) {
-				console.error('Overlay startRecording API not available in Dynamic Island');
-				return;
-			}
+		// Set processing state to prevent rapid clicks
+		setIsAudioClickProcessing(true);
+		console.log('🔒 Audio click processing state set - preventing rapid clicks');
 
-			// Trigger overlay to start recording and show Live Intelligence panel
-			try {
-				console.log('Calling overlay.startRecording()...');
-				const result = await window.electronApi.overlay.startRecording();
-				console.log('Overlay start recording result:', result);
-			} catch (error) {
-				console.error('Error triggering overlay from Dynamic Island:', error);
+		try {
+			console.log('🚀 Calling overlay.startRecording()...');
+			const result = await window.electronApi.overlay.startRecording();
+			console.log('📥 Overlay start recording result:', result);
+
+			// Only reset processing state if API call was successful
+			if (result && result.success) {
+				console.log(
+					'✅ Recording started successfully - processing state will be reset when recording begins',
+				);
+			} else {
+				console.warn('⚠️ Recording start failed:', result?.error);
+				// Reset processing state on failure so user can retry
+				setIsAudioClickProcessing(false);
+				console.log('🔄 Processing state reset due to API failure');
 			}
+		} catch (error) {
+			console.error('❌ Error triggering overlay from Dynamic Island:', error);
+			// Reset processing state on error so user can retry
+			setIsAudioClickProcessing(false);
+			console.log('🔄 Processing state reset due to error');
 		}
 	};
 
@@ -524,6 +583,9 @@ const DynamicIslandUI = () => {
 				default:
 					setCurrentVoiceStatus('Listening');
 			}
+		} else {
+			// When muted, always show "Muted" status
+			setCurrentVoiceStatus('Muted');
 		}
 	};
 
@@ -547,7 +609,7 @@ const DynamicIslandUI = () => {
 
 		// Update voice status based on mute state
 		if (newMuteState) {
-			setCurrentVoiceStatus('Microphone Muted');
+			setCurrentVoiceStatus('Muted');
 		} else {
 			setCurrentVoiceStatus('Listening');
 		}
@@ -1033,15 +1095,75 @@ const DynamicIslandUI = () => {
 		>
 			{/* Simple content when collapsed */}
 			<div className="island-content">
-				{controlledByDynamicIsland
-					? isRecording
-						? `● Recording ${formatTime(timer)}`
-						: 'Living Intelligence'
-					: showVoiceInterface
-					? 'Voice Mode'
-					: isChatMode
-					? 'Chat Mode'
-					: 'Living Intelligence'}
+				{controlledByDynamicIsland ? (
+					isRecording ? (
+						<div className="collapsed-recording-content">
+							{isChatMode ? (
+								// Chat mode in collapsed recording state
+								<div className="collapsed-chat-recording">
+									<div className="collapsed-chat-input">
+										<input
+											type="text"
+											placeholder="Ask about recording..."
+											className="collapsed-chat-field"
+											value={chatInput}
+											onChange={handleChatInputChange}
+											onKeyPress={handleChatInputKeyPress}
+											onFocus={() => {
+												if (
+													window.electronApi?.dynamicIsland
+														?.setChatMode &&
+													!isSettingChatMode
+												) {
+													setIsSettingChatMode(true);
+													window.electronApi.dynamicIsland
+														.setChatMode(true)
+														.then(() => setIsSettingChatMode(false))
+														.catch(() => setIsSettingChatMode(false));
+												}
+											}}
+										/>
+									</div>
+									<div
+										className="collapsed-chat-submit"
+										onClick={handleChatSubmit}
+									>
+										<ArrowIcon />
+									</div>
+								</div>
+							) : (
+								// Normal recording state
+								<>
+									<span className="collapsed-recording-text">
+										{isPaused
+											? `Paused ${formatTime(timer)}`
+											: `Recording ${formatTime(timer)}`}
+									</span>
+									{!isPaused && (
+										<div className="collapsed-voice-animation">
+											<div className="collapsed-voice-visualizer">
+												<div className="audio-bar"></div>
+												<div className="audio-bar"></div>
+												<div className="audio-bar"></div>
+												<div className="audio-bar"></div>
+												<div className="audio-bar"></div>
+											</div>
+										</div>
+									)}
+									{isPaused && <PauseIcon />}
+								</>
+							)}
+						</div>
+					) : (
+						'Living Intelligence'
+					)
+				) : showVoiceInterface ? (
+					'Voice Mode'
+				) : isChatMode ? (
+					'Chat Mode'
+				) : (
+					'Living Intelligence'
+				)}
 			</div>
 
 			{/* Rich UI when expanded */}
@@ -1060,24 +1182,55 @@ const DynamicIslandUI = () => {
 							{/* Start button section */}
 							<div className="start-section">
 								{!isRecording && !showVoiceInterface ? (
-									<div className="start-button" onClick={handleAudioClick}>
+									<div
+										className={`start-button ${
+											isAudioClickProcessing ? 'processing' : ''
+										}`}
+										onClick={handleAudioClick}
+										onKeyDown={(e) => {
+											if (e.key === 'Enter' || e.key === ' ') {
+												e.preventDefault();
+												if (!isAudioClickProcessing) {
+													handleAudioClick();
+												}
+											}
+										}}
+										role="button"
+										aria-label={
+											isAudioClickProcessing
+												? 'Starting recording...'
+												: 'Start recording'
+										}
+										aria-disabled={isAudioClickProcessing}
+										tabIndex={isAudioClickProcessing ? -1 : 0}
+										style={{
+											opacity: isAudioClickProcessing ? 0.6 : 1,
+											pointerEvents: isAudioClickProcessing ? 'none' : 'auto',
+											cursor: isAudioClickProcessing
+												? 'not-allowed'
+												: 'pointer',
+										}}
+									>
 										<div className="start-icon">
-											<div className="audio-visualizer">
-												<div className="audio-bar"></div>
-												<div className="audio-bar"></div>
-												<div className="audio-bar"></div>
-												<div className="audio-bar"></div>
-												<div className="audio-bar"></div>
-											</div>
+											<AudioVisualizerIcon />
 										</div>
-										<span className="start-text">start</span>
+										<span className="start-text">
+											{isAudioClickProcessing ? (
+												<>
+													<div className="start-loading-spinner"></div>
+													Starting...
+												</>
+											) : (
+												'Start'
+											)}
+										</span>
 									</div>
 								) : showVoiceInterface ? (
 									<div className="voice-mode-indicator">
 										<div className="voice-mode-icon">
 											<VoiceModeIcon />
 										</div>
-										<span className="voice-mode-text">Voice Mode</span>
+										<span className="voice-mode-text">Voice Agent</span>
 									</div>
 								) : (
 									<div className="recording-controls">
@@ -1363,7 +1516,7 @@ const DynamicIslandUI = () => {
 											cameraPermission === 'restricted'
 												? 'camera-denied'
 												: ''
-										}`}
+										} ${!isRecording ? 'voice-mode' : ''}`}
 										onClick={
 											isRecording
 												? cameraPermission === 'denied' ||
@@ -1512,10 +1665,10 @@ const DynamicIslandUI = () => {
 													</>
 												) : (
 													<>
-														<VoiceModeIcon />
-														<div className="webcam-label">
+														<VoiceModeIconWhite />
+														{/* <div className="webcam-label">
 															Voice Mode
-														</div>
+														</div> */}
 														{/* <div className="voice-click-instruction">
 															Click to start
 														</div> */}

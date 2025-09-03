@@ -1,11 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
-import { Track } from 'livekit-client';
-import { useTrackTranscription } from '@livekit/components-react';
 import Context from '../context/context';
-import useNote from '../hooks/useNote';
 import useLiveIntelligenceStream from '../hooks/useLiveIntelligenceStream';
 import useRecallStream from '../hooks/useRecallStream';
-import { requestAndTestMicrophoneAccess, testLiveKitCompatibility } from './utils/permissionUtils';
 import ObjectID from 'bson-objectid';
 import OverlayCommands from './OverlayCommands';
 import ShortcutBar from './components/ShortcutBar';
@@ -14,14 +10,7 @@ import TranscriptPanel from './components/TranscriptPanel';
 import OverlayNotification, { useOverlayNotification } from './components/OverlayNotification';
 import './overlay.scss';
 import { transcription_socket } from '../services/config.live';
-
-const initialState = {
-	allThreads: [],
-	askUser: [],
-	needHelp: [],
-	actions: [],
-	files: [],
-};
+import useAssemblyTranscription from './hooks/useAssemblyTranscription';
 
 const OverlayApp = () => {
 	const containerRef = useRef(null);
@@ -35,28 +24,24 @@ const OverlayApp = () => {
 	// Custom notification system
 	const notification = useOverlayNotification();
 
-	// Shared Recording State
-	const wsUrl = transcription_socket;
-	const [liveKitToken, setLiveKitToken] = useState(null);
-	const [transcriptions, setTranscriptions] = useState([]);
-	const [isRecording, setIsRecording] = useState(false);
-	const [isPaused, setIsPaused] = useState(false);
-	const [timer, setTimer] = useState(0);
-	const [recordingStartTime, setRecordingStartTime] = useState(null);
-
-	// Live Intelligence Socket Data
-	const [liveIntelligenceData, setLiveIntelligenceData] = useState(initialState);
-	const [recallSessionId, setRecallSessionId] = useState(null);
-	const [meetingData, setMeetingData] = useState(null);
+	const [info, setInfo] = useState({
+		meetingId: null,
+		isMeetIsOngoing: false,
+		transcriptions: [],
+		isPaused: false,
+		liveIntelligenceData: {
+			askUser: [],
+			needHelp: [],
+			actions: [],
+			files: [],
+			allThreads: [],
+		},
+	});
 
 	// Ask AI input state
 	const [isAskAIInputFocused, setIsAskAIInputFocused] = useState(false);
 
 	// Refs for data management
-	const transcriptionsMapRef = useRef(new Map());
-	const displayedTextMapRef = useRef(new Map());
-	const typingIntervalsRef = useRef(new Map());
-	const processedSegmentsRef = useRef(new Map());
 	const isMountedRef = useRef(false);
 	const sessionIdRef = useRef(null);
 	const isStoppingRef = useRef(false);
@@ -65,22 +50,119 @@ const OverlayApp = () => {
 	const {
 		notes: { getLiveKitToken, deleteLiveKitRoom, createMeetBot },
 		profileInfo: { tennantSettingsData, getTenantSettings },
+		templates: {
+			handleTranscriptionSuggestions,
+			aiTranscriptionSuggestions,
+			updateStateValues,
+		},
 	} = useContext(Context);
 
-	// Custom Hooks
+	const handleUpdateTranscription = (newTranscript) => {
+		setInfo((prev) => {
+			const transcriptions = prev.transcriptions || [];
+
+			// Get the transcript text from various possible sources
+			const transcriptText =
+				newTranscript.transcript || newTranscript.displayedText || newTranscript.text || '';
+
+			// Check if this transcript already exists (to avoid duplicates)
+			const existingTranscript = transcriptions.find(
+				(t) =>
+					t.text === transcriptText ||
+					t.transcript === transcriptText ||
+					t.id === newTranscript.id, // Also check by ID
+			);
+
+			if (existingTranscript) {
+				return prev; // Don't add duplicate
+			}
+
+			// Check if this is a continuation of the last transcript (same session)
+			const lastTranscript = transcriptions[transcriptions.length - 1];
+			let isContinuation = false;
+			if (newTranscript?.isTurnFormatted) {
+				isContinuation = true;
+			} else {
+				isContinuation = lastTranscript && !lastTranscript.isFinal;
+			}
+
+			if (!newTranscript.isFinal) {
+				// Partial transcript - update the last entry if it's a continuation
+				if (isContinuation) {
+					// Update the last entry with the new partial text
+					const updated = [...transcriptions];
+					updated[updated.length - 1] = {
+						...updated[updated.length - 1],
+						...newTranscript,
+						text: transcriptText,
+						transcript: transcriptText,
+						time: new Date().toLocaleTimeString(),
+					};
+					return { ...prev, transcriptions: updated };
+				} else {
+					// New partial transcript - add as new entry
+					return {
+						...prev,
+						transcriptions: [
+							...transcriptions,
+							{
+								...newTranscript,
+								text: transcriptText,
+								transcript: transcriptText,
+								time: new Date().toLocaleTimeString(),
+							},
+						],
+					};
+				}
+			} else {
+				// Final transcript - update the last entry if it's a continuation, otherwise append
+				if (isContinuation) {
+					// Finalize the last entry
+					const updated = [...transcriptions];
+					updated[updated.length - 1] = {
+						...updated[updated.length - 1],
+						...newTranscript,
+						text: transcriptText,
+						transcript: transcriptText,
+						time: new Date().toLocaleTimeString(),
+						isFinal: true,
+					};
+					return { ...prev, transcriptions: updated };
+				} else {
+					// New final transcript - append as new entry
+					return {
+						...prev,
+						transcriptions: [
+							...transcriptions,
+							{
+								...newTranscript,
+								text: transcriptText,
+								transcript: transcriptText,
+								time: new Date().toLocaleTimeString(),
+								isFinal: true,
+							},
+						],
+					};
+				}
+			}
+		});
+	};
+
 	const {
-		disconnect,
 		isConnected,
-		localAudioTrack,
-		localParticipant,
-		isMuted,
-		muteAudio,
-		unmuteAudio,
-	} = useNote({
-		wsUrl,
-		token: liveKitToken,
 		isRecording,
-		isPaused,
+		isMuted,
+		timer,
+		connectionStatus,
+		startAudioCapture,
+		stopRecording,
+		toggleMute,
+		// formatTime,
+		startRecording,
+	} = useAssemblyTranscription({
+		onTranscriptionUpdate: handleUpdateTranscription,
+		onLiveIntelligenceResponse: handleTranscriptionSuggestions,
+		notification,
 	});
 
 	const { closeWebSocketConnection: closeLiveIntelligenceConnection } =
@@ -92,42 +174,6 @@ const OverlayApp = () => {
 		closeWebSocketConnection: closeRecallConnection,
 		sendMessage: sendRecallMessage,
 	} = useRecallStream();
-
-	// Track reference for transcription
-	const trackRef =
-		localParticipant && localAudioTrack
-			? {
-					publication: localParticipant.getTrackPublication(Track.Source.Microphone),
-					source: Track.Source.Microphone,
-					participant: localParticipant,
-			  }
-			: undefined;
-
-	// Log trackRef changes for debugging
-	useEffect(() => {
-		console.log('🎯 TrackRef updated:', {
-			hasLocalParticipant: !!localParticipant,
-			hasLocalAudioTrack: !!localAudioTrack,
-			hasTrackRef: !!trackRef,
-			isRecording,
-			isPaused,
-			isConnected,
-		});
-	}, [trackRef, localParticipant, localAudioTrack, isRecording, isPaused, isConnected]);
-
-	const { segments } = useTrackTranscription(trackRef);
-
-	// Log segments changes for debugging
-	useEffect(() => {
-		console.log('📝 Segments updated:', {
-			segmentsCount: segments?.length || 0,
-			hasSegments: !!segments && segments.length > 0,
-			isRecording,
-			isPaused,
-			isConnected,
-			hasTrackRef: !!trackRef,
-		});
-	}, [segments, isRecording, isPaused, isConnected, trackRef]);
 
 	// Utility Functions
 	const formatTime = (seconds) => {
@@ -146,381 +192,106 @@ const OverlayApp = () => {
 		return `${hours}:${minutes}`;
 	};
 
-	// Typing Effect Function
-	const startTypingEffect = useCallback((id, fullText, isFinal) => {
-		// Clear any existing interval for this transcription
-		if (typingIntervalsRef.current.has(id)) {
-			clearInterval(typingIntervalsRef.current.get(id));
-			typingIntervalsRef.current.delete(id);
-		}
-
-		const currentDisplayed = displayedTextMapRef.current.get(id) || '';
-		const remainingText = fullText.slice(currentDisplayed.length);
-
-		if (remainingText.length === 0) {
-			if (isFinal) {
-				displayedTextMapRef.current.set(id, fullText);
-			}
-			const updatedTranscriptions = Array.from(transcriptionsMapRef.current.values()).map(
-				(transcription) => ({
-					id: transcription.id,
-					speaker: transcription.speaker,
-					text: displayedTextMapRef.current.get(transcription.id) || '',
-					timestamp: transcription.timestamp,
-					isFinal: transcription.isFinal,
-				}),
-			);
-			setTranscriptions(updatedTranscriptions);
-			return;
-		}
-
-		let index = 0;
-		const interval = setInterval(() => {
-			if (!isMountedRef.current) {
-				clearInterval(interval);
-				typingIntervalsRef.current.delete(id);
-				return;
-			}
-
-			index += 1;
-			const newDisplayedText = currentDisplayed + remainingText.slice(0, index);
-			displayedTextMapRef.current.set(id, newDisplayedText);
-
-			const updatedTranscriptions = Array.from(transcriptionsMapRef.current.values()).map(
-				(transcription) => ({
-					id: transcription.id,
-					speaker: transcription.speaker,
-					text: displayedTextMapRef.current.get(transcription.id) || '',
-					timestamp: transcription.timestamp,
-					isFinal: transcription.isFinal,
-				}),
-			);
-			setTranscriptions(updatedTranscriptions);
-
-			if (index >= remainingText.length) {
-				clearInterval(interval);
-				typingIntervalsRef.current.delete(id);
-			}
-		}, 30);
-
-		typingIntervalsRef.current.set(id, interval);
-	}, []);
-
 	useEffect(() => {
 		if (!tennantSettingsData) {
 			getTenantSettings();
 		}
 	}, []);
-	// Handle Recall Socket Messages for Live Intelligence
-	const handleRecallSocketMessage = useCallback((event) => {
-		try {
-			const msg = JSON.parse(event?.data || null);
-			console.log('Received socket message:', msg); // Debug log
 
-			if (msg?.event === 'live_intelligence.response' && msg?.data?.suggested_prompt) {
-				const suggestion = msg.data.suggested_prompt;
-
-				// Add timestamp from the message
-				const enhancedSuggestion = {
-					...suggestion,
-					timestamp: msg.data.timestamps?.start_timestamp
-						? msg.data.timestamps.start_timestamp * 1000 // Convert to milliseconds
-						: Date.now(),
-				};
-
-				setLiveIntelligenceData((prev) => {
-					const userQuestions = [...prev.askUser];
-					const aiQuestions = [...prev.needHelp];
-					const actions = [...prev.actions];
-					const files = [...prev.files];
-					let allThreads = [...prev.allThreads];
-
-					// Categorize the new suggestion
-					if (suggestion?.entity === 'user' || suggestion?.entity === 'other_user') {
-						userQuestions.push(enhancedSuggestion);
-						console.log('Added to askUser:', enhancedSuggestion);
-					} else if (
-						suggestion?.entity === 'agent' ||
-						suggestion?.entity?.includes('agent')
-					) {
-						if (suggestion?.type === 'search') {
-							aiQuestions.push(enhancedSuggestion);
-							console.log('Added to needHelp:', enhancedSuggestion);
-						} else if (suggestion?.type === 'action') {
-							actions.push(enhancedSuggestion);
-							console.log('Added to actions:', enhancedSuggestion);
-						}
-					} else if (suggestion?.entity === 'file') {
-						files.push(enhancedSuggestion);
-						console.log('Added to files:', enhancedSuggestion);
-					}
-
-					// Add to all threads
-					allThreads.push(enhancedSuggestion);
-
-					// Sort all threads by timestamp (newest first)
-					allThreads.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-					const newData = {
-						allThreads,
-						askUser: userQuestions,
-						needHelp: aiQuestions,
-						actions,
-						files,
-					};
-
-					console.log('Updated liveIntelligenceData:', newData);
-					return newData;
-				});
-			}
-		} catch (error) {
-			console.error('Error parsing recall socket message:', error);
-		}
-	}, []);
-
-	// Send transcription to Recall socket
-	const sendTranscriptionToRecall = useCallback(
-		(transcriptionData) => {
-			if (
-				transcriptionData?.isFinal &&
-				sendRecallMessage &&
-				recallSessionId &&
-				tennantSettingsData?._id
-			) {
-				const message = {
-					tenantId: tennantSettingsData._id,
-					sessionId: recallSessionId,
-					pageId: recallSessionId, // Use meeting ID as page ID since it's the same meeting
-					meetingId: recallSessionId,
-					speakerName: 'VE Note Taker',
-					transcript: transcriptionData.text || transcriptionData.transcript,
-					description: '',
-				};
-				sendRecallMessage({ noteTakerTranscript: message });
-			}
-		},
-		[sendRecallMessage, recallSessionId, tennantSettingsData?._id],
-	);
-
-	// Recording Controls (called from TranscriptPanel)
 	const handleStartTranscription = async () => {
 		// Reset stopping flag
 		isStoppingRef.current = false;
 
-		// Clear all previous state before starting new recording
-		clearAllTranscriptionData();
-
 		const newSessionId = ObjectID().toString();
 		sessionIdRef.current = newSessionId;
-		setRecallSessionId(newSessionId);
+		// Generate default title with current date and time
+		const now = new Date();
+		const day = now.getDate().toString().padStart(2, '0');
+		const month = now.toLocaleString('en-US', { month: 'short' });
+		const year = now.getFullYear();
+		const hours = now.getHours().toString().padStart(2, '0');
+		const minutes = now.getMinutes().toString().padStart(2, '0');
+		const defaultTitle = `${day} ${month} ${year} ${hours}:${minutes}`;
 
-		try {
-			// First, create a meeting via API
-			console.log('Creating meeting via API...');
+		const meetingInput = {
+			title: defaultTitle,
+			transcriptionSource: 'desktop',
+			isAiIntelligenceEnabled: true,
+			meetingMode: 'meeting',
+			agenda: '',
+		};
 
-			// Generate default title with current date and time
-			const now = new Date();
-			const day = now.getDate().toString().padStart(2, '0');
-			const month = now.toLocaleString('en-US', { month: 'short' });
-			const year = now.getFullYear();
-			const hours = now.getHours().toString().padStart(2, '0');
-			const minutes = now.getMinutes().toString().padStart(2, '0');
-			const defaultTitle = `${day} ${month} ${year} ${hours}:${minutes}`;
+		// Create meeting via API
+		const meetingResponse = await createMeetBot({ input: meetingInput });
 
-			const meetingInput = {
-				title: defaultTitle,
-				transcriptionSource: 'desktop',
-				isAiIntelligenceEnabled: true,
-				meetingMode: 'meeting',
-				agenda: '',
-			};
+		if (meetingResponse && meetingResponse[0] === true) {
+			const meetingData = meetingResponse[1]?.data?.startMeeting;
+			console.log('Meeting created successfully:', meetingData);
 
-			// Create meeting via API
-			const meetingResponse = await createMeetBot({ input: meetingInput });
+			// Store meeting data and ID for later use
 
-			if (meetingResponse && meetingResponse[0] === true) {
-				const meetingData = meetingResponse[1]?.data?.startMeeting;
-				console.log('Meeting created successfully:', meetingData);
+			setInfo((prev) => ({
+				...prev,
+				meetingData: meetingData,
+				isPaused: false,
+			}));
 
-				// Store meeting data and ID for later use
-				setMeetingData(meetingData);
-				sessionIdRef.current = meetingData._id;
-				setRecallSessionId(meetingData._id);
-			} else {
-				console.error('Failed to create meeting:', meetingResponse);
-				notification.error(
-					'Meeting creation failed',
-					'Failed to create meeting. Please try again.',
-				);
-				return;
-			}
-
-			// Request and test microphone access - this will prompt user if needed
-			console.log('Starting transcription - requesting microphone access...');
-
-			// Show info notification that we're requesting permission
-			const permissionNotificationId = notification.info(
-				'Requesting microphone access',
-				'Requesting microphone access',
-				'Please allow microphone access when prompted by your browser.',
-				0, // Don't auto-dismiss
-				0, // Don't auto-dismiss
-			);
-
-			const permissionResult = await requestAndTestMicrophoneAccess();
-
-			// Dismiss the permission request notification
-			notification.dismissNotification(permissionNotificationId);
-
-			if (!permissionResult.success) {
-				let errorMessage = 'Microphone access failed';
-				let errorDescription = 'Please check your microphone settings and try again.';
-
-				if (permissionResult.needsPermission) {
-					if (permissionResult.needsManualEnable) {
-						errorMessage = 'Microphone permission required';
-						errorDescription =
-							'Please enable microphone access in your browser/system settings and restart the app.';
-						errorDescription =
-							'Please enable microphone access in your browser/system settings and restart the app.';
-					} else {
-						errorMessage = 'Microphone permission needed';
-						errorDescription =
-							'Please allow microphone access when prompted and try again.';
-						errorDescription =
-							'Please allow microphone access when prompted and try again.';
-					}
-				} else {
-					// Handle other errors (no device, device busy, etc.)
-					errorMessage =
-						permissionResult.error?.name === 'NotFoundError'
-							? 'No microphone found'
-							: 'Microphone access failed';
-					errorMessage =
-						permissionResult.error?.name === 'NotFoundError'
-							? 'No microphone found'
-							: 'Microphone access failed';
-					errorDescription = permissionResult.error?.message || errorDescription;
-				}
-
-				console.error(
-					'Microphone access failed before LiveKit connection:',
-					permissionResult,
-				);
-
-				console.error(
-					'Microphone access failed before LiveKit connection:',
-					permissionResult,
-				);
-				notification.error(errorMessage, errorDescription);
-				return;
-			}
-
-			// Test LiveKit compatibility
-			const compatibilityResult = await testLiveKitCompatibility();
-			if (!compatibilityResult.success) {
-				console.warn(
-					'LiveKit compatibility test failed, but proceeding with connection attempt:',
-					compatibilityResult.error,
-				);
-				console.warn(
-					'LiveKit compatibility test failed, but proceeding with connection attempt:',
-					compatibilityResult.error,
-				);
-			}
-
-			// Use the meeting ID from the API response for LiveKit token
-			const meetingId = sessionIdRef.current;
-			const response = await getLiveKitToken({
-				meetingId: meetingId,
-				sessionId: meetingId,
+			startRecording({
+				tenantId: meetingData.tenantId,
+				sessionId: meetingData._id,
+				meetingId: meetingData._id,
+				jwtToken: localStorage.getItem('usertoken'),
+				isAiIntelligenceEnabled: meetingData.isAiIntelligenceEnabled,
 			});
-			if (response && response[0] === true && response[1]?.accessToken) {
-				setLiveKitToken(response[1].accessToken);
-				setIsRecording(true);
-				setRecordingStartTime(Date.now()); // Set the start time
 
-				// Show success notification
-				notification.success(
-					'Recording started',
-					'Meeting created and microphone connected successfully',
-				);
+			updateStateValues({ aiTranscriptionSuggestions: null });
 
-				// Start Recall connection for Live Intelligence
-				createRecallConnection(
-					meetingId,
-					meetingId,
-					handleRecallSocketMessage,
-					true, // isAiIntelligenceEnabled
-				);
-			} else {
-				console.error('Failed to fetch LiveKit token: Invalid response format', response);
-				notification.error(
-					'Connection failed',
-					'Failed to fetch transcription token. Please try again.',
-				);
-				notification.error(
-					'Connection failed',
-					'Failed to fetch transcription token. Please try again.',
-				);
-			}
-		} catch (err) {
-			console.error('Error starting transcription:', err);
-			// Check if it's a microphone permission error
-			if (err.message && err.message.includes('Microphone permission')) {
-				notification.error('Microphone permission error', err.message);
-			} else {
-				notification.error(
-					'Connection error',
-					'Error starting transcription. Please try again.',
-				);
-				notification.error(
-					'Connection error',
-					'Error starting transcription. Please try again.',
-				);
-			}
+			setInfo((prev) => ({
+				...prev,
+				isMeetIsOngoing: true,
+				meetingData: meetingData,
+				transcriptions: [],
+				liveIntelligenceData: {
+					askUser: [],
+					needHelp: [],
+					actions: [],
+					files: [],
+					allThreads: [],
+				},
+			}));
+		} else {
+			console.error('Failed to create meeting:', meetingResponse);
+			notification.error(
+				'Meeting creation failed',
+				'Failed to create meeting. Please try again.',
+			);
+			return;
 		}
-	};
-
-	const handlePauseTranscription = () => {
-		console.log('🔄 Pausing transcription...');
-		setIsPaused(true);
-		// Pause the timer
-		setTimer((prev) => prev);
-		console.log('✅ Transcription paused');
-	};
-
-	const handleResumeTranscription = () => {
-		console.log('🔄 Resuming transcription...');
-		setIsPaused(false);
-		// Resume the timer
-		setTimer((prev) => prev);
-		console.log('✅ Transcription resumed');
 	};
 
 	const handleStopTranscription = () => {
 		// Set stopping flag to prevent further processing
 		isStoppingRef.current = true;
 
-		// Immediately clear UI and session
-		clearAllTranscriptionData();
-		setIsRecording(false);
-		setIsPaused(false);
-		setLiveKitToken(null);
-
-		// Clear session reference immediately
-		const currentSessionId = sessionIdRef.current;
 		sessionIdRef.current = null;
 
-		// Clean up connections
-		if (currentSessionId) {
-			deleteLiveKitRoom({ meetingId: currentSessionId });
-		}
-		disconnect();
+		stopRecording();
 		closeLiveIntelligenceConnection();
 		closeRecallConnection();
 
-		setRecallSessionId(null);
+		setInfo((prev) => ({
+			...prev,
+			isMeetIsOngoing: false,
+			meetingData: null,
+			transcriptions: [],
+			liveIntelligenceData: {
+				askUser: [],
+				needHelp: [],
+				actions: [],
+				files: [],
+				allThreads: [],
+			},
+		}));
 
 		// Reset stopping flag after cleanup
 		setTimeout(() => {
@@ -528,8 +299,14 @@ const OverlayApp = () => {
 		}, 100);
 	};
 
-	const handleClearTranscripts = () => {
-		clearAllTranscriptionData();
+	const handleTogglePause = () => {
+		const newIsPaused = !info?.isPaused;
+		setInfo((prev) => ({
+			...prev,
+			isPaused: newIsPaused,
+		}));
+		toggleMute();
+		console.log('isMuted', isMuted);
 	};
 
 	// Effects
@@ -557,11 +334,11 @@ const OverlayApp = () => {
 					break;
 				case 'pauseRecording':
 					console.log('⏸️ Dynamic Island PAUSE: Pausing recording...');
-					handlePauseTranscription();
+					handleTogglePause();
 					break;
 				case 'resumeRecording':
 					console.log('▶️ Dynamic Island RESUME: Resuming recording...');
-					handleResumeTranscription();
+					handleTogglePause();
 					break;
 				case 'toggleLiveIntelligence':
 					console.log(
@@ -599,14 +376,12 @@ const OverlayApp = () => {
 
 		return () => {
 			isMountedRef.current = false;
-			typingIntervalsRef.current.forEach((interval) => clearInterval(interval));
-			typingIntervalsRef.current.clear();
 			// Clean up overlay command listener
 			if (window.electronApi?.overlay?.removeCommandListener) {
 				window.electronApi.overlay.removeCommandListener();
 			}
 		};
-	}, []);
+	}, [toggleMute]);
 
 	// Check ask AI input focus state periodically
 	useEffect(() => {
@@ -632,92 +407,10 @@ const OverlayApp = () => {
 		return () => clearInterval(interval);
 	}, []);
 
-	// Timer Effect
-	useEffect(() => {
-		let interval;
-		if (isRecording && !isMuted && !isPaused) {
-			interval = setInterval(() => {
-				setTimer((prev) => prev + 1);
-			}, 1000);
-		}
-		return () => clearInterval(interval);
-	}, [isRecording, isMuted, isPaused]);
-
-	// Process transcription segments
-	useEffect(() => {
-		if (!segments || segments.length === 0 || isStoppingRef.current) return;
-
-		console.log('🎤 Processing transcription segments:', {
-			segmentsCount: segments.length,
-			isRecording,
-			isPaused,
-			isConnected,
-			hasLocalAudioTrack: !!localAudioTrack,
-		});
-
-		const transcriptionsMap = transcriptionsMapRef.current;
-
-		segments.forEach((segment) => {
-			const fullText = segment.final ? segment.text : `${segment.text}...`;
-			const existing = transcriptionsMap.get(segment.id);
-
-			// Single speaker - VE Note Taker
-			const speaker = 'VE Note Taker';
-
-			if (!existing || existing.fullText !== fullText || existing.isFinal !== segment.final) {
-				transcriptionsMap.set(segment.id, {
-					id: segment.id,
-					fullText,
-					speaker,
-					isFinal: segment.final,
-					timestamp: formatTimestamp(),
-				});
-				startTypingEffect(segment.id, fullText, segment.final);
-			}
-
-			const processed = processedSegmentsRef.current.get(segment.id);
-			if (
-				!processed ||
-				processed.text !== segment.text ||
-				(!processed.isFinal && segment.final)
-			) {
-				processedSegmentsRef.current.set(segment.id, {
-					text: segment.text,
-					isFinal: segment.final,
-				});
-
-				// Send to Recall socket for Live Intelligence if it's a final transcript
-				if (segment.final) {
-					sendTranscriptionToRecall({
-						id: segment.id,
-						text: segment.text,
-						transcript: segment.text,
-						isFinal: segment.final,
-						speaker: speaker,
-					});
-				}
-			}
-		});
-
-		// const updatedTranscriptions = Array.from(transcriptionsMap.values()).map(
-		// 	(transcription) => ({
-		// 		id: transcription.id,
-		// 		speaker: transcription.speaker,
-		// 		text: displayedTextMapRef.current.get(transcription.id) || '',
-		// 		timestamp: transcription.timestamp,
-		// 		isFinal: transcription.isFinal,
-		// 	}),
-		// );
-		// setTranscriptions(updatedTranscriptions);
-	}, [segments, startTypingEffect, sendTranscriptionToRecall]);
-
-	// These effects are now handled by the main dimension update effect above
-
 	const handleListenClick = async () => {
 		// Toggle live intelligence panel and automatically start recording when opening
 		// This is used by ShortcutBar - shows ShortcutBar
 		setShowShortcutBar(true);
-		clearAllTranscriptionData();
 		if (activePanel === 'live-intelligence') {
 			// If panel is open, close it and stop recording
 			setActivePanel(null);
@@ -741,7 +434,6 @@ const OverlayApp = () => {
 		console.log('🏝️ Dynamic Island Control: Opening Live Intelligence - ShortcutBar DISABLED');
 		setIsDynamicIslandControlled(true);
 		setShowShortcutBar(false);
-		clearAllTranscriptionData();
 
 		// Always open live intelligence panel when triggered from Dynamic Island
 		setActivePanel('live-intelligence');
@@ -758,11 +450,6 @@ const OverlayApp = () => {
 			handleStopTranscription();
 		}
 
-		// Clear transcriptions and data when panel is closed
-		// This ensures a fresh start when reopening
-		clearAllTranscriptionData();
-
-		// Only restore ShortcutBar if NOT controlled by Dynamic Island
 		if (!isDynamicIslandControlled) {
 			setShowShortcutBar(true);
 		} else {
@@ -778,30 +465,14 @@ const OverlayApp = () => {
 		setActivePanel('live-intelligence');
 	};
 
-	// Helper function to clear all transcription data
-	const clearAllTranscriptionData = () => {
-		setTranscriptions([]);
-		transcriptionsMapRef.current.clear();
-		displayedTextMapRef.current.clear();
-		processedSegmentsRef.current.clear();
-		typingIntervalsRef.current.forEach((interval) => clearInterval(interval));
-		typingIntervalsRef.current.clear();
-		setTimer(0);
-		setRecordingStartTime(null);
-
-		// Clear Live Intelligence data
-		setLiveIntelligenceData(initialState);
-		setMeetingData(null);
-	};
-
 	// Function to send recording state updates to Dynamic Island
 	const sendRecordingStateUpdate = () => {
 		const state = {
 			isRecording,
-			isPaused,
+			isPaused: isMuted,
 			timer,
 			isLiveIntelligenceOpen: activePanel === 'live-intelligence',
-			transcriptionsCount: transcriptions.length,
+			transcriptionsCount: info?.transcriptions?.length,
 			showShortcutBar,
 			controlledByDynamicIsland: isDynamicIslandControlled,
 			isDynamicIslandControlled,
@@ -820,6 +491,13 @@ const OverlayApp = () => {
 		if (window.electronApi?.askAI?.toggleWindow) {
 			window.electronApi.askAI.toggleWindow();
 		}
+	};
+
+	// Function to manually reset Dynamic Island control state
+	const resetDynamicIslandControl = () => {
+		console.log('🔄 Manually resetting Dynamic Island control state');
+		setIsDynamicIslandControlled(false);
+		setShowShortcutBar(false);
 	};
 
 	// Debug function to test notifications (remove after testing)
@@ -950,16 +628,56 @@ const OverlayApp = () => {
 		sendRecordingStateUpdate();
 	}, [
 		isRecording,
-		isPaused,
+		isMuted,
 		timer,
 		activePanel,
-		transcriptions.length,
+		info?.transcriptions?.length,
 		showShortcutBar,
 		isDynamicIslandControlled,
+		isConnected,
 	]);
 
+	useEffect(() => {
+		if (aiTranscriptionSuggestions && aiTranscriptionSuggestions?.suggestions?.length > 0) {
+			const allThreads = [];
+			const askUser = [];
+			const needHelp = [];
+			const actions = [];
+			const files = [];
+			aiTranscriptionSuggestions.suggestions.forEach((suggestion) => {
+				if (suggestion.entity === 'user') {
+					askUser.push(suggestion);
+				} else if (suggestion.entity === 'agent' && suggestion.type === 'search') {
+					needHelp.push(suggestion);
+				} else if (suggestion.entity === 'agent' && suggestion.type === 'action') {
+					actions.push(suggestion);
+				} else if (suggestion.entity === 'file') {
+					files.push(suggestion);
+				}
+				allThreads.push(suggestion);
+			});
+
+			setInfo((prev) => ({
+				...prev,
+				liveIntelligenceData: {
+					askUser,
+					needHelp,
+					actions,
+					files,
+					allThreads,
+				},
+			}));
+		}
+	}, [aiTranscriptionSuggestions]);
+
 	return (
-		<div ref={containerRef} className="overlay-app">
+		<div
+			ref={containerRef}
+			className="overlay-app"
+			// style={{ backgroundColor: 'red', width: '400px', height: '500px',display:"block" }}
+		>
+			{/* {meetingData && <MeetingBody meetingData={meetingData} />} */}
+
 			<div className="overlay-container overlay-content" data-overlay-content="true">
 				{/* Shortcut bar - only show when not controlled by Dynamic Island */}
 				{showShortcutBar && (
@@ -969,52 +687,49 @@ const OverlayApp = () => {
 						onAskAIClick={handleAskAIClick}
 						isRecording={isRecording}
 						onStopRecording={handleStopTranscription}
-						onPauseRecording={handlePauseTranscription}
-						onResumeRecording={handleResumeTranscription}
-						isPaused={isPaused}
+						// onPauseRecording={handlePauseTranscription}
+						// onResumeRecording={handleResumeTranscription}
+						onPauseRecording={() => {}}
+						onResumeRecording={() => {}}
+						isPaused={isMuted}
 						isAskAIInputFocused={isAskAIInputFocused}
 					/>
 				)}
-
 				{/* Commands section - only show when not controlled by Dynamic Island */}
 				{showShortcutBar && <OverlayCommands />}
 			</div>
-
 			{/* Live Intelligence panel */}
 			{activePanel === 'live-intelligence' && (
 				<div className="live-intelligence-container">
 					<LiveIntelligencePanel
 						onClose={handleClosePanel}
 						onShowTranscript={handleShowTranscript}
-						transcriptions={transcriptions}
+						transcriptions={aiTranscriptionSuggestions}
 						isRecording={isRecording}
-						isPaused={isPaused}
+						isPaused={isMuted}
 						timer={timer}
 						formatTime={formatTime}
-						socketData={liveIntelligenceData}
+						socketData={info?.liveIntelligenceData}
 					/>
 				</div>
 			)}
-
 			{/* Transcript panel */}
 			{activePanel === 'transcript' && (
 				<div className="transcript-container">
 					<TranscriptPanel
 						onClose={handleClosePanel}
 						onShowLiveIntelligence={handleShowLiveIntelligence}
-						transcriptions={transcriptions}
+						transcriptions={info?.transcriptions}
 						isRecording={isRecording}
-						isPaused={isPaused}
+						isPaused={isMuted}
 						timer={timer}
-						isMuted={isMuted}
 						isConnected={isConnected}
-						localAudioTrack={localAudioTrack}
+						// localAudioTrack={localAudioTrack}
 						formatTime={formatTime}
 						onStartTranscription={handleStartTranscription}
 						onStopTranscription={handleStopTranscription}
-						onMuteAudio={muteAudio}
-						onUnmuteAudio={unmuteAudio}
-						onClearTranscripts={handleClearTranscripts}
+						// onMuteAudio={muteAudio}
+						// onUnmuteAudio={unmuteAudio}
 					/>
 				</div>
 			)}

@@ -1,22 +1,16 @@
 import { useState, useEffect, useRef, useCallback, useContext } from 'react';
-import { message } from 'antd';
-import getBaseUrl from '../services/baseUrls';
-import Context from '../context/context';
+import getBaseUrl from '../../services/baseUrls';
 
 const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
 
 const useAssemblyTranscription = ({
 	onTranscriptionUpdate,
 	onLiveIntelligenceResponse,
-	tenantId,
-	sessionId,
-	meetingId,
-	jwtToken,
-	isAiIntelligenceEnabled,
+	notification = {},
 }) => {
-	const {
-		notes: { initializeMeetingSummary },
-	} = useContext(Context);
+	// const {
+	// 	notes: { initializeMeetingSummary },
+	// } = useContext(Context);
 	const [isConnected, setIsConnected] = useState(false);
 	const [isRecording, setIsRecording] = useState(false);
 	const [isMuted, setIsMuted] = useState(false);
@@ -149,7 +143,7 @@ const useAssemblyTranscription = ({
 					if (reconnectAttemptsRef.current < maxReconnectAttempts) {
 						attemptReconnect();
 					} else {
-						message.error(
+						notification?.error(
 							'Failed to reconnect to transcription service after multiple attempts',
 						);
 					}
@@ -216,167 +210,165 @@ const useAssemblyTranscription = ({
 		audioBufferRef.current = [];
 		sampleCountRef.current = 0;
 		cleanup();
-		initializeMeetingSummary({ meeting_id: meetingId });
-	}, [log, meetingId]);
+		// initializeMeetingSummary({ meeting_id: meetingId });
+	}, [log]);
 
-	const connect = useCallback(async () => {
-		// Prevent multiple simultaneous connection attempts
-		if (connectionPromiseRef.current) {
-			return connectionPromiseRef.current;
-		}
+	const connect = useCallback(
+		async ({ tenantId, sessionId, meetingId, jwtToken, isAiIntelligenceEnabled }) => {
+			// Prevent multiple simultaneous connection attempts
+			if (connectionPromiseRef.current) {
+				return connectionPromiseRef.current;
+			}
 
-		if (!jwtToken || !tenantId || !sessionId || !meetingId) {
-			const error = 'Missing required authentication parameters';
-			message.error(error);
-			return Promise.reject(new Error(error));
-		}
+			if (!jwtToken || !tenantId || !sessionId || !meetingId) {
+				const error = 'Missing required authentication parameters';
+				notification?.error(error);
+				return Promise.reject(new Error(error));
+			}
 
-		// Reset reconnection attempts on successful manual connect
-		reconnectAttemptsRef.current = 0;
+			// Reset reconnection attempts on successful manual connect
+			reconnectAttemptsRef.current = 0;
 
-		connectionPromiseRef.current = new Promise((resolve, reject) => {
-			try {
-				// Create WebSocket with proper URL encoding
-				const encodedToken = encodeURIComponent(jwtToken);
-				const ws = new WebSocket(`${wsUrl}/${meetingId}?token=${encodedToken}`);
-				websocketRef.current = ws;
+			connectionPromiseRef.current = new Promise((resolve, reject) => {
+				try {
+					// Create WebSocket with proper URL encoding
+					const encodedToken = encodeURIComponent(jwtToken);
+					const ws = new WebSocket(`${wsUrl}/${meetingId}?token=${encodedToken}`);
+					websocketRef.current = ws;
 
-				const connectionTimeout = setTimeout(() => {
-					if (ws.readyState !== WebSocket.OPEN) {
-						ws.close();
-						reject(new Error('Connection timeout'));
-					}
-				}, 10000);
-
-				ws.onopen = () => {
-					clearTimeout(connectionTimeout);
-					log('WebSocket connected, sending authentication...');
-					updateStatus('Connected', 'connected');
-
-					if (isMountedRef.current) {
-						setIsConnected(true);
-					}
-
-					let location = null;
-					try {
-						const locationStr = localStorage.getItem('locationDetails');
-						if (locationStr) {
-							location = JSON.parse(locationStr);
+					const connectionTimeout = setTimeout(() => {
+						if (ws.readyState !== WebSocket.OPEN) {
+							ws.close();
+							reject(new Error('Connection timeout'));
 						}
-					} catch (e) {
-						log(`Error parsing location details: ${e.message}`);
-					}
+					}, 10000);
 
-					const authData = {
-						token: jwtToken,
-						tenant_id: tenantId,
-						session_id: sessionId,
-						meeting_id: meetingId,
-						location,
-						timezone: location?.timezone,
-						is_ai_intelligence_enabled: isAiIntelligenceEnabled,
+					ws.onopen = () => {
+						clearTimeout(connectionTimeout);
+						log('WebSocket connected, sending authentication...');
+						updateStatus('Connected', 'connected');
+
+						if (isMountedRef.current) {
+							setIsConnected(true);
+						}
+
+						let location = null;
+						try {
+							const locationStr = localStorage.getItem('locationDetails');
+							if (locationStr) {
+								location = JSON.parse(locationStr);
+							}
+						} catch (e) {
+							log(`Error parsing location details: ${e.message}`);
+						}
+
+						const authData = {
+							token: jwtToken,
+							tenant_id: tenantId,
+							session_id: sessionId,
+							meeting_id: meetingId,
+							location,
+							timezone: location?.timezone,
+							is_ai_intelligence_enabled: isAiIntelligenceEnabled,
+						};
+
+						try {
+							ws.send(JSON.stringify(authData));
+						} catch (e) {
+							log(`Error sending auth data: ${e.message}`);
+							reject(e);
+						}
 					};
 
-					try {
-						ws.send(JSON.stringify(authData));
-					} catch (e) {
-						log(`Error sending auth data: ${e.message}`);
-						reject(e);
-					}
-				};
+					ws.onmessage = (event) => {
+						if (!isMountedRef.current) return;
 
-				ws.onmessage = (event) => {
-					if (!isMountedRef.current) return;
+						try {
+							const data = JSON.parse(event.data);
 
-					try {
-						const data = JSON.parse(event.data);
-
-						if (data.type === 'connect') {
-							log('Successfully authenticated and connected to STT service');
-							connectionPromiseRef.current = null;
-							resolve(true);
-						} else if (data.type === 'transcription') {
-							if (data.text && data.text.trim()) {
-								const transcriptionData = {
-									id: Date.now().toString(),
-									text: data.text,
-									isFinal: data.is_final || data.end_of_turn,
-									isTurnFormatted: data.isTurnFormatted,
-									timestamp: new Date().toISOString(),
-								};
-								onTranscriptionUpdate?.(transcriptionData);
+							if (data.type === 'connect') {
+								log('Successfully authenticated and connected to STT service');
+								connectionPromiseRef.current = null;
+								resolve(true);
+							} else if (data.type === 'transcription') {
+								if (data.text && data.text.trim()) {
+									const transcriptionData = {
+										id: Date.now().toString(),
+										text: data.text,
+										isFinal: data.is_final || data.end_of_turn,
+										isTurnFormatted: data.isTurnFormatted,
+										timestamp: new Date().toISOString(),
+									};
+									onTranscriptionUpdate?.(transcriptionData);
+								}
+							} else if (data.type === 'error') {
+								notification?.error(data.message || 'Transcription service error');
+								reject(new Error(data.message || 'Transcription service error'));
+							} else {
+								onLiveIntelligenceResponse?.(data?.data);
 							}
-						} else if (data.type === 'error') {
-							message.error(data.message || 'Transcription service error');
-							reject(new Error(data.message || 'Transcription service error'));
-						} else {
-							onLiveIntelligenceResponse?.(data?.data);
+						} catch (error) {
+							log(`Error parsing message: ${error.message}`);
 						}
-					} catch (error) {
-						log(`Error parsing message: ${error.message}`);
-					}
-				};
+					};
 
-				ws.onclose = (event) => {
-					clearTimeout(connectionTimeout);
-					log(`WebSocket disconnected. Code: ${event.code}, Reason: ${event.reason}`);
-					updateStatus('Disconnected', 'disconnected');
+					ws.onclose = (event) => {
+						clearTimeout(connectionTimeout);
+						log(`WebSocket disconnected. Code: ${event.code}, Reason: ${event.reason}`);
+						updateStatus('Disconnected', 'disconnected');
 
-					if (isMountedRef.current) {
-						setIsConnected(false);
-						stopRecording();
-					}
+						if (isMountedRef.current) {
+							setIsConnected(false);
+							stopRecording();
+						}
 
-					connectionPromiseRef.current = null;
+						connectionPromiseRef.current = null;
 
-					// Attempt reconnection if not a normal closure and component is still mounted
-					if (isMountedRef.current && event.code !== 1000 && isRecording) {
-						attemptReconnect();
-					}
+						// Attempt reconnection if not a normal closure and component is still mounted
+						if (isMountedRef.current && event.code !== 1000 && isRecording) {
+							attemptReconnect();
+						}
 
-					if (connectionPromiseRef.current) {
-						reject(
-							new Error(
-								`WebSocket disconnected: ${event.reason || 'Unknown reason'}`,
-							),
-						);
-					}
-				};
+						if (connectionPromiseRef.current) {
+							reject(
+								new Error(
+									`WebSocket disconnected: ${event.reason || 'Unknown reason'}`,
+								),
+							);
+						}
+					};
 
-				ws.onerror = (error) => {
-					clearTimeout(connectionTimeout);
-					log(`WebSocket error: ${error}`);
-					updateStatus('Error', 'error');
+					ws.onerror = (error) => {
+						clearTimeout(connectionTimeout);
+						log(`WebSocket error: ${error}`);
+						updateStatus('Error', 'error');
+						connectionPromiseRef.current = null;
+						reject(error);
+					};
+				} catch (error) {
 					connectionPromiseRef.current = null;
 					reject(error);
-				};
+				}
+			});
+
+			try {
+				return connectionPromiseRef.current;
 			} catch (error) {
 				connectionPromiseRef.current = null;
-				reject(error);
+				notification?.error('Failed to connect to transcription service');
+				throw error;
 			}
-		});
-
-		try {
-			return connectionPromiseRef.current;
-		} catch (error) {
-			connectionPromiseRef.current = null;
-			message.error('Failed to connect to transcription service');
-			throw error;
-		}
-	}, [
-		jwtToken,
-		tenantId,
-		sessionId,
-		meetingId,
-		isAiIntelligenceEnabled,
-		onTranscriptionUpdate,
-		onLiveIntelligenceResponse,
-		log,
-		updateStatus,
-		stopRecording,
-		isRecording,
-		attemptReconnect,
-	]);
+		},
+		[
+			onTranscriptionUpdate,
+			onLiveIntelligenceResponse,
+			log,
+			updateStatus,
+			stopRecording,
+			isRecording,
+			attemptReconnect,
+		],
+	);
 
 	const disconnect = useCallback(() => {
 		reconnectAttemptsRef.current = maxReconnectAttempts; // Prevent reconnection attempts
@@ -504,30 +496,45 @@ const useAssemblyTranscription = ({
 			log(`Error starting recording: ${error.message}`);
 
 			if (error.name === 'NotAllowedError') {
-				message.error('Microphone access denied. Please allow microphone permissions.');
+				notification?.error(
+					'Microphone access denied',
+					'Please allow microphone permissions.',
+				);
 			} else if (error.name === 'NotFoundError') {
-				message.error('No microphone found. Please check your audio devices.');
+				notification?.error('No microphone found', 'Please check your audio devices.');
 			} else if (error.name === 'NotReadableError') {
-				message.error('Microphone is being used by another application.');
+				notification?.error(
+					'Microphone is being used by another application',
+					'Please check your audio devices.',
+				);
 			} else {
-				message.error('Failed to start recording. Please check your microphone.');
+				notification?.error('Failed to start recording', 'Please check your microphone.');
 			}
 		}
 	}, [log, sendAudioData]);
 
-	const startRecording = useCallback(async () => {
-		try {
-			// First ensure WebSocket connection
-			await startAudioCapture();
-			if (!websocketRef.current || websocketRef.current.readyState !== WebSocket.OPEN) {
-				log('Establishing connection...');
-				await connect();
+	const startRecording = useCallback(
+		async ({ tenantId, sessionId, meetingId, jwtToken, isAiIntelligenceEnabled }) => {
+			try {
+				// First ensure WebSocket connection
+				await startAudioCapture();
+				if (!websocketRef.current || websocketRef.current.readyState !== WebSocket.OPEN) {
+					log('Establishing connection...');
+					await connect({
+						tenantId,
+						sessionId,
+						meetingId,
+						jwtToken,
+						isAiIntelligenceEnabled,
+					});
+				}
+			} catch (error) {
+				stopRecording();
+				log(`Failed to start recording: ${error.message}`);
 			}
-		} catch (error) {
-			stopRecording();
-			log(`Failed to start recording: ${error.message}`);
-		}
-	}, [connect, startAudioCapture, log, setIsRecording]);
+		},
+		[connect, startAudioCapture, log, setIsRecording],
+	);
 
 	const toggleMute = useCallback(() => {
 		const newMutedState = !isMuted;
@@ -551,13 +558,6 @@ const useAssemblyTranscription = ({
 		const s = (seconds % 60).toString().padStart(2, '0');
 		return `${m}:${s}`;
 	}, []);
-
-	// Validate parameters on mount
-	useEffect(() => {
-		if (!jwtToken || !tenantId || !sessionId || !meetingId) {
-			log('Warning: Missing required authentication parameters');
-		}
-	}, [jwtToken, tenantId, sessionId, meetingId, log]);
 
 	// Handle audio context state changes
 	useEffect(() => {

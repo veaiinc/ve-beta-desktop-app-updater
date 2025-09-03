@@ -92,25 +92,23 @@ const ThemesListComponent = () => {
 			// 	},
 			// 	[newTheme?.activeTheme],
 			// );
-			let newUpdateNavBar=_.cloneDeep(navBar);
-			newUpdateNavBar.style.sectionBackgroundColor=updateTheme.colors.background;
+			let newUpdateNavBar = _.cloneDeep(navBar);
+			newUpdateNavBar.style.sectionBackgroundColor = updateTheme.colors.background;
 
 			updateStateValues({
 				newTheme: { ...updateTheme },
 				sections: updatedSections,
-				navBar:{...newUpdateNavBar},
+				navBar: { ...newUpdateNavBar },
 			});
-     
+
 			updateHomeStateFunction({
 				sections: updatedSections,
 				themes: { ...updateTheme },
-				navBar:{...newUpdateNavBar},
-				
+				navBar: { ...newUpdateNavBar },
 			});
 		},
 		[newTheme?.activeTheme, navBar],
 	);
-	
 
 	return (
 		<div className="themeListContainer">

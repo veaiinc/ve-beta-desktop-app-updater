@@ -47,6 +47,12 @@ const { WindowHelper } = require('./helpers/windowHelper');
 let tray = null;
 let isQuitting = false;
 
+// Window state management
+let lastWindowState = {
+	route: '/home', // Default route
+	timestamp: Date.now(),
+};
+
 // Add global error handler to prevent crashes
 process.on('uncaughtException', (error) => {
 	log.error('Uncaught Exception:', error);
@@ -86,8 +92,10 @@ class DynamicIslandHelper {
 		this.position.x =
 			Math.floor(this.screenWidth / 2) - Math.floor(this.expandedSize.width / 2);
 
+
 		// Platform-specific positioning
 		if (process.platform === 'win32') {
+			this.position.y = 0; // Higher position on Windows
 			this.position.y = 0; // Higher position on Windows
 		} else {
 			this.position.y = 30; // Normal position on Mac/Linux
@@ -636,8 +644,24 @@ ipcMain.handle('request-screen-recording-permission', async () => {
 
 	return { success: true, granted };
 });
+// Window state management functions
+function saveWindowState() {
+	if (mainWindow && !mainWindow.isDestroyed()) {
+		// Save current route and timestamp
+		lastWindowState = {
+			route: '/home', // Default route - can be enhanced to get actual route
+			timestamp: Date.now(),
+		};
+		log.info('Window state saved:', lastWindowState);
+	}
+}
+
+function restoreWindowState() {
+	return lastWindowState;
+}
+
 // Window creation
-function createWindow() {
+function createWindow(restoreState = false) {
 	mainWindow = new BrowserWindow({
 		title: 'Main window',
 		width: 1366,
@@ -662,18 +686,30 @@ function createWindow() {
 		log.info('Window ready-to-show');
 		// Enable developer tools for main window in both development and production
 		log.info('Dev tools available with F12, Ctrl+F12, or Ctrl+Shift+I in all modes');
+
+		// If restoring state, navigate to the last known route
+		if (restoreState && lastWindowState.route) {
+			setTimeout(() => {
+				mainWindow.webContents.send('restore-window-state', lastWindowState);
+				log.info('Window state restoration message sent:', lastWindowState);
+			}, 1000); // Wait a bit for the app to fully load
+		}
 	});
 
-	// Windows-specific close behavior
-	if (process.platform === 'win32') {
-		mainWindow.on('close', (event) => {
+	// Save window state before closing (cross-platform)
+	mainWindow.on('close', (event) => {
+		// Save the current window state
+		saveWindowState();
+
+		// Windows-specific close behavior
+		if (process.platform === 'win32') {
 			if (!isQuitting) {
 				event.preventDefault();
 				mainWindow.hide();
 				log.info('Main window hidden to tray (Windows)');
 			}
-		});
-	}
+		}
+	});
 
 	// Check for updates in both dev and production
 	log.info('Starting automatic update check...');
@@ -1577,20 +1613,56 @@ app.whenReady().then(() => {
 		}
 	});
 
-	// Home icon click handler for Windows - restore main window
+	// Save current route from frontend
+	ipcMain.handle('save-current-route', async (event, route) => {
+		try {
+			lastWindowState.route = route;
+			lastWindowState.timestamp = Date.now();
+			log.info('Current route saved:', route);
+			return { success: true };
+		} catch (error) {
+			log.error('Error saving current route:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Home icon click handler - restore or recreate main window (cross-platform)
 	ipcMain.handle('restore-main-window', async () => {
 		try {
+			// Check if main window exists and is not destroyed
 			if (mainWindow && !mainWindow.isDestroyed()) {
 				mainWindow.show();
 				mainWindow.focus();
-				log.info('Main window restored from home icon click (Windows)');
+				log.info('Main window restored from home icon click');
 				return { success: true };
 			} else {
-				log.warn('Main window not available to restore');
-				return { success: false, error: 'Main window not available' };
+				// Main window doesn't exist or is destroyed, recreate it
+				log.info('Main window not available, recreating it...');
+
+				// Recreate the main window with state restoration
+				createWindow(true);
+
+				// Wait for the window to be ready
+				await new Promise((resolve) => {
+					if (mainWindow && !mainWindow.isDestroyed()) {
+						mainWindow.once('ready-to-show', () => {
+							mainWindow.show();
+							mainWindow.focus();
+							log.info(
+								'Main window recreated and shown successfully with state restoration',
+							);
+							resolve();
+						});
+					} else {
+						log.error('Failed to recreate main window');
+						resolve();
+					}
+				});
+
+				return { success: true, message: 'Main window recreated with state restoration' };
 			}
 		} catch (error) {
-			log.error('Error restoring main window:', error);
+			log.error('Error restoring/recreating main window:', error);
 			return { success: false, error: error.message };
 		}
 	});

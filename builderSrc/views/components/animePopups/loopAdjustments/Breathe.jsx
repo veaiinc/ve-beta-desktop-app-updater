@@ -30,7 +30,7 @@ const Breathe = ({ activeComponent, adjustAnimation }) => {
 							adjustAnimation('direction', 'vertical');
 						}}
 					>
-						<p 	>
+						<p>
 							<Horizontal />
 						</p>
 					</button>
