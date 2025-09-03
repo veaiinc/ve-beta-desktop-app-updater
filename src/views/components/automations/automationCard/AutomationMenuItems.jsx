@@ -43,7 +43,7 @@ const AutomationMenuItems = ({
 			navigateToAutomationBuilder();
 		} else if (action === 'deleteAutomation') {
 			handleDeleteAutomation(automationId);
-			toggleAutomationMenu(); 
+			toggleAutomationMenu();
 		}
 	};
 

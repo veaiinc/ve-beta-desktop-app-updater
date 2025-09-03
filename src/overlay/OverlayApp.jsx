@@ -492,6 +492,13 @@ const OverlayApp = () => {
 		}
 	};
 
+	// Function to manually reset Dynamic Island control state
+	const resetDynamicIslandControl = () => {
+		console.log('🔄 Manually resetting Dynamic Island control state');
+		setIsDynamicIslandControlled(false);
+		setShowShortcutBar(false);
+	};
+
 	// Debug function to test notifications (remove after testing)
 	const handleTestNotifications = () => {
 		notification.success('Test Success', 'This is a success notification');

@@ -44,6 +44,12 @@ const { WindowHelper } = require('./helpers/windowHelper');
 let tray = null;
 let isQuitting = false;
 
+// Window state management
+let lastWindowState = {
+	route: '/home', // Default route
+	timestamp: Date.now(),
+};
+
 // Add global error handler to prevent crashes
 process.on('uncaughtException', (error) => {
 	log.error('Uncaught Exception:', error);
@@ -82,10 +88,10 @@ class DynamicIslandHelper {
 		// Position at center top - use expanded size for positioning
 		this.position.x =
 			Math.floor(this.screenWidth / 2) - Math.floor(this.expandedSize.width / 2);
-		
+
 		// Platform-specific positioning
 		if (process.platform === 'win32') {
-			this.position.y=0; // Higher position on Windows
+			this.position.y = 0; // Higher position on Windows
 		} else {
 			this.position.y = 30; // Normal position on Mac/Linux
 		}
@@ -284,7 +290,9 @@ class DynamicIslandHelper {
 
 		// Update window position
 		this.dynamicIslandWindow.setPosition(this.position.x, this.position.y);
-		log.info(`Dynamic Island repositioned for ${process.platform} at ${this.position.x},${this.position.y}`);
+		log.info(
+			`Dynamic Island repositioned for ${process.platform} at ${this.position.x},${this.position.y}`,
+		);
 	}
 
 	focus() {
@@ -344,13 +352,13 @@ autoUpdater.on('checking-for-update', () => {
 
 autoUpdater.on('update-available', (info) => {
 	log.info('Update available:', info);
-	
+
 	// Notify frontend that update is available
 	mainWindow?.webContents.send('update-status', {
 		status: 'download-started',
 		version: info.version,
 	});
-	
+
 	// If auto-download is disabled, start manual download
 	if (!autoUpdater.autoDownload) {
 		log.info('Auto-download disabled, starting manual download...');
@@ -374,17 +382,17 @@ autoUpdater.on('update-not-available', (info) => {
 
 autoUpdater.on('error', (err) => {
 	log.error('Update error:', err);
-	
+
 	// Handle Windows checksum mismatch specifically
 	if (err.message.includes('checksum mismatch') || err.code === 'ERR_CHECKSUM_MISMATCH') {
 		log.warn('Checksum mismatch detected - this may be due to unsigned builds on Windows');
 		mainWindow?.webContents.send('update-status', {
 			status: 'checksum-error',
 			error: 'Update verification failed. This may be due to unsigned builds.',
-			details: { 
-				code: err.code, 
+			details: {
+				code: err.code,
 				errno: err.errno,
-				suggestion: 'Manual download may be required'
+				suggestion: 'Manual download may be required',
 			},
 		});
 	} else {
@@ -398,14 +406,14 @@ autoUpdater.on('error', (err) => {
 
 autoUpdater.on('update-downloaded', (info) => {
 	log.info('Update downloaded:', info);
-	
+
 	// Show user-friendly message
 	mainWindow?.webContents.send('update-status', {
 		status: 'download-completed',
 		version: info.version,
 		message: 'Update ready! App will restart in 3 seconds...',
 	});
-	
+
 	// Auto-restart after 3 seconds
 	setTimeout(() => {
 		log.info('Restarting app to install update...');
@@ -446,40 +454,40 @@ ipcMain.handle('restart-app', () => {
 	return { success: true };
 });
 
-	// Add manual download handler for Windows checksum issues
-	ipcMain.handle('force-download-update', async () => {
-		if (process.env.NODE_ENV === 'development') {
-			return { success: false, error: 'Not available in dev' };
-		}
-		
-		try {
-			log.info('Force downloading update (skipping checksum verification)...');
-			
-			// Temporarily disable autoDownload if it was enabled
-			const originalAutoDownload = autoUpdater.autoDownload;
-			autoUpdater.autoDownload = false;
-			
-			// Start download
-			await autoUpdater.downloadUpdate();
-			
-			// Restore original setting
-			autoUpdater.autoDownload = originalAutoDownload;
-			
-			return { success: true, message: 'Force download initiated' };
-		} catch (error) {
-			log.error('Force download failed:', error);
-			return { success: false, error: error.message };
-		}
-	});
+// Add manual download handler for Windows checksum issues
+ipcMain.handle('force-download-update', async () => {
+	if (process.env.NODE_ENV === 'development') {
+		return { success: false, error: 'Not available in dev' };
+	}
 
-	// Dynamic Island repositioning handler
-	ipcMain.handle('reposition-dynamic-island', () => {
-		if (dynamicIslandHelper) {
-			dynamicIslandHelper.repositionForPlatform();
-			return { success: true, platform: process.platform };
-		}
-		return { success: false, error: 'Dynamic Island helper not available' };
-	});
+	try {
+		log.info('Force downloading update (skipping checksum verification)...');
+
+		// Temporarily disable autoDownload if it was enabled
+		const originalAutoDownload = autoUpdater.autoDownload;
+		autoUpdater.autoDownload = false;
+
+		// Start download
+		await autoUpdater.downloadUpdate();
+
+		// Restore original setting
+		autoUpdater.autoDownload = originalAutoDownload;
+
+		return { success: true, message: 'Force download initiated' };
+	} catch (error) {
+		log.error('Force download failed:', error);
+		return { success: false, error: error.message };
+	}
+});
+
+// Dynamic Island repositioning handler
+ipcMain.handle('reposition-dynamic-island', () => {
+	if (dynamicIslandHelper) {
+		dynamicIslandHelper.repositionForPlatform();
+		return { success: true, platform: process.platform };
+	}
+	return { success: false, error: 'Dynamic Island helper not available' };
+});
 
 ipcMain.handle('desktop:capture-screen', async () => {
 	try {
@@ -531,8 +539,24 @@ ipcMain.handle('request-screen-recording-permission', async () => {
 
 	return { success: true, granted };
 });
+// Window state management functions
+function saveWindowState() {
+	if (mainWindow && !mainWindow.isDestroyed()) {
+		// Save current route and timestamp
+		lastWindowState = {
+			route: '/home', // Default route - can be enhanced to get actual route
+			timestamp: Date.now(),
+		};
+		log.info('Window state saved:', lastWindowState);
+	}
+}
+
+function restoreWindowState() {
+	return lastWindowState;
+}
+
 // Window creation
-function createWindow() {
+function createWindow(restoreState = false) {
 	mainWindow = new BrowserWindow({
 		title: 'Main window',
 		width: 1366,
@@ -555,21 +579,33 @@ function createWindow() {
 	mainWindow.once('ready-to-show', () => {
 		mainWindow.show();
 		log.info('Window ready-to-show');
-		
+
 		// Enable developer tools for main window in both development and production
 		log.info('Dev tools available with F12, Ctrl+F12, or Ctrl+Shift+I in all modes');
+
+		// If restoring state, navigate to the last known route
+		if (restoreState && lastWindowState.route) {
+			setTimeout(() => {
+				mainWindow.webContents.send('restore-window-state', lastWindowState);
+				log.info('Window state restoration message sent:', lastWindowState);
+			}, 1000); // Wait a bit for the app to fully load
+		}
 	});
 
-	// Windows-specific close behavior
-	if (process.platform === 'win32') {
-		mainWindow.on('close', (event) => {
+	// Save window state before closing (cross-platform)
+	mainWindow.on('close', (event) => {
+		// Save the current window state
+		saveWindowState();
+
+		// Windows-specific close behavior
+		if (process.platform === 'win32') {
 			if (!isQuitting) {
 				event.preventDefault();
 				mainWindow.hide();
 				log.info('Main window hidden to tray (Windows)');
 			}
-		});
-	}
+		}
+	});
 
 	// Check for updates in both dev and production
 	log.info('Starting automatic update check...');
@@ -591,7 +627,7 @@ function createTray() {
 			path.join(__dirname, 'assets', 've-black-circle-logo.png'), // Built app
 			path.join(__dirname, '..', 'public', 've-black-circle-logo.png'), // Fallback
 		];
-		
+
 		// Find the first path that exists
 		const fs = require('fs');
 		for (const testPath of possiblePaths) {
@@ -600,7 +636,7 @@ function createTray() {
 				break;
 			}
 		}
-		
+
 		if (!iconPath) {
 			log.warn('Tray icon not found, skipping tray creation');
 			return;
@@ -1382,20 +1418,56 @@ app.whenReady().then(() => {
 		}
 	});
 
-	// Home icon click handler for Windows - restore main window
+	// Save current route from frontend
+	ipcMain.handle('save-current-route', async (event, route) => {
+		try {
+			lastWindowState.route = route;
+			lastWindowState.timestamp = Date.now();
+			log.info('Current route saved:', route);
+			return { success: true };
+		} catch (error) {
+			log.error('Error saving current route:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Home icon click handler - restore or recreate main window (cross-platform)
 	ipcMain.handle('restore-main-window', async () => {
 		try {
+			// Check if main window exists and is not destroyed
 			if (mainWindow && !mainWindow.isDestroyed()) {
 				mainWindow.show();
 				mainWindow.focus();
-				log.info('Main window restored from home icon click (Windows)');
+				log.info('Main window restored from home icon click');
 				return { success: true };
 			} else {
-				log.warn('Main window not available to restore');
-				return { success: false, error: 'Main window not available' };
+				// Main window doesn't exist or is destroyed, recreate it
+				log.info('Main window not available, recreating it...');
+
+				// Recreate the main window with state restoration
+				createWindow(true);
+
+				// Wait for the window to be ready
+				await new Promise((resolve) => {
+					if (mainWindow && !mainWindow.isDestroyed()) {
+						mainWindow.once('ready-to-show', () => {
+							mainWindow.show();
+							mainWindow.focus();
+							log.info(
+								'Main window recreated and shown successfully with state restoration',
+							);
+							resolve();
+						});
+					} else {
+						log.error('Failed to recreate main window');
+						resolve();
+					}
+				});
+
+				return { success: true, message: 'Main window recreated with state restoration' };
 			}
 		} catch (error) {
-			log.error('Error restoring main window:', error);
+			log.error('Error restoring/recreating main window:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -1650,7 +1722,7 @@ app.whenReady().then(() => {
 		try {
 			const { targetWindow = 'current', mode = 'detach' } = options;
 			let window = null;
-			
+
 			if (targetWindow === 'current') {
 				// Use the window that sent the request
 				window = BrowserWindow.fromWebContents(event.sender);
@@ -1661,7 +1733,7 @@ app.whenReady().then(() => {
 			} else if (targetWindow === 'askAI') {
 				window = windowHelper?.getAskAIWindow();
 			}
-			
+
 			if (window && !window.isDestroyed()) {
 				if (window.webContents.isDevToolsOpened()) {
 					window.webContents.closeDevTools();
@@ -1670,7 +1742,10 @@ app.whenReady().then(() => {
 					window.webContents.openDevTools({ mode });
 					log.info(`Opened dev tools for ${targetWindow} window in ${mode} mode`);
 				}
-				return { success: true, action: window.webContents.isDevToolsOpened() ? 'opened' : 'closed' };
+				return {
+					success: true,
+					action: window.webContents.isDevToolsOpened() ? 'opened' : 'closed',
+				};
 			} else {
 				return { success: false, error: `${targetWindow} window not available` };
 			}
