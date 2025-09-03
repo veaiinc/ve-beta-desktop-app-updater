@@ -68,7 +68,7 @@ process.on('unhandledRejection', (reason, promise) => {
 class DynamicIslandHelper {
 	constructor() {
 		this.dynamicIslandWindow = null;
-		this.isExpanded = false; // Start collapsed by default
+		this.isExpanded = true; // Start expanded by default (like main branch)
 		this.isVisible = true;
 		this.screenWidth = 0;
 		this.screenHeight = 0;
@@ -111,10 +111,10 @@ class DynamicIslandHelper {
 		const path = require('node:path');
 
 		const windowSettings = {
-			width: this.expandedSize.width, // Start with expanded size (555x150)
-			height: this.expandedSize.height, // Start with expanded size (555x150)
+			width: this.expandedSize.width, // Start with expanded size (875x280)
+			height: this.expandedSize.height, // Start with expanded size (875x280)
 			x: this.position.x,
-			y: this.position.y,
+			y: this.position.y, // Y=0 to stick to top of screen
 			webPreferences: {
 				nodeIntegration: false,
 				contextIsolation: true,
@@ -123,7 +123,7 @@ class DynamicIslandHelper {
 			},
 			show: false,
 			alwaysOnTop: true,
-			frame: false,
+			frame: false, // Frameless to blend with menu bar
 			transparent: true,
 			fullscreenable: false,
 			hasShadow: false,
@@ -135,7 +135,7 @@ class DynamicIslandHelper {
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
 			resizable: false, // Disable resizing - fixed size
-			movable: false,
+			movable: true, // Enable movement for Dynamic Island
 			minimizable: false,
 			maximizable: false,
 			closable: false,
@@ -153,9 +153,9 @@ class DynamicIslandHelper {
 			log.error('Failed to load dynamic island URL:', err);
 		});
 
-		// Configure for macOS
+		// Configure for macOS - ensure it stays at the very top
 		if (process.platform === 'darwin') {
-			this.dynamicIslandWindow.setAlwaysOnTop(true, 'floating');
+			this.dynamicIslandWindow.setAlwaysOnTop(true, 'screen-saver');
 			this.dynamicIslandWindow.setVisibleOnAllWorkspaces(true, {
 				visibleOnFullScreen: true,
 				skipTransformProcessType: true,
@@ -163,19 +163,22 @@ class DynamicIslandHelper {
 			this.dynamicIslandWindow.setHiddenInMissionControl(true);
 			this.dynamicIslandWindow.setMovable(true);
 		} else {
-			this.dynamicIslandWindow.setAlwaysOnTop(true, 'floating');
+			this.dynamicIslandWindow.setAlwaysOnTop(true, 'screen-saver');
 		}
 
-		// Set initial mouse event handling - start with mouse events ignored since it's collapsed
-		this.setMouseEventHandling(true);
+		// Set initial mouse event handling - start with mouse events enabled since it's expanded
+		this.setMouseEventHandling(false);
 
 		// Show the window
 		this.dynamicIslandWindow.show();
+		
 		log.info('Dynamic Island window created and shown');
 
 		// Listen for resize events from the renderer
 		this.dynamicIslandWindow.webContents.on('did-finish-load', () => {
 			log.info('Dynamic Island content loaded, setting up resize listener');
+			// Send initial state to React component
+			this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: true });
 		});
 	}
 
