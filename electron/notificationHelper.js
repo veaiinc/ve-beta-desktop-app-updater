@@ -9,7 +9,7 @@ let lastNotificationTime = 0;
 let pendingMeeting = null;
 
 const POLL_INTERVAL = 3000; // Check every 3 seconds
-const NOTIFICATION_COOLDOWN = 10 * 60 * 1000; // 10 minutes
+const NOTIFICATION_COOLDOWN = 5 * 60 * 1000; // 10 minutes
 
 // Keywords that suggest a meeting
 function hasMeetingIndicators(title, url) {
