@@ -375,8 +375,8 @@ const AudioPlayback = ({ meetingId }) => {
 
 	if (isLoading) {
 		return (
-			<div className="audio-loading">
-				<div className="loading-spinner"></div>
+			<div className="ve-audio-playback-loading">
+				<div className="ve-audio-playback-spinner"></div>
 				<p>Loading audio...</p>
 			</div>
 		);
@@ -384,9 +384,9 @@ const AudioPlayback = ({ meetingId }) => {
 
 	if (error) {
 		return (
-			<div className="audio-error">
+			<div className="ve-audio-playback-error">
 				<p>❌ {error}</p>
-				<button onClick={loadAudioData} className="retry-button">
+				<button onClick={loadAudioData} className="ve-audio-playback-retry-btn">
 					Retry
 				</button>
 			</div>
@@ -395,141 +395,140 @@ const AudioPlayback = ({ meetingId }) => {
 
 	if (!audioData) {
 		return (
-			<div className="audio-empty">
+			<div className="ve-audio-playback-empty">
 				<p>No audio recording available for this meeting.</p>
 			</div>
 		);
 	}
 
 	return (
-		<div className="audio-player" ref={containerRef}>
-				{/* Audio element */}
-				<audio
-					ref={audioRef}
-					src={audioData.audioUrl}
-					onTimeUpdate={handleTimeUpdate}
-					onEnded={handleAudioEnded}
-					onLoadedMetadata={() => {
-						if (audioRef.current) {
-							console.log('AudioPlayback: onLoadedMetadata - duration:', audioRef.current.duration);
-							const validDuration = audioRef.current.duration && !isNaN(audioRef.current.duration) && isFinite(audioRef.current.duration) ? audioRef.current.duration : 0;
+		<div className="ve-audio-playback-player" ref={containerRef}>
+			{/* Audio element */}
+			<audio
+				ref={audioRef}
+				src={audioData.audioUrl}
+				onTimeUpdate={handleTimeUpdate}
+				onEnded={handleAudioEnded}
+				onLoadedMetadata={() => {
+					if (audioRef.current) {
+						console.log('AudioPlayback: onLoadedMetadata - duration:', audioRef.current.duration);
+						const validDuration = audioRef.current.duration && !isNaN(audioRef.current.duration) && isFinite(audioRef.current.duration) ? audioRef.current.duration : 0;
+						setDuration(validDuration);
+						console.log('AudioPlayback: Set duration to:', validDuration);
+					}
+				}}
+				onCanPlay={() => {
+					if (audioRef.current) {
+						console.log('AudioPlayback: onCanPlay - duration:', audioRef.current.duration);
+						const validDuration = audioRef.current.duration && !isNaN(audioRef.current.duration) && isFinite(audioRef.current.duration) ? audioRef.current.duration : 0;
+						if (validDuration > 0) {
 							setDuration(validDuration);
-							console.log('AudioPlayback: Set duration to:', validDuration);
+							console.log('AudioPlayback: Set duration from onCanPlay:', validDuration);
 						}
-					}}
-					onCanPlay={() => {
-						if (audioRef.current) {
-							console.log('AudioPlayback: onCanPlay - duration:', audioRef.current.duration);
-							const validDuration = audioRef.current.duration && !isNaN(audioRef.current.duration) && isFinite(audioRef.current.duration) ? audioRef.current.duration : 0;
-							if (validDuration > 0) {
-								setDuration(validDuration);
-								console.log('AudioPlayback: Set duration from onCanPlay:', validDuration);
-							}
+					}
+				}}
+				onDurationChange={() => {
+					if (audioRef.current) {
+						console.log('AudioPlayback: onDurationChange - duration:', audioRef.current.duration);
+						const validDuration = audioRef.current.duration && !isNaN(audioRef.current.duration) && isFinite(audioRef.current.duration) ? audioRef.current.duration : 0;
+						if (validDuration > 0) {
+							setDuration(validDuration);
+							console.log('AudioPlayback: Set duration from onDurationChange:', validDuration);
 						}
-					}}
-					onDurationChange={() => {
-						if (audioRef.current) {
-							console.log('AudioPlayback: onDurationChange - duration:', audioRef.current.duration);
-							const validDuration = audioRef.current.duration && !isNaN(audioRef.current.duration) && isFinite(audioRef.current.duration) ? audioRef.current.duration : 0;
-							if (validDuration > 0) {
-								setDuration(validDuration);
-								console.log('AudioPlayback: Set duration from onDurationChange:', validDuration);
-							}
-						}
-					}}
-					preload="metadata"
-				/>
+					}
+				}}
+				preload="metadata"
+			/>
 
-				{/* Audio info */}
-				<div className="audio-info">
-					<div className="audio-title">
-						<h3>Meeting Recording</h3>
-						<p className="audio-details">
-							{formatTime(duration)} • {formatFileSize(audioData.metadata?.fileSize)}
-							{duration === 0 && (
-								<button 
-									onClick={() => {
-										console.log('AudioPlayback: Manual duration retry');
-										if (audioRef.current) {
-											audioRef.current.load();
-											setTimeout(() => {
-												if (audioRef.current && audioRef.current.duration > 0) {
-													setDuration(audioRef.current.duration);
-												}
-											}, 500);
-										}
-									}}
-									style={{
-										marginLeft: '8px',
-										background: 'rgba(29, 185, 84, 0.2)',
-										border: '1px solid #1db954',
-										borderRadius: '4px',
-										padding: '2px 6px',
-										fontSize: '10px',
-										color: '#1db954',
-										cursor: 'pointer'
-									}}
-								>
-									Retry Duration
-								</button>
-							)}
-						</p>
-					</div>
-					<button
-						onClick={handleDownload}
-						className="download-button"
-						title="Download audio file"
-					>
-						<DownloadIcon />
-					</button>
+			{/* Audio info */}
+			<div className="ve-audio-playback-info">
+				<div className="ve-audio-playback-title">
+					<h3>Meeting Recording</h3>
+					<p className="ve-audio-playback-details">
+						{formatTime(duration)} • {formatFileSize(audioData.metadata?.fileSize)}
+						{duration === 0 && (
+							<button 
+								onClick={() => {
+									console.log('AudioPlayback: Manual duration retry');
+									if (audioRef.current) {
+										audioRef.current.load();
+										setTimeout(() => {
+											if (audioRef.current && audioRef.current.duration > 0) {
+												setDuration(audioRef.current.duration);
+											}
+										}, 500);
+									}
+								}}
+								style={{
+									marginLeft: '8px',
+									background: 'rgba(29, 185, 84, 0.2)',
+									border: '1px solid #1db954',
+									borderRadius: '4px',
+									padding: '2px 6px',
+									fontSize: '10px',
+									color: '#1db954',
+									cursor: 'pointer'
+								}}
+							>
+								Retry Duration
+							</button>
+						)}
+					</p>
 				</div>
+				<button
+					onClick={handleDownload}
+					className="ve-audio-playback-download-btn"
+					title="Download audio file"
+				>
+					<DownloadIcon />
+				</button>
+			</div>
 
-				{/* Progress bar */}
-				<div className="progress-container">
-					<div ref={progressRef} className="progress-bar" onClick={handleProgressClick}>
-						<div
-							className="progress-fill"
-							style={{ width: `${progressPercentage}%` }}
-						/>
-						<div
-							className="progress-handle"
-							style={{ left: `${progressPercentage}%` }}
-						/>
-					</div>
-					<div className="time-display">
-						<span>{formatTime(currentTime)}</span>
-						<span>{formatTime(duration)}</span>
-					</div>
+			{/* Progress bar */}
+			<div className="ve-audio-playback-progress-wrapper">
+				<div ref={progressRef} className="ve-audio-playback-progress-track" onClick={handleProgressClick}>
+					<div
+						className="ve-audio-playback-progress-fill"
+						style={{ width: `${progressPercentage}%` }}
+					/>
+					<div
+						className="ve-audio-playback-progress-handle"
+						style={{ left: `${progressPercentage}%` }}
+					/>
 				</div>
+				<div className="ve-audio-playback-time-info">
+					<span>{formatTime(currentTime)}</span>
+					<span>{formatTime(duration)}</span>
+				</div>
+			</div>
 
-				{/* Controls */}
-				<div className="audio-controls">
+			{/* Controls */}
+			<div className="ve-audio-playback-controls">
+				<button
+					onClick={togglePlayPause}
+					className="ve-audio-playback-play-btn"
+					title={isPlaying ? 'Pause' : 'Play'}
+				>
+					{isPlaying ? <PauseIcon /> : <PlayIcon />}
+				</button>
+
+				<div className="ve-audio-playback-volume-wrapper">
 					<button
-						onClick={togglePlayPause}
-						className="play-pause-button"
-						title={isPlaying ? 'Pause' : 'Play'}
+						onClick={toggleMute}
+						className="ve-audio-playback-mute-btn"
+						title={isMuted ? 'Unmute' : 'Mute'}
 					>
-						{isPlaying ? <PauseIcon /> : <PlayIcon />}
+						<VolumeIcon />
 					</button>
-
-					<div className="volume-controls">
-						<button
-							onClick={toggleMute}
-							className="mute-button"
-							title={isMuted ? 'Unmute' : 'Mute'}
-						>
-							<VolumeIcon />
-						</button>
-						<input
-							type="range"
-							min="0"
-							max="1"
-							step="0.1"
-							value={isMuted ? 0 : volume}
-							onChange={handleVolumeChange}
-							className="volume-slider"
-						/>
-					</div>
+					<input
+						type="range"
+						min="0"
+						max="1"
+						step="0.1"
+						value={isMuted ? 0 : volume}
+						onChange={handleVolumeChange}
+						className="ve-audio-playback-volume-track"
+					/>
 				</div>
 			</div>
 		</div>

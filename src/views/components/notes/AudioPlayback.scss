@@ -1,5 +1,5 @@
-// Spotify-style Audio Player
-.audio-playback-container {
+// Audio Playback Component - Unique Styles
+.ve-audio-playback-container {
 	padding: 24px;
 	background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
 	border-radius: 12px;
@@ -12,9 +12,9 @@
 }
 
 // Individual state containers
-.audio-loading,
-.audio-error,
-.audio-empty {
+.ve-audio-playback-loading,
+.ve-audio-playback-error,
+.ve-audio-playback-empty {
 	padding: 24px;
 	background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
 	border-radius: 12px;
@@ -29,20 +29,20 @@
 }
 
 // Loading State
-.audio-loading {
+.ve-audio-playback-loading {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	gap: 16px;
 	color: #b3b3b3;
 
-	.loading-spinner {
+	.ve-audio-playback-spinner {
 		width: 32px;
 		height: 32px;
 		border: 3px solid #333;
 		border-top: 3px solid var(--primary-button, #79ecc9);
 		border-radius: 50%;
-		animation: spin 1s linear infinite;
+		animation: ve-audio-playback-spin 1s linear infinite;
 	}
 
 	p {
@@ -52,13 +52,13 @@
 	}
 }
 
-@keyframes spin {
+@keyframes ve-audio-playback-spin {
 	0% { transform: rotate(0deg); }
 	100% { transform: rotate(360deg); }
 }
 
 // Error State
-.audio-error {
+.ve-audio-playback-error {
 	text-align: center;
 	color: #ff6b6b;
 
@@ -68,7 +68,7 @@
 		font-weight: 500;
 	}
 
-	.retry-button {
+	.ve-audio-playback-retry-btn {
 		background: var(--primary-button, #79ecc9);
 		color: white;
 		border: none;
@@ -91,7 +91,7 @@
 }
 
 // Empty State
-.audio-empty {
+.ve-audio-playback-empty {
 	text-align: center;
 	color: #b3b3b3;
 
@@ -103,7 +103,7 @@
 }
 
 // Main Audio Player
-.audio-player {
+.ve-audio-playback-player {
 	width: 100%;
 	max-width: 500px;
 	margin: 0 auto; // Center the player horizontally
@@ -117,14 +117,14 @@
 }
 
 // Audio Info Section
-.audio-info {
+.ve-audio-playback-info {
 	display: flex;
 	justify-content: space-between;
 	align-items: flex-start;
 	margin-bottom: 24px;
 }
 
-.audio-title {
+.ve-audio-playback-title {
 	h3 {
 		margin: 0 0 8px 0;
 		font-size: 18px;
@@ -133,7 +133,7 @@
 		letter-spacing: -0.5px;
 	}
 
-	.audio-details {
+	.ve-audio-playback-details {
 		margin: 0;
 		font-size: 13px;
 		color: #b3b3b3;
@@ -141,7 +141,7 @@
 	}
 }
 
-.download-button {
+.ve-audio-playback-download-btn {
 	background: rgba(255, 255, 255, 0.1);
 	border: 1px solid rgba(255, 255, 255, 0.2);
 	border-radius: 8px;
@@ -163,11 +163,11 @@
 }
 
 // Progress Section
-.progress-container {
+.ve-audio-playback-progress-wrapper {
 	margin-bottom: 24px;
 }
 
-.progress-bar {
+.ve-audio-playback-progress-track {
 	position: relative;
 	height: 6px;
 	background: rgba(255, 255, 255, 0.2);
@@ -180,14 +180,14 @@
 		height: 8px;
 		margin-bottom: 6px;
 
-		.progress-handle {
+		.ve-audio-playback-progress-handle {
 			opacity: 1;
 			transform: scale(1);
 		}
 	}
 }
 
-.progress-fill {
+.ve-audio-playback-progress-fill {
 	height: 100%;
 	background: linear-gradient(90deg, var(--primary-button, #79ecc9) 0%, #6dd4b8 100%);
 	border-radius: 3px;
@@ -208,7 +208,7 @@
 	}
 }
 
-.progress-handle {
+.ve-audio-playback-progress-handle {
 	position: absolute;
 	top: 50%;
 	transform: translate(-50%, -50%) scale(0);
@@ -221,7 +221,7 @@
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.time-display {
+.ve-audio-playback-time-info {
 	display: flex;
 	justify-content: space-between;
 	font-size: 11px;
@@ -231,13 +231,13 @@
 }
 
 // Controls Section
-.audio-controls {
+.ve-audio-playback-controls {
 	display: flex;
 	align-items: center;
 	gap: 20px;
 }
 
-.play-pause-button {
+.ve-audio-playback-play-btn {
 	background: var(--primary-button, #79ecc9);
 	border: none;
 	border-radius: 50%;
@@ -267,14 +267,14 @@
 	}
 }
 
-.volume-controls {
+.ve-audio-playback-volume-wrapper {
 	display: flex;
 	align-items: center;
 	gap: 12px;
 	margin-left: auto;
 }
 
-.mute-button {
+.ve-audio-playback-mute-btn {
 	background: transparent;
 	border: none;
 	cursor: pointer;
@@ -294,7 +294,7 @@
 	}
 }
 
-.volume-slider {
+.ve-audio-playback-volume-track {
 	width: 80px;
 	height: 4px;
 	background: rgba(255, 255, 255, 0.2);
@@ -340,59 +340,59 @@
 
 // Responsive Design
 @media (max-width: 768px) {
-	.audio-playback-container {
+	.ve-audio-playback-container {
 		padding: 16px;
 	}
 
-	.audio-player {
+	.ve-audio-playback-player {
 		padding: 20px;
 	}
 
-	.audio-info {
+	.ve-audio-playback-info {
 		flex-direction: column;
 		gap: 12px;
 		align-items: flex-start;
 	}
 
-	.audio-controls {
+	.ve-audio-playback-controls {
 		flex-direction: column;
 		gap: 16px;
 		align-items: stretch;
 	}
 
-	.volume-controls {
+	.ve-audio-playback-volume-wrapper {
 		margin-left: 0;
 		justify-content: center;
 	}
 
-	.volume-slider {
+	.ve-audio-playback-volume-track {
 		width: 120px;
 	}
 }
 
 // Dark mode adjustments
 @media (prefers-color-scheme: dark) {
-	.audio-playback-container {
+	.ve-audio-playback-container {
 		background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
 	}
 }
 
 // Focus states for accessibility
-.play-pause-button:focus,
-.download-button:focus,
-.mute-button:focus,
-.retry-button:focus {
+.ve-audio-playback-play-btn:focus,
+.ve-audio-playback-download-btn:focus,
+.ve-audio-playback-mute-btn:focus,
+.ve-audio-playback-retry-btn:focus {
 	outline: 2px solid var(--primary-button, #79ecc9);
 	outline-offset: 2px;
 }
 
 // Smooth animations
-* {
+.ve-audio-playback-container * {
 	transition: all 0.2s ease;
 }
 
 // Hover effects
-.audio-player:hover {
+.ve-audio-playback-player:hover {
 	background: rgba(255, 255, 255, 0.08);
 	transform: translateY(-2px);
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
