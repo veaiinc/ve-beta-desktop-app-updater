@@ -215,6 +215,7 @@ const useAssemblyTranscription = ({
 		// Reset buffers
 		audioBufferRef.current = [];
 		sampleCountRef.current = 0;
+		cleanup();
 		initializeMeetingSummary({ meeting_id: meetingId });
 	}, [log, meetingId]);
 
