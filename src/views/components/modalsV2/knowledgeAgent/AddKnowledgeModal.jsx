@@ -509,7 +509,12 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 								<>
 									<p className="loader">
 										Uploading Knowledge Files...
-										<Spinner width={'14px'} height={'14px'} />
+										<Spinner
+											width={'14px'}
+											height={'14px'}
+											color={'var(--primary-button-font)'}
+											borderTopColor={'var(--primary-button)'}
+										/>
 									</p>
 								</>
 							) : (

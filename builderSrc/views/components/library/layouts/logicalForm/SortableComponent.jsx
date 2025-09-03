@@ -2429,14 +2429,17 @@ const SortableComponent = ({
 														<div className="toggle-switch">
 															<input
 																type="checkbox"
-																checked={field.hideDescription || false}
+																checked={
+																	field.hideDescription || false
+																}
 																onChange={(e) => {
 																	const updateBlocks = blocks.map(
 																		(f) => {
 																			if (f.id === field.id) {
 																				return {
 																					...f,
-																					hideDescription: !f.hideDescription,
+																					hideDescription:
+																						!f.hideDescription,
 																				};
 																			}
 																			return f;
@@ -6378,7 +6381,9 @@ const SortableComponent = ({
 												action.jumpTo.split(',').includes(f.id)
 											}
 										>
-											{f.question ? f.question.replace(/<[^>]*>/g, '') : 'Untitled Question'}
+											{f.question
+												? f.question.replace(/<[^>]*>/g, '')
+												: 'Untitled Question'}
 										</option>
 									))}
 									<option value="thank_you">Default thank you page</option>
@@ -6425,7 +6430,12 @@ const SortableComponent = ({
 																		: 'black',
 															}}
 														>
-															{question.question ? question.question.replace(/<[^>]*>/g, '') : 'Untitled Question'}
+															{question.question
+																? question.question.replace(
+																		/<[^>]*>/g,
+																		'',
+																  )
+																: 'Untitled Question'}
 														</span>
 														<button
 															onClick={(e) => {

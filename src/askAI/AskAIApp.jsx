@@ -23,6 +23,7 @@ const AskAIApp = () => {
 	const [receivedTabContent, setReceivedTabContent] = useState(null);
 	const [copied, setCopied] = useState(false);
 	const [isNeedHelpRequest, setIsNeedHelpRequest] = useState(false);
+	const [receivedDynamicIslandMessage, setReceivedDynamicIslandMessage] = useState(null);
 	// Initialize socket
 	const { createWebSocketConnection, sendMessage, closeWebSocketConnection } = useAskAISocket();
 	// Update dimensions only when necessary
@@ -122,15 +123,43 @@ const AskAIApp = () => {
 			}, 100); // Small delay to ensure everything is ready
 		};
 
-		// Set up listener
+		// Listen for chat messages from Dynamic Island
+		const handleChatMessage = (chatMessage) => {
+			console.log('💬 Received chat message from Dynamic Island:', chatMessage);
+
+			if (chatMessage.type === 'dynamic-island-chat' && chatMessage.message) {
+				// Set the received message for display purposes
+				setReceivedDynamicIslandMessage(chatMessage.message);
+
+				// Don't set the message in the input field - process it directly
+				// Auto-focus the input for user interaction
+				if (inputRef.current) {
+					inputRef.current.focus();
+				}
+
+				// Process the message directly without showing it in input
+				setTimeout(() => {
+					handleSubmit(chatMessage.message, false);
+				}, 100); // Small delay to ensure everything is ready
+			}
+		};
+
+		// Set up listeners
 		if (window.electronApi?.askAI?.onReceiveTabContent) {
 			window.electronApi.askAI.onReceiveTabContent(handleTabContent);
+		}
+
+		if (window.electronApi?.askAI?.onReceiveChatMessage) {
+			window.electronApi.askAI.onReceiveChatMessage(handleChatMessage);
 		}
 
 		// Cleanup
 		return () => {
 			if (window.electronApi?.askAI?.removeTabContentListener) {
 				window.electronApi.askAI.removeTabContentListener();
+			}
+			if (window.electronApi?.askAI?.removeChatMessageListener) {
+				window.electronApi.askAI.removeChatMessageListener();
 			}
 		};
 	}, []);
@@ -214,6 +243,9 @@ const AskAIApp = () => {
 				setIsExpanded(true);
 				setHasResponse(true);
 
+				// Clear the Dynamic Island message indicator since we got a response
+				setReceivedDynamicIslandMessage(null);
+
 				console.log('✅ Final response set:', finalResponse);
 				console.log('✅ Response window should stay visible now');
 
@@ -289,6 +321,9 @@ const AskAIApp = () => {
 		setStreamingResponse('');
 		setDisplayedResponse('');
 
+		// Clear Dynamic Island message indicator when starting new submission
+		setReceivedDynamicIslandMessage(null);
+
 		// Clear input only if it's a manual submission (not automatic)
 		if (!customInput) {
 			setInputValue('');
@@ -326,7 +361,6 @@ const AskAIApp = () => {
 				location: null,
 				image_data_base64: imageArray,
 			};
-			console.log(shouldUseDirectSearch, 'shouldUseDirectSearch');
 
 			// Only set direct_search_agent to true for "Need Help" tab requests
 			if (shouldUseDirectSearch) {
@@ -471,6 +505,27 @@ const AskAIApp = () => {
 
 			{/* Input Bar - Bottom */}
 			<div className="ask-ai-input">
+				{/* Dynamic Island Message Indicator */}
+				{receivedDynamicIslandMessage && (
+					<div className="ask-ai-input__dynamic-island-indicator">
+						<span className="dynamic-island-indicator__label">
+							🏝️ Message from Dynamic Island: "{receivedDynamicIslandMessage}"
+							{isLoading && (
+								<span className="dynamic-island-indicator__status">
+									{' '}
+									• Processing...
+								</span>
+							)}
+						</span>
+						<button
+							className="dynamic-island-indicator__clear"
+							onClick={() => setReceivedDynamicIslandMessage(null)}
+							title="Clear indicator"
+						>
+							<X size={12} />
+						</button>
+					</div>
+				)}
 				{/* Tab Content Indicator - Removed for cleaner interface */}
 				{/* {receivedTabContent && (
 					<div className="ask-ai-input__tab-indicator">

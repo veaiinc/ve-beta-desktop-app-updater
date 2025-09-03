@@ -16,7 +16,7 @@ export const useAskAISocket = () => {
 			}
 
 			currentSessionIdRef.current = sessionId;
-			
+
 			// Close existing connection if any
 			if (socketRef.current) {
 				socketRef.current.close();
@@ -34,7 +34,7 @@ export const useAskAISocket = () => {
 					search_agent: 'search_agent_streaming',
 					knowledge_agent: 'knowledge_agent_chat_streaming',
 				};
-				
+
 				const agent = agentTypeMap[agentType] || 'multi_agent_chat_streaming';
 
 				const baseUrl = `${
@@ -60,12 +60,11 @@ export const useAskAISocket = () => {
 						onMessageFunc(event, currentSessionIdRef.current);
 					}
 				};
-
 			} catch (error) {
 				console.error('Failed to create WebSocket connection:', error);
 			}
 		},
-		[]
+		[],
 	);
 
 	const sendMessage = useCallback(
@@ -78,17 +77,14 @@ export const useAskAISocket = () => {
 					if (attempts >= MAX_RETRY_ATTEMPTS) {
 						reject(
 							new Error(
-								'Failed to send message after maximum retry attempts, Please try again'
-							)
+								'Failed to send message after maximum retry attempts, Please try again',
+							),
 						);
 						return;
 					}
 
 					// If socket doesn't exist or is closed, try to reconnect
-					if (
-						!socketRef.current ||
-						socketRef.current.readyState === WebSocket.CLOSED
-					) {
+					if (!socketRef.current || socketRef.current.readyState === WebSocket.CLOSED) {
 						console.log('AskAI: Connection closed, attempting to reconnect...');
 						createWebSocketConnection(sessionId, onMessageFunc, agentType);
 						attempts++;
@@ -118,7 +114,7 @@ export const useAskAISocket = () => {
 				attemptSend();
 			});
 		},
-		[createWebSocketConnection]
+		[createWebSocketConnection],
 	);
 
 	const closeWebSocketConnection = useCallback(() => {

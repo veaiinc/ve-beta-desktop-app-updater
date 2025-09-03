@@ -2131,38 +2131,17 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const handleTakeBrowserControl = async (sessionId, takeControl) => {
-		try {
-			const workspaceId = localStorage.getItem('workspaceId');
-			const usertoken = localStorage.getItem('usertoken');
-			const payload = {
-				mode: takeControl ? 'take' : 'resume',
-			};
-			const response = await Service.fetchPost(
-				`/api/browser/control/${workspaceId}/${sessionId}`,
-				payload,
-				usertoken,
-				'browser_api',
-			);
-			return response;
-		} catch (error) {
-			console.log('error==>handleTakeBrowserControl', error);
-			return [false, error?.message];
-		}
-	};
+	const handleResetBrowserInactivityState = async (sessionId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
 
-	const saveBrowserState = async (sessionId) => {
+		let url = '/api/browser/' + workspaceId + '/' + sessionId + '/reset-expiry';
+
 		try {
-			const workspaceId = localStorage.getItem('workspaceId');
-			const usertoken = localStorage.getItem('usertoken');
-			const response = await Service.fetchGet(
-				`/api/browser/${workspaceId}/task/${sessionId}/save-state`,
-				usertoken,
-				'browser_api',
-			);
+			const response = await Service?.fetchGet(url, usertoken, 'browser_api');
 			return response;
 		} catch (error) {
-			console.log('error==>saveBrowserState', error);
+			console.log('error===>resetBrowserInactivity', error);
 		}
 	};
 
@@ -3067,7 +3046,6 @@ export const TemplatesState = (props) => {
 		updateSlug,
 		getNotificationsList,
 		getAuthUrlForThirdParty,
-		handleTakeBrowserControl,
-		saveBrowserState,
+		handleResetBrowserInactivityState,
 	};
 };

@@ -23,6 +23,8 @@ export default defineConfig({
 								galleryHelper: 'electron/galleryHelper.js',
 								updateHelper: 'electron/updateHelper.js',
 								overlayWindowHelper: 'electron/overlayWindowHelper.js',
+								windowsCompatibility: 'electron/windowsCompatibility.js', // Add this line
+								notificationHelper: 'electron/notificationHelper.js',
 							},
 							output: {
 								format: 'cjs',

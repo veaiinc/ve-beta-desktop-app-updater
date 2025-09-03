@@ -7,23 +7,62 @@ const {
 	systemPreferences,
 	ipcMain,
 	desktopCapturer,
+	Notification,
+	Tray,
 } = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
 const { autoUpdater } = require('electron-updater');
 
-// Import gallery processing functions
+// Import Windows compatibility fixes
 const {
-	processImageWithSharp,
-	extractImageMetadata,
-	downloadAlbumZip,
-	createZipFromUrls,
-} = require('./galleryHelper');
+	loadSharpModule,
+	safeProcessImageWithSharp,
+	safeExtractImageMetadata,
+} = require('./windowsCompatibility');
+
+const meetingMonitor = require('./notificationHelper'); // Adjust path if needed
+
+// Gallery processing functions will be loaded lazily when needed
+let galleryHelper = null;
+
+const loadGalleryHelper = () => {
+	if (!galleryHelper) {
+		try {
+			galleryHelper = require('./galleryHelper');
+		} catch (error) {
+			log.error('Failed to load gallery helper:', error);
+			return null;
+		}
+	}
+	return galleryHelper;
+};
 
 // Import window helper for overlay functionality
 const { WindowHelper } = require('./helpers/windowHelper');
 // Import dynamic island helper
 // const { DynamicIslandHelper } = require('./dynamicIslandHelper');
+
+// Windows-specific variables
+let tray = null;
+let isQuitting = false;
+
+// Window state management
+let lastWindowState = {
+	route: '/home', // Default route
+	timestamp: Date.now(),
+};
+
+// Add global error handler to prevent crashes
+process.on('uncaughtException', (error) => {
+	log.error('Uncaught Exception:', error);
+	// Don't exit the process, just log the error
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+	log.error('Unhandled Rejection at:', promise, 'reason:', reason);
+	// Don't exit the process, just log the error
+});
 
 // Temporary inline DynamicIslandHelper class
 class DynamicIslandHelper {
@@ -52,7 +91,15 @@ class DynamicIslandHelper {
 		// Position at center top - use expanded size for positioning
 		this.position.x =
 			Math.floor(this.screenWidth / 2) - Math.floor(this.expandedSize.width / 2);
-		this.position.y = 30; // Close to top
+
+
+		// Platform-specific positioning
+		if (process.platform === 'win32') {
+			this.position.y = 0; // Higher position on Windows
+			this.position.y = 0; // Higher position on Windows
+		} else {
+			this.position.y = 30; // Normal position on Mac/Linux
+		}
 	}
 
 	createDynamicIslandWindow() {
@@ -74,7 +121,7 @@ class DynamicIslandHelper {
 				nodeIntegration: false,
 				contextIsolation: true,
 				preload: path.join(__dirname, 'preload.js'),
-				devTools: process.env.NODE_ENV === 'development',
+				devTools: true, // Enable dev tools in production too
 			},
 			show: false,
 			alwaysOnTop: true,
@@ -83,7 +130,7 @@ class DynamicIslandHelper {
 			fullscreenable: false,
 			hasShadow: false,
 			backgroundColor: '#00000000',
-			focusable: false, // Don't steal focus
+			focusable: true, // Make focusable by default for better Windows support
 			skipTaskbar: true,
 			visibleOnAllWorkspaces: true,
 			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
@@ -143,6 +190,9 @@ class DynamicIslandHelper {
 		// Enable mouse events when expanded so user can interact with it
 		this.setMouseEventHandling(false);
 
+		// Make window focusable when expanded so input fields can receive focus
+		this.dynamicIslandWindow.setFocusable(true);
+
 		// Notify renderer - window size stays the same
 		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: true });
 		log.info('Dynamic Island expanded');
@@ -157,6 +207,9 @@ class DynamicIslandHelper {
 		// Disable mouse events when collapsed so clicks pass through
 		this.setMouseEventHandling(true);
 
+		// Make window non-focusable when collapsed to prevent stealing focus
+		this.dynamicIslandWindow.setFocusable(false);
+
 		// Notify renderer - window size stays the same
 		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: false });
 		log.info('Dynamic Island collapsed');
@@ -169,6 +222,16 @@ class DynamicIslandHelper {
 			if (process.platform === 'darwin') {
 				// On macOS, use the forward option to allow clicks to pass through
 				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore, { forward: true });
+			} else if (process.platform === 'win32') {
+				// On Windows, when collapsed, allow clicks to pass through to overlay
+				// When expanded, capture all mouse events
+				if (ignore) {
+					// Collapsed state - allow clicks to pass through to overlay underneath
+					this.dynamicIslandWindow.setIgnoreMouseEvents(true, { forward: true });
+				} else {
+					// Expanded state - capture all mouse events
+					this.dynamicIslandWindow.setIgnoreMouseEvents(false);
+				}
 			} else {
 				// On other platforms, just ignore mouse events
 				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore);
@@ -176,7 +239,7 @@ class DynamicIslandHelper {
 			log.info(
 				`Dynamic Island mouse events ${
 					ignore ? 'ignored' : 'enabled'
-				} (expanded: ${!ignore})`,
+				} (expanded: ${!ignore}) on ${process.platform}`,
 			);
 		} catch (error) {
 			log.error('Error setting mouse event handling:', error);
@@ -219,6 +282,37 @@ class DynamicIslandHelper {
 		return this.isExpanded;
 	}
 
+	// Method to reposition Dynamic Island based on platform
+	repositionForPlatform() {
+		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
+
+		// Recalculate position based on current platform
+		if (process.platform === 'win32') {
+			this.position.y = 15; // Higher position on Windows
+		} else {
+			this.position.y = 30; // Normal position on Mac/Linux
+		}
+
+		// Update window position
+		this.dynamicIslandWindow.setPosition(this.position.x, this.position.y);
+		log.info(
+			`Dynamic Island repositioned for ${process.platform} at ${this.position.x},${this.position.y}`,
+		);
+	}
+
+	focus() {
+		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+			try {
+				// Focus the window and bring it to front
+				this.dynamicIslandWindow.focus();
+				this.dynamicIslandWindow.show();
+				log.info('Dynamic Island window focused');
+			} catch (error) {
+				log.error('Error focusing Dynamic Island window:', error);
+			}
+		}
+	}
+
 	destroy() {
 		log.info('🧹 DynamicIslandHelper destroy started...');
 
@@ -243,10 +337,18 @@ class DynamicIslandHelper {
 let mainWindow = null;
 let windowHelper = null;
 let dynamicIslandHelper = null;
+let pendingNotificationAction = null;
 
 // Auto-updater setup
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
+
+// Windows-specific auto-updater configuration
+if (process.platform === 'win32') {
+	// Enable auto-download for both dev and production
+	autoUpdater.autoDownload = true;
+	log.info('Windows auto-updater configured with auto-download for all environments');
+}
 
 // Update event forwarding
 autoUpdater.on('checking-for-update', () => {
@@ -256,10 +358,27 @@ autoUpdater.on('checking-for-update', () => {
 
 autoUpdater.on('update-available', (info) => {
 	log.info('Update available:', info);
+
+	// Notify frontend that update is available
 	mainWindow?.webContents.send('update-status', {
 		status: 'download-started',
 		version: info.version,
 	});
+
+	// If auto-download is disabled, start manual download
+	if (!autoUpdater.autoDownload) {
+		log.info('Auto-download disabled, starting manual download...');
+		autoUpdater.downloadUpdate().catch((downloadErr) => {
+			log.error('Manual download failed:', downloadErr);
+			mainWindow?.webContents.send('update-status', {
+				status: 'download-failed',
+				error: downloadErr.message,
+				details: { code: downloadErr.code },
+			});
+		});
+	} else {
+		log.info('Auto-download enabled, update will download automatically');
+	}
 });
 
 autoUpdater.on('update-not-available', (info) => {
@@ -269,23 +388,144 @@ autoUpdater.on('update-not-available', (info) => {
 
 autoUpdater.on('error', (err) => {
 	log.error('Update error:', err);
-	mainWindow?.webContents.send('update-status', {
-		status: 'error',
-		error: err.message,
-		details: { code: err.code, errno: err.errno },
-	});
+
+	// Handle Windows checksum mismatch specifically
+	if (err.message.includes('checksum mismatch') || err.code === 'ERR_CHECKSUM_MISMATCH') {
+		log.warn('Checksum mismatch detected - this may be due to unsigned builds on Windows');
+		mainWindow?.webContents.send('update-status', {
+			status: 'checksum-error',
+			error: 'Update verification failed. This may be due to unsigned builds.',
+			details: {
+				code: err.code,
+				errno: err.errno,
+				suggestion: 'Manual download may be required',
+			},
+		});
+	} else {
+		mainWindow?.webContents.send('update-status', {
+			status: 'error',
+			error: err.message,
+			details: { code: err.code, errno: err.errno },
+		});
+	}
 });
 
 autoUpdater.on('update-downloaded', (info) => {
 	log.info('Update downloaded:', info);
+
+	// Show user-friendly message
 	mainWindow?.webContents.send('update-status', {
 		status: 'download-completed',
 		version: info.version,
-		message: 'Restarting in 3 seconds...',
+		message: 'Update ready! App will restart in 3 seconds...',
 	});
-	setTimeout(() => autoUpdater.quitAndInstall(), 3000);
+
+	// Auto-restart after 3 seconds
+	setTimeout(() => {
+		log.info('Restarting app to install update...');
+		autoUpdater.quitAndInstall();
+	}, 3000);
 });
 
+function showNotification(title, body) {
+	const notification = new Notification({
+		title: title || 'Alert',
+		body: body || 'This is a test',
+		silent: false,
+		actions: [
+			{ type: 'button', text: 'Join Meet' },
+			{ type: 'button', text: 'Not Now' },
+		],
+	});
+
+	notification.on('action', (event, index) => {
+		if (index === 0) {
+			log.info('User clicked "Join Meet"');
+			handleNotificationAction('join-meet');
+		} else {
+			log.info('User clicked "Not Now"');
+		}
+	});
+
+	notification.on('click', () => {
+		log.info('Notification clicked - treating as "Join Meet"');
+		handleNotificationAction('join-meet');
+		if (mainWindow) mainWindow.focus();
+	});
+
+	notification.show();
+}
+function handleNotificationAction(action) {
+	pendingNotificationAction = action;
+
+	if (action === 'join-meet') {
+		if (windowHelper) {
+			// First, ensure overlay window exists and is created
+			let overlayWindow = windowHelper.getOverlayWindow();
+
+			if (!overlayWindow || overlayWindow.isDestroyed()) {
+				windowHelper.createOverlayWindow();
+
+				// Wait a moment for the window to be created
+				setTimeout(() => {
+					overlayWindow = windowHelper.getOverlayWindow();
+					if (overlayWindow && !overlayWindow.isDestroyed()) {
+						handleOverlayWindowReady(overlayWindow);
+					} else {
+						log.error('Failed to create overlay window');
+					}
+				}, 1000);
+			} else {
+				// Window exists, handle it directly
+				handleOverlayWindowReady(overlayWindow);
+			}
+
+			// Show and expand dynamic island
+			dynamicIslandHelper?.show();
+			dynamicIslandHelper?.expand();
+
+			pendingNotificationAction = null;
+		} else {
+			log.info('windowHelper not ready — action queued');
+		}
+	}
+}
+
+// Helper function to handle overlay window when it's ready
+function handleOverlayWindowReady(overlayWindow) {
+	// Show the overlay window first
+	windowHelper.showOverlayWindow();
+
+	// Focus the window to ensure it's visible
+	overlayWindow.focus();
+	overlayWindow.show();
+
+	// Wait for DOM to be ready before sending commands
+	overlayWindow.webContents.once('dom-ready', () => {
+		// Small delay to ensure React has mounted
+		setTimeout(() => {
+			// Send the startRecording command
+			overlayWindow.webContents.send('overlay-command', {
+				action: 'startRecording',
+			});
+		}, 500);
+	});
+
+	// Also listen for the window to finish loading
+	overlayWindow.webContents.once('did-finish-load', () => {
+		log.info('Overlay window finished loading');
+	});
+
+	// Additional safety check - if DOM ready doesn't fire within 3 seconds, try sending anyway
+	setTimeout(() => {
+		if (overlayWindow && !overlayWindow.isDestroyed()) {
+			log.info('Fallback: sending startRecording command after timeout');
+			overlayWindow.webContents.send('overlay-command', {
+				action: 'startRecording',
+			});
+		}
+	}, 3000);
+}
 // IPC Handlers for updates
 ipcMain.handle('check-for-updates', async () => {
 	log.info('Manual update check triggered');
@@ -317,6 +557,41 @@ ipcMain.handle('restart-app', () => {
 	if (process.env.NODE_ENV === 'development') return { success: false };
 	autoUpdater.quitAndInstall();
 	return { success: true };
+});
+
+// Add manual download handler for Windows checksum issues
+ipcMain.handle('force-download-update', async () => {
+	if (process.env.NODE_ENV === 'development') {
+		return { success: false, error: 'Not available in dev' };
+	}
+
+	try {
+		log.info('Force downloading update (skipping checksum verification)...');
+
+		// Temporarily disable autoDownload if it was enabled
+		const originalAutoDownload = autoUpdater.autoDownload;
+		autoUpdater.autoDownload = false;
+
+		// Start download
+		await autoUpdater.downloadUpdate();
+
+		// Restore original setting
+		autoUpdater.autoDownload = originalAutoDownload;
+
+		return { success: true, message: 'Force download initiated' };
+	} catch (error) {
+		log.error('Force download failed:', error);
+		return { success: false, error: error.message };
+	}
+});
+
+// Dynamic Island repositioning handler
+ipcMain.handle('reposition-dynamic-island', () => {
+	if (dynamicIslandHelper) {
+		dynamicIslandHelper.repositionForPlatform();
+		return { success: true, platform: process.platform };
+	}
+	return { success: false, error: 'Dynamic Island helper not available' };
 });
 
 ipcMain.handle('desktop:capture-screen', async () => {
@@ -369,8 +644,24 @@ ipcMain.handle('request-screen-recording-permission', async () => {
 
 	return { success: true, granted };
 });
+// Window state management functions
+function saveWindowState() {
+	if (mainWindow && !mainWindow.isDestroyed()) {
+		// Save current route and timestamp
+		lastWindowState = {
+			route: '/home', // Default route - can be enhanced to get actual route
+			timestamp: Date.now(),
+		};
+		log.info('Window state saved:', lastWindowState);
+	}
+}
+
+function restoreWindowState() {
+	return lastWindowState;
+}
+
 // Window creation
-function createWindow() {
+function createWindow(restoreState = false) {
 	mainWindow = new BrowserWindow({
 		title: 'Main window',
 		width: 1366,
@@ -380,6 +671,7 @@ function createWindow() {
 			preload: path.join(__dirname, 'preload.js'),
 			nodeIntegration: false,
 			contextIsolation: true,
+			devTools: true, // Enable developer tools in production
 		},
 	});
 
@@ -392,11 +684,103 @@ function createWindow() {
 	mainWindow.once('ready-to-show', () => {
 		mainWindow.show();
 		log.info('Window ready-to-show');
+		// Enable developer tools for main window in both development and production
+		log.info('Dev tools available with F12, Ctrl+F12, or Ctrl+Shift+I in all modes');
+
+		// If restoring state, navigate to the last known route
+		if (restoreState && lastWindowState.route) {
+			setTimeout(() => {
+				mainWindow.webContents.send('restore-window-state', lastWindowState);
+				log.info('Window state restoration message sent:', lastWindowState);
+			}, 1000); // Wait a bit for the app to fully load
+		}
 	});
 
-	// Check for updates in production
-	if (process.env.NODE_ENV !== 'development') {
+	// Save window state before closing (cross-platform)
+	mainWindow.on('close', (event) => {
+		// Save the current window state
+		saveWindowState();
+
+		// Windows-specific close behavior
+		if (process.platform === 'win32') {
+			if (!isQuitting) {
+				event.preventDefault();
+				mainWindow.hide();
+				log.info('Main window hidden to tray (Windows)');
+			}
+		}
+	});
+
+	// Check for updates in both dev and production
+	log.info('Starting automatic update check...');
+	// Delay update check to ensure app is fully loaded
+	setTimeout(() => {
 		autoUpdater.checkForUpdatesAndNotify();
+	}, 5000); // Wait 5 seconds after app loads
+}
+
+// Create system tray for Windows
+function createTray() {
+	if (process.platform !== 'win32') return;
+
+	try {
+		// Use the app icon for the tray - try multiple paths
+		let iconPath;
+		const possiblePaths = [
+			path.join(__dirname, '..', 'electron', 'assets', 've-black-circle-logo.png'), // Development
+			path.join(__dirname, 'assets', 've-black-circle-logo.png'), // Built app
+			path.join(__dirname, '..', 'public', 've-black-circle-logo.png'), // Fallback
+		];
+
+		// Find the first path that exists
+		const fs = require('fs');
+		for (const testPath of possiblePaths) {
+			if (fs.existsSync(testPath)) {
+				iconPath = testPath;
+				break;
+			}
+		}
+
+		if (!iconPath) {
+			log.warn('Tray icon not found, skipping tray creation');
+			return;
+		}
+		tray = new Tray(iconPath);
+		tray.setToolTip('VE Desktop App');
+
+		// Create tray menu
+		const contextMenu = Menu.buildFromTemplate([
+			{
+				label: 'Show App',
+				click: () => {
+					if (mainWindow && !mainWindow.isDestroyed()) {
+						mainWindow.show();
+						mainWindow.focus();
+					}
+				},
+			},
+			{
+				label: 'Quit',
+				click: () => {
+					isQuitting = true;
+					app.quit();
+				},
+			},
+		]);
+
+		tray.setContextMenu(contextMenu);
+
+		// Double-click tray icon to show app
+		tray.on('double-click', () => {
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				mainWindow.show();
+				mainWindow.focus();
+			}
+		});
+
+		log.info('System tray created for Windows');
+	} catch (error) {
+		log.error('Error creating system tray:', error);
 	}
 }
 
@@ -505,7 +889,27 @@ app.whenReady().then(() => {
 		}, 4000);
 	}
 
+	meetingMonitor.setNotificationHandler(showNotification);
+	meetingMonitor.startMeetingMonitor();
+
+	// 🎤 IPC: Start Mic Monitoring
+
 	createWindow();
+	createTray(); // Create system tray for Windows
+
+	// Windows compatibility startup message
+	if (process.platform === 'win32') {
+		log.info('🪟 Windows platform detected - initializing compatibility features...');
+		// Pre-load sharp module to ensure Windows compatibility
+		setTimeout(() => {
+			try {
+				loadSharpModule();
+				log.info('✅ Windows compatibility features initialized successfully');
+			} catch (error) {
+				log.warn('⚠️ Windows compatibility initialization had issues:', error.message);
+			}
+		}, 1000);
+	}
 
 	// Initialize WindowHelper for overlay window functionality
 	windowHelper = new WindowHelper();
@@ -519,6 +923,11 @@ app.whenReady().then(() => {
 	// Initialize DynamicIslandHelper for dynamic island functionality
 	dynamicIslandHelper = new DynamicIslandHelper();
 	dynamicIslandHelper.createDynamicIslandWindow();
+
+	if (pendingNotificationAction === 'join-meet') {
+		log.info('Replaying "Join Meet" action after app init');
+		handleNotificationAction('join-meet'); // This will now work
+	}
 
 	// Register global shortcut for dynamic island (Cmd+I)
 	const { globalShortcut } = require('electron');
@@ -576,6 +985,48 @@ app.whenReady().then(() => {
 			return { success: true, result };
 		} catch (error) {
 			log.error('Error expanding dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Handle chat mode activation to ensure input field can receive focus
+	ipcMain.handle('dynamic-island-chat-mode', async (event, isChatMode) => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island Helper not initialized' };
+			}
+
+			const dynamicIslandWindow = dynamicIslandHelper.getDynamicIslandWindow();
+			if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
+				// Make window focusable when entering chat mode
+				dynamicIslandWindow.setFocusable(isChatMode);
+
+				// Windows-specific focus handling
+				if (process.platform === 'win32' && isChatMode) {
+					// Force focus on Windows with multiple methods
+					dynamicIslandWindow.focus();
+					dynamicIslandWindow.show();
+
+					// Additional Windows focus method with delay
+					setTimeout(() => {
+						if (!dynamicIslandWindow.isDestroyed()) {
+							dynamicIslandWindow.focus();
+							// Send a focus event to the renderer
+							dynamicIslandWindow.webContents.send('force-focus');
+						}
+					}, 100);
+				}
+
+				log.info(
+					`Dynamic Island chat mode ${
+						isChatMode ? 'enabled' : 'disabled'
+					}, focusable: ${isChatMode}, platform: ${process.platform}`,
+				);
+			}
+
+			return { success: true };
+		} catch (error) {
+			log.error('Error setting dynamic island chat mode:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -685,6 +1136,19 @@ app.whenReady().then(() => {
 		}
 	});
 
+	ipcMain.handle('dynamic-island-focus', async () => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+			dynamicIslandHelper.focus();
+			return { success: true };
+		} catch (error) {
+			log.error('Error focusing dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	ipcMain.handle('dynamic-island-set-mouse-events', async (event, ignore) => {
 		try {
 			if (!dynamicIslandHelper) {
@@ -694,6 +1158,43 @@ app.whenReady().then(() => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error setting dynamic island mouse events:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Voice integration handlers for Dynamic Island
+	ipcMain.handle('dynamic-island-voice-connect', async () => {
+		try {
+			log.info('Dynamic Island voice connect requested');
+			// In the future, this could trigger specific voice setup for Dynamic Island
+			return { success: true, message: 'Voice connection initiated from Dynamic Island' };
+		} catch (error) {
+			log.error('Error connecting voice from Dynamic Island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('dynamic-island-voice-disconnect', async () => {
+		try {
+			log.info('Dynamic Island voice disconnect requested');
+			// In the future, this could trigger specific voice cleanup for Dynamic Island
+			return { success: true, message: 'Voice disconnection initiated from Dynamic Island' };
+		} catch (error) {
+			log.error('Error disconnecting voice from Dynamic Island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('dynamic-island-voice-status', async () => {
+		try {
+			// Return voice status for Dynamic Island
+			return {
+				success: true,
+				status: 'ready',
+				message: 'Voice integration ready for Dynamic Island',
+			};
+		} catch (error) {
+			log.error('Error getting voice status for Dynamic Island:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -709,6 +1210,21 @@ app.whenReady().then(() => {
 		} catch (error) {
 			log.error('Error toggling overlay window:', error);
 			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.on('notification-action', (event, action) => {
+		if (action === 'join-meet') {
+			log.info('Handling: User wants to join the meeting');
+			// ✅ Trigger logic to join meeting
+			// e.g., show overlay, start recording, etc.
+			windowHelper?.createOverlayWindow(); // or toggle
+			dynamicIslandHelper?.show();
+			dynamicIslandHelper?.expand();
+		} else if (action === 'not-now') {
+			log.info('User chose to skip joining the meeting');
+			// Optionally, disable auto-detection for a while
+			// e.g., set a cooldown timer
 		}
 	});
 
@@ -911,6 +1427,72 @@ app.whenReady().then(() => {
 		}
 	});
 
+	// Test handler for sending commands directly
+	ipcMain.handle('test-overlay-command', async (event, command) => {
+		try {
+			log.info('🧪 Testing overlay command:', command);
+			const overlayWindow = windowHelper?.getOverlayWindow();
+			if (overlayWindow && !overlayWindow.isDestroyed()) {
+				overlayWindow.webContents.send('overlay-command', command);
+				log.info('✅ Test command sent to overlay window');
+				return { success: true, commandSent: true };
+			} else {
+				log.info('❌ Overlay window not available for test command');
+				return {
+					success: false,
+					commandSent: false,
+					error: 'Overlay window not available',
+				};
+			}
+		} catch (error) {
+			log.error('Error testing overlay command:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Test handler for creating and showing overlay window
+	ipcMain.handle('test-overlay-window', async () => {
+		try {
+			log.info('🧪 Testing overlay window creation...');
+
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+
+			// Create overlay window
+			windowHelper.createOverlayWindow();
+			log.info('✅ Overlay window creation initiated');
+
+			// Wait a moment for the window to be created
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// Get the window reference
+			const overlayWindow = windowHelper.getOverlayWindow();
+			if (overlayWindow && !overlayWindow.isDestroyed()) {
+				log.info('✅ Overlay window created successfully');
+				log.info('Window visible:', overlayWindow.isVisible());
+				log.info('Window destroyed:', overlayWindow.isDestroyed());
+
+				// Show the window
+				windowHelper.showOverlayWindow();
+				overlayWindow.focus();
+
+				return {
+					success: true,
+					exists: true,
+					visible: overlayWindow.isVisible(),
+					destroyed: overlayWindow.isDestroyed(),
+				};
+			} else {
+				log.info('❌ Overlay window not available after creation');
+				return { success: false, error: 'Overlay window not available after creation' };
+			}
+		} catch (error) {
+			log.error('Error testing overlay window creation:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	ipcMain.handle('toggle-askAI-window', async () => {
 		try {
 			if (!windowHelper) {
@@ -1031,11 +1613,92 @@ app.whenReady().then(() => {
 		}
 	});
 
+	// Save current route from frontend
+	ipcMain.handle('save-current-route', async (event, route) => {
+		try {
+			lastWindowState.route = route;
+			lastWindowState.timestamp = Date.now();
+			log.info('Current route saved:', route);
+			return { success: true };
+		} catch (error) {
+			log.error('Error saving current route:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Home icon click handler - restore or recreate main window (cross-platform)
+	ipcMain.handle('restore-main-window', async () => {
+		try {
+			// Check if main window exists and is not destroyed
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				mainWindow.show();
+				mainWindow.focus();
+				log.info('Main window restored from home icon click');
+				return { success: true };
+			} else {
+				// Main window doesn't exist or is destroyed, recreate it
+				log.info('Main window not available, recreating it...');
+
+				// Recreate the main window with state restoration
+				createWindow(true);
+
+				// Wait for the window to be ready
+				await new Promise((resolve) => {
+					if (mainWindow && !mainWindow.isDestroyed()) {
+						mainWindow.once('ready-to-show', () => {
+							mainWindow.show();
+							mainWindow.focus();
+							log.info(
+								'Main window recreated and shown successfully with state restoration',
+							);
+							resolve();
+						});
+					} else {
+						log.error('Failed to recreate main window');
+						resolve();
+					}
+				});
+
+				return { success: true, message: 'Main window recreated with state restoration' };
+			}
+		} catch (error) {
+			log.error('Error restoring/recreating main window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	// Register gallery IPC handlers from galleryUtils
-	ipcMain.handle('process-image-with-sharp', processImageWithSharp);
-	ipcMain.handle('extract-image-metadata', extractImageMetadata);
-	ipcMain.handle('download-album-zip', downloadAlbumZip);
-	ipcMain.handle('create-zip-from-urls', createZipFromUrls);
+	ipcMain.handle('process-image-with-sharp', (event, data) => {
+		const helper = loadGalleryHelper();
+		if (!helper) {
+			return { success: false, error: 'Gallery helper not available' };
+		}
+		return safeProcessImageWithSharp(data, helper.processImageWithSharp);
+	});
+
+	ipcMain.handle('extract-image-metadata', (event, data) => {
+		const helper = loadGalleryHelper();
+		if (!helper) {
+			return { success: false, error: 'Gallery helper not available' };
+		}
+		return safeExtractImageMetadata(data, helper.extractImageMetadata);
+	});
+
+	ipcMain.handle('download-album-zip', (event, data) => {
+		const helper = loadGalleryHelper();
+		if (!helper) {
+			return { success: false, error: 'Gallery helper not available' };
+		}
+		return helper.downloadAlbumZip(event, data);
+	});
+
+	ipcMain.handle('create-zip-from-urls', (event, data) => {
+		const helper = loadGalleryHelper();
+		if (!helper) {
+			return { success: false, error: 'Gallery helper not available' };
+		}
+		return helper.createZipFromUrls(event, data);
+	});
 
 	// Clipboard IPC handlers
 	ipcMain.handle('clipboard-write-text', async (event, text) => {
@@ -1246,6 +1909,116 @@ app.whenReady().then(() => {
 				success: false,
 				error: error.message,
 			};
+		}
+	});
+
+	// Open developer tools handler for WebSocket debugging
+	ipcMain.handle('open-dev-tools', async (event, options = {}) => {
+		try {
+			const { targetWindow = 'current', mode = 'detach' } = options;
+			let window = null;
+
+			if (targetWindow === 'current') {
+				// Use the window that sent the request
+				window = BrowserWindow.fromWebContents(event.sender);
+			} else if (targetWindow === 'main') {
+				window = mainWindow;
+			} else if (targetWindow === 'overlay') {
+				window = windowHelper?.getOverlayWindow();
+			} else if (targetWindow === 'askAI') {
+				window = windowHelper?.getAskAIWindow();
+			}
+
+			if (window && !window.isDestroyed()) {
+				if (window.webContents.isDevToolsOpened()) {
+					window.webContents.closeDevTools();
+					log.info(`Closed dev tools for ${targetWindow} window`);
+				} else {
+					window.webContents.openDevTools({ mode });
+					log.info(`Opened dev tools for ${targetWindow} window in ${mode} mode`);
+				}
+				return {
+					success: true,
+					action: window.webContents.isDevToolsOpened() ? 'opened' : 'closed',
+				};
+			} else {
+				return { success: false, error: `${targetWindow} window not available` };
+			}
+		} catch (error) {
+			log.error('Error opening dev tools:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Send chat message from Dynamic Island to Ask AI handler
+	ipcMain.handle('send-chat-message-to-askai', async (event, chatMessage) => {
+		try {
+			log.info('Sending chat message from Dynamic Island to Ask AI:', chatMessage);
+
+			// Get the Ask AI window through windowHelper
+			let askAIWindow = windowHelper.getAskAIWindow();
+
+			// If Ask AI window doesn't exist or is destroyed, create it
+			if (!askAIWindow || askAIWindow.isDestroyed()) {
+				log.info('Ask AI window not available, creating new window...');
+				windowHelper.createAskAIWindow();
+
+				// Wait for window to be created and ready
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+
+				// Get the window reference again after creating it
+				askAIWindow = windowHelper.getAskAIWindow();
+			}
+
+			// Ensure window is visible
+			if (askAIWindow && !askAIWindow.isDestroyed()) {
+				if (!askAIWindow.isVisible()) {
+					log.info('Ask AI window exists but not visible, showing it...');
+					windowHelper.showAskAIWindow();
+					// Wait a bit for the window to be fully visible
+					await new Promise((resolve) => setTimeout(resolve, 500));
+				}
+
+				// Send the chat message to Ask AI window
+				askAIWindow.webContents.send('receive-chat-message', chatMessage);
+				log.info('Chat message sent to Ask AI window successfully');
+				return { success: true };
+			} else {
+				log.error('Ask AI window not available after creation attempts');
+				return { success: false, error: 'Ask AI window not available' };
+			}
+		} catch (error) {
+			log.error('Error sending chat message to Ask AI:', error);
+			return {
+				success: false,
+				error: error.message,
+			};
+		}
+	});
+
+	// Force open AskAI window handler (fallback for Dynamic Island)
+	ipcMain.handle('force-open-askai-window', async () => {
+		try {
+			log.info('Force opening AskAI window...');
+
+			// Try to create and show the window
+			windowHelper.createAskAIWindow();
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
+			windowHelper.showAskAIWindow();
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
+			const askAIWindow = windowHelper.getAskAIWindow();
+			if (askAIWindow && !askAIWindow.isDestroyed() && askAIWindow.isVisible()) {
+				log.info('AskAI window opened successfully');
+				return { success: true };
+			} else {
+				log.error('Failed to open AskAI window');
+				return { success: false, error: 'Window not available or visible' };
+			}
+		} catch (error) {
+			log.error('Error forcing open AskAI window:', error);
+			return { success: false, error: error.message };
 		}
 	});
 });

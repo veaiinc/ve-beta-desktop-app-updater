@@ -1,6 +1,8 @@
 // preload.js
 const { contextBridge, ipcRenderer } = require('electron/renderer');
 
+// Helper
+
 contextBridge.exposeInMainWorld('electronApi', {
 	send(channel, data) {
 		ipcRenderer.invoke(channel, data);
@@ -14,6 +16,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
 	downloadUpdate: () => ipcRenderer.invoke('download-update'),
+	forceDownloadUpdate: () => ipcRenderer.invoke('force-download-update'),
+	repositionDynamicIsland: () => ipcRenderer.invoke('reposition-dynamic-island'),
 
 	onUpdateStatus: (callback) => {
 		ipcRenderer.on('update-status', (event, data) => {
@@ -47,6 +51,35 @@ contextBridge.exposeInMainWorld('electronApi', {
 		ipcRenderer.removeAllListeners('shortcut-activated');
 	},
 
+	// 🔔 Notifications
+	showNotification: (title, body) => ipcRenderer.invoke('show-notification', { title, body }),
+
+	// 📣 Listen for mic activity
+
+	// Optional: Listen for notifications (if you want renderer-side handling)
+	onNotification: (callback) => {
+		ipcRenderer.on('notification-payload', (event, data) => callback(data));
+	},
+
+	// In preload.js, inside contextBridge.exposeInMainWorld('electronApi', { ... })
+
+	// ✅ Safe way to listen to any allowed channel
+	on: (channel, callback) => {
+		const validChannels = [
+			'start-mic-monitoring',
+			'notification-payload',
+			'mic-activity-detected',
+		];
+
+		if (!validChannels.includes(channel)) {
+			console.warn(`Attempted to listen to blocked channel: ${channel}`);
+			return;
+		}
+
+		ipcRenderer.on(channel, (event, ...args) => {
+			callback(...args);
+		});
+	},
 	// Overlay window APIs
 	overlay: {
 		toggleWindow: () => ipcRenderer.invoke('toggle-overlay-window'),
@@ -54,6 +87,11 @@ contextBridge.exposeInMainWorld('electronApi', {
 		hideAllWindows: () => ipcRenderer.invoke('hide-all-windows'),
 		sendTabContentToAskAI: (tabContent) =>
 			ipcRenderer.invoke('send-tab-content-to-askai', tabContent),
+		// Send chat message from Dynamic Island to Ask AI
+		sendChatMessageToAskAI: (chatMessage) =>
+			ipcRenderer.invoke('send-chat-message-to-askai', chatMessage),
+		// Force open AskAI window
+		forceOpenAskAIWindow: () => ipcRenderer.invoke('force-open-askai-window'),
 		// New methods for Dynamic Island integration
 		startRecording: () => ipcRenderer.invoke('overlay-start-recording'),
 		stopRecording: () => ipcRenderer.invoke('overlay-stop-recording'),
@@ -82,6 +120,10 @@ contextBridge.exposeInMainWorld('electronApi', {
 		sendStateUpdate: (state) => ipcRenderer.invoke('overlay-state-update', state),
 		// Test connection
 		testConnection: () => ipcRenderer.invoke('test-overlay-connection'),
+		// Test command sending
+		testCommand: (command) => ipcRenderer.invoke('test-overlay-command', command),
+		// Test overlay window creation
+		testWindow: () => ipcRenderer.invoke('test-overlay-window'),
 	},
 
 	// Ask AI window APIs
@@ -100,6 +142,13 @@ contextBridge.exposeInMainWorld('electronApi', {
 			});
 		},
 
+		// Listen for chat messages from Dynamic Island
+		onReceiveChatMessage: (callback) => {
+			ipcRenderer.on('receive-chat-message', (event, data) => {
+				callback(data);
+			});
+		},
+
 		// Camera permission API
 		camera: {
 			checkPermission: () => ipcRenderer.invoke('check-camera-permission'),
@@ -108,6 +157,23 @@ contextBridge.exposeInMainWorld('electronApi', {
 		},
 		removeTabContentListener: () => {
 			ipcRenderer.removeAllListeners('receive-tab-content');
+		},
+		removeChatMessageListener: () => {
+			ipcRenderer.removeAllListeners('receive-chat-message');
+		},
+	},
+
+	// Home icon click handler (cross-platform)
+	home: {
+		restoreMainWindow: () => ipcRenderer.invoke('restore-main-window'),
+		saveCurrentRoute: (route) => ipcRenderer.invoke('save-current-route', route),
+		onRestoreWindowState: (callback) => {
+			ipcRenderer.on('restore-window-state', (event, state) => {
+				callback(state);
+			});
+		},
+		removeRestoreWindowStateListener: () => {
+			ipcRenderer.removeAllListeners('restore-window-state');
 		},
 	},
 
@@ -125,6 +191,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 		writeText: (text) => ipcRenderer.invoke('clipboard-write-text', text),
 		readText: () => ipcRenderer.invoke('clipboard-read-text'),
 	},
+
+	// Developer tools API for WebSocket debugging
+	openDevTools: (options) => ipcRenderer.invoke('open-dev-tools', options),
 
 	// Download progress listener
 	onDownloadProgress: (callback) => {
@@ -150,7 +219,18 @@ contextBridge.exposeInMainWorld('electronApi', {
 		toggle: () => ipcRenderer.invoke('dynamic-island-toggle'),
 		show: () => ipcRenderer.invoke('dynamic-island-show'),
 		hide: () => ipcRenderer.invoke('dynamic-island-hide'),
+		focus: () => ipcRenderer.invoke('dynamic-island-focus'),
 		setMouseEvents: (ignore) => ipcRenderer.invoke('dynamic-island-set-mouse-events', ignore),
+		setChatMode: (isChatMode) => ipcRenderer.invoke('dynamic-island-chat-mode', isChatMode),
+
+		// Send chat message directly to AskAI
+		sendChatMessage: (message) => ipcRenderer.invoke('send-chat-message-to-askai', message),
+
+		// Voice integration APIs for Dynamic Island
+		connectVoice: () => ipcRenderer.invoke('dynamic-island-voice-connect'),
+		disconnectVoice: () => ipcRenderer.invoke('dynamic-island-voice-disconnect'),
+		getVoiceStatus: () => ipcRenderer.invoke('dynamic-island-voice-status'),
+
 		onStateChange: (callback) => {
 			ipcRenderer.on('dynamic-island-state', (event, data) => {
 				callback(data);
@@ -167,6 +247,23 @@ contextBridge.exposeInMainWorld('electronApi', {
 		},
 		removeOverlayStateListener: () => {
 			ipcRenderer.removeAllListeners('overlay-state-changed');
+		},
+		// Listen for voice status changes
+		onVoiceStatusChange: (callback) => {
+			ipcRenderer.on('voice-status-changed', (event, data) => {
+				callback(data);
+			});
+		},
+		removeVoiceStatusListener: () => {
+			ipcRenderer.removeAllListeners('voice-status-changed');
+		},
+		onForceFocus: (callback) => {
+			ipcRenderer.on('force-focus', (event) => {
+				callback();
+			});
+		},
+		removeForceFocusListener: () => {
+			ipcRenderer.removeAllListeners('force-focus');
 		},
 	},
 });
