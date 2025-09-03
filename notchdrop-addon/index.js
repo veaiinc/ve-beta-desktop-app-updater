@@ -1,22 +1,23 @@
 const { NotchDropAddon } = require('./build/Release/notchdrop_addon.node');
+const { ipcRenderer, BrowserWindow, ipcMain } = require('electron');
 
 class NotchDropAddonWrapper {
 	constructor() {
 		this.addon = new NotchDropAddon();
 		this.isInitialized = false;
-		
+
 		// CRITICAL FIX: Immediate response capability
 		this.bridgeReady = true; // Start as ready for immediate response
 		this.initializationPromise = null;
 		this.pendingActions = [];
 		this.electronProcessReady = true; // Assume ready for immediate actions
 		this.immediateMode = true; // Enable immediate action execution
-		
+
 		this.setupEventListeners();
-		
+
 		// CRITICAL FIX: Initialize bridge in background, don't wait
 		this.initializeBridge().catch(console.error);
-		
+
 		// Signal readiness immediately for first-click responsiveness
 		this.signalReadiness();
 	}
@@ -55,64 +56,68 @@ class NotchDropAddonWrapper {
 		if (this.initializationPromise) {
 			return this.initializationPromise;
 		}
-		
+
 		this.initializationPromise = new Promise(async (resolve, reject) => {
 			try {
-				console.log('🔧 NotchDropAddon: Starting bridge initialization with Swift handshake...');
-				
+				console.log(
+					'🔧 NotchDropAddon: Starting bridge initialization with Swift handshake...',
+				);
+
 				// Phase 1: Verify Electron context is available
 				await this.verifyElectronContext();
 				console.log('✅ Phase 1: Electron context verified');
-				
+
 				// Phase 2: Wait for core services to be ready
 				await this.waitForCoreServicesReady();
 				console.log('✅ Phase 2: Core services ready');
-				
+
 				// Phase 3: Test IPC communication
 				await this.verifyIPCCommunication();
 				console.log('✅ Phase 3: IPC communication verified');
-				
+
 				// Phase 4: Set bridge as ready
 				this.bridgeReady = true;
 				this.electronProcessReady = true;
-				
+
 				// Phase 5: Process any pending actions
 				if (this.pendingActions.length > 0) {
 					console.log(`🎯 Processing ${this.pendingActions.length} pending actions`);
 					const actionsToProcess = [...this.pendingActions];
 					this.pendingActions = [];
-					
+
 					for (const action of actionsToProcess) {
 						this.handleSwiftAction(action);
 					}
 				}
-				
+
 				// Phase 6: CRITICAL - Send readiness signal to Swift UI
 				await this.sendBridgeReadySignalToSwift();
 				console.log('✅ Phase 6: Bridge ready signal sent to Swift UI');
-				
-				console.log('🎉 NotchDropAddon: Bridge initialization completed with Swift handshake');
+
+				console.log(
+					'🎉 NotchDropAddon: Bridge initialization completed with Swift handshake',
+				);
 				resolve(true);
 			} catch (error) {
 				console.error('❌ NotchDropAddon: Bridge initialization failed:', error);
 				this.bridgeReady = false;
-				
+
 				// Send bridge failure signal to Swift UI
 				this.sendBridgeFailureSignalToSwift(error.message);
 				reject(error);
 			}
 		});
-		
+
 		return this.initializationPromise;
 	}
 
 	// Signal immediate readiness for first-click responsiveness
 	signalReadiness() {
 		console.log('🚀 NotchDropAddon: Signaling immediate readiness for first-click response');
-		
+
 		// Emit readiness signal immediately
 		this.emit('bridgeReady');
-		
+
 		// Signal to Swift UI that we're ready for immediate actions
 		try {
 			if (typeof global !== 'undefined' && global.notchDropSwiftCallback) {
@@ -121,26 +126,25 @@ class NotchDropAddonWrapper {
 		} catch (error) {
 			// Ignore callback errors in immediate mode
 		}
-		
+
 		console.log('✅ NotchDropAddon: Immediate readiness signaled');
 	}
-	
+
 	// CRITICAL FIX: Wait for core Electron services to be ready
 	async waitForCoreServicesReady() {
 		return new Promise(async (resolve) => {
 			// Wait for basic Electron services with progressive checking
 			let attempts = 0;
 			const maxAttempts = 20;
-			
+
 			const checkServices = async () => {
 				attempts++;
-				
+
 				// Check if main window exists (indicates Electron is fully ready)
 				try {
 					if (typeof require !== 'undefined') {
-						const { BrowserWindow } = require('electron');
 						const windows = BrowserWindow.getAllWindows();
-						
+
 						if (windows.length > 0) {
 							console.log(`✅ Core services ready (${windows.length} windows found)`);
 							resolve(true);
@@ -150,21 +154,21 @@ class NotchDropAddonWrapper {
 				} catch (e) {
 					// Not in main process or Electron not ready
 				}
-				
+
 				if (attempts >= maxAttempts) {
 					console.log('⚠️ Core services readiness timeout, proceeding anyway');
 					resolve(true);
 					return;
 				}
-				
+
 				// Wait and retry
 				setTimeout(checkServices, 200);
 			};
-			
+
 			checkServices();
 		});
 	}
-	
+
 	// CRITICAL FIX: Verify IPC communication is working
 	async verifyIPCCommunication() {
 		return new Promise((resolve, reject) => {
@@ -172,23 +176,28 @@ class NotchDropAddonWrapper {
 				// Try to verify IPC is working by attempting a test call
 				if (typeof require !== 'undefined') {
 					try {
-						const { ipcRenderer } = require('electron');
 						if (ipcRenderer) {
 							// Test basic IPC communication
-							ipcRenderer.invoke('test-overlay-connection').then(() => {
-								console.log('✅ IPC communication test passed');
-								resolve(true);
-							}).catch((error) => {
-								console.warn('⚠️ IPC test failed but proceeding:', error.message);
-								resolve(true); // Proceed anyway
-							});
+							ipcRenderer
+								.invoke('test-overlay-connection')
+								.then(() => {
+									console.log('✅ IPC communication test passed');
+									resolve(true);
+								})
+								.catch((error) => {
+									console.warn(
+										'⚠️ IPC test failed but proceeding:',
+										error.message,
+									);
+									resolve(true); // Proceed anyway
+								});
 							return;
 						}
 					} catch (e) {
 						// Not in renderer process
 					}
 				}
-				
+
 				// If we can't test IPC directly, just resolve
 				console.log('✅ IPC verification skipped (not in renderer context)');
 				resolve(true);
@@ -198,14 +207,14 @@ class NotchDropAddonWrapper {
 			}
 		});
 	}
-	
+
 	// CRITICAL FIX: Send bridge ready signal to Swift UI
 	async sendBridgeReadySignalToSwift() {
 		try {
 			// Use the existing Swift action callback system to notify Swift
 			console.log('📡 Sending bridge ready signal to Swift UI');
 			this.emit('bridgeReady', { ready: true, timestamp: Date.now() });
-			
+
 			// Also try to trigger a Swift callback if available
 			if (typeof global !== 'undefined' && global.notchDropSwiftCallback) {
 				global.notchDropSwiftCallback('bridgeReady', 'true');
@@ -214,13 +223,13 @@ class NotchDropAddonWrapper {
 			console.error('❌ Failed to send bridge ready signal to Swift:', error);
 		}
 	}
-	
+
 	// CRITICAL FIX: Send bridge failure signal to Swift UI
 	sendBridgeFailureSignalToSwift(errorMessage) {
 		try {
 			console.log('📡 Sending bridge failure signal to Swift UI');
 			this.emit('bridgeFailure', { error: errorMessage, timestamp: Date.now() });
-			
+
 			// Also try to trigger a Swift callback if available
 			if (typeof global !== 'undefined' && global.notchDropSwiftCallback) {
 				global.notchDropSwiftCallback('bridgeFailure', errorMessage);
@@ -229,7 +238,7 @@ class NotchDropAddonWrapper {
 			console.error('❌ Failed to send bridge failure signal to Swift:', error);
 		}
 	}
-	
+
 	// CRITICAL FIX: Verify Electron context is ready
 	async verifyElectronContext() {
 		return new Promise((resolve, reject) => {
@@ -237,7 +246,6 @@ class NotchDropAddonWrapper {
 				// Try to access Electron APIs
 				if (typeof require !== 'undefined') {
 					try {
-						const { ipcRenderer } = require('electron');
 						if (ipcRenderer) {
 							console.log('✅ NotchDropAddon: ipcRenderer available');
 							resolve(true);
@@ -247,9 +255,8 @@ class NotchDropAddonWrapper {
 						// ipcRenderer not available, we're in main process
 						console.log('📍 NotchDropAddon: Running in main process');
 					}
-					
+
 					try {
-						const { ipcMain } = require('electron');
 						if (ipcMain) {
 							console.log('✅ NotchDropAddon: ipcMain available');
 							resolve(true);
@@ -259,7 +266,7 @@ class NotchDropAddonWrapper {
 						// ipcMain not available either
 					}
 				}
-				
+
 				console.log('✅ NotchDropAddon: Electron context verified (generic)');
 				resolve(true);
 			} catch (error) {
@@ -280,18 +287,20 @@ class NotchDropAddonWrapper {
 				data = actionData.slice(sepIndex + 1);
 			}
 			console.log('⚡ IMMEDIATE: Processing Swift action:', action, 'with data:', data);
-			
+
 			// CRITICAL FIX: Execute critical actions immediately regardless of bridge state
 			if (this.isCriticalAction(action)) {
-				console.log('🚀 CRITICAL ACTION: Executing immediately for first-click responsiveness');
+				console.log(
+					'🚀 CRITICAL ACTION: Executing immediately for first-click responsiveness',
+				);
 				return this.executeImmediately(action, data);
 			}
-			
+
 			// For non-critical actions, check bridge readiness
 			if (!this.bridgeReady && !this.immediateMode) {
 				console.log('⏳ Bridge not ready, queuing action:', action);
 				this.pendingActions.push(actionData);
-				
+
 				// Trigger bridge initialization if not already in progress
 				if (!this.initializationPromise) {
 					this.initializeBridge().catch(console.error);
@@ -313,7 +322,7 @@ class NotchDropAddonWrapper {
 			'triggerOverlayToggleLiveIntelligence',
 			'stopRecording',
 			'pauseRecording',
-			'resumeRecording'
+			'resumeRecording',
 		];
 		return criticalActions.includes(action);
 	}
@@ -321,7 +330,7 @@ class NotchDropAddonWrapper {
 	// Execute critical actions immediately without waiting for bridge
 	executeImmediately(action, data) {
 		console.log('⚡ EXECUTING IMMEDIATELY:', action);
-		
+
 		switch (action) {
 			case 'startRecording':
 				console.log('🎤 IMMEDIATE: Swift start recording - opening overlay NOW');
@@ -424,7 +433,7 @@ class NotchDropAddonWrapper {
 	async triggerOverlayRecording() {
 		try {
 			console.log('🎤 IMMEDIATE: Triggering overlay recording from Swift UI');
-			
+
 			// CRITICAL FIX: Ensure bridge is ready before proceeding
 			if (!this.bridgeReady) {
 				console.log('⏳ Bridge not ready, initializing first...');
@@ -457,7 +466,9 @@ class NotchDropAddonWrapper {
 					// Simulate the IPC call directly since we're in main process
 					// We'll emit the action to be handled by the existing IPC handler
 					this.emit('requestOverlayRecording');
-					console.log('✅ IMMEDIATE: Overlay recording request emitted from main process');
+					console.log(
+						'✅ IMMEDIATE: Overlay recording request emitted from main process',
+					);
 					return { success: true };
 				} catch (error) {
 					console.error('❌ Error in main process overlay trigger:', error);
@@ -483,7 +494,6 @@ class NotchDropAddonWrapper {
 			if (typeof require !== 'undefined') {
 				try {
 					// Try to use ipcRenderer (renderer process)
-					const { ipcRenderer } = require('electron');
 					if (ipcRenderer) {
 						const result = await ipcRenderer.invoke('overlay-stop-recording');
 						console.log('Overlay stop recording result:', result);
@@ -658,7 +668,7 @@ class NotchDropAddonWrapper {
 			this.addon.initialize();
 			this.isInitialized = true;
 			console.log('✅ NotchDrop addon initialized successfully');
-			
+
 			// Ensure bridge initialization is also started
 			if (!this.bridgeReady && !this.initializationPromise) {
 				this.initializeBridge().catch(console.error);
@@ -668,24 +678,24 @@ class NotchDropAddonWrapper {
 			throw error;
 		}
 	}
-	
+
 	// CRITICAL FIX: Bridge readiness check methods
 	isBridgeReady() {
 		return this.bridgeReady && this.isInitialized;
 	}
-	
+
 	async waitForBridgeReady(timeoutMs = 5000) {
 		if (this.isBridgeReady()) {
 			return true;
 		}
-		
+
 		console.log('⏳ Waiting for bridge to be ready...');
 		const startTime = Date.now();
-		
-		while (!this.isBridgeReady() && (Date.now() - startTime) < timeoutMs) {
-			await new Promise(resolve => setTimeout(resolve, 100));
+
+		while (!this.isBridgeReady() && Date.now() - startTime < timeoutMs) {
+			await new Promise((resolve) => setTimeout(resolve, 100));
 		}
-		
+
 		const ready = this.isBridgeReady();
 		console.log(ready ? '✅ Bridge is ready!' : '❌ Bridge readiness timeout');
 		return ready;
@@ -928,7 +938,7 @@ class NotchDropAddonWrapper {
 	// CRITICAL FIX: Immediate overlay trigger methods for first-click responsiveness
 	async triggerOverlayRecordingImmediate() {
 		console.log('⚡ IMMEDIATE: Triggering overlay recording NOW - no waiting');
-		
+
 		try {
 			// Method 1: Direct IPC call to main process
 			if (typeof require !== 'undefined') {
@@ -936,8 +946,13 @@ class NotchDropAddonWrapper {
 					const { ipcRenderer } = require('electron');
 					if (ipcRenderer) {
 						console.log('📡 Using ipcRenderer for immediate overlay trigger');
-						const result = await ipcRenderer.invoke('notchdrop:triggerOverlayRecording');
-						console.log('✅ Immediate overlay recording triggered via ipcRenderer:', result);
+						const result = await ipcRenderer.invoke(
+							'notchdrop:triggerOverlayRecording',
+						);
+						console.log(
+							'✅ Immediate overlay recording triggered via ipcRenderer:',
+							result,
+						);
 						return result;
 					}
 				} catch (e) {
@@ -970,7 +985,6 @@ class NotchDropAddonWrapper {
 			this.emit('triggerOverlayRecording', { immediate: true });
 			console.log('✅ Immediate overlay recording event emitted');
 			return { success: true, method: 'event-emission' };
-
 		} catch (error) {
 			console.error('❌ Failed to trigger immediate overlay recording:', error);
 			return { success: false, error: error.message };
@@ -979,7 +993,7 @@ class NotchDropAddonWrapper {
 
 	async triggerOverlayToggleLiveIntelligenceImmediate() {
 		console.log('⚡ IMMEDIATE: Triggering overlay live intelligence NOW - no waiting');
-		
+
 		try {
 			// Method 1: Direct IPC call to main process
 			if (typeof require !== 'undefined') {
@@ -987,8 +1001,13 @@ class NotchDropAddonWrapper {
 					const { ipcRenderer } = require('electron');
 					if (ipcRenderer) {
 						console.log('📡 Using ipcRenderer for immediate live intelligence trigger');
-						const result = await ipcRenderer.invoke('notchdrop:triggerOverlayToggleLiveIntelligence');
-						console.log('✅ Immediate live intelligence triggered via ipcRenderer:', result);
+						const result = await ipcRenderer.invoke(
+							'notchdrop:triggerOverlayToggleLiveIntelligence',
+						);
+						console.log(
+							'✅ Immediate live intelligence triggered via ipcRenderer:',
+							result,
+						);
 						return result;
 					}
 				} catch (e) {
@@ -998,7 +1017,9 @@ class NotchDropAddonWrapper {
 				try {
 					const { ipcMain } = require('electron');
 					if (ipcMain) {
-						console.log('📡 Using process emit for immediate live intelligence trigger');
+						console.log(
+							'📡 Using process emit for immediate live intelligence trigger',
+						);
 						process.emit('swift-ui-trigger-overlay-live-intelligence-immediate');
 						console.log('✅ Immediate live intelligence event emitted');
 						return { success: true, method: 'process-emit' };
@@ -1021,7 +1042,6 @@ class NotchDropAddonWrapper {
 			this.emit('triggerOverlayToggleLiveIntelligence', { immediate: true });
 			console.log('✅ Immediate live intelligence event emitted');
 			return { success: true, method: 'event-emission' };
-
 		} catch (error) {
 			console.error('❌ Failed to trigger immediate overlay live intelligence:', error);
 			return { success: false, error: error.message };
