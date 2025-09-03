@@ -89,11 +89,11 @@ class DynamicIslandHelper {
 		this.position.x =
 			Math.floor(this.screenWidth / 2) - Math.floor(this.expandedSize.width / 2);
 
-		// Platform-specific positioning
+		// Platform-specific positioning - eliminate gap with menu bar
 		if (process.platform === 'win32') {
-			this.position.y = 0; // Higher position on Windows
+			this.position.y = 0; // Slightly above screen edge on Windows
 		} else {
-			this.position.y = 30; // Normal position on Mac/Linux
+			this.position.y = 0; // Slightly above screen edge on Mac/Linux to eliminate menu bar gap
 		}
 	}
 
@@ -111,7 +111,7 @@ class DynamicIslandHelper {
 			width: this.expandedSize.width, // Start with expanded size (555x150)
 			height: this.expandedSize.height, // Start with expanded size (555x150)
 			x: this.position.x,
-			y: this.position.y,
+			y: this.position.y, // Y=0 to stick to top of screen
 			webPreferences: {
 				nodeIntegration: false,
 				contextIsolation: true,
@@ -120,7 +120,7 @@ class DynamicIslandHelper {
 			},
 			show: false,
 			alwaysOnTop: true,
-			frame: false,
+			frame: false, // Frameless to blend with menu bar
 			transparent: true,
 			fullscreenable: false,
 			hasShadow: false,
@@ -150,9 +150,9 @@ class DynamicIslandHelper {
 			log.error('Failed to load dynamic island URL:', err);
 		});
 
-		// Configure for macOS
+		// Configure for macOS - ensure it stays at the very top
 		if (process.platform === 'darwin') {
-			this.dynamicIslandWindow.setAlwaysOnTop(true, 'floating');
+			this.dynamicIslandWindow.setAlwaysOnTop(true, 'screen-saver');
 			this.dynamicIslandWindow.setVisibleOnAllWorkspaces(true, {
 				visibleOnFullScreen: true,
 				skipTransformProcessType: true,
@@ -160,7 +160,7 @@ class DynamicIslandHelper {
 			this.dynamicIslandWindow.setHiddenInMissionControl(true);
 			this.dynamicIslandWindow.setMovable(true);
 		} else {
-			this.dynamicIslandWindow.setAlwaysOnTop(true, 'floating');
+			this.dynamicIslandWindow.setAlwaysOnTop(true, 'screen-saver');
 		}
 
 		// Set initial mouse event handling - start with mouse events ignored since it's collapsed
@@ -281,11 +281,11 @@ class DynamicIslandHelper {
 	repositionForPlatform() {
 		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
 
-		// Recalculate position based on current platform
+		// Recalculate position based on current platform - eliminate gap with menu bar
 		if (process.platform === 'win32') {
-			this.position.y = 15; // Higher position on Windows
+			this.position.y = -5; // Slightly above screen edge on Windows
 		} else {
-			this.position.y = 30; // Normal position on Mac/Linux
+			this.position.y = -8; // Slightly above screen edge on Mac/Linux to eliminate menu bar gap
 		}
 
 		// Update window position

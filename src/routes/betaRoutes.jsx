@@ -61,7 +61,6 @@ import MeetBotWrapper from '../views/features/meetBot/meetBotWrapper';
 import ProactiveSuggestions from '../views/features/homePage/ambientAi/ProactiveSuggestions';
 import CardMeetBot from '../views/features/meetBot/CardMeetBot';
 import ChatPage from '../views/components/homePage/ChatPage';
-import DynamicIslandControls from '../notch/components/DynamicIslandControls';
 import NotesWrapper from '../views/features/notesModule/NotesWrapper';
 
 const betaRoutes = [
@@ -102,14 +101,7 @@ const betaRoutes = [
 			</AuthWrapper>
 		),
 	},
-	{
-		path: '/dynamic-island',
-		element: (
-			<AuthWrapper title={'Dynamic Island Demo'}>
-				<DynamicIslandControls />
-			</AuthWrapper>
-		),
-	},
+	
 	// ========================================
 	// AI & ASSISTANT FEATURES
 	// ========================================

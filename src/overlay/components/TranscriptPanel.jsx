@@ -23,6 +23,8 @@ const TranscriptionItem = memo(({ speaker, text, timestamp }) => {
 	);
 });
 
+TranscriptionItem.displayName = 'TranscriptionItem';
+
 const TranscriptPanel = ({
 	onClose,
 	onShowLiveIntelligence,
@@ -118,7 +120,16 @@ const TranscriptPanel = ({
 						) : isMuted ? (
 							<div className="status-muted">Muted</div>
 						) : (
-							<div className="status-recording">Recording...</div>
+							<div className="status-recording">
+								<span>Recording</span>
+								<div className="recording-wave-animation">
+									<div className="wave-bar"></div>
+									<div className="wave-bar"></div>
+									<div className="wave-bar"></div>
+									<div className="wave-bar"></div>
+									<div className="wave-bar"></div>
+								</div>
+							</div>
 						)
 					) : (
 						<div className="status-inactive">Click Listen to start recording</div>
