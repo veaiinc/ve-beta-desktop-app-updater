@@ -517,6 +517,8 @@ const useAssemblyTranscription = ({
 		async ({ tenantId, sessionId, meetingId, jwtToken, isAiIntelligenceEnabled }) => {
 			try {
 				// First ensure WebSocket connection
+				setIsMuted(false);
+				muteRef.current = false;
 				await startAudioCapture();
 				if (!websocketRef.current || websocketRef.current.readyState !== WebSocket.OPEN) {
 					log('Establishing connection...');

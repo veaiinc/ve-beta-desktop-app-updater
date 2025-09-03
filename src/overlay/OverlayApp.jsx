@@ -279,20 +279,6 @@ const OverlayApp = () => {
 		closeLiveIntelligenceConnection();
 		closeRecallConnection();
 
-		setInfo((prev) => ({
-			...prev,
-			isMeetIsOngoing: false,
-			meetingData: null,
-			transcriptions: [],
-			liveIntelligenceData: {
-				askUser: [],
-				needHelp: [],
-				actions: [],
-				files: [],
-				allThreads: [],
-			},
-		}));
-
 		// Reset stopping flag after cleanup
 		setTimeout(() => {
 			isStoppingRef.current = false;
@@ -381,7 +367,7 @@ const OverlayApp = () => {
 				window.electronApi.overlay.removeCommandListener();
 			}
 		};
-	}, [toggleMute]);
+	}, [toggleMute, startRecording, stopRecording]);
 
 	// Check ask AI input focus state periodically
 	useEffect(() => {
