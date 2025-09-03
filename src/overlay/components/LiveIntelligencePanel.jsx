@@ -180,8 +180,7 @@ const LiveIntelligencePanel = ({
 							))
 						) : (
 							<div className="empty-content">
-								No threads yet. Start recording to see live intelligence
-								suggestions.
+								Start speaking to see live intelligence suggestions.
 							</div>
 						)}
 					</div>

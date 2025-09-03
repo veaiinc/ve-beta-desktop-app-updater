@@ -162,6 +162,7 @@ const OverlayApp = () => {
 	} = useAssemblyTranscription({
 		onTranscriptionUpdate: handleUpdateTranscription,
 		onLiveIntelligenceResponse: handleTranscriptionSuggestions,
+		notification,
 	});
 
 	const { closeWebSocketConnection: closeLiveIntelligenceConnection } =
