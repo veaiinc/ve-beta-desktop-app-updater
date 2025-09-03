@@ -142,7 +142,6 @@ print_status "Creating distribution package..."
 mkdir -p dist
 cp -r build/Release/* dist/
 cp package.json dist/
-cp README.md dist/
 cp index.js dist/
 
 print_success "Distribution package created in dist/"
