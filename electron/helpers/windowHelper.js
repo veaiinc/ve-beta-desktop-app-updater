@@ -35,10 +35,10 @@ class WindowHelper {
 		// Position at center, below Dynamic Island with proper spacing
 		this.currentX = Math.floor(this.screenWidth / 2) - Math.floor(this.windowSize.width / 2);
 
-		// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
+		// Add proper spacing from Dynamic Island (which is now at Y=-8 with height ~280)
 		const dynamicIslandHeight = 180; // Height of expanded Dynamic Island
 		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-		this.currentY = 10 + dynamicIslandHeight + gapFromDynamicIsland;
+		this.currentY = 0 + dynamicIslandHeight + gapFromDynamicIsland;
 
 		const windowSettings = {
 			width: this.windowSize.width,
@@ -64,7 +64,8 @@ class WindowHelper {
 			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel', // Use normal window type in development
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
-			resizable: process.env.NODE_ENV === 'development', // Allow resizing in development
+			resizable: false, // Disable resizing 
+			movable: true, // Explicitly enable window movement
 		};
 
 		// Platform-specific window settings
@@ -153,10 +154,10 @@ class WindowHelper {
 		const askAIX =
 			Math.floor(this.screenWidth / 2) - Math.floor(this.askAIWindowSize.width / 2);
 
-		// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
+		// Add proper spacing from Dynamic Island (which is now at Y=-8 with height ~280)
 		const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
 		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-		const askAIY = 10 + dynamicIslandHeight + gapFromDynamicIsland;
+		const askAIY = -8 + dynamicIslandHeight + gapFromDynamicIsland;
 
 		const windowSettings = {
 			width: this.askAIWindowSize.width,
@@ -182,7 +183,8 @@ class WindowHelper {
 			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
-			resizable: process.env.NODE_ENV === 'development',
+			resizable: false, // Disable resizing - keep only movable functionality
+			movable: true, // Explicitly enable window movement
 		};
 
 		// Platform-specific window settings
@@ -259,12 +261,7 @@ class WindowHelper {
 			}
 		});
 
-		this.overlayWindow.on('resize', () => {
-			if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
-				const bounds = this.overlayWindow.getBounds();
-				this.windowSize = { width: bounds.width, height: bounds.height };
-			}
-		});
+		// Resize event listener removed - resizing is disabled
 
 		this.overlayWindow.on('closed', () => {
 			this.overlayWindow = null;
@@ -287,12 +284,7 @@ class WindowHelper {
 			}
 		});
 
-		this.askAIWindow.on('resize', () => {
-			if (this.askAIWindow && !this.askAIWindow.isDestroyed()) {
-				const bounds = this.askAIWindow.getBounds();
-				this.askAIWindowSize = { width: bounds.width, height: bounds.height };
-			}
-		});
+		// Resize event listener removed - resizing is disabled
 
 		this.askAIWindow.on('closed', () => {
 			this.askAIWindow = null;
@@ -376,12 +368,12 @@ class WindowHelper {
 		const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
 		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
 
-		// Platform-specific Dynamic Island Y position
+		// Platform-specific Dynamic Island Y position - eliminate gap with menu bar
 		let dynamicIslandY;
 		if (process.platform === 'win32') {
-			dynamicIslandY = 0; // Higher position on Windows
+			dynamicIslandY = 0; // Slightly above screen edge on Windows
 		} else {
-			dynamicIslandY = 30; // Normal position on Mac/Linux
+			dynamicIslandY = -8; // Slightly above screen edge on Mac/Linux to eliminate menu bar gap
 		}
 
 		const topY = dynamicIslandY + dynamicIslandHeight + gapFromDynamicIsland;
@@ -465,12 +457,12 @@ class WindowHelper {
 			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
 			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
 
-			// Platform-specific Dynamic Island Y position
+			// Platform-specific Dynamic Island Y position - eliminate gap with menu bar
 			let dynamicIslandY;
 			if (process.platform === 'win32') {
-				dynamicIslandY = 15; // Higher position on Windows
+				dynamicIslandY = -5; // Slightly above screen edge on Windows
 			} else {
-				dynamicIslandY = 30; // Normal position on Mac/Linux
+				dynamicIslandY = -8; // Slightly above screen edge on Mac/Linux to eliminate menu bar gap
 			}
 
 			askAIY = dynamicIslandY + dynamicIslandHeight + gapFromDynamicIsland;
@@ -553,34 +545,34 @@ class WindowHelper {
 			maxWidthPercent = 0.75; // Allow up to 75% for side-by-side layout
 		}
 
-		const newWidth = Math.min(width + 32, Math.floor(workArea.width * maxWidthPercent));
-		const newHeight = Math.ceil(height + 16);
+		const newWidth = Math.min(width, Math.floor(workArea.width * maxWidthPercent));
+		const newHeight = Math.ceil(height);
 
-		// Update overlay positioning and maintain side-by-side layout if ask AI is visible
+		// Get current window position to preserve user's manual positioning
+		const currentBounds = this.overlayWindow.getBounds();
+		const currentX = currentBounds.x;
+		const currentY = currentBounds.y;
+
+		// Only update the size, preserve the current position
+		this.overlayWindow.setBounds({
+			x: currentX,
+			y: currentY,
+			width: newWidth,
+			height: newHeight,
+		});
+
+		// Update position tracking to reflect current position
+		this.windowPosition = { x: currentX, y: currentY };
+		this.currentX = currentX;
+		this.currentY = currentY;
+
+		// Update ask AI window position only if it's visible and we need to maintain side-by-side layout
 		if (this.isAskAIWindowVisible() && this.askAIWindow && !this.askAIWindow.isDestroyed()) {
-			// Calculate side-by-side positions with gap
+			// Position ask AI to the right of overlay with gap
 			const gap = 20;
-			const totalWidth = newWidth + this.askAIWindowSize.width + gap;
-			const startX = Math.floor(workArea.width / 2) - Math.floor(totalWidth / 2);
-			const overlayX = startX;
-			const askAIX = startX + newWidth + gap;
+			const askAIX = currentX + newWidth + gap;
+			const askAIY = currentY; // Same Y level as overlay
 
-			// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
-			// Position overlay below Dynamic Island with a gap
-			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
-			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-			const overlayY = 30 + dynamicIslandHeight + gapFromDynamicIsland;
-			const askAIY = overlayY; // Same Y level as overlay
-
-			// Update overlay window
-			this.overlayWindow.setBounds({
-				x: overlayX,
-				y: overlayY,
-				width: newWidth,
-				height: newHeight,
-			});
-
-			// Update ask AI window position to maintain side-by-side layout
 			this.askAIWindow.setBounds({
 				x: askAIX,
 				y: askAIY,
@@ -588,11 +580,8 @@ class WindowHelper {
 				height: this.askAIWindowSize.height,
 			});
 
-			// Update position tracking for both windows
-			this.windowPosition = { x: overlayX, y: overlayY };
+			// Update ask AI position tracking
 			this.askAIWindowPosition = { x: askAIX, y: askAIY };
-			this.currentX = overlayX;
-			this.currentY = overlayY;
 
 			// Make sure ask AI stays on top
 			setTimeout(() => {
@@ -600,25 +589,6 @@ class WindowHelper {
 					this.askAIWindow.moveTop();
 				}
 			}, 50);
-		} else {
-			// Standard centering when ask AI is not visible
-			const centerX = Math.floor(workArea.width / 2) - Math.floor(newWidth / 2);
-
-			// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
-			// Position overlay below Dynamic Island with a gap
-			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
-			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-			const topY = 30 + dynamicIslandHeight + gapFromDynamicIsland;
-
-			this.overlayWindow.setBounds({
-				x: centerX,
-				y: topY,
-				width: newWidth,
-				height: newHeight,
-			});
-			this.windowPosition = { x: centerX, y: topY };
-			this.currentX = centerX;
-			this.currentY = topY;
 		}
 
 		this.windowSize = { width: newWidth, height: newHeight };
@@ -630,48 +600,31 @@ class WindowHelper {
 		const workArea = screen.getPrimaryDisplay().workAreaSize;
 
 		const newWidth = Math.min(width, 600); // Allow up to 600px width
-		const newHeight = Math.min(height, 500); // Max height 400px
+		const newHeight = Math.min(height, 500); // Max height 500px
 
-		// Update ask AI positioning and maintain side-by-side layout if overlay is visible
-		if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
-			// Position ask AI to the right of overlay with gap
-			const gap = 20;
-			const askAIX = this.currentX + this.windowSize.width + gap;
-			const askAIY = this.currentY; // Same Y level as overlay
+		// Get current window position to preserve user's manual positioning
+		const currentBounds = this.askAIWindow.getBounds();
+		const currentX = currentBounds.x;
+		const currentY = currentBounds.y;
 
-			this.askAIWindow.setBounds({
-				x: askAIX,
-				y: askAIY,
-				width: newWidth,
-				height: newHeight,
-			});
-			this.askAIWindowPosition = { x: askAIX, y: askAIY };
-			this.askAIWindowSize = { width: newWidth, height: newHeight };
+		// Only update the size, preserve the current position
+		this.askAIWindow.setBounds({
+			x: currentX,
+			y: currentY,
+			width: newWidth,
+			height: newHeight,
+		});
 
-			// Make sure ask AI stays on top
-			setTimeout(() => {
-				if (this.askAIWindow && !this.askAIWindow.isDestroyed()) {
-					this.askAIWindow.moveTop();
-				}
-			}, 50);
-		} else {
-			// Keep Ask AI window centered when overlay is not visible, below Dynamic Island with proper spacing
-			const askAIX = Math.floor(workArea.width / 2) - Math.floor(newWidth / 2);
+		// Update position tracking to reflect current position
+		this.askAIWindowPosition = { x: currentX, y: currentY };
+		this.askAIWindowSize = { width: newWidth, height: newHeight };
 
-			// Add proper spacing from Dynamic Island (which is at Y=30 with height ~280)
-			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
-			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-			const askAIY = 10 + dynamicIslandHeight + gapFromDynamicIsland;
-
-			this.askAIWindow.setBounds({
-				x: askAIX,
-				y: askAIY,
-				width: newWidth,
-				height: newHeight,
-			});
-			this.askAIWindowPosition = { x: askAIX, y: askAIY };
-			this.askAIWindowSize = { width: newWidth, height: newHeight };
-		}
+		// Make sure ask AI stays on top
+		setTimeout(() => {
+			if (this.askAIWindow && !this.askAIWindow.isDestroyed()) {
+				this.askAIWindow.moveTop();
+			}
+		}, 50);
 	}
 
 	moveWindowLeft() {
