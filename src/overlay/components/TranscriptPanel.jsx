@@ -112,6 +112,46 @@ const TranscriptPanel = ({
 					)}
 				</div>
 			</div>
+{/* 
+			<div className="transcript-controls">
+				<div className="transcript-timer">{formatTime(timer)}</div>
+
+				<div className="transcript-status">
+					{isRecording ? (
+						isPaused ? (
+							<div className="status-paused">Paused</div>
+						) : isMuted ? (
+							<div className="status-muted">Muted</div>
+						) : (
+							<div className="status-recording">
+								<span>Recording</span>
+								<div className="recording-wave-animation">
+									<div className="wave-bar"></div>
+									<div className="wave-bar"></div>
+									<div className="wave-bar"></div>
+									<div className="wave-bar"></div>
+									<div className="wave-bar"></div>
+								</div>
+							</div>
+						)
+					) : (
+						<div className="status-inactive">Click Listen to start recording</div>
+					)}
+				</div>
+
+				<div className="transcript-actions">
+					{isRecording && (
+						<button
+							className={`control-btn mic-btn ${isMuted ? 'muted' : ''}`}
+							onClick={isMuted ? onUnmuteAudio : onMuteAudio}
+							disabled={!localAudioTrack || !isConnected}
+							title={isMuted ? 'Unmute' : 'Mute'}
+						>
+							{isMuted ? <MicOff size={18} /> : <Mic size={18} />}
+						</button>
+					)}
+				</div>
+			</div> */}
 		</div>
 	);
 };

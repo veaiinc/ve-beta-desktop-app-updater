@@ -1,6 +1,6 @@
 .transcript-panel {
 	display: flex;
-	width: 745px;
+	width: 500px;
 	min-height: 400px;
 	max-height: 600px;
 	padding: 8px 10px;
@@ -56,7 +56,7 @@
 				display: flex;
 				align-items: center;
 				gap: 4px;
-				background: rgba(255, 255, 255, 0.1);
+				background: none;
 				color: #fff;
 				border: none;
 				border-radius: 4px;
@@ -246,6 +246,16 @@
 				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-weight: 500;
+				display: flex;
+				align-items: center;
+				gap: 6px;
+
+				span {
+					color: #10b981;
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-weight: 500;
+				}
 			}
 
 			.status-muted {

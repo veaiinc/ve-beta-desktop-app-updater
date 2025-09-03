@@ -1,4 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
+import { Track } from 'livekit-client';
+import { useTrackTranscription } from '@livekit/components-react';
+import { GripHorizontal } from 'lucide-react';
 import Context from '../context/context';
 import useLiveIntelligenceStream from '../hooks/useLiveIntelligenceStream';
 import useRecallStream from '../hooks/useRecallStream';
@@ -505,39 +508,42 @@ const OverlayApp = () => {
 	};
 
 	const calculateDynamicDimensions = useCallback(() => {
-		if (!containerRef.current) return { width: 800, height: 150 };
+		if (!containerRef.current) return { width: 600, height: 50 };
 
 		const rect = containerRef.current.getBoundingClientRect();
 		let calculatedWidth = rect.width;
 		let calculatedHeight = rect.height;
 
-		// Dynamic width calculation based on layout
-		if (activePanel === 'live-intelligence' || activePanel === 'transcript') {
-			// Panel is open: Panel width + padding
-			calculatedWidth = 768 + 32; // ~800px
-		} else if (showShortcutBar && !isDynamicIslandControlled) {
-			// Only shortcut bar visible (traditional mode): minimal width
-			calculatedWidth = 400;
+		// Dynamic width calculation based on layout - use exact content width
+		if (activePanel === 'live-intelligence' ){
+			// Panel is open: use exact panel width without extra padding
+			calculatedWidth = 830; // Exact panel width
+		} else if (activePanel === 'transcript') {
+			calculatedWidth = 560; // Exact panel width
+		}
+		else if (showShortcutBar && !isDynamicIslandControlled) {
+			// Only shortcut bar visible: use actual content width
+			calculatedWidth = Math.max(rect.width, 400);
 		} else {
 			// Controlled by Dynamic Island or no controls: minimal width
 			calculatedWidth = 32; // Just padding
 		}
 
-		// Dynamic height calculation
+		// Dynamic height calculation - use exact content height
 		if (activePanel === 'live-intelligence' || activePanel === 'transcript') {
-			// Panel is open: use actual height
-			calculatedHeight = Math.max(calculatedHeight, 400);
+			// Panel is open: use exact content height without extra padding
+			calculatedHeight = Math.max(rect.height, 200);
 		} else if (showShortcutBar && !isDynamicIslandControlled) {
-			// Only shortcut bar visible (traditional mode): minimal height
-			calculatedHeight = Math.max(calculatedHeight, 150);
+			// Only shortcut bar visible: use actual content height
+			calculatedHeight = Math.max(rect.height, 50);
 		} else {
-			// Controlled by Dynamic Island: minimal height (controls are in Dynamic Island)
+			// Controlled by Dynamic Island: minimal height
 			calculatedHeight = 32; // Minimal height when hidden
 		}
 
 		return {
 			width: Math.min(calculatedWidth, window.screen.width * 0.8), // Max 80% of screen width
-			height: Math.min(calculatedHeight + 32, window.screen.height * 0.8), // Max 80% of screen height
+			height: Math.min(calculatedHeight, window.screen.height * 0.8), // Max 80% of screen height
 		};
 	}, [activePanel, showShortcutBar, isDynamicIslandControlled]);
 
@@ -559,14 +565,7 @@ const OverlayApp = () => {
 		// Initial dimension update
 		updateDimensions();
 
-		// Set up ResizeObserver to watch for content changes
-		const resizeObserver = new ResizeObserver(() => {
-			updateDimensions();
-		});
-
-		if (containerRef.current) {
-			resizeObserver.observe(containerRef.current);
-		}
+		// ResizeObserver removed - resizing is disabled, only content changes trigger updates
 
 		// Set up MutationObserver to watch for DOM changes
 		const mutationObserver = new MutationObserver(() => {
@@ -585,7 +584,6 @@ const OverlayApp = () => {
 		}
 
 		return () => {
-			resizeObserver.disconnect();
 			mutationObserver.disconnect();
 		};
 	}, [calculateDynamicDimensions]);
@@ -687,6 +685,9 @@ const OverlayApp = () => {
 			{/* Live Intelligence panel */}
 			{activePanel === 'live-intelligence' && (
 				<div className="live-intelligence-container">
+					<div className="live-intelligence-drag-handle">
+						<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
+					</div>
 					<LiveIntelligencePanel
 						onClose={handleClosePanel}
 						onShowTranscript={handleShowTranscript}
@@ -702,6 +703,9 @@ const OverlayApp = () => {
 			{/* Transcript panel */}
 			{activePanel === 'transcript' && (
 				<div className="transcript-container">
+					<div className="transcript-drag-handle">
+						<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
+					</div>
 					<TranscriptPanel
 						onClose={handleClosePanel}
 						onShowLiveIntelligence={handleShowLiveIntelligence}
