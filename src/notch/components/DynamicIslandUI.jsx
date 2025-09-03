@@ -32,10 +32,12 @@ const stopCamera = (stream) => {
 };
 
 const DynamicIslandUI = () => {
+	console.log('🏝️ DynamicIslandUI component rendering...');
 	const dynamicIslandRef = useRef(null);
 	const videoRef = useRef(null);
 	const chatInputRef = useRef(null); // Add ref for chat input
-	const [isExpanded, setIsExpanded] = useState(false);
+	const [isExpanded, setIsExpanded] = useState(true); // Start expanded like main branch
+	console.log('🏝️ Initial isExpanded state:', true);
 	const [isConnected, setIsConnected] = useState(false);
 	// Overlay state - synced from overlay window
 	const [isRecording, setIsRecording] = useState(false);
@@ -103,7 +105,11 @@ const DynamicIslandUI = () => {
 
 			// Listen for dynamic island state changes
 			window.electronApi.dynamicIsland.onStateChange((data) => {
-				setIsExpanded(data.expanded);
+				console.log('🏝️ Dynamic Island state changed:', data);
+				if (data.expanded !== undefined) {
+					console.log('🏝️ Setting isExpanded to:', data.expanded);
+					setIsExpanded(data.expanded);
+				}
 			});
 
 			// Listen for overlay state changes to sync recording state
@@ -126,7 +132,7 @@ const DynamicIslandUI = () => {
 			});
 
 			// Listen for voice mode trigger from wake word
-			window.electronApi.ipcRenderer.on('trigger-voice-mode', () => {
+			window.electronApi.dynamicIsland.onVoiceModeTrigger(() => {
 				console.log('🎤 Voice mode triggered from wake word');
 				// Like "Hey Siri" - always start voice mode if not already active
 				// Don't toggle off if already active, just ensure it's running
@@ -148,8 +154,8 @@ const DynamicIslandUI = () => {
 			if (window.electronApi?.dynamicIsland?.removeOverlayStateListener) {
 				window.electronApi.dynamicIsland.removeOverlayStateListener();
 			}
-			if (window.electronApi?.ipcRenderer?.removeAllListeners) {
-				window.electronApi.ipcRenderer.removeAllListeners('trigger-voice-mode');
+			if (window.electronApi?.dynamicIsland?.removeVoiceModeTriggerListener) {
+				window.electronApi.dynamicIsland.removeVoiceModeTriggerListener();
 			}
 		};
 	}, []);
@@ -1097,6 +1103,7 @@ const DynamicIslandUI = () => {
 		}
 	};
 
+	console.log('🏝️ Rendering Dynamic Island with isExpanded:', isExpanded);
 	return (
 		<div
 			ref={dynamicIslandRef}

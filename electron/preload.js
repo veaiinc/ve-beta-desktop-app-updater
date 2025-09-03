@@ -211,6 +211,14 @@ contextBridge.exposeInMainWorld('electronApi', {
 		removeStateChangeListener: () => {
 			ipcRenderer.removeAllListeners('dynamic-island-state');
 		},
+		onVoiceModeTrigger: (callback) => {
+			ipcRenderer.on('trigger-voice-mode', (event) => {
+				callback();
+			});
+		},
+		removeVoiceModeTriggerListener: () => {
+			ipcRenderer.removeAllListeners('trigger-voice-mode');
+		},
 		// Listen for overlay state changes
 		onOverlayStateChange: (callback) => {
 			ipcRenderer.on('overlay-state-changed', (event, data) => {

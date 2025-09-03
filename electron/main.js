@@ -178,6 +178,7 @@ class DynamicIslandHelper {
 		this.dynamicIslandWindow.webContents.on('did-finish-load', () => {
 			log.info('Dynamic Island content loaded, setting up resize listener');
 			// Send initial state to React component
+			log.info('Sending initial state to React component: { expanded: true }');
 			this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: true });
 		});
 	}
