@@ -1,0 +1,339 @@
+.notchdrop-ui {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	user-select: none;
+	-webkit-user-select: none;
+
+	// Base styling matching native NotchDrop
+	.notch-content {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 16px;
+		border-radius: 16px;
+		background: rgba(0, 0, 0, 0.8);
+		backdrop-filter: blur(20px);
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+		min-height: 80px;
+
+		&.normal {
+			.content-row {
+				display: flex;
+				align-items: center;
+				gap: 16px;
+
+				.share-button {
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+					justify-content: center;
+					width: 60px;
+					height: 60px;
+					border-radius: 12px;
+					cursor: pointer;
+					transition: all 0.2s ease;
+					position: relative;
+
+					.button-icon {
+						width: 24px;
+						height: 24px;
+						margin-bottom: 4px;
+						color: white;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+
+						svg {
+							width: 100%;
+							height: 100%;
+							fill: currentColor;
+						}
+					}
+
+					.button-label {
+						font-size: 11px;
+						font-weight: 500;
+						color: white;
+						text-align: center;
+					}
+
+					.item-count {
+						position: absolute;
+						top: -4px;
+						right: -4px;
+						background: #007aff;
+						color: white;
+						border-radius: 8px;
+						padding: 2px 6px;
+						font-size: 10px;
+						font-weight: 600;
+						min-width: 16px;
+						text-align: center;
+					}
+
+					// Specific button styles
+					&.airdrop {
+						background: rgba(0, 122, 255, 0.3);
+
+						&:hover {
+							background: rgba(0, 122, 255, 0.5);
+							transform: scale(1.05);
+						}
+					}
+
+					&.generic {
+						background: rgba(52, 199, 89, 0.3);
+
+						&:hover {
+							background: rgba(52, 199, 89, 0.5);
+							transform: scale(1.05);
+						}
+					}
+
+					&.tray {
+						background: rgba(142, 142, 147, 0.3);
+
+						&:hover {
+							background: rgba(142, 142, 147, 0.5);
+							transform: scale(1.05);
+						}
+					}
+
+					&:active {
+						transform: scale(0.95);
+					}
+				}
+			}
+		}
+
+		&.menu {
+			flex-direction: column;
+			min-width: 200px;
+
+			.menu-header {
+				margin-bottom: 12px;
+
+				h3 {
+					color: white;
+					font-size: 18px;
+					font-weight: 600;
+					text-align: center;
+					margin: 0;
+				}
+			}
+
+			.menu-buttons {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				width: 100%;
+
+				.menu-button {
+					padding: 8px 16px;
+					border-radius: 8px;
+					border: none;
+					font-size: 14px;
+					font-weight: 500;
+					cursor: pointer;
+					transition: all 0.2s ease;
+					text-align: center;
+
+					&.settings {
+						background: rgba(0, 122, 255, 0.3);
+						color: white;
+
+						&:hover {
+							background: rgba(0, 122, 255, 0.5);
+						}
+					}
+
+					&.close {
+						background: rgba(255, 59, 48, 0.3);
+						color: white;
+
+						&:hover {
+							background: rgba(255, 59, 48, 0.5);
+						}
+					}
+
+					&.back {
+						background: rgba(142, 142, 147, 0.3);
+						color: white;
+
+						&:hover {
+							background: rgba(142, 142, 147, 0.5);
+						}
+					}
+
+					&:active {
+						transform: scale(0.98);
+					}
+				}
+			}
+		}
+
+		&.settings {
+			flex-direction: column;
+			min-width: 250px;
+
+			.settings-header {
+				margin-bottom: 16px;
+
+				h3 {
+					color: white;
+					font-size: 18px;
+					font-weight: 600;
+					text-align: center;
+					margin: 0;
+				}
+			}
+
+			.settings-content {
+				display: flex;
+				flex-direction: column;
+				gap: 16px;
+				width: 100%;
+
+				.setting-item {
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+
+					.setting-label {
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
+						width: 100%;
+						color: white;
+						font-size: 14px;
+						font-weight: 500;
+
+						span {
+							flex: 1;
+						}
+
+						.toggle-switch {
+							position: relative;
+							display: inline-block;
+							width: 44px;
+							height: 24px;
+
+							input {
+								opacity: 0;
+								width: 0;
+								height: 0;
+
+								&:checked + .toggle-slider {
+									background-color: #007aff;
+
+									&:before {
+										transform: translateX(20px);
+									}
+								}
+							}
+
+							.toggle-slider {
+								position: absolute;
+								cursor: pointer;
+								top: 0;
+								left: 0;
+								right: 0;
+								bottom: 0;
+								background-color: #ccc;
+								transition: 0.3s;
+								border-radius: 24px;
+
+								&:before {
+									position: absolute;
+									content: '';
+									height: 18px;
+									width: 18px;
+									left: 3px;
+									bottom: 3px;
+									background-color: white;
+									transition: 0.3s;
+									border-radius: 50%;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Status-based animations
+	&.closed {
+		.notch-content {
+			opacity: 0;
+			transform: scale(0.8);
+		}
+	}
+
+	&.opened {
+		.notch-content {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	&.popping {
+		.notch-content {
+			opacity: 0.7;
+			transform: scale(0.9);
+		}
+	}
+
+	// Hover effects
+	&:hover {
+		.notch-content {
+			.share-button {
+				&:hover {
+					transform: scale(1.05);
+				}
+			}
+		}
+	}
+
+	// Dark mode support
+	@media (prefers-color-scheme: dark) {
+		.notch-content {
+			background: rgba(0, 0, 0, 0.85);
+			border-color: rgba(255, 255, 255, 0.15);
+		}
+	}
+}
+
+// Responsive adjustments
+@media (max-width: 600px) {
+	.notchdrop-ui {
+		.notch-content {
+			&.normal {
+				.content-row {
+					gap: 12px;
+
+					.share-button {
+						width: 50px;
+						height: 50px;
+
+						.button-icon {
+							width: 20px;
+							height: 20px;
+							margin-bottom: 2px;
+						}
+
+						.button-label {
+							font-size: 10px;
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -31,6 +31,8 @@ const {
 } = require('./windowsCompatibility');
 
 const meetingMonitor = require('./notificationHelper'); // Adjust path if needed
+// Import NotchDrop service
+const NotchDropService = require('./services/notchDropService');
 
 // Gallery processing functions will be loaded lazily when needed
 let galleryHelper = null;
@@ -54,8 +56,8 @@ const loadGalleryHelper = () => {
 	}
 	return galleryHelper;
 };
-
-// Import window helper for overlay functionality
+// Import dynamic island helper
+// const { DynamicIslandHelper } = require('./dynamicIslandHelper');
 
 // Window state management
 let lastWindowState = {
@@ -141,10 +143,12 @@ class DynamicIslandHelper {
 		this.dynamicIslandWindow = new BrowserWindow(windowSettings);
 
 		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
+		// Force the Dynamic Island React app mode so it renders the island UI
+		const query = '?mode=dynamic-island';
 		const dynamicIslandUrl =
 			process.env.NODE_ENV === 'development'
-				? `${devURL}/dynamic-island.html`
-				: `file://${path.join(__dirname, '..', 'build', 'dynamic-island.html')}`;
+				? `${devURL}/dynamic-island.html${query}`
+				: `file://${path.join(__dirname, '..', 'build', 'dynamic-island.html')}${query}`;
 
 		this.dynamicIslandWindow.loadURL(dynamicIslandUrl).catch((err) => {
 			log.error('Failed to load dynamic island URL:', err);
@@ -168,6 +172,11 @@ class DynamicIslandHelper {
 
 		// Show the window
 		this.dynamicIslandWindow.show();
+
+		// Listen for resize events from the renderer
+		// this.dynamicIslandWindow.webContents.on('did-finish-load', () => {
+		// 	log.info('Dynamic Island content loaded, setting up resize listener');
+		// });
 	}
 
 	expand() {
@@ -302,6 +311,7 @@ class DynamicIslandHelper {
 		}
 	}
 }
+let notchDropService = null;
 
 // Auto-updater setup
 autoUpdater.logger = log;
@@ -620,6 +630,273 @@ function saveWindowState() {
 // 	return lastWindowState;
 // }
 
+// Menu bar creation
+function createMenuBar() {
+	const template = [
+		{
+			label: 'Application',
+			submenu: [
+				{
+					label: 'About',
+					role: 'about',
+				},
+				{
+					type: 'separator',
+				},
+				{
+					label: 'Quit',
+					accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Ctrl+Q',
+					click: () => {
+						app.quit();
+					},
+				},
+			],
+		},
+		{
+			label: 'NotchDrop',
+			submenu: [
+				{
+					label: 'Open NotchDrop',
+					accelerator: 'CmdOrCtrl+N',
+					click: async () => {
+						try {
+							if (notchDropService) {
+								const result = await notchDropService.enable();
+								if (result) {
+									log.info('✅ NotchDrop opened from menu');
+									updateMenuBarState();
+								}
+							}
+						} catch (error) {
+							log.error('❌ Failed to open NotchDrop from menu:', error);
+						}
+					},
+				},
+				{
+					label: 'Close NotchDrop',
+					accelerator: 'CmdOrCtrl+Shift+N',
+					click: async () => {
+						try {
+							if (notchDropService) {
+								const result = await notchDropService.disable();
+								if (result) {
+									log.info('✅ NotchDrop closed from menu');
+									updateMenuBarState();
+								}
+							}
+						} catch (error) {
+							log.error('❌ Failed to close NotchDrop from menu:', error);
+						}
+					},
+				},
+				{
+					type: 'separator',
+				},
+				{
+					label: 'Toggle NotchDrop',
+					accelerator: 'CmdOrCtrl+T',
+					click: async () => {
+						try {
+							if (notchDropService) {
+								const result = await notchDropService.toggle();
+								if (result) {
+									log.info('✅ NotchDrop toggled from menu');
+									updateMenuBarState();
+								}
+							}
+						} catch (error) {
+							log.error('❌ Failed to toggle NotchDrop from menu:', error);
+						}
+					},
+				},
+				{
+					type: 'separator',
+				},
+				{
+					label: 'Status',
+					enabled: false,
+					id: 'notchdrop-status',
+				},
+				{
+					type: 'separator',
+				},
+				{
+					label: 'Auto-open on Startup',
+					type: 'checkbox',
+					checked: true,
+					click: async (menuItem) => {
+						try {
+							if (notchDropService) {
+								const result = await notchDropService.setAutoOpenOnStartup(
+									menuItem.checked,
+								);
+								if (result) {
+									log.info(
+										`🔧 Auto-open on startup ${
+											menuItem.checked ? 'enabled' : 'disabled'
+										} from menu`,
+									);
+								}
+							}
+						} catch (error) {
+							log.error('❌ Failed to set auto-open setting from menu:', error);
+						}
+					},
+				},
+			],
+		},
+		{
+			label: 'View',
+			submenu: [
+				{
+					label: 'Toggle Developer Tools',
+					accelerator: 'F12',
+					click: () => {
+						mainWindow.webContents.toggleDevTools();
+					},
+				},
+				{
+					label: 'Toggle Dynamic Island',
+					accelerator: 'CmdOrCtrl+I',
+					click: () => {
+						try {
+							if (dynamicIslandHelper) {
+								dynamicIslandHelper.toggleVisibility();
+							}
+						} catch (error) {
+							log.error('Error toggling dynamic island from menu:', error);
+						}
+					},
+				},
+				{
+					label: 'Reload',
+					accelerator: 'CmdOrCtrl+R',
+					click: () => {
+						mainWindow.reload();
+					},
+				},
+			],
+		},
+		{
+			label: 'Window',
+			submenu: [
+				{
+					label: 'Minimize',
+					accelerator: 'CmdOrCtrl+M',
+					role: 'minimize',
+				},
+				{
+					label: 'Close',
+					accelerator: 'CmdOrCtrl+W',
+					role: 'close',
+				},
+			],
+		},
+	];
+
+	// macOS specific menu adjustments
+	if (process.platform === 'darwin') {
+		// Add macOS specific items to the Application menu
+		template[0].submenu = [
+			{
+				label: 'About',
+				role: 'about',
+			},
+			{
+				type: 'separator',
+			},
+			{
+				label: 'Services',
+				role: 'services',
+				submenu: [],
+			},
+			{
+				type: 'separator',
+			},
+			{
+				label: 'Hide',
+				accelerator: 'Cmd+H',
+				role: 'hide',
+			},
+			{
+				label: 'Hide Others',
+				accelerator: 'Cmd+Shift+H',
+				role: 'hideOthers',
+			},
+			{
+				label: 'Show All',
+				role: 'unhide',
+			},
+			{
+				type: 'separator',
+			},
+			{
+				label: 'Quit',
+				accelerator: 'Cmd+Q',
+				click: () => {
+					app.quit();
+				},
+			},
+		];
+	}
+
+	const menu = Menu.buildFromTemplate(template);
+	Menu.setApplicationMenu(menu);
+
+	// Update menu state after creation
+	setTimeout(() => {
+		updateMenuBarState();
+	}, 2000); // Wait for NotchDrop service to initialize
+}
+
+// Set up listeners for NotchDrop status changes to update menu
+function setupNotchDropMenuUpdates() {
+	if (!notchDropService) return;
+
+	// Listen for status changes from NotchDrop service
+	// Since the service emits events to the renderer, we'll listen for IPC messages
+	// that indicate status changes and update the menu accordingly
+
+	// Set up a periodic check to update menu state (as a fallback)
+	setInterval(() => {
+		updateMenuBarState();
+	}, 5000); // Update every 5 seconds
+
+	log.info('✅ NotchDrop menu update listeners set up');
+}
+
+// Update menu bar to reflect current NotchDrop state
+function updateMenuBarState() {
+	try {
+		const menu = Menu.getApplicationMenu();
+		if (!menu) return;
+
+		const notchDropMenu = menu.getMenuItemById('notchdrop-status');
+		if (notchDropMenu && notchDropService) {
+			const isVisible = notchDropService.isVisible();
+			const status = notchDropService.getStatus();
+			const autoOpen = notchDropService.getAutoOpenOnStartup();
+
+			// Update status label
+			notchDropMenu.label = `Status: ${status} (${isVisible ? 'Visible' : 'Hidden'})`;
+
+			// Update auto-open checkbox
+			const autoOpenMenu = menu.items
+				.find((item) => item.label === 'NotchDrop')
+				?.submenu?.items.find((item) => item.label === 'Auto-open on Startup');
+			if (autoOpenMenu) {
+				autoOpenMenu.checked = autoOpen;
+			}
+
+			log.info(
+				`📊 Menu updated - Status: ${status}, Visible: ${isVisible}, Auto-open: ${autoOpen}`,
+			);
+		}
+	} catch (error) {
+		log.error('❌ Failed to update menu bar state:', error);
+	}
+}
+
 // Window creation
 function createWindow(restoreState = false) {
 	mainWindow = new BrowserWindow({
@@ -744,7 +1021,7 @@ function createTray() {
 }
 
 // App lifecycle
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
 	// Set up permission request handler for microphone access
 	session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
 		const allowedPermissions = [
@@ -849,33 +1126,299 @@ app.whenReady().then(() => {
 
 	createWindow();
 	createTray(); // Create system tray for Windows
+	createMenuBar();
 
-	// Windows compatibility startup message
-	if (process.platform === 'win32') {
-		log.info('🪟 Windows platform detected - initializing compatibility features...');
-		// Pre-load sharp module to ensure Windows compatibility
-		setTimeout(() => {
-			try {
-				loadSharpModule();
-				log.info('✅ Windows compatibility features initialized successfully');
-			} catch (error) {
-				log.warn('⚠️ Windows compatibility initialization had issues:', error.message);
-			}
-		}, 1000);
-	}
+	// CRITICAL FIX: Enhanced initialization sequence to prevent race conditions
+	log.info('🚀 Starting enhanced service initialization sequence...');
 
-	// Initialize WindowHelper for overlay window functionality
+	// Phase 1: Initialize WindowHelper first (required for overlay operations)
+	log.info('📋 Phase 1: Initializing WindowHelper...');
 	windowHelper = new WindowHelper();
 	windowHelper.registerGlobalShortcuts(mainWindow);
 
-	// Initialize DynamicIslandHelper for dynamic island functionality
+	// Phase 1.5: CRITICAL FIX: Pre-create overlay window for immediate response
+	log.info('📋 Phase 1.5: Pre-creating overlay window for instant Swift UI response...');
+	try {
+		if (windowHelper && typeof windowHelper.preCreateOverlayWindow === 'function') {
+			await windowHelper.preCreateOverlayWindow();
+			log.info('✅ Overlay window pre-created successfully for immediate response');
+		} else {
+			log.warn('⚠️ WindowHelper pre-creation method not available, will create on-demand');
+		}
+	} catch (error) {
+		log.error('❌ Error pre-creating overlay window:', error);
+	}
+
+	// Phase 2: Initialize DynamicIslandHelper (UI component)
+	log.info('📋 Phase 2: Initializing DynamicIslandHelper...');
 	dynamicIslandHelper = new DynamicIslandHelper();
 	dynamicIslandHelper.createDynamicIslandWindow();
 
-	if (pendingNotificationAction === 'join-meet') {
-		log.info('Replaying "Join Meet" action after app init');
-		handleNotificationAction('join-meet'); // This will now work
+	// Phase 3: Initialize NotchDrop service with proper readiness waiting
+	log.info('📋 Phase 3: Initializing NotchDrop service with bridge readiness...');
+	notchDropService = new NotchDropService();
+	notchDropService.setMainWindow(mainWindow);
+
+	// CRITICAL: Ensure NotchDrop service fully initializes before proceeding
+	let notchDropInitialized = false;
+	let initRetries = 0;
+	const maxInitRetries = 5;
+
+	while (!notchDropInitialized && initRetries < maxInitRetries) {
+		try {
+			await notchDropService.initialize();
+
+			// Verify service is truly ready
+			if (notchDropService && notchDropService.isInitialized) {
+				notchDropInitialized = true;
+				log.info('✅ NotchDrop service initialization verified');
+			} else {
+				throw new Error('NotchDrop service initialization incomplete');
+			}
+		} catch (error) {
+			initRetries++;
+			log.warn(
+				`⚠️ NotchDrop init attempt ${initRetries}/${maxInitRetries} failed:`,
+				error.message,
+			);
+
+			if (initRetries < maxInitRetries) {
+				await new Promise((resolve) => setTimeout(resolve, 1000 * initRetries)); // Exponential backoff
+			} else {
+				log.error('❌ NotchDrop service failed to initialize after maximum retries');
+				// Continue anyway but log the issue
+				notchDropInitialized = true; // Allow app to continue
+			}
+		}
 	}
+
+	// Phase 4: Wait for bridge components to be ready
+	log.info('📋 Phase 4: Waiting for bridge components to be ready...');
+	await new Promise((resolve) => setTimeout(resolve, 1500)); // Give bridge time to initialize
+
+	// Phase 5: Test shortcuts and validate system readiness
+	setTimeout(() => {
+		log.info('📋 Phase 5: Testing system readiness...');
+
+		// Test shortcuts
+		if (windowHelper) {
+			windowHelper.testShortcuts();
+		}
+
+		// Test NotchDrop service readiness
+		if (notchDropService && notchDropService.isInitialized) {
+			try {
+				const status = notchDropService.getStatus();
+				log.info('✅ NotchDrop service status check:', status);
+			} catch (error) {
+				log.warn('⚠️ NotchDrop service status check failed:', error.message);
+			}
+		}
+
+		// Signal that all services are ready
+		log.info(
+			'🎉 All services initialization completed - system ready for Swift UI interactions',
+		);
+
+		// Emit readiness signal for any listening components
+		if (mainWindow && !mainWindow.isDestroyed()) {
+			mainWindow.webContents.send('system-ready', {
+				timestamp: Date.now(),
+				services: {
+					windowHelper: !!windowHelper,
+					dynamicIslandHelper: !!dynamicIslandHelper,
+					notchDropService: !!notchDropService,
+				},
+			});
+		}
+	}, 3000); // Extended wait time for complete initialization
+
+	// CRITICAL FIX: Enhanced Swift UI overlay recording requests with immediate response
+	process.on('swift-ui-trigger-overlay-recording', async () => {
+		try {
+			log.info('🎤 Received Swift UI overlay recording request');
+			await handleSwiftOverlayRequest('startRecording');
+		} catch (error) {
+			log.error('❌ Error handling Swift UI overlay recording request:', error);
+		}
+	});
+
+	// CRITICAL FIX: Immediate overlay recording request handler
+	process.on('swift-ui-trigger-overlay-recording-immediate', async () => {
+		try {
+			log.info('⚡ IMMEDIATE: Received Swift UI overlay recording request');
+			await handleSwiftOverlayRequestImmediate('startRecording');
+		} catch (error) {
+			log.error('❌ Error handling immediate Swift UI overlay recording request:', error);
+		}
+	});
+
+	// CRITICAL FIX: Immediate live intelligence request handler
+	process.on('swift-ui-trigger-overlay-live-intelligence-immediate', async () => {
+		try {
+			log.info('⚡ IMMEDIATE: Received Swift UI live intelligence request');
+			await handleSwiftOverlayRequestImmediate('toggleLiveIntelligence');
+		} catch (error) {
+			log.error('❌ Error handling immediate Swift UI live intelligence request:', error);
+		}
+	});
+
+	// CRITICAL FIX: Pre-create overlay window signal handler
+	process.on('pre-create-overlay-window', async () => {
+		try {
+			log.info('🔧 Received pre-create overlay window signal');
+			if (windowHelper && typeof windowHelper.preCreateOverlayWindow === 'function') {
+				await windowHelper.preCreateOverlayWindow();
+				log.info('✅ Overlay window pre-created via process signal');
+			} else {
+				log.warn('⚠️ WindowHelper not available for overlay pre-creation');
+			}
+		} catch (error) {
+			log.error('❌ Error pre-creating overlay window via signal:', error);
+		}
+	});
+
+	// Swift UI -> AskAI chat submission (bypass IPC, reuse windowHelper directly)
+	async function waitForAskAIReady(win) {
+		try {
+			if (!win || win.isDestroyed()) return false;
+			const wc = win.webContents;
+			if (!wc || wc.isDestroyed()) return false;
+			if (wc.isLoading && wc.isLoading()) {
+				await new Promise((resolve) => wc.once('did-finish-load', resolve));
+			}
+			// tiny buffer to allow React to mount listeners
+			await new Promise((r) => setTimeout(r, 200));
+			return true;
+		} catch (e) {
+			log.warn('⚠️ waitForAskAIReady error:', e);
+			return false;
+		}
+	}
+
+	process.on('swift-ui-submit-chat', async (chatMessage) => {
+		try {
+			log.info('💬 Received Swift UI chat for AskAI:', chatMessage);
+			if (!windowHelper) {
+				log.error('windowHelper not available for AskAI forwarding');
+				return;
+			}
+
+			let askAIWindow = windowHelper.getAskAIWindow();
+			if (!askAIWindow || askAIWindow.isDestroyed()) {
+				windowHelper.createAskAIWindow();
+				// Wait for the window to load fully
+				await new Promise((r) => setTimeout(r, 100));
+				askAIWindow = windowHelper.getAskAIWindow();
+				if (askAIWindow) {
+					await waitForAskAIReady(askAIWindow);
+				}
+			}
+
+			if (askAIWindow && !askAIWindow.isDestroyed()) {
+				// Ensure visible and focused
+				if (!askAIWindow.isVisible()) {
+					windowHelper.showAskAIWindow();
+					await new Promise((r) => setTimeout(r, 200));
+				}
+				// Ensure listeners are mounted
+				await waitForAskAIReady(askAIWindow);
+				askAIWindow.webContents.send('receive-chat-message', chatMessage);
+				// Resend once shortly after as a safety net in case listener attached late
+				setTimeout(() => {
+					try {
+						if (askAIWindow && !askAIWindow.isDestroyed()) {
+							askAIWindow.webContents.send('receive-chat-message', chatMessage);
+							log.info('🔁 Re-forwarded Swift UI chat to AskAI (safety resend)');
+						}
+					} catch (e) {
+						log.warn('⚠️ Safety resend failed:', e);
+					}
+				}, 400);
+				log.info('✅ Forwarded Swift UI chat to AskAI');
+			} else {
+				log.error('❌ AskAI window unavailable after creation');
+			}
+		} catch (error) {
+			log.error('❌ Error forwarding Swift UI chat to AskAI:', error);
+		}
+	});
+
+	// CRITICAL FIX: Common handler for Swift overlay requests
+	async function handleSwiftOverlayRequest(action) {
+		let overlayWindow = windowHelper?.getOverlayWindow();
+		if (!overlayWindow) {
+			// Create overlay window if it doesn't exist
+			windowHelper?.createOverlayWindow();
+			await new Promise((resolve) => setTimeout(resolve, 100)); // Small delay
+			overlayWindow = windowHelper?.getOverlayWindow();
+		}
+
+		if (overlayWindow) {
+			// Show overlay window if not visible
+			if (!overlayWindow.isVisible()) {
+				windowHelper?.showOverlayWindow();
+			}
+
+			// Send command to overlay window
+			overlayWindow.webContents.send('overlay-command', {
+				action: action,
+			});
+			log.info(`✅ Sent ${action} command to overlay window from Swift UI`);
+		} else {
+			log.error(`❌ Overlay window not available after creating for ${action}`);
+		}
+	}
+
+	// CRITICAL FIX: Immediate handler for Swift overlay requests (no waiting)
+	async function handleSwiftOverlayRequestImmediate(action) {
+		log.info(`⚡ IMMEDIATE: Handling Swift ${action} request with zero delay`);
+
+		// Try to use pre-created overlay first
+		let overlayWindow = windowHelper?.getOverlayWindow();
+
+		if (
+			!overlayWindow &&
+			windowHelper &&
+			typeof windowHelper.showOverlayImmediate === 'function'
+		) {
+			// Use immediate show method
+			const success = windowHelper.showOverlayImmediate();
+			if (success) {
+				overlayWindow = windowHelper.getOverlayWindow();
+			}
+		}
+
+		if (!overlayWindow) {
+			// Fallback to normal creation but don't wait
+			windowHelper?.createOverlayWindow();
+			overlayWindow = windowHelper?.getOverlayWindow();
+		}
+
+		if (overlayWindow) {
+			// Show immediately without delay
+			if (!overlayWindow.isVisible()) {
+				overlayWindow.show();
+				overlayWindow.focus();
+				overlayWindow.moveTop();
+			}
+
+			// Send command immediately
+			overlayWindow.webContents.send('overlay-command', {
+				action: action,
+				immediate: true,
+			});
+
+			log.info(`⚡ IMMEDIATE: Sent ${action} command to overlay window - NO DELAY`);
+			return { success: true };
+		} else {
+			log.error(`❌ IMMEDIATE: Failed to get overlay window for Swift ${action} request`);
+			return { success: false, error: 'Overlay window not available' };
+		}
+	}
+
+	// Set up NotchDrop status change listener to update menu
+	setupNotchDropMenuUpdates();
 
 	// Register global shortcut for dynamic island (Cmd+I)
 	globalShortcut.register('CommandOrControl+I', () => {
@@ -1086,6 +1629,311 @@ app.whenReady().then(() => {
 		}
 	});
 
+	// Register NotchDrop IPC handlers
+	ipcMain.handle('notchdrop-enable', async () => {
+		try {
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = notchDropService.enable();
+			return { success: result };
+		} catch (error) {
+			log.error('Error enabling NotchDrop:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-disable', async () => {
+		try {
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = notchDropService.disable();
+			return { success: result };
+		} catch (error) {
+			log.error('Error disabling NotchDrop:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-toggle', async () => {
+		try {
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = notchDropService.toggle();
+			return { success: result };
+		} catch (error) {
+			log.error('Error toggling NotchDrop:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-is-visible', async () => {
+		try {
+			if (!notchDropService) {
+				return {
+					success: false,
+					visible: false,
+					error: 'NotchDrop service not initialized',
+				};
+			}
+			const visible = notchDropService.isVisible();
+			return { success: true, visible };
+		} catch (error) {
+			log.error('Error checking NotchDrop visibility:', error);
+			return { success: false, visible: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-set-status', async (event, status) => {
+		try {
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = notchDropService.setStatus(status);
+			return { success: result };
+		} catch (error) {
+			log.error('Error setting NotchDrop status:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-get-status', async () => {
+		try {
+			if (!notchDropService) {
+				return {
+					success: false,
+					status: 'closed',
+					error: 'NotchDrop service not initialized',
+				};
+			}
+			const status = notchDropService.getStatus();
+			return { success: true, status };
+		} catch (error) {
+			log.error('Error getting NotchDrop status:', error);
+			return { success: false, status: 'closed', error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-handle-files', async (event, filePaths) => {
+		try {
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = notchDropService.handleDroppedFiles(filePaths);
+			return { success: result };
+		} catch (error) {
+			log.error('Error handling dropped files:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Auto-open settings
+	ipcMain.handle('notchdrop-set-auto-open', async (event, enabled) => {
+		try {
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = notchDropService.setAutoOpenOnStartup(enabled);
+			return { success: result };
+		} catch (error) {
+			log.error('Error setting auto-open setting:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-get-auto-open', async () => {
+		try {
+			if (!notchDropService) {
+				return {
+					success: false,
+					enabled: true,
+					error: 'NotchDrop service not initialized',
+				};
+			}
+			const enabled = notchDropService.getAutoOpenOnStartup();
+			return { success: true, enabled };
+		} catch (error) {
+			log.error('Error getting auto-open setting:', error);
+			return { success: false, enabled: true, error: error.message };
+		}
+	});
+
+	// Swift action handlers for overlay integration
+	// Use try-catch to handle potential duplicate handler registration
+	try {
+		ipcMain.handle('swift:action', async (event, action, data) => {
+			try {
+				if (!notchDropService) {
+					return { success: false, error: 'NotchDrop service not initialized' };
+				}
+				log.info('🎯 Swift action received in main.js:', action, data);
+				const result = await notchDropService.handleSwiftAction(action, data);
+				return result;
+			} catch (error) {
+				log.error('Error handling Swift action:', error);
+				return { success: false, error: error.message };
+			}
+		});
+		log.info('✅ Registered swift:action IPC handler in main.js');
+	} catch (error) {
+		if (error.message.includes('second handler')) {
+			log.warn('⚠️ swift:action handler already registered, skipping...');
+		} else {
+			log.error('Error registering swift:action handler:', error);
+			throw error;
+		}
+	}
+
+	// Enhanced overlay integration handlers for Swift UI
+	// Helper function to safely register Swift IPC handlers
+	const safeRegisterSwiftHandler = (channel, handler) => {
+		try {
+			ipcMain.handle(channel, handler);
+			log.info(`✅ Registered ${channel} IPC handler`);
+		} catch (error) {
+			if (error.message.includes('second handler')) {
+				log.warn(`⚠️ ${channel} handler already registered, skipping...`);
+			} else {
+				log.error(`Error registering ${channel} handler:`, error);
+				throw error;
+			}
+		}
+	};
+
+	safeRegisterSwiftHandler('swift:triggerOverlayRecording', async (event, data) => {
+		try {
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = await notchDropService.handleSwiftAction(
+				'triggerOverlayRecording',
+				data,
+			);
+			return result;
+		} catch (error) {
+			log.error('Error triggering overlay recording from Swift:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	safeRegisterSwiftHandler('swift:triggerOverlayToggleLiveIntelligence', async (event, data) => {
+		try {
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = await notchDropService.handleSwiftAction(
+				'triggerOverlayToggleLiveIntelligence',
+				data,
+			);
+			return result;
+		} catch (error) {
+			log.error('Error triggering overlay toggle live intelligence from Swift:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Menu update handler
+	ipcMain.handle('update-notchdrop-menu', async () => {
+		try {
+			updateMenuBarState();
+			return { success: true };
+		} catch (error) {
+			log.error('Error updating NotchDrop menu:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Additional NotchDrop IPC handlers for UI integration
+	ipcMain.handle('notchdrop-set-haptic-feedback', async (event, enabled) => {
+		try {
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = notchDropService.setHapticFeedback(enabled);
+			return { success: result };
+		} catch (error) {
+			log.error('Error setting haptic feedback:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-get-haptic-feedback', async () => {
+		try {
+			if (!notchDropService) {
+				return {
+					success: false,
+					enabled: true,
+					error: 'NotchDrop service not initialized',
+				};
+			}
+			const enabled = notchDropService.getHapticFeedback();
+			return { success: true, enabled };
+		} catch (error) {
+			log.error('Error getting haptic feedback:', error);
+			return { success: false, enabled: true, error: error.message };
+		}
+	});
+
+	// New NotchDropLatest IPC handlers
+	ipcMain.handle('notchdrop-open-airdrop', async () => {
+		try {
+			log.info('Opening AirDrop from NotchDropLatest');
+			// Open AirDrop sharing dialog
+			const { exec } = require('child_process');
+			exec('open -a AirDrop', (error) => {
+				if (error) {
+					log.error('Error opening AirDrop:', error);
+				}
+			});
+			return { success: true };
+		} catch (error) {
+			log.error('Error opening AirDrop:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-open-share', async () => {
+		try {
+			log.info('Opening share dialog from NotchDropLatest');
+			// Open file picker for sharing
+			const { dialog } = require('electron');
+			const result = await dialog.showOpenDialog(mainWindow, {
+				properties: ['openFile', 'multiSelections'],
+				title: 'Select files to share',
+			});
+			return { success: true, files: result.filePaths };
+		} catch (error) {
+			log.error('Error opening share dialog:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-open-file', async (event, filePath) => {
+		try {
+			log.info('Opening file from NotchDropLatest:', filePath);
+			const { shell } = require('electron');
+			await shell.openPath(filePath);
+			return { success: true };
+		} catch (error) {
+			log.error('Error opening file:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop-delete-file', async (event, fileId) => {
+		try {
+			log.info('Deleting file from NotchDropLatest:', fileId);
+			// This would integrate with the file storage system
+			// For now, just return success
+			return { success: true };
+		} catch (error) {
+			log.error('Error deleting file:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	ipcMain.handle('dynamic-island-set-mouse-events', async (event, ignore) => {
 		try {
 			if (!dynamicIslandHelper) {
@@ -1150,30 +1998,220 @@ app.whenReady().then(() => {
 		}
 	});
 
-	ipcMain.on('notification-action', (event, action) => {
-		if (action === 'join-meet') {
-			log.info('Handling: User wants to join the meeting');
-			// ✅ Trigger logic to join meeting
-			// e.g., show overlay, start recording, etc.
-			windowHelper?.createOverlayWindow(); // or toggle
-			dynamicIslandHelper?.show();
-			dynamicIslandHelper?.expand();
-		} else if (action === 'not-now') {
-			log.info('User chose to skip joining the meeting');
-			// Optionally, disable auto-detection for a while
-			// e.g., set a cooldown timer
+	// CRITICAL FIX: Enhanced NotchDrop overlay integration handlers with immediate response
+	ipcMain.handle('notchdrop:triggerOverlayRecording', async () => {
+		try {
+			log.info('⚡ SWIFT UI START BUTTON: Immediate overlay recording - ZERO DELAY MODE');
+
+			// CRITICAL FIX: Try immediate response method first
+			const immediateResult = await handleSwiftOverlayRequestImmediate('startRecording');
+			if (immediateResult.success) {
+				log.info('🚀 SUCCESS: Immediate overlay recording triggered instantly!');
+				return immediateResult;
+			}
+
+			log.info('🔄 Immediate failed, using fallback method...');
+
+			// CRITICAL FIX: Verify windowHelper is available
+			if (!windowHelper) {
+				log.error('❌ WindowHelper not initialized - critical error');
+				return { success: false, error: 'WindowHelper not available' };
+			}
+
+			// CRITICAL FIX: Get or create overlay window with retry logic
+			let overlayWindow = windowHelper.getOverlayWindow();
+			let retryCount = 0;
+			const maxRetries = 3;
+
+			while (!overlayWindow && retryCount < maxRetries) {
+				log.info(`🔧 Attempt ${retryCount + 1}: Creating overlay window...`);
+				windowHelper.createOverlayWindow();
+
+				// Progressive wait times: 100ms, 200ms, 300ms
+				const waitTime = 100 + retryCount * 100;
+				await new Promise((resolve) => setTimeout(resolve, waitTime));
+
+				overlayWindow = windowHelper.getOverlayWindow();
+				retryCount++;
+			}
+
+			if (overlayWindow) {
+				// CRITICAL FIX: Verify window is not destroyed
+				if (overlayWindow.isDestroyed()) {
+					log.error('❌ Overlay window was destroyed, recreating...');
+					windowHelper.createOverlayWindow();
+					await new Promise((resolve) => setTimeout(resolve, 200));
+					overlayWindow = windowHelper.getOverlayWindow();
+				}
+
+				// CRITICAL FIX: Enhanced window visibility handling
+				if (!overlayWindow.isVisible()) {
+					log.info('👁️ Showing overlay window...');
+					windowHelper.showOverlayWindow();
+
+					// Wait for window to be properly visible
+					let visibilityRetries = 0;
+					while (!overlayWindow.isVisible() && visibilityRetries < 5) {
+						await new Promise((resolve) => setTimeout(resolve, 50));
+						visibilityRetries++;
+					}
+
+					if (!overlayWindow.isVisible()) {
+						log.warn('⚠️ Window may not be fully visible, proceeding anyway');
+					}
+				}
+
+				// CRITICAL FIX: Enhanced command sending with fallback
+				let commandSent = false;
+
+				// Try using the queuing system first
+				if (windowHelper.sendOverlayCommand) {
+					commandSent = windowHelper.sendOverlayCommand({
+						action: 'startRecording',
+					});
+					log.info(
+						`✅ SMART QUEUE: StartRecording command ${
+							commandSent ? 'sent immediately' : 'queued'
+						} from Swift UI`,
+					);
+				}
+
+				// Fallback: Direct webContents send if queuing failed
+				if (
+					!commandSent &&
+					overlayWindow.webContents &&
+					!overlayWindow.webContents.isDestroyed()
+				) {
+					try {
+						overlayWindow.webContents.send('overlay-command', {
+							action: 'startRecording',
+						});
+						log.info(
+							'✅ FALLBACK: StartRecording command sent directly to webContents',
+						);
+						commandSent = true;
+					} catch (fallbackError) {
+						log.error('❌ Fallback command sending failed:', fallbackError);
+					}
+				}
+
+				// CRITICAL FIX: Ensure window is properly focused and visible
+				try {
+					overlayWindow.focus();
+					overlayWindow.moveTop();
+					overlayWindow.show(); // Extra show() call for reliability
+
+					// Force window to be interactive
+					overlayWindow.setIgnoreMouseEvents(false);
+
+					log.info('✅ Overlay window focused and brought to front');
+				} catch (focusError) {
+					log.warn('⚠️ Could not focus overlay window:', focusError);
+				}
+
+				return {
+					success: true,
+					commandSent,
+					windowVisible: overlayWindow.isVisible(),
+					windowDestroyed: overlayWindow.isDestroyed(),
+				};
+			} else {
+				log.error('❌ CRITICAL: Overlay window not available after all retry attempts');
+				return { success: false, error: 'Overlay window creation failed after retries' };
+			}
+		} catch (error) {
+			log.error('❌ CRITICAL ERROR handling Swift UI overlay recording request:', error);
+			return { success: false, error: error.message, stack: error.stack };
 		}
 	});
 
-	ipcMain.handle('update-overlay-dimensions', async (event, { width, height }) => {
+	ipcMain.handle('notchdrop:triggerOverlayStopRecording', async () => {
 		try {
-			if (!windowHelper) {
-				return { success: false, error: 'Window helper not initialized' };
+			log.info('⏹️ NotchDrop requested overlay stop recording');
+			const overlayWindow = windowHelper?.getOverlayWindow();
+			if (overlayWindow) {
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'stopRecording',
+				});
+				log.info('Sent stopRecording command to overlay window from NotchDrop');
+			} else {
+				log.warn('Overlay window not available for stopRecording');
 			}
-			windowHelper.updateWindowDimensions(width, height);
 			return { success: true };
 		} catch (error) {
-			log.error('Error updating overlay dimensions:', error);
+			log.error('Error handling NotchDrop overlay stop recording:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop:triggerOverlayPauseRecording', async () => {
+		try {
+			log.info('⏸️ NotchDrop requested overlay pause recording');
+			const overlayWindow = windowHelper?.getOverlayWindow();
+			if (overlayWindow) {
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'pauseRecording',
+				});
+				log.info('Sent pauseRecording command to overlay window from NotchDrop');
+			} else {
+				log.warn('Overlay window not available for pauseRecording');
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error handling NotchDrop overlay pause recording:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop:triggerOverlayResumeRecording', async () => {
+		try {
+			log.info('▶️ NotchDrop requested overlay resume recording');
+			const overlayWindow = windowHelper?.getOverlayWindow();
+			if (overlayWindow) {
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'resumeRecording',
+				});
+				log.info('Sent resumeRecording command to overlay window from NotchDrop');
+			} else {
+				log.warn('Overlay window not available for resumeRecording');
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error handling NotchDrop overlay resume recording:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('notchdrop:triggerOverlayToggleLiveIntelligence', async () => {
+		try {
+			log.info('🧠 NotchDrop requested overlay toggle live intelligence');
+			let overlayWindow = windowHelper?.getOverlayWindow();
+			if (!overlayWindow) {
+				// Create overlay window if it doesn't exist
+				windowHelper?.createOverlayWindow();
+				await new Promise((resolve) => setTimeout(resolve, 100)); // Small delay
+				overlayWindow = windowHelper?.getOverlayWindow();
+			}
+
+			if (overlayWindow) {
+				// Show overlay window if not visible
+				if (!overlayWindow.isVisible()) {
+					windowHelper?.showOverlayWindow();
+				}
+
+				// Send command to overlay window to toggle live intelligence
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'toggleLiveIntelligence',
+				});
+				log.info('Sent toggleLiveIntelligence command to overlay window from NotchDrop');
+			} else {
+				log.error('Overlay window not available after creating');
+				return { success: false, error: 'Overlay window not available' };
+			}
+
+			return { success: true };
+		} catch (error) {
+			log.error('Error handling NotchDrop overlay toggle live intelligence:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -1187,8 +2225,8 @@ app.whenReady().then(() => {
 			if (!overlayWindow) {
 				// Create overlay window if it doesn't exist
 				windowHelper?.createOverlayWindow();
-				// Wait a moment for the window to be created
-				await new Promise((resolve) => setTimeout(resolve, 1000));
+				// REDUCED DELAY: Wait only 200ms for window creation
+				await new Promise((resolve) => setTimeout(resolve, 200));
 				// Get the window reference again after creating it
 				overlayWindow = windowHelper?.getOverlayWindow();
 			}
@@ -1197,22 +2235,30 @@ app.whenReady().then(() => {
 				// Show the window if it's not visible
 				if (!overlayWindow.isVisible()) {
 					windowHelper?.showOverlayWindow();
-					// Wait a moment for the window to be shown
-					await new Promise((resolve) => setTimeout(resolve, 500));
+					// REDUCED DELAY: Wait only 100ms for window display
+					await new Promise((resolve) => setTimeout(resolve, 100));
 				}
 
-				// Send command to overlay window to start recording
-				overlayWindow.webContents.send('overlay-command', {
+				// CRITICAL FIX: Use windowHelper's queuing system
+				const commandSent = windowHelper?.sendOverlayCommand({
 					action: 'startRecording',
 				});
-				log.info('Sent startRecording command to overlay window');
+				log.info(
+					`✅ SMART QUEUE: StartRecording command ${
+						commandSent ? 'sent immediately' : 'queued'
+					}`,
+				);
+
+				// Also trigger focus and bring to front
+				overlayWindow.focus();
+				overlayWindow.moveTop();
 			} else {
-				log.error('Overlay window not available after creating');
+				log.error('❌ Overlay window not available after creating');
 				return { success: false, error: 'Overlay window not available' };
 			}
 			return { success: true };
 		} catch (error) {
-			log.error('Error starting recording from dynamic island:', error);
+			log.error('❌ Error starting recording from dynamic island:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -1482,6 +2528,24 @@ app.whenReady().then(() => {
 		}
 	});
 
+	// CRITICAL FIX: Add missing update-overlay-dimensions handler
+	ipcMain.handle('update-overlay-dimensions', async (event, { width, height }) => {
+		try {
+			if (!windowHelper) {
+				log.error('❌ WindowHelper not initialized for overlay dimensions update');
+				return { success: false, error: 'Window helper not initialized' };
+			}
+
+			log.info(`🔧 Updating overlay dimensions to: ${width}x${height}`);
+			windowHelper.updateWindowDimensions(width, height);
+
+			return { success: true };
+		} catch (error) {
+			log.error('❌ Error updating overlay dimensions:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	ipcMain.handle('set-ignore-mouse-events', async (event, ignore) => {
 		try {
 			if (!windowHelper) {
@@ -1529,12 +2593,15 @@ app.whenReady().then(() => {
 	// Handler to get ask AI input focus state
 	ipcMain.handle('get-askAI-input-focus', async () => {
 		try {
-			return { success: true, isFocused: global.askAIInputFocused || false };
+			const focusState = global.askAIInputFocused || false;
+			log.info(`🔍 Getting ask AI input focus state: ${focusState}`);
+			return { success: true, isFocused: focusState };
 		} catch (error) {
 			log.error('Error getting ask AI input focus state:', error);
 			return { success: false, error: error.message };
 		}
 	});
+	log.info('✅ Registered get-askAI-input-focus IPC handler');
 
 	// New handler to hide all windows (overlay and ask AI)
 	ipcMain.handle('hide-all-windows', async () => {
@@ -1894,10 +2961,13 @@ app.whenReady().then(() => {
 				windowHelper.createAskAIWindow();
 
 				// Wait for window to be created and ready
-				await new Promise((resolve) => setTimeout(resolve, 1000));
+				await new Promise((resolve) => setTimeout(resolve, 150));
 
 				// Get the window reference again after creating it
 				askAIWindow = windowHelper.getAskAIWindow();
+				if (askAIWindow) {
+					await waitForAskAIReady(askAIWindow);
+				}
 			}
 
 			// Ensure window is visible
@@ -1906,11 +2976,22 @@ app.whenReady().then(() => {
 					log.info('Ask AI window exists but not visible, showing it...');
 					windowHelper.showAskAIWindow();
 					// Wait a bit for the window to be fully visible
-					await new Promise((resolve) => setTimeout(resolve, 500));
+					await new Promise((resolve) => setTimeout(resolve, 200));
 				}
 
-				// Send the chat message to Ask AI window
+				// Ensure listeners are ready; then send and do a safety resend
+				await waitForAskAIReady(askAIWindow);
 				askAIWindow.webContents.send('receive-chat-message', chatMessage);
+				setTimeout(() => {
+					try {
+						if (askAIWindow && !askAIWindow.isDestroyed()) {
+							askAIWindow.webContents.send('receive-chat-message', chatMessage);
+							log.info('🔁 Re-sent chat to Ask AI (safety resend)');
+						}
+					} catch (e) {
+						log.warn('⚠️ Safety resend (AskAI) failed:', e);
+					}
+				}, 400);
 				log.info('Chat message sent to Ask AI window successfully');
 				return { success: true };
 			} else {

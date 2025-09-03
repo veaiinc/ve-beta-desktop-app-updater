@@ -127,6 +127,20 @@ const DynamicIslandUI = () => {
 			});
 		}
 
+		// Listen for Swift control events
+		if (window.electronApi && window.electronApi.ipcRenderer) {
+			window.electronApi.ipcRenderer.on('swift:control', (event, data) => {
+				console.log('🎯 Swift control received:', data);
+				handleSwiftControl(data.action, data.data);
+			});
+
+			// Listen for state requests from Swift
+			window.electronApi.ipcRenderer.on('swift:getState', () => {
+				console.log('📊 State request from Swift');
+				sendStateToSwift();
+			});
+		}
+
 		return () => {
 			// Clean up listeners
 			window.removeEventListener('storage', handleStorageChange);
@@ -333,6 +347,73 @@ const DynamicIslandUI = () => {
 			}
 		}
 	}, [cameraStream]);
+
+	// Handle Swift control actions
+	const handleSwiftControl = (action, data) => {
+		console.log('🎯 Handling Swift control:', action, data);
+
+		switch (action) {
+			case 'startRecording':
+				console.log('🎤 Swift requested start recording');
+				handleStartRecording();
+				break;
+			case 'stopRecording':
+				console.log('⏹️ Swift requested stop recording');
+				handleStopRecording();
+				break;
+			case 'pauseRecording':
+				console.log('⏸️ Swift requested pause recording');
+				handlePauseResume();
+				break;
+			case 'resumeRecording':
+				console.log('▶️ Swift requested resume recording');
+				handlePauseResume();
+				break;
+			case 'toggleChatMode':
+				console.log('💬 Swift requested chat mode toggle');
+				setIsChatMode(!isChatMode);
+				break;
+			case 'submitChat':
+				console.log('💬 Swift submitted chat:', data);
+				// Handle chat submission from Swift
+				break;
+			case 'setAuthenticated':
+				console.log('🔐 Swift set authentication:', data);
+				setIsAuthenticated(data);
+				break;
+			case 'expand':
+				console.log('📏 Swift requested expand');
+				if (!isExpanded && isConnected) {
+					expand();
+				}
+				break;
+			case 'collapse':
+				console.log('📏 Swift requested collapse');
+				if (isExpanded && isConnected) {
+					collapse();
+				}
+				break;
+			default:
+				console.warn('⚠️ Unknown Swift action:', action);
+		}
+	};
+
+	// Send current state to Swift
+	const sendStateToSwift = () => {
+		if (window.electronApi?.ipcRenderer) {
+			const state = {
+				isExpanded,
+				isRecording,
+				isPaused,
+				timer,
+				isChatMode,
+				isAuthenticated,
+				chatInput,
+			};
+			console.log('📊 Sending state to Swift:', state);
+			window.electronApi.ipcRenderer.send('js:state', state);
+		}
+	};
 
 	// Timer is now managed by overlay system, no local timer effect needed
 

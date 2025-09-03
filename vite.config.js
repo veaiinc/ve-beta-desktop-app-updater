@@ -24,6 +24,7 @@ export default defineConfig({
 								updateHelper: 'electron/updateHelper.js',
 								overlayWindowHelper: 'electron/overlayWindowHelper.js',
 								windowsCompatibility: 'electron/windowsCompatibility.js', // Add this line
+								notchDropService: 'electron/services/notchDropService.js',
 								notificationHelper: 'electron/notificationHelper.js',
 							},
 							output: {
@@ -31,6 +32,9 @@ export default defineConfig({
 								entryFileNames: (chunkInfo) => {
 									if (chunkInfo.name === 'windowHelper') {
 										return 'helpers/[name].js';
+									}
+									if (chunkInfo.name === 'notchDropService') {
+										return 'services/[name].js';
 									}
 									return '[name].js';
 								},
