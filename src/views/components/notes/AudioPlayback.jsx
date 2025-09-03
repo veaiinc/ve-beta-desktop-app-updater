@@ -19,11 +19,95 @@ const AudioPlayback = ({ meetingId }) => {
 
 	const audioRef = useRef(null);
 	const progressRef = useRef(null);
+	const containerRef = useRef(null);
 
 	// Load audio data when component mounts
 	useEffect(() => {
 		loadAudioData();
 	}, [meetingId]);
+
+	// Try to get duration when component becomes visible
+	useEffect(() => {
+		const tryGetDuration = () => {
+			if (audioRef.current && duration === 0) {
+				console.log('AudioPlayback: Component visible, trying to get duration');
+				
+				// Try multiple methods to get duration
+				const attemptDuration = () => {
+					if (audioRef.current && audioRef.current.duration > 0) {
+						console.log('AudioPlayback: Got duration on visibility:', audioRef.current.duration);
+						setDuration(audioRef.current.duration);
+						return true;
+					}
+					return false;
+				};
+
+				// Method 1: Force reload metadata
+				audioRef.current.load();
+				
+				// Method 2: Try after short delay
+				setTimeout(() => {
+					if (!attemptDuration()) {
+						// Method 3: Force duration detection by playing briefly
+						console.log('AudioPlayback: Forcing duration detection on visibility');
+						audioRef.current.currentTime = 0.01;
+						audioRef.current.volume = 0; // Mute to avoid sound
+						
+						audioRef.current.play().then(() => {
+							setTimeout(() => {
+								audioRef.current.pause();
+								audioRef.current.currentTime = 0;
+								attemptDuration();
+							}, 50);
+						}).catch(() => {
+							// If play fails, try seeking method
+							audioRef.current.currentTime = 999999;
+							setTimeout(() => {
+								audioRef.current.currentTime = 0;
+								attemptDuration();
+							}, 100);
+						});
+					}
+				}, 200);
+			}
+		};
+
+		// Try immediately
+		tryGetDuration();
+
+		// Also try when window gains focus
+		const handleFocus = () => {
+			setTimeout(tryGetDuration, 100);
+		};
+
+		window.addEventListener('focus', handleFocus);
+		return () => window.removeEventListener('focus', handleFocus);
+	}, [duration]);
+
+	// Intersection Observer to detect when component becomes visible
+	useEffect(() => {
+		if (!containerRef.current) return;
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting && duration === 0) {
+						console.log('AudioPlayback: Component is now visible, trying to get duration');
+						setTimeout(() => {
+							if (audioRef.current && audioRef.current.duration > 0) {
+								console.log('AudioPlayback: Got duration from intersection observer:', audioRef.current.duration);
+								setDuration(audioRef.current.duration);
+							}
+						}, 200);
+					}
+				});
+			},
+			{ threshold: 0.1 }
+		);
+
+		observer.observe(containerRef.current);
+		return () => observer.disconnect();
+	}, [duration]);
 
 	// Cleanup blob URL on unmount
 	useEffect(() => {
@@ -60,33 +144,86 @@ const AudioPlayback = ({ meetingId }) => {
 					const audioUrl = URL.createObjectURL(result.audioBlob);
 					console.log('AudioPlayback: Created blob URL:', audioUrl);
 					
+					// Set audio data immediately
+					setAudioData(prev => ({ ...prev, audioUrl }));
+					
+					// Create audio element to get duration immediately
 					const audio = new Audio();
 					audio.preload = 'metadata';
+					audio.crossOrigin = 'anonymous';
 					
-					// Set a timeout to handle cases where metadata doesn't load
-					const timeout = setTimeout(() => {
-						if (duration === 0) {
-							console.log('AudioPlayback: Metadata timeout, setting default duration');
-							setDuration(0);
-						}
-					}, 3000);
+					// Force duration detection by playing briefly
+					const forceDurationDetection = () => {
+						console.log('AudioPlayback: Forcing duration detection by playing briefly');
+						
+						// Set a very small current time and play briefly
+						audio.currentTime = 0.01;
+						audio.volume = 0; // Mute to avoid any sound
+						
+						audio.play().then(() => {
+							// After 50ms, pause and check duration
+							setTimeout(() => {
+								audio.pause();
+								audio.currentTime = 0;
+								
+								if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration) && audio.duration > 0) {
+									console.log('AudioPlayback: Successfully got duration:', audio.duration);
+									setDuration(audio.duration);
+								} else {
+									console.log('AudioPlayback: Duration still not available, trying alternative method');
+									// Try alternative: seek to end and back
+									audio.currentTime = 999999;
+									setTimeout(() => {
+										audio.currentTime = 0;
+										if (audio.duration > 0) {
+											console.log('AudioPlayback: Got duration from seeking:', audio.duration);
+											setDuration(audio.duration);
+										}
+									}, 100);
+								}
+							}, 50);
+						}).catch(err => {
+							console.error('AudioPlayback: Force play failed:', err);
+							// Fallback: try to get duration anyway
+							if (audio.duration > 0) {
+								setDuration(audio.duration);
+							}
+						});
+					};
 					
 					audio.onloadedmetadata = () => {
-						clearTimeout(timeout);
-						console.log('AudioPlayback: Audio duration:', audio.duration);
-						// Ensure duration is valid
-						const validDuration = audio.duration && !isNaN(audio.duration) && isFinite(audio.duration) ? audio.duration : 0;
-						setDuration(validDuration);
-						setAudioData(prev => ({ ...prev, audioUrl }));
+						console.log('AudioPlayback: onLoadedMetadata - duration:', audio.duration);
+						if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration) && audio.duration > 0) {
+							console.log('AudioPlayback: Duration from metadata:', audio.duration);
+							setDuration(audio.duration);
+						} else {
+							// If metadata doesn't have duration, force detection
+							setTimeout(forceDurationDetection, 100);
+						}
+					};
+					
+					audio.oncanplay = () => {
+						console.log('AudioPlayback: onCanPlay - duration:', audio.duration);
+						if (audio.duration > 0) {
+							setDuration(audio.duration);
+						}
 					};
 					
 					audio.onerror = (e) => {
-						clearTimeout(timeout);
 						console.error('AudioPlayback: Audio error:', e);
 						setError('Audio file cannot be played');
 					};
 					
+					// Set source and start duration detection
 					audio.src = audioUrl;
+					
+					// If metadata doesn't load within 500ms, force detection
+					setTimeout(() => {
+						if (duration === 0) {
+							console.log('AudioPlayback: Metadata timeout, forcing duration detection');
+							forceDurationDetection();
+						}
+					}, 500);
 				} else {
 					setDuration(0);
 				}
@@ -271,7 +408,7 @@ const AudioPlayback = ({ meetingId }) => {
 	}
 
 	return (
-		<div className="audio-playback-container">
+		<div className="audio-playback-container" ref={containerRef}>
 			<div className="audio-player">
 				{/* Audio element */}
 				<audio
@@ -316,6 +453,33 @@ const AudioPlayback = ({ meetingId }) => {
 						<h3>Meeting Recording</h3>
 						<p className="audio-details">
 							{formatTime(duration)} • {formatFileSize(audioData.metadata?.fileSize)}
+							{duration === 0 && (
+								<button 
+									onClick={() => {
+										console.log('AudioPlayback: Manual duration retry');
+										if (audioRef.current) {
+											audioRef.current.load();
+											setTimeout(() => {
+												if (audioRef.current && audioRef.current.duration > 0) {
+													setDuration(audioRef.current.duration);
+												}
+											}, 500);
+										}
+									}}
+									style={{
+										marginLeft: '8px',
+										background: 'rgba(29, 185, 84, 0.2)',
+										border: '1px solid #1db954',
+										borderRadius: '4px',
+										padding: '2px 6px',
+										fontSize: '10px',
+										color: '#1db954',
+										cursor: 'pointer'
+									}}
+								>
+									Retry Duration
+								</button>
+							)}
 						</p>
 					</div>
 					<button
