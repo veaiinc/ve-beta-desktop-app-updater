@@ -76,13 +76,9 @@
 	.chatBoxWrapper {
 		display: flex;
 		width: 100%;
-		min-height: 120px;
-		height: fit-content;
 		position: relative;
-
-		:global(.textAreaWrapper) {
-			max-height: 50px !important;
-			overflow: auto !important;
+		:global(.chatBoxParentWrapper) {
+			position: relative;
 		}
 	}
 
