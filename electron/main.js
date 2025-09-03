@@ -337,11 +337,17 @@ let dynamicIslandHelper = null;
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 
-// Windows-specific auto-updater configuration
+// Configure auto-updater for all platforms
+autoUpdater.autoDownload = true; // Automatically download updates
+autoUpdater.autoInstallOnAppQuit = true; // Install when app quits
+
+// Platform-specific logging
 if (process.platform === 'win32') {
-	// Enable auto-download for both dev and production
-	autoUpdater.autoDownload = true;
-	log.info('Windows auto-updater configured with auto-download for all environments');
+	log.info('Windows auto-updater configured with auto-download and auto-install');
+} else if (process.platform === 'darwin') {
+	log.info('macOS auto-updater configured with auto-download and auto-install');
+} else {
+	log.info('Linux auto-updater configured with auto-download and auto-install');
 }
 
 // Update event forwarding
@@ -351,12 +357,16 @@ autoUpdater.on('checking-for-update', () => {
 });
 
 autoUpdater.on('update-available', (info) => {
-	log.info('Update available:', info);
+	log.info('🔄 Update available:', info);
+	log.info('📦 Current version:', app.getVersion());
+	log.info('🆕 New version:', info.version);
 
 	// Notify frontend that update is available
 	mainWindow?.webContents.send('update-status', {
 		status: 'download-started',
 		version: info.version,
+		currentVersion: app.getVersion(),
+		message: `Updating from ${app.getVersion()} to ${info.version}...`,
 	});
 
 	// If auto-download is disabled, start manual download
@@ -414,10 +424,18 @@ autoUpdater.on('update-downloaded', (info) => {
 		message: 'Update ready! App will restart in 3 seconds...',
 	});
 
-	// Auto-restart after 3 seconds
+	// Auto-restart after 3 seconds with automatic relaunch
 	setTimeout(() => {
-		log.info('Restarting app to install update...');
-		autoUpdater.quitAndInstall();
+		log.info('Auto-restarting app to install update...');
+
+		// Set flag to prevent cleanup interference
+		isQuitting = true;
+
+		// Quit and install with automatic restart
+		// Parameters: (isSilent, isForceRunAfter)
+		// isSilent: true = no user prompts
+		// isForceRunAfter: true = automatically launch new version after install
+		autoUpdater.quitAndInstall(true, true);
 	}, 3000);
 });
 
