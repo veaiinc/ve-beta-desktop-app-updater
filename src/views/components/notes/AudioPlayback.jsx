@@ -62,15 +62,30 @@ const AudioPlayback = ({ meetingId }) => {
 					
 					const audio = new Audio();
 					audio.preload = 'metadata';
+					
+					// Set a timeout to handle cases where metadata doesn't load
+					const timeout = setTimeout(() => {
+						if (duration === 0) {
+							console.log('AudioPlayback: Metadata timeout, setting default duration');
+							setDuration(0);
+						}
+					}, 3000);
+					
 					audio.onloadedmetadata = () => {
+						clearTimeout(timeout);
 						console.log('AudioPlayback: Audio duration:', audio.duration);
-						setDuration(audio.duration);
+						// Ensure duration is valid
+						const validDuration = audio.duration && !isNaN(audio.duration) && isFinite(audio.duration) ? audio.duration : 0;
+						setDuration(validDuration);
 						setAudioData(prev => ({ ...prev, audioUrl }));
 					};
+					
 					audio.onerror = (e) => {
+						clearTimeout(timeout);
 						console.error('AudioPlayback: Audio error:', e);
 						setError('Audio file cannot be played');
 					};
+					
 					audio.src = audioUrl;
 				} else {
 					setDuration(0);
@@ -94,17 +109,39 @@ const AudioPlayback = ({ meetingId }) => {
 			audioRef.current.pause();
 			setIsPlaying(false);
 		} else {
-			audioRef.current.play();
+			// If duration is still 0, try to get it by playing briefly
+			if (duration === 0) {
+				console.log('AudioPlayback: Duration is 0, attempting to get duration by playing');
+				audioRef.current.play().then(() => {
+					// Check duration after a short delay
+					setTimeout(() => {
+						if (audioRef.current && audioRef.current.duration > 0) {
+							console.log('AudioPlayback: Got duration from play:', audioRef.current.duration);
+							setDuration(audioRef.current.duration);
+						}
+					}, 100);
+				}).catch(err => {
+					console.error('AudioPlayback: Play failed:', err);
+				});
+			} else {
+				audioRef.current.play();
+			}
 			setIsPlaying(true);
 		}
-	}, [isPlaying, audioData]);
+	}, [isPlaying, audioData, duration]);
 
 	// Handle time update
 	const handleTimeUpdate = useCallback(() => {
 		if (audioRef.current) {
 			setCurrentTime(audioRef.current.currentTime);
+			
+			// Try to get duration if it's still 0
+			if (duration === 0 && audioRef.current.duration > 0) {
+				console.log('AudioPlayback: Got duration from timeUpdate:', audioRef.current.duration);
+				setDuration(audioRef.current.duration);
+			}
 		}
-	}, []);
+	}, [duration]);
 
 	// Handle audio ended
 	const handleAudioEnded = useCallback(() => {
@@ -180,6 +217,10 @@ const AudioPlayback = ({ meetingId }) => {
 
 	// Format time for display
 	const formatTime = useCallback((time) => {
+		// Handle invalid time values
+		if (!time || isNaN(time) || !isFinite(time)) {
+			return '00:00';
+		}
 		const minutes = Math.floor(time / 60);
 		const seconds = Math.floor(time % 60);
 		return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
@@ -240,7 +281,30 @@ const AudioPlayback = ({ meetingId }) => {
 					onEnded={handleAudioEnded}
 					onLoadedMetadata={() => {
 						if (audioRef.current) {
-							setDuration(audioRef.current.duration);
+							console.log('AudioPlayback: onLoadedMetadata - duration:', audioRef.current.duration);
+							const validDuration = audioRef.current.duration && !isNaN(audioRef.current.duration) && isFinite(audioRef.current.duration) ? audioRef.current.duration : 0;
+							setDuration(validDuration);
+							console.log('AudioPlayback: Set duration to:', validDuration);
+						}
+					}}
+					onCanPlay={() => {
+						if (audioRef.current) {
+							console.log('AudioPlayback: onCanPlay - duration:', audioRef.current.duration);
+							const validDuration = audioRef.current.duration && !isNaN(audioRef.current.duration) && isFinite(audioRef.current.duration) ? audioRef.current.duration : 0;
+							if (validDuration > 0) {
+								setDuration(validDuration);
+								console.log('AudioPlayback: Set duration from onCanPlay:', validDuration);
+							}
+						}
+					}}
+					onDurationChange={() => {
+						if (audioRef.current) {
+							console.log('AudioPlayback: onDurationChange - duration:', audioRef.current.duration);
+							const validDuration = audioRef.current.duration && !isNaN(audioRef.current.duration) && isFinite(audioRef.current.duration) ? audioRef.current.duration : 0;
+							if (validDuration > 0) {
+								setDuration(validDuration);
+								console.log('AudioPlayback: Set duration from onDurationChange:', validDuration);
+							}
 						}
 					}}
 					preload="metadata"
