@@ -61,7 +61,7 @@
 // Live Intelligence Container
 .live-intelligence-container {
 	display: flex;
-	padding: 8px 10px;
+	padding: 12px;
 	flex-direction: column;
 	align-items: flex-start;
 	border-radius: 6px;
@@ -73,23 +73,21 @@
 	// backdrop-filter: blur(12px);
 	// -webkit-backdrop-filter: blur(12px);
 	// border: 1px solid rgba(255, 255, 255, 0.1);
+
 	border-radius: 16px;
 	border: 0.5px solid rgba(255, 255, 255, 0.15);
-	background: rgba(0, 0, 0, 0.6);
+	background: rgba(0, 0, 0, 0.7);
 	backdrop-filter: blur(4px);
 }
 
 // Transcript Container
 .transcript-container {
-	width: auto;
-	min-width: 500px;
-	max-width: 600px;
-	margin-top: 16px;
+	display: flex;
+	padding: 12px;
+	flex-direction: column;
+	align-items: flex-start;
 	border-radius: 6px;
 	opacity: 1;
-	padding: 8px;
-	animation: slideInDown 0.3s ease-out;
-	box-sizing: border-box;
 	overflow: hidden;
 	z-index: 10000;
 	position: relative;
@@ -97,9 +95,10 @@
 	// backdrop-filter: blur(12px);
 	// -webkit-backdrop-filter: blur(12px);
 	// border: 1px solid rgba(255, 255, 255, 0.1);
+
 	border-radius: 16px;
 	border: 0.5px solid rgba(255, 255, 255, 0.15);
-	background: rgba(0, 0, 0, 0.6);
+	background: rgba(0, 0, 0, 0.7);
 	backdrop-filter: blur(4px);
 }
 
