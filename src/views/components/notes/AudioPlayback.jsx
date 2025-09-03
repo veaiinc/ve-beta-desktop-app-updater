@@ -375,41 +375,34 @@ const AudioPlayback = ({ meetingId }) => {
 
 	if (isLoading) {
 		return (
-			<div className="audio-playback-container">
-				<div className="audio-loading">
-					<div className="loading-spinner"></div>
-					<p>Loading audio...</p>
-				</div>
+			<div className="audio-loading">
+				<div className="loading-spinner"></div>
+				<p>Loading audio...</p>
 			</div>
 		);
 	}
 
 	if (error) {
 		return (
-			<div className="audio-playback-container">
-				<div className="audio-error">
-					<p>❌ {error}</p>
-					<button onClick={loadAudioData} className="retry-button">
-						Retry
-					</button>
-				</div>
+			<div className="audio-error">
+				<p>❌ {error}</p>
+				<button onClick={loadAudioData} className="retry-button">
+					Retry
+				</button>
 			</div>
 		);
 	}
 
 	if (!audioData) {
 		return (
-			<div className="audio-playback-container">
-				<div className="audio-empty">
-					<p>No audio recording available for this meeting.</p>
-				</div>
+			<div className="audio-empty">
+				<p>No audio recording available for this meeting.</p>
 			</div>
 		);
 	}
 
 	return (
-		<div className="audio-playback-container" ref={containerRef}>
-			<div className="audio-player">
+		<div className="audio-player" ref={containerRef}>
 				{/* Audio element */}
 				<audio
 					ref={audioRef}
