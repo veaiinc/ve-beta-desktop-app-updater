@@ -99,6 +99,7 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var timer: Int = 0
     @Published var isChatMode: Bool = false
     @Published var chatInput: String = ""
+    @Published var isSendingMessage: Bool = false
     @Published var isAuthenticated: Bool = false
     @Published var controlledByDynamicIsland: Bool = false
 
@@ -118,6 +119,7 @@ class NotchViewModel: NSObject, ObservableObject {
         case resumeRecording
         case toggleChatMode
         case submitChat(String)
+        case sendChatMessageToAskAI([String: String])
         case setAuthenticated(Bool)
         case expand
         case collapse
@@ -208,14 +210,47 @@ class NotchViewModel: NSObject, ObservableObject {
     }
     
     func submitChat() {
-        if !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            // Handle chat submission here
-            print("Chat submitted: \(chatInput)")
-            let message = chatInput
-            chatInput = ""
-            
-            // Emit action for JavaScript
-            swiftActionSender.send(.submitChat(message))
+        let trimmedInput = chatInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard !trimmedInput.isEmpty && !isSendingMessage else {
+            if trimmedInput.isEmpty {
+                print("⚠️ Cannot submit empty chat message")
+            } else {
+                print("⚠️ Already sending a message, please wait")
+            }
+            return
+        }
+        
+        print("💬 Swift NotchDrop submitting chat: '\(trimmedInput)'")
+        
+        // Set sending state for UI feedback
+        isSendingMessage = true
+        
+        // Store message and clear input immediately for better UX
+        let message = trimmedInput
+        chatInput = ""
+        
+        // Create message object that matches the Dynamic Island format exactly
+        let chatMessage = [
+            "type": "dynamic-island-chat",
+            "message": message,
+            "timestamp": ISO8601DateFormatter().string(from: Date()),
+            "source": "notchdrop-swift"
+        ]
+        
+        print("📤 Swift sending chat message to AskAI:", chatMessage)
+        
+        // Emit action for JavaScript with formatted message
+        swiftActionSender.send(.submitChat(message))
+        
+        // Also emit a separate action for sending to askAI - this is the main integration point
+        swiftActionSender.send(.sendChatMessageToAskAI(chatMessage))
+        
+        print("✅ Swift chat actions emitted successfully")
+        
+        // Reset sending state after a brief delay (simulating API call)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.isSendingMessage = false
         }
     }
 
@@ -247,12 +282,12 @@ class NotchViewModel: NSObject, ObservableObject {
     }
     
     // New method to send log messages to Electron
-    func sendLogToElectron(_ message: String) {
-        print("📝 Swift sending log to Electron: \(message)")
+    // func sendLogToElectron(_ message: String) {
+    //     print("📝 Swift sending log to Electron: \(message)")
         
-        // Emit action for JavaScript
-        swiftActionSender.send(.sendLog(message))
-    }
+    //     // Emit action for JavaScript
+    //     swiftActionSender.send(.sendLog(message))
+    // }
     
     private func startTimer() {
         timerCancellable?.cancel()

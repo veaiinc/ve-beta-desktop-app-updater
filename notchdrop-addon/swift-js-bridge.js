@@ -59,6 +59,11 @@ class SwiftJSBridge {
 			this.controlJavaScriptUI('submitChat', data);
 		});
 
+		this.swiftActionHandlers.set('sendChatMessageToAskAI', async (data) => {
+			console.log('🎯 Swift sending chat message to AskAI:', data);
+			await this.sendChatMessageToAskAI(data);
+		});
+
 		this.swiftActionHandlers.set('setAuthenticated', (data) => {
 			this.controlJavaScriptUI('setAuthenticated', data);
 		});
@@ -240,7 +245,9 @@ class SwiftJSBridge {
 			try {
 				const { ipcRenderer } = require('electron');
 				if (ipcRenderer) {
-					const result = await ipcRenderer.invoke('notchdrop:triggerOverlayStopRecording');
+					const result = await ipcRenderer.invoke(
+						'notchdrop:triggerOverlayStopRecording',
+					);
 					console.log('✅ Overlay stop recording result:', result);
 				}
 			} catch (e) {
@@ -273,7 +280,9 @@ class SwiftJSBridge {
 			try {
 				const { ipcRenderer } = require('electron');
 				if (ipcRenderer) {
-					const result = await ipcRenderer.invoke('notchdrop:triggerOverlayPauseRecording');
+					const result = await ipcRenderer.invoke(
+						'notchdrop:triggerOverlayPauseRecording',
+					);
 					console.log('✅ Overlay pause recording result:', result);
 				}
 			} catch (e) {
@@ -284,7 +293,9 @@ class SwiftJSBridge {
 					if (window.webContents && !window.isDestroyed()) {
 						const title = window.getTitle();
 						if (title.includes('Overlay') || title.includes('Live Intelligence')) {
-							window.webContents.send('overlay-command', { action: 'pauseRecording' });
+							window.webContents.send('overlay-command', {
+								action: 'pauseRecording',
+							});
 							console.log('✅ Overlay pause command sent directly to window');
 							break;
 						}
@@ -306,7 +317,9 @@ class SwiftJSBridge {
 			try {
 				const { ipcRenderer } = require('electron');
 				if (ipcRenderer) {
-					const result = await ipcRenderer.invoke('notchdrop:triggerOverlayResumeRecording');
+					const result = await ipcRenderer.invoke(
+						'notchdrop:triggerOverlayResumeRecording',
+					);
 					console.log('✅ Overlay resume recording result:', result);
 				}
 			} catch (e) {
@@ -317,7 +330,9 @@ class SwiftJSBridge {
 					if (window.webContents && !window.isDestroyed()) {
 						const title = window.getTitle();
 						if (title.includes('Overlay') || title.includes('Live Intelligence')) {
-							window.webContents.send('overlay-command', { action: 'resumeRecording' });
+							window.webContents.send('overlay-command', {
+								action: 'resumeRecording',
+							});
 							console.log('✅ Overlay resume command sent directly to window');
 							break;
 						}
@@ -389,6 +404,27 @@ class SwiftJSBridge {
 			}
 		}
 		return null;
+	}
+
+	// Send chat message to AskAI window using the same event as Dynamic Island
+	async sendChatMessageToAskAI(chatMessage) {
+		try {
+			console.log('🚀 Sending chat message from NotchDrop to AskAI:', chatMessage);
+
+			// Use the same IPC event that Dynamic Island uses
+			const { ipcRenderer } = require('electron');
+			if (ipcRenderer && ipcRenderer.invoke) {
+				const result = await ipcRenderer.invoke('send-chat-message-to-askai', chatMessage);
+				console.log('📥 AskAI response:', result);
+				return result;
+			} else {
+				console.error('❌ ipcRenderer not available in NotchDrop context');
+				return { success: false, error: 'IPC not available' };
+			}
+		} catch (error) {
+			console.error('❌ Error sending chat message to AskAI from NotchDrop:', error);
+			return { success: false, error: error.message };
+		}
 	}
 
 	// Cleanup

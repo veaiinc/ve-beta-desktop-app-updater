@@ -8,6 +8,7 @@
 
 import SwiftUI
 import UniformTypeIdentifiers
+import AppKit
 
 struct NotchContentView: View {
     @StateObject var vm: NotchViewModel
@@ -33,6 +34,9 @@ struct NotchContentView: View {
 // New Dynamic Island Content View matching JavaScript structure
 struct DynamicIslandContentView: View {
     @StateObject var vm: NotchViewModel
+    @FocusState private var isChatInputFocused: Bool
+    @State private var isTextFieldActive: Bool = false
+    @State private var textEditorHeight: CGFloat = 100 // Dynamic height for textarea
     
     var body: some View {
         VStack(spacing: 16) {
@@ -55,18 +59,6 @@ struct DynamicIslandContentView: View {
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
                     .background(Color.blue.opacity(0.3))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .buttonStyle(PlainButtonStyle())
-                    
-                    // Test button to send log message to Electron
-                    Button("Send Log to Electron") {
-                        vm.sendLogToElectron("Hello from Swift UI! Button clicked at \(Date())")
-                    }
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(Color.green.opacity(0.3))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     .buttonStyle(PlainButtonStyle())
                 }
@@ -258,134 +250,99 @@ struct DynamicIslandContentView: View {
                     }
                     
                     // Main content area
-                    HStack(spacing: 8) {
+                    HStack(spacing: 12) {
                         if vm.showVoiceInterface {
                             // Voice split layout (left conversation, right controls)
                             VoiceSplitLayout(vm: vm)
-                        } else if vm.isChatMode {
-                            // Chat mode - expanded chat interface
-                            VStack {
-                                HStack {
-                                    TextField("Ask me anything...", text: $vm.chatInput)
-                                        .textFieldStyle(PlainTextFieldStyle())
-                                        .font(.system(size: 12, weight: .medium))
-                                        .foregroundColor(DynamicIslandTheme.textPrimary)
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 8)
-                                        .background(Color.clear)
-                                        .onSubmit {
-                                            vm.submitChat()
-                                        }
-                                    
-                                    Spacer()
-                                    
-                                    Button(action: {
-                                        vm.submitChat()
-                                    }) {
-                                        Image(systemName: "arrow.right")
-                                            .font(.system(size: 14))
-                                            .foregroundColor(DynamicIslandTheme.textPrimary)
-                                    }
-                                    .buttonStyle(PlainButtonStyle())
-                                    .padding(.trailing, 4)
-                                }
-                                Spacer()
-                            }
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(DynamicIslandTheme.card)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(DynamicIslandTheme.primaryGreen, lineWidth: 0.5)
-                            )
-                            .shadow(color: DynamicIslandTheme.primaryGreen.opacity(0.2), radius: 8)
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
                         } else {
-                            // Normal mode - chat and webcam sections
-                            // Chat input section (now an actual input field that submits to Ask AI)
-                            VStack {
-                                Spacer()
-                                HStack(spacing: 8) {
-                                    TextField("Ask about screen or audio", text: $vm.chatInput)
-                                        .textFieldStyle(PlainTextFieldStyle())
-                                        .font(.system(size: 12, weight: .medium))
-                                        .foregroundColor(DynamicIslandTheme.textPrimary)
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 8)
-                                        .background(Color.clear)
-                                        .onSubmit {
-                                            vm.submitChat()
-                                        }
-
-                                    Spacer()
-
-                                    Button(action: {
-                                        vm.submitChat()
-                                    }) {
-                                        Image(systemName: "arrow.right")
-                                            .font(.system(size: 14))
-                                            .foregroundColor(DynamicIslandTheme.textPrimary)
-                                    }
-                                    .buttonStyle(PlainButtonStyle())
-                                    .padding(.trailing, 4)
-                                }
-                                .padding(.horizontal, 2)
-                                .padding(.vertical, 2)
-                            }
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(DynamicIslandTheme.card)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(DynamicIslandTheme.stroke, lineWidth: 0.5)
+                            // TextEditor implementation (textarea-like with multi-line support and auto-resize)
+                            ChatTextAreaView(
+                                chatInput: $vm.chatInput,
+                                textEditorHeight: $textEditorHeight,
+                                isTextFieldActive: $isTextFieldActive,
+                                vm: vm
                             )
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                            
-                            // Right-hand tile: Webcam when recording, Voice control otherwise
-                            if vm.isRecording {
-                                VStack(spacing: 8) {
-                                    Image(systemName: "video.fill")
-                                        .font(.system(size: 24))
-                                        .foregroundColor(.white)
-                                    Text("Webcam")
-                                        .font(.system(size: 12, weight: .medium))
-                                        .foregroundColor(DynamicIslandTheme.textMuted)
+                                
+                            // Debug: Manual focus trigger (remove in production)
+                            #if DEBUG
+                            HStack {
+                                Button("Focus TextEditor") {
+                                    print("🎯 Manual focus button tapped")
+                                    isChatInputFocused = true
+                                    isTextFieldActive = true
+                                    vm.isChatMode = true
                                 }
-                                .frame(width: 100, height: 100)
-                                .background(DynamicIslandTheme.card)
-                                .clipShape(Circle())
-                            } else {
-                                VStack(spacing: 8) {
-                                    if vm.voiceConnectionStatus == .connecting {
-                                        ProgressView().controlSize(.small)
-                                        Text("Connecting...")
-                                            .font(.system(size: 11, weight: .medium))
-                                            .foregroundColor(DynamicIslandTheme.textMuted)
-                                    } else if vm.voiceConnectionStatus == .connected {
-                                        Image(systemName: "waveform")
-                                            .foregroundColor(DynamicIslandTheme.primaryGreen)
-                                        Text("Voice Active")
-                                            .font(.system(size: 12, weight: .medium))
-                                            .foregroundColor(DynamicIslandTheme.textMuted)
-                                    } else {
-                                        Image(systemName: "waveform")
+                                .font(.system(size: 10))
+                                .foregroundColor(.yellow)
+                                
+                                Button("Test Chat") {
+                                    print("🎯 Test chat button tapped")
+                                    guard !vm.isSendingMessage else {
+                                        print("⚠️ Already sending message, ignoring test button")
+                                        return
+                                    }
+                                    vm.chatInput = "Test message from NotchDrop Swift\nWith multiple lines\nLike a real textarea!"
+                                    vm.submitChat()
+                                }
+                                .font(.system(size: 10))
+                                .foregroundColor(.yellow)
+                            }
+                            .padding(.top, 4)
+                            #endif
+                            
+                            // Right-hand tile: Only show when NOT in chat mode (like React behavior)
+                            if !vm.isChatMode {
+                                // Webcam when recording, Voice control otherwise
+                                if vm.isRecording {
+                                    VStack(spacing: 8) {
+                                        Image(systemName: "video.fill")
+                                            .font(.system(size: 24))
                                             .foregroundColor(.white)
-                                        Text("Voice")
+                                        Text("Webcam")
                                             .font(.system(size: 12, weight: .medium))
                                             .foregroundColor(DynamicIslandTheme.textMuted)
                                     }
-                                }
-                                .frame(width: 100, height: 100)
-                                .background(DynamicIslandTheme.card)
-                                .clipShape(Circle())
-                                .onTapGesture {
-                                    if vm.voiceConnectionStatus == .connected {
-                                        vm.disconnectVoiceUI()
-                                    } else {
-                                        vm.connectVoiceUI()
+                                    .frame(width: 100, height: 100)
+                                    .background(DynamicIslandTheme.card)
+                                    .clipShape(Circle())
+                                    .transition(.scale(scale: 0.8).combined(with: .opacity))
+                                } else {
+                                    VStack(spacing: 8) {
+                                        if vm.voiceConnectionStatus == .connecting {
+                                            ProgressView().controlSize(.small)
+                                            Text("Connecting...")
+                                                .font(.system(size: 11, weight: .medium))
+                                                .foregroundColor(DynamicIslandTheme.textMuted)
+                                        } else if vm.voiceConnectionStatus == .connected {
+                                            Image(systemName: "waveform")
+                                                .foregroundColor(DynamicIslandTheme.primaryGreen)
+                                            Text("Voice Active")
+                                                .font(.system(size: 12, weight: .medium))
+                                                .foregroundColor(DynamicIslandTheme.textMuted)
+                                        } else {
+                                            Image(systemName: "waveform")
+                                                .foregroundColor(.white)
+                                            Text("Voice")
+                                                .font(.system(size: 12, weight: .medium))
+                                                .foregroundColor(DynamicIslandTheme.textMuted)
+                                        }
+                                    }
+                                    .frame(width: 100, height: 100)
+                                    .background(DynamicIslandTheme.card)
+                                    .clipShape(Circle())
+                                    .transition(.scale(scale: 0.8).combined(with: .opacity))
+                                    .onTapGesture {
+                                        if vm.voiceConnectionStatus == .connected {
+                                            vm.disconnectVoiceUI()
+                                        } else {
+                                            vm.connectVoiceUI()
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                    .animation(.easeInOut(duration: 0.3), value: vm.isChatMode)
                 }
             }
         }
@@ -515,10 +472,189 @@ struct VoiceControlsCircle: View {
     }
 }
 
+// MARK: - Chat TextArea Component
+struct ChatTextAreaView: View {
+    @Binding var chatInput: String
+    @FocusState var isChatInputFocused: Bool
+    @Binding var textEditorHeight: CGFloat
+    @Binding var isTextFieldActive: Bool
+    @ObservedObject var vm: NotchViewModel
+    @State private var textEditorWidth: CGFloat = 500 // Dynamic width for textarea
+    
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            // Background for the textarea
+            RoundedRectangle(cornerRadius: 16)
+                .fill(DynamicIslandTheme.card)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(DynamicIslandTheme.stroke.opacity(isChatInputFocused ? 1.0 : 0.5), lineWidth: 1)
+                )
+                .frame(width: textEditorWidth, height: textEditorHeight)
+                .animation(.easeInOut(duration: 0.3), value: textEditorWidth)
+                .animation(.easeInOut(duration: 0.2), value: textEditorHeight)
+            
+            // Placeholder text when empty
+            if chatInput.isEmpty {
+                Text("Ask about screen or audio")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(DynamicIslandTheme.textMuted)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .allowsHitTesting(false) // Allow taps to pass through to TextEditor
+            }
+            
+            // TextEditor (multi-line text input)
+            TextEditor(text: $chatInput)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(DynamicIslandTheme.textPrimary)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(Color.clear)
+                .focused($isChatInputFocused)
+                .frame(width: textEditorWidth, height: textEditorHeight)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .scrollContentBackground(.hidden) // Hide default TextEditor background
+                .onKeyPress(keys: [.return]) { event in
+                    print("🎯 Return key pressed - modifiers: \(event.modifiers)")
+                    if event.modifiers == .shift {
+                        // Shift+Enter: Insert new line manually
+                        print("🎯 Shift+Enter detected - inserting new line")
+                        chatInput.append("\n")
+                        return .handled
+                    } else {
+                        // Enter alone: Submit chat
+                        print("🎯 Enter alone detected - submitting chat")
+                        if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            vm.submitChat()
+                            return .handled
+                        }
+                        return .handled // Still consume the event even if not submitting
+                    }
+                }
+                .onChange(of: chatInput) { oldValue, newValue in
+                    handleTextChange(newValue)
+                }
+                .onChange(of: isChatInputFocused) { oldValue, newValue in
+                    handleFocusChange(newValue)
+                }
+                .onChange(of: vm.isChatMode) { oldValue, newValue in
+                    // When chat mode is turned off (back button pressed), remove focus
+                    if !newValue && isChatInputFocused {
+                        print("🎯 Chat mode disabled - removing focus from TextEditor")
+                        isChatInputFocused = false
+                    }
+                }
+                .onAppear {
+                    print("🎯 TextEditor appeared - ready for focus")
+                }
+        }
+        .contentShape(Rectangle()) // Ensure entire area is tappable
+        .allowsHitTesting(true) // Explicitly allow hit testing
+        .onTapGesture {
+            print("🎯 TextEditor container tapped - setting focus")
+            
+            // Ensure window is key first
+            if let window = NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible }) {
+                if !window.isKeyWindow {
+                    window.makeKey()
+                }
+            }
+            
+            // Set focus directly without delays or additional responder calls
+            isChatInputFocused = true
+            isTextFieldActive = true
+            vm.isChatMode = true
+        }
+    }
+    
+
+    
+    private func handleTextChange(_ newValue: String) {
+        print("🎯 TextEditor text changed: '\(newValue)'")
+        
+        // Only resize based on actual content, not placeholder
+        if !newValue.isEmpty {
+            // Auto-resize functionality - use correct font size (13, same as TextEditor)
+            let font = NSFont.systemFont(ofSize: 13, weight: .medium)
+            let textAttributes: [NSAttributedString.Key: Any] = [
+                .font: font
+            ]
+            
+            let attributedString = NSAttributedString(string: newValue, attributes: textAttributes)
+            
+            // Calculate text size with padding constraints - use more generous width
+            let textWidth: CGFloat = textEditorWidth - 40 // More generous width for text wrapping
+            let boundingRect = attributedString.boundingRect(
+                with: CGSize(width: textWidth, height: .greatestFiniteMagnitude),
+                options: [.usesLineFragmentOrigin, .usesFontLeading],
+                context: nil
+            )
+            
+            // Calculate new height with min/max constraints
+            let minHeight: CGFloat = 100 // Minimum height
+            let maxHeight: CGFloat = 200 // Maximum height
+            let contentHeight = boundingRect.height + 30 // Add vertical padding for TextEditor
+            
+            let newHeight = max(minHeight, min(maxHeight, contentHeight))
+            
+            // Update height with animation if it changed significantly
+            if abs(textEditorHeight - newHeight) > 5 {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    textEditorHeight = newHeight
+                }
+            }
+        } else {
+            // Reset to minimum height when empty
+            let minHeight: CGFloat = 100
+            if abs(textEditorHeight - minHeight) > 5 {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    textEditorHeight = minHeight
+                }
+            }
+        }
+    }
+    
+    private func handleFocusChange(_ newValue: Bool) {
+        print("🎯 TextEditor focus changed: \(newValue)")
+        isTextFieldActive = newValue
+        
+        // Hide voice section when focused, show when unfocused (like React behavior)
+        vm.isChatMode = newValue
+        
+        // Animate width change based on focus state
+        withAnimation(.easeInOut(duration: 0.3)) {
+            textEditorWidth = newValue ? 575 : 500 // Expand to 515px when focused, 250px when unfocused
+        }
+        
+        // When unfocused and no text, clear chat input and reset height
+        if !newValue && chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            chatInput = ""
+            withAnimation(.easeInOut(duration: 0.2)) {
+                textEditorHeight = 100 // Reset to minimum height
+            }
+        }
+        
+        // When focused, ensure window is key but DON'T change first responder
+        if newValue {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                if let window = NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible }) {
+                    if !window.isKeyWindow {
+                        window.makeKey()
+                    }
+                    // Don't call makeFirstResponder here - it steals focus from TextEditor
+                }
+            }
+        }
+    }
+}
+
+
+
 #Preview {
     NotchContentView(vm: .init())
         .padding()
-        .frame(width: 600, height: 150, alignment: .center)
+        .frame(width: 550, height: 150, alignment: .center)
         .background(.black)
         .preferredColorScheme(.dark)
 }

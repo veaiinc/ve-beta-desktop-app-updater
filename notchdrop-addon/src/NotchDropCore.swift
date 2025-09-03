@@ -4,6 +4,17 @@ import SwiftUI
 import UniformTypeIdentifiers
 import Combine
 
+// MARK: - Custom Window for Keyboard Input
+class NotchDropWindow: NSWindow {
+    override var canBecomeKey: Bool { return true }
+    override var canBecomeMain: Bool { return true }
+    
+    override func makeFirstResponder(_ responder: NSResponder?) -> Bool {
+        // Always allow the content view to become first responder for keyboard input
+        return super.makeFirstResponder(responder)
+    }
+}
+
 // MARK: - Core NotchDrop Implementation
 @objc public class NotchDropCore: NSObject {
 
@@ -55,7 +66,7 @@ import Combine
             height: notchHeight
         )
 
-        notchWindow = NSWindow(
+        notchWindow = NotchDropWindow(
             contentRect: topRect,
             styleMask: [.borderless, .fullSizeContentView],
             backing: .buffered,
@@ -80,6 +91,11 @@ import Combine
             .canJoinAllSpaces,
             .ignoresCycle,
         ]
+        
+        // CRITICAL: Enable keyboard input and first responder capabilities
+        window.acceptsMouseMovedEvents = true
+        
+        // Don't set initial first responder - let SwiftUI manage TextField focus
 
         // Create the proper NotchDrop UI
         var notchSize = screen.notchSize
@@ -137,7 +153,13 @@ import Combine
 
     @objc public func showNotchDrop() {
         DispatchQueue.main.async { [weak self] in
-            self?.notchWindow?.makeKeyAndOrderFront(nil)
+            guard let window = self?.notchWindow else { return }
+            
+            // Make the window key and visible
+            window.makeKeyAndOrderFront(nil)
+            
+            // Don't immediately set first responder - let SwiftUI handle TextField focus
+            
             self?.isVisible = true
             self?.notchViewModel?.notchOpen(.click)
         }
@@ -341,6 +363,12 @@ import Combine
             swiftActionCallback?("toggleChatMode", "")
         case .submitChat(let message):
             swiftActionCallback?("submitChat", message)
+        case .sendChatMessageToAskAI(let chatMessage):
+            // Convert dictionary to JSON string for the callback
+            if let jsonData = try? JSONSerialization.data(withJSONObject: chatMessage, options: []),
+               let jsonString = String(data: jsonData, encoding: .utf8) {
+                swiftActionCallback?("sendChatMessageToAskAI", jsonString)
+            }
         case .setAuthenticated(let authenticated):
             swiftActionCallback?("setAuthenticated", authenticated ? "true" : "false")
         case .expand:

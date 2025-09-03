@@ -394,6 +394,10 @@ class NotchDropAddonWrapper extends EventEmitter {
 				console.log('📝 Swift submitted chat:', data);
 				this.emit('submitChat', data);
 				break;
+			case 'sendChatMessageToAskAI':
+				console.log('💬 Swift sending chat message to AskAI:', data);
+				this.emit('sendChatMessageToAskAI', data);
+				break;
 			case 'setAuthenticated':
 				console.log('🔐 Swift set authenticated:', data);
 				this.emit('setAuthenticated', data === 'true');
@@ -486,113 +490,129 @@ class NotchDropAddonWrapper extends EventEmitter {
 		}
 	}
 
-    async triggerOverlayStopRecording() {
-        try {
-            console.log('⏹️ Triggering overlay stop recording from Swift');
+	async triggerOverlayStopRecording() {
+		try {
+			console.log('⏹️ Triggering overlay stop recording from Swift');
 
-            // Prefer robust NotchDrop IPC channel handled in main.js
-            if (typeof require !== 'undefined') {
-                try {
-                    if (ipcRenderer) {
-                        const result = await ipcRenderer.invoke('notchdrop:triggerOverlayStopRecording');
-                        console.log('Overlay stop recording result:', result);
-                        return result;
-                    }
-                } catch (e) {
-                    // ipcRenderer not available, fallback to main-process direct send
-                    console.log('Running in main process, using direct window communication');
-                }
+			// Prefer robust NotchDrop IPC channel handled in main.js
+			if (typeof require !== 'undefined') {
+				try {
+					if (ipcRenderer) {
+						const result = await ipcRenderer.invoke(
+							'notchdrop:triggerOverlayStopRecording',
+						);
+						console.log('Overlay stop recording result:', result);
+						return result;
+					}
+				} catch (e) {
+					// ipcRenderer not available, fallback to main-process direct send
+					console.log('Running in main process, using direct window communication');
+				}
 
-                // Main process approach - find overlay window and send command directly
-                const windows = BrowserWindow.getAllWindows();
-                for (const window of windows) {
-                    if (window.webContents && !window.isDestroyed()) {
-                        const title = window.getTitle();
-                        if (title.includes('Overlay') || title.includes('Live Intelligence')) {
-                            window.webContents.send('overlay-command', { action: 'stopRecording' });
-                            console.log('✅ Overlay stop recording command sent directly to window');
-                            return { success: true, method: 'direct-window' };
-                        }
-                    }
-                }
-                console.warn('⚠️ Overlay window not found');
-                return { success: false, error: 'Overlay window not found' };
-            }
-        } catch (error) {
-            console.error('❌ Error triggering overlay stop recording:', error);
-            return { success: false, error: error.message };
-        }
-    }
+				// Main process approach - find overlay window and send command directly
+				const windows = BrowserWindow.getAllWindows();
+				for (const window of windows) {
+					if (window.webContents && !window.isDestroyed()) {
+						const title = window.getTitle();
+						if (title.includes('Overlay') || title.includes('Live Intelligence')) {
+							window.webContents.send('overlay-command', { action: 'stopRecording' });
+							console.log(
+								'✅ Overlay stop recording command sent directly to window',
+							);
+							return { success: true, method: 'direct-window' };
+						}
+					}
+				}
+				console.warn('⚠️ Overlay window not found');
+				return { success: false, error: 'Overlay window not found' };
+			}
+		} catch (error) {
+			console.error('❌ Error triggering overlay stop recording:', error);
+			return { success: false, error: error.message };
+		}
+	}
 
-    async triggerOverlayPauseRecording() {
-        try {
-            console.log('⏸️ Triggering overlay pause recording from Swift');
+	async triggerOverlayPauseRecording() {
+		try {
+			console.log('⏸️ Triggering overlay pause recording from Swift');
 
-            if (typeof require !== 'undefined') {
-                try {
-                    if (ipcRenderer) {
-                        const result = await ipcRenderer.invoke('notchdrop:triggerOverlayPauseRecording');
-                        console.log('Overlay pause recording result:', result);
-                        return result;
-                    }
-                } catch (e) {
-                    console.log('Running in main process, using direct window communication');
-                }
+			if (typeof require !== 'undefined') {
+				try {
+					if (ipcRenderer) {
+						const result = await ipcRenderer.invoke(
+							'notchdrop:triggerOverlayPauseRecording',
+						);
+						console.log('Overlay pause recording result:', result);
+						return result;
+					}
+				} catch (e) {
+					console.log('Running in main process, using direct window communication');
+				}
 
-                const windows = BrowserWindow.getAllWindows();
-                for (const window of windows) {
-                    if (window.webContents && !window.isDestroyed()) {
-                        const title = window.getTitle();
-                        if (title.includes('Overlay') || title.includes('Live Intelligence')) {
-                            window.webContents.send('overlay-command', { action: 'pauseRecording' });
-                            console.log('✅ Overlay pause recording command sent directly to window');
-                            return { success: true, method: 'direct-window' };
-                        }
-                    }
-                }
-                console.warn('⚠️ Overlay window not found');
-                return { success: false, error: 'Overlay window not found' };
-            }
-        } catch (error) {
-            console.error('❌ Error triggering overlay pause recording:', error);
-            return { success: false, error: error.message };
-        }
-    }
+				const windows = BrowserWindow.getAllWindows();
+				for (const window of windows) {
+					if (window.webContents && !window.isDestroyed()) {
+						const title = window.getTitle();
+						if (title.includes('Overlay') || title.includes('Live Intelligence')) {
+							window.webContents.send('overlay-command', {
+								action: 'pauseRecording',
+							});
+							console.log(
+								'✅ Overlay pause recording command sent directly to window',
+							);
+							return { success: true, method: 'direct-window' };
+						}
+					}
+				}
+				console.warn('⚠️ Overlay window not found');
+				return { success: false, error: 'Overlay window not found' };
+			}
+		} catch (error) {
+			console.error('❌ Error triggering overlay pause recording:', error);
+			return { success: false, error: error.message };
+		}
+	}
 
-    async triggerOverlayResumeRecording() {
-        try {
-            console.log('▶️ Triggering overlay resume recording from Swift');
+	async triggerOverlayResumeRecording() {
+		try {
+			console.log('▶️ Triggering overlay resume recording from Swift');
 
-            if (typeof require !== 'undefined') {
-                try {
-                    if (ipcRenderer) {
-                        const result = await ipcRenderer.invoke('notchdrop:triggerOverlayResumeRecording');
-                        console.log('Overlay resume recording result:', result);
-                        return result;
-                    }
-                } catch (e) {
-                    console.log('Running in main process, using direct window communication');
-                }
-                // Main process approach - find overlay window and send command directly
-                const windows = BrowserWindow.getAllWindows();
-                for (const window of windows) {
-                    if (window.webContents && !window.isDestroyed()) {
-                        const title = window.getTitle();
-                        if (title.includes('Overlay') || title.includes('Live Intelligence')) {
-                            window.webContents.send('overlay-command', { action: 'resumeRecording' });
-                            console.log('✅ Overlay resume recording command sent directly to window');
-                            return { success: true, method: 'direct-window' };
-                        }
-                    }
-                }
-                console.warn('⚠️ Overlay window not found');
-                return { success: false, error: 'Overlay window not found' };
-            }
-        } catch (error) {
-            console.error('❌ Error triggering overlay resume recording:', error);
-            return { success: false, error: error.message };
-        }
-    }
+			if (typeof require !== 'undefined') {
+				try {
+					if (ipcRenderer) {
+						const result = await ipcRenderer.invoke(
+							'notchdrop:triggerOverlayResumeRecording',
+						);
+						console.log('Overlay resume recording result:', result);
+						return result;
+					}
+				} catch (e) {
+					console.log('Running in main process, using direct window communication');
+				}
+				// Main process approach - find overlay window and send command directly
+				const windows = BrowserWindow.getAllWindows();
+				for (const window of windows) {
+					if (window.webContents && !window.isDestroyed()) {
+						const title = window.getTitle();
+						if (title.includes('Overlay') || title.includes('Live Intelligence')) {
+							window.webContents.send('overlay-command', {
+								action: 'resumeRecording',
+							});
+							console.log(
+								'✅ Overlay resume recording command sent directly to window',
+							);
+							return { success: true, method: 'direct-window' };
+						}
+					}
+				}
+				console.warn('⚠️ Overlay window not found');
+				return { success: false, error: 'Overlay window not found' };
+			}
+		} catch (error) {
+			console.error('❌ Error triggering overlay resume recording:', error);
+			return { success: false, error: error.message };
+		}
+	}
 
 	async triggerOverlayToggleLiveIntelligence() {
 		try {
@@ -1023,109 +1043,119 @@ class NotchDropAddonWrapper extends EventEmitter {
 	}
 
 	// Immediate stop/pause/resume methods for completeness
-    async triggerOverlayStopRecordingImmediate() {
-        console.log('⚡ IMMEDIATE: Stopping overlay recording NOW');
-        try {
-            if (typeof require !== 'undefined') {
-                try {
-                    if (ipcRenderer) {
-                        const result = await ipcRenderer.invoke('notchdrop:triggerOverlayStopRecording');
-                        console.log('✅ Immediate stop via ipcRenderer:', result);
-                        return result;
-                    }
-                } catch (e) {
-                    // Not in renderer; try direct process emit or direct window
-                }
-                // Direct window fallback
-                const windows = BrowserWindow.getAllWindows();
-                for (const window of windows) {
-                    if (window.webContents && !window.isDestroyed()) {
-                        const title = window.getTitle();
-                        if (title.includes('Overlay') || title.includes('Live Intelligence')) {
-                            window.webContents.send('overlay-command', { action: 'stopRecording' });
-                            console.log('✅ Immediate stop sent directly to window');
-                            return { success: true, method: 'direct-window' };
-                        }
-                    }
-                }
-            }
-            // Event emission fallback (legacy)
-            this.emit('triggerOverlayStopRecording', { immediate: true });
-            console.log('ℹ️ Emitted legacy immediate stop event');
-            return { success: true, method: 'event-emission' };
-        } catch (error) {
-            console.error('❌ Failed to stop recording immediately:', error);
-            return { success: false, error: error.message };
-        }
-    }
+	async triggerOverlayStopRecordingImmediate() {
+		console.log('⚡ IMMEDIATE: Stopping overlay recording NOW');
+		try {
+			if (typeof require !== 'undefined') {
+				try {
+					if (ipcRenderer) {
+						const result = await ipcRenderer.invoke(
+							'notchdrop:triggerOverlayStopRecording',
+						);
+						console.log('✅ Immediate stop via ipcRenderer:', result);
+						return result;
+					}
+				} catch (e) {
+					// Not in renderer; try direct process emit or direct window
+				}
+				// Direct window fallback
+				const windows = BrowserWindow.getAllWindows();
+				for (const window of windows) {
+					if (window.webContents && !window.isDestroyed()) {
+						const title = window.getTitle();
+						if (title.includes('Overlay') || title.includes('Live Intelligence')) {
+							window.webContents.send('overlay-command', { action: 'stopRecording' });
+							console.log('✅ Immediate stop sent directly to window');
+							return { success: true, method: 'direct-window' };
+						}
+					}
+				}
+			}
+			// Event emission fallback (legacy)
+			this.emit('triggerOverlayStopRecording', { immediate: true });
+			console.log('ℹ️ Emitted legacy immediate stop event');
+			return { success: true, method: 'event-emission' };
+		} catch (error) {
+			console.error('❌ Failed to stop recording immediately:', error);
+			return { success: false, error: error.message };
+		}
+	}
 
-    async triggerOverlayPauseRecordingImmediate() {
-        console.log('⚡ IMMEDIATE: Pausing overlay recording NOW');
-        try {
-            if (typeof require !== 'undefined') {
-                try {
-                    if (ipcRenderer) {
-                        const result = await ipcRenderer.invoke('notchdrop:triggerOverlayPauseRecording');
-                        console.log('✅ Immediate pause via ipcRenderer:', result);
-                        return result;
-                    }
-                } catch (e) {
-                    // Not in renderer; try direct window
-                }
-                const windows = BrowserWindow.getAllWindows();
-                for (const window of windows) {
-                    if (window.webContents && !window.isDestroyed()) {
-                        const title = window.getTitle();
-                        if (title.includes('Overlay') || title.includes('Live Intelligence')) {
-                            window.webContents.send('overlay-command', { action: 'pauseRecording' });
-                            console.log('✅ Immediate pause sent directly to window');
-                            return { success: true, method: 'direct-window' };
-                        }
-                    }
-                }
-            }
-            this.emit('triggerOverlayPauseRecording', { immediate: true });
-            console.log('ℹ️ Emitted legacy immediate pause event');
-            return { success: true, method: 'event-emission' };
-        } catch (error) {
-            console.error('❌ Failed to pause recording immediately:', error);
-            return { success: false, error: error.message };
-        }
-    }
+	async triggerOverlayPauseRecordingImmediate() {
+		console.log('⚡ IMMEDIATE: Pausing overlay recording NOW');
+		try {
+			if (typeof require !== 'undefined') {
+				try {
+					if (ipcRenderer) {
+						const result = await ipcRenderer.invoke(
+							'notchdrop:triggerOverlayPauseRecording',
+						);
+						console.log('✅ Immediate pause via ipcRenderer:', result);
+						return result;
+					}
+				} catch (e) {
+					// Not in renderer; try direct window
+				}
+				const windows = BrowserWindow.getAllWindows();
+				for (const window of windows) {
+					if (window.webContents && !window.isDestroyed()) {
+						const title = window.getTitle();
+						if (title.includes('Overlay') || title.includes('Live Intelligence')) {
+							window.webContents.send('overlay-command', {
+								action: 'pauseRecording',
+							});
+							console.log('✅ Immediate pause sent directly to window');
+							return { success: true, method: 'direct-window' };
+						}
+					}
+				}
+			}
+			this.emit('triggerOverlayPauseRecording', { immediate: true });
+			console.log('ℹ️ Emitted legacy immediate pause event');
+			return { success: true, method: 'event-emission' };
+		} catch (error) {
+			console.error('❌ Failed to pause recording immediately:', error);
+			return { success: false, error: error.message };
+		}
+	}
 
-    async triggerOverlayResumeRecordingImmediate() {
-        console.log('⚡ IMMEDIATE: Resuming overlay recording NOW');
-        try {
-            if (typeof require !== 'undefined') {
-                try {
-                    if (ipcRenderer) {
-                        const result = await ipcRenderer.invoke('notchdrop:triggerOverlayResumeRecording');
-                        console.log('✅ Immediate resume via ipcRenderer:', result);
-                        return result;
-                    }
-                } catch (e) {
-                    // Not in renderer; try direct window
-                }
-                const windows = BrowserWindow.getAllWindows();
-                for (const window of windows) {
-                    if (window.webContents && !window.isDestroyed()) {
-                        const title = window.getTitle();
-                        if (title.includes('Overlay') || title.includes('Live Intelligence')) {
-                            window.webContents.send('overlay-command', { action: 'resumeRecording' });
-                            console.log('✅ Immediate resume sent directly to window');
-                            return { success: true, method: 'direct-window' };
-                        }
-                    }
-                }
-            }
-            this.emit('triggerOverlayResumeRecording', { immediate: true });
-            console.log('ℹ️ Emitted legacy immediate resume event');
-            return { success: true, method: 'event-emission' };
-        } catch (error) {
-            console.error('❌ Failed to resume recording immediately:', error);
-            return { success: false, error: error.message };
-        }
-    }
+	async triggerOverlayResumeRecordingImmediate() {
+		console.log('⚡ IMMEDIATE: Resuming overlay recording NOW');
+		try {
+			if (typeof require !== 'undefined') {
+				try {
+					if (ipcRenderer) {
+						const result = await ipcRenderer.invoke(
+							'notchdrop:triggerOverlayResumeRecording',
+						);
+						console.log('✅ Immediate resume via ipcRenderer:', result);
+						return result;
+					}
+				} catch (e) {
+					// Not in renderer; try direct window
+				}
+				const windows = BrowserWindow.getAllWindows();
+				for (const window of windows) {
+					if (window.webContents && !window.isDestroyed()) {
+						const title = window.getTitle();
+						if (title.includes('Overlay') || title.includes('Live Intelligence')) {
+							window.webContents.send('overlay-command', {
+								action: 'resumeRecording',
+							});
+							console.log('✅ Immediate resume sent directly to window');
+							return { success: true, method: 'direct-window' };
+						}
+					}
+				}
+			}
+			this.emit('triggerOverlayResumeRecording', { immediate: true });
+			console.log('ℹ️ Emitted legacy immediate resume event');
+			return { success: true, method: 'event-emission' };
+		} catch (error) {
+			console.error('❌ Failed to resume recording immediately:', error);
+			return { success: false, error: error.message };
+		}
+	}
 }
 
 // Export both the class and an object containing it for flexibility

@@ -40,18 +40,18 @@ struct NotchView: View {
         }
     }
     
-    var collapsedContentText: String {
-        if vm.isRecording {
-            if vm.isPaused {
-                return "Paused \(vm.formatTime(vm.timer))"
-            }
-            return "Recording \(vm.formatTime(vm.timer))"
-        } else if vm.isChatMode {
-            return "Chat Mode"
-        } else {
-            return "Living Intelligence"
-        }
-    }
+    // var collapsedContentText: String {
+    //     if vm.isRecording {
+    //         if vm.isPaused {
+    //             return "Paused \(vm.formatTime(vm.timer))"
+    //         }
+    //         return "Recording \(vm.formatTime(vm.timer))"
+    //     } else if vm.isChatMode {
+    //         return "Chat Mode"
+    //     } else {
+    //         return "Living Intelligence"
+    //     }
+    // }
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -61,32 +61,32 @@ struct NotchView: View {
                 .opacity(vm.notchVisible ? 1 : 0.3)
             
             // Collapsed state content
-            if vm.status == .closed {
-                HStack(spacing: 8) {
-                    if vm.isRecording {
-                        Text(vm.isPaused ? "Paused \(vm.formatTime(vm.timer))" : "Recording \(vm.formatTime(vm.timer))")
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundColor(DynamicIslandTheme.primaryGreen)
-                        if !vm.isPaused {
-                            CollapsedAudioViz()
-                        }
-                    } else if vm.showVoiceInterface {
-                        Text("Voice Agent")
-                            .font(.system(size: 10, weight: .regular))
-                            .foregroundColor(.white)
-                    } else if vm.isChatMode {
-                        Text("Chat Mode")
-                            .font(.system(size: 10, weight: .regular))
-                            .foregroundColor(.white)
-                    } else {
-                        Text("Living Intelligence")
-                            .font(.system(size: 10, weight: .regular))
-                            .foregroundColor(.white)
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .zIndex(1)
-            }
+            // if vm.status == .closed {
+            //     HStack(spacing: 8) {
+            //         if vm.isRecording {
+            //             Text(vm.isPaused ? "Paused \(vm.formatTime(vm.timer))" : "Recording \(vm.formatTime(vm.timer))")
+            //                 .font(.system(size: 10, weight: .medium))
+            //                 .foregroundColor(DynamicIslandTheme.primaryGreen)
+            //             if !vm.isPaused {
+            //                 CollapsedAudioViz()
+            //             }
+            //         } else if vm.showVoiceInterface {
+            //             Text("Voice Agent")
+            //                 .font(.system(size: 10, weight: .regular))
+            //                 .foregroundColor(.white)
+            //         } else if vm.isChatMode {
+            //             Text("Chat Mode")
+            //                 .font(.system(size: 10, weight: .regular))
+            //                 .foregroundColor(.white)
+            //         } else {
+            //             Text("Living Intelligence")
+            //                 .font(.system(size: 10, weight: .regular))
+            //                 .foregroundColor(.white)
+            //         }
+            //     }
+            //     .frame(maxWidth: .infinity, maxHeight: .infinity)
+            //     .zIndex(1)
+            // }
             
             Group {
                 if vm.status == .opened {

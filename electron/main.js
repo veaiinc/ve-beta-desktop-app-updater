@@ -109,6 +109,12 @@ class DynamicIslandHelper {
 	createDynamicIslandWindow() {
 		if (this.dynamicIslandWindow !== null) return;
 
+		// Skip window creation on macOS - only create for Windows/Linux
+		if (process.platform === 'darwin') {
+			log.info('🍎 Skipping Dynamic Island window creation on macOS');
+			return;
+		}
+
 		const windowSettings = {
 			width: this.expandedSize.width, // Start with expanded size (555x150)
 			height: this.expandedSize.height, // Start with expanded size (555x150)
@@ -154,24 +160,16 @@ class DynamicIslandHelper {
 			log.error('Failed to load dynamic island URL:', err);
 		});
 
-		// Configure for macOS - ensure it stays at the very top
-		if (process.platform === 'darwin') {
-			this.dynamicIslandWindow.setAlwaysOnTop(true, 'screen-saver');
-			this.dynamicIslandWindow.setVisibleOnAllWorkspaces(true, {
-				visibleOnFullScreen: true,
-				skipTransformProcessType: true,
-			});
-			this.dynamicIslandWindow.setHiddenInMissionControl(true);
-			this.dynamicIslandWindow.setMovable(true);
-		} else {
-			this.dynamicIslandWindow.setAlwaysOnTop(true, 'screen-saver');
-		}
+		// Configure for non-macOS platforms
+		this.dynamicIslandWindow.setAlwaysOnTop(true, 'screen-saver');
 
 		// Set initial mouse event handling - start with mouse events ignored since it's collapsed
 		this.setMouseEventHandling(true);
 
 		// Show the window
 		this.dynamicIslandWindow.show();
+
+		log.info('💻 Dynamic Island window created for non-macOS platform');
 
 		// Listen for resize events from the renderer
 		// this.dynamicIslandWindow.webContents.on('did-finish-load', () => {
@@ -180,6 +178,13 @@ class DynamicIslandHelper {
 	}
 
 	expand() {
+		// On macOS, just track the state without window operations
+		if (process.platform === 'darwin') {
+			this.isExpanded = true;
+			log.info('🍎 Dynamic Island expand state tracked (no window on macOS)');
+			return;
+		}
+
 		if (!this.dynamicIslandWindow || this.isExpanded) return;
 
 		this.isExpanded = true;
@@ -195,6 +200,13 @@ class DynamicIslandHelper {
 	}
 
 	collapse() {
+		// On macOS, just track the state without window operations
+		if (process.platform === 'darwin') {
+			this.isExpanded = false;
+			log.info('🍎 Dynamic Island collapse state tracked (no window on macOS)');
+			return;
+		}
+
 		if (!this.dynamicIslandWindow || !this.isExpanded) return;
 
 		this.isExpanded = false;
@@ -236,6 +248,13 @@ class DynamicIslandHelper {
 	}
 
 	show() {
+		// On macOS, just track the state without window operations
+		if (process.platform === 'darwin') {
+			this.isVisible = true;
+			log.info('🍎 Dynamic Island show state tracked (no window on macOS)');
+			return;
+		}
+
 		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
 			this.dynamicIslandWindow.show();
 			this.isVisible = true;
@@ -243,6 +262,13 @@ class DynamicIslandHelper {
 	}
 
 	hide() {
+		// On macOS, just track the state without window operations
+		if (process.platform === 'darwin') {
+			this.isVisible = false;
+			log.info('🍎 Dynamic Island hide state tracked (no window on macOS)');
+			return;
+		}
+
 		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
 			this.dynamicIslandWindow.hide();
 			this.isVisible = false;
@@ -271,13 +297,19 @@ class DynamicIslandHelper {
 
 	// Method to reposition Dynamic Island based on platform
 	repositionForPlatform() {
+		// On macOS, just log that repositioning was called
+		if (process.platform === 'darwin') {
+			log.info('🍎 Dynamic Island reposition called (no window on macOS)');
+			return;
+		}
+
 		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
 
 		// Recalculate position based on current platform - eliminate gap with menu bar
 		if (process.platform === 'win32') {
 			this.position.y = -5; // Slightly above screen edge on Windows
 		} else {
-			this.position.y = -8; // Slightly above screen edge on Mac/Linux to eliminate menu bar gap
+			this.position.y = -8; // Slightly above screen edge on Linux to eliminate menu bar gap
 		}
 
 		// Update window position
@@ -285,6 +317,12 @@ class DynamicIslandHelper {
 	}
 
 	focus() {
+		// On macOS, just log that focus was called
+		if (process.platform === 'darwin') {
+			log.info('🍎 Dynamic Island focus called (no window on macOS)');
+			return;
+		}
+
 		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
 			try {
 				// Focus the window and bring it to front
@@ -756,12 +794,20 @@ function createMenuBar() {
 					},
 				},
 				{
-					label: 'Toggle Dynamic Island',
+					label:
+						process.platform === 'darwin'
+							? 'Toggle Dynamic Island (macOS: State Only)'
+							: 'Toggle Dynamic Island',
 					accelerator: 'CmdOrCtrl+I',
 					click: () => {
 						try {
 							if (dynamicIslandHelper) {
 								dynamicIslandHelper.toggleVisibility();
+								if (process.platform === 'darwin') {
+									log.info(
+										'🍎 Dynamic Island state toggled on macOS (no visual window)',
+									);
+								}
 							}
 						} catch (error) {
 							log.error('Error toggling dynamic island from menu:', error);
@@ -1971,17 +2017,12 @@ app.whenReady().then(async () => {
 	});
 
 	ipcMain.handle('dynamic-island-voice-status', async () => {
-		try {
-			// Return voice status for Dynamic Island
-			return {
-				success: true,
-				status: 'ready',
-				message: 'Voice integration ready for Dynamic Island',
-			};
-		} catch (error) {
-			log.error('Error getting voice status for Dynamic Island:', error);
-			return { success: false, error: error.message };
-		}
+		// Return voice status for Dynamic Island
+		return {
+			success: true,
+			status: 'ready',
+			message: 'Voice integration ready for Dynamic Island',
+		};
 	});
 
 	// Register overlay window IPC handlers

@@ -209,6 +209,10 @@ class NotchDropElectronIntegration {
 					this.bridge.setChatInput(data);
 					// Handle chat submission
 					break;
+				case 'sendChatMessageToAskAI':
+					console.log('💬 Swift sending chat message to AskAI:', data);
+					await this.sendChatMessageToAskAI(data);
+					break;
 				case 'setAuthenticated':
 					console.log('🔐 Swift set authenticated:', data);
 					this.bridge.updateUIState({ isAuthenticated: data === 'true' });
@@ -379,6 +383,27 @@ class NotchDropElectronIntegration {
 
 		this.isInitialized = false;
 		console.log('🧹 NotchDrop Electron Integration destroyed');
+	}
+
+	// Send chat message to AskAI window (same as Dynamic Island)
+	async sendChatMessageToAskAI(chatMessage) {
+		try {
+			console.log('🚀 NotchDrop sending chat message to AskAI:', chatMessage);
+			
+			// Use the same IPC event that Dynamic Island uses
+			const { ipcRenderer } = require('electron');
+			if (ipcRenderer && ipcRenderer.invoke) {
+				const result = await ipcRenderer.invoke('send-chat-message-to-askai', chatMessage);
+				console.log('📥 AskAI response from NotchDrop:', result);
+				return result;
+			} else {
+				console.error('❌ ipcRenderer not available in NotchDrop context');
+				return { success: false, error: 'IPC not available' };
+			}
+		} catch (error) {
+			console.error('❌ Error sending chat message to AskAI from NotchDrop:', error);
+			return { success: false, error: error.message };
+		}
 	}
 }
 

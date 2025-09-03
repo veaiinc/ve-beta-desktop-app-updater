@@ -32,7 +32,7 @@ class WindowHelper {
 	async preCreateOverlayWindow() {
 		try {
 			log.info('🚀 Pre-creating overlay window for immediate response...');
-			
+
 			if (this.overlayWindow !== null) {
 				log.info('✅ Overlay window already exists, marking as pre-created');
 				this.overlayPreCreated = true;
@@ -42,15 +42,15 @@ class WindowHelper {
 
 			// Create the overlay window but keep it hidden
 			this.createOverlayWindow();
-			
+
 			if (this.overlayWindow) {
 				// Wait for window to be ready
 				await this.waitForOverlayReady();
-				
+
 				// Mark as pre-created and ready
 				this.overlayPreCreated = true;
 				this.overlayWindowReady = true;
-				
+
 				log.info('✅ Overlay window pre-created successfully and ready for immediate use');
 				return true;
 			} else {
@@ -106,7 +106,7 @@ class WindowHelper {
 	showOverlayImmediate() {
 		try {
 			log.info('⚡ IMMEDIATE: Showing overlay window NOW');
-			
+
 			if (!this.overlayWindow) {
 				if (this.overlayPreCreated) {
 					log.warn('⚠️ Overlay was pre-created but window is null, recreating...');
@@ -123,7 +123,7 @@ class WindowHelper {
 				this.overlayWindow.focus();
 				this.overlayWindow.moveTop();
 				this.isOverlayVisible = true;
-				
+
 				log.info('✅ Overlay window shown immediately');
 				return true;
 			} else {
@@ -258,7 +258,7 @@ class WindowHelper {
 
 		const primaryDisplay = screen.getPrimaryDisplay();
 		const workArea = primaryDisplay.workAreaSize;
-		c;
+
 		this.screenWidth = workArea.width;
 		this.screenHeight = workArea.height;
 
@@ -392,11 +392,13 @@ class WindowHelper {
 		this.overlayWindow.webContents.on('did-finish-load', () => {
 			console.log('✅ Overlay window FULLY LOADED and ready for commands');
 			this.overlayWindowReady = true;
-			
+
 			// If there are any pending actions, execute them now
 			if (this.pendingOverlayActions && this.pendingOverlayActions.length > 0) {
-				console.log(`🎯 Executing ${this.pendingOverlayActions.length} pending overlay actions`);
-				this.pendingOverlayActions.forEach(action => {
+				console.log(
+					`🎯 Executing ${this.pendingOverlayActions.length} pending overlay actions`,
+				);
+				this.pendingOverlayActions.forEach((action) => {
 					this.overlayWindow.webContents.send('overlay-command', action);
 				});
 				this.pendingOverlayActions = [];
