@@ -24,13 +24,9 @@ const OverlayNotification = ({ notifications, onDismiss }) => {
 					key={notification.id}
 					className={`overlay-notification overlay-notification--${notification.type}`}
 				>
-					<div className="overlay-notification__icon">
-						{getIcon(notification.type)}
-					</div>
+					<div className="overlay-notification__icon">{getIcon(notification.type)}</div>
 					<div className="overlay-notification__content">
-						<div className="overlay-notification__message">
-							{notification.message}
-						</div>
+						<div className="overlay-notification__message">{notification.message}</div>
 						{notification.description && (
 							<div className="overlay-notification__description">
 								{notification.description}
@@ -64,7 +60,7 @@ export const useOverlayNotification = () => {
 			duration,
 		};
 
-		setNotifications(prev => [...prev, notification]);
+		setNotifications((prev) => [...prev, notification]);
 
 		// Auto dismiss after duration
 		if (duration > 0) {
@@ -77,7 +73,7 @@ export const useOverlayNotification = () => {
 	};
 
 	const dismissNotification = (id) => {
-		setNotifications(prev => prev.filter(n => n.id !== id));
+		setNotifications((prev) => prev.filter((n) => n.id !== id));
 	};
 
 	const clearAll = () => {
@@ -85,13 +81,16 @@ export const useOverlayNotification = () => {
 	};
 
 	// Convenience methods
-	const success = (message, description, duration) => 
+	const success = (message, description, duration) =>
 		showNotification(message, 'success', description, duration);
-	
-	const error = (message, description, duration = 8000) => // Longer duration for errors
-		showNotification(message, 'error', description, duration);
-	
-	const info = (message, description, duration) => 
+
+	const error = (
+		message,
+		description,
+		duration = 8000, // Longer duration for errors
+	) => showNotification(message, 'error', description, duration);
+
+	const info = (message, description, duration) =>
 		showNotification(message, 'info', description, duration);
 
 	return {

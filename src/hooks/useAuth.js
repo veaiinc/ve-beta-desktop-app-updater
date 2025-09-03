@@ -40,7 +40,7 @@ const useAuth = () => {
 		const isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
 		if (!isOnboard) {
 			return navigate('/early-access');
-		} 
+		}
 	}, []);
 
 	const { authLoading } = info;

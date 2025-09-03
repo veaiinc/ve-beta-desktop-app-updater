@@ -1,9 +1,13 @@
 import { Route, Routes } from 'react-router-dom';
 import { useEffect } from 'react';
 import useWorkspaceMode from './hooks/useWorkspaceMode';
+import { useWindowStateRestoration } from './hooks/useWindowStateRestoration';
 
 const App = () => {
 	const { routes } = useWorkspaceMode();
+
+	// Initialize window state restoration for dynamic island functionality
+	useWindowStateRestoration();
 
 	const handleCheckForUpdates = async () => {
 		try {
@@ -61,7 +65,9 @@ const App = () => {
 						break;
 					case 'download-completed':
 						console.log(`Update ready: ${data.version}`);
-						console.log(data.message || 'App will restart automatically in 3 seconds...');
+						console.log(
+							data.message || 'App will restart automatically in 3 seconds...',
+						);
 						break;
 					case 'checksum-error':
 						console.error('Checksum verification failed:', data.error);
