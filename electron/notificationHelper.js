@@ -6,6 +6,7 @@ const log = require('electron-log');
 let showNotificationFn = null;
 let lastInMeeting = false;
 let lastNotificationTime = 0;
+let pendingMeeting = null;
 
 const POLL_INTERVAL = 3000; // Check every 3 seconds
 const NOTIFICATION_COOLDOWN = 10 * 60 * 1000; // 10 minutes
@@ -105,18 +106,30 @@ function startMeetingMonitor() {
 		}
 
 		if (inMeeting && !lastInMeeting) {
-			if (now - lastNotificationTime > NOTIFICATION_COOLDOWN) {
-				if (showNotificationFn) {
-					showNotificationFn(
-						'You’re in a meeting',
-						'Would you like to enable AI notes or live assistance?',
-					);
-					lastNotificationTime = now;
+			// Debounce: wait 5 seconds to confirm it's real
+			pendingMeeting = setTimeout(() => {
+				if (now - lastNotificationTime > NOTIFICATION_COOLDOWN) {
+					if (showNotificationFn) {
+						showNotificationFn(
+							'You’re in a meeting',
+							'Would you like to enable AI notes or live assistance?',
+						);
+						lastNotificationTime = now;
+					}
 				}
-			}
+				pendingMeeting = null;
+			}, 5000); // 5-second delay
 		}
 
-		lastInMeeting = inMeeting;
+		if (!inMeeting) {
+			if (pendingMeeting) {
+				clearTimeout(pendingMeeting);
+				pendingMeeting = null;
+			}
+			lastInMeeting = false;
+		} else {
+			lastInMeeting = true;
+		}
 	}, POLL_INTERVAL);
 }
 
