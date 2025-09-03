@@ -185,6 +185,13 @@ const AudioPlayback = ({ meetingId }) => {
 		return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 	}, []);
 
+	// Format file size for display
+	const formatFileSize = useCallback((bytes) => {
+		if (!bytes) return '0 MB';
+		const mb = bytes / 1024 / 1024;
+		return `${mb.toFixed(2)} MB`;
+	}, []);
+
 	// Calculate progress percentage
 	const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
 
@@ -244,10 +251,7 @@ const AudioPlayback = ({ meetingId }) => {
 					<div className="audio-title">
 						<h3>Meeting Recording</h3>
 						<p className="audio-details">
-							Duration: {formatTime(duration)} • Size:{' '}
-							{audioData.metadata
-								? (audioData.metadata.fileSize / 1024 / 1024).toFixed(2) + ' MB'
-								: 'Unknown'}
+							{formatTime(duration)} • {formatFileSize(audioData.metadata?.fileSize)}
 						</p>
 					</div>
 					<button
