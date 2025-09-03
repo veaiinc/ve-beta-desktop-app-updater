@@ -24,6 +24,8 @@
 
 		&--clickable {
 			cursor: pointer;
+			-webkit-app-region: no-drag; /* Prevent dragging on clickable elements */
+			app-region: no-drag; /* Standard property for non-draggable regions */
 
 			&:hover:not(.shortcut-bar__item--active) {
 				background: rgba(255, 255, 255, 0.15);

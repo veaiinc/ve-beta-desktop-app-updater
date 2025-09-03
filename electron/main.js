@@ -132,7 +132,7 @@ class DynamicIslandHelper {
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
 			resizable: false, // Disable resizing - fixed size
-			movable: false,
+			movable: true, // Enable movement for Dynamic Island
 			minimizable: false,
 			maximizable: false,
 			closable: false,

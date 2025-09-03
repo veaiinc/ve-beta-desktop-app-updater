@@ -75,6 +75,8 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+				-webkit-app-region: no-drag; /* Prevent dragging on control buttons */
+				app-region: no-drag; /* Standard property for non-draggable regions */
 			}
 			.live-intelligence-panel__icon-button {
 				background-color: transparent;
@@ -91,6 +93,8 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+				-webkit-app-region: no-drag; /* Prevent dragging on icon buttons */
+				app-region: no-drag; /* Standard property for non-draggable regions */
 			}
 		}
 	}
@@ -123,6 +127,8 @@
 			line-height: normal;
 			border-bottom: 2px solid transparent;
 			transition: all 0.2s ease;
+			-webkit-app-region: no-drag; /* Prevent dragging on tab buttons */
+			app-region: no-drag; /* Standard property for non-draggable regions */
 
 			&.active {
 				color: #fff;
@@ -181,6 +187,8 @@
 
 				&.clickable {
 					cursor: pointer;
+					-webkit-app-region: no-drag; /* Prevent dragging on clickable thread items */
+					app-region: no-drag; /* Standard property for non-draggable regions */
 
 					&:hover {
 						background: rgba(255, 255, 255, 0.12);
