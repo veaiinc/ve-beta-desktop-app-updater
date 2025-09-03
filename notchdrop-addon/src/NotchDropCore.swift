@@ -209,10 +209,6 @@ class NotchDropWindow: NSWindow {
             switch contentType {
             case "normal":
                 self?.notchViewModel?.contentType = .normal
-            case "menu":
-                self?.notchViewModel?.contentType = .menu
-            case "settings":
-                self?.notchViewModel?.contentType = .settings
             default:
                 break
             }
@@ -279,13 +275,13 @@ class NotchDropWindow: NSWindow {
     }
 
     // MARK: - Advanced NotchDropLatest methods
-    @objc public func showMenu() {
-        setNotchDropContentType("menu")
-    }
+    // @objc public func showMenu() {
+    //     setNotchDropContentType("menu")
+    // }
 
-    @objc public func showSettings() {
-        setNotchDropContentType("settings")
-    }
+    // @objc public func showSettings() {
+    //     setNotchDropContentType("settings")
+    // }
 
     @objc public func showNormal() {
         setNotchDropContentType("normal")

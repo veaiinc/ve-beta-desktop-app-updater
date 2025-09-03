@@ -52,8 +52,8 @@ class NotchViewModel: NSObject, ObservableObject {
 
     enum ContentType: Int, Codable, Hashable, Equatable {
         case normal
-        case menu
-        case settings
+        // case menu
+        // case settings
     }
 
     var notchOpenedRect: CGRect {
@@ -149,7 +149,7 @@ class NotchViewModel: NSObject, ObservableObject {
     }
 
     func showSettings() {
-        contentType = .settings
+        // contentType = .settings
     }
 
     func notchPop() {
