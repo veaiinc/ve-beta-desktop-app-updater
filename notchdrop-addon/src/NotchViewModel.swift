@@ -101,6 +101,12 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var chatInput: String = ""
     @Published var isAuthenticated: Bool = false
     @Published var controlledByDynamicIsland: Bool = false
+
+    // Voice UI state (UI parity with React)
+    enum VoiceConnectionStatus: String { case disconnected, connecting, connected, error }
+    @Published var showVoiceInterface: Bool = false
+    @Published var voiceConnectionStatus: VoiceConnectionStatus = .disconnected
+    @Published var isMicrophoneMuted: Bool = false
     
     // Event emitters for JavaScript integration
     let swiftActionSender = PassthroughSubject<SwiftAction, Never>()
@@ -211,6 +217,26 @@ class NotchViewModel: NSObject, ObservableObject {
             // Emit action for JavaScript
             swiftActionSender.send(.submitChat(message))
         }
+    }
+
+    // Voice UI helpers (UI-only; wiring can follow once UI is approved)
+    func connectVoiceUI() {
+        showVoiceInterface = true
+        voiceConnectionStatus = .connecting
+        // Simulate quick connect visually
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.voiceConnectionStatus = .connected
+        }
+    }
+
+    func disconnectVoiceUI() {
+        voiceConnectionStatus = .disconnected
+        showVoiceInterface = false
+        isMicrophoneMuted = false
+    }
+
+    func toggleMicMute() {
+        isMicrophoneMuted.toggle()
     }
     
     func setAuthenticated(_ authenticated: Bool) {

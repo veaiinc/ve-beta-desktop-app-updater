@@ -1,4 +1,4 @@
-const { ipcMain, BrowserWindow } = require('electron');
+const { ipcMain, BrowserWindow, ipcRenderer, screen } = require('electron');
 const path = require('path');
 const NotchDropUIBridge = require('./ui-bridge.js');
 
@@ -227,7 +227,6 @@ class NotchDropElectronIntegration {
 			console.log('🎤 Triggering overlay recording from Swift');
 
 			// Use IPC to communicate with main process
-			const { ipcRenderer } = require('electron');
 			if (ipcRenderer) {
 				const result = await ipcRenderer.invoke('overlay-start-recording');
 				console.log('Overlay recording result:', result);
@@ -241,7 +240,6 @@ class NotchDropElectronIntegration {
 		try {
 			console.log('⏹️ Triggering overlay stop recording from Swift');
 
-			const { ipcRenderer } = require('electron');
 			if (ipcRenderer) {
 				const result = await ipcRenderer.invoke('overlay-stop-recording');
 				console.log('Overlay stop recording result:', result);
@@ -254,8 +252,6 @@ class NotchDropElectronIntegration {
 	async triggerOverlayPauseRecording() {
 		try {
 			console.log('⏸️ Triggering overlay pause recording from Swift');
-
-			const { ipcRenderer } = require('electron');
 			if (ipcRenderer) {
 				const result = await ipcRenderer.invoke('overlay-pause-recording');
 				console.log('Overlay pause recording result:', result);
@@ -268,8 +264,6 @@ class NotchDropElectronIntegration {
 	async triggerOverlayResumeRecording() {
 		try {
 			console.log('▶️ Triggering overlay resume recording from Swift');
-
-			const { ipcRenderer } = require('electron');
 			if (ipcRenderer) {
 				const result = await ipcRenderer.invoke('overlay-resume-recording');
 				console.log('Overlay resume recording result:', result);
@@ -282,8 +276,6 @@ class NotchDropElectronIntegration {
 	async triggerOverlayToggleLiveIntelligence() {
 		try {
 			console.log('🧠 Triggering overlay toggle live intelligence from Swift');
-
-			const { BrowserWindow } = require('electron');
 			const windows = BrowserWindow.getAllWindows();
 			for (const window of windows) {
 				if (window.webContents && !window.isDestroyed()) {
@@ -340,7 +332,6 @@ class NotchDropElectronIntegration {
 		if (!this.notchDropWindow) return;
 
 		// Get the primary display
-		const { screen } = require('electron');
 		const primaryDisplay = screen.getPrimaryDisplay();
 		const { width, height } = primaryDisplay.workAreaSize;
 

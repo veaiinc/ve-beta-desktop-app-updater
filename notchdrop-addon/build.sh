@@ -136,13 +136,6 @@ else
     print_warning "Swift library not found (this might be normal)"
 fi
 
-# Test the addon
-print_status "Testing the addon..."
-if node test-enhanced.js; then
-    print_success "Addon test passed!"
-else
-    print_warning "Addon test failed or incomplete"
-fi
 
 # Create distribution package
 print_status "Creating distribution package..."
@@ -164,8 +157,6 @@ echo "   - Native addon: build/Release/notchdrop_addon.node"
 echo "   - Swift library: build_swift/libNotchDropCore.a"
 echo "   - Distribution: dist/"
 echo ""
-echo "🧪 To test the addon:"
-echo "   node test-enhanced.js"
 echo ""
 echo "📦 To install in parent project:"
 echo "   npm install"

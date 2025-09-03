@@ -252,8 +252,6 @@ contextBridge.exposeInMainWorld('electronApi', {
 		openShare: () => ipcRenderer.invoke('notchdrop-open-share'),
 		openFile: (filePath) => ipcRenderer.invoke('notchdrop-open-file', filePath),
 		deleteFile: (fileId) => ipcRenderer.invoke('notchdrop-delete-file', fileId),
-		setStorageTime: (time) => ipcRenderer.invoke('notchdrop-set-storage-time', time),
-		getStorageTime: () => ipcRenderer.invoke('notchdrop-get-storage-time'),
 		onFileDropped: (callback) => {
 			ipcRenderer.on('notchdrop-file-dropped', (event, data) => {
 				callback(data);

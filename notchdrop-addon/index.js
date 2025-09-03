@@ -272,7 +272,13 @@ class NotchDropAddonWrapper {
 	// CRITICAL FIX: Immediate action execution for first-click responsiveness
 	handleSwiftAction(actionData) {
 		try {
-			const [action, data] = actionData.split(':');
+			let action = actionData;
+			let data = '';
+			const sepIndex = typeof actionData === 'string' ? actionData.indexOf(':') : -1;
+			if (sepIndex !== -1) {
+				action = actionData.slice(0, sepIndex);
+				data = actionData.slice(sepIndex + 1);
+			}
 			console.log('⚡ IMMEDIATE: Processing Swift action:', action, 'with data:', data);
 			
 			// CRITICAL FIX: Execute critical actions immediately regardless of bridge state

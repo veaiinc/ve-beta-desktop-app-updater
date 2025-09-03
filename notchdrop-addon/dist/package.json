@@ -7,7 +7,6 @@
 		"build": "node-gyp rebuild",
 		"build:ui": "vite build",
 		"dev:ui": "vite",
-		"test": "node test-enhanced.js",
 		"test:ui": "node test-ui.js"
 	},
 	"dependencies": {

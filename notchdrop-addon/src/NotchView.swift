@@ -65,6 +65,10 @@ struct NotchView: View {
                             .font(.system(size: 10, weight: .medium))
                             .foregroundColor(DynamicIslandTheme.primaryGreen)
                         CollapsedAudioViz()
+                    } else if vm.showVoiceInterface {
+                        Text("Voice Mode")
+                            .font(.system(size: 10, weight: .regular))
+                            .foregroundColor(.white)
                     } else if vm.isChatMode {
                         Text("Chat Mode")
                             .font(.system(size: 10, weight: .regular))

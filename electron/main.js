@@ -144,10 +144,12 @@ class DynamicIslandHelper {
 		this.dynamicIslandWindow = new BrowserWindow(windowSettings);
 
 		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
+		// Force the Dynamic Island React app mode so it renders the island UI
+		const query = '?mode=dynamic-island';
 		const dynamicIslandUrl =
 			process.env.NODE_ENV === 'development'
-				? `${devURL}/dynamic-island.html`
-				: `file://${path.join(__dirname, '..', 'build', 'dynamic-island.html')}`;
+				? `${devURL}/dynamic-island.html${query}`
+				: `file://${path.join(__dirname, '..', 'build', 'dynamic-island.html')}${query}`;
 
 		this.dynamicIslandWindow.loadURL(dynamicIslandUrl).catch((err) => {
 			log.error('Failed to load dynamic island URL:', err);
@@ -171,19 +173,17 @@ class DynamicIslandHelper {
 
 		// Show the window
 		this.dynamicIslandWindow.show();
-		log.info('Dynamic Island window created and shown');
 
 		// Listen for resize events from the renderer
-		this.dynamicIslandWindow.webContents.on('did-finish-load', () => {
-			log.info('Dynamic Island content loaded, setting up resize listener');
-		});
+		// this.dynamicIslandWindow.webContents.on('did-finish-load', () => {
+		// 	log.info('Dynamic Island content loaded, setting up resize listener');
+		// });
 	}
 
 	expand() {
 		if (!this.dynamicIslandWindow || this.isExpanded) return;
 
 		this.isExpanded = true;
-		log.info('Dynamic Island content expanded (window size remains 555x150)');
 
 		// Enable mouse events when expanded so user can interact with it
 		this.setMouseEventHandling(false);
@@ -193,7 +193,6 @@ class DynamicIslandHelper {
 
 		// Notify renderer - window size stays the same
 		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: true });
-		log.info('Dynamic Island expanded');
 	}
 
 	collapse() {
@@ -682,6 +681,19 @@ function createMenuBar() {
 					accelerator: 'F12',
 					click: () => {
 						mainWindow.webContents.toggleDevTools();
+					},
+				},
+				{
+					label: 'Toggle Dynamic Island',
+					accelerator: 'CmdOrCtrl+I',
+					click: () => {
+						try {
+							if (dynamicIslandHelper) {
+								dynamicIslandHelper.toggleVisibility();
+							}
+						} catch (error) {
+							log.error('Error toggling dynamic island from menu:', error);
+						}
 					},
 				},
 				{
@@ -1196,6 +1208,38 @@ app.whenReady().then(async () => {
 			}
 		} catch (error) {
 			log.error('❌ Error pre-creating overlay window via signal:', error);
+		}
+	});
+
+	// Swift UI -> AskAI chat submission (bypass IPC, reuse windowHelper directly)
+	process.on('swift-ui-submit-chat', async (chatMessage) => {
+		try {
+			log.info('💬 Received Swift UI chat for AskAI:', chatMessage);
+			if (!windowHelper) {
+				log.error('windowHelper not available for AskAI forwarding');
+				return;
+			}
+
+			let askAIWindow = windowHelper.getAskAIWindow();
+			if (!askAIWindow || askAIWindow.isDestroyed()) {
+				windowHelper.createAskAIWindow();
+				await new Promise((r) => setTimeout(r, 500));
+				askAIWindow = windowHelper.getAskAIWindow();
+			}
+
+			if (askAIWindow && !askAIWindow.isDestroyed()) {
+				// Ensure visible and focused
+				if (!askAIWindow.isVisible()) {
+					windowHelper.showAskAIWindow();
+					await new Promise((r) => setTimeout(r, 300));
+				}
+				askAIWindow.webContents.send('receive-chat-message', chatMessage);
+				log.info('✅ Forwarded Swift UI chat to AskAI');
+			} else {
+				log.error('❌ AskAI window unavailable after creation');
+			}
+		} catch (error) {
+			log.error('❌ Error forwarding Swift UI chat to AskAI:', error);
 		}
 	});
 
@@ -1797,27 +1841,6 @@ app.whenReady().then(async () => {
 		} catch (error) {
 			log.error('Error deleting file:', error);
 			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('notchdrop-set-storage-time', async (event, time) => {
-		try {
-			log.info('Setting storage time from NotchDropLatest:', time);
-			// This would save the storage time preference
-			return { success: true };
-		} catch (error) {
-			log.error('Error setting storage time:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('notchdrop-get-storage-time', async () => {
-		try {
-			// Return default storage time
-			return { success: true, time: '1 day' };
-		} catch (error) {
-			log.error('Error getting storage time:', error);
-			return { success: false, time: '1 day', error: error.message };
 		}
 	});
 

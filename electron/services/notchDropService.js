@@ -15,7 +15,7 @@ class NotchDropService {
 	async initialize() {
 		try {
 			log.info('🚀 Starting NotchDrop service with bridge pre-initialization...');
-			
+
 			// Phase 1: Pre-warm bridge BEFORE addon initialization
 			await this.preWarmBridge();
 			log.info('✅ Phase 1: Bridge pre-warmed successfully');
@@ -96,6 +96,25 @@ class NotchDropService {
 		this.notchDropAddon.on('requestOverlayRecording', () => {
 			log.info('🎤 Swift UI requested overlay recording');
 			this.handleOverlayRecordingRequest();
+		});
+
+		// Listen for Ask AI chat submissions from Swift UI
+		this.notchDropAddon.on('submitChat', (message) => {
+			try {
+				const text = typeof message === 'string' ? message : String(message || '');
+				const chatMessage = {
+					type: 'notchdrop-chat',
+					message: text,
+					timestamp: new Date().toISOString(),
+					source: 'notchdrop-swift-ui',
+				};
+				log.info('💬 Swift UI submitted Ask AI chat:', chatMessage);
+
+				// Emit to main via process event to reuse main.js flow
+				process.emit('swift-ui-submit-chat', chatMessage);
+			} catch (error) {
+				log.error('❌ Error handling Swift UI submitChat:', error);
+			}
 		});
 	}
 
@@ -322,23 +341,26 @@ class NotchDropService {
 	async preWarmBridge() {
 		try {
 			log.info('🔧 Pre-warming Swift-JS bridge...');
-			
+
 			// Pre-load bridge dependencies
 			const bridgePath = path.join(__dirname, '../../notchdrop-addon/swift-js-bridge.js');
 			const SwiftJSBridge = require(bridgePath);
-			
+
 			// Store bridge reference immediately
 			this.swiftJSBridge = SwiftJSBridge.bridge;
-			
+
 			// Pre-initialize bridge components
 			if (this.swiftJSBridge && this.swiftJSBridge.initialize) {
 				await this.swiftJSBridge.initialize();
 			}
-			
+
 			log.info('✅ Swift-JS bridge pre-warmed successfully');
 			return true;
 		} catch (error) {
-			log.warn('⚠️ Bridge pre-warming failed, will retry during normal initialization:', error);
+			log.warn(
+				'⚠️ Bridge pre-warming failed, will retry during normal initialization:',
+				error,
+			);
 			return false;
 		}
 	}
@@ -350,13 +372,13 @@ class NotchDropService {
 				// Fallback to normal initialization if pre-warming failed
 				return await this.initializeSwiftJSBridge();
 			}
-			
+
 			// Verify bridge is functional
 			if (typeof this.swiftJSBridge.handleSwiftAction !== 'function') {
 				log.warn('⚠️ Bridge loaded but not functional, re-initializing...');
 				return await this.initializeSwiftJSBridge();
 			}
-			
+
 			log.info('✅ Swift-JS Bridge verified ready for immediate actions');
 			return true;
 		} catch (error) {
@@ -369,7 +391,7 @@ class NotchDropService {
 	async preCreateOverlayWindow() {
 		try {
 			log.info('🔧 Pre-creating overlay window for instant response...');
-			
+
 			// Signal to main process to pre-create overlay window
 			if (this.mainWindow && this.mainWindow.webContents) {
 				this.mainWindow.webContents.send('pre-create-overlay-window');
@@ -379,7 +401,7 @@ class NotchDropService {
 				process.emit('pre-create-overlay-window');
 				log.info('✅ Overlay window pre-creation event emitted');
 			}
-			
+
 			return true;
 		} catch (error) {
 			log.warn('⚠️ Overlay window pre-creation failed:', error);
@@ -447,8 +469,6 @@ class NotchDropService {
 			// - Send to a monitoring service
 			// - Display in the app's UI
 			// - Trigger other actions based on the message
-
-			log.info('✅ Swift log message processed successfully');
 		} catch (error) {
 			log.error('❌ Error handling Swift log message:', error);
 		}
@@ -457,8 +477,6 @@ class NotchDropService {
 	// Handle overlay recording requests from Swift UI
 	async handleOverlayRecordingRequest() {
 		try {
-			log.info('🎤 Processing overlay recording request from Swift UI');
-
 			// We'll trigger the overlay by calling the same logic as the existing IPC handler
 			// This ensures consistency with the existing overlay functionality
 
