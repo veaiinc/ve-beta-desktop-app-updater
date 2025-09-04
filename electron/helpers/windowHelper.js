@@ -141,7 +141,6 @@ class WindowHelper {
 
 		const primaryDisplay = screen.getPrimaryDisplay();
 		const workArea = primaryDisplay.workAreaSize;
-		c;
 		this.screenWidth = workArea.width;
 		this.screenHeight = workArea.height;
 
