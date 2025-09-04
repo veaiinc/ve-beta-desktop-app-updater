@@ -113,7 +113,14 @@ const TranscriptionTabs = ({
 				)}
 				{/* Debug info */}
 				{(() => {
-					console.log('TranscriptionTabs - history:', history, 'hasAudioRecording:', hasAudioRecording, 'shouldShowAudioTab:', history && hasAudioRecording);
+					console.log(
+						'TranscriptionTabs - history:',
+						history,
+						'hasAudioRecording:',
+						hasAudioRecording,
+						'shouldShowAudioTab:',
+						history && hasAudioRecording,
+					);
 					return null;
 				})()}
 				{/* {history && (

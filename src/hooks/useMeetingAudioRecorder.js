@@ -24,7 +24,10 @@ export const useMeetingAudioRecorder = (meetingId) => {
 	useEffect(() => {
 		currentMeetingIdRef.current = meetingId;
 		console.log('useMeetingAudioRecorder: Meeting ID updated to:', meetingId);
-		console.log('useMeetingAudioRecorder: currentMeetingIdRef.current is now:', currentMeetingIdRef.current);
+		console.log(
+			'useMeetingAudioRecorder: currentMeetingIdRef.current is now:',
+			currentMeetingIdRef.current,
+		);
 	}, [meetingId]);
 
 	// Cleanup function
@@ -54,8 +57,14 @@ export const useMeetingAudioRecorder = (meetingId) => {
 	const startRecording = useCallback(async () => {
 		try {
 			const currentMeetingId = currentMeetingIdRef.current;
-			console.log('useMeetingAudioRecorder: Starting recording for meeting:', currentMeetingId);
-			console.log('useMeetingAudioRecorder: currentMeetingIdRef.current at start:', currentMeetingIdRef.current);
+			console.log(
+				'useMeetingAudioRecorder: Starting recording for meeting:',
+				currentMeetingId,
+			);
+			console.log(
+				'useMeetingAudioRecorder: currentMeetingIdRef.current at start:',
+				currentMeetingIdRef.current,
+			);
 			setError(null);
 
 			// Request microphone access
@@ -79,13 +88,13 @@ export const useMeetingAudioRecorder = (meetingId) => {
 				mimeType = 'audio/webm;codecs=opus';
 			}
 			console.log('useMeetingAudioRecorder: Using MIME type:', mimeType);
-			
+
 			const mediaRecorder = new MediaRecorder(stream, {
 				mimeType: mimeType,
 			});
 
 			mediaRecorderRef.current = mediaRecorder;
-			
+
 			// Validate MediaRecorder state
 			console.log('useMeetingAudioRecorder: MediaRecorder state:', mediaRecorder.state);
 			console.log('useMeetingAudioRecorder: MediaRecorder mimeType:', mediaRecorder.mimeType);
@@ -94,24 +103,32 @@ export const useMeetingAudioRecorder = (meetingId) => {
 			mediaRecorder.ondataavailable = (event) => {
 				if (event.data.size > 0) {
 					audioChunksRef.current.push(event.data);
-					console.log('useMeetingAudioRecorder: Chunk added, size:', event.data.size, 'total chunks:', audioChunksRef.current.length);
+					console.log(
+						'useMeetingAudioRecorder: Chunk added, size:',
+						event.data.size,
+						'total chunks:',
+						audioChunksRef.current.length,
+					);
 				}
 			};
 
 			// Handle recording stop event
 			mediaRecorder.onstop = () => {
 				console.log('useMeetingAudioRecorder: Recording stopped, creating blob');
-				console.log('useMeetingAudioRecorder: Total chunks:', audioChunksRef.current.length);
-				
+				console.log(
+					'useMeetingAudioRecorder: Total chunks:',
+					audioChunksRef.current.length,
+				);
+
 				if (audioChunksRef.current.length === 0) {
 					console.error('useMeetingAudioRecorder: No audio chunks available!');
 					setError('No audio data recorded');
 					return;
 				}
-				
+
 				const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
 				console.log('useMeetingAudioRecorder: Audio blob created, size:', audioBlob.size);
-				
+
 				setAudioBlob(audioBlob);
 
 				// Create object URL for playback
@@ -131,7 +148,7 @@ export const useMeetingAudioRecorder = (meetingId) => {
 			setIsRecording(true);
 			setIsPaused(false);
 			startTimeRef.current = Date.now();
-			
+
 			console.log('useMeetingAudioRecorder: MediaRecorder started');
 
 			// Start timer
@@ -182,8 +199,11 @@ export const useMeetingAudioRecorder = (meetingId) => {
 	// Stop recording function
 	const stopRecording = useCallback(() => {
 		const currentMeetingId = currentMeetingIdRef.current;
-		console.log('useMeetingAudioRecorder: Stop recording called for meeting:', currentMeetingId);
-		
+		console.log(
+			'useMeetingAudioRecorder: Stop recording called for meeting:',
+			currentMeetingId,
+		);
+
 		if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
 			console.log('useMeetingAudioRecorder: Stopping MediaRecorder');
 			mediaRecorderRef.current.stop();

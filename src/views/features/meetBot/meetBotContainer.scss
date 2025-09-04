@@ -484,3 +484,188 @@
 	align-items: center;
 	padding: 16px;
 }
+
+// AssemblyAI Upload Section
+.audio-tab-container {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	width: 100%;
+}
+
+.assemblyai-upload-section {
+	background: var(--stroke, #1f2123);
+	border: 1px solid var(--stroke, #2c2d2e);
+	border-radius: 12px;
+	padding: 20px;
+	margin-top: 20px;
+
+	.assemblyai-upload-header {
+		margin-bottom: 20px;
+
+		h3 {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family, 'General Sans Variable');
+			font-size: 18px;
+			font-weight: 600;
+			line-height: 1.4;
+			margin: 0 0 8px 0;
+		}
+
+		p {
+			color: var(--secondary-font, #94989e);
+			font-family: var(--primary-font-family, 'General Sans Variable');
+			font-size: 14px;
+			font-weight: 400;
+			line-height: 1.5;
+			margin: 0;
+		}
+	}
+
+	.assemblyai-upload-controls {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+
+		.api-key-input {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+
+			label {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family, 'General Sans Variable');
+				font-size: 14px;
+				font-weight: 500;
+				line-height: 1.4;
+			}
+
+			input {
+				background: var(--background-color, #121212);
+				border: 1px solid var(--stroke, #2c2d2e);
+				border-radius: 8px;
+				padding: 12px 16px;
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family, 'General Sans Variable');
+				font-size: 14px;
+				font-weight: 400;
+				line-height: 1.4;
+				transition: border-color 0.2s ease;
+
+				&:focus {
+					outline: none;
+					border-color: var(--primary-button, #79ecc9);
+				}
+
+				&:disabled {
+					opacity: 0.6;
+					cursor: not-allowed;
+				}
+
+				&::placeholder {
+					color: var(--secondary-font, #94989e);
+				}
+			}
+		}
+
+		.upload-buttons {
+			display: flex;
+			gap: 12px;
+			flex-wrap: wrap;
+
+			button {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 8px;
+				padding: 12px 20px;
+				border-radius: 8px;
+				border: none;
+				font-family: var(--primary-font-family, 'General Sans Variable');
+				font-size: 14px;
+				font-weight: 500;
+				line-height: 1.4;
+				cursor: pointer;
+				transition: all 0.2s ease;
+				min-width: 140px;
+
+				&:disabled {
+					opacity: 0.6;
+					cursor: not-allowed;
+				}
+
+				&.upload-btn {
+					background: var(--primary-button, #79ecc9);
+					color: var(--background-color, #121212);
+
+					&:hover:not(:disabled) {
+						background: var(--primary-button-hover, #6dd4b8);
+					}
+				}
+
+				&.transcribe-btn {
+					background: var(--stroke, #2c2d2e);
+					color: var(--primary-font, #f2f2f3);
+					border: 1px solid var(--stroke, #3c3d3e);
+
+					&:hover:not(:disabled) {
+						background: var(--stroke, #3c3d3e);
+						border-color: var(--stroke, #4c4d4e);
+					}
+				}
+			}
+		}
+	}
+
+	.assemblyai-status {
+		margin-top: 16px;
+		padding: 12px 16px;
+		border-radius: 8px;
+		font-family: var(--primary-font-family, 'General Sans Variable');
+		font-size: 14px;
+		font-weight: 400;
+		line-height: 1.5;
+
+		&.assemblyai-status-success {
+			background: rgba(121, 236, 201, 0.1);
+			border: 1px solid rgba(121, 236, 201, 0.2);
+			color: var(--primary-button, #79ecc9);
+		}
+
+		&.assemblyai-status-error {
+			background: rgba(255, 107, 107, 0.1);
+			border: 1px solid rgba(255, 107, 107, 0.2);
+			color: var(--error-color, #ff6b6b);
+		}
+
+		&.assemblyai-status-info {
+			background: rgba(149, 152, 158, 0.1);
+			border: 1px solid rgba(149, 152, 158, 0.2);
+			color: var(--secondary-font, #94989e);
+		}
+
+		.status-message {
+			margin-bottom: 8px;
+		}
+
+		.upload-details,
+		.transcription-details {
+			margin-top: 8px;
+			font-size: 12px;
+
+			strong {
+				font-weight: 600;
+				margin-right: 8px;
+			}
+
+			code {
+				background: rgba(0, 0, 0, 0.2);
+				padding: 2px 6px;
+				border-radius: 4px;
+				font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+				font-size: 11px;
+				word-break: break-all;
+			}
+		}
+	}
+}
