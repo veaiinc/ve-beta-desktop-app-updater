@@ -226,7 +226,7 @@ class AssemblyAIService {
 				throw new Error('Workspace ID not found');
 			}
 
-			const ngrokUrl = 'https://lively-expert-deer.ngrok-free.app/api/generate_meeting_analytics';
+			const ngrokUrl = `https://lively-expert-deer.ngrok-free.app/${workspaceId}/generate_meeting_analytics`;
 
 			console.log('🔍 Ngrok API call details:', {
 				workspaceId,
@@ -235,8 +235,7 @@ class AssemblyAIService {
 				ngrokUrl,
 				payload: {
 					meeting_id: meetingId,
-					audio_url: audioUrl,
-					workspace_id: workspaceId
+					audio_url: audioUrl
 				}
 			});
 
@@ -250,8 +249,7 @@ class AssemblyAIService {
 				},
 				body: JSON.stringify({
 					meeting_id: meetingId,
-					audio_url: audioUrl,
-					workspace_id: workspaceId
+					audio_url: audioUrl
 				})
 			});
 
