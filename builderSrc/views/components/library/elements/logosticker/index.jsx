@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import './logoSticker.scss';
+import "./logoSticker.scss"
 import HeaderLogoSticker from '../../svgs/logoStickers/HeaderLogoSticker';
 
 class LogoSticker extends Component {
@@ -9,7 +9,7 @@ class LogoSticker extends Component {
 			actionType: props.actionType,
 			actionValue: props.actionValue,
 			preview: props.preview,
-			divStyles: props.divStyles,
+            divStyles: props.divStyles,
 		};
 	}
 	componentWillReceiveProps = (nextProps) => {
@@ -44,16 +44,11 @@ class LogoSticker extends Component {
 	};
 
 	render() {
+     
 		return (
-			<div
-				className={`logo-sticker ${this.props.fillColor} `}
-				onClick={() => this.handleOnClick()}
-			>
-				<HeaderLogoSticker
-					fillColor={this.props.fillColor}
-					divStyles={this.props.divStyles}
-				/>
-			</div>
+			<div className={`logo-sticker ${this.props.fillColor} `} onClick={() => this.handleOnClick()}  >
+                <HeaderLogoSticker fillColor={this.props.fillColor} divStyles={this.props.divStyles} />
+            </div>
 		);
 	}
 }

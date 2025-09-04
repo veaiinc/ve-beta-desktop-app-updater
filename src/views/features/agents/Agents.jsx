@@ -123,6 +123,7 @@ const Agents = () => {
 	useEffect(() => {
 		if (!assistantList) {
 			getKnowledgeAssistantsListWithFilter({
+				limit,
 				filter: info?.activeTab,
 			});
 			setInfo((prev) => ({
@@ -537,6 +538,11 @@ const Agents = () => {
 									<div className={s.agentName}>
 										{card?.name || 'Untitled Agent'}
 									</div>
+									{card?.position === 0 && (
+										<div className={s.agentDescription}>
+											{card?.description || 'No description'}
+										</div>
+									)}
 								</div>
 							</div>
 						);

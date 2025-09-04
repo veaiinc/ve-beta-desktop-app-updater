@@ -20,6 +20,7 @@ const roleTextStyling = {
 	lineHeight: 'normal',
 };
 const getClientStyling = (numEvents, screenWidth = 1024) => {
+	
 	if (numEvents === 1) {
 		return {
 			display: 'grid',
@@ -73,6 +74,7 @@ const getEventCardStyle = (index, totalEvents) => {
 	return {};
 };
 const getEventsTextStyling = (screenWidth = 1024) => {
+	
 	if (screenWidth <= 480) {
 		// Mobile phones
 		return {
@@ -747,12 +749,8 @@ class Events extends Component {
 	};
 	render() {
 		const events = this.returnData() || []; // Add default empty array
-		const finalWrapperStyling = this.props?.client
-			? getClientStyling(events?.length || 0, this.state.screenWidth)
-			: {};
-		const finalEventsTextStyling = this.props?.client
-			? getEventsTextStyling(this.state.screenWidth)
-			: {};
+		const finalWrapperStyling = this.props?.client ? getClientStyling(events?.length || 0, this.state.screenWidth) : {};
+		const finalEventsTextStyling = this.props?.client ? getEventsTextStyling(this.state.screenWidth) : {};
 		return (
 			<div
 				className={`block ${this.state.showBlockOptions ? 'borderedBlock' : ''}`}
@@ -865,10 +863,7 @@ class Events extends Component {
 									backgroundColor: this.state.style?.cardBackgroundColor,
 									maxWidth: this.props.client ? '100%' : '',
 									minWidth:
-										window?.location?.pathname?.includes('document') &&
-										this.state.screenWidth > 480
-											? '400px'
-											: 'auto',
+										window?.location?.pathname?.includes('document') && this.state.screenWidth > 480 ? '400px' : 'auto',
 									position: 'relative',
 									display: 'flex',
 									flexDirection: 'column',

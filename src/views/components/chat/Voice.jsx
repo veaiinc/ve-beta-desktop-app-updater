@@ -24,13 +24,7 @@ import { throttle } from 'lodash';
 import Context from '../../../context/context';
 import useUpdatedVoiceIntegration from '../../../hooks/useUpdatedVoiceIntegration';
 // window.webgazer = webgazer;
-const Voice = ({
-	handleDisconnect,
-	deviceInfo,
-	onTranscriptUpdate,
-	onStatusUpdate,
-	isMicrophoneMuted,
-}) => {
+const Voice = ({ handleDisconnect, deviceInfo }) => {
 	const { name = '' } = useRoomInfo();
 	const [transcripts, setTranscripts] = useState(new Map());
 	const localdata = useLocalParticipant();
@@ -68,25 +62,20 @@ const Voice = ({
 
 	useEffect(() => {
 		if (roomState === ConnectionState.Connected) {
-			// Only enable microphone if not muted
-			if (!isMicrophoneMuted) {
-				localParticipant.setMicrophoneEnabled(true, {
-					sampleRate: 48000, // Best for speech clarity
-					sampleSize: 16, // Standard bit depth
-					noiseSuppression: true,
-					autoGainControl: true,
-					echoCancellation: true,
-					voiceIsolation: true,
-				});
-			} else {
-				localParticipant.setMicrophoneEnabled(false);
-			}
+			localParticipant.setMicrophoneEnabled(true, {
+				sampleRate: 48000, // Best for speech clarity
+				sampleSize: 16, // Standard bit depth
+				noiseSuppression: true,
+				autoGainControl: true,
+				echoCancellation: true,
+				voiceIsolation: true,
+			});
 			// if (deviceInfo?.hasCamera) {
 			// 	localParticipant.setCameraEnabled(true);
 			// }
 			// handleWebgazer();
 		}
-	}, [localParticipant, roomState, deviceInfo, isMicrophoneMuted]);
+	}, [localParticipant, roomState, deviceInfo]);
 
 	useEffect(() => {
 		krisp.setNoiseFilterEnabled(true);
@@ -98,33 +87,6 @@ const Voice = ({
 			handleConnect();
 		}
 	}, [shouldConnect, voiceIntegrationData, handleConnect]);
-
-	// Send status updates to parent component
-	useEffect(() => {
-		if (onStatusUpdate) {
-			onStatusUpdate(voiceAssistant.state);
-		}
-	}, [voiceAssistant.state, onStatusUpdate]);
-
-	// Handle microphone mute state changes
-	useEffect(() => {
-		if (localParticipant && roomState === ConnectionState.Connected) {
-			if (isMicrophoneMuted) {
-				localParticipant.setMicrophoneEnabled(false);
-				console.log('🎤 Microphone disabled due to mute state');
-			} else {
-				localParticipant.setMicrophoneEnabled(true, {
-					sampleRate: 48000,
-					sampleSize: 16,
-					noiseSuppression: true,
-					autoGainControl: true,
-					echoCancellation: true,
-					voiceIsolation: true,
-				});
-				console.log('🎤 Microphone enabled - mute state cleared');
-			}
-		}
-	}, [isMicrophoneMuted, localParticipant, roomState]);
 
 	useEffect(() => {
 		if (voiceAssistant.state === 'disconnected') {
@@ -162,17 +124,11 @@ const Voice = ({
 		const allMessages = Array.from(newTranscripts.values());
 		allMessages.sort((a, b) => a.timestamp - b.timestamp);
 		setTransScriptMessages(allMessages);
-
-		// Send transcription updates to parent component if callback provided
-		if (onTranscriptUpdate && allMessages.length > 0) {
-			onTranscriptUpdate(allMessages);
-		}
 	}, [
 		voiceAssistant.state,
 		localParticipant,
 		localMessages.segments,
 		voiceAssistant.audioTrack?.participant,
-		onTranscriptUpdate,
 	]);
 
 	// const handleWebgazer = useCallback(() => {
@@ -365,7 +321,6 @@ const Voice = ({
 						source={Track.Source.Microphone}
 						style={{ border: 'none' }}
 						ref={micBtnRef}
-						disabled={isMicrophoneMuted}
 					/>
 				)}
 
