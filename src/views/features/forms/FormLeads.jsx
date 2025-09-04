@@ -322,34 +322,17 @@ const FormLeads = () => {
 	}, []);
 
 	const handleFormResponsesMenu = useCallback(
-		async (action) => {
+		(action) => {
 			switch (action) {
 				case 'copyLink':
-					// Use Electron clipboard API if available
-					if (window.electronApi?.clipboard?.writeText) {
-						try {
-							await window.electronApi.clipboard.writeText(copyLinkUrl);
+					navigator.clipboard
+						.writeText(copyLinkUrl)
+						.then(() => {
 							message.success('Form link copied successfully');
-						} catch (clipboardError) {
-							console.warn(
-								'Electron clipboard failed, trying browser fallback:',
-								clipboardError,
-							);
-							// Fallback to browser clipboard
-							await navigator.clipboard.writeText(copyLinkUrl);
-							message.success('Form link copied successfully');
-						}
-					} else {
-						// Fallback to browser clipboard if Electron API not available
-						navigator.clipboard
-							.writeText(copyLinkUrl)
-							.then(() => {
-								message.success('Form link copied successfully');
-							})
-							.catch(() => {
-								message.error('Failed to copy form link');
-							});
-					}
+						})
+						.catch(() => {
+							message.error('Failed to copy form link');
+						});
 					break;
 				case 'deleteForm':
 					setDeleteModal({ open: true });
@@ -631,50 +614,22 @@ const FormLeads = () => {
 		setShareModalInfo((prev) => ({ ...prev, isOpen: false }));
 	}, []);
 
-	const handleCopyLink = useCallback(async () => {
+	const handleCopyLink = useCallback(() => {
 		if (!copyLinkUrl) {
 			message.error('Form link is not available');
 			return;
 		}
-		// Use Electron clipboard API if available
-		if (window.electronApi?.clipboard?.writeText) {
-			try {
-				await window.electronApi.clipboard.writeText(copyLinkUrl);
-				message.success('Form link copied to clipboard');
-			} catch (clipboardError) {
-				console.warn('Electron clipboard failed, trying browser fallback:', clipboardError);
-				// Fallback to browser clipboard
-				await navigator.clipboard.writeText(copyLinkUrl);
-				message.success('Form link copied to clipboard');
-			}
-		} else {
-			// Fallback to browser clipboard if Electron API not available
-			await navigator.clipboard.writeText(copyLinkUrl);
-			message.success('Form link copied to clipboard');
-		}
+		navigator.clipboard.writeText(copyLinkUrl);
+		message.success('Form link copied to clipboard');
 	}, [copyLinkUrl]);
 
-	const handleCopyEmbedded = useCallback(async () => {
+	const handleCopyEmbedded = useCallback(() => {
 		if (!embeddedCode) {
 			message.error('Embedded code is not available');
 			return;
 		}
-		// Use Electron clipboard API if available
-		if (window.electronApi?.clipboard?.writeText) {
-			try {
-				await window.electronApi.clipboard.writeText(embeddedCode);
-				message.success('Embedded code copied to clipboard');
-			} catch (clipboardError) {
-				console.warn('Electron clipboard failed, trying browser fallback:', clipboardError);
-				// Fallback to browser clipboard
-				await navigator.clipboard.writeText(embeddedCode);
-				message.success('Embedded code copied to clipboard');
-			}
-		} else {
-			// Fallback to browser clipboard if Electron API not available
-			await navigator.clipboard.writeText(embeddedCode);
-			message.success('Embedded code copied to clipboard');
-		}
+		navigator.clipboard.writeText(embeddedCode);
+		message.success('Embedded code copied to clipboard');
 	}, [embeddedCode]);
 
 	const handleConfirmDelete = useCallback(async () => {

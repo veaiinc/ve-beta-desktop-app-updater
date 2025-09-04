@@ -250,13 +250,8 @@ const AiTranscriptionSuggestions = ({
 					<div className={s.userQuestionsContainer}>
 						{userQuestions?.map((question, index) => {
 							return (
-								<div className={s.userQuestionContainer} key={index}>
-									<div className={s.header}>Ask User</div>
-									<div className={s.body}>
-										<div className={s.questionText}>
-											{question?.query || question?.prompt || ''}
-										</div>
-									</div>
+								<div className={s.userQuestion} key={index}>
+									<div className={s.questionText}>{question?.prompt || ''}</div>
 								</div>
 							);
 						})}
@@ -301,7 +296,6 @@ const AiTranscriptionSuggestions = ({
 									<div className={s.actionName}>{action?.prompt || ''}</div>
 									<button className={s.takeActionButton}>Run</button>
 								</div>
-								<div className={s.horizontalLine} />
 							</div>
 						))}
 					</div>
