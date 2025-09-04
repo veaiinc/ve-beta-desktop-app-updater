@@ -247,8 +247,8 @@ class AssemblyAIService {
 						audio.onloadedmetadata = () => {
 							const durationSeconds = audio.duration;
 							if (durationSeconds && !isNaN(durationSeconds) && isFinite(durationSeconds)) {
-								// Use total seconds as integer
-								audioDurationSeconds = Math.floor(durationSeconds);
+								// Use total seconds as float
+								audioDurationSeconds = durationSeconds;
 								console.log('🎵 Audio duration calculated:', {
 									durationSeconds,
 									audioDurationSeconds
