@@ -266,15 +266,13 @@ const NewUi = ({ handleActiveChatChange }) => {
 						toolInvocations,
 					} = data?.[i] || {};
 
-					let processing = null,
-						memoryThinking = null;
-					let deepSearch = {},
-						deepResearch = {},
-						normalSearch = {};
+					let processing = null;
+					let cot = [],
+						deepResearch = {};
 
 					if (chainOfThought?.length > 0) {
 						for (let i = 0; i < chainOfThought?.length; i++) {
-							const { deep_search, deep_research, memory_thinking, normal_search } =
+							const { deep_search, deep_research, normal_search } =
 								chainOfThought?.[i] || {};
 							if (deep_search) {
 								processing = 'Deep Search';
@@ -285,17 +283,15 @@ const NewUi = ({ handleActiveChatChange }) => {
 							} else if (normal_search) {
 								processing = 'Normal Search';
 								break;
-							} else if (memory_thinking) {
-								memoryThinking = memory_thinking;
 							}
 						}
 
 						if (processing === 'Deep Search') {
-							deepSearch = handleDeepSearchChainOfThought(chainOfThought);
+							cot = handleDeepSearchChainOfThought(chainOfThought);
 						} else if (processing === 'Deep Research') {
 							deepResearch = handleDeepResearchChainOfThought(chainOfThought);
 						} else if (processing === 'Normal Search') {
-							normalSearch = handleDeepSearchChainOfThought(chainOfThought);
+							cot = handleDeepSearchChainOfThought(chainOfThought);
 						}
 					}
 
@@ -319,10 +315,9 @@ const NewUi = ({ handleActiveChatChange }) => {
 							processing,
 							used_agents: designAgentsUsed || [],
 							tool_invocations: toolInvocations || [],
-							...(processing === 'Deep Search' && { deepSearch }),
+							...(processing === 'Deep Search' && { chainOfThought: cot }),
 							...(processing === 'Deep Research' && { deepResearch }),
-							...(processing === 'Normal Search' && { normalSearch }),
-							...(memoryThinking && { memory_thinking: memoryThinking }),
+							...(processing === 'Normal Search' && { chainOfThought: cot }),
 						},
 					]?.concat(messages);
 				}

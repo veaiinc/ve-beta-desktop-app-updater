@@ -9,13 +9,9 @@ export const handleDeepSearchChainOfThought = (chainOfThought) => {
 		if (data?.step) {
 			cot?.push({ step: data?.step, readings: data?.reading || [] });
 		}
-
-		// if (data?.memory_thinking) {
-		// 	cot?.push({ step: data?.memory_thinking });
-		// }
 	}
 
-	return { cot };
+	return cot;
 };
 
 export const updateCitationIdsWithCitations = (input = '', citations = []) => {
