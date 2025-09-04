@@ -330,7 +330,9 @@ const actionHandlers = {
 		}
 
 		let requiredIndex = -1;
-		messages = messages?.filter((ele) => ele?.contentType !== 'loading');
+		if (payload?.processing !== 'Normal Search') {
+			messages = messages?.filter((ele) => ele?.contentType !== 'loading');
+		}
 
 		for (let i = messages?.length - 1; i >= 0; i--) {
 			if (messages?.[i]?.message_chunk_id === chunkId) {
