@@ -54,24 +54,11 @@ const TranscriptionTabs = ({
 					</button>
 				)}
 
-				{history && hasAudioRecording && (
+				{history && (
 					<button
-						className={activeTab === 'audio' ? 'notes-tab active' : 'notes-tab'}
-						style={{
-							background: 'none',
-							border: 'none',
-							outline: 'none',
-							color: 'inherit',
-							fontWeight: 500,
-							fontSize: 16,
-							padding: '8px 0',
-							borderBottom:
-								activeTab === 'audio'
-									? '2px solid var(--primary-button, #cfff48)'
-									: '2px solid transparent',
-							cursor: 'pointer',
-							transition: 'color 0.2s',
-						}}
+						className={
+							s.meetingTabButton + ' ' + (activeTab === 'audio' ? s.activeTab : '')
+						}
 						onClick={() => setActiveTab('audio')}
 					>
 						Play Audio
@@ -85,7 +72,9 @@ const TranscriptionTabs = ({
 						'hasAudioRecording:',
 						hasAudioRecording,
 						'shouldShowAudioTab:',
-						history && hasAudioRecording,
+						history,
+						'activeTab:',
+						activeTab,
 					);
 					return null;
 				})()}
