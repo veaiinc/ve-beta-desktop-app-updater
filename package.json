@@ -8,7 +8,7 @@
 	"repository": "https://github.com/veaiinc/ve-desktop-app-updater",
 	"scripts": {
 		"postinstall": "electron-builder install-app-deps && npm run clean:sharp",
-		"clean:sharp": "node -e \"const fs = require('fs'); const path = require('path'); const os = require('os'); const platform = os.platform(); const arch = os.arch(); const nodeModulesPath = path.join(__dirname, 'node_modules', '@img'); console.log('🧹 Cleaning Sharp packages for platform:', platform, arch); if (fs.existsSync(nodeModulesPath)) { const dirs = fs.readdirSync(nodeModulesPath); const platformsToKeep = platform === 'darwin' ? ['darwin'] : platform === 'win32' ? ['win32'] : ['linux']; dirs.forEach(dir => { const shouldKeep = dir === 'sharp' || platformsToKeep.some(p => dir.includes(p)); if (!shouldKeep) { try { fs.rmSync(path.join(nodeModulesPath, dir), { recursive: true, force: true }); console.log('✅ Cleaned up:', dir); } catch (e) { console.warn('⚠️  Could not clean:', dir, e.message); } } else { console.log('✅ Keeping:', dir); } }); console.log('🎉 Sharp cleanup completed'); } else { console.log('📁 @img directory not found, nothing to clean'); }\"",
+		"clean:sharp": "node -e \"const fs = require('fs'); const path = require('path'); const nodeModulesPath = path.join(__dirname, 'node_modules', '@img'); console.log('🔧 Ensuring Sharp package structure for all platforms...'); if (fs.existsSync(nodeModulesPath)) { const requiredDirs = ['sharp-darwin-arm64', 'sharp-darwin-x64', 'sharp-libvips-darwin-arm64', 'sharp-libvips-darwin-x64', 'sharp-linux-arm', 'sharp-linux-arm64', 'sharp-linux-x64', 'sharp-libvips-linux-arm', 'sharp-libvips-linux-arm64', 'sharp-libvips-linux-x64', 'sharp-win32-ia32', 'sharp-win32-x64', 'sharp-libvips-win32-ia32', 'sharp-libvips-win32-x64']; requiredDirs.forEach(dir => { const dirPath = path.join(nodeModulesPath, dir); if (!fs.existsSync(dirPath)) { fs.mkdirSync(dirPath, { recursive: true }); fs.writeFileSync(path.join(dirPath, '.gitkeep'), ''); console.log('✅ Created missing directory:', dir); } else { console.log('✅ Directory exists:', dir); } }); console.log('🎉 All Sharp directories ensured for cross-platform builds'); } else { console.log('📁 @img directory not found'); }\"",
 		"postinstall:win": "npm rebuild sharp --platform=win32 --arch=x64",
 		"dev": "cross-env NODE_ENV=development npm run clean:build:cross && vite",
 		"dev:win": "set NODE_ENV=development && npm run clean:build:win && vite",
@@ -156,14 +156,6 @@
 			"!node_modules/**/tests/**",
 			"!node_modules/**/docs/**",
 			"!node_modules/**/examples/**",
-			"!node_modules/@img/sharp-linux*/**",
-			"!node_modules/@img/sharp-libvips-linux*/**",
-			"!node_modules/@img/sharp-libvips-linuxmusl*/**",
-			"!node_modules/@img/sharp-win32*/**",
-			"!node_modules/@img/sharp-libvips-win32*/**",
-			"!node_modules/@img/sharp-wasm32/**",
-			"!node_modules/@img/sharp-android*/**",
-			"!node_modules/@img/sharp-libvips-android*/**",
 			"package.json",
 			"entitlements/**"
 		],
