@@ -7,7 +7,8 @@
 	"author": "Ve AI",
 	"repository": "https://github.com/veaiinc/ve-desktop-app-updater",
 	"scripts": {
-		"postinstall": "electron-builder install-app-deps",
+		"postinstall": "electron-builder install-app-deps && npm run clean:sharp",
+		"clean:sharp": "node -e \"const fs = require('fs'); const path = require('path'); const os = require('os'); const platform = os.platform(); const arch = os.arch(); const nodeModulesPath = path.join(__dirname, 'node_modules', '@img'); if (fs.existsSync(nodeModulesPath)) { const dirs = fs.readdirSync(nodeModulesPath); dirs.forEach(dir => { const shouldKeep = (platform === 'darwin' && (dir.includes('darwin') || dir === 'sharp')) || (platform === 'win32' && (dir.includes('win32') || dir === 'sharp')) || (platform === 'linux' && (dir.includes('linux') || dir === 'sharp')); if (!shouldKeep) { try { fs.rmSync(path.join(nodeModulesPath, dir), { recursive: true, force: true }); console.log('Cleaned up:', dir); } catch (e) { console.warn('Could not clean:', dir, e.message); } } }); }\"",
 		"postinstall:win": "npm rebuild sharp --platform=win32 --arch=x64",
 		"dev": "cross-env NODE_ENV=development npm run clean:build:cross && vite",
 		"dev:win": "set NODE_ENV=development && npm run clean:build:win && vite",
@@ -155,6 +156,11 @@
 			"!node_modules/**/tests/**",
 			"!node_modules/**/docs/**",
 			"!node_modules/**/examples/**",
+			"!node_modules/@img/sharp-linux*/**",
+			"!node_modules/@img/sharp-libvips-linux*/**",
+			"!node_modules/@img/sharp-libvips-linuxmusl*/**",
+			"!node_modules/@img/sharp-win32*/**",
+			"!node_modules/@img/sharp-wasm32/**",
 			"package.json",
 			"entitlements/**"
 		],
@@ -200,7 +206,8 @@
 			"asarUnpack": [
 				"resources/**",
 				"**/node_modules/sharp/**/*",
-				"**/node_modules/@img/**/*"
+				"**/node_modules/@img/sharp-darwin*/**/*",
+				"**/node_modules/@img/sharp-libvips-darwin*/**/*"
 			],
 			"extendInfo": {
 				"NSMicrophoneUsageDescription": "Please give us access to your microphone",
@@ -234,7 +241,8 @@
 			"asar": true,
 			"asarUnpack": [
 				"**/node_modules/sharp/**/*",
-				"**/node_modules/@img/**/*"
+				"**/node_modules/@img/sharp-win32*/**/*",
+				"**/node_modules/@img/sharp-libvips-win32*/**/*"
 			]
 		},
 		"linux": {
@@ -247,7 +255,13 @@
 				}
 			],
 			"icon": "./electron/assets/app-logo.png",
-			"artifactName": "Ve.AI-${arch}-${os}.${ext}"
+			"artifactName": "Ve.AI-${arch}-${os}.${ext}",
+			"asar": true,
+			"asarUnpack": [
+				"**/node_modules/sharp/**/*",
+				"**/node_modules/@img/sharp-linux*/**/*",
+				"**/node_modules/@img/sharp-libvips-linux*/**/*"
+			]
 		}
 	},
 	"eslintConfig": {
