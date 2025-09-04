@@ -105,10 +105,13 @@
 
 				.imageContainer {
 					padding: 8px;
-					width: 40px;
-					height: 40px;
+					width: 60px;
+					height: 60px;
 					border-radius: 8px;
 					border: 1px solid var(--stroke);
+					display: flex;
+					justify-content: center;
+					align-items: center;
 					svg {
 						transform: rotate(-3deg);
 					}

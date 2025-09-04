@@ -419,7 +419,7 @@ export default class Signature extends Component {
 		// this.props.selectBlock('b');
 		this.setState({
 			showContractSingatureModal: true,
-		});
+		})
 	};
 	handleDuplicate = () => {
 		this.props.duplicateBlock(this.props._id);
@@ -473,13 +473,12 @@ export default class Signature extends Component {
 	render() {
 		return (
 			<div
-				className={`block ${
-					!this.state.preview &&
+				className={`block ${!this.state.preview &&
 					this.state.showBlockOptions &&
 					!disabledModules.includes(this.props.module)
-						? 'borderedBlock '
-						: ''
-				} `}
+					? 'borderedBlock '
+					: ''
+					} `}
 				style={{
 					flexDirection: 'column',
 					backgroundColor:
@@ -514,14 +513,14 @@ export default class Signature extends Component {
 			>
 				{(this.state.style?.backgroundType == 'video' ||
 					this.state.style?.backgroundType == 'image') && (
-					<div
-						className="bg-overlay"
-						style={{
-							backgroundColor: this.state.style?.bgOverlayColor,
-							opacity: this.state.style?.bgOverlayOpacity / 100,
-						}}
-					></div>
-				)}
+						<div
+							className="bg-overlay"
+							style={{
+								backgroundColor: this.state.style?.bgOverlayColor,
+								opacity: this.state.style?.bgOverlayOpacity / 100,
+							}}
+						></div>
+					)}
 				{this.state.style?.backgroundType == 'video' &&
 					this.state.style?.backgroundVideoURL && (
 						<div className="bg-video-player">
@@ -542,30 +541,31 @@ export default class Signature extends Component {
 					)}
 				<div
 					style={{
+
 						padding: this.state.style?.noPadding
 							? ''
-							: `${
-									this.state?.style?.padding
-										? this.state.previewType === 'm'
-											? '20px'
-											: padding[this.state?.style?.padding]
-										: '0px'
-							  } ${
-									(this.state.previewType === 'm' ||
-										this.state.previewType === 'ml') &&
-									this.state.preview
-										? this.state?.style?.noMPadding
-											? '0px'
-											: '0px'
-										: this.state.style?.paddingHorizontal
-										? paddingHorizontal[this.state.style.paddingHorizontal]
-										: '0px'
-							  }`,
+							: `${this.state?.style?.padding
+								? this.state.previewType === 'm'
+									? '20px'
+									: padding[this.state?.style?.padding]
+								: '0px'
+							} ${(this.state.previewType === 'm' ||
+								this.state.previewType === 'ml') &&
+								this.state.preview
+								? this.state?.style?.noMPadding
+									? '0px'
+									: '0px'
+								: this.state.style?.paddingHorizontal
+									? paddingHorizontal[this.state.style.paddingHorizontal]
+									: '0px'
+							}`,
+
 					}}
 				>
+
 					{this.state.showBlockActions &&
-					this.state.preview == false &&
-					!disabledModules.includes(this.props.module) ? (
+						this.state.preview == false &&
+						!disabledModules.includes(this.props.module) ? (
 						<div className="block-action-bar">
 							{/* <span>
 <Edit />
@@ -579,10 +579,7 @@ export default class Signature extends Component {
 							</span>
 							{!this.props?.activeModule?.showAsSlide && (
 								<>
-									<span
-										className="tooltip"
-										onClick={(e) => this.handleDuplicate(e)}
-									>
+									<span className="tooltip" onClick={(e) => this.handleDuplicate(e)}>
 										<Copy />
 										<label className="tooltip-text">Duplicate</label>
 									</span>
@@ -597,13 +594,10 @@ export default class Signature extends Component {
 												'down',
 											);
 										}}
-										disabled={
-											this.props.sortedIndex === this.props.itemsLength - 1
-										}
+										disabled={this.props.sortedIndex === this.props.itemsLength - 1}
 										style={{
 											cursor:
-												this.props.sortedIndex ===
-												this.props.itemsLength - 1
+												this.props.sortedIndex === this.props.itemsLength - 1
 													? 'not-allowed'
 													: 'pointer',
 										}}
@@ -638,10 +632,7 @@ export default class Signature extends Component {
 							{this.props.module === 'form' ? (
 								''
 							) : (
-								<span
-									className="tooltip"
-									onClick={(e) => this.handleDeleteSection(e)}
-								>
+								<span className="tooltip" onClick={(e) => this.handleDeleteSection(e)}>
 									<Delete />
 									<label className="tooltip-text">Delete</label>
 								</span>
@@ -651,10 +642,10 @@ export default class Signature extends Component {
 						''
 					)}
 					{this.state.preview == false &&
-					this.state.showBlockOptions &&
-					this.props.module !== 'form' &&
-					!this.props?.activeModule?.showAsSlide &&
-					!disabledModules.includes(this.props.module) ? (
+						this.state.showBlockOptions &&
+						this.props.module !== 'form' &&
+						!this.props?.activeModule?.showAsSlide &&
+						!disabledModules.includes(this.props.module) ? (
 						<div className="add-block-new-container">
 							<div
 								onClick={(e) => this.hanldeAddBlock(e)}
@@ -669,11 +660,10 @@ export default class Signature extends Component {
 							<div className="addBlankContainer">
 								{this.state.isElement !== true ? (
 									<div
-										className={`addBlank ${
-											this.state.activeTab === 'fluid' ? 'active' : ''
-										}`}
+										className={`addBlank ${this.state.activeTab === 'fluid' ? 'active' : ''
+											}`}
 										onClick={(e) => this.props.handleAddLayout(null, true)}
-										//onMouseEnter={(e) => this.setActiveTab('fluid')}
+									//onMouseEnter={(e) => this.setActiveTab('fluid')}
 									>
 										<AddBlank />
 									</div>
@@ -717,17 +707,14 @@ export default class Signature extends Component {
 											<a
 												style={{
 													backgroundColor: '#fff',
-													boxShadow:
-														'0px 4px 40px 0px rgba(0, 0, 0, 0.12)',
+													boxShadow: '0px 4px 40px 0px rgba(0, 0, 0, 0.12)',
 													width: 'auto',
 													minHeight: '80px',
 													height: '100%',
 												}}
 											>
 												<img
-													src={
-														this.state.activeTableData?.values[1]?.value
-													}
+													src={this.state.activeTableData?.values[1]?.value}
 													style={{
 														width: '100%',
 														height: '100%',
@@ -746,13 +733,10 @@ export default class Signature extends Component {
 								<>
 									<div
 										className="sign_box"
-										// onClick={this.openTeamMemberSignatureModal}
+									// onClick={this.openTeamMemberSignatureModal}
+
 									>
-										<span className="signature-title">
-											{this.props?.client
-												? 'To be signed in the Dashboard after you have signed.'
-												: ''}
-										</span>
+										<span className='signature-title'>{this.props?.client ? 'To be signed in the Dashboard after you have signed.' : ""}</span>
 									</div>
 									<div>
 										<div className="cs_name">
@@ -795,17 +779,14 @@ export default class Signature extends Component {
 											<a
 												style={{
 													backgroundColor: '#fff',
-													boxShadow:
-														'0px 4px 40px 0px rgba(0, 0, 0, 0.12)',
+													boxShadow: '0px 4px 40px 0px rgba(0, 0, 0, 0.12)',
 													width: 'auto',
 													minHeight: '80px',
 													height: '100%',
 												}}
 											>
 												<img
-													src={
-														this.state.activeTableData?.values[0]?.value
-													}
+													src={this.state.activeTableData?.values[0]?.value}
 													onError={this.onErrorLoadingImage}
 													style={{
 														width: '100%',
@@ -828,11 +809,7 @@ export default class Signature extends Component {
 										style={{ cursor: 'pointer' }}
 										onClick={this.openClientSignatureModal}
 									>
-										<span className="signature-title">
-											{this.props?.client
-												? 'Click to type, draw or upload your signature'
-												: ''}
-										</span>
+										<span className='signature-title'>{this.props?.client ? 'Click to type, draw or upload your signature' : ''}</span>
 									</div>
 									<div>
 										<div className="cs_name">
@@ -846,32 +823,32 @@ export default class Signature extends Component {
 						</div>
 					</div>
 				</div>
-				{this.state.showContractSingatureModal && (
-					<BlockSidebar
-						ref={this.blockSidebarRef}
-						activeType="signature"
-						elementEndPosition={this.state.elementEndPosition || { x: 450, y: 100 }}
-						activePopupComponent={this.props.section}
-						setActiveSection={(e) =>
-							this.setState(
-								{
-									section: e,
-									style: e?.style,
-								},
-								() => {
-									this.props.setActiveSection(e);
-								},
-							)
-						}
-						setModalRef={(e) => {
-							this.setState({
-								showImageModal: e,
-							});
-						}}
-						showImageModal={this.state.showImageModal}
-						activeModuleId={this.props?.activeModuleId}
-					/>
-				)}
+				{
+					this.state.showContractSingatureModal && (
+						<BlockSidebar
+							ref={this.blockSidebarRef}
+							activeType="signature"
+							elementEndPosition={
+								this.state.elementEndPosition || { x: 450, y: 100 }
+							}
+							activePopupComponent={this.props.section}
+							setActiveSection={(e) => this.setState({
+								section: e,
+								style: e?.style
+							}, () => {
+								this.props.setActiveSection(e)
+							})}
+							setModalRef={(e) => {
+								this.setState({
+									showImageModal: e,
+								});
+							}}
+							showImageModal={this.state.showImageModal}
+							activeModuleId={this.props?.activeModuleId}
+
+						/>
+					)
+				}
 			</div>
 		);
 	}

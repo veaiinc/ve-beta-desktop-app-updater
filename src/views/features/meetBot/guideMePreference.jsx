@@ -28,7 +28,7 @@ const GuideMePreference = ({ mode, onUpdatePreferences }) => {
 			Interviewer: 'interview',
 			Ideas: 'ideas',
 			Meeting: 'meeting',
-		};
+			};
 		return modeMap[mode] || 'meeting';
 	};
 

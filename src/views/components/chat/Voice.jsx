@@ -24,13 +24,7 @@ import { throttle } from 'lodash';
 import Context from '../../../context/context';
 import useUpdatedVoiceIntegration from '../../../hooks/useUpdatedVoiceIntegration';
 // window.webgazer = webgazer;
-const Voice = ({
-	handleDisconnect,
-	deviceInfo,
-	onTranscriptUpdate,
-	onStatusUpdate,
-	isMicrophoneMuted,
-}) => {
+const Voice = ({ handleDisconnect, deviceInfo, onTranscriptUpdate, onStatusUpdate, isMicrophoneMuted }) => {
 	const { name = '' } = useRoomInfo();
 	const [transcripts, setTranscripts] = useState(new Map());
 	const localdata = useLocalParticipant();
@@ -58,29 +52,25 @@ const Voice = ({
 	const localTracks = tracks.filter(({ participant }) => participant instanceof LocalParticipant);
 	const localVideoTrack = localTracks.find(({ source }) => source === Track.Source.Camera);
 	const localMicTrack = localTracks.find(({ source }) => source === Track.Source.Microphone);
+	
+	// Debug: Log track information
+	console.log('🎵 All tracks:', tracks);
+	console.log('🎵 Local tracks:', localTracks);
+	console.log('🎵 Local mic track:', localMicTrack);
 
 	const agentMessages = useTrackTranscription(voiceAssistant.audioTrack);
-	const localMessages = useTrackTranscription({
-		publication: localdata.microphoneTrack,
-		source: Track.Source.Microphone,
-		participant: localParticipant,
-	});
+	const localMessages = useTrackTranscription(localMicTrack);
 
 	useEffect(() => {
 		if (roomState === ConnectionState.Connected) {
-			// Only enable microphone if not muted
-			if (!isMicrophoneMuted) {
-				localParticipant.setMicrophoneEnabled(true, {
-					sampleRate: 48000, // Best for speech clarity
-					sampleSize: 16, // Standard bit depth
-					noiseSuppression: true,
-					autoGainControl: true,
-					echoCancellation: true,
-					voiceIsolation: true,
-				});
-			} else {
-				localParticipant.setMicrophoneEnabled(false);
-			}
+			localParticipant.setMicrophoneEnabled(!isMicrophoneMuted, {
+				sampleRate: 48000, // Best for speech clarity
+				sampleSize: 16, // Standard bit depth
+				noiseSuppression: true,
+				autoGainControl: true,
+				echoCancellation: true,
+				voiceIsolation: true,
+			});
 			// if (deviceInfo?.hasCamera) {
 			// 	localParticipant.setCameraEnabled(true);
 			// }
@@ -99,33 +89,6 @@ const Voice = ({
 		}
 	}, [shouldConnect, voiceIntegrationData, handleConnect]);
 
-	// Send status updates to parent component
-	useEffect(() => {
-		if (onStatusUpdate) {
-			onStatusUpdate(voiceAssistant.state);
-		}
-	}, [voiceAssistant.state, onStatusUpdate]);
-
-	// Handle microphone mute state changes
-	useEffect(() => {
-		if (localParticipant && roomState === ConnectionState.Connected) {
-			if (isMicrophoneMuted) {
-				localParticipant.setMicrophoneEnabled(false);
-				console.log('🎤 Microphone disabled due to mute state');
-			} else {
-				localParticipant.setMicrophoneEnabled(true, {
-					sampleRate: 48000,
-					sampleSize: 16,
-					noiseSuppression: true,
-					autoGainControl: true,
-					echoCancellation: true,
-					voiceIsolation: true,
-				});
-				console.log('🎤 Microphone enabled - mute state cleared');
-			}
-		}
-	}, [isMicrophoneMuted, localParticipant, roomState]);
-
 	useEffect(() => {
 		if (voiceAssistant.state === 'disconnected') {
 			return;
@@ -138,23 +101,30 @@ const Voice = ({
 
 		const newTranscripts = new Map(transcripts);
 
+		// Debug: Log local messages segments
+		if (localMessages.segments && localMessages.segments.length > 0) {
+			console.log('🎤 Local transcription segments:', localMessages.segments);
+		}
+
 		localMessages.segments?.forEach((s) => {
-			newTranscripts.set(
-				s.id,
-				segmentToChatMessage(s, transcripts.get(s.id), localParticipant),
-			);
+			const chatMessage = segmentToChatMessage(s, transcripts.get(s.id), localParticipant);
+			newTranscripts.set(s.id, chatMessage);
+			console.log('📝 Added local transcript:', chatMessage);
 		});
 
 		// Add agent messages
+		if (agentMessages.segments && agentMessages.segments.length > 0) {
+			console.log('🤖 Agent transcription segments:', agentMessages.segments);
+		}
+
 		agentMessages.segments?.forEach((s) => {
-			newTranscripts.set(
-				s.id,
-				segmentToChatMessage(
-					s,
-					transcripts.get(s.id),
-					voiceAssistant.audioTrack?.participant,
-				),
+			const chatMessage = segmentToChatMessage(
+				s,
+				transcripts.get(s.id),
+				voiceAssistant.audioTrack?.participant,
 			);
+			newTranscripts.set(s.id, chatMessage);
+			console.log('📝 Added agent transcript:', chatMessage);
 		});
 
 		setTranscripts(newTranscripts);
@@ -162,8 +132,13 @@ const Voice = ({
 		const allMessages = Array.from(newTranscripts.values());
 		allMessages.sort((a, b) => a.timestamp - b.timestamp);
 		setTransScriptMessages(allMessages);
+		
+		// Debug: Log final messages
+		if (allMessages.length > 0) {
+			console.log('📋 All transcript messages:', allMessages);
+		}
 
-		// Send transcription updates to parent component if callback provided
+		// Call parent component's transcript update handler
 		if (onTranscriptUpdate && allMessages.length > 0) {
 			onTranscriptUpdate(allMessages);
 		}
@@ -171,8 +146,8 @@ const Voice = ({
 		voiceAssistant.state,
 		localParticipant,
 		localMessages.segments,
+		agentMessages.segments,
 		voiceAssistant.audioTrack?.participant,
-		onTranscriptUpdate,
 	]);
 
 	// const handleWebgazer = useCallback(() => {
@@ -283,6 +258,15 @@ const Voice = ({
 			return 'Listening to you...';
 		}
 
+		console.log('🔍 Voice assistant state:', voiceAssistant.state);
+		console.log('🔍 Local participant isSpeaking:', localParticipant?.isSpeaking);
+		console.log('🔍 Should connect:', shouldConnect);
+
+		// Call parent component's status update handler
+		if (onStatusUpdate) {
+			onStatusUpdate(voiceAssistant.state);
+		}
+
 		switch (voiceAssistant.state) {
 			case 'disconnected':
 				return 'Click mic to start';
@@ -323,10 +307,16 @@ const Voice = ({
 
 	const getDisplayText = () => {
 		const latestMessage = getLatestMessage();
+		console.log('🔍 getDisplayText - latestMessage:', latestMessage);
+		console.log('🔍 getDisplayText - transScriptMessages:', transScriptMessages);
 		if (latestMessage) {
-			return `${latestMessage.name}: ${latestMessage.message}`;
+			const displayText = `${latestMessage.name}: ${latestMessage.message}`;
+			console.log('🔍 getDisplayText - returning:', displayText);
+			return displayText;
 		}
-		return getStatusText();
+		const statusText = getStatusText();
+		console.log('🔍 getDisplayText - returning status:', statusText);
+		return statusText;
 	};
 
 	return (
@@ -365,7 +355,6 @@ const Voice = ({
 						source={Track.Source.Microphone}
 						style={{ border: 'none' }}
 						ref={micBtnRef}
-						disabled={isMicrophoneMuted}
 					/>
 				)}
 

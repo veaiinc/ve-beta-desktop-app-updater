@@ -102,20 +102,20 @@ const useWorkspaceMode = () => {
 		fetchMode();
 	}, [isPublicRoute]);
 
-	// useEffect(() => {
-	// 	const workspaceIds = tennantSettingsData?.workspaceIds ?? [];
-	// 	if (!workspaceIds?.length) return;
+	useEffect(() => {
+		const workspaceIds = tennantSettingsData?.workspaceIds ?? [];
+		if (!workspaceIds?.length) return;
 
-	// 	const activeWorkspaceId = workspaceIds[workspaceIds.length - 1];
-	// 	if (!activeWorkspaceId) return;
+		const activeWorkspaceId = workspaceIds[workspaceIds.length - 1];
+		if (!activeWorkspaceId) return;
 
-	// 	localStorage.setItem('workspaceId', activeWorkspaceId);
-	// 	const domain = fetchDomainName();
-	// 	Cookies.set('workspaceId', activeWorkspaceId, {
-	// 		sameSite: 'lax',
-	// 		domain
-	// 	});
-	// }, []);
+		localStorage.setItem('workspaceId', activeWorkspaceId);
+		const domain = fetchDomainName();
+		Cookies.set('workspaceId', activeWorkspaceId, {
+			sameSite: 'lax',
+			domain,
+		});
+	}, [tennantSettingsData?.workspaceIds]);
 
 	useEffect(() => {
 		const importRoutes = async (type) => {
