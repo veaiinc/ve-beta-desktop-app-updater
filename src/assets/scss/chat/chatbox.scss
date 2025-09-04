@@ -505,6 +505,7 @@
 				}
 
 				&.active {
+					background-color: var(--stroke);
 					svg {
 						path {
 							fill: var(--info);
