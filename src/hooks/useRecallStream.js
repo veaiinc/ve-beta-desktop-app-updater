@@ -1,6 +1,6 @@
 import { useCallback, useRef, useEffect } from 'react';
 import { message } from 'antd/lib';
-import { getConfig } from '../services/index.js';
+import getBaseUrl from '../services/baseUrls.js';
 
 const useRecallStream = () => {
 	const socketRef = useRef(null);
@@ -39,9 +39,8 @@ const useRecallStream = () => {
 			isIntentionallyClosedRef.current = false;
 
 			// Get config and determine the appropriate recall WebSocket URL
-			const config = await getConfig();
-			const meetingWsUrl =
-				region === 'ap-south-1' ? config.meeting_ws_api : config.meeting_ws_api_US;
+			const type = 'meeting_ws_api';
+			const meetingWsUrl = getBaseUrl(region, type);
 			const wsUrl = `${meetingWsUrl}/frontend/ws/${meetingId}?token=${usertoken}`;
 			// const wsUrl = `https://internally-well-earwig.ngrok-free.app/frontend/ws/${pageId}?token=${usertoken}`;
 

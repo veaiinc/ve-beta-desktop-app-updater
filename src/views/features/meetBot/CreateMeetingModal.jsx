@@ -41,7 +41,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 	const navigate = useNavigate();
 
 	const [formData, setFormData] = useState({
-		selectedMode: 'desktop',
+		selectedMode: 'meeting_bot',
 		meetingUrl: '',
 		creating: false,
 		isAiIntelligenceEnabled: true,
@@ -178,7 +178,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 					</div>
 				</div>
 				<div className="tabs">
-					{/* <button
+					<button
 						className={`tab ${
 							formData.selectedMode === 'meeting_bot' ? ' active' : ''
 						}`}
@@ -190,7 +190,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 						}
 					>
 						Online Meeting
-					</button> */}
+					</button>
 					<button
 						className={`tab ${formData.selectedMode === 'desktop' ? ' active' : ''}`}
 						onClick={() =>
