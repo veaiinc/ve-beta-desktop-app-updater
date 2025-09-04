@@ -1,13 +1,17 @@
 import { useState, useEffect, useRef, useCallback, useContext } from 'react';
-import { message } from 'antd';
 import getBaseUrl from '../../services/baseUrls';
+import Context from '../../context/context';
 
 const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
 
-const useAssemblyTranscription = ({ onTranscriptionUpdate, onLiveIntelligenceResponse }) => {
-	// const {
-	// 	notes: { initializeMeetingSummary },
-	// } = useContext(Context);
+const useAssemblyTranscription = ({
+	onTranscriptionUpdate,
+	onLiveIntelligenceResponse,
+	notification = {},
+}) => {
+	const {
+		notes: { initializeMeetingSummary },
+	} = useContext(Context);
 	const [isConnected, setIsConnected] = useState(false);
 	const [isRecording, setIsRecording] = useState(false);
 	const [isMuted, setIsMuted] = useState(false);
@@ -140,7 +144,7 @@ const useAssemblyTranscription = ({ onTranscriptionUpdate, onLiveIntelligenceRes
 					if (reconnectAttemptsRef.current < maxReconnectAttempts) {
 						attemptReconnect();
 					} else {
-						message.error(
+						notification?.error(
 							'Failed to reconnect to transcription service after multiple attempts',
 						);
 					}
@@ -149,7 +153,7 @@ const useAssemblyTranscription = ({ onTranscriptionUpdate, onLiveIntelligenceRes
 		}, delay);
 	}, [isConnected]);
 
-	const stopRecording = useCallback(() => {
+	const stopRecording = useCallback(({ meetingId }) => {
 		if (!isMountedRef.current) return;
 
 		log('Stopping recording...');
@@ -207,7 +211,7 @@ const useAssemblyTranscription = ({ onTranscriptionUpdate, onLiveIntelligenceRes
 		audioBufferRef.current = [];
 		sampleCountRef.current = 0;
 		cleanup();
-		// initializeMeetingSummary({ meeting_id: meetingId });
+		initializeMeetingSummary({ meeting_id: meetingId });
 	}, [log]);
 
 	const connect = useCallback(
@@ -219,7 +223,7 @@ const useAssemblyTranscription = ({ onTranscriptionUpdate, onLiveIntelligenceRes
 
 			if (!jwtToken || !tenantId || !sessionId || !meetingId) {
 				const error = 'Missing required authentication parameters';
-				message.error(error);
+				notification?.error(error);
 				return Promise.reject(new Error(error));
 			}
 
@@ -299,7 +303,7 @@ const useAssemblyTranscription = ({ onTranscriptionUpdate, onLiveIntelligenceRes
 									onTranscriptionUpdate?.(transcriptionData);
 								}
 							} else if (data.type === 'error') {
-								message.error(data.message || 'Transcription service error');
+								notification?.error(data.message || 'Transcription service error');
 								reject(new Error(data.message || 'Transcription service error'));
 							} else {
 								onLiveIntelligenceResponse?.(data?.data);
@@ -352,7 +356,7 @@ const useAssemblyTranscription = ({ onTranscriptionUpdate, onLiveIntelligenceRes
 				return connectionPromiseRef.current;
 			} catch (error) {
 				connectionPromiseRef.current = null;
-				message.error('Failed to connect to transcription service');
+				notification?.error('Failed to connect to transcription service');
 				throw error;
 			}
 		},
@@ -493,13 +497,19 @@ const useAssemblyTranscription = ({ onTranscriptionUpdate, onLiveIntelligenceRes
 			log(`Error starting recording: ${error.message}`);
 
 			if (error.name === 'NotAllowedError') {
-				message.error('Microphone access denied. Please allow microphone permissions.');
+				notification?.error(
+					'Microphone access denied',
+					'Please allow microphone permissions.',
+				);
 			} else if (error.name === 'NotFoundError') {
-				message.error('No microphone found. Please check your audio devices.');
+				notification?.error('No microphone found', 'Please check your audio devices.');
 			} else if (error.name === 'NotReadableError') {
-				message.error('Microphone is being used by another application.');
+				notification?.error(
+					'Microphone is being used by another application',
+					'Please check your audio devices.',
+				);
 			} else {
-				message.error('Failed to start recording. Please check your microphone.');
+				notification?.error('Failed to start recording', 'Please check your microphone.');
 			}
 		}
 	}, [log, sendAudioData]);
@@ -508,6 +518,8 @@ const useAssemblyTranscription = ({ onTranscriptionUpdate, onLiveIntelligenceRes
 		async ({ tenantId, sessionId, meetingId, jwtToken, isAiIntelligenceEnabled }) => {
 			try {
 				// First ensure WebSocket connection
+				setIsMuted(false);
+				muteRef.current = false;
 				await startAudioCapture();
 				if (!websocketRef.current || websocketRef.current.readyState !== WebSocket.OPEN) {
 					log('Establishing connection...');

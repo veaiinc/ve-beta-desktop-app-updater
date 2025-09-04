@@ -43,6 +43,18 @@ const App = () => {
 	};
 
 	useEffect(() => {
+		if (window.electronApi?.on) {
+			window.electronApi.on('start-mic-monitoring', () => {
+				window.electronApi.startMicMonitoring();
+			});
+		} else {
+			console.error('❌ window.electronApi.on is not available');
+		}
+
+		return () => {};
+	}, []);
+
+	useEffect(() => {
 		// Set up update status listener
 		if (window?.electronApi?.onUpdateStatus) {
 			window.electronApi.onUpdateStatus((data) => {
