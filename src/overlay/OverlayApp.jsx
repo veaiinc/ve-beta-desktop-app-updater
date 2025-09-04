@@ -1,10 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
-import { Track } from 'livekit-client';
-import { useTrackTranscription } from '@livekit/components-react';
 import { GripHorizontal } from 'lucide-react';
 import Context from '../context/context';
-import useLiveIntelligenceStream from '../hooks/useLiveIntelligenceStream';
-import useRecallStream from '../hooks/useRecallStream';
 import ObjectID from 'bson-objectid';
 import OverlayCommands from './OverlayCommands';
 import ShortcutBar from './components/ShortcutBar';
@@ -12,7 +8,6 @@ import LiveIntelligencePanel from './components/LiveIntelligencePanel';
 import TranscriptPanel from './components/TranscriptPanel';
 import OverlayNotification, { useOverlayNotification } from './components/OverlayNotification';
 import './overlay.scss';
-import { transcription_socket } from '../services/config.live';
 import useAssemblyTranscription from './hooks/useAssemblyTranscription';
 
 const OverlayApp = () => {
@@ -168,16 +163,6 @@ const OverlayApp = () => {
 		notification,
 	});
 
-	const { closeWebSocketConnection: closeLiveIntelligenceConnection } =
-		useLiveIntelligenceStream();
-
-	// Recall Stream Hook for Live Intelligence
-	const {
-		createWebSocketConnection: createRecallConnection,
-		closeWebSocketConnection: closeRecallConnection,
-		sendMessage: sendRecallMessage,
-	} = useRecallStream();
-
 	// Utility Functions
 	const formatTime = (seconds) => {
 		const m = Math.floor(seconds / 60)
@@ -279,8 +264,6 @@ const OverlayApp = () => {
 		sessionIdRef.current = null;
 
 		stopRecording({ meetingId: info?.meetingData?._id });
-		closeLiveIntelligenceConnection();
-		closeRecallConnection();
 
 		// Reset stopping flag after cleanup
 		setTimeout(() => {

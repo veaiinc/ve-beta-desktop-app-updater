@@ -32,6 +32,7 @@ const useAssemblyTranscription = ({
 	const reconnectAttemptsRef = useRef(0);
 	const muteRef = useRef(false);
 	const maxReconnectAttempts = 3;
+	const meetingIdRef = useRef(null);
 
 	useEffect(() => {
 		isMountedRef.current = true;
@@ -118,6 +119,11 @@ const useAssemblyTranscription = ({
 		connectionPromiseRef.current = null;
 		reconnectAttemptsRef.current = 0;
 
+		if (meetingIdRef.current) {
+			initializeMeetingSummary({ meeting_id: meetingIdRef.current });
+			meetingIdRef.current = null;
+		}
+
 		if (isMountedRef.current) {
 			setIsConnected(false);
 			setIsRecording(false);
@@ -153,66 +159,68 @@ const useAssemblyTranscription = ({
 		}, delay);
 	}, [isConnected]);
 
-	const stopRecording = useCallback(({ meetingId }) => {
-		if (!isMountedRef.current) return;
+	const stopRecording = useCallback(
+		({ meetingId }) => {
+			if (!isMountedRef.current) return;
 
-		log('Stopping recording...');
+			log('Stopping recording...');
 
-		setIsRecording(false);
-		setTimer(0);
+			setIsRecording(false);
+			setTimer(0);
 
-		// Clear timer
-		if (timerIntervalRef.current) {
-			clearInterval(timerIntervalRef.current);
-			timerIntervalRef.current = null;
-		}
-
-		// Disconnect audio nodes in correct order
-		if (processorRef.current) {
-			try {
-				processorRef.current.disconnect();
-				processorRef.current.onaudioprocess = null; // Remove event listener
-			} catch (e) {
-				log(`Error disconnecting processor: ${e.message}`);
+			// Clear timer
+			if (timerIntervalRef.current) {
+				clearInterval(timerIntervalRef.current);
+				timerIntervalRef.current = null;
 			}
-			processorRef.current = null;
-		}
 
-		if (sourceRef.current) {
-			try {
-				sourceRef.current.disconnect();
-			} catch (e) {
-				log(`Error disconnecting source: ${e.message}`);
+			// Disconnect audio nodes in correct order
+			if (processorRef.current) {
+				try {
+					processorRef.current.disconnect();
+					processorRef.current.onaudioprocess = null; // Remove event listener
+				} catch (e) {
+					log(`Error disconnecting processor: ${e.message}`);
+				}
+				processorRef.current = null;
 			}
-			sourceRef.current = null;
-		}
 
-		// Stop stream tracks before closing audio context
-		if (streamRef.current) {
-			try {
-				streamRef.current.getTracks().forEach((track) => track.stop());
-			} catch (e) {
-				log(`Error stopping stream tracks: ${e.message}`);
+			if (sourceRef.current) {
+				try {
+					sourceRef.current.disconnect();
+				} catch (e) {
+					log(`Error disconnecting source: ${e.message}`);
+				}
+				sourceRef.current = null;
 			}
-			streamRef.current = null;
-		}
 
-		// Close audio context last
-		if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-			try {
-				audioContextRef.current.close();
-			} catch (e) {
-				log(`Error closing audio context: ${e.message}`);
+			// Stop stream tracks before closing audio context
+			if (streamRef.current) {
+				try {
+					streamRef.current.getTracks().forEach((track) => track.stop());
+				} catch (e) {
+					log(`Error stopping stream tracks: ${e.message}`);
+				}
+				streamRef.current = null;
 			}
-			audioContextRef.current = null;
-		}
 
-		// Reset buffers
-		audioBufferRef.current = [];
-		sampleCountRef.current = 0;
-		cleanup();
-		initializeMeetingSummary({ meeting_id: meetingId });
-	}, [log]);
+			// Close audio context last
+			if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+				try {
+					audioContextRef.current.close();
+				} catch (e) {
+					log(`Error closing audio context: ${e.message}`);
+				}
+				audioContextRef.current = null;
+			}
+
+			// Reset buffers
+			audioBufferRef.current = [];
+			sampleCountRef.current = 0;
+			cleanup();
+		},
+		[log],
+	);
 
 	const connect = useCallback(
 		async ({ tenantId, sessionId, meetingId, jwtToken, isAiIntelligenceEnabled }) => {
@@ -523,6 +531,7 @@ const useAssemblyTranscription = ({
 				await startAudioCapture();
 				if (!websocketRef.current || websocketRef.current.readyState !== WebSocket.OPEN) {
 					log('Establishing connection...');
+					meetingIdRef.current = meetingId;
 					await connect({
 						tenantId,
 						sessionId,
