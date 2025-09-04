@@ -14,6 +14,7 @@ import { ReactComponent as BulbSvg } from '../../../assets/svg/home_page/bulb.sv
 import { ReactComponent as TrendUpSvg } from '../../../assets/svg/trendUp.svg';
 import { ReactComponent as ArrowsOut } from '../../../assets/svg/gallery/arrowsOut.svg';
 import { ReactComponent as StopIconSvg } from '../../../assets/svg/notesPage/cancel.svg';
+import { ReactComponent as UploadSvg } from '../../../assets/svg/chat/upload.svg';
 import CreditCoinImage from '../../../assets/images/creditCoin.png';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
@@ -24,11 +25,10 @@ import SearchDropdown from './SearchDropdown';
 import UploadFileTooltip from './UploadFileTooltip';
 import DateRangeDropdown from './DateRangeDropdown';
 import moment from 'moment';
-import { Image, Spin, Tooltip } from 'antd';
+import { Image, Spin, Tooltip, Upload } from 'antd';
 // import AIMessageLoader from './AIMessageLoader';
 import WebSvg from '../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../assets/svg/ai_agents/bookSvg';
-import useUpdatedVoiceIntegration from '../../../hooks/useUpdatedVoiceIntegration';
 import { message } from '../globalComponents/CustomToast';
 // import SearchTypeTooltip from './SearchTypeTooltip';
 import ChatBoxPlaceholder from './ChatBoxPlaceholder';
@@ -44,7 +44,6 @@ import useNote from '../../../hooks/useNote';
 import useAudioVisualizer from '../../../hooks/useAudioVisualizer';
 import { Track } from 'livekit-client';
 import { useTrackTranscription } from '@livekit/components-react';
-
 // import VoiceWrapper from '../../layouts/VoiceWrapper';
 
 const moduleHelper = {
@@ -52,6 +51,7 @@ const moduleHelper = {
 	'smart-file': 'form_filling',
 	calendar: 'calendar',
 	meet: 'meeting',
+	note: 'notes',
 };
 
 const initialChatFilters = {
@@ -75,31 +75,27 @@ const modulesOptions = {
 	clients: 'Clients',
 };
 
-const searchTypeOptionsForReason = {
-	webSearch: {
-		icon: WebSvg,
-		title: 'Web Search',
-		subTitle: 'Deep research web search',
-	},
-	workspaceSearch: {
-		icon: BookSvg,
-		title: 'Internal Search',
-		subTitle: 'Effortless access to insights',
-	},
-};
+function getFileType(file) {
+	let type = file?.type || file?.sourceType || null;
+	if (!type) return 'Unknown';
 
-const searchTypeOptionsForAsk = {
-	webSearch: {
-		icon: WebSvg,
-		title: 'Web Search',
-		subTitle: 'web search',
-	},
-	workspaceSearch: {
-		icon: BookSvg,
-		title: 'Internal Search',
-		subTitle: 'internal search',
-	},
-};
+	type = type?.toLowerCase();
+
+	if (type === 'application/pdf') return 'PDF';
+	if (
+		type === 'application/msword' ||
+		type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+	)
+		return 'DOCX';
+	if (
+		type === 'application/vnd.ms-excel' ||
+		type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+	)
+		return 'XLSX';
+	if (type === 'text/csv') return 'CSV';
+
+	return type;
+}
 
 const chatboxPlaceholders = [
 	'Start typing or use @ to mention a source.',
@@ -141,18 +137,19 @@ const ChatBox = ({
 	customChatBoxClick = null,
 	showScrollButton = false,
 	smoothScrollToBottom = null,
-	startPage = false,
 	onChatQueryChange = null,
 	isBuildEnbled = true,
 	showUpgradeSubscriptionBtn = true,
 	animateChatBox = true,
 	sessionId = null,
 	getSuggestions = false,
-	placeholder = 'Start typing or use @ to mention a source.',
+	placeholder = 'What would you like to do?',
+	showBrowserButton = false,
+	handleBrowserButtonClick = null,
+	browserImage = null,
 	showBottomTools = true,
 }) => {
 	const location = useLocation();
-	const { handleConnect } = useUpdatedVoiceIntegration();
 	const params = useParams();
 	const { workspaceMode } = useWorkspaceMode();
 
@@ -177,20 +174,19 @@ const ChatBox = ({
 			handleStreamSendMessage,
 			activePayloadForChat,
 			activeInputForChat,
-			// chatInfo,
 			userEditedQuery,
 			galleryFile,
-			currentSessionId,
 			chatReplyData,
 			deleteMultiAgentFile,
 			proactiveInfoForChat,
 			isDirectSearchAgent,
+			isBrowserScreenActive,
 		},
 		chatBoxSuggestionsSocket: { sendMessage, closeWebSocketConnection },
 		subscriptionInfo: { currentPlan },
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
-		aiSetup: { voiceIntegrationData, updateAiChatSessions, aiChatSessions },
+		aiSetup: { voiceIntegrationData, updateAiChatSessions, aiChatSessions, updateAiSetupState },
 		notes: { getLiveKitToken },
 	} = useContext(Context);
 
@@ -210,7 +206,6 @@ const ChatBox = ({
 		filtersEnabled: false,
 		isUploadFileOpen: false,
 		isRecentFileOpen: false,
-		showFilters: false,
 		chatFilters: initialChatFilters,
 		isIntegrationsDropdownOpen: false,
 		isModulesDropdownOpen: false,
@@ -224,7 +219,6 @@ const ChatBox = ({
 		chatBoxInfo: initialChatBoxInfo,
 		chatboxMinimized: true,
 		chatBoxContainerHeight: 60,
-		showVoiceAgent: false, // New state for voice agent visibility
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -292,7 +286,7 @@ const ChatBox = ({
 
 	const uploadedImagesRef = useRef(info?.uploadedImages || []);
 	const recentFilesRef = useRef(info?.recentFiles || []);
-	const showPlaceholder = info?.chatQuery?.length === 0 && info?.widgetQuery?.length === 0;
+	// const showPlaceholder = info?.chatQuery?.length === 0 && info?.widgetQuery?.length === 0;
 	const totalCreditsUsed = currentPlan?.totalAiCreditUsed || 0,
 		totalCreditsLimit =
 			typeof currentPlan?.totalAiCreditLimit === 'number'
@@ -447,25 +441,25 @@ const ChatBox = ({
 		}
 	}, [activeInputForChat]);
 
-	useEffect(() => {
-		if (showPlaceholder && animatePlaceholder) {
-			placeholderIntervalId.current = setInterval(() => {
-				setInfo((prev) => {
-					const nextIndex =
-						prev?.activePlaceholderIndex === chatboxPlaceholders?.length - 1
-							? 0
-							: prev?.activePlaceholderIndex + 1;
-					return {
-						...prev,
-						activePlaceholderIndex: nextIndex,
-					};
-				});
-			}, 3000);
-		}
-		return () => {
-			clearInterval(placeholderIntervalId.current);
-		};
-	}, [showPlaceholder]);
+	// useEffect(() => {
+	// 	if (showPlaceholder && animatePlaceholder) {
+	// 		placeholderIntervalId.current = setInterval(() => {
+	// 			setInfo((prev) => {
+	// 				const nextIndex =
+	// 					prev?.activePlaceholderIndex === chatboxPlaceholders?.length - 1
+	// 						? 0
+	// 						: prev?.activePlaceholderIndex + 1;
+	// 				return {
+	// 					...prev,
+	// 					activePlaceholderIndex: nextIndex,
+	// 				};
+	// 			});
+	// 		}, 3000);
+	// 	}
+	// 	return () => {
+	// 		clearInterval(placeholderIntervalId.current);
+	// 	};
+	// }, [showPlaceholder]);
 
 	//below useeffect is for getting suggestions
 	useEffect(() => {
@@ -495,30 +489,30 @@ const ChatBox = ({
 		}
 	}, [info?.chatQuery]);
 
-	//below useeffect is for getting suggestions
-	useEffect(() => {
-		if (info?.showSuggestion) {
-			let height = 0;
-			if (suggestionRef?.current && textAreaRef?.current) {
-				height = Math.max(
-					suggestionRef?.current?.scrollHeight,
-					textAreaRef?.current?.scrollHeight,
-				);
-				height = Math.min(height, 200);
-				height = Math.max(height, 30);
-			}
-			if (suggestionRef?.current) {
-				suggestionRef.current.style.height = `${height}px`;
-			}
-			if (textAreaRef?.current) {
-				textAreaRef.current.style.height = `${height}px`;
-			}
-			if (textAreaWrapperRef?.current) {
-				textAreaWrapperRef.current.style.height = `${height}px`;
-			}
-			setInfo((prev) => ({ ...prev, chatBoxContainerHeight: `${height + 58 + 28}px` }));
-		}
-	}, [info?.showSuggestion]);
+	// //below useeffect is for getting suggestions
+	// useEffect(() => {
+	// 	if (info?.showSuggestion) {
+	// 		let height = 0;
+	// 		if (suggestionRef?.current && textAreaRef?.current) {
+	// 			height = Math.max(
+	// 				suggestionRef?.current?.scrollHeight,
+	// 				textAreaRef?.current?.scrollHeight,
+	// 			);
+	// 			height = Math.min(height, 200);
+	// 			height = Math.max(height, 30);
+	// 		}
+	// 		if (suggestionRef?.current) {
+	// 			suggestionRef.current.style.height = `${height}px`;
+	// 		}
+	// 		if (textAreaRef?.current) {
+	// 			textAreaRef.current.style.height = `${height}px`;
+	// 		}
+	// 		if (textAreaWrapperRef?.current) {
+	// 			textAreaWrapperRef.current.style.height = `${height}px`;
+	// 		}
+	// 		setInfo((prev) => ({ ...prev, chatBoxContainerHeight: `${height + 58 + 28}px` }));
+	// 	}
+	// }, [info?.showSuggestion]);
 
 	//below useeffect is for getting suggestions
 	useEffect(() => {
@@ -709,21 +703,6 @@ const ChatBox = ({
 		});
 	};
 
-	// const handleShowFiltersClick = () => {
-	// 	if (chatInfo?.deepResearch) return;
-	// 	setInfo((prev) => ({
-	// 		...prev,
-	// 		showFilters: true,
-	// 	}));
-	// };
-
-	const handleHideFiltersClick = () => {
-		setInfo((prev) => ({
-			...prev,
-			showFilters: false,
-		}));
-	};
-
 	const handleResetFiltersClick = () => {
 		setInfo((prev) => ({
 			...prev,
@@ -871,9 +850,20 @@ const ChatBox = ({
 					}
 					let localPayload = {};
 					if (uploadedImagesRef?.current?.length) {
-						payload.files = uploadedImagesRef?.current?.map((ele) => ({
+						const imagesPngJpeg =
+							uploadedImagesRef?.current?.filter(
+								(file) => file?.type === 'image/png' || file?.type === 'image/jpeg',
+							) || [];
+
+						payload.image_data_base64 = imagesPngJpeg?.map((file) => file?.preview);
+
+						const remainingImages = uploadedImagesRef?.current?.filter(
+							(file) => !(file?.type === 'image/png' || file?.type === 'image/jpeg'),
+						);
+						payload.files = remainingImages?.map((ele) => ({
 							id: ele?.fileId || null,
 							name: ele?.name || 'Untitled Image',
+							is_uploaded: ele?.is_uploaded || false,
 						}));
 
 						localPayload = {
@@ -888,14 +878,19 @@ const ChatBox = ({
 								...(recentFilesRef?.current?.map((ele) => ({
 									id: ele?._id || ele?.fileId || null,
 									name: ele?.originalFileName || ele?.title || 'Untitled File',
+									is_uploaded: ele?.is_uploaded || false,
 								})) || []),
 							];
 						} else {
 							payload.files = recentFilesRef?.current?.map((ele) => ({
 								id: ele?._id || ele?.fileId || null,
 								name: ele?.originalFileName || ele?.title || 'Untitled File',
+								is_uploaded: ele?.is_uploaded || false,
 							}));
 						}
+						recentFilesRef?.current?.forEach((file) => {
+							file.is_uploaded = false;
+						});
 					}
 
 					if (proactiveInfoForChat) {
@@ -926,12 +921,18 @@ const ChatBox = ({
 						payload.module_id = params?.meetingId;
 					}
 
+					if (routeName === 'note') {
+						payload.module_id = params?.noteId;
+					}
+
 					if (isDirectSearchAgent) {
 						payload.direct_search_agent = true;
 						updateStateValues({
 							isDirectSearchAgent: false,
 						});
 					}
+
+					payload.is_browser_screen_active = isBrowserScreenActive;
 
 					let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
 
@@ -970,7 +971,13 @@ const ChatBox = ({
 							aiChatSessions?.data?.findIndex((ele) => ele?._id === sessionId) !== -1
 						)
 					) {
-						const payload = { sessionId, addNewSession: true, type: 'update' };
+						const payload = {
+							sessionId,
+							addNewSession: true,
+							type: 'update',
+							agentType: chatInfo?.agentType ?? 'multi_agent',
+							assistantId: chatInfo?.assistantId,
+						};
 						updateAiChatSessions(payload);
 					}
 					if (customChatActions) {
@@ -1011,6 +1018,7 @@ const ChatBox = ({
 			onChatQueryChange,
 			aiChatSessions,
 			isDirectSearchAgent,
+			isBrowserScreenActive,
 		],
 	);
 
@@ -1258,6 +1266,19 @@ const ChatBox = ({
 
 	const handleFileAttachmentChange = useCallback(
 		async ({ file }) => {
+			if (
+				(file?.size >= 3145728 && file?.type?.includes?.('image')) ||
+				uploadedImagesRef?.current?.length === 3
+			) {
+				if (file?.size >= 3145728) {
+					message?.error('Image size should be less than 3mb');
+					return;
+				}
+				if (uploadedImagesRef.current?.length === 3) {
+					message?.error('Only 3 images are allowed for a message');
+					return;
+				}
+			}
 			if (file?.size >= 5242880) {
 				message?.error('File size must be less than 5MB');
 				return;
@@ -1268,8 +1289,12 @@ const ChatBox = ({
 			file.preview = await getBase64(file);
 			file.loading = true;
 			file.uniqueId = Date?.now() + '_' + Math?.floor(Math?.random() * 1000000);
+			file.is_uploaded = true;
 
 			if (file?.type?.includes('image')) {
+				if (file?.type === 'image/png' || file?.type === 'image/jpeg') {
+					file.loading = false;
+				}
 				uploadedImages?.push(file);
 				uploadedImagesRef.current = uploadedImages;
 			} else {
@@ -1278,8 +1303,9 @@ const ChatBox = ({
 				recentFiles?.unshift(file);
 				recentFilesRef.current = recentFiles;
 			}
-
-			handleGlobalImageProcessing(file);
+			if (!(file?.type === 'image/png' || file?.type === 'image/jpeg')) {
+				handleGlobalImageProcessing(file);
+			}
 
 			setInfo((prev) => ({
 				...prev,
@@ -1416,7 +1442,7 @@ const ChatBox = ({
 			}
 		},
 
-		[info, handleConnect, isTranscribing, getLiveKitToken],
+		[info, isTranscribing, getLiveKitToken],
 	);
 
 	const handleSendBtnClick = (e) => {
@@ -1458,10 +1484,29 @@ const ChatBox = ({
 		}));
 	};
 
+	const handleTextAreaPaste = useCallback(
+		(e) => {
+			const items = e?.clipboardData?.items || [];
+
+			for (let i = 0; i < items?.length; i++) {
+				const item = items[i];
+				if (item?.kind === 'file' && item?.type?.startsWith('image/')) {
+					e?.preventDefault(); // stop pasting as text
+					const file = item?.getAsFile();
+					if (file) {
+						// Call your upload logic
+						handleFileAttachmentChange({ file });
+					}
+				}
+			}
+		},
+		[handleFileAttachmentChange],
+	);
+
 	const handleTextAreaChange = (e) => {
 		const textArea = textAreaRef?.current;
-		const textAreaWrapper = textAreaWrapperRef?.current;
-		const suggestionContainer = suggestionRef?.current;
+		// const textAreaWrapper = textAreaWrapperRef?.current;
+		// const suggestionContainer = suggestionRef?.current;
 		const query = e?.target?.value;
 		const lastChar = query?.trim()?.slice(-1);
 
@@ -1470,22 +1515,22 @@ const ChatBox = ({
 		if (textArea) {
 			textArea.style.height = 'auto';
 			textAreaHeight = textArea?.scrollHeight;
-			if (suggestionContainer) {
-				const suggestionContainerHeight = suggestionContainer?.scrollHeight;
-				if (textAreaHeight < suggestionContainerHeight) {
-					textAreaHeight = suggestionContainerHeight;
-				}
-			}
+			// if (suggestionContainer) {
+			// 	const suggestionContainerHeight = suggestionContainer?.scrollHeight;
+			// 	if (textAreaHeight < suggestionContainerHeight) {
+			// 		textAreaHeight = suggestionContainerHeight;
+			// 	}
+			// }
 			textAreaHeight = Math.min(textAreaHeight, 200);
 			textArea.style.height = textAreaHeight + 'px';
 		}
 
-		if (textAreaWrapper) {
-			textAreaWrapper.style.height = textAreaHeight + 'px';
-		}
-		if (suggestionContainer) {
-			suggestionContainer.style.height = textAreaHeight + 'px';
-		}
+		// if (textAreaWrapper) {
+		// 	textAreaWrapper.style.height = textAreaHeight + 'px';
+		// }
+		// if (suggestionContainer) {
+		// 	suggestionContainer.style.height = textAreaHeight + 'px';
+		// }
 
 		let isRecentFileOpen = false;
 		if (lastChar === '@') {
@@ -1506,17 +1551,17 @@ const ChatBox = ({
 
 	const clearTextArea = () => {
 		const textArea = textAreaRef?.current;
-		const textAreaWrapper = textAreaWrapperRef?.current;
-		const suggestionContainer = suggestionRef?.current;
+		// const textAreaWrapper = textAreaWrapperRef?.current;
+		// const suggestionContainer = suggestionRef?.current;
 		if (textArea) {
 			textArea.style.height = '30px'; // Reset to initial min-height
 		}
-		if (textAreaWrapper) {
-			textAreaWrapper.style.height = '30px';
-		}
-		if (suggestionContainer) {
-			suggestionContainer.style.height = '30px';
-		}
+		// if (textAreaWrapper) {
+		// 	textAreaWrapper.style.height = '30px';
+		// }
+		// if (suggestionContainer) {
+		// 	suggestionContainer.style.height = '30px';
+		// }
 	};
 
 	const handleBuildClick = () => {
@@ -1561,15 +1606,15 @@ const ChatBox = ({
 	// };
 
 	const handleChatBoxClick = (e) => {
-		if (animateChatBox) {
-			e?.stopPropagation();
-			if (info?.chatboxMinimized) {
-				setInfo((prev) => ({
-					...prev,
-					chatboxMinimized: false,
-				}));
-			}
-		}
+		// if (animateChatBox) {
+		// 	e?.stopPropagation();
+		// 	if (info?.chatboxMinimized) {
+		// 		setInfo((prev) => ({
+		// 			...prev,
+		// 			chatboxMinimized: false,
+		// 		}));
+		// 	}
+		// }
 		if (customChatBoxClick) {
 			customChatBoxClick?.(e);
 		}
@@ -1596,14 +1641,12 @@ const ChatBox = ({
 		});
 	};
 
-	const handleDeepSearchClick = () => {
+	const handleDeepSearchClick = (e) => {
 		let chatBoxData = info?.chatBoxInfo;
-		if (chatBoxData?.deepSearch) {
-			return;
-		}
+
 		chatBoxData = {
 			...chatBoxData,
-			deepSearch: true,
+			deepSearch: !chatBoxData?.deepSearch,
 			ask: false,
 			deepResearch: false,
 			goals: false,
@@ -1649,349 +1692,403 @@ const ChatBox = ({
 		[smoothScrollToBottom],
 	);
 
-	const handleVoiceAgentClick = useCallback((e) => {
-		e?.stopPropagation();
-		setInfo((prev) => ({
-			...prev,
-			showVoiceAgent: true,
-		}));
-	}, []);
-
-	const handleCloseVoiceAgent = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			showVoiceAgent: false,
-		}));
-	}, []);
+	const handleVoiceAgentClick = useCallback(
+		(e) => {
+			e?.stopPropagation();
+			// Show the global voice widget and trigger auto-connect
+			updateAiSetupState({ showVoiceWidget: true });
+		},
+		[updateAiSetupState],
+	);
 
 	return (
-		<div className="chatParentWrapper" onClick={handleChatBoxClick}>
-			<div className={`chatWrapper`}>
-				<div
-					className={`chat-box-container ${
-						info?.voiceIntegration ? 'inactive' : 'active'
-					}`}
-				>
-					<div className="chatcontainer">
-						<div className="chatBodyContainer">
-							<div
-								className="chatInputContainer"
-								style={{
-									...(animateChatBox && {
-										height: info?.chatBoxContainerHeight,
-									}),
-								}}
-							>
-								<div
-									className={`chatInputParentContainer ${
-										startPage ? ' startPageContainer' : ''
-									}`}
-								>
-									<RecentFileTooltip
-										fileTypeIcons={fileTypeIcons}
-										handleRecentFileClick={handleRecentFileClick}
-										recentFiles={recentFilesRef.current || []}
-										isRecentFileOpen={info?.isRecentFileOpen}
-										setIsRecentFileOpen={(value) => {
-											setInfo((prev) => ({
-												...prev,
-												isRecentFileOpen: value,
-											}));
-										}}
-									>
-										<div className="recent-file-wrapper" />
-									</RecentFileTooltip>
-									<div className="chat-input-container">
-										{startPage && !isPublicChat && (
-											<>
-												<UploadFileTooltip
-													fileTypeIcons={fileTypeIcons}
-													handleChange={handleFileAttachmentChange}
-													isUploadFileOpen={info?.isUploadFileOpen}
-													setIsUploadFileOpen={(value) => {
-														if (
-															info?.chatBoxInfo?.deepResearch ||
-															totalCreditsUsed >= totalCreditsLimit
-														)
-															return;
-														setInfo((prev) => ({
-															...prev,
-															isUploadFileOpen: value,
-														}));
-													}}
-													handleRecentFileClick={handleRecentFileClick}
-													recentFiles={recentFilesRef.current || []}
-												>
-													<Tooltip
-														title={
-															<div className="chatbox-icon-tooltip-container">
-																Upload File
-															</div>
-														}
-														color="transparent"
-														arrow={false}
-														rootClassName="chatbox-tooltip"
-													>
-														<div
-															className="chat-box-icon-container start-page-icon"
-															style={{
-																opacity: `${
-																	info?.chatBoxInfo?.deepResearch
-																		? '0.5'
-																		: '1'
-																}`,
-																background: 'var(--card)',
-																padding: '6px 8px',
-															}}
-														>
-															<div
-																className="chat-icon"
-																style={{ cursor: 'pointer' }}
-															>
-																<PlusSvg width={24} height={24} />
-															</div>
-														</div>
-													</Tooltip>
-												</UploadFileTooltip>
-												<div className="vertical-line"></div>
-											</>
-										)}
+		<div className="chatBoxParentWrapper" onClick={handleChatBoxClick}>
+			<div className="chatbarContainer">
+				{showScrollButton && (
+					<div className="scroll-btn-wrapper">
+						<button className="scroll-button" onClick={handleScrollButtonClick}>
+							<ArrowUpRightSvg className="arrow-up" />
+						</button>
+					</div>
+				)}
 
-										<div
-											className={`placeholderContainer ${
-												startPage ? 'startPagePlaceholderContainer' : ''
-											}`}
-										>
-											<div
-												className="textAreaWrapper"
-												ref={textAreaWrapperRef}
-											>
-												<div
-													className="suggestion-container"
-													ref={suggestionRef}
-													style={{
-														display:
-															info?.showSuggestion &&
-															info?.chatQuery?.length > 0
-																? 'block'
-																: 'none',
-													}}
-												>
-													{info?.suggestion}
+				<div
+					className="browser-button-container"
+					onClick={(e) => {
+						e.stopPropagation();
+						handleBrowserButtonClick?.(e);
+					}}
+					style={{
+						display: showBrowserButton ? 'flex' : 'none',
+					}}
+				>
+					{browserImage ? (
+						<div className="browser-image-wrapper">
+							<div className="browser-text">Browser</div>
+							<img src={browserImage} className="browser-image" alt="browser" />
+						</div>
+					) : (
+						<div className="browser-button">Browser</div>
+					)}
+					<div className="expand-browser-button">
+						<ArrowsOut />
+					</div>
+				</div>
+
+				{showUpgradeSubscriptionBtn && totalCreditsUsed >= totalCreditsLimit && (
+					<div className="credits-upgrade-container">
+						<div className="left-container">
+							<div className="title-container">
+								<img src={CreditCoinImage} className="coin-icon" alt="coin" />
+
+								<div className="title-text-container">
+									You don't have enough credits to continue.
+								</div>
+							</div>
+							<div className="description-container">
+								Please consider purchasing additional credits to unlock more
+								features and enhance your experience. If you need assistance, feel
+								free to reach out to our support team!
+							</div>
+						</div>
+						<div className="right-container">
+							<div className="upgrade-button" onClick={handleUpgradeClick}>
+								Upgrade
+							</div>
+						</div>
+					</div>
+				)}
+			</div>
+			<div
+				className="chatInputContainer"
+				// style={{
+				// 	...(animateChatBox && {
+				// 		height: info?.chatBoxContainerHeight,
+				// 	}),
+				// }}
+			>
+				{chatReplyData && (
+					<div className="chat-reply-data">
+						<div className="reply-icon"></div>
+						<div className="reply-text">{`"${chatReplyData}"`}</div>
+						<div className="reply-close-icon" onClick={handleReplyCloseClick}>
+							<CloseSvg width={16} height={16} />
+						</div>
+					</div>
+				)}
+				{(uploadedImagesRef?.current?.length > 0 ||
+					recentFilesRef?.current?.length > 0) && (
+					<div className="user-selected-info">
+						{(uploadedImagesRef?.current?.length > 0 ||
+							recentFilesRef?.current?.length > 0) && (
+							<div className="uploaded-files-container">
+								{uploadedImagesRef?.current?.length > 0 ? (
+									<div className="imagePreviewBar">
+										{uploadedImagesRef?.current?.map((ele, index) => (
+											<div className="previewOfUploadedImage" key={index}>
+												<img
+													src={ele?.preview}
+													alt="uploaded"
+													onClick={() => handlePreview(ele)}
+													className="image-ele"
+												/>
+
+												{ele?.loading ? (
+													<div className="spinContainerLoaderForPreview">
+														<Spin />
+													</div>
+												) : (
+													<span
+														className="removeImageIcon"
+														onClick={() => handleRemoveImage(ele)}
+													>
+														<Close
+															style={{
+																width: '12px',
+																height: '12px',
+															}}
+														/>
+													</span>
+												)}
+											</div>
+										))}
+									</div>
+								) : (
+									''
+								)}
+								{recentFilesRef?.current?.length > 0 && (
+									<div className="recent-files-container">
+										{recentFilesRef?.current?.map((file, index) => (
+											<div className="recent-file" key={index}>
+												<div className="file-type-icon">
+													{fileTypeIcons?.[file?.sourceType]}
 												</div>
-												<div className="textarea-container">
-													<textarea
-														type="text"
-														value={info?.chatQuery}
-														onChange={handleTextAreaChange}
-														autoFocus={autoFocus}
-														onKeyDown={handleTextAreaKeyDown}
-														onFocus={handleTextAreaFocus}
-														className={`textArea ${
-															startPage ? 'startTextPage' : ''
-														} ${isTranscribing ? 'transcribing' : ''}`}
-														rows={1}
-														ref={textAreaRef}
-														placeholder={
-															isTranscribing
-																? 'Listening... Speak now'
-																: !animatePlaceholder
-																? placeholder
-																: ''
-														}
-													/>
+
+												<div className="recent-file-info">
+													<div className="recent-file-name">
+														<div className="file-title">
+															{file?.originalFileName ||
+																file?.title ||
+																''}
+														</div>
+
+														{file?.loading && <Spin />}
+													</div>
+													<div className="recent-file-source-type">
+														{getFileType(file)}
+													</div>
+												</div>
+
+												<div
+													className="close-icon-container"
+													onClick={() =>
+														handleRemoveFileFromRecentFileClick(file)
+													}
+												>
+													<CloseSvg width={'12px'} height={'12px'} />
 												</div>
 											</div>
-
-											{showPlaceholder && animatePlaceholder && (
-												<ChatBoxPlaceholder
-													activePlaceholderIndex={
-														info?.activePlaceholderIndex
-													}
-													chatboxPlaceholders={chatboxPlaceholders}
-												/>
-											)}
-										</div>
-										{startPage &&
-											(info?.chatQuery?.trim()?.length > 0 || isPublicChat ? (
-												<div
-													className={`click-btn ${
-														startPage ? 'startPage' : ''
-													}`}
-													onClick={(e) => handleSendBtnClick(e)}
-													style={{
-														backgroundColor: 'var(--primary-button)',
-													}}
-												>
-													<ArrowUp />
-												</div>
-											) : (
-												<div style={{ display: 'flex', gap: '8px' }}>
-													<div
-														className={`click-btn speech-to-text-btn ${
-															startPage ? 'startPage' : ''
-														} ${isTranscribing ? 'transcribing' : ''}`}
-														onClick={(e) => handleMicIconClick(e)}
-														style={{
-															backgroundColor: isTranscribing
-																? 'var(--error-color)'
-																: 'var(--secondary-button)',
-														}}
-														title={
-															isTranscribing
-																? 'Stop Recording'
-																: 'Start Speech-to-Text'
-														}
-													>
-														{isTranscribing ? (
-															<StopIconSvg />
-														) : (
-															<SpeechMicSvg />
-														)}
-													</div>
-												</div>
-											))}
+										))}
 									</div>
-									{!startPage && (
-										<div className="chatInputParentContainer__options-container">
-											{info?.showFilters ? (
-												<div className="filters-parent-container">
-													<div
-														className="close-filters"
-														onClick={handleHideFiltersClick}
-													>
-														<ChevronSvg />
-													</div>
-													<div className="filters-wrapper">
-														<div className="filters-container">
-															{/* <SearchDropdown
-															headerTitle="Integrations"
-															selectedOptions={
-																info?.chatFilters?.integrations
-															}
-															isDropdownOpen={
-																info?.isIntegrationsDropdownOpen
-															}
-															setIsDropdownOpen={(value) =>
-																setInfo((prev) => ({
-																	...prev,
-																	isIntegrationsDropdownOpen:
-																		value,
-																}))
-															}
-															options={integrationsOptions}
-															handleOptionClick={
-																handleIntegrationsOptionClick
-															}
-														/> */}
-															<SearchDropdown
-																headerTitle="Modules"
-																selectedOptions={
-																	info?.chatFilters?.modules
-																}
-																isDropdownOpen={
-																	info?.isModulesDropdownOpen
-																}
-																setIsDropdownOpen={(value) =>
-																	setInfo((prev) => ({
-																		...prev,
-																		isModulesDropdownOpen:
-																			value,
-																	}))
-																}
-																options={modulesOptions}
-																handleOptionClick={
-																	handleModulesOptionClick
-																}
-															/>
-															<DateRangeDropdown
-																onOptionClick={(value) => {
-																	setInfo((prev) => ({
-																		...prev,
-																		chatFilters: {
-																			...prev?.chatFilters,
-																			dateRange: value,
-																		},
-																	}));
-																}}
-																startDate={
-																	info?.chatFilters
-																		?.dateRange?.[0]
-																}
-																endDate={
-																	info?.chatFilters
-																		?.dateRange?.[1]
-																}
-															/>
-														</div>
-														<div
-															className="reset-filters"
-															onClick={handleResetFiltersClick}
-														>
-															<CloseSvg />
-														</div>
-													</div>
-												</div>
-											) : (
-												<div className="buttons-container">
-													<div className="chat-icons-container">
-														{!isPublicChat && showBottomTools && (
-															<UploadFileTooltip
-																fileTypeIcons={fileTypeIcons}
-																handleChange={
-																	handleFileAttachmentChange
-																}
-																isUploadFileOpen={
-																	info?.isUploadFileOpen
-																}
-																setIsUploadFileOpen={(value) => {
-																	if (
-																		info?.chatBoxInfo
-																			?.deepResearch
-																	)
-																		return;
-																	setInfo((prev) => ({
-																		...prev,
-																		isUploadFileOpen: value,
-																	}));
-																}}
-																handleRecentFileClick={
-																	handleRecentFileClick
-																}
-																recentFiles={
-																	recentFilesRef.current || []
-																}
-															>
-																<Tooltip
-																	title={
-																		<div className="chatbox-icon-tooltip-container upload-file-tooltip-btn-container">
-																			<PlusSvg
-																				width={20}
-																				height={20}
-																			/>
-																			Upload File
-																		</div>
-																	}
-																	color="transparent"
-																	arrow={false}
-																	rootClassName="chatbox-tooltip"
-																>
-																	<div
-																		className="upload-file-icon-container"
-																		style={{
-																			opacity: '1',
-																		}}
-																	>
-																		<PlusSvg
-																			width={20}
-																			height={20}
-																		/>
-																	</div>
-																</Tooltip>
-															</UploadFileTooltip>
-														)}
+								)}
+							</div>
+						)}
+					</div>
+				)}
 
-														<div className="combined-chat-options">
+				<div className="chatInputParentContainer">
+					<div className="buttons-left-container">
+						<RecentFileTooltip
+							fileTypeIcons={fileTypeIcons}
+							handleRecentFileClick={handleRecentFileClick}
+							recentFiles={recentFilesRef.current || []}
+							isRecentFileOpen={info?.isRecentFileOpen}
+							setIsRecentFileOpen={(value) => {
+								setInfo((prev) => ({
+									...prev,
+									isRecentFileOpen: value,
+								}));
+							}}
+						>
+							{/* <div className="recent-file-wrapper" /> */}
+							<div className="bulb-icon-container">
+								<BulbSvg />
+							</div>
+						</RecentFileTooltip>
+					</div>
+					<div className="chat-input-container">
+						<div
+							className="textAreaWrapper"
+							//  ref={textAreaWrapperRef}
+						>
+							<div
+								className="suggestion-container"
+								ref={suggestionRef}
+								style={{
+									display:
+										info?.showSuggestion && info?.chatQuery?.length > 0
+											? 'block'
+											: 'none',
+								}}
+							>
+								{info?.suggestion}
+							</div>
+							<div className="textarea-container">
+								<textarea
+									type="text"
+									value={info?.chatQuery}
+									onChange={handleTextAreaChange}
+									autoFocus={autoFocus}
+									onKeyDown={handleTextAreaKeyDown}
+									onFocus={handleTextAreaFocus}
+									className={`textArea ${isTranscribing ? 'transcribing' : ''}`}
+									rows={1}
+									ref={textAreaRef}
+									onPaste={handleTextAreaPaste}
+									placeholder={
+										isTranscribing
+											? 'Listening... Speak now'
+											: !animatePlaceholder
+											? placeholder
+											: ''
+									}
+								/>
+
+								{/* {isTranscribing && (
+									<div className="transcription-indicator">
+										<canvas
+											ref={canvasRef}
+											className="audio-visualizer"
+											width="200"
+											height="50"
+										/>
+									</div>
+								)} */}
+							</div>
+						</div>
+					</div>
+
+					<div className="buttons-right-container">
+						{/* Separate Speech-to-Text Button */}
+						<div
+							className={`click-btn speech-to-text-btn ${
+								isTranscribing ? 'transcribing' : ''
+							}`}
+							onClick={(e) => {
+								e.stopPropagation();
+								handleMicIconClick(e);
+							}}
+							style={{
+								backgroundColor: isTranscribing ? 'var(--error-color)' : 'none',
+							}}
+							title={isTranscribing ? 'Stop Recording' : 'Start Speech-to-Text'}
+						>
+							{isTranscribing ? (
+								<StopIconSvg className="voice-icon" />
+							) : (
+								<SpeechMicSvg className="voice-icon" />
+							)}
+						</div>
+						<div
+							className={`click-btn voice-agent-btn ${
+								info?.chatQuery?.trim()?.length > 0 ? 'active' : ''
+							}`}
+							onClick={(e) => {
+								e.stopPropagation();
+								if (info?.chatQuery?.trim()?.length > 0) {
+									handleSendBtnClick(e);
+								} else {
+									if (info?.voiceIntegration) return;
+									handleVoiceAgentClick(e);
+								}
+							}}
+						>
+							{info?.chatQuery?.trim()?.length > 0 ? (
+								<ArrowUp className="voice-wave-icon" width={16} height={16} />
+							) : (
+								<VoiceAgentSvg className="voice-wave-icon" width={18} height={18} />
+							)}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div className="chat-payload-info">
+				<div className="left-container">
+					{!isPublicChat && showBottomTools && (
+						<Upload
+							onChange={handleFileAttachmentChange}
+							showUploadList={false}
+							beforeUpload={() => false} // Prevent default upload behavior
+							maxCount={1} // Allow only one file at a time
+							// accept="image/*" // Accept only images
+							accept=".pdf,.docx,.txt,.md,.json,.png,.jpg,.jpeg,.csv,.xlsx,.xls"
+						>
+							<button className="upload-file-btn-container">
+								<UploadSvg />
+								<span className="btn-text">Upload file</span>
+							</button>
+						</Upload>
+					)}
+
+					{!isPublicChat && showBottomTools && (
+						<button
+							className={`deep-search-btn-container ${
+								info?.chatBoxInfo?.deepSearch ? 'active' : ''
+							} `}
+							onClick={handleDeepSearchClick}
+						>
+							<AtomSvg width={16} height={16} />
+							<div className="btn-text">Deep Search</div>
+						</button>
+					)}
+
+					{isBuildEnbled &&
+						!isPublicChat &&
+						showBottomTools &&
+						workspaceMode !== 'stable' && (
+							<BuildTooltip>
+								<button className="create-btn-container">
+									<PlusSvg width={16} height={16} />
+									<div className="btn-text">Create</div>
+								</button>
+							</BuildTooltip>
+						)}
+				</div>
+
+				<div className="right-container"></div>
+			</div>
+
+			{previewImage && (
+				<Image
+					wrapperStyle={{
+						display: 'none',
+					}}
+					rootClassName="preview-image-container"
+					preview={{
+						visible: previewOpen,
+						onVisibleChange: (visible) => setPreviewOpen(visible),
+						afterOpenChange: (visible) => !visible && setPreviewImage(''),
+					}}
+					src={previewImage}
+				/>
+			)}
+
+			<AddOnCards
+				isOpen={info?.openUpgradeModal}
+				closeModal={handleCloseUpgrageModal}
+				subscriptionState="addOnPlans"
+			/>
+		</div>
+	);
+};
+
+export default memo(ChatBox);
+
+{
+	/* <div className="chat-icons-container">
+							{!isPublicChat && showBottomTools && (
+								<UploadFileTooltip
+									fileTypeIcons={fileTypeIcons}
+									handleChange={handleFileAttachmentChange}
+									isUploadFileOpen={info?.isUploadFileOpen}
+									setIsUploadFileOpen={(value) => {
+										if (info?.chatBoxInfo?.deepResearch) return;
+										setInfo((prev) => ({
+											...prev,
+											isUploadFileOpen: value,
+										}));
+									}}
+									handleRecentFileClick={handleRecentFileClick}
+									recentFiles={recentFilesRef.current || []}
+								>
+									<Tooltip
+										title={
+											<div className="chatbox-icon-tooltip-container upload-file-tooltip-btn-container">
+												<PlusSvg width={20} height={20} />
+												Upload File
+											</div>
+										}
+										color="transparent"
+										arrow={false}
+										rootClassName="chatbox-tooltip"
+									>
+										<div
+											className="upload-file-icon-container"
+											style={{
+												opacity: '1',
+											}}
+										>
+											<PlusSvg width={20} height={20} />
+										</div>
+									</Tooltip>
+								</UploadFileTooltip>
+							)}
+						</div> */
+}
+
+{
+	/* <div className="combined-chat-options">
 															{!isPublicChat && showBottomTools && (
 																<Tooltip
 																	title={
@@ -2074,594 +2171,9 @@ const ChatBox = ({
 																					</div>
 																				</AskTooltip>
 																			</div>
-
-																			{/* <div className="icon-arrow">
-																				<ArrowDownSvg
-																					fill={
-																						chatInfo?.ask
-																							? 'var(--primary-button)'
-																							: 'var(--primary-font)'
-																					}
-																				/>
-																			</div> */}
 																		</div>
 																	</div>
 																</Tooltip>
 															)}
-
-															{!isPublicChat && showBottomTools && (
-																<Tooltip
-																	title={
-																		<div className="chatbox-icon-tooltip-container deep-search-tooltip-container">
-																			<AtomSvg />
-																			Deep Search
-																		</div>
-																	}
-																	color="transparent"
-																	arrow={false}
-																	rootClassName="chatbox-tooltip"
-																>
-																	<div
-																		className={`chat-box-icon-container ${
-																			info?.chatBoxInfo
-																				?.deepSearch
-																				? 'active'
-																				: ''
-																		}`}
-																		onClick={
-																			handleDeepSearchClick
-																		}
-																	>
-																		<div className="chat-icon">
-																			<div className="text-wrapper goals-text-wrapper">
-																				<div
-																					className="trend-icon"
-																					style={{
-																						height: '20px',
-																					}}
-																				>
-																					<AtomSvg />
-																				</div>
-
-																				<div
-																					className="icon-text"
-																					style={{
-																						color: 'var(--primary-font)',
-																					}}
-																				>
-																					Deep Search
-																				</div>
-																			</div>
-																		</div>
-																	</div>
-																</Tooltip>
-															)}
-
-															{/* {!isPublicChat && (
-																// <SearchTypeTooltip
-																// 	isOpen={
-																// 		info?.searchTypeOpenForReason
-																// 	}
-																// 	searchType={chatInfo?.reason}
-																// 	onSearchTypeChange={
-																// 		handleSearchTypeChangeForReason
-																// 	}
-																// 	onOpenChange={(value) => {
-																// 		setInfo((prev) => ({
-																// 			...prev,
-																// 			searchTypeOpenForReason:
-																// 				value,
-																// 		}));
-																// 	}}
-																// 	searchTypeOptions={
-																// 		searchTypeOptionsForReason
-																// 	}
-																// >
-																<Tooltip
-																	title={
-																		<div className="chatbox-icon-tooltip-container research-tooltip-container">
-																			<AtomSvg />
-																			<span>Research</span>
-																			Unlock in-depth
-																			reasoning on any subject
-																		</div>
-																	}
-																	color="transparent"
-																	arrow={false}
-																	rootClassName="chatbox-tooltip"
-																>
-																	<div
-																		className={`chat-box-icon-container ${
-																			info?.chatBoxInfo
-																				?.deepResearch
-																				? 'active'
-																				: ''
-																		}`}
-																		onClick={
-																			handleDeepResearchClick
-																		}
-																	>
-																		<div className="chat-icon">
-																			<div className="text-wrapper deep-research-text-wrapper">
-																				<AtomSvg />
-
-																				<div className="icon-text">
-																					Research
-																				</div>
-																			</div>
-																		</div>
-																	</div>
-																</Tooltip>
-																// </SearchTypeTooltip>
-															)} */}
-
-															{!isPublicChat && showBottomTools && (
-																<Tooltip
-																	title={
-																		<div className="chatbox-icon-tooltip-container goals-tooltip-container">
-																			<TrendUpSvg />
-																			Goals
-																		</div>
-																	}
-																	color="transparent"
-																	arrow={false}
-																	rootClassName="chatbox-tooltip"
-																>
-																	<div
-																		className={`chat-box-icon-container ${
-																			info?.chatBoxInfo?.goals
-																				? 'active'
-																				: ''
-																		}`}
-																		onClick={handleGoalsClick}
-																	>
-																		<div className="chat-icon">
-																			<div className="text-wrapper goals-text-wrapper">
-																				<div
-																					className="trend-icon"
-																					style={{
-																						height: '20px',
-																					}}
-																				>
-																					<TrendUpSvg
-																						style={{
-																							width: '20px',
-																							height: '20px',
-																						}}
-																					/>
-																				</div>
-
-																				<div
-																					className="icon-text"
-																					style={{
-																						color: 'var(--primary-font)',
-																					}}
-																				>
-																					Goals
-																				</div>
-																			</div>
-																		</div>
-																	</div>
-																</Tooltip>
-															)}
-
-															{isBuildEnbled &&
-																!isPublicChat &&
-																showBottomTools &&
-																workspaceMode !== 'stable' && (
-																	<Tooltip
-																		title={
-																			<div className="chatbox-icon-tooltip-container  build-icon-tooltip-container">
-																				<SparkSvg />
-																				Build
-																			</div>
-																		}
-																		color="transparent"
-																		arrow={false}
-																		rootClassName="chatbox-tooltip"
-																	>
-																		<div
-																			className={`chat-box-icon-container ${
-																				info?.chatBoxInfo
-																					?.build
-																					? 'active'
-																					: ''
-																			}`}
-																			onClick={
-																				handleBuildClick
-																			}
-																		>
-																			<div className="chat-icon">
-																				<div className="text-wrapper  build-text-wrapper">
-																					<div
-																						className="build-icon"
-																						style={{
-																							height: '20px',
-																						}}
-																					>
-																						<SparkSvg />
-																					</div>
-																					<div
-																						className="icon-text"
-																						style={{
-																							color: 'var(	',
-																						}}
-																					>
-																						Build
-																					</div>
-																					<BuildTooltip>
-																						<div
-																							className={`icon-arrow-wrapper ${
-																								info
-																									?.chatBoxInfo
-																									?.build
-																									? 'icon-arrow-wrapper-active'
-																									: ''
-																							}`}
-																							onClick={(
-																								e,
-																							) =>
-																								e?.stopPropagation()
-																							}
-																						>
-																							<div className="icon-arrow">
-																								<ArrowDownSvg fill="var(--primary-font)" />
-																							</div>
-																						</div>
-																					</BuildTooltip>
-																				</div>
-																				{isTranscribing && (
-																					<div className="transcription-indicator">
-																						<canvas
-																							ref={
-																								canvasRef
-																							}
-																							className="audio-visualizer"
-																							width="200"
-																							height="50"
-																						/>
-																					</div>
-																				)}
-																			</div>
-																		</div>
-																	</Tooltip>
-																)}
-														</div>
-
-														{/* <Tooltip title={'Add Filters'}>
-														<div
-															className="icon-container"
-															onClick={handleShowFiltersClick}
-															style={{
-																opacity: `${
-																	chatInfo?.deepResearch
-																		? '0.5'
-																		: '1'
-																}`,
-															}}
-														>
-															<div className="icon">
-																<Filter />
-															</div>
-														</div>
-													</Tooltip> */}
-
-														{/* {!(
-														chatInfo?.deepResearch ||
-														chatInfo?.webSearch ||
-														chatInfo?.workspaceSearch
-													) && (
-														<LLMTooltip
-															selectedModel={
-																chatInfo?.selectedLLMModel
-															}
-															handleOptionClick={
-										 						handleLLMModelOptionClick
-															}
-															setIsLLMModelOpen={(value) => {
-																if (
-																	chatInfo?.deepResearch ||
-																	chatInfo?.webSearch ||
-																	chatInfo?.workspaceSearch ||
-																	uploadedImagesRef?.current
-																		?.length ||
-																	recentFilesRef?.current?.length
-																)
-																	return;
-																setInfo((prev) => ({
-																	...prev,
-																	isLLMModelOpen: value,
-																}));
-															}}
-															isOpen={info?.isLLMModelOpen}
-														>
-															<Tooltip title="Select LLM Model">
-																<div
-																	className="chat-box-icon-container"
-																	style={{
-																		opacity: `${
-																			chatInfo?.deepResearch ||
-																			chatInfo?.webSearch ||
-																			chatInfo?.workspaceSearch ||
-																			uploadedImagesRef
-																				?.current?.length ||
-																			recentFilesRef?.current
-																				?.length
-																				? '0.5'
-																				: '1'
-																		}`,
-																	}}
-																>
-																	<div className="icon">
-																		<LLMSvg />
-																	</div>
-																</div>
-															</Tooltip>
-														</LLMTooltip>
-													)} */}
-													</div>
-
-													<div className="right-container">
-														{/* {chatInfo?.agentType !== 'knowledge_agent' &&
-														!isPublicChat && (
-															<div className="agent-container">
-																<div
-																	className={`agent ${
-																		chatInfo?.agentType ===
-																		'multi_agent'
-																			? 'active'
-																			: ''
-																	}`}
-																	onClick={() =>
-																		handleAgentClick(
-																			'multi_agent',
-																		)
-																	}
-																>
-																	Generalist
-																</div>
-																<div
-																	className={`agent ${
-																		chatInfo?.agentType ===
-																		'search_agent'
-																			? 'active'
-																			: ''
-																	}`}
-																	onClick={() =>
-																		handleAgentClick(
-																			'search_agent',
-																		)
-																	}
-																>
-																	Thinker
-																</div>
-															</div>
-														)} */}
-
-														{/* {info?.chatQuery?.trim()?.length > 0 ||
-														isPublicChat ? (
-															<div
-																className="click-btn"
-																onClick={(e) => {
-																	e.stopPropagation();
-																	handleSendBtnClick(e);
-																}}
-																style={{
-																	backgroundColor:
-																		'var(--primary-button)',
-																}}
-															>
-																<ArrowUp />
-															</div>
-														) : (
-															<div
-																className="click-btn "
-																onClick={(e) => {
-																	e.stopPropagation();
-																	handleMicIconClick(e);
-																}}
-																style={{
-																	backgroundColor:
-																		'var(--primary-button)',
-																}}
-															>
-																<AudioSvg />
-															</div>
-														)}  */}
-														{/* Separate Speech-to-Text Button */}
-														<div
-															className={`click-btn speech-to-text-btn ${
-																isTranscribing ? 'transcribing' : ''
-															}`}
-															onClick={(e) => {
-																e.stopPropagation();
-																handleMicIconClick(e);
-															}}
-															style={{
-																backgroundColor: isTranscribing
-																	? 'var(--error-color)'
-																	: 'none',
-																marginLeft: '8px',
-															}}
-															title={
-																isTranscribing
-																	? 'Stop Recording'
-																	: 'Start Speech-to-Text'
-															}
-														>
-															{isTranscribing ? (
-																<StopIconSvg />
-															) : (
-																<SpeechMicSvg />
-															)}
-														</div>
-														<div
-															className={`click-btn ${
-																info?.chatQuery?.trim()?.length > 0
-																	? 'active'
-																	: ''
-															}`}
-															onClick={(e) => {
-																e.stopPropagation();
-																if (
-																	info?.chatQuery?.trim()
-																		?.length > 0
-																) {
-																	handleSendBtnClick(e);
-																} else {
-																	handleVoiceAgentClick(e);
-																}
-															}}
-															style={{
-																backgroundColor:
-																	'var(--primary-button)',
-															}}
-														>
-															{info?.chatQuery?.trim()?.length > 0 ? (
-																<ArrowUp />
-															) : (
-																<VoiceAgentSvg />
-															)}
-														</div>
-													</div>
-												</div>
-											)}
-										</div>
-									)}
-								</div>
-							</div>
-						</div>
-						{previewImage && (
-							<Image
-								wrapperStyle={{
-									display: 'none',
-								}}
-								rootClassName="preview-image-container"
-								preview={{
-									visible: previewOpen,
-									onVisibleChange: (visible) => setPreviewOpen(visible),
-									afterOpenChange: (visible) => !visible && setPreviewImage(''),
-								}}
-								src={previewImage}
-							/>
-						)}
-					</div>
-				</div>
-				{/* )} */}
-			</div>
-			<div className="chatbarContainer" style={{ width: '100%' }}>
-				{showScrollButton && (
-					<div className="scroll-btn-wrapper">
-						<button className="scroll-button" onClick={handleScrollButtonClick}>
-							<ArrowUpRightSvg className="arrow-up" />
-						</button>
-					</div>
-				)}
-				{uploadedImagesRef?.current?.length > 0 ? (
-					<div className="imagePreviewBar">
-						{uploadedImagesRef?.current?.map((ele, index) => (
-							<div className="previewOfUploadedImage" key={index}>
-								<img
-									src={ele?.preview}
-									alt="uploaded"
-									width={'100%'}
-									height={'100%'}
-									style={{
-										objectFit: 'cover',
-										borderRadius: '12px',
-									}}
-									onClick={() => handlePreview(ele)}
-								/>
-
-								{ele?.loading ? (
-									<div className="spinContainerLoaderForPreview">
-										<Spin />
-									</div>
-								) : (
-									<span
-										className="removeImageIcon"
-										onClick={() => handleRemoveImage(ele)}
-									>
-										<Close
-											style={{
-												width: '10px',
-												height: '10px',
-											}}
-										/>
-									</span>
-								)}
-							</div>
-						))}
-					</div>
-				) : (
-					''
-				)}
-				{recentFilesRef?.current?.length > 0 && (
-					<div className="recent-files-container">
-						{recentFilesRef?.current?.map((file) => (
-							<div className="recent-file" key={file?._id}>
-								<div className="file-type-icon">
-									{fileTypeIcons?.[file?.sourceType]}
-								</div>
-								<div className="recent-file-name">
-									<div className="file-title">
-										{file?.originalFileName || file?.title || ''}
-									</div>
-
-									{file?.loading && <Spin />}
-								</div>
-								<div
-									className="close-icon-container"
-									onClick={() => handleRemoveFileFromRecentFileClick(file)}
-								>
-									<CloseSvg />
-								</div>
-							</div>
-						))}
-					</div>
-				)}
-				{showUpgradeSubscriptionBtn && totalCreditsUsed >= totalCreditsLimit && (
-					<div className="credits-upgrade-container">
-						<div className="left-container">
-							<div className="title-container">
-								<img src={CreditCoinImage} className="coin-icon" alt="coin" />
-
-								<div className="title-text-container">
-									You don't have enough credits to continue.
-								</div>
-							</div>
-							<div className="description-container">
-								Please consider purchasing additional credits to unlock more
-								features and enhance your experience. If you need assistance, feel
-								free to reach out to our support team!
-							</div>
-						</div>
-						<div className="right-container">
-							<div className="upgrade-button" onClick={handleUpgradeClick}>
-								Upgrade
-							</div>
-						</div>
-					</div>
-				)}
-
-				{chatReplyData && (
-					<div className="chat-reply-data">
-						<div className="reply-icon"></div>
-						<div className="reply-text">{`"${chatReplyData}"`}</div>
-						<div className="reply-close-icon" onClick={handleReplyCloseClick}>
-							<CloseSvg width={16} height={16} />
-						</div>
-					</div>
-				)}
-			</div>
-			<AddOnCards
-				isOpen={info?.openUpgradeModal}
-				closeModal={handleCloseUpgrageModal}
-				subscriptionState="addOnPlans"
-			/>
-			{info?.showVoiceAgent && <VoiceAgentParent />}
-		</div>
-	);
-};
-
-export default memo(ChatBox);
+														</div> */
+}

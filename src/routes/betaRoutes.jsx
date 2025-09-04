@@ -65,6 +65,7 @@ const GalleryViewer = lazy(() => import('../views/features/gallery/GalleryViewer
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
+import publicRoutes from './publicRoutes';
 const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
 const ProactiveSuggestions = lazy(() =>
 	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
@@ -273,6 +274,7 @@ const betaRoutes = [
 						showDeleteChat={true}
 						showChats={true}
 						showCitationsButton={true}
+						showBrowser={true}
 					/>
 				</AuthWrapper>
 			</Suspense>
@@ -493,7 +495,7 @@ const betaRoutes = [
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper
 					title={'Calendar'}
-					outerContainerStyle={{ overflow: 'hidden', padding: '0 32px 0 0 ' }}
+					outerContainerStyle={{ overflow: 'hidden' }}
 					childrenContainerStyles={{ maxWidth: '100%' }}
 				>
 					<CalendarModule />
@@ -714,6 +716,10 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
+	// ========================================
+	// PUBLIC ROUTES
+	// ========================================
+	...publicRoutes,
 ];
 
 export default betaRoutes;

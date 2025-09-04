@@ -1,7 +1,6 @@
 import { memo, useState, useEffect, useRef, useContext, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../../../assets/scss/login_page/verification_code.scss';
-// import { ReactComponent as LeftArrowBackBtn } from '../../../assets/svg/login_page/left-arrow-back-btn.svg';
 import { message } from '../globalComponents/CustomToast';
 import { getLocationsDetails } from '../../../helpers';
 import Context from '../../../context/context';
@@ -33,17 +32,41 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 		resendTimer: 60,
 		resendTimerInterval: null,
 		locationDetails: null,
+		failedAttempts: 0, // Track failed attempts
+		blockUntil: null, // Timestamp when block ends
 	});
+
 	const [otpArray, setOtpArray] = useState(Array(4).fill(''));
 	const otpContainerRef = useRef(null);
 
+	// Restore block state from localStorage on mount
 	useEffect(() => {
+		const savedBlock = localStorage.getItem('otpBlock');
+		const now = Date.now();
+
+		if (savedBlock) {
+			const { email: blockedEmail, blockUntil } = JSON.parse(savedBlock);
+			if (blockedEmail === email && now < blockUntil) {
+				setInfo((prev) => ({
+					...prev,
+					failedAttempts: 3,
+					blockUntil,
+					otpError: `Too many failed attempts. Try again in ${Math.ceil(
+						(blockUntil - now) / 60000,
+					)} minute(s).`,
+				}));
+			} else if (now >= blockUntil) {
+				// Block expired, clean up
+				localStorage.removeItem('otpBlock');
+			}
+		}
+
 		handleLocationDetailsData();
 
 		return () => {
 			clearInterval(info?.resendTimerInterval);
 		};
-	}, []);
+	}, [email, info?.resendTimerInterval]);
 
 	useEffect(() => {
 		if (info?.otp?.length === 4) {
@@ -54,11 +77,45 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 	}, [info?.otp]);
 
 	const verifyCode = async (otp) => {
+		const now = Date.now();
+
+		// Check if user is currently blocked
+		if (info.blockUntil && now < info.blockUntil) {
+			const minutesLeft = Math.ceil((info.blockUntil - now) / 60000);
+			setInfo((prev) => ({
+				...prev,
+				otpError: `Too many failed attempts. Try again in ${minutesLeft} minute${
+					minutesLeft > 1 ? 's' : ''
+				}.`,
+			}));
+			setOtpArray(Array(4).fill(''));
+			return;
+		}
+
 		if (info?.isLoading) return;
+
 		setInfo((prev) => ({ ...prev, isLoading: true }));
+
 		const response = await verifyEmailVerificationCode(email, otp, emailVerified);
 
 		if (response[0] === true) {
+			// ✅ Success: Reset failed attempts and block
+			setInfo((prev) => ({
+				...prev,
+				failedAttempts: 0,
+				blockUntil: null,
+				otpError: '',
+				isLoading: false,
+			}));
+			setOtpArray(Array(4).fill(''));
+
+			// Clear block from localStorage if exists
+			const savedBlock = localStorage.getItem('otpBlock');
+			if (savedBlock && JSON.parse(savedBlock).email === email) {
+				localStorage.removeItem('otpBlock');
+			}
+
+			// Navigation logic
 			if (invitedWorkspaceId && invitedUserEmail) {
 				await getWorkSpaceInfo(invitedWorkspaceId);
 				navigate(
@@ -67,10 +124,6 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			} else if (emailVerified) {
 				if (response?.[1]?.hasWorkspaces) {
 					if (response?.[1]?.isOnboard) {
-						// let locationDetails = JSON.parse(localStorage?.getItem('locationDetails'));
-						// if (!locationDetails) {
-						// 	locationDetails = await getLocationsDetails();
-						// }
 						await getWorkSpaceInfo(response?.[1]?.workspaceId);
 						navigate('/home');
 					} else {
@@ -85,9 +138,33 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 				navigate('/onboarding');
 			}
 		} else {
-			setInfo((prev) => ({ ...prev, otpError: response?.[1]?.message }));
+			const newFailedAttempts = info.failedAttempts + 1;
+			const MAX_ATTEMPTS = 3;
+			let newBlockUntil = null;
+
+			if (newFailedAttempts >= MAX_ATTEMPTS) {
+				newBlockUntil = now + 60 * 60 * 1000; // 1 hour in milliseconds
+				const blockData = { email, blockUntil: newBlockUntil };
+				localStorage.setItem('otpBlock', JSON.stringify(blockData));
+
+				setInfo((prev) => ({
+					...prev,
+					failedAttempts: newFailedAttempts,
+					blockUntil: newBlockUntil,
+					otpError: 'Too many failed attempts. Try again in 1 hour.',
+					isLoading: false,
+				}));
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					failedAttempts: newFailedAttempts,
+					otpError: `Invalid code. ${MAX_ATTEMPTS - newFailedAttempts} attempt(s) left.`,
+					isLoading: false,
+				}));
+			}
+
+			// setOtpArray(Array(4).fill('')); // Clear OTP input after failure
 		}
-		setInfo((prev) => ({ ...prev, isLoading: false }));
 	};
 
 	const handleCreateAccountWithEmail = async (email) => {
@@ -103,27 +180,44 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 	};
 
 	const handleResendCode = async () => {
+		const now = Date.now();
+
+		// Prevent resend if blocked
+		if (info.blockUntil && now < info.blockUntil) {
+			const minutesLeft = Math.ceil((info.blockUntil - now) / 60000);
+			message?.error(`Too many failed attempts. Cannot resend for ${minutesLeft} minutes.`);
+			return;
+		}
+
+		if (!info?.canResend || info?.isLoading) return;
+
+		setInfo((prev) => ({
+			...prev,
+			isLoading: true,
+			canResend: false,
+			resendTimer: 60,
+		}));
+
 		try {
-			if (!info?.canResend) return;
-			setInfo((prev) => ({ ...prev, isLoading: true, canResend: false, resendTimer: 60 }));
 			const response = await checkAccountExistsUsingEmail(email);
 			if (response[0] === true) {
 				message?.success('Code resent successfully! Check your email.');
 				setInfo((prev) => ({ ...prev, isLoading: false }));
+
 				if (response?.[1]?.accountExists) {
-					if (response?.[1]?.emailVerified) {
-						setEmailVerified(true);
-						setActiveStage('verificationCode');
-					} else {
-						setEmailVerified(false);
-						setActiveStage('verificationCode');
-					}
+					setEmailVerified(response?.[1]?.emailVerified);
+					setActiveStage('verificationCode');
 				} else {
 					await handleCreateAccountWithEmail(email);
 				}
 			} else {
 				message?.error(response?.[1]?.message);
 			}
+
+			// Reset failed attempts on resend (optional: improves UX)
+			setInfo((prev) => ({ ...prev, failedAttempts: 0, otpError: '' }));
+			localStorage.removeItem('otpBlock'); // Clear block if any
+
 			const interval = setInterval(() => {
 				setInfo((prev) => {
 					if (prev.resendTimer > 0) {
@@ -134,17 +228,21 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 					}
 				});
 			}, 1000);
+
 			setInfo((prev) => ({ ...prev, resendTimerInterval: interval }));
 		} catch (error) {
-			console.error('Failed to check email:', error.message);
+			console.error('Failed to resend code:', error.message);
+			message?.error('Failed to resend code. Please try again.');
+			setInfo((prev) => ({ ...prev, isLoading: false, canResend: true }));
 		}
 	};
 
 	const handleLocationDetailsData = useCallback(async () => {
-		let locationDetails;
-		locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
+		let locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
 		if (!locationDetails) {
 			locationDetails = await getLocationsDetails();
+			// Optionally save it
+			localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
 		}
 		setInfo((prev) => ({ ...prev, locationDetails }));
 	}, []);
@@ -157,9 +255,10 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 						We sent you a <span className="verification-code-title-span">code</span>
 					</h1>
 					<p className="verification-code-subtitle">
-						A 4-digit verification code has been sent to {email}.
+						A 4-digit verification code has been sent to <span>{email}</span>.
 					</p>
 				</div>
+
 				<div className="verification-code-input-container-wrapper">
 					<div className="verification-code-input-container" ref={otpContainerRef}>
 						<CustomOtp
@@ -167,8 +266,10 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 							setOtp={setOtpArray}
 							onComplete={(otpStr) => setInfo((prev) => ({ ...prev, otp: otpStr }))}
 							error={info?.otpError}
+							disabled={info.blockUntil && Date.now() < info.blockUntil}
 						/>
 					</div>
+
 					{info?.isLoading ? (
 						<Spinner width={'32px'} height={'32px'} cssstyle={{ padding: '4px' }} />
 					) : (
@@ -185,20 +286,20 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 									? `Resend code in ${info?.resendTimer} seconds`
 									: 'Resend code'}
 							</p>
+
 							<div
 								className="back-btn-container"
 								onClick={() => setActiveStage('email')}
 							>
-								<span>Change Email ?</span>
+								<span>Change Email?</span>
 							</div>
 						</>
 					)}
 				</div>
 			</div>
+
 			<div className="acknowledge-container">
-				<span className="acknowledge-text">
-					By continuing, you acknowledge that you understand and agree to the{' '}
-				</span>
+				<span className="acknowledge-text">By signing in, you agree to our </span>
 				<span
 					className="acknowledge-text-link"
 					onClick={() => window.open('/terms-of-service', '_blank')}

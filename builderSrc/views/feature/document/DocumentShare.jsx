@@ -526,10 +526,14 @@ const DocumentShare = ({
 			if (valueWithoutSpaces === smartFileInfo?.slug) {
 				return;
 			}
-			handleDebouceFunctionCall(checkSlugAvailability, valueWithoutSpaces);
+			// handleDebouceFunctionCall(checkSlugAvailability, valueWithoutSpaces);
+			// checkSlugAvailability(valueWithoutSpaces);
 		},
-		[smartFileInfo?.slug, handleDebouceFunctionCall, checkSlugAvailability],
+		[smartFileInfo?.slug],
 	);
+	const handleSaveSlug = useCallback(() => {
+		checkSlugAvailability(info.slugHolder);
+	}, [info.slugHolder, checkSlugAvailability]);
 
 	const toggleEditSlug = () => {
 		setInfo((prev) => ({ ...prev, editSlug: !prev.editSlug }));
@@ -656,36 +660,51 @@ const DocumentShare = ({
 										? tennantSettingsData?.customDomain
 										: info.workspaceId
 								}.ve.ai/portal/`}
-								<input
-									type="text"
-									className="editableSlugInput"
-									value={info.slugHolder}
-									ref={inputRef}
-									onChange={slugOnChange}
-									disabled={!info.editSlug}
-									onClick={toggleEditSlug}
-									size={Math.max(info.slugHolder.length, 1)}
-								/>
+								<span className="editableSlugInputContainer">
+									<input
+										type="text"
+										className="editableSlugInput"
+										value={info.slugHolder}
+										ref={inputRef}
+										onChange={slugOnChange}
+										disabled={!info.editSlug}
+										// onClick={toggleEditSlug}
+										size={Math.max(info.slugHolder.length, 1)}
+									/>
+								</span>
 							</span>
 							{info.slugErrorMessage && (
 								<div className="slugErrorHandler">{info.slugErrorMessage}</div>
 							)}
 						</div>
 					</div>
-					<div className="action-section">
-						<EditIcon className="edit-icon" onClick={toggleEditSlug} />
-						{/* <CopyIcon className="copy-icon" onClick={handleCopy} /> */}
-						{/* <Button
+					<div>
+						{info.editSlug ? (
+							<div className="action-section">
+								<span onClick={handleSaveSlug} className="save-button">
+									Save
+								</span>
+								<span onClick={toggleEditSlug} className="discard-button">
+									Discard
+								</span>
+							</div>
+						) : (
+							<div className="action-section">
+								<EditIcon className="edit-icon" onClick={toggleEditSlug} />
+								{/* <CopyIcon className="copy-icon" onClick={handleCopy} /> */}
+								{/* <Button
 							size="small"
 							onClick={handleOpenEmailModal}
 							style={{ marginLeft: 8 }}
-						>
+							>
 							Send via Email
-						</Button> */}
-						<div className="live-status">
-							<ShareDotIcon className="share-dot-icon" />
-							<span className="live-text">Live</span>
-						</div>
+							</Button> */}
+								<div className="live-status">
+									<ShareDotIcon className="share-dot-icon" />
+									<span className="live-text">Live</span>
+								</div>
+							</div>
+						)}
 					</div>
 				</div>
 				<div className="shared-with">

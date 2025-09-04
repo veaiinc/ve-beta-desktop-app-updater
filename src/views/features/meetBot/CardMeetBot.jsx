@@ -32,6 +32,7 @@ const CardMeetBot = () => {
 	const {
 		notes: { getExistingBots, createMeetBot, existingBots },
 		templates: { updateStateValues },
+		aiSetup: { proactiveHeadings, getProactiveHeadings },
 	} = useContext(Context);
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
@@ -40,11 +41,15 @@ const CardMeetBot = () => {
 		searchOpen: false,
 		cards: [],
 		guideMePopupOpen: false,
+		apiFetching: true,
 	});
 	const searchInputRef = useRef(null);
 
 	const meetings = useMemo(() => existingBots?.data || [], [existingBots?.data]);
 	const loadingMeetings = existingBots ? false : true;
+	const hasNextPage = existingBots?.hasNextPage || false;
+	const nextPage = existingBots?.nextPage || 1;
+	const totalDocs = existingBots?.totalDocs;
 
 	// Load existing bots when component mounts
 	useEffect(() => {
@@ -52,6 +57,12 @@ const CardMeetBot = () => {
 			getExistingBots({ page: 1, limit: 10, append: false });
 		}
 	}, []);
+
+	useEffect(() => {
+		if (existingBots) {
+			setInfo((prevInfo) => ({ ...prevInfo, apiFetching: false }));
+		}
+	}, [existingBots]);
 
 	// Carousel navigation handlers
 	const handleLeft = () => {
@@ -61,6 +72,12 @@ const CardMeetBot = () => {
 		}));
 	};
 	const handleRight = () => {
+		if (hasNextPage && info?.currentIndex > meetings?.length - 5) {
+			if (!info?.apiFetching) {
+				setInfo((prevInfo) => ({ ...prevInfo, apiFetching: true }));
+				getExistingBots({ page: nextPage, limit: 10, append: true });
+			}
+		}
 		setInfo((prev) => ({
 			...prev,
 			currentIndex: (prev.currentIndex + 1) % meetings.length,
@@ -126,6 +143,9 @@ const CardMeetBot = () => {
 			searchInputRef.current.focus();
 		}
 	}, [info.searchOpen]);
+	useEffect(() => {
+		getProactiveHeadings({ module: 'meeting' });
+	}, []);
 
 	// Search open/close toggle handler
 	const handleSearchToggle = () => {
@@ -197,7 +217,13 @@ const CardMeetBot = () => {
 					<div className={styles.cardMeetBot_left}>
 						<div className={styles.cardMeetBot_container}>
 							<div className={styles.cardMeetBot_title}>
-								<span className="title-highlight">Smart</span> Live Chat
+								{proactiveHeadings?.meeting_headlines ? (
+									proactiveHeadings?.meeting_headlines
+								) : (
+									<>
+										<span className="title-highlight">Smart</span> Meetings
+									</>
+								)}
 							</div>
 							<div
 								className={styles.cardMeetBot_cardsContainer}
@@ -389,9 +415,7 @@ const CardMeetBot = () => {
 											</button>
 											<div className="card-number">
 												<span>{info.currentIndex + 1}</span>/
-												<span className="total-docs">
-													{meetings.length}
-												</span>
+												<span className="total-docs">{totalDocs}</span>
 											</div>
 											<button
 												className={styles.cardMeetBot_cardChangeBtn}

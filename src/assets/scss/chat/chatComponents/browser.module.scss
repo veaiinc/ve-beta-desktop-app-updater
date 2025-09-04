@@ -1,0 +1,177 @@
+.browserContainer {
+	width: 50vw;
+	height: 100%;
+	background-color: var(--popup);
+	border-left: 1px solid var(--dividers);
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	box-sizing: border-box;
+	padding: 21px 36px 36px 36px;
+
+	.header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+
+		.title {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 20px;
+			font-style: normal;
+			font-weight: 600;
+			line-height: 32px;
+		}
+
+		.closeBtn {
+			width: 20px;
+			height: 20px;
+			cursor: pointer;
+		}
+	}
+
+	.body {
+		position: relative;
+		flex-grow: 1;
+		overflow: auto;
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		gap: 16px;
+		box-sizing: border-box;
+		border-radius: 16px;
+		background: var(--chat-button);
+		padding: 20px;
+
+		&.tookControl {
+			position: fixed;
+			bottom: 0;
+			right: 0;
+			width: 100%;
+			height: 100%;
+			z-index: 1500;
+			margin: 0;
+			padding: 0px;
+			background-color: var(--card-over-card-hover);
+			border-radius: 0;
+
+			.browserIframeContainer {
+				overflow-y: auto;
+				box-shadow: unset;
+				border-radius: 0;
+				.browserIframe {
+					height: 100%;
+					max-width: 1500px;
+				}
+			}
+
+			.takeControlBtn {
+				right: 50% !important;
+				transform: translateX(50%);
+				bottom: 16px !important;
+				box-shadow: 0px 8px 32px 0px rgba(0, 0, 0, 0.32);
+			}
+		}
+
+		.loader {
+			width: 100%;
+			height: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.tabsContainer {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 10px;
+			max-height: 93px;
+			overflow-y: auto;
+			flex-shrink: 0;
+
+			.tab {
+				padding: 6px 14px;
+				max-width: 200px;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				border-radius: 100px;
+				background: var(--primary-font);
+				cursor: pointer;
+				color: var(--background-color, #121212);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				border: 2px solid transparent;
+				height: 36px;
+
+				&.active {
+					border: 2px solid var(--primary-button);
+				}
+			}
+		}
+
+		.browserIframeContainer {
+			width: 100%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-grow: 1;
+			overflow: auto;
+			position: relative;
+			transition: all 0.3s ease;
+
+			.browserIframe {
+				width: 100%;
+				aspect-ratio: 5 / 4;
+				position: relative;
+				border: none;
+				box-shadow: 0px 4px 60px 0 rgba(0, 0, 0, 0.16);
+			}
+
+			.takeControlBtn {
+				position: absolute;
+				right: 0px;
+				bottom: 0px;
+				color: var(--background-color);
+				display: inline-flex;
+				padding: 6px 14px;
+				justify-content: center;
+				align-items: center;
+				gap: 8px;
+				border-radius: 100px;
+				background: var(--primary-font);
+				cursor: pointer;
+				transition: all 0.3s ease;
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 24px;
+				&:hover {
+					opacity: 0.9;
+				}
+			}
+		}
+	}
+}
+
+// @media (max-width: 1600px) {
+// 	.browserIframeContainer {
+// 		align-items: center !important;
+// 	}
+// }
+
+@media (max-width: 1250px) {
+	.browserContainer.open {
+		margin: 0px;
+		width: 100%;
+		height: 100%;
+		border-radius: 0px;
+		position: fixed;
+		top: 0;
+		left: 0;
+		z-index: 1000;
+	}
+}

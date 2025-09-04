@@ -8,7 +8,7 @@ import Context from '../../../context/context';
 import { message } from '../../components/globalComponents/CustomToast';
 import Spinner from '../../components/loaders/Spinner';
 import Skeleton from 'react-loading-skeleton';
-import pricingPlansData from '../../../data/pricingPlans.json';
+import { pricingPlansData } from '../../../helpers/pricingPlans.js';
 import { CONTACT_US_URL } from '../../../helpers/ConstantUrls';
 
 const PricingPage = () => {
@@ -426,7 +426,7 @@ const PricingPage = () => {
 										</div>
 									</div>
 
-									<div className="pricingFeatures">
+									{/* <div className="pricingFeatures">
 										{planFeatures.map((feature, index) => (
 											<div className="feature-item" key={index}>
 												<div className="feature-check">
@@ -435,7 +435,7 @@ const PricingPage = () => {
 												<span className="feature-text">{feature}</span>
 											</div>
 										))}
-									</div>
+									</div> */}
 
 									<div className="pricingButtonContainer">
 										{/* Quantity selector for seat-based plans */}

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 
 const Spinner = ({ width, height, color, cssstyle = {}, borderTopColor, borderWidth = 3 }) => {
 	const style = {

@@ -17,7 +17,7 @@
 
 	/* main colors */
 	--background-color: #121212; /* #0f0f10 */
-	--chat-background-color: #191a1a;
+	--chat-background-color: #19191a;
 
 	/* font colors */
 	--primary-font: rgb(242, 242, 243); /* #f2f2f3 */
@@ -75,7 +75,7 @@
 
 	--default-state-buttons: rgb(46, 47, 51); /* #2e2f33 */
 
-	--backdrop: rgba(15, 15, 16, 0.5); /* #0f0f10 */
+	--backdrop: rgba(15, 15, 16, 0.7); /* #0f0f10 */
 
 	// gradients
 	--linear-gradient: linear-gradient(
@@ -86,6 +86,7 @@
 	--image-backdrop: #2d2d2d;
 	// --chat-box-container-background
 	--chat-box: #202123;
+	--chat-button: #2e2f33;
 
 	--primary-dark: #0e2f2a;
 	--primary-dark-text: #79ecc9;
@@ -96,7 +97,7 @@
 [theme='light'] {
 	/* main colors */
 	--background-color: #ffffff; /* #fafafa */
-	--chat-background-color: var(--background-color);
+	--chat-background-color: #f4f5f5;
 
 	/* common colors */
 	--info: #5089f9; /* #5089f9 */
@@ -158,6 +159,7 @@
 	--image-backdrop: #808080;
 	// --chat-box-container-background
 	--chat-box: #ffffff;
+	--chat-button: #dfdfe2;
 
 	--primary-dark: #79ecc9;
 	--primary-dark-text: #123b35;

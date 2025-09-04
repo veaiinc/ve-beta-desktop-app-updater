@@ -1,0 +1,31 @@
+.browserTools {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	width: 100%;
+	.tool {
+		display: flex;
+		padding: 4px 12px;
+		align-items: center;
+		gap: 6px;
+		border-radius: 100px;
+		border: 1px solid var(--stroke, #2b2e31);
+		background: var(--card, #1b1c1d);
+		width: fit-content;
+
+		overflow: hidden;
+		opacity: 0.9;
+		color: var(--primary-font);
+		text-overflow: ellipsis;
+		font-family: var(--primary-font-family);
+		font-size: 13px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 18px;
+		letter-spacing: 0.2px;
+
+		span {
+			color: var(--secondary-font);
+		}
+	}
+}

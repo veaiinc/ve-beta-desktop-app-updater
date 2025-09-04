@@ -18,6 +18,44 @@
 		align-items: center;
 		justify-content: center;
 
+		.loader-container {
+			width: 100%;
+			height: 100%;
+			position: relative;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+
+			.skeleton-container {
+				position: absolute;
+				border-radius: 32px;
+				margin: 12px 30px 0 30px;
+				overflow: hidden;
+			}
+
+			.skeleton-1 {
+				top: 0px;
+				bottom: 93%;
+				width: 75%;
+				opacity: 1;
+			}
+
+			.skeleton-2 {
+				top: 7%;
+				bottom: 85%;
+				width: 88%;
+				opacity: 1;
+			}
+
+			.skeleton-3 {
+				top: 15%;
+				bottom: 0%;
+				width: 100%;
+				opacity: 1;
+			}
+		}
+
 		.new-ui-item {
 			position: absolute;
 			background-color: var(--card);
@@ -210,7 +248,7 @@
 							}
 						}
 
-						.chatParentWrapper {
+						.chatBoxParentWrapper {
 							position: relative;
 						}
 					}

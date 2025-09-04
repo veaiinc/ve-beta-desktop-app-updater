@@ -24,6 +24,7 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 	const selectedWorkspaceRef = useRef(null);
 	const channel = useBroadcastChannel();
 	const [info, setInfo] = useState(intialState);
+
 	const isMobileView = window.matchMedia('(max-width: 767px)').matches;
 
 	useEffect(() => {
@@ -42,49 +43,49 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 	}, [isOpen]);
 
 	const workspaceList = useMemo(() => {
-		const filteredList = userWorkSpaceList?.filter(({ businessName }) =>
+		const workspaces = userWorkSpaceList?.filter(({ businessName }) =>
 			businessName?.toLowerCase().includes(info?.searchWorkspace?.toLowerCase()),
 		);
-		if (!filteredList) return [];
-		const currentWorkspaceIndex = filteredList.findIndex(
+		if (!workspaces) return [];
+		const currentWorkspaceIndex = workspaces.findIndex(
 			({ activeWorkspaceId }) => activeWorkspaceId === currentWorkspaceId,
 		);
 		if (currentWorkspaceIndex > 0) {
-			const currentWorkspace = filteredList[currentWorkspaceIndex];
+			const currentWorkspace = workspaces[currentWorkspaceIndex];
 			const newList = [
 				currentWorkspace,
-				...filteredList.slice(0, currentWorkspaceIndex),
-				...filteredList.slice(currentWorkspaceIndex + 1),
+				...workspaces.slice(0, currentWorkspaceIndex),
+				...workspaces.slice(currentWorkspaceIndex + 1),
 			];
 			return newList;
 		}
 
-		return filteredList;
+		return workspaces;
 	}, [userWorkSpaceList, currentWorkspaceId, info?.searchWorkspace]);
+
 	const showWorkspaceSearch = userWorkSpaceList?.length > 3;
 
-	const currentWorkspaceMeta = useMemo(() => {
-		return userWorkSpaceList?.find(
-			({ activeWorkspaceId }) => activeWorkspaceId === currentWorkspaceId,
-		);
-	}, [userWorkSpaceList, currentWorkspaceId]);
+	// const currentWorkspaceMeta = useMemo(() => {
+	// 	return userWorkSpaceList?.find(
+	// 		({ activeWorkspaceId }) => activeWorkspaceId === currentWorkspaceId,
+	// 	);
+	// }, [userWorkSpaceList, currentWorkspaceId]);
 
-	const handleSwitchWorkspace = (activeWorkspaceId, region) => {
+	const handleSwitchWorkspace = (activeWorkspaceId, region, isOnboard) => {
 		if (activeWorkspaceId === currentWorkspaceId) {
 			closeWorkspaceModal();
 			return;
 		}
+
 		localStorage.setItem('workspaceId', activeWorkspaceId);
 		localStorage.setItem('region', region);
+		localStorage.setItem('isOnboard', isOnboard);
+
 		const host = fetchDomainName();
-		Cookies.set('workspaceId', activeWorkspaceId, {
-			sameSite: 'lax',
-			domain: host,
-		});
-		Cookies.set('region', region, {
-			sameSite: 'lax',
-			domain: host,
-		});
+		Cookies.set('workspaceId', activeWorkspaceId, { sameSite: 'lax', domain: host });
+		Cookies.set('region', region, { sameSite: 'lax', domain: host });
+		Cookies.set('isOnboard', isOnboard, { sameSite: 'lax', domain: host });
+
 		channel.postMessage('switchWorkspace');
 	};
 
@@ -107,6 +108,7 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 			handleSwitchWorkspace(
 				workspaceList[newIndex].activeWorkspaceId,
 				workspaceList[newIndex].region,
+				workspaceList[newIndex].isOnboard,
 			);
 		}
 
@@ -249,11 +251,20 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 				</button>
 				<div className={s.workspaceList}>
 					{workspaceList?.map(
-						({ activeWorkspaceId, businessName, logo_s3_500w_key, region }, index) => (
+						(
+							{
+								activeWorkspaceId,
+								businessName,
+								logo_s3_500w_key,
+								region,
+								isOnboard,
+							},
+							index,
+						) => (
 							<button
 								key={activeWorkspaceId}
 								onClick={() =>
-									handleSwitchWorkspace(activeWorkspaceId, region, businessName)
+									handleSwitchWorkspace(activeWorkspaceId, region, isOnboard)
 								}
 								className={`${s.workspaceItem} ${
 									activeWorkspaceId === currentWorkspaceId

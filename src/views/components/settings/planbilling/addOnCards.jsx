@@ -8,7 +8,7 @@ import ReactModal from '../../modalsV2';
 import { message } from '../../globalComponents/CustomToast';
 import SubscriptionChange from '../../modalsV2/subscription/SubscriptionChange';
 import '../../../../assets/scss/settings/planBilling.scss';
-import pricingPlansData from '../../../../../src/data/pricingPlans.json';
+import { pricingPlansData } from '../../../../helpers/pricingPlans';
 import { ReactComponent as CheckIcon } from '../../../../assets/svg/Settings/PricingCheck.svg';
 
 const customStyles = {
@@ -656,7 +656,7 @@ const AddOnPlans = ({
 												</>
 											)}
 										</div>
-										<div className="pricingFeatures">
+										{/* <div className="pricingFeatures">
 											{planFeatures.map((feature, index) => (
 												<div className="feature-item" key={index}>
 													<div className="feature-check">
@@ -665,7 +665,7 @@ const AddOnPlans = ({
 													<span className="feature-text">{feature}</span>
 												</div>
 											))}
-										</div>
+										</div> */}
 
 										{info?.subscriptionState === 'upgradeSubscription' &&
 											isSeatBasedPlan &&

@@ -155,7 +155,9 @@ export const EventsAnswer = ({ answer }) => {
 							<tr key={index} className="eventCard">
 								<td className="eventName">{eventName}</td>
 								<td className="eventDate">
-									{eventDate ? moment(eventDate).format('DD MMM YYYY') : 'Not Provided'}
+									{eventDate
+										? moment(eventDate).format('DD MMM YYYY')
+										: 'Not Provided'}
 								</td>
 								<td className="eventLocation">{eventLocation || '-'}</td>
 								<td className="eventGuests">{eventGuests || '-'}</td>
@@ -382,7 +384,14 @@ const FormDescriptionSkeleton = () => {
 	);
 };
 
-const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
+const FormDescription = ({
+	response,
+	onClose,
+	formId,
+	activeTab,
+	loading,
+	showCreateDocumentBtn = true,
+}) => {
 	const navigate = useNavigate();
 
 	const getName = (response) => {
@@ -506,22 +515,25 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 					</div>
 				) : (
 					<>
-						<span
-							className="createDocumentButton"
-							onClick={() =>
-								navigate(
-									`/builder/create-document?formResponseId=${
-										response?._id
-									}&name=${getName(response)}&email=${getEmail(
-										response,
-									)}&phoneNumber=${getPhone(response)}`,
-								)
-							}
-						>
-							Create Document
-						</span>
-						<div className="descriptionSection">
-							{getBasicInfo(response).length > 0 && (
+						{showCreateDocumentBtn && (
+							<span
+								className="createDocumentButton"
+								onClick={() =>
+									navigate(
+										`/builder/create-document?formResponseId=${
+											response?._id
+										}&name=${getName(response)}&email=${getEmail(
+											response,
+										)}&phoneNumber=${getPhone(response)}`,
+									)
+								}
+							>
+								Create Document
+							</span>
+						)}
+
+						{getBasicInfo(response).length > 0 && (
+							<div className="descriptionSection">
 								<>
 									<div className="infoRow">
 										<div className="sectionTitle">Basic Information</div>
@@ -537,8 +549,9 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 										<span className="infoValue">{getTimeAgo(response)}</span>
 									</div>
 								</>
-							)}
-						</div>
+							</div>
+						)}
+
 						<div className="descriptionSection">
 							<div className="sectionTitle">Form Responses</div>
 							<div className="formResponsesParentContainer">

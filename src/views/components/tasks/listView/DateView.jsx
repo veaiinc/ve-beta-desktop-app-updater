@@ -84,10 +84,10 @@ const DateView = ({
 					onOptionClick={updatedOnOptionClick}
 					selected={info?.dueDate}
 					valueSelector="value"
+					placement={placement}
 				>
 					<Tooltip
 						title={showTitle && <div className="tooltip-inner">{title}</div>}
-						placement={placement}
 						classNames={{ root: 'tooltip-overlay-container' }}
 						color="transparent"
 					>
