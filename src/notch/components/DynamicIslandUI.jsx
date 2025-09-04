@@ -367,6 +367,7 @@ const DynamicIslandUI = () => {
 
 	const handleMouseLeave = () => {
 		console.log('🚪 MOUSE LEAVE - Collapsing to pill!');
+		// Always allow collapse - voice mode should continue working in background
 		if (isExpanded && isConnected) {
 			collapse();
 		}
