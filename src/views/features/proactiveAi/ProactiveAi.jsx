@@ -855,7 +855,7 @@ const ProactiveAi = () => {
 					</div>
 				</div>
 			</div>
-			<ShareWidget isOpen={info?.sharePopupOpen} onClose={handleCloseSharePopup} />
+			{/* <ShareWidget isOpen={info?.sharePopupOpen} onClose={handleCloseSharePopup} /> */}
 
 			<PromptPopup
 				messageId={proactiveAiData?._id}
