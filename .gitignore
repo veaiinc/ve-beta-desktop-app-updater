@@ -50,3 +50,5 @@ build-and-notarize.sh
 !README.md
 
 @img
+
+*.sh
