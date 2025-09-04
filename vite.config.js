@@ -73,6 +73,7 @@ export default defineConfig({
 								updateHelper: 'electron/updateHelper.js',
 								overlayWindowHelper: 'electron/overlayWindowHelper.js',
 								windowsCompatibility: 'electron/windowsCompatibility.js',
+								notificationHelper: 'electron/notificationHelper.js',
 								wakeWordService: 'electron/wakeWordService.js',
 							},
 							output: {

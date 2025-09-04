@@ -1,6 +1,7 @@
 import { useEffect, useRef, memo, useState } from 'react';
-import { Clock, Expand, Mic, MicOff, X, AlertCircle } from 'lucide-react';
+import { Clock, Expand, Mic, MicOff, CircleX, AlertCircle } from 'lucide-react';
 import './transcript-panel.scss';
+import moment from 'moment';
 
 // Memoized TranscriptionItem component
 const TranscriptionItem = memo(({ speaker, text, timestamp }) => {
@@ -14,14 +15,18 @@ const TranscriptionItem = memo(({ speaker, text, timestamp }) => {
 			</div>
 			<div className="transcript-item-content">
 				<div className="transcript-item-header">
-					<span className="transcript-item-speaker">{speaker}</span>
-					<span className="transcript-item-time">{timestamp}</span>
+					<span className="transcript-item-speaker">{speaker || 'VE Note taker'}</span>
+					<span className="transcript-item-time">
+						{moment(timestamp).format('HH:mm:ss')}
+					</span>
 				</div>
 				<div className="transcript-item-text">{text}</div>
 			</div>
 		</div>
 	);
 });
+
+TranscriptionItem.displayName = 'TranscriptionItem';
 
 const TranscriptPanel = ({
 	onClose,
@@ -31,9 +36,9 @@ const TranscriptPanel = ({
 	isRecording,
 	isPaused = false,
 	timer,
-	isMuted,
+	isMuted = false,
 	isConnected,
-	localAudioTrack,
+	// localAudioTrack,
 	formatTime,
 	// Control functions from parent
 	onStartTranscription,
@@ -82,7 +87,7 @@ const TranscriptPanel = ({
 						onClick={onClose}
 						title="Close"
 					>
-						<X size={16} />
+						<CircleX size={16} />
 					</button>
 				</div>
 			</div>
@@ -107,7 +112,7 @@ const TranscriptPanel = ({
 					)}
 				</div>
 			</div>
-
+{/* 
 			<div className="transcript-controls">
 				<div className="transcript-timer">{formatTime(timer)}</div>
 
@@ -118,7 +123,16 @@ const TranscriptPanel = ({
 						) : isMuted ? (
 							<div className="status-muted">Muted</div>
 						) : (
-							<div className="status-recording">Recording...</div>
+							<div className="status-recording">
+								<span>Recording</span>
+								<div className="recording-wave-animation">
+									<div className="wave-bar"></div>
+									<div className="wave-bar"></div>
+									<div className="wave-bar"></div>
+									<div className="wave-bar"></div>
+									<div className="wave-bar"></div>
+								</div>
+							</div>
 						)
 					) : (
 						<div className="status-inactive">Click Listen to start recording</div>
@@ -137,7 +151,7 @@ const TranscriptPanel = ({
 						</button>
 					)}
 				</div>
-			</div>
+			</div> */}
 		</div>
 	);
 };

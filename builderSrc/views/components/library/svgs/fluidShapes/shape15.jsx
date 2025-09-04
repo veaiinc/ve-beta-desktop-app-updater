@@ -13,7 +13,7 @@ const Shape15 = ({ stickerFill, stickerStroke, width, opacity, stretch }) => {
 			<g clipPath="url(#clip0_263_17534)">
 				<mask
 					id="mask0_263_17534"
-					style={{ maskType: 'luminance' }}
+					style={{ maskType: "luminance" }}
 					maskUnits="userSpaceOnUse"
 					x="0"
 					y="0"

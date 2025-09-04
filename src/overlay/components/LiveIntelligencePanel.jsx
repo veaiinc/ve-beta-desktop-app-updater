@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './live-intelligence-panel.scss';
-import { AudioLines, X } from 'lucide-react';
+import { AudioLines, CircleX } from 'lucide-react';
 
 const LiveIntelligencePanel = ({
 	onClose,
@@ -127,6 +127,14 @@ const LiveIntelligencePanel = ({
 			: []),
 	];
 
+	// const tabs = [
+	// 	{ key: 'all-threads', label: 'All Threads', count: 0 },
+	// 	...(true ? [{ key: 'ask-user', label: 'Ask user', count: 8 }] : []),
+	// 	...(true ? [{ key: 'need-help', label: 'Need help?', count: 8 }] : []),
+	// 	...(true ? [{ key: 'actions', label: 'Actions', count: 8 }] : []),
+	// 	...(true ? [{ key: 'files', label: 'Files', count: 8 }] : []),
+	// ];
+
 	const renderTabContent = () => {
 		const formatTime = (timestamp) => {
 			if (!timestamp) return '';
@@ -150,7 +158,9 @@ const LiveIntelligencePanel = ({
 							[...socketData.allThreads].reverse().map((thread, index) => (
 								<div
 									key={index}
-									className="thread-item clickable"
+									className={`thread-item ${
+										thread.entity === 'user' ? 'ask-user-item' : 'clickable'
+									}`}
 									onClick={() => handleThreadItemClick(thread, 'all-threads')}
 									title="Click to ask AI about this thread"
 								>
@@ -172,8 +182,7 @@ const LiveIntelligencePanel = ({
 							))
 						) : (
 							<div className="empty-content">
-								No threads yet. Start recording to see live intelligence
-								suggestions.
+								Start speaking to see live intelligence suggestions.
 							</div>
 						)}
 					</div>
@@ -185,7 +194,7 @@ const LiveIntelligencePanel = ({
 							[...socketData.askUser].reverse().map((item, index) => (
 								<div
 									key={index}
-									className="thread-item clickable"
+									className="thread-item ask-user-item"
 									//onClick={() => handleThreadItemClick(item, 'ask-user')}
 									title="Click to ask AI about this question"
 								>
@@ -299,17 +308,17 @@ const LiveIntelligencePanel = ({
 
 	return (
 		<div className="live-intelligence-panel">
-			<div className="live-intelligence-panel__divider" />
+			{/* <div className="live-intelligence-panel__divider" /> */}
 
 			{/* Header */}
 			<div className="live-intelligence-panel__header">
 				<div className="live-intelligence-panel__title">
 					<span className="live-intelligence-panel__title-text">Live Intelligence</span>
-					{isRecording && formatTime && (
+					{/* {isRecording && formatTime && (
 						<span className={`recording-indicator ${isPaused ? 'paused' : ''}`}>
 							{isPaused ? '⏸' : '●'} {formatTime(timer)}
 						</span>
-					)}
+					)} */}
 				</div>
 
 				<div className="live-intelligence-panel__controls">
@@ -322,19 +331,18 @@ const LiveIntelligencePanel = ({
 						}}
 						style={{ pointerEvents: 'auto' }}
 					>
-						<AudioLines size={15} />
-						<span>Show Transcript</span>
-						{/* {transcriptions.length > 0 && (
-							<span className="transcript-count">({transcriptions.length})</span>
-						)} */}
+						<span>View Transcription</span>
 					</button>
+
+					<div className="live-intelligence-panel__control-divider" />
 
 					<button
 						className="live-intelligence-panel__icon-button"
 						onClick={onClose}
 						title="Close"
 					>
-						<X size={15} />
+						{/* <X size={15} /> */}
+						<CircleX size={15} />
 					</button>
 				</div>
 			</div>

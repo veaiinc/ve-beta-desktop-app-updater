@@ -104,7 +104,7 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 				<div className={`${s.browserIframeContainer}`}>
 					<iframe
 						src={browserData?.url}
-						allowfullscreen
+						allowFullScreen
 						className={s.browserIframe}
 						style={{ pointerEvents: info?.takeControl ? 'auto' : 'none' }}
 					></iframe>

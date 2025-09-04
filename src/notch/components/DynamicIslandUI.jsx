@@ -36,6 +36,7 @@ const DynamicIslandUI = () => {
 	const dynamicIslandRef = useRef(null);
 	const videoRef = useRef(null);
 	const chatInputRef = useRef(null); // Add ref for chat input
+	const voiceMessagesRef = useRef(null); // Add ref for voice messages container
 	const [isExpanded, setIsExpanded] = useState(true); // Start expanded like main branch
 	console.log('🏝️ Initial isExpanded state:', true);
 	const [isConnected, setIsConnected] = useState(false);
@@ -625,6 +626,16 @@ const DynamicIslandUI = () => {
 		}
 	};
 
+	// Auto-scroll voice messages to bottom when new messages arrive
+	useEffect(() => {
+		if (voiceMessagesRef.current && voiceMessages.length > 0) {
+			// Small delay to ensure DOM has updated
+			setTimeout(() => {
+				voiceMessagesRef.current.scrollTop = voiceMessagesRef.current.scrollHeight;
+			}, 50);
+		}
+	}, [voiceMessages]);
+
 	// Handle microphone mute/unmute toggle
 	const handleMicrophoneToggle = () => {
 		const newMuteState = !isMicrophoneMuted;
@@ -1182,7 +1193,16 @@ const DynamicIslandUI = () => {
 						'Living Intelligence'
 					)
 				) : showVoiceInterface ? (
-					'Voice Mode'
+					<div className="voice-agent-collapsed">
+						<span>Voice Agent</span>
+						<div className="voice-wave-animation">
+							<div className="wave-bar"></div>
+							<div className="wave-bar"></div>
+							<div className="wave-bar"></div>
+							<div className="wave-bar"></div>
+							<div className="wave-bar"></div>
+						</div>
+					</div>
 				) : isChatMode ? (
 					'Chat Mode'
 				) : (
@@ -1262,8 +1282,18 @@ const DynamicIslandUI = () => {
 										<div className="meeting-mode-label">
 											{controlledByDynamicIsland && (
 												<>
-													<VoiceModeIcon />
 													<span>Meeting mode</span>
+													{isPaused ? (
+														<PauseIcon />
+													) : (
+														<div className="meeting-wave-animation">
+															<div className="wave-bar"></div>
+															<div className="wave-bar"></div>
+															<div className="wave-bar"></div>
+															<div className="wave-bar"></div>
+															<div className="wave-bar"></div>
+														</div>
+													)}
 												</>
 											)}
 										</div>
@@ -1330,7 +1360,7 @@ const DynamicIslandUI = () => {
 								<div className="voice-split-layout">
 									{/* Left side: Conversation messages */}
 									<div className="voice-conversation-left">
-										<div className="voice-messages-area">
+										<div className="voice-messages-area" ref={voiceMessagesRef}>
 											{/* Show real-time voice messages or fallback to sample */}
 											{voiceMessages.length > 0 ? (
 												voiceMessages.map((msg, index) => (
