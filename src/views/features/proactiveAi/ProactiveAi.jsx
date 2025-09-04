@@ -647,7 +647,7 @@ const ProactiveAi = () => {
 											className="report-description"
 											onClick={(e) => e.stopPropagation()}
 										>
-											<Markdown citations={thinker_sources || null}>
+											<Markdown citations={thinker_sources || []}>
 												{research_report || ''}
 											</Markdown>
 										</div>

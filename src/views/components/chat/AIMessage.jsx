@@ -36,7 +36,7 @@ const pencilIconStyles = {
 const AIMessage = ({
 	text,
 	customePencilClickFunc = null,
-	citations = null,
+	citations = [],
 	messageData,
 	isLastMessage = false,
 	showCanvas = true,

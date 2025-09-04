@@ -18,7 +18,7 @@ export const handleDeepSearchChainOfThought = (chainOfThought) => {
 	return { cot };
 };
 
-export const updateCitationIdsWithCitations = (input = '', citations = null) => {
+export const updateCitationIdsWithCitations = (input = '', citations = []) => {
 	const regex = /\[C\d+\]/g;
 	const parts = input?.split(regex);
 	const matches = input?.match(regex) || [];

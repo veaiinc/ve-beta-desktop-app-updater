@@ -1,6 +1,7 @@
-.citation-tooltip-wrapper {
+.citation-container {
 	cursor: pointer !important;
 	margin: 0 0 0 2px;
+	display: inline-block;
 	.citation-tooltip-header {
 		padding: 5px 12px !important;
 		flex-direction: column !important;

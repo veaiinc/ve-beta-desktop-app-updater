@@ -350,9 +350,10 @@ const MarkdownTable = memo(({ children, node, markdown }) => {
 });
 
 // Memoize citation-specific components
-const createCustomComponents = (citations, markdown) => ({
+const createCustomComponents = (citationsRef, markdownRef) => ({
 	span: ({ children, citationId, ...props }) => {
-		if (citationId) return <CitationsTooltip citationId={citationId} citations={citations} />;
+		if (citationId)
+			return <CitationsTooltip citationId={citationId} citations={citationsRef.current} />;
 		return (
 			<span className="span" {...props}>
 				{children}
@@ -361,17 +362,17 @@ const createCustomComponents = (citations, markdown) => ({
 	},
 	table: ({ node, children }) => {
 		return (
-			<MarkdownTable node={node} markdown={markdown}>
+			<MarkdownTable node={node} markdown={markdownRef.current}>
 				{children}
 			</MarkdownTable>
 		);
 	},
-	code({ node, inline, className, children, ...props }) {
+	code: ({ node, inline, className, children, ...props }) => {
 		const match = /language-(\w+)/?.exec(className || '');
 		const codeCheck = !inline && match && match[1] !== 'plaintext';
 		let code;
 		if (codeCheck) {
-			code = markdown?.slice(
+			code = markdownRef.current?.slice(
 				node?.position?.start?.offset + (3 + match[1]?.length),
 				node?.position?.end?.offset - 3,
 			);
@@ -390,17 +391,22 @@ const createCustomComponents = (citations, markdown) => ({
 const remarkPlugins = [remarkGfm];
 const rehypePlugins = [rehypeKatex, rehypeCITPlugin, rehypeRaw];
 
-const NonMemoizedMarkdown = ({ children, citations }) => {
+const NonMemoizedMarkdown = ({ children, citations = [] }) => {
+	const markdownRef = useRef('');
+	const citationsRef = useRef([]);
+
 	const markdown = children;
-	// ?.replace(/\\n/g, '\n');
+
+	markdownRef.current = children;
+	citationsRef.current = citations;
 
 	// Memoize the combined components object
 	const components = useMemo(
 		() => ({
 			...baseComponents,
-			...createCustomComponents(citations, markdown),
+			...createCustomComponents(citationsRef, markdownRef),
 		}),
-		[citations, markdown],
+		[],
 	);
 
 	return (
