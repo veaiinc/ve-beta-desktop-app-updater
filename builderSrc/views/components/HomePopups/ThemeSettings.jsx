@@ -130,7 +130,7 @@ const ThemeSettings = memo((props) => {
 	} = props;
 
 	const {
-		themeSettings: { activeSection, updateStateValues, fonts, applyTheme, newTheme, navBar },
+		themeSettings: { activeSection, updateStateValues, fonts, applyTheme, newTheme,navBar },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -186,7 +186,7 @@ const ThemeSettings = memo((props) => {
 			};
 			updateStateValues(objectData, isInitialState);
 		}
-	}, [homeFonts, Homesections, fonts, homeThemes, newTheme?.activeTheme, homeNavBar]);
+	}, [homeFonts, Homesections, fonts, homeThemes, newTheme?.activeTheme,homeNavBar]);
 	// console.log("homeNavBar",navBar)
 
 	// const CurrentSectionComponent = useMemo(() => {
