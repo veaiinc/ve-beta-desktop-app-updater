@@ -226,17 +226,63 @@ class AssemblyAIService {
 				throw new Error('Workspace ID not found');
 			}
 
+			// Get audio duration from audioStorageService
+			let audioDurationSeconds = 0;
+			try {
+				// Import audioStorageService dynamically to avoid circular dependency
+				const { default: audioStorageService } = await import('./audioStorageService.js');
+				const audioResult = await audioStorageService.getAudio(meetingId);
+				
+				if (audioResult.success && audioResult.audioBlob) {
+					// Create audio element to get duration
+					const audio = new Audio();
+					audio.preload = 'metadata';
+					
+					// Create blob URL
+					const blobUrl = URL.createObjectURL(audioResult.audioBlob);
+					audio.src = blobUrl;
+					
+					// Wait for metadata to load
+					await new Promise((resolve, reject) => {
+						audio.onloadedmetadata = () => {
+							const durationSeconds = audio.duration;
+							if (durationSeconds && !isNaN(durationSeconds) && isFinite(durationSeconds)) {
+								// Use total seconds as integer
+								audioDurationSeconds = Math.floor(durationSeconds);
+								console.log('🎵 Audio duration calculated:', {
+									durationSeconds,
+									audioDurationSeconds
+								});
+							}
+							URL.revokeObjectURL(blobUrl); // Clean up blob URL
+							resolve();
+						};
+						audio.onerror = () => {
+							URL.revokeObjectURL(blobUrl); // Clean up blob URL
+							reject(new Error('Failed to load audio metadata'));
+						};
+					});
+				}
+			} catch (durationError) {
+				console.warn('⚠️ Could not get audio duration:', durationError.message);
+				// Continue without duration if we can't get it
+			}
+
 			const ngrokUrl = `https://lively-expert-deer.ngrok-free.app/${workspaceId}/generate_meeting_analytics`;
+
+			const payload = {
+				meeting_id: meetingId,
+				audio_url: audioUrl,
+				audio_duration_seconds: audioDurationSeconds
+			};
 
 			console.log('🔍 Ngrok API call details:', {
 				workspaceId,
 				meetingId,
 				audioUrl,
+				audioDurationSeconds,
 				ngrokUrl,
-				payload: {
-					meeting_id: meetingId,
-					audio_url: audioUrl
-				}
+				payload
 			});
 
 			// Send to ngrok endpoint
@@ -247,10 +293,7 @@ class AssemblyAIService {
 					'Content-Type': 'application/json',
 					'ngrok-skip-browser-warning': 'true' // Skip ngrok browser warning
 				},
-				body: JSON.stringify({
-					meeting_id: meetingId,
-					audio_url: audioUrl
-				})
+				body: JSON.stringify(payload)
 			});
 
 			console.log('📡 Ngrok API response status:', response.status);
