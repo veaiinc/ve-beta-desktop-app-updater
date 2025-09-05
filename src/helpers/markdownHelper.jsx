@@ -15,6 +15,7 @@ import rehypeRaw from 'rehype-raw';
 import 'katex/dist/katex.min.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import AISuggestionsReportUserComponent from '../views/components/chat/chatComponents/AISuggestionsReportUserComponent';
+import { getBase64 } from '../helpers';
 
 const codeColorTheme = {
 	'code[class*="language-"]': {
@@ -321,6 +322,8 @@ const MarkdownCode = memo(({ code, match }) => {
 	);
 });
 
+MarkdownCode.displayName = 'MarkdownCode';
+
 const MarkdownTable = memo(({ children, node, markdown }) => {
 	const [isCopied, setIsCopied] = useState(false);
 
@@ -348,6 +351,8 @@ const MarkdownTable = memo(({ children, node, markdown }) => {
 		</div>
 	);
 });
+
+MarkdownTable.displayName = 'MarkdownTable';
 
 // Memoize citation-specific components
 const createCustomComponents = (citationsRef, markdownRef) => ({
@@ -644,3 +649,5 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 		</div>
 	);
 });
+
+UserMessageRenderer.displayName = 'UserMessageRenderer';
