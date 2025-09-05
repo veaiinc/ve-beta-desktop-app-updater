@@ -169,7 +169,7 @@ export const CitationsTooltip = memo(({ citationId, citations = [], placement = 
 								<div className="company-icon">
 									{citationInfo?.type === 's3_key'
 										? fileTypeIcons[
-												citationInfo?.name?.match(/\.(\w+)$/)?.[1]
+												citationInfo?.name?.match(/\.(\w+)$/)?.[1] // File type regex .docx, .pdf, .txt, etc.
 										  ] || <VeLogoSvg />
 										: fileTypeIcons[citationInfo?.type] || <VeLogoSvg />}
 								</div>
