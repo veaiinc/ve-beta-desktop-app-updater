@@ -38,8 +38,8 @@ const DeleteLeadModal = ({ open, closeModal, deleteLeadFunc }) => {
 				<div className="deleteLeadTextContainer">
 					<span className="deleteLeadHeaderText">Delete Document</span>
 					<span className="deleteLeadSubtext">
-						Are you sure you want to delete this Document?<br></br> All data will be
-						lost, you cannot undo this operation.
+						Are you sure you want to delete this Document?<br></br> All data will be lost,
+						you cannot undo this operation.
 					</span>
 				</div>
 

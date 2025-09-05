@@ -143,14 +143,14 @@ const SessionMetric = ({
 						}
 						statsData={
 							!info?.isLabelSelected
-								? info?.labelsData?.map((item) => ({
-										name: item.moduleType,
-										percentage: item.percentage,
-								  }))
-								: transformLabelItemsData(info?.labelItemsData)?.map((item) => ({
-										name: item.content,
-										percentage: item.percentage,
-								  }))
+								? info?.labelsData?.map(item => ({
+									name: item.moduleType,
+									percentage: item.percentage
+								}))
+								: transformLabelItemsData(info?.labelItemsData)?.map(item => ({
+									name: item.content,
+									percentage: item.percentage
+								}))
 						}
 						title={title}
 						COLORS={info?.COLORS}
