@@ -2,21 +2,26 @@ import React, { useEffect, useState, useCallback } from 'react';
 import './areYouThere.scss';
 
 const AreYouThereApp = () => {
-	const [countdown, setCountdown] = useState(0);
-	const [isVisible, setIsVisible] = useState(true);
-	const [currentInterval, setCurrentInterval] = useState(0);
-	const [windowType, setWindowType] = useState('time-based'); // 'time-based' or 'transcription-based'
-	const [reason, setReason] = useState('');
-	const [transcriptionState, setTranscriptionState] = useState(null);
+	const [info, setInfo] = useState({
+		countdown: 0,
+		isVisible: true,
+		currentInterval: 0,
+		windowType: 'time-based', // 'time-based' or 'transcription-based'
+		reason: '',
+		transcriptionState: null,
+	});
 
 	// Handle user clicking I'm here
 	const handleImHereClick = useCallback(() => {
 		console.log("✅ User clicked I'm here - continuing meeting");
-		setIsVisible(false);
-		setCountdown(0); // Reset countdown
+		setInfo((prev) => ({
+			...prev,
+			isVisible: false,
+			countdown: 0, // Reset countdown
+		}));
 
 		// Send IPC message based on window type
-		if (windowType === 'transcription-based') {
+		if (info.windowType === 'transcription-based') {
 			if (window.electronApi?.areYouThere?.continueTranscription) {
 				window.electronApi.areYouThere.continueTranscription();
 			}
@@ -25,16 +30,19 @@ const AreYouThereApp = () => {
 				window.electronApi.areYouThere.continueMeeting();
 			}
 		}
-	}, [windowType]);
+	}, [info.windowType]);
 
 	// Handle user clicking End Session
 	const handleEndSessionClick = useCallback(() => {
 		console.log('🔚 User clicked End Session');
-		setIsVisible(false);
-		setCountdown(0); // Reset countdown
+		setInfo((prev) => ({
+			...prev,
+			isVisible: false,
+			countdown: 0, // Reset countdown
+		}));
 
 		// Send IPC message based on window type
-		if (windowType === 'transcription-based') {
+		if (info.windowType === 'transcription-based') {
 			if (window.electronApi?.areYouThere?.endTranscriptionSession) {
 				window.electronApi.areYouThere.endTranscriptionSession();
 			}
@@ -43,22 +51,25 @@ const AreYouThereApp = () => {
 				window.electronApi.areYouThere.endSession();
 			}
 		}
-	}, [windowType]);
+	}, [info.windowType]);
 
 	// Countdown timer effect - counts up from 0 to 25 seconds
 	useEffect(() => {
 		// Only start countdown if window is visible
-		if (!isVisible) {
+		if (!info.isVisible) {
 			return;
 		}
 
-		if (countdown >= 25) {
+		if (info.countdown >= 25) {
 			console.log('⏰ Countdown reached 25 seconds - stopping meeting due to no response');
-			setIsVisible(false);
-			setCountdown(0); // Reset countdown
+			setInfo((prev) => ({
+				...prev,
+				isVisible: false,
+				countdown: 0, // Reset countdown
+			}));
 
 			// Send IPC message based on window type
-			if (windowType === 'transcription-based') {
+			if (info.windowType === 'transcription-based') {
 				if (window.electronApi?.areYouThere?.stopTranscriptionMonitoring) {
 					window.electronApi.areYouThere.stopTranscriptionMonitoring();
 				}
@@ -71,11 +82,14 @@ const AreYouThereApp = () => {
 		}
 
 		const timer = setTimeout(() => {
-			setCountdown((prev) => prev + 1);
+			setInfo((prev) => ({
+				...prev,
+				countdown: prev.countdown + 1,
+			}));
 		}, 1000);
 
 		return () => clearTimeout(timer);
-	}, [countdown, isVisible, windowType]);
+	}, [info.countdown, info.isVisible, info.windowType]);
 
 	// Get current recording time from main process
 	const getCurrentRecordingTime = async () => {
@@ -83,7 +97,10 @@ const AreYouThereApp = () => {
 			try {
 				const result = await window.electronApi.areYouThere.getCurrentRecordingTime();
 				if (result.success) {
-					setCurrentInterval(result.recordingTime);
+					setInfo((prev) => ({
+						...prev,
+						currentInterval: result.recordingTime,
+					}));
 				}
 			} catch (error) {
 				console.error('Error getting recording time:', error);
@@ -98,7 +115,10 @@ const AreYouThereApp = () => {
 				const result =
 					await window.electronApi.areYouThere.getTranscriptionDetectionState();
 				if (result.success) {
-					setTranscriptionState(result);
+					setInfo((prev) => ({
+						...prev,
+						transcriptionState: result,
+					}));
 					console.log('🎤 Transcription detection state:', result);
 				}
 			} catch (error) {
@@ -122,15 +142,21 @@ const AreYouThereApp = () => {
 
 			// Determine window type based on command data
 			if (data && data.type === 'transcription-based') {
-				setWindowType('transcription-based');
-				setReason(data.reason || 'no-transcriptions');
+				setInfo((prev) => ({
+					...prev,
+					windowType: 'transcription-based',
+					reason: data.reason || 'no-transcriptions',
+				}));
 				console.log('🎤 Setting window type to transcription-based');
 
 				// Get transcription detection state for more detailed info
 				await getTranscriptionDetectionState();
 			} else {
-				setWindowType('time-based');
-				setReason('');
+				setInfo((prev) => ({
+					...prev,
+					windowType: 'time-based',
+					reason: '',
+				}));
 				console.log('⏰ Setting window type to time-based');
 			}
 
@@ -140,33 +166,48 @@ const AreYouThereApp = () => {
 					const result = await window.electronApi.areYouThere.checkRecordingState();
 					if (result.success && result.isRecordingActive) {
 						console.log('✅ Recording is active - showing Are You There window');
-						setIsVisible(true);
-						setCountdown(0); // Reset countdown to 0
+						setInfo((prev) => ({
+							...prev,
+							isVisible: true,
+							countdown: 0, // Reset countdown to 0
+						}));
 						// Get fresh recording time when showing again
 						getCurrentRecordingTime();
 					} else {
 						console.log(
 							'❌ Recording is not active - not showing Are You There window',
 						);
-						setIsVisible(false);
+						setInfo((prev) => ({
+							...prev,
+							isVisible: false,
+						}));
 					}
 				} catch (error) {
 					console.error('Error checking recording state:', error);
 					// If we can't check, don't show the window to be safe
-					setIsVisible(false);
+					setInfo((prev) => ({
+						...prev,
+						isVisible: false,
+					}));
 				}
 			} else {
 				// Fallback - show the window if we can't check state
 				console.log('⚠️ Cannot check recording state - showing window as fallback');
-				setIsVisible(true);
-				setCountdown(0);
+				setInfo((prev) => ({
+					...prev,
+					isVisible: true,
+					countdown: 0,
+				}));
 				getCurrentRecordingTime();
 			}
 		};
 
 		const handleCloseCommand = () => {
 			console.log('🔒 Received close command from main process');
-			setIsVisible(false);
+			setInfo((prev) => ({
+				...prev,
+				isVisible: false,
+			}));
 		};
 
 		if (window.electronApi?.areYouThere?.onShowCommand) {
@@ -187,14 +228,15 @@ const AreYouThereApp = () => {
 		};
 	}, []);
 
-	if (!isVisible) {
+	if (!info.isVisible) {
 		return null;
 	}
 
 	// Get appropriate text based on window type
 	const getWindowText = () => {
-		if (windowType === 'transcription-based') {
-			const timeSinceLastTranscription = transcriptionState?.timeSinceLastTranscription || 0;
+		if (info.windowType === 'transcription-based') {
+			const timeSinceLastTranscription =
+				info.transcriptionState?.timeSinceLastTranscription || 0;
 			const minutes = Math.floor(timeSinceLastTranscription / 60);
 			const seconds = timeSinceLastTranscription % 60;
 			const timeString = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
@@ -225,13 +267,13 @@ const AreYouThereApp = () => {
 				<div className="are-you-there-header">
 					<h2 className="are-you-there-title">{windowText.title}</h2>
 					<p className="are-you-there-description">{windowText.description}</p>
-					{windowType === 'transcription-based' && (
+					{info.windowType === 'transcription-based' && (
 						<div className="transcription-warning">
 							<p className="warning-text">
 								⚠️ No speech detected for{' '}
-								{transcriptionState?.timeSinceLastTranscription
+								{info.transcriptionState?.timeSinceLastTranscription
 									? Math.floor(
-											transcriptionState.timeSinceLastTranscription / 60,
+											info.transcriptionState.timeSinceLastTranscription / 60,
 									  ) + ' minute(s)'
 									: '5 minutes'}
 							</p>
@@ -239,7 +281,7 @@ const AreYouThereApp = () => {
 					)}
 				</div>
 				<div className="countdown-timer">
-					<span className="countdown-number">{25 - countdown} seconds</span>
+					<span className="countdown-number">{25 - info.countdown} seconds</span>
 					<p className="timeout-message">{windowText.timeoutMessage}</p>
 				</div>
 				<div className="button-group">
