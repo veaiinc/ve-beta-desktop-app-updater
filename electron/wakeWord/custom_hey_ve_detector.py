@@ -186,12 +186,12 @@ class WakeWordDetector:
                     
                     # Check if wake word detected with cooldown
                     # Like "Hey Siri" - always triggers voice mode, doesn't toggle off
-                    if score > 0.45 and (current_time - self.last_detection_time) > self.detection_cooldown:
+                    if score > 0.25 and (current_time - self.last_detection_time) > self.detection_cooldown:
                         self.last_detection_time = current_time
                         self.send_event("wake_word_detected", {
                             "model": mdl,
                             "score": float(score),
-                            "threshold": 0.45,
+                            "threshold": 0.25,
                             "action": "start_voice_mode"  # Always start voice mode, never toggle
                         })
                         
