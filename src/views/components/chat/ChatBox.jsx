@@ -1347,7 +1347,7 @@ const ChatBox = ({
 			uploadedImages.splice(requiredFileIndex, 1);
 			uploadedImagesRef.current = uploadedImages;
 			setInfo((prev) => ({ ...prev, uploadedImages }));
-			deleteUploadedImageThroughChat(ele?.fileId);
+			// deleteUploadedImageThroughChat(ele?.fileId);
 		},
 		[info, uploadedImagesRef],
 	);

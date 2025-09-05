@@ -6,7 +6,7 @@ const usePushNotifications = (callback) => {
 	useEffect(() => {
 		const unsubscribe = onMessage(firebaseMessaging, (payload) => {
 			if (typeof callback === 'function') {
-				console.log('📩 Foreground push notification:', payload);
+				// console.log(' Foreground push notification:', payload);
 				callback(payload);
 			}
 		});
