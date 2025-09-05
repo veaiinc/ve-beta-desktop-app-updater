@@ -22,7 +22,7 @@
 		border-bottom: 1px solid var(--stroke);
 		width: 100%;
 		transition: all 0.4s ease-in-out;
-		background-color: var(--chat-background-color);
+		// background-color: var(--chat-background-color);
 		box-sizing: border-box;
 		position: absolute;
 		top: 72px;
@@ -83,7 +83,7 @@
 			width: 100%;
 			padding: 24px 32px 16px 42px;
 			transition: background-color 0.4s ease-in-out;
-			background-color: var(--chat-background-color);
+			// background-color: var(--chat-background-color);
 			gap: 10px;
 
 			.leftContainer {
@@ -224,7 +224,7 @@
 		border-bottom: 1px solid var(--stroke);
 		width: 100%;
 		transition: all 0.4s ease-in-out;
-		background-color: var(--chat-background-color);
+		// background-color: var(--chat-background-color);
 		box-sizing: border-box;
 		position: absolute;
 		top: 72px;
