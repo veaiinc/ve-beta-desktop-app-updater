@@ -82,7 +82,7 @@ const regionBaseUrls = {
 				: 'https://ap.api.ve.ai/page-notes/1.0',
 		meeting_api:
 			environment === 'production'
-				? 'https://us.api.ve.ai/meeting/1.0'
+				? 'https://ap.api.ve.ai/page-notes/1.0'
 				: 'https://us.api.ve.ai/meeting/1.0',
 		elastic_search_api:
 			environment === 'production'
@@ -189,7 +189,7 @@ const regionBaseUrls = {
 				: 'https://us.api.ve.ai/block-notes/1.0',
 		meeting_api:
 			environment === 'production'
-				? 'https://us.api.ve.ai/meeting/1.0'
+				? 'https://us.api.ve.ai/page-notes/1.0'
 				: 'https://us.api.ve.ai/meeting/1.0',
 		page_notes_api_database:
 			environment === 'production'
