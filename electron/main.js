@@ -322,6 +322,12 @@ class DynamicIslandHelper {
 				this.dynamicIslandWindow.setPosition(this.position.x, this.position.y);
 				this.isExpanded = true;
 				
+				// Enable mouse events when expanded so user can interact with it
+				this.setMouseEventHandling(false);
+				
+				// Make window focusable when expanded so input fields can receive focus
+				this.dynamicIslandWindow.setFocusable(true);
+				
 				// Send state change to the window
 				this.dynamicIslandWindow.webContents.send('dynamic-island-state', {
 					expanded: true,
