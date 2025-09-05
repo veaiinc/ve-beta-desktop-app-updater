@@ -80,6 +80,10 @@ const regionBaseUrls = {
 			environment === 'production'
 				? 'https://ap.api.ve.ai/page-notes/1.0'
 				: 'https://ap.api.ve.ai/page-notes/1.0',
+		meeting_api:
+			environment === 'production'
+				? 'https://us.api.ve.ai/meeting/1.0'
+				: 'https://us.api.ve.ai/meeting/1.0',
 		elastic_search_api:
 			environment === 'production'
 				? 'https://ap.api.ve.ai/elastic-search/1.0'
