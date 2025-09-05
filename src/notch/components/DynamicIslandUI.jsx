@@ -1270,11 +1270,30 @@ const DynamicIslandUI = () => {
 										</span>
 									</div>
 								) : showVoiceInterface ? (
-									<div className="voice-mode-indicator">
-										<div className="voice-mode-icon">
-											<VoiceModeIcon />
+									<div className="voice-mode-indicators">
+										<div
+											className="voice-mic-icon"
+											onClick={handleMicrophoneToggle}
+											title={
+												isMicrophoneMuted
+													? 'Click to unmute'
+													: 'Click to mute'
+											}
+										>
+											{isMicrophoneMuted ? (
+												<MutedMicrophoneIcon />
+											) : (
+												<MicrophoneIcon />
+											)}
 										</div>
-										<span className="voice-mode-text">Voice Agent</span>
+										<div
+											className="voice-stop-btn"
+											onClick={handleInlineVoiceDisconnect}
+											title="Stop voice assistant"
+										>
+											<div className="stop-icon"></div>
+											<span className="stop-text">Stop</span>
+										</div>
 									</div>
 								) : (
 									<div className="recording-controls">
@@ -1319,31 +1338,6 @@ const DynamicIslandUI = () => {
 
 							{/* Right side icons */}
 							<div className="right-icons">
-								{(isChatMode || showVoiceInterface) && (
-									<div
-										className="back-button"
-										title="Back to main view"
-										onClick={() => {
-											if (showVoiceInterface) {
-												handleInlineVoiceDisconnect();
-											} else if (isChatMode) {
-												setIsChatMode(false);
-												setChatInput('');
-												// Disable focus when exiting chat mode
-												if (
-													window.electronApi?.dynamicIsland?.setChatMode
-												) {
-													window.electronApi.dynamicIsland.setChatMode(
-														false,
-													);
-												}
-											}
-										}}
-									>
-										<BackIcon />
-										<span className="back-text">Back</span>
-									</div>
-								)}
 								<div className="icon-button" title="Home" onClick={handleHomeClick}>
 									<HomeIcon />
 								</div>
@@ -1472,31 +1466,6 @@ const DynamicIslandUI = () => {
 												</div>
 											</div>
 
-											<div className="voice-action-buttons">
-												<div
-													className="voice-close-btn"
-													onClick={handleInlineVoiceDisconnect}
-												>
-													<CloseIcon />
-												</div>
-												<div
-													className={`voice-mic-btn ${
-														isMicrophoneMuted ? 'muted' : ''
-													}`}
-													onClick={handleMicrophoneToggle}
-													title={
-														isMicrophoneMuted
-															? 'Click to unmute'
-															: 'Click to mute'
-													}
-												>
-													{isMicrophoneMuted ? (
-														<MutedMicrophoneIcon />
-													) : (
-														<MicrophoneIcon />
-													)}
-												</div>
-											</div>
 										</div>
 									</div>
 								</div>
