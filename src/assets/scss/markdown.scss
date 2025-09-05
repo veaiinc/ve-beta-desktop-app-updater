@@ -349,3 +349,21 @@
 		}
 	}
 }
+
+.markdown-custom-animate {
+	.li {
+		opacity: 0;
+		animation: chat-fade-in 0.8s ease-in-out forwards;
+	}
+
+	.chat-fade-in {
+		opacity: 0;
+		animation: chat-fade-in 0.8s ease-in-out forwards;
+	}
+}
+
+@keyframes chat-fade-in {
+	to {
+		opacity: 1;
+	}
+}

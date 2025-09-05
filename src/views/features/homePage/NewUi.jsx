@@ -225,8 +225,12 @@ const NewUi = ({ handleActiveChatChange }) => {
 			sessions =
 				sessions?.length === 1
 					? [{ type: 'chatbox', _id: 'chatbox' }, ...sessions]
-					: [sessions?.[0], { type: 'chatbox', _id: 'chatbox' }, ...sessions?.slice(1)];
-			sessions = [...sessions, ...sessions?.slice(0, 3)];
+					: [
+							sessions?.[0],
+							{ type: 'chatbox', _id: 'chatbox' },
+							...(sessions?.slice(1) || []),
+					  ];
+			sessions = [...sessions, ...(sessions?.slice(0, 3) || [])];
 			sessions = sessions?.filter(
 				(session) =>
 					session?.recentConversations?.length > 0 || session?.type === 'chatbox',

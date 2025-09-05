@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import React, { memo, useContext, useState, useMemo, useCallback, useRef } from 'react';
 import { default as ReactMarkdown } from 'react-markdown';
 import '../assets/scss/markdown.scss';
 import '../assets/scss/markdownHelper.scss';
@@ -162,7 +162,9 @@ const rehypeCITPlugin = () => {
 							return {
 								type: 'element',
 								tagName: 'span',
-								properties: { citationId: part?.slice(1, -1) },
+								properties: {
+									citationId: part?.slice(1, -1),
+								},
 								children: [{ type: 'text', value: 'Citation' }],
 							};
 						}
@@ -179,6 +181,79 @@ const rehypeCITPlugin = () => {
 		};
 
 		visit(tree);
+	};
+};
+
+// const rehypeFadeInWords = () => {
+// 	return (tree) => {
+// 		const visit = (node, parent) => {
+// 			if (!node || typeof node !== 'object') return;
+
+// 			// Then transform text nodes
+// 			if (node.type === 'text' && node.value) {
+// 				const words = node.value.split(/(\s+)/); // keep spaces too
+
+// 				const newNode = {
+// 					type: 'element',
+// 					tagName: 'span',
+// 					properties: {},
+// 					children: words.map((word) =>
+// 						word.trim() === ''
+// 							? { type: 'text', value: word }
+// 							: {
+// 									type: 'element',
+// 									tagName: 'span',
+// 									properties: { fadeIn: true },
+// 									children: [{ type: 'text', value: word }],
+// 							  },
+// 					),
+// 				};
+
+// 				// Replace this node in the parent's children
+// 				if (parent && parent.children) {
+// 					const idx = parent.children.indexOf(node);
+// 					parent.children[idx] = newNode;
+// 				}
+// 			}
+
+// 			// Recurse first into existing children
+// 			if (node.children && Array.isArray(node.children)) {
+// 				node.children.forEach((child) => visit(child, node));
+// 			}
+// 		};
+
+// 		visit(tree, null);
+// 	};
+// };
+
+const rehypeFadeInWords = () => {
+	return (tree) => {
+		const visit = (node, parent) => {
+			if (!node || typeof node !== 'object') return;
+
+			if (Array.isArray(node.children)) {
+				[...node.children].forEach((child) => visit(child, node));
+			}
+
+			if (node.type === 'text' && node.value && parent) {
+				const words = node.value.split(/(\s+)/);
+				const newNodes = words.map((word) =>
+					word.trim() === ''
+						? { type: 'text', value: word }
+						: {
+								type: 'element',
+								tagName: 'span',
+								properties: { fadeIn: true },
+								children: [{ type: 'text', value: word }],
+						  },
+				);
+
+				const idx = parent.children.indexOf(node);
+				if (idx !== -1) parent.children.splice(idx, 1, ...newNodes);
+			}
+		};
+
+		visit(tree, null);
 	};
 };
 
@@ -322,8 +397,6 @@ const MarkdownCode = memo(({ code, match }) => {
 	);
 });
 
-MarkdownCode.displayName = 'MarkdownCode';
-
 const MarkdownTable = memo(({ children, node, markdown }) => {
 	const [isCopied, setIsCopied] = useState(false);
 
@@ -352,13 +425,16 @@ const MarkdownTable = memo(({ children, node, markdown }) => {
 	);
 });
 
-MarkdownTable.displayName = 'MarkdownTable';
-
 // Memoize citation-specific components
 const createCustomComponents = (citationsRef, markdownRef) => ({
-	span: ({ children, citationId, ...props }) => {
+	span: ({ children, citationId, fadeIn, ...props }) => {
 		if (citationId)
 			return <CitationsTooltip citationId={citationId} citations={citationsRef.current} />;
+
+		if (fadeIn) {
+			return <span className="chat-fade-in">{children}</span>;
+		}
+
 		return (
 			<span className="span" {...props}>
 				{children}
@@ -392,11 +468,11 @@ const createCustomComponents = (citationsRef, markdownRef) => ({
 		);
 	},
 });
-// [remarkGfm, remarkMath]
+//use remaarkMath for math equations
 const remarkPlugins = [remarkGfm];
-const rehypePlugins = [rehypeKatex, rehypeCITPlugin, rehypeRaw];
+const rehypePlugins = [rehypeKatex, rehypeRaw];
 
-const NonMemoizedMarkdown = ({ children, citations = [] }) => {
+const NonMemoizedMarkdown = ({ children, citations = [], animate = false }) => {
 	const markdownRef = useRef('');
 	const citationsRef = useRef([]);
 
@@ -414,12 +490,19 @@ const NonMemoizedMarkdown = ({ children, citations = [] }) => {
 		[],
 	);
 
+	//if you are adding new plugin try to check order, otherwise it will effect animation
+	const updatedRehypePlugins = useMemo(() => {
+		return animate
+			? [...rehypePlugins, rehypeFadeInWords, rehypeCITPlugin]
+			: [...rehypePlugins, rehypeCITPlugin];
+	}, [animate]);
+
 	return (
 		<ReactMarkdown
 			remarkPlugins={remarkPlugins}
-			rehypePlugins={rehypePlugins}
+			rehypePlugins={updatedRehypePlugins}
 			components={components}
-			className="markdown-custom-content"
+			className={`markdown-custom-content ${animate ? 'markdown-custom-animate' : ''}`}
 		>
 			{markdown}
 		</ReactMarkdown>
@@ -431,7 +514,8 @@ export const Markdown = memo(NonMemoizedMarkdown, (prevProps, nextProps) => {
 	const citationsEqual =
 		(!prevProps.citations && !nextProps.citations) ||
 		(prevProps.citations?.length === nextProps.citations?.length &&
-			JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations));
+			JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations)) ||
+		prevProps.animate === nextProps.animate;
 
 	return prevProps.children === nextProps.children && citationsEqual;
 });

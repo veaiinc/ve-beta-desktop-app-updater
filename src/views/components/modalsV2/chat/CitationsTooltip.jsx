@@ -83,6 +83,7 @@ export const CitationsTooltip = memo(({ citationId, citations = [], placement = 
 			arrow={false}
 			trigger={'hover'}
 			color="transparent"
+			open={citationInfo?.source ? undefined : false}
 			placement={placement}
 			rootClassName="citation-tooltip-wrapper"
 			title={
@@ -139,7 +140,7 @@ export const CitationsTooltip = memo(({ citationId, citations = [], placement = 
 				</div>
 			}
 		>
-			<div
+			<button
 				className="citation-container"
 				onClick={(e) => {
 					e?.stopPropagation();
@@ -186,7 +187,7 @@ export const CitationsTooltip = memo(({ citationId, citations = [], placement = 
 						</div>
 					</div>
 				</span>
-			</div>
+			</button>
 		</Tooltip>
 	);
 });
