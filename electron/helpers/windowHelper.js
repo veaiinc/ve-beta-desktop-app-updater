@@ -975,6 +975,38 @@ class WindowHelper {
 		}
 	}
 
+	// Test shortcuts functionality
+	testShortcuts() {
+		log.info('🧪 Testing shortcuts functionality...');
+		
+		// Test if shortcuts are registered
+		const shortcutsToTest = [
+			'CommandOrControl+\\',
+			'CommandOrControl+Return',
+			'F12',
+			'CommandOrControl+F12',
+			'CommandOrControl+Shift+I',
+		];
+
+		shortcutsToTest.forEach((shortcut) => {
+			const isRegistered = globalShortcut.isRegistered(shortcut);
+			log.info(`🔧 ${shortcut}: ${isRegistered ? '✅ REGISTERED' : '❌ NOT REGISTERED'}`);
+		});
+
+		// Test window creation
+		if (!this.overlayWindow) {
+			log.info('Creating test overlay window...');
+			this.createOverlayWindow();
+		}
+
+		if (!this.askAIWindow) {
+			log.info('Creating test Ask AI window...');
+			this.createAskAIWindow();
+		}
+
+		log.info('✅ Shortcuts test completed');
+	}
+
 	// Cleanup method to properly close all windows and resources
 	cleanup() {
 		try {
