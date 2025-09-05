@@ -27,7 +27,6 @@ self.addEventListener('install', (event) => {
 	console.log('[SW] Installing service worker...');
 	event.waitUntil(
 		caches.open(CACHE_NAME).then((cache) => {
-			console.log('[SW] Caching offline resources');
 			return cache.addAll([OFFLINE_URL, FONTS_URL]);
 		}),
 	);
@@ -36,13 +35,11 @@ self.addEventListener('install', (event) => {
 
 // Activate and clean old caches
 self.addEventListener('activate', (event) => {
-	console.log('[SW] Activating service worker...');
 	event.waitUntil(
 		caches.keys().then((keys) =>
 			Promise.all(
 				keys.map((key) => {
 					if (key !== CACHE_NAME) {
-						console.log('[SW] Deleting old cache:', key);
 						return caches.delete(key);
 					}
 				}),
@@ -64,7 +61,6 @@ self.addEventListener('fetch', (event) => {
 					// Try network first
 					return await fetch(event.request);
 				} catch (error) {
-					console.log('[SW] Network failed, serving offline page');
 					// If offline, return offline.html
 					return await caches.match(OFFLINE_URL, { ignoreSearch: true });
 				}
@@ -77,8 +73,6 @@ self.addEventListener('fetch', (event) => {
 
 // Handle background messages (push notifications)
 messaging.onBackgroundMessage((payload) => {
-	console.log('[SW] Background message received:', payload);
-
 	const { title, body, image } = payload.notification || {};
 
 	self.registration.showNotification(title || 'New Notification', {
@@ -98,8 +92,6 @@ messaging.onBackgroundMessage((payload) => {
 
 // Handle notification clicks
 self.addEventListener('notificationclick', (event) => {
-	console.log('[SW] Notification clicked:', event);
-
 	event.notification.close();
 
 	if (event.action === 'open' || !event.action) {

@@ -5,7 +5,7 @@ const registerUnifiedSW = async () => {
 			await navigator.serviceWorker.register('/sw.js');
 
 			const registration = await navigator.serviceWorker.ready;
-			console.log('Unified service worker registered successfully');
+			// console.log('Unified service worker registered successfully');
 
 			return registration;
 		} catch (error) {
