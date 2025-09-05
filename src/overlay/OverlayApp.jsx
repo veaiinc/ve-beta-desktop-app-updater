@@ -170,11 +170,14 @@ const OverlayApp = () => {
 		isConnected,
 		isRecording,
 		isMuted,
+		isPaused,
 		timer,
 		connectionStatus,
 		startAudioCapture,
 		stopRecording,
 		toggleMute,
+		pauseRecording,
+		resumeRecording,
 		// formatTime,
 		startRecording,
 	} = useAssemblyTranscription({
@@ -304,13 +307,12 @@ const OverlayApp = () => {
 	};
 
 	const handleTogglePause = () => {
-		const newIsPaused = !info?.isPaused;
-		setInfo((prev) => ({
-			...prev,
-			isPaused: newIsPaused,
-		}));
-		toggleMute();
-		console.log('isMuted', isMuted);
+		if (isPaused) {
+			resumeRecording();
+		} else {
+			pauseRecording();
+		}
+		console.log('isPaused', isPaused);
 	};
 
 	// Effects
@@ -338,11 +340,11 @@ const OverlayApp = () => {
 					break;
 				case 'pauseRecording':
 					console.log('⏸️ Dynamic Island PAUSE: Pausing recording...');
-					handleTogglePause();
+					pauseRecording();
 					break;
 				case 'resumeRecording':
 					console.log('▶️ Dynamic Island RESUME: Resuming recording...');
-					handleTogglePause();
+					resumeRecording();
 					break;
 				case 'toggleLiveIntelligence':
 					console.log(
@@ -497,6 +499,13 @@ const OverlayApp = () => {
 		}
 	};
 
+	const handleHideOverlay = () => {
+		// Hide overlay window without stopping recording
+		if (window.electronApi?.overlay?.hideOverlayWindow) {
+			window.electronApi.overlay.hideOverlayWindow();
+		}
+	};
+
 	const handleShowTranscript = () => {
 		setActivePanel('transcript');
 	};
@@ -509,7 +518,7 @@ const OverlayApp = () => {
 	const sendRecordingStateUpdate = () => {
 		const state = {
 			isRecording,
-			isPaused: isMuted,
+			isPaused: isPaused,
 			timer,
 			isLiveIntelligenceOpen: activePanel === 'live-intelligence',
 			transcriptionsCount: info?.transcriptions?.length,
@@ -657,12 +666,21 @@ const OverlayApp = () => {
 		}
 	}, [activePanel, calculateDynamicDimensions]);
 
+	// Sync isPaused state with hook
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			isPaused: isPaused,
+		}));
+	}, [isPaused]);
+
 	// Send state updates to Dynamic Island when recording state changes
 	useEffect(() => {
 		sendRecordingStateUpdate();
 	}, [
 		isRecording,
 		isMuted,
+		isPaused,
 		timer,
 		activePanel,
 		info?.transcriptions?.length,
@@ -739,11 +757,11 @@ const OverlayApp = () => {
 						<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
 					</div>
 					<LiveIntelligencePanel
-						onClose={handleClosePanel}
+						onClose={handleHideOverlay}
 						onShowTranscript={handleShowTranscript}
 						transcriptions={aiTranscriptionSuggestions}
 						isRecording={isRecording}
-						isPaused={isMuted}
+						isPaused={isPaused}
 						timer={timer}
 						formatTime={formatTime}
 						socketData={info?.liveIntelligenceData}
@@ -757,11 +775,11 @@ const OverlayApp = () => {
 						<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
 					</div>
 					<TranscriptPanel
-						onClose={handleClosePanel}
+						onClose={handleHideOverlay}
 						onShowLiveIntelligence={handleShowLiveIntelligence}
 						transcriptions={info?.transcriptions}
 						isRecording={isRecording}
-						isPaused={isMuted}
+						isPaused={isPaused}
 						timer={timer}
 						isConnected={isConnected}
 						// localAudioTrack={localAudioTrack}

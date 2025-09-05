@@ -124,6 +124,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 		testCommand: (command) => ipcRenderer.invoke('test-overlay-command', command),
 		// Test overlay window creation
 		testWindow: () => ipcRenderer.invoke('test-overlay-window'),
+		// Hide overlay window only (without stopping recording)
+		hideOverlayWindow: () => ipcRenderer.invoke('hide-overlay-window'),
 	},
 
 	// Ask AI window APIs

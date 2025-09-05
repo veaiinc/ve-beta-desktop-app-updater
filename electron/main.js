@@ -185,7 +185,7 @@ class DynamicIslandHelper {
 
 		// Show the window
 		this.dynamicIslandWindow.show();
-		
+
 		log.info('Dynamic Island window created and shown');
 
 		// Listen for resize events from the renderer
@@ -333,19 +333,19 @@ class DynamicIslandHelper {
 				this.dynamicIslandWindow.setSize(this.expandedSize.width, this.expandedSize.height);
 				this.dynamicIslandWindow.setPosition(this.position.x, this.position.y);
 				this.isExpanded = true;
-				
+
 				// Enable mouse events when expanded so user can interact with it
 				this.setMouseEventHandling(false);
-				
+
 				// Make window focusable when expanded so input fields can receive focus
 				this.dynamicIslandWindow.setFocusable(true);
-				
+
 				// Send state change to the window
 				this.dynamicIslandWindow.webContents.send('dynamic-island-state', {
 					expanded: true,
-					visible: true
+					visible: true,
 				});
-				
+
 				log.info('Dynamic Island expanded');
 			} catch (error) {
 				log.error('Error expanding Dynamic Island:', error);
@@ -936,23 +936,23 @@ app.whenReady().then(() => {
 
 	// Initialize wake word service
 	wakeWordService = new WakeWordService();
-	
+
 	// Add wake word detection handler
 	wakeWordService.addListener((event) => {
 		log.info('Wake word detected, triggering Dynamic Island voice mode:', event);
-		
+
 		// Trigger Dynamic Island voice mode - like "Hey Siri" behavior
 		if (dynamicIslandHelper) {
 			// Show and expand the dynamic island
 			dynamicIslandHelper.showDynamicIsland();
 			dynamicIslandHelper.expandDynamicIsland();
-			
+
 			// Trigger voice mode connection
 			// Send IPC message to dynamic island to start voice mode
 			if (dynamicIslandHelper.getDynamicIslandWindow()) {
 				dynamicIslandHelper.getDynamicIslandWindow().webContents.send('trigger-voice-mode');
 			}
-			
+
 			log.info('Dynamic Island voice mode triggered via wake word');
 		}
 	});
@@ -1689,6 +1689,20 @@ app.whenReady().then(() => {
 		}
 	});
 
+	// Handler to hide overlay window only (without stopping recording)
+	ipcMain.handle('hide-overlay-window', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.hideOverlayWindow();
+			return { success: true };
+		} catch (error) {
+			log.error('Error hiding overlay window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	ipcMain.handle('toggle-askAI-window', async () => {
 		try {
 			if (!windowHelper) {
@@ -2200,9 +2214,9 @@ app.whenReady().then(() => {
 	});
 
 	ipcMain.handle('wake-word-status', () => {
-		return { 
-			success: true, 
-			isRunning: wakeWordService ? wakeWordService.isRunning : false 
+		return {
+			success: true,
+			isRunning: wakeWordService ? wakeWordService.isRunning : false,
 		};
 	});
 
