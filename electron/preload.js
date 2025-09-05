@@ -225,6 +225,13 @@ contextBridge.exposeInMainWorld('electronApi', {
 		requestPermission: () => ipcRenderer.invoke('request-microphone-permission'),
 	},
 
+	// Wake word APIs
+	wakeWord: {
+		start: () => ipcRenderer.invoke('wake-word-start'),
+		stop: () => ipcRenderer.invoke('wake-word-stop'),
+		getStatus: () => ipcRenderer.invoke('wake-word-status'),
+	},
+
 	// Clipboard APIs
 	clipboard: {
 		writeText: (text) => ipcRenderer.invoke('clipboard-write-text', text),
@@ -277,6 +284,14 @@ contextBridge.exposeInMainWorld('electronApi', {
 		},
 		removeStateChangeListener: () => {
 			ipcRenderer.removeAllListeners('dynamic-island-state');
+		},
+		onVoiceModeTrigger: (callback) => {
+			ipcRenderer.on('trigger-voice-mode', (event) => {
+				callback();
+			});
+		},
+		removeVoiceModeTriggerListener: () => {
+			ipcRenderer.removeAllListeners('trigger-voice-mode');
 		},
 		// Listen for overlay state changes
 		onOverlayStateChange: (callback) => {
