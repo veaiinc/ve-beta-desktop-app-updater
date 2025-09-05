@@ -32,11 +32,13 @@ const stopCamera = (stream) => {
 };
 
 const DynamicIslandUI = () => {
+	console.log('🏝️ DynamicIslandUI component rendering...');
 	const dynamicIslandRef = useRef(null);
 	const videoRef = useRef(null);
 	const chatInputRef = useRef(null); // Add ref for chat input
 	const voiceMessagesRef = useRef(null); // Add ref for voice messages container
-	const [isExpanded, setIsExpanded] = useState(false);
+	const [isExpanded, setIsExpanded] = useState(false); // Start collapsed by default
+	console.log('🏝️ Initial isExpanded state:', false);
 	const [isConnected, setIsConnected] = useState(false);
 	// Overlay state - synced from overlay window
 	const [isRecording, setIsRecording] = useState(false);
@@ -104,7 +106,11 @@ const DynamicIslandUI = () => {
 
 			// Listen for dynamic island state changes
 			window.electronApi.dynamicIsland.onStateChange((data) => {
-				setIsExpanded(data.expanded);
+				console.log('🏝️ Dynamic Island state changed:', data);
+				if (data.expanded !== undefined) {
+					console.log('🏝️ Setting isExpanded to:', data.expanded);
+					setIsExpanded(data.expanded);
+				}
 			});
 
 			// Listen for overlay state changes to sync recording state
@@ -125,6 +131,19 @@ const DynamicIslandUI = () => {
 					isRecording: state.isRecording,
 				});
 			});
+
+			// Listen for voice mode trigger from wake word
+			window.electronApi.dynamicIsland.onVoiceModeTrigger(() => {
+				console.log('🎤 Voice mode triggered from wake word');
+				// Like "Hey Siri" - always start voice mode if not already active
+				// Don't toggle off if already active, just ensure it's running
+				if (!isVoiceModeActive) {
+					console.log('🎤 Starting voice mode from wake word');
+					handleVoiceModeClick();
+				} else {
+					console.log('🎤 Voice mode already active, keeping it running');
+				}
+			});
 		}
 
 		return () => {
@@ -135,6 +154,9 @@ const DynamicIslandUI = () => {
 			}
 			if (window.electronApi?.dynamicIsland?.removeOverlayStateListener) {
 				window.electronApi.dynamicIsland.removeOverlayStateListener();
+			}
+			if (window.electronApi?.dynamicIsland?.removeVoiceModeTriggerListener) {
+				window.electronApi.dynamicIsland.removeVoiceModeTriggerListener();
 			}
 		};
 	}, []);
@@ -346,6 +368,7 @@ const DynamicIslandUI = () => {
 
 	const handleMouseLeave = () => {
 		console.log('🚪 MOUSE LEAVE - Collapsing to pill!');
+		// Always allow collapse - voice mode should continue working in background
 		if (isExpanded && isConnected) {
 			collapse();
 		}
@@ -1008,12 +1031,20 @@ const DynamicIslandUI = () => {
 		}
 	};
 
-	// Format time for display
+	// Format time for display - counts up from 0 to 29:50
 	const formatTime = (seconds) => {
-		const m = Math.floor(seconds / 60)
+		// Count up from 0 to 29:50 (29 minutes and 50 seconds = 1790 seconds)
+		const totalSeconds = seconds;
+
+		// Cap at 29:50 (1790 seconds)
+		if (totalSeconds >= 1790) {
+			return '29:50';
+		}
+
+		const m = Math.floor(totalSeconds / 60)
 			.toString()
 			.padStart(1, '0');
-		const s = (seconds % 60).toString().padStart(2, '0');
+		const s = (totalSeconds % 60).toString().padStart(2, '0');
 		return `${m}:${s}`;
 	};
 
@@ -1084,6 +1115,7 @@ const DynamicIslandUI = () => {
 		}
 	};
 
+	console.log('🏝️ Rendering Dynamic Island with isExpanded:', isExpanded);
 	return (
 		<div
 			ref={dynamicIslandRef}
@@ -1098,68 +1130,8 @@ const DynamicIslandUI = () => {
 		>
 			{/* Simple content when collapsed */}
 			<div className="island-content">
-				{controlledByDynamicIsland ? (
-					isRecording ? (
-						<div className="collapsed-recording-content">
-							{isChatMode ? (
-								// Chat mode in collapsed recording state
-								<div className="collapsed-chat-recording">
-									<div className="collapsed-chat-input">
-										<input
-											type="text"
-											placeholder="Ask about recording..."
-											className="collapsed-chat-field"
-											value={chatInput}
-											onChange={handleChatInputChange}
-											onKeyPress={handleChatInputKeyPress}
-											onFocus={() => {
-												if (
-													window.electronApi?.dynamicIsland
-														?.setChatMode &&
-													!isSettingChatMode
-												) {
-													setIsSettingChatMode(true);
-													window.electronApi.dynamicIsland
-														.setChatMode(true)
-														.then(() => setIsSettingChatMode(false))
-														.catch(() => setIsSettingChatMode(false));
-												}
-											}}
-										/>
-									</div>
-									<div
-										className="collapsed-chat-submit"
-										onClick={handleChatSubmit}
-									>
-										<ArrowIcon />
-									</div>
-								</div>
-							) : (
-								// Normal recording state
-								<>
-									<span className="collapsed-recording-text">
-										{isPaused
-											? `Paused ${formatTime(timer)}`
-											: `Recording ${formatTime(timer)}`}
-									</span>
-									{!isPaused && (
-										<div className="collapsed-voice-animation">
-											<div className="collapsed-voice-visualizer">
-												<div className="audio-bar"></div>
-												<div className="audio-bar"></div>
-												<div className="audio-bar"></div>
-												<div className="audio-bar"></div>
-												<div className="audio-bar"></div>
-											</div>
-										</div>
-									)}
-									{isPaused && <PauseIcon />}
-								</>
-							)}
-						</div>
-					) : (
-						'Living Intelligence'
-					)
+				{isChatMode ? (
+					'Chat Mode'
 				) : showVoiceInterface ? (
 					<div className="voice-agent-collapsed">
 						<span>Voice Agent</span>
@@ -1171,8 +1143,30 @@ const DynamicIslandUI = () => {
 							<div className="wave-bar"></div>
 						</div>
 					</div>
-				) : isChatMode ? (
-					'Chat Mode'
+				) : controlledByDynamicIsland ? (
+					isRecording ? (
+						<div className="collapsed-recording-content">
+							<span className="collapsed-recording-text">
+								{isPaused
+									? `Paused ${formatTime(timer)}`
+									: `Recording ${formatTime(timer)}`}
+							</span>
+							{!isPaused && (
+								<div className="collapsed-voice-animation">
+									<div className="collapsed-voice-visualizer">
+										<div className="audio-bar"></div>
+										<div className="audio-bar"></div>
+										<div className="audio-bar"></div>
+										<div className="audio-bar"></div>
+										<div className="audio-bar"></div>
+									</div>
+								</div>
+							)}
+							{isPaused && <PauseIcon />}
+						</div>
+					) : (
+						'Living Intelligence'
+					)
 				) : (
 					'Living Intelligence'
 				)}
@@ -1238,11 +1232,30 @@ const DynamicIslandUI = () => {
 										</span>
 									</div>
 								) : showVoiceInterface ? (
-									<div className="voice-mode-indicator">
-										<div className="voice-mode-icon">
-											<VoiceModeIcon />
+									<div className="voice-mode-indicators">
+										<div
+											className="voice-mic-icon"
+											onClick={handleMicrophoneToggle}
+											title={
+												isMicrophoneMuted
+													? 'Click to unmute'
+													: 'Click to mute'
+											}
+										>
+											{isMicrophoneMuted ? (
+												<MutedMicrophoneIcon />
+											) : (
+												<MicrophoneIcon />
+											)}
 										</div>
-										<span className="voice-mode-text">Voice Agent</span>
+										<div
+											className="voice-stop-btn"
+											onClick={handleInlineVoiceDisconnect}
+											title="Stop voice assistant"
+										>
+											<div className="stop-icon"></div>
+											<span className="stop-text">Stop</span>
+										</div>
 									</div>
 								) : (
 									<div className="recording-controls">
@@ -1287,24 +1300,20 @@ const DynamicIslandUI = () => {
 
 							{/* Right side icons */}
 							<div className="right-icons">
-								{(isChatMode || showVoiceInterface) && (
+								{isChatMode && (
 									<div
 										className="back-button"
 										title="Back to main view"
 										onClick={() => {
-											if (showVoiceInterface) {
-												handleInlineVoiceDisconnect();
-											} else if (isChatMode) {
-												setIsChatMode(false);
-												setChatInput('');
-												// Disable focus when exiting chat mode
-												if (
-													window.electronApi?.dynamicIsland?.setChatMode
-												) {
-													window.electronApi.dynamicIsland.setChatMode(
-														false,
-													);
-												}
+											setIsChatMode(false);
+											setChatInput('');
+											// Disable focus when exiting chat mode
+											if (
+												window.electronApi?.dynamicIsland?.setChatMode
+											) {
+												window.electronApi.dynamicIsland.setChatMode(
+													false,
+												);
 											}
 										}}
 									>
@@ -1440,31 +1449,6 @@ const DynamicIslandUI = () => {
 												</div>
 											</div>
 
-											<div className="voice-action-buttons">
-												<div
-													className="voice-close-btn"
-													onClick={handleInlineVoiceDisconnect}
-												>
-													<CloseIcon />
-												</div>
-												<div
-													className={`voice-mic-btn ${
-														isMicrophoneMuted ? 'muted' : ''
-													}`}
-													onClick={handleMicrophoneToggle}
-													title={
-														isMicrophoneMuted
-															? 'Click to unmute'
-															: 'Click to mute'
-													}
-												>
-													{isMicrophoneMuted ? (
-														<MutedMicrophoneIcon />
-													) : (
-														<MicrophoneIcon />
-													)}
-												</div>
-											</div>
 										</div>
 									</div>
 								</div>
