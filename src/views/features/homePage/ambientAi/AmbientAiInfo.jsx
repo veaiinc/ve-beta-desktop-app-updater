@@ -767,7 +767,7 @@ const AmbientAiInfo = ({
 										<div className="chain-of-thought-content">
 											<ChainOfThoughtInterpreter
 												data={info?.chainOfThoughtData}
-												citations={thinker_sources || null}
+												citations={thinker_sources || []}
 												confidenceScore={confidence_score}
 											/>
 										</div>
@@ -780,7 +780,7 @@ const AmbientAiInfo = ({
 											className="report-description"
 											onClick={(e) => e.stopPropagation()}
 										>
-											<Markdown citations={thinker_sources || null}>
+											<Markdown citations={thinker_sources || []}>
 												{research_report || ''}
 											</Markdown>
 										</div>

@@ -15,6 +15,7 @@ const useAssemblyTranscription = ({
 	const [isConnected, setIsConnected] = useState(false);
 	const [isRecording, setIsRecording] = useState(false);
 	const [isMuted, setIsMuted] = useState(false);
+	const [isPaused, setIsPaused] = useState(false);
 	const [timer, setTimer] = useState(0);
 	const [connectionStatus, setConnectionStatus] = useState('disconnected');
 
@@ -153,66 +154,69 @@ const useAssemblyTranscription = ({
 		}, delay);
 	}, [isConnected]);
 
-	const stopRecording = useCallback(({ meetingId }) => {
-		if (!isMountedRef.current) return;
+	const stopRecording = useCallback(
+		({ meetingId }) => {
+			if (!isMountedRef.current) return;
 
-		log('Stopping recording...');
+			log('Stopping recording...');
 
-		setIsRecording(false);
-		setTimer(0);
+			setIsRecording(false);
+			setTimer(0);
 
-		// Clear timer
-		if (timerIntervalRef.current) {
-			clearInterval(timerIntervalRef.current);
-			timerIntervalRef.current = null;
-		}
-
-		// Disconnect audio nodes in correct order
-		if (processorRef.current) {
-			try {
-				processorRef.current.disconnect();
-				processorRef.current.onaudioprocess = null; // Remove event listener
-			} catch (e) {
-				log(`Error disconnecting processor: ${e.message}`);
+			// Clear timer
+			if (timerIntervalRef.current) {
+				clearInterval(timerIntervalRef.current);
+				timerIntervalRef.current = null;
 			}
-			processorRef.current = null;
-		}
 
-		if (sourceRef.current) {
-			try {
-				sourceRef.current.disconnect();
-			} catch (e) {
-				log(`Error disconnecting source: ${e.message}`);
+			// Disconnect audio nodes in correct order
+			if (processorRef.current) {
+				try {
+					processorRef.current.disconnect();
+					processorRef.current.onaudioprocess = null; // Remove event listener
+				} catch (e) {
+					log(`Error disconnecting processor: ${e.message}`);
+				}
+				processorRef.current = null;
 			}
-			sourceRef.current = null;
-		}
 
-		// Stop stream tracks before closing audio context
-		if (streamRef.current) {
-			try {
-				streamRef.current.getTracks().forEach((track) => track.stop());
-			} catch (e) {
-				log(`Error stopping stream tracks: ${e.message}`);
+			if (sourceRef.current) {
+				try {
+					sourceRef.current.disconnect();
+				} catch (e) {
+					log(`Error disconnecting source: ${e.message}`);
+				}
+				sourceRef.current = null;
 			}
-			streamRef.current = null;
-		}
 
-		// Close audio context last
-		if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-			try {
-				audioContextRef.current.close();
-			} catch (e) {
-				log(`Error closing audio context: ${e.message}`);
+			// Stop stream tracks before closing audio context
+			if (streamRef.current) {
+				try {
+					streamRef.current.getTracks().forEach((track) => track.stop());
+				} catch (e) {
+					log(`Error stopping stream tracks: ${e.message}`);
+				}
+				streamRef.current = null;
 			}
-			audioContextRef.current = null;
-		}
 
-		// Reset buffers
-		audioBufferRef.current = [];
-		sampleCountRef.current = 0;
-		cleanup();
-		initializeMeetingSummary({ meeting_id: meetingId });
-	}, [log]);
+			// Close audio context last
+			if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+				try {
+					audioContextRef.current.close();
+				} catch (e) {
+					log(`Error closing audio context: ${e.message}`);
+				}
+				audioContextRef.current = null;
+			}
+
+			// Reset buffers
+			audioBufferRef.current = [];
+			sampleCountRef.current = 0;
+			cleanup();
+			initializeMeetingSummary({ meeting_id: meetingId });
+		},
+		[log],
+	);
 
 	const connect = useCallback(
 		async ({ tenantId, sessionId, meetingId, jwtToken, isAiIntelligenceEnabled }) => {
@@ -556,6 +560,41 @@ const useAssemblyTranscription = ({
 		// (This matches typical meeting behavior where time tracks total session duration)
 	}, [isMuted, log]);
 
+	const pauseRecording = useCallback(() => {
+		if (!isRecording || isPaused) return;
+
+		log('Pausing recording...');
+		setIsPaused(true);
+		muteRef.current = true; // Stop audio processing
+
+		// Clear any pending audio buffer
+		audioBufferRef.current = [];
+		sampleCountRef.current = 0;
+
+		// Pause the timer
+		if (timerIntervalRef.current) {
+			clearInterval(timerIntervalRef.current);
+			timerIntervalRef.current = null;
+		}
+	}, [isRecording, isPaused, log]);
+
+	const resumeRecording = useCallback(() => {
+		if (!isRecording || !isPaused) return;
+
+		log('Resuming recording...');
+		setIsPaused(false);
+		muteRef.current = false; // Resume audio processing
+
+		// Resume the timer
+		if (isMountedRef.current) {
+			timerIntervalRef.current = setInterval(() => {
+				if (isMountedRef.current) {
+					setTimer((prev) => prev + 1);
+				}
+			}, 1000);
+		}
+	}, [isRecording, isPaused, log]);
+
 	const formatTime = useCallback((seconds) => {
 		const m = Math.floor(seconds / 60).toString();
 		const s = (seconds % 60).toString().padStart(2, '0');
@@ -592,11 +631,14 @@ const useAssemblyTranscription = ({
 		isConnected,
 		isRecording,
 		isMuted,
+		isPaused,
 		timer,
 		connectionStatus,
 		startAudioCapture,
 		stopRecording,
 		toggleMute,
+		pauseRecording,
+		resumeRecording,
 		formatTime,
 		startRecording,
 	};

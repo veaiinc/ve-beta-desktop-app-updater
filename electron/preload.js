@@ -124,6 +124,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 		testCommand: (command) => ipcRenderer.invoke('test-overlay-command', command),
 		// Test overlay window creation
 		testWindow: () => ipcRenderer.invoke('test-overlay-window'),
+		// Hide overlay window only (without stopping recording)
+		hideOverlayWindow: () => ipcRenderer.invoke('hide-overlay-window'),
 	},
 
 	// Ask AI window APIs
@@ -163,6 +165,45 @@ contextBridge.exposeInMainWorld('electronApi', {
 		},
 	},
 
+	// Are You There window APIs
+	areYouThere: {
+		continueMeeting: () => ipcRenderer.invoke('are-you-there-continue-meeting'),
+		autoContinueMeeting: () => ipcRenderer.invoke('are-you-there-auto-continue-meeting'),
+		stopMeeting: () => ipcRenderer.invoke('are-you-there-stop-meeting'),
+		pauseMeetingIntelligence: () =>
+			ipcRenderer.invoke('are-you-there-pause-meeting-intelligence'),
+		endSession: () => ipcRenderer.invoke('are-you-there-end-session'),
+		getCurrentRecordingTime: () => ipcRenderer.invoke('are-you-there-get-recording-time'),
+		checkRecordingState: () => ipcRenderer.invoke('are-you-there-check-recording-state'),
+		onShowCommand: (callback) => {
+			ipcRenderer.on('are-you-there-show-command', (event, data) => {
+				callback(data);
+			});
+		},
+		removeShowCommandListener: () => {
+			ipcRenderer.removeAllListeners('are-you-there-show-command');
+		},
+		onCloseCommand: (callback) => {
+			ipcRenderer.on('are-you-there-close-command', (event, data) => {
+				callback(data);
+			});
+		},
+		removeCloseCommandListener: () => {
+			ipcRenderer.removeAllListeners('are-you-there-close-command');
+		},
+		// New transcription-based Are You There APIs
+		updateTranscriptionActivity: () => ipcRenderer.invoke('update-transcription-activity'),
+		continueTranscription: () => ipcRenderer.invoke('are-you-there-continue-transcription'),
+		stopTranscriptionMonitoring: () =>
+			ipcRenderer.invoke('are-you-there-stop-transcription-monitoring'),
+		pauseTranscriptionMonitoring: () =>
+			ipcRenderer.invoke('are-you-there-pause-transcription-monitoring'),
+		endTranscriptionSession: () =>
+			ipcRenderer.invoke('are-you-there-end-transcription-session'),
+		getTranscriptionDetectionState: () =>
+			ipcRenderer.invoke('get-transcription-detection-state'),
+	},
+
 	// Home icon click handler (cross-platform)
 	home: {
 		restoreMainWindow: () => ipcRenderer.invoke('restore-main-window'),
@@ -184,6 +225,13 @@ contextBridge.exposeInMainWorld('electronApi', {
 	microphone: {
 		checkPermission: () => ipcRenderer.invoke('check-microphone-permission'),
 		requestPermission: () => ipcRenderer.invoke('request-microphone-permission'),
+	},
+
+	// Wake word APIs
+	wakeWord: {
+		start: () => ipcRenderer.invoke('wake-word-start'),
+		stop: () => ipcRenderer.invoke('wake-word-stop'),
+		getStatus: () => ipcRenderer.invoke('wake-word-status'),
 	},
 
 	// Clipboard APIs
@@ -238,6 +286,14 @@ contextBridge.exposeInMainWorld('electronApi', {
 		},
 		removeStateChangeListener: () => {
 			ipcRenderer.removeAllListeners('dynamic-island-state');
+		},
+		onVoiceModeTrigger: (callback) => {
+			ipcRenderer.on('trigger-voice-mode', (event) => {
+				callback();
+			});
+		},
+		removeVoiceModeTriggerListener: () => {
+			ipcRenderer.removeAllListeners('trigger-voice-mode');
 		},
 		// Listen for overlay state changes
 		onOverlayStateChange: (callback) => {

@@ -9,17 +9,13 @@ export const handleDeepSearchChainOfThought = (chainOfThought) => {
 		if (data?.step) {
 			cot?.push({ step: data?.step, readings: data?.reading || [] });
 		}
-
-		// if (data?.memory_thinking) {
-		// 	cot?.push({ step: data?.memory_thinking });
-		// }
 	}
 
-	return { cot };
+	return cot;
 };
 
-export const updateCitationIdsWithCitations = (input = '', citations = null) => {
-	const regex = /\[C\d+\]/g;
+export const updateCitationIdsWithCitations = (input = '', citations = []) => {
+	const regex = /\[C\d+\]/g; // citation regex [C1] [C2] [C3] etc.
 	const parts = input?.split(regex);
 	const matches = input?.match(regex) || [];
 	const result = [];
