@@ -1246,11 +1246,6 @@ app.whenReady().then(async () => {
 	setTimeout(() => {
 		log.info('📋 Phase 5: Testing system readiness...');
 
-		// Test shortcuts
-		if (windowHelper) {
-			windowHelper.testShortcuts();
-		}
-
 		// Test NotchDrop service readiness
 		if (notchDropService && notchDropService.isInitialized) {
 			try {
