@@ -45,7 +45,7 @@ struct DynamicIslandContentView: View {
                         .foregroundColor(.white.opacity(0.8))
                     
                     // Test button to toggle authentication
-                    Button("Test Login") {
+                    Button("Login") {
                         vm.setAuthenticated(!vm.isAuthenticated)
                     }
                     .font(.system(size: 12, weight: .medium))
@@ -85,7 +85,7 @@ struct DynamicIslandContentView: View {
                                     }
                                     .padding(.horizontal, 10)
                                     .padding(.vertical, 2)
-                                    .background(DynamicIslandTheme.primaryGreen)
+                                    .background(DynamicIslandTheme.textPrimary)
                                     .clipShape(Capsule())
                                 }
                                 .buttonStyle(PlainButtonStyle())
@@ -187,59 +187,70 @@ struct DynamicIslandContentView: View {
                             }
 
                             // Audio visualizer
-                            HStack(spacing: 2) {
-                                ForEach(0..<5, id: \.self) { index in
-                                    RoundedRectangle(cornerRadius: 1.6)
-                                        .fill(DynamicIslandTheme.primaryGreen)
-                                        .frame(width: 1.6, height: [6, 14, 10, 4, 6][index])
-                                }
-                            }
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 4)
-                            .background(Color.white.opacity(0.2))
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                            // HStack(spacing: 2) {
+                            //     ForEach(0..<5, id: \.self) { index in
+                            //         RoundedRectangle(cornerRadius: 1.6)
+                            //             .fill(DynamicIslandTheme.primaryGreen)
+                            //             .frame(width: 1.6, height: [6, 14, 10, 4, 6][index])
+                            //     }
+                            // }
+                            // .padding(.horizontal, 6)
+                            // .padding(.vertical, 4)
+                            // .background(Color.white.opacity(0.2))
+                            // .clipShape(RoundedRectangle(cornerRadius: 4))
                         }
                         
                         Spacer()
+                            .contentShape(Rectangle()) // Make spacer area tappable
+                            .onTapGesture {
+                                // Click on spacer area should unfocus chat input
+                                if isChatInputFocused {
+                                    print("🎯 Clicked on spacer area - removing focus from chat input")
+                                    isChatInputFocused = false
+                                    isTextFieldActive = false
+                                    vm.isChatMode = false
+                                }
+                            }
                         
                         // Right side icons (parity: Back + Home only)
                         HStack(spacing: 8) {
-                            if vm.isChatMode || vm.showVoiceInterface {
-                                // Back button
-                                Button(action: {
-                                    if vm.showVoiceInterface {
-                                        vm.disconnectVoiceUI()
-                                    } else {
-                                        vm.toggleChatMode()
-                                    }
-                                }) {
-                                    HStack(spacing: 8) {
-                                        Image(systemName: "chevron.left")
-                                            .font(.system(size: 12))
-                                        Text("Back")
-                                            .font(.system(size: 11, weight: .medium))
-                                    }
-                                    .foregroundColor(DynamicIslandTheme.textPrimary)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 2)
-                                    .background(Color.clear)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                            }
+                            // COMMENTED OUT: Back button (as requested)
+                            // if vm.isChatMode || vm.showVoiceInterface {
+                            //     // Back button
+                            //     Button(action: {
+                            //         if vm.showVoiceInterface {
+                            //             vm.disconnectVoiceUI()
+                            //         } else {
+                            //             vm.toggleChatMode()
+                            //         }
+                            //     }) {
+                            //         HStack(spacing: 8) {
+                            //             Image(systemName: "chevron.left")
+                            //                 .font(.system(size: 12))
+                            //             Text("Back")
+                            //                 .font(.system(size: 11, weight: .medium))
+                            //         }
+                            //         .foregroundColor(DynamicIslandTheme.textPrimary)
+                            //         .padding(.horizontal, 8)
+                            //         .padding(.vertical, 2)
+                            //         .background(Color.clear)
+                            //         .clipShape(RoundedRectangle(cornerRadius: 8))
+                            //     }
+                            //     .buttonStyle(PlainButtonStyle())
+                            // }
 
                             // Home icon
-                            Button(action: {
-                                // Home action (placeholder for parity)
-                            }) {
-                                Image(systemName: "house.fill")
-                                    .font(.system(size: 18))
-                                    .foregroundColor(.white)
-                                    .frame(width: 24, height: 24)
-                                    .background(Color.white.opacity(0.15))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                            }
-                            .buttonStyle(PlainButtonStyle())
+                            // Button(action: {
+                            //     // Home action (placeholder for parity)
+                            // }) {
+                            //     Image(systemName: "house.fill")
+                            //         .font(.system(size: 18))
+                            //         .foregroundColor(.white)
+                            //         .frame(width: 24, height: 24)
+                            //         .background(Color.white.opacity(0.15))
+                            //         .clipShape(RoundedRectangle(cornerRadius: 8))
+                            // }
+                            // .buttonStyle(PlainButtonStyle())
                         }
                     }
                     
@@ -284,64 +295,65 @@ struct DynamicIslandContentView: View {
                             .padding(.top, 4)
                             #endif
                             
-                            // Right-hand tile: Only show when NOT in chat mode (like React behavior)
-                            if !vm.isChatMode {
-                                // Webcam when recording, Voice control otherwise
-                                if vm.isRecording {
-                                    VStack(spacing: 8) {
-                                        Image(systemName: "video.fill")
-                                            .font(.system(size: 24))
-                                            .foregroundColor(.white)
-                                        Text("Webcam")
-                                            .font(.system(size: 12, weight: .medium))
-                                            .foregroundColor(DynamicIslandTheme.textMuted)
-                                    }
-                                    .frame(width: 100, height: 100)
-                                    .background(DynamicIslandTheme.card)
-                                    .clipShape(Circle())
-                                    .transition(.scale(scale: 0.8).combined(with: .opacity))
-                                } else {
-                                    VStack(spacing: 8) {
-                                        if vm.voiceConnectionStatus == .connecting {
-                                            ProgressView().controlSize(.small)
-                                            Text("Connecting...")
-                                                .font(.system(size: 11, weight: .medium))
-                                                .foregroundColor(DynamicIslandTheme.textMuted)
-                                        } else if vm.voiceConnectionStatus == .connected {
-                                            Image(systemName: "waveform")
-                                                .foregroundColor(DynamicIslandTheme.primaryGreen)
-                                            Text("Voice Active")
-                                                .font(.system(size: 12, weight: .medium))
-                                                .foregroundColor(DynamicIslandTheme.textMuted)
-                                        } else {
-                                            Image(systemName: "waveform")
-                                                .foregroundColor(.white)
-                                            Text("Voice")
-                                                .font(.system(size: 12, weight: .medium))
-                                                .foregroundColor(DynamicIslandTheme.textMuted)
-                                        }
-                                    }
-                                    .frame(width: 100, height: 100)
-                                    .background(DynamicIslandTheme.card)
-                                    .clipShape(Circle())
-                                    .transition(.scale(scale: 0.8).combined(with: .opacity))
-                                    .onTapGesture {
-                                        if vm.voiceConnectionStatus == .connected {
-                                            vm.disconnectVoiceUI()
-                                        } else {
-                                            vm.connectVoiceUI()
-                                        }
-                                    }
-                                }
-                            }
+                            // // Right-hand tile: Only show when NOT in chat mode (like React behavior)
+                            // if !vm.isChatMode {
+                            //     // Webcam when recording, Voice control otherwise
+                            //     if vm.isRecording {
+                            //         VStack(spacing: 8) {
+                            //             Image(systemName: "video.fill")
+                            //                 .font(.system(size: 24))
+                            //                 .foregroundColor(.white)
+                            //             Text("Webcam")
+                            //                 .font(.system(size: 12, weight: .medium))
+                            //                 .foregroundColor(DynamicIslandTheme.textMuted)
+                            //         }
+                            //         .frame(width: 100, height: 100)
+                            //         .background(DynamicIslandTheme.card)
+                            //         .clipShape(Circle())
+                            //         .transition(.scale(scale: 0.8).combined(with: .opacity))
+                            //     } else {
+                            //         VStack(spacing: 8) {
+                            //             if vm.voiceConnectionStatus == .connecting {
+                            //                 ProgressView().controlSize(.small)
+                            //                 Text("Connecting...")
+                            //                     .font(.system(size: 11, weight: .medium))
+                            //                     .foregroundColor(DynamicIslandTheme.textMuted)
+                            //             } else if vm.voiceConnectionStatus == .connected {
+                            //                 Image(systemName: "waveform")
+                            //                     .foregroundColor(DynamicIslandTheme.primaryGreen)
+                            //                 Text("Voice Active")
+                            //                     .font(.system(size: 12, weight: .medium))
+                            //                     .foregroundColor(DynamicIslandTheme.textMuted)
+                            //             } else {
+                            //                 Image(systemName: "waveform")
+                            //                     .foregroundColor(.white)
+                            //                 Text("Voice")
+                            //                     .font(.system(size: 12, weight: .medium))
+                            //                     .foregroundColor(DynamicIslandTheme.textMuted)
+                            //             }
+                            //         }
+                            //         .frame(width: 100, height: 100)
+                            //         .background(DynamicIslandTheme.card)
+                            //         .clipShape(Circle())
+                            //         .transition(.scale(scale: 0.8).combined(with: .opacity))
+                            //         .onTapGesture {
+                            //             if vm.voiceConnectionStatus == .connected {
+                            //                 vm.disconnectVoiceUI()
+                            //             } else {
+                            //                 vm.connectVoiceUI()
+                            //             }
+                            //         }
+                            //     }
+                            // }
                         }
                     }
-                    .animation(.easeInOut(duration: 0.3), value: vm.isChatMode)
+                    .animation(DynamicIslandTheme.expansionAnimation, value: vm.isChatMode)
                 }
             }
         }
         .padding(vm.spacing)
         .frame(maxWidth: vm.notchOpenedSize.width, maxHeight: vm.notchOpenedSize.height)
+        .animation(vm.animation, value: vm.isChatExpanded)
     }
 }
 
@@ -473,7 +485,7 @@ struct ChatTextAreaView: View {
     @Binding var textEditorHeight: CGFloat
     @Binding var isTextFieldActive: Bool
     @ObservedObject var vm: NotchViewModel
-    @State private var textEditorWidth: CGFloat = 500 // Dynamic width for textarea
+    @State private var textEditorWidth: CGFloat = DynamicIslandTheme.compactWidth - 60 // Dynamic width for textarea
     
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -485,8 +497,8 @@ struct ChatTextAreaView: View {
                         .stroke(DynamicIslandTheme.stroke.opacity(isChatInputFocused ? 1.0 : 0.5), lineWidth: 1)
                 )
                 .frame(width: textEditorWidth, height: textEditorHeight)
-                .animation(.easeInOut(duration: 0.3), value: textEditorWidth)
-                .animation(.easeInOut(duration: 0.2), value: textEditorHeight)
+                .animation(DynamicIslandTheme.expansionAnimation, value: textEditorWidth)
+                .animation(.easeInOut(duration: 0.25), value: textEditorHeight)
             
             // Placeholder text when empty
             if chatInput.isEmpty {
@@ -541,6 +553,18 @@ struct ChatTextAreaView: View {
                 }
                 .onAppear {
                     print("🎯 TextEditor appeared - ready for focus")
+                    // Initialize width based on current recording state
+                    let baseWidth = vm.isRecording ? DynamicIslandTheme.recordingExpandedWidth : DynamicIslandTheme.compactWidth
+                    textEditorWidth = baseWidth - 60
+                }
+                .onChange(of: vm.isRecording) { oldValue, newValue in
+                    // Adjust width when recording state changes (but only if not focused)
+                    if !isChatInputFocused {
+                        withAnimation(DynamicIslandTheme.expansionAnimation) {
+                            let baseWidth = newValue ? DynamicIslandTheme.recordingExpandedWidth : DynamicIslandTheme.compactWidth
+                            textEditorWidth = baseWidth - 60
+                        }
+                    }
                 }
         }
         .contentShape(Rectangle()) // Ensure entire area is tappable
@@ -560,6 +584,7 @@ struct ChatTextAreaView: View {
             isTextFieldActive = true
             vm.isChatMode = true
         }
+        .zIndex(2) // Ensure chat input is above the background overlay
     }
     
 
@@ -569,6 +594,7 @@ struct ChatTextAreaView: View {
         
         // Only resize based on actual content, not placeholder
         if !newValue.isEmpty {
+            print("🎯 TextEditor width: \(textEditorWidth)px")
             // Auto-resize functionality - use correct font size (13, same as TextEditor)
             let font = NSFont.systemFont(ofSize: 13, weight: .medium)
             let textAttributes: [NSAttributedString.Key: Any] = [
@@ -577,13 +603,15 @@ struct ChatTextAreaView: View {
             
             let attributedString = NSAttributedString(string: newValue, attributes: textAttributes)
             
-            // Calculate text size with padding constraints - use more generous width
-            let textWidth: CGFloat = textEditorWidth - 40 // More generous width for text wrapping
+            // Calculate text size with padding constraints - match TextEditor's actual available width
+            let textWidth: CGFloat = textEditorWidth - 36 // TextEditor horizontal padding (16px each side) + small buffer for text rendering
+            print("🎯 Available text width: \(textWidth)px")
             let boundingRect = attributedString.boundingRect(
                 with: CGSize(width: textWidth, height: .greatestFiniteMagnitude),
-                options: [.usesLineFragmentOrigin, .usesFontLeading],
+                options: [.usesLineFragmentOrigin, .usesFontLeading, .usesDeviceMetrics],
                 context: nil
             )
+            print("🎯 Calculated text height: \(boundingRect.height)px")
             
             // Calculate new height with min/max constraints
             let minHeight: CGFloat = 100 // Minimum height
@@ -594,7 +622,7 @@ struct ChatTextAreaView: View {
             
             // Update height with animation if it changed significantly
             if abs(textEditorHeight - newHeight) > 5 {
-                withAnimation(.easeInOut(duration: 0.2)) {
+                withAnimation(.easeInOut(duration: 0.25)) {
                     textEditorHeight = newHeight
                 }
             }
@@ -602,7 +630,7 @@ struct ChatTextAreaView: View {
             // Reset to minimum height when empty
             let minHeight: CGFloat = 100
             if abs(textEditorHeight - minHeight) > 5 {
-                withAnimation(.easeInOut(duration: 0.2)) {
+                withAnimation(.easeInOut(duration: 0.25)) {
                     textEditorHeight = minHeight
                 }
             }
@@ -616,15 +644,28 @@ struct ChatTextAreaView: View {
         // Hide voice section when focused, show when unfocused (like React behavior)
         vm.isChatMode = newValue
         
-        // Animate width change based on focus state
-        withAnimation(.easeInOut(duration: 0.3)) {
-            textEditorWidth = newValue ? 575 : 500 // Expand to 515px when focused, 250px when unfocused
+        // Update chat expansion state for Dynamic Island sizing
+        withAnimation(vm.animation) {
+            vm.isChatExpanded = newValue
+        }
+        
+        // Animate width change based on focus state - synchronized with Dynamic Island timing
+        withAnimation(DynamicIslandTheme.expansionAnimation) {
+            if newValue {
+                // When focused, use most of the actual Dynamic Island width (works for recording + chat mode)
+                let islandWidth = vm.notchOpenedSize.width
+                textEditorWidth = islandWidth - 60 // Leave margin for padding
+            } else {
+                // When unfocused, use compact width unless recording (then use recording width)
+                let baseWidth = vm.isRecording ? DynamicIslandTheme.recordingExpandedWidth : DynamicIslandTheme.compactWidth
+                textEditorWidth = baseWidth - 60 // Leave margin for padding
+            }
         }
         
         // When unfocused and no text, clear chat input and reset height
         if !newValue && chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             chatInput = ""
-            withAnimation(.easeInOut(duration: 0.2)) {
+            withAnimation(.easeInOut(duration: 0.25)) {
                 textEditorHeight = 100 // Reset to minimum height
             }
         }
@@ -647,8 +688,7 @@ struct ChatTextAreaView: View {
 
 #Preview {
     NotchContentView(vm: .init())
-        .padding()
-        .frame(width: 550, height: 150, alignment: .center)
+        .frame(width: 450, height: 150, alignment: .center)
         .background(.black)
         .preferredColorScheme(.dark)
 }

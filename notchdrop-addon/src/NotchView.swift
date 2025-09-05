@@ -113,6 +113,7 @@ struct NotchView: View {
         }
         .background(dragDetector)
         .animation(vm.animation, value: vm.status)
+        .animation(vm.animation, value: vm.isChatExpanded)
         .preferredColorScheme(.dark)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }

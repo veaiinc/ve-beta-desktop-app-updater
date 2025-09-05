@@ -17,21 +17,32 @@ class NotchViewModel: NSObject, ObservableObject {
         destroy()
     }
 
-    let animation: Animation = .interactiveSpring(
-        duration: 0.5,
-        extraBounce: 0.25,
-        blendDuration: 0.125
-    )
-    // Dynamic opened size matches React spec; width adjusts when recording
+    let animation: Animation = DynamicIslandTheme.expansionAnimation
+    // Dynamic opened size matches React spec; width adjusts when recording or chat expanded, height stays constant
     var notchOpenedSize: CGSize {
-        if isRecording {
+        if isRecording && isChatExpanded {
+            // Recording + Chat expanded: Use the larger width for better chat experience
+            let expandedWidth = max(DynamicIslandTheme.recordingExpandedWidth, DynamicIslandTheme.chatExpandedWidth)
+            return .init(
+                width: expandedWidth,
+                height: DynamicIslandTheme.recordingExpandedHeight
+            )
+        } else if isRecording {
+            // Recording only
             return .init(
                 width: DynamicIslandTheme.recordingExpandedWidth,
                 height: DynamicIslandTheme.recordingExpandedHeight
             )
+        } else if isChatExpanded {
+            // Chat expanded only (when not recording)
+            return .init(
+                width: DynamicIslandTheme.chatExpandedWidth,
+                height: DynamicIslandTheme.expandedHeight
+            )
         }
+        // Default compact size when not expanded
         return .init(
-            width: DynamicIslandTheme.expandedWidth,
+            width: DynamicIslandTheme.compactWidth,
             height: DynamicIslandTheme.expandedHeight
         )
     }
@@ -102,6 +113,10 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var isSendingMessage: Bool = false
     @Published var isAuthenticated: Bool = false
     @Published var controlledByDynamicIsland: Bool = false
+    
+    // Chat expansion state
+    @Published var isChatExpanded: Bool = false
+    @Published var chatTextHeight: CGFloat = 100
 
     // Voice UI state (UI parity with React)
     enum VoiceConnectionStatus: String { case disconnected, connecting, connected, error }

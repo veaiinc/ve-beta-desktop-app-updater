@@ -21,7 +21,6 @@ class NotchDropService {
 			await this.preWarmBridge();
 			log.info('✅ Phase 1: Bridge pre-warmed successfully');
 
-
 			// Phase 2: Load and initialize addon with bridge ready (macOS only)
 			if (!this.platformSupported) {
 				log.info('NotchDrop addon is only supported on macOS; skipping initialization');
@@ -32,30 +31,33 @@ class NotchDropService {
 			// Enhanced module resolution for both dev and packaged environments
 			log.info('Loading NotchDrop addon module: notchdrop-addon');
 			let NotchDropAddonWrapper;
-			
+
 			try {
 				// Try module resolution first (works in packaged apps)
 				NotchDropAddonWrapper = require('notchdrop-addon');
 				log.info('✅ NotchDrop addon loaded via module resolution');
 			} catch (moduleError) {
-				log.warn('⚠️ Module resolution failed, trying fallback paths:', moduleError.message);
-				
+				log.warn(
+					'⚠️ Module resolution failed, trying fallback paths:',
+					moduleError.message,
+				);
+
 				// Enhanced fallback paths for development and packaged environments
 				const fallbackPaths = [
 					// Development paths
 					path.join(__dirname, '../../notchdrop-addon'),
 					path.join(__dirname, '../../notchdrop-addon/index.js'),
-					
+
 					// Packaged app paths
 					path.join(process.resourcesPath, 'app.asar.unpacked/notchdrop-addon'),
 					path.join(process.resourcesPath, 'notchdrop-addon'),
 					path.join(process.resourcesPath, 'notchdrop-addon/index.js'),
-					
+
 					// Alternative packaged paths
 					path.join(__dirname, '../../../Resources/notchdrop-addon'),
-					path.join(__dirname, '../../../Resources/app.asar.unpacked/notchdrop-addon')
+					path.join(__dirname, '../../../Resources/app.asar.unpacked/notchdrop-addon'),
 				];
-				
+
 				let loaded = false;
 				for (const fallbackPath of fallbackPaths) {
 					try {
@@ -64,10 +66,12 @@ class NotchDropService {
 						loaded = true;
 						break;
 					} catch (fallbackError) {
-						log.warn(`⚠️ Fallback path failed: ${fallbackPath} - ${fallbackError.message}`);
+						log.warn(
+							`⚠️ Fallback path failed: ${fallbackPath} - ${fallbackError.message}`,
+						);
 					}
 				}
-				
+
 				if (!loaded) {
 					throw new Error('Failed to load NotchDrop addon via any resolution path');
 				}
