@@ -1,5 +1,8 @@
 import { memo } from 'react';
 import { ReactComponent as VeAiLogo } from '../../../assets/svg/ve.svg';
+import s from './transcriptionTabs.module.scss';
+import { ReactComponent as WaveIcon } from './wave.svg';
+import { ReactComponent as AiSparkleIcon } from './aiSparkle.svg';
 
 const TranscriptionTabs = ({
 	activeTab,
@@ -13,74 +16,37 @@ const TranscriptionTabs = ({
 	type = null,
 }) => {
 	return (
-		<div className="notes-tabs-container">
-			<div className="notes-tabs-header">
+		<div className={s.meetingTabContainer}>
+			<div className={s.meetingTabLeft}>
 				{history && (
 					<button
-						className={activeTab === 'summary' ? 'notes-tab active' : 'notes-tab'}
-						style={{
-							background: 'none',
-							border: 'none',
-							outline: 'none',
-							color: 'inherit',
-							fontWeight: 500,
-							fontSize: 16,
-							padding: '8px 0',
-							borderBottom:
-								activeTab === 'summary'
-									? '2px solid var(--primary-button, #cfff48)'
-									: '2px solid transparent',
-							cursor: 'pointer',
-							transition: 'color 0.2s',
-						}}
+						className={
+							s.meetingTabButton + ' ' + (activeTab === 'summary' ? s.activeTab : '')
+						}
 						onClick={() => setActiveTab('summary')}
 					>
 						Summary
 					</button>
 				)}
 
-				{(history || type === 'desktop') && (
+				{/* {(history || type === 'desktop') && (
 					<button
-						className={activeTab === 'transcript' ? 'notes-tab active' : 'notes-tab'}
-						style={{
-							background: 'none',
-							border: 'none',
-							outline: 'none',
-							color: 'inherit',
-							fontWeight: 500,
-							fontSize: 16,
-							padding: '8px 0',
-							borderBottom:
-								activeTab === 'transcript'
-									? '2px solid var(--primary-button, #cfff48)'
-									: '2px solid transparent',
-							cursor: 'pointer',
-							transition: 'color 0.2s',
-						}}
+						className={
+							s.meetingTabButton +
+							' ' +
+							(activeTab === 'transcript' ? s.activeTab : '')
+						}
 						onClick={() => setActiveTab('transcript')}
 					>
 						Transcript
 					</button>
-				)}
+				)} */}
 
 				{history && (
 					<button
-						className={activeTab === 'all' ? 'notes-tab active' : 'notes-tab'}
-						style={{
-							background: 'none',
-							border: 'none',
-							outline: 'none',
-							color: 'inherit',
-							fontWeight: 500,
-							fontSize: 16,
-							padding: '8px 0',
-							borderBottom:
-								activeTab === 'all'
-									? '2px solid var(--primary-button, #cfff48)'
-									: '2px solid transparent',
-							cursor: 'pointer',
-							transition: 'color 0.2s',
-						}}
+						className={
+							s.meetingTabButton + ' ' + (activeTab === 'all' ? s.activeTab : '')
+						}
 						onClick={() => setActiveTab('all')}
 					>
 						Meeting Intelligence
@@ -112,122 +78,76 @@ const TranscriptionTabs = ({
 
 				{!history && (
 					<button
-						className={activeTab === 'all' ? 'notes-tab active' : 'notes-tab'}
-						style={{
-							background: 'none',
-							border: 'none',
-							outline: 'none',
-							color: 'inherit',
-							fontWeight: 500,
-							fontSize: 16,
-							padding: '8px 0',
-							borderBottom:
-								activeTab === 'all'
-									? '2px solid var(--primary-button, #cfff48)'
-									: '2px solid transparent',
-							cursor: 'pointer',
-							transition: 'color 0.2s',
-						}}
+						className={
+							s.meetingTabButton + ' ' + (activeTab === 'all' ? s.activeTab : '')
+						}
 						onClick={() => setActiveTab('all')}
 					>
-						All
+						All Threads
 					</button>
 				)}
 				{userQuestions?.length > 0 && (
 					<button
-						className={activeTab === 'userQuestions' ? 'notes-tab active' : 'notes-tab'}
-						style={{
-							background: 'none',
-							border: 'none',
-							outline: 'none',
-							color: 'inherit',
-							fontWeight: 500,
-							fontSize: 16,
-							padding: '8px 0',
-							borderBottom:
-								activeTab === 'userQuestions'
-									? '2px solid var(--primary-button, #cfff48)'
-									: '2px solid transparent',
-							cursor: 'pointer',
-							transition: 'color 0.2s',
-						}}
+						className={
+							s.meetingTabButton +
+							' ' +
+							(activeTab === 'userQuestions' ? s.activeTab : '')
+						}
 						onClick={() => setActiveTab('userQuestions')}
 					>
-						Ask User
+						Ask user
+						<div className={s.tabButtonCount}>{userQuestions?.length}</div>
 					</button>
 				)}
 
 				{aiQuestions?.length > 0 && (
 					<button
-						className={activeTab === 'aiQuestions' ? 'notes-tab active' : 'notes-tab'}
-						style={{
-							background: 'none',
-							border: 'none',
-							outline: 'none',
-							color: 'inherit',
-							fontWeight: 500,
-							fontSize: 16,
-							padding: '8px 0',
-							borderBottom:
-								activeTab === 'aiQuestions'
-									? '2px solid var(--primary-button, #cfff48)'
-									: '2px solid transparent',
-							cursor: 'pointer',
-							transition: 'color 0.2s',
-						}}
+						className={
+							s.meetingTabButton +
+							' ' +
+							(activeTab === 'aiQuestions' ? s.activeTab : '')
+						}
 						onClick={() => setActiveTab('aiQuestions')}
 					>
-						Ask <VeAiLogo width={20} height={20} />
+						Need help?
+						<div className={s.tabButtonCount}>{aiQuestions?.length}</div>
 					</button>
 				)}
 
 				{actions?.length > 0 && (
 					<button
-						className={activeTab === 'actions' ? 'notes-tab active' : 'notes-tab'}
-						style={{
-							background: 'none',
-							border: 'none',
-							outline: 'none',
-							color: 'inherit',
-							fontWeight: 500,
-							fontSize: 16,
-							padding: '8px 0',
-							borderBottom:
-								activeTab === 'actions'
-									? '2px solid var(--primary-button, #cfff48)'
-									: '2px solid transparent',
-							cursor: 'pointer',
-							transition: 'color 0.2s',
-						}}
+						className={
+							s.meetingTabButton + ' ' + (activeTab === 'actions' ? s.activeTab : '')
+						}
 						onClick={() => setActiveTab('actions')}
 					>
 						Actions
+						<div className={s.tabButtonCount}>{actions?.length}</div>
 					</button>
 				)}
 
 				{files?.length > 0 && (
 					<button
-						className={activeTab === 'files' ? 'notes-tab active' : 'notes-tab'}
-						style={{
-							background: 'none',
-							border: 'none',
-							outline: 'none',
-							color: 'inherit',
-							fontWeight: 500,
-							fontSize: 16,
-							padding: '8px 0',
-							borderBottom:
-								activeTab === 'files'
-									? '2px solid var(--primary-button, #cfff48)'
-									: '2px solid transparent',
-							cursor: 'pointer',
-							transition: 'color 0.2s',
-						}}
+						className={
+							s.meetingTabButton + ' ' + (activeTab === 'files' ? s.activeTab : '')
+						}
 						onClick={() => setActiveTab('files')}
 					>
 						Files
+						<div className={s.tabButtonCount}>{files?.length}</div>
 					</button>
 				)}
+			</div>
+			<div
+				className={s.meetingTabRight}
+				onClick={() => setActiveTab(activeTab === 'transcript' ? 'all' : 'transcript')}
+			>
+				<div className={s.toggleButton}>
+					{activeTab === 'transcript' ? 'View Live Intelligence' : 'View Transcription'}
+				</div>
+				<div className={s.waveIcon}>
+					{activeTab === 'transcript' ? <AiSparkleIcon /> : <WaveIcon />}
+				</div>
 			</div>
 		</div>
 	);

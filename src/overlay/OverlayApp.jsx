@@ -28,10 +28,10 @@ const OverlayApp = () => {
 	const notification = useOverlayNotification();
 
 	const [info, setInfo] = useState({
-		meetingId: null,
 		isMeetIsOngoing: false,
 		transcriptions: [],
 		isPaused: false,
+		meetingData: null,
 		liveIntelligenceData: {
 			askUser: [],
 			needHelp: [],
@@ -278,23 +278,9 @@ const OverlayApp = () => {
 
 		sessionIdRef.current = null;
 
-		stopRecording();
+		stopRecording({ meetingId: info?.meetingData?._id });
 		closeLiveIntelligenceConnection();
 		closeRecallConnection();
-
-		setInfo((prev) => ({
-			...prev,
-			isMeetIsOngoing: false,
-			meetingData: null,
-			transcriptions: [],
-			liveIntelligenceData: {
-				askUser: [],
-				needHelp: [],
-				actions: [],
-				files: [],
-				allThreads: [],
-			},
-		}));
 
 		// Reset stopping flag after cleanup
 		setTimeout(() => {
@@ -384,7 +370,7 @@ const OverlayApp = () => {
 				window.electronApi.overlay.removeCommandListener();
 			}
 		};
-	}, [toggleMute]);
+	}, [toggleMute, startRecording, stopRecording]);
 
 	// Check ask AI input focus state periodically
 	useEffect(() => {

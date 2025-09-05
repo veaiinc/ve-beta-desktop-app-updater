@@ -1281,6 +1281,10 @@ const RecentChat = ({
 							/>
 						</div>
 					</div>
+
+					<div className="ve-mistake-text">
+						Ve can make mistakes. Double check important info.
+					</div>
 				</div>
 
 				{showBrowser && (

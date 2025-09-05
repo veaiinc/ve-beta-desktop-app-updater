@@ -281,3 +281,4 @@ const logError = async (errorInfo) => {
 };
 
 export default logError;
+

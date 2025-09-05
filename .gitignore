@@ -41,4 +41,14 @@ notchdrop-addon
 
 build-and-notarize.sh
 
+# Ignore all markdown files
+*.md
+
+# But allow specific markdown files
+!CLAUDE.md
+!AGENTS.md
+!README.md
+
 @img
+
+*.sh

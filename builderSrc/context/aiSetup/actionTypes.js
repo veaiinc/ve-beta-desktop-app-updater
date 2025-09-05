@@ -1,3 +1,4 @@
+
 export const AI_PERSONALITY = {
 	listAiAssistants: '/ai-assistants',
 	createNewAiAssistant: '/ai-assistants',

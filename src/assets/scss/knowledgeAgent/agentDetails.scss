@@ -412,14 +412,11 @@
 		height: 100%;
 
 		.agent-details-wrapper {
-			height: fit-content;
 			max-width: 570px;
 			width: 100%;
 			position: relative;
 			display: flex;
-			justify-content: flex-start;
 			align-items: center;
-			top: 120px;
 
 			.agent-details-content {
 				display: flex;
@@ -519,7 +516,9 @@
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			z-index: 1002;
+			.chatBoxParentWrapper {
+				position: relative;
+			}
 		}
 	}
 }
