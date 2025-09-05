@@ -151,9 +151,11 @@ export default defineConfig({
 			'moment',
 			'dayjs',
 			'@blocknote/core',
+			'graphql',
 		],
 		force: true,
 	},
+
 
 	server: {
 		hmr: {
