@@ -88,7 +88,8 @@
 	align-items: center;
 	justify-content: center;
 
-	.dynamic-island:hover & {
+	.dynamic-island:hover &,
+	.dynamic-island.expanded & {
 		opacity: 0 !important;
 	}
 }
@@ -357,7 +358,8 @@
 	padding: 8px;
 }
 
-.dynamic-island:hover .ui-container {
+.dynamic-island:hover .ui-container,
+.dynamic-island.expanded .ui-container {
 	opacity: 1 !important;
 	visibility: visible !important;
 	pointer-events: auto !important;
