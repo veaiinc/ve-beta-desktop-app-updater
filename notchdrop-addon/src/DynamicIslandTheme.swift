@@ -2,17 +2,25 @@ import SwiftUI
 
 enum DynamicIslandTheme {
     // Core sizes (match React SCSS)
-    static let collapsedWidth: CGFloat = 320
+    static let collapsedWidth: CGFloat = 310
     static let collapsedHeight: CGFloat = 32
     static let collapsedRadius: CGFloat = 8
 
-    static let expandedWidth: CGFloat = 640
-    static let expandedHeight: CGFloat = 180
+    static let expandedWidth: CGFloat = 555
+    static let expandedHeight: CGFloat = 160
     static let expandedRadius: CGFloat = 16
 
-    static let recordingExpandedWidth: CGFloat = 765
-    static let recordingExpandedHeight: CGFloat = 180
+    // Chat expansion sizes
+    static let compactWidth: CGFloat = 480        // Smaller default width
+    static let chatExpandedWidth: CGFloat = 585   // Wider when chat expanded
+
+    static let recordingExpandedWidth: CGFloat = 495
+    static let recordingExpandedHeight: CGFloat = 160
     static let recordingBottomRadius: CGFloat = 8
+    
+    // Animation timings - smooth and synchronized
+    static let expansionDuration: Double = 0.3    // Smooth expansion timing
+    static let expansionAnimation: Animation = .easeInOut(duration: expansionDuration)
 
     // Colors
     static let black = Color.black

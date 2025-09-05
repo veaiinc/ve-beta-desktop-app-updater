@@ -45,6 +45,11 @@ let pendingNotificationAction = null;
 let tray = null;
 let isQuitting = false;
 
+// Runtime platform override for testing (set VE_FORCE_PLATFORM=linux|win32|darwin)
+const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
+const isMacRuntime = RUNTIME_PLATFORM === 'darwin';
+const isWindowsRuntime = RUNTIME_PLATFORM === 'win32';
+
 const loadGalleryHelper = () => {
 	if (!galleryHelper) {
 		try {
@@ -106,14 +111,14 @@ class DynamicIslandHelper {
 		this.position.y = 0;
 	}
 
-	createDynamicIslandWindow() {
-		if (this.dynamicIslandWindow !== null) return;
+    createDynamicIslandWindow() {
+        if (this.dynamicIslandWindow !== null) return;
 
-		// Skip window creation on macOS - only create for Windows/Linux
-		if (process.platform === 'darwin') {
-			log.info('🍎 Skipping Dynamic Island window creation on macOS');
-			return;
-		}
+        // Skip window creation on macOS (runtime) - only create for Windows/Linux
+        if (isMacRuntime) {
+            log.info('🍎 Skipping Dynamic Island window creation on macOS');
+            return;
+        }
 
 		const windowSettings = {
 			width: this.expandedSize.width, // Start with expanded size (555x150)
@@ -177,13 +182,13 @@ class DynamicIslandHelper {
 		// });
 	}
 
-	expand() {
-		// On macOS, just track the state without window operations
-		if (process.platform === 'darwin') {
-			this.isExpanded = true;
-			log.info('🍎 Dynamic Island expand state tracked (no window on macOS)');
-			return;
-		}
+    expand() {
+        // On macOS (runtime), just track the state without window operations
+        if (isMacRuntime) {
+            this.isExpanded = true;
+            log.info('🍎 Dynamic Island expand state tracked (no window on macOS)');
+            return;
+        }
 
 		if (!this.dynamicIslandWindow || this.isExpanded) return;
 
@@ -199,13 +204,13 @@ class DynamicIslandHelper {
 		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: true });
 	}
 
-	collapse() {
-		// On macOS, just track the state without window operations
-		if (process.platform === 'darwin') {
-			this.isExpanded = false;
-			log.info('🍎 Dynamic Island collapse state tracked (no window on macOS)');
-			return;
-		}
+    collapse() {
+        // On macOS (runtime), just track the state without window operations
+        if (isMacRuntime) {
+            this.isExpanded = false;
+            log.info('🍎 Dynamic Island collapse state tracked (no window on macOS)');
+            return;
+        }
 
 		if (!this.dynamicIslandWindow || !this.isExpanded) return;
 
@@ -221,39 +226,39 @@ class DynamicIslandHelper {
 		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: false });
 	}
 
-	setMouseEventHandling(ignore) {
-		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
+    setMouseEventHandling(ignore) {
+        if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
 
-		try {
-			if (process.platform === 'darwin') {
-				// On macOS, use the forward option to allow clicks to pass through
-				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore, { forward: true });
-			} else if (process.platform === 'win32') {
-				// On Windows, when collapsed, allow clicks to pass through to overlay
-				// When expanded, capture all mouse events
-				if (ignore) {
-					// Collapsed state - allow clicks to pass through to overlay underneath
-					this.dynamicIslandWindow.setIgnoreMouseEvents(true, { forward: true });
-				} else {
-					// Expanded state - capture all mouse events
-					this.dynamicIslandWindow.setIgnoreMouseEvents(false);
-				}
-			} else {
-				// On other platforms, just ignore mouse events
-				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore);
-			}
-		} catch (error) {
-			log.error('Error setting mouse event handling:', error);
-		}
-	}
+        try {
+            if (isMacRuntime) {
+                // On macOS, use the forward option to allow clicks to pass through
+                this.dynamicIslandWindow.setIgnoreMouseEvents(ignore, { forward: true });
+            } else if (isWindowsRuntime) {
+                // On Windows, when collapsed, allow clicks to pass through to overlay
+                // When expanded, capture all mouse events
+                if (ignore) {
+                    // Collapsed state - allow clicks to pass through to overlay underneath
+                    this.dynamicIslandWindow.setIgnoreMouseEvents(true, { forward: true });
+                } else {
+                    // Expanded state - capture all mouse events
+                    this.dynamicIslandWindow.setIgnoreMouseEvents(false);
+                }
+            } else {
+                // On other platforms, just ignore mouse events
+                this.dynamicIslandWindow.setIgnoreMouseEvents(ignore);
+            }
+        } catch (error) {
+            log.error('Error setting mouse event handling:', error);
+        }
+    }
 
-	show() {
-		// On macOS, just track the state without window operations
-		if (process.platform === 'darwin') {
-			this.isVisible = true;
-			log.info('🍎 Dynamic Island show state tracked (no window on macOS)');
-			return;
-		}
+    show() {
+        // On macOS (runtime), just track the state without window operations
+        if (isMacRuntime) {
+            this.isVisible = true;
+            log.info('🍎 Dynamic Island show state tracked (no window on macOS)');
+            return;
+        }
 
 		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
 			this.dynamicIslandWindow.show();
@@ -261,13 +266,13 @@ class DynamicIslandHelper {
 		}
 	}
 
-	hide() {
-		// On macOS, just track the state without window operations
-		if (process.platform === 'darwin') {
-			this.isVisible = false;
-			log.info('🍎 Dynamic Island hide state tracked (no window on macOS)');
-			return;
-		}
+    hide() {
+        // On macOS (runtime), just track the state without window operations
+        if (isMacRuntime) {
+            this.isVisible = false;
+            log.info('🍎 Dynamic Island hide state tracked (no window on macOS)');
+            return;
+        }
 
 		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
 			this.dynamicIslandWindow.hide();
@@ -295,33 +300,33 @@ class DynamicIslandHelper {
 		return this.isExpanded;
 	}
 
-	// Method to reposition Dynamic Island based on platform
-	repositionForPlatform() {
-		// On macOS, just log that repositioning was called
-		if (process.platform === 'darwin') {
-			log.info('🍎 Dynamic Island reposition called (no window on macOS)');
-			return;
-		}
+    // Method to reposition Dynamic Island based on platform
+    repositionForPlatform() {
+        // On macOS (runtime), just log that repositioning was called
+        if (isMacRuntime) {
+            log.info('🍎 Dynamic Island reposition called (no window on macOS)');
+            return;
+        }
 
-		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
+        if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
 
-		// Recalculate position based on current platform - eliminate gap with menu bar
-		if (process.platform === 'win32') {
-			this.position.y = -5; // Slightly above screen edge on Windows
-		} else {
-			this.position.y = -8; // Slightly above screen edge on Linux to eliminate menu bar gap
-		}
+        // Recalculate position based on current platform - eliminate gap with menu bar
+        if (isWindowsRuntime) {
+            this.position.y = -5; // Slightly above screen edge on Windows
+        } else {
+            this.position.y = -8; // Slightly above screen edge on Linux to eliminate menu bar gap
+        }
 
 		// Update window position
 		this.dynamicIslandWindow.setPosition(this.position.x, this.position.y);
 	}
 
-	focus() {
-		// On macOS, just log that focus was called
-		if (process.platform === 'darwin') {
-			log.info('🍎 Dynamic Island focus called (no window on macOS)');
-			return;
-		}
+    focus() {
+        // On macOS (runtime), just log that focus was called
+        if (isMacRuntime) {
+            log.info('🍎 Dynamic Island focus called (no window on macOS)');
+            return;
+        }
 
 		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
 			try {
@@ -670,6 +675,7 @@ function saveWindowState() {
 
 // Menu bar creation
 function createMenuBar() {
+	const isMac = isMacRuntime;
 	const template = [
 		{
 			label: 'Application',
@@ -683,106 +689,118 @@ function createMenuBar() {
 				},
 				{
 					label: 'Quit',
-					accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Ctrl+Q',
+					accelerator: isMac ? 'Cmd+Q' : 'Ctrl+Q',
 					click: () => {
 						app.quit();
 					},
 				},
 			],
 		},
-		{
-			label: 'NotchDrop',
-			submenu: [
-				{
-					label: 'Open NotchDrop',
-					accelerator: 'CmdOrCtrl+N',
-					click: async () => {
-						try {
-							if (notchDropService) {
-								const result = await notchDropService.enable();
-								if (result) {
-									log.info('✅ NotchDrop opened from menu');
-									updateMenuBarState();
-								}
-							}
-						} catch (error) {
-							log.error('❌ Failed to open NotchDrop from menu:', error);
-						}
+		// Insert NotchDrop menu only on macOS
+		...(isMac
+			? [
+					{
+						label: 'NotchDrop',
+						submenu: [
+							{
+								label: 'Open NotchDrop',
+								accelerator: 'CmdOrCtrl+N',
+								click: async () => {
+									try {
+										if (notchDropService) {
+											const result = await notchDropService.enable();
+											if (result) {
+												log.info('✅ NotchDrop opened from menu');
+												updateMenuBarState();
+											}
+										}
+									} catch (error) {
+										log.error('❌ Failed to open NotchDrop from menu:', error);
+									}
+								},
+							},
+							{
+								label: 'Close NotchDrop',
+								accelerator: 'CmdOrCtrl+Shift+N',
+								click: async () => {
+									try {
+										if (notchDropService) {
+											const result = await notchDropService.disable();
+											if (result) {
+												log.info('✅ NotchDrop closed from menu');
+												updateMenuBarState();
+											}
+										}
+									} catch (error) {
+										log.error('❌ Failed to close NotchDrop from menu:', error);
+									}
+								},
+							},
+							{
+								type: 'separator',
+							},
+							{
+								label: 'Toggle NotchDrop',
+								accelerator: 'CmdOrCtrl+T',
+								click: async () => {
+									try {
+										if (notchDropService) {
+											const result = await notchDropService.toggle();
+											if (result) {
+												log.info('✅ NotchDrop toggled from menu');
+												updateMenuBarState();
+											}
+										}
+									} catch (error) {
+										log.error(
+											'❌ Failed to toggle NotchDrop from menu:',
+											error,
+										);
+									}
+								},
+							},
+							{
+								type: 'separator',
+							},
+							{
+								label: 'Status',
+								enabled: false,
+								id: 'notchdrop-status',
+							},
+							{
+								type: 'separator',
+							},
+							{
+								label: 'Auto-open on Startup',
+								type: 'checkbox',
+								checked: true,
+								click: async (menuItem) => {
+									try {
+										if (notchDropService) {
+											const result =
+												await notchDropService.setAutoOpenOnStartup(
+													menuItem.checked,
+												);
+											if (result) {
+												log.info(
+													`🔧 Auto-open on startup ${
+														menuItem.checked ? 'enabled' : 'disabled'
+													} from menu`,
+												);
+											}
+										}
+									} catch (error) {
+										log.error(
+											'❌ Failed to set auto-open setting from menu:',
+											error,
+										);
+									}
+								},
+							},
+						],
 					},
-				},
-				{
-					label: 'Close NotchDrop',
-					accelerator: 'CmdOrCtrl+Shift+N',
-					click: async () => {
-						try {
-							if (notchDropService) {
-								const result = await notchDropService.disable();
-								if (result) {
-									log.info('✅ NotchDrop closed from menu');
-									updateMenuBarState();
-								}
-							}
-						} catch (error) {
-							log.error('❌ Failed to close NotchDrop from menu:', error);
-						}
-					},
-				},
-				{
-					type: 'separator',
-				},
-				{
-					label: 'Toggle NotchDrop',
-					accelerator: 'CmdOrCtrl+T',
-					click: async () => {
-						try {
-							if (notchDropService) {
-								const result = await notchDropService.toggle();
-								if (result) {
-									log.info('✅ NotchDrop toggled from menu');
-									updateMenuBarState();
-								}
-							}
-						} catch (error) {
-							log.error('❌ Failed to toggle NotchDrop from menu:', error);
-						}
-					},
-				},
-				{
-					type: 'separator',
-				},
-				{
-					label: 'Status',
-					enabled: false,
-					id: 'notchdrop-status',
-				},
-				{
-					type: 'separator',
-				},
-				{
-					label: 'Auto-open on Startup',
-					type: 'checkbox',
-					checked: true,
-					click: async (menuItem) => {
-						try {
-							if (notchDropService) {
-								const result = await notchDropService.setAutoOpenOnStartup(
-									menuItem.checked,
-								);
-								if (result) {
-									log.info(
-										`🔧 Auto-open on startup ${
-											menuItem.checked ? 'enabled' : 'disabled'
-										} from menu`,
-									);
-								}
-							}
-						} catch (error) {
-							log.error('❌ Failed to set auto-open setting from menu:', error);
-						}
-					},
-				},
-			],
-		},
+			  ]
+			: []),
 		{
 			label: 'View',
 			submenu: [
@@ -793,27 +811,24 @@ function createMenuBar() {
 						mainWindow.webContents.toggleDevTools();
 					},
 				},
-				{
-					label:
-						process.platform === 'darwin'
-							? 'Toggle Dynamic Island (macOS: State Only)'
-							: 'Toggle Dynamic Island',
-					accelerator: 'CmdOrCtrl+I',
-					click: () => {
-						try {
-							if (dynamicIslandHelper) {
-								dynamicIslandHelper.toggleVisibility();
-								if (process.platform === 'darwin') {
-									log.info(
-										'🍎 Dynamic Island state toggled on macOS (no visual window)',
-									);
+				// Show Dynamic Island toggle only for non-mac runtime
+				...(isMac
+					? []
+					: [
+						{
+							label: 'Toggle Dynamic Island',
+							accelerator: 'CmdOrCtrl+I',
+							click: () => {
+								try {
+									if (dynamicIslandHelper) {
+										dynamicIslandHelper.toggleVisibility();
+									}
+								} catch (error) {
+									log.error('Error toggling dynamic island from menu:', error);
 								}
-							}
-						} catch (error) {
-							log.error('Error toggling dynamic island from menu:', error);
-						}
-					},
-				},
+							},
+						},
+					]),
 				{
 					label: 'Reload',
 					accelerator: 'CmdOrCtrl+R',
@@ -1200,42 +1215,46 @@ app.whenReady().then(async () => {
 	dynamicIslandHelper = new DynamicIslandHelper();
 	dynamicIslandHelper.createDynamicIslandWindow();
 
-	// Phase 3: Initialize NotchDrop service with proper readiness waiting
-	log.info('📋 Phase 3: Initializing NotchDrop service with bridge readiness...');
-	notchDropService = new NotchDropService();
-	notchDropService.setMainWindow(mainWindow);
+	// Phase 3: Initialize NotchDrop service with proper readiness waiting (macOS only)
+	if (isMacRuntime) {
+		log.info('📋 Phase 3: Initializing NotchDrop service with bridge readiness...');
+		notchDropService = new NotchDropService();
+		notchDropService.setMainWindow(mainWindow);
 
-	// CRITICAL: Ensure NotchDrop service fully initializes before proceeding
-	let notchDropInitialized = false;
-	let initRetries = 0;
-	const maxInitRetries = 5;
+		// CRITICAL: Ensure NotchDrop service fully initializes before proceeding
+		let notchDropInitialized = false;
+		let initRetries = 0;
+		const maxInitRetries = 5;
 
-	while (!notchDropInitialized && initRetries < maxInitRetries) {
-		try {
-			await notchDropService.initialize();
+		while (!notchDropInitialized && initRetries < maxInitRetries) {
+			try {
+				await notchDropService.initialize();
 
-			// Verify service is truly ready
-			if (notchDropService && notchDropService.isInitialized) {
-				notchDropInitialized = true;
-				log.info('✅ NotchDrop service initialization verified');
-			} else {
-				throw new Error('NotchDrop service initialization incomplete');
-			}
-		} catch (error) {
-			initRetries++;
-			log.warn(
-				`⚠️ NotchDrop init attempt ${initRetries}/${maxInitRetries} failed:`,
-				error.message,
-			);
+				// Verify service is truly ready
+				if (notchDropService && notchDropService.isInitialized) {
+					notchDropInitialized = true;
+					log.info('✅ NotchDrop service initialization verified');
+				} else {
+					throw new Error('NotchDrop service initialization incomplete');
+				}
+			} catch (error) {
+				initRetries++;
+				log.warn(
+					`⚠️ NotchDrop init attempt ${initRetries}/${maxInitRetries} failed:`,
+					error.message,
+				);
 
-			if (initRetries < maxInitRetries) {
-				await new Promise((resolve) => setTimeout(resolve, 1000 * initRetries)); // Exponential backoff
-			} else {
-				log.error('❌ NotchDrop service failed to initialize after maximum retries');
-				// Continue anyway but log the issue
-				notchDropInitialized = true; // Allow app to continue
+				if (initRetries < maxInitRetries) {
+					await new Promise((resolve) => setTimeout(resolve, 1000 * initRetries)); // Exponential backoff
+				} else {
+					log.error('❌ NotchDrop service failed to initialize after maximum retries');
+					// Continue anyway but log the issue
+					notchDropInitialized = true; // Allow app to continue
+				}
 			}
 		}
+	} else {
+		log.info('🖥️ Not macOS — skipping NotchDrop service initialization');
 	}
 
 	// Phase 4: Wait for bridge components to be ready
