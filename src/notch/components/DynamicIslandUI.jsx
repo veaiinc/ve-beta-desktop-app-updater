@@ -500,14 +500,6 @@ const DynamicIslandUI = () => {
 		}
 	};
 
-	const handleLockClick = () => {
-		console.log('🔒 Lock icon clicked');
-	};
-
-	const handleSettingsClick = () => {
-		console.log('⚙️ Settings icon clicked');
-	};
-
 	const handleAudioClick = async () => {
 		console.log('🎵 Start recording clicked - triggering overlay');
 
