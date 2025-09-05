@@ -37,27 +37,26 @@ yarn-error.log*
 
 .env
 secrets/
-package-mac-signed.sh
 
-sync.sh
 bundle-visualizer.html
-script.sh
-notarize_for_intel.sh
 
-NotchDrop
+**/node_modules
 
-notchdrop-addon
-
-build-and-notarize.sh
+notchdrop-addon/build
+notchdrop-addon/build_swift
+notchdrop-addon/dist
+notchdrop-addon/bin
 
 # Ignore all markdown files
-*.md
+**/*.md
+
+# Ignore all sh files
+**/*.sh
 
 # But allow specific markdown files
 !CLAUDE.md
 !AGENTS.md
 !README.md
+!notchdrop-addon/build.sh
 
 @img
-
-*.sh

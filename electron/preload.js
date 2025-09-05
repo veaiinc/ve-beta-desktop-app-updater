@@ -322,4 +322,34 @@ contextBridge.exposeInMainWorld('electronApi', {
 			ipcRenderer.removeAllListeners('force-focus');
 		},
 	},
+
+	// NotchDrop APIs
+	notchdrop: {
+		enable: () => ipcRenderer.invoke('notchdrop-enable'),
+		disable: () => ipcRenderer.invoke('notchdrop-disable'),
+		toggle: () => ipcRenderer.invoke('notchdrop-toggle'),
+		isVisible: () => ipcRenderer.invoke('notchdrop-is-visible'),
+		setStatus: (status) => ipcRenderer.invoke('notchdrop-set-status', status),
+		getStatus: () => ipcRenderer.invoke('notchdrop-get-status'),
+		handleFiles: (filePaths) => ipcRenderer.invoke('notchdrop-handle-files', filePaths),
+		setAutoOpen: (enabled) => ipcRenderer.invoke('notchdrop-set-auto-open', enabled),
+		getAutoOpen: () => ipcRenderer.invoke('notchdrop-get-auto-open'),
+		setHapticFeedback: (enabled) =>
+			ipcRenderer.invoke('notchdrop-set-haptic-feedback', enabled),
+		getHapticFeedback: () => ipcRenderer.invoke('notchdrop-get-haptic-feedback'),
+		updateMenu: () => ipcRenderer.invoke('update-notchdrop-menu'),
+		// New NotchDropLatest APIs
+		openAirDrop: () => ipcRenderer.invoke('notchdrop-open-airdrop'),
+		openShare: () => ipcRenderer.invoke('notchdrop-open-share'),
+		openFile: (filePath) => ipcRenderer.invoke('notchdrop-open-file', filePath),
+		deleteFile: (fileId) => ipcRenderer.invoke('notchdrop-delete-file', fileId),
+		onFileDropped: (callback) => {
+			ipcRenderer.on('notchdrop-file-dropped', (event, data) => {
+				callback(data);
+			});
+		},
+		removeFileDroppedListener: () => {
+			ipcRenderer.removeAllListeners('notchdrop-file-dropped');
+		},
+	},
 });
