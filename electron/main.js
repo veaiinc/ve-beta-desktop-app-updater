@@ -2023,18 +2023,6 @@ app.whenReady().then(() => {
 			return { success: false, error: error.message };
 		}
 	});
-	// Save current route from frontend
-	ipcMain.handle('save-current-route', async (event, route) => {
-		try {
-			lastWindowState.route = route;
-			lastWindowState.timestamp = Date.now();
-			log.info('Current route saved:', route);
-			return { success: true };
-		} catch (error) {
-			log.error('Error saving current route:', error);
-			return { success: false, error: error.message };
-		}
-	});
 
 	// Register gallery IPC handlers from galleryUtils
 	ipcMain.handle('process-image-with-sharp', (event, data) => {
