@@ -83,7 +83,7 @@ process.on('unhandledRejection', (reason, promise) => {
 class DynamicIslandHelper {
 	constructor() {
 		this.dynamicIslandWindow = null;
-		this.isExpanded = true; // Start expanded by default (like main branch)
+		this.isExpanded = false; // Start collapsed by default
 		this.isVisible = true;
 		this.screenWidth = 0;
 		this.screenHeight = 0;
@@ -168,8 +168,8 @@ class DynamicIslandHelper {
 			this.dynamicIslandWindow.setAlwaysOnTop(true, 'screen-saver');
 		}
 
-		// Set initial mouse event handling - start with mouse events enabled since it's expanded
-		this.setMouseEventHandling(false);
+		// Set initial mouse event handling - start with mouse events ignored since it's collapsed
+		this.setMouseEventHandling(true);
 
 		// Show the window
 		this.dynamicIslandWindow.show();
@@ -179,9 +179,9 @@ class DynamicIslandHelper {
 		// Listen for resize events from the renderer
 		this.dynamicIslandWindow.webContents.on('did-finish-load', () => {
 			log.info('Dynamic Island content loaded, setting up resize listener');
-			// Send initial state to React component
-			log.info('Sending initial state to React component: { expanded: true }');
-			this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: true });
+			// Send initial state to React component - start collapsed
+			log.info('Sending initial state to React component: { expanded: false }');
+			this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: false });
 		});
 	}
 
