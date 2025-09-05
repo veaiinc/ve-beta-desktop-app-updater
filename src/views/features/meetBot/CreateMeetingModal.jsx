@@ -41,7 +41,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 	const navigate = useNavigate();
 
 	const [formData, setFormData] = useState({
-		selectedMode: 'meeting_bot',
+		selectedMode: 'desktop',
 		meetingUrl: '',
 		creating: false,
 		isAiIntelligenceEnabled: true,
