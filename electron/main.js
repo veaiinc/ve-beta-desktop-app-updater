@@ -63,6 +63,18 @@ let lastWindowState = {
 	timestamp: Date.now(),
 };
 
+// Recording timer variables for Are You There functionality
+let recordingStartTime = null;
+let areYouThereTimer = null;
+let isAreYouThereWindowShown = false;
+let isRecordingActive = false;
+
+// Transcription detection variables for Are You There functionality
+let lastTranscriptionTime = null;
+let transcriptionDetectionTimer = null;
+let isTranscriptionDetectionActive = false;
+let isTranscriptionBasedAreYouThereShown = false;
+
 // Add global error handler to prevent crashes
 process.on('uncaughtException', (error) => {
 	log.error('Uncaught Exception:', error);
@@ -928,6 +940,134 @@ app.whenReady().then(() => {
 		}
 	});
 
+	// Send chat message from Dynamic Island to Ask AI handler
+	ipcMain.handle('send-chat-message-to-askai', async (event, chatMessage) => {
+		try {
+			log.info('Sending chat message from Dynamic Island to Ask AI:', chatMessage);
+
+			// Get the Ask AI window through windowHelper
+			let askAIWindow = windowHelper.getAskAIWindow();
+
+			// If Ask AI window doesn't exist or is destroyed, create it
+			if (!askAIWindow || askAIWindow.isDestroyed()) {
+				log.info('Ask AI window not available, creating new window...');
+				windowHelper.createAskAIWindow();
+
+				// Wait for window to be created and ready
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+
+				// Get the window reference again after creating it
+				askAIWindow = windowHelper.getAskAIWindow();
+			}
+
+			// Ensure window is visible
+			if (askAIWindow && !askAIWindow.isDestroyed()) {
+				if (!askAIWindow.isVisible()) {
+					log.info('Ask AI window exists but not visible, showing it...');
+					windowHelper.showAskAIWindow();
+					// Wait a bit for the window to be fully visible
+					await new Promise((resolve) => setTimeout(resolve, 500));
+				}
+
+				// Send the chat message to Ask AI window
+				askAIWindow.webContents.send('receive-chat-message', chatMessage);
+				log.info('Chat message sent to Ask AI window successfully');
+				return { success: true };
+			} else {
+				log.error('Ask AI window not available after creation attempts');
+				return { success: false, error: 'Ask AI window not available' };
+			}
+		} catch (error) {
+			log.error('Error sending chat message to Ask AI:', error);
+			return {
+				success: false,
+				error: error.message,
+			};
+		}
+	});
+
+	// Home icon click handler - restore or recreate main window (cross-platform)
+	ipcMain.handle('restore-main-window', async () => {
+		try {
+			// Check if main window exists and is not destroyed
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				mainWindow.show();
+				mainWindow.focus();
+				log.info('Main window restored from home icon click');
+				return { success: true };
+			} else {
+				// Main window doesn't exist or is destroyed, recreate it
+				log.info('Main window not available, recreating it...');
+
+				// Recreate the main window with state restoration
+				createWindow(true);
+
+				// Wait for the window to be ready
+				await new Promise((resolve) => {
+					if (mainWindow && !mainWindow.isDestroyed()) {
+						mainWindow.once('ready-to-show', () => {
+							mainWindow.show();
+							mainWindow.focus();
+							log.info(
+								'Main window recreated and shown successfully with state restoration',
+							);
+							resolve();
+						});
+					} else {
+						log.error('Failed to recreate main window');
+						resolve();
+					}
+				});
+
+				return { success: true, message: 'Main window recreated with state restoration' };
+			}
+		} catch (error) {
+			log.error('Error restoring/recreating main window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Check camera permission status handler
+	ipcMain.handle('check-camera-permission', async () => {
+		try {
+			if (process.platform === 'darwin') {
+				const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
+
+				log.info('Checking camera permission status:', cameraStatus);
+
+				return {
+					success: true,
+					permission: cameraStatus,
+					hasPermission: cameraStatus === 'granted',
+					message:
+						cameraStatus === 'granted'
+							? 'Camera access granted'
+							: cameraStatus === 'denied'
+							? 'Camera access denied'
+							: cameraStatus === 'not-determined'
+							? 'Camera permission not yet determined'
+							: 'Camera access restricted',
+				};
+			} else {
+				// For non-macOS platforms, assume permission is available
+				return {
+					success: true,
+					permission: 'granted',
+					hasPermission: true,
+					message: 'Camera access available',
+				};
+			}
+		} catch (error) {
+			log.error('Error checking camera permission:', error);
+			return {
+				success: false,
+				error: error.message,
+				hasPermission: false,
+				permission: 'error',
+			};
+		}
+	});
+
 	// Handle chat mode activation to ensure input field can receive focus
 	ipcMain.handle('dynamic-island-chat-mode', async (event, isChatMode) => {
 		try {
@@ -1123,17 +1263,12 @@ app.whenReady().then(() => {
 	});
 
 	ipcMain.handle('dynamic-island-voice-status', async () => {
-		try {
-			// Return voice status for Dynamic Island
-			return {
-				success: true,
-				status: 'ready',
-				message: 'Voice integration ready for Dynamic Island',
-			};
-		} catch (error) {
-			log.error('Error getting voice status for Dynamic Island:', error);
-			return { success: false, error: error.message };
-		}
+		// Return voice status for Dynamic Island
+		return {
+			success: true,
+			status: 'ready',
+			message: 'Voice integration ready for Dynamic Island',
+		};
 	});
 
 	// Register overlay window IPC handlers
@@ -1206,6 +1341,9 @@ app.whenReady().then(() => {
 					action: 'startRecording',
 				});
 				log.info('Sent startRecording command to overlay window');
+
+				// Start the Are You There timer for 30-minute intervals
+				startAreYouThereTimer();
 			} else {
 				log.error('Overlay window not available after creating');
 				return { success: false, error: 'Overlay window not available' };
@@ -1228,6 +1366,16 @@ app.whenReady().then(() => {
 			} else {
 				log.warn('Overlay window not available for stopRecording');
 			}
+
+			// Stop the Are You There timer when recording stops
+			stopAreYouThereTimer();
+
+			// Hide the Are You There window if it's visible
+			if (windowHelper) {
+				windowHelper.hideAreYouThereWindow();
+				log.info('🏠 Hiding Are You There window - recording stopped from Dynamic Island');
+			}
+
 			return { success: true };
 		} catch (error) {
 			log.error('Error stopping recording from dynamic island:', error);
@@ -1337,6 +1485,27 @@ app.whenReady().then(() => {
 			} else {
 				log.warn('Dynamic Island window not available for state update');
 			}
+
+			// Update recording state and manage Are You There timer
+			if (state && typeof state.isRecording === 'boolean') {
+				if (state.isRecording) {
+					// Recording started - start the timer
+					if (!isRecordingActive) {
+						log.info('Recording started - starting Are You There timer');
+						startAreYouThereTimer();
+					}
+				} else {
+					// Recording stopped - stop the timer and hide window
+					if (isRecordingActive) {
+						log.info('Recording stopped - stopping Are You There timer');
+						stopAreYouThereTimer();
+						if (windowHelper) {
+							windowHelper.hideAreYouThereWindow();
+						}
+					}
+				}
+			}
+
 			return { success: true };
 		} catch (error) {
 			log.error('Error forwarding state to dynamic island:', error);
@@ -1550,6 +1719,298 @@ app.whenReady().then(() => {
 		}
 	});
 
+	// Are You There window IPC handlers
+	ipcMain.handle('are-you-there-continue-meeting', async () => {
+		try {
+			log.info("✅ User clicked I'm here - continuing meeting");
+
+			// Reset the flag to allow next popup
+			isAreYouThereWindowShown = false;
+
+			// Close the Are You There window
+			if (windowHelper) {
+				windowHelper.hideAreYouThereWindow();
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error continuing meeting:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('are-you-there-auto-continue-meeting', async () => {
+		try {
+			log.info('⏰ Auto-continuing meeting after timeout');
+			// Close the Are You There window
+			if (windowHelper) {
+				windowHelper.hideAreYouThereWindow();
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error auto-continuing meeting:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Get current recording time for Are You There window
+	ipcMain.handle('are-you-there-get-recording-time', async () => {
+		try {
+			if (recordingStartTime && isRecordingActive) {
+				const currentRecordingTime = Math.floor((Date.now() - recordingStartTime) / 1000);
+				return { success: true, recordingTime: currentRecordingTime };
+			} else {
+				return { success: false, error: 'No recording in progress' };
+			}
+		} catch (error) {
+			log.error('Error getting recording time:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Check if recording is active
+	ipcMain.handle('are-you-there-check-recording-state', async () => {
+		try {
+			return {
+				success: true,
+				isRecordingActive: isRecordingActive,
+				recordingStartTime: recordingStartTime,
+				hasTimer: areYouThereTimer !== null,
+			};
+		} catch (error) {
+			log.error('Error checking recording state:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('are-you-there-stop-meeting', async () => {
+		try {
+			log.info('🛑 Stopping meeting due to no user response');
+
+			// Reset the flag
+			isAreYouThereWindowShown = false;
+
+			// Stop the Are You There timer
+			stopAreYouThereTimer();
+
+			// Stop the recording by sending stop command to overlay
+			const overlayWindow = windowHelper?.getOverlayWindow();
+			if (overlayWindow) {
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'stopRecording',
+				});
+				log.info('Sent stopRecording command to overlay window');
+			}
+
+			// Close the Are You There window
+			if (windowHelper) {
+				windowHelper.hideAreYouThereWindow();
+			}
+
+			return { success: true };
+		} catch (error) {
+			log.error('Error stopping meeting:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('are-you-there-pause-meeting-intelligence', async () => {
+		try {
+			log.info('⏸️ User clicked Pause Meeting Intelligence');
+
+			// Pause the recording by sending pause command to overlay
+			const overlayWindow = windowHelper?.getOverlayWindow();
+			if (overlayWindow) {
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'pauseRecording',
+				});
+				log.info('Sent pauseRecording command to overlay window');
+			}
+
+			// Close the Are You There window
+			if (windowHelper) {
+				windowHelper.hideAreYouThereWindow();
+			}
+
+			return { success: true };
+		} catch (error) {
+			log.error('Error pausing meeting intelligence:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('are-you-there-end-session', async () => {
+		try {
+			log.info('🔚 User clicked End Session');
+
+			// Reset the flag
+			isAreYouThereWindowShown = false;
+
+			// Stop the Are You There timer
+			stopAreYouThereTimer();
+
+			// Stop the recording by sending stop command to overlay
+			const overlayWindow = windowHelper?.getOverlayWindow();
+			if (overlayWindow) {
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'stopRecording',
+				});
+				log.info('Sent stopRecording command to overlay window');
+			}
+
+			// Close the Are You There window
+			if (windowHelper) {
+				windowHelper.hideAreYouThereWindow();
+			}
+
+			return { success: true };
+		} catch (error) {
+			log.error('Error ending session:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// New IPC handlers for transcription-based Are You There functionality
+	ipcMain.handle('update-transcription-activity', async () => {
+		try {
+			updateTranscriptionActivity();
+			return { success: true };
+		} catch (error) {
+			log.error('Error updating transcription activity:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('are-you-there-continue-transcription', async () => {
+		try {
+			log.info("✅ User clicked I'm here - restarting transcription monitoring");
+
+			// Reset the flag to allow next popup
+			isTranscriptionBasedAreYouThereShown = false;
+
+			// Restart the transcription detection timer
+			restartTranscriptionDetectionTimer();
+
+			// Close the Are You There window
+			if (windowHelper) {
+				windowHelper.hideAreYouThereWindow();
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error continuing transcription monitoring:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('are-you-there-stop-transcription-monitoring', async () => {
+		try {
+			log.info('🛑 Stopping transcription monitoring due to no user response');
+
+			// Reset the flag
+			isTranscriptionBasedAreYouThereShown = false;
+
+			// Stop the transcription detection timer
+			stopTranscriptionDetectionTimer();
+
+			// Stop the recording by sending stop command to overlay
+			const overlayWindow = windowHelper?.getOverlayWindow();
+			if (overlayWindow) {
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'stopRecording',
+				});
+				log.info('Sent stopRecording command to overlay window');
+			}
+
+			// Close the Are You There window
+			if (windowHelper) {
+				windowHelper.hideAreYouThereWindow();
+			}
+
+			return { success: true };
+		} catch (error) {
+			log.error('Error stopping transcription monitoring:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('are-you-there-pause-transcription-monitoring', async () => {
+		try {
+			log.info('⏸️ User clicked Pause Transcription Monitoring');
+
+			// Pause the recording by sending pause command to overlay
+			const overlayWindow = windowHelper?.getOverlayWindow();
+			if (overlayWindow) {
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'pauseRecording',
+				});
+				log.info('Sent pauseRecording command to overlay window');
+			}
+
+			// Close the Are You There window
+			if (windowHelper) {
+				windowHelper.hideAreYouThereWindow();
+			}
+
+			return { success: true };
+		} catch (error) {
+			log.error('Error pausing transcription monitoring:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('are-you-there-end-transcription-session', async () => {
+		try {
+			log.info('🔚 User clicked End Transcription Session');
+
+			// Reset the flag
+			isTranscriptionBasedAreYouThereShown = false;
+
+			// Stop the transcription detection timer
+			stopTranscriptionDetectionTimer();
+
+			// Stop the recording by sending stop command to overlay
+			const overlayWindow = windowHelper?.getOverlayWindow();
+			if (overlayWindow) {
+				overlayWindow.webContents.send('overlay-command', {
+					action: 'stopRecording',
+				});
+				log.info('Sent stopRecording command to overlay window');
+			}
+
+			// Close the Are You There window
+			if (windowHelper) {
+				windowHelper.hideAreYouThereWindow();
+			}
+
+			return { success: true };
+		} catch (error) {
+			log.error('Error ending transcription session:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Get detailed transcription detection state
+	ipcMain.handle('get-transcription-detection-state', async () => {
+		try {
+			const currentTime = Date.now();
+			const timeSinceLastTranscription = lastTranscriptionTime
+				? Math.floor((currentTime - lastTranscriptionTime) / 1000)
+				: 0;
+
+			return {
+				success: true,
+				isActive: isTranscriptionDetectionActive,
+				isWindowShown: isTranscriptionBasedAreYouThereShown,
+				timeSinceLastTranscription,
+				lastTranscriptionTime,
+				isRecordingActive,
+				recordingStartTime,
+			};
+		} catch (error) {
+			log.error('Error getting transcription detection state:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	// Save current route from frontend
 	ipcMain.handle('save-current-route', async (event, route) => {
 		try {
@@ -1562,44 +2023,15 @@ app.whenReady().then(() => {
 			return { success: false, error: error.message };
 		}
 	});
-
-	// Home icon click handler - restore or recreate main window (cross-platform)
-	ipcMain.handle('restore-main-window', async () => {
+	// Save current route from frontend
+	ipcMain.handle('save-current-route', async (event, route) => {
 		try {
-			// Check if main window exists and is not destroyed
-			if (mainWindow && !mainWindow.isDestroyed()) {
-				mainWindow.show();
-				mainWindow.focus();
-				log.info('Main window restored from home icon click');
-				return { success: true };
-			} else {
-				// Main window doesn't exist or is destroyed, recreate it
-				log.info('Main window not available, recreating it...');
-
-				// Recreate the main window with state restoration
-				createWindow(true);
-
-				// Wait for the window to be ready
-				await new Promise((resolve) => {
-					if (mainWindow && !mainWindow.isDestroyed()) {
-						mainWindow.once('ready-to-show', () => {
-							mainWindow.show();
-							mainWindow.focus();
-							log.info(
-								'Main window recreated and shown successfully with state restoration',
-							);
-							resolve();
-						});
-					} else {
-						log.error('Failed to recreate main window');
-						resolve();
-					}
-				});
-
-				return { success: true, message: 'Main window recreated with state restoration' };
-			}
+			lastWindowState.route = route;
+			lastWindowState.timestamp = Date.now();
+			log.info('Current route saved:', route);
+			return { success: true };
 		} catch (error) {
-			log.error('Error restoring/recreating main window:', error);
+			log.error('Error saving current route:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -1738,47 +2170,6 @@ app.whenReady().then(() => {
 		}
 	});
 
-	// Check camera permission status handler
-	ipcMain.handle('check-camera-permission', async () => {
-		try {
-			if (process.platform === 'darwin') {
-				const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
-
-				log.info('Checking camera permission status:', cameraStatus);
-
-				return {
-					success: true,
-					permission: cameraStatus,
-					hasPermission: cameraStatus === 'granted',
-					message:
-						cameraStatus === 'granted'
-							? 'Camera access granted'
-							: cameraStatus === 'denied'
-							? 'Camera access denied'
-							: cameraStatus === 'not-determined'
-							? 'Camera permission not yet determined'
-							: 'Camera access restricted',
-				};
-			} else {
-				// For non-macOS platforms, assume permission is available
-				return {
-					success: true,
-					permission: 'granted',
-					hasPermission: true,
-					message: 'Camera access available',
-				};
-			}
-		} catch (error) {
-			log.error('Error checking camera permission:', error);
-			return {
-				success: false,
-				error: error.message,
-				hasPermission: false,
-				permission: 'error',
-			};
-		}
-	});
-
 	// Request microphone permission handler
 	ipcMain.handle('request-microphone-permission', async () => {
 		try {
@@ -1880,52 +2271,6 @@ app.whenReady().then(() => {
 		}
 	});
 
-	// Send chat message from Dynamic Island to Ask AI handler
-	ipcMain.handle('send-chat-message-to-askai', async (event, chatMessage) => {
-		try {
-			log.info('Sending chat message from Dynamic Island to Ask AI:', chatMessage);
-
-			// Get the Ask AI window through windowHelper
-			let askAIWindow = windowHelper.getAskAIWindow();
-
-			// If Ask AI window doesn't exist or is destroyed, create it
-			if (!askAIWindow || askAIWindow.isDestroyed()) {
-				log.info('Ask AI window not available, creating new window...');
-				windowHelper.createAskAIWindow();
-
-				// Wait for window to be created and ready
-				await new Promise((resolve) => setTimeout(resolve, 1000));
-
-				// Get the window reference again after creating it
-				askAIWindow = windowHelper.getAskAIWindow();
-			}
-
-			// Ensure window is visible
-			if (askAIWindow && !askAIWindow.isDestroyed()) {
-				if (!askAIWindow.isVisible()) {
-					log.info('Ask AI window exists but not visible, showing it...');
-					windowHelper.showAskAIWindow();
-					// Wait a bit for the window to be fully visible
-					await new Promise((resolve) => setTimeout(resolve, 500));
-				}
-
-				// Send the chat message to Ask AI window
-				askAIWindow.webContents.send('receive-chat-message', chatMessage);
-				log.info('Chat message sent to Ask AI window successfully');
-				return { success: true };
-			} else {
-				log.error('Ask AI window not available after creation attempts');
-				return { success: false, error: 'Ask AI window not available' };
-			}
-		} catch (error) {
-			log.error('Error sending chat message to Ask AI:', error);
-			return {
-				success: false,
-				error: error.message,
-			};
-		}
-	});
-
 	// Force open AskAI window handler (fallback for Dynamic Island)
 	ipcMain.handle('force-open-askai-window', async () => {
 		try {
@@ -1994,6 +2339,261 @@ app.on('will-quit', () => {
 	}
 });
 
+// Are You There timer functions
+function startAreYouThereTimer() {
+	// Clear any existing timer
+	if (areYouThereTimer) {
+		clearInterval(areYouThereTimer);
+	}
+
+	// Set recording start time and mark recording as active
+	recordingStartTime = Date.now();
+	isAreYouThereWindowShown = false;
+	isRecordingActive = true;
+
+	log.info('⏰ Started Are You There timer - will trigger at 30min, 60min, 90min, etc.');
+
+	// Start transcription detection timer alongside the 30-minute timer
+	startTranscriptionDetectionTimer();
+
+	// Use setInterval to check every second and show window at 30-minute marks
+	areYouThereTimer = setInterval(() => {
+		// Check if recording is still active - if not, stop the timer
+		if (!isRecordingActive || !recordingStartTime) {
+			log.info('⏰ Recording stopped or not active - stopping Are You There timer');
+			stopAreYouThereTimer();
+			return;
+		}
+
+		const currentRecordingTime = Math.floor((Date.now() - recordingStartTime) / 1000);
+
+		// Debug: Log every 5 minutes to see what's happening
+		if (currentRecordingTime % 300 === 0) {
+			console.log(
+				`⏰ Timer check: ${currentRecordingTime}s (recording active: ${isRecordingActive})`,
+			);
+		}
+
+		// Show window at exact 30-minute marks (1800s, 3600s, 5400s, etc.)
+		// Only show if the window is not currently being shown and recording is active
+		if (
+			currentRecordingTime > 0 &&
+			currentRecordingTime % 1800 === 0 && // 30 minutes = 1800 seconds
+			!isAreYouThereWindowShown &&
+			isRecordingActive
+		) {
+			console.log(`⏰ Showing Are You There window at ${currentRecordingTime}s mark`);
+			showAreYouThereWindow();
+		}
+	}, 1000); // Check every second
+}
+
+function stopAreYouThereTimer() {
+	if (areYouThereTimer) {
+		clearInterval(areYouThereTimer);
+		areYouThereTimer = null;
+	}
+
+	// Also stop transcription detection timer
+	stopTranscriptionDetectionTimer();
+
+	recordingStartTime = null;
+	isAreYouThereWindowShown = false;
+	isRecordingActive = false;
+	log.info('⏰ Stopped Are You There timer');
+}
+
+function showAreYouThereWindow() {
+	try {
+		if (windowHelper) {
+			// Set flag to prevent multiple windows from showing
+			isAreYouThereWindowShown = true;
+
+			// Get the Are You There window
+			const areYouThereWindow = windowHelper.getAreYouThereWindow();
+
+			if (areYouThereWindow && !areYouThereWindow.isDestroyed()) {
+				// Send show command with time-based flag
+				areYouThereWindow.webContents.send('are-you-there-show-command', {
+					type: 'time-based',
+					reason: 'recording-timeout',
+				});
+				log.info('🏠 Sent time-based show command to Are You There window');
+			}
+
+			// Show the window
+			windowHelper.showAreYouThereWindow();
+			log.info('🏠 Showing Are You There window at 30-minute interval');
+		} else {
+			log.error('❌ Window helper not available to show Are You There window');
+		}
+	} catch (error) {
+		log.error('❌ Error showing Are You There window:', error);
+	}
+}
+
+// Transcription detection timer functions
+function startTranscriptionDetectionTimer() {
+	// Only start if recording is active
+	if (!isRecordingActive || !recordingStartTime) {
+		log.warn('🎤 Cannot start transcription detection - recording not active');
+		return;
+	}
+
+	// Clear any existing timer
+	if (transcriptionDetectionTimer) {
+		clearInterval(transcriptionDetectionTimer);
+	}
+
+	// Reset transcription time and mark detection as active
+	lastTranscriptionTime = Date.now();
+	isTranscriptionDetectionActive = true;
+	isTranscriptionBasedAreYouThereShown = false;
+
+	log.info(
+		'🎤 Started transcription detection timer - will trigger after 5 minutes of no transcriptions',
+	);
+
+	// Use the same logic as restart function
+	startTranscriptionDetectionInterval();
+}
+
+function startTranscriptionDetectionInterval() {
+	// Check every 5 seconds for transcription activity
+	transcriptionDetectionTimer = setInterval(() => {
+		// Check if recording is still active - if not, stop the timer
+		if (!isRecordingActive || !recordingStartTime) {
+			log.info('🎤 Recording stopped or not active - stopping transcription detection timer');
+			stopTranscriptionDetectionTimer();
+			return;
+		}
+
+		const currentTime = Date.now();
+		const timeSinceLastTranscription = Math.floor((currentTime - lastTranscriptionTime) / 1000);
+
+		// Debug: Log every 10 seconds to see what's happening
+		if (timeSinceLastTranscription % 10 === 0 && timeSinceLastTranscription > 0) {
+			console.log(
+				`🎤 Transcription check: ${timeSinceLastTranscription}s since last transcription (recording active: ${isRecordingActive})`,
+			);
+		}
+
+		// Show window after 5 minutes (300 seconds) of no transcriptions
+		// Only show if the window is not currently being shown and recording is active
+		if (
+			timeSinceLastTranscription >= 300 && // 5 minutes = 300 seconds
+			!isTranscriptionBasedAreYouThereShown &&
+			isRecordingActive
+		) {
+			console.log(
+				`🎤 Showing Are You There window after ${timeSinceLastTranscription}s of no transcriptions`,
+			);
+			showTranscriptionBasedAreYouThereWindow();
+		}
+	}, 5000); // Check every 5 seconds
+}
+
+function stopTranscriptionDetectionTimer() {
+	if (transcriptionDetectionTimer) {
+		clearInterval(transcriptionDetectionTimer);
+		transcriptionDetectionTimer = null;
+	}
+	lastTranscriptionTime = null;
+	isTranscriptionDetectionActive = false;
+	isTranscriptionBasedAreYouThereShown = false;
+	log.info('🎤 Stopped transcription detection timer');
+}
+
+function updateTranscriptionActivity() {
+	// Update the last transcription time
+	lastTranscriptionTime = Date.now();
+
+	// If the Are You There window is shown due to no transcriptions, hide it
+	if (isTranscriptionBasedAreYouThereShown) {
+		log.info('🎤 Transcription detected - hiding transcription-based Are You There window');
+		hideTranscriptionBasedAreYouThereWindow();
+	}
+
+	// If transcription detection is active, reset the timer
+	if (isTranscriptionDetectionActive) {
+		log.info('🎤 Transcription detected - resetting 1-minute timer');
+		// Reset the timer by updating the last transcription time
+		lastTranscriptionTime = Date.now();
+	}
+}
+
+function restartTranscriptionDetectionTimer() {
+	// Only restart if recording is active
+	if (!isRecordingActive || !recordingStartTime) {
+		log.warn('🎤 Cannot restart transcription detection - recording not active');
+		return;
+	}
+
+	// Stop current timer if running
+	if (transcriptionDetectionTimer) {
+		clearInterval(transcriptionDetectionTimer);
+		transcriptionDetectionTimer = null;
+	}
+
+	// Reset transcription time and restart detection
+	lastTranscriptionTime = Date.now();
+	isTranscriptionDetectionActive = true;
+	isTranscriptionBasedAreYouThereShown = false;
+
+	log.info(
+		'🎤 Restarted transcription detection timer - will trigger after 5 minutes of no transcriptions',
+	);
+
+	// Use the shared interval logic
+	startTranscriptionDetectionInterval();
+}
+
+function showTranscriptionBasedAreYouThereWindow() {
+	try {
+		if (windowHelper) {
+			// Set flag to prevent multiple windows from showing
+			isTranscriptionBasedAreYouThereShown = true;
+
+			// Get the Are You There window
+			const areYouThereWindow = windowHelper.getAreYouThereWindow();
+
+			if (areYouThereWindow && !areYouThereWindow.isDestroyed()) {
+				// Send show command with transcription-based flag
+				areYouThereWindow.webContents.send('are-you-there-show-command', {
+					type: 'transcription-based',
+					reason: 'no-transcriptions',
+				});
+				log.info('🏠 Sent transcription-based show command to Are You There window');
+			}
+
+			// Show the window
+			windowHelper.showAreYouThereWindow();
+			log.info('🏠 Showing Are You There window due to no transcriptions');
+		} else {
+			log.error(
+				'❌ Window helper not available to show transcription-based Are You There window',
+			);
+		}
+	} catch (error) {
+		log.error('❌ Error showing transcription-based Are You There window:', error);
+	}
+}
+
+function hideTranscriptionBasedAreYouThereWindow() {
+	try {
+		if (windowHelper) {
+			// Reset flag
+			isTranscriptionBasedAreYouThereShown = false;
+
+			// Hide the window
+			windowHelper.hideAreYouThereWindow();
+			log.info('🏠 Hiding transcription-based Are You There window');
+		}
+	} catch (error) {
+		log.error('❌ Error hiding transcription-based Are You There window:', error);
+	}
+}
+
 // Function to handle cleanup and quit
 function cleanupAndQuit() {
 	log.info('🧹 Starting cleanup process...');
@@ -2027,7 +2627,21 @@ function cleanupAndQuit() {
 			}
 		});
 
-		// 5. Unregister all global shortcuts
+		// 5. Clean up Are You There timer
+		if (areYouThereTimer) {
+			clearInterval(areYouThereTimer);
+			areYouThereTimer = null;
+			log.info('✅ Are You There timer cleared');
+		}
+
+		// 6. Clean up transcription detection timer
+		if (transcriptionDetectionTimer) {
+			clearInterval(transcriptionDetectionTimer);
+			transcriptionDetectionTimer = null;
+			log.info('✅ Transcription detection timer cleared');
+		}
+
+		// 7. Unregister all global shortcuts
 		try {
 			globalShortcut.unregisterAll();
 			log.info('✅ Global shortcuts unregistered');

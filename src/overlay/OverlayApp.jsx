@@ -61,12 +61,27 @@ const OverlayApp = () => {
 	} = useContext(Context);
 
 	const handleUpdateTranscription = (newTranscript) => {
+		// Get the transcript text from various possible sources
+		const transcriptText =
+			newTranscript.transcript || newTranscript.displayedText || newTranscript.text || '';
+
+		// Only update transcription activity if we have meaningful content
+		// This helps distinguish between empty/partial transcripts and actual speech
+		if (transcriptText.trim().length > 0) {
+			// Update transcription activity in main process
+			if (window.electronApi?.areYouThere?.updateTranscriptionActivity) {
+				window.electronApi.areYouThere.updateTranscriptionActivity();
+			}
+			console.log(
+				'🎤 Meaningful transcription detected:',
+				transcriptText.substring(0, 50) + '...',
+			);
+		} else {
+			console.log('🎤 Empty or partial transcription received - not updating activity timer');
+		}
+
 		setInfo((prev) => {
 			const transcriptions = prev.transcriptions || [];
-
-			// Get the transcript text from various possible sources
-			const transcriptText =
-				newTranscript.transcript || newTranscript.displayedText || newTranscript.text || '';
 
 			// Check if this transcript already exists (to avoid duplicates)
 			const existingTranscript = transcriptions.find(
@@ -396,6 +411,42 @@ const OverlayApp = () => {
 		return () => clearInterval(interval);
 	}, []);
 
+	// Listen for Are You There window events to hide overlay content
+	useEffect(() => {
+		const handleAreYouThereShow = (data) => {
+			console.log('🏠 Are You There window shown - hiding overlay content', data);
+
+			// Hide the overlay content when Are You There window appears
+			if (activePanel) {
+				setActivePanel(null);
+			}
+			setShowShortcutBar(false);
+		};
+
+		const handleAreYouThereHide = () => {
+			console.log('🏠 Are You There window hidden - overlay content can be shown again');
+			// Note: We don't automatically restore the panel here as it should be controlled by user interaction
+		};
+
+		// Set up listeners for Are You There window events
+		if (window.electronApi?.areYouThere?.onShowCommand) {
+			window.electronApi.areYouThere.onShowCommand(handleAreYouThereShow);
+		}
+
+		if (window.electronApi?.areYouThere?.onCloseCommand) {
+			window.electronApi.areYouThere.onCloseCommand(handleAreYouThereHide);
+		}
+
+		return () => {
+			if (window.electronApi?.areYouThere?.removeShowCommandListener) {
+				window.electronApi.areYouThere.removeShowCommandListener();
+			}
+			if (window.electronApi?.areYouThere?.removeCloseCommandListener) {
+				window.electronApi.areYouThere.removeCloseCommandListener();
+			}
+		};
+	}, [activePanel]);
+
 	const handleListenClick = async () => {
 		// Toggle live intelligence panel and automatically start recording when opening
 		// This is used by ShortcutBar - shows ShortcutBar
@@ -515,13 +566,12 @@ const OverlayApp = () => {
 		let calculatedHeight = rect.height;
 
 		// Dynamic width calculation based on layout - use exact content width
-		if (activePanel === 'live-intelligence' ){
+		if (activePanel === 'live-intelligence') {
 			// Panel is open: use exact panel width without extra padding
 			calculatedWidth = 830; // Exact panel width
 		} else if (activePanel === 'transcript') {
 			calculatedWidth = 560; // Exact panel width
-		}
-		else if (showShortcutBar && !isDynamicIslandControlled) {
+		} else if (showShortcutBar && !isDynamicIslandControlled) {
 			// Only shortcut bar visible: use actual content width
 			calculatedWidth = Math.max(rect.width, 400);
 		} else {

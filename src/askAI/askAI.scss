@@ -19,7 +19,7 @@
 	gap: 12px;
 	overflow: hidden;
 	max-width: 600px;
-	width: 600px;
+	width: 540px;
 	font-size: 14px;
 	position: relative;
 }
@@ -339,10 +339,7 @@
 		-webkit-app-region: drag;
 		app-region: drag;
 		z-index: 1;
-		pointer-events: auto; 
-		
-		
-		
+		pointer-events: auto;
 	}
 
 	// Ask AI input drag handle with grip icon
@@ -358,7 +355,6 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		
 	}
 
 	&__field {

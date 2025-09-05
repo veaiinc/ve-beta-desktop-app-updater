@@ -63,6 +63,7 @@ export default defineConfig({
 				main: './index.html',
 				overlay: './overlay.html',
 				askAI: './askAI.html',
+				areYouThere: './areYouThere.html',
 				dynamicIsland: './dynamic-island.html',
 			},
 		},

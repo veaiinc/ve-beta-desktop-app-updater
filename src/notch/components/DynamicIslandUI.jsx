@@ -1016,12 +1016,20 @@ const DynamicIslandUI = () => {
 		}
 	};
 
-	// Format time for display
+	// Format time for display - counts up from 0 to 29:50
 	const formatTime = (seconds) => {
-		const m = Math.floor(seconds / 60)
+		// Count up from 0 to 29:50 (29 minutes and 50 seconds = 1790 seconds)
+		const totalSeconds = seconds;
+
+		// Cap at 29:50 (1790 seconds)
+		if (totalSeconds >= 1790) {
+			return '29:50';
+		}
+
+		const m = Math.floor(totalSeconds / 60)
 			.toString()
 			.padStart(1, '0');
-		const s = (seconds % 60).toString().padStart(2, '0');
+		const s = (totalSeconds % 60).toString().padStart(2, '0');
 		return `${m}:${s}`;
 	};
 

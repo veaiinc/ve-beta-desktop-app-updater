@@ -163,6 +163,45 @@ contextBridge.exposeInMainWorld('electronApi', {
 		},
 	},
 
+	// Are You There window APIs
+	areYouThere: {
+		continueMeeting: () => ipcRenderer.invoke('are-you-there-continue-meeting'),
+		autoContinueMeeting: () => ipcRenderer.invoke('are-you-there-auto-continue-meeting'),
+		stopMeeting: () => ipcRenderer.invoke('are-you-there-stop-meeting'),
+		pauseMeetingIntelligence: () =>
+			ipcRenderer.invoke('are-you-there-pause-meeting-intelligence'),
+		endSession: () => ipcRenderer.invoke('are-you-there-end-session'),
+		getCurrentRecordingTime: () => ipcRenderer.invoke('are-you-there-get-recording-time'),
+		checkRecordingState: () => ipcRenderer.invoke('are-you-there-check-recording-state'),
+		onShowCommand: (callback) => {
+			ipcRenderer.on('are-you-there-show-command', (event, data) => {
+				callback(data);
+			});
+		},
+		removeShowCommandListener: () => {
+			ipcRenderer.removeAllListeners('are-you-there-show-command');
+		},
+		onCloseCommand: (callback) => {
+			ipcRenderer.on('are-you-there-close-command', (event, data) => {
+				callback(data);
+			});
+		},
+		removeCloseCommandListener: () => {
+			ipcRenderer.removeAllListeners('are-you-there-close-command');
+		},
+		// New transcription-based Are You There APIs
+		updateTranscriptionActivity: () => ipcRenderer.invoke('update-transcription-activity'),
+		continueTranscription: () => ipcRenderer.invoke('are-you-there-continue-transcription'),
+		stopTranscriptionMonitoring: () =>
+			ipcRenderer.invoke('are-you-there-stop-transcription-monitoring'),
+		pauseTranscriptionMonitoring: () =>
+			ipcRenderer.invoke('are-you-there-pause-transcription-monitoring'),
+		endTranscriptionSession: () =>
+			ipcRenderer.invoke('are-you-there-end-transcription-session'),
+		getTranscriptionDetectionState: () =>
+			ipcRenderer.invoke('get-transcription-detection-state'),
+	},
+
 	// Home icon click handler (cross-platform)
 	home: {
 		restoreMainWindow: () => ipcRenderer.invoke('restore-main-window'),
