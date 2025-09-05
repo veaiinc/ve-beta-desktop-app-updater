@@ -1,13 +1,15 @@
-const registerOfflineSW = async () => {
+const registerUnifiedSW = async () => {
 	if ('serviceWorker' in navigator) {
 		try {
-			await navigator.serviceWorker.register('/offline-sw.js');
+			// Register the unified service worker that handles both offline and notifications
+			await navigator.serviceWorker.register('/sw.js');
 
 			const registration = await navigator.serviceWorker.ready;
+			console.log('Unified service worker registered successfully');
 
 			return registration;
 		} catch (error) {
-			console.error('Error registering offline SW:', error);
+			console.error('Error registering unified SW:', error);
 			throw error;
 		}
 	} else {
@@ -16,4 +18,4 @@ const registerOfflineSW = async () => {
 	}
 };
 
-export default registerOfflineSW;
+export default registerUnifiedSW;
