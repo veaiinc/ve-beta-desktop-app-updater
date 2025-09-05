@@ -1122,68 +1122,8 @@ const DynamicIslandUI = () => {
 		>
 			{/* Simple content when collapsed */}
 			<div className="island-content">
-				{controlledByDynamicIsland ? (
-					isRecording ? (
-						<div className="collapsed-recording-content">
-							{isChatMode ? (
-								// Chat mode in collapsed recording state
-								<div className="collapsed-chat-recording">
-									<div className="collapsed-chat-input">
-										<input
-											type="text"
-											placeholder="Ask about recording..."
-											className="collapsed-chat-field"
-											value={chatInput}
-											onChange={handleChatInputChange}
-											onKeyPress={handleChatInputKeyPress}
-											onFocus={() => {
-												if (
-													window.electronApi?.dynamicIsland
-														?.setChatMode &&
-													!isSettingChatMode
-												) {
-													setIsSettingChatMode(true);
-													window.electronApi.dynamicIsland
-														.setChatMode(true)
-														.then(() => setIsSettingChatMode(false))
-														.catch(() => setIsSettingChatMode(false));
-												}
-											}}
-										/>
-									</div>
-									<div
-										className="collapsed-chat-submit"
-										onClick={handleChatSubmit}
-									>
-										<ArrowIcon />
-									</div>
-								</div>
-							) : (
-								// Normal recording state
-								<>
-									<span className="collapsed-recording-text">
-										{isPaused
-											? `Paused ${formatTime(timer)}`
-											: `Recording ${formatTime(timer)}`}
-									</span>
-									{!isPaused && (
-										<div className="collapsed-voice-animation">
-											<div className="collapsed-voice-visualizer">
-												<div className="audio-bar"></div>
-												<div className="audio-bar"></div>
-												<div className="audio-bar"></div>
-												<div className="audio-bar"></div>
-												<div className="audio-bar"></div>
-											</div>
-										</div>
-									)}
-									{isPaused && <PauseIcon />}
-								</>
-							)}
-						</div>
-					) : (
-						'Living Intelligence'
-					)
+				{isChatMode ? (
+					'Chat Mode'
 				) : showVoiceInterface ? (
 					<div className="voice-agent-collapsed">
 						<span>Voice Agent</span>
@@ -1195,8 +1135,30 @@ const DynamicIslandUI = () => {
 							<div className="wave-bar"></div>
 						</div>
 					</div>
-				) : isChatMode ? (
-					'Chat Mode'
+				) : controlledByDynamicIsland ? (
+					isRecording ? (
+						<div className="collapsed-recording-content">
+							<span className="collapsed-recording-text">
+								{isPaused
+									? `Paused ${formatTime(timer)}`
+									: `Recording ${formatTime(timer)}`}
+							</span>
+							{!isPaused && (
+								<div className="collapsed-voice-animation">
+									<div className="collapsed-voice-visualizer">
+										<div className="audio-bar"></div>
+										<div className="audio-bar"></div>
+										<div className="audio-bar"></div>
+										<div className="audio-bar"></div>
+										<div className="audio-bar"></div>
+									</div>
+								</div>
+							)}
+							{isPaused && <PauseIcon />}
+						</div>
+					) : (
+						'Living Intelligence'
+					)
 				) : (
 					'Living Intelligence'
 				)}
@@ -1330,6 +1292,27 @@ const DynamicIslandUI = () => {
 
 							{/* Right side icons */}
 							<div className="right-icons">
+								{isChatMode && (
+									<div
+										className="back-button"
+										title="Back to main view"
+										onClick={() => {
+											setIsChatMode(false);
+											setChatInput('');
+											// Disable focus when exiting chat mode
+											if (
+												window.electronApi?.dynamicIsland?.setChatMode
+											) {
+												window.electronApi.dynamicIsland.setChatMode(
+													false,
+												);
+											}
+										}}
+									>
+										<BackIcon />
+										<span className="back-text">Back</span>
+									</div>
+								)}
 								<div className="icon-button" title="Home" onClick={handleHomeClick}>
 									<HomeIcon />
 								</div>
