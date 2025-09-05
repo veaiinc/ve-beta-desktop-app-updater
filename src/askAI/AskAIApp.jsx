@@ -27,6 +27,8 @@ const AskAIApp = () => {
 	const [isNeedHelpRequest, setIsNeedHelpRequest] = useState(false);
 	const [receivedDynamicIslandMessage, setReceivedDynamicIslandMessage] = useState(null);
 	const isStoppedRef = useRef(false);
+	// Add this simple conversation history state
+	const [fullConversation, setFullConversation] = useState('');
 	// Initialize socket
 	const { createWebSocketConnection, sendMessage, closeWebSocketConnection } = useAskAISocket();
 	// Update dimensions only when necessary
@@ -209,8 +211,160 @@ const AskAIApp = () => {
 		}
 	};
 
-	// Handle incoming WebSocket messages
-	const onMessageFunc = useCallback((event, currentSessionId) => {
+	// Modify handleStop to save the current conversation
+	const handleStop = () => {
+		console.log('🛑 Stopping generation immediately...');
+
+		// Set flag to indicate user stopped the generation FIRST
+		isStoppedRef.current = true;
+
+		// IMMEDIATELY freeze the display at current state
+		setDisplayedResponse((currentDisplayed) => {
+			console.log('🛑 Freezing display at:', currentDisplayed);
+			// Set streamingResponse to match current displayed content
+			setStreamingResponse(currentDisplayed);
+
+			// Save the partial conversation to full conversation history
+			if (currentDisplayed.trim()) {
+				setFullConversation((prev) => {
+					const newConversation =
+						prev +
+						(prev ? '\n\n' : '') +
+						`Human: ${inputValue || 'Previous question'}\n\n` +
+						`Assistant: ${currentDisplayed} [STOPPED BY USER]`;
+					console.log('💾 Saved conversation:', newConversation);
+					return newConversation;
+				});
+			}
+
+			return currentDisplayed;
+		});
+
+		// Stop the loading state immediately
+		setIsLoading(false);
+
+		// FORCE CLOSE the WebSocket connection immediately
+		try {
+			if (closeWebSocketConnection) {
+				closeWebSocketConnection();
+				console.log('🛑 WebSocket connection closed');
+			}
+		} catch (error) {
+			console.warn('Error closing WebSocket:', error);
+		}
+
+		console.log('🛑 Generation stopped successfully - display frozen');
+	};
+
+	// Modify handleSubmit to include conversation context
+	const handleSubmit = async (customInput = null, isNeedHelp = null) => {
+		const queryValue = customInput || inputValue.trim();
+		if (!queryValue) return;
+
+		// Reset the stopped flag for new requests
+		isStoppedRef.current = false;
+
+		// Store the current question for conversation history
+		const currentQuestion = queryValue;
+
+		// Use the passed isNeedHelp parameter if provided, otherwise use state
+		const shouldUseDirectSearch = isNeedHelp !== null ? isNeedHelp : isNeedHelpRequest;
+
+		// Clear input only if it's a manual submission (not automatic)
+		if (!customInput) {
+			setInputValue('');
+		}
+
+		const hasPermission = await requestScreenPermissionIfNeeded();
+		setIsLoading(true);
+
+		// Clear display states for new message (but keep conversation history)
+		setResponse('');
+		setStreamingResponse('');
+		setDisplayedResponse('');
+
+		// Clear Dynamic Island message indicator when starting new submission
+		setReceivedDynamicIslandMessage(null);
+
+		// Reset need help flag for manual submissions
+		if (!customInput) {
+			setIsNeedHelpRequest(false);
+		}
+
+		try {
+			// 📸 Capture screenshot using Electron API
+			let base64Image = null;
+			if (window.electronApi?.desktop?.captureScreen) {
+				try {
+					base64Image = await window.electronApi.desktop.captureScreen();
+				} catch (err) {
+					console.warn('Failed to capture screenshot:', err);
+				}
+			}
+
+			const imageArray = base64Image ? [base64Image] : [];
+
+			// Create context-aware query
+			let contextualQuery = queryValue;
+			if (fullConversation.trim()) {
+				contextualQuery = `Previous conversation context:\n${fullConversation}\n\nCurrent question: ${queryValue}`;
+				console.log('📚 Including conversation context in query');
+			}
+
+			// Prepare message data with conversation context
+			const messageData = {
+				query: contextualQuery, // Include context directly in the query
+				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+				web_search: true,
+				knowledge_base_search: true,
+				deep_research: false,
+				deep_search: false,
+				modules: [],
+				date: [],
+				selected_model: null,
+				location: null,
+				image_data_base64: imageArray,
+			};
+
+			// Only set direct_search_agent to true for "Need Help" tab requests
+			if (shouldUseDirectSearch) {
+				messageData.direct_search_agent = true;
+			}
+
+			// Add location details
+			let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
+			if (!location_details) {
+				location_details = await getLocationsDetails();
+			}
+			messageData.location = location_details;
+
+			console.log('📤 Sending contextual query:', {
+				originalQuery: queryValue,
+				hasContext: !!fullConversation.trim(),
+				sessionId,
+			});
+
+			await sendMessage({
+				data: messageData,
+				sessionId, // Use the same session ID to maintain context
+				onMessageFunc: (event, sessionId) =>
+					onMessageFunc(event, sessionId, currentQuestion),
+				agentType: 'multi_agent_chat_streaming',
+			});
+
+			// Reset the need help flag after sending the message
+			setIsNeedHelpRequest(false);
+		} catch (error) {
+			console.error('Failed to send message:', error);
+			setIsLoading(false);
+			setResponse('Error: Failed to send message. Please try again.');
+			setIsExpanded(true);
+			setIsNeedHelpRequest(false);
+		}
+	};
+
+	// Modify onMessageFunc to save completed conversations
+	const onMessageFunc = useCallback((event, currentSessionId, currentQuestion) => {
 		// FIRST CHECK: If user stopped generation, ignore ALL incoming messages
 		if (isStoppedRef.current) {
 			console.log('🛑 Ignoring message - generation was stopped by user');
@@ -266,6 +420,17 @@ const AskAIApp = () => {
 
 				const finalResponse = currentStreaming + (data?.answer || '');
 				console.log('🏁 Final response calculated:', finalResponse);
+
+				// Save the complete conversation to history
+				setFullConversation((prev) => {
+					const newConversation =
+						prev +
+						(prev ? '\n\n' : '') +
+						`Human: ${currentQuestion}\n\n` +
+						`Assistant: ${finalResponse}`;
+					console.log('💾 Saved complete conversation:', newConversation);
+					return newConversation;
+				});
 
 				// Set the final response
 				setResponse(finalResponse);
@@ -340,130 +505,6 @@ const AskAIApp = () => {
 		}
 	};
 
-	// Update the handleStop function to immediately freeze the display
-	const handleStop = () => {
-		console.log('🛑 Stopping generation immediately...');
-
-		// Set flag to indicate user stopped the generation FIRST
-		isStoppedRef.current = true;
-
-		// IMMEDIATELY freeze the display at current state
-		setDisplayedResponse((currentDisplayed) => {
-			console.log('🛑 Freezing display at:', currentDisplayed);
-			// Set streamingResponse to match current displayed content
-			setStreamingResponse(currentDisplayed);
-			return currentDisplayed;
-		});
-
-		// Stop the loading state immediately
-		setIsLoading(false);
-
-		// FORCE CLOSE the WebSocket connection immediately
-		try {
-			if (closeWebSocketConnection) {
-				closeWebSocketConnection();
-				console.log('🛑 WebSocket connection closed');
-			}
-		} catch (error) {
-			console.warn('Error closing WebSocket:', error);
-		}
-
-		console.log('🛑 Generation stopped successfully - display frozen');
-	};
-
-	const handleSubmit = async (customInput = null, isNeedHelp = null) => {
-		const queryValue = customInput || inputValue.trim();
-		if (!queryValue) return;
-
-		// Reset the stopped flag for new requests
-		isStoppedRef.current = false;
-
-		// Use the passed isNeedHelp parameter if provided, otherwise use state
-		const shouldUseDirectSearch = isNeedHelp !== null ? isNeedHelp : isNeedHelpRequest;
-
-		// Clear input only if it's a manual submission (not automatic)
-		if (!customInput) {
-			setInputValue('');
-		}
-
-		const hasPermission = await requestScreenPermissionIfNeeded();
-		setIsLoading(true);
-		setResponse('');
-		setStreamingResponse('');
-		setDisplayedResponse('');
-
-		// Clear Dynamic Island message indicator when starting new submission
-		setReceivedDynamicIslandMessage(null);
-
-		// Clear input only if it's a manual submission (not automatic)
-		if (!customInput) {
-			setInputValue('');
-		}
-
-		// Reset need help flag for manual submissions
-		if (!customInput) {
-			setIsNeedHelpRequest(false);
-		}
-
-		try {
-			// 📸 Capture screenshot using Electron API
-			let base64Image = null;
-			if (window.electronApi?.desktop?.captureScreen) {
-				try {
-					base64Image = await window.electronApi.desktop.captureScreen();
-				} catch (err) {
-					console.warn('Failed to capture screenshot:', err);
-					// Optionally continue without image
-				}
-			}
-
-			const imageArray = base64Image ? [base64Image] : [];
-			// Prepare message data
-			const messageData = {
-				query: queryValue,
-				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-				web_search: true,
-				knowledge_base_search: true,
-				deep_research: false,
-				deep_search: false,
-				modules: [],
-				date: [],
-				selected_model: null,
-				location: null,
-				image_data_base64: imageArray,
-			};
-
-			// Only set direct_search_agent to true for "Need Help" tab requests
-			if (shouldUseDirectSearch) {
-				messageData.direct_search_agent = true;
-			}
-
-			// Add location details
-			let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
-			if (!location_details) {
-				location_details = await getLocationsDetails();
-			}
-			messageData.location = location_details;
-
-			await sendMessage({
-				data: messageData,
-				sessionId,
-				onMessageFunc,
-				agentType: 'multi_agent_chat_streaming',
-			});
-
-			// Reset the need help flag after sending the message
-			setIsNeedHelpRequest(false);
-		} catch (error) {
-			console.error('Failed to send message:', error);
-			setIsLoading(false);
-			setResponse('Error: Failed to send message. Please try again.');
-			setIsExpanded(true);
-			// Reset the need help flag on error as well
-			setIsNeedHelpRequest(false);
-		}
-	};
-
 	const handleKeyDown = (e) => {
 		if (e.key === 'Enter' && !e.shiftKey) {
 			e.preventDefault();
@@ -532,6 +573,13 @@ const AskAIApp = () => {
 			window.electronApi.askAI.toggleWindow();
 		}
 	};
+
+	// Add a debug function to see conversation history
+	const debugConversation = () => {
+		console.log('🔍 Current conversation history:');
+		console.log(fullConversation);
+	};
+
 	return (
 		<div ref={containerRef} className="ask-ai-app">
 			{/* Response Window - Top */}
@@ -682,6 +730,16 @@ const AskAIApp = () => {
 					}
 				</div>
 			</div>
+
+			{/* Add this to your JSX for debugging (remove in production) */}
+			{/* {process.env.NODE_ENV === 'development' && (
+				<button
+					onClick={debugConversation}
+					style={{ position: 'absolute', top: 0, right: 0 }}
+				>
+					Debug Conversation
+				</button>
+			)} */}
 		</div>
 	);
 };
