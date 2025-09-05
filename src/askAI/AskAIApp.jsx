@@ -26,6 +26,7 @@ const AskAIApp = () => {
 	const [copied, setCopied] = useState(false);
 	const [isNeedHelpRequest, setIsNeedHelpRequest] = useState(false);
 	const [receivedDynamicIslandMessage, setReceivedDynamicIslandMessage] = useState(null);
+	const isStoppedRef = useRef(false);
 	// Initialize socket
 	const { createWebSocketConnection, sendMessage, closeWebSocketConnection } = useAskAISocket();
 	// Update dimensions only when necessary
@@ -210,6 +211,12 @@ const AskAIApp = () => {
 
 	// Handle incoming WebSocket messages
 	const onMessageFunc = useCallback((event, currentSessionId) => {
+		// FIRST CHECK: If user stopped generation, ignore ALL incoming messages
+		if (isStoppedRef.current) {
+			console.log('🛑 Ignoring message - generation was stopped by user');
+			return;
+		}
+
 		let { data = '' } = event || {};
 		try {
 			data = JSON.parse(data);
@@ -222,9 +229,21 @@ const AskAIApp = () => {
 
 		// Handle streaming messages
 		if (data?.message_chunk_id) {
+			// DOUBLE CHECK: Don't add chunks if stopped
+			if (isStoppedRef.current) {
+				console.log('🛑 Ignoring chunk - generation was stopped');
+				return;
+			}
+
 			const newChunk = data?.answer || '';
 			console.log('📝 Adding chunk:', newChunk);
+
 			setStreamingResponse((prev) => {
+				// TRIPLE CHECK: Don't update if stopped during state update
+				if (isStoppedRef.current) {
+					console.log('🛑 Stopping chunk addition mid-update');
+					return prev;
+				}
 				const updated = prev + newChunk;
 				console.log('📝 Updated streaming response:', updated);
 				return updated;
@@ -233,14 +252,24 @@ const AskAIApp = () => {
 
 		// Handle stream end
 		if (data?.stream_end) {
+			// FINAL CHECK: Don't finalize if stopped
+			if (isStoppedRef.current) {
+				console.log('🛑 Ignoring stream end - generation was stopped');
+				return;
+			}
+
 			console.log('🏁 Stream ended, finalizing response...');
 			setStreamingResponse((currentStreaming) => {
+				if (isStoppedRef.current) {
+					return currentStreaming;
+				}
+
 				const finalResponse = currentStreaming + (data?.answer || '');
 				console.log('🏁 Final response calculated:', finalResponse);
 
 				// Set the final response
 				setResponse(finalResponse);
-				setDisplayedResponse(finalResponse); // Ensure displayed matches final
+				setDisplayedResponse(finalResponse);
 				setIsLoading(false);
 				setIsExpanded(true);
 				setHasResponse(true);
@@ -249,8 +278,6 @@ const AskAIApp = () => {
 				setReceivedDynamicIslandMessage(null);
 
 				console.log('✅ Final response set:', finalResponse);
-				console.log('✅ Response window should stay visible now');
-
 				return ''; // Clear streaming response
 			});
 		}
@@ -260,16 +287,24 @@ const AskAIApp = () => {
 	useEffect(() => {
 		let timeoutId;
 
+		// FIRST CHECK: Don't animate if user stopped generation
+		if (isStoppedRef.current) {
+			return;
+		}
+
 		if (streamingResponse && !response) {
 			const currentDisplayed = displayedResponse;
 			const targetText = streamingResponse;
 
-			// Only animate if there's new content to show
-			if (targetText.length > currentDisplayed.length) {
+			// Only animate if there's new content to show AND not stopped
+			if (targetText.length > currentDisplayed.length && !isStoppedRef.current) {
 				const nextChar = targetText[currentDisplayed.length];
 
 				timeoutId = setTimeout(() => {
-					setDisplayedResponse((prev) => prev + nextChar);
+					// DOUBLE CHECK: Don't update if stopped during timeout
+					if (!isStoppedRef.current) {
+						setDisplayedResponse((prev) => prev + nextChar);
+					}
 				}, 20); // Adjust speed: lower = faster, higher = slower
 			}
 		}
@@ -279,7 +314,7 @@ const AskAIApp = () => {
 				clearTimeout(timeoutId);
 			}
 		};
-	}, [streamingResponse, displayedResponse, response]);
+	}, [streamingResponse, displayedResponse, response]); // Keep dependencies the same
 
 	const requestScreenPermissionIfNeeded = async () => {
 		try {
@@ -305,9 +340,43 @@ const AskAIApp = () => {
 		}
 	};
 
+	// Update the handleStop function to immediately freeze the display
+	const handleStop = () => {
+		console.log('🛑 Stopping generation immediately...');
+
+		// Set flag to indicate user stopped the generation FIRST
+		isStoppedRef.current = true;
+
+		// IMMEDIATELY freeze the display at current state
+		setDisplayedResponse((currentDisplayed) => {
+			console.log('🛑 Freezing display at:', currentDisplayed);
+			// Set streamingResponse to match current displayed content
+			setStreamingResponse(currentDisplayed);
+			return currentDisplayed;
+		});
+
+		// Stop the loading state immediately
+		setIsLoading(false);
+
+		// FORCE CLOSE the WebSocket connection immediately
+		try {
+			if (closeWebSocketConnection) {
+				closeWebSocketConnection();
+				console.log('🛑 WebSocket connection closed');
+			}
+		} catch (error) {
+			console.warn('Error closing WebSocket:', error);
+		}
+
+		console.log('🛑 Generation stopped successfully - display frozen');
+	};
+
 	const handleSubmit = async (customInput = null, isNeedHelp = null) => {
 		const queryValue = customInput || inputValue.trim();
 		if (!queryValue) return;
+
+		// Reset the stopped flag for new requests
+		isStoppedRef.current = false;
 
 		// Use the passed isNeedHelp parameter if provided, otherwise use state
 		const shouldUseDirectSearch = isNeedHelp !== null ? isNeedHelp : isNeedHelpRequest;
@@ -586,7 +655,7 @@ const AskAIApp = () => {
 					</div>
 				)} */}
 
-				<div className="ask-ai-input__container">
+				<div className="ask-ai-input__container ask-ai-input__container_responding">
 					<textarea
 						ref={inputRef}
 						className="ask-ai-input__field"
@@ -599,12 +668,16 @@ const AskAIApp = () => {
 
 					{
 						<button
-							className={`ask-ai-input__submit ${inputValue.trim() ? 'active' : ''}`}
-							onClick={() => handleSubmit()}
-							disabled={!inputValue.trim() || isLoading}
+							className={`ask-ai-input__submit ${inputValue.trim() ? 'active' : ''} ${
+								isLoading ? 'loading' : ''
+							}`}
+							onClick={() => {
+								isLoading ? handleStop() : handleSubmit();
+							}}
+							// disabled={!inputValue.trim() || isLoading}
 							title="Ask"
 						>
-							{isLoading ? <Square size={20} /> : 'Ask'}
+							{isLoading ? <Square size={10} /> : 'Ask'}
 						</button>
 					}
 				</div>

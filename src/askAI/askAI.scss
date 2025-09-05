@@ -351,10 +351,7 @@
 		-webkit-app-region: drag;
 		app-region: drag;
 		z-index: 1;
-		pointer-events: auto; 
-		
-		
-		
+		pointer-events: auto;
 	}
 
 	// Ask AI input drag handle with grip icon
@@ -370,7 +367,6 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		
 	}
 
 	&__field {
@@ -437,6 +433,24 @@
 		&:disabled {
 			cursor: not-allowed;
 			opacity: 0.5;
+		}
+
+		&.loading {
+			display: flex;
+			width: 30px;
+			height: 30px;
+			align-items: center;
+			justify-content: center;
+			border-radius: 50%;
+			background: rgba(255, 255, 255, 0.15);
+			border-color: rgba(255, 255, 255, 0.3);
+			padding: 0;
+			min-width: 30px;
+
+			svg {
+				stroke: rgba(255, 255, 255, 0.9);
+				fill: rgba(255, 255, 255, 0.9);
+			}
 		}
 	}
 
