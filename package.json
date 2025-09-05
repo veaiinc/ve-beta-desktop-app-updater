@@ -74,7 +74,7 @@
 		"file-loader": "^6.2.0",
 		"firebase": "^12.1.0",
 		"google-fonts-complete": "^2.2.3",
-		"graphql": "^16.10.0",
+		"graphql": "^15.8.0",
 		"gsap": "^3.13.0",
 		"history": "^5.3.0",
 		"image-focus": "^1.2.1",
