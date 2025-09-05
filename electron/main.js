@@ -948,10 +948,10 @@ app.whenReady().then(() => {
 	// Start wake word detection
 	wakeWordService.start();
 
-	// Test shortcuts after registration
-	setTimeout(() => {
-		windowHelper.testShortcuts();
-	}, 2000); // Wait 2 seconds for app to fully initialize
+	// Test shortcuts after registration - REMOVED to prevent auto-opening Ask AI window
+	// setTimeout(() => {
+	// 	windowHelper.testShortcuts();
+	// }, 2000); // Wait 2 seconds for app to fully initialize
 	// Initialize DynamicIslandHelper for dynamic island functionality
 	dynamicIslandHelper = new DynamicIslandHelper();
 	dynamicIslandHelper.createDynamicIslandWindow();
