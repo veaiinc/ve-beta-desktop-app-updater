@@ -175,6 +175,9 @@
 
 	.ul {
 		list-style-type: disc;
+		.ul {
+			list-style-type: circle;
+		}
 		.li {
 			&::marker {
 				font-size: calc(var(--font-size) * 1);
