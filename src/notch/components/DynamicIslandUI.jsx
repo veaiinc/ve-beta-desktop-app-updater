@@ -37,8 +37,8 @@ const DynamicIslandUI = () => {
 	const videoRef = useRef(null);
 	const chatInputRef = useRef(null); // Add ref for chat input
 	const voiceMessagesRef = useRef(null); // Add ref for voice messages container
-	const [isExpanded, setIsExpanded] = useState(true); // Start expanded like main branch
-	console.log('🏝️ Initial isExpanded state:', true);
+	const [isExpanded, setIsExpanded] = useState(false); // Start collapsed by default
+	console.log('🏝️ Initial isExpanded state:', false);
 	const [isConnected, setIsConnected] = useState(false);
 	// Overlay state - synced from overlay window
 	const [isRecording, setIsRecording] = useState(false);
