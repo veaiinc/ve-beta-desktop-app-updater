@@ -41,7 +41,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 	const navigate = useNavigate();
 
 	const [formData, setFormData] = useState({
-		selectedMode: 'meeting_bot',
+		selectedMode: 'desktop',
 		meetingUrl: '',
 		creating: false,
 		isAiIntelligenceEnabled: true,
@@ -162,7 +162,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 						transcription, speaker tracking, and smart follow-ups—accessible from
 						anywhere.
 					</div> */}
-					<div className="iconsContainer">
+					{/* <div className="iconsContainer">
 						<div className="icon-wrapper">
 							<GoogleIcon />
 						</div>
@@ -175,9 +175,9 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 						<div className="icon-wrapper">
 							<SlackIcon />
 						</div>
-					</div>
+					</div> */}
 				</div>
-				<div className="tabs">
+				{/* <div className="tabs">
 					<button
 						className={`tab ${
 							formData.selectedMode === 'meeting_bot' ? ' active' : ''
@@ -199,7 +199,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 					>
 						In-Person Meeting
 					</button>
-				</div>
+				</div> */}
 
 				<div className="modal-content">
 					<div className="content-container">
