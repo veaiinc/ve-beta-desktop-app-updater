@@ -129,7 +129,7 @@ const useAssemblyTranscription = ({
 						path: `/meet/${meetingId}?type=desktop&history=true`,
 					});
 				}
-			}, 1000);
+			}, 2000);
 			meetingIdRef.current = null;
 		}
 
