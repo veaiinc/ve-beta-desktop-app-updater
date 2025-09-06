@@ -1,7 +1,7 @@
 {
 	"name": "VEAI",
 	"description": "Your living intelligence remembers everything, sees what you see, figures out your goals, and doesn’t stop until they're done.",
-	"version": "v0.4.10",
+	"version": "v0.4.11",
 	"private": true,
 	"main": "dist-electron/main.js",
 	"author": "Ve AI",
@@ -147,7 +147,7 @@
 		"web-vitals": "^2.1.4"
 	},
 	"build": {
-		"npmRebuild": true,
+		"npmRebuild": false,
 		"appId": "com.veai.dashboard",
 		"productName": "Ve AI",
 		"protocols": [
@@ -193,13 +193,15 @@
 				{
 					"target": "dmg",
 					"arch": [
-						"arm64"
+						"arm64",
+						"x64"
 					]
 				},
 				{
 					"target": "zip",
 					"arch": [
-						"arm64"
+						"arm64",
+						"x64"
 					]
 				}
 			],
@@ -218,7 +220,8 @@
 				"**/node_modules/sharp/**/*",
 				"**/node_modules/@img/sharp-darwin*/**/*",
 				"**/node_modules/@img/sharp-libvips-darwin*/**/*",
-				"**/node_modules/notchdrop-addon/**/*.node"
+				"**/node_modules/notchdrop-addon/**/*.node",
+				"**/node_modules/notchdrop-addon/bin/**/*"
 			],
 			"extraResources": [
 				{
