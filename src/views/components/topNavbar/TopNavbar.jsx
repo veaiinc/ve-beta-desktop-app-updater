@@ -88,7 +88,8 @@ const TopNavbar = () => {
 		pathname.includes('create-workspace') ||
 		pathname.includes('agent/') ||
 		pathname.includes('note/') ||
-		pathname.includes('meet/');
+		pathname.includes('meet/') ||
+		pathname.includes('chat/');
 
 	const {
 		profileInfo: {
