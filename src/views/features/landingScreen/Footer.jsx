@@ -14,6 +14,7 @@ import Context from '../../../context/context';
 import { useContext, useState } from 'react';
 import { message } from '../../components/globalComponents/CustomToast';
 import Spinner from '../../components/loaders/Spinner';
+import VeSvg from '../../../assets/svg/veSvg';
 // Email validation regex pattern
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const initialState = {
@@ -64,7 +65,7 @@ const Footer = () => {
 			<div className={s.container}>
 				<div className={s.top}>
 					<div className={s.top__leftPart}>
-						<VeLogo />
+						<VeSvg width={36} height={24} fill="var(--primary-font)" />
 						<span className={s.heading}>From the Founder&apos;s Desk</span>
 						<p className={s.description}>
 							Hi, I&apos;m Vijay. I&apos;m building Ve.ai — the world&apos;s first

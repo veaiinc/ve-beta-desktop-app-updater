@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Send, Copy, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Send, Copy, ChevronDown, ChevronUp, GripHorizontal } from 'lucide-react';
 import './askAI.scss';
 import { useAskAISocket } from './socketState';
 import ObjectID from 'bson-objectid';
@@ -23,6 +23,7 @@ const AskAIApp = () => {
 	const [receivedTabContent, setReceivedTabContent] = useState(null);
 	const [copied, setCopied] = useState(false);
 	const [isNeedHelpRequest, setIsNeedHelpRequest] = useState(false);
+	const [receivedDynamicIslandMessage, setReceivedDynamicIslandMessage] = useState(null);
 	// Initialize socket
 	const { createWebSocketConnection, sendMessage, closeWebSocketConnection } = useAskAISocket();
 	// Update dimensions only when necessary
@@ -105,7 +106,7 @@ const AskAIApp = () => {
 
 			// Check if this is from "All Threads" or "Need Help" tabs
 			const shouldUseDirectSearch =
-				tabContent.tabKey === 'all-threads' || tabContent.tabKey === 'need-help';
+				tabContent.tabKey === 'all-threads' && tabContent.tabKey === 'need-help';
 			setIsNeedHelpRequest(shouldUseDirectSearch);
 
 			// Don't show the prompt in the input field - keep it clean
@@ -122,15 +123,47 @@ const AskAIApp = () => {
 			}, 100); // Small delay to ensure everything is ready
 		};
 
-		// Set up listener
+		// Listen for chat messages from Dynamic Island or NotchDrop
+		const handleChatMessage = (chatMessage) => {
+			console.log('💬 Received chat message:', chatMessage);
+
+			const isDynamicIsland = chatMessage.type === 'dynamic-island-chat';
+			const isNotchDrop = chatMessage.type === 'notchdrop-chat';
+
+			if ((isDynamicIsland || isNotchDrop) && chatMessage.message) {
+				// Show indicator only for Dynamic Island
+				if (isDynamicIsland) {
+					setReceivedDynamicIslandMessage(chatMessage.message);
+				}
+
+				// Auto-focus the input for user interaction
+				if (inputRef.current) {
+					inputRef.current.focus();
+				}
+
+				// Process the message directly without showing it in input
+				setTimeout(() => {
+					handleSubmit(chatMessage.message, false);
+				}, 100); // Small delay to ensure everything is ready
+			}
+		};
+
+		// Set up listeners
 		if (window.electronApi?.askAI?.onReceiveTabContent) {
 			window.electronApi.askAI.onReceiveTabContent(handleTabContent);
+		}
+
+		if (window.electronApi?.askAI?.onReceiveChatMessage) {
+			window.electronApi.askAI.onReceiveChatMessage(handleChatMessage);
 		}
 
 		// Cleanup
 		return () => {
 			if (window.electronApi?.askAI?.removeTabContentListener) {
 				window.electronApi.askAI.removeTabContentListener();
+			}
+			if (window.electronApi?.askAI?.removeChatMessageListener) {
+				window.electronApi.askAI.removeChatMessageListener();
 			}
 		};
 	}, []);
@@ -214,6 +247,9 @@ const AskAIApp = () => {
 				setIsExpanded(true);
 				setHasResponse(true);
 
+				// Clear the Dynamic Island message indicator since we got a response
+				setReceivedDynamicIslandMessage(null);
+
 				console.log('✅ Final response set:', finalResponse);
 				console.log('✅ Response window should stay visible now');
 
@@ -288,6 +324,9 @@ const AskAIApp = () => {
 		setResponse('');
 		setStreamingResponse('');
 		setDisplayedResponse('');
+
+		// Clear Dynamic Island message indicator when starting new submission
+		setReceivedDynamicIslandMessage(null);
 
 		// Clear input only if it's a manual submission (not automatic)
 		if (!customInput) {
@@ -405,6 +444,9 @@ const AskAIApp = () => {
 			{(response || isLoading || displayedResponse || isExpanded || hasResponse) && (
 				<div className={`ai-response-window ${isExpanded ? 'expanded' : 'collapsed'}`}>
 					<div className="ai-response-header">
+						<div className="ai-response-drag-handle">
+							<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
+						</div>
 						<div className="ai-response-title">
 							<span>AI Response</span>
 							{response && (
@@ -470,6 +512,30 @@ const AskAIApp = () => {
 
 			{/* Input Bar - Bottom */}
 			<div className="ask-ai-input">
+				<div className="ask-ai-input-drag-handle">
+					<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
+				</div>
+				{/* Dynamic Island Message Indicator */}
+				{receivedDynamicIslandMessage && (
+					<div className="ask-ai-input__dynamic-island-indicator">
+						<span className="dynamic-island-indicator__label">
+							🏝️ Message from Dynamic Island: "{receivedDynamicIslandMessage}"
+							{isLoading && (
+								<span className="dynamic-island-indicator__status">
+									{' '}
+									• Processing...
+								</span>
+							)}
+						</span>
+						<button
+							className="dynamic-island-indicator__clear"
+							onClick={() => setReceivedDynamicIslandMessage(null)}
+							title="Clear indicator"
+						>
+							<X size={12} />
+						</button>
+					</div>
+				)}
 				{/* Tab Content Indicator - Removed for cleaner interface */}
 				{/* {receivedTabContent && (
 					<div className="ask-ai-input__tab-indicator">

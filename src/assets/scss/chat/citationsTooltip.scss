@@ -1,24 +1,10 @@
-.citation-tooltip-wrapper {
+.citation-container {
 	cursor: pointer !important;
 	margin: 0 0 0 2px;
-	.citation-tooltip-header {
-		padding: 5px 12px !important;
-		flex-direction: column !important;
-		color: var(--secondary-font) !important;
-		font-family: var(--primary-font-family) !important;
-		font-size: 10px !important;
-		font-style: normal !important;
-		font-weight: 500 !important;
-		line-height: normal !important;
-		border-radius: 100px !important;
-		background: var(--card) !important;
-		transition: all 0.2s ease-in-out !important;
-		&:hover {
-			background: var(--card-hover) !important;
-			color: var(--primary-font) !important;
-		}
-		margin-left: 6px !important;
-	}
+	padding: 0;
+	background-color: transparent;
+	display: inline-block;
+
 	.citation-wrapper {
 		.citation-with-icon {
 			display: flex;
@@ -29,6 +15,15 @@
 			border-radius: 100px;
 			background: var(--card-over-card, #202123);
 			border: 1px solid var(--stroke);
+			transition: all 0.2s ease-in-out;
+
+			&:hover {
+				background-color: var(--primary-font);
+				border: 1px solid var(--background-color);
+				.citation-text {
+					color: var(--background-color);
+				}
+			}
 
 			.citation-icon {
 				width: 10px;
@@ -67,6 +62,7 @@
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
+				transition: all 0.2s ease-in-out;
 				color: var(--primary-font, #f2f2f3);
 				font-family: var(--chat-primary-font-family);
 				font-size: 10px;

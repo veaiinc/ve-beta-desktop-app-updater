@@ -109,6 +109,8 @@ const RecentChat = ({
 			citationsModalIsOpen: false,
 			isMobileView: false,
 			isChatHistoryClosed,
+			openBrowser: false,
+			browserDataAvailable: false,
 		};
 	});
 
@@ -654,23 +656,16 @@ const RecentChat = ({
 					};
 				}
 				let processing = null,
-					memoryThinking = null,
 					browserChainOfThought = null,
 					openBrowser = false;
 
-				let deepSearch = {},
-					deepResearch = {},
-					normalSearch = {};
+				let deepResearch = {},
+					cot = [];
 
 				if (chainOfThought?.length > 0) {
 					for (let i = 0; i < chainOfThought?.length; i++) {
-						const {
-							deep_search,
-							deep_research,
-							memory_thinking,
-							normal_search,
-							open_browser,
-						} = chainOfThought?.[i] || {};
+						const { deep_search, deep_research, normal_search, open_browser } =
+							chainOfThought?.[i] || {};
 						if (deep_search) {
 							processing = 'Deep Search';
 							break;
@@ -680,9 +675,6 @@ const RecentChat = ({
 						} else if (normal_search) {
 							processing = 'Normal Search';
 							break;
-						} else if (memory_thinking) {
-							memoryThinking = memory_thinking;
-							break;
 						} else if (open_browser) {
 							openBrowser = true;
 							break;
@@ -690,11 +682,11 @@ const RecentChat = ({
 					}
 
 					if (processing === 'Deep Search') {
-						deepSearch = handleDeepSearchChainOfThought(chainOfThought);
+						cot = handleDeepSearchChainOfThought(chainOfThought);
 					} else if (processing === 'Deep Research') {
 						deepResearch = handleDeepResearchChainOfThought(chainOfThought);
 					} else if (processing === 'Normal Search') {
-						normalSearch = handleDeepSearchChainOfThought(chainOfThought);
+						cot = handleDeepSearchChainOfThought(chainOfThought);
 					} else if (openBrowser) {
 						browserChainOfThought = handleBrowserData(chainOfThought);
 					}
@@ -722,10 +714,9 @@ const RecentChat = ({
 						userFeedbackReasons,
 						userRemarks,
 						unintegrated_apps: unintegratedApps,
-						...(processing === 'Deep Search' && { deepSearch }),
+						...(processing === 'Deep Search' && { chainOfThought: cot }),
 						...(processing === 'Deep Research' && { deepResearch }),
-						...(processing === 'Normal Search' && { normalSearch }),
-						...(memoryThinking && { memory_thinking: memoryThinking }),
+						...(processing === 'Normal Search' && { chainOfThought: cot }),
 						...(browserChainOfThought && { browserChainOfThought }),
 					},
 				]?.concat(messages);
@@ -819,17 +810,7 @@ const RecentChat = ({
 		},
 		[chatContentRef?.current, info?.initialRendering],
 	);
-	const liveViewUrl = useMemo(() => {
-		const messages = globalChatMessages?.[sessionId]?.messages || [];
-		// Find the latest AI message with live_view
-		for (let i = messages.length - 1; i >= 0; i--) {
-			const msg = messages[i];
-			if (msg.type === 'AI' && msg.url_type === 'live_view' && msg.url) {
-				return msg.url;
-			}
-		}
-		return null;
-	}, [globalChatMessages, sessionId]);
+
 	const smoothScrollToLastMessage = useCallback(() => {
 		const scrollElement = chatContentRef?.current;
 		const lastUserMessage = Object?.values(userMessagesRefs.current)?.[
@@ -961,11 +942,21 @@ const RecentChat = ({
 					// 	}),
 				}));
 			}
-			const { message_chunk_id, toolName } = data;
+			const { message_chunk_id, url_type, browserMetadata } = data;
 
 			// if (toolName) {
 			// 	getBrowserUrls(sessionId, handleGlobalChatMessages);
 			// }
+
+			if (message_chunk_id && (url_type === 'live_view' || browserMetadata)) {
+				handleGlobalChatMessages({
+					payload: data,
+					chunkId: message_chunk_id,
+					sessionId,
+					updateExtraInfo: true,
+				});
+				return;
+			}
 
 			if (message_chunk_id) {
 				handleGlobalChatMessages({
@@ -1279,20 +1270,23 @@ const RecentChat = ({
 							/>
 						</div>
 					</div>
+
+					<div className="ve-mistake-text">
+						Ve can make mistakes. Double check important info.
+					</div>
 				</div>
 
-				{liveViewUrl && (
+				{showBrowser && (
 					<div
 						className="browser-container"
 						style={{
-							width: info?.openBrowser && showBrowser ? '50vw' : '0px',
+							width: info?.openBrowser ? '50vw' : '0px',
 						}}
 					>
 						<Browser
 							sessionId={sessionId}
-							isOpen={info?.openBrowser && showBrowser}
+							isOpen={info?.openBrowser}
 							browserData={browserData}
-							liveViewUrl={liveViewUrl}
 							handleBrowserButtonClick={handleBrowserButtonClick}
 						/>
 					</div>

@@ -7,7 +7,8 @@ const messaging = getMessaging(app);
 
 const generateFCMToken = async () => {
 	try {
-		await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+		// Use the unified service worker that handles both offline and messaging
+		await navigator.serviceWorker.register('/sw.js');
 		const registration = await navigator.serviceWorker.ready;
 
 		const token = await getToken(messaging, {

@@ -594,38 +594,7 @@ export const Galleries = () => {
 			return [false, { message: 'Failed to get upload image sign url' }];
 		}
 	};
-	// [GET] - {{ _.base_url }}/galleries/:gallery/upload-policy
-	const getUploadImagePolicy = async (galleryId) => {
-		try {
-			let usertoken = localStorage.getItem('usertoken');
-			let workspaceId = localStorage.getItem('workspaceId');
-			const response = await service.fetchGet(
-				`/${workspaceId}/galleries/${galleryId}/upload-policy`,
-				usertoken,
-				'galleries',
-			);
-			return response;
-		} catch (error) {
-			console.log('error==>getUploadImagePolicy', error);
-		}
-	};
 
-	// [POST]baseURL/:gallery/albums/:album/desktop-images
-	const uploadDesktopImages = async (galleryId, albumId, payload) => {
-		try {
-			let usertoken = localStorage.getItem('usertoken');
-			let workspaceId = localStorage.getItem('workspaceId');
-			const response = await service.fetchPost(
-				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/desktop-images`,
-				payload,
-				usertoken,
-				'galleries',
-			);
-			return response;
-		} catch (error) {
-			console.log('error==>uploadDesktopImages', error);
-		}
-	};
 	const getImageUploadStatus = async (galleryId, albumId, batchId) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -1734,34 +1703,6 @@ export const Galleries = () => {
 			console.log('error==>getDownloadForMultipleImages', error);
 		}
 	};
-	const getSignedUrlsForImages = async (payload, galleryId) => {
-		const usertoken = localStorage.getItem('usertoken');
-		const workspaceId = localStorage.getItem('workspaceId');
-
-		const response = await service.fetchPost(
-			`/${workspaceId}/galleries/${galleryId}/download-images`,
-			payload,
-			usertoken,
-			'galleries',
-		);
-
-		if (response?.[0] === true && Array.isArray(response[1]?.signedUrls)) {
-			return response[1].signedUrls
-				.filter((item) => item.signedUrl)
-				.map((item) => {
-					const { signedUrl, imageId, originalFileName } = item;
-					const filenameMatch = signedUrl.split('/').pop()?.split('?')[0];
-					const rawFilename = decodeURIComponent(filenameMatch || `${imageId}.jpg`);
-					const sanitized = rawFilename.replace(/[/\\?%*:|"<>]/g, '_');
-					return {
-						url: signedUrl,
-						filename: originalFileName,
-						imageId,
-					};
-				});
-		}
-		throw new Error('Failed to fetch signed URLs');
-	};
 
 	//{{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/download-images
 	const downloadImages = async (payload, galleryId, albumId) => {
@@ -2211,8 +2152,5 @@ export const Galleries = () => {
 		checkVideoSlugAvailability,
 		deleteVideo,
 		editAlbumAccessPin,
-		getUploadImagePolicy,
-		uploadDesktopImages,
-		getSignedUrlsForImages,
 	};
 };

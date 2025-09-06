@@ -225,9 +225,6 @@ const actionHandlers = {
 			browserTabsInfo,
 		} = action?.payload;
 		let messages = [...(state?.globalChatMessages?.[sessionId]?.messages || [])];
-		if (payload?.browserMetadata) {
-			updateExtraInfo = true;
-		}
 
 		if (removeChatSession) {
 			if (state?.globalChatMessages?.[sessionId]?.open_browser) {
@@ -245,11 +242,11 @@ const actionHandlers = {
 				sessionIdData.chatBoxInfo = chatBoxInfo;
 			}
 
-			if (payload?.browserMetadata) {
+			if (payload?.url_type === 'live_view' || payload?.browserMetadata) {
 				let browserData = sessionIdData?.browserData || {};
 				browserData = {
 					...browserData,
-					browserMetadata: payload?.browserMetadata,
+					...payload,
 				};
 				sessionIdData.browserData = browserData;
 			}
@@ -333,7 +330,9 @@ const actionHandlers = {
 		}
 
 		let requiredIndex = -1;
-		messages = messages?.filter((ele) => ele?.contentType !== 'loading');
+		if (payload?.processing !== 'Normal Search') {
+			messages = messages?.filter((ele) => ele?.contentType !== 'loading');
+		}
 
 		for (let i = messages?.length - 1; i >= 0; i--) {
 			if (messages?.[i]?.message_chunk_id === chunkId) {
@@ -353,100 +352,9 @@ const actionHandlers = {
 
 		if (requiredIndex !== -1) {
 			const message = messages?.[requiredIndex];
-			let { processing, browserChainOfThought = {} } = message;
-			if (processing === 'Deep Search') {
-				let deepSearch = message?.deepSearch || {};
-				let cot = deepSearch?.cot || [];
-				// let cot_refined = deepSearch?.cot_refined || [];
-				// let initial_answer = deepSearch?.initial_answer || {};
-				// let final_answer = deepSearch?.final_answer || {};
+			let { processing, browserChainOfThought = {}, cot } = message;
 
-				// if (payload?.sub_query_id && payload?.reading && payload?.reading?.sub_query) {
-				// 	let index = cot?.findIndex(
-				// 		(item) => item?.sub_query_id === payload?.sub_query_id,
-				// 	);
-				// 	if (index !== -1) {
-				// 		let readings = cot[index]?.readings || [];
-				// 		readings?.push({ reading: payload?.reading });
-				// 		cot[index] = {
-				// 			...cot[index],
-				// 			readings,
-				// 		};
-				// 	} else {
-				// 		cot?.push({
-				// 			sub_query_id: payload?.sub_query_id,
-				// 			readings: [{ reading: payload?.reading }],
-				// 		});
-				// 	}
-				// }
-
-				// if (
-				// 	payload?.refined_sub_query_id &&
-				// 	payload?.reading &&
-				// 	payload?.reading?.refined_sub_query
-				// ) {
-				// 	let index = cot_refined?.findIndex(
-				// 		(item) => item?.refined_sub_query_id === payload?.refined_sub_query_id,
-				// 	);
-				// 	if (index !== -1) {
-				// 		let readings = cot_refined[index]?.readings || [];
-				// 		readings?.push({ reading: payload?.reading });
-				// 		cot_refined[index] = {
-				// 			...cot_refined[index],
-				// 			readings,
-				// 		};
-				// 	} else {
-				// 		cot_refined?.push({
-				// 			refined_sub_query_id: payload?.refined_sub_query_id,
-				// 			readings: [{ reading: payload?.reading }],
-				// 		});
-				// 	}
-				// }
-
-				// if (payload?.initial_answer) {
-				// 	initial_answer = {
-				// 		...initial_answer,
-				// 		...payload,
-				// 	};
-				// }
-
-				// if (payload?.final_answer) {
-				// 	final_answer = {
-				// 		...final_answer,
-				// 		...payload,
-				// 	};
-				// }
-
-				if (payload?.step && payload?.step_id) {
-					cot?.push({
-						step: payload?.step,
-						step_id: payload?.step_id,
-					});
-				} else if (payload?.reading && payload?.step_id) {
-					cot = cot?.map((item) => {
-						if (item?.step_id === payload?.step_id) {
-							item.readings = [
-								...(item?.readings || []),
-								{ reading: payload?.reading },
-							];
-						}
-						return item;
-					});
-				}
-
-				deepSearch = {
-					...deepSearch,
-					cot,
-				};
-
-				messages[requiredIndex] = {
-					...message,
-					...payload,
-					message: (message?.message || '') + (payload?.answer || ''),
-					messageId: payload?.message_id,
-					deepSearch,
-				};
-			} else if (processing === 'Deep Research') {
+			if (processing === 'Deep Research') {
 				let deepResearch = message?.deepResearch || {};
 				let cot = deepResearch?.cot || [];
 				let sections = deepResearch?.sections || [];
@@ -591,16 +499,16 @@ const actionHandlers = {
 					deepResearch,
 					messageId: payload?.message_id,
 				};
-			} else if (processing === 'Normal Search') {
-				let normalSearch = message?.normalSearch || {};
-				let cot = normalSearch?.cot || [];
+			} else if (cot === 'chain_of_thought' || payload?.step || payload?.reading) {
+				let chainOfThought = [...(message?.chainOfThought || [])];
 
 				if (payload?.step) {
-					cot?.push({
+					chainOfThought?.push({
 						step: payload?.step,
+						step_id: payload?.step_id,
 					});
 				} else if (payload?.reading && payload?.step_id) {
-					cot = cot?.map((item) => {
+					chainOfThought = chainOfThought?.map((item) => {
 						if (item?.step_id === payload?.step_id) {
 							item.readings = [
 								...(item?.readings || []),
@@ -610,16 +518,13 @@ const actionHandlers = {
 						return item;
 					});
 				}
-				normalSearch = {
-					...normalSearch,
-					cot,
-				};
+
 				messages[requiredIndex] = {
 					...message,
 					...payload,
 					message: (message?.message || '') + (payload?.answer || ''),
 					messageId: payload?.message_id,
-					normalSearch,
+					chainOfThought,
 				};
 			} else {
 				const { toolType, planType } = payload;
@@ -720,12 +625,13 @@ const actionHandlers = {
 		return { ...state, chatLoadingSessions };
 	},
 	HANDLE_TRANSCRIPTION_SUGGESTIONS: (state, action) => {
-		let {
-			suggested_prompt,
-			similar_files,
-			data = [],
-			revampedPrompt = [],
-		} = action?.payload || {};
+		let payload = action.payload;
+
+		if (action?.payload?.type) {
+			payload = action?.payload?.data || {};
+		}
+
+		let { suggested_prompt, similar_files, data = [], revampedPrompt = [] } = payload || {};
 		const aiTranscriptionSuggestions = state?.aiTranscriptionSuggestions || {};
 
 		let suggestions = [...(aiTranscriptionSuggestions?.suggestions || [])];
