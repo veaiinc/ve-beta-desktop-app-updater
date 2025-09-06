@@ -228,11 +228,11 @@ contextBridge.exposeInMainWorld('electronApi', {
 	},
 
 	// Wake word APIs
-	wakeWord: {
-		start: () => ipcRenderer.invoke('wake-word-start'),
-		stop: () => ipcRenderer.invoke('wake-word-stop'),
-		getStatus: () => ipcRenderer.invoke('wake-word-status'),
-	},
+	// wakeWord: {
+	// 	start: () => ipcRenderer.invoke('wake-word-start'),
+	// 	stop: () => ipcRenderer.invoke('wake-word-stop'),
+	// 	getStatus: () => ipcRenderer.invoke('wake-word-status'),
+	// },
 
 	// Clipboard APIs
 	clipboard: {
