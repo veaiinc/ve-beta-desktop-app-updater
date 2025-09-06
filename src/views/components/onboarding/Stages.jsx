@@ -117,6 +117,10 @@ const Stages = ({ onNext }) => {
 		  !info?.workspaceType ||
 		  info?.continueBtnLoading;
 
+	// Phone number verification button validation
+	const phoneVerifyBtnDisabled =
+		!info?.phoneNumber || info?.phoneNumber?.trim() === '' || info?.verifyPhoneNumberLoading;
+
 	useEffect(() => {
 		if (!usertoken) {
 			message?.error('Session expired! Please login again');
@@ -660,10 +664,10 @@ const Stages = ({ onNext }) => {
 				{!info?.isPhoneNumberVerified && !info?.otpSent && !isWorkspaceCreationMode && (
 					<button
 						style={{
-							opacity: info?.verifyPhoneNumberLoading ? 0.5 : 1,
-							cursor: info?.verifyPhoneNumberLoading ? 'not-allowed' : 'pointer',
+							opacity: phoneVerifyBtnDisabled ? 0.4 : 1,
+							cursor: phoneVerifyBtnDisabled ? 'not-allowed' : 'pointer',
 						}}
-						disabled={info?.verifyPhoneNumberLoading}
+						disabled={phoneVerifyBtnDisabled}
 						className="continueBtn"
 						onClick={handleVerifyPhoneNumber}
 					>
