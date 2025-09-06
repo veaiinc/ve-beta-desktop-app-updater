@@ -20,13 +20,13 @@ const CreditsLeftSvg = ({ totalAiCreditLimit, totalAiCreditUsed }) => {
 			className="closed-sidebar-icon"
 		>
 			{/* Background Circle (always fully visible) */}
-			<circle cx="12" cy="12" r="10" stroke="var(--stroke)" strokeWidth="4" fill="none" />
+			<circle cx="12" cy="12" r="10" stroke="var(--primary-button)" strokeWidth="4" fill="none" />
 			{/* Progress Circle (shows credits used, starts at left bottom) */}
 			<circle
 				cx="12"
 				cy="12"
 				r="10"
-				stroke="var(--primary-button)"
+				stroke="var(--stroke)"
 				strokeWidth="4"
 				fill="none"
 				strokeDasharray={strokeDasharray}
