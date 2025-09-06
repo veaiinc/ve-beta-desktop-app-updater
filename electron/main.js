@@ -1018,11 +1018,45 @@ function updateMenuBarState() {
 
 // Window creation
 function createWindow(restoreState = false) {
+	// Determine the appropriate icon based on platform
+	let iconPath;
+	if (process.platform === 'win32') {
+		// Try multiple possible paths for development and production
+		const possiblePaths = [
+			path.join(__dirname, 'assets', 'app-logo.ico'),
+			path.join(__dirname, '..', 'electron', 'assets', 'app-logo.ico'),
+			path.join(process.cwd(), 'electron', 'assets', 'app-logo.ico')
+		];
+		
+		// Find the first path that exists
+		for (const testPath of possiblePaths) {
+			if (require('fs').existsSync(testPath)) {
+				iconPath = testPath;
+				break;
+			}
+		}
+		
+		// Fallback to the first path if none exist
+		if (!iconPath) {
+			iconPath = possiblePaths[0];
+		}
+	} else if (process.platform === 'darwin') {
+		iconPath = path.join(__dirname, 'assets', 'app-logo.icns');
+	} else {
+		iconPath = path.join(__dirname, 'assets', 've-black-circle-logo.png');
+	}
+
+	// Debug: Log the icon path and check if file exists
+	log.info('🔍 Icon path:', iconPath);
+	log.info('🔍 __dirname:', __dirname);
+	log.info('🔍 File exists:', require('fs').existsSync(iconPath));
+
 	mainWindow = new BrowserWindow({
-		title: 'Main window',
+		title: 'Ve AI - Priority',
 		width: 1366,
 		height: 768,
 		show: false,
+		icon: iconPath,
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
 			nodeIntegration: false,
@@ -1141,6 +1175,11 @@ function createTray() {
 
 // App lifecycle
 app.whenReady().then(async () => {
+	// Set application branding for Windows
+	if (process.platform === 'win32') {
+		app.setAppUserModelId('com.veai.dashboard');
+	}
+
 	// Set up permission request handler for microphone access
 	session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
 		const allowedPermissions = [
@@ -2885,7 +2924,7 @@ app.whenReady().then(async () => {
 	ipcMain.handle('get-askAI-input-focus', async () => {
 		try {
 			const focusState = global.askAIInputFocused || false;
-			log.info(`🔍 Getting ask AI input focus state: ${focusState}`);
+	
 			return { success: true, isFocused: focusState };
 		} catch (error) {
 			log.error('Error getting ask AI input focus state:', error);
