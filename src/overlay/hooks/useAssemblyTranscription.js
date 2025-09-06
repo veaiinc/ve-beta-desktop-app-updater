@@ -15,6 +15,7 @@ const useAssemblyTranscription = ({
 	const [isConnected, setIsConnected] = useState(false);
 	const [isRecording, setIsRecording] = useState(false);
 	const [isMuted, setIsMuted] = useState(false);
+	const [isPaused, setIsPaused] = useState(false);
 	const [timer, setTimer] = useState(0);
 	const [connectionStatus, setConnectionStatus] = useState('disconnected');
 
@@ -218,6 +219,7 @@ const useAssemblyTranscription = ({
 			audioBufferRef.current = [];
 			sampleCountRef.current = 0;
 			cleanup();
+			initializeMeetingSummary({ meeting_id: meetingId });
 		},
 		[log],
 	);
@@ -565,6 +567,41 @@ const useAssemblyTranscription = ({
 		// (This matches typical meeting behavior where time tracks total session duration)
 	}, [isMuted, log]);
 
+	const pauseRecording = useCallback(() => {
+		if (!isRecording || isPaused) return;
+
+		log('Pausing recording...');
+		setIsPaused(true);
+		muteRef.current = true; // Stop audio processing
+
+		// Clear any pending audio buffer
+		audioBufferRef.current = [];
+		sampleCountRef.current = 0;
+
+		// Pause the timer
+		if (timerIntervalRef.current) {
+			clearInterval(timerIntervalRef.current);
+			timerIntervalRef.current = null;
+		}
+	}, [isRecording, isPaused, log]);
+
+	const resumeRecording = useCallback(() => {
+		if (!isRecording || !isPaused) return;
+
+		log('Resuming recording...');
+		setIsPaused(false);
+		muteRef.current = false; // Resume audio processing
+
+		// Resume the timer
+		if (isMountedRef.current) {
+			timerIntervalRef.current = setInterval(() => {
+				if (isMountedRef.current) {
+					setTimer((prev) => prev + 1);
+				}
+			}, 1000);
+		}
+	}, [isRecording, isPaused, log]);
+
 	const formatTime = useCallback((seconds) => {
 		const m = Math.floor(seconds / 60).toString();
 		const s = (seconds % 60).toString().padStart(2, '0');
@@ -601,11 +638,14 @@ const useAssemblyTranscription = ({
 		isConnected,
 		isRecording,
 		isMuted,
+		isPaused,
 		timer,
 		connectionStatus,
 		startAudioCapture,
 		stopRecording,
 		toggleMute,
+		pauseRecording,
+		resumeRecording,
 		formatTime,
 		startRecording,
 	};

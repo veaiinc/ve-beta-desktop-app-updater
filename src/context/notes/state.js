@@ -1769,7 +1769,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api_database',
+				'meeting_api',
 			);
 
 			if (response?.[0]) {
@@ -1818,7 +1818,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api_database',
+				'meeting_api',
 			);
 			if (response?.[0]) {
 				dispatch({
@@ -1852,7 +1852,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api_database',
+				'meeting_api',
 			);
 			if (response?.[0]) {
 				dispatch({
@@ -1958,7 +1958,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api_database',
+				'meeting_api',
 			);
 			if (response?.[0]) {
 				const currentPageTranscriptsList = response?.[1]?.data?.listTranscriptions?.data;

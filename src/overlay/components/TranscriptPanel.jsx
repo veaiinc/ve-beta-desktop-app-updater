@@ -85,7 +85,7 @@ const TranscriptPanel = ({
 					<button
 						className="transcript-panel-header-action"
 						onClick={onClose}
-						title="Close"
+						title="Hide Overlay"
 					>
 						<CircleX size={16} />
 					</button>
@@ -112,7 +112,7 @@ const TranscriptPanel = ({
 					)}
 				</div>
 			</div>
-{/* 
+			{/* 
 			<div className="transcript-controls">
 				<div className="transcript-timer">{formatTime(timer)}</div>
 

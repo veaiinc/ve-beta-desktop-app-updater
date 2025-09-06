@@ -162,7 +162,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 						transcription, speaker tracking, and smart follow-ups—accessible from
 						anywhere.
 					</div> */}
-					<div className="iconsContainer">
+					{/* <div className="iconsContainer">
 						<div className="icon-wrapper">
 							<GoogleIcon />
 						</div>
@@ -175,10 +175,10 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 						<div className="icon-wrapper">
 							<SlackIcon />
 						</div>
-					</div>
+					</div> */}
 				</div>
-				<div className="tabs">
-					{/* <button
+				{/* <div className="tabs">
+					<button
 						className={`tab ${
 							formData.selectedMode === 'meeting_bot' ? ' active' : ''
 						}`}
@@ -190,7 +190,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 						}
 					>
 						Online Meeting
-					</button> */}
+					</button>
 					<button
 						className={`tab ${formData.selectedMode === 'desktop' ? ' active' : ''}`}
 						onClick={() =>
@@ -199,7 +199,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 					>
 						In-Person Meeting
 					</button>
-				</div>
+				</div> */}
 
 				<div className="modal-content">
 					<div className="content-container">

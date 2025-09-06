@@ -9,11 +9,22 @@ class WindowHelper {
 		this.windowPosition = { x: 0, y: 0 };
 		this.windowSize = { width: 500, height: 150 };
 
+		// CRITICAL FIX: Track overlay window readiness for immediate response
+		this.overlayWindowReady = false;
+		this.overlayPreCreated = false;
+		this.pendingOverlayActions = [];
+
 		// Ask AI window properties
 		this.askAIWindow = null;
 		this.isAskAIVisible = false;
 		this.askAIWindowPosition = { x: 0, y: 0 };
 		this.askAIWindowSize = { width: 600, height: 500 };
+
+		// Are You There window properties
+		this.areYouThereWindow = null;
+		this.isAreYouThereVisible = false;
+		this.areYouThereWindowPosition = { x: 0, y: 0 };
+		this.areYouThereWindowSize = { width: 500, height: 400 };
 
 		this.screenWidth = 0;
 		this.screenHeight = 0;
@@ -23,8 +34,120 @@ class WindowHelper {
 		this.mainWindow = null;
 	}
 
+	// CRITICAL FIX: Pre-create overlay window for immediate response
+	async preCreateOverlayWindow() {
+		try {
+			log.info('🚀 Pre-creating overlay window for immediate response...');
+
+			if (this.overlayWindow !== null) {
+				log.info('✅ Overlay window already exists, marking as pre-created');
+				this.overlayPreCreated = true;
+				this.overlayWindowReady = true;
+				return true;
+			}
+
+			// Create the overlay window but keep it hidden
+			this.createOverlayWindow();
+
+			if (this.overlayWindow) {
+				// Wait for window to be ready
+				await this.waitForOverlayReady();
+
+				// Mark as pre-created and ready
+				this.overlayPreCreated = true;
+				this.overlayWindowReady = true;
+
+				log.info('✅ Overlay window pre-created successfully and ready for immediate use');
+				return true;
+			} else {
+				log.warn('⚠️ Failed to pre-create overlay window');
+				return false;
+			}
+		} catch (error) {
+			log.error('❌ Error pre-creating overlay window:', error);
+			return false;
+		}
+	}
+
+	// Wait for overlay window to be fully ready
+	async waitForOverlayReady() {
+		return new Promise((resolve) => {
+			if (!this.overlayWindow) {
+				resolve(false);
+				return;
+			}
+
+			// Wait for the window to be ready-to-show
+			this.overlayWindow.once('ready-to-show', () => {
+				log.info('✅ Overlay window ready-to-show event received');
+				this.overlayWindowReady = true;
+				resolve(true);
+			});
+
+			// Fallback timeout
+			setTimeout(() => {
+				log.info('✅ Overlay window ready timeout - assuming ready');
+				this.overlayWindowReady = true;
+				resolve(true);
+			}, 2000);
+		});
+	}
+
+	// Enhanced getOverlayWindow to use pre-created window
+	getOverlayWindow() {
+		if (this.overlayWindow !== null) {
+			return this.overlayWindow;
+		}
+
+		// If no overlay exists but we were supposed to pre-create it, create now
+		if (!this.overlayPreCreated) {
+			log.info('📱 Creating overlay window on-demand (not pre-created)');
+			this.createOverlayWindow();
+		}
+
+		return this.overlayWindow;
+	}
+
+	// Immediate show method for pre-created overlay
+	showOverlayImmediate() {
+		try {
+			log.info('⚡ IMMEDIATE: Showing overlay window NOW');
+
+			if (!this.overlayWindow) {
+				if (this.overlayPreCreated) {
+					log.warn('⚠️ Overlay was pre-created but window is null, recreating...');
+					this.createOverlayWindow();
+				} else {
+					log.info('📱 Creating overlay window immediately...');
+					this.createOverlayWindow();
+				}
+			}
+
+			if (this.overlayWindow) {
+				// Show immediately without waiting
+				this.overlayWindow.show();
+				this.overlayWindow.focus();
+				this.overlayWindow.moveTop();
+				this.isOverlayVisible = true;
+
+				log.info('✅ Overlay window shown immediately');
+				return true;
+			} else {
+				log.error('❌ Failed to show overlay immediately - window creation failed');
+				return false;
+			}
+		} catch (error) {
+			log.error('❌ Error showing overlay immediately:', error);
+			return false;
+		}
+	}
+
 	createOverlayWindow() {
 		if (this.overlayWindow !== null) return;
+
+		// CRITICAL FIX: Reset readiness state when creating new window
+		this.overlayWindowReady = false;
+		this.pendingOverlayActions = [];
 
 		const primaryDisplay = screen.getPrimaryDisplay();
 		const workArea = primaryDisplay.workAreaSize;
@@ -243,6 +366,107 @@ class WindowHelper {
 		this.askAIWindowSize = { width: bounds.width, height: bounds.height };
 	}
 
+	createAreYouThereWindow() {
+		if (this.areYouThereWindow !== null) return;
+
+		const primaryDisplay = screen.getPrimaryDisplay();
+		const workArea = primaryDisplay.workAreaSize;
+		this.screenWidth = workArea.width;
+		this.screenHeight = workArea.height;
+
+		// Center Are You There window on screen
+		const areYouThereX =
+			Math.floor(this.screenWidth / 2) - Math.floor(this.areYouThereWindowSize.width / 2);
+		const areYouThereY =
+			Math.floor(this.screenHeight / 2) - Math.floor(this.areYouThereWindowSize.height / 2);
+
+		const windowSettings = {
+			width: this.areYouThereWindowSize.width,
+			height: this.areYouThereWindowSize.height,
+			x: areYouThereX,
+			y: areYouThereY,
+			webPreferences: {
+				nodeIntegration: false,
+				contextIsolation: true,
+				preload: path.join(__dirname, '..', 'preload.js'),
+				devTools: true,
+			},
+			show: false,
+			alwaysOnTop: true,
+			frame: false,
+			transparent: true,
+			fullscreenable: false,
+			hasShadow: false,
+			backgroundColor: '#00000000',
+			focusable: true,
+			skipTaskbar: true,
+			visibleOnAllWorkspaces: true,
+			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
+			acceptFirstMouse: true,
+			disableAutoHideCursor: true,
+			resizable: process.env.NODE_ENV === 'development',
+		};
+
+		// Platform-specific window settings
+		if (process.platform === 'win32') {
+			// Windows-specific settings
+			windowSettings.type = 'toolbar';
+			windowSettings.alwaysOnTop = true;
+			windowSettings.skipTaskbar = true;
+			windowSettings.focusable = true;
+			windowSettings.transparent = true;
+			windowSettings.hasShadow = false;
+		} else if (process.platform === 'darwin') {
+			// macOS-specific settings
+			windowSettings.type = process.env.NODE_ENV === 'development' ? 'normal' : 'panel';
+		}
+
+		this.areYouThereWindow = new BrowserWindow(windowSettings);
+
+		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
+		const isDevelopment =
+			process.env.NODE_ENV === 'development' ||
+			process.env.NODE_ENV?.trim() === 'development';
+
+		const areYouThereUrl = isDevelopment
+			? `${devURL}/areYouThere.html`
+			: `file://${path.join(__dirname, '..', '..', 'build', 'areYouThere.html')}`;
+
+		log.info(`Loading Are You There URL: ${areYouThereUrl}`);
+
+		this.areYouThereWindow.loadURL(areYouThereUrl).catch((err) => {
+			log.error('Failed to load Are You There URL:', err);
+		});
+
+		if (process.platform === 'darwin') {
+			this.areYouThereWindow.setAlwaysOnTop(true, 'floating');
+			this.areYouThereWindow.setVisibleOnAllWorkspaces(true, {
+				visibleOnFullScreen: true,
+				skipTransformProcessType: true,
+			});
+			this.areYouThereWindow.setHiddenInMissionControl(true);
+			// Are You There window should always be interactive
+			this.areYouThereWindow.setIgnoreMouseEvents(false);
+			this.areYouThereWindow.setMovable(true);
+		} else if (process.platform === 'win32') {
+			// Windows-specific window behavior
+			this.areYouThereWindow.setAlwaysOnTop(true, 'floating');
+			this.areYouThereWindow.setIgnoreMouseEvents(false);
+			this.areYouThereWindow.setMovable(true);
+			this.areYouThereWindow.setVisibleOnAllWorkspaces(true);
+		} else {
+			// For Linux and other platforms
+			this.areYouThereWindow.setAlwaysOnTop(true, 'floating');
+			this.areYouThereWindow.setIgnoreMouseEvents(false);
+		}
+
+		this.setupAreYouThereWindowListeners();
+
+		const bounds = this.areYouThereWindow.getBounds();
+		this.areYouThereWindowPosition = { x: bounds.x, y: bounds.y };
+		this.areYouThereWindowSize = { width: bounds.width, height: bounds.height };
+	}
+
 	setupWindowListeners() {
 		if (!this.overlayWindow) return;
 
@@ -260,11 +484,31 @@ class WindowHelper {
 		this.overlayWindow.on('closed', () => {
 			this.overlayWindow = null;
 			this.isOverlayVisible = false;
+			// CRITICAL FIX: Reset readiness state when window closes
+			this.overlayWindowReady = false;
+			this.pendingOverlayActions = [];
 		});
 
-		// Set up basic window event handling
+		// CRITICAL FIX: Track if overlay is fully loaded and ready
 		this.overlayWindow.webContents.on('dom-ready', () => {
-			console.log('Overlay window DOM ready - click-through disabled');
+			console.log('🔧 Overlay window DOM ready - click-through disabled');
+		});
+
+		// CRITICAL FIX: Wait for complete loading before marking as ready
+		this.overlayWindow.webContents.on('did-finish-load', () => {
+			console.log('✅ Overlay window FULLY LOADED and ready for commands');
+			this.overlayWindowReady = true;
+
+			// If there are any pending actions, execute them now
+			if (this.pendingOverlayActions && this.pendingOverlayActions.length > 0) {
+				console.log(
+					`🎯 Executing ${this.pendingOverlayActions.length} pending overlay actions`,
+				);
+				this.pendingOverlayActions.forEach((action) => {
+					this.overlayWindow.webContents.send('overlay-command', action);
+				});
+				this.pendingOverlayActions = [];
+			}
 		});
 	}
 
@@ -307,6 +551,35 @@ class WindowHelper {
 		});
 	}
 
+	setupAreYouThereWindowListeners() {
+		if (!this.areYouThereWindow) return;
+
+		this.areYouThereWindow.on('move', () => {
+			if (this.areYouThereWindow && !this.areYouThereWindow.isDestroyed()) {
+				const bounds = this.areYouThereWindow.getBounds();
+				this.areYouThereWindowPosition = { x: bounds.x, y: bounds.y };
+			}
+		});
+
+		this.areYouThereWindow.on('resize', () => {
+			if (this.areYouThereWindow && !this.areYouThereWindow.isDestroyed()) {
+				const bounds = this.areYouThereWindow.getBounds();
+				this.areYouThereWindowSize = { width: bounds.width, height: bounds.height };
+			}
+		});
+
+		this.areYouThereWindow.on('closed', () => {
+			this.areYouThereWindow = null;
+			this.isAreYouThereVisible = false;
+		});
+
+		// Set up mouse event handling for Are You There window
+		this.areYouThereWindow.webContents.on('dom-ready', () => {
+			// Set Are You There window to be interactive immediately
+			this.areYouThereWindow.setIgnoreMouseEvents(false);
+		});
+	}
+
 	getOverlayWindow() {
 		return this.overlayWindow;
 	}
@@ -315,12 +588,49 @@ class WindowHelper {
 		return this.askAIWindow;
 	}
 
+	getAreYouThereWindow() {
+		return this.areYouThereWindow;
+	}
+
+	// CRITICAL FIX: Send command to overlay with proper queuing if not ready
+	sendOverlayCommand(action) {
+		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) {
+			console.warn('⚠️ Cannot send overlay command: window not available');
+			return false;
+		}
+
+		if (this.overlayWindowReady) {
+			// Window is ready, send command immediately
+			console.log(`✅ IMMEDIATE: Sending overlay command: ${action.action}`);
+			this.overlayWindow.webContents.send('overlay-command', action);
+			return true;
+		} else {
+			// Window not ready yet, queue the command
+			console.log(`⏳ QUEUING: Overlay not ready, queuing command: ${action.action}`);
+			this.pendingOverlayActions.push(action);
+			return false;
+		}
+	}
+
 	isVisible() {
 		return this.isOverlayVisible && this.overlayWindow && !this.overlayWindow.isDestroyed();
 	}
 
 	isAskAIWindowVisible() {
 		return this.isAskAIVisible && this.askAIWindow && !this.askAIWindow.isDestroyed();
+	}
+
+	isAreYouThereWindowVisible() {
+		return (
+			this.isAreYouThereVisible &&
+			this.areYouThereWindow &&
+			!this.areYouThereWindow.isDestroyed()
+		);
+	}
+
+	// CRITICAL FIX: Check if overlay is ready for commands
+	isOverlayReady() {
+		return this.overlayWindow && !this.overlayWindow.isDestroyed() && this.overlayWindowReady;
 	}
 
 	hideOverlayWindow() {
@@ -339,6 +649,15 @@ class WindowHelper {
 		this.askAIWindowSize = { width: bounds.width, height: bounds.height };
 		this.askAIWindow.hide();
 		this.isAskAIVisible = false;
+	}
+
+	hideAreYouThereWindow() {
+		if (!this.areYouThereWindow || this.areYouThereWindow.isDestroyed()) return;
+		const bounds = this.areYouThereWindow.getBounds();
+		this.areYouThereWindowPosition = { x: bounds.x, y: bounds.y };
+		this.areYouThereWindowSize = { width: bounds.width, height: bounds.height };
+		this.areYouThereWindow.hide();
+		this.isAreYouThereVisible = false;
 	}
 
 	// Helper method to hide both windows
@@ -509,6 +828,62 @@ class WindowHelper {
 		this.isAskAIVisible = true;
 	}
 
+	showAreYouThereWindow() {
+		if (!this.areYouThereWindow || this.areYouThereWindow.isDestroyed()) {
+			this.createAreYouThereWindow();
+		}
+
+		// Center the Are You There window on screen
+		const primaryDisplay = screen.getPrimaryDisplay();
+		const workArea = primaryDisplay.workAreaSize;
+
+		const areYouThereX =
+			Math.floor(workArea.width / 2) - Math.floor(this.areYouThereWindowSize.width / 2);
+		const areYouThereY =
+			Math.floor(workArea.height / 2) - Math.floor(this.areYouThereWindowSize.height / 2);
+
+		this.areYouThereWindow.setBounds({
+			x: areYouThereX,
+			y: areYouThereY,
+			width: this.areYouThereWindowSize.width,
+			height: this.areYouThereWindowSize.height,
+		});
+
+		// Ensure window properties for all desktops/spaces on macOS
+		if (process.platform === 'darwin') {
+			this.areYouThereWindow.setAlwaysOnTop(true, 'floating');
+			this.areYouThereWindow.setVisibleOnAllWorkspaces(true, {
+				visibleOnFullScreen: true,
+				skipTransformProcessType: true,
+			});
+			// Ensure Are You There window is above all other windows
+			this.areYouThereWindow.moveTop();
+		} else if (process.platform === 'win32') {
+			// Windows-specific window behavior
+			this.areYouThereWindow.setAlwaysOnTop(true, 'floating');
+			this.areYouThereWindow.setVisibleOnAllWorkspaces(true);
+			this.areYouThereWindow.moveTop();
+		} else {
+			this.areYouThereWindow.setAlwaysOnTop(true, 'floating');
+		}
+
+		// Update position tracking
+		this.areYouThereWindowPosition = { x: areYouThereX, y: areYouThereY };
+
+		// Show Are You There window
+		this.areYouThereWindow.show();
+
+		// Make sure Are You There window is on top after showing
+		setTimeout(() => {
+			if (this.areYouThereWindow && !this.areYouThereWindow.isDestroyed()) {
+				this.areYouThereWindow.moveTop();
+				this.areYouThereWindow.focus();
+			}
+		}, 100);
+
+		this.isAreYouThereVisible = true;
+	}
+
 	toggleOverlayWindow() {
 		if (this.isOverlayVisible) {
 			this.hideOverlayWindow();
@@ -522,6 +897,14 @@ class WindowHelper {
 			this.hideAskAIWindow();
 		} else {
 			this.showAskAIWindow();
+		}
+	}
+
+	toggleAreYouThereWindow() {
+		if (this.isAreYouThereVisible) {
+			this.hideAreYouThereWindow();
+		} else {
+			this.showAreYouThereWindow();
 		}
 	}
 
@@ -975,6 +1358,38 @@ class WindowHelper {
 		}
 	}
 
+	// Test shortcuts functionality
+	testShortcuts() {
+		log.info('🧪 Testing shortcuts functionality...');
+
+		// Test if shortcuts are registered
+		const shortcutsToTest = [
+			'CommandOrControl+\\',
+			'CommandOrControl+Return',
+			'F12',
+			'CommandOrControl+F12',
+			'CommandOrControl+Shift+I',
+		];
+
+		shortcutsToTest.forEach((shortcut) => {
+			const isRegistered = globalShortcut.isRegistered(shortcut);
+			log.info(`🔧 ${shortcut}: ${isRegistered ? '✅ REGISTERED' : '❌ NOT REGISTERED'}`);
+		});
+
+		// Test window creation
+		if (!this.overlayWindow) {
+			log.info('Creating test overlay window...');
+			this.createOverlayWindow();
+		}
+
+		if (!this.askAIWindow) {
+			log.info('Creating test Ask AI window...');
+			this.createAskAIWindow();
+		}
+
+		log.info('✅ Shortcuts test completed');
+	}
+
 	// Cleanup method to properly close all windows and resources
 	cleanup() {
 		try {
@@ -990,6 +1405,14 @@ class WindowHelper {
 				this.askAIWindow.destroy();
 				this.askAIWindow = null;
 				this.isAskAIVisible = false;
+			}
+
+			// Clean up Are You There window
+			if (this.areYouThereWindow && !this.areYouThereWindow.isDestroyed()) {
+				log.info('🧹 Closing Are You There window...');
+				this.areYouThereWindow.destroy();
+				this.areYouThereWindow = null;
+				this.isAreYouThereVisible = false;
 			}
 
 			// Unregister all global shortcuts
