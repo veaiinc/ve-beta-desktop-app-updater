@@ -1675,6 +1675,50 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// This will handle main window navigation
+	ipcMain.handle('navigate-main-window', async (event, data) => {
+		try {
+			// Check if main window exists and is not destroyed
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				mainWindow.show();
+				mainWindow.focus();
+				mainWindow.webContents.send('navigate-to', data?.path);
+				log.info('Main window navigated to:', data?.path);
+				return { success: true };
+			} else {
+				// Main window doesn't exist or is destroyed, recreate it
+				log.info('Main window not available, recreating it...');
+
+				// Recreate the main window with state restoration
+				createWindow(true);
+
+				// Wait for the window to be ready
+				await new Promise((resolve) => {
+					if (mainWindow && !mainWindow.isDestroyed()) {
+						mainWindow.once('ready-to-show', () => {
+							mainWindow.show();
+							mainWindow.focus();
+							mainWindow.webContents.send('navigate-to', data?.path);
+							log.info(
+								'Main window recreated and shown successfully with state restoration and navigated to:',
+								data?.path,
+							);
+							resolve();
+						});
+					} else {
+						log.error('Failed to recreate main window and navigated to:', data?.path);
+						resolve();
+					}
+				});
+
+				return { success: true, message: 'Main window recreated with state restoration' };
+			}
+		} catch (error) {
+			log.error('Error navigating main window to:', data?.path, error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	// Check camera permission status handler
 	ipcMain.handle('check-camera-permission', async () => {
 		try {

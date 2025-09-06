@@ -56,7 +56,7 @@ const useAssemblyTranscription = ({
 		[log],
 	);
 
-	const cleanup = useCallback(() => {
+	const cleanup = useCallback(async () => {
 		// Clear timers
 		if (timerIntervalRef.current) {
 			clearInterval(timerIntervalRef.current);
@@ -121,7 +121,15 @@ const useAssemblyTranscription = ({
 		reconnectAttemptsRef.current = 0;
 
 		if (meetingIdRef.current) {
-			initializeMeetingSummary({ meeting_id: meetingIdRef.current });
+			const meetingId = meetingIdRef.current;
+			await initializeMeetingSummary({ meeting_id: meetingId });
+			setTimeout(() => {
+				if (window?.electronApi?.navigateMainWindow) {
+					window?.electronApi?.navigateMainWindow({
+						path: `/meet/${meetingId}?type=desktop&history=true`,
+					});
+				}
+			}, 1000);
 			meetingIdRef.current = null;
 		}
 
@@ -219,7 +227,6 @@ const useAssemblyTranscription = ({
 			audioBufferRef.current = [];
 			sampleCountRef.current = 0;
 			cleanup();
-			initializeMeetingSummary({ meeting_id: meetingId });
 		},
 		[log],
 	);
