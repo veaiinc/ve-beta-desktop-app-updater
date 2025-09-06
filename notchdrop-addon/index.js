@@ -1,4 +1,23 @@
-const { NotchDropAddon } = require('./build/Release/notchdrop_addon.node');
+// Load the native addon with fallback to prebuilt binaries
+let NotchDropAddon;
+try {
+	// Try to load the built addon first
+	({ NotchDropAddon } = require('./build/Release/notchdrop_addon.node'));
+} catch (error) {
+	try {
+		// Fallback to prebuilt binary
+		const { platform, arch } = process;
+		const electronVersion = process.versions.electron
+			? process.versions.modules
+			: process.versions.modules;
+		const binaryPath = `./bin/${platform}-${arch}-${electronVersion}/notchdrop_addon.node`;
+		({ NotchDropAddon } = require(binaryPath));
+	} catch (fallbackError) {
+		throw new Error(
+			`Failed to load NotchDrop addon: ${error.message}. Fallback also failed: ${fallbackError.message}`,
+		);
+	}
+}
 const { ipcRenderer, BrowserWindow, ipcMain } = require('electron');
 const { EventEmitter } = require('events');
 

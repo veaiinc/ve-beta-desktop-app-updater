@@ -1,7 +1,7 @@
 {
 	"name": "VEAI",
 	"description": "Your living intelligence remembers everything, sees what you see, figures out your goals, and doesn’t stop until they're done.",
-	"version": "v0.4.10",
+	"version": "v0.4.11",
 	"private": true,
 	"main": "dist-electron/main.js",
 	"author": "Ve AI",
@@ -9,6 +9,7 @@
 	"scripts": {
 		"postinstall": "electron-builder install-app-deps && npm run rebuild:native:mac && npm run clean:sharp",
 		"clean:sharp": "node -e \"const fs = require('fs'); const path = require('path'); const nodeModulesPath = path.join(__dirname, 'node_modules', '@img'); console.log('🔧 Ensuring Sharp package structure for all platforms...'); if (fs.existsSync(nodeModulesPath)) { const requiredDirs = ['sharp-darwin-arm64', 'sharp-darwin-x64', 'sharp-libvips-darwin-arm64', 'sharp-libvips-darwin-x64', 'sharp-linux-arm', 'sharp-linux-arm64', 'sharp-linux-x64', 'sharp-libvips-linux-arm', 'sharp-libvips-linux-arm64', 'sharp-libvips-linux-x64', 'sharp-win32-ia32', 'sharp-win32-x64', 'sharp-libvips-win32-ia32', 'sharp-libvips-win32-x64']; requiredDirs.forEach(dir => { const dirPath = path.join(nodeModulesPath, dir); if (!fs.existsSync(dirPath)) { fs.mkdirSync(dirPath, { recursive: true }); fs.writeFileSync(path.join(dirPath, '.gitkeep'), ''); console.log('✅ Created missing directory:', dir); } else { console.log('✅ Directory exists:', dir); } }); console.log('🎉 All Sharp directories ensured for cross-platform builds'); } else { console.log('📁 @img directory not found'); }\"",
+		"install-python-deps": "cd electron/wakeWord && (python -m pip install -r requirements.txt || python3 -m pip install -r requirements.txt || py -m pip install -r requirements.txt)",
 		"postinstall:win": "npm rebuild sharp --platform=win32 --arch=x64",
 		"dev": "npm run build:notchdrop:all && cross-env NODE_ENV=development npm run clean:build:cross && vite",
 		"dev:swift": "node scripts/dev-with-swift-watch.js",
@@ -73,6 +74,7 @@
 		"archiver": "^7.0.1",
 		"axios": "^1.11.0",
 		"bson-objectid": "^2.0.4",
+		"cross-spawn": "^7.0.6",
 		"currency-symbol-map": "^5.1.0",
 		"dayjs": "^1.11.13",
 		"electron-log": "^5.4.2",
@@ -82,7 +84,7 @@
 		"file-loader": "^6.2.0",
 		"firebase": "^12.1.0",
 		"google-fonts-complete": "^2.2.3",
-		"graphql": "^16.10.0",
+		"graphql": "^15.8.0",
 		"gsap": "^3.13.0",
 		"history": "^5.3.0",
 		"image-focus": "^1.2.1",
@@ -145,7 +147,7 @@
 		"web-vitals": "^2.1.4"
 	},
 	"build": {
-		"npmRebuild": true,
+		"npmRebuild": false,
 		"appId": "com.veai.dashboard",
 		"productName": "Ve AI",
 		"protocols": [
@@ -191,13 +193,15 @@
 				{
 					"target": "dmg",
 					"arch": [
-						"arm64"
+						"arm64",
+						"x64"
 					]
 				},
 				{
 					"target": "zip",
 					"arch": [
-						"arm64"
+						"arm64",
+						"x64"
 					]
 				}
 			],
@@ -216,7 +220,8 @@
 				"**/node_modules/sharp/**/*",
 				"**/node_modules/@img/sharp-darwin*/**/*",
 				"**/node_modules/@img/sharp-libvips-darwin*/**/*",
-				"**/node_modules/notchdrop-addon/**/*.node"
+				"**/node_modules/notchdrop-addon/**/*.node",
+				"**/node_modules/notchdrop-addon/bin/**/*"
 			],
 			"extraResources": [
 				{
