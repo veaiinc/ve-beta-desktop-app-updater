@@ -13,60 +13,60 @@ export default defineConfig({
 		// Custom plugin to copy wakeWord directory
 		{
 			name: 'copy-wake-word',
-			buildStart() {
-				const srcDir = 'electron/wakeWord';
-				const destDir = 'dist-electron/wakeWord';
+			// buildStart() {
+			// 	const srcDir = 'electron/wakeWord';
+			// 	const destDir = 'dist-electron/wakeWord';
 
-				if (existsSync(srcDir)) {
-					if (!existsSync(destDir)) {
-						mkdirSync(destDir, { recursive: true });
-					}
+			// 	if (existsSync(srcDir)) {
+			// 		if (!existsSync(destDir)) {
+			// 			mkdirSync(destDir, { recursive: true });
+			// 		}
 
-					// Copy Python files
-					const files = [
-						'custom_hey_ve_detector.py',
-						'requirements.txt',
-						'hey_ve_ee.onnx',
-						'melspectrogram.onnx',
-						'embedding_model.onnx',
-					];
-					files.forEach((file) => {
-						const srcFile = join(srcDir, file);
-						const destFile = join(destDir, file);
-						if (existsSync(srcFile)) {
-							copyFileSync(srcFile, destFile);
-							console.log(`Copied ${file} to dist-electron/wakeWord/`);
-						}
-					});
-				}
-			},
-			writeBundle() {
-				const srcDir = 'electron/wakeWord';
-				const destDir = 'dist-electron/wakeWord';
+			// 		// Copy Python files
+			// 		const files = [
+			// 			'custom_hey_ve_detector.py',
+			// 			'requirements.txt',
+			// 			'hey_ve_ee.onnx',
+			// 			'melspectrogram.onnx',
+			// 			'embedding_model.onnx',
+			// 		];
+			// 		files.forEach((file) => {
+			// 			const srcFile = join(srcDir, file);
+			// 			const destFile = join(destDir, file);
+			// 			if (existsSync(srcFile)) {
+			// 				copyFileSync(srcFile, destFile);
+			// 				console.log(`Copied ${file} to dist-electron/wakeWord/`);
+			// 			}
+			// 		});
+			// 	}
+			// },
+			// writeBundle() {
+			// 	const srcDir = 'electron/wakeWord';
+			// 	const destDir = 'dist-electron/wakeWord';
 
-				if (existsSync(srcDir)) {
-					if (!existsSync(destDir)) {
-						mkdirSync(destDir, { recursive: true });
-					}
+			// 	if (existsSync(srcDir)) {
+			// 		if (!existsSync(destDir)) {
+			// 			mkdirSync(destDir, { recursive: true });
+			// 		}
 
-					// Copy Python files
-					const files = [
-						'custom_hey_ve_detector.py',
-						'requirements.txt',
-						'hey_ve_ee.onnx',
-						'melspectrogram.onnx',
-						'embedding_model.onnx',
-					];
-					files.forEach((file) => {
-						const srcFile = join(srcDir, file);
-						const destFile = join(destDir, file);
-						if (existsSync(srcFile)) {
-							copyFileSync(srcFile, destFile);
-							console.log(`Copied ${file} to dist-electron/wakeWord/`);
-						}
-					});
-				}
-			},
+			// 		// Copy Python files
+			// 		const files = [
+			// 			'custom_hey_ve_detector.py',
+			// 			'requirements.txt',
+			// 			'hey_ve_ee.onnx',
+			// 			'melspectrogram.onnx',
+			// 			'embedding_model.onnx',
+			// 		];
+			// 		files.forEach((file) => {
+			// 			const srcFile = join(srcDir, file);
+			// 			const destFile = join(destDir, file);
+			// 			if (existsSync(srcFile)) {
+			// 				copyFileSync(srcFile, destFile);
+			// 				console.log(`Copied ${file} to dist-electron/wakeWord/`);
+			// 			}
+			// 		});
+			// 	}
+			// },
 		},
 		electron({
 			main: {
@@ -87,7 +87,7 @@ export default defineConfig({
 								windowsCompatibility: 'electron/windowsCompatibility.js', // Add this line
 								notchDropService: 'electron/services/notchDropService.js',
 								notificationHelper: 'electron/notificationHelper.js',
-								wakeWordService: 'electron/wakeWordService.js',
+								// wakeWordService: 'electron/wakeWordService.js',
 							},
 							output: {
 								format: 'cjs',
