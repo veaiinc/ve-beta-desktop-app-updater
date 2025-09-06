@@ -143,7 +143,7 @@ class DynamicIslandHelper {
 				preload: path.join(__dirname, 'preload.js'),
 				devTools: true, // Enable dev tools in production too
 			},
-			show: false,
+			show: true, // Show immediately when created
 			alwaysOnTop: true,
 			frame: false, // Frameless to blend with menu bar
 			transparent: true,
@@ -183,10 +183,10 @@ class DynamicIslandHelper {
 		// Set initial mouse event handling - start with mouse events ignored since it's collapsed
 		this.setMouseEventHandling(true);
 
-		// Show the window
+		// Show the window immediately
 		this.dynamicIslandWindow.show();
-
-		log.info('Dynamic Island window created and shown');
+		this.isVisible = true;
+		log.info('Dynamic Island window created and shown immediately');
 
 		// Listen for resize events from the renderer
 		this.dynamicIslandWindow.webContents.on('did-finish-load', () => {
@@ -278,6 +278,7 @@ class DynamicIslandHelper {
 		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
 			this.dynamicIslandWindow.show();
 			this.isVisible = true;
+			log.info('Dynamic Island shown');
 		}
 	}
 
@@ -1242,7 +1243,14 @@ app.whenReady().then(async () => {
 
 	// 🎤 IPC: Start Mic Monitoring
 
+	// IMMEDIATE: Create Dynamic Island FIRST for instant display
+	log.info('🚀 Creating Dynamic Island FIRST for instant display...');
+	dynamicIslandHelper = new DynamicIslandHelper();
+	dynamicIslandHelper.createDynamicIslandWindow();
+	
+	// THEN: Create main window after dynamic island
 	createWindow();
+	
 	createTray(); // Create system tray for Windows
 	createMenuBar();
 
@@ -1266,11 +1274,6 @@ app.whenReady().then(async () => {
 	} catch (error) {
 		log.error('❌ Error pre-creating overlay window:', error);
 	}
-
-	// Phase 2: Initialize DynamicIslandHelper (UI component)
-	log.info('📋 Phase 2: Initializing DynamicIslandHelper...');
-	dynamicIslandHelper = new DynamicIslandHelper();
-	dynamicIslandHelper.createDynamicIslandWindow();
 
 	// Phase 3: Initialize NotchDrop service with proper readiness waiting (macOS only)
 	if (isMacRuntime) {
