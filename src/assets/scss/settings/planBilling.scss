@@ -1084,6 +1084,14 @@
 					color: var(--error);
 					border: 1px solid var(--error);
 				}
+				&.contact-sales {
+					background: var(--primary-button);
+					color: var(--primary-button-font);
+					border: 1px solid var(--primary-button);
+					&:hover {
+						opacity: 0.9;
+					}
+				}
 			}
 			.scheduledDowngradeNotice {
 				display: flex;

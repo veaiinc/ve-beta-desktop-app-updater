@@ -158,7 +158,26 @@ const AddOnPlans = ({
 				}
 			}
 		} else {
-			mappableData = subscriptionPlans;
+			mappableData = subscriptionPlans || [];
+
+			// Add Enterprise plan by default if it doesn't exist in API data
+			const enterprisePlan = {
+				_id: 'enterprise-plan',
+				plan: 'Enterprise',
+				subscriptionType: 'monthly',
+				monthlyPrice: 0,
+				yearlyPrice: 0,
+				currency: 'USD',
+				totalPrice: 0,
+				isSeatBasedPlan: false,
+				contactSales: true,
+			};
+
+			// Add Enterprise plan if not already present
+			if (!mappableData?.some((item) => item?.plan?.toLowerCase() === 'enterprise')) {
+				mappableData?.push(enterprisePlan);
+			}
+
 			// Include the scheduled downgrade plan in upgradeSubscription mode if needed
 			if (currentPlan?.scheduledUpdate?.planId) {
 				const scheduledPlan = subscriptionPlans?.find(
@@ -878,21 +897,41 @@ const AddOnPlans = ({
 																</div>
 															</>
 														) : (
-															planId !== currentPlanId &&
-															hasPositivePrice &&
-															currentPlanPrice === 0 && (
-																<button
-																	onClick={() =>
-																		handlePurchaseAddOn(addOn)
-																	}
-																	className="addOnsButton"
-																>
-																	{info?.subscriptionState ===
-																	'upgradeSubscription'
-																		? 'Buy Now'
-																		: 'Add To Cart'}
-																</button>
-															)
+															<>
+																{/* Contact Sales button for Enterprise plan */}
+																{addOn?.contactSales ? (
+																	<button
+																		onClick={() => {
+																			// You can add contact sales logic here
+																			// For now, just show an alert
+																			alert(
+																				'Contact Sales: Please reach out to our sales team for Enterprise pricing.',
+																			);
+																		}}
+																		className="addOnsButton contact-sales"
+																	>
+																		Contact Sales
+																	</button>
+																) : (
+																	planId !== currentPlanId &&
+																	hasPositivePrice &&
+																	currentPlanPrice === 0 && (
+																		<button
+																			onClick={() =>
+																				handlePurchaseAddOn(
+																					addOn,
+																				)
+																			}
+																			className="addOnsButton"
+																		>
+																			{info?.subscriptionState ===
+																			'upgradeSubscription'
+																				? 'Buy Now'
+																				: 'Add To Cart'}
+																		</button>
+																	)
+																)}
+															</>
 														)}
 													</>
 												)}
