@@ -508,11 +508,11 @@
 					background-color: var(--stroke);
 					svg {
 						path {
-							fill: #79ecc9;
+							fill: var(--primary-button);
 						}
 					}
 					.btn-text {
-						color: #79ecc9;
+						color: var(--primary-button);
 					}
 				}
 			}
