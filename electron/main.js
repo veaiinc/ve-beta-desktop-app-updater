@@ -1318,7 +1318,7 @@ app.whenReady().then(async () => {
 	log.info('📋 Phase 4: Waiting for bridge components to be ready...');
 	await new Promise((resolve) => setTimeout(resolve, 1500)); // Give bridge time to initialize
 
-	// Phase 5: Test shortcuts and validate system readiness
+	// Phase 5: Validate system readiness
 	setTimeout(() => {
 		log.info('📋 Phase 5: Testing system readiness...');
 
