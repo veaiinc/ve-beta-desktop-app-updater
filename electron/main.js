@@ -2819,6 +2819,19 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	ipcMain.handle('hide-askAI-window', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.hideAskAIWindow();
+			return { success: true };
+		} catch (error) {
+			log.error('Error hiding Ask AI window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	ipcMain.handle('update-askAI-dimensions', async (event, { width, height }) => {
 		try {
 			if (!windowHelper) {

@@ -27,6 +27,7 @@ const AskAIApp = () => {
 	const [isNeedHelpRequest, setIsNeedHelpRequest] = useState(false);
 	const [receivedDynamicIslandMessage, setReceivedDynamicIslandMessage] = useState(null);
 	const isStoppedRef = useRef(false);
+	const shouldCloseRef = useRef(false);
 	// Add this simple conversation history state
 	const [fullConversation, setFullConversation] = useState('');
 	// Initialize socket
@@ -572,9 +573,27 @@ const AskAIApp = () => {
 		setIsExpanded(!isExpanded);
 	};
 
-	const handleClose = () => {
-		if (window.electronApi?.askAI?.toggleWindow) {
-			window.electronApi.askAI.toggleWindow();
+	const handleClose = async () => {
+		console.log('❌ X button clicked - closing AI window');
+		
+		// Stop AI generation if it's currently running
+		if (isLoading) {
+			console.log('🛑 Stopping AI generation before closing...');
+			handleStop();
+			
+			// Wait a moment for stop to complete, then close
+			setTimeout(() => {
+				console.log('🚪 Closing AI window after stop...');
+				if (window.electronApi?.askAI?.hideWindow) {
+					window.electronApi.askAI.hideWindow();
+				}
+			}, 50); // Small delay to ensure stop completes
+		} else {
+			// If not loading, close immediately
+			console.log('🚪 Closing AI window immediately...');
+			if (window.electronApi?.askAI?.hideWindow) {
+				window.electronApi.askAI.hideWindow();
+			}
 		}
 	};
 
