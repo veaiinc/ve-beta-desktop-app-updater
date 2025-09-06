@@ -143,7 +143,7 @@ class DynamicIslandHelper {
 				preload: path.join(__dirname, 'preload.js'),
 				devTools: true, // Enable dev tools in production too
 			},
-			show: false,
+			show: true, // Show immediately when created
 			alwaysOnTop: true,
 			frame: false, // Frameless to blend with menu bar
 			transparent: true,
@@ -183,10 +183,10 @@ class DynamicIslandHelper {
 		// Set initial mouse event handling - start with mouse events ignored since it's collapsed
 		this.setMouseEventHandling(true);
 
-		// Show the window
+		// Show the window immediately
 		this.dynamicIslandWindow.show();
-
-		log.info('Dynamic Island window created and shown');
+		this.isVisible = true;
+		log.info('Dynamic Island window created and shown immediately');
 
 		// Listen for resize events from the renderer
 		this.dynamicIslandWindow.webContents.on('did-finish-load', () => {
@@ -278,6 +278,7 @@ class DynamicIslandHelper {
 		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
 			this.dynamicIslandWindow.show();
 			this.isVisible = true;
+			log.info('Dynamic Island shown');
 		}
 	}
 
@@ -1017,11 +1018,45 @@ function updateMenuBarState() {
 
 // Window creation
 function createWindow(restoreState = false) {
+	// Determine the appropriate icon based on platform
+	let iconPath;
+	if (process.platform === 'win32') {
+		// Try multiple possible paths for development and production
+		const possiblePaths = [
+			path.join(__dirname, 'assets', 'app-logo.ico'),
+			path.join(__dirname, '..', 'electron', 'assets', 'app-logo.ico'),
+			path.join(process.cwd(), 'electron', 'assets', 'app-logo.ico')
+		];
+		
+		// Find the first path that exists
+		for (const testPath of possiblePaths) {
+			if (require('fs').existsSync(testPath)) {
+				iconPath = testPath;
+				break;
+			}
+		}
+		
+		// Fallback to the first path if none exist
+		if (!iconPath) {
+			iconPath = possiblePaths[0];
+		}
+	} else if (process.platform === 'darwin') {
+		iconPath = path.join(__dirname, 'assets', 'app-logo.icns');
+	} else {
+		iconPath = path.join(__dirname, 'assets', 've-black-circle-logo.png');
+	}
+
+	// Debug: Log the icon path and check if file exists
+	log.info('🔍 Icon path:', iconPath);
+	log.info('🔍 __dirname:', __dirname);
+	log.info('🔍 File exists:', require('fs').existsSync(iconPath));
+
 	mainWindow = new BrowserWindow({
-		title: 'Main window',
+		title: 'Ve AI - Priority',
 		width: 1366,
 		height: 768,
 		show: false,
+		icon: iconPath,
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
 			nodeIntegration: false,
@@ -1140,6 +1175,11 @@ function createTray() {
 
 // App lifecycle
 app.whenReady().then(async () => {
+	// Set application branding for Windows
+	if (process.platform === 'win32') {
+		app.setAppUserModelId('com.veai.dashboard');
+	}
+
 	// Set up permission request handler for microphone access
 	session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
 		const allowedPermissions = [
@@ -1242,7 +1282,14 @@ app.whenReady().then(async () => {
 
 	// 🎤 IPC: Start Mic Monitoring
 
+	// IMMEDIATE: Create Dynamic Island FIRST for instant display
+	log.info('🚀 Creating Dynamic Island FIRST for instant display...');
+	dynamicIslandHelper = new DynamicIslandHelper();
+	dynamicIslandHelper.createDynamicIslandWindow();
+	
+	// THEN: Create main window after dynamic island
 	createWindow();
+	
 	createTray(); // Create system tray for Windows
 	createMenuBar();
 
@@ -1266,11 +1313,6 @@ app.whenReady().then(async () => {
 	} catch (error) {
 		log.error('❌ Error pre-creating overlay window:', error);
 	}
-
-	// Phase 2: Initialize DynamicIslandHelper (UI component)
-	log.info('📋 Phase 2: Initializing DynamicIslandHelper...');
-	dynamicIslandHelper = new DynamicIslandHelper();
-	dynamicIslandHelper.createDynamicIslandWindow();
 
 	// Phase 3: Initialize NotchDrop service with proper readiness waiting (macOS only)
 	if (isMacRuntime) {
@@ -1318,7 +1360,7 @@ app.whenReady().then(async () => {
 	log.info('📋 Phase 4: Waiting for bridge components to be ready...');
 	await new Promise((resolve) => setTimeout(resolve, 1500)); // Give bridge time to initialize
 
-	// Phase 5: Test shortcuts and validate system readiness
+	// Phase 5: Validate system readiness
 	setTimeout(() => {
 		log.info('📋 Phase 5: Testing system readiness...');
 
@@ -2926,7 +2968,7 @@ app.whenReady().then(async () => {
 	ipcMain.handle('get-askAI-input-focus', async () => {
 		try {
 			const focusState = global.askAIInputFocused || false;
-			log.info(`🔍 Getting ask AI input focus state: ${focusState}`);
+	
 			return { success: true, isFocused: focusState };
 		} catch (error) {
 			log.error('Error getting ask AI input focus state:', error);
