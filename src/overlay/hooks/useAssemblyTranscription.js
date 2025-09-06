@@ -33,6 +33,7 @@ const useAssemblyTranscription = ({
 	const reconnectAttemptsRef = useRef(0);
 	const muteRef = useRef(false);
 	const maxReconnectAttempts = 3;
+	const meetingIdRef = useRef(null);
 
 	useEffect(() => {
 		isMountedRef.current = true;
@@ -118,6 +119,11 @@ const useAssemblyTranscription = ({
 		sampleCountRef.current = 0;
 		connectionPromiseRef.current = null;
 		reconnectAttemptsRef.current = 0;
+
+		if (meetingIdRef.current) {
+			initializeMeetingSummary({ meeting_id: meetingIdRef.current });
+			meetingIdRef.current = null;
+		}
 
 		if (isMountedRef.current) {
 			setIsConnected(false);
@@ -527,6 +533,7 @@ const useAssemblyTranscription = ({
 				await startAudioCapture();
 				if (!websocketRef.current || websocketRef.current.readyState !== WebSocket.OPEN) {
 					log('Establishing connection...');
+					meetingIdRef.current = meetingId;
 					await connect({
 						tenantId,
 						sessionId,
