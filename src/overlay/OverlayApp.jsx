@@ -1,10 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
-import { Track } from 'livekit-client';
-import { useTrackTranscription } from '@livekit/components-react';
 import { GripHorizontal } from 'lucide-react';
 import Context from '../context/context';
-import useLiveIntelligenceStream from '../hooks/useLiveIntelligenceStream';
-import useRecallStream from '../hooks/useRecallStream';
 import ObjectID from 'bson-objectid';
 import OverlayCommands from './OverlayCommands';
 import ShortcutBar from './components/ShortcutBar';
@@ -12,7 +8,6 @@ import LiveIntelligencePanel from './components/LiveIntelligencePanel';
 import TranscriptPanel from './components/TranscriptPanel';
 import OverlayNotification, { useOverlayNotification } from './components/OverlayNotification';
 import './overlay.scss';
-import { transcription_socket } from '../services/config.live';
 import useAssemblyTranscription from './hooks/useAssemblyTranscription';
 
 const OverlayApp = () => {
@@ -61,12 +56,27 @@ const OverlayApp = () => {
 	} = useContext(Context);
 
 	const handleUpdateTranscription = (newTranscript) => {
+		// Get the transcript text from various possible sources
+		const transcriptText =
+			newTranscript.transcript || newTranscript.displayedText || newTranscript.text || '';
+
+		// Only update transcription activity if we have meaningful content
+		// This helps distinguish between empty/partial transcripts and actual speech
+		if (transcriptText.trim().length > 0) {
+			// Update transcription activity in main process
+			if (window.electronApi?.areYouThere?.updateTranscriptionActivity) {
+				window.electronApi.areYouThere.updateTranscriptionActivity();
+			}
+			console.log(
+				'🎤 Meaningful transcription detected:',
+				transcriptText.substring(0, 50) + '...',
+			);
+		} else {
+			console.log('🎤 Empty or partial transcription received - not updating activity timer');
+		}
+
 		setInfo((prev) => {
 			const transcriptions = prev.transcriptions || [];
-
-			// Get the transcript text from various possible sources
-			const transcriptText =
-				newTranscript.transcript || newTranscript.displayedText || newTranscript.text || '';
 
 			// Check if this transcript already exists (to avoid duplicates)
 			const existingTranscript = transcriptions.find(
@@ -155,11 +165,14 @@ const OverlayApp = () => {
 		isConnected,
 		isRecording,
 		isMuted,
+		isPaused,
 		timer,
 		connectionStatus,
 		startAudioCapture,
 		stopRecording,
 		toggleMute,
+		pauseRecording,
+		resumeRecording,
 		// formatTime,
 		startRecording,
 	} = useAssemblyTranscription({
@@ -167,16 +180,6 @@ const OverlayApp = () => {
 		onLiveIntelligenceResponse: handleTranscriptionSuggestions,
 		notification,
 	});
-
-	const { closeWebSocketConnection: closeLiveIntelligenceConnection } =
-		useLiveIntelligenceStream();
-
-	// Recall Stream Hook for Live Intelligence
-	const {
-		createWebSocketConnection: createRecallConnection,
-		closeWebSocketConnection: closeRecallConnection,
-		sendMessage: sendRecallMessage,
-	} = useRecallStream();
 
 	// Utility Functions
 	const formatTime = (seconds) => {
@@ -279,8 +282,6 @@ const OverlayApp = () => {
 		sessionIdRef.current = null;
 
 		stopRecording({ meetingId: info?.meetingData?._id });
-		closeLiveIntelligenceConnection();
-		closeRecallConnection();
 
 		// Reset stopping flag after cleanup
 		setTimeout(() => {
@@ -289,13 +290,12 @@ const OverlayApp = () => {
 	};
 
 	const handleTogglePause = () => {
-		const newIsPaused = !info?.isPaused;
-		setInfo((prev) => ({
-			...prev,
-			isPaused: newIsPaused,
-		}));
-		toggleMute();
-		console.log('isMuted', isMuted);
+		if (isPaused) {
+			resumeRecording();
+		} else {
+			pauseRecording();
+		}
+		console.log('isPaused', isPaused);
 	};
 
 	// Effects
@@ -323,11 +323,11 @@ const OverlayApp = () => {
 					break;
 				case 'pauseRecording':
 					console.log('⏸️ Dynamic Island PAUSE: Pausing recording...');
-					handleTogglePause();
+					pauseRecording();
 					break;
 				case 'resumeRecording':
 					console.log('▶️ Dynamic Island RESUME: Resuming recording...');
-					handleTogglePause();
+					resumeRecording();
 					break;
 				case 'toggleLiveIntelligence':
 					console.log(
@@ -396,6 +396,42 @@ const OverlayApp = () => {
 		return () => clearInterval(interval);
 	}, []);
 
+	// Listen for Are You There window events to hide overlay content
+	useEffect(() => {
+		const handleAreYouThereShow = (data) => {
+			console.log('🏠 Are You There window shown - hiding overlay content', data);
+
+			// Hide the overlay content when Are You There window appears
+			if (activePanel) {
+				setActivePanel(null);
+			}
+			setShowShortcutBar(false);
+		};
+
+		const handleAreYouThereHide = () => {
+			console.log('🏠 Are You There window hidden - overlay content can be shown again');
+			// Note: We don't automatically restore the panel here as it should be controlled by user interaction
+		};
+
+		// Set up listeners for Are You There window events
+		if (window.electronApi?.areYouThere?.onShowCommand) {
+			window.electronApi.areYouThere.onShowCommand(handleAreYouThereShow);
+		}
+
+		if (window.electronApi?.areYouThere?.onCloseCommand) {
+			window.electronApi.areYouThere.onCloseCommand(handleAreYouThereHide);
+		}
+
+		return () => {
+			if (window.electronApi?.areYouThere?.removeShowCommandListener) {
+				window.electronApi.areYouThere.removeShowCommandListener();
+			}
+			if (window.electronApi?.areYouThere?.removeCloseCommandListener) {
+				window.electronApi.areYouThere.removeCloseCommandListener();
+			}
+		};
+	}, [activePanel]);
+
 	const handleListenClick = async () => {
 		// Toggle live intelligence panel and automatically start recording when opening
 		// This is used by ShortcutBar - shows ShortcutBar
@@ -446,6 +482,13 @@ const OverlayApp = () => {
 		}
 	};
 
+	const handleHideOverlay = () => {
+		// Hide overlay window without stopping recording
+		if (window.electronApi?.overlay?.hideOverlayWindow) {
+			window.electronApi.overlay.hideOverlayWindow();
+		}
+	};
+
 	const handleShowTranscript = () => {
 		setActivePanel('transcript');
 	};
@@ -458,7 +501,7 @@ const OverlayApp = () => {
 	const sendRecordingStateUpdate = () => {
 		const state = {
 			isRecording,
-			isPaused: isMuted,
+			isPaused: isPaused,
 			timer,
 			isLiveIntelligenceOpen: activePanel === 'live-intelligence',
 			transcriptionsCount: info?.transcriptions?.length,
@@ -515,13 +558,12 @@ const OverlayApp = () => {
 		let calculatedHeight = rect.height;
 
 		// Dynamic width calculation based on layout - use exact content width
-		if (activePanel === 'live-intelligence' ){
+		if (activePanel === 'live-intelligence') {
 			// Panel is open: use exact panel width without extra padding
 			calculatedWidth = 830; // Exact panel width
 		} else if (activePanel === 'transcript') {
 			calculatedWidth = 560; // Exact panel width
-		}
-		else if (showShortcutBar && !isDynamicIslandControlled) {
+		} else if (showShortcutBar && !isDynamicIslandControlled) {
 			// Only shortcut bar visible: use actual content width
 			calculatedWidth = Math.max(rect.width, 400);
 		} else {
@@ -607,12 +649,21 @@ const OverlayApp = () => {
 		}
 	}, [activePanel, calculateDynamicDimensions]);
 
+	// Sync isPaused state with hook
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			isPaused: isPaused,
+		}));
+	}, [isPaused]);
+
 	// Send state updates to Dynamic Island when recording state changes
 	useEffect(() => {
 		sendRecordingStateUpdate();
 	}, [
 		isRecording,
 		isMuted,
+		isPaused,
 		timer,
 		activePanel,
 		info?.transcriptions?.length,
@@ -689,11 +740,11 @@ const OverlayApp = () => {
 						<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
 					</div>
 					<LiveIntelligencePanel
-						onClose={handleClosePanel}
+						onClose={handleHideOverlay}
 						onShowTranscript={handleShowTranscript}
 						transcriptions={aiTranscriptionSuggestions}
 						isRecording={isRecording}
-						isPaused={isMuted}
+						isPaused={isPaused}
 						timer={timer}
 						formatTime={formatTime}
 						socketData={info?.liveIntelligenceData}
@@ -707,11 +758,11 @@ const OverlayApp = () => {
 						<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
 					</div>
 					<TranscriptPanel
-						onClose={handleClosePanel}
+						onClose={handleHideOverlay}
 						onShowLiveIntelligence={handleShowLiveIntelligence}
 						transcriptions={info?.transcriptions}
 						isRecording={isRecording}
-						isPaused={isMuted}
+						isPaused={isPaused}
 						timer={timer}
 						isConnected={isConnected}
 						// localAudioTrack={localAudioTrack}

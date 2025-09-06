@@ -1,0 +1,195 @@
+.are-you-there-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	// background: rgba(0, 0, 0, 0.416);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 10000;
+	// backdrop-filter: blur(8px);
+	border: 0.5px solid rgba(255, 255, 255, 0.15);
+	background: rgba(0, 0, 0, 0.7);
+	backdrop-filter: blur(4px);
+}
+
+.are-you-there-container {
+	background: rgba(0, 0, 0, 0.415);
+	border: 1px solid #ffffff48;
+	border-radius: 16px;
+	padding: 12px;
+
+	max-width: 350px;
+	width: 90%;
+	text-align: center;
+	position: relative;
+	overflow: hidden;
+}
+
+.are-you-there-content {
+	position: relative;
+	z-index: 1;
+}
+
+.are-you-there-header {
+	border-radius: 4px;
+
+	margin-bottom: 12px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 6px;
+}
+
+.are-you-there-title {
+	color: #ffffff;
+	font-size: 18px;
+	font-weight: 600;
+	margin: 0;
+	line-height: 1.35;
+	text-align: center;
+}
+
+.are-you-there-description {
+	color: #ffffff;
+	font-size: 12px;
+	margin: 0;
+	line-height: 1.5;
+	text-align: center;
+	max-width: 269px;
+}
+
+.transcription-warning {
+	margin-top: 8px;
+	padding: 6px 12px;
+	background: rgba(255, 193, 7, 0.1);
+	border: 1px solid rgba(255, 193, 7, 0.3);
+	border-radius: 8px;
+
+	.warning-text {
+		color: #ffc107;
+		font-size: 11px;
+		margin: 0;
+		font-weight: 500;
+	}
+}
+
+.timeout-message {
+	color: rgba(255, 255, 255, 0.7);
+	font-size: 10px;
+	margin: 4px 0 0 0;
+	line-height: 1.4;
+}
+
+.countdown-timer {
+	color: rgba(255, 255, 255, 0.8);
+	font-size: 14px;
+	margin-bottom: 12px;
+	text-align: center;
+
+	.countdown-number {
+		color: #ffd700;
+		font-weight: 600;
+		font-size: 18px;
+		animation: pulse 1s ease-in-out infinite;
+	}
+}
+
+.button-group {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	align-items: stretch;
+}
+
+.action-button {
+	border-radius: 100px;
+	border: 0.5px solid rgba(255, 255, 255, 0.335);
+	padding: 8px 12px;
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 1.35;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	text-align: center;
+	width: 100%;
+	background-color: transparent;
+	gap: 6px;
+
+	&:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+	}
+
+	&:active {
+		transform: translateY(0);
+	}
+
+	&:focus {
+		outline: none;
+		box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+	}
+}
+
+.primary-button {
+	background: none;
+	color: #fff;
+
+	&:hover {
+		transform: translateY(-1px);
+	}
+}
+
+.secondary-button {
+	background: none;
+	color: #fff;
+
+	&:hover {
+		transform: translateY(-1px);
+	}
+}
+
+.danger-button {
+	background: #c03744;
+	color: #ffffff;
+	border: none;
+
+	&:hover {
+		background: #a82f3a;
+	}
+}
+
+// Animations
+@keyframes pulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.7;
+	}
+}
+
+// Responsive design
+@media (max-width: 480px) {
+	.are-you-there-container {
+		margin: 20px;
+		max-width: 320px;
+	}
+
+	.are-you-there-header {
+		padding: 24px 6px;
+	}
+
+	.are-you-there-title {
+		font-size: 16px;
+	}
+
+	.action-button {
+		padding: 10px 12px;
+		font-size: 11px;
+	}
+}

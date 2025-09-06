@@ -128,15 +128,19 @@ const AskAIApp = () => {
 			}, 100); // Small delay to ensure everything is ready
 		};
 
-		// Listen for chat messages from Dynamic Island
+		// Listen for chat messages from Dynamic Island or NotchDrop
 		const handleChatMessage = (chatMessage) => {
-			console.log('💬 Received chat message from Dynamic Island:', chatMessage);
+			console.log('💬 Received chat message:', chatMessage);
 
-			if (chatMessage.type === 'dynamic-island-chat' && chatMessage.message) {
-				// Set the received message for display purposes
-				setReceivedDynamicIslandMessage(chatMessage.message);
+			const isDynamicIsland = chatMessage.type === 'dynamic-island-chat';
+			const isNotchDrop = chatMessage.type === 'notchdrop-chat';
 
-				// Don't set the message in the input field - process it directly
+			if ((isDynamicIsland || isNotchDrop) && chatMessage.message) {
+				// Show indicator only for Dynamic Island
+				if (isDynamicIsland) {
+					setReceivedDynamicIslandMessage(chatMessage.message);
+				}
+
 				// Auto-focus the input for user interaction
 				if (inputRef.current) {
 					inputRef.current.focus();

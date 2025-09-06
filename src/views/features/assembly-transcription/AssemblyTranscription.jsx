@@ -21,7 +21,7 @@ const AssemblyTranscription = (props) => {
 
 	const isElectron = !!window.electronApi;
 
-	if (isElectron) return null;
+	// if (isElectron) return null;
 
 	// Helper function to determine if start button should be disabled
 	const isStartDisabled = () => {
