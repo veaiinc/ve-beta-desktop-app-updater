@@ -2,6 +2,8 @@ import React from 'react';
 import './empty-meet-bot-list.scss';
 import emptylist from './emptylist.png';
 const EmptyMeetBotList = () => {
+
+
 	return (
 		<div className="empty-meet-bot-container">
 			<div className="empty-meet-bot-header">

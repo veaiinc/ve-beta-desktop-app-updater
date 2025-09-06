@@ -1,0 +1,519 @@
+.notchdrop-latest-ui {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	user-select: none;
+	-webkit-user-select: none;
+	background: transparent;
+	border-radius: 16px;
+	overflow: hidden;
+
+	// Main content area
+	.notch-content {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 16px;
+		gap: 16px;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.8);
+		backdrop-filter: blur(20px);
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		border-radius: 16px;
+		transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+	}
+
+	// Share section
+	.share-section {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 16px;
+		width: 100%;
+
+		.share-button {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			width: 80px;
+			height: 80px;
+			border-radius: 16px;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			position: relative;
+			background: rgba(255, 255, 255, 0.1);
+			border: 2px solid transparent;
+
+			.button-icon {
+				width: 32px;
+				height: 32px;
+				margin-bottom: 8px;
+				color: white;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+
+				svg {
+					width: 100%;
+					height: 100%;
+					fill: currentColor;
+				}
+			}
+
+			.button-label {
+				font-size: 12px;
+				font-weight: 600;
+				color: white;
+				text-align: center;
+				opacity: 0.8;
+			}
+
+			// Specific button styles
+			&.airdrop {
+				background: linear-gradient(
+					135deg,
+					rgba(0, 122, 255, 0.3) 0%,
+					rgba(0, 122, 255, 0.1) 100%
+				);
+				border-color: rgba(0, 122, 255, 0.3);
+
+				&:hover {
+					background: linear-gradient(
+						135deg,
+						rgba(0, 122, 255, 0.5) 0%,
+						rgba(0, 122, 255, 0.2) 100%
+					);
+					transform: scale(1.05);
+					border-color: rgba(0, 122, 255, 0.6);
+				}
+			}
+
+			&.generic {
+				background: linear-gradient(
+					135deg,
+					rgba(52, 199, 89, 0.3) 0%,
+					rgba(52, 199, 89, 0.1) 100%
+				);
+				border-color: rgba(52, 199, 89, 0.3);
+
+				&:hover {
+					background: linear-gradient(
+						135deg,
+						rgba(52, 199, 89, 0.5) 0%,
+						rgba(52, 199, 89, 0.2) 100%
+					);
+					transform: scale(1.05);
+					border-color: rgba(52, 199, 89, 0.6);
+				}
+			}
+
+			&:active {
+				transform: scale(0.95);
+			}
+		}
+	}
+
+	// Tray section
+	.tray-section {
+		width: 100%;
+		max-width: 400px;
+		min-height: 120px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+
+		.empty-tray {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			padding: 20px;
+			gap: 12px;
+
+			.empty-icon {
+				width: 48px;
+				height: 48px;
+				color: rgba(255, 255, 255, 0.6);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+
+				svg {
+					width: 100%;
+					height: 100%;
+					fill: currentColor;
+				}
+			}
+
+			.empty-text {
+				font-size: 14px;
+				font-weight: 600;
+				color: rgba(255, 255, 255, 0.8);
+				line-height: 1.4;
+			}
+
+			.empty-subtext {
+				font-size: 12px;
+				color: rgba(255, 255, 255, 0.5);
+				font-weight: 500;
+			}
+		}
+
+		.file-list {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			max-height: 200px;
+			overflow-y: auto;
+
+			&::-webkit-scrollbar {
+				width: 4px;
+			}
+
+			&::-webkit-scrollbar-track {
+				background: rgba(255, 255, 255, 0.1);
+				border-radius: 2px;
+			}
+
+			&::-webkit-scrollbar-thumb {
+				background: rgba(255, 255, 255, 0.3);
+				border-radius: 2px;
+			}
+
+			.file-item {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				padding: 12px;
+				background: rgba(255, 255, 255, 0.05);
+				border-radius: 12px;
+				cursor: pointer;
+				transition: all 0.2s ease;
+				border: 1px solid rgba(255, 255, 255, 0.1);
+
+				&:hover {
+					background: rgba(255, 255, 255, 0.1);
+					border-color: rgba(255, 255, 255, 0.2);
+					transform: translateY(-1px);
+				}
+
+				.file-icon {
+					font-size: 20px;
+					width: 24px;
+					text-align: center;
+				}
+
+				.file-info {
+					flex: 1;
+					min-width: 0;
+
+					.file-name {
+						font-size: 14px;
+						font-weight: 600;
+						color: white;
+						margin-bottom: 2px;
+						white-space: nowrap;
+						overflow: hidden;
+						text-overflow: ellipsis;
+					}
+
+					.file-meta {
+						font-size: 11px;
+						color: rgba(255, 255, 255, 0.6);
+						font-weight: 500;
+					}
+				}
+
+				.delete-button {
+					width: 20px;
+					height: 20px;
+					border-radius: 50%;
+					background: rgba(255, 59, 48, 0.8);
+					color: white;
+					border: none;
+					cursor: pointer;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					font-size: 14px;
+					font-weight: bold;
+					transition: all 0.2s ease;
+					opacity: 0;
+
+					&:hover {
+						background: rgba(255, 59, 48, 1);
+						transform: scale(1.1);
+					}
+				}
+
+				&:hover .delete-button {
+					opacity: 1;
+				}
+			}
+		}
+	}
+
+	// Settings panel
+	.settings-panel {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.9);
+		backdrop-filter: blur(20px);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 24px;
+		opacity: 0;
+		pointer-events: none;
+		transition: all 0.3s ease;
+
+		&.visible {
+			opacity: 1;
+			pointer-events: auto;
+		}
+
+		.settings-header {
+			margin-bottom: 24px;
+
+			h3 {
+				color: white;
+				font-size: 20px;
+				font-weight: 700;
+				text-align: center;
+				margin: 0;
+			}
+		}
+
+		.settings-content {
+			width: 100%;
+			max-width: 300px;
+			display: flex;
+			flex-direction: column;
+			gap: 20px;
+
+			.setting-item {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 16px;
+				background: rgba(255, 255, 255, 0.05);
+				border-radius: 12px;
+				border: 1px solid rgba(255, 255, 255, 0.1);
+
+				.setting-label {
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+					width: 100%;
+					color: white;
+					font-size: 14px;
+					font-weight: 600;
+
+					span {
+						flex: 1;
+					}
+
+					.toggle-switch {
+						position: relative;
+						display: inline-block;
+						width: 44px;
+						height: 24px;
+
+						input {
+							opacity: 0;
+							width: 0;
+							height: 0;
+
+							&:checked + .toggle-slider {
+								background-color: #007aff;
+
+								&:before {
+									transform: translateX(20px);
+								}
+							}
+						}
+
+						.toggle-slider {
+							position: absolute;
+							cursor: pointer;
+							top: 0;
+							left: 0;
+							right: 0;
+							bottom: 0;
+							background-color: #ccc;
+							transition: 0.3s;
+							border-radius: 24px;
+
+							&:before {
+								position: absolute;
+								content: '';
+								height: 18px;
+								width: 18px;
+								left: 3px;
+								bottom: 3px;
+								background-color: white;
+								transition: 0.3s;
+								border-radius: 50%;
+							}
+						}
+					}
+
+					.storage-select {
+						background: rgba(255, 255, 255, 0.1);
+						border: 1px solid rgba(255, 255, 255, 0.2);
+						border-radius: 8px;
+						color: white;
+						padding: 6px 12px;
+						font-size: 12px;
+						font-weight: 600;
+
+						option {
+							background: rgba(0, 0, 0, 0.9);
+							color: white;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Loading state
+	&.loading {
+		.tray-section {
+			position: relative;
+
+			&::before {
+				content: '';
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				width: 40px;
+				height: 40px;
+				margin: -20px 0 0 -20px;
+				border: 3px solid rgba(255, 255, 255, 0.1);
+				border-top: 3px solid #007aff;
+				border-radius: 50%;
+				animation: spin 1s linear infinite;
+			}
+		}
+	}
+
+	@keyframes spin {
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
+	}
+
+	// Expanded/collapsed states
+	&.collapsed {
+		.notch-content {
+			transform: scale(0.8);
+			opacity: 0;
+		}
+	}
+
+	&.expanded {
+		.notch-content {
+			transform: scale(1);
+			opacity: 1;
+		}
+	}
+
+	// Responsive design
+	@media (max-width: 600px) {
+		.notch-content {
+			padding: 12px;
+			gap: 12px;
+
+			.share-section {
+				gap: 12px;
+
+				.share-button {
+					width: 60px;
+					height: 60px;
+
+					.button-icon {
+						width: 24px;
+						height: 24px;
+						margin-bottom: 4px;
+					}
+
+					.button-label {
+						font-size: 10px;
+					}
+				}
+			}
+
+			.tray-section {
+				min-height: 100px;
+
+				.empty-tray {
+					padding: 16px;
+					gap: 8px;
+
+					.empty-icon {
+						width: 32px;
+						height: 32px;
+					}
+
+					.empty-text {
+						font-size: 12px;
+					}
+
+					.empty-subtext {
+						font-size: 10px;
+					}
+				}
+
+				.file-list {
+					max-height: 150px;
+
+					.file-item {
+						padding: 8px;
+
+						.file-info {
+							.file-name {
+								font-size: 12px;
+							}
+
+							.file-meta {
+								font-size: 10px;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+	.notchdrop-latest-ui {
+		.notch-content {
+			background: rgba(0, 0, 0, 0.85);
+			border-color: rgba(255, 255, 255, 0.15);
+		}
+
+		.settings-panel {
+			background: rgba(0, 0, 0, 0.95);
+		}
+	}
+}

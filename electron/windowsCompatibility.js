@@ -14,11 +14,8 @@ function loadSharpModule() {
 	try {
 		// Try to load sharp normally first
 		sharpModule = require('sharp');
-		log.info('✅ Sharp module loaded successfully');
 		return sharpModule;
 	} catch (error) {
-		log.warn('⚠️ Sharp module load failed, attempting Windows-specific fix...');
-
 		try {
 			// Windows-specific fallback - try to rebuild and load
 			if (process.platform === 'win32') {
@@ -26,7 +23,6 @@ function loadSharpModule() {
 				const path = require('path');
 
 				// Try to rebuild sharp for Windows
-				log.info('🔧 Rebuilding sharp module for Windows...');
 				try {
 					execSync('npm rebuild sharp --platform=win32 --arch=x64', {
 						cwd: path.join(__dirname, '..'),
@@ -35,7 +31,6 @@ function loadSharpModule() {
 
 					// Try loading again
 					sharpModule = require('sharp');
-					log.info('✅ Sharp module rebuilt and loaded successfully for Windows');
 					return sharpModule;
 				} catch (rebuildError) {
 					log.error('❌ Failed to rebuild sharp module:', rebuildError.message);
