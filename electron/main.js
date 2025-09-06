@@ -3279,28 +3279,28 @@ app.whenReady().then(async () => {
 	});
 
 	// Wake word service IPC handlers
-	ipcMain.handle('wake-word-start', () => {
-		if (wakeWordService) {
-			wakeWordService.start();
-			return { success: true };
-		}
-		return { success: false, error: 'Wake word service not initialized' };
-	});
+	// ipcMain.handle('wake-word-start', () => {
+	// 	if (wakeWordService) {
+	// 		wakeWordService.start();
+	// 		return { success: true };
+	// 	}
+	// 	return { success: false, error: 'Wake word service not initialized' };
+	// });
 
-	ipcMain.handle('wake-word-stop', () => {
-		if (wakeWordService) {
-			wakeWordService.stop();
-			return { success: true };
-		}
-		return { success: false, error: 'Wake word service not initialized' };
-	});
+	// ipcMain.handle('wake-word-stop', () => {
+	// 	if (wakeWordService) {
+	// 		wakeWordService.stop();
+	// 		return { success: true };
+	// 	}
+	// 	return { success: false, error: 'Wake word service not initialized' };
+	// });
 
-	ipcMain.handle('wake-word-status', () => {
-		return {
-			success: true,
-			isRunning: wakeWordService ? wakeWordService.isRunning : false,
-		};
-	});
+	// ipcMain.handle('wake-word-status', () => {
+	// 	return {
+	// 		success: true,
+	// 		isRunning: wakeWordService ? wakeWordService.isRunning : false,
+	// 	};
+	// });
 
 	// Microphone permission check handler
 	ipcMain.handle('check-microphone-permission', async () => {
@@ -3872,11 +3872,11 @@ function cleanupAndQuit() {
 		}
 
 		// 3. Clean up Wake Word Service
-		if (wakeWordService) {
-			log.info('🧹 Cleaning up Wake Word Service...');
-			wakeWordService.stop();
-			wakeWordService = null;
-		}
+		// if (wakeWordService) {
+		// 	log.info('🧹 Cleaning up Wake Word Service...');
+		// 	wakeWordService.stop();
+		// 	wakeWordService = null;
+		// }
 
 		// 3. Close main window if it exists
 		if (mainWindow && !mainWindow.isDestroyed()) {
