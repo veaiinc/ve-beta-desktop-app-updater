@@ -2,9 +2,8 @@ import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import getBaseUrl from '../../services/baseUrls';
 import Context from '../../context/context';
 
-// const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
+const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
 
-const wsUrl = 'wss://gazelle-ruling-monster.ngrok-free.app/frontend/ws';
 
 const useAssemblyTranscription = ({
 	onTranscriptionUpdate,
@@ -513,6 +512,20 @@ const useAssemblyTranscription = ({
 		[log],
 	);
 
+	const hasAudioSignal = useCallback((audioData) => {
+		// Calculate RMS (Root Mean Square) to detect actual audio signal
+		let sum = 0;
+		for (let i = 0; i < audioData.length; i++) {
+			sum += audioData[i] * audioData[i];
+		}
+		const rms = Math.sqrt(sum / audioData.length);
+
+		// Threshold for silence detection (adjust as needed)
+		const silenceThreshold = 0.001; // Very low threshold to catch whispers
+
+		return rms > silenceThreshold;
+	}, []);
+
 	const startAudioCapture = useCallback(async () => {
 		try {
 			log('Starting audio capture...');
@@ -535,14 +548,16 @@ const useAssemblyTranscription = ({
 			log('Requesting screen capture access...');
 			const screenStream = await navigator.mediaDevices.getDisplayMedia({
 				audio: true,
-				video: true,
+				video: false,
 			});
 			screenStreamRef.current = screenStream;
 			log('Screen capture access granted');
 
 			// Create audio context
 			log('Creating audio context...');
-			const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+			const audioContext = new (window.AudioContext || window.webkitAudioContext)({
+				sampleRate: 16000,
+			});
 			audioContextRef.current = audioContext;
 			log(`Audio context created with sample rate: ${audioContext.sampleRate}Hz`);
 
@@ -607,7 +622,7 @@ const useAssemblyTranscription = ({
 
 					// Send mic audio data in chunks (adjust for actual sample rate)
 					const targetSamples = Math.floor(audioContext.sampleRate * 0.5); // 0.5 seconds worth
-					if (micSampleCountRef.current >= targetSamples) {
+					if (micSampleCountRef.current >= 8000) {
 						if (
 							!muteRef.current &&
 							websocketRef.current?.readyState === WebSocket.OPEN
@@ -620,8 +635,12 @@ const useAssemblyTranscription = ({
 								audioData[i] = Math.max(-32768, Math.min(32767, sample * 32768));
 							}
 
-							log(`Sending mic audio chunk: ${audioData.length} samples`);
-							sendAudioData(audioData, 'mic');
+							if (hasAudioSignal(micBufferRef.current)) {
+								log(`Sending mic audio chunk: ${audioData.length} samples`);
+								sendAudioData(audioData, 'mic');
+							} else {
+								log('Skipping silent mic audio chunk');
+							}
 						}
 
 						// Reset mic buffer
@@ -694,8 +713,11 @@ const useAssemblyTranscription = ({
 
 						// Send screen audio data in chunks
 						const targetSamples = Math.floor(audioContext.sampleRate * 0.5); // 0.5 seconds worth
-						if (screenSampleCountRef.current >= targetSamples) {
-							if (websocketRef.current?.readyState === WebSocket.OPEN) {
+						if (screenSampleCountRef.current >= 8000) {
+							if (
+								!muteRef.current &&
+								websocketRef.current?.readyState === WebSocket.OPEN
+							) {
 								const audioData = new Int16Array(screenBufferRef.current.length);
 
 								// Convert float32 to int16 efficiently
@@ -707,8 +729,12 @@ const useAssemblyTranscription = ({
 									);
 								}
 
-								log(`Sending screen audio chunk: ${audioData.length} samples`);
-								sendAudioData(audioData, 'screen');
+								if (hasAudioSignal(screenBufferRef.current)) {
+									log(`Sending screen audio chunk: ${audioData.length} samples`);
+									sendAudioData(audioData, 'screen');
+								} else {
+									log('Skipping silent screen audio chunk');
+								}
 							}
 
 							// Reset screen buffer
