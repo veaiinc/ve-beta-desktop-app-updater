@@ -1173,6 +1173,15 @@ app.whenReady().then(async () => {
 		return false;
 	});
 
+	session.defaultSession.setDisplayMediaRequestHandler(
+		(request, callback) => {
+			desktopCapturer.getSources({ types: ['screen'] }).then((sources) => {
+				callback({ video: sources[0], audio: 'loopback' });
+			});
+		},
+		{ useSystemPicker: true },
+	);
+
 	// Check macOS microphone permission status (macOS only)
 	if (process.platform === 'darwin') {
 		// Check microphone permission status (this is synchronous)

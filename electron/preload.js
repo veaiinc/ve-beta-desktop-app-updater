@@ -355,4 +355,12 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	navigateMainWindow: (data) => ipcRenderer.invoke('navigate-main-window', data),
 	onNavigate: (callback) => ipcRenderer.on('navigate-to', (_, path) => callback(path)),
+
+	startScreenCapture: () => ipcRenderer.invoke('start-screen-capture'),
+
+	onScreenAudio: (callback) => {
+		ipcRenderer.on('screen-audio', (_event, data) => {
+			callback(data);
+		});
+	},
 });
