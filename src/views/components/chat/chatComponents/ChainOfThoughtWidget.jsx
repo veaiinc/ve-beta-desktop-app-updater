@@ -12,8 +12,7 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 	});
 	const contentContainerRef = useRef(null);
 	const containerRef = useRef(null);
-	const { deepSearch, deepResearch, normalSearch, memory_thinking, stream_end, message } =
-		messageData;
+	const { deepResearch, stream_end, message, chainOfThought } = messageData;
 	const chainOfThoughtCompleted = message?.length > 0 || stream_end || false;
 
 	useEffect(() => {
@@ -44,26 +43,26 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 
 	const handleExpandClick = useCallback(() => {
 		const chainOfThoughtCompleted = messageData?.stream_end || messageData?.message?.length > 0;
+
 		if (
 			chainOfThoughtCompleted ||
-			messageData?.deepResearch ||
-			messageData?.deepSearch ||
-			messageData?.normalSearch
+			messageData?.chainOfThought?.length > 0 ||
+			messageData?.deepResearch
 		) {
 			setInfo((prev) => ({ ...prev, isExpanded: !prev?.isExpanded }));
 		}
 	}, [messageData]);
 
 	const text = useMemo(() => {
-		const { deepSearch, deepResearch, message, stream_end } = messageData || {};
+		const { deepResearch, message, stream_end, chainOfThought } = messageData || {};
 		if (message?.length > 0 || stream_end) {
-			return deepSearch || normalSearch
+			return chainOfThought?.length > 0
 				? 'Search Completed'
-				: deepSearch
+				: deepResearch
 				? 'Research Completed'
 				: 'Thinking';
 		}
-		return deepResearch ? 'Researching' : deepSearch || normalSearch ? 'Searching' : 'Thinking';
+		return deepResearch ? 'Researching' : chainOfThought?.length > 0 ? 'Searching' : 'Thinking';
 	}, [messageData]);
 
 	return (
@@ -91,11 +90,7 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 				</div>
 			</div>
 			<div className="widget-content-container" ref={contentContainerRef}>
-				{memory_thinking && !(deepResearch || deepSearch || normalSearch) && (
-					<div className="memory-thinking">{memory_thinking || ''}</div>
-				)}
-
-				{(deepResearch || deepSearch || normalSearch) && (
+				{(deepResearch || chainOfThought?.length > 0) && (
 					<div className="content-container">
 						{deepResearch && (
 							<DeepResearchChainOfThought
@@ -104,22 +99,15 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 							/>
 						)}
 
-						{(deepSearch || normalSearch) && (
+						{chainOfThought?.length > 0 && (
 							<DeepSearchChainOfThought
-								data={deepSearch || normalSearch}
+								data={chainOfThought}
 								showOnlyLastThought={!chainOfThoughtCompleted && !info?.isExpanded}
 								streamEnd={chainOfThoughtCompleted || false}
-								memoryThinking={memory_thinking}
 							/>
 						)}
 					</div>
 				)}
-
-				{/* {!(messageData?.message?.length > 0 || messageData?.stream_end) && (
-					<div className="loader-container">
-						<div className="loader-text">Thinking... </div>
-					</div>
-				)} */}
 			</div>
 		</div>
 	);

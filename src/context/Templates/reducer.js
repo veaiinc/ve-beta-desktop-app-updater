@@ -330,7 +330,9 @@ const actionHandlers = {
 		}
 
 		let requiredIndex = -1;
-		messages = messages?.filter((ele) => ele?.contentType !== 'loading');
+		if (payload?.processing !== 'Normal Search') {
+			messages = messages?.filter((ele) => ele?.contentType !== 'loading');
+		}
 
 		for (let i = messages?.length - 1; i >= 0; i--) {
 			if (messages?.[i]?.message_chunk_id === chunkId) {
@@ -350,40 +352,9 @@ const actionHandlers = {
 
 		if (requiredIndex !== -1) {
 			const message = messages?.[requiredIndex];
-			let { processing, browserChainOfThought = {} } = message;
-			if (processing === 'Deep Search') {
-				let deepSearch = message?.deepSearch || {};
-				let cot = deepSearch?.cot || [];
-				if (payload?.step && payload?.step_id) {
-					cot?.push({
-						step: payload?.step,
-						step_id: payload?.step_id,
-					});
-				} else if (payload?.reading && payload?.step_id) {
-					cot = cot?.map((item) => {
-						if (item?.step_id === payload?.step_id) {
-							item.readings = [
-								...(item?.readings || []),
-								{ reading: payload?.reading },
-							];
-						}
-						return item;
-					});
-				}
+			let { processing, browserChainOfThought = {}, cot } = message;
 
-				deepSearch = {
-					...deepSearch,
-					cot,
-				};
-
-				messages[requiredIndex] = {
-					...message,
-					...payload,
-					message: (message?.message || '') + (payload?.answer || ''),
-					messageId: payload?.message_id,
-					deepSearch,
-				};
-			} else if (processing === 'Deep Research') {
+			if (processing === 'Deep Research') {
 				let deepResearch = message?.deepResearch || {};
 				let cot = deepResearch?.cot || [];
 				let sections = deepResearch?.sections || [];
@@ -528,16 +499,16 @@ const actionHandlers = {
 					deepResearch,
 					messageId: payload?.message_id,
 				};
-			} else if (processing === 'Normal Search') {
-				let normalSearch = message?.normalSearch || {};
-				let cot = normalSearch?.cot || [];
+			} else if (cot === 'chain_of_thought' || payload?.step || payload?.reading) {
+				let chainOfThought = [...(message?.chainOfThought || [])];
 
 				if (payload?.step) {
-					cot?.push({
+					chainOfThought?.push({
 						step: payload?.step,
+						step_id: payload?.step_id,
 					});
 				} else if (payload?.reading && payload?.step_id) {
-					cot = cot?.map((item) => {
+					chainOfThought = chainOfThought?.map((item) => {
 						if (item?.step_id === payload?.step_id) {
 							item.readings = [
 								...(item?.readings || []),
@@ -547,16 +518,13 @@ const actionHandlers = {
 						return item;
 					});
 				}
-				normalSearch = {
-					...normalSearch,
-					cot,
-				};
+
 				messages[requiredIndex] = {
 					...message,
 					...payload,
 					message: (message?.message || '') + (payload?.answer || ''),
 					messageId: payload?.message_id,
-					normalSearch,
+					chainOfThought,
 				};
 			} else {
 				const { toolType, planType } = payload;

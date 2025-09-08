@@ -26,10 +26,8 @@ const AIMessageRenderer = ({
 						<div className="error-message">Something went wrong. Please try again.</div>
 					) : (
 						<>
-							{(messageData?.processing === 'Deep Search' ||
-								messageData?.processing === 'Deep Research' ||
-								messageData?.normalSearch?.cot?.length > 0 ||
-								messageData?.memory_thinking) && (
+							{(messageData?.processing === 'Deep Research' ||
+								messageData?.chainOfThought?.length > 0) && (
 								<ChainOfThoughtWidget messageData={messageData} />
 							)}
 							<AIMessage

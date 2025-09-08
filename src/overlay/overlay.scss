@@ -39,7 +39,6 @@
 	z-index: 1;
 	pointer-events: auto;
 	background: transparent; /* Make it invisible but functional */
-	
 }
 
 // Commands Section (now empty since moved to ShortcutBar)
@@ -87,7 +86,7 @@
 	overflow: hidden;
 	z-index: 10000;
 	position: relative;
-	
+
 	// background: rgba(0, 0, 0, 0.65);
 	// backdrop-filter: blur(12px);
 	// -webkit-backdrop-filter: blur(12px);
@@ -109,12 +108,12 @@
 	left: 0;
 	right: 0;
 	height: 16px;
-	
+
 	-webkit-app-region: drag;
 	app-region: drag;
 	z-index: 1;
 	pointer-events: auto;
-	background: rgba(0, 0, 0, 0.199);
+	// background: rgba(0, 0, 0, 0.199);
 	border: 1px solid rgba(255, 255, 255, 0.146);
 }
 
@@ -169,8 +168,8 @@
 	app-region: drag;
 	z-index: 1;
 	pointer-events: auto;
-	background:   rgba(0, 0, 0, 0.199);
-	border: 1px solid  rgba(255, 255, 255, 0.146);
+	background: rgba(0, 0, 0, 0.199);
+	border: 1px solid rgba(255, 255, 255, 0.146);
 }
 
 // Transcript drag handle with grip icon

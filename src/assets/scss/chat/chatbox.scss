@@ -59,7 +59,7 @@
 			align-items: flex-start;
 			width: 100%;
 			padding: 12px 8px;
-			border-radius: 24px;
+			border-radius: 16px;
 			background-color: var(--card-over-card-hover);
 
 			.reply-text {
@@ -505,13 +505,14 @@
 				}
 
 				&.active {
+					background-color: var(--stroke);
 					svg {
 						path {
-							fill: var(--info);
+							fill: var(--primary-button);
 						}
 					}
 					.btn-text {
-						color: var(--info);
+						color: var(--primary-button);
 					}
 				}
 			}
@@ -639,8 +640,8 @@
 			align-items: center;
 			gap: 24px;
 			align-self: stretch;
-			border-radius: 8px;
-			background: var(--card, #18191b);
+			border-radius: 16px;
+			background: var(--chat-box, #18191b);
 			width: 100%;
 
 			.left-container {

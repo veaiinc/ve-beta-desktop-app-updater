@@ -81,37 +81,6 @@
 			justify-content: center;
 		}
 
-		.tabsContainer {
-			display: flex;
-			flex-wrap: wrap;
-			gap: 10px;
-			max-height: 93px;
-			overflow-y: auto;
-			flex-shrink: 0;
-
-			.tab {
-				padding: 6px 14px;
-				max-width: 200px;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				white-space: nowrap;
-				border-radius: 100px;
-				background: var(--primary-font);
-				cursor: pointer;
-				color: var(--background-color, #121212);
-				font-family: var(--primary-font-family);
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				border: 2px solid transparent;
-				height: 36px;
-
-				&.active {
-					border: 2px solid var(--primary-button);
-				}
-			}
-		}
-
 		.browserIframeContainer {
 			width: 100%;
 			display: flex;
@@ -156,12 +125,6 @@
 		}
 	}
 }
-
-// @media (max-width: 1600px) {
-// 	.browserIframeContainer {
-// 		align-items: center !important;
-// 	}
-// }
 
 @media (max-width: 1250px) {
 	.browserContainer.open {

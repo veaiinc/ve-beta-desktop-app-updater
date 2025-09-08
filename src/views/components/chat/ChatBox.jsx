@@ -926,7 +926,7 @@ const ChatBox = ({
 					}
 
 					if (isDirectSearchAgent) {
-						payload.direct_search_agent = true;
+						payload.direct_agent = 'search_agent';
 						updateStateValues({
 							isDirectSearchAgent: false,
 						});
@@ -1347,7 +1347,7 @@ const ChatBox = ({
 			uploadedImages.splice(requiredFileIndex, 1);
 			uploadedImagesRef.current = uploadedImages;
 			setInfo((prev) => ({ ...prev, uploadedImages }));
-			deleteUploadedImageThroughChat(ele?.fileId);
+			// deleteUploadedImageThroughChat(ele?.fileId);
 		},
 		[info, uploadedImagesRef],
 	);
