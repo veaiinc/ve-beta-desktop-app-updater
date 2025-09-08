@@ -13,15 +13,15 @@
 			align-items: center;
 			gap: 6px;
 			border-radius: 6px;
-			background: var(--card-over-card-hover, #202123);
+			background: var(--card-hover);
 			// border: 1px solid var(--stroke);
 			transition: all 0.2s ease-in-out;
 
 			&:hover {
-				background-color: var(--primary-font);
+				background-color: var(--card-over-card-hover);
 				// border: 1px solid var(--background-color);
 				.citation-text {
-					color: var(--background-color);
+					color: var(--primary-font);
 				}
 			}
 
@@ -63,13 +63,17 @@
 				text-overflow: ellipsis;
 				white-space: nowrap;
 				transition: all 0.2s ease-in-out;
-				color: var(--primary-font, #f2f2f3);
+				color: var(--secondary-font);
 				font-family: var(--chat-primary-font-family);
 				font-size: 10px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
 				letter-spacing: 0.2px;
+
+				&:first-letter {
+					text-transform: capitalize;
+				}
 			}
 		}
 	}
