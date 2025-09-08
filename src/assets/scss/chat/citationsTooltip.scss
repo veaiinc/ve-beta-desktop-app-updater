@@ -1,6 +1,6 @@
 .citation-container {
 	cursor: pointer !important;
-	margin: 0 0 0 2px;
+	margin: 0 0 0 4px;
 	padding: 0;
 	background-color: transparent;
 	display: inline-block;
@@ -13,7 +13,7 @@
 			align-items: center;
 			gap: 6px;
 			border-radius: 6px;
-			background: var(--card-hover);
+			background: var(--card-over-card-hover);
 			// border: 1px solid var(--stroke);
 			transition: all 0.2s ease-in-out;
 
