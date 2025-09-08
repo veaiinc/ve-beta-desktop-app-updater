@@ -18,10 +18,10 @@
 			transition: all 0.2s ease-in-out;
 
 			&:hover {
-				background-color: var(--card-over-card-hover);
+				background-color: var(--primary-font);
 				// border: 1px solid var(--background-color);
 				.citation-text {
-					color: var(--primary-font);
+					color: var(--background-color);
 				}
 			}
 
@@ -62,7 +62,7 @@
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
-				transition: all 0.2s ease-in-out;
+				transition: all 0.2s ease-out;
 				color: var(--secondary-font);
 				font-family: var(--chat-primary-font-family);
 				font-size: 10px;
