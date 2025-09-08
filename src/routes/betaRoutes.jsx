@@ -1,6 +1,8 @@
 import { Navigate } from 'react-router-dom';
+import { Suspense } from 'react';
 // layouts
 import AuthWrapper from '../views/layouts/authWrapper';
+import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 import GalleryViewLayout from '../views/layouts/galleryViewLayout';
 import AutomationBuilderLayout from '../views/layouts/automationBuilderLayout';
 import SmartFileLayout from '../views/layouts/smartFileLayout';
@@ -70,9 +72,26 @@ const betaRoutes = [
 	{
 		path: '/home',
 		element: (
-			<AuthWrapper title={'Tools'}>
-				<InitialHomePage />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title={'Priority'}
+					outerContainerStyle={{ overflow: 'hidden' }}
+					childrenContainerStyles={{ overflow: 'auto' }}
+					showBottomToolbar={false}
+				>
+					<ProactiveSuggestions />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/tools',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Tools'}>
+					<InitialHomePage />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	{
