@@ -189,9 +189,6 @@ const getIntegrationInfo = (appType) => {
 		'microsoft-outlook-mail': { icon: outlookMail, title: 'Outlook Mail' },
 	};
 
-	// Debug logging to see what appType we're receiving
-	console.log('getIntegrationInfo called with appType:', appType);
-
 	const info = integrationMap[appType];
 	if (!info) {
 		console.warn(`No integration info found for app type: ${appType}`);
