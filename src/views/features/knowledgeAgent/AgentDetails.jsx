@@ -130,7 +130,7 @@ const KnowledgeAgentDetails = ({ isTemplate }) => {
 				updateExtraInfo: true,
 			});
 		}
-	}, [agentId]);
+	}, [agentId, info?.sessionId]);
 
 	useEffect(() => {
 		if (!isTemplate) {
