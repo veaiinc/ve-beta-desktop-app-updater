@@ -165,7 +165,7 @@ const LiveIntelligencePanel = ({
 									title="Click to ask AI about this thread"
 								>
 									<div className="thread-category">
-										{getCategoryLabel(thread.entity, thread.type)}
+									{getCategoryLabel(thread.type,thread.entity)}
 									</div>
 									<div className="thread-question">
 										{thread.prompt || thread.name || 'No content available'}
