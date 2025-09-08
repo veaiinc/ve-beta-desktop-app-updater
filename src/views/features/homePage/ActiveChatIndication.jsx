@@ -31,6 +31,7 @@ const ActiveChatIndication = ({ activeChatData }) => {
 	const [info, setInfo] = useState({
 		previousChats: 0,
 		activeChatIndex: -1,
+		isMobileView: window.matchMedia('(max-width: 767px)').matches,
 	});
 
 	const chats = aiChatSessions?.data;
@@ -152,21 +153,25 @@ const ActiveChatIndication = ({ activeChatData }) => {
 			placement="center"
 			color="transparent"
 		>
-			<div className={s.chatsWrapper}>
-				{chats?.length && <div className={s.previousChatsCount}>{info?.previousChats}</div>}
+			{!info?.isMobileView && (
+				<div className={s.chatsWrapper}>
+					{chats?.length && (
+						<div className={s.previousChatsCount}>{info?.previousChats}</div>
+					)}
 
-				<div className={s.activeChatIndication}>
-					{tabArray?.map((tab, index) => (
-						<div
-							className={`${s.chatTab} ${
-								index === info?.activeChatIndex ? s.active : ''
-							}`}
-							key={index}
-						/>
-					))}
+					<div className={s.activeChatIndication}>
+						{tabArray?.map((tab, index) => (
+							<div
+								className={`${s.chatTab} ${
+									index === info?.activeChatIndex ? s.active : ''
+								}`}
+								key={index}
+							/>
+						))}
+					</div>
+					{chats?.length && <div className={s.totalChatsCount}>{chats?.length}</div>}
 				</div>
-				{chats?.length && <div className={s.totalChatsCount}>{chats?.length}</div>}
-			</div>
+			)}
 		</Tooltip>
 	);
 };

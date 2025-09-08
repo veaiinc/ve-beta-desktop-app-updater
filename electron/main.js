@@ -415,11 +415,9 @@ let notchDropService = null;
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 
-// Windows-specific auto-updater configuration
-if (process.platform === 'win32') {
-	// Enable auto-download for both dev and production
-	autoUpdater.autoDownload = true;
-}
+// Configure auto-updater for all platforms
+autoUpdater.autoDownload = false; // Manual control for better error handling
+autoUpdater.autoInstallOnAppQuit = true;
 
 // Update event forwarding
 autoUpdater.on('checking-for-update', () => {
@@ -431,23 +429,20 @@ autoUpdater.on('update-available', (info) => {
 
 	// Notify frontend that update is available
 	mainWindow?.webContents.send('update-status', {
-		status: 'download-started',
+		status: 'available',
 		version: info.version,
 	});
 
-	// If auto-download is disabled, start manual download
-	if (!autoUpdater.autoDownload) {
-		autoUpdater.downloadUpdate().catch((downloadErr) => {
-			log.error('Manual download failed:', downloadErr);
-			mainWindow?.webContents.send('update-status', {
-				status: 'download-failed',
-				error: downloadErr.message,
-				details: { code: downloadErr.code },
-			});
+	// Start manual download since autoDownload is false
+	log.info('Starting update download...');
+	autoUpdater.downloadUpdate().catch((downloadErr) => {
+		log.error('Download failed:', downloadErr);
+		mainWindow?.webContents.send('update-status', {
+			status: 'download-failed',
+			error: downloadErr.message,
+			details: { code: downloadErr.code },
 		});
-	} else {
-		log.info('Auto-download enabled, update will download automatically');
-	}
+	});
 });
 
 autoUpdater.on('update-not-available', (info) => {
@@ -458,41 +453,75 @@ autoUpdater.on('update-not-available', (info) => {
 autoUpdater.on('error', (err) => {
 	log.error('Update error:', err);
 
-	// Handle Windows checksum mismatch specifically
+	let errorStatus = {
+		status: 'error',
+		error: err.message,
+		details: { code: err.code, errno: err.errno },
+	};
+
+	// Handle specific error types
 	if (err.message.includes('checksum mismatch') || err.code === 'ERR_CHECKSUM_MISMATCH') {
-		log.warn('Checksum mismatch detected - this may be due to unsigned builds on Windows');
-		mainWindow?.webContents.send('update-status', {
+		log.warn('Checksum mismatch detected - likely due to unsigned builds');
+		errorStatus = {
 			status: 'checksum-error',
 			error: 'Update verification failed. This may be due to unsigned builds.',
 			details: {
 				code: err.code,
 				errno: err.errno,
-				suggestion: 'Manual download may be required',
+				suggestion: 'Try manual download or check for signed releases',
 			},
-		});
-	} else {
-		mainWindow?.webContents.send('update-status', {
-			status: 'error',
-			error: err.message,
-			details: { code: err.code, errno: err.errno },
-		});
+		};
+	} else if (err.message.includes('ENOENT') || err.message.includes('404')) {
+		errorStatus = {
+			status: 'not-found',
+			error: 'Update file not found on server.',
+			details: { code: err.code },
+		};
+	} else if (err.message.includes('network') || err.message.includes('ENOTFOUND')) {
+		errorStatus = {
+			status: 'network-error',
+			error: 'Network error while checking for updates.',
+			details: { code: err.code },
+		};
+	} else if (err.message.includes('ditto') || err.message.includes('No such file or directory')) {
+		errorStatus = {
+			status: 'installation-error',
+			error: 'Update installation failed due to file system error.',
+			details: {
+				code: err.code,
+				suggestion:
+					'Please try restarting the app manually or download the update from the releases page.',
+			},
+		};
 	}
+
+	mainWindow?.webContents.send('update-status', errorStatus);
 });
 
 autoUpdater.on('update-downloaded', (info) => {
 	log.info('Update downloaded:', info);
 
-	// Show user-friendly message
+	// Show user-friendly message about automatic restart
 	mainWindow?.webContents.send('update-status', {
-		status: 'download-completed',
+		status: 'downloaded',
 		version: info.version,
-		message: 'Update ready! App will restart in 3 seconds...',
+		message: 'Update downloaded! App will restart automatically in 3 seconds...',
 	});
 
 	// Auto-restart after 3 seconds
 	setTimeout(() => {
-		log.info('Restarting app to install update...');
-		autoUpdater.quitAndInstall();
+		log.info('Auto-restarting app to install update...');
+
+		// Clean up before restart
+		if (dynamicIslandHelper) {
+			dynamicIslandHelper.destroy();
+		}
+		if (windowHelper) {
+			windowHelper.cleanup();
+		}
+
+		// Restart automatically
+		autoUpdater.quitAndInstall(true, false); // Wait for windows to close gracefully
 	}, 3000);
 });
 
@@ -625,9 +654,30 @@ ipcMain.handle('download-update', async () => {
 });
 
 ipcMain.handle('restart-app', () => {
-	if (process.env.NODE_ENV === 'development') return { success: false };
-	autoUpdater.quitAndInstall();
-	return { success: true };
+	if (process.env.NODE_ENV === 'development') {
+		return { success: false, error: 'Not available in development' };
+	}
+
+	try {
+		// Clean up before restart
+		if (dynamicIslandHelper) {
+			dynamicIslandHelper.destroy();
+		}
+		if (windowHelper) {
+			windowHelper.cleanup();
+		}
+
+		log.info('Restarting app to install update...');
+
+		// Use safer restart approach - wait for windows to close gracefully
+		// This helps avoid file system conflicts during update
+		autoUpdater.quitAndInstall(true, false); // Wait for windows to close, don't force quit
+
+		return { success: true };
+	} catch (error) {
+		log.error('Error restarting app:', error);
+		return { success: false, error: error.message };
+	}
 });
 
 // Add manual download handler for Windows checksum issues
@@ -1025,9 +1075,9 @@ function createWindow(restoreState = false) {
 		const possiblePaths = [
 			path.join(__dirname, 'assets', 'app-logo.ico'),
 			path.join(__dirname, '..', 'electron', 'assets', 'app-logo.ico'),
-			path.join(process.cwd(), 'electron', 'assets', 'app-logo.ico')
+			path.join(process.cwd(), 'electron', 'assets', 'app-logo.ico'),
 		];
-		
+
 		// Find the first path that exists
 		for (const testPath of possiblePaths) {
 			if (require('fs').existsSync(testPath)) {
@@ -1035,7 +1085,7 @@ function createWindow(restoreState = false) {
 				break;
 			}
 		}
-		
+
 		// Fallback to the first path if none exist
 		if (!iconPath) {
 			iconPath = possiblePaths[0];
@@ -1284,10 +1334,10 @@ app.whenReady().then(async () => {
 	log.info('🚀 Creating Dynamic Island FIRST for instant display...');
 	dynamicIslandHelper = new DynamicIslandHelper();
 	dynamicIslandHelper.createDynamicIslandWindow();
-	
+
 	// THEN: Create main window after dynamic island
 	createWindow();
-	
+
 	createTray(); // Create system tray for Windows
 	createMenuBar();
 
@@ -2966,7 +3016,7 @@ app.whenReady().then(async () => {
 	ipcMain.handle('get-askAI-input-focus', async () => {
 		try {
 			const focusState = global.askAIInputFocused || false;
-	
+
 			return { success: true, isFocused: focusState };
 		} catch (error) {
 			log.error('Error getting ask AI input focus state:', error);
