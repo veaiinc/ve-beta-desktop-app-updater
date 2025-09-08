@@ -149,7 +149,6 @@ const IntegrationConnectModel = ({
 	};
 
 	const handleConnect = async (access) => {
-		console.log('handleConnect', access);
 		if (!integration) return;
 
 		setIsConnecting(true);
