@@ -1578,36 +1578,41 @@ export const TemplatesState = (props) => {
 			console.log('errror ==>sendCustomEmailToClients', error);
 		}
 	};
-	const getAuthUrlForThirdParty = async (connectType) => {
+	const getAuthUrlForThirdParty = async (connectType, access) => {
 		try {
 			const token = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
 			let path, response;
+			let origin = window.location.origin;
+			if (origin === 'http://localhost:5173') {
+				origin = 'https://ve.ai';
+			}
 
+			let currentURl = origin + window.location.pathname;
 			switch (connectType) {
 				case 'gmail':
-					path = `/auth/gmail/${workspaceId}`;
+					path = `/auth/gmail/${workspaceId}?access=${access}`;
 					response = await Service?.fetchGet(path, token, 'calendar_api');
 					break;
 				case 'google-calendar':
-					path = `/google-calendar/${workspaceId}/auth`;
+					path = `/google-calendar/${workspaceId}/auth?access=${access}`;
 					response = await Service?.fetchGet(path, token, 'calendar_api');
 					break;
 				case 'slack':
-					path = `/slack/${workspaceId}/auth`;
+					path = `/slack/${workspaceId}/auth?access=${access}`;
 					response = await Service?.fetchGet(path, token, 'third_party_integrations_api');
 					break;
 				case 'outlook-calendar':
-					path = `/outlookcalendar/${workspaceId}/auth`;
+					path = `/outlookcalendar/${workspaceId}/auth?access=${access}`;
 					response = await Service?.fetchGet(path, token, 'microsoft_integration_api');
 					break;
 				case 'outlook-mail':
-					path = `/outlookmail/${workspaceId}/auth`;
+					path = `/outlookmail/${workspaceId}/auth?access=${access}`;
 					response = await Service?.fetchGet(path, token, 'microsoft_integration_api');
 					break;
 				default:
 					// For other integrations, use the generic pattern
-					path = `/${connectType}/${workspaceId}/auth`;
+					path = `/${connectType}/${workspaceId}/auth?access=${access}`;
 					response = await Service?.fetchGet(path, token, 'third_party_integrations_api');
 					break;
 			}
@@ -1620,6 +1625,54 @@ export const TemplatesState = (props) => {
 		} catch (error) {
 			console.error('Error getting auth URL:', error);
 			throw error;
+		}
+	};
+	const disconnectThirdParty = async (connectType, id) => {
+		console.log('disconnectThirdParty', connectType, id);
+		try {
+			const token = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			let path, response, apiType;
+
+			const disconnectConfig = {
+				gmail: {
+					path: `/auth/gmail/${workspaceId}/${id}/deactivate-integration`,
+					apiType: 'calendar_api',
+				},
+				'google-calendar': {
+					path: `/google-calendar/${workspaceId}/${id}/deactivate-integration`,
+					apiType: 'calendar_api',
+				},
+				slack: {
+					path: `/slack/${workspaceId}/${id}/deactivate-integration`,
+					apiType: 'third_party_integrations_api',
+				},
+				'outlook-calendar': {
+					path: `/outlookcalendar/${workspaceId}/${id}/deactivate-integration`,
+					apiType: 'microsoft_integration_api',
+				},
+				'outlook-mail': {
+					path: `/outlookmail/${workspaceId}/${id}/deactivate-integration`,
+					apiType: 'microsoft_integration_api',
+				},
+			};
+
+			const config = disconnectConfig[connectType] || {
+				path: `/${connectType}/${workspaceId}/${id}/deactivate-integration`,
+				apiType: 'third_party_integrations_api',
+			};
+
+			path = config.path;
+			apiType = config.apiType;
+			response = await Service?.fetchPut(path, null, token, apiType);
+
+			if (response?.[0]) {
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>disconnectThirdParty', error);
 		}
 	};
 
@@ -3046,6 +3099,7 @@ export const TemplatesState = (props) => {
 		updateSlug,
 		getNotificationsList,
 		getAuthUrlForThirdParty,
+		disconnectThirdParty,
 		handleResetBrowserInactivityState,
 	};
 };

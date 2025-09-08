@@ -148,7 +148,8 @@ const IntegrationConnectModel = ({
 		return false;
 	};
 
-	const handleConnect = async () => {
+	const handleConnect = async (access) => {
+		console.log('handleConnect', access);
 		if (!integration) return;
 
 		setIsConnecting(true);
@@ -158,7 +159,7 @@ const IntegrationConnectModel = ({
 
 		try {
 			// Get the authorization URL
-			const authUrl = await getAuthUrlForThirdParty(integration.connectType);
+			const authUrl = await getAuthUrlForThirdParty(integration.connectType, access);
 
 			if (authUrl) {
 				// Open authorization window
@@ -378,19 +379,39 @@ const IntegrationConnectModel = ({
 									other {integration?.title} files as context in your chats.
 								</p>
 
-								<div
-									className="connect-button-container"
-									onClick={handleConnect}
-									style={{ cursor: isConnecting ? 'not-allowed' : 'pointer' }}
-								>
-									{isConnecting ? (
-										<>
-											<span className="loading-spinner"></span>
-											<span className="connect-text">Connecting...</span>
-										</>
-									) : (
-										<span className="connect-text">Connect just for me</span>
-									)}
+								<div className="connect-button-container-wrapper">
+									<div
+										className="connect-button-container"
+										onClick={() => handleConnect('private')}
+										style={{ cursor: isConnecting ? 'not-allowed' : 'pointer' }}
+									>
+										{isConnecting ? (
+											<>
+												<span className="loading-spinner"></span>
+												<span className="connect-text">Connecting...</span>
+											</>
+										) : (
+											<span className="connect-text">
+												Connect just for me
+											</span>
+										)}
+									</div>
+									<div
+										className="connect-button-container"
+										onClick={() => handleConnect('shared')}
+										style={{ cursor: isConnecting ? 'not-allowed' : 'pointer' }}
+									>
+										{isConnecting ? (
+											<>
+												<span className="loading-spinner"></span>
+												<span className="connect-text">Connecting...</span>
+											</>
+										) : (
+											<span className="connect-text">
+												Connect just for Everyone
+											</span>
+										)}
+									</div>
 								</div>
 							</>
 						)}
