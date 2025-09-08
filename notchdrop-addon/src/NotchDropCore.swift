@@ -87,8 +87,8 @@ class NotchDropWindow: NSWindow {
         window.hasShadow = false
         window.collectionBehavior = [
             .fullScreenAuxiliary,
-            .stationary,
             .canJoinAllSpaces,
+            .stationary,
             .ignoresCycle,
         ]
         
@@ -123,6 +123,10 @@ class NotchDropWindow: NSWindow {
                 let statusString = String(describing: newStatus)
                 self?.status = statusString
                 self?.statusChangedCallback?(statusString)
+                // Ensure the notch window stays visible/above when opening (especially in fullscreen spaces)
+                if statusString == "opened" {
+                    self?.notchWindow?.orderFrontRegardless()
+                }
             }
             .store(in: &vm.cancellables)
 
@@ -138,6 +142,58 @@ class NotchDropWindow: NSWindow {
         
         // Make window visible initially (same as NotchDropLatest)
         window.makeKeyAndOrderFront(nil)
+
+        // Follow active space changes to keep the window visible above full-screen spaces
+        NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.activeSpaceDidChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self, let window = self.notchWindow, let screen = window.screen else { return }
+            // Reposition to the top of the current screen and bring forward
+            let screenFrame = screen.frame
+            let notchHeight: CGFloat = 200
+            let topRect = CGRect(
+                x: screenFrame.origin.x,
+                y: screenFrame.origin.y + screenFrame.height - notchHeight,
+                width: screenFrame.width,
+                height: notchHeight
+            )
+            window.setFrame(topRect, display: false)
+            window.orderFrontRegardless()
+        }
+
+        // Also react to screen reconfiguration (external monitors attach/detach)
+        NotificationCenter.default.addObserver(
+            forName: NSApplication.didChangeScreenParametersNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self, let window = self.notchWindow else { return }
+            // Keep the window on the primary/builtin screen if present
+            if let target = self.findScreenFitsOurNeeds() {
+                let screenFrame = target.frame
+                let notchHeight: CGFloat = 200
+                let topRect = CGRect(
+                    x: screenFrame.origin.x,
+                    y: screenFrame.origin.y + screenFrame.height - notchHeight,
+                    width: screenFrame.width,
+                    height: notchHeight
+                )
+                window.setFrame(topRect, display: false)
+                // Recompute VM rects
+                var notchSize = target.notchSize
+                if notchSize == .zero { notchSize = .init(width: 150, height: 28) }
+                self.notchViewModel?.deviceNotchRect = CGRect(
+                    x: screenFrame.origin.x + (screenFrame.width - notchSize.width) / 2,
+                    y: screenFrame.origin.y + screenFrame.height - notchSize.height,
+                    width: notchSize.width,
+                    height: notchSize.height
+                )
+                self.notchViewModel?.screenRect = screenFrame
+            }
+            window.orderFrontRegardless()
+        }
     }
     
     // Add the same screen selection logic as NotchDropLatest
@@ -375,6 +431,8 @@ class NotchDropWindow: NSWindow {
             swiftActionCallback?("triggerOverlayToggleLiveIntelligence", "")
         case .sendLog(let message):
             swiftActionCallback?("sendLog", message)
+        case .navigateToMainScreen:
+            swiftActionCallback?("navigateToMainScreen", "")
         }
     }
 }
