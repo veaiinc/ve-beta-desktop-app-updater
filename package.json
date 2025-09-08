@@ -282,7 +282,7 @@
 					]
 				}
 			],
-			"icon": "./electron/assets/ve-black-circle-logo.png",
+			"icon": "./electron/assets/app-logo.ico",
 			"artifactName": "Ve.AI-${arch}-${os}.${ext}",
 			"requestedExecutionLevel": "asInvoker",
 			"verifyUpdateCodeSignature": false,

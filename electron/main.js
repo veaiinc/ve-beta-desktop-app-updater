@@ -1046,10 +1046,8 @@ function createWindow(restoreState = false) {
 		iconPath = path.join(__dirname, 'assets', 've-black-circle-logo.png');
 	}
 
-	// Debug: Log the icon path and check if file exists
-	log.info('🔍 Icon path:', iconPath);
-	log.info('🔍 __dirname:', __dirname);
-	log.info('🔍 File exists:', require('fs').existsSync(iconPath));
+	// Log the icon path being used
+	log.info('🎨 Using icon:', iconPath);
 
 	mainWindow = new BrowserWindow({
 		title: 'Ve AI - Priority',
