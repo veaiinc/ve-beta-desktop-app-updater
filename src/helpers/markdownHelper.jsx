@@ -644,11 +644,11 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 			)}
 			{!info?.editUserQuery ? (
 				<div className="hover-actions-container">
-					{/* <div className="icon-container">
+					<div className="icon-container">
 						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Edit'}>
 							<PencilSparkleIcon onClick={handleEditUserQueryToggle} />
 						</Tooltip>
-					</div> */}
+					</div>
 
 					<div className="icon-container">
 						<Tooltip
