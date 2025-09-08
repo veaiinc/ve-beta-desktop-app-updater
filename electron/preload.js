@@ -353,4 +353,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 			ipcRenderer.removeAllListeners('notchdrop-file-dropped');
 		},
 	},
+
+	navigateMainWindow: (data) => ipcRenderer.invoke('navigate-main-window', data),
+	onNavigate: (callback) => ipcRenderer.on('navigate-to', (_, path) => callback(path)),
 });

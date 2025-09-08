@@ -18,9 +18,11 @@ const publicRoutes = [
 	{
 		path: '/',
 		element: (
-			<Public>
-				<LandingPage />
-			</Public>
+			// <Public>
+			// 	<LandingPage />
+			// </Public>
+			<Navigate to="/verify-user" replace />
+			
 		),
 	},
 	{
