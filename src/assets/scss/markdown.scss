@@ -163,8 +163,8 @@
 	}
 
 	.ol {
+		list-style-type: decimal;
 		.li {
-			list-style-type: decimal;
 			&::marker {
 				font-size: calc(var(--font-size) * 1);
 				color: var(--primary-font);
@@ -174,8 +174,11 @@
 	}
 
 	.ul {
+		list-style-type: disc;
+		.ul {
+			list-style-type: circle;
+		}
 		.li {
-			list-style-type: disc;
 			&::marker {
 				font-size: calc(var(--font-size) * 1);
 				color: var(--primary-font);
@@ -185,7 +188,6 @@
 	}
 
 	.li {
-		// color: var(--chat-secondary-font);
 		color: var(--primary-font);
 		font-family: var(--chat-primary-font-family);
 		letter-spacing: 0.25px;
@@ -348,5 +350,23 @@
 				}
 			}
 		}
+	}
+}
+
+.markdown-custom-animate {
+	.li {
+		opacity: 0;
+		animation: chat-fade-in 0.8s ease-in-out forwards;
+	}
+
+	.chat-fade-in {
+		opacity: 0;
+		animation: chat-fade-in 0.8s ease-in-out forwards;
+	}
+}
+
+@keyframes chat-fade-in {
+	to {
+		opacity: 1;
 	}
 }

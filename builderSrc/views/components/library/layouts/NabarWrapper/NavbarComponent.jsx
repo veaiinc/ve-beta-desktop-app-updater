@@ -966,7 +966,13 @@ class NavbarComponent extends Component {
 												className="cart-count"
 											>
 												{this.props?.currencySymbol}
-												{this.props?.finalTotalCost || 0}
+												{this.props?.finalTotalCost?.toLocaleString(
+													`en-${
+														this.props?.currencySymbol == '$'
+															? 'US'
+															: 'IN'
+													}`,
+												) || 0}
 											</div>
 										)}
 									</div>
@@ -1267,10 +1273,11 @@ class NavbarComponent extends Component {
 													: `${
 															this.props?.currencySymbol
 													  } ${this.props?.returnCartValue()}`?.toLocaleString(
-															'en-IN',
-															{
-																currency: 'INR',
-															},
+															`en-${
+																this.props?.currencySymbol == '$'
+																	? 'US'
+																	: 'IN'
+															}`,
 													  )}
 											</div>
 										)}
