@@ -805,10 +805,10 @@ function createMenuBar() {
 		...(isMac
 			? [
 					{
-						label: 'NotchDrop',
+						label: 'Notch',
 						submenu: [
 							{
-								label: 'Open NotchDrop',
+								label: 'Open Notch',
 								accelerator: 'CmdOrCtrl+N',
 								click: async () => {
 									try {
@@ -825,7 +825,7 @@ function createMenuBar() {
 								},
 							},
 							{
-								label: 'Close NotchDrop',
+								label: 'Close Notch',
 								accelerator: 'CmdOrCtrl+Shift+N',
 								click: async () => {
 									try {
@@ -845,7 +845,7 @@ function createMenuBar() {
 								type: 'separator',
 							},
 							{
-								label: 'Toggle NotchDrop',
+								label: 'Toggle Notch',
 								accelerator: 'CmdOrCtrl+T',
 								click: async () => {
 									try {
@@ -1348,6 +1348,119 @@ app.whenReady().then(async () => {
 	log.info('📋 Phase 1: Initializing WindowHelper...');
 	windowHelper = new WindowHelper();
 	windowHelper.registerGlobalShortcuts(mainWindow);
+
+	// Phase 1.2: CRITICAL FIX: Register all IPC handlers before window creation
+	log.info('📋 Phase 1.2: Registering IPC handlers before window creation...');
+
+	// Register Ask AI window IPC handlers
+	ipcMain.handle('toggle-askAI-window', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.toggleAskAIWindow();
+			return { success: true };
+		} catch (error) {
+			log.error('Error toggling Ask AI window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('show-askAI-window', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.showAskAIWindow();
+			return { success: true };
+		} catch (error) {
+			log.error('Error showing Ask AI window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('is-askAI-window-visible', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			const isVisible = windowHelper.isAskAIWindowVisible();
+			return { success: true, isVisible };
+		} catch (error) {
+			log.error('Error checking Ask AI window visibility:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('update-askAI-dimensions', async (event, { width, height }) => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.updateAskAIWindowDimensions(width, height);
+			return { success: true };
+		} catch (error) {
+			log.error('Error updating Ask AI dimensions:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('set-askAI-ignore-mouse-events', async (event, ignore) => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			const askAIWindow = windowHelper.getAskAIWindow();
+			if (askAIWindow && !askAIWindow.isDestroyed()) {
+				askAIWindow.setIgnoreMouseEvents(ignore);
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error setting Ask AI ignore mouse events:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Handler to track ask AI input focus state
+	ipcMain.handle('set-askAI-input-focus', async (event, isFocused) => {
+		try {
+			// Store the focus state globally so overlay can access it
+			global.askAIInputFocused = isFocused;
+			return { success: true };
+		} catch (error) {
+			log.error('Error setting ask AI input focus state:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Handler to get ask AI input focus state
+	ipcMain.handle('get-askAI-input-focus', async () => {
+		try {
+			const focusState = global.askAIInputFocused || false;
+			log.info(`🔍 Getting ask AI input focus state: ${focusState}`);
+			return { success: true, isFocused: focusState };
+		} catch (error) {
+			log.error('Error getting ask AI input focus state:', error);
+			return { success: false, error: error.message };
+		}
+	});
+	log.info('✅ Registered get-askAI-input-focus IPC handler');
+
+	// Handler to hide all windows (overlay and ask AI)
+	ipcMain.handle('hide-all-windows', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.hideAllWindows();
+			return { success: true };
+		} catch (error) {
+			log.error('Error hiding all windows:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	log.info('✅ Ask AI IPC handlers registered before window creation');
 
 	// Phase 1.5: CRITICAL FIX: Pre-create overlay window for immediate response
 	log.info('📋 Phase 1.5: Pre-creating overlay window for instant Swift UI response...');
@@ -2898,58 +3011,6 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	ipcMain.handle('toggle-askAI-window', async () => {
-		try {
-			if (!windowHelper) {
-				return { success: false, error: 'Window helper not initialized' };
-			}
-			windowHelper.toggleAskAIWindow();
-			return { success: true };
-		} catch (error) {
-			log.error('Error toggling Ask AI window:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('show-askAI-window', async () => {
-		try {
-			if (!windowHelper) {
-				return { success: false, error: 'Window helper not initialized' };
-			}
-			windowHelper.showAskAIWindow();
-			return { success: true };
-		} catch (error) {
-			log.error('Error showing Ask AI window:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('is-askAI-window-visible', async () => {
-		try {
-			if (!windowHelper) {
-				return { success: false, error: 'Window helper not initialized' };
-			}
-			const isVisible = windowHelper.isAskAIWindowVisible();
-			return { success: true, isVisible };
-		} catch (error) {
-			log.error('Error checking Ask AI window visibility:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('update-askAI-dimensions', async (event, { width, height }) => {
-		try {
-			if (!windowHelper) {
-				return { success: false, error: 'Window helper not initialized' };
-			}
-			windowHelper.updateAskAIWindowDimensions(width, height);
-			return { success: true };
-		} catch (error) {
-			log.error('Error updating Ask AI dimensions:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
 	// CRITICAL FIX: Add missing update-overlay-dimensions handler
 	ipcMain.handle('update-overlay-dimensions', async (event, { width, height }) => {
 		try {
@@ -3603,65 +3664,7 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	// Send chat message from Dynamic Island to Ask AI handler
-	ipcMain.handle('send-chat-message-to-askai', async (event, chatMessage) => {
-		try {
-			log.info('Sending chat message from Dynamic Island to Ask AI:', chatMessage);
-
-			// Get the Ask AI window through windowHelper
-			let askAIWindow = windowHelper.getAskAIWindow();
-
-			// If Ask AI window doesn't exist or is destroyed, create it
-			if (!askAIWindow || askAIWindow.isDestroyed()) {
-				log.info('Ask AI window not available, creating new window...');
-				windowHelper.createAskAIWindow();
-
-				// Wait for window to be created and ready
-				await new Promise((resolve) => setTimeout(resolve, 150));
-
-				// Get the window reference again after creating it
-				askAIWindow = windowHelper.getAskAIWindow();
-				if (askAIWindow) {
-					await waitForAskAIReady(askAIWindow);
-				}
-			}
-
-			// Ensure window is visible
-			if (askAIWindow && !askAIWindow.isDestroyed()) {
-				if (!askAIWindow.isVisible()) {
-					log.info('Ask AI window exists but not visible, showing it...');
-					windowHelper.showAskAIWindow();
-					// Wait a bit for the window to be fully visible
-					await new Promise((resolve) => setTimeout(resolve, 200));
-				}
-
-				// Ensure listeners are ready; then send and do a safety resend
-				await waitForAskAIReady(askAIWindow);
-				askAIWindow.webContents.send('receive-chat-message', chatMessage);
-				setTimeout(() => {
-					try {
-						if (askAIWindow && !askAIWindow.isDestroyed()) {
-							askAIWindow.webContents.send('receive-chat-message', chatMessage);
-							log.info('🔁 Re-sent chat to Ask AI (safety resend)');
-						}
-					} catch (e) {
-						log.warn('⚠️ Safety resend (AskAI) failed:', e);
-					}
-				}, 400);
-				log.info('Chat message sent to Ask AI window successfully');
-				return { success: true };
-			} else {
-				log.error('Ask AI window not available after creation attempts');
-				return { success: false, error: 'Ask AI window not available' };
-			}
-		} catch (error) {
-			log.error('Error sending chat message to Ask AI:', error);
-			return {
-				success: false,
-				error: error.message,
-			};
-		}
-	});
+	// Duplicate handler removed - keeping the first registration around line 1592
 
 	// Force open AskAI window handler (fallback for Dynamic Island)
 	ipcMain.handle('force-open-askai-window', async () => {
