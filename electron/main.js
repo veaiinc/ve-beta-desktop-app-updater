@@ -143,7 +143,7 @@ class DynamicIslandHelper {
 				preload: path.join(__dirname, 'preload.js'),
 				devTools: true, // Enable dev tools in production too
 			},
-			show: false,
+			show: true, // Show immediately when created
 			alwaysOnTop: true,
 			frame: false, // Frameless to blend with menu bar
 			transparent: true,
@@ -183,10 +183,10 @@ class DynamicIslandHelper {
 		// Set initial mouse event handling - start with mouse events ignored since it's collapsed
 		this.setMouseEventHandling(true);
 
-		// Show the window
+		// Show the window immediately
 		this.dynamicIslandWindow.show();
-
-		log.info('Dynamic Island window created and shown');
+		this.isVisible = true;
+		log.info('Dynamic Island window created and shown immediately');
 
 		// Listen for resize events from the renderer
 		this.dynamicIslandWindow.webContents.on('did-finish-load', () => {
@@ -278,6 +278,7 @@ class DynamicIslandHelper {
 		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
 			this.dynamicIslandWindow.show();
 			this.isVisible = true;
+			log.info('Dynamic Island shown');
 		}
 	}
 
@@ -414,11 +415,9 @@ let notchDropService = null;
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 
-// Windows-specific auto-updater configuration
-if (process.platform === 'win32') {
-	// Enable auto-download for both dev and production
-	autoUpdater.autoDownload = true;
-}
+// Configure auto-updater for all platforms
+autoUpdater.autoDownload = false; // Manual control for better error handling
+autoUpdater.autoInstallOnAppQuit = true;
 
 // Update event forwarding
 autoUpdater.on('checking-for-update', () => {
@@ -430,23 +429,20 @@ autoUpdater.on('update-available', (info) => {
 
 	// Notify frontend that update is available
 	mainWindow?.webContents.send('update-status', {
-		status: 'download-started',
+		status: 'available',
 		version: info.version,
 	});
 
-	// If auto-download is disabled, start manual download
-	if (!autoUpdater.autoDownload) {
-		autoUpdater.downloadUpdate().catch((downloadErr) => {
-			log.error('Manual download failed:', downloadErr);
-			mainWindow?.webContents.send('update-status', {
-				status: 'download-failed',
-				error: downloadErr.message,
-				details: { code: downloadErr.code },
-			});
+	// Start manual download since autoDownload is false
+	log.info('Starting update download...');
+	autoUpdater.downloadUpdate().catch((downloadErr) => {
+		log.error('Download failed:', downloadErr);
+		mainWindow?.webContents.send('update-status', {
+			status: 'download-failed',
+			error: downloadErr.message,
+			details: { code: downloadErr.code },
 		});
-	} else {
-		log.info('Auto-download enabled, update will download automatically');
-	}
+	});
 });
 
 autoUpdater.on('update-not-available', (info) => {
@@ -457,41 +453,75 @@ autoUpdater.on('update-not-available', (info) => {
 autoUpdater.on('error', (err) => {
 	log.error('Update error:', err);
 
-	// Handle Windows checksum mismatch specifically
+	let errorStatus = {
+		status: 'error',
+		error: err.message,
+		details: { code: err.code, errno: err.errno },
+	};
+
+	// Handle specific error types
 	if (err.message.includes('checksum mismatch') || err.code === 'ERR_CHECKSUM_MISMATCH') {
-		log.warn('Checksum mismatch detected - this may be due to unsigned builds on Windows');
-		mainWindow?.webContents.send('update-status', {
+		log.warn('Checksum mismatch detected - likely due to unsigned builds');
+		errorStatus = {
 			status: 'checksum-error',
 			error: 'Update verification failed. This may be due to unsigned builds.',
 			details: {
 				code: err.code,
 				errno: err.errno,
-				suggestion: 'Manual download may be required',
+				suggestion: 'Try manual download or check for signed releases',
 			},
-		});
-	} else {
-		mainWindow?.webContents.send('update-status', {
-			status: 'error',
-			error: err.message,
-			details: { code: err.code, errno: err.errno },
-		});
+		};
+	} else if (err.message.includes('ENOENT') || err.message.includes('404')) {
+		errorStatus = {
+			status: 'not-found',
+			error: 'Update file not found on server.',
+			details: { code: err.code },
+		};
+	} else if (err.message.includes('network') || err.message.includes('ENOTFOUND')) {
+		errorStatus = {
+			status: 'network-error',
+			error: 'Network error while checking for updates.',
+			details: { code: err.code },
+		};
+	} else if (err.message.includes('ditto') || err.message.includes('No such file or directory')) {
+		errorStatus = {
+			status: 'installation-error',
+			error: 'Update installation failed due to file system error.',
+			details: {
+				code: err.code,
+				suggestion:
+					'Please try restarting the app manually or download the update from the releases page.',
+			},
+		};
 	}
+
+	mainWindow?.webContents.send('update-status', errorStatus);
 });
 
 autoUpdater.on('update-downloaded', (info) => {
 	log.info('Update downloaded:', info);
 
-	// Show user-friendly message
+	// Show user-friendly message about automatic restart
 	mainWindow?.webContents.send('update-status', {
-		status: 'download-completed',
+		status: 'downloaded',
 		version: info.version,
-		message: 'Update ready! App will restart in 3 seconds...',
+		message: 'Update downloaded! App will restart automatically in 3 seconds...',
 	});
 
 	// Auto-restart after 3 seconds
 	setTimeout(() => {
-		log.info('Restarting app to install update...');
-		autoUpdater.quitAndInstall();
+		log.info('Auto-restarting app to install update...');
+
+		// Clean up before restart
+		if (dynamicIslandHelper) {
+			dynamicIslandHelper.destroy();
+		}
+		if (windowHelper) {
+			windowHelper.cleanup();
+		}
+
+		// Restart automatically
+		autoUpdater.quitAndInstall(true, false); // Wait for windows to close gracefully
 	}, 3000);
 });
 
@@ -624,9 +654,30 @@ ipcMain.handle('download-update', async () => {
 });
 
 ipcMain.handle('restart-app', () => {
-	if (process.env.NODE_ENV === 'development') return { success: false };
-	autoUpdater.quitAndInstall();
-	return { success: true };
+	if (process.env.NODE_ENV === 'development') {
+		return { success: false, error: 'Not available in development' };
+	}
+
+	try {
+		// Clean up before restart
+		if (dynamicIslandHelper) {
+			dynamicIslandHelper.destroy();
+		}
+		if (windowHelper) {
+			windowHelper.cleanup();
+		}
+
+		log.info('Restarting app to install update...');
+
+		// Use safer restart approach - wait for windows to close gracefully
+		// This helps avoid file system conflicts during update
+		autoUpdater.quitAndInstall(true, false); // Wait for windows to close, don't force quit
+
+		return { success: true };
+	} catch (error) {
+		log.error('Error restarting app:', error);
+		return { success: false, error: error.message };
+	}
 });
 
 // Add manual download handler for Windows checksum issues
@@ -1017,11 +1068,43 @@ function updateMenuBarState() {
 
 // Window creation
 function createWindow(restoreState = false) {
+	// Determine the appropriate icon based on platform
+	let iconPath;
+	if (process.platform === 'win32') {
+		// Try multiple possible paths for development and production
+		const possiblePaths = [
+			path.join(__dirname, 'assets', 'app-logo.ico'),
+			path.join(__dirname, '..', 'electron', 'assets', 'app-logo.ico'),
+			path.join(process.cwd(), 'electron', 'assets', 'app-logo.ico'),
+		];
+
+		// Find the first path that exists
+		for (const testPath of possiblePaths) {
+			if (require('fs').existsSync(testPath)) {
+				iconPath = testPath;
+				break;
+			}
+		}
+
+		// Fallback to the first path if none exist
+		if (!iconPath) {
+			iconPath = possiblePaths[0];
+		}
+	} else if (process.platform === 'darwin') {
+		iconPath = path.join(__dirname, 'assets', 'app-logo.icns');
+	} else {
+		iconPath = path.join(__dirname, 'assets', 've-black-circle-logo.png');
+	}
+
+	// Log the icon path being used
+	log.info('🎨 Using icon:', iconPath);
+
 	mainWindow = new BrowserWindow({
-		title: 'Main window',
+		title: 'Ve AI - Priority',
 		width: 1366,
 		height: 768,
 		show: false,
+		icon: iconPath,
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
 			nodeIntegration: false,
@@ -1140,6 +1223,11 @@ function createTray() {
 
 // App lifecycle
 app.whenReady().then(async () => {
+	// Set application branding for Windows
+	if (process.platform === 'win32') {
+		app.setAppUserModelId('com.veai.dashboard');
+	}
+
 	// Set up permission request handler for microphone access
 	session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
 		const allowedPermissions = [
@@ -1242,7 +1330,14 @@ app.whenReady().then(async () => {
 
 	// 🎤 IPC: Start Mic Monitoring
 
+	// IMMEDIATE: Create Dynamic Island FIRST for instant display
+	log.info('🚀 Creating Dynamic Island FIRST for instant display...');
+	dynamicIslandHelper = new DynamicIslandHelper();
+	dynamicIslandHelper.createDynamicIslandWindow();
+
+	// THEN: Create main window after dynamic island
 	createWindow();
+
 	createTray(); // Create system tray for Windows
 	createMenuBar();
 
@@ -1380,11 +1475,6 @@ app.whenReady().then(async () => {
 		log.error('❌ Error pre-creating overlay window:', error);
 	}
 
-	// Phase 2: Initialize DynamicIslandHelper (UI component)
-	log.info('📋 Phase 2: Initializing DynamicIslandHelper...');
-	dynamicIslandHelper = new DynamicIslandHelper();
-	dynamicIslandHelper.createDynamicIslandWindow();
-
 	// Phase 3: Initialize NotchDrop service with proper readiness waiting (macOS only)
 	if (isMacRuntime) {
 		log.info('📋 Phase 3: Initializing NotchDrop service with bridge readiness...');
@@ -1431,7 +1521,7 @@ app.whenReady().then(async () => {
 	log.info('📋 Phase 4: Waiting for bridge components to be ready...');
 	await new Promise((resolve) => setTimeout(resolve, 1500)); // Give bridge time to initialize
 
-	// Phase 5: Test shortcuts and validate system readiness
+	// Phase 5: Validate system readiness
 	setTimeout(() => {
 		log.info('📋 Phase 5: Testing system readiness...');
 
@@ -1784,6 +1874,50 @@ app.whenReady().then(async () => {
 			}
 		} catch (error) {
 			log.error('Error restoring/recreating main window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// This will handle main window navigation
+	ipcMain.handle('navigate-main-window', async (event, data) => {
+		try {
+			// Check if main window exists and is not destroyed
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				mainWindow.show();
+				mainWindow.focus();
+				mainWindow.webContents.send('navigate-to', data?.path);
+				log.info('Main window navigated to:', data?.path);
+				return { success: true };
+			} else {
+				// Main window doesn't exist or is destroyed, recreate it
+				log.info('Main window not available, recreating it...');
+
+				// Recreate the main window with state restoration
+				createWindow(true);
+
+				// Wait for the window to be ready
+				await new Promise((resolve) => {
+					if (mainWindow && !mainWindow.isDestroyed()) {
+						mainWindow.once('ready-to-show', () => {
+							mainWindow.show();
+							mainWindow.focus();
+							mainWindow.webContents.send('navigate-to', data?.path);
+							log.info(
+								'Main window recreated and shown successfully with state restoration and navigated to:',
+								data?.path,
+							);
+							resolve();
+						});
+					} else {
+						log.error('Failed to recreate main window and navigated to:', data?.path);
+						resolve();
+					}
+				});
+
+				return { success: true, message: 'Main window recreated with state restoration' };
+			}
+		} catch (error) {
+			log.error('Error navigating main window to:', data?.path, error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -2907,6 +3041,61 @@ app.whenReady().then(async () => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error setting ignore mouse events:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('set-askAI-ignore-mouse-events', async (event, ignore) => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			const askAIWindow = windowHelper.getAskAIWindow();
+			if (askAIWindow && !askAIWindow.isDestroyed()) {
+				askAIWindow.setIgnoreMouseEvents(ignore);
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error setting Ask AI ignore mouse events:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// New handler to track ask AI input focus state
+	ipcMain.handle('set-askAI-input-focus', async (event, isFocused) => {
+		try {
+			// Store the focus state globally so overlay can access it
+			global.askAIInputFocused = isFocused;
+			return { success: true };
+		} catch (error) {
+			log.error('Error setting ask AI input focus state:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Handler to get ask AI input focus state
+	ipcMain.handle('get-askAI-input-focus', async () => {
+		try {
+			const focusState = global.askAIInputFocused || false;
+
+			return { success: true, isFocused: focusState };
+		} catch (error) {
+			log.error('Error getting ask AI input focus state:', error);
+			return { success: false, error: error.message };
+		}
+	});
+	log.info('✅ Registered get-askAI-input-focus IPC handler');
+
+	// New handler to hide all windows (overlay and ask AI)
+	ipcMain.handle('hide-all-windows', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.hideAllWindows();
+			return { success: true };
+		} catch (error) {
+			log.error('Error hiding all windows:', error);
 			return { success: false, error: error.message };
 		}
 	});

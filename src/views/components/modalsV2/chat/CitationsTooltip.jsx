@@ -152,7 +152,7 @@ export const CitationsTooltip = memo(({ citationId, citations = [], placement = 
 			>
 				<span className="citation-wrapper">
 					<div className="citation-with-icon">
-						<div className="citation-icon">
+						{/* <div className="citation-icon">
 							{citationInfo?.type === 'url' ? (
 								getFaviconUrl(citationInfo?.name) ? (
 									<img
@@ -174,7 +174,7 @@ export const CitationsTooltip = memo(({ citationId, citations = [], placement = 
 										: fileTypeIcons[citationInfo?.type] || <VeLogoSvg />}
 								</div>
 							)}
-						</div>
+						</div> */}
 						<div
 							className="citation-text"
 							style={{

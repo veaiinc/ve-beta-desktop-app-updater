@@ -70,6 +70,19 @@ const betaRoutes = [
 	{
 		path: '/home',
 		element: (
+			<AuthWrapper
+				title={'Priority'}
+				outerContainerStyle={{ overflow: 'hidden' }}
+				childrenContainerStyles={{ overflow: 'auto' }}
+				showBottomToolbar={false}
+			>
+				<ProactiveSuggestions />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/tools',
+		element: (
 			<AuthWrapper title={'Tools'}>
 				<InitialHomePage />
 			</AuthWrapper>
@@ -101,7 +114,7 @@ const betaRoutes = [
 			</AuthWrapper>
 		),
 	},
-	
+
 	// ========================================
 	// AI & ASSISTANT FEATURES
 	// ========================================
@@ -236,7 +249,7 @@ const betaRoutes = [
 				showBottomToolbar={false}
 				outerContainerStyle={{
 					paddingRight: '0px',
-					backgroundColor: 'var(--chat-background-color)',
+					backgroundColor: 'var(--background-color)',
 				}}
 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 				maxWidth="100%"
