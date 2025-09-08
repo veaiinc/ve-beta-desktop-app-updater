@@ -1,5 +1,23 @@
 export const pricingPlansData = {
 	plans: {
+		free: {
+			name: 'Free',
+			features: [
+				'5 meetings/month',
+				'30 mins/meeting',
+				'Live summaries',
+				'Speaker ID',
+				'5 Pro Queries/meeting',
+				// '1 personal agent',
+				`100 runs/month`,
+				// 'No multi-agent support',
+				`10 files (100MB total, 5MB/file)`,
+				`100 credits`,
+				`Basic auth`,
+				`Help Center`,
+			],
+			isSeatBased: false,
+		},
 		plus: {
 			name: 'Plus',
 			features: [
@@ -14,16 +32,38 @@ export const pricingPlansData = {
 			trialDays: 2,
 			isSeatBased: false,
 		},
+		starter: {
+			name: 'Starter',
+			features: [
+				'15 meetings/month',
+				'Unlimited mins/meeting',
+				'Live summaries',
+				'Speaker ID',
+				'20 Pro Queries/meeting',
+				'English only',
+
+				'2 personal agents',
+				'200 runs/month',
+				'No multi-agent support',
+
+				'100 files (1GB total, 10MB/file)',
+				'1990 credits/month',
+
+				'Help Centre',
+				'Email support (12–24 hr response)',
+			],
+			isSeatBased: false,
+		},
 		pro: {
 			name: 'Pro',
 			features: [
-				'Advanced user engagement analytics',
-				'Integrate with 50+ apps',
-				'Collaborate with 15 members',
-				'AI-powered content generation',
-				'Dedicated priority support',
-				'Custom workspace branding',
-				'250GB secure cloud storage',
+				`Unlimited meetings`,
+				`Unlimited Pro Queries`,
+				`Unlimited runs`,
+				`Multi-agent support`,
+				`Marketplace integrations`,
+				`3,900 credits/month`,
+				`Priority support`,
 			],
 			isSeatBased: true,
 			defaultUsers: 5,
@@ -33,13 +73,11 @@ export const pricingPlansData = {
 		enterprise: {
 			name: 'Enterprise',
 			features: [
-				'Advanced user engagement analytics',
-				'Integrate with 50+ apps',
-				'Collaborate with 15 members',
-				'AI-powered content generation',
-				'Dedicated priority support',
-				'Custom workspace branding',
-				'250GB secure cloud storage',
+				'Unlimited meetings & mins',
+				'Unlimited Pro Queries',
+				'Unlimited/custom integrations',
+				'Marketplace integrations',
+				'Early access to experimental features',
 			],
 			isSeatBased: false,
 			contactSales: true,
