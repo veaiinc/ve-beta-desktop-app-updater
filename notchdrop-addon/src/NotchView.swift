@@ -11,6 +11,7 @@ struct NotchView: View {
     @StateObject var vm: NotchViewModel
 
     @State var dropTargeting: Bool = false
+    @State private var isHoveringNotch: Bool = false
 
     var notchSize: CGSize {
         switch vm.status {

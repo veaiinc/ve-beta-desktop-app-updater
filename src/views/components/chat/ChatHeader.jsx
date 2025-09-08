@@ -8,7 +8,7 @@ import { ReactComponent as StarSvg } from '../../../assets/svg/home_page/star.sv
 import { ReactComponent as CloseIcon } from '../../../assets/svg/mobile/close.svg';
 import { ReactComponent as ChevronDownSvg } from '../../../assets/svg/ai_assistant/chevron-down.svg';
 import { ReactComponent as CardsThreeSvg } from '../../../assets/svg/chat/cardsThree.svg';
-
+import { ReactComponent as BackSvg } from '../../../assets/svg/chat/back.svg';
 import { Tooltip } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
@@ -230,6 +230,11 @@ const ChatHeader = ({
 		navigate('/chats');
 	};
 
+	const handletoggleDropdownExpanded = () => {
+		setInfo((prev) => ({ ...prev, chatDropdownExpanded: !prev.chatDropdownExpanded }));
+	};
+	// console.log(path);
+
 	return (
 		<div className={s.wrapper}>
 			<div
@@ -263,13 +268,28 @@ const ChatHeader = ({
 					)}
 
 					<div className={s.leftContainer}>
+						{location?.pathname?.includes('/chat') && (
+							<div
+								style={{ cursor: 'pointer', color: 'var(--primary-font)' }}
+								onClick={() => navigate(-1)}
+							>
+								<BackSvg />
+							</div>
+						)}
 						{!info?.isMobileView && info?.userMessages?.length > 3 && (
 							<div
 								className={`${s.questionWrapper} ${
 									info?.chatDropdownExpanded ? s.expanded : ''
 								}`}
 							>
-								<div className={s.chatQuestionContainer}>
+								<div
+									onClick={handletoggleDropdownExpanded}
+									className={s.chatQuestionContainer}
+								>
+									<div className={s.activeQuestion}>
+										{info?.userMessages?.[info?.activeUserMessageIndex]
+											?.message || ''}
+									</div>
 									{info?.userMessages?.length > 1 && (
 										<div
 											className={`${s.iconContainer} ${
@@ -279,11 +299,6 @@ const ChatHeader = ({
 											<ChevronRightThinSvg width={18} height={18} />
 										</div>
 									)}
-
-									<div className={s.activeQuestion}>
-										{info?.userMessages?.[info?.activeUserMessageIndex]
-											?.message || ''}
-									</div>
 								</div>
 							</div>
 						)}

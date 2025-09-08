@@ -267,25 +267,13 @@ const baseComponents = {
 		</ol>
 	),
 	li: ({ children, ...props }) => {
-		return (
-			<li {...props} className="li">
-				{children}
-			</li>
-		);
+		return <li className="li">{children}</li>;
 	},
 	ul: ({ children, ...props }) => {
-		return (
-			<ul {...props} className="ul">
-				{children}
-			</ul>
-		);
+		return <ul className="ul">{children}</ul>;
 	},
 	strong: ({ children, ...props }) => {
-		return (
-			<strong {...props} className="strong">
-				{children}
-			</strong>
-		);
+		return <strong className="strong">{children}</strong>;
 	},
 	a: ({ children, ...props }) => {
 		return (
@@ -295,53 +283,25 @@ const baseComponents = {
 		);
 	},
 	h1: ({ children, ...props }) => {
-		return (
-			<h1 {...props} className="h1">
-				{children}
-			</h1>
-		);
+		return <h1 className="h1">{children}</h1>;
 	},
 	h2: ({ children, ...props }) => {
-		return (
-			<h2 {...props} className="h2">
-				{children}
-			</h2>
-		);
+		return <h2 className="h2">{children}</h2>;
 	},
 	h3: ({ children, ...props }) => {
-		return (
-			<h3 {...props} className="h3">
-				{children}
-			</h3>
-		);
+		return <h3 className="h3">{children}</h3>;
 	},
 	h4: ({ children, ...props }) => {
-		return (
-			<h4 {...props} className="h4">
-				{children}
-			</h4>
-		);
+		return <h4 className="h4">{children}</h4>;
 	},
 	h5: ({ children, ...props }) => {
-		return (
-			<h5 {...props} className="h5">
-				{children}
-			</h5>
-		);
+		return <h5 className="h5">{children}</h5>;
 	},
 	h6: ({ children, ...props }) => {
-		return (
-			<h6 {...props} className="h6">
-				{children}
-			</h6>
-		);
+		return <h6 className="h6">{children}</h6>;
 	},
 	p: ({ children, ...props }) => {
-		return (
-			<p {...props} className="p">
-				{children}
-			</p>
-		);
+		return <p className="p">{children}</p>;
 	},
 	img: ({ children, ...props }) => {
 		return (
@@ -356,10 +316,10 @@ const baseComponents = {
 			</div>
 		);
 	},
-	thead: ({ children, ...props }) => <thead {...props}>{children}</thead>,
-	th: ({ children, ...props }) => <th {...props}>{children}</th>,
-	td: ({ children, ...props }) => <td {...props}>{children}</td>,
-	tr: ({ children, ...props }) => <tr {...props}>{children}</tr>,
+	thead: ({ children, ...props }) => <thead>{children}</thead>,
+	th: ({ children, ...props }) => <th>{children}</th>,
+	td: ({ children, ...props }) => <td>{children}</td>,
+	tr: ({ children, ...props }) => <tr>{children}</tr>,
 	iframe: ({ children, ...props }) => {
 		return (
 			<div className="iframe-wrapper">
@@ -724,11 +684,11 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 			)}
 			{!info?.editUserQuery ? (
 				<div className="hover-actions-container">
-					{/* <div className="icon-container">
+					<div className="icon-container">
 						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Edit'}>
 							<PencilSparkleIcon onClick={handleEditUserQueryToggle} />
 						</Tooltip>
-					</div> */}
+					</div>
 
 					<div className="icon-container">
 						<Tooltip
