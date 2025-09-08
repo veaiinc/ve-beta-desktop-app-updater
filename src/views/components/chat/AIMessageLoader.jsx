@@ -24,14 +24,6 @@ const AIMessageLoader = () => {
 
 	return (
 		<div className="ai-message-loader">
-			{/* <div className="loader-tabs-wrapper">
-				<div className={`loader-tab-btn active`}>
-					<div className="loader-wrapper">
-						<ChatLoader />
-					</div>
-					Answer
-				</div>
-			</div> */}
 			<div className="loader-text-container">{message}</div>
 		</div>
 	);

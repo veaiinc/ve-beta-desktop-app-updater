@@ -25,7 +25,7 @@
 		// background-color: var(--chat-background-color);
 		box-sizing: border-box;
 		position: absolute;
-		top: 72px;
+		top: 59px;
 		left: 0;
 
 		.nonActiveQuestion {
@@ -42,7 +42,7 @@
 			flex-shrink: 0;
 			transition: color 0.2s ease-in-out;
 			color: var(--secondary-font, #f2f2f3);
-			font-family: var(--primary-font-family);
+			font-family: var(--chat-primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -125,7 +125,7 @@
 							text-overflow: ellipsis;
 							word-break: break-all;
 							color: var(--primary-font, #f2f2f3);
-							font-family: var(--primary-font-family);
+							font-family: var(--chat-primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -231,7 +231,7 @@
 		// background-color: var(--chat-background-color);
 		box-sizing: border-box;
 		position: absolute;
-		top: 72px;
+		top: 59px;
 		left: 0;
 
 		.nonActiveQuestion {
@@ -248,7 +248,7 @@
 			flex-shrink: 0;
 			transition: color 0.2s ease-in-out;
 			color: var(--secondary-font, #f2f2f3);
-			font-family: var(--primary-font-family);
+			font-family: var(--chat-primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -277,7 +277,7 @@
 
 		.mobileHeaderTitle {
 			color: var(--primary-font, #f2f2f3);
-			font-family: var(--primary-font-family);
+			font-family: var(--chat-primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -322,7 +322,7 @@
 
 				.mobileHistoryTitle {
 					color: var(--primary-font, #f2f2f3);
-					font-family: var(--primary-font-family);
+					font-family: var(--chat-primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -365,7 +365,7 @@
 	color: var(--primary-font);
 	padding: 10px;
 	border-radius: 10px;
-	font-family: var(--primary-font-family);
+	font-family: var(--chat-primary-font-family);
 	font-size: 13px;
 	font-style: normal;
 	font-weight: 500;
