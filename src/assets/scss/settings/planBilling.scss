@@ -697,6 +697,7 @@
 	border-bottom: 1px solid var(--stroke, #2c2d2e);
 	background: var(--popup, #202123);
 	width: 100%;
+	position: relative;
 
 	.subscriptionTypeContainer {
 		display: flex;
@@ -805,12 +806,45 @@
 			}
 		}
 	}
+
+	.closeButton {
+		top: 20px;
+		right: 24px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 40px;
+		height: 40px;
+		border: none;
+		background: transparent;
+		border-radius: 8px;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		z-index: 10;
+
+		&:hover {
+			background: var(--card-over-card-hover);
+		}
+
+		&:active {
+			transform: scale(0.95);
+		}
+
+		svg {
+			width: 20px;
+			height: 20px;
+			fill: var(--primary-font);
+			transition: fill 0.2s ease;
+		}
+
+		&:hover svg {
+			fill: var(--primary-button);
+		}
+	}
 }
 .addOnsContainer {
 	width: 100%;
-	height: 650px;
-	max-width: 1000px;
-	max-height: 650px;
+	height: 100%;
 	overflow-y: auto;
 	border: 1px solid var(--stroke);
 	border-top: none;
@@ -873,13 +907,10 @@
 		gap: 24px;
 		align-items: flex-start;
 		align-self: stretch;
-		height: calc(100% - 100px);
+
 		overflow-y: auto;
 		padding-top: 24px;
-		min-height: 400px;
-		min-width: 900px;
-		max-width: 900px;
-		max-height: 600px;
+
 		@media screen and (max-width: 500px) {
 			width: 100%;
 			max-width: 380px;
@@ -1052,6 +1083,14 @@
 				&.cancel {
 					color: var(--error);
 					border: 1px solid var(--error);
+				}
+				&.contact-sales {
+					background: var(--primary-button);
+					color: var(--primary-button-font);
+					border: 1px solid var(--primary-button);
+					&:hover {
+						opacity: 0.9;
+					}
 				}
 			}
 			.scheduledDowngradeNotice {
@@ -1412,6 +1451,18 @@
 		padding: 12px;
 		min-height: auto;
 
+		.closeButton {
+			top: 12px;
+			right: 12px;
+			width: 32px;
+			height: 32px;
+
+			svg {
+				width: 16px;
+				height: 16px;
+			}
+		}
+
 		.subscriptionTypeContainer {
 			.subscriptionTypeWrapper {
 				gap: 12px;
@@ -1534,6 +1585,18 @@
 	.addOnsHeader {
 		padding: 8px;
 
+		.closeButton {
+			top: 8px;
+			right: 8px;
+			width: 28px;
+			height: 28px;
+
+			svg {
+				width: 14px;
+				height: 14px;
+			}
+		}
+
 		.subscriptionTypeContainer {
 			.subscriptionTypeWrapper {
 				gap: 8px;
@@ -1653,4 +1716,84 @@
 
 .checkout:hover {
 	opacity: 0.9;
+}
+
+/* Fullscreen Modal Styles */
+.addonmodel.fullscreen-modal {
+	.addOnsContainer.fullscreen-container {
+		width: 100vw;
+		height: calc(100vh - 80px);
+		max-width: 100vw;
+		max-height: calc(100vh - 80px);
+		border-radius: 0;
+		border: none;
+		border-top: 1px solid var(--stroke);
+		padding: 24px;
+		margin: 0;
+		overflow-y: auto;
+
+		.addOnsCardsContainer {
+			width: 100%;
+			max-width: 100%;
+			min-width: unset;
+			height: calc(100% - 100px);
+			max-height: calc(100% - 100px);
+			overflow-y: auto;
+			padding: 24px 0;
+
+			.addOnsCards {
+				width: calc((100% - 48px) / 3);
+				max-width: 400px;
+				min-width: 300px;
+				flex: 1 1 300px;
+			}
+		}
+	}
+
+	.addOnsHeader {
+		width: 100vw;
+		border-radius: 0;
+		margin: 0;
+		padding: 20px 24px;
+	}
+}
+
+/* Mobile Fullscreen Styles */
+@media screen and (max-width: 768px) {
+	.addonmodel.fullscreen-modal {
+		.addOnsContainer.fullscreen-container {
+			height: calc(100vh - 100px);
+			max-height: calc(100vh - 100px);
+			padding: 16px;
+
+			.addOnsCardsContainer {
+				height: calc(100% - 80px);
+				max-height: calc(100% - 80px);
+				padding: 16px 0;
+
+				.addOnsCards {
+					width: 100%;
+					max-width: 100%;
+					min-width: unset;
+					flex: 1 1 100%;
+				}
+			}
+		}
+
+		.addOnsHeader {
+			padding: 16px;
+
+			.closeButton {
+				top: 16px;
+				right: 16px;
+				width: 36px;
+				height: 36px;
+
+				svg {
+					width: 18px;
+					height: 18px;
+				}
+			}
+		}
+	}
 }

@@ -88,7 +88,8 @@ const TopNavbar = () => {
 		pathname.includes('create-workspace') ||
 		pathname.includes('agent/') ||
 		pathname.includes('note/') ||
-		pathname.includes('meet/');
+		pathname.includes('meet/') ||
+		pathname.includes('chat/');
 
 	const {
 		profileInfo: {
@@ -273,25 +274,25 @@ const TopNavbar = () => {
 				</Tooltip>
 			),
 		},
-		{
-			id: 2,
-			label: `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`,
-			icon: (
-				<Tooltip
-					title={
-						<div style={tooltipStyle}>
-							<span>Switch to {theme === 'dark' ? 'light' : 'dark'} mode</span>
-						</div>
-					}
-					placement="bottom"
-					arrow={false}
-					color={'transparent'}
-					rootClassName={s.themeTooltip}
-				>
-					{theme === 'dark' ? <LightMode /> : <DarkMode />}
-				</Tooltip>
-			),
-		},
+		// {
+		// 	id: 2,
+		// 	label: `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`,
+		// 	icon: (
+		// 		<Tooltip
+		// 			title={
+		// 				<div style={tooltipStyle}>
+		// 					<span>Switch to {theme === 'dark' ? 'light' : 'dark'} mode</span>
+		// 				</div>
+		// 			}
+		// 			placement="bottom"
+		// 			arrow={false}
+		// 			color={'transparent'}
+		// 			rootClassName={s.themeTooltip}
+		// 		>
+		// 			{theme === 'dark' ? <LightMode /> : <DarkMode />}
+		// 		</Tooltip>
+		// 	),
+		// },
 		{
 			id: 3,
 			label: 'Notifications',
