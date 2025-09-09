@@ -6,15 +6,15 @@ enum DynamicIslandTheme {
     static let collapsedHeight: CGFloat = 32
     static let collapsedRadius: CGFloat = 8
 
-    static let expandedWidth: CGFloat = 555
+    static let expandedWidth: CGFloat = 600
     static let expandedHeight: CGFloat = 160
     static let expandedRadius: CGFloat = 16
 
-    // Chat expansion sizes
-    static let compactWidth: CGFloat = 480        // Smaller default width
-    static let chatExpandedWidth: CGFloat = 585   // Wider when chat expanded
+    // Chat expansion sizes - reversed behavior: compact is smaller, chat mode is wider
+    static let compactWidth: CGFloat = 425        // Default compact width (was chatExpandedWidth)
+    static let chatExpandedWidth: CGFloat = 485   // Expanded width when chat mode is active (was compactWidth)
 
-    static let recordingExpandedWidth: CGFloat = 495
+    static let recordingExpandedWidth: CGFloat = 395  // Reduced by 100px for removed webcam tile
     static let recordingExpandedHeight: CGFloat = 160
     static let recordingBottomRadius: CGFloat = 8
     

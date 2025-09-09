@@ -357,9 +357,9 @@ const NewUi = ({ handleActiveChatChange }) => {
 		return () => containerRef?.current?.removeEventListener('wheel', handleWheel);
 	}, [info?.isLoadingChats]);
 
-	useEffect(() => {
-		getProactiveHeadings({ module: 'chat' });
-	}, []);
+	// useEffect(() => {
+	// 	getProactiveHeadings({ module: 'chat' });
+	// }, []);
 
 	useEffect(() => {
 		handleActiveChatChange(info.data?.[info.activeIndex]);
@@ -591,7 +591,7 @@ const NewUi = ({ handleActiveChatChange }) => {
 													<div className="backdrop4 backdrop" />
 													<div className={`title-container `}>
 														<div className="title-text">
-															{proactiveHeadings?.chat_headlines ? (
+															{/* {proactiveHeadings?.chat_headlines ? (
 																<span
 																	className="title-one"
 																	style={{
@@ -602,16 +602,16 @@ const NewUi = ({ handleActiveChatChange }) => {
 																		proactiveHeadings?.chat_headlines
 																	}
 																</span>
-															) : (
-																<>
-																	<h2 className="title-one">
-																		{greeting}!
-																	</h2>
-																	<span className="title-two">
-																		{userName}
-																	</span>
-																</>
-															)}
+															) : ( */}
+															<>
+																<h2 className="title-one">
+																	{greeting}!
+																</h2>
+																<span className="title-two">
+																	{userName}
+																</span>
+															</>
+															{/* )} */}
 														</div>
 													</div>
 													<ChatBox

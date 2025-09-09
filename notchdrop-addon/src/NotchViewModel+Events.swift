@@ -55,12 +55,24 @@ extension NotchViewModel {
 
         events.mouseLocation
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] mouseLocation in
+            .sink { [weak self] _ in
                 guard let self else { return }
                 let mouseLocation: NSPoint = NSEvent.mouseLocation
-                let aboutToOpen = deviceNotchRect.insetBy(dx: inset, dy: inset).contains(mouseLocation)
-                if status == .closed, aboutToOpen { notchPop() }
-                if status == .popping, !aboutToOpen { notchClose() }
+                // Hover zones
+                let inClosedHoverZone = deviceNotchRect.insetBy(dx: inset, dy: inset).contains(mouseLocation)
+                let inOpenedHoverZone = notchOpenedRect.insetBy(dx: inset, dy: inset).contains(mouseLocation)
+
+                switch status {
+                case .closed:
+                    // Fully expand on hover entry
+                    if inClosedHoverZone { notchOpen(.hover) }
+                case .opened:
+                    // Auto-close only if we opened due to hover and the pointer leaves the opened island
+                    if openReason == .hover, !inOpenedHoverZone { notchClose() }
+                case .popping:
+                    // Legacy pop behavior: close pop if pointer leaves the closed hover zone
+                    if !inClosedHoverZone { notchClose() }
+                }
             }
             .store(in: &cancellables)
 

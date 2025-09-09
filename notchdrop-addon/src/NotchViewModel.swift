@@ -56,6 +56,7 @@ class NotchViewModel: NSObject, ObservableObject {
 
     enum OpenReason: String, Codable, Hashable, Equatable {
         case click
+        case hover
         case drag
         case boot
         case unknown
@@ -80,7 +81,7 @@ class NotchViewModel: NSObject, ObservableObject {
         .init(
             x: screenRect.origin.x + (screenRect.width - notchOpenedSize.width) / 2,
             y: screenRect.origin.y + screenRect.height - deviceNotchRect.height,
-            width: notchOpenedSize.width,
+            width: notchOpenedSize.width + 100,
             height: deviceNotchRect.height
         )
     }
@@ -140,6 +141,7 @@ class NotchViewModel: NSObject, ObservableObject {
         case collapse
         case triggerOverlayToggleLiveIntelligence
         case sendLog(String)
+        case navigateToMainScreen
     }
     
     private var timerCancellable: AnyCancellable?
@@ -148,8 +150,10 @@ class NotchViewModel: NSObject, ObservableObject {
         openReason = reason
         status = .opened
         contentType = .normal
-        NSApp.activate(ignoringOtherApps: true)
-        
+        // Avoid stealing focus when opening due to hover
+        if reason != .hover {
+            NSApp.activate(ignoringOtherApps: true)
+        }
         // Emit expand action for JavaScript
         swiftActionSender.send(.expand)
     }
@@ -294,6 +298,31 @@ class NotchViewModel: NSObject, ObservableObject {
         
         // Emit action for JavaScript
         swiftActionSender.send(.setAuthenticated(authenticated))
+    }
+    
+    func navigateToMainScreen() {
+        print("🏠 Navigating to main screen - resetting UI state")
+        
+        // Reset chat-related state
+        isChatMode = false
+        isChatExpanded = false
+        chatInput = ""
+        isSendingMessage = false
+        
+        // Reset voice interface state
+        if showVoiceInterface {
+            disconnectVoiceUI()
+        }
+        
+        // Reset recording state if active
+        if isRecording {
+            stopRecording()
+        }
+        
+        // Emit action for JavaScript integration
+        swiftActionSender.send(.navigateToMainScreen)
+        
+        print("✅ Main screen navigation completed - all states reset")
     }
     
     // New method to send log messages to Electron

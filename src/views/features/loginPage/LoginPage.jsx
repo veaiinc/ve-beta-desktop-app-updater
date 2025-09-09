@@ -122,7 +122,7 @@ const LoginPage = () => {
 					lastOtpEmail={info?.lastOtpEmail}
 				/>
 
-				{!info?.cookiesAccepted && info?.showCookiesNotice && (
+				{/* {!info?.cookiesAccepted && info?.showCookiesNotice && (
 					<div className="cookies-notice">
 						<div className="cookie-container">
 							<p className="cookie-text">
@@ -146,7 +146,7 @@ const LoginPage = () => {
 							</div>
 						</div>
 					</div>
-				)}
+				)} */}
 			</>
 		),
 		verificationCode: (
