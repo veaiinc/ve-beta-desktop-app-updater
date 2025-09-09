@@ -2125,7 +2125,12 @@ export const TemplatesState = (props) => {
 		// }
 		else {
 			updatedGlobalChatMessages = [
-				{ type: 'user', message: queryMessage || '', images: localPayload?.files || [] },
+				{
+					type: 'user',
+					message: queryMessage || '',
+					images: localPayload?.images || [],
+					attachments: localPayload?.attachments,
+				},
 				{
 					type: 'AI',
 					contentType: 'loading',

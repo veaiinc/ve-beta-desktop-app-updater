@@ -3,6 +3,10 @@
 	flex-direction: column;
 	gap: 12px;
 	position: relative;
+
+	.markdown-container {
+		width: 100%;
+	}
 	.view-document-container {
 		display: flex;
 		gap: 12px;
@@ -66,7 +70,7 @@
 				cursor: pointer;
 				padding: 6px 12px;
 				border-radius: 100px;
-				margin-left: -10px;
+				margin-left: -5px;
 				&:hover {
 					background-color: var(--card-over-card-hover);
 				}
