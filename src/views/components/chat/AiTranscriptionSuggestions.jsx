@@ -163,7 +163,7 @@ const AiTranscriptionSuggestions = ({
 			return (
 				<div
 					className={s.userQuestionContainer}
-					onClick={() => handleActionClick(suggestion?.prompt || '')}
+					// onClick={() => handleActionClick(suggestion?.prompt || '')}
 				>
 					<div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
 					<UserIcon />
@@ -171,7 +171,7 @@ const AiTranscriptionSuggestions = ({
 					</div>
 					
 				
-					<button className={s.askUserButton}>Ask User</button>
+					{/* <button className={s.askUserButton}>Ask User</button> */}
 				</div>
 			);
 		}
@@ -185,7 +185,7 @@ const AiTranscriptionSuggestions = ({
 					<NeedHelpIcon />
 					<div className={s.questionText}>{suggestion?.prompt || ''}</div>
 					</div>
-					<div className={s.needHelpButton}>Need help?</div>
+					{/* <div className={s.needHelpButton}>Need help?</div> */}
 				</div>
 			);
 		}
@@ -200,7 +200,7 @@ const AiTranscriptionSuggestions = ({
 					<div className={s.actionDetails}>
 						<div className={s.actionName}>{suggestion?.prompt}</div>
 						{/* <div className={s.promptText}>{suggestion?.prompt || ''}</div> */}
-						<button className={s.takeActionButton}>Run</button>
+						{/* <button className={s.takeActionButton}>Run</button> */}
 					</div>
 				</div>
 			);
@@ -313,7 +313,7 @@ const AiTranscriptionSuggestions = ({
 								<ActionIcon />
 								<div className={s.actionDetails}>
 									<div className={s.actionName}>{action?.prompt || ''}</div>
-									<button className={s.takeActionButton}>Run</button>
+									{/* <button className={s.takeActionButton}>Run</button> */}
 								</div>
 							</div>
 						))}
