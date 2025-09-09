@@ -44,6 +44,7 @@ import useNote from '../../../hooks/useNote';
 import useAudioVisualizer from '../../../hooks/useAudioVisualizer';
 import { Track } from 'livekit-client';
 import { useTrackTranscription } from '@livekit/components-react';
+import { getFileType } from '../../../helpers/chat/chatHelpers';
 // import VoiceWrapper from '../../layouts/VoiceWrapper';
 
 const moduleHelper = {
@@ -74,28 +75,6 @@ const modulesOptions = {
 	// gallery: 'Gallery',
 	clients: 'Clients',
 };
-
-function getFileType(file) {
-	let type = file?.type || file?.sourceType || null;
-	if (!type) return 'Unknown';
-
-	type = type?.toLowerCase();
-
-	if (type === 'application/pdf') return 'PDF';
-	if (
-		type === 'application/msword' ||
-		type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-	)
-		return 'DOCX';
-	if (
-		type === 'application/vnd.ms-excel' ||
-		type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-	)
-		return 'XLSX';
-	if (type === 'text/csv') return 'CSV';
-
-	return type;
-}
 
 const chatboxPlaceholders = [
 	'Start typing or use @ to mention a source.',
@@ -867,8 +846,7 @@ const ChatBox = ({
 						}));
 
 						localPayload = {
-							files: uploadedImagesRef?.current || [],
-							handlePreview,
+							images: uploadedImagesRef?.current || [],
 						};
 					}
 					if (recentFilesRef?.current?.length > 0) {
@@ -888,6 +866,12 @@ const ChatBox = ({
 								is_uploaded: ele?.is_uploaded || false,
 							}));
 						}
+						localPayload = {
+							...localPayload,
+							attachments: (recentFilesRef?.current || [])?.filter(
+								(file) => file?.is_uploaded,
+							),
+						};
 						recentFilesRef?.current?.forEach((file) => {
 							file.is_uploaded = false;
 						});
