@@ -362,7 +362,7 @@ const LiveIntelligencePanel = ({
 						className={`tab-button ${activeTab === tab.key ? 'active' : ''}`}
 						onClick={() => handleTabClick(tab.key)}
 					>
-						<span className="tab-label"> {tab.label}</span>
+						<span className="tab-label"><img src={tab.icon} /> {tab.label}</span>
 						{tab.count > 0 && <span className="tab-badge">{tab.count}</span>}
 					</button>
 				))}
