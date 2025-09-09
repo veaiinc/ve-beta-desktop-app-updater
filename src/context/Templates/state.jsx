@@ -1579,13 +1579,14 @@ export const TemplatesState = (props) => {
 		}
 	};
 	const getAuthUrlForThirdParty = async (connectType, access) => {
+		console.log('getAuthUrlForThirdParty', connectType, access);
 		try {
 			const token = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
 			let path, response, apiType;
 
 			let origin = window.location.origin;
-			if (origin === 'http://localhost:5173') {
+			if (origin.includes('localhost')) {
 				origin = 'https://www.ve.ai';
 			}
 
@@ -1604,7 +1605,7 @@ export const TemplatesState = (props) => {
 					path: `/slack/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
 					apiType: 'third_party_integrations_api',
 				},
-				outlookCalendar: {
+				'outlook-calendar': {
 					path: `/outlookcalendar/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
 					apiType: 'microsoft_integration_api',
 				},
@@ -1634,7 +1635,6 @@ export const TemplatesState = (props) => {
 		}
 	};
 	const disconnectThirdParty = async (connectType, id) => {
-		console.log('disconnectThirdParty', connectType, id);
 		try {
 			const token = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -1653,7 +1653,7 @@ export const TemplatesState = (props) => {
 					path: `/slack/${workspaceId}/${id}/deactivate-integration`,
 					apiType: 'third_party_integrations_api',
 				},
-				outlookCalendar: {
+				'outlook-calendar': {
 					path: `/outlookcalendar/${workspaceId}/${id}/deactivate-integration`,
 					apiType: 'microsoft_integration_api',
 				},
