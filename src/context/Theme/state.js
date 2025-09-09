@@ -5,7 +5,8 @@ import Cookies from 'js-cookie';
 import Service from '../../services/';
 
 export const initialThemeState = {
-	theme: localStorage.getItem('theme') || Cookies.get('theme') || 'systemDefault',
+	// theme: localStorage.getItem('theme') || Cookies.get('theme') || 'systemDefault',
+	theme: 'dark',
 };
 
 export const ThemeState = () => {

@@ -16,6 +16,7 @@ import useNetworkStatus from '../../hooks/useNetworkStatus';
 import Offline from '../features/offline/Offline';
 import { internalServerEmitter } from '../../services';
 import InternalServer from '../components/globalComponents/InternalServer';
+import { useNavigate } from 'react-router-dom';
 
 const AuthWrapper = ({
 	title,
@@ -28,6 +29,7 @@ const AuthWrapper = ({
 	childrenContainerStyles = {},
 	showSidebar = true,
 }) => {
+	const navigate = useNavigate();
 	const { isOnline } = useNetworkStatus();
 
 	const showPushNotification = useCallback((payload) => {
@@ -52,6 +54,13 @@ const AuthWrapper = ({
 			internalServerEmitter.off('serverError', handler);
 		};
 	});
+
+	useEffect(() => {
+		window.electronApi.onNavigate((path) => {
+			console.log('navigate', path);
+			navigate(path); // client-side navigation
+		});
+	}, [navigate]);
 
 	// const layoutMode = showSidebar && workspaceMode !== 'stable' ? 'sidebar' : 'topNavbar';
 	// const layoutModeComponentMap = {

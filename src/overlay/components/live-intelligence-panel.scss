@@ -91,6 +91,8 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+				-webkit-app-region: no-drag; /* Prevent dragging on control buttons */
+				app-region: no-drag; /* Standard property for non-draggable regions */
 			}
 			.live-intelligence-panel__icon-button {
 				background-color: transparent;
@@ -107,6 +109,8 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+				-webkit-app-region: no-drag; /* Prevent dragging on icon buttons */
+				app-region: no-drag; /* Standard property for non-draggable regions */
 			}
 
 			.live-intelligence-panel__control-divider {
@@ -149,6 +153,8 @@
 			border-bottom: 1px solid transparent;
 			transition: all 0.2s ease;
 
+			-webkit-app-region: no-drag; /* Prevent dragging on tab buttons */
+			app-region: no-drag; /* Standard property for non-draggable regions */
 			&.active {
 				color: #fff;
 				border-bottom-color: #79ecc9;
@@ -220,6 +226,8 @@
 
 				&.clickable {
 					cursor: pointer;
+					-webkit-app-region: no-drag; /* Prevent dragging on clickable thread items */
+					app-region: no-drag; /* Standard property for non-draggable regions */
 
 					&:hover {
 						background: rgba(255, 255, 255, 0.12);
@@ -232,6 +240,11 @@
 						transform: translateY(0);
 						box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 					}
+				}
+
+				&.ask-user-item {
+					border: 1px solid transparent;
+					pointer-events: none;
 				}
 
 				.thread-category {

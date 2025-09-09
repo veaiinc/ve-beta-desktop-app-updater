@@ -3,35 +3,15 @@ import s from '../../../../assets/scss/chat/chatComponents/browser.module.scss';
 import Context from '../../../../context/context';
 import { ReactComponent as ArrowsIn } from '../../../../assets/svg/chat/arrowsIn.svg';
 import { ReactComponent as Webcam } from '../../../../assets/svg/chat/webcam.svg';
-import Spinner from '../../loaders/Spinner';
 
 const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = false }) => {
 	const {
 		templates: { handleResetBrowserInactivityState },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
-		activeTab: -1,
 		takeControl: false,
-		tabs: [],
 	});
 	const inactivityIntervalRef = useRef(null);
-
-	useEffect(() => {
-		if (browserData) {
-			const tabs = browserData?.allTabUrls || [];
-			setInfo((prev) => ({
-				...prev,
-				activeTab: 0,
-				tabs,
-			}));
-		} else {
-			setInfo((prev) => ({
-				...prev,
-				activeTab: -1,
-				tabs: [],
-			}));
-		}
-	}, [browserData]);
 
 	useEffect(() => {
 		return () => {
@@ -40,16 +20,6 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 			}
 		};
 	}, []);
-
-	const handleTabClick = (index) => {
-		if (index === info?.activeTab) {
-			return;
-		}
-		setInfo((prev) => ({
-			...prev,
-			activeTab: index,
-		}));
-	};
 
 	const handleTakeControl = () => {
 		const takeControl = !info?.takeControl;
@@ -67,7 +37,7 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 		if (takeControl) {
 			inactivityIntervalRef.current = setInterval(() => {
 				handleResetBrowserInactivityState(sessionId);
-			}, [5 * 60 * 1000]);
+			}, [3 * 60 * 1000]);
 		}
 	};
 
@@ -81,39 +51,20 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 			</div>
 
 			<div className={`${s.body} ${info?.takeControl ? s.tookControl : ''}`}>
-				{/* {!(info?.tabs?.length > 0) && isOpen && (
-					<div className={s.loader}>
-						<Spinner />
-					</div>
-				)}
-				{info?.tabs?.length > 0 && (
-					<div className={s.tabsContainer}>
-						{info?.tabs?.map((tab, index) => (
-							<div
-								key={index}
-								className={`${s.tab} ${info?.activeTab === index ? s.active : ''}`}
-								onClick={() => handleTabClick(index)}
-							>
-								{tab?.title}
-							</div>
-						))}
-					</div>
-				)} */}
-
-				{/* {info?.activeTab !== -1 && ( */}
 				<div className={`${s.browserIframeContainer}`}>
 					<iframe
 						src={browserData?.url}
-						allowfullscreen
+						allowFullScreen
 						className={s.browserIframe}
 						style={{ pointerEvents: info?.takeControl ? 'auto' : 'none' }}
 					></iframe>
-					<div className={s.takeControlBtn} onClick={handleTakeControl}>
-						<Webcam />
-						{info?.takeControl ? 'Exit takeover' : 'Take control'}
-					</div>
+					{browserData?.url && (
+						<div className={s.takeControlBtn} onClick={handleTakeControl}>
+							<Webcam />
+							{info?.takeControl ? 'Exit takeover' : 'Take control'}
+						</div>
+					)}
 				</div>
-				{/* )} */}
 			</div>
 		</div>
 	);

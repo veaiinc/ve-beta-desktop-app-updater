@@ -35,7 +35,7 @@ const baseLeftContainerItems = [
 	{
 		id: 1,
 		label: 'Priority',
-		route: '/priority',
+		route: '/home',
 	},
 	{
 		id: 2,
@@ -64,17 +64,17 @@ const baseLeftContainerItems = [
 	{
 		id: 6,
 		label: 'Tools',
-		route: '/home',
+		route: '/tools',
 	},
 ];
 
 const activeNavItemMap = {
-	'/priority': 1,
+	'/home': 1,
 	'/meet': 2,
 	'/chats': 3,
 	'/agents': 4,
 	'/files': 5,
-	'/home': 6,
+	'/tools': 6,
 };
 
 const TopNavbar = () => {
@@ -272,25 +272,25 @@ const TopNavbar = () => {
 				</Tooltip>
 			),
 		},
-		{
-			id: 2,
-			label: `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`,
-			icon: (
-				<Tooltip
-					title={
-						<div style={tooltipStyle}>
-							<span>Switch to {theme === 'dark' ? 'light' : 'dark'} mode</span>
-						</div>
-					}
-					placement="bottom"
-					arrow={false}
-					color={'transparent'}
-					rootClassName={s.themeTooltip}
-				>
-					{theme === 'dark' ? <LightMode /> : <DarkMode />}
-				</Tooltip>
-			),
-		},
+		// {
+		// 	id: 2,
+		// 	label: `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`,
+		// 	icon: (
+		// 		<Tooltip
+		// 			title={
+		// 				<div style={tooltipStyle}>
+		// 					<span>Switch to {theme === 'dark' ? 'light' : 'dark'} mode</span>
+		// 				</div>
+		// 			}
+		// 			placement="bottom"
+		// 			arrow={false}
+		// 			color={'transparent'}
+		// 			rootClassName={s.themeTooltip}
+		// 		>
+		// 			{theme === 'dark' ? <LightMode /> : <DarkMode />}
+		// 		</Tooltip>
+		// 	),
+		// },
 		{
 			id: 3,
 			label: 'Notifications',
@@ -423,7 +423,7 @@ const TopNavbar = () => {
 									>
 										<li
 											onClick={() => {
-												navigate('/home');
+												navigate('/tools');
 												setInfo((prev) => ({
 													...prev,
 													toolsTooltipOpen: false,
@@ -432,7 +432,7 @@ const TopNavbar = () => {
 												}));
 											}}
 											className={`${s.navItem} ${s.profileItem} ${
-												pathname.includes('/home') ? s.active : ''
+												pathname.includes('/tools') ? s.active : ''
 											}`}
 										>
 											{navItem.label}

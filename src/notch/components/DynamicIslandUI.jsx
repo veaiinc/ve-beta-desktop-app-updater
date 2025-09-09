@@ -32,10 +32,13 @@ const stopCamera = (stream) => {
 };
 
 const DynamicIslandUI = () => {
+	console.log('🏝️ DynamicIslandUI component rendering...');
 	const dynamicIslandRef = useRef(null);
 	const videoRef = useRef(null);
 	const chatInputRef = useRef(null); // Add ref for chat input
-	const [isExpanded, setIsExpanded] = useState(false);
+	const voiceMessagesRef = useRef(null); // Add ref for voice messages container
+	const [isExpanded, setIsExpanded] = useState(false); // Start collapsed by default
+	console.log('🏝️ Initial isExpanded state:', false);
 	const [isConnected, setIsConnected] = useState(false);
 	// Overlay state - synced from overlay window
 	const [isRecording, setIsRecording] = useState(false);
@@ -103,7 +106,11 @@ const DynamicIslandUI = () => {
 
 			// Listen for dynamic island state changes
 			window.electronApi.dynamicIsland.onStateChange((data) => {
-				setIsExpanded(data.expanded);
+				console.log('🏝️ Dynamic Island state changed:', data);
+				if (data.expanded !== undefined) {
+					console.log('🏝️ Setting isExpanded to:', data.expanded);
+					setIsExpanded(data.expanded);
+				}
 			});
 
 			// Listen for overlay state changes to sync recording state
@@ -124,6 +131,33 @@ const DynamicIslandUI = () => {
 					isRecording: state.isRecording,
 				});
 			});
+
+			// Listen for voice mode trigger from wake word
+			window.electronApi.dynamicIsland.onVoiceModeTrigger(() => {
+				console.log('🎤 Voice mode triggered from wake word');
+				// Like "Hey Siri" - always start voice mode if not already active
+				// Don't toggle off if already active, just ensure it's running
+				if (!isVoiceModeActive) {
+					console.log('🎤 Starting voice mode from wake word');
+					handleVoiceModeClick();
+				} else {
+					console.log('🎤 Voice mode already active, keeping it running');
+				}
+			});
+		}
+
+		// Listen for Swift control events
+		if (window.electronApi && window.electronApi.ipcRenderer) {
+			window.electronApi.ipcRenderer.on('swift:control', (event, data) => {
+				console.log('🎯 Swift control received:', data);
+				handleSwiftControl(data.action, data.data);
+			});
+
+			// Listen for state requests from Swift
+			window.electronApi.ipcRenderer.on('swift:getState', () => {
+				console.log('📊 State request from Swift');
+				sendStateToSwift();
+			});
 		}
 
 		return () => {
@@ -134,6 +168,9 @@ const DynamicIslandUI = () => {
 			}
 			if (window.electronApi?.dynamicIsland?.removeOverlayStateListener) {
 				window.electronApi.dynamicIsland.removeOverlayStateListener();
+			}
+			if (window.electronApi?.dynamicIsland?.removeVoiceModeTriggerListener) {
+				window.electronApi.dynamicIsland.removeVoiceModeTriggerListener();
 			}
 		};
 	}, []);
@@ -333,6 +370,73 @@ const DynamicIslandUI = () => {
 		}
 	}, [cameraStream]);
 
+	// Handle Swift control actions
+	const handleSwiftControl = (action, data) => {
+		console.log('🎯 Handling Swift control:', action, data);
+
+		switch (action) {
+			case 'startRecording':
+				console.log('🎤 Swift requested start recording');
+				handleStartRecording();
+				break;
+			case 'stopRecording':
+				console.log('⏹️ Swift requested stop recording');
+				handleStopRecording();
+				break;
+			case 'pauseRecording':
+				console.log('⏸️ Swift requested pause recording');
+				handlePauseResume();
+				break;
+			case 'resumeRecording':
+				console.log('▶️ Swift requested resume recording');
+				handlePauseResume();
+				break;
+			case 'toggleChatMode':
+				console.log('💬 Swift requested chat mode toggle');
+				setIsChatMode(!isChatMode);
+				break;
+			case 'submitChat':
+				console.log('💬 Swift submitted chat:', data);
+				// Handle chat submission from Swift
+				break;
+			case 'setAuthenticated':
+				console.log('🔐 Swift set authentication:', data);
+				setIsAuthenticated(data);
+				break;
+			case 'expand':
+				console.log('📏 Swift requested expand');
+				if (!isExpanded && isConnected) {
+					expand();
+				}
+				break;
+			case 'collapse':
+				console.log('📏 Swift requested collapse');
+				if (isExpanded && isConnected) {
+					collapse();
+				}
+				break;
+			default:
+				console.warn('⚠️ Unknown Swift action:', action);
+		}
+	};
+
+	// Send current state to Swift
+	const sendStateToSwift = () => {
+		if (window.electronApi?.ipcRenderer) {
+			const state = {
+				isExpanded,
+				isRecording,
+				isPaused,
+				timer,
+				isChatMode,
+				isAuthenticated,
+				chatInput,
+			};
+			console.log('📊 Sending state to Swift:', state);
+			window.electronApi.ipcRenderer.send('js:state', state);
+		}
+	};
+
 	// Timer is now managed by overlay system, no local timer effect needed
 
 	// Hover events
@@ -345,6 +449,7 @@ const DynamicIslandUI = () => {
 
 	const handleMouseLeave = () => {
 		console.log('🚪 MOUSE LEAVE - Collapsing to pill!');
+		// Always allow collapse - voice mode should continue working in background
 		if (isExpanded && isConnected) {
 			collapse();
 		}
@@ -416,14 +521,6 @@ const DynamicIslandUI = () => {
 					console.error('❌ Error restoring/recreating main window:', error);
 				});
 		}
-	};
-
-	const handleLockClick = () => {
-		console.log('🔒 Lock icon clicked');
-	};
-
-	const handleSettingsClick = () => {
-		console.log('⚙️ Settings icon clicked');
 	};
 
 	const handleAudioClick = async () => {
@@ -601,6 +698,16 @@ const DynamicIslandUI = () => {
 			setVoiceMessages(newMessages);
 		}
 	};
+
+	// Auto-scroll voice messages to bottom when new messages arrive
+	useEffect(() => {
+		if (voiceMessagesRef.current && voiceMessages.length > 0) {
+			// Small delay to ensure DOM has updated
+			setTimeout(() => {
+				voiceMessagesRef.current.scrollTop = voiceMessagesRef.current.scrollHeight;
+			}, 50);
+		}
+	}, [voiceMessages]);
 
 	// Handle microphone mute/unmute toggle
 	const handleMicrophoneToggle = () => {
@@ -1005,12 +1112,20 @@ const DynamicIslandUI = () => {
 		}
 	};
 
-	// Format time for display
+	// Format time for display - counts up from 0 to 29:50
 	const formatTime = (seconds) => {
-		const m = Math.floor(seconds / 60)
+		// Count up from 0 to 29:50 (29 minutes and 50 seconds = 1790 seconds)
+		const totalSeconds = seconds;
+
+		// Cap at 29:50 (1790 seconds)
+		if (totalSeconds >= 1790) {
+			return '29:50';
+		}
+
+		const m = Math.floor(totalSeconds / 60)
 			.toString()
 			.padStart(1, '0');
-		const s = (seconds % 60).toString().padStart(2, '0');
+		const s = (totalSeconds % 60).toString().padStart(2, '0');
 		return `${m}:${s}`;
 	};
 
@@ -1081,6 +1196,7 @@ const DynamicIslandUI = () => {
 		}
 	};
 
+	console.log('🏝️ Rendering Dynamic Island with isExpanded:', isExpanded);
 	return (
 		<div
 			ref={dynamicIslandRef}
@@ -1095,72 +1211,43 @@ const DynamicIslandUI = () => {
 		>
 			{/* Simple content when collapsed */}
 			<div className="island-content">
-				{controlledByDynamicIsland ? (
+				{isChatMode ? (
+					'Chat Mode'
+				) : showVoiceInterface ? (
+					<div className="voice-agent-collapsed">
+						<span>Voice Agent</span>
+						<div className="voice-wave-animation">
+							<div className="wave-bar"></div>
+							<div className="wave-bar"></div>
+							<div className="wave-bar"></div>
+							<div className="wave-bar"></div>
+							<div className="wave-bar"></div>
+						</div>
+					</div>
+				) : controlledByDynamicIsland ? (
 					isRecording ? (
 						<div className="collapsed-recording-content">
-							{isChatMode ? (
-								// Chat mode in collapsed recording state
-								<div className="collapsed-chat-recording">
-									<div className="collapsed-chat-input">
-										<input
-											type="text"
-											placeholder="Ask about recording..."
-											className="collapsed-chat-field"
-											value={chatInput}
-											onChange={handleChatInputChange}
-											onKeyPress={handleChatInputKeyPress}
-											onFocus={() => {
-												if (
-													window.electronApi?.dynamicIsland
-														?.setChatMode &&
-													!isSettingChatMode
-												) {
-													setIsSettingChatMode(true);
-													window.electronApi.dynamicIsland
-														.setChatMode(true)
-														.then(() => setIsSettingChatMode(false))
-														.catch(() => setIsSettingChatMode(false));
-												}
-											}}
-										/>
-									</div>
-									<div
-										className="collapsed-chat-submit"
-										onClick={handleChatSubmit}
-									>
-										<ArrowIcon />
+							<span className="collapsed-recording-text">
+								{isPaused
+									? `Paused ${formatTime(timer)}`
+									: `Recording ${formatTime(timer)}`}
+							</span>
+							{!isPaused && (
+								<div className="collapsed-voice-animation">
+									<div className="collapsed-voice-visualizer">
+										<div className="audio-bar"></div>
+										<div className="audio-bar"></div>
+										<div className="audio-bar"></div>
+										<div className="audio-bar"></div>
+										<div className="audio-bar"></div>
 									</div>
 								</div>
-							) : (
-								// Normal recording state
-								<>
-									<span className="collapsed-recording-text">
-										{isPaused
-											? `Paused ${formatTime(timer)}`
-											: `Recording ${formatTime(timer)}`}
-									</span>
-									{!isPaused && (
-										<div className="collapsed-voice-animation">
-											<div className="collapsed-voice-visualizer">
-												<div className="audio-bar"></div>
-												<div className="audio-bar"></div>
-												<div className="audio-bar"></div>
-												<div className="audio-bar"></div>
-												<div className="audio-bar"></div>
-											</div>
-										</div>
-									)}
-									{isPaused && <PauseIcon />}
-								</>
 							)}
+							{isPaused && <PauseIcon />}
 						</div>
 					) : (
 						'Living Intelligence'
 					)
-				) : showVoiceInterface ? (
-					'Voice Mode'
-				) : isChatMode ? (
-					'Chat Mode'
 				) : (
 					'Living Intelligence'
 				)}
@@ -1226,11 +1313,30 @@ const DynamicIslandUI = () => {
 										</span>
 									</div>
 								) : showVoiceInterface ? (
-									<div className="voice-mode-indicator">
-										<div className="voice-mode-icon">
-											<VoiceModeIcon />
+									<div className="voice-mode-indicators">
+										<div
+											className="voice-mic-icon"
+											onClick={handleMicrophoneToggle}
+											title={
+												isMicrophoneMuted
+													? 'Click to unmute'
+													: 'Click to mute'
+											}
+										>
+											{isMicrophoneMuted ? (
+												<MutedMicrophoneIcon />
+											) : (
+												<MicrophoneIcon />
+											)}
 										</div>
-										<span className="voice-mode-text">Voice Agent</span>
+										<div
+											className="voice-stop-btn"
+											onClick={handleInlineVoiceDisconnect}
+											title="Stop voice assistant"
+										>
+											<div className="stop-icon"></div>
+											<span className="stop-text">Stop</span>
+										</div>
 									</div>
 								) : (
 									<div className="recording-controls">
@@ -1238,8 +1344,18 @@ const DynamicIslandUI = () => {
 										<div className="meeting-mode-label">
 											{controlledByDynamicIsland && (
 												<>
-													<VoiceModeIcon />
 													<span>Meeting mode</span>
+													{isPaused ? (
+														<PauseIcon />
+													) : (
+														<div className="meeting-wave-animation">
+															<div className="wave-bar"></div>
+															<div className="wave-bar"></div>
+															<div className="wave-bar"></div>
+															<div className="wave-bar"></div>
+															<div className="wave-bar"></div>
+														</div>
+													)}
 												</>
 											)}
 										</div>
@@ -1265,24 +1381,20 @@ const DynamicIslandUI = () => {
 
 							{/* Right side icons */}
 							<div className="right-icons">
-								{(isChatMode || showVoiceInterface) && (
+								{isChatMode && (
 									<div
 										className="back-button"
 										title="Back to main view"
 										onClick={() => {
-											if (showVoiceInterface) {
-												handleInlineVoiceDisconnect();
-											} else if (isChatMode) {
-												setIsChatMode(false);
-												setChatInput('');
-												// Disable focus when exiting chat mode
-												if (
-													window.electronApi?.dynamicIsland?.setChatMode
-												) {
-													window.electronApi.dynamicIsland.setChatMode(
-														false,
-													);
-												}
+											setIsChatMode(false);
+											setChatInput('');
+											// Disable focus when exiting chat mode
+											if (
+												window.electronApi?.dynamicIsland?.setChatMode
+											) {
+												window.electronApi.dynamicIsland.setChatMode(
+													false,
+												);
 											}
 										}}
 									>
@@ -1306,7 +1418,7 @@ const DynamicIslandUI = () => {
 								<div className="voice-split-layout">
 									{/* Left side: Conversation messages */}
 									<div className="voice-conversation-left">
-										<div className="voice-messages-area">
+										<div className="voice-messages-area" ref={voiceMessagesRef}>
 											{/* Show real-time voice messages or fallback to sample */}
 											{voiceMessages.length > 0 ? (
 												voiceMessages.map((msg, index) => (
@@ -1418,31 +1530,6 @@ const DynamicIslandUI = () => {
 												</div>
 											</div>
 
-											<div className="voice-action-buttons">
-												<div
-													className="voice-close-btn"
-													onClick={handleInlineVoiceDisconnect}
-												>
-													<CloseIcon />
-												</div>
-												<div
-													className={`voice-mic-btn ${
-														isMicrophoneMuted ? 'muted' : ''
-													}`}
-													onClick={handleMicrophoneToggle}
-													title={
-														isMicrophoneMuted
-															? 'Click to unmute'
-															: 'Click to mute'
-													}
-												>
-													{isMicrophoneMuted ? (
-														<MutedMicrophoneIcon />
-													) : (
-														<MicrophoneIcon />
-													)}
-												</div>
-											</div>
 										</div>
 									</div>
 								</div>

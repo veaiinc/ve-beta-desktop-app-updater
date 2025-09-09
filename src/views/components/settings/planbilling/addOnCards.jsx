@@ -62,7 +62,7 @@ const AddOnPlans = ({
 		resumeSubscriptionLoading: false,
 		isMobile: window.matchMedia('(max-width: 767px)').matches,
 		startTrialLoading: false,
-		subscriptionState: subscriptionState || 'upgradeSubscription',
+		subscriptionState: 'upgradeSubscription',
 	}));
 
 	// ID of the user's current plan
@@ -76,6 +76,15 @@ const AddOnPlans = ({
 		currentPlan?.renewalType === 'yearly'
 			? currentPlanSubscribed?.yearlyPrice || 0
 			: currentPlanSubscribed?.monthlyPrice || 0;
+
+	useEffect(() => {
+		if (isOpen && subscriptionState) {
+			setInfo((prev) => ({
+				...prev,
+				subscriptionState: subscriptionState,
+			}));
+		}
+	}, [subscriptionState]);
 
 	useEffect(() => {
 		if (isOpen) {

@@ -26,8 +26,8 @@ const listIconShapes = [
 	{ name: 'Star', element: <Star /> },
 	{ name: 'Numbers', element: <Numbers /> },
 	{ name: 'SquareCircle', element: <SquareCircle /> },
-	{ name: 'Delivery', element: <Delivery /> },
-	{ name: 'Location', element: <Location /> },
+	{ name: 'Delivery', element: <Delivery/> },
+	{ name: 'Location', element: <Location/> },
 ];
 class ListIcon extends Component {
 	constructor(props) {
@@ -85,11 +85,7 @@ class ListIcon extends Component {
 
 		const IconComponent = listIconShapes.find((icon) => icon.name === shape)?.element;
 
-		return IconComponent ? (
-			React.cloneElement(IconComponent, { color, size, listCount })
-		) : (
-			<Circle color={color} size={size} listCount={listCount} />
-		);
+		return IconComponent ? React.cloneElement(IconComponent, { color, size, listCount }) : <Circle color={color} size={size} listCount={listCount} />;
 	};
 	handleOnClick = () => {
 		this.state.preview == true

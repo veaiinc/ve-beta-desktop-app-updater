@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Send, Copy, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Send, Copy, ChevronDown, ChevronUp, GripHorizontal } from 'lucide-react';
 import './askAI.scss';
 import { useAskAISocket } from './socketState';
 import { Square } from 'lucide-react';
@@ -26,6 +26,10 @@ const AskAIApp = () => {
 	const [copied, setCopied] = useState(false);
 	const [isNeedHelpRequest, setIsNeedHelpRequest] = useState(false);
 	const [receivedDynamicIslandMessage, setReceivedDynamicIslandMessage] = useState(null);
+	const isStoppedRef = useRef(false);
+	const shouldCloseRef = useRef(false);
+	// Add this simple conversation history state
+	const [fullConversation, setFullConversation] = useState('');
 	// Initialize socket
 	const { createWebSocketConnection, sendMessage, closeWebSocketConnection } = useAskAISocket();
 	// Update dimensions only when necessary
@@ -125,15 +129,19 @@ const AskAIApp = () => {
 			}, 100); // Small delay to ensure everything is ready
 		};
 
-		// Listen for chat messages from Dynamic Island
+		// Listen for chat messages from Dynamic Island or NotchDrop
 		const handleChatMessage = (chatMessage) => {
-			console.log('💬 Received chat message from Dynamic Island:', chatMessage);
+			console.log('💬 Received chat message:', chatMessage);
 
-			if (chatMessage.type === 'dynamic-island-chat' && chatMessage.message) {
-				// Set the received message for display purposes
-				setReceivedDynamicIslandMessage(chatMessage.message);
+			const isDynamicIsland = chatMessage.type === 'dynamic-island-chat';
+			const isNotchDrop = chatMessage.type === 'notchdrop-chat';
 
-				// Don't set the message in the input field - process it directly
+			if ((isDynamicIsland || isNotchDrop) && chatMessage.message) {
+				// Show indicator only for Dynamic Island
+				if (isDynamicIsland) {
+					setReceivedDynamicIslandMessage(chatMessage.message);
+				}
+
 				// Auto-focus the input for user interaction
 				if (inputRef.current) {
 					inputRef.current.focus();
@@ -208,106 +216,61 @@ const AskAIApp = () => {
 		}
 	};
 
-	// Handle incoming WebSocket messages
-	const onMessageFunc = useCallback((event, currentSessionId) => {
-		let { data = '' } = event || {};
+	// Modify handleStop to save the current conversation
+	const handleStop = () => {
+		console.log('🛑 Stopping generation immediately...');
+
+		// Set flag to indicate user stopped the generation FIRST
+		isStoppedRef.current = true;
+
+		// IMMEDIATELY freeze the display at current state
+		setDisplayedResponse((currentDisplayed) => {
+			console.log('🛑 Freezing display at:', currentDisplayed);
+			// Set streamingResponse to match current displayed content
+			setStreamingResponse(currentDisplayed);
+
+			// Save the partial conversation to full conversation history
+			if (currentDisplayed.trim()) {
+				setFullConversation((prev) => {
+					const newConversation =
+						prev +
+						(prev ? '\n\n' : '') +
+						`Human: ${inputValue || 'Previous question'}\n\n` +
+						`Assistant: ${currentDisplayed} [STOPPED BY USER]`;
+					console.log('💾 Saved conversation:', newConversation);
+					return newConversation;
+				});
+			}
+
+			return currentDisplayed;
+		});
+
+		// Stop the loading state immediately
+		setIsLoading(false);
+
+		// FORCE CLOSE the WebSocket connection immediately
 		try {
-			data = JSON.parse(data);
+			if (closeWebSocketConnection) {
+				closeWebSocketConnection();
+				console.log('🛑 WebSocket connection closed');
+			}
 		} catch (error) {
-			console.error('Failed to parse WebSocket message:', error);
-			return;
+			console.warn('Error closing WebSocket:', error);
 		}
 
-		console.log('📨 Received message:', data);
-
-		// Handle streaming messages
-		if (data?.message_chunk_id) {
-			const newChunk = data?.answer || '';
-			console.log('📝 Adding chunk:', newChunk);
-			setStreamingResponse((prev) => {
-				const updated = prev + newChunk;
-				console.log('📝 Updated streaming response:', updated);
-				return updated;
-			});
-		}
-
-		// Handle stream end
-		if (data?.stream_end) {
-			console.log('🏁 Stream ended, finalizing response...');
-			setStreamingResponse((currentStreaming) => {
-				const finalResponse = currentStreaming + (data?.answer || '');
-				console.log('🏁 Final response calculated:', finalResponse);
-
-				// Set the final response
-				setResponse(finalResponse);
-				setDisplayedResponse(finalResponse); // Ensure displayed matches final
-				setIsLoading(false);
-				setIsExpanded(true);
-				setHasResponse(true);
-
-				// Clear the Dynamic Island message indicator since we got a response
-				setReceivedDynamicIslandMessage(null);
-
-				console.log('✅ Final response set:', finalResponse);
-				console.log('✅ Response window should stay visible now');
-
-				return ''; // Clear streaming response
-			});
-		}
-	}, []);
-
-	// Character-by-character streaming display
-	useEffect(() => {
-		let timeoutId;
-
-		if (streamingResponse && !response) {
-			const currentDisplayed = displayedResponse;
-			const targetText = streamingResponse;
-
-			// Only animate if there's new content to show
-			if (targetText.length > currentDisplayed.length) {
-				const nextChar = targetText[currentDisplayed.length];
-
-				timeoutId = setTimeout(() => {
-					setDisplayedResponse((prev) => prev + nextChar);
-				}, 20); // Adjust speed: lower = faster, higher = slower
-			}
-		}
-
-		return () => {
-			if (timeoutId) {
-				clearTimeout(timeoutId);
-			}
-		};
-	}, [streamingResponse, displayedResponse, response]);
-
-	const requestScreenPermissionIfNeeded = async () => {
-		try {
-			// ✅ Use the exposed API method, not .invoke()
-			const checkResult = await window.electronApi.checkScreenPermission();
-			if (checkResult.hasPermission) {
-				return true;
-			}
-
-			// ✅ Use the exposed request method
-			const requestResult = await window.electronApi.requestScreenPermission();
-			if (requestResult.granted) {
-				return true;
-			} else {
-				alert(
-					'Please enable screen recording in System Settings > Privacy & Security > Screen Recording.',
-				);
-				return false;
-			}
-		} catch (err) {
-			console.error('Permission check failed:', err);
-			return false;
-		}
+		console.log('🛑 Generation stopped successfully - display frozen');
 	};
 
+	// Modify handleSubmit to include conversation context
 	const handleSubmit = async (customInput = null, isNeedHelp = null) => {
 		const queryValue = customInput || inputValue.trim();
 		if (!queryValue) return;
+
+		// Reset the stopped flag for new requests
+		isStoppedRef.current = false;
+
+		// Store the current question for conversation history
+		const currentQuestion = queryValue;
 
 		// Use the passed isNeedHelp parameter if provided, otherwise use state
 		const shouldUseDirectSearch = isNeedHelp !== null ? isNeedHelp : isNeedHelpRequest;
@@ -319,17 +282,14 @@ const AskAIApp = () => {
 
 		const hasPermission = await requestScreenPermissionIfNeeded();
 		setIsLoading(true);
+
+		// Clear display states for new message (but keep conversation history)
 		setResponse('');
 		setStreamingResponse('');
 		setDisplayedResponse('');
 
 		// Clear Dynamic Island message indicator when starting new submission
 		setReceivedDynamicIslandMessage(null);
-
-		// Clear input only if it's a manual submission (not automatic)
-		if (!customInput) {
-			setInputValue('');
-		}
 
 		// Reset need help flag for manual submissions
 		if (!customInput) {
@@ -344,14 +304,21 @@ const AskAIApp = () => {
 					base64Image = await window.electronApi.desktop.captureScreen();
 				} catch (err) {
 					console.warn('Failed to capture screenshot:', err);
-					// Optionally continue without image
 				}
 			}
 
 			const imageArray = base64Image ? [base64Image] : [];
-			// Prepare message data
+
+			// Create context-aware query
+			let contextualQuery = queryValue;
+			if (fullConversation.trim()) {
+				contextualQuery = `Previous conversation context:\n${fullConversation}\n\nCurrent question: ${queryValue}`;
+				console.log('📚 Including conversation context in query');
+			}
+
+			// Prepare message data with conversation context
 			const messageData = {
-				query: queryValue,
+				query: contextualQuery, // Include context directly in the query
 				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 				web_search: true,
 				knowledge_base_search: true,
@@ -376,10 +343,17 @@ const AskAIApp = () => {
 			}
 			messageData.location = location_details;
 
+			console.log('📤 Sending contextual query:', {
+				originalQuery: queryValue,
+				hasContext: !!fullConversation.trim(),
+				sessionId,
+			});
+
 			await sendMessage({
 				data: messageData,
-				sessionId,
-				onMessageFunc,
+				sessionId, // Use the same session ID to maintain context
+				onMessageFunc: (event, sessionId) =>
+					onMessageFunc(event, sessionId, currentQuestion),
 				agentType: 'multi_agent_chat_streaming',
 			});
 
@@ -390,8 +364,149 @@ const AskAIApp = () => {
 			setIsLoading(false);
 			setResponse('Error: Failed to send message. Please try again.');
 			setIsExpanded(true);
-			// Reset the need help flag on error as well
 			setIsNeedHelpRequest(false);
+		}
+	};
+
+	// Modify onMessageFunc to save completed conversations
+	const onMessageFunc = useCallback((event, currentSessionId, currentQuestion) => {
+		// FIRST CHECK: If user stopped generation, ignore ALL incoming messages
+		if (isStoppedRef.current) {
+			console.log('🛑 Ignoring message - generation was stopped by user');
+			return;
+		}
+
+		let { data = '' } = event || {};
+		try {
+			data = JSON.parse(data);
+		} catch (error) {
+			console.error('Failed to parse WebSocket message:', error);
+			return;
+		}
+
+		console.log('📨 Received message:', data);
+
+		// Handle streaming messages
+		if (data?.message_chunk_id) {
+			// DOUBLE CHECK: Don't add chunks if stopped
+			if (isStoppedRef.current) {
+				console.log('🛑 Ignoring chunk - generation was stopped');
+				return;
+			}
+
+			const newChunk = data?.answer || '';
+			console.log('📝 Adding chunk:', newChunk);
+
+			setStreamingResponse((prev) => {
+				// TRIPLE CHECK: Don't update if stopped during state update
+				if (isStoppedRef.current) {
+					console.log('🛑 Stopping chunk addition mid-update');
+					return prev;
+				}
+				const updated = prev + newChunk;
+				console.log('📝 Updated streaming response:', updated);
+				return updated;
+			});
+		}
+
+		// Handle stream end
+		if (data?.stream_end) {
+			// FINAL CHECK: Don't finalize if stopped
+			if (isStoppedRef.current) {
+				console.log('🛑 Ignoring stream end - generation was stopped');
+				return;
+			}
+
+			console.log('🏁 Stream ended, finalizing response...');
+			setStreamingResponse((currentStreaming) => {
+				if (isStoppedRef.current) {
+					return currentStreaming;
+				}
+
+				const finalResponse = currentStreaming + (data?.answer || '');
+				console.log('🏁 Final response calculated:', finalResponse);
+
+				// Save the complete conversation to history
+				setFullConversation((prev) => {
+					const newConversation =
+						prev +
+						(prev ? '\n\n' : '') +
+						`Human: ${currentQuestion}\n\n` +
+						`Assistant: ${finalResponse}`;
+					console.log('💾 Saved complete conversation:', newConversation);
+					return newConversation;
+				});
+
+				// Set the final response
+				setResponse(finalResponse);
+				setDisplayedResponse(finalResponse);
+				setIsLoading(false);
+				setIsExpanded(true);
+				setHasResponse(true);
+
+				// Clear the Dynamic Island message indicator since we got a response
+				setReceivedDynamicIslandMessage(null);
+
+				console.log('✅ Final response set:', finalResponse);
+				return ''; // Clear streaming response
+			});
+		}
+	}, []);
+
+	// Character-by-character streaming display
+	useEffect(() => {
+		let timeoutId;
+
+		// FIRST CHECK: Don't animate if user stopped generation
+		if (isStoppedRef.current) {
+			return;
+		}
+
+		if (streamingResponse && !response) {
+			const currentDisplayed = displayedResponse;
+			const targetText = streamingResponse;
+
+			// Only animate if there's new content to show AND not stopped
+			if (targetText.length > currentDisplayed.length && !isStoppedRef.current) {
+				const nextChar = targetText[currentDisplayed.length];
+
+				timeoutId = setTimeout(() => {
+					// DOUBLE CHECK: Don't update if stopped during timeout
+					if (!isStoppedRef.current) {
+						setDisplayedResponse((prev) => prev + nextChar);
+					}
+				}, 20); // Adjust speed: lower = faster, higher = slower
+			}
+		}
+
+		return () => {
+			if (timeoutId) {
+				clearTimeout(timeoutId);
+			}
+		};
+	}, [streamingResponse, displayedResponse, response]); // Keep dependencies the same
+
+	const requestScreenPermissionIfNeeded = async () => {
+		try {
+			// ✅ Use the exposed API method, not .invoke()
+			const checkResult = await window.electronApi.checkScreenPermission();
+			if (checkResult.hasPermission) {
+				return true;
+			}
+
+			// ✅ Use the exposed request method
+			const requestResult = await window.electronApi.requestScreenPermission();
+			if (requestResult.granted) {
+				return true;
+			} else {
+				alert(
+					'Please enable screen recording in System Settings > Privacy & Security > Screen Recording.',
+				);
+				return false;
+			}
+		} catch (err) {
+			console.error('Permission check failed:', err);
+			return false;
 		}
 	};
 
@@ -458,17 +573,45 @@ const AskAIApp = () => {
 		setIsExpanded(!isExpanded);
 	};
 
-	const handleClose = () => {
-		if (window.electronApi?.askAI?.toggleWindow) {
-			window.electronApi.askAI.toggleWindow();
+	const handleClose = async () => {
+		console.log('❌ X button clicked - closing AI window');
+		
+		// Stop AI generation if it's currently running
+		if (isLoading) {
+			console.log('🛑 Stopping AI generation before closing...');
+			handleStop();
+			
+			// Wait a moment for stop to complete, then close
+			setTimeout(() => {
+				console.log('🚪 Closing AI window after stop...');
+				if (window.electronApi?.askAI?.hideWindow) {
+					window.electronApi.askAI.hideWindow();
+				}
+			}, 50); // Small delay to ensure stop completes
+		} else {
+			// If not loading, close immediately
+			console.log('🚪 Closing AI window immediately...');
+			if (window.electronApi?.askAI?.hideWindow) {
+				window.electronApi.askAI.hideWindow();
+			}
 		}
 	};
+
+	// Add a debug function to see conversation history
+	const debugConversation = () => {
+		console.log('🔍 Current conversation history:');
+		console.log(fullConversation);
+	};
+
 	return (
 		<div ref={containerRef} className="ask-ai-app">
 			{/* Response Window - Top */}
 			{(response || isLoading || displayedResponse || isExpanded || hasResponse) && (
 				<div className={`ai-response-window ${isExpanded ? 'expanded' : 'collapsed'}`}>
 					<div className="ai-response-header">
+						<div className="ai-response-drag-handle">
+							<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
+						</div>
 						<div className="ai-response-title">
 							<span>AI Response</span>
 							{response && (
@@ -534,6 +677,9 @@ const AskAIApp = () => {
 
 			{/* Input Bar - Botdtom */}
 			<div className="ask-ai-input">
+				<div className="ask-ai-input-drag-handle">
+					<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
+				</div>
 				{/* Dynamic Island Message Indicator */}
 				{receivedDynamicIslandMessage && (
 					<div className="ask-ai-input__dynamic-island-indicator">
@@ -580,7 +726,7 @@ const AskAIApp = () => {
 					</div>
 				)} */}
 
-				<div className="ask-ai-input__container">
+				<div className="ask-ai-input__container ask-ai-input__container_responding">
 					<textarea
 						ref={inputRef}
 						className="ask-ai-input__field"
@@ -593,16 +739,30 @@ const AskAIApp = () => {
 
 					{
 						<button
-							className={`ask-ai-input__submit ${inputValue.trim() ? 'active' : ''}`}
-							onClick={() => handleSubmit()}
-							disabled={!inputValue.trim() || isLoading}
+							className={`ask-ai-input__submit ${inputValue.trim() ? 'active' : ''} ${
+								isLoading ? 'loading' : ''
+							}`}
+							onClick={() => {
+								isLoading ? handleStop() : handleSubmit();
+							}}
+							// disabled={!inputValue.trim() || isLoading}
 							title="Ask"
 						>
-							{isLoading ? <Square size={20} /> : 'Ask'}
+							{isLoading ? <Square size={10} /> : 'Ask'}
 						</button>
 					}
 				</div>
 			</div>
+
+			{/* Add this to your JSX for debugging (remove in production) */}
+			{/* {process.env.NODE_ENV === 'development' && (
+				<button
+					onClick={debugConversation}
+					style={{ position: 'absolute', top: 0, right: 0 }}
+				>
+					Debug Conversation
+				</button>
+			)} */}
 		</div>
 	);
 };

@@ -1,19 +1,24 @@
 {
 	"name": "VEAI",
 	"description": "Your living intelligence remembers everything, sees what you see, figures out your goals, and doesn’t stop until they're done.",
-	"version": "v0.4.2",
+	"version": "v0.4.11",
 	"private": true,
 	"main": "dist-electron/main.js",
 	"author": "Ve AI",
 	"repository": "https://github.com/veaiinc/ve-desktop-app-updater",
 	"scripts": {
-		"postinstall": "electron-builder install-app-deps",
+		"postinstall": "electron-builder install-app-deps && npm run rebuild:native:mac && npm run clean:sharp",
+		"clean:sharp": "node -e \"const fs = require('fs'); const path = require('path'); const nodeModulesPath = path.join(__dirname, 'node_modules', '@img'); console.log('🔧 Ensuring Sharp package structure for all platforms...'); if (fs.existsSync(nodeModulesPath)) { const requiredDirs = ['sharp-darwin-arm64', 'sharp-darwin-x64', 'sharp-libvips-darwin-arm64', 'sharp-libvips-darwin-x64', 'sharp-linux-arm', 'sharp-linux-arm64', 'sharp-linux-x64', 'sharp-libvips-linux-arm', 'sharp-libvips-linux-arm64', 'sharp-libvips-linux-x64', 'sharp-win32-ia32', 'sharp-win32-x64', 'sharp-libvips-win32-ia32', 'sharp-libvips-win32-x64']; requiredDirs.forEach(dir => { const dirPath = path.join(nodeModulesPath, dir); if (!fs.existsSync(dirPath)) { fs.mkdirSync(dirPath, { recursive: true }); fs.writeFileSync(path.join(dirPath, '.gitkeep'), ''); console.log('✅ Created missing directory:', dir); } else { console.log('✅ Directory exists:', dir); } }); console.log('🎉 All Sharp directories ensured for cross-platform builds'); } else { console.log('📁 @img directory not found'); }\"",
+		"install-python-deps": "cd electron/wakeWord && (python -m pip install -r requirements.txt || python3 -m pip install -r requirements.txt || py -m pip install -r requirements.txt)",
 		"postinstall:win": "npm rebuild sharp --platform=win32 --arch=x64",
-		"dev": "cross-env NODE_ENV=development npm run clean:build:cross && vite",
+		"dev": "npm run build:notchdrop:all && cross-env NODE_ENV=development npm run clean:build:cross && vite",
+		"dev:swift": "node scripts/dev-with-swift-watch.js",
+		"dev:swift:shell": "bash scripts/dev-swift-watch.sh",
+		"dev:swift:watch-only": "node scripts/swift-watcher.js",
 		"dev:win": "set NODE_ENV=development && npm run clean:build:win && vite",
 		"dev:win:no-clean": "set NODE_ENV=development && vite",
 		"start": "electron .",
-		"build": "cross-env NODE_ENV=production node --max-old-space-size=12288 node_modules/vite/bin/vite.js build --mode production",
+		"build": "npm run build:notchdrop:all && cross-env NODE_ENV=production node --max-old-space-size=12288 node_modules/vite/bin/vite.js build --mode production",
 		"build:win": "set NODE_ENV=production && node --max-old-space-size=12288 node_modules/vite/bin/vite.js build --mode production",
 		"package": "npm run clean:build:cross && npm run build && electron-builder",
 		"package:win": "npm run build:win && electron-builder --win",
@@ -25,7 +30,12 @@
 		"delete-maps:win": "del /q .\\build\\static\\js\\*.map && del /q .\\build\\static\\css\\*.map",
 		"delete-maps:cross": "rimraf ./build/static/js/*.map ./build/static/css/*.map",
 		"format": "prettier --write \"**/*.+(js|jsx|json|yml|yaml|css|md|vue)\"",
-		"package:mac": "npm run clean:build:cross && npm run build && electron-builder --mac",
+		"package:mac": "npm run clean:build:cross && npm run build && npm run rebuild:native:mac && electron-builder --mac",
+		"build:notchdrop:native": "node scripts/build-notchdrop-native.js",
+		"build:notchdrop:ui": "cd notchdrop-addon && npm run build:ui",
+		"build:notchdrop:all": "npm run build:notchdrop:native && npm run build:notchdrop:ui",
+		"package:mac:app:unsigned": "npm run clean:build:cross && npm run build && npm run build:notchdrop:ui && npm run rebuild:native:mac && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dir --arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false",
+		"package:mac:app:unsigned:both": "npm run clean:build:cross && npm run build && npm run build:notchdrop:ui && npm run rebuild:native:mac && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dir -a x64,arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false",
 		"package:linux": "npm run clean:build:cross && npm run build && electron-builder --linux",
 		"publish:mac": "npm run clean:build:cross && npm run build && electron-builder --mac --publish=always",
 		"publish:win": "npm run clean:build:cross && npm run build && electron-builder --win --publish=always",
@@ -37,7 +47,9 @@
 		"test:coverage": "vitest run --coverage",
 		"clean:build": "rm -rf dist-electron && rm -rf build && rm -rf dist",
 		"clean:build:win": "if exist dist-electron rmdir /s /q dist-electron && if exist build rmdir /s /q build && if exist dist rmdir /s /q dist",
-		"clean:build:cross": "rimraf dist-electron build dist"
+		"clean:build:cross": "rimraf dist-electron build dist",
+		"rebuild:native:mac": "electron-builder install-app-deps && npx electron-rebuild -f -w notchdrop-addon",
+		"validate:notchdrop": "node scripts/validate-notchdrop.js"
 	},
 	"dependencies": {
 		"@apollo/client": "^3.13.5",
@@ -57,10 +69,12 @@
 		"@pipedream/platform": "^3.1.0",
 		"@pipedream/sdk": "^1.6.9",
 		"@xyflow/react": "^12.3.6",
+		"active-win": "^8.2.1",
 		"antd": "^5.24.5",
 		"archiver": "^7.0.1",
 		"axios": "^1.11.0",
 		"bson-objectid": "^2.0.4",
+		"cross-spawn": "^7.0.6",
 		"currency-symbol-map": "^5.1.0",
 		"dayjs": "^1.11.13",
 		"electron-debug": "^4.1.0",
@@ -71,7 +85,7 @@
 		"file-loader": "^6.2.0",
 		"firebase": "^12.1.0",
 		"google-fonts-complete": "^2.2.3",
-		"graphql": "^16.10.0",
+		"graphql": "^15.10.1",
 		"gsap": "^3.13.0",
 		"history": "^5.3.0",
 		"image-focus": "^1.2.1",
@@ -86,6 +100,7 @@
 		"masonry-layout": "^4.2.2",
 		"mitt": "^3.0.1",
 		"moment": "^2.30.1",
+		"notchdrop-addon": "file:./notchdrop-addon",
 		"randomatic": "^3.1.1",
 		"rc-slider": "^10.6.2",
 		"re-resizable": "^6.11.2",
@@ -148,6 +163,10 @@
 			"build/**",
 			"dist-electron/**",
 			"node_modules/**",
+			"notchdrop-addon/**",
+			"!notchdrop-addon/src/**",
+			"!notchdrop-addon/build_swift/**",
+			"!notchdrop-addon/node_modules/**",
 			"!node_modules/.cache/**",
 			"!node_modules/**/*.map",
 			"!node_modules/**/*.d.ts",
@@ -175,15 +194,15 @@
 				{
 					"target": "dmg",
 					"arch": [
-						"x64",
-						"arm64"
+						"arm64",
+						"x64"
 					]
 				},
 				{
 					"target": "zip",
 					"arch": [
-						"x64",
-						"arm64"
+						"arm64",
+						"x64"
 					]
 				}
 			],
@@ -200,7 +219,45 @@
 			"asarUnpack": [
 				"resources/**",
 				"**/node_modules/sharp/**/*",
-				"**/node_modules/@img/**/*"
+				"**/node_modules/@img/sharp-darwin*/**/*",
+				"**/node_modules/@img/sharp-libvips-darwin*/**/*",
+				"**/node_modules/notchdrop-addon/**/*.node",
+				"**/node_modules/notchdrop-addon/bin/**/*"
+			],
+			"extraResources": [
+				{
+					"from": "notchdrop-addon/build/Release",
+					"to": "notchdrop-addon/build/Release",
+					"filter": [
+						"**/*"
+					]
+				},
+				{
+					"from": "notchdrop-addon/bin",
+					"to": "notchdrop-addon/bin",
+					"filter": [
+						"**/*"
+					]
+				},
+				{
+					"from": "notchdrop-addon/dist",
+					"to": "notchdrop-addon/dist",
+					"filter": [
+						"**/*"
+					]
+				},
+				{
+					"from": "notchdrop-addon/index.js",
+					"to": "notchdrop-addon/index.js"
+				},
+				{
+					"from": "notchdrop-addon/swift-js-bridge.js",
+					"to": "notchdrop-addon/swift-js-bridge.js"
+				},
+				{
+					"from": "notchdrop-addon/ui-bridge.js",
+					"to": "notchdrop-addon/ui-bridge.js"
+				}
 			],
 			"extendInfo": {
 				"NSMicrophoneUsageDescription": "Please give us access to your microphone",
@@ -234,7 +291,8 @@
 			"asar": true,
 			"asarUnpack": [
 				"**/node_modules/sharp/**/*",
-				"**/node_modules/@img/**/*"
+				"**/node_modules/@img/sharp-win32*/**/*",
+				"**/node_modules/@img/sharp-libvips-win32*/**/*"
 			]
 		},
 		"linux": {
@@ -247,7 +305,13 @@
 				}
 			],
 			"icon": "./electron/assets/app-logo.png",
-			"artifactName": "Ve.AI-${arch}-${os}.${ext}"
+			"artifactName": "Ve.AI-${arch}-${os}.${ext}",
+			"asar": true,
+			"asarUnpack": [
+				"**/node_modules/sharp/**/*",
+				"**/node_modules/@img/sharp-linux*/**/*",
+				"**/node_modules/@img/sharp-libvips-linux*/**/*"
+			]
 		}
 	},
 	"eslintConfig": {
@@ -287,6 +351,7 @@
 		"@vitejs/plugin-react": "^4.4.1",
 		"@vitest/ui": "^3.2.4",
 		"autoprefixer": "^10.4.21",
+		"chokidar": "^4.0.3",
 		"cross-env": "^10.0.0",
 		"css-loader": "^7.1.2",
 		"cssnano": "^7.0.7",
@@ -300,7 +365,7 @@
 		"eslint-plugin-react": "^7.37.5",
 		"globals": "^16.1.0",
 		"jsdom": "^26.1.0",
-		"msw": "^2.10.2",
+		"msw": "^2.11.1",
 		"prettier": "^2.2.1",
 		"rimraf": "^6.0.1",
 		"sass": "^1.77.5",
