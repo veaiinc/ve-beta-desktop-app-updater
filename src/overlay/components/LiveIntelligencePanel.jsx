@@ -31,21 +31,20 @@ const LiveIntelligencePanel = ({
 
 	// Handle individual thread item click and send specific content to Ask AI
 	const handleThreadItemClick = async (item, tabKey) => {
-		// Extract the main content text
-		const contentText = item.prompt || item.name || item.description || 'No content available';
+		// Extract the main content text (the thread question)
+		const questionText = item.prompt || item.name || item.description || 'No content available';
 
-		// Prepare item content to send to Ask AI
-		const itemContent = {
-			type: 'individual-item',
+		// Prepare chat message to send to Ask AI
+		const chatMessage = {
+			type: 'overlay-thread-question',
+			message: questionText,
 			tabKey,
 			tabLabel: tabs.find((tab) => tab.key === tabKey)?.label || tabKey,
-			itemContent: contentText,
 			itemData: item,
 			timestamp: new Date().toISOString(),
 		};
 
-		console.log('🚀 Sending item content to Ask AI:', itemContent);
-		console.log('🎯 Is need-help tab?', tabKey === 'need-help');
+		console.log('🚀 Sending thread question to Ask AI:', chatMessage);
 
 		// Check if window is already visible, if not, show it
 		try {
@@ -58,14 +57,14 @@ const LiveIntelligencePanel = ({
 					}
 					// Wait for window to be ready after opening
 					setTimeout(() => {
-						if (window.electronApi?.overlay?.sendTabContentToAskAI) {
-							window.electronApi.overlay.sendTabContentToAskAI(itemContent);
+						if (window.electronApi?.overlay?.sendChatMessageToAskAI) {
+							window.electronApi.overlay.sendChatMessageToAskAI(chatMessage);
 						}
 					}, 300);
 				} else {
 					// Window is already visible, send content immediately
-					if (window.electronApi?.overlay?.sendTabContentToAskAI) {
-						window.electronApi.overlay.sendTabContentToAskAI(itemContent);
+					if (window.electronApi?.overlay?.sendChatMessageToAskAI) {
+						window.electronApi.overlay.sendChatMessageToAskAI(chatMessage);
 					}
 				}
 			} else {
@@ -74,8 +73,8 @@ const LiveIntelligencePanel = ({
 					window.electronApi.askAI.toggleWindow();
 				}
 				setTimeout(() => {
-					if (window.electronApi?.overlay?.sendTabContentToAskAI) {
-						window.electronApi.overlay.sendTabContentToAskAI(itemContent);
+					if (window.electronApi?.overlay?.sendChatMessageToAskAI) {
+						window.electronApi.overlay.sendChatMessageToAskAI(chatMessage);
 					}
 				}, 300);
 			}
@@ -86,8 +85,8 @@ const LiveIntelligencePanel = ({
 				window.electronApi.askAI.toggleWindow();
 			}
 			setTimeout(() => {
-				if (window.electronApi?.overlay?.sendTabContentToAskAI) {
-					window.electronApi.overlay.sendTabContentToAskAI(itemContent);
+				if (window.electronApi?.overlay?.sendChatMessageToAskAI) {
+					window.electronApi.overlay.sendChatMessageToAskAI(chatMessage);
 				}
 			}, 300);
 		}
