@@ -389,7 +389,7 @@ const IntegrationConnectModel = ({
 											<span className="connect-text">Connecting...</span>
 										</>
 									) : (
-										<span className="connect-text">Connect for me</span>
+										<span className="connect-text">Connect just for me</span>
 									)}
 								</div>
 							</>

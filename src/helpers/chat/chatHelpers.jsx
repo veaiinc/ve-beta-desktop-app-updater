@@ -7,7 +7,11 @@ export const handleDeepSearchChainOfThought = (chainOfThought) => {
 	for (let i = 0; i < chainOfThought?.length; i++) {
 		const data = chainOfThought?.[i] || {};
 		if (data?.step) {
-			cot?.push({ step: data?.step, readings: data?.reading || [] });
+			cot?.push({
+				step: data?.step,
+				title: data?.title || null,
+				readings: data?.reading || [],
+			});
 		}
 	}
 

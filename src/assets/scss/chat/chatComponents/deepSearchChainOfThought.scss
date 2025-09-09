@@ -8,11 +8,19 @@
 		display: flex;
 		flex-direction: column;
 		gap: 16px;
+
+		> :last-child {
+			.line {
+				height: calc(100% - 12px) !important;
+			}
+		}
+
 		.cot {
 			display: flex;
-			gap: 16px;
+			gap: 8px;
+
 			.logo-container {
-				top: 4px;
+				top: 2px;
 				position: relative;
 				flex-shrink: 0;
 				display: flex;
@@ -25,11 +33,11 @@
 				aspect-ratio: 1/1;
 				z-index: 2;
 				border-radius: 75px;
-				border: 0.75px solid var(--stroke-hover, #333334);
+				// border: 0.75px solid var(--stroke-hover, #333334);
 
 				.indicator {
-					width: 6px;
-					height: 6px;
+					width: 7px;
+					height: 7px;
 					flex-shrink: 0;
 					background-color: var(--stroke-hover, #424548);
 					border-radius: 50%;
@@ -44,25 +52,38 @@
 				position: relative;
 
 				.line {
-					height: calc(100% + 20px);
+					height: 100%;
 					width: 1px;
-					background-color: var(--stroke);
+					background-color: var(--stroke-hover);
 					position: absolute;
-					left: -23px;
-					top: 10px;
+					left: -16px;
+					top: 18px;
 					z-index: 1;
 				}
 				.sub-query {
+					width: 100%;
+					max-width: 550px;
 					color: var(--primary-font, #f2f2f3);
 					font-family: var(--chat-primary-font-family);
 					font-size: 15px;
 					font-style: normal;
 					font-weight: 500;
-					line-height: 24px;
+					line-height: 20px;
 
 					&::first-letter {
 						text-transform: capitalize;
 					}
+				}
+
+				.sub-query-description {
+					width: 100%;
+					max-width: 550px;
+					color: var(--secondary-font);
+					font-family: var(--chat-primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 20px;
 				}
 
 				.sub-query-wrapper {
