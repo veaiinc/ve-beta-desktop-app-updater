@@ -417,7 +417,7 @@ const NotchDropUI = () => {
 									</div>
 								</div>
 							) : (
-								/* Normal mode - chat and webcam sections */
+								/* Normal mode - chat section only (webcam section commented out) */
 								<>
 									{/* Chat input section */}
 									<div className="chat-section" onClick={handleChatClick}>
@@ -427,11 +427,14 @@ const NotchDropUI = () => {
 										</div>
 									</div>
 
-									{/* Webcam section */}
+									{/* COMMENTED OUT: Webcam section */}
+									{/* Removed to simplify the notch UI and reduce width requirements */}
+									{/*
 									<div className="webcam-section" onClick={handleWebcamClick}>
 										<WebcamIcon />
 										<div className="webcam-label">Webcam</div>
 									</div>
+									*/}
 								</>
 							)}
 						</div>
