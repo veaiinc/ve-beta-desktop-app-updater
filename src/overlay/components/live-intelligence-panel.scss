@@ -215,14 +215,17 @@
 
 			.thread-item {
 				display: flex;
-				flex-direction: column;
-				gap: 4px;
-				padding: 12px;
-				border-radius: 6px;
-				background: rgba(255, 255, 255, 0.08);
-				border: 1px solid rgba(255, 255, 255, 0.15);
+				height: 38px;
+				padding: 6px 10px;
+				justify-content: space-between;
+				align-items: center;
+				align-self: stretch;
 				position: relative;
+				border-radius: 8px;
+                border: 0.5px solid rgba(235, 235, 235, 0.50);
 				transition: all 0.2s ease;
+				color: var(--secondary-font, #7F858F);
+
 
 				&.clickable {
 					cursor: pointer;
@@ -259,6 +262,10 @@
 				}
 
 				.thread-question {
+					display: flex;
+					align-items: center;
+					gap: 12px;
+					flex: 1 0 0;
 					color: #fff;
 					font-family: var(--primary-font-family);
 					font-size: 13px;

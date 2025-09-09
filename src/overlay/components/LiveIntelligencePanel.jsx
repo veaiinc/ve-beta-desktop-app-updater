@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import './live-intelligence-panel.scss';
 import { AudioLines, CircleX } from 'lucide-react';
+import userIcon from "../../assets/svg/transcription/user.svg"
+import needHelpIcon from "../../assets/svg/transcription/question.svg"
+import actionsIcon from "../../assets/svg/transcription/thunder.svg"
+
 
 const LiveIntelligencePanel = ({
 	onClose,
@@ -114,13 +118,13 @@ const LiveIntelligencePanel = ({
 	const tabs = [
 		{ key: 'all-threads', label: 'All Threads', count: getBadgeCount('all-threads') },
 		...(getBadgeCount('ask-user') > 0
-			? [{ key: 'ask-user', label: 'Ask user', count: getBadgeCount('ask-user') }]
+			? [{ key: 'ask-user', label: 'Ask user', icon: userIcon,count: getBadgeCount('ask-user') }]
 			: []),
 		...(getBadgeCount('need-help') > 0
-			? [{ key: 'need-help', label: 'Need help?', count: getBadgeCount('need-help') }]
+			? [{ key: 'need-help', label: 'Need help?', icon: needHelpIcon, count: getBadgeCount('need-help') }]
 			: []),
 		...(getBadgeCount('actions') > 0
-			? [{ key: 'actions', label: 'Actions', count: getBadgeCount('actions') }]
+			? [{ key: 'actions', label: 'Actions', icon: actionsIcon, count: getBadgeCount('actions') }]
 			: []),
 		...(getBadgeCount('files') > 0
 			? [{ key: 'files', label: 'Files', count: getBadgeCount('files') }]
@@ -164,9 +168,9 @@ const LiveIntelligencePanel = ({
 									onClick={() => handleThreadItemClick(thread, 'all-threads')}
 									title="Click to ask AI about this thread"
 								>
-									<div className="thread-category">
+									{/* <div className="thread-category">
 									{getCategoryLabel(thread.type,thread.entity)}
-									</div>
+									</div> */}
 									<div className="thread-question">
 										{thread.prompt || thread.name || 'No content available'}
 									</div>
@@ -198,8 +202,8 @@ const LiveIntelligencePanel = ({
 									//onClick={() => handleThreadItemClick(item, 'ask-user')}
 									title="Click to ask AI about this question"
 								>
-									<div className="thread-category">Ask user</div>
-									<div className="thread-question">{item.prompt}</div>
+									{/* <div className="thread-category">Ask user</div> */}
+									<div className="thread-question"><img src={userIcon} alt="user" /> {item.prompt}</div>
 									{item.description && (
 										<div className="thread-description">
 											({item.description})
@@ -226,8 +230,8 @@ const LiveIntelligencePanel = ({
 									onClick={() => handleThreadItemClick(item, 'need-help')}
 									title="Click to ask AI about this help suggestion"
 								>
-									<div className="thread-category">Need help?</div>
-									<div className="thread-question">{item.prompt}</div>
+									{/* <div className="thread-category">Need help?</div> */}
+									<div className="thread-question"><img src={needHelpIcon} alt="need help" /> {item.prompt}</div>
 									{item.description && (
 										<div className="thread-description">
 											({item.description})
@@ -254,8 +258,8 @@ const LiveIntelligencePanel = ({
 									onClick={() => handleThreadItemClick(item, 'actions')}
 									title="Click to ask AI about this action item"
 								>
-									<div className="thread-category">Actions</div>
-									<div className="thread-question">{item.prompt}</div>
+									{/* <div className="thread-category">Actions</div> */}
+									<div className="thread-question"><img src={actionsIcon} alt="actions" /> {item.prompt}</div>
 									{item.description && (
 										<div className="thread-description">
 											({item.description})
@@ -358,7 +362,7 @@ const LiveIntelligencePanel = ({
 						className={`tab-button ${activeTab === tab.key ? 'active' : ''}`}
 						onClick={() => handleTabClick(tab.key)}
 					>
-						<span className="tab-label">{tab.label}</span>
+						<span className="tab-label"> {tab.label}</span>
 						{tab.count > 0 && <span className="tab-badge">{tab.count}</span>}
 					</button>
 				))}
