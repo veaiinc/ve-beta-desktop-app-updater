@@ -474,8 +474,7 @@ export const Markdown = memo(NonMemoizedMarkdown, (prevProps, nextProps) => {
 	const citationsEqual =
 		(!prevProps.citations && !nextProps.citations) ||
 		(prevProps.citations?.length === nextProps.citations?.length &&
-			JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations)) ||
-		prevProps.animate === nextProps.animate;
+			JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations));
 
 	return prevProps.children === nextProps.children && citationsEqual;
 });
@@ -644,11 +643,15 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 			)}
 			{!info?.editUserQuery ? (
 				<div className="hover-actions-container">
-					<div className="icon-container">
+					{/* <div className="icon-container" style={{ top: '-2px' }}>
 						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Edit'}>
-							<PencilSparkleIcon onClick={handleEditUserQueryToggle} />
+							<PencilSparkleIcon
+								width={'19px'}
+								height={'20px'}
+								onClick={handleEditUserQueryToggle}
+							/>
 						</Tooltip>
-					</div>
+					</div> */}
 
 					<div className="icon-container">
 						<Tooltip

@@ -3,6 +3,10 @@
 	flex-direction: column;
 	gap: 12px;
 	position: relative;
+
+	.markdown-container {
+		width: 100%;
+	}
 	.view-document-container {
 		display: flex;
 		gap: 12px;

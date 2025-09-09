@@ -143,11 +143,13 @@
 		align-items: center;
 		justify-content: flex-end;
 		visibility: hidden;
+		margin-right: 5px;
 
 		.icon-container {
 			width: 16px;
 			height: 16px;
 			cursor: pointer;
+			position: relative;
 		}
 	}
 }

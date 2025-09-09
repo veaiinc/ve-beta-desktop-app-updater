@@ -2,15 +2,27 @@ import { memo, useCallback, useContext } from 'react';
 import '../../../../assets/scss/chat/chatComponents/textSelector.scss';
 import Context from '../../../../context/context';
 
-const TextSelector = ({ styles = {}, text = '', visible = false }) => {
+const TextSelector = ({
+	styles = {},
+	text = '',
+	visible = false,
+	handleReplyElementClose = null,
+}) => {
 	const {
 		templates: { updateStateValues },
 	} = useContext(Context);
+
 	const handleAskClick = useCallback(() => {
 		updateStateValues({
 			chatReplyData: text,
 		});
+		handleReplyElementClose?.();
 	}, [text]);
+
+	const handleMouseDown = useCallback((e) => {
+		e?.stopPropagation();
+	}, []);
+
 	return (
 		<div
 			className="chat-reply-container"
@@ -20,6 +32,7 @@ const TextSelector = ({ styles = {}, text = '', visible = false }) => {
 				zIndex: visible ? 50 : -1,
 				pointerEvents: visible ? 'auto' : 'none',
 			}}
+			onMouseDown={handleMouseDown}
 		>
 			<div className="ask-btn-container" onClick={handleAskClick}>
 				Ask
