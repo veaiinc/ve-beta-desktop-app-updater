@@ -185,7 +185,7 @@ const AIMessage = ({
 			) : messageData?.widget_type === 'clarifyWidget' ? (
 				<ClarifyWidget data={messageData?.data} sessionId={sessionId} />
 			) : (
-				<Markdown citations={citations} animate={!messageData?.stream_end}>
+				<Markdown citations={citations} animate={!(messageData?.stream_end || false)}>
 					{text}
 				</Markdown>
 			)}
