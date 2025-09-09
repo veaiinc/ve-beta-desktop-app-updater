@@ -1586,36 +1586,36 @@ export const TemplatesState = (props) => {
 
 			let origin = window.location.origin;
 			if (origin === 'http://localhost:5173') {
-				origin = 'https://ve.ai';
+				origin = 'https://www.ve.ai';
 			}
 
-			// let currentURl = origin + window.location.pathname;
+			let currentURl = origin + window.location.pathname;
 
 			const authConfig = {
 				gmail: {
-					path: `/auth/gmail/${workspaceId}?access=${access}`,
+					path: `/auth/gmail/${workspaceId}?access=${access}&redirectURL=${currentURl}`,
 					apiType: 'calendar_api',
 				},
 				'google-calendar': {
-					path: `/google-calendar/${workspaceId}/auth?access=${access}`,
+					path: `/google-calendar/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
 					apiType: 'calendar_api',
 				},
 				slack: {
-					path: `/slack/${workspaceId}/auth?access=${access}`,
+					path: `/slack/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
 					apiType: 'third_party_integrations_api',
 				},
-				'outlook-calendar': {
-					path: `/outlookcalendar/${workspaceId}/auth?access=${access}`,
+				outlookCalendar: {
+					path: `/outlookcalendar/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
 					apiType: 'microsoft_integration_api',
 				},
-				'outlook-mail': {
-					path: `/outlookmail/${workspaceId}/auth?access=${access}`,
+				outlookMail: {
+					path: `/outlookmail/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
 					apiType: 'microsoft_integration_api',
 				},
 			};
 
 			const config = authConfig[connectType] || {
-				path: `/${connectType}/${workspaceId}/auth?access=${access}`,
+				path: `/${connectType}/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
 				apiType: 'third_party_integrations_api',
 			};
 
@@ -1653,11 +1653,11 @@ export const TemplatesState = (props) => {
 					path: `/slack/${workspaceId}/${id}/deactivate-integration`,
 					apiType: 'third_party_integrations_api',
 				},
-				'outlook-calendar': {
+				outlookCalendar: {
 					path: `/outlookcalendar/${workspaceId}/${id}/deactivate-integration`,
 					apiType: 'microsoft_integration_api',
 				},
-				'outlook-mail': {
+				outlookMail: {
 					path: `/outlookmail/${workspaceId}/${id}/deactivate-integration`,
 					apiType: 'microsoft_integration_api',
 				},
