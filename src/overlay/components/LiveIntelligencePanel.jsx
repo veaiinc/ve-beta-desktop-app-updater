@@ -4,6 +4,7 @@ import { AudioLines, CircleX } from 'lucide-react';
 import userIcon from "../../assets/svg/transcription/user.svg"
 import needHelpIcon from "../../assets/svg/transcription/question.svg"
 import actionsIcon from "../../assets/svg/transcription/thunder.svg"
+import filesIcon from "../../assets/svg/files/file.svg"
 
 
 const LiveIntelligencePanel = ({
@@ -154,36 +155,48 @@ const LiveIntelligencePanel = ({
 			return 'Unknown';
 		};
 
+		const getCategoryIcon = (entity, type) => {
+			if (entity === 'user' || entity === 'other_user') return userIcon;
+			if (entity === 'agent' && type === 'search') return needHelpIcon;
+			if (entity === 'agent' && type === 'action') return actionsIcon;
+			if (entity === 'file') return filesIcon;
+			return null; // No icon for unknown categories
+		};
+
 		switch (activeTab) {
 			case 'all-threads':
 				return (
 					<div className="tab-content">
 						{socketData.allThreads?.length > 0 ? (
-							[...socketData.allThreads].reverse().map((thread, index) => (
-								<div
-									key={index}
-									className={`thread-item ${
-										thread.entity === 'user' ? 'ask-user-item' : 'clickable'
-									}`}
-									onClick={() => handleThreadItemClick(thread, 'all-threads')}
-									title="Click to ask AI about this thread"
-								>
-									{/* <div className="thread-category">
-									{getCategoryLabel(thread.type,thread.entity)}
-									</div> */}
-									<div className="thread-question">
-										{thread.prompt || thread.name || 'No content available'}
-									</div>
-									{thread.description && (
-										<div className="thread-description">
-											({thread.description})
+							[...socketData.allThreads].reverse().map((thread, index) => {
+								const categoryIcon = getCategoryIcon(thread.entity, thread.type);
+								return (
+									<div
+										key={index}
+										className={`thread-item ${
+											thread.entity === 'user' ? 'ask-user-item' : 'clickable'
+										}`}
+										onClick={() => handleThreadItemClick(thread, 'all-threads')}
+										title="Click to ask AI about this thread"
+									>
+										{/* <div className="thread-category">
+										{getCategoryLabel(thread.type,thread.entity)}
+										</div> */}
+										<div className="thread-question">
+											{categoryIcon && <img src={categoryIcon} alt={getCategoryLabel(thread.entity, thread.type)} />}
+											{thread.prompt || thread.name || 'No content available'}
 										</div>
-									)}
-									<div className="thread-time">
-										{formatTime(thread.timestamp || thread.created_at)}
+										{thread.description && (
+											<div className="thread-description">
+												({thread.description})
+											</div>
+										)}
+										<div className="thread-time">
+											{formatTime(thread.timestamp || thread.created_at)}
+										</div>
 									</div>
-								</div>
-							))
+								);
+							})
 						) : (
 							<div className="empty-content">
 								Start speaking to see live intelligence suggestions.
