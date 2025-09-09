@@ -18,6 +18,7 @@ const AskAIApp = () => {
 	const [hasResponse, setHasResponse] = useState(false);
 	const inputRef = useRef(null);
 	const responseRef = useRef(null);
+	const questionRef = useRef(null);
 	const [streamingResponse, setStreamingResponse] = useState('');
 	const [displayedResponse, setDisplayedResponse] = useState('');
 	const [receivedTabContent, setReceivedTabContent] = useState(null);
@@ -25,6 +26,7 @@ const AskAIApp = () => {
 	const [isNeedHelpRequest, setIsNeedHelpRequest] = useState(false);
 	const [receivedDynamicIslandMessage, setReceivedDynamicIslandMessage] = useState(null);
 	const [currentQuestion, setCurrentQuestion] = useState('');
+	const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 	// Initialize socket
 	const { createWebSocketConnection, sendMessage, closeWebSocketConnection, stopMessage } = useAskAISocket();
 	// Update dimensions only when necessary
@@ -500,6 +502,38 @@ const AskAIApp = () => {
 		setCurrentQuestion('');
 	};
 
+	// Scroll detection logic
+	const handleScroll = useCallback(() => {
+		if (responseRef.current) {
+			const { scrollTop, scrollHeight, clientHeight } = responseRef.current || questionRef.current;
+			const isNearBottom = scrollHeight - scrollTop - clientHeight < 100; // 100px threshold
+			setShowScrollToBottom(!isNearBottom && scrollHeight > clientHeight);
+		}
+	}, []);
+
+	// Scroll to bottom function
+	const scrollToBottom = useCallback(() => {
+		if (responseRef.current || questionRef.current) {
+			responseRef.current.scrollTo({
+				top: responseRef.current.scrollHeight,
+				behavior: 'smooth'
+			});
+		}
+	}, []);
+
+	// Auto-scroll to bottom when new content arrives (streaming)
+	useEffect(() => {
+		if (displayedResponse && responseRef.current || questionRef.current) {
+			const { scrollTop, scrollHeight, clientHeight } = responseRef.current;
+			const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+			
+			// Auto-scroll only if user is already near the bottom
+			if (isNearBottom) {
+				scrollToBottom();
+			}
+		}
+	}, [displayedResponse, scrollToBottom, questionRef]);
+
 	return (
 		<div ref={containerRef} className="ask-ai-app">
 			{/* Response Window - Top */}
@@ -545,7 +579,7 @@ const AskAIApp = () => {
 					
 					{/* Current Question Display */}
 					{currentQuestion && (
-						<div className="ai-question-display">
+						<div className="ai-question-display" ref={questionRef}>
 							<div className="ai-question-text">
 								<span className="question-label">Question:</span>
 								<span className="question-content">{currentQuestion}</span>
@@ -576,6 +610,17 @@ const AskAIApp = () => {
 							</div>
 						)}
 					</div>
+					
+					{/* Scroll to Bottom Button */}
+					{showScrollToBottom && (
+						<button 
+							className="scroll-to-bottom-btn"
+							onClick={scrollToBottom}
+							title="Scroll to bottom"
+						>
+							<ChevronDown size={16} />
+						</button>
+					)}
 				</div>
 			)}
 
