@@ -161,6 +161,15 @@
 	flex: 1;
 	overflow-y: auto;
 	min-height: 0;
+	position: relative;
+	
+	// Hide scrollbar while keeping scroll functionality
+	scrollbar-width: none; /* Firefox */
+	-ms-overflow-style: none; /* Internet Explorer 10+ */
+	
+	&::-webkit-scrollbar {
+		display: none; /* WebKit */
+	}
 }
 
 .loading-indicator {
@@ -307,6 +316,55 @@
 				font-weight: 600;
 			}
 		}
+	}
+}
+
+// Scroll to Bottom Button - ChatGPT style
+.scroll-to-bottom-btn {
+	position: absolute;
+	bottom: 12px;
+	right: 12px;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: rgba(0, 0, 0, 0.8);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	color: rgba(255, 255, 255, 0.9);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+	z-index: 10;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+	-webkit-app-region: no-drag;
+	app-region: no-drag;
+
+	&:hover {
+		background: rgba(0, 0, 0, 0.9);
+		border-color: rgba(255, 255, 255, 0.3);
+		transform: scale(1.05);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+	}
+
+	&:active {
+		transform: scale(0.95);
+	}
+
+	// Fade in animation
+	animation: fadeInUp 0.2s ease-out;
+}
+
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
 	}
 }
 

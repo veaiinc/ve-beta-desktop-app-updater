@@ -24,6 +24,7 @@ const AskAIApp = () => {
 	const [copied, setCopied] = useState(false);
 	const [isNeedHelpRequest, setIsNeedHelpRequest] = useState(false);
 	const [receivedDynamicIslandMessage, setReceivedDynamicIslandMessage] = useState(null);
+	const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 	// Initialize socket
 	const { createWebSocketConnection, sendMessage, closeWebSocketConnection } = useAskAISocket();
 	// Update dimensions only when necessary
@@ -438,6 +439,38 @@ const AskAIApp = () => {
 		}
 	};
 
+	// Scroll detection logic
+	const handleScroll = useCallback(() => {
+		if (responseRef.current) {
+			const { scrollTop, scrollHeight, clientHeight } = responseRef.current;
+			const isNearBottom = scrollHeight - scrollTop - clientHeight < 100; // 100px threshold
+			setShowScrollToBottom(!isNearBottom && scrollHeight > clientHeight);
+		}
+	}, []);
+
+	// Scroll to bottom function
+	const scrollToBottom = useCallback(() => {
+		if (responseRef.current) {
+			responseRef.current.scrollTo({
+				top: responseRef.current.scrollHeight,
+				behavior: 'smooth'
+			});
+		}
+	}, []);
+
+	// Auto-scroll to bottom when new content arrives (streaming)
+	useEffect(() => {
+		if (displayedResponse && responseRef.current) {
+			const { scrollTop, scrollHeight, clientHeight } = responseRef.current;
+			const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+			
+			// Auto-scroll only if user is already near the bottom
+			if (isNearBottom) {
+				scrollToBottom();
+			}
+		}
+	}, [displayedResponse, scrollToBottom]);
+
 	return (
 		<div ref={containerRef} className="ask-ai-app">
 			{/* Response Window - Top */}
@@ -480,7 +513,7 @@ const AskAIApp = () => {
 					</div>
 
 					<div className="divider"></div>
-					<div className="ai-response-content" ref={responseRef}>
+					<div className="ai-response-content" ref={responseRef} onScroll={handleScroll}>
 						{isLoading && !response && !displayedResponse ? (
 							<div className="loading-indicator">
 								<div className="loading-dots">
@@ -507,6 +540,17 @@ const AskAIApp = () => {
 							</div>
 						)}
 					</div>
+					
+					{/* Scroll to Bottom Button */}
+					{showScrollToBottom && (
+						<button 
+							className="scroll-to-bottom-btn"
+							onClick={scrollToBottom}
+							title="Scroll to bottom"
+						>
+							<ChevronDown size={16} />
+						</button>
+					)}
 				</div>
 			)}
 
