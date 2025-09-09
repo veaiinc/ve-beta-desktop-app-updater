@@ -58,7 +58,9 @@ const NoteComponent = ({
 	const loadNotesContent = useCallback(
 		async (data) => {
 			const preprocessMarkdown = (markdown) => {
-				return markdown?.replace(/\\n/g, '\n'); // Add a non-breaking space for empty lines
+				return markdown
+					?.replace(/\\n/g, '\n') // turn \n into real newlines
+					.replace(/\[C\d+\]/g, ''); // Add a non-breaking space for empty lines
 			};
 
 			if (!loopOn) {

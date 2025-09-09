@@ -350,7 +350,7 @@ const AIMessage = ({
 								/>
 							</Tooltip>
 						</div>
-						<Tooltip
+						{/* <Tooltip
 							placement="bottom"
 							arrow={false}
 							trigger={'hover'}
@@ -363,9 +363,9 @@ const AIMessage = ({
 									className="teach-me-icon"
 									style={{ width: '19px', height: '19px' }}
 								/>
-								{/* <div className="teach-me-text">Teach me</div> */}
 							</div>
-						</Tooltip>
+						</Tooltip> */}
+
 						{messageData?.citations?.length > 0 && showCitationsButton && (
 							<div
 								className="ai-message-sources-container"
