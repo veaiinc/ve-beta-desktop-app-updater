@@ -1,9 +1,9 @@
 .transcript-panel {
 	display: flex;
-	width: 500px;
+	width: 745px;
 	min-height: 400px;
 	max-height: 600px;
-	padding: 8px 10px;
+	padding: 4px 0px;
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 8px;
@@ -139,21 +139,22 @@
 		display: flex;
 		gap: 8px;
 		align-items: flex-start;
+		background-color: #10b981;
 
-		.transcript-item-avatar {
-			width: 24px;
-			height: 24px;
-			border-radius: 50%;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			color: #fff;
-			font-family: var(--primary-font-family);
-			font-size: 10px;
-			font-weight: 600;
-			flex-shrink: 0;
-			margin-top: 2px;
-		}
+		// .transcript-item-avatar {
+		// 	width: 24px;
+		// 	height: 24px;
+		// 	border-radius: 50%;
+		// 	display: flex;
+		// 	align-items: center;
+		// 	justify-content: center;
+		// 	color: #fff;
+		// 	font-family: var(--primary-font-family);
+		// 	font-size: 10px;
+		// 	font-weight: 600;
+		// 	flex-shrink: 0;
+		// 	margin-top: 2px;
+		// }
 
 		.transcript-item-content {
 			flex: 1;

@@ -2,8 +2,9 @@ import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import getBaseUrl from '../../services/baseUrls';
 import Context from '../../context/context';
 
-const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
+// const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
 
+const wsUrl = 'wss://gazelle-ruling-monster.ngrok-free.app/frontend/ws';
 
 const useAssemblyTranscription = ({
 	onTranscriptionUpdate,
@@ -409,9 +410,10 @@ const useAssemblyTranscription = ({
 									const transcriptionData = {
 										id: Date.now().toString(),
 										text: data.text,
-										isFinal: data.is_final || data.end_of_turn,
+										isFinal: data.is_final,
 										isTurnFormatted: data.isTurnFormatted,
 										timestamp: new Date().toISOString(),
+										source: data.source,
 									};
 									onTranscriptionUpdate?.(transcriptionData);
 								}
@@ -512,7 +514,10 @@ const useAssemblyTranscription = ({
 		[log],
 	);
 
-	const hasAudioSignal = useCallback((audioData) => {
+	// Enhanced Voice Activity Detection with different thresholds for different sources
+	const hasAudioSignal = useCallback((audioData, source = 'screen') => {
+		if (!audioData || audioData.length === 0) return false;
+
 		// Calculate RMS (Root Mean Square) to detect actual audio signal
 		let sum = 0;
 		for (let i = 0; i < audioData.length; i++) {
@@ -520,10 +525,11 @@ const useAssemblyTranscription = ({
 		}
 		const rms = Math.sqrt(sum / audioData.length);
 
-		// Threshold for silence detection (adjust as needed)
-		const silenceThreshold = 0.001; // Very low threshold to catch whispers
+		// Different thresholds for different sources
+		// Mic might need higher threshold due to breath sounds, room tone
+		const threshold = source === 'mic' ? 0.002 : 0.001;
 
-		return rms > silenceThreshold;
+		return rms > threshold;
 	}, []);
 
 	const startAudioCapture = useCallback(async () => {
@@ -544,7 +550,7 @@ const useAssemblyTranscription = ({
 			micStreamRef.current = micStream;
 			log('Microphone access granted');
 
-			// Get screen capture - this should work with your existing main.js setup
+			// Get screen capture
 			log('Requesting screen capture access...');
 			const screenStream = await navigator.mediaDevices.getDisplayMedia({
 				audio: true,
@@ -601,41 +607,27 @@ const useAssemblyTranscription = ({
 				try {
 					const inputData = e.inputBuffer.getChannelData(0);
 
-					// Check if audio has actual signal
-					let hasSignal = false;
-					for (let i = 0; i < inputData.length; i++) {
-						if (Math.abs(inputData[i]) > 0.001) {
-							hasSignal = true;
-							break;
-						}
-					}
-
-					if (hasSignal && micProcessingCount % 100 === 0) {
-						log(`Mic audio detected (max level: ${Math.max(...inputData).toFixed(3)})`);
-					}
-
 					// Accumulate mic audio data
 					for (let i = 0; i < inputData.length; i++) {
 						micBufferRef.current.push(inputData[i]);
 					}
 					micSampleCountRef.current += inputData.length;
 
-					// Send mic audio data in chunks (adjust for actual sample rate)
-					const targetSamples = Math.floor(audioContext.sampleRate * 0.5); // 0.5 seconds worth
+					// Send mic audio data in chunks when we have enough samples
 					if (micSampleCountRef.current >= 8000) {
 						if (
 							!muteRef.current &&
 							websocketRef.current?.readyState === WebSocket.OPEN
 						) {
-							const audioData = new Int16Array(micBufferRef.current.length);
-
 							// Convert float32 to int16 efficiently
+							const audioData = new Int16Array(micBufferRef.current.length);
 							for (let i = 0; i < micBufferRef.current.length; i++) {
 								const sample = micBufferRef.current[i];
 								audioData[i] = Math.max(-32768, Math.min(32767, sample * 32768));
 							}
 
-							if (hasAudioSignal(micBufferRef.current)) {
+							// Use Voice Activity Detection to determine if we should send this chunk
+							if (hasAudioSignal(micBufferRef.current, 'mic')) {
 								log(`Sending mic audio chunk: ${audioData.length} samples`);
 								sendAudioData(audioData, 'mic');
 							} else {
@@ -688,39 +680,20 @@ const useAssemblyTranscription = ({
 					try {
 						const inputData = e.inputBuffer.getChannelData(0);
 
-						// Check if audio has actual signal
-						let hasSignal = false;
-						for (let i = 0; i < inputData.length; i++) {
-							if (Math.abs(inputData[i]) > 0.001) {
-								hasSignal = true;
-								break;
-							}
-						}
-
-						if (hasSignal && screenProcessingCount % 100 === 0) {
-							log(
-								`Screen audio detected (max level: ${Math.max(...inputData).toFixed(
-									3,
-								)})`,
-							);
-						}
-
 						// Accumulate screen audio data
 						for (let i = 0; i < inputData.length; i++) {
 							screenBufferRef.current.push(inputData[i]);
 						}
 						screenSampleCountRef.current += inputData.length;
 
-						// Send screen audio data in chunks
-						const targetSamples = Math.floor(audioContext.sampleRate * 0.5); // 0.5 seconds worth
+						// Send screen audio data in chunks when we have enough samples
 						if (screenSampleCountRef.current >= 8000) {
 							if (
 								!muteRef.current &&
 								websocketRef.current?.readyState === WebSocket.OPEN
 							) {
-								const audioData = new Int16Array(screenBufferRef.current.length);
-
 								// Convert float32 to int16 efficiently
+								const audioData = new Int16Array(screenBufferRef.current.length);
 								for (let i = 0; i < screenBufferRef.current.length; i++) {
 									const sample = screenBufferRef.current[i];
 									audioData[i] = Math.max(
@@ -729,7 +702,8 @@ const useAssemblyTranscription = ({
 									);
 								}
 
-								if (hasAudioSignal(screenBufferRef.current)) {
+								// Use Voice Activity Detection to determine if we should send this chunk
+								if (hasAudioSignal(screenBufferRef.current, 'screen')) {
 									log(`Sending screen audio chunk: ${audioData.length} samples`);
 									sendAudioData(audioData, 'screen');
 								} else {
@@ -789,7 +763,7 @@ const useAssemblyTranscription = ({
 			}
 			throw error;
 		}
-	}, [log, sendAudioData]);
+	}, [log, sendAudioData, hasAudioSignal]);
 
 	const startRecording = useCallback(
 		async ({ tenantId, sessionId, meetingId, jwtToken, isAiIntelligenceEnabled }) => {

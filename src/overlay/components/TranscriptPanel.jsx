@@ -4,18 +4,20 @@ import './transcript-panel.scss';
 import moment from 'moment';
 
 // Memoized TranscriptionItem component
-const TranscriptionItem = memo(({ speaker, text, timestamp }) => {
+const TranscriptionItem = memo(({  text, timestamp, source }) => {
 	const avatarColor = '#10b981'; // VE brand green color
-	const speakerInitial = 'VE';
+	const speakerInitial = source === 'mic' ? 'You' : 'Screen';
 
 	return (
 		<div className="transcript-item">
-			<div className="transcript-item-avatar" style={{ backgroundColor: avatarColor }}>
+			{/* <div className="transcript-item-avatar" style={{ backgroundColor: avatarColor }}>
 				{speakerInitial}
-			</div>
+			</div> */}
 			<div className="transcript-item-content">
 				<div className="transcript-item-header">
-					<span className="transcript-item-speaker">{speaker || 'VE Note taker'}</span>
+					<span className="transcript-item-speaker">
+						{source === 'mic' ? 'You' : 'Screen'}
+					</span>
 					<span className="transcript-item-time">
 						{moment(timestamp).format('HH:mm:ss')}
 					</span>
@@ -101,6 +103,7 @@ const TranscriptPanel = ({
 								speaker={item.speaker}
 								text={item.text}
 								timestamp={item.timestamp}
+								source={item.source}
 							/>
 						))
 					) : (
