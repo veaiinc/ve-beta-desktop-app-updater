@@ -1579,7 +1579,6 @@ export const TemplatesState = (props) => {
 		}
 	};
 	const getAuthUrlForThirdParty = async (connectType, access) => {
-		console.log('getAuthUrlForThirdParty', connectType, access);
 		try {
 			const token = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
