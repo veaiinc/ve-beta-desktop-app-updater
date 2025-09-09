@@ -17,6 +17,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 	checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
 	downloadUpdate: () => ipcRenderer.invoke('download-update'),
 	forceDownloadUpdate: () => ipcRenderer.invoke('force-download-update'),
+	restartApp: () => ipcRenderer.invoke('restart-app'),
 	repositionDynamicIsland: () => ipcRenderer.invoke('reposition-dynamic-island'),
 
 	onUpdateStatus: (callback) => {
@@ -132,6 +133,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 	askAI: {
 		toggleWindow: () => ipcRenderer.invoke('toggle-askAI-window'),
 		showWindow: () => ipcRenderer.invoke('show-askAI-window'),
+		hideWindow: () => ipcRenderer.invoke('hide-askAI-window'),
 		isWindowVisible: () => ipcRenderer.invoke('is-askAI-window-visible'),
 		updateDimensions: (dims) => ipcRenderer.invoke('update-askAI-dimensions', dims),
 		setIgnoreMouseEvents: (ignore) =>

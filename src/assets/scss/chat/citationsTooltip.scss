@@ -1,6 +1,6 @@
 .citation-container {
 	cursor: pointer !important;
-	margin: 0 0 0 2px;
+	margin: 0 0 0 4px;
 	padding: 0;
 	background-color: transparent;
 	display: inline-block;
@@ -9,17 +9,17 @@
 		.citation-with-icon {
 			display: flex;
 			height: 20px;
-			padding: 2px 6px;
+			padding: 4px 6px;
 			align-items: center;
 			gap: 6px;
-			border-radius: 100px;
-			background: var(--card-over-card, #202123);
-			border: 1px solid var(--stroke);
+			border-radius: 6px;
+			background: var(--card-over-card-hover);
+			// border: 1px solid var(--stroke);
 			transition: all 0.2s ease-in-out;
 
 			&:hover {
 				background-color: var(--primary-font);
-				border: 1px solid var(--background-color);
+				// border: 1px solid var(--background-color);
 				.citation-text {
 					color: var(--background-color);
 				}
@@ -62,13 +62,18 @@
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
-				transition: all 0.2s ease-in-out;
-				color: var(--primary-font, #f2f2f3);
+				transition: all 0.2s ease-out;
+				color: var(--secondary-font);
 				font-family: var(--chat-primary-font-family);
 				font-size: 10px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+				letter-spacing: 0.2px;
+
+				&:first-letter {
+					text-transform: capitalize;
+				}
 			}
 		}
 	}

@@ -94,9 +94,9 @@
 						background-color: #e3e3e3;
 						border-radius: 12px;
 
-						&:has(.nameInput:focus) {
-							outline: 1px solid var(--secondary-font);
-						}
+						// &:has(.nameInput:focus) {
+						// 	outline: 1px solid var(--secondary-font);
+						// }
 
 						.nameInput {
 							width: 100%;
@@ -936,12 +936,23 @@
 		color: var(--primary-font);
 		background: transparent;
 		border: 1px solid var(--stroke, #2c2d2e);
+
+		&:disabled {
+			opacity: 0.4;
+			cursor: not-allowed;
+		}
 	}
 
 	.continueBtn {
 		background: var(--primary-button);
 		border-radius: 24px;
 		color: var(--primary-button-font);
+
+		&:disabled {
+			opacity: 0.4;
+			cursor: not-allowed;
+			background: var(--secondary-font);
+		}
 	}
 }
 

@@ -82,8 +82,8 @@ const regionBaseUrls = {
 				: 'https://ap.api.ve.ai/page-notes/1.0',
 		meeting_api:
 			environment === 'production'
-				? 'https://ap.api.ve.ai/page-notes/1.0'
-				: 'https://us.api.ve.ai/meeting/1.0',
+				? 'https://ap.api.ve.ai/meeting/1.0'
+				: 'https://ap.api.ve.ai/meeting/1.0',
 		elastic_search_api:
 			environment === 'production'
 				? 'https://ap.api.ve.ai/elastic-search/1.0'
@@ -106,8 +106,8 @@ const regionBaseUrls = {
 				: 'https://ap.api.ve.ai/microsoft-integration/1.0',
 		meeting_summary_api:
 			environment === 'production'
-				? 'https://live.us-east-1.ve.ai'
-				: 'https://live.us-east-1.ve.ai',
+				? 'https://live.ap-south-1.ve.ai'
+				: 'https://live.ap-south-1.ve.ai',
 		chat_ws_api:
 			environment === 'production'
 				? 'wss://ai.ap-south-1.ve.ai'
@@ -189,7 +189,7 @@ const regionBaseUrls = {
 				: 'https://us.api.ve.ai/block-notes/1.0',
 		meeting_api:
 			environment === 'production'
-				? 'https://us.api.ve.ai/page-notes/1.0'
+				? 'https://us.api.ve.ai/meeting/1.0'
 				: 'https://us.api.ve.ai/meeting/1.0',
 		page_notes_api_database:
 			environment === 'production'
