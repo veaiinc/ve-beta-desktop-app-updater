@@ -16,9 +16,12 @@
 	width: 745px;
 	flex-direction: column;
 	align-items: flex-start;
-	gap: 12px;
-	padding: 4px 0px;
-	min-height: 300px;
+	gap: 8px;
+	border-radius: 12px;
+	border: 0.5px solid rgba(255, 255, 255, 0.1);
+	background: rgba(0, 0, 0, 0.15);
+	backdrop-filter: blur(3px) saturate(1.05);
+	-webkit-backdrop-filter: blur(3px) saturate(1.05);
 
 	.live-intelligence-panel__header {
 		display: flex;
@@ -41,6 +44,7 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+				text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 			}
 			.recording-indicator {
 				color: #eb0b0b;
@@ -148,25 +152,15 @@
 			line-height: normal;
 			border-bottom: 1px solid transparent;
 			transition: all 0.2s ease;
+
 			-webkit-app-region: no-drag; /* Prevent dragging on tab buttons */
 			app-region: no-drag; /* Standard property for non-draggable regions */
-			position: relative;
-			cursor: pointer;
-
-			&::after {
-				content: '';
-				position: absolute;
-				left: 0;
-				right: 0;
-				bottom: 0;
-				height: 1px;
-				transition: all 0.2s ease;
-			}
-
-			&.active::after {
-				background: var(--primary-button, #79ecc9);
-				filter: drop-shadow(0 0 4.6px var(--primary-button, #79ecc9));
-				border-radius: 2px;
+			&.active {
+				color: #fff;
+				border-bottom-color: #79ecc9;
+				stroke-width: 1px;
+				stroke: #79ecc9;
+				filter: drop-shadow(0 0 3.6px #79ecc9);
 			}
 
 			&:hover:not(.active) {
@@ -209,7 +203,13 @@
 		align-self: stretch;
 		max-height: 400px;
 		overflow-y: auto;
-		padding: 8px 0;
+		padding: 12px;
+		background: rgba(0, 0, 0, 0.05);
+		backdrop-filter: blur(2px) saturate(1.02);
+		-webkit-backdrop-filter: blur(2px) saturate(1.02);
+		border-radius: 8px;
+		margin: 4px;
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 1px 2px rgba(0, 0, 0, 0.05);
 
 		.tab-content {
 			display: flex;
@@ -280,6 +280,7 @@
 						flex-shrink: 0;
 						opacity: 0.8;
 					}
+					text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 				}
 
 				.thread-description {
@@ -288,6 +289,7 @@
 					font-size: 11px;
 					font-weight: 400;
 					line-height: 1.3;
+					text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 				}
 
 				.thread-time {
@@ -298,6 +300,7 @@
 					font-family: var(--primary-font-family);
 					font-size: 10px;
 					font-weight: 400;
+					text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 				}
 			}
 
@@ -319,6 +322,7 @@
 				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: italic;
+				text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 			}
 		}
 

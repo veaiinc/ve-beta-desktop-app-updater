@@ -7,7 +7,7 @@
 }
 .settingsContainer {
 	display: flex;
-	padding: 12px;
+	padding: 18px;
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 16px;
@@ -15,9 +15,9 @@
 	border: 1px solid var(--stroke, #2c2d2e);
 	background: var(--popup, #202123);
 	position: absolute;
-	right: -28px;
+	right: -25px;
 	top: 22px;
-	width: 320px;
+	width: 360px;
 	z-index: 10001;
 
 	// overlay and sheet are used in mobile only
@@ -151,7 +151,7 @@
 	}
 	.settingsPlans {
 		display: flex;
-		width: 296px;
+		width: 325px;
 		padding: 16px 0;
 		flex-direction: column;
 		align-items: center;
@@ -161,7 +161,8 @@
 		background: var(--card, #1b1c1d);
 		.settingCurrentPlan {
 			display: flex;
-			width: 264px;
+			width: 100%;
+			padding: 0 22px;
 			justify-content: space-between;
 			align-items: center;
 			.settingPlanName {
@@ -197,9 +198,10 @@
 		}
 		.settingsCredits {
 			display: flex;
-			width: 264px;
+			width: 100%;
+			padding: 0 22px;
 			align-items: center;
-			gap: 101px;
+			justify-content: space-between;
 			.settingsCreditsLeft {
 				display: flex;
 				height: 32px;

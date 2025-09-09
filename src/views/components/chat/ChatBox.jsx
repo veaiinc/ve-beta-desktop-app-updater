@@ -788,7 +788,7 @@ const ChatBox = ({
 				// Prevent default to avoid unwanted new line
 				e?.preventDefault();
 
-				if (!isPublicChat && window.location.hostname !== 'localhost') {
+				if (!isPublicChat) {
 					const totalCreditsUsed = currentPlan?.totalAiCreditUsed || 0,
 						totalCreditsLimit = currentPlan?.totalAiCreditLimit || 0;
 					if (totalCreditsUsed >= totalCreditsLimit) {
@@ -926,7 +926,7 @@ const ChatBox = ({
 					}
 
 					if (isDirectSearchAgent) {
-						payload.direct_search_agent = true;
+						payload.direct_agent = 'search_agent';
 						updateStateValues({
 							isDirectSearchAgent: false,
 						});

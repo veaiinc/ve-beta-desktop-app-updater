@@ -43,7 +43,7 @@
 				border-radius: 37px;
 				background: var(--card);
 				color: var(--primary-font);
-				font-family: var(--primary-font-family);
+				font-family: var(--chat-primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -73,7 +73,7 @@
 				flex-grow: 1;
 
 				color: var(--secondary-font);
-				font-family: var(--primary-font-family);
+				font-family: var(--chat-primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
@@ -230,7 +230,7 @@
 							.recent-file-source-type {
 								align-self: stretch;
 								color: var(--secondary-font, #94989e);
-								font-family: var(--primary-font-family);
+								font-family: var(--chat-primary-font-family);
 								text-transform: uppercase;
 								font-size: 12px;
 								font-style: normal;
@@ -295,7 +295,7 @@
 					background: transparent;
 					padding: 4px 0 4px 8px;
 					color: var(--secondary-font);
-					font-family: var(--primary-font-family);
+					font-family: var(--chat-primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 400;
@@ -315,7 +315,7 @@
 						outline: none;
 						background: transparent;
 						color: var(--primary-font);
-						font-family: var(--primary-font-family);
+						font-family: var(--chat-primary-font-family);
 						font-size: 16px;
 						font-style: normal;
 						font-weight: 400;
@@ -467,7 +467,7 @@
 			.btn-text {
 				flex-shrink: 0;
 				color: var(--primary-font, #f2f2f3);
-				font-family: var(--primary-font-family);
+				font-family: var(--chat-primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 450;
@@ -508,11 +508,11 @@
 					background-color: var(--stroke);
 					svg {
 						path {
-							fill: var(--info);
+							fill: var(--primary-button);
 						}
 					}
 					.btn-text {
-						color: var(--info);
+						color: var(--primary-button);
 					}
 				}
 			}
@@ -601,7 +601,7 @@
 				}
 				.browser-text {
 					color: var(--primary-font, #f2f2f3);
-					font-family: var(--primary-font-family);
+					font-family: var(--chat-primary-font-family);
 					font-size: 8px;
 					flex-shrink: 0;
 				}
@@ -613,7 +613,7 @@
 				justify-content: center;
 				cursor: pointer;
 				color: var(--primary-font, #f2f2f3);
-				font-family: var(--primary-font-family);
+				font-family: var(--chat-primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
@@ -640,8 +640,8 @@
 			align-items: center;
 			gap: 24px;
 			align-self: stretch;
-			border-radius: 8px;
-			background: var(--card, #18191b);
+			border-radius: 16px;
+			background: var(--chat-box, #18191b);
 			width: 100%;
 
 			.left-container {
@@ -665,7 +665,7 @@
 
 					.title-text-container {
 						color: var(--primary-font, #f2f2f3);
-						font-family: var(--primary-font-family);
+						font-family: var(--chat-primary-font-family);
 						font-size: 15px;
 						font-style: normal;
 						font-weight: 600;
@@ -675,7 +675,7 @@
 
 				.description-container {
 					color: var(--secondary-font, #7a7e85);
-					font-family: var(--primary-font-family);
+					font-family: var(--chat-primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 500;
@@ -695,7 +695,7 @@
 					cursor: pointer;
 
 					color: var(--background-color, #0c0c0d);
-					font-family: var(--primary-font-family);
+					font-family: var(--chat-primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 500;
@@ -764,7 +764,7 @@
 			outline: none;
 			background: var(--card-over-card, #2f3336);
 			color: var(--primary-font, #f2f2f3);
-			font-family: var(--primary-font-family);
+			font-family: var(--chat-primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -796,7 +796,7 @@
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
-				font-family: var(--primary-font-family);
+				font-family: var(--chat-primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -836,7 +836,7 @@
 			outline: none;
 			background: var(--card-hover);
 			color: var(--primary-font);
-			font-family: var(--primary-font-family);
+			font-family: var(--chat-primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -861,7 +861,7 @@
 			.option-title {
 				flex: 1 0 0;
 				color: var(--primary-font);
-				font-family: var(--primary-font-family);
+				font-family: var(--chat-primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -921,7 +921,7 @@
 				text-overflow: ellipsis;
 				word-break: break-all;
 				color: var(--primary-font, #f2f2f3);
-				font-family: var(--primary-font-family);
+				font-family: var(--chat-primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -953,7 +953,7 @@
 
 			.upload-file-text {
 				color: var(--primary-font, #f2f2f3);
-				font-family: var(--primary-font-family);
+				font-family: var(--chat-primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -995,7 +995,7 @@
 			outline: none;
 			color: var(--secondary-font);
 			background-color: transparent;
-			font-family: var(--primary-font-family);
+			font-family: var(--chat-primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -1016,7 +1016,7 @@
 			gap: 10px;
 			align-self: stretch;
 			color: var(--secondary-font, #7a7e85);
-			font-family: var(--primary-font-family);
+			font-family: var(--chat-primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -1030,7 +1030,7 @@
 			font-size: 16px;
 			width: 100%;
 			text-align: center;
-			font-family: var(--primary-font-family);
+			font-family: var(--chat-primary-font-family);
 		}
 		.recent-files {
 			display: flex;
@@ -1074,7 +1074,7 @@
 					color: var(--primary-font);
 					text-overflow: ellipsis;
 					white-space: nowrap;
-					font-family: var(--primary-font-family);
+					font-family: var(--chat-primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -1135,7 +1135,7 @@
 				flex-grow: 1;
 				gap: 4px;
 				.title-text {
-					font-family: var(--primary-font-family);
+					font-family: var(--chat-primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -1144,7 +1144,7 @@
 
 				.subtitle-text {
 					color: var(--secondary-font, #7a7e85);
-					font-family: var(--primary-font-family);
+					font-family: var(--chat-primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -1184,7 +1184,7 @@
 	background: var(--popup, #202123);
 	box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.12);
 	color: var(--primary-font, #7a7e85);
-	font-family: var(--primary-font-family);
+	font-family: var(--chat-primary-font-family);
 	font-size: 14px;
 	font-style: normal;
 	font-weight: 500;
@@ -1196,7 +1196,7 @@
 	width: 400px;
 	span {
 		color: var(--primary-font, #f2f2f3);
-		font-family: var(--primary-font-family);
+		font-family: var(--chat-primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -1279,6 +1279,7 @@
 .textarea-container {
 	position: relative;
 	width: 100%;
+	top: 1px;
 
 	.textArea {
 		&.transcribing {
