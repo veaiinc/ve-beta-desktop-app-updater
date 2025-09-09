@@ -647,8 +647,6 @@ class WindowHelper {
 		const bounds = this.askAIWindow.getBounds();
 		this.askAIWindowPosition = { x: bounds.x, y: bounds.y };
 		this.askAIWindowSize = { width: bounds.width, height: bounds.height };
-		
-		// Hide the window but preserve state
 		this.askAIWindow.hide();
 		this.isAskAIVisible = false;
 	}

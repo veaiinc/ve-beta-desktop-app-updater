@@ -133,7 +133,6 @@ contextBridge.exposeInMainWorld('electronApi', {
 	askAI: {
 		toggleWindow: () => ipcRenderer.invoke('toggle-askAI-window'),
 		showWindow: () => ipcRenderer.invoke('show-askAI-window'),
-		hideWindow: () => ipcRenderer.invoke('hide-askAI-window'),
 		isWindowVisible: () => ipcRenderer.invoke('is-askAI-window-visible'),
 		updateDimensions: (dims) => ipcRenderer.invoke('update-askAI-dimensions', dims),
 		setIgnoreMouseEvents: (ignore) =>
