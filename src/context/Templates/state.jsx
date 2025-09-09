@@ -1579,6 +1579,7 @@ export const TemplatesState = (props) => {
 		}
 	};
 	const getAuthUrlForThirdParty = async (connectType, access) => {
+		console.log('getAuthUrlForThirdParty', connectType, access);
 		try {
 			const token = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -1608,7 +1609,7 @@ export const TemplatesState = (props) => {
 					path: `/outlookcalendar/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
 					apiType: 'microsoft_integration_api',
 				},
-				outlookMail: {
+				'outlook-mail': {
 					path: `/outlookmail/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
 					apiType: 'microsoft_integration_api',
 				},
