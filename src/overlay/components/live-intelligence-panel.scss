@@ -13,7 +13,7 @@
 	// // -webkit-backdrop-filter: blur(12px);
 
 	display: flex;
-	width: 745px;
+	width: 470px;
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 12px;
@@ -129,6 +129,7 @@
 		align-items: center;
 		gap: 0;
 		align-self: stretch;
+		overflow-x: auto;
 
 		.tab-button {
 			display: flex;

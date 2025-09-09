@@ -92,10 +92,6 @@ const OverlayApp = () => {
 		}));
 	};
 
-	useEffect(() => {
-		console.log('🎤 Transcription received:', info.transcriptions);
-	}, [info.transcriptions]);
-
 	const {
 		isConnected,
 		isRecording,
@@ -231,7 +227,6 @@ const OverlayApp = () => {
 		} else {
 			pauseRecording();
 		}
-		console.log('isPaused', isPaused);
 	};
 
 	// Effects
@@ -496,9 +491,9 @@ const OverlayApp = () => {
 		// Dynamic width calculation based on layout - use exact content width
 		if (activePanel === 'live-intelligence') {
 			// Panel is open: use exact panel width without extra padding
-			calculatedWidth = 830; // Exact panel width
+			calculatedWidth = 555; // Exact panel width
 		} else if (activePanel === 'transcript') {
-			calculatedWidth = 830; // Exact panel width
+			calculatedWidth = 555; // Exact panel width
 		} else if (showShortcutBar && !isDynamicIslandControlled) {
 			// Only shortcut bar visible: use actual content width
 			calculatedWidth = Math.max(rect.width, 400);
