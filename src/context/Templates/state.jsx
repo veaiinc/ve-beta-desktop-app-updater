@@ -1582,40 +1582,46 @@ export const TemplatesState = (props) => {
 		try {
 			const token = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
-			let path, response;
+			let path, response, apiType;
+
 			let origin = window.location.origin;
 			if (origin === 'http://localhost:5173') {
 				origin = 'https://ve.ai';
 			}
 
-			let currentURl = origin + window.location.pathname;
-			switch (connectType) {
-				case 'gmail':
-					path = `/auth/gmail/${workspaceId}?access=${access}`;
-					response = await Service?.fetchGet(path, token, 'calendar_api');
-					break;
-				case 'google-calendar':
-					path = `/google-calendar/${workspaceId}/auth?access=${access}`;
-					response = await Service?.fetchGet(path, token, 'calendar_api');
-					break;
-				case 'slack':
-					path = `/slack/${workspaceId}/auth?access=${access}`;
-					response = await Service?.fetchGet(path, token, 'third_party_integrations_api');
-					break;
-				case 'outlook-calendar':
-					path = `/outlookcalendar/${workspaceId}/auth?access=${access}`;
-					response = await Service?.fetchGet(path, token, 'microsoft_integration_api');
-					break;
-				case 'outlook-mail':
-					path = `/outlookmail/${workspaceId}/auth?access=${access}`;
-					response = await Service?.fetchGet(path, token, 'microsoft_integration_api');
-					break;
-				default:
-					// For other integrations, use the generic pattern
-					path = `/${connectType}/${workspaceId}/auth?access=${access}`;
-					response = await Service?.fetchGet(path, token, 'third_party_integrations_api');
-					break;
-			}
+			// let currentURl = origin + window.location.pathname;
+
+			const authConfig = {
+				gmail: {
+					path: `/auth/gmail/${workspaceId}?access=${access}`,
+					apiType: 'calendar_api',
+				},
+				'google-calendar': {
+					path: `/google-calendar/${workspaceId}/auth?access=${access}`,
+					apiType: 'calendar_api',
+				},
+				slack: {
+					path: `/slack/${workspaceId}/auth?access=${access}`,
+					apiType: 'third_party_integrations_api',
+				},
+				'outlook-calendar': {
+					path: `/outlookcalendar/${workspaceId}/auth?access=${access}`,
+					apiType: 'microsoft_integration_api',
+				},
+				'outlook-mail': {
+					path: `/outlookmail/${workspaceId}/auth?access=${access}`,
+					apiType: 'microsoft_integration_api',
+				},
+			};
+
+			const config = authConfig[connectType] || {
+				path: `/${connectType}/${workspaceId}/auth?access=${access}`,
+				apiType: 'third_party_integrations_api',
+			};
+
+			path = config.path;
+			apiType = config.apiType;
+			response = await Service?.fetchGet(path, token, apiType);
 
 			if (response?.[0] === true) {
 				return response?.[1]?.connectUrl || response?.[1]?.url;
