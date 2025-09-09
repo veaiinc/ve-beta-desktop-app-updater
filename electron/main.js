@@ -416,11 +416,9 @@ let notchDropService = null;
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 
-// Windows-specific auto-updater configuration
-if (process.platform === 'win32') {
-	// Enable auto-download for both dev and production
-	autoUpdater.autoDownload = true;
-}
+// Configure auto-updater for all platforms
+autoUpdater.autoDownload = false; // Manual control for better error handling
+autoUpdater.autoInstallOnAppQuit = true;
 
 // Update event forwarding
 autoUpdater.on('checking-for-update', () => {
@@ -432,23 +430,20 @@ autoUpdater.on('update-available', (info) => {
 
 	// Notify frontend that update is available
 	mainWindow?.webContents.send('update-status', {
-		status: 'download-started',
+		status: 'available',
 		version: info.version,
 	});
 
-	// If auto-download is disabled, start manual download
-	if (!autoUpdater.autoDownload) {
-		autoUpdater.downloadUpdate().catch((downloadErr) => {
-			log.error('Manual download failed:', downloadErr);
-			mainWindow?.webContents.send('update-status', {
-				status: 'download-failed',
-				error: downloadErr.message,
-				details: { code: downloadErr.code },
-			});
+	// Start manual download since autoDownload is false
+	log.info('Starting update download...');
+	autoUpdater.downloadUpdate().catch((downloadErr) => {
+		log.error('Download failed:', downloadErr);
+		mainWindow?.webContents.send('update-status', {
+			status: 'download-failed',
+			error: downloadErr.message,
+			details: { code: downloadErr.code },
 		});
-	} else {
-		log.info('Auto-download enabled, update will download automatically');
-	}
+	});
 });
 
 autoUpdater.on('update-not-available', (info) => {
@@ -459,41 +454,75 @@ autoUpdater.on('update-not-available', (info) => {
 autoUpdater.on('error', (err) => {
 	log.error('Update error:', err);
 
-	// Handle Windows checksum mismatch specifically
+	let errorStatus = {
+		status: 'error',
+		error: err.message,
+		details: { code: err.code, errno: err.errno },
+	};
+
+	// Handle specific error types
 	if (err.message.includes('checksum mismatch') || err.code === 'ERR_CHECKSUM_MISMATCH') {
-		log.warn('Checksum mismatch detected - this may be due to unsigned builds on Windows');
-		mainWindow?.webContents.send('update-status', {
+		log.warn('Checksum mismatch detected - likely due to unsigned builds');
+		errorStatus = {
 			status: 'checksum-error',
 			error: 'Update verification failed. This may be due to unsigned builds.',
 			details: {
 				code: err.code,
 				errno: err.errno,
-				suggestion: 'Manual download may be required',
+				suggestion: 'Try manual download or check for signed releases',
 			},
-		});
-	} else {
-		mainWindow?.webContents.send('update-status', {
-			status: 'error',
-			error: err.message,
-			details: { code: err.code, errno: err.errno },
-		});
+		};
+	} else if (err.message.includes('ENOENT') || err.message.includes('404')) {
+		errorStatus = {
+			status: 'not-found',
+			error: 'Update file not found on server.',
+			details: { code: err.code },
+		};
+	} else if (err.message.includes('network') || err.message.includes('ENOTFOUND')) {
+		errorStatus = {
+			status: 'network-error',
+			error: 'Network error while checking for updates.',
+			details: { code: err.code },
+		};
+	} else if (err.message.includes('ditto') || err.message.includes('No such file or directory')) {
+		errorStatus = {
+			status: 'installation-error',
+			error: 'Update installation failed due to file system error.',
+			details: {
+				code: err.code,
+				suggestion:
+					'Please try restarting the app manually or download the update from the releases page.',
+			},
+		};
 	}
+
+	mainWindow?.webContents.send('update-status', errorStatus);
 });
 
 autoUpdater.on('update-downloaded', (info) => {
 	log.info('Update downloaded:', info);
 
-	// Show user-friendly message
+	// Show user-friendly message about automatic restart
 	mainWindow?.webContents.send('update-status', {
-		status: 'download-completed',
+		status: 'downloaded',
 		version: info.version,
-		message: 'Update ready! App will restart in 3 seconds...',
+		message: 'Update downloaded! App will restart automatically in 3 seconds...',
 	});
 
 	// Auto-restart after 3 seconds
 	setTimeout(() => {
-		log.info('Restarting app to install update...');
-		autoUpdater.quitAndInstall();
+		log.info('Auto-restarting app to install update...');
+
+		// Clean up before restart
+		if (dynamicIslandHelper) {
+			dynamicIslandHelper.destroy();
+		}
+		if (windowHelper) {
+			windowHelper.cleanup();
+		}
+
+		// Restart automatically
+		autoUpdater.quitAndInstall(true, false); // Wait for windows to close gracefully
 	}, 3000);
 });
 
@@ -626,9 +655,30 @@ ipcMain.handle('download-update', async () => {
 });
 
 ipcMain.handle('restart-app', () => {
-	if (process.env.NODE_ENV === 'development') return { success: false };
-	autoUpdater.quitAndInstall();
-	return { success: true };
+	if (process.env.NODE_ENV === 'development') {
+		return { success: false, error: 'Not available in development' };
+	}
+
+	try {
+		// Clean up before restart
+		if (dynamicIslandHelper) {
+			dynamicIslandHelper.destroy();
+		}
+		if (windowHelper) {
+			windowHelper.cleanup();
+		}
+
+		log.info('Restarting app to install update...');
+
+		// Use safer restart approach - wait for windows to close gracefully
+		// This helps avoid file system conflicts during update
+		autoUpdater.quitAndInstall(true, false); // Wait for windows to close, don't force quit
+
+		return { success: true };
+	} catch (error) {
+		log.error('Error restarting app:', error);
+		return { success: false, error: error.message };
+	}
 });
 
 // Add manual download handler for Windows checksum issues
@@ -756,10 +806,10 @@ function createMenuBar() {
 		...(isMac
 			? [
 					{
-						label: 'NotchDrop',
+						label: 'Notch',
 						submenu: [
 							{
-								label: 'Open NotchDrop',
+								label: 'Open Notch',
 								accelerator: 'CmdOrCtrl+N',
 								click: async () => {
 									try {
@@ -776,7 +826,7 @@ function createMenuBar() {
 								},
 							},
 							{
-								label: 'Close NotchDrop',
+								label: 'Close Notch',
 								accelerator: 'CmdOrCtrl+Shift+N',
 								click: async () => {
 									try {
@@ -796,7 +846,7 @@ function createMenuBar() {
 								type: 'separator',
 							},
 							{
-								label: 'Toggle NotchDrop',
+								label: 'Toggle Notch',
 								accelerator: 'CmdOrCtrl+T',
 								click: async () => {
 									try {
@@ -1026,9 +1076,9 @@ function createWindow(restoreState = false) {
 		const possiblePaths = [
 			path.join(__dirname, 'assets', 'app-logo.ico'),
 			path.join(__dirname, '..', 'electron', 'assets', 'app-logo.ico'),
-			path.join(process.cwd(), 'electron', 'assets', 'app-logo.ico')
+			path.join(process.cwd(), 'electron', 'assets', 'app-logo.ico'),
 		];
-		
+
 		// Find the first path that exists
 		for (const testPath of possiblePaths) {
 			if (require('fs').existsSync(testPath)) {
@@ -1036,7 +1086,7 @@ function createWindow(restoreState = false) {
 				break;
 			}
 		}
-		
+
 		// Fallback to the first path if none exist
 		if (!iconPath) {
 			iconPath = possiblePaths[0];
@@ -1047,10 +1097,8 @@ function createWindow(restoreState = false) {
 		iconPath = path.join(__dirname, 'assets', 've-black-circle-logo.png');
 	}
 
-	// Debug: Log the icon path and check if file exists
-	log.info('🔍 Icon path:', iconPath);
-	log.info('🔍 __dirname:', __dirname);
-	log.info('🔍 File exists:', require('fs').existsSync(iconPath));
+	// Log the icon path being used
+	log.info('🎨 Using icon:', iconPath);
 
 	mainWindow = new BrowserWindow({
 		title: 'Ve AI - Priority',
@@ -1287,10 +1335,10 @@ app.whenReady().then(async () => {
 	log.info('🚀 Creating Dynamic Island FIRST for instant display...');
 	dynamicIslandHelper = new DynamicIslandHelper();
 	dynamicIslandHelper.createDynamicIslandWindow();
-	
+
 	// THEN: Create main window after dynamic island
 	createWindow();
-	
+
 	createTray(); // Create system tray for Windows
 	createMenuBar();
 
@@ -1301,6 +1349,119 @@ app.whenReady().then(async () => {
 	log.info('📋 Phase 1: Initializing WindowHelper...');
 	windowHelper = new WindowHelper();
 	windowHelper.registerGlobalShortcuts(mainWindow);
+
+	// Phase 1.2: CRITICAL FIX: Register all IPC handlers before window creation
+	log.info('📋 Phase 1.2: Registering IPC handlers before window creation...');
+
+	// Register Ask AI window IPC handlers
+	ipcMain.handle('toggle-askAI-window', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.toggleAskAIWindow();
+			return { success: true };
+		} catch (error) {
+			log.error('Error toggling Ask AI window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('show-askAI-window', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.showAskAIWindow();
+			return { success: true };
+		} catch (error) {
+			log.error('Error showing Ask AI window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('is-askAI-window-visible', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			const isVisible = windowHelper.isAskAIWindowVisible();
+			return { success: true, isVisible };
+		} catch (error) {
+			log.error('Error checking Ask AI window visibility:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('update-askAI-dimensions', async (event, { width, height }) => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.updateAskAIWindowDimensions(width, height);
+			return { success: true };
+		} catch (error) {
+			log.error('Error updating Ask AI dimensions:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('set-askAI-ignore-mouse-events', async (event, ignore) => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			const askAIWindow = windowHelper.getAskAIWindow();
+			if (askAIWindow && !askAIWindow.isDestroyed()) {
+				askAIWindow.setIgnoreMouseEvents(ignore);
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error setting Ask AI ignore mouse events:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Handler to track ask AI input focus state
+	ipcMain.handle('set-askAI-input-focus', async (event, isFocused) => {
+		try {
+			// Store the focus state globally so overlay can access it
+			global.askAIInputFocused = isFocused;
+			return { success: true };
+		} catch (error) {
+			log.error('Error setting ask AI input focus state:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Handler to get ask AI input focus state
+	ipcMain.handle('get-askAI-input-focus', async () => {
+		try {
+			const focusState = global.askAIInputFocused || false;
+			log.info(`🔍 Getting ask AI input focus state: ${focusState}`);
+			return { success: true, isFocused: focusState };
+		} catch (error) {
+			log.error('Error getting ask AI input focus state:', error);
+			return { success: false, error: error.message };
+		}
+	});
+	log.info('✅ Registered get-askAI-input-focus IPC handler');
+
+	// Handler to hide all windows (overlay and ask AI)
+	ipcMain.handle('hide-all-windows', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.hideAllWindows();
+			return { success: true };
+		} catch (error) {
+			log.error('Error hiding all windows:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	log.info('✅ Ask AI IPC handlers registered before window creation');
 
 	// Phase 1.5: CRITICAL FIX: Pre-create overlay window for immediate response
 	log.info('📋 Phase 1.5: Pre-creating overlay window for instant Swift UI response...');
@@ -2997,7 +3158,7 @@ app.whenReady().then(async () => {
 	ipcMain.handle('get-askAI-input-focus', async () => {
 		try {
 			const focusState = global.askAIInputFocused || false;
-	
+
 			return { success: true, isFocused: focusState };
 		} catch (error) {
 			log.error('Error getting ask AI input focus state:', error);
@@ -3584,65 +3745,7 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	// Send chat message from Dynamic Island to Ask AI handler
-	ipcMain.handle('send-chat-message-to-askai', async (event, chatMessage) => {
-		try {
-			log.info('Sending chat message from Dynamic Island to Ask AI:', chatMessage);
-
-			// Get the Ask AI window through windowHelper
-			let askAIWindow = windowHelper.getAskAIWindow();
-
-			// If Ask AI window doesn't exist or is destroyed, create it
-			if (!askAIWindow || askAIWindow.isDestroyed()) {
-				log.info('Ask AI window not available, creating new window...');
-				windowHelper.createAskAIWindow();
-
-				// Wait for window to be created and ready
-				await new Promise((resolve) => setTimeout(resolve, 150));
-
-				// Get the window reference again after creating it
-				askAIWindow = windowHelper.getAskAIWindow();
-				if (askAIWindow) {
-					await waitForAskAIReady(askAIWindow);
-				}
-			}
-
-			// Ensure window is visible
-			if (askAIWindow && !askAIWindow.isDestroyed()) {
-				if (!askAIWindow.isVisible()) {
-					log.info('Ask AI window exists but not visible, showing it...');
-					windowHelper.showAskAIWindow();
-					// Wait a bit for the window to be fully visible
-					await new Promise((resolve) => setTimeout(resolve, 200));
-				}
-
-				// Ensure listeners are ready; then send and do a safety resend
-				await waitForAskAIReady(askAIWindow);
-				askAIWindow.webContents.send('receive-chat-message', chatMessage);
-				setTimeout(() => {
-					try {
-						if (askAIWindow && !askAIWindow.isDestroyed()) {
-							askAIWindow.webContents.send('receive-chat-message', chatMessage);
-							log.info('🔁 Re-sent chat to Ask AI (safety resend)');
-						}
-					} catch (e) {
-						log.warn('⚠️ Safety resend (AskAI) failed:', e);
-					}
-				}, 400);
-				log.info('Chat message sent to Ask AI window successfully');
-				return { success: true };
-			} else {
-				log.error('Ask AI window not available after creation attempts');
-				return { success: false, error: 'Ask AI window not available' };
-			}
-		} catch (error) {
-			log.error('Error sending chat message to Ask AI:', error);
-			return {
-				success: false,
-				error: error.message,
-			};
-		}
-	});
+	// Duplicate handler removed - keeping the first registration around line 1592
 
 	// Force open AskAI window handler (fallback for Dynamic Island)
 	ipcMain.handle('force-open-askai-window', async () => {

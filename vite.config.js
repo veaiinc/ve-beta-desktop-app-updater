@@ -10,6 +10,32 @@ export default defineConfig({
 	plugins: [
 		react(),
 		svgr(),
+		// Custom plugin to copy assets directory
+		{
+			name: 'copy-assets',
+			buildStart() {
+				const srcDir = 'electron/assets';
+				const destDir = 'dist-electron/assets';
+
+				if (existsSync(srcDir)) {
+					if (!existsSync(destDir)) {
+						mkdirSync(destDir, { recursive: true });
+					}
+
+					// Copy all files from assets directory
+					const fs = require('fs');
+					const files = fs.readdirSync(srcDir);
+					files.forEach((file) => {
+						const srcFile = join(srcDir, file);
+						const destFile = join(destDir, file);
+						if (fs.statSync(srcFile).isFile()) {
+							copyFileSync(srcFile, destFile);
+							console.log(`✅ Copied ${file} to dist-electron/assets/`);
+						}
+					});
+				}
+			},
+		},
 		// Custom plugin to copy wakeWord directory
 		{
 			name: 'copy-wake-word',

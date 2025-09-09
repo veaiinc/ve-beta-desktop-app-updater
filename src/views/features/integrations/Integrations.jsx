@@ -180,11 +180,30 @@ const getIntegrationInfo = (appType) => {
 		paypal: { icon: PayPal, title: 'PayPal' },
 		'outlook-calendar': { icon: outlookCalendar, title: 'Outlook Calendar' },
 		'outlook-mail': { icon: outlookMail, title: 'Outlook Mail' },
+		// Handle variations of Outlook app types
+		outlook: { icon: outlookMail, title: 'Outlook' },
+		'microsoft-outlook': { icon: outlookMail, title: 'Microsoft Outlook' },
+		outlook_calendar: { icon: outlookCalendar, title: 'Outlook Calendar' },
+		outlook_mail: { icon: outlookMail, title: 'Outlook Mail' },
+		'microsoft-outlook-calendar': { icon: outlookCalendar, title: 'Outlook Calendar' },
+		'microsoft-outlook-mail': { icon: outlookMail, title: 'Outlook Mail' },
 	};
 
 	const info = integrationMap[appType];
 	if (!info) {
 		console.warn(`No integration info found for app type: ${appType}`);
+		// Try to determine if it's an Outlook-related app by checking the appType string
+		if (appType && appType.toLowerCase().includes('outlook')) {
+			// If it contains 'outlook' but doesn't match exactly, try to determine if it's calendar or mail
+			if (appType.toLowerCase().includes('calendar')) {
+				return { icon: outlookCalendar, title: 'Outlook Calendar' };
+			} else if (appType.toLowerCase().includes('mail')) {
+				return { icon: outlookMail, title: 'Outlook Mail' };
+			} else {
+				// Default to Outlook Mail if we can't determine
+				return { icon: outlookMail, title: 'Outlook' };
+			}
+		}
 		return { icon: google, title: appType };
 	}
 	return info;
@@ -342,7 +361,7 @@ const AvailableIntegrationCard = ({
 					disabled={shouldDisable}
 				>
 					{shouldDisable ? 'Connected' : 'Connect'}
-					{connectLoader?.loader && connectLoader?.title === title && <Spinner />}
+					{/* {connectLoader?.loader && connectLoader?.title === title && <Spinner />} */}
 				</button>
 			</div>
 		</div>
