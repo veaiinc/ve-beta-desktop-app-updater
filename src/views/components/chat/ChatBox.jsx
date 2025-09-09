@@ -1832,7 +1832,9 @@ const ChatBox = ({
 																''}
 														</div>
 
-														{file?.loading && <Spin />}
+														{file?.loading && (
+															<Spin rootClassName="file-spinner" />
+														)}
 													</div>
 													<div className="recent-file-source-type">
 														{getFileType(file)}

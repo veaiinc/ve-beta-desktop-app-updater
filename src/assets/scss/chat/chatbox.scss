@@ -215,6 +215,13 @@
 							.recent-file-name {
 								max-width: 200px;
 								display: flex;
+								gap: 6px;
+
+								.file-spinner {
+									.ant-spin-dot-item {
+										color: var(--primary-font);
+									}
+								}
 								.file-title {
 									overflow: hidden;
 									text-overflow: ellipsis;
