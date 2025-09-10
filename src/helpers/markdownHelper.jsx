@@ -552,12 +552,17 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 			{messageData?.images?.length > 0 && (
 				<div className="uploaded-images-container">
 					{messageData?.images?.map((image, index) => (
-						<img
-							key={index}
-							src={image?.preview}
-							className="uploaded-image"
-							onClick={() => handlePreview(image)}
-						/>
+						<div
+							className={`uploaded-image ${
+								messageData?.images?.length === 1 ? 'count-one' : ''
+							}`}
+						>
+							<img
+								key={index}
+								src={image?.preview}
+								onClick={() => handlePreview(image)}
+							/>
+						</div>
 					))}
 				</div>
 			)}
