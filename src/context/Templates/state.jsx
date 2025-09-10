@@ -1585,37 +1585,37 @@ export const TemplatesState = (props) => {
 			let path, response, apiType;
 
 			let origin = window.location.origin;
-			if (origin === 'http://localhost:5173') {
-				origin = 'https://ve.ai';
+			if (origin.includes('localhost')) {
+				origin = 'https://www.ve.ai';
 			}
 
-			// let currentURl = origin + window.location.pathname;
+			let currentURl = origin + window.location.pathname;
 
 			const authConfig = {
 				gmail: {
-					path: `/auth/gmail/${workspaceId}?access=${access}`,
+					path: `/auth/gmail/${workspaceId}?access=${access}&redirectURL=${currentURl}`,
 					apiType: 'calendar_api',
 				},
 				'google-calendar': {
-					path: `/google-calendar/${workspaceId}/auth?access=${access}`,
+					path: `/google-calendar/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
 					apiType: 'calendar_api',
 				},
 				slack: {
-					path: `/slack/${workspaceId}/auth?access=${access}`,
+					path: `/slack/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
 					apiType: 'third_party_integrations_api',
 				},
 				'outlook-calendar': {
-					path: `/outlookcalendar/${workspaceId}/auth?access=${access}`,
+					path: `/outlookcalendar/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
 					apiType: 'microsoft_integration_api',
 				},
 				'outlook-mail': {
-					path: `/outlookmail/${workspaceId}/auth?access=${access}`,
+					path: `/outlookmail/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
 					apiType: 'microsoft_integration_api',
 				},
 			};
 
 			const config = authConfig[connectType] || {
-				path: `/${connectType}/${workspaceId}/auth?access=${access}`,
+				path: `/${connectType}/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
 				apiType: 'third_party_integrations_api',
 			};
 
@@ -1634,7 +1634,6 @@ export const TemplatesState = (props) => {
 		}
 	};
 	const disconnectThirdParty = async (connectType, id) => {
-		console.log('disconnectThirdParty', connectType, id);
 		try {
 			const token = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -1657,7 +1656,7 @@ export const TemplatesState = (props) => {
 					path: `/outlookcalendar/${workspaceId}/${id}/deactivate-integration`,
 					apiType: 'microsoft_integration_api',
 				},
-				'outlook-mail': {
+				outlookMail: {
 					path: `/outlookmail/${workspaceId}/${id}/deactivate-integration`,
 					apiType: 'microsoft_integration_api',
 				},
@@ -2126,7 +2125,12 @@ export const TemplatesState = (props) => {
 		// }
 		else {
 			updatedGlobalChatMessages = [
-				{ type: 'user', message: queryMessage || '', images: localPayload?.files || [] },
+				{
+					type: 'user',
+					message: queryMessage || '',
+					images: localPayload?.images || [],
+					attachments: localPayload?.attachments,
+				},
 				{
 					type: 'AI',
 					contentType: 'loading',

@@ -8,7 +8,7 @@ import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/ta
 const ChainOfThoughtWidget = ({ messageData }) => {
 	const [info, setInfo] = useState({
 		isExpanded: false,
-		height: 54,
+		height: 20,
 	});
 	const contentContainerRef = useRef(null);
 	const containerRef = useRef(null);
