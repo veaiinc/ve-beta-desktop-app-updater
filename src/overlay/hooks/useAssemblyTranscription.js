@@ -328,9 +328,6 @@ const useAssemblyTranscription = ({
 				return Promise.reject(new Error(error));
 			}
 
-			// Debug: Check the WebSocket URL
-			log(`Connecting to: ${wsUrl}/${meetingId}`);
-
 			// Reset reconnection attempts on successful manual connect
 			reconnectAttemptsRef.current = 0;
 
@@ -879,11 +876,6 @@ const useAssemblyTranscription = ({
 			document.removeEventListener('visibilitychange', handleVisibilityChange);
 		};
 	}, [isRecording, log]);
-
-	// Debug: Log WebSocket URL on mount
-	useEffect(() => {
-		log('WebSocket URL from getBaseUrl:', wsUrl);
-	}, [log]);
 
 	return {
 		isConnected,
