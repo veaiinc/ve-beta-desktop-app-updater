@@ -68,6 +68,7 @@ const loadGalleryHelper = () => {
 let lastWindowState = {
 	route: '/home', // Default route
 	timestamp: Date.now(),
+	windowBounds: null, // Store window size and position
 };
 
 // Recording timer variables for Are You There functionality
@@ -765,10 +766,11 @@ ipcMain.handle('request-screen-recording-permission', async () => {
 // Window state management functions
 function saveWindowState() {
 	if (mainWindow && !mainWindow.isDestroyed()) {
-		// Save current route and timestamp
+		// Save current route, timestamp, and window bounds
 		lastWindowState = {
 			route: '/home', // Default route - can be enhanced to get actual route
 			timestamp: Date.now(),
+			windowBounds: mainWindow.getBounds(), // Save window size and position
 		};
 		log.info('Window state saved:', lastWindowState);
 	}
@@ -1099,10 +1101,19 @@ function createWindow(restoreState = false) {
 	// Log the icon path being used
 	log.info('🎨 Using icon:', iconPath);
 
+	// Use saved window bounds if available, otherwise use defaults
+	const defaultBounds = { width: 1366, height: 768, x: undefined, y: undefined };
+	const windowBounds =
+		restoreState && lastWindowState.windowBounds
+			? { ...defaultBounds, ...lastWindowState.windowBounds }
+			: defaultBounds;
+
 	mainWindow = new BrowserWindow({
 		title: 'Ve AI - Priority',
-		width: 1366,
-		height: 768,
+		width: windowBounds.width,
+		height: windowBounds.height,
+		x: windowBounds.x,
+		y: windowBounds.y,
 		show: false,
 		icon: iconPath,
 		webPreferences: {
@@ -1139,13 +1150,11 @@ function createWindow(restoreState = false) {
 		// Save the current window state
 		saveWindowState();
 
-		// Windows-specific close behavior
-		if (process.platform === 'win32') {
-			if (!isQuitting) {
-				event.preventDefault();
-				mainWindow.hide();
-				log.info('Main window hidden to tray (Windows)');
-			}
+		// Cross-platform close behavior - keep app running in background
+		if (!isQuitting) {
+			event.preventDefault();
+			mainWindow.hide();
+			log.info('Main window hidden - app continues running in background');
 		}
 	});
 
@@ -1190,9 +1199,15 @@ function createTray() {
 			{
 				label: 'Show App',
 				click: () => {
+					log.info('🖥️ Show App clicked from tray menu');
 					if (mainWindow && !mainWindow.isDestroyed()) {
 						mainWindow.show();
 						mainWindow.focus();
+						log.info('Main window shown and focused from tray menu');
+					} else {
+						// Window doesn't exist, recreate it
+						log.info('Main window not available, recreating from tray menu');
+						createWindow(true); // Pass true to restore state
 					}
 				},
 			},
@@ -1209,9 +1224,15 @@ function createTray() {
 
 		// Double-click tray icon to show app
 		tray.on('double-click', () => {
+			log.info('🖥️ Tray icon double-clicked - reopening main window');
 			if (mainWindow && !mainWindow.isDestroyed()) {
 				mainWindow.show();
 				mainWindow.focus();
+				log.info('Main window shown and focused from tray double-click');
+			} else {
+				// Window doesn't exist, recreate it
+				log.info('Main window not available, recreating from tray double-click');
+				createWindow(true); // Pass true to restore state
 			}
 		});
 
@@ -1739,6 +1760,23 @@ app.whenReady().then(async () => {
 
 	// Set up NotchDrop status change listener to update menu
 	setupNotchDropMenuUpdates();
+
+	// macOS dock icon click handler to reopen main window
+	if (process.platform === 'darwin') {
+		app.on('activate', () => {
+			log.info('🍎 Dock icon clicked - reopening main window');
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				// Window exists, just show and focus it
+				mainWindow.show();
+				mainWindow.focus();
+				log.info('Main window shown and focused from dock click');
+			} else {
+				// Window doesn't exist, recreate it
+				log.info('Main window not available, recreating from dock click');
+				createWindow(true); // Pass true to restore state
+			}
+		});
+	}
 
 	// Register global shortcut for dynamic island (Cmd+I)
 	globalShortcut.register('CommandOrControl+I', () => {
