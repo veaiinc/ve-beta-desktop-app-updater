@@ -369,4 +369,12 @@ contextBridge.exposeInMainWorld('electronApi', {
 	removeContentProtectionListener: (callback) => {
 		ipcRenderer.removeListener('content-protection-changed', callback);
 	},
+
+	startScreenCapture: () => ipcRenderer.invoke('start-screen-capture'),
+
+	onScreenAudio: (callback) => {
+		ipcRenderer.on('screen-audio', (_event, data) => {
+			callback(data);
+		});
+	},
 });
