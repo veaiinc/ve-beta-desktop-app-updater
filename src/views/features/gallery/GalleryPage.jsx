@@ -1772,15 +1772,15 @@ const GalleryPage = () => {
 	const handleNavigateUpload = () => {
 		const uploadUrl =
 			info?.albumContains === 'All'
-				? `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos?light-gallery=${
-						info?.isLightGallery ? true : false
-				  }`
-				: `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos?tag=${
+				? `/galleries/${galleryId}/${
+						info?.activeAlbumId
+				  }/upload-photos-desktop?light-gallery=${info?.isLightGallery ? true : false}`
+				: `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos-desktop?tag=${
 						info?.albumContains
 				  }?light-gallery=${info?.isLightGallery ? true : false}`;
 
-		// Open in new tab
-		window.open(uploadUrl, '_blank');
+		// Navigate within the same window for Electron app
+		navigate(uploadUrl);
 	};
 	const handleUploadClicked = (option = 'uploading') => {
 		const region = localStorage.getItem('region');
