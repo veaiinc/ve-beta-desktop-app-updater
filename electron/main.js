@@ -52,6 +52,73 @@ let pendingNotificationAction = null;
 let tray = null;
 let isQuitting = false;
 
+// Content Protection - Simple & Working Implementation
+let isContentProtectionEnabled = true; // Default to enabled for privacy
+
+const toggleContentProtection = () => {
+	isContentProtectionEnabled = !isContentProtectionEnabled;
+	
+	// Apply to all windows except main window - keep main window always visible
+	const allWindows = BrowserWindow.getAllWindows();
+	let protectedCount = 0;
+	
+	allWindows.forEach(window => {
+		if (!window.isDestroyed()) {
+			// Skip main window - keep it always visible
+			if (window === mainWindow) {
+				log.info(`🏠 Skipping main window - keeping it always visible`);
+				return;
+			}
+			
+			window.setContentProtection(isContentProtectionEnabled);
+			protectedCount++;
+		}
+	});
+	
+	const status = isContentProtectionEnabled ? 'ON' : 'OFF';
+	log.info(`🔒 Content protection: ${status} - Applied to ${protectedCount} windows (main window excluded)`);
+	console.log(`🔒 CONTENT PROTECTION: ${status} (${protectedCount} windows protected, main window always visible)`);
+	
+	return isContentProtectionEnabled;
+};
+
+const getContentProtectionStatus = () => {
+	return isContentProtectionEnabled;
+};
+
+const setContentProtection = (enabled) => {
+	isContentProtectionEnabled = enabled;
+	
+	BrowserWindow.getAllWindows().forEach(window => {
+		if (!window.isDestroyed()) {
+			// Skip main window - keep it always visible
+			if (window === mainWindow) {
+				log.info(`🏠 Skipping main window - keeping it always visible`);
+				return;
+			}
+			
+			window.setContentProtection(isContentProtectionEnabled);
+		}
+	});
+	
+	log.info(`🔒 Content protection set to: ${isContentProtectionEnabled ? 'ON' : 'OFF'} (main window excluded)`);
+	return isContentProtectionEnabled;
+};
+
+// Function to apply content protection to a newly created window
+const applyContentProtectionToWindow = (window) => {
+	if (window && !window.isDestroyed()) {
+		// Skip main window - keep it always visible
+		if (window === mainWindow) {
+			log.info(`🏠 Skipping main window - keeping it always visible`);
+			return;
+		}
+		
+		window.setContentProtection(isContentProtectionEnabled);
+		log.info(`🔒 Applied content protection (${isContentProtectionEnabled ? 'ON' : 'OFF'}) to new window: ${window.getTitle()}`);
+	}
+};
+
 // Runtime platform override for testing (set VE_FORCE_PLATFORM=linux|win32|darwin)
 const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
 const isMacRuntime = RUNTIME_PLATFORM === 'darwin';
@@ -172,6 +239,9 @@ class DynamicIslandHelper {
 		};
 
 		this.dynamicIslandWindow = new BrowserWindow(windowSettings);
+		
+		// Apply content protection to Dynamic Island window
+		applyContentProtectionToWindow(this.dynamicIslandWindow);
 
 		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
 		// Force the Dynamic Island React app mode so it renders the island UI
@@ -1139,7 +1209,10 @@ function createWindow(restoreState = false) {
 
 	mainWindow.once('ready-to-show', () => {
 		mainWindow.show();
-		log.info('Window ready-to-show');
+		
+		// Apply content protection to main window
+		applyContentProtectionToWindow(mainWindow);
+		log.info('Window ready-to-show - content protection applied');
 		// Enable developer tools for main window in both development and production
 		log.info('Dev tools available with F12, Ctrl+F12, or Ctrl+Shift+I in all modes');
 
@@ -1378,11 +1451,42 @@ app.whenReady().then(async () => {
 
 	// Phase 1: Initialize WindowHelper first (required for overlay operations)
 	log.info('📋 Phase 1: Initializing WindowHelper...');
-	windowHelper = new WindowHelper();
+	windowHelper = new WindowHelper(applyContentProtectionToWindow);
 	windowHelper.registerGlobalShortcuts(mainWindow);
 
 	// Phase 1.2: CRITICAL FIX: Register all IPC handlers before window creation
 	log.info('📋 Phase 1.2: Registering IPC handlers before window creation...');
+
+	// Simple Content Protection IPC handlers
+	ipcMain.handle('toggle-content-protection', () => {
+		const newStatus = toggleContentProtection();
+		const statusText = newStatus ? 'ON' : 'OFF';
+		const windowCount = BrowserWindow.getAllWindows().length;
+		
+		// Show system notification with clear status
+		showNotification(
+			`Content Protection: ${statusText}`,
+			newStatus 
+				? `🔒 INVISIBILITY ON - ${windowCount} windows are now protected from screen recording`
+				: `👁️ INVISIBILITY OFF - ${windowCount} windows are now visible in screen recording`
+		);
+		
+		// Also log to console for debugging
+		console.log(`🎯 TOGGLE TRIGGERED: Content Protection is now ${statusText}`);
+		
+		return newStatus;
+	});
+
+	ipcMain.handle('get-content-protection-status', () => {
+		const status = getContentProtectionStatus();
+		console.log(`📋 Current content protection status: ${status ? 'ON' : 'OFF'}`);
+		return status;
+	});
+
+	ipcMain.handle('set-content-protection', (event, enabled) => {
+		return setContentProtection(enabled);
+	});
+
 
 	// Register Ask AI window IPC handlers
 	ipcMain.handle('toggle-askAI-window', async () => {
