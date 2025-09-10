@@ -637,7 +637,20 @@ const actionHandlers = {
 		let suggestions = [...(aiTranscriptionSuggestions?.suggestions || [])];
 
 		if (suggested_prompt) {
-			suggestions?.push(suggested_prompt);
+			if ('id' in suggested_prompt) {
+				const index = suggestions?.findIndex((s) => s.id === suggested_prompt.id);
+
+				if (index !== -1) {
+					// Replace existing
+					suggestions[index] = suggested_prompt;
+				} else {
+					// Add new
+					suggestions?.push(suggested_prompt);
+				}
+			} else {
+				// Old version → always push
+				suggestions?.push(suggested_prompt);
+			}
 		}
 
 		if (similar_files) {
