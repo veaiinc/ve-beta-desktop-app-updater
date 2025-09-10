@@ -5,6 +5,7 @@ import { getConfig } from '../services/index';
 export const useAskAISocket = () => {
 	const socketRef = useRef(null);
 	const currentSessionIdRef = useRef(null);
+	const isStoppedRef = useRef(false);
 	const MAX_RETRY_ATTEMPTS = 30;
 	const RETRY_DELAY = 1000; // 1 second
 
@@ -16,6 +17,7 @@ export const useAskAISocket = () => {
 			}
 
 			currentSessionIdRef.current = sessionId;
+			isStoppedRef.current = false; // Reset stop flag when creating new connection
 
 			// Close existing connection if any
 			if (socketRef.current) {
@@ -56,7 +58,8 @@ export const useAskAISocket = () => {
 				};
 
 				socketRef.current.onmessage = (event) => {
-					if (onMessageFunc) {
+					// Only process messages if not stopped
+					if (!isStoppedRef.current && onMessageFunc) {
 						onMessageFunc(event, currentSessionIdRef.current);
 					}
 				};
@@ -123,11 +126,27 @@ export const useAskAISocket = () => {
 			socketRef.current = null;
 		}
 		currentSessionIdRef.current = null;
+		isStoppedRef.current = false; // Reset stop flag when closing connection
+	}, []);
+
+	const stopMessage = useCallback(() => {
+		console.log('🛑 Stopping message processing...');
+		// Set stop flag to prevent processing any more messages
+		isStoppedRef.current = true;
+		
+		// Close the WebSocket connection to stop receiving messages
+		if (socketRef.current) {
+			socketRef.current.close();
+			socketRef.current = null;
+		}
+		
+		console.log('✅ Message processing stopped and WebSocket closed');
 	}, []);
 
 	return {
 		createWebSocketConnection,
 		sendMessage,
 		closeWebSocketConnection,
+		stopMessage,
 	};
 };

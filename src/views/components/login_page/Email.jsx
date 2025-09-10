@@ -281,35 +281,31 @@ const Email = ({
 					</div>
 				</div>
 			</div>
-			{info?.isHostnameVeDotAi && (
-				<>
-					<div className="service-container">
-						<div
-							disabled={info?.googleLoading}
-							className="google-login-button"
-							onClick={handleContinueWithGoogle}
-						>
-							<div className="google-logo-container">
-								<GoogleLogo />
-								<p>Continue with Google</p>
-							</div>
-							{info?.googleLoading && (
-								<Spinner
-									width="18px"
-									height="18px"
-									color="var(--primary-button)"
-									borderTopColor="transparent"
-									borderWidth={1.5}
-								/>
-							)}
-						</div>
+			<div className="service-container">
+				<div
+					disabled={info?.googleLoading}
+					className="google-login-button"
+					onClick={handleContinueWithGoogle}
+				>
+					<div className="google-logo-container">
+						<GoogleLogo />
+						<p>Continue with Google</p>
 					</div>
-					<div className="or-divider">
-						<div className="line"></div>
-						<span className="or-text">OR</span>
-					</div>
-				</>
-			)}
+					{info?.googleLoading && (
+						<Spinner
+							width="18px"
+							height="18px"
+							color="var(--primary-button)"
+							borderTopColor="transparent"
+							borderWidth={1.5}
+						/>
+					)}
+				</div>
+			</div>
+			<div className="or-divider">
+				<div className="line"></div>
+				<span className="or-text">OR</span>
+			</div>
 
 			<div className="login-content-wrapper">
 				<div className="login-button-container">
@@ -351,35 +347,6 @@ const Email = ({
 						</button>
 					</div>
 				</div>
-				{info?.isHostnameVeDotAi && (
-					<>
-						<div className="or-divider">
-							<div className="line"></div>
-							<span className="or-text">OR</span>
-						</div>
-						<div className="service-container">
-							<div
-								disabled={info?.googleLoading}
-								className="google-login-button"
-								onClick={handleContinueWithGoogle}
-							>
-								<div className="google-logo-container">
-									<GoogleLogo />
-									<p>Continue with Google</p>
-								</div>
-								{info?.googleLoading && (
-									<Spinner
-										width="18px"
-										height="18px"
-										color="var(--primary-button)"
-										borderTopColor="transparent"
-										borderWidth={1.5}
-									/>
-								)}
-							</div>
-						</div>
-					</>
-				)}
 			</div>
 			<div className="acknowledge-container">
 				<p className="acknowledge-text">
