@@ -5,7 +5,6 @@ import { ReactComponent as CurveSvg } from '../../../../assets/svg/ai_agents/cur
 import BookSvg from '../../../../assets/svg/ai_agents/bookSvg';
 import Sources from './Sources';
 // import SmoothExpand from './SmoothExpand';
-
 const DeepSearchChainOfThought = ({
 	data = [],
 	showLastIndicatorLine = false,
@@ -18,7 +17,7 @@ const DeepSearchChainOfThought = ({
 		<div className="cot-wrapper">
 			<div className="cot-container">
 				{cot?.map((item, index) => {
-					const { readings, step, title } = item || {};
+					const { readings, step, title, plan } = item || {};
 					return (
 						<div className={`cot ${!streamEnd ? 'animate-fade-in' : ''} `} key={index}>
 							<div className="logo-container">
@@ -28,7 +27,7 @@ const DeepSearchChainOfThought = ({
 								{(index !== cot?.length - 1 || showLastIndicatorLine) && (
 									<div className="line" />
 								)}
-								{title ? (
+								{title && step ? (
 									<>
 										<div className="sub-query">{title}</div>
 										<div
@@ -38,8 +37,23 @@ const DeepSearchChainOfThought = ({
 											{step || ''}
 										</div>
 									</>
-								) : (
+								) : step ? (
 									<div className="sub-query">{step || ''}</div>
+								) : (
+									''
+								)}
+
+								{plan ? (
+									<div className="cot-plan">
+										<div className="plan-title">Plan : </div>
+										<ul className="plan-items">
+											{plan?.map((item) => (
+												<li className="plan">{item}</li>
+											))}
+										</ul>
+									</div>
+								) : (
+									''
 								)}
 								{readings?.length > 0 && (
 									<div className="sub-query-wrapper">
