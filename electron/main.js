@@ -30,6 +30,13 @@ const {
 	safeExtractImageMetadata,
 } = require('./windowsCompatibility');
 
+const {
+	processImageWithSharp,
+	extractImageMetadata,
+	downloadAlbumZip,
+	createZipFromUrls,
+} = require('./galleryHelper');
+
 const meetingMonitor = require('./notificationHelper'); // Adjust path if needed
 // Import NotchDrop service
 const NotchDropService = require('./services/notchDropService');
@@ -1432,6 +1439,10 @@ app.whenReady().then(async () => {
 	// THEN: Create main window after dynamic island
 	createWindow();
 
+	ipcMain.handle('process-image-with-sharp', processImageWithSharp);
+	ipcMain.handle('extract-image-metadata', extractImageMetadata);
+	ipcMain.handle('download-album-zip', downloadAlbumZip);
+	ipcMain.handle('create-zip-from-urls', createZipFromUrls);
 	createTray(); // Create system tray for Windows
 	createMenuBar();
 
