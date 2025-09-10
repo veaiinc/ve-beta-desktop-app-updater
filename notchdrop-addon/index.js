@@ -919,6 +919,20 @@ class NotchDropAddonWrapper extends EventEmitter {
 		return this.addon.getWindowPosition();
 	}
 
+	// Overlay State Integration
+	onOverlayStateChange(state) {
+		if (!this.isInitialized) {
+			console.warn('NotchDrop not initialized, cannot send overlay state');
+			return;
+		}
+		try {
+			this.addon.onOverlayStateChange(state);
+			console.log('📊 Overlay state sent to Swift side:', state);
+		} catch (error) {
+			console.error('❌ Error sending overlay state to Swift:', error);
+		}
+	}
+
 	// Event emitter functionality
 	emit(event, data) {
 		// Simple event emitter implementation
