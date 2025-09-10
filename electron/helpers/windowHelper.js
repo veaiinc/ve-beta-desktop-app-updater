@@ -3,11 +3,14 @@ const log = require('electron-log');
 const path = require('node:path');
 
 class WindowHelper {
-	constructor() {
+	constructor(applyContentProtectionCallback = null) {
 		this.overlayWindow = null;
 		this.isOverlayVisible = false;
 		this.windowPosition = { x: 0, y: 0 };
 		this.windowSize = { width: 500, height: 150 };
+		
+		// Store callback to apply content protection to new windows
+		this.applyContentProtection = applyContentProtectionCallback || (() => {});
 
 		// CRITICAL FIX: Track overlay window readiness for immediate response
 		this.overlayWindowReady = false;
@@ -206,6 +209,9 @@ class WindowHelper {
 		}
 
 		this.overlayWindow = new BrowserWindow(windowSettings);
+		
+		// Apply content protection to overlay window
+		this.applyContentProtection(this.overlayWindow);
 
 		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
 		const isDevelopment =
@@ -319,6 +325,9 @@ class WindowHelper {
 		}
 
 		this.askAIWindow = new BrowserWindow(windowSettings);
+		
+		// Apply content protection to Ask AI window
+		this.applyContentProtection(this.askAIWindow);
 
 		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
 		const isDevelopment =
@@ -422,6 +431,9 @@ class WindowHelper {
 		}
 
 		this.areYouThereWindow = new BrowserWindow(windowSettings);
+		
+		// Apply content protection to Are You There window
+		this.applyContentProtection(this.areYouThereWindow);
 
 		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
 		const isDevelopment =
@@ -1110,6 +1122,34 @@ class WindowHelper {
 			}
 		}
 
+		// Register Cmd+Shift+P to toggle content protection (invisibility mode)
+		const cmdShiftPRegistered = globalShortcut.register('CommandOrControl+Shift+P', () => {
+			log.info('Cmd+Shift+P pressed - toggling content protection (invisibility mode)');
+			
+			// Send IPC message to main process to toggle content protection
+			if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+				this.mainWindow.webContents.send('shortcut-toggle-content-protection');
+			}
+		});
+
+		if (cmdShiftPRegistered) {
+			log.info('✅ Cmd+Shift+P shortcut registered successfully for content protection');
+		} else {
+			log.error('❌ Failed to register Cmd+Shift+P shortcut for content protection');
+			// Try alternative shortcut on Windows
+			if (process.platform === 'win32') {
+				const altProtectionRegistered = globalShortcut.register('Ctrl+Alt+P', () => {
+					log.info('Ctrl+Alt+P pressed - toggling content protection');
+					if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+						this.mainWindow.webContents.send('shortcut-toggle-content-protection');
+					}
+				});
+				if (altProtectionRegistered) {
+					log.info('✅ Ctrl+Alt+P shortcut registered as alternative for content protection');
+				}
+			}
+		}
+
 		// Register Cmd+Enter to toggle ask AI window only (independent of main window)
 		const cmdEnterRegistered = globalShortcut.register('CommandOrControl+Return', () => {
 			log.info('Cmd+Enter pressed - toggling ask AI window only');
@@ -1327,6 +1367,7 @@ class WindowHelper {
 		const shortcutsToCheck = [
 			'CommandOrControl+\\',
 			'CommandOrControl+Return',
+			'CommandOrControl+Shift+P',
 			'F12',
 			'CommandOrControl+F12',
 			'CommandOrControl+Shift+I',
