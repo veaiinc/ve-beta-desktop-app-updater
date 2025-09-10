@@ -31,10 +31,12 @@ const BrowserTools = ({ data = [] }) => {
 				</>
 			);
 		} else if (toolName === 'input_text') {
-			<>
-				{textMapper[toolName] ?? ''}
-				<span>{params?.text}</span>
-			</>;
+			return (
+				<>
+					{textMapper[toolName] ?? ''}
+					<span>{params?.text}</span>
+				</>
+			);
 		} else {
 			return textMapper[toolName] ?? '';
 		}

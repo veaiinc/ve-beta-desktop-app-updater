@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import React, { memo, useContext, useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { default as ReactMarkdown } from 'react-markdown';
 import '../assets/scss/markdown.scss';
 import '../assets/scss/markdownHelper.scss';
@@ -15,6 +15,8 @@ import rehypeRaw from 'rehype-raw';
 import 'katex/dist/katex.min.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import AISuggestionsReportUserComponent from '../views/components/chat/chatComponents/AISuggestionsReportUserComponent';
+import { fileTypeIcons, getBase64 } from '../helpers';
+import { getFileType } from './chat/chatHelpers';
 
 const codeColorTheme = {
 	'code[class*="language-"]': {
@@ -161,7 +163,9 @@ const rehypeCITPlugin = () => {
 							return {
 								type: 'element',
 								tagName: 'span',
-								properties: { citationId: part?.slice(1, -1) },
+								properties: {
+									citationId: part?.slice(1, -1),
+								},
 								children: [{ type: 'text', value: 'Citation' }],
 							};
 						}
@@ -181,6 +185,79 @@ const rehypeCITPlugin = () => {
 	};
 };
 
+// const rehypeFadeInWords = () => {
+// 	return (tree) => {
+// 		const visit = (node, parent) => {
+// 			if (!node || typeof node !== 'object') return;
+
+// 			// Then transform text nodes
+// 			if (node.type === 'text' && node.value) {
+// 				const words = node.value.split(/(\s+)/); // keep spaces too
+
+// 				const newNode = {
+// 					type: 'element',
+// 					tagName: 'span',
+// 					properties: {},
+// 					children: words.map((word) =>
+// 						word.trim() === ''
+// 							? { type: 'text', value: word }
+// 							: {
+// 									type: 'element',
+// 									tagName: 'span',
+// 									properties: { fadeIn: true },
+// 									children: [{ type: 'text', value: word }],
+// 							  },
+// 					),
+// 				};
+
+// 				// Replace this node in the parent's children
+// 				if (parent && parent.children) {
+// 					const idx = parent.children.indexOf(node);
+// 					parent.children[idx] = newNode;
+// 				}
+// 			}
+
+// 			// Recurse first into existing children
+// 			if (node.children && Array.isArray(node.children)) {
+// 				node.children.forEach((child) => visit(child, node));
+// 			}
+// 		};
+
+// 		visit(tree, null);
+// 	};
+// };
+
+const rehypeFadeInWords = () => {
+	return (tree) => {
+		const visit = (node, parent) => {
+			if (!node || typeof node !== 'object') return;
+
+			if (Array.isArray(node.children)) {
+				[...node.children].forEach((child) => visit(child, node));
+			}
+
+			if (node.type === 'text' && node.value && parent) {
+				const words = node.value.split(/(\s+)/);
+				const newNodes = words.map((word) =>
+					word.trim() === ''
+						? { type: 'text', value: word }
+						: {
+								type: 'element',
+								tagName: 'span',
+								properties: { fadeIn: true },
+								children: [{ type: 'text', value: word }],
+						  },
+				);
+
+				const idx = parent.children.indexOf(node);
+				if (idx !== -1) parent.children.splice(idx, 1, ...newNodes);
+			}
+		};
+
+		visit(tree, null);
+	};
+};
+
 // Move components outside to prevent recreation on every render
 const baseComponents = {
 	pre: ({ children }) => <pre className="pre">{children}</pre>,
@@ -191,25 +268,13 @@ const baseComponents = {
 		</ol>
 	),
 	li: ({ children, ...props }) => {
-		return (
-			<li {...props} className="li">
-				{children}
-			</li>
-		);
+		return <li className="li">{children}</li>;
 	},
 	ul: ({ children, ...props }) => {
-		return (
-			<ul {...props} className="ul">
-				{children}
-			</ul>
-		);
+		return <ul className="ul">{children}</ul>;
 	},
 	strong: ({ children, ...props }) => {
-		return (
-			<strong {...props} className="strong">
-				{children}
-			</strong>
-		);
+		return <strong className="strong">{children}</strong>;
 	},
 	a: ({ children, ...props }) => {
 		return (
@@ -219,53 +284,25 @@ const baseComponents = {
 		);
 	},
 	h1: ({ children, ...props }) => {
-		return (
-			<h1 {...props} className="h1">
-				{children}
-			</h1>
-		);
+		return <h1 className="h1">{children}</h1>;
 	},
 	h2: ({ children, ...props }) => {
-		return (
-			<h2 {...props} className="h2">
-				{children}
-			</h2>
-		);
+		return <h2 className="h2">{children}</h2>;
 	},
 	h3: ({ children, ...props }) => {
-		return (
-			<h3 {...props} className="h3">
-				{children}
-			</h3>
-		);
+		return <h3 className="h3">{children}</h3>;
 	},
 	h4: ({ children, ...props }) => {
-		return (
-			<h4 {...props} className="h4">
-				{children}
-			</h4>
-		);
+		return <h4 className="h4">{children}</h4>;
 	},
 	h5: ({ children, ...props }) => {
-		return (
-			<h5 {...props} className="h5">
-				{children}
-			</h5>
-		);
+		return <h5 className="h5">{children}</h5>;
 	},
 	h6: ({ children, ...props }) => {
-		return (
-			<h6 {...props} className="h6">
-				{children}
-			</h6>
-		);
+		return <h6 className="h6">{children}</h6>;
 	},
 	p: ({ children, ...props }) => {
-		return (
-			<p {...props} className="p">
-				{children}
-			</p>
-		);
+		return <p className="p">{children}</p>;
 	},
 	img: ({ children, ...props }) => {
 		return (
@@ -280,10 +317,10 @@ const baseComponents = {
 			</div>
 		);
 	},
-	thead: ({ children, ...props }) => <thead {...props}>{children}</thead>,
-	th: ({ children, ...props }) => <th {...props}>{children}</th>,
-	td: ({ children, ...props }) => <td {...props}>{children}</td>,
-	tr: ({ children, ...props }) => <tr {...props}>{children}</tr>,
+	thead: ({ children, ...props }) => <thead>{children}</thead>,
+	th: ({ children, ...props }) => <th>{children}</th>,
+	td: ({ children, ...props }) => <td>{children}</td>,
+	tr: ({ children, ...props }) => <tr>{children}</tr>,
 	iframe: ({ children, ...props }) => {
 		return (
 			<div className="iframe-wrapper">
@@ -350,9 +387,15 @@ const MarkdownTable = memo(({ children, node, markdown }) => {
 });
 
 // Memoize citation-specific components
-const createCustomComponents = (citations, markdown) => ({
-	span: ({ children, citationId, ...props }) => {
-		if (citationId) return <CitationsTooltip citationId={citationId} citations={citations} />;
+const createCustomComponents = (citationsRef, markdownRef) => ({
+	span: ({ children, citationId, fadeIn, ...props }) => {
+		if (citationId)
+			return <CitationsTooltip citationId={citationId} citations={citationsRef.current} />;
+
+		if (fadeIn) {
+			return <span className="chat-fade-in">{children}</span>;
+		}
+
 		return (
 			<span className="span" {...props}>
 				{children}
@@ -361,17 +404,17 @@ const createCustomComponents = (citations, markdown) => ({
 	},
 	table: ({ node, children }) => {
 		return (
-			<MarkdownTable node={node} markdown={markdown}>
+			<MarkdownTable node={node} markdown={markdownRef.current}>
 				{children}
 			</MarkdownTable>
 		);
 	},
-	code({ node, inline, className, children, ...props }) {
+	code: ({ node, inline, className, children, ...props }) => {
 		const match = /language-(\w+)/?.exec(className || '');
 		const codeCheck = !inline && match && match[1] !== 'plaintext';
 		let code;
 		if (codeCheck) {
-			code = markdown?.slice(
+			code = markdownRef.current?.slice(
 				node?.position?.start?.offset + (3 + match[1]?.length),
 				node?.position?.end?.offset - 3,
 			);
@@ -386,29 +429,41 @@ const createCustomComponents = (citations, markdown) => ({
 		);
 	},
 });
-// [remarkGfm, remarkMath]
+//use remaarkMath for math equations
 const remarkPlugins = [remarkGfm];
-const rehypePlugins = [rehypeKatex, rehypeCITPlugin, rehypeRaw];
+const rehypePlugins = [rehypeKatex, rehypeRaw];
 
-const NonMemoizedMarkdown = ({ children, citations }) => {
+const NonMemoizedMarkdown = ({ children, citations = [], animate = false }) => {
+	const markdownRef = useRef('');
+	const citationsRef = useRef([]);
+
 	const markdown = children;
-	// ?.replace(/\\n/g, '\n');
+
+	markdownRef.current = children;
+	citationsRef.current = citations;
 
 	// Memoize the combined components object
 	const components = useMemo(
 		() => ({
 			...baseComponents,
-			...createCustomComponents(citations, markdown),
+			...createCustomComponents(citationsRef, markdownRef),
 		}),
-		[citations, markdown],
+		[],
 	);
+
+	//if you are adding new plugin try to check order, otherwise it will effect animation
+	const updatedRehypePlugins = useMemo(() => {
+		return animate
+			? [...rehypePlugins, rehypeFadeInWords, rehypeCITPlugin]
+			: [...rehypePlugins, rehypeCITPlugin];
+	}, [animate]);
 
 	return (
 		<ReactMarkdown
 			remarkPlugins={remarkPlugins}
-			rehypePlugins={rehypePlugins}
+			rehypePlugins={updatedRehypePlugins}
 			components={components}
-			className="markdown-custom-content"
+			className={`markdown-custom-content ${animate ? 'markdown-custom-animate' : ''}`}
 		>
 			{markdown}
 		</ReactMarkdown>
@@ -429,53 +484,23 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 	const {
 		templates: { updateStateValues },
 	} = useContext(Context);
-	const textRef = useRef(null);
 
-	const [info, setinfo] = useState({
+	const [info, setInfo] = useState({
 		isCopiedToClipboard: false,
 		editUserQuery: false,
 		userQuery: messageData?.message,
-		isExpanded: false,
-		isOverflowing: false,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
 
-	// useEffect(() => {
-	// 	adjustFontSize();
-	// }, [messageData?.message]);
-
-	// const checkOverflow = (element) => {
-	// 	return element?.scrollHeight > element?.clientHeight;
-	// };
-
-	// const adjustFontSize = () => {
-	// 	if (textRef?.current) {
-	// 		// Set initial font size
-	// 		textRef.current.style.fontSize = '1.5rem';
-	// 		textRef.current.style.lineHeight = '1.75rem';
-
-	// 		// Check again for overflow
-	// 		if (checkOverflow(textRef?.current)) {
-	// 			// If still overflowing, revert to 0.875rem
-	// 			textRef.current.style.fontSize = '0.875rem';
-	// 			textRef.current.style.lineHeight = '1.25rem';
-
-	// 			if (checkOverflow(textRef?.current)) {
-	// 				setinfo((prev) => ({ ...prev, isOverflowing: true }));
-	// 			}
-	// 		}
-	// 	}
-	// };
-
 	const handleCopyTextClick = useCallback(
 		(text) => {
 			const textToBeCopied = text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n');
 			navigator?.clipboard?.writeText(textToBeCopied).then(() => {
-				setinfo((prev) => ({ ...prev, isCopiedToClipboard: true }));
+				setInfo((prev) => ({ ...prev, isCopiedToClipboard: true }));
 				setTimeout(() => {
-					setinfo((prev) => ({ ...prev, isCopiedToClipboard: false }));
+					setInfo((prev) => ({ ...prev, isCopiedToClipboard: false }));
 				}, 1000);
 			});
 		},
@@ -483,7 +508,7 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 	);
 
 	const handleEditUserQueryToggle = useCallback(() => {
-		setinfo((prev) => ({
+		setInfo((prev) => ({
 			...prev,
 			editUserQuery: !prev.editUserQuery,
 			userQuery: messageData?.message || '',
@@ -497,7 +522,7 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 					return;
 				}
 				updateStateValues({ userEditedQuery: info?.userQuery });
-				setinfo((prev) => ({
+				setInfo((prev) => ({
 					...prev,
 					editUserQuery: !prev.editUserQuery,
 					userQuery: messageData?.message || '',
@@ -509,14 +534,10 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 
 	const handleUserQueryChange = useCallback(
 		(e) => {
-			setinfo((prev) => ({ ...prev, userQuery: e.target.value }));
+			setInfo((prev) => ({ ...prev, userQuery: e.target.value }));
 		},
 		[info],
 	);
-
-	const toggleExpand = useCallback(() => {
-		setinfo((prev) => ({ ...prev, isExpanded: !prev.isExpanded }));
-	}, []);
 
 	const handlePreview = async (file) => {
 		if (!file.url && !file.preview) {
@@ -540,30 +561,35 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 					))}
 				</div>
 			)}
+
+			{messageData?.attachments?.length > 0 && (
+				<div className="uploaded-files-container">
+					{messageData?.attachments?.map((file, index) => {
+						return (
+							<div className="uploaded-file" key={index}>
+								<div className="file-type-icon">
+									{fileTypeIcons?.[file?.sourceType]}
+								</div>
+								<div className="uploaded-file-info">
+									<div className="uploaded-file-name">
+										<div className="file-title">{file?.name || ''}</div>
+									</div>
+									<div className="file-source-type">{getFileType(file)}</div>
+								</div>
+							</div>
+						);
+					})}
+				</div>
+			)}
 			{!info?.editUserQuery ? (
 				<div className="user-message-wrapper">
 					{messageData?.moduleType === 'ai_suggestion_report' ? (
 						<AISuggestionsReportUserComponent data={messageData?.data} />
 					) : (
 						<div className="user-message">
-							<div
-								// style={{
-								// 	maxHeight: info?.isExpanded
-								// 		? `${textRef.current?.scrollHeight}px`
-								// 		: '147px',
-								// }}
-								className="user-message-renderer-container"
-								// ref={textRef}
-							>
+							<div className="user-message-renderer-container">
 								{messageData?.message || ''}
 							</div>
-							{/* {info?.isOverflowing && (
-								<div className="expand-btn">
-									<div className="btn-text" onClick={toggleExpand}>
-										{info?.isExpanded ? 'Show less' : 'Show more'}
-									</div>
-								</div>
-							)} */}
 						</div>
 					)}
 				</div>
@@ -589,9 +615,13 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 			)}
 			{!info?.editUserQuery ? (
 				<div className="hover-actions-container">
-					{/* <div className="icon-container">
+					{/* <div className="icon-container" style={{ top: '-2px' }}>
 						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Edit'}>
-							<PencilSparkleIcon onClick={handleEditUserQueryToggle} />
+							<PencilSparkleIcon
+								width={'19px'}
+								height={'20px'}
+								onClick={handleEditUserQueryToggle}
+							/>
 						</Tooltip>
 					</div> */}
 
@@ -638,3 +668,5 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 		</div>
 	);
 });
+
+UserMessageRenderer.displayName = 'UserMessageRenderer';

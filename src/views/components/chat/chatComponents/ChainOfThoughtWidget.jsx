@@ -8,12 +8,11 @@ import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/ta
 const ChainOfThoughtWidget = ({ messageData }) => {
 	const [info, setInfo] = useState({
 		isExpanded: false,
-		height: 54,
+		height: 20,
 	});
 	const contentContainerRef = useRef(null);
 	const containerRef = useRef(null);
-	const { deepSearch, deepResearch, normalSearch, memory_thinking, stream_end, message } =
-		messageData;
+	const { deepResearch, stream_end, message, chainOfThought } = messageData;
 	const chainOfThoughtCompleted = message?.length > 0 || stream_end || false;
 
 	useEffect(() => {
@@ -25,9 +24,9 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 			const contentContainerHeight = contentContainerRef?.current?.scrollHeight;
 
 			if (chainOfThoughtCompleted) {
-				height = info?.isExpanded ? contentContainerHeight + 54 : 54;
+				height = info?.isExpanded ? contentContainerHeight + 20 : 20;
 			} else {
-				height = contentContainerHeight + 54;
+				height = contentContainerHeight + 20;
 			}
 
 			setInfo((prev) => {
@@ -44,26 +43,27 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 
 	const handleExpandClick = useCallback(() => {
 		const chainOfThoughtCompleted = messageData?.stream_end || messageData?.message?.length > 0;
+
 		if (
 			chainOfThoughtCompleted ||
-			messageData?.deepResearch ||
-			messageData?.deepSearch ||
-			messageData?.normalSearch
+			messageData?.chainOfThought?.length > 0 ||
+			messageData?.deepResearch
 		) {
 			setInfo((prev) => ({ ...prev, isExpanded: !prev?.isExpanded }));
 		}
 	}, [messageData]);
 
 	const text = useMemo(() => {
-		const { deepSearch, deepResearch, message, stream_end } = messageData || {};
-		if (message?.length > 0 || stream_end) {
-			return deepSearch || normalSearch
-				? 'Search Completed'
-				: deepSearch
-				? 'Research Completed'
-				: 'Thinking';
-		}
-		return deepResearch ? 'Researching' : deepSearch || normalSearch ? 'Searching' : 'Thinking';
+		// const { deepResearch, message, stream_end, chainOfThought } = messageData || {};
+		// if (message?.length > 0 || stream_end) {
+		// 	return chainOfThought?.length > 0
+		// 		? 'Search Completed'
+		// 		: deepResearch
+		// 		? 'Research Completed'
+		// 		: 'Thinking';
+		// }
+		// return deepResearch ? 'Researching' : chainOfThought?.length > 0 ? 'Searching' : 'Thinking';
+		return 'Thinking process';
 	}, [messageData]);
 
 	return (
@@ -76,7 +76,7 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 		>
 			<div className="widget-header" onClick={handleExpandClick}>
 				<div className="left-container">
-					<div className="icon-container">{chainOfThoughtCompleted && <TickSvg />}</div>
+					{/* <div className="icon-container">{chainOfThoughtCompleted && <TickSvg />}</div> */}
 					<div className={`text-container ${chainOfThoughtCompleted ? '' : 'animate'}`}>
 						{text}
 					</div>
@@ -91,11 +91,7 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 				</div>
 			</div>
 			<div className="widget-content-container" ref={contentContainerRef}>
-				{memory_thinking && !(deepResearch || deepSearch || normalSearch) && (
-					<div className="memory-thinking">{memory_thinking || ''}</div>
-				)}
-
-				{(deepResearch || deepSearch || normalSearch) && (
+				{(deepResearch || chainOfThought?.length > 0) && (
 					<div className="content-container">
 						{deepResearch && (
 							<DeepResearchChainOfThought
@@ -104,22 +100,16 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 							/>
 						)}
 
-						{(deepSearch || normalSearch) && (
+						{chainOfThought?.length > 0 && (
 							<DeepSearchChainOfThought
-								data={deepSearch || normalSearch}
+								data={chainOfThought}
 								showOnlyLastThought={!chainOfThoughtCompleted && !info?.isExpanded}
 								streamEnd={chainOfThoughtCompleted || false}
-								memoryThinking={memory_thinking}
+								showLastIndicatorLine={true}
 							/>
 						)}
 					</div>
 				)}
-
-				{/* {!(messageData?.message?.length > 0 || messageData?.stream_end) && (
-					<div className="loader-container">
-						<div className="loader-text">Thinking... </div>
-					</div>
-				)} */}
 			</div>
 		</div>
 	);

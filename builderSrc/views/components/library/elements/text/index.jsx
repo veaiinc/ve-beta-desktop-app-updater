@@ -1712,7 +1712,7 @@ class App extends BaseClass {
 					.replace(/"/g, '') || '0';
 			const services_selection = selectedSection?.style?.services_selection;
 			if (services_selection === 2) {
-				currentSubTotal = subTotalValue;
+				currentSubTotal = parseInt(subTotalValue);
 			} else {
 				// 	//iterate and find the selected services sum
 				const { values } = currentSectionTableData || {};
@@ -1737,9 +1737,12 @@ class App extends BaseClass {
 				currentSubTotal == 0
 					? '0'
 					: currencySymbol +
-					  (currentSubTotal || 0)?.toLocaleString('en-IN', {
-							currency: 'INR',
-					  });
+					  (currentSubTotal || 0)?.toLocaleString(
+							`en-${this.props?.currencySymbol == '$' ? 'US' : 'IN'}`,
+							// {
+							// 	currency: 'INR',
+							// },
+					  );
 
 			return currentSubTotal;
 		}
@@ -1794,7 +1797,11 @@ class App extends BaseClass {
 					(variableData?.code === 'grand-total' ||
 						variableData?.displayName === 'Grand Total')
 				) {
-					variableValue = this.props?.currencySymbol + this?.props?.clientGrandTotal;
+					variableValue =
+						this.props?.currencySymbol +
+						this?.props?.clientGrandTotal?.toLocaleString(
+							`en-${this.props?.currencySymbol == '$' ? 'US' : 'IN'}`,
+						);
 				}
 
 				if (

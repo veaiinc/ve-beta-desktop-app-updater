@@ -4,22 +4,13 @@
 	--font-size: 16px;
 	width: 100%;
 
-	> :first-child {
-		margin-top: 0 !important;
-	}
-
-	> :last-child {
-		margin-bottom: 0 !important;
-	}
-
 	.span {
 		color: var(--primary-font);
-		// color: var(--chat-secondary-font);
 		font-family: var(--chat-primary-font-family);
 		font-size: calc(var(--font-size) * 1);
 		font-weight: 400;
 		line-height: 28px;
-		letter-spacing: 0.25px;
+		// letter-spacing: 0.2px;
 	}
 
 	.markdown-image-wrapper {
@@ -37,11 +28,9 @@
 
 	.code {
 		font-size: inherit;
-		// color: var(--chat-secondary-font);
 		color: var(--primary-font);
 		font-family: var(--chat-primary-font-family);
 		line-height: calc(var(--font-size) * 1.75);
-		// letter-spacing: -0.08px;;
 		font-weight: 400;
 		background-color: var(--stroke);
 		padding: 0.15em 0.3em;
@@ -61,7 +50,7 @@
 	.h1 {
 		color: var(--primary-font);
 		font-size: 24px; /* 26px */
-		letter-spacing: 0.25px;
+		// letter-spacing: 0.2px;
 		font-weight: 600;
 		font-family: var(--chat-primary-font-family);
 		margin: 20px 0; /* 12px */
@@ -71,7 +60,7 @@
 	.h2 {
 		color: var(--primary-font);
 		font-size: 24px; /* 22px */
-		letter-spacing: 0.25px;
+		// letter-spacing: 0.2px;
 		font-weight: 600;
 		font-family: var(--chat-primary-font-family);
 		margin: 18px 0; /* 16px */
@@ -81,7 +70,7 @@
 	.h3 {
 		color: var(--primary-font);
 		font-size: 20px; /* 20px */
-		letter-spacing: 0.25px;
+		// letter-spacing: 0.2px;
 		font-weight: 600;
 		font-family: var(--chat-primary-font-family);
 		margin: 24px 0 8px 0 !important; /* 16px */
@@ -93,7 +82,7 @@
 		color: var(--primary-font);
 		font-size: calc(var(--font-size) * 1.125); /* 18px */
 		line-height: calc(var(--font-size) * 1.375); /* 22px */
-		letter-spacing: 0.25px;
+		// letter-spacing: 0.2px;
 		font-weight: 600;
 		font-family: var(--chat-primary-font-family);
 		margin: calc(var(--font-size) * 1) 0; /* 16px */
@@ -103,7 +92,7 @@
 		color: var(--primary-font);
 		font-size: calc(var(--font-size) * 1); /* 16px */
 		line-height: calc(var(--font-size) * 1.5625); /* 25px */
-		letter-spacing: 0.25px;
+		// letter-spacing: 0.2px;
 		font-weight: 600;
 		font-family: var(--chat-primary-font-family);
 		margin: calc(var(--font-size) * 1) 0; /* 16px */
@@ -115,9 +104,9 @@
 		font-family: var(--chat-primary-font-family);
 		font-size: calc(var(--font-size) * 1);
 		font-weight: 400;
-		letter-spacing: 0.25px;
+		// letter-spacing: 0.2px;
 		line-height: 28px;
-		margin: 8px 0;
+		margin: 16px 0 !important;
 	}
 
 	.pre {
@@ -127,7 +116,7 @@
 		line-height: 1.45;
 		background-color: var(--card-over-card);
 		border-radius: calc(var(--font-size) * 1); //0.375
-		letter-spacing: 0.25px;
+		// letter-spacing: 0.2px;
 		font-family: var(--chat-primary-font-family);
 		margin: 16px 0;
 
@@ -142,29 +131,29 @@
 	}
 
 	hr {
-		margin: 40px 0;
+		margin: 20px 0;
 		border: 0;
 		border-top: 1px solid var(--stroke);
-		opacity: 0.65;
 	}
 
 	.ol,
 	.ul {
 		list-style-position: outside;
 		margin-bottom: 16px; /* 8px */
+		margin-top: 8px;
 		font-size: calc(var(--font-size) * 0.9375);
 		line-height: 28px;
 		font-family: var(--chat-primary-font-family);
 		padding-left: 22px; /* 24px */
 
 		.p {
-			margin: 0;
+			margin: 0 !important;
 		}
 	}
 
 	.ol {
+		list-style-type: decimal;
 		.li {
-			list-style-type: decimal;
 			&::marker {
 				font-size: calc(var(--font-size) * 1);
 				color: var(--primary-font);
@@ -174,8 +163,11 @@
 	}
 
 	.ul {
+		list-style-type: disc;
+		.ul {
+			list-style-type: circle;
+		}
 		.li {
-			list-style-type: disc;
 			&::marker {
 				font-size: calc(var(--font-size) * 1);
 				color: var(--primary-font);
@@ -185,10 +177,9 @@
 	}
 
 	.li {
-		// color: var(--chat-secondary-font);
 		color: var(--primary-font);
 		font-family: var(--chat-primary-font-family);
-		letter-spacing: 0.25px;
+		// letter-spacing: 0.2px;
 		font-weight: 400;
 		line-height: 28px;
 		font-size: calc(var(--font-size) * 1);
@@ -200,7 +191,7 @@
 		color: var(--primary-font);
 		font-weight: 600;
 		font-family: var(--chat-primary-font-family);
-		letter-spacing: 0.25px;
+		// letter-spacing: 0.2px;
 		line-height: 28px;
 	}
 
@@ -226,7 +217,7 @@
 		color: var(--info);
 		font-size: inherit;
 		line-height: calc(var(--font-size) * 1.5);
-		letter-spacing: 0.25px;
+		// letter-spacing: 0.2px;
 		font-weight: 400;
 		font-family: var(--chat-primary-font-family);
 		text-decoration: none;
@@ -273,7 +264,7 @@
 				font-family: var(--chat-primary-font-family);
 				font-weight: 400;
 				line-height: 1.5;
-				letter-spacing: 0.25px;
+				// letter-spacing: 0.2px;
 			}
 		}
 	}
@@ -323,11 +314,9 @@
 				th,
 				td {
 					border: none;
-					// color: var(--chat-secondary-font);
 					color: var(--primary-font);
 					font-size: calc(var(--font-size) * 0.875); /* 14px */
 					line-height: calc(var(--font-size) * 1.25); /* 20px */
-					// letter-spacing: -0.08px;; /* 0.2px */
 					font-weight: 400;
 					font-family: var(--chat-primary-font-family);
 					padding: calc(var(--font-size) * 0.5) calc(var(--font-size) * 1.25); /* 8px 20px */
@@ -348,5 +337,38 @@
 				}
 			}
 		}
+	}
+
+	//this will remove margin of first child
+	> :first-child {
+		margin-top: 0 !important;
+	}
+
+	//this will remove margin of last child
+	> :last-child {
+		margin-bottom: 0 !important;
+	}
+}
+
+.markdown-custom-animate {
+	.li {
+		opacity: 0;
+		animation: chat-fade-in 0.8s ease-in-out forwards;
+	}
+
+	.chat-fade-in {
+		opacity: 0;
+		animation: chat-fade-in 0.8s ease-in-out forwards;
+	}
+
+	hr {
+		opacity: 0;
+		animation: chat-fade-in 0.8s ease-in-out forwards;
+	}
+}
+
+@keyframes chat-fade-in {
+	to {
+		opacity: 1;
 	}
 }
