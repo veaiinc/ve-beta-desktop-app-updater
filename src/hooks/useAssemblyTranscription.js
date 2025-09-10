@@ -394,6 +394,7 @@ const useAssemblyTranscription = ({
 				websocketRef.current.send(
 					JSON.stringify({
 						type: 'audio_data',
+						source: 'mic',
 						data: { audio_data: base64Audio, sample_rate: 16000 },
 					}),
 				);
