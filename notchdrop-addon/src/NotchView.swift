@@ -41,18 +41,16 @@ struct NotchView: View {
         }
     }
     
-    // var collapsedContentText: String {
-    //     if vm.isRecording {
-    //         if vm.isPaused {
-    //             return "Paused \(vm.formatTime(vm.timer))"
-    //         }
-    //         return "Recording \(vm.formatTime(vm.timer))"
-    //     } else if vm.isChatMode {
-    //         return "Chat Mode"
-    //     } else {
-    //         return "Living Intelligence"
-    //     }
-    // }
+    var collapsedContentText: String {
+        if vm.isRecording {
+            if vm.isPaused {
+                return "Paused \(vm.formatTime(vm.timer))"
+            }
+            return "Recording \(vm.formatTime(vm.timer))"
+        } else {
+            return "" //empty state
+        }
+    }
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -61,33 +59,37 @@ struct NotchView: View {
                 .disabled(true)
                 .opacity(vm.notchVisible ? 1 : 0.3)
             
-            // Collapsed state content
-            // if vm.status == .closed {
-            //     HStack(spacing: 8) {
-            //         if vm.isRecording {
-            //             Text(vm.isPaused ? "Paused \(vm.formatTime(vm.timer))" : "Recording \(vm.formatTime(vm.timer))")
-            //                 .font(.system(size: 10, weight: .medium))
-            //                 .foregroundColor(DynamicIslandTheme.primaryGreen)
-            //             if !vm.isPaused {
-            //                 CollapsedAudioViz()
-            //             }
-            //         } else if vm.showVoiceInterface {
-            //             Text("Voice Agent")
-            //                 .font(.system(size: 10, weight: .regular))
-            //                 .foregroundColor(.white)
-            //         } else if vm.isChatMode {
-            //             Text("Chat Mode")
-            //                 .font(.system(size: 10, weight: .regular))
-            //                 .foregroundColor(.white)
-            //         } else {
-            //             Text("Living Intelligence")
-            //                 .font(.system(size: 10, weight: .regular))
-            //                 .foregroundColor(.white)
-            //         }
-            //     }
-            //     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            //     .zIndex(1)
-            // }
+            // Collapsed state content - always present but with smooth transitions
+            HStack(spacing: 6) {
+                if vm.isRecording {
+                    Text(vm.isPaused ? "Paused \(vm.formatTime(vm.timer))" : "Recording \(vm.formatTime(vm.timer))")
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundColor(DynamicIslandTheme.primaryGreen)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    if !vm.isPaused {
+                        CollapsedAudioViz()
+                    }
+                } else if vm.showVoiceInterface {
+                    Text("Voice Agent")
+                        .font(.system(size: 9, weight: .regular))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                } else {
+                    Text("")//empty state
+                        .font(.system(size: 9, weight: .regular))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+            }
+            .frame(maxWidth: notchSize.width - 16, maxHeight: notchSize.height - 8)
+            .clipped()
+            .opacity(vm.status == .closed ? 1 : 0) // Fade out when opening
+            .scaleEffect(vm.status == .closed ? 1 : 0.8) // Scale down when opening
+            .animation(.easeInOut(duration: 0.25), value: vm.status) // Smooth transition
+            .zIndex(1)
             
             Group {
                 if vm.status == .opened {
@@ -115,6 +117,8 @@ struct NotchView: View {
         .background(dragDetector)
         .animation(vm.animation, value: vm.status)
         .animation(vm.animation, value: vm.isChatExpanded)
+        .animation(.easeInOut(duration: 0.3), value: vm.isRecording) // Smooth recording state transition
+        .animation(.easeInOut(duration: 0.3), value: vm.isPaused) // Smooth pause state transition
         .preferredColorScheme(.dark)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
@@ -142,19 +146,26 @@ struct NotchView: View {
             )
     }
 
-    // Mini collapsed audio visualizer (5 bars)
+    // Mini collapsed audio visualizer (5 bars) - matches CSS animation
     struct CollapsedAudioViz: View {
         @State private var phase: CGFloat = 0
         var body: some View {
-            HStack(spacing: 1) {
+            HStack(spacing: 0.5) {
                 ForEach(0..<5, id: \.self) { i in
-                    let base: CGFloat = 8
-                    let peak: CGFloat = 14
+                    let base: CGFloat = 4
+                    let peak: CGFloat = 7
                     let progress = abs(sin((phase + CGFloat(i) * 0.4)))
                     let h = base + (peak - base) * progress
-                    RoundedRectangle(cornerRadius: 1)
+                    RoundedRectangle(cornerRadius: 0.5)
                         .fill(DynamicIslandTheme.primaryGreen)
-                        .frame(width: 2, height: h)
+                        .frame(width: 1.5, height: h)
+                        .opacity(0.7 + (0.3 * progress)) // Match CSS opacity animation
+                        .animation(
+                            .easeInOut(duration: 1.5)
+                            .repeatForever(autoreverses: true)
+                            .delay(Double(i) * 0.2), // Match CSS animation delays
+                            value: phase
+                        )
                 }
             }
             .onAppear {
