@@ -1,13 +1,11 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Send, Copy, ChevronDown, ChevronUp, GripHorizontal } from 'lucide-react';
+import { X, Send, Copy, ChevronDown, ChevronUp, GripHorizontal, Square } from 'lucide-react';
 import './askAI.scss';
 import { useAskAISocket } from './socketState';
-import { Square } from 'lucide-react';
 import ObjectID from 'bson-objectid';
 import { getLocationsDetails } from '../helpers';
 import { AskAIMarkdown } from '../helpers/markdownHelper';
 import { copyToClipboard } from '../helpers/clipboardHelper';
-import Spinner from '../views/components/loaders/Spinner';
 
 const sessionId = ObjectID().toString();
 
@@ -20,18 +18,17 @@ const AskAIApp = () => {
 	const [hasResponse, setHasResponse] = useState(false);
 	const inputRef = useRef(null);
 	const responseRef = useRef(null);
+	const questionRef = useRef(null);
 	const [streamingResponse, setStreamingResponse] = useState('');
 	const [displayedResponse, setDisplayedResponse] = useState('');
 	const [receivedTabContent, setReceivedTabContent] = useState(null);
 	const [copied, setCopied] = useState(false);
 	const [isNeedHelpRequest, setIsNeedHelpRequest] = useState(false);
 	const [receivedDynamicIslandMessage, setReceivedDynamicIslandMessage] = useState(null);
-	const isStoppedRef = useRef(false);
-	const shouldCloseRef = useRef(false);
-	// Add this simple conversation history state
-	const [fullConversation, setFullConversation] = useState('');
+	const [currentQuestion, setCurrentQuestion] = useState('');
+	const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 	// Initialize socket
-	const { createWebSocketConnection, sendMessage, closeWebSocketConnection } = useAskAISocket();
+	const { createWebSocketConnection, sendMessage, closeWebSocketConnection, stopMessage } = useAskAISocket();
 	// Update dimensions only when necessary
 	const updateDimensions = useCallback(
 		(forceUpdate = false) => {
@@ -97,7 +94,20 @@ const AskAIApp = () => {
 	// Clean up socket connection on unmount
 	useEffect(() => {
 		return () => {
+			console.log('🧹 Cleaning up Ask AI component...');
 			closeWebSocketConnection();
+			// Reset all states on unmount
+			setIsLoading(false);
+			setResponse('');
+			setStreamingResponse('');
+			setDisplayedResponse('');
+			setHasResponse(false);
+			setIsExpanded(false);
+			setInputValue('');
+			setReceivedTabContent(null);
+			setReceivedDynamicIslandMessage(null);
+			setCurrentQuestion('');
+			setIsNeedHelpRequest(false);
 		};
 	}, [closeWebSocketConnection]);
 
@@ -135,8 +145,9 @@ const AskAIApp = () => {
 
 			const isDynamicIsland = chatMessage.type === 'dynamic-island-chat';
 			const isNotchDrop = chatMessage.type === 'notchdrop-chat';
+			const isOverlayThread = chatMessage.type === 'overlay-thread-question';
 
-			if ((isDynamicIsland || isNotchDrop) && chatMessage.message) {
+			if ((isDynamicIsland || isNotchDrop || isOverlayThread) && chatMessage.message) {
 				// Show indicator only for Dynamic Island
 				if (isDynamicIsland) {
 					setReceivedDynamicIslandMessage(chatMessage.message);
@@ -216,166 +227,8 @@ const AskAIApp = () => {
 		}
 	};
 
-	// Modify handleStop to save the current conversation
-	const handleStop = () => {
-		console.log('🛑 Stopping generation immediately...');
-
-		// Set flag to indicate user stopped the generation FIRST
-		isStoppedRef.current = true;
-
-		// IMMEDIATELY freeze the display at current state
-		setDisplayedResponse((currentDisplayed) => {
-			console.log('🛑 Freezing display at:', currentDisplayed);
-			// Set streamingResponse to match current displayed content
-			setStreamingResponse(currentDisplayed);
-
-			// Save the partial conversation to full conversation history
-			if (currentDisplayed.trim()) {
-				setFullConversation((prev) => {
-					const newConversation =
-						prev +
-						(prev ? '\n\n' : '') +
-						`Human: ${inputValue || 'Previous question'}\n\n` +
-						`Assistant: ${currentDisplayed} [STOPPED BY USER]`;
-					console.log('💾 Saved conversation:', newConversation);
-					return newConversation;
-				});
-			}
-
-			return currentDisplayed;
-		});
-
-		// Stop the loading state immediately
-		setIsLoading(false);
-
-		// FORCE CLOSE the WebSocket connection immediately
-		try {
-			if (closeWebSocketConnection) {
-				closeWebSocketConnection();
-				console.log('🛑 WebSocket connection closed');
-			}
-		} catch (error) {
-			console.warn('Error closing WebSocket:', error);
-		}
-
-		console.log('🛑 Generation stopped successfully - display frozen');
-	};
-
-	// Modify handleSubmit to include conversation context
-	const handleSubmit = async (customInput = null, isNeedHelp = null) => {
-		const queryValue = customInput || inputValue.trim();
-		if (!queryValue) return;
-
-		// Reset the stopped flag for new requests
-		isStoppedRef.current = false;
-
-		// Store the current question for conversation history
-		const currentQuestion = queryValue;
-
-		// Use the passed isNeedHelp parameter if provided, otherwise use state
-		const shouldUseDirectSearch = isNeedHelp !== null ? isNeedHelp : isNeedHelpRequest;
-
-		// Clear input only if it's a manual submission (not automatic)
-		if (!customInput) {
-			setInputValue('');
-		}
-
-		const hasPermission = await requestScreenPermissionIfNeeded();
-		setIsLoading(true);
-
-		// Clear display states for new message (but keep conversation history)
-		setResponse('');
-		setStreamingResponse('');
-		setDisplayedResponse('');
-
-		// Clear Dynamic Island message indicator when starting new submission
-		setReceivedDynamicIslandMessage(null);
-
-		// Reset need help flag for manual submissions
-		if (!customInput) {
-			setIsNeedHelpRequest(false);
-		}
-
-		try {
-			// 📸 Capture screenshot using Electron API
-			let base64Image = null;
-			if (window.electronApi?.desktop?.captureScreen) {
-				try {
-					base64Image = await window.electronApi.desktop.captureScreen();
-				} catch (err) {
-					console.warn('Failed to capture screenshot:', err);
-				}
-			}
-
-			const imageArray = base64Image ? [base64Image] : [];
-
-			// Create context-aware query
-			let contextualQuery = queryValue;
-			if (fullConversation.trim()) {
-				contextualQuery = `Previous conversation context:\n${fullConversation}\n\nCurrent question: ${queryValue}`;
-				console.log('📚 Including conversation context in query');
-			}
-
-			// Prepare message data with conversation context
-			const messageData = {
-				query: contextualQuery, // Include context directly in the query
-				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-				web_search: true,
-				knowledge_base_search: true,
-				deep_research: false,
-				deep_search: false,
-				modules: [],
-				date: [],
-				selected_model: null,
-				location: null,
-				image_data_base64: imageArray,
-			};
-
-			// Only set direct_search_agent to true for "Need Help" tab requests
-			if (shouldUseDirectSearch) {
-				messageData.direct_search_agent = true;
-			}
-
-			// Add location details
-			let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
-			if (!location_details) {
-				location_details = await getLocationsDetails();
-			}
-			messageData.location = location_details;
-
-			console.log('📤 Sending contextual query:', {
-				originalQuery: queryValue,
-				hasContext: !!fullConversation.trim(),
-				sessionId,
-			});
-
-			await sendMessage({
-				data: messageData,
-				sessionId, // Use the same session ID to maintain context
-				onMessageFunc: (event, sessionId) =>
-					onMessageFunc(event, sessionId, currentQuestion),
-				agentType: 'multi_agent_chat_streaming',
-			});
-
-			// Reset the need help flag after sending the message
-			setIsNeedHelpRequest(false);
-		} catch (error) {
-			console.error('Failed to send message:', error);
-			setIsLoading(false);
-			setResponse('Error: Failed to send message. Please try again.');
-			setIsExpanded(true);
-			setIsNeedHelpRequest(false);
-		}
-	};
-
-	// Modify onMessageFunc to save completed conversations
-	const onMessageFunc = useCallback((event, currentSessionId, currentQuestion) => {
-		// FIRST CHECK: If user stopped generation, ignore ALL incoming messages
-		if (isStoppedRef.current) {
-			console.log('🛑 Ignoring message - generation was stopped by user');
-			return;
-		}
-
+	// Handle incoming WebSocket messages
+	const onMessageFunc = useCallback((event, currentSessionId) => {
 		let { data = '' } = event || {};
 		try {
 			data = JSON.parse(data);
@@ -388,21 +241,9 @@ const AskAIApp = () => {
 
 		// Handle streaming messages
 		if (data?.message_chunk_id) {
-			// DOUBLE CHECK: Don't add chunks if stopped
-			if (isStoppedRef.current) {
-				console.log('🛑 Ignoring chunk - generation was stopped');
-				return;
-			}
-
 			const newChunk = data?.answer || '';
 			console.log('📝 Adding chunk:', newChunk);
-
 			setStreamingResponse((prev) => {
-				// TRIPLE CHECK: Don't update if stopped during state update
-				if (isStoppedRef.current) {
-					console.log('🛑 Stopping chunk addition mid-update');
-					return prev;
-				}
 				const updated = prev + newChunk;
 				console.log('📝 Updated streaming response:', updated);
 				return updated;
@@ -411,35 +252,14 @@ const AskAIApp = () => {
 
 		// Handle stream end
 		if (data?.stream_end) {
-			// FINAL CHECK: Don't finalize if stopped
-			if (isStoppedRef.current) {
-				console.log('🛑 Ignoring stream end - generation was stopped');
-				return;
-			}
-
 			console.log('🏁 Stream ended, finalizing response...');
 			setStreamingResponse((currentStreaming) => {
-				if (isStoppedRef.current) {
-					return currentStreaming;
-				}
-
 				const finalResponse = currentStreaming + (data?.answer || '');
 				console.log('🏁 Final response calculated:', finalResponse);
 
-				// Save the complete conversation to history
-				setFullConversation((prev) => {
-					const newConversation =
-						prev +
-						(prev ? '\n\n' : '') +
-						`Human: ${currentQuestion}\n\n` +
-						`Assistant: ${finalResponse}`;
-					console.log('💾 Saved complete conversation:', newConversation);
-					return newConversation;
-				});
-
 				// Set the final response
 				setResponse(finalResponse);
-				setDisplayedResponse(finalResponse);
+				setDisplayedResponse(finalResponse); // Ensure displayed matches final
 				setIsLoading(false);
 				setIsExpanded(true);
 				setHasResponse(true);
@@ -448,6 +268,8 @@ const AskAIApp = () => {
 				setReceivedDynamicIslandMessage(null);
 
 				console.log('✅ Final response set:', finalResponse);
+				console.log('✅ Response window should stay visible now');
+
 				return ''; // Clear streaming response
 			});
 		}
@@ -457,24 +279,16 @@ const AskAIApp = () => {
 	useEffect(() => {
 		let timeoutId;
 
-		// FIRST CHECK: Don't animate if user stopped generation
-		if (isStoppedRef.current) {
-			return;
-		}
-
 		if (streamingResponse && !response) {
 			const currentDisplayed = displayedResponse;
 			const targetText = streamingResponse;
 
-			// Only animate if there's new content to show AND not stopped
-			if (targetText.length > currentDisplayed.length && !isStoppedRef.current) {
+			// Only animate if there's new content to show
+			if (targetText.length > currentDisplayed.length) {
 				const nextChar = targetText[currentDisplayed.length];
 
 				timeoutId = setTimeout(() => {
-					// DOUBLE CHECK: Don't update if stopped during timeout
-					if (!isStoppedRef.current) {
-						setDisplayedResponse((prev) => prev + nextChar);
-					}
+					setDisplayedResponse((prev) => prev + nextChar);
 				}, 20); // Adjust speed: lower = faster, higher = slower
 			}
 		}
@@ -484,7 +298,7 @@ const AskAIApp = () => {
 				clearTimeout(timeoutId);
 			}
 		};
-	}, [streamingResponse, displayedResponse, response]); // Keep dependencies the same
+	}, [streamingResponse, displayedResponse, response]);
 
 	const requestScreenPermissionIfNeeded = async () => {
 		try {
@@ -510,43 +324,108 @@ const AskAIApp = () => {
 		}
 	};
 
+	const handleSubmit = async (customInput = null, isNeedHelp = null) => {
+		const queryValue = customInput || inputValue.trim();
+		if (!queryValue) return;
+
+		// Use the passed isNeedHelp parameter if provided, otherwise use state
+		const shouldUseDirectSearch = isNeedHelp !== null ? isNeedHelp : isNeedHelpRequest;
+
+		// Set the current question being asked
+		setCurrentQuestion(queryValue);
+
+		// Clear input only if it's a manual submission (not automatic)
+		if (!customInput) {
+			setInputValue('');
+		}
+
+		const hasPermission = await requestScreenPermissionIfNeeded();
+		setIsLoading(true);
+		setResponse('');
+		setStreamingResponse('');
+		setDisplayedResponse('');
+
+		// Clear Dynamic Island message indicator when starting new submission
+		setReceivedDynamicIslandMessage(null);
+
+		// Clear input only if it's a manual submission (not automatic)
+		if (!customInput) {
+			setInputValue('');
+		}
+
+		// Reset need help flag for manual submissions
+		if (!customInput) {
+			setIsNeedHelpRequest(false);
+		}
+
+		try {
+			// 📸 Capture screenshot using Electron API
+			let base64Image = null;
+			if (window.electronApi?.desktop?.captureScreen) {
+				try {
+					base64Image = await window.electronApi.desktop.captureScreen();
+				} catch (err) {
+					console.warn('Failed to capture screenshot:', err);
+					// Optionally continue without image
+				}
+			}
+
+			const imageArray = base64Image ? [base64Image] : [];
+			// Prepare message data
+			const messageData = {
+				query: queryValue,
+				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+				web_search: true,
+				knowledge_base_search: true,
+				deep_research: false,
+				deep_search: false,
+				modules: [],
+				date: [],
+				selected_model: null,
+				location: null,
+				image_data_base64: imageArray,
+			};
+
+			// Only set direct_search_agent to true for "Need Help" tab requests
+			if (shouldUseDirectSearch) {
+				messageData.direct_search_agent = true;
+			}
+
+			// Add location details
+			let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
+			if (!location_details) {
+				location_details = await getLocationsDetails();
+			}
+			messageData.location = location_details;
+
+			await sendMessage({
+				data: messageData,
+				sessionId,
+				onMessageFunc,
+				agentType: 'multi_agent_chat_streaming',
+			});
+
+			// Reset the need help flag after sending the message
+			setIsNeedHelpRequest(false);
+		} catch (error) {
+			console.error('Failed to send message:', error);
+			setIsLoading(false);
+			setResponse('Error: Failed to send message. Please try again.');
+			setIsExpanded(true);
+			// Reset the need help flag on error as well
+			setIsNeedHelpRequest(false);
+		}
+	};
+
 	const handleKeyDown = (e) => {
 		if (e.key === 'Enter' && !e.shiftKey) {
-			e.preventDefault();
-
-			// Only submit if NOT loading and has input text
-			if (!isLoading && inputValue.trim()) {
-				handleSubmit();
-			}
+			handleSubmit();
 		}
 	};
 
 	const handleCopyResponse = async () => {
 		try {
-			let textToCopy = '';
-
-			// Try to get the actual displayed text from the rendered markdown
-			if (responseRef.current) {
-				const markdownElement = responseRef.current.querySelector(
-					'.markdown-custom-content',
-				);
-				if (markdownElement) {
-					// Extract text content from the rendered markdown, preserving structure
-					textToCopy = markdownElement.innerText || markdownElement.textContent;
-				}
-			}
-
-			// Fallback to raw markdown if DOM extraction fails
-			if (!textToCopy) {
-				textToCopy = response || displayedResponse;
-			}
-
-			if (!textToCopy) {
-				console.warn('No content to copy');
-				return;
-			}
-
-			const success = await copyToClipboard(textToCopy, {
+			const success = await copyToClipboard(response, {
 				onSuccess: () => {
 					console.log('✅ Response copied to clipboard successfully');
 					// You could add a toast notification here if you have a notification system
@@ -574,34 +453,86 @@ const AskAIApp = () => {
 	};
 
 	const handleClose = async () => {
-		console.log('❌ X button clicked - closing AI window');
+		console.log('🔄 Closing Ask AI window...');
 		
-		// Stop AI generation if it's currently running
+		// Stop any ongoing message processing
 		if (isLoading) {
-			console.log('🛑 Stopping AI generation before closing...');
 			handleStop();
-			
-			// Wait a moment for stop to complete, then close
-			setTimeout(() => {
-				console.log('🚪 Closing AI window after stop...');
-				if (window.electronApi?.askAI?.hideWindow) {
-					window.electronApi.askAI.hideWindow();
-				}
-			}, 50); // Small delay to ensure stop completes
-		} else {
-			// If not loading, close immediately
-			console.log('🚪 Closing AI window immediately...');
-			if (window.electronApi?.askAI?.hideWindow) {
-				window.electronApi.askAI.hideWindow();
-			}
 		}
+		
+		// Close WebSocket connection
+		closeWebSocketConnection();
+		
+		// Reset all states immediately
+		setIsLoading(false);
+		setResponse('');
+		setStreamingResponse('');
+		setDisplayedResponse('');
+		setHasResponse(false);
+		setIsExpanded(false);
+		setInputValue('');
+		setReceivedTabContent(null);
+		setReceivedDynamicIslandMessage(null);
+		setCurrentQuestion('');
+		setIsNeedHelpRequest(false);
+		
+		// Small delay to ensure cleanup completes before window closes
+		setTimeout(() => {
+			// Close the window
+			if (window.electronApi?.askAI?.toggleWindow) {
+				window.electronApi.askAI.toggleWindow();
+			}
+			console.log('✅ Ask AI window closed and chat terminated');
+		}, 100);
 	};
 
-	// Add a debug function to see conversation history
-	const debugConversation = () => {
-		console.log('🔍 Current conversation history:');
-		console.log(fullConversation);
+	const handleStop = () => {
+		console.log('🛑 Stopping AI response...');
+		stopMessage();
+		setIsLoading(false);
+		// Keep the current displayed response and set it as the final response
+		if (displayedResponse) {
+			setResponse(displayedResponse);
+			setHasResponse(true);
+			setIsExpanded(true);
+		}
+		// Clear streaming response to stop the animation
+		setStreamingResponse('');
+		// Clear current question when stopping
+		setCurrentQuestion('');
 	};
+
+	// Scroll detection logic
+	const handleScroll = useCallback(() => {
+		if (responseRef.current) {
+			const { scrollTop, scrollHeight, clientHeight } = responseRef.current || questionRef.current;
+			const isNearBottom = scrollHeight - scrollTop - clientHeight < 100; // 100px threshold
+			setShowScrollToBottom(!isNearBottom && scrollHeight > clientHeight);
+		}
+	}, []);
+
+	// Scroll to bottom function
+	const scrollToBottom = useCallback(() => {
+		if (responseRef.current || questionRef.current) {
+			responseRef.current.scrollTo({
+				top: responseRef.current.scrollHeight,
+				behavior: 'smooth'
+			});
+		}
+	}, []);
+
+	// Auto-scroll to bottom when new content arrives (streaming)
+	useEffect(() => {
+		if (displayedResponse && responseRef.current || questionRef.current) {
+			const { scrollTop, scrollHeight, clientHeight } = responseRef.current;
+			const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+			
+			// Auto-scroll only if user is already near the bottom
+			if (isNearBottom) {
+				scrollToBottom();
+			}
+		}
+	}, [displayedResponse, scrollToBottom, questionRef]);
 
 	return (
 		<div ref={containerRef} className="ask-ai-app">
@@ -629,7 +560,7 @@ const AskAIApp = () => {
 							)}
 						</div>
 						<div className="ai-response-controls">
-							{(response || displayedResponse) && (
+							{response && (
 								<button
 									className="copy-button"
 									onClick={handleCopyResponse}
@@ -645,37 +576,55 @@ const AskAIApp = () => {
 					</div>
 
 					<div className="divider"></div>
-					<div className="ai-response-content" ref={responseRef}>
-						{isLoading && !response && !displayedResponse ? (
-							<div className="loading-indicator">
-								<div className="loading-dots">
-									<span></span>
-									<span></span>
-									<span></span>
+					
+					{/* Current Question Display */}
+					{currentQuestion && (
+						<div className="ai-question-display" ref={questionRef}>
+							<div className="ai-question-text">
+								<span className="question-label">Question:</span>
+								<span className="question-content">{currentQuestion}</span>
+							</div>
+							{isLoading && (
+								<div className="thinking-indicator">
+									<div className="thinking-dots">
+										<span></span>
+										<span></span>
+										<span></span>
+									</div>
+									<span className="thinking-text">Thinking...</span>
 								</div>
-								<span>Thinking...</span>
+							)}
+						</div>
+					)}
+					
+					<div className="ai-response-content" ref={responseRef}>
+						{response || displayedResponse ? (
+							<div className="response-text">
+								<AskAIMarkdown>
+									{response || displayedResponse}
+								</AskAIMarkdown>
 							</div>
 						) : (
-							<div className="response-text">
-								{response || displayedResponse ? (
-									<>
-										<AskAIMarkdown>
-											{response || displayedResponse}
-										</AskAIMarkdown>
-										{isLoading && displayedResponse && !response && (
-											<span className="thinking-indicator">Thinking...</span>
-										)}
-									</>
-								) : (
-									'No response content'
-								)}
+							<div className="empty-response">
+								No response content
 							</div>
 						)}
 					</div>
+					
+					{/* Scroll to Bottom Button */}
+					{showScrollToBottom && (
+						<button 
+							className="scroll-to-bottom-btn"
+							onClick={scrollToBottom}
+							title="Scroll to bottom"
+						>
+							<ChevronDown size={16} />
+						</button>
+					)}
 				</div>
 			)}
 
-			{/* Input Bar - Botdtom */}
+			{/* Input Bar - Bottom */}
 			<div className="ask-ai-input">
 				<div className="ask-ai-input-drag-handle">
 					<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
@@ -726,7 +675,7 @@ const AskAIApp = () => {
 					</div>
 				)} */}
 
-				<div className="ask-ai-input__container ask-ai-input__container_responding">
+				<div className="ask-ai-input__container">
 					<textarea
 						ref={inputRef}
 						className="ask-ai-input__field"
@@ -737,32 +686,26 @@ const AskAIApp = () => {
 						rows={1}
 					/>
 
-					{
+					{isLoading && (
 						<button
-							className={`ask-ai-input__submit ${inputValue.trim() ? 'active' : ''} ${
-								isLoading ? 'loading' : ''
-							}`}
-							onClick={() => {
-								isLoading ? handleStop() : handleSubmit();
-							}}
-							// disabled={!inputValue.trim() || isLoading}
-							title="Ask"
+							className="ask-ai-input__stop"
+							onClick={handleStop}
+							title="Stop response"
 						>
-							{isLoading ? <Square size={10} /> : 'Ask'}
+							<Square size={14} />
 						</button>
-					}
+					)}
+
+					<button
+						className={`ask-ai-input__submit ${inputValue.trim() ? 'active' : ''}`}
+						onClick={handleSubmit}
+						disabled={!inputValue.trim() || isLoading}
+						title="Ask"
+					>
+						Ask
+					</button>
 				</div>
 			</div>
-
-			{/* Add this to your JSX for debugging (remove in production) */}
-			{/* {process.env.NODE_ENV === 'development' && (
-				<button
-					onClick={debugConversation}
-					style={{ position: 'absolute', top: 0, right: 0 }}
-				>
-					Debug Conversation
-				</button>
-			)} */}
 		</div>
 	);
 };

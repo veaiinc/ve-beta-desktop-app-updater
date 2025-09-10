@@ -1,5 +1,4 @@
 // main.js
-import debug from 'electron-debug';
 const {
 	app,
 	BrowserWindow,
@@ -1749,21 +1748,6 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	// Register F12 for DevTools on focused window
-	const f12Registered = globalShortcut.register('F12', () => {
-		const focusedWindow = BrowserWindow.getFocusedWindow();
-		if (focusedWindow) {
-			focusedWindow.webContents.toggleDevTools();
-			log.info('DevTools toggled for:', focusedWindow.getTitle());
-		}
-	});
-
-	if (f12Registered) {
-		log.info('✅ F12 shortcut registered for DevTools');
-	} else {
-		log.error('❌ Failed to register F12 shortcut');
-	}
-
 	// Check if global shortcuts are working (especially important on macOS)
 	if (process.platform === 'darwin') {
 		// Check if the app has accessibility permissions
@@ -3023,71 +3007,6 @@ app.whenReady().then(async () => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error hiding overlay window:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('toggle-askAI-window', async () => {
-		try {
-			if (!windowHelper) {
-				return { success: false, error: 'Window helper not initialized' };
-			}
-			windowHelper.toggleAskAIWindow();
-			return { success: true };
-		} catch (error) {
-			log.error('Error toggling Ask AI window:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('show-askAI-window', async () => {
-		try {
-			if (!windowHelper) {
-				return { success: false, error: 'Window helper not initialized' };
-			}
-			windowHelper.showAskAIWindow();
-			return { success: true };
-		} catch (error) {
-			log.error('Error showing Ask AI window:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('is-askAI-window-visible', async () => {
-		try {
-			if (!windowHelper) {
-				return { success: false, error: 'Window helper not initialized' };
-			}
-			const isVisible = windowHelper.isAskAIWindowVisible();
-			return { success: true, isVisible };
-		} catch (error) {
-			log.error('Error checking Ask AI window visibility:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('hide-askAI-window', async () => {
-		try {
-			if (!windowHelper) {
-				return { success: false, error: 'Window helper not initialized' };
-			}
-			windowHelper.hideAskAIWindow();
-			return { success: true };
-		} catch (error) {
-			log.error('Error hiding Ask AI window:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('update-askAI-dimensions', async (event, { width, height }) => {
-		try {
-			if (!windowHelper) {
-				return { success: false, error: 'Window helper not initialized' };
-			}
-			windowHelper.updateAskAIWindowDimensions(width, height);
-			return { success: true };
-		} catch (error) {
-			log.error('Error updating Ask AI dimensions:', error);
 			return { success: false, error: error.message };
 		}
 	});

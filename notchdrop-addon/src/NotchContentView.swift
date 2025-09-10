@@ -288,7 +288,10 @@ struct DynamicIslandContentView: View {
                             .padding(.top, 4)
                             #endif
                             
-                            // Right-hand tile: Only show when NOT in chat mode (like React behavior)
+                            // COMMENTED OUT: Right-hand tile (Webcam and Voice controls)
+                            // This section contained webcam icon when recording and voice controls when not recording
+                            // Removed to simplify the notch UI and reduce width requirements
+                            /*
                             if !vm.isChatMode {
                                 // Webcam when recording, Voice control otherwise
                                 if vm.isRecording {
@@ -338,6 +341,7 @@ struct DynamicIslandContentView: View {
                                     }
                                 }
                             }
+                            */
                         }
                     }
                     .frame(maxWidth: vm.notchOpenedSize.width - 32) // Constrain main content area
@@ -459,11 +463,15 @@ struct VoiceControlsCircle: View {
                             .frame(width: 16, height: 16)
                     }.buttonStyle(PlainButtonStyle())
 
+                    // COMMENTED OUT: Microphone mute/unmute button
+                    // Removed to simplify the voice controls UI
+                    /*
                     Button(action: { vm.toggleMicMute() }) {
                         Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
                             .foregroundColor(vm.isMicrophoneMuted ? Color.red : DynamicIslandTheme.textPrimary)
                             .frame(width: 16, height: 16)
                     }.buttonStyle(PlainButtonStyle())
+                    */
                 }
             }
             .padding(12)
@@ -676,22 +684,20 @@ struct ChatTextAreaView: View {
         // Calculate available space considering:
         // - Total padding (32px: 16px on each side)
         // - Spacing between elements (12px)
-        // - Right tile width when not in chat mode (100px + 12px spacing)
+        // - Right tile has been removed, so no need to account for it
         let totalPadding: CGFloat = 32 // 16px on each side
         let elementSpacing: CGFloat = 12
         
         var availableWidth = islandWidth - totalPadding
         
-        // If not in chat mode and not showing voice interface, account for right tile
-        if !vm.isChatMode && !vm.showVoiceInterface {
-            availableWidth -= (100 + elementSpacing) // Right tile width + spacing
-        }
+        // Right tile has been commented out, so no need to subtract its width
+        // The text editor can now use the full available width
         
         // Ensure minimum width and apply some margin for visual balance
         let minWidth: CGFloat = 200
         let calculatedWidth = max(minWidth, availableWidth - 20) // 20px margin for visual balance
         
-        print("🎯 Calculating TextEditor width:")
+        print("🎯 Calculating TextEditor width (after removing right tile):")
         print("   Island width: \(islandWidth)")
         print("   Available width: \(availableWidth)")
         print("   Calculated width: \(calculatedWidth)")
