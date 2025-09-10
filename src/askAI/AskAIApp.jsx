@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Send, Copy, ChevronDown, ChevronUp, GripHorizontal } from 'lucide-react';
+import { X, Send, Copy, ChevronDown, ChevronUp, GripHorizontal, Square } from 'lucide-react';
 import './askAI.scss';
 import { useAskAISocket } from './socketState';
 import ObjectID from 'bson-objectid';
@@ -18,15 +18,17 @@ const AskAIApp = () => {
 	const [hasResponse, setHasResponse] = useState(false);
 	const inputRef = useRef(null);
 	const responseRef = useRef(null);
+	const questionRef = useRef(null);
 	const [streamingResponse, setStreamingResponse] = useState('');
 	const [displayedResponse, setDisplayedResponse] = useState('');
 	const [receivedTabContent, setReceivedTabContent] = useState(null);
 	const [copied, setCopied] = useState(false);
 	const [isNeedHelpRequest, setIsNeedHelpRequest] = useState(false);
 	const [receivedDynamicIslandMessage, setReceivedDynamicIslandMessage] = useState(null);
+	const [currentQuestion, setCurrentQuestion] = useState('');
 	const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 	// Initialize socket
-	const { createWebSocketConnection, sendMessage, closeWebSocketConnection } = useAskAISocket();
+	const { createWebSocketConnection, sendMessage, closeWebSocketConnection, stopMessage } = useAskAISocket();
 	// Update dimensions only when necessary
 	const updateDimensions = useCallback(
 		(forceUpdate = false) => {
@@ -92,7 +94,20 @@ const AskAIApp = () => {
 	// Clean up socket connection on unmount
 	useEffect(() => {
 		return () => {
+			console.log('🧹 Cleaning up Ask AI component...');
 			closeWebSocketConnection();
+			// Reset all states on unmount
+			setIsLoading(false);
+			setResponse('');
+			setStreamingResponse('');
+			setDisplayedResponse('');
+			setHasResponse(false);
+			setIsExpanded(false);
+			setInputValue('');
+			setReceivedTabContent(null);
+			setReceivedDynamicIslandMessage(null);
+			setCurrentQuestion('');
+			setIsNeedHelpRequest(false);
 		};
 	}, [closeWebSocketConnection]);
 
@@ -130,8 +145,9 @@ const AskAIApp = () => {
 
 			const isDynamicIsland = chatMessage.type === 'dynamic-island-chat';
 			const isNotchDrop = chatMessage.type === 'notchdrop-chat';
+			const isOverlayThread = chatMessage.type === 'overlay-thread-question';
 
-			if ((isDynamicIsland || isNotchDrop) && chatMessage.message) {
+			if ((isDynamicIsland || isNotchDrop || isOverlayThread) && chatMessage.message) {
 				// Show indicator only for Dynamic Island
 				if (isDynamicIsland) {
 					setReceivedDynamicIslandMessage(chatMessage.message);
@@ -315,6 +331,9 @@ const AskAIApp = () => {
 		// Use the passed isNeedHelp parameter if provided, otherwise use state
 		const shouldUseDirectSearch = isNeedHelp !== null ? isNeedHelp : isNeedHelpRequest;
 
+		// Set the current question being asked
+		setCurrentQuestion(queryValue);
+
 		// Clear input only if it's a manual submission (not automatic)
 		if (!customInput) {
 			setInputValue('');
@@ -433,16 +452,60 @@ const AskAIApp = () => {
 		setIsExpanded(!isExpanded);
 	};
 
-	const handleClose = () => {
-		if (window.electronApi?.askAI?.toggleWindow) {
-			window.electronApi.askAI.toggleWindow();
+	const handleClose = async () => {
+		console.log('🔄 Closing Ask AI window...');
+		
+		// Stop any ongoing message processing
+		if (isLoading) {
+			handleStop();
 		}
+		
+		// Close WebSocket connection
+		closeWebSocketConnection();
+		
+		// Reset all states immediately
+		setIsLoading(false);
+		setResponse('');
+		setStreamingResponse('');
+		setDisplayedResponse('');
+		setHasResponse(false);
+		setIsExpanded(false);
+		setInputValue('');
+		setReceivedTabContent(null);
+		setReceivedDynamicIslandMessage(null);
+		setCurrentQuestion('');
+		setIsNeedHelpRequest(false);
+		
+		// Small delay to ensure cleanup completes before window closes
+		setTimeout(() => {
+			// Close the window
+			if (window.electronApi?.askAI?.toggleWindow) {
+				window.electronApi.askAI.toggleWindow();
+			}
+			console.log('✅ Ask AI window closed and chat terminated');
+		}, 100);
+	};
+
+	const handleStop = () => {
+		console.log('🛑 Stopping AI response...');
+		stopMessage();
+		setIsLoading(false);
+		// Keep the current displayed response and set it as the final response
+		if (displayedResponse) {
+			setResponse(displayedResponse);
+			setHasResponse(true);
+			setIsExpanded(true);
+		}
+		// Clear streaming response to stop the animation
+		setStreamingResponse('');
+		// Clear current question when stopping
+		setCurrentQuestion('');
 	};
 
 	// Scroll detection logic
 	const handleScroll = useCallback(() => {
 		if (responseRef.current) {
-			const { scrollTop, scrollHeight, clientHeight } = responseRef.current;
+			const { scrollTop, scrollHeight, clientHeight } = responseRef.current || questionRef.current;
 			const isNearBottom = scrollHeight - scrollTop - clientHeight < 100; // 100px threshold
 			setShowScrollToBottom(!isNearBottom && scrollHeight > clientHeight);
 		}
@@ -450,7 +513,7 @@ const AskAIApp = () => {
 
 	// Scroll to bottom function
 	const scrollToBottom = useCallback(() => {
-		if (responseRef.current) {
+		if (responseRef.current || questionRef.current) {
 			responseRef.current.scrollTo({
 				top: responseRef.current.scrollHeight,
 				behavior: 'smooth'
@@ -460,7 +523,7 @@ const AskAIApp = () => {
 
 	// Auto-scroll to bottom when new content arrives (streaming)
 	useEffect(() => {
-		if (displayedResponse && responseRef.current) {
+		if (displayedResponse && responseRef.current || questionRef.current) {
 			const { scrollTop, scrollHeight, clientHeight } = responseRef.current;
 			const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
 			
@@ -469,7 +532,7 @@ const AskAIApp = () => {
 				scrollToBottom();
 			}
 		}
-	}, [displayedResponse, scrollToBottom]);
+	}, [displayedResponse, scrollToBottom, questionRef]);
 
 	return (
 		<div ref={containerRef} className="ask-ai-app">
@@ -513,30 +576,37 @@ const AskAIApp = () => {
 					</div>
 
 					<div className="divider"></div>
-					<div className="ai-response-content" ref={responseRef} onScroll={handleScroll}>
-						{isLoading && !response && !displayedResponse ? (
-							<div className="loading-indicator">
-								<div className="loading-dots">
-									<span></span>
-									<span></span>
-									<span></span>
+					
+					{/* Current Question Display */}
+					{currentQuestion && (
+						<div className="ai-question-display" ref={questionRef}>
+							<div className="ai-question-text">
+								<span className="question-label">Question:</span>
+								<span className="question-content">{currentQuestion}</span>
+							</div>
+							{isLoading && (
+								<div className="thinking-indicator">
+									<div className="thinking-dots">
+										<span></span>
+										<span></span>
+										<span></span>
+									</div>
+									<span className="thinking-text">Thinking...</span>
 								</div>
-								<span>Thinking...</span>
+							)}
+						</div>
+					)}
+					
+					<div className="ai-response-content" ref={responseRef}>
+						{response || displayedResponse ? (
+							<div className="response-text">
+								<AskAIMarkdown>
+									{response || displayedResponse}
+								</AskAIMarkdown>
 							</div>
 						) : (
-							<div className="response-text">
-								{response || displayedResponse ? (
-									<>
-										<AskAIMarkdown>
-											{response || displayedResponse}
-										</AskAIMarkdown>
-										{isLoading && displayedResponse && !response && (
-											<span className="thinking-indicator">Thinking...</span>
-										)}
-									</>
-								) : (
-									'No response content'
-								)}
+							<div className="empty-response">
+								No response content
 							</div>
 						)}
 					</div>
@@ -615,6 +685,16 @@ const AskAIApp = () => {
 						onKeyDown={handleKeyDown}
 						rows={1}
 					/>
+
+					{isLoading && (
+						<button
+							className="ask-ai-input__stop"
+							onClick={handleStop}
+							title="Stop response"
+						>
+							<Square size={14} />
+						</button>
+					)}
 
 					<button
 						className={`ask-ai-input__submit ${inputValue.trim() ? 'active' : ''}`}
