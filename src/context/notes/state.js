@@ -671,10 +671,17 @@ export const NotesState = (props) => {
 			return false;
 		}
 	};
-	const getLiveKitToken = async (payload) => {
+	const getLiveKitToken = async ({ meetingId, sessionId }) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
+			const locationString = localStorage.getItem('locationDetails') || {};
+			const location = JSON.parse(locationString);
+
+			const payload = {
+				input: { meetingId, sessionId, location, timezone: location.timezone },
+			};
+
 			const response = await service.mutation(
 				getLiveKitTokenQuery,
 				payload,
@@ -1755,33 +1762,46 @@ export const NotesState = (props) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
-			const payload = {
-				page,
-				limit,
-			};
+			const payload = { page, limit };
+
 			const response = await service.query(
 				getMeetBotDataQuery,
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api_database',
+				'meeting_api',
 			);
+
 			if (response?.[0]) {
-				const currentPageBotsList = response?.[1]?.data?.listMeetings?.data;
-				const currentPage = response?.[1]?.data?.listMeetings?.currentPage;
-				const hasNextPage = response?.[1]?.data?.listMeetings?.hasNextPage;
+				const currentPageBotsList = response?.[1]?.data?.listMeetings?.data || [];
+
+				let mergedData;
+				if (append) {
+					const existing = state?.existingBots?.data || [];
+
+					// Merge + deduplicate by "_id"
+					const combined = [...existing, ...currentPageBotsList];
+					const seen = new Set();
+					mergedData = combined.filter((meeting) => {
+						if (!meeting?._id) return false; // skip invalid
+						if (seen.has(meeting._id)) return false;
+						seen.add(meeting._id);
+						return true;
+					});
+				} else {
+					mergedData = currentPageBotsList;
+				}
 
 				const payload = {
-					data: append
-						? [...(state?.existingBots?.data || []), ...currentPageBotsList]
-						: currentPageBotsList,
-					hasNextPage,
-					currentPage,
+					...(response?.[1]?.data?.listMeetings || {}),
+					data: mergedData,
 				};
+
 				dispatch({
 					type: Actions.GET_EXISTING_BOTS_SUCCESS,
 					payload,
 				});
+
 				return response;
 			}
 		} catch (error) {
@@ -1798,7 +1818,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api_database',
+				'meeting_api',
 			);
 			if (response?.[0]) {
 				dispatch({
@@ -1832,7 +1852,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api_database',
+				'meeting_api',
 			);
 			if (response?.[0]) {
 				dispatch({
@@ -1840,6 +1860,15 @@ export const NotesState = (props) => {
 					payload: {
 						createBotInfo: response?.[1]?.data?.startMeeting,
 					},
+				});
+				const payload = {
+					...(state?.existingBots || {}),
+					data: [response?.[1]?.data?.startMeeting, ...(state?.existingBots?.data || [])],
+					totalDocs: (state?.existingBots?.totalDocs ?? 0) + 1,
+				};
+				dispatch({
+					type: Actions.GET_EXISTING_BOTS_SUCCESS,
+					payload,
 				});
 				return response;
 			}
@@ -1929,7 +1958,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api_database',
+				'meeting_api',
 			);
 			if (response?.[0]) {
 				const currentPageTranscriptsList = response?.[1]?.data?.listTranscriptions?.data;

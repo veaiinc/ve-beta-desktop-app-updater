@@ -56,17 +56,32 @@ import GalleryPage from '../views/features/gallery/GalleryPage';
 import GalleryViewer from '../views/features/gallery/GalleryViewer';
 import UploadPhotosDesktop from '../views/features/gallery/UploadPhotosDesktop';
 // components
+import publicRoutes from './publicRoutes';
 import MeetBotWrapper from '../views/features/meetBot/meetBotWrapper';
 import ProactiveSuggestions from '../views/features/homePage/ambientAi/ProactiveSuggestions';
 import CardMeetBot from '../views/features/meetBot/CardMeetBot';
 import ChatPage from '../views/components/homePage/ChatPage';
 import NotesWrapper from '../views/features/notesModule/NotesWrapper';
+
 const betaRoutes = [
 	// ========================================
 	// ONBOARDING, HOME & FEATURES
 	// ========================================
 	{
 		path: '/home',
+		element: (
+			<AuthWrapper
+				title={'Priority'}
+				outerContainerStyle={{ overflow: 'hidden' }}
+				childrenContainerStyles={{ overflow: 'auto' }}
+				showBottomToolbar={false}
+			>
+				<ProactiveSuggestions />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/tools',
 		element: (
 			<AuthWrapper title={'Tools'}>
 				<InitialHomePage />
@@ -99,6 +114,7 @@ const betaRoutes = [
 			</AuthWrapper>
 		),
 	},
+
 	// ========================================
 	// AI & ASSISTANT FEATURES
 	// ========================================
@@ -233,7 +249,7 @@ const betaRoutes = [
 				showBottomToolbar={false}
 				outerContainerStyle={{
 					paddingRight: '0px',
-					backgroundColor: 'var(--chat-background-color)',
+					backgroundColor: 'var(--background-color)',
 				}}
 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 				maxWidth="100%"
@@ -441,7 +457,7 @@ const betaRoutes = [
 		element: (
 			<AuthWrapper
 				title={'Calendar'}
-				outerContainerStyle={{ overflow: 'hidden', padding: '0 32px 0 0 ' }}
+				outerContainerStyle={{ overflow: 'hidden' }}
 				childrenContainerStyles={{ maxWidth: '100%' }}
 			>
 				<CalendarModule />
@@ -816,5 +832,9 @@ const betaRoutes = [
 			</Public>
 		),
 	},
+	// ========================================
+	// PUBLIC ROUTES
+	// ========================================
+	...publicRoutes,
 ];
 export default betaRoutes;

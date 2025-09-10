@@ -33,7 +33,7 @@ const FileViewersList = ({ loading, viewersList, fileData }) => {
 								justifyContent: 'center',
 								alignItems: 'center',
 								alignSelf: 'stretch',
-								backgroundColor: '#333232',
+								backgroundColor: 'var(--stroke)',
 								height: '55px',
 								borderRadius: '8px',
 								fontWeight: 'bold',

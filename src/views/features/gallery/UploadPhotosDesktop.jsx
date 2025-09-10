@@ -1,3 +1,4 @@
+// ... imports unchanged ...
 import React, { useState, useContext, useEffect, useRef, memo } from 'react';
 import '../../../assets/scss/gallery/uploadGallery.scss';
 import AddLables from '../../components/gallery/addGallery/AddLablesComponent';
@@ -6,7 +7,9 @@ import { ReactComponent as BackIcon } from '../../../assets/svg/gallery/back-gra
 import WaterMarkComponent from '../../components/gallery/addGallery/WaterMarkComponent';
 import UploadStatusComponent from '../../components/gallery/addGallery/UploadStatusComponent';
 import randomize from 'randomatic';
+import moment from 'moment';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import axios from 'axios';
 import UploadCompletedPopup from '../../components/gallery/addGallery/UploadCompletedPopup';
 import { message } from '../../components/globalComponents/CustomToast';
 import Context from '../../../context/context';
@@ -31,7 +34,6 @@ const UploadPhotosDesktop = () => {
 			getUploadImagePolicy,
 			uploadDesktopImages,
 		},
-		// profileInfo: { getUserDetailsFromTenantAPI, userDetailsFromTenantAPI },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState, updateStateValues },
 	} = useContext(Context);
 
@@ -49,8 +51,8 @@ const UploadPhotosDesktop = () => {
 		initialUpload: false,
 		startedUploading: false,
 		uploadImages: {},
-		uploadSize: 0, // kb
-		uploadLimit: Math.min(navigator.hardwareConcurrency, 8), // Dynamic upload limit based on CPU cores
+		uploadSize: 0,
+		uploadLimit: Math.min(navigator.hardwareConcurrency, 8),
 		currentUpload: 1,
 		recentImageInitiated: null,
 		isSkipDuplicates: false,
@@ -66,11 +68,10 @@ const UploadPhotosDesktop = () => {
 		isUploadComplete: false,
 		scaleWatermark: 0.15,
 		watermarkOpacity: 1,
-		isProcessingDuplicates: false, // New state for duplicate processing feedback
+		isProcessingDuplicates: false,
 	});
 
 	const intervalRef = useRef(null);
-	const recentImageInitiatedRef = useRef(null);
 	const lightGallery = !tenantAlbums?.storeOriginals ? 'true' : 'false';
 	const aiFacesLogic =
 		lightGallery === 'true' &&
@@ -78,7 +79,7 @@ const UploadPhotosDesktop = () => {
 		(validateExpiryData?.liteImageLimitWithAiFace === 0 ||
 			validateExpiryData?.liteImageLimitWithAiFace <= validateExpiryData?.liteImageUsed);
 
-	// --- Effects ---
+	// --- Effects (unchanged) ---
 	useEffect(() => {
 		if (
 			lightGallery === 'true' &&
@@ -122,20 +123,11 @@ const UploadPhotosDesktop = () => {
 		}
 	}, [tenantAlbums]);
 
-	console.log(tenantAlbums);
-
-	// Cleanup on unmount
 	useEffect(() => {
 		return () => {
 			if (intervalRef.current) clearInterval(intervalRef.current);
 		};
 	}, []);
-
-	// useEffect(() => {
-	// 	if (!userDetailsFromTenantAPI) {
-	// 		getUserDetailsFromTenantAPI();
-	// 	}
-	// }, []);
 
 	// --- Helpers ---
 	const getDuplicateSet = () => {
@@ -150,41 +142,12 @@ const UploadPhotosDesktop = () => {
 		return wm?.url || null;
 	};
 
-	// --- Concurrent Processing Helper ---
-	const processImagesConcurrently = async (images, concurrencyLimit) => {
-		const results = [];
-		const executing = [];
-
-		const processOne = async (image, index) => {
-			const result = await processSingleImage(image.file, index);
-			results.push({
-				...image,
-				...result,
-				processedFile: result.processedFile || null,
-			});
-		};
-
-		for (let i = 0; i < images.length; i++) {
-			const p = processOne(images[i], i).then(() => {
-				executing.splice(executing.indexOf(p), 1);
-			});
-			executing.push(p);
-
-			if (executing.length >= concurrencyLimit) {
-				await Promise.race(executing);
-			}
-		}
-
-		await Promise.all(executing);
-		return results;
-	};
 	// --- Process Image with Sharp ---
 	const processSingleImage = async (originalFile) => {
 		try {
 			const imageBuffer = await originalFile.arrayBuffer();
 			const uint8Array = new Uint8Array(imageBuffer);
 
-			// 👉 Extract metadata from original image
 			const { metadata, width, height, format, originalDateTime } =
 				await window.electronApi.extractImageMetadata({
 					imageBuffer: Array.from(uint8Array),
@@ -194,34 +157,82 @@ const UploadPhotosDesktop = () => {
 				throw new Error('Unable to extract image dimensions');
 			}
 
-			// 👉 Only process optimized version if watermark is enabled or resize needed
-			let processedBuffer = null;
 			let processedFile = originalFile;
+			let thumbnailFile = null;
+			let thumbnail100hFile = null;
+			let processedBuffer = null;
+			let thumbnailBuffer = null;
+			let thumbnail100hBuffer = null;
 
-			if (info.isWaterMarkApply) {
-				// Always process for compression/resize
-				const watermarkUrl = getWatermarkUrl();
-				const result = await window.electronApi.processImageWithSharp({
-					imageBuffer: Array.from(uint8Array),
-					watermarkUrl,
-					watermarkPosition: info.watermarkPosition,
-					scale: info.scaleWatermark,
-					opacity: info.watermarkOpacity,
-					isWaterMarkApply: info.isWaterMarkApply,
-					resizeOptions: { width: 1200 },
-					quality: 85,
-					forceJpeg: true,
-				});
+			const watermarkUrl = getWatermarkUrl();
 
-				if (!result.success) throw new Error(result.error);
+			// --- Process Optimized (WITH watermark) ---
+			const resultOptimized = await window.electronApi.processImageWithSharp({
+				imageBuffer: Array.from(uint8Array),
+				watermarkUrl: info.isWaterMarkApply ? watermarkUrl : null,
+				watermarkPosition: info.watermarkPosition,
+				scale: info.scaleWatermark,
+				opacity: info.watermarkOpacity,
+				isWaterMarkApply: info.isWaterMarkApply,
+				resizeOptions: { width: 1200 },
+				quality: 85,
+				forceJpeg: true,
+			});
 
-				processedBuffer = Uint8Array.from(atob(result.processedImage), (c) =>
-					c.charCodeAt(0),
-				);
-				processedFile = new File([processedBuffer], originalFile.name, {
-					type: 'image/jpeg',
-				});
-			}
+			if (!resultOptimized.success) throw new Error(resultOptimized.error);
+
+			processedBuffer = Uint8Array.from(atob(resultOptimized.processedImage), (c) =>
+				c.charCodeAt(0),
+			);
+			processedFile = new File([processedBuffer], originalFile.name, { type: 'image/jpeg' });
+
+			// --- Process Thumbnail 300w (NO watermark) ---
+			const resultThumbnail = await window.electronApi.processImageWithSharp({
+				imageBuffer: Array.from(uint8Array),
+				watermarkUrl: null,
+				watermarkPosition: info.watermarkPosition,
+				scale: 0.15,
+				opacity: 1,
+				isWaterMarkApply: false,
+				resizeOptions: { width: 300 },
+				quality: 70,
+				forceJpeg: true,
+			});
+
+			if (!resultThumbnail.success) throw new Error(resultThumbnail.error);
+
+			thumbnailBuffer = Uint8Array.from(atob(resultThumbnail.processedImage), (c) =>
+				c.charCodeAt(0),
+			);
+			thumbnailFile = new File(
+				[thumbnailBuffer],
+				`thumb_${originalFile.name.split('.')[0]}.jpg`,
+				{ type: 'image/jpeg' },
+			);
+
+			// --- Process Thumbnail 100h (NO watermark, cropped to 100px height) ---
+			const resultThumbnail100h = await window.electronApi.processImageWithSharp({
+				imageBuffer: Array.from(uint8Array),
+				watermarkUrl: null,
+				watermarkPosition: info.watermarkPosition,
+				scale: 0.15,
+				opacity: 1,
+				isWaterMarkApply: false,
+				resizeOptions: { height: 100, fit: 'cover', position: 'center' }, // Cover + center crop
+				quality: 70,
+				forceJpeg: true,
+			});
+
+			if (!resultThumbnail100h.success) throw new Error(resultThumbnail100h.error);
+
+			thumbnail100hBuffer = Uint8Array.from(atob(resultThumbnail100h.processedImage), (c) =>
+				c.charCodeAt(0),
+			);
+			thumbnail100hFile = new File(
+				[thumbnail100hBuffer],
+				`thumb100_${originalFile.name.split('.')[0]}.jpg`,
+				{ type: 'image/jpeg' },
+			);
 
 			setInfo((prev) => ({
 				...prev,
@@ -232,12 +243,16 @@ const UploadPhotosDesktop = () => {
 			return {
 				success: true,
 				processedFile,
+				thumbnailFile,
+				thumbnail100hFile,
 				width,
 				height,
 				format,
 				originalDateTime,
 				originalSize: originalFile.size,
-				processedSize: processedBuffer ? processedBuffer.length : originalFile.size,
+				processedSize: processedBuffer.length,
+				thumbnailSize: thumbnailBuffer.length,
+				thumbnail100hSize: thumbnail100hBuffer.length,
 			};
 		} catch (error) {
 			console.error('Failed to process:', originalFile.name, error);
@@ -254,6 +269,7 @@ const UploadPhotosDesktop = () => {
 			return { success: false, error };
 		}
 	};
+
 	// --- On Drop: Just Store Raw Files ---
 	const onDropFunction = async (files) => {
 		if (
@@ -326,6 +342,7 @@ const UploadPhotosDesktop = () => {
 			updateStateValues({ reFetchSubscription: true });
 			return;
 		}
+
 		const policyResponse = await getUploadImagePolicy(galleryId);
 		const policyData = policyResponse?.[1];
 
@@ -358,7 +375,6 @@ const UploadPhotosDesktop = () => {
 			while (processingQueue.length > 0) {
 				const key = processingQueue.shift();
 				const image = info.uploadImages[key];
-
 				if (!image) continue;
 
 				try {
@@ -375,7 +391,16 @@ const UploadPhotosDesktop = () => {
 					}
 
 					const result = await processSingleImage(image.file);
-					if (!result.success) continue;
+					if (!result.success) {
+						setInfo((prev) => ({
+							...prev,
+							uploadImages: {
+								...prev.uploadImages,
+								[key]: { ...image, isFailed: true },
+							},
+						}));
+						continue;
+					}
 
 					const processedImage = { ...image, processedFile: result.processedFile };
 					setInfo((prev) => ({
@@ -383,84 +408,162 @@ const UploadPhotosDesktop = () => {
 						uploadImages: { ...prev.uploadImages, [key]: processedImage },
 					}));
 
+					// Create policies for thumbnails
+					const optimizedPolicy = policyData.optimized;
+					if (!optimizedPolicy) {
+						console.error('Missing optimized policy');
+						setInfo((prev) => ({
+							...prev,
+							uploadImages: {
+								...prev.uploadImages,
+								[key]: { ...image, isFailed: true },
+							},
+						}));
+						continue;
+					}
+
+					const thumbnail300wPolicy = {
+						...optimizedPolicy,
+						keyPrefix: optimizedPolicy.keyPrefix.replace(
+							/optimized\/?$/,
+							'thumbnails-300w/',
+						),
+					};
+
+					const thumbnail100hPolicy = {
+						...optimizedPolicy,
+						keyPrefix: optimizedPolicy.keyPrefix.replace(
+							/optimized\/?$/,
+							'thumbnails-100h/',
+						),
+					};
+
+					const fakePolicyData = {
+						...policyData,
+						thumbnails_300w: thumbnail300wPolicy,
+						thumbnails_100h: thumbnail100hPolicy,
+					};
+
 					let uploaded = false;
 					let attempts = 0;
 					const versionId = Date.now();
 
-					console.log(galleryId);
-
 					while (attempts < 3 && !uploaded) {
 						attempts++;
 						try {
-							// Upload original and optimized concurrently
-							const [uploadResultOriginal, uploadResultOptimized] = await Promise.all(
-								[
-									uploadImage({
-										file: image.file,
-										bucketType: 'originals',
-										customFileName: null,
-										uploadPolicy: policyData,
-										imageId,
-										onUploadProgress(percent) {
-											setInfo((prev) => ({
-												...prev,
-												uploadImages: {
-													...prev.uploadImages,
-													[key]: {
-														...prev.uploadImages[key],
-														uploadedPerct: percent,
-													},
+							const [
+								uploadResultOriginal,
+								uploadResultOptimized,
+								uploadResultThumbnail300w,
+								uploadResultThumbnail100h,
+							] = await Promise.all([
+								// Upload original
+								uploadImage(
+									image.file,
+									'originals',
+									null,
+									policyData,
+									imageId,
+									(percent) => {
+										setInfo((prev) => ({
+											...prev,
+											uploadImages: {
+												...prev.uploadImages,
+												[key]: {
+													...prev.uploadImages[key],
+													uploadedPerct: percent,
 												},
-											}));
-										},
-										galleryId,
-										versionId,
-										tenantId: tenantAlbums?.tenantId,
-									}),
-									uploadImage({
-										file: result.processedFile,
-										bucketType: 'optimized',
-										customFileName: null,
-										uploadPolicy: policyData,
-										imageId,
-										galleryId,
-										versionId,
-										tenantId: tenantAlbums?.tenantId,
-									}),
-								],
+											},
+										}));
+									},
+									galleryId,
+									versionId,
+									tenantAlbums?.tenant_id,
+									info?.uploadBatchID,
+								),
+								// Upload optimized
+								uploadImage(
+									result.processedFile,
+									'optimized',
+									null,
+									policyData,
+									imageId,
+									null,
+									galleryId,
+									versionId,
+									tenantAlbums?.tenant_id,
+									info?.uploadBatchID,
+								),
+								// Upload thumbnail 300w
+								uploadImage(
+									result.thumbnailFile,
+									'thumbnails_300w',
+									null,
+									fakePolicyData,
+									imageId,
+									null,
+									galleryId,
+									versionId,
+									tenantAlbums?.tenant_id,
+									info?.uploadBatchID,
+								),
+								// Upload thumbnail 100h
+								uploadImage(
+									result.thumbnail100hFile,
+									'thumbnails_100h',
+									null,
+									fakePolicyData,
+									imageId,
+									null,
+									galleryId,
+									versionId,
+									tenantAlbums?.tenant_id,
+									info?.uploadBatchID,
+								),
+							]);
+
+							if (
+								!uploadResultOriginal.success ||
+								!uploadResultOptimized.success ||
+								!uploadResultThumbnail300w.success ||
+								!uploadResultThumbnail100h.success
+							) {
+								throw new Error('One or more uploads failed');
+							}
+
+							const payload = generateUploadPayload(
+								image,
+								result.processedFile,
+								imageId,
+								policyData,
+								uploadResultOriginal,
+								uploadResultOptimized,
+								uploadResultThumbnail300w,
+								uploadResultThumbnail100h,
+								{
+									width: result.width,
+									height: result.height,
+									format: result.format,
+									originalDateTime: result.originalDateTime,
+								},
+								versionId,
 							);
 
-							if (uploadResultOriginal.success && uploadResultOptimized.success) {
-								const payload = generateUploadPayload(
-									image,
-									result.processedFile,
-									imageId,
-									policyData,
-									uploadResultOriginal,
-									uploadResultOptimized,
-									{
-										width: result.width,
-										height: result.height,
-										format: result.format,
-										originalDateTime: result.originalDateTime,
-									},
-								);
-
-								const [success, response] = await uploadDesktopImages(
-									galleryId,
-									albumId,
-									payload,
-								);
-								if (success) {
-									uploaded = true;
-								} else {
-									console.error('Failed to register image:', response);
-								}
+							const [success, response] = await uploadDesktopImages(
+								galleryId,
+								albumId,
+								payload,
+							);
+							if (success) {
+								uploaded = true;
+							} else {
+								console.error('Failed to register image:', response);
 							}
 						} catch (e) {
 							console.error(`Upload error (attempt ${attempts}):`, e);
-							if (attempts < 3)
-								await new Promise((r) => setTimeout(r, 1000 * attempts)); // Reduced from 2000
+							if (attempts < 3) {
+								await new Promise((r) => setTimeout(r, 1000 * attempts));
+							}
 						}
 					}
 
@@ -486,7 +589,7 @@ const UploadPhotosDesktop = () => {
 			}
 		};
 
-		const workers = Array.from({ length: info.uploadLimit }, processAndUploadOne);
+		const workers = Array.from({ length: info.uploadLimit }, () => processAndUploadOne());
 		await Promise.all(workers);
 
 		if (intervalRef.current) clearInterval(intervalRef.current);
@@ -494,19 +597,22 @@ const UploadPhotosDesktop = () => {
 		updateStateValues({ reFetchSubscription: true, reFetchGallery: true });
 	};
 
+	// --- Generate Payload ---
 	const generateUploadPayload = (
 		image,
 		processedFile,
-		imageId, // ← will be existing _id for duplicates
+		imageId,
 		policyData,
 		uploadResultOriginal,
 		uploadResultOptimized,
+		uploadResultThumbnail300w,
+		uploadResultThumbnail100h,
 		extractedMetadata,
+		versionId,
 	) => {
-		const versionId = uploadResultOriginal?.epoch;
-		const givenFileName = `${imageId.toHexString()}_${versionId}.jpeg`;
+		const givenFileName = uploadResultOriginal.fileKey.split('/').pop();
+		const updatedVersionId = versionId.toString();
 
-		// Use metadata from processSingleImage
 		const {
 			width: originalWidth,
 			height: originalHeight,
@@ -516,8 +622,9 @@ const UploadPhotosDesktop = () => {
 
 		return {
 			tag_ids: info.selectedGalleryTags.map((tag) => tag._id || ''),
-			image_id: imageId.toHexString(), // ← This will be reused ID for duplicates
+			image_id: imageId.toHexString(),
 			activeVersion: {
+				versionId: updatedVersionId,
 				uploadBatchId: info.uploadBatchID,
 				isAIFacesEnabled:
 					lightGallery === 'true'
@@ -534,7 +641,10 @@ const UploadPhotosDesktop = () => {
 					size: processedFile.size,
 				},
 				s3_thumbnail_300w: {
-					key: uploadResultOptimized.fileKey.replace(/optimized\//, 'thumbnails_300w/'),
+					key: uploadResultThumbnail300w.fileKey,
+				},
+				s3_thumbnail_100h: {
+					key: uploadResultThumbnail100h.fileKey, // ✅ New
 				},
 				watermark: {
 					applied: info.isWaterMarkApply,

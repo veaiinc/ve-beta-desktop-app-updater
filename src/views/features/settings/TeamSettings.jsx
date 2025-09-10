@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useCallback, useState, memo } from 'react';
+import React, { useContext, useEffect, useState, memo } from 'react';
 import '../../../assets/scss/settings/teamMembers.scss';
 import search from '../../../assets/svg/workspaceSettings/searchSettings.svg';
 import validator from 'validator';
@@ -14,12 +14,11 @@ const TeamSettings = () => {
 		companyInfo: {
 			getTeamMembers,
 			tenantsUserList,
-			inviteNewuser,
 			updateTenantRole,
 			removeTenantRole,
 			addTenantUser,
 		},
-		subscriptionInfo: { validateExpiryData, updateSubscriptionState, currentPlan },
+		subscriptionInfo: { currentPlan },
 	} = useContext(Context);
 
 	// useStates
@@ -340,44 +339,6 @@ const TeamSettings = () => {
 		}
 	};
 
-	const updateTenantRoleFunc = async (user, role) => {
-		const json = {
-			role,
-		};
-		if (role === 'default') {
-			setInfo((prev) => ({
-				...prev,
-				showAddTenantUserModal: true,
-				selectedUser: user,
-				userEmail: user?.email,
-				selectedOption: role,
-			}));
-			setAccessControls({
-				accessControls:
-					user?.accessControls ||
-					currentPlan?.apps?.map((option) => ({
-						app: option,
-						isEnabled: false,
-						hasFullAccess: false,
-					})),
-			});
-			return;
-		}
-
-		const response =
-			role === 'remove'
-				? await removeTenantRole(user?._id)
-				: await updateTenantRole(user?._id, json);
-		if (response?.[0] === true) {
-			message.success(response?.[1]?.message);
-			if (userDetailsData?._id === user?._id) {
-				window.location.reload();
-			}
-		} else {
-			message.error(response?.[1]?.message);
-		}
-	};
-
 	const handleInviteMembers = () => {
 		setInfo((prev) => ({
 			...prev,
@@ -463,7 +424,6 @@ const TeamSettings = () => {
 						handleInputChange={handleInputChange}
 						info={info}
 						filteredUsers={filteredUsers}
-						updateTenantRoleFunc={updateTenantRoleFunc}
 						handleInviteMembers={handleInviteMembers}
 						handleUserClick={handleUserClick}
 					/>

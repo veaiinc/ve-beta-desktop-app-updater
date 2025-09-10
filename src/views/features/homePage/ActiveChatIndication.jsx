@@ -8,12 +8,17 @@ import ObjectID from 'bson-objectid';
 
 const page = 1;
 const limit = 10;
-const append = true;
+const reset = true;
 
 const ActiveChatIndication = ({ activeChatData }) => {
 	const navigate = useNavigate();
 	const {
-		aiSetup: { getAiChatSessions, aiChatSessions },
+		aiSetup: {
+			getAiChatSessions,
+			aiChatSessions,
+			updateStateValues: updateAiSetupStateValues,
+			aiChatSessionsFilters,
+		},
 		templates: {
 			refetchChatHistoryList,
 			updateStateValues,
@@ -26,6 +31,7 @@ const ActiveChatIndication = ({ activeChatData }) => {
 	const [info, setInfo] = useState({
 		previousChats: 0,
 		activeChatIndex: -1,
+		isMobileView: window.matchMedia('(max-width: 767px)').matches,
 	});
 
 	const chats = aiChatSessions?.data;
@@ -38,7 +44,11 @@ const ActiveChatIndication = ({ activeChatData }) => {
 	const tabArray = Array.from({ length: totalIndicators });
 
 	useEffect(() => {
-		if (!aiChatSessions || aiChatSessions?.getData) {
+		if (
+			!aiChatSessions ||
+			aiChatSessions?.getData ||
+			aiChatSessionsFilters?.agentType !== 'multi_agent'
+		) {
 			fetchChats();
 		}
 	}, []);
@@ -89,13 +99,20 @@ const ActiveChatIndication = ({ activeChatData }) => {
 	}, [refetchChatHistoryList]);
 
 	const fetchChats = useCallback(() => {
-		getAiChatSessions?.(page, limit, append);
+		getAiChatSessions?.({
+			reset,
+			filters: { agentType: ['multi_agent'], page, limit },
+		});
+		updateAiSetupStateValues({ aiChatSessionsFilters: { agentType: 'multi_agent' } });
 	}, []);
 
 	const fetchMoreChats = () => {
 		if (hasNextPage) {
 			const nextPage = currentPage + 1;
-			getAiChatSessions?.(nextPage, limit, !append);
+			getAiChatSessions?.({
+				reset: !reset,
+				filters: { agentType: ['multi_agent'], page: nextPage, limit },
+			});
 		}
 	};
 
@@ -136,21 +153,25 @@ const ActiveChatIndication = ({ activeChatData }) => {
 			placement="center"
 			color="transparent"
 		>
-			<div className={s.chatsWrapper}>
-				{chats?.length && <div className={s.previousChatsCount}>{info?.previousChats}</div>}
+			{!info?.isMobileView && (
+				<div className={s.chatsWrapper}>
+					{chats?.length && (
+						<div className={s.previousChatsCount}>{info?.previousChats}</div>
+					)}
 
-				<div className={s.activeChatIndication}>
-					{tabArray?.map((tab, index) => (
-						<div
-							className={`${s.chatTab} ${
-								index === info?.activeChatIndex ? s.active : ''
-							}`}
-							key={index}
-						/>
-					))}
+					<div className={s.activeChatIndication}>
+						{tabArray?.map((tab, index) => (
+							<div
+								className={`${s.chatTab} ${
+									index === info?.activeChatIndex ? s.active : ''
+								}`}
+								key={index}
+							/>
+						))}
+					</div>
+					{chats?.length && <div className={s.totalChatsCount}>{chats?.length}</div>}
 				</div>
-				{chats?.length && <div className={s.totalChatsCount}>{chats?.length}</div>}
-			</div>
+			)}
 		</Tooltip>
 	);
 };

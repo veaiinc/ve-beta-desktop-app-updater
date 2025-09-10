@@ -5,8 +5,8 @@
 	align-items: flex-start;
 	align-self: stretch;
 	border-radius: 8px;
-	border: 1px solid var(--stroke, #2c2d2e);
-	margin-bottom: 16px;
+	// border: 1px solid var(--stroke, #2c2d2e);
+	margin-bottom: 12px;
 	box-sizing: border-box;
 	transition: height 0.5s ease;
 
@@ -16,11 +16,15 @@
 
 	.widget-header {
 		display: flex;
-		padding: 18px 16px 16px 16px;
+		// padding: 18px 16px 16px 16px;
 		align-items: center;
-		gap: 8px;
-		width: 100%;
+		gap: 6px;
+		width: fit-content;
 		cursor: pointer;
+
+		&:hover {
+			opacity: 0.8;
+		}
 		.left-container {
 			display: flex;
 			align-items: center;
@@ -29,15 +33,12 @@
 				height: 20px;
 			}
 			.text-container {
-				color: var(--primary-font, #f2f2f3);
+				color: var(--secondary-font);
 				font-family: var(--chat-primary-font-family);
 				font-size: 15px;
 				font-style: normal;
 				font-weight: 500;
-				letter-spacing: 0.25px;
 				line-height: normal;
-				position: relative;
-				top: 1px;
 
 				&.animate {
 					background-image: linear-gradient(
@@ -59,30 +60,25 @@
 		}
 
 		.right-container {
-			height: 18px;
+			height: 16px;
 			svg {
-				width: 18px;
-				height: 18px;
+				width: 16px;
+				height: 16px;
+				path {
+					stroke: var(--secondary-font);
+				}
 			}
 		}
 	}
 
 	.widget-content-container {
 		display: flex;
-		padding: 12px 24px 16px;
+		padding-top: 12px;
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 36px;
 		align-self: stretch;
 		flex-shrink: 0;
-
-		.memory-thinking {
-			font-size: 15px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: 24px;
-			letter-spacing: 0.25px;
-		}
 
 		.loader-container {
 			display: flex;
@@ -96,7 +92,6 @@
 				font-style: normal;
 				font-weight: 400;
 				line-height: 24px;
-				letter-spacing: 0.2px;
 			}
 		}
 	}

@@ -12,7 +12,7 @@ import {
 } from '../../../../helpers';
 import { ReactComponent as VeLogoSvg } from '../../../../assets/svg/veLogo.svg';
 
-export const CitationsTooltip = memo(({ citationId, citations = null, placement = 'topLeft' }) => {
+export const CitationsTooltip = memo(({ citationId, citations = [], placement = 'topLeft' }) => {
 	const {
 		templates: {
 			getCitationData,
@@ -23,16 +23,15 @@ export const CitationsTooltip = memo(({ citationId, citations = null, placement 
 		},
 	} = useContext(Context);
 	const [citationData, setCitationData] = useState(null);
-	const [citationInfo, setCitationInfo] = useState({});
-	const number = citationId?.slice(1);
+	const [citationInfo, setCitationInfo] = useState(null);
 
 	useEffect(() => {
-		if (citations) {
+		if (citations?.length > 0) {
 			const citation = citations?.find((citation) => citation?.id === citationId);
 			setCitationInfo(citation || null);
 			fetchCitationData(citation);
 		}
-	}, [citationId]);
+	}, [citations]);
 
 	useEffect(() => {
 		if (citationData) {
@@ -84,6 +83,7 @@ export const CitationsTooltip = memo(({ citationId, citations = null, placement 
 			arrow={false}
 			trigger={'hover'}
 			color="transparent"
+			open={citationInfo?.source ? undefined : false}
 			placement={placement}
 			rootClassName="citation-tooltip-wrapper"
 			title={
@@ -140,8 +140,8 @@ export const CitationsTooltip = memo(({ citationId, citations = null, placement 
 				</div>
 			}
 		>
-			<div
-				className="citation-tooltip-wrapper"
+			<button
+				className="citation-container"
 				onClick={(e) => {
 					e?.stopPropagation();
 					redirectTo?.(
@@ -149,53 +149,45 @@ export const CitationsTooltip = memo(({ citationId, citations = null, placement 
 						citationInfo?.[redirectTypeMapper?.[citationInfo?.type]],
 					);
 				}}
-				style={{
-					display: citationInfo ? 'inline-block' : 'none',
-				}}
 			>
-				{citationInfo && Object?.keys(citationInfo || {})?.length > 0 ? (
-					<span className="citation-wrapper">
-						<div className="citation-with-icon">
-							<div className="citation-icon">
-								{citationInfo?.type === 'url' ? (
-									getFaviconUrl(citationInfo?.name) ? (
-										<img
-											src={getFaviconUrl(citationInfo?.name)}
-											alt="favicon"
-											className="favicon-image"
-										/>
-									) : (
-										<div className="company-icon">
-											{getWebsiteName(citationInfo?.name)?.charAt(0)}
-										</div>
-									)
+				<span className="citation-wrapper">
+					<div className="citation-with-icon">
+						{/* <div className="citation-icon">
+							{citationInfo?.type === 'url' ? (
+								getFaviconUrl(citationInfo?.name) ? (
+									<img
+										src={getFaviconUrl(citationInfo?.name)}
+										alt="favicon"
+										className="favicon-image"
+									/>
 								) : (
 									<div className="company-icon">
-										{citationInfo?.type === 's3_key'
-											? fileTypeIcons[
-													citationInfo?.name?.match(/\.(\w+)$/)?.[1]
-											  ] || <VeLogoSvg />
-											: fileTypeIcons[citationInfo?.type] || <VeLogoSvg />}
+										{getWebsiteName(citationInfo?.name)?.charAt(0)}
 									</div>
-								)}
-							</div>
-							<div
-								className="citation-text"
-								style={{
-									maxWidth: citationInfo?.type === 'url' ? 'unset' : '80px',
-								}}
-							>
-								{citationInfo?.type === 'url'
-									? getWebsiteName(citationInfo?.name || '')
-									: citationInfo?.name || ''}
-							</div>
+								)
+							) : (
+								<div className="company-icon">
+									{citationInfo?.type === 's3_key'
+										? fileTypeIcons[
+												citationInfo?.name?.match(/\.(\w+)$/)?.[1] // File type regex .docx, .pdf, .txt, etc.
+										  ] || <VeLogoSvg />
+										: fileTypeIcons[citationInfo?.type] || <VeLogoSvg />}
+								</div>
+							)}
+						</div> */}
+						<div
+							className="citation-text"
+							style={{
+								maxWidth: citationInfo?.type === 'url' ? 'unset' : '80px',
+							}}
+						>
+							{citationInfo?.type === 'url'
+								? getWebsiteName(citationInfo?.name || '')
+								: citationInfo?.name || ''}
 						</div>
-					</span>
-				) : (
-					// <span className="citation-tooltip-header">{number}</span>
-					''
-				)}
-			</div>
+					</div>
+				</span>
+			</button>
 		</Tooltip>
 	);
 });

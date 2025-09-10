@@ -1,39 +1,49 @@
 import axios from 'axios';
 
-// helpers/uploadImage.js
-
-async function uploadImage({
+async function uploadImage(
 	file,
-	bucketType = 'originals',
+	bucketType = 'originals', // supports: 'originals', 'optimized', 'thumbnails_300w', 'thumbnails_100h'
 	customFileName = null,
 	uploadPolicy,
 	imageId,
-	onUploadProgress = null, // 👈 Add this
+	onUploadProgress = null,
 	galleryId,
 	versionId,
 	tenantId,
-}) {
+	batchId,
+) {
 	try {
-		console.log('upload policy ', uploadPolicy);
 		if (!(file instanceof File)) {
 			throw new Error('Invalid file: Please provide a valid File object');
 		}
 
 		const policy = uploadPolicy[bucketType];
 		if (!policy) {
-			throw new Error(`Invalid bucket type: ${bucketType}. Use 'optimized' or 'originals'`);
+			throw new Error(
+				`Invalid bucket type: ${bucketType}. Use 'originals', 'optimized', 'thumbnails_300w', or 'thumbnails_100h'`,
+			);
 		}
 
 		const expiresAt = new Date(policy.expiresAt);
 		if (new Date() > expiresAt) {
 			throw new Error(`Upload policy has expired at ${policy.expiresAt}`);
 		}
+
 		const originalExt = file.name.split('.').pop().toLowerCase() || 'jpg';
 		const fileName = customFileName || `${imageId.toHexString()}_${versionId}.${originalExt}`;
-		const fileKey =
-			bucketType === 'optimized'
-				? `${policy.keyPrefix}optimized/${fileName}`
-				: `${policy.keyPrefix}${fileName}`;
+
+		// ✅ Generate fileKey based on bucketType
+		let fileKey;
+		if (bucketType === 'optimized') {
+			fileKey = `${policy.keyPrefix}optimized/${fileName}`;
+		} else if (bucketType === 'thumbnails_300w') {
+			fileKey = `${policy.keyPrefix}thumbnails-300w/${fileName}`;
+		} else if (bucketType === 'thumbnails_100h') {
+			fileKey = `${policy.keyPrefix}thumbnails-100h/${fileName}`;
+		} else {
+			// 'originals'
+			fileKey = `${policy.keyPrefix}${fileName}`;
+		}
 
 		const formData = new FormData();
 		formData.append('Policy', policy.fields.Policy);
@@ -43,26 +53,36 @@ async function uploadImage({
 			formData.append('X-Amz-Date', policy.fields['X-Amz-Date']);
 		}
 		formData.append('X-Amz-Signature', policy.fields['X-Amz-Signature']);
-		if (bucketType === 'optimized' && policy.fields['x-amz-storage-class']) {
+
+		// Add storage class for non-originals
+		if (
+			(bucketType === 'optimized' ||
+				bucketType === 'thumbnails_300w' ||
+				bucketType === 'thumbnails_100h') &&
+			policy.fields['x-amz-storage-class']
+		) {
 			formData.append('x-amz-storage-class', policy.fields['x-amz-storage-class']);
 		}
 
 		formData.append('key', fileKey);
+
 		const contentType = originalExt === 'png' ? 'image/png' : 'image/jpeg';
 		formData.append('Content-Type', contentType);
 		formData.append('file', file);
 
-		// formData.append('x-amz-meta-gallery-id', galleryId);
-		// formData.append('x-amz-meta-given-image-id', imageId);
-		// formData.append('x-amz-meta-given-image-version-id', `${imageId}_versionId`);
-		// formData.append('x-amz-meta-is-ai-faces-enabled');
-		// formData.append('x-amz-meta-original-file-name', file?.name);
-		// formData.append('x-amz-meta-tenant-id', tenantId);
-		// formData.append('x-amz-meta-upload-batch-id');
+		// Add metadata only for originals
+		if (bucketType === 'originals') {
+			formData.append('x-amz-meta-gallery-id', galleryId);
+			formData.append('x-amz-meta-given-image-id', imageId);
+			formData.append('x-amz-meta-given-image-version-id', versionId);
+			formData.append('x-amz-meta-is-ai-faces-enabled', true);
+			formData.append('x-amz-meta-original-file-name', file?.name);
+			formData.append('x-amz-meta-tenant-id', tenantId);
+			formData.append('x-amz-meta-upload-batch-id', batchId);
+		}
 
 		const uploadUrl = policy.url.trim();
 
-		// ✅ Pass onUploadProgress to axios
 		const response = await axios.post(uploadUrl, formData, {
 			maxBodyLength: Infinity,
 			maxContentLength: Infinity,

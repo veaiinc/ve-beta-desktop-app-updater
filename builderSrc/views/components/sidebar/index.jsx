@@ -604,6 +604,7 @@ class Sidebar extends Images {
 			],
 			showLineTypeDropDown: false,
 			searchFont: '',
+			searchSmartField: '',
 			isLogo: props?.isLogo,
 			logoStickerFill: props?.logoStickerFill,
 			timeout: null,
@@ -3240,10 +3241,36 @@ class Sidebar extends Images {
 	// 	return value;
 	// };
 	setServiceItemValue = (val, type) => {
+		// Validate input for numeric fields only
+		const re = /^[0-9\b]*$/;
+		if (type !== 'unit' && val !== '' && !re.test(val)) {
+			// If input is not valid for numeric fields, don't proceed
+			return;
+		}
+
+		// Store the input value in local state to prevent flickering
+		const inputKey = `input_${type}_${this.state.activeServiceSubBlock}`;
+
+		// Clear any previous local input states for different fields to prevent stale data
+		const currentBlock = this.state.activeServiceSubBlock;
+		const statesToClear = {};
+		['quantity', 'amount', 'unit'].forEach((fieldType) => {
+			if (fieldType !== type) {
+				const otherInputKey = `input_${fieldType}_${currentBlock}`;
+				if (this.state[otherInputKey] !== undefined) {
+					statesToClear[otherInputKey] = undefined;
+				}
+			}
+		});
+
+		this.setState({
+			[inputKey]: val,
+			...statesToClear,
+		});
+
 		let blocks = _.cloneDeep(this.state?.activeSection.blocks);
 		let arr = [];
 		let vals;
-		const re = /^[0-9\b]+$/;
 		let recalculatedSubtotalValue = 0;
 		if (type !== 'unit') {
 			if (val === '' || re.test(val)) {
@@ -3274,12 +3301,15 @@ class Sidebar extends Images {
 			style: { ...section.style, subTotalValue: recalculatedSubtotalValue },
 		};
 
+		// Clear any existing timeout to prevent race conditions
+		clearTimeout(this.state.timeout);
+
+		// Update the main state without triggering re-render of input
 		this.setState(
 			{
 				activeSection: section,
 			},
 			() => {
-				clearTimeout(this.state.timeout);
 				const timeout = setTimeout(() => {
 					this.props.setActiveSection(section, true);
 					this.props.setActiveTable(
@@ -3288,6 +3318,8 @@ class Sidebar extends Images {
 						this.state.activeServiceSubBlock,
 						section._id,
 					);
+					// Don't clear the local input state immediately - keep it until next input change
+					// This prevents flickering completely
 				}, 500);
 				this.setState({ timeout });
 			},
@@ -5135,9 +5167,15 @@ class Sidebar extends Images {
 									<input
 										className="w-25"
 										value={
-											_.filter(this.state?.activeSection?.blocks, {
-												_id: this.state?.activeServiceSubBlock,
-											})[0]?.subBlocks[0]['quantity']
+											this.state[
+												`input_quantity_${this.state.activeServiceSubBlock}`
+											] !== undefined
+												? this.state[
+														`input_quantity_${this.state.activeServiceSubBlock}`
+												  ]
+												: _.filter(this.state?.activeSection?.blocks, {
+														_id: this.state?.activeServiceSubBlock,
+												  })[0]?.subBlocks[0]['quantity'] || null
 										}
 										onChange={(e) =>
 											this.setServiceItemValue(e.target.value, 'quantity')
@@ -5246,9 +5284,15 @@ class Sidebar extends Images {
 									<input
 										className="w-25"
 										value={
-											_.filter(this.state?.activeSection?.blocks, {
-												_id: this.state?.activeServiceSubBlock,
-											})[0]?.subBlocks[0]['amount']
+											this.state[
+												`input_amount_${this.state.activeServiceSubBlock}`
+											] !== undefined
+												? this.state[
+														`input_amount_${this.state.activeServiceSubBlock}`
+												  ]
+												: _.filter(this.state?.activeSection?.blocks, {
+														_id: this.state?.activeServiceSubBlock,
+												  })[0]?.subBlocks[0]['amount']
 										}
 										onChange={(e) =>
 											this.setServiceItemValue(e.target.value, 'amount')

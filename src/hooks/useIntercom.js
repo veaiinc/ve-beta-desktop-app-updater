@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import Intercom, { shutdown, show } from '@intercom/messenger-js-sdk';
 import Context from '../context/context';
 
-const app_id = 'vmvweabd';
+const app_id = import.meta.env.VITE_INTERCOM_APP_ID;
 const session_duration = 86400000; // 24 hours
 
 const useIntercom = () => {

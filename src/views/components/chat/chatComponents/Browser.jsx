@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useRef, useState } from 'react';
 import s from '../../../../assets/scss/chat/chatComponents/browser.module.scss';
 import Context from '../../../../context/context';
 import { ReactComponent as ArrowsIn } from '../../../../assets/svg/chat/arrowsIn.svg';
@@ -6,35 +6,20 @@ import { ReactComponent as Webcam } from '../../../../assets/svg/chat/webcam.svg
 
 const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = false }) => {
 	const {
-		templates: { handleTakeBrowserControl, saveBrowserState },
+		templates: { handleResetBrowserInactivityState },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
-		activeTab: -1,
 		takeControl: false,
-		tabs: [],
 	});
+	const inactivityIntervalRef = useRef(null);
 
 	useEffect(() => {
-		const tabs = browserData?.allTabUrls?.slice(1) || [];
-		const activeTabIndex = browserData?.activeTabIndex - 1 ?? -1;
-		if (browserData) {
-			setInfo((prev) => ({
-				...prev,
-				activeTab: activeTabIndex,
-				tabs,
-			}));
-		}
-	}, [browserData]);
-
-	const handleTabClick = (index) => {
-		if (index === info?.activeTab) {
-			return;
-		}
-		setInfo((prev) => ({
-			...prev,
-			activeTab: index,
-		}));
-	};
+		return () => {
+			if (inactivityIntervalRef.current) {
+				clearInterval(inactivityIntervalRef.current);
+			}
+		};
+	}, []);
 
 	const handleTakeControl = () => {
 		const takeControl = !info?.takeControl;
@@ -42,11 +27,17 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 			...prev,
 			takeControl,
 		}));
-		handleTakeBrowserControl(sessionId, takeControl);
 
-		//exiting take control
-		if (!takeControl) {
-			saveBrowserState(sessionId);
+		if (inactivityIntervalRef.current) {
+			clearTimeout(inactivityIntervalRef.current);
+		}
+
+		handleResetBrowserInactivityState(sessionId);
+
+		if (takeControl) {
+			inactivityIntervalRef.current = setInterval(() => {
+				handleResetBrowserInactivityState(sessionId);
+			}, [3 * 60 * 1000]);
 		}
 	};
 
@@ -60,34 +51,20 @@ const Browser = ({ sessionId, browserData, handleBrowserButtonClick, isOpen = fa
 			</div>
 
 			<div className={`${s.body} ${info?.takeControl ? s.tookControl : ''}`}>
-				{info?.tabs?.length > 0 && (
-					<div className={s.tabsContainer}>
-						{info?.tabs?.map((tab, index) => (
-							<div
-								key={index}
-								className={`${s.tab} ${info?.activeTab === index ? s.active : ''}`}
-								onClick={() => handleTabClick(index)}
-							>
-								{tab.title}
-							</div>
-						))}
-					</div>
-				)}
-
-				{info?.activeTab !== -1 && (
-					<div className={`${s.browserIframeContainer}`}>
-						<iframe
-							src={info?.tabs[info?.activeTab]?.debuggerUrl}
-							allowfullscreen
-							className={s.browserIframe}
-							style={{ pointerEvents: info?.takeControl ? 'auto' : 'none' }}
-						></iframe>
+				<div className={`${s.browserIframeContainer}`}>
+					<iframe
+						src={browserData?.url}
+						allowFullScreen
+						className={s.browserIframe}
+						style={{ pointerEvents: info?.takeControl ? 'auto' : 'none' }}
+					></iframe>
+					{browserData?.url && (
 						<div className={s.takeControlBtn} onClick={handleTakeControl}>
 							<Webcam />
 							{info?.takeControl ? 'Exit takeover' : 'Take control'}
 						</div>
-					</div>
-				)}
+					)}
+				</div>
 			</div>
 		</div>
 	);

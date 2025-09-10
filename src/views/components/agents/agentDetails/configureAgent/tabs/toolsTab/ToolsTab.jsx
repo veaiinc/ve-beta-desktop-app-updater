@@ -9,7 +9,7 @@ import EditAgentTool from '../../../../modals/editAgentTool/EditAgentTool';
 import ToggleSwitch from '../../../../../../components/input/slider';
 import AddToolV2Modal from '../../../../../modalsV2/ai_assistant/AddToolV2Modal';
 import EditToolVariablesModal from './EditToolVariablesModal';
-import Spinner from '../../../../../loaders/Spinner';
+// import Spinner from '../../../../../loaders/Spinner';
 // svgs
 import { ReactComponent as SearchSvg } from '../assets/search-icon.svg';
 import { ReactComponent as DeleteSvg } from '../assets/delete-icon.svg';
@@ -41,7 +41,7 @@ const useDebounce = (func, timeout = 500) => {
 	};
 };
 
-const ToolsTab = ({ agentId }) => {
+const ToolsTab = ({ agentId, myAccess }) => {
 	const {
 		aiSetup: { updateAiAction },
 		knowledgeAgent: {
@@ -74,22 +74,22 @@ const ToolsTab = ({ agentId }) => {
 	const firstInputRef = useRef(null);
 
 	// Debounced search function
-	const debouncedSearch = useDebounce((searchValue) => {
-		if (agentId) {
-			setInfo((prev) => ({ ...prev, searchLoading: true }));
-			getActionsForKnowledgeAgent(agentId, searchValue);
-		}
-	}, 500);
+	// const debouncedSearch = useDebounce((searchValue) => {
+	// 	if (agentId) {
+	// 		setInfo((prev) => ({ ...prev, searchLoading: true }));
+	// 		getActionsForKnowledgeAgent(agentId, searchValue);
+	// 	}
+	// }, 500);
 
 	// Handle search input change
-	const handleSearchChange = useCallback(
-		(e) => {
-			const searchValue = e.target.value;
-			setInfo((prev) => ({ ...prev, search: searchValue }));
-			debouncedSearch(searchValue);
-		},
-		[debouncedSearch],
-	);
+	// const handleSearchChange = useCallback(
+	// 	(e) => {
+	// 		const searchValue = e.target.value;
+	// 		setInfo((prev) => ({ ...prev, search: searchValue }));
+	// 		debouncedSearch(searchValue);
+	// 	},
+	// 	[debouncedSearch],
+	// );
 
 	const getToolLogoUrl = useCallback((typeDependencies) => {
 		try {
@@ -107,7 +107,9 @@ const ToolsTab = ({ agentId }) => {
 	}, []);
 
 	useEffect(() => {
-		if (agentId) {
+		const needToFetch = !actionsInfo || actionsInfo?.agentId !== agentId;
+
+		if (agentId && needToFetch) {
 			getActionsForKnowledgeAgent(agentId, info?.search);
 		}
 	}, [agentId]);
@@ -408,7 +410,7 @@ const ToolsTab = ({ agentId }) => {
 
 	return (
 		<div className={s?.actionsTabContainer}>
-			<AgentCredentials />
+			<AgentCredentials agentId={agentId} myAccess={myAccess} />
 			{/* <div className={s?.actionsHeader}>
 					<div className={s?.searchInputContainer}>
 					<div className={s?.searchIcon}>
@@ -437,12 +439,13 @@ const ToolsTab = ({ agentId }) => {
 				<div className={s.leftPanel}>
 					<div
 						className={s?.addActionButton}
-						onClick={() =>
+						onClick={() => {
+							if (myAccess === 'view') return;
 							setInfo((prevStates) => ({
 								...prevStates,
 								addToolModalOpen: true,
-							}))
-						}
+							}));
+						}}
 					>
 						<PlusSvg />
 						<span>Add tool</span>
@@ -455,7 +458,10 @@ const ToolsTab = ({ agentId }) => {
 									className={`${s.toolItem} ${
 										info.selectedTool?._id === item?._id ? s.selected : ''
 									}`}
-									onClick={() => handleToolSelect(item)}
+									onClick={() => {
+										if (myAccess === 'view') return;
+										handleToolSelect(item);
+									}}
 								>
 									<div className={s.toolIcon}>
 										{getToolLogoUrl(item?.typeDependencies) && (
@@ -501,12 +507,14 @@ const ToolsTab = ({ agentId }) => {
 										onClick={() =>
 											handleOpenDeleteModal(info.selectedTool?._id)
 										}
+										disabled={myAccess === 'view'}
 									>
 										<DeleteSvg />
 										Delete
 									</button>
 									<button
 										className={s.headerActionButton}
+										disabled={myAccess === 'view'}
 										onClick={() => {
 											setTimeout(() => {
 												if (firstInputRef.current) {
@@ -532,6 +540,7 @@ const ToolsTab = ({ agentId }) => {
 												info.selectedTool?.type,
 											)
 										}
+										editable={myAccess !== 'view'}
 									/>
 								</div>
 							</div>
@@ -676,8 +685,9 @@ const ToolsTab = ({ agentId }) => {
 								<button
 									className={s.updateButton}
 									onClick={handleUpdateToolVariables}
+									disabled={myAccess === 'view'}
 								>
-									Update Variables
+									{myAccess === 'view' ? 'View Variables' : 'Update Variables'}
 								</button>
 							</div>
 						</div>

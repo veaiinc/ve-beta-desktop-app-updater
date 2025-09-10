@@ -73,13 +73,19 @@ const AgentDetails = () => {
 				agentAction={info.agentAction}
 				setAgentAction={setAgentAction}
 				activeKnowledgeAssistant={activeKnowledgeAssistant}
+				isTemplate={activeKnowledgeAssistant?.data?.tenant_id === null}
 			/>
 			<div className={s.agentActionContainer}>
 				{info.agentAction === 'runAgent' ? (
-					<KnowledgeAgentDetails />
+					<KnowledgeAgentDetails
+						isTemplate={activeKnowledgeAssistant?.data?.tenant_id === null}
+					/>
 				) : info.agentAction === 'buildAgent' ? (
 					<>
-						<ConfigureAgent agentId={agentId} />
+						<ConfigureAgent
+							agentId={agentId}
+							isTemplate={activeKnowledgeAssistant?.data?.tenant_id === null}
+						/>
 					</>
 				) : null}
 			</div>

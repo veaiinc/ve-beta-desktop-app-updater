@@ -1,0 +1,112 @@
+@font-face {
+	font-family: 'Recoleta';
+	font-style: normal;
+	font-weight: 100;
+	font-display: swap;
+	src: url('fonnts.com-recoleta-thin.otf') format('opentype');
+}
+
+@font-face {
+	font-family: 'Recoleta';
+	font-style: normal;
+	font-weight: 300;
+	font-display: swap;
+	src: url('fonnts.com-recoleta-light.otf') format('opentype');
+}
+
+@font-face {
+	font-family: 'Recoleta';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('fonnts.com-recoleta-regular.otf') format('opentype');
+}
+
+@font-face {
+	font-family: 'Recoleta';
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+	src: url('fonnts.com-recoleta-medium.otf') format('opentype');
+}
+
+@font-face {
+	font-family: 'Recoleta';
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+	src: url('fonnts.com-recoleta-semibold.otf') format('opentype');
+}
+
+@font-face {
+	font-family: 'Recoleta';
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url('fonnts.com-recoleta-bold.otf') format('opentype');
+}
+
+@font-face {
+	font-family: 'Recoleta';
+	font-style: normal;
+	font-weight: 900;
+	font-display: swap;
+	src: url('fonnts.com-recoleta-black.otf') format('opentype');
+}
+
+/* Recoleta Alt Variant */
+@font-face {
+	font-family: 'Recoleta Alt';
+	font-style: normal;
+	font-weight: 100;
+	font-display: swap;
+	src: url('fonnts.com-recoletaalt-thin.otf') format('opentype');
+}
+
+@font-face {
+	font-family: 'Recoleta Alt';
+	font-style: normal;
+	font-weight: 300;
+	font-display: swap;
+	src: url('fonnts.com-recoletaalt-light.otf') format('opentype');
+}
+
+@font-face {
+	font-family: 'Recoleta Alt';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('fonnts.com-recoletaalt-regular.otf') format('opentype');
+}
+
+@font-face {
+	font-family: 'Recoleta Alt';
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+	src: url('fonnts.com-recoletaalt-medium.otf') format('opentype');
+}
+
+@font-face {
+	font-family: 'Recoleta Alt';
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+	src: url('fonnts.com-recoletaalt-semibold.otf') format('opentype');
+}
+
+@font-face {
+	font-family: 'Recoleta Alt';
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url('fonnts.com-recoletaalt-bold.otf') format('opentype');
+}
+
+@font-face {
+	font-family: 'Recoleta Alt';
+	font-style: normal;
+	font-weight: 900;
+	font-display: swap;
+	src: url('fonnts.com-recoletaalt-black.otf') format('opentype');
+}

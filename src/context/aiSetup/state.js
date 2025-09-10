@@ -36,6 +36,7 @@ export const initialState = {
 		currentPage: 1,
 	},
 	aiChatSessions: null,
+	aiChatSessionsFilters: null,
 	aiAssistant: null,
 	aiInstructions: null,
 	aiPrompt: null,
@@ -56,6 +57,8 @@ export const initialState = {
 	voiceIntegrationData: null, //{token,serverUrl,shouldConnect	}
 	triggerVoiceDisconnect: null,
 	aiTranscriptionSuggestions: null,
+	showVoiceWidget: false, // Global state for voice widget visibility
+	proactiveHeadings: null,
 };
 
 export const AiSetupState = () => {
@@ -185,24 +188,33 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const getAiChatSessions = async (page = 1, limit = 10, reset = false, title = '') => {
+	const getAiChatSessions = async ({ reset = false, filters = {} }) => {
 		try {
 			const token = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
 			const type = 'ai_assistant_api';
-			const params = {
-				page,
-				limit,
-				title,
+
+			const generateParams = (filters) => {
+				const { page = 1, limit = 10, title = '', agentType = [] } = filters;
+				let str = `?page=${page}&limit=${limit}&title=${title}`;
+				if (agentType?.length > 0) {
+					agentType?.forEach((type) => {
+						str += `&agentType[]=${type}`;
+					});
+				}
+				return str;
 			};
+			const paramsString = generateParams(filters);
+
 			const url = '/' + workspaceId + '/ai-chat/list-multiagent-sessions';
-			const response = await service?.fetchGet(url, token, type, params);
+			const response = await service?.fetchGet(url + paramsString, token, type, {});
 			if (response?.[0]) {
 				const aiChatSessions = {
 					data: response?.[1]?.data,
 					hasMore: response?.[1]?.hasNextPage,
 					currentPage: response?.[1]?.currentPage,
 					reset,
+					filters: { agentType: filters?.agentType?.[0] },
 				};
 				dispatch({
 					type: Actions?.SET_AI_CHAT_SESSIONS,
@@ -214,12 +226,26 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const updateAiChatSessions = async ({ sessionId, addNewSession, type = null }) => {
+	const updateAiChatSessions = async ({
+		sessionId,
+		addNewSession,
+		type = null,
+		agentType = null,
+		assistantId = null,
+		filters = {},
+	}) => {
 		try {
 			if (type === 'update') {
 				dispatch({
 					type: Actions?.SET_AI_CHAT_SESSIONS,
-					payload: { type, addNewSession, sessionId },
+					payload: {
+						type,
+						addNewSession,
+						sessionId,
+						agentType,
+						assistantId,
+						filters,
+					},
 				});
 				return;
 			} else if (type === 'delete') {
@@ -908,25 +934,35 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const getTokenForVoice = async () => {
+	const getTokenForVoice = async (payload) => {
 		try {
-			const usertoken = localStorage.getItem('usertoken');
+			const token = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
-
+			const url = `/${workspaceId}/generate-voice-agent-token`;
+			if (!token) {
+				throw new Error('No authentication token found in localStorage');
+			}
 			const response = await service?.fetchPost(
-				`/${workspaceId}/generate-livekit-token`,
-				{},
-				usertoken,
-				'ai_predictions',
+				url,
+				payload,
+				token,
+				'generate_voice_agent_token_api',
 			);
 
 			if (response?.[0]) {
 				return response?.[1];
 			} else {
-				throw new Error('Failed to fetch token');
+				throw new Error(`Failed to fetch token: ${JSON.stringify(response?.[1])}`);
 			}
 		} catch (error) {
-			console.error('Error fetching token:', error);
+			console.error('Error fetching voice token:', error);
+			// If CORS error, provide helpful debugging info
+			if (error.message.includes('CORS') || error.message.includes('fetch')) {
+				console.error(
+					'CORS issue detected. Backend needs to enable CORS for origin:',
+					window.location.origin,
+				);
+			}
 			throw error;
 		}
 	};
@@ -1188,6 +1224,33 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const getProactiveHeadings = async ({ module }) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const url =
+				'/' + workspaceId + `/knowledge-bases/proactive-headlines?moduleType=${module}`;
+			const token = localStorage.getItem('usertoken');
+			const type = 'tenant';
+
+			const response = await service?.fetchGet(url, token, type);
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.SET_PROACTIVE_HEADINGS,
+					payload: {
+						...state?.proactiveHeadings,
+						[`${module}_headlines`]: response?.[1]?.headline,
+					},
+				});
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('error==>editAiSetupData', error);
+			return [false, error];
+		}
+	};
+
 	const updateStateValues = async (updatedVaribaleValuesObj) => {
 		try {
 			dispatch({
@@ -1251,5 +1314,6 @@ export const AiSetupState = () => {
 		deleteAiSetupData,
 		editAiSetupData,
 		updateAiChatSessions,
+		getProactiveHeadings,
 	};
 };

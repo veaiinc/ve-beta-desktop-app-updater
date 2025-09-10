@@ -1,6 +1,6 @@
 import { useCallback, useRef, useEffect } from 'react';
 import { message } from 'antd/lib';
-import { getConfig } from '../services/index.js';
+import getBaseUrl from '../services/baseUrls.js';
 
 const useRecallStream = () => {
 	const socketRef = useRef(null);
@@ -10,8 +10,8 @@ const useRecallStream = () => {
 	const isIntentionallyClosedRef = useRef(false);
 	const RECONNECT_ATTEMPTS = 5;
 	const RECONNECT_DELAY = 2000; // 2 seconds
-	const location = localStorage.getItem('locationDetails') || {};
-	const locationData = JSON.parse(location);
+	const location = JSON.parse(localStorage.getItem('locationDetails')) || {};
+
 	useEffect(() => {
 		return () => {
 			isIntentionallyClosedRef.current = true;
@@ -27,7 +27,6 @@ const useRecallStream = () => {
 	const createWebSocketConnection = useCallback(
 		async (sessionId, meetingId, onMessageFunc, isAiIntelligenceEnabled) => {
 			const usertoken = localStorage.getItem('usertoken');
-			const workspaceId = localStorage.getItem('workspaceId');
 			const region = localStorage.getItem('region') || 'us-east-1';
 
 			if (socketRef.current) {
@@ -40,9 +39,8 @@ const useRecallStream = () => {
 			isIntentionallyClosedRef.current = false;
 
 			// Get config and determine the appropriate recall WebSocket URL
-			const config = await getConfig();
-			const meetingWsUrl =
-				region === 'ap-south-1' ? config.meeting_ws_api : config.meeting_ws_api_US;
+			const type = 'meeting_ws_api';
+			const meetingWsUrl = getBaseUrl(region, type);
 			const wsUrl = `${meetingWsUrl}/frontend/ws/${meetingId}?token=${usertoken}`;
 			// const wsUrl = `https://internally-well-earwig.ngrok-free.app/frontend/ws/${pageId}?token=${usertoken}`;
 
@@ -52,7 +50,7 @@ const useRecallStream = () => {
 				socketRef.current.onopen = () => {
 					socketRef.current.send(
 						JSON.stringify({
-							location: locationData,
+							location,
 							timezone: 'Asia/Calcutta',
 							session_id: meetingId,
 							is_ai_intelligence_enabled: isAiIntelligenceEnabled,

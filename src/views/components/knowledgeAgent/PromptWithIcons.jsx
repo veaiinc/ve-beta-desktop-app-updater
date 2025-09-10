@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import './PromptWithIcons.scss';
 import Editor from '../notes/Editor';
+import Context from '../../../context/context';
 const actionPattern = /<([^>]+)>/g;
 const PromptWithIcons = ({
 	prompt = '',
-	actionDetails = [],
 	onChange,
 	placeholder = 'Enter your prompt here',
 	className = '',
@@ -14,69 +14,27 @@ const PromptWithIcons = ({
 	disabled = false,
 	autoResize = true,
 	agentId,
+	myAccess,
 }) => {
 	const [isEditing, setIsEditing] = useState(false);
 	const textAreaRef = useRef(null);
 	const containerRef = useRef(null);
 	const initialBlocksRef = useRef(null);
+	const {
+		knowledgeAgent: { actionsInfo, getActionsForKnowledgeAgent },
+	} = useContext(Context);
+	const [info, setInfo] = useState({
+		actionsData: {},
+	});
 
 	// Initialize initialBlocks only once
 	useEffect(() => {
-		if (!initialBlocksRef.current) {
+		if (agentId && !initialBlocksRef.current) {
 			initialBlocksRef.current = { data: prompt };
 		}
 	}, [agentId]);
 
 	// Function to parse prompt and render with icons
-	const renderPromptWithIcons = () => {
-		if (!prompt || !actionDetails?.length) {
-			return [{ type: 'text', content: prompt || '' }];
-		}
-
-		// Create a map of action names to their details for quick lookup
-		const actionMap = actionDetails.reduce((acc, action) => {
-			acc[action.actionName] = action;
-			return acc;
-		}, {});
-
-		// Split the prompt by action patterns and render with icons
-		let parts = [];
-		let lastIndex = 0;
-
-		let match;
-
-		while ((match = actionPattern.exec(prompt)) !== null) {
-			const actionName = match[1];
-			const actionDetail = actionMap[actionName];
-
-			// Add text before the action
-			// if (lastIndex < match.index) {
-			// 	parts.push({
-			// 		type: 'text',
-			// 		content: prompt.slice(lastIndex, match.index),
-			// 	});
-			// }
-
-			// Add action with icon
-			parts.push({
-				type: 'action',
-				content: actionName,
-				actionDetail,
-			});
-
-			lastIndex = match.index + match[0].length;
-		}
-
-		// // Add remaining text
-		// if (lastIndex < prompt.length) {
-		// 	parts.push({
-		// 		type: 'text',
-		// 		content: prompt.slice(lastIndex),
-		// 	});
-		// }
-
-		return parts;
-	};
 
 	// Auto-resize functionality
 	const adjustHeight = () => {
@@ -108,7 +66,26 @@ const PromptWithIcons = ({
 		};
 	}, [isEditing]);
 
-	const parts = renderPromptWithIcons();
+	useEffect(() => {
+		const needToFetch = !actionsInfo || actionsInfo?.agentId !== agentId;
+
+		if (agentId && needToFetch) {
+			getActionsForKnowledgeAgent(agentId);
+		}
+	}, [agentId]);
+
+	useEffect(() => {
+		if (actionsInfo) {
+			const actionsData = Object.fromEntries(
+				actionsInfo?.data?.map((item) => [
+					item?.typeDependencies?.key?.toLowerCase(),
+					item,
+				]),
+			);
+
+			setInfo((prev) => ({ ...prev, actionsData }));
+		}
+	}, [actionsInfo]);
 
 	return (
 		<div ref={containerRef} className={`promptWithIconsContainer ${className}`} style={style}>
@@ -168,11 +145,13 @@ const PromptWithIcons = ({
 			<Editor
 				markdown={true}
 				initialBlocks={initialBlocksRef.current}
-				customBlockData={{ actionDetails }}
+				customBlockData={{ actionDetails: info?.actionsData }}
 				onMarkdownChange={(markdown) => {
-					onChange?.(markdown);
+					if (myAccess !== 'view') {
+						onChange?.(markdown);
+					}
 				}}
-				myAccess={readOnly || disabled ? 'view' : 'edit'}
+				myAccess={myAccess}
 			/>
 		</div>
 	);

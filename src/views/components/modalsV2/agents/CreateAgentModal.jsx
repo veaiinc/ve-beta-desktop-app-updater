@@ -5,7 +5,6 @@ import ChatBox from '../../chat/ChatBox';
 import ObjectID from 'bson-objectid';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../../context/context';
-import Spinner from '../../loaders/Spinner';
 const CreateAgentModal = ({ isOpen, closeModal, handleCreateNewAgent, loading }) => {
 	const {
 		knowledgeAgent: { activeKnowledgeAssistant, getActiveKnowledgeAgentDetails },
@@ -29,10 +28,19 @@ const CreateAgentModal = ({ isOpen, closeModal, handleCreateNewAgent, loading })
 		setInfo((prev) => ({ ...prev, manualMode: value, title: '', description: '' }));
 	}, []);
 
+	const handleCloseModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, manualMode: false, title: '', description: '' }));
+		closeModal();
+	}, []);
+
+	const keyDownPreventPropogation = (e) => {
+		e.stopPropagation();
+	};
+
 	return (
-		<ReactModal isOpen={isOpen} closeModal={closeModal} modalType={'center'}>
-			<div className={s.createAgentContainer}>
-				<div className={s.toggleWrapper}>
+		<ReactModal isOpen={isOpen} closeModal={handleCloseModal} modalType={'center'}>
+			<div className={s.createAgentContainer} onKeyDown={keyDownPreventPropogation}>
+				{/* <div className={s.toggleWrapper}>
 					<button
 						className={`${s.buildAgentButton} ${!info?.manualMode ? s.active : ''}`}
 						onClick={() => handleToggleMode(false)}
@@ -45,7 +53,7 @@ const CreateAgentModal = ({ isOpen, closeModal, handleCreateNewAgent, loading })
 					>
 						Build Manually
 					</button>
-				</div>
+				</div> */}
 				<div className={s.headerWrapper}>
 					<h2 className={s.title}>
 						{info?.manualMode ? 'Create Agent on Your Own' : 'Design Your Agent’s Role'}
@@ -80,7 +88,7 @@ const CreateAgentModal = ({ isOpen, closeModal, handleCreateNewAgent, loading })
 								onClick={() => handleCreateNewAgent(info?.title, info?.description)}
 								disabled={loading}
 							>
-								{loading ? <Spinner /> : 'Build Manually'}
+								{loading ? 'Building...' : 'Build Manually'}
 							</button>
 						</div>
 					</div>

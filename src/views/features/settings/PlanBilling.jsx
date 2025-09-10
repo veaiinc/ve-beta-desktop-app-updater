@@ -173,6 +173,7 @@ const SubscribedUserPlanCard = ({
 			createManageSubscriptionLinkforExistingUsers,
 			subscriptionPlans,
 			getAllSubscriptionPlan,
+			validateExpiryData,
 		},
 		authInfo: { getAddOnsForCurrentPlan, currentPlanAddOns },
 	} = useContext(Context);
@@ -240,7 +241,10 @@ const SubscribedUserPlanCard = ({
 			barGraph: false,
 			duration: 'Monthly',
 		},
-		{
+	];
+
+	if (!validateExpiryData?.uploadAllowed) {
+		progressData.push({
 			id: 8,
 			title: 'Upload Allowed',
 			usedValue: parseFloat(
@@ -250,8 +254,8 @@ const SubscribedUserPlanCard = ({
 				(data?.storageLimitInBytes / (1024 * 1024 * 1024)) * 1.5,
 			)?.toFixed(2),
 			barGraph: true,
-		},
-	];
+		});
+	}
 
 	useEffect(() => {
 		if (currentPlanAddOns === null) {

@@ -15,17 +15,30 @@ import { ReactComponent as HelpSvg } from '../../assets/help.svg';
 import { ReactComponent as SwitchWorkspaceSvg } from '../../assets/switch-workspace.svg';
 import { ReactComponent as LogoutSvg } from '../../assets/logout.svg';
 import { ReactComponent as DownloadMacSvg } from '../../assets/download-mac.svg';
+import { ReactComponent as DownloadWindowsSvg } from '../../assets/download-windows.svg';
 import { ReactComponent as TemplatesSvg } from '../../assets/templates.svg';
 import useIntercom from '../../../../../hooks/useIntercom';
 import useBroadcastChannel from '../../../../../hooks/useBroadcastChannel';
 import { ReactComponent as BackIcon } from '../../../../../assets/svg/mobile/back.svg';
 import { ReactComponent as CloseIcon } from '../../../../../assets/svg/mobile/close.svg';
 import { ReactComponent as PlusSvg } from '../../assets/plus.svg';
+import CreditsLeftSvg from '../../../sidebar/chatHistory/CreditsLeftSvg';
+import { ReactComponent as ChevronRightThinSvg } from '../../../../../assets/svg/tasks/chevronRightThin.svg';
+import AddOnCards from '../../../settings/planbilling/addOnCards';
 
-const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
+const desktopAppDownloadWindows = import.meta.env.VITE_APP_DESKTOP_APP_WINDOWS_DOWNLOAD_URL || null;
+const deepLinkUrl = 'veai://open';
 const isMac =
 	navigator.userAgentData?.platform === 'macOS' ||
 	navigator.userAgent.toLowerCase().indexOf('mac') !== -1;
+const isMacIntel64 =
+	navigator.userAgent.includes('Macintosh') &&
+	navigator.userAgent.includes('Intel') &&
+	navigator.userAgent.includes('x86_64');
+
+const desktopAppDownloadUrl = isMacIntel64
+	? import.meta.env.VITE_APP_DESKTOP_APP_MACINTEL64_DOWNLOAD_URL
+	: import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
 
 export const settingsItems = [
 	{
@@ -102,10 +115,15 @@ const Settings = ({
 		workspaceModalOpen: false,
 		intercomOpen: false,
 		isMobileView: window.matchMedia('(max-width: 767px)').matches,
+		isDesktop: false,
+		addOnCardsModalOpen: false,
+		subscriptionState: null,
+		selectedPeriodProp: null,
 	}));
 
 	const {
 		profileInfo: { tenantUserAccessControls, userWorkSpaceList, tennantSettingsData },
+		subscriptionInfo: { currentPlan, subscriptionPlans, getAllSubscriptionPlan },
 	} = useContext(Context);
 
 	const fullName = `${firstName ?? ''} ${lastName ?? ''}`;
@@ -114,6 +132,50 @@ const Settings = ({
 	const workspacesLoading = userWorkSpaceList === null;
 	const workspaceImage = tennantSettingsData?.logo_s3_500w_key ?? null;
 
+	useEffect(() => {
+		if (window?.electronApi) {
+			setInfo((prev) => ({
+				...prev,
+				isDesktop: true,
+			}));
+		}
+	}, []);
+	useEffect(() => {
+		if (!subscriptionPlans) {
+			getAllSubscriptionPlan();
+		}
+	}, [subscriptionPlans]);
+
+	const currentPlanData = subscriptionPlans?.find(
+		(plan) => plan._id === currentPlan?.currentPlanId,
+	);
+
+	// ✅ Extract the plan title (fallback to 'Free' or currentPlan?.currentPlan if not found)
+	const currentPlanTitle = currentPlanData?.plan || currentPlan?.currentPlan || 'Free';
+	const handleInstallOrOpen = () => {
+		window.location.href = deepLinkUrl;
+
+		const timer = setTimeout(() => {
+			if (isMac) {
+				if (desktopAppDownloadUrl) {
+					window.open(desktopAppDownloadUrl, '_blank');
+				}
+			} else {
+				if (desktopAppDownloadWindows) {
+					window.open(desktopAppDownloadWindows, '_blank');
+				}
+			}
+		}, 2000);
+
+		// If user switches focus (e.g., app opened), cancel fallback
+		window.addEventListener(
+			'blur',
+			() => {
+				clearTimeout(timer);
+			},
+			{ once: true },
+		);
+	};
 	const handleSettingItemClick = (settingItem) => async () => {
 		if (settingItem.route) {
 			navigate(settingItem.route);
@@ -132,6 +194,11 @@ const Settings = ({
 			}
 		}
 		closeSettingsTooltip();
+	};
+
+	const handleLogout = () => {
+		logout();
+		channel.postMessage('logout');
 	};
 
 	const Content = (
@@ -176,6 +243,51 @@ const Settings = ({
 					<p className={s.businessName}>{businessName}</p>
 				</div>
 			</header>
+			<div className={s.settingsPlans}>
+				<div className={s.settingCurrentPlan}>
+					<div className={s.settingPlanName}>{currentPlanTitle}</div>
+					<div
+						className={s.settingsUpgrade}
+						onClick={() => {
+							setInfo((prev) => ({
+								...prev,
+								addOnCardsModalOpen: true,
+								subscriptionState: 'upgradeSubscription',
+							}));
+						}}
+					>
+						Upgrade
+					</div>
+				</div>
+				<div className={s.settingsDivider}></div>
+				<div className={s.settingsCredits}>
+					<div className={s.settingsCreditsLeft}>
+						<CreditsLeftSvg
+							totalAiCreditLimit={currentPlan?.totalAiCreditLimit}
+							totalAiCreditUsed={currentPlan?.totalAiCreditUsed}
+						/>
+						<span className={s.settingsCreditsTitle}>Credits</span>
+					</div>
+					<div
+						className={s.settingsCreditsCount}
+						onClick={() => {
+							setInfo((prev) => ({
+								...prev,
+								addOnCardsModalOpen: true,
+								subscriptionState: 'addOnPlans',
+								selectedPeriodProp: 'One Time Purchase ',
+							}));
+						}}
+					>
+						<span className={s.settingsCreditsLeftCount}>
+							{(
+								currentPlan?.totalAiCreditLimit - currentPlan?.totalAiCreditUsed
+							).toFixed(2)}
+						</span>
+						<ChevronRightThinSvg />
+					</div>
+				</div>
+			</div>
 			<div className={s.settingsItems}>
 				{settingsItems.map((settingItem) => (
 					<div
@@ -237,26 +349,30 @@ const Settings = ({
 				)}
 				<button
 					className={s.logoutButton}
-					onClick={() => {
-						logout();
-						channel.postMessage('logout');
+					onClick={handleLogout}
+					style={{
+						opacity: info.logoutLoading ? 0.5 : 1,
+						cursor: info.logoutLoading ? 'not-allowed' : 'pointer',
 					}}
+					disabled={info.logoutLoading}
 				>
 					<LogoutSvg />
 				</button>
 			</div>
 
-			{isMac && (
-				<button
-					className={s.downloadMacAppButton}
-					onClick={() => {
-						if (desktopAppDownloadUrl) {
-							window.open(desktopAppDownloadUrl, '_blank');
-						}
-					}}
-				>
-					<DownloadMacSvg />
-					<span>Download Mac app</span>
+			{!info?.isDesktop && (
+				<button className={s.downloadMacAppButton} onClick={handleInstallOrOpen}>
+					{isMac ? (
+						<>
+							<DownloadMacSvg />
+							<span>Download Mac App</span>
+						</>
+					) : (
+						<>
+							<DownloadWindowsSvg />
+							<span>Download Windows App</span>
+						</>
+					)}
 				</button>
 			)}
 			{workspacesMoreThanOne && (
@@ -282,6 +398,12 @@ const Settings = ({
 				/>
 			)}
 			{info.isMobileView ? <div className={s.mobileSheet}>{Content}</div> : Content}
+			<AddOnCards
+				isOpen={info?.addOnCardsModalOpen}
+				closeModal={() => setInfo((prev) => ({ ...prev, addOnCardsModalOpen: false }))}
+				subscriptionState={info?.subscriptionState}
+				selectedPeriodProp={info?.selectedPeriodProp}
+			/>
 		</div>
 	);
 };

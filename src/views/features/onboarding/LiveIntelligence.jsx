@@ -3,7 +3,6 @@ import '../../../assets/scss/onboarding/liveIntelligence.scss';
 import { ReactComponent as SideImageDark } from '../../../assets/svg/onboarding/darkimage.svg';
 
 const LiveIntelligence = ({ onNext }) => {
-
 	return (
 		<div className="live-intelligence">
 			<div className="live-intelligence__content">

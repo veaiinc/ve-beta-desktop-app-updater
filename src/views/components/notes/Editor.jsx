@@ -20,7 +20,7 @@ export const EditorContext = createContext(null);
 const Editor = ({
 	innerContainerStyle,
 	myAccess,
-	isDeleted,
+	isDeleted = false,
 	customSendMessage,
 	aiResonse,
 	resetAiResponse,
@@ -134,8 +134,7 @@ const Editor = ({
 				if (markdown) {
 					const replaced = blocks
 						.replace(/\\n/g, '\n')
-						.replace(/<([^>]+)>/g, (_, inside) => {
-							// "inside" will be gmail-send-mail or notion-create-database
+						.replace(/<([a-zA-Z0-9]+(?:[-_][a-zA-Z0-9]+)*)>/g, (_, inside) => {
 							return `[[action#${inside}]]`;
 						});
 					blocks = injectCustomBlocks(await editor.tryParseMarkdownToBlocks(replaced));
@@ -565,10 +564,10 @@ const Editor = ({
 				// onChange={onChange}
 				style={innerContainerStyle || {}}
 				theme={'dark'}
-				editable={myAccess !== 'view' || !isDeleted}
+				editable={myAccess !== 'view' && !isDeleted}
 				slashMenu={false}
 			>
-				{(myAccess !== 'view' || !isDeleted) && (
+				{myAccess !== 'view' && !isDeleted && (
 					<NoteToolbar
 						sendMessage={customSendMessage}
 						aiResonse={aiResonse}

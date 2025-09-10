@@ -16,9 +16,9 @@ import GlobalWorkflows from '../views/features/sales/GlobalWorkflows';
 import CardMeetBot from '../views/features/meetBot/CardMeetBot';
 import MeetBotWrapper from '../views/features/meetBot/meetBotWrapper';
 import ProactiveSuggestions from '../views/features/homePage/ambientAi/ProactiveSuggestions';
+import publicRoutes from './publicRoutes';
 
 // components
-
 const stableRoutes = [
 	// ========================================
 	// AI & ASSISTANT FEATURES
@@ -71,7 +71,7 @@ const stableRoutes = [
 				showBottomToolbar={false}
 				outerContainerStyle={{
 					paddingRight: '0px',
-					backgroundColor: 'var(--chat-background-color)',
+					backgroundColor: 'var(--background-color)',
 				}}
 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 				maxWidth="100%"
@@ -160,6 +160,10 @@ const stableRoutes = [
 			</Public>
 		),
 	},
+	// ========================================
+	// PUBLIC ROUTES
+	// ========================================
+	...publicRoutes,
 ];
 
 export default stableRoutes;

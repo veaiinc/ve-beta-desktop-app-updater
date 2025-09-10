@@ -3,13 +3,13 @@ import s from './topNavbar.module.scss';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import ShareAndEarnModal from '../../features/shareAndEarn/ShareAndEarnModal';
 
 // components
 import Settings from './components/settings/Settings';
 import Notifications from './components/notifications/Notifications';
 import FilesTooltip from './components/filesTooltip/FilesTooltip';
 import ToolsTooltip from './components/toolsTooltip/ToolsTooltip';
+import ShareAndEarnModal from '../../features/shareAndEarn/ShareAndEarnModal';
 import { Tooltip } from 'antd';
 
 // svg icons
@@ -35,54 +35,46 @@ const baseLeftContainerItems = [
 	{
 		id: 1,
 		label: 'Priority',
-		route: '/priority',
+		route: '/home',
 	},
 	{
 		id: 2,
-		label: 'Chats',
-		route: '/chats',
+		label: 'Meetings',
+		route: '/meet',
 	},
 	{
 		id: 3,
+		label: (
+			<>
+				Ask&nbsp;<span style={{ color: 'var(--primary-button)' }}>Ve</span>
+			</>
+		),
+		route: '/chats',
+	},
+	{
+		id: 4,
 		label: 'Agents',
 		route: '/agents',
 	},
 	{
-		id: 4,
-		label: 'Files',
+		id: 5,
+		label: 'Vault',
 		route: '/files',
 	},
 	{
-		id: 5,
+		id: 6,
 		label: 'Tools',
-		route: '/home',
-	},
-];
-
-const middleContainerItems = [
-	{
-		id: 1,
-		label: 'Solo',
-		activeLabel: 'Solo Mode',
-	},
-	// {
-	// 	id: 2,
-	// 	label: 'Team',
-	// 	activeLabel: 'Team Mode',
-	// },
-	{
-		id: 3,
-		label: 'Meeting',
-		activeLabel: 'Meeting Mode',
+		route: '/tools',
 	},
 ];
 
 const activeNavItemMap = {
-	'/priority': 1,
-	'/chats': 2,
-	'/agents': 3,
-	'/files': 4,
-	'/home': 5,
+	'/home': 1,
+	'/meet': 2,
+	'/chats': 3,
+	'/agents': 4,
+	'/files': 5,
+	'/tools': 6,
 };
 
 const TopNavbar = () => {
@@ -94,9 +86,10 @@ const TopNavbar = () => {
 		pathname.includes('builder') ||
 		pathname.includes('galleries') ||
 		pathname.includes('create-workspace') ||
-		pathname.includes('agent/');
-	//  ||
-	// pathname.includes('	plan-billing');
+		pathname.includes('agent/') ||
+		pathname.includes('note/') ||
+		pathname.includes('meet/') ||
+		pathname.includes('chat/');
 
 	const {
 		profileInfo: {
@@ -140,7 +133,7 @@ const TopNavbar = () => {
 		if (workspaceMode === 'stable') {
 			items = items.filter(
 				(item) =>
-					item.label !== 'Files' && item.label !== 'Tools' && item.label !== 'Priority',
+					item.label !== 'Vault' && item.label !== 'Tools' && item.label !== 'Priority',
 			);
 		}
 
@@ -154,8 +147,6 @@ const TopNavbar = () => {
 		return items;
 	})();
 
-	const showMiddleContainer = region !== 'ap-south-1';
-
 	useEffect(() => {
 		if (!userWorkSpaceList) {
 			getUserWorkSpaceList();
@@ -163,13 +154,10 @@ const TopNavbar = () => {
 	}, [userWorkSpaceList]);
 
 	useEffect(() => {
-		if (pathname.includes('/meet')) setInfo((prev) => ({ ...prev, activeMode: 3 }));
-		else
-			setInfo((prev) => ({
-				...prev,
-				activeMode: 1,
-				activeNavItem: activeNavItemMap[pathname],
-			}));
+		setInfo((prev) => ({
+			...prev,
+			activeNavItem: activeNavItemMap[pathname],
+		}));
 	}, [pathname]);
 
 	useEffect(() => {
@@ -202,11 +190,11 @@ const TopNavbar = () => {
 		}));
 
 		// reset chat data when navigating to chat
-		if (navItemId === 2) {
+		if (navItemId === 3) {
 			updateStateValues({ currentChatData: null });
 		}
 
-		if (navItemId === 4) {
+		if (navItemId === 5) {
 			setInfo((prev) => ({
 				...prev,
 				filesTooltipOpen: true,
@@ -218,20 +206,6 @@ const TopNavbar = () => {
 			return;
 		}
 		navigate(route);
-	};
-
-	const handleMiddleNavigation = ({ id }) => {
-		setInfo((prev) => ({
-			...prev,
-			activeMode: id,
-			mobileMenuOpen: false,
-		}));
-		if (id === 1) {
-			navigate('/home');
-		}
-		if (id === 3) {
-			navigate('/meet');
-		}
 	};
 
 	const handleAction = ({ id }) => {
@@ -300,25 +274,25 @@ const TopNavbar = () => {
 				</Tooltip>
 			),
 		},
-		{
-			id: 2,
-			label: `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`,
-			icon: (
-				<Tooltip
-					title={
-						<div style={tooltipStyle}>
-							<span>Switch to {theme === 'dark' ? 'light' : 'dark'} mode</span>
-						</div>
-					}
-					placement="bottom"
-					arrow={false}
-					color={'transparent'}
-					rootClassName={s.themeTooltip}
-				>
-					{theme === 'dark' ? <LightMode /> : <DarkMode />}
-				</Tooltip>
-			),
-		},
+		// {
+		// 	id: 2,
+		// 	label: `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`,
+		// 	icon: (
+		// 		<Tooltip
+		// 			title={
+		// 				<div style={tooltipStyle}>
+		// 					<span>Switch to {theme === 'dark' ? 'light' : 'dark'} mode</span>
+		// 				</div>
+		// 			}
+		// 			placement="bottom"
+		// 			arrow={false}
+		// 			color={'transparent'}
+		// 			rootClassName={s.themeTooltip}
+		// 		>
+		// 			{theme === 'dark' ? <LightMode /> : <DarkMode />}
+		// 		</Tooltip>
+		// 	),
+		// },
 		{
 			id: 3,
 			label: 'Notifications',
@@ -379,7 +353,7 @@ const TopNavbar = () => {
 				<ul className={s.leftContainer}>
 					{info.activeMode !== 3
 						? leftContainerItems.map((navItem, index) =>
-								navItem.id === 4 ? (
+								navItem.id === 5 ? (
 									<Tooltip
 										open={info.filesTooltipOpen}
 										onOpenChange={() =>
@@ -422,7 +396,7 @@ const TopNavbar = () => {
 											{navItem.label}
 										</li>
 									</Tooltip>
-								) : navItem.id === 5 ? (
+								) : navItem.id === 6 ? (
 									<Tooltip
 										open={info.toolsTooltipOpen}
 										onOpenChange={() =>
@@ -451,7 +425,7 @@ const TopNavbar = () => {
 									>
 										<li
 											onClick={() => {
-												navigate('/home');
+												navigate('/tools');
 												setInfo((prev) => ({
 													...prev,
 													toolsTooltipOpen: false,
@@ -460,7 +434,7 @@ const TopNavbar = () => {
 												}));
 											}}
 											className={`${s.navItem} ${s.profileItem} ${
-												pathname.includes('/home') ? s.active : ''
+												pathname.includes('/tools') ? s.active : ''
 											}`}
 										>
 											{navItem.label}
@@ -487,30 +461,6 @@ const TopNavbar = () => {
 				</ul>
 			),
 		},
-		...(showMiddleContainer
-			? [
-					{
-						id: 2,
-						element: (
-							<ul className={s.middleContainer}>
-								{middleContainerItems.map((navItem, index) => (
-									<li
-										className={`${s.navItem} ${
-											info.activeMode === navItem.id ? s.active : ''
-										}`}
-										onClick={() => handleMiddleNavigation(navItem)}
-										key={`${navItem.id}-${index}`}
-									>
-										{info.activeMode === navItem.id
-											? navItem.activeLabel
-											: navItem.label}
-									</li>
-								))}
-							</ul>
-						),
-					},
-			  ]
-			: []),
 		{
 			id: 3,
 			element: (
@@ -614,7 +564,7 @@ const TopNavbar = () => {
 						</div>
 
 						{/* Mode Selector Section */}
-						{showMiddleContainer && (
+						{/* {showMiddleContainer && (
 							<div className={s.mobileMenuSection}>
 								<div className={s.sectionTitle}>Mode</div>
 								<div className={s.mobileModeSelector}>
@@ -633,7 +583,7 @@ const TopNavbar = () => {
 									))}
 								</div>
 							</div>
-						)}
+						)} */}
 
 						{/* Navigation Section */}
 						<div className={s.mobileMenuSection}>

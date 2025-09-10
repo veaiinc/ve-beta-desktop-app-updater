@@ -24,12 +24,39 @@ yarn-debug.log*
 yarn-error.log*
 .cursorrules
 
+# Visual Studio / IDE files
+.vs/
+*.slnx.sqlite
+*.vsidx
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
 /dist-electron
 
 .env
 secrets/
-package-mac-signed.sh
 
-sync.sh
 bundle-visualizer.html
-script.sh
+
+**/node_modules
+
+notchdrop-addon/build
+notchdrop-addon/build_swift
+notchdrop-addon/dist
+notchdrop-addon/bin
+
+# Ignore all markdown files
+**/*.md
+
+# Ignore all sh files
+**/*.sh
+
+# But allow specific markdown files
+!CLAUDE.md
+!AGENTS.md
+!README.md
+!notchdrop-addon/build.sh
+
+@img

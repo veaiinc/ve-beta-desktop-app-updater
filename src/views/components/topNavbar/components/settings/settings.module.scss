@@ -2,24 +2,23 @@
 	width: 100%;
 	display: flex;
 	flex-direction: column;
-	gap: 12px;
+	gap: 16px;
 	top: 22px;
 }
 .settingsContainer {
-	align-items: flex-start;
-	background: var(--popup, #202123);
-	border: 1px solid var(--dividers, #1e1f20);
-	border-radius: 16px;
 	display: flex;
+	padding: 18px;
 	flex-direction: column;
-	gap: 12px;
-	padding: 12px;
+	align-items: flex-start;
+	gap: 16px;
+	border-radius: 16px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	background: var(--popup, #202123);
 	position: absolute;
-	right: -28px;
+	right: -25px;
 	top: 22px;
-	width: 320px;
+	width: 360px;
 	z-index: 10001;
-	
 
 	// overlay and sheet are used in mobile only
 	.mobileOverlay {
@@ -150,7 +149,97 @@
 			}
 		}
 	}
-
+	.settingsPlans {
+		display: flex;
+		width: 325px;
+		padding: 16px 0;
+		flex-direction: column;
+		align-items: center;
+		gap: 12px;
+		border-radius: 24px;
+		border: 1px solid var(--stroke, #2c2d2e);
+		background: var(--card, #1b1c1d);
+		.settingCurrentPlan {
+			display: flex;
+			width: 100%;
+			padding: 0 22px;
+			justify-content: space-between;
+			align-items: center;
+			.settingPlanName {
+				color: var(--primary-font);
+				font-family: Recoleta;
+				font-size: 20px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+			.settingsUpgrade {
+				display: flex;
+				height: 32px;
+				padding: 6px 16px;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				border-radius: 100px;
+				background: var(--primary-opacity, rgba(121, 236, 201, 0.1));
+				color: var(--primary-button, #79ecc9);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				cursor: pointer;
+			}
+		}
+		.settingsDivider {
+			width: 296px;
+			height: 1px;
+			background: var(--stroke, #2c2d2e);
+		}
+		.settingsCredits {
+			display: flex;
+			width: 100%;
+			padding: 0 22px;
+			align-items: center;
+			justify-content: space-between;
+			.settingsCreditsLeft {
+				display: flex;
+				height: 32px;
+				padding: 6px 0;
+				align-items: center;
+				gap: 10px;
+				.settingsCreditsTitle {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					width: 49px;
+					height: 20px;
+				}
+			}
+			.settingsCreditsCount {
+				display: flex;
+				width: 88px;
+				height: 32px;
+				padding: 6px 0;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				flex-shrink: 0;
+				cursor: pointer;
+				.settingsCreditsLeftCount {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 600;
+					line-height: normal;
+				}
+			}
+		}
+	}
 	.settingsItems {
 		width: 100%;
 		display: flex;
@@ -226,7 +315,6 @@
 			padding: 12px;
 			border-radius: 8px;
 			background: rgba(192, 55, 68, 0.1);
-			cursor: pointer;
 			transition: background 0.3s ease-in-out;
 			color: var(--error, #c03744);
 			font-family: var(--primary-font-family);

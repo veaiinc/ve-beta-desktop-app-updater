@@ -52,8 +52,6 @@ import { Actions } from './Actions';
 import Service from '../../services/index';
 import { sendCustomMailMutation } from '../subscription/graphqlFunctions';
 import { getBase64 } from '../../helpers';
-import Skeleton from 'react-loading-skeleton';
-import AIMessageLoader from '../../views/components/chat/AIMessageLoader';
 
 export const intialState = {
 	workflowslist: null,
@@ -90,37 +88,7 @@ export const intialState = {
 	draftStateWorkflowtemplates: null,
 	moreDraftStateWorkflowtemplates: null,
 	createLeadModalContextState: false,
-	globalChatMessages: {
-		'6892ed1fec1c1966c5e14f6c': {
-			browserData: {
-				success: true,
-				sessionId: 'b719a760-ebd3-4d1b-bf50-07486c418136',
-				currentUrl: 'about:blank',
-				allTabUrls: [
-					{
-						url: 'about:blank',
-						debuggerUrl:
-							'https://www.browserbase.com/devtools-fullscreen/inspector.html?wss=connect.browserbase.com/debug/b719a760-ebd3-4d1b-bf50-07486c418136/devtools/page/F579266D09021B6259261E1331B1E0A9?debug=true',
-						title: 'Blank Tab',
-					},
-					{
-						url: 'https://www.amazon.in/',
-						debuggerUrl:
-							'https://www.browserbase.com/devtools-fullscreen/inspector.html?wss=connect.browserbase.com/debug/b719a760-ebd3-4d1b-bf50-07486c418136/devtools/page/93818EFF3F7902B010E9E990A504B54A?debug=true',
-						title: 'www.amazon.in',
-					},
-					{
-						url: 'https://www.amazon.in/',
-						debuggerUrl:
-							'https://www.browserbase.com/devtools-fullscreen/inspector.html?wss=connect.browserbase.com/debug/b719a760-ebd3-4d1b-bf50-07486c41813/devtools/page/93818EFF3F7902B010E9E990A504B54A?debug=true',
-						title: 'www.amazon.in',
-					},
-				],
-				activeTabIndex: 1,
-				timestamp: '2025-08-06T10:49:10.799Z',
-			},
-		},
-	}, // { type: 'AI', message: 'Hello, how can I help you today?' }
+	globalChatMessages: {}, // { type: 'AI', message: 'Hello, how can I help you today?' }
 	currentSessionId: null,
 	citations: null,
 	notificationsList: null,
@@ -141,19 +109,6 @@ export const intialState = {
 	recentChatStorage: null,
 	moreRecentChatStorage: null,
 	llmModels: null,
-	chatInfo: {
-		deepResearch: false,
-		agentType: null,
-		assistantId: null,
-		build: false,
-		webSearch: true,
-		workspaceSearch: true,
-		ask: true,
-		reason: {
-			workspaceSearch: false,
-			webSearch: false,
-		},
-	},
 	aiTranscriptionSuggestions: null,
 	chatSources: null,
 	chatLoadingSessions: {},
@@ -167,6 +122,7 @@ export const intialState = {
 		workflowTemplateId: null,
 		moduleTemplateId: null,
 	},
+	isBrowserScreenActive: false,
 	refetchChatHistoryList: false,
 	aiQuestions: null,
 	proactiveAiData: null,
@@ -1622,39 +1578,50 @@ export const TemplatesState = (props) => {
 			console.log('errror ==>sendCustomEmailToClients', error);
 		}
 	};
-	const getAuthUrlForThirdParty = async (connectType) => {
+	const getAuthUrlForThirdParty = async (connectType, access) => {
 		try {
 			const token = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
-			let path, response;
+			let path, response, apiType;
 
-			switch (connectType) {
-				case 'gmail':
-					path = `/auth/gmail/${workspaceId}`;
-					response = await Service?.fetchGet(path, token, 'calendar_api');
-					break;
-				case 'google-calendar':
-					path = `/google-calendar/${workspaceId}/auth`;
-					response = await Service?.fetchGet(path, token, 'calendar_api');
-					break;
-				case 'slack':
-					path = `/slack/${workspaceId}/auth`;
-					response = await Service?.fetchGet(path, token, 'third_party_integrations_api');
-					break;
-				case 'outlook-calendar':
-					path = `/outlookcalendar/${workspaceId}/auth`;
-					response = await Service?.fetchGet(path, token, 'microsoft_integration_api');
-					break;
-				case 'outlook-mail':
-					path = `/outlookmail/${workspaceId}/auth`;
-					response = await Service?.fetchGet(path, token, 'microsoft_integration_api');
-					break;
-				default:
-					// For other integrations, use the generic pattern
-					path = `/${connectType}/${workspaceId}/auth`;
-					response = await Service?.fetchGet(path, token, 'third_party_integrations_api');
-					break;
+			let origin = window.location.origin;
+			if (origin.includes('localhost')) {
+				origin = 'https://www.ve.ai';
 			}
+
+			let currentURl = origin + window.location.pathname;
+
+			const authConfig = {
+				gmail: {
+					path: `/auth/gmail/${workspaceId}?access=${access}&redirectURL=${currentURl}`,
+					apiType: 'calendar_api',
+				},
+				'google-calendar': {
+					path: `/google-calendar/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
+					apiType: 'calendar_api',
+				},
+				slack: {
+					path: `/slack/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
+					apiType: 'third_party_integrations_api',
+				},
+				'outlook-calendar': {
+					path: `/outlookcalendar/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
+					apiType: 'microsoft_integration_api',
+				},
+				'outlook-mail': {
+					path: `/outlookmail/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
+					apiType: 'microsoft_integration_api',
+				},
+			};
+
+			const config = authConfig[connectType] || {
+				path: `/${connectType}/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
+				apiType: 'third_party_integrations_api',
+			};
+
+			path = config.path;
+			apiType = config.apiType;
+			response = await Service?.fetchGet(path, token, apiType);
 
 			if (response?.[0] === true) {
 				return response?.[1]?.connectUrl || response?.[1]?.url;
@@ -1664,6 +1631,53 @@ export const TemplatesState = (props) => {
 		} catch (error) {
 			console.error('Error getting auth URL:', error);
 			throw error;
+		}
+	};
+	const disconnectThirdParty = async (connectType, id) => {
+		try {
+			const token = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			let path, response, apiType;
+
+			const disconnectConfig = {
+				gmail: {
+					path: `/auth/gmail/${workspaceId}/${id}/deactivate-integration`,
+					apiType: 'calendar_api',
+				},
+				'google-calendar': {
+					path: `/google-calendar/${workspaceId}/${id}/deactivate-integration`,
+					apiType: 'calendar_api',
+				},
+				slack: {
+					path: `/slack/${workspaceId}/${id}/deactivate-integration`,
+					apiType: 'third_party_integrations_api',
+				},
+				'outlook-calendar': {
+					path: `/outlookcalendar/${workspaceId}/${id}/deactivate-integration`,
+					apiType: 'microsoft_integration_api',
+				},
+				outlookMail: {
+					path: `/outlookmail/${workspaceId}/${id}/deactivate-integration`,
+					apiType: 'microsoft_integration_api',
+				},
+			};
+
+			const config = disconnectConfig[connectType] || {
+				path: `/${connectType}/${workspaceId}/${id}/deactivate-integration`,
+				apiType: 'third_party_integrations_api',
+			};
+
+			path = config.path;
+			apiType = config.apiType;
+			response = await Service?.fetchPut(path, null, token, apiType);
+
+			if (response?.[0]) {
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>disconnectThirdParty', error);
 		}
 	};
 
@@ -2111,7 +2125,12 @@ export const TemplatesState = (props) => {
 		// }
 		else {
 			updatedGlobalChatMessages = [
-				{ type: 'user', message: queryMessage || '' },
+				{
+					type: 'user',
+					message: queryMessage || '',
+					images: localPayload?.images || [],
+					attachments: localPayload?.attachments,
+				},
 				{
 					type: 'AI',
 					contentType: 'loading',
@@ -2144,6 +2163,7 @@ export const TemplatesState = (props) => {
 		chatBoxInfo = null,
 		chatInfo = null,
 		browserData = null,
+		browserTabsInfo = null,
 	}) => {
 		try {
 			dispatch({
@@ -2166,6 +2186,7 @@ export const TemplatesState = (props) => {
 					chatBoxInfo,
 					chatInfo,
 					browserData,
+					browserTabsInfo,
 				},
 			});
 		} catch (error) {
@@ -2173,38 +2194,17 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const handleTakeBrowserControl = async (sessionId, takeControl) => {
-		try {
-			const workspaceId = localStorage.getItem('workspaceId');
-			const usertoken = localStorage.getItem('usertoken');
-			const payload = {
-				mode: takeControl ? 'take' : 'resume',
-			};
-			const response = await Service.fetchPost(
-				`/api/browser/control/${workspaceId}/${sessionId}`,
-				payload,
-				usertoken,
-				'browser_api',
-			);
-			return response;
-		} catch (error) {
-			console.log('error==>handleTakeBrowserControl', error);
-			return [false, error?.message];
-		}
-	};
+	const handleResetBrowserInactivityState = async (sessionId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
 
-	const saveBrowserState = async (sessionId) => {
+		let url = '/api/browser/' + workspaceId + '/' + sessionId + '/reset-expiry';
+
 		try {
-			const workspaceId = localStorage.getItem('workspaceId');
-			const usertoken = localStorage.getItem('usertoken');
-			const response = await Service.fetchGet(
-				`/api/browser/${workspaceId}/task/${sessionId}/save-state`,
-				usertoken,
-				'browser_api',
-			);
+			const response = await Service?.fetchGet(url, usertoken, 'browser_api');
 			return response;
 		} catch (error) {
-			console.log('error==>saveBrowserState', error);
+			console.log('error===>resetBrowserInactivity', error);
 		}
 	};
 
@@ -3109,7 +3109,7 @@ export const TemplatesState = (props) => {
 		updateSlug,
 		getNotificationsList,
 		getAuthUrlForThirdParty,
-		handleTakeBrowserControl,
-		saveBrowserState,
+		disconnectThirdParty,
+		handleResetBrowserInactivityState,
 	};
 };

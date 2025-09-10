@@ -4,8 +4,10 @@ import useSubscription from './useSubscription';
 import useTokenExpiry from './useTokenExpiry';
 import useAccessControls from './useAccessControls';
 import useWorkspaceMode from './useWorkspaceMode';
+import registerUnifiedSW from '../helpers/registerOfflineSW';
 
 const useAuthInitializer = () => {
+	registerUnifiedSW();
 	const { authLoading } = useAuth();
 	const { workspaceModeLoading, workspaceMode } = useWorkspaceMode();
 	useTheme();

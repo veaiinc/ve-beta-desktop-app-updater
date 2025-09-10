@@ -205,7 +205,7 @@ const actionHandlers = {
 		},
 	}),
 	HANDLE_STREAM_MESSAGE_CHUNK: (state, action) => {
-		const {
+		let {
 			payload,
 			chunkId,
 			sessionId,
@@ -222,11 +222,14 @@ const actionHandlers = {
 			lastQuery,
 			chatBoxInfo,
 			chatInfo,
-			browserData,
+			browserTabsInfo,
 		} = action?.payload;
 		let messages = [...(state?.globalChatMessages?.[sessionId]?.messages || [])];
 
 		if (removeChatSession) {
+			if (state?.globalChatMessages?.[sessionId]?.open_browser) {
+				return state;
+			}
 			const globalChatMessages = { ...state?.globalChatMessages };
 			delete globalChatMessages[sessionId];
 			return { ...state, globalChatMessages };
@@ -239,7 +242,21 @@ const actionHandlers = {
 				sessionIdData.chatBoxInfo = chatBoxInfo;
 			}
 
-			if (browserData) {
+			if (payload?.url_type === 'live_view' || payload?.browserMetadata) {
+				let browserData = sessionIdData?.browserData || {};
+				browserData = {
+					...browserData,
+					...payload,
+				};
+				sessionIdData.browserData = browserData;
+			}
+
+			if (browserTabsInfo) {
+				let browserData = sessionIdData?.browserData || {};
+				browserData = {
+					...browserData,
+					...browserTabsInfo,
+				};
 				sessionIdData.browserData = browserData;
 			}
 
@@ -263,7 +280,11 @@ const actionHandlers = {
 			if (removeChatSessions) {
 				let globalChatMessages = { ...state?.globalChatMessages };
 				globalChatMessages = Object.keys(globalChatMessages)?.reduce((acc, key) => {
-					if (globalChatMessages[key]?.isStreaming || key === sessionId) {
+					if (
+						globalChatMessages[key]?.isStreaming ||
+						key === sessionId ||
+						globalChatMessages[key]?.open_browser
+					) {
 						acc[key] = globalChatMessages[key];
 					}
 					return acc;
@@ -309,7 +330,9 @@ const actionHandlers = {
 		}
 
 		let requiredIndex = -1;
-		messages = messages?.filter((ele) => ele?.contentType !== 'loading');
+		if (payload?.processing !== 'Normal Search') {
+			messages = messages?.filter((ele) => ele?.contentType !== 'loading');
+		}
 
 		for (let i = messages?.length - 1; i >= 0; i--) {
 			if (messages?.[i]?.message_chunk_id === chunkId) {
@@ -323,102 +346,15 @@ const actionHandlers = {
 			info.memory_thinking = payload?.memory_thinking;
 		}
 
+		if (payload?.hasOwnProperty('open_browser')) {
+			info.open_browser = payload?.open_browser;
+		}
+
 		if (requiredIndex !== -1) {
 			const message = messages?.[requiredIndex];
-			const { processing } = message;
-			if (processing === 'Deep Search') {
-				let deepSearch = message?.deepSearch || {};
-				let cot = deepSearch?.cot || [];
-				// let cot_refined = deepSearch?.cot_refined || [];
-				// let initial_answer = deepSearch?.initial_answer || {};
-				// let final_answer = deepSearch?.final_answer || {};
+			let { processing, browserChainOfThought = {}, cot } = message;
 
-				// if (payload?.sub_query_id && payload?.reading && payload?.reading?.sub_query) {
-				// 	let index = cot?.findIndex(
-				// 		(item) => item?.sub_query_id === payload?.sub_query_id,
-				// 	);
-				// 	if (index !== -1) {
-				// 		let readings = cot[index]?.readings || [];
-				// 		readings?.push({ reading: payload?.reading });
-				// 		cot[index] = {
-				// 			...cot[index],
-				// 			readings,
-				// 		};
-				// 	} else {
-				// 		cot?.push({
-				// 			sub_query_id: payload?.sub_query_id,
-				// 			readings: [{ reading: payload?.reading }],
-				// 		});
-				// 	}
-				// }
-
-				// if (
-				// 	payload?.refined_sub_query_id &&
-				// 	payload?.reading &&
-				// 	payload?.reading?.refined_sub_query
-				// ) {
-				// 	let index = cot_refined?.findIndex(
-				// 		(item) => item?.refined_sub_query_id === payload?.refined_sub_query_id,
-				// 	);
-				// 	if (index !== -1) {
-				// 		let readings = cot_refined[index]?.readings || [];
-				// 		readings?.push({ reading: payload?.reading });
-				// 		cot_refined[index] = {
-				// 			...cot_refined[index],
-				// 			readings,
-				// 		};
-				// 	} else {
-				// 		cot_refined?.push({
-				// 			refined_sub_query_id: payload?.refined_sub_query_id,
-				// 			readings: [{ reading: payload?.reading }],
-				// 		});
-				// 	}
-				// }
-
-				// if (payload?.initial_answer) {
-				// 	initial_answer = {
-				// 		...initial_answer,
-				// 		...payload,
-				// 	};
-				// }
-
-				// if (payload?.final_answer) {
-				// 	final_answer = {
-				// 		...final_answer,
-				// 		...payload,
-				// 	};
-				// }
-
-				if (payload?.step && payload?.step_id) {
-					cot?.push({
-						step: payload?.step,
-						step_id: payload?.step_id,
-					});
-				} else if (payload?.reading && payload?.step_id) {
-					cot = cot?.map((item) => {
-						if (item?.step_id === payload?.step_id) {
-							item.readings = [
-								...(item?.readings || []),
-								{ reading: payload?.reading },
-							];
-						}
-						return item;
-					});
-				}
-
-				deepSearch = {
-					...deepSearch,
-					cot,
-				};
-
-				messages[requiredIndex] = {
-					...message,
-					...payload,
-					message: (message?.message || '') + (payload?.answer || ''),
-					messageId: payload?.message_id,
-					deepSearch,
-				};
-			} else if (processing === 'Deep Research') {
+			if (processing === 'Deep Research') {
 				let deepResearch = message?.deepResearch || {};
 				let cot = deepResearch?.cot || [];
 				let sections = deepResearch?.sections || [];
@@ -563,16 +499,13 @@ const actionHandlers = {
 					deepResearch,
 					messageId: payload?.message_id,
 				};
-			} else if (processing === 'Normal Search') {
-				let normalSearch = message?.normalSearch || {};
-				let cot = normalSearch?.cot || [];
+			} else if (cot === 'chain_of_thought' || payload?.step || payload?.reading) {
+				let chainOfThought = [...(message?.chainOfThought || [])];
 
 				if (payload?.step) {
-					cot?.push({
-						step: payload?.step,
-					});
+					chainOfThought?.push(payload);
 				} else if (payload?.reading && payload?.step_id) {
-					cot = cot?.map((item) => {
+					chainOfThought = chainOfThought?.map((item) => {
 						if (item?.step_id === payload?.step_id) {
 							item.readings = [
 								...(item?.readings || []),
@@ -582,23 +515,38 @@ const actionHandlers = {
 						return item;
 					});
 				}
-				normalSearch = {
-					...normalSearch,
-					cot,
-				};
+
 				messages[requiredIndex] = {
 					...message,
 					...payload,
 					message: (message?.message || '') + (payload?.answer || ''),
 					messageId: payload?.message_id,
-					normalSearch,
+					chainOfThought,
 				};
 			} else {
+				const { toolType, planType } = payload;
+				let hasBrowserChainOfThought = false;
+				if (toolType && toolType === 'tool') {
+					let browserTools = browserChainOfThought?.browserTools || [];
+					browserTools = [...browserTools, payload];
+					browserChainOfThought = {
+						...browserChainOfThought,
+						browserTools,
+					};
+					hasBrowserChainOfThought = true;
+				} else if (planType && planType === 'plan') {
+					browserChainOfThought = {
+						...browserChainOfThought,
+						browserPlan: payload,
+					};
+					hasBrowserChainOfThought = true;
+				}
 				messages[requiredIndex] = {
 					...message,
 					...payload,
 					message: (message?.message || '') + (payload?.answer || ''),
 					messageId: payload?.message_id,
+					...(hasBrowserChainOfThought && { browserChainOfThought }),
 				};
 			}
 		} else {
@@ -674,18 +622,32 @@ const actionHandlers = {
 		return { ...state, chatLoadingSessions };
 	},
 	HANDLE_TRANSCRIPTION_SUGGESTIONS: (state, action) => {
-		let {
-			suggested_prompt,
-			similar_files,
-			data = [],
-			revampedPrompt = [],
-		} = action?.payload || {};
+		let payload = action.payload;
+
+		if (action?.payload?.type) {
+			payload = action?.payload?.data || {};
+		}
+
+		let { suggested_prompt, similar_files, data = [], revampedPrompt = [] } = payload || {};
 		const aiTranscriptionSuggestions = state?.aiTranscriptionSuggestions || {};
 
 		let suggestions = [...(aiTranscriptionSuggestions?.suggestions || [])];
 
 		if (suggested_prompt) {
-			suggestions?.push(suggested_prompt);
+			if ('id' in suggested_prompt) {
+				const index = suggestions?.findIndex((s) => s.id === suggested_prompt.id);
+
+				if (index !== -1) {
+					// Replace existing
+					suggestions[index] = suggested_prompt;
+				} else {
+					// Add new
+					suggestions?.push(suggested_prompt);
+				}
+			} else {
+				// Old version → always push
+				suggestions?.push(suggested_prompt);
+			}
 		}
 
 		if (similar_files) {

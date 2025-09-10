@@ -4,7 +4,8 @@ import {
 	handleDeepSearchChainOfThought,
 	handleDeepResearchChainOfThought,
 	getBrowserUrls,
-} from '../../../helpers/chatHelpers';
+	handleBrowserData,
+} from '../../../helpers/chat/chatHelpers';
 import Context from '../../../context/context';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
@@ -14,7 +15,6 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import { debounce } from 'lodash';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
-import TextSelector from '../../components/chat/chatComponents/TextSelector';
 import ChatHeader from '../../components/chat/ChatHeader';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import { message } from '../../components/globalComponents/CustomToast';
@@ -33,8 +33,8 @@ const RecentChat = ({
 	animateChatBox = true,
 	showChatHistory = false,
 	showChats = false,
-	showBrowser = false,
 	showHeader = true,
+	showBrowser = false,
 }) => {
 	const {
 		templates: {
@@ -89,30 +89,26 @@ const RecentChat = ({
 			previousAgentType: null,
 			showScrollButton: false,
 			showViewDocument: false,
-			tooltipStyles: { visible: false, styles: { top: 0, left: 0 }, selectedText: '' },
 			deleteChatSessionLoading: false,
 			isNewChat: true,
 			currentUserMessageIndex: null,
-			getFollowUpQueries: false,
+			// getFollowUpQueries: false,
 			chatQuery: '',
 			citationsAiMessageIndex: null,
 			citationsModalIsOpen: false,
-			openBrowser: false,
-			browserDataAvailable: false,
-			browserPreviousActiveTabIndex: null,
 			isMobileView: false,
 			isChatHistoryClosed,
+			openBrowser: false,
+			browserDataAvailable: false,
 		};
 	});
 
 	const chatContentRef = useRef(null);
-	const chatMessagesRef = useRef([]);
 	const userMessagesRefs = useRef({});
 	// const previousAiMessagesRef = useRef([]);
 	// const aiCitationsByIdRef = useRef({});
 	const tabsRefs = useRef({});
 	const previousTabsRefs = useRef({});
-	const isFirstTimeConnectingToPublicChatRef = useRef(true);
 	const agentTimeoutIdRef = useRef(null);
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -131,11 +127,7 @@ const RecentChat = ({
 	}, [info.isChatHistoryClosed]);
 
 	useEffect(() => {
-		document.addEventListener('mouseup', handleMouseUp);
-
 		return () => {
-			document.removeEventListener('mouseup', handleMouseUp);
-
 			if (currentUserMessageTimeoutRef.current) {
 				clearTimeout(currentUserMessageTimeoutRef.current);
 				currentUserMessageTimeoutRef.current = null;
@@ -162,6 +154,7 @@ const RecentChat = ({
 					},
 					chatReplyData: null,
 					aiMessagesInfo: null,
+					isBrowserScreenActive: false,
 				});
 			}, 0);
 
@@ -185,27 +178,41 @@ const RecentChat = ({
 	}, []);
 
 	useEffect(() => {
-		if (browserData) {
-			setInfo((prev) => ({
-				...prev,
-				browserPreviousActiveTabIndex: browserData?.activeTabIndex,
-			}));
+		if (globalChatMessages?.[sessionId]?.open_browser) {
+			setInfo((prev) => {
+				if (prev?.openBrowser && prev?.browserDataAvailable) return prev;
+				return {
+					...prev,
+					openBrowser: true,
+					browserDataAvailable: true,
+				};
+			});
+			updateStateValues({ isBrowserScreenActive: true });
+		} else {
+			setInfo((prev) => {
+				if (!prev?.openBrowser && !prev?.browserDataAvailable) return prev;
+				return {
+					...prev,
+					openBrowser: false,
+					browserDataAvailable: false,
+				};
+			});
 		}
-	}, [browserData]);
+	}, [globalChatMessages?.[sessionId]?.open_browser]);
 
-	useEffect(() => {
-		if (info?.getFollowUpQueries) {
-			if (agentType !== 'knowledge_agent' && info?.chatQuery?.trim()?.length === 0) {
-				followUpQueryTimeoutRef.current = setTimeout(() => {
-					getFollowUpQueries(sessionId, info?.latestStreamMesage?.message_id);
-				}, 5000);
-			}
-			setInfo((prev) => ({
-				...prev,
-				getFollowUpQueries: false,
-			}));
-		}
-	}, [info?.getFollowUpQueries]);
+	// useEffect(() => {
+	// 	if (info?.getFollowUpQueries) {
+	// 		if (agentType !== 'knowledge_agent' && info?.chatQuery?.trim()?.length === 0) {
+	// 			followUpQueryTimeoutRef.current = setTimeout(() => {
+	// 				getFollowUpQueries(sessionId, info?.latestStreamMesage?.message_id);
+	// 			}, 5000);
+	// 		}
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			getFollowUpQueries: false,
+	// 		}));
+	// 	}
+	// }, [info?.getFollowUpQueries]);
 
 	useEffect(() => {
 		if (info?.chatQuery?.trim()?.length > 0) {
@@ -244,6 +251,7 @@ const RecentChat = ({
 						moduleTemplateId: null,
 					},
 					aiMessagesInfo: null,
+					isBrowserScreenActive: false,
 				});
 				tabsRefs.current = {};
 				userMessagesRefs.current = {};
@@ -252,8 +260,6 @@ const RecentChat = ({
 					scrollExecuted: false,
 					citationsModalIsOpen: false,
 					citationsAiMessageIndex: null,
-					browserDataAvailable: false,
-					browserPreviousActiveTabIndex: null,
 				}));
 			}
 			if (currentUserMessageTimeoutRef.current) {
@@ -266,16 +272,16 @@ const RecentChat = ({
 				agentTimeoutIdRef.current = null;
 			}
 
-			// if (!globalChatMessages?.[sessionId]) {
-			getRecentChatMessages({
-				sessionId,
-				page: 1,
-				fetchMore: false,
-				limit: 1000,
-				isPublicChat,
-				removeSessionId: false,
-			});
-			// }
+			if (!globalChatMessages?.[sessionId]?.open_browser) {
+				getRecentChatMessages({
+					sessionId,
+					page: 1,
+					fetchMore: false,
+					limit: 1000,
+					isPublicChat,
+					removeSessionId: false,
+				});
+			}
 
 			const sessionIdsToClose = newChatSessionIds?.filter(
 				(id) => !globalChatMessages?.[id]?.isStreaming,
@@ -355,17 +361,17 @@ const RecentChat = ({
 		}
 	}, [globalChatMessages, sessionId]);
 
-	useEffect(() => {
-		if (globalChatMessages?.[sessionId]?.browserData) {
-			setInfo((prev) => {
-				return {
-					...prev,
-					openBrowser: true,
-					browserDataAvailable: true,
-				};
-			});
-		}
-	}, [globalChatMessages?.[sessionId]?.browserData]);
+	// useEffect(() => {
+	// 	if (globalChatMessages?.[sessionId]?.browserData) {
+	// 		setInfo((prev) => {
+	// 			return {
+	// 				...prev,
+	// 				openBrowser: true,
+	// 				browserDataAvailable: true,
+	// 			};
+	// 		});
+	// 	}
+	// }, [globalChatMessages?.[sessionId]?.browserData]);
 
 	// useEffect(() => {
 	// 	if (!chatContentRef?.current || !tabsRefs?.current) return;
@@ -406,7 +412,6 @@ const RecentChat = ({
 	useEffect(() => {
 		globalChatMessagesRef.current = globalChatMessages;
 		if (!sessionId) return;
-		chatMessagesRef.current = [...(globalChatMessages?.[sessionId]?.messages || [])];
 
 		// const container = chatContentRef.current;
 		// if (!container) return;
@@ -501,17 +506,6 @@ const RecentChat = ({
 		}
 	}, [moreRecentChatStorage?.[sessionId]]);
 
-	const handleBrowserButtonClick = useCallback(() => {
-		if (!location?.pathname?.includes('chat')) {
-			navigate(`/chat/${sessionId}`);
-			return;
-		}
-		setInfo((prev) => ({
-			...prev,
-			openBrowser: !prev?.openBrowser,
-		}));
-	}, [sessionId]);
-
 	const handleChatHistoryToggle = useCallback(() => {
 		setInfo((prev) => ({
 			...prev,
@@ -524,54 +518,6 @@ const RecentChat = ({
 			...prev,
 			chatQuery: query,
 		}));
-	}, []);
-
-	const handleMouseUp = useCallback(() => {
-		const selection = window?.getSelection();
-		if (!selection?.isCollapsed) {
-			const range = selection?.getRangeAt(0);
-			const rects = range?.getClientRects();
-			const selectedText = selection?.toString();
-
-			if (rects?.length > 0) {
-				const firstRect = rects[0];
-				const x = firstRect?.left + window?.scrollX;
-				const y = firstRect?.top + window?.scrollY;
-
-				// Get the infinite scroll container height
-				const infiniteScrollContainer = document?.querySelector(
-					'.infinite-scroll-component__outerdiv',
-				);
-				const containerRect = infiniteScrollContainer?.getBoundingClientRect();
-
-				// Calculate x and y relative to the infinite scroll container
-				const relativeX = x - (containerRect?.left || 0);
-				const relativeY = y - 44 - (containerRect?.top || 0);
-
-				setInfo((prev) => ({
-					...prev,
-					tooltipStyles: {
-						selectedText,
-						visible: true,
-						styles: { top: relativeY, left: relativeX },
-					},
-				}));
-			}
-		} else {
-			setInfo((prev) => {
-				const { visible, styles } = prev?.tooltipStyles || {};
-				if (visible === false && styles?.top === 0 && styles?.left === 0) return prev;
-
-				return {
-					...prev,
-					tooltipStyles: {
-						selectedText: prev?.tooltipStyles?.selectedText,
-						visible: false,
-						styles: { top: 0, left: 0 },
-					},
-				};
-			});
-		}
 	}, []);
 
 	const handleScroll = useCallback(() => {
@@ -646,14 +592,15 @@ const RecentChat = ({
 					};
 				}
 				let processing = null,
-					memoryThinking = null;
-				let deepSearch = {},
-					deepResearch = {},
-					normalSearch = {};
+					browserChainOfThought = null,
+					openBrowser = false;
+
+				let deepResearch = {},
+					cot = [];
 
 				if (chainOfThought?.length > 0) {
 					for (let i = 0; i < chainOfThought?.length; i++) {
-						const { deep_search, deep_research, memory_thinking, normal_search } =
+						const { deep_search, deep_research, normal_search, open_browser } =
 							chainOfThought?.[i] || {};
 						if (deep_search) {
 							processing = 'Deep Search';
@@ -664,17 +611,20 @@ const RecentChat = ({
 						} else if (normal_search) {
 							processing = 'Normal Search';
 							break;
-						} else if (memory_thinking) {
-							memoryThinking = memory_thinking;
+						} else if (open_browser) {
+							openBrowser = true;
+							break;
 						}
 					}
 
 					if (processing === 'Deep Search') {
-						deepSearch = handleDeepSearchChainOfThought(chainOfThought);
+						cot = handleDeepSearchChainOfThought(chainOfThought);
 					} else if (processing === 'Deep Research') {
 						deepResearch = handleDeepResearchChainOfThought(chainOfThought);
 					} else if (processing === 'Normal Search') {
-						normalSearch = handleDeepSearchChainOfThought(chainOfThought);
+						cot = handleDeepSearchChainOfThought(chainOfThought);
+					} else if (openBrowser) {
+						browserChainOfThought = handleBrowserData(chainOfThought);
 					}
 				}
 
@@ -700,10 +650,10 @@ const RecentChat = ({
 						userFeedbackReasons,
 						userRemarks,
 						unintegrated_apps: unintegratedApps,
-						...(processing === 'Deep Search' && { deepSearch }),
+						...(processing === 'Deep Search' && { chainOfThought: cot }),
 						...(processing === 'Deep Research' && { deepResearch }),
-						...(processing === 'Normal Search' && { normalSearch }),
-						...(memoryThinking && { memory_thinking: memoryThinking }),
+						...(processing === 'Normal Search' && { chainOfThought: cot }),
+						...(browserChainOfThought && { browserChainOfThought }),
 					},
 				]?.concat(messages);
 			}
@@ -859,20 +809,23 @@ const RecentChat = ({
 		[info, sessionId, isPublicChat],
 	);
 
+	const handleBrowserButtonClick = useCallback(() => {
+		if (location?.pathname?.split('/')?.[1] !== 'chat') {
+			navigate(`/chat/${sessionId}`);
+			return;
+		}
+		setInfo((prev) => {
+			updateStateValues({ isBrowserScreenActive: !prev?.openBrowser });
+			return { ...prev, openBrowser: !prev?.openBrowser };
+		});
+	}, [location, sessionId, updateStateValues]);
+
 	// stream chat
 	const onMessageFunc = useCallback(
 		(event, currentSessionId) => {
 			let { data = '' } = event || {};
 			data = JSON?.parse(data);
 
-			if (data?.hasOwnProperty('intermediate_response')) {
-				handleGlobalChatMessages({
-					payload: data,
-					sessionId,
-					updateExtraInfo: true,
-				});
-				return;
-			}
 			if (data?.user_id) {
 				localStorage?.setItem('user_id', data?.user_id);
 			}
@@ -908,7 +861,7 @@ const RecentChat = ({
 					latestStreamMessage: data,
 				});
 
-				if (chatMessagesRef?.current?.length === 2) {
+				if (!globalChatMessages?.[sessionId]?.messages?.length) {
 					const payload = {
 						sessionId,
 						page: 1,
@@ -919,25 +872,26 @@ const RecentChat = ({
 				setInfo((prev) => ({
 					...prev,
 					latestStreamMesage: data,
-					...(sessionId === currentSessionId &&
-						!data?.used_agents?.includes('custom_agents_manager_agent') && {
-							getFollowUpQueries: true,
-						}),
+					// ...(sessionId === currentSessionId &&
+					// 	!data?.used_agents?.includes('custom_agents_manager_agent') && {
+					// 		getFollowUpQueries: true,
+					// 	}),
 				}));
 			}
-			const { message_chunk_id, open_browser } = data;
+			const { message_chunk_id, url_type, browserMetadata } = data;
 
-			if (open_browser) {
-				getBrowserUrls(
+			// if (toolName) {
+			// 	getBrowserUrls(sessionId, handleGlobalChatMessages);
+			// }
+
+			if (message_chunk_id && (url_type === 'live_view' || browserMetadata)) {
+				handleGlobalChatMessages({
+					payload: data,
+					chunkId: message_chunk_id,
 					sessionId,
-					handleGlobalChatMessages,
-					info?.browserPreviousActiveTabIndex,
-				);
-				setInfo((prev) => ({
-					...prev,
-					browserDataAvailable: true,
-					openBrowser: true,
-				}));
+					updateExtraInfo: true,
+				});
+				return;
 			}
 
 			if (message_chunk_id) {
@@ -953,7 +907,7 @@ const RecentChat = ({
 				});
 			}
 		},
-		[globalChatMessages, sessionId, info?.browserPreviousActiveTabIndex],
+		[globalChatMessages, sessionId],
 	);
 
 	const handleSendWebsocketMessage = useCallback(
@@ -1075,11 +1029,6 @@ const RecentChat = ({
 							// 	'--chat-content-height': `${chatContentRef?.current?.clientHeight}px`,
 							// }}
 						>
-							<TextSelector
-								styles={info?.tooltipStyles?.styles}
-								text={info?.tooltipStyles?.selectedText}
-								visible={info?.tooltipStyles?.visible}
-							/>
 							<InfiniteScroll
 								dataLength={globalChatMessages?.length || 0}
 								next={fetchMoreData}
@@ -1113,7 +1062,7 @@ const RecentChat = ({
 																1
 																? `${
 																		chatContentRef?.current
-																			?.clientHeight - 177
+																			?.clientHeight - 157
 																  }px`
 																: 'auto',
 													}}
@@ -1244,27 +1193,35 @@ const RecentChat = ({
 								animateChatBox={animateChatBox}
 								sessionId={sessionId}
 								handleBrowserButtonClick={handleBrowserButtonClick}
-								showBrowserButton={
-									!info?.openBrowser && info?.browserDataAvailable && showBrowser
+								showBrowserButton={!info?.openBrowser && info?.browserDataAvailable}
+								browserImage={
+									globalChatMessages?.[sessionId]?.browserData?.browserMetadata
+										?.signedUrl
 								}
 							/>
 						</div>
 					</div>
+
+					<div className="ve-mistake-text">
+						Ve can make mistakes. Double check important info.
+					</div>
 				</div>
 
-				<div
-					className="browser-container"
-					style={{
-						width: info?.openBrowser && showBrowser ? '45vw' : '0px',
-					}}
-				>
-					<Browser
-						sessionId={sessionId}
-						isOpen={info?.openBrowser && showBrowser}
-						browserData={browserData}
-						handleBrowserButtonClick={handleBrowserButtonClick}
-					/>
-				</div>
+				{showBrowser && (
+					<div
+						className="browser-container"
+						style={{
+							width: info?.openBrowser ? '50vw' : '0px',
+						}}
+					>
+						<Browser
+							sessionId={sessionId}
+							isOpen={info?.openBrowser}
+							browserData={browserData}
+							handleBrowserButtonClick={handleBrowserButtonClick}
+						/>
+					</div>
+				)}
 			</div>
 
 			<CitationsModal

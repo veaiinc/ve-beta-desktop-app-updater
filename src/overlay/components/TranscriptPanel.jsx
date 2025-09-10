@@ -1,6 +1,7 @@
 import { useEffect, useRef, memo, useState } from 'react';
-import { Clock, Expand, Mic, MicOff, X, ChevronDown } from 'lucide-react';
+import { Clock, Expand, Mic, MicOff, CircleX, AlertCircle } from 'lucide-react';
 import './transcript-panel.scss';
+import moment from 'moment';
 
 // Memoized TranscriptionItem component
 const TranscriptionItem = memo(({ speaker, text, timestamp }) => {
@@ -14,8 +15,10 @@ const TranscriptionItem = memo(({ speaker, text, timestamp }) => {
 			</div>
 			<div className="transcript-item-content">
 				<div className="transcript-item-header">
-					<span className="transcript-item-speaker">{speaker}</span>
-					<span className="transcript-item-time">{timestamp}</span>
+					<span className="transcript-item-speaker">{speaker || 'VE Note taker'}</span>
+					<span className="transcript-item-time">
+						{moment(timestamp).format('HH:mm:ss')}
+					</span>
 				</div>
 				<div className="transcript-item-text">{text}</div>
 			</div>
@@ -23,80 +26,74 @@ const TranscriptionItem = memo(({ speaker, text, timestamp }) => {
 	);
 });
 
-const TranscriptPanel = ({ 
-	onClose, 
+TranscriptionItem.displayName = 'TranscriptionItem';
+
+const TranscriptPanel = ({
+	onClose,
 	onShowLiveIntelligence,
 	// Shared state from parent
 	transcriptions,
 	isRecording,
+	isPaused = false,
 	timer,
-	isMuted,
+	isMuted = false,
 	isConnected,
-	localAudioTrack,
+	// localAudioTrack,
 	formatTime,
 	// Control functions from parent
 	onStartTranscription,
 	onStopTranscription,
 	onMuteAudio,
 	onUnmuteAudio,
-	onClearTranscripts
+	onClearTranscripts,
 }) => {
 	const containerRef = useRef(null);
-	const [showScrollButton, setShowScrollButton] = useState(false);
 
-	// Check if user has scrolled up from bottom
-	const handleScroll = () => {
-		if (containerRef.current) {
-			const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-			const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px threshold
-			setShowScrollButton(!isAtBottom && transcriptions.length > 0);
-		}
-	};
-
-	// Scroll to bottom function
-	const scrollToBottom = () => {
+	// Auto-scroll to bottom when new transcriptions are added
+	useEffect(() => {
 		if (containerRef.current) {
 			containerRef.current.scrollTop = containerRef.current.scrollHeight;
 		}
-	};
-
-	// No auto-scroll - user controls scrolling manually
+	}, [transcriptions]);
 
 	return (
 		<div className="transcript-panel">
 			<div className="transcript-panel-header">
 				<div className="transcript-panel-header-left">
 					<h2 className="transcript-panel-header-left-title">
-						Transcript {isRecording && formatTime(timer)}
+						Transcript{' '}
+						{isRecording && (
+							<span className={`recording-timer ${isPaused ? 'paused' : ''}`}>
+								{isPaused ? '⏸ ' : ''}
+								{formatTime(timer)}
+							</span>
+						)}
 					</h2>
 				</div>
 				<div className="transcript-panel-header-right">
-					<button 
-						className="transcript-panel-header-right-button" 
+					<button
+						className="transcript-panel-header-right-button"
 						onClick={onShowLiveIntelligence}
 						title="Show Live Intelligence"
 					>
 						<Clock size={16} />
 						<span>Show Live Intelligence</span>
 					</button>
-					<button 
-						className="transcript-panel-header-action"
-						title="Expand"
-					>
+					{/* <button className="transcript-panel-header-action" title="Expand">
 						<Expand size={16} />
-					</button>
-					<button 
+					</button> */}
+					<button
 						className="transcript-panel-header-action"
 						onClick={onClose}
-						title="Close"
+						title="Hide Overlay"
 					>
-						<X size={16} />
+						<CircleX size={16} />
 					</button>
 				</div>
 			</div>
-			
+
 			<div className="transcript-content-container">
-				<div className="transcript-content" ref={containerRef} onScroll={handleScroll}>
+				<div className="transcript-content" ref={containerRef}>
 					{transcriptions.length > 0 ? (
 						transcriptions.map((item) => (
 							<TranscriptionItem
@@ -108,71 +105,53 @@ const TranscriptPanel = ({
 						))
 					) : (
 						<div className="transcript-placeholder">
-							{isRecording ? 'Listening...' : 'Start recording to see transcript'}
+							{isRecording
+								? 'Listening...'
+								: 'Click Listen to start recording and see transcript'}
 						</div>
 					)}
 				</div>
-				
-				{/* Scroll to bottom button */}
-				{showScrollButton && (
-					<button 
-						className="scroll-to-bottom-btn"
-						onClick={scrollToBottom}
-						title="View Latest"
-					>
-						<ChevronDown size={16} />
-						<span>View Latest</span>
-					</button>
-				)}
 			</div>
-
+			{/* 
 			<div className="transcript-controls">
-				<div className="transcript-timer">
-					{formatTime(timer)}
-				</div>
-				
+				<div className="transcript-timer">{formatTime(timer)}</div>
+
 				<div className="transcript-status">
 					{isRecording ? (
-						isMuted ? (
+						isPaused ? (
+							<div className="status-paused">Paused</div>
+						) : isMuted ? (
 							<div className="status-muted">Muted</div>
 						) : (
-							<div className="status-recording">Recording...</div>
+							<div className="status-recording">
+								<span>Recording</span>
+								<div className="recording-wave-animation">
+									<div className="wave-bar"></div>
+									<div className="wave-bar"></div>
+									<div className="wave-bar"></div>
+									<div className="wave-bar"></div>
+									<div className="wave-bar"></div>
+								</div>
+							</div>
 						)
 					) : (
-						<div className="status-inactive">Ready to record</div>
+						<div className="status-inactive">Click Listen to start recording</div>
 					)}
 				</div>
 
 				<div className="transcript-actions">
-					{isRecording ? (
-						<>
-							<button
-								className="control-btn stop-btn"
-								onClick={onStopTranscription}
-								title="Stop Recording"
-							>
-								<X size={18} />
-							</button>
-							<button
-								className={`control-btn mic-btn ${isMuted ? 'muted' : ''}`}
-								onClick={isMuted ? onUnmuteAudio : onMuteAudio}
-								disabled={!localAudioTrack || !isConnected}
-								title={isMuted ? 'Unmute' : 'Mute'}
-							>
-								{isMuted ? <MicOff size={18} /> : <Mic size={18} />}
-							</button>
-						</>
-					) : (
+					{isRecording && (
 						<button
-							className="control-btn start-btn"
-							onClick={onStartTranscription}
-							title="Start Recording"
+							className={`control-btn mic-btn ${isMuted ? 'muted' : ''}`}
+							onClick={isMuted ? onUnmuteAudio : onMuteAudio}
+							disabled={!localAudioTrack || !isConnected}
+							title={isMuted ? 'Unmute' : 'Mute'}
 						>
-							<Mic size={18} />
+							{isMuted ? <MicOff size={18} /> : <Mic size={18} />}
 						</button>
 					)}
 				</div>
-			</div>
+			</div> */}
 		</div>
 	);
 };
