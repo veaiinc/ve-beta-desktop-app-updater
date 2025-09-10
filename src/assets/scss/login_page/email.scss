@@ -1,7 +1,7 @@
 .verify-user-container {
 	display: flex;
 	flex-direction: column;
-	gap: 18px;
+	gap: 40px;
 	max-width: 400px;
 	width: 100%;
 	height: auto;
@@ -228,80 +228,78 @@
 				}
 			}
 		}
-	}
 
-	.service-container {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		width: 100%;
-		.google-login-button {
+		.service-container {
 			display: flex;
-			height: 45px;
-			padding: 14px 16px;
-			justify-content: space-between;
+			flex-direction: column;
 			align-items: center;
-			align-self: stretch;
-			border-radius: 8px;
-			background: #fff;
-			color: #18181b;
-			font-family: var(--primary-font-family);
-			cursor: pointer;
-			font-size: 14px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-			transition: all 0.3s ease;
-			&:hover {
-				background: #34a0901a;
-			}
-
-			.google-logo-container {
+			width: 100%;
+			.google-login-button {
 				display: flex;
+				height: 45px;
+				padding: 14px 16px;
+				justify-content: space-between;
 				align-items: center;
-				gap: 12px;
-				p {
-					margin-top: 0;
-					margin-bottom: 0;
+				align-self: stretch;
+				border-radius: 8px;
+				background: #fff;
+				color: #18181b;
+				font-family: var(--primary-font-family);
+				cursor: pointer;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				transition: all 0.3s ease;
+				&:hover {
+					background: #34a0901a;
+				}
+
+				.google-logo-container {
+					display: flex;
+					align-items: center;
+					gap: 12px;
+					p {
+						margin-top: 0;
+						margin-bottom: 0;
+					}
 				}
 			}
 		}
-	}
 
-	.or-divider {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		margin: 16px 0;
-		width: 100%;
-		position: relative;
-
-		.or-text {
-			color: #18181b;
-			font-family: var(--primary-font-family);
-			font-size: 12px;
-			font-style: normal;
-			font-weight: 400;
-			line-height: normal;
-			background: #f3f6f5;
-			padding: 0 24px;
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-		}
-
-		.line {
+		.or-divider {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			margin: 16px 0;
 			width: 100%;
-			height: 1px;
-			background: grey;
+			position: relative;
+
+			.or-text {
+				color: #18181b;
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				background: #f3f6f5;
+				padding: 0 24px;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+			}
+
+			.line {
+				width: 100%;
+				height: 1px;
+				background: var(--stroke, #2c2d2e);
+			}
 		}
 	}
 
 	.acknowledge-container {
 		color: var(--primary-font, #f2f2f3);
-		position: absolute;
-		bottom: 6px;
 		.acknowledge-text {
 			color: #7f858f;
 			text-align: center;
