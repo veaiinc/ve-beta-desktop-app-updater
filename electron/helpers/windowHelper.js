@@ -1126,9 +1126,17 @@ class WindowHelper {
 		const cmdShiftPRegistered = globalShortcut.register('CommandOrControl+Shift+P', () => {
 			log.info('Cmd+Shift+P pressed - toggling content protection (invisibility mode)');
 			
-			// Send IPC message to main process to toggle content protection
+			// Call the toggle function directly through IPC invoke
 			if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-				this.mainWindow.webContents.send('shortcut-toggle-content-protection');
+				this.mainWindow.webContents.executeJavaScript(`
+					if (window.electronApi && window.electronApi.toggleContentProtection) {
+						window.electronApi.toggleContentProtection().then(status => {
+							console.log('🎯 Content Protection toggled via shortcut:', status ? 'ON' : 'OFF');
+						}).catch(err => {
+							console.error('Error toggling content protection:', err);
+						});
+					}
+				`);
 			}
 		});
 
@@ -1141,7 +1149,15 @@ class WindowHelper {
 				const altProtectionRegistered = globalShortcut.register('Ctrl+Alt+P', () => {
 					log.info('Ctrl+Alt+P pressed - toggling content protection');
 					if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-						this.mainWindow.webContents.send('shortcut-toggle-content-protection');
+						this.mainWindow.webContents.executeJavaScript(`
+							if (window.electronApi && window.electronApi.toggleContentProtection) {
+								window.electronApi.toggleContentProtection().then(status => {
+									console.log('🎯 Content Protection toggled via shortcut:', status ? 'ON' : 'OFF');
+								}).catch(err => {
+									console.error('Error toggling content protection:', err);
+								});
+							}
+						`);
 					}
 				});
 				if (altProtectionRegistered) {

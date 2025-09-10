@@ -1431,38 +1431,8 @@ app.whenReady().then(async () => {
 	// Simple Content Protection IPC handlers
 	ipcMain.handle('toggle-content-protection', () => {
 		const newStatus = toggleContentProtection();
-		
-		// Show system notification
-		showNotification(
-			'Content Protection',
-			newStatus 
-				? '🔒 Invisibility enabled - App windows are now protected'
-				: '👁️ Invisibility disabled - App windows are now visible'
-		);
-		
-		return newStatus;
-	});
-
-	ipcMain.handle('get-content-protection-status', () => {
-		return getContentProtectionStatus();
-	});
-
-	ipcMain.handle('set-content-protection', (event, enabled) => {
-		return setContentProtection(enabled);
-	});
-
-	// Register shortcut-triggered content protection handler
-	ipcMain.on('shortcut-toggle-content-protection', (event) => {
-		const newStatus = toggleContentProtection();
 		const statusText = newStatus ? 'ON' : 'OFF';
 		const windowCount = BrowserWindow.getAllWindows().length;
-		
-		// Send notification to all renderer processes about the change
-		BrowserWindow.getAllWindows().forEach(window => {
-			if (!window.isDestroyed()) {
-				window.webContents.send('content-protection-changed', newStatus);
-			}
-		});
 		
 		// Show system notification with clear status
 		showNotification(
@@ -1473,8 +1443,21 @@ app.whenReady().then(async () => {
 		);
 		
 		// Also log to console for debugging
-		console.log(`🎯 SHORTCUT TRIGGERED: Content Protection is now ${statusText}`);
+		console.log(`🎯 TOGGLE TRIGGERED: Content Protection is now ${statusText}`);
+		
+		return newStatus;
 	});
+
+	ipcMain.handle('get-content-protection-status', () => {
+		const status = getContentProtectionStatus();
+		console.log(`📋 Current content protection status: ${status ? 'ON' : 'OFF'}`);
+		return status;
+	});
+
+	ipcMain.handle('set-content-protection', (event, enabled) => {
+		return setContentProtection(enabled);
+	});
+
 
 	// Register Ask AI window IPC handlers
 	ipcMain.handle('toggle-askAI-window', async () => {
