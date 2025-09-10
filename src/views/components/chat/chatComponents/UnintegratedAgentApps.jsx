@@ -31,8 +31,9 @@ const UnintegratedAgentApps = ({ apps = [] }) => {
 		// Check if we have auth_schemes data
 		// const authSchemes = appData?.auth_schemes;
 		// const firstAuthScheme = authSchemes && authSchemes.length > 0 ? authSchemes[0] : null;
+		const hasOAUTH2 = appData?.composio_managed_auth_schemes?.includes?.('OAUTH2');
 
-		if (requiresAuth === true && primaryAuthScheme === 'OAUTH2') {
+		if (hasOAUTH2) {
 			// OAuth flow - make API call to get OAuth URL
 			setInfo((prev) => ({
 				...prev,
@@ -42,14 +43,15 @@ const UnintegratedAgentApps = ({ apps = [] }) => {
 
 			try {
 				const [connectSuccess, response] = await connectTool({
-					slug: appData.app,
+					toolkit_slug: appData.app,
 					auth_scheme: 'OAUTH2',
+					variant: 'use_custom_auth',
 				});
 
-				if (connectSuccess && response?.data?.oauth_url) {
+				if (connectSuccess && response?.data?.redirectUrl) {
 					// OAuth flow - open URL in new tab
-					window.open(response.data.oauth_url, '_blank');
-					message.success('App connected successfully');
+					window.open(response.data.redirectUrl, '_blank');
+					// message.success('App connected successfully');
 					updateStateValues({ activeInputForChat: 'I have integrated, please proceed' });
 					setInfo((prev) => ({
 						...prev,

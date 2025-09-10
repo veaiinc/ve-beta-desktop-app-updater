@@ -1,12 +1,8 @@
 import React, { Component } from 'react';
 import ImageItem from '../../elements/image';
+import { EditNavbar as Edit } from '../../../builder_client_common';
 import './NavbarCompStyles.scss';
-import {
-	ElementSidebar,
-	DownloadPDF,
-	Dropdown as DropDownSvg,
-	EditNavbar as Edit,
-} from '../../../builder_client_common';
+import { ElementSidebar, DownloadPDF, DropDownSvg } from '../../../builder_client_common';
 import CartIcons from '../NabarWrapper/CartIcons';
 import _ from 'lodash';
 import { Tooltip } from 'antd';
@@ -970,7 +966,13 @@ class NavbarComponent extends Component {
 												className="cart-count"
 											>
 												{this.props?.currencySymbol}
-												{this.props?.finalTotalCost || 0}
+												{this.props?.finalTotalCost?.toLocaleString(
+													`en-${
+														this.props?.currencySymbol == '$'
+															? 'US'
+															: 'IN'
+													}`,
+												) || 0}
 											</div>
 										)}
 									</div>
@@ -1271,10 +1273,11 @@ class NavbarComponent extends Component {
 													: `${
 															this.props?.currencySymbol
 													  } ${this.props?.returnCartValue()}`?.toLocaleString(
-															'en-IN',
-															{
-																currency: 'INR',
-															},
+															`en-${
+																this.props?.currencySymbol == '$'
+																	? 'US'
+																	: 'IN'
+															}`,
 													  )}
 											</div>
 										)}

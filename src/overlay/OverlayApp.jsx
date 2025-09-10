@@ -1,92 +1,185 @@
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
-import { Track } from 'livekit-client';
-import { useTrackTranscription } from '@livekit/components-react';
+import { GripHorizontal } from 'lucide-react';
 import Context from '../context/context';
-import useNote from '../hooks/useNote';
-import useLiveIntelligenceStream from '../hooks/useLiveIntelligenceStream';
-import useRecallStream from '../hooks/useRecallStream';
-import { message } from 'antd';
 import ObjectID from 'bson-objectid';
 import OverlayCommands from './OverlayCommands';
 import ShortcutBar from './components/ShortcutBar';
-import ScreenQueryBar from './components/ScreenQueryBar';
 import LiveIntelligencePanel from './components/LiveIntelligencePanel';
 import TranscriptPanel from './components/TranscriptPanel';
+import OverlayNotification, { useOverlayNotification } from './components/OverlayNotification';
 import './overlay.scss';
+import useAssemblyTranscription from './hooks/useAssemblyTranscription';
 
 const OverlayApp = () => {
 	const containerRef = useRef(null);
-	const [showScreenQuery, setShowScreenQuery] = useState(false);
-	// Single state to control which panel is shown: 'live-intelligence' or 'transcript'
-	const [activePanel, setActivePanel] = useState('live-intelligence');
+	// State to control which panel is shown: 'live-intelligence', 'transcript', or null
+	const [activePanel, setActivePanel] = useState(null);
 
-	// Shared Recording State
-	const wsUrl = 'wss://ve-ai-transcriptions-8p8k0b44.livekit.cloud';
-	const [liveKitToken, setLiveKitToken] = useState(null);
-	const [transcriptions, setTranscriptions] = useState([]);
-	const [isRecording, setIsRecording] = useState(false);
-	const [timer, setTimer] = useState(0);
+	// State to control whether to show ShortcutBar (false when controlled by Dynamic Island)
+	const [showShortcutBar, setShowShortcutBar] = useState(false);
+	const [isDynamicIslandControlled, setIsDynamicIslandControlled] = useState(false);
 
-	// Live Intelligence Socket Data
-	const [liveIntelligenceData, setLiveIntelligenceData] = useState({
-		allThreads: [],
-		askUser: [],
-		needHelp: [],
-		actions: [],
-		files: [],
+	// Custom notification system
+	const notification = useOverlayNotification();
+
+	const [info, setInfo] = useState({
+		isMeetIsOngoing: false,
+		transcriptions: [],
+		isPaused: false,
+		meetingData: null,
+		liveIntelligenceData: {
+			askUser: [],
+			needHelp: [],
+			actions: [],
+			files: [],
+			allThreads: [],
+		},
 	});
-	const [recallSessionId, setRecallSessionId] = useState(null);
+
+	// Ask AI input state
+	const [isAskAIInputFocused, setIsAskAIInputFocused] = useState(false);
 
 	// Refs for data management
-	const transcriptionsMapRef = useRef(new Map());
-	const displayedTextMapRef = useRef(new Map());
-	const typingIntervalsRef = useRef(new Map());
-	const processedSegmentsRef = useRef(new Map());
 	const isMountedRef = useRef(false);
 	const sessionIdRef = useRef(null);
+	const isStoppingRef = useRef(false);
 
 	// Context
 	const {
-		notes: { getLiveKitToken, deleteLiveKitRoom },
+		notes: { getLiveKitToken, deleteLiveKitRoom, createMeetBot },
 		profileInfo: { tennantSettingsData, getTenantSettings },
+		templates: {
+			handleTranscriptionSuggestions,
+			aiTranscriptionSuggestions,
+			updateStateValues,
+		},
 	} = useContext(Context);
 
-	// Custom Hooks
+	const handleUpdateTranscription = (newTranscript) => {
+		// Get the transcript text from various possible sources
+		const transcriptText =
+			newTranscript.transcript || newTranscript.displayedText || newTranscript.text || '';
+
+		// Only update transcription activity if we have meaningful content
+		// This helps distinguish between empty/partial transcripts and actual speech
+		if (transcriptText.trim().length > 0) {
+			// Update transcription activity in main process
+			if (window.electronApi?.areYouThere?.updateTranscriptionActivity) {
+				window.electronApi.areYouThere.updateTranscriptionActivity();
+			}
+			console.log(
+				'🎤 Meaningful transcription detected:',
+				transcriptText.substring(0, 50) + '...',
+			);
+		} else {
+			console.log('🎤 Empty or partial transcription received - not updating activity timer');
+		}
+
+		setInfo((prev) => {
+			const transcriptions = prev.transcriptions || [];
+
+			// Check if this transcript already exists (to avoid duplicates)
+			const existingTranscript = transcriptions.find(
+				(t) =>
+					t.text === transcriptText ||
+					t.transcript === transcriptText ||
+					t.id === newTranscript.id, // Also check by ID
+			);
+
+			if (existingTranscript) {
+				return prev; // Don't add duplicate
+			}
+
+			// Check if this is a continuation of the last transcript (same session)
+			const lastTranscript = transcriptions[transcriptions.length - 1];
+			let isContinuation = false;
+			if (newTranscript?.isTurnFormatted) {
+				isContinuation = true;
+			} else {
+				isContinuation = lastTranscript && !lastTranscript.isFinal;
+			}
+
+			if (!newTranscript.isFinal) {
+				// Partial transcript - update the last entry if it's a continuation
+				if (isContinuation) {
+					// Update the last entry with the new partial text
+					const updated = [...transcriptions];
+					updated[updated.length - 1] = {
+						...updated[updated.length - 1],
+						...newTranscript,
+						text: transcriptText,
+						transcript: transcriptText,
+						time: new Date().toLocaleTimeString(),
+					};
+					return { ...prev, transcriptions: updated };
+				} else {
+					// New partial transcript - add as new entry
+					return {
+						...prev,
+						transcriptions: [
+							...transcriptions,
+							{
+								...newTranscript,
+								text: transcriptText,
+								transcript: transcriptText,
+								time: new Date().toLocaleTimeString(),
+							},
+						],
+					};
+				}
+			} else {
+				// Final transcript - update the last entry if it's a continuation, otherwise append
+				if (isContinuation) {
+					// Finalize the last entry
+					const updated = [...transcriptions];
+					updated[updated.length - 1] = {
+						...updated[updated.length - 1],
+						...newTranscript,
+						text: transcriptText,
+						transcript: transcriptText,
+						time: new Date().toLocaleTimeString(),
+						isFinal: true,
+					};
+					return { ...prev, transcriptions: updated };
+				} else {
+					// New final transcript - append as new entry
+					return {
+						...prev,
+						transcriptions: [
+							...transcriptions,
+							{
+								...newTranscript,
+								text: transcriptText,
+								transcript: transcriptText,
+								time: new Date().toLocaleTimeString(),
+								isFinal: true,
+							},
+						],
+					};
+				}
+			}
+		});
+	};
+
 	const {
-		disconnect,
 		isConnected,
-		localAudioTrack,
-		localParticipant,
-		isMuted,
-		muteAudio,
-		unmuteAudio,
-	} = useNote({
-		wsUrl,
-		token: liveKitToken,
 		isRecording,
+		isMuted,
+		isPaused,
+		timer,
+		connectionStatus,
+		startAudioCapture,
+		stopRecording,
+		toggleMute,
+		pauseRecording,
+		resumeRecording,
+		// formatTime,
+		startRecording,
+	} = useAssemblyTranscription({
+		onTranscriptionUpdate: handleUpdateTranscription,
+		onLiveIntelligenceResponse: handleTranscriptionSuggestions,
+		notification,
 	});
-
-	const { closeWebSocketConnection: closeLiveIntelligenceConnection } =
-		useLiveIntelligenceStream();
-
-	// Recall Stream Hook for Live Intelligence
-	const {
-		createWebSocketConnection: createRecallConnection,
-		closeWebSocketConnection: closeRecallConnection,
-		sendMessage: sendRecallMessage,
-	} = useRecallStream();
-
-	// Track reference for transcription
-	const trackRef =
-		localParticipant && localAudioTrack
-			? {
-					publication: localParticipant.getTrackPublication(Track.Source.Microphone),
-					source: Track.Source.Microphone,
-					participant: localParticipant,
-			  }
-			: undefined;
-
-	const { segments } = useTrackTranscription(trackRef);
 
 	// Utility Functions
 	const formatTime = (seconds) => {
@@ -98,372 +191,305 @@ const OverlayApp = () => {
 	};
 
 	const formatTimestamp = () => {
+		// Show current time
 		const now = new Date();
+		const hours = now.getHours().toString().padStart(2, '0');
 		const minutes = now.getMinutes().toString().padStart(2, '0');
-		const seconds = now.getSeconds().toString().padStart(2, '0');
-		return `${minutes}:${seconds}`;
+		return `${hours}:${minutes}`;
 	};
-
-	// Typing Effect Function
-	const startTypingEffect = useCallback((id, fullText, isFinal) => {
-		// Clear any existing interval for this transcription
-		if (typingIntervalsRef.current.has(id)) {
-			clearInterval(typingIntervalsRef.current.get(id));
-			typingIntervalsRef.current.delete(id);
-		}
-
-		const currentDisplayed = displayedTextMapRef.current.get(id) || '';
-		const remainingText = fullText.slice(currentDisplayed.length);
-
-		if (remainingText.length === 0) {
-			if (isFinal) {
-				displayedTextMapRef.current.set(id, fullText);
-			}
-			const updatedTranscriptions = Array.from(transcriptionsMapRef.current.values()).map(
-				(transcription) => ({
-					id: transcription.id,
-					speaker: transcription.speaker,
-					text: displayedTextMapRef.current.get(transcription.id) || '',
-					timestamp: transcription.timestamp,
-					isFinal: transcription.isFinal,
-				}),
-			);
-			setTranscriptions(updatedTranscriptions);
-			return;
-		}
-
-		let index = 0;
-		const interval = setInterval(() => {
-			if (!isMountedRef.current) {
-				clearInterval(interval);
-				typingIntervalsRef.current.delete(id);
-				return;
-			}
-
-			index += 1;
-			const newDisplayedText = currentDisplayed + remainingText.slice(0, index);
-			displayedTextMapRef.current.set(id, newDisplayedText);
-
-			const updatedTranscriptions = Array.from(transcriptionsMapRef.current.values()).map(
-				(transcription) => ({
-					id: transcription.id,
-					speaker: transcription.speaker,
-					text: displayedTextMapRef.current.get(transcription.id) || '',
-					timestamp: transcription.timestamp,
-					isFinal: transcription.isFinal,
-				}),
-			);
-			setTranscriptions(updatedTranscriptions);
-
-			if (index >= remainingText.length) {
-				clearInterval(interval);
-				typingIntervalsRef.current.delete(id);
-			}
-		}, 30);
-
-		typingIntervalsRef.current.set(id, interval);
-	}, []);
 
 	useEffect(() => {
 		if (!tennantSettingsData) {
 			getTenantSettings();
 		}
 	}, []);
-	// Handle Recall Socket Messages for Live Intelligence
-	const handleRecallSocketMessage = useCallback((event) => {
-		try {
-			const msg = JSON.parse(event?.data || null);
-			console.log('Received socket message:', msg); // Debug log
 
-			if (msg?.event === 'live_intelligence.response' && msg?.data?.suggested_prompt) {
-				const suggestion = msg.data.suggested_prompt;
-
-				// Add timestamp from the message
-				const enhancedSuggestion = {
-					...suggestion,
-					timestamp: msg.data.timestamps?.start_timestamp
-						? msg.data.timestamps.start_timestamp * 1000 // Convert to milliseconds
-						: Date.now(),
-				};
-
-				setLiveIntelligenceData((prev) => {
-					const userQuestions = [...prev.askUser];
-					const aiQuestions = [...prev.needHelp];
-					const actions = [...prev.actions];
-					const files = [...prev.files];
-					let allThreads = [...prev.allThreads];
-
-					// Categorize the new suggestion
-					if (suggestion?.entity === 'user' || suggestion?.entity === 'other_user') {
-						userQuestions.push(enhancedSuggestion);
-						console.log('Added to askUser:', enhancedSuggestion);
-					} else if (
-						suggestion?.entity === 'agent' ||
-						suggestion?.entity?.includes('agent')
-					) {
-						if (suggestion?.type === 'search') {
-							aiQuestions.push(enhancedSuggestion);
-							console.log('Added to needHelp:', enhancedSuggestion);
-						} else if (suggestion?.type === 'action') {
-							actions.push(enhancedSuggestion);
-							console.log('Added to actions:', enhancedSuggestion);
-						}
-					} else if (suggestion?.entity === 'file') {
-						files.push(enhancedSuggestion);
-						console.log('Added to files:', enhancedSuggestion);
-					}
-
-					// Add to all threads
-					allThreads.push(enhancedSuggestion);
-
-					// Sort all threads by timestamp (newest first)
-					allThreads.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-					const newData = {
-						allThreads,
-						askUser: userQuestions,
-						needHelp: aiQuestions,
-						actions,
-						files,
-					};
-
-					console.log('Updated liveIntelligenceData:', newData);
-					return newData;
-				});
-			}
-		} catch (error) {
-			console.error('Error parsing recall socket message:', error);
-		}
-	}, []);
-
-	// Send transcription to Recall socket
-	const sendTranscriptionToRecall = useCallback(
-		(transcriptionData) => {
-			if (
-				transcriptionData?.isFinal &&
-				sendRecallMessage &&
-				recallSessionId &&
-				tennantSettingsData?._id
-			) {
-				const message = {
-					tenantId: tennantSettingsData._id,
-					sessionId: recallSessionId,
-					pageId: '688b653dde81dd3d71a41584', // Default pageId from NoteTakerTranscript
-					meetingId: recallSessionId,
-					speakerName: 'VE Note Taker',
-					transcript: transcriptionData.text || transcriptionData.transcript,
-					description: '',
-				};
-				sendRecallMessage({ noteTakerTranscript: message });
-			}
-		},
-		[sendRecallMessage, recallSessionId, tennantSettingsData?._id],
-	);
-
-	// Recording Controls (called from TranscriptPanel)
 	const handleStartTranscription = async () => {
+		// Reset stopping flag
+		isStoppingRef.current = false;
+
 		const newSessionId = ObjectID().toString();
 		sessionIdRef.current = newSessionId;
-		setRecallSessionId(newSessionId);
+		// Generate default title with current date and time
+		const now = new Date();
+		const day = now.getDate().toString().padStart(2, '0');
+		const month = now.toLocaleString('en-US', { month: 'short' });
+		const year = now.getFullYear();
+		const hours = now.getHours().toString().padStart(2, '0');
+		const minutes = now.getMinutes().toString().padStart(2, '0');
+		const defaultTitle = `${day} ${month} ${year} ${hours}:${minutes}`;
 
-		try {
-			const response = await getLiveKitToken({ meetingId: newSessionId });
-			if (response && response[0] === true && response[1]?.accessToken) {
-				setLiveKitToken(response[1].accessToken);
-				setIsRecording(true);
+		const meetingInput = {
+			title: defaultTitle,
+			transcriptionSource: 'desktop',
+			isAiIntelligenceEnabled: true,
+			meetingMode: 'meeting',
+			agenda: '',
+		};
 
-				// Start Recall connection for Live Intelligence
-				createRecallConnection(
-					newSessionId,
-					newSessionId,
-					handleRecallSocketMessage,
-					true, // isAiIntelligenceEnabled
-				);
-			} else {
-				console.error('Failed to fetch LiveKit token: Invalid response format', response);
-				message.error('Failed to fetch transcription token. Please try again.');
-			}
-		} catch (err) {
-			console.error('Error fetching LiveKit token:', err);
-			message.error('Error fetching transcription token. Please try again.');
+		// Create meeting via API
+		const meetingResponse = await createMeetBot({ input: meetingInput });
+
+		if (meetingResponse && meetingResponse[0] === true) {
+			const meetingData = meetingResponse[1]?.data?.startMeeting;
+			console.log('Meeting created successfully:', meetingData);
+
+			// Store meeting data and ID for later use
+
+			setInfo((prev) => ({
+				...prev,
+				meetingData: meetingData,
+				isPaused: false,
+			}));
+
+			startRecording({
+				tenantId: meetingData.tenantId,
+				sessionId: meetingData._id,
+				meetingId: meetingData._id,
+				jwtToken: localStorage.getItem('usertoken'),
+				isAiIntelligenceEnabled: meetingData.isAiIntelligenceEnabled,
+			});
+
+			updateStateValues({ aiTranscriptionSuggestions: null });
+
+			setInfo((prev) => ({
+				...prev,
+				isMeetIsOngoing: true,
+				meetingData: meetingData,
+				transcriptions: [],
+				liveIntelligenceData: {
+					askUser: [],
+					needHelp: [],
+					actions: [],
+					files: [],
+					allThreads: [],
+				},
+			}));
+		} else {
+			console.error('Failed to create meeting:', meetingResponse);
+			notification.error(
+				'Meeting creation failed',
+				'Failed to create meeting. Please try again.',
+			);
+			return;
 		}
 	};
 
 	const handleStopTranscription = () => {
-		setIsRecording(false);
-		setLiveKitToken(null);
-		typingIntervalsRef.current.forEach((interval) => clearInterval(interval));
-		typingIntervalsRef.current.clear();
-		if (sessionIdRef.current) {
-			deleteLiveKitRoom({ meetingId: sessionIdRef.current });
-		}
-		disconnect();
-		closeLiveIntelligenceConnection();
-		closeRecallConnection();
-		setTimer(0);
-		setRecallSessionId(null);
-		// Clear Live Intelligence data
-		setLiveIntelligenceData({
-			allThreads: [],
-			askUser: [],
-			needHelp: [],
-			actions: [],
-			files: [],
-		});
+		// Set stopping flag to prevent further processing
+		isStoppingRef.current = true;
+
+		sessionIdRef.current = null;
+
+		stopRecording({ meetingId: info?.meetingData?._id });
+
+		// Reset stopping flag after cleanup
+		setTimeout(() => {
+			isStoppingRef.current = false;
+		}, 100);
 	};
 
-	const handleClearTranscripts = () => {
-		setTranscriptions([]);
-		transcriptionsMapRef.current.clear();
-		displayedTextMapRef.current.clear();
-		processedSegmentsRef.current.clear();
+	const handleTogglePause = () => {
+		if (isPaused) {
+			resumeRecording();
+		} else {
+			pauseRecording();
+		}
+		console.log('isPaused', isPaused);
 	};
 
 	// Effects
 	useEffect(() => {
 		isMountedRef.current = true;
 
+		// Listen for commands from Dynamic Island via main process
+		const handleOverlayCommand = (event, command) => {
+			console.log('🏝️ Dynamic Island Command Received:', command);
+
+			// Mark as Dynamic Island controlled and hide ShortcutBar permanently
+			setIsDynamicIslandControlled(true);
+			setShowShortcutBar(false);
+
+			switch (command.action) {
+				case 'startRecording':
+					console.log(
+						'🚀 Dynamic Island START: Opening Live Intelligence without ShortcutBar...',
+					);
+					handleDynamicIslandListenClick();
+					break;
+				case 'stopRecording':
+					console.log('⏹️ Dynamic Island STOP: Stopping recording...');
+					handleStopTranscription();
+					break;
+				case 'pauseRecording':
+					console.log('⏸️ Dynamic Island PAUSE: Pausing recording...');
+					pauseRecording();
+					break;
+				case 'resumeRecording':
+					console.log('▶️ Dynamic Island RESUME: Resuming recording...');
+					resumeRecording();
+					break;
+				case 'toggleLiveIntelligence':
+					console.log(
+						'🧠 Dynamic Island: Opening Live Intelligence without ShortcutBar...',
+					);
+					handleDynamicIslandListenClick();
+					break;
+				case 'getRecordingState':
+					console.log('📊 Dynamic Island: Getting recording state...');
+					// Send current state back to Dynamic Island
+					sendRecordingStateUpdate();
+					break;
+				default:
+					console.warn('❓ Unknown Dynamic Island command:', command.action);
+			}
+		};
+
+		// Set up listener for overlay commands from Dynamic Island
+		console.log('🔍 Setting up overlay command listener...');
+		console.log(
+			'window.electronApi?.overlay?.onCommand available:',
+			!!window.electronApi?.overlay?.onCommand,
+		);
+
+		if (window.electronApi?.overlay?.onCommand) {
+			console.log('✅ Setting up overlay command listener');
+			window.electronApi.overlay.onCommand(handleOverlayCommand);
+		} else {
+			console.error('❌ Overlay command listener not available');
+			console.log(
+				'Available overlay methods:',
+				Object.keys(window.electronApi?.overlay || {}),
+			);
+		}
+
 		return () => {
 			isMountedRef.current = false;
-			typingIntervalsRef.current.forEach((interval) => clearInterval(interval));
-			typingIntervalsRef.current.clear();
+			// Clean up overlay command listener
+			if (window.electronApi?.overlay?.removeCommandListener) {
+				window.electronApi.overlay.removeCommandListener();
+			}
 		};
+	}, [toggleMute, startRecording, stopRecording]);
+
+	// Check ask AI input focus state periodically
+	useEffect(() => {
+		const checkAskAIFocus = async () => {
+			if (window.electronApi?.askAI?.getInputFocus) {
+				try {
+					const result = await window.electronApi.askAI.getInputFocus();
+					if (result.success) {
+						setIsAskAIInputFocused(result.isFocused);
+					}
+				} catch (error) {
+					console.error('Error checking ask AI input focus:', error);
+				}
+			}
+		};
+
+		// Check immediately
+		checkAskAIFocus();
+
+		// Check every 500ms to stay in sync
+		const interval = setInterval(checkAskAIFocus, 500);
+
+		return () => clearInterval(interval);
 	}, []);
 
-	// Timer Effect
+	// Listen for Are You There window events to hide overlay content
 	useEffect(() => {
-		let interval;
-		if (isRecording && !isMuted) {
-			interval = setInterval(() => {
-				setTimer((prev) => prev + 1);
-			}, 1000);
+		const handleAreYouThereShow = (data) => {
+			console.log('🏠 Are You There window shown - hiding overlay content', data);
+
+			// Hide the overlay content when Are You There window appears
+			if (activePanel) {
+				setActivePanel(null);
+			}
+			setShowShortcutBar(false);
+		};
+
+		const handleAreYouThereHide = () => {
+			console.log('🏠 Are You There window hidden - overlay content can be shown again');
+			// Note: We don't automatically restore the panel here as it should be controlled by user interaction
+		};
+
+		// Set up listeners for Are You There window events
+		if (window.electronApi?.areYouThere?.onShowCommand) {
+			window.electronApi.areYouThere.onShowCommand(handleAreYouThereShow);
 		}
-		return () => clearInterval(interval);
-	}, [isRecording, isMuted]);
 
-	// Process transcription segments
-	useEffect(() => {
-		if (!segments || segments.length === 0) return;
+		if (window.electronApi?.areYouThere?.onCloseCommand) {
+			window.electronApi.areYouThere.onCloseCommand(handleAreYouThereHide);
+		}
 
-		const transcriptionsMap = transcriptionsMapRef.current;
-
-		segments.forEach((segment) => {
-			const fullText = segment.final ? segment.text : `${segment.text}...`;
-			const existing = transcriptionsMap.get(segment.id);
-
-			// Single speaker - VE Note Taker
-			const speaker = 'VE Note Taker';
-
-			if (!existing || existing.fullText !== fullText || existing.isFinal !== segment.final) {
-				transcriptionsMap.set(segment.id, {
-					id: segment.id,
-					fullText,
-					speaker,
-					isFinal: segment.final,
-					timestamp: formatTimestamp(),
-				});
-				startTypingEffect(segment.id, fullText, segment.final);
+		return () => {
+			if (window.electronApi?.areYouThere?.removeShowCommandListener) {
+				window.electronApi.areYouThere.removeShowCommandListener();
 			}
-
-			const processed = processedSegmentsRef.current.get(segment.id);
-			if (
-				!processed ||
-				processed.text !== segment.text ||
-				(!processed.isFinal && segment.final)
-			) {
-				processedSegmentsRef.current.set(segment.id, {
-					text: segment.text,
-					isFinal: segment.final,
-				});
-
-				// Send to Recall socket for Live Intelligence if it's a final transcript
-				if (segment.final) {
-					sendTranscriptionToRecall({
-						id: segment.id,
-						text: segment.text,
-						transcript: segment.text,
-						isFinal: segment.final,
-						speaker: speaker,
-					});
-				}
+			if (window.electronApi?.areYouThere?.removeCloseCommandListener) {
+				window.electronApi.areYouThere.removeCloseCommandListener();
 			}
-		});
-
-		const updatedTranscriptions = Array.from(transcriptionsMap.values()).map(
-			(transcription) => ({
-				id: transcription.id,
-				speaker: transcription.speaker,
-				text: displayedTextMapRef.current.get(transcription.id) || '',
-				timestamp: transcription.timestamp,
-				isFinal: transcription.isFinal,
-			}),
-		);
-		setTranscriptions(updatedTranscriptions);
-	}, [segments, startTypingEffect, sendTranscriptionToRecall]);
-
-	// Debug: Log state changes and update dimensions when panel changes
-	useEffect(() => {
-		console.log('activePanel state changed to:', activePanel);
-
-		// Update dimensions when panel changes
-		setTimeout(() => {
-			if (containerRef.current) {
-				const rect = containerRef.current.getBoundingClientRect();
-				const height = Math.max(containerRef.current.scrollHeight, rect.height);
-				const width = Math.max(containerRef.current.scrollWidth, rect.width);
-
-				if (window.electronApi?.overlay?.updateDimensions) {
-					window.electronApi.overlay.updateDimensions({ width, height });
-				}
-			}
-		}, 100); // Slightly longer delay for panel transitions
+		};
 	}, [activePanel]);
 
-	// Update dimensions when screen query state changes
-	useEffect(() => {
-		setTimeout(() => {
-			if (containerRef.current) {
-				const rect = containerRef.current.getBoundingClientRect();
-				const height = Math.max(containerRef.current.scrollHeight, rect.height);
-				const width = Math.max(containerRef.current.scrollWidth, rect.width);
-
-				if (window.electronApi?.overlay?.updateDimensions) {
-					window.electronApi.overlay.updateDimensions({ width, height });
-				}
+	const handleListenClick = async () => {
+		// Toggle live intelligence panel and automatically start recording when opening
+		// This is used by ShortcutBar - shows ShortcutBar
+		setShowShortcutBar(true);
+		if (activePanel === 'live-intelligence') {
+			// If panel is open, close it and stop recording
+			setActivePanel(null);
+			if (isRecording) {
+				handleStopTranscription();
 			}
-		}, 100);
-	}, [showScreenQuery]);
+		} else {
+			// Open live intelligence panel and start recording automatically
+			setActivePanel('live-intelligence');
 
-	// Debug: Global click handler
-	useEffect(() => {
-		const handleGlobalClick = (event) => {
-			console.log('Global click detected on:', event.target);
-		};
+			// Always clear previous transcriptions and data when starting fresh
 
-		document.addEventListener('click', handleGlobalClick);
-		return () => document.removeEventListener('click', handleGlobalClick);
-	}, []);
-
-	const handleAskAIClick = () => {
-		setShowScreenQuery((prev) => !prev);
+			if (!isRecording) {
+				await handleStartTranscription();
+			}
+		}
 	};
 
-	const handleCloseScreenQuery = () => {
-		setShowScreenQuery(false);
+	const handleDynamicIslandListenClick = async () => {
+		// Open live intelligence panel for Dynamic Island - NO ShortcutBar
+		console.log('🏝️ Dynamic Island Control: Opening Live Intelligence - ShortcutBar DISABLED');
+		setIsDynamicIslandControlled(true);
+		setShowShortcutBar(false);
+
+		// Always open live intelligence panel when triggered from Dynamic Island
+		setActivePanel('live-intelligence');
+
+		if (!isRecording) {
+			await handleStartTranscription();
+		}
 	};
 
-	const handleListenClick = () => {
-		// Toggle LiveIntelligencePanel when listen button is clicked
-		setActivePanel((prev) => (prev === 'live-intelligence' ? null : 'live-intelligence'));
-	};
-
-	const handleCloseLiveIntelligence = () => {
-		// Close both panels by setting to null or hide completely
+	const handleClosePanel = () => {
+		// Close panel and stop recording
 		setActivePanel(null);
+		if (isRecording) {
+			handleStopTranscription();
+		}
+
+		if (!isDynamicIslandControlled) {
+			setShowShortcutBar(true);
+		} else {
+			console.log('🏝️ Panel closed but keeping Dynamic Island control - NO ShortcutBar');
+		}
+	};
+
+	const handleHideOverlay = () => {
+		// Hide overlay window without stopping recording
+		if (window.electronApi?.overlay?.hideOverlayWindow) {
+			window.electronApi.overlay.hideOverlayWindow();
+		}
 	};
 
 	const handleShowTranscript = () => {
-		console.log('handleShowTranscript called - switching to transcript panel');
 		setActivePanel('transcript');
 	};
 
@@ -471,9 +497,97 @@ const OverlayApp = () => {
 		setActivePanel('live-intelligence');
 	};
 
-	const handleCloseTranscript = () => {
-		setActivePanel('live-intelligence');
+	// Function to send recording state updates to Dynamic Island
+	const sendRecordingStateUpdate = () => {
+		const state = {
+			isRecording,
+			isPaused: isPaused,
+			timer,
+			isLiveIntelligenceOpen: activePanel === 'live-intelligence',
+			transcriptionsCount: info?.transcriptions?.length,
+			showShortcutBar,
+			controlledByDynamicIsland: isDynamicIslandControlled,
+			isDynamicIslandControlled,
+		};
+
+		console.log('📡 Sending state to Dynamic Island:', state);
+
+		// Use IPC to send state update to main process, which will forward to Dynamic Island
+		if (window.electronApi?.overlay?.sendStateUpdate) {
+			window.electronApi.overlay.sendStateUpdate(state);
+		}
 	};
+
+	const handleAskAIClick = () => {
+		// Open Ask AI window via electron API
+		if (window.electronApi?.askAI?.toggleWindow) {
+			window.electronApi.askAI.toggleWindow();
+		}
+	};
+
+	// Function to manually reset Dynamic Island control state
+	const resetDynamicIslandControl = () => {
+		console.log('🔄 Manually resetting Dynamic Island control state');
+		setIsDynamicIslandControlled(false);
+		setShowShortcutBar(false);
+	};
+
+	// Debug function to test notifications (remove after testing)
+	const handleTestNotifications = () => {
+		notification.success('Test Success', 'This is a success notification');
+		setTimeout(() => {
+			notification.error(
+				'Test Error',
+				'This is an error notification with a longer description to test wrapping',
+			);
+			notification.error(
+				'Test Error',
+				'This is an error notification with a longer description to test wrapping',
+			);
+		}, 500);
+		setTimeout(() => {
+			notification.info('Test Info', 'This is an info notification');
+		}, 1000);
+	};
+
+	const calculateDynamicDimensions = useCallback(() => {
+		if (!containerRef.current) return { width: 600, height: 50 };
+
+		const rect = containerRef.current.getBoundingClientRect();
+		let calculatedWidth = rect.width;
+		let calculatedHeight = rect.height;
+
+		// Dynamic width calculation based on layout - use exact content width
+		if (activePanel === 'live-intelligence') {
+			// Panel is open: use exact panel width without extra padding
+			calculatedWidth = 830; // Exact panel width
+		} else if (activePanel === 'transcript') {
+			calculatedWidth = 560; // Exact panel width
+		} else if (showShortcutBar && !isDynamicIslandControlled) {
+			// Only shortcut bar visible: use actual content width
+			calculatedWidth = Math.max(rect.width, 400);
+		} else {
+			// Controlled by Dynamic Island or no controls: minimal width
+			calculatedWidth = 32; // Just padding
+		}
+
+		// Dynamic height calculation - use exact content height
+		if (activePanel === 'live-intelligence' || activePanel === 'transcript') {
+			// Panel is open: use exact content height without extra padding
+			calculatedHeight = Math.max(rect.height, 200);
+		} else if (showShortcutBar && !isDynamicIslandControlled) {
+			// Only shortcut bar visible: use actual content height
+			calculatedHeight = Math.max(rect.height, 50);
+		} else {
+			// Controlled by Dynamic Island: minimal height
+			calculatedHeight = 32; // Minimal height when hidden
+		}
+
+		return {
+			width: Math.min(calculatedWidth, window.screen.width * 0.8), // Max 80% of screen width
+			height: Math.min(calculatedHeight, window.screen.height * 0.8), // Max 80% of screen height
+		};
+	}, [activePanel, showShortcutBar, isDynamicIslandControlled]);
 
 	useEffect(() => {
 		// Update window dimensions when content changes
@@ -481,9 +595,7 @@ const OverlayApp = () => {
 			if (containerRef.current) {
 				// Use a small delay to allow CSS transitions to complete
 				setTimeout(() => {
-					const rect = containerRef.current.getBoundingClientRect();
-					const height = Math.max(containerRef.current.scrollHeight, rect.height);
-					const width = Math.max(containerRef.current.scrollWidth, rect.width);
+					const { width, height } = calculateDynamicDimensions();
 
 					if (window.electronApi?.overlay?.updateDimensions) {
 						window.electronApi.overlay.updateDimensions({ width, height });
@@ -495,14 +607,7 @@ const OverlayApp = () => {
 		// Initial dimension update
 		updateDimensions();
 
-		// Set up ResizeObserver to watch for content changes
-		const resizeObserver = new ResizeObserver(() => {
-			updateDimensions();
-		});
-
-		if (containerRef.current) {
-			resizeObserver.observe(containerRef.current);
-		}
+		// ResizeObserver removed - resizing is disabled, only content changes trigger updates
 
 		// Set up MutationObserver to watch for DOM changes
 		const mutationObserver = new MutationObserver(() => {
@@ -521,98 +626,160 @@ const OverlayApp = () => {
 		}
 
 		return () => {
-			resizeObserver.disconnect();
 			mutationObserver.disconnect();
 		};
-	}, []);
+	}, [calculateDynamicDimensions]);
 
-	// Handle click outside to close screen query
+	// Update dimensions when layout state changes
 	useEffect(() => {
-		if (!showScreenQuery) return;
+		if (containerRef.current) {
+			const { width, height } = calculateDynamicDimensions();
+			console.log('Layout state changed, updating dimensions:', {
+				activePanel,
+				width,
+				height,
+			});
 
-		const handleClickOutside = (event) => {
-			if (containerRef.current && !containerRef.current.contains(event.target)) {
-				console.log('Click outside detected, closing screen query');
-				setShowScreenQuery(false);
+			if (window.electronApi?.overlay?.updateDimensions) {
+				// Small delay to ensure DOM has updated
+				setTimeout(() => {
+					window.electronApi.overlay.updateDimensions({ width, height });
+				}, 100);
 			}
-		};
+		}
+	}, [activePanel, calculateDynamicDimensions]);
 
-		const handleEscapeKey = (event) => {
-			if (event.key === 'Escape') {
-				setShowScreenQuery(false);
-			}
-		};
+	// Sync isPaused state with hook
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			isPaused: isPaused,
+		}));
+	}, [isPaused]);
 
-		document.addEventListener('mousedown', handleClickOutside);
-		document.addEventListener('keydown', handleEscapeKey);
+	// Send state updates to Dynamic Island when recording state changes
+	useEffect(() => {
+		sendRecordingStateUpdate();
+	}, [
+		isRecording,
+		isMuted,
+		isPaused,
+		timer,
+		activePanel,
+		info?.transcriptions?.length,
+		showShortcutBar,
+		isDynamicIslandControlled,
+		isConnected,
+	]);
 
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside);
-			document.removeEventListener('keydown', handleEscapeKey);
-		};
-	}, [showScreenQuery]);
+	useEffect(() => {
+		if (aiTranscriptionSuggestions && aiTranscriptionSuggestions?.suggestions?.length > 0) {
+			const allThreads = [];
+			const askUser = [];
+			const needHelp = [];
+			const actions = [];
+			const files = [];
+			aiTranscriptionSuggestions.suggestions.forEach((suggestion) => {
+				if (suggestion.entity === 'user') {
+					askUser.push(suggestion);
+				} else if (suggestion.entity === 'agent' && suggestion.type === 'search') {
+					needHelp.push(suggestion);
+				} else if (suggestion.entity === 'agent' && suggestion.type === 'action') {
+					actions.push(suggestion);
+				} else if (suggestion.entity === 'file') {
+					files.push(suggestion);
+				}
+				allThreads.push(suggestion);
+			});
+
+			setInfo((prev) => ({
+				...prev,
+				liveIntelligenceData: {
+					askUser,
+					needHelp,
+					actions,
+					files,
+					allThreads,
+				},
+			}));
+		}
+	}, [aiTranscriptionSuggestions]);
 
 	return (
-		<div ref={containerRef} className="overlay-app">
+		<div
+			ref={containerRef}
+			className="overlay-app"
+			// style={{ backgroundColor: 'red', width: '400px', height: '500px',display:"block" }}
+		>
+			{/* {meetingData && <MeetingBody meetingData={meetingData} />} */}
+
 			<div className="overlay-container overlay-content" data-overlay-content="true">
-				{/* Shortcut bar */}
-				<ShortcutBar
-					onAskAIClick={handleAskAIClick}
-					isQueryBarOpen={showScreenQuery}
-					onListenClick={handleListenClick}
-					isLiveIntelligenceOpen={activePanel === 'live-intelligence'}
-				/>
-
-				{/* Commands section */}
-				<OverlayCommands />
+				{/* Shortcut bar - only show when not controlled by Dynamic Island */}
+				{showShortcutBar && (
+					<ShortcutBar
+						onListenClick={handleListenClick}
+						isLiveIntelligenceOpen={activePanel === 'live-intelligence'}
+						onAskAIClick={handleAskAIClick}
+						isRecording={isRecording}
+						onStopRecording={handleStopTranscription}
+						// onPauseRecording={handlePauseTranscription}
+						// onResumeRecording={handleResumeTranscription}
+						onPauseRecording={() => {}}
+						onResumeRecording={() => {}}
+						isPaused={isMuted}
+						isAskAIInputFocused={isAskAIInputFocused}
+					/>
+				)}
+				{/* Commands section - only show when not controlled by Dynamic Island */}
+				{showShortcutBar && <OverlayCommands />}
 			</div>
-
-			{/* Screen query bar - separate window below with gap */}
-			{showScreenQuery && (
-				<div className="screen-query-container">
-					<ScreenQueryBar onClose={handleCloseScreenQuery} />
-				</div>
-			)}
-
-			{/* Live Intelligence panel - separate window below with gap */}
+			{/* Live Intelligence panel */}
 			{activePanel === 'live-intelligence' && (
 				<div className="live-intelligence-container">
+					<div className="live-intelligence-drag-handle">
+						<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
+					</div>
 					<LiveIntelligencePanel
-						onClose={handleCloseLiveIntelligence}
+						onClose={handleHideOverlay}
 						onShowTranscript={handleShowTranscript}
-						// Pass transcription data for future Live Intelligence features
-						transcriptions={transcriptions}
+						transcriptions={aiTranscriptionSuggestions}
 						isRecording={isRecording}
+						isPaused={isPaused}
 						timer={timer}
 						formatTime={formatTime}
-						// Pass socket data for tabs
-						socketData={liveIntelligenceData}
+						socketData={info?.liveIntelligenceData}
 					/>
 				</div>
 			)}
-
-			{/* Transcript panel - separate window below with gap */}
+			{/* Transcript panel */}
 			{activePanel === 'transcript' && (
 				<div className="transcript-container">
+					<div className="transcript-drag-handle">
+						<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
+					</div>
 					<TranscriptPanel
-						onClose={handleCloseTranscript}
+						onClose={handleHideOverlay}
 						onShowLiveIntelligence={handleShowLiveIntelligence}
-						// Pass shared recording state and controls
-						transcriptions={transcriptions}
+						transcriptions={info?.transcriptions}
 						isRecording={isRecording}
+						isPaused={isPaused}
 						timer={timer}
-						isMuted={isMuted}
 						isConnected={isConnected}
-						localAudioTrack={localAudioTrack}
+						// localAudioTrack={localAudioTrack}
 						formatTime={formatTime}
 						onStartTranscription={handleStartTranscription}
 						onStopTranscription={handleStopTranscription}
-						onMuteAudio={muteAudio}
-						onUnmuteAudio={unmuteAudio}
-						onClearTranscripts={handleClearTranscripts}
+						// onMuteAudio={muteAudio}
+						// onUnmuteAudio={unmuteAudio}
 					/>
 				</div>
 			)}
+
+			{/* Custom notification system - appears above everything */}
+			<OverlayNotification
+				notifications={notification.notifications}
+				onDismiss={notification.dismissNotification}
+			/>
 		</div>
 	);
 };

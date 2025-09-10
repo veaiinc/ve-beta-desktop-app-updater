@@ -11,7 +11,7 @@ import { ReactComponent as StarSvg } from '../../../../assets/svg/smartFiles/for
 import {
 	handleCombinedChainOfThought,
 	updateCitationIdsWithCitations,
-} from '../../../../helpers/chatHelpers';
+} from '../../../../helpers/chat/chatHelpers';
 import { Markdown } from '../../../../helpers/markdownHelper';
 import ObjectID from 'bson-objectid';
 import { Tooltip } from 'antd';
@@ -31,6 +31,9 @@ import PromptPopup from '../../../components/homePage/PromptPopup';
 import { message } from '../../../components/globalComponents/CustomToast';
 import ChainOfThoughtInterpreter from '../../../components/homePage/ChainOfThoughtInterpreter';
 import GmailWidget from '../../../components/globalComponents/widgets/GmailWidget';
+import CalendarWidget from '../../../components/globalComponents/widgets/calendar/CalendarWidget';
+import TaskWidget from '../../../components/globalComponents/widgets/TaskWidget';
+import FormDescription from '../../../components/forms/FormDescription';
 
 const tabOptions = [
 	{ label: 'Actions', value: 'actions' },
@@ -109,8 +112,14 @@ const AmbientAiInfo = ({
 	useEffect(() => {
 		if (!data) return;
 
-		const { research_report, suggested_actions, suggested_prompts, thinker_sources } =
-			data || {};
+		const {
+			research_report,
+			suggested_actions,
+			suggested_prompts,
+			thinker_sources,
+			widgets,
+			form_response,
+		} = data || {};
 
 		const { chain_of_thought } = data;
 		const chainOfThoughtData = handleCombinedChainOfThought(chain_of_thought || null);
@@ -120,12 +129,16 @@ const AmbientAiInfo = ({
 			)?.[0]?.access || 'view';
 
 		const visibilityMap = {
-			actions: suggested_actions?.length || suggested_prompts?.length,
+			actions: suggested_actions?.length || suggested_prompts?.length || widgets?.length,
 			report: research_report?.length || chainOfThoughtData?.hasChainOfThought,
 			sources: thinker_sources?.length,
 		};
 
 		const options = tabOptions?.filter((option) => visibilityMap[option?.value]);
+
+		if (form_response) {
+			options?.push({ label: 'Form Response', value: 'other' });
+		}
 
 		setInfo((prev) => ({
 			...prev,
@@ -389,6 +402,67 @@ const AmbientAiInfo = ({
 		[info?.accessType, info?.hasFullAccess, pendingActionsUpdate, getAISuggestedPendingActions],
 	);
 
+	const handleWidgetDataUpdate = useCallback(
+		async ({ updatedData = null, skip = false, widgetInfo }) => {
+			let { _id, widgets = [] } = data || {};
+			const { action, module_type } = widgetInfo;
+
+			if (skip === true) {
+				widgets = widgets?.filter(
+					(widget) => widget?.action !== action && widget?.module_type !== module_type,
+				);
+				try {
+					const res = await pendingActionsUpdate(_id, {
+						widgets,
+					});
+					if (res?.[0] === true) {
+						getAISuggestedPendingActions({ widgets }, false, 'update', _id);
+						message.success('Skipped action');
+					} else {
+						throw new Error();
+					}
+				} catch (e) {
+					message.error('Failed to skip action');
+				}
+			}
+		},
+		[data],
+	);
+
+	const getWidget = useCallback(
+		(item) => {
+			const widgetInfo = {
+				action: item?.action,
+				module_type: item?.module_type,
+			};
+
+			if (item?.module_type === 'gmail') {
+				return (
+					<GmailWidget
+						widgetData={item?.metadata}
+						widgetInfo={widgetInfo}
+						onChange={handleWidgetDataUpdate}
+					/>
+				);
+			}
+			if (item?.module_type === 'calendar') {
+				return (
+					<CalendarWidget
+						widgetData={item?.metadata}
+						widgetInfo={widgetInfo}
+						onChange={handleWidgetDataUpdate}
+					/>
+				);
+			}
+			if (item?.module_type === 'tasks' && item?.action === 'create_task') {
+				return <TaskWidget widgetData={item?.metadata} />;
+			}
+
+			return null;
+		},
+		[handleWidgetDataUpdate],
+	);
+
 	const {
 		title,
 		description,
@@ -405,6 +479,7 @@ const AmbientAiInfo = ({
 		read,
 		isCompleted,
 		widgets,
+		form_response,
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
@@ -615,11 +690,16 @@ const AmbientAiInfo = ({
 					</div>
 					{info?.activeTab === 'actions' && (
 						<div className="situation-overview-container">
-							{widgets
-								?.filter((item) => item?.module_type === 'gmail')
-								?.map((item, index) => (
-									<GmailWidget key={index} widgetData={item?.metadata} />
-								))}
+							{widgets?.length > 0 && (
+								<div className="widgets-container">
+									{widgets?.map((item, index) => (
+										<div className="widget" key={index}>
+											{getWidget(item)}
+										</div>
+									))}
+								</div>
+							)}
+
 							{suggested_actions?.length > 0 && (
 								<div className="suggested-actions-wrapper">
 									<div className="suggested-action-text">Actions</div>
@@ -687,7 +767,7 @@ const AmbientAiInfo = ({
 										<div className="chain-of-thought-content">
 											<ChainOfThoughtInterpreter
 												data={info?.chainOfThoughtData}
-												citations={thinker_sources || null}
+												citations={thinker_sources || []}
 												confidenceScore={confidence_score}
 											/>
 										</div>
@@ -700,7 +780,7 @@ const AmbientAiInfo = ({
 											className="report-description"
 											onClick={(e) => e.stopPropagation()}
 										>
-											<Markdown citations={thinker_sources || null}>
+											<Markdown citations={thinker_sources || []}>
 												{research_report || ''}
 											</Markdown>
 										</div>
@@ -777,6 +857,16 @@ const AmbientAiInfo = ({
 									<div className="citation-divider" />
 								</div>
 							))}
+						</div>
+					)}
+
+					{info?.activeTab === 'other' && (
+						<div className="other-tab">
+							<FormDescription
+								response={form_response}
+								activeTab={'responses'}
+								showCreateDocumentBtn={false}
+							/>
 						</div>
 					)}
 				</div>

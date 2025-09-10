@@ -64,6 +64,21 @@ const actionHandlers = {
 		fetchedKnowledgeAgents: action?.payload,
 	}),
 
+	SET_ACTIVE_AGENTS: (state, action) => ({
+		...state,
+		activeAgents: { ...state?.activeAgents, ...action?.payload },
+	}),
+
+	SET_DRAFT_AGENTS: (state, action) => ({
+		...state,
+		draftAgents: { ...state?.draftAgents, ...action?.payload },
+	}),
+
+	SET_AGENT_TEMPLATES: (state, action) => ({
+		...state,
+		agentTemplates: { ...state?.agentTemplates, ...action?.payload },
+	}),
+
 	RESET_STATE: () => initialState,
 };
 

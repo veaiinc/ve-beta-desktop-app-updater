@@ -1,48 +1,90 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Mic, Square, Pause, Play } from 'lucide-react';
 import './shortcut-bar.scss';
 
-const ShortcutBar = ({ onAskAIClick, isQueryBarOpen, onListenClick, isLiveIntelligenceOpen }) => {
-	const [isTooltipVisible, setIsTooltipVisible] = useState(false);
-
-	const handleMouseEnter = () => setIsTooltipVisible(true);
-	const handleMouseLeave = () => setIsTooltipVisible(false);
+const ShortcutBar = ({
+	onListenClick,
+	isLiveIntelligenceOpen,
+	onAskAIClick,
+	isRecording,
+	onStopRecording,
+	onPauseRecording,
+	onResumeRecording,
+	isPaused,
+	isAskAIInputFocused = false,
+}) => {
 	return (
 		<div className="shortcut-bar">
 			<div className="shortcut-bar__divider" />
-			
-			<div 
-				className={`shortcut-bar__item shortcut-bar__item--clickable ${isLiveIntelligenceOpen ? 'shortcut-bar__item--active' : ''}`}
-				onClick={onListenClick}
-			>
-				<span className="shortcut-bar__label">Listen</span>
-				<div className="shortcut-bar__icon">
-					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-						<path d="M3 11v3a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-3"/>
-						<path d="M12 2v18"/>
-						<path d="M8 6l4-4 4 4"/>
-						<path d="M8 18l4 4 4-4"/>
-					</svg>
+
+			{!isRecording ? (
+				<div
+					className={`shortcut-bar__item shortcut-bar__item--clickable ${
+						isLiveIntelligenceOpen ? 'shortcut-bar__item--active' : ''
+					}`}
+					onClick={onListenClick}
+				>
+					<span className="shortcut-bar__label">Listen</span>
+					<div className="shortcut-bar__icon">
+						<Mic size={14} />
+					</div>
 				</div>
+			) : (
+				<>
+					{/* Pause/Resume Button */}
+					<div
+						className={`shortcut-bar__item shortcut-bar__item--clickable ${
+							isPaused ? 'shortcut-bar__item--paused' : ''
+						}`}
+						onClick={isPaused ? onResumeRecording : onPauseRecording}
+						title={isPaused ? 'Resume Recording' : 'Pause Recording'}
+					>
+						<span className="shortcut-bar__label">{isPaused ? 'Resume' : 'Pause'}</span>
+						<div className="shortcut-bar__icon">
+							{isPaused ? <Play size={14} /> : <Pause size={14} />}
+						</div>
+					</div>
+
+					{/* Stop Button */}
+					<div
+						className="shortcut-bar__item shortcut-bar__item--clickable shortcut-bar__item--stop"
+						onClick={onStopRecording}
+						title="Stop Recording"
+					>
+						<span className="shortcut-bar__label">Stop</span>
+						<div className="shortcut-bar__icon">
+							<Square size={14} />
+						</div>
+					</div>
+				</>
+			)}
+
+			<div className="shortcut-bar__separator" />
+
+			<div
+				className={`shortcut-bar__item shortcut-bar__item--clickable ${
+					isAskAIInputFocused ? 'shortcut-bar__item--active' : ''
+				}`}
+				onClick={onAskAIClick}
+				title={isAskAIInputFocused ? 'Ask AI (Input Active)' : 'Ask AI'}
+			>
+				<span className="shortcut-bar__label">Ask AI</span>
 			</div>
 
 			<div className="shortcut-bar__separator" />
 
-			<div 
-				className={`shortcut-bar__item shortcut-bar__item--clickable ${isQueryBarOpen ? 'shortcut-bar__item--active' : ''}`} 
-				onClick={onAskAIClick}
+			<div
+				className="shortcut-bar__item shortcut-bar__item--clickable"
+				onClick={() => {
+					if (window.electronApi?.overlay?.hideAllWindows) {
+						window.electronApi.overlay.hideAllWindows();
+					}
+				}}
 			>
-				<span className="shortcut-bar__label">Ask AI</span>
-				<div className="shortcut-bar__keys">
-					<kbd className="shortcut-bar__key">⌘</kbd>
-					<kbd className="shortcut-bar__key">⏎</kbd>
-				</div>
-			</div>
-
-			<div className="shortcut-bar__item">
 				<span className="shortcut-bar__label">Hide</span>
 				<div className="shortcut-bar__keys">
 					<kbd className="shortcut-bar__key">⌘</kbd>
-					<kbd className="shortcut-bar__key">⏎</kbd>
+					<kbd className="shortcut-bar__key">\</kbd>
 				</div>
 			</div>
 
@@ -66,9 +108,9 @@ const ShortcutBar = ({ onAskAIClick, isQueryBarOpen, onListenClick, isLiveIntell
 									</div>
 								</div>
 								<div className="shortcut-bar__shortcut-item">
-									<span className="shortcut-bar__shortcut-desc">Hide Overlay</span>
+									<span className="shortcut-bar__shortcut-desc">Hide All Windows</span>
 									<div className="shortcut-bar__shortcut-keys">
-										<kbd>⌘</kbd><kbd>⏎</kbd>
+										<kbd>⌘</kbd><kbd>\</kbd>
 									</div>
 								</div>
 							</div>

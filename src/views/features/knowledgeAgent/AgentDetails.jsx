@@ -23,7 +23,7 @@ import { ReactComponent as StatusIcon } from './status.svg';
 import { ReactComponent as ClockIcon } from './clock.svg';
 import { ReactComponent as CreditIcon } from './credit.svg';
 
-const KnowledgeAgentDetails = () => {
+const KnowledgeAgentDetails = ({ isTemplate }) => {
 	const {
 		knowledgeAgent: { activeKnowledgeAssistant, getActiveKnowledgeAgentDetails },
 		templates: { updateStateValues, handleGlobalChatMessages },
@@ -130,11 +130,18 @@ const KnowledgeAgentDetails = () => {
 				updateExtraInfo: true,
 			});
 		}
-	}, [agentId]);
+	}, [agentId, info?.sessionId]);
 
 	useEffect(() => {
-		checkAccess();
-	}, [info?.activeAiAssistant]);
+		if (!isTemplate) {
+			checkAccess();
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				access: 'view',
+			}));
+		}
+	}, [info?.activeAiAssistant, isTemplate]);
 
 	const handleCustomOnSendFunction = useCallback(
 		(data) => {

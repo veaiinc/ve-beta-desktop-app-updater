@@ -11,6 +11,11 @@ const buildOptions = [
 		title: 'Create invoice',
 		chatText: 'Create an invoice for ',
 	},
+	{
+		id: 4,
+		title: 'Create agent',
+		chatText: 'Create an agent for ',
+	},
 ];
 
 const BuildTooltip = ({ children }) => {

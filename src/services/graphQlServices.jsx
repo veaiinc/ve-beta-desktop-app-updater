@@ -63,6 +63,8 @@ const Service = {
 			page_notes_api_database_US,
 			meeting_summary_api,
 			meeting_summary_api_US,
+			meeting_api,
+			meeting_api_US,
 		} = config;
 
 		const graphQLAPICall = {
@@ -74,6 +76,7 @@ const Service = {
 			page_notes_api,
 			page_notes_api_database,
 			meeting_summary_api,
+			meeting_api,
 		};
 
 		const graphQLAPICallUS = {
@@ -85,6 +88,7 @@ const Service = {
 			page_notes_api: page_notes_api_US,
 			page_notes_api_database: page_notes_api_database_US,
 			meeting_summary_api: meeting_summary_api_US,
+			meeting_api: meeting_api_US,
 		};
 
 		// hotfix
@@ -143,6 +147,8 @@ const Service = {
 			page_notes_api_database_US,
 			meeting_summary_api,
 			meeting_summary_api_US,
+			meeting_api,
+			meeting_api_US,
 		} = config;
 
 		const graphQLAPICall = {
@@ -154,6 +160,7 @@ const Service = {
 			page_notes_api,
 			page_notes_api_database,
 			meeting_summary_api,
+			meeting_api,
 		};
 
 		const graphQLAPICallUS = {
@@ -165,6 +172,7 @@ const Service = {
 			page_notes_api: page_notes_api_US,
 			page_notes_api_database: page_notes_api_database_US,
 			meeting_summary_api: meeting_summary_api_US,
+			meeting_api: meeting_api_US,
 		};
 
 		const region = localStorage.getItem('region') || 'us-east-1';

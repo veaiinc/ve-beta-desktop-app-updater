@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useState, useRef, useContext } from 'react';
 import '../../../assets/scss/chat/voice.scss';
 // import { ReactComponent as PauseSvg } from '../../../assets/svg/ai_agents/pause.svg';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
@@ -21,8 +21,10 @@ import {
 import { useKrispNoiseFilter } from '@livekit/components-react/krisp';
 // import webgazer from 'webgazer';
 import { throttle } from 'lodash';
+import Context from '../../../context/context';
+import useUpdatedVoiceIntegration from '../../../hooks/useUpdatedVoiceIntegration';
 // window.webgazer = webgazer;
-const Voice = ({ handleDisconnect, deviceInfo }) => {
+const Voice = ({ handleDisconnect, deviceInfo, onTranscriptUpdate, onStatusUpdate, isMicrophoneMuted }) => {
 	const { name = '' } = useRoomInfo();
 	const [transcripts, setTranscripts] = useState(new Map());
 	const localdata = useLocalParticipant();
@@ -34,20 +36,34 @@ const Voice = ({ handleDisconnect, deviceInfo }) => {
 	const tracks = useTracks();
 	const room = useRoomContext();
 	const micBtnRef = useRef(null);
+
+	// Add voice integration hook
+	const {
+		shouldConnect,
+		token,
+		serverUrl,
+		handleConnect,
+		handleDisconnect: voiceIntegrationDisconnect,
+	} = useUpdatedVoiceIntegration();
+
+	const {
+		aiSetup: { updateAiSetupState, voiceIntegrationData },
+	} = useContext(Context);
 	const localTracks = tracks.filter(({ participant }) => participant instanceof LocalParticipant);
 	const localVideoTrack = localTracks.find(({ source }) => source === Track.Source.Camera);
 	const localMicTrack = localTracks.find(({ source }) => source === Track.Source.Microphone);
+	
+	// Debug: Log track information
+	console.log('🎵 All tracks:', tracks);
+	console.log('🎵 Local tracks:', localTracks);
+	console.log('🎵 Local mic track:', localMicTrack);
 
 	const agentMessages = useTrackTranscription(voiceAssistant.audioTrack);
-	const localMessages = useTrackTranscription({
-		publication: localdata.microphoneTrack,
-		source: Track.Source.Microphone,
-		participant: localParticipant,
-	});
+	const localMessages = useTrackTranscription(localMicTrack);
 
 	useEffect(() => {
 		if (roomState === ConnectionState.Connected) {
-			localParticipant.setMicrophoneEnabled(true, {
+			localParticipant.setMicrophoneEnabled(!isMicrophoneMuted, {
 				sampleRate: 48000, // Best for speech clarity
 				sampleSize: 16, // Standard bit depth
 				noiseSuppression: true,
@@ -60,11 +76,18 @@ const Voice = ({ handleDisconnect, deviceInfo }) => {
 			// }
 			// handleWebgazer();
 		}
-	}, [localParticipant, roomState, deviceInfo]);
+	}, [localParticipant, roomState, deviceInfo, isMicrophoneMuted]);
 
 	useEffect(() => {
 		krisp.setNoiseFilterEnabled(true);
 	}, []);
+
+	// Auto-connect when component mounts (triggered from ChatBox voice-agent-btn)
+	useEffect(() => {
+		if (!shouldConnect && !voiceIntegrationData?.shouldConnect) {
+			handleConnect();
+		}
+	}, [shouldConnect, voiceIntegrationData, handleConnect]);
 
 	useEffect(() => {
 		if (voiceAssistant.state === 'disconnected') {
@@ -78,23 +101,30 @@ const Voice = ({ handleDisconnect, deviceInfo }) => {
 
 		const newTranscripts = new Map(transcripts);
 
+		// Debug: Log local messages segments
+		if (localMessages.segments && localMessages.segments.length > 0) {
+			console.log('🎤 Local transcription segments:', localMessages.segments);
+		}
+
 		localMessages.segments?.forEach((s) => {
-			newTranscripts.set(
-				s.id,
-				segmentToChatMessage(s, transcripts.get(s.id), localParticipant),
-			);
+			const chatMessage = segmentToChatMessage(s, transcripts.get(s.id), localParticipant);
+			newTranscripts.set(s.id, chatMessage);
+			console.log('📝 Added local transcript:', chatMessage);
 		});
 
 		// Add agent messages
+		if (agentMessages.segments && agentMessages.segments.length > 0) {
+			console.log('🤖 Agent transcription segments:', agentMessages.segments);
+		}
+
 		agentMessages.segments?.forEach((s) => {
-			newTranscripts.set(
-				s.id,
-				segmentToChatMessage(
-					s,
-					transcripts.get(s.id),
-					voiceAssistant.audioTrack?.participant,
-				),
+			const chatMessage = segmentToChatMessage(
+				s,
+				transcripts.get(s.id),
+				voiceAssistant.audioTrack?.participant,
 			);
+			newTranscripts.set(s.id, chatMessage);
+			console.log('📝 Added agent transcript:', chatMessage);
 		});
 
 		setTranscripts(newTranscripts);
@@ -102,10 +132,21 @@ const Voice = ({ handleDisconnect, deviceInfo }) => {
 		const allMessages = Array.from(newTranscripts.values());
 		allMessages.sort((a, b) => a.timestamp - b.timestamp);
 		setTransScriptMessages(allMessages);
+		
+		// Debug: Log final messages
+		if (allMessages.length > 0) {
+			console.log('📋 All transcript messages:', allMessages);
+		}
+
+		// Call parent component's transcript update handler
+		if (onTranscriptUpdate && allMessages.length > 0) {
+			onTranscriptUpdate(allMessages);
+		}
 	}, [
 		voiceAssistant.state,
 		localParticipant,
 		localMessages.segments,
+		agentMessages.segments,
 		voiceAssistant.audioTrack?.participant,
 	]);
 
@@ -193,15 +234,37 @@ const Voice = ({ handleDisconnect, deviceInfo }) => {
 		// webgazer.clearGazeListener();
 		// webgazer.end();
 
-		handleDisconnect();
+		// Use voice integration disconnect and hide the voice widget
+		voiceIntegrationDisconnect();
+		updateAiSetupState({ showVoiceWidget: false });
+
+		if (handleDisconnect) {
+			handleDisconnect();
+		}
 	}, [
+		voiceIntegrationDisconnect,
+		updateAiSetupState,
 		handleDisconnect,
 		//  webgazer
 	]);
 
 	const getStatusText = () => {
+		// If voice integration is not connected, show connection status
+		if (!shouldConnect) {
+			return 'Connecting...';
+		}
+
 		if (localParticipant?.isSpeaking) {
 			return 'Listening to you...';
+		}
+
+		console.log('🔍 Voice assistant state:', voiceAssistant.state);
+		console.log('🔍 Local participant isSpeaking:', localParticipant?.isSpeaking);
+		console.log('🔍 Should connect:', shouldConnect);
+
+		// Call parent component's status update handler
+		if (onStatusUpdate) {
+			onStatusUpdate(voiceAssistant.state);
 		}
 
 		switch (voiceAssistant.state) {
@@ -223,7 +286,11 @@ const Voice = ({ handleDisconnect, deviceInfo }) => {
 	};
 
 	const shouldShowAnimation = () => {
-		return voiceAssistant.state !== 'disconnected' && voiceAssistant.state !== 'connecting';
+		return (
+			shouldConnect &&
+			voiceAssistant.state !== 'disconnected' &&
+			voiceAssistant.state !== 'connecting'
+		);
 	};
 
 	const getStateClass = () => {
@@ -240,10 +307,16 @@ const Voice = ({ handleDisconnect, deviceInfo }) => {
 
 	const getDisplayText = () => {
 		const latestMessage = getLatestMessage();
+		console.log('🔍 getDisplayText - latestMessage:', latestMessage);
+		console.log('🔍 getDisplayText - transScriptMessages:', transScriptMessages);
 		if (latestMessage) {
-			return `${latestMessage.name}: ${latestMessage.message}`;
+			const displayText = `${latestMessage.name}: ${latestMessage.message}`;
+			console.log('🔍 getDisplayText - returning:', displayText);
+			return displayText;
 		}
-		return getStatusText();
+		const statusText = getStatusText();
+		console.log('🔍 getDisplayText - returning status:', statusText);
+		return statusText;
 	};
 
 	return (
@@ -275,12 +348,16 @@ const Voice = ({ handleDisconnect, deviceInfo }) => {
 			)} */}
 
 			<div className="controls">
-				<TrackToggle
-					className="px-2 py-1 bg-gray-900 text-gray-300 border border-gray-800 rounded-sm hover:bg-gray-800 chat-mic-icon-container icon-container custom-mic-button-toggle"
-					source={Track.Source.Microphone}
-					style={{ border: 'none' }}
-					ref={micBtnRef}
-				/>
+				{/* Show mic toggle when connected */}
+				{shouldConnect && (
+					<TrackToggle
+						className="px-2 py-1 bg-gray-900 text-gray-300 border border-gray-800 rounded-sm hover:bg-gray-800 chat-mic-icon-container icon-container custom-mic-button-toggle"
+						source={Track.Source.Microphone}
+						style={{ border: 'none' }}
+						ref={micBtnRef}
+					/>
+				)}
+
 				{/* <TrackToggle
 					className="px-2 py-1 bg-gray-900 text-gray-300 border border-gray-800 rounded-sm hover:bg-gray-800 chat-mic-icon-container icon-container"
 					source={Track.Source.Camera}

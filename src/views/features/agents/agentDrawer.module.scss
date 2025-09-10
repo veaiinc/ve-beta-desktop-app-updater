@@ -84,6 +84,26 @@
 			gap: 6px;
 			flex-wrap: wrap;
 
+			.addWorkspaceButton {
+				display: flex;
+				height: 32px;
+				padding: 12px;
+				justify-content: center;
+				align-items: center;
+				gap: 6px;
+				border-radius: 6px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				background-color: transparent;
+				cursor: pointer;
+				min-width: 136.26px;
+			}
+
 			.deleteButton {
 				display: flex;
 				width: 32px;

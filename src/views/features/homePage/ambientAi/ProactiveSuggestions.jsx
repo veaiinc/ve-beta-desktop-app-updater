@@ -18,7 +18,7 @@ import ProactiveCards from './ProactiveCards';
 
 const payload = {
 	page: 1,
-	limit: 20,
+	limit: 10,
 	sortBy: 'createdAt',
 	// sortOrder: '-1',
 };
@@ -166,6 +166,7 @@ const ProactiveSuggestions = () => {
 			// getAiQuestions,
 			// aiQuestions,
 		},
+		aiSetup: { proactiveHeadings, getProactiveHeadings },
 		profileInfo: { insightTypes, getAiInsightTypes },
 	} = useContext(Context);
 
@@ -186,14 +187,10 @@ const ProactiveSuggestions = () => {
 			},
 		],
 		selectedCardNumber: null,
-		hoveredCard: null,
-		isListView: false,
 		isApiLoading: false,
 		sortBy: 'createdAt',
-		activeBtn: 'insights',
 		sortOptions,
 		searchQuery: '',
-		chatQuery: '',
 		options: [],
 		selectedOption: '',
 		showArrows: {
@@ -201,7 +198,6 @@ const ProactiveSuggestions = () => {
 			right: false,
 		},
 		searchOpen: false,
-		settingsOpen: false,
 		hasCards: true,
 		trainedFeedbackIds: null,
 		headline: null,
@@ -324,6 +320,10 @@ const ProactiveSuggestions = () => {
 	}, [insightTypes]);
 
 	useEffect(() => {
+		getProactiveHeadings({ module: 'priority' });
+	}, []);
+
+	useEffect(() => {
 		if (info?.totalCardsData?.length > 0) {
 			updateWindow(info?.currentIndex);
 		}
@@ -379,6 +379,7 @@ const ProactiveSuggestions = () => {
 		setInfo((prev) => ({
 			...prev,
 			searchLoading: true,
+			loading: true,
 		}));
 		timeoutIdRef.current = setTimeout(async () => {
 			await fetchPendingActions();
@@ -616,6 +617,7 @@ const ProactiveSuggestions = () => {
 			return {
 				...prev,
 				selectedFilters: updatedFilters,
+				loading: true,
 			};
 		});
 	};
@@ -627,6 +629,7 @@ const ProactiveSuggestions = () => {
 			return {
 				...prev,
 				selectedFilters: updatedFilters,
+				loading: true,
 			};
 		});
 	};
@@ -747,13 +750,6 @@ const ProactiveSuggestions = () => {
 		}));
 	};
 
-	const handleSettingsToggle = () => {
-		setInfo((prev) => ({
-			...prev,
-			settingsOpen: !prev.settingsOpen,
-		}));
-	};
-
 	return (
 		<div
 			className="proactive-suggestions-wrapper"
@@ -774,8 +770,8 @@ const ProactiveSuggestions = () => {
 					</div>
 				)} */}
 						<div className="proactive-suggestions-title">
-							{info?.headline ? (
-								info?.headline
+							{proactiveHeadings?.priority_headlines ? (
+								proactiveHeadings?.priority_headlines
 							) : (
 								<>
 									<span className="title-highlight">Ambient</span> Insights For
@@ -827,8 +823,10 @@ const ProactiveSuggestions = () => {
 									);
 								})
 							) : info?.cards?.length === 0 ? (
-								<div className="no-data" style={{ color: 'var(--primary-font)' }}>
-									No data available
+								<div className="no-data">
+									{info?.selectedFilters?.length > 0
+										? 'No insights found for the selected filters'
+										: 'No insights found'}
 								</div>
 							) : (
 								<ProactiveCards

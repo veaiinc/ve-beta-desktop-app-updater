@@ -18,7 +18,7 @@ import CreditCoinImage from '../../../assets/images/creditCoin.png';
 import {
 	handleCombinedChainOfThought,
 	updateCitationIdsWithCitations,
-} from '../../../helpers/chatHelpers';
+} from '../../../helpers/chat/chatHelpers';
 import { Markdown } from '../../../helpers/markdownHelper';
 import ObjectID from 'bson-objectid';
 import { ReactComponent as ArrowRightIcon } from '../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
@@ -647,7 +647,7 @@ const ProactiveAi = () => {
 											className="report-description"
 											onClick={(e) => e.stopPropagation()}
 										>
-											<Markdown citations={thinker_sources || null}>
+											<Markdown citations={thinker_sources || []}>
 												{research_report || ''}
 											</Markdown>
 										</div>
@@ -855,7 +855,7 @@ const ProactiveAi = () => {
 					</div>
 				</div>
 			</div>
-			<ShareWidget isOpen={info?.sharePopupOpen} onClose={handleCloseSharePopup} />
+			{/* <ShareWidget isOpen={info?.sharePopupOpen} onClose={handleCloseSharePopup} /> */}
 
 			<PromptPopup
 				messageId={proactiveAiData?._id}

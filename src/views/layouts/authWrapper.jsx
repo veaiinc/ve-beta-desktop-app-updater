@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useContext, useEffect, useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 // import Sidebar from '../components/sidebar/Sidebar';
 import TopNavbar from '../components/topNavbar/TopNavbar';
@@ -6,9 +6,17 @@ import '../../assets/scss/authWrapper.scss';
 import ExpiredSubscriptionModal from '../components/modalsV2/subscription/ExpiredSubscriptionModal';
 import ExpiredTokenModal from '../components/modalsV2/subscription/ExpiredTokenModal';
 import AccessDeniedPopup from '../components/accessPopups/accessDeniedPopup';
-import CustomToast from '../components/globalComponents/CustomToast';
+import CustomToast, { message } from '../components/globalComponents/CustomToast';
 import PageLoader from '../features/app/PageLoader';
 import useAuthInitializer from '../../hooks/useAuthInitializer';
+import usePushNotifications from '../../hooks/usePushNotifications';
+import VoiceWrapper from './VoiceWrapper';
+import Context from '../../context/context';
+import useNetworkStatus from '../../hooks/useNetworkStatus';
+import Offline from '../features/offline/Offline';
+import { internalServerEmitter } from '../../services';
+import InternalServer from '../components/globalComponents/InternalServer';
+import { useNavigate } from 'react-router-dom';
 
 const AuthWrapper = ({
 	title,
@@ -21,7 +29,38 @@ const AuthWrapper = ({
 	childrenContainerStyles = {},
 	showSidebar = true,
 }) => {
-	const { authInitialized, workspaceMode } = useAuthInitializer();
+	const navigate = useNavigate();
+	const { isOnline } = useNetworkStatus();
+
+	const showPushNotification = useCallback((payload) => {
+		const { title, body } = payload.notification || {};
+		message.success(`${title || 'Notification'}: ${body || ''}`);
+	}, []);
+
+	usePushNotifications(showPushNotification);
+	const { authInitialized } = useAuthInitializer();
+
+	const {
+		aiSetup: { showVoiceWidget },
+	} = useContext(Context);
+	const [showServerError, setShowServerError] = useState(false);
+
+	useEffect(() => {
+		const handler = () => setShowServerError(true);
+
+		internalServerEmitter.on('serverError', handler);
+
+		return () => {
+			internalServerEmitter.off('serverError', handler);
+		};
+	});
+
+	useEffect(() => {
+		window.electronApi.onNavigate((path) => {
+			console.log('navigate', path);
+			navigate(path); // client-side navigation
+		});
+	}, [navigate]);
 
 	// const layoutMode = showSidebar && workspaceMode !== 'stable' ? 'sidebar' : 'topNavbar';
 	// const layoutModeComponentMap = {
@@ -42,52 +81,60 @@ const AuthWrapper = ({
 	// 	topNavbar: <TopNavbar />,
 	// };
 
-	return authInitialized ? (
-		<PageLoader />
-	) : (
-		<main className="main-container">
-			<div className="authParentContainer" style={{ ...(authParentContainerStyle || {}) }}>
-				<Helmet>
-					<meta charSet="utf-8" />
-					<title>{title}</title>
-				</Helmet>
+	return isOnline ? (
+		authInitialized ? (
+			<PageLoader />
+		) : (
+			<main className="main-container">
 				<div
-					style={{
-						display: 'flex',
-						// flexDirection: layoutMode === 'topNavbar' ? 'column' : 'row',
-						flexDirection: 'column',
-						height: '100dvh',
-						padding: '0',
-						...outerContainerStyle,
-					}}
-					className="auth-wrapper-container"
+					className="authParentContainer"
+					style={{ ...(authParentContainerStyle || {}) }}
 				>
-					{/* {layoutModeComponentMap[layoutMode]} */}
-					<TopNavbar />
+					<Helmet>
+						<meta charSet="utf-8" />
+						<title>{title}</title>
+					</Helmet>
 					<div
 						style={{
-							flex: 1,
-							overflowY: 'auto',
-							maxHeight: '100%',
-							height: '100%',
-							padding: ' 0',
+							display: 'flex',
+							// flexDirection: layoutMode === 'topNavbar' ? 'column' : 'row',
+							flexDirection: 'column',
+							height: '100dvh',
+							padding: '0',
+							...outerContainerStyle,
 						}}
-						id="scrollableTarget"
+						className="auth-wrapper-container"
 					>
+						{/* {layoutModeComponentMap[layoutMode]} */}
+						<TopNavbar />
 						<div
-							className="childrenContainer"
-							style={{ maxWidth: maxWidth || '', ...childrenContainerStyles }}
+							style={{
+								flex: 1,
+								overflowY: 'auto',
+								maxHeight: '100%',
+								height: '100%',
+								padding: ' 0',
+							}}
+							id="scrollableTarget"
 						>
-							{children}
+							<div
+								className="childrenContainer"
+								style={{ maxWidth: maxWidth || '', ...childrenContainerStyles }}
+							>
+								{showServerError ? <InternalServer /> : children}
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-			<ExpiredSubscriptionModal />
-			<ExpiredTokenModal />
-			<AccessDeniedPopup />
-			<CustomToast />
-		</main>
+				<ExpiredSubscriptionModal />
+				<ExpiredTokenModal />
+				<AccessDeniedPopup />
+				<CustomToast />
+				{showVoiceWidget && <VoiceWrapper />}
+			</main>
+		)
+	) : (
+		<Offline />
 	);
 };
 

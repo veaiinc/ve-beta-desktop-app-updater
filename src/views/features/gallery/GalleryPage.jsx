@@ -74,6 +74,7 @@ import GalleryVideos from '../../components/gallery/galleryVideos/GalleryVideos'
 import { ReactComponent as ChevronLeft } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as MoveToIcon } from '../../../assets/svg/gallery/moveToIcon.svg';
 import Spinner from '../../components/loaders/Spinner';
+import DesktopAppIntimation from '../../components/gallery/galleryPage/DesktopAppIntimation';
 // const workspaceId = localStorage.getItem('workspaceId');
 
 const dummyImagesArray = Array.from({ length: 10 }, () => ({ isPlaceholderImg: true }));
@@ -208,7 +209,6 @@ const GalleryPage = () => {
 			lightroomCopyList,
 			aiFace,
 			updateStateValues: updateGalleryStateValues,
-			getSignedUrlsForImages,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
@@ -355,6 +355,9 @@ const GalleryPage = () => {
 		selectedScreenType: 'desktop',
 		selectedAlbumToMove: null,
 		imagesMovingToAlbum: false,
+		desktopPopup: false,
+		isDesktop: false,
+		selectedAction: null,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -494,6 +497,15 @@ const GalleryPage = () => {
 			fetchThumbnails();
 		}
 	}, [info?.videosList]);
+
+	useEffect(() => {
+		if (window?.electronApi) {
+			setInfo((prev) => ({
+				...prev,
+				isDesktop: true,
+			}));
+		}
+	}, []);
 
 	const fetchThumbnails = async () => {
 		const entries = await Promise.all(
@@ -1742,16 +1754,58 @@ const GalleryPage = () => {
 
 	// ... rest of the code ...
 
+	const handleSelectedAction = () => {
+		if (info?.selectedAction !== 'download') {
+			handleNavigateUpload();
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				showDownloadAlbum: true,
+				showGalleryOptions: false,
+				showOptions: false,
+				activeTagId: albumDetails?.tags?.[0]?._id,
+				originalDownload: false,
+				webviewDownload: true,
+			}));
+		}
+	};
 	const handleNavigateUpload = () => {
-		const region = localStorage.getItem('region');
-		const uploadUrl = `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos${
-			region === 'us-east-1' ? '-desktop' : ''
-		}?light-gallery=${info?.isLightGallery ? true : false}${
-			info?.albumContains !== 'All' ? `&tag=${info?.albumContains}` : ''
-		}`;
+		const uploadUrl =
+			info?.albumContains === 'All'
+				? `/galleries/${galleryId}/${
+						info?.activeAlbumId
+				  }/upload-photos-desktop?light-gallery=${info?.isLightGallery ? true : false}`
+				: `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos-desktop?tag=${
+						info?.albumContains
+				  }?light-gallery=${info?.isLightGallery ? true : false}`;
+
+		// Navigate within the same window for Electron app
 		navigate(uploadUrl);
 	};
-
+	const handleUploadClicked = (option = 'uploading') => {
+		const region = localStorage.getItem('region');
+		const isMac = navigator.userAgentData?.platform === 'macOS';
+		if (!info?.isDesktop && region === 'us-east-1' && isMac) {
+			setInfo((prev) => ({
+				...prev,
+				desktopPopup: true,
+			}));
+		} else {
+			if (option === 'uploading') {
+				handleNavigateUpload();
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					showDownloadAlbum: true,
+					showGalleryOptions: false,
+					showOptions: false,
+					activeTagId: albumDetails?.tags?.[0]?._id,
+					originalDownload: false,
+					webviewDownload: true,
+				}));
+			}
+		}
+	};
 	const handleCallToAction = useCallback(() => {
 		const payload = {
 			ctaPreferences: {
@@ -2054,10 +2108,64 @@ const GalleryPage = () => {
 	};
 
 	const handleDownloadAlbum = async () => {
-		if (info?.originalDownload) {
-			handleDownloadEntireAlbumOriginals();
-		} else {
-			handleDesktopDownloadAlbum();
+		// If already downloading, return early
+		if (info.isDownloading) return;
+
+		try {
+			setInfo((prev) => ({
+				...prev,
+				isDownloading: true,
+			}));
+
+			showMessage('loading', 'Downloading album...');
+			// const id = message.loading('Downloading album...');
+
+			const payload = {
+				imageType: info?.originalDownload ? 'original' : 'optimized',
+			};
+
+			const response = await getDownloadLinkForTag(
+				payload,
+				galleryId,
+				info?.activeAlbumId,
+				info?.activeTagId || info?.albumTagId,
+			);
+
+			// message.destroy(id);
+
+			if (response?.[0] === true && response?.[1]?.downloadId) {
+				const region = localStorage.getItem('region');
+				const regionPath = region === 'ap-south-1' ? 'in' : 'us';
+				const downloadUrl = `https://downloads.ve.ai/${regionPath}/${response?.[1]?.downloadId}`;
+				window.open(downloadUrl, '_blank');
+
+				message.destroy();
+				showMessage('success', 'Download started');
+
+				setInfo((prev) => ({
+					...prev,
+					showDownloadAlbum: false,
+					isDownloading: false,
+				}));
+			} else {
+				showMessage('error', 'Failed to generate download link', handleDownloadAlbum);
+				setInfo((prev) => ({
+					...prev,
+					isDownloading: false,
+				}));
+			}
+		} catch (error) {
+			console.error('Download error:', error);
+			message.destroy();
+			showMessage(
+				'error',
+				'Something went wrong, please try again later',
+				handleDownloadAlbum,
+			);
+			setInfo((prev) => ({
+				...prev,
+				isDownloading: false,
+			}));
 		}
 	};
 	// ... existing code ...
@@ -2556,7 +2664,7 @@ const GalleryPage = () => {
 					uploadImageId: null,
 					imageURL: '',
 					coverImageDetails: updatedCoverImage,
-					selectedImages: [],
+					// Preserve selectedImages to maintain the current image in GalleryViewer
 					crop: {
 						desktop: {
 							x: desktopSettings.focalPoint?.x || 0,
@@ -3655,11 +3763,7 @@ const GalleryPage = () => {
 			activeAlbumId: null,
 			albumContains: '',
 		}));
-		if (!info?.isLightGallery) {
-			navigate('/files?active-tab=Gallery');
-		} else {
-			navigate(`/files?active-tab=Lite+Gallery`);
-		}
+		navigate(-1);
 	};
 	const selectedFaceChange = (face) => {
 		setInfo((prev) => ({
@@ -3718,236 +3822,6 @@ const GalleryPage = () => {
 
 	const updateSelectedVideo = () => {
 		setInfo((prev) => ({ ...prev, videoUploaded: true }));
-	};
-	const handleDesktopDownloadAlbum = async () => {
-		try {
-			// Prevent multiple clicks
-			if (info.isDownloading) return;
-
-			setInfo((prev) => ({ ...prev, isDownloading: true }));
-			showMessage('loading', 'Preparing download...');
-
-			// Start with already-loaded images
-			let allImages = [...(info.imagesList?.docs || [])];
-
-			// If more pages exist, fetch all
-			if (info.imagesList?.hasNextPage) {
-				showMessage('loading', 'Loading all images...');
-
-				const totalImages = [];
-				let page = 1;
-				const limit = info.limit || 40;
-
-				while (true) {
-					const response = await getGalleryImages(
-						galleryId,
-						info.activeAlbumId,
-						info.albumTagId,
-						page,
-						limit,
-						'',
-						true,
-					);
-
-					if (response?.[0] !== true || !response[1]?.docs?.length) break;
-
-					totalImages.push(...response[1].docs);
-
-					if (!response[1].hasNextPage) break;
-					page++;
-				}
-
-				// Deduplicate by _id
-				const seen = new Set();
-				allImages = totalImages.filter((img) => {
-					if (seen.has(img._id)) return false;
-					seen.add(img._id);
-					return true;
-				});
-			}
-
-			if (allImages.length === 0) {
-				showMessage('error', 'No images to download');
-				return;
-			}
-
-			// Build signed URLs
-			const downloadItems = allImages
-				.map((image) => {
-					const version = image.activeVersion;
-					const key = info.originalDownload
-						? version.s3_original?.key
-						: version.s3_optimized?.key;
-
-					if (!key) return null;
-
-					const url =
-						`${galleryCredentials.baseURL}/${key}` +
-						`?Key-Pair-Id=${galleryCredentials['Key-Pair-Id']}` +
-						`&Signature=${galleryCredentials.Signature}` +
-						`&Policy=${galleryCredentials.Policy}`;
-
-					return {
-						url,
-						filename: version.givenFileName || `${image._id}.jpg`,
-					};
-				})
-				.filter(Boolean);
-
-			if (downloadItems.length === 0) {
-				showMessage('error', 'No valid image URLs');
-				return;
-			}
-
-			// ✅ Trigger ZIP creation in main process
-			const result = await window.electronApi.downloadAlbumZip({
-				items: downloadItems,
-				folderName: `Album_${info.albumName || 'download'}`,
-				maxZipSize: 3 * 1024 * 1024 * 1024, // 3GB
-			});
-
-			if (result.success) {
-				showMessage('success', `Downloaded ${result.zips.length} ZIP(s)`);
-			} else {
-				throw new Error(result.error || 'Unknown error');
-			}
-		} catch (err) {
-			console.error('Download failed:', err);
-			showMessage('error', 'Download failed: ' + err.message);
-		} finally {
-			setInfo((prev) => ({ ...prev, isDownloading: false }));
-		}
-	};
-	const handleDownloadEntireAlbumOriginals = async () => {
-		const { activeAlbumId, albumTagId, activeGallery, albumName } = info;
-		const galleryId = activeGallery?._id;
-
-		if (info?.isDownloading) return;
-		if (!galleryId) {
-			showMessage('error', 'Gallery not found');
-			return;
-		}
-
-		setInfo((prev) => ({ ...prev, isDownloading: true }));
-
-		let allImageIds = [];
-
-		// Fetch all image IDs
-		let page = 1;
-		const limit = 40;
-		while (true) {
-			const response = await getGalleryImages(
-				galleryId,
-				activeAlbumId,
-				albumTagId,
-				page,
-				limit,
-				'',
-				true,
-			);
-			if (response?.[0] === true && Array.isArray(response[1]?.docs)) {
-				allImageIds.push(...response[1].docs.map((img) => img._id));
-				if (!response[1].hasNextPage) break;
-				page++;
-			} else {
-				showMessage('error', 'Failed to load images');
-				setInfo((prev) => ({ ...prev, isDownloading: false }));
-				return;
-			}
-		}
-
-		if (allImageIds.length === 0) {
-			showMessage('warning', 'No images in album');
-			setInfo((prev) => ({ ...prev, isDownloading: false }));
-			return;
-		}
-
-		// Fetch signed URLs
-		showMessage('loading', 'Fetching download links...');
-
-		const batchSize = 10;
-		let allItems = [];
-
-		try {
-			const fetchPromises = [];
-			for (let i = 0; i < allImageIds.length; i += batchSize) {
-				fetchPromises.push(
-					(async () => {
-						const batchIds = allImageIds.slice(i, i + batchSize);
-						const payload = { image_ids: batchIds, imageType: 'original' };
-						try {
-							const result = await getSignedUrlsForImages(payload, galleryId);
-							if (Array.isArray(result)) {
-								allItems.push(
-									...result.map((item) => ({
-										url: item.url,
-										filename: item.filename || `${item.imageId}.jpg`,
-									})),
-								);
-							}
-						} catch (err) {
-							console.error('Failed to get signed URLs:', err);
-						}
-					})(),
-				);
-			}
-			await Promise.all(fetchPromises);
-		} catch (err) {
-			showMessage('error', 'Failed to fetch download links');
-			setInfo((prev) => ({ ...prev, isDownloading: false }));
-			return;
-		}
-
-		if (allItems.length === 0) {
-			showMessage('error', 'No images to download');
-			setInfo((prev) => ({ ...prev, isDownloading: false }));
-			return;
-		}
-
-		// Generate unique session ID
-		const sessionId = `album-${activeAlbumId}-${Date.now()}-${Math.random()
-			.toString(36)
-			.substr(2, 6)}`;
-		const folderName = `${albumName || 'Album'}_original`;
-		const maxZipSize = 3 * 1024 * 1024 * 1024;
-
-		showMessage('loading', `Downloading ${allItems.length} originals...`);
-
-		// Set up progress listener (silent - no toast notifications)
-		const progressListener = (data) => {
-			if (data.sessionId === sessionId) {
-				// Progress updates are handled silently - no toast notifications
-				// Only show completion message
-				if (data.phase === 'complete') {
-					showMessage('success', `Download completed! Files: ${data.zips?.join(', ')}`);
-				}
-			}
-		};
-
-		window.electronApi.onDownloadProgress(progressListener);
-
-		try {
-			const result = await window.electronApi.createZipFromUrls({
-				items: allItems,
-				folderName,
-				maxZipSize,
-				sessionId,
-				parallelLimit: 50, // Increased from 20 to 50 for better performance
-			});
-
-			if (result.success && result.zips?.length > 0) {
-				showMessage('success', `Downloaded: ${result.zips.join(', ')}`);
-			} else {
-				showMessage('error', result.error || 'Download failed');
-			}
-		} catch (err) {
-			console.error('IPC call failed:', err);
-			showMessage('error', 'Download failed: ' + err.message);
-		} finally {
-			// Clean up progress listener
-			window.electronApi.removeDownloadProgressListener();
-			setInfo((prev) => ({ ...prev, isDownloading: false }));
-		}
 	};
 
 	return (
@@ -5192,31 +5066,31 @@ const GalleryPage = () => {
 																</li>
 															)}
 															<li
-																onClick={() =>
+																// onClick={() =>
+																// 	setInfo((prev) => ({
+																// 		...prev,
+																// 		showDownloadAlbum: true,
+																// 		showGalleryOptions: false,
+																// 		showOptions: false,
+																// 		activeTagId:
+																// 			albumDetails?.tags?.[0]
+																// 				?._id,
+																// 		originalDownload: false,
+																// 		webviewDownload: true,
+																// 	}))
+																// }
+																onClick={() => {
 																	setInfo((prev) => ({
 																		...prev,
-																		showDownloadAlbum: true,
-																		showGalleryOptions: false,
-																		showOptions: false,
-																		activeTagId:
-																			albumDetails?.tags?.[0]
-																				?._id,
-																		originalDownload: false,
-																		webviewDownload: true,
-																	}))
-																}
-																// onClick={() => {
-																// 	// handleDesktopDownloadAlbum();
-																// 	handleDownloadEntireAlbumOriginals();
-																// }}
+																		selectedAction: 'download',
+																	}));
+																	handleUploadClicked(
+																		'downloading',
+																	);
+																}}
 															>
 																<DownloadIcon />
-																Download album{' '}
-																{info?.isDownloading ? (
-																	<Spinner />
-																) : (
-																	''
-																)}
+																Download album
 															</li>
 															<li onClick={handleLightRoomCopy}>
 																<LightRoomIcon />
@@ -5379,7 +5253,7 @@ const GalleryPage = () => {
 												<Masonry gutter="20px" columnsCount={4}>
 													<div
 														className="imageContainer"
-														onClick={handleNavigateUpload}
+														onClick={() => handleUploadClicked()}
 													>
 														<div className="imageUpload">
 															<CloudUpload className="uploadIcon" />
@@ -6719,7 +6593,6 @@ const GalleryPage = () => {
 				webviewDownload={info.webviewDownload}
 				activeTagId={info.activeTagId}
 				isLightGallery={info.isLightGallery}
-				isDownloading={info?.isDownloading}
 			/>
 			<ShowLightRoomCopy
 				open={info.showLightRoomCopy}
@@ -6760,6 +6633,16 @@ const GalleryPage = () => {
 					galleryId={galleryId}
 					selectedVideo={null}
 					updateSelectedVideo={updateSelectedVideo}
+				/>
+			)}
+			{info?.desktopPopup && (
+				<DesktopAppIntimation
+					open={info?.desktopPopup}
+					closeModal={() => {
+						setInfo((prev) => ({ ...prev, desktopPopup: false, selectedAction: null }));
+					}}
+					onStandardUploadClick={handleSelectedAction}
+					selectedAction={info?.selectedAction}
 				/>
 			)}
 		</>

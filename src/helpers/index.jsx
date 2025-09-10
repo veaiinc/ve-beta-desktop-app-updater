@@ -368,6 +368,8 @@ export const fileTypeIcons = {
 	'application/json': <JsonSvg />,
 	'application/md': <MdSvg />,
 	'application/jpeg': <JpgSvg />,
+	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': <ExcelSvg />,
+	'application/vnd.openxmlformats-officedocument.wordprocessingml.document': <DocxSvg />,
 	'text/plain': <TextSvg />,
 };
 

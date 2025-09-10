@@ -977,8 +977,8 @@ export const updateViewGroupMutation = gql`
 `;
 
 export const getLiveKitTokenQuery = gql`
-	query Query($meetingId: ID!) {
-		getLiveKitToken(meetingId: $meetingId) {
+	query Query($input: LiveKitTokenInput!) {
+		getLiveKitToken(input: $input) {
 			accessToken
 		}
 	}

@@ -98,7 +98,17 @@ const DownloadAlbum = (props) => {
 				</div>
 				<div style={{ alignSelf: 'flex-end' }}>
 					<button className="downloadAlbumPopupDownloadButton" onClick={onDownload}>
-						{isDownloading ? <Spinner /> : 'Download'}
+						{isDownloading ? (
+							<Spinner
+								width="24px"
+								height="24px"
+								color="var(--primary-font)"
+								borderTopColor="var(--primary-button)"
+								borderWidth="1.5"
+							/>
+						) : (
+							'Download'
+						)}
 					</button>
 				</div>
 			</div>

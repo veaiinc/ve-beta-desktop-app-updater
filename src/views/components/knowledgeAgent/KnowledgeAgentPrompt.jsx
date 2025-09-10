@@ -8,6 +8,7 @@ import Skeleton from 'react-loading-skeleton';
 import PromptWithIcons from './PromptWithIcons';
 import AgentCredentials from '../agents/agentDetails/agentCredentials/AgentCredentials';
 import { useParams } from 'react-router-dom';
+import Spinner from '../loaders/Spinner';
 
 const tooltipStyles = {
 	body: { minWidth: 'fit-content', padding: '0' },
@@ -20,8 +21,15 @@ const customPromptItem = {
 	tag: 'custom',
 	isDefault: false,
 };
+const loaderDivStyles = {
+	width: '100%',
+	height: '300px',
+	display: 'flex',
+	justifyContent: 'center',
+	alignItems: 'center',
+};
 
-const KnowledgeAgentPrompt = ({ assistant, actionDetails = [] }) => {
+const KnowledgeAgentPrompt = ({ assistant, actionDetails = [], myAccess }) => {
 	const {
 		knowledgeAgent: {
 			allAiPrompts,
@@ -53,40 +61,54 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [] }) => {
 	});
 
 	useEffect(() => {
-		if (allAiPrompts) {
-			let selectedSystemPrompt;
-			let systemPrompt;
-			let currentPromptId;
-
-			if (assistant?.prompt?.customEditedPrompt) {
-				selectedSystemPrompt = 'Custom';
-				systemPrompt = assistant?.prompt?.customEditedPrompt;
-				currentPromptId = assistant?.prompt?.promptId;
-			} else if (assistant?.prompt?.promptId) {
-				const selectedPrompt = allAiPrompts?.find(
-					(prompt) => prompt?._id === assistant?.prompt?.promptId,
-				);
-				selectedSystemPrompt = selectedPrompt?.label;
-				systemPrompt = selectedPrompt?.prompt;
-				currentPromptId = selectedPrompt?._id;
-			} else {
-				const defaultPrompt = allAiPrompts?.find((prompt) => prompt?.isDefault);
-				selectedSystemPrompt = defaultPrompt?.label;
-				systemPrompt = defaultPrompt?.prompt;
-				currentPromptId = defaultPrompt?._id;
-			}
+		if (assistant && agentId === assistant?._id) {
 			setInfo((prev) => ({
 				...prev,
 				systemPromptOptions: allAiPrompts || [],
-				selectedSystemPrompt,
-				systemPrompt,
-				currentPromptId,
+				selectedSystemPrompt: 'Custom',
+				systemPrompt: assistant?.prompt?.customEditedPrompt,
+				currentPromptId: assistant?.prompt?.promptId,
 				promptLoading: false,
 			}));
-		} else if (assistant?._id) {
-			getAiPrompts(assistant?._id);
 		}
-	}, [allAiPrompts, assistant?._id]);
+	}, [assistant?._id]);
+
+	// useEffect(() => {
+	// 	if (allAiPrompts) {
+	// 		let selectedSystemPrompt;
+	// 		let systemPrompt;
+	// 		let currentPromptId;
+
+	// 		if (assistant?.prompt?.customEditedPrompt) {
+	// 			selectedSystemPrompt = 'Custom';
+	// 			systemPrompt = assistant?.prompt?.customEditedPrompt;
+	// 			currentPromptId = assistant?.prompt?.promptId;
+	// 		}
+	// 		// else if (assistant?.prompt?.promptId) {
+	// 		// 	const selectedPrompt = allAiPrompts?.find(
+	// 		// 		(prompt) => prompt?._id === assistant?.prompt?.promptId,
+	// 		// 	);
+	// 		// 	selectedSystemPrompt = selectedPrompt?.label;
+	// 		// 	systemPrompt = selectedPrompt?.prompt;
+	// 		// 	currentPromptId = selectedPrompt?._id;
+	// 		// } else {
+	// 		// 	const defaultPrompt = allAiPrompts?.find((prompt) => prompt?.isDefault);
+	// 		// 	selectedSystemPrompt = defaultPrompt?.label;
+	// 		// 	systemPrompt = defaultPrompt?.prompt;
+	// 		// 	currentPromptId = defaultPrompt?._id;
+	// 		// }
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			systemPromptOptions: allAiPrompts || [],
+	// 			selectedSystemPrompt,
+	// 			systemPrompt,
+	// 			currentPromptId,
+	// 			promptLoading: false,
+	// 		}));
+	// 	} else if (assistant?._id) {
+	// 		getAiPrompts(assistant?._id);
+	// 	}
+	// }, [allAiPrompts, assistant?._id]);
 
 	useEffect(() => {
 		const selectedModel = info?.aiModelOptions?.find(
@@ -107,7 +129,7 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [] }) => {
 	const handleDebounceUpdate = useCallback(() => {
 		clearTimeout(info?.timeout);
 		const timeout = setTimeout(() => {
-			if (info?.editedPrompt && assistant?._id && info?.currentPromptId) {
+			if (assistant?._id && info?.currentPromptId) {
 				editAiPrompt(assistant?._id, info?.currentPromptId, {
 					prompt: info?.editedPrompt,
 				});
@@ -134,49 +156,53 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [] }) => {
 		if (!response[0]) message.error('Failed to update model for the agent!');
 	};
 
-	const handleSystemPromptChange = useCallback(
-		(option) => {
+	// const handleSystemPromptChange = useCallback(
+	// 	(option) => {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			selectedSystemPrompt: option.label,
+	// 			systemPrompt: option.prompt || '',
+	// 			currentPromptId: option._id,
+	// 			isSelectSystemPromptOpen: false,
+	// 		}));
+	// 		if (assistant?._id && option._id) {
+	// 			selectAiPrompt(assistant?._id, option._id);
+	// 		}
+	// 	},
+	// 	[assistant, selectAiPrompt],
+	// );
+
+	const handlePromptChange = useCallback(
+		(value) => {
+			if (value === info?.systemPrompt) return;
 			setInfo((prev) => ({
 				...prev,
-				selectedSystemPrompt: option.label,
-				systemPrompt: option.prompt || '',
-				currentPromptId: option._id,
-				isSelectSystemPromptOpen: false,
+				systemPrompt: value,
+				editedPrompt: value,
+				selectedSystemPrompt: 'Custom',
+				currentPromptId: prev.currentPromptId,
 			}));
-			if (assistant?._id && option._id) {
-				selectAiPrompt(assistant?._id, option._id);
-			}
 		},
-		[assistant, selectAiPrompt],
+		[info?.systemPrompt],
 	);
 
-	const handlePromptChange = useCallback((value) => {
-		setInfo((prev) => ({
-			...prev,
-			systemPrompt: value,
-			editedPrompt: value,
-			selectedSystemPrompt: 'Custom',
-			currentPromptId: prev.currentPromptId,
-		}));
-	}, []);
-
-	const handleResetPrompt = useCallback(async () => {
-		const response = await resetAiPrompt(assistant?._id);
-		if (response?.[0] === true) {
-			const { label, prompt } = response[1];
-			setInfo((prev) => ({
-				...prev,
-				selectedSystemPrompt: label,
-				systemPrompt: prompt,
-				editedPrompt: '',
-			}));
-		}
-	}, [assistant]);
+	// const handleResetPrompt = useCallback(async () => {
+	// 	const response = await resetAiPrompt(assistant?._id);
+	// 	if (response?.[0] === true) {
+	// 		const { label, prompt } = response[1];
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			selectedSystemPrompt: label,
+	// 			systemPrompt: prompt,
+	// 			editedPrompt: '',
+	// 		}));
+	// 	}
+	// }, [assistant]);
 
 	return (
 		<div className="aiPromptParentContainer">
 			<div className="agentPromptDetailsContainer">
-				<AgentCredentials agentId={agentId} />
+				<AgentCredentials agentId={agentId} myAccess={myAccess} />
 				{/* <div className="aiModalContainer">
 					<div className="aiModalHeader">
 						<span className="lineone">Model </span>
@@ -185,7 +211,7 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [] }) => {
 				</div> */}
 				<div className="chooseModelContainer">
 					<Tooltip
-						open={info.isSelectModelOpen}
+						open={myAccess !== 'view' && info.isSelectModelOpen}
 						onOpenChange={handleModelDropdownVisibility}
 						placement="bottomRight"
 						title={
@@ -194,7 +220,11 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [] }) => {
 									<div
 										key={index}
 										className="modelListItem"
-										onClick={() => handleChooseModalChange(option)}
+										onClick={
+											myAccess !== 'view'
+												? () => handleChooseModalChange(option)
+												: undefined
+										}
 									>
 										{option.label}
 									</div>
@@ -221,19 +251,8 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [] }) => {
                 </div> */}
 
 				{info?.promptLoading ? (
-					<div className="promptLoadingContainer">
-						<div
-							className="promptDropdownLoader"
-							style={{ width: '100%', height: '100%' }}
-						>
-							<Skeleton height={43} className="promptDropdownLoader" />
-						</div>
-						<div
-							className="promptTextAreaLoader"
-							style={{ width: '100%', height: '100%' }}
-						>
-							<Skeleton className="promptTextAreaLoader" height={130} />
-						</div>
+					<div className="promptLoadingContainer" style={loaderDivStyles}>
+						<Spinner />
 					</div>
 				) : (
 					<>
@@ -276,17 +295,17 @@ const KnowledgeAgentPrompt = ({ assistant, actionDetails = [] }) => {
 						<div className="systemPromptTextArea promptWithIconsWrapper">
 							<PromptWithIcons
 								prompt={info?.systemPrompt}
-								actionDetails={actionDetails}
 								onChange={handlePromptChange}
 								placeholder="Enter your system prompt here"
 								autoResize={true}
 								agentId={agentId}
+								myAccess={myAccess === 'view' ? 'view' : 'edit'}
 							/>
 						</div>
 
-						<div className="resetPromptContainer">
+						{/* <div className="resetPromptContainer">
 							<button onClick={handleResetPrompt}>Reset</button>
-						</div>
+						</div> */}
 					</>
 				)}
 			</div>

@@ -16,9 +16,8 @@ const FullImagesComponent = ({
 	activeImageIndex,
 	isThumbnailClicked,
 }) => {
-	const displayedImages = (isAiFace ? imagesList?.images : imagesList?.docs)?.filter(
-		(image) => selectedImages?.includes(image?._id) || !selectedImages,
-	);
+	// In GalleryViewer, we want to show all images regardless of selectedImages
+	const displayedImages = isAiFace ? imagesList?.images : imagesList?.docs;
 
 	const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 	const [dragStart, setDragStart] = useState(null);

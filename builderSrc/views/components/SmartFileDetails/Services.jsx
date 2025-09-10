@@ -49,8 +49,11 @@ const Services = ({ serviceData, serviceOnChangeFunc }) => {
 						) || 0;
 					subTotalValue += +(amount * quantity);
 				}
-				let editable = serviceData?.[i]?.style?.services_selection === 2 ? true : false;
-
+				// let editable = serviceData?.[i]?.style?.services_selection === 2 ? true : false;
+				let editable =
+					serviceData?.[i]?.style?.services_selection != 2 || subTotalValue > 0
+						? false
+						: true;
 				subTotalValue = editable ? serviceData?.[i]?.style?.subTotalValue : subTotalValue;
 				subTotalValue =
 					+(

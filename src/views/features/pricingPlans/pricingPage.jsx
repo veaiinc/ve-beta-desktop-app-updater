@@ -8,7 +8,7 @@ import Context from '../../../context/context';
 import { message } from '../../components/globalComponents/CustomToast';
 import Spinner from '../../components/loaders/Spinner';
 import Skeleton from 'react-loading-skeleton';
-import pricingPlansData from '../../../data/pricingPlans.json';
+import { pricingPlansData } from '../../../helpers/pricingPlans.js';
 import { CONTACT_US_URL } from '../../../helpers/ConstantUrls';
 
 const PricingPage = () => {
@@ -269,7 +269,7 @@ const PricingPage = () => {
 				<div className="pricing-cards">
 					{info.isLoading ? (
 						<div className="eachPricingCard">
-							<Skeleton height={450} />
+							<Skeleton height={400} />
 						</div>
 					) : (
 						plansToShow.map((plan) => {

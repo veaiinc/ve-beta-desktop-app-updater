@@ -5956,7 +5956,10 @@ class Home extends Proposals {
 						</div>
 					)}
 					{this.state?.showCheckMobilePopup && (
-						<CheckMobileView updatePreviewOption={this.handleCheckMobileViewOpt} />
+						<CheckMobileView
+							updatePreviewOption={this.handleCheckMobileViewOpt}
+							isAutoSaving={this.state?.isAutoSaving}
+						/>
 					)}
 					{this.state.isGeneratePreview ? (
 						''

@@ -13,18 +13,18 @@ const appTypes = [
 		icon: <GmailIcon />,
 		description: 'Receive emails to stay updated while offline. You can turn them off anytime',
 	},
-	{
-		id: 1,
-		appType: 'whatsapp',
-		icon: <WhatsappIcon />,
-		description: 'Get notifications via WhatsApp',
-	},
-	{
-		id: 2,
-		appType: 'slack',
-		icon: <SlackIcon />,
-		description: 'Receive direct notifications from Slack',
-	},
+	// {
+	// 	id: 1,
+	// 	appType: 'whatsapp',
+	// 	icon: <WhatsappIcon />,
+	// 	description: 'Get notifications via WhatsApp',
+	// },
+	// {
+	// 	id: 2,
+	// 	appType: 'slack',
+	// 	icon: <SlackIcon />,
+	// 	description: 'Receive direct notifications from Slack',
+	// },
 ];
 
 const defaultModuleAppTypeSelectAll = { email: false, whatsapp: false, slack: false };

@@ -305,6 +305,7 @@ export const Calendar = () => {
 					type: Actions.CREATE_CALENDAR_EVENT,
 					payload: response?.[1]?.data,
 				});
+				return response;
 			} else {
 				dispatch({
 					type: Actions.CREATE_CALENDAR_EVENT,
@@ -312,6 +313,7 @@ export const Calendar = () => {
 						error: 'Something went wrong while creating event. Please try again.',
 					},
 				});
+				return response;
 			}
 		} catch (error) {
 			console.log('error==>createCalendarEvent', error);

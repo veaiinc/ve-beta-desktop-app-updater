@@ -21,10 +21,13 @@ export const custom_domain_api = 'https://ap.api.ve.ai/custom-domain/1.0';
 export const browser_api = 'https://browser.ap-south-1.ve.ai';
 export const microsoft_integration_api = 'https://ap.api.ve.ai/microsoft-integration/1.0';
 export const meeting_summary_api = 'https://live.us-east-1.ve.ai';
+export const meeting_api = 'https://ap.api.ve.ai/page-notes/1.0';
 //socket endpoints
 export const chat_ws_api = 'wss://ai.ap-south-1.ve.ai';
 export const guest_chat_ws_api = 'wss://guestsearch.ap-south-1.ve.ai';
 export const meeting_ws_api = 'wss://recall.ap-south-1.ve.ai';
+export const generate_voice_agent_token_api = 'https://voice.us-east-1.ve.ai';
+export const browser_ws_api = 'wss://browser.us-east-1.ve.ai';
 
 // US region
 export const auth_Api_US = 'https://auth.ve.ai';
@@ -50,8 +53,12 @@ export const custom_domain_api_US = 'https://us.api.ve.ai/custom-domain/1.0';
 export const browser_api_US = 'https://browser.us-east-1.ve.ai';
 export const microsoft_integration_api_US = 'https://us.api.ve.ai/microsoft-integration/1.0';
 export const meeting_summary_api_US = 'https://live.us-east-1.ve.ai';
+export const meeting_api_US = 'https://us.api.ve.ai/page-notes/1.0';
 //socket endpoints
 export const chat_ws_api_US = 'wss://ai.us-east-1.ve.ai';
 export const guest_chat_ws_api_US = 'wss://guestsearch.us-east-1.ve.ai';
-export const meeting_ws_api_US = 'wss://recall.us-east-1.ve.ai';
-export const voice_agent_api_US = 'wss://voice.us-east-1.ve.ai/ws';
+export const meeting_ws_api_US = 'wss://recall.us-east-1.ve.ai/frontend/ws';
+export const voice_agent_api_US = 'wss://ve-voice-agent-g4ptyv6v.livekit.cloud';
+export const browser_ws_api_US = 'wss://browser.us-east-1.ve.ai';
+// export const browser_ws_api_US = 'wss://gladly-divine-urchin.ngrok-free.app';
+export const transcription_socket = 'wss://ve-ai-transcriptions-8p8k0b44.livekit.cloud';

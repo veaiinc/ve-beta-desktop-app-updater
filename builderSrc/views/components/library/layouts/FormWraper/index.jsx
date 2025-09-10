@@ -544,7 +544,12 @@ class FormWrapper extends Component {
 					{this.state.showBlockActions &&
 					this.state.preview == false &&
 					!disabledModules.includes(this.props.module) ? (
-						<div className="block-action-bar">
+						<div
+							className="block-action-bar"
+							style={{
+								top: '0px',
+							}}
+						>
 							<span
 								className="tooltip"
 								onClick={(e) => {
@@ -633,7 +638,12 @@ class FormWrapper extends Component {
 					this.props.module !== 'form' &&
 					!this.props?.activeModule?.showAsSlide &&
 					!disabledModules.includes(this.props.module) ? (
-						<div className="add-block-new-container">
+						<div
+							className="add-block-new-container"
+							style={{
+								top: '0px',
+							}}
+						>
 							<div
 								onClick={(e) => this.hanldeAddBlock(e)}
 								className="addBlankContainer"
@@ -641,7 +651,7 @@ class FormWrapper extends Component {
 								<AddBlock />
 								<label className="tooltip-text">Add Block</label>
 							</div>
-							<div className="addBlockDividerContainer">
+							{/* <div className="addBlockDividerContainer">
 								<div className="addBlockDivider"></div>
 							</div>
 							<div className="addBlankContainer">
@@ -660,7 +670,7 @@ class FormWrapper extends Component {
 								)}
 
 								<label className="tooltip-text">Add Blank</label>
-							</div>
+							</div> */}
 						</div>
 					) : (
 						''
