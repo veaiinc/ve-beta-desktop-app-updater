@@ -3853,6 +3853,44 @@ app.whenReady().then(async () => {
 			return { success: false, error: error.message };
 		}
 	});
+
+	// Show screen recording permission help
+	ipcMain.handle('show-screen-recording-permission-help', async () => {
+		try {
+			if (process.platform === 'darwin') {
+				const result = await dialog.showMessageBox(mainWindow, {
+					type: 'info',
+					title: 'Screen Recording Permission Required',
+					message: 'Screen recording access is needed for screen capture functionality',
+					detail: 'To enable screen recording access:\n\n1. Go to System Preferences > Security & Privacy > Privacy\n2. Select "Screen Recording" from the left sidebar\n3. Check the box next to this app\n4. Restart the app if needed',
+					buttons: ['Open System Preferences', 'Cancel'],
+					defaultId: 0,
+					cancelId: 1,
+				});
+
+				if (result.response === 0) {
+					// Open System Preferences to Screen Recording section
+					exec(
+						'open "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"',
+					);
+				}
+
+				return { success: true, openedSystemPrefs: result.response === 0 };
+			} else {
+				return {
+					success: true,
+					openedSystemPrefs: false,
+					message: 'Screen recording permissions handled by system',
+				};
+			}
+		} catch (error) {
+			log.error('Error showing screen recording permission help:', error);
+			return {
+				success: false,
+				error: error.message,
+			};
+		}
+	});
 });
 
 // Handle app quit properly
