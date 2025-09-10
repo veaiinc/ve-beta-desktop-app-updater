@@ -86,7 +86,7 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 		Cookies.set('region', region, { sameSite: 'lax', domain: host });
 		Cookies.set('isOnboard', isOnboard, { sameSite: 'lax', domain: host });
 
-		channel.postMessage('switchWorkspace');
+		channel.postMessage('switchWorkspace'); // Inform all the tabs to switch workspace
 	};
 
 	const handleKeyboardNavigation = (e) => {
