@@ -27,8 +27,11 @@ const AskAIApp = () => {
 	const [receivedDynamicIslandMessage, setReceivedDynamicIslandMessage] = useState(null);
 	const [currentQuestion, setCurrentQuestion] = useState('');
 	const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+	const [isWindowClosing, setIsWindowClosing] = useState(false);
+	const [isInputVisible, setIsInputVisible] = useState(true);
 	// Initialize socket
-	const { createWebSocketConnection, sendMessage, closeWebSocketConnection, stopMessage } = useAskAISocket();
+	const { createWebSocketConnection, sendMessage, closeWebSocketConnection, stopMessage } =
+		useAskAISocket();
 	// Update dimensions only when necessary
 	const updateDimensions = useCallback(
 		(forceUpdate = false) => {
@@ -108,6 +111,8 @@ const AskAIApp = () => {
 			setReceivedDynamicIslandMessage(null);
 			setCurrentQuestion('');
 			setIsNeedHelpRequest(false);
+			setIsWindowClosing(false);
+			setIsInputVisible(true);
 		};
 	}, [closeWebSocketConnection]);
 
@@ -116,6 +121,10 @@ const AskAIApp = () => {
 		const handleTabContent = (tabContent) => {
 			console.log('Received tab content from overlay:', tabContent);
 			setReceivedTabContent(tabContent);
+
+			// Show input area and response window when receiving tab content
+			setIsInputVisible(true);
+			setIsWindowClosing(false);
 
 			// Auto-generate a prompt based on the tab content
 			const prompt = generatePromptFromTabContent(tabContent);
@@ -148,6 +157,10 @@ const AskAIApp = () => {
 			const isOverlayThread = chatMessage.type === 'overlay-thread-question';
 
 			if ((isDynamicIsland || isNotchDrop || isOverlayThread) && chatMessage.message) {
+				// Show input area and response window when receiving external messages
+				setIsInputVisible(true);
+				setIsWindowClosing(false);
+
 				// Show indicator only for Dynamic Island
 				if (isDynamicIsland) {
 					setReceivedDynamicIslandMessage(chatMessage.message);
@@ -454,16 +467,20 @@ const AskAIApp = () => {
 
 	const handleClose = async () => {
 		console.log('🔄 Closing Ask AI window...');
-		
+
+		// Set closing state to immediately hide response window and input
+		setIsWindowClosing(true);
+		setIsInputVisible(false);
+
 		// Stop any ongoing message processing
 		if (isLoading) {
 			handleStop();
 		}
-		
+
 		// Close WebSocket connection
 		closeWebSocketConnection();
-		
-		// Reset all states immediately
+
+		// Reset all states immediately to hide response window
 		setIsLoading(false);
 		setResponse('');
 		setStreamingResponse('');
@@ -475,15 +492,13 @@ const AskAIApp = () => {
 		setReceivedDynamicIslandMessage(null);
 		setCurrentQuestion('');
 		setIsNeedHelpRequest(false);
-		
-		// Small delay to ensure cleanup completes before window closes
-		setTimeout(() => {
-			// Close the window
-			if (window.electronApi?.askAI?.toggleWindow) {
-				window.electronApi.askAI.toggleWindow();
-			}
-			console.log('✅ Ask AI window closed and chat terminated');
-		}, 100);
+		setShowScrollToBottom(false);
+
+		// Close the window immediately - no delay needed
+		if (window.electronApi?.askAI?.toggleWindow) {
+			window.electronApi.askAI.toggleWindow();
+		}
+		console.log('✅ Ask AI window closed and chat terminated');
 	};
 
 	const handleStop = () => {
@@ -505,7 +520,8 @@ const AskAIApp = () => {
 	// Scroll detection logic
 	const handleScroll = useCallback(() => {
 		if (responseRef.current) {
-			const { scrollTop, scrollHeight, clientHeight } = responseRef.current || questionRef.current;
+			const { scrollTop, scrollHeight, clientHeight } =
+				responseRef.current || questionRef.current;
 			const isNearBottom = scrollHeight - scrollTop - clientHeight < 100; // 100px threshold
 			setShowScrollToBottom(!isNearBottom && scrollHeight > clientHeight);
 		}
@@ -516,17 +532,17 @@ const AskAIApp = () => {
 		if (responseRef.current || questionRef.current) {
 			responseRef.current.scrollTo({
 				top: responseRef.current.scrollHeight,
-				behavior: 'smooth'
+				behavior: 'smooth',
 			});
 		}
 	}, []);
 
 	// Auto-scroll to bottom when new content arrives (streaming)
 	useEffect(() => {
-		if (displayedResponse && responseRef.current || questionRef.current) {
+		if ((displayedResponse && responseRef.current) || questionRef.current) {
 			const { scrollTop, scrollHeight, clientHeight } = responseRef.current;
 			const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
-			
+
 			// Auto-scroll only if user is already near the bottom
 			if (isNearBottom) {
 				scrollToBottom();
@@ -537,121 +553,123 @@ const AskAIApp = () => {
 	return (
 		<div ref={containerRef} className="ask-ai-app">
 			{/* Response Window - Top */}
-			{(response || isLoading || displayedResponse || isExpanded || hasResponse) && (
-				<div className={`ai-response-window ${isExpanded ? 'expanded' : 'collapsed'}`}>
-					<div className="ai-response-header">
-						<div className="ai-response-drag-handle">
-							<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
-						</div>
-						<div className="ai-response-title">
-							<span>AI Response</span>
-							{response && (
-								<button
-									className="expand-button"
-									onClick={toggleExpanded}
-									title={isExpanded ? 'Collapse' : 'Expand'}
-								>
-									{/* {isExpanded ? (
+			{!isWindowClosing &&
+				(response || isLoading || displayedResponse || isExpanded || hasResponse) && (
+					<div className={`ai-response-window ${isExpanded ? 'expanded' : 'collapsed'}`}>
+						<div className="ai-response-header">
+							<div className="ai-response-drag-handle">
+								<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
+							</div>
+							<div className="ai-response-title">
+								<span>AI Response</span>
+								{response && (
+									<button
+										className="expand-button"
+										onClick={toggleExpanded}
+										title={isExpanded ? 'Collapse' : 'Expand'}
+									>
+										{/* {isExpanded ? (
 										<ChevronUp size={16} />
 									) : (
 										<ChevronDown size={16} />
 									)} */}
-								</button>
-							)}
-						</div>
-						<div className="ai-response-controls">
-							{response && (
+									</button>
+								)}
+							</div>
+							<div className="ai-response-controls">
+								{response && (
+									<button
+										className="copy-button"
+										onClick={handleCopyResponse}
+										title="Copy response"
+									>
+										{copied ? 'copied' : <Copy size={14} />}
+									</button>
+								)}
 								<button
-									className="copy-button"
-									onClick={handleCopyResponse}
-									title="Copy response"
+									className="close-button"
+									onClick={handleClose}
+									title="Close"
 								>
-									{copied ? 'copied' : <Copy size={14} />}
+									<X size={16} />
 								</button>
-							)}
-							<button className="close-button" onClick={handleClose} title="Close">
-								<X size={16} />
-							</button>
+							</div>
 						</div>
-					</div>
 
-					<div className="divider"></div>
-					
-					{/* Current Question Display */}
-					{currentQuestion && (
-						<div className="ai-question-display" ref={questionRef}>
-							<div className="ai-question-text">
-								<span className="question-label">Question:</span>
-								<span className="question-content">{currentQuestion}</span>
-							</div>
-							{isLoading && (
-								<div className="thinking-indicator">
-									<div className="thinking-dots">
-										<span></span>
-										<span></span>
-										<span></span>
-									</div>
-									<span className="thinking-text">Thinking...</span>
+						<div className="divider"></div>
+
+						{/* Current Question Display */}
+						{currentQuestion && (
+							<div className="ai-question-display" ref={questionRef}>
+								<div className="ai-question-text">
+									<span className="question-label">Question:</span>
+									<span className="question-content">{currentQuestion}</span>
 								</div>
-							)}
-						</div>
-					)}
-					
-					<div className="ai-response-content" ref={responseRef}>
-						{response || displayedResponse ? (
-							<div className="response-text">
-								<AskAIMarkdown>
-									{response || displayedResponse}
-								</AskAIMarkdown>
-							</div>
-						) : (
-							<div className="empty-response">
-								No response content
+								{isLoading && (
+									<div className="thinking-indicator">
+										<div className="thinking-dots">
+											<span></span>
+											<span></span>
+											<span></span>
+										</div>
+										<span className="thinking-text">Thinking...</span>
+									</div>
+								)}
 							</div>
 						)}
-					</div>
-					
-					{/* Scroll to Bottom Button */}
-					{showScrollToBottom && (
-						<button 
-							className="scroll-to-bottom-btn"
-							onClick={scrollToBottom}
-							title="Scroll to bottom"
-						>
-							<ChevronDown size={16} />
-						</button>
-					)}
-				</div>
-			)}
 
-			{/* Input Bar - Bottom */}
-			<div className="ask-ai-input">
-				<div className="ask-ai-input-drag-handle">
-					<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
-				</div>
-				{/* Dynamic Island Message Indicator */}
-				{receivedDynamicIslandMessage && (
-					<div className="ask-ai-input__dynamic-island-indicator">
-						<span className="dynamic-island-indicator__label">
-							🏝️ Message from Dynamic Island: "{receivedDynamicIslandMessage}"
-							{isLoading && (
-								<span className="dynamic-island-indicator__status">
-									{' '}
-									• Processing...
-								</span>
+						<div className="ai-response-content" ref={responseRef}>
+							{response || displayedResponse ? (
+								<div className="response-text">
+									<AskAIMarkdown>{response || displayedResponse}</AskAIMarkdown>
+								</div>
+							) : (
+								<div className="empty-response">No response content</div>
 							)}
-						</span>
-						<button
-							className="dynamic-island-indicator__clear"
-							onClick={() => setReceivedDynamicIslandMessage(null)}
-							title="Clear indicator"
-						>
-							<X size={12} />
-						</button>
+						</div>
+
+						{/* Scroll to Bottom Button */}
+						{showScrollToBottom && (
+							<button
+								className="scroll-to-bottom-btn"
+								onClick={scrollToBottom}
+								title="Scroll to bottom"
+							>
+								<ChevronDown size={16} />
+							</button>
+						)}
 					</div>
 				)}
-				{/* Tab Content Indicator - Removed for cleaner interface */}
-				{/* {receivedTabContent && (
+
+			{/* Input Bar - Bottom */}
+			{isInputVisible && (
+				<div className="ask-ai-input">
+					<div className="ask-ai-input-drag-handle">
+						<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
+					</div>
+					{/* Dynamic Island Message Indicator */}
+					{receivedDynamicIslandMessage && (
+						<div className="ask-ai-input__dynamic-island-indicator">
+							<span className="dynamic-island-indicator__label">
+								🏝️ Message from Dynamic Island: "{receivedDynamicIslandMessage}"
+								{isLoading && (
+									<span className="dynamic-island-indicator__status">
+										{' '}
+										• Processing...
+									</span>
+								)}
+							</span>
+							<button
+								className="dynamic-island-indicator__clear"
+								onClick={() => setReceivedDynamicIslandMessage(null)}
+								title="Clear indicator"
+							>
+								<X size={12} />
+							</button>
+						</div>
+					)}
+					{/* Tab Content Indicator - Removed for cleaner interface */}
+					{/* {receivedTabContent && (
 					<div className="ask-ai-input__tab-indicator">
 						<span className="tab-indicator__label">
 							📋{' '}
@@ -675,37 +693,45 @@ const AskAIApp = () => {
 					</div>
 				)} */}
 
-				<div className="ask-ai-input__container">
-					<textarea
-						ref={inputRef}
-						className="ask-ai-input__field"
-						placeholder="Ask about this"
-						value={inputValue}
-						onChange={(e) => setInputValue(e.target.value)}
-						onKeyDown={handleKeyDown}
-						rows={1}
-					/>
+					<div className="ask-ai-input__container">
+						<textarea
+							ref={inputRef}
+							className="ask-ai-input__field"
+							placeholder="Ask about this"
+							value={inputValue}
+							onChange={(e) => {
+								setInputValue(e.target.value);
+								// Show input area when user starts typing
+								if (!isInputVisible) {
+									setIsInputVisible(true);
+									setIsWindowClosing(false);
+								}
+							}}
+							onKeyDown={handleKeyDown}
+							rows={1}
+						/>
 
-					{isLoading && (
+						{isLoading && (
+							<button
+								className="ask-ai-input__stop"
+								onClick={handleStop}
+								title="Stop response"
+							>
+								<Square size={14} />
+							</button>
+						)}
+
 						<button
-							className="ask-ai-input__stop"
-							onClick={handleStop}
-							title="Stop response"
+							className={`ask-ai-input__submit ${inputValue.trim() ? 'active' : ''}`}
+							onClick={handleSubmit}
+							disabled={!inputValue.trim() || isLoading}
+							title="Ask"
 						>
-							<Square size={14} />
+							Ask
 						</button>
-					)}
-
-					<button
-						className={`ask-ai-input__submit ${inputValue.trim() ? 'active' : ''}`}
-						onClick={handleSubmit}
-						disabled={!inputValue.trim() || isLoading}
-						title="Ask"
-					>
-						Ask
-					</button>
+					</div>
 				</div>
-			</div>
+			)}
 		</div>
 	);
 };
