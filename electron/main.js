@@ -51,20 +51,26 @@ let isContentProtectionEnabled = true; // Default to enabled for privacy
 const toggleContentProtection = () => {
 	isContentProtectionEnabled = !isContentProtectionEnabled;
 	
-	// Apply to all windows - simple and reliable
+	// Apply to all windows except main window - keep main window always visible
 	const allWindows = BrowserWindow.getAllWindows();
 	let protectedCount = 0;
 	
 	allWindows.forEach(window => {
 		if (!window.isDestroyed()) {
+			// Skip main window - keep it always visible
+			if (window === mainWindow) {
+				log.info(`🏠 Skipping main window - keeping it always visible`);
+				return;
+			}
+			
 			window.setContentProtection(isContentProtectionEnabled);
 			protectedCount++;
 		}
 	});
 	
 	const status = isContentProtectionEnabled ? 'ON' : 'OFF';
-	log.info(`🔒 Content protection: ${status} - Applied to ${protectedCount} windows`);
-	console.log(`🔒 CONTENT PROTECTION: ${status} (${protectedCount} windows protected)`);
+	log.info(`🔒 Content protection: ${status} - Applied to ${protectedCount} windows (main window excluded)`);
+	console.log(`🔒 CONTENT PROTECTION: ${status} (${protectedCount} windows protected, main window always visible)`);
 	
 	return isContentProtectionEnabled;
 };
@@ -78,17 +84,29 @@ const setContentProtection = (enabled) => {
 	
 	BrowserWindow.getAllWindows().forEach(window => {
 		if (!window.isDestroyed()) {
+			// Skip main window - keep it always visible
+			if (window === mainWindow) {
+				log.info(`🏠 Skipping main window - keeping it always visible`);
+				return;
+			}
+			
 			window.setContentProtection(isContentProtectionEnabled);
 		}
 	});
 	
-	log.info(`🔒 Content protection set to: ${isContentProtectionEnabled ? 'ON' : 'OFF'}`);
+	log.info(`🔒 Content protection set to: ${isContentProtectionEnabled ? 'ON' : 'OFF'} (main window excluded)`);
 	return isContentProtectionEnabled;
 };
 
 // Function to apply content protection to a newly created window
 const applyContentProtectionToWindow = (window) => {
 	if (window && !window.isDestroyed()) {
+		// Skip main window - keep it always visible
+		if (window === mainWindow) {
+			log.info(`🏠 Skipping main window - keeping it always visible`);
+			return;
+		}
+		
 		window.setContentProtection(isContentProtectionEnabled);
 		log.info(`🔒 Applied content protection (${isContentProtectionEnabled ? 'ON' : 'OFF'}) to new window: ${window.getTitle()}`);
 	}
