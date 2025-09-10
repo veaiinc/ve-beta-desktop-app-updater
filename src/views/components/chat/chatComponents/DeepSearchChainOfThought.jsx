@@ -18,7 +18,7 @@ const DeepSearchChainOfThought = ({
 		<div className="cot-wrapper">
 			<div className="cot-container">
 				{cot?.map((item, index) => {
-					const { readings, step } = item || {};
+					const { readings, step, title } = item || {};
 					return (
 						<div className={`cot ${!streamEnd ? 'animate-fade-in' : ''} `} key={index}>
 							<div className="logo-container">
@@ -28,7 +28,19 @@ const DeepSearchChainOfThought = ({
 								{(index !== cot?.length - 1 || showLastIndicatorLine) && (
 									<div className="line" />
 								)}
-								<div className="sub-query">{step || ''}</div>
+								{title ? (
+									<>
+										<div className="sub-query">{title}</div>
+										<div
+											className="sub-query-description"
+											style={{ marginTop: '-2px' }}
+										>
+											{step || ''}
+										</div>
+									</>
+								) : (
+									<div className="sub-query">{step || ''}</div>
+								)}
 								{readings?.length > 0 && (
 									<div className="sub-query-wrapper">
 										{readings?.map((reading, index) => {

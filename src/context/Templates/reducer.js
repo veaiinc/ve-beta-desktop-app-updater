@@ -503,10 +503,7 @@ const actionHandlers = {
 				let chainOfThought = [...(message?.chainOfThought || [])];
 
 				if (payload?.step) {
-					chainOfThought?.push({
-						step: payload?.step,
-						step_id: payload?.step_id,
-					});
+					chainOfThought?.push(payload);
 				} else if (payload?.reading && payload?.step_id) {
 					chainOfThought = chainOfThought?.map((item) => {
 						if (item?.step_id === payload?.step_id) {

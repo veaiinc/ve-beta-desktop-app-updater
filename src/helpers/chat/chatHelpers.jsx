@@ -7,7 +7,11 @@ export const handleDeepSearchChainOfThought = (chainOfThought) => {
 	for (let i = 0; i < chainOfThought?.length; i++) {
 		const data = chainOfThought?.[i] || {};
 		if (data?.step) {
-			cot?.push({ step: data?.step, readings: data?.reading || [] });
+			cot?.push({
+				step: data?.step,
+				title: data?.title || null,
+				readings: data?.reading || [],
+			});
 		}
 	}
 
@@ -270,4 +274,26 @@ export const getBrowserUrls = async (sessionId, handleGlobalChatMessages) => {
 		console.error('error==>getBrowserUrls', error);
 		return;
 	}
+};
+
+export const getFileType = (file) => {
+	let type = file?.type || file?.sourceType || null;
+	if (!type) return 'Unknown';
+
+	type = type?.toLowerCase();
+
+	if (type === 'application/pdf') return 'PDF';
+	if (
+		type === 'application/msword' ||
+		type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+	)
+		return 'DOCX';
+	if (
+		type === 'application/vnd.ms-excel' ||
+		type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+	)
+		return 'XLSX';
+	if (type === 'text/csv') return 'CSV';
+
+	return type;
 };

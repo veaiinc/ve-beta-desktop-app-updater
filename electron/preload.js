@@ -17,6 +17,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 	checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
 	downloadUpdate: () => ipcRenderer.invoke('download-update'),
 	forceDownloadUpdate: () => ipcRenderer.invoke('force-download-update'),
+	restartApp: () => ipcRenderer.invoke('restart-app'),
 	repositionDynamicIsland: () => ipcRenderer.invoke('reposition-dynamic-island'),
 
 	onUpdateStatus: (callback) => {
