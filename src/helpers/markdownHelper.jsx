@@ -1,4 +1,4 @@
-import React, { memo, useContext, useState, useMemo, useCallback, useRef } from 'react';
+import React, { memo, useContext, useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { default as ReactMarkdown } from 'react-markdown';
 import '../assets/scss/markdown.scss';
 import '../assets/scss/markdownHelper.scss';
@@ -15,7 +15,8 @@ import rehypeRaw from 'rehype-raw';
 import 'katex/dist/katex.min.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import AISuggestionsReportUserComponent from '../views/components/chat/chatComponents/AISuggestionsReportUserComponent';
-import { getBase64 } from '../helpers';
+import { fileTypeIcons, getBase64 } from '../helpers';
+import { getFileType } from './chat/chatHelpers';
 
 const codeColorTheme = {
 	'code[class*="language-"]': {
@@ -267,25 +268,13 @@ const baseComponents = {
 		</ol>
 	),
 	li: ({ children, ...props }) => {
-		return (
-			<li {...props} className="li">
-				{children}
-			</li>
-		);
+		return <li className="li">{children}</li>;
 	},
 	ul: ({ children, ...props }) => {
-		return (
-			<ul {...props} className="ul">
-				{children}
-			</ul>
-		);
+		return <ul className="ul">{children}</ul>;
 	},
 	strong: ({ children, ...props }) => {
-		return (
-			<strong {...props} className="strong">
-				{children}
-			</strong>
-		);
+		return <strong className="strong">{children}</strong>;
 	},
 	a: ({ children, ...props }) => {
 		return (
@@ -295,53 +284,25 @@ const baseComponents = {
 		);
 	},
 	h1: ({ children, ...props }) => {
-		return (
-			<h1 {...props} className="h1">
-				{children}
-			</h1>
-		);
+		return <h1 className="h1">{children}</h1>;
 	},
 	h2: ({ children, ...props }) => {
-		return (
-			<h2 {...props} className="h2">
-				{children}
-			</h2>
-		);
+		return <h2 className="h2">{children}</h2>;
 	},
 	h3: ({ children, ...props }) => {
-		return (
-			<h3 {...props} className="h3">
-				{children}
-			</h3>
-		);
+		return <h3 className="h3">{children}</h3>;
 	},
 	h4: ({ children, ...props }) => {
-		return (
-			<h4 {...props} className="h4">
-				{children}
-			</h4>
-		);
+		return <h4 className="h4">{children}</h4>;
 	},
 	h5: ({ children, ...props }) => {
-		return (
-			<h5 {...props} className="h5">
-				{children}
-			</h5>
-		);
+		return <h5 className="h5">{children}</h5>;
 	},
 	h6: ({ children, ...props }) => {
-		return (
-			<h6 {...props} className="h6">
-				{children}
-			</h6>
-		);
+		return <h6 className="h6">{children}</h6>;
 	},
 	p: ({ children, ...props }) => {
-		return (
-			<p {...props} className="p">
-				{children}
-			</p>
-		);
+		return <p className="p">{children}</p>;
 	},
 	img: ({ children, ...props }) => {
 		return (
@@ -356,10 +317,10 @@ const baseComponents = {
 			</div>
 		);
 	},
-	thead: ({ children, ...props }) => <thead {...props}>{children}</thead>,
-	th: ({ children, ...props }) => <th {...props}>{children}</th>,
-	td: ({ children, ...props }) => <td {...props}>{children}</td>,
-	tr: ({ children, ...props }) => <tr {...props}>{children}</tr>,
+	thead: ({ children, ...props }) => <thead>{children}</thead>,
+	th: ({ children, ...props }) => <th>{children}</th>,
+	td: ({ children, ...props }) => <td>{children}</td>,
+	tr: ({ children, ...props }) => <tr>{children}</tr>,
 	iframe: ({ children, ...props }) => {
 		return (
 			<div className="iframe-wrapper">
@@ -514,8 +475,7 @@ export const Markdown = memo(NonMemoizedMarkdown, (prevProps, nextProps) => {
 	const citationsEqual =
 		(!prevProps.citations && !nextProps.citations) ||
 		(prevProps.citations?.length === nextProps.citations?.length &&
-			JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations)) ||
-		prevProps.animate === nextProps.animate;
+			JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations));
 
 	return prevProps.children === nextProps.children && citationsEqual;
 });
@@ -524,53 +484,23 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 	const {
 		templates: { updateStateValues },
 	} = useContext(Context);
-	const textRef = useRef(null);
 
-	const [info, setinfo] = useState({
+	const [info, setInfo] = useState({
 		isCopiedToClipboard: false,
 		editUserQuery: false,
 		userQuery: messageData?.message,
-		isExpanded: false,
-		isOverflowing: false,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
 
-	// useEffect(() => {
-	// 	adjustFontSize();
-	// }, [messageData?.message]);
-
-	// const checkOverflow = (element) => {
-	// 	return element?.scrollHeight > element?.clientHeight;
-	// };
-
-	// const adjustFontSize = () => {
-	// 	if (textRef?.current) {
-	// 		// Set initial font size
-	// 		textRef.current.style.fontSize = '1.5rem';
-	// 		textRef.current.style.lineHeight = '1.75rem';
-
-	// 		// Check again for overflow
-	// 		if (checkOverflow(textRef?.current)) {
-	// 			// If still overflowing, revert to 0.875rem
-	// 			textRef.current.style.fontSize = '0.875rem';
-	// 			textRef.current.style.lineHeight = '1.25rem';
-
-	// 			if (checkOverflow(textRef?.current)) {
-	// 				setinfo((prev) => ({ ...prev, isOverflowing: true }));
-	// 			}
-	// 		}
-	// 	}
-	// };
-
 	const handleCopyTextClick = useCallback(
 		(text) => {
 			const textToBeCopied = text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n');
 			navigator?.clipboard?.writeText(textToBeCopied).then(() => {
-				setinfo((prev) => ({ ...prev, isCopiedToClipboard: true }));
+				setInfo((prev) => ({ ...prev, isCopiedToClipboard: true }));
 				setTimeout(() => {
-					setinfo((prev) => ({ ...prev, isCopiedToClipboard: false }));
+					setInfo((prev) => ({ ...prev, isCopiedToClipboard: false }));
 				}, 1000);
 			});
 		},
@@ -578,7 +508,7 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 	);
 
 	const handleEditUserQueryToggle = useCallback(() => {
-		setinfo((prev) => ({
+		setInfo((prev) => ({
 			...prev,
 			editUserQuery: !prev.editUserQuery,
 			userQuery: messageData?.message || '',
@@ -592,7 +522,7 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 					return;
 				}
 				updateStateValues({ userEditedQuery: info?.userQuery });
-				setinfo((prev) => ({
+				setInfo((prev) => ({
 					...prev,
 					editUserQuery: !prev.editUserQuery,
 					userQuery: messageData?.message || '',
@@ -604,14 +534,10 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 
 	const handleUserQueryChange = useCallback(
 		(e) => {
-			setinfo((prev) => ({ ...prev, userQuery: e.target.value }));
+			setInfo((prev) => ({ ...prev, userQuery: e.target.value }));
 		},
 		[info],
 	);
-
-	const toggleExpand = useCallback(() => {
-		setinfo((prev) => ({ ...prev, isExpanded: !prev.isExpanded }));
-	}, []);
 
 	const handlePreview = async (file) => {
 		if (!file.url && !file.preview) {
@@ -635,30 +561,35 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 					))}
 				</div>
 			)}
+
+			{messageData?.attachments?.length > 0 && (
+				<div className="uploaded-files-container">
+					{messageData?.attachments?.map((file, index) => {
+						return (
+							<div className="uploaded-file" key={index}>
+								<div className="file-type-icon">
+									{fileTypeIcons?.[file?.sourceType]}
+								</div>
+								<div className="uploaded-file-info">
+									<div className="uploaded-file-name">
+										<div className="file-title">{file?.name || ''}</div>
+									</div>
+									<div className="file-source-type">{getFileType(file)}</div>
+								</div>
+							</div>
+						);
+					})}
+				</div>
+			)}
 			{!info?.editUserQuery ? (
 				<div className="user-message-wrapper">
 					{messageData?.moduleType === 'ai_suggestion_report' ? (
 						<AISuggestionsReportUserComponent data={messageData?.data} />
 					) : (
 						<div className="user-message">
-							<div
-								// style={{
-								// 	maxHeight: info?.isExpanded
-								// 		? `${textRef.current?.scrollHeight}px`
-								// 		: '147px',
-								// }}
-								className="user-message-renderer-container"
-								// ref={textRef}
-							>
+							<div className="user-message-renderer-container">
 								{messageData?.message || ''}
 							</div>
-							{/* {info?.isOverflowing && (
-								<div className="expand-btn">
-									<div className="btn-text" onClick={toggleExpand}>
-										{info?.isExpanded ? 'Show less' : 'Show more'}
-									</div>
-								</div>
-							)} */}
 						</div>
 					)}
 				</div>
@@ -684,11 +615,15 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 			)}
 			{!info?.editUserQuery ? (
 				<div className="hover-actions-container">
-					<div className="icon-container">
+					{/* <div className="icon-container" style={{ top: '-2px' }}>
 						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Edit'}>
-							<PencilSparkleIcon onClick={handleEditUserQueryToggle} />
+							<PencilSparkleIcon
+								width={'19px'}
+								height={'20px'}
+								onClick={handleEditUserQueryToggle}
+							/>
 						</Tooltip>
-					</div>
+					</div> */}
 
 					<div className="icon-container">
 						<Tooltip

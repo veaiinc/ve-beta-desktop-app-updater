@@ -8,7 +8,7 @@ import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/ta
 const ChainOfThoughtWidget = ({ messageData }) => {
 	const [info, setInfo] = useState({
 		isExpanded: false,
-		height: 54,
+		height: 20,
 	});
 	const contentContainerRef = useRef(null);
 	const containerRef = useRef(null);
@@ -24,9 +24,9 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 			const contentContainerHeight = contentContainerRef?.current?.scrollHeight;
 
 			if (chainOfThoughtCompleted) {
-				height = info?.isExpanded ? contentContainerHeight + 54 : 54;
+				height = info?.isExpanded ? contentContainerHeight + 20 : 20;
 			} else {
-				height = contentContainerHeight + 54;
+				height = contentContainerHeight + 20;
 			}
 
 			setInfo((prev) => {
@@ -54,15 +54,16 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 	}, [messageData]);
 
 	const text = useMemo(() => {
-		const { deepResearch, message, stream_end, chainOfThought } = messageData || {};
-		if (message?.length > 0 || stream_end) {
-			return chainOfThought?.length > 0
-				? 'Search Completed'
-				: deepResearch
-				? 'Research Completed'
-				: 'Thinking';
-		}
-		return deepResearch ? 'Researching' : chainOfThought?.length > 0 ? 'Searching' : 'Thinking';
+		// const { deepResearch, message, stream_end, chainOfThought } = messageData || {};
+		// if (message?.length > 0 || stream_end) {
+		// 	return chainOfThought?.length > 0
+		// 		? 'Search Completed'
+		// 		: deepResearch
+		// 		? 'Research Completed'
+		// 		: 'Thinking';
+		// }
+		// return deepResearch ? 'Researching' : chainOfThought?.length > 0 ? 'Searching' : 'Thinking';
+		return 'Thinking process';
 	}, [messageData]);
 
 	return (
@@ -75,7 +76,7 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 		>
 			<div className="widget-header" onClick={handleExpandClick}>
 				<div className="left-container">
-					<div className="icon-container">{chainOfThoughtCompleted && <TickSvg />}</div>
+					{/* <div className="icon-container">{chainOfThoughtCompleted && <TickSvg />}</div> */}
 					<div className={`text-container ${chainOfThoughtCompleted ? '' : 'animate'}`}>
 						{text}
 					</div>
@@ -104,6 +105,7 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 								data={chainOfThought}
 								showOnlyLastThought={!chainOfThoughtCompleted && !info?.isExpanded}
 								streamEnd={chainOfThoughtCompleted || false}
+								showLastIndicatorLine={true}
 							/>
 						)}
 					</div>

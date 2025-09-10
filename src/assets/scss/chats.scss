@@ -36,7 +36,7 @@
 		.title {
 			overflow: hidden;
 			color: var(--primary-font);
-			font-family: var(--primary-font-family);
+			font-family: var(--chat-primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -70,7 +70,7 @@
 				overflow: hidden;
 				color: var(--primary-font);
 				text-overflow: ellipsis;
-				font-family: var(--primary-font-family);
+				font-family: var(--chat-primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -101,7 +101,7 @@
 				height: fit-content;
 				background-color: var(--primary-color);
 				color: var(--primary-font);
-				font-family: var(--primary-font-family);
+				font-family: var(--chat-primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -126,7 +126,7 @@
 			width: 100%;
 			.chat-group-header {
 				color: var(--secondary-font, #93989f);
-				font-family: var(--primary-font-family);
+				font-family: var(--chat-primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 600;
@@ -163,7 +163,7 @@
 					.chat-title {
 						width: 100%;
 						color: var(--primary-font, #f2f2f3);
-						font-family: var(--primary-font-family);
+						font-family: var(--chat-primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
