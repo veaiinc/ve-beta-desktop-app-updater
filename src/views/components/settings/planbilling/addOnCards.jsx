@@ -161,17 +161,7 @@ const AddOnPlans = ({
 			mappableData = subscriptionPlans || [];
 
 			// Add Enterprise plan by default if it doesn't exist in API data
-			const enterprisePlan = {
-				_id: 'enterprise-plan',
-				plan: 'Enterprise',
-				subscriptionType: 'monthly',
-				monthlyPrice: 0,
-				yearlyPrice: 0,
-				currency: 'USD',
-				totalPrice: 0,
-				isSeatBasedPlan: false,
-				contactSales: true,
-			};
+			const enterprisePlan = pricingPlansData.plans.enterprise;
 
 			// Add Enterprise plan if not already present
 			if (!mappableData?.some((item) => item?.plan?.toLowerCase() === 'enterprise')) {
@@ -664,24 +654,24 @@ const AddOnPlans = ({
 														{currency === 'INR' ? '₹ ' : '$ '}
 													</span>
 													<span className="priceValue">
-														{priceForPeriod}
+														{priceForPeriod || 'Custom'}
 														<span className="priceDuration">
-															{yearlyPrice > 0 &&
-																monthlyPrice > 0 &&
-																(() => {
-																	const users =
-																		addOn?.tenantUserDetails
-																			?.numberOfUsers;
-																	const isYearly =
-																		info.selectedPeriod ===
-																		'Yearly';
-																	const duration = isYearly
-																		? 'Year'
-																		: 'Month';
-																	if (users === '*' || !users)
-																		return ` Unlimited users/${duration}`;
+															{(() => {
+																const users =
+																	addOn?.tenantUserDetails
+																		?.numberOfUsers;
+																const isYearly =
+																	info.selectedPeriod ===
+																	'Yearly';
+																const duration = isYearly
+																	? 'Year'
+																	: 'Monthly';
+
+																if (users === '*')
+																	return ` Unlimited users/${duration}`;
+																if (users && duration)
 																	return ` ${users} User/${duration}`;
-																})()}
+															})()}
 														</span>
 													</span>
 												</div>
@@ -905,7 +895,7 @@ const AddOnPlans = ({
 																			// You can add contact sales logic here
 																			// For now, just show an alert
 																			alert(
-																				'Contact Sales: Please reach out to our sales team for Enterprise pricing.',
+																				'Contact Sales: Please reach out to our sales team (sales@ve.ai) for Enterprise pricing.',
 																			);
 																		}}
 																		className="addOnsButton contact-sales"
@@ -913,9 +903,7 @@ const AddOnPlans = ({
 																		Contact Sales
 																	</button>
 																) : (
-																	planId !== currentPlanId &&
-																	hasPositivePrice &&
-																	currentPlanPrice === 0 && (
+																	planId !== currentPlanId && (
 																		<button
 																			onClick={() =>
 																				handlePurchaseAddOn(
