@@ -472,3 +472,111 @@ export const testLiveKitCompatibility = async () => {
 		return { success: false, error };
 	}
 };
+
+// Screen Recording Permission Functions (System-based approach)
+export const requestScreenRecordingPermission = async () => {
+	try {
+		console.log('Requesting screen recording permission...');
+
+		// Use Electron's system-level permission request first
+		if (window.electronApi?.requestScreenPermission) {
+			const result = await window.electronApi.requestScreenPermission();
+			if (result.success && result.granted) {
+				console.log('Screen recording permission granted via Electron API');
+				return { success: true };
+			} else if (result.success && !result.granted) {
+				console.log('Screen recording permission denied via Electron API');
+				return {
+					success: false,
+					error: 'NotAllowedError',
+					message:
+						'Screen recording access denied. Please allow screen recording access in your system settings.',
+				};
+			}
+		}
+
+		// Fallback: Use browser's native getDisplayMedia (this shows system dialog)
+		const stream = await navigator.mediaDevices.getDisplayMedia({
+			video: true,
+			audio: true,
+		});
+
+		// Stop the stream immediately - we just needed permission
+		stream.getTracks().forEach((track) => track.stop());
+		console.log('Screen recording permission granted successfully');
+
+		return { success: true };
+	} catch (error) {
+		console.error('Screen recording permission request failed:', error);
+
+		// Handle different error types
+		if (error.name === 'NotAllowedError') {
+			return {
+				success: false,
+				error: 'NotAllowedError',
+				message:
+					'Screen recording access denied. Please allow screen recording access and try again.',
+			};
+		} else if (error.name === 'NotFoundError') {
+			return {
+				success: false,
+				error: 'NotFoundError',
+				message: 'No screen source found. Please check your display settings.',
+			};
+		} else {
+			return {
+				success: false,
+				error: error.name,
+				message: error.message || 'Failed to request screen recording permission.',
+			};
+		}
+	}
+};
+
+export const checkScreenRecordingPermission = async () => {
+	try {
+		// Use Electron's system-level permission checking
+		if (window.electronApi?.checkScreenPermission) {
+			const result = await window.electronApi.checkScreenPermission();
+			if (result.success) {
+				return {
+					granted: result.hasPermission,
+					denied: !result.hasPermission,
+					state: result.permission,
+				};
+			}
+		}
+
+		// Fallback: Try a quick permission check
+		try {
+			const stream = await navigator.mediaDevices.getDisplayMedia({
+				video: true,
+				audio: false,
+			});
+			stream.getTracks().forEach((track) => track.stop());
+			return { granted: true, state: 'granted' };
+		} catch (error) {
+			return {
+				granted: false,
+				denied: error.name === 'NotAllowedError',
+				state: error.name === 'NotAllowedError' ? 'denied' : 'prompt',
+			};
+		}
+	} catch (error) {
+		console.error('Error checking screen recording permission:', error);
+		return { granted: false, state: 'unknown' };
+	}
+};
+
+// Simple helper to show system settings help (only when needed)
+export const showScreenRecordingPermissionHelp = async () => {
+	try {
+		if (window.electronApi?.showScreenPermissionHelp) {
+			return await window.electronApi.showScreenPermissionHelp();
+		}
+		return { success: false, message: 'Help dialog not available' };
+	} catch (error) {
+		console.error('Error showing screen recording permission help:', error);
+		return { success: false, error: error.message };
+	}
+};
