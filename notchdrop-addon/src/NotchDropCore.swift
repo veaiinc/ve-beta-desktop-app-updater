@@ -400,6 +400,52 @@ class NotchDropWindow: NSWindow {
         swiftActionCallback = callback
     }
     
+    // MARK: - Overlay State Integration
+    @objc public func onOverlayStateChange(_ state: [String: Any]) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let viewModel = self.notchViewModel else { 
+                print("❌ NotchDropCore: No viewModel available for state update")
+                return 
+            }
+            
+            print("📊 NotchDropCore: Received overlay state:", state)
+            
+            // Update recording state
+            if let isRecording = state["isRecording"] as? Bool {
+                print("📊 Updating recording state: \(isRecording)")
+                viewModel.isRecording = isRecording
+            }
+            
+            // Update pause state
+            if let isPaused = state["isPaused"] as? Bool {
+                print("📊 Updating pause state: \(isPaused)")
+                viewModel.isPaused = isPaused
+            }
+            
+            // Update timer
+            if let timer = state["timer"] as? Int {
+                print("📊 Updating timer: \(timer)")
+                viewModel.timer = timer
+            }
+            
+            // Chat mode removed - no longer needed
+            
+            // Update authentication state
+            if let isAuthenticated = state["isAuthenticated"] as? Bool {
+                print("📊 Updating authentication: \(isAuthenticated)")
+                viewModel.isAuthenticated = isAuthenticated
+            }
+            
+            // Update controlled by dynamic island state
+            if let controlledByDynamicIsland = state["controlledByDynamicIsland"] as? Bool {
+                print("📊 Updating controlled by dynamic island: \(controlledByDynamicIsland)")
+                viewModel.controlledByDynamicIsland = controlledByDynamicIsland
+            }
+            
+            print("📊 NotchDropCore: Final state - Recording: \(viewModel.isRecording), Paused: \(viewModel.isPaused), Timer: \(viewModel.timer)")
+        }
+    }
+    
     // MARK: - Swift Action Handling
     private func handleSwiftAction(_ action: NotchViewModel.SwiftAction) {
         switch action {

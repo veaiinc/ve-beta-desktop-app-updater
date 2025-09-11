@@ -115,4 +115,9 @@ static void (^swiftActionCallback)(NSString*, NSString*);
     }
 }
 
+// MARK: - Overlay State Integration
++ (void)onOverlayStateChange:(NSDictionary*)state {
+    [NotchDropCore.shared onOverlayStateChange:state];
+}
+
 @end

@@ -4,23 +4,49 @@ import './transcript-panel.scss';
 import moment from 'moment';
 
 // Memoized TranscriptionItem component
-const TranscriptionItem = memo(({ speaker, text, timestamp }) => {
-	const avatarColor = '#10b981'; // VE brand green color
-	const speakerInitial = 'VE';
-
+const TranscriptionItem = memo(({ text, timestamp, source }) => {
 	return (
-		<div className="transcript-item">
-			<div className="transcript-item-avatar" style={{ backgroundColor: avatarColor }}>
+		<div
+			className="transcript-item"
+			style={{
+				alignSelf: source === 'mic' ? 'flex-end' : 'flex-start',
+				// backgroundColor: source === 'mic' ? '#50c39d2e' : '#64b8e938',
+			}}
+		>
+			{/* <div className="transcript-item-avatar" style={{ backgroundColor: avatarColor }}>
 				{speakerInitial}
-			</div>
-			<div className="transcript-item-content">
-				<div className="transcript-item-header">
-					<span className="transcript-item-speaker">{speaker || 'VE Note taker'}</span>
+			</div> */}
+			<div
+				className="transcript-item-content"
+				style={{
+					justifyContent: source === 'mic' ? 'flex-end' : 'flex-start',
+				}}
+			>
+				<div
+					className="transcript-item-header"
+					style={{
+						justifyContent: source === 'mic' ? 'flex-end' : 'flex-start',
+					}}
+				>
+					<span className="transcript-item-speaker">
+						{source === 'mic' ? 'You' : 'Screen'}
+					</span>
 					<span className="transcript-item-time">
-						{moment(timestamp).format('HH:mm:ss')}
+						{moment(timestamp).format('HH:mm')}
 					</span>
 				</div>
-				<div className="transcript-item-text">{text}</div>
+				<div
+					className="transcript-item-text"
+					style={{
+						alignSelf: source === 'mic' ? 'flex-end' : 'flex-start',
+						color:
+							source === 'mic'
+								? 'var(--primary-button,#79ECC9)'
+								: 'var(--primary-font,#f2f2f3)',
+					}}
+				>
+					{text}
+				</div>
 			</div>
 		</div>
 	);
@@ -101,6 +127,7 @@ const TranscriptPanel = ({
 								speaker={item.speaker}
 								text={item.text}
 								timestamp={item.timestamp}
+								source={item.source}
 							/>
 						))
 					) : (
