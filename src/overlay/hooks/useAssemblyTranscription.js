@@ -1,11 +1,8 @@
 import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import getBaseUrl from '../../services/baseUrls';
 import Context from '../../context/context';
-import {
-	checkScreenRecordingPermission,
-	requestScreenRecordingPermission,
-	showScreenRecordingPermissionHelp,
-} from '../utils/permissionUtils';
+// Removed permission utility imports to avoid timing issues with Electron APIs
+// The browser will handle permission prompts directly when calling getUserMedia/getDisplayMedia
 
 const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
 
@@ -536,28 +533,130 @@ const useAssemblyTranscription = ({
 		try {
 			log('Starting audio capture...');
 
-			// Get microphone first
-			log('Requesting microphone access...');
-			const micStream = await navigator.mediaDevices.getUserMedia({
-				audio: {
-					sampleRate: 16000,
-					channelCount: 1,
-					echoCancellation: true,
-					noiseSuppression: true,
-					autoGainControl: true,
-				},
-			});
-			micStreamRef.current = micStream;
-			log('Microphone access granted');
+			// Skip Electron API permission checking for now to avoid timing issues
+			// We'll rely on the browser's built-in permission system
+			log('Using browser permission system directly...');
 
-			// Get screen capture
+			// Helper function to create a timeout promise
+			const withTimeout = (promise, timeoutMs, errorMessage) => {
+				return Promise.race([
+					promise,
+					new Promise((_, reject) =>
+						setTimeout(() => reject(new Error(errorMessage)), timeoutMs),
+					),
+				]);
+			};
+
+			// Get microphone stream with timeout handling
+			log('Requesting microphone access...');
+			let micStream;
+
+			try {
+				micStream = await withTimeout(
+					navigator.mediaDevices.getUserMedia({
+						audio: {
+							sampleRate: 16000,
+							channelCount: 1,
+							echoCancellation: true,
+							noiseSuppression: true,
+							autoGainControl: true,
+						},
+					}),
+					10000, // 10 second timeout
+					'Timeout starting microphone source',
+				);
+				micStreamRef.current = micStream;
+				log('Microphone access granted');
+			} catch (micError) {
+				log('Microphone access failed with specific constraints:', micError.message);
+				// If microphone access fails, try with basic constraints
+				log('Trying microphone with basic constraints...');
+				try {
+					micStream = await withTimeout(
+						navigator.mediaDevices.getUserMedia({ audio: true }),
+						5000, // 5 second timeout for basic constraints
+						'Timeout starting microphone with basic constraints',
+					);
+					micStreamRef.current = micStream;
+					log('Microphone access granted with basic constraints');
+				} catch (basicMicError) {
+					log(
+						'Microphone access failed even with basic constraints:',
+						basicMicError.message,
+					);
+					throw basicMicError; // Re-throw to be handled by outer catch block
+				}
+			}
+
+			// Skip Electron API screen permission checking for now to avoid timing issues
+			// We'll rely on the browser's built-in permission system
+			log('Using browser permission system for screen capture...');
+
+			// Get screen capture with timeout handling
 			log('Requesting screen capture access...');
-			const screenStream = await navigator.mediaDevices.getDisplayMedia({
-				audio: true,
-				video: false,
-			});
-			screenStreamRef.current = screenStream;
-			log('Screen capture access granted');
+			let screenStream;
+
+			try {
+				// Try with video enabled first (more reliable)
+				log('Trying screen capture with video enabled...');
+				screenStream = await withTimeout(
+					navigator.mediaDevices.getDisplayMedia({
+						audio: true,
+						video: {
+							width: { ideal: 1920 },
+							height: { ideal: 1080 },
+							frameRate: { ideal: 30 },
+						},
+					}),
+					10000, // 10 second timeout
+					'Timeout starting video source',
+				);
+				screenStreamRef.current = screenStream;
+				log('Screen capture access granted with video enabled');
+			} catch (videoError) {
+				log('Screen capture with video failed:', videoError.message);
+
+				// Try with basic video constraints
+				log('Trying screen capture with basic video constraints...');
+				try {
+					screenStream = await withTimeout(
+						navigator.mediaDevices.getDisplayMedia({
+							audio: true,
+							video: true,
+						}),
+						10000, // 10 second timeout
+						'Timeout starting video source with basic constraints',
+					);
+					screenStreamRef.current = screenStream;
+					log('Screen capture access granted with basic video constraints');
+				} catch (basicVideoError) {
+					log('Screen capture with basic video failed:', basicVideoError.message);
+
+					// Try with audio only (some browsers support this)
+					log('Trying screen capture with audio only...');
+					try {
+						screenStream = await withTimeout(
+							navigator.mediaDevices.getDisplayMedia({
+								audio: true,
+								video: false,
+							}),
+							5000, // 5 second timeout for audio-only
+							'Timeout starting audio-only screen capture',
+						);
+						screenStreamRef.current = screenStream;
+						log('Screen capture access granted with audio only');
+					} catch (audioOnlyError) {
+						log('Screen capture with audio only failed:', audioOnlyError.message);
+
+						// If all attempts fail, we can still proceed with just microphone
+						log(
+							'All screen capture attempts failed, proceeding with microphone only...',
+						);
+						screenStream = null;
+						screenStreamRef.current = null;
+					}
+				}
+			}
 
 			// Create audio context
 			log('Creating audio context...');
@@ -649,82 +748,90 @@ const useAssemblyTranscription = ({
 			log('Microphone audio processing connected');
 
 			// Set up screen audio processing (if available)
-			const screenAudioTracks = screenStream.getAudioTracks();
-			if (screenAudioTracks.length > 0) {
-				log('Setting up screen audio processing...');
-				const screenAudioStream = new MediaStream(screenAudioTracks);
-				const screenSource = audioContext.createMediaStreamSource(screenAudioStream);
-				screenSourceRef.current = screenSource;
+			if (screenStream && screenStream.getAudioTracks) {
+				const screenAudioTracks = screenStream.getAudioTracks();
+				if (screenAudioTracks.length > 0) {
+					log('Setting up screen audio processing...');
+					const screenAudioStream = new MediaStream(screenAudioTracks);
+					const screenSource = audioContext.createMediaStreamSource(screenAudioStream);
+					screenSourceRef.current = screenSource;
 
-				let screenProcessor;
-				try {
-					screenProcessor = audioContext.createScriptProcessor(1024, 1, 1);
-				} catch (e) {
-					screenProcessor = audioContext.createScriptProcessor(2048, 1, 1);
-				}
-				screenProcessorRef.current = screenProcessor;
-
-				screenBufferRef.current = [];
-				screenSampleCountRef.current = 0;
-
-				let screenProcessingCount = 0;
-
-				screenProcessor.onaudioprocess = (e) => {
-					if (!isMountedRef.current) return;
-
-					screenProcessingCount++;
-					if (screenProcessingCount % 100 === 0) {
-						log(`Screen audio processing active (${screenProcessingCount} calls)`);
-					}
-
+					let screenProcessor;
 					try {
-						const inputData = e.inputBuffer.getChannelData(0);
-
-						// Accumulate screen audio data
-						for (let i = 0; i < inputData.length; i++) {
-							screenBufferRef.current.push(inputData[i]);
-						}
-						screenSampleCountRef.current += inputData.length;
-
-						// Send screen audio data in chunks when we have enough samples
-						if (screenSampleCountRef.current >= 8000) {
-							if (
-								!muteRef.current &&
-								websocketRef.current?.readyState === WebSocket.OPEN
-							) {
-								// Convert float32 to int16 efficiently
-								const audioData = new Int16Array(screenBufferRef.current.length);
-								for (let i = 0; i < screenBufferRef.current.length; i++) {
-									const sample = screenBufferRef.current[i];
-									audioData[i] = Math.max(
-										-32768,
-										Math.min(32767, sample * 32768),
-									);
-								}
-
-								// Use Voice Activity Detection to determine if we should send this chunk
-								if (hasAudioSignal(screenBufferRef.current, 'screen')) {
-									log(`Sending screen audio chunk: ${audioData.length} samples`);
-									sendAudioData(audioData, 'screen');
-								} else {
-									log('Skipping silent screen audio chunk');
-								}
-							}
-
-							// Reset screen buffer
-							screenBufferRef.current = [];
-							screenSampleCountRef.current = 0;
-						}
-					} catch (error) {
-						log(`Error processing screen audio: ${error.message}`);
+						screenProcessor = audioContext.createScriptProcessor(1024, 1, 1);
+					} catch (e) {
+						screenProcessor = audioContext.createScriptProcessor(2048, 1, 1);
 					}
-				};
+					screenProcessorRef.current = screenProcessor;
 
-				screenSource.connect(screenProcessor);
-				screenProcessor.connect(audioContext.destination);
-				log('Screen audio processing connected');
+					screenBufferRef.current = [];
+					screenSampleCountRef.current = 0;
+
+					let screenProcessingCount = 0;
+
+					screenProcessor.onaudioprocess = (e) => {
+						if (!isMountedRef.current) return;
+
+						screenProcessingCount++;
+						if (screenProcessingCount % 100 === 0) {
+							log(`Screen audio processing active (${screenProcessingCount} calls)`);
+						}
+
+						try {
+							const inputData = e.inputBuffer.getChannelData(0);
+
+							// Accumulate screen audio data
+							for (let i = 0; i < inputData.length; i++) {
+								screenBufferRef.current.push(inputData[i]);
+							}
+							screenSampleCountRef.current += inputData.length;
+
+							// Send screen audio data in chunks when we have enough samples
+							if (screenSampleCountRef.current >= 8000) {
+								if (
+									!muteRef.current &&
+									websocketRef.current?.readyState === WebSocket.OPEN
+								) {
+									// Convert float32 to int16 efficiently
+									const audioData = new Int16Array(
+										screenBufferRef.current.length,
+									);
+									for (let i = 0; i < screenBufferRef.current.length; i++) {
+										const sample = screenBufferRef.current[i];
+										audioData[i] = Math.max(
+											-32768,
+											Math.min(32767, sample * 32768),
+										);
+									}
+
+									// Use Voice Activity Detection to determine if we should send this chunk
+									if (hasAudioSignal(screenBufferRef.current, 'screen')) {
+										log(
+											`Sending screen audio chunk: ${audioData.length} samples`,
+										);
+										sendAudioData(audioData, 'screen');
+									} else {
+										log('Skipping silent screen audio chunk');
+									}
+								}
+
+								// Reset screen buffer
+								screenBufferRef.current = [];
+								screenSampleCountRef.current = 0;
+							}
+						} catch (error) {
+							log(`Error processing screen audio: ${error.message}`);
+						}
+					};
+
+					screenSource.connect(screenProcessor);
+					screenProcessor.connect(audioContext.destination);
+					log('Screen audio processing connected');
+				} else {
+					log('No screen audio tracks available');
+				}
 			} else {
-				log('No screen audio tracks available');
+				log('No screen stream available, proceeding with microphone only');
 			}
 
 			if (isMountedRef.current) {
@@ -743,24 +850,51 @@ const useAssemblyTranscription = ({
 		} catch (error) {
 			log(`Error starting recording: ${error.message}`);
 
-			if (error.name === 'NotAllowedError') {
-				notification?.error(
-					'Microphone/Screen access denied',
-					'Please allow microphone and screen sharing permissions.',
-				);
+			// Determine which permission failed based on error context
+			let errorTitle = 'Permission Error';
+			let errorMessage = 'Please check your permissions and try again.';
+
+			if (error.message.includes('Timeout starting video source')) {
+				errorTitle = 'Screen capture timeout';
+				errorMessage =
+					'Screen capture is taking too long to start. Please try again or check if another application is using screen recording.';
+			} else if (error.message.includes('Timeout starting microphone')) {
+				errorTitle = 'Microphone timeout';
+				errorMessage =
+					'Microphone access is taking too long to start. Please check if another application is using the microphone.';
+			} else if (error.name === 'NotAllowedError') {
+				// Check if this is likely a microphone or screen permission error
+				if (error.message.includes('microphone') || error.message.includes('audio')) {
+					errorTitle = 'Microphone access denied';
+					errorMessage =
+						'Please allow microphone access in your system settings and browser.';
+				} else if (error.message.includes('display') || error.message.includes('screen')) {
+					errorTitle = 'Screen recording access denied';
+					errorMessage =
+						'Please allow screen recording access in your system settings and browser.';
+				} else {
+					errorTitle = 'Microphone/Screen access denied';
+					errorMessage =
+						'Please allow microphone and screen sharing permissions in your system settings and browser.';
+				}
 			} else if (error.name === 'NotFoundError') {
-				notification?.error('No microphone found', 'Please check your audio devices.');
+				errorTitle = 'No microphone found';
+				errorMessage =
+					'Please check your audio devices and ensure a microphone is connected.';
 			} else if (error.name === 'NotReadableError') {
-				notification?.error(
-					'Microphone is being used by another application',
-					'Please check your audio devices.',
-				);
+				errorTitle = 'Microphone is being used by another application';
+				errorMessage =
+					'Please close other applications that might be using the microphone and try again.';
+			} else if (error.name === 'OverconstrainedError') {
+				errorTitle = 'Audio settings not supported';
+				errorMessage =
+					'Your microphone does not support the required audio settings. Please try with a different microphone.';
 			} else {
-				notification?.error(
-					'Failed to start recording',
-					'Please check your microphone and screen sharing permissions.',
-				);
+				errorTitle = 'Failed to start recording';
+				errorMessage = `Please check your microphone and screen sharing permissions. Error: ${error.message}`;
 			}
+
+			notification?.error(errorTitle, errorMessage);
 			throw error;
 		}
 	}, [log, sendAudioData, hasAudioSignal]);
@@ -780,22 +914,9 @@ const useAssemblyTranscription = ({
 				muteRef.current = false;
 				meetingIdRef.current = meetingId;
 
-				// Check if we need screen recording permission
-				const screenPermission = await checkScreenRecordingPermission();
-
-				if (!screenPermission.granted) {
-					// Request permission using system dialog
-					const result = await requestScreenRecordingPermission();
-
-					if (!result.success) {
-						if (result.error === 'NotAllowedError') {
-							// Show system settings help only if permission was denied
-							await showScreenRecordingPermissionHelp();
-						}
-						notification?.error('Screen recording access required', result.message);
-						return;
-					}
-				}
+				// Skip permission checking to avoid timing issues with Electron APIs
+				// The browser will handle permission prompts when we call getUserMedia/getDisplayMedia
+				log('Skipping pre-permission checks, will rely on browser permission prompts...');
 
 				// First establish WebSocket connection
 				log('Establishing WebSocket connection...');
