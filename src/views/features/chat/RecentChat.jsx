@@ -576,6 +576,7 @@ const RecentChat = ({
 					userFeedbackReasons,
 					userRemarks,
 					unintegratedApps,
+					conversationMessages,
 				} = data?.[i] || {};
 
 				if (
@@ -583,6 +584,18 @@ const RecentChat = ({
 					agentType !== 'knowledge_agent'
 				) {
 					continue;
+				}
+
+				let images = [];
+				const content = conversationMessages?.[0]?.content;
+				if (Array.isArray(content)) {
+					content?.forEach((item) => {
+						if (item?.type === 'image_url') {
+							images?.push({
+								preview: item?.['image_url']?.url,
+							});
+						}
+					});
 				}
 
 				if (firstTimeApiCall) {
@@ -632,6 +645,7 @@ const RecentChat = ({
 					{
 						message: originalQuery,
 						type: 'user',
+						images,
 					},
 					{
 						message: response,
@@ -668,42 +682,6 @@ const RecentChat = ({
 						chatPayload?.workflowTemplateId && { chatPayload }),
 				});
 			}
-			// updateStateValues({
-			// 	...(chatPayload?.moduleTemplateId &&
-			// 		chatPayload?.workflowTemplateId && { chatPayload }),
-			// });
-
-			// if (fetcMore) {
-			// 	updateStateValues({
-			// 		globalChatMessages: {
-			// 			...(globalChatMessages || {}),
-			// 			[sessionId]: {
-			// 				...(globalChatMessages?.[sessionId] || {}),
-			// 				messages: messages?.concat(chatMessagesRef?.current),
-			// 			},
-			// 		},
-			// 		...(chatPayload?.moduleTemplateId &&
-			// 			chatPayload?.workflowTemplateId && { chatPayload }),
-			// 	});
-			// 	// if (chatContentRef?.current) {
-			// 	// 	chatContentRef.current.scrollBy({
-			// 	// 		top: 300, // Reduced from 500 for smoother feel
-			// 	// 		behavior: 'smooth',
-			// 	// 	});
-			// 	// }
-			// } else {
-			// 	updateStateValues({
-			// 		globalChatMessages: {
-			// 			...(globalChatMessages || {}),
-			// 			[sessionId]: {
-			// 				...(globalChatMessages?.[sessionId] || {}),
-			// 				messages,
-			// 			},
-			// 		},
-			// 		...(chatPayload?.moduleTemplateId &&
-			// 			chatPayload?.workflowTemplateId && { chatPayload }),
-			// 	});
-			// }
 
 			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
 		},
