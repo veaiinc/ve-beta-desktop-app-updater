@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import './live-intelligence-panel.scss';
 import { AudioLines, CircleX } from 'lucide-react';
-import userIcon from "../../assets/svg/transcription/user.svg"
-import needHelpIcon from "../../assets/svg/transcription/question.svg"
-import actionsIcon from "../../assets/svg/transcription/thunder.svg"
-import filesIcon from "../../assets/svg/files/file.svg"
-
+import userIcon from '../../assets/svg/transcription/user.svg';
+import needHelpIcon from '../../assets/svg/transcription/question.svg';
+import actionsIcon from '../../assets/svg/transcription/thunder.svg';
+import filesIcon from '../../assets/svg/files/file.svg';
 
 const LiveIntelligencePanel = ({
 	onClose,
@@ -118,13 +117,34 @@ const LiveIntelligencePanel = ({
 	const tabs = [
 		{ key: 'all-threads', label: 'All Threads', count: getBadgeCount('all-threads') },
 		...(getBadgeCount('ask-user') > 0
-			? [{ key: 'ask-user', label: 'Ask user', icon: userIcon,count: getBadgeCount('ask-user') }]
+			? [
+					{
+						key: 'ask-user',
+						label: 'Ask user',
+						icon: userIcon,
+						count: getBadgeCount('ask-user'),
+					},
+			  ]
 			: []),
 		...(getBadgeCount('need-help') > 0
-			? [{ key: 'need-help', label: 'Need help?', icon: needHelpIcon, count: getBadgeCount('need-help') }]
+			? [
+					{
+						key: 'need-help',
+						label: 'Need help?',
+						icon: needHelpIcon,
+						count: getBadgeCount('need-help'),
+					},
+			  ]
 			: []),
 		...(getBadgeCount('actions') > 0
-			? [{ key: 'actions', label: 'Actions', icon: actionsIcon, count: getBadgeCount('actions') }]
+			? [
+					{
+						key: 'actions',
+						label: 'Actions',
+						icon: actionsIcon,
+						count: getBadgeCount('actions'),
+					},
+			  ]
 			: []),
 		...(getBadgeCount('files') > 0
 			? [{ key: 'files', label: 'Files', count: getBadgeCount('files') }]
@@ -171,7 +191,7 @@ const LiveIntelligencePanel = ({
 								const categoryIcon = getCategoryIcon(thread.entity, thread.type);
 								return (
 									<div
-										key={index}
+										key={thread.reference_id || thread.id || index}
 										className={`thread-item ${
 											thread.entity === 'user' ? 'ask-user-item' : 'clickable'
 										}`}
@@ -182,7 +202,15 @@ const LiveIntelligencePanel = ({
 										{getCategoryLabel(thread.type,thread.entity)}
 										</div> */}
 										<div className="thread-question">
-											{categoryIcon && <img src={categoryIcon} alt={getCategoryLabel(thread.entity, thread.type)} />}
+											{categoryIcon && (
+												<img
+													src={categoryIcon}
+													alt={getCategoryLabel(
+														thread.entity,
+														thread.type,
+													)}
+												/>
+											)}
 											{thread.prompt || thread.name || 'No content available'}
 										</div>
 										{thread.description && (
@@ -209,13 +237,15 @@ const LiveIntelligencePanel = ({
 						{socketData.askUser?.length > 0 ? (
 							[...socketData.askUser].reverse().map((item, index) => (
 								<div
-									key={index}
+									key={item.reference_id || item.id || index}
 									className="thread-item ask-user-item"
 									//onClick={() => handleThreadItemClick(item, 'ask-user')}
 									title="Click to ask AI about this question"
 								>
 									{/* <div className="thread-category">Ask user</div> */}
-									<div className="thread-question"><img src={userIcon} alt="user" /> {item.prompt}</div>
+									<div className="thread-question">
+										<img src={userIcon} alt="user" /> {item.prompt}
+									</div>
 									{item.description && (
 										<div className="thread-description">
 											({item.description})
@@ -237,13 +267,15 @@ const LiveIntelligencePanel = ({
 						{socketData.needHelp?.length > 0 ? (
 							socketData.needHelp?.reverse().map((item, index) => (
 								<div
-									key={index}
+									key={item.reference_id || item.id || index}
 									className="thread-item clickable"
 									onClick={() => handleThreadItemClick(item, 'need-help')}
 									title="Click to ask AI about this help suggestion"
 								>
 									{/* <div className="thread-category">Need help?</div> */}
-									<div className="thread-question"><img src={needHelpIcon} alt="need help" /> {item.prompt}</div>
+									<div className="thread-question">
+										<img src={needHelpIcon} alt="need help" /> {item.prompt}
+									</div>
 									{item.description && (
 										<div className="thread-description">
 											({item.description})
@@ -265,13 +297,15 @@ const LiveIntelligencePanel = ({
 						{socketData.actions?.length > 0 ? (
 							[...socketData.actions].reverse().map((item, index) => (
 								<div
-									key={index}
+									key={item.reference_id || item.id || index}
 									className="thread-item clickable"
 									onClick={() => handleThreadItemClick(item, 'actions')}
 									title="Click to ask AI about this action item"
 								>
 									{/* <div className="thread-category">Actions</div> */}
-									<div className="thread-question"><img src={actionsIcon} alt="actions" /> {item.prompt}</div>
+									<div className="thread-question">
+										<img src={actionsIcon} alt="actions" /> {item.prompt}
+									</div>
 									{item.description && (
 										<div className="thread-description">
 											({item.description})
@@ -293,7 +327,7 @@ const LiveIntelligencePanel = ({
 						{socketData.files?.length > 0 ? (
 							[...socketData.files].reverse().map((item, index) => (
 								<div
-									key={index}
+									key={item.reference_id || item.id || index}
 									className="thread-item clickable"
 									onClick={() => handleThreadItemClick(item, 'files')}
 									title="Click to ask AI about this file"
@@ -374,7 +408,9 @@ const LiveIntelligencePanel = ({
 						className={`tab-button ${activeTab === tab.key ? 'active' : ''}`}
 						onClick={() => handleTabClick(tab.key)}
 					>
-						<span className="tab-label">{tab.icon && <img src={tab.icon} />} {tab.label}</span>
+						<span className="tab-label">
+							{tab.icon && <img src={tab.icon} />} {tab.label}
+						</span>
 						{tab.count > 0 && <span className="tab-badge">{tab.count}</span>}
 					</button>
 				))}
