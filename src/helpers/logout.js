@@ -15,7 +15,9 @@ const logoutAPI = async () => {
 			};
 		}
 
+		localStorage.clear();
 		const response = await Service?.fetchPost(path, body, token, 'auth');
+
 		return response;
 	} catch (error) {
 		console.error('Error logging out:', error);
@@ -27,8 +29,6 @@ const logout = async () => {
 	try {
 		const theme = localStorage.getItem('theme');
 		const cookieTheme = Cookies.get('theme');
-
-		localStorage.clear();
 
 		if (theme) {
 			localStorage.setItem('theme', theme);
