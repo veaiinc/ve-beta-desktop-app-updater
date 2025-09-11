@@ -7,18 +7,20 @@
 }
 .settingsContainer {
 	display: flex;
-	padding: 18px;
+	padding: 12px;
 	flex-direction: column;
 	align-items: flex-start;
-	gap: 16px;
-	border-radius: 16px;
+	gap: 10px;
+	border-radius: 12px;
 	border: 1px solid var(--stroke, #2c2d2e);
 	background: var(--popup, #202123);
 	position: absolute;
 	right: -25px;
 	top: 22px;
-	width: 360px;
+	width: 320px;
 	z-index: 10001;
+	max-height: calc(100vh - 80px);
+	overflow-y: auto;
 
 	// overlay and sheet are used in mobile only
 	.mobileOverlay {
@@ -73,22 +75,22 @@
 		justify-content: space-between;
 		align-items: center;
 		display: flex;
-		gap: 8px;
-		padding: 6px;
+		gap: 6px;
+		padding: 4px;
 		position: relative;
 
 		.workspaceImage {
 			border-radius: 50%;
-			left: 28px;
+			left: 24px;
 			object-fit: cover;
 			position: absolute;
-			top: 28px;
-			width: 20px;
+			top: 24px;
+			width: 18px;
 			border: 2px solid var(--popup);
 		}
 
 		.profileImg {
-			width: 36px;
+			width: 32px;
 			border-radius: 50%;
 			object-fit: cover;
 		}
@@ -100,30 +102,30 @@
 			color: var(--primary-font, #f2f2f3);
 			display: flex;
 			font-family: var(--primary-font-family);
-			font-size: 14px;
+			font-size: 12px;
 			font-style: normal;
 			font-weight: 600;
 			justify-content: center;
 			line-height: normal;
-			width: 36px;
-			height: 36px;
+			width: 32px;
+			height: 32px;
 		}
 
 		.userInfoDetails {
 			flex: 1;
 			display: flex;
 			flex-direction: column;
-			gap: 2px;
+			gap: 1px;
 
 			.nameAndRole {
 				display: flex;
 				align-items: center;
-				gap: 4px;
+				gap: 3px;
 
 				.fullName {
 					color: var(--primary-font, #f2f2f3);
 					font-family: var(--primary-font-family);
-					font-size: 16px;
+					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
@@ -132,7 +134,7 @@
 				.role {
 					color: var(--secondary-font, #94989e);
 					font-family: var(--primary-font-family);
-					font-size: 13px;
+					font-size: 11px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
@@ -142,7 +144,7 @@
 			.businessName {
 				color: var(--secondary-font, #94989e);
 				font-family: var(--primary-font-family);
-				font-size: 13px;
+				font-size: 11px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
@@ -151,40 +153,40 @@
 	}
 	.settingsPlans {
 		display: flex;
-		width: 325px;
-		padding: 16px 0;
+		width: 100%;
+		padding: 12px 0;
 		flex-direction: column;
 		align-items: center;
-		gap: 12px;
-		border-radius: 24px;
+		gap: 8px;
+		border-radius: 16px;
 		border: 1px solid var(--stroke, #2c2d2e);
 		background: var(--card, #1b1c1d);
 		.settingCurrentPlan {
 			display: flex;
 			width: 100%;
-			padding: 0 22px;
+			padding: 0 16px;
 			justify-content: space-between;
 			align-items: center;
 			.settingPlanName {
 				color: var(--primary-font);
 				font-family: Recoleta;
-				font-size: 20px;
+				font-size: 16px;
 				font-style: normal;
 				font-weight: 400;
 				line-height: normal;
 			}
 			.settingsUpgrade {
 				display: flex;
-				height: 32px;
-				padding: 6px 16px;
+				height: 28px;
+				padding: 4px 12px;
 				justify-content: center;
 				align-items: center;
-				gap: 10px;
+				gap: 8px;
 				border-radius: 100px;
 				background: var(--primary-opacity, rgba(121, 236, 201, 0.1));
 				color: var(--primary-button, #79ecc9);
 				font-family: var(--primary-font-family);
-				font-size: 14px;
+				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
@@ -192,47 +194,44 @@
 			}
 		}
 		.settingsDivider {
-			width: 296px;
+			width: calc(100% - 32px);
 			height: 1px;
 			background: var(--stroke, #2c2d2e);
 		}
 		.settingsCredits {
 			display: flex;
 			width: 100%;
-			padding: 0 22px;
+			padding: 0 16px;
 			align-items: center;
 			justify-content: space-between;
 			.settingsCreditsLeft {
 				display: flex;
-				height: 32px;
-				padding: 6px 0;
+				height: 28px;
+				padding: 4px 0;
 				align-items: center;
-				gap: 10px;
+				gap: 8px;
 				.settingsCreditsTitle {
 					color: var(--primary-font);
 					font-family: var(--primary-font-family);
-					font-size: 14px;
+					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
-					width: 49px;
-					height: 20px;
 				}
 			}
 			.settingsCreditsCount {
 				display: flex;
-				width: 88px;
-				height: 32px;
-				padding: 6px 0;
+				height: 28px;
+				padding: 4px 0;
 				justify-content: center;
 				align-items: center;
-				gap: 10px;
+				gap: 8px;
 				flex-shrink: 0;
 				cursor: pointer;
 				.settingsCreditsLeftCount {
 					color: var(--primary-font);
 					font-family: var(--primary-font-family);
-					font-size: 14px;
+					font-size: 12px;
 					font-style: normal;
 					font-weight: 600;
 					line-height: normal;
@@ -244,17 +243,17 @@
 		width: 100%;
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
+		gap: 1px;
 
 		.settingItem {
 			display: flex;
 			align-items: center;
-			gap: 12px;
-			padding: 12px;
-			border-radius: 8px;
+			gap: 8px;
+			padding: 8px 10px;
+			border-radius: 6px;
 			cursor: pointer;
 			transition: background 0.3s ease-in-out;
-			min-height: 44px;
+			min-height: 36px;
 
 			&:hover {
 				background: var(--card, #1b1c1d);
@@ -267,7 +266,7 @@
 			.settingItemLabel {
 				color: var(--primary-font, #f2f2f3);
 				font-family: var(--primary-font-family);
-				font-size: 14px;
+				font-size: 12px;
 				font-weight: 500;
 				line-height: normal;
 			}
@@ -277,12 +276,12 @@
 	.switchWorkspaceAndLogoutContainer {
 		width: 100%;
 		display: flex;
-		gap: 8px;
+		gap: 6px;
 
 		.skeletonContainer {
 			width: 100%;
-			height: 41px;
-			border-radius: 8px;
+			height: 36px;
+			border-radius: 6px;
 		}
 
 		.switchWorkspaceButton {
@@ -292,18 +291,19 @@
 			border: none;
 			color: var(--primary-font, #f2f2f3);
 			font-family: var(--primary-font-family);
-			font-size: 14px;
+			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			gap: 8px;
-			padding: 12px;
-			border-radius: 8px;
+			gap: 6px;
+			padding: 8px 10px;
+			border-radius: 6px;
 			border: 1px solid var(--stroke, #2c2d2e);
 			transition: background 0.3s ease-in-out;
+			min-height: 36px;
 		}
 
 		.logoutButton {
@@ -311,17 +311,20 @@
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			gap: 8px;
-			padding: 12px;
-			border-radius: 8px;
+			gap: 6px;
+			padding: 8px 10px;
+			border-radius: 6px;
 			background: rgba(192, 55, 68, 0.1);
 			transition: background 0.3s ease-in-out;
 			color: var(--error, #c03744);
 			font-family: var(--primary-font-family);
-			font-size: 14px;
+			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
+			min-height: 36px;
+			border: none;
+			cursor: pointer;
 
 			&:hover {
 				background: rgba(192, 55, 68, 0.2);
@@ -331,15 +334,16 @@
 
 	.downloadMacAppButton {
 		display: flex;
-		padding: 12px 16px;
+		padding: 8px 12px;
 		justify-content: center;
 		align-items: center;
-		gap: 8px;
+		gap: 6px;
 		align-self: stretch;
-		border-radius: 8px;
+		border-radius: 6px;
 		background: var(--primary-font, #f2f2f3);
 		border: none;
 		cursor: pointer;
+		min-height: 36px;
 
 		svg {
 			path {
@@ -350,7 +354,7 @@
 		span {
 			color: var(--background-color, #121212);
 			font-family: var(--primary-font-family);
-			font-size: 14px;
+			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
@@ -369,6 +373,252 @@
 	border-radius: 12px;
 	border: 1px solid var(--dividers, #1e1f20);
 }
+
+// Compact design for tablets and small laptops
+@media (max-width: 1200px) and (min-width: 769px) {
+	.settingsContainer {
+		padding: 14px;
+		gap: 12px;
+		width: 320px;
+		
+		.userInfo {
+			padding: 4px;
+			gap: 6px;
+			
+			.profileImg, .nameInitials {
+				width: 32px;
+				height: 32px;
+			}
+			
+			.nameInitials {
+				font-size: 12px;
+			}
+			
+			.workspaceImage {
+				width: 18px;
+				left: 24px;
+				top: 24px;
+			}
+			
+			.userInfoDetails {
+				.nameAndRole {
+					.fullName {
+						font-size: 14px;
+					}
+					.role {
+						font-size: 11px;
+					}
+				}
+				.businessName {
+					font-size: 11px;
+				}
+			}
+		}
+		
+		.settingsPlans {
+			width: 100%;
+			padding: 12px 0;
+			gap: 8px;
+			
+			.settingCurrentPlan {
+				padding: 0 16px;
+				
+				.settingPlanName {
+					font-size: 16px;
+				}
+				
+				.settingsUpgrade {
+					height: 28px;
+					padding: 4px 12px;
+					font-size: 12px;
+				}
+			}
+			
+			.settingsDivider {
+				width: calc(100% - 32px);
+			}
+			
+			.settingsCredits {
+				padding: 0 16px;
+				
+				.settingsCreditsLeft {
+					height: 28px;
+					padding: 4px 0;
+					gap: 8px;
+					
+					.settingsCreditsTitle {
+						font-size: 12px;
+					}
+				}
+				
+				.settingsCreditsCount {
+					height: 28px;
+					padding: 4px 0;
+					
+					.settingsCreditsLeftCount {
+						font-size: 12px;
+					}
+				}
+			}
+		}
+		
+		.settingsItems {
+			gap: 4px;
+			
+			.settingItem {
+				padding: 8px 10px;
+				min-height: 36px;
+				gap: 8px;
+				
+				.settingItemLabel {
+					font-size: 12px;
+				}
+			}
+		}
+		
+		.switchWorkspaceAndLogoutContainer {
+			gap: 6px;
+			
+			.switchWorkspaceButton {
+				padding: 8px 10px;
+				font-size: 12px;
+			}
+			
+			.logoutButton {
+				padding: 8px 10px;
+				font-size: 12px;
+			}
+		}
+		
+		.downloadMacAppButton {
+			padding: 8px 12px;
+			font-size: 12px;
+		}
+	}
+}
+
+// Even more compact for smaller screens
+@media (max-height: 700px) and (min-width: 769px) {
+	.settingsContainer {
+		padding: 12px;
+		gap: 10px;
+		width: 300px;
+		
+		.userInfo {
+			padding: 2px;
+			gap: 4px;
+			
+			.profileImg, .nameInitials {
+				width: 28px;
+				height: 28px;
+			}
+			
+			.nameInitials {
+				font-size: 11px;
+			}
+			
+			.workspaceImage {
+				width: 16px;
+				left: 20px;
+				top: 20px;
+			}
+			
+			.userInfoDetails {
+				.nameAndRole {
+					.fullName {
+						font-size: 13px;
+					}
+					.role {
+						font-size: 10px;
+					}
+				}
+				.businessName {
+					font-size: 10px;
+				}
+			}
+		}
+		
+		.settingsPlans {
+			padding: 10px 0;
+			gap: 6px;
+			
+			.settingCurrentPlan {
+				padding: 0 12px;
+				
+				.settingPlanName {
+					font-size: 14px;
+				}
+				
+				.settingsUpgrade {
+					height: 24px;
+					padding: 2px 8px;
+					font-size: 11px;
+				}
+			}
+			
+			.settingsDivider {
+				width: calc(100% - 24px);
+			}
+			
+			.settingsCredits {
+				padding: 0 12px;
+				
+				.settingsCreditsLeft {
+					height: 24px;
+					padding: 2px 0;
+					gap: 6px;
+					
+					.settingsCreditsTitle {
+						font-size: 11px;
+					}
+				}
+				
+				.settingsCreditsCount {
+					height: 24px;
+					padding: 2px 0;
+					
+					.settingsCreditsLeftCount {
+						font-size: 11px;
+					}
+				}
+			}
+		}
+		
+		.settingsItems {
+			gap: 2px;
+			
+			.settingItem {
+				padding: 6px 8px;
+				min-height: 32px;
+				gap: 6px;
+				
+				.settingItemLabel {
+					font-size: 11px;
+				}
+			}
+		}
+		
+		.switchWorkspaceAndLogoutContainer {
+			gap: 4px;
+			
+			.switchWorkspaceButton {
+				padding: 6px 8px;
+				font-size: 11px;
+			}
+			
+			.logoutButton {
+				padding: 6px 8px;
+				font-size: 11px;
+			}
+		}
+		
+		.downloadMacAppButton {
+			padding: 6px 10px;
+			font-size: 11px;
+		}
+	}
+}
+
 @media (max-width: 768px) {
 	.settingsContainer {
 		position: fixed;
@@ -428,6 +678,7 @@
 		display: none;
 	}
 }
+
 
 @keyframes slideInRight {
 	from {
