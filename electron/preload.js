@@ -256,6 +256,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 	},
 	checkScreenPermission: () => ipcRenderer.invoke('check-screen-recording-permission'),
 	requestScreenPermission: () => ipcRenderer.invoke('request-screen-recording-permission'),
+	showScreenPermissionHelp: () => ipcRenderer.invoke('show-screen-recording-permission-help'),
 	desktop: {
 		// ✅ This is the key addition
 		captureScreen: () => ipcRenderer.invoke('desktop:capture-screen'),
@@ -361,12 +362,20 @@ contextBridge.exposeInMainWorld('electronApi', {
 	toggleContentProtection: () => ipcRenderer.invoke('toggle-content-protection'),
 	getContentProtectionStatus: () => ipcRenderer.invoke('get-content-protection-status'),
 	setContentProtection: (enabled) => ipcRenderer.invoke('set-content-protection', enabled),
-	
+
 	// Listen for content protection changes
 	onContentProtectionChanged: (callback) => {
 		ipcRenderer.on('content-protection-changed', callback);
 	},
 	removeContentProtectionListener: (callback) => {
 		ipcRenderer.removeListener('content-protection-changed', callback);
+	},
+
+	startScreenCapture: () => ipcRenderer.invoke('start-screen-capture'),
+
+	onScreenAudio: (callback) => {
+		ipcRenderer.on('screen-audio', (_event, data) => {
+			callback(data);
+		});
 	},
 });
