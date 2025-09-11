@@ -705,6 +705,7 @@ const OverlayApp = () => {
 		}
 	}, [aiTranscriptionSuggestions]);
 
+
 	return (
 		<div
 			ref={containerRef}
@@ -714,6 +715,7 @@ const OverlayApp = () => {
 			{/* {meetingData && <MeetingBody meetingData={meetingData} />} */}
 
 			<div className="overlay-container overlay-content" data-overlay-content="true">
+				
 				{/* Shortcut bar - only show when not controlled by Dynamic Island */}
 				{showShortcutBar && (
 					<ShortcutBar

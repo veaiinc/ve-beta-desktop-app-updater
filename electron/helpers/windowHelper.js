@@ -35,6 +35,9 @@ class WindowHelper {
 		this.currentX = 0;
 		this.currentY = 0;
 		this.mainWindow = null;
+		
+		// Simple drag optimization: store Dynamic Island reference
+		this.dynamicIslandHelper = null;
 	}
 
 	// CRITICAL FIX: Pre-create overlay window for immediate response
@@ -482,12 +485,35 @@ class WindowHelper {
 	setupWindowListeners() {
 		if (!this.overlayWindow) return;
 
+		// Simple drag detection: Hide Dynamic Island during drag, show when stopped
+		let isDragging = false;
+		let dragEndTimeout;
+
+		// Listen for when window starts moving (drag start)
+		this.overlayWindow.on('will-move', () => {
+			if (!isDragging) {
+				isDragging = true;
+				log.info('🎯 DRAG START: Hiding Dynamic Island for smooth dragging');
+				this.hideDynamicIslandForDrag();
+			}
+		});
+
 		this.overlayWindow.on('move', () => {
 			if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
 				const bounds = this.overlayWindow.getBounds();
 				this.windowPosition = { x: bounds.x, y: bounds.y };
 				this.currentX = bounds.x;
 				this.currentY = bounds.y;
+
+				// Reset the drag end timeout since we're still moving
+				if (isDragging) {
+					clearTimeout(dragEndTimeout);
+					dragEndTimeout = setTimeout(() => {
+						isDragging = false;
+						log.info('🎯 DRAG END: Showing Dynamic Island again');
+						this.showDynamicIslandAfterDrag();
+					}, 100); // 100ms after last move event
+				}
 			}
 		});
 
@@ -527,10 +553,33 @@ class WindowHelper {
 	setupAskAIWindowListeners() {
 		if (!this.askAIWindow) return;
 
+		// Same drag detection for Ask AI window: Hide Dynamic Island during drag, show when stopped
+		let isDragging = false;
+		let dragEndTimeout;
+
+		// Listen for when Ask AI window starts moving (drag start)
+		this.askAIWindow.on('will-move', () => {
+			if (!isDragging) {
+				isDragging = true;
+				log.info('🎯 ASK AI DRAG START: Hiding Dynamic Island for smooth dragging');
+				this.hideDynamicIslandForDrag();
+			}
+		});
+
 		this.askAIWindow.on('move', () => {
 			if (this.askAIWindow && !this.askAIWindow.isDestroyed()) {
 				const bounds = this.askAIWindow.getBounds();
 				this.askAIWindowPosition = { x: bounds.x, y: bounds.y };
+
+				// Reset the drag end timeout since we're still moving
+				if (isDragging) {
+					clearTimeout(dragEndTimeout);
+					dragEndTimeout = setTimeout(() => {
+						isDragging = false;
+						log.info('🎯 ASK AI DRAG END: Showing Dynamic Island again');
+						this.showDynamicIslandAfterDrag();
+					}, 100); // 100ms after last move event
+				}
 			}
 		});
 
@@ -566,10 +615,33 @@ class WindowHelper {
 	setupAreYouThereWindowListeners() {
 		if (!this.areYouThereWindow) return;
 
+		// Same drag detection for Are You There window: Hide Dynamic Island during drag, show when stopped
+		let isDragging = false;
+		let dragEndTimeout;
+
+		// Listen for when Are You There window starts moving (drag start)
+		this.areYouThereWindow.on('will-move', () => {
+			if (!isDragging) {
+				isDragging = true;
+				log.info('🎯 ARE YOU THERE DRAG START: Hiding Dynamic Island for smooth dragging');
+				this.hideDynamicIslandForDrag();
+			}
+		});
+
 		this.areYouThereWindow.on('move', () => {
 			if (this.areYouThereWindow && !this.areYouThereWindow.isDestroyed()) {
 				const bounds = this.areYouThereWindow.getBounds();
 				this.areYouThereWindowPosition = { x: bounds.x, y: bounds.y };
+
+				// Reset the drag end timeout since we're still moving
+				if (isDragging) {
+					clearTimeout(dragEndTimeout);
+					dragEndTimeout = setTimeout(() => {
+						isDragging = false;
+						log.info('🎯 ARE YOU THERE DRAG END: Showing Dynamic Island again');
+						this.showDynamicIslandAfterDrag();
+					}, 100); // 100ms after last move event
+				}
 			}
 		});
 
@@ -590,6 +662,39 @@ class WindowHelper {
 			// Set Are You There window to be interactive immediately
 			this.areYouThereWindow.setIgnoreMouseEvents(false);
 		});
+	}
+
+	setupMainWindowListeners() {
+		if (!this.mainWindow) return;
+
+		// Same drag detection for main window: Hide Dynamic Island during drag, show when stopped
+		let isDragging = false;
+		let dragEndTimeout;
+
+		// Listen for when main window starts moving (drag start)
+		this.mainWindow.on('will-move', () => {
+			if (!isDragging) {
+				isDragging = true;
+				log.info('🎯 MAIN WINDOW DRAG START: Hiding Dynamic Island for smooth dragging');
+				this.hideDynamicIslandForDrag();
+			}
+		});
+
+		this.mainWindow.on('move', () => {
+			if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+				// Reset the drag end timeout since we're still moving
+				if (isDragging) {
+					clearTimeout(dragEndTimeout);
+					dragEndTimeout = setTimeout(() => {
+						isDragging = false;
+						log.info('🎯 MAIN WINDOW DRAG END: Showing Dynamic Island again');
+						this.showDynamicIslandAfterDrag();
+					}, 100); // 100ms after last move event
+				}
+			}
+		});
+
+		log.info('🎯 Main window drag detection listeners set up');
 	}
 
 	getOverlayWindow() {
@@ -1046,8 +1151,31 @@ class WindowHelper {
 		this.overlayWindow.setPosition(Math.round(this.currentX), Math.round(this.currentY));
 	}
 
+	// Simple drag optimization methods
+	setDynamicIslandHelper(dynamicIslandHelper) {
+		this.dynamicIslandHelper = dynamicIslandHelper;
+		log.info('🏝️ Dynamic Island helper connected for drag optimization');
+	}
+
+	hideDynamicIslandForDrag() {
+		if (this.dynamicIslandHelper?.dynamicIslandWindow && !this.dynamicIslandHelper.dynamicIslandWindow.isDestroyed()) {
+			log.info('🫥 Hiding Dynamic Island during drag');
+			this.dynamicIslandHelper.dynamicIslandWindow.hide();
+		}
+	}
+
+	showDynamicIslandAfterDrag() {
+		if (this.dynamicIslandHelper?.dynamicIslandWindow && !this.dynamicIslandHelper.dynamicIslandWindow.isDestroyed()) {
+			log.info('👁️ Showing Dynamic Island after drag');
+			this.dynamicIslandHelper.dynamicIslandWindow.show();
+		}
+	}
+
 	registerGlobalShortcuts(mainWindow) {
 		this.mainWindow = mainWindow;
+		
+		// Set up main window drag detection
+		this.setupMainWindowListeners();
 
 		log.info('🚀 Starting global shortcut registration...');
 		log.info(`🖥️  Platform: ${process.platform}`);

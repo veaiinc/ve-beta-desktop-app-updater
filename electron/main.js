@@ -1454,6 +1454,10 @@ app.whenReady().then(async () => {
 	windowHelper = new WindowHelper(applyContentProtectionToWindow);
 	windowHelper.registerGlobalShortcuts(mainWindow);
 
+	// Connect WindowHelper and DynamicIslandHelper for simple drag optimization
+	log.info('🔗 Connecting WindowHelper and DynamicIslandHelper for drag optimization...');
+	windowHelper.setDynamicIslandHelper(dynamicIslandHelper);
+
 	// Phase 1.2: CRITICAL FIX: Register all IPC handlers before window creation
 	log.info('📋 Phase 1.2: Registering IPC handlers before window creation...');
 
@@ -2637,6 +2641,7 @@ app.whenReady().then(async () => {
 			return { success: false, error: error.message };
 		}
 	});
+
 
 	// CRITICAL FIX: Enhanced NotchDrop overlay integration handlers with immediate response
 	ipcMain.handle('notchdrop:triggerOverlayRecording', async () => {
