@@ -550,12 +550,17 @@ const actionHandlers = {
 				};
 			}
 		} else {
+			let chainOfThought = [];
+			if (payload?.cot === 'chain_of_thought' || payload?.step || payload?.plan) {
+				chainOfThought?.push(payload);
+			}
 			messages?.push({
 				...payload,
 				type: 'AI',
 				contentType: 'message',
 				message: payload?.answer || '',
 				messageId: payload?.message_id,
+				chainOfThought,
 			});
 		}
 
