@@ -1,6 +1,11 @@
 import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import getBaseUrl from '../../services/baseUrls';
 import Context from '../../context/context';
+import {
+	checkScreenRecordingPermission,
+	requestScreenRecordingPermission,
+	showScreenRecordingPermissionHelp,
+} from '../utils/permissionUtils';
 
 const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
 
@@ -774,6 +779,23 @@ const useAssemblyTranscription = ({
 				setIsMuted(false);
 				muteRef.current = false;
 				meetingIdRef.current = meetingId;
+
+				// Check if we need screen recording permission
+				const screenPermission = await checkScreenRecordingPermission();
+
+				if (!screenPermission.granted) {
+					// Request permission using system dialog
+					const result = await requestScreenRecordingPermission();
+
+					if (!result.success) {
+						if (result.error === 'NotAllowedError') {
+							// Show system settings help only if permission was denied
+							await showScreenRecordingPermissionHelp();
+						}
+						notification?.error('Screen recording access required', result.message);
+						return;
+					}
+				}
 
 				// First establish WebSocket connection
 				log('Establishing WebSocket connection...');
