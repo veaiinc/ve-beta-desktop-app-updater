@@ -1,0 +1,566 @@
+$font-family: "GeneralSans";
+
+.analyticsMainContainer {
+    color: white;
+    width: 100%;
+    background: #0D0E0F;
+    min-height: 100vh;
+    padding: 24px;
+    font-family: $font-family;
+
+    // Header Section
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 32px;
+
+        .titleSection {
+            .meetingTitle {
+                color: #FFFFFF;
+                font-size: 24px;
+                font-weight: 600;
+                margin: 0 0 8px 0;
+                line-height: 1.2;
+            }
+
+            .meetingDate {
+                color: #9CA3AF;
+                font-size: 14px;
+                font-weight: 400;
+                margin: 0;
+            }
+        }
+
+        .tabNavigation {
+            display: flex;
+            background: #1F2123;
+            border-radius: 8px;
+            padding: 4px;
+            gap: 4px;
+
+            .tab {
+                padding: 8px 16px;
+                background: transparent;
+                border: none;
+                color: #9CA3AF;
+                font-size: 14px;
+                font-weight: 500;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+
+                &.active {
+                    background: #374151;
+                    color: #FFFFFF;
+                }
+
+                &:hover:not(.active) {
+                    color: #D1D5DB;
+                }
+            }
+        }
+    }
+
+    // Metric Cards
+    .analyticsContainerOne {
+        display: flex;
+        width: 100%;
+        margin-bottom: 32px;
+        gap: 16px;
+
+        .analyticsContainerOneItem {
+            display: flex;
+            height: 100px;
+            padding: 20px;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+            border-radius: 12px;
+            background: #1F2123;
+            border: 1px solid #2A2D30;
+
+            .conditionContainer {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                min-width: 100px;
+
+                .metricLabel {
+                    color: #FFF;
+                    font-family: $font-family;
+                    font-size: 14px;
+                    font-style: normal;
+                    font-weight: 500;
+                    line-height: 25px; /* 178.571% */
+                    letter-spacing: 0.2px;
+                }
+
+                .conditionValueContainer {
+                    display: flex;
+                    align-items: baseline;
+                    gap: 8px;
+
+                    .conditionValue {
+                        color: #FFF;
+                        font-family: $font-family;
+                        font-size: 18px;
+                        font-style: normal;
+                        font-weight: 500;
+                        line-height: 25px; /* 138.889% */
+                        letter-spacing: 0.2px;  
+                    }
+
+                    .conditionValueText {
+                        color: var(--success, #1C993E);
+                        font-family: $font-family;
+                        font-size: 14px;
+                        font-style: normal;
+                        font-weight: 500;
+                        line-height: 25px; /* 178.571% */
+                        letter-spacing: 0.2px;
+                    }
+                }
+            }
+
+            .conditionGraph {
+                flex: 1;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                .waveGraph {
+                    width: 100%;
+                    height: 100%;
+                    max-width: 120px;
+                }
+            }
+        }
+    }
+
+    // Participants Section
+    .participantsContent {
+        padding: 16px 0;
+
+        .participantsGrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+
+            .participantCard {
+                background: #1F2123;
+                border: 1px solid #2A2D30;
+                border-radius: 12px;
+                padding: 20px;
+
+                .participantHeader {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    margin-bottom: 16px;
+
+                    .participantAvatar {
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: white;
+                        font-weight: 600;
+                        font-size: 16px;
+                    }
+
+                    .participantInfo {
+                        flex: 1;
+
+                        .participantName {
+                            color: #FFFFFF;
+                            font-size: 16px;
+                            font-weight: 600;
+                            margin: 0 0 4px 0;
+                        }
+
+                        .talkTimeInfo {
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+
+                            .talkTime {
+                                color: #9CA3AF;
+                                font-size: 14px;
+                            }
+
+                            .talkPercentage {
+                                color: #9CA3AF;
+                                font-size: 14px;
+                            }
+                        }
+                    }
+                }
+
+                .participantMetrics {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 12px;
+
+                    .metric {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+
+                        .metricName {
+                            color: #9CA3AF;
+                            font-size: 14px;
+                            font-weight: 500;
+                        }
+
+                        .metricValue {
+                            color: #FFFFFF;
+                            font-size: 14px;
+                            font-weight: 600;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Main Chart
+    .mainChart {
+        background: #1F2123;
+        border: 1px solid #2A2D30;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 32px;
+
+        .chartHeader {
+            margin-bottom: 24px;
+
+            .chartStats {
+                display: flex;
+                gap: 32px;
+                align-items: center;
+
+                .statItem {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+
+                    .statLabel {
+                        color: #9CA3AF;
+                        font-size: 12px;
+                        font-weight: 500;
+                    }
+
+                    .statValue {
+                        color: #FFFFFF;
+                        font-size: 16px;
+                        font-weight: 600;
+                    }
+                }
+            }
+        }
+
+        .chartContainer {
+            position: relative;
+            height: 300px;
+            display: flex;
+
+            .yAxis {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                padding-right: 16px;
+                height: 200px;
+                margin-top: 20px;
+
+                span {
+                    color: #6B7280;
+                    font-size: 12px;
+                    font-weight: 500;
+                }
+            }
+
+            .chartArea {
+                flex: 1;
+                position: relative;
+
+                .chartSvg {
+                    width: 100%;
+                    height: 200px;
+                    margin-top: 20px;
+                }
+
+                .xAxis {
+                    display: flex;
+                    justify-content: space-between;
+                    padding-top: 16px;
+
+                    span {
+                        color: #6B7280;
+                        font-size: 12px;
+                        font-weight: 500;
+                    }
+                }
+            }
+        }
+
+        .chartLegend {
+            display: flex;
+            gap: 24px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+
+            .legendItem {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+
+                .legendColor {
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 2px;
+                }
+
+                span {
+                    color: #9CA3AF;
+                    font-size: 14px;
+                    font-weight: 500;
+                }
+            }
+        }
+    }
+
+    // Section Styles
+    .section {
+        margin-bottom: 24px;
+
+        .sectionHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 16px 0;
+            border-bottom: 1px solid #2A2D30;
+
+            .sectionTitle {
+                color: #FFFFFF;
+                font-size: 16px;
+                font-weight: 600;
+                margin: 0;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .expandIcon {
+                color: #9CA3AF;
+                font-size: 12px;
+                transition: transform 0.2s ease;
+
+                &.expanded {
+                    transform: rotate(180deg);
+                }
+            }
+        }
+    }
+
+    // Highlights Section
+    .highlightsContent {
+        padding: 16px 0;
+
+        .highlightItem {
+            background: #1F2123;
+            border: 1px solid #2A2D30;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 12px;
+
+            .highlightHeader {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                margin-bottom: 12px;
+
+                .highlightType {
+                    padding: 4px 12px;
+                    border-radius: 16px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    text-transform: uppercase;
+
+                    &[data-type="topic"] {
+                        background: #1C993E;
+                        color: white;
+                    }
+
+                    &[data-type="key-question"] {
+                        background: #F59E0B;
+                        color: white;
+                    }
+
+                    &[data-type="question"] {
+                        background: #3B82F6;
+                        color: white;
+                    }
+                }
+
+                .highlightTime {
+                    color: #9CA3AF;
+                    font-size: 14px;
+                    font-weight: 500;
+                }
+
+                .engagementBadge {
+                    margin-left: auto;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-size: 14px;
+
+                    span:first-child {
+                        color: #9CA3AF;
+                    }
+
+                    .engagementValue {
+                        color: #1C993E;
+                        font-weight: 600;
+                    }
+                }
+            }
+
+            .highlightDescription {
+                color: #D1D5DB;
+                font-size: 14px;
+                line-height: 1.5;
+                margin: 0;
+            }
+        }
+    }
+
+    // Meeting Score Section
+    .meetingScoreContent {
+        padding: 16px 0;
+
+        .scoreCard {
+            background: #1F2123;
+            border: 1px solid #2A2D30;
+            border-radius: 12px;
+            padding: 24px;
+
+            .scoreHeader {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                margin-bottom: 24px;
+
+                .participantAvatars {
+                    display: flex;
+                    gap: 8px;
+
+                    .smallAvatar {
+                        width: 32px;
+                        height: 32px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: white;
+                        font-weight: 600;
+                        font-size: 14px;
+                    }
+                }
+
+                .totalParticipants {
+                    color: #9CA3AF;
+                    font-size: 14px;
+                    font-weight: 500;
+                }
+            }
+
+            .averageMetrics {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 16px;
+
+                .avgMetric {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+
+                    .avgLabel {
+                        color: #9CA3AF;
+                        font-size: 14px;
+                        font-weight: 500;
+                    }
+
+                    .avgValue {
+                        color: #FFFFFF;
+                        font-size: 16px;
+                        font-weight: 600;
+                    }
+                }
+            }
+        }
+    }
+
+    // Open Questions Section
+    .openQuestionsContent {
+        padding: 16px 0;
+
+        .questionItem {
+            background: #1F2123;
+            border: 1px solid #2A2D30;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 12px;
+
+            .questionHeader {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 12px;
+
+                .questionAvatar {
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    background: #374151;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-weight: 600;
+                    font-size: 14px;
+                }
+
+                .questionMeta {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+
+                    .questionParticipant {
+                        color: #FFFFFF;
+                        font-size: 14px;
+                        font-weight: 600;
+                    }
+
+                    .questionTime {
+                        color: #9CA3AF;
+                        font-size: 12px;
+                    }
+                }
+            }
+
+            .questionText {
+                color: #D1D5DB;
+                font-size: 14px;
+                line-height: 1.5;
+                margin: 0;
+            }
+        }
+    }
+}
+
