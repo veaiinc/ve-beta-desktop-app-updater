@@ -304,6 +304,7 @@ class WindowHelper {
 			disableAutoHideCursor: true,
 			resizable: false, // Disable resizing - keep only movable functionality
 			movable: true, // Explicitly enable window movement
+			devTools: true,
 		};
 
 		// Platform-specific window settings
@@ -410,6 +411,7 @@ class WindowHelper {
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
 			resizable: process.env.NODE_ENV === 'development',
+			devTools: true,
 		};
 
 		// Platform-specific window settings

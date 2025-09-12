@@ -284,13 +284,8 @@ autoUpdater.on('update-downloaded', (info) => {
 	setTimeout(() => {
 		log.info('Auto-restarting app to install update...');
 
-		// Clean up before restart
-		if (dynamicIslandHelper) {
-			dynamicIslandHelper.destroy();
-		}
-		if (windowHelper) {
-			windowHelper.cleanup();
-		}
+		dynamicIslandHelper?.destroy();
+		windowHelper?.cleanup();
 
 		// Restart automatically
 		autoUpdater.quitAndInstall(true, false); // Wait for windows to close gracefully
@@ -688,6 +683,198 @@ function createMenuBar() {
 					click: () => {
 						mainWindow.webContents.toggleDevTools();
 					},
+				},
+				{
+					type: 'separator',
+				},
+				{
+					label: 'Developer Tools',
+					submenu: [
+						{
+							label: 'Main Window (index.html)',
+							accelerator: 'CmdOrCtrl+Shift+D',
+							click: () => {
+								try {
+									if (mainWindow && !mainWindow.isDestroyed()) {
+										mainWindow.webContents.toggleDevTools();
+									}
+								} catch (error) {
+									log.error('Error toggling main window dev tools:', error);
+								}
+							},
+						},
+						{
+							label: 'Ask AI Window (askai.html)',
+							accelerator: 'CmdOrCtrl+Shift+A',
+							click: () => {
+								try {
+									const askAIWindow = windowHelper?.getAskAIWindow();
+									if (askAIWindow && !askAIWindow.isDestroyed()) {
+										askAIWindow.webContents.openDevTools({ mode: 'detach' });
+									} else {
+										log.warn('Ask AI window not available for dev tools');
+									}
+								} catch (error) {
+									log.error('Error toggling Ask AI window dev tools:', error);
+								}
+							},
+						},
+						{
+							label: 'Overlay Window (overlay.html)',
+							accelerator: 'CmdOrCtrl+Shift+O',
+							click: () => {
+								try {
+									const overlayWindow = windowHelper?.getOverlayWindow();
+									if (overlayWindow && !overlayWindow.isDestroyed()) {
+										overlayWindow.webContents.openDevTools({ mode: 'detach' });
+									} else {
+										log.warn('Overlay window not available for dev tools');
+									}
+								} catch (error) {
+									log.error('Error toggling overlay window dev tools:', error);
+								}
+							},
+						},
+						{
+							label: 'Dynamic Island Window (dynamic-island.html)',
+							accelerator: 'CmdOrCtrl+Shift+I',
+							click: () => {
+								try {
+									const dynamicIslandWindow =
+										dynamicIslandHelper?.getDynamicIslandWindow();
+									if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
+										dynamicIslandWindow.webContents.openDevTools({
+											mode: 'detach',
+										});
+									} else {
+										log.warn(
+											'Dynamic Island window not available for dev tools',
+										);
+									}
+								} catch (error) {
+									log.error(
+										'Error toggling Dynamic Island window dev tools:',
+										error,
+									);
+								}
+							},
+						},
+						{
+							label: 'Are You There Window (areyouthere.html)',
+							accelerator: 'CmdOrCtrl+Shift+Y',
+							click: () => {
+								try {
+									const areYouThereWindow = windowHelper?.getAreYouThereWindow();
+									if (areYouThereWindow && !areYouThereWindow.isDestroyed()) {
+										areYouThereWindow.webContents.openDevTools({
+											mode: 'detach',
+										});
+									} else {
+										log.warn(
+											'Are You There window not available for dev tools',
+										);
+									}
+								} catch (error) {
+									log.error(
+										'Error toggling Are You There window dev tools:',
+										error,
+									);
+								}
+							},
+						},
+						{
+							type: 'separator',
+						},
+						{
+							label: 'Open All Dev Tools',
+							accelerator: 'CmdOrCtrl+Shift+Alt+D',
+							click: () => {
+								try {
+									// Main window
+									if (mainWindow && !mainWindow.isDestroyed()) {
+										mainWindow.webContents.openDevTools({ mode: 'detach' });
+									}
+
+									// Ask AI window
+									const askAIWindow = windowHelper?.getAskAIWindow();
+									if (askAIWindow && !askAIWindow.isDestroyed()) {
+										askAIWindow.webContents.openDevTools({ mode: 'detach' });
+									}
+
+									// Overlay window
+									const overlayWindow = windowHelper?.getOverlayWindow();
+									if (overlayWindow && !overlayWindow.isDestroyed()) {
+										overlayWindow.webContents.openDevTools({ mode: 'detach' });
+									}
+
+									// Dynamic Island window
+									const dynamicIslandWindow =
+										dynamicIslandHelper?.getDynamicIslandWindow();
+									if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
+										dynamicIslandWindow.webContents.openDevTools({
+											mode: 'detach',
+										});
+									}
+
+									// Are You There window
+									const areYouThereWindow = windowHelper?.getAreYouThereWindow();
+									if (areYouThereWindow && !areYouThereWindow.isDestroyed()) {
+										areYouThereWindow.webContents.openDevTools({
+											mode: 'detach',
+										});
+									}
+
+									log.info('Opened developer tools for all available windows');
+								} catch (error) {
+									log.error('Error opening all dev tools:', error);
+								}
+							},
+						},
+						{
+							label: 'Close All Dev Tools',
+							accelerator: 'CmdOrCtrl+Shift+Alt+C',
+							click: () => {
+								try {
+									// Main window
+									if (mainWindow && !mainWindow.isDestroyed()) {
+										mainWindow.webContents.closeDevTools();
+									}
+
+									// Ask AI window
+									const askAIWindow = windowHelper?.getAskAIWindow();
+									if (askAIWindow && !askAIWindow.isDestroyed()) {
+										askAIWindow.webContents.closeDevTools();
+									}
+
+									// Overlay window
+									const overlayWindow = windowHelper?.getOverlayWindow();
+									if (overlayWindow && !overlayWindow.isDestroyed()) {
+										overlayWindow.webContents.closeDevTools();
+									}
+
+									// Dynamic Island window
+									const dynamicIslandWindow =
+										dynamicIslandHelper?.getDynamicIslandWindow();
+									if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
+										dynamicIslandWindow.webContents.closeDevTools();
+									}
+
+									// Are You There window
+									const areYouThereWindow = windowHelper?.getAreYouThereWindow();
+									if (areYouThereWindow && !areYouThereWindow.isDestroyed()) {
+										areYouThereWindow.webContents.closeDevTools();
+									}
+
+									log.info('Closed developer tools for all windows');
+								} catch (error) {
+									log.error('Error closing all dev tools:', error);
+								}
+							},
+						},
+					],
+				},
+				{
+					type: 'separator',
 				},
 				// Show Dynamic Island toggle only for non-mac runtime
 				...(isMac

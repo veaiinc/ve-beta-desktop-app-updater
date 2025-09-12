@@ -670,10 +670,9 @@ const GalleryPage = () => {
 				galleryCredentials: null,
 				albumDetails: null,
 				imagesList: null,
-
 				imageDetail: null,
 				galleryGuestAccess: null,
-
+				tenantGalleries: null,
 				clientSelectionsData: null,
 				clientSelectionImages: null,
 				aiFace: null,
@@ -2622,13 +2621,13 @@ const GalleryPage = () => {
 				}));
 
 				// Refresh data
-				// await Promise.all(
-				// 	[
-				// 		getAlbumImagesCount(galleryId),
-				// 		getAlbums(galleryId),
-				// 		info.coverType === 'gallery' && getGalleries({}, true),
-				// 	].filter(Boolean),
-				// );
+				await Promise.all(
+					[
+						getAlbumImagesCount(galleryId),
+						getAlbums(galleryId),
+						info.coverType === 'gallery' && getGalleries({}, true),
+					].filter(Boolean),
+				);
 				message.destroy();
 				showMessage(
 					'success',

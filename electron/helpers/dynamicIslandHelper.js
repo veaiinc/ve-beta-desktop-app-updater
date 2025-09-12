@@ -1,8 +1,10 @@
-const { screen } = require('electron');
+const { screen, BrowserWindow } = require('electron');
 const log = require('electron-log');
+const path = require('path');
 
 const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
 const isMacRuntime = RUNTIME_PLATFORM === 'darwin';
+const isWindowsRuntime = RUNTIME_PLATFORM === 'win32';
 
 module.exports = class DynamicIslandHelper {
 	constructor() {
@@ -168,7 +170,7 @@ module.exports = class DynamicIslandHelper {
 				}
 			} else {
 				// On other platforms, just ignore mouse events
-				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore);
+				this.dynamicIslandWindow.setIgnoreMouseEvents(false);
 			}
 		} catch (error) {
 			log.error('Error setting mouse event handling:', error);
