@@ -50,6 +50,7 @@ const AIMessage = ({
 	messageIndex = null,
 	showCitationsButton = true,
 	sessionId = null,
+	showResponseEditBtn = true,
 }) => {
 	const {
 		documentPreview: { setNoteContent },
@@ -335,21 +336,24 @@ const AIMessage = ({
 								)}
 							</Tooltip>
 						</div>
-						<div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								color="transparent"
-								title={<div className="hover-icons-tooltip">Edit</div>}
-								styles={tooltipStyles}
-							>
-								<PencilSparkleIcon
-									style={pencilIconStyles}
-									onClick={handlePencilClick}
-								/>
-							</Tooltip>
-						</div>
+						{showResponseEditBtn && (
+							<div className="icon-container">
+								<Tooltip
+									placement="bottom"
+									arrow={false}
+									trigger={'hover'}
+									color="transparent"
+									title={<div className="hover-icons-tooltip">Edit</div>}
+									styles={tooltipStyles}
+								>
+									<PencilSparkleIcon
+										style={pencilIconStyles}
+										onClick={handlePencilClick}
+									/>
+								</Tooltip>
+							</div>
+						)}
+
 						{/* <Tooltip
 							placement="bottom"
 							arrow={false}
@@ -475,6 +479,7 @@ export default memo(AIMessage, (prevProps, nextProps) => {
 		prevProps.handleSourcesClick === nextProps.handleSourcesClick &&
 		prevProps.messageIndex === nextProps.messageIndex &&
 		prevProps.showCitationsButton === nextProps.showCitationsButton &&
-		prevProps.sessionId === nextProps.sessionId
+		prevProps.sessionId === nextProps.sessionId &&
+		prevProps.showResponseEditBtn === nextProps.showResponseEditBtn
 	);
 });
