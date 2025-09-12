@@ -12,7 +12,6 @@ import { ReactComponent as UserIcon } from '../../../assets/svg/transcription/us
 import { ReactComponent as NeedHelpIcon } from '../../../assets/svg/transcription/neddhelp.svg';
 import { ReactComponent as ActionIcon } from '../../../assets/svg/transcription/action.svg';
 
-
 const AiTranscriptionSuggestions = ({
 	closeModal,
 	showAmbientAssistance,
@@ -165,12 +164,11 @@ const AiTranscriptionSuggestions = ({
 					className={s.userQuestionContainer}
 					// onClick={() => handleActionClick(suggestion?.prompt || '')}
 				>
-					<div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
-					<UserIcon />
-					<div className={s.questionText}>{suggestion?.prompt || ''}</div>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+						<UserIcon />
+						<div className={s.questionText}>{suggestion?.prompt || ''}</div>
 					</div>
-					
-				
+
 					{/* <button className={s.askUserButton}>Ask User</button> */}
 				</div>
 			);
@@ -181,9 +179,9 @@ const AiTranscriptionSuggestions = ({
 					className={s.aiQuestionContainer}
 					onClick={() => handleActionClick(suggestion?.prompt || '', true)}
 				>
-					<div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
-					<NeedHelpIcon />
-					<div className={s.questionText}>{suggestion?.prompt || ''}</div>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+						<NeedHelpIcon />
+						<div className={s.questionText}>{suggestion?.prompt || ''}</div>
 					</div>
 					{/* <div className={s.needHelpButton}>Need help?</div> */}
 				</div>
@@ -249,9 +247,11 @@ const AiTranscriptionSuggestions = ({
 			>
 				{activeTab === 'all' && (
 					<div className={s.allSuggestionsContainer}>
-						{allSuggestions?.map((suggestion, index) => {
-							return renderAllSuggestions(suggestion);
-						})}
+						{allSuggestions?.map((suggestion, index) => (
+							<Fragment key={suggestion?.reference_id || suggestion?.id || index}>
+								{renderAllSuggestions(suggestion)}
+							</Fragment>
+						))}
 
 						{allSuggestions?.length === 0 && (
 							<div className="meet-transcript-empty">No data.</div>
@@ -263,11 +263,21 @@ const AiTranscriptionSuggestions = ({
 					<div className={s.userQuestionsContainer}>
 						{userQuestions?.map((question, index) => {
 							return (
-								
-								<div className={s.userQuestion} key={index}>
-									<div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+								<div
+									className={s.userQuestion}
+									key={question?.reference_id || question?.id || index}
+								>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '12px',
+										}}
+									>
 										<UserIcon />
-										<div className={s.questionText}>{question?.prompt || ''}</div>
+										<div className={s.questionText}>
+											{question?.prompt || ''}
+										</div>
 									</div>
 								</div>
 							);
@@ -281,7 +291,7 @@ const AiTranscriptionSuggestions = ({
 							return (
 								<div
 									className={s.aiQuestion}
-									key={index}
+									key={question?.reference_id || question?.id || index}
 									onClick={() =>
 										handleActionClick(
 											question?.query || question?.prompt || '',
@@ -289,9 +299,17 @@ const AiTranscriptionSuggestions = ({
 										)
 									}
 								>
-									<div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '12px',
+										}}
+									>
 										<NeedHelpIcon />
-										<div className={s.questionText}>{question?.query || question?.prompt}</div>
+										<div className={s.questionText}>
+											{question?.query || question?.prompt}
+										</div>
 									</div>
 								</div>
 							);
@@ -304,7 +322,7 @@ const AiTranscriptionSuggestions = ({
 						{actions?.map((action, index) => (
 							<div
 								className={s.action}
-								key={index}
+								key={action?.reference_id || action?.id || index}
 								onClick={() =>
 									handleActionClick(action?.query || action?.prompt || '')
 								}
@@ -325,7 +343,13 @@ const AiTranscriptionSuggestions = ({
 						{uniqueFiles.map((file, index) => (
 							<div
 								className={s.file}
-								key={index}
+								key={
+									file?.reference_id ||
+									file?.id ||
+									file?.s3_key ||
+									file?.name ||
+									index
+								}
 								onClick={() => handleFileClick(file)}
 							>
 								<div className={s.fileIcon}>
