@@ -1419,7 +1419,7 @@ const ChatBox = ({
 
 						// Get LiveKit token
 						const response = await getLiveKitToken({
-							meetingId: transcriptionSessionId.current,
+							sessionId: transcriptionSessionId.current,
 						});
 
 						// Handle different response formats
