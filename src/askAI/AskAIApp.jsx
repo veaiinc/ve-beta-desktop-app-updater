@@ -130,8 +130,7 @@ const AskAIApp = () => {
 			const prompt = generatePromptFromTabContent(tabContent);
 
 			// Check if this is from "All Threads" or "Need Help" tabs
-			const shouldUseDirectSearch =
-				tabContent.tabKey === 'all-threads' && tabContent.tabKey === 'need-help';
+			const shouldUseDirectSearch = tabContent.tabKey === 'need-help';
 			setIsNeedHelpRequest(shouldUseDirectSearch);
 
 			// Don't show the prompt in the input field - keep it clean
@@ -155,6 +154,7 @@ const AskAIApp = () => {
 			const isDynamicIsland = chatMessage.type === 'dynamic-island-chat';
 			const isNotchDrop = chatMessage.type === 'notchdrop-chat';
 			const isOverlayThread = chatMessage.type === 'overlay-thread-question';
+			const isNeedHelp = chatMessage.tabKey === 'need-help';
 
 			if ((isDynamicIsland || isNotchDrop || isOverlayThread) && chatMessage.message) {
 				// Show input area and response window when receiving external messages
@@ -173,7 +173,7 @@ const AskAIApp = () => {
 
 				// Process the message directly without showing it in input
 				setTimeout(() => {
-					handleSubmit(chatMessage.message, false);
+					handleSubmit(chatMessage.message, isNeedHelp);
 				}, 100); // Small delay to ensure everything is ready
 			}
 		};

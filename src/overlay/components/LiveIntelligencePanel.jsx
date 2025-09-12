@@ -115,7 +115,7 @@ const LiveIntelligencePanel = ({
 	};
 
 	const tabs = [
-		{ key: 'all-threads', label: 'All Threads', count: getBadgeCount('all-threads') },
+		{ key: 'all-threads', label: 'All threads', count: getBadgeCount('all-threads') },
 		...(getBadgeCount('ask-user') > 0
 			? [
 					{
