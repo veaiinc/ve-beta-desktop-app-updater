@@ -15,9 +15,10 @@ import { message } from '../../components/globalComponents/CustomToast';
 import Context from '../../../context/context';
 import { uploadImage } from '../../../helpers/uploadImage';
 import ObjectID from 'bson-objectid';
+import ReactModal from '../../components/modalsV2';
 
-const UploadPhotosDesktop = () => {
-	const { galleryId, albumId } = useParams();
+const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onStartUpload }) => {
+	// const { galleryId, albumId } = useParams();
 	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
 	const {
@@ -663,51 +664,123 @@ const UploadPhotosDesktop = () => {
 		message.success('Watermark settings saved locally');
 	};
 
+	// Function to prepare upload data and trigger persistent popup
+	const startUploadWithPopup = () => {
+		const nonDuplicates = Object.keys(info.uploadImages).filter(
+			(key) => !(info.isSkipDuplicates && info.uploadImages[key].isDuplicate),
+		);
+
+		if (nonDuplicates.length === 0) {
+			message.error('No files to upload');
+			return;
+		}
+
+		// Get watermark URL
+		const getWatermarkUrl = () => {
+			const wm = waterMarks?.find(
+				(watermark) => watermark.profileId === info.watermarkProfileId,
+			);
+			return wm?.url || null;
+		};
+
+		// Prepare upload data for the persistent popup
+		const uploadData = {
+			galleryId,
+			albumId,
+			uploadBatchID: info.uploadBatchID,
+			tenantId: tenantAlbums?.tenant_id,
+			files: nonDuplicates.map((key) => ({
+				file: info.uploadImages[key].file,
+				isDuplicate: info.uploadImages[key].isDuplicate,
+				originalImage: info.uploadImages[key].originalImage,
+				status: 'pending',
+				progress: 0,
+			})),
+			settings: {
+				isWaterMarkApply: info.isWaterMarkApply,
+				watermarkProfileId: info.watermarkProfileId,
+				watermarkUrl: getWatermarkUrl(),
+				watermarkPosition: info.watermarkPosition,
+				scaleWatermark: info.scaleWatermark,
+				watermarkOpacity: info.watermarkOpacity,
+				selectedGalleryTags: info.selectedGalleryTags,
+				isAiEnabled: info.isAiEnabled,
+				isSkipDuplicates: info.isSkipDuplicates,
+			},
+		};
+
+		// Close the modal and trigger the persistent popup
+		closeModal();
+
+		// Call the parent callback to show the persistent popup
+		if (onStartUpload) {
+			onStartUpload(uploadData);
+		}
+	};
+
 	return (
-		<div className="upload-gallery-container">
+		<ReactModal isOpen={open} closeModal={closeModal}>
 			<div
-				onClick={() =>
-					navigate(`/galleries/${galleryId}?albumId=${albumId}&activeTab=Albums`)
-				}
-				className="backHeader"
+				className="upload-gallery-container"
+				style={{
+					width: '100vw',
+					height: '100vh',
+					backgroundColor: 'var(--background-color)',
+				}}
 			>
-				<BackIcon /> <p>{info.title}</p>
-				<p className="beta-notice">
-					Desktop uploads are currently in beta, you may experience some issues.
-				</p>
-			</div>
-			<div className="options_upload_container">
-				<AddLables info={info} setinfo={setInfo} searchParams={searchParams} />
-				<UploadInputComponent onDropFunction={onDropFunction} />
-			</div>
-			<div className="watermark_progress_container">
-				<WaterMarkComponent
-					setinfo={setInfo}
-					waterMarks={waterMarks}
-					onSaveClick={onSaveClick}
-					waterMarkApply={info.isWaterMarkApply}
-					startedUploading={info.startedUploading}
-					isPopupOpen={info.isPopupOpen}
-					watermarkPosition={info.watermarkPosition}
-					watermarkProfileId={info.watermarkProfileId}
-					watermarkOpacity={info.watermarkOpacity}
-					scaleWatermark={info.scaleWatermark}
-				/>
-				<UploadStatusComponent
+				<div
+					onClick={() =>
+						// navigate(`/galleries/${galleryId}?albumId=${albumId}&activeTab=Albums`)
+						closeModal()
+					}
+					className="backHeader"
+				>
+					<BackIcon /> <p>{info.title}</p>
+					<p className="beta-notice">
+						Desktop uploads are currently in beta, you may experience some issues.
+					</p>
+				</div>
+				<div className="options_upload_container">
+					<AddLables
+						info={info}
+						setinfo={setInfo}
+						searchParams={searchParams}
+						albumId={albumId}
+						galleryId={galleryId}
+						tagId={tagId}
+					/>
+					<UploadInputComponent onDropFunction={onDropFunction} />
+				</div>
+				<div className="watermark_progress_container">
+					<WaterMarkComponent
+						setinfo={setInfo}
+						waterMarks={waterMarks}
+						onSaveClick={onSaveClick}
+						waterMarkApply={info.isWaterMarkApply}
+						startedUploading={info.startedUploading}
+						isPopupOpen={info.isPopupOpen}
+						watermarkPosition={info.watermarkPosition}
+						watermarkProfileId={info.watermarkProfileId}
+						watermarkOpacity={info.watermarkOpacity}
+						scaleWatermark={info.scaleWatermark}
+					/>
+					<UploadStatusComponent
+						info={info}
+						setinfo={setInfo}
+						uploadFilesConcurrently={startUploadWithPopup}
+						galleryId={galleryId}
+						aiFacesLogic={aiFacesLogic}
+						lightGallery={lightGallery}
+					/>
+				</div>
+				<UploadCompletedPopup
 					info={info}
 					setinfo={setInfo}
-					uploadFilesConcurrently={uploadFilesConcurrently}
-					galleryId={galleryId}
-					aiFacesLogic={aiFacesLogic}
-					lightGallery={lightGallery}
+					getImageDuplicatesList={getImageDuplicatesList}
+					onClose={closeModal}
 				/>
 			</div>
-			<UploadCompletedPopup
-				info={info}
-				setinfo={setInfo}
-				getImageDuplicatesList={getImageDuplicatesList}
-			/>
-		</div>
+		</ReactModal>
 	);
 };
 
