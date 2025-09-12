@@ -12,7 +12,7 @@ import {
 } from '../../../../helpers';
 import { ReactComponent as VeLogoSvg } from '../../../../assets/svg/veLogo.svg';
 
-export const CitationsTooltip = memo(({ citationId, citations = [], placement = 'topLeft' }) => {
+export const CitationsTooltip = memo(({ citationId, citations = [], placement = 'bottomLeft' }) => {
 	const {
 		templates: {
 			getCitationData,
@@ -29,61 +29,61 @@ export const CitationsTooltip = memo(({ citationId, citations = [], placement = 
 		if (citations?.length > 0) {
 			const citation = citations?.find((citation) => citation?.id === citationId);
 			setCitationInfo(citation || null);
-			fetchCitationData(citation);
+			// fetchCitationData(citation);
 		}
 	}, [citations]);
 
-	useEffect(() => {
-		if (citationData) {
-			const observer = new MutationObserver(() => {
-				const snippetElement = document?.querySelector('#citation-snippet');
-				if (snippetElement) {
-					snippetElement?.scrollIntoView({ behavior: 'instant', block: 'center' });
-					observer?.disconnect(); // Stop observing after finding the element
-				}
-			});
-			observer?.observe(document?.body, { childList: true, subtree: true });
-			return () => observer?.disconnect();
-		}
-	}, [citationData]);
+	// useEffect(() => {
+	// 	if (citationData) {
+	// 		const observer = new MutationObserver(() => {
+	// 			const snippetElement = document?.querySelector('#citation-snippet');
+	// 			if (snippetElement) {
+	// 				snippetElement?.scrollIntoView({ behavior: 'instant', block: 'center' });
+	// 				observer?.disconnect(); // Stop observing after finding the element
+	// 			}
+	// 		});
+	// 		observer?.observe(document?.body, { childList: true, subtree: true });
+	// 		return () => observer?.disconnect();
+	// 	}
+	// }, [citationData]);
 
-	const fetchCitationData = async (citation) => {
-		if (citation?.source) {
-			if (citationChunks?.[citation?.source]) {
-				setCitationData(citationChunks?.[citation?.source]);
-			} else {
-				const response = await getCitationData(currentSessionId, citation?.source);
-				const payload = { [citation?.source]: response };
-				setCitationData(response);
-				updateCitationChunks(payload);
+	// const fetchCitationData = async (citation) => {
+	// 	if (citation?.source) {
+	// 		if (citationChunks?.[citation?.source]) {
+	// 			setCitationData(citationChunks?.[citation?.source]);
+	// 		} else {
+	// 			const response = await getCitationData(currentSessionId, citation?.source);
+	// 			const payload = { [citation?.source]: response };
+	// 			setCitationData(response);
+	// 			updateCitationChunks(payload);
 
-				if (Object?.keys(citationChunks || {})?.length >= 150) {
-					updateStateValues({ citationChunks: {} });
-				}
-			}
-		}
-	};
+	// 			if (Object?.keys(citationChunks || {})?.length >= 150) {
+	// 				updateStateValues({ citationChunks: {} });
+	// 			}
+	// 		}
+	// 	}
+	// };
 
-	const processedCitationData = useMemo(() => {
-		if (!citationData) return '';
-		let updatedText = citationData?.replace(/\\n/g, '\n');
-		if (citationInfo?.snippet && citationInfo.snippet?.trim() !== '') {
-			updatedText = updatedText?.replace(
-				citationInfo?.snippet,
-				`<span id="citation-snippet" style="background-color: var(--primary-font); color : var(--background-color); padding: 1px 3px; box-decoration-break: clone;">${
-					citationInfo?.snippet || ''
-				}</span>`,
-			);
-		}
-		return updatedText;
-	}, [citationData, citationInfo]);
+	// const processedCitationData = useMemo(() => {
+	// 	if (!citationData) return '';
+	// 	let updatedText = citationData?.replace(/\\n/g, '\n');
+	// 	if (citationInfo?.snippet && citationInfo.snippet?.trim() !== '') {
+	// 		updatedText = updatedText?.replace(
+	// 			citationInfo?.snippet,
+	// 			`<span id="citation-snippet" style="background-color: var(--primary-font); color : var(--background-color); padding: 1px 3px; box-decoration-break: clone;">${
+	// 				citationInfo?.snippet || ''
+	// 			}</span>`,
+	// 		);
+	// 	}
+	// 	return updatedText;
+	// }, [citationData, citationInfo]);
 
 	return (
 		<Tooltip
 			arrow={false}
 			trigger={'hover'}
 			color="transparent"
-			open={citationInfo?.source ? undefined : false}
+			// open={citationInfo?.source ? null : false}
 			placement={placement}
 			rootClassName="citation-tooltip-wrapper"
 			title={
@@ -97,12 +97,11 @@ export const CitationsTooltip = memo(({ citationId, citations = [], placement = 
 						);
 					}}
 				>
-					{(processedCitationData?.length > 0 || citationInfo?.snippet?.length > 0) &&
-						citationInfo?.source && (
-							<div className="tooltip-content">
-								<Markdown>{processedCitationData}</Markdown>
-							</div>
-						)}
+					{/* {citationInfo?.snippet?.length > 0 && citationInfo?.source && (
+						<div className="tooltip-content">
+							<Markdown>{processedCitationData}</Markdown>
+						</div>
+					)} */}
 
 					<div className="info">
 						<div className="citation-link-container">
@@ -136,6 +135,15 @@ export const CitationsTooltip = memo(({ citationId, citations = [], placement = 
 									: citationInfo?.name || ''}
 							</div>
 						</div>
+						{citationInfo?.title && (
+							<div className="citation-title">{citationInfo?.title || ''}</div>
+						)}
+
+						{citationInfo?.snippet && (
+							<div className="citation-description">
+								{citationInfo?.snippet || ''}
+							</div>
+						)}
 					</div>
 				</div>
 			}
