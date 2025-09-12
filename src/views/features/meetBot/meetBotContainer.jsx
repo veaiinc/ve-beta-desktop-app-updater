@@ -18,6 +18,7 @@ import './meetBotContainer.scss';
 import moment from 'moment';
 import Spinner from '../../components/loaders/Spinner';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
+import MeetingAnalytics from './MeetingAnalytics';
 
 const initialState = {
 	files: [],
@@ -789,7 +790,9 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 				{showTranscriptTabs && activeTab === 'summary' && (
 					<MeetSummary activeTab={activeTab} meetingId={meetingId} />
 				)}
-
+{showTranscriptTabs && activeTab === 'analytics' && (
+	<MeetingAnalytics  />
+)}
 				{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
 					(activeTab === 'userQuestions' ||
 						activeTab === 'aiQuestions' ||

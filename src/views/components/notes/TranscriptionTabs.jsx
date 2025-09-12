@@ -31,6 +31,16 @@ const TranscriptionTabs = ({
 						Summary
 					</button>
 				)}
+				{history && (
+					<button
+						className={
+							s.meetingTabButton + ' ' + (activeTab === 'analytics' ? s.activeTab : '')
+						}
+						onClick={() => setActiveTab('analytics')}
+					>
+						Analytics
+					</button>
+				)}
 
 				{/* {(history || type === 'desktop') && (
 					<button
