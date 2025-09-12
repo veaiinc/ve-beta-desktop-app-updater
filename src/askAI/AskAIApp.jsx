@@ -27,25 +27,19 @@ const AskAIApp = () => {
 			const shouldUseDirectSearch =
 				tabContent.tabKey === 'all-threads' && tabContent.tabKey === 'need-help';
 			// Automatically send the request to Ask AI with the generated prompt
-			setTimeout(() => {
-				handleSubmit(prompt, shouldUseDirectSearch);
-			}, 100); // Small delay to ensure everything is ready
+			handleSubmit(prompt, shouldUseDirectSearch);
 		};
 
 		// Listen for chat messages from Dynamic Island or NotchDrop
 		const handleChatMessage = (chatMessage) => {
-			console.log('💬 Received chat message:', chatMessage);
-
 			const isDynamicIsland = chatMessage.type === 'dynamic-island-chat';
 			const isNotchDrop = chatMessage.type === 'notchdrop-chat';
 			const isOverlayThread = chatMessage.type === 'overlay-thread-question';
-			const isNeedHelp = chatMessage.tabKey === 'need-help';
+			const isNeedHelp = chatMessage?.isNeedHelp;
 
 			if ((isDynamicIsland || isNotchDrop || isOverlayThread) && chatMessage.message) {
 				// Process the message directly without showing it in input
-				setTimeout(() => {
-					handleSubmit(chatMessage.message, isNeedHelp);
-				}, 100); // Small delay to ensure everything is ready
+				handleSubmit(chatMessage.message, isNeedHelp);
 			}
 		};
 
@@ -181,7 +175,7 @@ const AskAIApp = () => {
 
 			// Only set direct_search_agent to true for "Need Help" tab requests
 			if (shouldUseDirectSearch) {
-				messageData.direct_search_agent = true;
+				messageData.direct_agent = 'search_agent';
 			}
 
 			// Add location details
