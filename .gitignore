@@ -60,3 +60,7 @@ notchdrop-addon/bin
 !notchdrop-addon/build.sh
 
 @img
+
+notchdrop-addon/.build
+
+.cursor
