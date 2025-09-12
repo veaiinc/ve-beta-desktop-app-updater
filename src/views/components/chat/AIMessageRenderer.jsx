@@ -15,6 +15,7 @@ const AIMessageRenderer = ({
 	showCitationsButton = true,
 	isLastMessage = false,
 	sessionId = null,
+	showResponseEditBtn = true,
 }) => {
 	return (
 		<div className="ai-message-renderer">
@@ -45,6 +46,7 @@ const AIMessageRenderer = ({
 								messageIndex={messageIndex}
 								showCitationsButton={showCitationsButton}
 								sessionId={sessionId}
+								showResponseEditBtn={showResponseEditBtn}
 							/>
 						</>
 					)}
