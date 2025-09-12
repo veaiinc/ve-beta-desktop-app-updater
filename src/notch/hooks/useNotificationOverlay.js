@@ -1,8 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 const useNotificationOverlay = () => {
 	const [notifications, setNotifications] = useState([]);
 	const [showNotificationOverlay, setShowNotificationOverlay] = useState(false);
+	const timeoutsRef = useRef(new Map());
 
 	const showNotification = useCallback((notification) => {
 		const id = Date.now() + Math.random();
@@ -21,18 +22,25 @@ const useNotificationOverlay = () => {
 
 		// Auto-dismiss after duration
 		if (newNotification.duration > 0) {
-			setTimeout(() => {
+			const timeoutHandle = setTimeout(() => {
 				dismissNotification(id);
 			}, newNotification.duration);
+			timeoutsRef.current.set(id, timeoutHandle);
 		}
 
 		return id;
 	}, []);
 
 	const dismissNotification = useCallback((id) => {
+		const timeoutsMap = timeoutsRef.current;
+		if (timeoutsMap && timeoutsMap.has(id)) {
+			const timeoutHandle = timeoutsMap.get(id);
+			clearTimeout(timeoutHandle);
+			timeoutsMap.delete(id);
+		}
+
 		setNotifications((prev) => {
 			const updated = prev.filter((n) => n.id !== id);
-			// Hide overlay if no notifications left
 			if (updated.length === 0) {
 				setShowNotificationOverlay(false);
 			}
@@ -41,6 +49,11 @@ const useNotificationOverlay = () => {
 	}, []);
 
 	const clearAllNotifications = useCallback(() => {
+		const timeoutsMap = timeoutsRef.current;
+		if (timeoutsMap) {
+			for (const timeoutHandle of timeoutsMap.values()) clearTimeout(timeoutHandle);
+			timeoutsMap.clear();
+		}
 		setNotifications([]);
 		setShowNotificationOverlay(false);
 	}, []);
@@ -60,6 +73,16 @@ const useNotificationOverlay = () => {
 		},
 		[notifications],
 	);
+
+	useEffect(() => {
+		return () => {
+			const timeoutsMap = timeoutsRef.current;
+			if (timeoutsMap) {
+				for (const timeoutHandle of timeoutsMap.values()) clearTimeout(timeoutHandle);
+				timeoutsMap.clear();
+			}
+		};
+	}, []);
 
 	return {
 		notifications,
