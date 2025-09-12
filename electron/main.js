@@ -273,13 +273,8 @@ autoUpdater.on('update-downloaded', (info) => {
 	setTimeout(() => {
 		log.info('Auto-restarting app to install update...');
 
-		// Clean up before restart
-		if (dynamicIslandHelper) {
-			dynamicIslandHelper.destroy();
-		}
-		if (windowHelper) {
-			windowHelper.cleanup();
-		}
+		dynamicIslandHelper?.destroy();
+		windowHelper?.cleanup();
 
 		// Restart automatically
 		autoUpdater.quitAndInstall(true, false); // Wait for windows to close gracefully
