@@ -308,6 +308,28 @@ function showNotification(title, body) {
 	});
 
 	notification.show();
+
+	// Also send notification to Dynamic Island
+	if (dynamicIslandHelper) {
+		const dynamicIslandWindow = dynamicIslandHelper.getDynamicIslandWindow();
+		if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
+			const dynamicIslandNotification = {
+				title: title || 'Alert',
+				message: body || 'This is a test',
+				type: 'info',
+				duration: 8000,
+				actions: [
+					{ type: 'join-meet', text: 'Join Meet' },
+					{ type: 'dismiss', text: 'Dismiss' },
+				],
+			};
+			dynamicIslandWindow.webContents.send(
+				'dynamic-island-notification',
+				dynamicIslandNotification,
+			);
+			log.info('Notification also sent to Dynamic Island');
+		}
+	}
 }
 
 function handleNotificationAction(action) {
@@ -2339,6 +2361,29 @@ app.whenReady().then(async () => {
 			status: 'ready',
 			message: 'Voice integration ready for Dynamic Island',
 		};
+	});
+
+	// Dynamic Island notification handler
+	ipcMain.handle('dynamic-island-show-notification', async (event, notification) => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island Helper not initialized' };
+			}
+
+			const dynamicIslandWindow = dynamicIslandHelper.getDynamicIslandWindow();
+			if (!dynamicIslandWindow || dynamicIslandWindow.isDestroyed()) {
+				return { success: false, error: 'Dynamic Island window not available' };
+			}
+
+			// Send notification to Dynamic Island window
+			dynamicIslandWindow.webContents.send('dynamic-island-notification', notification);
+
+			log.info('Notification sent to Dynamic Island:', notification);
+			return { success: true, message: 'Notification sent to Dynamic Island' };
+		} catch (error) {
+			log.error('Error showing notification in Dynamic Island:', error);
+			return { success: false, error: error.message };
+		}
 	});
 
 	// Register overlay window IPC handlers
