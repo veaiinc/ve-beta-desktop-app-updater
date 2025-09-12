@@ -1,7 +1,7 @@
 const path = require('path');
 const log = require('electron-log');
 
-let NotchDropAddonWrapper = require('notchdrop-addon');
+let NotchDropAddonWrapper;
 
 class NotchDropService {
 	constructor() {
@@ -22,14 +22,16 @@ class NotchDropService {
 
 			// Phase 2: Load and initialize addon with bridge ready (macOS only)
 			if (!this.platformSupported) {
+				log.info('ℹ️ NotchDrop not supported on this platform:', process.platform);
 				this.isInitialized = false;
 				return false;
 			}
 
 			// Enhanced module resolution for both dev and packaged environments
-
+			let NotchDropAddonWrapper;
 			try {
 				// Try module resolution first (works in packaged apps)
+				NotchDropAddonWrapper = require('notchdrop-addon');
 			} catch (moduleError) {
 				// Enhanced fallback paths for development and packaged environments
 				const fallbackPaths = [
