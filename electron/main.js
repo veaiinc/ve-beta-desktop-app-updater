@@ -18,6 +18,7 @@ const path = require('node:path');
 const log = require('electron-log');
 const { autoUpdater } = require('electron-updater');
 const WindowHelper = require('./helpers/windowHelper');
+const DynamicIslandHelper = require('./helpers/dynamicIslandHelper');
 const fs = require('fs');
 const { exec } = require('child_process');
 
@@ -169,315 +170,6 @@ process.on('unhandledRejection', (reason, promise) => {
 	// Don't exit the process, just log the error
 });
 
-// Temporary inline DynamicIslandHelper class
-class DynamicIslandHelper {
-	constructor() {
-		this.dynamicIslandWindow = null;
-		this.isExpanded = false; // Start collapsed by default
-		this.isVisible = true;
-		this.screenWidth = 0;
-		this.screenHeight = 0;
-
-		// Default positions and sizes - start with collapsed pill size
-		this.collapsedSize = { width: 250, height: 18 };
-		this.expandedSize = { width: 875, height: 280, flexShrink: 0 };
-		this.position = { x: 0, y: 0 };
-
-		this.setupScreenDimensions();
-	}
-
-	setupScreenDimensions() {
-		const primaryDisplay = screen.getPrimaryDisplay();
-		const workArea = primaryDisplay.workAreaSize;
-		this.screenWidth = workArea.width;
-		this.screenHeight = workArea.height;
-
-		// Position at center top - use expanded size for positioning
-		this.position.x =
-			Math.floor(this.screenWidth / 2) - Math.floor(this.expandedSize.width / 2);
-
-		this.position.y = 0;
-	}
-
-	createDynamicIslandWindow() {
-		if (this.dynamicIslandWindow !== null) return;
-
-		// Skip window creation on macOS (runtime) - only create for Windows/Linux
-		if (isMacRuntime) {
-			return;
-		}
-
-		const windowSettings = {
-			width: this.expandedSize.width, // Start with expanded size (875x280)
-			height: this.expandedSize.height, // Start with expanded size (875x280)
-			x: this.position.x,
-			y: this.position.y, // Y=0 to stick to top of screen
-			webPreferences: {
-				nodeIntegration: false,
-				contextIsolation: true,
-				preload: path.join(__dirname, 'preload.js'),
-				devTools: true, // Enable dev tools in production too
-			},
-			show: true, // Show immediately when created
-			alwaysOnTop: true,
-			frame: false, // Frameless to blend with menu bar
-			transparent: true,
-			fullscreenable: false,
-			hasShadow: false,
-			backgroundColor: '#00000000',
-			focusable: true, // Make focusable by default for better Windows support
-			skipTaskbar: true,
-			visibleOnAllWorkspaces: true,
-			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
-			acceptFirstMouse: true,
-			disableAutoHideCursor: true,
-			resizable: false, // Disable resizing - fixed size
-			movable: true, // Enable movement for Dynamic Island
-			minimizable: false,
-			maximizable: false,
-			closable: false,
-		};
-
-		this.dynamicIslandWindow = new BrowserWindow(windowSettings);
-
-		// Apply content protection to Dynamic Island window
-		applyContentProtectionToWindow(this.dynamicIslandWindow);
-
-		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
-		// Force the Dynamic Island React app mode so it renders the island UI
-		const query = '?mode=dynamic-island';
-		const dynamicIslandUrl =
-			process.env.NODE_ENV === 'development'
-				? `${devURL}/dynamic-island.html${query}`
-				: `file://${path.join(__dirname, '..', 'build', 'dynamic-island.html')}${query}`;
-
-		this.dynamicIslandWindow.loadURL(dynamicIslandUrl).catch((err) => {
-			log.error('Failed to load dynamic island URL:', err);
-		});
-
-		// Configure for non-macOS platforms
-		this.dynamicIslandWindow.setAlwaysOnTop(true, 'screen-saver');
-
-		// Set initial mouse event handling - start with mouse events ignored since it's collapsed
-		this.setMouseEventHandling(true);
-
-		// Show the window immediately
-		this.dynamicIslandWindow.show();
-		this.isVisible = true;
-
-		// Listen for resize events from the renderer
-		this.dynamicIslandWindow.webContents.on('did-finish-load', () => {
-			// Send initial state to React component - start collapsed
-			log.info('Sending initial state to React component: { expanded: false }');
-			this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: false });
-		});
-	}
-
-	expand() {
-		// On macOS (runtime), just track the state without window operations
-		if (isMacRuntime) {
-			this.isExpanded = true;
-			return;
-		}
-
-		if (!this.dynamicIslandWindow || this.isExpanded) return;
-
-		this.isExpanded = true;
-
-		// Enable mouse events when expanded so user can interact with it
-		this.setMouseEventHandling(false);
-
-		// Make window focusable when expanded so input fields can receive focus
-		this.dynamicIslandWindow.setFocusable(true);
-
-		// Notify renderer - window size stays the same
-		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: true });
-	}
-
-	collapse() {
-		// On macOS (runtime), just track the state without window operations
-		if (isMacRuntime) {
-			this.isExpanded = false;
-			return;
-		}
-
-		if (!this.dynamicIslandWindow || !this.isExpanded) return;
-
-		this.isExpanded = false;
-
-		// Disable mouse events when collapsed so clicks pass through
-		this.setMouseEventHandling(true);
-
-		// Make window non-focusable when collapsed to prevent stealing focus
-		this.dynamicIslandWindow.setFocusable(false);
-
-		// Notify renderer - window size stays the same
-		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: false });
-	}
-
-	setMouseEventHandling(ignore) {
-		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
-
-		try {
-			if (isMacRuntime) {
-				// On macOS, use the forward option to allow clicks to pass through
-				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore, { forward: true });
-			} else if (isWindowsRuntime) {
-				// On Windows, when collapsed, allow clicks to pass through to overlay
-				// When expanded, capture all mouse events
-				if (ignore) {
-					// Collapsed state - allow clicks to pass through to overlay underneath
-					this.dynamicIslandWindow.setIgnoreMouseEvents(true, { forward: true });
-				} else {
-					// Expanded state - capture all mouse events
-					this.dynamicIslandWindow.setIgnoreMouseEvents(false);
-				}
-			} else {
-				// On other platforms, just ignore mouse events
-				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore);
-			}
-		} catch (error) {
-			log.error('Error setting mouse event handling:', error);
-		}
-	}
-
-	show() {
-		// On macOS (runtime), just track the state without window operations
-		if (isMacRuntime) {
-			this.isVisible = true;
-			return;
-		}
-
-		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
-			this.dynamicIslandWindow.show();
-			this.isVisible = true;
-			log.info('Dynamic Island shown');
-		}
-	}
-
-	hide() {
-		// On macOS (runtime), just track the state without window operations
-		if (isMacRuntime) {
-			this.isVisible = false;
-			return;
-		}
-
-		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
-			this.dynamicIslandWindow.hide();
-			this.isVisible = false;
-		}
-	}
-
-	toggleVisibility() {
-		if (this.isVisible) {
-			this.hide();
-		} else {
-			this.show();
-		}
-	}
-
-	getDynamicIslandWindow() {
-		return this.dynamicIslandWindow;
-	}
-
-	isDynamicIslandVisible() {
-		return this.isVisible;
-	}
-
-	isDynamicIslandExpanded() {
-		return this.isExpanded;
-	}
-
-	// Method to reposition Dynamic Island based on platform
-	repositionForPlatform() {
-		// On macOS (runtime), just log that repositioning was called
-		if (isMacRuntime) {
-			return;
-		}
-
-		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
-
-		// Recalculate position based on current platform - eliminate gap with menu bar
-		if (isWindowsRuntime) {
-			this.position.y = -5; // Slightly above screen edge on Windows
-		} else {
-			this.position.y = -8; // Slightly above screen edge on Linux to eliminate menu bar gap
-		}
-
-		// Update window position
-		this.dynamicIslandWindow.setPosition(this.position.x, this.position.y);
-	}
-
-	focus() {
-		// On macOS (runtime), just log that focus was called
-		if (isMacRuntime) {
-			return;
-		}
-
-		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
-			try {
-				// Focus the window and bring it to front
-				this.dynamicIslandWindow.focus();
-				this.dynamicIslandWindow.show();
-			} catch (error) {
-				log.error('Error focusing Dynamic Island window:', error);
-			}
-		}
-	}
-
-	showDynamicIsland() {
-		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
-			try {
-				this.dynamicIslandWindow.show();
-				this.isVisible = true;
-			} catch (error) {
-				log.error('Error showing Dynamic Island:', error);
-			}
-		}
-	}
-
-	expandDynamicIsland() {
-		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
-			try {
-				// Set expanded size and position
-				this.dynamicIslandWindow.setSize(this.expandedSize.width, this.expandedSize.height);
-				this.dynamicIslandWindow.setPosition(this.position.x, this.position.y);
-				this.isExpanded = true;
-
-				// Enable mouse events when expanded so user can interact with it
-				this.setMouseEventHandling(false);
-
-				// Make window focusable when expanded so input fields can receive focus
-				this.dynamicIslandWindow.setFocusable(true);
-
-				// Send state change to the window
-				this.dynamicIslandWindow.webContents.send('dynamic-island-state', {
-					expanded: true,
-					visible: true,
-				});
-
-				log.info('Dynamic Island expanded');
-			} catch (error) {
-				log.error('Error expanding Dynamic Island:', error);
-			}
-		}
-	}
-
-	destroy() {
-		try {
-			if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
-				this.dynamicIslandWindow.destroy();
-				this.dynamicIslandWindow = null;
-			}
-
-			// Reset state
-			this.isExpanded = false;
-			this.isVisible = false;
-		} catch (error) {
-			log.error('Error destroying DynamicIslandHelper:', error);
-		}
-	}
-}
 let notchDropService = null;
 
 // Auto-updater setup
@@ -581,9 +273,13 @@ autoUpdater.on('update-downloaded', (info) => {
 	setTimeout(() => {
 		log.info('Auto-restarting app to install update...');
 
-		dynamicIslandHelper?.destroy();
-
-		windowHelper?.cleanup();
+		// Clean up before restart
+		if (dynamicIslandHelper) {
+			dynamicIslandHelper.destroy();
+		}
+		if (windowHelper) {
+			windowHelper.cleanup();
+		}
 
 		// Restart automatically
 		autoUpdater.quitAndInstall(true, false); // Wait for windows to close gracefully
@@ -619,11 +315,81 @@ function showNotification(title, body) {
 	notification.show();
 }
 
-// Ensure IPC handlers are registered early
-log.info('Registering IPC handlers...');
+function handleNotificationAction(action) {
+	pendingNotificationAction = action;
 
+	if (action === 'join-meet') {
+		if (!windowHelper) {
+			log.info('windowHelper not ready — action queued');
+			return;
+		}
+
+		// First, ensure overlay window exists and is created
+		let overlayWindow = windowHelper.getOverlayWindow();
+
+		if (!overlayWindow || overlayWindow.isDestroyed()) {
+			windowHelper.createOverlayWindow();
+
+			// Wait a moment for the window to be created
+			setTimeout(() => {
+				overlayWindow = windowHelper.getOverlayWindow();
+				if (overlayWindow && !overlayWindow.isDestroyed()) {
+					handleOverlayWindowReady(overlayWindow);
+				} else {
+					log.error('Failed to create overlay window');
+				}
+			}, 1000);
+		} else {
+			// Window exists, handle it directly
+			handleOverlayWindowReady(overlayWindow);
+		}
+
+		// Show and expand dynamic island
+		dynamicIslandHelper?.show();
+		dynamicIslandHelper?.expand();
+
+		pendingNotificationAction = null;
+	}
+}
+
+// Helper function to handle overlay window when it's ready
+function handleOverlayWindowReady(overlayWindow) {
+	// Show the overlay window first
+	windowHelper.showOverlayWindow();
+
+	// Focus the window to ensure it's visible
+	overlayWindow.focus();
+	overlayWindow.show();
+
+	// Wait for DOM to be ready before sending commands
+	overlayWindow.webContents.once('dom-ready', () => {
+		// Small delay to ensure React has mounted
+		setTimeout(() => {
+			// Send the startRecording command
+			overlayWindow.webContents.send('overlay-command', {
+				action: 'startRecording',
+			});
+		}, 500);
+	});
+
+	// Also listen for the window to finish loading
+	overlayWindow.webContents.once('did-finish-load', () => {
+		log.info('Overlay window finished loading');
+	});
+
+	// Additional safety check - if DOM ready doesn't fire within 3 seconds, try sending anyway
+	setTimeout(() => {
+		if (overlayWindow && !overlayWindow.isDestroyed()) {
+			log.info('Fallback: sending startRecording command after timeout');
+			overlayWindow.webContents.send('overlay-command', {
+				action: 'startRecording',
+			});
+		}
+	}, 3000);
+}
 // IPC Handlers for updates
 ipcMain.handle('check-for-updates', async () => {
+	log.info('Manual update check triggered');
 	if (process.env.NODE_ENV === 'development') {
 		return { success: true, message: 'Skipped in dev mode' };
 	}
@@ -753,17 +519,10 @@ ipcMain.handle('request-screen-recording-permission', async () => {
 	if (process.platform !== 'darwin') {
 		return { success: true, granted: true };
 	}
+	const granted = await systemPreferences.askForMediaAccess('screen');
 
-	try {
-		const granted = await systemPreferences.askForMediaAccess('screen-recording');
-		log.info('Screen recording permission request result:', granted);
-		return { success: true, granted };
-	} catch (error) {
-		log.error('Error requesting screen recording permission:', error);
-		return { success: false, error: error.message };
-	}
+	return { success: true, granted };
 });
-
 // Window state management functions
 function saveWindowState() {
 	if (mainWindow && !mainWindow.isDestroyed()) {
@@ -773,6 +532,7 @@ function saveWindowState() {
 			timestamp: Date.now(),
 			windowBounds: mainWindow.getBounds(), // Save window size and position
 		};
+		log.info('Window state saved:', lastWindowState);
 	}
 }
 
@@ -1032,6 +792,8 @@ function setupNotchDropMenuUpdates() {
 	setInterval(() => {
 		updateMenuBarState();
 	}, 5000); // Update every 5 seconds
+
+	log.info('✅ NotchDrop menu update listeners set up');
 }
 
 // Update menu bar to reflect current NotchDrop state
@@ -1056,6 +818,10 @@ function updateMenuBarState() {
 			if (autoOpenMenu) {
 				autoOpenMenu.checked = autoOpen;
 			}
+
+			log.info(
+				`📊 Menu updated - Status: ${status}, Visible: ${isVisible}, Auto-open: ${autoOpen}`,
+			);
 		}
 	} catch (error) {
 		log.error('❌ Failed to update menu bar state:', error);
@@ -1092,6 +858,9 @@ function createWindow(restoreState = false) {
 		iconPath = path.join(__dirname, 'assets', 've-black-circle-logo.png');
 	}
 
+	// Log the icon path being used
+	log.info('🎨 Using icon:', iconPath);
+
 	// Use saved window bounds if available, otherwise use defaults
 	const defaultBounds = { width: 1366, height: 768, x: undefined, y: undefined };
 	const windowBounds =
@@ -1127,11 +896,14 @@ function createWindow(restoreState = false) {
 		// Apply content protection to main window
 		applyContentProtectionToWindow(mainWindow);
 		log.info('Window ready-to-show - content protection applied');
+		// Enable developer tools for main window in both development and production
+		log.info('Dev tools available with F12, Ctrl+F12, or Ctrl+Shift+I in all modes');
 
 		// If restoring state, navigate to the last known route
 		if (restoreState && lastWindowState.route) {
 			setTimeout(() => {
 				mainWindow.webContents.send('restore-window-state', lastWindowState);
+				log.info('Window state restoration message sent:', lastWindowState);
 			}, 1000); // Wait a bit for the app to fully load
 		}
 	});
@@ -1145,8 +917,12 @@ function createWindow(restoreState = false) {
 		if (!isQuitting) {
 			event.preventDefault();
 			mainWindow.hide();
+			log.info('Main window hidden - app continues running in background');
 		}
 	});
+
+	// Check for updates in both dev and production
+	log.info('Starting automatic update check...');
 	// Delay update check to ensure app is fully loaded
 	setTimeout(() => {
 		autoUpdater.checkForUpdatesAndNotify();
@@ -1272,8 +1048,8 @@ app.whenReady().then(async () => {
 		const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
 		const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
 
-		// log.info('macOS Microphone permission status:', microphoneStatus);
-		// log.info('macOS Camera permission status:', cameraStatus);
+		log.info('macOS Microphone permission status:', microphoneStatus);
+		log.info('macOS Camera permission status:', cameraStatus);
 
 		console.log('Microphone status:', microphoneStatus);
 		console.log('Camera status:', cameraStatus);
@@ -1283,9 +1059,7 @@ app.whenReady().then(async () => {
 	if (process.platform === 'darwin') {
 		setTimeout(async () => {
 			try {
-				log.info('🔧 Requesting screen recording permission...');
 				const granted = await systemPreferences.askForMediaAccess('screen-recording');
-				log.info('Screen recording permission result:', granted);
 			} catch (error) {
 				log.error('Error requesting screen recording permission:', error);
 				// This is expected in some cases, not a critical error
@@ -1294,30 +1068,9 @@ app.whenReady().then(async () => {
 
 		// Also request camera permission
 		setTimeout(async () => {
-			try {
-				const cameraGranted = await systemPreferences.askForMediaAccess('camera');
-				log.info('Camera permission result:', cameraGranted);
-			} catch (error) {
-				log.error('Error requesting camera permission:', error);
-			}
+			const cameraGranted = await systemPreferences.askForMediaAccess('camera');
+			log.info('Camera permission result:', cameraGranted);
 		}, 3000);
-
-		// Log initial camera permission status
-		setTimeout(async () => {
-			try {
-				const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
-				const screenRecordingStatus =
-					systemPreferences.getMediaAccessStatus('screen-recording');
-				log.info(
-					'Final permission status - Camera:',
-					cameraStatus,
-					'Screen Recording:',
-					screenRecordingStatus,
-				);
-			} catch (error) {
-				log.error('Error checking permission status:', error);
-			}
-		}, 4000);
 	}
 
 	meetingMonitor.setNotificationHandler(showNotification);
@@ -1330,6 +1083,12 @@ app.whenReady().then(async () => {
 
 	// THEN: Create main window after dynamic island
 	createWindow();
+
+	ipcMain.handle('process-image-with-sharp', processImageWithSharp);
+	ipcMain.handle('extract-image-metadata', extractImageMetadata);
+	ipcMain.handle('download-album-zip', downloadAlbumZip);
+	ipcMain.handle('create-zip-from-urls', createZipFromUrls);
+
 	createTray(); // Create system tray for Windows
 	createMenuBar();
 
@@ -1449,9 +1208,12 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	await windowHelper?.preCreateOverlayWindow?.();
+	try {
+		await windowHelper?.preCreateOverlayWindow?.();
+	} catch (error) {
+		log.error('❌ Error pre-creating overlay window:', error);
+	}
 
-	// Phase 3: Initialize NotchDrop service with proper readiness waiting (macOS only)
 	if (isMacRuntime) {
 		notchDropService = new NotchDropService();
 		notchDropService.setMainWindow(mainWindow);
@@ -1473,10 +1235,6 @@ app.whenReady().then(async () => {
 				}
 			} catch (error) {
 				initRetries++;
-				log.warn(
-					`⚠️ NotchDrop init attempt ${initRetries}/${maxInitRetries} failed:`,
-					error.message,
-				);
 
 				if (initRetries < maxInitRetries) {
 					await new Promise((resolve) => setTimeout(resolve, 1000 * initRetries)); // Exponential backoff
@@ -1493,6 +1251,16 @@ app.whenReady().then(async () => {
 
 	// Phase 5: Validate system readiness
 	setTimeout(() => {
+		// Test NotchDrop service readiness
+		if (notchDropService && notchDropService.isInitialized) {
+			try {
+				const status = notchDropService.getStatus();
+				log.info('✅ NotchDrop service status check:', status);
+			} catch (error) {
+				log.warn('⚠️ NotchDrop service status check failed:', error.message);
+			}
+		}
+
 		// Emit readiness signal for any listening components
 		if (mainWindow && !mainWindow.isDestroyed()) {
 			mainWindow.webContents.send('system-ready', {
@@ -1929,12 +1697,6 @@ app.whenReady().then(async () => {
 						}
 					}, 100);
 				}
-
-				log.info(
-					`Dynamic Island chat mode ${
-						isChatMode ? 'enabled' : 'disabled'
-					}, focusable: ${isChatMode}, platform: ${process.platform}`,
-				);
 			}
 
 			return { success: true };
@@ -2815,7 +2577,6 @@ app.whenReady().then(async () => {
 					// Recording started - start the timer
 					if (!isRecordingActive) {
 						startAreYouThereTimer();
-						log.debug('Started Are You There timer');
 					}
 				} else {
 					// Recording stopped - stop the timer and hide window
@@ -2824,7 +2585,6 @@ app.whenReady().then(async () => {
 						if (windowHelper) {
 							windowHelper.hideAreYouThereWindow();
 						}
-						log.debug('Stopped Are You There timer and hid window');
 					}
 				}
 			}
@@ -2835,9 +2595,6 @@ app.whenReady().then(async () => {
 			return { success: false, error: error.message };
 		}
 	});
-
-	// Confirm handler registration
-	log.info('overlay-state-update handler registered successfully');
 
 	// Test handler for debugging
 	ipcMain.handle('test-overlay-connection', async () => {
@@ -2942,6 +2699,8 @@ app.whenReady().then(async () => {
 	// Are You There window IPC handlers
 	ipcMain.handle('are-you-there-continue-meeting', async () => {
 		try {
+			log.info("✅ User clicked I'm here - continuing meeting");
+
 			// Reset the flag to allow next popup
 			isAreYouThereWindowShown = false;
 
@@ -3225,39 +2984,6 @@ app.whenReady().then(async () => {
 			log.error('Error saving current route:', error);
 			return { success: false, error: error.message };
 		}
-	});
-
-	// Register gallery IPC handlers from galleryUtils
-	ipcMain.handle('process-image-with-sharp', (event, data) => {
-		const helper = loadGalleryHelper();
-		if (!helper) {
-			return { success: false, error: 'Gallery helper not available' };
-		}
-		return safeProcessImageWithSharp(data, helper.processImageWithSharp);
-	});
-
-	ipcMain.handle('extract-image-metadata', (event, data) => {
-		const helper = loadGalleryHelper();
-		if (!helper) {
-			return { success: false, error: 'Gallery helper not available' };
-		}
-		return safeExtractImageMetadata(data, helper.extractImageMetadata);
-	});
-
-	ipcMain.handle('download-album-zip', (event, data) => {
-		const helper = loadGalleryHelper();
-		if (!helper) {
-			return { success: false, error: 'Gallery helper not available' };
-		}
-		return helper.downloadAlbumZip(event, data);
-	});
-
-	ipcMain.handle('create-zip-from-urls', (event, data) => {
-		const helper = loadGalleryHelper();
-		if (!helper) {
-			return { success: false, error: 'Gallery helper not available' };
-		}
-		return helper.createZipFromUrls(event, data);
 	});
 
 	// Clipboard IPC handlers
@@ -3591,78 +3317,6 @@ ipcMain.handle('update-overlay-dimensions', async (event, { width, height }) => 
 		return { success: false, error: error.message };
 	}
 });
-
-// Helper function to handle overlay window when it's ready
-function handleOverlayWindowReady(overlayWindow) {
-	// Show the overlay window first
-	windowHelper.showOverlayWindow();
-
-	// Focus the window to ensure it's visible
-	overlayWindow.focus();
-	overlayWindow.show();
-
-	// Wait for DOM to be ready before sending commands
-	overlayWindow.webContents.once('dom-ready', () => {
-		// Small delay to ensure React has mounted
-		setTimeout(() => {
-			// Send the startRecording command
-			overlayWindow.webContents.send('overlay-command', {
-				action: 'startRecording',
-			});
-		}, 500);
-	});
-
-	// Also listen for the window to finish loading
-	overlayWindow.webContents.once('did-finish-load', () => {
-		log.info('Overlay window finished loading');
-	});
-
-	// Additional safety check - if DOM ready doesn't fire within 3 seconds, try sending anyway
-	setTimeout(() => {
-		if (overlayWindow && !overlayWindow.isDestroyed()) {
-			log.info('Fallback: sending startRecording command after timeout');
-			overlayWindow.webContents.send('overlay-command', {
-				action: 'startRecording',
-			});
-		}
-	}, 3000);
-}
-
-function handleNotificationAction(action) {
-	pendingNotificationAction = action;
-
-	if (action === 'join-meet') {
-		if (!windowHelper) {
-			return;
-		}
-
-		// First, ensure overlay window exists and is created
-		let overlayWindow = windowHelper.getOverlayWindow();
-
-		if (!overlayWindow || overlayWindow.isDestroyed()) {
-			windowHelper.createOverlayWindow();
-
-			// Wait a moment for the window to be created
-			setTimeout(() => {
-				overlayWindow = windowHelper.getOverlayWindow();
-				if (overlayWindow && !overlayWindow.isDestroyed()) {
-					handleOverlayWindowReady(overlayWindow);
-				} else {
-					log.error('Failed to create overlay window');
-				}
-			}, 1000);
-		} else {
-			// Window exists, handle it directly
-			handleOverlayWindowReady(overlayWindow);
-		}
-
-		// Show and expand dynamic island
-		dynamicIslandHelper?.show();
-		dynamicIslandHelper?.expand();
-
-		pendingNotificationAction = null;
-	}
-}
 
 // Are You There timer functions
 function startAreYouThereTimer() {
