@@ -3,6 +3,9 @@ import { ReactComponent as VeAiLogo } from '../../../assets/svg/ve.svg';
 import s from './transcriptionTabs.module.scss';
 import { ReactComponent as WaveIcon } from './wave.svg';
 import { ReactComponent as AiSparkleIcon } from './aiSparkle.svg';
+import { ReactComponent as UserIcon } from '../../../assets/svg/transcription/userIcon.svg';
+import { ReactComponent as NeedHelpIcon } from '../../../assets/svg/transcription/neddhelp.svg';
+import { ReactComponent as ActionIcon } from '../../../assets/svg/transcription/action.svg';
 
 const TranscriptionTabs = ({
 	activeTab,
@@ -95,6 +98,7 @@ const TranscriptionTabs = ({
 						}
 						onClick={() => setActiveTab('userQuestions')}
 					>
+						<UserIcon />
 						Ask user
 						<div className={s.tabButtonCount}>{userQuestions?.length}</div>
 					</button>
@@ -109,6 +113,7 @@ const TranscriptionTabs = ({
 						}
 						onClick={() => setActiveTab('aiQuestions')}
 					>
+						<NeedHelpIcon />
 						Need help?
 						<div className={s.tabButtonCount}>{aiQuestions?.length}</div>
 					</button>
@@ -121,6 +126,7 @@ const TranscriptionTabs = ({
 						}
 						onClick={() => setActiveTab('actions')}
 					>
+						<ActionIcon />
 						Actions
 						<div className={s.tabButtonCount}>{actions?.length}</div>
 					</button>
