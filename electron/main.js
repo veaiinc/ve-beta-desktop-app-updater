@@ -17,11 +17,10 @@ const {
 const path = require('node:path');
 const log = require('electron-log');
 const { autoUpdater } = require('electron-updater');
-const { WindowHelper } = require('./helpers/windowHelper');
+const WindowHelper = require('./helpers/windowHelper');
+const DynamicIslandHelper = require('./helpers/dynamicIslandHelper');
 const fs = require('fs');
 const { exec } = require('child_process');
-// Import dynamic island helper
-// const { DynamicIslandHelper } = require('./dynamicIslandHelper');
 
 // Import Windows compatibility fixes
 const {
@@ -38,11 +37,13 @@ const {
 } = require('./galleryHelper');
 
 const meetingMonitor = require('./notificationHelper'); // Adjust path if needed
+
 // Import NotchDrop service
 const NotchDropService = require('./services/notchDropService');
 
 // Gallery processing functions will be loaded lazily when needed
 let galleryHelper = null;
+
 let mainWindow = null;
 let windowHelper = null;
 let dynamicIslandHelper = null;
@@ -57,28 +58,31 @@ let isContentProtectionEnabled = true; // Default to enabled for privacy
 
 const toggleContentProtection = () => {
 	isContentProtectionEnabled = !isContentProtectionEnabled;
-	
+
 	// Apply to all windows except main window - keep main window always visible
 	const allWindows = BrowserWindow.getAllWindows();
 	let protectedCount = 0;
-	
-	allWindows.forEach(window => {
+
+	allWindows.forEach((window) => {
 		if (!window.isDestroyed()) {
 			// Skip main window - keep it always visible
 			if (window === mainWindow) {
-				log.info(`🏠 Skipping main window - keeping it always visible`);
 				return;
 			}
-			
+
 			window.setContentProtection(isContentProtectionEnabled);
 			protectedCount++;
 		}
 	});
-	
+
 	const status = isContentProtectionEnabled ? 'ON' : 'OFF';
-	log.info(`🔒 Content protection: ${status} - Applied to ${protectedCount} windows (main window excluded)`);
-	console.log(`🔒 CONTENT PROTECTION: ${status} (${protectedCount} windows protected, main window always visible)`);
-	
+	log.info(
+		`🔒 Content protection: ${status} - Applied to ${protectedCount} windows (main window excluded)`,
+	);
+	console.log(
+		`🔒 CONTENT PROTECTION: ${status} (${protectedCount} windows protected, main window always visible)`,
+	);
+
 	return isContentProtectionEnabled;
 };
 
@@ -88,20 +92,23 @@ const getContentProtectionStatus = () => {
 
 const setContentProtection = (enabled) => {
 	isContentProtectionEnabled = enabled;
-	
-	BrowserWindow.getAllWindows().forEach(window => {
+
+	BrowserWindow.getAllWindows().forEach((window) => {
 		if (!window.isDestroyed()) {
 			// Skip main window - keep it always visible
 			if (window === mainWindow) {
-				log.info(`🏠 Skipping main window - keeping it always visible`);
 				return;
 			}
-			
+
 			window.setContentProtection(isContentProtectionEnabled);
 		}
 	});
-	
-	log.info(`🔒 Content protection set to: ${isContentProtectionEnabled ? 'ON' : 'OFF'} (main window excluded)`);
+
+	log.info(
+		`🔒 Content protection set to: ${
+			isContentProtectionEnabled ? 'ON' : 'OFF'
+		} (main window excluded)`,
+	);
 	return isContentProtectionEnabled;
 };
 
@@ -110,19 +117,16 @@ const applyContentProtectionToWindow = (window) => {
 	if (window && !window.isDestroyed()) {
 		// Skip main window - keep it always visible
 		if (window === mainWindow) {
-			log.info(`🏠 Skipping main window - keeping it always visible`);
 			return;
 		}
-		
+
 		window.setContentProtection(isContentProtectionEnabled);
-		log.info(`🔒 Applied content protection (${isContentProtectionEnabled ? 'ON' : 'OFF'}) to new window: ${window.getTitle()}`);
 	}
 };
 
 // Runtime platform override for testing (set VE_FORCE_PLATFORM=linux|win32|darwin)
 const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
 const isMacRuntime = RUNTIME_PLATFORM === 'darwin';
-const isWindowsRuntime = RUNTIME_PLATFORM === 'win32';
 
 const loadGalleryHelper = () => {
 	if (!galleryHelper) {
@@ -135,8 +139,6 @@ const loadGalleryHelper = () => {
 	}
 	return galleryHelper;
 };
-// Import dynamic island helper
-// const { DynamicIslandHelper } = require('./dynamicIslandHelper');
 
 // Window state management
 let lastWindowState = {
@@ -168,325 +170,6 @@ process.on('unhandledRejection', (reason, promise) => {
 	// Don't exit the process, just log the error
 });
 
-// Temporary inline DynamicIslandHelper class
-class DynamicIslandHelper {
-	constructor() {
-		this.dynamicIslandWindow = null;
-		this.isExpanded = false; // Start collapsed by default
-		this.isVisible = true;
-		this.screenWidth = 0;
-		this.screenHeight = 0;
-
-		// Default positions and sizes - start with collapsed pill size
-		this.collapsedSize = { width: 250, height: 18 };
-		this.expandedSize = { width: 875, height: 280, flexShrink: 0 };
-		this.position = { x: 0, y: 0 };
-
-		this.setupScreenDimensions();
-	}
-
-	setupScreenDimensions() {
-		const primaryDisplay = screen.getPrimaryDisplay();
-		const workArea = primaryDisplay.workAreaSize;
-		this.screenWidth = workArea.width;
-		this.screenHeight = workArea.height;
-
-		// Position at center top - use expanded size for positioning
-		this.position.x =
-			Math.floor(this.screenWidth / 2) - Math.floor(this.expandedSize.width / 2);
-
-		this.position.y = 0;
-	}
-
-	createDynamicIslandWindow() {
-		if (this.dynamicIslandWindow !== null) return;
-
-		// Skip window creation on macOS (runtime) - only create for Windows/Linux
-		if (isMacRuntime) {
-			log.info('🍎 Skipping Dynamic Island window creation on macOS');
-			return;
-		}
-
-		const windowSettings = {
-			width: this.expandedSize.width, // Start with expanded size (875x280)
-			height: this.expandedSize.height, // Start with expanded size (875x280)
-			x: this.position.x,
-			y: this.position.y, // Y=0 to stick to top of screen
-			webPreferences: {
-				nodeIntegration: false,
-				contextIsolation: true,
-				preload: path.join(__dirname, 'preload.js'),
-				devTools: true, // Enable dev tools in production too
-			},
-			show: true, // Show immediately when created
-			alwaysOnTop: true,
-			frame: false, // Frameless to blend with menu bar
-			transparent: true,
-			fullscreenable: false,
-			hasShadow: false,
-			backgroundColor: '#00000000',
-			focusable: true, // Make focusable by default for better Windows support
-			skipTaskbar: true,
-			visibleOnAllWorkspaces: true,
-			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
-			acceptFirstMouse: true,
-			disableAutoHideCursor: true,
-			resizable: false, // Disable resizing - fixed size
-			movable: true, // Enable movement for Dynamic Island
-			minimizable: false,
-			maximizable: false,
-			closable: false,
-		};
-
-		this.dynamicIslandWindow = new BrowserWindow(windowSettings);
-		
-		// Apply content protection to Dynamic Island window
-		applyContentProtectionToWindow(this.dynamicIslandWindow);
-
-		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
-		// Force the Dynamic Island React app mode so it renders the island UI
-		const query = '?mode=dynamic-island';
-		const dynamicIslandUrl =
-			process.env.NODE_ENV === 'development'
-				? `${devURL}/dynamic-island.html${query}`
-				: `file://${path.join(__dirname, '..', 'build', 'dynamic-island.html')}${query}`;
-
-		this.dynamicIslandWindow.loadURL(dynamicIslandUrl).catch((err) => {
-			log.error('Failed to load dynamic island URL:', err);
-		});
-
-		// Configure for non-macOS platforms
-		this.dynamicIslandWindow.setAlwaysOnTop(true, 'screen-saver');
-
-		// Set initial mouse event handling - start with mouse events ignored since it's collapsed
-		this.setMouseEventHandling(true);
-
-		// Show the window immediately
-		this.dynamicIslandWindow.show();
-		this.isVisible = true;
-		log.info('Dynamic Island window created and shown immediately');
-
-		// Listen for resize events from the renderer
-		this.dynamicIslandWindow.webContents.on('did-finish-load', () => {
-			log.info('Dynamic Island content loaded, setting up resize listener');
-			// Send initial state to React component - start collapsed
-			log.info('Sending initial state to React component: { expanded: false }');
-			this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: false });
-		});
-	}
-
-	expand() {
-		// On macOS (runtime), just track the state without window operations
-		if (isMacRuntime) {
-			this.isExpanded = true;
-			log.info('🍎 Dynamic Island expand state tracked (no window on macOS)');
-			return;
-		}
-
-		if (!this.dynamicIslandWindow || this.isExpanded) return;
-
-		this.isExpanded = true;
-
-		// Enable mouse events when expanded so user can interact with it
-		this.setMouseEventHandling(false);
-
-		// Make window focusable when expanded so input fields can receive focus
-		this.dynamicIslandWindow.setFocusable(true);
-
-		// Notify renderer - window size stays the same
-		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: true });
-	}
-
-	collapse() {
-		// On macOS (runtime), just track the state without window operations
-		if (isMacRuntime) {
-			this.isExpanded = false;
-			log.info('🍎 Dynamic Island collapse state tracked (no window on macOS)');
-			return;
-		}
-
-		if (!this.dynamicIslandWindow || !this.isExpanded) return;
-
-		this.isExpanded = false;
-
-		// Disable mouse events when collapsed so clicks pass through
-		this.setMouseEventHandling(true);
-
-		// Make window non-focusable when collapsed to prevent stealing focus
-		this.dynamicIslandWindow.setFocusable(false);
-
-		// Notify renderer - window size stays the same
-		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: false });
-	}
-
-	setMouseEventHandling(ignore) {
-		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
-
-		try {
-			if (isMacRuntime) {
-				// On macOS, use the forward option to allow clicks to pass through
-				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore, { forward: true });
-			} else if (isWindowsRuntime) {
-				// On Windows, when collapsed, allow clicks to pass through to overlay
-				// When expanded, capture all mouse events
-				if (ignore) {
-					// Collapsed state - allow clicks to pass through to overlay underneath
-					this.dynamicIslandWindow.setIgnoreMouseEvents(true, { forward: true });
-				} else {
-					// Expanded state - capture all mouse events
-					this.dynamicIslandWindow.setIgnoreMouseEvents(false);
-				}
-			} else {
-				// On other platforms, just ignore mouse events
-				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore);
-			}
-		} catch (error) {
-			log.error('Error setting mouse event handling:', error);
-		}
-	}
-
-	show() {
-		// On macOS (runtime), just track the state without window operations
-		if (isMacRuntime) {
-			this.isVisible = true;
-			log.info('🍎 Dynamic Island show state tracked (no window on macOS)');
-			return;
-		}
-
-		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
-			this.dynamicIslandWindow.show();
-			this.isVisible = true;
-			log.info('Dynamic Island shown');
-		}
-	}
-
-	hide() {
-		// On macOS (runtime), just track the state without window operations
-		if (isMacRuntime) {
-			this.isVisible = false;
-			log.info('🍎 Dynamic Island hide state tracked (no window on macOS)');
-			return;
-		}
-
-		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
-			this.dynamicIslandWindow.hide();
-			this.isVisible = false;
-		}
-	}
-
-	toggleVisibility() {
-		if (this.isVisible) {
-			this.hide();
-		} else {
-			this.show();
-		}
-	}
-
-	getDynamicIslandWindow() {
-		return this.dynamicIslandWindow;
-	}
-
-	isDynamicIslandVisible() {
-		return this.isVisible;
-	}
-
-	isDynamicIslandExpanded() {
-		return this.isExpanded;
-	}
-
-	// Method to reposition Dynamic Island based on platform
-	repositionForPlatform() {
-		// On macOS (runtime), just log that repositioning was called
-		if (isMacRuntime) {
-			log.info('🍎 Dynamic Island reposition called (no window on macOS)');
-			return;
-		}
-
-		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
-
-		// Recalculate position based on current platform - eliminate gap with menu bar
-		if (isWindowsRuntime) {
-			this.position.y = -5; // Slightly above screen edge on Windows
-		} else {
-			this.position.y = -8; // Slightly above screen edge on Linux to eliminate menu bar gap
-		}
-
-		// Update window position
-		this.dynamicIslandWindow.setPosition(this.position.x, this.position.y);
-	}
-
-	focus() {
-		// On macOS (runtime), just log that focus was called
-		if (isMacRuntime) {
-			log.info('🍎 Dynamic Island focus called (no window on macOS)');
-			return;
-		}
-
-		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
-			try {
-				// Focus the window and bring it to front
-				this.dynamicIslandWindow.focus();
-				this.dynamicIslandWindow.show();
-			} catch (error) {
-				log.error('Error focusing Dynamic Island window:', error);
-			}
-		}
-	}
-
-	showDynamicIsland() {
-		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
-			try {
-				this.dynamicIslandWindow.show();
-				this.isVisible = true;
-				log.info('Dynamic Island shown');
-			} catch (error) {
-				log.error('Error showing Dynamic Island:', error);
-			}
-		}
-	}
-
-	expandDynamicIsland() {
-		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
-			try {
-				// Set expanded size and position
-				this.dynamicIslandWindow.setSize(this.expandedSize.width, this.expandedSize.height);
-				this.dynamicIslandWindow.setPosition(this.position.x, this.position.y);
-				this.isExpanded = true;
-
-				// Enable mouse events when expanded so user can interact with it
-				this.setMouseEventHandling(false);
-
-				// Make window focusable when expanded so input fields can receive focus
-				this.dynamicIslandWindow.setFocusable(true);
-
-				// Send state change to the window
-				this.dynamicIslandWindow.webContents.send('dynamic-island-state', {
-					expanded: true,
-					visible: true,
-				});
-
-				log.info('Dynamic Island expanded');
-			} catch (error) {
-				log.error('Error expanding Dynamic Island:', error);
-			}
-		}
-	}
-
-	destroy() {
-		try {
-			if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
-				this.dynamicIslandWindow.destroy();
-				this.dynamicIslandWindow = null;
-			}
-
-			// Reset state
-			this.isExpanded = false;
-			this.isVisible = false;
-		} catch (error) {
-			log.error('Error destroying DynamicIslandHelper:', error);
-		}
-	}
-}
 let notchDropService = null;
 
 // Auto-updater setup
@@ -1209,7 +892,7 @@ function createWindow(restoreState = false) {
 
 	mainWindow.once('ready-to-show', () => {
 		mainWindow.show();
-		
+
 		// Apply content protection to main window
 		applyContentProtectionToWindow(mainWindow);
 		log.info('Window ready-to-show - content protection applied');
@@ -1279,14 +962,11 @@ function createTray() {
 			{
 				label: 'Show App',
 				click: () => {
-					log.info('🖥️ Show App clicked from tray menu');
 					if (mainWindow && !mainWindow.isDestroyed()) {
 						mainWindow.show();
 						mainWindow.focus();
-						log.info('Main window shown and focused from tray menu');
 					} else {
 						// Window doesn't exist, recreate it
-						log.info('Main window not available, recreating from tray menu');
 						createWindow(true); // Pass true to restore state
 					}
 				},
@@ -1304,19 +984,14 @@ function createTray() {
 
 		// Double-click tray icon to show app
 		tray.on('double-click', () => {
-			log.info('🖥️ Tray icon double-clicked - reopening main window');
 			if (mainWindow && !mainWindow.isDestroyed()) {
 				mainWindow.show();
 				mainWindow.focus();
-				log.info('Main window shown and focused from tray double-click');
 			} else {
 				// Window doesn't exist, recreate it
-				log.info('Main window not available, recreating from tray double-click');
 				createWindow(true); // Pass true to restore state
 			}
 		});
-
-		log.info('System tray created for Windows');
 	} catch (error) {
 		log.error('Error creating system tray:', error);
 	}
@@ -1343,13 +1018,9 @@ app.whenReady().then(async () => {
 			'clipboard-write', // Clipboard write permission
 		];
 
-		log.info('Permission requested:', permission);
-
 		if (allowedPermissions.includes(permission)) {
-			log.info('✅ Granted permission for:', permission);
 			callback(true);
 		} else {
-			log.info('❌ Denied permission for:', permission);
 			callback(false);
 		}
 	});
@@ -1380,59 +1051,26 @@ app.whenReady().then(async () => {
 		log.info('macOS Microphone permission status:', microphoneStatus);
 		log.info('macOS Camera permission status:', cameraStatus);
 
-		if (microphoneStatus === 'denied') {
-			log.warn(
-				'Microphone access denied. Users need to grant permission in System Preferences > Privacy & Security > Microphone.',
-			);
-		} else if (microphoneStatus === 'not-determined') {
-			log.info('Microphone permission not yet determined. Will prompt user on first access.');
-		} else if (microphoneStatus === 'granted') {
-			log.info('✅ Microphone permission already granted');
-		} else if (microphoneStatus === 'restricted') {
-			log.warn('Microphone access is restricted by system policy');
-		}
-	} else {
-		// Windows and Linux don't have the same permission system
-		log.info('Platform is not macOS - using default permission handling');
+		console.log('Microphone status:', microphoneStatus);
+		console.log('Camera status:', cameraStatus);
 	}
 
-	// ✅ ADD THE DEBUG SCREEN PERMISSION PROMPT HERE (macOS only)
+	// ✅ Request screen recording permission (macOS only)
 	if (process.platform === 'darwin') {
 		setTimeout(async () => {
 			try {
-				console.log('🔧 Forcing screen permission prompt...');
-				const granted = await systemPreferences.askForMediaAccess('screen');
-				console.log('🎯 Screen permission granted:', granted);
+				const granted = await systemPreferences.askForMediaAccess('screen-recording');
 			} catch (error) {
-				console.log('⚠️ Screen permission request failed:', error.message);
+				log.error('Error requesting screen recording permission:', error);
 				// This is expected in some cases, not a critical error
 			}
 		}, 2000);
 
 		// Also request camera permission
 		setTimeout(async () => {
-			console.log('📹 Requesting camera permission...');
 			const cameraGranted = await systemPreferences.askForMediaAccess('camera');
-			console.log('📹 Camera permission granted:', cameraGranted);
+			log.info('Camera permission result:', cameraGranted);
 		}, 3000);
-
-		// Log initial camera permission status
-		setTimeout(async () => {
-			const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
-			console.log('📹 Initial camera permission status:', cameraStatus);
-
-			if (cameraStatus === 'denied') {
-				console.log(
-					'⚠️ Camera access denied. User needs to enable it in System Preferences > Security & Privacy > Privacy > Camera',
-				);
-			} else if (cameraStatus === 'restricted') {
-				console.log('🚫 Camera access restricted by system policy');
-			} else if (cameraStatus === 'granted') {
-				console.log('✅ Camera access already granted');
-			} else {
-				console.log('❓ Camera permission not yet determined');
-			}
-		}, 4000);
 	}
 
 	meetingMonitor.setNotificationHandler(showNotification);
@@ -1440,8 +1078,6 @@ app.whenReady().then(async () => {
 
 	// 🎤 IPC: Start Mic Monitoring
 
-	// IMMEDIATE: Create Dynamic Island FIRST for instant display
-	log.info('🚀 Creating Dynamic Island FIRST for instant display...');
 	dynamicIslandHelper = new DynamicIslandHelper();
 	dynamicIslandHelper.createDynamicIslandWindow();
 
@@ -1452,47 +1088,32 @@ app.whenReady().then(async () => {
 	ipcMain.handle('extract-image-metadata', extractImageMetadata);
 	ipcMain.handle('download-album-zip', downloadAlbumZip);
 	ipcMain.handle('create-zip-from-urls', createZipFromUrls);
+
 	createTray(); // Create system tray for Windows
 	createMenuBar();
 
-	// CRITICAL FIX: Enhanced initialization sequence to prevent race conditions
-	log.info('🚀 Starting enhanced service initialization sequence...');
-
-	// Phase 1: Initialize WindowHelper first (required for overlay operations)
-	log.info('📋 Phase 1: Initializing WindowHelper...');
 	windowHelper = new WindowHelper(applyContentProtectionToWindow);
 	windowHelper.registerGlobalShortcuts(mainWindow);
-
-	// Connect WindowHelper and DynamicIslandHelper for simple drag optimization
-	log.info('🔗 Connecting WindowHelper and DynamicIslandHelper for drag optimization...');
 	windowHelper.setDynamicIslandHelper(dynamicIslandHelper);
-
-	// Phase 1.2: CRITICAL FIX: Register all IPC handlers before window creation
-	log.info('📋 Phase 1.2: Registering IPC handlers before window creation...');
 
 	// Simple Content Protection IPC handlers
 	ipcMain.handle('toggle-content-protection', () => {
 		const newStatus = toggleContentProtection();
 		const statusText = newStatus ? 'ON' : 'OFF';
 		const windowCount = BrowserWindow.getAllWindows().length;
-		
-		// Show system notification with clear status
+
 		showNotification(
 			`Content Protection: ${statusText}`,
-			newStatus 
+			newStatus
 				? `🔒 INVISIBILITY ON - ${windowCount} windows are now protected from screen recording`
-				: `👁️ INVISIBILITY OFF - ${windowCount} windows are now visible in screen recording`
+				: `👁️ INVISIBILITY OFF - ${windowCount} windows are now visible in screen recording`,
 		);
-		
-		// Also log to console for debugging
-		console.log(`🎯 TOGGLE TRIGGERED: Content Protection is now ${statusText}`);
-		
+
 		return newStatus;
 	});
 
 	ipcMain.handle('get-content-protection-status', () => {
 		const status = getContentProtectionStatus();
-		console.log(`📋 Current content protection status: ${status ? 'ON' : 'OFF'}`);
 		return status;
 	});
 
@@ -1500,15 +1121,9 @@ app.whenReady().then(async () => {
 		return setContentProtection(enabled);
 	});
 
-
-	// Register Ask AI window IPC handlers
 	ipcMain.handle('toggle-askAI-window', async () => {
 		try {
-			if (!windowHelper) {
-				return { success: false, error: 'Window helper not initialized' };
-			}
-			windowHelper.toggleAskAIWindow();
-			return { success: true };
+			windowHelper?.toggleAskAIWindow();
 		} catch (error) {
 			log.error('Error toggling Ask AI window:', error);
 			return { success: false, error: error.message };
@@ -1517,10 +1132,8 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('show-askAI-window', async () => {
 		try {
-			if (!windowHelper) {
-				return { success: false, error: 'Window helper not initialized' };
-			}
-			windowHelper.showAskAIWindow();
+			windowHelper?.showAskAIWindow();
+
 			return { success: true };
 		} catch (error) {
 			log.error('Error showing Ask AI window:', error);
@@ -1530,10 +1143,7 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('is-askAI-window-visible', async () => {
 		try {
-			if (!windowHelper) {
-				return { success: false, error: 'Window helper not initialized' };
-			}
-			const isVisible = windowHelper.isAskAIWindowVisible();
+			const isVisible = windowHelper?.isAskAIWindowVisible();
 			return { success: true, isVisible };
 		} catch (error) {
 			log.error('Error checking Ask AI window visibility:', error);
@@ -1543,10 +1153,7 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('update-askAI-dimensions', async (event, { width, height }) => {
 		try {
-			if (!windowHelper) {
-				return { success: false, error: 'Window helper not initialized' };
-			}
-			windowHelper.updateAskAIWindowDimensions(width, height);
+			windowHelper?.updateAskAIWindowDimensions(width, height);
 			return { success: true };
 		} catch (error) {
 			log.error('Error updating Ask AI dimensions:', error);
@@ -1556,10 +1163,7 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('set-askAI-ignore-mouse-events', async (event, ignore) => {
 		try {
-			if (!windowHelper) {
-				return { success: false, error: 'Window helper not initialized' };
-			}
-			const askAIWindow = windowHelper.getAskAIWindow();
+			const askAIWindow = windowHelper?.getAskAIWindow();
 			if (askAIWindow && !askAIWindow.isDestroyed()) {
 				askAIWindow.setIgnoreMouseEvents(ignore);
 			}
@@ -1586,22 +1190,17 @@ app.whenReady().then(async () => {
 	ipcMain.handle('get-askAI-input-focus', async () => {
 		try {
 			const focusState = global.askAIInputFocused || false;
-			log.info(`🔍 Getting ask AI input focus state: ${focusState}`);
 			return { success: true, isFocused: focusState };
 		} catch (error) {
 			log.error('Error getting ask AI input focus state:', error);
 			return { success: false, error: error.message };
 		}
 	});
-	log.info('✅ Registered get-askAI-input-focus IPC handler');
 
 	// Handler to hide all windows (overlay and ask AI)
 	ipcMain.handle('hide-all-windows', async () => {
 		try {
-			if (!windowHelper) {
-				return { success: false, error: 'Window helper not initialized' };
-			}
-			windowHelper.hideAllWindows();
+			windowHelper?.hideAllWindows();
 			return { success: true };
 		} catch (error) {
 			log.error('Error hiding all windows:', error);
@@ -1609,24 +1208,13 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	log.info('✅ Ask AI IPC handlers registered before window creation');
-
-	// Phase 1.5: CRITICAL FIX: Pre-create overlay window for immediate response
-	log.info('📋 Phase 1.5: Pre-creating overlay window for instant Swift UI response...');
 	try {
-		if (windowHelper && typeof windowHelper.preCreateOverlayWindow === 'function') {
-			await windowHelper.preCreateOverlayWindow();
-			log.info('✅ Overlay window pre-created successfully for immediate response');
-		} else {
-			log.warn('⚠️ WindowHelper pre-creation method not available, will create on-demand');
-		}
+		await windowHelper?.preCreateOverlayWindow?.();
 	} catch (error) {
 		log.error('❌ Error pre-creating overlay window:', error);
 	}
 
-	// Phase 3: Initialize NotchDrop service with proper readiness waiting (macOS only)
 	if (isMacRuntime) {
-		log.info('📋 Phase 3: Initializing NotchDrop service with bridge readiness...');
 		notchDropService = new NotchDropService();
 		notchDropService.setMainWindow(mainWindow);
 
@@ -1642,16 +1230,11 @@ app.whenReady().then(async () => {
 				// Verify service is truly ready
 				if (notchDropService && notchDropService.isInitialized) {
 					notchDropInitialized = true;
-					log.info('✅ NotchDrop service initialization verified');
 				} else {
 					throw new Error('NotchDrop service initialization incomplete');
 				}
 			} catch (error) {
 				initRetries++;
-				log.warn(
-					`⚠️ NotchDrop init attempt ${initRetries}/${maxInitRetries} failed:`,
-					error.message,
-				);
 
 				if (initRetries < maxInitRetries) {
 					await new Promise((resolve) => setTimeout(resolve, 1000 * initRetries)); // Exponential backoff
@@ -1662,18 +1245,12 @@ app.whenReady().then(async () => {
 				}
 			}
 		}
-	} else {
-		log.info('🖥️ Not macOS — skipping NotchDrop service initialization');
 	}
 
-	// Phase 4: Wait for bridge components to be ready
-	log.info('📋 Phase 4: Waiting for bridge components to be ready...');
 	await new Promise((resolve) => setTimeout(resolve, 1500)); // Give bridge time to initialize
 
 	// Phase 5: Validate system readiness
 	setTimeout(() => {
-		log.info('📋 Phase 5: Testing system readiness...');
-
 		// Test NotchDrop service readiness
 		if (notchDropService && notchDropService.isInitialized) {
 			try {
@@ -1683,11 +1260,6 @@ app.whenReady().then(async () => {
 				log.warn('⚠️ NotchDrop service status check failed:', error.message);
 			}
 		}
-
-		// Signal that all services are ready
-		log.info(
-			'🎉 All services initialization completed - system ready for Swift UI interactions',
-		);
 
 		// Emit readiness signal for any listening components
 		if (mainWindow && !mainWindow.isDestroyed()) {
@@ -1705,7 +1277,6 @@ app.whenReady().then(async () => {
 	// CRITICAL FIX: Enhanced Swift UI overlay recording requests with immediate response
 	process.on('swift-ui-trigger-overlay-recording', async () => {
 		try {
-			log.info('🎤 Received Swift UI overlay recording request');
 			await handleSwiftOverlayRequest('startRecording');
 		} catch (error) {
 			log.error('❌ Error handling Swift UI overlay recording request:', error);
@@ -1715,7 +1286,6 @@ app.whenReady().then(async () => {
 	// CRITICAL FIX: Immediate overlay recording request handler
 	process.on('swift-ui-trigger-overlay-recording-immediate', async () => {
 		try {
-			log.info('⚡ IMMEDIATE: Received Swift UI overlay recording request');
 			await handleSwiftOverlayRequestImmediate('startRecording');
 		} catch (error) {
 			log.error('❌ Error handling immediate Swift UI overlay recording request:', error);
@@ -1725,7 +1295,6 @@ app.whenReady().then(async () => {
 	// CRITICAL FIX: Immediate live intelligence request handler
 	process.on('swift-ui-trigger-overlay-live-intelligence-immediate', async () => {
 		try {
-			log.info('⚡ IMMEDIATE: Received Swift UI live intelligence request');
 			await handleSwiftOverlayRequestImmediate('toggleLiveIntelligence');
 		} catch (error) {
 			log.error('❌ Error handling immediate Swift UI live intelligence request:', error);
@@ -1735,10 +1304,8 @@ app.whenReady().then(async () => {
 	// CRITICAL FIX: Pre-create overlay window signal handler
 	process.on('pre-create-overlay-window', async () => {
 		try {
-			log.info('🔧 Received pre-create overlay window signal');
 			if (windowHelper && typeof windowHelper.preCreateOverlayWindow === 'function') {
 				await windowHelper.preCreateOverlayWindow();
-				log.info('✅ Overlay window pre-created via process signal');
 			} else {
 				log.warn('⚠️ WindowHelper not available for overlay pre-creation');
 			}
@@ -1767,13 +1334,12 @@ app.whenReady().then(async () => {
 
 	process.on('swift-ui-submit-chat', async (chatMessage) => {
 		try {
-			log.info('💬 Received Swift UI chat for AskAI:', chatMessage);
 			if (!windowHelper) {
 				log.error('windowHelper not available for AskAI forwarding');
 				return;
 			}
 
-			let askAIWindow = windowHelper.getAskAIWindow();
+			let askAIWindow = windowHelper?.getAskAIWindow();
 			if (!askAIWindow || askAIWindow.isDestroyed()) {
 				windowHelper.createAskAIWindow();
 				// Wait for the window to load fully
@@ -1798,13 +1364,11 @@ app.whenReady().then(async () => {
 					try {
 						if (askAIWindow && !askAIWindow.isDestroyed()) {
 							askAIWindow.webContents.send('receive-chat-message', chatMessage);
-							log.info('🔁 Re-forwarded Swift UI chat to AskAI (safety resend)');
 						}
 					} catch (e) {
 						log.warn('⚠️ Safety resend failed:', e);
 					}
 				}, 400);
-				log.info('✅ Forwarded Swift UI chat to AskAI');
 			} else {
 				log.error('❌ AskAI window unavailable after creation');
 			}
@@ -1833,7 +1397,6 @@ app.whenReady().then(async () => {
 			overlayWindow.webContents.send('overlay-command', {
 				action: action,
 			});
-			log.info(`✅ Sent ${action} command to overlay window from Swift UI`);
 		} else {
 			log.error(`❌ Overlay window not available after creating for ${action}`);
 		}
@@ -1841,8 +1404,6 @@ app.whenReady().then(async () => {
 
 	// CRITICAL FIX: Immediate handler for Swift overlay requests (no waiting)
 	async function handleSwiftOverlayRequestImmediate(action) {
-		log.info(`⚡ IMMEDIATE: Handling Swift ${action} request with zero delay`);
-
 		// Try to use pre-created overlay first
 		let overlayWindow = windowHelper?.getOverlayWindow();
 
@@ -1878,7 +1439,6 @@ app.whenReady().then(async () => {
 				immediate: true,
 			});
 
-			log.info(`⚡ IMMEDIATE: Sent ${action} command to overlay window - NO DELAY`);
 			return { success: true };
 		} else {
 			log.error(`❌ IMMEDIATE: Failed to get overlay window for Swift ${action} request`);
@@ -1897,7 +1457,6 @@ app.whenReady().then(async () => {
 				// Window exists, just show and focus it
 				mainWindow.show();
 				mainWindow.focus();
-				log.info('Main window shown and focused from dock click');
 			} else {
 				// Window doesn't exist, recreate it
 				log.info('Main window not available, recreating from dock click');
@@ -1908,7 +1467,6 @@ app.whenReady().then(async () => {
 
 	// Register global shortcut for dynamic island (Cmd+I)
 	globalShortcut.register('CommandOrControl+I', () => {
-		log.info('Cmd+I pressed - toggling dynamic island');
 		if (dynamicIslandHelper) {
 			dynamicIslandHelper.toggleVisibility();
 		}
@@ -1935,12 +1493,7 @@ app.whenReady().then(async () => {
 			// 	detail: 'Please go to System Preferences > Security & Privacy > Privacy > Accessibility and add this app to the allowed applications list.',
 			// 	buttons: ['OK'],
 			// });
-		} else {
-			log.info('✅ Accessibility permissions granted - global shortcuts should work');
 		}
-	} else {
-		// Windows and Linux global shortcut handling
-		log.info('Platform is not macOS - global shortcuts should work by default');
 	}
 
 	// Register dynamic island IPC handlers
@@ -1960,14 +1513,11 @@ app.whenReady().then(async () => {
 	// Send chat message from Dynamic Island to Ask AI handler
 	ipcMain.handle('send-chat-message-to-askai', async (event, chatMessage) => {
 		try {
-			log.info('Sending chat message from Dynamic Island to Ask AI:', chatMessage);
-
 			// Get the Ask AI window through windowHelper
 			let askAIWindow = windowHelper.getAskAIWindow();
 
 			// If Ask AI window doesn't exist or is destroyed, create it
 			if (!askAIWindow || askAIWindow.isDestroyed()) {
-				log.info('Ask AI window not available, creating new window...');
 				windowHelper.createAskAIWindow();
 
 				// Wait for window to be created and ready
@@ -1980,7 +1530,6 @@ app.whenReady().then(async () => {
 			// Ensure window is visible
 			if (askAIWindow && !askAIWindow.isDestroyed()) {
 				if (!askAIWindow.isVisible()) {
-					log.info('Ask AI window exists but not visible, showing it...');
 					windowHelper.showAskAIWindow();
 					// Wait a bit for the window to be fully visible
 					await new Promise((resolve) => setTimeout(resolve, 500));
@@ -1988,7 +1537,6 @@ app.whenReady().then(async () => {
 
 				// Send the chat message to Ask AI window
 				askAIWindow.webContents.send('receive-chat-message', chatMessage);
-				log.info('Chat message sent to Ask AI window successfully');
 				return { success: true };
 			} else {
 				log.error('Ask AI window not available after creation attempts');
@@ -2010,11 +1558,9 @@ app.whenReady().then(async () => {
 			if (mainWindow && !mainWindow.isDestroyed()) {
 				mainWindow.show();
 				mainWindow.focus();
-				log.info('Main window restored from home icon click');
 				return { success: true };
 			} else {
 				// Main window doesn't exist or is destroyed, recreate it
-				log.info('Main window not available, recreating it...');
 
 				// Recreate the main window with state restoration
 				createWindow(true);
@@ -2025,9 +1571,6 @@ app.whenReady().then(async () => {
 						mainWindow.once('ready-to-show', () => {
 							mainWindow.show();
 							mainWindow.focus();
-							log.info(
-								'Main window recreated and shown successfully with state restoration',
-							);
 							resolve();
 						});
 					} else {
@@ -2094,8 +1637,6 @@ app.whenReady().then(async () => {
 			if (process.platform === 'darwin') {
 				const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
 
-				log.info('Checking camera permission status:', cameraStatus);
-
 				return {
 					success: true,
 					permission: cameraStatus,
@@ -2156,12 +1697,6 @@ app.whenReady().then(async () => {
 						}
 					}, 100);
 				}
-
-				log.info(
-					`Dynamic Island chat mode ${
-						isChatMode ? 'enabled' : 'disabled'
-					}, focusable: ${isChatMode}, platform: ${process.platform}`,
-				);
 			}
 
 			return { success: true };
@@ -2190,15 +1725,12 @@ app.whenReady().then(async () => {
 			if (process.platform === 'darwin') {
 				// First check current permission status
 				const currentStatus = systemPreferences.getMediaAccessStatus('camera');
-				log.info('Current camera permission status:', currentStatus);
 
 				if (currentStatus === 'granted') {
-					log.info('Camera permission already granted');
 					return { success: true, granted: true, status: currentStatus };
 				}
 
 				if (currentStatus === 'denied') {
-					log.warn('Camera permission denied by user');
 					return {
 						success: false,
 						granted: false,
@@ -2208,9 +1740,7 @@ app.whenReady().then(async () => {
 				}
 
 				// Request permission if not determined
-				log.info('Requesting camera permission...');
 				const cameraGranted = await systemPreferences.askForMediaAccess('camera');
-				log.info('Camera permission request result:', cameraGranted);
 
 				return {
 					success: true,
@@ -2222,7 +1752,6 @@ app.whenReady().then(async () => {
 				};
 			} else {
 				// On other platforms, assume permission is available
-				log.info('Non-macOS platform - camera permission assumed available');
 				return { success: true, granted: true, status: 'granted' };
 			}
 		} catch (error) {
@@ -2434,14 +1963,8 @@ app.whenReady().then(async () => {
 				return { success: false, error: error.message };
 			}
 		});
-		log.info('✅ Registered swift:action IPC handler in main.js');
 	} catch (error) {
-		if (error.message.includes('second handler')) {
-			log.warn('⚠️ swift:action handler already registered, skipping...');
-		} else {
-			log.error('Error registering swift:action handler:', error);
-			throw error;
-		}
+		console.error(error);
 	}
 
 	// Enhanced overlay integration handlers for Swift UI
@@ -2449,14 +1972,8 @@ app.whenReady().then(async () => {
 	const safeRegisterSwiftHandler = (channel, handler) => {
 		try {
 			ipcMain.handle(channel, handler);
-			log.info(`✅ Registered ${channel} IPC handler`);
 		} catch (error) {
-			if (error.message.includes('second handler')) {
-				log.warn(`⚠️ ${channel} handler already registered, skipping...`);
-			} else {
-				log.error(`Error registering ${channel} handler:`, error);
-				throw error;
-			}
+			log.error(`Error registering ${channel} handler:`, error);
 		}
 	};
 
@@ -2651,7 +2168,6 @@ app.whenReady().then(async () => {
 		}
 	});
 
-
 	// CRITICAL FIX: Enhanced NotchDrop overlay integration handlers with immediate response
 	ipcMain.handle('notchdrop:triggerOverlayRecording', async () => {
 		try {
@@ -2819,7 +2335,6 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop:triggerOverlayResumeRecording', async () => {
 		try {
-			log.info('▶️ NotchDrop requested overlay resume recording');
 			const overlayWindow = windowHelper?.getOverlayWindow();
 			if (overlayWindow) {
 				overlayWindow.webContents.send('overlay-command', {
@@ -2869,9 +2384,6 @@ app.whenReady().then(async () => {
 			return { success: false, error: error.message };
 		}
 	});
-
-	// Dynamic Island to Overlay communication handlers
-	log.info('=== Dynamic Island to Overlay Communication ===');
 
 	ipcMain.handle('overlay-start-recording', async () => {
 		try {
@@ -3042,11 +2554,19 @@ app.whenReady().then(async () => {
 	// Handle state updates from overlay to Dynamic Island
 	ipcMain.handle('overlay-state-update', async (event, state) => {
 		try {
+			log.debug('Received overlay state update:', state);
+
+			// Validate state parameter
+			if (!state || typeof state !== 'object') {
+				log.warn('Invalid state parameter received:', state);
+				return { success: false, error: 'Invalid state parameter' };
+			}
+
 			const dynamicIslandWindow = dynamicIslandHelper?.dynamicIslandWindow;
-			if (dynamicIslandWindow) {
+			if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
 				// Forward state to Dynamic Island window
 				dynamicIslandWindow.webContents.send('overlay-state-changed', state);
-				log.info('Forwarded state to Dynamic Island:', state);
+				log.debug('State forwarded to Dynamic Island window');
 			} else {
 				log.warn('Dynamic Island window not available for state update');
 			}
@@ -3056,13 +2576,11 @@ app.whenReady().then(async () => {
 				if (state.isRecording) {
 					// Recording started - start the timer
 					if (!isRecordingActive) {
-						log.info('Recording started - starting Are You There timer');
 						startAreYouThereTimer();
 					}
 				} else {
 					// Recording stopped - stop the timer and hide window
 					if (isRecordingActive) {
-						log.info('Recording stopped - stopping Are You There timer');
 						stopAreYouThereTimer();
 						if (windowHelper) {
 							windowHelper.hideAreYouThereWindow();
@@ -3081,15 +2599,10 @@ app.whenReady().then(async () => {
 	// Test handler for debugging
 	ipcMain.handle('test-overlay-connection', async () => {
 		try {
-			log.info('🧪 Testing overlay connection...');
 			const overlayWindow = windowHelper?.getOverlayWindow();
 			if (overlayWindow) {
-				log.info('✅ Overlay window exists');
-				log.info('Overlay window visible:', overlayWindow.isVisible());
-				log.info('Overlay window destroyed:', overlayWindow.isDestroyed());
 				return { success: true, exists: true, visible: overlayWindow.isVisible() };
 			} else {
-				log.info('❌ Overlay window does not exist');
 				return { success: true, exists: false, visible: false };
 			}
 		} catch (error) {
@@ -3101,14 +2614,11 @@ app.whenReady().then(async () => {
 	// Test handler for sending commands directly
 	ipcMain.handle('test-overlay-command', async (event, command) => {
 		try {
-			log.info('🧪 Testing overlay command:', command);
 			const overlayWindow = windowHelper?.getOverlayWindow();
 			if (overlayWindow && !overlayWindow.isDestroyed()) {
 				overlayWindow.webContents.send('overlay-command', command);
-				log.info('✅ Test command sent to overlay window');
 				return { success: true, commandSent: true };
 			} else {
-				log.info('❌ Overlay window not available for test command');
 				return {
 					success: false,
 					commandSent: false,
@@ -3124,15 +2634,12 @@ app.whenReady().then(async () => {
 	// Test handler for creating and showing overlay window
 	ipcMain.handle('test-overlay-window', async () => {
 		try {
-			log.info('🧪 Testing overlay window creation...');
-
 			if (!windowHelper) {
 				return { success: false, error: 'Window helper not initialized' };
 			}
 
 			// Create overlay window
 			windowHelper.createOverlayWindow();
-			log.info('✅ Overlay window creation initiated');
 
 			// Wait a moment for the window to be created
 			await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -3140,10 +2647,6 @@ app.whenReady().then(async () => {
 			// Get the window reference
 			const overlayWindow = windowHelper.getOverlayWindow();
 			if (overlayWindow && !overlayWindow.isDestroyed()) {
-				log.info('✅ Overlay window created successfully');
-				log.info('Window visible:', overlayWindow.isVisible());
-				log.info('Window destroyed:', overlayWindow.isDestroyed());
-
 				// Show the window
 				windowHelper.showOverlayWindow();
 				overlayWindow.focus();
@@ -3155,7 +2658,6 @@ app.whenReady().then(async () => {
 					destroyed: overlayWindow.isDestroyed(),
 				};
 			} else {
-				log.info('❌ Overlay window not available after creation');
 				return { success: false, error: 'Overlay window not available after creation' };
 			}
 		} catch (error) {
@@ -3178,24 +2680,6 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	// CRITICAL FIX: Add missing update-overlay-dimensions handler
-	ipcMain.handle('update-overlay-dimensions', async (event, { width, height }) => {
-		try {
-			if (!windowHelper) {
-				log.error('❌ WindowHelper not initialized for overlay dimensions update');
-				return { success: false, error: 'Window helper not initialized' };
-			}
-
-			log.info(`🔧 Updating overlay dimensions to: ${width}x${height}`);
-			windowHelper.updateWindowDimensions(width, height);
-
-			return { success: true };
-		} catch (error) {
-			log.error('❌ Error updating overlay dimensions:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
 	ipcMain.handle('set-ignore-mouse-events', async (event, ignore) => {
 		try {
 			if (!windowHelper) {
@@ -3208,61 +2692,6 @@ app.whenReady().then(async () => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error setting ignore mouse events:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('set-askAI-ignore-mouse-events', async (event, ignore) => {
-		try {
-			if (!windowHelper) {
-				return { success: false, error: 'Window helper not initialized' };
-			}
-			const askAIWindow = windowHelper.getAskAIWindow();
-			if (askAIWindow && !askAIWindow.isDestroyed()) {
-				askAIWindow.setIgnoreMouseEvents(ignore);
-			}
-			return { success: true };
-		} catch (error) {
-			log.error('Error setting Ask AI ignore mouse events:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	// New handler to track ask AI input focus state
-	ipcMain.handle('set-askAI-input-focus', async (event, isFocused) => {
-		try {
-			// Store the focus state globally so overlay can access it
-			global.askAIInputFocused = isFocused;
-			return { success: true };
-		} catch (error) {
-			log.error('Error setting ask AI input focus state:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	// Handler to get ask AI input focus state
-	ipcMain.handle('get-askAI-input-focus', async () => {
-		try {
-			const focusState = global.askAIInputFocused || false;
-
-			return { success: true, isFocused: focusState };
-		} catch (error) {
-			log.error('Error getting ask AI input focus state:', error);
-			return { success: false, error: error.message };
-		}
-	});
-	log.info('✅ Registered get-askAI-input-focus IPC handler');
-
-	// New handler to hide all windows (overlay and ask AI)
-	ipcMain.handle('hide-all-windows', async () => {
-		try {
-			if (!windowHelper) {
-				return { success: false, error: 'Window helper not initialized' };
-			}
-			windowHelper.hideAllWindows();
-			return { success: true };
-		} catch (error) {
-			log.error('Error hiding all windows:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -3288,7 +2717,6 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('are-you-there-auto-continue-meeting', async () => {
 		try {
-			log.info('⏰ Auto-continuing meeting after timeout');
 			// Close the Are You There window
 			if (windowHelper) {
 				windowHelper.hideAreYouThereWindow();
@@ -3332,8 +2760,6 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('are-you-there-stop-meeting', async () => {
 		try {
-			log.info('🛑 Stopping meeting due to no user response');
-
 			// Reset the flag
 			isAreYouThereWindowShown = false;
 
@@ -3363,8 +2789,6 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('are-you-there-pause-meeting-intelligence', async () => {
 		try {
-			log.info('⏸️ User clicked Pause Meeting Intelligence');
-
 			// Pause the recording by sending pause command to overlay
 			const overlayWindow = windowHelper?.getOverlayWindow();
 			if (overlayWindow) {
@@ -3388,8 +2812,6 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('are-you-there-end-session', async () => {
 		try {
-			log.info('🔚 User clicked End Session');
-
 			// Reset the flag
 			isAreYouThereWindowShown = false;
 
@@ -3430,8 +2852,6 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('are-you-there-continue-transcription', async () => {
 		try {
-			log.info("✅ User clicked I'm here - restarting transcription monitoring");
-
 			// Reset the flag to allow next popup
 			isTranscriptionBasedAreYouThereShown = false;
 
@@ -3451,8 +2871,6 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('are-you-there-stop-transcription-monitoring', async () => {
 		try {
-			log.info('🛑 Stopping transcription monitoring due to no user response');
-
 			// Reset the flag
 			isTranscriptionBasedAreYouThereShown = false;
 
@@ -3482,8 +2900,6 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('are-you-there-pause-transcription-monitoring', async () => {
 		try {
-			log.info('⏸️ User clicked Pause Transcription Monitoring');
-
 			// Pause the recording by sending pause command to overlay
 			const overlayWindow = windowHelper?.getOverlayWindow();
 			if (overlayWindow) {
@@ -3507,8 +2923,6 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('are-you-there-end-transcription-session', async () => {
 		try {
-			log.info('🔚 User clicked End Transcription Session');
-
 			// Reset the flag
 			isTranscriptionBasedAreYouThereShown = false;
 
@@ -3570,39 +2984,6 @@ app.whenReady().then(async () => {
 			log.error('Error saving current route:', error);
 			return { success: false, error: error.message };
 		}
-	});
-
-	// Register gallery IPC handlers from galleryUtils
-	ipcMain.handle('process-image-with-sharp', (event, data) => {
-		const helper = loadGalleryHelper();
-		if (!helper) {
-			return { success: false, error: 'Gallery helper not available' };
-		}
-		return safeProcessImageWithSharp(data, helper.processImageWithSharp);
-	});
-
-	ipcMain.handle('extract-image-metadata', (event, data) => {
-		const helper = loadGalleryHelper();
-		if (!helper) {
-			return { success: false, error: 'Gallery helper not available' };
-		}
-		return safeExtractImageMetadata(data, helper.extractImageMetadata);
-	});
-
-	ipcMain.handle('download-album-zip', (event, data) => {
-		const helper = loadGalleryHelper();
-		if (!helper) {
-			return { success: false, error: 'Gallery helper not available' };
-		}
-		return helper.downloadAlbumZip(event, data);
-	});
-
-	ipcMain.handle('create-zip-from-urls', (event, data) => {
-		const helper = loadGalleryHelper();
-		if (!helper) {
-			return { success: false, error: 'Gallery helper not available' };
-		}
-		return helper.createZipFromUrls(event, data);
 	});
 
 	// Clipboard IPC handlers
@@ -3670,8 +3051,6 @@ app.whenReady().then(async () => {
 			if (process.platform === 'darwin') {
 				const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
 
-				log.info('Checking microphone permission from renderer:', microphoneStatus);
-
 				return {
 					success: true,
 					permission: microphoneStatus,
@@ -3737,8 +3116,6 @@ app.whenReady().then(async () => {
 				// Request microphone access (this will show the system dialog)
 				const granted = await systemPreferences.askForMediaAccess('microphone');
 
-				log.info('Microphone permission request result:', granted);
-
 				return {
 					success: true,
 					granted: granted,
@@ -3763,8 +3140,6 @@ app.whenReady().then(async () => {
 	// Send tab content to Ask AI handler
 	ipcMain.handle('send-tab-content-to-askai', async (event, tabContent) => {
 		try {
-			log.info('Sending tab content to Ask AI:', tabContent);
-
 			// Get the Ask AI window through windowHelper
 			const askAIWindow = windowHelper.getAskAIWindow();
 
@@ -3900,8 +3275,6 @@ app.whenReady().then(async () => {
 
 // Handle app quit properly
 app.on('before-quit', (event) => {
-	log.info('🔄 App quit requested - cleaning up...');
-
 	// Prevent default quit behavior to allow cleanup
 	event.preventDefault();
 
@@ -3911,8 +3284,6 @@ app.on('before-quit', (event) => {
 
 // Handle macOS dock quit
 app.on('quit', (event, exitCode) => {
-	log.info('🔄 App quit event triggered with exit code:', exitCode);
-
 	// Ensure cleanup happens even if before-quit didn't trigger
 	if (dynamicIslandHelper || windowHelper) {
 		log.info('🔄 Force cleanup on quit event...');
@@ -3920,22 +3291,30 @@ app.on('quit', (event, exitCode) => {
 	}
 });
 
-app.on('window-all-closed', () => {
-	log.info('🔄 All windows closed - cleaning up...');
-
-	// Clean up all windows and processes
-	cleanupAndQuit();
-});
+app.on('window-all-closed', () => cleanupAndQuit());
 
 app.on('will-quit', () => {
-	log.info('🔄 Will quit - final cleanup...');
-
 	// Unregister all global shortcuts
 	try {
 		globalShortcut.unregisterAll();
-		log.info('✅ Global shortcuts unregistered');
 	} catch (error) {
 		log.error('Error unregistering global shortcuts:', error);
+	}
+});
+
+ipcMain.handle('update-overlay-dimensions', async (event, { width, height }) => {
+	try {
+		if (!windowHelper) {
+			return { success: false, error: 'Window helper not initialized' };
+		}
+
+		// log.info(`🔧 Updating overlay dimensions to: ${width}x${height}`);
+		windowHelper.updateWindowDimensions(width, height);
+
+		return { success: true };
+	} catch (error) {
+		log.error('❌ Error updating overlay dimensions:', error);
+		return { success: false, error: error.message };
 	}
 });
 
@@ -3951,8 +3330,6 @@ function startAreYouThereTimer() {
 	isAreYouThereWindowShown = false;
 	isRecordingActive = true;
 
-	log.info('⏰ Started Are You There timer - will trigger at 30min, 60min, 90min, etc.');
-
 	// Start transcription detection timer alongside the 30-minute timer
 	startTranscriptionDetectionTimer();
 
@@ -3960,7 +3337,6 @@ function startAreYouThereTimer() {
 	areYouThereTimer = setInterval(() => {
 		// Check if recording is still active - if not, stop the timer
 		if (!isRecordingActive || !recordingStartTime) {
-			log.info('⏰ Recording stopped or not active - stopping Are You There timer');
 			stopAreYouThereTimer();
 			return;
 		}
@@ -4000,7 +3376,6 @@ function stopAreYouThereTimer() {
 	recordingStartTime = null;
 	isAreYouThereWindowShown = false;
 	isRecordingActive = false;
-	log.info('⏰ Stopped Are You There timer');
 }
 
 function showAreYouThereWindow() {
@@ -4018,12 +3393,10 @@ function showAreYouThereWindow() {
 					type: 'time-based',
 					reason: 'recording-timeout',
 				});
-				log.info('🏠 Sent time-based show command to Are You There window');
 			}
 
 			// Show the window
 			windowHelper.showAreYouThereWindow();
-			log.info('🏠 Showing Are You There window at 30-minute interval');
 		} else {
 			log.error('❌ Window helper not available to show Are You There window');
 		}
@@ -4036,7 +3409,6 @@ function showAreYouThereWindow() {
 function startTranscriptionDetectionTimer() {
 	// Only start if recording is active
 	if (!isRecordingActive || !recordingStartTime) {
-		log.warn('🎤 Cannot start transcription detection - recording not active');
 		return;
 	}
 
@@ -4050,10 +3422,6 @@ function startTranscriptionDetectionTimer() {
 	isTranscriptionDetectionActive = true;
 	isTranscriptionBasedAreYouThereShown = false;
 
-	log.info(
-		'🎤 Started transcription detection timer - will trigger after 5 minutes of no transcriptions',
-	);
-
 	// Use the same logic as restart function
 	startTranscriptionDetectionInterval();
 }
@@ -4063,7 +3431,6 @@ function startTranscriptionDetectionInterval() {
 	transcriptionDetectionTimer = setInterval(() => {
 		// Check if recording is still active - if not, stop the timer
 		if (!isRecordingActive || !recordingStartTime) {
-			log.info('🎤 Recording stopped or not active - stopping transcription detection timer');
 			stopTranscriptionDetectionTimer();
 			return;
 		}
@@ -4101,7 +3468,6 @@ function stopTranscriptionDetectionTimer() {
 	lastTranscriptionTime = null;
 	isTranscriptionDetectionActive = false;
 	isTranscriptionBasedAreYouThereShown = false;
-	log.info('🎤 Stopped transcription detection timer');
 }
 
 function updateTranscriptionActivity() {
@@ -4116,7 +3482,6 @@ function updateTranscriptionActivity() {
 
 	// If transcription detection is active, reset the timer
 	if (isTranscriptionDetectionActive) {
-		log.info('🎤 Transcription detected - resetting 1-minute timer');
 		// Reset the timer by updating the last transcription time
 		lastTranscriptionTime = Date.now();
 	}
@@ -4125,7 +3490,6 @@ function updateTranscriptionActivity() {
 function restartTranscriptionDetectionTimer() {
 	// Only restart if recording is active
 	if (!isRecordingActive || !recordingStartTime) {
-		log.warn('🎤 Cannot restart transcription detection - recording not active');
 		return;
 	}
 
@@ -4139,10 +3503,6 @@ function restartTranscriptionDetectionTimer() {
 	lastTranscriptionTime = Date.now();
 	isTranscriptionDetectionActive = true;
 	isTranscriptionBasedAreYouThereShown = false;
-
-	log.info(
-		'🎤 Restarted transcription detection timer - will trigger after 5 minutes of no transcriptions',
-	);
 
 	// Use the shared interval logic
 	startTranscriptionDetectionInterval();
@@ -4163,12 +3523,10 @@ function showTranscriptionBasedAreYouThereWindow() {
 					type: 'transcription-based',
 					reason: 'no-transcriptions',
 				});
-				log.info('🏠 Sent transcription-based show command to Are You There window');
 			}
 
 			// Show the window
 			windowHelper.showAreYouThereWindow();
-			log.info('🏠 Showing Are You There window due to no transcriptions');
 		} else {
 			log.error(
 				'❌ Window helper not available to show transcription-based Are You There window',
@@ -4187,99 +3545,136 @@ function hideTranscriptionBasedAreYouThereWindow() {
 
 			// Hide the window
 			windowHelper.hideAreYouThereWindow();
-			log.info('🏠 Hiding transcription-based Are You There window');
 		}
 	} catch (error) {
 		log.error('❌ Error hiding transcription-based Are You There window:', error);
 	}
 }
 
+// Flag to prevent multiple cleanup calls
+let isCleaningUp = false;
+
 // Function to handle cleanup and quit
 function cleanupAndQuit() {
-	log.info('🧹 Starting cleanup process...');
+	// Prevent multiple cleanup calls
+	if (isCleaningUp) {
+		return;
+	}
+	isCleaningUp = true;
 
 	try {
-		// 1. Clean up Dynamic Island
+		// Clean up dynamic island helper
 		if (dynamicIslandHelper) {
-			log.info('🧹 Cleaning up Dynamic Island...');
-			dynamicIslandHelper.destroy();
+			try {
+				dynamicIslandHelper.destroy();
+			} catch (error) {
+				log.error('Error destroying dynamicIslandHelper:', error);
+			}
 			dynamicIslandHelper = null;
 		}
 
-		// 2. Clean up Window Helper and all its windows
+		// Clean up window helper
 		if (windowHelper) {
-			log.info('🧹 Cleaning up Window Helper...');
-			windowHelper.cleanup();
+			try {
+				windowHelper.cleanup();
+			} catch (error) {
+				log.error('Error cleaning up windowHelper:', error);
+			}
 			windowHelper = null;
 		}
 
-		// 3. Clean up Wake Word Service
-		// if (wakeWordService) {
-		// 	log.info('🧹 Cleaning up Wake Word Service...');
-		// 	wakeWordService.stop();
-		// 	wakeWordService = null;
-		// }
-
-		// 3. Close main window if it exists
+		// Close main window if it exists and not destroyed
 		if (mainWindow && !mainWindow.isDestroyed()) {
-			log.info('🧹 Closing main window...');
-			mainWindow.close();
-		}
-
-		// 4. Force quit all remaining windows
-		BrowserWindow.getAllWindows().forEach((window) => {
-			if (!window.isDestroyed()) {
-				log.info('🧹 Force closing window:', window.getTitle());
-				window.destroy();
+			try {
+				mainWindow.close();
+			} catch (error) {
+				log.error('Error closing main window:', error);
 			}
-		});
+		}
 
-		// 5. Clean up Are You There timer
+		// Force quit all remaining windows safely
+		try {
+			BrowserWindow.getAllWindows().forEach((window) => {
+				if (window && !window.isDestroyed()) {
+					try {
+						window.destroy();
+					} catch (error) {
+						log.error('Error destroying window:', error);
+					}
+				}
+			});
+		} catch (error) {
+			log.error('Error getting all windows:', error);
+		}
+
+		// Clean up Are You There timer
 		if (areYouThereTimer) {
-			clearInterval(areYouThereTimer);
+			try {
+				clearInterval(areYouThereTimer);
+			} catch (error) {
+				log.error('Error clearing areYouThereTimer:', error);
+			}
 			areYouThereTimer = null;
-			log.info('✅ Are You There timer cleared');
 		}
 
-		// 6. Clean up transcription detection timer
+		// Clean up transcription detection timer
 		if (transcriptionDetectionTimer) {
-			clearInterval(transcriptionDetectionTimer);
+			try {
+				clearInterval(transcriptionDetectionTimer);
+			} catch (error) {
+				log.error('Error clearing transcriptionDetectionTimer:', error);
+			}
 			transcriptionDetectionTimer = null;
-			log.info('✅ Transcription detection timer cleared');
 		}
 
-		// 7. Unregister all global shortcuts
+		// Unregister all global shortcuts
 		try {
 			globalShortcut.unregisterAll();
-			log.info('✅ Global shortcuts unregistered');
 		} catch (error) {
 			log.error('Error unregistering global shortcuts:', error);
 		}
 
-		log.info('✅ Cleanup completed - quitting app');
-
 		// Force quit the app
 		setTimeout(() => {
-			app.exit(0);
+			try {
+				app.exit(0);
+			} catch (error) {
+				log.error('Error during app exit:', error);
+				process.exit(0);
+			}
 		}, 100);
 	} catch (error) {
 		log.error('Error during cleanup:', error);
 		// Force quit even if cleanup fails
-		app.exit(0);
+		try {
+			app.exit(0);
+		} catch (exitError) {
+			log.error('Error during forced exit:', exitError);
+			process.exit(0);
+		}
 	}
 }
 
 // Handle process exit to ensure cleanup
 process.on('exit', (code) => {
-	log.info('🔄 Process exiting with code:', code);
+	log.info(`Process exiting with code: ${code}`);
 });
 
 process.on('SIGINT', () => {
-	log.info('🔄 SIGINT received - cleaning up...');
 	cleanupAndQuit();
 });
 
 process.on('SIGTERM', () => {
-	log.info('🔄 SIGTERM received - cleaning up...');
 	cleanupAndQuit();
+});
+
+// Add global error handler to prevent crashes
+process.on('uncaughtException', (error) => {
+	log.error('Uncaught Exception:', error);
+	// Don't exit the process, just log the error
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+	log.error('Unhandled Rejection at:', promise, 'reason:', reason);
+	// Don't exit the process, just log the error
 });

@@ -783,7 +783,6 @@ const DynamicIslandUI = () => {
 		// Request camera permission if not determined
 		if (window.electronApi?.askAI?.camera?.requestPermission) {
 			try {
-				console.log('Requesting camera permission through Electron...');
 				const permissionResult = await window.electronApi.askAI.camera.requestPermission();
 				console.log('Camera permission result:', permissionResult);
 
@@ -1389,12 +1388,8 @@ const DynamicIslandUI = () => {
 											setIsChatMode(false);
 											setChatInput('');
 											// Disable focus when exiting chat mode
-											if (
-												window.electronApi?.dynamicIsland?.setChatMode
-											) {
-												window.electronApi.dynamicIsland.setChatMode(
-													false,
-												);
+											if (window.electronApi?.dynamicIsland?.setChatMode) {
+												window.electronApi.dynamicIsland.setChatMode(false);
 											}
 										}}
 									>
@@ -1529,7 +1524,6 @@ const DynamicIslandUI = () => {
 													)}
 												</div>
 											</div>
-
 										</div>
 									</div>
 								</div>

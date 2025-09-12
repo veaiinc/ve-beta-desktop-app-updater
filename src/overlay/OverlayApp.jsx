@@ -583,21 +583,16 @@ const OverlayApp = () => {
 		console.log('📡 Sending state to Dynamic Island:', state);
 
 		// Use IPC to send state update to main process, which will forward to Dynamic Island
-		if (window.electronApi?.overlay?.sendStateUpdate) {
-			window.electronApi.overlay.sendStateUpdate(state);
-		}
+		window.electronApi.overlay?.sendStateUpdate?.(state);
 	};
 
 	const handleAskAIClick = () => {
 		// Open Ask AI window via electron API
-		if (window.electronApi?.askAI?.toggleWindow) {
-			window.electronApi.askAI.toggleWindow();
-		}
+		window.electronApi.askAI?.toggleWindow?.();
 	};
 
 	// Function to manually reset Dynamic Island control state
 	const resetDynamicIslandControl = () => {
-		console.log('🔄 Manually resetting Dynamic Island control state');
 		setIsDynamicIslandControlled(false);
 		setShowShortcutBar(false);
 	};
@@ -774,7 +769,6 @@ const OverlayApp = () => {
 		console.log('📊 Updated categorized live intelligence data:', categorizedData);
 	}, [liveIntelligenceHashmap, categorizeLiveIntelligenceData]);
 
-
 	return (
 		<div
 			ref={containerRef}
@@ -784,7 +778,6 @@ const OverlayApp = () => {
 			{/* {meetingData && <MeetingBody meetingData={meetingData} />} */}
 
 			<div className="overlay-container overlay-content" data-overlay-content="true">
-				
 				{/* Shortcut bar - only show when not controlled by Dynamic Island */}
 				{showShortcutBar && (
 					<ShortcutBar

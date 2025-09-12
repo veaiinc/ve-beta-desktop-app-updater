@@ -113,12 +113,16 @@ export default defineConfig({
 								windowsCompatibility: 'electron/windowsCompatibility.js', // Add this line
 								notchDropService: 'electron/services/notchDropService.js',
 								notificationHelper: 'electron/notificationHelper.js',
+								dynamicIslandHelper: 'electron/helpers/dynamicIslandHelper.js',
 								// wakeWordService: 'electron/wakeWordService.js',
 							},
 							output: {
 								format: 'cjs',
 								entryFileNames: (chunkInfo) => {
 									if (chunkInfo.name === 'windowHelper') {
+										return 'helpers/[name].js';
+									}
+									if (chunkInfo.name === 'dynamicIslandHelper') {
 										return 'helpers/[name].js';
 									}
 									if (chunkInfo.name === 'notchDropService') {

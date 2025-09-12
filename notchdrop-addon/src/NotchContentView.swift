@@ -697,13 +697,6 @@ struct ChatTextAreaView: View {
         let minWidth: CGFloat = 200
         let calculatedWidth = max(minWidth, availableWidth - 20) // 20px margin for visual balance
         
-        print("🎯 Calculating TextEditor width (after removing right tile):")
-        print("   Island width: \(islandWidth)")
-        print("   Available width: \(availableWidth)")
-        print("   Calculated width: \(calculatedWidth)")
-        print("   Chat mode: \(vm.isChatMode)")
-        print("   Voice interface: \(vm.showVoiceInterface)")
-        
         textEditorWidth = calculatedWidth
     }
 }
