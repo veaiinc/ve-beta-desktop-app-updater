@@ -1,9 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import a from './MeetingAnalytics.module.scss'
 import DownSvg from '../../../assets/svg/activity/DownSvg'
 import ClockSvg from './clock.svg'
-import MessageSvg from './message.svg'
-const MeetingAnalytics = () => {
+import Context from '../../../context/context'
+// import MessageSvg from './message.svg'
+const MeetingAnalytics = ({ meetingId }) => {
+    const {
+        notes: { getMeetingAnalytics },
+    } = useContext(Context)
     const [activeTab, setActiveTab] = useState('Analytics')
     const [expandedSections, setExpandedSections] = useState({
         participants: true,
@@ -11,6 +15,9 @@ const MeetingAnalytics = () => {
         meetingScore: true,
         openQuestions: false
     })
+    const [analyticsData, setAnalyticsData] = useState(null)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(null)
 
     const toggleSection = (section) => {
         setExpandedSections(prev => ({
@@ -19,8 +26,41 @@ const MeetingAnalytics = () => {
         }))
     }
 
-    // Sample data for the interface
-    const participants = [
+    // Fetch meeting analytics data
+    const fetchMeetingAnalytics = async () => {
+        if (!meetingId) {
+            setError('No meeting ID provided')
+            return
+        }
+        
+        setLoading(true)
+        setError(null)
+        
+        try {
+            console.log('Fetching analytics for meetingId:', meetingId)
+            
+            const [success, data] = await getMeetingAnalytics(meetingId)
+            
+            if (success) {
+                setAnalyticsData(data)
+            } else {
+                setError(data) // data contains the error message
+                console.error('Error fetching analytics:', data)
+            }
+        } catch (err) {
+            setError('Error fetching meeting analytics')
+            console.error('Error:', err)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchMeetingAnalytics()
+    }, [meetingId])
+
+    // Use API data or fallback to sample data
+    const participants = analyticsData?.participants || [
         {
             name: 'Gautam',
             talkTime: '3 hr min',
@@ -59,7 +99,7 @@ const MeetingAnalytics = () => {
         }
     ]
 
-    const highlights = [
+    const highlights = analyticsData?.highlights || [
         {
             type: 'Topic',
             time: '2:00',
@@ -80,7 +120,7 @@ const MeetingAnalytics = () => {
         }
     ]
 
-    const openQuestions = [
+    const openQuestions = analyticsData?.openQuestions || [
         {
             participant: 'Yashwant',
             time: '15:43 PM',
@@ -92,6 +132,19 @@ const MeetingAnalytics = () => {
             question: 'What parameters determine the quality of prospects from Apollo results?'
         }
     ]
+
+    // Get metrics from API data or use defaults
+    const metrics = analyticsData?.metrics || {
+        engagement: 88,
+        sentiment: 88,
+        totalParticipants: 3,
+        bestScore: 87,
+        averageEngagement: 64.4,
+        averageSentiment: 64.4,
+        averageReadScore: 54.0,
+        averageBias: 60.0,
+        averageCharisma: 60.0
+    }
 
     const WaveGraph = ({ className }) => (
         <svg className={className} viewBox="0 0 120 40" fill="none">
@@ -110,19 +163,19 @@ const MeetingAnalytics = () => {
                 <div className={a.chartStats}>
                     <span className={a.statItem}>
                         <span className={a.statLabel}>Total Participants Count</span>
-                        <span className={a.statValue}>3</span>
+                        <span className={a.statValue}>{metrics.totalParticipants}</span>
                     </span>
                     <span className={a.statItem}>
                         <span className={a.statLabel}>Best Score</span>
-                        <span className={a.statValue}>87</span>
+                        <span className={a.statValue}>{metrics.bestScore}</span>
                     </span>
                     <span className={a.statItem}>
                         <span className={a.statLabel}>Engagement</span>
-                        <span className={a.statValue}>86</span>
+                        <span className={a.statValue}>{metrics.engagement}</span>
                     </span>
                     <span className={a.statItem}>
                         <span className={a.statLabel}>Sentiment</span>
-                        <span className={a.statValue}>85</span>
+                        <span className={a.statValue}>{metrics.sentiment}</span>
                     </span>
                 </div>
             </div>
@@ -185,8 +238,59 @@ const MeetingAnalytics = () => {
         </div>
     )
 
+    // Loading state
+    if (loading) {
+        return (
+            <div className={a.analyticsMainContainer}>
+                <div style={{ textAlign: 'center', padding: '2rem' }}>
+                    <p>Loading meeting analytics...</p>
+                </div>
+            </div>
+        )
+    }
+
+    // Show error banner but continue with dummy data
+    const showErrorBanner = error && !loading
+
     return (
         <div className={a.analyticsMainContainer}>
+            {/* Error Banner */}
+            {showErrorBanner && (
+                <div style={{ 
+                    backgroundColor: '#fef2f2', 
+                    border: '1px solid #fecaca', 
+                    borderRadius: '6px', 
+                    padding: '1rem', 
+                    margin: '1rem 0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                }}>
+                    <div>
+                        <p style={{ color: '#dc2626', margin: '0', fontSize: '14px' }}>
+                            ⚠️ {error}
+                        </p>
+                        <p style={{ color: '#6b7280', margin: '0.25rem 0 0 0', fontSize: '12px' }}>
+                            Showing sample data for demonstration purposes.
+                        </p>
+                    </div>
+                    <button 
+                        onClick={fetchMeetingAnalytics}
+                        style={{ 
+                            padding: '0.5rem 1rem', 
+                            backgroundColor: '#4f9ef8', 
+                            color: 'white', 
+                            border: 'none', 
+                            borderRadius: '4px', 
+                            cursor: 'pointer',
+                            fontSize: '12px'
+                        }}
+                    >
+                        Retry
+                    </button>
+                </div>
+            )}
+            
             {/* Header */}
             {/* <div className={a.header}>
                 <div className={a.titleSection}>
@@ -215,7 +319,7 @@ const MeetingAnalytics = () => {
                     <div className={a.conditionContainer}>
                         <p className={a.metricLabel}>Engagement</p>
                         <div className={a.conditionValueContainer}>
-                            <p className={a.conditionValue}>88</p>
+                            <p className={a.conditionValue}>{metrics.engagement}</p>
                             <p className={a.conditionValueText}>Good</p>
                         </div>
                     </div>
@@ -227,7 +331,7 @@ const MeetingAnalytics = () => {
                     <div className={a.conditionContainer}>
                         <p className={a.metricLabel}>Sentimental</p>
                         <div className={a.conditionValueContainer}>
-                            <p className={a.conditionValue}>88</p>
+                            <p className={a.conditionValue}>{metrics.sentiment}</p>
                             <p className={a.conditionValueText}>Good</p>
                         </div>
                     </div>
@@ -362,28 +466,28 @@ const MeetingAnalytics = () => {
                                         </div>
                                     ))}
                                 </div>
-                                <span className={a.totalParticipants}>Total Participants Count 3</span>
+                                <span className={a.totalParticipants}>Total Participants Count {metrics.totalParticipants}</span>
                             </div>
                             <div className={a.averageMetrics}>
                                 <div className={a.avgMetric}>
                                     <span className={a.avgLabel}>Average engagement</span>
-                                    <span className={a.avgValue}>64.4</span>
+                                    <span className={a.avgValue}>{metrics.averageEngagement}</span>
                                 </div>
                                 <div className={a.avgMetric}>
                                     <span className={a.avgLabel}>Average sentiment</span>
-                                    <span className={a.avgValue}>64.4</span>
+                                    <span className={a.avgValue}>{metrics.averageSentiment}</span>
                                 </div>
                                 <div className={a.avgMetric}>
                                     <span className={a.avgLabel}>Average read score</span>
-                                    <span className={a.avgValue}>54.0</span>
+                                    <span className={a.avgValue}>{metrics.averageReadScore}</span>
                                 </div>
                                 <div className={a.avgMetric}>
                                     <span className={a.avgLabel}>Average bias</span>
-                                    <span className={a.avgValue}>60.0</span>
+                                    <span className={a.avgValue}>{metrics.averageBias}</span>
                                 </div>
                                 <div className={a.avgMetric}>
                                     <span className={a.avgLabel}>Average charisma</span>
-                                    <span className={a.avgValue}>60.0</span>
+                                    <span className={a.avgValue}>{metrics.averageCharisma}</span>
                                 </div>
                             </div>
                         </div>
