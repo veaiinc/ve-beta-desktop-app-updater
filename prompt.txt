@@ -1,0 +1,31 @@
+Edmund Yong - Example Prompts for Cursor Agent
+ 
+For debugging:
+ 
+**Objective**: Debug and fix a crash in my Node.js app.
+**Context**: The app is in ./app.js and crashes with "Cannot read property 'length' of undefined" when I run `node app.js`.
+**Instructions**: 
+- Run `node app.js` to reproduce the error.
+- Trace the error to the specific line in ./app.js.
+- Add a check to ensure the variable is defined before accessing .length.
+**Verification**: Run `node app.js` and confirm it runs without crashing.
+**Preferences**: Use GPT-4o model.
+ 
+For feature building:
+ 
+**Objective**: NotchDrop should come in every workspace and over every full screen.
+**Context**: I am working in "notchdrop-addon" and I want this feature for my notch drop.
+**Instructions**: 
+- Web research about how can you do this.
+- Refer "NotchDrop" folder, how this feature is implemented in that.
+ 
+For Research and Implementation:
+ 
+**Objective**: Add JWT authentication to my Express.js app.
+**Context**: The app is in ./server.js, and I haven’t implemented authentication yet.
+**Instructions**: 
+- Search the web for a simple JWT tutorial for Express.js.
+- Install required packages (e.g., `jsonwebtoken`) via npm.
+- Add a middleware function to verify tokens in incoming requests.
+**Verification**: Test with a sample route (e.g., GET /protected) and confirm it rejects requests without a valid token.
+**Preferences**: Use Yolo mode for npm installs.

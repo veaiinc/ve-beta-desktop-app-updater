@@ -41,21 +41,19 @@ export const useNotchDrop = () => {
 	const setupEventListeners = () => {
 		const handleStatusChanged = (event, newStatus) => {
 			setStatus(newStatus);
-			console.log('NotchDrop status changed:', newStatus);
 		};
 
 		const handleFileDropped = (event, filePath) => {
 			setDroppedFiles((prev) => [...prev, filePath]);
-			console.log('File dropped on NotchDrop:', filePath);
 		};
 
-		const handleItemAdded = (event, itemData) => {
-			console.log('Item added to NotchDrop:', itemData);
-		};
+		// const handleItemAdded = (event, itemData) => {
+		// 	console.log('Item added to NotchDrop:', itemData);
+		// };
 
-		const handleItemRemoved = (event, itemData) => {
-			console.log('Item removed from NotchDrop:', itemData);
-		};
+		// const handleItemRemoved = (event, itemData) => {
+		// 	console.log('Item removed from NotchDrop:', itemData);
+		// };
 
 		ipcRenderer.on('notchdrop-status-changed', handleStatusChanged);
 		ipcRenderer.on('notchdrop-file-dropped', handleFileDropped);
@@ -142,25 +140,25 @@ export const useNotchDrop = () => {
 		}
 	}, [isVisible]);
 
-	const setStatus = useCallback(async (newStatus) => {
-		try {
-			setIsLoading(true);
-			setError(null);
-			const result = await ipcRenderer.invoke('notchdrop-set-status', newStatus);
-			if (result.success) {
-				setStatus(newStatus);
-				return { success: true };
-			} else {
-				setError(result.error);
-				return { success: false, error: result.error };
-			}
-		} catch (err) {
-			setError(err.message);
-			return { success: false, error: err.message };
-		} finally {
-			setIsLoading(false);
-		}
-	}, []);
+	// const setStatus = useCallback(async (newStatus) => {
+	// 	try {
+	// 		setIsLoading(true);
+	// 		setError(null);
+	// 		const result = await ipcRenderer.invoke('notchdrop-set-status', newStatus);
+	// 		if (result.success) {
+	// 			setStatus(newStatus);
+	// 			return { success: true };
+	// 		} else {
+	// 			setError(result.error);
+	// 			return { success: false, error: result.error };
+	// 		}
+	// 	} catch (err) {
+	// 		setError(err.message);
+	// 		return { success: false, error: err.message };
+	// 	} finally {
+	// 		setIsLoading(false);
+	// 	}
+	// }, []);
 
 	const setAutoOpenSetting = useCallback(async (enabled) => {
 		try {

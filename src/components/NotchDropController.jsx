@@ -16,21 +16,15 @@ const NotchDropController = () => {
 		// Listen for NotchDrop events
 		const handleStatusChanged = (event, newStatus) => {
 			setStatus(newStatus);
-			console.log('NotchDrop status changed:', newStatus);
 		};
 
 		const handleFileDropped = (event, filePath) => {
 			setDroppedFiles((prev) => [...prev, filePath]);
-			console.log('File dropped on NotchDrop:', filePath);
 		};
 
-		const handleItemAdded = (event, itemData) => {
-			console.log('Item added to NotchDrop:', itemData);
-		};
+		const handleItemAdded = (event, itemData) => {};
 
-		const handleItemRemoved = (event, itemData) => {
-			console.log('Item removed from NotchDrop:', itemData);
-		};
+		const handleItemRemoved = (event, itemData) => {};
 
 		// Register event listeners
 		ipcRenderer.on('notchdrop-status-changed', handleStatusChanged);
@@ -85,7 +79,6 @@ const NotchDropController = () => {
 			const result = await ipcRenderer.invoke('notchdrop-enable');
 			if (result.success) {
 				setIsVisible(true);
-				console.log('NotchDrop enabled successfully');
 			} else {
 				console.error('Failed to enable NotchDrop:', result.error);
 			}
@@ -99,7 +92,6 @@ const NotchDropController = () => {
 			const result = await ipcRenderer.invoke('notchdrop-disable');
 			if (result.success) {
 				setIsVisible(false);
-				console.log('NotchDrop disabled successfully');
 			} else {
 				console.error('Failed to disable NotchDrop:', result.error);
 			}
@@ -113,7 +105,6 @@ const NotchDropController = () => {
 			const result = await ipcRenderer.invoke('notchdrop-toggle');
 			if (result.success) {
 				setIsVisible(!isVisible);
-				console.log('NotchDrop toggled successfully');
 			} else {
 				console.error('Failed to toggle NotchDrop:', result.error);
 			}
@@ -127,7 +118,6 @@ const NotchDropController = () => {
 			const result = await ipcRenderer.invoke('notchdrop-set-status', newStatus);
 			if (result.success) {
 				setStatus(newStatus);
-				console.log('NotchDrop status set successfully:', newStatus);
 			} else {
 				console.error('Failed to set NotchDrop status:', result.error);
 			}
@@ -141,7 +131,6 @@ const NotchDropController = () => {
 			const result = await ipcRenderer.invoke('notchdrop-set-auto-open', enabled);
 			if (result.success) {
 				setAutoOpen(enabled);
-				console.log('Auto-open setting updated successfully:', enabled);
 			} else {
 				console.error('Failed to update auto-open setting:', result.error);
 			}
