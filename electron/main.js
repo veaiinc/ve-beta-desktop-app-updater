@@ -21,14 +21,19 @@ const WindowHelper = require('./helpers/windowHelper');
 const fs = require('fs');
 const { exec } = require('child_process');
 
-const DynamicIslandHelper = require('./helpers/dynamicIslandHelper');
-
 // Import Windows compatibility fixes
 const {
 	loadSharpModule,
 	safeProcessImageWithSharp,
 	safeExtractImageMetadata,
 } = require('./windowsCompatibility');
+
+const {
+	processImageWithSharp,
+	extractImageMetadata,
+	downloadAlbumZip,
+	createZipFromUrls,
+} = require('./galleryHelper');
 
 const meetingMonitor = require('./notificationHelper'); // Adjust path if needed
 
@@ -46,6 +51,77 @@ let pendingNotificationAction = null;
 // Windows-specific variables
 let tray = null;
 let isQuitting = false;
+
+// Content Protection - Simple & Working Implementation
+let isContentProtectionEnabled = true; // Default to enabled for privacy
+
+const toggleContentProtection = () => {
+	isContentProtectionEnabled = !isContentProtectionEnabled;
+
+	// Apply to all windows except main window - keep main window always visible
+	const allWindows = BrowserWindow.getAllWindows();
+	let protectedCount = 0;
+
+	allWindows.forEach((window) => {
+		if (!window.isDestroyed()) {
+			// Skip main window - keep it always visible
+			if (window === mainWindow) {
+				return;
+			}
+
+			window.setContentProtection(isContentProtectionEnabled);
+			protectedCount++;
+		}
+	});
+
+	const status = isContentProtectionEnabled ? 'ON' : 'OFF';
+	log.info(
+		`🔒 Content protection: ${status} - Applied to ${protectedCount} windows (main window excluded)`,
+	);
+	console.log(
+		`🔒 CONTENT PROTECTION: ${status} (${protectedCount} windows protected, main window always visible)`,
+	);
+
+	return isContentProtectionEnabled;
+};
+
+const getContentProtectionStatus = () => {
+	return isContentProtectionEnabled;
+};
+
+const setContentProtection = (enabled) => {
+	isContentProtectionEnabled = enabled;
+
+	BrowserWindow.getAllWindows().forEach((window) => {
+		if (!window.isDestroyed()) {
+			// Skip main window - keep it always visible
+			if (window === mainWindow) {
+				return;
+			}
+
+			window.setContentProtection(isContentProtectionEnabled);
+		}
+	});
+
+	log.info(
+		`🔒 Content protection set to: ${
+			isContentProtectionEnabled ? 'ON' : 'OFF'
+		} (main window excluded)`,
+	);
+	return isContentProtectionEnabled;
+};
+
+// Function to apply content protection to a newly created window
+const applyContentProtectionToWindow = (window) => {
+	if (window && !window.isDestroyed()) {
+		// Skip main window - keep it always visible
+		if (window === mainWindow) {
+			return;
+		}
+
+		window.setContentProtection(isContentProtectionEnabled);
+	}
+};
 
 // Runtime platform override for testing (set VE_FORCE_PLATFORM=linux|win32|darwin)
 const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
@@ -67,6 +143,7 @@ const loadGalleryHelper = () => {
 let lastWindowState = {
 	route: '/home', // Default route
 	timestamp: Date.now(),
+	windowBounds: null, // Store window size and position
 };
 
 // Recording timer variables for Are You There functionality
@@ -80,6 +157,327 @@ let lastTranscriptionTime = null;
 let transcriptionDetectionTimer = null;
 let isTranscriptionDetectionActive = false;
 let isTranscriptionBasedAreYouThereShown = false;
+
+// Add global error handler to prevent crashes
+process.on('uncaughtException', (error) => {
+	log.error('Uncaught Exception:', error);
+	// Don't exit the process, just log the error
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+	log.error('Unhandled Rejection at:', promise, 'reason:', reason);
+	// Don't exit the process, just log the error
+});
+
+// Temporary inline DynamicIslandHelper class
+class DynamicIslandHelper {
+	constructor() {
+		this.dynamicIslandWindow = null;
+		this.isExpanded = false; // Start collapsed by default
+		this.isVisible = true;
+		this.screenWidth = 0;
+		this.screenHeight = 0;
+
+		// Default positions and sizes - start with collapsed pill size
+		this.collapsedSize = { width: 250, height: 18 };
+		this.expandedSize = { width: 875, height: 280, flexShrink: 0 };
+		this.position = { x: 0, y: 0 };
+
+		this.setupScreenDimensions();
+	}
+
+	setupScreenDimensions() {
+		const primaryDisplay = screen.getPrimaryDisplay();
+		const workArea = primaryDisplay.workAreaSize;
+		this.screenWidth = workArea.width;
+		this.screenHeight = workArea.height;
+
+		// Position at center top - use expanded size for positioning
+		this.position.x =
+			Math.floor(this.screenWidth / 2) - Math.floor(this.expandedSize.width / 2);
+
+		this.position.y = 0;
+	}
+
+	createDynamicIslandWindow() {
+		if (this.dynamicIslandWindow !== null) return;
+
+		// Skip window creation on macOS (runtime) - only create for Windows/Linux
+		if (isMacRuntime) {
+			return;
+		}
+
+		const windowSettings = {
+			width: this.expandedSize.width, // Start with expanded size (875x280)
+			height: this.expandedSize.height, // Start with expanded size (875x280)
+			x: this.position.x,
+			y: this.position.y, // Y=0 to stick to top of screen
+			webPreferences: {
+				nodeIntegration: false,
+				contextIsolation: true,
+				preload: path.join(__dirname, 'preload.js'),
+				devTools: true, // Enable dev tools in production too
+			},
+			show: true, // Show immediately when created
+			alwaysOnTop: true,
+			frame: false, // Frameless to blend with menu bar
+			transparent: true,
+			fullscreenable: false,
+			hasShadow: false,
+			backgroundColor: '#00000000',
+			focusable: true, // Make focusable by default for better Windows support
+			skipTaskbar: true,
+			visibleOnAllWorkspaces: true,
+			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
+			acceptFirstMouse: true,
+			disableAutoHideCursor: true,
+			resizable: false, // Disable resizing - fixed size
+			movable: true, // Enable movement for Dynamic Island
+			minimizable: false,
+			maximizable: false,
+			closable: false,
+		};
+
+		this.dynamicIslandWindow = new BrowserWindow(windowSettings);
+
+		// Apply content protection to Dynamic Island window
+		applyContentProtectionToWindow(this.dynamicIslandWindow);
+
+		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
+		// Force the Dynamic Island React app mode so it renders the island UI
+		const query = '?mode=dynamic-island';
+		const dynamicIslandUrl =
+			process.env.NODE_ENV === 'development'
+				? `${devURL}/dynamic-island.html${query}`
+				: `file://${path.join(__dirname, '..', 'build', 'dynamic-island.html')}${query}`;
+
+		this.dynamicIslandWindow.loadURL(dynamicIslandUrl).catch((err) => {
+			log.error('Failed to load dynamic island URL:', err);
+		});
+
+		// Configure for non-macOS platforms
+		this.dynamicIslandWindow.setAlwaysOnTop(true, 'screen-saver');
+
+		// Set initial mouse event handling - start with mouse events ignored since it's collapsed
+		this.setMouseEventHandling(true);
+
+		// Show the window immediately
+		this.dynamicIslandWindow.show();
+		this.isVisible = true;
+
+		// Listen for resize events from the renderer
+		this.dynamicIslandWindow.webContents.on('did-finish-load', () => {
+			// Send initial state to React component - start collapsed
+			log.info('Sending initial state to React component: { expanded: false }');
+			this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: false });
+		});
+	}
+
+	expand() {
+		// On macOS (runtime), just track the state without window operations
+		if (isMacRuntime) {
+			this.isExpanded = true;
+			return;
+		}
+
+		if (!this.dynamicIslandWindow || this.isExpanded) return;
+
+		this.isExpanded = true;
+
+		// Enable mouse events when expanded so user can interact with it
+		this.setMouseEventHandling(false);
+
+		// Make window focusable when expanded so input fields can receive focus
+		this.dynamicIslandWindow.setFocusable(true);
+
+		// Notify renderer - window size stays the same
+		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: true });
+	}
+
+	collapse() {
+		// On macOS (runtime), just track the state without window operations
+		if (isMacRuntime) {
+			this.isExpanded = false;
+			return;
+		}
+
+		if (!this.dynamicIslandWindow || !this.isExpanded) return;
+
+		this.isExpanded = false;
+
+		// Disable mouse events when collapsed so clicks pass through
+		this.setMouseEventHandling(true);
+
+		// Make window non-focusable when collapsed to prevent stealing focus
+		this.dynamicIslandWindow.setFocusable(false);
+
+		// Notify renderer - window size stays the same
+		this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: false });
+	}
+
+	setMouseEventHandling(ignore) {
+		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
+
+		try {
+			if (isMacRuntime) {
+				// On macOS, use the forward option to allow clicks to pass through
+				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore, { forward: true });
+			} else if (isWindowsRuntime) {
+				// On Windows, when collapsed, allow clicks to pass through to overlay
+				// When expanded, capture all mouse events
+				if (ignore) {
+					// Collapsed state - allow clicks to pass through to overlay underneath
+					this.dynamicIslandWindow.setIgnoreMouseEvents(true, { forward: true });
+				} else {
+					// Expanded state - capture all mouse events
+					this.dynamicIslandWindow.setIgnoreMouseEvents(false);
+				}
+			} else {
+				// On other platforms, just ignore mouse events
+				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore);
+			}
+		} catch (error) {
+			log.error('Error setting mouse event handling:', error);
+		}
+	}
+
+	show() {
+		// On macOS (runtime), just track the state without window operations
+		if (isMacRuntime) {
+			this.isVisible = true;
+			return;
+		}
+
+		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+			this.dynamicIslandWindow.show();
+			this.isVisible = true;
+			log.info('Dynamic Island shown');
+		}
+	}
+
+	hide() {
+		// On macOS (runtime), just track the state without window operations
+		if (isMacRuntime) {
+			this.isVisible = false;
+			return;
+		}
+
+		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+			this.dynamicIslandWindow.hide();
+			this.isVisible = false;
+		}
+	}
+
+	toggleVisibility() {
+		if (this.isVisible) {
+			this.hide();
+		} else {
+			this.show();
+		}
+	}
+
+	getDynamicIslandWindow() {
+		return this.dynamicIslandWindow;
+	}
+
+	isDynamicIslandVisible() {
+		return this.isVisible;
+	}
+
+	isDynamicIslandExpanded() {
+		return this.isExpanded;
+	}
+
+	// Method to reposition Dynamic Island based on platform
+	repositionForPlatform() {
+		// On macOS (runtime), just log that repositioning was called
+		if (isMacRuntime) {
+			return;
+		}
+
+		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
+
+		// Recalculate position based on current platform - eliminate gap with menu bar
+		if (isWindowsRuntime) {
+			this.position.y = -5; // Slightly above screen edge on Windows
+		} else {
+			this.position.y = -8; // Slightly above screen edge on Linux to eliminate menu bar gap
+		}
+
+		// Update window position
+		this.dynamicIslandWindow.setPosition(this.position.x, this.position.y);
+	}
+
+	focus() {
+		// On macOS (runtime), just log that focus was called
+		if (isMacRuntime) {
+			return;
+		}
+
+		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+			try {
+				// Focus the window and bring it to front
+				this.dynamicIslandWindow.focus();
+				this.dynamicIslandWindow.show();
+			} catch (error) {
+				log.error('Error focusing Dynamic Island window:', error);
+			}
+		}
+	}
+
+	showDynamicIsland() {
+		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+			try {
+				this.dynamicIslandWindow.show();
+				this.isVisible = true;
+			} catch (error) {
+				log.error('Error showing Dynamic Island:', error);
+			}
+		}
+	}
+
+	expandDynamicIsland() {
+		if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+			try {
+				// Set expanded size and position
+				this.dynamicIslandWindow.setSize(this.expandedSize.width, this.expandedSize.height);
+				this.dynamicIslandWindow.setPosition(this.position.x, this.position.y);
+				this.isExpanded = true;
+
+				// Enable mouse events when expanded so user can interact with it
+				this.setMouseEventHandling(false);
+
+				// Make window focusable when expanded so input fields can receive focus
+				this.dynamicIslandWindow.setFocusable(true);
+
+				// Send state change to the window
+				this.dynamicIslandWindow.webContents.send('dynamic-island-state', {
+					expanded: true,
+					visible: true,
+				});
+
+				log.info('Dynamic Island expanded');
+			} catch (error) {
+				log.error('Error expanding Dynamic Island:', error);
+			}
+		}
+	}
+
+	destroy() {
+		try {
+			if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+				this.dynamicIslandWindow.destroy();
+				this.dynamicIslandWindow = null;
+			}
+
+			// Reset state
+			this.isExpanded = false;
+			this.isVisible = false;
+		} catch (error) {
+			log.error('Error destroying DynamicIslandHelper:', error);
+		}
+	}
+}
 let notchDropService = null;
 
 // Auto-updater setup
@@ -221,6 +619,9 @@ function showNotification(title, body) {
 	notification.show();
 }
 
+// Ensure IPC handlers are registered early
+log.info('Registering IPC handlers...');
+
 // IPC Handlers for updates
 ipcMain.handle('check-for-updates', async () => {
 	if (process.env.NODE_ENV === 'development') {
@@ -352,10 +753,473 @@ ipcMain.handle('request-screen-recording-permission', async () => {
 	if (process.platform !== 'darwin') {
 		return { success: true, granted: true };
 	}
-	const granted = await systemPreferences.askForMediaAccess('screen');
 
-	return { success: true, granted };
+	try {
+		const granted = await systemPreferences.askForMediaAccess('screen-recording');
+		log.info('Screen recording permission request result:', granted);
+		return { success: true, granted };
+	} catch (error) {
+		log.error('Error requesting screen recording permission:', error);
+		return { success: false, error: error.message };
+	}
 });
+
+// Window state management functions
+function saveWindowState() {
+	if (mainWindow && !mainWindow.isDestroyed()) {
+		// Save current route, timestamp, and window bounds
+		lastWindowState = {
+			route: '/home', // Default route - can be enhanced to get actual route
+			timestamp: Date.now(),
+			windowBounds: mainWindow.getBounds(), // Save window size and position
+		};
+	}
+}
+
+// function restoreWindowState() {
+// 	return lastWindowState;
+// }
+
+// Menu bar creation
+function createMenuBar() {
+	const isMac = isMacRuntime;
+	const template = [
+		{
+			label: 'Application',
+			submenu: [
+				{
+					label: 'About',
+					role: 'about',
+				},
+				{
+					type: 'separator',
+				},
+				{
+					label: 'Quit',
+					accelerator: isMac ? 'Cmd+Q' : 'Ctrl+Q',
+					click: () => {
+						app.quit();
+					},
+				},
+			],
+		},
+		// Insert NotchDrop menu only on macOS
+		...(isMac
+			? [
+					{
+						label: 'Notch',
+						submenu: [
+							{
+								label: 'Open Notch',
+								accelerator: 'CmdOrCtrl+N',
+								click: async () => {
+									try {
+										if (notchDropService) {
+											const result = await notchDropService.enable();
+											if (result) {
+												log.info('✅ NotchDrop opened from menu');
+												updateMenuBarState();
+											}
+										}
+									} catch (error) {
+										log.error('❌ Failed to open NotchDrop from menu:', error);
+									}
+								},
+							},
+							{
+								label: 'Close Notch',
+								accelerator: 'CmdOrCtrl+Shift+N',
+								click: async () => {
+									try {
+										if (notchDropService) {
+											const result = await notchDropService.disable();
+											if (result) {
+												log.info('✅ NotchDrop closed from menu');
+												updateMenuBarState();
+											}
+										}
+									} catch (error) {
+										log.error('❌ Failed to close NotchDrop from menu:', error);
+									}
+								},
+							},
+							{
+								type: 'separator',
+							},
+							{
+								label: 'Toggle Notch',
+								accelerator: 'CmdOrCtrl+T',
+								click: async () => {
+									try {
+										if (notchDropService) {
+											const result = await notchDropService.toggle();
+											if (result) {
+												log.info('✅ NotchDrop toggled from menu');
+												updateMenuBarState();
+											}
+										}
+									} catch (error) {
+										log.error(
+											'❌ Failed to toggle NotchDrop from menu:',
+											error,
+										);
+									}
+								},
+							},
+							{
+								type: 'separator',
+							},
+							{
+								label: 'Status',
+								enabled: false,
+								id: 'notchdrop-status',
+							},
+							{
+								type: 'separator',
+							},
+							{
+								label: 'Auto-open on Startup',
+								type: 'checkbox',
+								checked: true,
+								click: async (menuItem) => {
+									try {
+										if (notchDropService) {
+											const result =
+												await notchDropService.setAutoOpenOnStartup(
+													menuItem.checked,
+												);
+											if (result) {
+												log.info(
+													`🔧 Auto-open on startup ${
+														menuItem.checked ? 'enabled' : 'disabled'
+													} from menu`,
+												);
+											}
+										}
+									} catch (error) {
+										log.error(
+											'❌ Failed to set auto-open setting from menu:',
+											error,
+										);
+									}
+								},
+							},
+						],
+					},
+			  ]
+			: []),
+		{
+			label: 'View',
+			submenu: [
+				{
+					label: 'Toggle Developer Tools',
+					accelerator: 'F12',
+					click: () => {
+						mainWindow.webContents.toggleDevTools();
+					},
+				},
+				// Show Dynamic Island toggle only for non-mac runtime
+				...(isMac
+					? []
+					: [
+							{
+								label: 'Toggle Dynamic Island',
+								accelerator: 'CmdOrCtrl+I',
+								click: () => {
+									try {
+										if (dynamicIslandHelper) {
+											dynamicIslandHelper.toggleVisibility();
+										}
+									} catch (error) {
+										log.error(
+											'Error toggling dynamic island from menu:',
+											error,
+										);
+									}
+								},
+							},
+					  ]),
+				{
+					label: 'Reload',
+					accelerator: 'CmdOrCtrl+R',
+					click: () => {
+						mainWindow.reload();
+					},
+				},
+			],
+		},
+		{
+			label: 'Window',
+			submenu: [
+				{
+					label: 'Minimize',
+					accelerator: 'CmdOrCtrl+M',
+					role: 'minimize',
+				},
+				{
+					label: 'Close',
+					accelerator: 'CmdOrCtrl+W',
+					role: 'close',
+				},
+			],
+		},
+	];
+
+	// macOS specific menu adjustments
+	if (process.platform === 'darwin') {
+		// Add macOS specific items to the Application menu
+		template[0].submenu = [
+			{
+				label: 'About',
+				role: 'about',
+			},
+			{
+				type: 'separator',
+			},
+			{
+				label: 'Services',
+				role: 'services',
+				submenu: [],
+			},
+			{
+				type: 'separator',
+			},
+			{
+				label: 'Hide',
+				accelerator: 'Cmd+H',
+				role: 'hide',
+			},
+			{
+				label: 'Hide Others',
+				accelerator: 'Cmd+Shift+H',
+				role: 'hideOthers',
+			},
+			{
+				label: 'Show All',
+				role: 'unhide',
+			},
+			{
+				type: 'separator',
+			},
+			{
+				label: 'Quit',
+				accelerator: 'Cmd+Q',
+				click: () => {
+					app.quit();
+				},
+			},
+		];
+	}
+
+	const menu = Menu.buildFromTemplate(template);
+	Menu.setApplicationMenu(menu);
+
+	// Update menu state after creation
+	setTimeout(() => {
+		updateMenuBarState();
+	}, 2000); // Wait for NotchDrop service to initialize
+}
+
+// Set up listeners for NotchDrop status changes to update menu
+function setupNotchDropMenuUpdates() {
+	if (!notchDropService) return;
+
+	// Listen for status changes from NotchDrop service
+	// Since the service emits events to the renderer, we'll listen for IPC messages
+	// that indicate status changes and update the menu accordingly
+
+	// Set up a periodic check to update menu state (as a fallback)
+	setInterval(() => {
+		updateMenuBarState();
+	}, 5000); // Update every 5 seconds
+}
+
+// Update menu bar to reflect current NotchDrop state
+function updateMenuBarState() {
+	try {
+		const menu = Menu.getApplicationMenu();
+		if (!menu) return;
+
+		const notchDropMenu = menu.getMenuItemById('notchdrop-status');
+		if (notchDropMenu && notchDropService) {
+			const isVisible = notchDropService.isVisible();
+			const status = notchDropService.getStatus();
+			const autoOpen = notchDropService.getAutoOpenOnStartup();
+
+			// Update status label
+			notchDropMenu.label = `Status: ${status} (${isVisible ? 'Visible' : 'Hidden'})`;
+
+			// Update auto-open checkbox
+			const autoOpenMenu = menu.items
+				.find((item) => item.label === 'NotchDrop')
+				?.submenu?.items.find((item) => item.label === 'Auto-open on Startup');
+			if (autoOpenMenu) {
+				autoOpenMenu.checked = autoOpen;
+			}
+		}
+	} catch (error) {
+		log.error('❌ Failed to update menu bar state:', error);
+	}
+}
+
+// Window creation
+function createWindow(restoreState = false) {
+	// Determine the appropriate icon based on platform
+	let iconPath;
+	if (process.platform === 'win32') {
+		// Try multiple possible paths for development and production
+		const possiblePaths = [
+			path.join(__dirname, 'assets', 'app-logo.ico'),
+			path.join(__dirname, '..', 'electron', 'assets', 'app-logo.ico'),
+			path.join(process.cwd(), 'electron', 'assets', 'app-logo.ico'),
+		];
+
+		// Find the first path that exists
+		for (const testPath of possiblePaths) {
+			if (require('fs').existsSync(testPath)) {
+				iconPath = testPath;
+				break;
+			}
+		}
+
+		// Fallback to the first path if none exist
+		if (!iconPath) {
+			iconPath = possiblePaths[0];
+		}
+	} else if (process.platform === 'darwin') {
+		iconPath = path.join(__dirname, 'assets', 'app-logo.icns');
+	} else {
+		iconPath = path.join(__dirname, 'assets', 've-black-circle-logo.png');
+	}
+
+	// Use saved window bounds if available, otherwise use defaults
+	const defaultBounds = { width: 1366, height: 768, x: undefined, y: undefined };
+	const windowBounds =
+		restoreState && lastWindowState.windowBounds
+			? { ...defaultBounds, ...lastWindowState.windowBounds }
+			: defaultBounds;
+
+	mainWindow = new BrowserWindow({
+		title: 'Ve AI - Priority',
+		width: windowBounds.width,
+		height: windowBounds.height,
+		x: windowBounds.x,
+		y: windowBounds.y,
+		show: false,
+		icon: iconPath,
+		webPreferences: {
+			preload: path.join(__dirname, 'preload.js'),
+			nodeIntegration: false,
+			contextIsolation: true,
+			devTools: true, // Enable developer tools in production
+		},
+	});
+
+	if (process.env.VITE_DEV_SERVER_URL) {
+		mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
+	} else {
+		mainWindow.loadFile('build/index.html');
+	}
+
+	mainWindow.once('ready-to-show', () => {
+		mainWindow.show();
+
+		// Apply content protection to main window
+		applyContentProtectionToWindow(mainWindow);
+		log.info('Window ready-to-show - content protection applied');
+
+		// If restoring state, navigate to the last known route
+		if (restoreState && lastWindowState.route) {
+			setTimeout(() => {
+				mainWindow.webContents.send('restore-window-state', lastWindowState);
+			}, 1000); // Wait a bit for the app to fully load
+		}
+	});
+
+	// Save window state before closing (cross-platform)
+	mainWindow.on('close', (event) => {
+		// Save the current window state
+		saveWindowState();
+
+		// Cross-platform close behavior - keep app running in background
+		if (!isQuitting) {
+			event.preventDefault();
+			mainWindow.hide();
+		}
+	});
+	// Delay update check to ensure app is fully loaded
+	setTimeout(() => {
+		autoUpdater.checkForUpdatesAndNotify();
+	}, 5000); // Wait 5 seconds after app loads
+}
+
+// Create system tray for Windows
+function createTray() {
+	if (process.platform !== 'win32') return;
+
+	try {
+		// Use the app icon for the tray - try multiple paths
+		let iconPath;
+		const possiblePaths = [
+			path.join(__dirname, '..', 'electron', 'assets', 've-black-circle-logo.png'), // Development
+			path.join(__dirname, 'assets', 've-black-circle-logo.png'), // Built app
+			path.join(__dirname, '..', 'public', 've-black-circle-logo.png'), // Fallback
+		];
+
+		// Find the first path that exists
+		for (const testPath of possiblePaths) {
+			if (fs.existsSync(testPath)) {
+				iconPath = testPath;
+				break;
+			}
+		}
+
+		if (!iconPath) {
+			log.warn('Tray icon not found, skipping tray creation');
+			return;
+		}
+		tray = new Tray(iconPath);
+		tray.setToolTip('VE Desktop App');
+
+		// Create tray menu
+		const contextMenu = Menu.buildFromTemplate([
+			{
+				label: 'Show App',
+				click: () => {
+					if (mainWindow && !mainWindow.isDestroyed()) {
+						mainWindow.show();
+						mainWindow.focus();
+					} else {
+						// Window doesn't exist, recreate it
+						createWindow(true); // Pass true to restore state
+					}
+				},
+			},
+			{
+				label: 'Quit',
+				click: () => {
+					isQuitting = true;
+					app.quit();
+				},
+			},
+		]);
+
+		tray.setContextMenu(contextMenu);
+
+		// Double-click tray icon to show app
+		tray.on('double-click', () => {
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				mainWindow.show();
+				mainWindow.focus();
+			} else {
+				// Window doesn't exist, recreate it
+				createWindow(true); // Pass true to restore state
+			}
+		});
+	} catch (error) {
+		log.error('Error creating system tray:', error);
+	}
+}
 
 // App lifecycle
 app.whenReady().then(async () => {
@@ -378,13 +1242,9 @@ app.whenReady().then(async () => {
 			'clipboard-write', // Clipboard write permission
 		];
 
-		log.info('Permission requested:', permission);
-
 		if (allowedPermissions.includes(permission)) {
-			log.info('✅ Granted permission for:', permission);
 			callback(true);
 		} else {
-			log.info('❌ Denied permission for:', permission);
 			callback(false);
 		}
 	});
@@ -396,6 +1256,15 @@ app.whenReady().then(async () => {
 		}
 		return false;
 	});
+
+	session.defaultSession.setDisplayMediaRequestHandler(
+		(request, callback) => {
+			desktopCapturer.getSources({ types: ['screen'] }).then((sources) => {
+				callback({ video: sources[0], audio: 'loopback' });
+			});
+		},
+		{ useSystemPicker: true },
+	);
 
 	// Check macOS microphone permission status (macOS only)
 	if (process.platform === 'darwin') {
@@ -410,28 +1279,44 @@ app.whenReady().then(async () => {
 		console.log('Camera status:', cameraStatus);
 	}
 
-	// ✅ ADD THE DEBUG SCREEN PERMISSION PROMPT HERE (macOS only)
+	// ✅ Request screen recording permission (macOS only)
 	if (process.platform === 'darwin') {
 		setTimeout(async () => {
 			try {
-				// console.log('🔧 Forcing screen permission prompt...');
-				const granted = await systemPreferences.askForMediaAccess('screen');
+				log.info('🔧 Requesting screen recording permission...');
+				const granted = await systemPreferences.askForMediaAccess('screen-recording');
+				log.info('Screen recording permission result:', granted);
 			} catch (error) {
-				console.error(error);
+				log.error('Error requesting screen recording permission:', error);
 				// This is expected in some cases, not a critical error
 			}
 		}, 2000);
 
 		// Also request camera permission
 		setTimeout(async () => {
-			const cameraGranted = await systemPreferences.askForMediaAccess('camera');
+			try {
+				const cameraGranted = await systemPreferences.askForMediaAccess('camera');
+				log.info('Camera permission result:', cameraGranted);
+			} catch (error) {
+				log.error('Error requesting camera permission:', error);
+			}
 		}, 3000);
 
 		// Log initial camera permission status
 		setTimeout(async () => {
-			const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
-
-			console.log('Camera status:', cameraStatus);
+			try {
+				const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
+				const screenRecordingStatus =
+					systemPreferences.getMediaAccessStatus('screen-recording');
+				log.info(
+					'Final permission status - Camera:',
+					cameraStatus,
+					'Screen Recording:',
+					screenRecordingStatus,
+				);
+			} catch (error) {
+				log.error('Error checking permission status:', error);
+			}
 		}, 4000);
 	}
 
@@ -445,14 +1330,38 @@ app.whenReady().then(async () => {
 
 	// THEN: Create main window after dynamic island
 	createWindow();
-
 	createTray(); // Create system tray for Windows
 	createMenuBar();
 
-	windowHelper = new WindowHelper();
+	windowHelper = new WindowHelper(applyContentProtectionToWindow);
 	windowHelper.registerGlobalShortcuts(mainWindow);
+	windowHelper.setDynamicIslandHelper(dynamicIslandHelper);
 
-	// Register Ask AI window IPC handlers
+	// Simple Content Protection IPC handlers
+	ipcMain.handle('toggle-content-protection', () => {
+		const newStatus = toggleContentProtection();
+		const statusText = newStatus ? 'ON' : 'OFF';
+		const windowCount = BrowserWindow.getAllWindows().length;
+
+		showNotification(
+			`Content Protection: ${statusText}`,
+			newStatus
+				? `🔒 INVISIBILITY ON - ${windowCount} windows are now protected from screen recording`
+				: `👁️ INVISIBILITY OFF - ${windowCount} windows are now visible in screen recording`,
+		);
+
+		return newStatus;
+	});
+
+	ipcMain.handle('get-content-protection-status', () => {
+		const status = getContentProtectionStatus();
+		return status;
+	});
+
+	ipcMain.handle('set-content-protection', (event, enabled) => {
+		return setContentProtection(enabled);
+	});
+
 	ipcMain.handle('toggle-askAI-window', async () => {
 		try {
 			windowHelper?.toggleAskAIWindow();
@@ -771,6 +1680,22 @@ app.whenReady().then(async () => {
 
 	// Set up NotchDrop status change listener to update menu
 	setupNotchDropMenuUpdates();
+
+	// macOS dock icon click handler to reopen main window
+	if (process.platform === 'darwin') {
+		app.on('activate', () => {
+			log.info('🍎 Dock icon clicked - reopening main window');
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				// Window exists, just show and focus it
+				mainWindow.show();
+				mainWindow.focus();
+			} else {
+				// Window doesn't exist, recreate it
+				log.info('Main window not available, recreating from dock click');
+				createWindow(true); // Pass true to restore state
+			}
+		});
+	}
 
 	// Register global shortcut for dynamic island (Cmd+I)
 	globalShortcut.register('CommandOrControl+I', () => {
@@ -1867,10 +2792,21 @@ app.whenReady().then(async () => {
 	// Handle state updates from overlay to Dynamic Island
 	ipcMain.handle('overlay-state-update', async (event, state) => {
 		try {
+			log.debug('Received overlay state update:', state);
+
+			// Validate state parameter
+			if (!state || typeof state !== 'object') {
+				log.warn('Invalid state parameter received:', state);
+				return { success: false, error: 'Invalid state parameter' };
+			}
+
 			const dynamicIslandWindow = dynamicIslandHelper?.dynamicIslandWindow;
-			if (dynamicIslandWindow) {
+			if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
 				// Forward state to Dynamic Island window
 				dynamicIslandWindow.webContents.send('overlay-state-changed', state);
+				log.debug('State forwarded to Dynamic Island window');
+			} else {
+				log.warn('Dynamic Island window not available for state update');
 			}
 
 			// Update recording state and manage Are You There timer
@@ -1879,6 +2815,7 @@ app.whenReady().then(async () => {
 					// Recording started - start the timer
 					if (!isRecordingActive) {
 						startAreYouThereTimer();
+						log.debug('Started Are You There timer');
 					}
 				} else {
 					// Recording stopped - stop the timer and hide window
@@ -1887,6 +2824,7 @@ app.whenReady().then(async () => {
 						if (windowHelper) {
 							windowHelper.hideAreYouThereWindow();
 						}
+						log.debug('Stopped Are You There timer and hid window');
 					}
 				}
 			}
@@ -1897,6 +2835,9 @@ app.whenReady().then(async () => {
 			return { success: false, error: error.message };
 		}
 	});
+
+	// Confirm handler registration
+	log.info('overlay-state-update handler registered successfully');
 
 	// Test handler for debugging
 	ipcMain.handle('test-overlay-connection', async () => {
@@ -2566,6 +3507,44 @@ app.whenReady().then(async () => {
 			return { success: false, error: error.message };
 		}
 	});
+
+	// Show screen recording permission help
+	ipcMain.handle('show-screen-recording-permission-help', async () => {
+		try {
+			if (process.platform === 'darwin') {
+				const result = await dialog.showMessageBox(mainWindow, {
+					type: 'info',
+					title: 'Screen Recording Permission Required',
+					message: 'Screen recording access is needed for screen capture functionality',
+					detail: 'To enable screen recording access:\n\n1. Go to System Preferences > Security & Privacy > Privacy\n2. Select "Screen Recording" from the left sidebar\n3. Check the box next to this app\n4. Restart the app if needed',
+					buttons: ['Open System Preferences', 'Cancel'],
+					defaultId: 0,
+					cancelId: 1,
+				});
+
+				if (result.response === 0) {
+					// Open System Preferences to Screen Recording section
+					exec(
+						'open "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"',
+					);
+				}
+
+				return { success: true, openedSystemPrefs: result.response === 0 };
+			} else {
+				return {
+					success: true,
+					openedSystemPrefs: false,
+					message: 'Screen recording permissions handled by system',
+				};
+			}
+		} catch (error) {
+			log.error('Error showing screen recording permission help:', error);
+			return {
+				success: false,
+				error: error.message,
+			};
+		}
+	});
 });
 
 // Handle app quit properly
@@ -2685,442 +3664,6 @@ function handleNotificationAction(action) {
 	}
 }
 
-// Window state management functions
-function saveWindowState() {
-	if (mainWindow && !mainWindow.isDestroyed()) {
-		// Save current route and timestamp
-		lastWindowState = {
-			route: '/home', // Default route - can be enhanced to get actual route
-			timestamp: Date.now(),
-		};
-		log.info('Window state saved:', lastWindowState);
-	}
-}
-
-// Menu bar creation
-function createMenuBar() {
-	const isMac = isMacRuntime;
-	const template = [
-		{
-			label: 'Application',
-			submenu: [
-				{
-					label: 'About',
-					role: 'about',
-				},
-				{
-					type: 'separator',
-				},
-				{
-					label: 'Quit',
-					accelerator: isMac ? 'Cmd+Q' : 'Ctrl+Q',
-					click: () => {
-						app.quit();
-					},
-				},
-			],
-		},
-		// Insert NotchDrop menu only on macOS
-		...(isMac
-			? [
-					{
-						label: 'Notch',
-						submenu: [
-							{
-								label: 'Open Notch',
-								accelerator: 'CmdOrCtrl+N',
-								click: async () => {
-									try {
-										if (notchDropService) {
-											const result = await notchDropService.enable();
-											if (result) {
-												log.info('✅ NotchDrop opened from menu');
-												updateMenuBarState();
-											}
-										}
-									} catch (error) {
-										log.error('❌ Failed to open NotchDrop from menu:', error);
-									}
-								},
-							},
-							{
-								label: 'Close Notch',
-								accelerator: 'CmdOrCtrl+Shift+N',
-								click: async () => {
-									try {
-										if (notchDropService) {
-											const result = await notchDropService.disable();
-											if (result) {
-												log.info('✅ NotchDrop closed from menu');
-												updateMenuBarState();
-											}
-										}
-									} catch (error) {
-										log.error('❌ Failed to close NotchDrop from menu:', error);
-									}
-								},
-							},
-							{
-								type: 'separator',
-							},
-							{
-								label: 'Toggle Notch',
-								accelerator: 'CmdOrCtrl+T',
-								click: async () => {
-									try {
-										if (notchDropService) {
-											const result = await notchDropService.toggle();
-											if (result) {
-												log.info('✅ NotchDrop toggled from menu');
-												updateMenuBarState();
-											}
-										}
-									} catch (error) {
-										log.error(
-											'❌ Failed to toggle NotchDrop from menu:',
-											error,
-										);
-									}
-								},
-							},
-							{
-								type: 'separator',
-							},
-							{
-								label: 'Status',
-								enabled: false,
-								id: 'notchdrop-status',
-							},
-							{
-								type: 'separator',
-							},
-							{
-								label: 'Auto-open on Startup',
-								type: 'checkbox',
-								checked: true,
-								click: async (menuItem) => {
-									try {
-										if (notchDropService) {
-											const result =
-												await notchDropService.setAutoOpenOnStartup(
-													menuItem.checked,
-												);
-											if (result) {
-												log.info(
-													`🔧 Auto-open on startup ${
-														menuItem.checked ? 'enabled' : 'disabled'
-													} from menu`,
-												);
-											}
-										}
-									} catch (error) {
-										log.error(
-											'❌ Failed to set auto-open setting from menu:',
-											error,
-										);
-									}
-								},
-							},
-						],
-					},
-			  ]
-			: []),
-		{
-			label: 'View',
-			submenu: [
-				{
-					label: 'Toggle Developer Tools',
-					accelerator: 'F12',
-					click: () => {
-						mainWindow.webContents.toggleDevTools();
-					},
-				},
-				// Show Dynamic Island toggle only for non-mac runtime
-				...(isMac
-					? []
-					: [
-							{
-								label: 'Toggle Dynamic Island',
-								accelerator: 'CmdOrCtrl+I',
-								click: () => {
-									try {
-										if (dynamicIslandHelper) {
-											dynamicIslandHelper.toggleVisibility();
-										}
-									} catch (error) {
-										log.error(
-											'Error toggling dynamic island from menu:',
-											error,
-										);
-									}
-								},
-							},
-					  ]),
-				{
-					label: 'Reload',
-					accelerator: 'CmdOrCtrl+R',
-					click: () => {
-						mainWindow.reload();
-					},
-				},
-			],
-		},
-		{
-			label: 'Window',
-			submenu: [
-				{
-					label: 'Minimize',
-					accelerator: 'CmdOrCtrl+M',
-					role: 'minimize',
-				},
-				{
-					label: 'Close',
-					accelerator: 'CmdOrCtrl+W',
-					role: 'close',
-				},
-			],
-		},
-	];
-
-	// macOS specific menu adjustments
-	if (process.platform === 'darwin') {
-		// Add macOS specific items to the Application menu
-		template[0].submenu = [
-			{
-				label: 'About',
-				role: 'about',
-			},
-			{
-				type: 'separator',
-			},
-			{
-				label: 'Services',
-				role: 'services',
-				submenu: [],
-			},
-			{
-				type: 'separator',
-			},
-			{
-				label: 'Hide',
-				accelerator: 'Cmd+H',
-				role: 'hide',
-			},
-			{
-				label: 'Hide Others',
-				accelerator: 'Cmd+Shift+H',
-				role: 'hideOthers',
-			},
-			{
-				label: 'Show All',
-				role: 'unhide',
-			},
-			{
-				type: 'separator',
-			},
-			{
-				label: 'Quit',
-				accelerator: 'Cmd+Q',
-				click: () => {
-					app.quit();
-				},
-			},
-		];
-	}
-
-	const menu = Menu.buildFromTemplate(template);
-	Menu.setApplicationMenu(menu);
-
-	// Update menu state after creation
-	setTimeout(() => {
-		updateMenuBarState();
-	}, 2000); // Wait for NotchDrop service to initialize
-}
-
-// Set up listeners for NotchDrop status changes to update menu
-function setupNotchDropMenuUpdates() {
-	if (!notchDropService) return;
-
-	// Listen for status changes from NotchDrop service
-	// Since the service emits events to the renderer, we'll listen for IPC messages
-	// that indicate status changes and update the menu accordingly
-
-	// Set up a periodic check to update menu state (as a fallback)
-	setInterval(() => {
-		updateMenuBarState();
-	}, 5000); // Update every 5 seconds
-}
-
-// Update menu bar to reflect current NotchDrop state
-function updateMenuBarState() {
-	try {
-		const menu = Menu.getApplicationMenu();
-		if (!menu) return;
-
-		const notchDropMenu = menu.getMenuItemById('notchdrop-status');
-		if (notchDropMenu && notchDropService) {
-			const isVisible = notchDropService.isVisible();
-			const status = notchDropService.getStatus();
-			const autoOpen = notchDropService.getAutoOpenOnStartup();
-
-			// Update status label
-			notchDropMenu.label = `Status: ${status} (${isVisible ? 'Visible' : 'Hidden'})`;
-
-			// Update auto-open checkbox
-			const autoOpenMenu = menu.items
-				.find((item) => item.label === 'NotchDrop')
-				?.submenu?.items.find((item) => item.label === 'Auto-open on Startup');
-			if (autoOpenMenu) {
-				autoOpenMenu.checked = autoOpen;
-			}
-		}
-	} catch (error) {
-		log.error('❌ Failed to update menu bar state:', error);
-	}
-}
-
-// Window creation
-function createWindow(restoreState = false) {
-	// Determine the appropriate icon based on platform
-	let iconPath;
-	if (process.platform === 'win32') {
-		// Try multiple possible paths for development and production
-		const possiblePaths = [
-			path.join(__dirname, 'assets', 'app-logo.ico'),
-			path.join(__dirname, '..', 'electron', 'assets', 'app-logo.ico'),
-			path.join(process.cwd(), 'electron', 'assets', 'app-logo.ico'),
-		];
-
-		// Find the first path that exists
-		for (const testPath of possiblePaths) {
-			if (require('fs').existsSync(testPath)) {
-				iconPath = testPath;
-				break;
-			}
-		}
-
-		// Fallback to the first path if none exist
-		if (!iconPath) {
-			iconPath = possiblePaths[0];
-		}
-	} else if (process.platform === 'darwin') {
-		iconPath = path.join(__dirname, 'assets', 'app-logo.icns');
-	} else {
-		iconPath = path.join(__dirname, 'assets', 've-black-circle-logo.png');
-	}
-
-	mainWindow = new BrowserWindow({
-		title: 'Ve AI - Priority',
-		width: 1366,
-		height: 768,
-		show: false,
-		icon: iconPath,
-		webPreferences: {
-			preload: path.join(__dirname, 'preload.js'),
-			nodeIntegration: false,
-			contextIsolation: true,
-			devTools: true, // Enable developer tools in production
-		},
-	});
-
-	if (process.env.VITE_DEV_SERVER_URL) {
-		mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
-	} else {
-		mainWindow.loadFile('build/index.html');
-	}
-
-	mainWindow.once('ready-to-show', () => {
-		mainWindow.show();
-		// If restoring state, navigate to the last known route
-		if (restoreState && lastWindowState.route) {
-			setTimeout(() => {
-				mainWindow.webContents.send('restore-window-state', lastWindowState);
-			}, 1000); // Wait a bit for the app to fully load
-		}
-	});
-
-	// Save window state before closing (cross-platform)
-	mainWindow.on('close', (event) => {
-		// Save the current window state
-		saveWindowState();
-
-		// Windows-specific close behavior
-		if (process.platform === 'win32') {
-			if (!isQuitting) {
-				event.preventDefault();
-				mainWindow.hide();
-			}
-		}
-	});
-
-	// Check for updates in both dev and production
-	// Delay update check to ensure app is fully loaded
-	setTimeout(() => {
-		autoUpdater.checkForUpdatesAndNotify();
-	}, 5000); // Wait 5 seconds after app loads
-}
-
-// Create system tray for Windows
-function createTray() {
-	if (process.platform !== 'win32') return;
-
-	try {
-		// Use the app icon for the tray - try multiple paths
-		let iconPath;
-		const possiblePaths = [
-			path.join(__dirname, '..', 'electron', 'assets', 've-black-circle-logo.png'), // Development
-			path.join(__dirname, 'assets', 've-black-circle-logo.png'), // Built app
-			path.join(__dirname, '..', 'public', 've-black-circle-logo.png'), // Fallback
-		];
-
-		// Find the first path that exists
-		for (const testPath of possiblePaths) {
-			if (fs.existsSync(testPath)) {
-				iconPath = testPath;
-				break;
-			}
-		}
-
-		if (!iconPath) {
-			log.warn('Tray icon not found, skipping tray creation');
-			return;
-		}
-		tray = new Tray(iconPath);
-		tray.setToolTip('VE Desktop App');
-
-		// Create tray menu
-		const contextMenu = Menu.buildFromTemplate([
-			{
-				label: 'Show App',
-				click: () => {
-					if (mainWindow && !mainWindow.isDestroyed()) {
-						mainWindow.show();
-						mainWindow.focus();
-					}
-				},
-			},
-			{
-				label: 'Quit',
-				click: () => {
-					isQuitting = true;
-					app.quit();
-				},
-			},
-		]);
-
-		tray.setContextMenu(contextMenu);
-
-		// Double-click tray icon to show app
-		tray.on('double-click', () => {
-			if (mainWindow && !mainWindow.isDestroyed()) {
-				mainWindow.show();
-				mainWindow.focus();
-			}
-		});
-	} catch (error) {
-		log.error('Error creating system tray:', error);
-	}
-}
 // Are You There timer functions
 function startAreYouThereTimer() {
 	// Clear any existing timer

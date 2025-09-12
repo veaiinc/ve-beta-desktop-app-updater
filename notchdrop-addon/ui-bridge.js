@@ -233,14 +233,33 @@ class NotchDropUIBridge {
 	// Overlay Integration Methods
 	onOverlayStateChange(state) {
 		console.log('🏝️ NotchDrop UI received overlay state:', state);
-		this.updateUIState({
+		
+		// Update local UI state
+		const updatedState = {
 			isRecording: state.isRecording || false,
 			isPaused: state.isPaused || false,
 			timer: state.timer || 0,
 			isLiveIntelligenceOpen: state.isLiveIntelligenceOpen || false,
 			controlledByNotchDrop:
 				state.isNotchDropControlled || state.controlledByNotchDrop || false,
-		});
+			isAuthenticated: state.isAuthenticated || false,
+		};
+		
+		console.log('🏝️ Updating UI state with:', updatedState);
+		this.updateUIState(updatedState);
+		
+		// Send state update to Swift side for collapsed UI
+		if (this.addon && this.addon.onOverlayStateChange) {
+			try {
+				console.log('📊 Sending state to Swift side:', state);
+				this.addon.onOverlayStateChange(state);
+				console.log('✅ State successfully sent to Swift side');
+			} catch (error) {
+				console.error('❌ Error sending state to Swift:', error);
+			}
+		} else {
+			console.warn('⚠️ NotchDrop addon or onOverlayStateChange method not available');
+		}
 	}
 
 	// Enhanced Overlay Integration Methods

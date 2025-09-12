@@ -51,7 +51,7 @@
 		color: var(--primary-font);
 		font-size: 24px; /* 26px */
 		// letter-spacing: 0.2px;
-		font-weight: 600;
+		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
 		margin: 20px 0; /* 12px */
 		line-height: 32px; /* 32px */
@@ -61,7 +61,7 @@
 		color: var(--primary-font);
 		font-size: 24px; /* 22px */
 		// letter-spacing: 0.2px;
-		font-weight: 600;
+		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
 		margin: 18px 0; /* 16px */
 		line-height: 32px; /* 28px */
@@ -71,7 +71,7 @@
 		color: var(--primary-font);
 		font-size: 20px; /* 20px */
 		// letter-spacing: 0.2px;
-		font-weight: 600;
+		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
 		margin: 24px 0 8px 0 !important; /* 16px */
 		line-height: 28px; /* 24px */
@@ -83,7 +83,7 @@
 		font-size: calc(var(--font-size) * 1.125); /* 18px */
 		line-height: calc(var(--font-size) * 1.375); /* 22px */
 		// letter-spacing: 0.2px;
-		font-weight: 600;
+		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
 		margin: calc(var(--font-size) * 1) 0; /* 16px */
 	}
@@ -93,7 +93,7 @@
 		font-size: calc(var(--font-size) * 1); /* 16px */
 		line-height: calc(var(--font-size) * 1.5625); /* 25px */
 		// letter-spacing: 0.2px;
-		font-weight: 600;
+		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
 		margin: calc(var(--font-size) * 1) 0; /* 16px */
 	}
@@ -131,11 +131,9 @@
 	}
 
 	hr {
-		// margin: 40px 0;
 		margin: 20px 0;
 		border: 0;
 		border-top: 1px solid var(--stroke);
-		opacity: 0.65;
 	}
 
 	.ol,
@@ -359,6 +357,11 @@
 	}
 
 	.chat-fade-in {
+		opacity: 0;
+		animation: chat-fade-in 0.8s ease-in-out forwards;
+	}
+
+	hr {
 		opacity: 0;
 		animation: chat-fade-in 0.8s ease-in-out forwards;
 	}

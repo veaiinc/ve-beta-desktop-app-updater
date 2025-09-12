@@ -17,6 +17,7 @@
 	width: auto; /* Dynamic width based on content */
 	min-width: 100px;
 	max-width: 100vw; /* Don't exceed viewport width */
+	width: 100%;
 }
 
 .overlay-container {

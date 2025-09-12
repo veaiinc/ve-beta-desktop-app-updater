@@ -156,11 +156,98 @@
 	}
 }
 
+// Question Display
+.ai-question-display {
+	padding: 12px 16px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+	background: rgba(255, 255, 255, 0.02);
+	
+	.ai-question-text {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		margin-bottom: 8px;
+		
+		.question-label {
+			font-size: 12px;
+			color: rgba(255, 255, 255, 0.6);
+			font-weight: 500;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+		
+		.question-content {
+			font-size: 14px;
+			color: rgba(255, 255, 255, 0.9);
+			line-height: 1.4;
+			word-wrap: break-word;
+		}
+	}
+	
+	.thinking-indicator {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		justify-content: flex-end;
+		
+		.thinking-dots {
+			display: flex;
+			gap: 3px;
+			
+			span {
+				width: 4px;
+				height: 4px;
+				background: rgba(121, 236, 201, 0.8);
+				border-radius: 50%;
+				animation: thinkingPulse 1.4s infinite ease-in-out;
+				
+				&:nth-child(1) {
+					animation-delay: -0.32s;
+				}
+				
+				&:nth-child(2) {
+					animation-delay: -0.16s;
+				}
+				
+				&:nth-child(3) {
+					animation-delay: 0s;
+				}
+			}
+		}
+		
+		.thinking-text {
+			font-size: 12px;
+			color: rgba(121, 236, 201, 0.8);
+			font-weight: 500;
+		}
+	}
+}
+
+@keyframes thinkingPulse {
+	0%, 80%, 100% {
+		transform: scale(0.8);
+		opacity: 0.5;
+	}
+	40% {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
 .ai-response-content {
 	padding: 16px;
 	flex: 1;
 	overflow-y: auto;
 	min-height: 0;
+	position: relative;
+	
+	// Hide scrollbar while keeping scroll functionality
+	scrollbar-width: none; /* Firefox */
+	-ms-overflow-style: none; /* Internet Explorer 10+ */
+	
+	&::-webkit-scrollbar {
+		display: none; /* WebKit */
+	}
 }
 
 .loading-indicator {
@@ -310,6 +397,55 @@
 	}
 }
 
+// Scroll to Bottom Button - ChatGPT style
+.scroll-to-bottom-btn {
+	position: absolute;
+	bottom: 12px;
+	right: 50%;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: rgba(0, 0, 0, 0.8);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	color: rgba(255, 255, 255, 0.9);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+	z-index: 10;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+	-webkit-app-region: no-drag;
+	app-region: no-drag;
+
+	&:hover {
+		background: rgba(0, 0, 0, 0.9);
+		border-color: rgba(255, 255, 255, 0.3);
+		transform: scale(1.05);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+	}
+
+	&:active {
+		transform: scale(0.95);
+	}
+
+	// Fade in animation
+	animation: fadeInUp 0.2s ease-out;
+}
+
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
 // Input Bar (Bottom) - clean compact design
 .ask-ai-input {
 	background: rgba(0, 0, 0, 0.85);
@@ -383,6 +519,29 @@
 			border-color: rgba(255, 255, 255, 0.3);
 			background: rgba(255, 255, 255, 0.12);
 			color: rgba(255, 255, 255, 0.9);
+		}
+	}
+
+	&__stop {
+		background: rgba(255, 100, 100, 0.1);
+		border: 1px solid rgba(255, 100, 100, 0.3);
+		border-radius: 8px;
+		padding: 10px;
+		color: rgba(255, 100, 100, 0.8);
+		cursor: pointer;
+		transition: all 0.2s;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 40px;
+		-webkit-app-region: no-drag;
+		app-region: no-drag;
+
+		&:hover {
+			background: rgba(255, 100, 100, 0.2);
+			color: rgba(255, 100, 100, 1);
+			border-color: rgba(255, 100, 100, 0.5);
+			transform: translateY(-1px);
 		}
 	}
 

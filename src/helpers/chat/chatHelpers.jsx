@@ -12,6 +12,8 @@ export const handleDeepSearchChainOfThought = (chainOfThought) => {
 				title: data?.title || null,
 				readings: data?.reading || [],
 			});
+		} else if (data?.plan) {
+			cot?.push(data);
 		}
 	}
 
@@ -274,4 +276,26 @@ export const getBrowserUrls = async (sessionId, handleGlobalChatMessages) => {
 		console.error('error==>getBrowserUrls', error);
 		return;
 	}
+};
+
+export const getFileType = (file) => {
+	let type = file?.type || file?.sourceType || null;
+	if (!type) return 'Unknown';
+
+	type = type?.toLowerCase();
+
+	if (type === 'application/pdf') return 'PDF';
+	if (
+		type === 'application/msword' ||
+		type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+	)
+		return 'DOCX';
+	if (
+		type === 'application/vnd.ms-excel' ||
+		type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+	)
+		return 'XLSX';
+	if (type === 'text/csv') return 'CSV';
+
+	return type;
 };

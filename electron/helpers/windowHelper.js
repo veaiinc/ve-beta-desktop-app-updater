@@ -3,11 +3,14 @@ const log = require('electron-log');
 const path = require('node:path');
 
 class WindowHelper {
-	constructor() {
+	constructor(applyContentProtectionCallback = null) {
 		this.overlayWindow = null;
 		this.isOverlayVisible = false;
 		this.windowPosition = { x: 0, y: 0 };
 		this.windowSize = { width: 500, height: 150 };
+
+		// Store callback to apply content protection to new windows
+		this.applyContentProtection = applyContentProtectionCallback || (() => {});
 
 		// CRITICAL FIX: Track overlay window readiness for immediate response
 		this.overlayWindowReady = false;
@@ -32,6 +35,9 @@ class WindowHelper {
 		this.currentX = 0;
 		this.currentY = 0;
 		this.mainWindow = null;
+
+		// Simple drag optimization: store Dynamic Island reference
+		this.dynamicIslandHelper = null;
 	}
 
 	// CRITICAL FIX: Pre-create overlay window for immediate response
@@ -200,6 +206,9 @@ class WindowHelper {
 
 		this.overlayWindow = new BrowserWindow(windowSettings);
 
+		// Apply content protection to overlay window
+		this.applyContentProtection(this.overlayWindow);
+
 		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
 		const isDevelopment =
 			process.env.NODE_ENV === 'development' ||
@@ -313,6 +322,9 @@ class WindowHelper {
 
 		this.askAIWindow = new BrowserWindow(windowSettings);
 
+		// Apply content protection to Ask AI window
+		this.applyContentProtection(this.askAIWindow);
+
 		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
 		const isDevelopment =
 			process.env.NODE_ENV === 'development' ||
@@ -416,6 +428,9 @@ class WindowHelper {
 
 		this.areYouThereWindow = new BrowserWindow(windowSettings);
 
+		// Apply content protection to Are You There window
+		this.applyContentProtection(this.areYouThereWindow);
+
 		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
 		const isDevelopment =
 			process.env.NODE_ENV === 'development' ||
@@ -463,12 +478,35 @@ class WindowHelper {
 	setupWindowListeners() {
 		if (!this.overlayWindow) return;
 
+		// Simple drag detection: Hide Dynamic Island during drag, show when stopped
+		let isDragging = false;
+		let dragEndTimeout;
+
+		// Listen for when window starts moving (drag start)
+		this.overlayWindow.on('will-move', () => {
+			if (!isDragging) {
+				isDragging = true;
+				log.info('🎯 DRAG START: Hiding Dynamic Island for smooth dragging');
+				this.hideDynamicIslandForDrag();
+			}
+		});
+
 		this.overlayWindow.on('move', () => {
 			if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
 				const bounds = this.overlayWindow.getBounds();
 				this.windowPosition = { x: bounds.x, y: bounds.y };
 				this.currentX = bounds.x;
 				this.currentY = bounds.y;
+
+				// Reset the drag end timeout since we're still moving
+				if (isDragging) {
+					clearTimeout(dragEndTimeout);
+					dragEndTimeout = setTimeout(() => {
+						isDragging = false;
+						log.info('🎯 DRAG END: Showing Dynamic Island again');
+						this.showDynamicIslandAfterDrag();
+					}, 100); // 100ms after last move event
+				}
 			}
 		});
 
@@ -499,10 +537,33 @@ class WindowHelper {
 	setupAskAIWindowListeners() {
 		if (!this.askAIWindow) return;
 
+		// Same drag detection for Ask AI window: Hide Dynamic Island during drag, show when stopped
+		let isDragging = false;
+		let dragEndTimeout;
+
+		// Listen for when Ask AI window starts moving (drag start)
+		this.askAIWindow.on('will-move', () => {
+			if (!isDragging) {
+				isDragging = true;
+				log.info('🎯 ASK AI DRAG START: Hiding Dynamic Island for smooth dragging');
+				this.hideDynamicIslandForDrag();
+			}
+		});
+
 		this.askAIWindow.on('move', () => {
 			if (this.askAIWindow && !this.askAIWindow.isDestroyed()) {
 				const bounds = this.askAIWindow.getBounds();
 				this.askAIWindowPosition = { x: bounds.x, y: bounds.y };
+
+				// Reset the drag end timeout since we're still moving
+				if (isDragging) {
+					clearTimeout(dragEndTimeout);
+					dragEndTimeout = setTimeout(() => {
+						isDragging = false;
+						log.info('🎯 ASK AI DRAG END: Showing Dynamic Island again');
+						this.showDynamicIslandAfterDrag();
+					}, 100); // 100ms after last move event
+				}
 			}
 		});
 
@@ -538,10 +599,33 @@ class WindowHelper {
 	setupAreYouThereWindowListeners() {
 		if (!this.areYouThereWindow) return;
 
+		// Same drag detection for Are You There window: Hide Dynamic Island during drag, show when stopped
+		let isDragging = false;
+		let dragEndTimeout;
+
+		// Listen for when Are You There window starts moving (drag start)
+		this.areYouThereWindow.on('will-move', () => {
+			if (!isDragging) {
+				isDragging = true;
+				log.info('🎯 ARE YOU THERE DRAG START: Hiding Dynamic Island for smooth dragging');
+				this.hideDynamicIslandForDrag();
+			}
+		});
+
 		this.areYouThereWindow.on('move', () => {
 			if (this.areYouThereWindow && !this.areYouThereWindow.isDestroyed()) {
 				const bounds = this.areYouThereWindow.getBounds();
 				this.areYouThereWindowPosition = { x: bounds.x, y: bounds.y };
+
+				// Reset the drag end timeout since we're still moving
+				if (isDragging) {
+					clearTimeout(dragEndTimeout);
+					dragEndTimeout = setTimeout(() => {
+						isDragging = false;
+						log.info('🎯 ARE YOU THERE DRAG END: Showing Dynamic Island again');
+						this.showDynamicIslandAfterDrag();
+					}, 100); // 100ms after last move event
+				}
 			}
 		});
 
@@ -561,6 +645,37 @@ class WindowHelper {
 		this.areYouThereWindow.webContents.on('dom-ready', () => {
 			// Set Are You There window to be interactive immediately
 			this.areYouThereWindow.setIgnoreMouseEvents(false);
+		});
+	}
+
+	setupMainWindowListeners() {
+		if (!this.mainWindow) return;
+
+		// Same drag detection for main window: Hide Dynamic Island during drag, show when stopped
+		let isDragging = false;
+		let dragEndTimeout;
+
+		// Listen for when main window starts moving (drag start)
+		this.mainWindow.on('will-move', () => {
+			if (!isDragging) {
+				isDragging = true;
+				log.info('🎯 MAIN WINDOW DRAG START: Hiding Dynamic Island for smooth dragging');
+				this.hideDynamicIslandForDrag();
+			}
+		});
+
+		this.mainWindow.on('move', () => {
+			if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+				// Reset the drag end timeout since we're still moving
+				if (isDragging) {
+					clearTimeout(dragEndTimeout);
+					dragEndTimeout = setTimeout(() => {
+						isDragging = false;
+						log.info('🎯 MAIN WINDOW DRAG END: Showing Dynamic Island again');
+						this.showDynamicIslandAfterDrag();
+					}, 100); // 100ms after last move event
+				}
+			}
 		});
 	}
 
@@ -1014,8 +1129,36 @@ class WindowHelper {
 		this.overlayWindow.setPosition(Math.round(this.currentX), Math.round(this.currentY));
 	}
 
+	// Simple drag optimization methods
+	setDynamicIslandHelper(dynamicIslandHelper) {
+		this.dynamicIslandHelper = dynamicIslandHelper;
+	}
+
+	hideDynamicIslandForDrag() {
+		if (
+			this.dynamicIslandHelper?.dynamicIslandWindow &&
+			!this.dynamicIslandHelper.dynamicIslandWindow.isDestroyed()
+		) {
+			log.info('🫥 Hiding Dynamic Island during drag');
+			this.dynamicIslandHelper.dynamicIslandWindow.hide();
+		}
+	}
+
+	showDynamicIslandAfterDrag() {
+		if (
+			this.dynamicIslandHelper?.dynamicIslandWindow &&
+			!this.dynamicIslandHelper.dynamicIslandWindow.isDestroyed()
+		) {
+			log.info('👁️ Showing Dynamic Island after drag');
+			this.dynamicIslandHelper.dynamicIslandWindow.show();
+		}
+	}
+
 	registerGlobalShortcuts(mainWindow) {
 		this.mainWindow = mainWindow;
+
+		// Set up main window drag detection
+		this.setupMainWindowListeners();
 
 		// Check if globalShortcut is available
 		if (!globalShortcut) {
@@ -1066,21 +1209,56 @@ class WindowHelper {
 			}
 		}
 
+		// Register Cmd+Shift+P to toggle content protection (invisibility mode)
+		const cmdShiftPRegistered = globalShortcut.register('CommandOrControl+Shift+P', () => {
+			// Call the toggle function directly through IPC invoke
+			if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+				this.mainWindow.webContents.executeJavaScript(`
+					if (window.electronApi && window.electronApi.toggleContentProtection) {
+						window.electronApi.toggleContentProtection().then(status => {
+							console.log('🎯 Content Protection toggled via shortcut:', status ? 'ON' : 'OFF');
+						}).catch(err => {
+							console.error('Error toggling content protection:', err);
+						});
+					}
+				`);
+			}
+		});
+
+		if (cmdShiftPRegistered) {
+		} else {
+			log.error('❌ Failed to register Cmd+Shift+P shortcut for content protection');
+			// Try alternative shortcut on Windows
+			if (process.platform === 'win32') {
+				const altProtectionRegistered = globalShortcut.register('Ctrl+Alt+P', () => {
+					if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+						this.mainWindow.webContents.executeJavaScript(`
+							if (window.electronApi && window.electronApi.toggleContentProtection) {
+								window.electronApi.toggleContentProtection().then(status => {
+									console.log('🎯 Content Protection toggled via shortcut:', status ? 'ON' : 'OFF');
+								}).catch(err => {
+									console.error('Error toggling content protection:', err);
+								});
+							}
+						`);
+					}
+				});
+			}
+		}
+
 		// Register Cmd+Enter to toggle ask AI window only (independent of main window)
 		const cmdEnterRegistered = globalShortcut.register('CommandOrControl+Return', () => {
 			// Create ask AI window if it doesn't exist
-			if (!this.getAskAIWindow()) {
-				this.createAskAIWindow();
-			}
+			this.createAskAIWindow?.();
 
 			const isAskAIVisible = this.isAskAIWindowVisible();
 
 			if (isAskAIVisible) {
 				// Hide ask AI window only
-				this.hideAskAIWindow();
+				this.hideAskAIWindow?.();
 			} else {
 				// Show ask AI window only
-				this.showAskAIWindow();
+				this.showAskAIWindow?.();
 			}
 		});
 
@@ -1106,164 +1284,24 @@ class WindowHelper {
 			}
 		}
 
-		// Register arrow keys for window movement (only when overlay is visible)
-		const leftRegistered = globalShortcut.register('CommandOrControl+Left', () => {
-			if (this.isVisible()) this.moveWindowLeft();
-		});
-
-		const rightRegistered = globalShortcut.register('CommandOrControl+Right', () => {
-			if (this.isVisible()) this.moveWindowRight();
-		});
-
-		const upRegistered = globalShortcut.register('CommandOrControl+Up', () => {
-			if (this.isVisible()) this.moveWindowUp();
-		});
-
-		const downRegistered = globalShortcut.register('CommandOrControl+Down', () => {
-			if (this.isVisible()) this.moveWindowDown();
-		});
-
-		// Register F12 to toggle developer tools for overlay window
-		let f12Registered = false;
-		try {
-			f12Registered = globalShortcut.register('F12', () => {
-				// First, try to open dev tools for overlay window if visible
-				if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
-					if (this.overlayWindow.webContents.isDevToolsOpened()) {
-						this.overlayWindow.webContents.closeDevTools();
-					} else {
-						this.overlayWindow.webContents.openDevTools({ mode: 'detach' });
-					}
-					return;
-				}
-
-				// If overlay not visible, try Ask AI window
-				if (
-					this.askAIWindow &&
-					!this.askAIWindow.isDestroyed() &&
-					this.askAIWindow.isVisible()
-				) {
-					if (this.askAIWindow.webContents.isDevToolsOpened()) {
-						this.askAIWindow.webContents.closeDevTools();
-					} else {
-						this.askAIWindow.webContents.openDevTools({ mode: 'detach' });
-					}
-					return;
-				}
-
-				// If no overlay windows, open for main window
-				const mainWindow =
-					BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
-				if (mainWindow && !mainWindow.isDestroyed()) {
-					if (mainWindow.webContents.isDevToolsOpened()) {
-						mainWindow.webContents.closeDevTools();
-					} else {
-						mainWindow.webContents.openDevTools({ mode: 'detach' });
-					}
-				}
+		if (import.meta.env.VITE_APP_DEV_ENVIRONMENT === 'production') {
+			// Register arrow keys for window movement (only when overlay is visible)
+			const leftRegistered = globalShortcut.register('CommandOrControl+Left', () => {
+				if (this.isVisible()) this.moveWindowLeft();
 			});
-		} catch (error) {
-			// Try alternative F12 shortcut
-			try {
-				f12Registered = globalShortcut.register('CommandOrControl+F12', () => {
-					// First, try to open dev tools for overlay window if visible
-					if (
-						this.isVisible() &&
-						this.overlayWindow &&
-						!this.overlayWindow.isDestroyed()
-					) {
-						if (this.overlayWindow.webContents.isDevToolsOpened()) {
-							this.overlayWindow.webContents.closeDevTools();
-						} else {
-							this.overlayWindow.webContents.openDevTools({ mode: 'detach' });
-						}
-						return;
-					}
 
-					// If overlay not visible, try Ask AI window
-					if (
-						this.askAIWindow &&
-						!this.askAIWindow.isDestroyed() &&
-						this.askAIWindow.isVisible()
-					) {
-						if (this.askAIWindow.webContents.isDevToolsOpened()) {
-							this.askAIWindow.webContents.closeDevTools();
-						} else {
-							this.askAIWindow.webContents.openDevTools({ mode: 'detach' });
-						}
-						return;
-					}
+			const rightRegistered = globalShortcut.register('CommandOrControl+Right', () => {
+				if (this.isVisible()) this.moveWindowRight();
+			});
 
-					// If no overlay windows, open for main window
-					const mainWindow =
-						BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
-					if (mainWindow && !mainWindow.isDestroyed()) {
-						if (mainWindow.webContents.isDevToolsOpened()) {
-							mainWindow.webContents.closeDevTools();
-						} else {
-							mainWindow.webContents.openDevTools({ mode: 'detach' });
-						}
-					}
-				});
-				if (f12Registered) {
-				}
-			} catch (altError) {}
+			const upRegistered = globalShortcut.register('CommandOrControl+Up', () => {
+				if (this.isVisible()) this.moveWindowUp();
+			});
+
+			const downRegistered = globalShortcut.register('CommandOrControl+Down', () => {
+				if (this.isVisible()) this.moveWindowDown();
+			});
 		}
-
-		// Register Cmd+Shift+I as alternative for developer tools
-		const cmdShiftIRegistered = globalShortcut.register('CommandOrControl+Shift+I', () => {
-			// First, try to open dev tools for overlay window if visible
-			if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
-				if (this.overlayWindow.webContents.isDevToolsOpened()) {
-					this.overlayWindow.webContents.closeDevTools();
-				} else {
-					this.overlayWindow.webContents.openDevTools({ mode: 'detach' });
-				}
-				return;
-			}
-
-			// If overlay not visible, try Ask AI window
-			if (
-				this.askAIWindow &&
-				!this.askAIWindow.isDestroyed() &&
-				this.askAIWindow.isVisible()
-			) {
-				if (this.askAIWindow.webContents.isDevToolsOpened()) {
-					this.askAIWindow.webContents.closeDevTools();
-				} else {
-					this.askAIWindow.webContents.openDevTools({ mode: 'detach' });
-				}
-				return;
-			}
-
-			// If no overlay windows, open for main window
-			const mainWindow = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
-			if (mainWindow && !mainWindow.isDestroyed()) {
-				if (mainWindow.webContents.isDevToolsOpened()) {
-					mainWindow.webContents.closeDevTools();
-				} else {
-					mainWindow.webContents.openDevTools({ mode: 'detach' });
-				}
-			}
-		});
-
-		// Check if shortcuts are already registered by other apps
-		this.checkShortcutConflicts();
-	}
-
-	// Check for potential shortcut conflicts
-	checkShortcutConflicts() {
-		const shortcutsToCheck = [
-			'CommandOrControl+\\',
-			'CommandOrControl+Return',
-			'F12',
-			'CommandOrControl+F12',
-			'CommandOrControl+Shift+I',
-		];
-
-		shortcutsToCheck.forEach((shortcut) => {
-			const isRegistered = globalShortcut.isRegistered(shortcut);
-		});
 	}
 
 	// Log system-specific information for debugging

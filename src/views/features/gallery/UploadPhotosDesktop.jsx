@@ -682,7 +682,7 @@ const UploadPhotosDesktop = () => {
 			</div>
 			<div className="watermark_progress_container">
 				<WaterMarkComponent
-					setInfo={setInfo}
+					setinfo={setInfo}
 					waterMarks={waterMarks}
 					onSaveClick={onSaveClick}
 					waterMarkApply={info.isWaterMarkApply}
@@ -695,7 +695,7 @@ const UploadPhotosDesktop = () => {
 				/>
 				<UploadStatusComponent
 					info={info}
-					setInfo={setInfo}
+					setinfo={setInfo}
 					uploadFilesConcurrently={uploadFilesConcurrently}
 					galleryId={galleryId}
 					aiFacesLogic={aiFacesLogic}

@@ -42,44 +42,46 @@ const formatTimestamp = (timestamp) => {
 
 const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration }) => {
 	const [searchQuery, setSearchQuery] = useState('');
+	const [disconnectingAccountId, setDisconnectingAccountId] = useState(null);
 
-	// const {
-	// 	profileInfo: { updatedGmailAccount, getAuthUrlForThirdParty },
-	// } = useContext(Context);
+	const {
+		templates: { disconnectThirdParty },
+	} = useContext(Context);
 
-	// 	try {
-	// 		// Set loading state
-	// 		setDisconnectingAccountId(account?.uid || account?._id);
+	const handleDisconnect = async (account) => {
+		try {
+			// Set loading state
+			setDisconnectingAccountId(account?._id || account?.uid);
 
-	// 		// Determine the integration type from the connected integration data
-	// 		const integrationType = connectedIntegration?.connectType || account?.app || 'gmail';
+			// Determine the integration type from the connected integration data
+			const integrationType = connectedIntegration?.connectType || account?.app || 'gmail';
 
-	// 		// Get the account UID for disconnection
-	// 		const accountUid = account?.uid || account?._id;
+			// Get the account UID for disconnection
+			const accountId = account?._id || account?.uid;
 
-	// 		if (!accountUid) {
-	// 			message.error('Account ID not found');
-	// 			setDisconnectingAccountId(null);
-	// 			return;
-	// 		}
+			if (!accountId) {
+				message.error('Account ID not found');
+				setDisconnectingAccountId(null);
+				return;
+			}
 
-	// 		const response = await updatedGmailAccount(integrationType, accountUid);
+			const response = await disconnectThirdParty(integrationType, accountId);
 
-	// 		if (response?.[0]) {
-	// 			message.success('Account disconnected successfully');
+			if (response?.[0]) {
+				message.success('Account disconnected successfully');
 
-	// 			closeModal();
-	// 		} else {
-	// 			const errorMessage = response?.[1]?.message || 'Failed to disconnect account';
-	// 			message.error(errorMessage);
-	// 		}
-	// 	} catch (error) {
-	// 		console.error('Error disconnecting account:', error);
-	// 		message.error('Failed to disconnect account');
-	// 	} finally {
-	// 		setDisconnectingAccountId(null);
-	// 	}
-	// };
+				closeModal();
+			} else {
+				const errorMessage = response?.[1]?.message || 'Failed to disconnect account';
+				message.error(errorMessage);
+			}
+		} catch (error) {
+			console.error('Error disconnecting account:', error);
+			message.error('Failed to disconnect account');
+		} finally {
+			setDisconnectingAccountId(null);
+		}
+	};
 
 	// Filter accounts based on search query
 	const filteredAccounts =
@@ -137,7 +139,7 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 								<span className="status-dot"></span>
 								<span className="status-text">Connected</span>
 							</div>
-							{/* <button
+							<button
 								className="disconnect-button"
 								onClick={() =>
 									handleDisconnect(connectedIntegration?.accounts?.[0])
@@ -155,7 +157,7 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 								) : (
 									<DisconnectIcon className="disconnect-icon" />
 								)}
-							</button> */}
+							</button>
 						</div>
 					</div>
 

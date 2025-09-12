@@ -1,13 +1,4 @@
-import React, {
-	memo,
-	useCallback,
-	useState,
-	useRef,
-	useEffect,
-	useContext,
-	Fragment,
-	useMemo,
-} from 'react';
+import React, { memo, useCallback, useState, useRef, useEffect, useContext, Fragment } from 'react';
 import '../../../assets/scss/chat/chat.scss';
 import {
 	handleDeepSearchChainOfThought,
@@ -24,7 +15,6 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import { debounce } from 'lodash';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
-import TextSelector from '../../components/chat/chatComponents/TextSelector';
 import ChatHeader from '../../components/chat/ChatHeader';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import { message } from '../../components/globalComponents/CustomToast';
@@ -99,7 +89,6 @@ const RecentChat = ({
 			previousAgentType: null,
 			showScrollButton: false,
 			showViewDocument: false,
-			tooltipStyles: { visible: false, styles: { top: 0, left: 0 }, selectedText: '' },
 			deleteChatSessionLoading: false,
 			isNewChat: true,
 			currentUserMessageIndex: null,
@@ -133,17 +122,12 @@ const RecentChat = ({
 	const browserData = globalChatMessages?.[sessionId]?.browserData;
 
 	// Save whenever it changes
-
 	useEffect(() => {
 		localStorage.setItem('chatHistorySidebarClosed', JSON.stringify(info.isChatHistoryClosed));
 	}, [info.isChatHistoryClosed]);
 
 	useEffect(() => {
-		document.addEventListener('mouseup', handleMouseUp);
-
 		return () => {
-			document.removeEventListener('mouseup', handleMouseUp);
-
 			if (currentUserMessageTimeoutRef.current) {
 				clearTimeout(currentUserMessageTimeoutRef.current);
 				currentUserMessageTimeoutRef.current = null;
@@ -536,54 +520,6 @@ const RecentChat = ({
 		}));
 	}, []);
 
-	const handleMouseUp = useCallback(() => {
-		const selection = window?.getSelection();
-		if (!selection?.isCollapsed) {
-			const range = selection?.getRangeAt(0);
-			const rects = range?.getClientRects();
-			const selectedText = selection?.toString();
-
-			if (rects?.length > 0) {
-				const firstRect = rects[0];
-				const x = firstRect?.left + window?.scrollX;
-				const y = firstRect?.top + window?.scrollY;
-
-				// Get the infinite scroll container height
-				const infiniteScrollContainer = document?.querySelector(
-					'.infinite-scroll-component__outerdiv',
-				);
-				const containerRect = infiniteScrollContainer?.getBoundingClientRect();
-
-				// Calculate x and y relative to the infinite scroll container
-				const relativeX = x - (containerRect?.left || 0);
-				const relativeY = y - 44 - (containerRect?.top || 0);
-
-				setInfo((prev) => ({
-					...prev,
-					tooltipStyles: {
-						selectedText,
-						visible: true,
-						styles: { top: relativeY, left: relativeX },
-					},
-				}));
-			}
-		} else {
-			setInfo((prev) => {
-				const { visible, styles } = prev?.tooltipStyles || {};
-				if (visible === false && styles?.top === 0 && styles?.left === 0) return prev;
-
-				return {
-					...prev,
-					tooltipStyles: {
-						selectedText: prev?.tooltipStyles?.selectedText,
-						visible: false,
-						styles: { top: 0, left: 0 },
-					},
-				};
-			});
-		}
-	}, []);
-
 	const handleScroll = useCallback(() => {
 		if (!chatContentRef?.current) return;
 
@@ -640,6 +576,7 @@ const RecentChat = ({
 					userFeedbackReasons,
 					userRemarks,
 					unintegratedApps,
+					conversationMessages,
 				} = data?.[i] || {};
 
 				if (
@@ -647,6 +584,18 @@ const RecentChat = ({
 					agentType !== 'knowledge_agent'
 				) {
 					continue;
+				}
+
+				let images = [];
+				const content = conversationMessages?.[0]?.content;
+				if (Array.isArray(content)) {
+					content?.forEach((item) => {
+						if (item?.type === 'image_url') {
+							images?.push({
+								preview: item?.['image_url']?.url,
+							});
+						}
+					});
 				}
 
 				if (firstTimeApiCall) {
@@ -696,6 +645,7 @@ const RecentChat = ({
 					{
 						message: originalQuery,
 						type: 'user',
+						images,
 					},
 					{
 						message: response,
@@ -732,42 +682,6 @@ const RecentChat = ({
 						chatPayload?.workflowTemplateId && { chatPayload }),
 				});
 			}
-			// updateStateValues({
-			// 	...(chatPayload?.moduleTemplateId &&
-			// 		chatPayload?.workflowTemplateId && { chatPayload }),
-			// });
-
-			// if (fetcMore) {
-			// 	updateStateValues({
-			// 		globalChatMessages: {
-			// 			...(globalChatMessages || {}),
-			// 			[sessionId]: {
-			// 				...(globalChatMessages?.[sessionId] || {}),
-			// 				messages: messages?.concat(chatMessagesRef?.current),
-			// 			},
-			// 		},
-			// 		...(chatPayload?.moduleTemplateId &&
-			// 			chatPayload?.workflowTemplateId && { chatPayload }),
-			// 	});
-			// 	// if (chatContentRef?.current) {
-			// 	// 	chatContentRef.current.scrollBy({
-			// 	// 		top: 300, // Reduced from 500 for smoother feel
-			// 	// 		behavior: 'smooth',
-			// 	// 	});
-			// 	// }
-			// } else {
-			// 	updateStateValues({
-			// 		globalChatMessages: {
-			// 			...(globalChatMessages || {}),
-			// 			[sessionId]: {
-			// 				...(globalChatMessages?.[sessionId] || {}),
-			// 				messages,
-			// 			},
-			// 		},
-			// 		...(chatPayload?.moduleTemplateId &&
-			// 			chatPayload?.workflowTemplateId && { chatPayload }),
-			// 	});
-			// }
 
 			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
 		},
@@ -1093,11 +1007,6 @@ const RecentChat = ({
 							// 	'--chat-content-height': `${chatContentRef?.current?.clientHeight}px`,
 							// }}
 						>
-							<TextSelector
-								styles={info?.tooltipStyles?.styles}
-								text={info?.tooltipStyles?.selectedText}
-								visible={info?.tooltipStyles?.visible}
-							/>
 							<InfiniteScroll
 								dataLength={globalChatMessages?.length || 0}
 								next={fetchMoreData}
