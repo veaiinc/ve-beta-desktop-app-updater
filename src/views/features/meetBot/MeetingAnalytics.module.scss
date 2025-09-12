@@ -3,7 +3,7 @@ $font-family: "GeneralSans";
 .analyticsMainContainer {
     color: white;
     width: 100%;
-    background: #0D0E0F;
+    background: #0B0C0E;
     min-height: 100vh;
     padding: 24px;
     font-family: $font-family;
@@ -157,9 +157,9 @@ $font-family: "GeneralSans";
 
                 .participantHeader {
                     display: flex;
-                    align-items: center;
+                    align-items: flex-start;
                     gap: 12px;
-                    margin-bottom: 16px;
+                    margin-bottom: 0;
 
                     .participantAvatar {
                         width: 40px;
@@ -169,40 +169,112 @@ $font-family: "GeneralSans";
                         align-items: center;
                         justify-content: center;
                         color: white;
-                        font-weight: 600;
+                        font-family: $font-family;
                         font-size: 16px;
+                        font-style: normal;
+                        font-weight: 600;
+                        line-height: normal;
                     }
 
                     .participantInfo {
                         flex: 1;
 
-                        .participantName {
-                            color: #FFFFFF;
-                            font-size: 16px;
-                            font-weight: 600;
-                            margin: 0 0 4px 0;
-                        }
-
-                        .talkTimeInfo {
+                        .nameTimeRow {
                             display: flex;
+                            justify-content: space-between;
                             align-items: center;
-                            gap: 8px;
+                            margin-bottom: 8px;
 
-                            .talkTime {
-                                color: #9CA3AF;
-                                font-size: 14px;
+                            .participantName {
+                                color: #FFFFFF;
+                                font-family: $font-family;
+                                font-size: 16px;
+                                font-style: normal;
+                                font-weight: 500;
+                                line-height: 25px;
+                                letter-spacing: 0.2px;
+                                margin: 0;
                             }
 
-                            .talkPercentage {
+                            .timeWithIcon {
+                                display: flex;
+                                align-items: center;
+                                gap: 4px;
+
+                                .talkTime {
+                                    color: #9CA3AF;
+                                    font-family: $font-family;
+                                    font-size: 14px;
+                                    font-style: normal;
+                                    font-weight: 400;
+                                    line-height: 25px;
+                                    letter-spacing: 0.2px;
+                                }
+
+                                .clockIcon {
+                                    color: #9CA3AF;
+                                    font-size: 12px;
+                                }
+                            }
+                        }
+
+                        .percentageRow {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            padding: 8px 0;
+                            border-bottom: 1px solid #2A2D30;
+                            margin-bottom: 16px;
+
+                            .percentageLabel {
                                 color: #9CA3AF;
+                                font-family: $font-family;
                                 font-size: 14px;
+                                font-style: normal;
+                                font-weight: 400;
+                                line-height: 25px;
+                                letter-spacing: 0.2px;
+                            }
+
+                            .percentageValue {
+                                display: flex;
+                                align-items: center;
+                                gap: 8px;
+
+                                span {
+                                    color: #FFFFFF;
+                                    font-family: $font-family;
+                                    font-size: 14px;
+                                    font-style: normal;
+                                    font-weight: 600;
+                                    line-height: 25px;
+                                    letter-spacing: 0.2px;
+                                }
+
+                                .percentageIndicator {
+                                    position: relative;
+                                    width: 20px;
+                                    height: 10px;
+                                    overflow: hidden;
+
+                                    .percentageArc {
+                                        position: absolute;
+                                        width: 20px;
+                                        height: 20px;
+                                        border: 2px solid #1C993E;
+                                        border-radius: 50%;
+                                        border-bottom: transparent;
+                                        border-left: transparent;
+                                        transform-origin: 50% 100%;
+                                    }
+                                }
                             }
                         }
                     }
                 }
 
                 .participantMetrics {
-                    display: grid;
+                    // display: grid;
                     grid-template-columns: 1fr 1fr;
                     gap: 12px;
 
@@ -213,14 +285,34 @@ $font-family: "GeneralSans";
 
                         .metricName {
                             color: #9CA3AF;
+                            font-family: $font-family;
                             font-size: 14px;
+                            font-style: normal;
                             font-weight: 500;
+                            line-height: 25px;
+                            letter-spacing: 0.2px;
                         }
 
-                        .metricValue {
-                            color: #FFFFFF;
-                            font-size: 14px;
-                            font-weight: 600;
+                        .metricValueWithDot {
+                            display: flex;
+                            align-items: center;
+                            gap: 6px;
+
+                            .greenDot {
+                                color: #1C993E;
+                                font-size: 8px;
+                                line-height: 1;
+                            }
+
+                            .metricValue {
+                                color: #FFFFFF;
+                                font-family: $font-family;
+                                font-size: 14px;
+                                font-style: normal;
+                                font-weight: 600;
+                                line-height: 25px;
+                                letter-spacing: 0.2px;
+                            }
                         }
                     }
                 }

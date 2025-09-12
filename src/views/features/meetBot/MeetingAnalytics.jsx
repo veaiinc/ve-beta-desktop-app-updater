@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import a from './MeetingAnalytics.module.scss'
-
+import DownSvg from '../../../assets/svg/activity/DownSvg'
+import ClockSvg from './clock.svg'
+import MessageSvg from './message.svg'
 const MeetingAnalytics = () => {
     const [activeTab, setActiveTab] = useState('Analytics')
     const [expandedSections, setExpandedSections] = useState({
@@ -22,7 +24,7 @@ const MeetingAnalytics = () => {
         {
             name: 'Gautam',
             talkTime: '3 hr min',
-            talkPercentage: 45,
+            talkPercentage: '45%',
             participantScore: 85,
             engagement: 88,
             sentiment: 78,
@@ -34,7 +36,7 @@ const MeetingAnalytics = () => {
         {
             name: 'Madhuri Bafna',
             talkTime: '5.44 min',
-            talkPercentage: 50,
+            talkPercentage: '50%',
             participantScore: 80,
             engagement: 85,
             sentiment: 75,
@@ -46,7 +48,7 @@ const MeetingAnalytics = () => {
         {
             name: 'Ramya',
             talkTime: '2.40 min',
-            talkPercentage: 5,
+            talkPercentage: '5%',
             participantScore: 65,
             engagement: 85,
             sentiment: 75,
@@ -95,7 +97,7 @@ const MeetingAnalytics = () => {
         <svg className={className} viewBox="0 0 120 40" fill="none">
             <path
                 d="M2 20 Q10 10 20 15 T40 18 Q50 12 60 16 T80 14 Q90 8 100 12 T118 15"
-                stroke="#3B82F6"
+                stroke="#4F9EF8"
                 strokeWidth="2"
                 fill="none"
             />
@@ -144,13 +146,13 @@ const MeetingAnalytics = () => {
                         
                         {/* Chart lines */}
                         <path d="M50 120 Q100 100 150 110 T250 105 Q300 90 350 95 T450 100 Q500 85 550 90" 
-                              stroke="#3B82F6" strokeWidth="3" fill="none" />
+                              stroke="#4F9EF8" strokeWidth="2" fill="none" />
                         <path d="M50 140 Q100 130 150 135 T250 125 Q300 110 350 115 T450 120 Q500 105 550 110" 
-                              stroke="#F59E0B" strokeWidth="3" fill="none" />
+                              stroke="#F59E0B" strokeWidth="2" fill="none" />
                         <path d="M50 160 Q100 150 150 155 T250 145 Q300 130 350 135 T450 140 Q500 125 550 130" 
-                              stroke="#8B5CF6" strokeWidth="3" fill="none" />
+                              stroke="#8B5CF6" strokeWidth="2" fill="none" />
                         <path d="M50 100 Q100 80 150 90 T250 85 Q300 70 350 75 T450 80 Q500 65 550 70" 
-                              stroke="#EF4444" strokeWidth="3" fill="none" />
+                              stroke="#EF4444" strokeWidth="2" fill="none" />
                     </svg>
                     <div className={a.xAxis}>
                         <span>0:00</span>
@@ -164,7 +166,7 @@ const MeetingAnalytics = () => {
             </div>
             <div className={a.chartLegend}>
                 <div className={a.legendItem}>
-                    <div className={a.legendColor} style={{backgroundColor: '#3B82F6'}}></div>
+                    <div className={a.legendColor} style={{backgroundColor: '#4F9EF8'}}></div>
                     <span>Gautam</span>
                 </div>
                 <div className={a.legendItem}>
@@ -239,7 +241,7 @@ const MeetingAnalytics = () => {
             <div className={a.section}>
                 <div className={a.sectionHeader} onClick={() => toggleSection('participants')}>
                     <h2 className={a.sectionTitle}>Participants</h2>
-                    <span className={`${a.expandIcon} ${expandedSections.participants ? a.expanded : ''}`}>▼</span>
+                    <span className={`${a.expandIcon} ${expandedSections.participants ? a.expanded : ''}`}><DownSvg /></span>
                 </div>
                 {expandedSections.participants && (
                     <div className={a.participantsContent}>
@@ -251,33 +253,59 @@ const MeetingAnalytics = () => {
                                     {participant.avatar}
                                 </div>
                                 <div className={a.participantInfo}>
-                                    <h3 className={a.participantName}>{participant.name}</h3>
-                                    <div className={a.talkTimeInfo}>
-                                        <span className={a.talkTime}>{participant.talkTime}</span>
-                                        <span className={a.talkPercentage}>{participant.talkPercentage}%</span>
+                                    <div className={a.nameTimeRow}>
+                                        <h3 className={a.participantName}>{participant.name}</h3>
+                                        <div className={a.timeWithIcon}>
+                                            <span className={a.talkTime}>{participant.talkTime}</span>
+                                            <span className={a.clockIcon}><img src={ClockSvg} alt="clock" /></span>
+                                        </div>
+                                    </div>
+                                    <div className={a.percentageRow}>
+                                        <span className={a.percentageLabel}>Talk time percentage</span>
+                                        <div className={a.percentageValue}>
+                                            <span>{participant.talkPercentage}</span>
+                                            <div className={a.percentageIndicator}>
+                                                <div className={a.percentageArc} style={{transform: `rotate(${(parseInt(participant.talkPercentage) / 100) * 180}deg)`}}></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <div className={a.participantMetrics}>
                                 <div className={a.metric}>
                                     <span className={a.metricName}>Participant Score</span>
-                                    <span className={a.metricValue}>{participant.participantScore}</span>
+                                    <div className={a.metricValueWithDot}>
+                                        <span className={a.greenDot}>●</span>
+                                        <span className={a.metricValue}>{participant.participantScore}</span>
+                                    </div>
                                 </div>
                                 <div className={a.metric}>
                                     <span className={a.metricName}>Engagement</span>
-                                    <span className={a.metricValue}>{participant.engagement}</span>
+                                    <div className={a.metricValueWithDot}>
+                                        <span className={a.greenDot}>●</span>
+                                        <span className={a.metricValue}>{participant.engagement}</span>
+                                    </div>
                                 </div>
                                 <div className={a.metric}>
                                     <span className={a.metricName}>Sentiment</span>
-                                    <span className={a.metricValue}>{participant.sentiment}</span>
+                                    <div className={a.metricValueWithDot}>
+                                        <span className={a.greenDot}>●</span>
+                                        <span className={a.metricValue}>{participant.sentiment}</span>
+                                    </div>
                                 </div>
                                 <div className={a.metric}>
                                     <span className={a.metricName}>Charisma</span>
-                                    <span className={a.metricValue}>{participant.charisma}</span>
+                                    <div className={a.metricValueWithDot}>
+                                        <span className={a.greenDot}>●</span>
+                                        <span className={a.metricValue}>{participant.charisma}</span>
+                                    </div>
                                 </div>
                                 <div className={a.metric}>
                                     <span className={a.metricName}>Bias</span>
-                                    <span className={a.metricValue}>{participant.bias}</span>
+                                    <div className={a.metricValueWithDot}>
+                                        <span className={a.greenDot}>●</span>
+                                        <span className={a.metricValue}>{participant.bias}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -294,7 +322,7 @@ const MeetingAnalytics = () => {
             <div className={a.section}>
                 <div className={a.sectionHeader} onClick={() => toggleSection('highlights')}>
                     <h2 className={a.sectionTitle}>HIGHLIGHTS</h2>
-                    <span className={`${a.expandIcon} ${expandedSections.highlights ? a.expanded : ''}`}>▼</span>
+                    <span className={`${a.expandIcon} ${expandedSections.highlights ? a.expanded : ''}`}><DownSvg /></span>
                 </div>
                 {expandedSections.highlights && (
                     <div className={a.highlightsContent}>
@@ -302,7 +330,7 @@ const MeetingAnalytics = () => {
                             <div key={index} className={a.highlightItem}>
                                 <div className={a.highlightHeader}>
                                     <div className={a.highlightType} data-type={highlight.type.toLowerCase().replace(' ', '-')}>
-                                        {highlight.type}
+                                     {highlight.type}
                                     </div>
                                     <span className={a.highlightTime}>{highlight.time}</span>
                                     <div className={a.engagementBadge}>
@@ -321,7 +349,7 @@ const MeetingAnalytics = () => {
             <div className={a.section}>
                 <div className={a.sectionHeader} onClick={() => toggleSection('meetingScore')}>
                     <h2 className={a.sectionTitle}>Meeting Score</h2>
-                    <span className={`${a.expandIcon} ${expandedSections.meetingScore ? a.expanded : ''}`}>▼</span>
+                    <span className={`${a.expandIcon} ${expandedSections.meetingScore ? a.expanded : ''}`}><DownSvg /></span>
                 </div>
                 {expandedSections.meetingScore && (
                     <div className={a.meetingScoreContent}>
@@ -367,7 +395,7 @@ const MeetingAnalytics = () => {
             <div className={a.section}>
                 <div className={a.sectionHeader} onClick={() => toggleSection('openQuestions')}>
                     <h2 className={a.sectionTitle}>Open Questions</h2>
-                    <span className={`${a.expandIcon} ${expandedSections.openQuestions ? a.expanded : ''}`}>▼</span>
+                    <span className={`${a.expandIcon} ${expandedSections.openQuestions ? a.expanded : ''}`}><DownSvg /></span>
                 </div>
                 {expandedSections.openQuestions && (
                     <div className={a.openQuestionsContent}>
