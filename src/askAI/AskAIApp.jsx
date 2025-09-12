@@ -175,7 +175,7 @@ const AskAIApp = () => {
 
 			// Only set direct_search_agent to true for "Need Help" tab requests
 			if (shouldUseDirectSearch) {
-				messageData.direct_search_agent = true;
+				messageData.direct_agent = 'search_agent';
 			}
 
 			// Add location details
