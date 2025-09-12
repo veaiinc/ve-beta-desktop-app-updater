@@ -417,6 +417,11 @@ const ChatBox = ({
 			info?.chatSessionId &&
 			activePromptForChat?.sessionId === info?.chatSessionId
 		) {
+			if (info?.chatLoading) {
+				updateStateValues({ activePromptForChat: null });
+				message.error('Please wait, AI is already generating a response');
+				return;
+			}
 			handleSendMessageFunc(null, true, activePromptForChat?.prompt);
 			updateStateValues({ activePromptForChat: null });
 		}
@@ -538,6 +543,11 @@ const ChatBox = ({
 
 	useEffect(() => {
 		if (activePayloadForChat && info?.chatSessionId) {
+			if (info?.chatLoading) {
+				updateStateValues({ activePayloadForChat: null });
+				message.error('Please wait, AI is already generating a response');
+				return;
+			}
 			const { payload, localPayload, currentQuery, recentFiles = [] } = activePayloadForChat;
 			if (handleSendWebsocketMessage) {
 				handleSendWebsocketMessage(payload, currentQuery, '', info?.chatSessionId);
