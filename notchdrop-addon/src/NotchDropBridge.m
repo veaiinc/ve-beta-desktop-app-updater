@@ -137,4 +137,8 @@ static void (^swiftActionCallback)(NSString*, NSString*);
     return [NotchDropCore.shared getVoiceConnectionStatus];
 }
 
++ (void)updateVoiceConnectionState:(NSString*)status {
+    [NotchDropCore.shared updateVoiceConnectionState:status];
+}
+
 @end

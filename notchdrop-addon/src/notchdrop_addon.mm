@@ -27,6 +27,7 @@ public:
             InstanceMethod("connectVoiceAssistant", &NotchDropAddon::ConnectVoiceAssistant),
             InstanceMethod("disconnectVoiceAssistant", &NotchDropAddon::DisconnectVoiceAssistant),
             InstanceMethod("getVoiceConnectionStatus", &NotchDropAddon::GetVoiceConnectionStatus),
+            InstanceMethod("updateVoiceConnectionState", &NotchDropAddon::UpdateVoiceConnectionState),
             InstanceMethod("on", &NotchDropAddon::On)
         });
 
@@ -335,6 +336,19 @@ private:
         Napi::Env env = info.Env();
         NSString* status = [NotchDropBridge getVoiceConnectionStatus];
         return Napi::String::New(env, [status UTF8String]);
+    }
+    
+    Napi::Value UpdateVoiceConnectionState(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 1 || !info[0].IsString()) {
+            Napi::TypeError::New(env, "Expected string argument").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+        
+        std::string status = info[0].As<Napi::String>();
+        NSString* nsStatus = [NSString stringWithUTF8String:status.c_str()];
+        [NotchDropBridge updateVoiceConnectionState:nsStatus];
+        return env.Undefined();
     }
 };
 

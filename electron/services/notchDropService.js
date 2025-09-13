@@ -507,6 +507,18 @@ class NotchDropService {
 								console.log('🎤 Found voiceIntegration.connectToRoom(), calling directly...');
 								await window.voiceIntegration.connectToRoom();
 								console.log('✅ Voice agent started successfully from NotchDrop!');
+								
+								// Notify NotchDrop that voice is connected
+								setTimeout(() => {
+									if (window.voiceIntegration && window.voiceIntegration.isConnected) {
+										console.log('🔄 Notifying NotchDrop: voice connected');
+										const event = new CustomEvent('notchdrop-voice-status', {
+											detail: { status: 'connected' }
+										});
+										window.dispatchEvent(event);
+									}
+								}, 2000); // Wait 2 seconds for connection to establish
+								
 								return { success: true, method: 'voiceIntegration.connectToRoom' };
 							}
 							
@@ -541,23 +553,66 @@ class NotchDropService {
 			console.log('🎤 Deactivating voice agent from NotchDrop...');
 			
 			if (this.mainWindow) {
-				await this.mainWindow.webContents.executeJavaScript(`
-					// Try to disconnect/hide voice agent
-					const disconnectButtons = document.querySelectorAll('[class*="cancel-button"], [class*="close"], [class*="disconnect"]');
-					if (disconnectButtons.length > 0) {
-						disconnectButtons[0].click();
-					}
-					
-					// Hide voice containers
-					const voiceContainers = document.querySelectorAll('[class*="voiceContainer"]');
-					voiceContainers.forEach(container => {
-						container.style.display = 'none';
-					});
+				const result = await this.mainWindow.webContents.executeJavaScript(`
+					(async () => {
+						try {
+							console.log('🎤 NotchDrop deactivating voice agent via JavaScript');
+							
+							// Method 1: Use voiceIntegration.disconnect() if available
+							if (window.voiceIntegration && window.voiceIntegration.disconnect) {
+								console.log('🎤 Found voiceIntegration.disconnect(), calling...');
+								await window.voiceIntegration.disconnect();
+								console.log('✅ Voice agent disconnected successfully from NotchDrop!');
+								return { success: true, method: 'voiceIntegration.disconnect' };
+							}
+							
+							// Method 2: Try custom event as fallback
+							console.log('⚠️ voiceIntegration.disconnect not found, trying custom event...');
+							const event = new CustomEvent('notchdrop-voice-disconnect', {
+								detail: {
+									source: 'notchdrop-x-button',
+									timestamp: Date.now()
+								}
+							});
+							window.dispatchEvent(event);
+							return { success: true, method: 'custom-event' };
+							
+						} catch (error) {
+							console.error('❌ JavaScript voice deactivation error:', error);
+							return { success: false, error: error.message };
+						}
+					})()
 				`);
+				
+				console.log('🎤 Voice agent JavaScript deactivation result:', result);
 			}
 			
 		} catch (error) {
 			console.error('❌ Error deactivating voice agent:', error);
+		}
+	}
+
+	async updateVoiceConnectionState(status) {
+		try {
+			console.log(`🔄 Updating NotchDrop voice connection state: ${status}`);
+			
+			if (!this.isInitialized) {
+				log.warn('NotchDrop not initialized, cannot update voice connection state');
+				return false;
+			}
+
+			// Call the native addon to update the Swift UI voice status
+			if (this.notchDropAddon && this.notchDropAddon.updateVoiceConnectionState) {
+				this.notchDropAddon.updateVoiceConnectionState(status);
+				console.log(`✅ NotchDrop voice status updated to: ${status}`);
+				return true;
+			} else {
+				console.warn('⚠️ updateVoiceConnectionState method not available on addon');
+				return false;
+			}
+		} catch (error) {
+			console.error('❌ Error updating NotchDrop voice connection state:', error);
+			return false;
 		}
 	}
 

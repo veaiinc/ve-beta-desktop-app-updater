@@ -970,6 +970,20 @@ class NotchDropAddonWrapper extends EventEmitter {
 		}
 	}
 
+	// Update voice connection state from JavaScript
+	updateVoiceConnectionState(status) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			this.addon.updateVoiceConnectionState(status);
+			console.log(`🔄 Voice connection state updated to: ${status}`);
+		} catch (error) {
+			console.error('❌ Error updating voice connection state:', error);
+			throw error;
+		}
+	}
+
 	// Event emitter functionality
 	emit(event, data) {
 		// Simple event emitter implementation

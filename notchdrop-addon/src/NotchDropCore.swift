@@ -478,6 +478,14 @@ class NotchDropWindow: NSWindow {
         return viewModel.voiceConnectionStatus.rawValue
     }
     
+    @objc public func updateVoiceConnectionState(_ status: String) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let viewModel = self.notchViewModel else { return }
+            print("🔄 NotchDropCore: Updating voice connection state to: \(status)")
+            viewModel.updateVoiceConnectionState(status)
+        }
+    }
+    
     // MARK: - Swift Action Handling
     private func handleSwiftAction(_ action: NotchViewModel.SwiftAction) {
         print("🔍 DEBUG: NotchDropCore handling Swift action: \(action)")

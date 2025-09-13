@@ -2395,6 +2395,23 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// Voice integration handler
+	ipcMain.handle('notchdrop-update-voice-status', async (event, status) => {
+		try {
+			log.info(`🎤 Updating NotchDrop voice status: ${status}`);
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			
+			// Update the voice status in NotchDrop Swift UI
+			const result = await notchDropService.updateVoiceConnectionState(status);
+			return { success: true, status, result };
+		} catch (error) {
+			log.error('Error updating NotchDrop voice status:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	// New NotchDropLatest IPC handlers
 	ipcMain.handle('notchdrop-open-airdrop', async () => {
 		try {

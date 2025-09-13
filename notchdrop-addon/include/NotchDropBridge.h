@@ -68,6 +68,7 @@
 + (void)connectVoiceAssistant;
 + (void)disconnectVoiceAssistant;
 + (NSString*)getVoiceConnectionStatus;
++ (void)updateVoiceConnectionState:(NSString*)status;
 
 @end
 

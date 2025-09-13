@@ -165,6 +165,21 @@ const VoiceAgentDebug = () => {
         };
     }, [voiceIntegration]);
 
+    // Monitor voice connection state and update NotchDrop
+    useEffect(() => {
+        if (voiceIntegration && window.electronApi) {
+            const { isConnected } = voiceIntegration;
+            
+            if (isConnected) {
+                addLog('🔄 Voice connected - notifying NotchDrop...', 'success');
+                window.electronApi.notchdrop.updateVoiceStatus('connected');
+            } else {
+                addLog('🔄 Voice disconnected - notifying NotchDrop...', 'info');
+                window.electronApi.notchdrop.updateVoiceStatus('disconnected');
+            }
+        }
+    }, [voiceIntegration?.isConnected, addLog]);
+
     // Create stable event handlers
     const handleVoiceActivation = useCallback((event) => {
         addLog(`🎤 Received voice activation event: ${event.type}`, 'info');
@@ -187,18 +202,48 @@ const VoiceAgentDebug = () => {
         }
     }, [addLog, voiceIntegration]);
 
-    // Listen for NotchDrop voice activation
+    // Handle NotchDrop voice status updates
+    const handleNotchDropVoiceStatus = useCallback((event) => {
+        const status = event.detail?.status;
+        addLog(`🔄 NotchDrop voice status update: ${status}`, 'info');
+        
+        if (status === 'connected' && window.electronApi) {
+            // Notify NotchDrop that voice is connected
+            addLog('📡 Sending voice connected status to NotchDrop...', 'info');
+            window.electronApi.notchdrop.updateVoiceStatus('connected');
+        }
+    }, [addLog]);
+
+    // Handle NotchDrop voice disconnect
+    const handleNotchDropVoiceDisconnect = useCallback(async (event) => {
+        addLog(`🔌 NotchDrop voice disconnect: ${event.type}`, 'info');
+        if (voiceIntegration && voiceIntegration.disconnect) {
+            try {
+                addLog('🔌 Disconnecting voice agent from NotchDrop X button...', 'info');
+                await voiceIntegration.disconnect();
+                addLog('✅ Voice agent disconnected successfully from NotchDrop!', 'success');
+            } catch (error) {
+                addLog(`❌ NotchDrop voice disconnect failed: ${error.message}`, 'error');
+            }
+        }
+    }, [addLog, voiceIntegration]);
+
+    // Listen for NotchDrop voice activation and status updates
     useEffect(() => {
         window.addEventListener('start-voice-agent', handleVoiceActivation);
         window.addEventListener('notchdrop-voice-activate', handleVoiceActivation);
         window.addEventListener('notchdrop-start-voice-agent', handleNotchDropVoiceActivation);
-
+        window.addEventListener('notchdrop-voice-status', handleNotchDropVoiceStatus);
+        window.addEventListener('notchdrop-voice-disconnect', handleNotchDropVoiceDisconnect);
+        
         return () => {
             window.removeEventListener('start-voice-agent', handleVoiceActivation);
             window.removeEventListener('notchdrop-voice-activate', handleVoiceActivation);
             window.removeEventListener('notchdrop-start-voice-agent', handleNotchDropVoiceActivation);
+            window.removeEventListener('notchdrop-voice-status', handleNotchDropVoiceStatus);
+            window.removeEventListener('notchdrop-voice-disconnect', handleNotchDropVoiceDisconnect);
         };
-    }, [handleVoiceActivation, handleNotchDropVoiceActivation]);
+    }, [handleVoiceActivation, handleNotchDropVoiceActivation, handleNotchDropVoiceStatus, handleNotchDropVoiceDisconnect]);
 
     return (
         <div style={{
