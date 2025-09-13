@@ -151,6 +151,12 @@ class NotchDropService {
 				log.error('❌ Error handling Swift UI submitChat:', error);
 			}
 		});
+
+		// Listen for messages received by Swift UI from Electron
+		this.notchDropAddon.on('messageReceived', (message) => {
+			log.info('📨 Swift UI received message from Electron:', message);
+			// You can add additional handling here if needed
+		});
 	}
 
 	enable() {
@@ -488,6 +494,29 @@ class NotchDropService {
 			return { success: true };
 		} catch (error) {
 			log.error('❌ Error handling overlay recording request:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	// Send message to Swift UI
+	async sendMessageToSwiftUI(message) {
+		try {
+			if (!this.notchDropAddon) {
+				log.warn('NotchDrop addon not initialized, cannot send message to Swift UI');
+				return { success: false, error: 'NotchDrop addon not initialized' };
+			}
+
+			// Use the triggerSwiftAction method to send a custom message action
+			if (this.notchDropAddon.triggerSwiftAction) {
+				this.notchDropAddon.triggerSwiftAction('receiveMessage', message);
+				log.info('📤 Message sent to Swift UI:', message);
+				return { success: true };
+			} else {
+				log.error('❌ triggerSwiftAction method not available on NotchDrop addon');
+				return { success: false, error: 'triggerSwiftAction method not available' };
+			}
+		} catch (error) {
+			log.error('❌ Error sending message to Swift UI:', error);
 			return { success: false, error: error.message };
 		}
 	}

@@ -1106,6 +1106,26 @@ function createWindow(restoreState = false) {
 		},
 	});
 
+	ipcMain.on('veAppMsg', async (event, msg) => {
+		log.info('🔄 Received message from veApp:', msg); // logs: btn clicked from react
+
+		// Send the same message to Swift UI if NotchDrop service is available
+		if (notchDropService && notchDropService.isInitialized) {
+			try {
+				const result = await notchDropService.sendMessageToSwiftUI(msg);
+				if (result.success) {
+					log.info('✅ Message sent to Swift UI successfully');
+				} else {
+					log.warn('⚠️ Failed to send message to Swift UI:', result.error);
+				}
+			} catch (error) {
+				log.error('❌ Error sending message to Swift UI:', error);
+			}
+		} else {
+			log.info('ℹ️ NotchDrop service not available, skipping Swift UI message');
+		}
+	});
+
 	if (process.env.VITE_DEV_SERVER_URL) {
 		mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
 	} else {

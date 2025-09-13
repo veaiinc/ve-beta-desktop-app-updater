@@ -29,8 +29,10 @@ const useAuth = () => {
 		}));
 		if (statusCode === 401) {
 			logout();
+			window.electronApi.sendMessageFrmVeApp('unauthorized');
 			channel.postMessage('reload');
 		}
+		window.electronApi.sendMessageFrmVeApp('authorized');
 	};
 
 	const checkUserAuthState = useCallback(() => {

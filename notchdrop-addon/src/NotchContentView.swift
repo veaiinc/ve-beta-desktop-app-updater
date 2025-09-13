@@ -9,6 +9,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
 import AppKit
+import Combine
 
 struct NotchContentView: View {
     @StateObject var vm: NotchViewModel
@@ -31,6 +32,8 @@ struct DynamicIslandContentView: View {
     @FocusState private var isChatInputFocused: Bool
     @State private var isTextFieldActive: Bool = false
     @State private var textEditorHeight: CGFloat = 100 // Dynamic height for textarea
+    @State private var receivedMessage: String = "" // Track received messages from Electron
+    @State private var cancellables = Set<AnyCancellable>()
     
     var body: some View {
         VStack(spacing: 16) {
@@ -247,6 +250,7 @@ struct DynamicIslandContentView: View {
                         }
                     }
                     
+                    
                     // Main content area
                     HStack(spacing: 12) {
                         if vm.showVoiceInterface {
@@ -352,6 +356,26 @@ struct DynamicIslandContentView: View {
         .padding(vm.spacing)
         .frame(width: vm.notchOpenedSize.width, height: vm.notchOpenedSize.height)
         .animation(vm.animation, value: vm.isChatExpanded)
+        .onAppear {
+            // Set up listener for Swift actions to handle received messages
+            setupMessageListener()
+        }
+    }
+    
+    // MARK: - Message Handling
+    private func setupMessageListener() {
+        // Listen for Swift actions from the view model
+        vm.swiftActionSender
+            .sink { action in
+                switch action {
+                case .receiveMessage(let message):
+                    print("📨 Swift UI received message from Electron: \(message)")
+                    receivedMessage = message
+                default:
+                    break
+                }
+            }
+            .store(in: &cancellables)
     }
 }
 
@@ -683,12 +707,10 @@ struct ChatTextAreaView: View {
         
         // Calculate available space considering:
         // - Total padding (32px: 16px on each side)
-        // - Spacing between elements (12px)
         // - Right tile has been removed, so no need to account for it
         let totalPadding: CGFloat = 32 // 16px on each side
-        let elementSpacing: CGFloat = 12
         
-        var availableWidth = islandWidth - totalPadding
+        let availableWidth = islandWidth - totalPadding
         
         // Right tile has been commented out, so no need to subtract its width
         // The text editor can now use the full available width
