@@ -92,7 +92,7 @@ const NotchDropVoiceDebug = () => {
     return (
         <div style={{
             position: 'fixed',
-            top: '10px',
+            top: '50px',
             right: '10px',
             width: '400px',
             maxHeight: '300px',

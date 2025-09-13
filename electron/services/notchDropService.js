@@ -494,52 +494,32 @@ class NotchDropService {
 					timestamp: Date.now()
 				});
 				
-				// Also try to execute JavaScript to activate voice agent
+				// Direct voice agent activation using the working approach
 				const result = await this.mainWindow.webContents.executeJavaScript(`
 					(async () => {
 						try {
 							console.log('🎤 NotchDrop activating voice agent via JavaScript');
 							
-							// Method 1: Look for existing voice agent and activate it
-							const voiceButtons = document.querySelectorAll('[class*="action-button"], [class*="mic"], button');
-							for (const button of voiceButtons) {
-								if (button.textContent.includes('start') || button.className.includes('action-button')) {
-									console.log('🎤 Found voice button, clicking...');
-									button.click();
-									return { success: true, method: 'button-click' };
+							// Method 1: Use the working voiceIntegration.connectToRoom() approach
+							console.log('🔍 Checking window.voiceIntegration:', !!window.voiceIntegration);
+							
+							if (window.voiceIntegration && window.voiceIntegration.connectToRoom) {
+								console.log('🎤 Found voiceIntegration.connectToRoom(), calling directly...');
+								await window.voiceIntegration.connectToRoom();
+								console.log('✅ Voice agent started successfully from NotchDrop!');
+								return { success: true, method: 'voiceIntegration.connectToRoom' };
+							}
+							
+							// Method 2: Try custom event as fallback
+							console.log('⚠️ voiceIntegration not found on window, trying custom event...');
+							const event = new CustomEvent('notchdrop-start-voice-agent', {
+								detail: {
+									source: 'notchdrop-voice-button',
+									timestamp: Date.now()
 								}
-							}
-							
-							// Method 2: Try to show voice agent component if hidden
-							const voiceContainers = document.querySelectorAll('[class*="voiceContainer"]');
-							if (voiceContainers.length > 0) {
-								voiceContainers[0].style.display = 'block';
-								voiceContainers[0].style.opacity = '1';
-								
-								// Find and click the mic button
-								const micButtons = voiceContainers[0].querySelectorAll('[class*="action-button"]');
-								if (micButtons.length > 0) {
-									micButtons[0].click();
-									return { success: true, method: 'container-activation' };
-								}
-							}
-							
-							// Method 3: Create voice agent if it doesn't exist
-							console.log('🎤 Voice agent not found, may need to navigate to voice page');
-							
-							// Try to navigate to a page that has voice agent
-							if (window.location.hash !== '#/voice' && window.location.hash !== '#/') {
-								window.location.hash = '#/';
-								setTimeout(() => {
-									// Try again after navigation
-									const voiceButtons = document.querySelectorAll('[class*="action-button"], [class*="mic"]');
-									if (voiceButtons.length > 0) {
-										voiceButtons[0].click();
-									}
-								}, 1000);
-							}
-							
-							return { success: true, method: 'navigation' };
+							});
+							window.dispatchEvent(event);
+							return { success: true, method: 'custom-event' };
 							
 						} catch (error) {
 							console.error('❌ JavaScript voice activation error:', error);

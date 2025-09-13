@@ -203,7 +203,7 @@ const VoiceAgentDebug = () => {
     return (
         <div style={{
             position: 'fixed',
-            top: '10px',
+            top: '50px',
             right: '10px',
             zIndex: 10000,
             backgroundColor: 'rgba(0, 0, 0, 0.9)',
