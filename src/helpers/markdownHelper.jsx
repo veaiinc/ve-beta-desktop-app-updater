@@ -328,6 +328,9 @@ const baseComponents = {
 			</div>
 		);
 	},
+	blockquote: ({ children, ...props }) => (
+		<blockquote className="blockquote">{children}</blockquote>
+	),
 };
 
 const MarkdownCode = memo(({ code, match }) => {
@@ -556,12 +559,9 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 							className={`uploaded-image ${
 								messageData?.images?.length === 1 ? 'count-one' : ''
 							}`}
+							key={index}
 						>
-							<img
-								key={index}
-								src={image?.preview}
-								onClick={() => handlePreview(image)}
-							/>
+							<img src={image?.preview} onClick={() => handlePreview(image)} />
 						</div>
 					))}
 				</div>
