@@ -1,4 +1,64 @@
-// Load the native addon with fallback to prebuilt binaries
+// Platform check - NotchDrop only works on macOS
+if (process.platform !== 'darwin') {
+	// Export a mock wrapper for non-macOS platforms
+	class MockNotchDropAddonWrapper {
+		constructor() {
+			console.log('ℹ️ NotchDrop addon skipped - not supported on', process.platform);
+		}
+		
+		initialize() { return false; }
+		show() { return false; }
+		hide() { return false; }
+		toggle() { return false; }
+		isVisible() { return false; }
+		setStatus() { return false; }
+		getStatus() { return 'unavailable'; }
+		on() { return this; }
+		emit() { return this; }
+		off() { return this; }
+		
+		// Mock all other methods to prevent errors
+		setContentType() { return false; }
+		getContentType() { return 'unavailable'; }
+		handleDroppedFiles() { return false; }
+		getCurrentItems() { return []; }
+		clearAllItems() { return false; }
+		setHapticFeedback() { return false; }
+		getHapticFeedback() { return false; }
+		setNotchVisible() { return false; }
+		getNotchVisible() { return false; }
+		showMenu() { return false; }
+		showSettings() { return false; }
+		showNormal() { return false; }
+		setAutoOpen() { return false; }
+		getAutoOpen() { return false; }
+		setLanguage() { return false; }
+		getLanguage() { return 'system'; }
+		getTrayItemCount() { return 0; }
+		clearTrayItems() { return false; }
+		getStatusString() { return 'unavailable'; }
+		getContentTypeString() { return 'unavailable'; }
+		setContentTypeFromString() { return false; }
+		getWindowPosition() { return { x: 0, y: 0, width: 0, height: 0 }; }
+		onOverlayStateChange() { return false; }
+		
+		// Mock async methods
+		async triggerOverlayRecording() { return { success: false, error: 'Not supported on this platform' }; }
+		async triggerOverlayStopRecording() { return { success: false, error: 'Not supported on this platform' }; }
+		async triggerOverlayPauseRecording() { return { success: false, error: 'Not supported on this platform' }; }
+		async triggerOverlayResumeRecording() { return { success: false, error: 'Not supported on this platform' }; }
+		async triggerOverlayToggleLiveIntelligence() { return { success: false, error: 'Not supported on this platform' }; }
+		async initializeBridge() { return false; }
+		async waitForBridgeReady() { return false; }
+		isBridgeReady() { return false; }
+	}
+	
+	module.exports = MockNotchDropAddonWrapper;
+	module.exports.NotchDropAddonWrapper = MockNotchDropAddonWrapper;
+	return;
+}
+
+// Load the native addon with fallback to prebuilt binaries (macOS only)
 let NotchDropAddon;
 try {
 	// Try to load the built addon first
@@ -46,28 +106,23 @@ class NotchDropAddonWrapper extends EventEmitter {
 	setupEventListeners() {
 		// Set up event listeners for native callbacks
 		this.addon.on('statusChanged', (status) => {
-			console.log('NotchDrop status changed:', status);
 			this.emit('statusChanged', status);
 		});
 
 		this.addon.on('fileDropped', (filePath) => {
-			console.log('File dropped:', filePath);
 			this.emit('fileDropped', filePath);
 		});
 
 		this.addon.on('itemAdded', (itemData) => {
-			console.log('Item added:', itemData);
 			this.emit('itemAdded', itemData);
 		});
 
 		this.addon.on('itemRemoved', (itemData) => {
-			console.log('Item removed:', itemData);
 			this.emit('itemRemoved', itemData);
 		});
 
 		// Set up Swift action listener
 		this.addon.on('swiftAction', (actionData) => {
-			console.log('Swift action received:', actionData);
 			this.handleSwiftAction(actionData);
 		});
 	}
@@ -80,21 +135,14 @@ class NotchDropAddonWrapper extends EventEmitter {
 
 		this.initializationPromise = new Promise(async (resolve, reject) => {
 			try {
-				console.log(
-					'🔧 NotchDropAddon: Starting bridge initialization with Swift handshake...',
-				);
-
 				// Phase 1: Verify Electron context is available
 				await this.verifyElectronContext();
-				console.log('✅ Phase 1: Electron context verified');
 
 				// Phase 2: Wait for core services to be ready
 				await this.waitForCoreServicesReady();
-				console.log('✅ Phase 2: Core services ready');
 
 				// Phase 3: Test IPC communication
 				await this.verifyIPCCommunication();
-				console.log('✅ Phase 3: IPC communication verified');
 
 				// Phase 4: Set bridge as ready
 				this.bridgeReady = true;
@@ -102,7 +150,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 
 				// Phase 5: Process any pending actions
 				if (this.pendingActions.length > 0) {
-					console.log(`🎯 Processing ${this.pendingActions.length} pending actions`);
 					const actionsToProcess = [...this.pendingActions];
 					this.pendingActions = [];
 
@@ -111,19 +158,11 @@ class NotchDropAddonWrapper extends EventEmitter {
 					}
 				}
 
-				// Phase 6: CRITICAL - Send readiness signal to Swift UI
 				await this.sendBridgeReadySignalToSwift();
-				console.log('✅ Phase 6: Bridge ready signal sent to Swift UI');
-
-				console.log(
-					'🎉 NotchDropAddon: Bridge initialization completed with Swift handshake',
-				);
 				resolve(true);
 			} catch (error) {
 				console.error('❌ NotchDropAddon: Bridge initialization failed:', error);
 				this.bridgeReady = false;
-
-				// Send bridge failure signal to Swift UI
 				this.sendBridgeFailureSignalToSwift(error.message);
 				reject(error);
 			}
@@ -134,21 +173,14 @@ class NotchDropAddonWrapper extends EventEmitter {
 
 	// Signal immediate readiness for first-click responsiveness
 	signalReadiness() {
-		console.log('🚀 NotchDropAddon: Signaling immediate readiness for first-click response');
-
 		// Emit readiness signal immediately
 		this.emit('bridgeReady');
 
-		// Signal to Swift UI that we're ready for immediate actions
 		try {
 			if (typeof global !== 'undefined' && global.notchDropSwiftCallback) {
 				global.notchDropSwiftCallback('bridgeReady', 'immediate');
 			}
-		} catch (error) {
-			// Ignore callback errors in immediate mode
-		}
-
-		console.log('✅ NotchDropAddon: Immediate readiness signaled');
+		} catch (error) {}
 	}
 
 	// CRITICAL FIX: Wait for core Electron services to be ready
@@ -167,17 +199,15 @@ class NotchDropAddonWrapper extends EventEmitter {
 						const windows = BrowserWindow.getAllWindows();
 
 						if (windows.length > 0) {
-							console.log(`✅ Core services ready (${windows.length} windows found)`);
 							resolve(true);
 							return;
 						}
 					}
 				} catch (e) {
-					// Not in main process or Electron not ready
+					console.error('❌ Error checking core services readiness:', e);
 				}
 
 				if (attempts >= maxAttempts) {
-					console.log('⚠️ Core services readiness timeout, proceeding anyway');
 					resolve(true);
 					return;
 				}
@@ -202,12 +232,11 @@ class NotchDropAddonWrapper extends EventEmitter {
 							ipcRenderer
 								.invoke('test-overlay-connection')
 								.then(() => {
-									console.log('✅ IPC communication test passed');
 									resolve(true);
 								})
 								.catch((error) => {
 									console.warn(
-										'⚠️ IPC test failed but proceeding:',
+										'❌ IPC test failed but proceeding:',
 										error.message,
 									);
 									resolve(true); // Proceed anyway
@@ -220,7 +249,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 				}
 
 				// If we can't test IPC directly, just resolve
-				console.log('✅ IPC verification skipped (not in renderer context)');
 				resolve(true);
 			} catch (error) {
 				console.error('❌ IPC verification failed:', error);
@@ -233,7 +261,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 	async sendBridgeReadySignalToSwift() {
 		try {
 			// Use the existing Swift action callback system to notify Swift
-			console.log('📡 Sending bridge ready signal to Swift UI');
 			this.emit('bridgeReady', { ready: true, timestamp: Date.now() });
 
 			// Also try to trigger a Swift callback if available
@@ -248,7 +275,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 	// CRITICAL FIX: Send bridge failure signal to Swift UI
 	sendBridgeFailureSignalToSwift(errorMessage) {
 		try {
-			console.log('📡 Sending bridge failure signal to Swift UI');
 			this.emit('bridgeFailure', { error: errorMessage, timestamp: Date.now() });
 
 			// Also try to trigger a Swift callback if available
@@ -268,27 +294,25 @@ class NotchDropAddonWrapper extends EventEmitter {
 				if (typeof require !== 'undefined') {
 					try {
 						if (ipcRenderer) {
-							console.log('✅ NotchDropAddon: ipcRenderer available');
 							resolve(true);
 							return;
 						}
 					} catch (e) {
 						// ipcRenderer not available, we're in main process
-						console.log('📍 NotchDropAddon: Running in main process');
+						console.error('❌ Error checking electron context:', e);
 					}
 
 					try {
 						if (ipcMain) {
-							console.log('✅ NotchDropAddon: ipcMain available');
 							resolve(true);
 							return;
 						}
 					} catch (e) {
 						// ipcMain not available either
+						console.error('❌ Error checking electron context:', e);
 					}
 				}
 
-				console.log('✅ NotchDropAddon: Electron context verified (generic)');
 				resolve(true);
 			} catch (error) {
 				console.error('❌ NotchDropAddon: Electron context verification failed:', error);
@@ -307,19 +331,14 @@ class NotchDropAddonWrapper extends EventEmitter {
 				action = actionData.slice(0, sepIndex);
 				data = actionData.slice(sepIndex + 1);
 			}
-			console.log('⚡ IMMEDIATE: Processing Swift action:', action, 'with data:', data);
 
 			// CRITICAL FIX: Execute critical actions immediately regardless of bridge state
 			if (this.isCriticalAction(action)) {
-				console.log(
-					'🚀 CRITICAL ACTION: Executing immediately for first-click responsiveness',
-				);
 				return this.executeImmediately(action, data);
 			}
 
 			// For non-critical actions, check bridge readiness
 			if (!this.bridgeReady && !this.immediateMode) {
-				console.log('⏳ Bridge not ready, queuing action:', action);
 				this.pendingActions.push(actionData);
 
 				// Trigger bridge initialization if not already in progress
@@ -350,23 +369,16 @@ class NotchDropAddonWrapper extends EventEmitter {
 
 	// Execute critical actions immediately without waiting for bridge
 	executeImmediately(action, data) {
-		console.log('⚡ EXECUTING IMMEDIATELY:', action);
-
 		switch (action) {
 			case 'startRecording':
-				console.log('🎤 IMMEDIATE: Swift start recording - opening overlay NOW');
 				return this.triggerOverlayRecordingImmediate();
 			case 'triggerOverlayToggleLiveIntelligence':
-				console.log('🧠 IMMEDIATE: Swift toggle live intelligence - opening overlay NOW');
 				return this.triggerOverlayToggleLiveIntelligenceImmediate();
 			case 'stopRecording':
-				console.log('⏹️ IMMEDIATE: Swift stop recording');
 				return this.triggerOverlayStopRecordingImmediate();
 			case 'pauseRecording':
-				console.log('⏸️ IMMEDIATE: Swift pause recording');
 				return this.triggerOverlayPauseRecordingImmediate();
 			case 'resumeRecording':
-				console.log('▶️ IMMEDIATE: Swift resume recording');
 				return this.triggerOverlayResumeRecordingImmediate();
 			default:
 				// Fallback to normal execution
@@ -378,63 +390,49 @@ class NotchDropAddonWrapper extends EventEmitter {
 	executeAction(action, data) {
 		switch (action) {
 			case 'startRecording':
-				console.log('🎤 Swift requested start recording - opening overlay window');
 				this.triggerOverlayRecording();
 				break;
 			case 'stopRecording':
-				console.log('⏹️ Swift requested stop recording');
 				this.triggerOverlayStopRecording();
 				break;
 			case 'pauseRecording':
-				console.log('⏸️ Swift requested pause recording');
 				this.triggerOverlayPauseRecording();
 				break;
 			case 'resumeRecording':
-				console.log('▶️ Swift requested resume recording');
 				this.triggerOverlayResumeRecording();
 				break;
 			case 'triggerOverlayToggleLiveIntelligence':
-				console.log('🧠 Swift requested overlay toggle live intelligence');
 				this.triggerOverlayToggleLiveIntelligence();
 				break;
 			case 'expand':
-				console.log('📏 Swift requested expand');
 				this.emit('expand');
 				break;
 			case 'collapse':
-				console.log('📐 Swift requested collapse');
 				this.emit('collapse');
 				break;
 			case 'toggleChatMode':
-				console.log('💬 Swift requested toggle chat mode');
 				this.emit('toggleChatMode');
 				break;
 			case 'submitChat':
-				console.log('📝 Swift submitted chat:', data);
 				this.emit('submitChat', data);
 				break;
 			case 'sendChatMessageToAskAI':
-				console.log('💬 Swift sending chat message to AskAI:', data);
 				this.emit('sendChatMessageToAskAI', data);
 				break;
 			case 'setAuthenticated':
-				console.log('🔐 Swift set authenticated:', data);
 				this.emit('setAuthenticated', data === 'true');
 				break;
 			case 'sendLog':
-				console.log('📝 Swift sent log message:', data);
 				this.handleSwiftLog(data);
 				break;
 			default:
-				console.warn('⚠️ Unknown Swift action:', action);
+				console.error('❌ Unknown Swift action:', action);
 		}
 	}
 
 	// Handle Swift log messages
 	handleSwiftLog(message) {
 		try {
-			console.log('📝 Processing Swift log message:', message);
-
 			// Emit the log event for Electron to handle
 			this.emit('swiftLog', message);
 
@@ -457,11 +455,8 @@ class NotchDropAddonWrapper extends EventEmitter {
 	// CRITICAL FIX: Enhanced overlay integration methods
 	async triggerOverlayRecording() {
 		try {
-			console.log('🎤 IMMEDIATE: Triggering overlay recording from Swift UI');
-
 			// CRITICAL FIX: Ensure bridge is ready before proceeding
 			if (!this.bridgeReady) {
-				console.log('⏳ Bridge not ready, initializing first...');
 				await this.initializeBridge();
 			}
 
@@ -470,35 +465,29 @@ class NotchDropAddonWrapper extends EventEmitter {
 				try {
 					// Try to use ipcRenderer (renderer process)
 					if (ipcRenderer) {
-						console.log('🔗 Using ipcRenderer to trigger overlay recording');
 						// Use the correct IPC channel that creates/shows overlay window
 						const result = await ipcRenderer.invoke(
 							'notchdrop:triggerOverlayRecording',
 						);
-						console.log('✅ IMMEDIATE: Overlay recording result:', result);
 						return result;
 					}
 				} catch (e) {
 					// ipcRenderer not available, we're in main process
-					console.log('📍 Running in main process, using direct IPC call');
+					console.error('❌ Error in main process overlay trigger:', e);
 				}
 
 				// Main process approach - call the IPC handler directly
 				try {
-					console.log('🔗 Using main process approach for overlay recording');
 					// Simulate the IPC call directly since we're in main process
 					// We'll emit the action to be handled by the existing IPC handler
 					this.emit('requestOverlayRecording');
-					console.log(
-						'✅ IMMEDIATE: Overlay recording request emitted from main process',
-					);
 					return { success: true };
 				} catch (error) {
 					console.error('❌ Error in main process overlay trigger:', error);
 					return { success: false, error: error.message };
 				}
 			} else {
-				console.warn('⚠️ require() not available, attempting fallback');
+				console.error('❌ require() not available, attempting fallback');
 				// Fallback: emit event to be handled by parent processes
 				this.emit('requestOverlayRecording');
 				return { success: true, fallback: true };
@@ -511,8 +500,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 
 	async triggerOverlayStopRecording() {
 		try {
-			console.log('⏹️ Triggering overlay stop recording from Swift');
-
 			// Prefer robust NotchDrop IPC channel handled in main.js
 			if (typeof require !== 'undefined') {
 				try {
@@ -520,12 +507,11 @@ class NotchDropAddonWrapper extends EventEmitter {
 						const result = await ipcRenderer.invoke(
 							'notchdrop:triggerOverlayStopRecording',
 						);
-						console.log('Overlay stop recording result:', result);
 						return result;
 					}
 				} catch (e) {
 					// ipcRenderer not available, fallback to main-process direct send
-					console.log('Running in main process, using direct window communication');
+					console.error('❌ Error in main process overlay trigger:', e);
 				}
 
 				// Main process approach - find overlay window and send command directly
@@ -535,14 +521,11 @@ class NotchDropAddonWrapper extends EventEmitter {
 						const title = window.getTitle();
 						if (title.includes('Overlay') || title.includes('Live Intelligence')) {
 							window.webContents.send('overlay-command', { action: 'stopRecording' });
-							console.log(
-								'✅ Overlay stop recording command sent directly to window',
-							);
 							return { success: true, method: 'direct-window' };
 						}
 					}
 				}
-				console.warn('⚠️ Overlay window not found');
+				console.error('❌ Overlay window not found');
 				return { success: false, error: 'Overlay window not found' };
 			}
 		} catch (error) {
@@ -553,19 +536,16 @@ class NotchDropAddonWrapper extends EventEmitter {
 
 	async triggerOverlayPauseRecording() {
 		try {
-			console.log('⏸️ Triggering overlay pause recording from Swift');
-
 			if (typeof require !== 'undefined') {
 				try {
 					if (ipcRenderer) {
 						const result = await ipcRenderer.invoke(
 							'notchdrop:triggerOverlayPauseRecording',
 						);
-						console.log('Overlay pause recording result:', result);
 						return result;
 					}
 				} catch (e) {
-					console.log('Running in main process, using direct window communication');
+					console.error('❌ Error in main process overlay trigger:', e);
 				}
 
 				const windows = BrowserWindow.getAllWindows();
@@ -576,14 +556,11 @@ class NotchDropAddonWrapper extends EventEmitter {
 							window.webContents.send('overlay-command', {
 								action: 'pauseRecording',
 							});
-							console.log(
-								'✅ Overlay pause recording command sent directly to window',
-							);
 							return { success: true, method: 'direct-window' };
 						}
 					}
 				}
-				console.warn('⚠️ Overlay window not found');
+				console.error('❌ Overlay window not found');
 				return { success: false, error: 'Overlay window not found' };
 			}
 		} catch (error) {
@@ -594,19 +571,16 @@ class NotchDropAddonWrapper extends EventEmitter {
 
 	async triggerOverlayResumeRecording() {
 		try {
-			console.log('▶️ Triggering overlay resume recording from Swift');
-
 			if (typeof require !== 'undefined') {
 				try {
 					if (ipcRenderer) {
 						const result = await ipcRenderer.invoke(
 							'notchdrop:triggerOverlayResumeRecording',
 						);
-						console.log('Overlay resume recording result:', result);
 						return result;
 					}
 				} catch (e) {
-					console.log('Running in main process, using direct window communication');
+					console.error('❌ Error in main process overlay trigger:', e);
 				}
 				// Main process approach - find overlay window and send command directly
 				const windows = BrowserWindow.getAllWindows();
@@ -617,14 +591,11 @@ class NotchDropAddonWrapper extends EventEmitter {
 							window.webContents.send('overlay-command', {
 								action: 'resumeRecording',
 							});
-							console.log(
-								'✅ Overlay resume recording command sent directly to window',
-							);
 							return { success: true, method: 'direct-window' };
 						}
 					}
 				}
-				console.warn('⚠️ Overlay window not found');
+				console.error('❌ Overlay window not found');
 				return { success: false, error: 'Overlay window not found' };
 			}
 		} catch (error) {
@@ -635,20 +606,17 @@ class NotchDropAddonWrapper extends EventEmitter {
 
 	async triggerOverlayToggleLiveIntelligence() {
 		try {
-			console.log('🧠 Triggering overlay toggle live intelligence from Swift');
-
 			// Check if we're in main process or renderer process
 			if (typeof require !== 'undefined') {
 				try {
 					// Try to use ipcRenderer (renderer process)
 					if (ipcRenderer) {
 						const result = await ipcRenderer.invoke('overlay-toggle-live-intelligence');
-						console.log('Overlay toggle live intelligence result:', result);
 						return;
 					}
 				} catch (e) {
 					// ipcRenderer not available, we're in main process
-					console.log('Running in main process, using direct window communication');
+					console.error('❌ Error in main process overlay trigger:', e);
 				}
 
 				// Main process approach - find overlay window and send command directly
@@ -667,7 +635,7 @@ class NotchDropAddonWrapper extends EventEmitter {
 						}
 					}
 				}
-				console.warn('⚠️ Overlay window not found');
+				console.error('❌ Overlay window not found');
 			}
 		} catch (error) {
 			console.error('❌ Error triggering overlay toggle live intelligence:', error);
@@ -677,14 +645,13 @@ class NotchDropAddonWrapper extends EventEmitter {
 	// CRITICAL FIX: Enhanced initialization with bridge readiness
 	initialize() {
 		if (this.isInitialized) {
-			console.warn('NotchDrop already initialized');
+			console.error('❌ NotchDrop already initialized');
 			return;
 		}
 
 		try {
 			this.addon.initialize();
 			this.isInitialized = true;
-			console.log('✅ NotchDrop addon initialized successfully');
 
 			// Ensure bridge initialization is also started
 			if (!this.bridgeReady && !this.initializationPromise) {
@@ -714,7 +681,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 		}
 
 		const ready = this.isBridgeReady();
-		console.log(ready ? '✅ Bridge is ready!' : '❌ Bridge readiness timeout');
 		return ready;
 	}
 
@@ -968,20 +934,13 @@ class NotchDropAddonWrapper extends EventEmitter {
 
 	// CRITICAL FIX: Immediate overlay trigger methods for first-click responsiveness
 	async triggerOverlayRecordingImmediate() {
-		console.log('⚡ IMMEDIATE: Triggering overlay recording NOW - no waiting');
-
 		try {
 			// Method 1: Direct IPC call to main process
 			if (typeof require !== 'undefined') {
 				try {
 					if (ipcRenderer) {
-						console.log('📡 Using ipcRenderer for immediate overlay trigger');
 						const result = await ipcRenderer.invoke(
 							'notchdrop:triggerOverlayRecording',
-						);
-						console.log(
-							'✅ Immediate overlay recording triggered via ipcRenderer:',
-							result,
 						);
 						return result;
 					}
@@ -991,9 +950,7 @@ class NotchDropAddonWrapper extends EventEmitter {
 
 				try {
 					if (ipcMain) {
-						console.log('📡 Using process emit for immediate overlay trigger');
 						process.emit('swift-ui-trigger-overlay-recording-immediate');
-						console.log('✅ Immediate overlay recording event emitted');
 						return { success: true, method: 'process-emit' };
 					}
 				} catch (e) {
@@ -1003,16 +960,12 @@ class NotchDropAddonWrapper extends EventEmitter {
 
 			// Method 2: Global callback fallback
 			if (typeof global !== 'undefined' && global.notchDropOverlayCallback) {
-				console.log('📡 Using global callback for immediate overlay trigger');
 				global.notchDropOverlayCallback('startRecording', { immediate: true });
-				console.log('✅ Immediate overlay recording triggered via global callback');
 				return { success: true, method: 'global-callback' };
 			}
 
 			// Method 3: Event emission fallback
-			console.log('📡 Using event emission for immediate overlay trigger');
 			this.emit('triggerOverlayRecording', { immediate: true });
-			console.log('✅ Immediate overlay recording event emitted');
 			return { success: true, method: 'event-emission' };
 		} catch (error) {
 			console.error('❌ Failed to trigger immediate overlay recording:', error);
@@ -1021,20 +974,13 @@ class NotchDropAddonWrapper extends EventEmitter {
 	}
 
 	async triggerOverlayToggleLiveIntelligenceImmediate() {
-		console.log('⚡ IMMEDIATE: Triggering overlay live intelligence NOW - no waiting');
-
 		try {
 			// Method 1: Direct IPC call to main process
 			if (typeof require !== 'undefined') {
 				try {
 					if (ipcRenderer) {
-						console.log('📡 Using ipcRenderer for immediate live intelligence trigger');
 						const result = await ipcRenderer.invoke(
 							'notchdrop:triggerOverlayToggleLiveIntelligence',
-						);
-						console.log(
-							'✅ Immediate live intelligence triggered via ipcRenderer:',
-							result,
 						);
 						return result;
 					}
@@ -1044,9 +990,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 
 				try {
 					if (ipcMain) {
-						console.log(
-							'📡 Using process emit for immediate live intelligence trigger',
-						);
 						process.emit('swift-ui-trigger-overlay-live-intelligence-immediate');
 						console.log('✅ Immediate live intelligence event emitted');
 						return { success: true, method: 'process-emit' };
@@ -1058,16 +1001,12 @@ class NotchDropAddonWrapper extends EventEmitter {
 
 			// Method 2: Global callback fallback
 			if (typeof global !== 'undefined' && global.notchDropOverlayCallback) {
-				console.log('📡 Using global callback for immediate live intelligence trigger');
 				global.notchDropOverlayCallback('toggleLiveIntelligence', { immediate: true });
-				console.log('✅ Immediate live intelligence triggered via global callback');
 				return { success: true, method: 'global-callback' };
 			}
 
 			// Method 3: Event emission fallback
-			console.log('📡 Using event emission for immediate live intelligence trigger');
 			this.emit('triggerOverlayToggleLiveIntelligence', { immediate: true });
-			console.log('✅ Immediate live intelligence event emitted');
 			return { success: true, method: 'event-emission' };
 		} catch (error) {
 			console.error('❌ Failed to trigger immediate overlay live intelligence:', error);
@@ -1077,7 +1016,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 
 	// Immediate stop/pause/resume methods for completeness
 	async triggerOverlayStopRecordingImmediate() {
-		console.log('⚡ IMMEDIATE: Stopping overlay recording NOW');
 		try {
 			if (typeof require !== 'undefined') {
 				try {
@@ -1085,7 +1023,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 						const result = await ipcRenderer.invoke(
 							'notchdrop:triggerOverlayStopRecording',
 						);
-						console.log('✅ Immediate stop via ipcRenderer:', result);
 						return result;
 					}
 				} catch (e) {
@@ -1098,7 +1035,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 						const title = window.getTitle();
 						if (title.includes('Overlay') || title.includes('Live Intelligence')) {
 							window.webContents.send('overlay-command', { action: 'stopRecording' });
-							console.log('✅ Immediate stop sent directly to window');
 							return { success: true, method: 'direct-window' };
 						}
 					}
@@ -1106,7 +1042,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 			}
 			// Event emission fallback (legacy)
 			this.emit('triggerOverlayStopRecording', { immediate: true });
-			console.log('ℹ️ Emitted legacy immediate stop event');
 			return { success: true, method: 'event-emission' };
 		} catch (error) {
 			console.error('❌ Failed to stop recording immediately:', error);
@@ -1115,7 +1050,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 	}
 
 	async triggerOverlayPauseRecordingImmediate() {
-		console.log('⚡ IMMEDIATE: Pausing overlay recording NOW');
 		try {
 			if (typeof require !== 'undefined') {
 				try {
@@ -1123,7 +1057,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 						const result = await ipcRenderer.invoke(
 							'notchdrop:triggerOverlayPauseRecording',
 						);
-						console.log('✅ Immediate pause via ipcRenderer:', result);
 						return result;
 					}
 				} catch (e) {
@@ -1137,14 +1070,12 @@ class NotchDropAddonWrapper extends EventEmitter {
 							window.webContents.send('overlay-command', {
 								action: 'pauseRecording',
 							});
-							console.log('✅ Immediate pause sent directly to window');
 							return { success: true, method: 'direct-window' };
 						}
 					}
 				}
 			}
 			this.emit('triggerOverlayPauseRecording', { immediate: true });
-			console.log('ℹ️ Emitted legacy immediate pause event');
 			return { success: true, method: 'event-emission' };
 		} catch (error) {
 			console.error('❌ Failed to pause recording immediately:', error);
@@ -1153,7 +1084,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 	}
 
 	async triggerOverlayResumeRecordingImmediate() {
-		console.log('⚡ IMMEDIATE: Resuming overlay recording NOW');
 		try {
 			if (typeof require !== 'undefined') {
 				try {
@@ -1161,7 +1091,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 						const result = await ipcRenderer.invoke(
 							'notchdrop:triggerOverlayResumeRecording',
 						);
-						console.log('✅ Immediate resume via ipcRenderer:', result);
 						return result;
 					}
 				} catch (e) {
@@ -1175,14 +1104,12 @@ class NotchDropAddonWrapper extends EventEmitter {
 							window.webContents.send('overlay-command', {
 								action: 'resumeRecording',
 							});
-							console.log('✅ Immediate resume sent directly to window');
 							return { success: true, method: 'direct-window' };
 						}
 					}
 				}
 			}
 			this.emit('triggerOverlayResumeRecording', { immediate: true });
-			console.log('ℹ️ Emitted legacy immediate resume event');
 			return { success: true, method: 'event-emission' };
 		} catch (error) {
 			console.error('❌ Failed to resume recording immediately:', error);

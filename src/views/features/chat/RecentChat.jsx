@@ -35,6 +35,15 @@ const RecentChat = ({
 	showChats = false,
 	showHeader = true,
 	showBrowser = false,
+	showBottomTools = true,
+	showMicBtn = true,
+	showRecentFiles = true,
+	showResponseEditBtn = true,
+	fetchRecentChatMessages = true,
+
+	// below props are for desktop app
+	isDesktopApp = false,
+	handleDesktopAppPayload = null,
 }) => {
 	const {
 		templates: {
@@ -272,7 +281,7 @@ const RecentChat = ({
 				agentTimeoutIdRef.current = null;
 			}
 
-			if (!globalChatMessages?.[sessionId]?.open_browser) {
+			if (!globalChatMessages?.[sessionId]?.open_browser && fetchRecentChatMessages) {
 				getRecentChatMessages({
 					sessionId,
 					page: 1,
@@ -311,7 +320,7 @@ const RecentChat = ({
 				newChatSessionIds: newChatSessionIdsRef.current,
 			});
 		}
-	}, [sessionId]);
+	}, [sessionId, fetchRecentChatMessages]);
 
 	useEffect(() => {
 		// const agentType = searchParams?.get('agentType');
@@ -1109,6 +1118,9 @@ const RecentChat = ({
 																			1
 																	}
 																	sessionId={sessionId}
+																	showResponseEditBtn={
+																		showResponseEditBtn
+																	}
 																/>
 															</div>
 														) : (
@@ -1176,6 +1188,11 @@ const RecentChat = ({
 									globalChatMessages?.[sessionId]?.browserData?.browserMetadata
 										?.signedUrl
 								}
+								showBottomTools={showBottomTools}
+								showMicBtn={showMicBtn}
+								showRecentFiles={showRecentFiles}
+								isDesktopApp={isDesktopApp}
+								handleDesktopAppPayload={handleDesktopAppPayload}
 							/>
 						</div>
 					</div>

@@ -1,7 +1,7 @@
 {
 	"name": "VEAI",
 	"description": "Your living intelligence remembers everything, sees what you see, figures out your goals, and doesn’t stop until they're done.",
-	"version": "v0.4.20",
+	"version": "v0.4.21",
 	"private": true,
 	"main": "dist-electron/main.js",
 	"author": "Ve AI",
@@ -223,7 +223,8 @@
 				"**/node_modules/@img/sharp-darwin*/**/*",
 				"**/node_modules/@img/sharp-libvips-darwin*/**/*",
 				"**/node_modules/notchdrop-addon/**/*.node",
-				"**/node_modules/notchdrop-addon/bin/**/*"
+				"**/node_modules/notchdrop-addon/bin/**/*",
+				"**/Electron Framework.framework/**/*"
 			],
 			"extraResources": [
 				{

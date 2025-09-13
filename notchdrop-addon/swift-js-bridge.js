@@ -10,7 +10,6 @@ class SwiftJSBridge {
 
 	async initialize() {
 		if (this.isInitialized) {
-			console.warn('Swift-JS Bridge already initialized');
 			return;
 		}
 
@@ -20,7 +19,6 @@ class SwiftJSBridge {
 			this.setupIPCHandlers();
 
 			this.isInitialized = true;
-			console.log('✅ Swift-JS Bridge initialized successfully');
 		} catch (error) {
 			console.error('❌ Failed to initialize Swift-JS Bridge:', error);
 			throw error;
@@ -96,18 +94,12 @@ class SwiftJSBridge {
 				try {
 					ipcMain.handle(channel, handler);
 					registeredHandlers.add(channel);
-					console.log(`✅ Registered IPC handler: ${channel}`);
 				} catch (error) {
 					if (error.message.includes('second handler')) {
-						console.warn(`⚠️ Handler ${channel} already registered, skipping...`);
 					} else {
 						throw error;
 					}
 				}
-			} else {
-				console.warn(
-					`⚠️ Handler ${channel} already registered in this session, skipping...`,
-				);
 			}
 		};
 
@@ -132,7 +124,6 @@ class SwiftJSBridge {
 				await handler(data);
 				return { success: true, action, data };
 			} else {
-				console.warn('⚠️ No handler found for Swift action:', action);
 				return { success: false, error: 'No handler found' };
 			}
 		} catch (error) {
@@ -143,12 +134,9 @@ class SwiftJSBridge {
 
 	async controlJavaScriptUI(action, data) {
 		try {
-			console.log('🎯 Controlling JavaScript UI:', action, data);
-
 			// Find the Dynamic Island window
 			const dynamicIslandWindow = this.findDynamicIslandWindow();
 			if (!dynamicIslandWindow) {
-				console.warn('⚠️ Dynamic Island window not found');
 				return { success: false, error: 'Dynamic Island window not found' };
 			}
 
@@ -190,26 +178,21 @@ class SwiftJSBridge {
 
 	// Method to be called from Swift side
 	onSwiftAction(action, data) {
-		console.log('🔄 Swift action received via bridge:', action, data);
 		this.handleSwiftAction(action, data);
 	}
 
 	// Enhanced overlay integration methods
 	async triggerOverlayRecording(data) {
 		try {
-			console.log('🎤 Triggering overlay recording from Swift-JS bridge');
-
 			// Check if we're in main process or renderer process
 			try {
 				// Try to use ipcRenderer (renderer process)
 				const { ipcRenderer } = require('electron');
 				if (ipcRenderer) {
 					const result = await ipcRenderer.invoke('overlay-start-recording');
-					console.log('✅ Overlay recording result:', result);
 				}
 			} catch (e) {
 				// ipcRenderer not available, we're in main process
-				console.log('Running in main process, using direct window communication');
 
 				// Main process approach - find overlay window and send command directly
 				const { BrowserWindow } = require('electron');
@@ -221,7 +204,6 @@ class SwiftJSBridge {
 							window.webContents.send('overlay-command', {
 								action: 'startRecording',
 							});
-							console.log('✅ Overlay recording command sent directly to window');
 							break;
 						}
 					}
@@ -240,18 +222,14 @@ class SwiftJSBridge {
 
 	async triggerOverlayStopRecording(data) {
 		try {
-			console.log('⏹️ Triggering overlay stop recording from Swift-JS bridge');
-
 			try {
 				const { ipcRenderer } = require('electron');
 				if (ipcRenderer) {
 					const result = await ipcRenderer.invoke(
 						'notchdrop:triggerOverlayStopRecording',
 					);
-					console.log('✅ Overlay stop recording result:', result);
 				}
 			} catch (e) {
-				console.log('Running in main process, using direct window communication');
 				const { BrowserWindow } = require('electron');
 				const windows = BrowserWindow.getAllWindows();
 				for (const window of windows) {
@@ -259,7 +237,6 @@ class SwiftJSBridge {
 						const title = window.getTitle();
 						if (title.includes('Overlay') || title.includes('Live Intelligence')) {
 							window.webContents.send('overlay-command', { action: 'stopRecording' });
-							console.log('✅ Overlay stop command sent directly to window');
 							break;
 						}
 					}
@@ -275,18 +252,14 @@ class SwiftJSBridge {
 
 	async triggerOverlayPauseRecording(data) {
 		try {
-			console.log('⏸️ Triggering overlay pause recording from Swift-JS bridge');
-
 			try {
 				const { ipcRenderer } = require('electron');
 				if (ipcRenderer) {
 					const result = await ipcRenderer.invoke(
 						'notchdrop:triggerOverlayPauseRecording',
 					);
-					console.log('✅ Overlay pause recording result:', result);
 				}
 			} catch (e) {
-				console.log('Running in main process, using direct window communication');
 				const { BrowserWindow } = require('electron');
 				const windows = BrowserWindow.getAllWindows();
 				for (const window of windows) {
@@ -296,7 +269,6 @@ class SwiftJSBridge {
 							window.webContents.send('overlay-command', {
 								action: 'pauseRecording',
 							});
-							console.log('✅ Overlay pause command sent directly to window');
 							break;
 						}
 					}
@@ -312,18 +284,14 @@ class SwiftJSBridge {
 
 	async triggerOverlayResumeRecording(data) {
 		try {
-			console.log('▶️ Triggering overlay resume recording from Swift-JS bridge');
-
 			try {
 				const { ipcRenderer } = require('electron');
 				if (ipcRenderer) {
 					const result = await ipcRenderer.invoke(
 						'notchdrop:triggerOverlayResumeRecording',
 					);
-					console.log('✅ Overlay resume recording result:', result);
 				}
 			} catch (e) {
-				console.log('Running in main process, using direct window communication');
 				const { BrowserWindow } = require('electron');
 				const windows = BrowserWindow.getAllWindows();
 				for (const window of windows) {
@@ -333,7 +301,6 @@ class SwiftJSBridge {
 							window.webContents.send('overlay-command', {
 								action: 'resumeRecording',
 							});
-							console.log('✅ Overlay resume command sent directly to window');
 							break;
 						}
 					}
@@ -357,11 +324,9 @@ class SwiftJSBridge {
 				const { ipcRenderer } = require('electron');
 				if (ipcRenderer) {
 					const result = await ipcRenderer.invoke('overlay-toggle-live-intelligence');
-					console.log('✅ Overlay toggle live intelligence result:', result);
 				}
 			} catch (e) {
 				// ipcRenderer not available, we're in main process
-				console.log('Running in main process, using direct window communication');
 
 				// Main process approach - find overlay window and send command directly
 				const { BrowserWindow } = require('electron');
@@ -373,9 +338,6 @@ class SwiftJSBridge {
 							window.webContents.send('overlay-command', {
 								action: 'toggleLiveIntelligence',
 							});
-							console.log(
-								'✅ Overlay toggle live intelligence command sent directly to window',
-							);
 							break;
 						}
 					}
@@ -409,13 +371,10 @@ class SwiftJSBridge {
 	// Send chat message to AskAI window using the same event as Dynamic Island
 	async sendChatMessageToAskAI(chatMessage) {
 		try {
-			console.log('🚀 Sending chat message from NotchDrop to AskAI:', chatMessage);
-
 			// Use the same IPC event that Dynamic Island uses
 			const { ipcRenderer } = require('electron');
 			if (ipcRenderer && ipcRenderer.invoke) {
 				const result = await ipcRenderer.invoke('send-chat-message-to-askai', chatMessage);
-				console.log('📥 AskAI response:', result);
 				return result;
 			} else {
 				console.error('❌ ipcRenderer not available in NotchDrop context');
@@ -431,7 +390,6 @@ class SwiftJSBridge {
 	destroy() {
 		this.isInitialized = false;
 		this.swiftActionHandlers.clear();
-		console.log('🧹 Swift-JS Bridge destroyed');
 	}
 }
 

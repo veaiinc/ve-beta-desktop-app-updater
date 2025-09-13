@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './live-intelligence-panel.scss';
 import { AudioLines, CircleX } from 'lucide-react';
 import userIcon from '../../assets/svg/transcription/user.svg';
@@ -25,6 +25,44 @@ const LiveIntelligencePanel = ({
 	},
 }) => {
 	const [activeTab, setActiveTab] = useState('all-threads');
+	const contentRef = useRef(null);
+
+	// Auto-scroll to bottom when new responses are added
+	useEffect(() => {
+		if (contentRef.current) {
+			contentRef.current.scrollTop = contentRef.current.scrollHeight;
+		}
+	}, [socketData]);
+
+	// Auto-scroll to latest item when new content is added
+	useEffect(() => {
+		// Use setTimeout to ensure DOM has updated after tab switch
+		setTimeout(() => {
+			const scrollContainer = document.querySelector('.live-intelligence-panel__content');
+			if (scrollContainer) {
+				const scrollHeight = scrollContainer.scrollHeight;
+				const clientHeight = scrollContainer.clientHeight;
+
+				console.log('🔄 Auto-scrolling to latest item:', {
+					activeTab,
+					scrollHeight,
+					clientHeight,
+					canScroll: scrollHeight > clientHeight,
+				});
+
+				// Only scroll if content is actually scrollable
+				if (scrollHeight > clientHeight) {
+					// Smooth scroll to bottom to show the latest item
+					scrollContainer.scrollTo({
+						top: scrollHeight,
+						behavior: 'smooth',
+					});
+				}
+			} else {
+				console.log('❌ Scroll container not found');
+			}
+		}, 150);
+	}, [socketData, activeTab]);
 
 	// Handle tab click - only change active tab, don't send content to Ask AI
 	const handleTabClick = (tabKey) => {
@@ -34,7 +72,7 @@ const LiveIntelligencePanel = ({
 	};
 
 	// Handle individual thread item click and send specific content to Ask AI
-	const handleThreadItemClick = async (item, tabKey) => {
+	const handleThreadItemClick = async (item, tabKey, isNeedHelp = false) => {
 		// Extract the main content text (the thread question)
 		const questionText = item.prompt || item.name || item.description || 'No content available';
 
@@ -46,6 +84,7 @@ const LiveIntelligencePanel = ({
 			tabLabel: tabs.find((tab) => tab.key === tabKey)?.label || tabKey,
 			itemData: item,
 			timestamp: new Date().toISOString(),
+			isNeedHelp,
 		};
 
 		console.log('🚀 Sending thread question to Ask AI:', chatMessage);
@@ -115,7 +154,7 @@ const LiveIntelligencePanel = ({
 	};
 
 	const tabs = [
-		{ key: 'all-threads', label: 'All Threads', count: getBadgeCount('all-threads') },
+		{ key: 'all-threads', label: 'All threads', count: getBadgeCount('all-threads') },
 		...(getBadgeCount('ask-user') > 0
 			? [
 					{
@@ -187,7 +226,7 @@ const LiveIntelligencePanel = ({
 				return (
 					<div className="tab-content">
 						{socketData.allThreads?.length > 0 ? (
-							[...socketData.allThreads].reverse().map((thread, index) => {
+							socketData.allThreads.map((thread, index) => {
 								const categoryIcon = getCategoryIcon(thread.entity, thread.type);
 								return (
 									<div
@@ -195,7 +234,13 @@ const LiveIntelligencePanel = ({
 										className={`thread-item ${
 											thread.entity === 'user' ? 'ask-user-item' : 'clickable'
 										}`}
-										onClick={() => handleThreadItemClick(thread, 'all-threads')}
+										onClick={() =>
+											handleThreadItemClick(
+												thread,
+												'all-threads',
+												thread?.type === 'search',
+											)
+										}
 										title="Click to ask AI about this thread"
 									>
 										{/* <div className="thread-category">
@@ -218,9 +263,9 @@ const LiveIntelligencePanel = ({
 												({thread.description})
 											</div>
 										)}
-										<div className="thread-time">
+										{/* <div className="thread-time">
 											{formatTime(thread.timestamp || thread.created_at)}
-										</div>
+										</div> */}
 									</div>
 								);
 							})
@@ -235,7 +280,7 @@ const LiveIntelligencePanel = ({
 				return (
 					<div className="tab-content">
 						{socketData.askUser?.length > 0 ? (
-							[...socketData.askUser].reverse().map((item, index) => (
+							socketData.askUser.map((item, index) => (
 								<div
 									key={item.reference_id || item.id || index}
 									className="thread-item ask-user-item"
@@ -251,9 +296,9 @@ const LiveIntelligencePanel = ({
 											({item.description})
 										</div>
 									)}
-									<div className="thread-time">
+									{/* <div className="thread-time">
 										{formatTime(item.timestamp || item.created_at)}
-									</div>
+									</div> */}
 								</div>
 							))
 						) : (
@@ -265,11 +310,11 @@ const LiveIntelligencePanel = ({
 				return (
 					<div className="tab-content">
 						{socketData.needHelp?.length > 0 ? (
-							socketData.needHelp?.reverse().map((item, index) => (
+							socketData.needHelp.map((item, index) => (
 								<div
 									key={item.reference_id || item.id || index}
 									className="thread-item clickable"
-									onClick={() => handleThreadItemClick(item, 'need-help')}
+									onClick={() => handleThreadItemClick(item, 'need-help', true)}
 									title="Click to ask AI about this help suggestion"
 								>
 									{/* <div className="thread-category">Need help?</div> */}
@@ -281,9 +326,9 @@ const LiveIntelligencePanel = ({
 											({item.description})
 										</div>
 									)}
-									<div className="thread-time">
+									{/* <div className="thread-time">
 										{formatTime(item.timestamp || item.created_at)}
-									</div>
+									</div> */}
 								</div>
 							))
 						) : (
@@ -295,7 +340,7 @@ const LiveIntelligencePanel = ({
 				return (
 					<div className="tab-content">
 						{socketData.actions?.length > 0 ? (
-							[...socketData.actions].reverse().map((item, index) => (
+							socketData.actions.map((item, index) => (
 								<div
 									key={item.reference_id || item.id || index}
 									className="thread-item clickable"
@@ -311,9 +356,9 @@ const LiveIntelligencePanel = ({
 											({item.description})
 										</div>
 									)}
-									<div className="thread-time">
+									{/* <div className="thread-time">
 										{formatTime(item.timestamp || item.created_at)}
-									</div>
+									</div> */}
 								</div>
 							))
 						) : (
@@ -325,7 +370,7 @@ const LiveIntelligencePanel = ({
 				return (
 					<div className="tab-content">
 						{socketData.files?.length > 0 ? (
-							[...socketData.files].reverse().map((item, index) => (
+							socketData.files.map((item, index) => (
 								<div
 									key={item.reference_id || item.id || index}
 									className="thread-item clickable"
@@ -341,9 +386,9 @@ const LiveIntelligencePanel = ({
 											({item.description})
 										</div>
 									)}
-									<div className="thread-time">
+									{/* <div className="thread-time">
 										{formatTime(item.timestamp || item.created_at)}
-									</div>
+									</div> */}
 								</div>
 							))
 						) : (
@@ -417,7 +462,9 @@ const LiveIntelligencePanel = ({
 			</div>
 
 			{/* Tab Content */}
-			<div className="live-intelligence-panel__content">{renderTabContent()}</div>
+			<div className="live-intelligence-panel__content" ref={contentRef}>
+				{renderTabContent()}
+			</div>
 		</div>
 	);
 };
