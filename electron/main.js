@@ -22,7 +22,7 @@ const DynamicIslandHelper = require('./helpers/dynamicIslandHelper');
 const fs = require('fs');
 const { exec } = require('child_process');
 const { Worker } = require('worker_threads');
-const pLimit = require('p-limit').default; // ← THIS IS THE FIX
+const pLimit = require('p-limit'); // ← THIS IS THE FIX
 const imageProcessingLimit = pLimit(4); // Max 4 concurrent workers
 
 // Import dynamic island helper
