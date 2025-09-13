@@ -277,17 +277,19 @@
 		position: relative;
 		&:hover {
 			.copy-table-btn {
-				display: block;
+				opacity: 1;
+				pointer-events: auto;
 			}
 		}
 
 		.copy-table-btn {
-			display: none;
 			width: 36px;
 			height: 36px;
 			display: flex;
 			align-items: center;
 			justify-content: center;
+			opacity: 0;
+			pointer-events: none;
 			border-radius: 50%;
 			position: absolute;
 			right: 5px;
@@ -295,7 +297,7 @@
 			background-color: transparent;
 			border: none;
 			cursor: pointer;
-			transition: all 0.2s ease-out;
+			transition: all 0.1s ease-out;
 
 			&:hover {
 				background-color: var(--stroke);
