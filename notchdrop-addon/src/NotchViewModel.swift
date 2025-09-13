@@ -310,8 +310,8 @@ class NotchViewModel: NSObject, ObservableObject {
                 // Set authentication state to true for authorized message
                 self.setAuthenticated(true)
                 print("🔐 Authentication state set to TRUE based on message: \(message)")
-            } else {
-                // Set authentication state to false for any other message
+            } else if message.lowercased() == "unauthorized" || message.lowercased() == "loggedout" {
+                // Set authentication state to false for unauthorized or loggedOut messages
                 self.setAuthenticated(false)
                 print("🔓 Authentication state set to FALSE based on message: \(message)")
             }
