@@ -40,8 +40,13 @@ module.exports = class DynamicIslandHelper {
 
 		// Skip window creation on macOS (runtime) - only create for Windows/Linux
 		if (isMacRuntime) {
+			log.info('Skipping Dynamic Island window creation on macOS (using native NotchDrop)');
 			return;
 		}
+
+		log.info('Creating Dynamic Island window for platform:', process.platform);
+		log.info('NODE_ENV:', process.env.NODE_ENV);
+		log.info('__dirname:', __dirname);
 
 		const windowSettings = {
 			width: this.expandedSize.width, // Start with expanded size (875x280)
@@ -51,7 +56,7 @@ module.exports = class DynamicIslandHelper {
 			webPreferences: {
 				nodeIntegration: false,
 				contextIsolation: true,
-				preload: path.join(__dirname, 'preload.js'),
+				preload: path.join(__dirname, '..', 'preload.js'),
 				devTools: true, // Enable dev tools in production too
 			},
 			show: true, // Show immediately when created
@@ -74,37 +79,186 @@ module.exports = class DynamicIslandHelper {
 			closable: false,
 		};
 
-		this.dynamicIslandWindow = new BrowserWindow(windowSettings);
+		// Check preload file exists
+		const preloadPath = path.join(__dirname, '..', 'preload.js');
+		const fs = require('fs');
+		if (!fs.existsSync(preloadPath)) {
+			log.error('Preload file not found at:', preloadPath);
+			log.error('Available files in parent directory:', fs.readdirSync(path.join(__dirname, '..')));
+			return;
+		}
+		log.info('Preload file found at:', preloadPath);
+
+		try {
+			this.dynamicIslandWindow = new BrowserWindow(windowSettings);
+			log.info('Dynamic Island BrowserWindow created successfully');
+		} catch (error) {
+			log.error('Failed to create Dynamic Island BrowserWindow:', error);
+			return;
+		}
 
 		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
 		// Force the Dynamic Island React app mode so it renders the island UI
 		const query = '?mode=dynamic-island';
-		const dynamicIslandUrl =
-			process.env.NODE_ENV === 'development'
-				? `${devURL}/dynamic-island.html${query}`
-				: `file://${path.join(__dirname, '..', 'build', 'dynamic-island.html')}${query}`;
+		
+		let dynamicIslandUrl;
+		if (process.env.NODE_ENV === 'development') {
+			dynamicIslandUrl = `${devURL}/dynamic-island.html${query}`;
+		} else {
+			// Try multiple possible paths for production
+			const possiblePaths = [
+				path.join(__dirname, '..', 'build', 'dynamic-island.html'),
+				path.join(__dirname, '..', '..', 'build', 'dynamic-island.html'),
+				path.join(process.resourcesPath, 'build', 'dynamic-island.html'),
+				path.join(process.resourcesPath, 'app', 'build', 'dynamic-island.html'),
+			];
+			
+			let htmlPath = null;
+			for (const testPath of possiblePaths) {
+				if (fs.existsSync(testPath)) {
+					htmlPath = testPath;
+					log.info('Found Dynamic Island HTML at:', htmlPath);
+					break;
+				}
+			}
+			
+			if (!htmlPath) {
+				log.error('Dynamic Island HTML file not found in any of these locations:');
+				possiblePaths.forEach(p => log.error('  -', p));
+				
+				// Debug: show what directories exist
+				try {
+					const parentDir = path.join(__dirname, '..');
+					if (fs.existsSync(parentDir)) {
+						const parentFiles = fs.readdirSync(parentDir);
+						log.error('Available in parent directory:', parentFiles);
+					}
+					
+					if (process.resourcesPath && fs.existsSync(process.resourcesPath)) {
+						const resourceFiles = fs.readdirSync(process.resourcesPath);
+						log.error('Available in resources directory:', resourceFiles);
+					}
+				} catch (dirError) {
+					log.error('Could not read directories:', dirError);
+				}
+				return;
+			}
+			
+			dynamicIslandUrl = `file://${htmlPath}${query}`;
+		}
+
+		log.info('Loading Dynamic Island URL:', dynamicIslandUrl);
 
 		this.dynamicIslandWindow.loadURL(dynamicIslandUrl).catch((err) => {
-			log.error('Failed to load dynamic island URL:', err);
+			log.error('Failed to load dynamic island URL:', dynamicIslandUrl, err);
 		});
 
 		// Configure for non-macOS platforms
-		this.dynamicIslandWindow.setAlwaysOnTop(true, 'screen-saver');
+		try {
+			this.dynamicIslandWindow.setAlwaysOnTop(true, 'screen-saver');
+			log.info('Dynamic Island set to always on top');
+		} catch (error) {
+			log.error('Failed to set Dynamic Island always on top:', error);
+		}
 
 		// Set initial mouse event handling - start with mouse events ignored since it's collapsed
 		this.setMouseEventHandling(true);
 
-		// Show the window immediately
-		this.dynamicIslandWindow.show();
-		this.isVisible = true;
+		// Show the window immediately with enhanced visibility
+		try {
+			this.dynamicIslandWindow.show();
+			this.dynamicIslandWindow.focus();
+			this.dynamicIslandWindow.moveTop();
+			this.isVisible = true;
+			log.info('Dynamic Island window shown successfully');
+			
+			// Force visibility after multiple delays to ensure it's visible
+			setTimeout(() => {
+				if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+					this.dynamicIslandWindow.setVisibleOnAllWorkspaces(true);
+					this.dynamicIslandWindow.setAlwaysOnTop(true, 'screen-saver', 1);
+					this.dynamicIslandWindow.show(); // Show again
+					log.info('Dynamic Island visibility enforced (1st pass)');
+				}
+			}, 500);
+			
+			// Second visibility enforcement
+			setTimeout(() => {
+				if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+					this.dynamicIslandWindow.show();
+					this.dynamicIslandWindow.focus();
+					this.dynamicIslandWindow.moveTop();
+					log.info('Dynamic Island visibility enforced (2nd pass)');
+				}
+			}, 2000);
+			
+			// Third visibility enforcement for stubborn cases
+			setTimeout(() => {
+				if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
+					this.dynamicIslandWindow.show();
+					this.dynamicIslandWindow.setAlwaysOnTop(true, 'screen-saver', 2);
+					log.info('Dynamic Island visibility enforced (3rd pass)');
+				}
+			}, 5000);
+		} catch (error) {
+			log.error('Failed to show Dynamic Island window:', error);
+		}
+
+		// Listen for window events
+		this.dynamicIslandWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+			log.error('Dynamic Island failed to load:', {
+				errorCode,
+				errorDescription,
+				validatedURL
+			});
+		});
+
+		this.dynamicIslandWindow.webContents.on('dom-ready', () => {
+			log.info('Dynamic Island DOM ready');
+		});
+
+		this.dynamicIslandWindow.on('closed', () => {
+			log.info('Dynamic Island window closed');
+			this.dynamicIslandWindow = null;
+			this.isVisible = false;
+		});
 
 		// Listen for resize events from the renderer
 		this.dynamicIslandWindow.webContents.on('did-finish-load', () => {
-			log.info('Dynamic Island content loaded, setting up resize listener');
+			log.info('Dynamic Island content loaded successfully, setting up resize listener');
 			// Send initial state to React component - start collapsed
 			log.info('Sending initial state to React component: { expanded: false }');
-			this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: false });
+			try {
+				this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: false });
+				log.info('Initial state sent to Dynamic Island successfully');
+			} catch (error) {
+				log.error('Failed to send initial state to Dynamic Island:', error);
+			}
 		});
+	}
+
+	// Force show the Dynamic Island - can be called from IPC
+	forceShow() {
+		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) {
+			log.warn('Cannot force show - Dynamic Island window not available');
+			return false;
+		}
+
+		try {
+			log.info('Force showing Dynamic Island...');
+			this.dynamicIslandWindow.show();
+			this.dynamicIslandWindow.showInactive();
+			this.dynamicIslandWindow.focus();
+			this.dynamicIslandWindow.moveTop();
+			this.dynamicIslandWindow.setAlwaysOnTop(true, 'screen-saver', 2);
+			this.dynamicIslandWindow.setVisibleOnAllWorkspaces(true);
+			this.isVisible = true;
+			log.info('Dynamic Island force shown successfully');
+			return true;
+		} catch (error) {
+			log.error('Failed to force show Dynamic Island:', error);
+			return false;
+		}
 	}
 
 	expand() {

@@ -1,4 +1,3 @@
-// ... imports unchanged ...
 import React, { useState, useContext, useEffect, useRef, memo } from 'react';
 import '../../../assets/scss/gallery/uploadGallery.scss';
 import AddLables from '../../components/gallery/addGallery/AddLablesComponent';
@@ -15,9 +14,9 @@ import { message } from '../../components/globalComponents/CustomToast';
 import Context from '../../../context/context';
 import { uploadImage } from '../../../helpers/uploadImage';
 import ObjectID from 'bson-objectid';
+import ReactModal from '../../components/modalsV2';
 
-const UploadPhotosDesktop = () => {
-	const { galleryId, albumId } = useParams();
+const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onStartUpload }) => {
 	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
 	const {
@@ -56,7 +55,7 @@ const UploadPhotosDesktop = () => {
 		currentUpload: 1,
 		recentImageInitiated: null,
 		isSkipDuplicates: false,
-		uploadBatchID: randomize('Aa0', 10),
+		uploadBatchID: randomize('Aa0', 10), // Will be regenerated per session
 		selectedGalleryTags: [],
 		duplciatesFound: 0,
 		uploadStatus: { processedCount: 0, uploadedCount: 0 },
@@ -79,7 +78,22 @@ const UploadPhotosDesktop = () => {
 		(validateExpiryData?.liteImageLimitWithAiFace === 0 ||
 			validateExpiryData?.liteImageLimitWithAiFace <= validateExpiryData?.liteImageUsed);
 
-	// --- Effects (unchanged) ---
+	// Reset state when modal opens
+	useEffect(() => {
+		if (open) {
+			setInfo((prev) => ({
+				...prev,
+				uploadImages: {},
+				uploadBatchID: randomize('Aa0', 10), // Fresh batch ID on open
+				duplciatesFound: 0,
+				startedUploading: false,
+				isUploadComplete: false,
+				overAllProgress: 0,
+				processedCount: 0,
+			}));
+		}
+	}, [open]);
+
 	useEffect(() => {
 		if (
 			lightGallery === 'true' &&
@@ -218,7 +232,7 @@ const UploadPhotosDesktop = () => {
 				scale: 0.15,
 				opacity: 1,
 				isWaterMarkApply: false,
-				resizeOptions: { height: 100, fit: 'cover', position: 'center' }, // Cover + center crop
+				resizeOptions: { height: 100, fit: 'cover', position: 'center' },
 				quality: 70,
 				forceJpeg: true,
 			});
@@ -331,273 +345,77 @@ const UploadPhotosDesktop = () => {
 		}));
 	};
 
-	// --- Upload with Concurrent Processing & Uploads ---
-	const uploadFilesConcurrently = async () => {
+	// ✅ CRITICAL: Start upload with unique session & batch ID
+	const startUploadWithPopup = () => {
 		const nonDuplicates = Object.keys(info.uploadImages).filter(
 			(key) => !(info.isSkipDuplicates && info.uploadImages[key].isDuplicate),
 		);
 
 		if (nonDuplicates.length === 0) {
-			setInfo((prev) => ({ ...prev, isPopupOpen: true, overAllProgress: 100 }));
-			updateStateValues({ reFetchSubscription: true });
+			message.error('No files to upload');
 			return;
 		}
 
-		const policyResponse = await getUploadImagePolicy(galleryId);
-		const policyData = policyResponse?.[1];
+		// ✅ Generate UNIQUE identifiers for this upload session
+		const newUploadBatchID = randomize('Aa0', 10);
+		const sessionId = `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 
-		setInfo((prev) => ({
-			...prev,
-			startedUploading: true,
-			isProcessing: true,
-			processedCount: 0,
-			totalCount: nonDuplicates.length,
-			processingProgress: 0,
-			completedUploads: 0,
-			overAllProgress: 0,
-		}));
+		// Get watermark URL
+		const watermarkUrl = (() => {
+			const wm = waterMarks?.find(
+				(watermark) => watermark.profileId === info.watermarkProfileId,
+			);
+			return wm?.url || null;
+		})();
 
-		const processingQueue = [...nonDuplicates];
-
-		if (intervalRef.current) clearInterval(intervalRef.current);
-		intervalRef.current = setInterval(async () => {
-			const response = await getImageUploadStatus(galleryId, albumId, info.uploadBatchID);
-			if (response[0]) {
-				const { uploadedCount } = response[1];
-				setInfo((prev) => ({
-					...prev,
-					overAllProgress: Math.min((uploadedCount / nonDuplicates.length) * 100, 100),
-				}));
-			}
-		}, 6000);
-
-		const processAndUploadOne = async () => {
-			while (processingQueue.length > 0) {
-				const key = processingQueue.shift();
-				const image = info.uploadImages[key];
-				if (!image) continue;
-
-				try {
-					let imageId;
-					if (image.isDuplicate && !info.isSkipDuplicates) {
-						const existingId = image.originalImage?._id;
-						if (!existingId) {
-							console.error('No original _id found for duplicate:', key);
-							continue;
-						}
-						imageId = ObjectID(existingId);
-					} else {
-						imageId = ObjectID();
-					}
-
-					const result = await processSingleImage(image.file);
-					if (!result.success) {
-						setInfo((prev) => ({
-							...prev,
-							uploadImages: {
-								...prev.uploadImages,
-								[key]: { ...image, isFailed: true },
-							},
-						}));
-						continue;
-					}
-
-					const processedImage = { ...image, processedFile: result.processedFile };
-					setInfo((prev) => ({
-						...prev,
-						uploadImages: { ...prev.uploadImages, [key]: processedImage },
-					}));
-
-					// Create policies for thumbnails
-					const optimizedPolicy = policyData.optimized;
-					if (!optimizedPolicy) {
-						console.error('Missing optimized policy');
-						setInfo((prev) => ({
-							...prev,
-							uploadImages: {
-								...prev.uploadImages,
-								[key]: { ...image, isFailed: true },
-							},
-						}));
-						continue;
-					}
-
-					const thumbnail300wPolicy = {
-						...optimizedPolicy,
-						keyPrefix: optimizedPolicy.keyPrefix.replace(
-							/optimized\/?$/,
-							'thumbnails-300w/',
-						),
-					};
-
-					const thumbnail100hPolicy = {
-						...optimizedPolicy,
-						keyPrefix: optimizedPolicy.keyPrefix.replace(
-							/optimized\/?$/,
-							'thumbnails-100h/',
-						),
-					};
-
-					const fakePolicyData = {
-						...policyData,
-						thumbnails_300w: thumbnail300wPolicy,
-						thumbnails_100h: thumbnail100hPolicy,
-					};
-
-					let uploaded = false;
-					let attempts = 0;
-					const versionId = Date.now();
-
-					while (attempts < 3 && !uploaded) {
-						attempts++;
-						try {
-							const [
-								uploadResultOriginal,
-								uploadResultOptimized,
-								uploadResultThumbnail300w,
-								uploadResultThumbnail100h,
-							] = await Promise.all([
-								// Upload original
-								uploadImage(
-									image.file,
-									'originals',
-									null,
-									policyData,
-									imageId,
-									(percent) => {
-										setInfo((prev) => ({
-											...prev,
-											uploadImages: {
-												...prev.uploadImages,
-												[key]: {
-													...prev.uploadImages[key],
-													uploadedPerct: percent,
-												},
-											},
-										}));
-									},
-									galleryId,
-									versionId,
-									tenantAlbums?.tenant_id,
-									info?.uploadBatchID,
-								),
-								// Upload optimized
-								uploadImage(
-									result.processedFile,
-									'optimized',
-									null,
-									policyData,
-									imageId,
-									null,
-									galleryId,
-									versionId,
-									tenantAlbums?.tenant_id,
-									info?.uploadBatchID,
-								),
-								// Upload thumbnail 300w
-								uploadImage(
-									result.thumbnailFile,
-									'thumbnails_300w',
-									null,
-									fakePolicyData,
-									imageId,
-									null,
-									galleryId,
-									versionId,
-									tenantAlbums?.tenant_id,
-									info?.uploadBatchID,
-								),
-								// Upload thumbnail 100h
-								uploadImage(
-									result.thumbnail100hFile,
-									'thumbnails_100h',
-									null,
-									fakePolicyData,
-									imageId,
-									null,
-									galleryId,
-									versionId,
-									tenantAlbums?.tenant_id,
-									info?.uploadBatchID,
-								),
-							]);
-
-							if (
-								!uploadResultOriginal.success ||
-								!uploadResultOptimized.success ||
-								!uploadResultThumbnail300w.success ||
-								!uploadResultThumbnail100h.success
-							) {
-								throw new Error('One or more uploads failed');
-							}
-
-							const payload = generateUploadPayload(
-								image,
-								result.processedFile,
-								imageId,
-								policyData,
-								uploadResultOriginal,
-								uploadResultOptimized,
-								uploadResultThumbnail300w,
-								uploadResultThumbnail100h,
-								{
-									width: result.width,
-									height: result.height,
-									format: result.format,
-									originalDateTime: result.originalDateTime,
-								},
-								versionId,
-							);
-
-							const [success, response] = await uploadDesktopImages(
-								galleryId,
-								albumId,
-								payload,
-							);
-							if (success) {
-								uploaded = true;
-							} else {
-								console.error('Failed to register image:', response);
-							}
-						} catch (e) {
-							console.error(`Upload error (attempt ${attempts}):`, e);
-							if (attempts < 3) {
-								await new Promise((r) => setTimeout(r, 1000 * attempts));
-							}
-						}
-					}
-
-					if (!uploaded) {
-						setInfo((prev) => ({
-							...prev,
-							uploadImages: {
-								...prev.uploadImages,
-								[key]: { ...image, isFailed: true },
-							},
-						}));
-					}
-				} catch (error) {
-					console.error('Processing/upload failed:', error);
-					setInfo((prev) => ({
-						...prev,
-						uploadImages: {
-							...prev.uploadImages,
-							[key]: { ...image, isFailed: true },
-						},
-					}));
-				}
-			}
+		// Prepare upload data for the persistent popup
+		const uploadData = {
+			id: sessionId, // ✅ Unique session ID — critical for UploadProgressPopup
+			galleryId,
+			albumId,
+			uploadBatchID: newUploadBatchID, // ✅ Unique batch ID per session
+			tenantId: tenantAlbums?.tenant_id,
+			files: nonDuplicates.map((key) => ({
+				file: info.uploadImages[key].file,
+				isDuplicate: info.uploadImages[key].isDuplicate,
+				originalImage: info.uploadImages[key].originalImage,
+				status: 'pending',
+				progress: 0,
+			})),
+			settings: {
+				isWaterMarkApply: info.isWaterMarkApply,
+				watermarkProfileId: info.watermarkProfileId,
+				watermarkUrl,
+				watermarkPosition: info.watermarkPosition,
+				scaleWatermark: info.scaleWatermark,
+				watermarkOpacity: info.watermarkOpacity,
+				selectedGalleryTags: info.selectedGalleryTags,
+				isAiEnabled: info.isAiEnabled,
+				isSkipDuplicates: info.isSkipDuplicates,
+			},
 		};
 
-		const workers = Array.from({ length: info.uploadLimit }, () => processAndUploadOne());
-		await Promise.all(workers);
+		// Close the modal
+		closeModal();
 
-		if (intervalRef.current) clearInterval(intervalRef.current);
-		setInfo((prev) => ({ ...prev, isPopupOpen: true, overAllProgress: 100 }));
-		updateStateValues({ reFetchSubscription: true, reFetchGallery: true });
+		// Trigger global upload via context
+		if (onStartUpload) {
+			onStartUpload(uploadData);
+		}
+
+		// ✅ Reset local upload state for next session
+		setInfo((prev) => ({
+			...prev,
+			uploadImages: {}, // Clear uploaded files
+			uploadBatchID: randomize('Aa0', 10), // Prepare new batch ID for next time
+			duplciatesFound: 0,
+			startedUploading: false,
+			isUploadComplete: false,
+			overAllProgress: 0,
+		}));
 	};
 
-	// --- Generate Payload ---
+	// --- Generate Payload (unchanged) ---
 	const generateUploadPayload = (
 		image,
 		processedFile,
@@ -644,7 +462,7 @@ const UploadPhotosDesktop = () => {
 					key: uploadResultThumbnail300w.fileKey,
 				},
 				s3_thumbnail_100h: {
-					key: uploadResultThumbnail100h.fileKey, // ✅ New
+					key: uploadResultThumbnail100h.fileKey,
 				},
 				watermark: {
 					applied: info.isWaterMarkApply,
@@ -664,50 +482,62 @@ const UploadPhotosDesktop = () => {
 	};
 
 	return (
-		<div className="upload-gallery-container">
+		<ReactModal isOpen={open} closeModal={closeModal}>
 			<div
-				onClick={() =>
-					navigate(`/galleries/${galleryId}?albumId=${albumId}&activeTab=Albums`)
-				}
-				className="backHeader"
+				className="upload-gallery-container"
+				style={{
+					width: '100vw',
+					height: '100vh',
+					backgroundColor: 'var(--background-color)',
+				}}
 			>
-				<BackIcon /> <p>{info.title}</p>
-				<p className="beta-notice">
-					Desktop uploads are currently in beta, you may experience some issues.
-				</p>
-			</div>
-			<div className="options_upload_container">
-				<AddLables info={info} setinfo={setInfo} searchParams={searchParams} />
-				<UploadInputComponent onDropFunction={onDropFunction} />
-			</div>
-			<div className="watermark_progress_container">
-				<WaterMarkComponent
-					setinfo={setInfo}
-					waterMarks={waterMarks}
-					onSaveClick={onSaveClick}
-					waterMarkApply={info.isWaterMarkApply}
-					startedUploading={info.startedUploading}
-					isPopupOpen={info.isPopupOpen}
-					watermarkPosition={info.watermarkPosition}
-					watermarkProfileId={info.watermarkProfileId}
-					watermarkOpacity={info.watermarkOpacity}
-					scaleWatermark={info.scaleWatermark}
-				/>
-				<UploadStatusComponent
+				<div onClick={() => closeModal()} className="backHeader">
+					<BackIcon /> <p>{info.title}</p>
+					<p className="beta-notice">
+						Desktop uploads are currently in beta, you may experience some issues.
+					</p>
+				</div>
+				<div className="options_upload_container">
+					<AddLables
+						info={info}
+						setinfo={setInfo}
+						searchParams={searchParams}
+						albumId={albumId}
+						galleryId={galleryId}
+						tagId={tagId}
+					/>
+					<UploadInputComponent onDropFunction={onDropFunction} />
+				</div>
+				<div className="watermark_progress_container">
+					<WaterMarkComponent
+						setinfo={setInfo}
+						waterMarks={waterMarks}
+						onSaveClick={onSaveClick}
+						waterMarkApply={info.isWaterMarkApply}
+						startedUploading={info.startedUploading}
+						isPopupOpen={info.isPopupOpen}
+						watermarkPosition={info.watermarkPosition}
+						watermarkProfileId={info.watermarkProfileId}
+						watermarkOpacity={info.watermarkOpacity}
+						scaleWatermark={info.scaleWatermark}
+					/>
+					<UploadStatusComponent
+						info={info}
+						setinfo={setInfo}
+						uploadFilesConcurrently={startUploadWithPopup} // ✅ Now points to fixed function
+						galleryId={galleryId}
+						aiFacesLogic={aiFacesLogic}
+						lightGallery={lightGallery}
+					/>
+				</div>
+				<UploadCompletedPopup
 					info={info}
 					setinfo={setInfo}
-					uploadFilesConcurrently={uploadFilesConcurrently}
-					galleryId={galleryId}
-					aiFacesLogic={aiFacesLogic}
-					lightGallery={lightGallery}
+					getImageDuplicatesList={getImageDuplicatesList}
+					onClose={closeModal}
 				/>
 			</div>
-			<UploadCompletedPopup
-				info={info}
-				setinfo={setInfo}
-				getImageDuplicatesList={getImageDuplicatesList}
-			/>
-		</div>
+		</ReactModal>
 	);
 };
 

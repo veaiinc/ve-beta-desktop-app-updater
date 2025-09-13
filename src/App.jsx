@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import useWorkspaceMode from './hooks/useWorkspaceMode';
 import { useEffect, useState } from 'react';
+import UploadProgressPopup from './views/components/globalComponents/UploadProgressPopup/UploadProgressPopup';
 
 const App = () => {
 	const { routes } = useWorkspaceMode();
@@ -163,6 +164,9 @@ const App = () => {
 					<Route key={route.path} path={route.path} element={route.element} />
 				))}
 			</Routes>
+
+			{/* Global Upload Progress Popup - persists across all routes */}
+			<UploadProgressPopup />
 		</>
 	);
 };

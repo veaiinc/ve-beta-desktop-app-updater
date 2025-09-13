@@ -5,8 +5,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Select } from 'antd';
 import slugify from 'slugify';
 import { message } from '../../globalComponents/CustomToast';
-const AddLables = ({ info, setinfo, searchParams }) => {
-	const { galleryId, albumId } = useParams();
+const AddLables = ({ info, setinfo, albumId, galleryId, tagId }) => {
+	// const { galleryId, albumId } = useParams();
 	const {
 		galleryInfo: { tagsList, getGalleryTagsList, addGalleryTag, getImageDuplicatesList },
 	} = useContext(Context);
@@ -26,14 +26,25 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 			// setinfo((prev) => ({ ...prev, selectedGalleryTags: tagsList?.list || [] }));
 			let selectedGalleryTags =
 				tagsList?.list?.filter((tag) => tag.displayName === 'All') || [];
-			const rawSearchTag = searchParams.get('tag');
+			const rawSearchTag = tagId;
 			const searchTag = rawSearchTag?.split('?')[0];
 			if (searchTag) {
-				const foundTag = tagsList?.list?.find((tag) => tag?.displayName === searchTag);
+				// First try to find by _id (which is what tagId usually contains)
+				let foundTag = tagsList?.list?.find((tag) => tag?._id === searchTag);
+
+				// If not found by _id, try by displayName (fallback for legacy support)
+				if (!foundTag) {
+					foundTag = tagsList?.list?.find((tag) => tag?.displayName === searchTag);
+				}
+
 				if (foundTag) {
 					selectedGalleryTags.push(foundTag);
 				} else {
-					message.warning(`Tag not found: ${searchTag}`);
+					// Only show warning if searchTag is not empty and tagsList is loaded
+					if (searchTag.trim() && tagsList?.list?.length > 0) {
+						console.warn(`Tag not found: ${searchTag}`);
+						// Don't show user-facing warning for missing tag IDs as this is common during navigation
+					}
 				}
 			}
 			setinfo((prev) => ({
