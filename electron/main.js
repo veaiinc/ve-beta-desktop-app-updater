@@ -997,10 +997,23 @@ function setupNotchDropMenuUpdates() {
 	// Since the service emits events to the renderer, we'll listen for IPC messages
 	// that indicate status changes and update the menu accordingly
 
-	// Set up a periodic check to update menu state (as a fallback)
-	setInterval(() => {
-		updateMenuBarState();
-	}, 5000); // Update every 5 seconds
+	// Listen for NotchDrop service events to update menu
+	if (notchDropService.notchDropAddon) {
+		notchDropService.notchDropAddon.on('statusChanged', (status) => {
+			log.info('📊 NotchDrop status changed, updating menu:', status);
+			updateMenuBarState();
+		});
+
+		notchDropService.notchDropAddon.on('itemAdded', () => {
+			log.info('📊 NotchDrop item added, updating menu');
+			updateMenuBarState();
+		});
+
+		notchDropService.notchDropAddon.on('itemRemoved', () => {
+			log.info('📊 NotchDrop item removed, updating menu');
+			updateMenuBarState();
+		});
+	}
 
 	log.info('✅ NotchDrop menu update listeners set up');
 }
