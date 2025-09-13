@@ -22,11 +22,21 @@ const UploadProgressPopup = ({
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [activeUploads, setActiveUploads] = useState(new Map()); // Map of sessionId -> upload state
 	const intervalRefs = useRef(new Map()); // Map of sessionId -> interval ref
+	const startedSessions = useRef(new Set()); // Track which sessions have been started
+	const previousSessions = useRef(new Set()); // Track previous session IDs
 
 	// Initialize upload states for new sessions
 	useEffect(() => {
-		uploadSessions.forEach((session) => {
-			if (!activeUploads.has(session.id)) {
+		// Get current session IDs
+		const currentSessionIds = new Set(uploadSessions.map((s) => s.id));
+
+		// Only process sessions that are truly new (not in previous sessions)
+		const newSessions = uploadSessions.filter(
+			(session) => !previousSessions.current.has(session.id),
+		);
+
+		newSessions.forEach((session) => {
+			if (!activeUploads.has(session.id) && !startedSessions.current.has(session.id)) {
 				const uploadState = {
 					sessionId: session.id,
 					files: session.files || [],
@@ -45,6 +55,7 @@ const UploadProgressPopup = ({
 				};
 
 				setActiveUploads((prev) => new Map(prev.set(session.id, uploadState)));
+				startedSessions.current.add(session.id);
 
 				// Start upload for this session
 				startUploadSession(session.id, uploadState);
@@ -58,10 +69,28 @@ const UploadProgressPopup = ({
 			prev.forEach((state, id) => {
 				if (sessionIds.has(id)) {
 					newMap.set(id, state);
+				} else {
+					// Clean up removed session
+					startedSessions.current.delete(id);
+					previousSessions.current.delete(id);
+					processingFiles.current.forEach((fileKey) => {
+						// Remove files from this session from processing set
+						if (state.files) {
+							state.files.forEach((fileData) => {
+								const sessionFileKey = `${fileData.file.name}-${fileData.file.size}`;
+								if (sessionFileKey === fileKey) {
+									processingFiles.current.delete(fileKey);
+								}
+							});
+						}
+					});
 				}
 			});
 			return newMap;
 		});
+
+		// Update previous sessions to current sessions
+		previousSessions.current = currentSessionIds;
 	}, [uploadSessions]);
 
 	// Process single image with Sharp (same logic as before)
@@ -236,14 +265,19 @@ const UploadProgressPopup = ({
 			return newMap;
 		});
 
-		// Also update parent component
-		if (onUpdateSession) {
+		// Only update parent component for critical state changes (not progress updates)
+		if (
+			onUpdateSession &&
+			(updates.status === 'completed' ||
+				updates.status === 'failed' ||
+				updates.status === 'cancelled')
+		) {
 			onUpdateSession(sessionId, updates);
 		}
 	};
 
-	// Track files being processed to prevent duplicates
-	const processingFiles = new Set();
+	// Track files being processed to prevent duplicates - use useRef to persist across renders
+	const processingFiles = useRef(new Set());
 
 	// Start upload process for a specific session
 	const startUploadSession = async (sessionId, initialState) => {
@@ -256,6 +290,19 @@ const UploadProgressPopup = ({
 
 			if (!policyData) {
 				throw new Error('Failed to get upload policies');
+			}
+
+			// Deduplicate files to prevent multiple uploads of the same file
+			const uniqueFiles = initialState.files.filter((fileData, index, self) => {
+				// Use file name and size as unique identifier
+				const fileKey = `${fileData.file.name}-${fileData.file.size}`;
+				return self.findIndex((f) => `${f.file.name}-${f.file.size}` === fileKey) === index;
+			});
+
+			// Check if interval already exists for this session
+			if (intervalRefs.current.has(sessionId)) {
+				console.warn(`Interval already exists for session ${sessionId}, skipping...`);
+				return;
 			}
 
 			// Start progress monitoring for this session
@@ -283,19 +330,12 @@ const UploadProgressPopup = ({
 
 			intervalRefs.current.set(sessionId, progressIntervalId);
 
-			// Deduplicate files to prevent multiple uploads of the same file
-			const uniqueFiles = initialState.files.filter((fileData, index, self) => {
-				// Use file name and size as unique identifier
-				const fileKey = `${fileData.file.name}-${fileData.file.size}`;
-				return self.findIndex((f) => `${f.file.name}-${f.file.size}` === fileKey) === index;
-			});
-
 			// Process and upload files concurrently
 			const uploadPromises = uniqueFiles.map(async (fileData, index) => {
 				try {
 					// Check if file is already being processed
 					const fileKey = `${fileData.file.name}-${fileData.file.size}`;
-					if (processingFiles.has(fileKey)) {
+					if (processingFiles.current.has(fileKey)) {
 						console.warn(
 							`File ${fileData.file.name} is already being processed, skipping...`,
 						);
@@ -303,7 +343,7 @@ const UploadProgressPopup = ({
 					}
 
 					// Mark file as being processed
-					processingFiles.add(fileKey);
+					processingFiles.current.add(fileKey);
 
 					// Update file status to processing
 					updateUploadState(sessionId, {
@@ -477,7 +517,7 @@ const UploadProgressPopup = ({
 					});
 
 					// Remove file from processing set
-					processingFiles.delete(fileKey);
+					processingFiles.current.delete(fileKey);
 				} catch (error) {
 					console.error('Upload failed for file:', fileData.file.name, error);
 					const currentFailedState = activeUploads.get(sessionId);
@@ -488,7 +528,7 @@ const UploadProgressPopup = ({
 					});
 
 					// Remove file from processing set even on failure
-					processingFiles.delete(fileKey);
+					processingFiles.current.delete(fileKey);
 				}
 			});
 
@@ -508,6 +548,15 @@ const UploadProgressPopup = ({
 				overallProgress: 100,
 			});
 
+			// Clear processing files for this session
+			uniqueFiles.forEach((fileData) => {
+				const fileKey = `${fileData.file.name}-${fileData.file.size}`;
+				processingFiles.current.delete(fileKey);
+			});
+
+			// Clean up started session tracking
+			startedSessions.current.delete(sessionId);
+
 			// Call completion callback
 			if (onComplete) {
 				onComplete(sessionId);
@@ -519,11 +568,22 @@ const UploadProgressPopup = ({
 				error: error.message,
 			});
 
+			// Clear processing files for this session
+			if (uniqueFiles) {
+				uniqueFiles.forEach((fileData) => {
+					const fileKey = `${fileData.file.name}-${fileData.file.size}`;
+					processingFiles.current.delete(fileKey);
+				});
+			}
+
 			const errorIntervalId = intervalRefs.current.get(sessionId);
 			if (errorIntervalId) {
 				clearInterval(errorIntervalId);
 				intervalRefs.current.delete(sessionId);
 			}
+
+			// Clean up started session tracking
+			startedSessions.current.delete(sessionId);
 		}
 	};
 
@@ -534,6 +594,9 @@ const UploadProgressPopup = ({
 				clearInterval(intervalId);
 			});
 			intervalRefs.current.clear();
+			processingFiles.current.clear();
+			startedSessions.current.clear();
+			previousSessions.current.clear();
 		};
 	}, []);
 
@@ -563,7 +626,17 @@ const UploadProgressPopup = ({
 			intervalRefs.current.delete(sessionId);
 		}
 
+		// Clear processing files for this session
+		const uploadState = activeUploads.get(sessionId);
+		if (uploadState?.files) {
+			uploadState.files.forEach((fileData) => {
+				const fileKey = `${fileData.file.name}-${fileData.file.size}`;
+				processingFiles.current.delete(fileKey);
+			});
+		}
+
 		updateUploadState(sessionId, { status: 'cancelled' });
+		startedSessions.current.delete(sessionId);
 
 		if (onCancel) {
 			onCancel(sessionId);
