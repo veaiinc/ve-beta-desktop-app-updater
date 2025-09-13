@@ -3,20 +3,22 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 // import { ReactComponent as MinimizeIcon } from '../../assets/svg/gallery/minimize.svg';
 // import { ReactComponent as ExpandIcon } from '../../assets/svg/gallery/expand.svg';
 // import { ReactComponent as CancelIcon } from '../../assets/svg/gallery/cancel.svg';
-import Context from '../../context/context';
-import { uploadImage } from '../../helpers/uploadImage';
+import Context from '../../../../context/context';
+import { uploadImage } from '../../../../helpers/uploadImage';
 import ObjectID from 'bson-objectid';
 import './UploadProgressPopup.scss';
 
-const UploadProgressPopup = ({
-	uploadSessions,
-	onClose,
-	onComplete,
-	onCancel,
-	onUpdateSession,
-}) => {
+const UploadProgressPopup = () => {
 	const {
-		galleryInfo: { getUploadImagePolicy, uploadDesktopImages, getImageUploadStatus },
+		galleryInfo: {
+			uploadSessions,
+			showUploadProgressPopup,
+			removeUploadSession,
+			hideUploadProgressPopup,
+			getUploadImagePolicy,
+			uploadDesktopImages,
+			getImageUploadStatus,
+		},
 	} = useContext(Context);
 
 	const [isExpanded, setIsExpanded] = useState(false);
@@ -24,6 +26,22 @@ const UploadProgressPopup = ({
 	const intervalRefs = useRef(new Map()); // Map of sessionId -> interval ref
 	const startedSessions = useRef(new Set()); // Track which sessions have been started
 	const previousSessions = useRef(new Set()); // Track previous session IDs
+
+	// Upload handlers
+	const handleUploadComplete = (sessionId) => {
+		// Remove completed session from global context
+		removeUploadSession(sessionId);
+	};
+
+	const handleUploadCancel = (sessionId) => {
+		// Remove cancelled session from global context
+		removeUploadSession(sessionId);
+	};
+
+	const handleCloseUploadProgressPopup = () => {
+		// Hide the upload progress popup (but keep sessions for background processing)
+		hideUploadProgressPopup();
+	};
 
 	// Initialize upload states for new sessions
 	useEffect(() => {
@@ -264,16 +282,6 @@ const UploadProgressPopup = ({
 			}
 			return newMap;
 		});
-
-		// Only update parent component for critical state changes (not progress updates)
-		if (
-			onUpdateSession &&
-			(updates.status === 'completed' ||
-				updates.status === 'failed' ||
-				updates.status === 'cancelled')
-		) {
-			onUpdateSession(sessionId, updates);
-		}
 	};
 
 	// Track files being processed to prevent duplicates - use useRef to persist across renders
@@ -558,9 +566,7 @@ const UploadProgressPopup = ({
 			startedSessions.current.delete(sessionId);
 
 			// Call completion callback
-			if (onComplete) {
-				onComplete(sessionId);
-			}
+			handleUploadComplete(sessionId);
 		} catch (error) {
 			console.error('Upload session failed:', error);
 			updateUploadState(sessionId, {
@@ -612,10 +618,10 @@ const UploadProgressPopup = ({
 					'Uploads are in progress. Are you sure you want to hide the progress? Uploads will continue in the background.',
 				)
 			) {
-				onClose();
+				handleCloseUploadProgressPopup();
 			}
 		} else {
-			onClose();
+			handleCloseUploadProgressPopup();
 		}
 	};
 
@@ -638,9 +644,7 @@ const UploadProgressPopup = ({
 		updateUploadState(sessionId, { status: 'cancelled' });
 		startedSessions.current.delete(sessionId);
 
-		if (onCancel) {
-			onCancel(sessionId);
-		}
+		handleUploadCancel(sessionId);
 	};
 
 	const getStatusText = (status) => {
@@ -708,7 +712,7 @@ const UploadProgressPopup = ({
 		return 'Processing...';
 	};
 
-	if (!uploadSessions || uploadSessions.length === 0) return null;
+	if (!showUploadProgressPopup || !uploadSessions || uploadSessions.length === 0) return null;
 
 	const uploadStates = Array.from(activeUploads.values());
 

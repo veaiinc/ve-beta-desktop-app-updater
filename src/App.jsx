@@ -1,45 +1,12 @@
 import { Routes, Route } from 'react-router-dom';
 import useWorkspaceMode from './hooks/useWorkspaceMode';
-import { useEffect, useState, useContext } from 'react';
-import Context from './context/context';
-import UploadProgressPopup from './components/UploadProgressPopup/UploadProgressPopup';
+import { useEffect, useState } from 'react';
+import UploadProgressPopup from './views/components/globalComponents/UploadProgressPopup/UploadProgressPopup';
 
 const App = () => {
 	const { routes } = useWorkspaceMode();
 	const [updateStatus, setUpdateStatus] = useState(null);
 	// const [showUpdateNotification, setShowUpdateNotification] = useState(false); // Commented out for auto restart
-
-	// Get upload session state from global context
-	const {
-		galleryInfo: {
-			uploadSessions,
-			showUploadProgressPopup,
-			removeUploadSession,
-			hideUploadProgressPopup,
-			updateUploadSession,
-		},
-	} = useContext(Context);
-
-	// Global upload handlers
-	const handleUploadComplete = (sessionId) => {
-		// Remove completed session from global context
-		removeUploadSession(sessionId);
-	};
-
-	const handleUploadCancel = (sessionId) => {
-		// Remove cancelled session from global context
-		removeUploadSession(sessionId);
-	};
-
-	const handleCloseUploadProgressPopup = () => {
-		// Hide the upload progress popup (but keep sessions for background processing)
-		hideUploadProgressPopup();
-	};
-
-	const handleUpdateUploadSession = (sessionId, updates) => {
-		// Update specific upload session in global context
-		updateUploadSession(sessionId, updates);
-	};
 
 	const handleCheckForUpdates = async () => {
 		try {
@@ -199,15 +166,7 @@ const App = () => {
 			</Routes>
 
 			{/* Global Upload Progress Popup - persists across all routes */}
-			{showUploadProgressPopup && uploadSessions?.length > 0 && (
-				<UploadProgressPopup
-					uploadSessions={uploadSessions}
-					onClose={handleCloseUploadProgressPopup}
-					onComplete={handleUploadComplete}
-					onCancel={handleUploadCancel}
-					onUpdateSession={handleUpdateUploadSession}
-				/>
-			)}
+			<UploadProgressPopup />
 		</>
 	);
 };
