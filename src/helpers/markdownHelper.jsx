@@ -328,6 +328,9 @@ const baseComponents = {
 			</div>
 		);
 	},
+	blockquote: ({ children, ...props }) => (
+		<blockquote className="blockquote">{children}</blockquote>
+	),
 };
 
 const MarkdownCode = memo(({ code, match }) => {
@@ -374,11 +377,11 @@ const MarkdownTable = memo(({ children, node, markdown }) => {
 	}, []);
 	return (
 		<div className="table-wrapper">
-			<button className="copy-table-btn" onClick={() => handleCopyTable(table || '')}>
-				<Tooltip title={isCopied ? 'Copied Table' : 'Copy Table'} placement="bottom">
+			<Tooltip title={isCopied ? 'Copied Table' : 'Copy Table'} placement="bottom">
+				<button className="copy-table-btn" onClick={() => handleCopyTable(table || '')}>
 					{isCopied ? <TickSvg /> : <CopyIcon />}
-				</Tooltip>
-			</button>
+				</button>
+			</Tooltip>
 			<div className="table-container">
 				<table className="table">{children}</table>
 			</div>
@@ -556,12 +559,9 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 							className={`uploaded-image ${
 								messageData?.images?.length === 1 ? 'count-one' : ''
 							}`}
+							key={index}
 						>
-							<img
-								key={index}
-								src={image?.preview}
-								onClick={() => handlePreview(image)}
-							/>
+							<img src={image?.preview} onClick={() => handlePreview(image)} />
 						</div>
 					))}
 				</div>

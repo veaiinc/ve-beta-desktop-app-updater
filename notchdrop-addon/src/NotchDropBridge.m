@@ -9,6 +9,7 @@ static void (^fileDroppedCallback)(NSString*);
 static void (^itemAddedCallback)(NSString*);
 static void (^itemRemovedCallback)(NSString*);
 static void (^swiftActionCallback)(NSString*, NSString*);
+static void (^incomingActionCallback)(NSString*, NSString*);
 
 // MARK: - Core NotchDrop functionality
 + (void)initializeNotchDrop {
@@ -109,10 +110,13 @@ static void (^swiftActionCallback)(NSString*, NSString*);
     [NotchDropCore.shared setSwiftActionCallback:callback];
 }
 
++ (void)setIncomingActionCallback:(void(^)(NSString*, NSString*))callback {
+    incomingActionCallback = callback;
+    [NotchDropCore.shared setIncomingActionCallback:callback];
+}
+
 + (void)triggerSwiftAction:(NSString*)action data:(NSString*)data {
-    if (swiftActionCallback) {
-        swiftActionCallback(action, data);
-    }
+    [NotchDropCore.shared handleIncomingAction:action data:data];
 }
 
 // MARK: - Overlay State Integration
