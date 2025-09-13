@@ -323,6 +323,18 @@ contextBridge.exposeInMainWorld('electronApi', {
 		removeForceFocusListener: () => {
 			ipcRenderer.removeAllListeners('force-focus');
 		},
+
+		// Notification APIs
+		showNotification: (notification) =>
+			ipcRenderer.invoke('dynamic-island-show-notification', notification),
+		onNotification: (callback) => {
+			ipcRenderer.on('dynamic-island-notification', (event, data) => {
+				callback(data);
+			});
+		},
+		removeNotificationListener: () => {
+			ipcRenderer.removeAllListeners('dynamic-island-notification');
+		},
 	},
 
 	// NotchDrop APIs
