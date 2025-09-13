@@ -1335,13 +1335,31 @@ app.whenReady().then(async () => {
 		return false;
 	});
 
+	// Configure automatic screen capture without dialog
 	session.defaultSession.setDisplayMediaRequestHandler(
 		(request, callback) => {
-			desktopCapturer.getSources({ types: ['screen'] }).then((sources) => {
-				callback({ video: sources[0], audio: 'loopback' });
-			});
+			log.info('📺 Display media requested - providing automatic whole screen capture');
+			desktopCapturer
+				.getSources({ types: ['screen'] })
+				.then((sources) => {
+					if (sources && sources.length > 0) {
+						// Automatically select the first (primary) screen
+						log.info(`🎯 Auto-selecting primary screen: ${sources[0].name}`);
+						callback({
+							video: sources[0],
+							audio: 'loopback', // Include system audio
+						});
+					} else {
+						log.warn('⚠️ No screen sources available for automatic capture');
+						callback({});
+					}
+				})
+				.catch((error) => {
+					log.error('❌ Error getting screen sources for automatic capture:', error);
+					callback({});
+				});
 		},
-		{ useSystemPicker: true },
+		{ useSystemPicker: false }, // CRITICAL: Disable system picker to avoid dialog
 	);
 
 	// Check macOS microphone permission status (macOS only)
