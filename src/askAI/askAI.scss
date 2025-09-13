@@ -1,7 +1,3 @@
-// Import markdown styles
-@import '../assets/scss/markdown.scss';
-@import '../assets/scss/markdownHelper.scss';
-
 .ask-ai-app {
 	display: flex;
 	flex-direction: column;
@@ -90,6 +86,18 @@
 		gap: 8px;
 		position: relative;
 		z-index: 2; /* Ensure controls are above drag handle */
+
+		.new-chat {
+			border: none;
+			background-color: transparent;
+			color: var(--primary-font);
+			padding: 8px 8px;
+			border-radius: 8px;
+			transition: all 0.2s ease-out;
+			&:hover {
+				background-color: var(--card-over-card-hover);
+			}
+		}
 	}
 
 	.chatWrapper {
