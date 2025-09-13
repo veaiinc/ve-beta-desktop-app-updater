@@ -671,7 +671,7 @@ export const NotesState = (props) => {
 			return false;
 		}
 	};
-	const getLiveKitToken = async ({ meetingId, sessionId }) => {
+	const getLiveKitToken = async ({ sessionId }) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -679,7 +679,7 @@ export const NotesState = (props) => {
 			const location = JSON.parse(locationString);
 
 			const payload = {
-				input: { meetingId, sessionId, location, timezone: location.timezone },
+				input: { sessionId, location, timezone: location.timezone },
 			};
 
 			const response = await service.mutation(
@@ -687,7 +687,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api_database',
+				'meeting_api',
 			);
 			if (response?.[0]) {
 				return [true, response?.[1]?.data?.getLiveKitToken];

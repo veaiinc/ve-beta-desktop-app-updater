@@ -42,7 +42,7 @@ const LiveIntelligencePanel = ({
 	};
 
 	// Handle individual thread item click and send specific content to Ask AI
-	const handleThreadItemClick = async (item, tabKey) => {
+	const handleThreadItemClick = async (item, tabKey, isNeedHelp = false) => {
 		// Extract the main content text (the thread question)
 		const questionText = item.prompt || item.name || item.description || 'No content available';
 
@@ -54,6 +54,7 @@ const LiveIntelligencePanel = ({
 			tabLabel: tabs.find((tab) => tab.key === tabKey)?.label || tabKey,
 			itemData: item,
 			timestamp: new Date().toISOString(),
+			isNeedHelp,
 		};
 
 		console.log('🚀 Sending thread question to Ask AI:', chatMessage);
@@ -203,7 +204,13 @@ const LiveIntelligencePanel = ({
 										className={`thread-item ${
 											thread.entity === 'user' ? 'ask-user-item' : 'clickable'
 										}`}
-										onClick={() => handleThreadItemClick(thread, 'all-threads')}
+										onClick={() =>
+											handleThreadItemClick(
+												thread,
+												'all-threads',
+												thread?.type === 'search',
+											)
+										}
 										title="Click to ask AI about this thread"
 									>
 										{/* <div className="thread-category">
@@ -277,7 +284,7 @@ const LiveIntelligencePanel = ({
 								<div
 									key={item.reference_id || item.id || index}
 									className="thread-item clickable"
-									onClick={() => handleThreadItemClick(item, 'need-help')}
+									onClick={() => handleThreadItemClick(item, 'need-help', true)}
 									title="Click to ask AI about this help suggestion"
 								>
 									{/* <div className="thread-category">Need help?</div> */}
