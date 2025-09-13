@@ -1858,26 +1858,26 @@ export const NotesState = (props) => {
 			);
 			console.log('response==>getMeetingAnalytics', response);
 			
-			// if (response?.[0] && response?.[1]?.data?.getMeetingAnalytics) {
-			// 	const analyticsData = JSON.parse(response[1].data.getMeetingAnalytics);
-			// 	return [true, analyticsData];
-			// } else {
-			// 	// Handle GraphQL errors
-			// 	let errorMessage = 'Failed to fetch meeting analytics';
+			if (response?.[0] && response?.[1]?.data?.getMeetingAnalytics) {
+				const analyticsData = JSON.parse(response[1].data.getMeetingAnalytics);
+				return [true, analyticsData];
+			} else {
+				// Handle GraphQL errors
+				let errorMessage = 'Failed to fetch meeting analytics';
 				
-			// 	if (Array.isArray(response[1]) && response[1].length > 0) {
-			// 		const error = response[1][0];
-			// 		errorMessage = error.message || errorMessage;
+				if (Array.isArray(response[1]) && response[1].length > 0) {
+					const error = response[1][0];
+					errorMessage = error.message || errorMessage;
 					
-			// 		if (error.message?.includes('Cannot return null for non-nullable field')) {
-			// 			errorMessage = 'No analytics data available for this meeting yet. Analytics may still be processing.';
-			// 		}
-			// 	} else if (response?.[1]?.errors?.length > 0) {
-			// 		errorMessage = response[1].errors[0].message || errorMessage;
-			// 	}
+					if (error.message?.includes('Cannot return null for non-nullable field')) {
+						errorMessage = 'No analytics data available for this meeting yet. Analytics may still be processing.';
+					}
+				} else if (response?.[1]?.errors?.length > 0) {
+					errorMessage = response[1].errors[0].message || errorMessage;
+				}
 				
-			// 	return [false, errorMessage];
-			// }
+				return [false, errorMessage];
+			}
 		} catch (error) {
 			console.error('error==>getMeetingAnalytics', error);
 			return [false, 'Error fetching meeting analytics'];

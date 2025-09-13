@@ -3,7 +3,7 @@ import a from './MeetingAnalytics.module.scss'
 import DownSvg from '../../../assets/svg/activity/DownSvg'
 import ClockSvg from './clock.svg'
 import Context from '../../../context/context'
-// import MessageSvg from './message.svg'
+import { ReactComponent as MessageSvg } from './message.svg'
 const MeetingAnalytics = ({ meetingId }) => {
     const {
         notes: { getMeetingAnalytics },
@@ -104,19 +104,22 @@ const MeetingAnalytics = ({ meetingId }) => {
             type: 'Topic',
             time: '2:00',
             engagement: 'Positive',
-            description: 'Current lead generation process is heavily manual, requiring automation while maintaining quality'
+            description: 'Current lead generation process is heavily manual, requiring automation while maintaining quality',
+            icon: <MessageSvg />
         },
         {
             type: 'Key Question',
             time: '22:00',
             engagement: 'Positive',
-            description: 'Can the AI agent open Gmail and send personalized emails directly?'
+            description: 'Can the AI agent open Gmail and send personalized emails directly?',
+            icon: <MessageSvg />
         },
         {
-            type: 'Question',
+            type: 'Decision',
             time: '23:00',
             engagement: 'Positive',
-            description: 'Shift from complex multi-tool approach to simplified Gmail-based personalized outreach'
+            description: 'Shift from complex multi-tool approach to simplified Gmail-based personalized outreach',
+            icon: <MessageSvg />
         }
     ]
 
@@ -434,9 +437,12 @@ const MeetingAnalytics = ({ meetingId }) => {
                             <div key={index} className={a.highlightItem}>
                                 <div className={a.highlightHeader}>
                                     <div className={a.highlightType} data-type={highlight.type.toLowerCase().replace(' ', '-')}>
+                                    <span className={a.highlightIcon}>{highlight.icon}</span>
                                      {highlight.type}
                                     </div>
-                                    <span className={a.highlightTime}>{highlight.time}</span>
+                                    <span className={a.highlightTime}>
+                                        {highlight.time}
+                                    </span>
                                     <div className={a.engagementBadge}>
                                         <span>Engagement:</span>
                                         <span className={a.engagementValue}>{highlight.engagement}</span>

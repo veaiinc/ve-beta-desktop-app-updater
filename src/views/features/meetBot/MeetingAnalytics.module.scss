@@ -477,25 +477,92 @@ $font-family: "GeneralSans";
                 margin-bottom: 12px;
 
                 .highlightType {
-                    padding: 4px 12px;
-                    border-radius: 16px;
+                    display: flex;
+                    width: fit-content;
+                    height: 27px;
+                    padding: 8px 4px;
+                    align-items: center;
+                    gap: 6px;
+                    border-radius: 12px 0 12px 12px;
+                    background: rgba(121, 236, 201, 0.10);  
+                    font-family: $font-family;
                     font-size: 12px;
-                    font-weight: 600;
-                    text-transform: uppercase;
+                    font-style: normal;
+                    font-weight: 500;
+                    line-height: normal;
+                    letter-spacing: 0.2px;
+
+                    .highlightIcon {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex-shrink: 0;
+                        
+                        svg {
+                            width: 18px;
+                            height: 18px;
+                            display: block;
+                        }
+                    }
 
                     &[data-type="topic"] {
-                        background: #1C993E;
-                        color: white;
+                        background: rgba(121, 236, 201, 0.2);
+                        color: #79ECC9;
+                        border: 1px solid rgba(121, 236, 201, 0.3);
+
+                        .highlightIcon svg {
+                            path {
+                                fill: #79ECC9 !important;
+                            }
+                            rect {
+                                fill: rgba(121, 236, 201, 0.2) !important;
+                            }
+                        }
                     }
 
                     &[data-type="key-question"] {
-                        background: #F59E0B;
-                        color: white;
+                        background: rgba(245, 158, 11, 0.2);
+                        color: var(--pending, #EDA145);
+                        border: 1px solid rgba(245, 158, 11, 0.3);
+
+                        .highlightIcon svg {
+                            path {
+                                fill: #F59E0B !important;
+                            }
+                            rect {
+                                fill: rgba(245, 158, 11, 0.2) !important;
+                            }
+                        }
+                    }
+
+                    &[data-type="decision"] {
+                        color: var(--success, #1C993E);
+                        font-family: $font-family;
+                        background:#1C993E33;
+
+                        .highlightIcon svg {
+                            path {
+                                fill: #79ECC9 !important;
+                            }
+                            rect {
+                                fill: rgba(121, 236, 201, 0.2) !important;
+                            }
+                        }
                     }
 
                     &[data-type="question"] {
-                        background: #3B82F6;
-                        color: white;
+                        background: rgba(59, 130, 246, 0.2);
+                        color: #3B82F6;
+                        border: 1px solid rgba(59, 130, 246, 0.3);
+
+                        .highlightIcon svg {
+                            path {
+                                fill: #3B82F6 !important;
+                            }
+                            rect {
+                                fill: rgba(59, 130, 246, 0.2) !important;
+                            }
+                        }
                     }
                 }
 
