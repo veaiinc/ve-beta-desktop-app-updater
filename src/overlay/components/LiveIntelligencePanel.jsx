@@ -34,6 +34,36 @@ const LiveIntelligencePanel = ({
 		}
 	}, [socketData]);
 
+	// Auto-scroll to latest item when new content is added
+	useEffect(() => {
+		// Use setTimeout to ensure DOM has updated after tab switch
+		setTimeout(() => {
+			const scrollContainer = document.querySelector('.live-intelligence-panel__content');
+			if (scrollContainer) {
+				const scrollHeight = scrollContainer.scrollHeight;
+				const clientHeight = scrollContainer.clientHeight;
+
+				console.log('🔄 Auto-scrolling to latest item:', {
+					activeTab,
+					scrollHeight,
+					clientHeight,
+					canScroll: scrollHeight > clientHeight,
+				});
+
+				// Only scroll if content is actually scrollable
+				if (scrollHeight > clientHeight) {
+					// Smooth scroll to bottom to show the latest item
+					scrollContainer.scrollTo({
+						top: scrollHeight,
+						behavior: 'smooth',
+					});
+				}
+			} else {
+				console.log('❌ Scroll container not found');
+			}
+		}, 150);
+	}, [socketData, activeTab]);
+
 	// Handle tab click - only change active tab, don't send content to Ask AI
 	const handleTabClick = (tabKey) => {
 		setActiveTab(tabKey);
