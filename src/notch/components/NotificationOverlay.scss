@@ -1,0 +1,230 @@
+// Notification Overlay Styles
+.notification-overlay {
+	position: fixed;
+	top: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 10000;
+	pointer-events: none;
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	width: 100%; // Match dynamic island expanded width
+	height: 100%; // Full height
+	padding-top: 0;
+}
+
+.notification-container {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	pointer-events: auto;
+	width: 100%;
+	height: 100%;
+	animation: slideInDown 0.3s ease-out;
+}
+
+.notification-item {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 12px 20px;
+	border-radius: 0px 0px 16px 16px;
+	background: black;
+	color: white;
+	position: relative;
+	overflow: hidden;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	font-size: 14px;
+	line-height: 1.4;
+	animation: slideInDown 0.4s ease-out;
+	width: 100%;
+	height: 100%;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+
+	// Progress line animation at the bottom - always #79ecc9
+	&::after {
+		content: '';
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		height: 3px;
+		background: #79ecc9 !important;
+		border-radius: 0 0 0 2px;
+		animation: progressLine 5s linear forwards;
+		z-index: 10;
+	}
+}
+
+.notification-content {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.notification-title {
+	font-weight: 600;
+	font-size: 16px;
+	margin-bottom: 2px;
+	color: white;
+}
+
+.notification-message {
+	font-weight: 400;
+	font-size: 14px;
+	color: rgba(255, 255, 255, 0.8);
+	line-height: 1.4;
+}
+
+.notification-actions {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+}
+
+.notification-action-btn {
+	background: rgba(121, 236, 201, 0.1);
+	border: 1px solid rgba(121, 236, 201, 0.3);
+	color: #79ecc9;
+	padding: 8px 16px;
+	border-radius: 20px;
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	backdrop-filter: blur(10px);
+
+	&:hover {
+		background: rgba(121, 236, 201, 0.2);
+		border-color: rgba(121, 236, 201, 0.5);
+		transform: scale(1.05);
+	}
+
+	&:active {
+		transform: scale(0.98);
+	}
+}
+
+.notification-close {
+	background: none;
+	border: none;
+	color: rgba(255, 255, 255, 0.6);
+	cursor: pointer;
+	padding: 8px;
+	border-radius: 50%;
+	transition: all 0.2s ease;
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.1);
+		color: white;
+		transform: scale(1.1);
+	}
+
+	svg {
+		width: 18px;
+		height: 18px;
+	}
+}
+
+.notification-clear-all {
+	background: rgba(0, 0, 0, 0.2);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	color: rgba(255, 255, 255, 0.8);
+	padding: 8px 16px;
+	border-radius: 8px;
+	font-size: 12px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	backdrop-filter: blur(10px);
+	margin-top: 8px;
+	align-self: center;
+
+	&:hover {
+		background: rgba(0, 0, 0, 0.3);
+		border-color: rgba(255, 255, 255, 0.4);
+		color: white;
+	}
+}
+
+// Animation keyframes
+@keyframes slideInDown {
+	from {
+		opacity: 0;
+		transform: translateY(-20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes slideInRight {
+	from {
+		opacity: 0;
+		transform: translateX(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+// Progress line animation - 5 second duration
+@keyframes progressLine {
+	from {
+		width: 0%;
+	}
+	to {
+		width: 100%;
+	}
+}
+
+// Responsive adjustments for smaller screens
+@media (max-width: 680px) {
+	.notification-overlay {
+		width: 320px; // Match dynamic island collapsed width
+		height: 100vh; // Full height
+	}
+
+	.notification-item {
+		padding: 10px 16px;
+		min-height: 50px;
+		border-radius: 0px 0px 8px 8px;
+	}
+
+	.notification-title {
+		font-size: 14px;
+	}
+
+	.notification-message {
+		font-size: 12px;
+	}
+
+	.notification-actions {
+		gap: 8px;
+	}
+
+	.notification-action-btn {
+		padding: 6px 12px;
+		font-size: 12px;
+	}
+
+	.notification-close {
+		width: 28px;
+		height: 28px;
+
+		svg {
+			width: 16px;
+			height: 16px;
+		}
+	}
+}

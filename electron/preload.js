@@ -270,6 +270,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 		show: () => ipcRenderer.invoke('dynamic-island-show'),
 		hide: () => ipcRenderer.invoke('dynamic-island-hide'),
 		focus: () => ipcRenderer.invoke('dynamic-island-focus'),
+		forceShow: () => ipcRenderer.invoke('dynamic-island-force-show'),
 		setMouseEvents: (ignore) => ipcRenderer.invoke('dynamic-island-set-mouse-events', ignore),
 		setChatMode: (isChatMode) => ipcRenderer.invoke('dynamic-island-chat-mode', isChatMode),
 
@@ -322,6 +323,18 @@ contextBridge.exposeInMainWorld('electronApi', {
 		},
 		removeForceFocusListener: () => {
 			ipcRenderer.removeAllListeners('force-focus');
+		},
+
+		// Notification APIs
+		showNotification: (notification) =>
+			ipcRenderer.invoke('dynamic-island-show-notification', notification),
+		onNotification: (callback) => {
+			ipcRenderer.on('dynamic-island-notification', (event, data) => {
+				callback(data);
+			});
+		},
+		removeNotificationListener: () => {
+			ipcRenderer.removeAllListeners('dynamic-island-notification');
 		},
 	},
 
