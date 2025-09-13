@@ -1,7 +1,7 @@
 {
 	"name": "VEAI",
 	"description": "Your living intelligence remembers everything, sees what you see, figures out your goals, and doesn’t stop until they're done.",
-	"version": "v0.4.13",
+	"version": "v0.4.21",
 	"private": true,
 	"main": "dist-electron/main.js",
 	"author": "Ve AI",
@@ -46,6 +46,7 @@
 		"test:ui": "vitest --ui",
 		"test:coverage": "vitest run --coverage",
 		"test:dmg": "npm run clean:build:cross && npm run build && npm run rebuild:native:mac && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg --arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false -c.mac.artifactName='Ve.AI-Test-${arch}.${ext}' -c.directories.output='dist/test'",
+		"dmg:test": "npm run clean:build:cross && npm run build && npm run rebuild:native:mac && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg --arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false -c.mac.artifactName='Ve.AI-Test.${ext}' -c.directories.output='dist'",
 		"clean:build": "rm -rf dist-electron && rm -rf build && rm -rf dist",
 		"clean:build:win": "if exist dist-electron rmdir /s /q dist-electron && if exist build rmdir /s /q build && if exist dist rmdir /s /q dist",
 		"clean:build:cross": "rimraf dist-electron build dist",

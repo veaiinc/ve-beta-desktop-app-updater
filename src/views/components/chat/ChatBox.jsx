@@ -44,6 +44,7 @@ import useNote from '../../../hooks/useNote';
 import useAudioVisualizer from '../../../hooks/useAudioVisualizer';
 import { Track } from 'livekit-client';
 import { useTrackTranscription } from '@livekit/components-react';
+import { getFileType } from '../../../helpers/chat/chatHelpers';
 // import VoiceWrapper from '../../layouts/VoiceWrapper';
 
 const moduleHelper = {
@@ -74,28 +75,6 @@ const modulesOptions = {
 	// gallery: 'Gallery',
 	clients: 'Clients',
 };
-
-function getFileType(file) {
-	let type = file?.type || file?.sourceType || null;
-	if (!type) return 'Unknown';
-
-	type = type?.toLowerCase();
-
-	if (type === 'application/pdf') return 'PDF';
-	if (
-		type === 'application/msword' ||
-		type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-	)
-		return 'DOCX';
-	if (
-		type === 'application/vnd.ms-excel' ||
-		type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-	)
-		return 'XLSX';
-	if (type === 'text/csv') return 'CSV';
-
-	return type;
-}
 
 const chatboxPlaceholders = [
 	'Start typing or use @ to mention a source.',
@@ -148,6 +127,12 @@ const ChatBox = ({
 	handleBrowserButtonClick = null,
 	browserImage = null,
 	showBottomTools = true,
+	showRecentFiles = true,
+	showMicBtn = true,
+
+	// below props are for desktop app
+	isDesktopApp = false,
+	handleDesktopAppPayload = null,
 }) => {
 	const location = useLocation();
 	const params = useParams();
@@ -183,7 +168,7 @@ const ChatBox = ({
 			isBrowserScreenActive,
 		},
 		chatBoxSuggestionsSocket: { sendMessage, closeWebSocketConnection },
-		subscriptionInfo: { currentPlan },
+		subscriptionInfo: { currentPlan, getCurrentSubscriptionPlan },
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
 		aiSetup: { voiceIntegrationData, updateAiChatSessions, aiChatSessions, updateAiSetupState },
@@ -344,6 +329,12 @@ const ChatBox = ({
 	}, [info?.chatboxMinimized]);
 
 	useEffect(() => {
+		if (!currentPlan) {
+			getCurrentSubscriptionPlan();
+		}
+	}, []);
+
+	useEffect(() => {
 		const sessionData = globalChatMessages?.[info?.chatSessionId],
 			isStreaming = sessionData?.isStreaming || false,
 			latestStreamMessage = sessionData?.latestStreamMessage,
@@ -426,6 +417,11 @@ const ChatBox = ({
 			info?.chatSessionId &&
 			activePromptForChat?.sessionId === info?.chatSessionId
 		) {
+			if (info?.chatLoading) {
+				updateStateValues({ activePromptForChat: null });
+				message.error('Please wait, AI is already generating a response');
+				return;
+			}
 			handleSendMessageFunc(null, true, activePromptForChat?.prompt);
 			updateStateValues({ activePromptForChat: null });
 		}
@@ -547,6 +543,11 @@ const ChatBox = ({
 
 	useEffect(() => {
 		if (activePayloadForChat && info?.chatSessionId) {
+			if (info?.chatLoading) {
+				updateStateValues({ activePayloadForChat: null });
+				message.error('Please wait, AI is already generating a response');
+				return;
+			}
 			const { payload, localPayload, currentQuery, recentFiles = [] } = activePayloadForChat;
 			if (handleSendWebsocketMessage) {
 				handleSendWebsocketMessage(payload, currentQuery, '', info?.chatSessionId);
@@ -867,8 +868,7 @@ const ChatBox = ({
 						}));
 
 						localPayload = {
-							files: uploadedImagesRef?.current || [],
-							handlePreview,
+							images: uploadedImagesRef?.current || [],
 						};
 					}
 					if (recentFilesRef?.current?.length > 0) {
@@ -888,6 +888,12 @@ const ChatBox = ({
 								is_uploaded: ele?.is_uploaded || false,
 							}));
 						}
+						localPayload = {
+							...localPayload,
+							attachments: (recentFilesRef?.current || [])?.filter(
+								(file) => file?.is_uploaded,
+							),
+						};
 						recentFilesRef?.current?.forEach((file) => {
 							file.is_uploaded = false;
 						});
@@ -949,6 +955,19 @@ const ChatBox = ({
 						payload.ip_address = ip_address ?? null;
 					} else {
 						payload.location = location_details || {};
+					}
+
+					if (isDesktopApp) {
+						const { imagesArray } = await handleDesktopAppPayload?.();
+						let image_data_base64 = payload.image_data_base64 || [];
+
+						if (imagesArray) {
+							image_data_base64 = [
+								...(image_data_base64 || []),
+								...(imagesArray || []),
+							];
+							payload.image_data_base64 = image_data_base64;
+						}
 					}
 
 					setInfo((prev) => ({
@@ -1019,6 +1038,8 @@ const ChatBox = ({
 			aiChatSessions,
 			isDirectSearchAgent,
 			isBrowserScreenActive,
+			handleDesktopAppPayload,
+			isDesktopApp,
 		],
 	);
 
@@ -1398,7 +1419,7 @@ const ChatBox = ({
 
 						// Get LiveKit token
 						const response = await getLiveKitToken({
-							meetingId: transcriptionSessionId.current,
+							sessionId: transcriptionSessionId.current,
 						});
 
 						// Handle different response formats
@@ -1521,7 +1542,7 @@ const ChatBox = ({
 			// 		textAreaHeight = suggestionContainerHeight;
 			// 	}
 			// }
-			textAreaHeight = Math.min(textAreaHeight, 200);
+			// textAreaHeight = Math.min(textAreaHeight, 200);
 			textArea.style.height = textAreaHeight + 'px';
 		}
 
@@ -1832,7 +1853,9 @@ const ChatBox = ({
 																''}
 														</div>
 
-														{file?.loading && <Spin />}
+														{file?.loading && (
+															<Spin rootClassName="file-spinner" />
+														)}
 													</div>
 													<div className="recent-file-source-type">
 														{getFileType(file)}
@@ -1858,23 +1881,25 @@ const ChatBox = ({
 
 				<div className="chatInputParentContainer">
 					<div className="buttons-left-container">
-						<RecentFileTooltip
-							fileTypeIcons={fileTypeIcons}
-							handleRecentFileClick={handleRecentFileClick}
-							recentFiles={recentFilesRef.current || []}
-							isRecentFileOpen={info?.isRecentFileOpen}
-							setIsRecentFileOpen={(value) => {
-								setInfo((prev) => ({
-									...prev,
-									isRecentFileOpen: value,
-								}));
-							}}
-						>
-							{/* <div className="recent-file-wrapper" /> */}
-							<div className="bulb-icon-container">
-								<BulbSvg />
-							</div>
-						</RecentFileTooltip>
+						{showRecentFiles && (
+							<RecentFileTooltip
+								fileTypeIcons={fileTypeIcons}
+								handleRecentFileClick={handleRecentFileClick}
+								recentFiles={recentFilesRef.current || []}
+								isRecentFileOpen={info?.isRecentFileOpen}
+								setIsRecentFileOpen={(value) => {
+									setInfo((prev) => ({
+										...prev,
+										isRecentFileOpen: value,
+									}));
+								}}
+							>
+								{/* <div className="recent-file-wrapper" /> */}
+								<div className="bulb-icon-container">
+									<BulbSvg />
+								</div>
+							</RecentFileTooltip>
+						)}
 					</div>
 					<div className="chat-input-container">
 						<div
@@ -1930,94 +1955,117 @@ const ChatBox = ({
 
 					<div className="buttons-right-container">
 						{/* Separate Speech-to-Text Button */}
-						<div
-							className={`click-btn speech-to-text-btn ${
-								isTranscribing ? 'transcribing' : ''
-							}`}
-							onClick={(e) => {
-								e.stopPropagation();
-								handleMicIconClick(e);
-							}}
-							style={{
-								backgroundColor: isTranscribing ? 'var(--error-color)' : 'none',
-							}}
-							title={isTranscribing ? 'Stop Recording' : 'Start Speech-to-Text'}
-						>
-							{isTranscribing ? (
-								<StopIconSvg className="voice-icon" />
-							) : (
-								<SpeechMicSvg className="voice-icon" />
-							)}
-						</div>
-						<div
-							className={`click-btn voice-agent-btn ${
-								info?.chatQuery?.trim()?.length > 0 ? 'active' : ''
-							}`}
-							onClick={(e) => {
-								e.stopPropagation();
-								if (info?.chatQuery?.trim()?.length > 0) {
+						{showMicBtn && (
+							<div
+								className={`click-btn speech-to-text-btn ${
+									isTranscribing ? 'transcribing' : ''
+								}`}
+								onClick={(e) => {
+									e.stopPropagation();
+									handleMicIconClick(e);
+								}}
+								style={{
+									backgroundColor: isTranscribing ? 'var(--error-color)' : 'none',
+								}}
+								title={isTranscribing ? 'Stop Recording' : 'Start Speech-to-Text'}
+							>
+								{isTranscribing ? (
+									<StopIconSvg className="voice-icon" />
+								) : (
+									<SpeechMicSvg className="voice-icon" />
+								)}
+							</div>
+						)}
+
+						{isDesktopApp ? (
+							<div
+								className={`click-btn voice-agent-btn ${
+									info?.chatQuery?.trim()?.length > 0 ? 'active' : ''
+								}`}
+								onClick={(e) => {
+									e.stopPropagation();
 									handleSendBtnClick(e);
-								} else {
-									if (info?.voiceIntegration) return;
-									handleVoiceAgentClick(e);
-								}
-							}}
-						>
-							{info?.chatQuery?.trim()?.length > 0 ? (
+								}}
+							>
 								<ArrowUp className="voice-wave-icon" width={16} height={16} />
-							) : (
-								<VoiceAgentSvg className="voice-wave-icon" width={18} height={18} />
-							)}
-						</div>
+							</div>
+						) : (
+							<div
+								className={`click-btn voice-agent-btn ${
+									info?.chatQuery?.trim()?.length > 0 ? 'active' : ''
+								}`}
+								onClick={(e) => {
+									e.stopPropagation();
+									if (info?.chatQuery?.trim()?.length > 0) {
+										handleSendBtnClick(e);
+									} else {
+										if (info?.voiceIntegration) return;
+										handleVoiceAgentClick(e);
+									}
+								}}
+							>
+								{info?.chatQuery?.trim()?.length > 0 ? (
+									<ArrowUp className="voice-wave-icon" width={16} height={16} />
+								) : (
+									<VoiceAgentSvg
+										className="voice-wave-icon"
+										width={18}
+										height={18}
+									/>
+								)}
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
 
-			<div className="chat-payload-info">
-				<div className="left-container">
-					{!isPublicChat && showBottomTools && (
-						<Upload
-							onChange={handleFileAttachmentChange}
-							showUploadList={false}
-							beforeUpload={() => false} // Prevent default upload behavior
-							maxCount={1} // Allow only one file at a time
-							// accept="image/*" // Accept only images
-							accept=".pdf,.docx,.txt,.md,.json,.png,.jpg,.jpeg,.csv,.xlsx,.xls"
-						>
-							<button className="upload-file-btn-container">
-								<UploadSvg />
-								<span className="btn-text">Upload file</span>
-							</button>
-						</Upload>
-					)}
-
-					{!isPublicChat && showBottomTools && (
-						<button
-							className={`deep-search-btn-container ${
-								info?.chatBoxInfo?.deepSearch ? 'active' : ''
-							} `}
-							onClick={handleDeepSearchClick}
-						>
-							<AtomSvg width={16} height={16} />
-							<div className="btn-text">Deep Search</div>
-						</button>
-					)}
-
-					{isBuildEnbled &&
-						!isPublicChat &&
-						showBottomTools &&
-						workspaceMode !== 'stable' && (
-							<BuildTooltip>
-								<button className="create-btn-container">
-									<PlusSvg width={16} height={16} />
-									<div className="btn-text">Create</div>
+			{showBottomTools && (
+				<div className="chat-payload-info">
+					<div className="left-container">
+						{!isPublicChat && showBottomTools && (
+							<Upload
+								onChange={handleFileAttachmentChange}
+								showUploadList={false}
+								beforeUpload={() => false} // Prevent default upload behavior
+								maxCount={1} // Allow only one file at a time
+								// accept="image/*" // Accept only images
+								accept=".pdf,.docx,.txt,.md,.json,.png,.jpg,.jpeg,.csv,.xlsx,.xls"
+							>
+								<button className="upload-file-btn-container">
+									<UploadSvg />
+									<span className="btn-text">Upload file</span>
 								</button>
-							</BuildTooltip>
+							</Upload>
 						)}
-				</div>
 
-				<div className="right-container"></div>
-			</div>
+						{!isPublicChat && showBottomTools && (
+							<button
+								className={`deep-search-btn-container ${
+									info?.chatBoxInfo?.deepSearch ? 'active' : ''
+								} `}
+								onClick={handleDeepSearchClick}
+							>
+								<AtomSvg width={16} height={16} />
+								<div className="btn-text">Deep Search</div>
+							</button>
+						)}
+
+						{isBuildEnbled &&
+							!isPublicChat &&
+							showBottomTools &&
+							workspaceMode !== 'stable' && (
+								<BuildTooltip>
+									<button className="create-btn-container">
+										<PlusSvg width={16} height={16} />
+										<div className="btn-text">Create</div>
+									</button>
+								</BuildTooltip>
+							)}
+					</div>
+
+					<div className="right-container"></div>
+				</div>
+			)}
 
 			{previewImage && (
 				<Image

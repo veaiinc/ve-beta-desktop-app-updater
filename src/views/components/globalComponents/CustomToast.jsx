@@ -17,6 +17,7 @@ const toastIcon = {
 	warning: <Warning />,
 	error: <Error />,
 	loading: <Spinner className="loading-spinner" />,
+	info: <Warning />,
 };
 
 const CustomToast = () => {
@@ -176,6 +177,10 @@ const message = {
 
 	loading(content, duration = defaultDuration, customStyle) {
 		return this.show({ type: 'loading', content, duration, customStyle });
+	},
+
+	info(content, duration, customStyle) {
+		return this.show({ type: 'info', content, duration, customStyle });
 	},
 
 	destroy(id = null) {

@@ -60,7 +60,7 @@
 			width: 100%;
 			padding: 12px 8px;
 			border-radius: 16px;
-			background-color: var(--card-over-card-hover);
+			background-color: var(--stroke);
 
 			.reply-text {
 				display: -webkit-box;
@@ -215,6 +215,13 @@
 							.recent-file-name {
 								max-width: 200px;
 								display: flex;
+								gap: 6px;
+
+								.file-spinner {
+									.ant-spin-dot-item {
+										color: var(--primary-font);
+									}
+								}
 								.file-title {
 									overflow: hidden;
 									text-overflow: ellipsis;
@@ -308,6 +315,7 @@
 					width: 100%;
 					.textArea {
 						min-height: 30px;
+						max-height: 200px;
 						display: block;
 						width: 100%;
 						height: 100%;

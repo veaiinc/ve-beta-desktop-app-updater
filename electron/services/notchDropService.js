@@ -1,6 +1,8 @@
 const path = require('path');
 const log = require('electron-log');
 
+let NotchDropAddonWrapper;
+
 class NotchDropService {
 	constructor() {
 		this.notchDropAddon = null;
@@ -15,33 +17,22 @@ class NotchDropService {
 
 	async initialize() {
 		try {
-			log.info('🚀 Starting NotchDrop service with bridge pre-initialization...');
-
 			// Phase 1: Pre-warm bridge BEFORE addon initialization
 			await this.preWarmBridge();
-			log.info('✅ Phase 1: Bridge pre-warmed successfully');
 
 			// Phase 2: Load and initialize addon with bridge ready (macOS only)
 			if (!this.platformSupported) {
-				log.info('NotchDrop addon is only supported on macOS; skipping initialization');
+				log.info('ℹ️ NotchDrop not supported on this platform:', process.platform);
 				this.isInitialized = false;
 				return false;
 			}
 
 			// Enhanced module resolution for both dev and packaged environments
-			log.info('Loading NotchDrop addon module: notchdrop-addon');
 			let NotchDropAddonWrapper;
-
 			try {
 				// Try module resolution first (works in packaged apps)
 				NotchDropAddonWrapper = require('notchdrop-addon');
-				log.info('✅ NotchDrop addon loaded via module resolution');
 			} catch (moduleError) {
-				log.warn(
-					'⚠️ Module resolution failed, trying fallback paths:',
-					moduleError.message,
-				);
-
 				// Enhanced fallback paths for development and packaged environments
 				const fallbackPaths = [
 					// Development paths
@@ -62,7 +53,6 @@ class NotchDropService {
 				for (const fallbackPath of fallbackPaths) {
 					try {
 						NotchDropAddonWrapper = require(fallbackPath);
-						log.info(`✅ NotchDrop addon loaded via fallback: ${fallbackPath}`);
 						loaded = true;
 						break;
 					} catch (fallbackError) {
@@ -88,19 +78,14 @@ class NotchDropService {
 
 			// Phase 5: Ensure Swift-JS Bridge is ready for immediate actions
 			await this.ensureSwiftJSBridgeReady();
-			log.info('✅ Phase 5: Swift-JS Bridge ready for immediate actions');
 
 			// Phase 6: Pre-create overlay window for instant response
 			await this.preCreateOverlayWindow();
-			log.info('✅ Phase 6: Overlay window pre-created for instant response');
-
-			log.info('🎉 NotchDrop service initialized with immediate response capability');
 
 			// Auto-open NotchDrop after initialization if enabled
 			if (this.autoOpenOnStartup) {
 				// No delay needed since everything is pre-warmed
 				this.enable();
-				log.info('🚀 Auto-opening NotchDrop immediately (pre-warmed)');
 			}
 
 			return true;
@@ -115,7 +100,6 @@ class NotchDropService {
 
 		// Listen for status changes
 		this.notchDropAddon.on('statusChanged', (status) => {
-			log.info('NotchDrop status changed:', status);
 			// Emit to renderer process if needed
 			this.emitToRenderer('notchdrop-status-changed', status);
 		});
@@ -160,7 +144,6 @@ class NotchDropService {
 					timestamp: new Date().toISOString(),
 					source: 'notchdrop-swift-ui',
 				};
-				log.info('💬 Swift UI submitted Ask AI chat:', chatMessage);
 
 				// Emit to main via process event to reuse main.js flow
 				process.emit('swift-ui-submit-chat', chatMessage);
@@ -179,7 +162,6 @@ class NotchDropService {
 		try {
 			this.notchDropAddon.show();
 			this.isEnabled = true;
-			log.info('✅ NotchDrop enabled');
 			return true;
 		} catch (error) {
 			log.error('❌ Failed to enable NotchDrop:', error);
@@ -196,7 +178,6 @@ class NotchDropService {
 		try {
 			this.notchDropAddon.hide();
 			this.isEnabled = false;
-			log.info('✅ NotchDrop disabled');
 			return true;
 		} catch (error) {
 			log.error('❌ Failed to disable NotchDrop:', error);
@@ -213,7 +194,6 @@ class NotchDropService {
 		try {
 			this.notchDropAddon.toggle();
 			this.isEnabled = !this.isEnabled;
-			log.info(`✅ NotchDrop toggled: ${this.isEnabled ? 'enabled' : 'disabled'}`);
 			return true;
 		} catch (error) {
 			log.error('❌ Failed to toggle NotchDrop:', error);
@@ -344,7 +324,6 @@ class NotchDropService {
 	// Auto-open settings
 	setAutoOpenOnStartup(enabled) {
 		this.autoOpenOnStartup = enabled;
-		log.info(`🔧 Auto-open on startup ${enabled ? 'enabled' : 'disabled'}`);
 		return true;
 	}
 
@@ -353,16 +332,6 @@ class NotchDropService {
 	}
 
 	handleDroppedFile(filePath) {
-		log.info('Processing dropped file:', filePath);
-
-		// Here you can implement custom logic for handling dropped files
-		// For example, you might want to:
-		// 1. Copy the file to a specific location
-		// 2. Process the file (e.g., if it's an image, resize it)
-		// 3. Add it to a queue for processing
-		// 4. Send it to the renderer process
-
-		// For now, just emit the file path to the renderer
 		this.emitToRenderer('notchdrop-file-dropped', filePath);
 	}
 
@@ -382,7 +351,6 @@ class NotchDropService {
 		if (this.isInitialized) {
 			try {
 				this.disable();
-				log.info('🧹 NotchDrop service cleanup completed');
 			} catch (error) {
 				log.error('❌ Error during NotchDrop cleanup:', error);
 			}
@@ -396,7 +364,6 @@ class NotchDropService {
 				// Skip bridge pre-warm on non-macOS platforms
 				return false;
 			}
-			log.info('🔧 Pre-warming Swift-JS bridge...');
 
 			// Pre-load bridge dependencies (resolve from node_modules)
 			const SwiftJSBridge = require('notchdrop-addon/swift-js-bridge.js');
@@ -409,7 +376,6 @@ class NotchDropService {
 				await this.swiftJSBridge.initialize();
 			}
 
-			log.info('✅ Swift-JS bridge pre-warmed successfully');
 			return true;
 		} catch (error) {
 			log.warn(
@@ -430,11 +396,9 @@ class NotchDropService {
 
 			// Verify bridge is functional
 			if (typeof this.swiftJSBridge.handleSwiftAction !== 'function') {
-				log.warn('⚠️ Bridge loaded but not functional, re-initializing...');
 				return await this.initializeSwiftJSBridge();
 			}
 
-			log.info('✅ Swift-JS Bridge verified ready for immediate actions');
 			return true;
 		} catch (error) {
 			log.error('❌ Failed to ensure Swift-JS Bridge readiness:', error);
@@ -445,16 +409,12 @@ class NotchDropService {
 	// Pre-create overlay window for instant response
 	async preCreateOverlayWindow() {
 		try {
-			log.info('🔧 Pre-creating overlay window for instant response...');
-
 			// Signal to main process to pre-create overlay window
 			if (this.mainWindow && this.mainWindow.webContents) {
 				this.mainWindow.webContents.send('pre-create-overlay-window');
-				log.info('✅ Overlay window pre-creation signal sent');
 			} else {
 				// Use process event as fallback
 				process.emit('pre-create-overlay-window');
-				log.info('✅ Overlay window pre-creation event emitted');
 			}
 
 			return true;
@@ -471,7 +431,6 @@ class NotchDropService {
 			}
 			// Load the Swift-JS bridge if not already loaded (resolve from node_modules)
 			if (!this.swiftJSBridge) {
-				log.info('Loading Swift-JS bridge from node module');
 				const SwiftJSBridge = require('notchdrop-addon/swift-js-bridge.js');
 				this.swiftJSBridge = SwiftJSBridge.bridge;
 			}
@@ -481,7 +440,6 @@ class NotchDropService {
 				await this.swiftJSBridge.initialize();
 			}
 
-			log.info('✅ Swift-JS Bridge initialized successfully');
 			return true;
 		} catch (error) {
 			log.error('❌ Failed to initialize Swift-JS Bridge:', error);
@@ -497,7 +455,6 @@ class NotchDropService {
 				return { success: false, error: 'Swift-JS Bridge not initialized' };
 			}
 
-			log.info('🎯 Handling Swift action:', action, data);
 			const result = await this.swiftJSBridge.handleSwiftAction(action, data);
 			return result;
 		} catch (error) {
@@ -509,8 +466,6 @@ class NotchDropService {
 	// Handle Swift log messages
 	handleSwiftLog(message) {
 		try {
-			log.info('📝 Swift UI Log Message:', message);
-
 			// Log to Electron's log system
 			log.info(`[Swift UI] ${message}`);
 
@@ -520,12 +475,6 @@ class NotchDropService {
 				message: message,
 				source: 'Swift UI',
 			});
-
-			// You can add additional processing here:
-			// - Save to a log file
-			// - Send to a monitoring service
-			// - Display in the app's UI
-			// - Trigger other actions based on the message
 		} catch (error) {
 			log.error('❌ Error handling Swift log message:', error);
 		}
@@ -534,15 +483,7 @@ class NotchDropService {
 	// Handle overlay recording requests from Swift UI
 	async handleOverlayRecordingRequest() {
 		try {
-			// We'll trigger the overlay by calling the same logic as the existing IPC handler
-			// This ensures consistency with the existing overlay functionality
-
-			// The overlay logic is in main.js, so we need to access the windowHelper
-			// We'll use a global reference or require the windowHelper
-
-			// For now, let's emit an event that main.js can listen to
 			process.emit('swift-ui-trigger-overlay-recording');
-			log.info('✅ Emitted swift-ui-trigger-overlay-recording event');
 
 			return { success: true };
 		} catch (error) {
