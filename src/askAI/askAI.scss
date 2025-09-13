@@ -6,9 +6,7 @@
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-	height: auto;
-	max-height: 700px;
-	min-height: 100px;
+	max-height: 600px;
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 	user-select: text;
 	-webkit-app-region: no-drag; /* Remove drag from main container */
@@ -18,8 +16,7 @@
 	margin: 0;
 	gap: 12px;
 	overflow: hidden;
-	max-width: 600px;
-	width: 540px;
+	width: 100%;
 	font-size: 14px;
 	position: relative;
 }
@@ -34,105 +31,94 @@
 	flex: 1;
 	display: flex;
 	flex-direction: column;
-	min-height: 160px;
-	max-height: 400px;
+	height: 100%;
+	overflow: auto;
 
-	&.collapsed {
-		.ai-response-content {
-			max-height: 120px;
-			overflow: hidden;
+	.ai-response-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 16px 16px 8px 16px;
+		position: relative;
+	}
+
+	// Drag handle for AskAI window - positioned to not interfere with content
+	.ai-response-header::before {
+		content: '';
+		position: absolute;
+		top: -3px; /* Position above the header */
+		left: 0;
+		right: 0;
+		height: 16px; /* Small drag area above the content */
+		-webkit-app-region: drag;
+		app-region: drag;
+		z-index: 1;
+		pointer-events: auto;
+		background: rgba(0, 0, 0, 0.199);
+		border: 1px solid rgba(255, 255, 255, 0.146);
+	}
+
+	// AI response drag handle with grip icon
+	.ai-response-drag-handle {
+		position: absolute;
+		top: -2px;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 16px;
+		height: 16px;
+		z-index: 2;
+		pointer-events: none;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.ai-response-title {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		color: #ffffff;
+		font-size: 14px;
+		font-weight: 500;
+		position: relative;
+		z-index: 2; /* Ensure title is above drag handle */
+	}
+
+	.ai-response-controls {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		position: relative;
+		z-index: 2; /* Ensure controls are above drag handle */
+	}
+
+	.chatWrapper {
+		width: 100%;
+		overflow: auto;
+		flex-grow: 1;
+		display: flex;
+		flex-direction: column;
+
+		.chat-page-container-wrapper {
+			flex-grow: 1;
+
+			.textArea {
+				max-height: 125px !important;
+			}
+		}
+
+		.chatContent {
+			padding: 0 5px 70px 5px;
+		}
+
+		.chatBodyWrapper {
+			padding: 0px 12px 8px 12px;
+		}
+
+		.ve-mistake-text {
+			display: none;
 		}
 	}
-
-	&.expanded {
-		.ai-response-content {
-			max-height: 300px;
-			overflow-y: auto;
-		}
-	}
-	.divider {
-		height: 1px;
-		background: rgba(255, 255, 255, 0.1);
-		margin: 0px 12px;
-	}
-}
-
-.ai-response-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 12px 16px;
-	// border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-	// background: rgba(255, 255, 255, 0.05);
-	// border-radius: 12px 12px 0 0;
-	position: relative;
-}
-
-// Drag handle for AskAI window - positioned to not interfere with content
-.ai-response-header::before {
-	content: '';
-	position: absolute;
-	top: -8px; /* Position above the header */
-	left: 0;
-	right: 0;
-	height: 16px; /* Small drag area above the content */
-	-webkit-app-region: drag;
-	app-region: drag;
-	z-index: 1;
-	pointer-events: auto;
-	background: rgba(0, 0, 0, 0.199);
-	border: 1px solid rgba(255, 255, 255, 0.146);
-}
-
-// AI response drag handle with grip icon
-.ai-response-drag-handle {
-	position: absolute;
-	top: -2px;
-	left: 50%;
-	transform: translateX(-50%);
-	width: 16px;
-	height: 16px;
-	z-index: 2;
-	pointer-events: none;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.ai-response-title {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	color: #ffffff;
-	font-size: 14px;
-	font-weight: 500;
-	position: relative;
-	z-index: 2; /* Ensure title is above drag handle */
-
-	.expand-button {
-		background: none;
-		border: none;
-		color: rgba(255, 255, 255, 0.7);
-		cursor: pointer;
-		padding: 4px;
-		border-radius: 4px;
-		transition: all 0.2s;
-		-webkit-app-region: no-drag; /* Prevent dragging on expand button */
-		app-region: no-drag; /* Standard property for non-draggable regions */
-
-		&:hover {
-			color: #ffffff;
-			background: rgba(255, 255, 255, 0.1);
-		}
-	}
-}
-
-.ai-response-controls {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	position: relative;
-	z-index: 2; /* Ensure controls are above drag handle */
 }
 
 .copy-button,
@@ -153,479 +139,5 @@
 	&:hover {
 		background: rgba(255, 255, 255, 0.15);
 		color: #ffffff;
-	}
-}
-
-// Question Display
-.ai-question-display {
-	padding: 12px 16px;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-	background: rgba(255, 255, 255, 0.02);
-	
-	.ai-question-text {
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
-		margin-bottom: 8px;
-		
-		.question-label {
-			font-size: 12px;
-			color: rgba(255, 255, 255, 0.6);
-			font-weight: 500;
-			text-transform: uppercase;
-			letter-spacing: 0.5px;
-		}
-		
-		.question-content {
-			font-size: 14px;
-			color: rgba(255, 255, 255, 0.9);
-			line-height: 1.4;
-			word-wrap: break-word;
-		}
-	}
-	
-	.thinking-indicator {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		justify-content: flex-end;
-		
-		.thinking-dots {
-			display: flex;
-			gap: 3px;
-			
-			span {
-				width: 4px;
-				height: 4px;
-				background: rgba(121, 236, 201, 0.8);
-				border-radius: 50%;
-				animation: thinkingPulse 1.4s infinite ease-in-out;
-				
-				&:nth-child(1) {
-					animation-delay: -0.32s;
-				}
-				
-				&:nth-child(2) {
-					animation-delay: -0.16s;
-				}
-				
-				&:nth-child(3) {
-					animation-delay: 0s;
-				}
-			}
-		}
-		
-		.thinking-text {
-			font-size: 12px;
-			color: rgba(121, 236, 201, 0.8);
-			font-weight: 500;
-		}
-	}
-}
-
-@keyframes thinkingPulse {
-	0%, 80%, 100% {
-		transform: scale(0.8);
-		opacity: 0.5;
-	}
-	40% {
-		transform: scale(1);
-		opacity: 1;
-	}
-}
-
-.ai-response-content {
-	padding: 16px;
-	flex: 1;
-	overflow-y: auto;
-	min-height: 0;
-	position: relative;
-	
-	// Hide scrollbar while keeping scroll functionality
-	scrollbar-width: none; /* Firefox */
-	-ms-overflow-style: none; /* Internet Explorer 10+ */
-	
-	&::-webkit-scrollbar {
-		display: none; /* WebKit */
-	}
-}
-
-.loading-indicator {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 16px;
-	color: rgba(255, 255, 255, 0.7);
-	font-size: 14px;
-	padding: 20px;
-}
-
-.loading-dots {
-	display: flex;
-	gap: 6px;
-
-	span {
-		width: 10px;
-		height: 10px;
-		border-radius: 50%;
-		background: rgba(255, 255, 255, 0.6);
-		animation: loading-pulse 1.4s infinite ease-in-out both;
-
-		&:nth-child(1) {
-			animation-delay: -0.32s;
-		}
-		&:nth-child(2) {
-			animation-delay: -0.16s;
-		}
-	}
-}
-
-@keyframes loading-pulse {
-	0%,
-	80%,
-	100% {
-		transform: scale(0.8);
-		opacity: 0.5;
-	}
-	40% {
-		transform: scale(1);
-		opacity: 1;
-	}
-}
-
-@keyframes thinking-pulse {
-	0%,
-	100% {
-		opacity: 0.7;
-	}
-	50% {
-		opacity: 1;
-	}
-}
-
-.response-text {
-	color: rgba(255, 255, 255, 0.9);
-	font-size: 13px;
-	line-height: 1.5;
-	word-wrap: break-word;
-	text-align: left;
-
-	.thinking-indicator {
-		color: rgba(255, 255, 255, 0.7);
-		font-style: italic;
-		margin-left: 8px;
-		animation: thinking-pulse 2s ease-in-out infinite;
-	}
-
-	// Markdown content styling for dark theme
-	.markdown-custom-content {
-		color: rgba(255, 255, 255, 0.95);
-
-		h1,
-		h2,
-		h3,
-		h4,
-		h5,
-		h6 {
-			color: rgba(255, 255, 255, 0.98);
-			margin-top: 1.5em;
-			margin-bottom: 0.5em;
-		}
-
-		p {
-			color: rgba(255, 255, 255, 0.9);
-			margin-bottom: 1em;
-		}
-
-		a {
-			color: #4a9eff;
-
-			&:hover {
-				color: #66b3ff;
-			}
-		}
-
-		code {
-			background: rgba(255, 255, 255, 0.1);
-			color: rgba(255, 255, 255, 0.95);
-			padding: 0.2em 0.4em;
-			border-radius: 4px;
-			font-size: 16px;
-		}
-
-		pre {
-			background: rgba(0, 0, 0, 0.3);
-			border: 1px solid rgba(255, 255, 255, 0.1);
-			border-radius: 8px;
-			padding: 1em;
-			overflow-x: auto;
-		}
-
-		blockquote {
-			border-left: 3px solid rgba(255, 255, 255, 0.3);
-			margin: 1em 0;
-			padding-left: 1em;
-			color: rgba(255, 255, 255, 0.8);
-		}
-
-		ul,
-		ol {
-			color: rgba(255, 255, 255, 0.9);
-			margin-bottom: 1em;
-
-			li {
-				margin-bottom: 0.5em;
-			}
-		}
-
-		table {
-			border-collapse: collapse;
-			margin: 1em 0;
-
-			th,
-			td {
-				border: 1px solid rgba(255, 255, 255, 0.2);
-				padding: 0.5em;
-				color: rgba(255, 255, 255, 0.9);
-			}
-
-			th {
-				background: rgba(255, 255, 255, 0.1);
-				font-weight: 600;
-			}
-		}
-	}
-}
-
-// Scroll to Bottom Button - ChatGPT style
-.scroll-to-bottom-btn {
-	position: absolute;
-	bottom: 12px;
-	right: 50%;
-	width: 32px;
-	height: 32px;
-	border-radius: 50%;
-	background: rgba(0, 0, 0, 0.8);
-	backdrop-filter: blur(8px);
-	-webkit-backdrop-filter: blur(8px);
-	border: 1px solid rgba(255, 255, 255, 0.2);
-	color: rgba(255, 255, 255, 0.9);
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	transition: all 0.2s ease;
-	z-index: 10;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-	-webkit-app-region: no-drag;
-	app-region: no-drag;
-
-	&:hover {
-		background: rgba(0, 0, 0, 0.9);
-		border-color: rgba(255, 255, 255, 0.3);
-		transform: scale(1.05);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-	}
-
-	&:active {
-		transform: scale(0.95);
-	}
-
-	// Fade in animation
-	animation: fadeInUp 0.2s ease-out;
-}
-
-@keyframes fadeInUp {
-	from {
-		opacity: 0;
-		transform: translateY(10px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
-
-// Input Bar (Bottom) - clean compact design
-.ask-ai-input {
-	background: rgba(0, 0, 0, 0.85);
-	backdrop-filter: blur(12px);
-	-webkit-backdrop-filter: blur(12px);
-	border: 1px solid rgba(255, 255, 255, 0.1);
-	border-radius: 12px;
-	overflow: hidden;
-	flex-shrink: 0;
-	position: relative;
-
-	&__container {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		padding: 10px 14px;
-	}
-
-	// Add drag area to input section
-	&::before {
-		content: '';
-		position: absolute;
-		top: -4px;
-		left: 0;
-		right: 0;
-		height: 16px;
-		-webkit-app-region: drag;
-		app-region: drag;
-		z-index: 1;
-		pointer-events: auto;
-	}
-
-	// Ask AI input drag handle with grip icon
-	.ask-ai-input-drag-handle {
-		position: absolute;
-		top: -2px;
-		left: 50%;
-		transform: translateX(-50%);
-		width: 14px;
-		height: 14px;
-		z-index: 2;
-		pointer-events: none;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	&__field {
-		flex: 1;
-		background: rgba(255, 255, 255, 0.06);
-		border: 1px solid rgba(255, 255, 255, 0.12);
-		border-radius: 8px;
-		padding: 8px 10px;
-		color: rgba(255, 255, 255, 0.7);
-		font-size: 14px;
-		font-family: inherit;
-		resize: none;
-		min-height: 20px;
-		max-height: 100px;
-		transition: all 0.2s;
-		line-height: 1.4;
-		-webkit-app-region: no-drag; /* Prevent dragging on input field */
-		app-region: no-drag; /* Standard property for non-draggable regions */
-
-		&::placeholder {
-			color: rgba(255, 255, 255, 0.5);
-		}
-
-		&:focus {
-			outline: none;
-			border-color: rgba(255, 255, 255, 0.3);
-			background: rgba(255, 255, 255, 0.12);
-			color: rgba(255, 255, 255, 0.9);
-		}
-	}
-
-	&__stop {
-		background: rgba(255, 100, 100, 0.1);
-		border: 1px solid rgba(255, 100, 100, 0.3);
-		border-radius: 8px;
-		padding: 10px;
-		color: rgba(255, 100, 100, 0.8);
-		cursor: pointer;
-		transition: all 0.2s;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		min-width: 40px;
-		-webkit-app-region: no-drag;
-		app-region: no-drag;
-
-		&:hover {
-			background: rgba(255, 100, 100, 0.2);
-			color: rgba(255, 100, 100, 1);
-			border-color: rgba(255, 100, 100, 0.5);
-			transform: translateY(-1px);
-		}
-	}
-
-	&__submit {
-		background: rgba(255, 255, 255, 0.1);
-		border: 1px solid rgba(255, 255, 255, 0.2);
-		border-radius: 8px;
-		padding: 10px 16px;
-		color: rgba(255, 255, 255, 0.7);
-		cursor: pointer;
-		transition: all 0.2s;
-		font-size: 14px;
-		font-weight: 500;
-		min-width: 60px;
-		-webkit-app-region: no-drag; /* Prevent dragging on submit button */
-		app-region: no-drag; /* Standard property for non-draggable regions */
-
-		&:not(.active) {
-			background: rgba(255, 255, 255, 0.05);
-			color: rgba(255, 255, 255, 0.4);
-		}
-
-		&.active {
-			background: rgba(255, 255, 255, 0.15);
-			color: rgba(255, 255, 255, 0.9);
-			border-color: rgba(255, 255, 255, 0.3);
-		}
-
-		&:hover:not(:disabled) {
-			background: rgba(255, 255, 255, 0.2);
-			color: #ffffff;
-			border-color: rgba(255, 255, 255, 0.4);
-			transform: translateY(-1px);
-		}
-
-		&:disabled {
-			cursor: not-allowed;
-			opacity: 0.5;
-		}
-	}
-
-	// Dynamic Island Message Indicator
-	&__dynamic-island-indicator {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 8px 12px;
-		background: rgba(121, 236, 201, 0.1);
-		border: 1px solid rgba(121, 236, 201, 0.3);
-		border-radius: 8px;
-		margin: 8px 12px;
-		font-size: 12px;
-		color: rgba(255, 255, 255, 0.9);
-
-		.dynamic-island-indicator__label {
-			display: flex;
-			align-items: center;
-			gap: 6px;
-			flex: 1;
-
-			.dynamic-island-indicator__status {
-				color: rgba(255, 255, 255, 0.7);
-				font-style: italic;
-			}
-		}
-
-		.dynamic-island-indicator__clear {
-			background: transparent;
-			border: none;
-			color: rgba(255, 255, 255, 0.6);
-			cursor: pointer;
-			padding: 4px;
-			border-radius: 4px;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			transition: all 0.2s;
-			-webkit-app-region: no-drag; /* Prevent dragging on clear button */
-			app-region: no-drag; /* Standard property for non-draggable regions */
-
-			&:hover {
-				background: rgba(255, 255, 255, 0.1);
-				color: rgba(255, 255, 255, 0.9);
-			}
-		}
 	}
 }

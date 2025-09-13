@@ -1563,15 +1563,15 @@ app.whenReady().then(async () => {
 				await waitForAskAIReady(askAIWindow);
 				askAIWindow.webContents.send('receive-chat-message', chatMessage);
 				// Resend once shortly after as a safety net in case listener attached late
-				setTimeout(() => {
-					try {
-						if (askAIWindow && !askAIWindow.isDestroyed()) {
-							askAIWindow.webContents.send('receive-chat-message', chatMessage);
-						}
-					} catch (e) {
-						log.warn('⚠️ Safety resend failed:', e);
-					}
-				}, 400);
+				// setTimeout(() => {
+				// 	try {
+				// 		if (askAIWindow && !askAIWindow.isDestroyed()) {
+				// 			askAIWindow.webContents.send('receive-chat-message', chatMessage);
+				// 		}
+				// 	} catch (e) {
+				// 		log.warn('⚠️ Safety resend failed:', e);
+				// 	}
+				// }, 400);
 			} else {
 				log.error('❌ AskAI window unavailable after creation');
 			}

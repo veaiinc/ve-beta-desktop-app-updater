@@ -21,7 +21,7 @@ class WindowHelper {
 		this.askAIWindow = null;
 		this.isAskAIVisible = false;
 		this.askAIWindowPosition = { x: 0, y: 0 };
-		this.askAIWindowSize = { width: 600, height: 500 };
+		this.askAIWindowSize = { width: 600, height: 600 };
 
 		// Are You There window properties
 		this.areYouThereWindow = null;
