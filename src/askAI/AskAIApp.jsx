@@ -10,7 +10,7 @@ import CustomToast from '../views/components/globalComponents/CustomToast';
 
 const AskAIApp = () => {
 	const {
-		templates: { updateStateValues, globalChatMessages },
+		templates: { updateStateValues },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({ sessionId: ObjectID()?.toString() });
@@ -233,11 +233,11 @@ const AskAIApp = () => {
 						<span>Chat</span>
 					</div>
 					<div className="ai-response-controls">
-						{globalChatMessages?.[info?.sessionId]?.messages?.length > 0 && (
+						{/* {globalChatMessages?.[info?.sessionId]?.messages?.length > 0 && (
 							<button className="new-chat" onClick={handleNewChat}>
 								New Chat
 							</button>
-						)}
+						)} */}
 
 						<button className="close-button" onClick={handleClose} title="Close">
 							<X size={16} />
