@@ -3,7 +3,7 @@ import useWorkspaceMode from './hooks/useWorkspaceMode';
 import { useEffect, useState } from 'react';
 import VoiceAgentParent from './views/features/voiceAgent/VoiceAgentParent';
 import NotchDropVoiceDebug from './components/NotchDropVoiceDebug';
-import VoiceAgentDebug from './components/VoiceAgentDebug';
+import useVoiceIntegration from './hooks/useVoiceIntegration';
 
 const App = () => {
 	const { routes } = useWorkspaceMode();
@@ -12,6 +12,9 @@ const App = () => {
 	
 	// NotchDrop Voice Integration - DIRECT APPROACH
 	const [showVoiceFromNotch, setShowVoiceFromNotch] = useState(false);
+	
+	// Voice integration for NotchDrop
+	const voiceIntegration = useVoiceIntegration();
 	
 	// Listen for NotchDrop voice activation
 	useEffect(() => {
@@ -81,6 +84,57 @@ const App = () => {
 			window.removeEventListener('start-voice-agent', handleCustomVoiceEvent);
 		};
 	}, []);
+
+	// Essential voice integration for NotchDrop
+	useEffect(() => {
+		// Expose voiceIntegration to window for NotchDrop access
+		if (voiceIntegration && !window.voiceIntegration) {
+			window.voiceIntegration = voiceIntegration;
+			console.log('✅ voiceIntegration exposed to window.voiceIntegration');
+		}
+		return () => {
+			if (window.voiceIntegration) {
+				delete window.voiceIntegration;
+			}
+		};
+	}, [voiceIntegration]);
+
+	// Monitor voice connection state and update NotchDrop
+	useEffect(() => {
+		if (voiceIntegration && window.electronApi) {
+			const { isConnected } = voiceIntegration;
+			
+			if (isConnected) {
+				console.log('🔄 Voice connected - notifying NotchDrop...');
+				window.electronApi.notchdrop.updateVoiceStatus('connected');
+			} else {
+				console.log('🔄 Voice disconnected - notifying NotchDrop...');
+				window.electronApi.notchdrop.updateVoiceStatus('disconnected');
+			}
+		}
+	}, [voiceIntegration?.isConnected]);
+
+	// Handle NotchDrop voice disconnect
+	useEffect(() => {
+		const handleNotchDropVoiceDisconnect = async (event) => {
+			console.log(`🔌 NotchDrop voice disconnect: ${event.type}`);
+			if (voiceIntegration && voiceIntegration.disconnect) {
+				try {
+					console.log('🔌 Disconnecting voice agent from NotchDrop X button...');
+					await voiceIntegration.disconnect();
+					console.log('✅ Voice agent disconnected successfully from NotchDrop!');
+				} catch (error) {
+					console.error(`❌ NotchDrop voice disconnect failed: ${error.message}`);
+				}
+			}
+		};
+
+		window.addEventListener('notchdrop-voice-disconnect', handleNotchDropVoiceDisconnect);
+		
+		return () => {
+			window.removeEventListener('notchdrop-voice-disconnect', handleNotchDropVoiceDisconnect);
+		};
+	}, [voiceIntegration]);
 
 	const handleCheckForUpdates = async () => {
 		try {
@@ -244,7 +298,6 @@ const App = () => {
 			
 			{/* Debug Components */}
 			<NotchDropVoiceDebug />
-			<VoiceAgentDebug />
 		</>
 	);
 };
