@@ -35,6 +35,10 @@
 + (void)setItemAddedCallback:(void(^)(NSString*))callback;
 + (void)setItemRemovedCallback:(void(^)(NSString*))callback;
 + (void)setSwiftActionCallback:(void(^)(NSString*, NSString*))callback;
++ (void)setIncomingActionCallback:(void(^)(NSString*, NSString*))callback;
+
+// Swift Action Methods
++ (void)triggerSwiftAction:(NSString*)action data:(NSString*)data;
 
 // Advanced SwiftUI Components
 + (void)showAdvancedView;

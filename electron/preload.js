@@ -4,6 +4,9 @@ const { contextBridge, ipcRenderer } = require('electron/renderer');
 // Helper
 
 contextBridge.exposeInMainWorld('electronApi', {
+	// Sending messages from veApp to main process
+	sendMessageFrmVeApp: (msg) => ipcRenderer.send('veAppMsg', msg),
+
 	send(channel, data) {
 		ipcRenderer.invoke(channel, data);
 	},
@@ -270,6 +273,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 		show: () => ipcRenderer.invoke('dynamic-island-show'),
 		hide: () => ipcRenderer.invoke('dynamic-island-hide'),
 		focus: () => ipcRenderer.invoke('dynamic-island-focus'),
+		forceShow: () => ipcRenderer.invoke('dynamic-island-force-show'),
 		setMouseEvents: (ignore) => ipcRenderer.invoke('dynamic-island-set-mouse-events', ignore),
 		setChatMode: (isChatMode) => ipcRenderer.invoke('dynamic-island-chat-mode', isChatMode),
 

@@ -119,6 +119,17 @@ const DynamicIslandUI = () => {
 		if (window.electronApi && window.electronApi.dynamicIsland) {
 			setIsConnected(true);
 
+			// Force show Dynamic Island on component mount as backup
+			setTimeout(() => {
+				if (window.electronApi?.dynamicIsland?.forceShow) {
+					window.electronApi.dynamicIsland.forceShow().then((result) => {
+						console.log('🏝️ Force show result from React:', result);
+					}).catch((error) => {
+						console.error('❌ Failed to force show from React:', error);
+					});
+				}
+			}, 3000);
+
 			// Listen for dynamic island state changes
 			window.electronApi.dynamicIsland.onStateChange((data) => {
 				console.log('🏝️ Dynamic Island state changed:', data);
