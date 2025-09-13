@@ -22,7 +22,7 @@ const DynamicIslandHelper = require('./helpers/dynamicIslandHelper');
 const fs = require('fs');
 const { exec } = require('child_process');
 const { Worker } = require('worker_threads');
-const pLimit = require('p-limit').default; // ← THIS IS THE FIX
+const pLimit = require('p-limit'); // ← THIS IS THE FIX
 const imageProcessingLimit = pLimit(4); // Max 4 concurrent workers
 
 // Import dynamic island helper
@@ -1090,10 +1090,23 @@ function setupNotchDropMenuUpdates() {
 	// Since the service emits events to the renderer, we'll listen for IPC messages
 	// that indicate status changes and update the menu accordingly
 
-	// Set up a periodic check to update menu state (as a fallback)
-	setInterval(() => {
-		updateMenuBarState();
-	}, 5000); // Update every 5 seconds
+	// Listen for NotchDrop service events to update menu
+	if (notchDropService.notchDropAddon) {
+		notchDropService.notchDropAddon.on('statusChanged', (status) => {
+			log.info('📊 NotchDrop status changed, updating menu:', status);
+			updateMenuBarState();
+		});
+
+		notchDropService.notchDropAddon.on('itemAdded', () => {
+			log.info('📊 NotchDrop item added, updating menu');
+			updateMenuBarState();
+		});
+
+		notchDropService.notchDropAddon.on('itemRemoved', () => {
+			log.info('📊 NotchDrop item removed, updating menu');
+			updateMenuBarState();
+		});
+	}
 
 	log.info('✅ NotchDrop menu update listeners set up');
 }
@@ -1184,6 +1197,26 @@ function createWindow(restoreState = false) {
 			contextIsolation: true,
 			devTools: true, // Enable developer tools in production
 		},
+	});
+
+	ipcMain.on('veAppMsg', async (event, msg) => {
+		log.info('🔄 Received message from veApp:', msg); // logs: btn clicked from react
+
+		// Send the same message to Swift UI if NotchDrop service is available
+		if (notchDropService && notchDropService.isInitialized) {
+			try {
+				const result = await notchDropService.sendMessageToSwiftUI(msg);
+				if (result.success) {
+					log.info('✅ Message sent to Swift UI successfully');
+				} else {
+					log.warn('⚠️ Failed to send message to Swift UI:', result.error);
+				}
+			} catch (error) {
+				log.error('❌ Error sending message to Swift UI:', error);
+			}
+		} else {
+			log.info('ℹ️ NotchDrop service not available, skipping Swift UI message');
+		}
 	});
 
 	if (process.env.VITE_DEV_SERVER_URL) {

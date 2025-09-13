@@ -4,6 +4,9 @@ const { contextBridge, ipcRenderer } = require('electron/renderer');
 // Helper
 
 contextBridge.exposeInMainWorld('electronApi', {
+	// Sending messages from veApp to main process
+	sendMessageFrmVeApp: (msg) => ipcRenderer.send('veAppMsg', msg),
+
 	send(channel, data) {
 		ipcRenderer.invoke(channel, data);
 	},
