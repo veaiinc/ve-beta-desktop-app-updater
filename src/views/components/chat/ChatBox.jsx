@@ -167,6 +167,7 @@ const ChatBox = ({
 			isDirectSearchAgent,
 			isBrowserScreenActive,
 		},
+		chatStream: { closeWebSocketConnection: closeChatWebSocketConnection },
 		chatBoxSuggestionsSocket: { sendMessage, closeWebSocketConnection },
 		subscriptionInfo: { currentPlan, getCurrentSubscriptionPlan },
 		calendarInfo: { updateCalendarState },
@@ -1722,6 +1723,17 @@ const ChatBox = ({
 		[updateAiSetupState],
 	);
 
+	const handleStopChatStream = () => {
+		if (info?.chatSessionId) {
+			closeChatWebSocketConnection([info?.chatSessionId]);
+			handleGlobalChatMessages({
+				sessionId: info?.chatSessionId,
+				removeStreaming: true,
+				updateExtraInfo: true,
+			});
+		}
+	};
+
 	return (
 		<div className="chatBoxParentWrapper" onClick={handleChatBoxClick}>
 			<div className="chatbarContainer">
@@ -1984,10 +1996,18 @@ const ChatBox = ({
 								}`}
 								onClick={(e) => {
 									e.stopPropagation();
-									handleSendBtnClick(e);
+									if (info?.chatLoading) {
+										handleStopChatStream();
+									} else {
+										handleSendBtnClick(e);
+									}
 								}}
 							>
-								<ArrowUp className="voice-wave-icon" width={16} height={16} />
+								{info?.chatLoading ? (
+									<div className="stop-chat-icon"></div>
+								) : (
+									<ArrowUp className="voice-wave-icon" width={16} height={16} />
+								)}
 							</div>
 						) : (
 							<div
