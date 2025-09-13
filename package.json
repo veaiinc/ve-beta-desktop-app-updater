@@ -223,7 +223,8 @@
 				"**/node_modules/@img/sharp-darwin*/**/*",
 				"**/node_modules/@img/sharp-libvips-darwin*/**/*",
 				"**/node_modules/notchdrop-addon/**/*.node",
-				"**/node_modules/notchdrop-addon/bin/**/*"
+				"**/node_modules/notchdrop-addon/bin/**/*",
+				"**/Electron Framework.framework/**/*"
 			],
 			"extraResources": [
 				{

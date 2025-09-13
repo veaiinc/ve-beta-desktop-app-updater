@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import getBaseUrl from '../../services/baseUrls';
 import Context from '../../context/context';
-// Removed permission utility imports to avoid timing issues with Electron APIs
-// The browser will handle permission prompts directly when calling getUserMedia/getDisplayMedia
 
 const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
 
@@ -592,70 +590,42 @@ const useAssemblyTranscription = ({
 			// We'll rely on the browser's built-in permission system
 			log('Using browser permission system for screen capture...');
 
-			// Get screen capture with timeout handling
-			log('Requesting screen capture access...');
+			// Get screen capture using Electron's automatic whole screen selection
+			log('Requesting automatic whole screen capture...');
 			let screenStream;
 
 			try {
-				// Try with video enabled first (more reliable)
-				log('Trying screen capture with video enabled...');
+				// Electron will automatically select the primary screen without showing a dialog
+				log('Starting automatic screen capture (no dialog)...');
+
 				screenStream = await withTimeout(
 					navigator.mediaDevices.getDisplayMedia({
-						audio: true,
+						audio: {
+							echoCancellation: false,
+							noiseSuppression: false,
+							autoGainControl: false,
+							sampleRate: 48000,
+						},
 						video: {
-							width: { ideal: 1920 },
-							height: { ideal: 1080 },
-							frameRate: { ideal: 30 },
+							width: { ideal: 1920, max: 1920 },
+							height: { ideal: 1080, max: 1080 },
+							frameRate: { ideal: 30, max: 30 },
+							cursor: 'never', // Don't show cursor
 						},
 					}),
-					10000, // 10 second timeout
-					'Timeout starting video source',
+					5000, // Reduced timeout since no user interaction needed
+					'Timeout during automatic screen capture',
 				);
+
 				screenStreamRef.current = screenStream;
-				log('Screen capture access granted with video enabled');
-			} catch (videoError) {
-				log('Screen capture with video failed:', videoError.message);
+				log('✅ Automatic whole screen capture successful - no dialog shown');
+			} catch (screenCaptureError) {
+				log('❌ Screen capture failed:', screenCaptureError.message);
 
-				// Try with basic video constraints
-				log('Trying screen capture with basic video constraints...');
-				try {
-					screenStream = await withTimeout(
-						navigator.mediaDevices.getDisplayMedia({
-							audio: true,
-							video: true,
-						}),
-						10000, // 10 second timeout
-						'Timeout starting video source with basic constraints',
-					);
-					screenStreamRef.current = screenStream;
-					log('Screen capture access granted with basic video constraints');
-				} catch (basicVideoError) {
-					log('Screen capture with basic video failed:', basicVideoError.message);
-
-					// Try with audio only (some browsers support this)
-					log('Trying screen capture with audio only...');
-					try {
-						screenStream = await withTimeout(
-							navigator.mediaDevices.getDisplayMedia({
-								audio: true,
-								video: false,
-							}),
-							5000, // 5 second timeout for audio-only
-							'Timeout starting audio-only screen capture',
-						);
-						screenStreamRef.current = screenStream;
-						log('Screen capture access granted with audio only');
-					} catch (audioOnlyError) {
-						log('Screen capture with audio only failed:', audioOnlyError.message);
-
-						// If all attempts fail, we can still proceed with just microphone
-						log(
-							'All screen capture attempts failed, proceeding with microphone only...',
-						);
-						screenStream = null;
-						screenStreamRef.current = null;
-					}
-				}
+				// Continue with microphone only - don't fail the entire recording
+				log('📱 Proceeding with microphone-only recording...');
+				screenStream = null;
+				screenStreamRef.current = null;
 			}
 
 			// Create audio context
