@@ -23,6 +23,7 @@ public:
             InstanceMethod("setNotchVisible", &NotchDropAddon::SetNotchVisible),
             InstanceMethod("getNotchVisible", &NotchDropAddon::GetNotchVisible),
             InstanceMethod("getWindowPosition", &NotchDropAddon::GetWindowPosition),
+            InstanceMethod("triggerSwiftAction", &NotchDropAddon::TriggerSwiftAction),
             InstanceMethod("on", &NotchDropAddon::On)
         });
 
@@ -114,6 +115,12 @@ public:
                 };
                 napi_call_threadsafe_function(tsfn_, callbackData, napi_tsfn_blocking);
             }
+        }];
+        
+        // Set up incoming action callback (for actions from JavaScript to Swift)
+        [NotchDropBridge setIncomingActionCallback:^(NSString* action, NSString* data) {
+            // This callback is not used in the current implementation
+            // The triggerSwiftAction method directly calls handleIncomingAction
         }];
     }
 
@@ -283,6 +290,23 @@ private:
         result.Set("height", Napi::Number::New(env, [position[@"height"] doubleValue]));
         
         return result;
+    }
+
+    Napi::Value TriggerSwiftAction(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 2 || !info[0].IsString() || !info[1].IsString()) {
+            Napi::TypeError::New(env, "Expected (string, string) arguments").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+        
+        std::string action = info[0].As<Napi::String>();
+        std::string data = info[1].As<Napi::String>();
+        
+        NSString* nsAction = [NSString stringWithUTF8String:action.c_str()];
+        NSString* nsData = [NSString stringWithUTF8String:data.c_str()];
+        
+        [NotchDropBridge triggerSwiftAction:nsAction data:nsData];
+        return env.Undefined();
     }
 
     Napi::Value On(const Napi::CallbackInfo& info) {

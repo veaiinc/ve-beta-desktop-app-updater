@@ -21,7 +21,7 @@ class WindowHelper {
 		this.askAIWindow = null;
 		this.isAskAIVisible = false;
 		this.askAIWindowPosition = { x: 0, y: 0 };
-		this.askAIWindowSize = { width: 600, height: 500 };
+		this.askAIWindowSize = { width: 600, height: 600 };
 
 		// Are You There window properties
 		this.areYouThereWindow = null;
@@ -304,6 +304,7 @@ class WindowHelper {
 			disableAutoHideCursor: true,
 			resizable: false, // Disable resizing - keep only movable functionality
 			movable: true, // Explicitly enable window movement
+			devTools: true,
 		};
 
 		// Platform-specific window settings
@@ -410,6 +411,7 @@ class WindowHelper {
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
 			resizable: process.env.NODE_ENV === 'development',
+			devTools: true,
 		};
 
 		// Platform-specific window settings
