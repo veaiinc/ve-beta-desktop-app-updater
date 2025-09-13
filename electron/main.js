@@ -2412,6 +2412,23 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// Voice message handler
+	ipcMain.handle('notchdrop-add-voice-message', async (event, messageData) => {
+		try {
+			log.info(`💬 Adding voice message to NotchDrop: ${messageData.content?.substring(0, 50)}...`);
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			
+			// Add the voice message to NotchDrop Swift UI
+			const result = await notchDropService.addVoiceMessage(messageData);
+			return { success: true, messageData, result };
+		} catch (error) {
+			log.error('Error adding NotchDrop voice message:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	// New NotchDropLatest IPC handlers
 	ipcMain.handle('notchdrop-open-airdrop', async () => {
 		try {

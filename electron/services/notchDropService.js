@@ -496,62 +496,23 @@ class NotchDropService {
 
 	async activateVoiceAgent() {
 		try {
-			console.log('🎤 Activating voice agent from NotchDrop...');
+			console.log('🎤 Activating voice agent from NotchDrop (LiveKit only)...');
 			
-			// Send IPC to main window to show/activate voice agent
+			// ONLY dispatch LiveKit voice activation event - no web interface
 			if (this.mainWindow) {
-				this.mainWindow.webContents.send('notchdrop:showVoiceAgent', {
-					source: 'notchdrop',
-					timestamp: Date.now()
-				});
-				
-				// Direct voice agent activation using the working approach
-				const result = await this.mainWindow.webContents.executeJavaScript(`
-					(async () => {
-						try {
-							console.log('🎤 NotchDrop activating voice agent via JavaScript');
-							
-							// Method 1: Use the working voiceIntegration.connectToRoom() approach
-							console.log('🔍 Checking window.voiceIntegration:', !!window.voiceIntegration);
-							
-							if (window.voiceIntegration && window.voiceIntegration.connectToRoom) {
-								console.log('🎤 Found voiceIntegration.connectToRoom(), calling directly...');
-								await window.voiceIntegration.connectToRoom();
-								console.log('✅ Voice agent started successfully from NotchDrop!');
-								
-								// Notify NotchDrop that voice is connected
-								setTimeout(() => {
-									if (window.voiceIntegration && window.voiceIntegration.isConnected) {
-										console.log('🔄 Notifying NotchDrop: voice connected');
-										const event = new CustomEvent('notchdrop-voice-status', {
-											detail: { status: 'connected' }
-										});
-										window.dispatchEvent(event);
-									}
-								}, 2000); // Wait 2 seconds for connection to establish
-								
-								return { success: true, method: 'voiceIntegration.connectToRoom' };
-							}
-							
-							// Method 2: Try custom event as fallback
-							console.log('⚠️ voiceIntegration not found on window, trying custom event...');
-							const event = new CustomEvent('notchdrop-start-voice-agent', {
-								detail: {
-									source: 'notchdrop-voice-button',
-									timestamp: Date.now()
-								}
-							});
-							window.dispatchEvent(event);
-							return { success: true, method: 'custom-event' };
-							
-						} catch (error) {
-							console.error('❌ JavaScript voice activation error:', error);
-							return { success: false, error: error.message };
-						}
-					})()
+				const liveKitResult = await this.mainWindow.webContents.executeJavaScript(`
+					console.log('🎤 NotchDrop: Dispatching LiveKit voice activation event...');
+					window.dispatchEvent(new CustomEvent('notchdrop-activate-voice', { 
+						detail: { 
+							source: 'notchdrop', 
+							timestamp: Date.now(),
+							action: 'activate_livekit_voice'
+						} 
+					}));
+					'{ "success": true, "method": "LiveKit voice activation event" }';
 				`);
-				
-				console.log('🎤 Voice agent JavaScript activation result:', result);
+				console.log('🎤 LiveKit voice activation event result:', liveKitResult);
+				console.log('✅ Voice conversation will stay within NotchDrop UI');
 			}
 			
 		} catch (error) {
@@ -561,42 +522,23 @@ class NotchDropService {
 
 	async deactivateVoiceAgent() {
 		try {
-			console.log('🔌 DEACTIVATE: Deactivating voice agent from NotchDrop X button...');
-			console.log('🔌 DEACTIVATE: Calling JavaScript disconnect method...');
+			console.log('🔌 Deactivating voice agent from NotchDrop (LiveKit only)...');
 			
 			if (this.mainWindow) {
-				const result = await this.mainWindow.webContents.executeJavaScript(`
-					(async () => {
-						try {
-							console.log('🎤 NotchDrop deactivating voice agent via JavaScript');
-							
-							// Method 1: Use voiceIntegration.disconnect() if available
-							if (window.voiceIntegration && window.voiceIntegration.disconnect) {
-								console.log('🎤 Found voiceIntegration.disconnect(), calling...');
-								await window.voiceIntegration.disconnect();
-								console.log('✅ Voice agent disconnected successfully from NotchDrop!');
-								return { success: true, method: 'voiceIntegration.disconnect' };
-							}
-							
-							// Method 2: Try custom event as fallback
-							console.log('⚠️ voiceIntegration.disconnect not found, trying custom event...');
-							const event = new CustomEvent('notchdrop-voice-disconnect', {
-								detail: {
-									source: 'notchdrop-x-button',
-									timestamp: Date.now()
-								}
-							});
-							window.dispatchEvent(event);
-							return { success: true, method: 'custom-event' };
-							
-						} catch (error) {
-							console.error('❌ JavaScript voice deactivation error:', error);
-							return { success: false, error: error.message };
-						}
-					})()
+				// ONLY dispatch LiveKit voice deactivation event - no web interface
+				const liveKitResult = await this.mainWindow.webContents.executeJavaScript(`
+					console.log('🔌 NotchDrop: Dispatching LiveKit voice deactivation event...');
+					window.dispatchEvent(new CustomEvent('notchdrop-deactivate-voice', { 
+						detail: { 
+							source: 'notchdrop', 
+							timestamp: Date.now(),
+							action: 'deactivate_livekit_voice'
+						} 
+					}));
+					'{ "success": true, "method": "LiveKit voice deactivation event" }';
 				`);
-				
-				console.log('🎤 Voice agent JavaScript deactivation result:', result);
+				console.log('🔌 LiveKit voice deactivation event result:', liveKitResult);
+				console.log('✅ Voice conversation ended within NotchDrop UI');
 			}
 			
 		} catch (error) {
@@ -624,6 +566,30 @@ class NotchDropService {
 			}
 		} catch (error) {
 			console.error('❌ Error updating NotchDrop voice connection state:', error);
+			return false;
+		}
+	}
+
+	async addVoiceMessage(messageData) {
+		try {
+			console.log(`💬 Adding voice message to NotchDrop: ${messageData.sender}: ${messageData.content?.substring(0, 50)}...`);
+			
+			if (!this.isInitialized) {
+				log.warn('NotchDrop not initialized, cannot add voice message');
+				return false;
+			}
+
+			// Call the native addon to add the voice message to Swift UI
+			if (this.notchDropAddon && this.notchDropAddon.addVoiceMessage) {
+				this.notchDropAddon.addVoiceMessage(messageData);
+				console.log(`✅ Voice message added to NotchDrop`);
+				return true;
+			} else {
+				console.warn('⚠️ addVoiceMessage method not available on addon');
+				return false;
+			}
+		} catch (error) {
+			console.error('❌ Error adding voice message to NotchDrop:', error);
 			return false;
 		}
 	}

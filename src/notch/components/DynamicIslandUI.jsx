@@ -23,6 +23,7 @@ import useNotificationOverlay from '../hooks/useNotificationOverlay';
 import NotificationOverlay from './NotificationOverlay';
 import Context from '../../context/context';
 import { LiveKitRoom, RoomAudioRenderer, StartAudio } from '@livekit/components-react';
+import NotchDropLiveKitIntegration from '../../components/NotchDropLiveKitIntegration';
 import Voice from '../../views/components/chat/Voice';
 import { checkDevices } from '../../helpers';
 
@@ -1533,6 +1534,7 @@ const DynamicIslandUI = () => {
 														onStatusUpdate={handleVoiceStatusUpdate}
 														isMicrophoneMuted={isMicrophoneMuted}
 													/>
+													<NotchDropLiveKitIntegration />
 													<RoomAudioRenderer />
 													<StartAudio label="Click to enable audio playback" />
 												</LiveKitRoom>

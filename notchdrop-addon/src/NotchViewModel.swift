@@ -387,11 +387,23 @@ class NotchViewModel: NSObject, ObservableObject {
         }
     }
     
-    /// Add voice message from JavaScript
-    func addVoiceMessage(sender: String, content: String, isFromAgent: Bool = false) {
+    /// Add voice message from JavaScript transcription
+    func addVoiceMessage(sender: String, content: String, isFromAgent: Bool) {
         DispatchQueue.main.async {
-            let message = VoiceMessage(sender: sender, content: content, isFromAgent: isFromAgent)
-            self.voiceMessages.append(message)
+            // Check for duplicate messages (same sender and content)
+            let isDuplicate = self.voiceMessages.contains { existingMessage in
+                existingMessage.sender == sender && 
+                existingMessage.content == content &&
+                existingMessage.isFromAgent == isFromAgent
+            }
+            
+            if !isDuplicate {
+                let message = VoiceMessage(sender: sender, content: content, isFromAgent: isFromAgent)
+                self.voiceMessages.append(message)
+                print("💬 Added voice message: \(sender): \(content.prefix(50))...")
+            } else {
+                print("⚠️ Skipped duplicate voice message: \(sender): \(content.prefix(50))...")
+            }
         }
     }
     

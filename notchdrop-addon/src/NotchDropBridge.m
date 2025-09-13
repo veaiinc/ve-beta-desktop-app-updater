@@ -141,4 +141,8 @@ static void (^swiftActionCallback)(NSString*, NSString*);
     [NotchDropCore.shared updateVoiceConnectionState:status];
 }
 
++ (void)addVoiceMessage:(NSString*)messageJson {
+    [NotchDropCore.shared addVoiceMessage:messageJson];
+}
+
 @end

@@ -354,6 +354,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 		updateMenu: () => ipcRenderer.invoke('update-notchdrop-menu'),
 		// Voice integration
 		updateVoiceStatus: (status) => ipcRenderer.invoke('notchdrop-update-voice-status', status),
+		addVoiceMessage: (messageData) => ipcRenderer.invoke('notchdrop-add-voice-message', messageData),
 		// New NotchDropLatest APIs
 		openAirDrop: () => ipcRenderer.invoke('notchdrop-open-airdrop'),
 		openShare: () => ipcRenderer.invoke('notchdrop-open-share'),

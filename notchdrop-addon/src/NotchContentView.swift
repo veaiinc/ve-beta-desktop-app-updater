@@ -395,7 +395,7 @@ struct VoiceSplitLayout: View {
                             VoiceMessageBubble(
                                 sender: "System", 
                                 text: vm.voiceConnectionStatus == .connected ? 
-                                    (vm.isMicrophoneMuted ? "Microphone muted - tap to unmute" : "Voice assistant ready - start speaking") : 
+                                    (vm.isMicrophoneMuted ? "Microphone muted - tap to unmute" : "Start speaking - your conversation will appear here") : 
                                     (vm.voiceConnectionStatus == .connecting ? "Connecting to voice assistant..." : "Voice assistant disconnected")
                             )
                         } else {
@@ -410,8 +410,8 @@ struct VoiceSplitLayout: View {
                             }
                         }
                         
-                        // Show current status
-                        if vm.voiceConnectionStatus == .connected {
+                        // Show current status only when there are no voice messages
+                        if vm.voiceConnectionStatus == .connected && vm.voiceMessages.isEmpty {
                             VoiceMessageBubble(
                                 sender: "Status",
                                 text: vm.isMicrophoneMuted ? "🔇 Muted" : "🎤 Listening...",

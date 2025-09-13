@@ -323,6 +323,39 @@ export const useVoiceIntegration = () => {
 				}
 			});
 
+			// ======= Handle Data Messages (Transcriptions) =======
+			room.on(RoomEvent.DataReceived, (payload, participant, topic) => {
+				try {
+					const decoder = new TextDecoder();
+					const message = decoder.decode(payload);
+					const data = JSON.parse(message);
+					
+					console.log('📝 Data received from voice agent:', data);
+					
+					// Handle different types of data messages
+					if (data.type === 'transcription' || data.type === 'agent_response') {
+						const messageData = {
+							sender: participant?.identity === 'agent' ? 'AI Agent' : 'User',
+							content: data.text || data.message || data.content,
+							isFromAgent: participant?.identity === 'agent',
+							timestamp: new Date().toISOString()
+						};
+						
+						// Send to NotchDrop
+						if (window.electronApi) {
+							window.electronApi.notchdrop.addVoiceMessage(messageData);
+						}
+						
+						// Dispatch custom event for other components
+						window.dispatchEvent(new CustomEvent('voice-transcription', {
+							detail: messageData
+						}));
+					}
+				} catch (error) {
+					console.error('❌ Error parsing data message:', error);
+				}
+			});
+
 			// ======= Connect to LiveKit Server =======
 			const connectUrl = liveKitUrl || 'wss://ve-ai-voice-agent-ginreaey.livekit.cloud';
 			console.log('🔌 Connecting to LiveKit server:', connectUrl);

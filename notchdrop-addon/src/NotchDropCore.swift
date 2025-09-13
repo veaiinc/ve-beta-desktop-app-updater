@@ -486,6 +486,25 @@ class NotchDropWindow: NSWindow {
         }
     }
     
+    @objc public func addVoiceMessage(_ messageJson: String) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let viewModel = self.notchViewModel else { return }
+            print("💬 NotchDropCore: Adding voice message: \(messageJson)")
+            
+            // Parse JSON message
+            guard let messageData = messageJson.data(using: .utf8),
+                  let json = try? JSONSerialization.jsonObject(with: messageData) as? [String: Any],
+                  let sender = json["sender"] as? String,
+                  let content = json["content"] as? String else {
+                print("❌ Failed to parse voice message JSON")
+                return
+            }
+            
+            let isFromAgent = json["isFromAgent"] as? Bool ?? false
+            viewModel.addVoiceMessage(sender: sender, content: content, isFromAgent: isFromAgent)
+        }
+    }
+    
     // MARK: - Swift Action Handling
     private func handleSwiftAction(_ action: NotchViewModel.SwiftAction) {
         print("🔍 DEBUG: NotchDropCore handling Swift action: \(action)")

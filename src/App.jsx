@@ -3,6 +3,7 @@ import useWorkspaceMode from './hooks/useWorkspaceMode';
 import { useEffect, useState } from 'react';
 import VoiceAgentParent from './views/features/voiceAgent/VoiceAgentParent';
 import useVoiceIntegration from './hooks/useVoiceIntegration';
+import NotchDropVoiceActivator from './components/NotchDropVoiceActivator';
 
 const App = () => {
 	const { routes } = useWorkspaceMode();
@@ -12,7 +13,8 @@ const App = () => {
 	// NotchDrop Voice Integration - DIRECT APPROACH
 	const [showVoiceFromNotch, setShowVoiceFromNotch] = useState(false);
 	
-	// Voice integration for NotchDrop
+	// Voice integration for NotchDrop (disabled when LiveKit is active)
+	const [disableOldVoiceIntegration, setDisableOldVoiceIntegration] = useState(false);
 	const voiceIntegration = useVoiceIntegration();
 	
 	// Listen for NotchDrop voice activation
@@ -84,19 +86,22 @@ const App = () => {
 		};
 	}, []);
 
-	// Essential voice integration for NotchDrop
+	// Essential voice integration for NotchDrop (disabled when LiveKit is active)
 	useEffect(() => {
-		// Expose voiceIntegration to window for NotchDrop access
-		if (voiceIntegration && !window.voiceIntegration) {
+		// Expose voiceIntegration to window for NotchDrop access only when not using LiveKit
+		if (voiceIntegration && !disableOldVoiceIntegration && !window.voiceIntegration) {
 			window.voiceIntegration = voiceIntegration;
 			console.log('✅ voiceIntegration exposed to window.voiceIntegration');
+		} else if (disableOldVoiceIntegration && window.voiceIntegration) {
+			delete window.voiceIntegration;
+			console.log('🚫 Old voice integration disabled - using LiveKit instead');
 		}
 		return () => {
 			if (window.voiceIntegration) {
 				delete window.voiceIntegration;
 			}
 		};
-	}, [voiceIntegration]);
+	}, [voiceIntegration, disableOldVoiceIntegration]);
 
 	// Monitor voice connection state and update NotchDrop
 	useEffect(() => {
@@ -134,6 +139,20 @@ const App = () => {
 			window.removeEventListener('notchdrop-voice-disconnect', handleNotchDropVoiceDisconnect);
 		};
 	}, [voiceIntegration]);
+
+	// Listen for old voice integration disable/enable events
+	useEffect(() => {
+		const handleDisableOldVoiceIntegration = (event) => {
+			console.log('🚫 Received disable old voice integration event:', event.detail);
+			setDisableOldVoiceIntegration(event.detail.disable);
+		};
+
+		window.addEventListener('disable-old-voice-integration', handleDisableOldVoiceIntegration);
+
+		return () => {
+			window.removeEventListener('disable-old-voice-integration', handleDisableOldVoiceIntegration);
+		};
+	}, []);
 
 	const handleCheckForUpdates = async () => {
 		try {
@@ -232,6 +251,9 @@ const App = () => {
 
 	return (
 		<>
+			{/* NotchDrop Voice Activator - handles LiveKit voice integration */}
+			<NotchDropVoiceActivator />
+			
 			{/* Update Notification - Commented out for auto restart */}
 			{/* {showUpdateNotification && updateStatus?.status === 'downloaded' && (
 				<div

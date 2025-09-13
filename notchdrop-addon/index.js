@@ -984,6 +984,22 @@ class NotchDropAddonWrapper extends EventEmitter {
 		}
 	}
 
+	// Add voice message from JavaScript
+	addVoiceMessage(messageData) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			// Convert messageData to JSON string for native layer
+			const messageJson = JSON.stringify(messageData);
+			this.addon.addVoiceMessage(messageJson);
+			console.log(`💬 Voice message added: ${messageData.sender}: ${messageData.content?.substring(0, 30)}...`);
+		} catch (error) {
+			console.error('❌ Error adding voice message:', error);
+			throw error;
+		}
+	}
+
 	// Event emitter functionality
 	emit(event, data) {
 		// Simple event emitter implementation
