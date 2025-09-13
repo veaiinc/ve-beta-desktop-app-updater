@@ -415,15 +415,50 @@ export const useVoiceIntegration = () => {
 				return;
 			}
 
+			console.log('🔌 Disconnecting voice agent - stopping all tracks...');
+			
+			// Stop all local audio tracks explicitly
+			const participant = roomRef.current.localParticipant;
+			if (participant) {
+				console.log('🎤 Stopping local audio tracks...');
+				
+				// audioTracks is a Map, so we need to iterate over its values
+				if (participant.audioTracks && participant.audioTracks.size > 0) {
+					participant.audioTracks.forEach((publication) => {
+						if (publication && publication.track) {
+							console.log('🛑 Stopping audio track:', publication.trackSid);
+							publication.track.stop();
+							publication.unpublish();
+						}
+					});
+				} else {
+					console.log('📝 No audio tracks to stop');
+				}
+				
+				// Also stop any video tracks if they exist
+				if (participant.videoTracks && participant.videoTracks.size > 0) {
+					participant.videoTracks.forEach((publication) => {
+						if (publication && publication.track) {
+							console.log('🛑 Stopping video track:', publication.trackSid);
+							publication.track.stop();
+							publication.unpublish();
+						}
+					});
+				} else {
+					console.log('📝 No video tracks to stop');
+				}
+			}
+
+			// Disconnect from the room
 			await roomRef.current.disconnect();
 
 			setIsConnected(false);
 			//also update the state of the room in the context
 			updateAiSetupState({ isVoiceIntegrationActive: null });
 			setReconnectAttempt(0);
-			console.log('Disconnected from room');
+			console.log('✅ Fully disconnected from room - microphone stopped');
 		} catch (error) {
-			console.error('Error disconnecting:', error);
+			console.error('❌ Error disconnecting:', error);
 		}
 	}, [setIsConnected, setReconnectAttempt]);
 

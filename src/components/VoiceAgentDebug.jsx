@@ -147,6 +147,20 @@ const VoiceAgentDebug = () => {
         addLog(`📍 Location: ${JSON.stringify(location)}`, 'info');
     };
 
+    const handleDisconnectVoiceAgent = useCallback(async () => {
+        try {
+            addLog('🔌 Manual disconnect - stopping voice agent...', 'info');
+            if (voiceIntegration && voiceIntegration.disconnect) {
+                await voiceIntegration.disconnect();
+                addLog('✅ Voice agent manually disconnected!', 'success');
+            } else {
+                addLog('⚠️ voiceIntegration.disconnect not available', 'warning');
+            }
+        } catch (error) {
+            addLog(`❌ Manual disconnect failed: ${error.message}`, 'error');
+        }
+    }, [voiceIntegration, addLog]);
+
     const toggleVisibility = () => {
         setIsVisible(!isVisible);
     };
@@ -220,11 +234,15 @@ const VoiceAgentDebug = () => {
         if (voiceIntegration && voiceIntegration.disconnect) {
             try {
                 addLog('🔌 Disconnecting voice agent from NotchDrop X button...', 'info');
+                addLog('🎤 Stopping microphone and all audio tracks...', 'info');
                 await voiceIntegration.disconnect();
                 addLog('✅ Voice agent disconnected successfully from NotchDrop!', 'success');
+                addLog('🔇 Microphone should now be OFF', 'success');
             } catch (error) {
                 addLog(`❌ NotchDrop voice disconnect failed: ${error.message}`, 'error');
             }
+        } else {
+            addLog('⚠️ voiceIntegration.disconnect not available', 'warning');
         }
     }, [addLog, voiceIntegration]);
 
@@ -289,6 +307,20 @@ const VoiceAgentDebug = () => {
                     }}
                 >
                     🚀 Start Voice Agent
+                </button>
+                <button 
+                    onClick={handleDisconnectVoiceAgent}
+                    style={{
+                        backgroundColor: '#dc3545',
+                        color: 'white',
+                        border: 'none',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        marginRight: '5px'
+                    }}
+                >
+                    🔌 Disconnect Voice
                 </button>
                 <button 
                     onClick={clearLogs}

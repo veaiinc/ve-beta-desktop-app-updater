@@ -162,6 +162,17 @@ class NotchDropService {
 				log.error('❌ Error handling Swift UI startVoiceAgent:', error);
 			}
 		});
+
+		// Listen for voice agent disconnect requests from Swift UI
+		this.notchDropAddon.on('disconnectVoice', (data) => {
+			try {
+				log.info('🔌 Swift UI requested voice agent disconnect');
+				console.log('🔌 NotchDrop: Received disconnectVoice event, deactivating voice agent...');
+				this.deactivateVoiceAgent();
+			} catch (error) {
+				log.error('❌ Error handling Swift UI disconnectVoice:', error);
+			}
+		});
 	}
 
 	enable() {
@@ -550,7 +561,8 @@ class NotchDropService {
 
 	async deactivateVoiceAgent() {
 		try {
-			console.log('🎤 Deactivating voice agent from NotchDrop...');
+			console.log('🔌 DEACTIVATE: Deactivating voice agent from NotchDrop X button...');
+			console.log('🔌 DEACTIVATE: Calling JavaScript disconnect method...');
 			
 			if (this.mainWindow) {
 				const result = await this.mainWindow.webContents.executeJavaScript(`
