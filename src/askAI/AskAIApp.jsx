@@ -229,9 +229,6 @@ const AskAIApp = () => {
 			{/* Response Window - Top */}
 			<div className={`ai-response-window`}>
 				<div className="ai-response-header">
-					<div className="ai-response-drag-handle">
-						<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
-					</div>
 					<div className="ai-response-title">
 						<span>Chat</span>
 					</div>
@@ -247,6 +244,8 @@ const AskAIApp = () => {
 						</button>
 					</div>
 				</div>
+
+				<div className="divider"></div>
 
 				<div className="chatWrapper">
 					<RecentChat
