@@ -1305,8 +1305,17 @@ app.whenReady().then(async () => {
 
 	// 🎤 IPC: Start Mic Monitoring
 
-	dynamicIslandHelper = new DynamicIslandHelper();
-	dynamicIslandHelper.createDynamicIslandWindow();
+	// Initialize Dynamic Island with comprehensive error handling
+	try {
+		log.info('Initializing Dynamic Island Helper...');
+		dynamicIslandHelper = new DynamicIslandHelper();
+		dynamicIslandHelper.createDynamicIslandWindow();
+		log.info('Dynamic Island Helper initialized successfully');
+	} catch (error) {
+		log.error('Failed to initialize Dynamic Island Helper:', error);
+		// Continue app initialization even if Dynamic Island fails
+		dynamicIslandHelper = null;
+	}
 
 	// THEN: Create main window after dynamic island
 	createWindow();
@@ -2039,6 +2048,19 @@ app.whenReady().then(async () => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error focusing dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('dynamic-island-force-show', async () => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+			const result = dynamicIslandHelper.forceShow();
+			return { success: result };
+		} catch (error) {
+			log.error('Error force showing dynamic island:', error);
 			return { success: false, error: error.message };
 		}
 	});
