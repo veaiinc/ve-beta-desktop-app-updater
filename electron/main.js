@@ -188,8 +188,20 @@ autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 
 // Configure auto-updater for all platforms
-autoUpdater.autoDownload = false; // Manual control for better error handling
-autoUpdater.autoInstallOnAppQuit = true;
+autoUpdater.autoDownload = true; // Enable auto-download to prevent conflicts
+autoUpdater.autoInstallOnAppQuit = false; // Manual control for better error handling
+
+// Flag to prevent concurrent update operations
+let isUpdateInProgress = false;
+
+// Platform-specific logging
+if (process.platform === 'win32') {
+	log.info('Windows auto-updater configured with auto-download and manual install');
+} else if (process.platform === 'darwin') {
+	log.info('macOS auto-updater configured with auto-download and manual install');
+} else {
+	log.info('Linux auto-updater configured with auto-download and manual install');
+}
 
 // Update event forwarding
 autoUpdater.on('checking-for-update', () => {
@@ -197,33 +209,44 @@ autoUpdater.on('checking-for-update', () => {
 });
 
 autoUpdater.on('update-available', (info) => {
-	log.info('Update available:', info);
+	log.info('🔄 Update available:', info);
+	log.info('📦 Current version:', app.getVersion());
+	log.info('🆕 New version:', info.version);
+	isUpdateInProgress = true;
 
 	// Notify frontend that update is available
 	mainWindow?.webContents.send('update-status', {
 		status: 'available',
 		version: info.version,
+		currentVersion: app.getVersion(),
+		message: `Updating from ${app.getVersion()} to ${info.version}...`,
 	});
 
-	// Start manual download since autoDownload is false
-	log.info('Starting update download...');
-	autoUpdater.downloadUpdate().catch((downloadErr) => {
-		log.error('Download failed:', downloadErr);
-		mainWindow?.webContents.send('update-status', {
-			status: 'download-failed',
-			error: downloadErr.message,
-			details: { code: downloadErr.code },
-		});
-	});
+	// Download will start automatically since autoDownload is true
+	log.info('Update download will start automatically...');
 });
 
 autoUpdater.on('update-not-available', (info) => {
 	log.info('Update not available:', info);
+	isUpdateInProgress = false; // Reset flag
 	mainWindow?.webContents.send('update-status', { status: 'not-available' });
 });
 
+// Add download progress tracking
+autoUpdater.on('download-progress', (progressObj) => {
+	log.info('Download progress:', progressObj);
+	mainWindow?.webContents.send('update-status', {
+		status: 'downloading',
+		progress: progressObj.percent,
+		bytesPerSecond: progressObj.bytesPerSecond,
+		total: progressObj.total,
+		transferred: progressObj.transferred,
+	});
+});
+
 autoUpdater.on('error', (err) => {
-	log.error('Update error:', err);
+	// Reset update flag on error
+	isUpdateInProgress = false;
 
 	let errorStatus = {
 		status: 'error',
@@ -231,43 +254,32 @@ autoUpdater.on('error', (err) => {
 		details: { code: err.code, errno: err.errno },
 	};
 
-	// Handle specific error types
-	if (err.message.includes('checksum mismatch') || err.code === 'ERR_CHECKSUM_MISMATCH') {
-		log.warn('Checksum mismatch detected - likely due to unsigned builds');
-		errorStatus = {
-			status: 'checksum-error',
-			error: 'Update verification failed. This may be due to unsigned builds.',
-			details: {
-				code: err.code,
-				errno: err.errno,
-				suggestion: 'Try manual download or check for signed releases',
-			},
-		};
-	} else if (err.message.includes('ENOENT') || err.message.includes('404')) {
-		errorStatus = {
-			status: 'not-found',
-			error: 'Update file not found on server.',
-			details: { code: err.code },
-		};
-	} else if (err.message.includes('network') || err.message.includes('ENOTFOUND')) {
-		errorStatus = {
-			status: 'network-error',
-			error: 'Network error while checking for updates.',
-			details: { code: err.code },
-		};
-	} else if (err.message.includes('ditto') || err.message.includes('No such file or directory')) {
-		errorStatus = {
-			status: 'installation-error',
-			error: 'Update installation failed due to file system error.',
-			details: {
-				code: err.code,
-				suggestion:
-					'Please try restarting the app manually or download the update from the releases page.',
-			},
-		};
-	}
+	log.error('Update error:', err);
+	log.error('Update error details:', {
+		message: err.message,
+		code: err.code,
+		errno: err.errno,
+		stack: err.stack,
+	});
 
+	// Send detailed error information to frontend
 	mainWindow?.webContents.send('update-status', errorStatus);
+
+	// Handle specific error types
+	if (err.code === 1) {
+		log.error(
+			'Ditto error detected - this usually indicates file path issues in the update package',
+		);
+		mainWindow?.webContents.send('update-status', {
+			status: 'installation-error',
+			error: 'Update package file path error',
+			details: {
+				suggestion:
+					'The update package may be corrupted or incomplete. Please try downloading again.',
+				code: err.code,
+			},
+		});
+	}
 });
 
 autoUpdater.on('update-downloaded', (info) => {
@@ -277,19 +289,49 @@ autoUpdater.on('update-downloaded', (info) => {
 	mainWindow?.webContents.send('update-status', {
 		status: 'downloaded',
 		version: info.version,
-		message: 'Update downloaded! App will restart automatically in 3 seconds...',
+		message: 'Update downloaded! App will restart automatically in 5 seconds...',
 	});
 
-	// Auto-restart after 3 seconds
+	// Auto-restart after 5 seconds with proper cleanup
 	setTimeout(() => {
-		log.info('Auto-restarting app to install update...');
+		log.info('🔄 Auto-restarting app to install update...');
 
-		dynamicIslandHelper?.destroy();
-		windowHelper?.cleanup();
+		// Set flag to prevent further update operations
+		isUpdateInProgress = true;
 
-		// Restart automatically
-		autoUpdater.quitAndInstall(true, false); // Wait for windows to close gracefully
-	}, 3000);
+		// Clean up services gracefully
+		if (dynamicIslandHelper) {
+			try {
+				dynamicIslandHelper.close();
+			} catch (error) {
+				log.error('Error closing dynamicIslandHelper:', error);
+			}
+			dynamicIslandHelper = null;
+		}
+
+		if (windowHelper) {
+			try {
+				windowHelper.cleanup();
+			} catch (error) {
+				log.error('Error cleaning up windowHelper:', error);
+			}
+			windowHelper = null;
+		}
+
+		// Close all windows
+		BrowserWindow.getAllWindows().forEach((window) => {
+			if (window && !window.isDestroyed()) {
+				try {
+					window.destroy();
+				} catch (error) {
+					log.error('Error destroying window during update:', error);
+				}
+			}
+		});
+
+		// Restart automatically with proper parameters
+		autoUpdater.quitAndInstall(true, true); // Force quit and install
+	}, 5000);
 });
 
 function showNotification(title, body) {
@@ -319,6 +361,28 @@ function showNotification(title, body) {
 	});
 
 	notification.show();
+
+	// Also send notification to Dynamic Island
+	if (dynamicIslandHelper) {
+		const dynamicIslandWindow = dynamicIslandHelper.getDynamicIslandWindow();
+		if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
+			const dynamicIslandNotification = {
+				title: title || 'Alert',
+				message: body || 'This is a test',
+				type: 'info',
+				duration: 8000,
+				actions: [
+					{ type: 'join-meet', text: 'Join Meet' },
+					{ type: 'dismiss', text: 'Dismiss' },
+				],
+			};
+			dynamicIslandWindow.webContents.send(
+				'dynamic-island-notification',
+				dynamicIslandNotification,
+			);
+			log.info('Notification also sent to Dynamic Island');
+		}
+	}
 }
 
 function handleNotificationAction(action) {
@@ -399,11 +463,18 @@ ipcMain.handle('check-for-updates', async () => {
 	if (process.env.NODE_ENV === 'development') {
 		return { success: true, message: 'Skipped in dev mode' };
 	}
+
+	// Prevent concurrent update checks
+	if (isUpdateInProgress) {
+		return { success: false, error: 'Update already in progress' };
+	}
+
 	try {
 		await autoUpdater.checkForUpdatesAndNotify();
 		return { success: true, message: 'Check initiated' };
 	} catch (error) {
 		log.error('Update check failed:', error);
+		isUpdateInProgress = false; // Reset flag on error
 		return { success: false, error: error.message };
 	}
 });
@@ -412,10 +483,18 @@ ipcMain.handle('download-update', async () => {
 	if (process.env.NODE_ENV === 'development') {
 		return { success: false, error: 'Not available in dev' };
 	}
+
+	// Prevent concurrent downloads
+	if (isUpdateInProgress) {
+		return { success: false, error: 'Update already in progress' };
+	}
+
 	try {
+		isUpdateInProgress = true;
 		await autoUpdater.downloadUpdate();
 		return { success: true };
 	} catch (error) {
+		isUpdateInProgress = false; // Reset flag on error
 		return { success: false, error: error.message };
 	}
 });
@@ -426,23 +505,48 @@ ipcMain.handle('restart-app', () => {
 	}
 
 	try {
-		// Clean up before restart
+		// Set update flag to allow proper quit
+		isUpdateInProgress = true;
+
+		// Clean up services
 		if (dynamicIslandHelper) {
-			dynamicIslandHelper.destroy();
+			try {
+				dynamicIslandHelper.close();
+			} catch (error) {
+				log.error('Error closing dynamicIslandHelper during restart:', error);
+			}
+			dynamicIslandHelper = null;
 		}
+
 		if (windowHelper) {
-			windowHelper.cleanup();
+			try {
+				windowHelper.cleanup();
+			} catch (error) {
+				log.error('Error cleaning up windowHelper during restart:', error);
+			}
+			windowHelper = null;
 		}
+
+		// Close all windows
+		BrowserWindow.getAllWindows().forEach((window) => {
+			if (window && !window.isDestroyed()) {
+				try {
+					window.destroy();
+				} catch (error) {
+					log.error('Error destroying window during restart:', error);
+				}
+			}
+		});
 
 		log.info('Restarting app to install update...');
 
-		// Use safer restart approach - wait for windows to close gracefully
-		// This helps avoid file system conflicts during update
-		autoUpdater.quitAndInstall(true, false); // Wait for windows to close, don't force quit
+		// Use force quit for better reliability
+		autoUpdater.quitAndInstall(true, true);
 
 		return { success: true };
 	} catch (error) {
 		log.error('Error restarting app:', error);
+		isUpdateInProgress = false; // Reset flag on error
 		return { success: false, error: error.message };
 	}
 });
@@ -1276,8 +1380,17 @@ app.whenReady().then(async () => {
 
 	// 🎤 IPC: Start Mic Monitoring
 
-	dynamicIslandHelper = new DynamicIslandHelper();
-	dynamicIslandHelper.createDynamicIslandWindow();
+	// Initialize Dynamic Island with comprehensive error handling
+	try {
+		log.info('Initializing Dynamic Island Helper...');
+		dynamicIslandHelper = new DynamicIslandHelper();
+		dynamicIslandHelper.createDynamicIslandWindow();
+		log.info('Dynamic Island Helper initialized successfully');
+	} catch (error) {
+		log.error('Failed to initialize Dynamic Island Helper:', error);
+		// Continue app initialization even if Dynamic Island fails
+		dynamicIslandHelper = null;
+	}
 
 	// THEN: Create main window after dynamic island
 	createWindow();
@@ -2019,6 +2132,19 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	ipcMain.handle('dynamic-island-force-show', async () => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+			const result = dynamicIslandHelper.forceShow();
+			return { success: result };
+		} catch (error) {
+			log.error('Error force showing dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	// Register NotchDrop IPC handlers
 	ipcMain.handle('notchdrop-enable', async () => {
 		try {
@@ -2355,6 +2481,29 @@ app.whenReady().then(async () => {
 			status: 'ready',
 			message: 'Voice integration ready for Dynamic Island',
 		};
+	});
+
+	// Dynamic Island notification handler
+	ipcMain.handle('dynamic-island-show-notification', async (event, notification) => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island Helper not initialized' };
+			}
+
+			const dynamicIslandWindow = dynamicIslandHelper.getDynamicIslandWindow();
+			if (!dynamicIslandWindow || dynamicIslandWindow.isDestroyed()) {
+				return { success: false, error: 'Dynamic Island window not available' };
+			}
+
+			// Send notification to Dynamic Island window
+			dynamicIslandWindow.webContents.send('dynamic-island-notification', notification);
+
+			log.info('Notification sent to Dynamic Island:', notification);
+			return { success: true, message: 'Notification sent to Dynamic Island' };
+		} catch (error) {
+			log.error('Error showing notification in Dynamic Island:', error);
+			return { success: false, error: error.message };
+		}
 	});
 
 	// Register overlay window IPC handlers
@@ -3617,25 +3766,35 @@ app.whenReady().then(async () => {
 	});
 });
 
-// Handle app quit properly
+// Handle app quit properly - but allow updates to proceed
 app.on('before-quit', (event) => {
-	// Prevent default quit behavior to allow cleanup
-	event.preventDefault();
-
-	// Clean up all windows and processes
-	cleanupAndQuit();
+	// Only prevent quit if update is not in progress
+	if (!isUpdateInProgress) {
+		// Prevent default quit behavior to allow cleanup
+		event.preventDefault();
+		// Clean up all windows and processes
+		cleanupAndQuit();
+	} else {
+		// Allow quit for updates
+		log.info('🔄 Allowing quit for update installation...');
+	}
 });
 
 // Handle macOS dock quit
 app.on('quit', (event, exitCode) => {
-	// Ensure cleanup happens even if before-quit didn't trigger
-	if (dynamicIslandHelper || windowHelper) {
+	// Only cleanup if update is not in progress
+	if (!isUpdateInProgress && (dynamicIslandHelper || windowHelper)) {
 		log.info('🔄 Force cleanup on quit event...');
 		cleanupAndQuit();
 	}
 });
 
-app.on('window-all-closed', () => cleanupAndQuit());
+app.on('window-all-closed', () => {
+	// Only cleanup if update is not in progress
+	if (!isUpdateInProgress) {
+		cleanupAndQuit();
+	}
+});
 
 app.on('will-quit', () => {
 	// Unregister all global shortcuts

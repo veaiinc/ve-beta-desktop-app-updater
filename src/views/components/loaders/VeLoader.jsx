@@ -3,6 +3,7 @@ import s from './veloader.module.scss';
 import useWindowSize from '../../../hooks/useWindowSize';
 import logout from '../../../helpers/logout';
 import useTheme from '../../../hooks/useTheme';
+import { message } from '../globalComponents/CustomToast';
 
 const VeLoader = ({ size = null }) => {
 	const { width } = useWindowSize();
@@ -10,6 +11,7 @@ const VeLoader = ({ size = null }) => {
 
 	useEffect(() => {
 		const timeoutId = setTimeout(() => {
+			message.error('Logging out due to inactivity');
 			logout();
 		}, 60000);
 		return () => clearTimeout(timeoutId);
