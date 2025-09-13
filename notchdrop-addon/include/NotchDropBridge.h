@@ -63,6 +63,12 @@
 // Overlay State Integration
 + (void)onOverlayStateChange:(NSDictionary*)state;
 
+// Voice Assistant Integration
++ (void)configureVoice:(NSString*)url token:(NSString*)token;
++ (void)connectVoiceAssistant;
++ (void)disconnectVoiceAssistant;
++ (NSString*)getVoiceConnectionStatus;
+
 @end
 
 #endif /* NotchDropBridge_h */

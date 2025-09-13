@@ -23,6 +23,10 @@ public:
             InstanceMethod("setNotchVisible", &NotchDropAddon::SetNotchVisible),
             InstanceMethod("getNotchVisible", &NotchDropAddon::GetNotchVisible),
             InstanceMethod("getWindowPosition", &NotchDropAddon::GetWindowPosition),
+            InstanceMethod("configureVoice", &NotchDropAddon::ConfigureVoice),
+            InstanceMethod("connectVoiceAssistant", &NotchDropAddon::ConnectVoiceAssistant),
+            InstanceMethod("disconnectVoiceAssistant", &NotchDropAddon::DisconnectVoiceAssistant),
+            InstanceMethod("getVoiceConnectionStatus", &NotchDropAddon::GetVoiceConnectionStatus),
             InstanceMethod("on", &NotchDropAddon::On)
         });
 
@@ -294,6 +298,43 @@ private:
 
         callbacks.Value().Set(info[0].As<Napi::String>(), info[1].As<Napi::Function>());
         return env.Undefined();
+    }
+
+    // MARK: - Voice Assistant Methods
+    
+    Napi::Value ConfigureVoice(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 2 || !info[0].IsString() || !info[1].IsString()) {
+            Napi::TypeError::New(env, "Expected (string, string) arguments for URL and token").ThrowAsJavaScriptException();
+            return env.Undefined();
+        }
+        
+        std::string url = info[0].As<Napi::String>();
+        std::string token = info[1].As<Napi::String>();
+        
+        NSString* nsURL = [NSString stringWithUTF8String:url.c_str()];
+        NSString* nsToken = [NSString stringWithUTF8String:token.c_str()];
+        
+        [NotchDropBridge configureVoice:nsURL token:nsToken];
+        return env.Undefined();
+    }
+    
+    Napi::Value ConnectVoiceAssistant(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        [NotchDropBridge connectVoiceAssistant];
+        return env.Undefined();
+    }
+    
+    Napi::Value DisconnectVoiceAssistant(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        [NotchDropBridge disconnectVoiceAssistant];
+        return env.Undefined();
+    }
+    
+    Napi::Value GetVoiceConnectionStatus(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        NSString* status = [NotchDropBridge getVoiceConnectionStatus];
+        return Napi::String::New(env, [status UTF8String]);
     }
 };
 

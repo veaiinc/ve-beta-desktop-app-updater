@@ -425,6 +425,22 @@ class NotchDropAddonWrapper extends EventEmitter {
 			case 'sendLog':
 				this.handleSwiftLog(data);
 				break;
+			// Voice Assistant Actions
+			case 'connectVoice':
+				this.emit('connectVoice', data);
+				break;
+			case 'disconnectVoice':
+				this.emit('disconnectVoice', data);
+				break;
+			case 'toggleVoiceMute':
+				this.emit('toggleVoiceMute', data);
+				break;
+			case 'sendVoiceMessage':
+				this.emit('sendVoiceMessage', data);
+				break;
+			case 'voiceConnectionStateChanged':
+				this.emit('voiceConnectionStateChanged', data);
+				break;
 			default:
 				console.error('❌ Unknown Swift action:', action);
 		}
@@ -896,6 +912,57 @@ class NotchDropAddonWrapper extends EventEmitter {
 			console.log('📊 Overlay state sent to Swift side:', state);
 		} catch (error) {
 			console.error('❌ Error sending overlay state to Swift:', error);
+		}
+	}
+
+	// MARK: - Voice Assistant Methods
+
+	configureVoice(url, token) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			this.addon.configureVoice(url, token);
+			console.log('🎤 Voice configured with URL:', url);
+		} catch (error) {
+			console.error('❌ Error configuring voice:', error);
+			throw error;
+		}
+	}
+
+	connectVoiceAssistant() {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			this.addon.connectVoiceAssistant();
+		} catch (error) {
+			console.error('❌ Error connecting voice assistant:', error);
+			throw error;
+		}
+	}
+
+	disconnectVoiceAssistant() {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			this.addon.disconnectVoiceAssistant();
+		} catch (error) {
+			console.error('❌ Error disconnecting voice assistant:', error);
+			throw error;
+		}
+	}
+
+	getVoiceConnectionStatus() {
+		if (!this.isInitialized) {
+			return 'disconnected';
+		}
+		try {
+			return this.addon.getVoiceConnectionStatus();
+		} catch (error) {
+			console.error('❌ Error getting voice connection status:', error);
+			return 'error';
 		}
 	}
 

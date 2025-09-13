@@ -82,6 +82,32 @@ class SwiftJSBridge {
 		this.swiftActionHandlers.set('triggerOverlayToggleLiveIntelligence', (data) => {
 			this.triggerOverlayToggleLiveIntelligence(data);
 		});
+
+		// Voice Assistant handlers
+		this.swiftActionHandlers.set('connectVoice', (data) => {
+			this.handleVoiceConnect(data);
+		});
+
+		this.swiftActionHandlers.set('disconnectVoice', (data) => {
+			this.handleVoiceDisconnect(data);
+		});
+
+		this.swiftActionHandlers.set('toggleVoiceMute', (data) => {
+			this.handleVoiceToggleMute(data);
+		});
+
+		this.swiftActionHandlers.set('sendVoiceMessage', (data) => {
+			this.handleVoiceSendMessage(data);
+		});
+
+		this.swiftActionHandlers.set('voiceConnectionStateChanged', (data) => {
+			this.handleVoiceConnectionStateChanged(data);
+		});
+
+		// Direct voice agent start
+		this.swiftActionHandlers.set('startVoiceAgent', (data) => {
+			this.handleStartVoiceAgent(data);
+		});
 	}
 
 	setupIPCHandlers() {
@@ -382,6 +408,239 @@ class SwiftJSBridge {
 			}
 		} catch (error) {
 			console.error('❌ Error sending chat message to AskAI from NotchDrop:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	// MARK: - Voice Assistant Handlers
+	
+	async handleVoiceConnect(data) {
+		try {
+			console.log('🎤 Swift requested voice connection - triggering existing voice agent');
+			
+			// Find the main window to trigger the existing voice agent
+			const { BrowserWindow } = require('electron');
+			const windows = BrowserWindow.getAllWindows();
+			
+			for (const window of windows) {
+				if (window.webContents && !window.isDestroyed()) {
+					const title = window.getTitle();
+					// Look for main window (not overlay or dynamic island)
+					if (!title.includes('Overlay') && !title.includes('Dynamic Island')) {
+						console.log('📤 Sending voice agent activation to main window');
+						
+						// Trigger direct voice activation via IPC
+						window.webContents.send('notchdrop:showVoiceAgent', {
+							source: 'notchdrop',
+							timestamp: Date.now()
+						});
+						
+						// Also call the direct IPC handler
+						try {
+							const { ipcMain } = require('electron');
+							if (ipcMain) {
+								// Emit direct activation event
+								process.emit('notchdrop-voice-activate', { source: 'swift-bridge' });
+							}
+						} catch (e) {
+							console.log('📞 Process emit fallback used');
+						}
+						
+						// Try to trigger your existing voice agent component
+						try {
+							const result = await window.webContents.executeJavaScript(`
+								(async () => {
+									try {
+										console.log('🎤 NotchDrop triggered voice agent activation');
+										
+										// Method 1: Try to find existing voice agent hook/context
+										if (window.voiceAgentContext && window.voiceAgentContext.connectAndStart) {
+											console.log('📞 Found voice agent context, connecting...');
+											await window.voiceAgentContext.connectAndStart();
+											return { success: true, method: 'context' };
+										}
+										
+										// Method 2: Try to trigger via React state/context
+										if (window.React && window.ReactDOM) {
+											console.log('📞 Attempting to trigger voice agent via React...');
+											
+											// Dispatch a custom event that your voice agent can listen for
+											const event = new CustomEvent('notchdrop-voice-activate', {
+												detail: { source: 'notchdrop', timestamp: Date.now() }
+											});
+											window.dispatchEvent(event);
+											
+											return { success: true, method: 'custom-event' };
+										}
+										
+										// Method 3: Try to find and click existing voice agent button
+										const voiceButtons = document.querySelectorAll('[class*="voice"], [class*="mic"], [data-testid*="voice"]');
+										if (voiceButtons.length > 0) {
+											console.log('📞 Found voice UI elements, attempting to trigger...');
+											voiceButtons[0].click();
+											return { success: true, method: 'ui-click' };
+										}
+										
+										console.log('⚠️ No voice agent found, will need manual integration');
+										return { success: false, method: 'none' };
+										
+									} catch (error) {
+										console.error('❌ Error in voice agent activation:', error);
+										return { success: false, error: error.message };
+									}
+								})()
+							`);
+							
+							console.log('🎤 Voice agent activation result:', result);
+						} catch (jsError) {
+							console.warn('⚠️ Could not execute voice agent JavaScript:', jsError.message);
+						}
+						
+						break;
+					}
+				}
+			}
+			
+			return { success: true, action: 'connectVoice', data };
+		} catch (error) {
+			console.error('❌ Error handling voice connect:', error);
+			return { success: false, error: error.message };
+		}
+	}
+	
+	async handleVoiceDisconnect(data) {
+		try {
+			console.log('🎤 Swift requested voice disconnection:', data);
+			
+			const dynamicIslandWindow = this.findDynamicIslandWindow();
+			if (dynamicIslandWindow) {
+				dynamicIslandWindow.webContents.send('voice:disconnect', data);
+			}
+			
+			return { success: true, action: 'disconnectVoice', data };
+		} catch (error) {
+			console.error('❌ Error handling voice disconnect:', error);
+			return { success: false, error: error.message };
+		}
+	}
+	
+	async handleVoiceToggleMute(data) {
+		try {
+			console.log('🎤 Swift requested voice mute toggle:', data);
+			
+			const dynamicIslandWindow = this.findDynamicIslandWindow();
+			if (dynamicIslandWindow) {
+				dynamicIslandWindow.webContents.send('voice:toggleMute', data);
+			}
+			
+			return { success: true, action: 'toggleVoiceMute', data };
+		} catch (error) {
+			console.error('❌ Error handling voice toggle mute:', error);
+			return { success: false, error: error.message };
+		}
+	}
+	
+	async handleVoiceSendMessage(data) {
+		try {
+			console.log('🎤 Swift sent voice message:', data);
+			
+			const dynamicIslandWindow = this.findDynamicIslandWindow();
+			if (dynamicIslandWindow) {
+				dynamicIslandWindow.webContents.send('voice:message', { message: data });
+			}
+			
+			return { success: true, action: 'sendVoiceMessage', data };
+		} catch (error) {
+			console.error('❌ Error handling voice send message:', error);
+			return { success: false, error: error.message };
+		}
+	}
+	
+	async handleVoiceConnectionStateChanged(data) {
+		try {
+			console.log('🎤 Swift voice connection state changed:', data);
+			
+			const dynamicIslandWindow = this.findDynamicIslandWindow();
+			if (dynamicIslandWindow) {
+				dynamicIslandWindow.webContents.send('voice:stateChanged', { state: data });
+			}
+			
+			return { success: true, action: 'voiceConnectionStateChanged', data };
+		} catch (error) {
+			console.error('❌ Error handling voice connection state change:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	async handleStartVoiceAgent(data) {
+		try {
+			console.log('🎤 DIRECT: Starting voice agent from NotchDrop button');
+			
+			// Find the main window to trigger your existing voice agent
+			const { BrowserWindow } = require('electron');
+			const windows = BrowserWindow.getAllWindows();
+			
+			for (const window of windows) {
+				if (window.webContents && !window.isDestroyed()) {
+					const title = window.getTitle();
+					// Look for main window (not overlay or dynamic island)
+					if (!title.includes('Overlay') && !title.includes('Dynamic Island')) {
+						console.log('🎤 Triggering voice agent in main window');
+						
+						// Execute JavaScript to start your voice agent directly
+						try {
+							const result = await window.webContents.executeJavaScript(`
+								(async () => {
+									try {
+										console.log('🎤 DIRECT: Voice agent activation from NotchDrop');
+										
+										// Look for your useVoiceIntegration hook
+										if (window.voiceIntegration && window.voiceIntegration.connectToRoom) {
+											console.log('🎤 Found voiceIntegration.connectToRoom()');
+											await window.voiceIntegration.connectToRoom();
+											return { success: true, method: 'voiceIntegration' };
+										}
+										
+										// Look for your useVoiceAgent hook
+										if (window.voiceAgent && window.voiceAgent.wsConnectAndStart) {
+											console.log('🎤 Found voiceAgent.wsConnectAndStart()');
+											await window.voiceAgent.wsConnectAndStart();
+											return { success: true, method: 'voiceAgent' };
+										}
+										
+										// Dispatch custom event for your React components to listen
+										const event = new CustomEvent('start-voice-agent', {
+											detail: { 
+												source: 'notchdrop', 
+												direct: true,
+												timestamp: Date.now()
+											}
+										});
+										window.dispatchEvent(event);
+										
+										console.log('🎤 Dispatched start-voice-agent event');
+										return { success: true, method: 'custom-event' };
+										
+									} catch (error) {
+										console.error('❌ Error in voice agent activation:', error);
+										return { success: false, error: error.message };
+									}
+								})()
+							`);
+							
+							console.log('🎤 Voice agent activation result:', result);
+						} catch (jsError) {
+							console.warn('⚠️ Could not execute voice agent JavaScript:', jsError.message);
+						}
+						
+						break;
+					}
+				}
+			}
+			
+			return { success: true, action: 'startVoiceAgent', data };
+		} catch (error) {
+			console.error('❌ Error handling start voice agent:', error);
 			return { success: false, error: error.message };
 		}
 	}

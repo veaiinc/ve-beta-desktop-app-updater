@@ -185,7 +185,7 @@ export const useVoiceIntegration = () => {
 		}
 
 		try {
-			console.log('Starting connection process...');
+			console.log('🎤 Starting voice connection process...');
 
 			const room = roomRef.current;
 
@@ -194,7 +194,98 @@ export const useVoiceIntegration = () => {
 				await room.disconnect();
 			}
 
-			const { token, room_name: roomName } = await getTokenForVoice();
+			// Get location from localStorage first, fallback to India location
+			let location = JSON.parse(localStorage.getItem('location') || '{}');
+			
+			// If no location in localStorage, use the India location as fallback
+			if (!location || Object.keys(location).length === 0) {
+				location = {
+					"countryCode": "IN",
+					"countryRegionCode": "TS", 
+					"countryRegion": "Telangana",
+					"country": "India",
+					"city": "Hyderabad",
+					"timezone": "Asia/Kolkata",
+					"postalCode": "500009",
+					"currency": "INR",
+					"region": "ap-south-1"
+				};
+			}
+			
+			console.log('🌍 Using location data:', location);
+			
+			console.log('🔑 Generating voice token...');
+			const tokenResponse = await getTokenForVoice({ location });
+			console.log('🔍 Raw token response:', tokenResponse);
+			console.log('🔍 Available fields in response:', Object.keys(tokenResponse || {}));
+			console.log('🔍 Response type:', typeof tokenResponse);
+			
+			// Log each possible token field
+			console.log('🔍 Checking token fields:');
+			console.log('  - tokenResponse.token:', tokenResponse?.token);
+			console.log('  - tokenResponse.access_token:', tokenResponse?.access_token);
+			console.log('  - tokenResponse.accessToken:', tokenResponse?.accessToken);
+			console.log('  - tokenResponse.jwt:', tokenResponse?.jwt);
+			console.log('  - tokenResponse.authToken:', tokenResponse?.authToken);
+			
+			// Extract token and room name from response - check session_info first
+			const sessionInfo = tokenResponse?.session_info || tokenResponse;
+			console.log('🔍 Session info:', sessionInfo);
+			console.log('🔍 Session info fields:', Object.keys(sessionInfo || {}));
+			
+			const token = sessionInfo?.user_token ||  // ← This is the correct field!
+						 sessionInfo?.token || 
+						 sessionInfo?.access_token || 
+						 sessionInfo?.accessToken ||
+						 sessionInfo?.jwt ||
+						 sessionInfo?.authToken ||
+						 tokenResponse?.token || 
+						 tokenResponse?.access_token;
+						 
+			const roomName = sessionInfo?.room_name || 
+							sessionInfo?.roomName || 
+							sessionInfo?.room ||
+							sessionInfo?.roomId ||
+							sessionInfo?.session ||
+							sessionInfo?.sessionId ||
+							tokenResponse?.room_name || 
+							tokenResponse?.roomName;
+			
+			console.log('🔍 Extracted values:');
+			console.log('  - token (user_token):', token ? `${token.substring(0, 50)}...` : 'undefined');
+			console.log('  - roomName:', roomName);
+			
+			console.log('✅ Voice token generated successfully:', { 
+				roomName, 
+				tokenLength: token?.length,
+				hasToken: !!token,
+				hasRoomName: !!roomName
+			});
+			
+			if (!token) {
+				throw new Error('No token received from API response');
+			}
+
+			// Get LiveKit regions using the token
+			console.log('🌐 Fetching LiveKit regions...');
+			try {
+				const regionsResponse = await fetch('https://ve-ai-voice-agent-ginreaey.livekit.cloud/settings/regions', {
+					method: 'GET',
+					headers: {
+						'Authorization': `Bearer ${token}`,
+						'Content-Type': 'application/json'
+					}
+				});
+				
+				if (regionsResponse.ok) {
+					const regionsData = await regionsResponse.json();
+					console.log('✅ LiveKit regions:', regionsData);
+				} else {
+					console.warn('⚠️ Could not fetch regions:', regionsResponse.status, regionsResponse.statusText);
+				}
+			} catch (regionError) {
+				console.warn('⚠️ Regions API error:', regionError.message);
+			}
 
 			// Remove old event listeners before adding new ones
 			room.removeAllListeners();
@@ -291,7 +382,12 @@ export const useVoiceIntegration = () => {
 			setReconnectAttempt(0);
 			console.log('Successfully connected to room:', roomName);
 		} catch (error) {
-			console.error('Connection error:', error);
+			console.error('❌ Voice connection error:', error);
+			console.error('❌ Error details:', {
+				message: error.message,
+				stack: error.stack,
+				name: error.name
+			});
 			setIsConnected(false);
 
 			try {

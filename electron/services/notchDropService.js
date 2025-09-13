@@ -455,11 +455,118 @@ class NotchDropService {
 				return { success: false, error: 'Swift-JS Bridge not initialized' };
 			}
 
+			// Handle voice-specific actions
+			if (action === 'connectVoice' || action === 'startVoiceAgent') {
+				console.log('🎤 NotchDrop Voice button clicked - activating voice agent');
+				await this.activateVoiceAgent();
+			} else if (action === 'disconnectVoice') {
+				console.log('🎤 NotchDrop Voice disconnect - deactivating voice agent');
+				await this.deactivateVoiceAgent();
+			}
+
 			const result = await this.swiftJSBridge.handleSwiftAction(action, data);
 			return result;
 		} catch (error) {
 			log.error('❌ Error handling Swift action:', error);
 			return { success: false, error: error.message };
+		}
+	}
+
+	async activateVoiceAgent() {
+		try {
+			console.log('🎤 Activating voice agent from NotchDrop...');
+			
+			// Send IPC to main window to show/activate voice agent
+			if (this.mainWindow) {
+				this.mainWindow.webContents.send('notchdrop:showVoiceAgent', {
+					source: 'notchdrop',
+					timestamp: Date.now()
+				});
+				
+				// Also try to execute JavaScript to activate voice agent
+				const result = await this.mainWindow.webContents.executeJavaScript(`
+					(async () => {
+						try {
+							console.log('🎤 NotchDrop activating voice agent via JavaScript');
+							
+							// Method 1: Look for existing voice agent and activate it
+							const voiceButtons = document.querySelectorAll('[class*="action-button"], [class*="mic"], button');
+							for (const button of voiceButtons) {
+								if (button.textContent.includes('start') || button.className.includes('action-button')) {
+									console.log('🎤 Found voice button, clicking...');
+									button.click();
+									return { success: true, method: 'button-click' };
+								}
+							}
+							
+							// Method 2: Try to show voice agent component if hidden
+							const voiceContainers = document.querySelectorAll('[class*="voiceContainer"]');
+							if (voiceContainers.length > 0) {
+								voiceContainers[0].style.display = 'block';
+								voiceContainers[0].style.opacity = '1';
+								
+								// Find and click the mic button
+								const micButtons = voiceContainers[0].querySelectorAll('[class*="action-button"]');
+								if (micButtons.length > 0) {
+									micButtons[0].click();
+									return { success: true, method: 'container-activation' };
+								}
+							}
+							
+							// Method 3: Create voice agent if it doesn't exist
+							console.log('🎤 Voice agent not found, may need to navigate to voice page');
+							
+							// Try to navigate to a page that has voice agent
+							if (window.location.hash !== '#/voice' && window.location.hash !== '#/') {
+								window.location.hash = '#/';
+								setTimeout(() => {
+									// Try again after navigation
+									const voiceButtons = document.querySelectorAll('[class*="action-button"], [class*="mic"]');
+									if (voiceButtons.length > 0) {
+										voiceButtons[0].click();
+									}
+								}, 1000);
+							}
+							
+							return { success: true, method: 'navigation' };
+							
+						} catch (error) {
+							console.error('❌ JavaScript voice activation error:', error);
+							return { success: false, error: error.message };
+						}
+					})()
+				`);
+				
+				console.log('🎤 Voice agent JavaScript activation result:', result);
+			}
+			
+		} catch (error) {
+			console.error('❌ Error activating voice agent:', error);
+		}
+	}
+
+	async deactivateVoiceAgent() {
+		try {
+			console.log('🎤 Deactivating voice agent from NotchDrop...');
+			
+			if (this.mainWindow) {
+				await this.mainWindow.webContents.executeJavaScript(`
+					// Try to disconnect/hide voice agent
+					const disconnectButtons = document.querySelectorAll('[class*="cancel-button"], [class*="close"], [class*="disconnect"]');
+					if (disconnectButtons.length > 0) {
+						disconnectButtons[0].click();
+					}
+					
+					// Hide voice containers
+					const voiceContainers = document.querySelectorAll('[class*="voiceContainer"]');
+					voiceContainers.forEach(container => {
+						container.style.display = 'none';
+					});
+				`);
+			}
+			
+		} catch (error) {
+			console.error('❌ Error deactivating voice agent:', error);
 		}
 	}
 

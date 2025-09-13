@@ -1,11 +1,86 @@
 import { Routes, Route } from 'react-router-dom';
 import useWorkspaceMode from './hooks/useWorkspaceMode';
 import { useEffect, useState } from 'react';
+import VoiceAgentParent from './views/features/voiceAgent/VoiceAgentParent';
+import NotchDropVoiceDebug from './components/NotchDropVoiceDebug';
+import VoiceAgentDebug from './components/VoiceAgentDebug';
 
 const App = () => {
 	const { routes } = useWorkspaceMode();
 	const [updateStatus, setUpdateStatus] = useState(null);
 	// const [showUpdateNotification, setShowUpdateNotification] = useState(false); // Commented out for auto restart
+	
+	// NotchDrop Voice Integration - DIRECT APPROACH
+	const [showVoiceFromNotch, setShowVoiceFromNotch] = useState(false);
+	
+	// Listen for NotchDrop voice activation
+	useEffect(() => {
+		const handleNotchDropVoice = (event, data) => {
+			console.log('🎤 DIRECT: Received NotchDrop voice activation:', data);
+			
+			if (data && (data.type === 'ACTIVATE_VOICE_AGENT' || data.source === 'notchdrop_voice_button')) {
+				console.log('🚀 DIRECT: Activating voice agent from NotchDrop');
+				setShowVoiceFromNotch(true);
+				
+				// Auto-start the voice agent after a short delay
+				setTimeout(() => {
+					console.log('🎤 DIRECT: Auto-clicking voice agent start button');
+					
+					// Find and click the voice agent start button
+					const actionButtons = document.querySelectorAll('.action-button');
+					if (actionButtons.length > 0) {
+						console.log('🎤 Found action button, clicking to start voice agent...');
+						actionButtons[0].click();
+					} else {
+						// Try alternative selectors
+						const micButtons = document.querySelectorAll('[class*="mic"], button[data-enabled="false"]');
+						if (micButtons.length > 0) {
+							console.log('🎤 Found mic button, clicking...');
+							micButtons[0].click();
+						}
+					}
+				}, 1000); // Wait 1 second for component to mount
+			}
+		};
+		
+		// Listen for multiple IPC events from NotchDrop
+		if (window.electronApi && window.electronApi.ipcRenderer) {
+			// Listen for the askAI message (where our voice activation is sent)
+			window.electronApi.ipcRenderer.on('send-chat-message-to-askai', handleNotchDropVoice);
+			
+			// Also listen for direct voice activation events
+			window.electronApi.ipcRenderer.on('notchdrop:showVoiceAgent', (event, data) => {
+				console.log('🎤 DIRECT: Direct voice agent show request');
+				setShowVoiceFromNotch(true);
+			});
+			
+			window.electronApi.ipcRenderer.on('notchdrop:activate-voice-agent', (event, data) => {
+				console.log('🎤 DIRECT: Voice agent activation request');
+				setShowVoiceFromNotch(true);
+			});
+		}
+		
+		// Also listen for custom events
+		const handleCustomVoiceEvent = (event) => {
+			console.log('🎤 DIRECT: Custom voice activation event');
+			setShowVoiceFromNotch(true);
+		};
+		
+		window.addEventListener('notchdrop-voice-activate', handleCustomVoiceEvent);
+		window.addEventListener('show-voice-agent', handleCustomVoiceEvent);
+		window.addEventListener('start-voice-agent', handleCustomVoiceEvent);
+		
+		return () => {
+			if (window.electronApi && window.electronApi.ipcRenderer) {
+				window.electronApi.ipcRenderer.removeListener('send-chat-message-to-askai', handleNotchDropVoice);
+				window.electronApi.ipcRenderer.removeListener('notchdrop:showVoiceAgent', handleNotchDropVoice);
+				window.electronApi.ipcRenderer.removeListener('notchdrop:activate-voice-agent', handleNotchDropVoice);
+			}
+			window.removeEventListener('notchdrop-voice-activate', handleCustomVoiceEvent);
+			window.removeEventListener('show-voice-agent', handleCustomVoiceEvent);
+			window.removeEventListener('start-voice-agent', handleCustomVoiceEvent);
+		};
+	}, []);
 
 	const handleCheckForUpdates = async () => {
 		try {
@@ -163,6 +238,13 @@ const App = () => {
 					<Route key={route.path} path={route.path} element={route.element} />
 				))}
 			</Routes>
+			
+			{/* NotchDrop Voice Agent Integration - DIRECT */}
+			{showVoiceFromNotch && <VoiceAgentParent />}
+			
+			{/* Debug Components */}
+			<NotchDropVoiceDebug />
+			<VoiceAgentDebug />
 		</>
 	);
 };
