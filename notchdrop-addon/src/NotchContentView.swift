@@ -49,7 +49,7 @@ struct DynamicIslandContentView: View {
                     
                     // Test button to toggle authentication
                     Button("Login") {
-                        vm.setAuthenticated(!vm.isAuthenticated)
+                        // Do nothing
                     }
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.white)
