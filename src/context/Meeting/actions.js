@@ -1,0 +1,3 @@
+export const Actions = {
+	UPDATE_ONGOING_MEETING_INFO: 'UPDATE_ONGOING_MEETING_INFO',
+};

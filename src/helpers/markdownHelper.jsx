@@ -480,46 +480,6 @@ export const Markdown = memo(NonMemoizedMarkdown, (prevProps, nextProps) => {
 	return prevProps.children === nextProps.children && citationsEqual;
 });
 
-// AskAI-specific components without hr elements
-const askAIBaseComponents = {
-	...baseComponents,
-	hr: () => null, // Remove hr elements for askAI
-};
-
-const NonMemoizedAskAIMarkdown = ({ children, citations }) => {
-	const markdown = children;
-
-	// Memoize the combined components object for askAI
-	const components = useMemo(
-		() => ({
-			...askAIBaseComponents,
-			...createCustomComponents(citations, markdown),
-		}),
-		[citations, markdown],
-	);
-
-	return (
-		<ReactMarkdown
-			remarkPlugins={remarkPlugins}
-			rehypePlugins={rehypePlugins}
-			components={components}
-			className="markdown-custom-content"
-		>
-			{markdown}
-		</ReactMarkdown>
-	);
-};
-
-// AskAI-specific markdown component without hr elements
-export const AskAIMarkdown = memo(NonMemoizedAskAIMarkdown, (prevProps, nextProps) => {
-	const citationsEqual =
-		(!prevProps.citations && !nextProps.citations) ||
-		(prevProps.citations?.length === nextProps.citations?.length &&
-			JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations));
-
-	return prevProps.children === nextProps.children && citationsEqual;
-});
-
 export const UserMessageRenderer = memo(({ messageData }) => {
 	const {
 		templates: { updateStateValues },
@@ -592,12 +552,17 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 			{messageData?.images?.length > 0 && (
 				<div className="uploaded-images-container">
 					{messageData?.images?.map((image, index) => (
-						<img
-							key={index}
-							src={image?.preview}
-							className="uploaded-image"
-							onClick={() => handlePreview(image)}
-						/>
+						<div
+							className={`uploaded-image ${
+								messageData?.images?.length === 1 ? 'count-one' : ''
+							}`}
+						>
+							<img
+								key={index}
+								src={image?.preview}
+								onClick={() => handlePreview(image)}
+							/>
+						</div>
 					))}
 				</div>
 			)}

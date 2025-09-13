@@ -8,6 +8,9 @@ import { ReactComponent as VeLogoSvg } from '../../../assets/svg/veLogo.svg';
 import Context from '../../../context/context';
 import { fileTypeIcons, redirectTo, redirectTypeMapper } from '../../../helpers';
 import { useSearchParams } from 'react-router-dom';
+import { ReactComponent as UserIcon } from '../../../assets/svg/transcription/userIcon.svg';
+import { ReactComponent as NeedHelpIcon } from '../../../assets/svg/transcription/neddhelp.svg';
+import { ReactComponent as ActionIcon } from '../../../assets/svg/transcription/action.svg';
 
 const AiTranscriptionSuggestions = ({
 	closeModal,
@@ -159,10 +162,14 @@ const AiTranscriptionSuggestions = ({
 			return (
 				<div
 					className={s.userQuestionContainer}
-					onClick={() => handleActionClick(suggestion?.prompt || '')}
+					// onClick={() => handleActionClick(suggestion?.prompt || '')}
 				>
-					<div className={s.questionText}>{suggestion?.prompt || ''}</div>
-					<button className={s.askUserButton}>Ask User</button>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+						<UserIcon />
+						<div className={s.questionText}>{suggestion?.prompt || ''}</div>
+					</div>
+
+					{/* <button className={s.askUserButton}>Ask User</button> */}
 				</div>
 			);
 		}
@@ -172,8 +179,11 @@ const AiTranscriptionSuggestions = ({
 					className={s.aiQuestionContainer}
 					onClick={() => handleActionClick(suggestion?.prompt || '', true)}
 				>
-					<div className={s.questionText}>{suggestion?.prompt || ''}</div>
-					<div className={s.needHelpButton}>Need help?</div>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+						<NeedHelpIcon />
+						<div className={s.questionText}>{suggestion?.prompt || ''}</div>
+					</div>
+					{/* <div className={s.needHelpButton}>Need help?</div> */}
 				</div>
 			);
 		}
@@ -183,11 +193,12 @@ const AiTranscriptionSuggestions = ({
 					className={s.actionsContainer}
 					onClick={() => handleActionClick(suggestion?.prompt || '')}
 				>
-					<div className={s.dot}></div>
+					{/* <div className={s.dot}></div> */}
+					<ActionIcon />
 					<div className={s.actionDetails}>
 						<div className={s.actionName}>{suggestion?.prompt}</div>
 						{/* <div className={s.promptText}>{suggestion?.prompt || ''}</div> */}
-						<button className={s.takeActionButton}>Run</button>
+						{/* <button className={s.takeActionButton}>Run</button> */}
 					</div>
 				</div>
 			);
@@ -236,9 +247,11 @@ const AiTranscriptionSuggestions = ({
 			>
 				{activeTab === 'all' && (
 					<div className={s.allSuggestionsContainer}>
-						{allSuggestions?.map((suggestion, index) => {
-							return renderAllSuggestions(suggestion);
-						})}
+						{allSuggestions?.map((suggestion, index) => (
+							<Fragment key={suggestion?.reference_id || suggestion?.id || index}>
+								{renderAllSuggestions(suggestion)}
+							</Fragment>
+						))}
 
 						{allSuggestions?.length === 0 && (
 							<div className="meet-transcript-empty">No data.</div>
@@ -250,8 +263,22 @@ const AiTranscriptionSuggestions = ({
 					<div className={s.userQuestionsContainer}>
 						{userQuestions?.map((question, index) => {
 							return (
-								<div className={s.userQuestion} key={index}>
-									<div className={s.questionText}>{question?.prompt || ''}</div>
+								<div
+									className={s.userQuestion}
+									key={question?.reference_id || question?.id || index}
+								>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '12px',
+										}}
+									>
+										<UserIcon />
+										<div className={s.questionText}>
+											{question?.prompt || ''}
+										</div>
+									</div>
 								</div>
 							);
 						})}
@@ -264,7 +291,7 @@ const AiTranscriptionSuggestions = ({
 							return (
 								<div
 									className={s.aiQuestion}
-									key={index}
+									key={question?.reference_id || question?.id || index}
 									onClick={() =>
 										handleActionClick(
 											question?.query || question?.prompt || '',
@@ -272,8 +299,17 @@ const AiTranscriptionSuggestions = ({
 										)
 									}
 								>
-									<div className={s.questionText}>
-										{question?.query || question?.prompt}
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '12px',
+										}}
+									>
+										<NeedHelpIcon />
+										<div className={s.questionText}>
+											{question?.query || question?.prompt}
+										</div>
 									</div>
 								</div>
 							);
@@ -286,15 +322,16 @@ const AiTranscriptionSuggestions = ({
 						{actions?.map((action, index) => (
 							<div
 								className={s.action}
-								key={index}
+								key={action?.reference_id || action?.id || index}
 								onClick={() =>
 									handleActionClick(action?.query || action?.prompt || '')
 								}
 							>
-								<div className={s.dot}></div>
+								{/* <div className={s.dot}></div> */}
+								<ActionIcon />
 								<div className={s.actionDetails}>
 									<div className={s.actionName}>{action?.prompt || ''}</div>
-									<button className={s.takeActionButton}>Run</button>
+									{/* <button className={s.takeActionButton}>Run</button> */}
 								</div>
 							</div>
 						))}
@@ -306,7 +343,13 @@ const AiTranscriptionSuggestions = ({
 						{uniqueFiles.map((file, index) => (
 							<div
 								className={s.file}
-								key={index}
+								key={
+									file?.reference_id ||
+									file?.id ||
+									file?.s3_key ||
+									file?.name ||
+									index
+								}
 								onClick={() => handleFileClick(file)}
 							>
 								<div className={s.fileIcon}>

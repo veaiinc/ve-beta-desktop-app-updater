@@ -84,15 +84,14 @@ const CitationsModal = ({ closeModal, modalIsOpen }) => {
 											: citation?.name || ''}
 									</div>
 								</div>
-								{(citation?.name || citation?.snippet) && (
-									<div
-										className="source-name-text-container"
-										style={{
-											wordBreak:
-												citation?.type === 'url' ? 'break-all' : 'normal',
-										}}
-									>
-										{citation?.name || citation?.snippet || ''}
+								{citation?.title && (
+									<div className="source-title-container">
+										{citation?.title || ''}
+									</div>
+								)}
+								{citation?.snippet && (
+									<div className="source-description-container">
+										{citation?.snippet || ''}
 									</div>
 								)}
 							</div>

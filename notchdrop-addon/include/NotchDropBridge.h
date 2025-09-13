@@ -60,6 +60,9 @@
 + (NSString*)getContentTypeString;
 + (void)setContentTypeFromString:(NSString*)contentType;
 
+// Overlay State Integration
++ (void)onOverlayStateChange:(NSDictionary*)state;
+
 @end
 
 #endif /* NotchDropBridge_h */

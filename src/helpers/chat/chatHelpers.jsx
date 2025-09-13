@@ -12,6 +12,8 @@ export const handleDeepSearchChainOfThought = (chainOfThought) => {
 				title: data?.title || null,
 				readings: data?.reading || [],
 			});
+		} else if (data?.plan) {
+			cot?.push(data);
 		}
 	}
 

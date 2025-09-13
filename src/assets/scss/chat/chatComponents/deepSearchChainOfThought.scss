@@ -7,7 +7,7 @@
 	.cot-container {
 		display: flex;
 		flex-direction: column;
-		gap: 16px;
+		gap: 12px;
 
 		> :last-child {
 			.line {
@@ -52,13 +52,49 @@
 				position: relative;
 
 				.line {
-					height: 100%;
+					height: calc(100% - 6px);
 					width: 1px;
 					background-color: var(--stroke-hover);
 					position: absolute;
 					left: -16px;
 					top: 18px;
 					z-index: 1;
+				}
+
+				.cot-plan {
+					display: flex;
+					flex-direction: column;
+					gap: 4px;
+
+					.plan-items {
+						padding-left: 20px;
+						margin: 0;
+						list-style-type: circle;
+
+						> :first-child {
+							margin-top: 0 !important;
+						}
+						> :last-child {
+							margin-bottom: 0 !important;
+						}
+
+						.plan {
+							color: var(--secondary-font, #f2f2f3);
+							font-family: var(--chat-primary-font-family);
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: 20px;
+						}
+					}
+
+					.plan-title {
+						color: var(--primary-font, #f2f2f3);
+						font-family: var(--chat-primary-font-family);
+						font-size: 15px;
+						font-style: normal;
+						font-weight: 500;
+					}
 				}
 				.sub-query {
 					width: 100%;

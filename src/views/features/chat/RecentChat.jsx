@@ -35,6 +35,15 @@ const RecentChat = ({
 	showChats = false,
 	showHeader = true,
 	showBrowser = false,
+	showBottomTools = true,
+	showMicBtn = true,
+	showRecentFiles = true,
+	showResponseEditBtn = true,
+	fetchRecentChatMessages = true,
+
+	// below props are for desktop app
+	isDesktopApp = false,
+	handleDesktopAppPayload = null,
 }) => {
 	const {
 		templates: {
@@ -272,7 +281,7 @@ const RecentChat = ({
 				agentTimeoutIdRef.current = null;
 			}
 
-			if (!globalChatMessages?.[sessionId]?.open_browser) {
+			if (!globalChatMessages?.[sessionId]?.open_browser && fetchRecentChatMessages) {
 				getRecentChatMessages({
 					sessionId,
 					page: 1,
@@ -311,7 +320,7 @@ const RecentChat = ({
 				newChatSessionIds: newChatSessionIdsRef.current,
 			});
 		}
-	}, [sessionId]);
+	}, [sessionId, fetchRecentChatMessages]);
 
 	useEffect(() => {
 		// const agentType = searchParams?.get('agentType');
@@ -576,6 +585,7 @@ const RecentChat = ({
 					userFeedbackReasons,
 					userRemarks,
 					unintegratedApps,
+					conversationMessages,
 				} = data?.[i] || {};
 
 				if (
@@ -583,6 +593,18 @@ const RecentChat = ({
 					agentType !== 'knowledge_agent'
 				) {
 					continue;
+				}
+
+				let images = [];
+				const content = conversationMessages?.[0]?.content;
+				if (Array.isArray(content)) {
+					content?.forEach((item) => {
+						if (item?.type === 'image_url') {
+							images?.push({
+								preview: item?.['image_url']?.url,
+							});
+						}
+					});
 				}
 
 				if (firstTimeApiCall) {
@@ -632,6 +654,7 @@ const RecentChat = ({
 					{
 						message: originalQuery,
 						type: 'user',
+						images,
 					},
 					{
 						message: response,
@@ -668,42 +691,6 @@ const RecentChat = ({
 						chatPayload?.workflowTemplateId && { chatPayload }),
 				});
 			}
-			// updateStateValues({
-			// 	...(chatPayload?.moduleTemplateId &&
-			// 		chatPayload?.workflowTemplateId && { chatPayload }),
-			// });
-
-			// if (fetcMore) {
-			// 	updateStateValues({
-			// 		globalChatMessages: {
-			// 			...(globalChatMessages || {}),
-			// 			[sessionId]: {
-			// 				...(globalChatMessages?.[sessionId] || {}),
-			// 				messages: messages?.concat(chatMessagesRef?.current),
-			// 			},
-			// 		},
-			// 		...(chatPayload?.moduleTemplateId &&
-			// 			chatPayload?.workflowTemplateId && { chatPayload }),
-			// 	});
-			// 	// if (chatContentRef?.current) {
-			// 	// 	chatContentRef.current.scrollBy({
-			// 	// 		top: 300, // Reduced from 500 for smoother feel
-			// 	// 		behavior: 'smooth',
-			// 	// 	});
-			// 	// }
-			// } else {
-			// 	updateStateValues({
-			// 		globalChatMessages: {
-			// 			...(globalChatMessages || {}),
-			// 			[sessionId]: {
-			// 				...(globalChatMessages?.[sessionId] || {}),
-			// 				messages,
-			// 			},
-			// 		},
-			// 		...(chatPayload?.moduleTemplateId &&
-			// 			chatPayload?.workflowTemplateId && { chatPayload }),
-			// 	});
-			// }
 
 			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
 		},
@@ -1131,6 +1118,9 @@ const RecentChat = ({
 																			1
 																	}
 																	sessionId={sessionId}
+																	showResponseEditBtn={
+																		showResponseEditBtn
+																	}
 																/>
 															</div>
 														) : (
@@ -1198,6 +1188,11 @@ const RecentChat = ({
 									globalChatMessages?.[sessionId]?.browserData?.browserMetadata
 										?.signedUrl
 								}
+								showBottomTools={showBottomTools}
+								showMicBtn={showMicBtn}
+								showRecentFiles={showRecentFiles}
+								isDesktopApp={isDesktopApp}
+								handleDesktopAppPayload={handleDesktopAppPayload}
 							/>
 						</div>
 					</div>
