@@ -441,6 +441,10 @@ class NotchDropAddonWrapper extends EventEmitter {
 			case 'voiceConnectionStateChanged':
 				this.emit('voiceConnectionStateChanged', data);
 				break;
+			case 'startVoiceAgent':
+				console.log('🎤 NotchDrop: Received startVoiceAgent action');
+				this.emit('startVoiceAgent', data);
+				break;
 			default:
 				console.error('❌ Unknown Swift action:', action);
 		}

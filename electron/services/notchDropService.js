@@ -151,6 +151,17 @@ class NotchDropService {
 				log.error('❌ Error handling Swift UI submitChat:', error);
 			}
 		});
+
+		// Listen for voice agent start requests from Swift UI
+		this.notchDropAddon.on('startVoiceAgent', (data) => {
+			try {
+				log.info('🎤 Swift UI requested voice agent start');
+				console.log('🎤 NotchDrop: Received startVoiceAgent event, activating voice agent...');
+				this.activateVoiceAgent();
+			} catch (error) {
+				log.error('❌ Error handling Swift UI startVoiceAgent:', error);
+			}
+		});
 	}
 
 	enable() {

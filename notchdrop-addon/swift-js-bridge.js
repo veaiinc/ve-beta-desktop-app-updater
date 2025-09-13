@@ -587,50 +587,46 @@ class SwiftJSBridge {
 					if (!title.includes('Overlay') && !title.includes('Dynamic Island')) {
 						console.log('🎤 Triggering voice agent in main window');
 						
-						// Execute JavaScript to start your voice agent directly
+						// Execute JavaScript to start voice agent using the working approach
 						try {
 							const result = await window.webContents.executeJavaScript(`
 								(async () => {
 									try {
-										console.log('🎤 DIRECT: Voice agent activation from NotchDrop');
+										console.log('🎤 NotchDrop Voice: Starting voice agent...');
 										
-										// Look for your useVoiceIntegration hook
+										// Method 1: Look for the working useVoiceIntegration hook
+										console.log('🔍 Checking window.voiceIntegration:', !!window.voiceIntegration);
+										console.log('🔍 Available window properties:', Object.keys(window).filter(k => k.includes('voice')));
+										
 										if (window.voiceIntegration && window.voiceIntegration.connectToRoom) {
-											console.log('🎤 Found voiceIntegration.connectToRoom()');
+											console.log('🎤 Found voiceIntegration.connectToRoom(), calling directly...');
 											await window.voiceIntegration.connectToRoom();
-											return { success: true, method: 'voiceIntegration' };
+											console.log('✅ Voice agent started successfully from NotchDrop!');
+											return { success: true, method: 'voiceIntegration.connectToRoom' };
 										}
 										
-										// Look for your useVoiceAgent hook
-										if (window.voiceAgent && window.voiceAgent.wsConnectAndStart) {
-											console.log('🎤 Found voiceAgent.wsConnectAndStart()');
-											await window.voiceAgent.wsConnectAndStart();
-											return { success: true, method: 'voiceAgent' };
-										}
-										
-										// Dispatch custom event for your React components to listen
-										const event = new CustomEvent('start-voice-agent', {
+										// Method 2: Try to find it in React context
+										console.log('⚠️ voiceIntegration not found on window, trying custom event...');
+										const event = new CustomEvent('notchdrop-start-voice-agent', {
 											detail: { 
-												source: 'notchdrop', 
-												direct: true,
+												source: 'notchdrop-voice-button',
 												timestamp: Date.now()
 											}
 										});
 										window.dispatchEvent(event);
 										
-										console.log('🎤 Dispatched start-voice-agent event');
 										return { success: true, method: 'custom-event' };
 										
 									} catch (error) {
-										console.error('❌ Error in voice agent activation:', error);
+										console.error('❌ NotchDrop voice agent error:', error);
 										return { success: false, error: error.message };
 									}
 								})()
 							`);
 							
-							console.log('🎤 Voice agent activation result:', result);
+							console.log('🎤 NotchDrop voice agent result:', result);
 						} catch (jsError) {
-							console.warn('⚠️ Could not execute voice agent JavaScript:', jsError.message);
+							console.warn('⚠️ Could not execute NotchDrop voice JavaScript:', jsError.message);
 						}
 						
 						break;

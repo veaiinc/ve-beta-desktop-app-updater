@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import useVoiceIntegration from '../hooks/useVoiceIntegration';
 
 const VoiceAgentDebug = () => {
@@ -6,13 +6,13 @@ const VoiceAgentDebug = () => {
     const [isVisible, setIsVisible] = useState(false);
     const voiceIntegration = useVoiceIntegration();
 
-    const addLog = (message, type = 'info') => {
+    const addLog = useCallback((message, type = 'info') => {
         const timestamp = new Date().toLocaleTimeString();
         setDebugLogs(prev => [...prev.slice(-20), { timestamp, message, type }]);
         console.log(`🎤 [${timestamp}] ${message}`);
-    };
+    }, []);
 
-    const handleStartVoiceAgent = async () => {
+    const handleStartVoiceAgent = useCallback(async () => {
         try {
             addLog('🚀 Starting voice agent manually...', 'info');
             
@@ -124,7 +124,7 @@ const VoiceAgentDebug = () => {
         } catch (error) {
             addLog(`❌ Error starting voice agent: ${error.message}`, 'error');
         }
-    };
+    }, [voiceIntegration, addLog]);
 
     const clearLogs = () => {
         setDebugLogs([]);
@@ -151,24 +151,54 @@ const VoiceAgentDebug = () => {
         setIsVisible(!isVisible);
     };
 
+    // Expose voiceIntegration to window for NotchDrop access
+    useEffect(() => {
+        if (voiceIntegration && !window.voiceIntegration) {
+            window.voiceIntegration = voiceIntegration;
+            console.log('✅ voiceIntegration exposed to window.voiceIntegration');
+        }
+
+        return () => {
+            if (window.voiceIntegration) {
+                delete window.voiceIntegration;
+            }
+        };
+    }, [voiceIntegration]);
+
+    // Create stable event handlers
+    const handleVoiceActivation = useCallback((event) => {
+        addLog(`🎤 Received voice activation event: ${event.type}`, 'info');
+        if (event.detail) {
+            addLog(`📋 Event details: ${JSON.stringify(event.detail)}`, 'info');
+        }
+        handleStartVoiceAgent();
+    }, [addLog, handleStartVoiceAgent]);
+
+    const handleNotchDropVoiceActivation = useCallback(async (event) => {
+        addLog(`🎤 NotchDrop voice activation: ${event.type}`, 'info');
+        if (voiceIntegration && voiceIntegration.connectToRoom) {
+            try {
+                addLog('🚀 Starting voice agent from NotchDrop...', 'info');
+                await voiceIntegration.connectToRoom();
+                addLog('✅ Voice agent started successfully from NotchDrop!', 'success');
+            } catch (error) {
+                addLog(`❌ NotchDrop voice activation failed: ${error.message}`, 'error');
+            }
+        }
+    }, [addLog, voiceIntegration]);
+
     // Listen for NotchDrop voice activation
     useEffect(() => {
-        const handleVoiceActivation = (event) => {
-            addLog(`🎤 Received voice activation event: ${event.type}`, 'info');
-            if (event.detail) {
-                addLog(`📋 Event details: ${JSON.stringify(event.detail)}`, 'info');
-            }
-            handleStartVoiceAgent();
-        };
-
         window.addEventListener('start-voice-agent', handleVoiceActivation);
         window.addEventListener('notchdrop-voice-activate', handleVoiceActivation);
+        window.addEventListener('notchdrop-start-voice-agent', handleNotchDropVoiceActivation);
 
         return () => {
             window.removeEventListener('start-voice-agent', handleVoiceActivation);
             window.removeEventListener('notchdrop-voice-activate', handleVoiceActivation);
+            window.removeEventListener('notchdrop-start-voice-agent', handleNotchDropVoiceActivation);
         };
-    }, []);
+    }, [handleVoiceActivation, handleNotchDropVoiceActivation]);
 
     return (
         <div style={{
