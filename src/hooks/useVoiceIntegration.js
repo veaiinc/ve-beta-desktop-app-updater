@@ -251,9 +251,13 @@ export const useVoiceIntegration = () => {
 							tokenResponse?.room_name || 
 							tokenResponse?.roomName;
 			
+			// Also extract the LiveKit URL from session_info
+			const liveKitUrl = sessionInfo?.url;
+			
 			console.log('🔍 Extracted values:');
 			console.log('  - token (user_token):', token ? `${token.substring(0, 50)}...` : 'undefined');
 			console.log('  - roomName:', roomName);
+			console.log('  - liveKitUrl:', liveKitUrl);
 			
 			console.log('✅ Voice token generated successfully:', { 
 				roomName, 
@@ -266,26 +270,7 @@ export const useVoiceIntegration = () => {
 				throw new Error('No token received from API response');
 			}
 
-			// Get LiveKit regions using the token
-			console.log('🌐 Fetching LiveKit regions...');
-			try {
-				const regionsResponse = await fetch('https://ve-ai-voice-agent-ginreaey.livekit.cloud/settings/regions', {
-					method: 'GET',
-					headers: {
-						'Authorization': `Bearer ${token}`,
-						'Content-Type': 'application/json'
-					}
-				});
-				
-				if (regionsResponse.ok) {
-					const regionsData = await regionsResponse.json();
-					console.log('✅ LiveKit regions:', regionsData);
-				} else {
-					console.warn('⚠️ Could not fetch regions:', regionsResponse.status, regionsResponse.statusText);
-				}
-			} catch (regionError) {
-				console.warn('⚠️ Regions API error:', regionError.message);
-			}
+			// Skip regions API for now - use URL from session_info directly
 
 			// Remove old event listeners before adding new ones
 			room.removeAllListeners();
@@ -339,8 +324,9 @@ export const useVoiceIntegration = () => {
 			});
 
 			// ======= Connect to LiveKit Server =======
-			console.log('Connecting to LiveKit server...');
-			await room.connect('wss://veai-naymm7ww.livekit.cloud', token, { autoSubscribe: true });
+			const connectUrl = liveKitUrl || 'wss://ve-ai-voice-agent-ginreaey.livekit.cloud';
+			console.log('🔌 Connecting to LiveKit server:', connectUrl);
+			await room.connect(connectUrl, token, { autoSubscribe: true });
 
 			// ======= Create and Publish Audio Track =======
 			console.log('Creating local audio track...');
