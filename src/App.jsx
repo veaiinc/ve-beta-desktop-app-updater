@@ -2,7 +2,6 @@ import { Routes, Route } from 'react-router-dom';
 import useWorkspaceMode from './hooks/useWorkspaceMode';
 import { useEffect, useState } from 'react';
 import VoiceAgentParent from './views/features/voiceAgent/VoiceAgentParent';
-import NotchDropVoiceDebug from './components/NotchDropVoiceDebug';
 import useVoiceIntegration from './hooks/useVoiceIntegration';
 
 const App = () => {
@@ -295,9 +294,6 @@ const App = () => {
 			
 			{/* NotchDrop Voice Agent Integration - DIRECT */}
 			{showVoiceFromNotch && <VoiceAgentParent />}
-			
-			{/* Debug Components */}
-			<NotchDropVoiceDebug />
 		</>
 	);
 };
