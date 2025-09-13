@@ -19,6 +19,8 @@ import {
 } from './DynamicIslandIcons';
 import './DynamicIslandUI.scss';
 import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
+import useNotificationOverlay from '../hooks/useNotificationOverlay';
+import NotificationOverlay from './NotificationOverlay';
 import Context from '../../context/context';
 import { LiveKitRoom, RoomAudioRenderer, StartAudio } from '@livekit/components-react';
 import Voice from '../../views/components/chat/Voice';
@@ -71,6 +73,16 @@ const DynamicIslandUI = () => {
 	const [voiceMessages, setVoiceMessages] = useState([]);
 	const [currentVoiceStatus, setCurrentVoiceStatus] = useState('Listening');
 	const [isMicrophoneMuted, setIsMicrophoneMuted] = useState(false);
+
+	// Notification state using custom hook
+	const {
+		notifications,
+		showNotificationOverlay,
+		showNotification,
+		dismissNotification,
+		clearAllNotifications,
+		handleNotificationAction,
+	} = useNotificationOverlay();
 
 	// Voice integration hook
 	const { shouldConnect, token, serverUrl, handleConnect, handleDisconnect, resetState } =
@@ -158,6 +170,12 @@ const DynamicIslandUI = () => {
 				console.log('📊 State request from Swift');
 				sendStateToSwift();
 			});
+
+			// Listen for notifications
+			window.electronApi.dynamicIsland.onNotification((notification) => {
+				console.log('🔔 Dynamic Island received notification:', notification);
+				showNotificationWithExpansion(notification);
+			});
 		}
 
 		return () => {
@@ -171,6 +189,9 @@ const DynamicIslandUI = () => {
 			}
 			if (window.electronApi?.dynamicIsland?.removeVoiceModeTriggerListener) {
 				window.electronApi.dynamicIsland.removeVoiceModeTriggerListener();
+			}
+			if (window.electronApi?.dynamicIsland?.removeNotificationListener) {
+				window.electronApi.dynamicIsland.removeNotificationListener();
 			}
 		};
 	}, []);
@@ -708,6 +729,28 @@ const DynamicIslandUI = () => {
 			}, 50);
 		}
 	}, [voiceMessages]);
+
+	// Custom notification action handler
+	const onNotificationAction = (action, notification) => {
+		// Handle different action types
+		if (action.type === 'join-meet') {
+			// Start recording when joining meeting
+			handleAudioClick();
+		} else if (action.type === 'dismiss') {
+			dismissNotification(notification.id);
+		} else if (action.type === 'expand') {
+			expand();
+		}
+	};
+
+	// Enhanced showNotification function with auto-expansion
+	const showNotificationWithExpansion = (notification) => {
+		// Auto-expand Dynamic Island when notification arrives
+		if (!isExpanded && isConnected) {
+			expand();
+		}
+		return showNotification(notification);
+	};
 
 	// Handle microphone mute/unmute toggle
 	const handleMicrophoneToggle = () => {
@@ -1764,6 +1807,17 @@ const DynamicIslandUI = () => {
 					</>
 				)}
 			</div>
+
+			{/* Notification Overlay */}
+			<NotificationOverlay
+				notifications={notifications}
+				showOverlay={showNotificationOverlay}
+				onDismissNotification={dismissNotification}
+				onClearAll={clearAllNotifications}
+				onNotificationAction={(notificationId, actionIndex) =>
+					handleNotificationAction(notificationId, actionIndex, onNotificationAction)
+				}
+			/>
 		</div>
 	);
 };
