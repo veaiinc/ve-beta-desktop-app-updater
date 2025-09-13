@@ -23,7 +23,7 @@
 			.upload-title {
 				font-size: 14px;
 				font-weight: 600;
-				color: #1a1a1a;
+				color: var(--primary-font);
 				margin-bottom: 8px;
 			}
 
@@ -310,7 +310,7 @@
 			.upload-title,
 			.session-title,
 			h3 {
-				color: #fff;
+				color: var(--primary-font);
 			}
 
 			.upload-details,

@@ -1,32 +1,78 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-// import { ReactComponent as CloseIcon } from '../../assets/svg/gallery/close.svg';
-// import { ReactComponent as MinimizeIcon } from '../../assets/svg/gallery/minimize.svg';
-// import { ReactComponent as ExpandIcon } from '../../assets/svg/gallery/expand.svg';
-// import { ReactComponent as CancelIcon } from '../../assets/svg/gallery/cancel.svg';
-import Context from '../../context/context';
-import { uploadImage } from '../../helpers/uploadImage';
+import Context from '../../../../context/context';
+import { uploadImage } from '../../../../helpers/uploadImage';
 import ObjectID from 'bson-objectid';
 import './UploadProgressPopup.scss';
 
-const UploadProgressPopup = ({
-	uploadSessions,
-	onClose,
-	onComplete,
-	onCancel,
-	onUpdateSession,
-}) => {
+const UploadProgressPopup = () => {
 	const {
-		galleryInfo: { getUploadImagePolicy, uploadDesktopImages, getImageUploadStatus },
+		galleryInfo: {
+			uploadSessions,
+			showUploadProgressPopup,
+			removeUploadSession,
+			hideUploadProgressPopup,
+			getUploadImagePolicy,
+			uploadDesktopImages,
+			getImageUploadStatus,
+		},
 	} = useContext(Context);
 
 	const [isExpanded, setIsExpanded] = useState(false);
-	const [activeUploads, setActiveUploads] = useState(new Map()); // Map of sessionId -> upload state
+	const [activeUploads, setActiveUploads] = useState(new Map()); // For rendering only
 	const intervalRefs = useRef(new Map()); // Map of sessionId -> interval ref
+	const startedSessions = useRef(new Set()); // Track which sessions have been started
+	const previousSessions = useRef(new Set()); // Track previous session IDs
+	const processingFiles = useRef(new Set()); // Global across sessions, keyed by session
+	const runningSessions = useRef(new Set()); // Track running sessions
+	const sessionStatesRef = useRef(new Map()); // ✅ LIVE state for each session — immune to re-renders
+
+	// Upload handlers
+	const handleUploadComplete = (sessionId) => {
+		removeUploadSession(sessionId);
+		window.dispatchEvent(
+			new CustomEvent('uploadCompleted', {
+				detail: { sessionId },
+			}),
+		);
+	};
+
+	const handleUploadCancel = (sessionId) => {
+		removeUploadSession(sessionId);
+	};
+
+	const handleCloseUploadProgressPopup = () => {
+		hideUploadProgressPopup();
+	};
+
+	// ✅ Helper to update both React state (for UI) and ref state (for logic)
+	const updateUploadState = (sessionId, updates) => {
+		// Update ref state — used during async upload
+		const currentRefState = sessionStatesRef.current.get(sessionId);
+		if (currentRefState) {
+			sessionStatesRef.current.set(sessionId, { ...currentRefState, ...updates });
+		}
+
+		// Update React state — for rendering
+		setActiveUploads((prev) => {
+			const newMap = new Map(prev);
+			const currentState = newMap.get(sessionId);
+			if (currentState) {
+				newMap.set(sessionId, { ...currentState, ...updates });
+			}
+			return newMap;
+		});
+	};
 
 	// Initialize upload states for new sessions
 	useEffect(() => {
-		uploadSessions.forEach((session) => {
-			if (!activeUploads.has(session.id)) {
+		const currentSessionIds = new Set(uploadSessions.map((s) => s.id));
+
+		const newSessions = uploadSessions.filter(
+			(session) => !previousSessions.current.has(session.id),
+		);
+
+		newSessions.forEach((session) => {
+			if (!activeUploads.has(session.id) && !startedSessions.current.has(session.id)) {
 				const uploadState = {
 					sessionId: session.id,
 					files: session.files || [],
@@ -44,27 +90,50 @@ const UploadProgressPopup = ({
 					error: null,
 				};
 
+				// ✅ Initialize in both React state and ref state
 				setActiveUploads((prev) => new Map(prev.set(session.id, uploadState)));
+				sessionStatesRef.current.set(session.id, { ...uploadState });
 
-				// Start upload for this session
+				startedSessions.current.add(session.id);
 				startUploadSession(session.id, uploadState);
 			}
 		});
 
 		// Clean up removed sessions
-		const sessionIds = new Set(uploadSessions.map((s) => s.id));
 		setActiveUploads((prev) => {
 			const newMap = new Map();
 			prev.forEach((state, id) => {
-				if (sessionIds.has(id)) {
+				if (currentSessionIds.has(id)) {
 					newMap.set(id, state);
+				} else {
+					// ✅ Clean up ref state
+					sessionStatesRef.current.delete(id);
+
+					// Clean up other refs
+					startedSessions.current.delete(id);
+					runningSessions.current.delete(id);
+					previousSessions.current.delete(id);
+
+					// Clean up processing files
+					processingFiles.current.forEach((fileKey) => {
+						if (state.files) {
+							state.files.forEach((fileData) => {
+								const sessionFileKey = `${id}-${fileData.file.name}-${fileData.file.size}`;
+								if (sessionFileKey === fileKey) {
+									processingFiles.current.delete(fileKey);
+								}
+							});
+						}
+					});
 				}
 			});
 			return newMap;
 		});
+
+		previousSessions.current = currentSessionIds;
 	}, [uploadSessions]);
 
-	// Process single image with Sharp (same logic as before)
+	// Process single image
 	const processSingleImage = async (originalFile, settings) => {
 		try {
 			const imageBuffer = await originalFile.arrayBuffer();
@@ -72,7 +141,7 @@ const UploadProgressPopup = ({
 
 			const { metadata, width, height, format, originalDateTime } =
 				await window.electronApi.extractImageMetadata({
-					imageBuffer: imageBuffer, // Send ArrayBuffer directly
+					imageBuffer: imageBuffer,
 				});
 
 			if (!width || !height) {
@@ -85,9 +154,9 @@ const UploadProgressPopup = ({
 
 			const watermarkUrl = settings.watermarkUrl;
 
-			// Process optimized version (with watermark if enabled)
+			// Process optimized version
 			const resultOptimized = await window.electronApi.processImageWithSharp({
-				imageBuffer: imageBuffer, // Send ArrayBuffer directly
+				imageBuffer: imageBuffer,
 				watermarkUrl: settings.isWaterMarkApply ? watermarkUrl : null,
 				watermarkPosition: settings.watermarkPosition,
 				scale: settings.scaleWatermark || 0.15,
@@ -105,9 +174,9 @@ const UploadProgressPopup = ({
 			);
 			processedFile = new File([processedBuffer], originalFile.name, { type: 'image/jpeg' });
 
-			// Process thumbnail 300w (no watermark)
+			// Process thumbnail 300w
 			const resultThumbnail = await window.electronApi.processImageWithSharp({
-				imageBuffer: imageBuffer, // Send ArrayBuffer directly
+				imageBuffer: imageBuffer,
 				watermarkUrl: null,
 				resizeOptions: { width: 300 },
 				quality: 70,
@@ -126,9 +195,9 @@ const UploadProgressPopup = ({
 				{ type: 'image/jpeg' },
 			);
 
-			// Process thumbnail 100h (no watermark, cropped)
+			// Process thumbnail 100h
 			const resultThumbnail100h = await window.electronApi.processImageWithSharp({
-				imageBuffer: imageBuffer, // Send ArrayBuffer directly
+				imageBuffer: imageBuffer,
 				watermarkUrl: null,
 				resizeOptions: { height: 100, fit: 'cover', position: 'center' },
 				quality: 70,
@@ -164,7 +233,7 @@ const UploadProgressPopup = ({
 		}
 	};
 
-	// Generate upload payload (same logic as before)
+	// Generate upload payload
 	const generateUploadPayload = (
 		image,
 		processedFile,
@@ -225,32 +294,23 @@ const UploadProgressPopup = ({
 		};
 	};
 
-	// Update upload state for a specific session
-	const updateUploadState = (sessionId, updates) => {
-		setActiveUploads((prev) => {
-			const newMap = new Map(prev);
-			const currentState = newMap.get(sessionId);
-			if (currentState) {
-				newMap.set(sessionId, { ...currentState, ...updates });
-			}
-			return newMap;
-		});
-
-		// Also update parent component
-		if (onUpdateSession) {
-			onUpdateSession(sessionId, updates);
-		}
-	};
-
-	// Track files being processed to prevent duplicates
-	const processingFiles = new Set();
-
 	// Start upload process for a specific session
 	const startUploadSession = async (sessionId, initialState) => {
 		try {
+			if (runningSessions.current.has(sessionId)) {
+				console.warn(`Session ${sessionId} is already running, skipping...`);
+				return;
+			}
+
+			// ✅ Additional safety check: ensure session exists in ref state
+			if (!sessionStatesRef.current.has(sessionId)) {
+				console.warn(`Session ${sessionId} not found in ref state, cannot start upload`);
+				return;
+			}
+
+			runningSessions.current.add(sessionId);
 			updateUploadState(sessionId, { status: 'uploading' });
 
-			// Get upload policies
 			const policyResponse = await getUploadImagePolicy(initialState.galleryId);
 			const policyData = policyResponse?.[1];
 
@@ -258,61 +318,101 @@ const UploadProgressPopup = ({
 				throw new Error('Failed to get upload policies');
 			}
 
-			// Start progress monitoring for this session
+			// Deduplicate files within this session
+			const uniqueFiles = initialState.files.filter((fileData, index, self) => {
+				const fileKey = `${fileData.file.name}-${fileData.file.size}`;
+				return self.findIndex((f) => `${f.file.name}-${f.file.size}` === fileKey) === index;
+			});
+
+			if (intervalRefs.current.has(sessionId)) {
+				console.warn(`Interval already exists for session ${sessionId}, skipping...`);
+				runningSessions.current.delete(sessionId);
+				return;
+			}
+
+			// Start progress monitoring - FIXED: Use session-specific parameters
 			const progressIntervalId = setInterval(async () => {
 				try {
+					// ✅ CRITICAL FIX: Use session-specific parameters to prevent cross-session interference
+					const currentState = sessionStatesRef.current.get(sessionId);
+					if (!currentState) {
+						console.warn(
+							`Session ${sessionId} not found in ref state, stopping progress monitoring`,
+						);
+						clearInterval(progressIntervalId);
+						intervalRefs.current.delete(sessionId);
+						return;
+					}
+
+					// ✅ Stop monitoring if session is completed or failed
+					if (
+						currentState.status === 'completed' ||
+						currentState.status === 'failed' ||
+						currentState.status === 'cancelled'
+					) {
+						clearInterval(progressIntervalId);
+						intervalRefs.current.delete(sessionId);
+						return;
+					}
+
 					const response = await getImageUploadStatus(
-						initialState.galleryId,
-						initialState.albumId,
-						initialState.uploadBatchID,
+						currentState.galleryId,
+						currentState.albumId,
+						currentState.uploadBatchID,
 					);
 					if (response[0]) {
 						const { uploadedCount } = response[1];
+
+						// ✅ Use current session state, not initial state
+						const updatedFiles = currentState.files.map((file, index) => {
+							if (index < uploadedCount) {
+								return { ...file, status: 'completed', progress: 100 };
+							} else if (
+								index === uploadedCount &&
+								uploadedCount < currentState.files.length
+							) {
+								return { ...file, status: 'uploading', progress: 50 };
+							}
+							return file;
+						});
+
 						updateUploadState(sessionId, {
 							uploadedCount,
+							files: updatedFiles,
 							overallProgress: Math.min(
-								(uploadedCount / uniqueFiles.length) * 100,
+								(uploadedCount / currentState.files.length) * 100,
 								100,
 							),
 						});
 					}
 				} catch (error) {
-					console.error('Progress monitoring error:', error);
+					console.error(`Progress monitoring error for session ${sessionId}:`, error);
 				}
 			}, 3000);
 
 			intervalRefs.current.set(sessionId, progressIntervalId);
 
-			// Deduplicate files to prevent multiple uploads of the same file
-			const uniqueFiles = initialState.files.filter((fileData, index, self) => {
-				// Use file name and size as unique identifier
-				const fileKey = `${fileData.file.name}-${fileData.file.size}`;
-				return self.findIndex((f) => `${f.file.name}-${f.file.size}` === fileKey) === index;
-			});
-
 			// Process and upload files concurrently
 			const uploadPromises = uniqueFiles.map(async (fileData, index) => {
 				try {
-					// Check if file is already being processed
-					const fileKey = `${fileData.file.name}-${fileData.file.size}`;
-					if (processingFiles.has(fileKey)) {
+					const fileKey = `${sessionId}-${fileData.file.name}-${fileData.file.size}`;
+					if (processingFiles.current.has(fileKey)) {
 						console.warn(
-							`File ${fileData.file.name} is already being processed, skipping...`,
+							`File ${fileData.file.name} already processing in session ${sessionId}`,
 						);
 						return;
 					}
 
-					// Mark file as being processed
-					processingFiles.add(fileKey);
+					processingFiles.current.add(fileKey);
 
-					// Update file status to processing
+					// ✅ Use ref state for current state
+					const currentState = sessionStatesRef.current.get(sessionId);
 					updateUploadState(sessionId, {
-						files: uniqueFiles.map((f, i) =>
+						files: (currentState?.files || uniqueFiles).map((f, i) =>
 							i === index ? { ...f, status: 'processing' } : f,
 						),
 					});
 
-					// Process image
 					const processResult = await processSingleImage(
 						fileData.file,
 						initialState.settings,
@@ -321,11 +421,11 @@ const UploadProgressPopup = ({
 						throw new Error(processResult.error);
 					}
 
-					// Update processed count
-					const currentUploadState = activeUploads.get(sessionId);
+					// ✅ Use ref state for current count
+					const currentRefState = sessionStatesRef.current.get(sessionId);
 					updateUploadState(sessionId, {
-						processedCount: (currentUploadState?.processedCount || 0) + 1,
-						files: (currentUploadState?.files || uniqueFiles).map((f, i) =>
+						processedCount: (currentRefState?.processedCount || 0) + 1,
+						files: (currentRefState?.files || uniqueFiles).map((f, i) =>
 							i === index
 								? {
 										...f,
@@ -376,10 +476,10 @@ const UploadProgressPopup = ({
 							policyData,
 							imageId,
 							(percent) => {
-								const currentProgressState = activeUploads.get(sessionId);
+								const currentState = sessionStatesRef.current.get(sessionId);
 								updateUploadState(sessionId, {
-									files: (currentProgressState?.files || uniqueFiles).map(
-										(f, i) => (i === index ? { ...f, progress: percent } : f),
+									files: (currentState?.files || uniqueFiles).map((f, i) =>
+										i === index ? { ...f, progress: percent } : f,
 									),
 								});
 							},
@@ -426,7 +526,6 @@ const UploadProgressPopup = ({
 						),
 					]);
 
-					// Check if all uploads succeeded
 					if (
 						!uploadResultOriginal.success ||
 						!uploadResultOptimized.success ||
@@ -436,7 +535,6 @@ const UploadProgressPopup = ({
 						throw new Error('One or more uploads failed');
 					}
 
-					// Generate upload payload
 					const payload = generateUploadPayload(
 						fileData,
 						processResult.processedFile,
@@ -457,7 +555,6 @@ const UploadProgressPopup = ({
 						initialState.settings,
 					);
 
-					// Register image with backend
 					const [success] = await uploadDesktopImages(
 						initialState.galleryId,
 						initialState.albumId,
@@ -468,50 +565,52 @@ const UploadProgressPopup = ({
 						throw new Error('Failed to register image with backend');
 					}
 
-					// Update file status to completed
-					const currentCompletedState = activeUploads.get(sessionId);
+					// ✅ Use ref state
+					const completedState = sessionStatesRef.current.get(sessionId);
 					updateUploadState(sessionId, {
-						files: (currentCompletedState?.files || uniqueFiles).map((f, i) =>
+						files: (completedState?.files || uniqueFiles).map((f, i) =>
 							i === index ? { ...f, status: 'completed', progress: 100 } : f,
 						),
 					});
 
-					// Remove file from processing set
-					processingFiles.delete(fileKey);
+					processingFiles.current.delete(fileKey);
 				} catch (error) {
 					console.error('Upload failed for file:', fileData.file.name, error);
-					const currentFailedState = activeUploads.get(sessionId);
+					const failedState = sessionStatesRef.current.get(sessionId);
 					updateUploadState(sessionId, {
-						files: (currentFailedState?.files || uniqueFiles).map((f, i) =>
+						files: (failedState?.files || uniqueFiles).map((f, i) =>
 							i === index ? { ...f, status: 'failed', error: error.message } : f,
 						),
 					});
-
-					// Remove file from processing set even on failure
-					processingFiles.delete(fileKey);
+					const fileKey = `${sessionId}-${fileData.file.name}-${fileData.file.size}`;
+					processingFiles.current.delete(fileKey);
 				}
 			});
 
-			// Wait for all uploads to complete
 			await Promise.all(uploadPromises);
 
-			// Clear interval
+			// Clear interval when upload is complete
 			const sessionIntervalId = intervalRefs.current.get(sessionId);
 			if (sessionIntervalId) {
 				clearInterval(sessionIntervalId);
 				intervalRefs.current.delete(sessionId);
 			}
 
-			// Mark as completed
 			updateUploadState(sessionId, {
 				status: 'completed',
 				overallProgress: 100,
 			});
 
-			// Call completion callback
-			if (onComplete) {
-				onComplete(sessionId);
-			}
+			// Clean up processing files
+			uniqueFiles.forEach((fileData) => {
+				const fileKey = `${sessionId}-${fileData.file.name}-${fileData.file.size}`;
+				processingFiles.current.delete(fileKey);
+			});
+
+			startedSessions.current.delete(sessionId);
+			runningSessions.current.delete(sessionId);
+
+			handleUploadComplete(sessionId);
 		} catch (error) {
 			console.error('Upload session failed:', error);
 			updateUploadState(sessionId, {
@@ -519,11 +618,21 @@ const UploadProgressPopup = ({
 				error: error.message,
 			});
 
+			if (uniqueFiles) {
+				uniqueFiles.forEach((fileData) => {
+					const fileKey = `${sessionId}-${fileData.file.name}-${fileData.file.size}`;
+					processingFiles.current.delete(fileKey);
+				});
+			}
+
 			const errorIntervalId = intervalRefs.current.get(sessionId);
 			if (errorIntervalId) {
 				clearInterval(errorIntervalId);
 				intervalRefs.current.delete(sessionId);
 			}
+
+			startedSessions.current.delete(sessionId);
+			runningSessions.current.delete(sessionId);
 		}
 	};
 
@@ -534,6 +643,11 @@ const UploadProgressPopup = ({
 				clearInterval(intervalId);
 			});
 			intervalRefs.current.clear();
+			processingFiles.current.clear();
+			startedSessions.current.clear();
+			runningSessions.current.clear();
+			previousSessions.current.clear();
+			sessionStatesRef.current.clear(); // ✅ Clear ref state too
 		};
 	}, []);
 
@@ -543,16 +657,15 @@ const UploadProgressPopup = ({
 		);
 
 		if (hasActiveUploads) {
-			// Ask for confirmation before closing during upload
 			if (
 				window.confirm(
 					'Uploads are in progress. Are you sure you want to hide the progress? Uploads will continue in the background.',
 				)
 			) {
-				onClose();
+				handleCloseUploadProgressPopup();
 			}
 		} else {
-			onClose();
+			handleCloseUploadProgressPopup();
 		}
 	};
 
@@ -563,11 +676,19 @@ const UploadProgressPopup = ({
 			intervalRefs.current.delete(sessionId);
 		}
 
-		updateUploadState(sessionId, { status: 'cancelled' });
-
-		if (onCancel) {
-			onCancel(sessionId);
+		const uploadState = sessionStatesRef.current.get(sessionId);
+		if (uploadState?.files) {
+			uploadState.files.forEach((fileData) => {
+				const fileKey = `${sessionId}-${fileData.file.name}-${fileData.file.size}`;
+				processingFiles.current.delete(fileKey);
+			});
 		}
+
+		updateUploadState(sessionId, { status: 'cancelled' });
+		startedSessions.current.delete(sessionId);
+		runningSessions.current.delete(sessionId);
+
+		handleUploadCancel(sessionId);
 	};
 
 	const getStatusText = (status) => {
@@ -604,18 +725,15 @@ const UploadProgressPopup = ({
 		if (uploadState.overallProgress === 0 || uploadState.status !== 'uploading') {
 			return 'Calculating...';
 		}
-
 		const elapsed = Date.now() - uploadState.startTime;
 		const rate = uploadState.overallProgress / elapsed;
 		const remaining = (100 - uploadState.overallProgress) / rate;
-
 		return formatTime(remaining);
 	};
 
 	const getTotalProgress = () => {
 		const states = Array.from(activeUploads.values());
 		if (states.length === 0) return 0;
-
 		const totalProgress = states.reduce((sum, state) => sum + state.overallProgress, 0);
 		return Math.round(totalProgress / states.length);
 	};
@@ -623,26 +741,22 @@ const UploadProgressPopup = ({
 	const getOverallStatus = () => {
 		const states = Array.from(activeUploads.values());
 		if (states.length === 0) return 'No uploads';
-
 		const hasUploading = states.some((s) => s.status === 'uploading');
 		const hasCompleted = states.some((s) => s.status === 'completed');
 		const hasFailed = states.some((s) => s.status === 'failed');
-
 		if (hasUploading) return `Uploading ${states.length} batch${states.length > 1 ? 'es' : ''}`;
 		if (hasCompleted && !hasUploading && !hasFailed) return 'All uploads completed';
 		if (hasFailed) return 'Some uploads failed';
-
 		return 'Processing...';
 	};
 
-	if (!uploadSessions || uploadSessions.length === 0) return null;
+	if (!showUploadProgressPopup || !uploadSessions || uploadSessions.length === 0) return null;
 
 	const uploadStates = Array.from(activeUploads.values());
 
 	return (
 		<div className="upload-progress-popup">
 			{isExpanded ? (
-				// Expanded view - show all sessions
 				<div className="upload-popup-expanded">
 					<div className="upload-header">
 						<h3>
@@ -650,16 +764,7 @@ const UploadProgressPopup = ({
 							{uploadStates.length > 1 ? 's' : ''})
 						</h3>
 						<div className="header-controls">
-							{/* <button
-								className="control-btn"
-								onClick={() => setIsExpanded(false)}
-								title="Minimize"
-							>
-								<MinimizeIcon />
-							</button>
-							<button className="control-btn" onClick={handleClose} title="Close">
-								<CloseIcon />
-							</button> */}
+							{/* Icons commented out — uncomment if needed */}
 						</div>
 					</div>
 
@@ -694,7 +799,7 @@ const UploadProgressPopup = ({
 												}
 												title="Cancel"
 											>
-												<CancelIcon />
+												Cancel
 											</button>
 										)}
 									</div>
@@ -755,7 +860,6 @@ const UploadProgressPopup = ({
 					</div>
 				</div>
 			) : (
-				// Minimized view - show overall progress
 				<div className="upload-popup-minimized">
 					<div className="upload-info">
 						<div className="upload-title">{getOverallStatus()}</div>
@@ -778,16 +882,7 @@ const UploadProgressPopup = ({
 						</div>
 					</div>
 					<div className="upload-controls">
-						{/* <button
-							className="control-btn"
-							onClick={() => setIsExpanded(true)}
-							title="Expand"
-						>
-							<ExpandIcon />
-						</button>
-						<button className="control-btn" onClick={handleClose} title="Close">
-							<CloseIcon />
-						</button> */}
+						{/* Icons commented out — uncomment if needed */}
 					</div>
 				</div>
 			)}
