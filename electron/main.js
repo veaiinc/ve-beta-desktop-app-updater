@@ -21,6 +21,12 @@ const WindowHelper = require('./helpers/windowHelper');
 const DynamicIslandHelper = require('./helpers/dynamicIslandHelper');
 const fs = require('fs');
 const { exec } = require('child_process');
+const { Worker } = require('worker_threads');
+const pLimit = require('p-limit'); // ← THIS IS THE FIX
+const imageProcessingLimit = pLimit(4); // Max 4 concurrent workers
+
+// Import dynamic island helper
+// const { DynamicIslandHelper } = require('./dynamicIslandHelper');
 
 // Import Windows compatibility fixes
 const {
@@ -121,6 +127,11 @@ const applyContentProtectionToWindow = (window) => {
 		}
 
 		window.setContentProtection(isContentProtectionEnabled);
+		log.info(
+			`🔒 Applied content protection (${
+				isContentProtectionEnabled ? 'ON' : 'OFF'
+			}) to new window: ${window.getTitle()}`,
+		);
 	}
 };
 
@@ -1079,10 +1090,23 @@ function setupNotchDropMenuUpdates() {
 	// Since the service emits events to the renderer, we'll listen for IPC messages
 	// that indicate status changes and update the menu accordingly
 
-	// Set up a periodic check to update menu state (as a fallback)
-	setInterval(() => {
-		updateMenuBarState();
-	}, 5000); // Update every 5 seconds
+	// Listen for NotchDrop service events to update menu
+	if (notchDropService.notchDropAddon) {
+		notchDropService.notchDropAddon.on('statusChanged', (status) => {
+			log.info('📊 NotchDrop status changed, updating menu:', status);
+			updateMenuBarState();
+		});
+
+		notchDropService.notchDropAddon.on('itemAdded', () => {
+			log.info('📊 NotchDrop item added, updating menu');
+			updateMenuBarState();
+		});
+
+		notchDropService.notchDropAddon.on('itemRemoved', () => {
+			log.info('📊 NotchDrop item removed, updating menu');
+			updateMenuBarState();
+		});
+	}
 
 	log.info('✅ NotchDrop menu update listeners set up');
 }
@@ -1173,6 +1197,26 @@ function createWindow(restoreState = false) {
 			contextIsolation: true,
 			devTools: true, // Enable developer tools in production
 		},
+	});
+
+	ipcMain.on('veAppMsg', async (event, msg) => {
+		log.info('🔄 Received message from veApp:', msg); // logs: btn clicked from react
+
+		// Send the same message to Swift UI if NotchDrop service is available
+		if (notchDropService && notchDropService.isInitialized) {
+			try {
+				const result = await notchDropService.sendMessageToSwiftUI(msg);
+				if (result.success) {
+					log.info('✅ Message sent to Swift UI successfully');
+				} else {
+					log.warn('⚠️ Failed to send message to Swift UI:', result.error);
+				}
+			} catch (error) {
+				log.error('❌ Error sending message to Swift UI:', error);
+			}
+		} else {
+			log.info('ℹ️ NotchDrop service not available, skipping Swift UI message');
+		}
 	});
 
 	if (process.env.VITE_DEV_SERVER_URL) {
@@ -1420,12 +1464,16 @@ app.whenReady().then(async () => {
 		const statusText = newStatus ? 'ON' : 'OFF';
 		const windowCount = BrowserWindow.getAllWindows().length;
 
+		// Show system notification with clear status
 		showNotification(
 			`Content Protection: ${statusText}`,
 			newStatus
 				? `🔒 INVISIBILITY ON - ${windowCount} windows are now protected from screen recording`
 				: `👁️ INVISIBILITY OFF - ${windowCount} windows are now visible in screen recording`,
 		);
+
+		// Also log to console for debugging
+		console.log(`🎯 TOGGLE TRIGGERED: Content Protection is now ${statusText}`);
 
 		return newStatus;
 	});
@@ -1439,6 +1487,7 @@ app.whenReady().then(async () => {
 		return setContentProtection(enabled);
 	});
 
+	// Register Ask AI window IPC handlers
 	ipcMain.handle('toggle-askAI-window', async () => {
 		try {
 			windowHelper?.toggleAskAIWindow();
@@ -3338,6 +3387,147 @@ app.whenReady().then(async () => {
 			log.error('Error saving current route:', error);
 			return { success: false, error: error.message };
 		}
+	});
+
+	// Register gallery IPC handlers from galleryUtils
+	// Enhanced image processing with batching
+	ipcMain.handle('process-image-batch', async (event, { files, settings }) => {
+		try {
+			const results = [];
+			const batchSize = 2; // Process 2 images at a time to prevent overwhelming
+
+			for (let i = 0; i < files.length; i += batchSize) {
+				const batch = files.slice(i, i + batchSize);
+				const batchPromises = batch.map((fileData) =>
+					imageProcessingLimit(async () => {
+						return new Promise((resolve) => {
+							const taskId = Date.now() + Math.random();
+							const workerPath = path.join(__dirname, 'imageProcessWorker.js');
+							const worker = new Worker(workerPath, {
+								workerData: { data: { ...fileData, settings } },
+							});
+
+							// Prepare transfer list for ArrayBuffer transfer
+							const transferList = [];
+							if (fileData.imageBuffer instanceof ArrayBuffer) {
+								transferList.push(fileData.imageBuffer);
+							}
+
+							worker.on('message', (result) => {
+								if (result.taskId === taskId) {
+									worker.terminate().catch(() => {});
+									resolve(result);
+								}
+							});
+
+							worker.on('error', (err) => {
+								worker.terminate().catch(() => {});
+								resolve({ success: false, error: `Worker error: ${err.message}` });
+							});
+
+							worker.on('exit', (code) => {
+								if (code !== 0) {
+									resolve({
+										success: false,
+										error: `Worker stopped with exit code ${code}`,
+									});
+								}
+							});
+
+							// Send with transfer list for zero-copy transfer
+							worker.postMessage(
+								{ taskId, data: { ...fileData, settings } },
+								transferList,
+							);
+						});
+					}),
+				);
+
+				const batchResults = await Promise.all(batchPromises);
+				results.push(...batchResults);
+
+				// Send progress update after each batch
+				event.sender.send('image-processing-progress', {
+					processed: results.length,
+					total: files.length,
+					results: results,
+				});
+
+				// Small delay to prevent overwhelming the system
+				await new Promise((resolve) => setTimeout(resolve, 50));
+			}
+
+			return { success: true, results };
+		} catch (error) {
+			log.error('Batch processing error:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('process-image-with-sharp', (event, data) => {
+		return imageProcessingLimit(async () => {
+			return new Promise((resolve) => {
+				const taskId = Date.now() + Math.random();
+				const workerPath = path.join(__dirname, 'imageProcessWorker.js');
+				const worker = new Worker(workerPath, {
+					workerData: { data },
+				});
+
+				// Prepare transfer list for ArrayBuffer transfer
+				const transferList = [];
+				if (data.imageBuffer instanceof ArrayBuffer) {
+					transferList.push(data.imageBuffer);
+				}
+
+				worker.on('message', (result) => {
+					if (result.taskId === taskId) {
+						worker.terminate().catch(() => {});
+						resolve(result);
+					}
+				});
+
+				worker.on('error', (err) => {
+					worker.terminate().catch(() => {});
+					resolve({ success: false, error: `Worker error: ${err.message}` });
+				});
+
+				worker.on('exit', (code) => {
+					if (code !== 0) {
+						resolve({
+							success: false,
+							error: `Worker stopped with exit code ${code}`,
+						});
+					}
+				});
+
+				// Send with transfer list for zero-copy transfer
+				worker.postMessage({ taskId, data }, transferList);
+			});
+		});
+	});
+
+	ipcMain.handle('extract-image-metadata', (event, data) => {
+		const helper = loadGalleryHelper();
+		if (!helper) {
+			return { success: false, error: 'Gallery helper not available' };
+		}
+		return safeExtractImageMetadata(data, helper.extractImageMetadata);
+	});
+
+	ipcMain.handle('download-album-zip', (event, data) => {
+		const helper = loadGalleryHelper();
+		if (!helper) {
+			return { success: false, error: 'Gallery helper not available' };
+		}
+		return helper.downloadAlbumZip(event, data);
+	});
+
+	ipcMain.handle('create-zip-from-urls', (event, data) => {
+		const helper = loadGalleryHelper();
+		if (!helper) {
+			return { success: false, error: 'Gallery helper not available' };
+		}
+		return helper.createZipFromUrls(event, data);
 	});
 
 	// Clipboard IPC handlers
