@@ -183,19 +183,32 @@ autoUpdater.autoInstallOnAppQuit = false; // Manual control for better error han
 // Flag to prevent concurrent update operations
 let isUpdateInProgress = false;
 
+// Platform-specific logging
+if (process.platform === 'win32') {
+	log.info('Windows auto-updater configured with auto-download and manual install');
+} else if (process.platform === 'darwin') {
+	log.info('macOS auto-updater configured with auto-download and manual install');
+} else {
+	log.info('Linux auto-updater configured with auto-download and manual install');
+}
+
 // Update event forwarding
 autoUpdater.on('checking-for-update', () => {
 	mainWindow?.webContents.send('update-status', { status: 'checking' });
 });
 
 autoUpdater.on('update-available', (info) => {
-	log.info('Update available:', info);
+	log.info('🔄 Update available:', info);
+	log.info('📦 Current version:', app.getVersion());
+	log.info('🆕 New version:', info.version);
 	isUpdateInProgress = true;
 
 	// Notify frontend that update is available
 	mainWindow?.webContents.send('update-status', {
 		status: 'available',
 		version: info.version,
+		currentVersion: app.getVersion(),
+		message: `Updating from ${app.getVersion()} to ${info.version}...`,
 	});
 
 	// Download will start automatically since autoDownload is true
@@ -270,7 +283,7 @@ autoUpdater.on('update-downloaded', (info) => {
 
 	// Auto-restart after 5 seconds with proper cleanup
 	setTimeout(() => {
-		log.info('Auto-restarting app to install update...');
+		log.info('🔄 Auto-restarting app to install update...');
 
 		// Set flag to prevent further update operations
 		isUpdateInProgress = true;
