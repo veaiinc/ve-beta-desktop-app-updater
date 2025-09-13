@@ -31,6 +31,13 @@ const UploadProgressPopup = () => {
 	const handleUploadComplete = (sessionId) => {
 		// Remove completed session from global context
 		removeUploadSession(sessionId);
+
+		// Dispatch custom event to notify other components that uploads completed
+		window.dispatchEvent(
+			new CustomEvent('uploadCompleted', {
+				detail: { sessionId },
+			}),
+		);
 	};
 
 	const handleUploadCancel = (sessionId) => {
@@ -323,13 +330,34 @@ const UploadProgressPopup = () => {
 					);
 					if (response[0]) {
 						const { uploadedCount } = response[1];
-						updateUploadState(sessionId, {
-							uploadedCount,
-							overallProgress: Math.min(
-								(uploadedCount / uniqueFiles.length) * 100,
-								100,
-							),
-						});
+						console.log(
+							`📊 Progress update for session ${sessionId}: ${uploadedCount}/${uniqueFiles.length} files uploaded`,
+						);
+
+						// Update file statuses based on backend progress
+						const currentState = activeUploads.get(sessionId);
+						if (currentState) {
+							const updatedFiles = currentState.files.map((file, index) => {
+								if (index < uploadedCount) {
+									return { ...file, status: 'completed', progress: 100 };
+								} else if (
+									index === uploadedCount &&
+									uploadedCount < uniqueFiles.length
+								) {
+									return { ...file, status: 'uploading', progress: 50 };
+								}
+								return file;
+							});
+
+							updateUploadState(sessionId, {
+								uploadedCount,
+								files: updatedFiles,
+								overallProgress: Math.min(
+									(uploadedCount / uniqueFiles.length) * 100,
+									100,
+								),
+							});
+						}
 					}
 				} catch (error) {
 					console.error('Progress monitoring error:', error);

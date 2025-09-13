@@ -821,6 +821,33 @@ const GalleryPage = () => {
 		}
 	}, [info?.albumTagId, info?.activeAlbumId, info?.activeTab, galleryId]);
 
+	// Listen for upload completion events to refresh images
+	useEffect(() => {
+		const handleUploadCompleted = () => {
+			// Only refresh if we're currently viewing the albums tab
+			if (
+				info?.activeTab === 'Albums' &&
+				info?.albumTagId &&
+				info?.activeAlbumId &&
+				galleryId
+			) {
+				console.log('🔄 Upload completed, refreshing gallery images...');
+				// Add a small delay to ensure backend has processed the uploads
+				setTimeout(() => {
+					handleGetGalleryImages();
+					// Show success message
+					message.success('Images uploaded successfully and gallery refreshed!');
+				}, 1000);
+			}
+		};
+
+		window.addEventListener('uploadCompleted', handleUploadCompleted);
+
+		return () => {
+			window.removeEventListener('uploadCompleted', handleUploadCompleted);
+		};
+	}, [info?.activeTab, info?.albumTagId, info?.activeAlbumId, galleryId]);
+
 	const handleGetGalleryImages = async () => {
 		if (info?.albumTagId && info?.activeAlbumId && info?.activeTab === 'Albums' && galleryId) {
 			setInfo((prev) => ({
