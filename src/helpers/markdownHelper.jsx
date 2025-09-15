@@ -620,16 +620,21 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 			)}
 			{!info?.editUserQuery ? (
 				<div className="hover-actions-container">
-					{/* <div className="icon-container" style={{ top: '-2px' }}>
-						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Edit'}>
+					<div className="icon-container" style={{ top: '-2px' }}>
+						<Tooltip
+							placement="bottom"
+							arrow={false}
+							trigger={'hover'}
+							color="transparent"
+							title={<div className="user-hover-icons-tooltip">Edit</div>}
+						>
 							<PencilSparkleIcon
 								width={'19px'}
 								height={'20px'}
 								onClick={handleEditUserQueryToggle}
 							/>
 						</Tooltip>
-					</div> */}
-
+					</div>
 					<div className="icon-container">
 						<Tooltip
 							placement="bottom"
