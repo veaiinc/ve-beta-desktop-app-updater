@@ -7,6 +7,7 @@ const logoutAPI = async () => {
 		const path = '/logout';
 		const token = localStorage?.getItem('usertoken') ?? false;
 		if (!token) {
+			window.electronApi.sendMessageFrmVeApp('unauthorized');
 			window.location.hash = '/';
 			reloadApp();
 		}
@@ -50,6 +51,7 @@ const logout = async () => {
 
 		window.location.replace('/');
 		logoutAPI();
+		window.electronApi.sendMessageFrmVeApp('loggedout');
 		return true;
 	} catch (err) {
 		console.error('Failed to perform logout:', err);

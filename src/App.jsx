@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import VoiceAgentParent from './views/features/voiceAgent/VoiceAgentParent';
 import useVoiceIntegration from './hooks/useVoiceIntegration';
 import NotchDropVoiceActivator from './components/NotchDropVoiceActivator';
+import UploadProgressPopup from './views/components/globalComponents/UploadProgressPopup/UploadProgressPopup';
 
 const App = () => {
 	const { routes } = useWorkspaceMode();
@@ -316,6 +317,9 @@ const App = () => {
 			
 			{/* NotchDrop Voice Agent Integration - DIRECT */}
 			{showVoiceFromNotch && <VoiceAgentParent />}
+
+			{/* Global Upload Progress Popup - persists across all routes */}
+			<UploadProgressPopup />
 		</>
 	);
 };

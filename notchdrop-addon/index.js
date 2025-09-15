@@ -5,54 +5,136 @@ if (process.platform !== 'darwin') {
 		constructor() {
 			console.log('ℹ️ NotchDrop addon skipped - not supported on', process.platform);
 		}
-		
-		initialize() { return false; }
-		show() { return false; }
-		hide() { return false; }
-		toggle() { return false; }
-		isVisible() { return false; }
-		setStatus() { return false; }
-		getStatus() { return 'unavailable'; }
-		on() { return this; }
-		emit() { return this; }
-		off() { return this; }
-		
+
+		initialize() {
+			return false;
+		}
+		show() {
+			return false;
+		}
+		hide() {
+			return false;
+		}
+		toggle() {
+			return false;
+		}
+		isVisible() {
+			return false;
+		}
+		setStatus() {
+			return false;
+		}
+		getStatus() {
+			return 'unavailable';
+		}
+		on() {
+			return this;
+		}
+		emit() {
+			return this;
+		}
+		off() {
+			return this;
+		}
+
 		// Mock all other methods to prevent errors
-		setContentType() { return false; }
-		getContentType() { return 'unavailable'; }
-		handleDroppedFiles() { return false; }
-		getCurrentItems() { return []; }
-		clearAllItems() { return false; }
-		setHapticFeedback() { return false; }
-		getHapticFeedback() { return false; }
-		setNotchVisible() { return false; }
-		getNotchVisible() { return false; }
-		showMenu() { return false; }
-		showSettings() { return false; }
-		showNormal() { return false; }
-		setAutoOpen() { return false; }
-		getAutoOpen() { return false; }
-		setLanguage() { return false; }
-		getLanguage() { return 'system'; }
-		getTrayItemCount() { return 0; }
-		clearTrayItems() { return false; }
-		getStatusString() { return 'unavailable'; }
-		getContentTypeString() { return 'unavailable'; }
-		setContentTypeFromString() { return false; }
-		getWindowPosition() { return { x: 0, y: 0, width: 0, height: 0 }; }
-		onOverlayStateChange() { return false; }
-		
+		setContentType() {
+			return false;
+		}
+		getContentType() {
+			return 'unavailable';
+		}
+		handleDroppedFiles() {
+			return false;
+		}
+		getCurrentItems() {
+			return [];
+		}
+		clearAllItems() {
+			return false;
+		}
+		setHapticFeedback() {
+			return false;
+		}
+		getHapticFeedback() {
+			return false;
+		}
+		setNotchVisible() {
+			return false;
+		}
+		getNotchVisible() {
+			return false;
+		}
+		showMenu() {
+			return false;
+		}
+		showSettings() {
+			return false;
+		}
+		showNormal() {
+			return false;
+		}
+		setAutoOpen() {
+			return false;
+		}
+		getAutoOpen() {
+			return false;
+		}
+		setLanguage() {
+			return false;
+		}
+		getLanguage() {
+			return 'system';
+		}
+		getTrayItemCount() {
+			return 0;
+		}
+		clearTrayItems() {
+			return false;
+		}
+		getStatusString() {
+			return 'unavailable';
+		}
+		getContentTypeString() {
+			return 'unavailable';
+		}
+		setContentTypeFromString() {
+			return false;
+		}
+		getWindowPosition() {
+			return { x: 0, y: 0, width: 0, height: 0 };
+		}
+		onOverlayStateChange() {
+			return false;
+		}
+
 		// Mock async methods
-		async triggerOverlayRecording() { return { success: false, error: 'Not supported on this platform' }; }
-		async triggerOverlayStopRecording() { return { success: false, error: 'Not supported on this platform' }; }
-		async triggerOverlayPauseRecording() { return { success: false, error: 'Not supported on this platform' }; }
-		async triggerOverlayResumeRecording() { return { success: false, error: 'Not supported on this platform' }; }
-		async triggerOverlayToggleLiveIntelligence() { return { success: false, error: 'Not supported on this platform' }; }
-		async initializeBridge() { return false; }
-		async waitForBridgeReady() { return false; }
-		isBridgeReady() { return false; }
+		async triggerOverlayRecording() {
+			return { success: false, error: 'Not supported on this platform' };
+		}
+		async triggerOverlayStopRecording() {
+			return { success: false, error: 'Not supported on this platform' };
+		}
+		async triggerOverlayPauseRecording() {
+			return { success: false, error: 'Not supported on this platform' };
+		}
+		async triggerOverlayResumeRecording() {
+			return { success: false, error: 'Not supported on this platform' };
+		}
+		async triggerOverlayToggleLiveIntelligence() {
+			return { success: false, error: 'Not supported on this platform' };
+		}
+		async initializeBridge() {
+			return false;
+		}
+		async waitForBridgeReady() {
+			return false;
+		}
+		isBridgeReady() {
+			return false;
+		}
 	}
-	
+
 	module.exports = MockNotchDropAddonWrapper;
 	module.exports.NotchDropAddonWrapper = MockNotchDropAddonWrapper;
 	return;
@@ -445,6 +527,9 @@ class NotchDropAddonWrapper extends EventEmitter {
 				console.log('🎤 NotchDrop: Received startVoiceAgent action');
 				this.emit('startVoiceAgent', data);
 				break;
+			case 'receiveMessage':
+				this.handleReceivedMessage(data);
+				break;
 			default:
 				console.error('❌ Unknown Swift action:', action);
 		}
@@ -460,6 +545,17 @@ class NotchDropAddonWrapper extends EventEmitter {
 			this.sendLogToOverlay(message);
 		} catch (error) {
 			console.error('❌ Error handling Swift log:', error);
+		}
+	}
+
+	// Handle received messages from Electron
+	handleReceivedMessage(message) {
+		try {
+			console.log('📨 Message received from Electron:', message);
+			// Emit the received message event
+			this.emit('messageReceived', message);
+		} catch (error) {
+			console.error('❌ Error handling received message:', error);
 		}
 	}
 
@@ -997,6 +1093,21 @@ class NotchDropAddonWrapper extends EventEmitter {
 		} catch (error) {
 			console.error('❌ Error adding voice message:', error);
 			throw error;
+		}
+	}
+
+	// Send action to Swift UI
+	triggerSwiftAction(action, data) {
+		if (!this.isInitialized) {
+			console.warn('NotchDrop not initialized, cannot trigger Swift action');
+			return;
+		}
+		try {
+			// Call the native triggerSwiftAction method
+			this.addon.triggerSwiftAction(action, data);
+			console.log('📤 Swift action triggered:', action, 'with data:', data);
+		} catch (error) {
+			console.error('❌ Error triggering Swift action:', error);
 		}
 	}
 

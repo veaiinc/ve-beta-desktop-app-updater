@@ -158,6 +158,7 @@ class NotchViewModel: NSObject, ObservableObject {
         case sendVoiceMessage(String)
         case voiceConnectionStateChanged(String)
         case startVoiceAgent
+        case receiveMessage(String)
     }
     
     // Voice Message Structure for UI
@@ -435,6 +436,26 @@ class NotchViewModel: NSObject, ObservableObject {
         
         // Emit action for JavaScript
         swiftActionSender.send(.setAuthenticated(authenticated))
+    }
+    
+    func receiveMessage(_ message: String) {
+        print("📨 Received message from Electron: \(message)")
+        
+        // Handle authentication state changes based on message content
+        DispatchQueue.main.async {
+            if message.lowercased() == "authorized" {
+                // Set authentication state to true for authorized message
+                self.setAuthenticated(true)
+                print("🔐 Authentication state set to TRUE based on message: \(message)")
+            } else if message.lowercased() == "unauthorized" || message.lowercased() == "loggedout" {
+                // Set authentication state to false for unauthorized or loggedOut messages
+                self.setAuthenticated(false)
+                print("🔓 Authentication state set to FALSE based on message: \(message)")
+            }
+        }
+        
+        // Emit the receiveMessage action so the UI can listen to it
+        swiftActionSender.send(.receiveMessage(message))
     }
     
     func navigateToMainScreen() {

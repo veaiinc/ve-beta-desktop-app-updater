@@ -32,6 +32,7 @@ class NotchDropWindow: NSWindow {
     private var itemAddedCallback: ((String) -> Void)?
     private var itemRemovedCallback: ((String) -> Void)?
     private var swiftActionCallback: ((String, String) -> Void)?
+    private var incomingActionCallback: ((String, String) -> Void)?
 
     // MARK: - Singleton
     @objc public static let shared = NotchDropCore()
@@ -400,6 +401,23 @@ class NotchDropWindow: NSWindow {
         swiftActionCallback = callback
     }
     
+    @objc public func setIncomingActionCallback(_ callback: @escaping (String, String) -> Void) {
+        incomingActionCallback = callback
+    }
+    
+    @objc public func handleIncomingAction(_ action: String, data: String) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let viewModel = self.notchViewModel else { return }
+            
+            switch action {
+            case "receiveMessage":
+                viewModel.receiveMessage(data)
+            default:
+                print("⚠️ Unknown incoming action: \(action)")
+            }
+        }
+    }
+    
     // MARK: - Overlay State Integration
     @objc public func onOverlayStateChange(_ state: [String: Any]) {
         DispatchQueue.main.async { [weak self] in
@@ -552,6 +570,8 @@ class NotchDropWindow: NSWindow {
             swiftActionCallback?("voiceConnectionStateChanged", state)
         case .startVoiceAgent:
             swiftActionCallback?("startVoiceAgent", "")
+        case .receiveMessage(let message):
+            swiftActionCallback?("receiveMessage", message)
         }
     }
 }
