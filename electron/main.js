@@ -856,6 +856,47 @@ function createMenuBar() {
 			  ]
 			: []),
 		{
+			label: 'Edit',
+			submenu: [
+				{
+					label: 'Undo',
+					role: 'undo',
+					accelerator: 'CmdOrCtrl+Z',
+				},
+				{
+					label: 'Redo',
+					role: 'redo',
+					accelerator: 'CmdOrCtrl+Y',
+				},
+				{
+					type: 'separator',
+				},
+				{
+					label: 'Cut',
+					role: 'cut',
+					accelerator: 'CmdOrCtrl+X',
+				},
+				{
+					label: 'Copy',
+					role: 'copy',
+					accelerator: 'CmdOrCtrl+C',
+				},
+				{
+					label: 'Paste',
+					role: 'paste',
+					accelerator: 'CmdOrCtrl+V',
+				},
+				{
+					type: 'separator',
+				},
+				{
+					label: 'Select All',
+					role: 'selectAll',
+					accelerator: 'CmdOrCtrl+A',
+				},
+			],
+		},
+		{
 			label: 'View',
 			submenu: [
 				{
@@ -1272,6 +1313,40 @@ function createWindow(restoreState = false) {
 			// Enable clipboard access
 			clipboard: true,
 		},
+	});
+
+	// Add context menu support for copy/paste functionality
+	mainWindow.webContents.on('context-menu', (event, params) => {
+		const menu = Menu.buildFromTemplate([
+			{
+				label: 'Cut',
+				role: 'cut',
+				enabled: params.isEditable && params.selectionText && params.selectionText.length > 0,
+			},
+			{
+				label: 'Copy',
+				role: 'copy',
+				enabled: params.selectionText && params.selectionText.length > 0,
+			},
+			{
+				label: 'Paste',
+				role: 'paste',
+				enabled: params.isEditable,
+			},
+			{
+				type: 'separator',
+			},
+			{
+				label: 'Select All',
+				role: 'selectAll',
+				enabled: params.isEditable,
+			},
+		]);
+
+		// Only show context menu if there's text selected or if it's an editable element
+		if (params.selectionText || params.isEditable) {
+			menu.popup();
+		}
 	});
 
 	ipcMain.on('veAppMsg', async (event, msg) => {
