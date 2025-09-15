@@ -21,14 +21,24 @@ export const copyToClipboard = async (text, options = {}) => {
 	try {
 		// First, try to use Electron's clipboard API (no permission issues)
 		if (window.electronApi?.clipboard?.writeText) {
-			const result = await window.electronApi.clipboard.writeText(text);
-			if (result.success) {
-				console.log('✅ Copied to clipboard via Electron API');
-				onSuccess();
-				return true;
-			} else {
-				console.log('❌ Electron clipboard failed, falling back to browser API');
+			try {
+				const result = await window.electronApi.clipboard.writeText(text);
+				if (result && result.success) {
+					console.log('✅ Copied to clipboard via Electron API');
+					onSuccess();
+					return true;
+				} else {
+					console.log('❌ Electron clipboard failed, falling back to browser API');
+				}
+			} catch (electronError) {
+				console.log('❌ Electron clipboard error, falling back to browser API:', electronError);
+				// If it's a "No handler registered" error, the handlers might not be ready yet
+				if (electronError.message && electronError.message.includes('No handler registered')) {
+					console.log('🔄 Electron handlers not ready yet, trying browser API...');
+				}
 			}
+		} else {
+			console.log('🔍 Electron API not available, trying browser API...');
 		}
 
 		// Fallback to browser clipboard API
@@ -64,19 +74,46 @@ export const copyToClipboard = async (text, options = {}) => {
 		onSuccess();
 		return true;
 	} catch (error) {
-		// Handle specific error types
-		if (error.name === 'NotAllowedError') {
-			const permissionError = new Error(
-				'Clipboard permission denied. Please allow clipboard access and try again.',
-			);
-			permissionError.name = 'PermissionDeniedError';
-			onError(permissionError);
-		} else if (error.name === 'PermissionDeniedError') {
-			onError(error);
-		} else {
-			onError(error);
+		console.error('❌ Browser clipboard API failed, trying legacy method:', error);
+		
+		// Fallback to legacy execCommand method
+		try {
+			const textArea = document.createElement('textarea');
+			textArea.value = text;
+			textArea.style.position = 'fixed';
+			textArea.style.left = '-999999px';
+			textArea.style.top = '-999999px';
+			document.body.appendChild(textArea);
+			textArea.focus();
+			textArea.select();
+			
+			const successful = document.execCommand('copy');
+			document.body.removeChild(textArea);
+			
+			if (successful) {
+				console.log('✅ Copied to clipboard via legacy method');
+				onSuccess();
+				return true;
+			} else {
+				throw new Error('Legacy copy method failed');
+			}
+		} catch (legacyError) {
+			console.error('❌ All copy methods failed:', legacyError);
+			
+			// Handle specific error types
+			if (error.name === 'NotAllowedError') {
+				const permissionError = new Error(
+					'Clipboard permission denied. Please allow clipboard access and try again.',
+				);
+				permissionError.name = 'PermissionDeniedError';
+				onError(permissionError);
+			} else if (error.name === 'PermissionDeniedError') {
+				onError(error);
+			} else {
+				onError(legacyError);
+			}
+			return false;
 		}
-		return false;
 	}
 };
 

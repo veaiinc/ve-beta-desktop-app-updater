@@ -1269,6 +1269,8 @@ function createWindow(restoreState = false) {
 			nodeIntegration: false,
 			contextIsolation: true,
 			devTools: true, // Enable developer tools in production
+			// Enable clipboard access
+			clipboard: true,
 		},
 	});
 
@@ -1451,12 +1453,50 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	// Set default permissions for clipboard access
+	// Set default permissions for clipboard access - always allow clipboard operations
 	session.defaultSession.setPermissionCheckHandler((webContents, permission) => {
 		if (permission === 'clipboard-read' || permission === 'clipboard-write') {
 			return true;
 		}
+		// Allow other common permissions
+		if (permission === 'notifications' || permission === 'geolocation') {
+			return true;
+		}
 		return false;
+	});
+
+	// Register clipboard IPC handlers early
+	ipcMain.handle('clipboard-write-text', async (event, text) => {
+		try {
+			// Verify clipboard module is available
+			if (!clipboard) {
+				log.error('Clipboard module not available');
+				return { success: false, error: 'Clipboard module not available' };
+			}
+
+			clipboard.writeText(text);
+			log.info('Text copied to clipboard successfully');
+			return { success: true };
+		} catch (error) {
+			log.error('Clipboard write error:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('clipboard-read-text', async () => {
+		try {
+			// Verify clipboard module is available
+			if (!clipboard) {
+				log.error('Clipboard module not available');
+				return { success: false, error: 'Clipboard module not available' };
+			}
+
+			const text = clipboard.readText();
+			return { success: true, text };
+		} catch (error) {
+			log.error('Clipboard read error:', error);
+			return { success: false, error: error.message };
+		}
 	});
 
 	// Configure automatic screen capture without dialog
@@ -3714,40 +3754,7 @@ app.whenReady().then(async () => {
 		return helper.createZipFromUrls(event, data);
 	});
 
-	// Clipboard IPC handlers
-	ipcMain.handle('clipboard-write-text', async (event, text) => {
-		try {
-			// Verify clipboard module is available
-			if (!clipboard) {
-				log.error('Clipboard module not available');
-				return { success: false, error: 'Clipboard module not available' };
-			}
-
-			clipboard.writeText(text);
-			log.info('Text copied to clipboard successfully');
-			return { success: true };
-		} catch (error) {
-			log.error('Clipboard write error:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('clipboard-read-text', async () => {
-		try {
-			// Verify clipboard module is available
-
-			if (!clipboard) {
-				log.error('Clipboard module not available');
-				return { success: false, error: 'Clipboard module not available' };
-			}
-
-			const text = clipboard.readText();
-			return { success: true, text };
-		} catch (error) {
-			log.error('Clipboard read error:', error);
-			return { success: false, error: error.message };
-		}
-	});
+	// Clipboard IPC handlers moved to app.whenReady() block for early registration
 
 	// Wake word service IPC handlers
 	// ipcMain.handle('wake-word-start', () => {

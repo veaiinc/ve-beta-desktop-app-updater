@@ -18,6 +18,7 @@ import { fileTypeIcons, getFaviconUrl, getWebsiteName } from '../../../helpers';
 import BrowserChainOfThought from './chatComponents/BrowserChainOfThought';
 import { ReactComponent as VeLogoSvg } from '../../../assets/svg/veLogo.svg';
 import TextSelector from './chatComponents/TextSelector';
+import { copyToClipboard } from '../../../helpers/clipboardHelper';
 
 const tooltipStyles = {
 	body: { color: 'var(--primary-font)' },
@@ -104,14 +105,32 @@ const AIMessage = ({
 		});
 	};
 
-	const handleCopyTextClick = useCallback((text) => {
+	const handleCopyTextClick = useCallback(async (text) => {
 		const textToBeCopied = text?.replace(/\[C\d+\]/g, '');
-		navigator?.clipboard?.writeText(textToBeCopied).then(() => {
-			setInfo((prev) => ({ ...prev, isCopiedToClipboard: true }));
-			setTimeout(() => {
+		
+		try {
+			const success = await copyToClipboard(textToBeCopied, {
+				onSuccess: () => {
+					setInfo((prev) => ({ ...prev, isCopiedToClipboard: true }));
+					setTimeout(() => {
+						setInfo((prev) => ({ ...prev, isCopiedToClipboard: false }));
+					}, 1000);
+				},
+				onError: (error) => {
+					console.error('Failed to copy text:', error);
+					// Show error feedback to user
+					setInfo((prev) => ({ ...prev, isCopiedToClipboard: false }));
+				}
+			});
+			
+			if (!success) {
+				console.error('Copy operation failed');
 				setInfo((prev) => ({ ...prev, isCopiedToClipboard: false }));
-			}, 1000);
-		});
+			}
+		} catch (error) {
+			console.error('Copy operation failed:', error);
+			setInfo((prev) => ({ ...prev, isCopiedToClipboard: false }));
+		}
 	}, []);
 
 	const handlePencilClick = useCallback(() => {
