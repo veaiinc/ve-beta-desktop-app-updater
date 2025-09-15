@@ -1045,7 +1045,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					<MeetSummary activeTab={activeTab} meetingId={meetingId} />
 				)}
 {showTranscriptTabs && activeTab === 'analytics' && (
-	<MeetingAnalytics meetingId={'68c3fa46666899f096c7cd8b'} />
+	<MeetingAnalytics meetingId={'68c8019923454c683d245693'} />
 )}
 				{showTranscriptTabs && activeTab === 'audio' && (
 					<div className="audio-tab-container">

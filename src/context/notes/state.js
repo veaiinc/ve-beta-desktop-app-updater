@@ -1859,7 +1859,7 @@ export const NotesState = (props) => {
 			console.log('response==>getMeetingAnalytics', response);
 			
 			if (response?.[0] && response?.[1]?.data?.getMeetingAnalytics) {
-				const analyticsData = JSON.parse(response[1].data.getMeetingAnalytics);
+				const analyticsData = (response[1].data.getMeetingAnalytics);
 				return [true, analyticsData];
 			} else {
 				// Handle GraphQL errors
