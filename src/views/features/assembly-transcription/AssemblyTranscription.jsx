@@ -65,12 +65,27 @@ const AssemblyTranscription = ({
 			jwtToken,
 			isAiIntelligenceEnabled,
 		});
+
+		if (window.electronApi) {
+			window.electronApi.sendMessageFrmVeApp('meetingstarted');
+		}
 	};
 
 	const handleStopRecording = () => {
 		stopRecording({
 			meetingId,
 		});
+
+		if (window.electronApi) {
+			window.electronApi.sendMessageFrmVeApp('meetingstopped');
+		}
+	};
+
+	const handleToggleMute = () => {
+		toggleMute();
+		if (window.electronApi) {
+			window.electronApi.sendMessageFrmVeApp('meetingmute');
+		}
 	};
 
 	return (
@@ -108,7 +123,7 @@ const AssemblyTranscription = ({
 						</button>
 						<button
 							className={`transcription-btn mic ${isMuted ? 'muted' : ''}`}
-							onClick={toggleMute}
+							onClick={handleToggleMute}
 							title={isMuted ? 'Unmute microphone' : 'Mute microphone'}
 							aria-label={isMuted ? 'Unmute microphone' : 'Mute microphone'}
 						>

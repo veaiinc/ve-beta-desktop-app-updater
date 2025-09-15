@@ -655,7 +655,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					/>
 				)}
 				{/* Assembly AI Transcription option */}
-				{showTranscriptTabs && type === 'desktop' && !history && useAssemblyAI && (
+				{/* {showTranscriptTabs && type === 'desktop' && !history && useAssemblyAI && (
 					<AssemblyTranscriptWrapper
 						handleLiveIntelligenceResponse={handleTranscriptionSuggestions}
 						tenantId={tennantSettingsData?._id}
@@ -665,7 +665,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						jwtToken={userToken}
 						isAiIntelligenceEnabled={isAiIntelligenceEnabled}
 					/>
-				)}
+				)} */}
 			</div>
 		</div>
 	);
