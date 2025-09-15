@@ -19,7 +19,7 @@ const log = require('electron-log');
 const { autoUpdater } = require('electron-updater');
 const WindowHelper = require('./helpers/windowHelper');
 const DynamicIslandHelper = require('./helpers/dynamicIslandHelper');
-const fs = require('fs');
+const fs = require('fs-extra');
 const { exec } = require('child_process');
 const { Worker } = require('worker_threads');
 const pLimit = require('p-limit') || require('p-limit').default;
@@ -3997,6 +3997,77 @@ app.whenReady().then(async () => {
 				success: false,
 				error: error.message,
 			};
+		}
+	});
+
+	// File System APIs for audio storage
+	ipcMain.handle('fs-ensure-dir', async (event, dirPath) => {
+		try {
+			await fs.ensureDir(dirPath);
+			return { success: true };
+		} catch (error) {
+			log.error('Error ensuring directory:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('fs-write-file', async (event, filePath, data) => {
+		try {
+			await fs.writeFile(filePath, data);
+			return { success: true };
+		} catch (error) {
+			log.error('Error writing file:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('fs-read-file', async (event, filePath) => {
+		try {
+			const data = await fs.readFile(filePath, 'utf8');
+			return { success: true, data };
+		} catch (error) {
+			log.error('Error reading file:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('fs-read-file-binary', async (event, filePath) => {
+		try {
+			const data = await fs.readFile(filePath);
+			return { success: true, data };
+		} catch (error) {
+			log.error('Error reading binary file:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('fs-exists', async (event, filePath) => {
+		try {
+			const exists = await fs.pathExists(filePath);
+			return { success: true, exists };
+		} catch (error) {
+			log.error('Error checking file existence:', error);
+			return { success: false, error: error.message, exists: false };
+		}
+	});
+
+	ipcMain.handle('fs-remove', async (event, filePath) => {
+		try {
+			await fs.remove(filePath);
+			return { success: true };
+		} catch (error) {
+			log.error('Error removing file:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('fs-readdir', async (event, dirPath) => {
+		try {
+			const files = await fs.readdir(dirPath);
+			return { success: true, files };
+		} catch (error) {
+			log.error('Error reading directory:', error);
+			return { success: false, error: error.message };
 		}
 	});
 });
