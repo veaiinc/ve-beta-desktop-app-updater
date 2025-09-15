@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 
 const InfiniteScroll = ({
 	children,
@@ -12,6 +12,7 @@ const InfiniteScroll = ({
 	scrollableTarget = null,
 	height = null,
 	className = '',
+	inverse = false, // use this for reverse infinite scroll
 	style = {},
 	hasChildren = true,
 	horizontal = false,
@@ -20,6 +21,7 @@ const InfiniteScroll = ({
 	const sentinelRef = useRef(null);
 	const scrollParent = useRef(null);
 	const loadingRef = useRef(false);
+	const prevScrollHeightRef = useRef(0);
 
 	useEffect(() => {
 		const rootEl =
@@ -59,8 +61,23 @@ const InfiniteScroll = ({
 		return () => observer.disconnect();
 	}, [hasMore, scrollThreshold, next, scrollableTarget, horizontal]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		loadingRef.current = false;
+
+		if (inverse) {
+			const targetEl =
+				typeof scrollableTarget === 'string'
+					? document.getElementById(scrollableTarget)
+					: scrollableTarget || scrollParent.current;
+
+			const newScrollHeight = targetEl?.scrollHeight || 0;
+
+			if (prevScrollHeightRef.current && newScrollHeight > prevScrollHeightRef.current) {
+				// Adjust scrollTop to keep viewport stable
+				targetEl.scrollTop += newScrollHeight - prevScrollHeightRef.current;
+			}
+			prevScrollHeightRef.current = newScrollHeight;
+		}
 	}, [dataLength]);
 
 	useEffect(() => {
@@ -97,10 +114,26 @@ const InfiniteScroll = ({
 			style={containerStyle}
 			className={className}
 		>
+			{/* for reverse infinite scroll */}
+			{inverse && hasMore && (
+				<div
+					ref={sentinelRef}
+					style={{
+						minWidth: horizontal ? '1px' : '100%',
+						minHeight: horizontal ? '100%' : '1px',
+						marginBottom: '2px',
+					}}
+				/>
+			)}
+			{inverse && !hasMore && endMessage}
+			{inverse && showLoader && loader}
+
 			{children}
-			{showLoader && loader}
-			{!hasMore && endMessage}
-			{hasMore && (
+
+			{/* for normal infinite scroll */}
+			{!inverse && showLoader && loader}
+			{!inverse && !hasMore && endMessage}
+			{!inverse && hasMore && (
 				<div
 					ref={sentinelRef}
 					style={{
