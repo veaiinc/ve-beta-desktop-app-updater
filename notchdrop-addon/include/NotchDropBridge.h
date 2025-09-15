@@ -73,6 +73,7 @@
 + (void)disconnectVoiceAssistant;
 + (NSString*)getVoiceConnectionStatus;
 + (void)updateVoiceConnectionState:(NSString*)status;
++ (void)updateVoiceMuteState:(BOOL)isMuted;
 + (void)addVoiceMessage:(NSString*)messageJson;
 
 @end
