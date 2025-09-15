@@ -91,6 +91,22 @@ class AudioStorageService {
 			await window.electronApi.fs.writeFile(metadataPath, metadataJson);
 
 			console.log('Audio saved successfully:', audioFilePath);
+			
+			// Automatically trigger upload to AssemblyAI after successful save
+			console.log('🚀 Automatically triggering upload to AssemblyAI...');
+			setTimeout(async () => {
+				try {
+					const uploadResult = await this.uploadToAssemblyAI(meetingId);
+					if (uploadResult.success) {
+						console.log('✅ Auto-upload to AssemblyAI successful!');
+					} else {
+						console.error('❌ Auto-upload to AssemblyAI failed:', uploadResult.error);
+					}
+				} catch (error) {
+					console.error('❌ Error during auto-upload:', error);
+				}
+			}, 1000); // Small delay to ensure file is fully written
+			
 			return {
 				success: true,
 				filePath: audioFilePath,
@@ -451,6 +467,29 @@ class AudioStorageService {
 					const metadataPath = this.getMetadataFilePath(meetingId);
 					const metadataJson = JSON.stringify(updatedMetadata, null, 2);
 					await window.electronApi.fs.writeFile(metadataPath, metadataJson);
+				}
+
+				// Automatically send to workspace API after successful upload
+				console.log('🚀 Automatically sending to workspace API...');
+				const jwtToken = localStorage.getItem('usertoken');
+				if (jwtToken) {
+					try {
+						const workspaceResult = await assemblyAIService.sendToWorkspaceAPI(
+							meetingId,
+							uploadResult.uploadUrl,
+							jwtToken
+						);
+						
+						if (workspaceResult.success) {
+							console.log('✅ Successfully sent to workspace API automatically!');
+						} else {
+							console.error('❌ Failed to send to workspace API:', workspaceResult.error);
+						}
+					} catch (error) {
+						console.error('❌ Error calling workspace API:', error);
+					}
+				} else {
+					console.warn('⚠️ No JWT token found - cannot send to workspace API');
 				}
 			}
 

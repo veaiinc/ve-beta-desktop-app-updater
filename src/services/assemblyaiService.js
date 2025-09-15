@@ -218,60 +218,281 @@ class AssemblyAIService {
 	 * @returns {Promise<{success: boolean, result?: object, error?: string}>}
 	 */
 	async sendToWorkspaceAPI(meetingId, audioUrl, jwtToken) {
+		console.log('🚀 ===== SEND TO WORKSPACE API STARTED =====');
+		console.log('🚀 Function called at:', new Date().toISOString());
+		console.log('📋 Input parameters:', {
+			meetingId,
+			audioUrl,
+			hasJwtToken: !!jwtToken,
+			jwtTokenLength: jwtToken ? jwtToken.length : 0
+		});
+		
 		try {
 			if (!jwtToken) {
+				console.error('❌ JWT token is missing');
 				throw new Error('JWT token is required');
 			}
 
 			const workspaceId = localStorage.getItem('workspaceId');
+			console.log('🏢 Workspace ID from localStorage:', workspaceId);
+			
 			if (!workspaceId) {
+				console.error('❌ Workspace ID not found in localStorage');
+				console.log('🔍 Available localStorage keys:', Object.keys(localStorage));
 				throw new Error('Workspace ID not found');
 			}
 
-			// Get audio duration from audioStorageService
+			// Get audio duration - use a simpler approach that works
 			let audioDurationSeconds = 0;
+			console.log('🔍 ===== STARTING AUDIO DURATION CALCULATION =====');
+			console.log('🔍 Meeting ID:', meetingId);
+			console.log('🔍 Audio URL:', audioUrl);
+			console.log('🔍 JWT Token exists:', !!jwtToken);
+			
 			try {
 				// Import audioStorageService dynamically to avoid circular dependency
 				const { default: audioStorageService } = await import('./audioStorageService.js');
+				console.log('📦 AudioStorageService imported successfully');
+				
 				const audioResult = await audioStorageService.getAudio(meetingId);
+				console.log('🎵 Audio result from storage:', {
+					success: audioResult.success,
+					hasAudioBlob: !!audioResult.audioBlob,
+					audioBlobSize: audioResult.audioBlob ? audioResult.audioBlob.size : 0,
+					audioBlobType: audioResult.audioBlob ? audioResult.audioBlob.type : 'N/A'
+				});
 				
 				if (audioResult.success && audioResult.audioBlob) {
-					// Create audio element to get duration
-					const audio = new Audio();
-					audio.preload = 'metadata';
+					console.log('🎵 Attempting to get audio duration...');
+					console.log('🎵 Audio blob size:', audioResult.audioBlob.size, 'bytes');
+					console.log('🎵 Audio blob type:', audioResult.audioBlob.type);
 					
-					// Create blob URL
+					// Method 1: Try to estimate duration from file size (fallback)
+					const estimatedDuration = audioResult.audioBlob.size / 16000; // Rough estimate: 16KB per second for WebM
+					console.log('📊 Estimated duration from file size:', estimatedDuration, 'seconds');
+					
+					// Method 2: Try to get actual duration using Web Audio API
+					try {
+						console.log('🎵 Trying Web Audio API approach...');
+						const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+						const arrayBuffer = await audioResult.audioBlob.arrayBuffer();
+						console.log('📊 Audio array buffer size:', arrayBuffer.byteLength);
+						
+						try {
+							const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+							audioDurationSeconds = audioBuffer.duration;
+							console.log('✅ Got duration from Web Audio API:', audioDurationSeconds, 'seconds');
+							audioContext.close();
+						} catch (decodeError) {
+							console.warn('⚠️ Web Audio API decode failed:', decodeError.message);
+							audioContext.close();
+							
+							// Method 3: Use the exact same approach as AudioPlayback that works
+							console.log('🎵 Using AudioPlayback-style approach...');
+							const audio = new Audio();
+							audio.preload = 'metadata'; // EXACT AudioPlayback setting
+							audio.crossOrigin = 'anonymous'; // EXACT AudioPlayback setting
+							
 					const blobUrl = URL.createObjectURL(audioResult.audioBlob);
-					audio.src = blobUrl;
+							console.log('🎵 Created blob URL:', blobUrl);
 					
-					// Wait for metadata to load
-					await new Promise((resolve, reject) => {
-						audio.onloadedmetadata = () => {
-							const durationSeconds = audio.duration;
-							if (durationSeconds && !isNaN(durationSeconds) && isFinite(durationSeconds)) {
-								// Use total seconds as float
-								audioDurationSeconds = durationSeconds;
-								console.log('🎵 Audio duration calculated:', {
-									durationSeconds,
-									audioDurationSeconds
+							audioDurationSeconds = await new Promise((resolve) => {
+								let resolved = false;
+								let gotDurationFromSeek = false;
+								
+								const cleanup = () => {
+									if (!resolved) {
+										resolved = true;
+										try {
+											URL.revokeObjectURL(blobUrl);
+											audio.src = '';
+										} catch (e) {
+											console.warn('Cleanup error:', e);
+										}
+									}
+								};
+								
+								const checkAndSetDuration = (source) => {
+									console.log(`📊 Checking duration from ${source}:`, audio.duration);
+									console.log(`📊 Duration type:`, typeof audio.duration);
+									console.log(`📊 Is NaN:`, isNaN(audio.duration));
+									console.log(`📊 Is Finite:`, isFinite(audio.duration));
+									console.log(`📊 Is > 0:`, audio.duration > 0);
+									
+									// Use the EXACT same validation as AudioPlayback
+									if (
+										audio.duration &&
+										!isNaN(audio.duration) &&
+										isFinite(audio.duration) &&
+										audio.duration > 0
+									) {
+										console.log(`✅ Got valid duration from ${source}:`, audio.duration);
+										cleanup();
+										resolve(audio.duration);
+										return true;
+									} else {
+										console.log(`❌ Duration validation failed from ${source}:`, {
+											duration: audio.duration,
+											hasValue: !!audio.duration,
+											isNaN: isNaN(audio.duration),
+											isFinite: isFinite(audio.duration),
+											isPositive: audio.duration > 0
+										});
+										return false;
+									}
+								};
+								
+								// Add forceDurationDetection function EXACTLY like AudioPlayback
+								const forceDurationDetection = () => {
+									console.log('🎵 Forcing duration detection by playing briefly (AudioPlayback method)');
+									
+									// Set a very small current time and play briefly (EXACT AudioPlayback approach)
+									audio.currentTime = 0.01;
+									audio.volume = 0; // Mute to avoid any sound
+									
+									audio.play()
+										.then(() => {
+											// After 50ms, pause and check duration (EXACT AudioPlayback timing)
+											setTimeout(() => {
+												audio.pause();
+												audio.currentTime = 0;
+												
+												console.log('📊 After AudioPlayback-style forced play, duration:', audio.duration);
+												
+												if (!checkAndSetDuration('forcedPlayAudioPlaybackStyle')) {
+													console.warn('⚠️ AudioPlayback-style forced play failed, using estimated duration');
+													cleanup();
+													resolve(estimatedDuration);
+												}
+											}, 50); // EXACT AudioPlayback timing
+										})
+										.catch((error) => {
+											console.warn('⚠️ AudioPlayback-style forced play failed:', error);
+											cleanup();
+											resolve(estimatedDuration);
+										});
+								};
+								
+								// Method 1: Try metadata first (exactly like AudioPlayback)
+								audio.addEventListener('loadedmetadata', () => {
+									console.log('📊 Metadata loaded, duration:', audio.duration);
+									if (!checkAndSetDuration('metadata')) {
+										console.log('⚠️ Metadata duration invalid, forcing detection...');
+										// Use the same approach as AudioPlayback
+										setTimeout(forceDurationDetection, 100);
+									}
 								});
-							}
-							URL.revokeObjectURL(blobUrl); // Clean up blob URL
-							resolve();
-						};
-						audio.onerror = () => {
-							URL.revokeObjectURL(blobUrl); // Clean up blob URL
-							reject(new Error('Failed to load audio metadata'));
-						};
+								
+								// Method 2: Duration change event
+								audio.addEventListener('durationchange', () => {
+									console.log('📊 Duration changed to:', audio.duration);
+									checkAndSetDuration('durationchange');
+								});
+								
+								// Method 3: Seeked event (this is what works in AudioPlayback)
+								audio.addEventListener('seeked', () => {
+									console.log('📊 Seeked completed, duration:', audio.duration);
+									if (checkAndSetDuration('seeked')) {
+										gotDurationFromSeek = true;
+									} else {
+										// If seek didn't work, try playing briefly
+										console.log('⚠️ Seek failed, trying brief play...');
+										audio.currentTime = 0;
+										const playPromise = audio.play();
+										if (playPromise) {
+											playPromise.then(() => {
+												setTimeout(() => {
+													audio.pause();
+													if (!checkAndSetDuration('playback')) {
+														console.warn('⚠️ All methods failed, using estimated duration');
+														cleanup();
+														resolve(estimatedDuration);
+													}
+												}, 200);
+											}).catch(() => {
+												console.warn('⚠️ Playback failed, using estimated duration');
+												cleanup();
+												resolve(estimatedDuration);
+											});
+										}
+									}
+								});
+								
+								// Method 4: Can play event (exactly like AudioPlayback)
+								audio.addEventListener('canplay', () => {
+									console.log('📊 Can play, duration:', audio.duration);
+									if (audio.duration > 0) {
+										checkAndSetDuration('canplay');
+									}
+								});
+								
+								// Error handling
+								audio.addEventListener('error', (e) => {
+									console.error('❌ Audio error:', e);
+									cleanup();
+									resolve(estimatedDuration);
+								});
+								
+								// Add AudioPlayback-style metadata timeout (500ms)
+								setTimeout(() => {
+									if (!resolved && !checkAndSetDuration('metadataTimeout')) {
+										console.log('⏰ AudioPlayback-style metadata timeout (500ms), forcing duration detection');
+										forceDurationDetection();
+									}
+								}, 500);
+								
+								// Final timeout fallback
+								setTimeout(() => {
+									if (!resolved) {
+										console.warn('⏰ Final duration detection timeout, using estimated duration');
+										cleanup();
+										resolve(estimatedDuration);
+									}
+								}, 10000);
+								
+								// Set source and start duration detection (EXACT AudioPlayback approach)
+								console.log('🎵 Setting audio source and starting load...');
+								audio.src = blobUrl;
+								audio.load();
+							});
+						}
+					} catch (webAudioError) {
+						console.warn('⚠️ Web Audio API not available:', webAudioError.message);
+						// Use estimated duration as final fallback
+						audioDurationSeconds = estimatedDuration;
+						console.log('📊 Using estimated duration as fallback:', audioDurationSeconds);
+					}
+					
+					console.log('✅ Final calculated duration:', audioDurationSeconds, 'seconds');
+				} else {
+					console.warn('⚠️ No audio blob available:', {
+						success: audioResult.success,
+						error: audioResult.error || 'Unknown error'
 					});
 				}
 			} catch (durationError) {
-				console.warn('⚠️ Could not get audio duration:', durationError.message);
-				// Continue without duration if we can't get it
+				console.error('❌ Could not get audio duration:', {
+					error: durationError.message,
+					stack: durationError.stack
+				});
 			}
+			
+			console.log('🎯 ===== FINAL AUDIO DURATION RESULT =====');
+			console.log('🎯 Final audioDurationSeconds value:', audioDurationSeconds);
+			console.log('🎯 Type of audioDurationSeconds:', typeof audioDurationSeconds);
+			console.log('🎯 Is NaN:', isNaN(audioDurationSeconds));
+			console.log('🎯 Is Finite:', isFinite(audioDurationSeconds));
+			console.log('🎯 Is > 0:', audioDurationSeconds > 0);
+			console.log('🎯 Exact value:', audioDurationSeconds);
+			console.log('🎯 =====================================');
 
 			const meetingSummaryApiUrl = getBaseUrl({ type: 'meeting_summary_api' });
 			const apiUrl = `${meetingSummaryApiUrl}/${workspaceId}/generate_meeting_analytics`;
+
+			console.log('🏗️ ===== BUILDING PAYLOAD =====');
+			console.log('🏗️ meeting_id:', meetingId);
+			console.log('🏗️ audio_url:', audioUrl);
+			console.log('🏗️ audio_duration_seconds (before assignment):', audioDurationSeconds);
 
 			const payload = {
 				meeting_id: meetingId,
@@ -279,6 +500,16 @@ class AssemblyAIService {
 				audio_duration_seconds: audioDurationSeconds
 			};
 
+			console.log('🏗️ ===== PAYLOAD CREATED =====');
+			console.log('🏗️ payload.audio_duration_seconds:', payload.audio_duration_seconds);
+			console.log('🏗️ Full payload object:', payload);
+			console.log('🏗️ JSON stringified payload:', JSON.stringify(payload, null, 2));
+			console.log('🏗️ =============================');
+
+			console.log(payload,'payloaduday')
+
+			console.log('🚀 ===== MEETING SUMMARY API PAYLOAD =====');
+			console.log('📋 Payload Details:', JSON.stringify(payload, null, 2));
 			console.log('🔍 Meeting Summary API call details:', {
 				workspaceId,
 				meetingId,
@@ -287,6 +518,7 @@ class AssemblyAIService {
 				apiUrl,
 				payload
 			});
+			console.log('🚀 ========================================');
 
 			// Send to meeting summary API endpoint
 			const response = await fetch(apiUrl, {
