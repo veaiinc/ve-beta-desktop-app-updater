@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useVoiceAgent } from './useVoiceAgent';
+import { useVoiceIntegration } from '../../../hooks/useVoiceIntegration';
 import './VoiceAgent.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as UserSoundSvg } from '../../../assets/svg/chat/UserSound.svg';
@@ -17,17 +18,68 @@ const VoiceAgentParent = () => {
 
 	const userToken = localStorage.getItem('usertoken');
 	const [token, setToken] = useState(userToken);
+	const [autoStartTriggered, setAutoStartTriggered] = useState(false);
 
+	// Use the working voice integration that generates tokens
+	const voiceIntegration = useVoiceIntegration();
+	
 	const {
-		isConnected,
-		isRecording,
-		isConnecting,
+		isConnected: wsConnected,
+		isRecording: wsRecording,
+		isConnecting: wsConnecting,
 		messages,
 		micStatus,
 		addMessage,
-		connectAndStart,
-		disconnect,
+		connectAndStart: wsConnectAndStart,
+		disconnect: wsDisconnect,
 	} = useVoiceAgent(token);
+	
+	// Use the working voice integration for actual connection
+	const isConnected = voiceIntegration.isConnected || wsConnected;
+	const isRecording = voiceIntegration.isMuted ? false : wsRecording;
+	const isConnecting = wsConnecting;
+	
+	// Auto-start voice agent when component mounts (triggered by NotchDrop)
+	useEffect(() => {
+		if (!autoStartTriggered && !isConnected && !isConnecting) {
+			console.log('🎤 DIRECT: VoiceAgentParent mounted - auto-starting with token generation...');
+			setAutoStartTriggered(true);
+			
+			setTimeout(async () => {
+				console.log('🎤 DIRECT: Calling connectToRoom() with token generation...');
+				try {
+					// Use the working voice integration that generates tokens and connects to LiveKit
+					await voiceIntegration.connectToRoom();
+					console.log('✅ DIRECT: Voice integration connected successfully');
+				} catch (error) {
+					console.error('❌ DIRECT: Voice integration failed:', error);
+					// Fallback to WebSocket approach
+					console.log('🔄 DIRECT: Falling back to WebSocket approach...');
+					wsConnectAndStart();
+				}
+			}, 500);
+		}
+	}, [voiceIntegration, isConnected, isConnecting, autoStartTriggered, wsConnectAndStart]);
+	
+	const connectAndStart = useCallback(async () => {
+		console.log('🎤 DIRECT: Manual connect triggered');
+		try {
+			await voiceIntegration.connectToRoom();
+		} catch (error) {
+			console.error('❌ Voice integration failed, using fallback:', error);
+			wsConnectAndStart();
+		}
+	}, [voiceIntegration, wsConnectAndStart]);
+	
+	const disconnect = useCallback(async () => {
+		console.log('🎤 DIRECT: Disconnect triggered');
+		try {
+			await voiceIntegration.disconnect();
+		} catch (error) {
+			console.error('❌ Voice integration disconnect failed:', error);
+		}
+		wsDisconnect();
+	}, [voiceIntegration, wsDisconnect]);
 
 	const chatContainerRef = useRef(null);
 	const actionBtnRef = useRef(null);

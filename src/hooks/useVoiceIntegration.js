@@ -185,7 +185,7 @@ export const useVoiceIntegration = () => {
 		}
 
 		try {
-			console.log('Starting connection process...');
+			console.log('🎤 Starting voice connection process...');
 
 			const room = roomRef.current;
 
@@ -194,7 +194,83 @@ export const useVoiceIntegration = () => {
 				await room.disconnect();
 			}
 
-			const { token, room_name: roomName } = await getTokenForVoice();
+			// Get location from localStorage first, fallback to India location
+			let location = JSON.parse(localStorage.getItem('location') || '{}');
+			
+			// If no location in localStorage, use the India location as fallback
+			if (!location || Object.keys(location).length === 0) {
+				location = {
+					"countryCode": "IN",
+					"countryRegionCode": "TS", 
+					"countryRegion": "Telangana",
+					"country": "India",
+					"city": "Hyderabad",
+					"timezone": "Asia/Kolkata",
+					"postalCode": "500009",
+					"currency": "INR",
+					"region": "ap-south-1"
+				};
+			}
+			
+			console.log('🌍 Using location data:', location);
+			
+			console.log('🔑 Generating voice token...');
+			const tokenResponse = await getTokenForVoice({ location });
+			console.log('🔍 Raw token response:', tokenResponse);
+			console.log('🔍 Available fields in response:', Object.keys(tokenResponse || {}));
+			console.log('🔍 Response type:', typeof tokenResponse);
+			
+			// Log each possible token field
+			console.log('🔍 Checking token fields:');
+			console.log('  - tokenResponse.token:', tokenResponse?.token);
+			console.log('  - tokenResponse.access_token:', tokenResponse?.access_token);
+			console.log('  - tokenResponse.accessToken:', tokenResponse?.accessToken);
+			console.log('  - tokenResponse.jwt:', tokenResponse?.jwt);
+			console.log('  - tokenResponse.authToken:', tokenResponse?.authToken);
+			
+			// Extract token and room name from response - check session_info first
+			const sessionInfo = tokenResponse?.session_info || tokenResponse;
+			console.log('🔍 Session info:', sessionInfo);
+			console.log('🔍 Session info fields:', Object.keys(sessionInfo || {}));
+			
+			const token = sessionInfo?.user_token ||  // ← This is the correct field!
+						 sessionInfo?.token || 
+						 sessionInfo?.access_token || 
+						 sessionInfo?.accessToken ||
+						 sessionInfo?.jwt ||
+						 sessionInfo?.authToken ||
+						 tokenResponse?.token || 
+						 tokenResponse?.access_token;
+						 
+			const roomName = sessionInfo?.room_name || 
+							sessionInfo?.roomName || 
+							sessionInfo?.room ||
+							sessionInfo?.roomId ||
+							sessionInfo?.session ||
+							sessionInfo?.sessionId ||
+							tokenResponse?.room_name || 
+							tokenResponse?.roomName;
+			
+			// Also extract the LiveKit URL from session_info
+			const liveKitUrl = sessionInfo?.url;
+			
+			console.log('🔍 Extracted values:');
+			console.log('  - token (user_token):', token ? `${token.substring(0, 50)}...` : 'undefined');
+			console.log('  - roomName:', roomName);
+			console.log('  - liveKitUrl:', liveKitUrl);
+			
+			console.log('✅ Voice token generated successfully:', { 
+				roomName, 
+				tokenLength: token?.length,
+				hasToken: !!token,
+				hasRoomName: !!roomName
+			});
+			
+			if (!token) {
+				throw new Error('No token received from API response');
+			}
+
+			// Skip regions API for now - use URL from session_info directly
 
 			// Remove old event listeners before adding new ones
 			room.removeAllListeners();
@@ -247,9 +323,43 @@ export const useVoiceIntegration = () => {
 				}
 			});
 
+			// ======= Handle Data Messages (Transcriptions) =======
+			room.on(RoomEvent.DataReceived, (payload, participant, topic) => {
+				try {
+					const decoder = new TextDecoder();
+					const message = decoder.decode(payload);
+					const data = JSON.parse(message);
+					
+					console.log('📝 Data received from voice agent:', data);
+					
+					// Handle different types of data messages
+					if (data.type === 'transcription' || data.type === 'agent_response') {
+						const messageData = {
+							sender: participant?.identity === 'agent' ? 'AI Agent' : 'User',
+							content: data.text || data.message || data.content,
+							isFromAgent: participant?.identity === 'agent',
+							timestamp: new Date().toISOString()
+						};
+						
+						// Send to NotchDrop
+						if (window.electronApi) {
+							window.electronApi.notchdrop.addVoiceMessage(messageData);
+						}
+						
+						// Dispatch custom event for other components
+						window.dispatchEvent(new CustomEvent('voice-transcription', {
+							detail: messageData
+						}));
+					}
+				} catch (error) {
+					console.error('❌ Error parsing data message:', error);
+				}
+			});
+
 			// ======= Connect to LiveKit Server =======
-			console.log('Connecting to LiveKit server...');
-			await room.connect('wss://veai-naymm7ww.livekit.cloud', token, { autoSubscribe: true });
+			const connectUrl = liveKitUrl || 'wss://ve-ai-voice-agent-ginreaey.livekit.cloud';
+			console.log('🔌 Connecting to LiveKit server:', connectUrl);
+			await room.connect(connectUrl, token, { autoSubscribe: true });
 
 			// ======= Create and Publish Audio Track =======
 			console.log('Creating local audio track...');
@@ -291,7 +401,12 @@ export const useVoiceIntegration = () => {
 			setReconnectAttempt(0);
 			console.log('Successfully connected to room:', roomName);
 		} catch (error) {
-			console.error('Connection error:', error);
+			console.error('❌ Voice connection error:', error);
+			console.error('❌ Error details:', {
+				message: error.message,
+				stack: error.stack,
+				name: error.name
+			});
 			setIsConnected(false);
 
 			try {
@@ -333,15 +448,50 @@ export const useVoiceIntegration = () => {
 				return;
 			}
 
+			console.log('🔌 Disconnecting voice agent - stopping all tracks...');
+			
+			// Stop all local audio tracks explicitly
+			const participant = roomRef.current.localParticipant;
+			if (participant) {
+				console.log('🎤 Stopping local audio tracks...');
+				
+				// audioTracks is a Map, so we need to iterate over its values
+				if (participant.audioTracks && participant.audioTracks.size > 0) {
+					participant.audioTracks.forEach((publication) => {
+						if (publication && publication.track) {
+							console.log('🛑 Stopping audio track:', publication.trackSid);
+							publication.track.stop();
+							publication.unpublish();
+						}
+					});
+				} else {
+					console.log('📝 No audio tracks to stop');
+				}
+				
+				// Also stop any video tracks if they exist
+				if (participant.videoTracks && participant.videoTracks.size > 0) {
+					participant.videoTracks.forEach((publication) => {
+						if (publication && publication.track) {
+							console.log('🛑 Stopping video track:', publication.trackSid);
+							publication.track.stop();
+							publication.unpublish();
+						}
+					});
+				} else {
+					console.log('📝 No video tracks to stop');
+				}
+			}
+
+			// Disconnect from the room
 			await roomRef.current.disconnect();
 
 			setIsConnected(false);
 			//also update the state of the room in the context
 			updateAiSetupState({ isVoiceIntegrationActive: null });
 			setReconnectAttempt(0);
-			console.log('Disconnected from room');
+			console.log('✅ Fully disconnected from room - microphone stopped');
 		} catch (error) {
-			console.error('Error disconnecting:', error);
+			console.error('❌ Error disconnecting:', error);
 		}
 	}, [setIsConnected, setReconnectAttempt]);
 
