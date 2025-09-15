@@ -81,9 +81,24 @@ const NotchDropVoiceActivator = () => {
             }
         };
 
+        const handleNotchDropMicrophoneToggle = (event) => {
+            console.log('🔇 NotchDrop Voice Activator: Received microphone toggle event:', event.detail);
+            
+            // Dispatch a custom event that the LiveKit components can listen to
+            window.dispatchEvent(new CustomEvent('livekit-toggle-microphone', { 
+                detail: { 
+                    source: 'notchdrop',
+                    timestamp: Date.now()
+                } 
+            }));
+            
+            console.log('✅ NotchDrop Voice Activator: LiveKit microphone toggle event dispatched');
+        };
+
         // Listen for custom events from NotchDrop
         window.addEventListener('notchdrop-activate-voice', handleNotchDropVoiceActivation);
         window.addEventListener('notchdrop-deactivate-voice', handleNotchDropVoiceDeactivation);
+        window.addEventListener('notchdrop-toggle-microphone', handleNotchDropMicrophoneToggle);
 
         // Listen for IPC events from NotchDrop (fallback)
         if (window.electronApi && window.electronApi.ipcRenderer) {
@@ -104,6 +119,7 @@ const NotchDropVoiceActivator = () => {
             return () => {
                 window.removeEventListener('notchdrop-activate-voice', handleNotchDropVoiceActivation);
                 window.removeEventListener('notchdrop-deactivate-voice', handleNotchDropVoiceDeactivation);
+                window.removeEventListener('notchdrop-toggle-microphone', handleNotchDropMicrophoneToggle);
                 
                 if (window.electronApi && window.electronApi.ipcRenderer) {
                     window.electronApi.ipcRenderer.removeListener('notchdrop:showVoiceAgent', handleIpcVoiceActivation);
@@ -116,6 +132,7 @@ const NotchDropVoiceActivator = () => {
         return () => {
             window.removeEventListener('notchdrop-activate-voice', handleNotchDropVoiceActivation);
             window.removeEventListener('notchdrop-deactivate-voice', handleNotchDropVoiceDeactivation);
+            window.removeEventListener('notchdrop-toggle-microphone', handleNotchDropMicrophoneToggle);
         };
     }, [updateAiSetupState, voiceIntegrationData]);
 
