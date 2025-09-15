@@ -10,10 +10,12 @@ import CustomToast, { message } from '../components/globalComponents/CustomToast
 import PageLoader from '../features/app/PageLoader';
 import useAuthInitializer from '../../hooks/useAuthInitializer';
 import usePushNotifications from '../../hooks/usePushNotifications';
+import useMigrationGate from '../../hooks/useMigrationGate';
 import VoiceWrapper from './VoiceWrapper';
 import Context from '../../context/context';
 import useNetworkStatus from '../../hooks/useNetworkStatus';
 import Offline from '../features/offline/Offline';
+import UnderMaintainence from '../features/underMaintainence/underMaintainence';
 import { internalServerEmitter } from '../../services';
 import InternalServer from '../components/globalComponents/InternalServer';
 
@@ -37,6 +39,7 @@ const AuthWrapper = ({
 
 	usePushNotifications(showPushNotification);
 	const { authInitialized } = useAuthInitializer();
+	const { migrationLoading, migrationInProgress } = useMigrationGate();
 
 	const {
 		aiSetup: { showVoiceWidget },
@@ -72,60 +75,61 @@ const AuthWrapper = ({
 	// 	topNavbar: <TopNavbar />,
 	// };
 
-	return isOnline ? (
-		authInitialized ? (
-			<PageLoader />
-		) : (
-			<main className="main-container">
+	if (!isOnline) return <Offline />;
+
+	// While checking migration, show loader to avoid flicker
+	if (migrationLoading) return <PageLoader />;
+
+	// Show offline-like page when migration is in progress (status 102)
+	if (migrationInProgress) return <UnderMaintainence />;
+
+	return authInitialized ? (
+		<PageLoader />
+	) : (
+		<main className="main-container">
+			<div className="authParentContainer" style={{ ...(authParentContainerStyle || {}) }}>
+				<Helmet>
+					<meta charSet="utf-8" />
+					<title>{title}</title>
+				</Helmet>
 				<div
-					className="authParentContainer"
-					style={{ ...(authParentContainerStyle || {}) }}
+					style={{
+						display: 'flex',
+						// flexDirection: layoutMode === 'topNavbar' ? 'column' : 'row',
+						flexDirection: 'column',
+						height: '100dvh',
+						padding: '0',
+						...outerContainerStyle,
+					}}
+					className="auth-wrapper-container"
 				>
-					<Helmet>
-						<meta charSet="utf-8" />
-						<title>{title}</title>
-					</Helmet>
+					{/* {layoutModeComponentMap[layoutMode]} */}
+					<TopNavbar />
 					<div
 						style={{
-							display: 'flex',
-							// flexDirection: layoutMode === 'topNavbar' ? 'column' : 'row',
-							flexDirection: 'column',
-							height: '100dvh',
-							padding: '0',
-							...outerContainerStyle,
+							flex: 1,
+							overflowY: 'auto',
+							maxHeight: '100%',
+							height: '100%',
+							padding: ' 0',
 						}}
-						className="auth-wrapper-container"
+						id="scrollableTarget"
 					>
-						{/* {layoutModeComponentMap[layoutMode]} */}
-						<TopNavbar />
 						<div
-							style={{
-								flex: 1,
-								overflowY: 'auto',
-								maxHeight: '100%',
-								height: '100%',
-								padding: ' 0',
-							}}
-							id="scrollableTarget"
+							className="childrenContainer"
+							style={{ maxWidth: maxWidth || '', ...childrenContainerStyles }}
 						>
-							<div
-								className="childrenContainer"
-								style={{ maxWidth: maxWidth || '', ...childrenContainerStyles }}
-							>
-								{showServerError ? <InternalServer /> : children}
-							</div>
+							{showServerError ? <InternalServer /> : children}
 						</div>
 					</div>
 				</div>
-				<ExpiredSubscriptionModal />
-				<ExpiredTokenModal />
-				<AccessDeniedPopup />
-				<CustomToast />
-				{showVoiceWidget && <VoiceWrapper />}
-			</main>
-		)
-	) : (
-		<Offline />
+			</div>
+			<ExpiredSubscriptionModal />
+			<ExpiredTokenModal />
+			<AccessDeniedPopup />
+			<CustomToast />
+			{showVoiceWidget && <VoiceWrapper />}
+		</main>
 	);
 };
 
