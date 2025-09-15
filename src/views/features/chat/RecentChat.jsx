@@ -97,6 +97,7 @@ const RecentChat = ({
 			noteModalIsOpen: false,
 			page: 1,
 			currentPage: true,
+			scrollExecuted: false,
 			latestStreamMesage: null,
 			activeAIMessageIndex: null,
 			activeAIMessageId: null,
@@ -338,7 +339,7 @@ const RecentChat = ({
 	}, [sessionId, agentType, assistantId]);
 
 	useLayoutEffect(() => {
-		if (!info?.scrollExecuted && globalChatMessages?.[sessionId]?.messages?.length) {
+		if (!info?.scrollExecuted && globalChatMessages?.[sessionId]?.messages) {
 			requestAnimationFrame(() => {
 				smoothScrollToLastMessage('instant');
 			});

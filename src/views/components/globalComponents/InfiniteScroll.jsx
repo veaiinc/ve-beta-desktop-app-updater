@@ -61,9 +61,7 @@ const InfiniteScroll = ({
 		return () => observer.disconnect();
 	}, [hasMore, scrollThreshold, next, scrollableTarget, horizontal]);
 
-	useLayoutEffect(() => {
-		loadingRef.current = false;
-
+	useEffect(() => {
 		if (inverse) {
 			const targetEl =
 				typeof scrollableTarget === 'string'
@@ -71,13 +69,21 @@ const InfiniteScroll = ({
 					: scrollableTarget || scrollParent.current;
 
 			const newScrollHeight = targetEl?.scrollHeight || 0;
+			const previousScrollHeight = prevScrollHeightRef.current;
 
-			if (prevScrollHeightRef.current && newScrollHeight > prevScrollHeightRef.current) {
+			if (
+				previousScrollHeight &&
+				newScrollHeight > previousScrollHeight &&
+				loadingRef.current
+			) {
 				// Adjust scrollTop to keep viewport stable
-				targetEl.scrollTop += newScrollHeight - prevScrollHeightRef.current;
+				targetEl.scrollTop += newScrollHeight - previousScrollHeight;
 			}
+
 			prevScrollHeightRef.current = newScrollHeight;
 		}
+
+		loadingRef.current = false;
 	}, [dataLength]);
 
 	useEffect(() => {
