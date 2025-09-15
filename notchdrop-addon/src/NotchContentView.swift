@@ -36,7 +36,7 @@ struct DynamicIslandContentView: View {
     @State private var cancellables = Set<AnyCancellable>()
     
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 3.0) {
             if !vm.isAuthenticated {
                 // Welcome section when not authenticated
                 VStack(spacing: 8) {
@@ -63,9 +63,9 @@ struct DynamicIslandContentView: View {
             } else {
                 // Full UI when authenticated
                 // Reduce spacing to bring chat input closer to the header
-                VStack(spacing: 16) {
+                VStack(spacing: 8.0) {
                     // Top row with start button and icons
-                    HStack {
+                    HStack(spacing: 0.0) {
                         // Start button section
                         HStack(spacing: 8) {
                             if !vm.isRecording && !vm.showVoiceInterface {
@@ -73,7 +73,7 @@ struct DynamicIslandContentView: View {
                                 Button(action: {
                                     vm.startRecording()
                                 }) {
-                                    HStack(spacing: 4) {
+                                    HStack(spacing: 5.0) {
                                         // Custom wave icon (SVG-based)
                                         WaveIcon(color: DynamicIslandTheme.black)
                                             .frame(width: 15, height: 15)
@@ -207,18 +207,7 @@ struct DynamicIslandContentView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                             }
 
-                            // Audio visualizer
-                            // HStack(spacing: 2) {
-                            //     ForEach(0..<5, id: \.self) { index in
-                            //         RoundedRectangle(cornerRadius: 1.6)
-                            //             .fill(DynamicIslandTheme.primaryGreen)
-                            //             .frame(width: 1.6, height: [6, 14, 10, 4, 6][index])
-                            //     }
-                            // }
-                            // .padding(.horizontal, 6)
-                            // .padding(.vertical, 4)
-                            // .background(Color.white.opacity(0.2))
-                            // .clipShape(RoundedRectangle(cornerRadius: 4))
+                          
                         }
                         
                         Spacer()
@@ -289,88 +278,7 @@ struct DynamicIslandContentView: View {
                                 isTextFieldActive: $isTextFieldActive,
                                 vm: vm
                             )
-                                
-                            // Debug: Manual focus trigger (remove in production)
-                            #if DEBUG
-                            HStack {
-                                Button("Focus TextEditor") {
-                                    print("🎯 Manual focus button tapped")
-                                    isChatInputFocused = true
-                                    isTextFieldActive = true
-                                    vm.isChatMode = true
-                                }
-                                .font(.system(size: 10))
-                                .foregroundColor(.yellow)
-                                
-                                Button("Test Chat") {
-                                    print("🎯 Test chat button tapped")
-                                    guard !vm.isSendingMessage else {
-                                        print("⚠️ Already sending message, ignoring test button")
-                                        return
-                                    }
-                                    vm.chatInput = "Test message from NotchDrop Swift\nWith multiple lines\nLike a real textarea!"
-                                    vm.submitChat()
-                                }
-                                .font(.system(size: 10))
-                                .foregroundColor(.yellow)
-                            }
-                            .padding(.top, 4)
-                            #endif
                             
-                            // COMMENTED OUT: Right-hand tile (Webcam and Voice controls)
-                            // This section contained webcam icon when recording and voice controls when not recording
-                            // Removed to simplify the notch UI and reduce width requirements
-                            /*
-                            if !vm.isChatMode {
-                                // Webcam when recording, Voice control otherwise
-                                if vm.isRecording {
-                                    VStack(spacing: 8) {
-                                        Image(systemName: "video.fill")
-                                            .font(.system(size: 24))
-                                            .foregroundColor(.white)
-                                        Text("Webcam")
-                                            .font(.system(size: 12, weight: .medium))
-                                            .foregroundColor(DynamicIslandTheme.textMuted)
-                                    }
-                                    .frame(width: 100, height: 100)
-                                    .background(DynamicIslandTheme.card)
-                                    .clipShape(Circle())
-                                    .transition(.scale(scale: 0.8).combined(with: .opacity))
-                                } else {
-                                    VStack(spacing: 8) {
-                                        if vm.voiceConnectionStatus == .connecting {
-                                            ProgressView().controlSize(.small)
-                                            Text("Connecting...")
-                                                .font(.system(size: 11, weight: .medium))
-                                                .foregroundColor(DynamicIslandTheme.textMuted)
-                                        } else if vm.voiceConnectionStatus == .connected {
-                                            WaveIcon(color: DynamicIslandTheme.primaryGreen)
-                                                .frame(width: 18, height: 18)
-                                            Text("Voice Active")
-                                                .font(.system(size: 12, weight: .medium))
-                                                .foregroundColor(DynamicIslandTheme.textMuted)
-                                        } else {
-                                            WaveIcon(color: .white)
-                                                .frame(width: 18, height: 18)
-                                            Text("Voice")
-                                                .font(.system(size: 12, weight: .medium))
-                                                .foregroundColor(DynamicIslandTheme.textMuted)
-                                        }
-                                    }
-                                    .frame(width: 100, height: 100)
-                                    .background(DynamicIslandTheme.card)
-                                    .clipShape(Circle())
-                                    .transition(.scale(scale: 0.8).combined(with: .opacity))
-                                    .onTapGesture {
-                                        if vm.voiceConnectionStatus == .connected {
-                                            vm.disconnectVoiceUI()
-                                        } else {
-                                            vm.connectVoiceUI()
-                                        }
-                                    }
-                                }
-                            }
-                            */
                         }
                     }
                     .frame(maxWidth: vm.notchOpenedSize.width - 32) // Constrain main content area
@@ -417,9 +325,9 @@ struct VoiceSplitLayout: View {
                         if vm.voiceMessages.isEmpty {
                             // Show connection status when no messages
                             VoiceMessageBubble(
-                                sender: "System", 
-                                text: vm.voiceConnectionStatus == .connected ? 
-                                    (vm.isMicrophoneMuted ? "Microphone muted - tap to unmute" : "Start speaking - your conversation will appear here") : 
+                                sender: "System",
+                                text: vm.voiceConnectionStatus == .connected ?
+                                    (vm.isMicrophoneMuted ? "Microphone muted - tap to unmute" : "Start speaking - your conversation will appear here") :
                                     (vm.voiceConnectionStatus == .connecting ? "Connecting to voice assistant..." : "Voice assistant disconnected")
                             )
                         } else {
@@ -476,8 +384,8 @@ struct VoiceMessageBubble: View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 6) {
                 Circle()
-                    .fill(isFromAgent ? DynamicIslandTheme.primaryGreen : 
-                          isStatus ? Color.yellow : 
+                    .fill(isFromAgent ? DynamicIslandTheme.primaryGreen :
+                          isStatus ? Color.yellow :
                           Color(red: 0.173, green: 0.176, blue: 0.180))
                     .frame(width: 6, height: 6)
                 Text(sender)
@@ -626,7 +534,7 @@ struct ChatTextAreaView: View {
                     RoundedRectangle(cornerRadius: 16)
                         .stroke(DynamicIslandTheme.stroke.opacity(isChatInputFocused ? 1.0 : 0.5), lineWidth: 1)
                 )
-                .frame(width: textEditorWidth, height: textEditorHeight)
+                .frame(width: .infinity, height: textEditorHeight)
                 .animation(DynamicIslandTheme.expansionAnimation, value: textEditorWidth)
                 .animation(.easeInOut(duration: 0.25), value: textEditorHeight)
             
@@ -874,7 +782,7 @@ struct WaveIcon: View {
 
 #Preview {
     NotchContentView(vm: .init())
-        .frame(width: 450, height: 150, alignment: .center)
+        .frame(width: 850, height: 150, alignment: .center)
         .background(.black)
         .preferredColorScheme(.dark)
 }
