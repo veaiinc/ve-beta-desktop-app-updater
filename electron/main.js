@@ -144,7 +144,7 @@ const shouldInitDynamicIsland = (() => {
 	const value = String(process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND || '')
 		.trim()
 		.toLowerCase();
-	return value === '1' || value === 'true' || value === 'yes' || value === 'on';
+	return process.platform !== 'darwin' || (value === '1' || value === 'true' || value === 'yes' || value === 'on');
 })();
 
 const loadGalleryHelper = () => {
