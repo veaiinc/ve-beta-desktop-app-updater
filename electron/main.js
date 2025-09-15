@@ -838,6 +838,26 @@ function createMenuBar() {
 					type: 'separator',
 				},
 				{
+					label: 'Toggle App',
+					accelerator: isMac ? 'Cmd+.' : 'Ctrl+.',
+					click: () => {
+						if (mainWindow && !mainWindow.isDestroyed()) {
+							if (mainWindow.isVisible()) {
+								mainWindow.hide();
+							} else {
+								mainWindow.show();
+								mainWindow.focus();
+							}
+						} else {
+							// Window doesn't exist, recreate it
+							createWindow(true); // Pass true to restore state
+						}
+					},
+				},
+				{
+					type: 'separator',
+				},
+				{
 					label: 'Quit',
 					accelerator: isMac ? 'Cmd+Q' : 'Ctrl+Q',
 					click: () => {
@@ -2140,6 +2160,18 @@ app.whenReady().then(async () => {
 	globalShortcut.register('CommandOrControl+I', () => {
 		if (dynamicIslandHelper) {
 			dynamicIslandHelper.toggleVisibility();
+		}
+	});
+
+	// Handle main window recreation from global shortcut
+	process.on('recreate-main-window', () => {
+		if (mainWindow && !mainWindow.isDestroyed()) {
+			// Window exists, just show it
+			mainWindow.show();
+			mainWindow.focus();
+		} else {
+			// Window doesn't exist, recreate it
+			createWindow(true); // Pass true to restore state
 		}
 	});
 
