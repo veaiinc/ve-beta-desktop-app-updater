@@ -411,6 +411,11 @@ const useAssemblyTranscription = ({
 										source: data.source,
 									};
 									onTranscriptionUpdate?.(transcriptionData);
+									
+									// Reset the 5-minute Are You There timer when transcription is received
+									if (window.electronApi?.areYouThere?.updateTranscriptionActivity) {
+										window.electronApi.areYouThere.updateTranscriptionActivity();
+									}
 								}
 							} else if (data.type === 'error') {
 								notification?.error(data.message || 'Transcription service error');
