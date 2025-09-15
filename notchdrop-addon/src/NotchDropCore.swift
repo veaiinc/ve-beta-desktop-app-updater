@@ -504,6 +504,14 @@ class NotchDropWindow: NSWindow {
         }
     }
     
+    @objc public func updateVoiceMuteState(_ isMuted: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let viewModel = self.notchViewModel else { return }
+            print("🔇 NotchDropCore: Updating voice mute state: \(isMuted)")
+            viewModel.isMicrophoneMuted = isMuted
+        }
+    }
+    
     @objc public func addVoiceMessage(_ messageJson: String) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let viewModel = self.notchViewModel else { return }
