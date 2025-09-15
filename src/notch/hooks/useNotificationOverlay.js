@@ -1,11 +1,11 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 const useNotificationOverlay = () => {
 	const [notifications, setNotifications] = useState([]);
 	const [showNotificationOverlay, setShowNotificationOverlay] = useState(false);
 	const timersRef = useRef(new Map()); // Store timers for each notification
 	const timerDataRef = useRef(new Map()); // Store timer data (remaining time, start time) for each notification
-
+	const timeoutsRef = useRef();
 	const showNotification = useCallback((notification, onNotificationStart, onNotificationEnd) => {
 		const id = Date.now() + Math.random();
 		const newNotification = {

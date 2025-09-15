@@ -1,4 +1,4 @@
-// main.js
+require('dotenv').config();
 const {
 	app,
 	BrowserWindow,
@@ -22,11 +22,8 @@ const DynamicIslandHelper = require('./helpers/dynamicIslandHelper');
 const fs = require('fs');
 const { exec } = require('child_process');
 const { Worker } = require('worker_threads');
-const pLimit = require('p-limit'); // ← THIS IS THE FIX
+const pLimit = require('p-limit').default;
 const imageProcessingLimit = pLimit(4); // Max 4 concurrent workers
-
-// Import dynamic island helper
-// const { DynamicIslandHelper } = require('./dynamicIslandHelper');
 
 // Import Windows compatibility fixes
 const {
@@ -46,6 +43,11 @@ const meetingMonitor = require('./notificationHelper'); // Adjust path if needed
 
 // Import NotchDrop service
 const NotchDropService = require('./services/notchDropService');
+
+log.info(
+	'process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND:',
+	process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND,
+);
 
 // Gallery processing functions will be loaded lazily when needed
 let galleryHelper = null;
@@ -138,6 +140,12 @@ const applyContentProtectionToWindow = (window) => {
 // Runtime platform override for testing (set VE_FORCE_PLATFORM=linux|win32|darwin)
 const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
 const isMacRuntime = RUNTIME_PLATFORM === 'darwin';
+const shouldInitDynamicIsland = (() => {
+	const value = String(process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND || '')
+		.trim()
+		.toLowerCase();
+	return value === '1' || value === 'true' || value === 'yes' || value === 'on';
+})();
 
 const loadGalleryHelper = () => {
 	if (!galleryHelper) {
@@ -272,15 +280,6 @@ autoUpdater.autoInstallOnAppQuit = false; // Manual control for better error han
 
 // Flag to prevent concurrent update operations
 let isUpdateInProgress = false;
-
-// Platform-specific logging
-if (process.platform === 'win32') {
-	log.info('Windows auto-updater configured with auto-download and manual install');
-} else if (process.platform === 'darwin') {
-	log.info('macOS auto-updater configured with auto-download and manual install');
-} else {
-	log.info('Linux auto-updater configured with auto-download and manual install');
-}
 
 // Update event forwarding
 autoUpdater.on('checking-for-update', () => {
@@ -1212,10 +1211,6 @@ function updateMenuBarState() {
 			if (autoOpenMenu) {
 				autoOpenMenu.checked = autoOpen;
 			}
-
-			log.info(
-				`📊 Menu updated - Status: ${status}, Visible: ${isVisible}, Auto-open: ${autoOpen}`,
-			);
 		}
 	} catch (error) {
 		log.error('❌ Failed to update menu bar state:', error);
@@ -1312,6 +1307,24 @@ function createWindow(restoreState = false) {
 		log.info('Window ready-to-show - content protection applied');
 		// Enable developer tools for main window in both development and production
 		log.info('Dev tools available with F12, Ctrl+F12, or Ctrl+Shift+I in all modes');
+
+		// Ensure Dynamic Island stays on top after main window appears
+		try {
+			if (dynamicIslandHelper && shouldInitDynamicIsland) {
+				setTimeout(() => {
+					try {
+						dynamicIslandHelper.forceShow();
+						// Extra focus/raise for macOS layering quirks
+						dynamicIslandHelper.focus();
+						log.info('Reasserted Dynamic Island on top after main window show');
+					} catch (e) {
+						log.warn('Could not reassert Dynamic Island on top:', e);
+					}
+				}, 200);
+			}
+		} catch (e) {
+			log.warn('Dynamic Island post-show raise failed:', e);
+		}
 
 		// If restoring state, navigate to the last known route
 		if (restoreState && lastWindowState.route) {
@@ -1479,12 +1492,6 @@ app.whenReady().then(async () => {
 		// Check microphone permission status (this is synchronous)
 		const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
 		const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
-
-		log.info('macOS Microphone permission status:', microphoneStatus);
-		log.info('macOS Camera permission status:', cameraStatus);
-
-		console.log('Microphone status:', microphoneStatus);
-		console.log('Camera status:', cameraStatus);
 	}
 
 	// ✅ Request screen recording permission (macOS only)
@@ -1510,16 +1517,20 @@ app.whenReady().then(async () => {
 
 	// 🎤 IPC: Start Mic Monitoring
 
-	// Initialize Dynamic Island with comprehensive error handling
-	try {
-		log.info('Initializing Dynamic Island Helper...');
-		dynamicIslandHelper = new DynamicIslandHelper();
-		dynamicIslandHelper.createDynamicIslandWindow();
-		log.info('Dynamic Island Helper initialized successfully');
-	} catch (error) {
-		log.error('Failed to initialize Dynamic Island Helper:', error);
-		// Continue app initialization even if Dynamic Island fails
-		dynamicIslandHelper = null;
+	// Initialize Dynamic Island only when explicitly enabled
+	if (shouldInitDynamicIsland) {
+		try {
+			log.info('Initializing Dynamic Island Helper (env enabled)...');
+			dynamicIslandHelper = new DynamicIslandHelper();
+			dynamicIslandHelper.createDynamicIslandWindow();
+			log.info('Dynamic Island Helper initialized successfully');
+		} catch (error) {
+			log.error('Failed to initialize Dynamic Island Helper:', error);
+			// Continue app initialization even if Dynamic Island fails
+			dynamicIslandHelper = null;
+		}
+	} else {
+		log.info('Dynamic Island disabled. Set VITE_ELECTRON_SHOW_DYNAMIC_ISLAND=true to enable.');
 	}
 
 	// THEN: Create main window after dynamic island
