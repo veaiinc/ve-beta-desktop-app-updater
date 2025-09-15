@@ -17,6 +17,7 @@ import { ConnectionState, LocalParticipant, Track } from 'livekit-client';
 const NotchDropLiveKitIntegration = () => {
     const [transcripts, setTranscripts] = useState(new Map());
     const [lastSentMessages, setLastSentMessages] = useState([]);
+    const [isMicrophoneMuted, setIsMicrophoneMuted] = useState(false);
     
     // LiveKit hooks
     const voiceAssistant = useVoiceAssistant();
@@ -154,6 +155,42 @@ const NotchDropLiveKitIntegration = () => {
         lastSentMessages
     ]);
     
+    // Listen for microphone toggle events from NotchDrop
+    useEffect(() => {
+        const handleMicrophoneToggle = async (event) => {
+            console.log('🔇 NotchDrop LiveKit Integration: Received microphone toggle event:', event.detail);
+            
+            if (localParticipant && roomState === ConnectionState.Connected) {
+                try {
+                    const newMuteState = !isMicrophoneMuted;
+                    
+                    // Toggle microphone using LiveKit's setMicrophoneEnabled
+                    await localParticipant.setMicrophoneEnabled(!newMuteState);
+                    setIsMicrophoneMuted(newMuteState);
+                    
+                    console.log(`🔇 NotchDrop LiveKit Integration: Microphone ${newMuteState ? 'muted' : 'unmuted'}`);
+                    
+                    // Update NotchDrop Swift UI with the new mute state
+                    if (window.electronApi?.notchdrop?.updateVoiceMuteState) {
+                        await window.electronApi.notchdrop.updateVoiceMuteState(newMuteState);
+                    }
+                } catch (error) {
+                    console.error('❌ Error toggling microphone:', error);
+                }
+            } else {
+                console.warn('⚠️ Cannot toggle microphone: not connected or no local participant');
+            }
+        };
+
+        // Listen for the microphone toggle event
+        window.addEventListener('livekit-toggle-microphone', handleMicrophoneToggle);
+
+        // Cleanup
+        return () => {
+            window.removeEventListener('livekit-toggle-microphone', handleMicrophoneToggle);
+        };
+    }, [localParticipant, roomState, isMicrophoneMuted]);
+
     // Update NotchDrop connection status
     useEffect(() => {
         const updateNotchDropStatus = async (status) => {
@@ -174,21 +211,21 @@ const NotchDropLiveKitIntegration = () => {
                 case 'listening':
                 case 'thinking':
                 case 'speaking':
-                    notchDropStatus = 'connected';
+                    notchDropStatus = isMicrophoneMuted ? 'muted' : 'connected';
                     break;
                 case 'connecting':
                 case 'initializing':
                     notchDropStatus = 'connecting';
                     break;
                 default:
-                    notchDropStatus = 'connected';
+                    notchDropStatus = isMicrophoneMuted ? 'muted' : 'connected';
             }
         } else if (roomState === ConnectionState.Connecting) {
             notchDropStatus = 'connecting';
         }
         
         updateNotchDropStatus(notchDropStatus);
-    }, [roomState, voiceAssistant.state]);
+    }, [roomState, voiceAssistant.state, isMicrophoneMuted]);
     
     // Test message on mount (disabled - transcription is working)
     // useEffect(() => {

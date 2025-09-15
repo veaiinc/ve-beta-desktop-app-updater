@@ -1080,6 +1080,20 @@ class NotchDropAddonWrapper extends EventEmitter {
 		}
 	}
 
+	// Update voice mute state from JavaScript
+	updateVoiceMuteState(isMuted) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			this.addon.updateVoiceMuteState(isMuted);
+			console.log(`🔇 Voice mute state updated: ${isMuted}`);
+		} catch (error) {
+			console.error('❌ Error updating voice mute state:', error);
+			throw error;
+		}
+	}
+
 	// Add voice message from JavaScript
 	addVoiceMessage(messageData) {
 		if (!this.isInitialized) {
