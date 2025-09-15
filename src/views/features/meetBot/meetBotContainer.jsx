@@ -531,148 +531,148 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	// 	[info.transcriptions],
 	// );
 
-	const handleSocketTranscription = (newTranscript) => {
-		setInfo((prev) => {
-			const transcriptions = prev.transcriptions || [];
+	// const handleSocketTranscription = (newTranscript) => {
+	// 	setInfo((prev) => {
+	// 		const transcriptions = prev.transcriptions || [];
 
-			// Get the transcript text from various possible sources
-			const transcriptText =
-				newTranscript.transcript || newTranscript.displayedText || newTranscript.text || '';
+	// 		// Get the transcript text from various possible sources
+	// 		const transcriptText =
+	// 			newTranscript.transcript || newTranscript.displayedText || newTranscript.text || '';
 
-			// Check if this transcript already exists (to avoid duplicates)
-			const existingTranscript = transcriptions.find(
-				(t) =>
-					t.text === transcriptText ||
-					t.transcript === transcriptText ||
-					t.id === newTranscript.id, // Also check by ID
-			);
+	// 		// Check if this transcript already exists (to avoid duplicates)
+	// 		const existingTranscript = transcriptions.find(
+	// 			(t) =>
+	// 				t.text === transcriptText ||
+	// 				t.transcript === transcriptText ||
+	// 				t.id === newTranscript.id, // Also check by ID
+	// 		);
 
-			if (existingTranscript) {
-				return prev; // Don't add duplicate
-			}
+	// 		if (existingTranscript) {
+	// 			return prev; // Don't add duplicate
+	// 		}
 
-			// Check if this is a continuation of the last transcript (same session)
-			const lastTranscript = transcriptions[transcriptions.length - 1];
-			let isContinuation = false;
-			if (newTranscript?.isTurnFormatted) {
-				isContinuation = true;
-			} else {
-				isContinuation = lastTranscript && !lastTranscript.isFinal;
-			}
+	// 		// Check if this is a continuation of the last transcript (same session)
+	// 		const lastTranscript = transcriptions[transcriptions.length - 1];
+	// 		let isContinuation = false;
+	// 		if (newTranscript?.isTurnFormatted) {
+	// 			isContinuation = true;
+	// 		} else {
+	// 			isContinuation = lastTranscript && !lastTranscript.isFinal;
+	// 		}
 
-			if (!newTranscript.isFinal) {
-				// Partial transcript - update the last entry if it's a continuation
-				if (isContinuation) {
-					// Update the last entry with the new partial text
-					const updated = [...transcriptions];
-					updated[updated.length - 1] = {
-						...updated[updated.length - 1],
-						...newTranscript,
-						text: transcriptText,
-						transcript: transcriptText,
-						time: new Date().toLocaleTimeString(),
-					};
-					return { ...prev, transcriptions: updated };
-				} else {
-					// New partial transcript - add as new entry
-					return {
-						...prev,
-						transcriptions: [
-							...transcriptions,
-							{
-								...newTranscript,
-								text: transcriptText,
-								transcript: transcriptText,
-								time: new Date().toLocaleTimeString(),
-							},
-						],
-					};
-				}
-			} else {
-				// Final transcript - update the last entry if it's a continuation, otherwise append
-				if (isContinuation) {
-					// Finalize the last entry
-					const updated = [...transcriptions];
-					updated[updated.length - 1] = {
-						...updated[updated.length - 1],
-						...newTranscript,
-						text: transcriptText,
-						transcript: transcriptText,
-						time: new Date().toLocaleTimeString(),
-						isFinal: true,
-					};
-					return { ...prev, transcriptions: updated };
-				} else {
-					// New final transcript - append as new entry
-					return {
-						...prev,
-						transcriptions: [
-							...transcriptions,
-							{
-								...newTranscript,
-								text: transcriptText,
-								transcript: transcriptText,
-								time: new Date().toLocaleTimeString(),
-								isFinal: true,
-							},
-						],
-					};
-				}
-			}
-		});
-	};
+	// 		if (!newTranscript.isFinal) {
+	// 			// Partial transcript - update the last entry if it's a continuation
+	// 			if (isContinuation) {
+	// 				// Update the last entry with the new partial text
+	// 				const updated = [...transcriptions];
+	// 				updated[updated.length - 1] = {
+	// 					...updated[updated.length - 1],
+	// 					...newTranscript,
+	// 					text: transcriptText,
+	// 					transcript: transcriptText,
+	// 					time: new Date().toLocaleTimeString(),
+	// 				};
+	// 				return { ...prev, transcriptions: updated };
+	// 			} else {
+	// 				// New partial transcript - add as new entry
+	// 				return {
+	// 					...prev,
+	// 					transcriptions: [
+	// 						...transcriptions,
+	// 						{
+	// 							...newTranscript,
+	// 							text: transcriptText,
+	// 							transcript: transcriptText,
+	// 							time: new Date().toLocaleTimeString(),
+	// 						},
+	// 					],
+	// 				};
+	// 			}
+	// 		} else {
+	// 			// Final transcript - update the last entry if it's a continuation, otherwise append
+	// 			if (isContinuation) {
+	// 				// Finalize the last entry
+	// 				const updated = [...transcriptions];
+	// 				updated[updated.length - 1] = {
+	// 					...updated[updated.length - 1],
+	// 					...newTranscript,
+	// 					text: transcriptText,
+	// 					transcript: transcriptText,
+	// 					time: new Date().toLocaleTimeString(),
+	// 					isFinal: true,
+	// 				};
+	// 				return { ...prev, transcriptions: updated };
+	// 			} else {
+	// 				// New final transcript - append as new entry
+	// 				return {
+	// 					...prev,
+	// 					transcriptions: [
+	// 						...transcriptions,
+	// 						{
+	// 							...newTranscript,
+	// 							text: transcriptText,
+	// 							transcript: transcriptText,
+	// 							time: new Date().toLocaleTimeString(),
+	// 							isFinal: true,
+	// 						},
+	// 					],
+	// 				};
+	// 			}
+	// 		}
+	// 	});
+	// };
 
-	const handleSocketMessage = useCallback(
-		(event) => {
-			try {
-				const msg = JSON.parse(event?.data || null);
+	// const handleSocketMessage = useCallback(
+	// 	(event) => {
+	// 		try {
+	// 			const msg = JSON.parse(event?.data || null);
 
-				if (msg?.event === 'transcript.received' && msg?.data) {
-					// Append new transcript data to existing list
-					setTranscriptList((prev) => [
-						...prev,
-						{
-							speakerName: msg?.data?.speakerName,
-							transcript: msg?.data?.transcript,
-							timestamp: msg?.data?.timestamp,
-						},
-					]);
-					// const data = msg?.data;
-					// if (data?.speakerName?.length > 0 || data?.transcript?.length > 0) {
-					// 	updateCurrentContext &&
-					// 		updateCurrentContext(
-					// 			(data?.speakerName || '') + ' : ' + (data?.transcript || ''),
-					// 		);
-					// }
-				} else if (msg?.event === 'live_intelligence.response' && msg?.data) {
-					handleTranscriptionSuggestions(msg?.data);
-				} else if (msg?.event === 'transcript.done') {
-					closeRecallConnection();
-					setSearchParams({
-						...Object.fromEntries(searchParams.entries()),
-						history: 'true',
-					});
-					getMeetSummary({ meetingId });
-				} else if (msg?.noteTakerTranscript) {
-					// Handle noteTakerTranscript responses
-					handleSocketTranscription({
-						...msg.noteTakerTranscript,
-						isFinal: true, // Assume final since it's from server
-						id: msg.noteTakerTranscript._id || Date.now().toString(),
-					});
-				} else if (msg?.event === 'bot.join') {
-					setInfo((prev) => ({
-						...prev,
-						botJoined: true,
-						botJoinedTime: moment().unix(),
-					}));
-				}
-			} catch (e) {
-				console.error('Error in handleSocketMessage:', e);
-			}
-		},
-		[handleSocketTranscription],
-	);
+	// 			if (msg?.event === 'transcript.received' && msg?.data) {
+	// 				// Append new transcript data to existing list
+	// 				setTranscriptList((prev) => [
+	// 					...prev,
+	// 					{
+	// 						speakerName: msg?.data?.speakerName,
+	// 						transcript: msg?.data?.transcript,
+	// 						timestamp: msg?.data?.timestamp,
+	// 					},
+	// 				]);
+	// 				// const data = msg?.data;
+	// 				// if (data?.speakerName?.length > 0 || data?.transcript?.length > 0) {
+	// 				// 	updateCurrentContext &&
+	// 				// 		updateCurrentContext(
+	// 				// 			(data?.speakerName || '') + ' : ' + (data?.transcript || ''),
+	// 				// 		);
+	// 				// }
+	// 			} else if (msg?.event === 'live_intelligence.response' && msg?.data) {
+	// 				handleTranscriptionSuggestions(msg?.data);
+	// 			} else if (msg?.event === 'transcript.done') {
+	// 				closeRecallConnection();
+	// 				setSearchParams({
+	// 					...Object.fromEntries(searchParams.entries()),
+	// 					history: 'true',
+	// 				});
+	// 				getMeetSummary({ meetingId });
+	// 			} else if (msg?.noteTakerTranscript) {
+	// 				// Handle noteTakerTranscript responses
+	// 				handleSocketTranscription({
+	// 					...msg.noteTakerTranscript,
+	// 					isFinal: true, // Assume final since it's from server
+	// 					id: msg.noteTakerTranscript._id || Date.now().toString(),
+	// 				});
+	// 			} else if (msg?.event === 'bot.join') {
+	// 				setInfo((prev) => ({
+	// 					...prev,
+	// 					botJoined: true,
+	// 					botJoinedTime: moment().unix(),
+	// 				}));
+	// 			}
+	// 		} catch (e) {
+	// 			console.error('Error in handleSocketMessage:', e);
+	// 		}
+	// 	},
+	// 	[handleSocketTranscription],
+	// );
 
 	// Fetch historical data when component mounts
 	useEffect(() => {
@@ -775,6 +775,49 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			chatClicked: !prev.chatClicked,
 		}));
 	};
+
+	const updateTranscriptionHelper = (transcriptionArray, newTranscript) => {
+		const { source } = newTranscript;
+		console.log('transcriptionArray', transcriptionArray);
+
+		if (transcriptionArray.length > 0) {
+			// Find the most recent transcript from the same source
+			for (let i = transcriptionArray.length - 1; i >= 0; i--) {
+				if (transcriptionArray[i].source === source) {
+					const oldTranscript = transcriptionArray[i];
+
+					// Logic based on the state of the previous transcript:
+					// - Final AND formatted → Append new transcript (start new entry)
+					// - Final but NOT formatted → Replace with new transcript
+					// - Not final → Replace with new transcript
+					if (oldTranscript.isFinal && oldTranscript.isTurnFormatted) {
+						return [...transcriptionArray, newTranscript];
+					} else {
+						// Replace existing transcript (whether final-unformatted or not-final)
+						const updatedArray = [...transcriptionArray];
+						updatedArray[i] = newTranscript;
+						return updatedArray;
+					}
+				}
+			}
+		}
+
+		// If no match found or array is empty, append the new transcript
+		return [...transcriptionArray, newTranscript];
+	};
+
+	const handleUpdateTranscription = (newTranscript) => {
+		console.log('newTranscript', newTranscript);
+
+		setInfo((prev) => ({
+			...prev,
+			transcriptions: updateTranscriptionHelper(prev.transcriptions, newTranscript),
+		}));
+	};
+
+	// useEffect(() => {
+	// 	console.log('info.transcriptions', info.transcriptions);
+	// }, [info.transcriptions]);
 
 	return (
 		<div className="meetbot-container">
@@ -880,18 +923,16 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 															className="avatar"
 															style={{
 																backgroundColor: getSpeakerColor(
-																	item.speakerName,
+																	item.source,
 																),
 															}}
 														>
-															{item.speakerName
-																?.split(' ')[0]
-																?.charAt(0)}
+															{item.source === 'mic' ? 'Y' : 'S'}
 														</span>
 													)}
 
 													<span className="meet-transcript-participant">
-														{item.speakerName || 'Note Taker'}
+														{item.source === 'mic' ? 'You' : 'Screen'}
 													</span>
 													<DotIcon />
 													<span className="meet-transcript-time">
@@ -958,7 +999,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						tenantId={tennantSettingsData?._id}
 						sessionId={sessionId}
 						visible={activeTab === 'transcript'}
-						onTranscriptionUpdate={handleSocketTranscription}
+						onTranscriptionUpdate={handleUpdateTranscription}
 						jwtToken={userToken}
 						isAiIntelligenceEnabled={isAiIntelligenceEnabled}
 					/>
