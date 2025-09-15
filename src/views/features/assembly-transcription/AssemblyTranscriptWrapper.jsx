@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import Context from '../../../context/context';
 
 const AssemblyTranscriptWrapper = ({
-	sendMessage,
+	handleLiveIntelligenceResponse,
 	tenantId,
 	sessionId,
 	onTranscriptionUpdate,
@@ -56,22 +56,6 @@ const AssemblyTranscriptWrapper = ({
 		// Only load history once when component mounts or page refreshes
 		loadTranscripts(1, false);
 	}, []); // Empty dependency array - only runs once on mount
-
-	const handleLiveIntelligenceResponse = useCallback(
-		(data) => {
-			// Handle live intelligence responses
-
-			// You can process live intelligence data here and send to parent if needed
-			if (sendMessage) {
-				sendMessage({
-					type: 'live_intelligence_response',
-					data: data,
-					timestamp: Date.now(),
-				});
-			}
-		},
-		[sendMessage],
-	);
 
 	useEffect(() => {
 		if (transcriptions.length > 0) {
