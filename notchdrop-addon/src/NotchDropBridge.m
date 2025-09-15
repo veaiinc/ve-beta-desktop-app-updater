@@ -124,4 +124,29 @@ static void (^incomingActionCallback)(NSString*, NSString*);
     [NotchDropCore.shared onOverlayStateChange:state];
 }
 
+// MARK: - Voice Assistant Integration
++ (void)configureVoice:(NSString*)url token:(NSString*)token {
+    [NotchDropCore.shared configureVoice:url token:token];
+}
+
++ (void)connectVoiceAssistant {
+    [NotchDropCore.shared connectVoiceAssistant];
+}
+
++ (void)disconnectVoiceAssistant {
+    [NotchDropCore.shared disconnectVoiceAssistant];
+}
+
++ (NSString*)getVoiceConnectionStatus {
+    return [NotchDropCore.shared getVoiceConnectionStatus];
+}
+
++ (void)updateVoiceConnectionState:(NSString*)status {
+    [NotchDropCore.shared updateVoiceConnectionState:status];
+}
+
++ (void)addVoiceMessage:(NSString*)messageJson {
+    [NotchDropCore.shared addVoiceMessage:messageJson];
+}
+
 @end

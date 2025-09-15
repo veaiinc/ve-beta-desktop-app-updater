@@ -5,6 +5,13 @@ const path = require('path');
 const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
 const isMacRuntime = RUNTIME_PLATFORM === 'darwin';
 const isWindowsRuntime = RUNTIME_PLATFORM === 'win32';
+// Treat a range of truthy strings as enabling the Dynamic Island universally
+const shouldForceShowDynamicIsland = (() => {
+	const value = String(process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND || '')
+		.trim()
+		.toLowerCase();
+	return value === '1' || value === 'true' || value === 'yes' || value === 'on';
+})();
 
 module.exports = class DynamicIslandHelper {
 	constructor() {
@@ -24,27 +31,42 @@ module.exports = class DynamicIslandHelper {
 
 	setupScreenDimensions() {
 		const primaryDisplay = screen.getPrimaryDisplay();
-		const workArea = primaryDisplay.workAreaSize;
-		this.screenWidth = workArea.width;
-		this.screenHeight = workArea.height;
+		// Use full workArea (x,y,width,height) so we place window below macOS menu bar
+		const workArea = primaryDisplay.workArea || primaryDisplay.workAreaSize;
+		const workAreaWidth = workArea.width;
+		const workAreaHeight = workArea.height;
+		const workAreaX = typeof workArea.x === 'number' ? workArea.x : 0;
+		const workAreaY = typeof workArea.y === 'number' ? workArea.y : 0;
 
-		// Position at center top - use expanded size for positioning
+		this.screenWidth = workAreaWidth;
+		this.screenHeight = workAreaHeight;
+
+		// Center horizontally within the work area
 		this.position.x =
-			Math.floor(this.screenWidth / 2) - Math.floor(this.expandedSize.width / 2);
+			Math.floor(workAreaX + workAreaWidth / 2) - Math.floor(this.expandedSize.width / 2);
 
-		this.position.y = 0;
+		// Place at the top of the work area so it's visible below the menu bar on macOS
+		this.position.y = workAreaY + 6;
 	}
 
 	createDynamicIslandWindow() {
 		if (this.dynamicIslandWindow !== null) return;
 
-		// Skip window creation on macOS (runtime) - only create for Windows/Linux
-		if (isMacRuntime) {
-			log.info('Skipping Dynamic Island window creation on macOS (using native NotchDrop)');
+		// Previously macOS skipped window creation because native NotchDrop handles UI.
+		// If VITE_ELECTRON_SHOW_DYNAMIC_ISLAND is truthy, override and create the window on macOS too.
+		if (isMacRuntime && !shouldForceShowDynamicIsland) {
+			log.info(
+				'Skipping Dynamic Island window creation on macOS (using native NotchDrop). Set VITE_ELECTRON_SHOW_DYNAMIC_ISLAND=true to force show.',
+			);
 			return;
 		}
 
-		log.info('Creating Dynamic Island window for platform:', process.platform);
+		log.info(
+			'Creating Dynamic Island window for platform:',
+			process.platform,
+			'| forced:',
+			shouldForceShowDynamicIsland,
+		);
 		log.info('NODE_ENV:', process.env.NODE_ENV);
 		log.info('__dirname:', __dirname);
 
@@ -84,7 +106,10 @@ module.exports = class DynamicIslandHelper {
 		const fs = require('fs');
 		if (!fs.existsSync(preloadPath)) {
 			log.error('Preload file not found at:', preloadPath);
-			log.error('Available files in parent directory:', fs.readdirSync(path.join(__dirname, '..')));
+			log.error(
+				'Available files in parent directory:',
+				fs.readdirSync(path.join(__dirname, '..')),
+			);
 			return;
 		}
 		log.info('Preload file found at:', preloadPath);
@@ -100,7 +125,7 @@ module.exports = class DynamicIslandHelper {
 		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
 		// Force the Dynamic Island React app mode so it renders the island UI
 		const query = '?mode=dynamic-island';
-		
+
 		let dynamicIslandUrl;
 		if (process.env.NODE_ENV === 'development') {
 			dynamicIslandUrl = `${devURL}/dynamic-island.html${query}`;
@@ -112,7 +137,7 @@ module.exports = class DynamicIslandHelper {
 				path.join(process.resourcesPath, 'build', 'dynamic-island.html'),
 				path.join(process.resourcesPath, 'app', 'build', 'dynamic-island.html'),
 			];
-			
+
 			let htmlPath = null;
 			for (const testPath of possiblePaths) {
 				if (fs.existsSync(testPath)) {
@@ -121,11 +146,11 @@ module.exports = class DynamicIslandHelper {
 					break;
 				}
 			}
-			
+
 			if (!htmlPath) {
 				log.error('Dynamic Island HTML file not found in any of these locations:');
-				possiblePaths.forEach(p => log.error('  -', p));
-				
+				possiblePaths.forEach((p) => log.error('  -', p));
+
 				// Debug: show what directories exist
 				try {
 					const parentDir = path.join(__dirname, '..');
@@ -133,7 +158,7 @@ module.exports = class DynamicIslandHelper {
 						const parentFiles = fs.readdirSync(parentDir);
 						log.error('Available in parent directory:', parentFiles);
 					}
-					
+
 					if (process.resourcesPath && fs.existsSync(process.resourcesPath)) {
 						const resourceFiles = fs.readdirSync(process.resourcesPath);
 						log.error('Available in resources directory:', resourceFiles);
@@ -143,7 +168,7 @@ module.exports = class DynamicIslandHelper {
 				}
 				return;
 			}
-			
+
 			dynamicIslandUrl = `file://${htmlPath}${query}`;
 		}
 
@@ -153,25 +178,36 @@ module.exports = class DynamicIslandHelper {
 			log.error('Failed to load dynamic island URL:', dynamicIslandUrl, err);
 		});
 
-		// Configure for non-macOS platforms
+		// Configure window level and position per-platform
 		try {
-			this.dynamicIslandWindow.setAlwaysOnTop(true, 'screen-saver');
+			if (isMacRuntime) {
+				// On macOS, 'status' level keeps it above standard windows and menubar overlays
+				this.dynamicIslandWindow.setAlwaysOnTop(true, 'status');
+				this.dynamicIslandWindow.setVisibleOnAllWorkspaces(true);
+				// Ensure position uses updated work area placement
+				this.dynamicIslandWindow.setPosition(this.position.x, this.position.y);
+			} else {
+				this.dynamicIslandWindow.setAlwaysOnTop(true, 'screen-saver');
+			}
 			log.info('Dynamic Island set to always on top');
 		} catch (error) {
 			log.error('Failed to set Dynamic Island always on top:', error);
 		}
 
-		// Set initial mouse event handling - start with mouse events ignored since it's collapsed
-		this.setMouseEventHandling(true);
+		// Set initial mouse event handling
+		// When forced on macOS for visibility/debugging, allow interactions immediately
+		this.setMouseEventHandling(!(isMacRuntime && shouldForceShowDynamicIsland));
 
 		// Show the window immediately with enhanced visibility
 		try {
 			this.dynamicIslandWindow.show();
 			this.dynamicIslandWindow.focus();
 			this.dynamicIslandWindow.moveTop();
+			// Reposition once more using computed work area coordinates
+			this.dynamicIslandWindow.setPosition(this.position.x, this.position.y);
 			this.isVisible = true;
 			log.info('Dynamic Island window shown successfully');
-			
+
 			// Force visibility after multiple delays to ensure it's visible
 			setTimeout(() => {
 				if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
@@ -181,7 +217,7 @@ module.exports = class DynamicIslandHelper {
 					log.info('Dynamic Island visibility enforced (1st pass)');
 				}
 			}, 500);
-			
+
 			// Second visibility enforcement
 			setTimeout(() => {
 				if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
@@ -191,7 +227,7 @@ module.exports = class DynamicIslandHelper {
 					log.info('Dynamic Island visibility enforced (2nd pass)');
 				}
 			}, 2000);
-			
+
 			// Third visibility enforcement for stubborn cases
 			setTimeout(() => {
 				if (this.dynamicIslandWindow && !this.dynamicIslandWindow.isDestroyed()) {
@@ -205,16 +241,57 @@ module.exports = class DynamicIslandHelper {
 		}
 
 		// Listen for window events
-		this.dynamicIslandWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
-			log.error('Dynamic Island failed to load:', {
-				errorCode,
-				errorDescription,
-				validatedURL
-			});
-		});
+		this.dynamicIslandWindow.webContents.on(
+			'did-fail-load',
+			(event, errorCode, errorDescription, validatedURL) => {
+				log.error('Dynamic Island failed to load:', {
+					errorCode,
+					errorDescription,
+					validatedURL,
+				});
+
+				// Dev fallback: try loading local file if dev server isn't reachable
+				try {
+					const fs = require('fs');
+					const possibleDevFallbacks = [
+						path.join(__dirname, '..', '..', 'dynamic-island.html'),
+						path.join(process.cwd(), 'dynamic-island.html'),
+					];
+					let fallback = null;
+					for (const p of possibleDevFallbacks) {
+						if (fs.existsSync(p)) {
+							fallback = p;
+							break;
+						}
+					}
+					if (fallback) {
+						const url = `file://${fallback}?mode=dynamic-island`;
+						log.warn('Retrying Dynamic Island load with local file:', url);
+						this.dynamicIslandWindow.loadURL(url).catch((err) => {
+							log.error('Fallback load failed:', err);
+						});
+					}
+				} catch (e) {
+					log.error('Error during dev fallback load attempt:', e);
+				}
+			},
+		);
 
 		this.dynamicIslandWindow.webContents.on('dom-ready', () => {
 			log.info('Dynamic Island DOM ready');
+			// Auto-open devtools in development when forced to aid debugging
+			try {
+				if (
+					shouldForceShowDynamicIsland &&
+					process.env.NODE_ENV === 'development' &&
+					this.dynamicIslandWindow &&
+					!this.dynamicIslandWindow.isDestroyed()
+				) {
+					this.dynamicIslandWindow.webContents.openDevTools({ mode: 'detach' });
+				}
+			} catch (e) {
+				log.warn('Failed to open devtools for Dynamic Island:', e);
+			}
 		});
 
 		this.dynamicIslandWindow.on('closed', () => {
@@ -229,7 +306,9 @@ module.exports = class DynamicIslandHelper {
 			// Send initial state to React component - start collapsed
 			log.info('Sending initial state to React component: { expanded: false }');
 			try {
-				this.dynamicIslandWindow.webContents.send('dynamic-island-state', { expanded: false });
+				this.dynamicIslandWindow.webContents.send('dynamic-island-state', {
+					expanded: false,
+				});
 				log.info('Initial state sent to Dynamic Island successfully');
 			} catch (error) {
 				log.error('Failed to send initial state to Dynamic Island:', error);
@@ -262,8 +341,8 @@ module.exports = class DynamicIslandHelper {
 	}
 
 	expand() {
-		// On macOS (runtime), just track the state without window operations
-		if (isMacRuntime) {
+		// On macOS (runtime), just track the state without window operations unless forced
+		if (isMacRuntime && !shouldForceShowDynamicIsland) {
 			this.isExpanded = true;
 			log.info('🍎 Dynamic Island expand state tracked (no window on macOS)');
 			return;
@@ -284,8 +363,8 @@ module.exports = class DynamicIslandHelper {
 	}
 
 	collapse() {
-		// On macOS (runtime), just track the state without window operations
-		if (isMacRuntime) {
+		// On macOS (runtime), just track the state without window operations unless forced
+		if (isMacRuntime && !shouldForceShowDynamicIsland) {
 			this.isExpanded = false;
 			log.info('🍎 Dynamic Island collapse state tracked (no window on macOS)');
 			return;
@@ -332,8 +411,8 @@ module.exports = class DynamicIslandHelper {
 	}
 
 	show() {
-		// On macOS (runtime), just track the state without window operations
-		if (isMacRuntime) {
+		// On macOS (runtime), just track the state without window operations unless forced
+		if (isMacRuntime && !shouldForceShowDynamicIsland) {
 			this.isVisible = true;
 			log.info('🍎 Dynamic Island show state tracked (no window on macOS)');
 			return;
@@ -347,8 +426,8 @@ module.exports = class DynamicIslandHelper {
 	}
 
 	hide() {
-		// On macOS (runtime), just track the state without window operations
-		if (isMacRuntime) {
+		// On macOS (runtime), just track the state without window operations unless forced
+		if (isMacRuntime && !shouldForceShowDynamicIsland) {
 			this.isVisible = false;
 			log.info('🍎 Dynamic Island hide state tracked (no window on macOS)');
 			return;
@@ -382,8 +461,8 @@ module.exports = class DynamicIslandHelper {
 
 	// Method to reposition Dynamic Island based on platform
 	repositionForPlatform() {
-		// On macOS (runtime), just log that repositioning was called
-		if (isMacRuntime) {
+		// On macOS (runtime), just log that repositioning was called unless forced
+		if (isMacRuntime && !shouldForceShowDynamicIsland) {
 			log.info('🍎 Dynamic Island reposition called (no window on macOS)');
 			return;
 		}
@@ -402,8 +481,8 @@ module.exports = class DynamicIslandHelper {
 	}
 
 	focus() {
-		// On macOS (runtime), just log that focus was called
-		if (isMacRuntime) {
+		// On macOS (runtime), just log that focus was called unless forced
+		if (isMacRuntime && !shouldForceShowDynamicIsland) {
 			log.info('🍎 Dynamic Island focus called (no window on macOS)');
 			return;
 		}

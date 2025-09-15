@@ -15,7 +15,8 @@
 	},
 	"dependencies": {
 		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
+		"react-dom": "^18.2.0",
+		"livekit-client": "^2.7.2"
 	},
 	"devDependencies": {
 		"@types/react": "^18.2.0",
