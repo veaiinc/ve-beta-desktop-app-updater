@@ -22,7 +22,7 @@ const DynamicIslandHelper = require('./helpers/dynamicIslandHelper');
 const fs = require('fs');
 const { exec } = require('child_process');
 const { Worker } = require('worker_threads');
-const pLimit = require('p-limit').default;
+const pLimit = require('p-limit') || require('p-limit').default;
 const imageProcessingLimit = pLimit(4); // Max 4 concurrent workers
 
 // Import Windows compatibility fixes
@@ -195,22 +195,22 @@ let notchDropService = null;
 function setupNotchDropVoiceIntegration() {
 	try {
 		console.log('🎤 Initializing NotchDrop voice integration...');
-		
+
 		// Add direct voice activation handler
 		ipcMain.handle('notchdrop:activateVoice', async (event, data) => {
 			console.log('🎤 DIRECT: Voice activation request from NotchDrop');
-			
+
 			try {
 				// Send activation event to main window
 				if (mainWindow && !mainWindow.isDestroyed()) {
 					console.log('📤 Sending voice activation to main window...');
-					
+
 					// Send IPC event
 					mainWindow.webContents.send('notchdrop:showVoiceAgent', {
 						source: 'notchdrop-direct',
-						timestamp: Date.now()
+						timestamp: Date.now(),
 					});
-					
+
 					// Also execute JavaScript to activate voice agent directly
 					const result = await mainWindow.webContents.executeJavaScript(`
 						(async () => {
@@ -252,19 +252,18 @@ function setupNotchDropVoiceIntegration() {
 							}
 						})()
 					`);
-					
+
 					console.log('🎤 Direct voice activation result:', result);
 				}
-				
+
 				return { success: true };
 			} catch (error) {
 				console.error('❌ Error in direct voice activation:', error);
 				return { success: false, error: error.message };
 			}
 		});
-		
+
 		console.log('✅ NotchDrop voice integration handlers registered');
-		
 	} catch (error) {
 		console.error('❌ Error setting up NotchDrop voice integration:', error);
 	}
@@ -1713,11 +1712,10 @@ app.whenReady().then(async () => {
 			try {
 				const status = notchDropService.getStatus();
 				log.info('✅ NotchDrop service status check:', status);
-				
+
 				// Setup voice integration
 				console.log('🎤 Setting up NotchDrop voice integration...');
 				setupNotchDropVoiceIntegration();
-				
 			} catch (error) {
 				log.warn('⚠️ NotchDrop service status check failed:', error.message);
 			}
@@ -1976,20 +1974,24 @@ app.whenReady().then(async () => {
 	ipcMain.handle('send-chat-message-to-askai', async (event, chatMessage) => {
 		try {
 			// Check if this is a voice activation message from NotchDrop
-			if (chatMessage && chatMessage.type === 'ACTIVATE_VOICE_AGENT' && chatMessage.source === 'notchdrop_voice_button') {
+			if (
+				chatMessage &&
+				chatMessage.type === 'ACTIVATE_VOICE_AGENT' &&
+				chatMessage.source === 'notchdrop_voice_button'
+			) {
 				console.log('🎤 DIRECT: Intercepting NotchDrop voice activation in main.js');
-				
+
 				// Send voice activation directly to main window
 				if (mainWindow && !mainWindow.isDestroyed()) {
 					console.log('📤 DIRECT: Sending voice activation to main window');
-					
+
 					// Send IPC event to main window
 					mainWindow.webContents.send('notchdrop:voice-activate', {
 						type: 'ACTIVATE_VOICE_AGENT',
 						source: 'notchdrop_voice_button',
-						timestamp: chatMessage.timestamp
+						timestamp: chatMessage.timestamp,
 					});
-					
+
 					// Also execute JavaScript directly in main window
 					const result = await mainWindow.webContents.executeJavaScript(`
 						(async () => {
@@ -2019,13 +2021,13 @@ app.whenReady().then(async () => {
 							}
 						})()
 					`);
-					
+
 					console.log('🎤 DIRECT: Voice activation JavaScript result:', result);
 				}
-				
+
 				return { success: true, message: 'Voice activation triggered' };
 			}
-			
+
 			// Original Ask AI logic for non-voice messages
 			let askAIWindow = windowHelper.getAskAIWindow();
 
@@ -2584,7 +2586,7 @@ app.whenReady().then(async () => {
 			if (!notchDropService) {
 				return { success: false, error: 'NotchDrop service not initialized' };
 			}
-			
+
 			// Update the voice status in NotchDrop Swift UI
 			const result = await notchDropService.updateVoiceConnectionState(status);
 			return { success: true, status, result };
@@ -2597,11 +2599,13 @@ app.whenReady().then(async () => {
 	// Voice message handler
 	ipcMain.handle('notchdrop-add-voice-message', async (event, messageData) => {
 		try {
-			log.info(`💬 Adding voice message to NotchDrop: ${messageData.content?.substring(0, 50)}...`);
+			log.info(
+				`💬 Adding voice message to NotchDrop: ${messageData.content?.substring(0, 50)}...`,
+			);
 			if (!notchDropService) {
 				return { success: false, error: 'NotchDrop service not initialized' };
 			}
-			
+
 			// Add the voice message to NotchDrop Swift UI
 			const result = await notchDropService.addVoiceMessage(messageData);
 			return { success: true, messageData, result };
