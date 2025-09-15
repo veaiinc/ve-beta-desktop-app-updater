@@ -1,725 +1,736 @@
-$font-family: "GeneralSans";
+$font-family: 'GeneralSans';
 
 .analyticsMainContainer {
-    color: white;
-    width: 100%;
-    background: #0B0C0E;
-    min-height: 100vh;
-    padding: 24px;
-    font-family: $font-family;
-
-    // Header Section
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 32px;
-
-        .titleSection {
-            .meetingTitle {
-                color: #FFFFFF;
-                font-size: 24px;
-                font-weight: 600;
-                margin: 0 0 8px 0;
-                line-height: 1.2;
-            }
-
-            .meetingDate {
-                color: #9CA3AF;
-                font-size: 14px;
-                font-weight: 400;
-                margin: 0;
-            }
-        }
-
-        .tabNavigation {
-            display: flex;
-            background: #1F2123;
-            border-radius: 8px;
-            padding: 4px;
-            gap: 4px;
-
-            .tab {
-                padding: 8px 16px;
-                background: transparent;
-                border: none;
-                color: #9CA3AF;
-                font-size: 14px;
-                font-weight: 500;
-                border-radius: 6px;
-                cursor: pointer;
-                transition: all 0.2s ease;
-
-                &.active {
-                    background: #374151;
-                    color: #FFFFFF;
-                }
-
-                &:hover:not(.active) {
-                    color: #D1D5DB;
-                }
-            }
-        }
-    }
-
-    // Metric Cards
-    .analyticsContainerOne {
-        display: flex;
-        width: 100%;
-        margin-bottom: 32px;
-        gap: 16px;
-
-        .analyticsContainerOneItem {
-            display: flex;
-            height: 100px;
-            padding: 20px;
-            align-items: center;
-            gap: 16px;
-            flex: 1;
-            border-radius: 12px;
-            background: #1F2123;
-            border: 1px solid #2A2D30;
-
-            .conditionContainer {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-                min-width: 100px;
-
-                .metricLabel {
-                    color: #FFF;
-                    font-family: $font-family;
-                    font-size: 14px;
-                    font-style: normal;
-                    font-weight: 500;
-                    line-height: 25px; /* 178.571% */
-                    letter-spacing: 0.2px;
-                }
-
-                .conditionValueContainer {
-                    display: flex;
-                    align-items: baseline;
-                    gap: 8px;
-
-                    .conditionValue {
-                        color: #FFF;
-                        font-family: $font-family;
-                        font-size: 18px;
-                        font-style: normal;
-                        font-weight: 500;
-                        line-height: 25px; /* 138.889% */
-                        letter-spacing: 0.2px;  
-                    }
-
-                    .conditionValueText {
-                        color: var(--success, #1C993E);
-                        font-family: $font-family;
-                        font-size: 14px;
-                        font-style: normal;
-                        font-weight: 500;
-                        line-height: 25px; /* 178.571% */
-                        letter-spacing: 0.2px;
-                    }
-                }
-            }
-
-            .conditionGraph {
-                flex: 1;
-                height: 40px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-
-                .waveGraph {
-                    width: 100%;
-                    height: 100%;
-                    max-width: 120px;
-                }
-            }
-        }
-    }
-
-    // Participants Section
-    .participantsContent {
-        padding: 16px 0;
-
-        .participantsGrid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 16px;
-
-            .participantCard {
-                background: #1F2123;
-                border: 1px solid #2A2D30;
-                border-radius: 12px;
-                padding: 20px;
-
-                .participantHeader {
-                    display: flex;
-                    align-items: flex-start;
-                    gap: 12px;
-                    margin-bottom: 0;
-
-                    .participantAvatar {
-                        width: 40px;
-                        height: 40px;
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        color: white;
-                        font-family: $font-family;
-                        font-size: 16px;
-                        font-style: normal;
-                        font-weight: 600;
-                        line-height: normal;
-                    }
-
-                    .participantInfo {
-                        flex: 1;
-
-                        .nameTimeRow {
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: center;
-                            margin-bottom: 8px;
-
-                            .participantName {
-                                color: #FFFFFF;
-                                font-family: $font-family;
-                                font-size: 16px;
-                                font-style: normal;
-                                font-weight: 500;
-                                line-height: 25px;
-                                letter-spacing: 0.2px;
-                                margin: 0;
-                            }
-
-                            .timeWithIcon {
-                                display: flex;
-                                align-items: center;
-                                gap: 4px;
-
-                                .talkTime {
-                                    color: #9CA3AF;
-                                    font-family: $font-family;
-                                    font-size: 14px;
-                                    font-style: normal;
-                                    font-weight: 400;
-                                    line-height: 25px;
-                                    letter-spacing: 0.2px;
-                                }
-
-                                .clockIcon {
-                                    color: #9CA3AF;
-                                    font-size: 12px;
-                                }
-                            }
-                        }
-
-                        .percentageRow {
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: center;
-                            padding: 8px 0;
-                            border-bottom: 1px solid #2A2D30;
-                            margin-bottom: 16px;
-
-                            .percentageLabel {
-                                color: #9CA3AF;
-                                font-family: $font-family;
-                                font-size: 14px;
-                                font-style: normal;
-                                font-weight: 400;
-                                line-height: 25px;
-                                letter-spacing: 0.2px;
-                            }
-
-                            .percentageValue {
-                                display: flex;
-                                align-items: center;
-                                gap: 8px;
-
-                                span {
-                                    color: #FFFFFF;
-                                    font-family: $font-family;
-                                    font-size: 14px;
-                                    font-style: normal;
-                                    font-weight: 600;
-                                    line-height: 25px;
-                                    letter-spacing: 0.2px;
-                                }
-
-                                .percentageIndicator {
-                                    position: relative;
-                                    width: 20px;
-                                    height: 10px;
-                                    overflow: hidden;
-
-                                    .percentageArc {
-                                        position: absolute;
-                                        width: 20px;
-                                        height: 20px;
-                                        border: 2px solid #1C993E;
-                                        border-radius: 50%;
-                                        border-bottom: transparent;
-                                        border-left: transparent;
-                                        transform-origin: 50% 100%;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                .participantMetrics {
-                    // display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 12px;
-
-                    .metric {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-
-                        .metricName {
-                            color: #9CA3AF;
-                            font-family: $font-family;
-                            font-size: 14px;
-                            font-style: normal;
-                            font-weight: 500;
-                            line-height: 25px;
-                            letter-spacing: 0.2px;
-                        }
-
-                        .metricValueWithDot {
-                            display: flex;
-                            align-items: center;
-                            gap: 6px;
-
-                            .greenDot {
-                                color: #1C993E;
-                                font-size: 8px;
-                                line-height: 1;
-                            }
-
-                            .metricValue {
-                                color: #FFFFFF;
-                                font-family: $font-family;
-                                font-size: 14px;
-                                font-style: normal;
-                                font-weight: 600;
-                                line-height: 25px;
-                                letter-spacing: 0.2px;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // Main Chart
-    .mainChart {
-        background: #1F2123;
-        border: 1px solid #2A2D30;
-        border-radius: 12px;
-        padding: 24px;
-        margin-bottom: 32px;
-
-        .chartHeader {
-            margin-bottom: 24px;
-
-            .chartStats {
-                display: flex;
-                gap: 32px;
-                align-items: center;
-
-                .statItem {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 4px;
-
-                    .statLabel {
-                        color: #9CA3AF;
-                        font-size: 12px;
-                        font-weight: 500;
-                    }
-
-                    .statValue {
-                        color: #FFFFFF;
-                        font-size: 16px;
-                        font-weight: 600;
-                    }
-                }
-            }
-        }
-
-        .chartContainer {
-            position: relative;
-            height: 300px;
-            display: flex;
-
-            .yAxis {
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                padding-right: 16px;
-                height: 200px;
-                margin-top: 20px;
-
-                span {
-                    color: #6B7280;
-                    font-size: 12px;
-                    font-weight: 500;
-                }
-            }
-
-            .chartArea {
-                flex: 1;
-                position: relative;
-
-                .chartSvg {
-                    width: 100%;
-                    height: 200px;
-                    margin-top: 20px;
-                }
-
-                .xAxis {
-                    display: flex;
-                    justify-content: space-between;
-                    padding-top: 16px;
-
-                    span {
-                        color: #6B7280;
-                        font-size: 12px;
-                        font-weight: 500;
-                    }
-                }
-            }
-        }
-
-        .chartLegend {
-            display: flex;
-            gap: 24px;
-            margin-top: 16px;
-            flex-wrap: wrap;
-
-            .legendItem {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-
-                .legendColor {
-                    width: 12px;
-                    height: 12px;
-                    border-radius: 2px;
-                }
-
-                span {
-                    color: #9CA3AF;
-                    font-size: 14px;
-                    font-weight: 500;
-                }
-            }
-        }
-    }
-
-    // Section Styles
-    .section {
-        margin-bottom: 24px;
-
-        .sectionHeader {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            padding: 16px 0;
-            border-bottom: 1px solid #2A2D30;
-
-            .sectionTitle {
-                color: #FFFFFF;
-                font-size: 16px;
-                font-weight: 600;
-                margin: 0;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-
-            .expandIcon {
-                color: #9CA3AF;
-                font-size: 12px;
-                transition: transform 0.2s ease;
-
-                &.expanded {
-                    transform: rotate(180deg);
-                }
-            }
-        }
-    }
-
-    // Highlights Section
-    .highlightsContent {
-        padding: 16px 0;
-
-        .highlightItem {
-            background: #1F2123;
-            border: 1px solid #2A2D30;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 12px;
-
-            .highlightHeader {
-                display: flex;
-                align-items: center;
-                gap: 16px;
-                margin-bottom: 12px;
-
-                .highlightType {
-                    display: flex;
-                    width: fit-content;
-                    height: 27px;
-                    padding: 8px 4px;
-                    align-items: center;
-                    gap: 6px;
-                    border-radius: 12px 0 12px 12px;
-                    background: rgba(121, 236, 201, 0.10);  
-                    font-family: $font-family;
-                    font-size: 12px;
-                    font-style: normal;
-                    font-weight: 500;
-                    line-height: normal;
-                    letter-spacing: 0.2px;
-
-                    .highlightIcon {
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        flex-shrink: 0;
-                        
-                        svg {
-                            width: 18px;
-                            height: 18px;
-                            display: block;
-                        }
-                    }
-
-                    &[data-type="topic"] {
-                        background: rgba(121, 236, 201, 0.2);
-                        color: #79ECC9;
-                        border: 1px solid rgba(121, 236, 201, 0.3);
-
-                        .highlightIcon svg {
-                            path {
-                                fill: #79ECC9 !important;
-                            }
-                            rect {
-                                fill: rgba(121, 236, 201, 0.2) !important;
-                            }
-                        }
-                    }
-
-                    &[data-type="key-question"] {
-                        background: rgba(245, 158, 11, 0.2);
-                        color: var(--pending, #EDA145);
-                        border: 1px solid rgba(245, 158, 11, 0.3);
-
-                        .highlightIcon svg {
-                            path {
-                                fill: #F59E0B !important;
-                            }
-                            rect {
-                                fill: rgba(245, 158, 11, 0.2) !important;
-                            }
-                        }
-                    }
-
-                    &[data-type="decision"] {
-                        color: var(--success, #1C993E);
-                        font-family: $font-family;
-                        background:#1C993E33;
-
-                        .highlightIcon svg {
-                            path {
-                                fill: #79ECC9 !important;
-                            }
-                            rect {
-                                fill: rgba(121, 236, 201, 0.2) !important;
-                            }
-                        }
-                    }
-
-                    &[data-type="question"] {
-                        background: rgba(59, 130, 246, 0.2);
-                        color: #3B82F6;
-                        border: 1px solid rgba(59, 130, 246, 0.3);
-
-                        .highlightIcon svg {
-                            path {
-                                fill: #3B82F6 !important;
-                            }
-                            rect {
-                                fill: rgba(59, 130, 246, 0.2) !important;
-                            }
-                        }
-                    }
-                }
-
-                .highlightTime {
-                    color: #9CA3AF;
-                    font-size: 14px;
-                    font-weight: 500;
-                }
-
-                .engagementBadge {
-                    margin-left: auto;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    font-size: 14px;
-
-                    span:first-child {
-                        color: #9CA3AF;
-                    }
-
-                    .engagementValue {
-                        color: #1C993E;
-                        font-weight: 600;
-                    }
-                }
-            }
-
-            .highlightDescription {
-                color: #D1D5DB;
-                font-size: 14px;
-                line-height: 1.5;
-                margin: 0;
-            }
-        }
-    }
-
-    // Meeting Score Section
-    .meetingScoreContent {
-        padding: 16px 0;
-
-        .scoreCard {
-            background: #1F2123;
-            border: 1px solid #2A2D30;
-            border-radius: 12px;
-            padding: 24px;
-
-            .scoreHeader {
-                display: flex;
-                align-items: center;
-                gap: 16px;
-                margin-bottom: 24px;
-
-                .participantAvatars {
-                    display: flex;
-                    gap: 8px;
-
-                    .smallAvatar {
-                        width: 32px;
-                        height: 32px;
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        color: white;
-                        font-weight: 600;
-                        font-size: 14px;
-                    }
-                }
-
-                .totalParticipants {
-                    color: #9CA3AF;
-                    font-size: 14px;
-                    font-weight: 500;
-                }
-            }
-
-            .averageMetrics {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 16px;
-
-                .avgMetric {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-
-                    .avgLabel {
-                        color: #9CA3AF;
-                        font-size: 14px;
-                        font-weight: 500;
-                    }
-
-                    .avgValue {
-                        color: #FFFFFF;
-                        font-size: 16px;
-                        font-weight: 600;
-                    }
-                }
-            }
-        }
-    }
-
-    // Open Questions Section
-    .openQuestionsContent {
-        padding: 16px 0;
-
-        .questionItem {
-            background: #1F2123;
-            border: 1px solid #2A2D30;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 12px;
-
-            .questionHeader {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                margin-bottom: 12px;
-
-                .questionAvatar {
-                    width: 32px;
-                    height: 32px;
-                    border-radius: 50%;
-                    background: #374151;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: white;
-                    font-weight: 600;
-                    font-size: 14px;
-                }
-
-                .questionMeta {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 2px;
-
-                    .questionParticipant {
-                        color: #FFFFFF;
-                        font-size: 14px;
-                        font-weight: 600;
-                    }
-
-                    .questionTime {
-                        color: #9CA3AF;
-                        font-size: 12px;
-                    }
-                }
-            }
-
-            .questionText {
-                color: #D1D5DB;
-                font-size: 14px;
-                line-height: 1.5;
-                margin: 0;
-            }
-        }
-    }
+	color: white;
+	width: 100%;
+	background: #0b0c0e;
+	min-height: 100vh;
+	padding: 24px;
+	font-family: $font-family;
+
+	// Header Section
+	.header {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		margin-bottom: 32px;
+
+		.titleSection {
+			.meetingTitle {
+				color: #ffffff;
+				font-size: 24px;
+				font-weight: 600;
+				margin: 0 0 8px 0;
+				line-height: 1.2;
+			}
+
+			.meetingDate {
+				color: #9ca3af;
+				font-size: 14px;
+				font-weight: 400;
+				margin: 0;
+			}
+		}
+
+		.tabNavigation {
+			display: flex;
+			background: #1f2123;
+			border-radius: 8px;
+			padding: 4px;
+			gap: 4px;
+
+			.tab {
+				padding: 8px 16px;
+				background: transparent;
+				border: none;
+				color: #9ca3af;
+				font-size: 14px;
+				font-weight: 500;
+				border-radius: 6px;
+				cursor: pointer;
+				transition: all 0.2s ease;
+
+				&.active {
+					background: #374151;
+					color: #ffffff;
+				}
+
+				&:hover:not(.active) {
+					color: #d1d5db;
+				}
+			}
+		}
+	}
+
+	// Metric Cards
+	.analyticsContainerOne {
+		display: flex;
+		width: 100%;
+		margin-bottom: 32px;
+		gap: 16px;
+
+		.analyticsContainerOneItem {
+			display: flex;
+			height: 100px;
+			padding: 20px;
+			align-items: center;
+			gap: 16px;
+			flex: 1;
+			border-radius: 12px;
+			background: #1f2123;
+			border: 1px solid #2a2d30;
+
+			.conditionContainer {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 8px;
+				min-width: 100px;
+
+				.metricLabel {
+					color: #fff;
+					font-family: $font-family;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 25px; /* 178.571% */
+					letter-spacing: 0.2px;
+				}
+
+				.conditionValueContainer {
+					display: flex;
+					align-items: baseline;
+					gap: 8px;
+
+					.conditionValue {
+						color: #fff;
+						font-family: $font-family;
+						font-size: 18px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 25px; /* 138.889% */
+						letter-spacing: 0.2px;
+					}
+
+					.conditionValueText {
+						color: var(--success, #1c993e);
+						font-family: $font-family;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 25px; /* 178.571% */
+						letter-spacing: 0.2px;
+					}
+				}
+			}
+
+			.conditionGraph {
+				flex: 1;
+				height: 40px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+
+				.waveGraph {
+					width: 100%;
+					height: 100%;
+					max-width: 120px;
+				}
+			}
+		}
+	}
+
+	// Participants Section
+	.participantsContent {
+		padding: 16px 0;
+
+		.participantsGrid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+			gap: 16px;
+
+			.participantCard {
+				background: #1f2123;
+				border: 1px solid #2a2d30;
+				border-radius: 12px;
+				padding: 20px;
+
+				.participantHeader {
+					display: flex;
+					align-items: flex-start;
+					gap: 12px;
+					margin-bottom: 0;
+
+					.participantAvatar {
+						width: 40px;
+						height: 40px;
+						border-radius: 50%;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						color: white;
+						font-family: $font-family;
+						font-size: 16px;
+						font-style: normal;
+						font-weight: 600;
+						line-height: normal;
+					}
+
+					.participantInfo {
+						flex: 1;
+
+						.nameTimeRow {
+							display: flex;
+							justify-content: space-between;
+							align-items: center;
+							margin-bottom: 8px;
+
+							.participantName {
+								color: #ffffff;
+								font-family: $font-family;
+								font-size: 16px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: 25px;
+								letter-spacing: 0.2px;
+								margin: 0;
+							}
+
+							.timeWithIcon {
+								display: flex;
+								align-items: center;
+								gap: 4px;
+
+								.talkTime {
+									color: #9ca3af;
+									font-family: $font-family;
+									font-size: 14px;
+									font-style: normal;
+									font-weight: 400;
+									line-height: 25px;
+									letter-spacing: 0.2px;
+								}
+
+								.clockIcon {
+									color: #9ca3af;
+									font-size: 12px;
+								}
+							}
+						}
+
+						.percentageRow {
+							display: flex;
+							justify-content: space-between;
+							align-items: center;
+							padding: 8px 0;
+							border-bottom: 1px solid #2a2d30;
+							margin-bottom: 16px;
+
+							.percentageLabel {
+								color: #9ca3af;
+								font-family: $font-family;
+								font-size: 14px;
+								font-style: normal;
+								font-weight: 400;
+								line-height: 25px;
+								letter-spacing: 0.2px;
+							}
+
+							.percentageValue {
+								display: flex;
+								align-items: center;
+								gap: 8px;
+
+								span {
+									color: #ffffff;
+									font-family: $font-family;
+									font-size: 14px;
+									font-style: normal;
+									font-weight: 600;
+									line-height: 25px;
+									letter-spacing: 0.2px;
+								}
+
+								.percentageIndicator {
+									position: relative;
+									width: 20px;
+									height: 10px;
+									overflow: hidden;
+
+									.percentageArc {
+										position: absolute;
+										width: 20px;
+										height: 20px;
+										border: 2px solid #1c993e;
+										border-radius: 50%;
+										border-bottom: transparent;
+										border-left: transparent;
+										transform-origin: 50% 100%;
+									}
+								}
+							}
+						}
+					}
+				}
+
+				.participantMetrics {
+					// display: grid;
+					grid-template-columns: 1fr 1fr;
+					gap: 12px;
+
+					.metric {
+						display: flex;
+						justify-content: space-between;
+						align-items: center;
+
+						.metricName {
+							color: #9ca3af;
+							font-family: $font-family;
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: 25px;
+							letter-spacing: 0.2px;
+						}
+
+						.metricValueWithDot {
+							display: flex;
+							align-items: center;
+							gap: 6px;
+
+							.greenDot {
+								color: #1c993e;
+								font-size: 8px;
+								line-height: 1;
+							}
+
+							.metricValue {
+								color: #ffffff;
+								font-family: $font-family;
+								font-size: 14px;
+								font-style: normal;
+								font-weight: 600;
+								line-height: 25px;
+								letter-spacing: 0.2px;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Main Chart
+	.mainChart {
+		background: #1f2123;
+		border: 1px solid #2a2d30;
+		border-radius: 12px;
+		padding: 24px;
+		margin-bottom: 32px;
+
+		.chartHeader {
+			margin-bottom: 24px;
+
+			.chartStats {
+				display: flex;
+				gap: 32px;
+				align-items: center;
+
+				.statItem {
+					display: flex;
+					flex-direction: column;
+					gap: 4px;
+
+					.statLabel {
+						color: #9ca3af;
+						font-size: 12px;
+						font-weight: 500;
+					}
+
+					.statValue {
+						color: #ffffff;
+						font-size: 16px;
+						font-weight: 600;
+					}
+				}
+			}
+		}
+
+		.chartContainer {
+			position: relative;
+			height: 300px;
+			display: flex;
+
+			.yAxis {
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+				padding-right: 16px;
+				height: 200px;
+				margin-top: 20px;
+
+				span {
+					color: #6b7280;
+					font-size: 12px;
+					font-weight: 500;
+				}
+			}
+
+			.chartArea {
+				flex: 1;
+				position: relative;
+
+				.chartSvg {
+					width: 100%;
+					height: 200px;
+					margin-top: 20px;
+				}
+
+				.xAxis {
+					display: flex;
+					justify-content: space-between;
+					padding-top: 16px;
+
+					span {
+						color: #6b7280;
+						font-size: 12px;
+						font-weight: 500;
+					}
+				}
+			}
+		}
+
+		.chartLegend {
+			display: flex;
+			gap: 24px;
+			margin-top: 16px;
+			flex-wrap: wrap;
+
+			.legendItem {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+
+				.legendColor {
+					width: 12px;
+					height: 12px;
+					border-radius: 2px;
+				}
+
+				span {
+					color: #9ca3af;
+					font-size: 14px;
+					font-weight: 500;
+				}
+			}
+		}
+	}
+
+	// Section Styles
+	.section {
+		margin-bottom: 24px;
+
+		.sectionHeader {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			cursor: pointer;
+			padding: 16px 0;
+			border-bottom: 1px solid #2a2d30;
+
+			.sectionTitle {
+				color: #ffffff;
+				font-size: 16px;
+				font-weight: 600;
+				margin: 0;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+			}
+
+			.expandIcon {
+				color: #9ca3af;
+				font-size: 12px;
+				transition: transform 0.2s ease;
+
+				&.expanded {
+					transform: rotate(180deg);
+				}
+			}
+		}
+	}
+
+	// Highlights Section
+	.highlightsContent {
+		padding: 16px 0;
+
+		.highlightItem {
+			background: #1f2123;
+			border: 1px solid #2a2d30;
+			border-radius: 12px;
+			padding: 20px;
+			margin-bottom: 12px;
+
+			.highlightHeader {
+				display: flex;
+				align-items: center;
+				gap: 16px;
+				margin-bottom: 12px;
+
+				.highlightType {
+					display: flex;
+					border-radius: 12px 0 12px 12px;
+					background: rgba(121, 236, 201, 0.1);
+					font-family: $font-family;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					letter-spacing: 0.2px;
+					height: 27px;
+					padding: 8px 6px 8px 2px;
+					align-items: center;
+					gap: 6px;
+
+					.highlightIcon {
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						flex-shrink: 0;
+
+						svg {
+							width: 22px;
+							height: 22px;
+							flex-shrink: 0;
+							aspect-ratio: 1/1;
+						}
+					}
+
+					&[data-type='topic'] {
+						background: rgba(121, 236, 201, 0.2);
+						color: #79ecc9;
+						border: 1px solid rgba(121, 236, 201, 0.3);
+
+						.highlightIcon svg {
+							path {
+								fill: #79ecc9 !important;
+							}
+							rect {
+								fill: rgba(121, 236, 201, 0.2) !important;
+							}
+						}
+					}
+
+					&[data-type='key-question'] {
+						background: rgba(245, 158, 11, 0.2);
+						color: var(--pending, #eda145);
+						border: 1px solid rgba(245, 158, 11, 0.3);
+
+						.highlightIcon svg {
+							path {
+								fill: #f59e0b !important;
+							}
+							rect {
+								fill: rgba(245, 158, 11, 0.2) !important;
+							}
+						}
+					}
+
+					&[data-type='decision'] {
+						color: var(--success, #1c993e);
+						font-family: $font-family;
+						background: #1c993e33;
+
+						.highlightIcon svg {
+							path {
+								fill: #79ecc9 !important;
+							}
+							rect {
+								fill: rgba(121, 236, 201, 0.2) !important;
+							}
+						}
+					}
+
+					&[data-type='question'] {
+						background: rgba(59, 130, 246, 0.2);
+						color: #3b82f6;
+						border: 1px solid rgba(59, 130, 246, 0.3);
+
+						.highlightIcon svg {
+							path {
+								fill: #3b82f6 !important;
+							}
+							rect {
+								fill: rgba(59, 130, 246, 0.2) !important;
+							}
+						}
+					}
+				}
+
+				.highlightTime {
+					color: #9ca3af;
+					font-size: 14px;
+					font-weight: 500;
+				}
+
+				.engagementBadge {
+					margin-left: auto;
+					display: flex;
+					align-items: center;
+					gap: 8px;
+					font-size: 14px;
+
+					span:first-child {
+						color: #9ca3af;
+					}
+
+					.engagementValue {
+						display: flex;
+						height: 22px;
+						padding: 4px 10px;
+						justify-content: center;
+						align-items: center;
+						gap: 10px;
+						border-radius: 6px;
+						background: rgba(121, 236, 201, 0.1);
+						color: var(--primary-font, #f2f2f3);
+						font-family: $font-family;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+				}
+			}
+
+			.highlightDescription {
+				color: #d1d5db;
+				font-size: 14px;
+				line-height: 1.5;
+				margin: 0;
+			}
+		}
+	}
+
+	// Meeting Score Section
+	.meetingScoreContent {
+		padding: 16px 0;
+
+		.scoreCard {
+			background: #1f2123;
+			border: 1px solid #2a2d30;
+			border-radius: 12px;
+			padding: 24px;
+
+			.scoreHeader {
+				display: flex;
+				align-items: center;
+				gap: 16px;
+				margin-bottom: 24px;
+
+				.participantAvatars {
+					display: flex;
+					gap: 8px;
+
+					.smallAvatar {
+						width: 32px;
+						height: 32px;
+						border-radius: 50%;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						color: white;
+						font-weight: 600;
+						font-size: 14px;
+					}
+				}
+
+				.totalParticipants {
+					color: #9ca3af;
+					font-size: 14px;
+					font-weight: 500;
+				}
+			}
+
+			.averageMetrics {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+				gap: 16px;
+
+				.avgMetric {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+
+					.avgLabel {
+						color: #9ca3af;
+						font-size: 14px;
+						font-weight: 500;
+					}
+
+					.avgValue {
+						color: #ffffff;
+						font-size: 16px;
+						font-weight: 600;
+					}
+				}
+			}
+		}
+	}
+
+	// Open Questions Section
+	.openQuestionsContent {
+		padding: 16px 0;
+
+		.questionItem {
+			background: #1f2123;
+			border: 1px solid #2a2d30;
+			border-radius: 12px;
+			padding: 20px;
+			margin-bottom: 12px;
+
+			.questionHeader {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				margin-bottom: 12px;
+
+				.questionAvatar {
+					width: 32px;
+					height: 32px;
+					border-radius: 50%;
+					background: #374151;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					color: white;
+					font-weight: 600;
+					font-size: 14px;
+				}
+
+				.questionMeta {
+					display: flex;
+					flex-direction: column;
+					gap: 2px;
+
+					.questionParticipant {
+						color: #ffffff;
+						font-size: 14px;
+						font-weight: 600;
+					}
+
+					.questionTime {
+						color: #9ca3af;
+						font-size: 12px;
+					}
+				}
+			}
+
+			.questionText {
+				color: #d1d5db;
+				font-size: 14px;
+				line-height: 1.5;
+				margin: 0;
+			}
+		}
+	}
 }
-
