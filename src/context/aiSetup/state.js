@@ -58,6 +58,7 @@ export const initialState = {
 	triggerVoiceDisconnect: null,
 	aiTranscriptionSuggestions: null,
 	showVoiceWidget: false, // Global state for voice widget visibility
+	notchDropVoiceActive: false, // Flag to indicate NotchDrop is controlling voice
 	proactiveHeadings: null,
 };
 

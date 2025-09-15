@@ -88,7 +88,7 @@ async function isUserInMeeting() {
 		];
 		return knownApps.some((domain) => app.includes(domain) || url.includes(domain));
 	} catch (err) {
-		log.warn('Error in meeting detection:', err.message);
+		// log.warn('Error in meeting detection:', err.message);
 		return false;
 	}
 }

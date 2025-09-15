@@ -3,7 +3,7 @@ import ReactModal from '../../modalsV2';
 import randomize from 'randomatic';
 import { useParams, Link } from 'react-router-dom';
 
-const UploadCompletedPopup = ({ info, setinfo, getImageDuplicatesList }) => {
+const UploadCompletedPopup = ({ info, setinfo, getImageDuplicatesList, onClose }) => {
 	const { galleryId, albumId } = useParams();
 
 	const reUploadFunction = () => {
@@ -41,6 +41,7 @@ const UploadCompletedPopup = ({ info, setinfo, getImageDuplicatesList }) => {
 					<Link
 						to={`/galleries/${galleryId}?albumId=${albumId}`}
 						className="back-to-gallery-button"
+						onClick={onClose}
 					>
 						Back to Gallery
 					</Link>

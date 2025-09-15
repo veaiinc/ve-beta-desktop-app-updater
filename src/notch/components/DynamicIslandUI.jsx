@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useContext } from 'react';
+import React, { useEffect, useRef, useState, useContext, useCallback } from 'react';
 import {
 	HomeIcon,
 	LockIcon,
@@ -19,8 +19,11 @@ import {
 } from './DynamicIslandIcons';
 import './DynamicIslandUI.scss';
 import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
+import useNotificationOverlay from '../hooks/useNotificationOverlay';
+import NotificationOverlay from './NotificationOverlay';
 import Context from '../../context/context';
 import { LiveKitRoom, RoomAudioRenderer, StartAudio } from '@livekit/components-react';
+import NotchDropLiveKitIntegration from '../../components/NotchDropLiveKitIntegration';
 import Voice from '../../views/components/chat/Voice';
 import { checkDevices } from '../../helpers';
 
@@ -37,8 +40,9 @@ const DynamicIslandUI = () => {
 	const videoRef = useRef(null);
 	const chatInputRef = useRef(null); // Add ref for chat input
 	const voiceMessagesRef = useRef(null); // Add ref for voice messages container
-	const [isExpanded, setIsExpanded] = useState(false); // Start collapsed by default
-	console.log('🏝️ Initial isExpanded state:', false);
+	const [isExpanded, setIsExpanded] = useState(false);
+	const [isNotificationExpanded, setIsNotificationExpanded] = useState(false);
+	const [isTransitioning, setIsTransitioning] = useState(false);
 	const [isConnected, setIsConnected] = useState(false);
 	// Overlay state - synced from overlay window
 	const [isRecording, setIsRecording] = useState(false);
@@ -72,6 +76,18 @@ const DynamicIslandUI = () => {
 	const [currentVoiceStatus, setCurrentVoiceStatus] = useState('Listening');
 	const [isMicrophoneMuted, setIsMicrophoneMuted] = useState(false);
 
+	// Notification state using custom hook
+	const {
+		notifications,
+		showNotificationOverlay,
+		showNotification,
+		dismissNotification,
+		clearAllNotifications,
+		handleNotificationAction,
+		pauseNotificationTimer,
+		resumeNotificationTimer,
+	} = useNotificationOverlay();
+
 	// Voice integration hook
 	const { shouldConnect, token, serverUrl, handleConnect, handleDisconnect, resetState } =
 		useUpdatedVoiceIntegration();
@@ -103,6 +119,17 @@ const DynamicIslandUI = () => {
 		// Check if we're in Electron environment
 		if (window.electronApi && window.electronApi.dynamicIsland) {
 			setIsConnected(true);
+
+			// Force show Dynamic Island on component mount as backup
+			setTimeout(() => {
+				if (window.electronApi?.dynamicIsland?.forceShow) {
+					window.electronApi.dynamicIsland.forceShow().then((result) => {
+						console.log('🏝️ Force show result from React:', result);
+					}).catch((error) => {
+						console.error('❌ Failed to force show from React:', error);
+					});
+				}
+			}, 3000);
 
 			// Listen for dynamic island state changes
 			window.electronApi.dynamicIsland.onStateChange((data) => {
@@ -158,6 +185,12 @@ const DynamicIslandUI = () => {
 				console.log('📊 State request from Swift');
 				sendStateToSwift();
 			});
+
+			// Listen for notifications
+			window.electronApi.dynamicIsland.onNotification((notification) => {
+				console.log('🔔 Dynamic Island received notification:', notification);
+				showNotificationWithExpansion(notification);
+			});
 		}
 
 		return () => {
@@ -171,6 +204,9 @@ const DynamicIslandUI = () => {
 			}
 			if (window.electronApi?.dynamicIsland?.removeVoiceModeTriggerListener) {
 				window.electronApi.dynamicIsland.removeVoiceModeTriggerListener();
+			}
+			if (window.electronApi?.dynamicIsland?.removeNotificationListener) {
+				window.electronApi.dynamicIsland.removeNotificationListener();
 			}
 		};
 	}, []);
@@ -449,8 +485,7 @@ const DynamicIslandUI = () => {
 
 	const handleMouseLeave = () => {
 		console.log('🚪 MOUSE LEAVE - Collapsing to pill!');
-		// Always allow collapse - voice mode should continue working in background
-		if (isExpanded && isConnected) {
+		if ((isExpanded || isNotificationExpanded) && isConnected) {
 			collapse();
 		}
 	};
@@ -463,6 +498,7 @@ const DynamicIslandUI = () => {
 			const result = await window.electronApi.dynamicIsland.expand();
 			if (result.success) {
 				setIsExpanded(true);
+				setIsNotificationExpanded(false); // Clear notification expansion state when fully expanding
 				// Ensure window is focusable when expanded, but only if not already setting
 				if (window.electronApi?.dynamicIsland?.setChatMode && !isSettingChatMode) {
 					setIsSettingChatMode(true);
@@ -482,13 +518,14 @@ const DynamicIslandUI = () => {
 	};
 
 	const collapse = async () => {
-		if (!isExpanded || !isConnected) return;
+		if ((!isExpanded && !isNotificationExpanded) || !isConnected) return;
 
 		try {
 			console.log('📏 Collapsing Dynamic Island to pill');
 			const result = await window.electronApi.dynamicIsland.collapse();
 			if (result.success) {
 				setIsExpanded(false);
+				setIsNotificationExpanded(false); // Clear notification expansion state when collapsing
 				// Disable focus when collapsing
 				if (window.electronApi?.dynamicIsland?.setChatMode) {
 					window.electronApi.dynamicIsland.setChatMode(false);
@@ -498,6 +535,24 @@ const DynamicIslandUI = () => {
 			console.error('❌ Collapse IPC error:', error);
 		}
 	};
+
+	// Intermediate expansion for notifications (between collapsed and expanded)
+	const expandForNotification = useCallback(async () => {
+		if (isExpanded || isNotificationExpanded || !isConnected) return;
+
+		try {
+			console.log('🔔 Expanding Dynamic Island for notification (intermediate state)');
+			// Use the existing expand API but track it as notification expansion
+			const result = await window.electronApi.dynamicIsland.expand();
+			if (result.success) {
+				setIsNotificationExpanded(true);
+				// Don't enable chat mode for notification expansion
+				// This keeps it in intermediate state
+			}
+		} catch (error) {
+			console.error('❌ Notification expand IPC error:', error);
+		}
+	}, [isExpanded, isNotificationExpanded, isConnected]);
 
 	// Click handlers for interactive elements
 	const handleHomeClick = () => {
@@ -709,6 +764,48 @@ const DynamicIslandUI = () => {
 		}
 	}, [voiceMessages]);
 
+	// Custom notification action handler
+	const onNotificationAction = (action, notification) => {
+		// Handle different action types
+		if (action.type === 'join-meet') {
+			// Start recording when joining meeting
+			handleAudioClick();
+		} else if (action.type === 'dismiss') {
+			dismissNotification(notification.id);
+		} else if (action.type === 'expand') {
+			expand();
+		}
+	};
+
+	// Smooth notification start handler - no auto expansion
+	const handleNotificationStart = useCallback(async (notificationId) => {
+		console.log('🔔 Notification started, Dynamic Island stays collapsed');
+		// Don't expand automatically - let notification appear below
+		// Dynamic Island will only expand on hover
+	}, []);
+
+	// Smooth notification end handler
+	const handleNotificationEnd = useCallback(async (notificationId) => {
+		console.log(
+			'🔔 Notification ended, collapsing Dynamic Island smoothly to Living Intelligence',
+		);
+		setIsTransitioning(true);
+
+		try {
+			// Smooth collapse back to default state
+			await collapse();
+		} catch (e) {
+			console.error('Failed to collapse after notification:', e);
+		} finally {
+			setIsTransitioning(false);
+		}
+	}, []);
+
+	// Enhanced showNotification function with smooth transitions
+	const showNotificationWithExpansion = async (notification) => {
+		return showNotification(notification, handleNotificationStart, handleNotificationEnd);
+	};
+
 	// Handle microphone mute/unmute toggle
 	const handleMicrophoneToggle = () => {
 		const newMuteState = !isMicrophoneMuted;
@@ -783,7 +880,6 @@ const DynamicIslandUI = () => {
 		// Request camera permission if not determined
 		if (window.electronApi?.askAI?.camera?.requestPermission) {
 			try {
-				console.log('Requesting camera permission through Electron...');
 				const permissionResult = await window.electronApi.askAI.camera.requestPermission();
 				console.log('Camera permission result:', permissionResult);
 
@@ -1201,11 +1297,15 @@ const DynamicIslandUI = () => {
 		<div
 			ref={dynamicIslandRef}
 			id="dynamicIsland"
-			className={`dynamic-island ${isExpanded ? 'expanded' : 'collapsed'} ${
-				isRecording ? 'recording' : ''
-			} ${controlledByDynamicIsland ? 'controlled-by-dynamic-island' : ''} ${
-				isChatMode ? 'chat-mode' : ''
-			}`}
+			className={`dynamic-island ${
+				isExpanded
+					? 'expanded'
+					: isNotificationExpanded
+					? 'notification-expanded'
+					: 'collapsed'
+			} ${isRecording ? 'recording' : ''} ${
+				controlledByDynamicIsland ? 'controlled-by-dynamic-island' : ''
+			} ${isChatMode ? 'chat-mode' : ''} ${isTransitioning ? 'transitioning' : ''}`}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
 		>
@@ -1389,12 +1489,8 @@ const DynamicIslandUI = () => {
 											setIsChatMode(false);
 											setChatInput('');
 											// Disable focus when exiting chat mode
-											if (
-												window.electronApi?.dynamicIsland?.setChatMode
-											) {
-												window.electronApi.dynamicIsland.setChatMode(
-													false,
-												);
+											if (window.electronApi?.dynamicIsland?.setChatMode) {
+												window.electronApi.dynamicIsland.setChatMode(false);
 											}
 										}}
 									>
@@ -1495,6 +1591,7 @@ const DynamicIslandUI = () => {
 														onStatusUpdate={handleVoiceStatusUpdate}
 														isMicrophoneMuted={isMicrophoneMuted}
 													/>
+													<NotchDropLiveKitIntegration />
 													<RoomAudioRenderer />
 													<StartAudio label="Click to enable audio playback" />
 												</LiveKitRoom>
@@ -1529,7 +1626,6 @@ const DynamicIslandUI = () => {
 													)}
 												</div>
 											</div>
-
 										</div>
 									</div>
 								</div>
@@ -1770,6 +1866,19 @@ const DynamicIslandUI = () => {
 					</>
 				)}
 			</div>
+
+			{/* Notification Overlay */}
+			<NotificationOverlay
+				notifications={notifications}
+				showOverlay={showNotificationOverlay}
+				onDismissNotification={dismissNotification}
+				onClearAll={clearAllNotifications}
+				onNotificationAction={(notificationId, actionIndex) =>
+					handleNotificationAction(notificationId, actionIndex, onNotificationAction)
+				}
+				onPauseTimer={pauseNotificationTimer}
+				onResumeTimer={resumeNotificationTimer}
+			/>
 		</div>
 	);
 };

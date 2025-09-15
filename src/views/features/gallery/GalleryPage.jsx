@@ -74,6 +74,7 @@ import GalleryVideos from '../../components/gallery/galleryVideos/GalleryVideos'
 import { ReactComponent as ChevronLeft } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as MoveToIcon } from '../../../assets/svg/gallery/moveToIcon.svg';
 import Spinner from '../../components/loaders/Spinner';
+import UploadPhotosDesktop from './UploadPhotosDesktop';
 // const workspaceId = localStorage.getItem('workspaceId');
 
 const dummyImagesArray = Array.from({ length: 10 }, () => ({ isPlaceholderImg: true }));
@@ -209,6 +210,14 @@ const GalleryPage = () => {
 			aiFace,
 			updateStateValues: updateGalleryStateValues,
 			getSignedUrlsForImages,
+			// Upload session management
+			uploadSessions,
+			showUploadProgressPopup,
+			addUploadSession,
+			updateUploadSession,
+			removeUploadSession,
+			hideUploadProgressPopup,
+			showUploadProgressPopup: showUploadProgressPopupAction,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
@@ -355,6 +364,7 @@ const GalleryPage = () => {
 		selectedScreenType: 'desktop',
 		selectedAlbumToMove: null,
 		imagesMovingToAlbum: false,
+		showUploadPhotosDesktop: false,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -660,10 +670,9 @@ const GalleryPage = () => {
 				galleryCredentials: null,
 				albumDetails: null,
 				imagesList: null,
-
 				imageDetail: null,
 				galleryGuestAccess: null,
-
+				tenantGalleries: null,
 				clientSelectionsData: null,
 				clientSelectionImages: null,
 				aiFace: null,
@@ -811,6 +820,33 @@ const GalleryPage = () => {
 			handleGetGalleryImages();
 		}
 	}, [info?.albumTagId, info?.activeAlbumId, info?.activeTab, galleryId]);
+
+	// Listen for upload completion events to refresh images
+	useEffect(() => {
+		const handleUploadCompleted = () => {
+			// Only refresh if we're currently viewing the albums tab
+			if (
+				info?.activeTab === 'Albums' &&
+				info?.albumTagId &&
+				info?.activeAlbumId &&
+				galleryId
+			) {
+				console.log('🔄 Upload completed, refreshing gallery images...');
+				// Add a small delay to ensure backend has processed the uploads
+				setTimeout(() => {
+					handleGetGalleryImages();
+					// Show success message
+					message.success('Images uploaded successfully and gallery refreshed!');
+				}, 1000);
+			}
+		};
+
+		window.addEventListener('uploadCompleted', handleUploadCompleted);
+
+		return () => {
+			window.removeEventListener('uploadCompleted', handleUploadCompleted);
+		};
+	}, [info?.activeTab, info?.albumTagId, info?.activeAlbumId, galleryId]);
 
 	const handleGetGalleryImages = async () => {
 		if (info?.albumTagId && info?.activeAlbumId && info?.activeTab === 'Albums' && galleryId) {
@@ -1742,13 +1778,51 @@ const GalleryPage = () => {
 	// ... rest of the code ...
 
 	const handleNavigateUpload = () => {
-		const region = localStorage.getItem('region');
-		const uploadUrl = `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos${
-			region === 'us-east-1' ? '-desktop' : ''
-		}?light-gallery=${info?.isLightGallery ? true : false}${
-			info?.albumContains !== 'All' ? `&tag=${info?.albumContains}` : ''
-		}`;
-		navigate(uploadUrl);
+		// const region = localStorage.getItem('region');
+		// const uploadUrl = `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos${
+		// 	region === 'us-east-1' ? '-desktop' : ''
+		// }?light-gallery=${info?.isLightGallery ? true : false}${
+		// 	info?.albumContains !== 'All' ? `&tag=${info?.albumContains}` : ''
+		// }`;
+		// navigate(uploadUrl);
+		setInfo((prev) => ({ ...prev, showUploadPhotosDesktop: true }));
+	};
+
+	const handleStartUpload = (uploadData) => {
+		// Close the upload modal and add new session to global context
+		setInfo((prev) => ({
+			...prev,
+			showUploadPhotosDesktop: false,
+		}));
+
+		// Add session to global context
+		addUploadSession(uploadData);
+	};
+
+	const handleUploadComplete = (sessionId) => {
+		// Refresh gallery data after upload
+		if (info?.activeAlbumId && info?.albumTagId) {
+			handleGetGalleryImages();
+		}
+		getAlbumImagesCount(galleryId);
+
+		// Remove completed session from global context
+		removeUploadSession(sessionId);
+	};
+
+	const handleUploadCancel = (sessionId) => {
+		// Remove cancelled session from global context
+		removeUploadSession(sessionId);
+	};
+
+	const handleCloseUploadProgressPopup = () => {
+		// Hide the upload progress popup (but keep sessions for background processing)
+		hideUploadProgressPopup();
+	};
+
+	const handleUpdateUploadSession = (sessionId, updates) => {
+		// Update specific upload session in global context
+		updateUploadSession(sessionId, updates);
 	};
 
 	const handleCallToAction = useCallback(() => {
@@ -2574,13 +2648,13 @@ const GalleryPage = () => {
 				}));
 
 				// Refresh data
-				// await Promise.all(
-				// 	[
-				// 		getAlbumImagesCount(galleryId),
-				// 		getAlbums(galleryId),
-				// 		info.coverType === 'gallery' && getGalleries({}, true),
-				// 	].filter(Boolean),
-				// );
+				await Promise.all(
+					[
+						getAlbumImagesCount(galleryId),
+						getAlbums(galleryId),
+						info.coverType === 'gallery' && getGalleries({}, true),
+					].filter(Boolean),
+				);
 				message.destroy();
 				showMessage(
 					'success',
@@ -6782,6 +6856,18 @@ const GalleryPage = () => {
 					galleryId={galleryId}
 					selectedVideo={null}
 					updateSelectedVideo={updateSelectedVideo}
+				/>
+			)}
+			{info?.showUploadPhotosDesktop && (
+				<UploadPhotosDesktop
+					open={info?.showUploadPhotosDesktop}
+					closeModal={() =>
+						setInfo((prev) => ({ ...prev, showUploadPhotosDesktop: false }))
+					}
+					albumId={info?.activeAlbumId}
+					galleryId={galleryId}
+					tagId={info?.activeTagId}
+					onStartUpload={handleStartUpload}
 				/>
 			)}
 		</>

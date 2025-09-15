@@ -3,6 +3,7 @@
 	height: 100%;
 	display: flex;
 	transition: width 0.25s ease-in-out;
+	overflow: auto;
 
 	.chat-history-wrapper {
 		width: 250px;
@@ -74,7 +75,7 @@
 
 .chat-container {
 	flex-grow: 1;
-	overflow-x: auto;
+	overflow: auto;
 	box-sizing: border-box;
 	padding: 0px;
 	display: flex;
@@ -98,16 +99,17 @@
 			width: 100%;
 			max-width: 760px;
 			height: 80px;
+			flex-shrink: 0;
 		}
 
 		.chatBodyParentContainer {
 			display: flex;
-			height: calc(100% - 80px);
 			flex-direction: column;
 			justify-content: flex-start;
 			scroll-behavior: smooth;
 			transition: all 0.3s ease;
 			width: 100%;
+			flex-grow: 1;
 			overflow-y: scroll;
 			scroll-behavior: smooth;
 			position: relative;

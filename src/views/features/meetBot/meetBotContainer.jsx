@@ -3,12 +3,15 @@ import { useLocation, useParams, useSearchParams } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
 import Context from '../../../context/context';
 import useRecallStream from '../../../hooks/useRecallStream';
+import useMeetingAudioRecorder from '../../../hooks/useMeetingAudioRecorder';
 import TranscriptionTabs from '../../components/notes/TranscriptionTabs';
 import MeetSummary from '../notesModule/MeetSummary';
 import NoteTakerTranscript from '../notesModule/NoteTakerTranscript';
 import AssemblyTranscriptWrapper from '../assembly-transcription/AssemblyTranscriptWrapper';
 import AiTranscriptionSuggestions from '../../components/chat/AiTranscriptionSuggestions';
 import TranscriptionWrapper from '../notesModule/TranscriptionWrapper';
+import AudioPlayback from '../../components/notes/AudioPlayback';
+import audioStorageService from '../../../services/audioStorageService';
 import '../../../assets/scss/notes/noteComponent.scss';
 import { ReactComponent as ShareIcon } from '../../../assets/svg/docs/meetshare.svg';
 import { ReactComponent as DotIcon } from '../../../assets/svg/docs/dot.svg';
@@ -36,6 +39,8 @@ const initialState = {
 	botJoined: false,
 	botJoinedTime: 0,
 	meetingPlatform: '',
+	hasAudioRecording: false,
+	audioRecordingStarted: false,
 };
 const userToken = localStorage.getItem('usertoken');
 const getSpeakerColor = (speakerName) => {
@@ -86,6 +91,20 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	const isAiIntelligenceEnabled =
 		searchParams.get('isAiIntelligenceEnabled') === 'true' ? true : false;
 
+	// Audio recording hook
+	const {
+		isRecording,
+		startRecording,
+		stopRecording,
+		pauseRecording,
+		resumeRecording,
+		audioBlob,
+		recordingDuration,
+		error: audioError,
+		getAudioInfo,
+		formatDuration,
+	} = useMeetingAudioRecorder(meetingId);
+
 	const {
 		notes: {
 			getMeetTranscriptHistory,
@@ -109,9 +128,192 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	const [transcriptList, setTranscriptList] = useState([]);
 	const [activeTab, setActiveTab] = useState(type === 'desktop' ? 'all' : 'all');
 	const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
+	// Check if audio recording exists for this meeting
+	const checkAudioRecording = useCallback(async () => {
+		try {
+			console.log('Checking audio recording for meeting:', meetingId);
+			const hasAudio = await audioStorageService.hasAudio(meetingId);
+			console.log('Audio recording exists:', hasAudio);
+			setInfo((prev) => ({ ...prev, hasAudioRecording: hasAudio }));
+		} catch (error) {
+			console.error('Error checking audio recording:', error);
+		}
+	}, [meetingId]);
+
+	// Save audio when recording stops
+	const saveAudioRecording = useCallback(async () => {
+		if (!audioBlob) {
+			console.log('No audio blob to save');
+			return;
+		}
+
+		try {
+			console.log('Saving audio for meeting:', meetingId, 'Blob size:', audioBlob.size);
+			const result = await audioStorageService.saveAudio(meetingId, audioBlob);
+			if (result.success) {
+				setInfo((prev) => ({ ...prev, hasAudioRecording: true }));
+				console.log('Audio saved successfully:', result.filePath);
+			} else {
+				console.error('Failed to save audio:', result.error);
+			}
+		} catch (error) {
+			console.error('Error saving audio:', error);
+		}
+	}, [audioBlob, meetingId]);
+
+	// Start audio recording when meeting starts (for live meetings)
+	const initializeAudioRecording = useCallback(async () => {
+		console.log(
+			'initializeAudioRecording called - history:',
+			history,
+			'audioRecordingStarted:',
+			info.audioRecordingStarted,
+		);
+		if (!history && !info.audioRecordingStarted) {
+			try {
+				console.log('Starting audio recording for meeting:', meetingId);
+				await startRecording();
+				setInfo((prev) => ({ ...prev, audioRecordingStarted: true }));
+				console.log('Audio recording started successfully');
+			} catch (error) {
+				console.error('Error starting audio recording:', error);
+			}
+		}
+	}, [history, info.audioRecordingStarted, startRecording, meetingId]);
+
+	// Stop audio recording when meeting ends
+	const stopAudioRecording = useCallback(async () => {
+		if (isRecording) {
+			try {
+				await stopRecording();
+				// Audio will be saved automatically when recording stops
+			} catch (error) {
+				console.error('Error stopping audio recording:', error);
+			}
+		}
+	}, [isRecording, stopRecording]);
 	const [isLoadingMeetingDetails, setIsLoadingMeetingDetails] = useState(false);
 	const [meetingNotFound, setMeetingNotFound] = useState(false);
 	const location = useLocation();
+
+	// Hashmap for live intelligence responses keyed by box_id
+	const [liveIntelligenceHashmap, setLiveIntelligenceHashmap] = useState({});
+	const hashmapRef = useRef({});
+
+	// Tracking hashmap: prompt_id -> box_id mapping
+	const promptToBoxMapping = useRef({});
+	const boxIdCounter = useRef(0);
+
+	// Pure hashmap algorithm with prompt_id to box_id mapping
+	const updateResponseMap = useCallback((responseMap, response) => {
+		const promptId = response?.prompt_id;
+		const referenceId = response?.reference_id;
+
+		let targetBoxId;
+
+		if (!referenceId || referenceId === '') {
+			// Case A: Empty reference_id → Create new box for this prompt_id
+			if (promptId && promptToBoxMapping.current[promptId]) {
+				// prompt_id already has a box, use existing box
+				targetBoxId = promptToBoxMapping.current[promptId];
+			} else {
+				// Create new box for this prompt_id
+				targetBoxId = `b${boxIdCounter.current}`;
+				boxIdCounter.current += 1;
+				if (promptId) {
+					promptToBoxMapping.current[promptId] = targetBoxId;
+				}
+			}
+		} else {
+			// Case B: reference_id exists → Check if it maps to existing prompt_id's box
+			const existingBoxId = promptToBoxMapping.current[referenceId];
+			if (existingBoxId) {
+				// reference_id matches a previous prompt_id, update that box
+				targetBoxId = existingBoxId;
+				if (promptId) {
+					promptToBoxMapping.current[promptId] = targetBoxId; // Update mapping for current prompt_id
+				}
+			} else {
+				// New reference_id, create new box
+				targetBoxId = `b${boxIdCounter.current}`;
+				boxIdCounter.current += 1;
+				if (promptId) {
+					promptToBoxMapping.current[promptId] = targetBoxId;
+				}
+			}
+		}
+
+		// Update the response map with the target box
+		responseMap[targetBoxId] = {
+			...response,
+			box_id: targetBoxId,
+			reference_id: referenceId || '',
+		};
+
+		return responseMap;
+	}, []);
+
+	// Process live intelligence response with timestamp
+	const processLiveIntelligenceResponse = useCallback((suggestion) => {
+		const timestamp = new Date().toISOString();
+		return {
+			...(suggestion || {}),
+			timestamp,
+		};
+	}, []);
+
+	// Apply hashmap algorithm to update responses
+	const updateLiveIntelligenceHashmap = useCallback(
+		(suggestion) => {
+			setLiveIntelligenceHashmap((prev) => {
+				// Create a copy of current hashmap
+				const newHashmap = { ...(prev || {}) };
+
+				// Apply pure hashmap algorithm
+				updateResponseMap(newHashmap, suggestion);
+
+				// Update ref for consistent state
+				hashmapRef.current = newHashmap;
+
+				return newHashmap;
+			});
+		},
+		[updateResponseMap],
+	);
+
+	// Convert hashmap to categorized arrays for UI
+	const categorizeLiveIntelligenceData = useCallback((hashmap) => {
+		const allThreads = [];
+		const askUser = [];
+		const needHelp = [];
+		const actions = [];
+		const files = [];
+
+		Object.values(hashmap || {}).forEach((suggestion) => {
+			if (suggestion?.entity === 'user' || suggestion?.entity === 'other_user') {
+				askUser.push(suggestion);
+			} else if (suggestion?.entity === 'agent' && suggestion?.type === 'search') {
+				needHelp.push(suggestion);
+			} else if (suggestion?.entity === 'agent' && suggestion?.type === 'action') {
+				actions.push(suggestion);
+			} else if (suggestion?.entity === 'file') {
+				files.push(suggestion);
+			}
+			allThreads.push(suggestion);
+		});
+
+		// Sort by timestamp (newest first)
+		const sortByTimestamp = (a, b) => new Date(b?.timestamp || 0) - new Date(a?.timestamp || 0);
+
+		return {
+			askUser: askUser.sort(sortByTimestamp),
+			needHelp: needHelp.sort(sortByTimestamp),
+			actions: actions.sort(sortByTimestamp),
+			files: files.sort(sortByTimestamp),
+			allThreads: allThreads.sort(sortByTimestamp),
+		};
+	}, []);
 
 	// Add hooks for live intelligence and recall stream
 	const {
@@ -211,40 +413,46 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		}
 	}, [meetingId, showTranscriptTabs, type, getMeetTranscriptHistory]);
 
+	// Process aiTranscriptionSuggestions with hashmap logic
 	useEffect(() => {
-		if (aiTranscriptionSuggestions) {
-			const userQuestions = [];
-			const aiQuestions = [];
-			const actions = [];
-			const files = [];
-
-			for (const suggestion of aiTranscriptionSuggestions?.suggestions || []) {
-				if (suggestion?.entity === 'user' || suggestion?.entity === 'other_user') {
-					userQuestions.push(suggestion);
-				} else if (
-					suggestion?.entity === 'agent' ||
-					suggestion?.entity?.includes('agent')
-				) {
-					if (suggestion?.type === 'search') {
-						aiQuestions.push(suggestion);
-					} else if (suggestion?.type === 'action') {
-						actions.push(suggestion);
-					}
-				} else if (suggestion?.entity === 'file') {
-					files.push(suggestion);
-				}
-			}
-
-			setInfo((prev) => ({
-				...prev,
-				userQuestions,
-				aiQuestions,
-				actions,
-				files,
-				allSuggestions: aiTranscriptionSuggestions?.suggestions || [],
-			}));
+		if (aiTranscriptionSuggestions && aiTranscriptionSuggestions?.suggestions?.length > 0) {
+			(aiTranscriptionSuggestions?.suggestions || []).forEach((suggestion) => {
+				const enhancedSuggestion = processLiveIntelligenceResponse(suggestion);
+				updateLiveIntelligenceHashmap(enhancedSuggestion);
+			});
 		}
-	}, [aiTranscriptionSuggestions]);
+	}, [
+		aiTranscriptionSuggestions,
+		processLiveIntelligenceResponse,
+		updateLiveIntelligenceHashmap,
+	]);
+
+	// Update categorized data when hashmap changes
+	useEffect(() => {
+		const categorizedData = categorizeLiveIntelligenceData(liveIntelligenceHashmap);
+		setInfo((prev) => ({
+			...prev,
+			userQuestions: categorizedData?.askUser || [],
+			aiQuestions: categorizedData?.needHelp || [],
+			actions: categorizedData?.actions || [],
+			files: categorizedData?.files || [],
+			allSuggestions: categorizedData?.allThreads || [],
+		}));
+	}, [liveIntelligenceHashmap, categorizeLiveIntelligenceData]);
+
+	// Reset hashmap and mappings when meeting changes or on unmount
+	useEffect(() => {
+		setLiveIntelligenceHashmap({});
+		hashmapRef.current = {};
+		promptToBoxMapping.current = {};
+		boxIdCounter.current = 0;
+		return () => {
+			setLiveIntelligenceHashmap({});
+			hashmapRef.current = {};
+			promptToBoxMapping.current = {};
+			boxIdCounter.current = 0;
+		};
+	}, [meetingId]);
 
 	useEffect(() => {
 		return () => {
@@ -642,6 +850,41 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		}
 	}, [activeTab]);
 
+	// Check for existing audio recording when component mounts
+	useEffect(() => {
+		if (meetingId) {
+			checkAudioRecording();
+		}
+	}, [meetingId, checkAudioRecording]);
+
+	// Save audio when recording stops
+	useEffect(() => {
+		if (audioBlob && !isRecording) {
+			saveAudioRecording();
+		}
+	}, [audioBlob, isRecording, saveAudioRecording]);
+
+	// Start audio recording for live meetings
+	useEffect(() => {
+		if (!history && meetingId && !info.audioRecordingStarted) {
+			// Small delay to ensure meeting is properly initialized
+			const timer = setTimeout(() => {
+				initializeAudioRecording();
+			}, 2000);
+			return () => clearTimeout(timer);
+		}
+	}, [history, meetingId, info.audioRecordingStarted, initializeAudioRecording]);
+
+	// Cleanup audio recording on unmount
+	useEffect(() => {
+		return () => {
+			if (isRecording) {
+				stopAudioRecording();
+			}
+		};
+	}, [isRecording, stopAudioRecording]);
+
+
 	const handleInfoChange = (data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
 	};
@@ -719,8 +962,19 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						history={history}
 						allSuggestions={info?.allSuggestions}
 						type={type}
+						hasAudioRecording={info?.hasAudioRecording}
 					/>
-				)} */}
+				)}
+				{/* Debug info */}
+				{(() => {
+					console.log(
+						'TranscriptionTabs props - hasAudioRecording:',
+						info?.hasAudioRecording,
+						'history:',
+						history,
+					);
+					return null;
+				})()}
 				{showTranscriptTabs &&
 					activeTab === 'transcript' &&
 					(type === 'desktop' || type === 'meeting_bot') && (
@@ -793,6 +1047,13 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 {showTranscriptTabs && activeTab === 'analytics' && (
 	<MeetingAnalytics meetingId={'68c3fa46666899f096c7cd8b'} />
 )}
+				{showTranscriptTabs && activeTab === 'audio' && (
+					<div className="audio-tab-container">
+						<AudioPlayback meetingId={meetingId} />
+
+					</div>
+				)}
+
 				{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
 					(activeTab === 'userQuestions' ||
 						activeTab === 'aiQuestions' ||

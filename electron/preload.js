@@ -4,6 +4,9 @@ const { contextBridge, ipcRenderer } = require('electron/renderer');
 // Helper
 
 contextBridge.exposeInMainWorld('electronApi', {
+	// Sending messages from veApp to main process
+	sendMessageFrmVeApp: (msg) => ipcRenderer.send('veAppMsg', msg),
+
 	send(channel, data) {
 		ipcRenderer.invoke(channel, data);
 	},
@@ -270,6 +273,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 		show: () => ipcRenderer.invoke('dynamic-island-show'),
 		hide: () => ipcRenderer.invoke('dynamic-island-hide'),
 		focus: () => ipcRenderer.invoke('dynamic-island-focus'),
+		forceShow: () => ipcRenderer.invoke('dynamic-island-force-show'),
 		setMouseEvents: (ignore) => ipcRenderer.invoke('dynamic-island-set-mouse-events', ignore),
 		setChatMode: (isChatMode) => ipcRenderer.invoke('dynamic-island-chat-mode', isChatMode),
 
@@ -323,6 +327,18 @@ contextBridge.exposeInMainWorld('electronApi', {
 		removeForceFocusListener: () => {
 			ipcRenderer.removeAllListeners('force-focus');
 		},
+
+		// Notification APIs
+		showNotification: (notification) =>
+			ipcRenderer.invoke('dynamic-island-show-notification', notification),
+		onNotification: (callback) => {
+			ipcRenderer.on('dynamic-island-notification', (event, data) => {
+				callback(data);
+			});
+		},
+		removeNotificationListener: () => {
+			ipcRenderer.removeAllListeners('dynamic-island-notification');
+		},
 	},
 
 	// NotchDrop APIs
@@ -340,6 +356,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 			ipcRenderer.invoke('notchdrop-set-haptic-feedback', enabled),
 		getHapticFeedback: () => ipcRenderer.invoke('notchdrop-get-haptic-feedback'),
 		updateMenu: () => ipcRenderer.invoke('update-notchdrop-menu'),
+		// Voice integration
+		updateVoiceStatus: (status) => ipcRenderer.invoke('notchdrop-update-voice-status', status),
+		addVoiceMessage: (messageData) => ipcRenderer.invoke('notchdrop-add-voice-message', messageData),
 		// New NotchDropLatest APIs
 		openAirDrop: () => ipcRenderer.invoke('notchdrop-open-airdrop'),
 		openShare: () => ipcRenderer.invoke('notchdrop-open-share'),
@@ -377,5 +396,16 @@ contextBridge.exposeInMainWorld('electronApi', {
 		ipcRenderer.on('screen-audio', (_event, data) => {
 			callback(data);
 		});
+	},
+
+	// File System APIs for audio storage
+	fs: {
+		ensureDir: (dirPath) => ipcRenderer.invoke('fs-ensure-dir', dirPath),
+		writeFile: (filePath, data) => ipcRenderer.invoke('fs-write-file', filePath, data),
+		readFile: (filePath) => ipcRenderer.invoke('fs-read-file', filePath),
+		readFileBinary: (filePath) => ipcRenderer.invoke('fs-read-file-binary', filePath),
+		exists: (filePath) => ipcRenderer.invoke('fs-exists', filePath),
+		remove: (filePath) => ipcRenderer.invoke('fs-remove', filePath),
+		readdir: (dirPath) => ipcRenderer.invoke('fs-readdir', dirPath),
 	},
 });

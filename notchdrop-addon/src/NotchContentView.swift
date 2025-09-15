@@ -9,6 +9,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
 import AppKit
+import Combine
 
 struct NotchContentView: View {
     @StateObject var vm: NotchViewModel
@@ -31,6 +32,8 @@ struct DynamicIslandContentView: View {
     @FocusState private var isChatInputFocused: Bool
     @State private var isTextFieldActive: Bool = false
     @State private var textEditorHeight: CGFloat = 100 // Dynamic height for textarea
+    @State private var receivedMessage: String = "" // Track received messages from Electron
+    @State private var cancellables = Set<AnyCancellable>()
     
     var body: some View {
         VStack(spacing: 16) {
@@ -46,7 +49,7 @@ struct DynamicIslandContentView: View {
                     
                     // Test button to toggle authentication
                     Button("Login") {
-                        vm.setAuthenticated(!vm.isAuthenticated)
+                        // Do nothing
                     }
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.white)
@@ -66,7 +69,7 @@ struct DynamicIslandContentView: View {
                         // Start button section
                         HStack(spacing: 8) {
                             if !vm.isRecording && !vm.showVoiceInterface {
-                                // Start button
+                                // Listen button (existing functionality)
                                 Button(action: {
                                     vm.startRecording()
                                 }) {
@@ -86,6 +89,31 @@ struct DynamicIslandContentView: View {
                                 .buttonStyle(PlainButtonStyle())
                                 .scaleEffect(1.0)
                                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isRecording)
+                                
+                                // Voice button (new LiveKit voice assistant)
+                                Button(action: {
+                                    vm.connectVoiceAssistant()
+                                }) {
+                                    HStack(spacing: 4) {
+                                        // Voice/microphone icon
+                                        Image(systemName: "mic.fill")
+                                            .font(.system(size: 12))
+                                            .foregroundColor(DynamicIslandTheme.primaryGreen)
+                                        Text("Voice")
+                                            .font(.system(size: 12, weight: .medium))
+                                            .foregroundColor(DynamicIslandTheme.primaryGreen)
+                                    }
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 2)
+                                    .background(DynamicIslandTheme.primaryGreen.opacity(0.1))
+                                    .overlay(
+                                        Capsule().stroke(DynamicIslandTheme.primaryGreen.opacity(0.3), lineWidth: 1)
+                                    )
+                                    .clipShape(Capsule())
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .scaleEffect(1.0)
+                                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.voiceConnectionStatus)
                             } else if vm.showVoiceInterface {
                                 // Voice mode indicator (when split layout is visible)
                                 HStack(spacing: 8) {
@@ -247,6 +275,7 @@ struct DynamicIslandContentView: View {
                         }
                     }
                     
+                    
                     // Main content area
                     HStack(spacing: 12) {
                         if vm.showVoiceInterface {
@@ -352,6 +381,26 @@ struct DynamicIslandContentView: View {
         .padding(vm.spacing)
         .frame(width: vm.notchOpenedSize.width, height: vm.notchOpenedSize.height)
         .animation(vm.animation, value: vm.isChatExpanded)
+        .onAppear {
+            // Set up listener for Swift actions to handle received messages
+            setupMessageListener()
+        }
+    }
+    
+    // MARK: - Message Handling
+    private func setupMessageListener() {
+        // Listen for Swift actions from the view model
+        vm.swiftActionSender
+            .sink { action in
+                switch action {
+                case .receiveMessage(let message):
+                    print("📨 Swift UI received message from Electron: \(message)")
+                    receivedMessage = message
+                default:
+                    break
+                }
+            }
+            .store(in: &cancellables)
     }
 }
 
@@ -361,11 +410,49 @@ struct VoiceSplitLayout: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            // Left: conversation list (placeholder samples)
-            VStack(alignment: .leading, spacing: 8) {
-                VoiceMessageBubble(sender: "Agent", text: "Hello, how can I help you today?")
-                VoiceMessageBubble(sender: "You", text: vm.voiceConnectionStatus == .connected ? (vm.isMicrophoneMuted ? "Muted" : "Listening...") : (vm.voiceConnectionStatus == .connecting ? "Connecting..." : ""))
-                Spacer()
+            // Left: conversation list (real messages from LiveKit)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 8) {
+                        if vm.voiceMessages.isEmpty {
+                            // Show connection status when no messages
+                            VoiceMessageBubble(
+                                sender: "System", 
+                                text: vm.voiceConnectionStatus == .connected ? 
+                                    (vm.isMicrophoneMuted ? "Microphone muted - tap to unmute" : "Start speaking - your conversation will appear here") : 
+                                    (vm.voiceConnectionStatus == .connecting ? "Connecting to voice assistant..." : "Voice assistant disconnected")
+                            )
+                        } else {
+                            // Show actual conversation messages
+                            ForEach(vm.voiceMessages) { message in
+                                VoiceMessageBubble(
+                                    sender: message.sender,
+                                    text: message.content,
+                                    isFromAgent: message.isFromAgent
+                                )
+                                .id(message.id)
+                            }
+                        }
+                        
+                        // Show current status only when there are no voice messages
+                        if vm.voiceConnectionStatus == .connected && vm.voiceMessages.isEmpty {
+                            VoiceMessageBubble(
+                                sender: "Status",
+                                text: vm.isMicrophoneMuted ? "🔇 Muted" : "🎤 Listening...",
+                                isStatus: true
+                            )
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+                .onChange(of: vm.voiceMessages.count) { _, _ in
+                    // Auto-scroll to latest message
+                    if let lastMessage = vm.voiceMessages.last {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            proxy.scrollTo(lastMessage.id, anchor: .bottom)
+                        }
+                    }
+                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(8)
@@ -382,20 +469,42 @@ struct VoiceSplitLayout: View {
 struct VoiceMessageBubble: View {
     let sender: String
     let text: String
+    var isFromAgent: Bool = false
+    var isStatus: Bool = false
+    
     var body: some View {
-        VStack(alignment: .trailing, spacing: 4) {
+        VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 6) {
-                Circle().fill(Color(red: 0.173, green: 0.176, blue: 0.180)).frame(width: 6, height: 6)
+                Circle()
+                    .fill(isFromAgent ? DynamicIslandTheme.primaryGreen : 
+                          isStatus ? Color.yellow : 
+                          Color(red: 0.173, green: 0.176, blue: 0.180))
+                    .frame(width: 6, height: 6)
                 Text(sender)
                     .font(.system(size: 9, weight: .medium))
                     .foregroundColor(DynamicIslandTheme.textMuted)
+                Spacer()
             }
             Text(text)
                 .font(.system(size: 11, weight: .medium))
-                .foregroundColor(DynamicIslandTheme.textPrimary)
+                .foregroundColor(isStatus ? DynamicIslandTheme.textMuted : DynamicIslandTheme.textPrimary)
+                .multilineTextAlignment(.leading)
         }
         .padding(8)
-        .background(DynamicIslandTheme.card)
+        .background(
+            isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.1) :
+            isStatus ? Color.clear :
+            DynamicIslandTheme.card
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(
+                    isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.3) :
+                    isStatus ? Color.clear :
+                    DynamicIslandTheme.stroke.opacity(0.3),
+                    lineWidth: 0.5
+                )
+        )
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
@@ -433,51 +542,69 @@ struct VoiceControlsCircle: View {
                 .shadow(color: DynamicIslandTheme.primaryGreen.opacity(0.5), radius: 15)
 
             VStack(spacing: 10) {
-                // Visualizer / spinner by state
+                // Visualizer / spinner by state with real audio level
                 if vm.voiceConnectionStatus == .connecting {
                     ProgressView().controlSize(.small)
                 } else if vm.voiceConnectionStatus == .connected {
+                    // Real-time audio visualizer using actual audio levels
                     HStack(spacing: 2) {
                         ForEach(0..<5, id: \.self) { i in
                             RoundedRectangle(cornerRadius: 2)
-                                .fill(DynamicIslandTheme.primaryGreen)
+                                .fill(vm.isMicrophoneMuted ? Color.gray : DynamicIslandTheme.primaryGreen)
                                 .frame(width: 3, height: 12)
-                                .scaleEffect(y: 0.6 + 0.4 * CGFloat((i % 3)) , anchor: .bottom)
+                                .scaleEffect(y: vm.isMicrophoneMuted ? 0.3 : (0.3 + CGFloat(vm.audioLevel) * 0.7 + CGFloat(i % 3) * 0.2), anchor: .bottom)
+                                .animation(.easeInOut(duration: 0.1), value: vm.audioLevel)
                         }
                     }
+                } else if vm.voiceConnectionStatus == .error {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.red)
                 } else {
-                    Image(systemName: "waveform")
+                    Image(systemName: "mic.fill")
                         .foregroundColor(DynamicIslandTheme.primaryGreen)
                 }
 
-                // Status text
-                Text(vm.voiceConnectionStatus == .connected ? "Voice Active" : (vm.voiceConnectionStatus == .connecting ? "Connecting..." : "Voice"))
+                // Status text with connection state
+                Text(getStatusText())
                     .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(DynamicIslandTheme.textPrimary)
+                    .foregroundColor(vm.voiceConnectionStatus == .error ? .red : DynamicIslandTheme.textPrimary)
 
                 // Action buttons
                 HStack(spacing: 12) {
-                    Button(action: { vm.disconnectVoiceUI() }) {
+                    // Disconnect button
+                    Button(action: { vm.disconnectVoiceAssistant() }) {
                         Image(systemName: "xmark")
                             .foregroundColor(DynamicIslandTheme.textPrimary)
                             .frame(width: 16, height: 16)
                     }.buttonStyle(PlainButtonStyle())
 
-                    // COMMENTED OUT: Microphone mute/unmute button
-                    // Removed to simplify the voice controls UI
-                    /*
-                    Button(action: { vm.toggleMicMute() }) {
-                        Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
-                            .foregroundColor(vm.isMicrophoneMuted ? Color.red : DynamicIslandTheme.textPrimary)
-                            .frame(width: 16, height: 16)
-                    }.buttonStyle(PlainButtonStyle())
-                    */
+                    // Microphone mute/unmute button (restored for voice chat)
+                    if vm.voiceConnectionStatus == .connected {
+                        Button(action: { vm.toggleVoiceMute() }) {
+                            Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
+                                .foregroundColor(vm.isMicrophoneMuted ? Color.red : DynamicIslandTheme.primaryGreen)
+                                .frame(width: 16, height: 16)
+                        }.buttonStyle(PlainButtonStyle())
+                    }
                 }
             }
             .padding(12)
         }
         .frame(width: 100, height: 100)
         .onAppear { rotate = true }
+    }
+    
+    private func getStatusText() -> String {
+        switch vm.voiceConnectionStatus {
+        case .connected:
+            return vm.isMicrophoneMuted ? "Muted" : "Voice Active"
+        case .connecting:
+            return "Connecting..."
+        case .error:
+            return "Error"
+        case .disconnected:
+            return "Voice"
+        }
     }
 }
 
@@ -683,12 +810,10 @@ struct ChatTextAreaView: View {
         
         // Calculate available space considering:
         // - Total padding (32px: 16px on each side)
-        // - Spacing between elements (12px)
         // - Right tile has been removed, so no need to account for it
         let totalPadding: CGFloat = 32 // 16px on each side
-        let elementSpacing: CGFloat = 12
         
-        var availableWidth = islandWidth - totalPadding
+        let availableWidth = islandWidth - totalPadding
         
         // Right tile has been commented out, so no need to subtract its width
         // The text editor can now use the full available width
@@ -696,13 +821,6 @@ struct ChatTextAreaView: View {
         // Ensure minimum width and apply some margin for visual balance
         let minWidth: CGFloat = 200
         let calculatedWidth = max(minWidth, availableWidth - 20) // 20px margin for visual balance
-        
-        print("🎯 Calculating TextEditor width (after removing right tile):")
-        print("   Island width: \(islandWidth)")
-        print("   Available width: \(availableWidth)")
-        print("   Calculated width: \(calculatedWidth)")
-        print("   Chat mode: \(vm.isChatMode)")
-        print("   Voice interface: \(vm.showVoiceInterface)")
         
         textEditorWidth = calculatedWidth
     }
