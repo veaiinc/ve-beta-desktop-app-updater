@@ -17,6 +17,7 @@ const TranscriptionTabs = ({
 	history,
 	allSuggestions,
 	type = null,
+	hasAudioRecording = false,
 }) => {
 	return (
 		<div className={s.meetingTabContainer}>
@@ -55,6 +56,31 @@ const TranscriptionTabs = ({
 						Meeting Intelligence
 					</button>
 				)}
+
+				{history && (
+					<button
+						className={
+							s.meetingTabButton + ' ' + (activeTab === 'audio' ? s.activeTab : '')
+						}
+						onClick={() => setActiveTab('audio')}
+					>
+						Play Audio
+					</button>
+				)}
+				{/* Debug info */}
+				{(() => {
+					console.log(
+						'TranscriptionTabs - history:',
+						history,
+						'hasAudioRecording:',
+						hasAudioRecording,
+						'shouldShowAudioTab:',
+						history,
+						'activeTab:',
+						activeTab,
+					);
+					return null;
+				})()}
 				{/* {history && (
 					<button
 						className={activeTab === 'notes' ? 'notes-tab active' : 'notes-tab'}
