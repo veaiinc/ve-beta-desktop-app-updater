@@ -125,6 +125,15 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var voiceConnectionStatus: VoiceConnectionStatus = .disconnected
     @Published var isMicrophoneMuted: Bool = false
     
+    // Voice Assistant Integration (Web-based approach)
+    @Published var voiceMessages: [VoiceMessage] = []
+    @Published var isVoiceActive: Bool = false
+    @Published var audioLevel: Float = 0.0
+    
+    // Voice configuration (VE.AI settings)
+    private var voiceURL: String = "wss://ve-ai-voice-agent-ginreaey.livekit.cloud"
+    private var voiceToken: String = ""
+    
     // Event emitters for JavaScript integration
     let swiftActionSender = PassthroughSubject<SwiftAction, Never>()
     
@@ -142,7 +151,31 @@ class NotchViewModel: NSObject, ObservableObject {
         case triggerOverlayToggleLiveIntelligence
         case sendLog(String)
         case navigateToMainScreen
+        // Voice Assistant Actions
+        case connectVoice
+        case disconnectVoice
+        case toggleVoiceMute
+        case sendVoiceMessage(String)
+        case voiceConnectionStateChanged(String)
+        case startVoiceAgent
         case receiveMessage(String)
+    }
+    
+    // Voice Message Structure for UI
+    struct VoiceMessage: Identifiable {
+        let id: String
+        let sender: String
+        let content: String
+        let timestamp: Date
+        let isFromAgent: Bool
+        
+        init(sender: String, content: String, isFromAgent: Bool = false) {
+            self.id = UUID().uuidString
+            self.sender = sender
+            self.content = content
+            self.timestamp = Date()
+            self.isFromAgent = isFromAgent
+        }
     }
     
     private var timerCancellable: AnyCancellable?
@@ -274,24 +307,128 @@ class NotchViewModel: NSObject, ObservableObject {
         }
     }
 
-    // Voice UI helpers (UI-only; wiring can follow once UI is approved)
-    func connectVoiceUI() {
+    // MARK: - Voice Assistant Integration
+    
+    /// Configure voice connection parameters (called from JavaScript/Electron)
+    func configureVoice(url: String, token: String) {
+        self.voiceURL = url
+        self.voiceToken = token
+        print("🎤 Voice configured with URL: \(url)")
+    }
+    
+    /// Connect to voice assistant - DIRECT APPROACH
+    func connectVoiceAssistant() {
+        print("🎤 VOICE: Button clicked - connecting directly to voice agent")
+        
         showVoiceInterface = true
         voiceConnectionStatus = .connecting
-        // Simulate quick connect visually
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.voiceConnectionStatus = .connected
-        }
+        isVoiceActive = true
+        
+        // DIRECT: Trigger voice agent via specific action
+        swiftActionSender.send(.startVoiceAgent)
+        
+        print("🚀 VOICE: Voice agent start command sent")
     }
-
-    func disconnectVoiceUI() {
+    
+    /// Disconnect from voice assistant
+    func disconnectVoiceAssistant() {
+        print("🎤 Disconnecting from voice assistant...")
+        
         voiceConnectionStatus = .disconnected
         showVoiceInterface = false
         isMicrophoneMuted = false
+        isVoiceActive = false
+        voiceMessages.removeAll()
+        audioLevel = 0.0
+        
+        // Emit action for JavaScript integration
+        swiftActionSender.send(.disconnectVoice)
+        swiftActionSender.send(.voiceConnectionStateChanged("disconnected"))
+    }
+    
+    /// Toggle microphone mute in voice chat
+    func toggleVoiceMute() {
+        isMicrophoneMuted.toggle()
+        
+        // Emit action for JavaScript integration
+        swiftActionSender.send(.toggleVoiceMute)
+        print("🎤 Microphone \(isMicrophoneMuted ? "muted" : "unmuted")")
+    }
+    
+    /// Send a message through voice assistant (for debugging/testing)
+    func sendVoiceMessage(_ message: String) {
+        let userMessage = VoiceMessage(sender: "User", content: message, isFromAgent: false)
+        voiceMessages.append(userMessage)
+        
+        swiftActionSender.send(.sendVoiceMessage(message))
+        print("💬 Voice message sent: \(message)")
+        
+        // Simulate agent response
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            let agentResponse = VoiceMessage(sender: "Agent", content: "I received: \(message)", isFromAgent: true)
+            self.voiceMessages.append(agentResponse)
+        }
+    }
+    
+    /// Update voice connection state from JavaScript
+    func updateVoiceConnectionState(_ state: String) {
+        DispatchQueue.main.async {
+            switch state {
+            case "connected":
+                self.voiceConnectionStatus = .connected
+            case "connecting":
+                self.voiceConnectionStatus = .connecting
+            case "disconnected":
+                self.voiceConnectionStatus = .disconnected
+            case "error":
+                self.voiceConnectionStatus = .error
+            default:
+                break
+            }
+        }
+    }
+    
+    /// Add voice message from JavaScript transcription
+    func addVoiceMessage(sender: String, content: String, isFromAgent: Bool) {
+        DispatchQueue.main.async {
+            // Check for duplicate messages (same sender and content)
+            let isDuplicate = self.voiceMessages.contains { existingMessage in
+                existingMessage.sender == sender && 
+                existingMessage.content == content &&
+                existingMessage.isFromAgent == isFromAgent
+            }
+            
+            if !isDuplicate {
+                let message = VoiceMessage(sender: sender, content: content, isFromAgent: isFromAgent)
+                self.voiceMessages.append(message)
+                print("💬 Added voice message: \(sender): \(content.prefix(50))...")
+            } else {
+                print("⚠️ Skipped duplicate voice message: \(sender): \(content.prefix(50))...")
+            }
+        }
+    }
+    
+    /// Update audio level from JavaScript
+    func updateAudioLevel(_ level: Float) {
+        DispatchQueue.main.async {
+            self.audioLevel = level
+        }
+    }
+
+    // Voice UI helpers (UI-only; wiring can follow once UI is approved)
+    func connectVoiceUI() {
+        // Use the new LiveKit integration instead of simulation
+        connectVoiceAssistant()
+    }
+
+    func disconnectVoiceUI() {
+        // Use the new LiveKit integration instead of simulation
+        disconnectVoiceAssistant()
     }
 
     func toggleMicMute() {
-        isMicrophoneMuted.toggle()
+        // Use the new LiveKit integration instead of simple toggle
+        toggleVoiceMute()
     }
     
     func setAuthenticated(_ authenticated: Bool) {
