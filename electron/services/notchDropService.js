@@ -151,6 +151,34 @@ class NotchDropService {
 				log.error('❌ Error handling Swift UI submitChat:', error);
 			}
 		});
+
+		// Listen for voice agent start requests from Swift UI
+		this.notchDropAddon.on('startVoiceAgent', (data) => {
+			try {
+				log.info('🎤 Swift UI requested voice agent start');
+				console.log('🎤 NotchDrop: Received startVoiceAgent event, activating voice agent...');
+				this.activateVoiceAgent();
+			} catch (error) {
+				log.error('❌ Error handling Swift UI startVoiceAgent:', error);
+			}
+		});
+
+		// Listen for voice agent disconnect requests from Swift UI
+		this.notchDropAddon.on('disconnectVoice', (data) => {
+			try {
+				log.info('🔌 Swift UI requested voice agent disconnect');
+				console.log('🔌 NotchDrop: Received disconnectVoice event, deactivating voice agent...');
+				this.deactivateVoiceAgent();
+			} catch (error) {
+				log.error('❌ Error handling Swift UI disconnectVoice:', error);
+			}
+		});
+
+		// Listen for messages received by Swift UI from Electron
+		this.notchDropAddon.on('messageReceived', (message) => {
+			log.info('📨 Swift UI received message from Electron:', message);
+			// You can add additional handling here if needed
+		});
 	}
 
 	enable() {
@@ -455,11 +483,120 @@ class NotchDropService {
 				return { success: false, error: 'Swift-JS Bridge not initialized' };
 			}
 
+			// Handle voice-specific actions
+			if (action === 'connectVoice' || action === 'startVoiceAgent') {
+				console.log('🎤 NotchDrop Voice button clicked - activating voice agent');
+				await this.activateVoiceAgent();
+			} else if (action === 'disconnectVoice') {
+				console.log('🎤 NotchDrop Voice disconnect - deactivating voice agent');
+				await this.deactivateVoiceAgent();
+			}
+
 			const result = await this.swiftJSBridge.handleSwiftAction(action, data);
 			return result;
 		} catch (error) {
 			log.error('❌ Error handling Swift action:', error);
 			return { success: false, error: error.message };
+		}
+	}
+
+	async activateVoiceAgent() {
+		try {
+			console.log('🎤 Activating voice agent from NotchDrop (LiveKit only)...');
+			
+			// ONLY dispatch LiveKit voice activation event - no web interface
+			if (this.mainWindow) {
+				const liveKitResult = await this.mainWindow.webContents.executeJavaScript(`
+					console.log('🎤 NotchDrop: Dispatching LiveKit voice activation event...');
+					window.dispatchEvent(new CustomEvent('notchdrop-activate-voice', { 
+						detail: { 
+							source: 'notchdrop', 
+							timestamp: Date.now(),
+							action: 'activate_livekit_voice'
+						} 
+					}));
+					'{ "success": true, "method": "LiveKit voice activation event" }';
+				`);
+				console.log('🎤 LiveKit voice activation event result:', liveKitResult);
+				console.log('✅ Voice conversation will stay within NotchDrop UI');
+			}
+			
+		} catch (error) {
+			console.error('❌ Error activating voice agent:', error);
+		}
+	}
+
+	async deactivateVoiceAgent() {
+		try {
+			console.log('🔌 Deactivating voice agent from NotchDrop (LiveKit only)...');
+			
+			if (this.mainWindow) {
+				// ONLY dispatch LiveKit voice deactivation event - no web interface
+				const liveKitResult = await this.mainWindow.webContents.executeJavaScript(`
+					console.log('🔌 NotchDrop: Dispatching LiveKit voice deactivation event...');
+					window.dispatchEvent(new CustomEvent('notchdrop-deactivate-voice', { 
+						detail: { 
+							source: 'notchdrop', 
+							timestamp: Date.now(),
+							action: 'deactivate_livekit_voice'
+						} 
+					}));
+					'{ "success": true, "method": "LiveKit voice deactivation event" }';
+				`);
+				console.log('🔌 LiveKit voice deactivation event result:', liveKitResult);
+				console.log('✅ Voice conversation ended within NotchDrop UI');
+			}
+			
+		} catch (error) {
+			console.error('❌ Error deactivating voice agent:', error);
+		}
+	}
+
+	async updateVoiceConnectionState(status) {
+		try {
+			console.log(`🔄 Updating NotchDrop voice connection state: ${status}`);
+			
+			if (!this.isInitialized) {
+				log.warn('NotchDrop not initialized, cannot update voice connection state');
+				return false;
+			}
+
+			// Call the native addon to update the Swift UI voice status
+			if (this.notchDropAddon && this.notchDropAddon.updateVoiceConnectionState) {
+				this.notchDropAddon.updateVoiceConnectionState(status);
+				console.log(`✅ NotchDrop voice status updated to: ${status}`);
+				return true;
+			} else {
+				console.warn('⚠️ updateVoiceConnectionState method not available on addon');
+				return false;
+			}
+		} catch (error) {
+			console.error('❌ Error updating NotchDrop voice connection state:', error);
+			return false;
+		}
+	}
+
+	async addVoiceMessage(messageData) {
+		try {
+			console.log(`💬 Adding voice message to NotchDrop: ${messageData.sender}: ${messageData.content?.substring(0, 50)}...`);
+			
+			if (!this.isInitialized) {
+				log.warn('NotchDrop not initialized, cannot add voice message');
+				return false;
+			}
+
+			// Call the native addon to add the voice message to Swift UI
+			if (this.notchDropAddon && this.notchDropAddon.addVoiceMessage) {
+				this.notchDropAddon.addVoiceMessage(messageData);
+				console.log(`✅ Voice message added to NotchDrop`);
+				return true;
+			} else {
+				console.warn('⚠️ addVoiceMessage method not available on addon');
+				return false;
+			}
+		} catch (error) {
+			console.error('❌ Error adding voice message to NotchDrop:', error);
+			return false;
 		}
 	}
 
@@ -488,6 +625,29 @@ class NotchDropService {
 			return { success: true };
 		} catch (error) {
 			log.error('❌ Error handling overlay recording request:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	// Send message to Swift UI
+	async sendMessageToSwiftUI(message) {
+		try {
+			if (!this.notchDropAddon) {
+				log.warn('NotchDrop addon not initialized, cannot send message to Swift UI');
+				return { success: false, error: 'NotchDrop addon not initialized' };
+			}
+
+			// Use the triggerSwiftAction method to send a custom message action
+			if (this.notchDropAddon.triggerSwiftAction) {
+				this.notchDropAddon.triggerSwiftAction('receiveMessage', message);
+				log.info('📤 Message sent to Swift UI:', message);
+				return { success: true };
+			} else {
+				log.error('❌ triggerSwiftAction method not available on NotchDrop addon');
+				return { success: false, error: 'triggerSwiftAction method not available' };
+			}
+		} catch (error) {
+			log.error('❌ Error sending message to Swift UI:', error);
 			return { success: false, error: error.message };
 		}
 	}

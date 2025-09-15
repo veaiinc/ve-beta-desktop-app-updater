@@ -1,4 +1,4 @@
-// main.js
+require('dotenv').config();
 const {
 	app,
 	BrowserWindow,
@@ -21,6 +21,9 @@ const WindowHelper = require('./helpers/windowHelper');
 const DynamicIslandHelper = require('./helpers/dynamicIslandHelper');
 const fs = require('fs');
 const { exec } = require('child_process');
+const { Worker } = require('worker_threads');
+const pLimit = require('p-limit') || require('p-limit').default;
+const imageProcessingLimit = pLimit(4); // Max 4 concurrent workers
 
 // Import Windows compatibility fixes
 const {
@@ -40,6 +43,11 @@ const meetingMonitor = require('./notificationHelper'); // Adjust path if needed
 
 // Import NotchDrop service
 const NotchDropService = require('./services/notchDropService');
+
+log.info(
+	'process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND:',
+	process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND,
+);
 
 // Gallery processing functions will be loaded lazily when needed
 let galleryHelper = null;
@@ -121,12 +129,23 @@ const applyContentProtectionToWindow = (window) => {
 		}
 
 		window.setContentProtection(isContentProtectionEnabled);
+		log.info(
+			`🔒 Applied content protection (${
+				isContentProtectionEnabled ? 'ON' : 'OFF'
+			}) to new window: ${window.getTitle()}`,
+		);
 	}
 };
 
 // Runtime platform override for testing (set VE_FORCE_PLATFORM=linux|win32|darwin)
 const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
 const isMacRuntime = RUNTIME_PLATFORM === 'darwin';
+const shouldInitDynamicIsland = (() => {
+	const value = String(process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND || '')
+		.trim()
+		.toLowerCase();
+	return process.platform !== 'darwin' || (value === '1' || value === 'true' || value === 'yes' || value === 'on');
+})();
 
 const loadGalleryHelper = () => {
 	if (!galleryHelper) {
@@ -172,6 +191,84 @@ process.on('unhandledRejection', (reason, promise) => {
 
 let notchDropService = null;
 
+// NotchDrop Voice Integration Setup
+function setupNotchDropVoiceIntegration() {
+	try {
+		console.log('🎤 Initializing NotchDrop voice integration...');
+
+		// Add direct voice activation handler
+		ipcMain.handle('notchdrop:activateVoice', async (event, data) => {
+			console.log('🎤 DIRECT: Voice activation request from NotchDrop');
+
+			try {
+				// Send activation event to main window
+				if (mainWindow && !mainWindow.isDestroyed()) {
+					console.log('📤 Sending voice activation to main window...');
+
+					// Send IPC event
+					mainWindow.webContents.send('notchdrop:showVoiceAgent', {
+						source: 'notchdrop-direct',
+						timestamp: Date.now(),
+					});
+
+					// Also execute JavaScript to activate voice agent directly
+					const result = await mainWindow.webContents.executeJavaScript(`
+						(async () => {
+							try {
+								console.log('🎤 DIRECT: Activating voice agent from NotchDrop');
+								
+								// Look for voice agent UI elements
+								const voiceContainers = document.querySelectorAll('.voiceContainer');
+								console.log('Found voice containers:', voiceContainers.length);
+								
+								if (voiceContainers.length > 0) {
+									// Make voice agent visible
+									voiceContainers[0].style.display = 'block';
+									voiceContainers[0].style.opacity = '1';
+									
+									// Find and click the action button
+									const actionButtons = voiceContainers[0].querySelectorAll('.action-button');
+									console.log('Found action buttons:', actionButtons.length);
+									
+									if (actionButtons.length > 0) {
+										console.log('🎤 Clicking voice agent action button...');
+										actionButtons[0].click();
+										return { success: true, method: 'button-click' };
+									}
+								}
+								
+								// If no existing voice agent, try to create one by navigating
+								console.log('🎤 No voice agent found, dispatching custom event...');
+								const event = new CustomEvent('notchdrop-voice-activate', {
+									detail: { source: 'notchdrop', activate: true }
+								});
+								window.dispatchEvent(event);
+								
+								return { success: true, method: 'custom-event' };
+								
+							} catch (error) {
+								console.error('❌ Error in direct voice activation:', error);
+								return { success: false, error: error.message };
+							}
+						})()
+					`);
+
+					console.log('🎤 Direct voice activation result:', result);
+				}
+
+				return { success: true };
+			} catch (error) {
+				console.error('❌ Error in direct voice activation:', error);
+				return { success: false, error: error.message };
+			}
+		});
+
+		console.log('✅ NotchDrop voice integration handlers registered');
+	} catch (error) {
+		console.error('❌ Error setting up NotchDrop voice integration:', error);
+	}
+}
+
 // Auto-updater setup
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
@@ -182,15 +279,6 @@ autoUpdater.autoInstallOnAppQuit = false; // Manual control for better error han
 
 // Flag to prevent concurrent update operations
 let isUpdateInProgress = false;
-
-// Platform-specific logging
-if (process.platform === 'win32') {
-	log.info('Windows auto-updater configured with auto-download and manual install');
-} else if (process.platform === 'darwin') {
-	log.info('macOS auto-updater configured with auto-download and manual install');
-} else {
-	log.info('Linux auto-updater configured with auto-download and manual install');
-}
 
 // Update event forwarding
 autoUpdater.on('checking-for-update', () => {
@@ -1079,10 +1167,23 @@ function setupNotchDropMenuUpdates() {
 	// Since the service emits events to the renderer, we'll listen for IPC messages
 	// that indicate status changes and update the menu accordingly
 
-	// Set up a periodic check to update menu state (as a fallback)
-	setInterval(() => {
-		updateMenuBarState();
-	}, 5000); // Update every 5 seconds
+	// Listen for NotchDrop service events to update menu
+	if (notchDropService.notchDropAddon) {
+		notchDropService.notchDropAddon.on('statusChanged', (status) => {
+			log.info('📊 NotchDrop status changed, updating menu:', status);
+			updateMenuBarState();
+		});
+
+		notchDropService.notchDropAddon.on('itemAdded', () => {
+			log.info('📊 NotchDrop item added, updating menu');
+			updateMenuBarState();
+		});
+
+		notchDropService.notchDropAddon.on('itemRemoved', () => {
+			log.info('📊 NotchDrop item removed, updating menu');
+			updateMenuBarState();
+		});
+	}
 
 	log.info('✅ NotchDrop menu update listeners set up');
 }
@@ -1109,10 +1210,6 @@ function updateMenuBarState() {
 			if (autoOpenMenu) {
 				autoOpenMenu.checked = autoOpen;
 			}
-
-			log.info(
-				`📊 Menu updated - Status: ${status}, Visible: ${isVisible}, Auto-open: ${autoOpen}`,
-			);
 		}
 	} catch (error) {
 		log.error('❌ Failed to update menu bar state:', error);
@@ -1175,6 +1272,26 @@ function createWindow(restoreState = false) {
 		},
 	});
 
+	ipcMain.on('veAppMsg', async (event, msg) => {
+		log.info('🔄 Received message from veApp:', msg); // logs: btn clicked from react
+
+		// Send the same message to Swift UI if NotchDrop service is available
+		if (notchDropService && notchDropService.isInitialized) {
+			try {
+				const result = await notchDropService.sendMessageToSwiftUI(msg);
+				if (result.success) {
+					log.info('✅ Message sent to Swift UI successfully');
+				} else {
+					log.warn('⚠️ Failed to send message to Swift UI:', result.error);
+				}
+			} catch (error) {
+				log.error('❌ Error sending message to Swift UI:', error);
+			}
+		} else {
+			log.info('ℹ️ NotchDrop service not available, skipping Swift UI message');
+		}
+	});
+
 	if (process.env.VITE_DEV_SERVER_URL) {
 		mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
 	} else {
@@ -1189,6 +1306,24 @@ function createWindow(restoreState = false) {
 		log.info('Window ready-to-show - content protection applied');
 		// Enable developer tools for main window in both development and production
 		log.info('Dev tools available with F12, Ctrl+F12, or Ctrl+Shift+I in all modes');
+
+		// Ensure Dynamic Island stays on top after main window appears
+		try {
+			if (dynamicIslandHelper && shouldInitDynamicIsland) {
+				setTimeout(() => {
+					try {
+						dynamicIslandHelper.forceShow();
+						// Extra focus/raise for macOS layering quirks
+						dynamicIslandHelper.focus();
+						log.info('Reasserted Dynamic Island on top after main window show');
+					} catch (e) {
+						log.warn('Could not reassert Dynamic Island on top:', e);
+					}
+				}, 200);
+			}
+		} catch (e) {
+			log.warn('Dynamic Island post-show raise failed:', e);
+		}
 
 		// If restoring state, navigate to the last known route
 		if (restoreState && lastWindowState.route) {
@@ -1356,12 +1491,6 @@ app.whenReady().then(async () => {
 		// Check microphone permission status (this is synchronous)
 		const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
 		const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
-
-		log.info('macOS Microphone permission status:', microphoneStatus);
-		log.info('macOS Camera permission status:', cameraStatus);
-
-		console.log('Microphone status:', microphoneStatus);
-		console.log('Camera status:', cameraStatus);
 	}
 
 	// ✅ Request screen recording permission (macOS only)
@@ -1387,16 +1516,20 @@ app.whenReady().then(async () => {
 
 	// 🎤 IPC: Start Mic Monitoring
 
-	// Initialize Dynamic Island with comprehensive error handling
-	try {
-		log.info('Initializing Dynamic Island Helper...');
-		dynamicIslandHelper = new DynamicIslandHelper();
-		dynamicIslandHelper.createDynamicIslandWindow();
-		log.info('Dynamic Island Helper initialized successfully');
-	} catch (error) {
-		log.error('Failed to initialize Dynamic Island Helper:', error);
-		// Continue app initialization even if Dynamic Island fails
-		dynamicIslandHelper = null;
+	// Initialize Dynamic Island only when explicitly enabled
+	if (shouldInitDynamicIsland) {
+		try {
+			log.info('Initializing Dynamic Island Helper (env enabled)...');
+			dynamicIslandHelper = new DynamicIslandHelper();
+			dynamicIslandHelper.createDynamicIslandWindow();
+			log.info('Dynamic Island Helper initialized successfully');
+		} catch (error) {
+			log.error('Failed to initialize Dynamic Island Helper:', error);
+			// Continue app initialization even if Dynamic Island fails
+			dynamicIslandHelper = null;
+		}
+	} else {
+		log.info('Dynamic Island disabled. Set VITE_ELECTRON_SHOW_DYNAMIC_ISLAND=true to enable.');
 	}
 
 	// THEN: Create main window after dynamic island
@@ -1420,12 +1553,16 @@ app.whenReady().then(async () => {
 		const statusText = newStatus ? 'ON' : 'OFF';
 		const windowCount = BrowserWindow.getAllWindows().length;
 
+		// Show system notification with clear status
 		showNotification(
 			`Content Protection: ${statusText}`,
 			newStatus
 				? `🔒 INVISIBILITY ON - ${windowCount} windows are now protected from screen recording`
 				: `👁️ INVISIBILITY OFF - ${windowCount} windows are now visible in screen recording`,
 		);
+
+		// Also log to console for debugging
+		console.log(`🎯 TOGGLE TRIGGERED: Content Protection is now ${statusText}`);
 
 		return newStatus;
 	});
@@ -1439,6 +1576,7 @@ app.whenReady().then(async () => {
 		return setContentProtection(enabled);
 	});
 
+	// Register Ask AI window IPC handlers
 	ipcMain.handle('toggle-askAI-window', async () => {
 		try {
 			windowHelper?.toggleAskAIWindow();
@@ -1574,6 +1712,10 @@ app.whenReady().then(async () => {
 			try {
 				const status = notchDropService.getStatus();
 				log.info('✅ NotchDrop service status check:', status);
+
+				// Setup voice integration
+				console.log('🎤 Setting up NotchDrop voice integration...');
+				setupNotchDropVoiceIntegration();
 			} catch (error) {
 				log.warn('⚠️ NotchDrop service status check failed:', error.message);
 			}
@@ -1831,7 +1973,62 @@ app.whenReady().then(async () => {
 	// Send chat message from Dynamic Island to Ask AI handler
 	ipcMain.handle('send-chat-message-to-askai', async (event, chatMessage) => {
 		try {
-			// Get the Ask AI window through windowHelper
+			// Check if this is a voice activation message from NotchDrop
+			if (
+				chatMessage &&
+				chatMessage.type === 'ACTIVATE_VOICE_AGENT' &&
+				chatMessage.source === 'notchdrop_voice_button'
+			) {
+				console.log('🎤 DIRECT: Intercepting NotchDrop voice activation in main.js');
+
+				// Send voice activation directly to main window
+				if (mainWindow && !mainWindow.isDestroyed()) {
+					console.log('📤 DIRECT: Sending voice activation to main window');
+
+					// Send IPC event to main window
+					mainWindow.webContents.send('notchdrop:voice-activate', {
+						type: 'ACTIVATE_VOICE_AGENT',
+						source: 'notchdrop_voice_button',
+						timestamp: chatMessage.timestamp,
+					});
+
+					// Also execute JavaScript directly in main window
+					const result = await mainWindow.webContents.executeJavaScript(`
+						(async () => {
+							try {
+								console.log('🎤 DIRECT: Voice activation JavaScript executed in main window');
+								
+								// Set a global flag that React can check
+								window.notchDropVoiceActivate = true;
+								window.notchDropVoiceTimestamp = '${chatMessage.timestamp}';
+								
+								// Dispatch a custom event
+								const event = new CustomEvent('notchdrop-voice-activate', {
+									detail: {
+										type: 'ACTIVATE_VOICE_AGENT',
+										source: 'notchdrop_voice_button',
+										timestamp: '${chatMessage.timestamp}'
+									}
+								});
+								window.dispatchEvent(event);
+								
+								console.log('🎤 DIRECT: Voice activation event dispatched');
+								return { success: true };
+								
+							} catch (error) {
+								console.error('❌ Error in voice activation JavaScript:', error);
+								return { success: false, error: error.message };
+							}
+						})()
+					`);
+
+					console.log('🎤 DIRECT: Voice activation JavaScript result:', result);
+				}
+
+				return { success: true, message: 'Voice activation triggered' };
+			}
+
+			// Original Ask AI logic for non-voice messages
 			let askAIWindow = windowHelper.getAskAIWindow();
 
 			// If Ask AI window doesn't exist or is destroyed, create it
@@ -2379,6 +2576,42 @@ app.whenReady().then(async () => {
 		} catch (error) {
 			log.error('Error getting haptic feedback:', error);
 			return { success: false, enabled: true, error: error.message };
+		}
+	});
+
+	// Voice integration handler
+	ipcMain.handle('notchdrop-update-voice-status', async (event, status) => {
+		try {
+			log.info(`🎤 Updating NotchDrop voice status: ${status}`);
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+
+			// Update the voice status in NotchDrop Swift UI
+			const result = await notchDropService.updateVoiceConnectionState(status);
+			return { success: true, status, result };
+		} catch (error) {
+			log.error('Error updating NotchDrop voice status:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Voice message handler
+	ipcMain.handle('notchdrop-add-voice-message', async (event, messageData) => {
+		try {
+			log.info(
+				`💬 Adding voice message to NotchDrop: ${messageData.content?.substring(0, 50)}...`,
+			);
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+
+			// Add the voice message to NotchDrop Swift UI
+			const result = await notchDropService.addVoiceMessage(messageData);
+			return { success: true, messageData, result };
+		} catch (error) {
+			log.error('Error adding NotchDrop voice message:', error);
+			return { success: false, error: error.message };
 		}
 	});
 
@@ -3338,6 +3571,147 @@ app.whenReady().then(async () => {
 			log.error('Error saving current route:', error);
 			return { success: false, error: error.message };
 		}
+	});
+
+	// Register gallery IPC handlers from galleryUtils
+	// Enhanced image processing with batching
+	ipcMain.handle('process-image-batch', async (event, { files, settings }) => {
+		try {
+			const results = [];
+			const batchSize = 2; // Process 2 images at a time to prevent overwhelming
+
+			for (let i = 0; i < files.length; i += batchSize) {
+				const batch = files.slice(i, i + batchSize);
+				const batchPromises = batch.map((fileData) =>
+					imageProcessingLimit(async () => {
+						return new Promise((resolve) => {
+							const taskId = Date.now() + Math.random();
+							const workerPath = path.join(__dirname, 'imageProcessWorker.js');
+							const worker = new Worker(workerPath, {
+								workerData: { data: { ...fileData, settings } },
+							});
+
+							// Prepare transfer list for ArrayBuffer transfer
+							const transferList = [];
+							if (fileData.imageBuffer instanceof ArrayBuffer) {
+								transferList.push(fileData.imageBuffer);
+							}
+
+							worker.on('message', (result) => {
+								if (result.taskId === taskId) {
+									worker.terminate().catch(() => {});
+									resolve(result);
+								}
+							});
+
+							worker.on('error', (err) => {
+								worker.terminate().catch(() => {});
+								resolve({ success: false, error: `Worker error: ${err.message}` });
+							});
+
+							worker.on('exit', (code) => {
+								if (code !== 0) {
+									resolve({
+										success: false,
+										error: `Worker stopped with exit code ${code}`,
+									});
+								}
+							});
+
+							// Send with transfer list for zero-copy transfer
+							worker.postMessage(
+								{ taskId, data: { ...fileData, settings } },
+								transferList,
+							);
+						});
+					}),
+				);
+
+				const batchResults = await Promise.all(batchPromises);
+				results.push(...batchResults);
+
+				// Send progress update after each batch
+				event.sender.send('image-processing-progress', {
+					processed: results.length,
+					total: files.length,
+					results: results,
+				});
+
+				// Small delay to prevent overwhelming the system
+				await new Promise((resolve) => setTimeout(resolve, 50));
+			}
+
+			return { success: true, results };
+		} catch (error) {
+			log.error('Batch processing error:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('process-image-with-sharp', (event, data) => {
+		return imageProcessingLimit(async () => {
+			return new Promise((resolve) => {
+				const taskId = Date.now() + Math.random();
+				const workerPath = path.join(__dirname, 'imageProcessWorker.js');
+				const worker = new Worker(workerPath, {
+					workerData: { data },
+				});
+
+				// Prepare transfer list for ArrayBuffer transfer
+				const transferList = [];
+				if (data.imageBuffer instanceof ArrayBuffer) {
+					transferList.push(data.imageBuffer);
+				}
+
+				worker.on('message', (result) => {
+					if (result.taskId === taskId) {
+						worker.terminate().catch(() => {});
+						resolve(result);
+					}
+				});
+
+				worker.on('error', (err) => {
+					worker.terminate().catch(() => {});
+					resolve({ success: false, error: `Worker error: ${err.message}` });
+				});
+
+				worker.on('exit', (code) => {
+					if (code !== 0) {
+						resolve({
+							success: false,
+							error: `Worker stopped with exit code ${code}`,
+						});
+					}
+				});
+
+				// Send with transfer list for zero-copy transfer
+				worker.postMessage({ taskId, data }, transferList);
+			});
+		});
+	});
+
+	ipcMain.handle('extract-image-metadata', (event, data) => {
+		const helper = loadGalleryHelper();
+		if (!helper) {
+			return { success: false, error: 'Gallery helper not available' };
+		}
+		return safeExtractImageMetadata(data, helper.extractImageMetadata);
+	});
+
+	ipcMain.handle('download-album-zip', (event, data) => {
+		const helper = loadGalleryHelper();
+		if (!helper) {
+			return { success: false, error: 'Gallery helper not available' };
+		}
+		return helper.downloadAlbumZip(event, data);
+	});
+
+	ipcMain.handle('create-zip-from-urls', (event, data) => {
+		const helper = loadGalleryHelper();
+		if (!helper) {
+			return { success: false, error: 'Gallery helper not available' };
+		}
+		return helper.createZipFromUrls(event, data);
 	});
 
 	// Clipboard IPC handlers

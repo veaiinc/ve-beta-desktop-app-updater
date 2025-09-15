@@ -1,5 +1,6 @@
 import React, { memo, useContext, useCallback, useState, useRef, useEffect } from 'react';
-import { LiveKitRoom, RoomAudioRenderer, StartAudio } from '@livekit/components-react';
+import { LiveKitRoom, RoomAudioRenderer, StartAudio, useVoiceAssistant, TrackToggle, useConnectionState } from '@livekit/components-react';
+import { Track } from 'livekit-client';
 import Voice from '../components/chat/Voice';
 import Context from '../../context/context';
 import { message } from '../components/globalComponents/CustomToast';
@@ -7,10 +8,55 @@ import { useLocation } from 'react-router-dom';
 import '../../assets/scss/voice/voiceWrapper.scss';
 import { checkDevices } from '../../helpers';
 import useTheme from '../../hooks/useTheme';
+import NotchDropLiveKitIntegration from '../../components/NotchDropLiveKitIntegration';
+
+// Component to ensure voice assistant is initialized even when Voice component is hidden
+const VoiceAssistantInitializer = ({ notchDropVoiceActive }) => {
+	const voiceAssistant = useVoiceAssistant();
+	const roomState = useConnectionState();
+	
+	// Log voice assistant status for debugging
+	useEffect(() => {
+		console.log('🎤 VoiceAssistantInitializer: Voice assistant state:', voiceAssistant.state);
+		console.log('🎤 VoiceAssistantInitializer: Audio track:', !!voiceAssistant.audioTrack);
+		console.log('🎤 VoiceAssistantInitializer: Room state:', roomState);
+		console.log('🎤 VoiceAssistantInitializer: NotchDrop active:', notchDropVoiceActive);
+		
+		// Log more details about voice assistant
+		if (voiceAssistant) {
+			console.log('🎤 VoiceAssistantInitializer: Voice assistant details:', {
+				state: voiceAssistant.state,
+				audioTrack: voiceAssistant.audioTrack,
+				participant: voiceAssistant.audioTrack?.participant?.identity
+			});
+		}
+	}, [voiceAssistant.state, voiceAssistant.audioTrack, roomState, notchDropVoiceActive]);
+	
+	// Try to start voice assistant when connected and NotchDrop is active
+	useEffect(() => {
+		if (notchDropVoiceActive && roomState === 'connected' && voiceAssistant.state === 'disconnected') {
+			console.log('🚀 VoiceAssistantInitializer: Attempting to start voice assistant for NotchDrop...');
+			// The voice assistant should auto-start when room is connected
+			// If it doesn't, we might need to trigger it manually
+		}
+	}, [notchDropVoiceActive, roomState, voiceAssistant.state]);
+	
+	// Always render microphone toggle (hidden when needed)
+	return (
+		<div style={{ display: 'none' }}>
+			{/* Always include microphone toggle to ensure it's enabled */}
+			<TrackToggle
+				source={Track.Source.Microphone}
+				initialState={true} // Enable microphone by default
+			/>
+		</div>
+	);
+};
+
 const VoiceWrapper = () => {
 	useTheme();
 	const {
-		aiSetup: { updateAiSetupState, voiceIntegrationData },
+		aiSetup: { updateAiSetupState, voiceIntegrationData, notchDropVoiceActive },
 	} = useContext(Context);
 
 	const location = useLocation();
@@ -88,6 +134,8 @@ const VoiceWrapper = () => {
 				position: 'fixed',
 				transform: `translate(${position.x}px, ${position.y}px)`,
 				cursor: isDraggingRef.current ? 'grabbing' : 'grab',
+				// Hide the visual widget when NotchDrop is controlling voice
+				display: notchDropVoiceActive ? 'none' : 'block',
 			}}
 		>
 			<LiveKitRoom
@@ -100,7 +148,15 @@ const VoiceWrapper = () => {
 					console.error(e);
 				}}
 			>
-				<Voice handleDisconnect={customDisconnetFunc} deviceInfo={info?.deviceInfo} />
+				{/* Always initialize voice assistant (essential for NotchDrop) */}
+				<VoiceAssistantInitializer notchDropVoiceActive={notchDropVoiceActive} />
+				
+				{/* Always include Voice component but make it invisible when NotchDrop is active */}
+				<div style={{ display: notchDropVoiceActive ? 'none' : 'block' }}>
+					<Voice handleDisconnect={customDisconnetFunc} deviceInfo={info?.deviceInfo} />
+				</div>
+				{/* Always include NotchDrop integration and audio components */}
+				<NotchDropLiveKitIntegration />
 				<RoomAudioRenderer />
 				<StartAudio label="Click to enable audio playback" />
 			</LiveKitRoom>

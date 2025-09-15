@@ -5,54 +5,136 @@ if (process.platform !== 'darwin') {
 		constructor() {
 			console.log('ℹ️ NotchDrop addon skipped - not supported on', process.platform);
 		}
-		
-		initialize() { return false; }
-		show() { return false; }
-		hide() { return false; }
-		toggle() { return false; }
-		isVisible() { return false; }
-		setStatus() { return false; }
-		getStatus() { return 'unavailable'; }
-		on() { return this; }
-		emit() { return this; }
-		off() { return this; }
-		
+
+		initialize() {
+			return false;
+		}
+		show() {
+			return false;
+		}
+		hide() {
+			return false;
+		}
+		toggle() {
+			return false;
+		}
+		isVisible() {
+			return false;
+		}
+		setStatus() {
+			return false;
+		}
+		getStatus() {
+			return 'unavailable';
+		}
+		on() {
+			return this;
+		}
+		emit() {
+			return this;
+		}
+		off() {
+			return this;
+		}
+
 		// Mock all other methods to prevent errors
-		setContentType() { return false; }
-		getContentType() { return 'unavailable'; }
-		handleDroppedFiles() { return false; }
-		getCurrentItems() { return []; }
-		clearAllItems() { return false; }
-		setHapticFeedback() { return false; }
-		getHapticFeedback() { return false; }
-		setNotchVisible() { return false; }
-		getNotchVisible() { return false; }
-		showMenu() { return false; }
-		showSettings() { return false; }
-		showNormal() { return false; }
-		setAutoOpen() { return false; }
-		getAutoOpen() { return false; }
-		setLanguage() { return false; }
-		getLanguage() { return 'system'; }
-		getTrayItemCount() { return 0; }
-		clearTrayItems() { return false; }
-		getStatusString() { return 'unavailable'; }
-		getContentTypeString() { return 'unavailable'; }
-		setContentTypeFromString() { return false; }
-		getWindowPosition() { return { x: 0, y: 0, width: 0, height: 0 }; }
-		onOverlayStateChange() { return false; }
-		
+		setContentType() {
+			return false;
+		}
+		getContentType() {
+			return 'unavailable';
+		}
+		handleDroppedFiles() {
+			return false;
+		}
+		getCurrentItems() {
+			return [];
+		}
+		clearAllItems() {
+			return false;
+		}
+		setHapticFeedback() {
+			return false;
+		}
+		getHapticFeedback() {
+			return false;
+		}
+		setNotchVisible() {
+			return false;
+		}
+		getNotchVisible() {
+			return false;
+		}
+		showMenu() {
+			return false;
+		}
+		showSettings() {
+			return false;
+		}
+		showNormal() {
+			return false;
+		}
+		setAutoOpen() {
+			return false;
+		}
+		getAutoOpen() {
+			return false;
+		}
+		setLanguage() {
+			return false;
+		}
+		getLanguage() {
+			return 'system';
+		}
+		getTrayItemCount() {
+			return 0;
+		}
+		clearTrayItems() {
+			return false;
+		}
+		getStatusString() {
+			return 'unavailable';
+		}
+		getContentTypeString() {
+			return 'unavailable';
+		}
+		setContentTypeFromString() {
+			return false;
+		}
+		getWindowPosition() {
+			return { x: 0, y: 0, width: 0, height: 0 };
+		}
+		onOverlayStateChange() {
+			return false;
+		}
+
 		// Mock async methods
-		async triggerOverlayRecording() { return { success: false, error: 'Not supported on this platform' }; }
-		async triggerOverlayStopRecording() { return { success: false, error: 'Not supported on this platform' }; }
-		async triggerOverlayPauseRecording() { return { success: false, error: 'Not supported on this platform' }; }
-		async triggerOverlayResumeRecording() { return { success: false, error: 'Not supported on this platform' }; }
-		async triggerOverlayToggleLiveIntelligence() { return { success: false, error: 'Not supported on this platform' }; }
-		async initializeBridge() { return false; }
-		async waitForBridgeReady() { return false; }
-		isBridgeReady() { return false; }
+		async triggerOverlayRecording() {
+			return { success: false, error: 'Not supported on this platform' };
+		}
+		async triggerOverlayStopRecording() {
+			return { success: false, error: 'Not supported on this platform' };
+		}
+		async triggerOverlayPauseRecording() {
+			return { success: false, error: 'Not supported on this platform' };
+		}
+		async triggerOverlayResumeRecording() {
+			return { success: false, error: 'Not supported on this platform' };
+		}
+		async triggerOverlayToggleLiveIntelligence() {
+			return { success: false, error: 'Not supported on this platform' };
+		}
+		async initializeBridge() {
+			return false;
+		}
+		async waitForBridgeReady() {
+			return false;
+		}
+		isBridgeReady() {
+			return false;
+		}
 	}
-	
+
 	module.exports = MockNotchDropAddonWrapper;
 	module.exports.NotchDropAddonWrapper = MockNotchDropAddonWrapper;
 	return;
@@ -425,6 +507,29 @@ class NotchDropAddonWrapper extends EventEmitter {
 			case 'sendLog':
 				this.handleSwiftLog(data);
 				break;
+			// Voice Assistant Actions
+			case 'connectVoice':
+				this.emit('connectVoice', data);
+				break;
+			case 'disconnectVoice':
+				this.emit('disconnectVoice', data);
+				break;
+			case 'toggleVoiceMute':
+				this.emit('toggleVoiceMute', data);
+				break;
+			case 'sendVoiceMessage':
+				this.emit('sendVoiceMessage', data);
+				break;
+			case 'voiceConnectionStateChanged':
+				this.emit('voiceConnectionStateChanged', data);
+				break;
+			case 'startVoiceAgent':
+				console.log('🎤 NotchDrop: Received startVoiceAgent action');
+				this.emit('startVoiceAgent', data);
+				break;
+			case 'receiveMessage':
+				this.handleReceivedMessage(data);
+				break;
 			default:
 				console.error('❌ Unknown Swift action:', action);
 		}
@@ -440,6 +545,17 @@ class NotchDropAddonWrapper extends EventEmitter {
 			this.sendLogToOverlay(message);
 		} catch (error) {
 			console.error('❌ Error handling Swift log:', error);
+		}
+	}
+
+	// Handle received messages from Electron
+	handleReceivedMessage(message) {
+		try {
+			console.log('📨 Message received from Electron:', message);
+			// Emit the received message event
+			this.emit('messageReceived', message);
+		} catch (error) {
+			console.error('❌ Error handling received message:', error);
 		}
 	}
 
@@ -896,6 +1012,102 @@ class NotchDropAddonWrapper extends EventEmitter {
 			console.log('📊 Overlay state sent to Swift side:', state);
 		} catch (error) {
 			console.error('❌ Error sending overlay state to Swift:', error);
+		}
+	}
+
+	// MARK: - Voice Assistant Methods
+
+	configureVoice(url, token) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			this.addon.configureVoice(url, token);
+			console.log('🎤 Voice configured with URL:', url);
+		} catch (error) {
+			console.error('❌ Error configuring voice:', error);
+			throw error;
+		}
+	}
+
+	connectVoiceAssistant() {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			this.addon.connectVoiceAssistant();
+		} catch (error) {
+			console.error('❌ Error connecting voice assistant:', error);
+			throw error;
+		}
+	}
+
+	disconnectVoiceAssistant() {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			this.addon.disconnectVoiceAssistant();
+		} catch (error) {
+			console.error('❌ Error disconnecting voice assistant:', error);
+			throw error;
+		}
+	}
+
+	getVoiceConnectionStatus() {
+		if (!this.isInitialized) {
+			return 'disconnected';
+		}
+		try {
+			return this.addon.getVoiceConnectionStatus();
+		} catch (error) {
+			console.error('❌ Error getting voice connection status:', error);
+			return 'error';
+		}
+	}
+
+	// Update voice connection state from JavaScript
+	updateVoiceConnectionState(status) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			this.addon.updateVoiceConnectionState(status);
+			console.log(`🔄 Voice connection state updated to: ${status}`);
+		} catch (error) {
+			console.error('❌ Error updating voice connection state:', error);
+			throw error;
+		}
+	}
+
+	// Add voice message from JavaScript
+	addVoiceMessage(messageData) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			// Convert messageData to JSON string for native layer
+			const messageJson = JSON.stringify(messageData);
+			this.addon.addVoiceMessage(messageJson);
+			console.log(`💬 Voice message added: ${messageData.sender}: ${messageData.content?.substring(0, 30)}...`);
+		} catch (error) {
+			console.error('❌ Error adding voice message:', error);
+			throw error;
+		}
+	}
+
+	// Send action to Swift UI
+	triggerSwiftAction(action, data) {
+		if (!this.isInitialized) {
+			console.warn('NotchDrop not initialized, cannot trigger Swift action');
+			return;
+		}
+		try {
+			// Call the native triggerSwiftAction method
+			this.addon.triggerSwiftAction(action, data);
+			console.log('📤 Swift action triggered:', action, 'with data:', data);
+		} catch (error) {
+			console.error('❌ Error triggering Swift action:', error);
 		}
 	}
 

@@ -32,6 +32,7 @@ class NotchDropWindow: NSWindow {
     private var itemAddedCallback: ((String) -> Void)?
     private var itemRemovedCallback: ((String) -> Void)?
     private var swiftActionCallback: ((String, String) -> Void)?
+    private var incomingActionCallback: ((String, String) -> Void)?
 
     // MARK: - Singleton
     @objc public static let shared = NotchDropCore()
@@ -400,6 +401,23 @@ class NotchDropWindow: NSWindow {
         swiftActionCallback = callback
     }
     
+    @objc public func setIncomingActionCallback(_ callback: @escaping (String, String) -> Void) {
+        incomingActionCallback = callback
+    }
+    
+    @objc public func handleIncomingAction(_ action: String, data: String) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let viewModel = self.notchViewModel else { return }
+            
+            switch action {
+            case "receiveMessage":
+                viewModel.receiveMessage(data)
+            default:
+                print("⚠️ Unknown incoming action: \(action)")
+            }
+        }
+    }
+    
     // MARK: - Overlay State Integration
     @objc public func onOverlayStateChange(_ state: [String: Any]) {
         DispatchQueue.main.async { [weak self] in
@@ -446,8 +464,68 @@ class NotchDropWindow: NSWindow {
         }
     }
     
+    // MARK: - Voice Assistant Configuration
+    @objc public func configureVoice(_ url: String, token: String) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let viewModel = self.notchViewModel else { 
+                print("❌ NotchDropCore: No viewModel available for voice configuration")
+                return 
+            }
+            
+            print("🎤 NotchDropCore: Configuring voice with URL: \(url)")
+            viewModel.configureVoice(url: url, token: token)
+        }
+    }
+    
+    @objc public func connectVoiceAssistant() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let viewModel = self.notchViewModel else { return }
+            viewModel.connectVoiceAssistant()
+        }
+    }
+    
+    @objc public func disconnectVoiceAssistant() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let viewModel = self.notchViewModel else { return }
+            viewModel.disconnectVoiceAssistant()
+        }
+    }
+    
+    @objc public func getVoiceConnectionStatus() -> String {
+        guard let viewModel = notchViewModel else { return "disconnected" }
+        return viewModel.voiceConnectionStatus.rawValue
+    }
+    
+    @objc public func updateVoiceConnectionState(_ status: String) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let viewModel = self.notchViewModel else { return }
+            print("🔄 NotchDropCore: Updating voice connection state to: \(status)")
+            viewModel.updateVoiceConnectionState(status)
+        }
+    }
+    
+    @objc public func addVoiceMessage(_ messageJson: String) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let viewModel = self.notchViewModel else { return }
+            print("💬 NotchDropCore: Adding voice message: \(messageJson)")
+            
+            // Parse JSON message
+            guard let messageData = messageJson.data(using: .utf8),
+                  let json = try? JSONSerialization.jsonObject(with: messageData) as? [String: Any],
+                  let sender = json["sender"] as? String,
+                  let content = json["content"] as? String else {
+                print("❌ Failed to parse voice message JSON")
+                return
+            }
+            
+            let isFromAgent = json["isFromAgent"] as? Bool ?? false
+            viewModel.addVoiceMessage(sender: sender, content: content, isFromAgent: isFromAgent)
+        }
+    }
+    
     // MARK: - Swift Action Handling
     private func handleSwiftAction(_ action: NotchViewModel.SwiftAction) {
+        print("🔍 DEBUG: NotchDropCore handling Swift action: \(action)")
         switch action {
         case .startRecording:
             swiftActionCallback?("startRecording", "")
@@ -479,6 +557,21 @@ class NotchDropWindow: NSWindow {
             swiftActionCallback?("sendLog", message)
         case .navigateToMainScreen:
             swiftActionCallback?("navigateToMainScreen", "")
+        // Voice Assistant Actions
+        case .connectVoice:
+            swiftActionCallback?("connectVoice", "")
+        case .disconnectVoice:
+            swiftActionCallback?("disconnectVoice", "")
+        case .toggleVoiceMute:
+            swiftActionCallback?("toggleVoiceMute", "")
+        case .sendVoiceMessage(let message):
+            swiftActionCallback?("sendVoiceMessage", message)
+        case .voiceConnectionStateChanged(let state):
+            swiftActionCallback?("voiceConnectionStateChanged", state)
+        case .startVoiceAgent:
+            swiftActionCallback?("startVoiceAgent", "")
+        case .receiveMessage(let message):
+            swiftActionCallback?("receiveMessage", message)
         }
     }
 }
