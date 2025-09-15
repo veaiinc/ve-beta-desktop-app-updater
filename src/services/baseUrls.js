@@ -1,6 +1,6 @@
 const environment = import.meta.env.VITE_APP_DEV_ENVIRONMENT ?? 'development';
 
-const globalTypes = ['auth', 'slack_api'];
+const globalTypes = ['auth', 'slack_api', 'assemblyai_api'];
 
 const globalBaseUrls = {
 	// Auth
@@ -8,6 +8,9 @@ const globalBaseUrls = {
 
 	// Slack
 	slack_api: 'https://slack.com/api',
+
+	// AssemblyAI
+	assemblyai_api: 'https://api.assemblyai.com/v2',
 };
 
 const regionBaseUrls = {
