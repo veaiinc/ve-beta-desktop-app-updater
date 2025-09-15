@@ -2711,6 +2711,23 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// Voice mute state handler
+	ipcMain.handle('notchdrop-update-voice-mute-state', async (event, isMuted) => {
+		try {
+			log.info(`🔇 Updating NotchDrop voice mute state: ${isMuted}`);
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+
+			// Update the voice mute state in NotchDrop Swift UI
+			const result = await notchDropService.updateVoiceMuteState(isMuted);
+			return { success: true, isMuted, result };
+		} catch (error) {
+			log.error('Error updating NotchDrop voice mute state:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	// New NotchDropLatest IPC handlers
 	ipcMain.handle('notchdrop-open-airdrop', async () => {
 		try {
