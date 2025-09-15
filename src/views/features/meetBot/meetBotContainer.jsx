@@ -791,7 +791,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					<MeetSummary activeTab={activeTab} meetingId={meetingId} />
 				)}
 {showTranscriptTabs && activeTab === 'analytics' && (
-	<MeetingAnalytics meetingId={'68c2d3d9b91682a73c1cd51e'} />
+	<MeetingAnalytics meetingId={'68c3fa46666899f096c7cd8b'} />
 )}
 				{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
 					(activeTab === 'userQuestions' ||
