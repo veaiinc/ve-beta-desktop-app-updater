@@ -12,7 +12,6 @@ import AiTranscriptionSuggestions from '../../components/chat/AiTranscriptionSug
 import TranscriptionWrapper from '../notesModule/TranscriptionWrapper';
 import AudioPlayback from '../../components/notes/AudioPlayback';
 import audioStorageService from '../../../services/audioStorageService';
-import assemblyAIService from '../../../services/assemblyaiService';
 import '../../../assets/scss/notes/noteComponent.scss';
 import { ReactComponent as ShareIcon } from '../../../assets/svg/docs/meetshare.svg';
 import { ReactComponent as DotIcon } from '../../../assets/svg/docs/dot.svg';
@@ -195,9 +194,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	}, [isRecording, stopRecording]);
 	const [isLoadingMeetingDetails, setIsLoadingMeetingDetails] = useState(false);
 	const [meetingNotFound, setMeetingNotFound] = useState(false);
-	const [assemblyaiApiKey, setAssemblyaiApiKey] = useState('');
-	const [isUploadingToAssemblyAI, setIsUploadingToAssemblyAI] = useState(false);
-	const [assemblyaiUploadStatus, setAssemblyaiUploadStatus] = useState(null);
 	const location = useLocation();
 
 	// Add hooks for live intelligence and recall stream
@@ -763,143 +759,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		};
 	}, [isRecording, stopAudioRecording]);
 
-	// AssemblyAI upload functionality
-	const uploadToAssemblyAI = useCallback(async () => {
-		if (!assemblyaiApiKey.trim()) {
-			setAssemblyaiUploadStatus({
-				type: 'error',
-				message: 'Please enter your AssemblyAI API key',
-			});
-			return;
-		}
-
-		if (!info.hasAudioRecording) {
-			setAssemblyaiUploadStatus({
-				type: 'error',
-				message: 'No audio recording available for this meeting',
-			});
-			return;
-		}
-
-		setIsUploadingToAssemblyAI(true);
-		setAssemblyaiUploadStatus({
-			type: 'info',
-			message: 'Uploading audio to AssemblyAI...',
-		});
-
-		try {
-			const result = await audioStorageService.uploadToAssemblyAI(
-				meetingId,
-				assemblyaiApiKey,
-			);
-
-			if (result.success) {
-				setAssemblyaiUploadStatus({
-					type: 'success',
-					message: `Audio uploaded to AssemblyAI successfully!\nUpload URL: ${result.uploadUrl}`,
-					uploadUrl: result.uploadUrl,
-				});
-
-				// Now send to workspace API
-				const jwtToken = localStorage.getItem('usertoken');
-				if (jwtToken) {
-					setAssemblyaiUploadStatus(prev => ({
-						...prev,
-						message: `${prev.message}\n\nSending to workspace API...`
-					}));
-
-					const workspaceResult = await assemblyAIService.sendToWorkspaceAPI(
-						meetingId, 
-						result.uploadUrl, 
-						jwtToken
-					);
-					
-					if (workspaceResult.success) {
-						setAssemblyaiUploadStatus(prev => ({
-							...prev,
-							message: `${prev.message}\n\n✅ Sent to workspace API successfully!`
-						}));
-					} else {
-						setAssemblyaiUploadStatus(prev => ({
-							...prev,
-							message: `${prev.message}\n\n⚠️ Workspace API error: ${workspaceResult.error}`
-						}));
-					}
-				} else {
-					setAssemblyaiUploadStatus(prev => ({
-						...prev,
-						message: `${prev.message}\n\n⚠️ No JWT token found - cannot send to workspace API`
-					}));
-				}
-			} else {
-				setAssemblyaiUploadStatus({
-					type: 'error',
-					message: `Upload failed: ${result.error}`,
-				});
-			}
-		} catch (error) {
-			console.error('Error uploading to AssemblyAI:', error);
-			setAssemblyaiUploadStatus({
-				type: 'error',
-				message: `Upload failed: ${error.message}`,
-			});
-		} finally {
-			setIsUploadingToAssemblyAI(false);
-		}
-	}, [assemblyaiApiKey, info.hasAudioRecording, meetingId]);
-
-	// Start AssemblyAI transcription
-	const startAssemblyAITranscription = useCallback(async () => {
-		if (!assemblyaiApiKey.trim()) {
-			setAssemblyaiUploadStatus({
-				type: 'error',
-				message: 'Please enter your AssemblyAI API key',
-			});
-			return;
-		}
-
-		if (!info.hasAudioRecording) {
-			setAssemblyaiUploadStatus({
-				type: 'error',
-				message: 'No audio recording available for this meeting',
-			});
-			return;
-		}
-
-		setIsUploadingToAssemblyAI(true);
-		setAssemblyaiUploadStatus({
-			type: 'info',
-			message: 'Starting AssemblyAI transcription...',
-		});
-
-		try {
-			const result = await audioStorageService.startAssemblyAITranscription(
-				meetingId,
-				assemblyaiApiKey,
-			);
-
-			if (result.success) {
-				setAssemblyaiUploadStatus({
-					type: 'success',
-					message: 'AssemblyAI transcription started successfully!',
-					transcriptionId: result.transcriptionId,
-				});
-			} else {
-				setAssemblyaiUploadStatus({
-					type: 'error',
-					message: `Transcription start failed: ${result.error}`,
-				});
-			}
-		} catch (error) {
-			console.error('Error starting AssemblyAI transcription:', error);
-			setAssemblyaiUploadStatus({
-				type: 'error',
-				message: `Transcription start failed: ${error.message}`,
-			});
-		} finally {
-			setIsUploadingToAssemblyAI(false);
-		}
-	}, [assemblyaiApiKey, info.hasAudioRecording, meetingId]);
 
 	const handleInfoChange = (data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
@@ -1065,90 +924,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					<div className="audio-tab-container">
 						<AudioPlayback meetingId={meetingId} />
 
-						{/* AssemblyAI Upload Section */}
-						{info.hasAudioRecording && (
-							<div className="assemblyai-upload-section">
-								<div className="assemblyai-upload-header">
-									<h3>AssemblyAI Transcription</h3>
-									<p>
-										Upload your meeting audio to AssemblyAI for AI-powered
-										transcription
-									</p>
-								</div>
-
-								<div className="assemblyai-upload-controls">
-									<div className="api-key-input">
-										<label htmlFor="assemblyai-api-key">
-											AssemblyAI API Key:
-										</label>
-										<input
-											id="assemblyai-api-key"
-											type="password"
-											value={assemblyaiApiKey}
-											onChange={(e) => setAssemblyaiApiKey(e.target.value)}
-											placeholder="Enter your AssemblyAI API key"
-											disabled={isUploadingToAssemblyAI}
-										/>
-									</div>
-
-									<div className="upload-buttons">
-										<button
-											onClick={uploadToAssemblyAI}
-											disabled={
-												isUploadingToAssemblyAI || !assemblyaiApiKey.trim()
-											}
-											className="upload-btn"
-										>
-											{isUploadingToAssemblyAI
-												? 'Uploading...'
-												: 'Upload to AssemblyAI'}
-										</button>
-
-										<button
-											onClick={startAssemblyAITranscription}
-											disabled={
-												isUploadingToAssemblyAI || !assemblyaiApiKey.trim()
-											}
-											className="transcribe-btn"
-										>
-											{isUploadingToAssemblyAI
-												? 'Starting...'
-												: 'Start Transcription'}
-										</button>
-									</div>
-								</div>
-
-								{/* Status Messages */}
-								{assemblyaiUploadStatus && (
-									<div
-										className={`assemblyai-status assemblyai-status-${assemblyaiUploadStatus.type}`}
-									>
-										<div className="status-message">
-											{assemblyaiUploadStatus.type === 'success' && '✓ '}
-											{assemblyaiUploadStatus.type === 'error' && '✗ '}
-											{assemblyaiUploadStatus.type === 'info' && 'ℹ '}
-											{assemblyaiUploadStatus.message}
-										</div>
-
-										{assemblyaiUploadStatus.uploadUrl && (
-											<div className="upload-details">
-												<strong>Upload URL:</strong>
-												<code>{assemblyaiUploadStatus.uploadUrl}</code>
-											</div>
-										)}
-
-										{assemblyaiUploadStatus.transcriptionId && (
-											<div className="transcription-details">
-												<strong>Transcription ID:</strong>
-												<code>
-													{assemblyaiUploadStatus.transcriptionId}
-												</code>
-											</div>
-										)}
-									</div>
-								)}
-							</div>
-						)}
 					</div>
 				)}
 

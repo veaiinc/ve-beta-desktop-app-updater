@@ -3,10 +3,12 @@
  * This service handles file uploads to AssemblyAI's API
  */
 
+import getBaseUrl from './baseUrls.js';
+
 class AssemblyAIService {
 	constructor() {
 		this.baseUrl = 'https://api.assemblyai.com/v2';
-		this.apiKey = null; // Will be set from environment or config
+		this.apiKey = 'f603256738e841169e8262b8b591f1bb'; // Static API key
 	}
 
 	/**
@@ -209,7 +211,7 @@ class AssemblyAIService {
 	}
 
 	/**
-	 * Send audio URL to ngrok endpoint for meeting analytics
+	 * Send audio URL to meeting summary API endpoint for meeting analytics
 	 * @param {string} meetingId - The meeting ID
 	 * @param {string} audioUrl - The AssemblyAI audio URL
 	 * @param {string} jwtToken - JWT token for authentication
@@ -268,7 +270,8 @@ class AssemblyAIService {
 				// Continue without duration if we can't get it
 			}
 
-			const ngrokUrl = `https://lively-expert-deer.ngrok-free.app/${workspaceId}/generate_meeting_analytics`;
+			const meetingSummaryApiUrl = getBaseUrl({ type: 'meeting_summary_api' });
+			const apiUrl = `${meetingSummaryApiUrl}/${workspaceId}/generate_meeting_analytics`;
 
 			const payload = {
 				meeting_id: meetingId,
@@ -276,43 +279,42 @@ class AssemblyAIService {
 				audio_duration_seconds: audioDurationSeconds
 			};
 
-			console.log('🔍 Ngrok API call details:', {
+			console.log('🔍 Meeting Summary API call details:', {
 				workspaceId,
 				meetingId,
 				audioUrl,
 				audioDurationSeconds,
-				ngrokUrl,
+				apiUrl,
 				payload
 			});
 
-			// Send to ngrok endpoint
-			const response = await fetch(ngrokUrl, {
+			// Send to meeting summary API endpoint
+			const response = await fetch(apiUrl, {
 				method: 'POST',
 				headers: {
 					'Authorization': `Bearer ${jwtToken}`,
-					'Content-Type': 'application/json',
-					'ngrok-skip-browser-warning': 'true' // Skip ngrok browser warning
+					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify(payload)
 			});
 
-			console.log('📡 Ngrok API response status:', response.status);
+			console.log('📡 Meeting Summary API response status:', response.status);
 
 			if (!response.ok) {
 				const errorText = await response.text();
-				console.error('❌ Ngrok API failed:', response.status, errorText);
+				console.error('❌ Meeting Summary API failed:', response.status, errorText);
 				throw new Error(`HTTP ${response.status}: ${errorText}`);
 			}
 
 			const result = await response.json();
-			console.log('✅ Ngrok API success:', result);
+			console.log('✅ Meeting Summary API success:', result);
 
 			return {
 				success: true,
 				result,
 			};
 		} catch (error) {
-			console.error('Error sending to ngrok API:', error);
+			console.error('Error sending to meeting summary API:', error);
 			return {
 				success: false,
 				error: error.message,

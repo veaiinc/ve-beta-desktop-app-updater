@@ -31,6 +31,7 @@ const useAssemblyTranscription = ({
 	const reconnectTimeoutRef = useRef(null);
 	const reconnectAttemptsRef = useRef(0);
 	const muteRef = useRef(false);
+	const meetingIdRef = useRef(null);
 	const maxReconnectAttempts = 3;
 
 	useEffect(() => {
@@ -153,7 +154,7 @@ const useAssemblyTranscription = ({
 		}, delay);
 	}, [isConnected]);
 
-	const stopRecording = useCallback(({ meetingId }) => {
+	const stopRecording = useCallback(({ meetingId } = {}) => {
 		if (!isMountedRef.current) return;
 
 		log('Stopping recording...');
@@ -211,7 +212,12 @@ const useAssemblyTranscription = ({
 		audioBufferRef.current = [];
 		sampleCountRef.current = 0;
 		cleanup();
-		initializeMeetingSummary({ meeting_id: meetingId });
+		
+		// Use provided meetingId or fall back to stored meetingId
+		const currentMeetingId = meetingId || meetingIdRef.current;
+		if (currentMeetingId) {
+			initializeMeetingSummary({ meeting_id: currentMeetingId });
+		}
 	}, [log]);
 
 	const connect = useCallback(
@@ -226,6 +232,9 @@ const useAssemblyTranscription = ({
 				notification?.error(error);
 				return Promise.reject(new Error(error));
 			}
+
+			// Store meetingId for later use
+			meetingIdRef.current = meetingId;
 
 			// Reset reconnection attempts on successful manual connect
 			reconnectAttemptsRef.current = 0;

@@ -416,10 +416,9 @@ class AudioStorageService {
 	/**
 	 * Upload audio file to AssemblyAI for transcription
 	 * @param {string} meetingId - Meeting ID
-	 * @param {string} apiKey - AssemblyAI API key
 	 * @returns {Promise<{success: boolean, uploadUrl?: string, error?: string}>}
 	 */
-	async uploadToAssemblyAI(meetingId, apiKey) {
+	async uploadToAssemblyAI(meetingId) {
 		try {
 			if (!this.isElectron) {
 				throw new Error('Electron APIs not available');
@@ -434,10 +433,7 @@ class AudioStorageService {
 			// Get the audio file path
 			const audioFilePath = this.getAudioFilePath(meetingId);
 
-			// Set API key in AssemblyAI service
-			assemblyAIService.setApiKey(apiKey);
-
-			// Upload to AssemblyAI
+			// Upload to AssemblyAI (API key is now set statically in the service)
 			const uploadResult = await assemblyAIService.uploadFile(audioFilePath);
 
 			if (uploadResult.success) {
@@ -471,15 +467,11 @@ class AudioStorageService {
 	/**
 	 * Upload audio blob directly to AssemblyAI
 	 * @param {Blob} audioBlob - Audio blob to upload
-	 * @param {string} apiKey - AssemblyAI API key
 	 * @returns {Promise<{success: boolean, uploadUrl?: string, error?: string}>}
 	 */
-	async uploadBlobToAssemblyAI(audioBlob, apiKey) {
+	async uploadBlobToAssemblyAI(audioBlob) {
 		try {
-			// Set API key in AssemblyAI service
-			assemblyAIService.setApiKey(apiKey);
-
-			// Upload to AssemblyAI
+			// Upload to AssemblyAI (API key is now set statically in the service)
 			const uploadResult = await assemblyAIService.uploadBlob(audioBlob);
 
 			if (uploadResult.success) {
@@ -502,22 +494,18 @@ class AudioStorageService {
 	/**
 	 * Start AssemblyAI transcription for a meeting
 	 * @param {string} meetingId - Meeting ID
-	 * @param {string} apiKey - AssemblyAI API key
 	 * @param {Object} options - Transcription options
 	 * @returns {Promise<{success: boolean, transcriptionId?: string, error?: string}>}
 	 */
-	async startAssemblyAITranscription(meetingId, apiKey, options = {}) {
+	async startAssemblyAITranscription(meetingId, options = {}) {
 		try {
 			// First upload the audio if not already uploaded
-			const uploadResult = await this.uploadToAssemblyAI(meetingId, apiKey);
+			const uploadResult = await this.uploadToAssemblyAI(meetingId);
 			if (!uploadResult.success) {
 				return uploadResult;
 			}
 
-			// Set API key in AssemblyAI service
-			assemblyAIService.setApiKey(apiKey);
-
-			// Start transcription
+			// Start transcription (API key is now set statically in the service)
 			const transcriptionResult = await assemblyAIService.startTranscription(
 				uploadResult.uploadUrl,
 				options,
@@ -557,10 +545,9 @@ class AudioStorageService {
 	/**
 	 * Get AssemblyAI transcription results
 	 * @param {string} meetingId - Meeting ID
-	 * @param {string} apiKey - AssemblyAI API key
 	 * @returns {Promise<{success: boolean, status?: string, text?: string, error?: string}>}
 	 */
-	async getAssemblyAITranscription(meetingId, apiKey) {
+	async getAssemblyAITranscription(meetingId) {
 		try {
 			// Get metadata to find transcription ID
 			const metadataResult = await this.getAudioMetadata(meetingId);
@@ -568,10 +555,7 @@ class AudioStorageService {
 				throw new Error('No AssemblyAI transcription ID found for this meeting');
 			}
 
-			// Set API key in AssemblyAI service
-			assemblyAIService.setApiKey(apiKey);
-
-			// Get transcription results
+			// Get transcription results (API key is now set statically in the service)
 			const transcriptionResult = await assemblyAIService.getTranscription(
 				metadataResult.metadata.assemblyaiTranscriptionId,
 			);
