@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import Context from '../../../context/context';
 
 const AssemblyTranscriptWrapper = ({
-	sendMessage,
+	handleLiveIntelligenceResponse,
 	tenantId,
 	sessionId,
 	onTranscriptionUpdate,
@@ -57,63 +57,6 @@ const AssemblyTranscriptWrapper = ({
 		loadTranscripts(1, false);
 	}, []); // Empty dependency array - only runs once on mount
 
-	const handleUpdateTranscription = useCallback(
-		(transcription = null) => {
-			if (!transcription) return;
-
-			const formatted = {
-				type: 'text',
-				text: transcription.text || '',
-				isFinal: transcription?.isFinal,
-				isTurnFormatted: transcription?.isTurnFormatted,
-				time: new Date().toLocaleTimeString(),
-				id: transcription.id,
-			};
-
-			setTranscriptions((prev) => {
-				// Check if this transcript already exists to avoid duplicates
-				const existingTranscript = prev.find((t) => t.id === transcription.id);
-				if (existingTranscript) {
-					// Update existing transcript
-					return prev.map((t) =>
-						t.id === transcription.id ? { ...t, ...formatted } : t,
-					);
-				}
-
-				// Add new transcript
-				const updated = [...prev, formatted];
-				// Only send the new transcript to parent, not the entire array
-				if (onTranscriptionUpdate) onTranscriptionUpdate(formatted);
-				return updated;
-			});
-
-			try {
-				if (scrollRef.current) {
-					scrollRef.current.scrollIntoView({ behavior: 'smooth' });
-				}
-			} catch (error) {
-				console.error('Error updating transcription blocks:', error);
-			}
-		},
-		[onTranscriptionUpdate],
-	);
-
-	const handleLiveIntelligenceResponse = useCallback(
-		(data) => {
-			// Handle live intelligence responses
-
-			// You can process live intelligence data here and send to parent if needed
-			if (sendMessage) {
-				sendMessage({
-					type: 'live_intelligence_response',
-					data: data,
-					timestamp: Date.now(),
-				});
-			}
-		},
-		[sendMessage],
-	);
-
 	useEffect(() => {
 		if (transcriptions.length > 0) {
 			setHighlightIdx(transcriptions.length - 1);
@@ -138,7 +81,7 @@ const AssemblyTranscriptWrapper = ({
 			}}
 		>
 			<AssemblyTranscription
-				onTranscriptionUpdate={handleUpdateTranscription}
+				onTranscriptionUpdate={onTranscriptionUpdate}
 				onLiveIntelligenceResponse={handleLiveIntelligenceResponse}
 				tenantId={tenantId}
 				sessionId={sessionId}

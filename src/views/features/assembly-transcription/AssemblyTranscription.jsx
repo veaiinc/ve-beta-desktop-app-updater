@@ -3,21 +3,36 @@ import Waveform from '../../../assets/svg/note-transcription.gif';
 import { ReactComponent as Mic } from '../../../assets/svg/microphone.svg';
 import { ReactComponent as MuteMic } from '../../../assets/svg/ai_agents/mutemic.svg';
 import { ReactComponent as Close } from '../../../assets/svg/ai_agents/close.svg';
-import useAssemblyTranscription from '../../../hooks/useAssemblyTranscription';
 import { useEffect } from 'react';
+import useAssemblyTranscription from '../../../overlay/hooks/useAssemblyTranscription';
 
-const AssemblyTranscription = (props) => {
+const AssemblyTranscription = ({
+	onTranscriptionUpdate,
+	onLiveIntelligenceResponse,
+	tenantId,
+	sessionId,
+	meetingId,
+	jwtToken,
+	isAiIntelligenceEnabled,
+}) => {
 	const {
 		isConnected,
 		isRecording,
 		isMuted,
+		isPaused,
 		timer,
 		connectionStatus,
-		startRecording,
+		startAudioCapture,
 		stopRecording,
 		toggleMute,
+		pauseRecording,
+		resumeRecording,
 		formatTime,
-	} = useAssemblyTranscription(props);
+		startRecording,
+	} = useAssemblyTranscription({
+		onTranscriptionUpdate,
+		onLiveIntelligenceResponse,
+	});
 
 	const isElectron = !!window.electronApi;
 
@@ -40,6 +55,37 @@ const AssemblyTranscription = (props) => {
 			return 'Click to connect and start recording';
 		}
 		return 'Start recording';
+	};
+
+	const handleStartRecording = () => {
+		startRecording({
+			tenantId,
+			sessionId,
+			meetingId,
+			jwtToken,
+			isAiIntelligenceEnabled,
+		});
+
+		if (window.electronApi) {
+			window.electronApi.sendMessageFrmVeApp('meetingstarted');
+		}
+	};
+
+	const handleStopRecording = () => {
+		stopRecording({
+			meetingId,
+		});
+
+		if (window.electronApi) {
+			window.electronApi.sendMessageFrmVeApp('meetingstopped');
+		}
+	};
+
+	const handleToggleMute = () => {
+		toggleMute();
+		if (window.electronApi) {
+			window.electronApi.sendMessageFrmVeApp('meetingmute');
+		}
 	};
 
 	return (
@@ -69,7 +115,7 @@ const AssemblyTranscription = (props) => {
 					<>
 						<button
 							className="transcription-btn stop"
-							onClick={stopRecording}
+							onClick={handleStopRecording}
 							title="Stop recording"
 							aria-label="Stop recording"
 						>
@@ -77,7 +123,7 @@ const AssemblyTranscription = (props) => {
 						</button>
 						<button
 							className={`transcription-btn mic ${isMuted ? 'muted' : ''}`}
-							onClick={toggleMute}
+							onClick={handleToggleMute}
 							title={isMuted ? 'Unmute microphone' : 'Mute microphone'}
 							aria-label={isMuted ? 'Unmute microphone' : 'Mute microphone'}
 						>
@@ -87,7 +133,7 @@ const AssemblyTranscription = (props) => {
 				) : (
 					<button
 						className={`transcription-btn mic ${isStartDisabled() ? 'disabled' : ''}`}
-						onClick={startRecording}
+						onClick={handleStartRecording}
 						disabled={isStartDisabled()}
 						title={getStartButtonTitle()}
 						aria-label="Start recording"

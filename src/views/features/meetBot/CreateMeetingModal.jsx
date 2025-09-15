@@ -96,6 +96,11 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 				navigate(
 					`/meet/${meetingId}?type=${type}&isAiIntelligenceEnabled=${formData.isAiIntelligenceEnabled}`,
 				);
+
+				if (window.electronApi) {
+					window.electronApi.sendMessageFrmVeApp('meetingstarted');
+				}
+
 				handleClose();
 				return;
 			}
@@ -108,7 +113,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 
 	const handleClose = () => {
 		setFormData({
-			selectedMode: 'meeting_bot',
+			selectedMode: 'desktop',
 			meetingUrl: '',
 			creating: false,
 			isAiIntelligenceEnabled: true,
