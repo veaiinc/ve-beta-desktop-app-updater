@@ -104,6 +104,14 @@
 			display: flex;
 			flex-direction: column;
 
+			.markdown-custom-content {
+				--font-size: 13px;
+			}
+
+			.user-message-renderer-container {
+				font-size: 13px !important;
+			}
+
 			.chat-page-container-wrapper {
 				flex-grow: 1;
 
