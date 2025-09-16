@@ -161,7 +161,7 @@
 	.user-edit-query-input-box-container {
 		display: flex;
 		max-height: 400px;
-		width: 700px;
+		width: 100%;
 		padding: 16px;
 		flex-direction: column;
 		gap: 12px;
@@ -178,7 +178,7 @@
 			background: transparent;
 			color: var(--primary-font);
 			font-family: var(--primary-font-family);
-			font-size: 14px;
+			font-size: 15px;
 			font-style: normal;
 			font-weight: 400;
 			line-height: normal;

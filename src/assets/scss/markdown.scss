@@ -9,8 +9,7 @@
 		font-family: var(--chat-primary-font-family);
 		font-size: calc(var(--font-size) * 1);
 		font-weight: 400;
-		line-height: 28px;
-		// letter-spacing: 0.2px;
+		line-height: 1.55;
 	}
 
 	.markdown-image-wrapper {
@@ -49,47 +48,47 @@
 
 	.h1 {
 		color: var(--primary-font);
-		font-size: 20px; /* 26px */
+		font-size: calc(var(--font-size) * 1.25); // 20px
 		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
-		margin: 24px 0 8px 0 !important; /* 12px */
-		line-height: 1.6; /* 32px */
+		margin: calc(var(--font-size) * 1.5) 0 calc(var(--font-size) * 0.5) 0 !important; // 24px 0 8px 0
+		line-height: 1.5;
 	}
 
 	.h2 {
 		color: var(--primary-font);
-		font-size: 18px; /* 22px */
+		font-size: calc(var(--font-size) * 1.125); // 18px
 		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
-		margin: 24px 0 8px 0 !important; /* 12px */
-		line-height: 1.6; /* 28px */
+		margin: calc(var(--font-size) * 1.5) 0 calc(var(--font-size) * 0.5) 0 !important; // 24px 0 8px 0
+		line-height: 1.5;
 	}
 
 	.h3 {
 		color: var(--primary-font);
-		font-size: 16px; /* 20px */
+		font-size: calc(var(--font-size) * 1.125);
 		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
-		margin: 24px 0 8px 0 !important; /* 16px */
-		line-height: 1.5; /* 24px */
+		margin: calc(var(--font-size) * 1.5) 0 calc(var(--font-size) * 0.5) 0 !important; // 24px 0 8px 0
+		line-height: 1.5;
 	}
 
 	.h4,
 	.h5 {
 		color: var(--primary-font);
-		font-size: 16px; /* 18px */
-		line-height: 1.4; /* 22px */
+		font-size: calc(var(--font-size) * 1);
+		line-height: 1.4;
 		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
-		margin: 16px 0 8px 0 !important;
+		margin: calc(var(--font-size) * 1) 0 calc(var(--font-size) * 0.5) 0 !important; // 16px 0 8px 0
 	}
 	.h6 {
 		color: var(--primary-font);
-		font-size: calc(var(--font-size) * 1); /* 16px */
-		line-height: 1.4; /* 25px */
+		font-size: calc(var(--font-size) * 1);
+		line-height: 1.4;
 		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
-		margin: 16px 0 8px 0 !important;
+		margin: calc(var(--font-size) * 1) 0 calc(var(--font-size) * 0.5) 0 !important; // 16px 0 8px 0
 	}
 
 	.p {
@@ -98,19 +97,18 @@
 		font-size: calc(var(--font-size) * 1);
 		font-weight: 400;
 		line-height: 1.65;
-		margin: 8px 0 !important;
+		margin: 0 0 calc(var(--font-size) * 0.75) 0 !important; // 0 0 12px 0
 	}
 
 	.pre {
-		padding: calc(var(--font-size) * 1); /* 1px */
+		padding: calc(var(--font-size) * 1);
 		overflow: auto;
 		font-size: calc(var(--font-size) * 0.85);
 		line-height: 1.45;
 		background-color: var(--card-over-card);
-		border-radius: calc(var(--font-size) * 1); //0.375
-		// letter-spacing: 0.2px;
+		border-radius: calc(var(--font-size) * 1);
 		font-family: var(--chat-primary-font-family);
-		margin: 16px 0;
+		margin: calc(var(--font-size) * 1) 0;
 
 		.code {
 			background-color: transparent;
@@ -123,7 +121,7 @@
 	}
 
 	hr {
-		margin: 24px 0;
+		margin: calc(var(--font-size) * 1.5) 0; // 24px 0
 		border: 0;
 		border-top: 1px solid var(--stroke);
 	}
@@ -131,9 +129,8 @@
 	.ol,
 	.ul {
 		list-style-position: outside;
-		margin-bottom: 12px; /* 8px */
-		margin-top: 12px;
-		padding-left: 16px; /* 24px */
+		margin: calc(var(--font-size) * 0.5) 0; // 8px 0
+		padding-left: calc(var(--font-size) * 1); // 12px
 
 		.p {
 			margin: 0 !important;
@@ -144,7 +141,7 @@
 		list-style-type: decimal;
 		.li {
 			&::marker {
-				font-size: 15px;
+				font-size: calc(var(--font-size) * 0.9375); // 15px
 				color: var(--primary-font);
 				font-weight: 600;
 			}
@@ -158,7 +155,7 @@
 		}
 		.li {
 			&::marker {
-				font-size: 15px;
+				font-size: calc(var(--font-size) * 0.9375); // 15px
 				color: var(--primary-font);
 			}
 		}
@@ -168,7 +165,7 @@
 		color: var(--primary-font);
 		font-family: var(--chat-primary-font-family);
 		font-weight: 400;
-		line-height: 28px;
+		line-height: calc(var(--font-size) * 1.75); // 28px
 		font-size: calc(var(--font-size) * 1);
 		margin: 0;
 		padding-left: 6px;
@@ -268,12 +265,11 @@
 				font-family: var(--chat-primary-font-family);
 				font-weight: 400;
 				line-height: 1.5;
-				// letter-spacing: 0.2px;
 			}
 		}
 	}
 	.table-wrapper {
-		margin: 8px 0 16px 0;
+		margin: calc(var(--font-size) * 0.75) 0 calc(var(--font-size) * 1) 0; // 8px 0 16px 0
 		position: relative;
 		&:hover {
 			.copy-table-btn {

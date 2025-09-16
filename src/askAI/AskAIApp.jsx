@@ -8,12 +8,12 @@ import Context from '../context/context';
 import RecentChat from '../views/features/chat/RecentChat';
 import CustomToast from '../views/components/globalComponents/CustomToast';
 
-const sessionId = ObjectID().toString();
-
 const AskAIApp = () => {
 	const {
 		templates: { updateStateValues },
 	} = useContext(Context);
+
+	const [info, setInfo] = useState({ sessionId: ObjectID()?.toString() });
 
 	// Listen for tab content from overlay
 	useEffect(() => {
@@ -199,6 +199,10 @@ const AskAIApp = () => {
 		}
 	};
 
+	const handleNewChat = useCallback(() => {
+		setInfo((prev) => ({ ...prev, sessionId: ObjectID()?.toString() }));
+	}, []);
+
 	const handleDesktopAppPayload = async () => {
 		let payload = {};
 		try {
@@ -225,22 +229,27 @@ const AskAIApp = () => {
 			{/* Response Window - Top */}
 			<div className={`ai-response-window`}>
 				<div className="ai-response-header">
-					<div className="ai-response-drag-handle">
-						<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
-					</div>
 					<div className="ai-response-title">
 						<span>Chat</span>
 					</div>
 					<div className="ai-response-controls">
+						{/* {globalChatMessages?.[info?.sessionId]?.messages?.length > 0 && (
+							<button className="new-chat" onClick={handleNewChat}>
+								New Chat
+							</button>
+						)} */}
+
 						<button className="close-button" onClick={handleClose} title="Close">
 							<X size={16} />
 						</button>
 					</div>
 				</div>
 
+				<div className="divider"></div>
+
 				<div className="chatWrapper">
 					<RecentChat
-						sId={sessionId}
+						sId={info?.sessionId}
 						showChatHistory={false}
 						isPreview={true}
 						showHeader={false}
