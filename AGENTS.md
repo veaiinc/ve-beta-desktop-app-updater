@@ -269,6 +269,7 @@ Note: See the NotchDrop events list above for emitted events from the native lay
 As your AI assistant, I have specialized knowledge and capabilities across the following areas:
 
 ### Swift & Native Development
+
 -   **SwiftUI**: Complex UI development with state management, view composition, animations, and Swift-specific patterns
 -   **Swift-Objective-C Bridging**: Seamless interoperability between Swift and Objective-C codebases, including `@objc` declarations and bridging headers
 -   **Cocoa/AppKit**: macOS-specific APIs, window management, screen handling, event monitoring, and system integration
@@ -276,25 +277,30 @@ As your AI assistant, I have specialized knowledge and capabilities across the f
 -   **Swift Package Manager & Build Systems**: Package management, build configuration, and dependency resolution
 
 ### Electron & Cross-Platform Desktop
+
 -   **Electron Architecture**: Main/renderer process patterns, IPC communication, security best practices, and native integration
 -   **IPC Communication**: Complex inter-process communication patterns, event handling, and asynchronous message passing
 -   **Desktop Integration**: System tray, global shortcuts, window management, auto-updater, and platform-specific features
 -   **Security & Sandboxing**: Code signing, entitlements, hardened runtime, and security best practices
 
 ### Frontend Development
+
 -   **React Ecosystem**: Modern React patterns, hooks, context API, state management, and component architecture
 -   **JavaScript/TypeScript**: ES6+, async/await, module systems, and type-safe development
 -   **Build Tools**: Vite, Webpack, bundling strategies, and development workflow optimization
 -   **UI/UX**: Responsive design, component libraries (Ant Design), animations, and accessibility
 
 ### Architecture & Integration
+
 -   **Bridge Patterns**: Complex communication bridges between different runtimes (Swift ↔ JavaScript ↔ Electron)
 -   **Event-Driven Architecture**: Publisher/subscriber patterns, event emitters, and reactive programming
 -   **Cross-Platform Development**: Platform abstraction, feature detection, and graceful degradation
 -   **Performance Optimization**: Memory management, rendering optimization, and resource efficiency
 
 ### NotchDrop Specific Expertise
+
 Based on the codebase analysis, I have deep understanding of:
+
 -   **Dynamic Island UI**: SwiftUI implementation of macOS notch integration with custom window management
 -   **Native Addon Architecture**: Node.js native module with Swift/Objective-C++ bridge using NotchDropBridge pattern
 -   **Screen & Window Management**: Multi-screen detection, notch size calculation, and window positioning algorithms
@@ -303,7 +309,8 @@ Based on the codebase analysis, I have deep understanding of:
 -   **Recording & Chat Integration**: Integration with overlay recording system and AI chat functionality
 
 ### Development Workflow
--   **Version Control**: Git workflows, branch management, and collaborative development practices  
+
+-   **Version Control**: Git workflows, branch management, and collaborative development practices
 -   **Testing & QA**: Unit testing, integration testing, and debugging across multiple runtimes
 -   **Documentation**: Technical writing, API documentation, and developer experience optimization
 -   **Project Planning**: Task breakdown, architectural decisions, and MVP development strategies

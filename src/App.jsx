@@ -10,27 +10,30 @@ const App = () => {
 	const { routes } = useWorkspaceMode();
 	const [updateStatus, setUpdateStatus] = useState(null);
 	// const [showUpdateNotification, setShowUpdateNotification] = useState(false); // Commented out for auto restart
-	
+
 	// NotchDrop Voice Integration - DIRECT APPROACH
 	const [showVoiceFromNotch, setShowVoiceFromNotch] = useState(false);
-	
+
 	// Voice integration for NotchDrop (disabled when LiveKit is active)
 	const [disableOldVoiceIntegration, setDisableOldVoiceIntegration] = useState(false);
 	const voiceIntegration = useVoiceIntegration();
-	
+
 	// Listen for NotchDrop voice activation
 	useEffect(() => {
 		const handleNotchDropVoice = (event, data) => {
 			console.log('🎤 DIRECT: Received NotchDrop voice activation:', data);
-			
-			if (data && (data.type === 'ACTIVATE_VOICE_AGENT' || data.source === 'notchdrop_voice_button')) {
+
+			if (
+				data &&
+				(data.type === 'ACTIVATE_VOICE_AGENT' || data.source === 'notchdrop_voice_button')
+			) {
 				console.log('🚀 DIRECT: Activating voice agent from NotchDrop');
 				setShowVoiceFromNotch(true);
-				
+
 				// Auto-start the voice agent after a short delay
 				setTimeout(() => {
 					console.log('🎤 DIRECT: Auto-clicking voice agent start button');
-					
+
 					// Find and click the voice agent start button
 					const actionButtons = document.querySelectorAll('.action-button');
 					if (actionButtons.length > 0) {
@@ -38,7 +41,9 @@ const App = () => {
 						actionButtons[0].click();
 					} else {
 						// Try alternative selectors
-						const micButtons = document.querySelectorAll('[class*="mic"], button[data-enabled="false"]');
+						const micButtons = document.querySelectorAll(
+							'[class*="mic"], button[data-enabled="false"]',
+						);
 						if (micButtons.length > 0) {
 							console.log('🎤 Found mic button, clicking...');
 							micButtons[0].click();
@@ -47,39 +52,48 @@ const App = () => {
 				}, 1000); // Wait 1 second for component to mount
 			}
 		};
-		
+
 		// Listen for multiple IPC events from NotchDrop
 		if (window.electronApi && window.electronApi.ipcRenderer) {
 			// Listen for the askAI message (where our voice activation is sent)
 			window.electronApi.ipcRenderer.on('send-chat-message-to-askai', handleNotchDropVoice);
-			
+
 			// Also listen for direct voice activation events
 			window.electronApi.ipcRenderer.on('notchdrop:showVoiceAgent', (event, data) => {
 				console.log('🎤 DIRECT: Direct voice agent show request');
 				setShowVoiceFromNotch(true);
 			});
-			
+
 			window.electronApi.ipcRenderer.on('notchdrop:activate-voice-agent', (event, data) => {
 				console.log('🎤 DIRECT: Voice agent activation request');
 				setShowVoiceFromNotch(true);
 			});
 		}
-		
+
 		// Also listen for custom events
 		const handleCustomVoiceEvent = (event) => {
 			console.log('🎤 DIRECT: Custom voice activation event');
 			setShowVoiceFromNotch(true);
 		};
-		
+
 		window.addEventListener('notchdrop-voice-activate', handleCustomVoiceEvent);
 		window.addEventListener('show-voice-agent', handleCustomVoiceEvent);
 		window.addEventListener('start-voice-agent', handleCustomVoiceEvent);
-		
+
 		return () => {
 			if (window.electronApi && window.electronApi.ipcRenderer) {
-				window.electronApi.ipcRenderer.removeListener('send-chat-message-to-askai', handleNotchDropVoice);
-				window.electronApi.ipcRenderer.removeListener('notchdrop:showVoiceAgent', handleNotchDropVoice);
-				window.electronApi.ipcRenderer.removeListener('notchdrop:activate-voice-agent', handleNotchDropVoice);
+				window.electronApi.ipcRenderer.removeListener(
+					'send-chat-message-to-askai',
+					handleNotchDropVoice,
+				);
+				window.electronApi.ipcRenderer.removeListener(
+					'notchdrop:showVoiceAgent',
+					handleNotchDropVoice,
+				);
+				window.electronApi.ipcRenderer.removeListener(
+					'notchdrop:activate-voice-agent',
+					handleNotchDropVoice,
+				);
 			}
 			window.removeEventListener('notchdrop-voice-activate', handleCustomVoiceEvent);
 			window.removeEventListener('show-voice-agent', handleCustomVoiceEvent);
@@ -108,7 +122,7 @@ const App = () => {
 	useEffect(() => {
 		if (voiceIntegration && window.electronApi) {
 			const { isConnected } = voiceIntegration;
-			
+
 			if (isConnected) {
 				console.log('🔄 Voice connected - notifying NotchDrop...');
 				window.electronApi.notchdrop.updateVoiceStatus('connected');
@@ -135,9 +149,12 @@ const App = () => {
 		};
 
 		window.addEventListener('notchdrop-voice-disconnect', handleNotchDropVoiceDisconnect);
-		
+
 		return () => {
-			window.removeEventListener('notchdrop-voice-disconnect', handleNotchDropVoiceDisconnect);
+			window.removeEventListener(
+				'notchdrop-voice-disconnect',
+				handleNotchDropVoiceDisconnect,
+			);
 		};
 	}, [voiceIntegration]);
 
@@ -151,7 +168,10 @@ const App = () => {
 		window.addEventListener('disable-old-voice-integration', handleDisableOldVoiceIntegration);
 
 		return () => {
-			window.removeEventListener('disable-old-voice-integration', handleDisableOldVoiceIntegration);
+			window.removeEventListener(
+				'disable-old-voice-integration',
+				handleDisableOldVoiceIntegration,
+			);
 		};
 	}, []);
 
@@ -254,7 +274,7 @@ const App = () => {
 		<>
 			{/* NotchDrop Voice Activator - handles LiveKit voice integration */}
 			<NotchDropVoiceActivator />
-			
+
 			{/* Update Notification - Commented out for auto restart */}
 			{/* {showUpdateNotification && updateStatus?.status === 'downloaded' && (
 				<div
@@ -314,7 +334,7 @@ const App = () => {
 					<Route key={route.path} path={route.path} element={route.element} />
 				))}
 			</Routes>
-			
+
 			{/* NotchDrop Voice Agent Integration - DIRECT */}
 			{showVoiceFromNotch && <VoiceAgentParent />}
 

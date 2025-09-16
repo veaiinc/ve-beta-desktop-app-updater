@@ -22,7 +22,7 @@ const VoiceAgentParent = () => {
 
 	// Use the working voice integration that generates tokens
 	const voiceIntegration = useVoiceIntegration();
-	
+
 	const {
 		isConnected: wsConnected,
 		isRecording: wsRecording,
@@ -33,18 +33,20 @@ const VoiceAgentParent = () => {
 		connectAndStart: wsConnectAndStart,
 		disconnect: wsDisconnect,
 	} = useVoiceAgent(token);
-	
+
 	// Use the working voice integration for actual connection
 	const isConnected = voiceIntegration.isConnected || wsConnected;
 	const isRecording = voiceIntegration.isMuted ? false : wsRecording;
 	const isConnecting = wsConnecting;
-	
+
 	// Auto-start voice agent when component mounts (triggered by NotchDrop)
 	useEffect(() => {
 		if (!autoStartTriggered && !isConnected && !isConnecting) {
-			console.log('🎤 DIRECT: VoiceAgentParent mounted - auto-starting with token generation...');
+			console.log(
+				'🎤 DIRECT: VoiceAgentParent mounted - auto-starting with token generation...',
+			);
 			setAutoStartTriggered(true);
-			
+
 			setTimeout(async () => {
 				console.log('🎤 DIRECT: Calling connectToRoom() with token generation...');
 				try {
@@ -60,7 +62,7 @@ const VoiceAgentParent = () => {
 			}, 500);
 		}
 	}, [voiceIntegration, isConnected, isConnecting, autoStartTriggered, wsConnectAndStart]);
-	
+
 	const connectAndStart = useCallback(async () => {
 		console.log('🎤 DIRECT: Manual connect triggered');
 		try {
@@ -70,7 +72,7 @@ const VoiceAgentParent = () => {
 			wsConnectAndStart();
 		}
 	}, [voiceIntegration, wsConnectAndStart]);
-	
+
 	const disconnect = useCallback(async () => {
 		console.log('🎤 DIRECT: Disconnect triggered');
 		try {

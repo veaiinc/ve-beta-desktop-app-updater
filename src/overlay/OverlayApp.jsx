@@ -51,8 +51,6 @@ const OverlayApp = () => {
 	const promptToBoxMapping = useRef({});
 	const boxIdCounter = useRef(0);
 
-
-
 	// Ask AI input state
 	const [isAskAIInputFocused, setIsAskAIInputFocused] = useState(false);
 
@@ -162,7 +160,7 @@ const OverlayApp = () => {
 				}
 			}
 		});
-		
+
 		// Reset the 5-minute Are You There timer when transcription is received
 		if (window.electronApi?.areYouThere?.updateTranscriptionActivity) {
 			window.electronApi.areYouThere.updateTranscriptionActivity();
@@ -718,13 +716,12 @@ const OverlayApp = () => {
 		let calculatedHeight = rect.height;
 
 		// Dynamic width calculation based on layout - use exact content width
-		if (activePanel === 'live-intelligence' ){
+		if (activePanel === 'live-intelligence') {
 			// Panel is open: use exact panel width without extra padding
 			calculatedWidth = 830; // Exact panel width
 		} else if (activePanel === 'transcript') {
 			calculatedWidth = 560; // Exact panel width
-		}
-		else if (showShortcutBar && !isDynamicIslandControlled) {
+		} else if (showShortcutBar && !isDynamicIslandControlled) {
 			// Only shortcut bar visible: use actual content width
 			calculatedWidth = Math.max(rect.width, 400);
 		} else {

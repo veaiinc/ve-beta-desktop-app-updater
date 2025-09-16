@@ -233,7 +233,7 @@ class NotchDropUIBridge {
 	// Overlay Integration Methods
 	onOverlayStateChange(state) {
 		console.log('🏝️ NotchDrop UI received overlay state:', state);
-		
+
 		// Update local UI state
 		const updatedState = {
 			isRecording: state.isRecording || false,
@@ -244,10 +244,10 @@ class NotchDropUIBridge {
 				state.isNotchDropControlled || state.controlledByNotchDrop || false,
 			isAuthenticated: state.isAuthenticated || false,
 		};
-		
+
 		console.log('🏝️ Updating UI state with:', updatedState);
 		this.updateUIState(updatedState);
-		
+
 		// Send state update to Swift side for collapsed UI
 		if (this.addon && this.addon.onOverlayStateChange) {
 			try {

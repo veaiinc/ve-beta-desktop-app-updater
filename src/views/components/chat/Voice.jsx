@@ -24,7 +24,13 @@ import { throttle } from 'lodash';
 import Context from '../../../context/context';
 import useUpdatedVoiceIntegration from '../../../hooks/useUpdatedVoiceIntegration';
 // window.webgazer = webgazer;
-const Voice = ({ handleDisconnect, deviceInfo, onTranscriptUpdate, onStatusUpdate, isMicrophoneMuted }) => {
+const Voice = ({
+	handleDisconnect,
+	deviceInfo,
+	onTranscriptUpdate,
+	onStatusUpdate,
+	isMicrophoneMuted,
+}) => {
 	const { name = '' } = useRoomInfo();
 	const [transcripts, setTranscripts] = useState(new Map());
 	const localdata = useLocalParticipant();
@@ -52,7 +58,7 @@ const Voice = ({ handleDisconnect, deviceInfo, onTranscriptUpdate, onStatusUpdat
 	const localTracks = tracks.filter(({ participant }) => participant instanceof LocalParticipant);
 	const localVideoTrack = localTracks.find(({ source }) => source === Track.Source.Camera);
 	const localMicTrack = localTracks.find(({ source }) => source === Track.Source.Microphone);
-	
+
 	// Debug: Log track information
 	console.log('🎵 All tracks:', tracks);
 	console.log('🎵 Local tracks:', localTracks);
@@ -132,7 +138,7 @@ const Voice = ({ handleDisconnect, deviceInfo, onTranscriptUpdate, onStatusUpdat
 		const allMessages = Array.from(newTranscripts.values());
 		allMessages.sort((a, b) => a.timestamp - b.timestamp);
 		setTransScriptMessages(allMessages);
-		
+
 		// Debug: Log final messages
 		if (allMessages.length > 0) {
 			console.log('📋 All transcript messages:', allMessages);

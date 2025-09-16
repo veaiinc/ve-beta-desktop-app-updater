@@ -548,7 +548,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		};
 	}, [isRecording, stopAudioRecording]);
 
-
 	const handleInfoChange = (data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
 	};
@@ -750,7 +749,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 				{showTranscriptTabs && activeTab === 'audio' && (
 					<div className="audio-tab-container">
 						<AudioPlayback meetingId={meetingId} />
-
 					</div>
 				)}
 

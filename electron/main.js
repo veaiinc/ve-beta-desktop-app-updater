@@ -240,7 +240,13 @@ const shouldInitDynamicIsland = (() => {
 	const value = String(process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND || '')
 		.trim()
 		.toLowerCase();
-	return process.platform !== 'darwin' || (value === '1' || value === 'true' || value === 'yes' || value === 'on');
+	return (
+		process.platform !== 'darwin' ||
+		value === '1' ||
+		value === 'true' ||
+		value === 'yes' ||
+		value === 'on'
+	);
 })();
 
 const loadGalleryHelper = () => {
@@ -1437,7 +1443,8 @@ function createWindow(restoreState = false) {
 			{
 				label: 'Cut',
 				role: 'cut',
-				enabled: params.isEditable && params.selectionText && params.selectionText.length > 0,
+				enabled:
+					params.isEditable && params.selectionText && params.selectionText.length > 0,
 			},
 			{
 				label: 'Copy',
@@ -4227,6 +4234,39 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// Screen capture IPC handler
+	ipcMain.handle('start-screen-capture', async () => {
+		try {
+			log.info('Starting screen capture...');
+
+			// Get screen sources using desktopCapturer
+			const sources = await desktopCapturer.getSources({
+				types: ['screen'],
+				thumbnailSize: { width: 1920, height: 1080 },
+			});
+
+			if (!sources || sources.length === 0) {
+				log.warn('No screen sources available for capture');
+				return { success: false, error: 'No screen sources available' };
+			}
+
+			// Return the first (primary) screen source
+			const primaryScreen = sources[0];
+			log.info(`Screen capture source selected: ${primaryScreen.name}`);
+
+			return {
+				success: true,
+				source: {
+					id: primaryScreen.id,
+					name: primaryScreen.name,
+					thumbnail: primaryScreen.thumbnail ? primaryScreen.thumbnail.toDataURL() : null,
+				},
+			};
+		} catch (error) {
+			log.error('Error starting screen capture:', error);
+			return { success: false, error: error.message };
+		}
+	});
 });
 
 // Handle app quit properly - but allow updates to proceed
