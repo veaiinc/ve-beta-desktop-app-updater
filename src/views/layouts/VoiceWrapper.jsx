@@ -22,21 +22,9 @@ const VoiceAssistantInitializer = ({ notchDropVoiceActive }) => {
 	const voiceAssistant = useVoiceAssistant();
 	const roomState = useConnectionState();
 
-	// Log voice assistant status for debugging
+	// Voice assistant status monitoring (logs removed)
 	useEffect(() => {
-		console.log('🎤 VoiceAssistantInitializer: Voice assistant state:', voiceAssistant.state);
-		console.log('🎤 VoiceAssistantInitializer: Audio track:', !!voiceAssistant.audioTrack);
-		console.log('🎤 VoiceAssistantInitializer: Room state:', roomState);
-		console.log('🎤 VoiceAssistantInitializer: NotchDrop active:', notchDropVoiceActive);
-
-		// Log more details about voice assistant
-		if (voiceAssistant) {
-			console.log('🎤 VoiceAssistantInitializer: Voice assistant details:', {
-				state: voiceAssistant.state,
-				audioTrack: voiceAssistant.audioTrack,
-				participant: voiceAssistant.audioTrack?.participant?.identity,
-			});
-		}
+		// Monitor voice assistant state changes for NotchDrop integration
 	}, [voiceAssistant.state, voiceAssistant.audioTrack, roomState, notchDropVoiceActive]);
 
 	// Try to start voice assistant when connected and NotchDrop is active
@@ -46,9 +34,6 @@ const VoiceAssistantInitializer = ({ notchDropVoiceActive }) => {
 			roomState === 'connected' &&
 			voiceAssistant.state === 'disconnected'
 		) {
-			console.log(
-				'🚀 VoiceAssistantInitializer: Attempting to start voice assistant for NotchDrop...',
-			);
 			// The voice assistant should auto-start when room is connected
 			// If it doesn't, we might need to trigger it manually
 		}
@@ -158,7 +143,6 @@ const VoiceWrapper = () => {
 				connect={voiceIntegrationData?.shouldConnect || false}
 				onError={(e) => {
 					message.error(e.message);
-					console.error(e);
 				}}
 			>
 				{/* Always initialize voice assistant (essential for NotchDrop) */}
