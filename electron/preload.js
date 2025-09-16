@@ -285,6 +285,10 @@ contextBridge.exposeInMainWorld('electronApi', {
 		disconnectVoice: () => ipcRenderer.invoke('dynamic-island-voice-disconnect'),
 		getVoiceStatus: () => ipcRenderer.invoke('dynamic-island-voice-status'),
 
+		// Combined recording trigger for Windows (show/expand Dynamic Island + start recording)
+		startRecordingFromModal: () =>
+			ipcRenderer.invoke('dynamic-island-start-recording-from-modal'),
+
 		onStateChange: (callback) => {
 			ipcRenderer.on('dynamic-island-state', (event, data) => {
 				callback(data);
@@ -358,7 +362,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 		updateMenu: () => ipcRenderer.invoke('update-notchdrop-menu'),
 		// Voice integration
 		updateVoiceStatus: (status) => ipcRenderer.invoke('notchdrop-update-voice-status', status),
-		updateVoiceConnectionState: (status) => ipcRenderer.invoke('notchdrop-update-voice-connection-state', status),
+		updateVoiceConnectionState: (status) =>
+			ipcRenderer.invoke('notchdrop-update-voice-connection-state', status),
 		updateVoiceMuteState: (isMuted) =>
 			ipcRenderer.invoke('notchdrop-update-voice-mute-state', isMuted),
 		addVoiceMessage: (messageData) =>

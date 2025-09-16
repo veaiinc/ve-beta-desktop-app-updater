@@ -99,6 +99,26 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 
 				if (window.electronApi) {
 					window.electronApi.sendMessageFrmVeApp('meetingstarted');
+
+					// Trigger Dynamic Island recording for Windows (desktop mode only)
+					if (formData.selectedMode === 'desktop') {
+						try {
+							console.log(
+								'🏝️ Triggering Dynamic Island recording from CreateMeetingModal',
+							);
+							const result =
+								await window.electronApi.dynamicIsland.startRecordingFromModal();
+							if (result.success) {
+								console.log('✅ Successfully started Dynamic Island recording');
+							} else {
+								console.warn('⚠️ Dynamic Island recording failed:', result.error);
+								// Don't show error to user as this is a nice-to-have enhancement
+							}
+						} catch (error) {
+							console.error('❌ Error triggering Dynamic Island recording:', error);
+							// Don't show error to user as this is a nice-to-have enhancement
+						}
+					}
 				}
 
 				handleClose();
