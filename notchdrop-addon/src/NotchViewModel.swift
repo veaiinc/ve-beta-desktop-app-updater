@@ -451,6 +451,18 @@ class NotchViewModel: NSObject, ObservableObject {
                 // Set authentication state to false for unauthorized or loggedOut messages
                 self.setAuthenticated(false)
                 print("🔓 Authentication state set to FALSE based on message: \(message)")
+            } else if message.lowercased() == "meetingstarted" {
+                // Set authentication state to true for loggedin message
+                self.startRecording()
+                print("🔐 Meeting started based on message: \(message)")
+            } else if message.lowercased() == "meetingstopped" {
+                // Set authentication state to true for loggedin message
+                self.stopRecording()
+                print("🔐 Meeting stopped based on message: \(message)")
+            } else if message.lowercased() == "meetingmute" {
+                // Set authentication state to true for loggedin message
+                self.toggleVoiceMute()
+                print("🔐 Meeting muted based on message: \(message)")
             }
         }
         
