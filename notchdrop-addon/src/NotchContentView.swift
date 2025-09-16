@@ -16,11 +16,23 @@ struct NotchContentView: View {
     
     var body: some View {
         ZStack {
-            switch vm.contentType {
-            case .normal:
+            // Main content based on notch state
+            if vm.showNotificationOverlay {
+                // When notification is showing, always show the expanded notch content
                 DynamicIslandContentView(vm: vm)
                     .transition(.scale(scale: 0.8).combined(with: .opacity))
+            } else {
+                // Normal content switching
+                switch vm.contentType {
+                case .normal:
+                    DynamicIslandContentView(vm: vm)
+                        .transition(.scale(scale: 0.8).combined(with: .opacity))
+                }
             }
+            
+            // Notification overlay (appears on top of all content, even when notch is closed)
+            NotificationOverlayView(vm: vm)
+                .zIndex(999)
         }
         .animation(vm.animation, value: vm.contentType)
     }
@@ -47,17 +59,34 @@ struct DynamicIslandContentView: View {
                         .font(.system(size: 14, weight: .regular))
                         .foregroundColor(.white.opacity(0.8))
                     
-                    // Test button to toggle authentication
-                    Button("Login") {
-                        // Do nothing
+                    // Test buttons
+                    HStack(spacing: 8) {
+                        Button("Login") {
+                            vm.setAuthenticated(true)
+                        }
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.blue.opacity(0.3))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .buttonStyle(PlainButtonStyle())
+                        
+                        Button("Test Notification") {
+                            vm.showNotification(
+                                title: "Test Meeting", 
+                                body: "This is a test notification from SwiftUI", 
+                                type: "meeting"
+                            )
+                        }
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.green.opacity(0.3))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .buttonStyle(PlainButtonStyle())
                     }
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(Color.blue.opacity(0.3))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .buttonStyle(PlainButtonStyle())
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
@@ -777,6 +806,97 @@ struct WaveIcon: View {
             .stroke(color, style: StrokeStyle(lineWidth: 0.875 * s, lineCap: .round, lineJoin: .round))
         }
         .aspectRatio(11.0/12.0, contentMode: .fit)
+    }
+}
+
+// MARK: - Notification Overlay View
+struct NotificationOverlayView: View {
+    @ObservedObject var vm: NotchViewModel
+
+    var body: some View {
+        Group {
+            if vm.showNotificationOverlay {
+                let _ = print("🔔 Notification overlay rendering - title: '\(vm.notificationTitle)', body: '\(vm.notificationBody)'")
+                
+                // Notification content that completely replaces the notch content
+                VStack(spacing: 10) {
+                    // Meeting icon with title
+                    HStack(spacing: 10) {
+                        Image(systemName: "video.fill")
+                            .font(.system(size: 16))
+                            .foregroundColor(DynamicIslandTheme.primaryGreen)
+                        
+                        Text(vm.notificationTitle.isEmpty ? "Meeting Detected" : vm.notificationTitle)
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(DynamicIslandTheme.textPrimary)
+                            .lineLimit(1)
+                        
+                        Spacer()
+                        
+                        // Subtle close button
+                        Button(action: {
+                            vm.hideNotification()
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 14))
+                                .foregroundColor(DynamicIslandTheme.textMuted.opacity(0.6))
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                    
+                    // Body text
+                    if !vm.notificationBody.isEmpty {
+                        Text(vm.notificationBody)
+                            .font(.system(size: 12))
+                            .foregroundColor(DynamicIslandTheme.textMuted)
+                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    
+                    // Action buttons
+                    HStack(spacing: 10) {
+                        Button("Join Meeting") {
+                            // Handle join action
+                            vm.hideNotification()
+                        }
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(DynamicIslandTheme.primaryGreen)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 6)
+                        .background(DynamicIslandTheme.primaryGreen.opacity(0.15))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(DynamicIslandTheme.primaryGreen.opacity(0.4), lineWidth: 0.5)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .buttonStyle(PlainButtonStyle())
+                        
+                        Button("Later") {
+                            vm.hideNotification()
+                        }
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(DynamicIslandTheme.textMuted)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 6)
+                        .background(DynamicIslandTheme.card)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(DynamicIslandTheme.stroke.opacity(0.4), lineWidth: 0.5)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .buttonStyle(PlainButtonStyle())
+                        
+                        Spacer()
+                    }
+                }
+                .padding(vm.spacing)
+                .frame(width: vm.notchOpenedSize.width, height: vm.notchOpenedSize.height)
+                .background(Color.black) // Pure black background to match notch
+                .clipShape(RoundedRectangle(cornerRadius: vm.cornerRadius))
+                .transition(.scale(scale: 0.9).combined(with: .opacity))
+            }
+        }
+        .animation(vm.animation, value: vm.showNotificationOverlay)
     }
 }
 

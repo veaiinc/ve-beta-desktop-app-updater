@@ -334,7 +334,8 @@ autoUpdater.on('update-downloaded', (info) => {
 	}, 5000);
 });
 
-function showNotification(title, body) {
+async function showNotification(title, body) {
+	console.log('hello', title, body);
 	const notification = new Notification({
 		title: title || 'Alert',
 		body: body || 'This is a test',
@@ -382,6 +383,33 @@ function showNotification(title, body) {
 			);
 			log.info('Notification also sent to Dynamic Island');
 		}
+	}
+
+	// Send notification to SwiftUI NotchDrop
+	if (notchDropService && notchDropService.isInitialized) {
+		try {
+			const notificationData = {
+				title: title || 'Alert',
+				body: body || 'This is a test',
+				type: 'meeting',
+				timestamp: new Date().toISOString(),
+			};
+			const result = await notchDropService.sendMessageToSwiftUI(
+				JSON.stringify({
+					action: 'showNotification',
+					data: notificationData,
+				}),
+			);
+			if (result.success) {
+				log.info('✅ Notification sent to SwiftUI successfully');
+			} else {
+				log.warn('⚠️ Failed to send notification to SwiftUI:', result.error);
+			}
+		} catch (error) {
+			log.error('❌ Error sending notification to SwiftUI:', error);
+		}
+	} else {
+		log.info('ℹ️ NotchDrop service not available, skipping SwiftUI notification');
 	}
 }
 
