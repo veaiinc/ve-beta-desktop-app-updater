@@ -4,140 +4,176 @@ import useUpdatedVoiceIntegration from '../hooks/useUpdatedVoiceIntegration';
 
 /**
  * NotchDrop Voice Activator Component
- * 
+ *
  * This component listens for NotchDrop voice activation events
  * and triggers the LiveKit voice integration system.
  */
 const NotchDropVoiceActivator = () => {
-    const {
-        aiSetup: { updateAiSetupState, voiceIntegrationData }
-    } = useContext(Context);
-    
-    // Use the voice integration hook to handle token generation and connection
-    const {
-        shouldConnect,
-        token,
-        serverUrl,
-        handleConnect,
-        handleDisconnect: voiceIntegrationDisconnect,
-    } = useUpdatedVoiceIntegration();
+	const {
+		aiSetup: { updateAiSetupState, voiceIntegrationData },
+	} = useContext(Context);
 
-    useEffect(() => {
-        console.log('🎤 NotchDrop Voice Activator: Component mounted and listening for events');
-        
-        // Listen for NotchDrop voice activation events
-        const handleNotchDropVoiceActivation = async (event) => {
-            console.log('🎤 NotchDrop Voice Activator: Received activation event:', event.detail);
-            console.log('🎤 NotchDrop Voice Activator: Current shouldConnect:', shouldConnect);
-            console.log('🎤 NotchDrop Voice Activator: Current voiceIntegrationData:', voiceIntegrationData);
-            
-            // Trigger LiveKit voice integration
-            if (!shouldConnect && !voiceIntegrationData?.shouldConnect) {
-                console.log('🚀 NotchDrop Voice Activator: Starting LiveKit voice integration...');
-                
-                // Disable old voice integration system
-                window.dispatchEvent(new CustomEvent('disable-old-voice-integration', { 
-                    detail: { disable: true } 
-                }));
-                
-                // Set up voice integration data AND show widget for LiveKit connection
-                // The widget will be hidden but LiveKit room will be active
-                updateAiSetupState({
-                    showVoiceWidget: true, // Need this for LiveKit room connection
-                    notchDropVoiceActive: true, // Flag to indicate NotchDrop is controlling voice
-                });
-                
-                // Use the voice integration hook to handle connection
-                await handleConnect();
-                
-                console.log('✅ NotchDrop Voice Activator: LiveKit voice integration triggered');
-            } else {
-                console.log('🔄 NotchDrop Voice Activator: Voice integration already active');
-            }
-        };
+	// Use the voice integration hook to handle token generation and connection
+	const {
+		shouldConnect,
+		token,
+		serverUrl,
+		handleConnect,
+		handleDisconnect: voiceIntegrationDisconnect,
+	} = useUpdatedVoiceIntegration();
 
-        const handleNotchDropVoiceDeactivation = (event) => {
-            console.log('🔌 NotchDrop Voice Activator: Received deactivation event:', event.detail);
-            
-            // Deactivate LiveKit voice integration
-            if (shouldConnect || voiceIntegrationData?.shouldConnect) {
-                console.log('🛑 NotchDrop Voice Activator: Stopping LiveKit voice integration...');
-                
-                // Use the voice integration hook to handle disconnection
-                voiceIntegrationDisconnect();
-                
-                // Hide voice widget and clear NotchDrop voice flag
-                updateAiSetupState({
-                    showVoiceWidget: false,
-                    notchDropVoiceActive: false, // Clear NotchDrop control flag
-                });
-                
-                // Re-enable old voice integration system
-                window.dispatchEvent(new CustomEvent('disable-old-voice-integration', { 
-                    detail: { disable: false } 
-                }));
-                
-                console.log('✅ NotchDrop Voice Activator: Voice deactivated');
-            }
-        };
+	useEffect(() => {
+		console.log('🎤 NotchDrop Voice Activator: Component mounted and listening for events');
 
-        const handleNotchDropMicrophoneToggle = (event) => {
-            console.log('🔇 NotchDrop Voice Activator: Received microphone toggle event:', event.detail);
-            
-            // Dispatch a custom event that the LiveKit components can listen to
-            window.dispatchEvent(new CustomEvent('livekit-toggle-microphone', { 
-                detail: { 
-                    source: 'notchdrop',
-                    timestamp: Date.now()
-                } 
-            }));
-            
-            console.log('✅ NotchDrop Voice Activator: LiveKit microphone toggle event dispatched');
-        };
+		// Listen for NotchDrop voice activation events
+		const handleNotchDropVoiceActivation = async (event) => {
+			console.log('🎤 NotchDrop Voice Activator: Received activation event:', event.detail);
+			console.log('🎤 NotchDrop Voice Activator: Current shouldConnect:', shouldConnect);
+			console.log(
+				'🎤 NotchDrop Voice Activator: Current voiceIntegrationData:',
+				voiceIntegrationData,
+			);
 
-        // Listen for custom events from NotchDrop
-        window.addEventListener('notchdrop-activate-voice', handleNotchDropVoiceActivation);
-        window.addEventListener('notchdrop-deactivate-voice', handleNotchDropVoiceDeactivation);
-        window.addEventListener('notchdrop-toggle-microphone', handleNotchDropMicrophoneToggle);
+			// Trigger LiveKit voice integration
+			if (!shouldConnect && !voiceIntegrationData?.shouldConnect) {
+				console.log('🚀 NotchDrop Voice Activator: Starting LiveKit voice integration...');
 
-        // Listen for IPC events from NotchDrop (fallback)
-        if (window.electronApi && window.electronApi.ipcRenderer) {
-            const handleIpcVoiceActivation = (event, data) => {
-                console.log('📞 NotchDrop Voice Activator: Received IPC activation:', data);
-                handleNotchDropVoiceActivation({ detail: data });
-            };
+				// Disable old voice integration system
+				window.dispatchEvent(
+					new CustomEvent('disable-old-voice-integration', {
+						detail: { disable: true },
+					}),
+				);
 
-            const handleIpcVoiceDeactivation = (event, data) => {
-                console.log('📞 NotchDrop Voice Activator: Received IPC deactivation:', data);
-                handleNotchDropVoiceDeactivation({ detail: data });
-            };
+				// Set up voice integration data AND show widget for LiveKit connection
+				// The widget will be hidden but LiveKit room will be active
+				updateAiSetupState({
+					showVoiceWidget: true, // Need this for LiveKit room connection
+					notchDropVoiceActive: true, // Flag to indicate NotchDrop is controlling voice
+				});
 
-            window.electronApi.ipcRenderer.on('notchdrop:showVoiceAgent', handleIpcVoiceActivation);
-            window.electronApi.ipcRenderer.on('notchdrop:hideVoiceAgent', handleIpcVoiceDeactivation);
+				// Use the voice integration hook to handle connection
+				await handleConnect();
 
-            // Cleanup IPC listeners
-            return () => {
-                window.removeEventListener('notchdrop-activate-voice', handleNotchDropVoiceActivation);
-                window.removeEventListener('notchdrop-deactivate-voice', handleNotchDropVoiceDeactivation);
-                window.removeEventListener('notchdrop-toggle-microphone', handleNotchDropMicrophoneToggle);
-                
-                if (window.electronApi && window.electronApi.ipcRenderer) {
-                    window.electronApi.ipcRenderer.removeListener('notchdrop:showVoiceAgent', handleIpcVoiceActivation);
-                    window.electronApi.ipcRenderer.removeListener('notchdrop:hideVoiceAgent', handleIpcVoiceDeactivation);
-                }
-            };
-        }
+				console.log('✅ NotchDrop Voice Activator: LiveKit voice integration triggered');
+			} else {
+				console.log('🔄 NotchDrop Voice Activator: Voice integration already active');
+			}
+		};
 
-        // Cleanup event listeners
-        return () => {
-            window.removeEventListener('notchdrop-activate-voice', handleNotchDropVoiceActivation);
-            window.removeEventListener('notchdrop-deactivate-voice', handleNotchDropVoiceDeactivation);
-            window.removeEventListener('notchdrop-toggle-microphone', handleNotchDropMicrophoneToggle);
-        };
-    }, [updateAiSetupState, voiceIntegrationData]);
+		const handleNotchDropVoiceDeactivation = (event) => {
+			console.log('🔌 NotchDrop Voice Activator: Received deactivation event:', event.detail);
 
-    // This component doesn't render anything - it's just for event handling
-    return null;
+			// Deactivate LiveKit voice integration
+			if (shouldConnect || voiceIntegrationData?.shouldConnect) {
+				console.log('🛑 NotchDrop Voice Activator: Stopping LiveKit voice integration...');
+
+				// Use the voice integration hook to handle disconnection
+				voiceIntegrationDisconnect();
+
+				// Hide voice widget and clear NotchDrop voice flag
+				updateAiSetupState({
+					showVoiceWidget: false,
+					notchDropVoiceActive: false, // Clear NotchDrop control flag
+				});
+
+				// Re-enable old voice integration system
+				window.dispatchEvent(
+					new CustomEvent('disable-old-voice-integration', {
+						detail: { disable: false },
+					}),
+				);
+
+				console.log('✅ NotchDrop Voice Activator: Voice deactivated');
+			}
+		};
+
+		const handleNotchDropMicrophoneToggle = (event) => {
+			console.log(
+				'🔇 NotchDrop Voice Activator: Received microphone toggle event:',
+				event.detail,
+			);
+
+			// Dispatch a custom event that the LiveKit components can listen to
+			window.dispatchEvent(
+				new CustomEvent('livekit-toggle-microphone', {
+					detail: {
+						source: 'notchdrop',
+						timestamp: Date.now(),
+					},
+				}),
+			);
+
+			console.log('✅ NotchDrop Voice Activator: LiveKit microphone toggle event dispatched');
+		};
+
+		// Listen for custom events from NotchDrop
+		window.addEventListener('notchdrop-activate-voice', handleNotchDropVoiceActivation);
+		window.addEventListener('notchdrop-deactivate-voice', handleNotchDropVoiceDeactivation);
+		window.addEventListener('notchdrop-toggle-microphone', handleNotchDropMicrophoneToggle);
+
+		// Listen for IPC events from NotchDrop (fallback)
+		if (window.electronApi && window.electronApi.ipcRenderer) {
+			const handleIpcVoiceActivation = (event, data) => {
+				console.log('📞 NotchDrop Voice Activator: Received IPC activation:', data);
+				handleNotchDropVoiceActivation({ detail: data });
+			};
+
+			const handleIpcVoiceDeactivation = (event, data) => {
+				console.log('📞 NotchDrop Voice Activator: Received IPC deactivation:', data);
+				handleNotchDropVoiceDeactivation({ detail: data });
+			};
+
+			window.electronApi.ipcRenderer.on('notchdrop:showVoiceAgent', handleIpcVoiceActivation);
+			window.electronApi.ipcRenderer.on(
+				'notchdrop:hideVoiceAgent',
+				handleIpcVoiceDeactivation,
+			);
+
+			// Cleanup IPC listeners
+			return () => {
+				window.removeEventListener(
+					'notchdrop-activate-voice',
+					handleNotchDropVoiceActivation,
+				);
+				window.removeEventListener(
+					'notchdrop-deactivate-voice',
+					handleNotchDropVoiceDeactivation,
+				);
+				window.removeEventListener(
+					'notchdrop-toggle-microphone',
+					handleNotchDropMicrophoneToggle,
+				);
+
+				if (window.electronApi && window.electronApi.ipcRenderer) {
+					window.electronApi.ipcRenderer.removeListener(
+						'notchdrop:showVoiceAgent',
+						handleIpcVoiceActivation,
+					);
+					window.electronApi.ipcRenderer.removeListener(
+						'notchdrop:hideVoiceAgent',
+						handleIpcVoiceDeactivation,
+					);
+				}
+			};
+		}
+
+		// Cleanup event listeners
+		return () => {
+			window.removeEventListener('notchdrop-activate-voice', handleNotchDropVoiceActivation);
+			window.removeEventListener(
+				'notchdrop-deactivate-voice',
+				handleNotchDropVoiceDeactivation,
+			);
+			window.removeEventListener(
+				'notchdrop-toggle-microphone',
+				handleNotchDropMicrophoneToggle,
+			);
+		};
+	}, [updateAiSetupState, voiceIntegrationData]);
+
+	// This component doesn't render anything - it's just for event handling
+	return null;
 };
 
 export default NotchDropVoiceActivator;

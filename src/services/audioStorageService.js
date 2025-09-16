@@ -91,7 +91,7 @@ class AudioStorageService {
 			await window.electronApi.fs.writeFile(metadataPath, metadataJson);
 
 			console.log('Audio saved successfully:', audioFilePath);
-			
+
 			// Automatically trigger upload to AssemblyAI after successful save
 			console.log('🚀 Automatically triggering upload to AssemblyAI...');
 			setTimeout(async () => {
@@ -106,7 +106,7 @@ class AudioStorageService {
 					console.error('❌ Error during auto-upload:', error);
 				}
 			}, 1000); // Small delay to ensure file is fully written
-			
+
 			return {
 				success: true,
 				filePath: audioFilePath,
@@ -477,13 +477,16 @@ class AudioStorageService {
 						const workspaceResult = await assemblyAIService.sendToWorkspaceAPI(
 							meetingId,
 							uploadResult.uploadUrl,
-							jwtToken
+							jwtToken,
 						);
-						
+
 						if (workspaceResult.success) {
 							console.log('✅ Successfully sent to workspace API automatically!');
 						} else {
-							console.error('❌ Failed to send to workspace API:', workspaceResult.error);
+							console.error(
+								'❌ Failed to send to workspace API:',
+								workspaceResult.error,
+							);
 						}
 					} catch (error) {
 						console.error('❌ Error calling workspace API:', error);

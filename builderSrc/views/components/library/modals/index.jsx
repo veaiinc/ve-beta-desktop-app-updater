@@ -121,7 +121,7 @@ class modal extends Component {
 						onExiting={this.exitingclass}
 						centered
 						aria-labelledby="contained-modal-title-vcenter"
-						animation={true}						
+						animation={true}
 					>
 						<Modal.Body
 							scrollable={true}

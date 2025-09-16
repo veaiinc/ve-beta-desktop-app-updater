@@ -1103,7 +1103,12 @@ class NotchDropAddonWrapper extends EventEmitter {
 			// Convert messageData to JSON string for native layer
 			const messageJson = JSON.stringify(messageData);
 			this.addon.addVoiceMessage(messageJson);
-			console.log(`💬 Voice message added: ${messageData.sender}: ${messageData.content?.substring(0, 30)}...`);
+			console.log(
+				`💬 Voice message added: ${messageData.sender}: ${messageData.content?.substring(
+					0,
+					30,
+				)}...`,
+			);
 		} catch (error) {
 			console.error('❌ Error adding voice message:', error);
 			throw error;
