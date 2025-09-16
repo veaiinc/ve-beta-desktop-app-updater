@@ -13,6 +13,7 @@ const {
 	globalShortcut,
 	clipboard,
 	dialog,
+	shell,
 } = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
@@ -1210,7 +1211,7 @@ function createWindow(restoreState = false) {
 
 		// Find the first path that exists
 		for (const testPath of possiblePaths) {
-			if (require('fs').existsSync(testPath)) {
+			if (fs.existsSync(testPath)) {
 				iconPath = testPath;
 				break;
 			}
@@ -1973,7 +1974,6 @@ app.whenReady().then(async () => {
 			log.warn('and add this app to the list of allowed applications.');
 
 			// Show a dialog to the user
-			// const { dialog } = require('electron');
 			// dialog.showMessageBox(mainWindow, {
 			// 	type: 'warning',
 			// 	title: 'Accessibility Permission Required',
@@ -2557,7 +2557,6 @@ app.whenReady().then(async () => {
 		try {
 			log.info('Opening AirDrop from NotchDropLatest');
 			// Open AirDrop sharing dialog
-			const { exec } = require('child_process');
 			exec('open -a AirDrop', (error) => {
 				if (error) {
 					log.error('Error opening AirDrop:', error);
@@ -2574,7 +2573,6 @@ app.whenReady().then(async () => {
 		try {
 			log.info('Opening share dialog from NotchDropLatest');
 			// Open file picker for sharing
-			const { dialog } = require('electron');
 			const result = await dialog.showOpenDialog(mainWindow, {
 				properties: ['openFile', 'multiSelections'],
 				title: 'Select files to share',
@@ -2589,7 +2587,6 @@ app.whenReady().then(async () => {
 	ipcMain.handle('notchdrop-open-file', async (event, filePath) => {
 		try {
 			log.info('Opening file from NotchDropLatest:', filePath);
-			const { shell } = require('electron');
 			await shell.openPath(filePath);
 			return { success: true };
 		} catch (error) {
