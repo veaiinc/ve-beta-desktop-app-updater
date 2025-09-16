@@ -983,7 +983,7 @@ const RecentChat = ({
 																1
 																? `${
 																		chatContentRef?.current
-																			?.clientHeight - 157
+																			?.clientHeight - 160
 																  }px`
 																: 'auto',
 													}}
