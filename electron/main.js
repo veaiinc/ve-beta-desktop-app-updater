@@ -1,4 +1,4 @@
-require('dotenv').config();
+// main.js
 const {
 	app,
 	BrowserWindow,
@@ -13,6 +13,7 @@ const {
 	globalShortcut,
 	clipboard,
 	dialog,
+	shell,
 } = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
@@ -22,8 +23,11 @@ const DynamicIslandHelper = require('./helpers/dynamicIslandHelper');
 const fs = require('fs');
 const { exec } = require('child_process');
 const { Worker } = require('worker_threads');
-const pLimit = require('p-limit') || require('p-limit').default;
+const pLimit = require('p-limit'); // ← THIS IS THE FIX
 const imageProcessingLimit = pLimit(4); // Max 4 concurrent workers
+
+// Import dynamic island helper
+// const { DynamicIslandHelper } = require('./dynamicIslandHelper');
 
 // Import Windows compatibility fixes
 const {
@@ -43,11 +47,6 @@ const meetingMonitor = require('./notificationHelper'); // Adjust path if needed
 
 // Import NotchDrop service
 const NotchDropService = require('./services/notchDropService');
-
-log.info(
-	'process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND:',
-	process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND,
-);
 
 // Gallery processing functions will be loaded lazily when needed
 let galleryHelper = null;
@@ -140,12 +139,6 @@ const applyContentProtectionToWindow = (window) => {
 // Runtime platform override for testing (set VE_FORCE_PLATFORM=linux|win32|darwin)
 const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
 const isMacRuntime = RUNTIME_PLATFORM === 'darwin';
-const shouldInitDynamicIsland = (() => {
-	const value = String(process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND || '')
-		.trim()
-		.toLowerCase();
-	return process.platform !== 'darwin' || (value === '1' || value === 'true' || value === 'yes' || value === 'on');
-})();
 
 const loadGalleryHelper = () => {
 	if (!galleryHelper) {
@@ -191,84 +184,6 @@ process.on('unhandledRejection', (reason, promise) => {
 
 let notchDropService = null;
 
-// NotchDrop Voice Integration Setup
-function setupNotchDropVoiceIntegration() {
-	try {
-		console.log('🎤 Initializing NotchDrop voice integration...');
-
-		// Add direct voice activation handler
-		ipcMain.handle('notchdrop:activateVoice', async (event, data) => {
-			console.log('🎤 DIRECT: Voice activation request from NotchDrop');
-
-			try {
-				// Send activation event to main window
-				if (mainWindow && !mainWindow.isDestroyed()) {
-					console.log('📤 Sending voice activation to main window...');
-
-					// Send IPC event
-					mainWindow.webContents.send('notchdrop:showVoiceAgent', {
-						source: 'notchdrop-direct',
-						timestamp: Date.now(),
-					});
-
-					// Also execute JavaScript to activate voice agent directly
-					const result = await mainWindow.webContents.executeJavaScript(`
-						(async () => {
-							try {
-								console.log('🎤 DIRECT: Activating voice agent from NotchDrop');
-								
-								// Look for voice agent UI elements
-								const voiceContainers = document.querySelectorAll('.voiceContainer');
-								console.log('Found voice containers:', voiceContainers.length);
-								
-								if (voiceContainers.length > 0) {
-									// Make voice agent visible
-									voiceContainers[0].style.display = 'block';
-									voiceContainers[0].style.opacity = '1';
-									
-									// Find and click the action button
-									const actionButtons = voiceContainers[0].querySelectorAll('.action-button');
-									console.log('Found action buttons:', actionButtons.length);
-									
-									if (actionButtons.length > 0) {
-										console.log('🎤 Clicking voice agent action button...');
-										actionButtons[0].click();
-										return { success: true, method: 'button-click' };
-									}
-								}
-								
-								// If no existing voice agent, try to create one by navigating
-								console.log('🎤 No voice agent found, dispatching custom event...');
-								const event = new CustomEvent('notchdrop-voice-activate', {
-									detail: { source: 'notchdrop', activate: true }
-								});
-								window.dispatchEvent(event);
-								
-								return { success: true, method: 'custom-event' };
-								
-							} catch (error) {
-								console.error('❌ Error in direct voice activation:', error);
-								return { success: false, error: error.message };
-							}
-						})()
-					`);
-
-					console.log('🎤 Direct voice activation result:', result);
-				}
-
-				return { success: true };
-			} catch (error) {
-				console.error('❌ Error in direct voice activation:', error);
-				return { success: false, error: error.message };
-			}
-		});
-
-		console.log('✅ NotchDrop voice integration handlers registered');
-	} catch (error) {
-		console.error('❌ Error setting up NotchDrop voice integration:', error);
-	}
-}
-
 // Auto-updater setup
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
@@ -279,6 +194,15 @@ autoUpdater.autoInstallOnAppQuit = false; // Manual control for better error han
 
 // Flag to prevent concurrent update operations
 let isUpdateInProgress = false;
+
+// Platform-specific logging
+if (process.platform === 'win32') {
+	log.info('Windows auto-updater configured with auto-download and manual install');
+} else if (process.platform === 'darwin') {
+	log.info('macOS auto-updater configured with auto-download and manual install');
+} else {
+	log.info('Linux auto-updater configured with auto-download and manual install');
+}
 
 // Update event forwarding
 autoUpdater.on('checking-for-update', () => {
@@ -1210,6 +1134,10 @@ function updateMenuBarState() {
 			if (autoOpenMenu) {
 				autoOpenMenu.checked = autoOpen;
 			}
+
+			log.info(
+				`📊 Menu updated - Status: ${status}, Visible: ${isVisible}, Auto-open: ${autoOpen}`,
+			);
 		}
 	} catch (error) {
 		log.error('❌ Failed to update menu bar state:', error);
@@ -1230,7 +1158,7 @@ function createWindow(restoreState = false) {
 
 		// Find the first path that exists
 		for (const testPath of possiblePaths) {
-			if (require('fs').existsSync(testPath)) {
+			if (fs.existsSync(testPath)) {
 				iconPath = testPath;
 				break;
 			}
@@ -1306,24 +1234,6 @@ function createWindow(restoreState = false) {
 		log.info('Window ready-to-show - content protection applied');
 		// Enable developer tools for main window in both development and production
 		log.info('Dev tools available with F12, Ctrl+F12, or Ctrl+Shift+I in all modes');
-
-		// Ensure Dynamic Island stays on top after main window appears
-		try {
-			if (dynamicIslandHelper && shouldInitDynamicIsland) {
-				setTimeout(() => {
-					try {
-						dynamicIslandHelper.forceShow();
-						// Extra focus/raise for macOS layering quirks
-						dynamicIslandHelper.focus();
-						log.info('Reasserted Dynamic Island on top after main window show');
-					} catch (e) {
-						log.warn('Could not reassert Dynamic Island on top:', e);
-					}
-				}, 200);
-			}
-		} catch (e) {
-			log.warn('Dynamic Island post-show raise failed:', e);
-		}
 
 		// If restoring state, navigate to the last known route
 		if (restoreState && lastWindowState.route) {
@@ -1491,6 +1401,12 @@ app.whenReady().then(async () => {
 		// Check microphone permission status (this is synchronous)
 		const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
 		const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
+
+		log.info('macOS Microphone permission status:', microphoneStatus);
+		log.info('macOS Camera permission status:', cameraStatus);
+
+		console.log('Microphone status:', microphoneStatus);
+		console.log('Camera status:', cameraStatus);
 	}
 
 	// ✅ Request screen recording permission (macOS only)
@@ -1516,20 +1432,16 @@ app.whenReady().then(async () => {
 
 	// 🎤 IPC: Start Mic Monitoring
 
-	// Initialize Dynamic Island only when explicitly enabled
-	if (shouldInitDynamicIsland) {
-		try {
-			log.info('Initializing Dynamic Island Helper (env enabled)...');
-			dynamicIslandHelper = new DynamicIslandHelper();
-			dynamicIslandHelper.createDynamicIslandWindow();
-			log.info('Dynamic Island Helper initialized successfully');
-		} catch (error) {
-			log.error('Failed to initialize Dynamic Island Helper:', error);
-			// Continue app initialization even if Dynamic Island fails
-			dynamicIslandHelper = null;
-		}
-	} else {
-		log.info('Dynamic Island disabled. Set VITE_ELECTRON_SHOW_DYNAMIC_ISLAND=true to enable.');
+	// Initialize Dynamic Island with comprehensive error handling
+	try {
+		log.info('Initializing Dynamic Island Helper...');
+		dynamicIslandHelper = new DynamicIslandHelper();
+		dynamicIslandHelper.createDynamicIslandWindow();
+		log.info('Dynamic Island Helper initialized successfully');
+	} catch (error) {
+		log.error('Failed to initialize Dynamic Island Helper:', error);
+		// Continue app initialization even if Dynamic Island fails
+		dynamicIslandHelper = null;
 	}
 
 	// THEN: Create main window after dynamic island
@@ -1712,10 +1624,6 @@ app.whenReady().then(async () => {
 			try {
 				const status = notchDropService.getStatus();
 				log.info('✅ NotchDrop service status check:', status);
-
-				// Setup voice integration
-				console.log('🎤 Setting up NotchDrop voice integration...');
-				setupNotchDropVoiceIntegration();
 			} catch (error) {
 				log.warn('⚠️ NotchDrop service status check failed:', error.message);
 			}
@@ -1945,7 +1853,6 @@ app.whenReady().then(async () => {
 			log.warn('and add this app to the list of allowed applications.');
 
 			// Show a dialog to the user
-			// const { dialog } = require('electron');
 			// dialog.showMessageBox(mainWindow, {
 			// 	type: 'warning',
 			// 	title: 'Accessibility Permission Required',
@@ -1973,62 +1880,7 @@ app.whenReady().then(async () => {
 	// Send chat message from Dynamic Island to Ask AI handler
 	ipcMain.handle('send-chat-message-to-askai', async (event, chatMessage) => {
 		try {
-			// Check if this is a voice activation message from NotchDrop
-			if (
-				chatMessage &&
-				chatMessage.type === 'ACTIVATE_VOICE_AGENT' &&
-				chatMessage.source === 'notchdrop_voice_button'
-			) {
-				console.log('🎤 DIRECT: Intercepting NotchDrop voice activation in main.js');
-
-				// Send voice activation directly to main window
-				if (mainWindow && !mainWindow.isDestroyed()) {
-					console.log('📤 DIRECT: Sending voice activation to main window');
-
-					// Send IPC event to main window
-					mainWindow.webContents.send('notchdrop:voice-activate', {
-						type: 'ACTIVATE_VOICE_AGENT',
-						source: 'notchdrop_voice_button',
-						timestamp: chatMessage.timestamp,
-					});
-
-					// Also execute JavaScript directly in main window
-					const result = await mainWindow.webContents.executeJavaScript(`
-						(async () => {
-							try {
-								console.log('🎤 DIRECT: Voice activation JavaScript executed in main window');
-								
-								// Set a global flag that React can check
-								window.notchDropVoiceActivate = true;
-								window.notchDropVoiceTimestamp = '${chatMessage.timestamp}';
-								
-								// Dispatch a custom event
-								const event = new CustomEvent('notchdrop-voice-activate', {
-									detail: {
-										type: 'ACTIVATE_VOICE_AGENT',
-										source: 'notchdrop_voice_button',
-										timestamp: '${chatMessage.timestamp}'
-									}
-								});
-								window.dispatchEvent(event);
-								
-								console.log('🎤 DIRECT: Voice activation event dispatched');
-								return { success: true };
-								
-							} catch (error) {
-								console.error('❌ Error in voice activation JavaScript:', error);
-								return { success: false, error: error.message };
-							}
-						})()
-					`);
-
-					console.log('🎤 DIRECT: Voice activation JavaScript result:', result);
-				}
-
-				return { success: true, message: 'Voice activation triggered' };
-			}
-
-			// Original Ask AI logic for non-voice messages
+			// Get the Ask AI window through windowHelper
 			let askAIWindow = windowHelper.getAskAIWindow();
 
 			// If Ask AI window doesn't exist or is destroyed, create it
@@ -2579,48 +2431,11 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	// Voice integration handler
-	ipcMain.handle('notchdrop-update-voice-status', async (event, status) => {
-		try {
-			log.info(`🎤 Updating NotchDrop voice status: ${status}`);
-			if (!notchDropService) {
-				return { success: false, error: 'NotchDrop service not initialized' };
-			}
-
-			// Update the voice status in NotchDrop Swift UI
-			const result = await notchDropService.updateVoiceConnectionState(status);
-			return { success: true, status, result };
-		} catch (error) {
-			log.error('Error updating NotchDrop voice status:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	// Voice message handler
-	ipcMain.handle('notchdrop-add-voice-message', async (event, messageData) => {
-		try {
-			log.info(
-				`💬 Adding voice message to NotchDrop: ${messageData.content?.substring(0, 50)}...`,
-			);
-			if (!notchDropService) {
-				return { success: false, error: 'NotchDrop service not initialized' };
-			}
-
-			// Add the voice message to NotchDrop Swift UI
-			const result = await notchDropService.addVoiceMessage(messageData);
-			return { success: true, messageData, result };
-		} catch (error) {
-			log.error('Error adding NotchDrop voice message:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
 	// New NotchDropLatest IPC handlers
 	ipcMain.handle('notchdrop-open-airdrop', async () => {
 		try {
 			log.info('Opening AirDrop from NotchDropLatest');
 			// Open AirDrop sharing dialog
-			const { exec } = require('child_process');
 			exec('open -a AirDrop', (error) => {
 				if (error) {
 					log.error('Error opening AirDrop:', error);
@@ -2637,7 +2452,6 @@ app.whenReady().then(async () => {
 		try {
 			log.info('Opening share dialog from NotchDropLatest');
 			// Open file picker for sharing
-			const { dialog } = require('electron');
 			const result = await dialog.showOpenDialog(mainWindow, {
 				properties: ['openFile', 'multiSelections'],
 				title: 'Select files to share',
@@ -2652,7 +2466,6 @@ app.whenReady().then(async () => {
 	ipcMain.handle('notchdrop-open-file', async (event, filePath) => {
 		try {
 			log.info('Opening file from NotchDropLatest:', filePath);
-			const { shell } = require('electron');
 			await shell.openPath(filePath);
 			return { success: true };
 		} catch (error) {
@@ -2669,6 +2482,21 @@ app.whenReady().then(async () => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error deleting file:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Update voice status in NotchDrop
+	ipcMain.handle('notchdrop-update-voice-status', async (event, status) => {
+		try {
+			log.info('Updating NotchDrop voice status:', status);
+			if (notchDropService) {
+				await notchDropService.updateVoiceStatus(status);
+				return { success: true };
+			}
+			return { success: false, error: 'NotchDrop service not available' };
+		} catch (error) {
+			log.error('Error updating voice status:', error);
 			return { success: false, error: error.message };
 		}
 	});

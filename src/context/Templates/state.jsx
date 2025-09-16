@@ -2164,6 +2164,7 @@ export const TemplatesState = (props) => {
 		chatInfo = null,
 		browserData = null,
 		browserTabsInfo = null,
+		recentChatInfo = null,
 	}) => {
 		try {
 			dispatch({
@@ -2187,6 +2188,7 @@ export const TemplatesState = (props) => {
 					chatInfo,
 					browserData,
 					browserTabsInfo,
+					recentChatInfo,
 				},
 			});
 		} catch (error) {
@@ -2440,7 +2442,7 @@ export const TemplatesState = (props) => {
 		sessionId,
 		page = 1,
 		fetchMore = false,
-		limit = 1000,
+		limit = 5,
 		isPublicChat = false,
 		removeSessionId = false,
 	}) => {

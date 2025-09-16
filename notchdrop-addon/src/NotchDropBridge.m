@@ -145,6 +145,10 @@ static void (^incomingActionCallback)(NSString*, NSString*);
     [NotchDropCore.shared updateVoiceConnectionState:status];
 }
 
++ (void)updateVoiceMuteState:(BOOL)isMuted {
+    [NotchDropCore.shared updateVoiceMuteState:isMuted];
+}
+
 + (void)addVoiceMessage:(NSString*)messageJson {
     [NotchDropCore.shared addVoiceMessage:messageJson];
 }
