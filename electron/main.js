@@ -2551,6 +2551,21 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// Update voice connection state in NotchDrop
+	ipcMain.handle('notchdrop-update-voice-connection-state', async (event, status) => {
+		try {
+			log.info('Updating NotchDrop voice connection state:', status);
+			if (notchDropService) {
+				await notchDropService.updateVoiceConnectionState(status);
+				return { success: true };
+			}
+			return { success: false, error: 'NotchDrop service not available' };
+		} catch (error) {
+			log.error('Error updating voice connection state:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	ipcMain.handle('dynamic-island-set-mouse-events', async (event, ignore) => {
 		try {
 			if (!dynamicIslandHelper) {

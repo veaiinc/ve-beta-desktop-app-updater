@@ -358,6 +358,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 		updateMenu: () => ipcRenderer.invoke('update-notchdrop-menu'),
 		// Voice integration
 		updateVoiceStatus: (status) => ipcRenderer.invoke('notchdrop-update-voice-status', status),
+		updateVoiceConnectionState: (status) => ipcRenderer.invoke('notchdrop-update-voice-connection-state', status),
 		updateVoiceMuteState: (isMuted) =>
 			ipcRenderer.invoke('notchdrop-update-voice-mute-state', isMuted),
 		addVoiceMessage: (messageData) =>

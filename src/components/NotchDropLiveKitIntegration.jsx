@@ -225,8 +225,9 @@ const NotchDropLiveKitIntegration = () => {
 		const updateNotchDropStatus = async (status) => {
 			try {
 				if (window.electronApi && window.electronApi.notchdrop) {
-					await window.electronApi.notchdrop.updateVoiceStatus(status);
-					console.log(`🔄 NotchDrop status updated: ${status}`);
+					// Use updateVoiceConnectionState for connection status changes
+					await window.electronApi.notchdrop.updateVoiceConnectionState(status);
+					console.log(`🔄 NotchDrop connection status updated: ${status}`);
 				}
 			} catch (error) {
 				console.error('❌ Error updating NotchDrop status:', error);
