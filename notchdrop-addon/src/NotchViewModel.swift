@@ -20,7 +20,13 @@ class NotchViewModel: NSObject, ObservableObject {
     let animation: Animation = DynamicIslandTheme.expansionAnimation
     // Dynamic opened size matches React spec; width adjusts when recording or chat expanded, height stays constant
     var notchOpenedSize: CGSize {
-        if isRecording && isChatExpanded {
+        // When showing notification, use notification-specific dimensions matching Figma
+        if showNotificationOverlay {
+            return .init(
+                width: 370,  // Figma design width
+                height: 100   // Figma design height
+            )
+        } else if isRecording && isChatExpanded {
             // Recording + Chat expanded: Use the larger width for better chat experience
             let expandedWidth = max(DynamicIslandTheme.recordingExpandedWidth, DynamicIslandTheme.chatExpandedWidth)
             return .init(
@@ -135,6 +141,13 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var notificationTitle: String = ""
     @Published var notificationBody: String = ""
     @Published var notificationType: String = ""
+    @Published var isNotificationHovered: Bool = false
+    
+    // Notification Timer State
+    private var notificationTimer: Timer?
+    private var notificationStartTime: Date?
+    private var notificationPausedTime: TimeInterval = 0
+    private let notificationDuration: TimeInterval = 10.0
     
     // Voice configuration (VE.AI settings)
     private var voiceURL: String = "wss://ve-ai-voice-agent-ginreaey.livekit.cloud"
@@ -428,12 +441,11 @@ class NotchViewModel: NSObject, ObservableObject {
         print("🔔 Showing notification overlay: \(title) - \(body)")
 
         DispatchQueue.main.async {
-            // Ensure the notch is open to show the notification
-            if self.status == .closed {
-                print("🔔 Opening notch to show notification")
-                self.notchOpen(.click)
-            }
-
+            // Force open the notch to show the notification
+            print("🔔 Opening notch to show notification")
+            self.notchOpen(.click)
+            
+            // Set notification content
             self.notificationTitle = title
             self.notificationBody = body
             self.notificationType = type
@@ -444,10 +456,8 @@ class NotchViewModel: NSObject, ObservableObject {
             // Emit action for JavaScript integration
             self.swiftActionSender.send(.showNotification(title, body, type))
 
-            // Auto-hide notification after 10 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
-                self.hideNotification()
-            }
+            // Start the notification timer
+            self.startNotificationTimer()
         }
     }
 
@@ -458,6 +468,57 @@ class NotchViewModel: NSObject, ObservableObject {
             self.notificationTitle = ""
             self.notificationBody = ""
             self.notificationType = ""
+            self.isNotificationHovered = false
+            
+            // Clean up timer
+            self.stopNotificationTimer()
+        }
+    }
+    
+    /// Start the notification auto-dismiss timer
+    private func startNotificationTimer() {
+        stopNotificationTimer() // Clean up any existing timer
+        
+        notificationStartTime = Date()
+        notificationPausedTime = 0
+        
+        notificationTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+            
+            if !self.isNotificationHovered {
+                let elapsed = Date().timeIntervalSince(self.notificationStartTime ?? Date()) - self.notificationPausedTime
+                
+                if elapsed >= self.notificationDuration {
+                    self.hideNotification()
+                }
+            }
+        }
+    }
+    
+    /// Stop the notification timer
+    private func stopNotificationTimer() {
+        notificationTimer?.invalidate()
+        notificationTimer = nil
+        notificationStartTime = nil
+        notificationPausedTime = 0
+    }
+    
+    /// Pause the notification timer when hovering
+    func pauseNotificationTimer() {
+        if let startTime = notificationStartTime, !isNotificationHovered {
+            notificationPausedTime += Date().timeIntervalSince(startTime)
+            notificationStartTime = Date()
+            isNotificationHovered = true
+            print("⏸️ Notification timer paused")
+        }
+    }
+    
+    /// Resume the notification timer when not hovering
+    func resumeNotificationTimer() {
+        if isNotificationHovered {
+            notificationStartTime = Date()
+            isNotificationHovered = false
+            print("▶️ Notification timer resumed")
         }
     }
 

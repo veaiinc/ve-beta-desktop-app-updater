@@ -16,25 +16,21 @@ struct NotchContentView: View {
     
     var body: some View {
         ZStack {
-            // Main content based on notch state
             if vm.showNotificationOverlay {
-                // When notification is showing, always show the expanded notch content
-                DynamicIslandContentView(vm: vm)
-                    .transition(.scale(scale: 0.8).combined(with: .opacity))
+                // When notification is showing, ONLY show the notification (no background content)
+                NotificationOverlayView(vm: vm)
+                    .transition(.scale(scale: 1.0).combined(with: .opacity))
             } else {
-                // Normal content switching
+                // Normal content switching when no notification
                 switch vm.contentType {
                 case .normal:
                     DynamicIslandContentView(vm: vm)
                         .transition(.scale(scale: 0.8).combined(with: .opacity))
                 }
             }
-            
-            // Notification overlay (appears on top of all content, even when notch is closed)
-            NotificationOverlayView(vm: vm)
-                .zIndex(999)
         }
         .animation(vm.animation, value: vm.contentType)
+        .animation(vm.animation, value: vm.showNotificationOverlay)
     }
 }
 
@@ -812,91 +808,135 @@ struct WaveIcon: View {
 // MARK: - Notification Overlay View
 struct NotificationOverlayView: View {
     @ObservedObject var vm: NotchViewModel
+    @State private var progressValue: Double = 0.0
+    @State private var progressTimer: Timer?
 
     var body: some View {
         Group {
             if vm.showNotificationOverlay {
                 let _ = print("🔔 Notification overlay rendering - title: '\(vm.notificationTitle)', body: '\(vm.notificationBody)'")
                 
-                // Notification content that completely replaces the notch content
-                VStack(spacing: 10) {
-                    // Meeting icon with title
-                    HStack(spacing: 10) {
-                        Image(systemName: "video.fill")
-                            .font(.system(size: 16))
-                            .foregroundColor(DynamicIslandTheme.primaryGreen)
-                        
-                        Text(vm.notificationTitle.isEmpty ? "Meeting Detected" : vm.notificationTitle)
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(DynamicIslandTheme.textPrimary)
-                            .lineLimit(1)
+                // Center the notification content in the available space
+                VStack {
+                    Spacer()
+                    
+                    // Notification content matching the Figma design exactly
+                    VStack(spacing: 0) {
+                    // Main content area
+                    HStack(spacing: 16) {
+                        // Left content
+                        VStack(alignment: .leading, spacing: 4) {
+                            // Main title - "Meeting detected"
+                            Text("Meeting detected")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.white)
+                                .lineLimit(1)
+                            
+                            // Subtitle - "Google meet • Starting in 2 min"
+                            Text("Google meet • Starting in 2 min")
+                                .font(.system(size: 13))
+                                .foregroundColor(.white.opacity(0.7))
+                                .lineLimit(1)
+                        }
                         
                         Spacer()
                         
-                        // Subtle close button
+                        // Join button on the right
                         Button(action: {
+                            print("🎯 Join button tapped")
                             vm.hideNotification()
                         }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 14))
-                                .foregroundColor(DynamicIslandTheme.textMuted.opacity(0.6))
+                            HStack(spacing: 8) {
+                                Image(systemName: "waveform.path")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.white)
+                                
+                                Text("Join")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.white)
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(.white.opacity(0.3), lineWidth: 1)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .fill(.white.opacity(0.1))
+                                    )
+                            )
                         }
                         .buttonStyle(PlainButtonStyle())
                     }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 16)
+                    .padding(.bottom, 12)
                     
-                    // Body text
-                    if !vm.notificationBody.isEmpty {
-                        Text(vm.notificationBody)
-                            .font(.system(size: 12))
-                            .foregroundColor(DynamicIslandTheme.textMuted)
-                            .multilineTextAlignment(.leading)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    
-                    // Action buttons
-                    HStack(spacing: 10) {
-                        Button("Join Meeting") {
-                            // Handle join action
-                            vm.hideNotification()
-                        }
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(DynamicIslandTheme.primaryGreen)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 6)
-                        .background(DynamicIslandTheme.primaryGreen.opacity(0.15))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(DynamicIslandTheme.primaryGreen.opacity(0.4), lineWidth: 0.5)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .buttonStyle(PlainButtonStyle())
-                        
-                        Button("Later") {
-                            vm.hideNotification()
-                        }
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(DynamicIslandTheme.textMuted)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 6)
-                        .background(DynamicIslandTheme.card)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(DynamicIslandTheme.stroke.opacity(0.4), lineWidth: 0.5)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .buttonStyle(PlainButtonStyle())
-                        
+                    // Green progress bar at the bottom
+                    VStack(spacing: 0) {
                         Spacer()
+                        
+                        // Progress bar
+                        GeometryReader { geometry in
+                            ZStack(alignment: .leading) {
+                                // Background
+                                Rectangle()
+                                    .fill(Color.white.opacity(0.1))
+                                    .frame(height: 3)
+                                
+                                // Progress fill
+                                Rectangle()
+                                    .fill(Color.green)
+                                    .frame(width: geometry.size.width * progressValue, height: 3)
+                            }
+                        }
+                        .frame(height: 3)
                     }
+                    }
+                    .background(Color.black)
+                    .clipShape(RoundedRectangle(cornerRadius: vm.cornerRadius))
+                    .frame(width: 370, height: 74) // Matching the Figma dimensions
+                    .onHover { isHovering in
+                        if isHovering {
+                            vm.pauseNotificationTimer()
+                        } else {
+                            vm.resumeNotificationTimer()
+                        }
+                    }
+                    
+                    Spacer()
                 }
-                .padding(vm.spacing)
-                .frame(width: vm.notchOpenedSize.width, height: vm.notchOpenedSize.height)
-                .background(Color.black) // Pure black background to match notch
-                .clipShape(RoundedRectangle(cornerRadius: vm.cornerRadius))
-                .transition(.scale(scale: 0.9).combined(with: .opacity))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .transition(.scale(scale: 1.0).combined(with: .opacity)) // Remove scaling to prevent shadow artifacts
+                .onAppear {
+                    // Start progress bar animation that syncs with notification timer
+                    startProgressAnimation()
+                }
+                .onDisappear {
+                    // Clean up progress animation
+                    stopProgressAnimation()
+                }
             }
         }
-        .animation(vm.animation, value: vm.showNotificationOverlay)
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: vm.showNotificationOverlay)
+    }
+    
+    // Progress animation methods
+    private func startProgressAnimation() {
+        progressValue = 0.0
+        progressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+            if !vm.isNotificationHovered {
+                // Only advance progress when not hovering
+                let increment = 0.1 / 10.0 // 10 seconds total
+                progressValue = min(1.0, progressValue + increment)
+            }
+        }
+    }
+    
+    private func stopProgressAnimation() {
+        progressTimer?.invalidate()
+        progressTimer = nil
+        progressValue = 0.0
     }
 }
 
