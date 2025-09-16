@@ -661,6 +661,29 @@ class NotchDropService {
 		}
 	}
 
+	// Update voice status in NotchDrop
+	async updateVoiceStatus(status) {
+		try {
+			if (!this.isInitialized) {
+				log.warn('NotchDrop not initialized, cannot update voice status');
+				return false;
+			}
+
+			// Call the native addon to update the voice status in Swift UI
+			if (this.notchDropAddon && this.notchDropAddon.updateVoiceStatus) {
+				this.notchDropAddon.updateVoiceStatus(status);
+				console.log(`✅ Voice status updated to: ${status}`);
+				return true;
+			} else {
+				console.warn('⚠️ updateVoiceStatus method not available on addon');
+				return false;
+			}
+		} catch (error) {
+			console.error('❌ Error updating voice status in NotchDrop:', error);
+			return false;
+		}
+	}
+
 	// Handle Swift log messages
 	handleSwiftLog(message) {
 		try {
