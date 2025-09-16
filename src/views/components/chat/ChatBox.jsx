@@ -292,10 +292,10 @@ const ChatBox = ({
 		// 		chatInfo: { ...chatInfo, agentType: 'multi_agent', assistantId: null },
 		// 	});
 		// }
-		document.addEventListener('click', handleWindowClick);
+		// document.addEventListener('click', handleWindowClick);
 		return () => {
 			isMountedRef.current = false;
-			document.removeEventListener('click', handleWindowClick);
+			// document.removeEventListener('click', handleWindowClick);
 			if (chatSessionIdRef.current) {
 				closeWebSocketConnection(chatSessionIdRef.current);
 			}
@@ -629,18 +629,18 @@ const ChatBox = ({
 		setPreviewOpen(true);
 	};
 
-	const handleWindowClick = useCallback(() => {
-		if (!animateChatBox) return;
-		setInfo((prev) => {
-			if (prev?.chatboxMinimized) {
-				return prev;
-			}
-			return {
-				...prev,
-				chatboxMinimized: true,
-			};
-		});
-	}, [animateChatBox]);
+	// const handleWindowClick = useCallback(() => {
+	// 	if (!animateChatBox) return;
+	// 	setInfo((prev) => {
+	// 		if (prev?.chatboxMinimized) {
+	// 			return prev;
+	// 		}
+	// 		return {
+	// 			...prev,
+	// 			chatboxMinimized: true,
+	// 		};
+	// 	});
+	// }, [animateChatBox]);
 	const handleGoalsClick = () => {
 		let chatBoxData = info?.chatBoxInfo;
 
