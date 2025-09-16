@@ -897,10 +897,16 @@ const RecentChat = ({
 	);
 
 	const handleChatBoxHeight = useCallback((chatboxHeight) => {
-		setInfo((prev) => ({
-			...prev,
-			chatPaddingBottom: chatboxHeight - 47,
-		}));
+		setInfo((prev) => {
+			if (prev?.chatPaddingBottom === chatboxHeight - 47) {
+				return prev;
+			}
+
+			return {
+				...prev,
+				chatPaddingBottom: chatboxHeight - 47,
+			};
+		});
 	}, []);
 
 	return (

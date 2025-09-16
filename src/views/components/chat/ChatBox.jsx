@@ -348,7 +348,14 @@ const ChatBox = ({
 
 			handleChatBoxHeight?.(totalChatboxHeight);
 		}
-	}, [info?.chatQuery, info?.uploadedImages, info?.recentFiles, currentPlan, showBrowserButton]);
+	}, [
+		info?.chatQuery,
+		info?.uploadedImages,
+		info?.recentFiles,
+		currentPlan,
+		showBrowserButton,
+		chatReplyData,
+	]);
 
 	useEffect(() => {
 		const sessionData = globalChatMessages?.[info?.chatSessionId],

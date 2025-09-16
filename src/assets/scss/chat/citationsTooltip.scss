@@ -83,6 +83,9 @@
 
 .citation-tooltip-wrapper {
 	max-width: unset;
+	.ant-tooltip-inner {
+		padding: 3px 0 0 0;
+	}
 	.citation-tooltip-container {
 		display: flex;
 		width: 350px;
@@ -93,8 +96,6 @@
 		background: var(--popup);
 		cursor: pointer;
 		position: relative;
-		left: -7px;
-		top: -3px;
 
 		.tooltip-content {
 			flex-grow: 1;
