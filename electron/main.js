@@ -2566,6 +2566,36 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// Add voice message to NotchDrop
+	ipcMain.handle('notchdrop-add-voice-message', async (event, messageData) => {
+		try {
+			log.info('Adding voice message to NotchDrop:', messageData.sender, ':', messageData.content?.substring(0, 50));
+			if (notchDropService) {
+				await notchDropService.addVoiceMessage(messageData);
+				return { success: true };
+			}
+			return { success: false, error: 'NotchDrop service not available' };
+		} catch (error) {
+			log.error('Error adding voice message:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Update voice mute state in NotchDrop
+	ipcMain.handle('notchdrop-update-voice-mute-state', async (event, isMuted) => {
+		try {
+			log.info('Updating NotchDrop voice mute state:', isMuted);
+			if (notchDropService) {
+				await notchDropService.updateVoiceMuteState(isMuted);
+				return { success: true };
+			}
+			return { success: false, error: 'NotchDrop service not available' };
+		} catch (error) {
+			log.error('Error updating voice mute state:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	ipcMain.handle('dynamic-island-set-mouse-events', async (event, ignore) => {
 		try {
 			if (!dynamicIslandHelper) {
