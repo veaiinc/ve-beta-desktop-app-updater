@@ -456,6 +456,37 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		}
 	}, [info?.transcriptions?.length]);
 
+	useEffect(() => {
+		if (aiTranscriptionSuggestions && aiTranscriptionSuggestions?.suggestions?.length > 0) {
+			const allThreads = [];
+			const askUser = [];
+			const needHelp = [];
+			const actions = [];
+			const files = [];
+			aiTranscriptionSuggestions.suggestions.forEach((suggestion) => {
+				if (suggestion.entity === 'user') {
+					askUser.push(suggestion);
+				} else if (suggestion.entity === 'agent' && suggestion.type === 'search') {
+					needHelp.push(suggestion);
+				} else if (suggestion.entity === 'agent' && suggestion.type === 'action') {
+					actions.push(suggestion);
+				} else if (suggestion.entity === 'file') {
+					files.push(suggestion);
+				}
+				allThreads.push(suggestion);
+			});
+
+			setInfo((prev) => ({
+				...prev,
+				userQuestions: askUser,
+				aiQuestions: needHelp,
+				actions,
+				files,
+				allSuggestions: allThreads,
+			}));
+		}
+	}, [aiTranscriptionSuggestions]);
+
 	const handleShowAiTranscriptionSuggestions = () => {
 		setInfo((prev) => ({
 			...prev,
@@ -548,7 +579,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			}
 		};
 	}, [isRecording, stopAudioRecording]);
-
 
 	const handleInfoChange = (data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
@@ -753,7 +783,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 				{showTranscriptTabs && activeTab === 'audio' && (
 					<div className="audio-tab-container">
 						<AudioPlayback meetingId={meetingId} />
-
 					</div>
 				)}
 

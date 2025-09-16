@@ -348,9 +348,9 @@ const MarkdownCode = memo(({ code, match }) => {
 				},
 				onError: (error) => {
 					console.error('Failed to copy code:', error);
-				}
+				},
 			});
-			
+
 			if (!success) {
 				console.error('Copy operation failed');
 			}
@@ -397,9 +397,9 @@ const MarkdownTable = memo(({ children, node, markdown }) => {
 				},
 				onError: (error) => {
 					console.error('Failed to copy table:', error);
-				}
+				},
 			});
-			
+
 			if (!success) {
 				console.error('Copy operation failed');
 			}
@@ -545,9 +545,9 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 					onError: (error) => {
 						console.error('Failed to copy text:', error);
 						setInfo((prev) => ({ ...prev, isCopiedToClipboard: false }));
-					}
+					},
 				});
-				
+
 				if (!success) {
 					console.error('Copy operation failed');
 					setInfo((prev) => ({ ...prev, isCopiedToClipboard: false }));
@@ -670,16 +670,21 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 			)}
 			{!info?.editUserQuery ? (
 				<div className="hover-actions-container">
-					{/* <div className="icon-container" style={{ top: '-2px' }}>
-						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Edit'}>
+					<div className="icon-container" style={{ top: '-2px' }}>
+						<Tooltip
+							placement="bottom"
+							arrow={false}
+							trigger={'hover'}
+							color="transparent"
+							title={<div className="user-hover-icons-tooltip">Edit</div>}
+						>
 							<PencilSparkleIcon
 								width={'19px'}
 								height={'20px'}
 								onClick={handleEditUserQueryToggle}
 							/>
 						</Tooltip>
-					</div> */}
-
+					</div>
 					<div className="icon-container">
 						<Tooltip
 							placement="bottom"

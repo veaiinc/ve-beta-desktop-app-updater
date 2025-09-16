@@ -12,6 +12,7 @@ const InfiniteScroll = ({
 	scrollableTarget = null,
 	height = null,
 	className = '',
+	inverse = false, // use this for reverse infinite scroll
 	style = {},
 	hasChildren = true,
 	horizontal = false,
@@ -20,6 +21,7 @@ const InfiniteScroll = ({
 	const sentinelRef = useRef(null);
 	const scrollParent = useRef(null);
 	const loadingRef = useRef(false);
+	const prevScrollHeightRef = useRef(0);
 
 	useEffect(() => {
 		const rootEl =
@@ -60,6 +62,27 @@ const InfiniteScroll = ({
 	}, [hasMore, scrollThreshold, next, scrollableTarget, horizontal]);
 
 	useEffect(() => {
+		if (inverse) {
+			const targetEl =
+				typeof scrollableTarget === 'string'
+					? document.getElementById(scrollableTarget)
+					: scrollableTarget || scrollParent.current;
+
+			const newScrollHeight = targetEl?.scrollHeight || 0;
+			const previousScrollHeight = prevScrollHeightRef.current;
+
+			if (
+				previousScrollHeight &&
+				newScrollHeight > previousScrollHeight &&
+				loadingRef.current
+			) {
+				// Adjust scrollTop to keep viewport stable
+				targetEl.scrollTop += newScrollHeight - previousScrollHeight;
+			}
+
+			prevScrollHeightRef.current = newScrollHeight;
+		}
+
 		loadingRef.current = false;
 	}, [dataLength]);
 
@@ -97,10 +120,26 @@ const InfiniteScroll = ({
 			style={containerStyle}
 			className={className}
 		>
+			{/* for reverse infinite scroll */}
+			{inverse && hasMore && (
+				<div
+					ref={sentinelRef}
+					style={{
+						minWidth: horizontal ? '1px' : '100%',
+						minHeight: horizontal ? '100%' : '1px',
+						marginBottom: '2px',
+					}}
+				/>
+			)}
+			{inverse && !hasMore && endMessage}
+			{inverse && showLoader && loader}
+
 			{children}
-			{showLoader && loader}
-			{!hasMore && endMessage}
-			{hasMore && (
+
+			{/* for normal infinite scroll */}
+			{!inverse && showLoader && loader}
+			{!inverse && !hasMore && endMessage}
+			{!inverse && hasMore && (
 				<div
 					ref={sentinelRef}
 					style={{
