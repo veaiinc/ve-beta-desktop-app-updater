@@ -129,6 +129,8 @@ const ChatBox = ({
 	showBottomTools = true,
 	showRecentFiles = true,
 	showMicBtn = true,
+	getChatBoxHeight = false,
+	handleChatBoxHeight = null,
 
 	// below props are for desktop app
 	isDesktopApp = false,
@@ -216,6 +218,8 @@ const ChatBox = ({
 	const [transcriptionText, setTranscriptionText] = useState('');
 	const transcriptionSessionId = useRef(ObjectID().toString());
 	const isMountedRef = useRef(true);
+	const chatBoxWrapperRef = useRef(null);
+	const chatbarContainerRef = useRef(null);
 
 	// LiveKit transcription setup
 	const wsUrl = 'wss://ve-ai-transcriptions-8p8k0b44.livekit.cloud';
@@ -334,6 +338,17 @@ const ChatBox = ({
 			getCurrentSubscriptionPlan();
 		}
 	}, []);
+
+	useEffect(() => {
+		if (chatBoxWrapperRef.current && chatbarContainerRef.current && getChatBoxHeight) {
+			const totalChatboxHeight =
+				(chatBoxWrapperRef.current?.clientHeight || 0) +
+				(chatbarContainerRef.current?.clientHeight || 0) +
+				12;
+
+			handleChatBoxHeight?.(totalChatboxHeight);
+		}
+	}, [info?.chatQuery, info?.uploadedImages, info?.recentFiles, currentPlan, showBrowserButton]);
 
 	useEffect(() => {
 		const sessionData = globalChatMessages?.[info?.chatSessionId],
@@ -1735,8 +1750,8 @@ const ChatBox = ({
 	};
 
 	return (
-		<div className="chatBoxParentWrapper" onClick={handleChatBoxClick}>
-			<div className="chatbarContainer">
+		<div className="chatBoxParentWrapper" ref={chatBoxWrapperRef} onClick={handleChatBoxClick}>
+			<div className="chatbarContainer" ref={chatbarContainerRef}>
 				{showScrollButton && (
 					<div className="scroll-btn-wrapper">
 						<button className="scroll-button" onClick={handleScrollButtonClick}>
