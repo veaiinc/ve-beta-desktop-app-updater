@@ -10,166 +10,168 @@ const path = require('path');
 const SwiftWatcher = require('./swift-watcher');
 
 const COLORS = {
-    reset: '\x1b[0m',
-    bright: '\x1b[1m',
-    red: '\x1b[31m',
-    green: '\x1b[32m',
-    yellow: '\x1b[33m',
-    blue: '\x1b[34m',
-    magenta: '\x1b[35m',
-    cyan: '\x1b[36m',
+	reset: '\x1b[0m',
+	bright: '\x1b[1m',
+	red: '\x1b[31m',
+	green: '\x1b[32m',
+	yellow: '\x1b[33m',
+	blue: '\x1b[34m',
+	magenta: '\x1b[35m',
+	cyan: '\x1b[36m',
 };
 
 class DevServer {
-    constructor() {
-        this.processes = [];
-        this.swiftWatcher = null;
-    }
+	constructor() {
+		this.processes = [];
+		this.swiftWatcher = null;
+	}
 
-    log(level, message, prefix = 'DevServer') {
-        const timestamp = new Date().toLocaleTimeString();
-        const logPrefix = `[${timestamp}] [${prefix}]`;
-        
-        switch (level) {
-            case 'info':
-                console.log(`${COLORS.blue}${logPrefix}${COLORS.reset} ${message}`);
-                break;
-            case 'success':
-                console.log(`${COLORS.green}${logPrefix}${COLORS.reset} ${message}`);
-                break;
-            case 'warning':
-                console.log(`${COLORS.yellow}${logPrefix}${COLORS.reset} ${message}`);
-                break;
-            case 'error':
-                console.log(`${COLORS.red}${logPrefix}${COLORS.reset} ${message}`);
-                break;
-            default:
-                console.log(`${logPrefix} ${message}`);
-        }
-    }
+	log(level, message, prefix = 'DevServer') {
+		const timestamp = new Date().toLocaleTimeString();
+		const logPrefix = `[${timestamp}] [${prefix}]`;
 
-    async startViteServer() {
-        return new Promise((resolve, reject) => {
-            this.log('info', 'Starting Vite development server...');
-            
-            const viteProcess = spawn('npm', ['run', 'dev'], {
-                stdio: ['inherit', 'pipe', 'pipe'],
-                cwd: process.cwd()
-            });
+		switch (level) {
+			case 'info':
+				console.log(`${COLORS.blue}${logPrefix}${COLORS.reset} ${message}`);
+				break;
+			case 'success':
+				console.log(`${COLORS.green}${logPrefix}${COLORS.reset} ${message}`);
+				break;
+			case 'warning':
+				console.log(`${COLORS.yellow}${logPrefix}${COLORS.reset} ${message}`);
+				break;
+			case 'error':
+				console.log(`${COLORS.red}${logPrefix}${COLORS.reset} ${message}`);
+				break;
+			default:
+				console.log(`${logPrefix} ${message}`);
+		}
+	}
 
-            this.processes.push(viteProcess);
+	async startViteServer() {
+		return new Promise((resolve, reject) => {
+			this.log('info', 'Starting Vite development server...');
 
-            // Pipe output with prefixes
-            viteProcess.stdout.on('data', (data) => {
-                const lines = data.toString().split('\n').filter(line => line.trim());
-                lines.forEach(line => {
-                    console.log(`${COLORS.cyan}[Vite]${COLORS.reset} ${line}`);
-                });
-            });
+			const viteProcess = spawn('npm', ['run', 'dev'], {
+				stdio: ['inherit', 'pipe', 'pipe'],
+				cwd: process.cwd(),
+			});
 
-            viteProcess.stderr.on('data', (data) => {
-                const lines = data.toString().split('\n').filter(line => line.trim());
-                lines.forEach(line => {
-                    console.log(`${COLORS.red}[Vite Error]${COLORS.reset} ${line}`);
-                });
-            });
+			this.processes.push(viteProcess);
 
-            viteProcess.on('close', (code) => {
-                if (code === 0) {
-                    this.log('info', 'Vite server stopped normally');
-                } else {
-                    this.log('error', `Vite server exited with code ${code}`);
-                }
-            });
+			// Pipe output with prefixes
+			viteProcess.stdout.on('data', (data) => {
+				const lines = data
+					.toString()
+					.split('\n')
+					.filter((line) => line.trim());
+				lines.forEach((line) => {
+					console.log(`${COLORS.cyan}[Vite]${COLORS.reset} ${line}`);
+				});
+			});
 
-            viteProcess.on('error', (error) => {
-                this.log('error', `Failed to start Vite server: ${error.message}`);
-                reject(error);
-            });
+			viteProcess.stderr.on('data', (data) => {
+				const lines = data
+					.toString()
+					.split('\n')
+					.filter((line) => line.trim());
+				lines.forEach((line) => {
+					console.log(`${COLORS.red}[Vite Error]${COLORS.reset} ${line}`);
+				});
+			});
 
-            // Consider Vite started after a short delay
-            setTimeout(() => {
-                this.log('success', 'Vite development server started');
-                resolve(viteProcess);
-            }, 2000);
-        });
-    }
+			viteProcess.on('close', (code) => {
+				if (code === 0) {
+					this.log('info', 'Vite server stopped normally');
+				} else {
+					this.log('error', `Vite server exited with code ${code}`);
+				}
+			});
 
-    async startSwiftWatcher() {
-        try {
-            this.log('info', 'Starting Swift file watcher...');
-            this.swiftWatcher = new SwiftWatcher();
-            this.swiftWatcher.start();
-            this.log('success', 'Swift file watcher started');
-        } catch (error) {
-            this.log('error', `Failed to start Swift watcher: ${error.message}`);
-            throw error;
-        }
-    }
+			viteProcess.on('error', (error) => {
+				this.log('error', `Failed to start Vite server: ${error.message}`);
+				reject(error);
+			});
 
-    async start() {
-        this.log('info', 'Starting enhanced development environment...');
-        this.log('info', '='.repeat(50));
+			// Consider Vite started after a short delay
+			setTimeout(() => {
+				this.log('success', 'Vite development server started');
+				resolve(viteProcess);
+			}, 2000);
+		});
+	}
 
-        try {
-            // Start both services
-            await Promise.all([
-                this.startViteServer(),
-                this.startSwiftWatcher()
-            ]);
+	async startSwiftWatcher() {
+		try {
+			this.log('info', 'Starting Swift file watcher...');
+			this.swiftWatcher = new SwiftWatcher();
+			this.swiftWatcher.start();
+			this.log('success', 'Swift file watcher started');
+		} catch (error) {
+			this.log('error', `Failed to start Swift watcher: ${error.message}`);
+			throw error;
+		}
+	}
 
-            this.log('success', 'Development environment ready!');
-            this.log('info', '📝 Edit React/JS files → Vite hot reload');
-            this.log('info', '🔧 Edit Swift files → Automatic addon rebuild');
-            this.log('info', 'Press Ctrl+C to stop all services');
+	async start() {
+		this.log('info', 'Starting enhanced development environment...');
+		this.log('info', '='.repeat(50));
 
-        } catch (error) {
-            this.log('error', `Failed to start development environment: ${error.message}`);
-            this.cleanup();
-            process.exit(1);
-        }
-    }
+		try {
+			// Start both services
+			await Promise.all([this.startViteServer(), this.startSwiftWatcher()]);
 
-    cleanup() {
-        this.log('info', 'Cleaning up processes...');
-        
-        this.processes.forEach((process) => {
-            if (process && !process.killed) {
-                process.kill('SIGTERM');
-            }
-        });
+			this.log('success', 'Development environment ready!');
+			this.log('info', '📝 Edit React/JS files → Vite hot reload');
+			this.log('info', '🔧 Edit Swift files → Automatic addon rebuild');
+			this.log('info', 'Press Ctrl+C to stop all services');
+		} catch (error) {
+			this.log('error', `Failed to start development environment: ${error.message}`);
+			this.cleanup();
+			process.exit(1);
+		}
+	}
 
-        if (this.swiftWatcher) {
-            // Swift watcher handles its own cleanup
-        }
-    }
+	cleanup() {
+		this.log('info', 'Cleaning up processes...');
+
+		this.processes.forEach((process) => {
+			if (process && !process.killed) {
+				process.kill('SIGTERM');
+			}
+		});
+
+		if (this.swiftWatcher) {
+			// Swift watcher handles its own cleanup
+		}
+	}
 }
 
 // Handle process termination
 process.on('SIGINT', () => {
-    console.log('\n'); // New line for clean output
-    const devServer = global.devServerInstance;
-    if (devServer) {
-        devServer.log('info', 'Received SIGINT, shutting down...');
-        devServer.cleanup();
-    }
-    process.exit(0);
+	console.log('\n'); // New line for clean output
+	const devServer = global.devServerInstance;
+	if (devServer) {
+		devServer.log('info', 'Received SIGINT, shutting down...');
+		devServer.cleanup();
+	}
+	process.exit(0);
 });
 
 process.on('SIGTERM', () => {
-    const devServer = global.devServerInstance;
-    if (devServer) {
-        devServer.log('info', 'Received SIGTERM, shutting down...');
-        devServer.cleanup();
-    }
-    process.exit(0);
+	const devServer = global.devServerInstance;
+	if (devServer) {
+		devServer.log('info', 'Received SIGTERM, shutting down...');
+		devServer.cleanup();
+	}
+	process.exit(0);
 });
 
 // Start the development server
 if (require.main === module) {
-    const devServer = new DevServer();
-    global.devServerInstance = devServer;
-    devServer.start();
+	const devServer = new DevServer();
+	global.devServerInstance = devServer;
+	devServer.start();
 }
 
 module.exports = DevServer;

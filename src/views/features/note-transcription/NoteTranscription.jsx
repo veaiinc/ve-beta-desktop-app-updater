@@ -349,7 +349,6 @@ export default function NoteTranscription({
 		initializeMeetingSummary({ meeting_id: meetingId });
 	};
 
-
 	// Helper for formatting time
 	const formatTime = (seconds) => {
 		const m = Math.floor(seconds / 60)

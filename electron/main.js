@@ -139,6 +139,18 @@ const applyContentProtectionToWindow = (window) => {
 // Runtime platform override for testing (set VE_FORCE_PLATFORM=linux|win32|darwin)
 const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
 const isMacRuntime = RUNTIME_PLATFORM === 'darwin';
+const shouldInitDynamicIsland = (() => {
+	const value = String(process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND || '')
+		.trim()
+		.toLowerCase();
+	return (
+		process.platform !== 'darwin' ||
+		value === '1' ||
+		value === 'true' ||
+		value === 'yes' ||
+		value === 'on'
+	);
+})();
 
 const loadGalleryHelper = () => {
 	if (!galleryHelper) {
@@ -779,6 +791,47 @@ function createMenuBar() {
 					},
 			  ]
 			: []),
+			{
+				label: 'Edit',
+				submenu: [
+					{
+						label: 'Undo',
+						role: 'undo',
+						accelerator: 'CmdOrCtrl+Z',
+					},
+					{
+						label: 'Redo',
+						role: 'redo',
+						accelerator: 'CmdOrCtrl+Y',
+					},
+					{
+						type: 'separator',
+					},
+					{
+						label: 'Cut',
+						role: 'cut',
+						accelerator: 'CmdOrCtrl+X',
+					},
+					{
+						label: 'Copy',
+						role: 'copy',
+						accelerator: 'CmdOrCtrl+C',
+					},
+					{
+						label: 'Paste',
+						role: 'paste',
+						accelerator: 'CmdOrCtrl+V',
+					},
+					{
+						type: 'separator',
+					},
+					{
+						label: 'Select All',
+						role: 'selectAll',
+						accelerator: 'CmdOrCtrl+A',
+					},
+				],
+			},
 		{
 			label: 'View',
 			submenu: [
@@ -1199,6 +1252,74 @@ function createWindow(restoreState = false) {
 			devTools: true, // Enable developer tools in production
 		},
 	});
+
+	// Add context menu support for copy/paste functionality
+	mainWindow.webContents.on('context-menu', (event, params) => {
+		const menu = Menu.buildFromTemplate([
+			{
+				label: 'Cut',
+				role: 'cut',
+				enabled:
+					params.isEditable && params.selectionText && params.selectionText.length > 0,
+			},
+			{
+				label: 'Copy',
+				role: 'copy',
+				enabled: params.selectionText && params.selectionText.length > 0,
+			},
+			{
+				label: 'Paste',
+				role: 'paste',
+				enabled: params.isEditable,
+			},
+			{
+				type: 'separator',
+			},
+			{
+				label: 'Select All',
+				role: 'selectAll',
+				enabled: params.isEditable,
+			},
+		]);
+
+		// Only show context menu if there's text selected or if it's an editable element
+		if (params.selectionText || params.isEditable) {
+			menu.popup();
+		}
+	});
+		// Add context menu support for copy/paste functionality
+		mainWindow.webContents.on('context-menu', (event, params) => {
+			const menu = Menu.buildFromTemplate([
+				{
+					label: 'Cut',
+					role: 'cut',
+					enabled: params.isEditable && params.selectionText && params.selectionText.length > 0,
+				},
+				{
+					label: 'Copy',
+					role: 'copy',
+					enabled: params.selectionText && params.selectionText.length > 0,
+				},
+				{
+					label: 'Paste',
+					role: 'paste',
+					enabled: params.isEditable,
+				},
+				{
+					type: 'separator',
+				},
+				{
+					label: 'Select All',
+					role: 'selectAll',
+					enabled: params.isEditable,
+				},
+			]);
+	
+			// Only show context menu if there's text selected or if it's an editable element
+			if (params.selectionText || params.isEditable) {
+				menu.popup();
+			}
+		});
 
 	ipcMain.on('veAppMsg', async (event, msg) => {
 		log.info('🔄 Received message from veApp:', msg); // logs: btn clicked from react
@@ -2497,6 +2618,149 @@ app.whenReady().then(async () => {
 			return { success: false, error: 'NotchDrop service not available' };
 		} catch (error) {
 			log.error('Error updating voice status:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Update voice connection state in NotchDrop
+	ipcMain.handle('notchdrop-update-voice-connection-state', async (event, status) => {
+		try {
+			log.info('Updating NotchDrop voice connection state:', status);
+			if (notchDropService) {
+				await notchDropService.updateVoiceConnectionState(status);
+				return { success: true };
+			}
+			return { success: false, error: 'NotchDrop service not available' };
+		} catch (error) {
+			log.error('Error updating voice connection state:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Add voice message to NotchDrop
+	ipcMain.handle('notchdrop-add-voice-message', async (event, messageData) => {
+		try {
+			log.info('Adding voice message to NotchDrop:', messageData.sender, ':', messageData.content?.substring(0, 50));
+			if (notchDropService) {
+				await notchDropService.addVoiceMessage(messageData);
+				return { success: true };
+			}
+			return { success: false, error: 'NotchDrop service not available' };
+		} catch (error) {
+			log.error('Error adding voice message:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Update voice mute state in NotchDrop
+	ipcMain.handle('notchdrop-update-voice-mute-state', async (event, isMuted) => {
+		try {
+			log.info('Updating NotchDrop voice mute state:', isMuted);
+			if (notchDropService) {
+				await notchDropService.updateVoiceMuteState(isMuted);
+				return { success: true };
+			}
+			return { success: false, error: 'NotchDrop service not available' };
+		} catch (error) {
+			log.error('Error updating voice mute state:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// File system APIs for audio storage
+	const fs = require('fs').promises;
+	const fsSync = require('fs');
+	const path = require('path');
+	const os = require('os');
+
+	// Get proper user data directory for audio storage (matching meeting/final branch)
+	const getUserDataPath = () => {
+		return path.join(os.homedir(), '.ve-desktop-app', 'meetings');
+	};
+
+	ipcMain.handle('fs-ensure-dir', async (event, dirPath) => {
+		try {
+			const fullPath = path.join(getUserDataPath(), dirPath);
+			await fs.mkdir(fullPath, { recursive: true });
+			return { success: true };
+		} catch (error) {
+			log.error('Error ensuring directory:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('fs-write-file', async (event, filePath, data) => {
+		try {
+			const fullPath = path.join(getUserDataPath(), filePath);
+			// For text files (like JSON), ensure UTF-8 encoding
+			if (typeof data === 'string') {
+				await fs.writeFile(fullPath, data, 'utf8');
+			} else {
+				await fs.writeFile(fullPath, data);
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error writing file:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('fs-read-file', async (event, filePath) => {
+		try {
+			const fullPath = path.join(getUserDataPath(), filePath);
+			const data = await fs.readFile(fullPath, 'utf8');
+			return { success: true, data };
+		} catch (error) {
+			log.error('Error reading file:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('fs-read-file-binary', async (event, filePath) => {
+		try {
+			const fullPath = path.join(getUserDataPath(), filePath);
+			const data = await fs.readFile(fullPath);
+			// Convert Buffer to Uint8Array for proper binary handling
+			return { success: true, data: new Uint8Array(data) };
+		} catch (error) {
+			log.error('Error reading binary file:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('fs-exists', async (event, filePath) => {
+		try {
+			const fullPath = path.join(getUserDataPath(), filePath);
+			await fs.access(fullPath);
+			return { success: true, exists: true };
+		} catch (error) {
+			return { success: true, exists: false };
+		}
+	});
+
+	ipcMain.handle('fs-remove', async (event, filePath) => {
+		try {
+			const fullPath = path.join(getUserDataPath(), filePath);
+			const stats = await fs.stat(fullPath);
+			if (stats.isDirectory()) {
+				await fs.rmdir(fullPath, { recursive: true });
+			} else {
+				await fs.unlink(fullPath);
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error removing file/directory:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('fs-readdir', async (event, dirPath) => {
+		try {
+			const fullPath = path.join(getUserDataPath(), dirPath);
+			const files = await fs.readdir(fullPath);
+			return { success: true, files };
+		} catch (error) {
+			log.error('Error reading directory:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -3825,6 +4089,40 @@ app.whenReady().then(async () => {
 				success: false,
 				error: error.message,
 			};
+		}
+	});
+
+	// Screen capture IPC handler
+	ipcMain.handle('start-screen-capture', async () => {
+		try {
+			log.info('Starting screen capture...');
+
+			// Get screen sources using desktopCapturer
+			const sources = await desktopCapturer.getSources({
+				types: ['screen'],
+				thumbnailSize: { width: 1920, height: 1080 },
+			});
+
+			if (!sources || sources.length === 0) {
+				log.warn('No screen sources available for capture');
+				return { success: false, error: 'No screen sources available' };
+			}
+
+			// Return the first (primary) screen source
+			const primaryScreen = sources[0];
+			log.info(`Screen capture source selected: ${primaryScreen.name}`);
+
+			return {
+				success: true,
+				source: {
+					id: primaryScreen.id,
+					name: primaryScreen.name,
+					thumbnail: primaryScreen.thumbnail ? primaryScreen.thumbnail.toDataURL() : null,
+				},
+			};
+		} catch (error) {
+			log.error('Error starting screen capture:', error);
+			return { success: false, error: error.message };
 		}
 	});
 });

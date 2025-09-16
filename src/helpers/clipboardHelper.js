@@ -31,9 +31,15 @@ export const copyToClipboard = async (text, options = {}) => {
 					console.log('❌ Electron clipboard failed, falling back to browser API');
 				}
 			} catch (electronError) {
-				console.log('❌ Electron clipboard error, falling back to browser API:', electronError);
+				console.log(
+					'❌ Electron clipboard error, falling back to browser API:',
+					electronError,
+				);
 				// If it's a "No handler registered" error, the handlers might not be ready yet
-				if (electronError.message && electronError.message.includes('No handler registered')) {
+				if (
+					electronError.message &&
+					electronError.message.includes('No handler registered')
+				) {
 					console.log('🔄 Electron handlers not ready yet, trying browser API...');
 				}
 			}
@@ -75,7 +81,7 @@ export const copyToClipboard = async (text, options = {}) => {
 		return true;
 	} catch (error) {
 		console.error('❌ Browser clipboard API failed, trying legacy method:', error);
-		
+
 		// Fallback to legacy execCommand method
 		try {
 			const textArea = document.createElement('textarea');
@@ -86,10 +92,10 @@ export const copyToClipboard = async (text, options = {}) => {
 			document.body.appendChild(textArea);
 			textArea.focus();
 			textArea.select();
-			
+
 			const successful = document.execCommand('copy');
 			document.body.removeChild(textArea);
-			
+
 			if (successful) {
 				console.log('✅ Copied to clipboard via legacy method');
 				onSuccess();
@@ -99,7 +105,7 @@ export const copyToClipboard = async (text, options = {}) => {
 			}
 		} catch (legacyError) {
 			console.error('❌ All copy methods failed:', legacyError);
-			
+
 			// Handle specific error types
 			if (error.name === 'NotAllowedError') {
 				const permissionError = new Error(
@@ -224,7 +230,10 @@ export const readFromClipboard = async (options = {}) => {
 					console.log('❌ Electron clipboard read failed, falling back to browser API');
 				}
 			} catch (electronError) {
-				console.log('❌ Electron clipboard read error, falling back to browser API:', electronError);
+				console.log(
+					'❌ Electron clipboard read error, falling back to browser API:',
+					electronError,
+				);
 			}
 		} else {
 			console.log('🔍 Electron API not available, trying browser API...');
@@ -249,7 +258,9 @@ export const readFromClipboard = async (options = {}) => {
 				}
 			} catch (e) {
 				// Some browsers don't support clipboard-read permission query
-				console.log('Clipboard read permission query not supported, attempting direct read');
+				console.log(
+					'Clipboard read permission query not supported, attempting direct read',
+				);
 			}
 		}
 
@@ -259,7 +270,7 @@ export const readFromClipboard = async (options = {}) => {
 		return text;
 	} catch (error) {
 		console.error('❌ All clipboard read methods failed:', error);
-		
+
 		// Handle specific error types
 		if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
 			const permissionError = new Error(

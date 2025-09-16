@@ -107,7 +107,7 @@ const AIMessage = ({
 
 	const handleCopyTextClick = useCallback(async (text) => {
 		const textToBeCopied = text?.replace(/\[C\d+\]/g, '');
-		
+
 		try {
 			const success = await copyToClipboard(textToBeCopied, {
 				onSuccess: () => {
@@ -120,9 +120,9 @@ const AIMessage = ({
 					console.error('Failed to copy text:', error);
 					// Show error feedback to user
 					setInfo((prev) => ({ ...prev, isCopiedToClipboard: false }));
-				}
+				},
 			});
-			
+
 			if (!success) {
 				console.error('Copy operation failed');
 				setInfo((prev) => ({ ...prev, isCopiedToClipboard: false }));

@@ -1,61 +1,65 @@
 /**
  * DIRECT VOICE INTEGRATION - SIMPLE SOLUTION
- * 
- * This bypasses the complex bridge system and directly connects 
+ *
+ * This bypasses the complex bridge system and directly connects
  * NotchDrop Voice button to your existing voice agent
  */
 
 const { ipcMain, BrowserWindow } = require('electron');
 
 class DirectVoiceIntegration {
-    constructor() {
-        this.setupDirectHandlers();
-        console.log('🎤 DIRECT Voice Integration initialized');
-    }
+	constructor() {
+		this.setupDirectHandlers();
+		console.log('🎤 DIRECT Voice Integration initialized');
+	}
 
-    setupDirectHandlers() {
-        // Handle direct voice activation from NotchDrop
-        ipcMain.handle('swift:action', async (event, action, data) => {
-            console.log('🔍 DIRECT: Received Swift action:', action, data);
-            
-            if (action === 'connectVoice') {
-                console.log('🎤 DIRECT: Voice button clicked in NotchDrop');
-                return await this.activateVoiceAgent();
-            } else if (action === 'disconnectVoice') {
-                console.log('🎤 DIRECT: Voice disconnect from NotchDrop');
-                return await this.deactivateVoiceAgent();
-            }
-            
-            // Let other handlers process non-voice actions
-            return { success: true, handled: false };
-        });
+	setupDirectHandlers() {
+		// Handle direct voice activation from NotchDrop
+		ipcMain.handle('swift:action', async (event, action, data) => {
+			console.log('🔍 DIRECT: Received Swift action:', action, data);
 
-        // Alternative direct handler
-        ipcMain.handle('notchdrop:voice:activate', async (event, data) => {
-            console.log('🎤 DIRECT: Alternative voice activation');
-            return await this.activateVoiceAgent();
-        });
-    }
+			if (action === 'connectVoice') {
+				console.log('🎤 DIRECT: Voice button clicked in NotchDrop');
+				return await this.activateVoiceAgent();
+			} else if (action === 'disconnectVoice') {
+				console.log('🎤 DIRECT: Voice disconnect from NotchDrop');
+				return await this.deactivateVoiceAgent();
+			}
 
-    async activateVoiceAgent() {
-        try {
-            console.log('🎤 DIRECT: Activating voice agent...');
-            
-            // Find main window
-            const mainWindow = BrowserWindow.getAllWindows().find(window => {
-                const title = window.getTitle();
-                return !title.includes('Overlay') && !title.includes('Dynamic Island') && !title.includes('AskAI');
-            });
+			// Let other handlers process non-voice actions
+			return { success: true, handled: false };
+		});
 
-            if (!mainWindow) {
-                console.error('❌ Main window not found');
-                return { success: false, error: 'Main window not found' };
-            }
+		// Alternative direct handler
+		ipcMain.handle('notchdrop:voice:activate', async (event, data) => {
+			console.log('🎤 DIRECT: Alternative voice activation');
+			return await this.activateVoiceAgent();
+		});
+	}
 
-            console.log('📱 Found main window, activating voice agent...');
+	async activateVoiceAgent() {
+		try {
+			console.log('🎤 DIRECT: Activating voice agent...');
 
-            // Method 1: Direct JavaScript execution to start voice agent
-            const result = await mainWindow.webContents.executeJavaScript(`
+			// Find main window
+			const mainWindow = BrowserWindow.getAllWindows().find((window) => {
+				const title = window.getTitle();
+				return (
+					!title.includes('Overlay') &&
+					!title.includes('Dynamic Island') &&
+					!title.includes('AskAI')
+				);
+			});
+
+			if (!mainWindow) {
+				console.error('❌ Main window not found');
+				return { success: false, error: 'Main window not found' };
+			}
+
+			console.log('📱 Found main window, activating voice agent...');
+
+			// Method 1: Direct JavaScript execution to start voice agent
+			const result = await mainWindow.webContents.executeJavaScript(`
                 (async () => {
                     try {
                         console.log('🎤 DIRECT: Starting voice agent activation in renderer');
@@ -143,41 +147,40 @@ class DirectVoiceIntegration {
                 })()
             `);
 
-            console.log('🎤 DIRECT: Voice activation result:', result);
+			console.log('🎤 DIRECT: Voice activation result:', result);
 
-            if (result.success) {
-                console.log('✅ DIRECT: Voice agent activated successfully');
-                return { success: true, method: result.method };
-            } else {
-                console.log('⚠️ DIRECT: Voice agent activation failed, trying alternative...');
-                
-                // Alternative: Send event to renderer and let React handle it
-                mainWindow.webContents.send('notchdrop:activate-voice-agent', {
-                    source: 'notchdrop-direct',
-                    timestamp: Date.now(),
-                    autoStart: true
-                });
-                
-                return { success: true, method: 'ipc-event' };
-            }
+			if (result.success) {
+				console.log('✅ DIRECT: Voice agent activated successfully');
+				return { success: true, method: result.method };
+			} else {
+				console.log('⚠️ DIRECT: Voice agent activation failed, trying alternative...');
 
-        } catch (error) {
-            console.error('❌ DIRECT: Error activating voice agent:', error);
-            return { success: false, error: error.message };
-        }
-    }
+				// Alternative: Send event to renderer and let React handle it
+				mainWindow.webContents.send('notchdrop:activate-voice-agent', {
+					source: 'notchdrop-direct',
+					timestamp: Date.now(),
+					autoStart: true,
+				});
 
-    async deactivateVoiceAgent() {
-        try {
-            console.log('🎤 DIRECT: Deactivating voice agent...');
-            
-            const mainWindow = BrowserWindow.getAllWindows().find(window => {
-                const title = window.getTitle();
-                return !title.includes('Overlay') && !title.includes('Dynamic Island');
-            });
+				return { success: true, method: 'ipc-event' };
+			}
+		} catch (error) {
+			console.error('❌ DIRECT: Error activating voice agent:', error);
+			return { success: false, error: error.message };
+		}
+	}
 
-            if (mainWindow) {
-                await mainWindow.webContents.executeJavaScript(`
+	async deactivateVoiceAgent() {
+		try {
+			console.log('🎤 DIRECT: Deactivating voice agent...');
+
+			const mainWindow = BrowserWindow.getAllWindows().find((window) => {
+				const title = window.getTitle();
+				return !title.includes('Overlay') && !title.includes('Dynamic Island');
+			});
+
+			if (mainWindow) {
+				await mainWindow.webContents.executeJavaScript(`
                     // Hide voice agent
                     const voiceContainers = document.querySelectorAll('.voiceContainer');
                     voiceContainers.forEach(container => {
@@ -198,16 +201,15 @@ class DirectVoiceIntegration {
                     });
                     window.dispatchEvent(hideEvent);
                 `);
-            }
+			}
 
-            console.log('✅ DIRECT: Voice agent deactivated');
-            return { success: true };
-
-        } catch (error) {
-            console.error('❌ DIRECT: Error deactivating voice agent:', error);
-            return { success: false, error: error.message };
-        }
-    }
+			console.log('✅ DIRECT: Voice agent deactivated');
+			return { success: true };
+		} catch (error) {
+			console.error('❌ DIRECT: Error deactivating voice agent:', error);
+			return { success: false, error: error.message };
+		}
+	}
 }
 
 // Export for use in main.js
