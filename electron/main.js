@@ -791,47 +791,47 @@ function createMenuBar() {
 					},
 			  ]
 			: []),
-			{
-				label: 'Edit',
-				submenu: [
-					{
-						label: 'Undo',
-						role: 'undo',
-						accelerator: 'CmdOrCtrl+Z',
-					},
-					{
-						label: 'Redo',
-						role: 'redo',
-						accelerator: 'CmdOrCtrl+Y',
-					},
-					{
-						type: 'separator',
-					},
-					{
-						label: 'Cut',
-						role: 'cut',
-						accelerator: 'CmdOrCtrl+X',
-					},
-					{
-						label: 'Copy',
-						role: 'copy',
-						accelerator: 'CmdOrCtrl+C',
-					},
-					{
-						label: 'Paste',
-						role: 'paste',
-						accelerator: 'CmdOrCtrl+V',
-					},
-					{
-						type: 'separator',
-					},
-					{
-						label: 'Select All',
-						role: 'selectAll',
-						accelerator: 'CmdOrCtrl+A',
-					},
-				],
-			},
+		{
+			label: 'Edit',
+			submenu: [
+				{
+					label: 'Undo',
+					role: 'undo',
+					accelerator: 'CmdOrCtrl+Z',
+				},
+				{
+					label: 'Redo',
+					role: 'redo',
+					accelerator: 'CmdOrCtrl+Y',
+				},
+				{
+					type: 'separator',
+				},
+				{
+					label: 'Cut',
+					role: 'cut',
+					accelerator: 'CmdOrCtrl+X',
+				},
+				{
+					label: 'Copy',
+					role: 'copy',
+					accelerator: 'CmdOrCtrl+C',
+				},
+				{
+					label: 'Paste',
+					role: 'paste',
+					accelerator: 'CmdOrCtrl+V',
+				},
+				{
+					type: 'separator',
+				},
+				{
+					label: 'Select All',
+					role: 'selectAll',
+					accelerator: 'CmdOrCtrl+A',
+				},
+			],
+		},
 		{
 			label: 'View',
 			submenu: [
@@ -1287,39 +1287,40 @@ function createWindow(restoreState = false) {
 			menu.popup();
 		}
 	});
-		// Add context menu support for copy/paste functionality
-		mainWindow.webContents.on('context-menu', (event, params) => {
-			const menu = Menu.buildFromTemplate([
-				{
-					label: 'Cut',
-					role: 'cut',
-					enabled: params.isEditable && params.selectionText && params.selectionText.length > 0,
-				},
-				{
-					label: 'Copy',
-					role: 'copy',
-					enabled: params.selectionText && params.selectionText.length > 0,
-				},
-				{
-					label: 'Paste',
-					role: 'paste',
-					enabled: params.isEditable,
-				},
-				{
-					type: 'separator',
-				},
-				{
-					label: 'Select All',
-					role: 'selectAll',
-					enabled: params.isEditable,
-				},
-			]);
-	
-			// Only show context menu if there's text selected or if it's an editable element
-			if (params.selectionText || params.isEditable) {
-				menu.popup();
-			}
-		});
+	// Add context menu support for copy/paste functionality
+	mainWindow.webContents.on('context-menu', (event, params) => {
+		const menu = Menu.buildFromTemplate([
+			{
+				label: 'Cut',
+				role: 'cut',
+				enabled:
+					params.isEditable && params.selectionText && params.selectionText.length > 0,
+			},
+			{
+				label: 'Copy',
+				role: 'copy',
+				enabled: params.selectionText && params.selectionText.length > 0,
+			},
+			{
+				label: 'Paste',
+				role: 'paste',
+				enabled: params.isEditable,
+			},
+			{
+				type: 'separator',
+			},
+			{
+				label: 'Select All',
+				role: 'selectAll',
+				enabled: params.isEditable,
+			},
+		]);
+
+		// Only show context menu if there's text selected or if it's an editable element
+		if (params.selectionText || params.isEditable) {
+			menu.popup();
+		}
+	});
 
 	ipcMain.on('veAppMsg', async (event, msg) => {
 		log.info('🔄 Received message from veApp:', msg); // logs: btn clicked from react
@@ -2317,6 +2318,89 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// Combined Dynamic Island show/expand and recording trigger for Windows
+	ipcMain.handle('dynamic-island-start-recording-from-modal', async () => {
+		try {
+			log.info('🏝️ Starting recording from CreateMeetingModal via Dynamic Island');
+
+			// Only proceed on Windows (or when forced on macOS)
+			const isMacRuntime = process.platform === 'darwin';
+			const shouldForceShowDynamicIsland = (() => {
+				const value = String(process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND || '')
+					.trim()
+					.toLowerCase();
+				return value === '1' || value === 'true' || value === 'yes' || value === 'on';
+			})();
+
+			if (isMacRuntime && !shouldForceShowDynamicIsland) {
+				log.info('🍎 Skipping Dynamic Island recording on macOS (using NotchDrop)');
+				return { success: false, error: 'Use NotchDrop on macOS' };
+			}
+
+			if (!dynamicIslandHelper) {
+				log.error('❌ Dynamic Island helper not initialized');
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+
+			// Step 1: Force show Dynamic Island
+			log.info('🏝️ Step 1: Force showing Dynamic Island');
+			const showResult = dynamicIslandHelper.forceShow();
+			if (!showResult) {
+				log.error('❌ Failed to show Dynamic Island');
+				return { success: false, error: 'Failed to show Dynamic Island' };
+			}
+
+			// Step 2: Start overlay recording (keeping Dynamic Island in closed state)
+			log.info('🏝️ Step 2: Starting overlay recording (Dynamic Island remains closed)');
+
+			// Get or create overlay window
+			let overlayWindow = windowHelper?.getOverlayWindow();
+			if (!overlayWindow) {
+				windowHelper?.createOverlayWindow();
+				// Wait for window creation
+				await new Promise((resolve) => setTimeout(resolve, 300));
+				overlayWindow = windowHelper?.getOverlayWindow();
+			}
+
+			if (overlayWindow) {
+				// Show the overlay window if it's not visible
+				if (!overlayWindow.isVisible()) {
+					windowHelper?.showOverlayWindow();
+					await new Promise((resolve) => setTimeout(resolve, 200));
+				}
+
+				// Send recording command using windowHelper's queuing system
+				const commandSent = windowHelper?.sendOverlayCommand({
+					action: 'startRecording',
+				});
+
+				log.info(
+					`✅ Recording command ${
+						commandSent ? 'sent immediately' : 'queued'
+					} from Dynamic Island`,
+				);
+
+				// Focus overlay and bring to front
+				overlayWindow.focus();
+				overlayWindow.moveTop();
+
+				// Start the Are You There timer for 30-minute intervals
+				startAreYouThereTimer();
+
+				log.info(
+					'🎉 Successfully started recording from CreateMeetingModal via Dynamic Island',
+				);
+				return { success: true };
+			} else {
+				log.error('❌ Overlay window not available after creating');
+				return { success: false, error: 'Overlay window not available' };
+			}
+		} catch (error) {
+			log.error('❌ Error starting recording from Dynamic Island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	// Register NotchDrop IPC handlers
 	ipcMain.handle('notchdrop-enable', async () => {
 		try {
@@ -2640,7 +2724,12 @@ app.whenReady().then(async () => {
 	// Add voice message to NotchDrop
 	ipcMain.handle('notchdrop-add-voice-message', async (event, messageData) => {
 		try {
-			log.info('Adding voice message to NotchDrop:', messageData.sender, ':', messageData.content?.substring(0, 50));
+			log.info(
+				'Adding voice message to NotchDrop:',
+				messageData.sender,
+				':',
+				messageData.content?.substring(0, 50),
+			);
 			if (notchDropService) {
 				await notchDropService.addVoiceMessage(messageData);
 				return { success: true };

@@ -123,13 +123,13 @@ const App = () => {
 		if (voiceIntegration && window.electronApi) {
 			const { isConnected } = voiceIntegration;
 
-		if (isConnected) {
-			console.log('🔄 Voice connected - notifying NotchDrop...');
-			window.electronApi.notchdrop.updateVoiceConnectionState('connected');
-		} else {
-			console.log('🔄 Voice disconnected - notifying NotchDrop...');
-			window.electronApi.notchdrop.updateVoiceConnectionState('disconnected');
-		}
+			if (isConnected) {
+				console.log('🔄 Voice connected - notifying NotchDrop...');
+				window.electronApi.notchdrop.updateVoiceConnectionState('connected');
+			} else {
+				console.log('🔄 Voice disconnected - notifying NotchDrop...');
+				window.electronApi.notchdrop.updateVoiceConnectionState('disconnected');
+			}
 		}
 	}, [voiceIntegration?.isConnected]);
 
