@@ -876,7 +876,7 @@ const MeetingAnalytics = ({ meetingId }) => {
 										))}
 									</div>
 								</div>
-								{expandedSections.participants && <AnalyticsChart />}
+								{/* {expandedSections.participants && <AnalyticsChart />} */}
 							</>
 						)}
 					</div>
