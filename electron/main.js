@@ -838,6 +838,26 @@ function createMenuBar() {
 					type: 'separator',
 				},
 				{
+					label: 'Toggle App',
+					accelerator: isMac ? 'Cmd+.' : 'Ctrl+.',
+					click: () => {
+						if (mainWindow && !mainWindow.isDestroyed()) {
+							if (mainWindow.isVisible()) {
+								mainWindow.hide();
+							} else {
+								mainWindow.show();
+								mainWindow.focus();
+							}
+						} else {
+							// Window doesn't exist, recreate it
+							createWindow(true); // Pass true to restore state
+						}
+					},
+				},
+				{
+					type: 'separator',
+				},
+				{
 					label: 'Quit',
 					accelerator: isMac ? 'Cmd+Q' : 'Ctrl+Q',
 					click: () => {
@@ -951,6 +971,47 @@ function createMenuBar() {
 					},
 			  ]
 			: []),
+		{
+			label: 'Edit',
+			submenu: [
+				{
+					label: 'Undo',
+					role: 'undo',
+					accelerator: 'CmdOrCtrl+Z',
+				},
+				{
+					label: 'Redo',
+					role: 'redo',
+					accelerator: 'CmdOrCtrl+Y',
+				},
+				{
+					type: 'separator',
+				},
+				{
+					label: 'Cut',
+					role: 'cut',
+					accelerator: 'CmdOrCtrl+X',
+				},
+				{
+					label: 'Copy',
+					role: 'copy',
+					accelerator: 'CmdOrCtrl+C',
+				},
+				{
+					label: 'Paste',
+					role: 'paste',
+					accelerator: 'CmdOrCtrl+V',
+				},
+				{
+					type: 'separator',
+				},
+				{
+					label: 'Select All',
+					role: 'selectAll',
+					accelerator: 'CmdOrCtrl+A',
+				},
+			],
+		},
 		{
 			label: 'View',
 			submenu: [
@@ -1365,7 +1426,43 @@ function createWindow(restoreState = false) {
 			nodeIntegration: false,
 			contextIsolation: true,
 			devTools: true, // Enable developer tools in production
+			// Enable clipboard access
+			clipboard: true,
 		},
+	});
+
+	// Add context menu support for copy/paste functionality
+	mainWindow.webContents.on('context-menu', (event, params) => {
+		const menu = Menu.buildFromTemplate([
+			{
+				label: 'Cut',
+				role: 'cut',
+				enabled: params.isEditable && params.selectionText && params.selectionText.length > 0,
+			},
+			{
+				label: 'Copy',
+				role: 'copy',
+				enabled: params.selectionText && params.selectionText.length > 0,
+			},
+			{
+				label: 'Paste',
+				role: 'paste',
+				enabled: params.isEditable,
+			},
+			{
+				type: 'separator',
+			},
+			{
+				label: 'Select All',
+				role: 'selectAll',
+				enabled: params.isEditable,
+			},
+		]);
+
+		// Only show context menu if there's text selected or if it's an editable element
+		if (params.selectionText || params.isEditable) {
+			menu.popup();
+		}
 	});
 
 	ipcMain.on('veAppMsg', async (event, msg) => {
@@ -1547,12 +1644,50 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	// Set default permissions for clipboard access
+	// Set default permissions for clipboard access - always allow clipboard operations
 	session.defaultSession.setPermissionCheckHandler((webContents, permission) => {
 		if (permission === 'clipboard-read' || permission === 'clipboard-write') {
 			return true;
 		}
+		// Allow other common permissions
+		if (permission === 'notifications' || permission === 'geolocation') {
+			return true;
+		}
 		return false;
+	});
+
+	// Register clipboard IPC handlers early
+	ipcMain.handle('clipboard-write-text', async (event, text) => {
+		try {
+			// Verify clipboard module is available
+			if (!clipboard) {
+				log.error('Clipboard module not available');
+				return { success: false, error: 'Clipboard module not available' };
+			}
+
+			clipboard.writeText(text);
+			log.info('Text copied to clipboard successfully');
+			return { success: true };
+		} catch (error) {
+			log.error('Clipboard write error:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('clipboard-read-text', async () => {
+		try {
+			// Verify clipboard module is available
+			if (!clipboard) {
+				log.error('Clipboard module not available');
+				return { success: false, error: 'Clipboard module not available' };
+			}
+
+			const text = clipboard.readText();
+			return { success: true, text };
+		} catch (error) {
+			log.error('Clipboard read error:', error);
+			return { success: false, error: error.message };
+		}
 	});
 
 	// Configure automatic screen capture without dialog
@@ -2025,6 +2160,18 @@ app.whenReady().then(async () => {
 	globalShortcut.register('CommandOrControl+I', () => {
 		if (dynamicIslandHelper) {
 			dynamicIslandHelper.toggleVisibility();
+		}
+	});
+
+	// Handle main window recreation from global shortcut
+	process.on('recreate-main-window', () => {
+		if (mainWindow && !mainWindow.isDestroyed()) {
+			// Window exists, just show it
+			mainWindow.show();
+			mainWindow.focus();
+		} else {
+			// Window doesn't exist, recreate it
+			createWindow(true); // Pass true to restore state
 		}
 	});
 
@@ -3827,40 +3974,7 @@ app.whenReady().then(async () => {
 		return helper.createZipFromUrls(event, data);
 	});
 
-	// Clipboard IPC handlers
-	ipcMain.handle('clipboard-write-text', async (event, text) => {
-		try {
-			// Verify clipboard module is available
-			if (!clipboard) {
-				log.error('Clipboard module not available');
-				return { success: false, error: 'Clipboard module not available' };
-			}
-
-			clipboard.writeText(text);
-			log.info('Text copied to clipboard successfully');
-			return { success: true };
-		} catch (error) {
-			log.error('Clipboard write error:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('clipboard-read-text', async () => {
-		try {
-			// Verify clipboard module is available
-
-			if (!clipboard) {
-				log.error('Clipboard module not available');
-				return { success: false, error: 'Clipboard module not available' };
-			}
-
-			const text = clipboard.readText();
-			return { success: true, text };
-		} catch (error) {
-			log.error('Clipboard read error:', error);
-			return { success: false, error: error.message };
-		}
-	});
+	// Clipboard IPC handlers moved to app.whenReady() block for early registration
 
 	// Wake word service IPC handlers
 	// ipcMain.handle('wake-word-start', () => {

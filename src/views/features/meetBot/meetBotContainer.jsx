@@ -197,91 +197,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	const [meetingNotFound, setMeetingNotFound] = useState(false);
 	const location = useLocation();
 
-	// Hashmap for live intelligence responses keyed by box_id
-	const [liveIntelligenceHashmap, setLiveIntelligenceHashmap] = useState({});
-	const hashmapRef = useRef({});
-
-	// Tracking hashmap: prompt_id -> box_id mapping
-	const promptToBoxMapping = useRef({});
-	const boxIdCounter = useRef(0);
-
-	// Pure hashmap algorithm with prompt_id to box_id mapping
-	const updateResponseMap = useCallback((responseMap, response) => {
-		const promptId = response?.prompt_id;
-		const referenceId = response?.reference_id;
-
-		let targetBoxId;
-
-		if (!referenceId || referenceId === '') {
-			// Case A: Empty reference_id → Create new box for this prompt_id
-			if (promptId && promptToBoxMapping.current[promptId]) {
-				// prompt_id already has a box, use existing box
-				targetBoxId = promptToBoxMapping.current[promptId];
-			} else {
-				// Create new box for this prompt_id
-				targetBoxId = `b${boxIdCounter.current}`;
-				boxIdCounter.current += 1;
-				if (promptId) {
-					promptToBoxMapping.current[promptId] = targetBoxId;
-				}
-			}
-		} else {
-			// Case B: reference_id exists → Check if it maps to existing prompt_id's box
-			const existingBoxId = promptToBoxMapping.current[referenceId];
-			if (existingBoxId) {
-				// reference_id matches a previous prompt_id, update that box
-				targetBoxId = existingBoxId;
-				if (promptId) {
-					promptToBoxMapping.current[promptId] = targetBoxId; // Update mapping for current prompt_id
-				}
-			} else {
-				// New reference_id, create new box
-				targetBoxId = `b${boxIdCounter.current}`;
-				boxIdCounter.current += 1;
-				if (promptId) {
-					promptToBoxMapping.current[promptId] = targetBoxId;
-				}
-			}
-		}
-
-		// Update the response map with the target box
-		responseMap[targetBoxId] = {
-			...response,
-			box_id: targetBoxId,
-			reference_id: referenceId || '',
-		};
-
-		return responseMap;
-	}, []);
-
-	// Process live intelligence response with timestamp
-	const processLiveIntelligenceResponse = useCallback((suggestion) => {
-		const timestamp = new Date().toISOString();
-		return {
-			...(suggestion || {}),
-			timestamp,
-		};
-	}, []);
-
-	// Apply hashmap algorithm to update responses
-	const updateLiveIntelligenceHashmap = useCallback(
-		(suggestion) => {
-			setLiveIntelligenceHashmap((prev) => {
-				// Create a copy of current hashmap
-				const newHashmap = { ...(prev || {}) };
-
-				// Apply pure hashmap algorithm
-				updateResponseMap(newHashmap, suggestion);
-
-				// Update ref for consistent state
-				hashmapRef.current = newHashmap;
-
-				return newHashmap;
-			});
-		},
-		[updateResponseMap],
-	);
-
 	// Convert hashmap to categorized arrays for UI
 	const categorizeLiveIntelligenceData = useCallback((hashmap) => {
 		const allThreads = [];
@@ -416,43 +331,34 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	// Process aiTranscriptionSuggestions with hashmap logic
 	useEffect(() => {
 		if (aiTranscriptionSuggestions && aiTranscriptionSuggestions?.suggestions?.length > 0) {
-			(aiTranscriptionSuggestions?.suggestions || []).forEach((suggestion) => {
-				const enhancedSuggestion = processLiveIntelligenceResponse(suggestion);
-				updateLiveIntelligenceHashmap(enhancedSuggestion);
+			const allThreads = [];
+			const askUser = [];
+			const needHelp = [];
+			const actions = [];
+			const files = [];
+			aiTranscriptionSuggestions.suggestions.forEach((suggestion) => {
+				if (suggestion.entity === 'user') {
+					askUser.push(suggestion);
+				} else if (suggestion.entity === 'agent' && suggestion.type === 'search') {
+					needHelp.push(suggestion);
+				} else if (suggestion.entity === 'agent' && suggestion.type === 'action') {
+					actions.push(suggestion);
+				} else if (suggestion.entity === 'file') {
+					files.push(suggestion);
+				}
+				allThreads.push(suggestion);
 			});
+
+			setInfo((prev) => ({
+				...prev,
+				userQuestions: askUser,
+				aiQuestions: needHelp,
+				actions,
+				files,
+				allSuggestions: allThreads,
+			}));
 		}
-	}, [
-		aiTranscriptionSuggestions,
-		processLiveIntelligenceResponse,
-		updateLiveIntelligenceHashmap,
-	]);
-
-	// Update categorized data when hashmap changes
-	useEffect(() => {
-		const categorizedData = categorizeLiveIntelligenceData(liveIntelligenceHashmap);
-		setInfo((prev) => ({
-			...prev,
-			userQuestions: categorizedData?.askUser || [],
-			aiQuestions: categorizedData?.needHelp || [],
-			actions: categorizedData?.actions || [],
-			files: categorizedData?.files || [],
-			allSuggestions: categorizedData?.allThreads || [],
-		}));
-	}, [liveIntelligenceHashmap, categorizeLiveIntelligenceData]);
-
-	// Reset hashmap and mappings when meeting changes or on unmount
-	useEffect(() => {
-		setLiveIntelligenceHashmap({});
-		hashmapRef.current = {};
-		promptToBoxMapping.current = {};
-		boxIdCounter.current = 0;
-		return () => {
-			setLiveIntelligenceHashmap({});
-			hashmapRef.current = {};
-			promptToBoxMapping.current = {};
-			boxIdCounter.current = 0;
-		};
-	}, [meetingId]);
+	}, [aiTranscriptionSuggestions]);
 
 	useEffect(() => {
 		return () => {
@@ -517,247 +423,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			});
 		}
 	}, [meetSummary]);
-
-	// When new socket data comes in:
-	// const handleSocketTranscription = useCallback(
-	// 	(newTranscript) => {
-	// 		const lastTranscript = info.transcriptions?.at(-1);
-	// 		console.log(lastTranscript, info?.transcriptions);
-
-	// 		setInfo((prev) => {
-	// 			const transcriptions = prev.transcriptions || [];
-
-	// 			// Get the transcript text from various possible sources
-	// 			const transcriptText =
-	// 				newTranscript.transcript ||
-	// 				newTranscript.displayedText ||
-	// 				newTranscript.text ||
-	// 				'';
-
-	// 			// Check if this transcript already exists (to avoid duplicates)
-	// 			const existingTranscript = transcriptions.find(
-	// 				(t) =>
-	// 					t.text === transcriptText ||
-	// 					t.transcript === transcriptText ||
-	// 					t.id === newTranscript.id, // Also check by ID
-	// 			);
-
-	// 			if (existingTranscript) {
-	// 				return prev; // Don't add duplicate
-	// 			}
-
-	// 			// Check if this is a continuation of the last transcript (same session)
-	// 			const lastTranscript = transcriptions[transcriptions.length - 1];
-	// 			const isContinuation = lastTranscript && !lastTranscript.isFinal;
-
-	// 			// console.log('is continuation', isContinuation);
-
-	// 			if (!newTranscript.isFinal) {
-	// 				// Partial transcript - update the last entry if it's a continuation
-	// 				if (isContinuation) {
-	// 					// Update the last entry with the new partial text
-	// 					const updated = [...transcriptions];
-	// 					updated[updated.length - 1] = {
-	// 						...updated[updated.length - 1],
-	// 						...newTranscript,
-	// 						text: transcriptText,
-	// 						transcript: transcriptText,
-	// 						time: new Date().toLocaleTimeString(),
-	// 					};
-	// 					return { ...prev, transcriptions: updated };
-	// 				} else {
-	// 					// New partial transcript - add as new entry
-	// 					return {
-	// 						...prev,
-	// 						transcriptions: [
-	// 							...transcriptions,
-	// 							{
-	// 								...newTranscript,
-	// 								text: transcriptText,
-	// 								transcript: transcriptText,
-	// 								time: new Date().toLocaleTimeString(),
-	// 							},
-	// 						],
-	// 					};
-	// 				}
-	// 			} else {
-	// 				// Final transcript - update the last entry if it's a continuation, otherwise append
-	// 				if (isContinuation) {
-	// 					// Finalize the last entry
-	// 					const updated = [...transcriptions];
-	// 					updated[updated.length - 1] = {
-	// 						...updated[updated.length - 1],
-	// 						...newTranscript,
-	// 						text: transcriptText,
-	// 						transcript: transcriptText,
-	// 						time: new Date().toLocaleTimeString(),
-	// 						isFinal: true,
-	// 					};
-	// 					return { ...prev, transcriptions: updated };
-	// 				} else {
-	// 					// New final transcript - append as new entry
-	// 					return {
-	// 						...prev,
-	// 						transcriptions: [
-	// 							...transcriptions,
-	// 							{
-	// 								...newTranscript,
-	// 								text: transcriptText,
-	// 								transcript: transcriptText,
-	// 								time: new Date().toLocaleTimeString(),
-	// 								isFinal: true,
-	// 							},
-	// 						],
-	// 					};
-	// 				}
-	// 			}
-	// 		});
-	// 	},
-	// 	[info.transcriptions],
-	// );
-
-	const handleSocketTranscription = (newTranscript) => {
-		setInfo((prev) => {
-			const transcriptions = prev.transcriptions || [];
-
-			// Get the transcript text from various possible sources
-			const transcriptText =
-				newTranscript.transcript || newTranscript.displayedText || newTranscript.text || '';
-
-			// Check if this transcript already exists (to avoid duplicates)
-			const existingTranscript = transcriptions.find(
-				(t) =>
-					t.text === transcriptText ||
-					t.transcript === transcriptText ||
-					t.id === newTranscript.id, // Also check by ID
-			);
-
-			if (existingTranscript) {
-				return prev; // Don't add duplicate
-			}
-
-			// Check if this is a continuation of the last transcript (same session)
-			const lastTranscript = transcriptions[transcriptions.length - 1];
-			let isContinuation = false;
-			if (newTranscript?.isTurnFormatted) {
-				isContinuation = true;
-			} else {
-				isContinuation = lastTranscript && !lastTranscript.isFinal;
-			}
-
-			if (!newTranscript.isFinal) {
-				// Partial transcript - update the last entry if it's a continuation
-				if (isContinuation) {
-					// Update the last entry with the new partial text
-					const updated = [...transcriptions];
-					updated[updated.length - 1] = {
-						...updated[updated.length - 1],
-						...newTranscript,
-						text: transcriptText,
-						transcript: transcriptText,
-						time: new Date().toLocaleTimeString(),
-					};
-					return { ...prev, transcriptions: updated };
-				} else {
-					// New partial transcript - add as new entry
-					return {
-						...prev,
-						transcriptions: [
-							...transcriptions,
-							{
-								...newTranscript,
-								text: transcriptText,
-								transcript: transcriptText,
-								time: new Date().toLocaleTimeString(),
-							},
-						],
-					};
-				}
-			} else {
-				// Final transcript - update the last entry if it's a continuation, otherwise append
-				if (isContinuation) {
-					// Finalize the last entry
-					const updated = [...transcriptions];
-					updated[updated.length - 1] = {
-						...updated[updated.length - 1],
-						...newTranscript,
-						text: transcriptText,
-						transcript: transcriptText,
-						time: new Date().toLocaleTimeString(),
-						isFinal: true,
-					};
-					return { ...prev, transcriptions: updated };
-				} else {
-					// New final transcript - append as new entry
-					return {
-						...prev,
-						transcriptions: [
-							...transcriptions,
-							{
-								...newTranscript,
-								text: transcriptText,
-								transcript: transcriptText,
-								time: new Date().toLocaleTimeString(),
-								isFinal: true,
-							},
-						],
-					};
-				}
-			}
-		});
-	};
-
-	const handleSocketMessage = useCallback(
-		(event) => {
-			try {
-				const msg = JSON.parse(event?.data || null);
-
-				if (msg?.event === 'transcript.received' && msg?.data) {
-					// Append new transcript data to existing list
-					setTranscriptList((prev) => [
-						...prev,
-						{
-							speakerName: msg?.data?.speakerName,
-							transcript: msg?.data?.transcript,
-							timestamp: msg?.data?.timestamp,
-						},
-					]);
-					// const data = msg?.data;
-					// if (data?.speakerName?.length > 0 || data?.transcript?.length > 0) {
-					// 	updateCurrentContext &&
-					// 		updateCurrentContext(
-					// 			(data?.speakerName || '') + ' : ' + (data?.transcript || ''),
-					// 		);
-					// }
-				} else if (msg?.event === 'live_intelligence.response' && msg?.data) {
-					handleTranscriptionSuggestions(msg?.data);
-				} else if (msg?.event === 'transcript.done') {
-					closeRecallConnection();
-					setSearchParams({
-						...Object.fromEntries(searchParams.entries()),
-						history: 'true',
-					});
-					getMeetSummary({ meetingId });
-				} else if (msg?.noteTakerTranscript) {
-					// Handle noteTakerTranscript responses
-					handleSocketTranscription({
-						...msg.noteTakerTranscript,
-						isFinal: true, // Assume final since it's from server
-						id: msg.noteTakerTranscript._id || Date.now().toString(),
-					});
-				} else if (msg?.event === 'bot.join') {
-					setInfo((prev) => ({
-						...prev,
-						botJoined: true,
-						botJoinedTime: moment().unix(),
-					}));
-				}
-			} catch (e) {
-				console.error('Error in handleSocketMessage:', e);
-			}
-		},
-		[handleSocketTranscription],
-	);
 
 	// Fetch historical data when component mounts
 	useEffect(() => {
@@ -896,6 +561,46 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		}));
 	};
 
+	const updateTranscriptionHelper = (transcriptionArray, newTranscript) => {
+		const { source } = newTranscript;
+
+		if (transcriptionArray.length > 0) {
+			// Find the most recent transcript from the same source
+			for (let i = transcriptionArray.length - 1; i >= 0; i--) {
+				if (transcriptionArray[i].source === source) {
+					const oldTranscript = transcriptionArray[i];
+
+					// Logic based on the state of the previous transcript:
+					// - Final AND formatted → Append new transcript (start new entry)
+					// - Final but NOT formatted → Replace with new transcript
+					// - Not final → Replace with new transcript
+					if (oldTranscript.isFinal && oldTranscript.isTurnFormatted) {
+						return [...transcriptionArray, newTranscript];
+					} else {
+						// Replace existing transcript (whether final-unformatted or not-final)
+						const updatedArray = [...transcriptionArray];
+						updatedArray[i] = newTranscript;
+						return updatedArray;
+					}
+				}
+			}
+		}
+
+		// If no match found or array is empty, append the new transcript
+		return [...transcriptionArray, newTranscript];
+	};
+
+	const handleUpdateTranscription = (newTranscript) => {
+		setInfo((prev) => ({
+			...prev,
+			transcriptions: updateTranscriptionHelper(prev.transcriptions, newTranscript),
+		}));
+	};
+
+	// useEffect(() => {
+	// 	console.log('info.transcriptions', info.transcriptions);
+	// }, [info.transcriptions]);
+
 	return (
 		<div className="meetbot-container">
 			<div className="meeting-header">
@@ -1011,18 +716,16 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 															className="avatar"
 															style={{
 																backgroundColor: getSpeakerColor(
-																	item.speakerName,
+																	item.source,
 																),
 															}}
 														>
-															{item.speakerName
-																?.split(' ')[0]
-																?.charAt(0)}
+															{item.source === 'mic' ? 'Y' : 'S'}
 														</span>
 													)}
 
 													<span className="meet-transcript-participant">
-														{item.speakerName || 'Note Taker'}
+														{item.source === 'mic' ? 'You' : 'Screen'}
 													</span>
 													<DotIcon />
 													<span className="meet-transcript-time">
@@ -1092,17 +795,17 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					/>
 				)}
 				{/* Assembly AI Transcription option */}
-				{showTranscriptTabs && type === 'desktop' && !history && useAssemblyAI && (
+				{/* {showTranscriptTabs && type === 'desktop' && !history && useAssemblyAI && (
 					<AssemblyTranscriptWrapper
-						sendMessage={(data) => handleTranscriptionSuggestions(data)}
+						handleLiveIntelligenceResponse={handleTranscriptionSuggestions}
 						tenantId={tennantSettingsData?._id}
 						sessionId={sessionId}
 						visible={activeTab === 'transcript'}
-						onTranscriptionUpdate={handleSocketTranscription}
+						onTranscriptionUpdate={handleUpdateTranscription}
 						jwtToken={userToken}
 						isAiIntelligenceEnabled={isAiIntelligenceEnabled}
 					/>
-				)}
+				)} */}
 			</div>
 		</div>
 	);
