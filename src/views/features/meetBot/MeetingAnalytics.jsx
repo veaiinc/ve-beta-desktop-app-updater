@@ -4,16 +4,17 @@ import DownSvg from '../../../assets/svg/activity/DownSvg';
 import ClockSvg from './clock.svg';
 import Context from '../../../context/context';
 import { ReactComponent as MessageSvg } from './message.svg';
+import { ReactComponent as IndicatorSvg } from './indicator.svg';
 const MeetingAnalytics = ({ meetingId }) => {
 	const {
 		notes: { getMeetingAnalytics },
 	} = useContext(Context);
-	const [activeTab, setActiveTab] = useState('Analytics');
 	const [expandedSections, setExpandedSections] = useState({
 		participants: true,
 		highlights: true,
 		meetingScore: true,
 		openQuestions: true,
+		analyticsChart: true,
 	});
 	const [analyticsData, setAnalyticsData] = useState(null);
 	const [loading, setLoading] = useState(false);
@@ -341,7 +342,7 @@ const MeetingAnalytics = ({ meetingId }) => {
 		</svg>
 	);
 
-	const MainChart = () => {
+	const AnalyticsChart = () => {
 		// Generate x-axis labels based on timeline data
 		const timelineData = analyticsData?.timeline_analysis || [];
 		const maxTime =
@@ -355,26 +356,66 @@ const MeetingAnalytics = ({ meetingId }) => {
 			timeLabels.push(`${minutes}:${seconds.toString().padStart(2, '0')}`);
 		}
 
+		// Generate participant lines based on actual data
+		const participantLines = participants.slice(0, 3).map((participant, participantIndex) => {
+			if (timelineData.length > 0) {
+				// Use actual timeline data if available
+				return timelineData
+					.map((point, index) => {
+						const x = 50 + (index / (timelineData.length - 1)) * 500;
+						// Use participant's engagement score or generate based on their overall score
+						const score =
+							participant.engagement + Math.sin(index * 0.5 + participantIndex) * 10;
+						const y = 200 - (Math.max(50, Math.min(90, score)) / 100) * 150;
+						return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
+					})
+					.join(' ');
+			} else {
+				// Generate smooth curves for each participant
+				const points = [];
+				for (let i = 0; i <= 10; i++) {
+					const x = 50 + (i / 10) * 500;
+					const baseScore = participant.engagement;
+					const variation = Math.sin(i * 0.8 + participantIndex * 2) * 8;
+					const score = Math.max(50, Math.min(90, baseScore + variation));
+					const y = 200 - (score / 100) * 150;
+					points.push(`${i === 0 ? 'M' : 'L'} ${x} ${y}`);
+				}
+				return points.join(' ');
+			}
+		});
+
 		return (
 			<div className={a.mainChart}>
 				<div className={a.chartHeader}>
 					<div className={a.chartStats}>
-						<span className={a.statItem}>
+						<div className={a.statItemOne}>
 							<span className={a.statLabel}>Total Participants Count</span>
 							<span className={a.statValue}>{metrics?.totalParticipants || 0}</span>
-						</span>
-						<span className={a.statItem}>
-							<span className={a.statLabel}>Best Score</span>
-							<span className={a.statValue}>{metrics?.bestScore || 0}</span>
-						</span>
-						<span className={a.statItem}>
-							<span className={a.statLabel}>Engagement</span>
-							<span className={a.statValue}>{metrics?.engagement || 0}</span>
-						</span>
-						<span className={a.statItem}>
-							<span className={a.statLabel}>Sentiment</span>
-							<span className={a.statValue}>{metrics?.sentiment || 0}</span>
-						</span>
+						</div>
+						<div className={a.statItemWrapper}>
+							<div className={a.statItem}>
+								<span className={a.statLabel}>Read Score</span>
+								<div className={a.statValueWithIndicator}>
+									<IndicatorSvg fill=" #EDA145" className={a.statIndicator} />
+									<span className={a.statValue}>{metrics?.bestScore || 0}</span>
+								</div>
+							</div>
+							<div className={a.statItem}>
+								<span className={a.statLabel}>Engagement</span>
+								<div className={a.statValueWithIndicator}>
+									<IndicatorSvg fill=" #5089F9" className={a.statIndicator} />
+									<span className={a.statValue}>{metrics?.engagement || 0}</span>
+								</div>
+							</div>
+							<div className={a.statItem}>
+								<span className={a.statLabel}>Sentiment</span>
+								<div className={a.statValueWithIndicator}>
+									<IndicatorSvg fill=" #E03F4F" className={a.statIndicator} />
+									<span className={a.statValue}>{metrics?.sentiment || 0}</span>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 				<div className={a.chartContainer}>
@@ -398,20 +439,40 @@ const MeetingAnalytics = ({ meetingId }) => {
 									<path
 										d="M 60 0 L 0 0 0 40"
 										fill="none"
-										stroke="#2A2D30"
+										stroke="rgba(255, 255, 255, 0.1)"
 										strokeWidth="1"
-										opacity="0.3"
 									/>
 								</pattern>
+								{/* Gradient fills for area charts */}
+								<linearGradient
+									id="engagementGradient"
+									x1="0%"
+									y1="0%"
+									x2="0%"
+									y2="100%"
+								>
+									<stop offset="0%" stopColor="#4F9EF8" stopOpacity="0.3" />
+									<stop offset="100%" stopColor="#4F9EF8" stopOpacity="0.05" />
+								</linearGradient>
+								<linearGradient
+									id="sentimentGradient"
+									x1="0%"
+									y1="0%"
+									x2="0%"
+									y2="100%"
+								>
+									<stop offset="0%" stopColor="#EF4444" stopOpacity="0.3" />
+									<stop offset="100%" stopColor="#EF4444" stopOpacity="0.05" />
+								</linearGradient>
 							</defs>
 							<rect width="100%" height="100%" fill="url(#grid)" />
 
-							{/* Chart lines - using timeline data if available */}
+							{/* Area fills */}
 							{timelineData.length > 0 ? (
 								<>
-									{/* Engagement line */}
+									{/* Engagement area */}
 									<path
-										d={timelineData
+										d={`${timelineData
 											.map((point, index) => {
 												const x =
 													50 + (index / (timelineData.length - 1)) * 500;
@@ -419,42 +480,63 @@ const MeetingAnalytics = ({ meetingId }) => {
 													200 - (point.engagement_score / 100) * 150;
 												return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
 											})
-											.join(' ')}
-										stroke="#4F9EF8"
-										strokeWidth="2"
-										fill="none"
+											.join(' ')} L 550 200 L 50 200 Z`}
+										fill="url(#engagementGradient)"
 									/>
-									{/* Sentiment line */}
+									{/* Sentiment area */}
 									<path
-										d={timelineData
+										d={`${timelineData
 											.map((point, index) => {
 												const x =
 													50 + (index / (timelineData.length - 1)) * 500;
 												const y = 200 - (point.sentiment_score / 100) * 150;
 												return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
 											})
-											.join(' ')}
-										stroke="#EF4444"
-										strokeWidth="2"
-										fill="none"
+											.join(' ')} L 550 200 L 50 200 Z`}
+										fill="url(#sentimentGradient)"
 									/>
 								</>
+							) : null}
+
+							{/* Chart lines */}
+							{participantLines.map((pathData, index) => (
+								<path
+									key={index}
+									d={pathData}
+									stroke={participants[index]?.color || '#4F9EF8'}
+									strokeWidth="3"
+									fill="none"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								/>
+							))}
+
+							{/* Sentiment line */}
+							{timelineData.length > 0 ? (
+								<path
+									d={timelineData
+										.map((point, index) => {
+											const x =
+												50 + (index / (timelineData.length - 1)) * 500;
+											const y = 200 - (point.sentiment_score / 100) * 150;
+											return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
+										})
+										.join(' ')}
+									stroke="#EF4444"
+									strokeWidth="3"
+									fill="none"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								/>
 							) : (
-								<>
-									{/* Fallback chart lines */}
-									<path
-										d="M50 120 Q100 100 150 110 T250 105 Q300 90 350 95 T450 100 Q500 85 550 90"
-										stroke="#4F9EF8"
-										strokeWidth="2"
-										fill="none"
-									/>
-									<path
-										d="M50 100 Q100 80 150 90 T250 85 Q300 70 350 75 T450 80 Q500 65 550 70"
-										stroke="#EF4444"
-										strokeWidth="2"
-										fill="none"
-									/>
-								</>
+								<path
+									d="M50 100 Q100 80 150 90 T250 85 Q300 70 350 75 T450 80 Q500 65 550 70"
+									stroke="#EF4444"
+									strokeWidth="3"
+									fill="none"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								/>
 							)}
 						</svg>
 						<div className={a.xAxis}>
@@ -465,15 +547,7 @@ const MeetingAnalytics = ({ meetingId }) => {
 					</div>
 				</div>
 				<div className={a.chartLegend}>
-					<div className={a.legendItem}>
-						<div className={a.legendColor} style={{ backgroundColor: '#4F9EF8' }}></div>
-						<span>Engagement</span>
-					</div>
-					<div className={a.legendItem}>
-						<div className={a.legendColor} style={{ backgroundColor: '#EF4444' }}></div>
-						<span>Sentiment</span>
-					</div>
-					{participants.slice(0, 2).map((participant, index) => (
+					{participants.slice(0, 3).map((participant, index) => (
 						<div key={index} className={a.legendItem}>
 							<div
 								className={a.legendColor}
@@ -482,6 +556,10 @@ const MeetingAnalytics = ({ meetingId }) => {
 							<span>{participant.name}</span>
 						</div>
 					))}
+					<div className={a.legendItem}>
+						<div className={a.legendColor} style={{ backgroundColor: '#EF4444' }}></div>
+						<span>Sentiment</span>
+					</div>
 				</div>
 			</div>
 		);
@@ -664,116 +742,145 @@ const MeetingAnalytics = ({ meetingId }) => {
 							</span>
 						</div>
 						{expandedSections.participants && (
-							<div className={a.participantsContent}>
-								<div className={a.participantsGrid}>
-									{participants.map((participant, index) => (
-										<div key={index} className={a.participantCard}>
-											<div className={a.participantHeader}>
-												<div
-													className={a.participantAvatar}
-													style={{ backgroundColor: participant.color }}
-												>
-													{participant.avatar}
-												</div>
-												<div className={a.participantInfo}>
-													<div className={a.nameTimeRow}>
-														<h3 className={a.participantName}>
-															{participant.name}
-														</h3>
-														<div className={a.timeWithIcon}>
-															<span className={a.talkTime}>
-																{participant.talkTime}
-															</span>
-															<span className={a.clockIcon}>
-																<img src={ClockSvg} alt="clock" />
-															</span>
-														</div>
+							<>
+								<div className={a.participantsContent}>
+									<div className={a.participantsGrid}>
+										{participants.map((participant, index) => (
+											<div key={index} className={a.participantCard}>
+												<div className={a.participantHeader}>
+													<div
+														className={a.participantAvatar}
+														style={{
+															backgroundColor: participant.color,
+														}}
+													>
+														{participant.avatar}
 													</div>
-													<div className={a.percentageRow}>
-														<span className={a.percentageLabel}>
-															Talk time percentage
-														</span>
-														<div className={a.percentageValue}>
-															<span>
-																{participant.talkPercentage}
+													<div className={a.participantInfo}>
+														<div className={a.nameTimeRow}>
+															<h3 className={a.participantName}>
+																{participant.name}
+															</h3>
+															<div className={a.timeWithIcon}>
+																<span className={a.talkTime}>
+																	{participant.talkTime}
+																</span>
+																<span className={a.clockIcon}>
+																	<img
+																		src={ClockSvg}
+																		alt="clock"
+																	/>
+																</span>
+															</div>
+														</div>
+														<div className={a.percentageRow}>
+															<span className={a.percentageLabel}>
+																Talk time percentage
 															</span>
-															<div className={a.percentageIndicator}>
+															<div className={a.percentageValue}>
+																<span className={a.percentageText}>
+																	{participant.talkPercentage}
+																</span>
 																<div
-																	className={a.percentageArc}
-																	style={{
-																		transform: `rotate(${
-																			(parseInt(
+																	className={
+																		a.percentageIndicator
+																	}
+																>
+																	<svg
+																		className={
+																			a.percentageCircle
+																		}
+																		viewBox="0 0 36 36"
+																	>
+																		<path
+																			className={
+																				a.percentageCircleBackground
+																			}
+																			d="M18 2.0845
+																				a 15.9155 15.9155 0 0 1 0 31.831
+																				a 15.9155 15.9155 0 0 1 0 -31.831"
+																		/>
+																		<path
+																			className={
+																				a.percentageCircleProgress
+																			}
+																			strokeDasharray={`${parseInt(
 																				participant.talkPercentage,
-																			) /
-																				100) *
-																			180
-																		}deg)`,
-																	}}
-																></div>
+																			)} 100`}
+																			d="M18 2.0845
+																				a 15.9155 15.9155 0 0 1 0 31.831
+																				a 15.9155 15.9155 0 0 1 0 -31.831"
+																		/>
+																	</svg>
+																</div>
 															</div>
 														</div>
 													</div>
 												</div>
+												<div className={a.participantMetrics}>
+													<div className={a.metric}>
+														<span className={a.metricName}>
+															Participant Score
+														</span>
+														<div className={a.metricValueWithDot}>
+															<span className={a.greenDot}>●</span>
+															<span className={a.metricValue}>
+																{participant.participantScore}
+															</span>
+														</div>
+													</div>
+													<div className={a.metric}>
+														<span className={a.metricName}>
+															Engagement
+														</span>
+														<div className={a.metricValueWithDot}>
+															<span className={a.greenDot}>●</span>
+															<span className={a.metricValue}>
+																{participant.engagement}
+															</span>
+														</div>
+													</div>
+													<div className={a.metric}>
+														<span className={a.metricName}>
+															Sentiment
+														</span>
+														<div className={a.metricValueWithDot}>
+															<span className={a.greenDot}>●</span>
+															<span className={a.metricValue}>
+																{participant.sentiment}
+															</span>
+														</div>
+													</div>
+													<div className={a.metric}>
+														<span className={a.metricName}>
+															Charisma
+														</span>
+														<div className={a.metricValueWithDot}>
+															<span className={a.greenDot}>●</span>
+															<span className={a.metricValue}>
+																{participant.charisma}
+															</span>
+														</div>
+													</div>
+													<div className={a.metric}>
+														<span className={a.metricName}>Bias</span>
+														<div className={a.metricValueWithDot}>
+															<span className={a.greenDot}>●</span>
+															<span className={a.metricValue}>
+																{participant.bias}
+															</span>
+														</div>
+													</div>
+												</div>
 											</div>
-											<div className={a.participantMetrics}>
-												<div className={a.metric}>
-													<span className={a.metricName}>
-														Participant Score
-													</span>
-													<div className={a.metricValueWithDot}>
-														<span className={a.greenDot}>●</span>
-														<span className={a.metricValue}>
-															{participant.participantScore}
-														</span>
-													</div>
-												</div>
-												<div className={a.metric}>
-													<span className={a.metricName}>Engagement</span>
-													<div className={a.metricValueWithDot}>
-														<span className={a.greenDot}>●</span>
-														<span className={a.metricValue}>
-															{participant.engagement}
-														</span>
-													</div>
-												</div>
-												<div className={a.metric}>
-													<span className={a.metricName}>Sentiment</span>
-													<div className={a.metricValueWithDot}>
-														<span className={a.greenDot}>●</span>
-														<span className={a.metricValue}>
-															{participant.sentiment}
-														</span>
-													</div>
-												</div>
-												<div className={a.metric}>
-													<span className={a.metricName}>Charisma</span>
-													<div className={a.metricValueWithDot}>
-														<span className={a.greenDot}>●</span>
-														<span className={a.metricValue}>
-															{participant.charisma}
-														</span>
-													</div>
-												</div>
-												<div className={a.metric}>
-													<span className={a.metricName}>Bias</span>
-													<div className={a.metricValueWithDot}>
-														<span className={a.greenDot}>●</span>
-														<span className={a.metricValue}>
-															{participant.bias}
-														</span>
-													</div>
-												</div>
-											</div>
-										</div>
-									))}
+										))}
+									</div>
 								</div>
-							</div>
+								{expandedSections.participants && <AnalyticsChart />}
+							</>
 						)}
 					</div>
 				)}
-
-			{/* Main Chart - Only show if we have timeline data or meeting metadata */}
-			{(analyticsData?.timeline_analysis || analyticsData?.meeting_metadata) && <MainChart />}
 
 			{/* Highlights Section - Only show if we have highlights data with items */}
 			{analyticsData?.highlights &&
@@ -869,34 +976,56 @@ const MeetingAnalytics = ({ meetingId }) => {
 									</div>
 									<div className={a.averageMetrics}>
 										<div className={a.avgMetric}>
-											<span className={a.avgLabel}>Average engagement</span>
-											<span className={a.avgValue}>
-												{metrics?.averageEngagement || 0}
-											</span>
+											<div className={a.avgMetricContent}>
+												<span className={a.avgLabel}>
+													Average engagement
+												</span>
+												<span className={a.avgValue}>
+													<span className={a.statIndicator}>●</span>
+													{metrics?.averageEngagement || 0}
+												</span>
+											</div>
 										</div>
 										<div className={a.avgMetric}>
-											<span className={a.avgLabel}>Average sentiment</span>
-											<span className={a.avgValue}>
-												{metrics?.averageSentiment || 0}
-											</span>
+											<div className={a.avgMetricContent}>
+												<span className={a.avgLabel}>
+													Average sentiment
+												</span>
+												<span className={a.avgValue}>
+													<span className={a.statIndicator}>●</span>
+													{metrics?.averageSentiment || 0}
+												</span>
+											</div>
+										</div>
+
+										<div className={a.avgMetric}>
+											<div className={a.avgMetricContent}>
+												<span className={a.avgLabel}>
+													Average read score
+												</span>
+												<span className={a.avgValue}>
+													<span className={a.statIndicator}>●</span>
+													{metrics?.averageReadScore || 0}
+												</span>
+											</div>
 										</div>
 										<div className={a.avgMetric}>
-											<span className={a.avgLabel}>Average read score</span>
-											<span className={a.avgValue}>
-												{metrics?.averageReadScore || 0}
-											</span>
+											<div className={a.avgMetricContent}>
+												<span className={a.avgLabel}>Average bias</span>
+												<span className={a.avgValue}>
+													<span className={a.statIndicator}>●</span>
+													{metrics?.averageBias || 0}
+												</span>
+											</div>
 										</div>
 										<div className={a.avgMetric}>
-											<span className={a.avgLabel}>Average bias</span>
-											<span className={a.avgValue}>
-												{metrics?.averageBias || 0}
-											</span>
-										</div>
-										<div className={a.avgMetric}>
-											<span className={a.avgLabel}>Average charisma</span>
-											<span className={a.avgValue}>
-												{metrics?.averageCharisma || 0}
-											</span>
+											<div className={a.avgMetricContent}>
+												<span className={a.avgLabel}>Average charisma</span>
+												<span className={a.avgValue}>
+													<span className={a.statIndicator}>●</span>
+													{metrics?.averageCharisma || 0}
+												</span>
+											</div>
 										</div>
 									</div>
 								</div>

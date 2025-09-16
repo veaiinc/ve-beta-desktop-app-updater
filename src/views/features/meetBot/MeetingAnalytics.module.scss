@@ -3,7 +3,7 @@ $font-family: 'GeneralSans';
 .analyticsMainContainer {
 	color: white;
 	width: 100%;
-	background: #0b0c0e;
+	// background: #0b0c0e;
 	min-height: 100vh;
 	padding: 24px;
 	font-family: $font-family;
@@ -34,7 +34,7 @@ $font-family: 'GeneralSans';
 
 		.tabNavigation {
 			display: flex;
-			background: #1f2123;
+			// background: #1f2123;
 			border-radius: 8px;
 			padding: 4px;
 			gap: 4px;
@@ -71,13 +71,13 @@ $font-family: 'GeneralSans';
 
 		.analyticsContainerOneItem {
 			display: flex;
-			height: 100px;
+			// height: 100px;
 			padding: 20px;
 			align-items: center;
 			gap: 16px;
 			flex: 1;
 			border-radius: 12px;
-			background: #1f2123;
+			background: var(--card-over-card, #1f2123);
 			border: 1px solid #2a2d30;
 
 			.conditionContainer {
@@ -150,7 +150,9 @@ $font-family: 'GeneralSans';
 			gap: 16px;
 
 			.participantCard {
-				background: #1f2123;
+				border-radius: 12px;
+				background: var(--card, #1b1c1d);
+				// background: #1f2123;
 				border: 1px solid #2a2d30;
 				border-radius: 12px;
 				padding: 20px;
@@ -239,33 +241,41 @@ $font-family: 'GeneralSans';
 							.percentageValue {
 								display: flex;
 								align-items: center;
-								gap: 8px;
+								gap: 12px;
 
-								span {
-									color: #ffffff;
+								.percentageText {
+									color: #fff;
 									font-family: $font-family;
 									font-size: 14px;
 									font-style: normal;
-									font-weight: 600;
-									line-height: 25px;
+									font-weight: 500;
+									line-height: 20px;
 									letter-spacing: 0.2px;
 								}
 
 								.percentageIndicator {
 									position: relative;
-									width: 20px;
-									height: 10px;
-									overflow: hidden;
+									width: 16px;
+									height: 16px;
 
-									.percentageArc {
-										position: absolute;
-										width: 20px;
-										height: 20px;
-										border: 2px solid #1c993e;
-										border-radius: 50%;
-										border-bottom: transparent;
-										border-left: transparent;
-										transform-origin: 50% 100%;
+									.percentageCircle {
+										width: 16px;
+										height: 16px;
+										transform: rotate(-90deg);
+
+										.percentageCircleBackground {
+											fill: none;
+											stroke: #2a2d30;
+											stroke-width: 4;
+										}
+
+										.percentageCircleProgress {
+											fill: none;
+											stroke: #79ecc9;
+											stroke-width: 4;
+											stroke-linecap: round;
+											transition: stroke-dasharray 0.3s ease;
+										}
 									}
 								}
 							}
@@ -300,7 +310,7 @@ $font-family: 'GeneralSans';
 
 							.greenDot {
 								color: #1c993e;
-								font-size: 8px;
+								font-size: 14px;
 								line-height: 1;
 							}
 
@@ -322,35 +332,102 @@ $font-family: 'GeneralSans';
 
 	// Main Chart
 	.mainChart {
-		background: #1f2123;
-		border: 1px solid #2a2d30;
+		// background: #1f2123;
+		// border: 1px solid #2a2d30;
 		border-radius: 12px;
 		padding: 24px;
 		margin-bottom: 32px;
 
 		.chartHeader {
+			// background: #1a1d21;
+			border-radius: 8px;
+			padding: 16px 20px;
 			margin-bottom: 24px;
+			// border: 1px solid #2a2d30;
 
 			.chartStats {
 				display: flex;
-				gap: 32px;
+				width: auto;
+				justify-content: space-between;
 				align-items: center;
+				gap: 10px;
+
+				.statItemOne {
+					display: flex;
+					padding: 6px 0;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+					.statLabel {
+						color: #fff;
+						font-family: $font-family;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 25px; /* 178.571% */
+						letter-spacing: 0.2px;
+					}
+					.statValue {
+						color: var(--primary-button, #79ecc9);
+						text-align: center;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 25px; /* 178.571% */
+					}
+				}
+
+				.statItemWrapper {
+					display: flex;
+					gap: 10px;
+					flex-wrap: wrap;
+				}
 
 				.statItem {
 					display: flex;
-					flex-direction: column;
-					gap: 4px;
+					padding: 4px 12px;
+					align-items: center;
+					gap: 15px;
+					border-radius: 6px;
+					border: 1px solid var(--stroke-hover, #424548);
 
 					.statLabel {
-						color: #9ca3af;
-						font-size: 12px;
+						color: #fff;
+						font-family: $font-family;
+						font-size: 14px;
+						font-style: normal;
 						font-weight: 500;
+						line-height: 24px; /* 171.429% */
+						letter-spacing: 0.2px;
 					}
 
 					.statValue {
-						color: #ffffff;
-						font-size: 16px;
-						font-weight: 600;
+						color: #fff;
+						font-family: Manrope;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 24px; /* 171.429% */
+						letter-spacing: 0.2px;
+					}
+
+					.statValueWithIndicator {
+						display: flex;
+						align-items: center;
+						gap: 6px;
+
+						.statIndicator {
+							width: 9px;
+							height: 9px;
+							flex-shrink: 0;
+						}
+
+						.statValue {
+							color: #ffffff;
+							font-size: 16px;
+							font-weight: 600;
+						}
 					}
 				}
 			}
@@ -464,11 +541,11 @@ $font-family: 'GeneralSans';
 		padding: 16px 0;
 
 		.highlightItem {
-			background: #1f2123;
-			border: 1px solid #2a2d30;
 			border-radius: 12px;
 			padding: 20px;
 			margin-bottom: 12px;
+			border-radius: 12px;
+			background: var(--card, #1b1c1d);
 
 			.highlightHeader {
 				display: flex;
@@ -603,10 +680,21 @@ $font-family: 'GeneralSans';
 			}
 
 			.highlightDescription {
-				color: #d1d5db;
+				display: flex;
+				padding: 16px;
+				align-items: center;
+				gap: 198px;
+				align-self: stretch;
+				border-radius: 12px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				background: var(--card-over-card, #1f2123);
+				color: #fff;
+				font-family: $font-family;
 				font-size: 14px;
-				line-height: 1.5;
-				margin: 0;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px; /* 142.857% */
+				letter-spacing: 0.2px;
 			}
 		}
 	}
@@ -616,10 +704,10 @@ $font-family: 'GeneralSans';
 		padding: 16px 0;
 
 		.scoreCard {
-			background: #1f2123;
-			border: 1px solid #2a2d30;
 			border-radius: 12px;
 			padding: 24px;
+			border-radius: 8px;
+			background: var(--card, #1b1c1d);
 
 			.scoreHeader {
 				display: flex;
@@ -660,17 +748,47 @@ $font-family: 'GeneralSans';
 					display: flex;
 					justify-content: space-between;
 					align-items: center;
+					display: flex;
+					padding: 6px 12px;
+					align-items: center;
+					gap: 32px;
+					flex: 1 0 0;
+					border-radius: 12px;
+					background: #1f2123;
+					.avgMetricContent {
+						display: flex;
+						padding: 4px 0;
+						flex-direction: column;
+						justify-content: center;
+						align-items: flex-start;
+						gap: 2px;
+					}
 
 					.avgLabel {
-						color: #9ca3af;
+						color: var(--secondary-font, #94989e);
+						font-family: $font-family;
 						font-size: 14px;
+						font-style: normal;
 						font-weight: 500;
+						line-height: 25px; /* 178.571% */
+						letter-spacing: 0.2px;
 					}
 
 					.avgValue {
-						color: #ffffff;
-						font-size: 16px;
-						font-weight: 600;
+						color: #fff;
+						font-family: $font-family;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 25px; /* 178.571% */
+						letter-spacing: 0.2px;
+						.statIndicator {
+							width: 8px;
+							height: 8px;
+							aspect-ratio: 1/1;
+							color: var(--success, #1c993e);
+							padding: 5px;
+						}
 					}
 				}
 			}
@@ -682,21 +800,32 @@ $font-family: 'GeneralSans';
 		padding: 16px 0;
 
 		.questionItem {
-			background: #1f2123;
-			border: 1px solid #2a2d30;
-			border-radius: 12px;
-			padding: 20px;
-			margin-bottom: 12px;
+			display: flex;
+			padding: 12px 16px;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+			align-self: stretch;
+			border-radius: 8px;
+			background: var(--card, #1b1c1d);
 
 			.questionHeader {
 				display: flex;
 				align-items: center;
 				gap: 12px;
+				width: 100%;
 				margin-bottom: 12px;
+				color: var(--primary-font, #f2f2f3);
+				font-family: $font-family;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: 16px; /* 114.286% */
+				letter-spacing: 0.2px;
 
 				.questionAvatar {
-					width: 32px;
-					height: 32px;
+					width: 22px;
+					height: 22px;
 					border-radius: 50%;
 					background: #374151;
 					display: flex;
@@ -709,7 +838,9 @@ $font-family: 'GeneralSans';
 
 				.questionMeta {
 					display: flex;
-					flex-direction: column;
+					// flex-direction: column;
+					width: 100%;
+					justify-content: space-between;
 					gap: 2px;
 
 					.questionParticipant {
@@ -719,17 +850,25 @@ $font-family: 'GeneralSans';
 					}
 
 					.questionTime {
-						color: #9ca3af;
-						font-size: 12px;
+						color: var(--secondary-font, #94989e);
+						font-family: Manrope;
+						font-size: 10px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 12px; /* 120% */
+						letter-spacing: 0.2px;
 					}
 				}
 			}
 
 			.questionText {
-				color: #d1d5db;
+				color: var(--secondary-font, #94989e);
+				font-family: $font-family;
 				font-size: 14px;
-				line-height: 1.5;
-				margin: 0;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px; /* 142.857% */
+				letter-spacing: 0.2px;
 			}
 		}
 	}
