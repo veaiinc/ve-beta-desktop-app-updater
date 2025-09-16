@@ -1,6 +1,12 @@
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
+import { Track } from 'livekit-client';
+import { useTrackTranscription } from '@livekit/components-react';
 import { GripHorizontal } from 'lucide-react';
 import Context from '../context/context';
+import useLiveIntelligenceStream from '../hooks/useLiveIntelligenceStream';
+import useRecallStream from '../hooks/useRecallStream';
+import useMeetingAudioRecorder from '../hooks/useMeetingAudioRecorder';
+import audioStorageService from '../services/audioStorageService';
 import ObjectID from 'bson-objectid';
 import OverlayCommands from './OverlayCommands';
 import ShortcutBar from './components/ShortcutBar';
@@ -8,6 +14,7 @@ import LiveIntelligencePanel from './components/LiveIntelligencePanel';
 import TranscriptPanel from './components/TranscriptPanel';
 import OverlayNotification, { useOverlayNotification } from './components/OverlayNotification';
 import './overlay.scss';
+import { transcription_socket } from '../services/config.live';
 import useAssemblyTranscription from './hooks/useAssemblyTranscription';
 
 const OverlayApp = () => {
@@ -44,7 +51,7 @@ const OverlayApp = () => {
 	const promptToBoxMapping = useRef({});
 	const boxIdCounter = useRef(0);
 
-	// Pure hashmap algorithm with prompt_id to box_id mapping
+
 
 	// Ask AI input state
 	const [isAskAIInputFocused, setIsAskAIInputFocused] = useState(false);
@@ -53,6 +60,7 @@ const OverlayApp = () => {
 	const isMountedRef = useRef(false);
 	const sessionIdRef = useRef(null);
 	const isStoppingRef = useRef(false);
+	const meetingIdRef = useRef(null);
 
 	// Context
 	const {
@@ -65,63 +73,141 @@ const OverlayApp = () => {
 		},
 	} = useContext(Context);
 
-	// const handleUpdateTranscription = (newTranscript) => {
-	const updateTranscriptionHelper = (transcriptionArray, newTranscript) => {
-		const { source } = newTranscript;
+	const handleUpdateTranscription = (newTranscript) => {
+		setInfo((prev) => {
+			const transcriptions = prev.transcriptions || [];
 
-		if (transcriptionArray.length > 0) {
-			// Find the most recent transcript from the same source
-			for (let i = transcriptionArray.length - 1; i >= 0; i--) {
-				if (transcriptionArray[i].source === source) {
-					const oldTranscript = transcriptionArray[i];
+			// Get the transcript text from various possible sources
+			const transcriptText =
+				newTranscript.transcript || newTranscript.displayedText || newTranscript.text || '';
 
-					// Logic based on the state of the previous transcript:
-					// - Final AND formatted → Append new transcript (start new entry)
-					// - Final but NOT formatted → Replace with new transcript
-					// - Not final → Replace with new transcript
-					if (oldTranscript.isFinal && oldTranscript.isTurnFormatted) {
-						return [...transcriptionArray, newTranscript];
-					} else {
-						// Replace existing transcript (whether final-unformatted or not-final)
-						const updatedArray = [...transcriptionArray];
-						updatedArray[i] = newTranscript;
-						return updatedArray;
-					}
+			// Check if this transcript already exists (to avoid duplicates)
+			const existingTranscript = transcriptions.find(
+				(t) =>
+					t.text === transcriptText ||
+					t.transcript === transcriptText ||
+					t.id === newTranscript.id, // Also check by ID
+			);
+
+			if (existingTranscript) {
+				return prev; // Don't add duplicate
+			}
+
+			// Check if this is a continuation of the last transcript (same session)
+			const lastTranscript = transcriptions[transcriptions.length - 1];
+			let isContinuation = false;
+			if (newTranscript?.isTurnFormatted) {
+				isContinuation = true;
+			} else {
+				isContinuation = lastTranscript && !lastTranscript.isFinal;
+			}
+
+			if (!newTranscript.isFinal) {
+				// Partial transcript - update the last entry if it's a continuation
+				if (isContinuation) {
+					// Update the last entry with the new partial text
+					const updated = [...transcriptions];
+					updated[updated.length - 1] = {
+						...updated[updated.length - 1],
+						...newTranscript,
+						text: transcriptText,
+						transcript: transcriptText,
+						time: new Date().toLocaleTimeString(),
+					};
+					return { ...prev, transcriptions: updated };
+				} else {
+					// New partial transcript - add as new entry
+					return {
+						...prev,
+						transcriptions: [
+							...transcriptions,
+							{
+								...newTranscript,
+								text: transcriptText,
+								transcript: transcriptText,
+								time: new Date().toLocaleTimeString(),
+							},
+						],
+					};
+				}
+			} else {
+				// Final transcript - update the last entry if it's a continuation, otherwise append
+				if (isContinuation) {
+					// Finalize the last entry
+					const updated = [...transcriptions];
+					updated[updated.length - 1] = {
+						...updated[updated.length - 1],
+						...newTranscript,
+						text: transcriptText,
+						transcript: transcriptText,
+						time: new Date().toLocaleTimeString(),
+						isFinal: true,
+					};
+					return { ...prev, transcriptions: updated };
+				} else {
+					// New final transcript - append as new entry
+					return {
+						...prev,
+						transcriptions: [
+							...transcriptions,
+							{
+								...newTranscript,
+								text: transcriptText,
+								transcript: transcriptText,
+								time: new Date().toLocaleTimeString(),
+								isFinal: true,
+							},
+						],
+					};
 				}
 			}
+		});
+		
+		// Reset the 5-minute Are You There timer when transcription is received
+		if (window.electronApi?.areYouThere?.updateTranscriptionActivity) {
+			window.electronApi.areYouThere.updateTranscriptionActivity();
 		}
-
-		// If no match found or array is empty, append the new transcript
-		return [...transcriptionArray, newTranscript];
-	};
-
-	const handleUpdateTranscription = (newTranscript) => {
-		setInfo((prev) => ({
-			...prev,
-			transcriptions: updateTranscriptionHelper(prev.transcriptions, newTranscript),
-		}));
 	};
 
 	const {
 		isConnected,
 		isRecording,
 		isMuted,
-		isPaused,
 		timer,
 		connectionStatus,
 		startAudioCapture,
 		stopRecording,
 		toggleMute,
-		pauseRecording,
-		resumeRecording,
 		// formatTime,
 		startRecording,
 	} = useAssemblyTranscription({
-		// onTranscriptionUpdate: handleUpdateTranscription,
 		onTranscriptionUpdate: handleUpdateTranscription,
 		onLiveIntelligenceResponse: handleTranscriptionSuggestions,
 		notification,
 	});
+
+	// Audio recording hook for local audio storage
+	const meetingId = info.meetingData?._id || null;
+	console.log('OverlayApp: Current meeting ID:', meetingId);
+
+	const {
+		isRecording: isAudioRecording,
+		startRecording: startAudioRecording,
+		stopRecording: stopAudioRecording,
+		audioBlob,
+		recordingDuration,
+		error: audioError,
+	} = useMeetingAudioRecorder(meetingId);
+
+	const { closeWebSocketConnection: closeLiveIntelligenceConnection } =
+		useLiveIntelligenceStream();
+
+	// Recall Stream Hook for Live Intelligence
+	const {
+		createWebSocketConnection: createRecallConnection,
+		closeWebSocketConnection: closeRecallConnection,
+		sendMessage: sendRecallMessage,
+	} = useRecallStream();
 
 	// Utility Functions
 	const formatTime = (seconds) => {
@@ -300,6 +386,8 @@ const OverlayApp = () => {
 			console.log('Meeting created successfully:', meetingData);
 
 			// Store meeting data and ID for later use
+			meetingIdRef.current = meetingData._id;
+			console.log('OverlayApp: Stored meeting ID in ref:', meetingData._id);
 
 			setInfo((prev) => ({
 				...prev,
@@ -314,6 +402,19 @@ const OverlayApp = () => {
 				jwtToken: localStorage.getItem('usertoken'),
 				isAiIntelligenceEnabled: meetingData.isAiIntelligenceEnabled,
 			});
+
+			// Start audio recording for local storage
+			try {
+				console.log('OverlayApp: Starting audio recording for meeting:', meetingData._id);
+				console.log(
+					'OverlayApp: startAudioRecording function available:',
+					typeof startAudioRecording,
+				);
+				await startAudioRecording();
+				console.log('OverlayApp: Audio recording started successfully');
+			} catch (error) {
+				console.error('OverlayApp: Error starting audio recording:', error);
+			}
 
 			updateStateValues({ aiTranscriptionSuggestions: null });
 
@@ -350,22 +451,59 @@ const OverlayApp = () => {
 		// Set stopping flag to prevent further processing
 		isStoppingRef.current = true;
 
+		// Use stored meeting ID from ref (more reliable than state)
+		const currentMeetingId = meetingIdRef.current;
+		console.log('OverlayApp: Using meeting ID from ref:', currentMeetingId);
+
 		sessionIdRef.current = null;
 
 		stopRecording({ meetingId: info?.meetingData?._id });
+		closeLiveIntelligenceConnection();
+		closeRecallConnection();
+
+		// Stop audio recording for local storage
+		try {
+			console.log('OverlayApp: Stopping audio recording for meeting:', currentMeetingId);
+			console.log(
+				'OverlayApp: stopAudioRecording function available:',
+				typeof stopAudioRecording,
+			);
+			stopAudioRecording();
+			console.log('OverlayApp: Audio recording stopped successfully');
+		} catch (error) {
+			console.error('OverlayApp: Error stopping audio recording:', error);
+		}
+
+		setInfo((prev) => ({
+			...prev,
+			isMeetIsOngoing: false,
+			meetingData: null,
+			transcriptions: [],
+			liveIntelligenceData: {
+				askUser: [],
+				needHelp: [],
+				actions: [],
+				files: [],
+				allThreads: [],
+			},
+		}));
 
 		// Reset stopping flag after cleanup
 		setTimeout(() => {
 			isStoppingRef.current = false;
 		}, 100);
+
+		// Note: meetingIdRef will be cleared after audio is successfully saved
 	};
 
 	const handleTogglePause = () => {
-		if (isPaused) {
-			resumeRecording();
-		} else {
-			pauseRecording();
-		}
+		const newIsPaused = !info?.isPaused;
+		setInfo((prev) => ({
+			...prev,
+			isPaused: newIsPaused,
+		}));
+		toggleMute();
+		console.log('isMuted', isMuted);
 	};
 
 	// Effects
@@ -393,11 +531,11 @@ const OverlayApp = () => {
 					break;
 				case 'pauseRecording':
 					console.log('⏸️ Dynamic Island PAUSE: Pausing recording...');
-					pauseRecording();
+					handleTogglePause();
 					break;
 				case 'resumeRecording':
 					console.log('▶️ Dynamic Island RESUME: Resuming recording...');
-					resumeRecording();
+					handleTogglePause();
 					break;
 				case 'toggleLiveIntelligence':
 					console.log(
@@ -466,42 +604,6 @@ const OverlayApp = () => {
 		return () => clearInterval(interval);
 	}, []);
 
-	// Listen for Are You There window events to hide overlay content
-	useEffect(() => {
-		const handleAreYouThereShow = (data) => {
-			console.log('🏠 Are You There window shown - hiding overlay content', data);
-
-			// Hide the overlay content when Are You There window appears
-			if (activePanel) {
-				setActivePanel(null);
-			}
-			setShowShortcutBar(false);
-		};
-
-		const handleAreYouThereHide = () => {
-			console.log('🏠 Are You There window hidden - overlay content can be shown again');
-			// Note: We don't automatically restore the panel here as it should be controlled by user interaction
-		};
-
-		// Set up listeners for Are You There window events
-		if (window.electronApi?.areYouThere?.onShowCommand) {
-			window.electronApi.areYouThere.onShowCommand(handleAreYouThereShow);
-		}
-
-		if (window.electronApi?.areYouThere?.onCloseCommand) {
-			window.electronApi.areYouThere.onCloseCommand(handleAreYouThereHide);
-		}
-
-		return () => {
-			if (window.electronApi?.areYouThere?.removeShowCommandListener) {
-				window.electronApi.areYouThere.removeShowCommandListener();
-			}
-			if (window.electronApi?.areYouThere?.removeCloseCommandListener) {
-				window.electronApi.areYouThere.removeCloseCommandListener();
-			}
-		};
-	}, [activePanel]);
-
 	const handleListenClick = async () => {
 		// Toggle live intelligence panel and automatically start recording when opening
 		// This is used by ShortcutBar - shows ShortcutBar
@@ -552,13 +654,6 @@ const OverlayApp = () => {
 		}
 	};
 
-	const handleHideOverlay = () => {
-		// Hide overlay window without stopping recording
-		if (window.electronApi?.overlay?.hideOverlayWindow) {
-			window.electronApi.overlay.hideOverlayWindow();
-		}
-	};
-
 	const handleShowTranscript = () => {
 		setActivePanel('transcript');
 	};
@@ -571,7 +666,7 @@ const OverlayApp = () => {
 	const sendRecordingStateUpdate = () => {
 		const state = {
 			isRecording,
-			isPaused: isPaused,
+			isPaused: isMuted,
 			timer,
 			isLiveIntelligenceOpen: activePanel === 'live-intelligence',
 			transcriptionsCount: info?.transcriptions?.length,
@@ -623,12 +718,13 @@ const OverlayApp = () => {
 		let calculatedHeight = rect.height;
 
 		// Dynamic width calculation based on layout - use exact content width
-		if (activePanel === 'live-intelligence') {
+		if (activePanel === 'live-intelligence' ){
 			// Panel is open: use exact panel width without extra padding
-			calculatedWidth = 555; // Exact panel width
+			calculatedWidth = 830; // Exact panel width
 		} else if (activePanel === 'transcript') {
-			calculatedWidth = 555; // Exact panel width
-		} else if (showShortcutBar && !isDynamicIslandControlled) {
+			calculatedWidth = 560; // Exact panel width
+		}
+		else if (showShortcutBar && !isDynamicIslandControlled) {
 			// Only shortcut bar visible: use actual content width
 			calculatedWidth = Math.max(rect.width, 400);
 		} else {
@@ -714,21 +810,12 @@ const OverlayApp = () => {
 		}
 	}, [activePanel, calculateDynamicDimensions]);
 
-	// Sync isPaused state with hook
-	useEffect(() => {
-		setInfo((prev) => ({
-			...prev,
-			isPaused: isPaused,
-		}));
-	}, [isPaused]);
-
 	// Send state updates to Dynamic Island when recording state changes
 	useEffect(() => {
 		sendRecordingStateUpdate();
 	}, [
 		isRecording,
 		isMuted,
-		isPaused,
 		timer,
 		activePanel,
 		info?.transcriptions?.length,
@@ -769,6 +856,49 @@ const OverlayApp = () => {
 		console.log('📊 Updated categorized live intelligence data:', categorizedData);
 	}, [liveIntelligenceHashmap, categorizeLiveIntelligenceData]);
 
+	// Save audio when recording stops
+	useEffect(() => {
+		const saveAudio = async () => {
+			// Use the meeting ID from the ref (which should persist until after saving)
+			const currentMeetingId = meetingIdRef.current;
+			console.log(
+				'OverlayApp: Audio save useEffect triggered - audioBlob:',
+				!!audioBlob,
+				'isAudioRecording:',
+				isAudioRecording,
+				'meetingId:',
+				currentMeetingId,
+			);
+			if (audioBlob && !isAudioRecording && currentMeetingId) {
+				try {
+					console.log(
+						'OverlayApp: Saving audio for meeting:',
+						currentMeetingId,
+						'Blob size:',
+						audioBlob.size,
+					);
+					const result = await audioStorageService.saveAudio(currentMeetingId, audioBlob);
+					if (result.success) {
+						console.log('OverlayApp: Audio saved successfully:', result.filePath);
+						// Clear the meeting ID ref ONLY after successful save
+						meetingIdRef.current = null;
+						console.log(
+							'OverlayApp: Cleared meeting ID ref after successful audio save',
+						);
+					} else {
+						console.error('OverlayApp: Failed to save audio:', result.error);
+					}
+				} catch (error) {
+					console.error('OverlayApp: Error saving audio:', error);
+				}
+			} else if (audioBlob && !isAudioRecording && !currentMeetingId) {
+				console.error('OverlayApp: Cannot save audio - no meeting ID available');
+			}
+		};
+
+		saveAudio();
+	}, [audioBlob, isAudioRecording]);
+
 	return (
 		<div
 			ref={containerRef}
@@ -804,11 +934,11 @@ const OverlayApp = () => {
 						<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
 					</div>
 					<LiveIntelligencePanel
-						onClose={handleHideOverlay}
+						onClose={handleClosePanel}
 						onShowTranscript={handleShowTranscript}
 						transcriptions={aiTranscriptionSuggestions}
 						isRecording={isRecording}
-						isPaused={isPaused}
+						isPaused={isMuted}
 						timer={timer}
 						formatTime={formatTime}
 						socketData={info?.liveIntelligenceData}
@@ -822,11 +952,11 @@ const OverlayApp = () => {
 						<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
 					</div>
 					<TranscriptPanel
-						onClose={handleHideOverlay}
+						onClose={handleClosePanel}
 						onShowLiveIntelligence={handleShowLiveIntelligence}
 						transcriptions={info?.transcriptions}
 						isRecording={isRecording}
-						isPaused={isPaused}
+						isPaused={isMuted}
 						timer={timer}
 						isConnected={isConnected}
 						// localAudioTrack={localAudioTrack}

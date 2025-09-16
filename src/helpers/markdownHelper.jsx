@@ -17,6 +17,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import AISuggestionsReportUserComponent from '../views/components/chat/chatComponents/AISuggestionsReportUserComponent';
 import { fileTypeIcons, getBase64 } from '../helpers';
 import { getFileType } from './chat/chatHelpers';
+import { copyToClipboard } from './clipboardHelper';
 
 const codeColorTheme = {
 	'code[class*="language-"]': {
@@ -328,17 +329,34 @@ const baseComponents = {
 			</div>
 		);
 	},
+	blockquote: ({ children, ...props }) => (
+		<blockquote className="blockquote">{children}</blockquote>
+	),
 };
 
 const MarkdownCode = memo(({ code, match }) => {
 	const [isCopied, setIsCopied] = useState(false);
 
-	const handleCopyCode = useCallback((code) => {
-		navigator?.clipboard?.writeText(code);
-		setIsCopied(true);
-		setTimeout(() => {
-			setIsCopied(false);
-		}, 1000);
+	const handleCopyCode = useCallback(async (code) => {
+		try {
+			const success = await copyToClipboard(code, {
+				onSuccess: () => {
+					setIsCopied(true);
+					setTimeout(() => {
+						setIsCopied(false);
+					}, 1000);
+				},
+				onError: (error) => {
+					console.error('Failed to copy code:', error);
+				}
+			});
+			
+			if (!success) {
+				console.error('Copy operation failed');
+			}
+		} catch (error) {
+			console.error('Copy operation failed:', error);
+		}
 	}, []);
 	return (
 		<div className="markdown-code-wrapper">
@@ -358,6 +376,8 @@ const MarkdownCode = memo(({ code, match }) => {
 	);
 });
 
+MarkdownCode.displayName = 'MarkdownCode';
+
 const MarkdownTable = memo(({ children, node, markdown }) => {
 	const [isCopied, setIsCopied] = useState(false);
 
@@ -365,26 +385,43 @@ const MarkdownTable = memo(({ children, node, markdown }) => {
 	const start = node?.position?.start?.offset;
 	const table = markdown?.slice(start, end);
 
-	const handleCopyTable = useCallback((table) => {
-		navigator?.clipboard?.writeText(table?.replace(/\[C\d+\]/g, ''));
-		setIsCopied(true);
-		setTimeout(() => {
-			setIsCopied(false);
-		}, 1000);
+	const handleCopyTable = useCallback(async (table) => {
+		const textToCopy = table?.replace(/\[C\d+\]/g, '');
+		try {
+			const success = await copyToClipboard(textToCopy, {
+				onSuccess: () => {
+					setIsCopied(true);
+					setTimeout(() => {
+						setIsCopied(false);
+					}, 1000);
+				},
+				onError: (error) => {
+					console.error('Failed to copy table:', error);
+				}
+			});
+			
+			if (!success) {
+				console.error('Copy operation failed');
+			}
+		} catch (error) {
+			console.error('Copy operation failed:', error);
+		}
 	}, []);
 	return (
 		<div className="table-wrapper">
-			<button className="copy-table-btn" onClick={() => handleCopyTable(table || '')}>
-				<Tooltip title={isCopied ? 'Copied Table' : 'Copy Table'} placement="bottom">
+			<Tooltip title={isCopied ? 'Copied Table' : 'Copy Table'} placement="bottom">
+				<button className="copy-table-btn" onClick={() => handleCopyTable(table || '')}>
 					{isCopied ? <TickSvg /> : <CopyIcon />}
-				</Tooltip>
-			</button>
+				</button>
+			</Tooltip>
 			<div className="table-container">
 				<table className="table">{children}</table>
 			</div>
 		</div>
 	);
 });
+
+MarkdownTable.displayName = 'MarkdownTable';
 
 // Memoize citation-specific components
 const createCustomComponents = (citationsRef, markdownRef) => ({
@@ -495,14 +532,30 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 	const [previewImage, setPreviewImage] = useState('');
 
 	const handleCopyTextClick = useCallback(
-		(text) => {
+		async (text) => {
 			const textToBeCopied = text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n');
-			navigator?.clipboard?.writeText(textToBeCopied).then(() => {
-				setInfo((prev) => ({ ...prev, isCopiedToClipboard: true }));
-				setTimeout(() => {
+			try {
+				const success = await copyToClipboard(textToBeCopied, {
+					onSuccess: () => {
+						setInfo((prev) => ({ ...prev, isCopiedToClipboard: true }));
+						setTimeout(() => {
+							setInfo((prev) => ({ ...prev, isCopiedToClipboard: false }));
+						}, 1000);
+					},
+					onError: (error) => {
+						console.error('Failed to copy text:', error);
+						setInfo((prev) => ({ ...prev, isCopiedToClipboard: false }));
+					}
+				});
+				
+				if (!success) {
+					console.error('Copy operation failed');
 					setInfo((prev) => ({ ...prev, isCopiedToClipboard: false }));
-				}, 1000);
-			});
+				}
+			} catch (error) {
+				console.error('Copy operation failed:', error);
+				setInfo((prev) => ({ ...prev, isCopiedToClipboard: false }));
+			}
 		},
 		[info],
 	);
@@ -556,12 +609,9 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 							className={`uploaded-image ${
 								messageData?.images?.length === 1 ? 'count-one' : ''
 							}`}
+							key={index}
 						>
-							<img
-								key={index}
-								src={image?.preview}
-								onClick={() => handlePreview(image)}
-							/>
+							<img src={image?.preview} onClick={() => handlePreview(image)} />
 						</div>
 					))}
 				</div>

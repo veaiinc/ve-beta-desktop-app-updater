@@ -21,14 +21,24 @@ export const copyToClipboard = async (text, options = {}) => {
 	try {
 		// First, try to use Electron's clipboard API (no permission issues)
 		if (window.electronApi?.clipboard?.writeText) {
-			const result = await window.electronApi.clipboard.writeText(text);
-			if (result.success) {
-				console.log('✅ Copied to clipboard via Electron API');
-				onSuccess();
-				return true;
-			} else {
-				console.log('❌ Electron clipboard failed, falling back to browser API');
+			try {
+				const result = await window.electronApi.clipboard.writeText(text);
+				if (result && result.success) {
+					console.log('✅ Copied to clipboard via Electron API');
+					onSuccess();
+					return true;
+				} else {
+					console.log('❌ Electron clipboard failed, falling back to browser API');
+				}
+			} catch (electronError) {
+				console.log('❌ Electron clipboard error, falling back to browser API:', electronError);
+				// If it's a "No handler registered" error, the handlers might not be ready yet
+				if (electronError.message && electronError.message.includes('No handler registered')) {
+					console.log('🔄 Electron handlers not ready yet, trying browser API...');
+				}
 			}
+		} else {
+			console.log('🔍 Electron API not available, trying browser API...');
 		}
 
 		// Fallback to browser clipboard API
@@ -64,19 +74,46 @@ export const copyToClipboard = async (text, options = {}) => {
 		onSuccess();
 		return true;
 	} catch (error) {
-		// Handle specific error types
-		if (error.name === 'NotAllowedError') {
-			const permissionError = new Error(
-				'Clipboard permission denied. Please allow clipboard access and try again.',
-			);
-			permissionError.name = 'PermissionDeniedError';
-			onError(permissionError);
-		} else if (error.name === 'PermissionDeniedError') {
-			onError(error);
-		} else {
-			onError(error);
+		console.error('❌ Browser clipboard API failed, trying legacy method:', error);
+		
+		// Fallback to legacy execCommand method
+		try {
+			const textArea = document.createElement('textarea');
+			textArea.value = text;
+			textArea.style.position = 'fixed';
+			textArea.style.left = '-999999px';
+			textArea.style.top = '-999999px';
+			document.body.appendChild(textArea);
+			textArea.focus();
+			textArea.select();
+			
+			const successful = document.execCommand('copy');
+			document.body.removeChild(textArea);
+			
+			if (successful) {
+				console.log('✅ Copied to clipboard via legacy method');
+				onSuccess();
+				return true;
+			} else {
+				throw new Error('Legacy copy method failed');
+			}
+		} catch (legacyError) {
+			console.error('❌ All copy methods failed:', legacyError);
+			
+			// Handle specific error types
+			if (error.name === 'NotAllowedError') {
+				const permissionError = new Error(
+					'Clipboard permission denied. Please allow clipboard access and try again.',
+				);
+				permissionError.name = 'PermissionDeniedError';
+				onError(permissionError);
+			} else if (error.name === 'PermissionDeniedError') {
+				onError(error);
+			} else {
+				onError(legacyError);
+			}
+			return false;
 		}
-		return false;
 	}
 };
 
@@ -158,6 +195,82 @@ export const checkClipboardWritePermission = async () => {
 			state: 'error',
 			message: error.message,
 		};
+	}
+};
+
+/**
+ * Read text from clipboard with proper permission handling
+ * @param {Object} options - Options for error handling
+ * @param {Function} options.onSuccess - Success callback
+ * @param {Function} options.onError - Error callback
+ * @returns {Promise<string|null>} - Clipboard text or null if failed
+ */
+export const readFromClipboard = async (options = {}) => {
+	const {
+		onSuccess = (text) => console.log('✅ Read from clipboard successfully:', text),
+		onError = (error) => console.error('❌ Failed to read from clipboard:', error),
+	} = options;
+
+	try {
+		// First, try to use Electron's clipboard API
+		if (window.electronApi?.clipboard?.readText) {
+			try {
+				const result = await window.electronApi.clipboard.readText();
+				if (result && result.success) {
+					console.log('✅ Read from clipboard via Electron API');
+					onSuccess(result.text);
+					return result.text;
+				} else {
+					console.log('❌ Electron clipboard read failed, falling back to browser API');
+				}
+			} catch (electronError) {
+				console.log('❌ Electron clipboard read error, falling back to browser API:', electronError);
+			}
+		} else {
+			console.log('🔍 Electron API not available, trying browser API...');
+		}
+
+		// Fallback to browser clipboard API
+		if (!navigator.clipboard || !navigator.clipboard.readText) {
+			throw new Error('Clipboard API not supported in this browser');
+		}
+
+		// Request permission first if needed
+		if (navigator.permissions) {
+			try {
+				const permission = await navigator.permissions.query({ name: 'clipboard-read' });
+
+				if (permission.state === 'denied') {
+					const error = new Error(
+						'Clipboard read permission denied. Please allow clipboard access in your browser settings.',
+					);
+					error.name = 'PermissionDeniedError';
+					throw error;
+				}
+			} catch (e) {
+				// Some browsers don't support clipboard-read permission query
+				console.log('Clipboard read permission query not supported, attempting direct read');
+			}
+		}
+
+		// Attempt to read from clipboard
+		const text = await navigator.clipboard.readText();
+		onSuccess(text);
+		return text;
+	} catch (error) {
+		console.error('❌ All clipboard read methods failed:', error);
+		
+		// Handle specific error types
+		if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+			const permissionError = new Error(
+				'Clipboard read permission denied. Please allow clipboard access and try again.',
+			);
+			permissionError.name = 'PermissionDeniedError';
+			onError(permissionError);
+		} else {
+			onError(error);
+		}
+		return null;
 	}
 };
 
