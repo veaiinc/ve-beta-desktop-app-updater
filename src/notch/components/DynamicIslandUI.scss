@@ -2,7 +2,7 @@
 	width: 320px;
 	height: 32px;
 	position: absolute;
-	top: 0;
+	top: 0; // Keep at top as normal
 	left: 50%;
 	transform: translateX(-50%);
 	display: flex;
@@ -15,6 +15,7 @@
 	cursor: pointer;
 	flex-shrink: 0;
 	overflow: hidden; // Prevent any content from overflowing
+	z-index: 9999; // Below notification but above other content
 
 	&:hover {
 		width: 640px !important;
@@ -33,6 +34,32 @@
 		width: 320px;
 		height: 32px;
 		border-radius: 0px 0px 8px 8px;
+	}
+
+	// Notification state - Dynamic Island stays collapsed, notification appears below
+	&.notification-expanded {
+		// Keep same collapsed size - don't expand for notifications
+		width: 320px;
+		height: 32px;
+		border-radius: 0px 0px 8px 8px;
+
+		// Show island content normally
+		.island-content {
+			opacity: 1;
+		}
+	}
+
+	// Transitioning state for smooth animations
+	&.transitioning {
+		transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+		.island-content {
+			transition: opacity 0.3s ease;
+		}
+
+		.ui-container {
+			transition: all 0.4s ease;
+		}
 	}
 
 	// Recording mode - different dimensions

@@ -2489,6 +2489,21 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// Update voice status in NotchDrop
+	ipcMain.handle('notchdrop-update-voice-status', async (event, status) => {
+		try {
+			log.info('Updating NotchDrop voice status:', status);
+			if (notchDropService) {
+				await notchDropService.updateVoiceStatus(status);
+				return { success: true };
+			}
+			return { success: false, error: 'NotchDrop service not available' };
+		} catch (error) {
+			log.error('Error updating voice status:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	ipcMain.handle('dynamic-island-set-mouse-events', async (event, ignore) => {
 		try {
 			if (!dynamicIslandHelper) {

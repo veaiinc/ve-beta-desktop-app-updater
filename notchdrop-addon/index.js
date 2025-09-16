@@ -507,6 +507,26 @@ class NotchDropAddonWrapper extends EventEmitter {
 			case 'sendLog':
 				this.handleSwiftLog(data);
 				break;
+			// Voice Assistant Actions
+			case 'connectVoice':
+				this.emit('connectVoice', data);
+				break;
+			case 'disconnectVoice':
+				this.emit('disconnectVoice', data);
+				break;
+			case 'toggleVoiceMute':
+				this.emit('toggleVoiceMute', data);
+				break;
+			case 'sendVoiceMessage':
+				this.emit('sendVoiceMessage', data);
+				break;
+			case 'voiceConnectionStateChanged':
+				this.emit('voiceConnectionStateChanged', data);
+				break;
+			case 'startVoiceAgent':
+				console.log('🎤 NotchDrop: Received startVoiceAgent action');
+				this.emit('startVoiceAgent', data);
+				break;
 			case 'receiveMessage':
 				this.handleReceivedMessage(data);
 				break;
@@ -992,6 +1012,101 @@ class NotchDropAddonWrapper extends EventEmitter {
 			console.log('📊 Overlay state sent to Swift side:', state);
 		} catch (error) {
 			console.error('❌ Error sending overlay state to Swift:', error);
+		}
+	}
+
+	// MARK: - Voice Assistant Methods
+
+	configureVoice(url, token) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			this.addon.configureVoice(url, token);
+			console.log('🎤 Voice configured with URL:', url);
+		} catch (error) {
+			console.error('❌ Error configuring voice:', error);
+			throw error;
+		}
+	}
+
+	connectVoiceAssistant() {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			this.addon.connectVoiceAssistant();
+		} catch (error) {
+			console.error('❌ Error connecting voice assistant:', error);
+			throw error;
+		}
+	}
+
+	disconnectVoiceAssistant() {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			this.addon.disconnectVoiceAssistant();
+		} catch (error) {
+			console.error('❌ Error disconnecting voice assistant:', error);
+			throw error;
+		}
+	}
+
+	getVoiceConnectionStatus() {
+		if (!this.isInitialized) {
+			return 'disconnected';
+		}
+		try {
+			return this.addon.getVoiceConnectionStatus();
+		} catch (error) {
+			console.error('❌ Error getting voice connection status:', error);
+			return 'error';
+		}
+	}
+
+	// Update voice connection state from JavaScript
+	updateVoiceConnectionState(status) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			this.addon.updateVoiceConnectionState(status);
+			console.log(`🔄 Voice connection state updated to: ${status}`);
+		} catch (error) {
+			console.error('❌ Error updating voice connection state:', error);
+			throw error;
+		}
+	}
+
+	// Update voice mute state from JavaScript
+	updateVoiceMuteState(isMuted) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			this.addon.updateVoiceMuteState(isMuted);
+			console.log(`🔇 Voice mute state updated: ${isMuted}`);
+		} catch (error) {
+			console.error('❌ Error updating voice mute state:', error);
+			throw error;
+		}
+	}
+
+	// Add voice message from JavaScript
+	addVoiceMessage(messageData) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			// Convert messageData to JSON string for native layer
+			const messageJson = JSON.stringify(messageData);
+			this.addon.addVoiceMessage(messageJson);
+			console.log(`💬 Voice message added: ${messageData.sender}: ${messageData.content?.substring(0, 30)}...`);
+		} catch (error) {
+			console.error('❌ Error adding voice message:', error);
+			throw error;
 		}
 	}
 
