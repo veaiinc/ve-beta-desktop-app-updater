@@ -2596,6 +2596,104 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// File system APIs for audio storage
+	const fs = require('fs').promises;
+	const fsSync = require('fs');
+	const path = require('path');
+	const os = require('os');
+
+	// Get proper user data directory for audio storage (matching meeting/final branch)
+	const getUserDataPath = () => {
+		return path.join(os.homedir(), '.ve-desktop-app', 'meetings');
+	};
+
+	ipcMain.handle('fs-ensure-dir', async (event, dirPath) => {
+		try {
+			const fullPath = path.join(getUserDataPath(), dirPath);
+			await fs.mkdir(fullPath, { recursive: true });
+			return { success: true };
+		} catch (error) {
+			log.error('Error ensuring directory:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('fs-write-file', async (event, filePath, data) => {
+		try {
+			const fullPath = path.join(getUserDataPath(), filePath);
+			// For text files (like JSON), ensure UTF-8 encoding
+			if (typeof data === 'string') {
+				await fs.writeFile(fullPath, data, 'utf8');
+			} else {
+				await fs.writeFile(fullPath, data);
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error writing file:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('fs-read-file', async (event, filePath) => {
+		try {
+			const fullPath = path.join(getUserDataPath(), filePath);
+			const data = await fs.readFile(fullPath, 'utf8');
+			return { success: true, data };
+		} catch (error) {
+			log.error('Error reading file:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('fs-read-file-binary', async (event, filePath) => {
+		try {
+			const fullPath = path.join(getUserDataPath(), filePath);
+			const data = await fs.readFile(fullPath);
+			// Convert Buffer to Uint8Array for proper binary handling
+			return { success: true, data: new Uint8Array(data) };
+		} catch (error) {
+			log.error('Error reading binary file:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('fs-exists', async (event, filePath) => {
+		try {
+			const fullPath = path.join(getUserDataPath(), filePath);
+			await fs.access(fullPath);
+			return { success: true, exists: true };
+		} catch (error) {
+			return { success: true, exists: false };
+		}
+	});
+
+	ipcMain.handle('fs-remove', async (event, filePath) => {
+		try {
+			const fullPath = path.join(getUserDataPath(), filePath);
+			const stats = await fs.stat(fullPath);
+			if (stats.isDirectory()) {
+				await fs.rmdir(fullPath, { recursive: true });
+			} else {
+				await fs.unlink(fullPath);
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error removing file/directory:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('fs-readdir', async (event, dirPath) => {
+		try {
+			const fullPath = path.join(getUserDataPath(), dirPath);
+			const files = await fs.readdir(fullPath);
+			return { success: true, files };
+		} catch (error) {
+			log.error('Error reading directory:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	ipcMain.handle('dynamic-island-set-mouse-events', async (event, ignore) => {
 		try {
 			if (!dynamicIslandHelper) {

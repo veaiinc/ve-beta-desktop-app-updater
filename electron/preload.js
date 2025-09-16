@@ -401,4 +401,15 @@ contextBridge.exposeInMainWorld('electronApi', {
 			callback(data);
 		});
 	},
+
+	// File system APIs for audio storage
+	fs: {
+		ensureDir: (dirPath) => ipcRenderer.invoke('fs-ensure-dir', dirPath),
+		writeFile: (filePath, data) => ipcRenderer.invoke('fs-write-file', filePath, data),
+		readFile: (filePath) => ipcRenderer.invoke('fs-read-file', filePath),
+		readFileBinary: (filePath) => ipcRenderer.invoke('fs-read-file-binary', filePath),
+		exists: (filePath) => ipcRenderer.invoke('fs-exists', filePath),
+		remove: (filePath) => ipcRenderer.invoke('fs-remove', filePath),
+		readdir: (dirPath) => ipcRenderer.invoke('fs-readdir', dirPath),
+	},
 });
