@@ -33,13 +33,7 @@ const NotchDropLiveKitIntegration = () => {
 	const agentMessages = useTrackTranscription(voiceAssistant.audioTrack);
 	const localMessages = useTrackTranscription(localMicTrack);
 
-	// Debug transcription data
-	if (agentMessages.segments?.length > 0) {
-		console.log('🤖 AGENT TRANSCRIPTION:', agentMessages.segments);
-	}
-	if (localMessages.segments?.length > 0) {
-		console.log('🎤 USER TRANSCRIPTION:', localMessages.segments);
-	}
+	// Debug transcription data (removed console logs)
 
 	// Convert LiveKit segment to NotchDrop message format
 	const segmentToChatMessage = useCallback((segment, existingMessage, participant) => {
@@ -57,35 +51,16 @@ const NotchDropLiveKitIntegration = () => {
 	const sendToNotchDrop = useCallback(async (messageData) => {
 		try {
 			if (window.electronApi && window.electronApi.notchdrop) {
-				console.log(
-					'📤 SENDING TO NOTCHDROP:',
-					messageData.sender,
-					':',
-					messageData.content,
-				);
 				const result = await window.electronApi.notchdrop.addVoiceMessage(messageData);
-				console.log('✅ NotchDrop message sent successfully:', result);
-			} else {
-				console.warn('⚠️ NotchDrop API not available');
 			}
 		} catch (error) {
-			console.error('❌ Error sending message to NotchDrop:', error);
+			// Error handling without console logging
 		}
 	}, []);
 
 	// Process transcription updates
 	useEffect(() => {
-		console.log('🎤 NotchDrop LiveKit Integration - Processing transcription updates...');
-		console.log(
-			'🎤 NotchDrop LiveKit Integration - Voice Assistant State:',
-			voiceAssistant.state,
-		);
-		console.log('🎤 NotchDrop LiveKit Integration - Room State:', roomState);
-
 		if (voiceAssistant.state === 'disconnected') {
-			console.log(
-				'🎤 NotchDrop LiveKit Integration - Voice assistant disconnected, skipping transcription processing',
-			);
 			return;
 		}
 
@@ -95,96 +70,79 @@ const NotchDropLiveKitIntegration = () => {
 			return;
 		}
 
-		const newTranscripts = new Map(transcripts);
-		let hasNewMessages = false;
+		setTranscripts((currentTranscripts) => {
+			const newTranscripts = new Map(currentTranscripts);
+			let hasNewMessages = false;
 
-		// Process local (user) messages
-		console.log(
-			'🎤 NotchDrop LiveKit Integration - Processing local messages, segments count:',
-			localMessages.segments?.length || 0,
-		);
-		localMessages.segments?.forEach((segment) => {
-			console.log('🎤 NotchDrop LiveKit Integration - Processing local segment:', segment);
-			const chatMessage = segmentToChatMessage(
-				segment,
-				transcripts.get(segment.id),
-				localParticipant,
-			);
-			const existingMessage = newTranscripts.get(segment.id);
+			// Process local (user) messages
+			localMessages.segments?.forEach((segment) => {
+				const chatMessage = segmentToChatMessage(
+					segment,
+					currentTranscripts.get(segment.id),
+					localParticipant,
+				);
+				const existingMessage = newTranscripts.get(segment.id);
 
-			// Only update if content changed or it's a new message
-			if (!existingMessage || existingMessage.content !== chatMessage.content) {
-				newTranscripts.set(segment.id, chatMessage);
-				hasNewMessages = true;
-				console.log('📝 Updated local transcript:', chatMessage);
-			}
-		});
-
-		// Process agent messages
-		agentMessages.segments?.forEach((segment) => {
-			const chatMessage = segmentToChatMessage(
-				segment,
-				transcripts.get(segment.id),
-				voiceAssistant.audioTrack?.participant,
-			);
-			const existingMessage = newTranscripts.get(segment.id);
-
-			// Only update if content changed or it's a new message
-			if (!existingMessage || existingMessage.content !== chatMessage.content) {
-				newTranscripts.set(segment.id, chatMessage);
-				hasNewMessages = true;
-				console.log('📝 Updated agent transcript:', chatMessage);
-			}
-		});
-
-		if (hasNewMessages) {
-			setTranscripts(newTranscripts);
-
-			// Convert to array and sort by timestamp
-			const allMessages = Array.from(newTranscripts.values());
-			allMessages.sort((a, b) => a.timestamp - b.timestamp);
-
-			console.log('📋 All transcript messages:', allMessages);
-
-			// Send new/updated messages to NotchDrop (only final transcriptions)
-			allMessages.forEach((message) => {
-				const lastSent = lastSentMessages.find((m) => m.id === message.id);
-
-				// Only send final transcriptions to avoid duplicates
-				if (message.isFinal && (!lastSent || lastSent.content !== message.content)) {
-					console.log(
-						'📤 Sending FINAL transcription to NotchDrop:',
-						message.sender,
-						':',
-						message.content,
-					);
-					sendToNotchDrop(message);
+				// Only update if content changed or it's a new message
+				if (!existingMessage || existingMessage.content !== chatMessage.content) {
+					newTranscripts.set(segment.id, chatMessage);
+					hasNewMessages = true;
 				}
 			});
 
-			// Update last sent messages
-			setLastSentMessages(allMessages);
-		}
+			// Process agent messages
+			agentMessages.segments?.forEach((segment) => {
+				const chatMessage = segmentToChatMessage(
+					segment,
+					currentTranscripts.get(segment.id),
+					voiceAssistant.audioTrack?.participant,
+				);
+				const existingMessage = newTranscripts.get(segment.id);
+
+				// Only update if content changed or it's a new message
+				if (!existingMessage || existingMessage.content !== chatMessage.content) {
+					newTranscripts.set(segment.id, chatMessage);
+					hasNewMessages = true;
+				}
+			});
+
+			if (hasNewMessages) {
+				// Convert to array and sort by timestamp
+				const allMessages = Array.from(newTranscripts.values());
+				allMessages.sort((a, b) => a.timestamp - b.timestamp);
+
+				// Send new/updated messages to NotchDrop (only final transcriptions)
+				setLastSentMessages((currentLastSent) => {
+					allMessages.forEach((message) => {
+						const lastSent = currentLastSent.find((m) => m.id === message.id);
+
+						// Only send final transcriptions to avoid duplicates
+						if (message.isFinal && (!lastSent || lastSent.content !== message.content)) {
+							sendToNotchDrop(message);
+						}
+					});
+
+					return allMessages;
+				});
+
+				return newTranscripts;
+			}
+
+			return currentTranscripts;
+		});
 	}, [
 		voiceAssistant.state,
 		localParticipant,
 		localMessages.segments,
 		agentMessages.segments,
 		voiceAssistant.audioTrack?.participant,
-		transcripts,
 		segmentToChatMessage,
 		sendToNotchDrop,
-		lastSentMessages,
 	]);
 
 	// Listen for microphone toggle events from NotchDrop
 	useEffect(() => {
 		const handleMicrophoneToggle = async (event) => {
-			console.log(
-				'🔇 NotchDrop LiveKit Integration: Received microphone toggle event:',
-				event.detail,
-			);
-
 			if (localParticipant && roomState === ConnectionState.Connected) {
 				try {
 					const newMuteState = !isMicrophoneMuted;
@@ -193,21 +151,13 @@ const NotchDropLiveKitIntegration = () => {
 					await localParticipant.setMicrophoneEnabled(!newMuteState);
 					setIsMicrophoneMuted(newMuteState);
 
-					console.log(
-						`🔇 NotchDrop LiveKit Integration: Microphone ${
-							newMuteState ? 'muted' : 'unmuted'
-						}`,
-					);
-
 					// Update NotchDrop Swift UI with the new mute state
 					if (window.electronApi?.notchdrop?.updateVoiceMuteState) {
 						await window.electronApi.notchdrop.updateVoiceMuteState(newMuteState);
 					}
 				} catch (error) {
-					console.error('❌ Error toggling microphone:', error);
+					// Error handling without console logging
 				}
-			} else {
-				console.warn('⚠️ Cannot toggle microphone: not connected or no local participant');
 			}
 		};
 
@@ -227,10 +177,9 @@ const NotchDropLiveKitIntegration = () => {
 				if (window.electronApi && window.electronApi.notchdrop) {
 					// Use updateVoiceConnectionState for connection status changes
 					await window.electronApi.notchdrop.updateVoiceConnectionState(status);
-					console.log(`🔄 NotchDrop connection status updated: ${status}`);
 				}
 			} catch (error) {
-				console.error('❌ Error updating NotchDrop status:', error);
+				// Error handling without console logging
 			}
 		};
 
@@ -257,25 +206,7 @@ const NotchDropLiveKitIntegration = () => {
 		updateNotchDropStatus(notchDropStatus);
 	}, [roomState, voiceAssistant.state, isMicrophoneMuted]);
 
-	// Test message on mount (disabled - transcription is working)
-	// useEffect(() => {
-	//     const testMessage = async () => {
-	//         if (roomState === ConnectionState.Connected) {
-	//             console.log('🧪 TESTING: Sending test message to NotchDrop...');
-	//             await sendToNotchDrop({
-	//                 id: 'test-' + Date.now(),
-	//                 sender: 'System',
-	//                 content: 'NotchDrop transcription integration is active!',
-	//                 isFromAgent: false,
-	//                 timestamp: Date.now()
-	//             });
-	//         }
-	//     };
-
-	//     if (roomState === ConnectionState.Connected) {
-	//         setTimeout(testMessage, 2000); // Send test message 2 seconds after connection
-	//     }
-	// }, [roomState, sendToNotchDrop]);
+	// Test message functionality removed
 
 	// This component doesn't render anything - it's just for integration
 	return null;

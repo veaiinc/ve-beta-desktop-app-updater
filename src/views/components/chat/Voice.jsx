@@ -59,10 +59,7 @@ const Voice = ({
 	const localVideoTrack = localTracks.find(({ source }) => source === Track.Source.Camera);
 	const localMicTrack = localTracks.find(({ source }) => source === Track.Source.Microphone);
 
-	// Debug: Log track information
-	console.log('🎵 All tracks:', tracks);
-	console.log('🎵 Local tracks:', localTracks);
-	console.log('🎵 Local mic track:', localMicTrack);
+	// Debug: Track information (logs removed)
 
 	const agentMessages = useTrackTranscription(voiceAssistant.audioTrack);
 	const localMessages = useTrackTranscription(localMicTrack);
@@ -107,22 +104,12 @@ const Voice = ({
 
 		const newTranscripts = new Map(transcripts);
 
-		// Debug: Log local messages segments
-		if (localMessages.segments && localMessages.segments.length > 0) {
-			console.log('🎤 Local transcription segments:', localMessages.segments);
-		}
-
 		localMessages.segments?.forEach((s) => {
 			const chatMessage = segmentToChatMessage(s, transcripts.get(s.id), localParticipant);
 			newTranscripts.set(s.id, chatMessage);
-			console.log('📝 Added local transcript:', chatMessage);
 		});
 
 		// Add agent messages
-		if (agentMessages.segments && agentMessages.segments.length > 0) {
-			console.log('🤖 Agent transcription segments:', agentMessages.segments);
-		}
-
 		agentMessages.segments?.forEach((s) => {
 			const chatMessage = segmentToChatMessage(
 				s,
@@ -130,7 +117,6 @@ const Voice = ({
 				voiceAssistant.audioTrack?.participant,
 			);
 			newTranscripts.set(s.id, chatMessage);
-			console.log('📝 Added agent transcript:', chatMessage);
 		});
 
 		setTranscripts(newTranscripts);
@@ -138,11 +124,6 @@ const Voice = ({
 		const allMessages = Array.from(newTranscripts.values());
 		allMessages.sort((a, b) => a.timestamp - b.timestamp);
 		setTransScriptMessages(allMessages);
-
-		// Debug: Log final messages
-		if (allMessages.length > 0) {
-			console.log('📋 All transcript messages:', allMessages);
-		}
 
 		// Call parent component's transcript update handler
 		if (onTranscriptUpdate && allMessages.length > 0) {
@@ -264,9 +245,7 @@ const Voice = ({
 			return 'Listening to you...';
 		}
 
-		console.log('🔍 Voice assistant state:', voiceAssistant.state);
-		console.log('🔍 Local participant isSpeaking:', localParticipant?.isSpeaking);
-		console.log('🔍 Should connect:', shouldConnect);
+		// Voice assistant state tracking (logs removed)
 
 		// Call parent component's status update handler
 		if (onStatusUpdate) {
@@ -313,15 +292,11 @@ const Voice = ({
 
 	const getDisplayText = () => {
 		const latestMessage = getLatestMessage();
-		console.log('🔍 getDisplayText - latestMessage:', latestMessage);
-		console.log('🔍 getDisplayText - transScriptMessages:', transScriptMessages);
 		if (latestMessage) {
 			const displayText = `${latestMessage.name}: ${latestMessage.message}`;
-			console.log('🔍 getDisplayText - returning:', displayText);
 			return displayText;
 		}
 		const statusText = getStatusText();
-		console.log('🔍 getDisplayText - returning status:', statusText);
 		return statusText;
 	};
 
