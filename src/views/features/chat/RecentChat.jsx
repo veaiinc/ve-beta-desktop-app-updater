@@ -1,4 +1,13 @@
-import React, { memo, useCallback, useState, useRef, useEffect, useContext, Fragment } from 'react';
+import React, {
+	memo,
+	useCallback,
+	useState,
+	useRef,
+	useEffect,
+	useContext,
+	Fragment,
+	useLayoutEffect,
+} from 'react';
 import '../../../assets/scss/chat/chat.scss';
 import {
 	handleDeepSearchChainOfThought,
@@ -11,9 +20,7 @@ import { UserMessageRenderer } from '../../../helpers/markdownHelper';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
 import ChatBox from '../../components/chat/ChatBox';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
-import { debounce } from 'lodash';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
 import ChatHeader from '../../components/chat/ChatHeader';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
@@ -21,6 +28,7 @@ import { message } from '../../components/globalComponents/CustomToast';
 import ChatHistory from '../../components/sidebar/chatHistory/ChatHistory';
 import Browser from '../../components/chat/chatComponents/Browser';
 import { ReactComponent as DoubleRightArrowSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
+import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 
 const RecentChat = ({
 	isPublicChat = false,
@@ -35,6 +43,15 @@ const RecentChat = ({
 	showChats = false,
 	showHeader = true,
 	showBrowser = false,
+	showBottomTools = true,
+	showMicBtn = true,
+	showRecentFiles = true,
+	showResponseEditBtn = true,
+	fetchRecentChatMessages = true,
+
+	// below props are for desktop app
+	isDesktopApp = false,
+	handleDesktopAppPayload = null,
 }) => {
 	const {
 		templates: {
@@ -80,6 +97,7 @@ const RecentChat = ({
 			noteModalIsOpen: false,
 			page: 1,
 			currentPage: true,
+			scrollExecuted: false,
 			latestStreamMesage: null,
 			activeAIMessageIndex: null,
 			activeAIMessageId: null,
@@ -105,10 +123,6 @@ const RecentChat = ({
 
 	const chatContentRef = useRef(null);
 	const userMessagesRefs = useRef({});
-	// const previousAiMessagesRef = useRef([]);
-	// const aiCitationsByIdRef = useRef({});
-	const tabsRefs = useRef({});
-	const previousTabsRefs = useRef({});
 	const agentTimeoutIdRef = useRef(null);
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -134,7 +148,6 @@ const RecentChat = ({
 			}
 
 			setTimeout(() => {
-				tabsRefs.current = {};
 				userMessagesRefs.current = {};
 				if (followUpQueryTimeoutRef.current) {
 					clearTimeout(followUpQueryTimeoutRef.current);
@@ -244,7 +257,6 @@ const RecentChat = ({
 			if (info?.renderingTwice) {
 				//clearing context state when rendering different session
 				updateStateValues({
-					// globalChatMessages: [],
 					citations: null,
 					chatPayload: {
 						workflowTemplateId: null,
@@ -253,7 +265,6 @@ const RecentChat = ({
 					aiMessagesInfo: null,
 					isBrowserScreenActive: false,
 				});
-				tabsRefs.current = {};
 				userMessagesRefs.current = {};
 				setInfo((prev) => ({
 					...prev,
@@ -272,12 +283,11 @@ const RecentChat = ({
 				agentTimeoutIdRef.current = null;
 			}
 
-			if (!globalChatMessages?.[sessionId]?.open_browser) {
+			if (!globalChatMessages?.[sessionId]?.open_browser && fetchRecentChatMessages) {
 				getRecentChatMessages({
 					sessionId,
 					page: 1,
 					fetchMore: false,
-					limit: 1000,
 					isPublicChat,
 					removeSessionId: false,
 				});
@@ -311,49 +321,29 @@ const RecentChat = ({
 				newChatSessionIds: newChatSessionIdsRef.current,
 			});
 		}
-	}, [sessionId]);
+	}, [sessionId, fetchRecentChatMessages]);
 
 	useEffect(() => {
-		// const agentType = searchParams?.get('agentType');
-		// const assistantId = searchParams?.get('assistantId') || null;
-		// if (!agentType && location?.pathname?.includes('knowledge-agent')) {
-		// 	return;
-		// }
-
 		if (
 			agentType &&
 			sessionId &&
 			globalChatMessages?.[sessionId]?.chatInfo?.agentType !== agentType &&
 			globalChatMessages?.[sessionId]?.chatInfo?.assistantId !== assistantId
 		) {
-			// updateStateValues({ chatInfo: { agentType, assistantId } });
 			handleGlobalChatMessages({
 				sessionId,
 				updateExtraInfo: true,
 				chatInfo: { agentType, assistantId },
 			});
 		}
-		// if (sessionId && !isPublicChat) {
-		// 	createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
-		// }
-
-		// if (sessionId && isPublicChat && isFirstTimeConnectingToPublicChatRef.current) {
-		// 	createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
-		// 	isFirstTimeConnectingToPublicChatRef.current = false;
-		// }
 	}, [sessionId, agentType, assistantId]);
 
-	useEffect(() => {
-		if (globalChatMessages?.[sessionId]?.messages?.length && info?.isNewChat) {
-			setInfo((prev) => ({
-				...prev,
-				isNewChat: false,
-			}));
-		}
-		if (globalChatMessages?.[sessionId]?.messages?.length > 2 && !info?.scrollExecuted) {
-			setTimeout(() => {
-				smoothScrollToLastMessage();
-			}, 0);
+	useLayoutEffect(() => {
+		if (!info?.scrollExecuted && globalChatMessages?.[sessionId]?.messages) {
+			requestAnimationFrame(() => {
+				smoothScrollToLastMessage('instant');
+			});
+
 			setInfo((prev) => ({
 				...prev,
 				scrollExecuted: true,
@@ -361,57 +351,16 @@ const RecentChat = ({
 		}
 	}, [globalChatMessages, sessionId]);
 
-	// useEffect(() => {
-	// 	if (globalChatMessages?.[sessionId]?.browserData) {
-	// 		setInfo((prev) => {
-	// 			return {
-	// 				...prev,
-	// 				openBrowser: true,
-	// 				browserDataAvailable: true,
-	// 			};
-	// 		});
-	// 	}
-	// }, [globalChatMessages?.[sessionId]?.browserData]);
-
-	// useEffect(() => {
-	// 	if (!chatContentRef?.current || !tabsRefs?.current) return;
-	// 	previousTabsRefs.current = tabsRefs.current;
-	// 	const observer = new IntersectionObserver(
-	// 		() => {
-	// 			Object?.values(tabsRefs?.current)?.forEach((entry) => {
-	// 				if (
-	// 					entry?.getBoundingClientRect()?.top <
-	// 					chatContentRef?.current?.getBoundingClientRect()?.top
-	// 				) {
-	// 					if (!entry?.classList?.contains('sticky-element')) {
-	// 						entry?.classList?.add('sticky-element');
-	// 					}
-	// 				} else {
-	// 					if (entry?.classList?.contains('sticky-element')) {
-	// 						entry?.classList?.remove('sticky-element');
-	// 					}
-	// 				}
-	// 			});
-	// 		},
-	// 		{
-	// 			root: chatContentRef?.current, // Observe within the parent
-	// 			threshold: [0.99, 1], // Triggers when any part enters
-	// 		},
-	// 	);
-
-	// 	Object?.values(tabsRefs?.current)?.forEach((tab) => {
-	// 		observer?.observe(tab);
-	// 	});
-	// 	return () => {
-	// 		Object?.values(previousTabsRefs?.current)?.forEach((tab) => {
-	// 			observer.unobserve(tab);
-	// 		});
-	// 	};
-	// }, [globalChatMessages]);
-
 	useEffect(() => {
 		globalChatMessagesRef.current = globalChatMessages;
 		if (!sessionId) return;
+
+		if (globalChatMessages?.[sessionId]?.messages?.length && info?.isNewChat) {
+			setInfo((prev) => ({
+				...prev,
+				isNewChat: false,
+			}));
+		}
 
 		// const container = chatContentRef.current;
 		// if (!container) return;
@@ -576,6 +525,7 @@ const RecentChat = ({
 					userFeedbackReasons,
 					userRemarks,
 					unintegratedApps,
+					conversationMessages,
 				} = data?.[i] || {};
 
 				if (
@@ -583,6 +533,18 @@ const RecentChat = ({
 					agentType !== 'knowledge_agent'
 				) {
 					continue;
+				}
+
+				let images = [];
+				const content = conversationMessages?.[0]?.content;
+				if (Array.isArray(content)) {
+					content?.forEach((item) => {
+						if (item?.type === 'image_url') {
+							images?.push({
+								preview: item?.['image_url']?.url,
+							});
+						}
+					});
 				}
 
 				if (firstTimeApiCall) {
@@ -632,6 +594,7 @@ const RecentChat = ({
 					{
 						message: originalQuery,
 						type: 'user',
+						images,
 					},
 					{
 						message: response,
@@ -658,51 +621,18 @@ const RecentChat = ({
 				]?.concat(messages);
 			}
 
-			if (messages?.length > 0) {
-				handleGlobalChatMessages({
-					sessionId,
-					fetchMore,
-					recentChatMessages: messages,
-					updateExtraInfo: true,
-					...(chatPayload?.moduleTemplateId &&
-						chatPayload?.workflowTemplateId && { chatPayload }),
-				});
-			}
-			// updateStateValues({
-			// 	...(chatPayload?.moduleTemplateId &&
-			// 		chatPayload?.workflowTemplateId && { chatPayload }),
-			// });
+			const recentChatInfo = { hasNextPage, currentPage };
 
-			// if (fetcMore) {
-			// 	updateStateValues({
-			// 		globalChatMessages: {
-			// 			...(globalChatMessages || {}),
-			// 			[sessionId]: {
-			// 				...(globalChatMessages?.[sessionId] || {}),
-			// 				messages: messages?.concat(chatMessagesRef?.current),
-			// 			},
-			// 		},
-			// 		...(chatPayload?.moduleTemplateId &&
-			// 			chatPayload?.workflowTemplateId && { chatPayload }),
-			// 	});
-			// 	// if (chatContentRef?.current) {
-			// 	// 	chatContentRef.current.scrollBy({
-			// 	// 		top: 300, // Reduced from 500 for smoother feel
-			// 	// 		behavior: 'smooth',
-			// 	// 	});
-			// 	// }
-			// } else {
-			// 	updateStateValues({
-			// 		globalChatMessages: {
-			// 			...(globalChatMessages || {}),
-			// 			[sessionId]: {
-			// 				...(globalChatMessages?.[sessionId] || {}),
-			// 				messages,
-			// 			},
-			// 		},
-			// 		...(chatPayload?.moduleTemplateId &&
-			// 			chatPayload?.workflowTemplateId && { chatPayload }),
-			// 	});
+			// if (messages?.length > 0) {
+			handleGlobalChatMessages({
+				sessionId,
+				fetchMore,
+				recentChatMessages: messages,
+				recentChatInfo,
+				updateExtraInfo: true,
+				...(chatPayload?.moduleTemplateId &&
+					chatPayload?.workflowTemplateId && { chatPayload }),
+			});
 			// }
 
 			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
@@ -747,7 +677,7 @@ const RecentChat = ({
 		[chatContentRef?.current, info?.initialRendering],
 	);
 
-	const smoothScrollToLastMessage = useCallback(() => {
+	const smoothScrollToLastMessage = useCallback((scrollBehavior = 'smooth') => {
 		const scrollElement = chatContentRef?.current;
 		const lastUserMessage = Object?.values(userMessagesRefs.current)?.[
 			Object?.values(userMessagesRefs.current)?.length - 1
@@ -760,7 +690,7 @@ const RecentChat = ({
 		const scrollOffset = lastUserMessageTop - scrollElementTop;
 		scrollElement?.scrollBy({
 			top: scrollOffset,
-			behavior: 'smooth',
+			behavior: scrollBehavior,
 		});
 	}, []);
 
@@ -792,22 +722,18 @@ const RecentChat = ({
 		}, 2000);
 	}, []);
 
-	const fetchMoreData = useCallback(
-		debounce(async () => {
-			if (!info?.hasNextPage || info?.chatLoading) {
-				return;
-			}
-			getRecentChatMessages({
-				sessionId,
-				page: info?.currentPage + 1,
-				fetchMore: true,
-				isPublicChat,
-				removeSessionId: false,
-			});
-			setInfo((prev) => ({ ...prev, chatLoading: true }));
-		}, 1000),
-		[info, sessionId, isPublicChat],
-	);
+	const fetchMoreData = useCallback(() => {
+		const recentChatInfo = globalChatMessages?.[sessionId]?.recentChatInfo;
+		if (!recentChatInfo?.hasNextPage) return;
+
+		getRecentChatMessages({
+			sessionId,
+			page: recentChatInfo?.currentPage + 1,
+			fetchMore: true,
+			isPublicChat,
+			removeSessionId: false,
+		});
+	}, [sessionId, isPublicChat, globalChatMessages?.[sessionId]?.recentChatInfo]);
 
 	const handleBrowserButtonClick = useCallback(() => {
 		if (location?.pathname?.split('/')?.[1] !== 'chat') {
@@ -1025,25 +951,20 @@ const RecentChat = ({
 							className={`chatBodyParentContainer`}
 							ref={chatContentRef}
 							id="scrollableDiv"
-							// style={{
-							// 	'--chat-content-height': `${chatContentRef?.current?.clientHeight}px`,
-							// }}
 						>
 							<InfiniteScroll
-								dataLength={globalChatMessages?.length || 0}
+								dataLength={globalChatMessages?.[sessionId]?.messages?.length || 0}
 								next={fetchMoreData}
-								hasMore={info?.hasNextPage}
+								hasMore={
+									globalChatMessages?.[sessionId]?.recentChatInfo?.hasNextPage ||
+									false
+								}
 								loader={<FetchMoreLoaderComp />}
 								scrollableTarget="scrollableDiv"
 								inverse={true}
 								style={{
-									display: 'flex',
-									flexDirection: 'column-reverse',
-									transition: 'all 0.3s ease',
-									overflow: 'visible',
+									overflow: 'unset',
 								}}
-								scrollThreshold={0.8}
-								className="smooth-scroll"
 							>
 								<div className="chatContent" style={{ flex: 1 }}>
 									{(globalChatMessages?.[sessionId]?.messages || [])?.map(
@@ -1131,6 +1052,9 @@ const RecentChat = ({
 																			1
 																	}
 																	sessionId={sessionId}
+																	showResponseEditBtn={
+																		showResponseEditBtn
+																	}
 																/>
 															</div>
 														) : (
@@ -1198,6 +1122,11 @@ const RecentChat = ({
 									globalChatMessages?.[sessionId]?.browserData?.browserMetadata
 										?.signedUrl
 								}
+								showBottomTools={showBottomTools}
+								showMicBtn={showMicBtn}
+								showRecentFiles={showRecentFiles}
+								isDesktopApp={isDesktopApp}
+								handleDesktopAppPayload={handleDesktopAppPayload}
 							/>
 						</div>
 					</div>

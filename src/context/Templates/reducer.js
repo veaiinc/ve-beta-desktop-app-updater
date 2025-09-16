@@ -223,6 +223,7 @@ const actionHandlers = {
 			chatBoxInfo,
 			chatInfo,
 			browserTabsInfo,
+			recentChatInfo,
 		} = action?.payload;
 		let messages = [...(state?.globalChatMessages?.[sessionId]?.messages || [])];
 
@@ -249,6 +250,10 @@ const actionHandlers = {
 					...payload,
 				};
 				sessionIdData.browserData = browserData;
+			}
+
+			if (recentChatInfo) {
+				sessionIdData.recentChatInfo = recentChatInfo;
 			}
 
 			if (browserTabsInfo) {
@@ -550,12 +555,17 @@ const actionHandlers = {
 				};
 			}
 		} else {
+			let chainOfThought = [];
+			if (payload?.cot === 'chain_of_thought' || payload?.step || payload?.plan) {
+				chainOfThought?.push(payload);
+			}
 			messages?.push({
 				...payload,
 				type: 'AI',
 				contentType: 'message',
 				message: payload?.answer || '',
 				messageId: payload?.message_id,
+				chainOfThought,
 			});
 		}
 
@@ -634,7 +644,22 @@ const actionHandlers = {
 		let suggestions = [...(aiTranscriptionSuggestions?.suggestions || [])];
 
 		if (suggested_prompt) {
-			suggestions?.push(suggested_prompt);
+			if ('reference_id' in suggested_prompt) {
+				const index = suggestions?.findIndex(
+					(s) => s.prompt_id === suggested_prompt.reference_id,
+				);
+
+				if (index !== -1) {
+					// Replace existing
+					suggestions[index] = suggested_prompt;
+				} else {
+					// Add new
+					suggestions?.push(suggested_prompt);
+				}
+			} else {
+				// Old version → always push
+				suggestions?.push(suggested_prompt);
+			}
 		}
 
 		if (similar_files) {

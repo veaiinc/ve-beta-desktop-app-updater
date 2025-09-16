@@ -8,20 +8,36 @@
 	gap: 10px;
 
 	.uploaded-images-container {
-		width: fit-content;
-		max-width: 530px;
+		width: 100%;
+		max-width: 70%;
 		overflow-y: auto;
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: flex-end;
 		gap: 6px;
-		height: 128px;
 
 		.uploaded-image {
 			width: 128px;
 			height: 128px;
 			cursor: pointer;
 			border-radius: 8px;
+			overflow: hidden;
+
+			img {
+				width: 100%;
+				height: 100%;
+				background-position: center;
+				object-fit: cover;
+			}
+		}
+
+		.count-one {
+			width: 100%;
+			max-width: 55%;
+			height: fit-content;
+			display: flex;
+			align-items: flex-start;
+			justify-content: flex-end;
 		}
 	}
 
@@ -145,7 +161,7 @@
 	.user-edit-query-input-box-container {
 		display: flex;
 		max-height: 400px;
-		width: 700px;
+		width: 100%;
 		padding: 16px;
 		flex-direction: column;
 		gap: 12px;
@@ -162,7 +178,7 @@
 			background: transparent;
 			color: var(--primary-font);
 			font-family: var(--primary-font-family);
-			font-size: 14px;
+			font-size: 15px;
 			font-style: normal;
 			font-weight: 400;
 			line-height: normal;
