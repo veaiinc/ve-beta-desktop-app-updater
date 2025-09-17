@@ -65,6 +65,7 @@ import {
 	deleteLiveKitRoomMutation,
 	getMeetTranscriptHistoryQuery,
 	getAiLiveIntelligenceHistoryQuery,
+	deleteMeetingMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -2084,6 +2085,36 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const deleteMeeting = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				deleteMeetingMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'meeting_api',
+			);
+			if (response?.[0]) {
+				const updatedPayload = {
+					...(state?.existingBots || {}),
+					data: state?.existingBots?.data?.filter(
+						(bot) => bot?._id !== payload?.meetingId,
+					),
+					totalDocs: state?.existingBots?.totalDocs - 1,
+				};
+				dispatch({
+					type: Actions.GET_EXISTING_BOTS_SUCCESS,
+					payload: updatedPayload,
+				});
+				return response;
+			}
+		} catch (error) {
+			console.error('error==>deleteMeeting', error);
+		}
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -2149,5 +2180,6 @@ export const NotesState = (props) => {
 		updateMeetingPreferences,
 		getAiLiveIntelligenceHistory,
 		initializeMeetingSummary,
+		deleteMeeting,
 	};
 };
