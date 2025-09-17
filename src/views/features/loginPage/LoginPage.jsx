@@ -122,7 +122,7 @@ const LoginPage = () => {
 					lastOtpEmail={info?.lastOtpEmail}
 				/>
 
-				{!info?.cookiesAccepted && info?.showCookiesNotice && (
+				{/* {!info?.cookiesAccepted && info?.showCookiesNotice && (
 					<div className="cookies-notice">
 						<div className="cookie-container">
 							<p className="cookie-text">
@@ -139,14 +139,14 @@ const LoginPage = () => {
 						</div>
 						<div className="buttons-container">
 							<div className="decline-button" onClick={handleDeclineCookies}>
-								Deny all
+								Deny Cookie
 							</div>
 							<div className="accept-button" onClick={handleAcceptCookies}>
-								Accept
+								Accept all
 							</div>
 						</div>
 					</div>
-				)}
+				)} */}
 			</>
 		),
 		verificationCode: (

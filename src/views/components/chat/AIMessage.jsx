@@ -1,4 +1,4 @@
-import { memo, useContext, useState, useCallback, useEffect } from 'react';
+import { memo, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import Context from '../../../context/context';
 import { Markdown } from '../../../helpers/markdownHelper';
 import { Tooltip } from 'antd';
@@ -17,6 +17,7 @@ import IntermediateSteps from './chatComponents/IntermediateSteps';
 import { fileTypeIcons, getFaviconUrl, getWebsiteName } from '../../../helpers';
 import BrowserChainOfThought from './chatComponents/BrowserChainOfThought';
 import { ReactComponent as VeLogoSvg } from '../../../assets/svg/veLogo.svg';
+import TextSelector from './chatComponents/TextSelector';
 
 const tooltipStyles = {
 	body: { color: 'var(--primary-font)' },
@@ -33,10 +34,12 @@ const pencilIconStyles = {
 	position: 'relative',
 	top: '-2px',
 };
+
+const replyElementInitialState = { visible: false, styles: { top: 0, left: 0 }, selectedText: '' };
 const AIMessage = ({
 	text,
 	customePencilClickFunc = null,
-	citations = null,
+	citations = [],
 	messageData,
 	isLastMessage = false,
 	showCanvas = true,
@@ -47,22 +50,49 @@ const AIMessage = ({
 	messageIndex = null,
 	showCitationsButton = true,
 	sessionId = null,
+	showResponseEditBtn = true,
 }) => {
 	const {
 		documentPreview: { setNoteContent },
 		templates: { updateStateValues, aiMessagesInfo, globalChatMessages },
 	} = useContext(Context);
 
+	const markdownContainerRef = useRef(null);
+
 	const [info, setInfo] = useState({
 		isCopiedToClipboard: false,
 		feedbackPopupOpen: false,
 		liked: null,
 		usedAgents: [],
+		replyElementStyles: replyElementInitialState,
 	});
 
 	useEffect(() => {
-		const usedAgents = messageData?.used_agents?.filter((agent) => builderAgentMapper[agent]);
-		setInfo((prev) => ({ ...prev, usedAgents: usedAgents }));
+		if (markdownContainerRef.current) {
+			markdownContainerRef.current.addEventListener('mouseup', handleMouseUp);
+		}
+
+		return () => {
+			if (markdownContainerRef.current) {
+				markdownContainerRef.current.removeEventListener('mouseup', handleMouseUp);
+			}
+		};
+	}, [text]);
+
+	useEffect(() => {
+		document.addEventListener('mousedown', handleMouseDown);
+		return () => {
+			document.removeEventListener('mousedown', handleMouseDown);
+		};
+	}, []);
+
+	useEffect(() => {
+		if (messageData?.used_agents) {
+			const usedAgents = messageData?.used_agents?.filter(
+				(agent) => builderAgentMapper[agent],
+			);
+			setInfo((prev) => ({ ...prev, usedAgents: usedAgents }));
+		}
 	}, [messageData?.used_agents]);
 
 	const handleUpdateId = (workflowTemplateId, moduleTemplateId) => {
@@ -93,6 +123,71 @@ const AIMessage = ({
 
 	const handleTeachMeClick = useCallback(() => {
 		setInfo((prev) => ({ ...prev, feedbackPopupOpen: true }));
+	}, []);
+
+	const handleMouseDown = useCallback(() => {
+		setInfo((prev) => {
+			const { visible, styles, selectedText } = prev?.replyElementStyles || {};
+
+			if (
+				prev?.replyElementStyles &&
+				(visible || styles?.top !== 0 || styles?.left !== 0 || selectedText)
+			) {
+				return {
+					...prev,
+					replyElementStyles: replyElementInitialState,
+				};
+			}
+			return prev;
+		});
+	}, []);
+
+	const handleMouseUp = useCallback(() => {
+		setTimeout(() => {
+			const selection = window?.getSelection();
+
+			if (selection && !selection?.isCollapsed) {
+				const range = selection?.getRangeAt(0);
+				const rects = range?.getClientRects();
+				const selectedText = selection?.toString();
+
+				if (rects?.length > 0) {
+					const firstRect = rects[0];
+					const x = firstRect?.left + window?.scrollX;
+					const y = firstRect?.top + window?.scrollY;
+
+					const containerRect = markdownContainerRef.current?.getBoundingClientRect();
+
+					// Calculate x and y relative to the infinite scroll container
+					const relativeX = x - (containerRect?.left || 0);
+					const relativeY = y - 44 - (containerRect?.top || 0);
+
+					setInfo((prev) => ({
+						...prev,
+						replyElementStyles: {
+							selectedText,
+							visible: true,
+							styles: { top: relativeY, left: relativeX },
+						},
+					}));
+				}
+			} else {
+				setInfo((prev) => {
+					const { visible, styles, selectedText } = prev?.replyElementStyles || {};
+					if (
+						visible === false &&
+						styles?.top === 0 &&
+						styles?.left === 0 &&
+						!selectedText
+					)
+						return prev;
+					return {
+						...prev,
+						replyElementStyles: replyElementInitialState,
+					};
+				});
+			}
+		}, 0);
 	}, []);
 
 	const handlePromptClick = (prompt) => {
@@ -131,8 +226,22 @@ const AIMessage = ({
 		}
 	};
 
+	const handleReplyElementClose = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			replyElementStyles: replyElementInitialState,
+		}));
+	}, []);
+
 	return (
 		<div className="ai-message-container">
+			<TextSelector
+				styles={info?.replyElementStyles?.styles}
+				text={info?.replyElementStyles?.selectedText}
+				visible={info?.replyElementStyles?.visible}
+				handleReplyElementClose={handleReplyElementClose}
+			/>
+
 			{info?.usedAgents?.length > 0 &&
 				messageData?.workflow_template_id &&
 				messageData?.module_template_id &&
@@ -185,7 +294,12 @@ const AIMessage = ({
 			) : messageData?.widget_type === 'clarifyWidget' ? (
 				<ClarifyWidget data={messageData?.data} sessionId={sessionId} />
 			) : (
-				<Markdown citations={citations}>{text}</Markdown>
+				<div className="markdown-container" ref={markdownContainerRef}>
+					{/* here animate key's initial value only used, next updated animate value will not reach markdown component */}
+					<Markdown citations={citations} animate={!(messageData?.stream_end || false)}>
+						{text}
+					</Markdown>
+				</div>
 			)}
 
 			{messageData?.unintegrated_apps?.length > 0 ? (
@@ -222,22 +336,25 @@ const AIMessage = ({
 								)}
 							</Tooltip>
 						</div>
-						<div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								color="transparent"
-								title={<div className="hover-icons-tooltip">Edit</div>}
-								styles={tooltipStyles}
-							>
-								<PencilSparkleIcon
-									style={pencilIconStyles}
-									onClick={handlePencilClick}
-								/>
-							</Tooltip>
-						</div>
-						<Tooltip
+						{showResponseEditBtn && (
+							<div className="icon-container">
+								<Tooltip
+									placement="bottom"
+									arrow={false}
+									trigger={'hover'}
+									color="transparent"
+									title={<div className="hover-icons-tooltip">Edit</div>}
+									styles={tooltipStyles}
+								>
+									<PencilSparkleIcon
+										style={pencilIconStyles}
+										onClick={handlePencilClick}
+									/>
+								</Tooltip>
+							</div>
+						)}
+
+						{/* <Tooltip
 							placement="bottom"
 							arrow={false}
 							trigger={'hover'}
@@ -250,9 +367,9 @@ const AIMessage = ({
 									className="teach-me-icon"
 									style={{ width: '19px', height: '19px' }}
 								/>
-								{/* <div className="teach-me-text">Teach me</div> */}
 							</div>
-						</Tooltip>
+						</Tooltip> */}
+
 						{messageData?.citations?.length > 0 && showCitationsButton && (
 							<div
 								className="ai-message-sources-container"
@@ -362,6 +479,7 @@ export default memo(AIMessage, (prevProps, nextProps) => {
 		prevProps.handleSourcesClick === nextProps.handleSourcesClick &&
 		prevProps.messageIndex === nextProps.messageIndex &&
 		prevProps.showCitationsButton === nextProps.showCitationsButton &&
-		prevProps.sessionId === nextProps.sessionId
+		prevProps.sessionId === nextProps.sessionId &&
+		prevProps.showResponseEditBtn === nextProps.showResponseEditBtn
 	);
 });

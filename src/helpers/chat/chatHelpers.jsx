@@ -7,19 +7,21 @@ export const handleDeepSearchChainOfThought = (chainOfThought) => {
 	for (let i = 0; i < chainOfThought?.length; i++) {
 		const data = chainOfThought?.[i] || {};
 		if (data?.step) {
-			cot?.push({ step: data?.step, readings: data?.reading || [] });
+			cot?.push({
+				step: data?.step,
+				title: data?.title || null,
+				readings: data?.reading || [],
+			});
+		} else if (data?.plan) {
+			cot?.push(data);
 		}
-
-		// if (data?.memory_thinking) {
-		// 	cot?.push({ step: data?.memory_thinking });
-		// }
 	}
 
-	return { cot };
+	return cot;
 };
 
-export const updateCitationIdsWithCitations = (input = '', citations = null) => {
-	const regex = /\[C\d+\]/g;
+export const updateCitationIdsWithCitations = (input = '', citations = []) => {
+	const regex = /\[C\d+\]/g; // citation regex [C1] [C2] [C3] etc.
 	const parts = input?.split(regex);
 	const matches = input?.match(regex) || [];
 	const result = [];
@@ -274,4 +276,26 @@ export const getBrowserUrls = async (sessionId, handleGlobalChatMessages) => {
 		console.error('error==>getBrowserUrls', error);
 		return;
 	}
+};
+
+export const getFileType = (file) => {
+	let type = file?.type || file?.sourceType || null;
+	if (!type) return 'Unknown';
+
+	type = type?.toLowerCase();
+
+	if (type === 'application/pdf') return 'PDF';
+	if (
+		type === 'application/msword' ||
+		type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+	)
+		return 'DOCX';
+	if (
+		type === 'application/vnd.ms-excel' ||
+		type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+	)
+		return 'XLSX';
+	if (type === 'text/csv') return 'CSV';
+
+	return type;
 };

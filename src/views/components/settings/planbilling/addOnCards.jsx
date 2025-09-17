@@ -10,15 +10,48 @@ import SubscriptionChange from '../../modalsV2/subscription/SubscriptionChange';
 import '../../../../assets/scss/settings/planBilling.scss';
 import { pricingPlansData } from '../../../../helpers/pricingPlans';
 import { ReactComponent as CheckIcon } from '../../../../assets/svg/Settings/PricingCheck.svg';
+import { ReactComponent as CloseIcon } from '../../../../assets/svg/close.svg';
 
 const customStyles = {
-	content: { zIndex: 1003 },
-	overlay: { zIndex: 1002 },
+	content: {
+		zIndex: 1003,
+		position: 'fixed',
+		top: '0',
+		left: '0',
+		right: '0',
+		bottom: '0',
+		width: '100vw',
+		height: '100vh',
+		maxWidth: '100vw',
+		maxHeight: '100vh',
+		borderRadius: '0',
+		padding: '0',
+		margin: '0',
+		transform: 'none',
+		backgroundColor: 'var(--background-color)',
+	},
+	overlay: {
+		zIndex: 1002,
+		backgroundColor: 'rgba(0, 0, 0, 0.8)',
+	},
 };
 
 const mobileStyles = {
 	content: {
-		transform: 'translate(-50%, -40%)',
+		position: 'fixed',
+		top: '0',
+		left: '0',
+		right: '0',
+		bottom: '0',
+		width: '100vw',
+		height: '100vh',
+		maxWidth: '100vw',
+		maxHeight: '100vh',
+		borderRadius: '0',
+		padding: '0',
+		margin: '0',
+		transform: 'none',
+		backgroundColor: 'var(--background-color)',
 	},
 };
 const AddOnPlans = ({
@@ -62,7 +95,7 @@ const AddOnPlans = ({
 		resumeSubscriptionLoading: false,
 		isMobile: window.matchMedia('(max-width: 767px)').matches,
 		startTrialLoading: false,
-		subscriptionState: subscriptionState || 'upgradeSubscription',
+		subscriptionState: 'upgradeSubscription',
 	}));
 
 	// ID of the user's current plan
@@ -76,6 +109,15 @@ const AddOnPlans = ({
 		currentPlan?.renewalType === 'yearly'
 			? currentPlanSubscribed?.yearlyPrice || 0
 			: currentPlanSubscribed?.monthlyPrice || 0;
+
+	useEffect(() => {
+		if (isOpen && subscriptionState) {
+			setInfo((prev) => ({
+				...prev,
+				subscriptionState: subscriptionState,
+			}));
+		}
+	}, [subscriptionState]);
 
 	useEffect(() => {
 		if (isOpen) {
@@ -116,7 +158,16 @@ const AddOnPlans = ({
 				}
 			}
 		} else {
-			mappableData = subscriptionPlans;
+			mappableData = subscriptionPlans || [];
+
+			// Add Enterprise plan by default if it doesn't exist in API data
+			const enterprisePlan = pricingPlansData.plans.enterprise;
+
+			// Add Enterprise plan if not already present
+			if (!mappableData?.some((item) => item?.plan?.toLowerCase() === 'enterprise')) {
+				mappableData?.push(enterprisePlan);
+			}
+
 			// Include the scheduled downgrade plan in upgradeSubscription mode if needed
 			if (currentPlan?.scheduledUpdate?.planId) {
 				const scheduledPlan = subscriptionPlans?.find(
@@ -161,8 +212,26 @@ const AddOnPlans = ({
 		}));
 	};
 	const getPlanFeatures = (planName) => {
+		if (!planName) return pricingPlansData.commonFeatures;
+
 		const planKey = planName?.toLowerCase();
-		return pricingPlansData.plans[planKey]?.features || pricingPlansData.commonFeatures;
+
+		// Try exact match first
+		if (pricingPlansData.plans[planKey]) {
+			return pricingPlansData.plans[planKey].features;
+		}
+
+		// Try to find by name match (case insensitive)
+		const matchingPlan = Object.values(pricingPlansData.plans).find(
+			(plan) => plan.name?.toLowerCase() === planKey,
+		);
+
+		if (matchingPlan) {
+			return matchingPlan.features;
+		}
+
+		// Fallback to common features
+		return pricingPlansData.commonFeatures;
 	};
 	const handleCheckout = async () => {
 		if (info?.checkoutLoader) return;
@@ -419,32 +488,11 @@ const AddOnPlans = ({
 			isOpen={isOpen}
 			closeModal={closeModal}
 			contentLabel="AddOns Modal"
-			customStyles={{
-				...customStyles,
-				...(info?.isMobile
-					? {
-							...mobileStyles,
-							content: {
-								...mobileStyles.content,
-								width: '95%',
-								maxWidth: '400px',
-								height: '90vh',
-								maxHeight: '90vh',
-								borderRadius: '16px',
-								padding: '0',
-								margin: '0',
-							},
-							overlay: {
-								...customStyles.overlay,
-								backgroundColor: 'rgba(0, 0, 0, 0.7)',
-							},
-					  }
-					: {}),
-			}}
+			customStyles={customStyles}
 			ariaHideApp={false}
 			shouldCloseOnOverlayClick={true}
 			shouldCloseOnEsc={true}
-			className={`addonmodel ${info?.isMobile ? 'mobile-modal' : ''}`}
+			className="addonmodel fullscreen-modal"
 		>
 			<div className="addOnsHeader">
 				<div className="subscriptionTypeContainer">
@@ -498,8 +546,11 @@ const AddOnPlans = ({
 						</div>
 					</div>
 				</div>
+				<button className="closeButton" onClick={closeModal}>
+					<CloseIcon />
+				</button>
 			</div>
-			<div className="addOnsContainer">
+			<div className="addOnsContainer fullscreen-container">
 				<div className="tabs-wrapper">
 					<div
 						className={`addOnsTabsTime ${
@@ -524,7 +575,7 @@ const AddOnPlans = ({
 							}`}
 							onClick={() => handlePeriodChange('One Time Purchase')}
 						>
-							One Time Purchase
+							Ai Credits
 						</div>
 					)}
 				</div>
@@ -579,7 +630,7 @@ const AddOnPlans = ({
 										currentPlan?.renewalType === 'Yearly') ||
 									(info.selectedPeriod === 'Monthly' &&
 										currentPlan?.renewalType === 'monthly');
-								const planFeatures = getPlanFeatures(plan?.plan);
+								const planFeatures = getPlanFeatures(plan);
 								return (
 									<div className="addOnsCards" key={planId}>
 										{/* A) "Currently Active" badge */}
@@ -603,24 +654,24 @@ const AddOnPlans = ({
 														{currency === 'INR' ? '₹ ' : '$ '}
 													</span>
 													<span className="priceValue">
-														{priceForPeriod}
+														{priceForPeriod || 'Custom'}
 														<span className="priceDuration">
-															{yearlyPrice > 0 &&
-																monthlyPrice > 0 &&
-																(() => {
-																	const users =
-																		addOn?.tenantUserDetails
-																			?.numberOfUsers;
-																	const isYearly =
-																		info.selectedPeriod ===
-																		'Yearly';
-																	const duration = isYearly
-																		? 'Year'
-																		: 'Month';
-																	if (users === '*' || !users)
-																		return ` Unlimited users/${duration}`;
+															{(() => {
+																const users =
+																	addOn?.tenantUserDetails
+																		?.numberOfUsers;
+																const isYearly =
+																	info.selectedPeriod ===
+																	'Yearly';
+																const duration = isYearly
+																	? 'Year'
+																	: 'Monthly';
+
+																if (users === '*')
+																	return ` Unlimited users/${duration}`;
+																if (users && duration)
 																	return ` ${users} User/${duration}`;
-																})()}
+															})()}
 														</span>
 													</span>
 												</div>
@@ -656,16 +707,20 @@ const AddOnPlans = ({
 												</>
 											)}
 										</div>
-										{/* <div className="pricingFeatures">
-											{planFeatures.map((feature, index) => (
-												<div className="feature-item" key={index}>
-													<div className="feature-check">
-														<CheckIcon />
+										{info?.subscriptionState === 'upgradeSubscription' && (
+											<div className="pricingFeatures">
+												{planFeatures.map((feature, index) => (
+													<div className="feature-item" key={index}>
+														<div className="feature-check">
+															<CheckIcon />
+														</div>
+														<span className="feature-text">
+															{feature}
+														</span>
 													</div>
-													<span className="feature-text">{feature}</span>
-												</div>
-											))}
-										</div> */}
+												))}
+											</div>
+										)}
 
 										{info?.subscriptionState === 'upgradeSubscription' &&
 											isSeatBasedPlan &&
@@ -832,21 +887,39 @@ const AddOnPlans = ({
 																</div>
 															</>
 														) : (
-															planId !== currentPlanId &&
-															hasPositivePrice &&
-															currentPlanPrice === 0 && (
-																<button
-																	onClick={() =>
-																		handlePurchaseAddOn(addOn)
-																	}
-																	className="addOnsButton"
-																>
-																	{info?.subscriptionState ===
-																	'upgradeSubscription'
-																		? 'Buy Now'
-																		: 'Add To Cart'}
-																</button>
-															)
+															<>
+																{/* Contact Sales button for Enterprise plan */}
+																{addOn?.contactSales ? (
+																	<button
+																		onClick={() => {
+																			// You can add contact sales logic here
+																			// For now, just show an alert
+																			alert(
+																				'Contact Sales: Please reach out to our sales team (sales@ve.ai) for Enterprise pricing.',
+																			);
+																		}}
+																		className="addOnsButton contact-sales"
+																	>
+																		Contact Sales
+																	</button>
+																) : (
+																	planId !== currentPlanId && (
+																		<button
+																			onClick={() =>
+																				handlePurchaseAddOn(
+																					addOn,
+																				)
+																			}
+																			className="addOnsButton"
+																		>
+																			{info?.subscriptionState ===
+																			'upgradeSubscription'
+																				? 'Buy Now'
+																				: 'Add To Cart'}
+																		</button>
+																	)
+																)}
+															</>
 														)}
 													</>
 												)}

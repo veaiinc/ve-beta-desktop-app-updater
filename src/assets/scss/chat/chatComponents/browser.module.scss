@@ -33,6 +33,7 @@
 	.body {
 		position: relative;
 		flex-grow: 1;
+		overflow: auto;
 		display: flex;
 		flex-direction: column;
 		width: 100%;
@@ -50,9 +51,9 @@
 			height: 100%;
 			z-index: 1500;
 			margin: 0;
-			padding-bottom: 0px;
-			border-radius: 0;
+			padding: 0px;
 			background-color: var(--card-over-card-hover);
+			border-radius: 0;
 
 			.browserIframeContainer {
 				overflow-y: auto;
@@ -60,6 +61,7 @@
 				border-radius: 0;
 				.browserIframe {
 					height: 100%;
+					max-width: 1500px;
 				}
 			}
 
@@ -79,37 +81,6 @@
 			justify-content: center;
 		}
 
-		.tabsContainer {
-			display: flex;
-			flex-wrap: wrap;
-			gap: 10px;
-			max-height: 93px;
-			overflow-y: auto;
-			flex-shrink: 0;
-
-			.tab {
-				padding: 6px 14px;
-				max-width: 200px;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				white-space: nowrap;
-				border-radius: 100px;
-				background: var(--primary-font);
-				cursor: pointer;
-				color: var(--background-color, #121212);
-				font-family: var(--primary-font-family);
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				border: 2px solid transparent;
-				height: 36px;
-
-				&.active {
-					border: 2px solid var(--primary-button);
-				}
-			}
-		}
-
 		.browserIframeContainer {
 			width: 100%;
 			display: flex;
@@ -122,11 +93,10 @@
 
 			.browserIframe {
 				width: 100%;
-				aspect-ratio: 5/6;
+				aspect-ratio: 5 / 4;
 				position: relative;
 				border: none;
 				box-shadow: 0px 4px 60px 0 rgba(0, 0, 0, 0.16);
-				border-radius: 12px;
 			}
 
 			.takeControlBtn {
@@ -155,12 +125,6 @@
 		}
 	}
 }
-
-// @media (max-width: 1600px) {
-// 	.browserIframeContainer {
-// 		align-items: center !important;
-// 	}
-// }
 
 @media (max-width: 1250px) {
 	.browserContainer.open {

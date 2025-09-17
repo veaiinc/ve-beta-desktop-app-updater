@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import { message } from 'antd';
 import getBaseUrl from '../services/baseUrls';
+import Context from '../context/context';
 
 const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
 
@@ -13,6 +14,9 @@ const useAssemblyTranscription = ({
 	jwtToken,
 	isAiIntelligenceEnabled,
 }) => {
+	const {
+		notes: { initializeMeetingSummary },
+	} = useContext(Context);
 	const [isConnected, setIsConnected] = useState(false);
 	const [isRecording, setIsRecording] = useState(false);
 	const [isMuted, setIsMuted] = useState(false);
@@ -211,7 +215,9 @@ const useAssemblyTranscription = ({
 		// Reset buffers
 		audioBufferRef.current = [];
 		sampleCountRef.current = 0;
-	}, [log]);
+		cleanup();
+		initializeMeetingSummary({ meeting_id: meetingId });
+	}, [log, meetingId]);
 
 	const connect = useCallback(async () => {
 		// Prevent multiple simultaneous connection attempts
@@ -388,6 +394,7 @@ const useAssemblyTranscription = ({
 				websocketRef.current.send(
 					JSON.stringify({
 						type: 'audio_data',
+						source: 'mic',
 						data: { audio_data: base64Audio, sample_rate: 16000 },
 					}),
 				);

@@ -80,6 +80,10 @@ const regionBaseUrls = {
 			environment === 'production'
 				? 'https://ap.api.ve.ai/page-notes/1.0'
 				: 'https://ap.api.ve.ai/page-notes/1.0',
+		meeting_api:
+			environment === 'production'
+				? 'https://ap.api.ve.ai/meeting/1.0'
+				: 'https://ap.api.ve.ai/meeting/1.0',
 		elastic_search_api:
 			environment === 'production'
 				? 'https://ap.api.ve.ai/elastic-search/1.0'
@@ -183,6 +187,10 @@ const regionBaseUrls = {
 			environment === 'production'
 				? 'https://us.api.ve.ai/block-notes/1.0'
 				: 'https://us.api.ve.ai/block-notes/1.0',
+		meeting_api:
+			environment === 'production'
+				? 'https://us.api.ve.ai/meeting/1.0'
+				: 'https://us.api.ve.ai/meeting/1.0',
 		page_notes_api_database:
 			environment === 'production'
 				? 'https://us.api.ve.ai/page-notes/1.0'
@@ -223,7 +231,7 @@ const regionBaseUrls = {
 			environment === 'production'
 				? 'wss://recall.us-east-1.ve.ai/frontend/ws'
 				: 'wss://recall-dev.us-east-1.ve.ai/frontend/ws',
-		voice_agent_api: 'wss://ve-voice-agent-g4ptyv6v.livekit.cloud',
+		voice_agent_api: 'wss://ve-ai-voice-agent-ginreaey.livekit.cloud',
 		browser_ws_api: 'wss://browser.us-east-1.ve.ai', // Browser Agent
 		generate_voice_agent_token_api: 'https://voice.us-east-1.ve.ai',
 	},

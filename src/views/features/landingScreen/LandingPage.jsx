@@ -175,9 +175,12 @@ const LandingPage = () => {
 				<CustomToast />
 				<header className={`page-header${info.navVisible ? '' : ' hidden'}`}>
 					<div className="page-header-wrapper">
-						<Link to="/">
-							<VeSvg width={36} height={24} fill="var(--primary-font)" />
-						</Link>
+						<div className="ve-logo-container">
+							<Link to="/">
+								<VeSvg width={36} height={24} fill="var(--primary-font)" />
+							</Link>
+						</div>
+
 						<div className="middle-container">
 							{!mobileMenuOpen && (
 								<TabNavigation tab={tab} handleSetTab={handleSetTab} />

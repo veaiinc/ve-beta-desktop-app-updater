@@ -672,10 +672,9 @@ const GalleryPage = () => {
 				galleryCredentials: null,
 				albumDetails: null,
 				imagesList: null,
-
 				imageDetail: null,
 				galleryGuestAccess: null,
-
+				tenantGalleries: null,
 				clientSelectionsData: null,
 				clientSelectionImages: null,
 				aiFace: null,
@@ -1784,8 +1783,7 @@ const GalleryPage = () => {
 	};
 	const handleUploadClicked = (option = 'uploading') => {
 		const region = localStorage.getItem('region');
-		const isMac = navigator.userAgentData?.platform === 'macOS';
-		if (!info?.isDesktop && region === 'us-east-1' && isMac) {
+		if (!info?.isDesktop && region === 'us-east-1') {
 			setInfo((prev) => ({
 				...prev,
 				desktopPopup: true,
@@ -2683,13 +2681,13 @@ const GalleryPage = () => {
 				}));
 
 				// Refresh data
-				// await Promise.all(
-				// 	[
-				// 		getAlbumImagesCount(galleryId),
-				// 		getAlbums(galleryId),
-				// 		info.coverType === 'gallery' && getGalleries({}, true),
-				// 	].filter(Boolean),
-				// );
+				await Promise.all(
+					[
+						getAlbumImagesCount(galleryId),
+						getAlbums(galleryId),
+						info.coverType === 'gallery' && getGalleries({}, true),
+					].filter(Boolean),
+				);
 				message.destroy();
 				showMessage(
 					'success',

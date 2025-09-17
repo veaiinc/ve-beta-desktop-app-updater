@@ -22,13 +22,23 @@ import useBroadcastChannel from '../../../../../hooks/useBroadcastChannel';
 import { ReactComponent as BackIcon } from '../../../../../assets/svg/mobile/back.svg';
 import { ReactComponent as CloseIcon } from '../../../../../assets/svg/mobile/close.svg';
 import { ReactComponent as PlusSvg } from '../../assets/plus.svg';
+import CreditsLeftSvg from '../../../sidebar/chatHistory/CreditsLeftSvg';
+import { ReactComponent as ChevronRightThinSvg } from '../../../../../assets/svg/tasks/chevronRightThin.svg';
+import AddOnCards from '../../../settings/planbilling/addOnCards';
 
-const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
 const desktopAppDownloadWindows = import.meta.env.VITE_APP_DESKTOP_APP_WINDOWS_DOWNLOAD_URL || null;
 const deepLinkUrl = 'veai://open';
 const isMac =
 	navigator.userAgentData?.platform === 'macOS' ||
 	navigator.userAgent.toLowerCase().indexOf('mac') !== -1;
+const isMacIntel64 =
+	navigator.userAgent.includes('Macintosh') &&
+	navigator.userAgent.includes('Intel') &&
+	navigator.userAgent.includes('x86_64');
+
+const desktopAppDownloadUrl = isMacIntel64
+	? import.meta.env.VITE_APP_DESKTOP_APP_MACINTEL64_DOWNLOAD_URL
+	: import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
 
 export const settingsItems = [
 	{
@@ -106,10 +116,14 @@ const Settings = ({
 		intercomOpen: false,
 		isMobileView: window.matchMedia('(max-width: 767px)').matches,
 		isDesktop: false,
+		addOnCardsModalOpen: false,
+		subscriptionState: null,
+		selectedPeriodProp: null,
 	}));
 
 	const {
 		profileInfo: { tenantUserAccessControls, userWorkSpaceList, tennantSettingsData },
+		subscriptionInfo: { currentPlan, subscriptionPlans, getAllSubscriptionPlan },
 	} = useContext(Context);
 
 	const fullName = `${firstName ?? ''} ${lastName ?? ''}`;
@@ -126,6 +140,18 @@ const Settings = ({
 			}));
 		}
 	}, []);
+	useEffect(() => {
+		if (!subscriptionPlans) {
+			getAllSubscriptionPlan();
+		}
+	}, [subscriptionPlans]);
+
+	const currentPlanData = subscriptionPlans?.find(
+		(plan) => plan._id === currentPlan?.currentPlanId,
+	);
+
+	// ✅ Extract the plan title (fallback to 'Free' or currentPlan?.currentPlan if not found)
+	const currentPlanTitle = currentPlanData?.plan || currentPlan?.currentPlan || 'Free';
 	const handleInstallOrOpen = () => {
 		window.location.href = deepLinkUrl;
 
@@ -217,6 +243,51 @@ const Settings = ({
 					<p className={s.businessName}>{businessName}</p>
 				</div>
 			</header>
+			<div className={s.settingsPlans}>
+				<div className={s.settingCurrentPlan}>
+					<div className={s.settingPlanName}>{currentPlanTitle}</div>
+					<div
+						className={s.settingsUpgrade}
+						onClick={() => {
+							setInfo((prev) => ({
+								...prev,
+								addOnCardsModalOpen: true,
+								subscriptionState: 'upgradeSubscription',
+							}));
+						}}
+					>
+						Upgrade
+					</div>
+				</div>
+				<div className={s.settingsDivider}></div>
+				<div className={s.settingsCredits}>
+					<div className={s.settingsCreditsLeft}>
+						<CreditsLeftSvg
+							totalAiCreditLimit={currentPlan?.totalAiCreditLimit}
+							totalAiCreditUsed={currentPlan?.totalAiCreditUsed}
+						/>
+						<span className={s.settingsCreditsTitle}>Credits</span>
+					</div>
+					<div
+						className={s.settingsCreditsCount}
+						onClick={() => {
+							setInfo((prev) => ({
+								...prev,
+								addOnCardsModalOpen: true,
+								subscriptionState: 'addOnPlans',
+								selectedPeriodProp: 'One Time Purchase ',
+							}));
+						}}
+					>
+						<span className={s.settingsCreditsLeftCount}>
+							{(
+								currentPlan?.totalAiCreditLimit - currentPlan?.totalAiCreditUsed
+							).toFixed(2)}
+						</span>
+						<ChevronRightThinSvg />
+					</div>
+				</div>
+			</div>
 			<div className={s.settingsItems}>
 				{settingsItems.map((settingItem) => (
 					<div
@@ -327,6 +398,12 @@ const Settings = ({
 				/>
 			)}
 			{info.isMobileView ? <div className={s.mobileSheet}>{Content}</div> : Content}
+			<AddOnCards
+				isOpen={info?.addOnCardsModalOpen}
+				closeModal={() => setInfo((prev) => ({ ...prev, addOnCardsModalOpen: false }))}
+				subscriptionState={info?.subscriptionState}
+				selectedPeriodProp={info?.selectedPeriodProp}
+			/>
 		</div>
 	);
 };

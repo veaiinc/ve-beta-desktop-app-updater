@@ -43,24 +43,24 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 	}, [isOpen]);
 
 	const workspaceList = useMemo(() => {
-		const filteredList = userWorkSpaceList?.filter(({ businessName }) =>
+		const workspaces = userWorkSpaceList?.filter(({ businessName }) =>
 			businessName?.toLowerCase().includes(info?.searchWorkspace?.toLowerCase()),
 		);
-		if (!filteredList) return [];
-		const currentWorkspaceIndex = filteredList.findIndex(
+		if (!workspaces) return [];
+		const currentWorkspaceIndex = workspaces.findIndex(
 			({ activeWorkspaceId }) => activeWorkspaceId === currentWorkspaceId,
 		);
 		if (currentWorkspaceIndex > 0) {
-			const currentWorkspace = filteredList[currentWorkspaceIndex];
+			const currentWorkspace = workspaces[currentWorkspaceIndex];
 			const newList = [
 				currentWorkspace,
-				...filteredList.slice(0, currentWorkspaceIndex),
-				...filteredList.slice(currentWorkspaceIndex + 1),
+				...workspaces.slice(0, currentWorkspaceIndex),
+				...workspaces.slice(currentWorkspaceIndex + 1),
 			];
 			return newList;
 		}
 
-		return filteredList;
+		return workspaces;
 	}, [userWorkSpaceList, currentWorkspaceId, info?.searchWorkspace]);
 
 	const showWorkspaceSearch = userWorkSpaceList?.length > 3;
@@ -86,7 +86,7 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 		Cookies.set('region', region, { sameSite: 'lax', domain: host });
 		Cookies.set('isOnboard', isOnboard, { sameSite: 'lax', domain: host });
 
-		channel.postMessage('switchWorkspace');
+		channel.postMessage('switchWorkspace'); // Inform all the tabs to switch workspace
 	};
 
 	const handleKeyboardNavigation = (e) => {

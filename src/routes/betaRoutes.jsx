@@ -264,7 +264,7 @@ const betaRoutes = [
 					showBottomToolbar={false}
 					outerContainerStyle={{
 						paddingRight: '0px',
-						backgroundColor: 'var(--chat-background-color)',
+						backgroundColor: 'var(--background-color)',
 					}}
 					authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 					maxWidth="100%"

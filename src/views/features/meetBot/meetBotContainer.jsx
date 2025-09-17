@@ -211,41 +211,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	}, [meetingId, showTranscriptTabs, type, getMeetTranscriptHistory]);
 
 	useEffect(() => {
-		if (aiTranscriptionSuggestions) {
-			const userQuestions = [];
-			const aiQuestions = [];
-			const actions = [];
-			const files = [];
-
-			for (const suggestion of aiTranscriptionSuggestions?.suggestions || []) {
-				if (suggestion?.entity === 'user' || suggestion?.entity === 'other_user') {
-					userQuestions.push(suggestion);
-				} else if (
-					suggestion?.entity === 'agent' ||
-					suggestion?.entity?.includes('agent')
-				) {
-					if (suggestion?.type === 'search') {
-						aiQuestions.push(suggestion);
-					} else if (suggestion?.type === 'action') {
-						actions.push(suggestion);
-					}
-				} else if (suggestion?.entity === 'file') {
-					files.push(suggestion);
-				}
-			}
-
-			setInfo((prev) => ({
-				...prev,
-				userQuestions,
-				aiQuestions,
-				actions,
-				files,
-				allSuggestions: aiTranscriptionSuggestions?.suggestions || [],
-			}));
-		}
-	}, [aiTranscriptionSuggestions]);
-
-	useEffect(() => {
 		return () => {
 			updateNotesStateValues({
 				meetSummary: null,
@@ -581,6 +546,37 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			sentinalScrollRef?.current?.scrollIntoView({ behavior: 'smooth' });
 		}
 	}, [info?.transcriptions?.length]);
+
+	useEffect(() => {
+		if (aiTranscriptionSuggestions && aiTranscriptionSuggestions?.suggestions?.length > 0) {
+			const allThreads = [];
+			const askUser = [];
+			const needHelp = [];
+			const actions = [];
+			const files = [];
+			aiTranscriptionSuggestions.suggestions.forEach((suggestion) => {
+				if (suggestion.entity === 'user') {
+					askUser.push(suggestion);
+				} else if (suggestion.entity === 'agent' && suggestion.type === 'search') {
+					needHelp.push(suggestion);
+				} else if (suggestion.entity === 'agent' && suggestion.type === 'action') {
+					actions.push(suggestion);
+				} else if (suggestion.entity === 'file') {
+					files.push(suggestion);
+				}
+				allThreads.push(suggestion);
+			});
+
+			setInfo((prev) => ({
+				...prev,
+				userQuestions: askUser,
+				aiQuestions: needHelp,
+				actions,
+				files,
+				allSuggestions: allThreads,
+			}));
+		}
+	}, [aiTranscriptionSuggestions]);
 
 	const handleShowAiTranscriptionSuggestions = () => {
 		setInfo((prev) => ({

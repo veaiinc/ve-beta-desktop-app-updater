@@ -18,6 +18,7 @@ const options = [
 	{ id: 4, name: 'Presentations', value: 'presentation' },
 	{ id: 5, name: 'Contract', value: 'contract' },
 	{ id: 6, name: 'Invoice', value: 'invoice' },
+	{ id: 7, name: 'Agents', value: 'agent' },
 	// { id: 7, name: 'Automation', value: 'automation' },
 ];
 
@@ -35,9 +36,11 @@ const NoResultsFound = ({ searchQuery }) => (
 		}}
 	>
 		<h3 style={{ fontSize: '18px', marginBottom: '8px' }}>No results found</h3>
-		<p style={{ color: 'white', fontSize: '14px' }}>
-			We couldn't find any matches for "{searchQuery}"
-		</p>
+		{searchQuery ? (
+			<p style={{ color: 'white', fontSize: '14px' }}>
+				We couldn't find any matches for "{searchQuery}"
+			</p>
+		) : null}
 	</div>
 );
 
@@ -50,6 +53,8 @@ const GlobalWorkflows = () => {
 			globalWorkflows,
 			duplicateGlobalWorkflowTemplate,
 		},
+
+		knowledgeAgent: { getKnowledgeAssistantsListWithFilter, agentTemplates },
 		profileInfo: { tennantSettingsData },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
@@ -77,10 +82,10 @@ const GlobalWorkflows = () => {
 
 	const workspaceImg = tennantSettingsData?.logo_s3_500w_key ?? null;
 
-	// const [moduleInfo, setModuleInfo] = useState({
-	// 	currentPage: 1,
-	// 	hasNextPage: false,
-	// });
+	const [moduleInfo, setModuleInfo] = useState({
+		currentPage: 1,
+		hasNextPage: false,
+	});
 
 	//useEffects
 	useEffect(() => {
@@ -137,6 +142,12 @@ const GlobalWorkflows = () => {
 			setInfo((prev) => ({ ...prev, selectedOption: option?.value }));
 			setInfo((prev) => ({ ...prev, searchQuery: '' }));
 			setModuleInfo({ currentPage: 1, hasNextPage: false });
+			if (option?.value === 'agent' && !agentTemplates) {
+				getKnowledgeAssistantsListWithFilter({
+					limit: 10,
+					filter: 'template',
+				});
+			}
 			getGlobalWorkflowTemplatesData(1, false, option?.value);
 		},
 		[info?.selectedOption],
@@ -275,6 +286,16 @@ const GlobalWorkflows = () => {
 		}
 	}, [info?.activeTemplateData, info?.duplicateApiLoading, info?.activeTab]);
 
+	const fetchMoreAgentTemplates = useCallback(async () => {
+		if (!agentTemplates?.hasNextPage || info?.isLoading) return;
+		const payload = {
+			page: (agentTemplates?.currentPage || 0) + 1,
+			limit: 10,
+			reset: false,
+		};
+		await getKnowledgeAssistantsListWithFilter(payload);
+	}, [agentTemplates?.hasNextPage, info?.isLoading]);
+
 	// const fetchMoreModuleTemplates = useCallback(async () => {
 	// 	if (!moduleInfo?.hasNextPage || info?.isLoading) return;
 
@@ -331,9 +352,7 @@ const GlobalWorkflows = () => {
 						<div className="main-content">
 							{/* Title */}
 							<div className="page-title">
-								<h1>
-									Use cases from <span>ve.ai</span>
-								</h1>
+								<h1>Use cases</h1>
 							</div>
 
 							{/* Search and Filter Bar */}
@@ -416,6 +435,83 @@ const GlobalWorkflows = () => {
 												/>
 											))}
 										</div>
+									) : info?.selectedOption === 'agent' ? (
+										<InfiniteScroll
+											dataLength={agentTemplates?.data?.length || 0}
+											next={fetchMoreAgentTemplates}
+											hasMore={agentTemplates?.hasNextPage}
+											loader={<FetchMoreLoaderComp />}
+											className="templates-grid"
+										>
+											{agentTemplates?.data?.length === 0 ? (
+												<NoResultsFound searchQuery={info?.searchQuery} />
+											) : (
+												<div className="mainProposalsCard">
+													{agentTemplates?.data?.map((agent, index) => (
+														<div
+															key={index}
+															className="globalProposalsCardContainer"
+															onClick={() => {
+																navigate(
+																	`/agent/${agent?._id}?agentAction=buildAgent`,
+																);
+															}}
+														>
+															<div
+																style={{
+																	background: `url(${
+																		agent?.knowledgeAgent_profile_picture_s3Key ??
+																		workspaceImg
+																	}) no-repeat center center`,
+																}}
+																className="imageContainer2"
+															>
+																<div className="templateCard2">
+																	<div className="iframeContainer">
+																		{/* <iframe
+																					src={`/builder/preview/short/${template?._id}?module=${template?.moduleTemplates?.[0]?._id}&isPubic=${template?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
+																					title="Builder Preview"
+																					width="100%"
+																					height="100%"
+																					style={{
+																						cursor: 'pointer',
+																						pointerEvents:
+																							'none',
+																						border: 'none',
+																						backgroundColor:
+																							'#fff',
+																					}}
+																				/> */}
+																		{/* <img
+																					style={{
+																						position: 'absolute',
+																						top: 0,
+																						left: 0,
+																					}}
+																					width="100%"
+																					height="100%"
+																					src={
+																						template?.imageUrl ??
+																						workspaceImg
+																					}
+																					alt={
+																						template?._id
+																					}
+																				/> */}
+																	</div>
+																</div>
+															</div>
+															<h4
+																className="templateTitle"
+																style={{ fontSize: '14px' }}
+															>
+																{agent?.name}
+															</h4>
+														</div>
+													))}
+												</div>
+											)}
+										</InfiniteScroll>
 									) : (
 										<InfiniteScroll
 											dataLength={info?.globalWorkflowData?.length || 0}
@@ -425,8 +521,7 @@ const GlobalWorkflows = () => {
 											className="templates-grid"
 										>
 											{info?.selectedOption !== 'automation' ? (
-												info?.moduleTemplateData?.length === 0 &&
-												info?.searchQuery ? (
+												info?.globalWorkflowData?.length === 0 ? (
 													<NoResultsFound
 														searchQuery={info?.searchQuery}
 													/>
@@ -435,12 +530,10 @@ const GlobalWorkflows = () => {
 														{info?.globalWorkflowData?.map(
 															(template, index) => (
 																<div
-																	key={index}
+																	key={template?._id || index}
 																	className="globalProposalsCardContainer"
 																	onClick={() => {
-																		if (!template?._id) {
-																			return;
-																		}
+																		if (!template?._id) return;
 																		openModal(
 																			template,
 																			template.module,
@@ -458,36 +551,20 @@ const GlobalWorkflows = () => {
 																	>
 																		<div className="templateCard2">
 																			<div className="iframeContainer">
-																				{/* <iframe
-																					src={`/builder/preview/short/${template?._id}?module=${template?.moduleTemplates?.[0]?._id}&isPubic=${template?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
-																					title="Builder Preview"
-																					width="100%"
-																					height="100%"
-																					style={{
-																						cursor: 'pointer',
-																						pointerEvents:
-																							'none',
-																						border: 'none',
-																						backgroundColor:
-																							'#fff',
-																					}}
-																				/> */}
-																				{/* <img
-																					style={{
-																						position: 'absolute',
-																						top: 0,
-																						left: 0,
-																					}}
-																					width="100%"
-																					height="100%"
-																					src={
-																						template?.imageUrl ??
-																						workspaceImg
-																					}
-																					alt={
-																						template?._id
-																					}
-																				/> */}
+																				{
+																					// 	<iframe
+																					// 	src={`/builder/preview/short/${template?._id}?module=${template?.moduleTemplates?.[0]?._id}&isPubic=${template?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
+																					// 	title="Builder Preview"
+																					// 	width="100%"
+																					// 	height="100%"
+																					// 	style={{
+																					// 	  cursor: 'pointer',
+																					// 	  pointerEvents: 'none',
+																					// 	  border: 'none',
+																					// 	  backgroundColor: '#fff',
+																					// 	}}
+																					//   />
+																				}
 																			</div>
 																		</div>
 																	</div>
@@ -502,13 +579,12 @@ const GlobalWorkflows = () => {
 														)}
 													</div>
 												)
-											) : info?.globalWorkflowData?.length === 0 &&
-											  info?.searchQuery ? (
+											) : info?.globalWorkflowData?.length === 0 ? (
 												<NoResultsFound searchQuery={info?.searchQuery} />
 											) : (
 												info?.globalWorkflowData?.map((ele, index) => (
 													<GlobalWorkflowCard
-														key={index}
+														key={ele?._id || index}
 														data={ele}
 														onClickFunc={openModal}
 														isSelected={

@@ -15,6 +15,7 @@ const AIMessageRenderer = ({
 	showCitationsButton = true,
 	isLastMessage = false,
 	sessionId = null,
+	showResponseEditBtn = true,
 }) => {
 	return (
 		<div className="ai-message-renderer">
@@ -26,10 +27,8 @@ const AIMessageRenderer = ({
 						<div className="error-message">Something went wrong. Please try again.</div>
 					) : (
 						<>
-							{(messageData?.processing === 'Deep Search' ||
-								messageData?.processing === 'Deep Research' ||
-								messageData?.normalSearch?.cot?.length > 0 ||
-								messageData?.memory_thinking) && (
+							{(messageData?.processing === 'Deep Research' ||
+								messageData?.chainOfThought?.length > 0) && (
 								<ChainOfThoughtWidget messageData={messageData} />
 							)}
 							<AIMessage
@@ -47,6 +46,7 @@ const AIMessageRenderer = ({
 								messageIndex={messageIndex}
 								showCitationsButton={showCitationsButton}
 								sessionId={sessionId}
+								showResponseEditBtn={showResponseEditBtn}
 							/>
 						</>
 					)}
