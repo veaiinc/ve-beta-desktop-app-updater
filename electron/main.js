@@ -348,7 +348,6 @@ autoUpdater.on('update-downloaded', (info) => {
 });
 
 async function showNotification(title, body) {
-	console.log('hello', title, body);
 	const notification = new Notification({
 		title: title || 'Alert',
 		body: body || 'This is a test',
