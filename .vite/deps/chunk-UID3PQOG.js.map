@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../node_modules/@babel/runtime/helpers/esm/isNativeReflectConstruct.js"],
+  "sourcesContent": ["function _isNativeReflectConstruct() {\n  try {\n    var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));\n  } catch (t) {}\n  return (_isNativeReflectConstruct = function _isNativeReflectConstruct() {\n    return !!t;\n  })();\n}\nexport { _isNativeReflectConstruct as default };"],
+  "mappings": ";;;;;AAAA,SAAS,4BAA4B;AACnC,MAAI;AACF,QAAI,IAAI,CAAC,QAAQ,UAAU,QAAQ,KAAK,QAAQ,UAAU,SAAS,CAAC,GAAG,WAAY;AAAA,IAAC,CAAC,CAAC;AAAA,EACxF,SAASA,IAAG;AAAA,EAAC;AACb,UAAQ,4BAA4B,SAASC,6BAA4B;AACvE,WAAO,CAAC,CAAC;AAAA,EACX,GAAG;AACL;AAPA;AAAA;AAAA;AAAA;",
+  "names": ["t", "_isNativeReflectConstruct"]
+}

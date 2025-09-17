@@ -105,13 +105,13 @@ const ClientSelectionTooltip = ({
 									<div className="clientAvatar-div">
 										<div className="clientAvatar">
 											<p className="clientAvatarText">
-												{clientData.name.slice(0, 1).toUpperCase()}
+												{clientData.name?.slice(0, 1)?.toUpperCase() || '?'}
 											</p>
 										</div>
 									</div>
 									<div className="clientDetailsContainer">
 										<span className="clientDetailsNameText">
-											{clientData.name}
+											{clientData.name || 'Unnamed Client'}
 										</span>
 										<div
 											style={{
@@ -1830,14 +1830,19 @@ const CreateDocument = () => {
 																			<div className="clientAvatar">
 																				<p className="clientAvatarText">
 																					{clientData.name
-																						.slice(0, 1)
-																						.toUpperCase()}
+																						?.slice(
+																							0,
+																							1,
+																						)
+																						?.toUpperCase() ||
+																						'?'}
 																				</p>
 																			</div>
 																		</div>
 																		<div className="clientDetailsContainer">
 																			<span className="clientDetailsNameText">
-																				{clientData.name}
+																				{clientData.name ||
+																					'Unnamed Client'}
 																			</span>
 																			<div
 																				style={{

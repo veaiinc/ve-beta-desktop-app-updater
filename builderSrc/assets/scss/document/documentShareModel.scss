@@ -1058,3 +1058,8 @@ $font-inter: 'Inter', sans-serif;
 		}
 	}
 }
+
+:where(.css-dev-only-do-not-override-mc1tut).ant-picker-dropdown .ant-picker-cell-disabled {
+	background: rgb(30, 29, 29) !important;
+	color: rgb(66, 65, 65) !important;
+}
