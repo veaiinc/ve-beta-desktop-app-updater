@@ -673,7 +673,6 @@ const OverlayApp = () => {
 		console.log('📡 Sending state to Dynamic Island:', state);
 
 		// Use IPC to send state update to main process, which will forward to Dynamic Island
-		// window.electronApi.overlay?.sendStateUpdate?.(state);
 		if (window.electronApi?.overlay?.sendStateUpdate) {
 			window.electronApi.overlay.sendStateUpdate(state);
 		}
@@ -681,11 +680,14 @@ const OverlayApp = () => {
 
 	const handleAskAIClick = () => {
 		// Open Ask AI window via electron API
-		window.electronApi.askAI?.toggleWindow?.();
+		if (window.electronApi?.askAI?.toggleWindow) {
+			window.electronApi.askAI.toggleWindow();
+		}
 	};
 
 	// Function to manually reset Dynamic Island control state
 	const resetDynamicIslandControl = () => {
+		console.log('🔄 Manually resetting Dynamic Island control state');
 		setIsDynamicIslandControlled(false);
 		setShowShortcutBar(false);
 	};
@@ -821,20 +823,13 @@ const OverlayApp = () => {
 		isConnected,
 	]);
 
-	// Process aiTranscriptionSuggestions with hashmap logic
 	useEffect(() => {
 		if (aiTranscriptionSuggestions && aiTranscriptionSuggestions?.suggestions?.length > 0) {
-			console.log(
-				'🧠 Processing live intelligence suggestions with hashmap logic:',
-				aiTranscriptionSuggestions.suggestions,
-			);
 			const allThreads = [];
 			const askUser = [];
 			const needHelp = [];
 			const actions = [];
 			const files = [];
-
-			// Process each suggestion with pure hashmap algorithm
 			aiTranscriptionSuggestions.suggestions.forEach((suggestion) => {
 				if (suggestion.entity === 'user') {
 					askUser.push(suggestion);
@@ -846,34 +841,20 @@ const OverlayApp = () => {
 					files.push(suggestion);
 				}
 				allThreads.push(suggestion);
-			
 			});
-	// 	}
-	// }, [
-	// 	aiTranscriptionSuggestions,
-	// 	processLiveIntelligenceResponse,
-	// 	updateLiveIntelligenceHashmap,
-	// ]);
 
-
-	// useEffect(() => {
-	// 	const categorizedData = categorizeLiveIntelligenceData(liveIntelligenceHashmap);
-
-	setInfo((prev) => ({
-		...prev,
-		liveIntelligenceData: {
-			askUser,
-			needHelp,
-			actions,
-			files,
-			allThreads,
-		},
-	}));
-}
-}, [aiTranscriptionSuggestions]);
-
-	// 	console.log('📊 Updated categorized live intelligence data:', categorizedData);
-	// }, [liveIntelligenceHashmap, categorizeLiveIntelligenceData]);
+			setInfo((prev) => ({
+				...prev,
+				liveIntelligenceData: {
+					askUser,
+					needHelp,
+					actions,
+					files,
+					allThreads,
+				},
+			}));
+		}
+	}, [aiTranscriptionSuggestions]);
 
 	// Save audio when recording stops
 	useEffect(() => {
