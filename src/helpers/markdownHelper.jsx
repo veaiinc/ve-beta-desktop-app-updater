@@ -328,6 +328,9 @@ const baseComponents = {
 			</div>
 		);
 	},
+	blockquote: ({ children, ...props }) => (
+		<blockquote className="blockquote">{children}</blockquote>
+	),
 };
 
 const MarkdownCode = memo(({ code, match }) => {
@@ -374,11 +377,11 @@ const MarkdownTable = memo(({ children, node, markdown }) => {
 	}, []);
 	return (
 		<div className="table-wrapper">
-			<button className="copy-table-btn" onClick={() => handleCopyTable(table || '')}>
-				<Tooltip title={isCopied ? 'Copied Table' : 'Copy Table'} placement="bottom">
+			<Tooltip title={isCopied ? 'Copied Table' : 'Copy Table'} placement="bottom">
+				<button className="copy-table-btn" onClick={() => handleCopyTable(table || '')}>
 					{isCopied ? <TickSvg /> : <CopyIcon />}
-				</Tooltip>
-			</button>
+				</button>
+			</Tooltip>
 			<div className="table-container">
 				<table className="table">{children}</table>
 			</div>
@@ -556,12 +559,9 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 							className={`uploaded-image ${
 								messageData?.images?.length === 1 ? 'count-one' : ''
 							}`}
+							key={index}
 						>
-							<img
-								key={index}
-								src={image?.preview}
-								onClick={() => handlePreview(image)}
-							/>
+							<img src={image?.preview} onClick={() => handlePreview(image)} />
 						</div>
 					))}
 				</div>
@@ -620,16 +620,21 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 			)}
 			{!info?.editUserQuery ? (
 				<div className="hover-actions-container">
-					{/* <div className="icon-container" style={{ top: '-2px' }}>
-						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Edit'}>
+					<div className="icon-container" style={{ top: '-2px' }}>
+						<Tooltip
+							placement="bottom"
+							arrow={false}
+							trigger={'hover'}
+							color="transparent"
+							title={<div className="user-hover-icons-tooltip">Edit</div>}
+						>
 							<PencilSparkleIcon
 								width={'19px'}
 								height={'20px'}
 								onClick={handleEditUserQueryToggle}
 							/>
 						</Tooltip>
-					</div> */}
-
+					</div>
 					<div className="icon-container">
 						<Tooltip
 							placement="bottom"

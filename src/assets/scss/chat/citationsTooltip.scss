@@ -4,6 +4,8 @@
 	padding: 0;
 	background-color: transparent;
 	display: inline-block;
+	border: none;
+	vertical-align: middle;
 
 	.citation-wrapper {
 		.citation-with-icon {
@@ -14,12 +16,10 @@
 			gap: 6px;
 			border-radius: 100px;
 			background: var(--card-over-card-hover);
-			// border: 1px solid var(--stroke);
 			transition: all 0.2s ease-in-out;
 
 			&:hover {
 				background-color: var(--primary-font);
-				// border: 1px solid var(--background-color);
 				.citation-text {
 					color: var(--background-color);
 					opacity: 1;
