@@ -60,6 +60,7 @@ const ToolsTooltip = ({ closeTooltip }) => {
 	}, [tenantUserAccessControls]);
 
 	const accessControls = tenantUserAccessControls?.accessControls;
+	const userRole = tenantUserAccessControls?.role; // ✅ Get user role
 
 	// Build lookup map: { [app]: isEnabled }
 	const appsMap = {};
@@ -72,8 +73,13 @@ const ToolsTooltip = ({ closeTooltip }) => {
 		});
 	}
 
-	// ✅ NEW LOGIC: Only show if app is explicitly present AND enabled
+	// ✅ UPDATED: Bypass filtering if role is NOT 'default'
 	const shouldShowTool = (toolLabel) => {
+		// ✅ If role is NOT 'default', show everything
+		if (userRole !== 'default') {
+			return true;
+		}
+
 		const appNames = toolLabelToAppName[toolLabel];
 
 		// If no mapping defined → hide (defensive)
@@ -89,7 +95,7 @@ const ToolsTooltip = ({ closeTooltip }) => {
 				}
 				// if false, we don't return yet — check other variants
 			}
-			// if not in appsMap → skip (we’ll hide at the end)
+			// if not in appsMap → skip
 		}
 
 		// None found or all disabled → HIDE

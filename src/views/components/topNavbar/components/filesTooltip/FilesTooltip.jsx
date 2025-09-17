@@ -77,6 +77,7 @@ const FilesTooltip = ({ closeTooltip }) => {
 	}, [tenantUserAccessControls]);
 
 	const accessControls = tenantUserAccessControls?.accessControls;
+	const userRole = tenantUserAccessControls?.role; // ✅ Get role
 
 	// Build lookup: { [app]: isEnabled }
 	const appsMap = {};
@@ -89,15 +90,21 @@ const FilesTooltip = ({ closeTooltip }) => {
 		});
 	}
 
+	// ✅ Updated: Respect role — bypass filtering if not 'default'
 	const shouldShowFile = (fileLabel) => {
-		// ✅ Special case: Always show "Sites" — no access control
+		// ✅ If role is NOT 'default', show everything
+		if (userRole !== 'default') {
+			return true;
+		}
+
+		// ✅ Special case: Always show "Sites" — no access control (even for default role)
 		if (fileLabel === 'Sites') {
 			return true;
 		}
 
 		const appNames = fileLabelToAppName[fileLabel];
 
-		// If no mapping → hide (defensive)
+		// If no mapping → hide (defensive, but won't matter if role !== 'default')
 		if (!appNames) return false;
 
 		const namesToCheck = Array.isArray(appNames) ? appNames : [appNames];
