@@ -100,34 +100,14 @@
 			display: flex;
 			width: 36px;
 			height: 36px;
-			padding: 8px;
+			padding: 10px;
 			justify-content: center;
 			align-items: center;
 			gap: 6px;
 			border-radius: 8px;
 			background: var(--primary-button, #79ecc9);
-			color: #121212;
-			
-			svg {
-				width: 20px;
-				height: 20px;
-				flex-shrink: 0;
-				aspect-ratio: 1/1;
-			}
-			
 			&.muted {
 				background: var(--error);
-				color: #ffffff;
-				
-				svg {
-					width: 20px;
-					height: 20px;
-				}
-			}
-			
-			&.disabled {
-				opacity: 0.5;
-				cursor: not-allowed;
 			}
 		}
 	}
