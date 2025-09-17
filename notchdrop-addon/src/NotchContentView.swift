@@ -1,10 +1,3 @@
-//
-//  NotchContentView.swift
-//  NotchDrop
-//
-//  Created by 秋星桥 on 2024/7/7.
-//  Last Modified by 冷月 on 2025/5/5.
-//
 
 import SwiftUI
 import UniformTypeIdentifiers
@@ -67,21 +60,21 @@ struct DynamicIslandContentView: View {
                         .background(Color.blue.opacity(0.3))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .buttonStyle(PlainButtonStyle())
-                        
-                        Button("Test Notification") {
-                            vm.showNotification(
-                                title: "Test Meeting", 
-                                body: "This is a test notification from SwiftUI", 
-                                type: "meeting"
-                            )
-                        }
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(Color.green.opacity(0.3))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .buttonStyle(PlainButtonStyle())
+
+                        // Button("Test Notification") {
+                        //     vm.showNotification(
+                        //         title: "Test Meeting",
+                        //         body: "This is a test notification from SwiftUI",
+                        //         type: "meeting"
+                        //     )
+                        // }
+                        // .font(.system(size: 12, weight: .medium))
+                        // .foregroundColor(.white)
+                        // .padding(.horizontal, 16)
+                        // .padding(.vertical, 8)
+                        // .background(Color.green.opacity(0.3))
+                        // .clipShape(RoundedRectangle(cornerRadius: 8))
+                        // .buttonStyle(PlainButtonStyle())
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
