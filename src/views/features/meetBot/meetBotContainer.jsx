@@ -697,13 +697,13 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 									</span>
 								</div>
 							)} */}
+							<button
+								className="delete-meeting-button"
+								onClick={() => toggleDeleteModal(true)}
+							>
+								<Trash2 size={18} style={{ color: 'var(--error)' }} />
+							</button>
 						</div>
-						<button
-							className="delete-meeting-button"
-							onClick={() => toggleDeleteModal(true)}
-						>
-							<Trash2 size={18} style={{ color: 'var(--error)' }} />
-						</button>
 						{showTranscriptTabs && (
 							<TranscriptionTabs
 								activeTab={activeTab}
