@@ -9,7 +9,6 @@ import { ReactComponent as NotesIcon } from './assets/noteIcon.svg';
 import Context from '../../../../../context/context';
 import { useNavigate } from 'react-router-dom';
 
-// ✅ Mapping: UI Label → Backend App Name(s)
 export const fileLabelToAppName = {
 	Documents: 'fileManager',
 	Forms: 'form',
@@ -77,77 +76,52 @@ const FilesTooltip = ({ closeTooltip }) => {
 	}, [tenantUserAccessControls]);
 
 	const accessControls = tenantUserAccessControls?.accessControls;
-	const userRole = tenantUserAccessControls?.role; // ✅ Get role
+	const userRole = tenantUserAccessControls?.role;
+	const appsMap = Array.isArray(accessControls)
+		? accessControls.reduce((acc, { app, isEnabled }) => {
+				if (app) acc[app] = isEnabled;
+				return acc;
+		  }, {})
+		: {};
 
-	// Build lookup: { [app]: isEnabled }
-	const appsMap = {};
-	if (Array.isArray(accessControls)) {
-		accessControls.forEach((control) => {
-			const appName = control.app;
-			if (appName) {
-				appsMap[appName] = control.isEnabled;
-			}
-		});
-	}
-
-	// ✅ Updated: Respect role — bypass filtering if not 'default'
 	const shouldShowFile = (fileLabel) => {
-		// ✅ If role is NOT 'default', show everything
-		if (userRole !== 'default') {
-			return true;
-		}
-
-		// ✅ Special case: Always show "Sites" — no access control (even for default role)
-		if (fileLabel === 'Sites') {
-			return true;
-		}
+		if (userRole !== 'default' || fileLabel === 'Sites') return true;
 
 		const appNames = fileLabelToAppName[fileLabel];
-
-		// If no mapping → hide (defensive, but won't matter if role !== 'default')
 		if (!appNames) return false;
 
-		const namesToCheck = Array.isArray(appNames) ? appNames : [appNames];
-
-		// Show if any mapped app is explicitly enabled
-		for (let name of namesToCheck) {
-			if (appsMap.hasOwnProperty(name)) {
-				if (appsMap[name] === true) {
-					return true;
-				}
-			}
-		}
-
-		// Not found or all disabled → HIDE
-		return false;
+		return [appNames].flat().some((name) => appsMap[name]);
 	};
 
 	const visibleFiles = files.filter((file) => shouldShowFile(file.label));
+	const noFiles = visibleFiles.length === 0;
 
 	return (
-		<div
-			className={s.filesTooltipContainer}
-			style={region === 'ap-south-1' ? { left: '-12px' } : { left: '-226px' }}
-		>
-			{visibleFiles.map((file) => (
-				<div
-					key={file.id}
-					className={s.fileContainer}
-					onClick={() => {
-						if (file.link) {
-							navigate(file.link);
-						}
-						closeTooltip();
-					}}
-				>
-					<div className={s.fileIcon}>{file.icon}</div>
-					<div className={s.fileInfo}>
-						<h3 className={s.fileLabel}>{file.label}</h3>
-						{/* <p className={s.fileDescription}>{file.description}</p> */}
+		!noFiles && (
+			<div
+				className={s.filesTooltipContainer}
+				style={region === 'ap-south-1' ? { left: '-12px' } : { left: '-226px' }}
+			>
+				{visibleFiles.map((file) => (
+					<div
+						key={file.id}
+						className={s.fileContainer}
+						onClick={() => {
+							if (file.link) {
+								navigate(file.link);
+							}
+							closeTooltip();
+						}}
+					>
+						<div className={s.fileIcon}>{file.icon}</div>
+						<div className={s.fileInfo}>
+							<h3 className={s.fileLabel}>{file.label}</h3>
+							{/* <p className={s.fileDescription}>{file.description}</p> */}
+						</div>
 					</div>
-				</div>
-			))}
-		</div>
+				))}
+			</div>
+		)
 	);
 };
 
