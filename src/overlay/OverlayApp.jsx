@@ -44,12 +44,12 @@ const OverlayApp = () => {
 	});
 
 	// Hashmap for live intelligence responses keyed by box_id
-	const [liveIntelligenceHashmap, setLiveIntelligenceHashmap] = useState({});
-	const hashmapRef = useRef({});
+	// const [liveIntelligenceHashmap, setLiveIntelligenceHashmap] = useState({});
+	// const hashmapRef = useRef({});
 
-	// Tracking hashmap: prompt_id -> box_id mapping
-	const promptToBoxMapping = useRef({});
-	const boxIdCounter = useRef(0);
+	// // Tracking hashmap: prompt_id -> box_id mapping
+	// const promptToBoxMapping = useRef({});
+	// const boxIdCounter = useRef(0);
 
 	// Ask AI input state
 	const [isAskAIInputFocused, setIsAskAIInputFocused] = useState(false);
@@ -217,127 +217,127 @@ const OverlayApp = () => {
 	};
 
 	// Pure hashmap algorithm with prompt_id to box_id mapping
-	const updateResponseMap = useCallback((responseMap, response) => {
-		const promptId = response.prompt_id;
-		const referenceId = response.reference_id;
+	// const updateResponseMap = useCallback((responseMap, response) => {
+	// 	const promptId = response.prompt_id;
+	// 	const referenceId = response.reference_id;
 
-		let targetBoxId;
+	// 	let targetBoxId;
 
-		if (!referenceId || referenceId === '') {
-			// Case A: Empty reference_id → Create new box for this prompt_id
-			if (promptToBoxMapping.current[promptId]) {
-				// prompt_id already has a box, use existing box
-				targetBoxId = promptToBoxMapping.current[promptId];
-				console.log(
-					`📝 Empty reference_id, prompt_id ${promptId} → Using existing box: ${targetBoxId}`,
-				);
-			} else {
-				// Create new box for this prompt_id
-				targetBoxId = `b${boxIdCounter.current}`;
-				boxIdCounter.current += 1;
-				promptToBoxMapping.current[promptId] = targetBoxId;
-				console.log(
-					`📝 Empty reference_id, prompt_id ${promptId} → Created new box: ${targetBoxId}`,
-				);
-			}
-		} else {
-			// Case B: reference_id exists → Check if it maps to existing prompt_id's box
-			const existingBoxId = promptToBoxMapping.current[referenceId];
-			if (existingBoxId) {
-				// reference_id matches a previous prompt_id, update that box
-				targetBoxId = existingBoxId;
-				promptToBoxMapping.current[promptId] = targetBoxId; // Update mapping for current prompt_id
-				console.log(
-					`🔄 reference_id ${referenceId} found in mapping → Updating box: ${targetBoxId}`,
-				);
-			} else {
-				// New reference_id, create new box
-				targetBoxId = `b${boxIdCounter.current}`;
-				boxIdCounter.current += 1;
-				promptToBoxMapping.current[promptId] = targetBoxId;
-				console.log(
-					`➕ New reference_id ${referenceId}, prompt_id ${promptId} → Created new box: ${targetBoxId}`,
-				);
-			}
-		}
+	// 	if (!referenceId || referenceId === '') {
+	// 		// Case A: Empty reference_id → Create new box for this prompt_id
+	// 		if (promptToBoxMapping.current[promptId]) {
+	// 			// prompt_id already has a box, use existing box
+	// 			targetBoxId = promptToBoxMapping.current[promptId];
+	// 			console.log(
+	// 				`📝 Empty reference_id, prompt_id ${promptId} → Using existing box: ${targetBoxId}`,
+	// 			);
+	// 		} else {
+	// 			// Create new box for this prompt_id
+	// 			targetBoxId = `b${boxIdCounter.current}`;
+	// 			boxIdCounter.current += 1;
+	// 			promptToBoxMapping.current[promptId] = targetBoxId;
+	// 			console.log(
+	// 				`📝 Empty reference_id, prompt_id ${promptId} → Created new box: ${targetBoxId}`,
+	// 			);
+	// 		}
+	// 	} else {
+	// 		// Case B: reference_id exists → Check if it maps to existing prompt_id's box
+	// 		const existingBoxId = promptToBoxMapping.current[referenceId];
+	// 		if (existingBoxId) {
+	// 			// reference_id matches a previous prompt_id, update that box
+	// 			targetBoxId = existingBoxId;
+	// 			promptToBoxMapping.current[promptId] = targetBoxId; // Update mapping for current prompt_id
+	// 			console.log(
+	// 				`🔄 reference_id ${referenceId} found in mapping → Updating box: ${targetBoxId}`,
+	// 			);
+	// 		} else {
+	// 			// New reference_id, create new box
+	// 			targetBoxId = `b${boxIdCounter.current}`;
+	// 			boxIdCounter.current += 1;
+	// 			promptToBoxMapping.current[promptId] = targetBoxId;
+	// 			console.log(
+	// 				`➕ New reference_id ${referenceId}, prompt_id ${promptId} → Created new box: ${targetBoxId}`,
+	// 			);
+	// 		}
+	// 	}
 
-		// Update the response map with the target box
-		responseMap[targetBoxId] = {
-			...response,
-			box_id: targetBoxId,
-			reference_id: referenceId || '',
-		};
+	// 	// Update the response map with the target box
+	// 	responseMap[targetBoxId] = {
+	// 		...response,
+	// 		box_id: targetBoxId,
+	// 		reference_id: referenceId || '',
+	// 	};
 
-		console.log(`📊 Current mapping:`, promptToBoxMapping.current);
-		console.log(`📊 Current boxes:`, Object.keys(responseMap));
+	// 	console.log(`📊 Current mapping:`, promptToBoxMapping.current);
+	// 	console.log(`📊 Current boxes:`, Object.keys(responseMap));
 
-		return responseMap;
-	}, []);
+	// 	return responseMap;
+	// }, []);
 
-	// Process live intelligence response with timestamp
-	const processLiveIntelligenceResponse = useCallback((suggestion) => {
-		const timestamp = new Date().toISOString();
+	// // Process live intelligence response with timestamp
+	// const processLiveIntelligenceResponse = useCallback((suggestion) => {
+	// 	const timestamp = new Date().toISOString();
 
-		// Create enhanced suggestion object with timestamp
-		const enhancedSuggestion = {
-			...suggestion,
-			timestamp,
-		};
+	// 	// Create enhanced suggestion object with timestamp
+	// 	const enhancedSuggestion = {
+	// 		...suggestion,
+	// 		timestamp,
+	// 	};
 
-		return enhancedSuggestion;
-	}, []);
+	// 	return enhancedSuggestion;
+	// }, []);
 
-	// Apply hashmap algorithm to update responses
-	const updateLiveIntelligenceHashmap = useCallback(
-		(suggestion) => {
-			setLiveIntelligenceHashmap((prev) => {
-				// Create a copy of current hashmap
-				const newHashmap = { ...prev };
+	// // Apply hashmap algorithm to update responses
+	// const updateLiveIntelligenceHashmap = useCallback(
+	// 	(suggestion) => {
+	// 		setLiveIntelligenceHashmap((prev) => {
+	// 			// Create a copy of current hashmap
+	// 			const newHashmap = { ...prev };
 
-				// Apply pure hashmap algorithm
-				updateResponseMap(newHashmap, suggestion);
+	// 			// Apply pure hashmap algorithm
+	// 			updateResponseMap(newHashmap, suggestion);
 
-				// Update ref for consistent state
-				hashmapRef.current = newHashmap;
+	// 			// Update ref for consistent state
+	// 			hashmapRef.current = newHashmap;
 
-				return newHashmap;
-			});
-		},
-		[updateResponseMap],
-	);
+	// 			return newHashmap;
+	// 		});
+	// 	},
+	// 	[updateResponseMap],
+	// );
 
-	// Convert hashmap to categorized arrays for UI
-	const categorizeLiveIntelligenceData = useCallback((hashmap) => {
-		const allThreads = [];
-		const askUser = [];
-		const needHelp = [];
-		const actions = [];
-		const files = [];
+	// // Convert hashmap to categorized arrays for UI
+	// const categorizeLiveIntelligenceData = useCallback((hashmap) => {
+	// 	const allThreads = [];
+	// 	const askUser = [];
+	// 	const needHelp = [];
+	// 	const actions = [];
+	// 	const files = [];
 
-		Object.values(hashmap).forEach((suggestion) => {
-			if (suggestion.entity === 'user') {
-				askUser.push(suggestion);
-			} else if (suggestion.entity === 'agent' && suggestion.type === 'search') {
-				needHelp.push(suggestion);
-			} else if (suggestion.entity === 'agent' && suggestion.type === 'action') {
-				actions.push(suggestion);
-			} else if (suggestion.entity === 'file') {
-				files.push(suggestion);
-			}
-			allThreads.push(suggestion);
-		});
+	// 	Object.values(hashmap).forEach((suggestion) => {
+	// 		if (suggestion.entity === 'user') {
+	// 			askUser.push(suggestion);
+	// 		} else if (suggestion.entity === 'agent' && suggestion.type === 'search') {
+	// 			needHelp.push(suggestion);
+	// 		} else if (suggestion.entity === 'agent' && suggestion.type === 'action') {
+	// 			actions.push(suggestion);
+	// 		} else if (suggestion.entity === 'file') {
+	// 			files.push(suggestion);
+	// 		}
+	// 		allThreads.push(suggestion);
+	// 	});
 
-		// Sort by timestamp (newest first)
-		const sortByTimestamp = (a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0);
+	// 	// Sort by timestamp (newest first)
+	// 	const sortByTimestamp = (a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0);
 
-		return {
-			askUser: askUser.sort(sortByTimestamp),
-			needHelp: needHelp.sort(sortByTimestamp),
-			actions: actions.sort(sortByTimestamp),
-			files: files.sort(sortByTimestamp),
-			allThreads: allThreads.sort(sortByTimestamp),
-		};
-	}, []);
+	// 	return {
+	// 		askUser: askUser.sort(sortByTimestamp),
+	// 		needHelp: needHelp.sort(sortByTimestamp),
+	// 		actions: actions.sort(sortByTimestamp),
+	// 		files: files.sort(sortByTimestamp),
+	// 		allThreads: allThreads.sort(sortByTimestamp),
+	// 	};
+	// }, []);
 
 	const formatTimestamp = () => {
 		// Show current time
@@ -431,10 +431,10 @@ const OverlayApp = () => {
 			}));
 
 			// Clear hashmap for fresh start
-			setLiveIntelligenceHashmap({});
-			hashmapRef.current = {};
-			promptToBoxMapping.current = {};
-			boxIdCounter.current = 0;
+			// setLiveIntelligenceHashmap({});
+			// hashmapRef.current = {};
+			// promptToBoxMapping.current = {};
+			// boxIdCounter.current = 0;
 		} else {
 			console.error('Failed to create meeting:', meetingResponse);
 			notification.error(
@@ -673,7 +673,10 @@ const OverlayApp = () => {
 		console.log('📡 Sending state to Dynamic Island:', state);
 
 		// Use IPC to send state update to main process, which will forward to Dynamic Island
-		window.electronApi.overlay?.sendStateUpdate?.(state);
+		// window.electronApi.overlay?.sendStateUpdate?.(state);
+		if (window.electronApi?.overlay?.sendStateUpdate) {
+			window.electronApi.overlay.sendStateUpdate(state);
+		}
 	};
 
 	const handleAskAIClick = () => {
@@ -825,30 +828,52 @@ const OverlayApp = () => {
 				'🧠 Processing live intelligence suggestions with hashmap logic:',
 				aiTranscriptionSuggestions.suggestions,
 			);
+			const allThreads = [];
+			const askUser = [];
+			const needHelp = [];
+			const actions = [];
+			const files = [];
 
 			// Process each suggestion with pure hashmap algorithm
 			aiTranscriptionSuggestions.suggestions.forEach((suggestion) => {
-				const enhancedSuggestion = processLiveIntelligenceResponse(suggestion);
-				updateLiveIntelligenceHashmap(enhancedSuggestion);
+				if (suggestion.entity === 'user') {
+					askUser.push(suggestion);
+				} else if (suggestion.entity === 'agent' && suggestion.type === 'search') {
+					needHelp.push(suggestion);
+				} else if (suggestion.entity === 'agent' && suggestion.type === 'action') {
+					actions.push(suggestion);
+				} else if (suggestion.entity === 'file') {
+					files.push(suggestion);
+				}
+				allThreads.push(suggestion);
+			
 			});
-		}
-	}, [
-		aiTranscriptionSuggestions,
-		processLiveIntelligenceResponse,
-		updateLiveIntelligenceHashmap,
-	]);
+	// 	}
+	// }, [
+	// 	aiTranscriptionSuggestions,
+	// 	processLiveIntelligenceResponse,
+	// 	updateLiveIntelligenceHashmap,
+	// ]);
 
-	// Update categorized data when hashmap changes
-	useEffect(() => {
-		const categorizedData = categorizeLiveIntelligenceData(liveIntelligenceHashmap);
 
-		setInfo((prev) => ({
-			...prev,
-			liveIntelligenceData: categorizedData,
-		}));
+	// useEffect(() => {
+	// 	const categorizedData = categorizeLiveIntelligenceData(liveIntelligenceHashmap);
 
-		console.log('📊 Updated categorized live intelligence data:', categorizedData);
-	}, [liveIntelligenceHashmap, categorizeLiveIntelligenceData]);
+	setInfo((prev) => ({
+		...prev,
+		liveIntelligenceData: {
+			askUser,
+			needHelp,
+			actions,
+			files,
+			allThreads,
+		},
+	}));
+}
+}, [aiTranscriptionSuggestions]);
+
+	// 	console.log('📊 Updated categorized live intelligence data:', categorizedData);
+	// }, [liveIntelligenceHashmap, categorizeLiveIntelligenceData]);
 
 	// Save audio when recording stops
 	useEffect(() => {
