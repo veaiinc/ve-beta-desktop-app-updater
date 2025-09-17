@@ -640,10 +640,7 @@ const OverlayApp = () => {
 
 	const handleClosePanel = () => {
 		// Close panel and stop recording
-		setActivePanel(null);
-		if (isRecording) {
-			handleStopTranscription();
-		}
+		window?.electronApi?.overlay?.hideOverlayWindow();
 
 		if (!isDynamicIslandControlled) {
 			setShowShortcutBar(true);
