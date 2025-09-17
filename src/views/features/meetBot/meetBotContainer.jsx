@@ -456,6 +456,37 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		}
 	}, [info?.transcriptions?.length]);
 
+	useEffect(() => {
+		if (aiTranscriptionSuggestions && aiTranscriptionSuggestions?.suggestions?.length > 0) {
+			const allThreads = [];
+			const askUser = [];
+			const needHelp = [];
+			const actions = [];
+			const files = [];
+			aiTranscriptionSuggestions.suggestions.forEach((suggestion) => {
+				if (suggestion.entity === 'user') {
+					askUser.push(suggestion);
+				} else if (suggestion.entity === 'agent' && suggestion.type === 'search') {
+					needHelp.push(suggestion);
+				} else if (suggestion.entity === 'agent' && suggestion.type === 'action') {
+					actions.push(suggestion);
+				} else if (suggestion.entity === 'file') {
+					files.push(suggestion);
+				}
+				allThreads.push(suggestion);
+			});
+
+			setInfo((prev) => ({
+				...prev,
+				userQuestions: askUser,
+				aiQuestions: needHelp,
+				actions,
+				files,
+				allSuggestions: allThreads,
+			}));
+		}
+	}, [aiTranscriptionSuggestions]);
+
 	const handleShowAiTranscriptionSuggestions = () => {
 		setInfo((prev) => ({
 			...prev,
@@ -549,7 +580,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		};
 	}, [isRecording, stopAudioRecording]);
 
-
 	const handleInfoChange = (data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
 	};
@@ -601,6 +631,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	// 	console.log('info.transcriptions', info.transcriptions);
 	// }, [info.transcriptions]);
 
+	// console.log('meetingId', meetingId);
 	return (
 		<div className="meetbot-container">
 			<div className="meeting-header">
@@ -747,13 +778,12 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 				{showTranscriptTabs && activeTab === 'summary' && (
 					<MeetSummary activeTab={activeTab} meetingId={meetingId} />
 				)}
-{showTranscriptTabs && activeTab === 'analytics' && (
-	<MeetingAnalytics meetingId={'68c8019923454c683d245693'} />
-)}
+				{showTranscriptTabs && activeTab === 'analytics' && (
+					<MeetingAnalytics meetingId={meetingId} />
+				)}
 				{showTranscriptTabs && activeTab === 'audio' && (
 					<div className="audio-tab-container">
 						<AudioPlayback meetingId={meetingId} />
-
 					</div>
 				)}
 

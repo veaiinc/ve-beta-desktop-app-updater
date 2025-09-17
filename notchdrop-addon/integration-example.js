@@ -1,6 +1,6 @@
 /**
  * NotchDrop VE Voice Integration Example
- * 
+ *
  * This example shows how to integrate the VE.AI voice assistant
  * with NotchDrop in your Electron main process.
  */
@@ -13,50 +13,49 @@ const VEVoiceIntegration = require('./ve-voice-integration');
  * Call this in your main Electron process after NotchDrop is initialized
  */
 function setupNotchDropVoiceIntegration(notchDropService) {
-    console.log('🎤 Setting up NotchDrop VE Voice Integration...');
-    
-    // Create the VE Voice integration
-    const veVoiceIntegration = VEVoiceIntegration.createIntegration(notchDropService);
-    
-    // Example: Set authentication context from your app's state
-    // You would get these values from your existing authentication system
-    const exampleSetup = () => {
-        // Get these from your app's authentication state
-        const workspaceId = 'your-workspace-id'; // From localStorage or app state
-        const bearerToken = 'your-bearer-token'; // From localStorage or app state
-        const userLocation = {
-            countryCode: 'IN',
-            countryRegionCode: 'TS',
-            countryRegion: 'Telangana',
-            country: 'India',
-            city: 'Hyderabad',
-            timezone: 'Asia/Kolkata',
-            postalCode: '500009',
-            currency: 'INR',
-            region: 'ap-south-1'
-        };
-        
-        // Set authentication context for token generation
-        veVoiceIntegration.setAuthContext(workspaceId, bearerToken, userLocation);
-    };
-    
-    // You would call this when your app is authenticated
-    // exampleSetup();
-    
-    console.log('✅ NotchDrop VE Voice Integration setup complete');
-    return veVoiceIntegration;
+	console.log('🎤 Setting up NotchDrop VE Voice Integration...');
+
+	// Create the VE Voice integration
+	const veVoiceIntegration = VEVoiceIntegration.createIntegration(notchDropService);
+
+	// Example: Set authentication context from your app's state
+	// You would get these values from your existing authentication system
+	const exampleSetup = () => {
+		// Get these from your app's authentication state
+		const workspaceId = 'your-workspace-id'; // From localStorage or app state
+		const bearerToken = 'your-bearer-token'; // From localStorage or app state
+		const userLocation = {
+			countryCode: 'IN',
+			countryRegionCode: 'TS',
+			countryRegion: 'Telangana',
+			country: 'India',
+			city: 'Hyderabad',
+			timezone: 'Asia/Kolkata',
+			postalCode: '500009',
+			currency: 'INR',
+			region: 'ap-south-1',
+		};
+
+		// Set authentication context for token generation
+		veVoiceIntegration.setAuthContext(workspaceId, bearerToken, userLocation);
+	};
+
+	// You would call this when your app is authenticated
+	// exampleSetup();
+
+	console.log('✅ NotchDrop VE Voice Integration setup complete');
+	return veVoiceIntegration;
 }
 
 /**
  * Example usage in your main Electron process
  */
 function exampleMainProcessIntegration() {
-    // Assuming you have your NotchDropService initialized
-    // const notchDropService = new NotchDropService();
-    // const veVoiceIntegration = setupNotchDropVoiceIntegration(notchDropService);
-    
-    // Example: Programmatically connect to voice assistant
-    /*
+	// Assuming you have your NotchDropService initialized
+	// const notchDropService = new NotchDropService();
+	// const veVoiceIntegration = setupNotchDropVoiceIntegration(notchDropService);
+	// Example: Programmatically connect to voice assistant
+	/*
     async function connectToVoiceAssistant() {
         try {
             const result = await veVoiceIntegration.connectVoiceAssistant('User');
@@ -70,9 +69,8 @@ function exampleMainProcessIntegration() {
         }
     }
     */
-    
-    // Example: Check voice status
-    /*
+	// Example: Check voice status
+	/*
     function checkVoiceStatus() {
         const status = veVoiceIntegration.getStatus();
         console.log('🎤 Voice Status:', status);
@@ -212,7 +210,7 @@ function useVEVoiceIntegration() {
 
 // Export the setup function for use in your main process
 module.exports = {
-    setupNotchDropVoiceIntegration,
-    exampleMainProcessIntegration,
-    exampleRendererIntegration
+	setupNotchDropVoiceIntegration,
+	exampleMainProcessIntegration,
+	exampleRendererIntegration,
 };

@@ -123,11 +123,14 @@ const DynamicIslandUI = () => {
 			// Force show Dynamic Island on component mount as backup
 			setTimeout(() => {
 				if (window.electronApi?.dynamicIsland?.forceShow) {
-					window.electronApi.dynamicIsland.forceShow().then((result) => {
-						console.log('🏝️ Force show result from React:', result);
-					}).catch((error) => {
-						console.error('❌ Failed to force show from React:', error);
-					});
+					window.electronApi.dynamicIsland
+						.forceShow()
+						.then((result) => {
+							console.log('🏝️ Force show result from React:', result);
+						})
+						.catch((error) => {
+							console.error('❌ Failed to force show from React:', error);
+						});
 				}
 			}, 3000);
 

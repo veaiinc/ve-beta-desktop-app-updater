@@ -199,28 +199,27 @@ const MeetingAnalytics = ({ meetingId }) => {
 		<svg
 			className={className}
 			xmlns="http://www.w3.org/2000/svg"
-			width="100%"
+			width="409"
 			height="91"
 			viewBox="0 0 409 91"
 			fill="none"
 			style={{
-				height: '32px',
+				height: '48px',
 				alignSelf: 'stretch',
-				strokeWidth: '2px',
+				strokeWidth: '3px',
 				stroke: 'var(--primary-button, #79ECC9)',
-				filter: 'drop-shadow(0 0 0.671px #318AF1) drop-shadow(0 0 1.342px #318AF1) drop-shadow(0 0 4.696px #318AF1) drop-shadow(0 5px 9.391px #318AF1) drop-shadow(0 9px 16.099px #318AF1) drop-shadow(0 14px 28.174px #318AF1)',
 			}}
 		>
-			<g filter="url(#filter0_dddddd_5081_4765)">
+			<g filter="url(#filter0_dddddd_5081_4747)">
 				<path
 					d="M30 48C30 48 32.9741 34 34.3828 30.6718C35.7916 27.3435 45.6374 26.6735 52.8533 24.987C64.1578 22.345 81.8113 21.5761 81.8113 21.5761C81.8113 21.5761 96.9971 23.85 106.7 21.5761C116.402 19.3022 127.672 21.5761 134.092 21.5761C140.512 21.5761 137.69 20.4392 150.684 18.1653C163.679 15.8914 171.031 17.0288 184.025 18.1653C197.02 19.3018 193.469 20.6074 199.522 21.5761C215.656 24.1582 234.425 19.3027 240.845 21.5761C247.266 23.8496 245.417 25.6585 248.359 27.2609C253.603 30.1172 256.97 28.3974 261.82 29.5348C266.67 30.6722 265.423 31.8083 267.768 32.9457C270.114 34.0831 270.584 30.6722 272.464 29.5348C274.345 28.3974 285.615 34.0822 293.909 31.8087C302.203 29.5353 299.533 27.3225 303.144 24.987C309.552 20.8428 313.152 18.7927 319.58 17.0283C328.01 14.7146 341.181 17.0283 341.181 17.0283L358.712 19.3022C358.712 19.3022 365.753 20.4394 369.669 21.5761C373.585 22.7129 375.966 21.5761 380 21.5761"
 					stroke="#79ECC9"
-					strokeWidth="2"
+					strokeWidth="3"
 				/>
 			</g>
 			<defs>
 				<filter
-					id="filter0_dddddd_5081_4765"
+					id="filter0_dddddd_5081_4747"
 					x="0.849838"
 					y="0.826401"
 					width="407.324"
@@ -244,7 +243,7 @@ const MeetingAnalytics = ({ meetingId }) => {
 					<feBlend
 						mode="normal"
 						in2="BackgroundImageFix"
-						result="effect1_dropShadow_5081_4765"
+						result="effect1_dropShadow_5081_4747"
 					/>
 					<feColorMatrix
 						in="SourceAlpha"
@@ -260,8 +259,8 @@ const MeetingAnalytics = ({ meetingId }) => {
 					/>
 					<feBlend
 						mode="normal"
-						in2="effect1_dropShadow_5081_4765"
-						result="effect2_dropShadow_5081_4765"
+						in2="effect1_dropShadow_5081_4747"
+						result="effect2_dropShadow_5081_4747"
 					/>
 					<feColorMatrix
 						in="SourceAlpha"
@@ -277,8 +276,8 @@ const MeetingAnalytics = ({ meetingId }) => {
 					/>
 					<feBlend
 						mode="normal"
-						in2="effect2_dropShadow_5081_4765"
-						result="effect3_dropShadow_5081_4765"
+						in2="effect2_dropShadow_5081_4747"
+						result="effect3_dropShadow_5081_4747"
 					/>
 					<feColorMatrix
 						in="SourceAlpha"
@@ -294,8 +293,8 @@ const MeetingAnalytics = ({ meetingId }) => {
 					/>
 					<feBlend
 						mode="normal"
-						in2="effect3_dropShadow_5081_4765"
-						result="effect4_dropShadow_5081_4765"
+						in2="effect3_dropShadow_5081_4747"
+						result="effect4_dropShadow_5081_4747"
 					/>
 					<feColorMatrix
 						in="SourceAlpha"
@@ -311,8 +310,8 @@ const MeetingAnalytics = ({ meetingId }) => {
 					/>
 					<feBlend
 						mode="normal"
-						in2="effect4_dropShadow_5081_4765"
-						result="effect5_dropShadow_5081_4765"
+						in2="effect4_dropShadow_5081_4747"
+						result="effect5_dropShadow_5081_4747"
 					/>
 					<feColorMatrix
 						in="SourceAlpha"
@@ -328,13 +327,13 @@ const MeetingAnalytics = ({ meetingId }) => {
 					/>
 					<feBlend
 						mode="normal"
-						in2="effect5_dropShadow_5081_4765"
-						result="effect6_dropShadow_5081_4765"
+						in2="effect5_dropShadow_5081_4747"
+						result="effect6_dropShadow_5081_4747"
 					/>
 					<feBlend
 						mode="normal"
 						in="SourceGraphic"
-						in2="effect6_dropShadow_5081_4765"
+						in2="effect6_dropShadow_5081_4747"
 						result="shape"
 					/>
 				</filter>
@@ -588,10 +587,29 @@ const MeetingAnalytics = ({ meetingId }) => {
 				!analyticsData.meeting_metadata &&
 				!analyticsData.timeline_analysis));
 
+	if (showErrorBanner) {
+		return (
+			<div
+				style={{
+					display: 'flex',
+					alignItems: 'center',
+					color: 'var(--secondary-font, #94989e)',
+					fontSize: '14px',
+					fontWeight: '500',
+					height: '100%',
+					justifyContent: 'center',
+					lineHeight: '22px',
+					width: '100%',
+				}}
+			>
+				No Analytics Data
+			</div>
+		);
+	}
 	return (
 		<div className={a.analyticsMainContainer}>
 			{/* Error Banner */}
-			{showErrorBanner && (
+			{/* {showErrorBanner && (
 				<div
 					style={{
 						backgroundColor: '#fef2f2',
@@ -624,10 +642,10 @@ const MeetingAnalytics = ({ meetingId }) => {
 						Retry
 					</button>
 				</div>
-			)}
+			)} */}
 
 			{/* No Data Message */}
-			{hasNoData && (
+			{/* {hasNoData && (
 				<div
 					style={{
 						backgroundColor: '#f9fafb',
@@ -645,7 +663,7 @@ const MeetingAnalytics = ({ meetingId }) => {
 						Analytics will be generated once the meeting is processed.
 					</p>
 				</div>
-			)}
+			)} */}
 
 			{/* Show partial data message if we have some but not all data */}
 			{!hasNoData &&
@@ -670,28 +688,6 @@ const MeetingAnalytics = ({ meetingId }) => {
 						</p>
 					</div>
 				)}
-
-			{/* Header */}
-			{/* <div className={a.header}>
-                <div className={a.titleSection}>
-                    <h1 className={a.meetingTitle}>Product interview</h1>
-                    <p className={a.meetingDate}>Wednesday, March 13, 2024</p>
-                </div>
-                <div className={a.tabNavigation}>
-                    <button 
-                        className={`${a.tab} ${activeTab === 'Summary' ? a.active : ''}`}
-                        onClick={() => setActiveTab('Summary')}
-                    >
-                        Summary
-                    </button>
-                    <button 
-                        className={`${a.tab} ${activeTab === 'Analytics' ? a.active : ''}`}
-                        onClick={() => setActiveTab('Analytics')}
-                    >
-                        Analytics
-                    </button>
-                </div>
-            </div> */}
 
 			{/* Metric Cards - Only show if we have meeting metadata */}
 			{analyticsData?.meeting_metadata && (
@@ -876,7 +872,7 @@ const MeetingAnalytics = ({ meetingId }) => {
 										))}
 									</div>
 								</div>
-								{expandedSections.participants && <AnalyticsChart />}
+								{/* {expandedSections.participants && <AnalyticsChart />} */}
 							</>
 						)}
 					</div>
