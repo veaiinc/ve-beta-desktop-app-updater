@@ -14,6 +14,7 @@ const {
 	clipboard,
 	dialog,
 	shell,
+	protocol,
 } = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
@@ -1490,6 +1491,45 @@ app.whenReady().then(async () => {
 		}
 		return false;
 	});
+
+	protocol.interceptFileProtocol(
+		'file',
+		(request, callback) => {
+			const url = request.url.substr(7); // Remove 'file://'
+			const decodedUrl = decodeURI(url);
+
+			// Define your static file extensions
+			const staticFileExtensions = [
+				'.js',
+				'.css',
+				'.png',
+				'.jpg',
+				'.jpeg',
+				'.gif',
+				'.svg',
+				'.woff',
+				'.woff2',
+				'.ttf',
+				'.eot',
+				'.html',
+			];
+
+			// Check if the request is for a static asset
+			const isStaticFile = staticFileExtensions.some((ext) => decodedUrl.endsWith(ext));
+
+			if (isStaticFile) {
+				// Serve the actual static file
+				callback({ path: path.normalize(`${__dirname}/${decodedUrl}`) });
+			} else {
+				// For any other path (like /galleries/123), serve index.html
+				// This allows React Router to handle the routing.
+				callback({ path: path.normalize(`${__dirname}/index.html`) });
+			}
+		},
+		(error) => {
+			if (error) console.error('Failed to register protocol:', error);
+		},
+	);
 
 	// Configure automatic screen capture without dialog
 	session.defaultSession.setDisplayMediaRequestHandler(
