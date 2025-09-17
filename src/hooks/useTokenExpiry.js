@@ -1,86 +1,69 @@
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useContext, useState } from 'react';
+import Cookies from 'js-cookie';
 import Context from '../context/context';
-import logout from '../helpers/logout';
-import useBroadcastChannel from './useBroadcastChannel';
-
-const calculateTokenTimeLeft = (token) => {
-	if (!token) return { isExpired: true };
-
-	try {
-		// Get payload from JWT token
-		const payload = JSON.parse(atob(token.split('.')[1]));
-		const expiryTimestamp = payload.exp; // JWT exp is in seconds
-		const now = Date.now();
-		const expiryMs = expiryTimestamp * 1000;
-		const timeLeftMs = expiryMs - now;
-		const secondsLeft = timeLeftMs / 1000;
-		const hoursLeft = timeLeftMs / (1000 * 60 * 60);
-
-		return {
-			isExpired: timeLeftMs <= 0,
-			timeLeftMs,
-			secondsLeft,
-			hoursLeft,
-			isExpiringSoon: hoursLeft <= 24,
-		};
-	} catch (error) {
-		console.error('Error parsing token:', error);
-		return { isExpired: true };
-	}
-};
+import { fetchDomainName } from '../helpers';
 
 const useTokenExpiry = () => {
-	const timerRef = useRef({ timer: null, interval: null });
-	const channel = useBroadcastChannel();
+	const timerRef = useRef(null);
+
+	const [accessTokenExpiry, setAccessTokenExpiry] = useState(
+		localStorage.getItem('accessTokenExpiry') || Cookies.get('accessTokenExpiry'),
+	);
+
 	const {
-		subscriptionInfo: { updateTokenExpiryState },
+		authInfo: { getNewAccessToken },
 	} = useContext(Context);
-	// Cleanup on unmount
+
 	useEffect(() => {
-		handleExpiryCheckLogic();
+		if (timerRef.current) clearTimeout(timerRef.current); // clear existing timers (if any)
+		const triggerAt = (accessTokenExpiry - 10) * 1000; // 10s before access token expires
+		const delay = Math.max(triggerAt - Date.now(), 0);
+
+		timerRef.current = setTimeout(async () => {
+			try {
+				const response = await getNewAccessToken();
+				const success = response?.[0];
+				if (success) {
+					const { tokens } = response?.[1];
+					const newAccessToken = tokens.accessToken;
+					const newRefreshToken = tokens.refreshToken;
+					const newAccessTokenExpiry = tokens.accessTokenExpiry;
+					const newRefreshTokenExpiry = tokens.refreshTokenExpiry;
+					const host = fetchDomainName();
+
+					localStorage.setItem('usertoken', newAccessToken);
+					localStorage.setItem('refreshToken', newRefreshToken);
+					localStorage.setItem('accessTokenExpiry', newAccessTokenExpiry);
+					localStorage.setItem('refreshTokenExpiry', newRefreshTokenExpiry);
+
+					Cookies.set('usertoken', newAccessToken, {
+						sameSite: 'lax',
+						domain: host,
+					});
+					Cookies.set('refreshToken', newRefreshToken, {
+						sameSite: 'lax',
+						domain: host,
+					});
+					Cookies.set('accessTokenExpiry', newAccessTokenExpiry, {
+						sameSite: 'lax',
+						domain: host,
+					});
+					Cookies.set('refreshTokenExpiry', newRefreshTokenExpiry, {
+						sameSite: 'lax',
+						domain: host,
+					});
+
+					setAccessTokenExpiry(newAccessTokenExpiry);
+				}
+			} catch (err) {
+				console.error('Token refresh failed', err);
+			}
+		}, delay);
+
 		return () => {
-			cleanupTimers();
+			if (timerRef.current) clearTimeout(timerRef.current);
 		};
-	}, []);
-
-	const handleExpiryCheckLogic = useCallback(() => {
-		const token = localStorage.getItem('usertoken');
-		const validateExpiryData = calculateTokenTimeLeft(token);
-		updateTokenExpiryState({ tokenExpiryData: validateExpiryData });
-		cleanupTimers();
-		if (validateExpiryData.isExpired) {
-			updateTokenExpiryState({ expiredTokenModal: true });
-			setTimeout(() => {
-				logout();
-				channel.postMessage('reload');
-				updateTokenExpiryState({ expiredTokenModal: false });
-			}, 5000);
-			return;
-		}
-
-		if (validateExpiryData.hoursLeft > 24) {
-			timerRef.current.timer = setTimeout(handleExpiryCheckLogic, 24 * 60 * 60 * 1000);
-		} else if (validateExpiryData.hoursLeft > 6) {
-			timerRef.current.timer = setTimeout(handleExpiryCheckLogic, 6 * 60 * 60 * 1000);
-		} else if (validateExpiryData.hoursLeft > 1) {
-			timerRef.current.interval = setInterval(handleExpiryCheckLogic, 60 * 60 * 1000);
-		} else if (validateExpiryData.secondsLeft > 60) {
-			timerRef.current.interval = setInterval(handleExpiryCheckLogic, 60 * 1000);
-		} else {
-			timerRef.current.interval = setInterval(handleExpiryCheckLogic, 1000);
-		}
-	}, []);
-
-	const cleanupTimers = useCallback(() => {
-		if (timerRef.current.timer) {
-			clearTimeout(timerRef.current.timer);
-			timerRef.current.timer = null;
-		}
-		if (timerRef.current.interval) {
-			clearInterval(timerRef.current.interval);
-			timerRef.current.interval = null;
-		}
-	}, []);
+	}, [accessTokenExpiry]);
 };
 
 export default useTokenExpiry;
