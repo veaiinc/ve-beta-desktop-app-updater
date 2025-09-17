@@ -199,6 +199,8 @@ const DynamicIslandUI = () => {
 			window.electronApi.dynamicIsland.onNotification((notification) => {
 				console.log('🔔 Dynamic Island received notification:', notification);
 				showNotificationWithExpansion(notification);
+				// Enhanced: Explicitly add to notifications array if not already handled
+				showNotification(notification);
 			});
 		}
 
