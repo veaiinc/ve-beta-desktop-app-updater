@@ -11,6 +11,11 @@ import ContactUs from '../../components/landing_screen/ContactUs';
 import OurMission from './OurMission';
 import EarlyAccess from './EarlyAccess';
 import CustomToast from '../../components/globalComponents/CustomToast';
+import PartnerSection from './PartnerSection';
+import DownloadSection from './DownloadSection';
+import FAQ from './FAQ';
+import NewsletterSection from './NewsletterSection';
+import GlassFooterSection from './GlassFooter';
 
 import { ReactComponent as MenuIcon } from '../../../assets/svg/menu.svg';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
@@ -122,10 +127,10 @@ const LandingPage = () => {
 			<div className="page-body">
 				<div className="heroContainer">
 					<div className="title-container">
-						<HeroSection />
+						<DownloadSection />
 					</div>
 
-					<div className={`videoContainer ${hasPlayed ? 'played' : 'unplayed'}`}>
+					{/* <div className={`videoContainer ${hasPlayed ? 'played' : 'unplayed'}`}>
 						<button onClick={handleVideoClick}>
 							{isPlaying ? (
 								<>
@@ -148,12 +153,29 @@ const LandingPage = () => {
 							autoPlay={window.innerWidth < 768}
 							loop={window.innerWidth < 768}
 						/>
+					</div> */}
+				</div>
+
+				{/* <Tagline /> */}
+				<PartnerSection />
+
+				<FAQ />
+
+				{/* Newsletter floating on MacBook Section */}
+				<div className="newsletter-macbook-container">
+					<GlassFooterSection />
+					<div className="newsletter-overlay">
+						<NewsletterSection />
 					</div>
 				</div>
 
-				<Tagline />
-				<EarlyAccess />
-				<Footer />
+				{/* Mobile Newsletter and Footer - positioned below FAQ on mobile */}
+				<div className="mobile-footer-container">
+					<NewsletterSection />
+					<GlassFooterSection isMobileFooter={true} />
+				</div>
+
+				{/* <EarlyAccess /> */}
 			</div>
 		),
 		1: <OurMission tab={tab} />,
@@ -182,25 +204,29 @@ const LandingPage = () => {
 						</div>
 
 						<div className="middle-container">
-							{!mobileMenuOpen && (
-								<TabNavigation tab={tab} handleSetTab={handleSetTab} />
-							)}
+							{/* Navigation items will be added here if needed */}
 						</div>
 						<div className="right-container">
-							<Link className="login-btn-text hide-on-mobile" to="/verify-user">
-								Login
-							</Link>
-							<div className="login-container">
-								<Link className="login-btn" to="/verify-user">
-									Signup
+							<div className="nav-buttons">
+								<Link className="nav-btn" to="/pricing">
+									Pricing
 								</Link>
-								<button
-									className="sidebar-button mobile-only"
-									onClick={() => setMobileMenuOpen(true)}
-								>
-									<MenuIcon />
-								</button>
+								<Link className="nav-btn" to="/explore">
+									Explore
+								</Link>
+								<Link className="nav-btn" to="/verify-user">
+									Sign In
+								</Link>
+								<Link className="nav-btn primary" to="/verify-user">
+									Get Started
+								</Link>
 							</div>
+							<button
+								className="sidebar-button mobile-only"
+								onClick={() => setMobileMenuOpen(true)}
+							>
+								<MenuIcon />
+							</button>
 						</div>
 					</div>
 					<MobileMenu open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
