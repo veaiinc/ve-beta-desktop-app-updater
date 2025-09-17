@@ -43,14 +43,12 @@ const AreYouThereApp = () => {
 
 		// Send IPC message based on window type
 		if (info.windowType === 'transcription-based') {
-			if (window.electronApi?.areYouThere?.endTranscriptionSession) {
-				window.electronApi.areYouThere.endTranscriptionSession();
-			}
+			window?.electronApi.areYouThere?.endTranscriptionSession();
 		} else {
-			if (window.electronApi?.areYouThere?.endSession) {
-				window.electronApi.areYouThere.endSession();
-			}
+			window.electronApi.areYouThere.endSession();
 		}
+
+		window.electronApi.sendMessageFrmVeApp('meetingstopped');
 	}, [info.windowType]);
 
 	// Countdown timer effect - counts up from 0 to 25 seconds

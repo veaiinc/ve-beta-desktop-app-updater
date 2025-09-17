@@ -3322,7 +3322,7 @@ app.whenReady().then(async () => {
 	// Handle state updates from overlay to Dynamic Island
 	ipcMain.handle('overlay-state-update', async (event, state) => {
 		try {
-			log.debug('Received overlay state update:', state);
+			// log.debug('Received overlay state update:', state);
 
 			// Validate state parameter
 			if (!state || typeof state !== 'object') {
@@ -3336,7 +3336,7 @@ app.whenReady().then(async () => {
 				dynamicIslandWindow.webContents.send('overlay-state-changed', state);
 				log.debug('State forwarded to Dynamic Island window');
 			} else {
-				log.warn('Dynamic Island window not available for state update');
+				// log.warn('Dynamic Island window not available for state update');
 			}
 
 			// Update recording state and manage Are You There timer
