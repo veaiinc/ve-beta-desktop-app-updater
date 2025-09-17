@@ -817,7 +817,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						sessionId={sessionId}
 						pageId={'688b653dde81dd3d71a41584'}
 						visible={activeTab === 'transcript'}
-						onTranscriptionUpdate={handleSocketTranscription}
+						onTranscriptionUpdate={handleUpdateTranscription}
 					/>
 				)}
 				{/* Assembly AI Transcription option */}
