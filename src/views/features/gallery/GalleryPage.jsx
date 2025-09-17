@@ -1158,9 +1158,8 @@ const GalleryPage = () => {
 				searchParams.set('activeTab', info.activeTab);
 			}
 
-			// Update URL without causing a navigation/reload
-			const newUrl = `${location.pathname}?${searchParams.toString()}`;
-			window.history.replaceState(null, '', newUrl);
+			// Update URL using router navigation to keep it within the hash (HashRouter)
+			navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
 		}
 	}, [info.activeAlbumId, info.activeTab, location.pathname]);
 
