@@ -439,22 +439,22 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		}
 	}, []);
 
-	useEffect(() => {
-		if (showTranscriptTabs && location?.pathname?.includes('meet') && type === 'meeting_bot') {
-			recallConnection(sessionId, meetingId, handleSocketMessage, isAiIntelligenceEnabled);
-			// createLiveIntelligenceStream(
-			// 	sessionId,
-			// 	noteId,
-			// 	handleLiveIntelligenceMessageFunc,
-			// 	false,
-			// );
-		}
-		//  else if (showTranscriptTabs && type === 'desktop') {
-		// 	// Connect to recall for note taker mode as well
-		// 	recallConnection(sessionId, meetingId, handleSocketMessage, isAiIntelligenceEnabled);
-		// }
-		// No cleanup needed, useRecallStream handles it
-	}, [showTranscriptTabs, sessionId, type]);
+	// useEffect(() => {
+	// 	if (showTranscriptTabs && location?.pathname?.includes('meet') && type === 'meeting_bot') {
+	// 		recallConnection(sessionId, meetingId, handleSocketMessage, isAiIntelligenceEnabled);
+	// 		// createLiveIntelligenceStream(
+	// 		// 	sessionId,
+	// 		// 	noteId,
+	// 		// 	handleLiveIntelligenceMessageFunc,
+	// 		// 	false,
+	// 		// );
+	// 	}
+	// 	//  else if (showTranscriptTabs && type === 'desktop') {
+	// 	// 	// Connect to recall for note taker mode as well
+	// 	// 	recallConnection(sessionId, meetingId, handleSocketMessage, isAiIntelligenceEnabled);
+	// 	// }
+	// 	// No cleanup needed, useRecallStream handles it
+	// }, [showTranscriptTabs, sessionId, type]);
 
 	useEffect(() => {
 		if (showTranscriptTabs && type === 'desktop' && !history) {
@@ -466,6 +466,87 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		setInfo((prev) => ({
 			...prev,
 			showAiTranscriptionSuggestions: !prev.showAiTranscriptionSuggestions,
+		}));
+	};
+
+	// const handleSocketMessage = useCallback(
+	// 	(event) => {
+	// 		try {
+	// 			const msg = JSON.parse(event?.data || null);
+
+	// 			if (msg?.event === 'transcript.received' && msg?.data) {
+	// 				// Append new transcript data to existing list
+	// 				setTranscriptList((prev) => [
+	// 					...prev,
+	// 					{
+	// 						speakerName: msg?.data?.speakerName,
+	// 						transcript: msg?.data?.transcript,
+	// 						timestamp: msg?.data?.timestamp,
+	// 					},
+	// 				]);
+	// 			} else if (msg?.event === 'live_intelligence.response' && msg?.data) {
+	// 				handleTranscriptionSuggestions(msg?.data);
+	// 			} else if (msg?.event === 'transcript.done') {
+	// 				closeRecallConnection();
+	// 				setSearchParams({
+	// 					...Object.fromEntries(searchParams.entries()),
+	// 					history: 'true',
+	// 				});
+	// 				getMeetSummary({ meetingId });
+	// 			} else if (msg?.noteTakerTranscript) {
+	// 				// Handle noteTakerTranscript responses
+	// 				handleUpdateTranscription({
+	// 					...msg.noteTakerTranscript,
+	// 					isFinal: true, // Assume final since it's from server
+	// 					id: msg.noteTakerTranscript._id || Date.now().toString(),
+	// 				});
+	// 			} else if (msg?.event === 'bot.join') {
+	// 				setInfo((prev) => ({
+	// 					...prev,
+	// 					botJoined: true,
+	// 					botJoinedTime: moment().unix(),
+	// 				}));
+	// 			}
+	// 		} catch (e) {
+	// 			console.error('Error in handleSocketMessage:', e);
+	// 		}
+	// 	},
+	// 	[handleUpdateTranscription],
+	// );
+
+	const updateTranscriptionHelper = (transcriptionArray, newTranscript) => {
+		const { source } = newTranscript;
+
+		if (transcriptionArray.length > 0) {
+			// Find the most recent transcript from the same source
+			for (let i = transcriptionArray.length - 1; i >= 0; i--) {
+				if (transcriptionArray[i].source === source) {
+					const oldTranscript = transcriptionArray[i];
+
+					// Logic based on the state of the previous transcript:
+					// - Final AND formatted → Append new transcript (start new entry)
+					// - Final but NOT formatted → Replace with new transcript
+					// - Not final → Replace with new transcript
+					if (oldTranscript.isFinal && oldTranscript.isTurnFormatted) {
+						return [...transcriptionArray, newTranscript];
+					} else {
+						// Replace existing transcript (whether final-unformatted or not-final)
+						const updatedArray = [...transcriptionArray];
+						updatedArray[i] = newTranscript;
+						return updatedArray;
+					}
+				}
+			}
+		}
+
+		// If no match found or array is empty, append the new transcript
+		return [...transcriptionArray, newTranscript];
+	};
+
+	const handleUpdateTranscription = (newTranscript) => {
+		setInfo((prev) => ({
+			...prev,
+			transcriptions: updateTranscriptionHelper(prev.transcriptions, newTranscript),
 		}));
 	};
 
@@ -566,42 +647,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		}));
 	};
 
-	const updateTranscriptionHelper = (transcriptionArray, newTranscript) => {
-		const { source } = newTranscript;
-
-		if (transcriptionArray.length > 0) {
-			// Find the most recent transcript from the same source
-			for (let i = transcriptionArray.length - 1; i >= 0; i--) {
-				if (transcriptionArray[i].source === source) {
-					const oldTranscript = transcriptionArray[i];
-
-					// Logic based on the state of the previous transcript:
-					// - Final AND formatted → Append new transcript (start new entry)
-					// - Final but NOT formatted → Replace with new transcript
-					// - Not final → Replace with new transcript
-					if (oldTranscript.isFinal && oldTranscript.isTurnFormatted) {
-						return [...transcriptionArray, newTranscript];
-					} else {
-						// Replace existing transcript (whether final-unformatted or not-final)
-						const updatedArray = [...transcriptionArray];
-						updatedArray[i] = newTranscript;
-						return updatedArray;
-					}
-				}
-			}
-		}
-
-		// If no match found or array is empty, append the new transcript
-		return [...transcriptionArray, newTranscript];
-	};
-
-	const handleUpdateTranscription = (newTranscript) => {
-		setInfo((prev) => ({
-			...prev,
-			transcriptions: updateTranscriptionHelper(prev.transcriptions, newTranscript),
-		}));
-	};
-
 	// useEffect(() => {
 	// 	console.log('info.transcriptions', info.transcriptions);
 	// }, [info.transcriptions]);
@@ -652,13 +697,13 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 									</span>
 								</div>
 							)} */}
+							<button
+								className="delete-meeting-button"
+								onClick={() => toggleDeleteModal(true)}
+							>
+								<Trash2 size={18} style={{ color: 'var(--error)' }} />
+							</button>
 						</div>
-						<button
-							className="delete-meeting-button"
-							onClick={() => toggleDeleteModal(true)}
-						>
-							<Trash2 size={18} style={{ color: 'var(--error)' }} />
-						</button>
 						{showTranscriptTabs && (
 							<TranscriptionTabs
 								activeTab={activeTab}
