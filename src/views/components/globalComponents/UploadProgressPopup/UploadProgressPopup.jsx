@@ -15,6 +15,7 @@ const UploadProgressPopup = () => {
 			getUploadImagePolicy,
 			uploadDesktopImages,
 			getImageUploadStatus,
+			tenantAlbums,
 		},
 	} = useContext(Context);
 
@@ -27,6 +28,25 @@ const UploadProgressPopup = () => {
 	const processingFiles = useRef(new Set()); // Global across sessions, keyed by session
 	const runningSessions = useRef(new Set()); // Track running sessions
 	const sessionStatesRef = useRef(new Map()); // ✅ LIVE state for each session — immune to re-renders
+
+	// Helper function to get album name from session data
+	const getAlbumName = (uploadSession) => {
+		// First try to get album name from session data (if it was included)
+		if (uploadSession.albumName) {
+			return uploadSession.albumName;
+		}
+
+		// Fallback: try to get album name from tenantAlbums using albumId
+		if (uploadSession.albumId && tenantAlbums?.albums) {
+			const album = tenantAlbums.albums.find((album) => album._id === uploadSession.albumId);
+			if (album) {
+				return album.title;
+			}
+		}
+
+		// Final fallback
+		return 'Unknown Album';
+	};
 
 	// Upload handlers
 	const handleUploadComplete = (sessionId) => {
@@ -813,7 +833,7 @@ const UploadProgressPopup = () => {
 					<div className="upload-header">
 						<div className="header-left">
 							<span style={{ color: 'var(--primary-font)' }}>
-								Album Upload{' '}
+								{currentSession ? getAlbumName(currentSession) : 'Album Upload'}{' '}
 								{totalSessions > 1
 									? `(${currentSessionIndex + 1} of ${totalSessions})`
 									: ''}
@@ -951,7 +971,11 @@ const UploadProgressPopup = () => {
 				<div className="upload-popup-minimized">
 					<div className="upload-info">
 						<div className="upload-title">
-							{currentSession ? getStatusText(currentSession.status) : 'No uploads'}
+							{currentSession
+								? `${getAlbumName(currentSession)} - ${getStatusText(
+										currentSession.status,
+								  )}`
+								: 'No uploads'}
 						</div>
 						<div className="upload-progress">
 							<div className="progress-bar">
@@ -972,7 +996,7 @@ const UploadProgressPopup = () => {
 							{currentSession ? getCompletedFilesCount(currentSession.files) : 0} of{' '}
 							{currentSession ? currentSession.totalFiles : 0} files
 							{totalSessions > 1 &&
-								` • Album ${currentSessionIndex + 1} of ${totalSessions}`}
+								` • ${currentSessionIndex + 1} of ${totalSessions} albums`}
 						</div>
 					</div>
 					<div className="upload-controls">
