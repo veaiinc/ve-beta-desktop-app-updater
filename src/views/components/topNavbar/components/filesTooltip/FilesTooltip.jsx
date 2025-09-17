@@ -1,3 +1,4 @@
+import { useContext, useEffect } from 'react';
 import s from './filesTooltip.module.scss';
 import { ReactComponent as Documents } from './assets/documents.svg';
 import { ReactComponent as Forms } from './assets/forms.svg';
@@ -5,8 +6,17 @@ import { ReactComponent as Templates } from './assets/templates.svg';
 import { ReactComponent as Sites } from './assets/sites.svg';
 import { ReactComponent as Gallery } from './assets/gallery.svg';
 import { ReactComponent as NotesIcon } from './assets/noteIcon.svg';
-
+import Context from '../../../../../context/context';
 import { useNavigate } from 'react-router-dom';
+
+// ✅ Mapping: UI Label → Backend App Name(s)
+export const fileLabelToAppName = {
+	Documents: 'fileManager',
+	Forms: 'form',
+	Gallery: ['liteGallery', 'classicGallery'],
+	Templates: 'template',
+	Notes: 'note',
+};
 
 const files = [
 	{
@@ -56,13 +66,63 @@ const files = [
 const FilesTooltip = ({ closeTooltip }) => {
 	const region = localStorage.getItem('region');
 	const navigate = useNavigate();
+	const {
+		profileInfo: { tenantUserAccessControls, getTenantUserAccessControls },
+	} = useContext(Context);
+
+	useEffect(() => {
+		if (!tenantUserAccessControls) {
+			getTenantUserAccessControls();
+		}
+	}, [tenantUserAccessControls]);
+
+	const accessControls = tenantUserAccessControls?.accessControls;
+
+	// Build lookup: { [app]: isEnabled }
+	const appsMap = {};
+	if (Array.isArray(accessControls)) {
+		accessControls.forEach((control) => {
+			const appName = control.app;
+			if (appName) {
+				appsMap[appName] = control.isEnabled;
+			}
+		});
+	}
+
+	const shouldShowFile = (fileLabel) => {
+		// ✅ Special case: Always show "Sites" — no access control
+		if (fileLabel === 'Sites') {
+			return true;
+		}
+
+		const appNames = fileLabelToAppName[fileLabel];
+
+		// If no mapping → hide (defensive)
+		if (!appNames) return false;
+
+		const namesToCheck = Array.isArray(appNames) ? appNames : [appNames];
+
+		// Show if any mapped app is explicitly enabled
+		for (let name of namesToCheck) {
+			if (appsMap.hasOwnProperty(name)) {
+				if (appsMap[name] === true) {
+					return true;
+				}
+			}
+		}
+
+		// Not found or all disabled → HIDE
+		return false;
+	};
+
+	const visibleFiles = files.filter((file) => shouldShowFile(file.label));
 
 	return (
 		<div
 			className={s.filesTooltipContainer}
 			style={region === 'ap-south-1' ? { left: '-12px' } : { left: '-226px' }}
 		>
-			{files.map((file) => (
+			{visibleFiles.map((file) => (
 				<div
 					key={file.id}
 					className={s.fileContainer}
