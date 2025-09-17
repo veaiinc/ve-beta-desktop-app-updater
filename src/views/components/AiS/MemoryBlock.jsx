@@ -1,31 +1,106 @@
-import React, { memo } from 'react';
+import { memo, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/AiSetup/memoryBlock.scss';
 import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/dustbin.svg';
-import { ReactComponent as Pencil } from '../../../assets/svg/calendar/pencil.svg';
-const MemoryBlock = ({ data, onDeleteClick, onEditClick }) => {
+// import { ReactComponent as Pencil } from '../../../assets/svg/calendar/pencil.svg';
+import Context from '../../../context/context';
+import InfiniteScroll from '../globalComponents/InfiniteScroll';
+import { FetchMoreLoaderComp } from '../../../helpers';
+import { message } from '../globalComponents/CustomToast';
+
+const limit = 10;
+const infiniteScrollStyle = {
+	display: 'flex',
+	flexWrap: 'wrap',
+	alignItems: 'flex-end',
+	alignContent: 'flex-start',
+	gap: '14px',
+	width: '100%',
+	overflowX: 'hidden',
+};
+
+const MemoryBlock = () => {
+	const {
+		aiSetup: { AIMemoryInfo, getAIMemoryInfo, deleteAIMemory },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		AIMemoryDeleteLoading: false,
+	});
+
+	useEffect(() => {
+		if (!AIMemoryInfo) {
+			getAIMemoryInfo();
+		}
+	}, []);
+
+	const AIMemoryList = AIMemoryInfo?.data || [];
+	const AIMemoryListLength = AIMemoryList?.length || 0;
+	const hasNextPage = AIMemoryInfo?.hasNextPage || false;
+	const currentPage = AIMemoryInfo?.currentPage || 1;
+
+	const fetchNextAIMemoryList = () => {
+		if (hasNextPage) {
+			const page = currentPage + 1;
+			getAIMemoryInfo({ page, limit });
+		}
+	};
+
+	const handleDeleteAIMemory = async (memoryId) => {
+		if (info?.AIMemoryDeleteLoading) return;
+		setInfo((prev) => ({
+			...prev,
+			AIMemoryDeleteLoading: true,
+		}));
+		try {
+			const response = await deleteAIMemory(memoryId);
+			if (response?.[0]) {
+				message?.success('Memory deleted successfully');
+			} else {
+				message?.error('Failed to delete memory');
+			}
+		} catch (error) {
+			console.log('error==>handleDeleteAIMemory', error);
+			message?.error('Failed to delete memory');
+		} finally {
+			setInfo((prev) => ({
+				...prev,
+				AIMemoryDeleteLoading: false,
+			}));
+		}
+	};
+
 	return (
 		<div className="memoryBlockContainer">
-			{data?.map((item) => (
-				<div key={item._id} className={`memoryBlockItem`}>
-					<h3 className="memoryBlockItemTitle">{item?.description}</h3>
-					<div className="memoryBlockItemActions">
-						<button
+			<InfiniteScroll
+				dataLength={AIMemoryListLength}
+				next={fetchNextAIMemoryList}
+				hasMore={hasNextPage}
+				loader={<FetchMoreLoaderComp />}
+				style={infiniteScrollStyle}
+				height={'100%'}
+			>
+				{AIMemoryList?.map((item) => (
+					<div key={item.id} className={`memoryBlockItem`}>
+						<h3 className="memoryBlockItemTitle">{item?.content}</h3>
+						<div className="memoryBlockItemActions">
+							{/* <button
 							className="deleteButton"
 							onClick={() =>
 								onEditClick('memory', item?._id, null, item?.description)
 							}
 						>
 							<Pencil />
-						</button>
-						<button
-							className="deleteButton"
-							onClick={() => onDeleteClick('memory', item?._id)}
-						>
-							<Dustbin />
-						</button>
+						</button> */}
+							<button
+								className="deleteButton"
+								onClick={() => handleDeleteAIMemory(item?.id)}
+							>
+								<Dustbin />
+							</button>
+						</div>
 					</div>
-				</div>
-			))}
+				))}
+			</InfiniteScroll>
 		</div>
 	);
 };

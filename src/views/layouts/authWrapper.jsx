@@ -39,7 +39,7 @@ const AuthWrapper = ({
 
 	usePushNotifications(showPushNotification);
 	const { authInitialized } = useAuthInitializer();
-	const { migrationLoading, migrationInProgress } = useMigrationGate();
+	// const { migrationLoading, migrationInProgress } = useMigrationGate();
 
 	const {
 		aiSetup: { showVoiceWidget },
@@ -78,10 +78,10 @@ const AuthWrapper = ({
 	if (!isOnline) return <Offline />;
 
 	// While checking migration, show loader to avoid flicker
-	if (migrationLoading) return <PageLoader />;
+	// if (migrationLoading) return <PageLoader />;
 
 	// Show offline-like page when migration is in progress (status 102)
-	if (migrationInProgress) return <UnderMaintainence />;
+	// if (migrationInProgress) return <UnderMaintainence />;
 
 	return authInitialized ? (
 		<PageLoader />

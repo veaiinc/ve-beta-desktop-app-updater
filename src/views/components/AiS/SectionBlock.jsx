@@ -56,9 +56,9 @@ const SectionBlock = ({
 			) : data?.length > 0 ? (
 				type === 'memory' ? (
 					<MemoryBlock
-						data={data}
-						onDeleteClick={onDeleteClick}
-						onEditClick={onEditClick}
+					// data={data}
+					// onDeleteClick={onDeleteClick}
+					// onEditClick={onEditClick}
 					/>
 				) : (
 					<div className="sectionBlockContent">
