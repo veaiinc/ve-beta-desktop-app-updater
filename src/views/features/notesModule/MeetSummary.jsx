@@ -1,44 +1,63 @@
 import { memo, useContext, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import s from '../../../assets/scss/notes/meetSummary.module.scss';
 import { Markdown } from '../../../helpers/markdownHelper';
 import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';
-import { useSearchParams } from 'react-router-dom';
 
-const MeetSummary = ({ activeTab, meetingId }) => {
+const MeetSummary = ({ meetingId }) => {
 	const {
-		notes: { getMeetSummary, meetSummary },
+		notes: { getMeetSummary, meetSummary, getMeetingAnalytics },
 		templates: { updateStateValues },
 	} = useContext(Context);
-	const [searchParams, setSearchParams] = useSearchParams();
 
-	const [info, setInfo] = useState({
-		summary: '',
-		loading: true,
+	const [searchParams, setSearchParams] = useSearchParams();
+	const [analyticsLoading, setAnalyticsLoading] = useState(false);
+	const [textSelection, setTextSelection] = useState({
 		popover: null,
 		selectedText: '',
 	});
+	const [summaryData, setSummaryData] = useState({
+		summary: '',
+		analyticsData: null,
+	});
 
-	const handleInfoChange = (data) => {
-		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
+	const isSummaryLoading = !meetSummary;
+
+	// Fetch meeting analytics
+	const fetchMeetingAnalytics = async () => {
+		if (!meetingId) {
+			console.log('No meeting ID provided');
+			return;
+		}
+
+		setAnalyticsLoading(true);
+		try {
+			console.log('Fetching analytics for meetingId:', meetingId);
+			const [success, data] = await getMeetingAnalytics(meetingId);
+
+			if (success) {
+				setSummaryData((prev) => ({ ...prev, analyticsData: data }));
+			} else {
+				console.log('Error fetching analytics:', data);
+			}
+		} catch (err) {
+			console.log('Error fetching meeting analytics:', err);
+		} finally {
+			setAnalyticsLoading(false);
+		}
 	};
 
-	useEffect(() => {
-		document.addEventListener('mouseup', handleSelection);
-
-		return () => {
-			document.removeEventListener('mouseup', handleSelection);
-		};
-	}, []);
-
-	const handleSelection = () => {
+	// Handle text selection for "Ask VE" feature
+	const handleTextSelection = () => {
 		setTimeout(() => {
 			const selection = window.getSelection();
 
 			if (selection && !selection.isCollapsed) {
 				const range = selection.getRangeAt(0);
 				const rect = range.getBoundingClientRect();
-				handleInfoChange({
+
+				setTextSelection({
 					popover: {
 						x: rect.left + rect.width / 2,
 						y: rect.top - 10 + window.scrollY,
@@ -46,60 +65,81 @@ const MeetSummary = ({ activeTab, meetingId }) => {
 					selectedText: selection.toString(),
 				});
 			} else {
-				handleInfoChange({ popover: null });
+				setTextSelection({ popover: null, selectedText: '' });
 			}
-		}, 0); // let the browser finish updating selection first
+		}, 0);
 	};
 
-	const handleAskAi = () => {
+	// Handle Ask AI functionality
+	const handleAskAI = () => {
 		const newParams = new URLSearchParams(searchParams);
 		newParams.set('chat', 'true');
 		setSearchParams(newParams, { replace: true });
 		updateStateValues({
-			chatReplyData: info?.selectedText,
+			chatReplyData: textSelection.selectedText,
 		});
 	};
 
+	// Fetch analytics on mount or when meetingId changes
+	useEffect(() => {
+		fetchMeetingAnalytics();
+	}, [meetingId]);
+
+	// Set up text selection listener
+	useEffect(() => {
+		document.addEventListener('mouseup', handleTextSelection);
+		return () => document.removeEventListener('mouseup', handleTextSelection);
+	}, []);
+
+	// Handle summary data updates
 	useEffect(() => {
 		if (meetSummary) {
-			setInfo((prev) => ({
+			setSummaryData((prev) => ({
 				...prev,
-				summary: meetSummary?.summary,
-				loading: false,
+				summary: meetSummary.summary,
 			}));
-		} else {
+		} else if (meetingId) {
 			getMeetSummary(meetingId);
 		}
-	}, [meetSummary]);
+	}, [meetSummary, meetingId, getMeetSummary]);
 
-	const loading = meetSummary ? false : true;
+	// Render loading state
+	const renderLoadingState = () => (
+		<div className={s.loadingContainer}>
+			<Spinner />
+		</div>
+	);
+
+	// Render summary content
+	const renderSummaryContent = () => {
+		if (summaryData.summary) {
+			return <Markdown>{summaryData.summary}</Markdown>;
+		}
+		return <div className={s.loadingContainer}>No summary.</div>;
+	};
+
+	// Render Ask VE popover
+	const renderAskVEPopover = () => {
+		if (!textSelection.popover) return null;
+
+		return (
+			<div
+				className={s.popover}
+				style={{
+					top: textSelection.popover.y,
+					left: textSelection.popover.x,
+				}}
+				onClick={handleAskAI}
+			>
+				Ask VE
+			</div>
+		);
+	};
 
 	return (
 		<div className={s.meetSummaryContainer}>
-			{loading ? (
-				<div className={s.loadingContainer}>
-					<Spinner />
-				</div>
-			) : info?.summary ? (
-				<Markdown>{info?.summary}</Markdown>
-			) : (
-				<div className={s.loadingContainer}>No summary.</div>
-			)}
-
-			{info?.popover && (
-				<div
-					className={s.popover}
-					style={{
-						top: info.popover.y,
-						left: info.popover.x,
-					}}
-					onClick={() => {
-						handleAskAi();
-					}}
-				>
-					Ask VE
-				</div>
-			)}
+			{isSummaryLoading ? renderLoadingState() : renderSummaryContent()}
+			{renderAskVEPopover()}
 		</div>
 	);
 };
