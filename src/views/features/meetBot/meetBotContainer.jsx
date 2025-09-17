@@ -21,6 +21,7 @@ import './meetBotContainer.scss';
 import moment from 'moment';
 import Spinner from '../../components/loaders/Spinner';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
+import MeetingAnalytics from './MeetingAnalytics';
 
 const initialState = {
 	files: [],
@@ -630,6 +631,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	// 	console.log('info.transcriptions', info.transcriptions);
 	// }, [info.transcriptions]);
 
+	// console.log('meetingId', meetingId);
 	return (
 		<div className="meetbot-container">
 			<div className="meeting-header">
@@ -776,7 +778,9 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 				{showTranscriptTabs && activeTab === 'summary' && (
 					<MeetSummary activeTab={activeTab} meetingId={meetingId} />
 				)}
-
+				{showTranscriptTabs && activeTab === 'analytics' && (
+					<MeetingAnalytics meetingId={meetingId} />
+				)}
 				{showTranscriptTabs && activeTab === 'audio' && (
 					<div className="audio-tab-container">
 						<AudioPlayback meetingId={meetingId} />
