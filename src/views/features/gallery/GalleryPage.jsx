@@ -38,7 +38,6 @@ import CollaboratorPopup from '../../components/modalsV2/gallery/CollaboratorPop
 import { useNavigate, useParams, useLocation, useSearchParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import moment from 'moment';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DeleteGalleryComponent from '../../components/gallery/gallerySettings/DeleteGalleryComponent';
 import DeletePopup from '../../components/modalsV2/gallery/DeletePopup';
@@ -75,6 +74,7 @@ import { ReactComponent as ChevronLeft } from '../../../assets/svg/tasks/chevron
 import { ReactComponent as MoveToIcon } from '../../../assets/svg/gallery/moveToIcon.svg';
 import Spinner from '../../components/loaders/Spinner';
 import DesktopAppIntimation from '../../components/gallery/galleryPage/DesktopAppIntimation';
+import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 // const workspaceId = localStorage.getItem('workspaceId');
 
 const dummyImagesArray = Array.from({ length: 10 }, () => ({ isPlaceholderImg: true }));
@@ -5232,7 +5232,7 @@ const GalleryPage = () => {
 										}
 										resetInfinityScroll={info?.resetInfinityScroll}
 										disableDrop={true}
-										// height={'90vh'}
+										height={'90vh'}
 										scrollableTarget="galleryScrollTarget"
 									>
 										{!info.isRearranging ? (
