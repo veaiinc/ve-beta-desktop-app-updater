@@ -3,6 +3,7 @@ import Context from '../../../../context/context';
 import { uploadImage } from '../../../../helpers/uploadImage';
 import ObjectID from 'bson-objectid';
 import './UploadProgressPopup.scss';
+import UpDownArrow from '../../../../assets/svg/my_templates/UpDownArrowSvg';
 
 const UploadProgressPopup = () => {
 	const {
@@ -14,17 +15,38 @@ const UploadProgressPopup = () => {
 			getUploadImagePolicy,
 			uploadDesktopImages,
 			getImageUploadStatus,
+			tenantAlbums,
 		},
 	} = useContext(Context);
 
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [activeUploads, setActiveUploads] = useState(new Map()); // For rendering only
+	const [currentSessionIndex, setCurrentSessionIndex] = useState(0); // Track which session to display
 	const intervalRefs = useRef(new Map()); // Map of sessionId -> interval ref
 	const startedSessions = useRef(new Set()); // Track which sessions have been started
 	const previousSessions = useRef(new Set()); // Track previous session IDs
 	const processingFiles = useRef(new Set()); // Global across sessions, keyed by session
 	const runningSessions = useRef(new Set()); // Track running sessions
 	const sessionStatesRef = useRef(new Map()); // ✅ LIVE state for each session — immune to re-renders
+
+	// Helper function to get album name from session data
+	const getAlbumName = (uploadSession) => {
+		// First try to get album name from session data (if it was included)
+		if (uploadSession.albumName) {
+			return uploadSession.albumName;
+		}
+
+		// Fallback: try to get album name from tenantAlbums using albumId
+		if (uploadSession.albumId && tenantAlbums?.albums) {
+			const album = tenantAlbums.albums.find((album) => album._id === uploadSession.albumId);
+			if (album) {
+				return album.title;
+			}
+		}
+
+		// Final fallback
+		return 'Unknown Album';
+	};
 
 	// Upload handlers
 	const handleUploadComplete = (sessionId) => {
@@ -42,6 +64,37 @@ const UploadProgressPopup = () => {
 
 	const handleCloseUploadProgressPopup = () => {
 		hideUploadProgressPopup();
+	};
+
+	// Navigation helpers for sequential display
+	const getCurrentSession = () => {
+		const uploadStates = Array.from(activeUploads.values());
+		return uploadStates[currentSessionIndex] || null;
+	};
+
+	const getTotalSessions = () => {
+		return Array.from(activeUploads.values()).length;
+	};
+
+	const goToNextSession = () => {
+		const totalSessions = getTotalSessions();
+		if (totalSessions > 0) {
+			setCurrentSessionIndex((prev) => (prev + 1) % totalSessions);
+		}
+	};
+
+	const goToPreviousSession = () => {
+		const totalSessions = getTotalSessions();
+		if (totalSessions > 0) {
+			setCurrentSessionIndex((prev) => (prev - 1 + totalSessions) % totalSessions);
+		}
+	};
+
+	const goToSession = (index) => {
+		const totalSessions = getTotalSessions();
+		if (index >= 0 && index < totalSessions) {
+			setCurrentSessionIndex(index);
+		}
 	};
 
 	// ✅ Helper to update both React state (for UI) and ref state (for logic)
@@ -132,6 +185,17 @@ const UploadProgressPopup = () => {
 
 		previousSessions.current = currentSessionIds;
 	}, [uploadSessions]);
+
+	// Handle session index when sessions change
+	useEffect(() => {
+		const totalSessions = getTotalSessions();
+
+		if (totalSessions > 0 && currentSessionIndex >= totalSessions) {
+			// If current index is out of bounds, reset to last session
+			const newIndex = Math.max(0, totalSessions - 1);
+			setCurrentSessionIndex(newIndex);
+		}
+	}, [activeUploads, currentSessionIndex]);
 
 	// Process single image
 	const processSingleImage = async (originalFile, settings) => {
@@ -750,139 +814,199 @@ const UploadProgressPopup = () => {
 		return 'Processing...';
 	};
 
-	if (!showUploadProgressPopup || !uploadSessions || uploadSessions.length === 0) return null;
+	// Ensure popup shows if there are active uploads, even if state is inconsistent
+	const hasActiveUploads = activeUploads.size > 0;
+	const shouldShowPopup = showUploadProgressPopup || hasActiveUploads;
+
+	if (!shouldShowPopup || !uploadSessions || uploadSessions.length === 0) {
+		return null;
+	}
 
 	const uploadStates = Array.from(activeUploads.values());
+	const currentSession = getCurrentSession();
+	const totalSessions = getTotalSessions();
 
 	return (
 		<div className="upload-progress-popup">
 			{isExpanded ? (
 				<div className="upload-popup-expanded">
 					<div className="upload-header">
-						<h3>
-							Upload Progress ({uploadStates.length} session
-							{uploadStates.length > 1 ? 's' : ''})
-						</h3>
+						<div className="header-left">
+							<span style={{ color: 'var(--primary-font)' }}>
+								{currentSession ? getAlbumName(currentSession) : 'Album Upload'}{' '}
+								{totalSessions > 1
+									? `(${currentSessionIndex + 1} of ${totalSessions})`
+									: ''}
+							</span>
+							{totalSessions > 1 && (
+								<div className="session-navigation">
+									<button
+										className="nav-btn prev"
+										onClick={goToPreviousSession}
+										disabled={totalSessions <= 1}
+										title="Previous Album"
+									>
+										‹
+									</button>
+									<span className="session-indicator">
+										{currentSessionIndex + 1} / {totalSessions}
+									</span>
+									<button
+										className="nav-btn next"
+										onClick={goToNextSession}
+										disabled={totalSessions <= 1}
+										title="Next Album"
+									>
+										›
+									</button>
+								</div>
+							)}
+						</div>
 						<div className="header-controls">
-							{/* Icons commented out — uncomment if needed */}
+							<span
+								className="control-btn expand"
+								onClick={() => setIsExpanded(false)}
+								style={{ cursor: 'pointer' }}
+							>
+								<UpDownArrow />
+							</span>
 						</div>
 					</div>
 
-					<div className="upload-sessions">
-						{uploadStates.map((uploadState) => (
-							<div key={uploadState.sessionId} className="upload-session">
-								<div className="session-header">
-									<div className="session-info">
-										<div className="session-title">
-											Gallery Upload • {getStatusText(uploadState.status)}
-										</div>
-										<div className="session-progress">
-											<div className="progress-bar">
-												<div
-													className="progress-fill"
-													style={{
-														width: `${uploadState.overallProgress}%`,
-													}}
-												/>
-											</div>
-											<span className="progress-text">
-												{Math.round(uploadState.overallProgress)}%
-											</span>
-										</div>
+					{currentSession ? (
+						<div className="upload-session">
+							<div className="session-header">
+								<div className="session-info">
+									<div
+										className="session-title"
+										style={{ color: 'var(--primary-font)' }}
+									>
+										{getStatusText(currentSession.status)}
 									</div>
-									<div className="session-controls">
-										{uploadState.status === 'uploading' && (
-											<button
-												className="control-btn cancel"
-												onClick={() =>
-													handleCancelSession(uploadState.sessionId)
-												}
-												title="Cancel"
-											>
-												Cancel
-											</button>
+									<div className="session-progress">
+										<div className="progress-bar">
+											<div
+												className="progress-fill"
+												style={{
+													width: `${currentSession.overallProgress}%`,
+												}}
+											/>
+										</div>
+										<span className="progress-text">
+											{Math.round(currentSession.overallProgress)}%
+										</span>
+									</div>
+								</div>
+								<div className="session-controls">
+									{currentSession.status === 'uploading' && (
+										<span
+											className="cancel"
+											onClick={() =>
+												handleCancelSession(currentSession.sessionId)
+											}
+											style={{ cursor: 'pointer' }}
+										>
+											Cancel
+										</span>
+									)}
+								</div>
+							</div>
+
+							<div className="files-list">
+								{currentSession.files?.map((fileData, index) => (
+									<div
+										key={index}
+										className={`file-item ${fileData.status || 'pending'}`}
+									>
+										<div className="file-info">
+											<div className="file-name">{fileData.file.name}</div>
+											<div className="file-status">
+												{fileData.status === 'processing' &&
+													'Processing...'}
+												{fileData.status === 'uploading' &&
+													`Uploading... ${Math.round(
+														fileData.progress || 0,
+													)}%`}
+												{fileData.status === 'completed' && 'Completed'}
+												{fileData.status === 'failed' &&
+													`Failed: ${fileData.error}`}
+												{(!fileData.status ||
+													fileData.status === 'pending') &&
+													'Pending...'}
+											</div>
+										</div>
+										{fileData.status === 'uploading' && (
+											<div className="file-progress">
+												<div className="progress-bar small">
+													<div
+														className="progress-fill"
+														style={{
+															width: `${fileData.progress || 0}%`,
+														}}
+													/>
+												</div>
+											</div>
 										)}
 									</div>
-								</div>
-
-								<div className="files-list">
-									{uploadState.files?.map((fileData, index) => (
-										<div
-											key={index}
-											className={`file-item ${fileData.status || 'pending'}`}
-										>
-											<div className="file-info">
-												<div className="file-name">
-													{fileData.file.name}
-												</div>
-												<div className="file-status">
-													{fileData.status === 'processing' &&
-														'Processing...'}
-													{fileData.status === 'uploading' &&
-														`Uploading... ${Math.round(
-															fileData.progress || 0,
-														)}%`}
-													{fileData.status === 'completed' && 'Completed'}
-													{fileData.status === 'failed' &&
-														`Failed: ${fileData.error}`}
-													{(!fileData.status ||
-														fileData.status === 'pending') &&
-														'Pending...'}
-												</div>
-											</div>
-											{fileData.status === 'uploading' && (
-												<div className="file-progress">
-													<div className="progress-bar small">
-														<div
-															className="progress-fill"
-															style={{
-																width: `${fileData.progress || 0}%`,
-															}}
-														/>
-													</div>
-												</div>
-											)}
-										</div>
-									))}
-								</div>
-
-								{uploadState.status === 'uploading' && (
-									<div className="session-eta">
-										Estimated time remaining: {getEstimatedTime(uploadState)}
-									</div>
-								)}
-
-								{uploadState.status === 'failed' && uploadState.error && (
-									<div className="session-error">Error: {uploadState.error}</div>
-								)}
+								))}
 							</div>
-						))}
-					</div>
+
+							{currentSession.status === 'uploading' && (
+								<div className="session-eta">
+									Estimated time remaining: {getEstimatedTime(currentSession)}
+								</div>
+							)}
+
+							{currentSession.status === 'failed' && currentSession.error && (
+								<div className="session-error">Error: {currentSession.error}</div>
+							)}
+						</div>
+					) : (
+						<div className="no-session">
+							<p>No active upload session</p>
+						</div>
+					)}
 				</div>
 			) : (
 				<div className="upload-popup-minimized">
 					<div className="upload-info">
-						<div className="upload-title">{getOverallStatus()}</div>
+						<div className="upload-title">
+							{currentSession
+								? `${getAlbumName(currentSession)} - ${getStatusText(
+										currentSession.status,
+								  )}`
+								: 'No uploads'}
+						</div>
 						<div className="upload-progress">
 							<div className="progress-bar">
 								<div
 									className="progress-fill"
-									style={{ width: `${getTotalProgress()}%` }}
+									style={{
+										width: `${
+											currentSession ? currentSession.overallProgress : 0
+										}%`,
+									}}
 								/>
 							</div>
-							<span className="progress-text">{getTotalProgress()}%</span>
+							<span className="progress-text">
+								{currentSession ? Math.round(currentSession.overallProgress) : 0}%
+							</span>
 						</div>
 						<div className="upload-details">
-							{uploadStates.reduce(
-								(sum, state) => sum + getCompletedFilesCount(state.files),
-								0,
-							)}{' '}
-							of {uploadStates.reduce((sum, state) => sum + state.totalFiles, 0)}{' '}
-							files
+							{currentSession ? getCompletedFilesCount(currentSession.files) : 0} of{' '}
+							{currentSession ? currentSession.totalFiles : 0} files
+							{totalSessions > 1 &&
+								` • ${currentSessionIndex + 1} of ${totalSessions} albums`}
 						</div>
 					</div>
 					<div className="upload-controls">
-						{/* Icons commented out — uncomment if needed */}
+						<button
+							className="control-btn expand"
+							onClick={() => setIsExpanded(true)}
+							style={{ cursor: 'pointer' }}
+						>
+							<UpDownArrow />
+						</button>
 					</div>
 				</div>
 			)}
