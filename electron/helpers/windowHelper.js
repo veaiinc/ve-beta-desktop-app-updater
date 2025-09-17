@@ -1029,8 +1029,6 @@ class WindowHelper {
 
 		// Only update the size, preserve the current position
 		this.overlayWindow.setBounds({
-			x: currentX,
-			y: currentY,
 			width: newWidth,
 			height: newHeight,
 		});
@@ -1048,14 +1046,12 @@ class WindowHelper {
 			const askAIY = currentY; // Same Y level as overlay
 
 			this.askAIWindow.setBounds({
-				x: askAIX,
-				y: askAIY,
 				width: this.askAIWindowSize.width,
 				height: this.askAIWindowSize.height,
 			});
 
 			// Update ask AI position tracking
-			this.askAIWindowPosition = { x: askAIX, y: askAIY };
+			// this.askAIWindowPosition = { x: askAIX, y: askAIY };
 
 			// Make sure ask AI stays on top
 			setTimeout(() => {
