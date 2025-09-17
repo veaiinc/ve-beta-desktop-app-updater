@@ -1,5 +1,5 @@
 import { useContext, useRef, useState, useEffect, useCallback } from 'react';
-import { useLocation, useParams, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
 import Context from '../../../context/context';
 import useRecallStream from '../../../hooks/useRecallStream';
@@ -21,6 +21,8 @@ import './meetBotContainer.scss';
 import moment from 'moment';
 import Spinner from '../../components/loaders/Spinner';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
+import { Trash2 } from 'lucide-react';
+import DeleteModal from '../../components/modalsV2/DeleteModal/DeleteModal';
 
 const initialState = {
 	files: [],
@@ -40,6 +42,8 @@ const initialState = {
 	meetingPlatform: '',
 	hasAudioRecording: false,
 	audioRecordingStarted: false,
+	isDeleteModalOpen: false,
+	isDeleteModalLoading: false,
 };
 const userToken = localStorage.getItem('usertoken');
 const getSpeakerColor = (speakerName) => {
@@ -90,6 +94,8 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	const isAiIntelligenceEnabled =
 		searchParams.get('isAiIntelligenceEnabled') === 'true' ? true : false;
 
+	const navigate = useNavigate();
+
 	// Audio recording hook
 	const {
 		isRecording,
@@ -114,6 +120,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			getMeetBotById,
 			getMeetSummary,
 			meetSummary,
+			deleteMeeting,
 		},
 		templates: {
 			handleTranscriptionSuggestions,
@@ -599,6 +606,19 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	// 	console.log('info.transcriptions', info.transcriptions);
 	// }, [info.transcriptions]);
 
+	const toggleDeleteModal = (value) => {
+		setInfo((prev) => ({ ...prev, isDeleteModalOpen: value }));
+	};
+
+	const handleDeleteMeeting = async () => {
+		if (info?.isDeleteModalLoading) return;
+		setInfo((prev) => ({ ...prev, isDeleteModalLoading: true }));
+		await deleteMeeting({ meetingId });
+		toggleDeleteModal(false);
+		setInfo((prev) => ({ ...prev, isDeleteModalLoading: false }));
+		navigate('/meet');
+	};
+
 	return (
 		<div className="meetbot-container">
 			<div className="meeting-header">
@@ -633,6 +653,12 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 								</div>
 							)} */}
 						</div>
+						<button
+							className="delete-meeting-button"
+							onClick={() => toggleDeleteModal(true)}
+						>
+							<Trash2 size={18} style={{ color: 'var(--error)' }} />
+						</button>
 						{showTranscriptTabs && (
 							<TranscriptionTabs
 								activeTab={activeTab}
@@ -802,6 +828,18 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					/>
 				)} */}
 			</div>
+
+			<DeleteModal
+				isOpen={info?.isDeleteModalOpen}
+				onClose={() => toggleDeleteModal(false)}
+				onConfirm={handleDeleteMeeting}
+				title="Delete Meeting?"
+				description="Are you sure you want to delete this meeting?"
+				warning="This action cannot be undone"
+				cancelText="Cancel"
+				confirmText="Delete Permanently"
+				itemType="meeting"
+			/>
 		</div>
 	);
 };
