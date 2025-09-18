@@ -6,6 +6,7 @@ import Context from '../../../context/context';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import { message } from '../globalComponents/CustomToast';
+import DeleteModal from '../modalsV2/DeleteModal/DeleteModal';
 
 const limit = 10;
 const infiniteScrollStyle = {
@@ -25,6 +26,8 @@ const MemoryBlock = () => {
 
 	const [info, setInfo] = useState({
 		AIMemoryDeleteLoading: false,
+		deleteModal: false,
+		deleteMemoryId: null,
 	});
 
 	useEffect(() => {
@@ -93,7 +96,13 @@ const MemoryBlock = () => {
 						</button> */}
 							<button
 								className="deleteButton"
-								onClick={() => handleDeleteAIMemory(item?.id)}
+								onClick={() =>
+									setInfo((prev) => ({
+										...prev,
+										deleteModal: true,
+										deleteMemoryId: item?.id,
+									}))
+								}
 							>
 								<Dustbin />
 							</button>
@@ -101,6 +110,15 @@ const MemoryBlock = () => {
 					</div>
 				))}
 			</InfiniteScroll>
+			<DeleteModal
+				isOpen={info?.deleteModal}
+				onClose={() => setInfo((prev) => ({ ...prev, deleteModal: false }))}
+				onConfirm={() => handleDeleteAIMemory(info?.deleteMemoryId)}
+				title="Delete AI Memory?"
+				itemType="AI Memory"
+				description="Are you sure you want to delete this AI memory?"
+				warning="This AI memory will be permanently removed and cannot be recovered."
+			/>
 		</div>
 	);
 };
