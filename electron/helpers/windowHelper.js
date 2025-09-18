@@ -199,9 +199,6 @@ class WindowHelper {
 			windowSettings.focusable = true;
 			windowSettings.transparent = true;
 			windowSettings.hasShadow = false;
-		} else if (process.platform === 'darwin') {
-			// macOS-specific settings
-			windowSettings.type = process.env.NODE_ENV === 'development' ? 'normal' : 'panel';
 		}
 
 		this.overlayWindow = new BrowserWindow(windowSettings);
@@ -574,27 +571,6 @@ class WindowHelper {
 		this.askAIWindow.on('closed', () => {
 			this.askAIWindow = null;
 			this.isAskAIVisible = false;
-		});
-
-		// Set up mouse event handling for Ask AI window
-		this.askAIWindow.webContents.on('dom-ready', () => {
-			// Set ask AI window to be interactive immediately
-			this.askAIWindow.setIgnoreMouseEvents(false);
-
-			this.askAIWindow.webContents.executeJavaScript(`
-				// Always keep the window interactive for Ask AI
-				if (window.electronApi?.askAI?.setIgnoreMouseEvents) {
-					window.electronApi.askAI.setIgnoreMouseEvents(false);
-				}
-				
-				// Global click handler
-				document.addEventListener('click', (e) => {
-					// Ensure click-through remains disabled
-					if (window.electronApi?.askAI?.setIgnoreMouseEvents) {
-						window.electronApi.askAI.setIgnoreMouseEvents(false);
-					}
-				});
-			`);
 		});
 	}
 

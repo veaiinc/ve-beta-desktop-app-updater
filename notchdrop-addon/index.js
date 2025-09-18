@@ -501,12 +501,17 @@ class NotchDropAddonWrapper extends EventEmitter {
 			case 'sendChatMessageToAskAI':
 				this.emit('sendChatMessageToAskAI', data);
 				break;
-			case 'setAuthenticated':
-				this.emit('setAuthenticated', data === 'true');
-				break;
-			case 'sendLog':
-				this.handleSwiftLog(data);
-				break;
+		case 'setAuthenticated':
+			this.emit('setAuthenticated', data === 'true');
+			break;
+		case 'navigateToMainScreen': {
+			const targetPath = typeof data === 'string' && data.trim().length > 0 ? data.trim() : '/verify-user';
+			this.emit('navigateToMainScreen', targetPath);
+			break;
+		}
+		case 'sendLog':
+			this.handleSwiftLog(data);
+			break;
 			// Voice Assistant Actions
 			case 'connectVoice':
 				this.emit('connectVoice', data);
