@@ -218,6 +218,14 @@ const GalleryPage = () => {
 			removeUploadSession,
 			hideUploadProgressPopup,
 			showUploadProgressPopup: showUploadProgressPopupAction,
+			// Download session management
+			downloadSessions,
+			showDownloadProgressPopup,
+			addDownloadSession,
+			updateDownloadSession,
+			removeDownloadSession,
+			hideDownloadProgressPopup,
+			showDownloadProgressPopup: showDownloadProgressPopupAction,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
@@ -831,7 +839,6 @@ const GalleryPage = () => {
 				info?.activeAlbumId &&
 				galleryId
 			) {
-				console.log('🔄 Upload completed, refreshing gallery images...');
 				// Add a small delay to ensure backend has processed the uploads
 				setTimeout(() => {
 					handleGetGalleryImages();
@@ -3503,12 +3510,29 @@ const GalleryPage = () => {
 
 				// Get single image download link
 				const isLightGallery = info?.isLightGallery;
-				const response = await getDownloadLinkForImage(selectedImageId, isLightGallery);
-
-				// message.destroy(id);
+				const response = await getDownloadLinkForImage(selectedImageId, isLightGallery, 0);
 
 				if (response?.[0] === true) {
-					showMessage('success', 'Download completed');
+					// Create download session for background download
+					const downloadSession = {
+						type: 'single',
+						name: 'Single Image',
+						totalFiles: 1,
+						files: [
+							{
+								name: response[1]?.fileName || 'image',
+								url: response[1]?.signedUrl,
+								status: 'pending',
+								progress: 0,
+							},
+						],
+					};
+
+					addDownloadSession(downloadSession);
+					showMessage('success', 'Download started');
+
+					// Close download album modal when background download starts
+					setInfo((prev) => ({ ...prev, showDownloadAlbum: false }));
 				} else {
 					throw new Error('Failed to get download link');
 				}
@@ -3553,8 +3577,27 @@ const GalleryPage = () => {
 				const response = await getDownloadForMultipleImages(payload, galleryId);
 
 				if (response?.[0] === true) {
-					message.destroy();
-					showMessage('success', 'Download completed');
+					// Create download session for background download
+					const downloadFiles =
+						response[1]?.map((item, index) => ({
+							name: item.filename || `image_${index + 1}`,
+							url: item.url,
+							status: 'pending',
+							progress: 0,
+						})) || [];
+
+					const downloadSession = {
+						type: 'multiple',
+						name: `${info.selectedImages.length} Images`,
+						totalFiles: info.selectedImages.length,
+						files: downloadFiles,
+					};
+
+					addDownloadSession(downloadSession);
+					showMessage('success', 'Download started');
+
+					// Close download album modal when background download starts
+					setInfo((prev) => ({ ...prev, showDownloadAlbum: false }));
 				} else {
 					throw new Error('Failed to get download links');
 				}
@@ -3567,14 +3610,26 @@ const GalleryPage = () => {
 				const response = await downloadImages(payload, galleryId, info?.activeAlbumId);
 
 				if (response?.[0] === true && response?.[1]?.signedUrl) {
-					const link = document.createElement('a');
-					link.href = response[1].signedUrl;
-					link.setAttribute('download', `gallery-images-${Date.now()}.zip`);
-					document.body.appendChild(link);
-					link.click();
-					document.body.removeChild(link);
-					message.destroy();
+					// Create download session for ZIP download
+					const downloadSession = {
+						type: 'album',
+						name: `${info.selectedImages.length} Images (ZIP)`,
+						totalFiles: 1,
+						files: [
+							{
+								name: `gallery-images-${Date.now()}.zip`,
+								url: response[1].signedUrl,
+								status: 'pending',
+								progress: 0,
+							},
+						],
+					};
+
+					addDownloadSession(downloadSession);
 					showMessage('success', 'Download started');
+
+					// Close download album modal when background download starts
+					setInfo((prev) => ({ ...prev, showDownloadAlbum: false }));
 				} else {
 					throw new Error('Failed to prepare download');
 				}
@@ -3888,18 +3943,29 @@ const GalleryPage = () => {
 				return;
 			}
 
-			// ✅ Trigger ZIP creation
-			const result = await window.electronApi.downloadAlbumZip({
-				items: downloadItems,
+			// Create download session for background ZIP creation
+			const downloadSession = {
+				type: 'album',
+				name: `Album: ${info.albumName || 'Download'}`,
+				albumName: info.albumName,
+				totalFiles: 1,
+				files: [
+					{
+						name: `Album_${info.albumName || 'download'}.zip`,
+						status: 'pending',
+						progress: 0,
+					},
+				],
+				downloadItems: downloadItems, // Store items for ZIP creation
 				folderName: `Album_${info.albumName || 'download'}`,
 				maxZipSize: 3 * 1024 * 1024 * 1024, // 3GB
-			});
+			};
 
-			if (result.success) {
-				showMessage('success', `Downloaded ${result.zips.length} ZIP(s)`);
-			} else {
-				throw new Error(result.error || 'Unknown error');
-			}
+			addDownloadSession(downloadSession);
+			showMessage('success', 'Download started');
+
+			// Close download album modal when background download starts
+			setInfo((prev) => ({ ...prev, showDownloadAlbum: false }));
 
 			// ✅ Final state update: ensure full list is saved and infinite scroll stops
 			setInfo((prev) => ({
@@ -3914,7 +3980,6 @@ const GalleryPage = () => {
 		} catch (err) {
 			console.error('Download failed:', err);
 			showMessage('error', 'Download failed: ' + err.message);
-		} finally {
 			setInfo((prev) => ({ ...prev, isDownloading: false }));
 		}
 	};
@@ -4014,28 +4079,29 @@ const GalleryPage = () => {
 				return;
 			}
 
-			// Trigger ZIP download
-			const sessionId = `album-${activeAlbumId}-${Date.now()}`;
-			const folderName = `${info.albumName || 'Album'}_original`;
-			const maxZipSize = 3 * 1024 * 1024 * 1024;
+			// Create download session for background ZIP creation
+			const downloadSession = {
+				type: 'album',
+				name: `Album: ${info.albumName || 'Download'} (Originals)`,
+				albumName: info.albumName,
+				totalFiles: 1,
+				files: [
+					{
+						name: `${info.albumName || 'Album'}_original.zip`,
+						status: 'pending',
+						progress: 0,
+					},
+				],
+				downloadItems: allItems, // Store items for ZIP creation
+				folderName: `${info.albumName || 'Album'}_original`,
+				maxZipSize: 3 * 1024 * 1024 * 1024, // 3GB
+			};
 
-			window.electronApi.onDownloadProgress((data) => {
-				if (data.sessionId === sessionId && data.phase === 'complete') {
-					showMessage('success', `Download completed: ${data.zips.join(', ')}`);
-				}
-			});
+			addDownloadSession(downloadSession);
+			showMessage('success', 'Download started');
 
-			const result = await window.electronApi.createZipFromUrls({
-				items: allItems,
-				folderName,
-				maxZipSize,
-				sessionId,
-				parallelLimit: 50,
-			});
-
-			if (!result.success) {
-				showMessage('error', result.error || 'Download failed');
-			}
+			// Close download album modal when background download starts
+			setInfo((prev) => ({ ...prev, showDownloadAlbum: false }));
 		} catch (err) {
 			console.error('Download failed:', err);
 			showMessage('error', 'Download failed: ' + err.message);

@@ -44,6 +44,9 @@ export const intialState = {
 	// Upload session management
 	uploadSessions: [],
 	showUploadProgressPopup: false,
+	// Download session management
+	downloadSessions: [],
+	showDownloadProgressPopup: false,
 };
 
 export const Galleries = () => {
@@ -2177,6 +2180,72 @@ export const Galleries = () => {
 			},
 		});
 	};
+
+	// Download session management functions
+	const addDownloadSession = (downloadData) => {
+		const sessionId = `download_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+		const downloadSession = {
+			id: sessionId,
+			...downloadData,
+			status: 'preparing',
+			startTime: Date.now(),
+			overallProgress: 0,
+			completedFiles: 0,
+		};
+
+		dispatch({
+			type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+			payload: {
+				downloadSessions: [...state.downloadSessions, downloadSession],
+				showDownloadProgressPopup: true,
+			},
+		});
+
+		return sessionId;
+	};
+
+	const updateDownloadSession = (sessionId, updates) => {
+		dispatch({
+			type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+			payload: {
+				downloadSessions: state.downloadSessions.map((session) =>
+					session.id === sessionId ? { ...session, ...updates } : session,
+				),
+			},
+		});
+	};
+
+	const removeDownloadSession = (sessionId) => {
+		const updatedSessions = state.downloadSessions.filter(
+			(session) => session.id !== sessionId,
+		);
+		dispatch({
+			type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+			payload: {
+				downloadSessions: updatedSessions,
+				showDownloadProgressPopup: updatedSessions.length > 0,
+			},
+		});
+	};
+
+	const hideDownloadProgressPopup = () => {
+		dispatch({
+			type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+			payload: {
+				showDownloadProgressPopup: false,
+			},
+		});
+	};
+
+	const showDownloadProgressPopup = () => {
+		dispatch({
+			type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+			payload: {
+				showDownloadProgressPopup: true,
+			},
+		});
+	};
+
 	return {
 		...state,
 		getGalleries,
@@ -2285,5 +2354,11 @@ export const Galleries = () => {
 		removeUploadSession,
 		hideUploadProgressPopup,
 		showUploadProgressPopup,
+		// Download session management
+		addDownloadSession,
+		updateDownloadSession,
+		removeDownloadSession,
+		hideDownloadProgressPopup,
+		showDownloadProgressPopup,
 	};
 };
