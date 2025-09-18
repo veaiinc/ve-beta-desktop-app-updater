@@ -1281,6 +1281,10 @@ function createWindow(restoreState = false) {
 		},
 	});
 
+	if (notchDropService) {
+		notchDropService.setMainWindow(mainWindow);
+	}
+
 	// Add context menu support for copy/paste functionality
 	mainWindow.webContents.on('context-menu', (event, params) => {
 		const menu = Menu.buildFromTemplate([
@@ -1413,6 +1417,8 @@ function createWindow(restoreState = false) {
 	setTimeout(() => {
 		autoUpdater.checkForUpdatesAndNotify();
 	}, 5000); // Wait 5 seconds after app loads
+
+	return mainWindow;
 }
 
 // Create system tray for Windows
@@ -1735,6 +1741,7 @@ app.whenReady().then(async () => {
 	if (isMacRuntime) {
 		notchDropService = new NotchDropService();
 		notchDropService.setMainWindow(mainWindow);
+		notchDropService.setMainWindowFactory((restoreState = false) => createWindow(restoreState));
 
 		// CRITICAL: Ensure NotchDrop service fully initializes before proceeding
 		let notchDropInitialized = false;

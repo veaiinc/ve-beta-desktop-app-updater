@@ -14,6 +14,7 @@ class NotchDropService {
 
 		// Swift-JS Bridge integration
 		this.swiftJSBridge = null;
+		this.createMainWindowFn = null;
 	}
 
 	async initialize() {
@@ -400,6 +401,14 @@ class NotchDropService {
 		this.mainWindow = mainWindow;
 	}
 
+	setMainWindowFactory(factory) {
+		if (typeof factory === 'function') {
+			this.createMainWindowFn = factory;
+		} else {
+			this.createMainWindowFn = null;
+		}
+	}
+
 	navigateMainWindow(path) {
 		const defaultPath = '/verify-user';
 		const resolvedPath =
@@ -407,11 +416,7 @@ class NotchDropService {
 		const normalizedPath = resolvedPath.startsWith('/') ? resolvedPath : `/${resolvedPath}`;
 
 		try {
-			if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-				this.mainWindow.show();
-				this.mainWindow.focus();
-				this.mainWindow.webContents.send('navigate-to', normalizedPath);
-				log.info('🏠 Main window navigated via NotchDrop request:', normalizedPath);
+			if (this.focusAndNavigateWindow(this.mainWindow, normalizedPath)) {
 				return true;
 			}
 
@@ -424,13 +429,15 @@ class NotchDropService {
 				return title.toLowerCase().includes('ve ai');
 			});
 
-			if (fallbackWindow) {
-				this.mainWindow = fallbackWindow;
-				fallbackWindow.show();
-				fallbackWindow.focus();
-				fallbackWindow.webContents.send('navigate-to', normalizedPath);
-				log.info('🏠 Fallback main window navigated via NotchDrop request:', normalizedPath);
+			if (this.focusAndNavigateWindow(fallbackWindow, normalizedPath)) {
 				return true;
+			}
+
+			if (typeof this.createMainWindowFn === 'function') {
+				const createdWindow = this.createMainWindowFn(true);
+				if (this.focusAndNavigateWindow(createdWindow, normalizedPath)) {
+					return true;
+				}
 			}
 
 			log.warn('⚠️ Unable to navigate main window - no window available', { path: normalizedPath });
@@ -439,6 +446,41 @@ class NotchDropService {
 			log.error('❌ Failed to navigate main window from NotchDrop request:', error);
 			return false;
 		}
+	}
+
+	focusAndNavigateWindow(windowInstance, path) {
+		if (!windowInstance || windowInstance.isDestroyed()) {
+			return false;
+		}
+
+		this.setMainWindow(windowInstance);
+
+		try {
+			if (!windowInstance.isVisible()) {
+				windowInstance.show();
+			}
+			windowInstance.focus();
+		} catch (error) {
+			log.warn('⚠️ Unable to show/focus main window:', error);
+		}
+
+		const { webContents } = windowInstance;
+		const sendNavigation = () => {
+			try {
+				webContents.send('navigate-to', path);
+				log.info('🏠 Main window navigated via NotchDrop request:', path);
+			} catch (error) {
+				log.error('❌ Failed to send navigation message to main window:', error);
+			}
+		};
+
+		if (webContents.isLoading()) {
+			webContents.once('did-finish-load', sendNavigation);
+		} else {
+			sendNavigation();
+		}
+
+		return true;
 	}
 
 	cleanup() {
