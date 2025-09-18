@@ -5,7 +5,7 @@ on:
             # - '**'  # Sync all branches
             - 'master'
             - 'development'
-            - 'feature/new-transcription-ui'
+            - 'feature/refresh-token'
 
 jobs:
     sync:
