@@ -72,41 +72,41 @@ const OverlayApp = () => {
 	} = useContext(Context);
 
 	// const handleUpdateTranscription = (newTranscript) => {
-		const updateTranscriptionHelper = (transcriptionArray, newTranscript) => {
-			const { source } = newTranscript;
-	
-			if (transcriptionArray.length > 0) {
-				// Find the most recent transcript from the same source
-				for (let i = transcriptionArray.length - 1; i >= 0; i--) {
-					if (transcriptionArray[i].source === source) {
-						const oldTranscript = transcriptionArray[i];
-	
-						// Logic based on the state of the previous transcript:
-						// - Final AND formatted → Append new transcript (start new entry)
-						// - Final but NOT formatted → Replace with new transcript
-						// - Not final → Replace with new transcript
-						if (oldTranscript.isFinal && oldTranscript.isTurnFormatted) {
-							return [...transcriptionArray, newTranscript];
-						} else {
-							// Replace existing transcript (whether final-unformatted or not-final)
-							const updatedArray = [...transcriptionArray];
-							updatedArray[i] = newTranscript;
-							return updatedArray;
-						}
+	const updateTranscriptionHelper = (transcriptionArray, newTranscript) => {
+		const { source } = newTranscript;
+
+		if (transcriptionArray.length > 0) {
+			// Find the most recent transcript from the same source
+			for (let i = transcriptionArray.length - 1; i >= 0; i--) {
+				if (transcriptionArray[i].source === source) {
+					const oldTranscript = transcriptionArray[i];
+
+					// Logic based on the state of the previous transcript:
+					// - Final AND formatted → Append new transcript (start new entry)
+					// - Final but NOT formatted → Replace with new transcript
+					// - Not final → Replace with new transcript
+					if (oldTranscript.isFinal && oldTranscript.isTurnFormatted) {
+						return [...transcriptionArray, newTranscript];
+					} else {
+						// Replace existing transcript (whether final-unformatted or not-final)
+						const updatedArray = [...transcriptionArray];
+						updatedArray[i] = newTranscript;
+						return updatedArray;
 					}
 				}
 			}
-	
-			// If no match found or array is empty, append the new transcript
-			return [...transcriptionArray, newTranscript];
-		};
-	
-		const handleUpdateTranscription = (newTranscript) => {
-			setInfo((prev) => ({
-				...prev,
-				transcriptions: updateTranscriptionHelper(prev.transcriptions, newTranscript),
-			}));
-		};
+		}
+
+		// If no match found or array is empty, append the new transcript
+		return [...transcriptionArray, newTranscript];
+	};
+
+	const handleUpdateTranscription = (newTranscript) => {
+		setInfo((prev) => ({
+			...prev,
+			transcriptions: updateTranscriptionHelper(prev.transcriptions, newTranscript),
+		}));
+	};
 
 	const {
 		isConnected,
@@ -522,15 +522,13 @@ const OverlayApp = () => {
 	// Check ask AI input focus state periodically
 	useEffect(() => {
 		const checkAskAIFocus = async () => {
-			if (window.electronApi?.askAI?.getInputFocus) {
-				try {
-					const result = await window.electronApi.askAI.getInputFocus();
-					if (result.success) {
-						setIsAskAIInputFocused(result.isFocused);
-					}
-				} catch (error) {
-					console.error('Error checking ask AI input focus:', error);
+			try {
+				const result = await window.electronApi.askAI.getInputFocus();
+				if (result.success) {
+					setIsAskAIInputFocused(result.isFocused);
 				}
+			} catch (error) {
+				console.error('Error checking ask AI input focus:', error);
 			}
 		};
 
@@ -611,82 +609,24 @@ const OverlayApp = () => {
 			isDynamicIslandControlled,
 		};
 
-		console.log('📡 Sending state to Dynamic Island:', state);
-
 		// Use IPC to send state update to main process, which will forward to Dynamic Island
-		if (window.electronApi?.overlay?.sendStateUpdate) {
-			window.electronApi.overlay.sendStateUpdate(state);
-		}
+		window?.electronApi.overlay.sendStateUpdate(state);
 	};
 
 	const handleAskAIClick = () => {
 		// Open Ask AI window via electron API
-		if (window.electronApi?.askAI?.toggleWindow) {
-			window.electronApi.askAI.toggleWindow();
-		}
-	};
-
-	// Function to manually reset Dynamic Island control state
-	const resetDynamicIslandControl = () => {
-		console.log('🔄 Manually resetting Dynamic Island control state');
-		setIsDynamicIslandControlled(false);
-		setShowShortcutBar(false);
-	};
-
-	// Debug function to test notifications (remove after testing)
-	const handleTestNotifications = () => {
-		notification.success('Test Success', 'This is a success notification');
-		setTimeout(() => {
-			notification.error(
-				'Test Error',
-				'This is an error notification with a longer description to test wrapping',
-			);
-			notification.error(
-				'Test Error',
-				'This is an error notification with a longer description to test wrapping',
-			);
-		}, 500);
-		setTimeout(() => {
-			notification.info('Test Info', 'This is an info notification');
-		}, 1000);
+		window?.electronApi.askAI.toggleWindow();
 	};
 
 	const calculateDynamicDimensions = useCallback(() => {
 		if (!containerRef.current) return { width: 600, height: 50 };
 
-		const rect = containerRef.current.getBoundingClientRect();
-		let calculatedWidth = rect.width;
-		let calculatedHeight = rect.height;
-
-		// Dynamic width calculation based on layout - use exact content width
-		if (activePanel === 'live-intelligence') {
-			// Panel is open: use exact panel width without extra padding
-			calculatedWidth = 830; // Exact panel width
-		} else if (activePanel === 'transcript') {
-			calculatedWidth = 560; // Exact panel width
-		} else if (showShortcutBar && !isDynamicIslandControlled) {
-			// Only shortcut bar visible: use actual content width
-			calculatedWidth = Math.max(rect.width, 400);
-		} else {
-			// Controlled by Dynamic Island or no controls: minimal width
-			calculatedWidth = 32; // Just padding
-		}
-
-		// Dynamic height calculation - use exact content height
-		if (activePanel === 'live-intelligence' || activePanel === 'transcript') {
-			// Panel is open: use exact content height without extra padding
-			calculatedHeight = Math.max(rect.height, 200);
-		} else if (showShortcutBar && !isDynamicIslandControlled) {
-			// Only shortcut bar visible: use actual content height
-			calculatedHeight = Math.max(rect.height, 50);
-		} else {
-			// Controlled by Dynamic Island: minimal height
-			calculatedHeight = 32; // Minimal height when hidden
-		}
+		let calculatedWidth = 560;
+		let calculatedHeight = 450;
 
 		return {
 			width: Math.min(calculatedWidth, window.screen.width * 0.8), // Max 80% of screen width
-			height: Math.min(calculatedHeight, window.screen.height * 0.8), // Max 80% of screen height
+			height: calculatedHeight, // Max 80% of screen height
 		};
 	}, [activePanel, showShortcutBar, isDynamicIslandControlled]);
 
@@ -698,9 +638,7 @@ const OverlayApp = () => {
 				setTimeout(() => {
 					const { width, height } = calculateDynamicDimensions();
 
-					if (window.electronApi?.overlay?.updateDimensions) {
-						window.electronApi.overlay.updateDimensions({ width, height });
-					}
+					window?.electronApi.overlay.updateDimensions({ width, height });
 				}, 50);
 			}
 		};
@@ -730,25 +668,6 @@ const OverlayApp = () => {
 			mutationObserver.disconnect();
 		};
 	}, [calculateDynamicDimensions]);
-
-	// Update dimensions when layout state changes
-	useEffect(() => {
-		if (containerRef.current) {
-			const { width, height } = calculateDynamicDimensions();
-			console.log('Layout state changed, updating dimensions:', {
-				activePanel,
-				width,
-				height,
-			});
-
-			if (window.electronApi?.overlay?.updateDimensions) {
-				// Small delay to ensure DOM has updated
-				setTimeout(() => {
-					window.electronApi.overlay.updateDimensions({ width, height });
-				}, 100);
-			}
-		}
-	}, [activePanel, calculateDynamicDimensions]);
 
 	// Send state updates to Dynamic Island when recording state changes
 	useEffect(() => {
@@ -802,30 +721,13 @@ const OverlayApp = () => {
 		const saveAudio = async () => {
 			// Use the meeting ID from the ref (which should persist until after saving)
 			const currentMeetingId = meetingIdRef.current;
-			console.log(
-				'OverlayApp: Audio save useEffect triggered - audioBlob:',
-				!!audioBlob,
-				'isAudioRecording:',
-				isAudioRecording,
-				'meetingId:',
-				currentMeetingId,
-			);
+
 			if (audioBlob && !isAudioRecording && currentMeetingId) {
 				try {
-					console.log(
-						'OverlayApp: Saving audio for meeting:',
-						currentMeetingId,
-						'Blob size:',
-						audioBlob.size,
-					);
 					const result = await audioStorageService.saveAudio(currentMeetingId, audioBlob);
 					if (result.success) {
-						console.log('OverlayApp: Audio saved successfully:', result.filePath);
 						// Clear the meeting ID ref ONLY after successful save
 						meetingIdRef.current = null;
-						console.log(
-							'OverlayApp: Cleared meeting ID ref after successful audio save',
-						);
 					} else {
 						console.error('OverlayApp: Failed to save audio:', result.error);
 					}
