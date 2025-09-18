@@ -59,6 +59,7 @@ export const initialState = {
 	aiTranscriptionSuggestions: null,
 	showVoiceWidget: false, // Global state for voice widget visibility
 	proactiveHeadings: null,
+	AIMemoryInfo: null,
 };
 
 export const AiSetupState = () => {
@@ -1262,6 +1263,63 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const getAIMemoryInfo = async ({ page = 1, limit = 10 } = {}) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const url = '/' + workspaceId + '/knowledge-bases/list-ai-memory';
+			const token = localStorage.getItem('usertoken');
+			const type = 'ai_assistant_api';
+			const params = {
+				page,
+				limit,
+			};
+			const response = await service?.fetchGet(url, token, type, params);
+			const success = response?.[0] === true;
+			if (success) {
+				const payload = {
+					...state?.AIMemoryInfo,
+					data: [...(state?.AIMemoryInfo?.data || []), ...(response?.[1]?.data || [])],
+					currentPage: response?.[1]?.currentPage,
+					hasNextPage: response?.[1]?.hasNextPage,
+					totalCount: response?.[1]?.totalCount,
+				};
+				dispatch({
+					type: Actions.SET_AI_MEMORY_LIST,
+					payload,
+				});
+			}
+			return success;
+		} catch (error) {
+			console.log('error==>getAIMemoryList', error);
+		}
+	};
+
+	const deleteAIMemory = async (memoryId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const url = '/' + workspaceId + '/knowledge-bases/delete-ai-memory/' + memoryId;
+			const token = localStorage.getItem('usertoken');
+			const type = 'ai_assistant_api';
+			const response = await service?.fetchDelete(url, token, null, type);
+			if (response?.[0] === true) {
+				const payload = {
+					...state?.AIMemoryInfo,
+					data: state?.AIMemoryInfo?.data?.filter((item) => item?.id !== memoryId),
+				};
+				dispatch({
+					type: Actions.SET_AI_MEMORY_LIST,
+					payload,
+				});
+				return [true, response?.[1]];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('error==>deleteAIMemory', error);
+			return [false, error];
+		}
+	};
+
 	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
@@ -1315,5 +1373,7 @@ export const AiSetupState = () => {
 		editAiSetupData,
 		updateAiChatSessions,
 		getProactiveHeadings,
+		getAIMemoryInfo,
+		deleteAIMemory,
 	};
 };
