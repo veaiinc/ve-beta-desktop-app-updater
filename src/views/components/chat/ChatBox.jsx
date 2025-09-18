@@ -207,6 +207,7 @@ const ChatBox = ({
 	});
 	const chatBoxWrapperRef = useRef(null);
 	const chatbarContainerRef = useRef(null);
+	const isTypingRef = useRef(false);
 
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
@@ -291,7 +292,6 @@ const ChatBox = ({
 
 			setInfo((prev) => ({ ...prev, chatQuery: text }));
 			onChatQueryChange?.(text);
-			handleTextAreaChange({}, text);
 		}
 	}, [speechTranscription]);
 
@@ -420,6 +420,12 @@ const ChatBox = ({
 
 	//below useeffect is for getting suggestions
 	useEffect(() => {
+		// the below condition will run when the text in the textarea is updated from external source, not through typing in textarea
+		if (info?.chatQuery?.length > 0 && !isTypingRef.current) {
+			handleTextAreaChange({}, info.chatQuery);
+		}
+		isTypingRef.current = false;
+
 		if (
 			info?.chatQuery?.length > 0 &&
 			info?.chatSessionId &&
@@ -1467,6 +1473,7 @@ const ChatBox = ({
 	);
 
 	const handleTextAreaChange = (e, queryValue = '') => {
+		isTypingRef.current = true;
 		const textArea = textAreaRef?.current;
 		// const textAreaWrapper = textAreaWrapperRef?.current;
 		// const suggestionContainer = suggestionRef?.current;
