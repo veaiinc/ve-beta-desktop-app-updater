@@ -50,12 +50,19 @@ const UploadProgressPopup = () => {
 
 	// Upload handlers
 	const handleUploadComplete = (sessionId) => {
-		removeUploadSession(sessionId);
-		window.dispatchEvent(
-			new CustomEvent('uploadCompleted', {
-				detail: { sessionId },
-			}),
-		);
+		// Add a delay before removing the session to ensure all processing is complete
+		setTimeout(() => {
+			// Double-check that the session is actually completed before removing
+			const currentState = sessionStatesRef.current.get(sessionId);
+			if (currentState && currentState.status === 'completed') {
+				removeUploadSession(sessionId);
+				window.dispatchEvent(
+					new CustomEvent('uploadCompleted', {
+						detail: { sessionId },
+					}),
+				);
+			}
+		}, 2000); // 2 second delay to ensure all processing is complete
 	};
 
 	const handleUploadCancel = (sessionId) => {
@@ -419,6 +426,16 @@ const UploadProgressPopup = () => {
 						return;
 					}
 
+					// Additional check: ensure session is still in running sessions
+					if (!runningSessions.current.has(sessionId)) {
+						console.warn(
+							`Session ${sessionId} no longer running, stopping progress monitoring`,
+						);
+						clearInterval(progressIntervalId);
+						intervalRefs.current.delete(sessionId);
+						return;
+					}
+
 					const response = await getImageUploadStatus(
 						currentState.galleryId,
 						currentState.albumId,
@@ -451,6 +468,7 @@ const UploadProgressPopup = () => {
 					}
 				} catch (error) {
 					console.error(`Progress monitoring error for session ${sessionId}:`, error);
+					// Don't clear interval on error, just log it
 				}
 			}, 3000);
 
@@ -463,6 +481,14 @@ const UploadProgressPopup = () => {
 					if (processingFiles.current.has(fileKey)) {
 						console.warn(
 							`File ${fileData.file.name} already processing in session ${sessionId}`,
+						);
+						return;
+					}
+
+					// Additional check: ensure session is still running before processing
+					if (!runningSessions.current.has(sessionId)) {
+						console.warn(
+							`Session ${sessionId} no longer running, skipping file processing`,
 						);
 						return;
 					}
@@ -674,7 +700,10 @@ const UploadProgressPopup = () => {
 			startedSessions.current.delete(sessionId);
 			runningSessions.current.delete(sessionId);
 
-			handleUploadComplete(sessionId);
+			// Add a small delay before calling handleUploadComplete to ensure state is fully updated
+			setTimeout(() => {
+				handleUploadComplete(sessionId);
+			}, 500);
 		} catch (error) {
 			console.error('Upload session failed:', error);
 			updateUploadState(sessionId, {
@@ -697,6 +726,11 @@ const UploadProgressPopup = () => {
 
 			startedSessions.current.delete(sessionId);
 			runningSessions.current.delete(sessionId);
+
+			// Add delay before removing failed session to ensure state is updated
+			setTimeout(() => {
+				handleUploadCancel(sessionId);
+			}, 1000);
 		}
 	};
 
