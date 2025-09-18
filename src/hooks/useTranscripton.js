@@ -7,6 +7,8 @@ const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
 const useTranscription = ({ tenantId }) => {
 	const MAX_RETRY_ATTEMPTS = 5;
 	const RETRY_DELAY = 1000; // 1 second
+
+	const [showInactivityPopup, setShowInactivityPopup] = useState(false);
 	const websocketRef = useRef(null);
 	const audioContextRef = useRef(null);
 	const streamRef = useRef(null);
@@ -15,7 +17,7 @@ const useTranscription = ({ tenantId }) => {
 	const audioBufferRef = useRef([]);
 	const sampleCountRef = useRef(0);
 	const muteRef = useRef(false);
-	const resetSocketClosingTimeoutRef = useRef(null);
+	const socketClosingTimeoutRef = useRef(null);
 
 	const userToken = localStorage.getItem('usertoken');
 	const encodedToken = encodeURIComponent(userToken);
@@ -26,8 +28,29 @@ const useTranscription = ({ tenantId }) => {
 		};
 	}, []);
 
+	const resetSocketClosingTimeout = () => {
+		if (socketClosingTimeoutRef.current) {
+			clearTimeout(socketClosingTimeoutRef.current);
+		}
+
+		socketClosingTimeoutRef.current = setTimeout(() => {
+			setShowInactivityPopup(true);
+		}, 3 * 60 * 1000);
+	};
+
+	const handleResetTimer = () => {
+		setShowInactivityPopup(false);
+		resetSocketClosingTimeout();
+	};
+
 	const cleanup = useCallback(() => {
+		setShowInactivityPopup(false);
+
 		// Cleanup timeouts
+		if (socketClosingTimeoutRef.current) {
+			clearTimeout(socketClosingTimeoutRef.current);
+			socketClosingTimeoutRef.current = null;
+		}
 
 		// Cleanup audio resources in correct order
 		if (processorRef.current) {
@@ -43,7 +66,7 @@ const useTranscription = ({ tenantId }) => {
 			try {
 				sourceRef.current.disconnect();
 			} catch (e) {
-				log(`Error disconnecting source: ${e.message}`);
+				console.log(`Error disconnecting source: ${e.message}`);
 			}
 			sourceRef.current = null;
 		}
@@ -139,6 +162,7 @@ const useTranscription = ({ tenantId }) => {
 
 				try {
 					websocketRef.current.send(JSON.stringify(authData));
+					resetSocketClosingTimeout();
 				} catch (e) {
 					console.log(`Error sending auth data: ${e.message}`);
 				}
@@ -171,7 +195,7 @@ const useTranscription = ({ tenantId }) => {
 				}),
 			);
 		} catch (error) {
-			log(`Error sending audio data: ${error.message}`);
+			console.log(`Error sending audio data: ${error.message}`);
 		}
 	}, []);
 
@@ -286,7 +310,7 @@ const useTranscription = ({ tenantId }) => {
 		cleanup();
 	}, [cleanup]);
 
-	return { handleConnect, handleDisconnect };
+	return { showInactivityPopup, handleConnect, handleDisconnect, handleResetTimer };
 };
 
 export default useTranscription;

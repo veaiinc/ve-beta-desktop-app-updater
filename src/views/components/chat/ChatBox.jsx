@@ -41,6 +41,7 @@ import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import { ReactComponent as VoiceAgentSvg } from '../../../assets/svg/ai_agents/voiceagent.svg';
 import { getFileType } from '../../../helpers/chat/chatHelpers';
 import useTranscription from '../../../hooks/useTranscripton';
+import SpeechToTextInactivity from './SpeechToTextInactivity';
 // import VoiceWrapper from '../../layouts/VoiceWrapper';
 
 const moduleHelper = {
@@ -214,9 +215,10 @@ const ChatBox = ({
 	const [isTranscribing, setIsTranscribing] = useState(false);
 	const [speechTranscription, setSpeechTranscription] = useState([]);
 
-	const { handleConnect, handleDisconnect } = useTranscription({
-		tenantId: tenantSettinsData?._id,
-	});
+	const { handleConnect, handleDisconnect, handleResetTimer, showInactivityPopup } =
+		useTranscription({
+			tenantId: tenantSettinsData?._id,
+		});
 
 	const uploadedImagesRef = useRef(info?.uploadedImages || []);
 	const recentFilesRef = useRef(info?.recentFiles || []);
@@ -1360,6 +1362,12 @@ const ChatBox = ({
 		}
 	}, []);
 
+	const handleTranscriptionSocketDisconnect = useCallback(() => {
+		handleDisconnect();
+		setIsTranscribing(false);
+		setSpeechTranscription([]);
+	}, [handleDisconnect]);
+
 	const handleMicIconClick = useCallback(
 		async (event) => {
 			try {
@@ -1371,9 +1379,7 @@ const ChatBox = ({
 				}
 
 				if (isTranscribing) {
-					handleDisconnect();
-					setIsTranscribing(false);
-					setSpeechTranscription([]);
+					handleTranscriptionSocketDisconnect();
 				} else {
 					try {
 						await handleConnect({
@@ -1393,7 +1399,12 @@ const ChatBox = ({
 			}
 		},
 
-		[isTranscribing, handleConnect, handleDisconnect, handleTranscriptionMessageFunc],
+		[
+			isTranscribing,
+			handleConnect,
+			handleTranscriptionSocketDisconnect,
+			handleTranscriptionMessageFunc,
+		],
 	);
 
 	const handleSendBtnClick = (e) => {
@@ -1672,6 +1683,13 @@ const ChatBox = ({
 							<ArrowUpRightSvg className="arrow-up" />
 						</button>
 					</div>
+				)}
+
+				{showInactivityPopup && (
+					<SpeechToTextInactivity
+						handleResetTimer={handleResetTimer}
+						handleDisconnect={handleTranscriptionSocketDisconnect}
+					/>
 				)}
 
 				<div
