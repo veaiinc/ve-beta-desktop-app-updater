@@ -1,0 +1,24 @@
+.fullscreenIMac {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	z-index: 9999; // Above everything including header
+	opacity: 0;
+	pointer-events: none;
+	display: none; // Hidden by default
+
+	&.visible {
+		display: block;
+		opacity: 1;
+		pointer-events: auto;
+	}
+
+	.fullscreenImage {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center;
+	}
+}

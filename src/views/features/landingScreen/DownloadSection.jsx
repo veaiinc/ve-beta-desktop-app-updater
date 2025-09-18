@@ -1,7 +1,8 @@
-import { memo } from 'react';
+import { memo, forwardRef } from 'react';
 import s from './downloadSection.module.scss';
 import { ReactComponent as MacIcon } from '../../../assets/svg/landingScreen/macIcon.svg';
 import { ReactComponent as WindowsIcon } from '../../../assets/svg/landingScreen/windowsIcon.svg';
+import IMacFrame from './IMacFrame';
 
 // Get download URLs from environment variables
 const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
@@ -9,7 +10,7 @@ const desktopAppDownloadWindows = import.meta.env.VITE_APP_DESKTOP_APP_WINDOWS_D
 const desktopAppDownloadMacIntel64 =
 	import.meta.env.VITE_APP_DESKTOP_APP_MACINTEL64_DOWNLOAD_URL || null;
 
-const DownloadSection = () => {
+const DownloadSection = forwardRef(({ iMacFrameRef }, ref) => {
 	const handleDownload = (platform) => {
 		let downloadUrl = null;
 
@@ -33,7 +34,7 @@ const DownloadSection = () => {
 	};
 
 	return (
-		<section className={s.downloadSection}>
+		<section ref={ref} className={s.downloadSection}>
 			<div className={s.container}>
 				<div className={s.content}>
 					<div className={s.badge}>
@@ -68,9 +69,16 @@ const DownloadSection = () => {
 						<span>Download for Windows</span>
 					</button>
 				</div>
+
+				{/* iMac Frame - Desktop only */}
+				<div className={s.imacContainer}>
+					<IMacFrame ref={iMacFrameRef} />
+				</div>
 			</div>
 		</section>
 	);
-};
+});
+
+DownloadSection.displayName = 'DownloadSection';
 
 export default memo(DownloadSection);

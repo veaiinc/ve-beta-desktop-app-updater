@@ -1,0 +1,147 @@
+.imacFrame {
+	position: relative;
+	width: 943.28px;
+	height: 551px;
+	margin: 0 auto;
+	display: none; // Hidden by default, show only on desktop
+	transform-origin: center center; // Ensure scaling happens from center
+	will-change: transform; // Optimize for animations
+	z-index: 10; // Above download section
+
+	@media (min-width: 1025px) {
+		display: block;
+	}
+}
+
+.screen {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	background: #eff0f2;
+	border-radius: 21.64px;
+	overflow: hidden;
+	border: 0.8px solid white;
+}
+
+.screenContent {
+	width: 100%;
+	height: 100%;
+	background-image: url('../../../assets/images/landingScreen/BgLayer.png');
+	border-radius: 21.64px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: white;
+	font-family: 'General Sans Variable', sans-serif;
+	font-size: 24px;
+	font-weight: 600;
+	text-align: center;
+	border: 20px solid #eaeaea;
+	overflow: hidden;
+}
+
+.screenImage {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	border-radius: 21.64px;
+}
+
+.screenText {
+	text-align: center;
+	line-height: 1.2;
+}
+
+.screenSubtext {
+	font-size: 16px;
+	font-weight: 400;
+	opacity: 0.8;
+}
+
+.lens {
+	position: absolute;
+	top: 7.03px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 7.03px;
+	height: 7.03px;
+}
+
+.lensOuter {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: #55575e;
+	border: 0.9px solid #3b3b3b;
+	border-radius: 50%;
+}
+
+.lensInner {
+	position: absolute;
+	top: 2.34px;
+	left: 2.34px;
+	width: 2.34px;
+	height: 2.34px;
+	background: #494c51;
+	border-radius: 50%;
+}
+
+.lensReflection1,
+.lensReflection2 {
+	position: absolute;
+	top: 0;
+	width: 0.47px;
+	height: 2.34px;
+	background: #617189;
+}
+
+.lensReflection1 {
+	left: 0;
+}
+
+.lensReflection2 {
+	left: 1.88px;
+}
+
+.lensReflection3 {
+	position: absolute;
+	top: 0.47px;
+	left: 0.47px;
+	width: 1.41px;
+	height: 1.41px;
+	background: #7b6a77;
+	border-radius: 50%;
+}
+
+.lensReflection4 {
+	position: absolute;
+	top: 0.47px;
+	left: 0.94px;
+	width: 0.94px;
+	height: 0.94px;
+	background: rgba(255, 255, 255, 0.2);
+	border-radius: 50%;
+}
+
+.lensReflection5 {
+	position: absolute;
+	top: 0.47px;
+	left: 0.47px;
+	width: 1.41px;
+	height: 1.41px;
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 50%;
+}
+
+.border {
+	position: absolute;
+	top: 22.5px;
+	left: 21.57px;
+	width: 900.15px;
+	height: 506.22px;
+	background: #121212;
+	border-radius: 21.64px;
+	z-index: -1;
+}

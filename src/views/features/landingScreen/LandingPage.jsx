@@ -2,6 +2,7 @@
 import { memo, useEffect, useState, useRef } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import { useScrollAnimation } from '../../../hooks/useScrollAnimation';
 
 import TabNavigation from '../../components/landing_screen/TabNavigation';
 import Tagline from './Tagline';
@@ -16,6 +17,7 @@ import DownloadSection from './DownloadSection';
 import FAQ from './FAQ';
 import NewsletterSection from './NewsletterSection';
 import GlassFooterSection from './GlassFooter';
+import FullscreenIMac from './FullscreenIMac';
 
 import { ReactComponent as MenuIcon } from '../../../assets/svg/menu.svg';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
@@ -45,6 +47,8 @@ const LandingPage = () => {
 	const [info, setInfo] = useState({ navVisible: true, seenOnce: false });
 
 	const videoRef = useRef(null);
+	const { downloadSectionRef, iMacFrameRef, fullscreenIMacRef, backgroundRef } =
+		useScrollAnimation();
 
 	// sync tab with URL
 	useEffect(() => {
@@ -127,7 +131,7 @@ const LandingPage = () => {
 			<div className="page-body">
 				<div className="heroContainer">
 					<div className="title-container">
-						<DownloadSection />
+						<DownloadSection ref={downloadSectionRef} iMacFrameRef={iMacFrameRef} />
 					</div>
 
 					{/* <div className={`videoContainer ${hasPlayed ? 'played' : 'unplayed'}`}>
@@ -157,23 +161,31 @@ const LandingPage = () => {
 				</div>
 
 				{/* <Tagline /> */}
-				<PartnerSection />
+				{/* <PartnerSection />
 
-				<FAQ />
+				<FAQ /> */}
 
 				{/* Newsletter floating on MacBook Section */}
-				<div className="newsletter-macbook-container">
+				{/* <div className="newsletter-macbook-container">
 					<GlassFooterSection />
 					<div className="newsletter-overlay">
 						<NewsletterSection />
 					</div>
-				</div>
+				</div> */}
 
 				{/* Mobile Newsletter and Footer - positioned below FAQ on mobile */}
-				<div className="mobile-footer-container">
+				{/* <div className="mobile-footer-container">
 					<NewsletterSection />
 					<GlassFooterSection isMobileFooter={true} />
-				</div>
+				</div> */}
+
+				{/* Fullscreen iMac Component for Scroll Animation */}
+				<FullscreenIMac ref={fullscreenIMacRef} />
+
+				{/* Background Layer for Scroll Animation */}
+				{/* <div ref={backgroundRef} className="scroll-background">
+					<img src={BgLayerImage} alt="Background" className="background-image" />
+				</div> */}
 
 				{/* <EarlyAccess /> */}
 			</div>
