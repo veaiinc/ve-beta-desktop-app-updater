@@ -114,15 +114,15 @@ export default defineConfig({
 								notchDropService: 'electron/services/notchDropService.js',
 								notificationHelper: 'electron/notificationHelper.js',
 								dynamicIslandHelper: 'electron/helpers/dynamicIslandHelper.js',
-								// wakeWordService: 'electron/wakeWordService.js',
+								desktopUtilHelper: 'electron/desktopUtilHelper.js',
 							},
 							output: {
 								format: 'cjs',
 								entryFileNames: (chunkInfo) => {
-									if (chunkInfo.name === 'windowHelper') {
-										return 'helpers/[name].js';
-									}
-									if (chunkInfo.name === 'dynamicIslandHelper') {
+									if (
+										chunkInfo.name === 'windowHelper' ||
+										chunkInfo.name === 'dynamicIslandHelper'
+									) {
 										return 'helpers/[name].js';
 									}
 									if (chunkInfo.name === 'notchDropService') {

@@ -580,6 +580,10 @@ class NotchDropWindow: NSWindow {
             swiftActionCallback?("startVoiceAgent", "")
         case .receiveMessage(let message):
             swiftActionCallback?("receiveMessage", message)
+        // Notification Actions
+        case .showNotification(let title, let body, let type):
+            let notificationData = "\(title)|\(body)|\(type)"
+            swiftActionCallback?("showNotification", notificationData)
         }
     }
 }

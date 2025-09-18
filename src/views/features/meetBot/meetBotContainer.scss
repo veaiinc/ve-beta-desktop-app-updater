@@ -116,6 +116,16 @@
 						line-height: 22px;
 					}
 				}
+
+				.delete-meeting-button {
+					background-color: transparent;
+					color: var(--error);
+					border: none;
+					padding: 0;
+					margin-left: auto;
+					cursor: pointer;
+					transition: all 0.2s ease;
+				}
 			}
 
 			.meeting-meta {

@@ -25,6 +25,7 @@ const { exec } = require('child_process');
 const { Worker } = require('worker_threads');
 const pLimit = require('p-limit'); // ← THIS IS THE FIX
 const imageProcessingLimit = pLimit(4); // Max 4 concurrent workers
+const { cleanupAndQuit } = require('./desktopUtilHelper');
 
 // Import dynamic island helper
 // const { DynamicIslandHelper } = require('./dynamicIslandHelper');
@@ -347,7 +348,7 @@ autoUpdater.on('update-downloaded', (info) => {
 	}, 5000);
 });
 
-function showNotification(title, body) {
+async function showNotification(title, body) {
 	const notification = new Notification({
 		title: title || 'Alert',
 		body: body || 'This is a test',
@@ -395,6 +396,33 @@ function showNotification(title, body) {
 			);
 			log.info('Notification also sent to Dynamic Island');
 		}
+	}
+
+	// Send notification to SwiftUI NotchDrop
+	if (notchDropService && notchDropService.isInitialized) {
+		try {
+			const notificationData = {
+				title: title || 'Alert',
+				body: body || 'This is a test',
+				type: 'meeting',
+				timestamp: new Date().toISOString(),
+			};
+			const result = await notchDropService.sendMessageToSwiftUI(
+				JSON.stringify({
+					action: 'showNotification',
+					data: notificationData,
+				}),
+			);
+			if (result.success) {
+				log.info('✅ Notification sent to SwiftUI successfully');
+			} else {
+				log.warn('⚠️ Failed to send notification to SwiftUI:', result.error);
+			}
+		} catch (error) {
+			log.error('❌ Error sending notification to SwiftUI:', error);
+		}
+	} else {
+		log.info('ℹ️ NotchDrop service not available, skipping SwiftUI notification');
 	}
 }
 
@@ -4223,7 +4251,7 @@ app.on('before-quit', (event) => {
 		// Prevent default quit behavior to allow cleanup
 		event.preventDefault();
 		// Clean up all windows and processes
-		cleanupAndQuit();
+		handleCleanupAndQuit();
 	} else {
 		// Allow quit for updates
 		log.info('🔄 Allowing quit for update installation...');
@@ -4235,14 +4263,14 @@ app.on('quit', (event, exitCode) => {
 	// Only cleanup if update is not in progress
 	if (!isUpdateInProgress && (dynamicIslandHelper || windowHelper)) {
 		log.info('🔄 Force cleanup on quit event...');
-		cleanupAndQuit();
+		handleCleanupAndQuit();
 	}
 });
 
 app.on('window-all-closed', () => {
 	// Only cleanup if update is not in progress
 	if (!isUpdateInProgress) {
-		cleanupAndQuit();
+		handleCleanupAndQuit();
 	}
 });
 
@@ -4270,6 +4298,15 @@ ipcMain.handle('update-overlay-dimensions', async (event, { width, height }) => 
 		return { success: false, error: error.message };
 	}
 });
+
+const handleCleanupAndQuit = () =>
+	cleanupAndQuit({
+		dynamicIslandHelper,
+		windowHelper,
+		mainWindow,
+		areYouThereTimer,
+		transcriptionDetectionTimer,
+	});
 
 // Are You There timer functions
 function startAreYouThereTimer() {
@@ -4504,121 +4541,17 @@ function hideTranscriptionBasedAreYouThereWindow() {
 	}
 }
 
-// Flag to prevent multiple cleanup calls
-let isCleaningUp = false;
-
-// Function to handle cleanup and quit
-function cleanupAndQuit() {
-	// Prevent multiple cleanup calls
-	if (isCleaningUp) {
-		return;
-	}
-	isCleaningUp = true;
-
-	try {
-		// Clean up dynamic island helper
-		if (dynamicIslandHelper) {
-			try {
-				dynamicIslandHelper.destroy();
-			} catch (error) {
-				log.error('Error destroying dynamicIslandHelper:', error);
-			}
-			dynamicIslandHelper = null;
-		}
-
-		// Clean up window helper
-		if (windowHelper) {
-			try {
-				windowHelper.cleanup();
-			} catch (error) {
-				log.error('Error cleaning up windowHelper:', error);
-			}
-			windowHelper = null;
-		}
-
-		// Close main window if it exists and not destroyed
-		if (mainWindow && !mainWindow.isDestroyed()) {
-			try {
-				mainWindow.close();
-			} catch (error) {
-				log.error('Error closing main window:', error);
-			}
-		}
-
-		// Force quit all remaining windows safely
-		try {
-			BrowserWindow.getAllWindows().forEach((window) => {
-				if (window && !window.isDestroyed()) {
-					try {
-						window.destroy();
-					} catch (error) {
-						log.error('Error destroying window:', error);
-					}
-				}
-			});
-		} catch (error) {
-			log.error('Error getting all windows:', error);
-		}
-
-		// Clean up Are You There timer
-		if (areYouThereTimer) {
-			try {
-				clearInterval(areYouThereTimer);
-			} catch (error) {
-				log.error('Error clearing areYouThereTimer:', error);
-			}
-			areYouThereTimer = null;
-		}
-
-		// Clean up transcription detection timer
-		if (transcriptionDetectionTimer) {
-			try {
-				clearInterval(transcriptionDetectionTimer);
-			} catch (error) {
-				log.error('Error clearing transcriptionDetectionTimer:', error);
-			}
-			transcriptionDetectionTimer = null;
-		}
-
-		// Unregister all global shortcuts
-		try {
-			globalShortcut.unregisterAll();
-		} catch (error) {
-			log.error('Error unregistering global shortcuts:', error);
-		}
-
-		// Force quit the app
-		setTimeout(() => {
-			try {
-				app.exit(0);
-			} catch (error) {
-				log.error('Error during app exit:', error);
-				process.exit(0);
-			}
-		}, 100);
-	} catch (error) {
-		log.error('Error during cleanup:', error);
-		// Force quit even if cleanup fails
-		try {
-			app.exit(0);
-		} catch (exitError) {
-			log.error('Error during forced exit:', exitError);
-			process.exit(0);
-		}
-	}
-}
-
 // Handle process exit to ensure cleanup
 process.on('exit', (code) => {
 	log.info(`Process exiting with code: ${code}`);
 });
 
 process.on('SIGINT', () => {
-	cleanupAndQuit();
+	handleCleanupAndQuit();
 });
 
 process.on('SIGTERM', () => {
-	cleanupAndQuit();
+	handleCleanupAndQuit();
 });
 
 // Add global error handler to prevent crashes

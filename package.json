@@ -1,7 +1,7 @@
 {
 	"name": "VEAI",
 	"description": "Your living intelligence remembers everything, sees what you see, figures out your goals, and doesn’t stop until they're done.",
-	"version": "v0.4.24",
+	"version": "v0.4.27",
 	"private": true,
 	"main": "dist-electron/main.js",
 	"author": "Ve AI",
@@ -11,7 +11,8 @@
 		"clean:sharp": "node -e \"const fs = require('fs'); const path = require('path'); const nodeModulesPath = path.join(__dirname, 'node_modules', '@img'); console.log('🔧 Ensuring Sharp package structure for all platforms...'); if (fs.existsSync(nodeModulesPath)) { const requiredDirs = ['sharp-darwin-arm64', 'sharp-darwin-x64', 'sharp-libvips-darwin-arm64', 'sharp-libvips-darwin-x64', 'sharp-linux-arm', 'sharp-linux-arm64', 'sharp-linux-x64', 'sharp-libvips-linux-arm', 'sharp-libvips-linux-arm64', 'sharp-libvips-linux-x64', 'sharp-win32-ia32', 'sharp-win32-x64', 'sharp-libvips-win32-ia32', 'sharp-libvips-win32-x64']; requiredDirs.forEach(dir => { const dirPath = path.join(nodeModulesPath, dir); if (!fs.existsSync(dirPath)) { fs.mkdirSync(dirPath, { recursive: true }); fs.writeFileSync(path.join(dirPath, '.gitkeep'), ''); console.log('✅ Created missing directory:', dir); } else { console.log('✅ Directory exists:', dir); } }); console.log('🎉 All Sharp directories ensured for cross-platform builds'); } else { console.log('📁 @img directory not found'); }\"",
 		"install-python-deps": "cd electron/wakeWord && (python -m pip install -r requirements.txt || python3 -m pip install -r requirements.txt || py -m pip install -r requirements.txt)",
 		"postinstall:win": "npm rebuild sharp --platform=win32 --arch=x64",
-		"dev": "npm run build:notchdrop:all && cross-env NODE_ENV=development npm run clean:build:cross && vite",
+		"dev": "npm run build:notchdrop:all && cross-env NODE_ENV=development npm run clean:build:dev && vite",
+		"clean:build:dev": "rimraf dist-electron build",
 		"dev:swift": "node scripts/dev-with-swift-watch.js",
 		"dev:swift:shell": "bash scripts/dev-swift-watch.sh",
 		"dev:swift:watch-only": "node scripts/swift-watcher.js",
