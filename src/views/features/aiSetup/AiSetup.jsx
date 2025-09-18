@@ -258,6 +258,7 @@ const AiSetup = () => {
 							onResetClick={handleResetBtnClick}
 							onDeleteClick={handleDeleteButtonClick}
 							onEditClick={handleEditButtonClick}
+							showSectionCTA={false}
 						/>
 					</div>
 				</div>
