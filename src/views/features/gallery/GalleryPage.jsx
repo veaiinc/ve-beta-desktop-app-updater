@@ -3510,29 +3510,12 @@ const GalleryPage = () => {
 
 				// Get single image download link
 				const isLightGallery = info?.isLightGallery;
-				const response = await getDownloadLinkForImage(selectedImageId, isLightGallery, 0);
+				const response = await getDownloadLinkForImage(selectedImageId, isLightGallery);
+
+				// message.destroy(id);
 
 				if (response?.[0] === true) {
-					// Create download session for background download
-					const downloadSession = {
-						type: 'single',
-						name: 'Single Image',
-						totalFiles: 1,
-						files: [
-							{
-								name: response[1]?.fileName || 'image',
-								url: response[1]?.signedUrl,
-								status: 'pending',
-								progress: 0,
-							},
-						],
-					};
-
-					addDownloadSession(downloadSession);
-					showMessage('success', 'Download started');
-
-					// Close download album modal when background download starts
-					setInfo((prev) => ({ ...prev, showDownloadAlbum: false }));
+					showMessage('success', 'Download completed');
 				} else {
 					throw new Error('Failed to get download link');
 				}
@@ -3577,27 +3560,8 @@ const GalleryPage = () => {
 				const response = await getDownloadForMultipleImages(payload, galleryId);
 
 				if (response?.[0] === true) {
-					// Create download session for background download
-					const downloadFiles =
-						response[1]?.map((item, index) => ({
-							name: item.filename || `image_${index + 1}`,
-							url: item.url,
-							status: 'pending',
-							progress: 0,
-						})) || [];
-
-					const downloadSession = {
-						type: 'multiple',
-						name: `${info.selectedImages.length} Images`,
-						totalFiles: info.selectedImages.length,
-						files: downloadFiles,
-					};
-
-					addDownloadSession(downloadSession);
-					showMessage('success', 'Download started');
-
-					// Close download album modal when background download starts
-					setInfo((prev) => ({ ...prev, showDownloadAlbum: false }));
+					message.destroy();
+					showMessage('success', 'Download completed');
 				} else {
 					throw new Error('Failed to get download links');
 				}
@@ -3610,26 +3574,14 @@ const GalleryPage = () => {
 				const response = await downloadImages(payload, galleryId, info?.activeAlbumId);
 
 				if (response?.[0] === true && response?.[1]?.signedUrl) {
-					// Create download session for ZIP download
-					const downloadSession = {
-						type: 'album',
-						name: `${info.selectedImages.length} Images (ZIP)`,
-						totalFiles: 1,
-						files: [
-							{
-								name: `gallery-images-${Date.now()}.zip`,
-								url: response[1].signedUrl,
-								status: 'pending',
-								progress: 0,
-							},
-						],
-					};
-
-					addDownloadSession(downloadSession);
+					const link = document.createElement('a');
+					link.href = response[1].signedUrl;
+					link.setAttribute('download', `gallery-images-${Date.now()}.zip`);
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+					message.destroy();
 					showMessage('success', 'Download started');
-
-					// Close download album modal when background download starts
-					setInfo((prev) => ({ ...prev, showDownloadAlbum: false }));
 				} else {
 					throw new Error('Failed to prepare download');
 				}
