@@ -1,5 +1,6 @@
 const path = require('path');
 const log = require('electron-log');
+const { BrowserWindow } = require('electron');
 
 let NotchDropAddonWrapper;
 
@@ -193,6 +194,15 @@ class NotchDropService {
 		this.notchDropAddon.on('messageReceived', (message) => {
 			log.info('📨 Swift UI received message from Electron:', message);
 			// You can add additional handling here if needed
+		});
+
+		this.notchDropAddon.on('navigateToMainScreen', (targetPath) => {
+			try {
+				log.info('🏠 Swift UI requested main window navigation:', targetPath);
+				this.navigateMainWindow(targetPath);
+			} catch (error) {
+				log.error('❌ Error handling Swift UI main window navigation request:', error);
+			}
 		});
 	}
 
@@ -390,6 +400,47 @@ class NotchDropService {
 		this.mainWindow = mainWindow;
 	}
 
+	navigateMainWindow(path) {
+		const defaultPath = '/verify-user';
+		const resolvedPath =
+			typeof path === 'string' && path.trim().length > 0 ? path.trim() : defaultPath;
+		const normalizedPath = resolvedPath.startsWith('/') ? resolvedPath : `/${resolvedPath}`;
+
+		try {
+			if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+				this.mainWindow.show();
+				this.mainWindow.focus();
+				this.mainWindow.webContents.send('navigate-to', normalizedPath);
+				log.info('🏠 Main window navigated via NotchDrop request:', normalizedPath);
+				return true;
+			}
+
+			const allWindows = BrowserWindow.getAllWindows();
+			const fallbackWindow = allWindows.find((win) => {
+				if (!win || win.isDestroyed()) {
+					return false;
+				}
+				const title = typeof win.getTitle === 'function' ? win.getTitle() : '';
+				return title.toLowerCase().includes('ve ai');
+			});
+
+			if (fallbackWindow) {
+				this.mainWindow = fallbackWindow;
+				fallbackWindow.show();
+				fallbackWindow.focus();
+				fallbackWindow.webContents.send('navigate-to', normalizedPath);
+				log.info('🏠 Fallback main window navigated via NotchDrop request:', normalizedPath);
+				return true;
+			}
+
+			log.warn('⚠️ Unable to navigate main window - no window available', { path: normalizedPath });
+			return false;
+		} catch (error) {
+			log.error('❌ Failed to navigate main window from NotchDrop request:', error);
+			return false;
+		}
+	}
+
 	cleanup() {
 		if (this.isInitialized) {
 			try {
@@ -496,6 +547,17 @@ class NotchDropService {
 			if (!this.swiftJSBridge) {
 				log.warn('Swift-JS Bridge not initialized, cannot handle Swift action');
 				return { success: false, error: 'Swift-JS Bridge not initialized' };
+			}
+
+			if (action === 'navigateToMainScreen') {
+				const resolvedPath =
+					typeof data === 'string' && data.trim().length > 0 ? data.trim() : '/verify-user';
+				const navigationSucceeded = this.navigateMainWindow(resolvedPath);
+				return {
+					success: navigationSucceeded,
+					action,
+					path: resolvedPath,
+				};
 			}
 
 			// Handle voice-specific actions

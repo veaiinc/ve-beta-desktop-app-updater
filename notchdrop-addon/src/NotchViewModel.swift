@@ -169,7 +169,7 @@ class NotchViewModel: NSObject, ObservableObject {
         case collapse
         case triggerOverlayToggleLiveIntelligence
         case sendLog(String)
-        case navigateToMainScreen
+        case navigateToMainScreen(String?)
         // Voice Assistant Actions
         case connectVoice
         case disconnectVoice
@@ -610,7 +610,7 @@ class NotchViewModel: NSObject, ObservableObject {
         }
     }
     
-    func navigateToMainScreen() {
+    func navigateToMainScreen(path: String? = nil) {
         print("🏠 Navigating to main screen - resetting UI state")
         
         // Reset chat-related state
@@ -630,7 +630,7 @@ class NotchViewModel: NSObject, ObservableObject {
         }
         
         // Emit action for JavaScript integration
-        swiftActionSender.send(.navigateToMainScreen)
+        swiftActionSender.send(.navigateToMainScreen(path))
         
         print("✅ Main screen navigation completed - all states reset")
     }

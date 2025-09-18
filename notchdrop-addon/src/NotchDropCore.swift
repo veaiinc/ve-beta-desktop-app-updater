@@ -563,8 +563,8 @@ class NotchDropWindow: NSWindow {
             swiftActionCallback?("triggerOverlayToggleLiveIntelligence", "")
         case .sendLog(let message):
             swiftActionCallback?("sendLog", message)
-        case .navigateToMainScreen:
-            swiftActionCallback?("navigateToMainScreen", "")
+        case .navigateToMainScreen(let path):
+            swiftActionCallback?("navigateToMainScreen", path ?? "")
         // Voice Assistant Actions
         case .connectVoice:
             swiftActionCallback?("connectVoice", "")

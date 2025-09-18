@@ -51,7 +51,7 @@ struct DynamicIslandContentView: View {
                     // Test buttons
                     HStack(spacing: 8) {
                         Button("Login") {
-                            vm.setAuthenticated(true)
+                            vm.navigateToMainScreen(path: "/verify-user")
                         }
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white)
