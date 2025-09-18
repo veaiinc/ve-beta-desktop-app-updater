@@ -38,6 +38,7 @@ const MemoryBlock = () => {
 
 	const AIMemoryList = AIMemoryInfo?.data || [];
 	const AIMemoryListLength = AIMemoryList?.length || 0;
+	const emptyAIMemoryList = AIMemoryListLength === 0;
 	const hasNextPage = AIMemoryInfo?.hasNextPage || false;
 	const currentPage = AIMemoryInfo?.currentPage || 1;
 
@@ -72,7 +73,9 @@ const MemoryBlock = () => {
 		}
 	};
 
-	return (
+	return emptyAIMemoryList ? (
+		<p className="memoryBlockEmptyState">No data</p>
+	) : (
 		<div className="memoryBlockContainer">
 			<InfiniteScroll
 				dataLength={AIMemoryListLength}
