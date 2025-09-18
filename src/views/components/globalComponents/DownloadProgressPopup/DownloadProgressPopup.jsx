@@ -343,7 +343,7 @@ const DownloadProgressPopup = () => {
 		}
 	};
 
-	// Process album download (ZIP creation)
+	// Process album download (ZIP creation) with efficient background processing
 	const processAlbumDownload = async (sessionId, downloadState) => {
 		try {
 			updateDownloadState(sessionId, { status: 'downloading' });
@@ -354,28 +354,95 @@ const DownloadProgressPopup = () => {
 				downloadState.downloadItems &&
 				downloadState.downloadItems.length > 0
 			) {
-				const result = await window.electronApi.downloadAlbumZip({
-					items: downloadState.downloadItems,
-					folderName: downloadState.folderName || 'Album_Download',
-					maxZipSize: downloadState.maxZipSize || 3 * 1024 * 1024 * 1024, // 3GB
-				});
+				// Detect if this is an original download for optimization
+				const isOriginalDownload =
+					downloadState.originalDownload ||
+					downloadState.type === 'original' ||
+					downloadState.downloadItems.some((item) => item.size > 5 * 1024 * 1024);
 
-				if (result.success) {
-					updateDownloadState(sessionId, {
-						status: 'completed',
-						overallProgress: 100,
-						files: downloadState.files.map((f) => ({
-							...f,
-							status: 'completed',
-							progress: 100,
-						})),
+				// Set up progress tracking
+				let progressInterval;
+				let currentProgress = 0;
+
+				// Start progress tracking with adaptive intervals
+				const progressIntervalMs = isOriginalDownload ? 500 : 200;
+				progressInterval = setInterval(() => {
+					if (currentProgress < 90) {
+						const increment = isOriginalDownload
+							? Math.random() * 2
+							: Math.random() * 5;
+						currentProgress += increment;
+						updateDownloadState(sessionId, {
+							overallProgress: Math.min(currentProgress, 90),
+						});
+					}
+				}, progressIntervalMs);
+
+				// Set up progress listener for real-time updates
+				const progressListener = (data) => {
+					if (data.sessionId === sessionId) {
+						if (data.phase === 'progress') {
+							updateDownloadState(sessionId, {
+								overallProgress: Math.min(data.progress || 0, 90),
+							});
+						} else if (data.phase === 'complete') {
+							updateDownloadState(sessionId, {
+								status: 'completed',
+								overallProgress: 100,
+								files: downloadState.files.map((f) => ({
+									...f,
+									status: 'completed',
+									progress: 100,
+								})),
+							});
+							handleDownloadComplete(sessionId);
+						}
+					}
+				};
+
+				// Register progress listener
+				window.electronApi.onDownloadProgress(progressListener);
+
+				try {
+					// Use the efficient createZipFromUrls method with high parallel limit
+					const result = await window.electronApi.createZipFromUrls({
+						items: downloadState.downloadItems,
+						folderName: downloadState.folderName || 'Album_Download',
+						maxZipSize: downloadState.maxZipSize || 3 * 1024 * 1024 * 1024, // 3GB
+						sessionId: sessionId,
+						parallelLimit: isOriginalDownload ? 50 : 100, // High parallel limit for efficiency
 					});
-				} else {
-					throw new Error(result.error || 'ZIP creation failed');
+
+					// Clear progress interval
+					if (progressInterval) {
+						clearInterval(progressInterval);
+					}
+
+					if (result.success) {
+						updateDownloadState(sessionId, {
+							status: 'completed',
+							overallProgress: 100,
+							files: downloadState.files.map((f) => ({
+								...f,
+								status: 'completed',
+								progress: 100,
+							})),
+						});
+						handleDownloadComplete(sessionId);
+					} else {
+						throw new Error(result.error || 'ZIP creation failed');
+					}
+				} catch (zipError) {
+					// Clear progress interval
+					if (progressInterval) {
+						clearInterval(progressInterval);
+					}
+					// Remove progress listener
+					window.electronApi.removeDownloadProgressListener();
+					throw zipError;
 				}
 			} else if (downloadState.files && downloadState.files[0]?.url) {
 				// Fallback: direct download if URL is available
-
 				const file = downloadState.files[0];
 				const link = document.createElement('a');
 				link.href = file.url;
@@ -465,6 +532,11 @@ const DownloadProgressPopup = () => {
 				clearInterval(intervalId);
 			});
 			intervalRefs.current.clear();
+
+			// Remove progress listener on unmount
+			if (window.electronApi && window.electronApi.removeDownloadProgressListener) {
+				window.electronApi.removeDownloadProgressListener();
+			}
 		};
 	}, []);
 
@@ -510,6 +582,11 @@ const DownloadProgressPopup = () => {
 		if (intervalRefs.current.has(sessionId)) {
 			clearInterval(intervalRefs.current.get(sessionId));
 			intervalRefs.current.delete(sessionId);
+		}
+
+		// Remove progress listener
+		if (window.electronApi && window.electronApi.removeDownloadProgressListener) {
+			window.electronApi.removeDownloadProgressListener();
 		}
 
 		// Update state to cancelled
