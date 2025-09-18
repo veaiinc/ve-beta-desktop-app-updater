@@ -87,51 +87,37 @@ const LiveIntelligencePanel = ({
 			isNeedHelp,
 		};
 
-		console.log('🚀 Sending thread question to Ask AI:', chatMessage);
-
 		// Check if window is already visible, if not, show it
 		try {
 			if (window.electronApi?.askAI?.isWindowVisible) {
 				const result = await window.electronApi.askAI.isWindowVisible();
 				if (!result.success || !result.isVisible) {
 					// Window is not visible, show it
-					if (window.electronApi?.askAI?.showWindow) {
-						await window.electronApi.askAI.showWindow();
-					}
+					await window?.electronApi.askAI.showWindow();
 					// Wait for window to be ready after opening
 					setTimeout(() => {
-						if (window.electronApi?.overlay?.sendChatMessageToAskAI) {
-							window.electronApi.overlay.sendChatMessageToAskAI(chatMessage);
-						}
-					}, 300);
+						window?.electronApi.overlay.sendChatMessageToAskAI(chatMessage);
+					}, 0);
 				} else {
 					// Window is already visible, send content immediately
-					if (window.electronApi?.overlay?.sendChatMessageToAskAI) {
-						window.electronApi.overlay.sendChatMessageToAskAI(chatMessage);
-					}
+					window?.electronApi.overlay.sendChatMessageToAskAI(chatMessage);
 				}
 			} else {
 				// Fallback to toggle if new API not available
-				if (window.electronApi?.askAI?.toggleWindow) {
-					window.electronApi.askAI.toggleWindow();
-				}
+				window?.electronApi.askAI.toggleWindow();
+
 				setTimeout(() => {
-					if (window.electronApi?.overlay?.sendChatMessageToAskAI) {
-						window.electronApi.overlay.sendChatMessageToAskAI(chatMessage);
-					}
-				}, 300);
+					window?.electronApi.overlay.sendChatMessageToAskAI(chatMessage);
+				}, 0);
 			}
 		} catch (error) {
 			console.error('Error checking/showing Ask AI window:', error);
 			// Fallback to toggle if there's an error
-			if (window.electronApi?.askAI?.toggleWindow) {
-				window.electronApi.askAI.toggleWindow();
-			}
+			window?.electronApi.askAI.toggleWindow();
+
 			setTimeout(() => {
-				if (window.electronApi?.overlay?.sendChatMessageToAskAI) {
-					window.electronApi.overlay.sendChatMessageToAskAI(chatMessage);
-				}
-			}, 300);
+				window?.electronApi.overlay.sendChatMessageToAskAI(chatMessage);
+			}, 0);
 		}
 	};
 

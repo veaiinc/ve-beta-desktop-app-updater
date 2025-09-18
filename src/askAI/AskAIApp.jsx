@@ -1,9 +1,8 @@
-import { useState, useRef, useEffect, useCallback, useContext } from 'react';
-import { X, Send, Copy, ChevronDown, ChevronUp, GripHorizontal, Square } from 'lucide-react';
+import { useState, useEffect, useCallback, useContext } from 'react';
+import { X } from 'lucide-react';
 import './askAI.scss';
 import ObjectID from 'bson-objectid';
 import { getLocationsDetails } from '../helpers';
-import { copyToClipboard } from '../helpers/clipboardHelper';
 import Context from '../context/context';
 import RecentChat from '../views/features/chat/RecentChat';
 import CustomToast from '../views/components/globalComponents/CustomToast';
@@ -44,22 +43,14 @@ const AskAIApp = () => {
 		};
 
 		// Set up listeners
-		if (window.electronApi?.askAI?.onReceiveTabContent) {
-			window.electronApi.askAI.onReceiveTabContent(handleTabContent);
-		}
+		window?.electronApi.askAI.onReceiveTabContent(handleTabContent);
 
-		if (window.electronApi?.askAI?.onReceiveChatMessage) {
-			window.electronApi.askAI.onReceiveChatMessage(handleChatMessage);
-		}
+		window?.electronApi.askAI.onReceiveChatMessage(handleChatMessage);
 
 		// Cleanup
 		return () => {
-			if (window.electronApi?.askAI?.removeTabContentListener) {
-				window.electronApi.askAI.removeTabContentListener();
-			}
-			if (window.electronApi?.askAI?.removeChatMessageListener) {
-				window.electronApi.askAI.removeChatMessageListener();
-			}
+			window?.electronApi.askAI.removeTabContentListener();
+			window?.electronApi.askAI.removeChatMessageListener();
 		};
 	}, []);
 
@@ -69,12 +60,12 @@ const AskAIApp = () => {
 
 		// Handle individual item clicks
 		if (type === 'individual-item' && itemContent) {
-			return `Please help me with this: "${itemContent}". Provide insights, suggestions, or guidance on how to approach this.`;
+			return itemContent;
 		}
 
 		// Handle empty content
 		if (!content || content.length === 0) {
-			return `I'm looking at the "${tabLabel}" tab but there's no content yet. Can you help me understand what this tab is for and how I might use it?`;
+			return tabLabel;
 		}
 
 		const itemCount = content.length;
@@ -82,26 +73,16 @@ const AskAIApp = () => {
 
 		switch (tabKey) {
 			case 'all-threads':
-				return `I have ${itemCount} threads in my conversation history. The latest one is: "${
-					firstItem.prompt || firstItem.name || 'No prompt available'
-				}". Please analyze these threads and provide insights or suggestions.`;
+				return firstItem.prompt || firstItem.name || 'No prompt available';
 
 			case 'ask-user':
-				return `I have ${itemCount} questions that need user input. The latest one is: "${firstItem.prompt}". Please help me formulate better questions or suggest how to approach these user interactions.`;
-
 			case 'need-help':
-				return `I have ${itemCount} help suggestions. The latest one is: "${firstItem.prompt}". Please help me understand these suggestions better or provide additional guidance.`;
-
 			case 'actions':
-				return `I have ${itemCount} action items. The latest one is: "${firstItem.prompt}". Please help me prioritize these actions or suggest the best approach to handle them.`;
-
+				return firstItem.prompt;
 			case 'files':
-				return `I have ${itemCount} files to work with. The latest one is: "${
-					firstItem.prompt || firstItem.name
-				}". Please help me understand how to work with these files or suggest next steps.`;
-
+				return firstItem.prompt || firstItem.name;
 			default:
-				return `I'm looking at the "${tabLabel}" tab with ${itemCount} items. Please help me understand and work with this content.`;
+				return tabLabel;
 		}
 	};
 
@@ -219,9 +200,7 @@ const AskAIApp = () => {
 
 	const handleClose = async () => {
 		// Close the window immediately - no delay needed
-		if (window.electronApi?.askAI?.toggleWindow) {
-			window.electronApi.askAI.toggleWindow();
-		}
+		window?.electronApi.askAI.toggleWindow();
 	};
 
 	return (

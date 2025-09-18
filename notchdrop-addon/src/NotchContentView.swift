@@ -51,7 +51,7 @@ struct DynamicIslandContentView: View {
                     // Test buttons
                     HStack(spacing: 8) {
                         Button("Login") {
-                            vm.setAuthenticated(true)
+                            vm.navigateToMainScreen(path: "/verify-user")
                         }
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white)
@@ -603,12 +603,10 @@ struct ChatTextAreaView: View {
                 .onChange(of: vm.isChatMode) { oldValue, newValue in
                     // When chat mode is turned off (back button pressed), remove focus
                     if !newValue && isChatInputFocused {
-                        print("🎯 Chat mode disabled - removing focus from TextEditor")
                         isChatInputFocused = false
                     }
                 }
                 .onAppear {
-                    print("🎯 TextEditor appeared - ready for focus")
                     // Calculate width based on available space in the dynamic island
                     calculateTextEditorWidth()
                 }
@@ -624,7 +622,6 @@ struct ChatTextAreaView: View {
         .contentShape(Rectangle()) // Ensure entire area is tappable
         .allowsHitTesting(true) // Explicitly allow hit testing
         .onTapGesture {
-            print("🎯 TextEditor container tapped - setting focus")
             
             // Ensure window is key first
             if let window = NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible }) {
@@ -644,11 +641,10 @@ struct ChatTextAreaView: View {
 
     
     private func handleTextChange(_ newValue: String) {
-        print("🎯 TextEditor text changed: '\(newValue)'")
         
         // Only resize based on actual content, not placeholder
         if !newValue.isEmpty {
-            print("🎯 TextEditor width: \(textEditorWidth)px")
+
             // Auto-resize functionality - use correct font size (13, same as TextEditor)
             let font = NSFont.systemFont(ofSize: 13, weight: .medium)
             let textAttributes: [NSAttributedString.Key: Any] = [
