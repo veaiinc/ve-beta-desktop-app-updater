@@ -98,7 +98,6 @@
 		width: 100%;
 
 		@media (max-width: 768px) {
-			flex-direction: column;
 			gap: 16px;
 		}
 	}
@@ -180,10 +179,6 @@
 			opacity: 0.5;
 			cursor: not-allowed;
 		}
-
-		@media (max-width: 768px) {
-			width: 100%;
-		}
 	}
 
 	// Footer Links (Right Side)
@@ -200,9 +195,7 @@
 
 		@media (max-width: 768px) {
 			flex-direction: column;
-			gap: 32px;
 			text-align: center;
-			width: 259px;
 		}
 	}
 

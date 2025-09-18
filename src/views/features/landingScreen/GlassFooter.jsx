@@ -8,9 +8,6 @@ const GlassFooterSection = ({ isMobileFooter = false }) => {
 		<div className={`${s.glassFooterSection} ${isMobileFooter ? s.mobileFooterContainer : ''}`}>
 			{/* Desktop Footer */}
 			<GlassFooter className={s.glassFooter} />
-
-			{/* Mobile Footer */}
-			<FooterMobile className={s.mobileFooter} />
 		</div>
 	);
 };
