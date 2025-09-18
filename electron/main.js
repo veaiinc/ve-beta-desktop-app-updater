@@ -1215,10 +1215,6 @@ function updateMenuBarState() {
 			if (autoOpenMenu) {
 				autoOpenMenu.checked = autoOpen;
 			}
-
-			log.info(
-				`📊 Menu updated - Status: ${status}, Visible: ${isVisible}, Auto-open: ${autoOpen}`,
-			);
 		}
 	} catch (error) {
 		log.error('❌ Failed to update menu bar state:', error);
@@ -1355,17 +1351,17 @@ function createWindow(restoreState = false) {
 	});
 
 	ipcMain.on('veAppMsg', async (event, msg) => {
-		log.info('🔄 Received message from veApp:', msg); // logs: btn clicked from react
+		// log.info('🔄 Received message from veApp:', msg); // logs: btn clicked from react
 
 		// Send the same message to Swift UI if NotchDrop service is available
 		if (notchDropService && notchDropService.isInitialized) {
 			try {
 				const result = await notchDropService.sendMessageToSwiftUI(msg);
-				if (result.success) {
-					log.info('✅ Message sent to Swift UI successfully');
-				} else {
-					log.warn('⚠️ Failed to send message to Swift UI:', result.error);
-				}
+				// if (result.success) {
+				// 	log.info('✅ Message sent to Swift UI successfully');
+				// } else {
+				// 	log.warn('⚠️ Failed to send message to Swift UI:', result.error);
+				// }
 			} catch (error) {
 				log.error('❌ Error sending message to Swift UI:', error);
 			}
@@ -1382,12 +1378,6 @@ function createWindow(restoreState = false) {
 
 	mainWindow.once('ready-to-show', () => {
 		mainWindow.show();
-
-		// Apply content protection to main window
-		applyContentProtectionToWindow(mainWindow);
-		log.info('Window ready-to-show - content protection applied');
-		// Enable developer tools for main window in both development and production
-		log.info('Dev tools available with F12, Ctrl+F12, or Ctrl+Shift+I in all modes');
 
 		// If restoring state, navigate to the last known route
 		if (restoreState && lastWindowState.route) {
@@ -1733,7 +1723,7 @@ app.whenReady().then(async () => {
 	});
 
 	try {
-		await windowHelper?.preCreateOverlayWindow?.();
+		await windowHelper?.preCreateOverlayWindow();
 	} catch (error) {
 		log.error('❌ Error pre-creating overlay window:', error);
 	}
@@ -1752,10 +1742,9 @@ app.whenReady().then(async () => {
 			try {
 				await notchDropService.initialize();
 
-				// Verify service is truly ready
-				if (notchDropService && notchDropService.isInitialized) {
-					notchDropInitialized = true;
-				} else {
+				notchDropInitialized = notchDropService && notchDropService.isInitialized;
+
+				if (!notchDropInitialized) {
 					throw new Error('NotchDrop service initialization incomplete');
 				}
 			} catch (error) {
@@ -1884,16 +1873,6 @@ app.whenReady().then(async () => {
 				// Ensure listeners are mounted
 				await waitForAskAIReady(askAIWindow);
 				askAIWindow.webContents.send('receive-chat-message', chatMessage);
-				// Resend once shortly after as a safety net in case listener attached late
-				// setTimeout(() => {
-				// 	try {
-				// 		if (askAIWindow && !askAIWindow.isDestroyed()) {
-				// 			askAIWindow.webContents.send('receive-chat-message', chatMessage);
-				// 		}
-				// 	} catch (e) {
-				// 		log.warn('⚠️ Safety resend failed:', e);
-				// 	}
-				// }, 400);
 			} else {
 				log.error('❌ AskAI window unavailable after creation');
 			}
@@ -3964,30 +3943,6 @@ app.whenReady().then(async () => {
 			return { success: false, error: error.message };
 		}
 	});
-
-	// Wake word service IPC handlers
-	// ipcMain.handle('wake-word-start', () => {
-	// 	if (wakeWordService) {
-	// 		wakeWordService.start();
-	// 		return { success: true };
-	// 	}
-	// 	return { success: false, error: 'Wake word service not initialized' };
-	// });
-
-	// ipcMain.handle('wake-word-stop', () => {
-	// 	if (wakeWordService) {
-	// 		wakeWordService.stop();
-	// 		return { success: true };
-	// 	}
-	// 	return { success: false, error: 'Wake word service not initialized' };
-	// });
-
-	// ipcMain.handle('wake-word-status', () => {
-	// 	return {
-	// 		success: true,
-	// 		isRunning: wakeWordService ? wakeWordService.isRunning : false,
-	// 	};
-	// });
 
 	// Microphone permission check handler
 	ipcMain.handle('check-microphone-permission', async () => {
