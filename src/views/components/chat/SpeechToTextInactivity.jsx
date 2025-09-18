@@ -44,13 +44,16 @@ const SpeechToTextInactivity = ({ handleResetTimer, handleDisconnect }) => {
 
 	return (
 		<div className={s.inactivityContainer}>
-			<div className={s.timer}>{info?.time}</div>
+			<div className={s.leftContainer}>
+				<div className={s.timer}>{info?.time}</div>
+				<div className={s.text}>Are you still using your mic?</div>
+			</div>
 			<div className={s.btnsContainer}>
-				<button className={s.stillThere} onClick={handleResetTimer}>
-					Still there
+				<button className={s.resetBtn} onClick={handleResetTimer}>
+					Yes, I am using
 				</button>
-				<button className={s.closeConnection} onClick={handleDisconnect}>
-					Disconnect
+				<button className={s.closeBtn} onClick={handleDisconnect}>
+					No, Disconnect
 				</button>
 			</div>
 		</div>

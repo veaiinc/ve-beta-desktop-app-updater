@@ -40,7 +40,7 @@ import AddOnCards from '../settings/planbilling/addOnCards';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import { ReactComponent as VoiceAgentSvg } from '../../../assets/svg/ai_agents/voiceagent.svg';
 import { getFileType } from '../../../helpers/chat/chatHelpers';
-import useTranscription from '../../../hooks/useTranscripton';
+import useSpeechTranscription from '../../../hooks/useSpeechTranscripton';
 import SpeechToTextInactivity from './SpeechToTextInactivity';
 // import VoiceWrapper from '../../layouts/VoiceWrapper';
 
@@ -217,7 +217,7 @@ const ChatBox = ({
 	const [speechTranscription, setSpeechTranscription] = useState([]);
 
 	const { handleConnect, handleDisconnect, handleResetTimer, showInactivityPopup } =
-		useTranscription({
+		useSpeechTranscription({
 			tenantId: tenantSettinsData?._id,
 		});
 

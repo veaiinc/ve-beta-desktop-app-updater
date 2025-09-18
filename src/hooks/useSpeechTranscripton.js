@@ -4,7 +4,7 @@ import getBaseUrl from '../services/baseUrls';
 
 const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
 
-const useTranscription = ({ tenantId }) => {
+const useSpeechTranscription = ({ tenantId }) => {
 	const MAX_RETRY_ATTEMPTS = 5;
 	const RETRY_DELAY = 1000; // 1 second
 
@@ -313,4 +313,4 @@ const useTranscription = ({ tenantId }) => {
 	return { showInactivityPopup, handleConnect, handleDisconnect, handleResetTimer };
 };
 
-export default useTranscription;
+export default useSpeechTranscription;
