@@ -5,6 +5,7 @@ import ClockSvg from './clock.svg';
 import Context from '../../../context/context';
 import { ReactComponent as MessageSvg } from './message.svg';
 import { ReactComponent as IndicatorSvg } from './indicator.svg';
+import Spinner from '../../components/loaders/Spinner';
 const MeetingAnalytics = ({ meetingId }) => {
 	const {
 		notes: { getMeetingAnalytics },
@@ -568,8 +569,19 @@ const MeetingAnalytics = ({ meetingId }) => {
 	if (loading) {
 		return (
 			<div className={a.analyticsMainContainer}>
-				<div style={{ textAlign: 'center', padding: '2rem' }}>
-					<p>Loading meeting analytics...</p>
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'center',
+						justifyContent: 'center',
+						textAlign: 'center',
+						padding: '2rem',
+						gap: '1rem',
+					}}
+				>
+					<Spinner />
+					<p style={{ color: '#94989e' }}>Loading meeting analytics...</p>
 				</div>
 			</div>
 		);

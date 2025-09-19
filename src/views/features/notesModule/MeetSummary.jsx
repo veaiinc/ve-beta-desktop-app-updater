@@ -372,16 +372,24 @@ const MeetSummary = ({ meetingId }) => {
 	}
 
 	// Render error state
+	// if (error) {
+	// 	return (
+	// 		<div className={s.meetSummaryContainer}>
+	// 			<div className={s.loadingContainer}>
+	// 				<p style={{ color: '#ff6b6b' }}>Error: {error}</p>
+	// 			</div>
+	// 		</div>
+	// 	);
+	// }
 	if (error) {
 		return (
 			<div className={s.meetSummaryContainer}>
 				<div className={s.loadingContainer}>
-					<p style={{ color: '#ff6b6b' }}>Error: {error}</p>
+					<p>No Summary</p>
 				</div>
 			</div>
 		);
 	}
-
 	// Render no data state
 	if (!analyticsData || !meetingData) {
 		return (
