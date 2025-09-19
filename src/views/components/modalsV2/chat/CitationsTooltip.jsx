@@ -80,7 +80,7 @@ export const CitationsTooltip = memo(({ citationId, citations = [], placement = 
 	return (
 		<Tooltip
 			arrow={false}
-			trigger={'hover'}
+			trigger="hover"
 			color="transparent"
 			// open={citationInfo?.source ? null : false}
 			placement={placement}
