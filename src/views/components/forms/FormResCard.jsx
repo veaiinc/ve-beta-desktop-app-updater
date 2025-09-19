@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from 'react';
+import { useState, useEffect, memo, useContext } from 'react';
 import { ReactComponent as Call } from '../../../assets/svg/smartFiles/formResponse/call.svg';
 import { ReactComponent as Message } from '../../../assets/svg/smartFiles/formResponse/message.svg';
 import { ReactComponent as Calender } from '../../../assets/svg/smartFiles/formResponse/calendar.svg';
@@ -11,7 +11,6 @@ import service from '../../../services/graphQlServices';
 import {
 	getFormResponsesListQuery,
 	deleteFormResponseMutation,
-	updateFormResponseMutation,
 } from '../../../context/Templates/graphQlFunctions';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
@@ -23,6 +22,7 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { message } from '../globalComponents/CustomToast';
 import DeleteModal from '../modalsV2/DeleteModal/DeleteModal';
+import Context from '../../../context/context';
 
 const removeHTMLTags = (text) =>
 	text
@@ -48,6 +48,11 @@ const FormResCard = ({
 	const [expandedCard, setExpandedCard] = useState(null);
 	const [delFormResLoading, setDelFormResLoading] = useState(false);
 	const [deleteModal, setDeleteModal] = useState({ open: false, responseId: null });
+
+	// Get context functions
+	const {
+		templates: { updateFormResponse },
+	} = useContext(Context);
 
 	useEffect(() => {
 		fetchInitialResponses();
@@ -334,18 +339,7 @@ const FormResCard = ({
 
 	const markResponseAsViewed = async (responseId) => {
 		try {
-			const workspaceId = localStorage.getItem('workspaceId');
-			const usertoken = localStorage.getItem('usertoken');
-
-			const response = await service.mutation(
-				updateFormResponseMutation,
-				{
-					responseId: responseId,
-				},
-				workspaceId,
-				usertoken,
-				'workflows_Api',
-			);
+			const response = await updateFormResponse({ responseId });
 
 			if (response?.[0]) {
 				// Update the local state to reflect the viewed status
