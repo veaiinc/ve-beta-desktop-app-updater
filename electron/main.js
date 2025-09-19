@@ -80,8 +80,7 @@ let isQuitting = false;
 let isContentProtectionEnabled = false; // for stealth mode
 
 // Runtime platform override for testing (set VE_FORCE_PLATFORM=linux|win32|darwin)
-const RUNTIME_PLATFORM = process.platform;
-const isMacRuntime = RUNTIME_PLATFORM === 'darwin';
+const isMacRuntime = process.platform === 'darwin';
 
 // Window state management
 let lastWindowState = {
@@ -875,9 +874,8 @@ function createMenuBar() {
 					type: 'separator',
 				},
 				// Show Dynamic Island toggle only for non-mac runtime
-				...(isMac
-					? []
-					: [
+				...(!isMac
+					? [
 							{
 								label: 'Toggle Dynamic Island',
 								accelerator: 'CmdOrCtrl+I',
@@ -894,7 +892,8 @@ function createMenuBar() {
 									}
 								},
 							},
-					  ]),
+					  ]
+					: []),
 				{
 					label: 'Reload',
 					accelerator: 'CmdOrCtrl+R',
@@ -922,7 +921,7 @@ function createMenuBar() {
 	];
 
 	// macOS specific menu adjustments
-	if (process.platform === 'darwin') {
+	if (isMacRuntime) {
 		// Add macOS specific items to the Application menu
 		template[0].submenu = [
 			{
@@ -1057,7 +1056,7 @@ function createWindow(restoreState = false) {
 		if (!iconPath) {
 			iconPath = possiblePaths[0];
 		}
-	} else if (process.platform === 'darwin') {
+	} else if (isMacRuntime) {
 		iconPath = path.join(__dirname, 'assets', 'app-logo.icns');
 	} else {
 		iconPath = path.join(__dirname, 'assets', 've-black-circle-logo.png');
@@ -1355,7 +1354,7 @@ app.whenReady().then(async () => {
 	);
 
 	// Check macOS microphone permission status (macOS only)
-	if (process.platform === 'darwin') {
+	if (isMacRuntime) {
 		// Check microphone permission status (this is synchronous)
 		const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
 		const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
@@ -1368,7 +1367,7 @@ app.whenReady().then(async () => {
 	}
 
 	// ✅ Request screen recording permission (macOS only)
-	if (process.platform === 'darwin') {
+	if (isMacRuntime) {
 		setTimeout(async () => {
 			try {
 				const granted = await systemPreferences.askForMediaAccess('screen-recording');
@@ -1766,7 +1765,7 @@ app.whenReady().then(async () => {
 	setupNotchDropMenuUpdates();
 
 	// macOS dock icon click handler to reopen main window
-	if (process.platform === 'darwin') {
+	if (isMacRuntime) {
 		app.on('activate', () => {
 			log.info('🍎 Dock icon clicked - reopening main window');
 			if (mainWindow && !mainWindow.isDestroyed()) {
@@ -1789,7 +1788,7 @@ app.whenReady().then(async () => {
 	});
 
 	// Check if global shortcuts are working (especially important on macOS)
-	if (process.platform === 'darwin') {
+	if (isMacRuntime) {
 		// Check if the app has accessibility permissions
 		const hasAccessibilityPermission = systemPreferences.isTrustedAccessibilityClient(false);
 
@@ -1949,7 +1948,7 @@ app.whenReady().then(async () => {
 	// Check camera permission status handler
 	ipcMain.handle('check-camera-permission', async () => {
 		try {
-			if (process.platform === 'darwin') {
+			if (isMacRuntime) {
 				const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
 
 				return {
@@ -2037,7 +2036,7 @@ app.whenReady().then(async () => {
 	// Camera permission handler
 	ipcMain.handle('request-camera-permission', async () => {
 		try {
-			if (process.platform === 'darwin') {
+			if (isMacRuntime) {
 				// First check current permission status
 				const currentStatus = systemPreferences.getMediaAccessStatus('camera');
 
@@ -2150,7 +2149,6 @@ app.whenReady().then(async () => {
 			log.info('🏝️ Starting recording from CreateMeetingModal via Dynamic Island');
 
 			// Only proceed on Windows (or when forced on macOS)
-			const isMacRuntime = process.platform === 'darwin';
 			const shouldForceShowDynamicIsland = (() => {
 				const value = String(process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND || '')
 					.trim()
@@ -3759,7 +3757,7 @@ app.whenReady().then(async () => {
 	// Microphone permission check handler
 	ipcMain.handle('check-microphone-permission', async () => {
 		try {
-			if (process.platform === 'darwin') {
+			if (isMacRuntime) {
 				const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
 
 				return {
@@ -3788,7 +3786,7 @@ app.whenReady().then(async () => {
 	// Show camera permission help dialog
 	ipcMain.handle('show-camera-permission-help', async () => {
 		try {
-			if (process.platform === 'darwin') {
+			if (isMacRuntime) {
 				const result = await dialog.showMessageBox(mainWindow, {
 					type: 'info',
 					title: 'Camera Permission Required',
@@ -3823,7 +3821,7 @@ app.whenReady().then(async () => {
 	// Request microphone permission handler
 	ipcMain.handle('request-microphone-permission', async () => {
 		try {
-			if (process.platform === 'darwin') {
+			if (isMacRuntime) {
 				// Request microphone access (this will show the system dialog)
 				const granted = await systemPreferences.askForMediaAccess('microphone');
 
@@ -3948,7 +3946,7 @@ app.whenReady().then(async () => {
 	// Show screen recording permission help
 	ipcMain.handle('show-screen-recording-permission-help', async () => {
 		try {
-			if (process.platform === 'darwin') {
+			if (isMacRuntime) {
 				const result = await dialog.showMessageBox(mainWindow, {
 					type: 'info',
 					title: 'Screen Recording Permission Required',
