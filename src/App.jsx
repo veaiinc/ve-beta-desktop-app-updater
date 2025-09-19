@@ -5,6 +5,7 @@ import VoiceAgentParent from './views/features/voiceAgent/VoiceAgentParent';
 import useVoiceIntegration from './hooks/useVoiceIntegration';
 import NotchDropVoiceActivator from './components/NotchDropVoiceActivator';
 import UploadProgressPopup from './views/components/globalComponents/UploadProgressPopup/UploadProgressPopup';
+import DownloadProgressPopup from './views/components/globalComponents/DownloadProgressPopup/DownloadProgressPopup';
 
 const App = () => {
 	const { routes } = useWorkspaceMode();
@@ -340,6 +341,9 @@ const App = () => {
 
 			{/* Global Upload Progress Popup - persists across all routes */}
 			<UploadProgressPopup />
+
+			{/* Global Download Progress Popup - persists across all routes */}
+			<DownloadProgressPopup />
 		</>
 	);
 };

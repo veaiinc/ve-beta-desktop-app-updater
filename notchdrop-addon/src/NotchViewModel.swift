@@ -20,7 +20,13 @@ class NotchViewModel: NSObject, ObservableObject {
     let animation: Animation = DynamicIslandTheme.expansionAnimation
     // Dynamic opened size matches React spec; width adjusts when recording or chat expanded, height stays constant
     var notchOpenedSize: CGSize {
-        if isRecording && isChatExpanded {
+        // When showing notification, use notification-specific dimensions matching Figma
+        if showNotificationOverlay {
+            return .init(
+                width: 370,  // Figma design width
+                height: 100   // Figma design height
+            )
+        } else if isRecording && isChatExpanded {
             // Recording + Chat expanded: Use the larger width for better chat experience
             let expandedWidth = max(DynamicIslandTheme.recordingExpandedWidth, DynamicIslandTheme.chatExpandedWidth)
             return .init(
@@ -129,6 +135,19 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var voiceMessages: [VoiceMessage] = []
     @Published var isVoiceActive: Bool = false
     @Published var audioLevel: Float = 0.0
+
+    // Notification Overlay State
+    @Published var showNotificationOverlay: Bool = false
+    @Published var notificationTitle: String = ""
+    @Published var notificationBody: String = ""
+    @Published var notificationType: String = ""
+    @Published var isNotificationHovered: Bool = false
+    
+    // Notification Timer State
+    private var notificationTimer: Timer?
+    private var notificationStartTime: Date?
+    private var notificationPausedTime: TimeInterval = 0
+    private let notificationDuration: TimeInterval = 10.0
     
     // Voice configuration (VE.AI settings)
     private var voiceURL: String = "wss://ve-ai-voice-agent-ginreaey.livekit.cloud"
@@ -150,7 +169,7 @@ class NotchViewModel: NSObject, ObservableObject {
         case collapse
         case triggerOverlayToggleLiveIntelligence
         case sendLog(String)
-        case navigateToMainScreen
+        case navigateToMainScreen(String?)
         // Voice Assistant Actions
         case connectVoice
         case disconnectVoice
@@ -159,6 +178,8 @@ class NotchViewModel: NSObject, ObservableObject {
         case voiceConnectionStateChanged(String)
         case startVoiceAgent
         case receiveMessage(String)
+        // Notification Actions
+        case showNotification(String, String, String)
     }
     
     // Voice Message Structure for UI
@@ -415,6 +436,92 @@ class NotchViewModel: NSObject, ObservableObject {
         }
     }
 
+    /// Show notification overlay in the notch
+    func showNotification(title: String, body: String, type: String = "meeting") {
+        print("🔔 Showing notification overlay: \(title) - \(body)")
+
+        DispatchQueue.main.async {
+            // Force open the notch to show the notification
+            print("🔔 Opening notch to show notification")
+            self.notchOpen(.click)
+            
+            // Set notification content
+            self.notificationTitle = title
+            self.notificationBody = body
+            self.notificationType = type
+            self.showNotificationOverlay = true
+
+            print("🔔 Notification state set - showOverlay: \(self.showNotificationOverlay), title: '\(self.notificationTitle)'")
+
+            // Emit action for JavaScript integration
+            self.swiftActionSender.send(.showNotification(title, body, type))
+
+            // Start the notification timer
+            self.startNotificationTimer()
+        }
+    }
+
+    /// Hide notification overlay
+    func hideNotification() {
+        DispatchQueue.main.async {
+            self.showNotificationOverlay = false
+            self.notificationTitle = ""
+            self.notificationBody = ""
+            self.notificationType = ""
+            self.isNotificationHovered = false
+            
+            // Clean up timer
+            self.stopNotificationTimer()
+        }
+    }
+    
+    /// Start the notification auto-dismiss timer
+    private func startNotificationTimer() {
+        stopNotificationTimer() // Clean up any existing timer
+        
+        notificationStartTime = Date()
+        notificationPausedTime = 0
+        
+        notificationTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+            
+            if !self.isNotificationHovered {
+                let elapsed = Date().timeIntervalSince(self.notificationStartTime ?? Date()) - self.notificationPausedTime
+                
+                if elapsed >= self.notificationDuration {
+                    self.hideNotification()
+                }
+            }
+        }
+    }
+    
+    /// Stop the notification timer
+    private func stopNotificationTimer() {
+        notificationTimer?.invalidate()
+        notificationTimer = nil
+        notificationStartTime = nil
+        notificationPausedTime = 0
+    }
+    
+    /// Pause the notification timer when hovering
+    func pauseNotificationTimer() {
+        if let startTime = notificationStartTime, !isNotificationHovered {
+            notificationPausedTime += Date().timeIntervalSince(startTime)
+            notificationStartTime = Date()
+            isNotificationHovered = true
+            print("⏸️ Notification timer paused")
+        }
+    }
+    
+    /// Resume the notification timer when not hovering
+    func resumeNotificationTimer() {
+        if isNotificationHovered {
+            notificationStartTime = Date()
+            isNotificationHovered = false
+            print("▶️ Notification timer resumed")
+        }
+    }
+
     // Voice UI helpers (UI-only; wiring can follow once UI is approved)
     func connectVoiceUI() {
         // Use the new LiveKit integration instead of simulation
@@ -440,37 +547,70 @@ class NotchViewModel: NSObject, ObservableObject {
     
     func receiveMessage(_ message: String) {
         print("📨 Received message from Electron: \(message)")
-        
-        // Handle authentication state changes based on message content
-        DispatchQueue.main.async {
-            if message.lowercased() == "authorized" {
-                // Set authentication state to true for authorized message
-                self.setAuthenticated(true)
-                print("🔐 Authentication state set to TRUE based on message: \(message)")
-            } else if message.lowercased() == "unauthorized" || message.lowercased() == "loggedout" {
-                // Set authentication state to false for unauthorized or loggedOut messages
-                self.setAuthenticated(false)
-                print("🔓 Authentication state set to FALSE based on message: \(message)")
-            } else if message.lowercased() == "meetingstarted" {
-                // Set authentication state to true for loggedin message
-                self.startRecording()
-                print("🔐 Meeting started based on message: \(message)")
-            } else if message.lowercased() == "meetingstopped" {
-                // Set authentication state to true for loggedin message
-                self.stopRecording()
-                print("🔐 Meeting stopped based on message: \(message)")
-            } else if message.lowercased() == "meetingmute" {
-                // Set authentication state to true for loggedin message
-                self.toggleVoiceMute()
-                print("🔐 Meeting muted based on message: \(message)")
-            }
+
+        // Try to parse as JSON first for structured messages
+        if let jsonData = message.data(using: .utf8),
+           let jsonObject = try? JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
+            handleJSONMessage(jsonObject)
+        } else {
+            // Handle legacy string messages
+            handleLegacyMessage(message)
         }
-        
+
         // Emit the receiveMessage action so the UI can listen to it
         swiftActionSender.send(.receiveMessage(message))
     }
+
+    private func handleJSONMessage(_ jsonObject: [String: Any]) {
+        guard let action = jsonObject["action"] as? String else {
+            print("⚠️ JSON message missing 'action' field")
+            return
+        }
+
+        switch action {
+        case "showNotification":
+            if let data = jsonObject["data"] as? [String: Any],
+               let title = data["title"] as? String,
+               let body = data["body"] as? String,
+               let type = data["type"] as? String {
+                print("🔔 Processing notification: \(title) - \(body)")
+                showNotification(title: title, body: body, type: type)
+            } else {
+                print("⚠️ Invalid notification data format")
+            }
+        default:
+            print("⚠️ Unknown JSON action: \(action)")
+        }
+    }
+
+    private func handleLegacyMessage(_ message: String) {
+        let lowerMessage = message.lowercased()
+
+        // Handle authentication state changes based on message content
+        if lowerMessage == "authorized" {
+            // Set authentication state to true for authorized message
+            setAuthenticated(true)
+            print("🔐 Authentication state set to TRUE based on message: \(message)")
+        } else if lowerMessage == "unauthorized" || lowerMessage == "loggedout" {
+            // Set authentication state to false for unauthorized or loggedOut messages
+            setAuthenticated(false)
+            print("🔓 Authentication state set to FALSE based on message: \(message)")
+        } else if lowerMessage == "meetingstarted" {
+            // Set authentication state to true for loggedin message
+            startRecording()
+            print("🔐 Meeting started based on message: \(message)")
+        } else if lowerMessage == "meetingstopped" {
+            // Set authentication state to true for loggedin message
+            stopRecording()
+            print("🔐 Meeting stopped based on message: \(message)")
+        } else if lowerMessage == "meetingmute" {
+            // Set authentication state to true for loggedin message
+            toggleVoiceMute()
+            print("🔐 Meeting muted based on message: \(message)")
+        }
+    }
     
-    func navigateToMainScreen() {
+    func navigateToMainScreen(path: String? = nil) {
         print("🏠 Navigating to main screen - resetting UI state")
         
         // Reset chat-related state
@@ -490,7 +630,7 @@ class NotchViewModel: NSObject, ObservableObject {
         }
         
         // Emit action for JavaScript integration
-        swiftActionSender.send(.navigateToMainScreen)
+        swiftActionSender.send(.navigateToMainScreen(path))
         
         print("✅ Main screen navigation completed - all states reset")
     }

@@ -236,12 +236,13 @@
 
 	.hover-actions-container {
 		display: flex;
-		gap: 18px;
+		gap: 16px;
 		flex-direction: row;
 		align-items: center;
 		justify-content: flex-end;
-		visibility: hidden;
+		opacity: 0;
 		margin-right: 5px;
+		transition: all 0.1s ease-out;
 
 		.icon-container {
 			width: 16px;
@@ -253,7 +254,7 @@
 }
 .user-message-renderer-wrapper:hover {
 	.hover-actions-container {
-		visibility: visible;
+		opacity: 1;
 	}
 }
 .user-hover-icons-tooltip {

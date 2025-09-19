@@ -1,10 +1,3 @@
-//
-//  NotchContentView.swift
-//  NotchDrop
-//
-//  Created by 秋星桥 on 2024/7/7.
-//  Last Modified by 冷月 on 2025/5/5.
-//
 
 import SwiftUI
 import UniformTypeIdentifiers
@@ -16,13 +9,21 @@ struct NotchContentView: View {
     
     var body: some View {
         ZStack {
-            switch vm.contentType {
-            case .normal:
-                DynamicIslandContentView(vm: vm)
-                    .transition(.scale(scale: 0.8).combined(with: .opacity))
+            if vm.showNotificationOverlay {
+                // When notification is showing, ONLY show the notification (no background content)
+                NotificationOverlayView(vm: vm)
+                    .transition(.scale(scale: 1.0).combined(with: .opacity))
+            } else {
+                // Normal content switching when no notification
+                switch vm.contentType {
+                case .normal:
+                    DynamicIslandContentView(vm: vm)
+                        .transition(.scale(scale: 0.8).combined(with: .opacity))
+                }
             }
         }
         .animation(vm.animation, value: vm.contentType)
+        .animation(vm.animation, value: vm.showNotificationOverlay)
     }
 }
 
@@ -47,17 +48,34 @@ struct DynamicIslandContentView: View {
                         .font(.system(size: 14, weight: .regular))
                         .foregroundColor(.white.opacity(0.8))
                     
-                    // Test button to toggle authentication
-                    Button("Login") {
-                        // Do nothing
+                    // Test buttons
+                    HStack(spacing: 8) {
+                        Button("Login") {
+                            vm.navigateToMainScreen(path: "/verify-user")
+                        }
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.blue.opacity(0.3))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .buttonStyle(PlainButtonStyle())
+
+                        // Button("Test Notification") {
+                        //     vm.showNotification(
+                        //         title: "Test Meeting",
+                        //         body: "This is a test notification from SwiftUI",
+                        //         type: "meeting"
+                        //     )
+                        // }
+                        // .font(.system(size: 12, weight: .medium))
+                        // .foregroundColor(.white)
+                        // .padding(.horizontal, 16)
+                        // .padding(.vertical, 8)
+                        // .background(Color.green.opacity(0.3))
+                        // .clipShape(RoundedRectangle(cornerRadius: 8))
+                        // .buttonStyle(PlainButtonStyle())
                     }
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(Color.blue.opacity(0.3))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .buttonStyle(PlainButtonStyle())
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
@@ -585,12 +603,10 @@ struct ChatTextAreaView: View {
                 .onChange(of: vm.isChatMode) { oldValue, newValue in
                     // When chat mode is turned off (back button pressed), remove focus
                     if !newValue && isChatInputFocused {
-                        print("🎯 Chat mode disabled - removing focus from TextEditor")
                         isChatInputFocused = false
                     }
                 }
                 .onAppear {
-                    print("🎯 TextEditor appeared - ready for focus")
                     // Calculate width based on available space in the dynamic island
                     calculateTextEditorWidth()
                 }
@@ -606,7 +622,6 @@ struct ChatTextAreaView: View {
         .contentShape(Rectangle()) // Ensure entire area is tappable
         .allowsHitTesting(true) // Explicitly allow hit testing
         .onTapGesture {
-            print("🎯 TextEditor container tapped - setting focus")
             
             // Ensure window is key first
             if let window = NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible }) {
@@ -626,11 +641,10 @@ struct ChatTextAreaView: View {
 
     
     private func handleTextChange(_ newValue: String) {
-        print("🎯 TextEditor text changed: '\(newValue)'")
         
         // Only resize based on actual content, not placeholder
         if !newValue.isEmpty {
-            print("🎯 TextEditor width: \(textEditorWidth)px")
+
             // Auto-resize functionality - use correct font size (13, same as TextEditor)
             let font = NSFont.systemFont(ofSize: 13, weight: .medium)
             let textAttributes: [NSAttributedString.Key: Any] = [
@@ -777,6 +791,141 @@ struct WaveIcon: View {
             .stroke(color, style: StrokeStyle(lineWidth: 0.875 * s, lineCap: .round, lineJoin: .round))
         }
         .aspectRatio(11.0/12.0, contentMode: .fit)
+    }
+}
+
+// MARK: - Notification Overlay View
+struct NotificationOverlayView: View {
+    @ObservedObject var vm: NotchViewModel
+    @State private var progressValue: Double = 0.0
+    @State private var progressTimer: Timer?
+
+    var body: some View {
+        Group {
+            if vm.showNotificationOverlay {
+                let _ = print("🔔 Notification overlay rendering - title: '\(vm.notificationTitle)', body: '\(vm.notificationBody)'")
+                
+                // Center the notification content in the available space
+                VStack {
+                    Spacer()
+                    
+                    // Notification content matching the Figma design exactly
+                    VStack(spacing: 0) {
+                    // Main content area
+                    HStack(spacing: 16) {
+                        // Left content
+                        VStack(alignment: .leading, spacing: 4) {
+                            // Main title - "Meeting detected"
+                            Text("Meeting detected")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.white)
+                                .lineLimit(1)
+                            
+                            // Subtitle - "Google meet • Starting in 2 min"
+                            Text("Google meet • Starting in 2 min")
+                                .font(.system(size: 13))
+                                .foregroundColor(.white.opacity(0.7))
+                                .lineLimit(1)
+                        }
+                        
+                        Spacer()
+                        
+                        // Join button on the right
+                        Button(action: {
+                            print("🎯 Join button tapped")
+                            vm.hideNotification()
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "waveform.path")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.white)
+                                
+                                Text("Join")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.white)
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(.white.opacity(0.3), lineWidth: 1)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .fill(.white.opacity(0.1))
+                                    )
+                            )
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 16)
+                    .padding(.bottom, 12)
+                    
+                    // Green progress bar at the bottom
+                    VStack(spacing: 0) {
+                        Spacer()
+                        
+                        // Progress bar
+                        GeometryReader { geometry in
+                            ZStack(alignment: .leading) {
+                                // Background
+                                Rectangle()
+                                    .fill(Color.white.opacity(0.1))
+                                    .frame(height: 3)
+                                
+                                // Progress fill
+                                Rectangle()
+                                    .fill(Color.green)
+                                    .frame(width: geometry.size.width * progressValue, height: 3)
+                            }
+                        }
+                        .frame(height: 3)
+                    }
+                    }
+                    .background(Color.black)
+                    .clipShape(RoundedRectangle(cornerRadius: vm.cornerRadius))
+                    .frame(width: 370, height: 74) // Matching the Figma dimensions
+                    .onHover { isHovering in
+                        if isHovering {
+                            vm.pauseNotificationTimer()
+                        } else {
+                            vm.resumeNotificationTimer()
+                        }
+                    }
+                    
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .transition(.scale(scale: 1.0).combined(with: .opacity)) // Remove scaling to prevent shadow artifacts
+                .onAppear {
+                    // Start progress bar animation that syncs with notification timer
+                    startProgressAnimation()
+                }
+                .onDisappear {
+                    // Clean up progress animation
+                    stopProgressAnimation()
+                }
+            }
+        }
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: vm.showNotificationOverlay)
+    }
+    
+    // Progress animation methods
+    private func startProgressAnimation() {
+        progressValue = 0.0
+        progressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+            if !vm.isNotificationHovered {
+                // Only advance progress when not hovering
+                let increment = 0.1 / 10.0 // 10 seconds total
+                progressValue = min(1.0, progressValue + increment)
+            }
+        }
+    }
+    
+    private func stopProgressAnimation() {
+        progressTimer?.invalidate()
+        progressTimer = nil
+        progressValue = 0.0
     }
 }
 

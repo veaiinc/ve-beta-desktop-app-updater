@@ -411,7 +411,7 @@ const MarkdownTable = memo(({ children, node, markdown }) => {
 		<div className="table-wrapper">
 			<Tooltip title={isCopied ? 'Copied Table' : 'Copy Table'} placement="bottom">
 				<button className="copy-table-btn" onClick={() => handleCopyTable(table || '')}>
-					{isCopied ? <TickSvg /> : <CopyIcon />}
+					{isCopied ? <TickSvg /> : <CopyIcon width="14px" height="14px" />}
 				</button>
 			</Tooltip>
 			<div className="table-container">

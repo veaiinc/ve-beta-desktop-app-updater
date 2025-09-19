@@ -1,0 +1,61 @@
+.inactivityContainer {
+	width: 100%;
+	padding: 16px;
+	background-color: var(--chat-box);
+	border-radius: 16px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 12px;
+
+	.leftContainer {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		flex-grow: 1;
+		.timer {
+			color: var(--primary-font);
+			font-family: var(--chat-primary-font-family);
+			font-size: 18px;
+			font-weight: 500;
+		}
+		.text {
+			color: var(--primary-font);
+			font-family: var(--chat-primary-font-family);
+			font-size: 15px;
+			font-weight: 400;
+		}
+	}
+
+	.btnsContainer {
+		display: flex;
+		gap: 8px;
+		flex-shrink: 0;
+
+		.resetBtn,
+		.closeBtn {
+			font-family: var(--chat-primary-font-family);
+			font-weight: 400;
+			font-size: 12px;
+			line-height: normal;
+			padding: 6px 8px;
+			background-color: transparent;
+			border-radius: 8px;
+			cursor: pointer;
+
+			&:hover {
+				background-color: var(--card-over-card-hover);
+			}
+		}
+
+		.resetBtn {
+			border: 1px solid var(--stroke);
+			color: var(--primary-font);
+		}
+		.closeBtn {
+			border: 1px solid var(--error);
+			color: var(--error);
+		}
+	}
+}

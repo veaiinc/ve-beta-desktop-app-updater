@@ -38,7 +38,6 @@ import CollaboratorPopup from '../../components/modalsV2/gallery/CollaboratorPop
 import { useNavigate, useParams, useLocation, useSearchParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import moment from 'moment';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DeleteGalleryComponent from '../../components/gallery/gallerySettings/DeleteGalleryComponent';
 import DeletePopup from '../../components/modalsV2/gallery/DeletePopup';
@@ -75,6 +74,8 @@ import { ReactComponent as ChevronLeft } from '../../../assets/svg/tasks/chevron
 import { ReactComponent as MoveToIcon } from '../../../assets/svg/gallery/moveToIcon.svg';
 import Spinner from '../../components/loaders/Spinner';
 import UploadPhotosDesktop from './UploadPhotosDesktop';
+import InfiniteScroll from 'react-infinite-scroll-component';
+
 // const workspaceId = localStorage.getItem('workspaceId');
 
 const dummyImagesArray = Array.from({ length: 10 }, () => ({ isPlaceholderImg: true }));
@@ -218,6 +219,14 @@ const GalleryPage = () => {
 			removeUploadSession,
 			hideUploadProgressPopup,
 			showUploadProgressPopup: showUploadProgressPopupAction,
+			// Download session management
+			downloadSessions,
+			showDownloadProgressPopup,
+			addDownloadSession,
+			updateDownloadSession,
+			removeDownloadSession,
+			hideDownloadProgressPopup,
+			showDownloadProgressPopup: showDownloadProgressPopupAction,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
@@ -831,7 +840,6 @@ const GalleryPage = () => {
 				info?.activeAlbumId &&
 				galleryId
 			) {
-				console.log('🔄 Upload completed, refreshing gallery images...');
 				// Add a small delay to ensure backend has processed the uploads
 				setTimeout(() => {
 					handleGetGalleryImages();
@@ -3888,18 +3896,29 @@ const GalleryPage = () => {
 				return;
 			}
 
-			// ✅ Trigger ZIP creation
-			const result = await window.electronApi.downloadAlbumZip({
-				items: downloadItems,
+			// Create download session for background ZIP creation
+			const downloadSession = {
+				type: 'album',
+				name: `Album: ${info.albumName || 'Download'}`,
+				albumName: info.albumName,
+				totalFiles: 1,
+				files: [
+					{
+						name: `Album_${info.albumName || 'download'}.zip`,
+						status: 'pending',
+						progress: 0,
+					},
+				],
+				downloadItems: downloadItems, // Store items for ZIP creation
 				folderName: `Album_${info.albumName || 'download'}`,
 				maxZipSize: 3 * 1024 * 1024 * 1024, // 3GB
-			});
+			};
 
-			if (result.success) {
-				showMessage('success', `Downloaded ${result.zips.length} ZIP(s)`);
-			} else {
-				throw new Error(result.error || 'Unknown error');
-			}
+			addDownloadSession(downloadSession);
+			showMessage('success', 'Download started');
+
+			// Close download album modal when background download starts
+			setInfo((prev) => ({ ...prev, showDownloadAlbum: false }));
 
 			// ✅ Final state update: ensure full list is saved and infinite scroll stops
 			setInfo((prev) => ({
@@ -3914,7 +3933,6 @@ const GalleryPage = () => {
 		} catch (err) {
 			console.error('Download failed:', err);
 			showMessage('error', 'Download failed: ' + err.message);
-		} finally {
 			setInfo((prev) => ({ ...prev, isDownloading: false }));
 		}
 	};
@@ -4014,28 +4032,29 @@ const GalleryPage = () => {
 				return;
 			}
 
-			// Trigger ZIP download
-			const sessionId = `album-${activeAlbumId}-${Date.now()}`;
-			const folderName = `${info.albumName || 'Album'}_original`;
-			const maxZipSize = 3 * 1024 * 1024 * 1024;
+			// Create download session for background ZIP creation
+			const downloadSession = {
+				type: 'album',
+				name: `Album: ${info.albumName || 'Download'} (Originals)`,
+				albumName: info.albumName,
+				totalFiles: 1,
+				files: [
+					{
+						name: `${info.albumName || 'Album'}_original.zip`,
+						status: 'pending',
+						progress: 0,
+					},
+				],
+				downloadItems: allItems, // Store items for ZIP creation
+				folderName: `${info.albumName || 'Album'}_original`,
+				maxZipSize: 3 * 1024 * 1024 * 1024, // 3GB
+			};
 
-			window.electronApi.onDownloadProgress((data) => {
-				if (data.sessionId === sessionId && data.phase === 'complete') {
-					showMessage('success', `Download completed: ${data.zips.join(', ')}`);
-				}
-			});
+			addDownloadSession(downloadSession);
+			showMessage('success', 'Download started');
 
-			const result = await window.electronApi.createZipFromUrls({
-				items: allItems,
-				folderName,
-				maxZipSize,
-				sessionId,
-				parallelLimit: 50,
-			});
-
-			if (!result.success) {
-				showMessage('error', result.error || 'Download failed');
-			}
+			// Close download album modal when background download starts
+			setInfo((prev) => ({ ...prev, showDownloadAlbum: false }));
 		} catch (err) {
 			console.error('Download failed:', err);
 			showMessage('error', 'Download failed: ' + err.message);
@@ -5455,7 +5474,7 @@ const GalleryPage = () => {
 										}
 										resetInfinityScroll={info?.resetInfinityScroll}
 										disableDrop={true}
-										// height={'90vh'}
+										height={'90vh'}
 										scrollableTarget="galleryScrollTarget"
 									>
 										{!info.isRearranging ? (

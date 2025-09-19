@@ -331,7 +331,7 @@ const AIMessage = ({
 				<div
 					className="hover-actions-container"
 					style={{
-						visibility: isLastMessage ? 'visible' : '',
+						...(isLastMessage && { opacity: 1 }),
 					}}
 				>
 					<div className="left-container">
