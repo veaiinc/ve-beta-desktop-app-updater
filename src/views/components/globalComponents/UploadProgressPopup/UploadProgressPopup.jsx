@@ -123,6 +123,40 @@ const UploadProgressPopup = () => {
 		});
 	};
 
+	// ✅ Helper to calculate and update overall progress
+	const updateOverallProgress = (sessionId) => {
+		const currentState = sessionStatesRef.current.get(sessionId);
+		if (!currentState || !currentState.files) return;
+
+		const totalFiles = currentState.totalFiles;
+		if (totalFiles === 0) return;
+
+		// Calculate progress based on file statuses
+		let completedFiles = 0;
+		let totalProgress = 0;
+
+		currentState.files.forEach((file) => {
+			if (file.status === 'completed') {
+				completedFiles++;
+				totalProgress += 100;
+			} else if (file.status === 'uploading') {
+				// For uploading files, use actual progress or minimum 20% if not started
+				const uploadProgress = file.progress !== undefined ? file.progress : 0;
+				totalProgress += Math.max(20, uploadProgress); // Minimum 20% for uploading status
+			} else if (file.status === 'processing') {
+				totalProgress += 15; // Give some progress for processing
+			}
+			// Pending files contribute 0% progress
+		});
+
+		const overallProgress = Math.min(100, Math.round(totalProgress / totalFiles));
+
+		updateUploadState(sessionId, {
+			overallProgress,
+			uploadedCount: completedFiles,
+		});
+	};
+
 	// Initialize upload states for new sessions
 	useEffect(() => {
 		const currentSessionIds = new Set(uploadSessions.map((s) => s.id));
@@ -365,7 +399,28 @@ const UploadProgressPopup = () => {
 		};
 	};
 
-	// Start upload process for a specific session
+	// Helper function to run promises with a concurrency limit
+	const limitConcurrency = async (items, limit, asyncFn) => {
+		const results = [];
+		const executing = [];
+
+		for (const item of items) {
+			const p = Promise.resolve().then(() => asyncFn(item));
+			results.push(p);
+
+			if (limit <= items.length) {
+				const e = p.then(() => executing.splice(executing.indexOf(e), 1));
+				executing.push(e);
+				if (executing.length >= limit) {
+					await Promise.race(executing);
+				}
+			}
+		}
+
+		return Promise.all(results);
+	};
+
+	// Start upload process for a specific session - MODIFIED for Batching
 	const startUploadSession = async (sessionId, initialState) => {
 		try {
 			if (runningSessions.current.has(sessionId)) {
@@ -373,7 +428,6 @@ const UploadProgressPopup = () => {
 				return;
 			}
 
-			// ✅ Additional safety check: ensure session exists in ref state
 			if (!sessionStatesRef.current.has(sessionId)) {
 				console.warn(`Session ${sessionId} not found in ref state, cannot start upload`);
 				return;
@@ -382,12 +436,8 @@ const UploadProgressPopup = () => {
 			runningSessions.current.add(sessionId);
 			updateUploadState(sessionId, { status: 'uploading' });
 
-			const policyResponse = await getUploadImagePolicy(initialState.galleryId);
-			const policyData = policyResponse?.[1];
-
-			if (!policyData) {
-				throw new Error('Failed to get upload policies');
-			}
+			// Update initial progress
+			updateOverallProgress(sessionId);
 
 			// Deduplicate files within this session
 			const uniqueFiles = initialState.files.filter((fileData, index, self) => {
@@ -395,291 +445,299 @@ const UploadProgressPopup = () => {
 				return self.findIndex((f) => `${f.file.name}-${f.file.size}` === fileKey) === index;
 			});
 
-			if (intervalRefs.current.has(sessionId)) {
-				console.warn(`Interval already exists for session ${sessionId}, skipping...`);
-				runningSessions.current.delete(sessionId);
-				return;
+			// Define batch size (e.g., 50 files or ~3GB - you might need to adjust based on avg file size)
+			const BATCH_SIZE = 100; // Start with a smaller number of files per batch
+			// Alternatively, you could calculate batch size based on cumulative file size, but it's more complex.
+
+			// Split files into batches
+			const batches = [];
+			for (let i = 0; i < uniqueFiles.length; i += BATCH_SIZE) {
+				batches.push(uniqueFiles.slice(i, i + BATCH_SIZE));
 			}
 
-			// Start progress monitoring - FIXED: Use session-specific parameters
-			const progressIntervalId = setInterval(async () => {
-				try {
-					// ✅ CRITICAL FIX: Use session-specific parameters to prevent cross-session interference
-					const currentState = sessionStatesRef.current.get(sessionId);
-					if (!currentState) {
-						console.warn(
-							`Session ${sessionId} not found in ref state, stopping progress monitoring`,
-						);
-						clearInterval(progressIntervalId);
-						intervalRefs.current.delete(sessionId);
-						return;
-					}
+			// Process and upload each batch SEQUENTIALLY
+			for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+				const currentBatch = batches[batchIndex];
+				console.log(`Starting Batch ${batchIndex + 1} of ${batches.length}`);
 
-					// ✅ Stop monitoring if session is completed or failed
-					if (
-						currentState.status === 'completed' ||
-						currentState.status === 'failed' ||
-						currentState.status === 'cancelled'
-					) {
-						clearInterval(progressIntervalId);
-						intervalRefs.current.delete(sessionId);
-						return;
-					}
+				// Step 1: Get FRESH upload policies for THIS batch
+				// This is crucial to avoid expiry
+				const policyResponse = await getUploadImagePolicy(initialState.galleryId);
+				const policyData = policyResponse?.[1];
+				if (!policyData) {
+					throw new Error('Failed to get upload policies for batch');
+				}
 
-					// Additional check: ensure session is still in running sessions
-					if (!runningSessions.current.has(sessionId)) {
-						console.warn(
-							`Session ${sessionId} no longer running, stopping progress monitoring`,
-						);
-						clearInterval(progressIntervalId);
-						intervalRefs.current.delete(sessionId);
-						return;
-					}
+				// Create thumbnail policies (same as before)
+				const optimizedPolicy = policyData.optimized;
+				const thumbnail300wPolicy = {
+					...optimizedPolicy,
+					keyPrefix: optimizedPolicy.keyPrefix.replace(
+						/optimized\/?$/,
+						'thumbnails-300w/',
+					),
+				};
+				const thumbnail100hPolicy = {
+					...optimizedPolicy,
+					keyPrefix: optimizedPolicy.keyPrefix.replace(
+						/optimized\/?$/,
+						'thumbnails-100h/',
+					),
+				};
+				const fakePolicyData = {
+					...policyData,
+					thumbnails_300w: thumbnail300wPolicy,
+					thumbnails_100h: thumbnail100hPolicy,
+				};
 
-					const response = await getImageUploadStatus(
-						currentState.galleryId,
-						currentState.albumId,
-						currentState.uploadBatchID,
-					);
-					if (response[0]) {
-						const { uploadedCount } = response[1];
+				// Step 2: Process all files in the current batch with limited concurrency
+				const processPromises = currentBatch.map(async (fileData, fileIndexInBatch) => {
+					try {
+						const globalFileIndex = batchIndex * BATCH_SIZE + fileIndexInBatch; // For UI updates
+						const fileKey = `${sessionId}-${fileData.file.name}-${fileData.file.size}`;
 
-						// ✅ Use current session state, not initial state
-						const updatedFiles = currentState.files.map((file, index) => {
-							if (index < uploadedCount) {
-								return { ...file, status: 'completed', progress: 100 };
-							} else if (
-								index === uploadedCount &&
-								uploadedCount < currentState.files.length
-							) {
-								return { ...file, status: 'uploading', progress: 50 };
-							}
-							return file;
-						});
+						if (processingFiles.current.has(fileKey)) {
+							console.warn(`File ${fileData.file.name} already processing`);
+							return null; // or handle as needed
+						}
 
+						if (!runningSessions.current.has(sessionId)) {
+							console.warn(`Session no longer running, skipping file`);
+							return null;
+						}
+
+						processingFiles.current.add(fileKey);
+
+						const currentState = sessionStatesRef.current.get(sessionId);
 						updateUploadState(sessionId, {
-							uploadedCount,
-							files: updatedFiles,
-							overallProgress: Math.min(
-								(uploadedCount / currentState.files.length) * 100,
-								100,
+							files: (currentState?.files || uniqueFiles).map((f, i) =>
+								i === globalFileIndex ? { ...f, status: 'processing' } : f,
 							),
 						});
-					}
-				} catch (error) {
-					console.error(`Progress monitoring error for session ${sessionId}:`, error);
-					// Don't clear interval on error, just log it
-				}
-			}, 3000);
 
-			intervalRefs.current.set(sessionId, progressIntervalId);
+						// Update progress when file starts processing
+						updateOverallProgress(sessionId);
 
-			// Process and upload files concurrently
-			const uploadPromises = uniqueFiles.map(async (fileData, index) => {
-				try {
-					const fileKey = `${sessionId}-${fileData.file.name}-${fileData.file.size}`;
-					if (processingFiles.current.has(fileKey)) {
-						console.warn(
-							`File ${fileData.file.name} already processing in session ${sessionId}`,
-						);
-						return;
-					}
-
-					// Additional check: ensure session is still running before processing
-					if (!runningSessions.current.has(sessionId)) {
-						console.warn(
-							`Session ${sessionId} no longer running, skipping file processing`,
-						);
-						return;
-					}
-
-					processingFiles.current.add(fileKey);
-
-					// ✅ Use ref state for current state
-					const currentState = sessionStatesRef.current.get(sessionId);
-					updateUploadState(sessionId, {
-						files: (currentState?.files || uniqueFiles).map((f, i) =>
-							i === index ? { ...f, status: 'processing' } : f,
-						),
-					});
-
-					const processResult = await processSingleImage(
-						fileData.file,
-						initialState.settings,
-					);
-					if (!processResult.success) {
-						throw new Error(processResult.error);
-					}
-
-					// ✅ Use ref state for current count
-					const currentRefState = sessionStatesRef.current.get(sessionId);
-					updateUploadState(sessionId, {
-						processedCount: (currentRefState?.processedCount || 0) + 1,
-						files: (currentRefState?.files || uniqueFiles).map((f, i) =>
-							i === index
-								? {
-										...f,
-										status: 'uploading',
-										processedFile: processResult.processedFile,
-								  }
-								: f,
-						),
-					});
-
-					const imageId = ObjectID();
-					const versionId = Date.now();
-
-					// Create thumbnail policies
-					const optimizedPolicy = policyData.optimized;
-					const thumbnail300wPolicy = {
-						...optimizedPolicy,
-						keyPrefix: optimizedPolicy.keyPrefix.replace(
-							/optimized\/?$/,
-							'thumbnails-300w/',
-						),
-					};
-					const thumbnail100hPolicy = {
-						...optimizedPolicy,
-						keyPrefix: optimizedPolicy.keyPrefix.replace(
-							/optimized\/?$/,
-							'thumbnails-100h/',
-						),
-					};
-
-					const fakePolicyData = {
-						...policyData,
-						thumbnails_300w: thumbnail300wPolicy,
-						thumbnails_100h: thumbnail100hPolicy,
-					};
-
-					// Upload all versions
-					const [
-						uploadResultOriginal,
-						uploadResultOptimized,
-						uploadResultThumbnail300w,
-						uploadResultThumbnail100h,
-					] = await Promise.all([
-						uploadImage(
+						const processResult = await processSingleImage(
 							fileData.file,
-							'originals',
-							null,
-							policyData,
-							imageId,
-							(percent) => {
-								const currentState = sessionStatesRef.current.get(sessionId);
-								updateUploadState(sessionId, {
-									files: (currentState?.files || uniqueFiles).map((f, i) =>
-										i === index ? { ...f, progress: percent } : f,
-									),
-								});
-							},
-							initialState.galleryId,
-							versionId,
-							initialState.tenantId,
-							initialState.uploadBatchID,
-						),
-						uploadImage(
-							processResult.processedFile,
-							'optimized',
-							null,
-							policyData,
-							imageId,
-							null,
-							initialState.galleryId,
-							versionId,
-							initialState.tenantId,
-							initialState.uploadBatchID,
-						),
-						uploadImage(
-							processResult.thumbnailFile,
-							'thumbnails_300w',
-							null,
-							fakePolicyData,
-							imageId,
-							null,
-							initialState.galleryId,
-							versionId,
-							initialState.tenantId,
-							initialState.uploadBatchID,
-						),
-						uploadImage(
-							processResult.thumbnail100hFile,
-							'thumbnails_100h',
-							null,
-							fakePolicyData,
-							imageId,
-							null,
-							initialState.galleryId,
-							versionId,
-							initialState.tenantId,
-							initialState.uploadBatchID,
-						),
-					]);
+							initialState.settings,
+						);
 
-					if (
-						!uploadResultOriginal.success ||
-						!uploadResultOptimized.success ||
-						!uploadResultThumbnail300w.success ||
-						!uploadResultThumbnail100h.success
-					) {
-						throw new Error('One or more uploads failed');
+						if (!processResult.success) {
+							throw new Error(processResult.error);
+						}
+
+						const currentRefState = sessionStatesRef.current.get(sessionId);
+						updateUploadState(sessionId, {
+							processedCount: (currentRefState?.processedCount || 0) + 1,
+							files: (currentRefState?.files || uniqueFiles).map((f, i) =>
+								i === globalFileIndex
+									? {
+											...f,
+											status: 'uploading',
+											processedFile: processResult.processedFile,
+									  }
+									: f,
+							),
+						});
+
+						// Update overall progress after processing
+						updateOverallProgress(sessionId);
+
+						return { fileData, processResult, globalFileIndex };
+					} catch (error) {
+						console.error('Processing failed for file:', fileData.file.name, error);
+						const failedState = sessionStatesRef.current.get(sessionId);
+						updateUploadState(sessionId, {
+							files: (failedState?.files || uniqueFiles).map((f, i) =>
+								i === globalFileIndex
+									? { ...f, status: 'failed', error: error.message }
+									: f,
+							),
+						});
+
+						// Update overall progress after processing failure
+						updateOverallProgress(sessionId);
+
+						const fileKey = `${sessionId}-${fileData.file.name}-${fileData.file.size}`;
+						processingFiles.current.delete(fileKey);
+						return null; // Return null for failed processing
 					}
+				});
 
-					const payload = generateUploadPayload(
-						fileData,
-						processResult.processedFile,
-						imageId,
-						policyData,
-						uploadResultOriginal,
-						uploadResultOptimized,
-						uploadResultThumbnail300w,
-						uploadResultThumbnail100h,
-						{
-							width: processResult.width,
-							height: processResult.height,
-							format: processResult.format,
-							originalDateTime: processResult.originalDateTime,
-						},
-						versionId,
-						initialState.uploadBatchID,
-						initialState.settings,
-					);
+				// Limit concurrent processing to avoid overwhelming the system
+				const MAX_CONCURRENT_PROCESSES = 4; // Adjust based on your system
+				const processedBatch = await limitConcurrency(
+					processPromises,
+					MAX_CONCURRENT_PROCESSES,
+					async (promise) => await promise,
+				);
 
-					const [success] = await uploadDesktopImages(
-						initialState.galleryId,
-						initialState.albumId,
-						payload,
-					);
+				// Filter out any null results (failed processing)
+				const successfulProcesses = processedBatch.filter((result) => result !== null);
 
-					if (!success) {
-						throw new Error('Failed to register image with backend');
-					}
+				// Step 3: Upload all successfully processed files in the batch
+				const uploadPromises = successfulProcesses.map(
+					async ({ fileData, processResult, globalFileIndex }) => {
+						try {
+							const imageId = ObjectID();
+							const versionId = Date.now();
 
-					// ✅ Use ref state
-					const completedState = sessionStatesRef.current.get(sessionId);
-					updateUploadState(sessionId, {
-						files: (completedState?.files || uniqueFiles).map((f, i) =>
-							i === index ? { ...f, status: 'completed', progress: 100 } : f,
-						),
-					});
+							// Upload all four versions
+							const [
+								uploadResultOriginal,
+								uploadResultOptimized,
+								uploadResultThumbnail300w,
+								uploadResultThumbnail100h,
+							] = await Promise.all([
+								uploadImage(
+									fileData.file,
+									'originals',
+									null,
+									policyData, // Use the FRESH policy for this batch
+									imageId,
+									(percent) => {
+										const currentState =
+											sessionStatesRef.current.get(sessionId);
+										updateUploadState(sessionId, {
+											files: (currentState?.files || uniqueFiles).map(
+												(f, i) =>
+													i === globalFileIndex
+														? { ...f, progress: percent }
+														: f,
+											),
+										});
 
-					processingFiles.current.delete(fileKey);
-				} catch (error) {
-					console.error('Upload failed for file:', fileData.file.name, error);
-					const failedState = sessionStatesRef.current.get(sessionId);
-					updateUploadState(sessionId, {
-						files: (failedState?.files || uniqueFiles).map((f, i) =>
-							i === index ? { ...f, status: 'failed', error: error.message } : f,
-						),
-					});
-					const fileKey = `${sessionId}-${fileData.file.name}-${fileData.file.size}`;
-					processingFiles.current.delete(fileKey);
-				}
-			});
+										// Update overall progress during upload
+										updateOverallProgress(sessionId);
+									},
+									initialState.galleryId,
+									versionId,
+									initialState.tenantId,
+									initialState.uploadBatchID,
+								),
+								uploadImage(
+									processResult.processedFile,
+									'optimized',
+									null,
+									policyData, // Use the FRESH policy for this batch
+									imageId,
+									null,
+									initialState.galleryId,
+									versionId,
+									initialState.tenantId,
+									initialState.uploadBatchID,
+								),
+								uploadImage(
+									processResult.thumbnailFile,
+									'thumbnails_300w',
+									null,
+									fakePolicyData, // Use the FRESH policy for this batch
+									imageId,
+									null,
+									initialState.galleryId,
+									versionId,
+									initialState.tenantId,
+									initialState.uploadBatchID,
+								),
+								uploadImage(
+									processResult.thumbnail100hFile,
+									'thumbnails_100h',
+									null,
+									fakePolicyData, // Use the FRESH policy for this batch
+									imageId,
+									null,
+									initialState.galleryId,
+									versionId,
+									initialState.tenantId,
+									initialState.uploadBatchID,
+								),
+							]);
 
-			await Promise.all(uploadPromises);
+							if (
+								!uploadResultOriginal.success ||
+								!uploadResultOptimized.success ||
+								!uploadResultThumbnail300w.success ||
+								!uploadResultThumbnail100h.success
+							) {
+								throw new Error('One or more uploads failed');
+							}
 
-			// Clear interval when upload is complete
+							const payload = generateUploadPayload(
+								fileData,
+								processResult.processedFile,
+								imageId,
+								policyData,
+								uploadResultOriginal,
+								uploadResultOptimized,
+								uploadResultThumbnail300w,
+								uploadResultThumbnail100h,
+								{
+									width: processResult.width,
+									height: processResult.height,
+									format: processResult.format,
+									originalDateTime: processResult.originalDateTime,
+								},
+								versionId,
+								initialState.uploadBatchID,
+								initialState.settings,
+							);
+
+							const [success] = await uploadDesktopImages(
+								initialState.galleryId,
+								initialState.albumId,
+								payload,
+							);
+
+							if (!success) {
+								throw new Error('Failed to register image with backend');
+							}
+
+							const completedState = sessionStatesRef.current.get(sessionId);
+							updateUploadState(sessionId, {
+								files: (completedState?.files || uniqueFiles).map((f, i) =>
+									i === globalFileIndex
+										? { ...f, status: 'completed', progress: 100 }
+										: f,
+								),
+							});
+
+							// Update overall progress after file completion
+							updateOverallProgress(sessionId);
+
+							const fileKey = `${sessionId}-${fileData.file.name}-${fileData.file.size}`;
+							processingFiles.current.delete(fileKey);
+						} catch (error) {
+							console.error('Upload failed for file:', fileData.file.name, error);
+							const failedState = sessionStatesRef.current.get(sessionId);
+							updateUploadState(sessionId, {
+								files: (failedState?.files || uniqueFiles).map((f, i) =>
+									i === globalFileIndex
+										? { ...f, status: 'failed', error: error.message }
+										: f,
+								),
+							});
+
+							// Update overall progress after file failure
+							updateOverallProgress(sessionId);
+
+							const fileKey = `${sessionId}-${fileData.file.name}-${fileData.file.size}`;
+							processingFiles.current.delete(fileKey);
+						}
+					},
+				);
+
+				// Wait for all uploads in this batch to complete
+				await Promise.all(uploadPromises);
+
+				// Update progress after batch completion
+				updateOverallProgress(sessionId);
+
+				// Optional: Small delay between batches to let system breathe
+				// await new Promise(resolve => setTimeout(resolve, 1000));
+			}
+
+			// Clear interval when ALL batches are complete
 			const sessionIntervalId = intervalRefs.current.get(sessionId);
 			if (sessionIntervalId) {
 				clearInterval(sessionIntervalId);
@@ -691,16 +749,14 @@ const UploadProgressPopup = () => {
 				overallProgress: 100,
 			});
 
-			// Clean up processing files
+			// Clean up
 			uniqueFiles.forEach((fileData) => {
 				const fileKey = `${sessionId}-${fileData.file.name}-${fileData.file.size}`;
 				processingFiles.current.delete(fileKey);
 			});
-
 			startedSessions.current.delete(sessionId);
 			runningSessions.current.delete(sessionId);
 
-			// Add a small delay before calling handleUploadComplete to ensure state is fully updated
 			setTimeout(() => {
 				handleUploadComplete(sessionId);
 			}, 500);
@@ -723,11 +779,9 @@ const UploadProgressPopup = () => {
 				clearInterval(errorIntervalId);
 				intervalRefs.current.delete(sessionId);
 			}
-
 			startedSessions.current.delete(sessionId);
 			runningSessions.current.delete(sessionId);
 
-			// Add delay before removing failed session to ensure state is updated
 			setTimeout(() => {
 				handleUploadCancel(sessionId);
 			}, 1000);
