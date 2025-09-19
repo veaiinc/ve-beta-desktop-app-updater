@@ -147,7 +147,7 @@ const OldIntegrationsPage = () => {
 				const usertoken = localStorage.getItem('usertoken');
 				const workspaceId = localStorage.getItem('workspaceId');
 				const region = localStorage.getItem('region');
-				const baseURl = getBaseUrl('ve_conversations_api', region);
+				const baseURl = getBaseUrl({ type: 've_conversations_api', region });
 				const link = `${baseURl}/oauth/${workspaceId}/login`;
 				const response = await axios.get(link, {
 					headers: {
