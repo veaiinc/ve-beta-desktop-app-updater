@@ -2977,7 +2977,7 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	ipcMain.handle('overlay-start-recording', async () => {
+	ipcMain.handle('overlay-start-recording', async (event, data = {}) => {
 		try {
 			let overlayWindow = windowHelper?.getOverlayWindow();
 			if (!overlayWindow) {
@@ -3000,6 +3000,7 @@ app.whenReady().then(async () => {
 				// CRITICAL FIX: Use windowHelper's queuing system
 				const commandSent = windowHelper?.sendOverlayCommand({
 					action: 'startRecording',
+					data: data,
 				});
 				log.info(
 					`✅ SMART QUEUE: StartRecording command ${
