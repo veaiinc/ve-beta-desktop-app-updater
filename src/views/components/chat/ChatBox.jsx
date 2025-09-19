@@ -1922,7 +1922,7 @@ const ChatBox = ({
 
 					<div className="buttons-right-container">
 						{/* Separate Speech-to-Text Button */}
-						{showMicBtn && (
+						{showMicBtn && !isPublicChat && (
 							<div
 								className={`click-btn speech-to-text-btn ${
 									isTranscribing ? 'transcribing' : ''
