@@ -330,10 +330,10 @@
 						line-height: normal;
 						resize: none;
 						position: relative;
-						padding: 4px 0px 4px 0px;
+						padding: 5px 0px 0px 0px;
 						z-index: 0;
 						&::placeholder {
-							font-size: 15px;
+							font-size: 16px;
 							color: var(--secondary-font);
 							font-weight: 400;
 						}

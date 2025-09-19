@@ -286,7 +286,7 @@ const ChatBox = ({
 			let text = '';
 			speechTranscription?.forEach((item) => {
 				if (item?.text) {
-					text += item?.text;
+					text += item?.text + ' ';
 				}
 			});
 
