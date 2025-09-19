@@ -757,12 +757,12 @@ class WindowHelper {
 		// Platform-specific Dynamic Island Y position - eliminate gap with menu bar
 		let dynamicIslandY;
 		if (process.platform === 'win32') {
-			dynamicIslandY = 0; // Slightly above screen edge on Windows
+			dynamicIslandY = 0; // At absolute top on Windows to eliminate any gap
 		} else {
 			dynamicIslandY = -8; // Slightly above screen edge on Mac/Linux to eliminate menu bar gap
 		}
 
-		const topY = dynamicIslandY + dynamicIslandHeight + gapFromDynamicIsland;
+		const topY = dynamicIslandY 
 
 		// Position overlay to allow space for ask AI on the right
 		let overlayX;
@@ -846,7 +846,7 @@ class WindowHelper {
 			// Platform-specific Dynamic Island Y position - eliminate gap with menu bar
 			let dynamicIslandY;
 			if (process.platform === 'win32') {
-				dynamicIslandY = -5; // Slightly above screen edge on Windows
+				dynamicIslandY = 0; // At absolute top on Windows to eliminate any gap
 			} else {
 				dynamicIslandY = -8; // Slightly above screen edge on Mac/Linux to eliminate menu bar gap
 			}
