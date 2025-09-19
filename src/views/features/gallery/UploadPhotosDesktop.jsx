@@ -355,6 +355,13 @@ const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onSt
 			message.error('No files to upload');
 			return;
 		}
+		// ✅ VALIDATION: If watermark is enabled but no watermarks exist, show error and abort
+		if (info.isWaterMarkApply && (!waterMarks || waterMarks.length === 0)) {
+			message.error(
+				'Watermark is enabled, but no watermark profiles exist. Please add a watermark or disable watermarking to proceed.',
+			);
+			return; // Abort upload
+		}
 
 		// ✅ Generate UNIQUE identifiers for this upload session
 		const newUploadBatchID = randomize('Aa0', 10);
