@@ -1164,6 +1164,16 @@ function createWindow(restoreState = false) {
 	ipcMain.on('veAppMsg', async (event, msg) => {
 		// log.info('🔄 Received message from veApp:', msg); // logs: btn clicked from react
 
+		// Handle logout message - notify Dynamic Island
+		if (msg === 'loggedout') {
+			log.info('🔓 User logged out - notifying Dynamic Island');
+			const dynamicIslandWindow = dynamicIslandHelper?.dynamicIslandWindow;
+			if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
+				dynamicIslandWindow.webContents.send('user-logout');
+				log.info('✅ Logout notification sent to Dynamic Island');
+			}
+		}
+
 		// Send the same message to Swift UI if NotchDrop service is available
 		if (notchDropService && notchDropService.isInitialized) {
 			try {

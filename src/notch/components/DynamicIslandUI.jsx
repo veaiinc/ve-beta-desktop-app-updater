@@ -101,6 +101,7 @@ const DynamicIslandUI = () => {
 		// Check authentication status
 		const checkAuthStatus = () => {
 			const usertoken = localStorage.getItem('usertoken');
+			console.log('🔍 Checking auth status - usertoken:', !!usertoken);
 			setIsAuthenticated(!!usertoken);
 		};
 
@@ -109,10 +110,17 @@ const DynamicIslandUI = () => {
 
 		// Listen for storage changes to detect login/logout
 		const handleStorageChange = (e) => {
-			if (e.key === 'usertoken') {
+			console.log('🔍 Storage change detected:', e.key, e.newValue);
+			if (e.key === 'usertoken' || e.key === null) {
+				// null means localStorage.clear() was called
 				checkAuthStatus();
 			}
 		};
+
+		// Listen for periodic auth checks (fallback)
+		const authCheckInterval = setInterval(() => {
+			checkAuthStatus();
+		}, 2000); // Check every 2 seconds
 
 		window.addEventListener('storage', handleStorageChange);
 
@@ -179,7 +187,6 @@ const DynamicIslandUI = () => {
 			console.log('🔔 Dynamic Island received notification:', notification);
 			showNotificationWithExpansion(notification);
 			// Enhanced: Explicitly add to notifications array if not already handled
-	
 		});
 
 		// Listen for Swift control events
@@ -195,6 +202,12 @@ const DynamicIslandUI = () => {
 				sendStateToSwift();
 			});
 
+			// Listen for logout events from main process
+			window.electronApi.ipcRenderer.on('user-logout', () => {
+				console.log('🔓 Received logout notification from main process');
+				setIsAuthenticated(false);
+			});
+
 			// Listen for notifications
 			window.electronApi.dynamicIsland.onNotification((notification) => {
 				console.log('🔔 Dynamic Island received notification:', notification);
@@ -207,6 +220,10 @@ const DynamicIslandUI = () => {
 		return () => {
 			// Clean up listeners
 			window.removeEventListener('storage', handleStorageChange);
+			clearInterval(authCheckInterval);
+			if (window.electronApi?.ipcRenderer) {
+				window.electronApi.ipcRenderer.removeAllListeners('user-logout');
+			}
 			if (window.electronApi?.dynamicIsland?.removeStateChangeListener) {
 				window.electronApi.dynamicIsland.removeStateChangeListener();
 			}
