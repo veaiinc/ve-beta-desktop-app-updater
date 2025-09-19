@@ -233,7 +233,6 @@ const AskAIApp = () => {
 						isPreview={true}
 						showHeader={false}
 						showBottomTools={false}
-						showMicBtn={false}
 						showRecentFiles={false}
 						isDesktopApp={true}
 						showResponseEditBtn={false}
