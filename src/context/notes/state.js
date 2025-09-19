@@ -1887,7 +1887,9 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api_database',
+				//changed for base url
+				// 'page_notes_api_database',
+				'meeting_api',
 			);
 			if (response?.[0]) {
 				const meetingData = response?.[1]?.data?.getMeeting;
