@@ -294,9 +294,13 @@ const OverlayApp = () => {
 		}
 	}, []);
 
-	const handleStartTranscription = async () => {
+	const handleStartTranscription = async (data = {}) => {
 		// Reset stopping flag
 		isStoppingRef.current = false;
+
+		if (data?.meetingId) {
+			meetingIdRef.current = data?.meetingId;
+		}
 
 		const newSessionId = ObjectID().toString();
 		sessionIdRef.current = newSessionId;
@@ -317,11 +321,19 @@ const OverlayApp = () => {
 			agenda: '',
 		};
 
-		// Create meeting via API
-		const meetingResponse = await createMeetBot({ input: meetingInput });
+		let meetingData = null;
 
-		if (meetingResponse && meetingResponse[0] === true) {
-			const meetingData = meetingResponse[1]?.data?.startMeeting;
+		if (data?._id) {
+			meetingData = data;
+		} else {
+			const meetingResponse = await createMeetBot({ input: meetingInput });
+
+			if (meetingResponse && meetingResponse[0] === true) {
+				meetingData = meetingResponse[1]?.data?.startMeeting;
+			}
+		}
+
+		if (meetingData) {
 			console.log('Meeting created successfully:', meetingData);
 
 			// Store meeting data and ID for later use
@@ -462,7 +474,7 @@ const OverlayApp = () => {
 					console.log(
 						'🚀 Dynamic Island START: Opening Live Intelligence without ShortcutBar...',
 					);
-					handleDynamicIslandListenClick();
+					handleDynamicIslandListenClick(command?.data);
 					break;
 				case 'stopRecording':
 					console.log('⏹️ Dynamic Island STOP: Stopping recording...');
@@ -571,7 +583,7 @@ const OverlayApp = () => {
 		}
 	};
 
-	const handleDynamicIslandListenClick = async () => {
+	const handleDynamicIslandListenClick = async (data = {}) => {
 		// Open live intelligence panel for Dynamic Island - NO ShortcutBar
 		console.log('🏝️ Dynamic Island Control: Opening Live Intelligence - ShortcutBar DISABLED');
 		setIsDynamicIslandControlled(true);
@@ -581,7 +593,7 @@ const OverlayApp = () => {
 		setActivePanel('live-intelligence');
 
 		if (!isRecording) {
-			await handleStartTranscription();
+			await handleStartTranscription(data);
 		}
 	};
 
