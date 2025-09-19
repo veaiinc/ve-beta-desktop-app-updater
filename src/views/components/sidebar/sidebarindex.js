@@ -161,11 +161,11 @@ export const stableSettingsNavItems = {
 		{ name: 'Workspace', route: '/settings/workspace', icon: WorkspaceIcon },
 		{ name: 'Team Members', route: '/settings/team-members', icon: TeamIcon },
 		{ name: 'Plan Billing', route: '/settings/plan-billing', icon: PlanBillingIcon },
-		{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
+		{ name: 'AI Memory', route: '/settings/ai-memory', icon: AgentsSvg },
 	],
 	user: [
 		{ name: 'My Profile', route: '/settings/my-profile', icon: ProfileIcon },
-		{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
+		{ name: 'AI Memory', route: '/settings/ai-memory', icon: AgentsSvg },
 	],
 	essentials: [
 		{ id: 3, icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
@@ -181,12 +181,12 @@ export const betaSettingsNavItems = {
 		{ name: 'Integrations', route: '/settings/integrations', icon: IntegrationsIcon },
 		{ name: 'Plan Billing', route: '/settings/plan-billing', icon: PlanBillingIcon },
 		// { name: 'Pricing', route: '/settings/pricing', icon: PricingIcon },
-		{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
+		{ name: 'AI Memory', route: '/settings/ai-memory', icon: AgentsSvg },
 	],
 	user: [
 		{ name: 'My Profile', route: '/settings/my-profile', icon: ProfileIcon },
 		{ name: 'Integration', route: '/settings/integrations', icon: IntegrationsIcon },
-		{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
+		{ name: 'AI Memory', route: '/settings/ai-memory', icon: AgentsSvg },
 	],
 	essentials: [
 		{ id: 1, icon: TemplatesSvg, name: 'Templates', route: '/playbook' },
