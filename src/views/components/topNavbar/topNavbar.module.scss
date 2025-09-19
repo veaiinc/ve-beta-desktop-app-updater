@@ -439,9 +439,9 @@
 }
 
 .betaBadge {
-	background: var(--primary-button, #79ecc9);
+	background: var(--stroke, #1e1f20);
 	border-radius: 4px;
-	color: var(--background-color, #0f0f0f);
+	color: var(--primary-button, #79ecc9);
 	font-family: var(--primary-font-family);
 	font-size: 10px;
 	font-weight: 600;
