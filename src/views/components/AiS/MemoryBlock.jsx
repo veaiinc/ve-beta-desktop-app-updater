@@ -7,6 +7,7 @@ import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import { message } from '../globalComponents/CustomToast';
 import DeleteModal from '../modalsV2/DeleteModal/DeleteModal';
+import { Markdown } from '../../../helpers/markdownHelper';
 
 const limit = 10;
 const infiniteScrollStyle = {
@@ -87,7 +88,9 @@ const MemoryBlock = () => {
 			>
 				{AIMemoryList?.map((item) => (
 					<div key={item.id} className={`memoryBlockItem`}>
-						<h3 className="memoryBlockItemTitle">{item?.content}</h3>
+						<div className="memoryBlockItemTitle">
+							<Markdown>{item?.content}</Markdown>
+						</div>
 						<div className="memoryBlockItemActions">
 							{/* <button
 							className="deleteButton"
