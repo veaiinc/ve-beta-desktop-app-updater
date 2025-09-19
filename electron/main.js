@@ -27,8 +27,17 @@ const os = require('os');
 const cpuCores = os.cpus().length;
 const safeLimit = Math.max(4, Math.min(cpuCores - 1, 8));
 const pLimit = require('p-limit'); // ← THIS IS THE FIX
-const imageProcessingLimit = pLimit(safeLimit); // Max 4 concurrent workers
 const { cleanupAndQuit } = require('./desktopUtilHelper');
+const {
+	checkForUpdates,
+	updateAvailable,
+	updateNotAvailable,
+	downloadProgress,
+	handleUpdateDownloaded,
+	ipcMainHandleCheckForUpdates,
+	ipcMainHandleDownloadUpdates,
+	ipcMainHandleRestartApp,
+} = require('./helpers/autoUpdateHelper');
 
 // Import dynamic island helper
 // const { DynamicIslandHelper } = require('./dynamicIslandHelper');
@@ -51,6 +60,9 @@ const meetingMonitor = require('./notificationHelper'); // Adjust path if needed
 
 // Import NotchDrop service
 const NotchDropService = require('./services/notchDropService');
+const { handleError } = require('@apollo/client/link/http/parseAndCheckHttpResponse');
+
+const imageProcessingLimit = pLimit(safeLimit); // Max 4 concurrent workers
 
 // Gallery processing functions will be loaded lazily when needed
 let galleryHelper = null;
@@ -65,7 +77,46 @@ let tray = null;
 let isQuitting = false;
 
 // Content Protection - Simple & Working Implementation
-let isContentProtectionEnabled = true; // Default to enabled for privacy
+let isContentProtectionEnabled = false; // for stealth mode
+
+// Runtime platform override for testing (set VE_FORCE_PLATFORM=linux|win32|darwin)
+const isMacRuntime = process.platform === 'darwin';
+
+// Window state management
+let lastWindowState = {
+	route: '/home', // Default route
+	timestamp: Date.now(),
+	windowBounds: null, // Store window size and position
+};
+
+// Recording timer variables for Are You There functionality
+let recordingStartTime = null;
+let areYouThereTimer = null;
+let isAreYouThereWindowShown = false;
+let isRecordingActive = false;
+
+// Transcription detection variables for Are You There functionality
+let lastTranscriptionTime = null;
+let transcriptionDetectionTimer = null;
+let isTranscriptionDetectionActive = false;
+let isTranscriptionBasedAreYouThereShown = false;
+
+let notchDropService = null;
+
+// Auto-updater setup
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = 'info';
+
+// Configure auto-updater for all platforms
+autoUpdater.autoDownload = true; // Enable auto-download to prevent conflicts
+autoUpdater.autoInstallOnAppQuit = false; // Manual control for better error handling
+
+// Flag to prevent concurrent update operations
+let isUpdateInProgress = false;
+const getIsUpdateInProgress = () => isUpdateInProgress;
+const setIsUpdateInProgress = (value) => {
+	isUpdateInProgress = value;
+};
 
 const toggleContentProtection = () => {
 	isContentProtectionEnabled = !isContentProtectionEnabled;
@@ -140,9 +191,6 @@ const applyContentProtectionToWindow = (window) => {
 	}
 };
 
-// Runtime platform override for testing (set VE_FORCE_PLATFORM=linux|win32|darwin)
-const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
-const isMacRuntime = RUNTIME_PLATFORM === 'darwin';
 const shouldInitDynamicIsland = (() => {
 	const value = String(process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND || '')
 		.trim()
@@ -168,25 +216,6 @@ const loadGalleryHelper = () => {
 	return galleryHelper;
 };
 
-// Window state management
-let lastWindowState = {
-	route: '/home', // Default route
-	timestamp: Date.now(),
-	windowBounds: null, // Store window size and position
-};
-
-// Recording timer variables for Are You There functionality
-let recordingStartTime = null;
-let areYouThereTimer = null;
-let isAreYouThereWindowShown = false;
-let isRecordingActive = false;
-
-// Transcription detection variables for Are You There functionality
-let lastTranscriptionTime = null;
-let transcriptionDetectionTimer = null;
-let isTranscriptionDetectionActive = false;
-let isTranscriptionBasedAreYouThereShown = false;
-
 // Add global error handler to prevent crashes
 process.on('uncaughtException', (error) => {
 	log.error('Uncaught Exception:', error);
@@ -198,158 +227,30 @@ process.on('unhandledRejection', (reason, promise) => {
 	// Don't exit the process, just log the error
 });
 
-let notchDropService = null;
+autoUpdater.on('checking-for-update', () => checkForUpdates(mainWindow));
 
-// Auto-updater setup
-autoUpdater.logger = log;
-autoUpdater.logger.transports.file.level = 'info';
+autoUpdater.on('update-available', (info) =>
+	updateAvailable({ info, mainWindow, setIsUpdateInProgress }),
+);
 
-// Configure auto-updater for all platforms
-autoUpdater.autoDownload = true; // Enable auto-download to prevent conflicts
-autoUpdater.autoInstallOnAppQuit = false; // Manual control for better error handling
-
-// Flag to prevent concurrent update operations
-let isUpdateInProgress = false;
-
-// Platform-specific logging
-if (process.platform === 'win32') {
-	log.info('Windows auto-updater configured with auto-download and manual install');
-} else if (process.platform === 'darwin') {
-	log.info('macOS auto-updater configured with auto-download and manual install');
-} else {
-	log.info('Linux auto-updater configured with auto-download and manual install');
-}
-
-// Update event forwarding
-autoUpdater.on('checking-for-update', () => {
-	mainWindow?.webContents.send('update-status', { status: 'checking' });
-});
-
-autoUpdater.on('update-available', (info) => {
-	log.info('🔄 Update available:', info);
-	log.info('📦 Current version:', app.getVersion());
-	log.info('🆕 New version:', info.version);
-	isUpdateInProgress = true;
-
-	// Notify frontend that update is available
-	mainWindow?.webContents.send('update-status', {
-		status: 'available',
-		version: info.version,
-		currentVersion: app.getVersion(),
-		message: `Updating from ${app.getVersion()} to ${info.version}...`,
-	});
-
-	// Download will start automatically since autoDownload is true
-	log.info('Update download will start automatically...');
-});
-
-autoUpdater.on('update-not-available', (info) => {
-	log.info('Update not available:', info);
-	isUpdateInProgress = false; // Reset flag
-	mainWindow?.webContents.send('update-status', { status: 'not-available' });
-});
+autoUpdater.on('update-not-available', (info) =>
+	updateNotAvailable({ mainWindow, info, setIsUpdateInProgress }),
+);
 
 // Add download progress tracking
-autoUpdater.on('download-progress', (progressObj) => {
-	log.info('Download progress:', progressObj);
-	mainWindow?.webContents.send('update-status', {
-		status: 'downloading',
-		progress: progressObj.percent,
-		bytesPerSecond: progressObj.bytesPerSecond,
-		total: progressObj.total,
-		transferred: progressObj.transferred,
-	});
-});
+autoUpdater.on('download-progress', (progressObj) => downloadProgress({ progressObj, mainWindow }));
 
-autoUpdater.on('error', (err) => {
-	// Reset update flag on error
-	isUpdateInProgress = false;
+autoUpdater.on('error', (err) => handleError({ err, setIsUpdateInProgress, mainWindow }));
 
-	let errorStatus = {
-		status: 'error',
-		error: err.message,
-		details: { code: err.code, errno: err.errno },
-	};
-
-	log.error('Update error:', err);
-	log.error('Update error details:', {
-		message: err.message,
-		code: err.code,
-		errno: err.errno,
-		stack: err.stack,
-	});
-
-	// Send detailed error information to frontend
-	mainWindow?.webContents.send('update-status', errorStatus);
-
-	// Handle specific error types
-	if (err.code === 1) {
-		log.error(
-			'Ditto error detected - this usually indicates file path issues in the update package',
-		);
-		mainWindow?.webContents.send('update-status', {
-			status: 'installation-error',
-			error: 'Update package file path error',
-			details: {
-				suggestion:
-					'The update package may be corrupted or incomplete. Please try downloading again.',
-				code: err.code,
-			},
-		});
-	}
-});
-
-autoUpdater.on('update-downloaded', (info) => {
-	log.info('Update downloaded:', info);
-
-	// Show user-friendly message about automatic restart
-	mainWindow?.webContents.send('update-status', {
-		status: 'downloaded',
-		version: info.version,
-		message: 'Update downloaded! App will restart automatically in 5 seconds...',
-	});
-
-	// Auto-restart after 5 seconds with proper cleanup
-	setTimeout(() => {
-		log.info('🔄 Auto-restarting app to install update...');
-
-		// Set flag to prevent further update operations
-		isUpdateInProgress = true;
-
-		// Clean up services gracefully
-		if (dynamicIslandHelper) {
-			try {
-				dynamicIslandHelper.close();
-			} catch (error) {
-				log.error('Error closing dynamicIslandHelper:', error);
-			}
-			dynamicIslandHelper = null;
-		}
-
-		if (windowHelper) {
-			try {
-				windowHelper.cleanup();
-			} catch (error) {
-				log.error('Error cleaning up windowHelper:', error);
-			}
-			windowHelper = null;
-		}
-
-		// Close all windows
-		BrowserWindow.getAllWindows().forEach((window) => {
-			if (window && !window.isDestroyed()) {
-				try {
-					window.destroy();
-				} catch (error) {
-					log.error('Error destroying window during update:', error);
-				}
-			}
-		});
-
-		// Restart automatically with proper parameters
-		autoUpdater.quitAndInstall(true, true); // Force quit and install
-	}, 5000);
-});
+autoUpdater.on('update-downloaded', (info) =>
+	handleUpdateDownloaded({
+		info,
+		mainWindow,
+		setIsUpdateInProgress,
+		dynamicIslandHelper,
+		windowHelper,
+	}),
+);
 
 async function showNotification(title, body) {
 	const notification = new Notification({
@@ -502,124 +403,31 @@ function handleOverlayWindowReady(overlayWindow) {
 	}, 3000);
 }
 // IPC Handlers for updates
-ipcMain.handle('check-for-updates', async () => {
-	log.info('Manual update check triggered');
-	if (process.env.NODE_ENV === 'development') {
-		return { success: true, message: 'Skipped in dev mode' };
-	}
+ipcMain.handle(
+	'check-for-updates',
+	async () =>
+		await ipcMainHandleCheckForUpdates({
+			getIsUpdateInProgress,
+			setIsUpdateInProgress,
+		}),
+);
 
-	// Prevent concurrent update checks
-	if (isUpdateInProgress) {
-		return { success: false, error: 'Update already in progress' };
-	}
+ipcMain.handle(
+	'download-update',
+	async () =>
+		await ipcMainHandleDownloadUpdates({
+			getIsUpdateInProgress,
+			setIsUpdateInProgress,
+		}),
+);
 
-	try {
-		await autoUpdater.checkForUpdatesAndNotify();
-		return { success: true, message: 'Check initiated' };
-	} catch (error) {
-		log.error('Update check failed:', error);
-		isUpdateInProgress = false; // Reset flag on error
-		return { success: false, error: error.message };
-	}
-});
-
-ipcMain.handle('download-update', async () => {
-	if (process.env.NODE_ENV === 'development') {
-		return { success: false, error: 'Not available in dev' };
-	}
-
-	// Prevent concurrent downloads
-	if (isUpdateInProgress) {
-		return { success: false, error: 'Update already in progress' };
-	}
-
-	try {
-		isUpdateInProgress = true;
-		await autoUpdater.downloadUpdate();
-		return { success: true };
-	} catch (error) {
-		isUpdateInProgress = false; // Reset flag on error
-		return { success: false, error: error.message };
-	}
-});
-
-ipcMain.handle('restart-app', () => {
-	if (process.env.NODE_ENV === 'development') {
-		return { success: false, error: 'Not available in development' };
-	}
-
-	try {
-		// Set update flag to allow proper quit
-		isUpdateInProgress = true;
-
-		// Clean up services
-		if (dynamicIslandHelper) {
-			try {
-				dynamicIslandHelper.close();
-			} catch (error) {
-				log.error('Error closing dynamicIslandHelper during restart:', error);
-			}
-			dynamicIslandHelper = null;
-		}
-
-		if (windowHelper) {
-			try {
-				windowHelper.cleanup();
-			} catch (error) {
-				log.error('Error cleaning up windowHelper during restart:', error);
-			}
-			windowHelper = null;
-		}
-
-		// Close all windows
-		BrowserWindow.getAllWindows().forEach((window) => {
-			if (window && !window.isDestroyed()) {
-				try {
-					window.destroy();
-				} catch (error) {
-					log.error('Error destroying window during restart:', error);
-				}
-			}
-		});
-
-		log.info('Restarting app to install update...');
-
-		// Use force quit for better reliability
-		autoUpdater.quitAndInstall(true, true);
-
-		return { success: true };
-	} catch (error) {
-		log.error('Error restarting app:', error);
-		isUpdateInProgress = false; // Reset flag on error
-		return { success: false, error: error.message };
-	}
-});
-
-// Add manual download handler for Windows checksum issues
-ipcMain.handle('force-download-update', async () => {
-	if (process.env.NODE_ENV === 'development') {
-		return { success: false, error: 'Not available in dev' };
-	}
-
-	try {
-		log.info('Force downloading update (skipping checksum verification)...');
-
-		// Temporarily disable autoDownload if it was enabled
-		const originalAutoDownload = autoUpdater.autoDownload;
-		autoUpdater.autoDownload = false;
-
-		// Start download
-		await autoUpdater.downloadUpdate();
-
-		// Restore original setting
-		autoUpdater.autoDownload = originalAutoDownload;
-
-		return { success: true, message: 'Force download initiated' };
-	} catch (error) {
-		log.error('Force download failed:', error);
-		return { success: false, error: error.message };
-	}
-});
+ipcMain.handle('restart-app', () =>
+	ipcMainHandleRestartApp({
+		setIsUpdateInProgress,
+		dynamicIslandHelper,
+		windowHelper,
+	}),
+);
 
 // Dynamic Island repositioning handler
 ipcMain.handle('reposition-dynamic-island', () => {
@@ -1066,9 +874,8 @@ function createMenuBar() {
 					type: 'separator',
 				},
 				// Show Dynamic Island toggle only for non-mac runtime
-				...(isMac
-					? []
-					: [
+				...(!isMac
+					? [
 							{
 								label: 'Toggle Dynamic Island',
 								accelerator: 'CmdOrCtrl+I',
@@ -1085,7 +892,8 @@ function createMenuBar() {
 									}
 								},
 							},
-					  ]),
+					  ]
+					: []),
 				{
 					label: 'Reload',
 					accelerator: 'CmdOrCtrl+R',
@@ -1113,7 +921,7 @@ function createMenuBar() {
 	];
 
 	// macOS specific menu adjustments
-	if (process.platform === 'darwin') {
+	if (isMacRuntime) {
 		// Add macOS specific items to the Application menu
 		template[0].submenu = [
 			{
@@ -1248,7 +1056,7 @@ function createWindow(restoreState = false) {
 		if (!iconPath) {
 			iconPath = possiblePaths[0];
 		}
-	} else if (process.platform === 'darwin') {
+	} else if (isMacRuntime) {
 		iconPath = path.join(__dirname, 'assets', 'app-logo.icns');
 	} else {
 		iconPath = path.join(__dirname, 'assets', 've-black-circle-logo.png');
@@ -1546,7 +1354,7 @@ app.whenReady().then(async () => {
 	);
 
 	// Check macOS microphone permission status (macOS only)
-	if (process.platform === 'darwin') {
+	if (isMacRuntime) {
 		// Check microphone permission status (this is synchronous)
 		const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
 		const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
@@ -1559,7 +1367,7 @@ app.whenReady().then(async () => {
 	}
 
 	// ✅ Request screen recording permission (macOS only)
-	if (process.platform === 'darwin') {
+	if (isMacRuntime) {
 		setTimeout(async () => {
 			try {
 				const granted = await systemPreferences.askForMediaAccess('screen-recording');
@@ -1957,7 +1765,7 @@ app.whenReady().then(async () => {
 	setupNotchDropMenuUpdates();
 
 	// macOS dock icon click handler to reopen main window
-	if (process.platform === 'darwin') {
+	if (isMacRuntime) {
 		app.on('activate', () => {
 			log.info('🍎 Dock icon clicked - reopening main window');
 			if (mainWindow && !mainWindow.isDestroyed()) {
@@ -1980,7 +1788,7 @@ app.whenReady().then(async () => {
 	});
 
 	// Check if global shortcuts are working (especially important on macOS)
-	if (process.platform === 'darwin') {
+	if (isMacRuntime) {
 		// Check if the app has accessibility permissions
 		const hasAccessibilityPermission = systemPreferences.isTrustedAccessibilityClient(false);
 
@@ -2140,7 +1948,7 @@ app.whenReady().then(async () => {
 	// Check camera permission status handler
 	ipcMain.handle('check-camera-permission', async () => {
 		try {
-			if (process.platform === 'darwin') {
+			if (isMacRuntime) {
 				const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
 
 				return {
@@ -2228,7 +2036,7 @@ app.whenReady().then(async () => {
 	// Camera permission handler
 	ipcMain.handle('request-camera-permission', async () => {
 		try {
-			if (process.platform === 'darwin') {
+			if (isMacRuntime) {
 				// First check current permission status
 				const currentStatus = systemPreferences.getMediaAccessStatus('camera');
 
@@ -2341,7 +2149,6 @@ app.whenReady().then(async () => {
 			log.info('🏝️ Starting recording from CreateMeetingModal via Dynamic Island');
 
 			// Only proceed on Windows (or when forced on macOS)
-			const isMacRuntime = process.platform === 'darwin';
 			const shouldForceShowDynamicIsland = (() => {
 				const value = String(process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND || '')
 					.trim()
@@ -3951,7 +3758,7 @@ app.whenReady().then(async () => {
 	// Microphone permission check handler
 	ipcMain.handle('check-microphone-permission', async () => {
 		try {
-			if (process.platform === 'darwin') {
+			if (isMacRuntime) {
 				const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
 
 				return {
@@ -3980,7 +3787,7 @@ app.whenReady().then(async () => {
 	// Show camera permission help dialog
 	ipcMain.handle('show-camera-permission-help', async () => {
 		try {
-			if (process.platform === 'darwin') {
+			if (isMacRuntime) {
 				const result = await dialog.showMessageBox(mainWindow, {
 					type: 'info',
 					title: 'Camera Permission Required',
@@ -4015,7 +3822,7 @@ app.whenReady().then(async () => {
 	// Request microphone permission handler
 	ipcMain.handle('request-microphone-permission', async () => {
 		try {
-			if (process.platform === 'darwin') {
+			if (isMacRuntime) {
 				// Request microphone access (this will show the system dialog)
 				const granted = await systemPreferences.askForMediaAccess('microphone');
 
@@ -4140,7 +3947,7 @@ app.whenReady().then(async () => {
 	// Show screen recording permission help
 	ipcMain.handle('show-screen-recording-permission-help', async () => {
 		try {
-			if (process.platform === 'darwin') {
+			if (isMacRuntime) {
 				const result = await dialog.showMessageBox(mainWindow, {
 					type: 'info',
 					title: 'Screen Recording Permission Required',
