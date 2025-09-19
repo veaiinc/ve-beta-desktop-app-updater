@@ -1290,6 +1290,78 @@ function createTray() {
 	}
 }
 
+// Single instance lock to prevent multiple app instances
+// This ensures only one instance of the app can run at a time
+// When a second instance is attempted, it will focus the existing window instead
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+	// Another instance is already running, focus it and quit
+	log.info('Another instance is already running, focusing existing window and quitting...');
+	app.quit();
+} else {
+	// Handle second instance attempts
+	app.on('second-instance', (event, commandLine, workingDirectory) => {
+		log.info('Second instance attempted, focusing existing window...');
+		log.info('Command line:', commandLine);
+		log.info('Working directory:', workingDirectory);
+
+		// Focus the main window if it exists
+		if (mainWindow && !mainWindow.isDestroyed()) {
+			if (mainWindow.isMinimized()) {
+				mainWindow.restore();
+			}
+			mainWindow.focus();
+			mainWindow.show();
+			log.info('✅ Main window focused and shown');
+		} else {
+			log.warn('⚠️ Main window not available, creating new one...');
+			// If main window doesn't exist, we might need to create it
+			// This could happen if the app was closed but the process is still running
+		}
+
+		// Also focus any other important windows
+		const allWindows = BrowserWindow.getAllWindows();
+		let focusedCount = 0;
+		allWindows.forEach((window) => {
+			if (!window.isDestroyed() && window.isVisible()) {
+				window.focus();
+				focusedCount++;
+			}
+		});
+		log.info(`✅ Focused ${focusedCount} existing windows`);
+	});
+
+	// Handle app being opened with files or URLs
+	app.on('open-file', (event, filePath) => {
+		log.info('App opened with file:', filePath);
+		event.preventDefault();
+
+		// Focus existing window
+		if (mainWindow && !mainWindow.isDestroyed()) {
+			if (mainWindow.isMinimized()) {
+				mainWindow.restore();
+			}
+			mainWindow.focus();
+			mainWindow.show();
+		}
+	});
+
+	app.on('open-url', (event, url) => {
+		log.info('App opened with URL:', url);
+		event.preventDefault();
+
+		// Focus existing window
+		if (mainWindow && !mainWindow.isDestroyed()) {
+			if (mainWindow.isMinimized()) {
+				mainWindow.restore();
+			}
+			mainWindow.focus();
+			mainWindow.show();
+		}
+	});
+}
+
 // App lifecycle
 app.whenReady().then(async () => {
 	// Set application branding for Windows
@@ -2977,7 +3049,7 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	ipcMain.handle('overlay-start-recording', async () => {
+	ipcMain.handle('overlay-start-recording', async (event, data = {}) => {
 		try {
 			let overlayWindow = windowHelper?.getOverlayWindow();
 			if (!overlayWindow) {
@@ -3000,6 +3072,7 @@ app.whenReady().then(async () => {
 				// CRITICAL FIX: Use windowHelper's queuing system
 				const commandSent = windowHelper?.sendOverlayCommand({
 					action: 'startRecording',
+					data: data,
 				});
 				log.info(
 					`✅ SMART QUEUE: StartRecording command ${

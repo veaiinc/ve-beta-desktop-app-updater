@@ -95,7 +95,7 @@ struct DynamicIslandContentView: View {
                                         // Custom wave icon (SVG-based)
                                         WaveIcon(color: DynamicIslandTheme.black)
                                             .frame(width: 15, height: 15)
-                                        Text("Listen")
+                                        Text(vm.isConnecting ? "Connecting..." : "Listen")
                                             .font(.system(size: 12, weight: .medium))
                                             .foregroundColor(Color(red: 0.055, green: 0.184, blue: 0.165)) // #0E2F2A
                                     }
@@ -107,7 +107,8 @@ struct DynamicIslandContentView: View {
                                 .buttonStyle(PlainButtonStyle())
                                 .scaleEffect(1.0)
                                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isRecording)
-                                
+                                .disabled(vm.isConnecting)
+                                .opacity(vm.isConnecting ? 0.8 : 1.0)
                                 // Voice button (new LiveKit voice assistant)
                                 Button(action: {
                                     vm.connectVoiceAssistant()

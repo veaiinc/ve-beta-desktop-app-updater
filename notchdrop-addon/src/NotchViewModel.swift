@@ -120,6 +120,7 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var isSendingMessage: Bool = false
     @Published var isAuthenticated: Bool = false
     @Published var controlledByDynamicIsland: Bool = false
+    @Published var isConnecting = false
     
     // Chat expansion state
     @Published var isChatExpanded: Bool = false
@@ -233,10 +234,11 @@ class NotchViewModel: NSObject, ObservableObject {
     
     // Dynamic Island UI functions
     func startRecording() {
-        isRecording = true
-        isPaused = false
-        timer = 0
-        startTimer()
+        isConnecting = true
+        // isRecording = true
+        // isPaused = false
+        // timer = 0
+        // startTimer()
         
         // Emit action for JavaScript
         swiftActionSender.send(.startRecording)
@@ -597,7 +599,15 @@ class NotchViewModel: NSObject, ObservableObject {
             print("🔓 Authentication state set to FALSE based on message: \(message)")
         } else if lowerMessage == "meetingstarted" {
             // Set authentication state to true for loggedin message
-            startRecording()
+            // startRecording()
+
+            isConnecting = false      // stop loading
+            isRecording = true
+            isPaused = false
+            timer = 0
+            startTimer()
+
+            // contentType = .recording
             print("🔐 Meeting started based on message: \(message)")
         } else if lowerMessage == "meetingstopped" {
             // Set authentication state to true for loggedin message
