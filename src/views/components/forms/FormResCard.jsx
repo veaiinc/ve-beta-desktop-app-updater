@@ -8,10 +8,7 @@ import { ReactComponent as OpenEye } from '../../../assets/svg/gallery/open-eye.
 import moment from 'moment';
 import '../../../assets/scss/forms/FormresCard.scss';
 import service from '../../../services/graphQlServices';
-import {
-	getFormResponsesListQuery,
-	deleteFormResponseMutation,
-} from '../../../context/Templates/graphQlFunctions';
+import { getFormResponsesListQuery } from '../../../context/Templates/graphQlFunctions';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 // import QuickActions from '../globalComponents/QuickActions';
@@ -51,7 +48,7 @@ const FormResCard = ({
 
 	// Get context functions
 	const {
-		templates: { updateFormResponse },
+		templates: { updateFormResponse, deleteFormResponse },
 	} = useContext(Context);
 
 	useEffect(() => {
@@ -293,18 +290,8 @@ const FormResCard = ({
 		try {
 			if (delFormResLoading) return;
 			setDelFormResLoading(true);
-			const workspaceId = localStorage.getItem('workspaceId');
-			const usertoken = localStorage.getItem('usertoken');
 
-			const response = await service.mutation(
-				deleteFormResponseMutation,
-				{
-					responseId: responseId,
-				},
-				workspaceId,
-				usertoken,
-				'workflows_Api',
-			);
+			const response = await deleteFormResponse({ responseId });
 
 			if (response?.[0]) {
 				message.success('Response deleted successfully');
@@ -317,7 +304,7 @@ const FormResCard = ({
 			}
 		} catch (err) {
 			console.error('Error deleting response:', err);
-			message.error('Failed to delete response');
+			message.error(err?.message || 'Failed to delete response');
 		} finally {
 			setDelFormResLoading(false);
 		}

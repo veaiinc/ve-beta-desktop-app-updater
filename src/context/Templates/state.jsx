@@ -3037,6 +3037,31 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const deleteFormResponse = async ({ responseId }) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const userToken = localStorage.getItem('usertoken');
+
+			const response = await service.mutation(
+				deleteFormResponseMutation,
+				{ responseId },
+				workspaceId,
+				userToken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true, response[1]?.data?.deleteFormResponse];
+			} else {
+				console.error('API failed => deleteFormResponse', response);
+				return [false, response?.[1]?.message || 'Something went Worng'];
+			}
+		} catch (error) {
+			console.error('Error deleting form response:', error);
+			return [false, error?.message || 'Something went Worng'];
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -3137,6 +3162,7 @@ export const TemplatesState = (props) => {
 		isSlugAvailable,
 		updateSlug,
 		updateFormResponse,
+		deleteFormResponse,
 		getNotificationsList,
 		getAuthUrlForThirdParty,
 		disconnectThirdParty,
