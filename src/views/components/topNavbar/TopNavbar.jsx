@@ -136,7 +136,10 @@ const TopNavbar = () => {
 		if (workspaceMode === 'stable') {
 			items = items.filter(
 				(item) =>
-					item.label !== 'Vault' && item.label !== 'Tools' && item.label !== 'Priority',
+					item.label !== 'Vault' &&
+					item.label !== 'Tools' &&
+					item.label !== 'Priority' &&
+					item.label !== 'Agents',
 			);
 		}
 

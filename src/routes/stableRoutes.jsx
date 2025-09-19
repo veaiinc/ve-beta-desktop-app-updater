@@ -6,13 +6,13 @@ const AuthWrapper = lazy(() => import('../views/layouts/authWrapper'));
 const Public = lazy(() => import('../views/layouts/Public'));
 
 // lazy loaded pages
-const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
+// const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
 const SettingsWrapper = lazy(() => import('../views/features/settings/SettingsWrapper'));
 const RecentChat = lazy(() => import('../views/features/chat/RecentChat'));
 const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
 const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
-const Agents = lazy(() => import('../views/features/agents/Agents'));
-const Agent = lazy(() => import('../views/features/agents/agent/Agent'));
+// const Agents = lazy(() => import('../views/features/agents/Agents'));
+// const Agent = lazy(() => import('../views/features/agents/agent/Agent'));
 const GlobalWorkflows = lazy(() => import('../views/features/sales/GlobalWorkflows'));
 const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
 const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
@@ -38,30 +38,30 @@ const stableRoutes = [
 			</Suspense>
 		),
 	},
-	{
-		path: '/agents',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper
-					title="Agents"
-					outerContainerStyle={{ padding: '0' }}
-					sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
-				>
-					<Agents />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/agent/:agentId',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title="Agent">
-					<Agent />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
+	// {
+	// 	path: '/agents',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper
+	// 				title="Agents"
+	// 				outerContainerStyle={{ padding: '0' }}
+	// 				sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
+	// 			>
+	// 				<Agents />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
+	// {
+	// 	path: '/agent/:agentId',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title="Agent">
+	// 				<Agent />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
 
 	// ========================================
 	// CHAT & COMMUNICATION
