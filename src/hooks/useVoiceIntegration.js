@@ -196,30 +196,30 @@ export const useVoiceIntegration = () => {
 
 			// Get location from localStorage first, fallback to India location
 			let location = JSON.parse(localStorage.getItem('location') || '{}');
-			
+
 			// If no location in localStorage, use the India location as fallback
 			if (!location || Object.keys(location).length === 0) {
 				location = {
-					"countryCode": "IN",
-					"countryRegionCode": "TS", 
-					"countryRegion": "Telangana",
-					"country": "India",
-					"city": "Hyderabad",
-					"timezone": "Asia/Kolkata",
-					"postalCode": "500009",
-					"currency": "INR",
-					"region": "ap-south-1"
+					countryCode: 'IN',
+					countryRegionCode: 'TS',
+					countryRegion: 'Telangana',
+					country: 'India',
+					city: 'Hyderabad',
+					timezone: 'Asia/Kolkata',
+					postalCode: '500009',
+					currency: 'INR',
+					region: 'ap-south-1',
 				};
 			}
-			
+
 			console.log('🌍 Using location data:', location);
-			
+
 			console.log('🔑 Generating voice token...');
 			const tokenResponse = await getTokenForVoice({ location });
 			console.log('🔍 Raw token response:', tokenResponse);
 			console.log('🔍 Available fields in response:', Object.keys(tokenResponse || {}));
 			console.log('🔍 Response type:', typeof tokenResponse);
-			
+
 			// Log each possible token field
 			console.log('🔍 Checking token fields:');
 			console.log('  - tokenResponse.token:', tokenResponse?.token);
@@ -227,45 +227,50 @@ export const useVoiceIntegration = () => {
 			console.log('  - tokenResponse.accessToken:', tokenResponse?.accessToken);
 			console.log('  - tokenResponse.jwt:', tokenResponse?.jwt);
 			console.log('  - tokenResponse.authToken:', tokenResponse?.authToken);
-			
+
 			// Extract token and room name from response - check session_info first
 			const sessionInfo = tokenResponse?.session_info || tokenResponse;
 			console.log('🔍 Session info:', sessionInfo);
 			console.log('🔍 Session info fields:', Object.keys(sessionInfo || {}));
-			
-			const token = sessionInfo?.user_token ||  // ← This is the correct field!
-						 sessionInfo?.token || 
-						 sessionInfo?.access_token || 
-						 sessionInfo?.accessToken ||
-						 sessionInfo?.jwt ||
-						 sessionInfo?.authToken ||
-						 tokenResponse?.token || 
-						 tokenResponse?.access_token;
-						 
-			const roomName = sessionInfo?.room_name || 
-							sessionInfo?.roomName || 
-							sessionInfo?.room ||
-							sessionInfo?.roomId ||
-							sessionInfo?.session ||
-							sessionInfo?.sessionId ||
-							tokenResponse?.room_name || 
-							tokenResponse?.roomName;
-			
+
+			const token =
+				sessionInfo?.user_token || // ← This is the correct field!
+				sessionInfo?.token ||
+				sessionInfo?.access_token ||
+				sessionInfo?.accessToken ||
+				sessionInfo?.jwt ||
+				sessionInfo?.authToken ||
+				tokenResponse?.token ||
+				tokenResponse?.access_token;
+
+			const roomName =
+				sessionInfo?.room_name ||
+				sessionInfo?.roomName ||
+				sessionInfo?.room ||
+				sessionInfo?.roomId ||
+				sessionInfo?.session ||
+				sessionInfo?.sessionId ||
+				tokenResponse?.room_name ||
+				tokenResponse?.roomName;
+
 			// Also extract the LiveKit URL from session_info
 			const liveKitUrl = sessionInfo?.url;
-			
+
 			console.log('🔍 Extracted values:');
-			console.log('  - token (user_token):', token ? `${token.substring(0, 50)}...` : 'undefined');
+			console.log(
+				'  - token (user_token):',
+				token ? `${token.substring(0, 50)}...` : 'undefined',
+			);
 			console.log('  - roomName:', roomName);
 			console.log('  - liveKitUrl:', liveKitUrl);
-			
-			console.log('✅ Voice token generated successfully:', { 
-				roomName, 
+
+			console.log('✅ Voice token generated successfully:', {
+				roomName,
 				tokenLength: token?.length,
 				hasToken: !!token,
-				hasRoomName: !!roomName
+				hasRoomName: !!roomName,
 			});
-			
+
 			if (!token) {
 				throw new Error('No token received from API response');
 			}
@@ -329,27 +334,29 @@ export const useVoiceIntegration = () => {
 					const decoder = new TextDecoder();
 					const message = decoder.decode(payload);
 					const data = JSON.parse(message);
-					
+
 					console.log('📝 Data received from voice agent:', data);
-					
+
 					// Handle different types of data messages
 					if (data.type === 'transcription' || data.type === 'agent_response') {
 						const messageData = {
 							sender: participant?.identity === 'agent' ? 'AI Agent' : 'User',
 							content: data.text || data.message || data.content,
 							isFromAgent: participant?.identity === 'agent',
-							timestamp: new Date().toISOString()
+							timestamp: new Date().toISOString(),
 						};
-						
+
 						// Send to NotchDrop
 						if (window.electronApi) {
 							window.electronApi.notchdrop.addVoiceMessage(messageData);
 						}
-						
+
 						// Dispatch custom event for other components
-						window.dispatchEvent(new CustomEvent('voice-transcription', {
-							detail: messageData
-						}));
+						window.dispatchEvent(
+							new CustomEvent('voice-transcription', {
+								detail: messageData,
+							}),
+						);
 					}
 				} catch (error) {
 					console.error('❌ Error parsing data message:', error);
@@ -405,7 +412,7 @@ export const useVoiceIntegration = () => {
 			console.error('❌ Error details:', {
 				message: error.message,
 				stack: error.stack,
-				name: error.name
+				name: error.name,
 			});
 			setIsConnected(false);
 
@@ -449,12 +456,12 @@ export const useVoiceIntegration = () => {
 			}
 
 			console.log('🔌 Disconnecting voice agent - stopping all tracks...');
-			
+
 			// Stop all local audio tracks explicitly
 			const participant = roomRef.current.localParticipant;
 			if (participant) {
 				console.log('🎤 Stopping local audio tracks...');
-				
+
 				// audioTracks is a Map, so we need to iterate over its values
 				if (participant.audioTracks && participant.audioTracks.size > 0) {
 					participant.audioTracks.forEach((publication) => {
@@ -467,7 +474,7 @@ export const useVoiceIntegration = () => {
 				} else {
 					console.log('📝 No audio tracks to stop');
 				}
-				
+
 				// Also stop any video tracks if they exist
 				if (participant.videoTracks && participant.videoTracks.size > 0) {
 					participant.videoTracks.forEach((publication) => {

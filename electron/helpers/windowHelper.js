@@ -199,9 +199,6 @@ class WindowHelper {
 			windowSettings.focusable = true;
 			windowSettings.transparent = true;
 			windowSettings.hasShadow = false;
-		} else if (process.platform === 'darwin') {
-			// macOS-specific settings
-			windowSettings.type = process.env.NODE_ENV === 'development' ? 'normal' : 'panel';
 		}
 
 		this.overlayWindow = new BrowserWindow(windowSettings);
@@ -574,27 +571,6 @@ class WindowHelper {
 		this.askAIWindow.on('closed', () => {
 			this.askAIWindow = null;
 			this.isAskAIVisible = false;
-		});
-
-		// Set up mouse event handling for Ask AI window
-		this.askAIWindow.webContents.on('dom-ready', () => {
-			// Set ask AI window to be interactive immediately
-			this.askAIWindow.setIgnoreMouseEvents(false);
-
-			this.askAIWindow.webContents.executeJavaScript(`
-				// Always keep the window interactive for Ask AI
-				if (window.electronApi?.askAI?.setIgnoreMouseEvents) {
-					window.electronApi.askAI.setIgnoreMouseEvents(false);
-				}
-				
-				// Global click handler
-				document.addEventListener('click', (e) => {
-					// Ensure click-through remains disabled
-					if (window.electronApi?.askAI?.setIgnoreMouseEvents) {
-						window.electronApi.askAI.setIgnoreMouseEvents(false);
-					}
-				});
-			`);
 		});
 	}
 
@@ -1029,8 +1005,6 @@ class WindowHelper {
 
 		// Only update the size, preserve the current position
 		this.overlayWindow.setBounds({
-			x: currentX,
-			y: currentY,
 			width: newWidth,
 			height: newHeight,
 		});
@@ -1048,14 +1022,12 @@ class WindowHelper {
 			const askAIY = currentY; // Same Y level as overlay
 
 			this.askAIWindow.setBounds({
-				x: askAIX,
-				y: askAIY,
 				width: this.askAIWindowSize.width,
 				height: this.askAIWindowSize.height,
 			});
 
 			// Update ask AI position tracking
-			this.askAIWindowPosition = { x: askAIX, y: askAIY };
+			// this.askAIWindowPosition = { x: askAIX, y: askAIY };
 
 			// Make sure ask AI stays on top
 			setTimeout(() => {

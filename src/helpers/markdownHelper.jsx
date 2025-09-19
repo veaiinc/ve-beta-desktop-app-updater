@@ -348,9 +348,9 @@ const MarkdownCode = memo(({ code, match }) => {
 				},
 				onError: (error) => {
 					console.error('Failed to copy code:', error);
-				}
+				},
 			});
-			
+
 			if (!success) {
 				console.error('Copy operation failed');
 			}
@@ -397,9 +397,9 @@ const MarkdownTable = memo(({ children, node, markdown }) => {
 				},
 				onError: (error) => {
 					console.error('Failed to copy table:', error);
-				}
+				},
 			});
-			
+
 			if (!success) {
 				console.error('Copy operation failed');
 			}
@@ -545,9 +545,9 @@ export const UserMessageRenderer = memo(({ messageData }) => {
 					onError: (error) => {
 						console.error('Failed to copy text:', error);
 						setInfo((prev) => ({ ...prev, isCopiedToClipboard: false }));
-					}
+					},
 				});
-				
+
 				if (!success) {
 					console.error('Copy operation failed');
 					setInfo((prev) => ({ ...prev, isCopiedToClipboard: false }));

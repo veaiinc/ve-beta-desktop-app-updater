@@ -368,11 +368,16 @@ const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onSt
 			return wm?.url || null;
 		})();
 
+		// Get album name from tenantAlbums
+		const albumName =
+			tenantAlbums?.albums?.find((album) => album._id === albumId)?.title || 'Unknown Album';
+
 		// Prepare upload data for the persistent popup
 		const uploadData = {
 			id: sessionId, // ✅ Unique session ID — critical for UploadProgressPopup
 			galleryId,
 			albumId,
+			albumName, // ✅ Include actual album name
 			uploadBatchID: newUploadBatchID, // ✅ Unique batch ID per session
 			tenantId: tenantAlbums?.tenant_id,
 			files: nonDuplicates.map((key) => ({

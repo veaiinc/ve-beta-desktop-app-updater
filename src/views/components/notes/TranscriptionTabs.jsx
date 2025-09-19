@@ -63,6 +63,9 @@ const TranscriptionTabs = ({
 							s.meetingTabButton + ' ' + (activeTab === 'audio' ? s.activeTab : '')
 						}
 						onClick={() => setActiveTab('audio')}
+						style={{
+							display: 'none',
+						}}
 					>
 						Play Audio
 					</button>

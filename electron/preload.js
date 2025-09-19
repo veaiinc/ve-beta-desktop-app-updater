@@ -285,6 +285,10 @@ contextBridge.exposeInMainWorld('electronApi', {
 		disconnectVoice: () => ipcRenderer.invoke('dynamic-island-voice-disconnect'),
 		getVoiceStatus: () => ipcRenderer.invoke('dynamic-island-voice-status'),
 
+		// Combined recording trigger for Windows (show/expand Dynamic Island + start recording)
+		startRecordingFromModal: () =>
+			ipcRenderer.invoke('dynamic-island-start-recording-from-modal'),
+
 		onStateChange: (callback) => {
 			ipcRenderer.on('dynamic-island-state', (event, data) => {
 				callback(data);
@@ -356,12 +360,19 @@ contextBridge.exposeInMainWorld('electronApi', {
 			ipcRenderer.invoke('notchdrop-set-haptic-feedback', enabled),
 		getHapticFeedback: () => ipcRenderer.invoke('notchdrop-get-haptic-feedback'),
 		updateMenu: () => ipcRenderer.invoke('update-notchdrop-menu'),
+		// Voice integration
+		updateVoiceStatus: (status) => ipcRenderer.invoke('notchdrop-update-voice-status', status),
+		updateVoiceConnectionState: (status) =>
+			ipcRenderer.invoke('notchdrop-update-voice-connection-state', status),
+		updateVoiceMuteState: (isMuted) =>
+			ipcRenderer.invoke('notchdrop-update-voice-mute-state', isMuted),
+		addVoiceMessage: (messageData) =>
+			ipcRenderer.invoke('notchdrop-add-voice-message', messageData),
 		// New NotchDropLatest APIs
 		openAirDrop: () => ipcRenderer.invoke('notchdrop-open-airdrop'),
 		openShare: () => ipcRenderer.invoke('notchdrop-open-share'),
 		openFile: (filePath) => ipcRenderer.invoke('notchdrop-open-file', filePath),
 		deleteFile: (fileId) => ipcRenderer.invoke('notchdrop-delete-file', fileId),
-		updateVoiceStatus: (status) => ipcRenderer.invoke('notchdrop-update-voice-status', status),
 		onFileDropped: (callback) => {
 			ipcRenderer.on('notchdrop-file-dropped', (event, data) => {
 				callback(data);
@@ -394,5 +405,16 @@ contextBridge.exposeInMainWorld('electronApi', {
 		ipcRenderer.on('screen-audio', (_event, data) => {
 			callback(data);
 		});
+	},
+
+	// File system APIs for audio storage
+	fs: {
+		ensureDir: (dirPath) => ipcRenderer.invoke('fs-ensure-dir', dirPath),
+		writeFile: (filePath, data) => ipcRenderer.invoke('fs-write-file', filePath, data),
+		readFile: (filePath) => ipcRenderer.invoke('fs-read-file', filePath),
+		readFileBinary: (filePath) => ipcRenderer.invoke('fs-read-file-binary', filePath),
+		exists: (filePath) => ipcRenderer.invoke('fs-exists', filePath),
+		remove: (filePath) => ipcRenderer.invoke('fs-remove', filePath),
+		readdir: (dirPath) => ipcRenderer.invoke('fs-readdir', dirPath),
 	},
 });

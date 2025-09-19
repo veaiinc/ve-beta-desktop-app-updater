@@ -1,5 +1,6 @@
 const path = require('path');
 const log = require('electron-log');
+const { BrowserWindow } = require('electron');
 
 let NotchDropAddonWrapper;
 
@@ -13,6 +14,7 @@ class NotchDropService {
 
 		// Swift-JS Bridge integration
 		this.swiftJSBridge = null;
+		this.createMainWindowFn = null;
 	}
 
 	async initialize() {
@@ -156,7 +158,9 @@ class NotchDropService {
 		this.notchDropAddon.on('startVoiceAgent', (data) => {
 			try {
 				log.info('🎤 Swift UI requested voice agent start');
-				console.log('🎤 NotchDrop: Received startVoiceAgent event, activating voice agent...');
+				console.log(
+					'🎤 NotchDrop: Received startVoiceAgent event, activating voice agent...',
+				);
 				this.activateVoiceAgent();
 			} catch (error) {
 				log.error('❌ Error handling Swift UI startVoiceAgent:', error);
@@ -167,7 +171,9 @@ class NotchDropService {
 		this.notchDropAddon.on('disconnectVoice', (data) => {
 			try {
 				log.info('🔌 Swift UI requested voice agent disconnect');
-				console.log('🔌 NotchDrop: Received disconnectVoice event, deactivating voice agent...');
+				console.log(
+					'🔌 NotchDrop: Received disconnectVoice event, deactivating voice agent...',
+				);
 				this.deactivateVoiceAgent();
 			} catch (error) {
 				log.error('❌ Error handling Swift UI disconnectVoice:', error);
@@ -189,6 +195,15 @@ class NotchDropService {
 		this.notchDropAddon.on('messageReceived', (message) => {
 			log.info('📨 Swift UI received message from Electron:', message);
 			// You can add additional handling here if needed
+		});
+
+		this.notchDropAddon.on('navigateToMainScreen', (targetPath) => {
+			try {
+				log.info('🏠 Swift UI requested main window navigation:', targetPath);
+				this.navigateMainWindow(targetPath);
+			} catch (error) {
+				log.error('❌ Error handling Swift UI main window navigation request:', error);
+			}
 		});
 	}
 
@@ -386,6 +401,88 @@ class NotchDropService {
 		this.mainWindow = mainWindow;
 	}
 
+	setMainWindowFactory(factory) {
+		if (typeof factory === 'function') {
+			this.createMainWindowFn = factory;
+		} else {
+			this.createMainWindowFn = null;
+		}
+	}
+
+	navigateMainWindow(path) {
+		const defaultPath = '/verify-user';
+		const resolvedPath =
+			typeof path === 'string' && path.trim().length > 0 ? path.trim() : defaultPath;
+		const normalizedPath = resolvedPath.startsWith('/') ? resolvedPath : `/${resolvedPath}`;
+
+		try {
+			if (this.focusAndNavigateWindow(this.mainWindow, normalizedPath)) {
+				return true;
+			}
+
+			const allWindows = BrowserWindow.getAllWindows();
+			const fallbackWindow = allWindows.find((win) => {
+				if (!win || win.isDestroyed()) {
+					return false;
+				}
+				const title = typeof win.getTitle === 'function' ? win.getTitle() : '';
+				return title.toLowerCase().includes('ve ai');
+			});
+
+			if (this.focusAndNavigateWindow(fallbackWindow, normalizedPath)) {
+				return true;
+			}
+
+			if (typeof this.createMainWindowFn === 'function') {
+				const createdWindow = this.createMainWindowFn(true);
+				if (this.focusAndNavigateWindow(createdWindow, normalizedPath)) {
+					return true;
+				}
+			}
+
+			log.warn('⚠️ Unable to navigate main window - no window available', { path: normalizedPath });
+			return false;
+		} catch (error) {
+			log.error('❌ Failed to navigate main window from NotchDrop request:', error);
+			return false;
+		}
+	}
+
+	focusAndNavigateWindow(windowInstance, path) {
+		if (!windowInstance || windowInstance.isDestroyed()) {
+			return false;
+		}
+
+		this.setMainWindow(windowInstance);
+
+		try {
+			if (!windowInstance.isVisible()) {
+				windowInstance.show();
+			}
+			windowInstance.focus();
+		} catch (error) {
+			log.warn('⚠️ Unable to show/focus main window:', error);
+		}
+
+		const { webContents } = windowInstance;
+		const sendNavigation = () => {
+			try {
+				webContents.send('navigate-to', path);
+				log.info('🏠 Main window navigated via NotchDrop request:', path);
+			} catch (error) {
+				log.error('❌ Failed to send navigation message to main window:', error);
+			}
+		};
+
+		if (webContents.isLoading()) {
+			webContents.once('did-finish-load', sendNavigation);
+		} else {
+			sendNavigation();
+		}
+
+		return true;
+	}
+
 	cleanup() {
 		if (this.isInitialized) {
 			try {
@@ -494,6 +591,17 @@ class NotchDropService {
 				return { success: false, error: 'Swift-JS Bridge not initialized' };
 			}
 
+			if (action === 'navigateToMainScreen') {
+				const resolvedPath =
+					typeof data === 'string' && data.trim().length > 0 ? data.trim() : '/verify-user';
+				const navigationSucceeded = this.navigateMainWindow(resolvedPath);
+				return {
+					success: navigationSucceeded,
+					action,
+					path: resolvedPath,
+				};
+			}
+
 			// Handle voice-specific actions
 			if (action === 'connectVoice' || action === 'startVoiceAgent') {
 				console.log('🎤 NotchDrop Voice button clicked - activating voice agent');
@@ -514,7 +622,7 @@ class NotchDropService {
 	async activateVoiceAgent() {
 		try {
 			console.log('🎤 Activating voice agent from NotchDrop (LiveKit only)...');
-			
+
 			// ONLY dispatch LiveKit voice activation event - no web interface
 			if (this.mainWindow) {
 				const liveKitResult = await this.mainWindow.webContents.executeJavaScript(`
@@ -531,7 +639,6 @@ class NotchDropService {
 				console.log('🎤 LiveKit voice activation event result:', liveKitResult);
 				console.log('✅ Voice conversation will stay within NotchDrop UI');
 			}
-			
 		} catch (error) {
 			console.error('❌ Error activating voice agent:', error);
 		}
@@ -540,7 +647,7 @@ class NotchDropService {
 	async deactivateVoiceAgent() {
 		try {
 			console.log('🔌 Deactivating voice agent from NotchDrop (LiveKit only)...');
-			
+
 			if (this.mainWindow) {
 				// ONLY dispatch LiveKit voice deactivation event - no web interface
 				const liveKitResult = await this.mainWindow.webContents.executeJavaScript(`
@@ -557,7 +664,6 @@ class NotchDropService {
 				console.log('🔌 LiveKit voice deactivation event result:', liveKitResult);
 				console.log('✅ Voice conversation ended within NotchDrop UI');
 			}
-			
 		} catch (error) {
 			console.error('❌ Error deactivating voice agent:', error);
 		}
@@ -566,7 +672,7 @@ class NotchDropService {
 	async toggleVoiceMute() {
 		try {
 			console.log('🔇 Toggling voice mute from NotchDrop...');
-			
+
 			if (this.mainWindow) {
 				// Dispatch LiveKit microphone toggle event
 				const muteToggleResult = await this.mainWindow.webContents.executeJavaScript(`
@@ -583,7 +689,6 @@ class NotchDropService {
 				console.log('🔇 LiveKit microphone toggle event result:', muteToggleResult);
 				console.log('✅ Microphone mute toggled from NotchDrop');
 			}
-			
 		} catch (error) {
 			console.error('❌ Error toggling voice mute:', error);
 		}
@@ -592,7 +697,7 @@ class NotchDropService {
 	async updateVoiceConnectionState(status) {
 		try {
 			console.log(`🔄 Updating NotchDrop voice connection state: ${status}`);
-			
+
 			if (!this.isInitialized) {
 				log.warn('NotchDrop not initialized, cannot update voice connection state');
 				return false;
@@ -615,8 +720,12 @@ class NotchDropService {
 
 	async addVoiceMessage(messageData) {
 		try {
-			console.log(`💬 Adding voice message to NotchDrop: ${messageData.sender}: ${messageData.content?.substring(0, 50)}...`);
-			
+			console.log(
+				`💬 Adding voice message to NotchDrop: ${
+					messageData.sender
+				}: ${messageData.content?.substring(0, 50)}...`,
+			);
+
 			if (!this.isInitialized) {
 				log.warn('NotchDrop not initialized, cannot add voice message');
 				return false;
@@ -640,7 +749,7 @@ class NotchDropService {
 	async updateVoiceMuteState(isMuted) {
 		try {
 			console.log(`🔇 Updating NotchDrop voice mute state: ${isMuted}`);
-			
+
 			if (!this.isInitialized) {
 				log.warn('NotchDrop not initialized, cannot update voice mute state');
 				return false;

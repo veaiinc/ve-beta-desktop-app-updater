@@ -501,12 +501,17 @@ class NotchDropAddonWrapper extends EventEmitter {
 			case 'sendChatMessageToAskAI':
 				this.emit('sendChatMessageToAskAI', data);
 				break;
-			case 'setAuthenticated':
-				this.emit('setAuthenticated', data === 'true');
-				break;
-			case 'sendLog':
-				this.handleSwiftLog(data);
-				break;
+		case 'setAuthenticated':
+			this.emit('setAuthenticated', data === 'true');
+			break;
+		case 'navigateToMainScreen': {
+			const targetPath = typeof data === 'string' && data.trim().length > 0 ? data.trim() : '/verify-user';
+			this.emit('navigateToMainScreen', targetPath);
+			break;
+		}
+		case 'sendLog':
+			this.handleSwiftLog(data);
+			break;
 			// Voice Assistant Actions
 			case 'connectVoice':
 				this.emit('connectVoice', data);
@@ -1103,7 +1108,12 @@ class NotchDropAddonWrapper extends EventEmitter {
 			// Convert messageData to JSON string for native layer
 			const messageJson = JSON.stringify(messageData);
 			this.addon.addVoiceMessage(messageJson);
-			console.log(`💬 Voice message added: ${messageData.sender}: ${messageData.content?.substring(0, 30)}...`);
+			console.log(
+				`💬 Voice message added: ${messageData.sender}: ${messageData.content?.substring(
+					0,
+					30,
+				)}...`,
+			);
 		} catch (error) {
 			console.error('❌ Error adding voice message:', error);
 			throw error;

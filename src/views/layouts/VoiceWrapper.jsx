@@ -1,5 +1,12 @@
 import React, { memo, useContext, useCallback, useState, useRef, useEffect } from 'react';
-import { LiveKitRoom, RoomAudioRenderer, StartAudio, useVoiceAssistant, TrackToggle, useConnectionState } from '@livekit/components-react';
+import {
+	LiveKitRoom,
+	RoomAudioRenderer,
+	StartAudio,
+	useVoiceAssistant,
+	TrackToggle,
+	useConnectionState,
+} from '@livekit/components-react';
 import { Track } from 'livekit-client';
 import Voice from '../components/chat/Voice';
 import Context from '../../context/context';
@@ -14,33 +21,24 @@ import NotchDropLiveKitIntegration from '../../components/NotchDropLiveKitIntegr
 const VoiceAssistantInitializer = ({ notchDropVoiceActive }) => {
 	const voiceAssistant = useVoiceAssistant();
 	const roomState = useConnectionState();
-	
-	// Log voice assistant status for debugging
+
+	// Voice assistant status monitoring (logs removed)
 	useEffect(() => {
-		console.log('🎤 VoiceAssistantInitializer: Voice assistant state:', voiceAssistant.state);
-		console.log('🎤 VoiceAssistantInitializer: Audio track:', !!voiceAssistant.audioTrack);
-		console.log('🎤 VoiceAssistantInitializer: Room state:', roomState);
-		console.log('🎤 VoiceAssistantInitializer: NotchDrop active:', notchDropVoiceActive);
-		
-		// Log more details about voice assistant
-		if (voiceAssistant) {
-			console.log('🎤 VoiceAssistantInitializer: Voice assistant details:', {
-				state: voiceAssistant.state,
-				audioTrack: voiceAssistant.audioTrack,
-				participant: voiceAssistant.audioTrack?.participant?.identity
-			});
-		}
+		// Monitor voice assistant state changes for NotchDrop integration
 	}, [voiceAssistant.state, voiceAssistant.audioTrack, roomState, notchDropVoiceActive]);
-	
+
 	// Try to start voice assistant when connected and NotchDrop is active
 	useEffect(() => {
-		if (notchDropVoiceActive && roomState === 'connected' && voiceAssistant.state === 'disconnected') {
-			console.log('🚀 VoiceAssistantInitializer: Attempting to start voice assistant for NotchDrop...');
+		if (
+			notchDropVoiceActive &&
+			roomState === 'connected' &&
+			voiceAssistant.state === 'disconnected'
+		) {
 			// The voice assistant should auto-start when room is connected
 			// If it doesn't, we might need to trigger it manually
 		}
 	}, [notchDropVoiceActive, roomState, voiceAssistant.state]);
-	
+
 	// Always render microphone toggle (hidden when needed)
 	return (
 		<div style={{ display: 'none' }}>
@@ -145,12 +143,11 @@ const VoiceWrapper = () => {
 				connect={voiceIntegrationData?.shouldConnect || false}
 				onError={(e) => {
 					message.error(e.message);
-					console.error(e);
 				}}
 			>
 				{/* Always initialize voice assistant (essential for NotchDrop) */}
 				<VoiceAssistantInitializer notchDropVoiceActive={notchDropVoiceActive} />
-				
+
 				{/* Always include Voice component but make it invisible when NotchDrop is active */}
 				<div style={{ display: notchDropVoiceActive ? 'none' : 'block' }}>
 					<Voice handleDisconnect={customDisconnetFunc} deviceInfo={info?.deviceInfo} />

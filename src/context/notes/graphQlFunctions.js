@@ -1142,6 +1142,15 @@ export const getMeetTranscriptHistoryQuery = gql`
 	}
 `;
 
+export const deleteMeetingMutation = gql`
+	mutation DeleteMeeting($meetingId: ID!) {
+		deleteMeeting(meetingId: $meetingId) {
+			success
+			message
+		}
+	}
+`;
+
 export const updateDatabaseViewMutation = gql`
 	mutation UpdateDatabaseView(
 		$pageId: ID!

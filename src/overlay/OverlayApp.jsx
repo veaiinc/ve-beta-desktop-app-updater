@@ -44,14 +44,12 @@ const OverlayApp = () => {
 	});
 
 	// Hashmap for live intelligence responses keyed by box_id
-	const [liveIntelligenceHashmap, setLiveIntelligenceHashmap] = useState({});
-	const hashmapRef = useRef({});
+	// const [liveIntelligenceHashmap, setLiveIntelligenceHashmap] = useState({});
+	// const hashmapRef = useRef({});
 
-	// Tracking hashmap: prompt_id -> box_id mapping
-	const promptToBoxMapping = useRef({});
-	const boxIdCounter = useRef(0);
-
-
+	// // Tracking hashmap: prompt_id -> box_id mapping
+	// const promptToBoxMapping = useRef({});
+	// const boxIdCounter = useRef(0);
 
 	// Ask AI input state
 	const [isAskAIInputFocused, setIsAskAIInputFocused] = useState(false);
@@ -73,100 +71,41 @@ const OverlayApp = () => {
 		},
 	} = useContext(Context);
 
-	const handleUpdateTranscription = (newTranscript) => {
-		setInfo((prev) => {
-			const transcriptions = prev.transcriptions || [];
+	// const handleUpdateTranscription = (newTranscript) => {
+	const updateTranscriptionHelper = (transcriptionArray, newTranscript) => {
+		const { source } = newTranscript;
 
-			// Get the transcript text from various possible sources
-			const transcriptText =
-				newTranscript.transcript || newTranscript.displayedText || newTranscript.text || '';
+		if (transcriptionArray.length > 0) {
+			// Find the most recent transcript from the same source
+			for (let i = transcriptionArray.length - 1; i >= 0; i--) {
+				if (transcriptionArray[i].source === source) {
+					const oldTranscript = transcriptionArray[i];
 
-			// Check if this transcript already exists (to avoid duplicates)
-			const existingTranscript = transcriptions.find(
-				(t) =>
-					t.text === transcriptText ||
-					t.transcript === transcriptText ||
-					t.id === newTranscript.id, // Also check by ID
-			);
-
-			if (existingTranscript) {
-				return prev; // Don't add duplicate
-			}
-
-			// Check if this is a continuation of the last transcript (same session)
-			const lastTranscript = transcriptions[transcriptions.length - 1];
-			let isContinuation = false;
-			if (newTranscript?.isTurnFormatted) {
-				isContinuation = true;
-			} else {
-				isContinuation = lastTranscript && !lastTranscript.isFinal;
-			}
-
-			if (!newTranscript.isFinal) {
-				// Partial transcript - update the last entry if it's a continuation
-				if (isContinuation) {
-					// Update the last entry with the new partial text
-					const updated = [...transcriptions];
-					updated[updated.length - 1] = {
-						...updated[updated.length - 1],
-						...newTranscript,
-						text: transcriptText,
-						transcript: transcriptText,
-						time: new Date().toLocaleTimeString(),
-					};
-					return { ...prev, transcriptions: updated };
-				} else {
-					// New partial transcript - add as new entry
-					return {
-						...prev,
-						transcriptions: [
-							...transcriptions,
-							{
-								...newTranscript,
-								text: transcriptText,
-								transcript: transcriptText,
-								time: new Date().toLocaleTimeString(),
-							},
-						],
-					};
-				}
-			} else {
-				// Final transcript - update the last entry if it's a continuation, otherwise append
-				if (isContinuation) {
-					// Finalize the last entry
-					const updated = [...transcriptions];
-					updated[updated.length - 1] = {
-						...updated[updated.length - 1],
-						...newTranscript,
-						text: transcriptText,
-						transcript: transcriptText,
-						time: new Date().toLocaleTimeString(),
-						isFinal: true,
-					};
-					return { ...prev, transcriptions: updated };
-				} else {
-					// New final transcript - append as new entry
-					return {
-						...prev,
-						transcriptions: [
-							...transcriptions,
-							{
-								...newTranscript,
-								text: transcriptText,
-								transcript: transcriptText,
-								time: new Date().toLocaleTimeString(),
-								isFinal: true,
-							},
-						],
-					};
+					// Logic based on the state of the previous transcript:
+					// - Final AND formatted → Append new transcript (start new entry)
+					// - Final but NOT formatted → Replace with new transcript
+					// - Not final → Replace with new transcript
+					if (oldTranscript.isFinal && oldTranscript.isTurnFormatted) {
+						return [...transcriptionArray, newTranscript];
+					} else {
+						// Replace existing transcript (whether final-unformatted or not-final)
+						const updatedArray = [...transcriptionArray];
+						updatedArray[i] = newTranscript;
+						return updatedArray;
+					}
 				}
 			}
-		});
-		
-		// Reset the 5-minute Are You There timer when transcription is received
-		if (window.electronApi?.areYouThere?.updateTranscriptionActivity) {
-			window.electronApi.areYouThere.updateTranscriptionActivity();
 		}
+
+		// If no match found or array is empty, append the new transcript
+		return [...transcriptionArray, newTranscript];
+	};
+
+	const handleUpdateTranscription = (newTranscript) => {
+		setInfo((prev) => ({
+			...prev,
+			transcriptions: updateTranscriptionHelper(prev.transcriptions, newTranscript),
+		}));
 	};
 
 	const {
@@ -219,127 +158,127 @@ const OverlayApp = () => {
 	};
 
 	// Pure hashmap algorithm with prompt_id to box_id mapping
-	const updateResponseMap = useCallback((responseMap, response) => {
-		const promptId = response.prompt_id;
-		const referenceId = response.reference_id;
+	// const updateResponseMap = useCallback((responseMap, response) => {
+	// 	const promptId = response.prompt_id;
+	// 	const referenceId = response.reference_id;
 
-		let targetBoxId;
+	// 	let targetBoxId;
 
-		if (!referenceId || referenceId === '') {
-			// Case A: Empty reference_id → Create new box for this prompt_id
-			if (promptToBoxMapping.current[promptId]) {
-				// prompt_id already has a box, use existing box
-				targetBoxId = promptToBoxMapping.current[promptId];
-				console.log(
-					`📝 Empty reference_id, prompt_id ${promptId} → Using existing box: ${targetBoxId}`,
-				);
-			} else {
-				// Create new box for this prompt_id
-				targetBoxId = `b${boxIdCounter.current}`;
-				boxIdCounter.current += 1;
-				promptToBoxMapping.current[promptId] = targetBoxId;
-				console.log(
-					`📝 Empty reference_id, prompt_id ${promptId} → Created new box: ${targetBoxId}`,
-				);
-			}
-		} else {
-			// Case B: reference_id exists → Check if it maps to existing prompt_id's box
-			const existingBoxId = promptToBoxMapping.current[referenceId];
-			if (existingBoxId) {
-				// reference_id matches a previous prompt_id, update that box
-				targetBoxId = existingBoxId;
-				promptToBoxMapping.current[promptId] = targetBoxId; // Update mapping for current prompt_id
-				console.log(
-					`🔄 reference_id ${referenceId} found in mapping → Updating box: ${targetBoxId}`,
-				);
-			} else {
-				// New reference_id, create new box
-				targetBoxId = `b${boxIdCounter.current}`;
-				boxIdCounter.current += 1;
-				promptToBoxMapping.current[promptId] = targetBoxId;
-				console.log(
-					`➕ New reference_id ${referenceId}, prompt_id ${promptId} → Created new box: ${targetBoxId}`,
-				);
-			}
-		}
+	// 	if (!referenceId || referenceId === '') {
+	// 		// Case A: Empty reference_id → Create new box for this prompt_id
+	// 		if (promptToBoxMapping.current[promptId]) {
+	// 			// prompt_id already has a box, use existing box
+	// 			targetBoxId = promptToBoxMapping.current[promptId];
+	// 			console.log(
+	// 				`📝 Empty reference_id, prompt_id ${promptId} → Using existing box: ${targetBoxId}`,
+	// 			);
+	// 		} else {
+	// 			// Create new box for this prompt_id
+	// 			targetBoxId = `b${boxIdCounter.current}`;
+	// 			boxIdCounter.current += 1;
+	// 			promptToBoxMapping.current[promptId] = targetBoxId;
+	// 			console.log(
+	// 				`📝 Empty reference_id, prompt_id ${promptId} → Created new box: ${targetBoxId}`,
+	// 			);
+	// 		}
+	// 	} else {
+	// 		// Case B: reference_id exists → Check if it maps to existing prompt_id's box
+	// 		const existingBoxId = promptToBoxMapping.current[referenceId];
+	// 		if (existingBoxId) {
+	// 			// reference_id matches a previous prompt_id, update that box
+	// 			targetBoxId = existingBoxId;
+	// 			promptToBoxMapping.current[promptId] = targetBoxId; // Update mapping for current prompt_id
+	// 			console.log(
+	// 				`🔄 reference_id ${referenceId} found in mapping → Updating box: ${targetBoxId}`,
+	// 			);
+	// 		} else {
+	// 			// New reference_id, create new box
+	// 			targetBoxId = `b${boxIdCounter.current}`;
+	// 			boxIdCounter.current += 1;
+	// 			promptToBoxMapping.current[promptId] = targetBoxId;
+	// 			console.log(
+	// 				`➕ New reference_id ${referenceId}, prompt_id ${promptId} → Created new box: ${targetBoxId}`,
+	// 			);
+	// 		}
+	// 	}
 
-		// Update the response map with the target box
-		responseMap[targetBoxId] = {
-			...response,
-			box_id: targetBoxId,
-			reference_id: referenceId || '',
-		};
+	// 	// Update the response map with the target box
+	// 	responseMap[targetBoxId] = {
+	// 		...response,
+	// 		box_id: targetBoxId,
+	// 		reference_id: referenceId || '',
+	// 	};
 
-		console.log(`📊 Current mapping:`, promptToBoxMapping.current);
-		console.log(`📊 Current boxes:`, Object.keys(responseMap));
+	// 	console.log(`📊 Current mapping:`, promptToBoxMapping.current);
+	// 	console.log(`📊 Current boxes:`, Object.keys(responseMap));
 
-		return responseMap;
-	}, []);
+	// 	return responseMap;
+	// }, []);
 
-	// Process live intelligence response with timestamp
-	const processLiveIntelligenceResponse = useCallback((suggestion) => {
-		const timestamp = new Date().toISOString();
+	// // Process live intelligence response with timestamp
+	// const processLiveIntelligenceResponse = useCallback((suggestion) => {
+	// 	const timestamp = new Date().toISOString();
 
-		// Create enhanced suggestion object with timestamp
-		const enhancedSuggestion = {
-			...suggestion,
-			timestamp,
-		};
+	// 	// Create enhanced suggestion object with timestamp
+	// 	const enhancedSuggestion = {
+	// 		...suggestion,
+	// 		timestamp,
+	// 	};
 
-		return enhancedSuggestion;
-	}, []);
+	// 	return enhancedSuggestion;
+	// }, []);
 
-	// Apply hashmap algorithm to update responses
-	const updateLiveIntelligenceHashmap = useCallback(
-		(suggestion) => {
-			setLiveIntelligenceHashmap((prev) => {
-				// Create a copy of current hashmap
-				const newHashmap = { ...prev };
+	// // Apply hashmap algorithm to update responses
+	// const updateLiveIntelligenceHashmap = useCallback(
+	// 	(suggestion) => {
+	// 		setLiveIntelligenceHashmap((prev) => {
+	// 			// Create a copy of current hashmap
+	// 			const newHashmap = { ...prev };
 
-				// Apply pure hashmap algorithm
-				updateResponseMap(newHashmap, suggestion);
+	// 			// Apply pure hashmap algorithm
+	// 			updateResponseMap(newHashmap, suggestion);
 
-				// Update ref for consistent state
-				hashmapRef.current = newHashmap;
+	// 			// Update ref for consistent state
+	// 			hashmapRef.current = newHashmap;
 
-				return newHashmap;
-			});
-		},
-		[updateResponseMap],
-	);
+	// 			return newHashmap;
+	// 		});
+	// 	},
+	// 	[updateResponseMap],
+	// );
 
-	// Convert hashmap to categorized arrays for UI
-	const categorizeLiveIntelligenceData = useCallback((hashmap) => {
-		const allThreads = [];
-		const askUser = [];
-		const needHelp = [];
-		const actions = [];
-		const files = [];
+	// // Convert hashmap to categorized arrays for UI
+	// const categorizeLiveIntelligenceData = useCallback((hashmap) => {
+	// 	const allThreads = [];
+	// 	const askUser = [];
+	// 	const needHelp = [];
+	// 	const actions = [];
+	// 	const files = [];
 
-		Object.values(hashmap).forEach((suggestion) => {
-			if (suggestion.entity === 'user') {
-				askUser.push(suggestion);
-			} else if (suggestion.entity === 'agent' && suggestion.type === 'search') {
-				needHelp.push(suggestion);
-			} else if (suggestion.entity === 'agent' && suggestion.type === 'action') {
-				actions.push(suggestion);
-			} else if (suggestion.entity === 'file') {
-				files.push(suggestion);
-			}
-			allThreads.push(suggestion);
-		});
+	// 	Object.values(hashmap).forEach((suggestion) => {
+	// 		if (suggestion.entity === 'user') {
+	// 			askUser.push(suggestion);
+	// 		} else if (suggestion.entity === 'agent' && suggestion.type === 'search') {
+	// 			needHelp.push(suggestion);
+	// 		} else if (suggestion.entity === 'agent' && suggestion.type === 'action') {
+	// 			actions.push(suggestion);
+	// 		} else if (suggestion.entity === 'file') {
+	// 			files.push(suggestion);
+	// 		}
+	// 		allThreads.push(suggestion);
+	// 	});
 
-		// Sort by timestamp (newest first)
-		const sortByTimestamp = (a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0);
+	// 	// Sort by timestamp (newest first)
+	// 	const sortByTimestamp = (a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0);
 
-		return {
-			askUser: askUser.sort(sortByTimestamp),
-			needHelp: needHelp.sort(sortByTimestamp),
-			actions: actions.sort(sortByTimestamp),
-			files: files.sort(sortByTimestamp),
-			allThreads: allThreads.sort(sortByTimestamp),
-		};
-	}, []);
+	// 	return {
+	// 		askUser: askUser.sort(sortByTimestamp),
+	// 		needHelp: needHelp.sort(sortByTimestamp),
+	// 		actions: actions.sort(sortByTimestamp),
+	// 		files: files.sort(sortByTimestamp),
+	// 		allThreads: allThreads.sort(sortByTimestamp),
+	// 	};
+	// }, []);
 
 	const formatTimestamp = () => {
 		// Show current time
@@ -433,10 +372,10 @@ const OverlayApp = () => {
 			}));
 
 			// Clear hashmap for fresh start
-			setLiveIntelligenceHashmap({});
-			hashmapRef.current = {};
-			promptToBoxMapping.current = {};
-			boxIdCounter.current = 0;
+			// setLiveIntelligenceHashmap({});
+			// hashmapRef.current = {};
+			// promptToBoxMapping.current = {};
+			// boxIdCounter.current = 0;
 		} else {
 			console.error('Failed to create meeting:', meetingResponse);
 			notification.error(
@@ -583,15 +522,13 @@ const OverlayApp = () => {
 	// Check ask AI input focus state periodically
 	useEffect(() => {
 		const checkAskAIFocus = async () => {
-			if (window.electronApi?.askAI?.getInputFocus) {
-				try {
-					const result = await window.electronApi.askAI.getInputFocus();
-					if (result.success) {
-						setIsAskAIInputFocused(result.isFocused);
-					}
-				} catch (error) {
-					console.error('Error checking ask AI input focus:', error);
+			try {
+				const result = await window.electronApi.askAI.getInputFocus();
+				if (result.success) {
+					setIsAskAIInputFocused(result.isFocused);
 				}
+			} catch (error) {
+				console.error('Error checking ask AI input focus:', error);
 			}
 		};
 
@@ -642,10 +579,7 @@ const OverlayApp = () => {
 
 	const handleClosePanel = () => {
 		// Close panel and stop recording
-		setActivePanel(null);
-		if (isRecording) {
-			handleStopTranscription();
-		}
+		window?.electronApi?.overlay?.hideOverlayWindow();
 
 		if (!isDynamicIslandControlled) {
 			setShowShortcutBar(true);
@@ -675,78 +609,24 @@ const OverlayApp = () => {
 			isDynamicIslandControlled,
 		};
 
-		console.log('📡 Sending state to Dynamic Island:', state);
-
 		// Use IPC to send state update to main process, which will forward to Dynamic Island
-		window.electronApi.overlay?.sendStateUpdate?.(state);
+		window?.electronApi.overlay.sendStateUpdate(state);
 	};
 
 	const handleAskAIClick = () => {
 		// Open Ask AI window via electron API
-		window.electronApi.askAI?.toggleWindow?.();
-	};
-
-	// Function to manually reset Dynamic Island control state
-	const resetDynamicIslandControl = () => {
-		setIsDynamicIslandControlled(false);
-		setShowShortcutBar(false);
-	};
-
-	// Debug function to test notifications (remove after testing)
-	const handleTestNotifications = () => {
-		notification.success('Test Success', 'This is a success notification');
-		setTimeout(() => {
-			notification.error(
-				'Test Error',
-				'This is an error notification with a longer description to test wrapping',
-			);
-			notification.error(
-				'Test Error',
-				'This is an error notification with a longer description to test wrapping',
-			);
-		}, 500);
-		setTimeout(() => {
-			notification.info('Test Info', 'This is an info notification');
-		}, 1000);
+		window?.electronApi.askAI.toggleWindow();
 	};
 
 	const calculateDynamicDimensions = useCallback(() => {
 		if (!containerRef.current) return { width: 600, height: 50 };
 
-		const rect = containerRef.current.getBoundingClientRect();
-		let calculatedWidth = rect.width;
-		let calculatedHeight = rect.height;
-
-		// Dynamic width calculation based on layout - use exact content width
-		if (activePanel === 'live-intelligence' ){
-			// Panel is open: use exact panel width without extra padding
-			calculatedWidth = 830; // Exact panel width
-		} else if (activePanel === 'transcript') {
-			calculatedWidth = 560; // Exact panel width
-		}
-		else if (showShortcutBar && !isDynamicIslandControlled) {
-			// Only shortcut bar visible: use actual content width
-			calculatedWidth = Math.max(rect.width, 400);
-		} else {
-			// Controlled by Dynamic Island or no controls: minimal width
-			calculatedWidth = 32; // Just padding
-		}
-
-		// Dynamic height calculation - use exact content height
-		if (activePanel === 'live-intelligence' || activePanel === 'transcript') {
-			// Panel is open: use exact content height without extra padding
-			calculatedHeight = Math.max(rect.height, 200);
-		} else if (showShortcutBar && !isDynamicIslandControlled) {
-			// Only shortcut bar visible: use actual content height
-			calculatedHeight = Math.max(rect.height, 50);
-		} else {
-			// Controlled by Dynamic Island: minimal height
-			calculatedHeight = 32; // Minimal height when hidden
-		}
+		let calculatedWidth = 560;
+		let calculatedHeight = 450;
 
 		return {
 			width: Math.min(calculatedWidth, window.screen.width * 0.8), // Max 80% of screen width
-			height: Math.min(calculatedHeight, window.screen.height * 0.8), // Max 80% of screen height
+			height: calculatedHeight, // Max 80% of screen height
 		};
 	}, [activePanel, showShortcutBar, isDynamicIslandControlled]);
 
@@ -758,9 +638,7 @@ const OverlayApp = () => {
 				setTimeout(() => {
 					const { width, height } = calculateDynamicDimensions();
 
-					if (window.electronApi?.overlay?.updateDimensions) {
-						window.electronApi.overlay.updateDimensions({ width, height });
-					}
+					window?.electronApi.overlay.updateDimensions({ width, height });
 				}, 50);
 			}
 		};
@@ -791,25 +669,6 @@ const OverlayApp = () => {
 		};
 	}, [calculateDynamicDimensions]);
 
-	// Update dimensions when layout state changes
-	useEffect(() => {
-		if (containerRef.current) {
-			const { width, height } = calculateDynamicDimensions();
-			console.log('Layout state changed, updating dimensions:', {
-				activePanel,
-				width,
-				height,
-			});
-
-			if (window.electronApi?.overlay?.updateDimensions) {
-				// Small delay to ensure DOM has updated
-				setTimeout(() => {
-					window.electronApi.overlay.updateDimensions({ width, height });
-				}, 100);
-			}
-		}
-	}, [activePanel, calculateDynamicDimensions]);
-
 	// Send state updates to Dynamic Island when recording state changes
 	useEffect(() => {
 		sendRecordingStateUpdate();
@@ -824,67 +683,51 @@ const OverlayApp = () => {
 		isConnected,
 	]);
 
-	// Process aiTranscriptionSuggestions with hashmap logic
 	useEffect(() => {
 		if (aiTranscriptionSuggestions && aiTranscriptionSuggestions?.suggestions?.length > 0) {
-			console.log(
-				'🧠 Processing live intelligence suggestions with hashmap logic:',
-				aiTranscriptionSuggestions.suggestions,
-			);
-
-			// Process each suggestion with pure hashmap algorithm
+			const allThreads = [];
+			const askUser = [];
+			const needHelp = [];
+			const actions = [];
+			const files = [];
 			aiTranscriptionSuggestions.suggestions.forEach((suggestion) => {
-				const enhancedSuggestion = processLiveIntelligenceResponse(suggestion);
-				updateLiveIntelligenceHashmap(enhancedSuggestion);
+				if (suggestion.entity === 'user') {
+					askUser.push(suggestion);
+				} else if (suggestion.entity === 'agent' && suggestion.type === 'search') {
+					needHelp.push(suggestion);
+				} else if (suggestion.entity === 'agent' && suggestion.type === 'action') {
+					actions.push(suggestion);
+				} else if (suggestion.entity === 'file') {
+					files.push(suggestion);
+				}
+				allThreads.push(suggestion);
 			});
+
+			setInfo((prev) => ({
+				...prev,
+				liveIntelligenceData: {
+					askUser,
+					needHelp,
+					actions,
+					files,
+					allThreads,
+				},
+			}));
 		}
-	}, [
-		aiTranscriptionSuggestions,
-		processLiveIntelligenceResponse,
-		updateLiveIntelligenceHashmap,
-	]);
-
-	// Update categorized data when hashmap changes
-	useEffect(() => {
-		const categorizedData = categorizeLiveIntelligenceData(liveIntelligenceHashmap);
-
-		setInfo((prev) => ({
-			...prev,
-			liveIntelligenceData: categorizedData,
-		}));
-
-		console.log('📊 Updated categorized live intelligence data:', categorizedData);
-	}, [liveIntelligenceHashmap, categorizeLiveIntelligenceData]);
+	}, [aiTranscriptionSuggestions]);
 
 	// Save audio when recording stops
 	useEffect(() => {
 		const saveAudio = async () => {
 			// Use the meeting ID from the ref (which should persist until after saving)
 			const currentMeetingId = meetingIdRef.current;
-			console.log(
-				'OverlayApp: Audio save useEffect triggered - audioBlob:',
-				!!audioBlob,
-				'isAudioRecording:',
-				isAudioRecording,
-				'meetingId:',
-				currentMeetingId,
-			);
+
 			if (audioBlob && !isAudioRecording && currentMeetingId) {
 				try {
-					console.log(
-						'OverlayApp: Saving audio for meeting:',
-						currentMeetingId,
-						'Blob size:',
-						audioBlob.size,
-					);
 					const result = await audioStorageService.saveAudio(currentMeetingId, audioBlob);
 					if (result.success) {
-						console.log('OverlayApp: Audio saved successfully:', result.filePath);
 						// Clear the meeting ID ref ONLY after successful save
 						meetingIdRef.current = null;
-						console.log(
-							'OverlayApp: Cleared meeting ID ref after successful audio save',
-						);
 					} else {
 						console.error('OverlayApp: Failed to save audio:', result.error);
 					}

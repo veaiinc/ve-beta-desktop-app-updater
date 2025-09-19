@@ -13,6 +13,7 @@ const {
 	globalShortcut,
 	clipboard,
 	dialog,
+	shell,
 } = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
@@ -22,8 +23,12 @@ const DynamicIslandHelper = require('./helpers/dynamicIslandHelper');
 const fs = require('fs');
 const { exec } = require('child_process');
 const { Worker } = require('worker_threads');
+const os = require('os');
+const cpuCores = os.cpus().length;
+const safeLimit = Math.max(4, Math.min(cpuCores - 1, 8));
 const pLimit = require('p-limit'); // ← THIS IS THE FIX
-const imageProcessingLimit = pLimit(4); // Max 4 concurrent workers
+const imageProcessingLimit = pLimit(safeLimit); // Max 4 concurrent workers
+const { cleanupAndQuit } = require('./desktopUtilHelper');
 
 // Import dynamic island helper
 // const { DynamicIslandHelper } = require('./dynamicIslandHelper');
@@ -138,6 +143,18 @@ const applyContentProtectionToWindow = (window) => {
 // Runtime platform override for testing (set VE_FORCE_PLATFORM=linux|win32|darwin)
 const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
 const isMacRuntime = RUNTIME_PLATFORM === 'darwin';
+const shouldInitDynamicIsland = (() => {
+	const value = String(process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND || '')
+		.trim()
+		.toLowerCase();
+	return (
+		process.platform !== 'darwin' ||
+		value === '1' ||
+		value === 'true' ||
+		value === 'yes' ||
+		value === 'on'
+	);
+})();
 
 const loadGalleryHelper = () => {
 	if (!galleryHelper) {
@@ -334,7 +351,7 @@ autoUpdater.on('update-downloaded', (info) => {
 	}, 5000);
 });
 
-function showNotification(title, body) {
+async function showNotification(title, body) {
 	const notification = new Notification({
 		title: title || 'Alert',
 		body: body || 'This is a test',
@@ -382,6 +399,33 @@ function showNotification(title, body) {
 			);
 			log.info('Notification also sent to Dynamic Island');
 		}
+	}
+
+	// Send notification to SwiftUI NotchDrop
+	if (notchDropService && notchDropService.isInitialized) {
+		try {
+			const notificationData = {
+				title: title || 'Alert',
+				body: body || 'This is a test',
+				type: 'meeting',
+				timestamp: new Date().toISOString(),
+			};
+			const result = await notchDropService.sendMessageToSwiftUI(
+				JSON.stringify({
+					action: 'showNotification',
+					data: notificationData,
+				}),
+			);
+			if (result.success) {
+				log.info('✅ Notification sent to SwiftUI successfully');
+			} else {
+				log.warn('⚠️ Failed to send notification to SwiftUI:', result.error);
+			}
+		} catch (error) {
+			log.error('❌ Error sending notification to SwiftUI:', error);
+		}
+	} else {
+		log.info('ℹ️ NotchDrop service not available, skipping SwiftUI notification');
 	}
 }
 
@@ -779,6 +823,47 @@ function createMenuBar() {
 			  ]
 			: []),
 		{
+			label: 'Edit',
+			submenu: [
+				{
+					label: 'Undo',
+					role: 'undo',
+					accelerator: 'CmdOrCtrl+Z',
+				},
+				{
+					label: 'Redo',
+					role: 'redo',
+					accelerator: 'CmdOrCtrl+Y',
+				},
+				{
+					type: 'separator',
+				},
+				{
+					label: 'Cut',
+					role: 'cut',
+					accelerator: 'CmdOrCtrl+X',
+				},
+				{
+					label: 'Copy',
+					role: 'copy',
+					accelerator: 'CmdOrCtrl+C',
+				},
+				{
+					label: 'Paste',
+					role: 'paste',
+					accelerator: 'CmdOrCtrl+V',
+				},
+				{
+					type: 'separator',
+				},
+				{
+					label: 'Select All',
+					role: 'selectAll',
+					accelerator: 'CmdOrCtrl+A',
+				},
+			],
+		},
+		{
 			label: 'View',
 			submenu: [
 				{
@@ -1133,10 +1218,6 @@ function updateMenuBarState() {
 			if (autoOpenMenu) {
 				autoOpenMenu.checked = autoOpen;
 			}
-
-			log.info(
-				`📊 Menu updated - Status: ${status}, Visible: ${isVisible}, Auto-open: ${autoOpen}`,
-			);
 		}
 	} catch (error) {
 		log.error('❌ Failed to update menu bar state:', error);
@@ -1157,7 +1238,7 @@ function createWindow(restoreState = false) {
 
 		// Find the first path that exists
 		for (const testPath of possiblePaths) {
-			if (require('fs').existsSync(testPath)) {
+			if (fs.existsSync(testPath)) {
 				iconPath = testPath;
 				break;
 			}
@@ -1199,18 +1280,91 @@ function createWindow(restoreState = false) {
 		},
 	});
 
+	if (notchDropService) {
+		notchDropService.setMainWindow(mainWindow);
+	}
+
+	// Add context menu support for copy/paste functionality
+	mainWindow.webContents.on('context-menu', (event, params) => {
+		const menu = Menu.buildFromTemplate([
+			{
+				label: 'Cut',
+				role: 'cut',
+				enabled:
+					params.isEditable && params.selectionText && params.selectionText.length > 0,
+			},
+			{
+				label: 'Copy',
+				role: 'copy',
+				enabled: params.selectionText && params.selectionText.length > 0,
+			},
+			{
+				label: 'Paste',
+				role: 'paste',
+				enabled: params.isEditable,
+			},
+			{
+				type: 'separator',
+			},
+			{
+				label: 'Select All',
+				role: 'selectAll',
+				enabled: params.isEditable,
+			},
+		]);
+
+		// Only show context menu if there's text selected or if it's an editable element
+		if (params.selectionText || params.isEditable) {
+			menu.popup();
+		}
+	});
+	// Add context menu support for copy/paste functionality
+	mainWindow.webContents.on('context-menu', (event, params) => {
+		const menu = Menu.buildFromTemplate([
+			{
+				label: 'Cut',
+				role: 'cut',
+				enabled:
+					params.isEditable && params.selectionText && params.selectionText.length > 0,
+			},
+			{
+				label: 'Copy',
+				role: 'copy',
+				enabled: params.selectionText && params.selectionText.length > 0,
+			},
+			{
+				label: 'Paste',
+				role: 'paste',
+				enabled: params.isEditable,
+			},
+			{
+				type: 'separator',
+			},
+			{
+				label: 'Select All',
+				role: 'selectAll',
+				enabled: params.isEditable,
+			},
+		]);
+
+		// Only show context menu if there's text selected or if it's an editable element
+		if (params.selectionText || params.isEditable) {
+			menu.popup();
+		}
+	});
+
 	ipcMain.on('veAppMsg', async (event, msg) => {
-		log.info('🔄 Received message from veApp:', msg); // logs: btn clicked from react
+		// log.info('🔄 Received message from veApp:', msg); // logs: btn clicked from react
 
 		// Send the same message to Swift UI if NotchDrop service is available
 		if (notchDropService && notchDropService.isInitialized) {
 			try {
 				const result = await notchDropService.sendMessageToSwiftUI(msg);
-				if (result.success) {
-					log.info('✅ Message sent to Swift UI successfully');
-				} else {
-					log.warn('⚠️ Failed to send message to Swift UI:', result.error);
-				}
+				// if (result.success) {
+				// 	log.info('✅ Message sent to Swift UI successfully');
+				// } else {
+				// 	log.warn('⚠️ Failed to send message to Swift UI:', result.error);
+				// }
 			} catch (error) {
 				log.error('❌ Error sending message to Swift UI:', error);
 			}
@@ -1227,12 +1381,6 @@ function createWindow(restoreState = false) {
 
 	mainWindow.once('ready-to-show', () => {
 		mainWindow.show();
-
-		// Apply content protection to main window
-		applyContentProtectionToWindow(mainWindow);
-		log.info('Window ready-to-show - content protection applied');
-		// Enable developer tools for main window in both development and production
-		log.info('Dev tools available with F12, Ctrl+F12, or Ctrl+Shift+I in all modes');
 
 		// If restoring state, navigate to the last known route
 		if (restoreState && lastWindowState.route) {
@@ -1262,6 +1410,8 @@ function createWindow(restoreState = false) {
 	setTimeout(() => {
 		autoUpdater.checkForUpdatesAndNotify();
 	}, 5000); // Wait 5 seconds after app loads
+
+	return mainWindow;
 }
 
 // Create system tray for Windows
@@ -1576,7 +1726,7 @@ app.whenReady().then(async () => {
 	});
 
 	try {
-		await windowHelper?.preCreateOverlayWindow?.();
+		await windowHelper?.preCreateOverlayWindow();
 	} catch (error) {
 		log.error('❌ Error pre-creating overlay window:', error);
 	}
@@ -1584,6 +1734,7 @@ app.whenReady().then(async () => {
 	if (isMacRuntime) {
 		notchDropService = new NotchDropService();
 		notchDropService.setMainWindow(mainWindow);
+		notchDropService.setMainWindowFactory((restoreState = false) => createWindow(restoreState));
 
 		// CRITICAL: Ensure NotchDrop service fully initializes before proceeding
 		let notchDropInitialized = false;
@@ -1594,10 +1745,9 @@ app.whenReady().then(async () => {
 			try {
 				await notchDropService.initialize();
 
-				// Verify service is truly ready
-				if (notchDropService && notchDropService.isInitialized) {
-					notchDropInitialized = true;
-				} else {
+				notchDropInitialized = notchDropService && notchDropService.isInitialized;
+
+				if (!notchDropInitialized) {
 					throw new Error('NotchDrop service initialization incomplete');
 				}
 			} catch (error) {
@@ -1726,16 +1876,6 @@ app.whenReady().then(async () => {
 				// Ensure listeners are mounted
 				await waitForAskAIReady(askAIWindow);
 				askAIWindow.webContents.send('receive-chat-message', chatMessage);
-				// Resend once shortly after as a safety net in case listener attached late
-				// setTimeout(() => {
-				// 	try {
-				// 		if (askAIWindow && !askAIWindow.isDestroyed()) {
-				// 			askAIWindow.webContents.send('receive-chat-message', chatMessage);
-				// 		}
-				// 	} catch (e) {
-				// 		log.warn('⚠️ Safety resend failed:', e);
-				// 	}
-				// }, 400);
 			} else {
 				log.error('❌ AskAI window unavailable after creation');
 			}
@@ -1852,7 +1992,6 @@ app.whenReady().then(async () => {
 			log.warn('and add this app to the list of allowed applications.');
 
 			// Show a dialog to the user
-			// const { dialog } = require('electron');
 			// dialog.showMessageBox(mainWindow, {
 			// 	type: 'warning',
 			// 	title: 'Accessibility Permission Required',
@@ -2196,6 +2335,89 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// Combined Dynamic Island show/expand and recording trigger for Windows
+	ipcMain.handle('dynamic-island-start-recording-from-modal', async () => {
+		try {
+			log.info('🏝️ Starting recording from CreateMeetingModal via Dynamic Island');
+
+			// Only proceed on Windows (or when forced on macOS)
+			const isMacRuntime = process.platform === 'darwin';
+			const shouldForceShowDynamicIsland = (() => {
+				const value = String(process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND || '')
+					.trim()
+					.toLowerCase();
+				return value === '1' || value === 'true' || value === 'yes' || value === 'on';
+			})();
+
+			if (isMacRuntime && !shouldForceShowDynamicIsland) {
+				log.info('🍎 Skipping Dynamic Island recording on macOS (using NotchDrop)');
+				return { success: false, error: 'Use NotchDrop on macOS' };
+			}
+
+			if (!dynamicIslandHelper) {
+				log.error('❌ Dynamic Island helper not initialized');
+				return { success: false, error: 'Dynamic Island helper not initialized' };
+			}
+
+			// Step 1: Force show Dynamic Island
+			log.info('🏝️ Step 1: Force showing Dynamic Island');
+			const showResult = dynamicIslandHelper.forceShow();
+			if (!showResult) {
+				log.error('❌ Failed to show Dynamic Island');
+				return { success: false, error: 'Failed to show Dynamic Island' };
+			}
+
+			// Step 2: Start overlay recording (keeping Dynamic Island in closed state)
+			log.info('🏝️ Step 2: Starting overlay recording (Dynamic Island remains closed)');
+
+			// Get or create overlay window
+			let overlayWindow = windowHelper?.getOverlayWindow();
+			if (!overlayWindow) {
+				windowHelper?.createOverlayWindow();
+				// Wait for window creation
+				await new Promise((resolve) => setTimeout(resolve, 300));
+				overlayWindow = windowHelper?.getOverlayWindow();
+			}
+
+			if (overlayWindow) {
+				// Show the overlay window if it's not visible
+				if (!overlayWindow.isVisible()) {
+					windowHelper?.showOverlayWindow();
+					await new Promise((resolve) => setTimeout(resolve, 200));
+				}
+
+				// Send recording command using windowHelper's queuing system
+				const commandSent = windowHelper?.sendOverlayCommand({
+					action: 'startRecording',
+				});
+
+				log.info(
+					`✅ Recording command ${
+						commandSent ? 'sent immediately' : 'queued'
+					} from Dynamic Island`,
+				);
+
+				// Focus overlay and bring to front
+				overlayWindow.focus();
+				overlayWindow.moveTop();
+
+				// Start the Are You There timer for 30-minute intervals
+				startAreYouThereTimer();
+
+				log.info(
+					'🎉 Successfully started recording from CreateMeetingModal via Dynamic Island',
+				);
+				return { success: true };
+			} else {
+				log.error('❌ Overlay window not available after creating');
+				return { success: false, error: 'Overlay window not available' };
+			}
+		} catch (error) {
+			log.error('❌ Error starting recording from Dynamic Island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	// Register NotchDrop IPC handlers
 	ipcMain.handle('notchdrop-enable', async () => {
 		try {
@@ -2436,7 +2658,6 @@ app.whenReady().then(async () => {
 		try {
 			log.info('Opening AirDrop from NotchDropLatest');
 			// Open AirDrop sharing dialog
-			const { exec } = require('child_process');
 			exec('open -a AirDrop', (error) => {
 				if (error) {
 					log.error('Error opening AirDrop:', error);
@@ -2453,7 +2674,6 @@ app.whenReady().then(async () => {
 		try {
 			log.info('Opening share dialog from NotchDropLatest');
 			// Open file picker for sharing
-			const { dialog } = require('electron');
 			const result = await dialog.showOpenDialog(mainWindow, {
 				properties: ['openFile', 'multiSelections'],
 				title: 'Select files to share',
@@ -2468,7 +2688,6 @@ app.whenReady().then(async () => {
 	ipcMain.handle('notchdrop-open-file', async (event, filePath) => {
 		try {
 			log.info('Opening file from NotchDropLatest:', filePath);
-			const { shell } = require('electron');
 			await shell.openPath(filePath);
 			return { success: true };
 		} catch (error) {
@@ -2500,6 +2719,154 @@ app.whenReady().then(async () => {
 			return { success: false, error: 'NotchDrop service not available' };
 		} catch (error) {
 			log.error('Error updating voice status:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Update voice connection state in NotchDrop
+	ipcMain.handle('notchdrop-update-voice-connection-state', async (event, status) => {
+		try {
+			log.info('Updating NotchDrop voice connection state:', status);
+			if (notchDropService) {
+				await notchDropService.updateVoiceConnectionState(status);
+				return { success: true };
+			}
+			return { success: false, error: 'NotchDrop service not available' };
+		} catch (error) {
+			log.error('Error updating voice connection state:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Add voice message to NotchDrop
+	ipcMain.handle('notchdrop-add-voice-message', async (event, messageData) => {
+		try {
+			log.info(
+				'Adding voice message to NotchDrop:',
+				messageData.sender,
+				':',
+				messageData.content?.substring(0, 50),
+			);
+			if (notchDropService) {
+				await notchDropService.addVoiceMessage(messageData);
+				return { success: true };
+			}
+			return { success: false, error: 'NotchDrop service not available' };
+		} catch (error) {
+			log.error('Error adding voice message:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Update voice mute state in NotchDrop
+	ipcMain.handle('notchdrop-update-voice-mute-state', async (event, isMuted) => {
+		try {
+			log.info('Updating NotchDrop voice mute state:', isMuted);
+			if (notchDropService) {
+				await notchDropService.updateVoiceMuteState(isMuted);
+				return { success: true };
+			}
+			return { success: false, error: 'NotchDrop service not available' };
+		} catch (error) {
+			log.error('Error updating voice mute state:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// File system APIs for audio storage
+	const fs = require('fs').promises;
+	const fsSync = require('fs');
+	const path = require('path');
+	const os = require('os');
+
+	// Get proper user data directory for audio storage (matching meeting/final branch)
+	const getUserDataPath = () => {
+		return path.join(os.homedir(), '.ve-desktop-app', 'meetings');
+	};
+
+	ipcMain.handle('fs-ensure-dir', async (event, dirPath) => {
+		try {
+			const fullPath = path.join(getUserDataPath(), dirPath);
+			await fs.mkdir(fullPath, { recursive: true });
+			return { success: true };
+		} catch (error) {
+			log.error('Error ensuring directory:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('fs-write-file', async (event, filePath, data) => {
+		try {
+			const fullPath = path.join(getUserDataPath(), filePath);
+			// For text files (like JSON), ensure UTF-8 encoding
+			if (typeof data === 'string') {
+				await fs.writeFile(fullPath, data, 'utf8');
+			} else {
+				await fs.writeFile(fullPath, data);
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error writing file:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('fs-read-file', async (event, filePath) => {
+		try {
+			const fullPath = path.join(getUserDataPath(), filePath);
+			const data = await fs.readFile(fullPath, 'utf8');
+			return { success: true, data };
+		} catch (error) {
+			log.error('Error reading file:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('fs-read-file-binary', async (event, filePath) => {
+		try {
+			const fullPath = path.join(getUserDataPath(), filePath);
+			const data = await fs.readFile(fullPath);
+			// Convert Buffer to Uint8Array for proper binary handling
+			return { success: true, data: new Uint8Array(data) };
+		} catch (error) {
+			log.error('Error reading binary file:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('fs-exists', async (event, filePath) => {
+		try {
+			const fullPath = path.join(getUserDataPath(), filePath);
+			await fs.access(fullPath);
+			return { success: true, exists: true };
+		} catch (error) {
+			return { success: true, exists: false };
+		}
+	});
+
+	ipcMain.handle('fs-remove', async (event, filePath) => {
+		try {
+			const fullPath = path.join(getUserDataPath(), filePath);
+			const stats = await fs.stat(fullPath);
+			if (stats.isDirectory()) {
+				await fs.rmdir(fullPath, { recursive: true });
+			} else {
+				await fs.unlink(fullPath);
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error removing file/directory:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('fs-readdir', async (event, dirPath) => {
+		try {
+			const fullPath = path.join(getUserDataPath(), dirPath);
+			const files = await fs.readdir(fullPath);
+			return { success: true, files };
+		} catch (error) {
+			log.error('Error reading directory:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -2972,7 +3339,7 @@ app.whenReady().then(async () => {
 	// Handle state updates from overlay to Dynamic Island
 	ipcMain.handle('overlay-state-update', async (event, state) => {
 		try {
-			log.debug('Received overlay state update:', state);
+			// log.debug('Received overlay state update:', state);
 
 			// Validate state parameter
 			if (!state || typeof state !== 'object') {
@@ -2986,7 +3353,7 @@ app.whenReady().then(async () => {
 				dynamicIslandWindow.webContents.send('overlay-state-changed', state);
 				log.debug('State forwarded to Dynamic Island window');
 			} else {
-				log.warn('Dynamic Island window not available for state update');
+				// log.warn('Dynamic Island window not available for state update');
 			}
 
 			// Update recording state and manage Are You There timer
@@ -3580,30 +3947,6 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	// Wake word service IPC handlers
-	// ipcMain.handle('wake-word-start', () => {
-	// 	if (wakeWordService) {
-	// 		wakeWordService.start();
-	// 		return { success: true };
-	// 	}
-	// 	return { success: false, error: 'Wake word service not initialized' };
-	// });
-
-	// ipcMain.handle('wake-word-stop', () => {
-	// 	if (wakeWordService) {
-	// 		wakeWordService.stop();
-	// 		return { success: true };
-	// 	}
-	// 	return { success: false, error: 'Wake word service not initialized' };
-	// });
-
-	// ipcMain.handle('wake-word-status', () => {
-	// 	return {
-	// 		success: true,
-	// 		isRunning: wakeWordService ? wakeWordService.isRunning : false,
-	// 	};
-	// });
-
 	// Microphone permission check handler
 	ipcMain.handle('check-microphone-permission', async () => {
 		try {
@@ -3830,6 +4173,40 @@ app.whenReady().then(async () => {
 			};
 		}
 	});
+
+	// Screen capture IPC handler
+	ipcMain.handle('start-screen-capture', async () => {
+		try {
+			log.info('Starting screen capture...');
+
+			// Get screen sources using desktopCapturer
+			const sources = await desktopCapturer.getSources({
+				types: ['screen'],
+				thumbnailSize: { width: 1920, height: 1080 },
+			});
+
+			if (!sources || sources.length === 0) {
+				log.warn('No screen sources available for capture');
+				return { success: false, error: 'No screen sources available' };
+			}
+
+			// Return the first (primary) screen source
+			const primaryScreen = sources[0];
+			log.info(`Screen capture source selected: ${primaryScreen.name}`);
+
+			return {
+				success: true,
+				source: {
+					id: primaryScreen.id,
+					name: primaryScreen.name,
+					thumbnail: primaryScreen.thumbnail ? primaryScreen.thumbnail.toDataURL() : null,
+				},
+			};
+		} catch (error) {
+			log.error('Error starting screen capture:', error);
+			return { success: false, error: error.message };
+		}
+	});
 });
 
 // Handle app quit properly - but allow updates to proceed
@@ -3839,7 +4216,7 @@ app.on('before-quit', (event) => {
 		// Prevent default quit behavior to allow cleanup
 		event.preventDefault();
 		// Clean up all windows and processes
-		cleanupAndQuit();
+		handleCleanupAndQuit();
 	} else {
 		// Allow quit for updates
 		log.info('🔄 Allowing quit for update installation...');
@@ -3851,14 +4228,14 @@ app.on('quit', (event, exitCode) => {
 	// Only cleanup if update is not in progress
 	if (!isUpdateInProgress && (dynamicIslandHelper || windowHelper)) {
 		log.info('🔄 Force cleanup on quit event...');
-		cleanupAndQuit();
+		handleCleanupAndQuit();
 	}
 });
 
 app.on('window-all-closed', () => {
 	// Only cleanup if update is not in progress
 	if (!isUpdateInProgress) {
-		cleanupAndQuit();
+		handleCleanupAndQuit();
 	}
 });
 
@@ -3886,6 +4263,15 @@ ipcMain.handle('update-overlay-dimensions', async (event, { width, height }) => 
 		return { success: false, error: error.message };
 	}
 });
+
+const handleCleanupAndQuit = () =>
+	cleanupAndQuit({
+		dynamicIslandHelper,
+		windowHelper,
+		mainWindow,
+		areYouThereTimer,
+		transcriptionDetectionTimer,
+	});
 
 // Are You There timer functions
 function startAreYouThereTimer() {
@@ -4120,121 +4506,17 @@ function hideTranscriptionBasedAreYouThereWindow() {
 	}
 }
 
-// Flag to prevent multiple cleanup calls
-let isCleaningUp = false;
-
-// Function to handle cleanup and quit
-function cleanupAndQuit() {
-	// Prevent multiple cleanup calls
-	if (isCleaningUp) {
-		return;
-	}
-	isCleaningUp = true;
-
-	try {
-		// Clean up dynamic island helper
-		if (dynamicIslandHelper) {
-			try {
-				dynamicIslandHelper.destroy();
-			} catch (error) {
-				log.error('Error destroying dynamicIslandHelper:', error);
-			}
-			dynamicIslandHelper = null;
-		}
-
-		// Clean up window helper
-		if (windowHelper) {
-			try {
-				windowHelper.cleanup();
-			} catch (error) {
-				log.error('Error cleaning up windowHelper:', error);
-			}
-			windowHelper = null;
-		}
-
-		// Close main window if it exists and not destroyed
-		if (mainWindow && !mainWindow.isDestroyed()) {
-			try {
-				mainWindow.close();
-			} catch (error) {
-				log.error('Error closing main window:', error);
-			}
-		}
-
-		// Force quit all remaining windows safely
-		try {
-			BrowserWindow.getAllWindows().forEach((window) => {
-				if (window && !window.isDestroyed()) {
-					try {
-						window.destroy();
-					} catch (error) {
-						log.error('Error destroying window:', error);
-					}
-				}
-			});
-		} catch (error) {
-			log.error('Error getting all windows:', error);
-		}
-
-		// Clean up Are You There timer
-		if (areYouThereTimer) {
-			try {
-				clearInterval(areYouThereTimer);
-			} catch (error) {
-				log.error('Error clearing areYouThereTimer:', error);
-			}
-			areYouThereTimer = null;
-		}
-
-		// Clean up transcription detection timer
-		if (transcriptionDetectionTimer) {
-			try {
-				clearInterval(transcriptionDetectionTimer);
-			} catch (error) {
-				log.error('Error clearing transcriptionDetectionTimer:', error);
-			}
-			transcriptionDetectionTimer = null;
-		}
-
-		// Unregister all global shortcuts
-		try {
-			globalShortcut.unregisterAll();
-		} catch (error) {
-			log.error('Error unregistering global shortcuts:', error);
-		}
-
-		// Force quit the app
-		setTimeout(() => {
-			try {
-				app.exit(0);
-			} catch (error) {
-				log.error('Error during app exit:', error);
-				process.exit(0);
-			}
-		}, 100);
-	} catch (error) {
-		log.error('Error during cleanup:', error);
-		// Force quit even if cleanup fails
-		try {
-			app.exit(0);
-		} catch (exitError) {
-			log.error('Error during forced exit:', exitError);
-			process.exit(0);
-		}
-	}
-}
-
 // Handle process exit to ensure cleanup
 process.on('exit', (code) => {
 	log.info(`Process exiting with code: ${code}`);
 });
 
 process.on('SIGINT', () => {
-	cleanupAndQuit();
+	handleCleanupAndQuit();
 });
 
 process.on('SIGTERM', () => {
-	cleanupAndQuit();
+	handleCleanupAndQuit();
 });
 
 // Add global error handler to prevent crashes
