@@ -541,6 +541,14 @@ const OverlayApp = () => {
 		return () => clearInterval(interval);
 	}, []);
 
+	useEffect(() => {
+		if (isRecording) {
+			if (window.electronApi) {
+				window.electronApi.sendMessageFrmVeApp('meetingstarted');
+			}
+		}
+	}, [isRecording]);
+
 	const handleListenClick = async () => {
 		// Toggle live intelligence panel and automatically start recording when opening
 		// This is used by ShortcutBar - shows ShortcutBar
