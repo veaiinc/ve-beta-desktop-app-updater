@@ -7,6 +7,8 @@
 	background: var(--background-color);
 	position: relative;
 	z-index: 1; // Default z-index for proper layering
+	transform-origin: center center; // Ensure scaling happens from center
+	will-change: transform, opacity; // Optimize for animations
 
 	.container {
 		max-width: 1680px;
@@ -58,6 +60,8 @@
 		text-align: center;
 		color: var(--primary-font);
 		margin: 0;
+		will-change: transform; // Optimize for scaling animations
+		transition: all 0.3s ease; // Smooth transitions
 
 		span {
 			color: var(--primary-button);
@@ -80,6 +84,8 @@
 		line-height: 1.35;
 		color: var(--secondary-font);
 		margin: 0;
+		will-change: transform; // Optimize for scaling animations
+		transition: all 0.3s ease; // Smooth transitions
 
 		@media (max-width: 768px) {
 			font-size: 20px;
@@ -95,6 +101,8 @@
 		justify-content: center;
 		gap: 16px;
 		flex-wrap: wrap;
+		will-change: transform; // Optimize for scaling animations
+		transition: all 0.3s ease; // Smooth transitions
 
 		@media (max-width: 768px) {
 			flex-direction: column;

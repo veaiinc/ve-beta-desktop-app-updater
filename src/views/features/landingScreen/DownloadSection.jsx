@@ -72,6 +72,7 @@ const DownloadSection = forwardRef(({ iMacFrameRef }, ref) => {
 
 				{/* iMac Frame - Desktop only */}
 				<div className={s.imacContainer}>
+					<div className={s.screenText}>hello</div>
 					<IMacFrame ref={iMacFrameRef} />
 				</div>
 			</div>
