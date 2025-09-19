@@ -437,3 +437,16 @@
 		max-width: 280px !important;
 	}
 }
+
+.betaBadge {
+	background: var(--primary-button, #79ecc9);
+	border-radius: 4px;
+	color: var(--background-color, #0f0f0f);
+	font-family: var(--primary-font-family);
+	font-size: 10px;
+	font-weight: 600;
+	letter-spacing: 0.5px;
+	padding: 2px 6px;
+	margin-left: 6px;
+	opacity: 0.8;
+}
