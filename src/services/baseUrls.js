@@ -4,7 +4,7 @@ const globalTypes = ['auth', 'slack_api'];
 
 const globalBaseUrls = {
 	// Auth
-	auth: environment !== 'production' ? 'https://auth.ve.ai' : 'https://us.api.ve.ai/auth/dev',
+	auth: environment === 'production' ? 'https://auth.ve.ai' : 'https://us.api.ve.ai/auth/dev',
 
 	// Slack
 	slack_api: 'https://slack.com/api',
