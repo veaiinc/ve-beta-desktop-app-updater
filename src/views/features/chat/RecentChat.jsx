@@ -118,6 +118,7 @@ const RecentChat = ({
 			isChatHistoryClosed,
 			openBrowser: false,
 			browserDataAvailable: false,
+			chatPaddingBottom: 70,
 		};
 	});
 
@@ -895,6 +896,19 @@ const RecentChat = ({
 		[globalChatMessages, sessionId, updateStateValues],
 	);
 
+	const handleChatBoxHeight = useCallback((chatboxHeight) => {
+		setInfo((prev) => {
+			if (prev?.chatPaddingBottom === chatboxHeight - 47) {
+				return prev;
+			}
+
+			return {
+				...prev,
+				chatPaddingBottom: chatboxHeight - 47,
+			};
+		});
+	}, []);
+
 	return (
 		<>
 			<div
@@ -966,7 +980,10 @@ const RecentChat = ({
 									overflow: 'unset',
 								}}
 							>
-								<div className="chatContent" style={{ flex: 1 }}>
+								<div
+									className="chatContent"
+									style={{ paddingBottom: `${info?.chatPaddingBottom}px` }}
+								>
 									{(globalChatMessages?.[sessionId]?.messages || [])?.map(
 										(chat, index) =>
 											chat?.content ? (
@@ -983,7 +1000,7 @@ const RecentChat = ({
 																1
 																? `${
 																		chatContentRef?.current
-																			?.clientHeight - 157
+																			?.clientHeight - 160
 																  }px`
 																: 'auto',
 													}}
@@ -1127,6 +1144,8 @@ const RecentChat = ({
 								showRecentFiles={showRecentFiles}
 								isDesktopApp={isDesktopApp}
 								handleDesktopAppPayload={handleDesktopAppPayload}
+								handleChatBoxHeight={handleChatBoxHeight}
+								getChatBoxHeight={true}
 							/>
 						</div>
 					</div>
