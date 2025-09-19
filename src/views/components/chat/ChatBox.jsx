@@ -515,6 +515,12 @@ const ChatBox = ({
 				message.error('Please wait, AI is already generating a response');
 				return;
 			}
+			if (totalCreditsUsed >= totalCreditsLimit) {
+				updateStateValues({ activePayloadForChat: null });
+				message.error('You have reached your limit of credits');
+				return;
+			}
+
 			const { payload, localPayload, currentQuery, recentFiles = [] } = activePayloadForChat;
 			if (handleSendWebsocketMessage) {
 				handleSendWebsocketMessage(payload, currentQuery, '', info?.chatSessionId);
