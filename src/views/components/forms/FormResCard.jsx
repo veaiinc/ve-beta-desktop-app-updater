@@ -313,7 +313,7 @@ const FormResCard = ({
 				// Update total submissions count
 				updateTotalSubmissions(responses.length - 1, null);
 			} else {
-				message.error('Failed to delete response');
+				message.error(response?.[1]?.message || 'Failed to delete response');
 			}
 		} catch (err) {
 			console.error('Error deleting response:', err);
@@ -347,10 +347,10 @@ const FormResCard = ({
 					prev.map((r) => (r._id === responseId ? { ...r, isRead: true } : r)),
 				);
 			} else {
-				console.error('Failed to mark response as viewed');
+				message.error(response?.[1]?.message || 'Failed to mark response as viewed');
 			}
 		} catch (err) {
-			console.error('Error marking response as viewed:', err);
+			message.error(err?.message || 'Error marking response as viewed');
 		}
 	};
 

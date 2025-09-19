@@ -3029,11 +3029,11 @@ export const TemplatesState = (props) => {
 				return [true, response[1]?.data?.updateFormResponse];
 			} else {
 				console.error('API failed => updateFormResponse', response);
-				return [false];
+				return [false, response?.[1]?.message || 'Something went Worng'];
 			}
 		} catch (error) {
 			console.error('Error updating form response:', error);
-			return [false];
+			return [false, error?.message || 'Something went Worng'];
 		}
 	};
 
