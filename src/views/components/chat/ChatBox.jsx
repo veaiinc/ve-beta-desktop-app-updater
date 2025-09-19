@@ -1400,7 +1400,7 @@ const ChatBox = ({
 						});
 						setIsTranscribing(true);
 					} catch (error) {
-						console.log('Connection not established', error?.message);
+						console.log(error?.message);
 						message.error('Connection not established');
 					}
 				}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useContext } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { message } from 'antd';
 import getBaseUrl from '../services/baseUrls';
 
@@ -33,9 +33,11 @@ const useSpeechTranscription = ({ tenantId }) => {
 			clearTimeout(socketClosingTimeoutRef.current);
 		}
 
-		socketClosingTimeoutRef.current = setTimeout(() => {
-			setShowInactivityPopup(true);
-		}, 3 * 60 * 1000);
+		if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
+			socketClosingTimeoutRef.current = setTimeout(() => {
+				setShowInactivityPopup(true);
+			}, 3 * 60 * 1000);
+		}
 	};
 
 	const handleResetTimer = () => {
@@ -111,6 +113,7 @@ const useSpeechTranscription = ({ tenantId }) => {
 			const attemptConnection = () => {
 				// If max retries exceeded, reject the promise
 				if (attempts >= MAX_RETRY_ATTEMPTS) {
+					cleanup();
 					reject(new Error('Failed to connect, Please try again'));
 					return;
 				}
@@ -150,6 +153,10 @@ const useSpeechTranscription = ({ tenantId }) => {
 
 	const createWebSocketConnection = useCallback(
 		async ({ sessionId, onMessageFunc }) => {
+			if (websocketRef.current) {
+				return;
+			}
+
 			websocketRef.current = new WebSocket(`${wsUrl}/${sessionId}?token=${encodedToken}`);
 
 			websocketRef.current.onopen = () => {
@@ -170,6 +177,12 @@ const useSpeechTranscription = ({ tenantId }) => {
 
 			websocketRef.current.onmessage = (event) => {
 				onMessageFunc?.(event);
+			};
+
+			websocketRef.current.onclose = (event) => {
+				console.log('Socket disconnected', event);
+				//do not need to call cleanup function because onclose will run when calling close(), so you dont need to call here
+				// cleanup();
 			};
 
 			websocketRef.current.onerror = (event) => {
