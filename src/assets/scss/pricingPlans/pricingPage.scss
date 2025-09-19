@@ -849,6 +849,21 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+
+				.beta-badge {
+					color: var(--secondary-font, #787e87);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					border-radius: 10px;
+					border-bottom-left-radius: 0px;
+					border: 1px solid var(--stroke, #2c2d2e);
+					padding: 0 6px;
+					margin-left: 6px;
+				}
 			}
 
 			.recommended-badge {

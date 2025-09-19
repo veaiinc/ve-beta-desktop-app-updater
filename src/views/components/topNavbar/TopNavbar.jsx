@@ -55,16 +55,19 @@ const baseLeftContainerItems = [
 		id: 4,
 		label: 'Agents',
 		route: '/agents',
+		showBetaBadge: true,
 	},
 	{
 		id: 5,
 		label: 'Vault',
 		route: '/files',
+		showBetaBadge: true,
 	},
 	{
 		id: 6,
 		label: 'Tools',
 		route: '/home',
+		showBetaBadge: true,
 	},
 ];
 
@@ -393,7 +396,10 @@ const TopNavbar = () => {
 												})
 											}
 										>
-											{navItem.label}
+											{navItem.label}{' '}
+											{navItem.showBetaBadge && (
+												<span className={s.betaBadge}>Beta</span>
+											)}
 										</li>
 									</Tooltip>
 								) : navItem.id === 6 ? (
@@ -437,7 +443,10 @@ const TopNavbar = () => {
 												pathname.includes('/home') ? s.active : ''
 											}`}
 										>
-											{navItem.label}
+											{navItem.label}{' '}
+											{navItem.showBetaBadge && (
+												<span className={s.betaBadge}>Beta</span>
+											)}
 										</li>
 									</Tooltip>
 								) : (
@@ -453,7 +462,10 @@ const TopNavbar = () => {
 										}
 										key={`${navItem.id}-${index}`}
 									>
-										{navItem.label}
+										{navItem.label}{' '}
+										{navItem.showBetaBadge && (
+											<span className={s.betaBadge}>Beta</span>
+										)}
 									</li>
 								),
 						  )
@@ -601,7 +613,10 @@ const TopNavbar = () => {
 										})
 									}
 								>
-									{navItem.label}
+									{navItem.label}{' '}
+									{navItem.showBetaBadge && (
+										<span className={s.betaBadge}>Beta</span>
+									)}
 								</div>
 							))}
 						</div>
