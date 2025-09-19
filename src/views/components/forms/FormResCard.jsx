@@ -4,7 +4,6 @@ import { ReactComponent as Message } from '../../../assets/svg/smartFiles/formRe
 import { ReactComponent as Calender } from '../../../assets/svg/smartFiles/formResponse/calendar.svg';
 import { ReactComponent as Download } from '../../../assets/svg/downloadd.svg';
 import { ReactComponent as Delete } from '../../../assets/svg/delete.svg';
-import { ReactComponent as OpenEye } from '../../../assets/svg/gallery/open-eye.svg';
 import moment from 'moment';
 import '../../../assets/scss/forms/FormresCard.scss';
 import service from '../../../services/graphQlServices';
@@ -509,9 +508,7 @@ const FormResCard = ({
 								return (
 									<div
 										key={response._id || index}
-										className={`resWrapper ${isExpanded ? 'open' : ''} ${
-											response.isRead ? 'viewed' : ''
-										}`}
+										className={`resWrapper ${isExpanded ? 'open' : ''}`}
 										onClick={() => {
 											const newExpandedCard =
 												expandedCard === index ? null : index;
@@ -530,8 +527,8 @@ const FormResCard = ({
 												<h1 className="time">{getTimeAgo(response)}</h1>
 											</div>
 											<div className="actionsContainer">
-												{response.isRead && (
-													<OpenEye className="viewed-icon" />
+												{!response.isRead && (
+													<div className="unviewed-dot"></div>
 												)}
 												<div
 													className="deleteButton"
