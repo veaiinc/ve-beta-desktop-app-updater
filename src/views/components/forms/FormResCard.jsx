@@ -4,12 +4,14 @@ import { ReactComponent as Message } from '../../../assets/svg/smartFiles/formRe
 import { ReactComponent as Calender } from '../../../assets/svg/smartFiles/formResponse/calendar.svg';
 import { ReactComponent as Download } from '../../../assets/svg/downloadd.svg';
 import { ReactComponent as Delete } from '../../../assets/svg/delete.svg';
+import { ReactComponent as OpenEye } from '../../../assets/svg/gallery/open-eye.svg';
 import moment from 'moment';
 import '../../../assets/scss/forms/FormresCard.scss';
 import service from '../../../services/graphQlServices';
 import {
 	getFormResponsesListQuery,
 	deleteFormResponseMutation,
+	updateFormResponseMutation,
 } from '../../../context/Templates/graphQlFunctions';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
@@ -330,6 +332,34 @@ const FormResCard = ({
 		setDeleteModal({ open: false, responseId: null });
 	};
 
+	const markResponseAsViewed = async (responseId) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+
+			const response = await service.mutation(
+				updateFormResponseMutation,
+				{
+					responseId: responseId,
+				},
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				// Update the local state to reflect the viewed status
+				setResponses((prev) =>
+					prev.map((r) => (r._id === responseId ? { ...r, isRead: true } : r)),
+				);
+			} else {
+				console.error('Failed to mark response as viewed');
+			}
+		} catch (err) {
+			console.error('Error marking response as viewed:', err);
+		}
+	};
+
 	const sortResponses = (responses) => {
 		if (!responses || !Array.isArray(responses)) return [];
 
@@ -498,10 +528,19 @@ const FormResCard = ({
 								return (
 									<div
 										key={response._id || index}
-										className={`resWrapper ${isExpanded ? 'open' : ''}`}
+										className={`resWrapper ${isExpanded ? 'open' : ''} ${
+											response.isRead ? 'viewed' : ''
+										}`}
 										onClick={() => {
-											setExpandedCard(expandedCard === index ? null : index);
+											const newExpandedCard =
+												expandedCard === index ? null : index;
+											setExpandedCard(newExpandedCard);
 											handleCardClick(response, index);
+
+											// Mark as viewed when expanding (not when collapsing)
+											if (newExpandedCard === index && !response.isRead) {
+												markResponseAsViewed(response._id);
+											}
 										}}
 									>
 										<div className="topRow">
@@ -509,14 +548,19 @@ const FormResCard = ({
 												<h1 className="name">{getName(response)}</h1>
 												<h1 className="time">{getTimeAgo(response)}</h1>
 											</div>
-											<div
-												className="deleteButton"
-												onClick={(e) => {
-													e.stopPropagation();
-													handleOpenDeleteModal(response._id);
-												}}
-											>
-												<Delete />
+											<div className="actionsContainer">
+												{response.isRead && (
+													<OpenEye className="viewed-icon" />
+												)}
+												<div
+													className="deleteButton"
+													onClick={(e) => {
+														e.stopPropagation();
+														handleOpenDeleteModal(response._id);
+													}}
+												>
+													<Delete />
+												</div>
 											</div>
 										</div>
 										{isExpanded && (

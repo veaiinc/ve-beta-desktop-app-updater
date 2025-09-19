@@ -178,6 +178,10 @@ const actionHandlers = {
 		...state,
 		[action?.selectedvariable]: action.payload,
 	}),
+	UPDATE_FORM_RESPONSE_SUCCESS: (state, action) => ({
+		...state,
+		[action?.selectedvariable]: action.payload,
+	}),
 	GET_MODULE_TEMPLATE_SUCCESS: (state, action) => ({
 		...state,
 		moduleTemplateData: action.payload,

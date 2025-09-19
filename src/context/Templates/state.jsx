@@ -45,6 +45,8 @@ import {
 	duplicateSmartFileQuery,
 	isSlugAvailableQuery,
 	updateSlugMutation,
+	deleteFormResponseMutation,
+	updateFormResponseMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -3010,6 +3012,31 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const updateFormResponse = async ({ responseId }) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const userToken = localStorage.getItem('usertoken');
+
+			const response = await service.mutation(
+				updateFormResponseMutation,
+				{ responseId },
+				workspaceId,
+				userToken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true, response[1]?.data?.updateFormResponse];
+			} else {
+				console.error('API failed => updateFormResponse', response);
+				return [false];
+			}
+		} catch (error) {
+			console.error('Error updating form response:', error);
+			return [false];
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -3109,6 +3136,7 @@ export const TemplatesState = (props) => {
 		updatechatSessionFavourite,
 		isSlugAvailable,
 		updateSlug,
+		updateFormResponse,
 		getNotificationsList,
 		getAuthUrlForThirdParty,
 		disconnectThirdParty,
