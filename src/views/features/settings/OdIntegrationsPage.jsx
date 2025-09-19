@@ -12,7 +12,7 @@ import ReusableButtonSettings from '../../components/settings/ReusableButtonSett
 import axios from 'axios';
 import { Spin } from 'antd';
 import { message } from '../../components/globalComponents/CustomToast';
-import { ve_conversations_api } from '../../../services/config.live.js';
+import getBaseUrl from '../../../services/baseUrls';
 
 const availableIntegrations = [
 	{
@@ -146,7 +146,9 @@ const OldIntegrationsPage = () => {
 			try {
 				const usertoken = localStorage.getItem('usertoken');
 				const workspaceId = localStorage.getItem('workspaceId');
-				const link = `${ve_conversations_api}/oauth/${workspaceId}/login`;
+				const region = localStorage.getItem('region');
+				const baseURl = getBaseUrl({ type: 've_conversations_api', region });
+				const link = `${baseURl}/oauth/${workspaceId}/login`;
 				const response = await axios.get(link, {
 					headers: {
 						Authorization: `Bearer ${usertoken}`,
