@@ -96,7 +96,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 		// Force open AskAI window
 		forceOpenAskAIWindow: () => ipcRenderer.invoke('force-open-askai-window'),
 		// New methods for Dynamic Island integration
-		startRecording: () => ipcRenderer.invoke('overlay-start-recording'),
+		startRecording: (data) => ipcRenderer.invoke('overlay-start-recording', data),
 		stopRecording: () => ipcRenderer.invoke('overlay-stop-recording'),
 		pauseRecording: () => ipcRenderer.invoke('overlay-pause-recording'),
 		resumeRecording: () => ipcRenderer.invoke('overlay-resume-recording'),

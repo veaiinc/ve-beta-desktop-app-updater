@@ -91,8 +91,13 @@ const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onSt
 				overAllProgress: 0,
 				processedCount: 0,
 			}));
+
+			// Load duplicate list when modal opens
+			if (galleryId && albumId) {
+				getImageDuplicatesList(galleryId, albumId);
+			}
 		}
-	}, [open]);
+	}, [open, galleryId, albumId]);
 
 	useEffect(() => {
 		if (
@@ -136,6 +141,34 @@ const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onSt
 			});
 		}
 	}, [tenantAlbums]);
+
+	// Handle duplicate detection when imageDuplicatesList changes
+	useEffect(() => {
+		if (imageDuplicatesList && Object.keys(info.uploadImages).length > 0) {
+			// Re-check duplicates when the duplicate list is loaded
+			const duplicateSet = getDuplicateSet();
+			const updatedUploadImages = { ...info.uploadImages };
+			let duplicatesFound = 0;
+
+			Object.keys(updatedUploadImages).forEach((fileName) => {
+				const isDuplicate = duplicateSet.has(fileName);
+				updatedUploadImages[fileName] = {
+					...updatedUploadImages[fileName],
+					isDuplicate,
+					originalImage: isDuplicate
+						? imageDuplicatesList?.list?.find((img) => img.displayName === fileName)
+						: null,
+				};
+				if (isDuplicate) duplicatesFound++;
+			});
+
+			setInfo((prev) => ({
+				...prev,
+				uploadImages: updatedUploadImages,
+				duplciatesFound: duplicatesFound,
+			}));
+		}
+	}, [imageDuplicatesList]);
 
 	useEffect(() => {
 		return () => {
@@ -354,6 +387,13 @@ const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onSt
 		if (nonDuplicates.length === 0) {
 			message.error('No files to upload');
 			return;
+		}
+		// ✅ VALIDATION: If watermark is enabled but no watermarks exist, show error and abort
+		if (info.isWaterMarkApply && (!waterMarks || waterMarks.length === 0)) {
+			message.error(
+				'Watermark is enabled, but no watermark profiles exist. Please add a watermark or disable watermarking to proceed.',
+			);
+			return; // Abort upload
 		}
 
 		// ✅ Generate UNIQUE identifiers for this upload session

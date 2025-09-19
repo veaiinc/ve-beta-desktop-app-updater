@@ -98,7 +98,9 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 				);
 
 				if (window.electronApi) {
-					window.electronApi.sendMessageFrmVeApp('meetingstarted');
+					window.electronApi.overlay.startRecording({
+						...(response?.[1]?.data?.startMeeting || {}),
+					});
 
 					// Trigger Dynamic Island recording for Windows (desktop mode only)
 					if (formData.selectedMode === 'desktop') {
