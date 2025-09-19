@@ -76,6 +76,9 @@
 + (void)updateVoiceMuteState:(BOOL)isMuted;
 + (void)addVoiceMessage:(NSString*)messageJson;
 
+// Wake Word Detection Integration
++ (void)handleWakeWordDetected:(float)score;
+
 @end
 
 #endif /* NotchDropBridge_h */

@@ -535,6 +535,11 @@ class NotchDropAddonWrapper extends EventEmitter {
 			case 'receiveMessage':
 				this.handleReceivedMessage(data);
 				break;
+			// Wake Word Detection Actions
+			case 'wakeWordDetected':
+				console.log('🎯 NotchDrop: Wake word detected with score:', data);
+				this.emit('wakeWordDetected', parseFloat(data) || 0.0);
+				break;
 			default:
 				console.error('❌ Unknown Swift action:', action);
 		}
@@ -1117,6 +1122,21 @@ class NotchDropAddonWrapper extends EventEmitter {
 		} catch (error) {
 			console.error('❌ Error adding voice message:', error);
 			throw error;
+		}
+	}
+
+	// MARK: - Wake Word Detection Methods
+
+	handleWakeWordDetected(score) {
+		if (!this.isInitialized) {
+			console.warn('NotchDrop not initialized, cannot handle wake word detection');
+			return;
+		}
+		try {
+			this.addon.handleWakeWordDetected(score);
+			console.log(`🎯 Wake word detected with score: ${score} - activating voice agent!`);
+		} catch (error) {
+			console.error('❌ Error handling wake word detection:', error);
 		}
 	}
 

@@ -2,6 +2,7 @@ import Cocoa
 import Combine
 import Foundation
 import SwiftUI
+import AVFoundation
 
 class NotchViewModel: NSObject, ObservableObject {
     var cancellables: Set<AnyCancellable> = []
@@ -135,6 +136,10 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var voiceMessages: [VoiceMessage] = []
     @Published var isVoiceActive: Bool = false
     @Published var audioLevel: Float = 0.0
+    
+    // MARK: - Wake Word Detection Properties
+    @Published var isWakeWordEnabled: Bool = false
+    @Published var wakeWordScore: Float = 0.0
 
     // Notification Overlay State
     @Published var showNotificationOverlay: Bool = false
@@ -178,6 +183,8 @@ class NotchViewModel: NSObject, ObservableObject {
         case voiceConnectionStateChanged(String)
         case startVoiceAgent
         case receiveMessage(String)
+        // Wake Word Detection Actions
+        case wakeWordDetected(Float)
         // Notification Actions
         case showNotification(String, String, String)
     }
@@ -427,6 +434,26 @@ class NotchViewModel: NSObject, ObservableObject {
                 print("⚠️ Skipped duplicate voice message: \(sender): \(content.prefix(50))...")
             }
         }
+    }
+    
+    // MARK: - Wake Word Detection Integration
+    
+    /// Handle wake word detection from Python service - automatically trigger voice agent
+    func handleWakeWordDetected(score: Float) {
+        print("🎯 'Hey Ve' detected with score: \(score) - activating voice agent!")
+        
+        // Update UI state
+        wakeWordScore = score
+        isWakeWordEnabled = true
+        
+        // Emit wake word detected action for logging/analytics
+        swiftActionSender.send(.wakeWordDetected(score))
+        
+        // Automatically trigger voice agent (like "Hey Siri")
+        connectVoiceAssistant()
+        
+        // Log the activation
+        swiftActionSender.send(.sendLog("Hey Ve detected (score: \(score)) - Voice agent activated"))
     }
     
     /// Update audio level from JavaScript

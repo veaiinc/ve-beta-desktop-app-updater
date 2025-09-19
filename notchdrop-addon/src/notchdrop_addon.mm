@@ -30,6 +30,7 @@ public:
             InstanceMethod("updateVoiceConnectionState", &NotchDropAddon::UpdateVoiceConnectionState),
             InstanceMethod("updateVoiceMuteState", &NotchDropAddon::UpdateVoiceMuteState),
             InstanceMethod("addVoiceMessage", &NotchDropAddon::AddVoiceMessage),
+            InstanceMethod("handleWakeWordDetected", &NotchDropAddon::HandleWakeWordDetected),
             InstanceMethod("triggerSwiftAction", &NotchDropAddon::TriggerSwiftAction),
             InstanceMethod("on", &NotchDropAddon::On)
         });
@@ -399,6 +400,20 @@ private:
         std::string messageJson = info[0].As<Napi::String>();
         NSString* nsMessageJson = [NSString stringWithUTF8String:messageJson.c_str()];
         [NotchDropBridge addVoiceMessage:nsMessageJson];
+        return env.Undefined();
+    }
+    
+    // MARK: - Wake Word Detection Methods
+    
+    Napi::Value HandleWakeWordDetected(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 1 || !info[0].IsNumber()) {
+            Napi::TypeError::New(env, "Expected number argument").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+        
+        float score = info[0].As<Napi::Number>().FloatValue();
+        [NotchDropBridge handleWakeWordDetected:score];
         return env.Undefined();
     }
 };
