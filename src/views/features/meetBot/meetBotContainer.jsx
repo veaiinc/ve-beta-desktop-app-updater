@@ -23,6 +23,7 @@ import Spinner from '../../components/loaders/Spinner';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import { Trash2 } from 'lucide-react';
 import DeleteModal from '../../components/modalsV2/DeleteModal/DeleteModal';
+import MeetingAnalytics from './MeetingAnalytics';
 
 const initialState = {
 	files: [],
@@ -132,7 +133,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 
 	const [info, setInfo] = useState(initialState);
 	const [transcriptList, setTranscriptList] = useState([]);
-	const [activeTab, setActiveTab] = useState(type === 'desktop' ? 'all' : 'all');
+	const [activeTab, setActiveTab] = useState(type === 'desktop' ? 'summary' : 'summary');
 	const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
 	// Check if audio recording exists for this meeting
@@ -815,6 +816,9 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					)}
 				{showTranscriptTabs && activeTab === 'summary' && (
 					<MeetSummary activeTab={activeTab} meetingId={meetingId} />
+				)}
+				{showTranscriptTabs && activeTab === 'analytics' && (
+					<MeetingAnalytics meetingId={meetingId} />
 				)}
 
 				{showTranscriptTabs && activeTab === 'audio' && (
