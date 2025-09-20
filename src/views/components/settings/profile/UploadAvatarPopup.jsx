@@ -16,7 +16,7 @@ const UploadAvatarPopupComponent = ({
 	handleImageChange,
 	updateDpThemeHandler,
 	setZoom,
-	setCrop
+	setCrop,
 }) => {
 	const [openTheme, setopenTheme] = useState(false);
 	const closeModalFunc = () => {
