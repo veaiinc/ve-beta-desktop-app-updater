@@ -1072,6 +1072,11 @@ export const getMeetSummaryQuery = gql`
 		}
 	}
 `;
+export const getMeetingAnalyticsQuery = gql`
+	query Query($meetingId: ID!) {
+		getMeetingAnalytics(meetingId: $meetingId)
+	}
+`;
 
 export const meetBotCreateMutation = gql`
 	mutation Mutation($input: MeetingInput) {

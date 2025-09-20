@@ -88,12 +88,12 @@ const TranscriptPanel = ({
 				<div className="transcript-panel-header-left">
 					<h2 className="transcript-panel-header-left-title">
 						Transcript{' '}
-						{isRecording && (
+						{/* {isRecording && (
 							<span className={`recording-timer ${isPaused ? 'paused' : ''}`}>
 								{isPaused ? '⏸ ' : ''}
 								{formatTime(timer)}
 							</span>
-						)}
+						)} */}
 					</h2>
 				</div>
 				<div className="transcript-panel-header-right">

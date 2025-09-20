@@ -535,6 +535,9 @@ class NotchDropAddonWrapper extends EventEmitter {
 			case 'receiveMessage':
 				this.handleReceivedMessage(data);
 				break;
+			case 'toggleStealthMode':
+				this.emit('toggleStealthMode', data);
+				break;
 			default:
 				console.error('❌ Unknown Swift action:', action);
 		}
@@ -1095,6 +1098,21 @@ class NotchDropAddonWrapper extends EventEmitter {
 			console.log(`🔇 Voice mute state updated: ${isMuted}`);
 		} catch (error) {
 			console.error('❌ Error updating voice mute state:', error);
+			throw error;
+		}
+	}
+
+	updateStealthModeState(isEnabled) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			if (typeof this.addon.updateStealthModeState === 'function') {
+				this.addon.updateStealthModeState(Boolean(isEnabled));
+			}
+			console.log(`🏴‍☠️ Stealth mode state updated: ${Boolean(isEnabled)}`);
+		} catch (error) {
+			console.error('❌ Error updating stealth mode state:', error);
 			throw error;
 		}
 	}

@@ -30,6 +30,7 @@ public:
             InstanceMethod("updateVoiceConnectionState", &NotchDropAddon::UpdateVoiceConnectionState),
             InstanceMethod("updateVoiceMuteState", &NotchDropAddon::UpdateVoiceMuteState),
             InstanceMethod("addVoiceMessage", &NotchDropAddon::AddVoiceMessage),
+            InstanceMethod("updateStealthModeState", &NotchDropAddon::UpdateStealthModeState),
             InstanceMethod("triggerSwiftAction", &NotchDropAddon::TriggerSwiftAction),
             InstanceMethod("on", &NotchDropAddon::On)
         });
@@ -386,6 +387,18 @@ private:
         
         bool isMuted = info[0].As<Napi::Boolean>();
         [NotchDropBridge updateVoiceMuteState:isMuted];
+        return env.Undefined();
+    }
+
+    Napi::Value UpdateStealthModeState(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 1 || !info[0].IsBoolean()) {
+            Napi::TypeError::New(env, "Expected boolean argument").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+
+        bool isEnabled = info[0].As<Napi::Boolean>();
+        [NotchDropBridge updateStealthModeState:isEnabled];
         return env.Undefined();
     }
     

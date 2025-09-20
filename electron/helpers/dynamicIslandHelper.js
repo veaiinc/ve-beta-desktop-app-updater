@@ -45,8 +45,14 @@ module.exports = class DynamicIslandHelper {
 		this.position.x =
 			Math.floor(workAreaX + workAreaWidth / 2) - Math.floor(this.expandedSize.width / 2);
 
-		// Place at the top of the work area so it's visible below the menu bar on macOS
-		this.position.y = workAreaY + 6;
+		// Platform-specific Y positioning to eliminate gaps
+		if (isWindowsRuntime) {
+			// On Windows, position at absolute top (0) to eliminate any gap
+			this.position.y = 0;
+		} else {
+			// On macOS/Linux, place at the top of the work area below menu bar
+			this.position.y = workAreaY + 6;
+		}
 	}
 
 	createDynamicIslandWindow() {
@@ -471,7 +477,7 @@ module.exports = class DynamicIslandHelper {
 
 		// Recalculate position based on current platform - eliminate gap with menu bar
 		if (isWindowsRuntime) {
-			this.position.y = -5; // Slightly above screen edge on Windows
+			this.position.y = 0; // At absolute top on Windows to eliminate any gap
 		} else {
 			this.position.y = -8; // Slightly above screen edge on Linux to eliminate menu bar gap
 		}

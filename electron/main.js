@@ -137,13 +137,9 @@ const toggleContentProtection = () => {
 		}
 	});
 
-	const status = isContentProtectionEnabled ? 'ON' : 'OFF';
-	log.info(
-		`🔒 Content protection: ${status} - Applied to ${protectedCount} windows (main window excluded)`,
-	);
-	console.log(
-		`🔒 CONTENT PROTECTION: ${status} (${protectedCount} windows protected, main window always visible)`,
-	);
+	if (notchDropService && typeof notchDropService.updateStealthModeState === 'function') {
+		notchDropService.updateStealthModeState(isContentProtectionEnabled);
+	}
 
 	return isContentProtectionEnabled;
 };
@@ -171,6 +167,10 @@ const setContentProtection = (enabled) => {
 			isContentProtectionEnabled ? 'ON' : 'OFF'
 		} (main window excluded)`,
 	);
+
+	if (notchDropService && typeof notchDropService.updateStealthModeState === 'function') {
+		notchDropService.updateStealthModeState(isContentProtectionEnabled);
+	}
 	return isContentProtectionEnabled;
 };
 
@@ -183,11 +183,6 @@ const applyContentProtectionToWindow = (window) => {
 		}
 
 		window.setContentProtection(isContentProtectionEnabled);
-		log.info(
-			`🔒 Applied content protection (${
-				isContentProtectionEnabled ? 'ON' : 'OFF'
-			}) to new window: ${window.getTitle()}`,
-		);
 	}
 };
 
@@ -247,8 +242,6 @@ autoUpdater.on('update-downloaded', (info) =>
 		info,
 		mainWindow,
 		setIsUpdateInProgress,
-		dynamicIslandHelper,
-		windowHelper,
 	}),
 );
 
@@ -986,22 +979,17 @@ function setupNotchDropMenuUpdates() {
 	// Listen for NotchDrop service events to update menu
 	if (notchDropService.notchDropAddon) {
 		notchDropService.notchDropAddon.on('statusChanged', (status) => {
-			log.info('📊 NotchDrop status changed, updating menu:', status);
 			updateMenuBarState();
 		});
 
 		notchDropService.notchDropAddon.on('itemAdded', () => {
-			log.info('📊 NotchDrop item added, updating menu');
 			updateMenuBarState();
 		});
 
 		notchDropService.notchDropAddon.on('itemRemoved', () => {
-			log.info('📊 NotchDrop item removed, updating menu');
 			updateMenuBarState();
 		});
 	}
-
-	log.info('✅ NotchDrop menu update listeners set up');
 }
 
 // Update menu bar to reflect current NotchDrop state
@@ -1164,6 +1152,16 @@ function createWindow(restoreState = false) {
 	ipcMain.on('veAppMsg', async (event, msg) => {
 		// log.info('🔄 Received message from veApp:', msg); // logs: btn clicked from react
 
+		// Handle logout message - notify Dynamic Island
+		if (msg === 'loggedout') {
+			log.info('🔓 User logged out - notifying Dynamic Island');
+			const dynamicIslandWindow = dynamicIslandHelper?.dynamicIslandWindow;
+			if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
+				dynamicIslandWindow.webContents.send('user-logout');
+				log.info('✅ Logout notification sent to Dynamic Island');
+			}
+		}
+
 		// Send the same message to Swift UI if NotchDrop service is available
 		if (notchDropService && notchDropService.isInitialized) {
 			try {
@@ -1205,7 +1203,7 @@ function createWindow(restoreState = false) {
 		saveWindowState();
 
 		// Cross-platform close behavior - keep app running in background
-		if (!isQuitting) {
+		if (!isQuitting && !isUpdateInProgress) {
 			event.preventDefault();
 			mainWindow.hide();
 			log.info('Main window hidden - app continues running in background');
@@ -1288,6 +1286,78 @@ function createTray() {
 	} catch (error) {
 		log.error('Error creating system tray:', error);
 	}
+}
+
+// Single instance lock to prevent multiple app instances
+// This ensures only one instance of the app can run at a time
+// When a second instance is attempted, it will focus the existing window instead
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+	// Another instance is already running, focus it and quit
+	log.info('Another instance is already running, focusing existing window and quitting...');
+	app.quit();
+} else {
+	// Handle second instance attempts
+	app.on('second-instance', (event, commandLine, workingDirectory) => {
+		log.info('Second instance attempted, focusing existing window...');
+		log.info('Command line:', commandLine);
+		log.info('Working directory:', workingDirectory);
+
+		// Focus the main window if it exists
+		if (mainWindow && !mainWindow.isDestroyed()) {
+			if (mainWindow.isMinimized()) {
+				mainWindow.restore();
+			}
+			mainWindow.focus();
+			mainWindow.show();
+			log.info('✅ Main window focused and shown');
+		} else {
+			log.warn('⚠️ Main window not available, creating new one...');
+			// If main window doesn't exist, we might need to create it
+			// This could happen if the app was closed but the process is still running
+		}
+
+		// Also focus any other important windows
+		const allWindows = BrowserWindow.getAllWindows();
+		let focusedCount = 0;
+		allWindows.forEach((window) => {
+			if (!window.isDestroyed() && window.isVisible()) {
+				window.focus();
+				focusedCount++;
+			}
+		});
+		log.info(`✅ Focused ${focusedCount} existing windows`);
+	});
+
+	// Handle app being opened with files or URLs
+	app.on('open-file', (event, filePath) => {
+		log.info('App opened with file:', filePath);
+		event.preventDefault();
+
+		// Focus existing window
+		if (mainWindow && !mainWindow.isDestroyed()) {
+			if (mainWindow.isMinimized()) {
+				mainWindow.restore();
+			}
+			mainWindow.focus();
+			mainWindow.show();
+		}
+	});
+
+	app.on('open-url', (event, url) => {
+		log.info('App opened with URL:', url);
+		event.preventDefault();
+
+		// Focus existing window
+		if (mainWindow && !mainWindow.isDestroyed()) {
+			if (mainWindow.isMinimized()) {
+				mainWindow.restore();
+			}
+			mainWindow.focus();
+			mainWindow.show();
+		}
+	});
 }
 
 // App lifecycle
@@ -1430,9 +1500,6 @@ app.whenReady().then(async () => {
 				: `👁️ INVISIBILITY OFF - ${windowCount} windows are now visible in screen recording`,
 		);
 
-		// Also log to console for debugging
-		console.log(`🎯 TOGGLE TRIGGERED: Content Protection is now ${statusText}`);
-
 		return newStatus;
 	});
 
@@ -1552,6 +1619,11 @@ app.whenReady().then(async () => {
 		notchDropService = new NotchDropService();
 		notchDropService.setMainWindow(mainWindow);
 		notchDropService.setMainWindowFactory((restoreState = false) => createWindow(restoreState));
+		notchDropService.setStealthModeController({
+			toggle: toggleContentProtection,
+			getStatus: getContentProtectionStatus,
+			setStatus: setContentProtection,
+		});
 
 		// CRITICAL: Ensure NotchDrop service fully initializes before proceeding
 		let notchDropInitialized = false;
@@ -2986,7 +3058,7 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	ipcMain.handle('overlay-start-recording', async () => {
+	ipcMain.handle('overlay-start-recording', async (event, data = {}) => {
 		try {
 			let overlayWindow = windowHelper?.getOverlayWindow();
 			if (!overlayWindow) {
@@ -3009,6 +3081,7 @@ app.whenReady().then(async () => {
 				// CRITICAL FIX: Use windowHelper's queuing system
 				const commandSent = windowHelper?.sendOverlayCommand({
 					action: 'startRecording',
+					data: data,
 				});
 				log.info(
 					`✅ SMART QUEUE: StartRecording command ${
@@ -4026,7 +4099,9 @@ app.whenReady().then(async () => {
 });
 
 // Handle app quit properly - but allow updates to proceed
+
 app.on('before-quit', (event) => {
+	isQuitting = true;
 	// Only prevent quit if update is not in progress
 	if (!isUpdateInProgress) {
 		// Prevent default quit behavior to allow cleanup
@@ -4080,7 +4155,8 @@ ipcMain.handle('update-overlay-dimensions', async (event, { width, height }) => 
 	}
 });
 
-const handleCleanupAndQuit = () =>
+const handleCleanupAndQuit = () => {
+	isQuitting = true;
 	cleanupAndQuit({
 		dynamicIslandHelper,
 		windowHelper,
@@ -4088,6 +4164,7 @@ const handleCleanupAndQuit = () =>
 		areYouThereTimer,
 		transcriptionDetectionTimer,
 	});
+};
 
 // Are You There timer functions
 function startAreYouThereTimer() {

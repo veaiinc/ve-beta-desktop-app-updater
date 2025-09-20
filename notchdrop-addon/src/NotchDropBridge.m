@@ -153,4 +153,8 @@ static void (^incomingActionCallback)(NSString*, NSString*);
     [NotchDropCore.shared addVoiceMessage:messageJson];
 }
 
++ (void)updateStealthModeState:(BOOL)isEnabled {
+    [NotchDropCore.shared updateStealthModeState:isEnabled];
+}
+
 @end

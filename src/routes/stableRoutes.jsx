@@ -10,8 +10,8 @@ import SettingsWrapper from '../views/features/settings/SettingsWrapper';
 import RecentChat from '../views/features/chat/RecentChat';
 import Onboarding from '../views/features/onboarding/Onboarding';
 import ChatPage from '../views/components/homePage/ChatPage';
-import Agents from '../views/features/agents/Agents';
-import Agent from '../views/features/agents/agent/Agent';
+// import Agents from '../views/features/agents/Agents';
+// import Agent from '../views/features/agents/agent/Agent';
 import GlobalWorkflows from '../views/features/sales/GlobalWorkflows';
 import CardMeetBot from '../views/features/meetBot/CardMeetBot';
 import MeetBotWrapper from '../views/features/meetBot/meetBotWrapper';
@@ -31,26 +31,26 @@ const stableRoutes = [
 			</AuthWrapper>
 		),
 	},
-	{
-		path: '/agents',
-		element: (
-			<AuthWrapper
-				title="Agents"
-				outerContainerStyle={{ padding: '0' }}
-				sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
-			>
-				<Agents />
-			</AuthWrapper>
-		),
-	},
-	{
-		path: '/agent/:agentId',
-		element: (
-			<AuthWrapper title="Agent">
-				<Agent />
-			</AuthWrapper>
-		),
-	},
+	// {
+	// 	path: '/agents',
+	// 	element: (
+	// 			<AuthWrapper
+	// 				title="Agents"
+	// 				outerContainerStyle={{ padding: '0' }}
+	// 				sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
+	// 			>
+	// 				<Agents />
+	// 			</AuthWrapper>
+	// 	),
+	// },
+	// {
+	// 	path: '/agent/:agentId',
+	// 	element: (
+	// 			<AuthWrapper title="Agent">
+	// 				<Agent />
+	// 			</AuthWrapper>
+	// 	),
+	// },
 
 	// ========================================
 	// CHAT & COMMUNICATION

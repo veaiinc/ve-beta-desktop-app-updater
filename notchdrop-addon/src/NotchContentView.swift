@@ -95,7 +95,7 @@ struct DynamicIslandContentView: View {
                                         // Custom wave icon (SVG-based)
                                         WaveIcon(color: DynamicIslandTheme.black)
                                             .frame(width: 15, height: 15)
-                                        Text("Listen")
+                                        Text(vm.isConnecting ? "Connecting..." : "Listen")
                                             .font(.system(size: 12, weight: .medium))
                                             .foregroundColor(Color(red: 0.055, green: 0.184, blue: 0.165)) // #0E2F2A
                                     }
@@ -107,7 +107,8 @@ struct DynamicIslandContentView: View {
                                 .buttonStyle(PlainButtonStyle())
                                 .scaleEffect(1.0)
                                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isRecording)
-                                
+                                .disabled(vm.isConnecting)
+                                .opacity(vm.isConnecting ? 0.8 : 1.0)
                                 // Voice button (new LiveKit voice assistant)
                                 Button(action: {
                                     vm.connectVoiceAssistant()
@@ -239,7 +240,29 @@ struct DynamicIslandContentView: View {
                                     vm.isChatMode = false
                                 }
                             }
-                        
+
+                        Button(action: {
+                            vm.toggleStealthMode()
+                        }) {
+                            Group {
+                                if vm.isStealthModeEnabled {
+                                    PirateIcon(color: DynamicIslandTheme.primaryGreen)
+                                } else {
+                                    EyeIcon(color: .white)
+                                }
+                            }
+                            .frame(width: 20, height: 20)
+                            .padding(6)
+                            .background(
+                                vm.isStealthModeEnabled
+                                    ? DynamicIslandTheme.primaryGreen.opacity(0.16)
+                                    : Color.white.opacity(0.15)
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .help(vm.isStealthModeEnabled ? "Disable stealth mode" : "Enable stealth mode")
+
                         // Right side icons (parity: Back + Home only)
                         HStack(spacing: 8) {
                             // COMMENTED OUT: Back button (as requested)
@@ -791,6 +814,125 @@ struct WaveIcon: View {
             .stroke(color, style: StrokeStyle(lineWidth: 0.875 * s, lineCap: .round, lineJoin: .round))
         }
         .aspectRatio(11.0/12.0, contentMode: .fit)
+    }
+}
+
+// MARK: - EyeIcon
+struct EyeIcon: View {
+    var color: Color = .white
+
+    var body: some View {
+        GeometryReader { geo in
+            let scale = min(geo.size.width, geo.size.height) / 24.0
+            let offsetX = (geo.size.width - 24.0 * scale) / 2.0
+            let offsetY = (geo.size.height - 24.0 * scale) / 2.0
+            let strokeStyle = StrokeStyle(lineWidth: 2.0 * scale, lineCap: .round, lineJoin: .round)
+            let point: (CGFloat, CGFloat) -> CGPoint = { x, y in
+                CGPoint(x: offsetX + x * scale, y: offsetY + y * scale)
+            }
+
+            ZStack {
+                Path { path in
+                    path.move(to: point(2.0, 12.0))
+                    path.addQuadCurve(to: point(12.0, 5.0), control: point(5.0, 6.0))
+                    path.addQuadCurve(to: point(22.0, 12.0), control: point(19.0, 6.0))
+                    path.addQuadCurve(to: point(12.0, 19.0), control: point(19.0, 18.0))
+                    path.addQuadCurve(to: point(2.0, 12.0), control: point(5.0, 18.0))
+                }
+                .stroke(color, style: strokeStyle)
+
+                Path { path in
+                    let radius: CGFloat = 3.0
+                    let rect = CGRect(
+                        x: offsetX + (12.0 - radius) * scale,
+                        y: offsetY + (12.0 - radius) * scale,
+                        width: radius * 2.0 * scale,
+                        height: radius * 2.0 * scale
+                    )
+                    path.addEllipse(in: rect)
+                }
+                .stroke(color, style: strokeStyle)
+            }
+        }
+        .aspectRatio(1.0, contentMode: .fit)
+    }
+}
+
+// MARK: - PirateIcon
+struct PirateIcon: View {
+    var color: Color = .white
+
+    var body: some View {
+        GeometryReader { geo in
+            let scale = min(geo.size.width, geo.size.height) / 24.0
+            let offsetX = (geo.size.width - 24.0 * scale) / 2.0
+            let offsetY = (geo.size.height - 24.0 * scale) / 2.0
+            let strokeStyle = StrokeStyle(lineWidth: 2.0 * scale, lineCap: .round, lineJoin: .round)
+            let point: (CGFloat, CGFloat) -> CGPoint = { x, y in
+                CGPoint(x: offsetX + x * scale, y: offsetY + y * scale)
+            }
+            let circleRect: (CGFloat, CGFloat, CGFloat) -> CGRect = { centerX, centerY, radius in
+                CGRect(
+                    x: offsetX + (centerX - radius) * scale,
+                    y: offsetY + (centerY - radius) * scale,
+                    width: radius * 2.0 * scale,
+                    height: radius * 2.0 * scale
+                )
+            }
+
+            ZStack {
+                // Hat brim
+                Path { path in
+                    path.move(to: point(2.0, 11.0))
+                    path.addLine(to: point(22.0, 11.0))
+                }
+                .stroke(color, style: strokeStyle)
+
+                // Hat crown (approximation of lucide hat)
+                Path { path in
+                    path.move(to: point(19.0, 11.0))
+                    path.addLine(to: point(16.9, 4.3))
+                    path.addLine(to: point(14.4, 3.2))
+                    path.addLine(to: point(12.0, 4.0))
+                    path.addLine(to: point(8.5, 4.0))
+                    path.addLine(to: point(6.6, 5.9))
+                    path.addLine(to: point(5.0, 11.0))
+                }
+                .stroke(color, style: strokeStyle)
+
+                // Glasses bridge
+                Path { path in
+                    path.move(to: point(10.0, 18.0))
+                    path.addLine(to: point(14.0, 18.0))
+                }
+                .stroke(color, style: strokeStyle)
+
+                // Left lens
+                Path { path in
+                    path.addEllipse(in: circleRect(7.0, 18.0, 3.0))
+                }
+                .stroke(color, style: strokeStyle)
+
+                // Right lens
+                Path { path in
+                    path.addEllipse(in: circleRect(17.0, 18.0, 3.0))
+                }
+                .stroke(color, style: strokeStyle)
+
+                // Moustache arc
+                Path { path in
+                    path.addArc(
+                        center: point(12.0, 18.0),
+                        radius: 2.0 * scale,
+                        startAngle: .degrees(0),
+                        endAngle: .degrees(180),
+                        clockwise: true
+                    )
+                }
+                .stroke(color, style: strokeStyle)
+            }
+        }
+        .aspectRatio(1.0, contentMode: .fit)
     }
 }
 

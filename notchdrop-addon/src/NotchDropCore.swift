@@ -4,13 +4,26 @@ import SwiftUI
 import UniformTypeIdentifiers
 import Combine
 
-// MARK: - Custom Window for Keyboard Input
-class NotchDropWindow: NSWindow {
-    override var canBecomeKey: Bool { return true }
-    override var canBecomeMain: Bool { return true }
-    
+// MARK: - Custom Non-activating Panel
+class NotchDropPanel: NSPanel {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { false }
+
+    override init(
+        contentRect: NSRect,
+        styleMask style: NSWindow.StyleMask,
+        backing bufferingType: NSWindow.BackingStoreType,
+        defer flag: Bool
+    ) {
+        super.init(contentRect: contentRect, styleMask: style, backing: bufferingType, defer: flag)
+        isFloatingPanel = true
+        becomesKeyOnlyIfNeeded = true
+        worksWhenModal = true
+        hidesOnDeactivate = false
+    }
+
     override func makeFirstResponder(_ responder: NSResponder?) -> Bool {
-        // Always allow the content view to become first responder for keyboard input
+        // Keep SwiftUI text inputs responsive without forcing the app to activate
         return super.makeFirstResponder(responder)
     }
 }
@@ -25,6 +38,11 @@ class NotchDropWindow: NSWindow {
     private var contentType: String = "normal"
     private var hapticFeedback: Bool = true
     private var notchViewModel: NotchViewModel?
+    private let notchWindowLevel: NSWindow.Level = {
+        let assistive = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.assistiveTechHighWindow)))
+        let statusBar = NSWindow.Level.statusBar
+        return assistive.rawValue > statusBar.rawValue ? assistive : statusBar
+    }()
 
     // MARK: - Callbacks
     private var statusChangedCallback: ((String) -> Void)?
@@ -67,18 +85,23 @@ class NotchDropWindow: NSWindow {
             height: notchHeight
         )
 
-        notchWindow = NotchDropWindow(
+        let panelStyle: NSWindow.StyleMask = [
+            .borderless,
+            .fullSizeContentView,
+            .nonactivatingPanel,
+        ]
+
+        notchWindow = NotchDropPanel(
             contentRect: topRect,
-            styleMask: [.borderless, .fullSizeContentView],
+            styleMask: panelStyle,
             backing: .buffered,
-            defer: false,
-            screen: screen
+            defer: false
         )
 
         guard let window = notchWindow else { return }
 
         // Use the same window properties as NotchDropLatest
-        window.level = .statusBar + 8 // Same level as NotchDropLatest
+        window.level = notchWindowLevel
         window.isOpaque = false
         window.alphaValue = 1
         window.titleVisibility = .hidden
@@ -90,12 +113,17 @@ class NotchDropWindow: NSWindow {
             .fullScreenAuxiliary,
             .canJoinAllSpaces,
             .stationary,
+            .transient,
             .ignoresCycle,
         ]
+        window.isExcludedFromWindowsMenu = true
+        window.isReleasedWhenClosed = false
+        window.animationBehavior = .none
         
         // CRITICAL: Enable keyboard input and first responder capabilities
         window.acceptsMouseMovedEvents = true
-        
+        window.setFrame(topRect, display: false)
+
         // Don't set initial first responder - let SwiftUI manage TextField focus
 
         // Create the proper NotchDrop UI
@@ -117,7 +145,7 @@ class NotchDropWindow: NSWindow {
 
         // Create the proper NotchView
         let notchView = NotchView(vm: vm)
-        
+
         // Set up status monitoring
         vm.$status
             .sink { [weak self] newStatus in
@@ -126,7 +154,7 @@ class NotchDropWindow: NSWindow {
                 self?.statusChangedCallback?(statusString)
                 // Ensure the notch window stays visible/above when opening (especially in fullscreen spaces)
                 if statusString == "opened" {
-                    self?.notchWindow?.orderFrontRegardless()
+                    self?.enforceWindowPresentation()
                 }
             }
             .store(in: &vm.cancellables)
@@ -161,7 +189,7 @@ class NotchDropWindow: NSWindow {
                 height: notchHeight
             )
             window.setFrame(topRect, display: false)
-            window.orderFrontRegardless()
+            self.enforceWindowPresentation()
         }
 
         // Also react to screen reconfiguration (external monitors attach/detach)
@@ -193,8 +221,19 @@ class NotchDropWindow: NSWindow {
                 )
                 self.notchViewModel?.screenRect = screenFrame
             }
-            window.orderFrontRegardless()
+            self.enforceWindowPresentation()
         }
+    }
+
+    private func enforceWindowPresentation() {
+        guard let window = notchWindow else { return }
+        if window.level != notchWindowLevel {
+            window.level = notchWindowLevel
+        }
+        if !window.isVisible {
+            window.makeKeyAndOrderFront(nil)
+        }
+        window.orderFrontRegardless()
     }
     
     // Add the same screen selection logic as NotchDropLatest
@@ -214,6 +253,7 @@ class NotchDropWindow: NSWindow {
             
             // Make the window key and visible
             window.makeKeyAndOrderFront(nil)
+            self?.enforceWindowPresentation()
             
             // Don't immediately set first responder - let SwiftUI handle TextField focus
             
@@ -511,6 +551,13 @@ class NotchDropWindow: NSWindow {
             viewModel.isMicrophoneMuted = isMuted
         }
     }
+
+    @objc public func updateStealthModeState(_ isEnabled: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let viewModel = self.notchViewModel else { return }
+            viewModel.updateStealthModeState(isEnabled)
+        }
+    }
     
     @objc public func addVoiceMessage(_ messageJson: String) {
         DispatchQueue.main.async { [weak self] in
@@ -533,7 +580,7 @@ class NotchDropWindow: NSWindow {
     
     // MARK: - Swift Action Handling
     private func handleSwiftAction(_ action: NotchViewModel.SwiftAction) {
-        print("🔍 DEBUG: NotchDropCore handling Swift action: \(action)")
+        // print("🔍 DEBUG: NotchDropCore handling Swift action: \(action)")
         switch action {
         case .startRecording:
             swiftActionCallback?("startRecording", "")
@@ -584,6 +631,8 @@ class NotchDropWindow: NSWindow {
         case .showNotification(let title, let body, let type):
             let notificationData = "\(title)|\(body)|\(type)"
             swiftActionCallback?("showNotification", notificationData)
+        case .toggleStealthMode:
+            swiftActionCallback?("toggleStealthMode", "")
         }
     }
 }

@@ -61,6 +61,7 @@ import {
 	getMeetBotDataQuery,
 	getMeetBotByIdQuery,
 	getMeetSummaryQuery,
+	getMeetingAnalyticsQuery,
 	meetBotCreateMutation,
 	deleteLiveKitRoomMutation,
 	getMeetTranscriptHistoryQuery,
@@ -1842,7 +1843,47 @@ export const NotesState = (props) => {
 			console.error('error==>getMeetSummary', error);
 		}
 	};
+	const getMeetingAnalytics = async (meetingId) => {
+		console.log('meetingId==>getMeetingAnalytics', meetingId);
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
 
+			const response = await service.query(
+				getMeetingAnalyticsQuery,
+				{ meetingId },
+				workspaceId,
+				usertoken,
+				'meeting_api',
+			);
+			console.log('response==>getMeetingAnalytics', response);
+
+			if (response?.[0] && response?.[1]?.data?.getMeetingAnalytics) {
+				const analyticsData = response[1].data.getMeetingAnalytics;
+				return [true, analyticsData];
+			} else {
+				// Handle GraphQL errors
+				let errorMessage = 'Failed to fetch meeting analytics';
+
+				if (Array.isArray(response[1]) && response[1].length > 0) {
+					const error = response[1][0];
+					errorMessage = error.message || errorMessage;
+
+					if (error.message?.includes('Cannot return null for non-nullable field')) {
+						errorMessage =
+							'No analytics data available for this meeting yet. Analytics may still be processing.';
+					}
+				} else if (response?.[1]?.errors?.length > 0) {
+					errorMessage = response[1].errors[0].message || errorMessage;
+				}
+
+				return [false, errorMessage];
+			}
+		} catch (error) {
+			console.error('error==>getMeetingAnalytics', error);
+			return [false, 'Error fetching meeting analytics'];
+		}
+	};
 	const createMeetBot = async (payload) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -1888,7 +1929,9 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'page_notes_api_database',
+				//changed for base url
+				// 'page_notes_api_database',
+				'meeting_api',
 			);
 			if (response?.[0]) {
 				const meetingData = response?.[1]?.data?.getMeeting;
@@ -2175,6 +2218,7 @@ export const NotesState = (props) => {
 		getMeetTranscriptHistory,
 		updateDatabaseView,
 		getMeetSummary,
+		getMeetingAnalytics,
 		updateStateValues,
 		getMeetingPreferences,
 		updateMeetingPreferences,
