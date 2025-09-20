@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useContext } from 'react';
+import { useState, useEffect, useCallback, useContext, useRef } from 'react';
 import { X } from 'lucide-react';
 import './askAI.scss';
 import ObjectID from 'bson-objectid';
@@ -6,13 +6,51 @@ import { getLocationsDetails } from '../helpers';
 import Context from '../context/context';
 import RecentChat from '../views/features/chat/RecentChat';
 import CustomToast from '../views/components/globalComponents/CustomToast';
+import { ReactComponent as ExpandSvg } from './expand.svg';
+import { ReactComponent as MinimizeSvg } from './minimize.svg';
 
 const AskAIApp = () => {
 	const {
 		templates: { updateStateValues },
 	} = useContext(Context);
 
-	const [info, setInfo] = useState({ sessionId: ObjectID()?.toString() });
+	const [info, setInfo] = useState({
+		sessionId: ObjectID()?.toString(),
+		expandChat: false,
+		workarea: null,
+	});
+	const containerRef = useRef(null);
+	const expandChatRef = useRef(false);
+
+	useEffect(() => {
+		if (!containerRef.current) return;
+
+		const observer = new ResizeObserver((entries) => {
+			for (let entry of entries) {
+				if (expandChatRef.current) return;
+
+				const { height } = entry.contentRect;
+				const updatedHeight = Math.min(height, 600);
+
+				// If you want to notify main process (Electron)
+				// window.electron?.ipcRenderer?.send('element-height-change', height);
+
+				window?.electronApi?.askAI?.updateDimensions({ width: 600, height: updatedHeight });
+			}
+		});
+
+		observer.observe(containerRef.current);
+
+		return () => {
+			observer.disconnect();
+		};
+	}, []);
+
+	useEffect(() => {
+		if (info?.expandChat) {
+			handleExpandChat();
+		}
+	}, [info?.expandChat]);
 
 	// Listen for tab content from overlay
 	useEffect(() => {
@@ -180,10 +218,6 @@ const AskAIApp = () => {
 		}
 	};
 
-	const handleNewChat = useCallback(() => {
-		setInfo((prev) => ({ ...prev, sessionId: ObjectID()?.toString() }));
-	}, []);
-
 	const handleDesktopAppPayload = async () => {
 		let payload = {};
 		try {
@@ -203,20 +237,48 @@ const AskAIApp = () => {
 		window?.electronApi.askAI.toggleWindow();
 	};
 
+	const handleChatToggle = useCallback(() => {
+		setInfo((prev) => {
+			expandChatRef.current = !prev?.expandChat;
+			return { ...prev, expandChat: !prev?.expandChat };
+		});
+	}, []);
+
+	const handleExpandChat = useCallback(async () => {
+		let workarea = info?.workarea;
+		if (!workarea) {
+			workarea = await window?.electronApi?.askAI?.getWorkArea();
+		}
+		window?.electronApi?.askAI?.updateDimensions({
+			width: 600,
+			height: workarea.height,
+			position: { x: (workarea.width || 0) - 600, y: 0 },
+		});
+
+		if (!info?.workarea) {
+			setInfo((prev) => ({ ...prev, workarea }));
+		}
+	}, [info?.workarea]);
+
 	return (
-		<div className="ask-ai-app">
+		<div
+			className={`ask-ai-app`}
+			ref={containerRef}
+			style={{
+				maxHeight: info?.expandChat ? 'unset' : '600px',
+				height: info?.expandChat ? '100%' : 'unset',
+			}}
+		>
 			{/* Response Window - Top */}
 			<div className={`ai-response-window`}>
-				<div className="ai-response-header">
+				<div className={`ai-response-header ${info?.expandChat ? 'chat-expanded' : ''}`}>
 					<div className="ai-response-title">
 						<span>Chat</span>
 					</div>
 					<div className="ai-response-controls">
-						{/* {globalChatMessages?.[info?.sessionId]?.messages?.length > 0 && (
-							<button className="new-chat" onClick={handleNewChat}>
-								New Chat
-							</button>
-						)} */}
+						<button className="chat-btn" onClick={handleChatToggle} title="Close">
+							{!info?.expandChat ? <ExpandSvg /> : <MinimizeSvg />}
+						</button>
 
 						<button className="close-button" onClick={handleClose} title="Close">
 							<X size={16} />
@@ -238,6 +300,7 @@ const AskAIApp = () => {
 						showResponseEditBtn={false}
 						fetchRecentChatMessages={false}
 						handleDesktopAppPayload={handleDesktopAppPayload}
+						showUpgradeSubscriptionBtn={false}
 					/>
 				</div>
 			</div>

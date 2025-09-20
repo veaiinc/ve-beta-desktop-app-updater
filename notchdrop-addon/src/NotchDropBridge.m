@@ -157,4 +157,10 @@ static void (^incomingActionCallback)(NSString*, NSString*);
     [NotchDropCore.shared updateStealthModeState:isEnabled];
 }
 
+// MARK: - Wake Word Detection Methods
+
++ (void)handleWakeWordDetected:(float)score {
+    [NotchDropCore.shared handleWakeWordDetected:score];
+}
+
 @end

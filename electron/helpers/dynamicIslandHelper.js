@@ -3,15 +3,11 @@ const log = require('electron-log');
 const path = require('path');
 
 const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
+const RUNTIME_ARCH = process.env.VE_FORCE_ARCH || process.arch;
 const isMacRuntime = RUNTIME_PLATFORM === 'darwin';
 const isWindowsRuntime = RUNTIME_PLATFORM === 'win32';
-// Treat a range of truthy strings as enabling the Dynamic Island universally
-const shouldForceShowDynamicIsland = (() => {
-	const value = String(process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND || '')
-		.trim()
-		.toLowerCase();
-	return value === '1' || value === 'true' || value === 'yes' || value === 'on';
-})();
+const isIntelMac = isMacRuntime && RUNTIME_ARCH === 'x64';
+const isAppleSiliconMac = isMacRuntime && RUNTIME_ARCH === 'arm64';
 
 module.exports = class DynamicIslandHelper {
 	constructor() {
@@ -58,21 +54,16 @@ module.exports = class DynamicIslandHelper {
 	createDynamicIslandWindow() {
 		if (this.dynamicIslandWindow !== null) return;
 
-		// Previously macOS skipped window creation because native NotchDrop handles UI.
-		// If VITE_ELECTRON_SHOW_DYNAMIC_ISLAND is truthy, override and create the window on macOS too.
-		if (isMacRuntime && !shouldForceShowDynamicIsland) {
+		// Skip window creation on Apple Silicon Macs (they use native NotchDrop)
+		// But create Dynamic Island for Intel Macs, Windows, and Linux
+		if (isAppleSiliconMac) {
 			log.info(
-				'Skipping Dynamic Island window creation on macOS (using native NotchDrop). Set VITE_ELECTRON_SHOW_DYNAMIC_ISLAND=true to force show.',
+				'Skipping Dynamic Island window creation on Apple Silicon Mac (using native NotchDrop)',
 			);
 			return;
 		}
 
-		log.info(
-			'Creating Dynamic Island window for platform:',
-			process.platform,
-			'| forced:',
-			shouldForceShowDynamicIsland,
-		);
+		log.info('Creating Dynamic Island window for platform:', process.platform);
 		log.info('NODE_ENV:', process.env.NODE_ENV);
 		log.info('__dirname:', __dirname);
 
@@ -200,9 +191,8 @@ module.exports = class DynamicIslandHelper {
 			log.error('Failed to set Dynamic Island always on top:', error);
 		}
 
-		// Set initial mouse event handling
-		// When forced on macOS for visibility/debugging, allow interactions immediately
-		this.setMouseEventHandling(!(isMacRuntime && shouldForceShowDynamicIsland));
+		// Set initial mouse event handling - start with mouse events ignored since it's collapsed
+		this.setMouseEventHandling(true);
 
 		// Show the window immediately with enhanced visibility
 		try {
@@ -285,19 +275,7 @@ module.exports = class DynamicIslandHelper {
 
 		this.dynamicIslandWindow.webContents.on('dom-ready', () => {
 			log.info('Dynamic Island DOM ready');
-			// Auto-open devtools in development when forced to aid debugging
-			try {
-				if (
-					shouldForceShowDynamicIsland &&
-					process.env.NODE_ENV === 'development' &&
-					this.dynamicIslandWindow &&
-					!this.dynamicIslandWindow.isDestroyed()
-				) {
-					this.dynamicIslandWindow.webContents.openDevTools({ mode: 'detach' });
-				}
-			} catch (e) {
-				log.warn('Failed to open devtools for Dynamic Island:', e);
-			}
+			// Dev tools can be opened manually via menu or F12 if needed
 		});
 
 		this.dynamicIslandWindow.on('closed', () => {
@@ -347,10 +325,10 @@ module.exports = class DynamicIslandHelper {
 	}
 
 	expand() {
-		// On macOS (runtime), just track the state without window operations unless forced
-		if (isMacRuntime && !shouldForceShowDynamicIsland) {
+		// On Apple Silicon Mac, just track the state without window operations
+		if (isAppleSiliconMac) {
 			this.isExpanded = true;
-			log.info('🍎 Dynamic Island expand state tracked (no window on macOS)');
+			log.info('🍎 Dynamic Island expand state tracked (no window on Apple Silicon Mac)');
 			return;
 		}
 
@@ -369,10 +347,10 @@ module.exports = class DynamicIslandHelper {
 	}
 
 	collapse() {
-		// On macOS (runtime), just track the state without window operations unless forced
-		if (isMacRuntime && !shouldForceShowDynamicIsland) {
+		// On Apple Silicon Mac, just track the state without window operations
+		if (isAppleSiliconMac) {
 			this.isExpanded = false;
-			log.info('🍎 Dynamic Island collapse state tracked (no window on macOS)');
+			log.info('🍎 Dynamic Island collapse state tracked (no window on Apple Silicon Mac)');
 			return;
 		}
 
@@ -394,8 +372,8 @@ module.exports = class DynamicIslandHelper {
 		if (!this.dynamicIslandWindow || this.dynamicIslandWindow.isDestroyed()) return;
 
 		try {
-			if (isMacRuntime) {
-				// On macOS, use the forward option to allow clicks to pass through
+			if (isIntelMac) {
+				// On Intel Mac, use the forward option to allow clicks to pass through
 				this.dynamicIslandWindow.setIgnoreMouseEvents(ignore, { forward: true });
 			} else if (isWindowsRuntime) {
 				// On Windows, when collapsed, allow clicks to pass through to overlay
@@ -417,10 +395,10 @@ module.exports = class DynamicIslandHelper {
 	}
 
 	show() {
-		// On macOS (runtime), just track the state without window operations unless forced
-		if (isMacRuntime && !shouldForceShowDynamicIsland) {
+		// On Apple Silicon Mac, just track the state without window operations
+		if (isAppleSiliconMac) {
 			this.isVisible = true;
-			log.info('🍎 Dynamic Island show state tracked (no window on macOS)');
+			log.info('🍎 Dynamic Island show state tracked (no window on Apple Silicon Mac)');
 			return;
 		}
 
@@ -432,10 +410,10 @@ module.exports = class DynamicIslandHelper {
 	}
 
 	hide() {
-		// On macOS (runtime), just track the state without window operations unless forced
-		if (isMacRuntime && !shouldForceShowDynamicIsland) {
+		// On Apple Silicon Mac, just track the state without window operations
+		if (isAppleSiliconMac) {
 			this.isVisible = false;
-			log.info('🍎 Dynamic Island hide state tracked (no window on macOS)');
+			log.info('🍎 Dynamic Island hide state tracked (no window on Apple Silicon Mac)');
 			return;
 		}
 
@@ -467,9 +445,9 @@ module.exports = class DynamicIslandHelper {
 
 	// Method to reposition Dynamic Island based on platform
 	repositionForPlatform() {
-		// On macOS (runtime), just log that repositioning was called unless forced
-		if (isMacRuntime && !shouldForceShowDynamicIsland) {
-			log.info('🍎 Dynamic Island reposition called (no window on macOS)');
+		// On Apple Silicon Mac, just log that repositioning was called
+		if (isAppleSiliconMac) {
+			log.info('🍎 Dynamic Island reposition called (no window on Apple Silicon Mac)');
 			return;
 		}
 
@@ -487,9 +465,9 @@ module.exports = class DynamicIslandHelper {
 	}
 
 	focus() {
-		// On macOS (runtime), just log that focus was called unless forced
-		if (isMacRuntime && !shouldForceShowDynamicIsland) {
-			log.info('🍎 Dynamic Island focus called (no window on macOS)');
+		// On Apple Silicon Mac, just log that focus was called
+		if (isAppleSiliconMac) {
+			log.info('🍎 Dynamic Island focus called (no window on Apple Silicon Mac)');
 			return;
 		}
 

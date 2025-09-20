@@ -38,6 +38,33 @@ const NotchDropVoiceActivator = () => {
 			if (!shouldConnect && !voiceIntegrationData?.shouldConnect) {
 				console.log('🚀 NotchDrop Voice Activator: Starting LiveKit voice integration...');
 
+				// AUTO-EXPAND DYNAMIC ISLAND when Hey Ve is detected
+				console.log('🏝️ AUTO-EXPANDING Dynamic Island for Hey Ve...');
+				if (window.electronApi?.dynamicIsland?.expand) {
+					try {
+						await window.electronApi.dynamicIsland.expand();
+						console.log('✅ Dynamic Island expanded for Hey Ve');
+						
+						// Also trigger voice mode in Dynamic Island
+						setTimeout(() => {
+							if (window.electronApi?.dynamicIsland?.setChatMode) {
+								window.electronApi.dynamicIsland.setChatMode(true);
+								console.log('✅ Dynamic Island voice mode activated');
+							}
+							
+							// Trigger voice mode event for Dynamic Island UI
+							window.dispatchEvent(
+								new CustomEvent('trigger-voice-mode', {
+									detail: { source: 'hey_ve_detection' }
+								})
+							);
+							console.log('✅ Voice mode trigger event dispatched');
+						}, 500);
+					} catch (error) {
+						console.error('❌ Failed to expand Dynamic Island:', error);
+					}
+				}
+
 				// Disable old voice integration system
 				window.dispatchEvent(
 					new CustomEvent('disable-old-voice-integration', {
