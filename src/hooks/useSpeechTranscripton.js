@@ -18,6 +18,7 @@ const useSpeechTranscription = ({ tenantId }) => {
 	const sampleCountRef = useRef(0);
 	const muteRef = useRef(false);
 	const socketClosingTimeoutRef = useRef(null);
+	const retryTimerRef = useRef(null);
 
 	const userToken = localStorage.getItem('usertoken');
 	const encodedToken = encodeURIComponent(userToken);
@@ -52,6 +53,11 @@ const useSpeechTranscription = ({ tenantId }) => {
 		if (socketClosingTimeoutRef.current) {
 			clearTimeout(socketClosingTimeoutRef.current);
 			socketClosingTimeoutRef.current = null;
+		}
+
+		if (retryTimerRef.current) {
+			clearTimeout(retryTimerRef.current);
+			retryTimerRef.current = null;
 		}
 
 		// Cleanup audio resources in correct order
@@ -123,7 +129,7 @@ const useSpeechTranscription = ({ tenantId }) => {
 					console.log('Connection closed, attempting to reconnect...');
 					createWebSocketConnection({ sessionId, onMessageFunc });
 					attempts++;
-					setTimeout(attemptConnection, RETRY_DELAY);
+					retryTimerRef.current = setTimeout(attemptConnection, RETRY_DELAY);
 					return;
 				}
 
@@ -131,7 +137,7 @@ const useSpeechTranscription = ({ tenantId }) => {
 				if (websocketRef.current.readyState === WebSocket.CONNECTING) {
 					console.log('Connection not ready, waiting...');
 					attempts++;
-					setTimeout(attemptConnection, RETRY_DELAY);
+					retryTimerRef.current = setTimeout(attemptConnection, RETRY_DELAY);
 					return;
 				}
 
