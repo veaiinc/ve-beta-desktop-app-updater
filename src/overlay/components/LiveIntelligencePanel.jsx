@@ -394,7 +394,7 @@ const LiveIntelligencePanel = ({
 			{/* Header */}
 			<div className="live-intelligence-panel__header">
 				<div className="live-intelligence-panel__title">
-					<span className="live-intelligence-panel__title-text">VE</span>
+					<span className="live-intelligence-panel__title-text">Live Intelligence</span>
 					{/* {isRecording && formatTime && (
 						<span className={`recording-indicator ${isPaused ? 'paused' : ''}`}>
 							{isPaused ? '⏸' : '●'} {formatTime(timer)}

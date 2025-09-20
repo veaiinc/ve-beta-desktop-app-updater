@@ -624,6 +624,17 @@ class NotchDropPanel: NSPanel {
         case .showNotification(let title, let body, let type):
             let notificationData = "\(title)|\(body)|\(type)"
             swiftActionCallback?("showNotification", notificationData)
+        // Webcam Actions
+        case .toggleWebcam:
+            swiftActionCallback?("toggleWebcam", "")
+        case .startWebcam:
+            swiftActionCallback?("startWebcam", "")
+        case .stopWebcam:
+            swiftActionCallback?("stopWebcam", "")
+        case .checkCameraPermission:
+            swiftActionCallback?("checkCameraPermission", "")
+        case .requestCameraPermission:
+            swiftActionCallback?("requestCameraPermission", "")
         }
     }
 }

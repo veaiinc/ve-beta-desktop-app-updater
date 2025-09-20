@@ -108,6 +108,27 @@ class SwiftJSBridge {
 		this.swiftActionHandlers.set('startVoiceAgent', (data) => {
 			this.handleStartVoiceAgent(data);
 		});
+
+		// Webcam handlers
+		this.swiftActionHandlers.set('toggleWebcam', (data) => {
+			this.handleWebcamToggle(data);
+		});
+
+		this.swiftActionHandlers.set('startWebcam', (data) => {
+			this.handleWebcamStart(data);
+		});
+
+		this.swiftActionHandlers.set('stopWebcam', (data) => {
+			this.handleWebcamStop(data);
+		});
+
+		this.swiftActionHandlers.set('checkCameraPermission', (data) => {
+			this.handleCameraPermissionCheck(data);
+		});
+
+		this.swiftActionHandlers.set('requestCameraPermission', (data) => {
+			this.handleCameraPermissionRequest(data);
+		});
 	}
 
 	setupIPCHandlers() {
@@ -645,6 +666,326 @@ class SwiftJSBridge {
 			return { success: true, action: 'startVoiceAgent', data };
 		} catch (error) {
 			console.error('❌ Error handling start voice agent:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	// MARK: - Webcam Handlers
+
+	async handleWebcamToggle(data) {
+		try {
+			console.log('📹 Swift requested webcam toggle:', data);
+
+			// Find the main window to trigger webcam functionality
+			const { BrowserWindow } = require('electron');
+			const windows = BrowserWindow.getAllWindows();
+
+			for (const window of windows) {
+				if (window.webContents && !window.isDestroyed()) {
+					const title = window.getTitle();
+					// Look for main window (not overlay or dynamic island)
+					if (!title.includes('Overlay') && !title.includes('Dynamic Island')) {
+						console.log('📹 Triggering webcam toggle in main window');
+
+						// Execute JavaScript to toggle webcam using the existing Dynamic Island approach
+						try {
+							const result = await window.webContents.executeJavaScript(`
+								(async () => {
+									try {
+										console.log('📹 NotchDrop: Toggling webcam...');
+										
+										// Use the same approach as Dynamic Island webcam functionality
+										if (window.electronApi?.askAI?.camera?.checkPermission) {
+											const permission = await window.electronApi.askAI.camera.checkPermission();
+											console.log('📹 Camera permission status:', permission);
+											
+											if (permission === 'granted') {
+												// Trigger webcam toggle via existing Dynamic Island functionality
+												if (window.electronApi?.dynamicIsland?.toggleWebcam) {
+													await window.electronApi.dynamicIsland.toggleWebcam();
+													return { success: true, method: 'dynamicIsland.toggleWebcam' };
+												}
+											} else {
+												// Request permission first
+												await window.electronApi.askAI.camera.requestPermission();
+												return { success: true, method: 'requestPermission' };
+											}
+										}
+										
+										// Fallback: dispatch custom event
+										const event = new CustomEvent('notchdrop-toggle-webcam', {
+											detail: { 
+												source: 'notchdrop-webcam-button',
+												timestamp: Date.now()
+											}
+										});
+										window.dispatchEvent(event);
+										
+										return { success: true, method: 'custom-event' };
+										
+									} catch (error) {
+										console.error('❌ NotchDrop webcam toggle error:', error);
+										return { success: false, error: error.message };
+									}
+								})()
+							`);
+
+							console.log('📹 NotchDrop webcam toggle result:', result);
+						} catch (jsError) {
+							console.warn(
+								'⚠️ Could not execute NotchDrop webcam JavaScript:',
+								jsError.message,
+							);
+						}
+
+						break;
+					}
+				}
+			}
+
+			return { success: true, action: 'toggleWebcam', data };
+		} catch (error) {
+			console.error('❌ Error handling webcam toggle:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	async handleWebcamStart(data) {
+		try {
+			console.log('📹 Swift requested webcam start:', data);
+
+			// Find the main window to trigger webcam start
+			const { BrowserWindow } = require('electron');
+			const windows = BrowserWindow.getAllWindows();
+
+			for (const window of windows) {
+				if (window.webContents && !window.isDestroyed()) {
+					const title = window.getTitle();
+					if (!title.includes('Overlay') && !title.includes('Dynamic Island')) {
+						console.log('📹 Triggering webcam start in main window');
+
+						try {
+							const result = await window.webContents.executeJavaScript(`
+								(async () => {
+									try {
+										console.log('📹 NotchDrop: Starting webcam...');
+										
+										// Use existing Dynamic Island webcam functionality
+										if (window.electronApi?.dynamicIsland?.startWebcam) {
+											await window.electronApi.dynamicIsland.startWebcam();
+											return { success: true, method: 'dynamicIsland.startWebcam' };
+										}
+										
+										// Fallback: dispatch custom event
+										const event = new CustomEvent('notchdrop-start-webcam', {
+											detail: { 
+												source: 'notchdrop-webcam-start',
+												timestamp: Date.now()
+											}
+										});
+										window.dispatchEvent(event);
+										
+										return { success: true, method: 'custom-event' };
+										
+									} catch (error) {
+										console.error('❌ NotchDrop webcam start error:', error);
+										return { success: false, error: error.message };
+									}
+								})()
+							`);
+
+							console.log('📹 NotchDrop webcam start result:', result);
+						} catch (jsError) {
+							console.warn(
+								'⚠️ Could not execute NotchDrop webcam start JavaScript:',
+								jsError.message,
+							);
+						}
+
+						break;
+					}
+				}
+			}
+
+			return { success: true, action: 'startWebcam', data };
+		} catch (error) {
+			console.error('❌ Error handling webcam start:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	async handleWebcamStop(data) {
+		try {
+			console.log('📹 Swift requested webcam stop:', data);
+
+			// Find the main window to trigger webcam stop
+			const { BrowserWindow } = require('electron');
+			const windows = BrowserWindow.getAllWindows();
+
+			for (const window of windows) {
+				if (window.webContents && !window.isDestroyed()) {
+					const title = window.getTitle();
+					if (!title.includes('Overlay') && !title.includes('Dynamic Island')) {
+						console.log('📹 Triggering webcam stop in main window');
+
+						try {
+							const result = await window.webContents.executeJavaScript(`
+								(async () => {
+									try {
+										console.log('📹 NotchDrop: Stopping webcam...');
+										
+										// Use existing Dynamic Island webcam functionality
+										if (window.electronApi?.dynamicIsland?.stopWebcam) {
+											await window.electronApi.dynamicIsland.stopWebcam();
+											return { success: true, method: 'dynamicIsland.stopWebcam' };
+										}
+										
+										// Fallback: dispatch custom event
+										const event = new CustomEvent('notchdrop-stop-webcam', {
+											detail: { 
+												source: 'notchdrop-webcam-stop',
+												timestamp: Date.now()
+											}
+										});
+										window.dispatchEvent(event);
+										
+										return { success: true, method: 'custom-event' };
+										
+									} catch (error) {
+										console.error('❌ NotchDrop webcam stop error:', error);
+										return { success: false, error: error.message };
+									}
+								})()
+							`);
+
+							console.log('📹 NotchDrop webcam stop result:', result);
+						} catch (jsError) {
+							console.warn(
+								'⚠️ Could not execute NotchDrop webcam stop JavaScript:',
+								jsError.message,
+							);
+						}
+
+						break;
+					}
+				}
+			}
+
+			return { success: true, action: 'stopWebcam', data };
+		} catch (error) {
+			console.error('❌ Error handling webcam stop:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	async handleCameraPermissionCheck(data) {
+		try {
+			console.log('📹 Swift requested camera permission check:', data);
+
+			// Find the main window to check camera permission
+			const { BrowserWindow } = require('electron');
+			const windows = BrowserWindow.getAllWindows();
+
+			for (const window of windows) {
+				if (window.webContents && !window.isDestroyed()) {
+					const title = window.getTitle();
+					if (!title.includes('Overlay') && !title.includes('Dynamic Island')) {
+						console.log('📹 Checking camera permission in main window');
+
+						try {
+							const result = await window.webContents.executeJavaScript(`
+								(async () => {
+									try {
+										console.log('📹 NotchDrop: Checking camera permission...');
+										
+										// Use existing Dynamic Island camera permission functionality
+										if (window.electronApi?.askAI?.camera?.checkPermission) {
+											const permission = await window.electronApi.askAI.camera.checkPermission();
+											console.log('📹 Camera permission result:', permission);
+											return { success: true, permission, method: 'askAI.camera.checkPermission' };
+										}
+										
+										return { success: false, error: 'Camera permission API not available' };
+										
+									} catch (error) {
+										console.error('❌ NotchDrop camera permission check error:', error);
+										return { success: false, error: error.message };
+									}
+								})()
+							`);
+
+							console.log('📹 NotchDrop camera permission check result:', result);
+						} catch (jsError) {
+							console.warn(
+								'⚠️ Could not execute NotchDrop camera permission check JavaScript:',
+								jsError.message,
+							);
+						}
+
+						break;
+					}
+				}
+			}
+
+			return { success: true, action: 'checkCameraPermission', data };
+		} catch (error) {
+			console.error('❌ Error handling camera permission check:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	async handleCameraPermissionRequest(data) {
+		try {
+			console.log('📹 Swift requested camera permission request:', data);
+
+			// Find the main window to request camera permission
+			const { BrowserWindow } = require('electron');
+			const windows = BrowserWindow.getAllWindows();
+
+			for (const window of windows) {
+				if (window.webContents && !window.isDestroyed()) {
+					const title = window.getTitle();
+					if (!title.includes('Overlay') && !title.includes('Dynamic Island')) {
+						console.log('📹 Requesting camera permission in main window');
+
+						try {
+							const result = await window.webContents.executeJavaScript(`
+								(async () => {
+									try {
+										console.log('📹 NotchDrop: Requesting camera permission...');
+										
+										// Use existing Dynamic Island camera permission functionality
+										if (window.electronApi?.askAI?.camera?.requestPermission) {
+											const permission = await window.electronApi.askAI.camera.requestPermission();
+											console.log('📹 Camera permission request result:', permission);
+											return { success: true, permission, method: 'askAI.camera.requestPermission' };
+										}
+										
+										return { success: false, error: 'Camera permission request API not available' };
+										
+									} catch (error) {
+										console.error('❌ NotchDrop camera permission request error:', error);
+										return { success: false, error: error.message };
+									}
+								})()
+							`);
+
+							console.log('📹 NotchDrop camera permission request result:', result);
+						} catch (jsError) {
+							console.warn(
+								'⚠️ Could not execute NotchDrop camera permission request JavaScript:',
+								jsError.message,
+							);
+						}
+
+						break;
+					}
+				}
+			}
+
+			return { success: true, action: 'requestCameraPermission', data };
+		} catch (error) {
+			console.error('❌ Error handling camera permission request:', error);
 			return { success: false, error: error.message };
 		}
 	}

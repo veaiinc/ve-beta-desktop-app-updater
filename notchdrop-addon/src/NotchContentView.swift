@@ -3,6 +3,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 import AppKit
 import Combine
+import AVFoundation
 
 struct NotchContentView: View {
     @StateObject var vm: NotchViewModel
@@ -290,17 +291,27 @@ struct DynamicIslandContentView: View {
                             // Voice split layout (left conversation, right controls)
                             VoiceSplitLayout(vm: vm)
                         } else {
-                            // TextEditor implementation (textarea-like with multi-line support and auto-resize)
-                            ChatTextAreaView(
-                                chatInput: $vm.chatInput,
-                                textEditorHeight: $textEditorHeight,
-                                isTextFieldActive: $isTextFieldActive,
-                                vm: vm
-                            )
-                            
+                            // Chat input section with fixed container
+                            HStack(spacing: 12) {
+                                ChatTextAreaView(
+                                    chatInput: $vm.chatInput,
+                                    textEditorHeight: $textEditorHeight,
+                                    isTextFieldActive: $isTextFieldActive,
+                                    vm: vm
+                                )
+                                .frame(width: 480) // Reduced width for chatbox to accommodate webcam
+                                
+                                // Webcam button - only show when recording
+                                if vm.isRecording {
+                                    WebcamButton(vm: vm)
+                                        .frame(width: 70, height: 70) // Further reduced size to prevent cropping
+                                }
+                            }
+                            .frame(width: vm.isRecording ? 550 : 480) // Optimized container width: 480px chatbox + 70px webcam + 0px spacing
                         }
                     }
                     .frame(maxWidth: vm.notchOpenedSize.width - 32) // Constrain main content area
+                    .clipped() // Ensure content doesn't overflow
                     .animation(DynamicIslandTheme.expansionAnimation, value: vm.isChatMode)
                 }
             }
@@ -728,22 +739,8 @@ struct ChatTextAreaView: View {
     
     // MARK: - Width Calculation Helper
     private func calculateTextEditorWidth() {
-        // Get the actual available width from the dynamic island
-        let islandWidth = vm.notchOpenedSize.width
-        
-        // Calculate available space considering:
-        // - Total padding (32px: 16px on each side)
-        // - Right tile has been removed, so no need to account for it
-        let totalPadding: CGFloat = 32 // 16px on each side
-        
-        let availableWidth = islandWidth - totalPadding
-        
-        // Right tile has been commented out, so no need to subtract its width
-        // The text editor can now use the full available width
-        
-        // Ensure minimum width and apply some margin for visual balance
-        let minWidth: CGFloat = 200
-        let calculatedWidth = max(minWidth, availableWidth - 20) // 20px margin for visual balance
+        // Use fixed width for chatbox - 480px
+        let calculatedWidth: CGFloat = 480
         
         textEditorWidth = calculatedWidth
     }
@@ -792,6 +789,193 @@ struct WaveIcon: View {
             .stroke(color, style: StrokeStyle(lineWidth: 0.875 * s, lineCap: .round, lineJoin: .round))
         }
         .aspectRatio(11.0/12.0, contentMode: .fit)
+    }
+}
+
+// MARK: - WebcamIcon (SVG path rendered in SwiftUI)
+struct WebcamIcon: View {
+    var color: Color = Color(red: 0.580, green: 0.596, blue: 0.620) // #94989e
+    var body: some View {
+        GeometryReader { geo in
+            let w: CGFloat = 24.0
+            let h: CGFloat = 24.0
+            let sx = geo.size.width / w
+            let sy = geo.size.height / h
+            let s = min(sx, sy)
+            Path { p in
+                func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint { CGPoint(x: x * sx, y: y * sy) }
+                // Camera icon path
+                // M12 15.5A3.5 3.5 0 1 0 12 8.5A3.5 3.5 0 0 0 12 15.5Z
+                p.addEllipse(in: CGRect(x: 8.5 * sx, y: 8.5 * sy, width: 7 * sx, height: 7 * sy))
+                // M20.84 4.61A5.5 5.5 0 0 0 19.5 4H4.5A5.5 5.5 0 0 0 3.16 4.61A2 2 0 0 0 2 6.5V17A2 2 0 0 0 3.16 19.39A5.5 5.5 0 0 0 4.5 20H19.5A5.5 5.5 0 0 0 20.84 19.39A2 2 0 0 0 22 17V6.5A2 2 0 0 0 20.84 4.61ZM12 17A5 5 0 1 1 12 7A5 5 0 0 1 12 17Z
+                p.addRoundedRect(in: CGRect(x: 2 * sx, y: 4 * sy, width: 20 * sx, height: 16 * sy), cornerSize: CGSize(width: 2 * sx, height: 2 * sy))
+            }
+            .stroke(color, style: StrokeStyle(lineWidth: 1.5 * s, lineCap: .round, lineJoin: .round))
+        }
+        .aspectRatio(1.0, contentMode: .fit)
+    }
+}
+
+// MARK: - Camera Preview View
+struct CameraPreviewView: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSView {
+        let view = CameraPreviewNSView()
+        return view
+    }
+    
+    func updateNSView(_ nsView: NSView, context: Context) {
+        // Update if needed
+    }
+}
+
+class CameraPreviewNSView: NSView {
+    private var captureSession: AVCaptureSession?
+    private var previewLayer: AVCaptureVideoPreviewLayer?
+    
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        setupCamera()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupCamera()
+    }
+    
+    private func setupCamera() {
+        // Create capture session
+        let session = AVCaptureSession()
+        session.sessionPreset = .medium
+        
+        // Get default camera
+        guard let camera = AVCaptureDevice.default(for: .video) else {
+            print("📹 No camera available")
+            return
+        }
+        
+        do {
+            // Create input
+            let input = try AVCaptureDeviceInput(device: camera)
+            if session.canAddInput(input) {
+                session.addInput(input)
+            }
+            
+            // Create preview layer
+            let previewLayer = AVCaptureVideoPreviewLayer(session: session)
+            previewLayer.videoGravity = .resizeAspectFill
+            previewLayer.frame = bounds
+            layer = previewLayer
+            wantsLayer = true
+            
+            self.captureSession = session
+            self.previewLayer = previewLayer
+            
+            // Start session
+            DispatchQueue.global(qos: .userInitiated).async {
+                session.startRunning()
+            }
+            
+        } catch {
+            print("📹 Error setting up camera: \(error)")
+        }
+    }
+    
+    override func layout() {
+        super.layout()
+        previewLayer?.frame = bounds
+    }
+    
+    deinit {
+        captureSession?.stopRunning()
+    }
+}
+
+// MARK: - WebcamButton (Circular webcam button matching Dynamic Island design)
+struct WebcamButton: View {
+    @ObservedObject var vm: NotchViewModel
+    @State private var isHovered: Bool = false
+    
+    var body: some View {
+        Button(action: {
+            vm.toggleWebcam()
+        }) {
+            ZStack {
+                // Background circle - only show when camera preview is not active
+                if !vm.showCameraPreview {
+                    Circle()
+                        .fill(DynamicIslandTheme.card)
+                        .frame(width: 70, height: 80)
+                        .scaleEffect(isHovered ? 1.05 : 1.0)
+                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
+                }
+                
+                // Content based on camera state
+                if vm.isCameraStarting {
+                    // Loading state
+                    VStack(spacing: 8) {
+                        ProgressView()
+                            .controlSize(.small)
+                            .progressViewStyle(CircularProgressViewStyle(tint: DynamicIslandTheme.primaryGreen))
+                        Text("Starting...")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(DynamicIslandTheme.textMuted)
+                    }
+                } else if vm.showCameraPreview && vm.isCameraActive {
+                    // Active camera state - show real camera preview filling the entire circle
+                    ZStack {
+                        // Background circle for camera preview
+                        Circle()
+                            .fill(DynamicIslandTheme.card)
+                            .frame(width: 70, height: 70)
+                        
+                        // Camera preview
+                        CameraPreviewView()
+                            .frame(width: 70, height: 70)
+                            .clipShape(Circle())
+                    }
+                    .scaleEffect(isHovered ? 1.05 : 1.0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
+                } else if vm.cameraPermission == "denied" || vm.cameraPermission == "restricted" {
+                    // Permission denied state
+                    VStack(spacing: 4) {
+                        Image(systemName: "camera.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(.red)
+                        Text("Permission Required")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.center)
+                    }
+                } else {
+                    // Default state - webcam icon (always show unless camera preview is active)
+                    VStack(spacing: 4) {
+                        WebcamIcon(color: DynamicIslandTheme.textMuted)
+                            .frame(width: 24, height: 24)
+                        Text("Webcam")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(DynamicIslandTheme.textMuted)
+                    }
+                }
+                
+                // Error overlay
+                if let error = vm.cameraError {
+                    VStack {
+                        Spacer()
+                        Text(error)
+                            .font(.system(size: 9, weight: .medium))
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 8)
+                            .padding(.bottom, 4)
+                    }
+                }
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+        .onHover { hovering in
+            isHovered = hovering
+        }
+        .disabled(vm.isCameraStarting)
     }
 }
 
