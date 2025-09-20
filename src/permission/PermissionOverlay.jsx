@@ -338,9 +338,11 @@ const PermissionOverlay = () => {
 						</div>
 
 						{/* Next Button */}
-						<button className="next-button" onClick={handleNext}>
-							Next
-						</button>
+						<div className="next-button-container">
+							<button className="next-button" onClick={handleNext}>
+								Next
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>

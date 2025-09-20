@@ -43,35 +43,37 @@
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			// gap: 32px;
+			padding: 0 20px;
 
 			.main-title-container {
 				display: flex;
-				width: 252px;
-				height: 100px;
+				width: 100%;
 				flex-direction: column;
 				align-items: center;
 				justify-content: center;
+				margin-bottom: 32px;
 
 				.main-title {
-					height: 31.476px;
-					align-self: stretch;
 					color: #fff;
 					font-family: 'GeneralSans';
 					font-size: 28px;
 					font-style: normal;
 					font-weight: 500;
-					line-height: normal;
+					line-height: 1.2;
+					text-align: center;
+					margin: 0 0 12px 0;
 				}
 
 				.subtitle {
-					color: var(--secondary-font, #94989e);
+					color: #94989e;
 					text-align: center;
 					font-family: 'GeneralSans';
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
-					line-height: normal;
+					line-height: 1.4;
+					margin: 0;
+					max-width: 300px;
 				}
 			}
 
@@ -185,24 +187,25 @@
 
 			// Shortcuts List
 			.shortcuts-list {
-				width: 400px;
+				width: 100%;
 				display: flex;
 				flex-direction: column;
-				padding: 20px 0;
-				gap: 20px;
+				padding: 0;
+				gap: 16px;
 
 				.shortcut-item {
 					display: flex;
-					flex-direction: column;
-					align-items: flex-start;
-					padding: 0;
+					width: 80%;
+					align-items: center;
+					justify-content: space-between;
+					padding: 8px 0;
 					align-self: stretch;
-
+					margin: 0 auto;
 					.shortcut-info {
 						display: flex;
 						flex-direction: column;
 						gap: 4px;
-						width: 100%;
+						flex: 1;
 
 						.shortcut-title {
 							color: #fff;
@@ -225,29 +228,28 @@
 							padding: 0;
 							margin: 0;
 						}
+					}
 
-						.shortcut-key {
-							display: flex;
+					.shortcut-key {
+						display: flex;
+						align-items: center;
+						gap: 4px;
+
+						kbd {
+							display: inline-flex;
 							align-items: center;
-							gap: 4px;
-							margin-top: 4px;
-
-							kbd {
-								display: inline-flex;
-								align-items: center;
-								justify-content: center;
-								background: #2a2a2a;
-								color: #94989e;
-								border: 1px solid #4a4a4a;
-								border-radius: 4px;
-								font-family: 'GeneralSans';
-								font-size: 11px;
-								font-weight: 500;
-								padding: 2px 6px;
-								min-width: 18px;
-								height: 20px;
-								line-height: 1;
-							}
+							justify-content: center;
+							background: #2a2a2a;
+							color: #94989e;
+							border: 1px solid #4a4a4a;
+							border-radius: 4px;
+							font-family: 'GeneralSans';
+							font-size: 11px;
+							font-weight: 500;
+							padding: 2px 6px;
+							min-width: 18px;
+							height: 20px;
+							line-height: 1;
 						}
 					}
 				}
@@ -257,21 +259,19 @@
 			.navigation-buttons {
 				display: flex;
 				justify-content: space-between;
-				width: 400px;
-				padding: 20px 0;
+				width: 80%;
+				padding: 20px;
 				gap: 16px;
 
 				.back-button,
 				.finish-button {
-					flex: 1;
-					height: 40px;
-					border: none;
-					border-radius: 8px;
-					font-family: 'GeneralSans';
-					font-size: 14px;
-					font-weight: 500;
-					cursor: pointer;
-					transition: all 0.3s ease;
+					display: flex;
+					width: 70px;
+					padding: 6px 16px;
+					justify-content: space-between;
+					align-items: center;
+					border-radius: 262px;
+					border: 1px solid var(--stroke, #2c2d2e);
 
 					&:hover {
 						transform: translateY(-1px);
@@ -280,47 +280,54 @@
 				}
 
 				.back-button {
-					background: #2a2a2a;
+					background: transparent;
 					color: #ffffff;
-					border: 1px solid #4a4a4a;
 
 					&:hover {
-						background: #3a3a3a;
+						background: var(--primary-button, #79ecc9);
+						color: #3a3a3a;
+						cursor: pointer;
 					}
 				}
 
 				.finish-button {
-					background: #22b6f0;
-					color: #101010;
-					border: 1px solid #22b6f0;
+					background: transparent;
+					color: #fff;
 
 					&:hover {
-						background: #1e9bd4;
-						border-color: #1e9bd4;
+						background: var(--primary-button, #79ecc9);
+						color: #3a3a3a;
+						cursor: pointer;
 					}
 				}
 			}
 
 			// Next Button (for permissions screen)
-			.next-button {
-				width: 400px;
-				height: 40px;
-				background: #22b6f0;
-				color: #101010;
-				border: 1px solid #22b6f0;
-				border-radius: 8px;
-				font-family: 'GeneralSans';
-				font-size: 14px;
-				font-weight: 500;
-				cursor: pointer;
-				transition: all 0.3s ease;
-				margin-top: 20px;
+			.next-button-container {
+				display: flex;
+				justify-content: flex-end;
+				width: 95%;
+				padding: 20px;
+				.next-button {
+					display: flex;
+					padding: 6px 16px;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+					margin-top: 20px;
+					border-radius: 40px;
+					border: 1px solid var(--stroke, #2c2d2e);
+					background: transparent;
+					color: #fff;
 
-				&:hover {
-					background: #1e9bd4;
-					border-color: #1e9bd4;
-					transform: translateY(-1px);
-					box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+					&:hover {
+						background: var(--primary-button, #79ecc9);
+						border-color: var(--primary-button, #79ecc9);
+						transform: translateY(-1px);
+						color: #3a3a3a;
+						box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+						cursor: pointer;
+					}
 				}
 			}
 		}
