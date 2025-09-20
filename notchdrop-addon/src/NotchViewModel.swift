@@ -261,6 +261,7 @@ class NotchViewModel: NSObject, ObservableObject {
     func stopRecording() {
         isRecording = false
         isPaused = false
+        isConnecting = false
         timer = 0
         stopTimer()
         

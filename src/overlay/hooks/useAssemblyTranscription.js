@@ -512,6 +512,9 @@ const useAssemblyTranscription = ({
 				} catch (error) {
 					log(`Error creating WebSocket: ${error.message}`);
 					connectionPromiseRef.current = null;
+					if (window.electronApi) {
+						window.electronApi.sendMessageFrmVeApp('meetingstopped');
+					}
 					reject(error);
 				}
 			});
