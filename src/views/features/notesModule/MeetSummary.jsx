@@ -69,6 +69,12 @@ const MeetSummary = ({ meetingId }) => {
 		const chapters = analyticsData.chapters || analyticsData.topics || [];
 		const decisions = analyticsData.decisions || analyticsData.keyDecisions || [];
 		const actionItems = analyticsData.action_items || analyticsData.actionItems || [];
+		const keyStrengths = analyticsData.keyStrengths || analyticsData.strengths || [];
+		const growthAreas =
+			analyticsData.growthAreas ||
+			analyticsData.growth_areas ||
+			analyticsData.improvements ||
+			[];
 
 		// Process chapters data
 		const processedChapters = Array.isArray(chapters)
@@ -98,11 +104,19 @@ const MeetSummary = ({ meetingId }) => {
 			  }))
 			: [];
 
+		// Process key strengths data
+		const processedKeyStrengths = Array.isArray(keyStrengths) ? keyStrengths : [];
+
+		// Process growth areas data
+		const processedGrowthAreas = Array.isArray(growthAreas) ? growthAreas : [];
+
 		return {
 			summary,
 			chapters: processedChapters,
 			decisions: processedDecisions,
 			actionItems: processedActionItems,
+			keyStrengths: processedKeyStrengths,
+			growthAreas: processedGrowthAreas,
 		};
 	};
 
@@ -183,25 +197,62 @@ const MeetSummary = ({ meetingId }) => {
 
 	// Render summary section
 	const renderSummarySection = () => {
-		if (!meetingData) return null;
+		if (!meetingData?.summary) return null;
 
 		return (
 			<div className={s.summarySection}>
-				{meetingData.summary && (
-					<>
-						<p className={s.summaryText}>{meetingData.summary}</p>
-						<br />
-					</>
-				)}
+				<p className={s.summaryText}>{meetingData.summary}</p>
+			</div>
+		);
+	};
+
+	// Render key strengths section
+	const renderKeyStrengthsSection = () => {
+		if (!meetingData?.keyStrengths || meetingData.keyStrengths.length === 0) return null;
+
+		return (
+			<div className={s.strengthsSection}>
+				<div className={s.sectionHeader}>
+					<div className={s.greenBullet}></div>
+					<h3>Key Strengths:</h3>
+				</div>
+				<ul className={s.bulletList}>
+					{meetingData.keyStrengths.map((strength, index) => (
+						<li key={index} className={s.bulletItem}>
+							<div className={s.greenBullet}></div>
+							<span>{strength}</span>
+						</li>
+					))}
+				</ul>
+			</div>
+		);
+	};
+
+	// Render growth areas section
+	const renderGrowthAreasSection = () => {
+		if (!meetingData?.growthAreas || meetingData.growthAreas.length === 0) return null;
+
+		return (
+			<div className={s.growthSection}>
+				<div className={s.sectionHeader}>
+					<div className={s.orangeBullet}></div>
+					<h3>Growth Areas:</h3>
+				</div>
+				<ul className={s.bulletList}>
+					{meetingData.growthAreas.map((area, index) => (
+						<li key={index} className={s.bulletItem}>
+							<div className={s.orangeBullet}></div>
+							<span>{area}</span>
+						</li>
+					))}
+				</ul>
 			</div>
 		);
 	};
 
 	// Render chapters section
 	const renderChaptersSection = () => {
-		if (!meetingData || !meetingData.chapters || meetingData.chapters.length === 0) {
-			return null;
-		}
+		if (!meetingData?.chapters || meetingData.chapters.length === 0) return null;
 
 		return (
 			<div className={s.chaptersSection}>
@@ -240,9 +291,10 @@ const MeetSummary = ({ meetingId }) => {
 
 	// Render decisions and actions section
 	const renderDecisionsSection = () => {
-		if (!meetingData || (!meetingData.decisions?.length && !meetingData.actionItems?.length)) {
-			return null;
-		}
+		const hasDecisions = meetingData?.decisions && meetingData.decisions.length > 0;
+		const hasActionItems = meetingData?.actionItems && meetingData.actionItems.length > 0;
+
+		if (!hasDecisions && !hasActionItems) return null;
 
 		return (
 			<div className={s.decisionsSection}>
@@ -257,7 +309,7 @@ const MeetSummary = ({ meetingId }) => {
 
 				{expandedSections.decisions && (
 					<div className={s.decisionsContent}>
-						{meetingData.decisions && meetingData.decisions.length > 0 && (
+						{hasDecisions && (
 							<div className={s.keyDecisions}>
 								<div className={s.sectionHead}>
 									<div className={s.checkIcon}>✓</div>
@@ -269,7 +321,7 @@ const MeetSummary = ({ meetingId }) => {
 											<div className={s.decisionText}>{decision.text}</div>
 											<div className={s.decisionMeta}>
 												{decision.time && (
-													<div>
+													<div className={s.timeContainer}>
 														<img
 															src={ClockSvg}
 															alt="clock"
@@ -296,7 +348,7 @@ const MeetSummary = ({ meetingId }) => {
 							</div>
 						)}
 
-						{meetingData.actionItems && meetingData.actionItems.length > 0 && (
+						{hasActionItems && (
 							<div className={s.actionItems}>
 								<div className={s.sectionHead}>
 									<div className={s.gearIcon}>⚙</div>
@@ -306,7 +358,9 @@ const MeetSummary = ({ meetingId }) => {
 									{meetingData.actionItems.map((action, index) => (
 										<div key={index} className={s.actionItem}>
 											<div className={s.actionText}>
-												{action.text}
+												<span className={s.actionDescription}>
+													{action.text}
+												</span>
 												<span
 													className={s.actionStatus}
 													style={{ color: getStatusColor(action.status) }}
@@ -404,9 +458,12 @@ const MeetSummary = ({ meetingId }) => {
 
 	return (
 		<div className={s.meetSummaryContainer}>
+			{/* Content Section */}
 			{activeTab === 'summary' && (
 				<div className={s.content}>
 					{renderSummarySection()}
+					{renderKeyStrengthsSection()}
+					{renderGrowthAreasSection()}
 					{renderChaptersSection()}
 					{renderDecisionsSection()}
 				</div>
