@@ -153,4 +153,14 @@ static void (^incomingActionCallback)(NSString*, NSString*);
     [NotchDropCore.shared addVoiceMessage:messageJson];
 }
 
++ (void)updateStealthModeState:(BOOL)isEnabled {
+    [NotchDropCore.shared updateStealthModeState:isEnabled];
+}
+
+// MARK: - Wake Word Detection Methods
+
++ (void)handleWakeWordDetected:(float)score {
+    [NotchDropCore.shared handleWakeWordDetected:score];
+}
+
 @end

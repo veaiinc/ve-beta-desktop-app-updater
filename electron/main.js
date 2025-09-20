@@ -80,7 +80,12 @@ let isQuitting = false;
 let isContentProtectionEnabled = false; // for stealth mode
 
 // Runtime platform override for testing (set VE_FORCE_PLATFORM=linux|win32|darwin)
-const isMacRuntime = process.platform === 'darwin';
+// Architecture override for testing (set VE_FORCE_ARCH=x64|arm64)
+const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
+const RUNTIME_ARCH = process.env.VE_FORCE_ARCH || process.arch;
+const isMacRuntime = RUNTIME_PLATFORM === 'darwin';
+const isIntelMac = isMacRuntime && RUNTIME_ARCH === 'x64';
+const isAppleSiliconMac = isMacRuntime && RUNTIME_ARCH === 'arm64';
 
 // Window state management
 let lastWindowState = {
@@ -137,13 +142,9 @@ const toggleContentProtection = () => {
 		}
 	});
 
-	const status = isContentProtectionEnabled ? 'ON' : 'OFF';
-	log.info(
-		`🔒 Content protection: ${status} - Applied to ${protectedCount} windows (main window excluded)`,
-	);
-	console.log(
-		`🔒 CONTENT PROTECTION: ${status} (${protectedCount} windows protected, main window always visible)`,
-	);
+	if (notchDropService && typeof notchDropService.updateStealthModeState === 'function') {
+		notchDropService.updateStealthModeState(isContentProtectionEnabled);
+	}
 
 	return isContentProtectionEnabled;
 };
@@ -171,6 +172,10 @@ const setContentProtection = (enabled) => {
 			isContentProtectionEnabled ? 'ON' : 'OFF'
 		} (main window excluded)`,
 	);
+
+	if (notchDropService && typeof notchDropService.updateStealthModeState === 'function') {
+		notchDropService.updateStealthModeState(isContentProtectionEnabled);
+	}
 	return isContentProtectionEnabled;
 };
 
@@ -183,11 +188,6 @@ const applyContentProtectionToWindow = (window) => {
 		}
 
 		window.setContentProtection(isContentProtectionEnabled);
-		log.info(
-			`🔒 Applied content protection (${
-				isContentProtectionEnabled ? 'ON' : 'OFF'
-			}) to new window: ${window.getTitle()}`,
-		);
 	}
 };
 
@@ -247,8 +247,6 @@ autoUpdater.on('update-downloaded', (info) =>
 		info,
 		mainWindow,
 		setIsUpdateInProgress,
-		dynamicIslandHelper,
-		windowHelper,
 	}),
 );
 
@@ -986,22 +984,17 @@ function setupNotchDropMenuUpdates() {
 	// Listen for NotchDrop service events to update menu
 	if (notchDropService.notchDropAddon) {
 		notchDropService.notchDropAddon.on('statusChanged', (status) => {
-			log.info('📊 NotchDrop status changed, updating menu:', status);
 			updateMenuBarState();
 		});
 
 		notchDropService.notchDropAddon.on('itemAdded', () => {
-			log.info('📊 NotchDrop item added, updating menu');
 			updateMenuBarState();
 		});
 
 		notchDropService.notchDropAddon.on('itemRemoved', () => {
-			log.info('📊 NotchDrop item removed, updating menu');
 			updateMenuBarState();
 		});
 	}
-
-	log.info('✅ NotchDrop menu update listeners set up');
 }
 
 // Update menu bar to reflect current NotchDrop state
@@ -1215,7 +1208,7 @@ function createWindow(restoreState = false) {
 		saveWindowState();
 
 		// Cross-platform close behavior - keep app running in background
-		if (!isQuitting) {
+		if (!isQuitting && !isUpdateInProgress) {
 			event.preventDefault();
 			mainWindow.hide();
 			log.info('Main window hidden - app continues running in background');
@@ -1472,15 +1465,27 @@ app.whenReady().then(async () => {
 	// 🎤 IPC: Start Mic Monitoring
 
 	// Initialize Dynamic Island with comprehensive error handling
-	try {
-		log.info('Initializing Dynamic Island Helper...');
-		dynamicIslandHelper = new DynamicIslandHelper();
-		dynamicIslandHelper.createDynamicIslandWindow();
-		log.info('Dynamic Island Helper initialized successfully');
-	} catch (error) {
-		log.error('Failed to initialize Dynamic Island Helper:', error);
-		// Continue app initialization even if Dynamic Island fails
-		dynamicIslandHelper = null;
+	// Create Dynamic Island for Intel Macs, Windows, and Linux (but not Apple Silicon Macs)
+	if (!isAppleSiliconMac) {
+		try {
+			log.info(
+				'Initializing Dynamic Island Helper for platform:',
+				process.platform,
+				'arch:',
+				process.arch,
+			);
+			dynamicIslandHelper = new DynamicIslandHelper();
+			dynamicIslandHelper.createDynamicIslandWindow();
+			log.info('Dynamic Island Helper initialized successfully');
+		} catch (error) {
+			log.error('Failed to initialize Dynamic Island Helper:', error);
+			// Continue app initialization even if Dynamic Island fails
+			dynamicIslandHelper = null;
+		}
+	} else {
+		log.info(
+			'Skipping Dynamic Island initialization on Apple Silicon Mac (using NotchDrop instead)',
+		);
 	}
 
 	// THEN: Create main window after dynamic island
@@ -1511,9 +1516,6 @@ app.whenReady().then(async () => {
 				? `🔒 INVISIBILITY ON - ${windowCount} windows are now protected from screen recording`
 				: `👁️ INVISIBILITY OFF - ${windowCount} windows are now visible in screen recording`,
 		);
-
-		// Also log to console for debugging
-		console.log(`🎯 TOGGLE TRIGGERED: Content Protection is now ${statusText}`);
 
 		return newStatus;
 	});
@@ -1558,13 +1560,22 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	ipcMain.handle('update-askAI-dimensions', async (event, { width, height }) => {
+	ipcMain.handle('update-askAI-dimensions', async (event, { width, height, position }) => {
 		try {
-			windowHelper?.updateAskAIWindowDimensions(width, height);
+			windowHelper?.updateAskAIWindowDimensions(width, height, position);
 			return { success: true };
 		} catch (error) {
 			log.error('Error updating Ask AI dimensions:', error);
 			return { success: false, error: error.message };
+		}
+	});
+	ipcMain.handle('get-workarea', async () => {
+		try {
+			const workArea = screen.getPrimaryDisplay().workAreaSize;
+			return workArea;
+		} catch (error) {
+			log.error('Error getting workarea:', error);
+			return {};
 		}
 	});
 
@@ -1621,10 +1632,17 @@ app.whenReady().then(async () => {
 		log.error('❌ Error pre-creating overlay window:', error);
 	}
 
-	if (isMacRuntime) {
+	// Initialize NotchDrop only on Apple Silicon Macs
+	if (isAppleSiliconMac) {
+		log.info('Initializing NotchDrop service for Apple Silicon Mac');
 		notchDropService = new NotchDropService();
 		notchDropService.setMainWindow(mainWindow);
 		notchDropService.setMainWindowFactory((restoreState = false) => createWindow(restoreState));
+		notchDropService.setStealthModeController({
+			toggle: toggleContentProtection,
+			getStatus: getContentProtectionStatus,
+			setStatus: setContentProtection,
+		});
 
 		// CRITICAL: Ensure NotchDrop service fully initializes before proceeding
 		let notchDropInitialized = false;
@@ -1635,9 +1653,10 @@ app.whenReady().then(async () => {
 			try {
 				await notchDropService.initialize();
 
-				notchDropInitialized = notchDropService && notchDropService.isInitialized;
-
-				if (!notchDropInitialized) {
+				// Verify service is truly ready
+				if (notchDropService && notchDropService.isInitialized) {
+					notchDropInitialized = true;
+				} else {
 					throw new Error('NotchDrop service initialization incomplete');
 				}
 			} catch (error) {
@@ -1652,6 +1671,12 @@ app.whenReady().then(async () => {
 				}
 			}
 		}
+	} else if (isIntelMac) {
+		log.info('Skipping NotchDrop initialization on Intel Mac (using Dynamic Island instead)');
+	} else {
+		log.info(
+			'Skipping NotchDrop initialization on non-Mac platform (using Dynamic Island instead)',
+		);
 	}
 
 	await new Promise((resolve) => setTimeout(resolve, 1500)); // Give bridge time to initialize
@@ -2230,7 +2255,7 @@ app.whenReady().then(async () => {
 		try {
 			log.info('🏝️ Starting recording from CreateMeetingModal via Dynamic Island');
 
-			// Only proceed on Windows (or when forced on macOS)
+			// Only proceed if platform/architecture supports Dynamic Island
 			const shouldForceShowDynamicIsland = (() => {
 				const value = String(process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND || '')
 					.trim()
@@ -2238,9 +2263,11 @@ app.whenReady().then(async () => {
 				return value === '1' || value === 'true' || value === 'yes' || value === 'on';
 			})();
 
-			if (isMacRuntime && !shouldForceShowDynamicIsland) {
-				log.info('🍎 Skipping Dynamic Island recording on macOS (using NotchDrop)');
-				return { success: false, error: 'Use NotchDrop on macOS' };
+			if (isAppleSiliconMac && !shouldForceShowDynamicIsland) {
+				log.info(
+					'🍎 Skipping Dynamic Island recording on Apple Silicon Mac (using NotchDrop)',
+				);
+				return { success: false, error: 'Use NotchDrop on Apple Silicon Mac' };
 			}
 
 			if (!dynamicIslandHelper) {
@@ -4100,7 +4127,9 @@ app.whenReady().then(async () => {
 });
 
 // Handle app quit properly - but allow updates to proceed
+
 app.on('before-quit', (event) => {
+	isQuitting = true;
 	// Only prevent quit if update is not in progress
 	if (!isUpdateInProgress) {
 		// Prevent default quit behavior to allow cleanup
@@ -4154,7 +4183,8 @@ ipcMain.handle('update-overlay-dimensions', async (event, { width, height }) => 
 	}
 });
 
-const handleCleanupAndQuit = () =>
+const handleCleanupAndQuit = () => {
+	isQuitting = true;
 	cleanupAndQuit({
 		dynamicIslandHelper,
 		windowHelper,
@@ -4162,6 +4192,7 @@ const handleCleanupAndQuit = () =>
 		areYouThereTimer,
 		transcriptionDetectionTimer,
 	});
+};
 
 // Are You There timer functions
 function startAreYouThereTimer() {

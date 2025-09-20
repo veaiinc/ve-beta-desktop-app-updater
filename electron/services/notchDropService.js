@@ -1,6 +1,7 @@
 const path = require('path');
 const log = require('electron-log');
 const { BrowserWindow } = require('electron');
+const { WakeWordIntegration } = require('../../notchdrop-addon/wake-word-integration');
 
 let NotchDropAddonWrapper;
 
@@ -10,11 +11,24 @@ class NotchDropService {
 		this.isInitialized = false;
 		this.isEnabled = false;
 		this.autoOpenOnStartup = true; // Auto-open NotchDrop when app starts
-		this.platformSupported = process.platform === 'darwin';
+		// NotchDrop only supported on Apple Silicon Macs (not Intel Macs)
+		// Support testing overrides via environment variables
+		const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
+		const RUNTIME_ARCH = process.env.VE_FORCE_ARCH || process.arch;
+		this.platformSupported = RUNTIME_PLATFORM === 'darwin' && RUNTIME_ARCH === 'arm64';
 
 		// Swift-JS Bridge integration
 		this.swiftJSBridge = null;
 		this.createMainWindowFn = null;
+		this.stealthModeController = {
+			toggle: null,
+			getStatus: null,
+			setStatus: null,
+		};
+		this.isStealthModeEnabled = false;
+		
+		// Wake word integration
+		this.wakeWordIntegration = null;
 	}
 
 	async initialize() {
@@ -22,9 +36,19 @@ class NotchDropService {
 			// Phase 1: Pre-warm bridge BEFORE addon initialization
 			await this.preWarmBridge();
 
-			// Phase 2: Load and initialize addon with bridge ready (macOS only)
+			// Phase 2: Load and initialize addon with bridge ready (Apple Silicon Mac only)
 			if (!this.platformSupported) {
-				log.info('ℹ️ NotchDrop not supported on this platform:', process.platform);
+				const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
+				const RUNTIME_ARCH = process.env.VE_FORCE_ARCH || process.arch;
+				if (RUNTIME_PLATFORM !== 'darwin') {
+					log.info('ℹ️ NotchDrop not supported on this platform:', RUNTIME_PLATFORM);
+				} else {
+					log.info(
+						'ℹ️ NotchDrop not supported on Intel Mac (arch:',
+						RUNTIME_ARCH,
+						') - using Dynamic Island instead',
+					);
+				}
 				this.isInitialized = false;
 				return false;
 			}
@@ -83,6 +107,19 @@ class NotchDropService {
 
 			// Phase 6: Pre-create overlay window for instant response
 			await this.preCreateOverlayWindow();
+
+			// Sync stealth mode state for initial render
+			await this.syncStealthModeState();
+
+			// Phase 7: Initialize wake word integration
+			try {
+				this.wakeWordIntegration = new WakeWordIntegration(this);
+				await this.wakeWordIntegration.start();
+				log.info('✅ Wake word integration initialized - "Hey Ve" detection active');
+			} catch (wakeWordError) {
+				log.warn('⚠️ Wake word integration failed to start:', wakeWordError.message);
+				// Continue without wake word - not critical for core functionality
+			}
 
 			// Auto-open NotchDrop after initialization if enabled
 			if (this.autoOpenOnStartup) {
@@ -178,6 +215,13 @@ class NotchDropService {
 			} catch (error) {
 				log.error('❌ Error handling Swift UI disconnectVoice:', error);
 			}
+		});
+
+		this.notchDropAddon.on('toggleStealthMode', () => {
+			Promise.resolve(this.handleToggleStealthModeRequest('swift-event'))
+				.catch((error) => {
+					log.error('❌ Error handling Swift UI stealth toggle event:', error);
+				});
 		});
 
 		// Listen for voice mute toggle requests from Swift UI
@@ -409,6 +453,20 @@ class NotchDropService {
 		}
 	}
 
+	setStealthModeController(controller = {}) {
+		this.stealthModeController = {
+			toggle: typeof controller.toggle === 'function' ? controller.toggle : null,
+			getStatus: typeof controller.getStatus === 'function' ? controller.getStatus : null,
+			setStatus: typeof controller.setStatus === 'function' ? controller.setStatus : null,
+		};
+
+		if (this.isInitialized) {
+			this.syncStealthModeState().catch((error) => {
+				log.warn('⚠️ Failed to resync stealth mode state after controller update:', error);
+			});
+		}
+	}
+
 	navigateMainWindow(path) {
 		const defaultPath = '/verify-user';
 		const resolvedPath =
@@ -440,7 +498,9 @@ class NotchDropService {
 				}
 			}
 
-			log.warn('⚠️ Unable to navigate main window - no window available', { path: normalizedPath });
+			log.warn('⚠️ Unable to navigate main window - no window available', {
+				path: normalizedPath,
+			});
 			return false;
 		} catch (error) {
 			log.error('❌ Failed to navigate main window from NotchDrop request:', error);
@@ -593,13 +653,20 @@ class NotchDropService {
 
 			if (action === 'navigateToMainScreen') {
 				const resolvedPath =
-					typeof data === 'string' && data.trim().length > 0 ? data.trim() : '/verify-user';
+					typeof data === 'string' && data.trim().length > 0
+						? data.trim()
+						: '/verify-user';
 				const navigationSucceeded = this.navigateMainWindow(resolvedPath);
 				return {
 					success: navigationSucceeded,
 					action,
 					path: resolvedPath,
 				};
+			}
+
+			if (action === 'toggleStealthMode') {
+				const enabled = await this.handleToggleStealthModeRequest('swift-ipc');
+				return { success: true, action, enabled };
 			}
 
 			// Handle voice-specific actions
@@ -790,6 +857,77 @@ class NotchDropService {
 		} catch (error) {
 			console.error('❌ Error updating voice status in NotchDrop:', error);
 			return false;
+		}
+	}
+
+	async updateStealthModeState(isEnabled) {
+		try {
+			const normalized = Boolean(isEnabled);
+			this.isStealthModeEnabled = normalized;
+
+			if (!this.isInitialized) {
+				log.warn('NotchDrop not initialized, deferring stealth mode update');
+				return normalized;
+			}
+
+			if (this.notchDropAddon && typeof this.notchDropAddon.updateStealthModeState === 'function') {
+				this.notchDropAddon.updateStealthModeState(normalized);
+				log.info(`🏴‍☠️ Stealth mode state synced to Swift UI: ${normalized}`);
+			} else {
+				log.warn('⚠️ updateStealthModeState method not available on addon');
+			}
+
+			return normalized;
+		} catch (error) {
+			log.error('❌ Error updating stealth mode state in NotchDrop:', error);
+			return this.isStealthModeEnabled;
+		}
+	}
+
+	async handleToggleStealthModeRequest(source = 'unknown') {
+		try {
+			if (!this.stealthModeController?.toggle) {
+				log.warn('⚠️ Stealth mode controller not configured; cannot toggle');
+				return this.isStealthModeEnabled;
+			}
+
+			const result = await Promise.resolve(
+				this.stealthModeController.toggle(source),
+			);
+			const enabled = Boolean(result);
+			await this.updateStealthModeState(enabled);
+			return enabled;
+		} catch (error) {
+			log.error('❌ Error toggling stealth mode from NotchDrop:', error);
+			return this.isStealthModeEnabled;
+		}
+	}
+
+	async setStealthMode(enabled) {
+		try {
+			if (this.stealthModeController?.setStatus) {
+				await Promise.resolve(this.stealthModeController.setStatus(enabled));
+			}
+			return await this.updateStealthModeState(enabled);
+		} catch (error) {
+			log.error('❌ Error setting stealth mode state:', error);
+			return this.isStealthModeEnabled;
+		}
+	}
+
+	async syncStealthModeState() {
+		try {
+			if (!this.stealthModeController?.getStatus) {
+				return this.isStealthModeEnabled;
+			}
+
+			const status = await Promise.resolve(
+				this.stealthModeController.getStatus(),
+			);
+			return await this.updateStealthModeState(status);
+		} catch (error) {
+			log.warn('⚠️ Unable to sync stealth mode state:', error);
+			return this.isStealthModeEnabled;
 		}
 	}
 
