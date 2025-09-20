@@ -560,6 +560,12 @@ export const deleteFormResponseMutation = gql`
 	}
 `;
 
+export const updateFormResponseMutation = gql`
+	mutation UpdateFormResponse($responseId: ID!) {
+		updateFormResponse(responseId: $responseId)
+	}
+`;
+
 export const isSlugAvailableQuery = gql`
 	query Query($slug: String!, $moduleType: Modules!) {
 		isSlugAvailable(slug: $slug, moduleType: $moduleType)
