@@ -35,6 +35,10 @@
 + (void)setItemAddedCallback:(void(^)(NSString*))callback;
 + (void)setItemRemovedCallback:(void(^)(NSString*))callback;
 + (void)setSwiftActionCallback:(void(^)(NSString*, NSString*))callback;
++ (void)setIncomingActionCallback:(void(^)(NSString*, NSString*))callback;
+
+// Swift Action Methods
++ (void)triggerSwiftAction:(NSString*)action data:(NSString*)data;
 
 // Advanced SwiftUI Components
 + (void)showAdvancedView;
@@ -62,6 +66,16 @@
 
 // Overlay State Integration
 + (void)onOverlayStateChange:(NSDictionary*)state;
+
+// Voice Assistant Integration
++ (void)configureVoice:(NSString*)url token:(NSString*)token;
++ (void)connectVoiceAssistant;
++ (void)disconnectVoiceAssistant;
++ (NSString*)getVoiceConnectionStatus;
++ (void)updateVoiceConnectionState:(NSString*)status;
++ (void)updateVoiceMuteState:(BOOL)isMuted;
++ (void)addVoiceMessage:(NSString*)messageJson;
++ (void)updateStealthModeState:(BOOL)isEnabled;
 
 @end
 

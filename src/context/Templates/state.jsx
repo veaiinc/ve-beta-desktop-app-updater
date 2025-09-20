@@ -45,6 +45,8 @@ import {
 	duplicateSmartFileQuery,
 	isSlugAvailableQuery,
 	updateSlugMutation,
+	deleteFormResponseMutation,
+	updateFormResponseMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -2164,6 +2166,7 @@ export const TemplatesState = (props) => {
 		chatInfo = null,
 		browserData = null,
 		browserTabsInfo = null,
+		recentChatInfo = null,
 	}) => {
 		try {
 			dispatch({
@@ -2187,6 +2190,7 @@ export const TemplatesState = (props) => {
 					chatInfo,
 					browserData,
 					browserTabsInfo,
+					recentChatInfo,
 				},
 			});
 		} catch (error) {
@@ -2440,7 +2444,7 @@ export const TemplatesState = (props) => {
 		sessionId,
 		page = 1,
 		fetchMore = false,
-		limit = 1000,
+		limit = 5,
 		isPublicChat = false,
 		removeSessionId = false,
 	}) => {
@@ -3008,6 +3012,56 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const updateFormResponse = async ({ responseId }) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const userToken = localStorage.getItem('usertoken');
+
+			const response = await service.mutation(
+				updateFormResponseMutation,
+				{ responseId },
+				workspaceId,
+				userToken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true, response[1]?.data?.updateFormResponse];
+			} else {
+				console.error('API failed => updateFormResponse', response);
+				return [false, response?.[1]?.message || 'Something went Worng'];
+			}
+		} catch (error) {
+			console.error('Error updating form response:', error);
+			return [false, error?.message || 'Something went Worng'];
+		}
+	};
+
+	const deleteFormResponse = async ({ responseId }) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const userToken = localStorage.getItem('usertoken');
+
+			const response = await service.mutation(
+				deleteFormResponseMutation,
+				{ responseId },
+				workspaceId,
+				userToken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true, response[1]?.data?.deleteFormResponse];
+			} else {
+				console.error('API failed => deleteFormResponse', response);
+				return [false, response?.[1]?.message || 'Something went Worng'];
+			}
+		} catch (error) {
+			console.error('Error deleting form response:', error);
+			return [false, error?.message || 'Something went Worng'];
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -3107,6 +3161,8 @@ export const TemplatesState = (props) => {
 		updatechatSessionFavourite,
 		isSlugAvailable,
 		updateSlug,
+		updateFormResponse,
+		deleteFormResponse,
 		getNotificationsList,
 		getAuthUrlForThirdParty,
 		disconnectThirdParty,

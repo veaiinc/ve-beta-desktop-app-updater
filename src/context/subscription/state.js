@@ -32,7 +32,7 @@ export const SubscriptionState = (props) => {
 			const response = await Service.fetchGet(
 				`/subscription/${workspaceId}/subscription-plans`,
 				usertoken,
-				'auth',
+				'tenant',
 			);
 			if (response?.[0] === true) {
 				dispatch({

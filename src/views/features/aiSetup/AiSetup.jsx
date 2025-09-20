@@ -206,10 +206,10 @@ const AiSetup = () => {
 			<div className="AiSetupContainer">
 				<div className="AiSetupWrapper">
 					<div className="ai-setup-sections">
-						<h1 className="ai-setup-title">
+						{/* <h1 className="ai-setup-title">
 							Tell me about your business, and I'll help you achieve your goals!
-						</h1>
-						<div className="ai-setup-tabs">
+						</h1> */}
+						{/* <div className="ai-setup-tabs">
 							<button
 								className={`ai-setup-tab-button ${
 									info?.activeTab === 'user' ? 'active' : ''
@@ -228,8 +228,8 @@ const AiSetup = () => {
 									Workspace Goals
 								</button>
 							)}
-						</div>
-						<SectionBlock
+						</div> */}
+						{/* <SectionBlock
 							openAddNewGoalModal={handleOpenAddNewGoalModal}
 							type="goal"
 							title="Goals"
@@ -248,7 +248,7 @@ const AiSetup = () => {
 							onResetClick={handleResetBtnClick}
 							onDeleteClick={handleDeleteButtonClick}
 							onEditClick={handleEditButtonClick}
-						/>
+						/> */}
 						<SectionBlock
 							openAddNewGoalModal={handleOpenAddNewGoalModal}
 							title="Memory"
@@ -258,6 +258,7 @@ const AiSetup = () => {
 							onResetClick={handleResetBtnClick}
 							onDeleteClick={handleDeleteButtonClick}
 							onEditClick={handleEditButtonClick}
+							showSectionCTA={false}
 						/>
 					</div>
 				</div>

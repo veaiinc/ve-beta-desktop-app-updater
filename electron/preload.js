@@ -4,6 +4,9 @@ const { contextBridge, ipcRenderer } = require('electron/renderer');
 // Helper
 
 contextBridge.exposeInMainWorld('electronApi', {
+	// Sending messages from veApp to main process
+	sendMessageFrmVeApp: (msg) => ipcRenderer.send('veAppMsg', msg),
+
 	send(channel, data) {
 		ipcRenderer.invoke(channel, data);
 	},
@@ -16,7 +19,6 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
 	downloadUpdate: () => ipcRenderer.invoke('download-update'),
-	forceDownloadUpdate: () => ipcRenderer.invoke('force-download-update'),
 	restartApp: () => ipcRenderer.invoke('restart-app'),
 	repositionDynamicIsland: () => ipcRenderer.invoke('reposition-dynamic-island'),
 
@@ -94,7 +96,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 		// Force open AskAI window
 		forceOpenAskAIWindow: () => ipcRenderer.invoke('force-open-askai-window'),
 		// New methods for Dynamic Island integration
-		startRecording: () => ipcRenderer.invoke('overlay-start-recording'),
+		startRecording: (data) => ipcRenderer.invoke('overlay-start-recording', data),
 		stopRecording: () => ipcRenderer.invoke('overlay-stop-recording'),
 		pauseRecording: () => ipcRenderer.invoke('overlay-pause-recording'),
 		resumeRecording: () => ipcRenderer.invoke('overlay-resume-recording'),
@@ -143,6 +145,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 			ipcRenderer.on('receive-tab-content', (event, data) => {
 				callback(data);
 			});
+		},
+		getWorkArea: () => {
+			return ipcRenderer.invoke('get-workarea');
 		},
 
 		// Listen for chat messages from Dynamic Island
@@ -270,6 +275,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 		show: () => ipcRenderer.invoke('dynamic-island-show'),
 		hide: () => ipcRenderer.invoke('dynamic-island-hide'),
 		focus: () => ipcRenderer.invoke('dynamic-island-focus'),
+		forceShow: () => ipcRenderer.invoke('dynamic-island-force-show'),
 		setMouseEvents: (ignore) => ipcRenderer.invoke('dynamic-island-set-mouse-events', ignore),
 		setChatMode: (isChatMode) => ipcRenderer.invoke('dynamic-island-chat-mode', isChatMode),
 
@@ -280,6 +286,10 @@ contextBridge.exposeInMainWorld('electronApi', {
 		connectVoice: () => ipcRenderer.invoke('dynamic-island-voice-connect'),
 		disconnectVoice: () => ipcRenderer.invoke('dynamic-island-voice-disconnect'),
 		getVoiceStatus: () => ipcRenderer.invoke('dynamic-island-voice-status'),
+
+		// Combined recording trigger for Windows (show/expand Dynamic Island + start recording)
+		startRecordingFromModal: () =>
+			ipcRenderer.invoke('dynamic-island-start-recording-from-modal'),
 
 		onStateChange: (callback) => {
 			ipcRenderer.on('dynamic-island-state', (event, data) => {
@@ -323,6 +333,18 @@ contextBridge.exposeInMainWorld('electronApi', {
 		removeForceFocusListener: () => {
 			ipcRenderer.removeAllListeners('force-focus');
 		},
+
+		// Notification APIs
+		showNotification: (notification) =>
+			ipcRenderer.invoke('dynamic-island-show-notification', notification),
+		onNotification: (callback) => {
+			ipcRenderer.on('dynamic-island-notification', (event, data) => {
+				callback(data);
+			});
+		},
+		removeNotificationListener: () => {
+			ipcRenderer.removeAllListeners('dynamic-island-notification');
+		},
 	},
 
 	// NotchDrop APIs
@@ -340,6 +362,14 @@ contextBridge.exposeInMainWorld('electronApi', {
 			ipcRenderer.invoke('notchdrop-set-haptic-feedback', enabled),
 		getHapticFeedback: () => ipcRenderer.invoke('notchdrop-get-haptic-feedback'),
 		updateMenu: () => ipcRenderer.invoke('update-notchdrop-menu'),
+		// Voice integration
+		updateVoiceStatus: (status) => ipcRenderer.invoke('notchdrop-update-voice-status', status),
+		updateVoiceConnectionState: (status) =>
+			ipcRenderer.invoke('notchdrop-update-voice-connection-state', status),
+		updateVoiceMuteState: (isMuted) =>
+			ipcRenderer.invoke('notchdrop-update-voice-mute-state', isMuted),
+		addVoiceMessage: (messageData) =>
+			ipcRenderer.invoke('notchdrop-add-voice-message', messageData),
 		// New NotchDropLatest APIs
 		openAirDrop: () => ipcRenderer.invoke('notchdrop-open-airdrop'),
 		openShare: () => ipcRenderer.invoke('notchdrop-open-share'),
@@ -377,5 +407,16 @@ contextBridge.exposeInMainWorld('electronApi', {
 		ipcRenderer.on('screen-audio', (_event, data) => {
 			callback(data);
 		});
+	},
+
+	// File system APIs for audio storage
+	fs: {
+		ensureDir: (dirPath) => ipcRenderer.invoke('fs-ensure-dir', dirPath),
+		writeFile: (filePath, data) => ipcRenderer.invoke('fs-write-file', filePath, data),
+		readFile: (filePath) => ipcRenderer.invoke('fs-read-file', filePath),
+		readFileBinary: (filePath) => ipcRenderer.invoke('fs-read-file-binary', filePath),
+		exists: (filePath) => ipcRenderer.invoke('fs-exists', filePath),
+		remove: (filePath) => ipcRenderer.invoke('fs-remove', filePath),
+		readdir: (dirPath) => ipcRenderer.invoke('fs-readdir', dirPath),
 	},
 });

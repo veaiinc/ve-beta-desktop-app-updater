@@ -1,27 +1,29 @@
-//
-//  NotchContentView.swift
-//  NotchDrop
-//
-//  Created by 秋星桥 on 2024/7/7.
-//  Last Modified by 冷月 on 2025/5/5.
-//
 
 import SwiftUI
 import UniformTypeIdentifiers
 import AppKit
+import Combine
 
 struct NotchContentView: View {
     @StateObject var vm: NotchViewModel
     
     var body: some View {
         ZStack {
-            switch vm.contentType {
-            case .normal:
-                DynamicIslandContentView(vm: vm)
-                    .transition(.scale(scale: 0.8).combined(with: .opacity))
+            if vm.showNotificationOverlay {
+                // When notification is showing, ONLY show the notification (no background content)
+                NotificationOverlayView(vm: vm)
+                    .transition(.scale(scale: 1.0).combined(with: .opacity))
+            } else {
+                // Normal content switching when no notification
+                switch vm.contentType {
+                case .normal:
+                    DynamicIslandContentView(vm: vm)
+                        .transition(.scale(scale: 0.8).combined(with: .opacity))
+                }
             }
         }
         .animation(vm.animation, value: vm.contentType)
+        .animation(vm.animation, value: vm.showNotificationOverlay)
     }
 }
 
@@ -31,9 +33,11 @@ struct DynamicIslandContentView: View {
     @FocusState private var isChatInputFocused: Bool
     @State private var isTextFieldActive: Bool = false
     @State private var textEditorHeight: CGFloat = 100 // Dynamic height for textarea
+    @State private var receivedMessage: String = "" // Track received messages from Electron
+    @State private var cancellables = Set<AnyCancellable>()
     
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 3.0) {
             if !vm.isAuthenticated {
                 // Welcome section when not authenticated
                 VStack(spacing: 8) {
@@ -44,37 +48,54 @@ struct DynamicIslandContentView: View {
                         .font(.system(size: 14, weight: .regular))
                         .foregroundColor(.white.opacity(0.8))
                     
-                    // Test button to toggle authentication
-                    Button("Login") {
-                        vm.setAuthenticated(!vm.isAuthenticated)
+                    // Test buttons
+                    HStack(spacing: 8) {
+                        Button("Login") {
+                            vm.navigateToMainScreen(path: "/verify-user")
+                        }
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.blue.opacity(0.3))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .buttonStyle(PlainButtonStyle())
+
+                        // Button("Test Notification") {
+                        //     vm.showNotification(
+                        //         title: "Test Meeting",
+                        //         body: "This is a test notification from SwiftUI",
+                        //         type: "meeting"
+                        //     )
+                        // }
+                        // .font(.system(size: 12, weight: .medium))
+                        // .foregroundColor(.white)
+                        // .padding(.horizontal, 16)
+                        // .padding(.vertical, 8)
+                        // .background(Color.green.opacity(0.3))
+                        // .clipShape(RoundedRectangle(cornerRadius: 8))
+                        // .buttonStyle(PlainButtonStyle())
                     }
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(Color.blue.opacity(0.3))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .buttonStyle(PlainButtonStyle())
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 // Full UI when authenticated
                 // Reduce spacing to bring chat input closer to the header
-                VStack(spacing: 16) {
+                VStack(spacing: 8.0) {
                     // Top row with start button and icons
-                    HStack {
+                    HStack(spacing: 0.0) {
                         // Start button section
                         HStack(spacing: 8) {
                             if !vm.isRecording && !vm.showVoiceInterface {
-                                // Start button
+                                // Listen button (existing functionality)
                                 Button(action: {
                                     vm.startRecording()
                                 }) {
-                                    HStack(spacing: 4) {
+                                    HStack(spacing: 5.0) {
                                         // Custom wave icon (SVG-based)
                                         WaveIcon(color: DynamicIslandTheme.black)
                                             .frame(width: 15, height: 15)
-                                        Text("Listen")
+                                        Text(vm.isConnecting ? "Connecting..." : "Listen")
                                             .font(.system(size: 12, weight: .medium))
                                             .foregroundColor(Color(red: 0.055, green: 0.184, blue: 0.165)) // #0E2F2A
                                     }
@@ -86,6 +107,32 @@ struct DynamicIslandContentView: View {
                                 .buttonStyle(PlainButtonStyle())
                                 .scaleEffect(1.0)
                                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isRecording)
+                                .disabled(vm.isConnecting)
+                                .opacity(vm.isConnecting ? 0.8 : 1.0)
+                                // Voice button (new LiveKit voice assistant)
+                                Button(action: {
+                                    vm.connectVoiceAssistant()
+                                }) {
+                                    HStack(spacing: 4) {
+                                        // Voice/microphone icon
+                                        Image(systemName: "mic.fill")
+                                            .font(.system(size: 12))
+                                            .foregroundColor(DynamicIslandTheme.primaryGreen)
+                                        Text("Voice")
+                                            .font(.system(size: 12, weight: .medium))
+                                            .foregroundColor(DynamicIslandTheme.primaryGreen)
+                                    }
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 2)
+                                    .background(DynamicIslandTheme.primaryGreen.opacity(0.1))
+                                    .overlay(
+                                        Capsule().stroke(DynamicIslandTheme.primaryGreen.opacity(0.3), lineWidth: 1)
+                                    )
+                                    .clipShape(Capsule())
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .scaleEffect(1.0)
+                                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.voiceConnectionStatus)
                             } else if vm.showVoiceInterface {
                                 // Voice mode indicator (when split layout is visible)
                                 HStack(spacing: 8) {
@@ -179,18 +226,7 @@ struct DynamicIslandContentView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                             }
 
-                            // Audio visualizer
-                            // HStack(spacing: 2) {
-                            //     ForEach(0..<5, id: \.self) { index in
-                            //         RoundedRectangle(cornerRadius: 1.6)
-                            //             .fill(DynamicIslandTheme.primaryGreen)
-                            //             .frame(width: 1.6, height: [6, 14, 10, 4, 6][index])
-                            //     }
-                            // }
-                            // .padding(.horizontal, 6)
-                            // .padding(.vertical, 4)
-                            // .background(Color.white.opacity(0.2))
-                            // .clipShape(RoundedRectangle(cornerRadius: 4))
+                          
                         }
                         
                         Spacer()
@@ -204,7 +240,29 @@ struct DynamicIslandContentView: View {
                                     vm.isChatMode = false
                                 }
                             }
-                        
+
+                        Button(action: {
+                            vm.toggleStealthMode()
+                        }) {
+                            Group {
+                                if vm.isStealthModeEnabled {
+                                    PirateIcon(color: DynamicIslandTheme.primaryGreen)
+                                } else {
+                                    EyeIcon(color: .white)
+                                }
+                            }
+                            .frame(width: 20, height: 20)
+                            .padding(6)
+                            .background(
+                                vm.isStealthModeEnabled
+                                    ? DynamicIslandTheme.primaryGreen.opacity(0.16)
+                                    : Color.white.opacity(0.15)
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .help(vm.isStealthModeEnabled ? "Disable stealth mode" : "Enable stealth mode")
+
                         // Right side icons (parity: Back + Home only)
                         HStack(spacing: 8) {
                             // COMMENTED OUT: Back button (as requested)
@@ -247,6 +305,7 @@ struct DynamicIslandContentView: View {
                         }
                     }
                     
+                    
                     // Main content area
                     HStack(spacing: 12) {
                         if vm.showVoiceInterface {
@@ -260,88 +319,7 @@ struct DynamicIslandContentView: View {
                                 isTextFieldActive: $isTextFieldActive,
                                 vm: vm
                             )
-                                
-                            // Debug: Manual focus trigger (remove in production)
-                            #if DEBUG
-                            HStack {
-                                Button("Focus TextEditor") {
-                                    print("🎯 Manual focus button tapped")
-                                    isChatInputFocused = true
-                                    isTextFieldActive = true
-                                    vm.isChatMode = true
-                                }
-                                .font(.system(size: 10))
-                                .foregroundColor(.yellow)
-                                
-                                Button("Test Chat") {
-                                    print("🎯 Test chat button tapped")
-                                    guard !vm.isSendingMessage else {
-                                        print("⚠️ Already sending message, ignoring test button")
-                                        return
-                                    }
-                                    vm.chatInput = "Test message from NotchDrop Swift\nWith multiple lines\nLike a real textarea!"
-                                    vm.submitChat()
-                                }
-                                .font(.system(size: 10))
-                                .foregroundColor(.yellow)
-                            }
-                            .padding(.top, 4)
-                            #endif
                             
-                            // COMMENTED OUT: Right-hand tile (Webcam and Voice controls)
-                            // This section contained webcam icon when recording and voice controls when not recording
-                            // Removed to simplify the notch UI and reduce width requirements
-                            /*
-                            if !vm.isChatMode {
-                                // Webcam when recording, Voice control otherwise
-                                if vm.isRecording {
-                                    VStack(spacing: 8) {
-                                        Image(systemName: "video.fill")
-                                            .font(.system(size: 24))
-                                            .foregroundColor(.white)
-                                        Text("Webcam")
-                                            .font(.system(size: 12, weight: .medium))
-                                            .foregroundColor(DynamicIslandTheme.textMuted)
-                                    }
-                                    .frame(width: 100, height: 100)
-                                    .background(DynamicIslandTheme.card)
-                                    .clipShape(Circle())
-                                    .transition(.scale(scale: 0.8).combined(with: .opacity))
-                                } else {
-                                    VStack(spacing: 8) {
-                                        if vm.voiceConnectionStatus == .connecting {
-                                            ProgressView().controlSize(.small)
-                                            Text("Connecting...")
-                                                .font(.system(size: 11, weight: .medium))
-                                                .foregroundColor(DynamicIslandTheme.textMuted)
-                                        } else if vm.voiceConnectionStatus == .connected {
-                                            WaveIcon(color: DynamicIslandTheme.primaryGreen)
-                                                .frame(width: 18, height: 18)
-                                            Text("Voice Active")
-                                                .font(.system(size: 12, weight: .medium))
-                                                .foregroundColor(DynamicIslandTheme.textMuted)
-                                        } else {
-                                            WaveIcon(color: .white)
-                                                .frame(width: 18, height: 18)
-                                            Text("Voice")
-                                                .font(.system(size: 12, weight: .medium))
-                                                .foregroundColor(DynamicIslandTheme.textMuted)
-                                        }
-                                    }
-                                    .frame(width: 100, height: 100)
-                                    .background(DynamicIslandTheme.card)
-                                    .clipShape(Circle())
-                                    .transition(.scale(scale: 0.8).combined(with: .opacity))
-                                    .onTapGesture {
-                                        if vm.voiceConnectionStatus == .connected {
-                                            vm.disconnectVoiceUI()
-                                        } else {
-                                            vm.connectVoiceUI()
-                                        }
-                                    }
-                                }
-                            }
-                            */
                         }
                     }
                     .frame(maxWidth: vm.notchOpenedSize.width - 32) // Constrain main content area
@@ -352,6 +330,26 @@ struct DynamicIslandContentView: View {
         .padding(vm.spacing)
         .frame(width: vm.notchOpenedSize.width, height: vm.notchOpenedSize.height)
         .animation(vm.animation, value: vm.isChatExpanded)
+        .onAppear {
+            // Set up listener for Swift actions to handle received messages
+            setupMessageListener()
+        }
+    }
+    
+    // MARK: - Message Handling
+    private func setupMessageListener() {
+        // Listen for Swift actions from the view model
+        vm.swiftActionSender
+            .sink { action in
+                switch action {
+                case .receiveMessage(let message):
+                    print("📨 Swift UI received message from Electron: \(message)")
+                    receivedMessage = message
+                default:
+                    break
+                }
+            }
+            .store(in: &cancellables)
     }
 }
 
@@ -361,11 +359,49 @@ struct VoiceSplitLayout: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            // Left: conversation list (placeholder samples)
-            VStack(alignment: .leading, spacing: 8) {
-                VoiceMessageBubble(sender: "Agent", text: "Hello, how can I help you today?")
-                VoiceMessageBubble(sender: "You", text: vm.voiceConnectionStatus == .connected ? (vm.isMicrophoneMuted ? "Muted" : "Listening...") : (vm.voiceConnectionStatus == .connecting ? "Connecting..." : ""))
-                Spacer()
+            // Left: conversation list (real messages from LiveKit)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 8) {
+                        if vm.voiceMessages.isEmpty {
+                            // Show connection status when no messages
+                            VoiceMessageBubble(
+                                sender: "System",
+                                text: vm.voiceConnectionStatus == .connected ?
+                                    (vm.isMicrophoneMuted ? "Microphone muted - tap to unmute" : "Start speaking - your conversation will appear here") :
+                                    (vm.voiceConnectionStatus == .connecting ? "Connecting to voice assistant..." : "Voice assistant disconnected")
+                            )
+                        } else {
+                            // Show actual conversation messages
+                            ForEach(vm.voiceMessages) { message in
+                                VoiceMessageBubble(
+                                    sender: message.sender,
+                                    text: message.content,
+                                    isFromAgent: message.isFromAgent
+                                )
+                                .id(message.id)
+                            }
+                        }
+                        
+                        // Show current status only when there are no voice messages
+                        if vm.voiceConnectionStatus == .connected && vm.voiceMessages.isEmpty {
+                            VoiceMessageBubble(
+                                sender: "Status",
+                                text: vm.isMicrophoneMuted ? "🔇 Muted" : "🎤 Listening...",
+                                isStatus: true
+                            )
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+                .onChange(of: vm.voiceMessages.count) { _, _ in
+                    // Auto-scroll to latest message
+                    if let lastMessage = vm.voiceMessages.last {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            proxy.scrollTo(lastMessage.id, anchor: .bottom)
+                        }
+                    }
+                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(8)
@@ -382,20 +418,42 @@ struct VoiceSplitLayout: View {
 struct VoiceMessageBubble: View {
     let sender: String
     let text: String
+    var isFromAgent: Bool = false
+    var isStatus: Bool = false
+    
     var body: some View {
-        VStack(alignment: .trailing, spacing: 4) {
+        VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 6) {
-                Circle().fill(Color(red: 0.173, green: 0.176, blue: 0.180)).frame(width: 6, height: 6)
+                Circle()
+                    .fill(isFromAgent ? DynamicIslandTheme.primaryGreen :
+                          isStatus ? Color.yellow :
+                          Color(red: 0.173, green: 0.176, blue: 0.180))
+                    .frame(width: 6, height: 6)
                 Text(sender)
                     .font(.system(size: 9, weight: .medium))
                     .foregroundColor(DynamicIslandTheme.textMuted)
+                Spacer()
             }
             Text(text)
                 .font(.system(size: 11, weight: .medium))
-                .foregroundColor(DynamicIslandTheme.textPrimary)
+                .foregroundColor(isStatus ? DynamicIslandTheme.textMuted : DynamicIslandTheme.textPrimary)
+                .multilineTextAlignment(.leading)
         }
         .padding(8)
-        .background(DynamicIslandTheme.card)
+        .background(
+            isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.1) :
+            isStatus ? Color.clear :
+            DynamicIslandTheme.card
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(
+                    isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.3) :
+                    isStatus ? Color.clear :
+                    DynamicIslandTheme.stroke.opacity(0.3),
+                    lineWidth: 0.5
+                )
+        )
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
@@ -433,51 +491,69 @@ struct VoiceControlsCircle: View {
                 .shadow(color: DynamicIslandTheme.primaryGreen.opacity(0.5), radius: 15)
 
             VStack(spacing: 10) {
-                // Visualizer / spinner by state
+                // Visualizer / spinner by state with real audio level
                 if vm.voiceConnectionStatus == .connecting {
                     ProgressView().controlSize(.small)
                 } else if vm.voiceConnectionStatus == .connected {
+                    // Real-time audio visualizer using actual audio levels
                     HStack(spacing: 2) {
                         ForEach(0..<5, id: \.self) { i in
                             RoundedRectangle(cornerRadius: 2)
-                                .fill(DynamicIslandTheme.primaryGreen)
+                                .fill(vm.isMicrophoneMuted ? Color.gray : DynamicIslandTheme.primaryGreen)
                                 .frame(width: 3, height: 12)
-                                .scaleEffect(y: 0.6 + 0.4 * CGFloat((i % 3)) , anchor: .bottom)
+                                .scaleEffect(y: vm.isMicrophoneMuted ? 0.3 : (0.3 + CGFloat(vm.audioLevel) * 0.7 + CGFloat(i % 3) * 0.2), anchor: .bottom)
+                                .animation(.easeInOut(duration: 0.1), value: vm.audioLevel)
                         }
                     }
+                } else if vm.voiceConnectionStatus == .error {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.red)
                 } else {
-                    Image(systemName: "waveform")
+                    Image(systemName: "mic.fill")
                         .foregroundColor(DynamicIslandTheme.primaryGreen)
                 }
 
-                // Status text
-                Text(vm.voiceConnectionStatus == .connected ? "Voice Active" : (vm.voiceConnectionStatus == .connecting ? "Connecting..." : "Voice"))
+                // Status text with connection state
+                Text(getStatusText())
                     .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(DynamicIslandTheme.textPrimary)
+                    .foregroundColor(vm.voiceConnectionStatus == .error ? .red : DynamicIslandTheme.textPrimary)
 
                 // Action buttons
                 HStack(spacing: 12) {
-                    Button(action: { vm.disconnectVoiceUI() }) {
+                    // Disconnect button
+                    Button(action: { vm.disconnectVoiceAssistant() }) {
                         Image(systemName: "xmark")
                             .foregroundColor(DynamicIslandTheme.textPrimary)
                             .frame(width: 16, height: 16)
                     }.buttonStyle(PlainButtonStyle())
 
-                    // COMMENTED OUT: Microphone mute/unmute button
-                    // Removed to simplify the voice controls UI
-                    /*
-                    Button(action: { vm.toggleMicMute() }) {
-                        Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
-                            .foregroundColor(vm.isMicrophoneMuted ? Color.red : DynamicIslandTheme.textPrimary)
-                            .frame(width: 16, height: 16)
-                    }.buttonStyle(PlainButtonStyle())
-                    */
+                    // Microphone mute/unmute button (restored for voice chat)
+                    if vm.voiceConnectionStatus == .connected {
+                        Button(action: { vm.toggleVoiceMute() }) {
+                            Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
+                                .foregroundColor(vm.isMicrophoneMuted ? Color.red : DynamicIslandTheme.primaryGreen)
+                                .frame(width: 16, height: 16)
+                        }.buttonStyle(PlainButtonStyle())
+                    }
                 }
             }
             .padding(12)
         }
         .frame(width: 100, height: 100)
         .onAppear { rotate = true }
+    }
+    
+    private func getStatusText() -> String {
+        switch vm.voiceConnectionStatus {
+        case .connected:
+            return vm.isMicrophoneMuted ? "Muted" : "Voice Active"
+        case .connecting:
+            return "Connecting..."
+        case .error:
+            return "Error"
+        case .disconnected:
+            return "Voice"
+        }
     }
 }
 
@@ -499,7 +575,7 @@ struct ChatTextAreaView: View {
                     RoundedRectangle(cornerRadius: 16)
                         .stroke(DynamicIslandTheme.stroke.opacity(isChatInputFocused ? 1.0 : 0.5), lineWidth: 1)
                 )
-                .frame(width: textEditorWidth, height: textEditorHeight)
+                .frame(width: .infinity, height: textEditorHeight)
                 .animation(DynamicIslandTheme.expansionAnimation, value: textEditorWidth)
                 .animation(.easeInOut(duration: 0.25), value: textEditorHeight)
             
@@ -550,12 +626,10 @@ struct ChatTextAreaView: View {
                 .onChange(of: vm.isChatMode) { oldValue, newValue in
                     // When chat mode is turned off (back button pressed), remove focus
                     if !newValue && isChatInputFocused {
-                        print("🎯 Chat mode disabled - removing focus from TextEditor")
                         isChatInputFocused = false
                     }
                 }
                 .onAppear {
-                    print("🎯 TextEditor appeared - ready for focus")
                     // Calculate width based on available space in the dynamic island
                     calculateTextEditorWidth()
                 }
@@ -571,7 +645,6 @@ struct ChatTextAreaView: View {
         .contentShape(Rectangle()) // Ensure entire area is tappable
         .allowsHitTesting(true) // Explicitly allow hit testing
         .onTapGesture {
-            print("🎯 TextEditor container tapped - setting focus")
             
             // Ensure window is key first
             if let window = NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible }) {
@@ -591,11 +664,10 @@ struct ChatTextAreaView: View {
 
     
     private func handleTextChange(_ newValue: String) {
-        print("🎯 TextEditor text changed: '\(newValue)'")
         
         // Only resize based on actual content, not placeholder
         if !newValue.isEmpty {
-            print("🎯 TextEditor width: \(textEditorWidth)px")
+
             // Auto-resize functionality - use correct font size (13, same as TextEditor)
             let font = NSFont.systemFont(ofSize: 13, weight: .medium)
             let textAttributes: [NSAttributedString.Key: Any] = [
@@ -683,12 +755,10 @@ struct ChatTextAreaView: View {
         
         // Calculate available space considering:
         // - Total padding (32px: 16px on each side)
-        // - Spacing between elements (12px)
         // - Right tile has been removed, so no need to account for it
         let totalPadding: CGFloat = 32 // 16px on each side
-        let elementSpacing: CGFloat = 12
         
-        var availableWidth = islandWidth - totalPadding
+        let availableWidth = islandWidth - totalPadding
         
         // Right tile has been commented out, so no need to subtract its width
         // The text editor can now use the full available width
@@ -747,9 +817,263 @@ struct WaveIcon: View {
     }
 }
 
+// MARK: - EyeIcon
+struct EyeIcon: View {
+    var color: Color = .white
+
+    var body: some View {
+        GeometryReader { geo in
+            let scale = min(geo.size.width, geo.size.height) / 24.0
+            let offsetX = (geo.size.width - 24.0 * scale) / 2.0
+            let offsetY = (geo.size.height - 24.0 * scale) / 2.0
+            let strokeStyle = StrokeStyle(lineWidth: 2.0 * scale, lineCap: .round, lineJoin: .round)
+            let point: (CGFloat, CGFloat) -> CGPoint = { x, y in
+                CGPoint(x: offsetX + x * scale, y: offsetY + y * scale)
+            }
+
+            ZStack {
+                Path { path in
+                    path.move(to: point(2.0, 12.0))
+                    path.addQuadCurve(to: point(12.0, 5.0), control: point(5.0, 6.0))
+                    path.addQuadCurve(to: point(22.0, 12.0), control: point(19.0, 6.0))
+                    path.addQuadCurve(to: point(12.0, 19.0), control: point(19.0, 18.0))
+                    path.addQuadCurve(to: point(2.0, 12.0), control: point(5.0, 18.0))
+                }
+                .stroke(color, style: strokeStyle)
+
+                Path { path in
+                    let radius: CGFloat = 3.0
+                    let rect = CGRect(
+                        x: offsetX + (12.0 - radius) * scale,
+                        y: offsetY + (12.0 - radius) * scale,
+                        width: radius * 2.0 * scale,
+                        height: radius * 2.0 * scale
+                    )
+                    path.addEllipse(in: rect)
+                }
+                .stroke(color, style: strokeStyle)
+            }
+        }
+        .aspectRatio(1.0, contentMode: .fit)
+    }
+}
+
+// MARK: - PirateIcon
+struct PirateIcon: View {
+    var color: Color = .white
+
+    var body: some View {
+        GeometryReader { geo in
+            let scale = min(geo.size.width, geo.size.height) / 24.0
+            let offsetX = (geo.size.width - 24.0 * scale) / 2.0
+            let offsetY = (geo.size.height - 24.0 * scale) / 2.0
+            let strokeStyle = StrokeStyle(lineWidth: 2.0 * scale, lineCap: .round, lineJoin: .round)
+            let point: (CGFloat, CGFloat) -> CGPoint = { x, y in
+                CGPoint(x: offsetX + x * scale, y: offsetY + y * scale)
+            }
+            let circleRect: (CGFloat, CGFloat, CGFloat) -> CGRect = { centerX, centerY, radius in
+                CGRect(
+                    x: offsetX + (centerX - radius) * scale,
+                    y: offsetY + (centerY - radius) * scale,
+                    width: radius * 2.0 * scale,
+                    height: radius * 2.0 * scale
+                )
+            }
+
+            ZStack {
+                // Hat brim
+                Path { path in
+                    path.move(to: point(2.0, 11.0))
+                    path.addLine(to: point(22.0, 11.0))
+                }
+                .stroke(color, style: strokeStyle)
+
+                // Hat crown (approximation of lucide hat)
+                Path { path in
+                    path.move(to: point(19.0, 11.0))
+                    path.addLine(to: point(16.9, 4.3))
+                    path.addLine(to: point(14.4, 3.2))
+                    path.addLine(to: point(12.0, 4.0))
+                    path.addLine(to: point(8.5, 4.0))
+                    path.addLine(to: point(6.6, 5.9))
+                    path.addLine(to: point(5.0, 11.0))
+                }
+                .stroke(color, style: strokeStyle)
+
+                // Glasses bridge
+                Path { path in
+                    path.move(to: point(10.0, 18.0))
+                    path.addLine(to: point(14.0, 18.0))
+                }
+                .stroke(color, style: strokeStyle)
+
+                // Left lens
+                Path { path in
+                    path.addEllipse(in: circleRect(7.0, 18.0, 3.0))
+                }
+                .stroke(color, style: strokeStyle)
+
+                // Right lens
+                Path { path in
+                    path.addEllipse(in: circleRect(17.0, 18.0, 3.0))
+                }
+                .stroke(color, style: strokeStyle)
+
+                // Moustache arc
+                Path { path in
+                    path.addArc(
+                        center: point(12.0, 18.0),
+                        radius: 2.0 * scale,
+                        startAngle: .degrees(0),
+                        endAngle: .degrees(180),
+                        clockwise: true
+                    )
+                }
+                .stroke(color, style: strokeStyle)
+            }
+        }
+        .aspectRatio(1.0, contentMode: .fit)
+    }
+}
+
+// MARK: - Notification Overlay View
+struct NotificationOverlayView: View {
+    @ObservedObject var vm: NotchViewModel
+    @State private var progressValue: Double = 0.0
+    @State private var progressTimer: Timer?
+
+    var body: some View {
+        Group {
+            if vm.showNotificationOverlay {
+                let _ = print("🔔 Notification overlay rendering - title: '\(vm.notificationTitle)', body: '\(vm.notificationBody)'")
+                
+                // Center the notification content in the available space
+                VStack {
+                    Spacer()
+                    
+                    // Notification content matching the Figma design exactly
+                    VStack(spacing: 0) {
+                    // Main content area
+                    HStack(spacing: 16) {
+                        // Left content
+                        VStack(alignment: .leading, spacing: 4) {
+                            // Main title - "Meeting detected"
+                            Text("Meeting detected")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.white)
+                                .lineLimit(1)
+                            
+                            // Subtitle - "Google meet • Starting in 2 min"
+                            Text("Google meet • Starting in 2 min")
+                                .font(.system(size: 13))
+                                .foregroundColor(.white.opacity(0.7))
+                                .lineLimit(1)
+                        }
+                        
+                        Spacer()
+                        
+                        // Join button on the right
+                        Button(action: {
+                            print("🎯 Join button tapped")
+                            vm.hideNotification()
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "waveform.path")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.white)
+                                
+                                Text("Join")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.white)
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(.white.opacity(0.3), lineWidth: 1)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .fill(.white.opacity(0.1))
+                                    )
+                            )
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 16)
+                    .padding(.bottom, 12)
+                    
+                    // Green progress bar at the bottom
+                    VStack(spacing: 0) {
+                        Spacer()
+                        
+                        // Progress bar
+                        GeometryReader { geometry in
+                            ZStack(alignment: .leading) {
+                                // Background
+                                Rectangle()
+                                    .fill(Color.white.opacity(0.1))
+                                    .frame(height: 3)
+                                
+                                // Progress fill
+                                Rectangle()
+                                    .fill(Color.green)
+                                    .frame(width: geometry.size.width * progressValue, height: 3)
+                            }
+                        }
+                        .frame(height: 3)
+                    }
+                    }
+                    .background(Color.black)
+                    .clipShape(RoundedRectangle(cornerRadius: vm.cornerRadius))
+                    .frame(width: 370, height: 74) // Matching the Figma dimensions
+                    .onHover { isHovering in
+                        if isHovering {
+                            vm.pauseNotificationTimer()
+                        } else {
+                            vm.resumeNotificationTimer()
+                        }
+                    }
+                    
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .transition(.scale(scale: 1.0).combined(with: .opacity)) // Remove scaling to prevent shadow artifacts
+                .onAppear {
+                    // Start progress bar animation that syncs with notification timer
+                    startProgressAnimation()
+                }
+                .onDisappear {
+                    // Clean up progress animation
+                    stopProgressAnimation()
+                }
+            }
+        }
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: vm.showNotificationOverlay)
+    }
+    
+    // Progress animation methods
+    private func startProgressAnimation() {
+        progressValue = 0.0
+        progressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+            if !vm.isNotificationHovered {
+                // Only advance progress when not hovering
+                let increment = 0.1 / 10.0 // 10 seconds total
+                progressValue = min(1.0, progressValue + increment)
+            }
+        }
+    }
+    
+    private func stopProgressAnimation() {
+        progressTimer?.invalidate()
+        progressTimer = nil
+        progressValue = 0.0
+    }
+}
+
 #Preview {
     NotchContentView(vm: .init())
-        .frame(width: 450, height: 150, alignment: .center)
+        .frame(width: 850, height: 150, alignment: .center)
         .background(.black)
         .preferredColorScheme(.dark)
 }

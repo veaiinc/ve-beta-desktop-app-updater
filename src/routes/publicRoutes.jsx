@@ -22,7 +22,6 @@ const publicRoutes = [
 			// 	<LandingPage />
 			// </Public>
 			<Navigate to="/verify-user" replace />
-			
 		),
 	},
 	{

@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import getBaseUrl from '../../services/baseUrls';
 import Context from '../../context/context';
-// Removed permission utility imports to avoid timing issues with Electron APIs
-// The browser will handle permission prompts directly when calling getUserMedia/getDisplayMedia
 
 const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
 
@@ -52,6 +50,11 @@ const useAssemblyTranscription = ({
 		isMountedRef.current = true;
 		return () => {
 			isMountedRef.current = false;
+			// Ensure timer is cleared on unmount
+			if (timerIntervalRef.current) {
+				clearInterval(timerIntervalRef.current);
+				timerIntervalRef.current = null;
+			}
 			cleanup();
 		};
 	}, []);
@@ -69,8 +72,56 @@ const useAssemblyTranscription = ({
 		[log],
 	);
 
+	// Enhanced timer management functions
+	const startTimer = useCallback(() => {
+		// Always clear any existing timer first
+		if (timerIntervalRef.current) {
+			clearInterval(timerIntervalRef.current);
+			timerIntervalRef.current = null;
+		}
+
+		// Reset timer to 0
+		setTimer(0);
+
+		// Start new interval
+		if (isMountedRef.current) {
+			timerIntervalRef.current = setInterval(() => {
+				if (isMountedRef.current) {
+					setTimer((prev) => prev + 1);
+				}
+			}, 1000);
+		}
+	}, []);
+
+	const stopTimer = useCallback(() => {
+		if (timerIntervalRef.current) {
+			clearInterval(timerIntervalRef.current);
+			timerIntervalRef.current = null;
+		}
+		setTimer(0);
+	}, []);
+
+	const pauseTimer = useCallback(() => {
+		if (timerIntervalRef.current) {
+			clearInterval(timerIntervalRef.current);
+			timerIntervalRef.current = null;
+		}
+		// Note: Don't reset timer to 0, keep current value
+	}, []);
+
+	const resumeTimer = useCallback(() => {
+		// Only start if not already running
+		if (!timerIntervalRef.current && isMountedRef.current) {
+			timerIntervalRef.current = setInterval(() => {
+				if (isMountedRef.current) {
+					setTimer((prev) => prev + 1);
+				}
+			}, 1000);
+		}
+	}, []);
+
 	const cleanup = useCallback(async () => {
-		// Clear timers
+		// Clear timers first and foremost
 		if (timerIntervalRef.current) {
 			clearInterval(timerIntervalRef.current);
 			timerIntervalRef.current = null;
@@ -178,13 +229,16 @@ const useAssemblyTranscription = ({
 			meetingIdRef.current = null;
 		}
 
+		// Reset all timer-related state
 		if (isMountedRef.current) {
 			setIsConnected(false);
 			setIsRecording(false);
+			setIsPaused(false);
+			setIsMuted(false);
 			setTimer(0);
 			updateStatus('Disconnected', 'disconnected');
 		}
-	}, [log, updateStatus]);
+	}, [log, updateStatus, initializeMeetingSummary]);
 
 	const attemptReconnect = useCallback(() => {
 		if (!isMountedRef.current || reconnectAttemptsRef.current >= maxReconnectAttempts) {
@@ -220,13 +274,10 @@ const useAssemblyTranscription = ({
 			log('Stopping recording...');
 
 			setIsRecording(false);
-			setTimer(0);
+			setIsPaused(false);
 
-			// Clear timer
-			if (timerIntervalRef.current) {
-				clearInterval(timerIntervalRef.current);
-				timerIntervalRef.current = null;
-			}
+			// Stop timer using new function
+			stopTimer();
 
 			// Disconnect mic audio nodes
 			if (micProcessorRef.current) {
@@ -305,7 +356,7 @@ const useAssemblyTranscription = ({
 			screenSampleCountRef.current = 0;
 			cleanup();
 		},
-		[log, cleanup],
+		[log, cleanup, stopTimer],
 	);
 
 	const connect = useCallback(
@@ -592,70 +643,42 @@ const useAssemblyTranscription = ({
 			// We'll rely on the browser's built-in permission system
 			log('Using browser permission system for screen capture...');
 
-			// Get screen capture with timeout handling
-			log('Requesting screen capture access...');
+			// Get screen capture using Electron's automatic whole screen selection
+			log('Requesting automatic whole screen capture...');
 			let screenStream;
 
 			try {
-				// Try with video enabled first (more reliable)
-				log('Trying screen capture with video enabled...');
+				// Electron will automatically select the primary screen without showing a dialog
+				log('Starting automatic screen capture (no dialog)...');
+
 				screenStream = await withTimeout(
 					navigator.mediaDevices.getDisplayMedia({
-						audio: true,
+						audio: {
+							echoCancellation: false,
+							noiseSuppression: false,
+							autoGainControl: false,
+							sampleRate: 48000,
+						},
 						video: {
-							width: { ideal: 1920 },
-							height: { ideal: 1080 },
-							frameRate: { ideal: 30 },
+							width: { ideal: 1920, max: 1920 },
+							height: { ideal: 1080, max: 1080 },
+							frameRate: { ideal: 30, max: 30 },
+							cursor: 'never', // Don't show cursor
 						},
 					}),
-					10000, // 10 second timeout
-					'Timeout starting video source',
+					5000, // Reduced timeout since no user interaction needed
+					'Timeout during automatic screen capture',
 				);
+
 				screenStreamRef.current = screenStream;
-				log('Screen capture access granted with video enabled');
-			} catch (videoError) {
-				log('Screen capture with video failed:', videoError.message);
+				log('✅ Automatic whole screen capture successful - no dialog shown');
+			} catch (screenCaptureError) {
+				log('❌ Screen capture failed:', screenCaptureError.message);
 
-				// Try with basic video constraints
-				log('Trying screen capture with basic video constraints...');
-				try {
-					screenStream = await withTimeout(
-						navigator.mediaDevices.getDisplayMedia({
-							audio: true,
-							video: true,
-						}),
-						10000, // 10 second timeout
-						'Timeout starting video source with basic constraints',
-					);
-					screenStreamRef.current = screenStream;
-					log('Screen capture access granted with basic video constraints');
-				} catch (basicVideoError) {
-					log('Screen capture with basic video failed:', basicVideoError.message);
-
-					// Try with audio only (some browsers support this)
-					log('Trying screen capture with audio only...');
-					try {
-						screenStream = await withTimeout(
-							navigator.mediaDevices.getDisplayMedia({
-								audio: true,
-								video: false,
-							}),
-							5000, // 5 second timeout for audio-only
-							'Timeout starting audio-only screen capture',
-						);
-						screenStreamRef.current = screenStream;
-						log('Screen capture access granted with audio only');
-					} catch (audioOnlyError) {
-						log('Screen capture with audio only failed:', audioOnlyError.message);
-
-						// If all attempts fail, we can still proceed with just microphone
-						log(
-							'All screen capture attempts failed, proceeding with microphone only...',
-						);
-						screenStream = null;
-						screenStreamRef.current = null;
-					}
-				}
+				// Continue with microphone only - don't fail the entire recording
+				log('📱 Proceeding with microphone-only recording...');
+				screenStream = null;
+				screenStreamRef.current = null;
 			}
 
 			// Create audio context
@@ -836,14 +859,9 @@ const useAssemblyTranscription = ({
 
 			if (isMountedRef.current) {
 				setIsRecording(true);
-				setTimer(0);
 
-				// Start timer
-				timerIntervalRef.current = setInterval(() => {
-					if (isMountedRef.current) {
-						setTimer((prev) => prev + 1);
-					}
-				}, 1000);
+				// Start timer using the new function
+				startTimer();
 			}
 
 			log('Audio capture setup completed successfully');
@@ -897,7 +915,7 @@ const useAssemblyTranscription = ({
 			notification?.error(errorTitle, errorMessage);
 			throw error;
 		}
-	}, [log, sendAudioData, hasAudioSignal]);
+	}, [log, sendAudioData, hasAudioSignal, startTimer]);
 
 	const startRecording = useCallback(
 		async ({ tenantId, sessionId, meetingId, jwtToken, isAiIntelligenceEnabled }) => {
@@ -910,9 +928,14 @@ const useAssemblyTranscription = ({
 			});
 
 			try {
+				// Reset all states
 				setIsMuted(false);
+				setIsPaused(false);
 				muteRef.current = false;
 				meetingIdRef.current = meetingId;
+
+				// Ensure clean timer state
+				stopTimer();
 
 				// Skip permission checking to avoid timing issues with Electron APIs
 				// The browser will handle permission prompts when we call getUserMedia/getDisplayMedia
@@ -936,7 +959,7 @@ const useAssemblyTranscription = ({
 				stopRecording({ meetingId });
 			}
 		},
-		[connect, startAudioCapture, log, stopRecording],
+		[connect, startAudioCapture, log, stopRecording, stopTimer],
 	);
 
 	const toggleMute = useCallback(() => {
@@ -946,47 +969,51 @@ const useAssemblyTranscription = ({
 
 		log(`${newMutedState ? 'Muting' : 'Unmuting'} microphone`);
 
-		// When muting, clear any pending mic audio buffer (screen audio continues)
+		// FREEZE TIMER WHEN MUTING
 		if (newMutedState) {
+			pauseTimer();
+			// Clear any pending mic audio buffer
 			micBufferRef.current = [];
 			micSampleCountRef.current = 0;
+		} else {
+			// Resume timer when unmuting (only if recording and not paused)
+			if (isRecording && !isPaused) {
+				resumeTimer();
+			}
 		}
-	}, [isMuted, log]);
+	}, [isMuted, isRecording, isPaused, log, pauseTimer, resumeTimer]);
 
 	const pauseRecording = useCallback(() => {
 		if (!isRecording || isPaused) return;
 
 		log('Pausing recording...');
 		setIsPaused(true);
-		muteRef.current = true; // Stop mic audio processing (screen continues)
+
+		// Pause timer
+		pauseTimer();
+
+		// Stop mic audio processing (screen continues)
+		muteRef.current = true;
 
 		// Clear any pending mic audio buffer
 		micBufferRef.current = [];
 		micSampleCountRef.current = 0;
-
-		// Pause the timer
-		if (timerIntervalRef.current) {
-			clearInterval(timerIntervalRef.current);
-			timerIntervalRef.current = null;
-		}
-	}, [isRecording, isPaused, log]);
+	}, [isRecording, isPaused, log, pauseTimer]);
 
 	const resumeRecording = useCallback(() => {
 		if (!isRecording || !isPaused) return;
 
 		log('Resuming recording...');
 		setIsPaused(false);
-		muteRef.current = false; // Resume mic audio processing
 
-		// Resume the timer
-		if (isMountedRef.current) {
-			timerIntervalRef.current = setInterval(() => {
-				if (isMountedRef.current) {
-					setTimer((prev) => prev + 1);
-				}
-			}, 1000);
+		// Resume mic audio processing
+		muteRef.current = isMuted; // Respect current mute state
+
+		// Resume timer only if not muted
+		if (!isMuted) {
+			resumeTimer();
 		}
-	}, [isRecording, isPaused, log]);
+	}, [isRecording, isPaused, isMuted, log, resumeTimer]);
 
 	const formatTime = useCallback((seconds) => {
 		const m = Math.floor(seconds / 60).toString();
@@ -1019,6 +1046,40 @@ const useAssemblyTranscription = ({
 			document.removeEventListener('visibilitychange', handleVisibilityChange);
 		};
 	}, [isRecording, log]);
+
+	// Timer anomaly detection
+	useEffect(() => {
+		let lastTimerValue = timer;
+		let checkCount = 0;
+
+		const intervalCheck = setInterval(() => {
+			if (isRecording && !isPaused && !isMuted && timerIntervalRef.current) {
+				checkCount++;
+				const expectedChange = checkCount;
+				const actualChange = timer - lastTimerValue;
+
+				if (Math.abs(actualChange - expectedChange) > 2) {
+					log('Timer anomaly detected:', {
+						expected: expectedChange,
+						actual: actualChange,
+						hasInterval: !!timerIntervalRef.current,
+						isRecording,
+						isPaused,
+						isMuted,
+					});
+					// Auto-fix: restart timer
+					stopTimer();
+					if (isRecording && !isPaused && !isMuted) {
+						startTimer();
+					}
+				}
+			}
+			checkCount = 0;
+			lastTimerValue = timer;
+		}, 5000); // Check every 5 seconds
+
+		return () => clearInterval(intervalCheck);
+	}, [timer, isRecording, isPaused, isMuted, log, stopTimer, startTimer]);
 
 	return {
 		isConnected,

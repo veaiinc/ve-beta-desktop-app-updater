@@ -25,26 +25,23 @@ import SearchDropdown from './SearchDropdown';
 import UploadFileTooltip from './UploadFileTooltip';
 import DateRangeDropdown from './DateRangeDropdown';
 import moment from 'moment';
-import { Image, Spin, Tooltip, Upload } from 'antd';
+import { Image, Spin, Upload } from 'antd';
 // import AIMessageLoader from './AIMessageLoader';
 import WebSvg from '../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../assets/svg/ai_agents/bookSvg';
 import { message } from '../globalComponents/CustomToast';
 // import SearchTypeTooltip from './SearchTypeTooltip';
-import ChatBoxPlaceholder from './ChatBoxPlaceholder';
+// import ChatBoxPlaceholder from './ChatBoxPlaceholder';
 import { fileTypeIcons } from '../../../helpers';
 import BuildTooltip from './BuildTooltip';
 import RecentFileTooltip from './RecentFileTooltip';
-import AskTooltip from './AskTooltip';
+// import AskTooltip from './AskTooltip';
 import AddOnCards from '../settings/planbilling/addOnCards';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import { ReactComponent as VoiceAgentSvg } from '../../../assets/svg/ai_agents/voiceagent.svg';
-import VoiceAgentParent from '../../features/voiceAgent/VoiceAgentParent';
-import useNote from '../../../hooks/useNote';
-import useAudioVisualizer from '../../../hooks/useAudioVisualizer';
-import { Track } from 'livekit-client';
-import { useTrackTranscription } from '@livekit/components-react';
 import { getFileType } from '../../../helpers/chat/chatHelpers';
+import useSpeechTranscription from '../../../hooks/useSpeechTranscripton';
+import SpeechToTextInactivity from './SpeechToTextInactivity';
 // import VoiceWrapper from '../../layouts/VoiceWrapper';
 
 const moduleHelper = {
@@ -129,6 +126,8 @@ const ChatBox = ({
 	showBottomTools = true,
 	showRecentFiles = true,
 	showMicBtn = true,
+	getChatBoxHeight = false,
+	handleChatBoxHeight = null,
 
 	// below props are for desktop app
 	isDesktopApp = false,
@@ -139,7 +138,6 @@ const ChatBox = ({
 	const { workspaceMode } = useWorkspaceMode();
 
 	const textAreaRef = useRef(null);
-	const placeholderIntervalId = useRef(null);
 	const textAreaWrapperRef = useRef(null);
 	const suggestionsTimeoutRef = useRef(null);
 	const suggestionRef = useRef(null);
@@ -167,12 +165,14 @@ const ChatBox = ({
 			isDirectSearchAgent,
 			isBrowserScreenActive,
 		},
+		chatStream: { closeWebSocketConnection: closeChatWebSocketConnection },
 		chatBoxSuggestionsSocket: { sendMessage, closeWebSocketConnection },
 		subscriptionInfo: { currentPlan, getCurrentSubscriptionPlan },
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
 		aiSetup: { voiceIntegrationData, updateAiChatSessions, aiChatSessions, updateAiSetupState },
-		notes: { getLiveKitToken },
+		// notes: { getLiveKitToken },
+		profileInfo: { tenantSettinsData },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -205,69 +205,21 @@ const ChatBox = ({
 		chatboxMinimized: true,
 		chatBoxContainerHeight: 60,
 	});
+	const chatBoxWrapperRef = useRef(null);
+	const chatbarContainerRef = useRef(null);
+	const isTypingRef = useRef(false);
 
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
 
 	// Speech-to-text state
 	const [isTranscribing, setIsTranscribing] = useState(false);
-	const [liveKitToken, setLiveKitToken] = useState(null);
-	const [transcriptionText, setTranscriptionText] = useState('');
-	const transcriptionSessionId = useRef(ObjectID().toString());
-	const isMountedRef = useRef(true);
+	const [speechTranscription, setSpeechTranscription] = useState([]);
 
-	// LiveKit transcription setup
-	const wsUrl = 'wss://ve-ai-transcriptions-8p8k0b44.livekit.cloud';
-
-	const {
-		connect,
-		disconnect,
-		isConnected,
-		localAudioTrack,
-		localParticipant,
-		isMuted,
-		muteAudio,
-		unmuteAudio,
-	} = useNote({
-		wsUrl,
-		token: liveKitToken,
-		isRecording: isTranscribing,
-	});
-
-	// Audio visualizer hook
-	const { canvasRef } = useAudioVisualizer(isTranscribing, localAudioTrack);
-
-	// Track reference for transcription
-	const trackRef =
-		localParticipant && localAudioTrack
-			? {
-					publication: localParticipant.getTrackPublication(Track.Source.Microphone),
-					source: Track.Source.Microphone,
-					participant: localParticipant,
-			  }
-			: undefined;
-
-	const { segments } = useTrackTranscription(trackRef);
-
-	// Process transcription segments
-	useEffect(() => {
-		if (!segments || segments.length === 0) return;
-
-		let fullText = '';
-		segments.forEach((segment) => {
-			fullText += segment.text + ' ';
+	const { handleConnect, handleDisconnect, handleResetTimer, showInactivityPopup } =
+		useSpeechTranscription({
+			tenantId: tenantSettinsData?._id,
 		});
-
-		if (fullText.trim()) {
-			setTranscriptionText(fullText.trim());
-			// Update chat query with transcription
-			setInfo((prev) => ({
-				...prev,
-				chatQuery: fullText.trim(),
-			}));
-			onChatQueryChange?.(fullText.trim());
-		}
-	}, [segments]);
 
 	const uploadedImagesRef = useRef(info?.uploadedImages || []);
 	const recentFilesRef = useRef(info?.recentFiles || []);
@@ -279,22 +231,12 @@ const ChatBox = ({
 				: 1;
 
 	useEffect(() => {
-		isMountedRef.current = true;
-
-		// if (
-		// 	!chatInfo?.agentType ||
-		// 	(location?.pathname?.split('/')?.[1] !== 'chat' &&
-		// 		location?.pathname?.split('/')?.[1] !== 'knowledge-agent' &&
-		// 		chatInfo?.agentType === 'knowledge_agent')
-		// ) {
-		// 	updateStateValues({
-		// 		chatInfo: { ...chatInfo, agentType: 'multi_agent', assistantId: null },
-		// 	});
-		// }
-		document.addEventListener('click', handleWindowClick);
+		if (!currentPlan) {
+			getCurrentSubscriptionPlan();
+		}
+		// document.addEventListener('click', handleWindowClick);
 		return () => {
-			isMountedRef.current = false;
-			document.removeEventListener('click', handleWindowClick);
+			// document.removeEventListener('click', handleWindowClick);
 			if (chatSessionIdRef.current) {
 				closeWebSocketConnection(chatSessionIdRef.current);
 			}
@@ -302,15 +244,8 @@ const ChatBox = ({
 			if (suggestionsTimeoutRef.current) {
 				clearTimeout(suggestionsTimeoutRef.current);
 			}
-
-			// Cleanup transcription
-			if (isTranscribing) {
-				setIsTranscribing(false);
-				setLiveKitToken(null);
-				disconnect();
-			}
 		};
-	}, [isTranscribing, disconnect]);
+	}, []);
 
 	useEffect(() => {
 		if (!animateChatBox) return;
@@ -329,10 +264,36 @@ const ChatBox = ({
 	}, [info?.chatboxMinimized]);
 
 	useEffect(() => {
-		if (!currentPlan) {
-			getCurrentSubscriptionPlan();
+		if (chatBoxWrapperRef.current && chatbarContainerRef.current && getChatBoxHeight) {
+			const totalChatboxHeight =
+				(chatBoxWrapperRef.current?.clientHeight || 0) +
+				(chatbarContainerRef.current?.clientHeight || 0) +
+				12;
+
+			handleChatBoxHeight?.(totalChatboxHeight);
 		}
-	}, []);
+	}, [
+		info?.chatQuery,
+		info?.uploadedImages,
+		info?.recentFiles,
+		currentPlan,
+		showBrowserButton,
+		chatReplyData,
+	]);
+
+	useEffect(() => {
+		if (speechTranscription?.length > 0) {
+			let text = '';
+			speechTranscription?.forEach((item) => {
+				if (item?.text) {
+					text += item?.text;
+				}
+			});
+
+			setInfo((prev) => ({ ...prev, chatQuery: text }));
+			onChatQueryChange?.(text);
+		}
+	}, [speechTranscription]);
 
 	useEffect(() => {
 		const sessionData = globalChatMessages?.[info?.chatSessionId],
@@ -459,6 +420,12 @@ const ChatBox = ({
 
 	//below useeffect is for getting suggestions
 	useEffect(() => {
+		// the below condition will run when the text in the textarea is updated from external source, not through typing in textarea
+		if (info?.chatQuery?.length > 0 && !isTypingRef.current) {
+			handleTextAreaChange({}, info.chatQuery);
+		}
+		isTypingRef.current = false;
+
 		if (
 			info?.chatQuery?.length > 0 &&
 			info?.chatSessionId &&
@@ -628,18 +595,18 @@ const ChatBox = ({
 		setPreviewOpen(true);
 	};
 
-	const handleWindowClick = useCallback(() => {
-		if (!animateChatBox) return;
-		setInfo((prev) => {
-			if (prev?.chatboxMinimized) {
-				return prev;
-			}
-			return {
-				...prev,
-				chatboxMinimized: true,
-			};
-		});
-	}, [animateChatBox]);
+	// const handleWindowClick = useCallback(() => {
+	// 	if (!animateChatBox) return;
+	// 	setInfo((prev) => {
+	// 		if (prev?.chatboxMinimized) {
+	// 			return prev;
+	// 		}
+	// 		return {
+	// 			...prev,
+	// 			chatboxMinimized: true,
+	// 		};
+	// 	});
+	// }, [animateChatBox]);
 	const handleGoalsClick = () => {
 		let chatBoxData = info?.chatBoxInfo;
 
@@ -1373,33 +1340,39 @@ const ChatBox = ({
 		[info, uploadedImagesRef],
 	);
 
-	// Comprehensive function to clear all transcription states
-	const clearTranscriptionStates = useCallback(() => {
-		// Clear all transcription-related states
+	const handleTranscriptionMessageFunc = useCallback((event) => {
+		let { data } = event || {};
+		data = JSON?.parse(data);
+
+		if (data?.type === 'transcription') {
+			setSpeechTranscription((prev) => {
+				const previousTranscription = prev || [];
+				const length = previousTranscription?.length;
+
+				let updatedTranscription;
+
+				if (length >= 1) {
+					const lastEle = previousTranscription?.[length - 1];
+					if (lastEle?.is_final && lastEle?.isTurnFormatted) {
+						updatedTranscription = [...previousTranscription, data];
+					} else {
+						updatedTranscription = [...previousTranscription];
+						updatedTranscription[length - 1] = data;
+					}
+				} else {
+					updatedTranscription = [data];
+				}
+
+				return updatedTranscription;
+			});
+		}
+	}, []);
+
+	const handleTranscriptionSocketDisconnect = useCallback(() => {
+		handleDisconnect();
 		setIsTranscribing(false);
-		setLiveKitToken(null);
-		setTranscriptionText('');
-
-		// Clear chat query if it was set by transcription
-		setInfo((prev) => ({
-			...prev,
-			chatQuery: '',
-			voiceIntegration: false,
-			suggestion: null,
-			showSuggestion: false,
-		}));
-
-		// Clear transcription session ID
-		transcriptionSessionId.current = ObjectID().toString();
-
-		// Disconnect LiveKit connection
-		disconnect();
-
-		// Clear any stored segments or transcription data
-		// The segments will be cleared automatically when trackRef becomes undefined
-
-		console.log('All transcription states cleared');
-	}, [disconnect]);
+		setSpeechTranscription([]);
+	}, [handleDisconnect]);
 
 	const handleMicIconClick = useCallback(
 		async (event) => {
@@ -1411,50 +1384,20 @@ const ChatBox = ({
 					return;
 				}
 
-				// Handle transcription toggle
-				if (!isTranscribing) {
-					try {
-						// Generate new session ID for each transcription start
-						transcriptionSessionId.current = ObjectID().toString();
-
-						// Get LiveKit token
-						const response = await getLiveKitToken({
-							sessionId: transcriptionSessionId.current,
-						});
-
-						// Handle different response formats
-						let token = null;
-						if (response && response[0] === true) {
-							// Check if response[1] has token or accessToken
-							token = response[1]?.token || response[1]?.accessToken;
-						} else if (response && response.token) {
-							// Direct response format
-							token = response.token;
-						}
-
-						if (token) {
-							if (isMountedRef.current) {
-								setLiveKitToken(token);
-								setIsTranscribing(true);
-								setTranscriptionText('');
-								// Reset voiceIntegration to false to keep chat interface visible
-								setInfo((prev) => ({ ...prev, voiceIntegration: false }));
-							}
-						} else {
-							console.error('Failed to fetch LiveKit token:', response);
-							message.error('Failed to start transcription. Please try again.');
-						}
-					} catch (err) {
-						console.error('Error fetching LiveKit token:', err);
-						message.error('Error starting transcription. Please try again.');
-					}
+				if (isTranscribing) {
+					handleTranscriptionSocketDisconnect();
 				} else {
-					// Stop transcription and clear all states
-					clearTranscriptionStates();
+					try {
+						await handleConnect({
+							sessionId: ObjectID()?.toString(),
+							onMessageFunc: handleTranscriptionMessageFunc,
+						});
+						setIsTranscribing(true);
+					} catch (error) {
+						console.log('Connection not established', error?.message);
+						message.error('Connection not established');
+					}
 				}
-
-				// Don't call handleConnect during transcription to avoid voiceIntegration conflicts
-				// The transcription uses its own LiveKit connection, not the voice integration
 
 				event.stopPropagation();
 			} catch (error) {
@@ -1463,7 +1406,12 @@ const ChatBox = ({
 			}
 		},
 
-		[info, isTranscribing, getLiveKitToken],
+		[
+			isTranscribing,
+			handleConnect,
+			handleTranscriptionSocketDisconnect,
+			handleTranscriptionMessageFunc,
+		],
 	);
 
 	const handleSendBtnClick = (e) => {
@@ -1524,11 +1472,12 @@ const ChatBox = ({
 		[handleFileAttachmentChange],
 	);
 
-	const handleTextAreaChange = (e) => {
+	const handleTextAreaChange = (e, queryValue = '') => {
+		isTypingRef.current = true;
 		const textArea = textAreaRef?.current;
 		// const textAreaWrapper = textAreaWrapperRef?.current;
 		// const suggestionContainer = suggestionRef?.current;
-		const query = e?.target?.value;
+		const query = e?.target?.value ?? queryValue;
 		const lastChar = query?.trim()?.slice(-1);
 
 		let textAreaHeight = '';
@@ -1722,15 +1671,33 @@ const ChatBox = ({
 		[updateAiSetupState],
 	);
 
+	const handleStopChatStream = () => {
+		if (info?.chatSessionId) {
+			closeChatWebSocketConnection([info?.chatSessionId]);
+			handleGlobalChatMessages({
+				sessionId: info?.chatSessionId,
+				removeStreaming: true,
+				updateExtraInfo: true,
+			});
+		}
+	};
+
 	return (
-		<div className="chatBoxParentWrapper" onClick={handleChatBoxClick}>
-			<div className="chatbarContainer">
+		<div className="chatBoxParentWrapper" ref={chatBoxWrapperRef} onClick={handleChatBoxClick}>
+			<div className="chatbarContainer" ref={chatbarContainerRef}>
 				{showScrollButton && (
 					<div className="scroll-btn-wrapper">
 						<button className="scroll-button" onClick={handleScrollButtonClick}>
 							<ArrowUpRightSvg className="arrow-up" />
 						</button>
 					</div>
+				)}
+
+				{showInactivityPopup && (
+					<SpeechToTextInactivity
+						handleResetTimer={handleResetTimer}
+						handleDisconnect={handleTranscriptionSocketDisconnect}
+					/>
 				)}
 
 				<div
@@ -1984,10 +1951,18 @@ const ChatBox = ({
 								}`}
 								onClick={(e) => {
 									e.stopPropagation();
-									handleSendBtnClick(e);
+									if (info?.chatLoading) {
+										handleStopChatStream();
+									} else {
+										handleSendBtnClick(e);
+									}
 								}}
 							>
-								<ArrowUp className="voice-wave-icon" width={16} height={16} />
+								{info?.chatLoading ? (
+									<div className="stop-chat-icon"></div>
+								) : (
+									<ArrowUp className="voice-wave-icon" width={16} height={16} />
+								)}
 							</div>
 						) : (
 							<div

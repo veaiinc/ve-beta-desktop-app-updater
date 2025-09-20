@@ -199,9 +199,6 @@ class WindowHelper {
 			windowSettings.focusable = true;
 			windowSettings.transparent = true;
 			windowSettings.hasShadow = false;
-		} else if (process.platform === 'darwin') {
-			// macOS-specific settings
-			windowSettings.type = process.env.NODE_ENV === 'development' ? 'normal' : 'panel';
 		}
 
 		this.overlayWindow = new BrowserWindow(windowSettings);
@@ -575,27 +572,6 @@ class WindowHelper {
 			this.askAIWindow = null;
 			this.isAskAIVisible = false;
 		});
-
-		// Set up mouse event handling for Ask AI window
-		this.askAIWindow.webContents.on('dom-ready', () => {
-			// Set ask AI window to be interactive immediately
-			this.askAIWindow.setIgnoreMouseEvents(false);
-
-			this.askAIWindow.webContents.executeJavaScript(`
-				// Always keep the window interactive for Ask AI
-				if (window.electronApi?.askAI?.setIgnoreMouseEvents) {
-					window.electronApi.askAI.setIgnoreMouseEvents(false);
-				}
-				
-				// Global click handler
-				document.addEventListener('click', (e) => {
-					// Ensure click-through remains disabled
-					if (window.electronApi?.askAI?.setIgnoreMouseEvents) {
-						window.electronApi.askAI.setIgnoreMouseEvents(false);
-					}
-				});
-			`);
-		});
 	}
 
 	setupAreYouThereWindowListeners() {
@@ -781,12 +757,12 @@ class WindowHelper {
 		// Platform-specific Dynamic Island Y position - eliminate gap with menu bar
 		let dynamicIslandY;
 		if (process.platform === 'win32') {
-			dynamicIslandY = 0; // Slightly above screen edge on Windows
+			dynamicIslandY = 0; // At absolute top on Windows to eliminate any gap
 		} else {
 			dynamicIslandY = -8; // Slightly above screen edge on Mac/Linux to eliminate menu bar gap
 		}
 
-		const topY = dynamicIslandY + dynamicIslandHeight + gapFromDynamicIsland;
+		const topY = dynamicIslandY;
 
 		// Position overlay to allow space for ask AI on the right
 		let overlayX;
@@ -870,7 +846,7 @@ class WindowHelper {
 			// Platform-specific Dynamic Island Y position - eliminate gap with menu bar
 			let dynamicIslandY;
 			if (process.platform === 'win32') {
-				dynamicIslandY = -5; // Slightly above screen edge on Windows
+				dynamicIslandY = 0; // At absolute top on Windows to eliminate any gap
 			} else {
 				dynamicIslandY = -8; // Slightly above screen edge on Mac/Linux to eliminate menu bar gap
 			}
@@ -1029,8 +1005,6 @@ class WindowHelper {
 
 		// Only update the size, preserve the current position
 		this.overlayWindow.setBounds({
-			x: currentX,
-			y: currentY,
 			width: newWidth,
 			height: newHeight,
 		});
@@ -1048,14 +1022,12 @@ class WindowHelper {
 			const askAIY = currentY; // Same Y level as overlay
 
 			this.askAIWindow.setBounds({
-				x: askAIX,
-				y: askAIY,
 				width: this.askAIWindowSize.width,
 				height: this.askAIWindowSize.height,
 			});
 
 			// Update ask AI position tracking
-			this.askAIWindowPosition = { x: askAIX, y: askAIY };
+			// this.askAIWindowPosition = { x: askAIX, y: askAIY };
 
 			// Make sure ask AI stays on top
 			setTimeout(() => {
@@ -1068,18 +1040,18 @@ class WindowHelper {
 		this.windowSize = { width: newWidth, height: newHeight };
 	}
 
-	updateAskAIWindowDimensions(width, height) {
+	updateAskAIWindowDimensions(width, height, position = {}) {
 		if (!this.askAIWindow || this.askAIWindow.isDestroyed()) return;
 		const { screen } = require('electron');
 		const workArea = screen.getPrimaryDisplay().workAreaSize;
 
-		const newWidth = Math.min(width, 600); // Allow up to 600px width
-		const newHeight = Math.min(height, 500); // Max height 500px
+		const newWidth = width; // Allow up to 600px width
+		const newHeight = Math.min(height, workArea.height); // Max height 500px
 
 		// Get current window position to preserve user's manual positioning
 		const currentBounds = this.askAIWindow.getBounds();
-		const currentX = currentBounds.x;
-		const currentY = currentBounds.y;
+		const currentX = position.x ?? currentBounds.x;
+		const currentY = position.y ?? currentBounds.y;
 
 		// Only update the size, preserve the current position
 		this.askAIWindow.setBounds({
@@ -1218,7 +1190,6 @@ class WindowHelper {
 				this.mainWindow.webContents.executeJavaScript(`
 					if (window.electronApi && window.electronApi.toggleContentProtection) {
 						window.electronApi.toggleContentProtection().then(status => {
-							console.log('🎯 Content Protection toggled via shortcut:', status ? 'ON' : 'OFF');
 						}).catch(err => {
 							console.error('Error toggling content protection:', err);
 						});
@@ -1229,7 +1200,6 @@ class WindowHelper {
 
 		if (cmdShiftPRegistered) {
 		} else {
-			log.error('❌ Failed to register Cmd+Shift+P shortcut for content protection');
 			// Try alternative shortcut on Windows
 			if (process.platform === 'win32') {
 				const altProtectionRegistered = globalShortcut.register('Ctrl+Alt+P', () => {
@@ -1237,7 +1207,6 @@ class WindowHelper {
 						this.mainWindow.webContents.executeJavaScript(`
 							if (window.electronApi && window.electronApi.toggleContentProtection) {
 								window.electronApi.toggleContentProtection().then(status => {
-									console.log('🎯 Content Protection toggled via shortcut:', status ? 'ON' : 'OFF');
 								}).catch(err => {
 									console.error('Error toggling content protection:', err);
 								});
@@ -1266,7 +1235,6 @@ class WindowHelper {
 
 		if (cmdEnterRegistered) {
 		} else {
-			log.error('❌ Failed to register Cmd+Enter shortcut');
 			// On Windows, try alternative shortcuts if the main one fails
 			if (process.platform === 'win32') {
 				// Try Ctrl+Alt+A as alternative for Ask AI
@@ -1282,6 +1250,46 @@ class WindowHelper {
 					}
 				});
 				if (altAskAIRegistered) {
+				}
+			}
+		}
+
+		// Register Cmd+. (period) to toggle main window visibility
+		const cmdPeriodRegistered = globalShortcut.register('CommandOrControl+.', () => {
+			if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+				if (this.mainWindow.isVisible()) {
+					// Hide main window
+					this.mainWindow.hide();
+				} else {
+					// Show main window
+					this.mainWindow.show();
+					this.mainWindow.focus();
+				}
+			} else {
+				// Main window doesn't exist, recreate it
+				// This will be handled by the main process
+				process.emit('recreate-main-window');
+			}
+		});
+
+		if (cmdPeriodRegistered) {
+		} else {
+			// On Windows, try alternative shortcuts if the main one fails
+			if (process.platform === 'win32') {
+				// Try Ctrl+Alt+M as alternative for main window toggle
+				const altMainRegistered = globalShortcut.register('Ctrl+Alt+M', () => {
+					if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+						if (this.mainWindow.isVisible()) {
+							this.mainWindow.hide();
+						} else {
+							this.mainWindow.show();
+							this.mainWindow.focus();
+						}
+					} else {
+						process.emit('recreate-main-window');
+					}
+				});
+				if (altMainRegistered) {
 				}
 			}
 		}

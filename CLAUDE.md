@@ -8,21 +8,6 @@ Ve AI Dashboard is a cross-platform Electron-based desktop application built wit
 
 ## Development Commands
 
-## Plan & Review
-
--   Always in plan mode to make a plan
--   After get the plan, make sure you Write the plan to ./claude/tasks/TASK_NAME.md.
--   The plan should be a detailed implementation plan and the reasoning behind them, as well as tasks broken down.
--   If the task require external knowledge or certain package, also research to get latest knowledge (Use Task tool for research)
--   Don't over plan it, always think MVP.
--   Once you write the plan, firstly ask me to review it. Do not continue until I approve the plan.
-
-### While implementing
-
--   You should update the plan as you work.
--   After you complete tasks in the plan, you should update and append detailed descriptions of the changes you made, so following tasks can be easily hand over to other engineers.
--   Try to use lucide-react icons, if they are not there then create an svg file and use it as ReactComponent import.
-
 ### Essential Commands
 
 -   `npm run dev` - Start Vite development server
@@ -46,8 +31,8 @@ Ve AI Dashboard is a cross-platform Electron-based desktop application built wit
 
 ### Code Quality
 
-<!-- - `npm run format` - Format code with Prettier (required before commits) -->
-<!-- - Build verification: Always run `npm run build` before committing -->
+-   `npm run format` - Format code with Prettier (required before commits)
+-   Build verification: Always run `npm run build` before committing
 
 ## Architecture Overview
 

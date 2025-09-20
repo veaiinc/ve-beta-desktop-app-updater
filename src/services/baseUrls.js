@@ -1,6 +1,6 @@
 const environment = import.meta.env.VITE_APP_DEV_ENVIRONMENT ?? 'development';
 
-const globalTypes = ['auth', 'slack_api'];
+const globalTypes = ['auth', 'slack_api', 'assemblyai_api'];
 
 const globalBaseUrls = {
 	// Auth
@@ -8,6 +8,9 @@ const globalBaseUrls = {
 
 	// Slack
 	slack_api: 'https://slack.com/api',
+
+	// AssemblyAI
+	assemblyai_api: 'https://api.assemblyai.com/v2',
 };
 
 const regionBaseUrls = {
@@ -231,7 +234,7 @@ const regionBaseUrls = {
 			environment === 'production'
 				? 'wss://recall.us-east-1.ve.ai/frontend/ws'
 				: 'wss://recall-dev.us-east-1.ve.ai/frontend/ws',
-		voice_agent_api: 'wss://ve-ai-voice-agent-9yzwlzsg.livekit.cloud/',
+		voice_agent_api: 'wss://ve-ai-voice-agent-ginreaey.livekit.cloud',
 		browser_ws_api: 'wss://browser.us-east-1.ve.ai', // Browser Agent
 		generate_voice_agent_token_api: 'https://voice.us-east-1.ve.ai',
 	},

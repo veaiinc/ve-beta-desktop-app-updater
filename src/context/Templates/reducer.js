@@ -223,6 +223,7 @@ const actionHandlers = {
 			chatBoxInfo,
 			chatInfo,
 			browserTabsInfo,
+			recentChatInfo,
 		} = action?.payload;
 		let messages = [...(state?.globalChatMessages?.[sessionId]?.messages || [])];
 
@@ -249,6 +250,10 @@ const actionHandlers = {
 					...payload,
 				};
 				sessionIdData.browserData = browserData;
+			}
+
+			if (recentChatInfo) {
+				sessionIdData.recentChatInfo = recentChatInfo;
 			}
 
 			if (browserTabsInfo) {
@@ -639,8 +644,10 @@ const actionHandlers = {
 		let suggestions = [...(aiTranscriptionSuggestions?.suggestions || [])];
 
 		if (suggested_prompt) {
-			if ('id' in suggested_prompt) {
-				const index = suggestions?.findIndex((s) => s.id === suggested_prompt.id);
+			if ('reference_id' in suggested_prompt) {
+				const index = suggestions?.findIndex(
+					(s) => s.prompt_id === suggested_prompt.reference_id,
+				);
 
 				if (index !== -1) {
 					// Replace existing

@@ -5,6 +5,7 @@
 	background-color: transparent;
 	display: inline-block;
 	border: none;
+	vertical-align: middle;
 
 	.citation-wrapper {
 		.citation-with-icon {
@@ -15,12 +16,10 @@
 			gap: 6px;
 			border-radius: 100px;
 			background: var(--card-over-card-hover);
-			// border: 1px solid var(--stroke);
 			transition: all 0.2s ease-in-out;
 
 			&:hover {
 				background-color: var(--primary-font);
-				// border: 1px solid var(--background-color);
 				.citation-text {
 					color: var(--background-color);
 					opacity: 1;
@@ -84,6 +83,9 @@
 
 .citation-tooltip-wrapper {
 	max-width: unset;
+	.ant-tooltip-inner {
+		padding: 3px 0 0 0;
+	}
 	.citation-tooltip-container {
 		display: flex;
 		width: 350px;
@@ -94,8 +96,6 @@
 		background: var(--popup);
 		cursor: pointer;
 		position: relative;
-		left: -7px;
-		top: -3px;
 
 		.tooltip-content {
 			flex-grow: 1;
@@ -123,7 +123,7 @@
 			.citation-link-container {
 				display: flex;
 				align-items: center;
-				gap: 12px;
+				gap: 8px;
 				align-self: stretch;
 
 				.icon {

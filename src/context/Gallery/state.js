@@ -41,6 +41,12 @@ export const intialState = {
 	},
 	clientSelectionLightRoomCopy: null,
 	galleryGuestAccessDetails: null,
+	// Upload session management
+	uploadSessions: [],
+	showUploadProgressPopup: false,
+	// Download session management
+	downloadSessions: [],
+	showDownloadProgressPopup: false,
 };
 
 export const Galleries = () => {
@@ -2112,6 +2118,134 @@ export const Galleries = () => {
 			console.log('error==>updateStateValues', error);
 		}
 	};
+
+	// Upload session management functions
+	const addUploadSession = (uploadData) => {
+		const sessionId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+		const uploadSession = {
+			id: sessionId,
+			...uploadData,
+			status: 'preparing',
+			startTime: Date.now(),
+			overallProgress: 0,
+		};
+
+		dispatch({
+			type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+			payload: {
+				uploadSessions: [...state.uploadSessions, uploadSession],
+				showUploadProgressPopup: true,
+			},
+		});
+
+		return sessionId;
+	};
+
+	const updateUploadSession = (sessionId, updates) => {
+		dispatch({
+			type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+			payload: {
+				uploadSessions: state.uploadSessions.map((session) =>
+					session.id === sessionId ? { ...session, ...updates } : session,
+				),
+			},
+		});
+	};
+
+	const removeUploadSession = (sessionId) => {
+		const updatedSessions = state.uploadSessions.filter((session) => session.id !== sessionId);
+		dispatch({
+			type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+			payload: {
+				uploadSessions: updatedSessions,
+				showUploadProgressPopup: updatedSessions.length > 0,
+			},
+		});
+	};
+
+	const hideUploadProgressPopup = () => {
+		dispatch({
+			type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+			payload: {
+				showUploadProgressPopup: false,
+			},
+		});
+	};
+
+	const showUploadProgressPopup = () => {
+		dispatch({
+			type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+			payload: {
+				showUploadProgressPopup: true,
+			},
+		});
+	};
+
+	// Download session management functions
+	const addDownloadSession = (downloadData) => {
+		const sessionId = `download_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+		const downloadSession = {
+			id: sessionId,
+			...downloadData,
+			status: 'preparing',
+			startTime: Date.now(),
+			overallProgress: 0,
+			completedFiles: 0,
+		};
+
+		dispatch({
+			type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+			payload: {
+				downloadSessions: [...state.downloadSessions, downloadSession],
+				showDownloadProgressPopup: true,
+			},
+		});
+
+		return sessionId;
+	};
+
+	const updateDownloadSession = (sessionId, updates) => {
+		dispatch({
+			type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+			payload: {
+				downloadSessions: state.downloadSessions.map((session) =>
+					session.id === sessionId ? { ...session, ...updates } : session,
+				),
+			},
+		});
+	};
+
+	const removeDownloadSession = (sessionId) => {
+		const updatedSessions = state.downloadSessions.filter(
+			(session) => session.id !== sessionId,
+		);
+		dispatch({
+			type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+			payload: {
+				downloadSessions: updatedSessions,
+				showDownloadProgressPopup: updatedSessions.length > 0,
+			},
+		});
+	};
+
+	const hideDownloadProgressPopup = () => {
+		dispatch({
+			type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+			payload: {
+				showDownloadProgressPopup: false,
+			},
+		});
+	};
+
+	const showDownloadProgressPopup = () => {
+		dispatch({
+			type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+			payload: {
+				showDownloadProgressPopup: true,
+			},
+		});
+	};
+
 	return {
 		...state,
 		getGalleries,
@@ -2214,5 +2348,17 @@ export const Galleries = () => {
 		getUploadImagePolicy,
 		uploadDesktopImages,
 		getSignedUrlsForImages,
+		// Upload session management
+		addUploadSession,
+		updateUploadSession,
+		removeUploadSession,
+		hideUploadProgressPopup,
+		showUploadProgressPopup,
+		// Download session management
+		addDownloadSession,
+		updateDownloadSession,
+		removeDownloadSession,
+		hideDownloadProgressPopup,
+		showDownloadProgressPopup,
 	};
 };

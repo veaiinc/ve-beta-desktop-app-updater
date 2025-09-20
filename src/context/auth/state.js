@@ -173,12 +173,29 @@ export const AuthState = () => {
 			const host = fetchDomainName();
 
 			if (response[0] === true) {
-				const { accessToken, accessibleWorkspaces } = response?.[1] || {};
+				const { tokens, accessibleWorkspaces } = response?.[1] || {};
+				const { accessToken, refreshToken, accessTokenExpiry, refreshTokenExpiry } =
+					tokens || {};
 				const hasWorkspaces = accessibleWorkspaces?.length > 0;
 
 				if (accessToken?.length) {
 					localStorage.setItem('usertoken', accessToken);
+					localStorage.setItem('refreshToken', refreshToken);
+					localStorage.setItem('accessTokenExpiry', accessTokenExpiry);
+					localStorage.setItem('refreshTokenExpiry', refreshTokenExpiry);
 					Cookies.set('usertoken', accessToken, {
+						sameSite: 'lax',
+						domain: host,
+					});
+					Cookies.set('refreshToken', refreshToken, {
+						sameSite: 'lax',
+						domain: host,
+					});
+					Cookies.set('accessTokenExpiry', accessTokenExpiry, {
+						sameSite: 'lax',
+						domain: host,
+					});
+					Cookies.set('refreshTokenExpiry', refreshTokenExpiry, {
 						sameSite: 'lax',
 						domain: host,
 					});
@@ -192,6 +209,7 @@ export const AuthState = () => {
 
 				const { isOnboard, workspaceId } = accessibleWorkspaces?.[0];
 				localStorage.setItem('isOnboard', JSON.stringify(isOnboard));
+				localStorage.setItem('workspaceId', workspaceId);
 				if (hasWorkspaces)
 					localStorage.setItem(
 						'accessibleWorkspaces',
@@ -497,6 +515,30 @@ export const AuthState = () => {
 		}
 	};
 
+	const getNewAccessToken = async () => {
+		try {
+			const path = '/refresh-token';
+
+			const currentAccessToken =
+				localStorage.getItem('usertoken') || Cookies.get('usertoken');
+			const refreshToken =
+				localStorage.getItem('refreshToken') || Cookies.get('refreshToken');
+			const body = {
+				refreshToken,
+			};
+
+			const response = await service.fetchPost(path, body, currentAccessToken, 'auth');
+			if (response?.[0] === true) {
+				return [true, response?.[1]];
+			} else {
+				return [false, { message: response?.[1]?.message?.trim() + '. Please try again!' }];
+			}
+		} catch (error) {
+			console.error('Error getting new access token:', error);
+			throw error;
+		}
+	};
+
 	return {
 		...state,
 		checkAccountExistsUsingEmail,
@@ -512,5 +554,6 @@ export const AuthState = () => {
 		subscribeToNewsletter,
 		getAddOnsForCurrentPlan,
 		purchaseAddOn,
+		getNewAccessToken,
 	};
 };

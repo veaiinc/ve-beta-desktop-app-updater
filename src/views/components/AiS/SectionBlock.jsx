@@ -13,6 +13,7 @@ const SectionBlock = ({
 	type,
 	loading,
 	onEditClick,
+	showSectionCTA = true,
 }) => {
 	const addNewButtonClick = (type) => {
 		if (type === 'goal' && data?.length >= 5) {
@@ -30,17 +31,22 @@ const SectionBlock = ({
 						<span className="sectionBlockTitleCount">{data.length}/5</span>
 					)}
 				</h1>
-				<div className="sectionBlockHeaderButtons">
-					<button onClick={() => onResetClick(type)} className="sectionBlockHeaderButton">
-						Reset
-					</button>
-					<button
-						onClick={() => addNewButtonClick(type)}
-						className="sectionBlockHeaderButton sectionBlockHeaderButtonAdd"
-					>
-						Add new
-					</button>
-				</div>
+				{showSectionCTA && (
+					<div className="sectionBlockHeaderButtons">
+						<button
+							onClick={() => onResetClick(type)}
+							className="sectionBlockHeaderButton"
+						>
+							Reset
+						</button>
+						<button
+							onClick={() => addNewButtonClick(type)}
+							className="sectionBlockHeaderButton sectionBlockHeaderButtonAdd"
+						>
+							Add new
+						</button>
+					</div>
+				)}
 			</div>
 			{loading ? (
 				[...Array(2)].map((_, index) => (
@@ -55,11 +61,7 @@ const SectionBlock = ({
 				))
 			) : data?.length > 0 ? (
 				type === 'memory' ? (
-					<MemoryBlock
-						data={data}
-						onDeleteClick={onDeleteClick}
-						onEditClick={onEditClick}
-					/>
+					<MemoryBlock />
 				) : (
 					<div className="sectionBlockContent">
 						{data?.map((item) => (

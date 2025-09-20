@@ -132,17 +132,17 @@ struct NotchView: View {
                 height: notchSize.height
             )
             .shadow(
-                color: .black.opacity(([.opened, .popping].contains(vm.status)) ? 1 : 0),
+                color: .black.opacity(([.opened, .popping].contains(vm.status) && !vm.showNotificationOverlay) ? 1 : 0),
                 radius: 16
             )
-            // Soft glows for states (approximate box-shadow)
+            // Soft glows for states (approximate box-shadow) - disabled during notifications
             .shadow(
-                color: vm.controlledByDynamicIsland ? DynamicIslandTheme.primaryGreen.opacity(0.2) : .clear,
-                radius: vm.controlledByDynamicIsland ? 8 : 0
+                color: (vm.controlledByDynamicIsland && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.2) : .clear,
+                radius: (vm.controlledByDynamicIsland && !vm.showNotificationOverlay) ? 8 : 0
             )
             .shadow(
-                color: vm.isChatMode ? DynamicIslandTheme.primaryGreen.opacity(0.3) : .clear,
-                radius: vm.isChatMode ? 12 : 0
+                color: (vm.isChatMode && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.3) : .clear,
+                radius: (vm.isChatMode && !vm.showNotificationOverlay) ? 12 : 0
             )
     }
 

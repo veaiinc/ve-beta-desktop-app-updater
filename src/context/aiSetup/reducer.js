@@ -214,6 +214,11 @@ const actionHandlers = {
 		proactiveHeadings: action?.payload,
 	}),
 
+	SET_AI_MEMORY_LIST: (state, action) => ({
+		...state,
+		AIMemoryInfo: action?.payload,
+	}),
+
 	RESET_STATE: () => initialState,
 };
 

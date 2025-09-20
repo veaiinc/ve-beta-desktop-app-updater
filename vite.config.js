@@ -36,64 +36,6 @@ export default defineConfig({
 				}
 			},
 		},
-		// Custom plugin to copy wakeWord directory
-		{
-			name: 'copy-wake-word',
-			// buildStart() {
-			// 	const srcDir = 'electron/wakeWord';
-			// 	const destDir = 'dist-electron/wakeWord';
-
-			// 	if (existsSync(srcDir)) {
-			// 		if (!existsSync(destDir)) {
-			// 			mkdirSync(destDir, { recursive: true });
-			// 		}
-
-			// 		// Copy Python files
-			// 		const files = [
-			// 			'custom_hey_ve_detector.py',
-			// 			'requirements.txt',
-			// 			'hey_ve_ee.onnx',
-			// 			'melspectrogram.onnx',
-			// 			'embedding_model.onnx',
-			// 		];
-			// 		files.forEach((file) => {
-			// 			const srcFile = join(srcDir, file);
-			// 			const destFile = join(destDir, file);
-			// 			if (existsSync(srcFile)) {
-			// 				copyFileSync(srcFile, destFile);
-			// 				console.log(`Copied ${file} to dist-electron/wakeWord/`);
-			// 			}
-			// 		});
-			// 	}
-			// },
-			// writeBundle() {
-			// 	const srcDir = 'electron/wakeWord';
-			// 	const destDir = 'dist-electron/wakeWord';
-
-			// 	if (existsSync(srcDir)) {
-			// 		if (!existsSync(destDir)) {
-			// 			mkdirSync(destDir, { recursive: true });
-			// 		}
-
-			// 		// Copy Python files
-			// 		const files = [
-			// 			'custom_hey_ve_detector.py',
-			// 			'requirements.txt',
-			// 			'hey_ve_ee.onnx',
-			// 			'melspectrogram.onnx',
-			// 			'embedding_model.onnx',
-			// 		];
-			// 		files.forEach((file) => {
-			// 			const srcFile = join(srcDir, file);
-			// 			const destFile = join(destDir, file);
-			// 			if (existsSync(srcFile)) {
-			// 				copyFileSync(srcFile, destFile);
-			// 				console.log(`Copied ${file} to dist-electron/wakeWord/`);
-			// 			}
-			// 		});
-			// 	}
-			// },
-		},
 		electron({
 			main: {
 				entry: 'electron/main',
@@ -108,21 +50,22 @@ export default defineConfig({
 								main: 'electron/main',
 								windowHelper: 'electron/helpers/windowHelper.js',
 								galleryHelper: 'electron/galleryHelper.js',
-								updateHelper: 'electron/updateHelper.js',
 								overlayWindowHelper: 'electron/overlayWindowHelper.js',
 								windowsCompatibility: 'electron/windowsCompatibility.js', // Add this line
 								notchDropService: 'electron/services/notchDropService.js',
 								notificationHelper: 'electron/notificationHelper.js',
 								dynamicIslandHelper: 'electron/helpers/dynamicIslandHelper.js',
-								// wakeWordService: 'electron/wakeWordService.js',
+								desktopUtilHelper: 'electron/desktopUtilHelper.js',
+								autoUpdateHelper: 'electron/helpers/autoUpdateHelper.js',
 							},
 							output: {
 								format: 'cjs',
 								entryFileNames: (chunkInfo) => {
-									if (chunkInfo.name === 'windowHelper') {
-										return 'helpers/[name].js';
-									}
-									if (chunkInfo.name === 'dynamicIslandHelper') {
+									if (
+										chunkInfo.name === 'windowHelper' ||
+										chunkInfo.name === 'dynamicIslandHelper' ||
+										chunkInfo.name === 'autoUpdateHelper'
+									) {
 										return 'helpers/[name].js';
 									}
 									if (chunkInfo.name === 'notchDropService') {

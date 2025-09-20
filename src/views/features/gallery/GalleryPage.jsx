@@ -38,7 +38,6 @@ import CollaboratorPopup from '../../components/modalsV2/gallery/CollaboratorPop
 import { useNavigate, useParams, useLocation, useSearchParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import moment from 'moment';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DeleteGalleryComponent from '../../components/gallery/gallerySettings/DeleteGalleryComponent';
 import DeletePopup from '../../components/modalsV2/gallery/DeletePopup';
@@ -74,6 +73,9 @@ import GalleryVideos from '../../components/gallery/galleryVideos/GalleryVideos'
 import { ReactComponent as ChevronLeft } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as MoveToIcon } from '../../../assets/svg/gallery/moveToIcon.svg';
 import Spinner from '../../components/loaders/Spinner';
+import UploadPhotosDesktop from './UploadPhotosDesktop';
+import InfiniteScroll from 'react-infinite-scroll-component';
+
 // const workspaceId = localStorage.getItem('workspaceId');
 
 const dummyImagesArray = Array.from({ length: 10 }, () => ({ isPlaceholderImg: true }));
@@ -209,6 +211,22 @@ const GalleryPage = () => {
 			aiFace,
 			updateStateValues: updateGalleryStateValues,
 			getSignedUrlsForImages,
+			// Upload session management
+			uploadSessions,
+			showUploadProgressPopup,
+			addUploadSession,
+			updateUploadSession,
+			removeUploadSession,
+			hideUploadProgressPopup,
+			showUploadProgressPopup: showUploadProgressPopupAction,
+			// Download session management
+			downloadSessions,
+			showDownloadProgressPopup,
+			addDownloadSession,
+			updateDownloadSession,
+			removeDownloadSession,
+			hideDownloadProgressPopup,
+			showDownloadProgressPopup: showDownloadProgressPopupAction,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
@@ -355,6 +373,7 @@ const GalleryPage = () => {
 		selectedScreenType: 'desktop',
 		selectedAlbumToMove: null,
 		imagesMovingToAlbum: false,
+		showUploadPhotosDesktop: false,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -811,6 +830,32 @@ const GalleryPage = () => {
 		}
 	}, [info?.albumTagId, info?.activeAlbumId, info?.activeTab, galleryId]);
 
+	// Listen for upload completion events to refresh images
+	useEffect(() => {
+		const handleUploadCompleted = () => {
+			// Only refresh if we're currently viewing the albums tab
+			if (
+				info?.activeTab === 'Albums' &&
+				info?.albumTagId &&
+				info?.activeAlbumId &&
+				galleryId
+			) {
+				// Add a small delay to ensure backend has processed the uploads
+				setTimeout(() => {
+					handleGetGalleryImages();
+					// Show success message
+					message.success('Images uploaded successfully and gallery refreshed!');
+				}, 1000);
+			}
+		};
+
+		window.addEventListener('uploadCompleted', handleUploadCompleted);
+
+		return () => {
+			window.removeEventListener('uploadCompleted', handleUploadCompleted);
+		};
+	}, [info?.activeTab, info?.albumTagId, info?.activeAlbumId, galleryId]);
+
 	const handleGetGalleryImages = async () => {
 		if (info?.albumTagId && info?.activeAlbumId && info?.activeTab === 'Albums' && galleryId) {
 			setInfo((prev) => ({
@@ -1121,9 +1166,8 @@ const GalleryPage = () => {
 				searchParams.set('activeTab', info.activeTab);
 			}
 
-			// Update URL without causing a navigation/reload
-			const newUrl = `${location.pathname}?${searchParams.toString()}`;
-			window.history.replaceState(null, '', newUrl);
+			// Update URL using router navigation to keep it within the hash (HashRouter)
+			navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
 		}
 	}, [info.activeAlbumId, info.activeTab, location.pathname]);
 
@@ -1741,13 +1785,51 @@ const GalleryPage = () => {
 	// ... rest of the code ...
 
 	const handleNavigateUpload = () => {
-		const region = localStorage.getItem('region');
-		const uploadUrl = `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos${
-			region === 'us-east-1' ? '-desktop' : ''
-		}?light-gallery=${info?.isLightGallery ? true : false}${
-			info?.albumContains !== 'All' ? `&tag=${info?.albumContains}` : ''
-		}`;
-		navigate(uploadUrl);
+		// const region = localStorage.getItem('region');
+		// const uploadUrl = `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos${
+		// 	region === 'us-east-1' ? '-desktop' : ''
+		// }?light-gallery=${info?.isLightGallery ? true : false}${
+		// 	info?.albumContains !== 'All' ? `&tag=${info?.albumContains}` : ''
+		// }`;
+		// navigate(uploadUrl);
+		setInfo((prev) => ({ ...prev, showUploadPhotosDesktop: true }));
+	};
+
+	const handleStartUpload = (uploadData) => {
+		// Close the upload modal and add new session to global context
+		setInfo((prev) => ({
+			...prev,
+			showUploadPhotosDesktop: false,
+		}));
+
+		// Add session to global context
+		addUploadSession(uploadData);
+	};
+
+	const handleUploadComplete = (sessionId) => {
+		// Refresh gallery data after upload
+		if (info?.activeAlbumId && info?.albumTagId) {
+			handleGetGalleryImages();
+		}
+		getAlbumImagesCount(galleryId);
+
+		// Remove completed session from global context
+		removeUploadSession(sessionId);
+	};
+
+	const handleUploadCancel = (sessionId) => {
+		// Remove cancelled session from global context
+		removeUploadSession(sessionId);
+	};
+
+	const handleCloseUploadProgressPopup = () => {
+		// Hide the upload progress popup (but keep sessions for background processing)
+		hideUploadProgressPopup();
+	};
+
+	const handleUpdateUploadSession = (sessionId, updates) => {
+		// Update specific upload session in global context
+		updateUploadSession(sessionId, updates);
 	};
 
 	const handleCallToAction = useCallback(() => {
@@ -3814,18 +3896,29 @@ const GalleryPage = () => {
 				return;
 			}
 
-			// ✅ Trigger ZIP creation
-			const result = await window.electronApi.downloadAlbumZip({
-				items: downloadItems,
+			// Create download session for background ZIP creation
+			const downloadSession = {
+				type: 'album',
+				name: `Album: ${info.albumName || 'Download'}`,
+				albumName: info.albumName,
+				totalFiles: 1,
+				files: [
+					{
+						name: `Album_${info.albumName || 'download'}.zip`,
+						status: 'pending',
+						progress: 0,
+					},
+				],
+				downloadItems: downloadItems, // Store items for ZIP creation
 				folderName: `Album_${info.albumName || 'download'}`,
 				maxZipSize: 3 * 1024 * 1024 * 1024, // 3GB
-			});
+			};
 
-			if (result.success) {
-				showMessage('success', `Downloaded ${result.zips.length} ZIP(s)`);
-			} else {
-				throw new Error(result.error || 'Unknown error');
-			}
+			addDownloadSession(downloadSession);
+			showMessage('success', 'Download started');
+
+			// Close download album modal when background download starts
+			setInfo((prev) => ({ ...prev, showDownloadAlbum: false }));
 
 			// ✅ Final state update: ensure full list is saved and infinite scroll stops
 			setInfo((prev) => ({
@@ -3840,7 +3933,6 @@ const GalleryPage = () => {
 		} catch (err) {
 			console.error('Download failed:', err);
 			showMessage('error', 'Download failed: ' + err.message);
-		} finally {
 			setInfo((prev) => ({ ...prev, isDownloading: false }));
 		}
 	};
@@ -3940,28 +4032,29 @@ const GalleryPage = () => {
 				return;
 			}
 
-			// Trigger ZIP download
-			const sessionId = `album-${activeAlbumId}-${Date.now()}`;
-			const folderName = `${info.albumName || 'Album'}_original`;
-			const maxZipSize = 3 * 1024 * 1024 * 1024;
+			// Create download session for background ZIP creation
+			const downloadSession = {
+				type: 'album',
+				name: `Album: ${info.albumName || 'Download'} (Originals)`,
+				albumName: info.albumName,
+				totalFiles: 1,
+				files: [
+					{
+						name: `${info.albumName || 'Album'}_original.zip`,
+						status: 'pending',
+						progress: 0,
+					},
+				],
+				downloadItems: allItems, // Store items for ZIP creation
+				folderName: `${info.albumName || 'Album'}_original`,
+				maxZipSize: 3 * 1024 * 1024 * 1024, // 3GB
+			};
 
-			window.electronApi.onDownloadProgress((data) => {
-				if (data.sessionId === sessionId && data.phase === 'complete') {
-					showMessage('success', `Download completed: ${data.zips.join(', ')}`);
-				}
-			});
+			addDownloadSession(downloadSession);
+			showMessage('success', 'Download started');
 
-			const result = await window.electronApi.createZipFromUrls({
-				items: allItems,
-				folderName,
-				maxZipSize,
-				sessionId,
-				parallelLimit: 50,
-			});
-
-			if (!result.success) {
-				showMessage('error', result.error || 'Download failed');
-			}
+			// Close download album modal when background download starts
+			setInfo((prev) => ({ ...prev, showDownloadAlbum: false }));
 		} catch (err) {
 			console.error('Download failed:', err);
 			showMessage('error', 'Download failed: ' + err.message);
@@ -5381,7 +5474,7 @@ const GalleryPage = () => {
 										}
 										resetInfinityScroll={info?.resetInfinityScroll}
 										disableDrop={true}
-										// height={'90vh'}
+										height={'90vh'}
 										scrollableTarget="galleryScrollTarget"
 									>
 										{!info.isRearranging ? (
@@ -6781,6 +6874,18 @@ const GalleryPage = () => {
 					galleryId={galleryId}
 					selectedVideo={null}
 					updateSelectedVideo={updateSelectedVideo}
+				/>
+			)}
+			{info?.showUploadPhotosDesktop && (
+				<UploadPhotosDesktop
+					open={info?.showUploadPhotosDesktop}
+					closeModal={() =>
+						setInfo((prev) => ({ ...prev, showUploadPhotosDesktop: false }))
+					}
+					albumId={info?.activeAlbumId}
+					galleryId={galleryId}
+					tagId={info?.activeTagId}
+					onStartUpload={handleStartUpload}
 				/>
 			)}
 		</>

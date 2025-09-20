@@ -47,8 +47,10 @@ const DeepSearchChainOfThought = ({
 									<div className="cot-plan">
 										<div className="plan-title">Plan : </div>
 										<ul className="plan-items">
-											{plan?.map((item) => (
-												<li className="plan">{item}</li>
+											{plan?.map((item, index) => (
+												<li className="plan" key={index}>
+													{item}
+												</li>
 											))}
 										</ul>
 									</div>

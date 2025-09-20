@@ -19,7 +19,7 @@ export const ChatStreamState = () => {
 	const socketsInfoRef = useRef({});
 	const inactivityTimeoutRef = useRef(null);
 	const currentSessionIdRef = useRef(null);
-	const MAX_RETRY_ATTEMPTS = 30;
+	const MAX_RETRY_ATTEMPTS = 60;
 	const RETRY_DELAY = 1000; // 1 second
 
 	// // Cleanup on unmount
