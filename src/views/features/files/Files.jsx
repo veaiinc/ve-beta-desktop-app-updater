@@ -52,7 +52,6 @@ const options = [
 
 // Mapping from option values to their corresponding app names for access control
 const optionValueToAppName = {
-	workflow: 'fileManager',
 	form: 'form',
 	template: 'template',
 	classicGallery: 'classicGallery',
