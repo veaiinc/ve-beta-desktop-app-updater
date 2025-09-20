@@ -7,6 +7,7 @@ import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import { message } from '../globalComponents/CustomToast';
 import DeleteModal from '../modalsV2/DeleteModal/DeleteModal';
+import { Markdown } from '../../../helpers/markdownHelper';
 
 const limit = 10;
 const infiniteScrollStyle = {
@@ -87,7 +88,9 @@ const MemoryBlock = () => {
 			>
 				{AIMemoryList?.map((item) => (
 					<div key={item.id} className={`memoryBlockItem`}>
-						<h3 className="memoryBlockItemTitle">{item?.content}</h3>
+						<div className="memoryBlockItemTitle">
+							<Markdown>{item?.content}</Markdown>
+						</div>
 						<div className="memoryBlockItemActions">
 							{/* <button
 							className="deleteButton"
@@ -117,10 +120,10 @@ const MemoryBlock = () => {
 				isOpen={info?.deleteModal}
 				onClose={() => setInfo((prev) => ({ ...prev, deleteModal: false }))}
 				onConfirm={() => handleDeleteAIMemory(info?.deleteMemoryId)}
-				title="Delete AI Memory?"
-				itemType="AI Memory"
-				description="Are you sure you want to delete this AI memory?"
-				warning="This AI memory will be permanently removed and cannot be recovered."
+				title="Delete Memory?"
+				itemType="Memory"
+				description="Are you sure you want to delete this memory?"
+				warning="This memory will be permanently removed and cannot be recovered."
 			/>
 		</div>
 	);

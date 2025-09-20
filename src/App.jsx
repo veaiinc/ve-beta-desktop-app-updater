@@ -6,10 +6,12 @@ import useVoiceIntegration from './hooks/useVoiceIntegration';
 import NotchDropVoiceActivator from './components/NotchDropVoiceActivator';
 import UploadProgressPopup from './views/components/globalComponents/UploadProgressPopup/UploadProgressPopup';
 import DownloadProgressPopup from './views/components/globalComponents/DownloadProgressPopup/DownloadProgressPopup';
+import UpdateReadyPopup from './views/components/globalComponents/UpdateReadyPopup/UpdateReadyPopup';
 
 const App = () => {
 	const { routes } = useWorkspaceMode();
 	const [updateStatus, setUpdateStatus] = useState(null);
+	const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
 	// const [showUpdateNotification, setShowUpdateNotification] = useState(false); // Commented out for auto restart
 
 	// NotchDrop Voice Integration - DIRECT APPROACH
@@ -185,17 +187,28 @@ const App = () => {
 		}
 	};
 
-	// Commented out for auto restart - no longer needed
-	// const handleRestartApp = async () => {
-	// 	try {
-	// 		const result = await window?.electronApi?.restartApp();
-	// 		if (!result?.success) {
-	// 			console.warn('⚠️ Restart failed:', result?.error);
-	// 		}
-	// 	} catch (error) {
-	// 		console.error('❌ Error restarting app:', error);
-	// 	}
-	// };
+	const handleRestartApp = async () => {
+		if (!window?.electronApi?.restartApp) {
+			return { success: false, error: 'Restart API unavailable' };
+		}
+
+		try {
+			return await window.electronApi.restartApp();
+		} catch (error) {
+			console.error('❌ Error restarting app:', error);
+			return { success: false, error: error?.message || 'Unexpected restart error' };
+		}
+	};
+
+	useEffect(() => {
+		if (updateStatus?.status === 'downloaded') {
+			setIsUpdatePopupVisible(true);
+			return;
+		}
+
+		// Hide the popup for any non-downloaded state
+		setIsUpdatePopupVisible(false);
+	}, [updateStatus]);
 
 	useEffect(() => {
 		// Set up update status listener
@@ -220,8 +233,7 @@ const App = () => {
 
 					case 'downloaded':
 						console.log(`✅ Update downloaded: ${data.version}`);
-						console.log('🔄 App will restart automatically in 3 seconds...');
-						// setShowUpdateNotification(true); // Commented out for auto restart
+						console.log('📣 Update prompt will appear so the user can restart manually.');
 						break;
 
 					case 'download-failed':
@@ -276,60 +288,6 @@ const App = () => {
 			{/* NotchDrop Voice Activator - handles LiveKit voice integration */}
 			<NotchDropVoiceActivator />
 
-			{/* Update Notification - Commented out for auto restart */}
-			{/* {showUpdateNotification && updateStatus?.status === 'downloaded' && (
-				<div
-					style={{
-						position: 'fixed',
-						top: '20px',
-						right: '20px',
-						background: '#4CAF50',
-						color: 'white',
-						padding: '16px',
-						borderRadius: '8px',
-						boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-						zIndex: 9999,
-						maxWidth: '300px',
-					}}
-				>
-					<div style={{ fontWeight: 'bold', marginBottom: '8px' }}>🎉 Update Ready!</div>
-					<div style={{ marginBottom: '12px' }}>
-						Version {updateStatus.version} is ready to install.
-					</div>
-					<div style={{ display: 'flex', gap: '8px' }}>
-						<button
-							onClick={handleRestartApp}
-							style={{
-								background: 'white',
-								color: '#4CAF50',
-								border: 'none',
-								padding: '6px 12px',
-								borderRadius: '4px',
-								cursor: 'pointer',
-								fontSize: '14px',
-								fontWeight: 'bold',
-							}}
-						>
-							Restart Now
-						</button>
-						<button
-							onClick={() => setShowUpdateNotification(false)}
-							style={{
-								background: 'transparent',
-								color: 'white',
-								border: '1px solid white',
-								padding: '6px 12px',
-								borderRadius: '4px',
-								cursor: 'pointer',
-								fontSize: '14px',
-							}}
-						>
-							Later
-						</button>
-					</div>
-				</div>
-			)} */}
-
 			<Routes>
 				{routes?.map((route) => (
 					<Route key={route.path} path={route.path} element={route.element} />
@@ -344,6 +302,14 @@ const App = () => {
 
 			{/* Global Download Progress Popup - persists across all routes */}
 			<DownloadProgressPopup />
+
+			{isUpdatePopupVisible && updateStatus?.status === 'downloaded' && (
+				<UpdateReadyPopup
+					updateInfo={updateStatus}
+					onRestart={handleRestartApp}
+					onDismiss={() => setIsUpdatePopupVisible(false)}
+				/>
+			)}
 		</>
 	);
 };

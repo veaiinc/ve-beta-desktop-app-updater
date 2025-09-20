@@ -22,7 +22,7 @@ const mapper = {
 	'team-members': <TeamSettings />,
 	'plan-billing': <PlanBilling />,
 	pricing: <PricingPage />,
-	'ai-setup': <AiSetup />,
+	'ai-memory': <AiSetup />,
 };
 
 const SettingsWrapper = (props) => {
@@ -46,12 +46,12 @@ const SettingsWrapper = (props) => {
 	return (
 		<div
 			className={`${
-				type === 'integrations' || type === 'ai-setup'
+				type === 'integrations' || type === 'ai-memory'
 					? 'accountSettingsMainWrapper'
 					: 'accountSettingsMainWrapper'
 			}`}
 		>
-			{/* {type === 'ai-setup' ? (
+			{/* {type === 'ai-memory' ? (
 				mapper?.[type]
 			) : ( */}
 			<div

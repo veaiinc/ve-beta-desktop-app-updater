@@ -50,6 +50,15 @@ const options = [
 	},
 ];
 
+// Mapping from option values to their corresponding app names for access control
+const optionValueToAppName = {
+	form: 'form',
+	template: 'template',
+	classicGallery: 'classicGallery',
+	liteGallery: 'liteGallery',
+	notes: 'note',
+};
+
 export const statusTextmapper = {
 	contractSigned: {
 		id: 'contractSigned',
@@ -244,7 +253,7 @@ const Files = () => {
 		galleryInfo: { tenantGalleries },
 		elasticSearch: { elasticSearchResults, performElasticSearch, resetElasticSearchState },
 		templates: { formsTemplatesList, updateStateValues: updateTemplateStateValues },
-		profileInfo: { tenantUserAccessControls },
+		profileInfo: { tenantUserAccessControls, getTenantUserAccessControls },
 		subscriptionInfo: { currentPlan },
 	} = useContext(Context);
 
@@ -278,6 +287,37 @@ const Files = () => {
 		({ app }) => app === 'liteGallery',
 	)?.isPaidPlan;
 
+	// Access control logic similar to FilesTooltip
+	const accessControls = tenantUserAccessControls?.accessControls;
+	const userRole = tenantUserAccessControls?.role;
+	const appsMap = Array.isArray(accessControls)
+		? accessControls.reduce((acc, { app, isEnabled }) => {
+				if (app) acc[app] = isEnabled;
+				return acc;
+		  }, {})
+		: {};
+
+	const shouldShowOption = useCallback(
+		(optionValue) => {
+			// If user role is not 'default', show all options
+			if (userRole !== 'default') return true;
+
+			// Get the corresponding app name for this option
+			const appName = optionValueToAppName[optionValue];
+			if (!appName) return false;
+
+			// Check if the app is enabled in access controls
+			return appsMap[appName] === true;
+		},
+		[userRole, appsMap],
+	);
+
+	useEffect(() => {
+		if (!tenantUserAccessControls) {
+			getTenantUserAccessControls();
+		}
+	}, [tenantUserAccessControls, getTenantUserAccessControls]);
+
 	useEffect(() => {
 		if (!liteGalleryPaidPlan) {
 			setInfo((prev) => ({
@@ -286,6 +326,25 @@ const Files = () => {
 			}));
 		}
 	}, [liteGalleryPaidPlan]);
+
+	// Filter options based on access controls
+	useEffect(() => {
+		if (tenantUserAccessControls) {
+			const filteredOptions = options.filter((option) => {
+				// First check if liteGallery should be excluded based on paid plan
+				if (option.value === 'liteGallery' && !liteGalleryPaidPlan) {
+					return false;
+				}
+				// Then check access controls
+				return shouldShowOption(option.value);
+			});
+
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				options: [...filteredOptions],
+			}));
+		}
+	}, [tenantUserAccessControls, liteGalleryPaidPlan, shouldShowOption]);
 
 	useEffect(() => {
 		if (activeTab) {
@@ -313,45 +372,6 @@ const Files = () => {
 			});
 		}
 	}, [info?.createNewGalleryModal]);
-
-	// useEffect(() => {
-	// 	if (tenantUserAccessControls) {
-	// 		let filteredOptions = options;
-
-	// 		if (isAdmin) {
-	// 			// Admins can see all, except liteGallery if it's not in the paid plan
-	// 			filteredOptions = options?.filter((option) => {
-	// 				if (option?.value === 'liteGallery') {
-	// 					return liteGalleryPaidPlan; // Include only if paid
-	// 				}
-	// 				return true; // Include everything else
-	// 			});
-	// 		} else if (tenantUserAccessControls?.accessControls) {
-	// 			// Non-admins: filter based on accessControls
-	// 			const enabledApps = new Set(
-	// 				tenantUserAccessControls?.accessControls
-	// 					?.filter((permission) => {
-	// 						if (permission?.app === 'liteGallery') {
-	// 							return (
-	// 								permission?.isEnabled &&
-	// 								permission?.hasFullAccess &&
-	// 								liteGalleryPaidPlan
-	// 							);
-	// 						}
-	// 						return permission?.isEnabled;
-	// 					})
-	// 					?.map((permission) => permission?.app),
-	// 			);
-
-	// 			filteredOptions = options?.filter((option) => enabledApps?.has(option?.value));
-	// 		}
-
-	// 		setInfo((prevInfo) => ({
-	// 			...prevInfo,
-	// 			options: [...filteredOptions],
-	// 		}));
-	// 	}
-	// }, [tenantUserAccessControls]);
 
 	const handleOutsideClick = useCallback((e) => {
 		if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {

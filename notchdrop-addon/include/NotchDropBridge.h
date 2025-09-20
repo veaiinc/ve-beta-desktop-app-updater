@@ -75,6 +75,7 @@
 + (void)updateVoiceConnectionState:(NSString*)status;
 + (void)updateVoiceMuteState:(BOOL)isMuted;
 + (void)addVoiceMessage:(NSString*)messageJson;
++ (void)updateStealthModeState:(BOOL)isEnabled;
 
 // Wake Word Detection Integration
 + (void)handleWakeWordDetected:(float)score;

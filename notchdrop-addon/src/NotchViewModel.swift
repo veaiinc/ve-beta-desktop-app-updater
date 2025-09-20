@@ -122,6 +122,7 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var isAuthenticated: Bool = false
     @Published var controlledByDynamicIsland: Bool = false
     @Published var isConnecting = false
+    @Published var isStealthModeEnabled: Bool = false
     
     // Chat expansion state
     @Published var isChatExpanded: Bool = false
@@ -188,6 +189,7 @@ class NotchViewModel: NSObject, ObservableObject {
         case wakeWordDetected(Float)
         // Notification Actions
         case showNotification(String, String, String)
+        case toggleStealthMode
     }
     
     // Voice Message Structure for UI
@@ -280,6 +282,20 @@ class NotchViewModel: NSObject, ObservableObject {
         
         // Emit action for JavaScript
         swiftActionSender.send(.resumeRecording)
+    }
+
+    func toggleStealthMode() {
+        print("🏴‍☠️ Swift requested stealth mode toggle")
+        swiftActionSender.send(.toggleStealthMode)
+    }
+
+    func updateStealthModeState(_ isEnabled: Bool) {
+        DispatchQueue.main.async {
+            if self.isStealthModeEnabled != isEnabled {
+                print("🏴‍☠️ Stealth mode state updated: \(isEnabled ? "ENABLED" : "DISABLED")")
+            }
+            self.isStealthModeEnabled = isEnabled
+        }
     }
     
     func toggleChatMode() {
@@ -448,6 +464,10 @@ class NotchViewModel: NSObject, ObservableObject {
         wakeWordScore = score
         isWakeWordEnabled = true
         
+        // AUTO-EXPAND NOTCH when Hey Ve is detected (like "Hey Siri")
+        print("🏝️ AUTO-EXPANDING NotchDrop for Hey Ve...")
+        notchOpen(.click) // This will expand the notch UI
+        
         // Emit wake word detected action for logging/analytics
         swiftActionSender.send(.wakeWordDetected(score))
         
@@ -455,7 +475,7 @@ class NotchViewModel: NSObject, ObservableObject {
         connectVoiceAssistant()
         
         // Log the activation
-        swiftActionSender.send(.sendLog("Hey Ve detected (score: \(score)) - Voice agent activated"))
+        swiftActionSender.send(.sendLog("Hey Ve detected (score: \(score)) - NotchDrop expanded and voice agent activated"))
     }
     
     /// Update audio level from JavaScript
