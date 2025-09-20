@@ -80,7 +80,12 @@ let isQuitting = false;
 let isContentProtectionEnabled = false; // for stealth mode
 
 // Runtime platform override for testing (set VE_FORCE_PLATFORM=linux|win32|darwin)
-const isMacRuntime = process.platform === 'darwin';
+// Architecture override for testing (set VE_FORCE_ARCH=x64|arm64)
+const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
+const RUNTIME_ARCH = process.env.VE_FORCE_ARCH || process.arch;
+const isMacRuntime = RUNTIME_PLATFORM === 'darwin';
+const isIntelMac = isMacRuntime && RUNTIME_ARCH === 'x64';
+const isAppleSiliconMac = isMacRuntime && RUNTIME_ARCH === 'arm64';
 
 // Window state management
 let lastWindowState = {
@@ -1460,15 +1465,27 @@ app.whenReady().then(async () => {
 	// 🎤 IPC: Start Mic Monitoring
 
 	// Initialize Dynamic Island with comprehensive error handling
-	try {
-		log.info('Initializing Dynamic Island Helper...');
-		dynamicIslandHelper = new DynamicIslandHelper();
-		dynamicIslandHelper.createDynamicIslandWindow();
-		log.info('Dynamic Island Helper initialized successfully');
-	} catch (error) {
-		log.error('Failed to initialize Dynamic Island Helper:', error);
-		// Continue app initialization even if Dynamic Island fails
-		dynamicIslandHelper = null;
+	// Create Dynamic Island for Intel Macs, Windows, and Linux (but not Apple Silicon Macs)
+	if (!isAppleSiliconMac) {
+		try {
+			log.info(
+				'Initializing Dynamic Island Helper for platform:',
+				process.platform,
+				'arch:',
+				process.arch,
+			);
+			dynamicIslandHelper = new DynamicIslandHelper();
+			dynamicIslandHelper.createDynamicIslandWindow();
+			log.info('Dynamic Island Helper initialized successfully');
+		} catch (error) {
+			log.error('Failed to initialize Dynamic Island Helper:', error);
+			// Continue app initialization even if Dynamic Island fails
+			dynamicIslandHelper = null;
+		}
+	} else {
+		log.info(
+			'Skipping Dynamic Island initialization on Apple Silicon Mac (using NotchDrop instead)',
+		);
 	}
 
 	// THEN: Create main window after dynamic island
@@ -1615,7 +1632,9 @@ app.whenReady().then(async () => {
 		log.error('❌ Error pre-creating overlay window:', error);
 	}
 
-	if (isMacRuntime) {
+	// Initialize NotchDrop only on Apple Silicon Macs
+	if (isAppleSiliconMac) {
+		log.info('Initializing NotchDrop service for Apple Silicon Mac');
 		notchDropService = new NotchDropService();
 		notchDropService.setMainWindow(mainWindow);
 		notchDropService.setMainWindowFactory((restoreState = false) => createWindow(restoreState));
@@ -1634,9 +1653,10 @@ app.whenReady().then(async () => {
 			try {
 				await notchDropService.initialize();
 
-				notchDropInitialized = notchDropService && notchDropService.isInitialized;
-
-				if (!notchDropInitialized) {
+				// Verify service is truly ready
+				if (notchDropService && notchDropService.isInitialized) {
+					notchDropInitialized = true;
+				} else {
 					throw new Error('NotchDrop service initialization incomplete');
 				}
 			} catch (error) {
@@ -1651,6 +1671,12 @@ app.whenReady().then(async () => {
 				}
 			}
 		}
+	} else if (isIntelMac) {
+		log.info('Skipping NotchDrop initialization on Intel Mac (using Dynamic Island instead)');
+	} else {
+		log.info(
+			'Skipping NotchDrop initialization on non-Mac platform (using Dynamic Island instead)',
+		);
 	}
 
 	await new Promise((resolve) => setTimeout(resolve, 1500)); // Give bridge time to initialize
@@ -2229,7 +2255,7 @@ app.whenReady().then(async () => {
 		try {
 			log.info('🏝️ Starting recording from CreateMeetingModal via Dynamic Island');
 
-			// Only proceed on Windows (or when forced on macOS)
+			// Only proceed if platform/architecture supports Dynamic Island
 			const shouldForceShowDynamicIsland = (() => {
 				const value = String(process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND || '')
 					.trim()
@@ -2237,9 +2263,11 @@ app.whenReady().then(async () => {
 				return value === '1' || value === 'true' || value === 'yes' || value === 'on';
 			})();
 
-			if (isMacRuntime && !shouldForceShowDynamicIsland) {
-				log.info('🍎 Skipping Dynamic Island recording on macOS (using NotchDrop)');
-				return { success: false, error: 'Use NotchDrop on macOS' };
+			if (isAppleSiliconMac && !shouldForceShowDynamicIsland) {
+				log.info(
+					'🍎 Skipping Dynamic Island recording on Apple Silicon Mac (using NotchDrop)',
+				);
+				return { success: false, error: 'Use NotchDrop on Apple Silicon Mac' };
 			}
 
 			if (!dynamicIslandHelper) {
