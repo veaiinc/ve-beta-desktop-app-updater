@@ -394,7 +394,7 @@ const LiveIntelligencePanel = ({
 			{/* Header */}
 			<div className="live-intelligence-panel__header">
 				<div className="live-intelligence-panel__title">
-					<span className="live-intelligence-panel__title-text">Live Intelligence</span>
+					<span className="live-intelligence-panel__title-text">VE</span>
 					{/* {isRecording && formatTime && (
 						<span className={`recording-indicator ${isPaused ? 'paused' : ''}`}>
 							{isPaused ? '⏸' : '●'} {formatTime(timer)}
@@ -412,7 +412,9 @@ const LiveIntelligencePanel = ({
 						}}
 						style={{ pointerEvents: 'auto' }}
 					>
-						<span>View Transcription</span>
+						<span className="live-intelligence-panel__control-button-text">
+							View Transcriptions
+						</span>
 					</button>
 
 					<div className="live-intelligence-panel__control-divider" />
