@@ -83,6 +83,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 			callback(...args);
 		});
 	},
+
+	minimizeMainWindow: () => ipcRenderer.invoke('minimize-main-window'),
 	// Overlay window APIs
 	overlay: {
 		toggleWindow: () => ipcRenderer.invoke('toggle-overlay-window'),

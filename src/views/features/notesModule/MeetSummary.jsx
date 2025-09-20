@@ -5,6 +5,7 @@ import { Markdown } from '../../../helpers/markdownHelper';
 import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';
 import ClockSvg from '../meetBot/clock.svg';
+import { Copy, Check } from 'lucide-react';
 
 const MeetSummary = ({ meetingId }) => {
 	const {
@@ -25,6 +26,8 @@ const MeetSummary = ({ meetingId }) => {
 		chapters: true,
 		decisions: true,
 	});
+
+	const [copying, setCopying] = useState(false);
 
 	// Fetch meeting analytics data
 	const fetchMeetingAnalytics = async () => {
@@ -129,6 +132,18 @@ const MeetSummary = ({ meetingId }) => {
 		}, 0);
 	};
 
+	const handleSummaryCopy = () => {
+		if (copying) return;
+		setCopying(true);
+		if (window.electronApi) {
+			window.electronApi.clipboard.writeText(meetingData.summary);
+		}
+
+		setTimeout(() => {
+			setCopying(false);
+		}, 1000);
+	};
+
 	// Handle Ask AI functionality
 	const handleAskAI = () => {
 		const newParams = new URLSearchParams(searchParams);
@@ -188,6 +203,21 @@ const MeetSummary = ({ meetingId }) => {
 			<div className={s.summarySection}>
 				{meetingData.summary && (
 					<>
+						<div className={s.copyButton}>
+							<button className={s.copyButton} onClick={handleSummaryCopy}>
+								{copying ? (
+									<>
+										<Check size={16} style={{ color: 'var(--primary-font)' }} />{' '}
+										copied
+									</>
+								) : (
+									<>
+										<Copy size={16} style={{ color: 'var(--primary-font)' }} />{' '}
+										copy
+									</>
+								)}
+							</button>
+						</div>
 						<p className={s.summaryText}>{meetingData.summary}</p>
 						<br />
 					</>

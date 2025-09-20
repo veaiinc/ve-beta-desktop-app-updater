@@ -21,9 +21,12 @@ import './meetBotContainer.scss';
 import moment from 'moment';
 import Spinner from '../../components/loaders/Spinner';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
-import { Trash2 } from 'lucide-react';
+import { StepForward, Trash2 } from 'lucide-react';
 import DeleteModal from '../../components/modalsV2/DeleteModal/DeleteModal';
 import MeetingAnalytics from './MeetingAnalytics';
+import CustomTextArea from '../../components/globalComponents/CustomTextArea';
+import { debounce } from 'lodash';
+import ChatBox from '../../components/chat/ChatBox';
 
 const initialState = {
 	files: [],
@@ -45,6 +48,7 @@ const initialState = {
 	audioRecordingStarted: false,
 	isDeleteModalOpen: false,
 	isDeleteModalLoading: false,
+	meetingTitle: '',
 };
 const userToken = localStorage.getItem('usertoken');
 const getSpeakerColor = (speakerName) => {
@@ -95,6 +99,8 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	const isAiIntelligenceEnabled =
 		searchParams.get('isAiIntelligenceEnabled') === 'true' ? true : false;
 
+	const valuesInitializedRef = useRef(false);
+
 	const navigate = useNavigate();
 
 	// Audio recording hook
@@ -122,6 +128,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			getMeetSummary,
 			meetSummary,
 			deleteMeeting,
+			updateMeeting,
 		},
 		templates: {
 			handleTranscriptionSuggestions,
@@ -243,6 +250,21 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		sendMessage: recallSendMessage,
 		closeWebSocketConnection: closeRecallConnection,
 	} = useRecallStream();
+
+	const handleActionClick = useCallback(
+		(data) => {
+			const newParams = new URLSearchParams(searchParams);
+			newParams.set('chat', 'true');
+			setSearchParams(newParams);
+			updateStateValues({
+				activePromptForChat: {
+					prompt: data?.currentQuery,
+					sessionId,
+				},
+			});
+		},
+		[sessionId],
+	);
 
 	// useEffect(() => {
 	// 	if (!aiLiveIntelligenceHistory) {
@@ -408,12 +430,16 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 
 	useEffect(() => {
 		if (createBotInfo) {
-			setInfo((prev) => ({
-				...prev,
-				botJoined: createBotInfo?.status === 'live',
-				botJoinedTime: createBotInfo?.botJoinedAt,
-				meetingPlatform: createBotInfo?.meetingPlatform,
-			}));
+			if (!valuesInitializedRef.current) {
+				valuesInitializedRef.current = true;
+				setInfo((prev) => ({
+					...prev,
+					botJoined: createBotInfo?.status === 'live',
+					botJoinedTime: createBotInfo?.botJoinedAt,
+					meetingPlatform: createBotInfo?.meetingPlatform,
+					meetingTitle: createBotInfo?.title,
+				}));
+			}
 		}
 	}, [createBotInfo]);
 
@@ -469,51 +495,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			showAiTranscriptionSuggestions: !prev.showAiTranscriptionSuggestions,
 		}));
 	};
-
-	// const handleSocketMessage = useCallback(
-	// 	(event) => {
-	// 		try {
-	// 			const msg = JSON.parse(event?.data || null);
-
-	// 			if (msg?.event === 'transcript.received' && msg?.data) {
-	// 				// Append new transcript data to existing list
-	// 				setTranscriptList((prev) => [
-	// 					...prev,
-	// 					{
-	// 						speakerName: msg?.data?.speakerName,
-	// 						transcript: msg?.data?.transcript,
-	// 						timestamp: msg?.data?.timestamp,
-	// 					},
-	// 				]);
-	// 			} else if (msg?.event === 'live_intelligence.response' && msg?.data) {
-	// 				handleTranscriptionSuggestions(msg?.data);
-	// 			} else if (msg?.event === 'transcript.done') {
-	// 				closeRecallConnection();
-	// 				setSearchParams({
-	// 					...Object.fromEntries(searchParams.entries()),
-	// 					history: 'true',
-	// 				});
-	// 				getMeetSummary({ meetingId });
-	// 			} else if (msg?.noteTakerTranscript) {
-	// 				// Handle noteTakerTranscript responses
-	// 				handleUpdateTranscription({
-	// 					...msg.noteTakerTranscript,
-	// 					isFinal: true, // Assume final since it's from server
-	// 					id: msg.noteTakerTranscript._id || Date.now().toString(),
-	// 				});
-	// 			} else if (msg?.event === 'bot.join') {
-	// 				setInfo((prev) => ({
-	// 					...prev,
-	// 					botJoined: true,
-	// 					botJoinedTime: moment().unix(),
-	// 				}));
-	// 			}
-	// 		} catch (e) {
-	// 			console.error('Error in handleSocketMessage:', e);
-	// 		}
-	// 	},
-	// 	[handleUpdateTranscription],
-	// );
 
 	const updateTranscriptionHelper = (transcriptionArray, newTranscript) => {
 		const { source } = newTranscript;
@@ -641,11 +622,11 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		setInfo((prev) => ({ ...prev, ...data }));
 	};
 
-	const handleChatBoxClick = () => {
-		setInfo((prev) => ({
-			...prev,
-			chatClicked: !prev.chatClicked,
-		}));
+	const handleChatBoxClick = (e) => {
+		e.stopPropagation();
+		const newParams = new URLSearchParams(searchParams);
+		newParams.set('chat', 'true');
+		setSearchParams(newParams);
 	};
 
 	// useEffect(() => {
@@ -665,6 +646,53 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		navigate('/meet');
 	};
 
+	const debouncedUpdateMeetingTitle = useCallback(
+		debounce(async (title) => {
+			if (!title.trim()) return; // Don't save empty titles
+
+			setInfo((prev) => ({ ...prev, isSaving: true, saveStatus: 'saving' }));
+
+			const result = await updateMeeting({
+				meetingId: meetingId,
+				input: {
+					title: title,
+				},
+			});
+		}, 500), // 500ms debounce delay
+		[meetingId],
+	);
+
+	// Handle input change
+	const handleTitleChange = (e) => {
+		const newTitle = e.target.value;
+
+		// Update local state immediately
+		setInfo((prev) => ({
+			...prev,
+			meetingTitle: newTitle,
+		}));
+
+		// Trigger debounced API call
+		debouncedUpdateMeetingTitle(newTitle);
+	};
+
+	const handleResumeMeeting = () => {
+		const newParams = new URLSearchParams(searchParams);
+		newParams.set('history', 'false');
+		setSearchParams(newParams, { replace: true });
+		setActiveTab('all');
+		if (window.electronApi) {
+			window.electronApi.overlay.startRecording(createBotInfo);
+		}
+	};
+
+	// Cleanup debounced function on unmount
+	useEffect(() => {
+		return () => {
+			debouncedUpdateMeetingTitle.cancel();
+		};
+	}, [debouncedUpdateMeetingTitle]);
+
 	return (
 		<div className="meetbot-container">
 			<div className="meeting-header">
@@ -676,11 +704,29 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 				) : createBotInfo ? (
 					<div className="meeting-info">
 						<div className="meeting-title-container">
-							<h2 className="meeting-title">{createBotInfo.title}</h2>
-							<DotIcon />
-							<span className="meeting-created-by-time">
-								{moment.unix(createBotInfo?.createdAt).format('dddd, MMMM D, YYYY')}
-							</span>
+							<div className="meeting-title-input-container">
+								<CustomTextArea
+									value={info?.meetingTitle}
+									onChange={handleTitleChange}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter') {
+											e.preventDefault();
+											// handleUpdateMeetingTitle();
+										}
+									}}
+									autoResize={true}
+									placeholder="Enter meeting title"
+									replacePlaceholder={true}
+									className="meeting-title"
+								/>
+								{/* <h2 className="meeting-title">{createBotInfo.title}</h2> */}
+								<span className="meeting-created-by-time">
+									{moment
+										.unix(createBotInfo?.createdAt)
+										.format('dddd, MMMM D, YYYY')}
+								</span>
+							</div>
+
 							{/* {createBotInfo?.createdBy && (
 								<div className="meeting-meta-info">
 									<span className="meeting-created-by-name">
@@ -876,6 +922,28 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						isAiIntelligenceEnabled={isAiIntelligenceEnabled}
 					/>
 				)} */}
+
+				{history && (
+					<div className="chatbox-wrapper">
+						<button className="resume-meeting-button" onClick={handleResumeMeeting}>
+							<StepForward size={18} />
+							Resume
+						</button>
+						{!chat && (
+							<div className="chatbox-container" onClick={handleChatBoxClick}>
+								<ChatBox
+									onSend={handleActionClick}
+									customChatActions={true}
+									showUpgradeSubscriptionBtn={false}
+									sessionId={info?.sessionId}
+									animateChatBox={false}
+									placeholder="Ask anything about the meeting"
+									showBottomTools={false}
+								/>
+							</div>
+						)}
+					</div>
+				)}
 			</div>
 
 			<DeleteModal
