@@ -1040,18 +1040,18 @@ class WindowHelper {
 		this.windowSize = { width: newWidth, height: newHeight };
 	}
 
-	updateAskAIWindowDimensions(width, height) {
+	updateAskAIWindowDimensions(width, height, position = {}) {
 		if (!this.askAIWindow || this.askAIWindow.isDestroyed()) return;
 		const { screen } = require('electron');
 		const workArea = screen.getPrimaryDisplay().workAreaSize;
 
-		const newWidth = Math.min(width, 600); // Allow up to 600px width
-		const newHeight = Math.min(height, 500); // Max height 500px
+		const newWidth = width; // Allow up to 600px width
+		const newHeight = Math.min(height, workArea.height); // Max height 500px
 
 		// Get current window position to preserve user's manual positioning
 		const currentBounds = this.askAIWindow.getBounds();
-		const currentX = currentBounds.x;
-		const currentY = currentBounds.y;
+		const currentX = position.x ?? currentBounds.x;
+		const currentY = position.y ?? currentBounds.y;
 
 		// Only update the size, preserve the current position
 		this.askAIWindow.setBounds({
