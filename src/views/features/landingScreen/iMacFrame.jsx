@@ -21,6 +21,14 @@ const iMacFrame = forwardRef((props, ref) => {
 				</div>
 			</div>
 			<div className={s.border}></div>
+			{/* VE text overlay */}
+			<div className={s.veText} data-ve-text="true">
+				Hey, I'm VE — the living mind of your company.
+			</div>
+			{/* Additional description text */}
+			<div className={s.descriptionText} data-description-text="true">
+				I see your work across every integration, I remember everything, and I act before you ask. I keep a long-term evolving memory, read signals in real time, connect the dots, and align everything to your goals.
+			</div>
 		</div>
 	);
 });

@@ -201,6 +201,110 @@ const LandingPage = () => {
 			<Helmet>
 				<title>Ve - The World's First Ambient AI OS</title>
 			</Helmet>
+			{/* Scroll Progress Debug Indicator */}
+			<div className="scroll-progress-debug" id="scroll-progress-debug"></div>
+
+			{/* Scroll Trigger Markers */}
+			<div className="scroll-trigger-markers">
+				<div className="marker start"></div>
+				<div className="marker phase-1"></div>
+				<div className="marker phase-2"></div>
+				<div className="marker phase-3"></div>
+				<div className="marker phase-4"></div>
+				<div className="marker end"></div>
+
+				<div className="marker-label start">START (0%)</div>
+				<div className="marker-label phase-1">PHASE 1 (20%)</div>
+				<div className="marker-label phase-2">PHASE 2 (40%)</div>
+				<div className="marker-label phase-3">PHASE 3 (60%)</div>
+				<div className="marker-label phase-4">PHASE 4 (80%)</div>
+				<div className="marker-label end">END (100%)</div>
+			</div>
+
+			{/* Movement Direction Indicators */}
+			<div className="movement-indicators">
+				<div
+					className="indicator"
+					data-phase="PHASE 1: DownloadSection Scale Down"
+					id="phase-1-indicator"
+				></div>
+				<div
+					className="indicator"
+					data-phase="PHASE 2: iMac Frame Zoom"
+					id="phase-2-indicator"
+				></div>
+				<div
+					className="indicator"
+					data-phase="PHASE 3: Fullscreen iMac"
+					id="phase-3-indicator"
+				></div>
+				<div
+					className="indicator"
+					data-phase="PHASE 4: Text Overlay"
+					id="phase-4-indicator"
+				></div>
+			</div>
+
+			{/* Scroll Position Indicator */}
+			<div className="scroll-position-indicator" id="scroll-position-indicator">
+				<div className="scroll-info">
+					<div className="info-line">
+						<span className="label">Scroll Progress:</span>
+						<span className="value" id="scroll-progress-value">
+							0%
+						</span>
+					</div>
+					<div className="info-line">
+						<span className="label">DownloadSection Scale:</span>
+						<span className="value" id="download-scale-value">
+							100%
+						</span>
+					</div>
+					<div className="info-line">
+						<span className="label">iMac Frame Scale:</span>
+						<span className="value" id="imac-scale-value">
+							100%
+						</span>
+					</div>
+					<div className="info-line">
+						<span className="label">Fullscreen Scale:</span>
+						<span className="value" id="fullscreen-scale-value">
+							0%
+						</span>
+					</div>
+					<div className="info-line">
+						<span className="label">Fullscreen Opacity:</span>
+						<span className="value" id="fullscreen-opacity-value">
+							0%
+						</span>
+					</div>
+					<div className="info-line">
+						<span className="label">VE Text Opacity:</span>
+						<span className="value" id="ve-text-opacity-value">
+							0%
+						</span>
+					</div>
+					<div className="info-line">
+						<span className="label">VE Text Y Position:</span>
+						<span className="value" id="ve-text-y-value">
+							50px
+						</span>
+					</div>
+					<div className="info-line">
+						<span className="label">Desc Text Opacity:</span>
+						<span className="value" id="desc-text-opacity-value">
+							0%
+						</span>
+					</div>
+					<div className="info-line">
+						<span className="label">Desc Text Y Position:</span>
+						<span className="value" id="desc-text-y-value">
+							30px
+						</span>
+					</div>
+				</div>
+			</div>
+
 			<main
 				className={`landing-page-container${
 					location.pathname === '/manifesto' ? ' fullHeight' : ''
