@@ -215,6 +215,7 @@ const ChatBox = ({
 	// Speech-to-text state
 	const [isTranscribing, setIsTranscribing] = useState(false);
 	const [speechTranscription, setSpeechTranscription] = useState([]);
+	const [isMicConnecting, setIsMicConnecting] = useState(false);
 
 	const { handleConnect, handleDisconnect, handleResetTimer, showInactivityPopup } =
 		useSpeechTranscription({
@@ -1382,6 +1383,8 @@ const ChatBox = ({
 
 	const handleMicIconClick = useCallback(
 		async (event) => {
+			if (isMicConnecting) return;
+
 			try {
 				const { hasMic, hasCamera } = await checkDevices();
 
@@ -1393,6 +1396,7 @@ const ChatBox = ({
 				if (isTranscribing) {
 					handleTranscriptionSocketDisconnect();
 				} else {
+					setIsMicConnecting(true);
 					try {
 						await handleConnect({
 							sessionId: ObjectID()?.toString(),
@@ -1402,6 +1406,8 @@ const ChatBox = ({
 					} catch (error) {
 						console.log(error?.message);
 						message.error('Connection not established');
+					} finally {
+						setIsMicConnecting(false);
 					}
 				}
 
@@ -1411,9 +1417,9 @@ const ChatBox = ({
 				message.error('An error occurred while starting transcription');
 			}
 		},
-
 		[
 			isTranscribing,
+			isMicConnecting,
 			handleConnect,
 			handleTranscriptionSocketDisconnect,
 			handleTranscriptionMessageFunc,

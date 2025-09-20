@@ -113,6 +113,11 @@ const useSpeechTranscription = ({ tenantId }) => {
 	}, []);
 
 	const handleConnect = async ({ sessionId, onMessageFunc }) => {
+		if (retryTimerRef.current) {
+			console.log('already connecting');
+			return;
+		}
+
 		return new Promise((resolve, reject) => {
 			let attempts = 0;
 
