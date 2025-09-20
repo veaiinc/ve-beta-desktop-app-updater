@@ -3932,6 +3932,41 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// Show microphone permission help dialog
+	ipcMain.handle('show-microphone-permission-help', async () => {
+		try {
+			if (isMacRuntime) {
+				const result = await dialog.showMessageBox(mainWindow, {
+					type: 'info',
+					title: 'Microphone Permission Required',
+					message: 'Microphone access is needed for audio features',
+					detail: 'To enable microphone access:\n\n1. Go to System Settings > Privacy & Security > Microphone\n2. Enable access for this app\n3. Restart the app if needed',
+					buttons: ['Open System Settings', 'Cancel'],
+					defaultId: 0,
+					cancelId: 1,
+				});
+
+				if (result.response === 0) {
+					// Open System Settings to Microphone section
+					exec(
+						'open "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone"',
+					);
+				}
+
+				return { success: true, openedSystemPrefs: result.response === 0 };
+			} else {
+				return {
+					success: true,
+					openedSystemPrefs: false,
+					message: 'Microphone permissions handled by system',
+				};
+			}
+		} catch (error) {
+			log.error('Error showing microphone permission help:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	// Request microphone permission handler
 	ipcMain.handle('request-microphone-permission', async () => {
 		try {

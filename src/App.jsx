@@ -233,7 +233,9 @@ const App = () => {
 
 					case 'downloaded':
 						console.log(`✅ Update downloaded: ${data.version}`);
-						console.log('📣 Update prompt will appear so the user can restart manually.');
+						console.log(
+							'📣 Update prompt will appear so the user can restart manually.',
+						);
 						break;
 
 					case 'download-failed':

@@ -217,10 +217,14 @@ contextBridge.exposeInMainWorld('electronApi', {
 		// Permission checking and requesting
 		checkMicrophonePermission: () => ipcRenderer.invoke('check-microphone-permission'),
 		requestMicrophonePermission: () => ipcRenderer.invoke('request-microphone-permission'),
-		showMicrophonePermissionHelp: () => ipcRenderer.invoke('show-microphone-permission-help'),
-		checkScreenPermission: () => ipcRenderer.invoke('check-screen-recording-permission'),
-		requestScreenPermission: () => ipcRenderer.invoke('request-screen-recording-permission'),
-		showScreenPermissionHelp: () => ipcRenderer.invoke('show-camera-permission-help'),
+		showMicrophonePermissionHelp: () =>
+			ipcRenderer.invoke('show-microphone-permission-help'),
+		checkScreenPermission: () =>
+			ipcRenderer.invoke('check-screen-recording-permission'),
+		requestScreenPermission: () =>
+			ipcRenderer.invoke('request-screen-recording-permission'),
+		showScreenPermissionHelp: () =>
+			ipcRenderer.invoke('show-screen-recording-permission-help'),
 	},
 
 	// Home icon click handler (cross-platform)
