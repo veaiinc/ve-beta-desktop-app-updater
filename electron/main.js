@@ -1604,6 +1604,47 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// Register Permission window IPC handlers
+	ipcMain.handle('toggle-permission-window', async () => {
+		try {
+			windowHelper?.togglePermissionWindow();
+			return { success: true };
+		} catch (error) {
+			log.error('Error toggling Permission window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('show-permission-window', async () => {
+		try {
+			windowHelper?.showPermissionWindow();
+			return { success: true };
+		} catch (error) {
+			log.error('Error showing Permission window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('hide-permission-window', async () => {
+		try {
+			windowHelper?.hidePermissionWindow();
+			return { success: true };
+		} catch (error) {
+			log.error('Error hiding Permission window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('is-permission-window-visible', async () => {
+		try {
+			const isVisible = windowHelper?.isPermissionWindowVisible();
+			return { success: true, isVisible };
+		} catch (error) {
+			log.error('Error checking Permission window visibility:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	// Handler to hide all windows (overlay and ask AI)
 	ipcMain.handle('hide-all-windows', async () => {
 		try {

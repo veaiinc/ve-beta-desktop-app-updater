@@ -29,6 +29,12 @@ class WindowHelper {
 		this.areYouThereWindowPosition = { x: 0, y: 0 };
 		this.areYouThereWindowSize = { width: 500, height: 400 };
 
+		// Permission window properties
+		this.permissionWindow = null;
+		this.isPermissionVisible = false;
+		this.permissionWindowPosition = { x: 0, y: 0 };
+		this.permissionWindowSize = { width: 520, height: 640 };
+
 		this.screenWidth = 0;
 		this.screenHeight = 0;
 		this.step = 0;
@@ -474,6 +480,113 @@ class WindowHelper {
 		this.areYouThereWindowSize = { width: bounds.width, height: bounds.height };
 	}
 
+	createPermissionWindow() {
+		if (this.permissionWindow !== null) return;
+
+		const primaryDisplay = screen.getPrimaryDisplay();
+		const workArea = primaryDisplay.workAreaSize;
+		this.screenWidth = workArea.width;
+		this.screenHeight = workArea.height;
+
+		// Center permission window on screen
+		const permissionX =
+			Math.floor(this.screenWidth / 2) - Math.floor(this.permissionWindowSize.width / 2);
+		const permissionY =
+			Math.floor(this.screenHeight / 2) - Math.floor(this.permissionWindowSize.height / 2);
+
+		const windowSettings = {
+			width: this.permissionWindowSize.width,
+			height: this.permissionWindowSize.height,
+			x: permissionX,
+			y: permissionY,
+			webPreferences: {
+				nodeIntegration: false,
+				contextIsolation: true,
+				preload: path.join(__dirname, '..', 'preload.js'),
+				devTools: true,
+			},
+			show: false,
+			alwaysOnTop: true,
+			frame: false,
+			transparent: true,
+			fullscreenable: false,
+			hasShadow: false,
+			backgroundColor: '#00000000',
+			focusable: true,
+			skipTaskbar: true,
+			visibleOnAllWorkspaces: true,
+			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
+			acceptFirstMouse: true,
+			disableAutoHideCursor: true,
+			resizable: false,
+			movable: true,
+			devTools: true,
+		};
+
+		// Platform-specific window settings
+		if (process.platform === 'win32') {
+			// Windows-specific settings
+			windowSettings.type = 'toolbar';
+			windowSettings.alwaysOnTop = true;
+			windowSettings.skipTaskbar = true;
+			windowSettings.focusable = true;
+			windowSettings.transparent = true;
+			windowSettings.hasShadow = false;
+		} else if (process.platform === 'darwin') {
+			// macOS-specific settings
+			windowSettings.type = process.env.NODE_ENV === 'development' ? 'normal' : 'panel';
+		}
+
+		this.permissionWindow = new BrowserWindow(windowSettings);
+
+		// Apply content protection to permission window
+		this.applyContentProtection(this.permissionWindow);
+
+		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
+		const isDevelopment =
+			process.env.NODE_ENV === 'development' ||
+			process.env.NODE_ENV?.trim() === 'development';
+
+		const permissionUrl = isDevelopment
+			? `${devURL}/permission.html`
+			: `file://${path.join(__dirname, '..', '..', 'build', 'permission.html')}`;
+
+		log.info(`Loading Permission URL: ${permissionUrl}`);
+
+		this.permissionWindow.loadURL(permissionUrl).catch((err) => {
+			log.error('Failed to load Permission URL:', err);
+		});
+
+		if (process.platform === 'darwin') {
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+			this.permissionWindow.setVisibleOnAllWorkspaces(true, {
+				visibleOnFullScreen: true,
+				skipTransformProcessType: true,
+			});
+			this.permissionWindow.setHiddenInMissionControl(true);
+			// Permission window should always be interactive
+			this.permissionWindow.setIgnoreMouseEvents(false);
+			this.permissionWindow.setMovable(true);
+		} else if (process.platform === 'win32') {
+			// Windows-specific window behavior
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+			this.permissionWindow.setIgnoreMouseEvents(false);
+			this.permissionWindow.setMovable(true);
+			this.permissionWindow.setVisibleOnAllWorkspaces(true);
+		} else {
+			// For Linux and other platforms
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+			this.permissionWindow.setIgnoreMouseEvents(false);
+		}
+
+		this.setupPermissionWindowListeners();
+
+		const bounds = this.permissionWindow.getBounds();
+		this.permissionWindowPosition = { x: bounds.x, y: bounds.y };
+		this.currentX = bounds.x;
+		this.currentY = bounds.y;
+	}
+
 	setupWindowListeners() {
 		if (!this.overlayWindow) return;
 
@@ -626,6 +739,51 @@ class WindowHelper {
 		});
 	}
 
+	setupPermissionWindowListeners() {
+		if (!this.permissionWindow) return;
+
+		// Same drag detection for permission window: Hide Dynamic Island during drag, show when stopped
+		let isDragging = false;
+		let dragEndTimeout;
+
+		// Listen for when permission window starts moving (drag start)
+		this.permissionWindow.on('will-move', () => {
+			if (!isDragging) {
+				isDragging = true;
+				log.info('🎯 PERMISSION DRAG START: Hiding Dynamic Island for smooth dragging');
+				this.hideDynamicIslandForDrag();
+			}
+		});
+
+		this.permissionWindow.on('move', () => {
+			if (this.permissionWindow && !this.permissionWindow.isDestroyed()) {
+				const bounds = this.permissionWindow.getBounds();
+				this.permissionWindowPosition = { x: bounds.x, y: bounds.y };
+
+				// Reset the drag end timeout since we're still moving
+				if (isDragging) {
+					clearTimeout(dragEndTimeout);
+					dragEndTimeout = setTimeout(() => {
+						isDragging = false;
+						log.info('🎯 PERMISSION DRAG END: Showing Dynamic Island again');
+						this.showDynamicIslandAfterDrag();
+					}, 100); // 100ms after last move event
+				}
+			}
+		});
+
+		this.permissionWindow.on('closed', () => {
+			this.permissionWindow = null;
+			this.isPermissionVisible = false;
+		});
+
+		// Set up mouse event handling for permission window
+		this.permissionWindow.webContents.on('dom-ready', () => {
+			// Set permission window to be interactive immediately
+			this.permissionWindow.setIgnoreMouseEvents(false);
+		});
+	}
+
 	setupMainWindowListeners() {
 		if (!this.mainWindow) return;
 
@@ -665,6 +823,10 @@ class WindowHelper {
 		return this.areYouThereWindow;
 	}
 
+	getPermissionWindow() {
+		return this.permissionWindow;
+	}
+
 	// CRITICAL FIX: Send command to overlay with proper queuing if not ready
 	sendOverlayCommand(action) {
 		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) {
@@ -698,6 +860,14 @@ class WindowHelper {
 			this.isAreYouThereVisible &&
 			this.areYouThereWindow &&
 			!this.areYouThereWindow.isDestroyed()
+		);
+	}
+
+	isPermissionWindowVisible() {
+		return (
+			this.isPermissionVisible &&
+			this.permissionWindow &&
+			!this.permissionWindow.isDestroyed()
 		);
 	}
 
@@ -762,7 +932,7 @@ class WindowHelper {
 			dynamicIslandY = -8; // Slightly above screen edge on Mac/Linux to eliminate menu bar gap
 		}
 
-		const topY = dynamicIslandY 
+		const topY = dynamicIslandY;
 
 		// Position overlay to allow space for ask AI on the right
 		let overlayX;
@@ -955,6 +1125,79 @@ class WindowHelper {
 		}, 100);
 
 		this.isAreYouThereVisible = true;
+	}
+
+	showPermissionWindow() {
+		if (!this.permissionWindow || this.permissionWindow.isDestroyed()) {
+			this.createPermissionWindow();
+		}
+
+		// Center the permission window on screen
+		const primaryDisplay = screen.getPrimaryDisplay();
+		const workArea = primaryDisplay.workAreaSize;
+
+		const permissionX =
+			Math.floor(workArea.width / 2) - Math.floor(this.permissionWindowSize.width / 2);
+		const permissionY =
+			Math.floor(workArea.height / 2) - Math.floor(this.permissionWindowSize.height / 2);
+
+		this.permissionWindow.setBounds({
+			x: permissionX,
+			y: permissionY,
+			width: this.permissionWindowSize.width,
+			height: this.permissionWindowSize.height,
+		});
+
+		// Ensure window properties for all desktops/spaces on macOS
+		if (process.platform === 'darwin') {
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+			this.permissionWindow.setVisibleOnAllWorkspaces(true, {
+				visibleOnFullScreen: true,
+				skipTransformProcessType: true,
+			});
+			// Ensure permission window is above all other windows
+			this.permissionWindow.moveTop();
+		} else if (process.platform === 'win32') {
+			// Windows-specific window behavior
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+			this.permissionWindow.setVisibleOnAllWorkspaces(true);
+			this.permissionWindow.moveTop();
+		} else {
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+		}
+
+		// Update position tracking
+		this.permissionWindowPosition = { x: permissionX, y: permissionY };
+
+		// Show permission window
+		this.permissionWindow.show();
+
+		// Make sure permission window is on top after showing
+		setTimeout(() => {
+			if (this.permissionWindow && !this.permissionWindow.isDestroyed()) {
+				this.permissionWindow.moveTop();
+				this.permissionWindow.focus();
+			}
+		}, 100);
+
+		this.isPermissionVisible = true;
+	}
+
+	hidePermissionWindow() {
+		if (!this.permissionWindow || this.permissionWindow.isDestroyed()) return;
+		const bounds = this.permissionWindow.getBounds();
+		this.permissionWindowPosition = { x: bounds.x, y: bounds.y };
+		this.permissionWindowSize = { width: bounds.width, height: bounds.height };
+		this.permissionWindow.hide();
+		this.isPermissionVisible = false;
+	}
+
+	togglePermissionWindow() {
+		if (this.isPermissionVisible) {
+			this.hidePermissionWindow();
+		} else {
+			this.showPermissionWindow();
+		}
 	}
 
 	toggleOverlayWindow() {
