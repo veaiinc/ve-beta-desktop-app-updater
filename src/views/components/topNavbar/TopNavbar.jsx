@@ -55,16 +55,19 @@ const baseLeftContainerItems = [
 		id: 4,
 		label: 'Agents',
 		route: '/agents',
+		showBetaBadge: true,
 	},
 	{
 		id: 5,
 		label: 'Vault',
 		route: '/files',
+		showBetaBadge: true,
 	},
 	{
 		id: 6,
 		label: 'Tools',
 		route: '/tools',
+		showBetaBadge: true,
 	},
 ];
 
@@ -133,7 +136,10 @@ const TopNavbar = () => {
 		if (workspaceMode === 'stable') {
 			items = items.filter(
 				(item) =>
-					item.label !== 'Vault' && item.label !== 'Tools' && item.label !== 'Priority',
+					item.label !== 'Vault' &&
+					item.label !== 'Tools' &&
+					item.label !== 'Priority' &&
+					item.label !== 'Agents',
 			);
 		}
 
@@ -393,7 +399,10 @@ const TopNavbar = () => {
 												})
 											}
 										>
-											{navItem.label}
+											{navItem.label}{' '}
+											{navItem.showBetaBadge && (
+												<span className={s.betaBadge}>Beta</span>
+											)}
 										</li>
 									</Tooltip>
 								) : navItem.id === 6 ? (
@@ -437,7 +446,10 @@ const TopNavbar = () => {
 												pathname.includes('/tools') ? s.active : ''
 											}`}
 										>
-											{navItem.label}
+											{navItem.label}{' '}
+											{navItem.showBetaBadge && (
+												<span className={s.betaBadge}>Beta</span>
+											)}
 										</li>
 									</Tooltip>
 								) : (
@@ -453,7 +465,10 @@ const TopNavbar = () => {
 										}
 										key={`${navItem.id}-${index}`}
 									>
-										{navItem.label}
+										{navItem.label}{' '}
+										{navItem.showBetaBadge && (
+											<span className={s.betaBadge}>Beta</span>
+										)}
 									</li>
 								),
 						  )
@@ -601,7 +616,10 @@ const TopNavbar = () => {
 										})
 									}
 								>
-									{navItem.label}
+									{navItem.label}{' '}
+									{navItem.showBetaBadge && (
+										<span className={s.betaBadge}>Beta</span>
+									)}
 								</div>
 							))}
 						</div>

@@ -78,7 +78,7 @@ export const settingsItems = [
 	},
 	{
 		id: 6,
-		label: 'AI Memory',
+		label: 'Memory',
 		icon: <AISetupSvg />,
 		route: '/settings/ai-memory',
 		value: 'ai-memory',
