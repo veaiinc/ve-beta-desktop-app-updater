@@ -276,60 +276,6 @@ const App = () => {
 			{/* NotchDrop Voice Activator - handles LiveKit voice integration */}
 			<NotchDropVoiceActivator />
 
-			{/* Update Notification - Commented out for auto restart */}
-			{/* {showUpdateNotification && updateStatus?.status === 'downloaded' && (
-				<div
-					style={{
-						position: 'fixed',
-						top: '20px',
-						right: '20px',
-						background: '#4CAF50',
-						color: 'white',
-						padding: '16px',
-						borderRadius: '8px',
-						boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-						zIndex: 9999,
-						maxWidth: '300px',
-					}}
-				>
-					<div style={{ fontWeight: 'bold', marginBottom: '8px' }}>🎉 Update Ready!</div>
-					<div style={{ marginBottom: '12px' }}>
-						Version {updateStatus.version} is ready to install.
-					</div>
-					<div style={{ display: 'flex', gap: '8px' }}>
-						<button
-							onClick={handleRestartApp}
-							style={{
-								background: 'white',
-								color: '#4CAF50',
-								border: 'none',
-								padding: '6px 12px',
-								borderRadius: '4px',
-								cursor: 'pointer',
-								fontSize: '14px',
-								fontWeight: 'bold',
-							}}
-						>
-							Restart Now
-						</button>
-						<button
-							onClick={() => setShowUpdateNotification(false)}
-							style={{
-								background: 'transparent',
-								color: 'white',
-								border: '1px solid white',
-								padding: '6px 12px',
-								borderRadius: '4px',
-								cursor: 'pointer',
-								fontSize: '14px',
-							}}
-						>
-							Later
-						</button>
-					</div>
-				</div>
-			)} */}
-
 			<Routes>
 				{routes?.map((route) => (
 					<Route key={route.path} path={route.path} element={route.element} />

@@ -145,6 +145,10 @@ const toggleContentProtection = () => {
 		`🔒 CONTENT PROTECTION: ${status} (${protectedCount} windows protected, main window always visible)`,
 	);
 
+	if (notchDropService && typeof notchDropService.updateStealthModeState === 'function') {
+		notchDropService.updateStealthModeState(isContentProtectionEnabled);
+	}
+
 	return isContentProtectionEnabled;
 };
 
@@ -171,6 +175,10 @@ const setContentProtection = (enabled) => {
 			isContentProtectionEnabled ? 'ON' : 'OFF'
 		} (main window excluded)`,
 	);
+
+	if (notchDropService && typeof notchDropService.updateStealthModeState === 'function') {
+		notchDropService.updateStealthModeState(isContentProtectionEnabled);
+	}
 	return isContentProtectionEnabled;
 };
 
@@ -986,22 +994,17 @@ function setupNotchDropMenuUpdates() {
 	// Listen for NotchDrop service events to update menu
 	if (notchDropService.notchDropAddon) {
 		notchDropService.notchDropAddon.on('statusChanged', (status) => {
-			log.info('📊 NotchDrop status changed, updating menu:', status);
 			updateMenuBarState();
 		});
 
 		notchDropService.notchDropAddon.on('itemAdded', () => {
-			log.info('📊 NotchDrop item added, updating menu');
 			updateMenuBarState();
 		});
 
 		notchDropService.notchDropAddon.on('itemRemoved', () => {
-			log.info('📊 NotchDrop item removed, updating menu');
 			updateMenuBarState();
 		});
 	}
-
-	log.info('✅ NotchDrop menu update listeners set up');
 }
 
 // Update menu bar to reflect current NotchDrop state
@@ -1625,6 +1628,11 @@ app.whenReady().then(async () => {
 		notchDropService = new NotchDropService();
 		notchDropService.setMainWindow(mainWindow);
 		notchDropService.setMainWindowFactory((restoreState = false) => createWindow(restoreState));
+		notchDropService.setStealthModeController({
+			toggle: toggleContentProtection,
+			getStatus: getContentProtectionStatus,
+			setStatus: setContentProtection,
+		});
 
 		// CRITICAL: Ensure NotchDrop service fully initializes before proceeding
 		let notchDropInitialized = false;
