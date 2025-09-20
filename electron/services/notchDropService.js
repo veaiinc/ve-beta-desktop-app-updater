@@ -15,6 +15,12 @@ class NotchDropService {
 		// Swift-JS Bridge integration
 		this.swiftJSBridge = null;
 		this.createMainWindowFn = null;
+		this.stealthModeController = {
+			toggle: null,
+			getStatus: null,
+			setStatus: null,
+		};
+		this.isStealthModeEnabled = false;
 	}
 
 	async initialize() {
@@ -83,6 +89,9 @@ class NotchDropService {
 
 			// Phase 6: Pre-create overlay window for instant response
 			await this.preCreateOverlayWindow();
+
+			// Sync stealth mode state for initial render
+			await this.syncStealthModeState();
 
 			// Auto-open NotchDrop after initialization if enabled
 			if (this.autoOpenOnStartup) {
@@ -178,6 +187,13 @@ class NotchDropService {
 			} catch (error) {
 				log.error('❌ Error handling Swift UI disconnectVoice:', error);
 			}
+		});
+
+		this.notchDropAddon.on('toggleStealthMode', () => {
+			Promise.resolve(this.handleToggleStealthModeRequest('swift-event'))
+				.catch((error) => {
+					log.error('❌ Error handling Swift UI stealth toggle event:', error);
+				});
 		});
 
 		// Listen for voice mute toggle requests from Swift UI
@@ -409,6 +425,20 @@ class NotchDropService {
 		}
 	}
 
+	setStealthModeController(controller = {}) {
+		this.stealthModeController = {
+			toggle: typeof controller.toggle === 'function' ? controller.toggle : null,
+			getStatus: typeof controller.getStatus === 'function' ? controller.getStatus : null,
+			setStatus: typeof controller.setStatus === 'function' ? controller.setStatus : null,
+		};
+
+		if (this.isInitialized) {
+			this.syncStealthModeState().catch((error) => {
+				log.warn('⚠️ Failed to resync stealth mode state after controller update:', error);
+			});
+		}
+	}
+
 	navigateMainWindow(path) {
 		const defaultPath = '/verify-user';
 		const resolvedPath =
@@ -602,6 +632,11 @@ class NotchDropService {
 				};
 			}
 
+			if (action === 'toggleStealthMode') {
+				const enabled = await this.handleToggleStealthModeRequest('swift-ipc');
+				return { success: true, action, enabled };
+			}
+
 			// Handle voice-specific actions
 			if (action === 'connectVoice' || action === 'startVoiceAgent') {
 				console.log('🎤 NotchDrop Voice button clicked - activating voice agent');
@@ -790,6 +825,77 @@ class NotchDropService {
 		} catch (error) {
 			console.error('❌ Error updating voice status in NotchDrop:', error);
 			return false;
+		}
+	}
+
+	async updateStealthModeState(isEnabled) {
+		try {
+			const normalized = Boolean(isEnabled);
+			this.isStealthModeEnabled = normalized;
+
+			if (!this.isInitialized) {
+				log.warn('NotchDrop not initialized, deferring stealth mode update');
+				return normalized;
+			}
+
+			if (this.notchDropAddon && typeof this.notchDropAddon.updateStealthModeState === 'function') {
+				this.notchDropAddon.updateStealthModeState(normalized);
+				log.info(`🏴‍☠️ Stealth mode state synced to Swift UI: ${normalized}`);
+			} else {
+				log.warn('⚠️ updateStealthModeState method not available on addon');
+			}
+
+			return normalized;
+		} catch (error) {
+			log.error('❌ Error updating stealth mode state in NotchDrop:', error);
+			return this.isStealthModeEnabled;
+		}
+	}
+
+	async handleToggleStealthModeRequest(source = 'unknown') {
+		try {
+			if (!this.stealthModeController?.toggle) {
+				log.warn('⚠️ Stealth mode controller not configured; cannot toggle');
+				return this.isStealthModeEnabled;
+			}
+
+			const result = await Promise.resolve(
+				this.stealthModeController.toggle(source),
+			);
+			const enabled = Boolean(result);
+			await this.updateStealthModeState(enabled);
+			return enabled;
+		} catch (error) {
+			log.error('❌ Error toggling stealth mode from NotchDrop:', error);
+			return this.isStealthModeEnabled;
+		}
+	}
+
+	async setStealthMode(enabled) {
+		try {
+			if (this.stealthModeController?.setStatus) {
+				await Promise.resolve(this.stealthModeController.setStatus(enabled));
+			}
+			return await this.updateStealthModeState(enabled);
+		} catch (error) {
+			log.error('❌ Error setting stealth mode state:', error);
+			return this.isStealthModeEnabled;
+		}
+	}
+
+	async syncStealthModeState() {
+		try {
+			if (!this.stealthModeController?.getStatus) {
+				return this.isStealthModeEnabled;
+			}
+
+			const status = await Promise.resolve(
+				this.stealthModeController.getStatus(),
+			);
+			return await this.updateStealthModeState(status);
+		} catch (error) {
+			log.warn('⚠️ Unable to sync stealth mode state:', error);
+			return this.isStealthModeEnabled;
 		}
 	}
 

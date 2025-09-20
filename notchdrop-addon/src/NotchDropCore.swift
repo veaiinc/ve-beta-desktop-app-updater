@@ -551,6 +551,13 @@ class NotchDropPanel: NSPanel {
             viewModel.isMicrophoneMuted = isMuted
         }
     }
+
+    @objc public func updateStealthModeState(_ isEnabled: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let viewModel = self.notchViewModel else { return }
+            viewModel.updateStealthModeState(isEnabled)
+        }
+    }
     
     @objc public func addVoiceMessage(_ messageJson: String) {
         DispatchQueue.main.async { [weak self] in
@@ -573,7 +580,7 @@ class NotchDropPanel: NSPanel {
     
     // MARK: - Swift Action Handling
     private func handleSwiftAction(_ action: NotchViewModel.SwiftAction) {
-        print("🔍 DEBUG: NotchDropCore handling Swift action: \(action)")
+        // print("🔍 DEBUG: NotchDropCore handling Swift action: \(action)")
         switch action {
         case .startRecording:
             swiftActionCallback?("startRecording", "")
@@ -624,6 +631,8 @@ class NotchDropPanel: NSPanel {
         case .showNotification(let title, let body, let type):
             let notificationData = "\(title)|\(body)|\(type)"
             swiftActionCallback?("showNotification", notificationData)
+        case .toggleStealthMode:
+            swiftActionCallback?("toggleStealthMode", "")
         }
     }
 }
