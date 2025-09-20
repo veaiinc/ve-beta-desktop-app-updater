@@ -448,6 +448,10 @@ class NotchViewModel: NSObject, ObservableObject {
         wakeWordScore = score
         isWakeWordEnabled = true
         
+        // AUTO-EXPAND NOTCH when Hey Ve is detected (like "Hey Siri")
+        print("🏝️ AUTO-EXPANDING NotchDrop for Hey Ve...")
+        notchOpen(.click) // This will expand the notch UI
+        
         // Emit wake word detected action for logging/analytics
         swiftActionSender.send(.wakeWordDetected(score))
         
@@ -455,7 +459,7 @@ class NotchViewModel: NSObject, ObservableObject {
         connectVoiceAssistant()
         
         // Log the activation
-        swiftActionSender.send(.sendLog("Hey Ve detected (score: \(score)) - Voice agent activated"))
+        swiftActionSender.send(.sendLog("Hey Ve detected (score: \(score)) - NotchDrop expanded and voice agent activated"))
     }
     
     /// Update audio level from JavaScript
