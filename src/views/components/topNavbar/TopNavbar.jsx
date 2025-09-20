@@ -66,7 +66,7 @@ const baseLeftContainerItems = [
 	{
 		id: 6,
 		label: 'Tools',
-		route: '/tools',
+		route: '/home',
 		showBetaBadge: true,
 	},
 ];
