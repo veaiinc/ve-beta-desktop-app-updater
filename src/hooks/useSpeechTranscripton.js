@@ -4,7 +4,7 @@ import getBaseUrl from '../services/baseUrls';
 
 const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
 
-const useSpeechTranscription = ({ tenantId }) => {
+const useSpeechTranscription = ({ tenantId, socketClosingTime = 3 * 60 }) => {
 	const MAX_RETRY_ATTEMPTS = 5;
 	const RETRY_DELAY = 1000; // 1 second
 
@@ -37,7 +37,7 @@ const useSpeechTranscription = ({ tenantId }) => {
 		if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
 			socketClosingTimeoutRef.current = setTimeout(() => {
 				setShowInactivityPopup(true);
-			}, 3 * 60 * 1000);
+			}, socketClosingTime * 1000);
 		}
 	};
 
