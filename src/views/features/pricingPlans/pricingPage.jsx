@@ -406,7 +406,12 @@ const PricingPage = () => {
 								<div className="eachPricingCard" key={plan._id}>
 									<div className="pricingCardHeader">
 										<div className="pricingTitleContainer">
-											<span className="priceTitle">{plan?.plan}</span>
+											<span className="priceTitle">
+												{plan?.plan}{' '}
+												{plan?.plan !== 'Enterprise' && (
+													<span className="beta-badge">Beta</span>
+												)}
+											</span>
 											{planConfig.recommended && (
 												<div className="recommended-badge">Recommended</div>
 											)}
