@@ -137,14 +137,6 @@ const toggleContentProtection = () => {
 		}
 	});
 
-	const status = isContentProtectionEnabled ? 'ON' : 'OFF';
-	log.info(
-		`🔒 Content protection: ${status} - Applied to ${protectedCount} windows (main window excluded)`,
-	);
-	console.log(
-		`🔒 CONTENT PROTECTION: ${status} (${protectedCount} windows protected, main window always visible)`,
-	);
-
 	if (notchDropService && typeof notchDropService.updateStealthModeState === 'function') {
 		notchDropService.updateStealthModeState(isContentProtectionEnabled);
 	}
@@ -191,11 +183,6 @@ const applyContentProtectionToWindow = (window) => {
 		}
 
 		window.setContentProtection(isContentProtectionEnabled);
-		log.info(
-			`🔒 Applied content protection (${
-				isContentProtectionEnabled ? 'ON' : 'OFF'
-			}) to new window: ${window.getTitle()}`,
-		);
 	}
 };
 
@@ -255,8 +242,6 @@ autoUpdater.on('update-downloaded', (info) =>
 		info,
 		mainWindow,
 		setIsUpdateInProgress,
-		dynamicIslandHelper,
-		windowHelper,
 	}),
 );
 
@@ -1218,7 +1203,7 @@ function createWindow(restoreState = false) {
 		saveWindowState();
 
 		// Cross-platform close behavior - keep app running in background
-		if (!isQuitting) {
+		if (!isQuitting && !isUpdateInProgress) {
 			event.preventDefault();
 			mainWindow.hide();
 			log.info('Main window hidden - app continues running in background');
@@ -1514,9 +1499,6 @@ app.whenReady().then(async () => {
 				? `🔒 INVISIBILITY ON - ${windowCount} windows are now protected from screen recording`
 				: `👁️ INVISIBILITY OFF - ${windowCount} windows are now visible in screen recording`,
 		);
-
-		// Also log to console for debugging
-		console.log(`🎯 TOGGLE TRIGGERED: Content Protection is now ${statusText}`);
 
 		return newStatus;
 	});
@@ -4108,7 +4090,9 @@ app.whenReady().then(async () => {
 });
 
 // Handle app quit properly - but allow updates to proceed
+
 app.on('before-quit', (event) => {
+	isQuitting = true;
 	// Only prevent quit if update is not in progress
 	if (!isUpdateInProgress) {
 		// Prevent default quit behavior to allow cleanup
@@ -4162,7 +4146,8 @@ ipcMain.handle('update-overlay-dimensions', async (event, { width, height }) => 
 	}
 });
 
-const handleCleanupAndQuit = () =>
+const handleCleanupAndQuit = () => {
+	isQuitting = true;
 	cleanupAndQuit({
 		dynamicIslandHelper,
 		windowHelper,
@@ -4170,6 +4155,7 @@ const handleCleanupAndQuit = () =>
 		areYouThereTimer,
 		transcriptionDetectionTimer,
 	});
+};
 
 // Are You There timer functions
 function startAreYouThereTimer() {

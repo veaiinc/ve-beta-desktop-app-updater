@@ -6,10 +6,12 @@ import useVoiceIntegration from './hooks/useVoiceIntegration';
 import NotchDropVoiceActivator from './components/NotchDropVoiceActivator';
 import UploadProgressPopup from './views/components/globalComponents/UploadProgressPopup/UploadProgressPopup';
 import DownloadProgressPopup from './views/components/globalComponents/DownloadProgressPopup/DownloadProgressPopup';
+import UpdateReadyPopup from './views/components/globalComponents/UpdateReadyPopup/UpdateReadyPopup';
 
 const App = () => {
 	const { routes } = useWorkspaceMode();
 	const [updateStatus, setUpdateStatus] = useState(null);
+	const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
 	// const [showUpdateNotification, setShowUpdateNotification] = useState(false); // Commented out for auto restart
 
 	// NotchDrop Voice Integration - DIRECT APPROACH
@@ -185,17 +187,28 @@ const App = () => {
 		}
 	};
 
-	// Commented out for auto restart - no longer needed
-	// const handleRestartApp = async () => {
-	// 	try {
-	// 		const result = await window?.electronApi?.restartApp();
-	// 		if (!result?.success) {
-	// 			console.warn('⚠️ Restart failed:', result?.error);
-	// 		}
-	// 	} catch (error) {
-	// 		console.error('❌ Error restarting app:', error);
-	// 	}
-	// };
+	const handleRestartApp = async () => {
+		if (!window?.electronApi?.restartApp) {
+			return { success: false, error: 'Restart API unavailable' };
+		}
+
+		try {
+			return await window.electronApi.restartApp();
+		} catch (error) {
+			console.error('❌ Error restarting app:', error);
+			return { success: false, error: error?.message || 'Unexpected restart error' };
+		}
+	};
+
+	useEffect(() => {
+		if (updateStatus?.status === 'downloaded') {
+			setIsUpdatePopupVisible(true);
+			return;
+		}
+
+		// Hide the popup for any non-downloaded state
+		setIsUpdatePopupVisible(false);
+	}, [updateStatus]);
 
 	useEffect(() => {
 		// Set up update status listener
@@ -220,8 +233,7 @@ const App = () => {
 
 					case 'downloaded':
 						console.log(`✅ Update downloaded: ${data.version}`);
-						console.log('🔄 App will restart automatically in 3 seconds...');
-						// setShowUpdateNotification(true); // Commented out for auto restart
+						console.log('📣 Update prompt will appear so the user can restart manually.');
 						break;
 
 					case 'download-failed':
@@ -290,6 +302,14 @@ const App = () => {
 
 			{/* Global Download Progress Popup - persists across all routes */}
 			<DownloadProgressPopup />
+
+			{isUpdatePopupVisible && updateStatus?.status === 'downloaded' && (
+				<UpdateReadyPopup
+					updateInfo={updateStatus}
+					onRestart={handleRestartApp}
+					onDismiss={() => setIsUpdatePopupVisible(false)}
+				/>
+			)}
 		</>
 	);
 };
