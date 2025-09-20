@@ -530,10 +530,6 @@
 	border-radius: 16px;
 	border: 1px solid var(--stroke, #2c2d2e);
 	background-color: var(--popup);
-	position: absolute;
-	bottom: 20px;
-	left: 50%;
-	transform: translateX(-50%);
 	color: var(--secondary-font);
 	font-family: var(--primary-font-family);
 	font-size: 14px;
@@ -549,5 +545,26 @@
 
 	&:active {
 		opacity: 0.8;
+	}
+}
+
+.chatbox-wrapper {
+	width: 100%;
+	min-height: 57px;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 1000;
+	padding: 10px;
+	display: flex;
+	justify-content: center;
+	gap: 10px;
+
+	.chatbox-container {
+		width: 100%;
+		max-width: 500px;
+		min-height: 57px;
+		position: relative;
 	}
 }

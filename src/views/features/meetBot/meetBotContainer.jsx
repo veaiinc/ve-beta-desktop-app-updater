@@ -26,6 +26,7 @@ import DeleteModal from '../../components/modalsV2/DeleteModal/DeleteModal';
 import MeetingAnalytics from './MeetingAnalytics';
 import CustomTextArea from '../../components/globalComponents/CustomTextArea';
 import { debounce } from 'lodash';
+import ChatBox from '../../components/chat/ChatBox';
 
 const initialState = {
 	files: [],
@@ -249,6 +250,21 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		sendMessage: recallSendMessage,
 		closeWebSocketConnection: closeRecallConnection,
 	} = useRecallStream();
+
+	const handleActionClick = useCallback(
+		(data) => {
+			const newParams = new URLSearchParams(searchParams);
+			newParams.set('chat', 'true');
+			setSearchParams(newParams);
+			updateStateValues({
+				activePromptForChat: {
+					prompt: data?.currentQuery,
+					sessionId,
+				},
+			});
+		},
+		[sessionId],
+	);
 
 	// useEffect(() => {
 	// 	if (!aiLiveIntelligenceHistory) {
@@ -606,11 +622,11 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		setInfo((prev) => ({ ...prev, ...data }));
 	};
 
-	const handleChatBoxClick = () => {
-		setInfo((prev) => ({
-			...prev,
-			chatClicked: !prev.chatClicked,
-		}));
+	const handleChatBoxClick = (e) => {
+		e.stopPropagation();
+		const newParams = new URLSearchParams(searchParams);
+		newParams.set('chat', 'true');
+		setSearchParams(newParams);
 	};
 
 	// useEffect(() => {
@@ -906,11 +922,27 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						isAiIntelligenceEnabled={isAiIntelligenceEnabled}
 					/>
 				)} */}
+
 				{history && (
-					<button className="resume-meeting-button" onClick={handleResumeMeeting}>
-						<StepForward size={18} />
-						Resume meeting
-					</button>
+					<div className="chatbox-wrapper">
+						<button className="resume-meeting-button" onClick={handleResumeMeeting}>
+							<StepForward size={18} />
+							Resume
+						</button>
+						{!chat && (
+							<div className="chatbox-container" onClick={handleChatBoxClick}>
+								<ChatBox
+									onSend={handleActionClick}
+									customChatActions={true}
+									showUpgradeSubscriptionBtn={false}
+									sessionId={info?.sessionId}
+									animateChatBox={false}
+									placeholder="What should your agent help you with?"
+									showBottomTools={false}
+								/>
+							</div>
+						)}
+					</div>
 				)}
 			</div>
 
