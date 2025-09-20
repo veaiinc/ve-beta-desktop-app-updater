@@ -33,6 +33,10 @@
     `npm run clean:build`
 -   **Build NotchDrop only**:  
     `cd notchdrop-addon && sh build.sh`
+-   **Reset Sharp folders (cross-platform image builds)**:  
+    `npm run clean:sharp`
+-   **Smoke test native bridge wiring**:  
+    `npm run validate:notchdrop`
 
 ---
 
@@ -45,6 +49,13 @@
     -   `electron/notificationHelper.js`
     -   `electron/windowsCompatibility.js`
     -   `electron/services/notchDropService.js`
+    -   `electron/overlayWindowHelper.js`
+    -   `electron/galleryHelper.js` (Sharp/watermark pipeline + ZIP download helper)
+    -   `electron/imageProcessWorker.js` (worker thread for Sharp processing)
+    -   `electron/desktopUtilHelper.js`
+    -   `electron/updateHelper.js`
+    -   `electron/notchDropVoiceIntegration.js` (bridges Swift voice events to Electron)
+    -   `electron/wakeWordService.js` + `electron/wakeWord/` (Python wake-word integration)
 -   **HTML Entrypoints (Vite):**
     -   `index.html`, `overlay.html`, `askAI.html`, `dynamic-island.html`, `areYouThere.html`
 -   **Swift/Native addon (SwiftUI + ObjC + Node‑API):**
@@ -60,6 +71,8 @@
     -   `areYouThere.html`
 -   **Reference docs:**
     -   `CLAUDE.md`, `cursor.md`, `swift-watcher.config.js`
+-   **Automation scripts:**
+    -   `scripts/dev-with-swift-watch.js`, `scripts/swift-watcher.js`, `scripts/build-notchdrop-native.js`, `scripts/validate-notchdrop.js`
 
 ---
 
@@ -71,13 +84,20 @@
 -   **Main process**: registers handlers (`electron/main.js`)
 -   **IPC Channels (non-exhaustive):**
     -   Overlay controls: `overlay-start-recording`, `overlay-stop-recording`, `overlay-pause-recording`, `overlay-resume-recording`, `overlay-toggle-live-intelligence`, `overlay-get-recording-state`, `overlay-state-update`, `overlay-command`, `hide-overlay-window`
-    -   Dynamic Island: `dynamic-island-expand`, `dynamic-island-collapse`, `dynamic-island-toggle`, `dynamic-island-show|hide|focus`, `dynamic-island-chat-mode`, `dynamic-island-set-mouse-events`, `dynamic-island-voice-connect|disconnect|status`, `dynamic-island-state`, `overlay-state-changed`
+    -   Dynamic Island: `dynamic-island-expand`, `dynamic-island-collapse`, `dynamic-island-toggle`, `dynamic-island-show|hide|focus`, `dynamic-island-chat-mode`, `dynamic-island-set-mouse-events`, `dynamic-island-state`, `overlay-state-changed`
     -   Ask AI window: `toggle-askAI-window`, `show-askAI-window`, `is-askAI-window-visible`, `update-askAI-dimensions`, `set-askAI-ignore-mouse-events`, `set-askAI-input-focus`, `get-askAI-input-focus`, `send-chat-message-to-askai`, `force-open-askai-window`
     -   NotchDrop: `notchdrop-enable|disable|toggle`, `notchdrop-is-visible`, `notchdrop-set-status`, `notchdrop-get-status`, `notchdrop-handle-files`, `notchdrop-set-auto-open|get-auto-open`, `notchdrop-set-haptic-feedback|get-haptic-feedback`, `update-notchdrop-menu`, `notchdrop-open-airdrop|open-share|open-file|delete-file`, `notchdrop:triggerOverlay*`
     -   Swift bridge: `swift:action`, `swift:triggerOverlayRecording`, `swift:triggerOverlayToggleLiveIntelligence`, process events `swift-ui-trigger-overlay-recording*`, `pre-create-overlay-window`
     -   Are You There: `are-you-there-continue-meeting|auto-continue-meeting|stop-meeting|pause-meeting-intelligence|end-session|are-you-there-get-recording-time|are-you-there-check-recording-state`, window events `are-you-there-show-command|are-you-there-close-command`, plus transcription detection `update-transcription-activity`, `are-you-there-continue-transcription|stop-transcription-monitoring|pause-transcription-monitoring|end-transcription-session`, `get-transcription-detection-state`
-    -   System/permissions/utilities: `check-microphone-permission`, `request-microphone-permission`, `check-camera-permission`, `request-camera-permission`, `show-camera-permission-help`, `check-screen-recording-permission`, `request-screen-recording-permission`, `desktop:capture-screen`, `clipboard-write-text|read-text`, `open-dev-tools`
+    -   System/permissions/utilities: `check-microphone-permission`, `request-microphone-permission`, `check-camera-permission`, `request-camera-permission`, `show-camera-permission-help`, `check-screen-recording-permission`, `request-screen-recording-permission`, `clipboard-write-text|read-text`, `open-dev-tools`
     -   Auto-updater: `check-for-updates`, `download-update`, `force-download-update` with event `update-status`
+    -   Media & gallery tools: `process-image-with-sharp`, `process-image-batch` (sends `image-processing-progress`), `download-album-zip`, `create-zip-from-urls`
+    -   Screen capture & desktop: `desktop:capture-screen`, `start-screen-capture`, event `screen-audio`
+    -   Content protection & navigation: `toggle-content-protection`, `get-content-protection-status`, `set-content-protection`, `restore-main-window`, `save-current-route`, `navigate-main-window`
+    -   Filesystem bridge: `fs-ensure-dir`, `fs-write-file`, `fs-read-file`, `fs-read-file-binary`, `fs-exists`, `fs-remove`, `fs-readdir`
+    -   Voice & Dynamic Island: `dynamic-island-force-show`, `dynamic-island-start-recording-from-modal`, `dynamic-island-voice-connect|disconnect|status`, `dynamic-island-show-notification`, events `dynamic-island-notification`, `voice-status-changed`, `trigger-voice-mode`, `force-focus`
+    -   NotchDrop voice sync: `notchdrop-update-voice-status`, `notchdrop-update-voice-connection-state`, `notchdrop-update-voice-mute-state`, `notchdrop-add-voice-message`, `notchdrop:activateVoiceAgent|deactivateVoiceAgent|getVoiceAgentStatus`
+    -   Dev/test hooks: `test-overlay-connection`, `test-overlay-command`, `test-overlay-window`, `shortcut-activated`
 
 ### NotchDrop (Native Addon) Events
 
@@ -91,6 +111,9 @@ Emitted from native layer, handled by `electron/services/notchDropService.js`:
 -   `swiftLog` (forwarded to Electron logs/UI)
 -   `requestOverlayRecording` (triggers overlay recording)
 -   `submitChat` (Ask AI chat payload)
+-   `startVoiceAgent` / `disconnectVoice` / `toggleVoiceMute`
+-   `messageReceived` (Electron → Swift UI acknowledgement channel)
+-   `navigateToMainScreen` (requests renderer navigation)
 
 ---
 
@@ -121,8 +144,12 @@ notchdrop-addon/
 -   Add-on package.json scripts:
     -   `build`: `node-gyp rebuild`
     -   `clean`: `rimraf build dist`
+    -   `build:ui`: `vite build`
+    -   `build:all`: `npm run build && npm run build:ui`
+    -   `dev:ui`: `vite`
 -   **Dev script**:  
     `npm run dev:swift` (Vite + Swift watcher) or root: `npm run build:notchdrop:all`
+-   **Root helpers**: `npm run build:notchdrop:native`, `npm run build:notchdrop:ui`, `npm run validate:notchdrop`
 -   Always guard NotchDrop requires in code so CI never fails on Windows/Linux.
 
 ### API & Usage Example
@@ -144,6 +171,7 @@ Note: See the NotchDrop events list above for emitted events from the native lay
 -   **Swift**: Expose classes/methods as `@objc`, declare in headers.
 -   **Objective-C**: Wraps and exposes Swift to Node.js via `node-addon-api`.
 -   **Node.js Addon**: Exposes event-based API, only loaded on macOS in Electron main.
+-   **Voice bridge**: `electron/notchDropVoiceIntegration.js` keeps Swift voice events aligned with Dynamic Island / renderer voice IPC.
 
 ---
 
@@ -172,6 +200,7 @@ Note: See the NotchDrop events list above for emitted events from the native lay
     - Electron: ensure `notchDropService.js` `handleSwiftAction` is updated
     - Main: add `ipcMain.handle('swift:yourAction', ...)` if needed
     - Test: open Swift UI, trigger, confirm overlay receives overlay-command
+    - Sanity check: run `npm run validate:notchdrop`
 
 3. **Modify overlay window/state sync**
 
@@ -197,7 +226,7 @@ Note: See the NotchDrop events list above for emitted events from the native lay
     `cd notchdrop-addon && sh build.sh`  
     If needed, then: `npx electron-rebuild -f -w notchdrop-addon`
 -   Ensure add-on is unpacked in Electron ASAR. See `package.json > build.mac.asarUnpack` and `extraResources` entries for `notchdrop-addon/**`.
--   Exposed events: `statusChanged`, `fileDropped`, `itemAdded`, `itemRemoved`, `swiftAction`
+-   Exposed events: `statusChanged`, `fileDropped`, `itemAdded`, `itemRemoved`, `swiftAction`, `swiftLog`, `requestOverlayRecording`, `submitChat`, `startVoiceAgent`, `disconnectVoice`, `toggleVoiceMute`, `messageReceived`, `navigateToMainScreen`
 -   Extend Swift actions: add in bridge, wire through Electron, update docs here.
 
 ---
@@ -258,6 +287,35 @@ Note: See the NotchDrop events list above for emitted events from the native lay
     -   Context files: camelCase
     -   SCSS: kebab-case
 -   Use only `electronApi` (preload) for renderer IPC, never direct `ipcRenderer`
+
+---
+
+## Clean Code & Architecture Playbook
+
+-   **General discipline**
+    -   Keep functions focused on a single responsibility; extract helpers when a block does more than one conceptual task (Refactoring.Guru, Clean Code).
+    -   Fail fast: validate inputs and surface actionable errors instead of silently ignoring edge cases.
+    -   Prefer composition over inheritance unless a subtype strengthens the original contract; default to plain functions or factory helpers when inheritance adds little value.
+    -   Make side effects explicit (naming, documentation, return values) so async pipelines stay predictable across Electron ↔ Swift boundaries.
+-   **Naming strategy (Google JS Style Guide, domain-driven design)**
+    -   Variables and state: nouns that describe observable state (`recordingState`, `voiceSessionId`).
+    -   Functions/events: verb-first phrases that reveal intent and tense (`scheduleOverlayRefresh`, `handleSwiftStatusChanged`).
+    -   Booleans: prefix with `is/has/should/can` to clarify truthy semantics; align with renderer IPC channel names.
+    -   Cross-layer constants: mirror platform terminology (Swift, Electron, React) to avoid translation bugs—rename all three layers together when semantics shift.
+-   **Folder structure guardrails (12-Factor App, industry patterns)**
+    -   Organize by feature/domain first (`notchdrop-addon/`, `dynamic-island/`), then by technical type inside each feature (`services/`, `hooks/`, `components/`).
+    -   Keep platform-specific code isolated (e.g., macOS-only Swift files, Windows helpers) and guard imports with runtime checks so other platforms tree-shake cleanly.
+    -   Co-locate tests, stories, and docs with their feature modules to keep refactors localized.
+    -   For scripts, keep entry points flat (`scripts/*.js`) and push reusable logic into `src/scripts/`-style helpers to prevent copy/paste drift.
+-   **JavaScript/TypeScript classes (MDN, Clean Architecture)**
+    -   Use classes when a cohesive set of data + behavior share invariants (e.g., cache managers, IPC service wrappers); otherwise default to pure functions or factory patterns.
+    -   Keep constructors lightweight: assign dependencies, validate arguments, avoid async work—defer initialization to explicit `init()` methods when side effects are required.
+    -   Seal public surface area early (`Object.freeze` for configs, TypeScript interfaces) so Electron preload exposure stays deterministic.
+    -   Document required lifecycle hooks (e.g., `dispose`, `teardown`) and enforce via shared base mixins or lint rules to avoid leaked event listeners.
+-   **Documentation & review hooks**
+    -   Update this playbook whenever we add new naming patterns or module boundaries—treat it as the arbitrator during code review.
+    -   Capture deviations with rationale (why this module breaks the rule) so future agents do not “fix” intentional designs.
+    -   Sources referenced: Google JavaScript Style Guide, Refactoring.Guru code smell catalog, MDN JavaScript Classes reference, Twelve-Factor App codebase guidance.
 
 ---
 
@@ -338,9 +396,13 @@ I'm equipped to handle complex multi-language, multi-platform development tasks 
 -   electron/preload.js
 -   electron/helpers/windowHelper.js
 -   electron/services/notchDropService.js
+-   electron/galleryHelper.js
+-   electron/imageProcessWorker.js
+-   electron/notchDropVoiceIntegration.js
 -   src/notch/components/DynamicIslandUI.jsx
 -   notchdrop-addon/index.js
 -   notchdrop-addon/swift-js-bridge.js
+-   scripts/validate-notchdrop.js
 -   vite.config.js
 -   package.json
 
@@ -352,6 +414,8 @@ I'm equipped to handle complex multi-language, multi-platform development tasks 
     `cd notchdrop-addon && sh build.sh`  
     If it still fails: `npx electron-rebuild -f -w notchdrop-addon`  
     Confirm `asarUnpack` includes native binary; verify it’s bundled.
+-   **Sharp/image processing errors:**  
+    Run `npm run clean:sharp` then reinstall (`npm install`) so all platform-specific Sharp folders exist.
 -   **Global shortcuts not working (macOS):**  
     Grant Accessibility permissions, check main logs.
 -   **Update errors/checksum mismatch (Windows):**  

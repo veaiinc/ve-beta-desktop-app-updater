@@ -1433,7 +1433,6 @@ class WindowHelper {
 				this.mainWindow.webContents.executeJavaScript(`
 					if (window.electronApi && window.electronApi.toggleContentProtection) {
 						window.electronApi.toggleContentProtection().then(status => {
-							console.log('🎯 Content Protection toggled via shortcut:', status ? 'ON' : 'OFF');
 						}).catch(err => {
 							console.error('Error toggling content protection:', err);
 						});
@@ -1444,7 +1443,6 @@ class WindowHelper {
 
 		if (cmdShiftPRegistered) {
 		} else {
-			log.error('❌ Failed to register Cmd+Shift+P shortcut for content protection');
 			// Try alternative shortcut on Windows
 			if (process.platform === 'win32') {
 				const altProtectionRegistered = globalShortcut.register('Ctrl+Alt+P', () => {
@@ -1452,7 +1450,6 @@ class WindowHelper {
 						this.mainWindow.webContents.executeJavaScript(`
 							if (window.electronApi && window.electronApi.toggleContentProtection) {
 								window.electronApi.toggleContentProtection().then(status => {
-									console.log('🎯 Content Protection toggled via shortcut:', status ? 'ON' : 'OFF');
 								}).catch(err => {
 									console.error('Error toggling content protection:', err);
 								});
@@ -1481,7 +1478,6 @@ class WindowHelper {
 
 		if (cmdEnterRegistered) {
 		} else {
-			log.error('❌ Failed to register Cmd+Enter shortcut');
 			// On Windows, try alternative shortcuts if the main one fails
 			if (process.platform === 'win32') {
 				// Try Ctrl+Alt+A as alternative for Ask AI
@@ -1507,25 +1503,20 @@ class WindowHelper {
 				if (this.mainWindow.isVisible()) {
 					// Hide main window
 					this.mainWindow.hide();
-					log.info('🎯 Main window hidden via Cmd+. shortcut');
 				} else {
 					// Show main window
 					this.mainWindow.show();
 					this.mainWindow.focus();
-					log.info('🎯 Main window shown via Cmd+. shortcut');
 				}
 			} else {
 				// Main window doesn't exist, recreate it
-				log.info('🎯 Main window not found, recreating via Cmd+. shortcut');
 				// This will be handled by the main process
 				process.emit('recreate-main-window');
 			}
 		});
 
 		if (cmdPeriodRegistered) {
-			log.info('✅ Cmd+. shortcut registered successfully');
 		} else {
-			log.error('❌ Failed to register Cmd+. shortcut');
 			// On Windows, try alternative shortcuts if the main one fails
 			if (process.platform === 'win32') {
 				// Try Ctrl+Alt+M as alternative for main window toggle
@@ -1533,19 +1524,15 @@ class WindowHelper {
 					if (this.mainWindow && !this.mainWindow.isDestroyed()) {
 						if (this.mainWindow.isVisible()) {
 							this.mainWindow.hide();
-							log.info('🎯 Main window hidden via Ctrl+Alt+M shortcut');
 						} else {
 							this.mainWindow.show();
 							this.mainWindow.focus();
-							log.info('🎯 Main window shown via Ctrl+Alt+M shortcut');
 						}
 					} else {
-						log.info('🎯 Main window not found, recreating via Ctrl+Alt+M shortcut');
 						process.emit('recreate-main-window');
 					}
 				});
 				if (altMainRegistered) {
-					log.info('✅ Ctrl+Alt+M shortcut registered as alternative');
 				}
 			}
 		}
