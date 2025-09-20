@@ -80,13 +80,22 @@
 		gap: 10px;
 
 		.toggleButton {
-			color: var(--primary-font);
+			align-items: center;
+			background: var(--card, #1b1c1d);
+			border: 1px solid var(--card, #1b1c1d);
+			border-radius: 100px;
+			color: var(--secondary-font, #94989e);
+			cursor: pointer;
+			display: flex;
 			font-family: var(--primary-font-family);
-			font-size: 12px;
+			font-size: 15px;
 			font-style: normal;
 			font-weight: 500;
-			line-height: normal;
-			cursor: pointer;
+			gap: 8px;
+			height: 36px;
+			justify-content: center;
+			line-height: 26px;
+			padding: 8px 16px;
 		}
 	}
 }
