@@ -146,6 +146,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 				callback(data);
 			});
 		},
+		getWorkArea: () => {
+			return ipcRenderer.invoke('get-workarea');
+		},
 
 		// Listen for chat messages from Dynamic Island
 		onReceiveChatMessage: (callback) => {

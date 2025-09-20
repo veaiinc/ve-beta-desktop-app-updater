@@ -1476,13 +1476,22 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	ipcMain.handle('update-askAI-dimensions', async (event, { width, height }) => {
+	ipcMain.handle('update-askAI-dimensions', async (event, { width, height, position }) => {
 		try {
-			windowHelper?.updateAskAIWindowDimensions(width, height);
+			windowHelper?.updateAskAIWindowDimensions(width, height, position);
 			return { success: true };
 		} catch (error) {
 			log.error('Error updating Ask AI dimensions:', error);
 			return { success: false, error: error.message };
+		}
+	});
+	ipcMain.handle('get-workarea', async () => {
+		try {
+			const workArea = screen.getPrimaryDisplay().workAreaSize;
+			return workArea;
+		} catch (error) {
+			log.error('Error getting workarea:', error);
+			return {};
 		}
 	});
 
