@@ -5,10 +5,11 @@ import { Markdown } from '../../../helpers/markdownHelper';
 import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';
 import ClockSvg from '../meetBot/clock.svg';
+import DownSvg from '../../../assets/svg/activity/DownSvg';
 
 const MeetSummary = ({ meetingId }) => {
 	const {
-		notes: { meetSummary, getMeetingAnalytics },
+		notes: { getMeetingAnalytics },
 		templates: { updateStateValues },
 	} = useContext(Context);
 
@@ -207,7 +208,7 @@ const MeetSummary = ({ meetingId }) => {
 				<div className={s.sectionHeader} onClick={() => toggleSection('chapters')}>
 					<h3>Chapters & Topics:</h3>
 					<span className={`${s.chevron} ${expandedSections.chapters ? s.expanded : ''}`}>
-						▼
+						<DownSvg />
 					</span>
 				</div>
 
@@ -250,7 +251,7 @@ const MeetSummary = ({ meetingId }) => {
 					<span
 						className={`${s.chevron} ${expandedSections.decisions ? s.expanded : ''}`}
 					>
-						▼
+						<DownSvg />
 					</span>
 				</div>
 
