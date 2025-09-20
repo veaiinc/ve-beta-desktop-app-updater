@@ -1,6 +1,7 @@
 const path = require('path');
 const log = require('electron-log');
 const { BrowserWindow } = require('electron');
+const { WakeWordIntegration } = require('../../notchdrop-addon/wake-word-integration');
 
 let NotchDropAddonWrapper;
 
@@ -21,6 +22,9 @@ class NotchDropService {
 			setStatus: null,
 		};
 		this.isStealthModeEnabled = false;
+		
+		// Wake word integration
+		this.wakeWordIntegration = null;
 	}
 
 	async initialize() {
@@ -92,6 +96,16 @@ class NotchDropService {
 
 			// Sync stealth mode state for initial render
 			await this.syncStealthModeState();
+
+			// Phase 7: Initialize wake word integration
+			try {
+				this.wakeWordIntegration = new WakeWordIntegration(this);
+				await this.wakeWordIntegration.start();
+				log.info('✅ Wake word integration initialized - "Hey Ve" detection active');
+			} catch (wakeWordError) {
+				log.warn('⚠️ Wake word integration failed to start:', wakeWordError.message);
+				// Continue without wake word - not critical for core functionality
+			}
 
 			// Auto-open NotchDrop after initialization if enabled
 			if (this.autoOpenOnStartup) {
