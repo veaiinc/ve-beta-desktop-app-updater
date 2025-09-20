@@ -535,6 +535,14 @@ class NotchDropAddonWrapper extends EventEmitter {
 			case 'receiveMessage':
 				this.handleReceivedMessage(data);
 				break;
+			case 'toggleStealthMode':
+				this.emit('toggleStealthMode', data);
+				break;
+			// Wake Word Detection Actions
+			case 'wakeWordDetected':
+				console.log('🎯 NotchDrop: Wake word detected with score:', data);
+				this.emit('wakeWordDetected', parseFloat(data) || 0.0);
+				break;
 			default:
 				console.error('❌ Unknown Swift action:', action);
 		}
@@ -1099,6 +1107,21 @@ class NotchDropAddonWrapper extends EventEmitter {
 		}
 	}
 
+	updateStealthModeState(isEnabled) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			if (typeof this.addon.updateStealthModeState === 'function') {
+				this.addon.updateStealthModeState(Boolean(isEnabled));
+			}
+			console.log(`🏴‍☠️ Stealth mode state updated: ${Boolean(isEnabled)}`);
+		} catch (error) {
+			console.error('❌ Error updating stealth mode state:', error);
+			throw error;
+		}
+	}
+
 	// Add voice message from JavaScript
 	addVoiceMessage(messageData) {
 		if (!this.isInitialized) {
@@ -1117,6 +1140,21 @@ class NotchDropAddonWrapper extends EventEmitter {
 		} catch (error) {
 			console.error('❌ Error adding voice message:', error);
 			throw error;
+		}
+	}
+
+	// MARK: - Wake Word Detection Methods
+
+	handleWakeWordDetected(score) {
+		if (!this.isInitialized) {
+			console.warn('NotchDrop not initialized, cannot handle wake word detection');
+			return;
+		}
+		try {
+			this.addon.handleWakeWordDetected(score);
+			console.log(`🎯 Wake word detected with score: ${score} - activating voice agent!`);
+		} catch (error) {
+			console.error('❌ Error handling wake word detection:', error);
 		}
 	}
 

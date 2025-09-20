@@ -142,13 +142,9 @@ const toggleContentProtection = () => {
 		}
 	});
 
-	const status = isContentProtectionEnabled ? 'ON' : 'OFF';
-	log.info(
-		`🔒 Content protection: ${status} - Applied to ${protectedCount} windows (main window excluded)`,
-	);
-	console.log(
-		`🔒 CONTENT PROTECTION: ${status} (${protectedCount} windows protected, main window always visible)`,
-	);
+	if (notchDropService && typeof notchDropService.updateStealthModeState === 'function') {
+		notchDropService.updateStealthModeState(isContentProtectionEnabled);
+	}
 
 	return isContentProtectionEnabled;
 };
@@ -176,6 +172,10 @@ const setContentProtection = (enabled) => {
 			isContentProtectionEnabled ? 'ON' : 'OFF'
 		} (main window excluded)`,
 	);
+
+	if (notchDropService && typeof notchDropService.updateStealthModeState === 'function') {
+		notchDropService.updateStealthModeState(isContentProtectionEnabled);
+	}
 	return isContentProtectionEnabled;
 };
 
@@ -188,11 +188,6 @@ const applyContentProtectionToWindow = (window) => {
 		}
 
 		window.setContentProtection(isContentProtectionEnabled);
-		log.info(
-			`🔒 Applied content protection (${
-				isContentProtectionEnabled ? 'ON' : 'OFF'
-			}) to new window: ${window.getTitle()}`,
-		);
 	}
 };
 
@@ -252,8 +247,6 @@ autoUpdater.on('update-downloaded', (info) =>
 		info,
 		mainWindow,
 		setIsUpdateInProgress,
-		dynamicIslandHelper,
-		windowHelper,
 	}),
 );
 
@@ -991,22 +984,17 @@ function setupNotchDropMenuUpdates() {
 	// Listen for NotchDrop service events to update menu
 	if (notchDropService.notchDropAddon) {
 		notchDropService.notchDropAddon.on('statusChanged', (status) => {
-			log.info('📊 NotchDrop status changed, updating menu:', status);
 			updateMenuBarState();
 		});
 
 		notchDropService.notchDropAddon.on('itemAdded', () => {
-			log.info('📊 NotchDrop item added, updating menu');
 			updateMenuBarState();
 		});
 
 		notchDropService.notchDropAddon.on('itemRemoved', () => {
-			log.info('📊 NotchDrop item removed, updating menu');
 			updateMenuBarState();
 		});
 	}
-
-	log.info('✅ NotchDrop menu update listeners set up');
 }
 
 // Update menu bar to reflect current NotchDrop state
@@ -1220,7 +1208,7 @@ function createWindow(restoreState = false) {
 		saveWindowState();
 
 		// Cross-platform close behavior - keep app running in background
-		if (!isQuitting) {
+		if (!isQuitting && !isUpdateInProgress) {
 			event.preventDefault();
 			mainWindow.hide();
 			log.info('Main window hidden - app continues running in background');
@@ -1529,9 +1517,6 @@ app.whenReady().then(async () => {
 				: `👁️ INVISIBILITY OFF - ${windowCount} windows are now visible in screen recording`,
 		);
 
-		// Also log to console for debugging
-		console.log(`🎯 TOGGLE TRIGGERED: Content Protection is now ${statusText}`);
-
 		return newStatus;
 	});
 
@@ -1575,13 +1560,22 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	ipcMain.handle('update-askAI-dimensions', async (event, { width, height }) => {
+	ipcMain.handle('update-askAI-dimensions', async (event, { width, height, position }) => {
 		try {
-			windowHelper?.updateAskAIWindowDimensions(width, height);
+			windowHelper?.updateAskAIWindowDimensions(width, height, position);
 			return { success: true };
 		} catch (error) {
 			log.error('Error updating Ask AI dimensions:', error);
 			return { success: false, error: error.message };
+		}
+	});
+	ipcMain.handle('get-workarea', async () => {
+		try {
+			const workArea = screen.getPrimaryDisplay().workAreaSize;
+			return workArea;
+		} catch (error) {
+			log.error('Error getting workarea:', error);
+			return {};
 		}
 	});
 
@@ -1644,6 +1638,11 @@ app.whenReady().then(async () => {
 		notchDropService = new NotchDropService();
 		notchDropService.setMainWindow(mainWindow);
 		notchDropService.setMainWindowFactory((restoreState = false) => createWindow(restoreState));
+		notchDropService.setStealthModeController({
+			toggle: toggleContentProtection,
+			getStatus: getContentProtectionStatus,
+			setStatus: setContentProtection,
+		});
 
 		// CRITICAL: Ensure NotchDrop service fully initializes before proceeding
 		let notchDropInitialized = false;
@@ -4128,7 +4127,9 @@ app.whenReady().then(async () => {
 });
 
 // Handle app quit properly - but allow updates to proceed
+
 app.on('before-quit', (event) => {
+	isQuitting = true;
 	// Only prevent quit if update is not in progress
 	if (!isUpdateInProgress) {
 		// Prevent default quit behavior to allow cleanup
@@ -4182,7 +4183,8 @@ ipcMain.handle('update-overlay-dimensions', async (event, { width, height }) => 
 	}
 });
 
-const handleCleanupAndQuit = () =>
+const handleCleanupAndQuit = () => {
+	isQuitting = true;
 	cleanupAndQuit({
 		dynamicIslandHelper,
 		windowHelper,
@@ -4190,6 +4192,7 @@ const handleCleanupAndQuit = () =>
 		areYouThereTimer,
 		transcriptionDetectionTimer,
 	});
+};
 
 // Are You There timer functions
 function startAreYouThereTimer() {

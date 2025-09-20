@@ -79,62 +79,20 @@ const handleError = ({ err, setIsUpdateInProgress, mainWindow }) => {
 	}
 };
 
-const handleUpdateDownloaded = ({
-	info,
-	mainWindow,
-	setIsUpdateInProgress,
-	dynamicIslandHelper,
-	windowHelper,
-}) => {
+const handleUpdateDownloaded = ({ info, mainWindow, setIsUpdateInProgress }) => {
 	log.info('Update downloaded:', info);
 
-	// Show user-friendly message about automatic restart
+	const versionLabel = info?.version ? `Update ${info.version}` : 'Update';
+
+	// Notify renderer so it can surface a restart prompt instead of forcing a quit
 	mainWindow?.webContents.send('update-status', {
 		status: 'downloaded',
-		version: info.version,
-		message: 'Update downloaded! App will restart automatically in 5 seconds...',
+		version: info?.version,
+		releaseName: info?.releaseName,
+		releaseDate: info?.releaseDate,
+		releaseNotes: info?.releaseNotes,
+		message: `${versionLabel} downloaded. Restart to apply when you're ready.`,
 	});
-
-	// Auto-restart after 5 seconds with proper cleanup
-	setTimeout(() => {
-		log.info('🔄 Auto-restarting app to install update...');
-
-		// Set flag to prevent further update operations
-		setIsUpdateInProgress(true);
-
-		// Clean up services gracefully
-		if (dynamicIslandHelper) {
-			try {
-				dynamicIslandHelper.close();
-			} catch (error) {
-				log.error('Error closing dynamicIslandHelper:', error);
-			}
-			dynamicIslandHelper = null;
-		}
-
-		if (windowHelper) {
-			try {
-				windowHelper.cleanup();
-			} catch (error) {
-				log.error('Error cleaning up windowHelper:', error);
-			}
-			windowHelper = null;
-		}
-
-		// Close all windows
-		BrowserWindow.getAllWindows().forEach((window) => {
-			if (window && !window.isDestroyed()) {
-				try {
-					window.destroy();
-				} catch (error) {
-					log.error('Error destroying window during update:', error);
-				}
-			}
-		});
-
-		// Restart automatically with proper parameters
-		autoUpdater.quitAndInstall(true, true); // Force quit and install
-	}, 5000);
 };
 
 const ipcMainHandleCheckForUpdates = async ({
