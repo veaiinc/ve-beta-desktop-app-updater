@@ -67,6 +67,7 @@ import {
 	getMeetTranscriptHistoryQuery,
 	getAiLiveIntelligenceHistoryQuery,
 	deleteMeetingMutation,
+	updateMeetingMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -2158,6 +2159,29 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const updateMeeting = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				updateMeetingMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'meeting_api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.UPDATE_MEETING,
+					payload: response?.[1]?.data?.updateMeeting,
+				});
+				return response;
+			}
+		} catch (error) {
+			console.error('error==>updateMeeting', error);
+		}
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -2225,5 +2249,6 @@ export const NotesState = (props) => {
 		getAiLiveIntelligenceHistory,
 		initializeMeetingSummary,
 		deleteMeeting,
+		updateMeeting,
 	};
 };

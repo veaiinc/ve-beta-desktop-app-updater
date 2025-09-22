@@ -83,6 +83,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 			callback(...args);
 		});
 	},
+
+	minimizeMainWindow: () => ipcRenderer.invoke('minimize-main-window'),
 	// Overlay window APIs
 	overlay: {
 		toggleWindow: () => ipcRenderer.invoke('toggle-overlay-window'),
@@ -145,6 +147,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 			ipcRenderer.on('receive-tab-content', (event, data) => {
 				callback(data);
 			});
+		},
+		getWorkArea: () => {
+			return ipcRenderer.invoke('get-workarea');
 		},
 
 		// Listen for chat messages from Dynamic Island

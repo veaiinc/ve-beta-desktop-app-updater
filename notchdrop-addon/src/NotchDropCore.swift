@@ -578,6 +578,15 @@ class NotchDropPanel: NSPanel {
         }
     }
     
+    // MARK: - Wake Word Detection Methods
+    
+    @objc public func handleWakeWordDetected(_ score: Float) {
+        DispatchQueue.main.async { [weak self] in
+            guard let viewModel = self?.notchViewModel else { return }
+            viewModel.handleWakeWordDetected(score: score)
+        }
+    }
+    
     // MARK: - Swift Action Handling
     private func handleSwiftAction(_ action: NotchViewModel.SwiftAction) {
         // print("🔍 DEBUG: NotchDropCore handling Swift action: \(action)")
@@ -627,10 +636,24 @@ class NotchDropPanel: NSPanel {
             swiftActionCallback?("startVoiceAgent", "")
         case .receiveMessage(let message):
             swiftActionCallback?("receiveMessage", message)
+        // Wake Word Detection Actions
+        case .wakeWordDetected(let score):
+            swiftActionCallback?("wakeWordDetected", String(score))
         // Notification Actions
         case .showNotification(let title, let body, let type):
             let notificationData = "\(title)|\(body)|\(type)"
             swiftActionCallback?("showNotification", notificationData)
+        // Webcam Actions
+        case .toggleWebcam:
+            swiftActionCallback?("toggleWebcam", "")
+        case .startWebcam:
+            swiftActionCallback?("startWebcam", "")
+        case .stopWebcam:
+            swiftActionCallback?("stopWebcam", "")
+        case .checkCameraPermission:
+            swiftActionCallback?("checkCameraPermission", "")
+        case .requestCameraPermission:
+            swiftActionCallback?("requestCameraPermission", "")
         case .toggleStealthMode:
             swiftActionCallback?("toggleStealthMode", "")
         }

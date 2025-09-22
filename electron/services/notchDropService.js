@@ -1,6 +1,7 @@
 const path = require('path');
 const log = require('electron-log');
 const { BrowserWindow } = require('electron');
+const { WakeWordIntegration } = require('../../notchdrop-addon/wake-word-integration');
 
 let NotchDropAddonWrapper;
 
@@ -10,7 +11,11 @@ class NotchDropService {
 		this.isInitialized = false;
 		this.isEnabled = false;
 		this.autoOpenOnStartup = true; // Auto-open NotchDrop when app starts
-		this.platformSupported = process.platform === 'darwin';
+		// NotchDrop only supported on Apple Silicon Macs (not Intel Macs)
+		// Support testing overrides via environment variables
+		const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
+		const RUNTIME_ARCH = process.env.VE_FORCE_ARCH || process.arch;
+		this.platformSupported = RUNTIME_PLATFORM === 'darwin' && RUNTIME_ARCH === 'arm64';
 
 		// Swift-JS Bridge integration
 		this.swiftJSBridge = null;
@@ -21,6 +26,9 @@ class NotchDropService {
 			setStatus: null,
 		};
 		this.isStealthModeEnabled = false;
+		
+		// Wake word integration
+		this.wakeWordIntegration = null;
 	}
 
 	async initialize() {
@@ -28,9 +36,19 @@ class NotchDropService {
 			// Phase 1: Pre-warm bridge BEFORE addon initialization
 			await this.preWarmBridge();
 
-			// Phase 2: Load and initialize addon with bridge ready (macOS only)
+			// Phase 2: Load and initialize addon with bridge ready (Apple Silicon Mac only)
 			if (!this.platformSupported) {
-				log.info('ℹ️ NotchDrop not supported on this platform:', process.platform);
+				const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
+				const RUNTIME_ARCH = process.env.VE_FORCE_ARCH || process.arch;
+				if (RUNTIME_PLATFORM !== 'darwin') {
+					log.info('ℹ️ NotchDrop not supported on this platform:', RUNTIME_PLATFORM);
+				} else {
+					log.info(
+						'ℹ️ NotchDrop not supported on Intel Mac (arch:',
+						RUNTIME_ARCH,
+						') - using Dynamic Island instead',
+					);
+				}
 				this.isInitialized = false;
 				return false;
 			}
@@ -92,6 +110,16 @@ class NotchDropService {
 
 			// Sync stealth mode state for initial render
 			await this.syncStealthModeState();
+
+			// Phase 7: Initialize wake word integration
+			try {
+				this.wakeWordIntegration = new WakeWordIntegration(this);
+				await this.wakeWordIntegration.start();
+				log.info('✅ Wake word integration initialized - "Hey Ve" detection active');
+			} catch (wakeWordError) {
+				log.warn('⚠️ Wake word integration failed to start:', wakeWordError.message);
+				// Continue without wake word - not critical for core functionality
+			}
 
 			// Auto-open NotchDrop after initialization if enabled
 			if (this.autoOpenOnStartup) {
@@ -470,7 +498,9 @@ class NotchDropService {
 				}
 			}
 
-			log.warn('⚠️ Unable to navigate main window - no window available', { path: normalizedPath });
+			log.warn('⚠️ Unable to navigate main window - no window available', {
+				path: normalizedPath,
+			});
 			return false;
 		} catch (error) {
 			log.error('❌ Failed to navigate main window from NotchDrop request:', error);
@@ -623,7 +653,9 @@ class NotchDropService {
 
 			if (action === 'navigateToMainScreen') {
 				const resolvedPath =
-					typeof data === 'string' && data.trim().length > 0 ? data.trim() : '/verify-user';
+					typeof data === 'string' && data.trim().length > 0
+						? data.trim()
+						: '/verify-user';
 				const navigationSucceeded = this.navigateMainWindow(resolvedPath);
 				return {
 					success: navigationSucceeded,

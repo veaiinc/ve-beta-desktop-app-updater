@@ -445,6 +445,9 @@ class NotchDropAddonWrapper extends EventEmitter {
 			'stopRecording',
 			'pauseRecording',
 			'resumeRecording',
+			'toggleWebcam',
+			'startWebcam',
+			'stopWebcam',
 		];
 		return criticalActions.includes(action);
 	}
@@ -462,6 +465,11 @@ class NotchDropAddonWrapper extends EventEmitter {
 				return this.triggerOverlayPauseRecordingImmediate();
 			case 'resumeRecording':
 				return this.triggerOverlayResumeRecordingImmediate();
+			case 'toggleWebcam':
+			case 'startWebcam':
+			case 'stopWebcam':
+				// Execute webcam actions immediately
+				return this.executeAction(action, data);
 			default:
 				// Fallback to normal execution
 				return this.executeAction(action, data);
@@ -501,17 +509,20 @@ class NotchDropAddonWrapper extends EventEmitter {
 			case 'sendChatMessageToAskAI':
 				this.emit('sendChatMessageToAskAI', data);
 				break;
-		case 'setAuthenticated':
-			this.emit('setAuthenticated', data === 'true');
-			break;
-		case 'navigateToMainScreen': {
-			const targetPath = typeof data === 'string' && data.trim().length > 0 ? data.trim() : '/verify-user';
-			this.emit('navigateToMainScreen', targetPath);
-			break;
-		}
-		case 'sendLog':
-			this.handleSwiftLog(data);
-			break;
+			case 'setAuthenticated':
+				this.emit('setAuthenticated', data === 'true');
+				break;
+			case 'navigateToMainScreen': {
+				const targetPath =
+					typeof data === 'string' && data.trim().length > 0
+						? data.trim()
+						: '/verify-user';
+				this.emit('navigateToMainScreen', targetPath);
+				break;
+			}
+			case 'sendLog':
+				this.handleSwiftLog(data);
+				break;
 			// Voice Assistant Actions
 			case 'connectVoice':
 				this.emit('connectVoice', data);
@@ -535,8 +546,29 @@ class NotchDropAddonWrapper extends EventEmitter {
 			case 'receiveMessage':
 				this.handleReceivedMessage(data);
 				break;
+			// Webcam Actions
+			case 'toggleWebcam':
+				this.emit('toggleWebcam', data);
+				break;
+			case 'startWebcam':
+				this.emit('startWebcam', data);
+				break;
+			case 'stopWebcam':
+				this.emit('stopWebcam', data);
+				break;
+			case 'checkCameraPermission':
+				this.emit('checkCameraPermission', data);
+				break;
+			case 'requestCameraPermission':
+				this.emit('requestCameraPermission', data);
+				break;
 			case 'toggleStealthMode':
 				this.emit('toggleStealthMode', data);
+				break;
+			// Wake Word Detection Actions
+			case 'wakeWordDetected':
+				console.log('🎯 NotchDrop: Wake word detected with score:', data);
+				this.emit('wakeWordDetected', parseFloat(data) || 0.0);
 				break;
 			default:
 				console.error('❌ Unknown Swift action:', action);
@@ -1135,6 +1167,21 @@ class NotchDropAddonWrapper extends EventEmitter {
 		} catch (error) {
 			console.error('❌ Error adding voice message:', error);
 			throw error;
+		}
+	}
+
+	// MARK: - Wake Word Detection Methods
+
+	handleWakeWordDetected(score) {
+		if (!this.isInitialized) {
+			console.warn('NotchDrop not initialized, cannot handle wake word detection');
+			return;
+		}
+		try {
+			this.addon.handleWakeWordDetected(score);
+			console.log(`🎯 Wake word detected with score: ${score} - activating voice agent!`);
+		} catch (error) {
+			console.error('❌ Error handling wake word detection:', error);
 		}
 	}
 

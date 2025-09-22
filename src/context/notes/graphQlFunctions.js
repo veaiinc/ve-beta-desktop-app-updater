@@ -1232,3 +1232,12 @@ export const getAiLiveIntelligenceHistoryQuery = gql`
 		}
 	}
 `;
+
+export const updateMeetingMutation = gql`
+	mutation UpdateMeeting($meetingId: ID!, $input: MeetingUpdateInput) {
+		updateMeeting(meetingId: $meetingId, input: $input) {
+			_id
+			title
+		}
+	}
+`;

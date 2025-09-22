@@ -93,14 +93,18 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 			const type = response?.[1]?.data?.startMeeting?.transcriptionSource;
 
 			if (meetingId && type) {
-				navigate(
-					`/meet/${meetingId}?type=${type}&isAiIntelligenceEnabled=${formData.isAiIntelligenceEnabled}`,
-				);
+				// navigate(
+				// 	`/meet/${meetingId}?type=${type}&isAiIntelligenceEnabled=${formData.isAiIntelligenceEnabled}`,
+				// );
 
 				if (window.electronApi) {
 					window.electronApi.overlay.startRecording({
 						...(response?.[1]?.data?.startMeeting || {}),
 					});
+
+					
+
+					window.electronApi.minimizeMainWindow();
 
 					// Trigger Dynamic Island recording for Windows (desktop mode only)
 					if (formData.selectedMode === 'desktop') {
