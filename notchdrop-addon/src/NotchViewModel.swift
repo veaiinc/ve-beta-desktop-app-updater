@@ -160,6 +160,14 @@ class NotchViewModel: NSObject, ObservableObject {
     private var voiceURL: String = "wss://ve-ai-voice-agent-ginreaey.livekit.cloud"
     private var voiceToken: String = ""
     
+    // Camera/Webcam state
+    @Published var isCameraActive: Bool = false
+    @Published var showCameraPreview: Bool = false  // Controls whether to show camera preview or icon
+    @Published var cameraPermission: String = "not-determined" // 'not-determined', 'granted', 'denied', 'restricted'
+    @Published var cameraError: String? = nil
+    @Published var isCameraStarting: Bool = false
+    @Published var cameraStatus: String = "idle" // 'idle', 'starting', 'active', 'error'
+    
     // Event emitters for JavaScript integration
     let swiftActionSender = PassthroughSubject<SwiftAction, Never>()
     
@@ -189,6 +197,12 @@ class NotchViewModel: NSObject, ObservableObject {
         case wakeWordDetected(Float)
         // Notification Actions
         case showNotification(String, String, String)
+        // Webcam Actions
+        case toggleWebcam
+        case startWebcam
+        case stopWebcam
+        case checkCameraPermission
+        case requestCameraPermission
         case toggleStealthMode
     }
     
@@ -261,6 +275,7 @@ class NotchViewModel: NSObject, ObservableObject {
     func stopRecording() {
         isRecording = false
         isPaused = false
+        isConnecting = false
         timer = 0
         stopTimer()
         
@@ -654,6 +669,9 @@ class NotchViewModel: NSObject, ObservableObject {
             timer = 0
             startTimer()
 
+            // Show webcam when meeting starts
+            startWebcam()
+
             // contentType = .recording
             print("🔐 Meeting started based on message: \(message)")
         } else if lowerMessage == "meetingstopped" {
@@ -686,10 +704,139 @@ class NotchViewModel: NSObject, ObservableObject {
             stopRecording()
         }
         
+        // Reset webcam state
+        if isCameraActive {
+            stopWebcam()
+        }
+        
         // Emit action for JavaScript integration
         swiftActionSender.send(.navigateToMainScreen(path))
         
         print("✅ Main screen navigation completed - all states reset")
+    }
+    
+    // MARK: - Webcam Functionality
+    
+    /// Toggle webcam on/off
+    func toggleWebcam() {
+        print("📹 Toggling webcam - current state: \(isCameraActive), showPreview: \(showCameraPreview)")
+        
+        if showCameraPreview {
+            // Hide camera preview, show icon
+            showCameraPreview = false
+            if isCameraActive {
+                stopWebcam()
+            }
+        } else {
+            // Show camera preview, start webcam if not already active
+            showCameraPreview = true
+            if !isCameraActive {
+                startWebcam()
+            }
+        }
+        
+        // Emit action for JavaScript integration
+        swiftActionSender.send(.toggleWebcam)
+    }
+    
+    /// Start webcam
+    func startWebcam() {
+        print("📹 Starting webcam...")
+        
+        // Clear any previous errors
+        cameraError = nil
+        isCameraStarting = true
+        cameraStatus = "starting"
+        
+        // Emit action for JavaScript integration
+        swiftActionSender.send(.startWebcam)
+        
+        // Request camera permission and start actual camera
+        requestCameraAccess { [weak self] success in
+            DispatchQueue.main.async {
+                self?.isCameraStarting = false
+                if success {
+                    self?.isCameraActive = true
+                    self?.cameraStatus = "active"
+                    self?.cameraPermission = "granted"
+                    print("📹 Webcam started successfully with real camera access")
+                } else {
+                    self?.cameraStatus = "error"
+                    self?.cameraPermission = "denied"
+                    self?.cameraError = "Camera access denied"
+                    print("📹 Webcam failed to start - camera access denied")
+                }
+            }
+        }
+    }
+    
+    /// Request camera access using AVCaptureDevice
+    private func requestCameraAccess(completion: @escaping (Bool) -> Void) {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            // Camera access already granted
+            completion(true)
+        case .notDetermined:
+            // Request permission
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                completion(granted)
+            }
+        case .denied, .restricted:
+            // Permission denied or restricted
+            completion(false)
+        @unknown default:
+            completion(false)
+        }
+    }
+    
+    /// Stop webcam
+    func stopWebcam() {
+        print("📹 Stopping webcam...")
+        
+        isCameraActive = false
+        showCameraPreview = false
+        isCameraStarting = false
+        cameraStatus = "idle"
+        cameraError = nil
+        
+        // Emit action for JavaScript integration
+        swiftActionSender.send(.stopWebcam)
+        
+        print("📹 Webcam stopped")
+    }
+    
+    /// Check camera permission status
+    func checkCameraPermission() {
+        print("📹 Checking camera permission...")
+        
+        // Emit action for JavaScript integration
+        swiftActionSender.send(.checkCameraPermission)
+    }
+    
+    /// Request camera permission
+    func requestCameraPermission() {
+        print("📹 Requesting camera permission...")
+        
+        // Emit action for JavaScript integration
+        swiftActionSender.send(.requestCameraPermission)
+    }
+    
+    /// Update camera permission status from JavaScript
+    func updateCameraPermission(_ permission: String) {
+        DispatchQueue.main.async {
+            self.cameraPermission = permission
+            print("📹 Camera permission updated: \(permission)")
+        }
+    }
+    
+    /// Update camera error from JavaScript
+    func updateCameraError(_ error: String?) {
+        DispatchQueue.main.async {
+            self.cameraError = error
+            if let error = error {
+                print("📹 Camera error: \(error)")
+            }
+        }
     }
     
     // New method to send log messages to Electron

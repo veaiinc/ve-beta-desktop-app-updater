@@ -71,6 +71,10 @@
 				gap: 12px;
 				width: 100%;
 
+				.meeting-title-input-container {
+					flex-grow: 1;
+				}
+
 				.meeting-title {
 					color: var(--primary-font, #f2f2f3);
 					font-family: var(--primary-font-family);
@@ -78,6 +82,8 @@
 					font-style: normal;
 					font-weight: 500;
 					line-height: 32px; /* 133.333% */
+					padding: 0;
+					border-radius: 0px;
 				}
 
 				.meeting-created-by-time {
@@ -514,3 +520,51 @@
 	width: 100%;
 }
 
+.resume-meeting-button {
+	display: flex;
+	max-width: 245px;
+	width: fit-content;
+	height: 52px;
+	padding: 0 16px;
+	align-items: center;
+	border-radius: 16px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	background-color: var(--popup);
+	color: var(--secondary-font);
+	font-family: var(--primary-font-family);
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+	gap: 8px;
+	cursor: pointer;
+
+	&:hover {
+		background-color: var(--primary-button-hover);
+	}
+
+	&:active {
+		opacity: 0.8;
+	}
+}
+
+.chatbox-wrapper {
+	width: 100%;
+	min-height: 57px;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 1000;
+	padding: 10px;
+	display: flex;
+	justify-content: center;
+	gap: 10px;
+
+	.chatbox-container {
+		width: 100%;
+		max-width: 500px;
+		min-height: 57px;
+		position: relative;
+	}
+}

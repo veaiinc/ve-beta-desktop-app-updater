@@ -524,6 +524,10 @@ const actionHandlers = {
 		...state,
 		createBotInfo: action?.payload?.createBotInfo,
 	}),
+	UPDATE_MEETING: (state, action) => ({
+		...state,
+		createBotInfo: { ...state?.createBotInfo, ...action?.payload },
+	}),
 	RESET_STATE: () => intialState,
 };
 

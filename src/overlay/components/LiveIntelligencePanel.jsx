@@ -412,7 +412,9 @@ const LiveIntelligencePanel = ({
 						}}
 						style={{ pointerEvents: 'auto' }}
 					>
-						<span>View Transcription</span>
+						<span className="live-intelligence-panel__control-button-text">
+							View Transcriptions
+						</span>
 					</button>
 
 					<div className="live-intelligence-panel__control-divider" />
