@@ -1,65 +1,11 @@
 .fullscreenIMac {
-	position: fixed;
 	top: 0;
 	left: 0;
-	width: 100vw;
-	height: 100vh;
+	image-zoom: 200%;
 	z-index: 9999; // Above everything including header
 	opacity: 0;
 	pointer-events: none;
 	display: block; // Always display, control with opacity
 	transform-origin: center center; // Ensure scaling happens from center
 	will-change: transform, opacity; // Optimize for animations
-
-	// Debug overlay for animation testing
-	&::before {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background: linear-gradient(
-			90deg,
-			transparent 0%,
-			transparent 20%,
-			rgba(255, 0, 0, 0.3) 20%,
-			rgba(255, 0, 0, 0.3) 40%,
-			transparent 40%,
-			transparent 60%,
-			rgba(0, 255, 0, 0.3) 60%,
-			rgba(0, 255, 0, 0.3) 80%,
-			transparent 80%
-		);
-		pointer-events: none;
-		z-index: 1;
-	}
-
-	// Debug progress indicator
-	&::after {
-		content: 'FULLSCREEN iMAC - SCALE: var(--debug-scale, 0%) | OPACITY: var(--debug-opacity, 0%)';
-		position: absolute;
-		top: 20px;
-		left: 20px;
-		background: rgba(0, 0, 0, 0.8);
-		color: white;
-		padding: 10px 15px;
-		font-family: monospace;
-		font-size: 12px;
-		border-radius: 5px;
-		z-index: 2;
-		pointer-events: none;
-	}
-
-	&.visible {
-		opacity: 1;
-		pointer-events: auto;
-	}
-
-	.fullscreenImage {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		object-position: center;
-	}
 }
