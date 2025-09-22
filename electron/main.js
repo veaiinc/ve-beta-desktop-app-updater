@@ -437,32 +437,86 @@ ipcMain.handle('reposition-dynamic-island', () => {
 });
 
 // System Settings handler
+// ipcMain.handle('open-system-settings', async () => {
+// 	const platform = os.platform();
+
+// 	try {
+// 		if (platform === 'darwin') {
+// 			// macOS System Settings (modern approach)
+// 			exec('open "x-apple.systempreferences:"', (error) => {
+// 				if (error) {
+// 					log.error('Failed to open macOS System Settings:', error);
+// 				}
+// 			});
+// 		} else if (platform === 'win32') {
+// 			// Windows Settings
+// 			exec('start ms-settings:', (error) => {
+// 				if (error) {
+// 					log.error('Failed to open Windows Settings:', error);
+// 				}
+// 			});
+// 		} else {
+// 			log.warn('Unsupported platform for system settings:', platform);
+// 			return { success: false, error: 'Unsupported platform' };
+// 		}
+// 		return { success: true, platform };
+// 	} catch (error) {
+// 		log.error('Error opening system settings:', error);
+// 		return { success: false, error: error.message };
+// 	}
+// });
+
+// Generic system settings
 ipcMain.handle('open-system-settings', async () => {
 	const platform = os.platform();
-
 	try {
 		if (platform === 'darwin') {
-			// macOS System Settings (modern approach)
 			exec('open "x-apple.systempreferences:"', (error) => {
-				if (error) {
-					log.error('Failed to open macOS System Settings:', error);
-				}
+				if (error) console.error('Failed to open macOS System Settings:', error);
 			});
 		} else if (platform === 'win32') {
-			// Windows Settings
 			exec('start ms-settings:', (error) => {
-				if (error) {
-					log.error('Failed to open Windows Settings:', error);
-				}
+				if (error) console.error('Failed to open Windows Settings:', error);
 			});
 		} else {
-			log.warn('Unsupported platform for system settings:', platform);
+			console.warn('Unsupported platform for system settings:', platform);
 			return { success: false, error: 'Unsupported platform' };
 		}
 		return { success: true, platform };
 	} catch (error) {
-		log.error('Error opening system settings:', error);
+		console.error('Error opening system settings:', error);
 		return { success: false, error: error.message };
+	}
+});
+
+// 🎤 Microphone privacy settings
+ipcMain.handle('open-microphone-settings', async () => {
+	if (os.platform() === 'darwin') {
+		exec("open 'x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone'");
+	} else {
+		console.warn('Microphone settings not supported on this platform');
+	}
+});
+
+// 🖥️ Screen Recording privacy settings
+ipcMain.handle('open-screen-recording-settings', async () => {
+	if (os.platform() === 'darwin') {
+		exec(
+			"open 'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenRecording'",
+		);
+	} else {
+		console.warn('Screen recording settings not supported on this platform');
+	}
+});
+
+// 📡 Screen Sharing (optional)
+ipcMain.handle('open-screen-sharing-settings', async () => {
+	if (os.platform() === 'darwin') {
+		exec(
+			"open 'x-apple.systempreferences:com.apple.preference.sharing?Services_ScreenSharing'",
+		);
+	} else {
+		console.warn('Screen sharing settings not supported on this platform');
 	}
 });
 
