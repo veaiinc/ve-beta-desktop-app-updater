@@ -591,7 +591,7 @@ class NotchDropAddonWrapper extends EventEmitter {
 	// Handle received messages from Electron
 	handleReceivedMessage(message) {
 		try {
-			console.log('📨 Message received from Electron:', message);
+			// console.log('📨 Message received from Electron:', message);
 			// Emit the received message event
 			this.emit('messageReceived', message);
 		} catch (error) {
@@ -1194,7 +1194,7 @@ class NotchDropAddonWrapper extends EventEmitter {
 		try {
 			// Call the native triggerSwiftAction method
 			this.addon.triggerSwiftAction(action, data);
-			console.log('📤 Swift action triggered:', action, 'with data:', data);
+			// console.log('📤 Swift action triggered:', action, 'with data:', data);
 		} catch (error) {
 			console.error('❌ Error triggering Swift action:', error);
 		}
