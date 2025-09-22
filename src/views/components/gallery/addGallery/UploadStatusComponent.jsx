@@ -18,7 +18,7 @@ const UploadStatusComponent = ({
 	lightGallery,
 }) => {
 	const {
-		galleryInfo: { setUpImageUpload, tenantAlbums },
+		galleryInfo: { setUpImageUpload, tenantAlbums, imageDuplicatesList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState, currentPlan },
 	} = useContext(Context);
 	// func for removing the image
@@ -91,7 +91,11 @@ const UploadStatusComponent = ({
 					setinfo={setinfo}
 				/>
 			)}
-			<DuplicateComponent info={info} setinfo={setinfo} />
+			<DuplicateComponent
+				info={info}
+				setinfo={setinfo}
+				imageDuplicatesList={imageDuplicatesList}
+			/>
 			{lightGallery === 'false' && currentPlan?.isAIFacesEnabled === false && (
 				<div className="upload_status_aiface">
 					<WarningIcon />

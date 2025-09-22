@@ -1,19 +1,56 @@
-import { useState, useRef, useEffect, useCallback, useContext } from 'react';
-import { X, Send, Copy, ChevronDown, ChevronUp, GripHorizontal, Square } from 'lucide-react';
+import { useState, useEffect, useCallback, useContext, useRef } from 'react';
+import { X } from 'lucide-react';
 import './askAI.scss';
 import ObjectID from 'bson-objectid';
 import { getLocationsDetails } from '../helpers';
-import { copyToClipboard } from '../helpers/clipboardHelper';
 import Context from '../context/context';
 import RecentChat from '../views/features/chat/RecentChat';
 import CustomToast from '../views/components/globalComponents/CustomToast';
-
-const sessionId = ObjectID().toString();
+import { ReactComponent as ExpandSvg } from './expand.svg';
+import { ReactComponent as MinimizeSvg } from './minimize.svg';
 
 const AskAIApp = () => {
 	const {
 		templates: { updateStateValues },
 	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		sessionId: ObjectID()?.toString(),
+		expandChat: false,
+		workarea: null,
+	});
+	const containerRef = useRef(null);
+	const expandChatRef = useRef(false);
+
+	useEffect(() => {
+		if (!containerRef.current) return;
+
+		const observer = new ResizeObserver((entries) => {
+			for (let entry of entries) {
+				if (expandChatRef.current) return;
+
+				const { height } = entry.contentRect;
+				const updatedHeight = Math.min(height, 600);
+
+				// If you want to notify main process (Electron)
+				// window.electron?.ipcRenderer?.send('element-height-change', height);
+
+				window?.electronApi?.askAI?.updateDimensions({ width: 600, height: updatedHeight });
+			}
+		});
+
+		observer.observe(containerRef.current);
+
+		return () => {
+			observer.disconnect();
+		};
+	}, []);
+
+	useEffect(() => {
+		if (info?.expandChat) {
+			handleExpandChat();
+		}
+	}, [info?.expandChat]);
 
 	// Listen for tab content from overlay
 	useEffect(() => {
@@ -44,22 +81,14 @@ const AskAIApp = () => {
 		};
 
 		// Set up listeners
-		if (window.electronApi?.askAI?.onReceiveTabContent) {
-			window.electronApi.askAI.onReceiveTabContent(handleTabContent);
-		}
+		window?.electronApi.askAI.onReceiveTabContent(handleTabContent);
 
-		if (window.electronApi?.askAI?.onReceiveChatMessage) {
-			window.electronApi.askAI.onReceiveChatMessage(handleChatMessage);
-		}
+		window?.electronApi.askAI.onReceiveChatMessage(handleChatMessage);
 
 		// Cleanup
 		return () => {
-			if (window.electronApi?.askAI?.removeTabContentListener) {
-				window.electronApi.askAI.removeTabContentListener();
-			}
-			if (window.electronApi?.askAI?.removeChatMessageListener) {
-				window.electronApi.askAI.removeChatMessageListener();
-			}
+			window?.electronApi.askAI.removeTabContentListener();
+			window?.electronApi.askAI.removeChatMessageListener();
 		};
 	}, []);
 
@@ -69,12 +98,12 @@ const AskAIApp = () => {
 
 		// Handle individual item clicks
 		if (type === 'individual-item' && itemContent) {
-			return `Please help me with this: "${itemContent}". Provide insights, suggestions, or guidance on how to approach this.`;
+			return itemContent;
 		}
 
 		// Handle empty content
 		if (!content || content.length === 0) {
-			return `I'm looking at the "${tabLabel}" tab but there's no content yet. Can you help me understand what this tab is for and how I might use it?`;
+			return tabLabel;
 		}
 
 		const itemCount = content.length;
@@ -82,26 +111,16 @@ const AskAIApp = () => {
 
 		switch (tabKey) {
 			case 'all-threads':
-				return `I have ${itemCount} threads in my conversation history. The latest one is: "${
-					firstItem.prompt || firstItem.name || 'No prompt available'
-				}". Please analyze these threads and provide insights or suggestions.`;
+				return firstItem.prompt || firstItem.name || 'No prompt available';
 
 			case 'ask-user':
-				return `I have ${itemCount} questions that need user input. The latest one is: "${firstItem.prompt}". Please help me formulate better questions or suggest how to approach these user interactions.`;
-
 			case 'need-help':
-				return `I have ${itemCount} help suggestions. The latest one is: "${firstItem.prompt}". Please help me understand these suggestions better or provide additional guidance.`;
-
 			case 'actions':
-				return `I have ${itemCount} action items. The latest one is: "${firstItem.prompt}". Please help me prioritize these actions or suggest the best approach to handle them.`;
-
+				return firstItem.prompt;
 			case 'files':
-				return `I have ${itemCount} files to work with. The latest one is: "${
-					firstItem.prompt || firstItem.name
-				}". Please help me understand how to work with these files or suggest next steps.`;
-
+				return firstItem.prompt || firstItem.name;
 			default:
-				return `I'm looking at the "${tabLabel}" tab with ${itemCount} items. Please help me understand and work with this content.`;
+				return tabLabel;
 		}
 	};
 
@@ -215,42 +234,73 @@ const AskAIApp = () => {
 
 	const handleClose = async () => {
 		// Close the window immediately - no delay needed
-		if (window.electronApi?.askAI?.toggleWindow) {
-			window.electronApi.askAI.toggleWindow();
-		}
+		window?.electronApi.askAI.toggleWindow();
 	};
 
+	const handleChatToggle = useCallback(() => {
+		setInfo((prev) => {
+			expandChatRef.current = !prev?.expandChat;
+			return { ...prev, expandChat: !prev?.expandChat };
+		});
+	}, []);
+
+	const handleExpandChat = useCallback(async () => {
+		let workarea = info?.workarea;
+		if (!workarea) {
+			workarea = await window?.electronApi?.askAI?.getWorkArea();
+		}
+		window?.electronApi?.askAI?.updateDimensions({
+			width: 600,
+			height: workarea.height,
+			position: { x: (workarea.width || 0) - 600, y: 0 },
+		});
+
+		if (!info?.workarea) {
+			setInfo((prev) => ({ ...prev, workarea }));
+		}
+	}, [info?.workarea]);
+
 	return (
-		<div className="ask-ai-app">
+		<div
+			className={`ask-ai-app`}
+			ref={containerRef}
+			style={{
+				maxHeight: info?.expandChat ? 'unset' : '600px',
+				height: info?.expandChat ? '100%' : 'unset',
+			}}
+		>
 			{/* Response Window - Top */}
 			<div className={`ai-response-window`}>
-				<div className="ai-response-header">
-					<div className="ai-response-drag-handle">
-						<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
-					</div>
+				<div className={`ai-response-header ${info?.expandChat ? 'chat-expanded' : ''}`}>
 					<div className="ai-response-title">
 						<span>Chat</span>
 					</div>
 					<div className="ai-response-controls">
+						<button className="chat-btn" onClick={handleChatToggle} title="Close">
+							{!info?.expandChat ? <ExpandSvg /> : <MinimizeSvg />}
+						</button>
+
 						<button className="close-button" onClick={handleClose} title="Close">
 							<X size={16} />
 						</button>
 					</div>
 				</div>
 
+				<div className="divider"></div>
+
 				<div className="chatWrapper">
 					<RecentChat
-						sId={sessionId}
+						sId={info?.sessionId}
 						showChatHistory={false}
 						isPreview={true}
 						showHeader={false}
 						showBottomTools={false}
-						showMicBtn={false}
 						showRecentFiles={false}
 						isDesktopApp={true}
 						showResponseEditBtn={false}
 						fetchRecentChatMessages={false}
 						handleDesktopAppPayload={handleDesktopAppPayload}
+						showUpgradeSubscriptionBtn={false}
 					/>
 				</div>
 			</div>

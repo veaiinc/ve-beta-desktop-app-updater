@@ -1,12 +1,182 @@
 import { Routes, Route } from 'react-router-dom';
 import useWorkspaceMode from './hooks/useWorkspaceMode';
 import { useEffect, useState } from 'react';
+import VoiceAgentParent from './views/features/voiceAgent/VoiceAgentParent';
+import useVoiceIntegration from './hooks/useVoiceIntegration';
+import NotchDropVoiceActivator from './components/NotchDropVoiceActivator';
 import UploadProgressPopup from './views/components/globalComponents/UploadProgressPopup/UploadProgressPopup';
+import DownloadProgressPopup from './views/components/globalComponents/DownloadProgressPopup/DownloadProgressPopup';
+import UpdateReadyPopup from './views/components/globalComponents/UpdateReadyPopup/UpdateReadyPopup';
 
 const App = () => {
 	const { routes } = useWorkspaceMode();
 	const [updateStatus, setUpdateStatus] = useState(null);
+	const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
 	// const [showUpdateNotification, setShowUpdateNotification] = useState(false); // Commented out for auto restart
+
+	// NotchDrop Voice Integration - DIRECT APPROACH
+	const [showVoiceFromNotch, setShowVoiceFromNotch] = useState(false);
+
+	// Voice integration for NotchDrop (disabled when LiveKit is active)
+	const [disableOldVoiceIntegration, setDisableOldVoiceIntegration] = useState(false);
+	const voiceIntegration = useVoiceIntegration();
+
+	// Listen for NotchDrop voice activation
+	useEffect(() => {
+		const handleNotchDropVoice = (event, data) => {
+			console.log('🎤 DIRECT: Received NotchDrop voice activation:', data);
+
+			if (
+				data &&
+				(data.type === 'ACTIVATE_VOICE_AGENT' || data.source === 'notchdrop_voice_button')
+			) {
+				console.log('🚀 DIRECT: Activating voice agent from NotchDrop');
+				setShowVoiceFromNotch(true);
+
+				// Auto-start the voice agent after a short delay
+				setTimeout(() => {
+					console.log('🎤 DIRECT: Auto-clicking voice agent start button');
+
+					// Find and click the voice agent start button
+					const actionButtons = document.querySelectorAll('.action-button');
+					if (actionButtons.length > 0) {
+						console.log('🎤 Found action button, clicking to start voice agent...');
+						actionButtons[0].click();
+					} else {
+						// Try alternative selectors
+						const micButtons = document.querySelectorAll(
+							'[class*="mic"], button[data-enabled="false"]',
+						);
+						if (micButtons.length > 0) {
+							console.log('🎤 Found mic button, clicking...');
+							micButtons[0].click();
+						}
+					}
+				}, 1000); // Wait 1 second for component to mount
+			}
+		};
+
+		// Listen for multiple IPC events from NotchDrop
+		if (window.electronApi && window.electronApi.ipcRenderer) {
+			// Listen for the askAI message (where our voice activation is sent)
+			window.electronApi.ipcRenderer.on('send-chat-message-to-askai', handleNotchDropVoice);
+
+			// Also listen for direct voice activation events
+			window.electronApi.ipcRenderer.on('notchdrop:showVoiceAgent', (event, data) => {
+				console.log('🎤 DIRECT: Direct voice agent show request');
+				setShowVoiceFromNotch(true);
+			});
+
+			window.electronApi.ipcRenderer.on('notchdrop:activate-voice-agent', (event, data) => {
+				console.log('🎤 DIRECT: Voice agent activation request');
+				setShowVoiceFromNotch(true);
+			});
+		}
+
+		// Also listen for custom events
+		const handleCustomVoiceEvent = (event) => {
+			console.log('🎤 DIRECT: Custom voice activation event');
+			setShowVoiceFromNotch(true);
+		};
+
+		window.addEventListener('notchdrop-voice-activate', handleCustomVoiceEvent);
+		window.addEventListener('show-voice-agent', handleCustomVoiceEvent);
+		window.addEventListener('start-voice-agent', handleCustomVoiceEvent);
+
+		return () => {
+			if (window.electronApi && window.electronApi.ipcRenderer) {
+				window.electronApi.ipcRenderer.removeListener(
+					'send-chat-message-to-askai',
+					handleNotchDropVoice,
+				);
+				window.electronApi.ipcRenderer.removeListener(
+					'notchdrop:showVoiceAgent',
+					handleNotchDropVoice,
+				);
+				window.electronApi.ipcRenderer.removeListener(
+					'notchdrop:activate-voice-agent',
+					handleNotchDropVoice,
+				);
+			}
+			window.removeEventListener('notchdrop-voice-activate', handleCustomVoiceEvent);
+			window.removeEventListener('show-voice-agent', handleCustomVoiceEvent);
+			window.removeEventListener('start-voice-agent', handleCustomVoiceEvent);
+		};
+	}, []);
+
+	// Essential voice integration for NotchDrop (disabled when LiveKit is active)
+	useEffect(() => {
+		// Expose voiceIntegration to window for NotchDrop access only when not using LiveKit
+		if (voiceIntegration && !disableOldVoiceIntegration && !window.voiceIntegration) {
+			window.voiceIntegration = voiceIntegration;
+			console.log('✅ voiceIntegration exposed to window.voiceIntegration');
+		} else if (disableOldVoiceIntegration && window.voiceIntegration) {
+			delete window.voiceIntegration;
+			console.log('🚫 Old voice integration disabled - using LiveKit instead');
+		}
+		return () => {
+			if (window.voiceIntegration) {
+				delete window.voiceIntegration;
+			}
+		};
+	}, [voiceIntegration, disableOldVoiceIntegration]);
+
+	// Monitor voice connection state and update NotchDrop
+	useEffect(() => {
+		if (voiceIntegration && window.electronApi) {
+			const { isConnected } = voiceIntegration;
+
+			if (isConnected) {
+				console.log('🔄 Voice connected - notifying NotchDrop...');
+				window.electronApi.notchdrop.updateVoiceConnectionState('connected');
+			} else {
+				console.log('🔄 Voice disconnected - notifying NotchDrop...');
+				window.electronApi.notchdrop.updateVoiceConnectionState('disconnected');
+			}
+		}
+	}, [voiceIntegration?.isConnected]);
+
+	// Handle NotchDrop voice disconnect
+	useEffect(() => {
+		const handleNotchDropVoiceDisconnect = async (event) => {
+			console.log(`🔌 NotchDrop voice disconnect: ${event.type}`);
+			if (voiceIntegration && voiceIntegration.disconnect) {
+				try {
+					console.log('🔌 Disconnecting voice agent from NotchDrop X button...');
+					await voiceIntegration.disconnect();
+					console.log('✅ Voice agent disconnected successfully from NotchDrop!');
+				} catch (error) {
+					console.error(`❌ NotchDrop voice disconnect failed: ${error.message}`);
+				}
+			}
+		};
+
+		window.addEventListener('notchdrop-voice-disconnect', handleNotchDropVoiceDisconnect);
+
+		return () => {
+			window.removeEventListener(
+				'notchdrop-voice-disconnect',
+				handleNotchDropVoiceDisconnect,
+			);
+		};
+	}, [voiceIntegration]);
+
+	// Listen for old voice integration disable/enable events
+	useEffect(() => {
+		const handleDisableOldVoiceIntegration = (event) => {
+			console.log('🚫 Received disable old voice integration event:', event.detail);
+			setDisableOldVoiceIntegration(event.detail.disable);
+		};
+
+		window.addEventListener('disable-old-voice-integration', handleDisableOldVoiceIntegration);
+
+		return () => {
+			window.removeEventListener(
+				'disable-old-voice-integration',
+				handleDisableOldVoiceIntegration,
+			);
+		};
+	}, []);
 
 	const handleCheckForUpdates = async () => {
 		try {
@@ -17,17 +187,28 @@ const App = () => {
 		}
 	};
 
-	// Commented out for auto restart - no longer needed
-	// const handleRestartApp = async () => {
-	// 	try {
-	// 		const result = await window?.electronApi?.restartApp();
-	// 		if (!result?.success) {
-	// 			console.warn('⚠️ Restart failed:', result?.error);
-	// 		}
-	// 	} catch (error) {
-	// 		console.error('❌ Error restarting app:', error);
-	// 	}
-	// };
+	const handleRestartApp = async () => {
+		if (!window?.electronApi?.restartApp) {
+			return { success: false, error: 'Restart API unavailable' };
+		}
+
+		try {
+			return await window.electronApi.restartApp();
+		} catch (error) {
+			console.error('❌ Error restarting app:', error);
+			return { success: false, error: error?.message || 'Unexpected restart error' };
+		}
+	};
+
+	useEffect(() => {
+		if (updateStatus?.status === 'downloaded') {
+			setIsUpdatePopupVisible(true);
+			return;
+		}
+
+		// Hide the popup for any non-downloaded state
+		setIsUpdatePopupVisible(false);
+	}, [updateStatus]);
 
 	useEffect(() => {
 		// Set up update status listener
@@ -52,8 +233,7 @@ const App = () => {
 
 					case 'downloaded':
 						console.log(`✅ Update downloaded: ${data.version}`);
-						console.log('🔄 App will restart automatically in 3 seconds...');
-						// setShowUpdateNotification(true); // Commented out for auto restart
+						console.log('📣 Update prompt will appear so the user can restart manually.');
 						break;
 
 					case 'download-failed':
@@ -105,59 +285,8 @@ const App = () => {
 
 	return (
 		<>
-			{/* Update Notification - Commented out for auto restart */}
-			{/* {showUpdateNotification && updateStatus?.status === 'downloaded' && (
-				<div
-					style={{
-						position: 'fixed',
-						top: '20px',
-						right: '20px',
-						background: '#4CAF50',
-						color: 'white',
-						padding: '16px',
-						borderRadius: '8px',
-						boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-						zIndex: 9999,
-						maxWidth: '300px',
-					}}
-				>
-					<div style={{ fontWeight: 'bold', marginBottom: '8px' }}>🎉 Update Ready!</div>
-					<div style={{ marginBottom: '12px' }}>
-						Version {updateStatus.version} is ready to install.
-					</div>
-					<div style={{ display: 'flex', gap: '8px' }}>
-						<button
-							onClick={handleRestartApp}
-							style={{
-								background: 'white',
-								color: '#4CAF50',
-								border: 'none',
-								padding: '6px 12px',
-								borderRadius: '4px',
-								cursor: 'pointer',
-								fontSize: '14px',
-								fontWeight: 'bold',
-							}}
-						>
-							Restart Now
-						</button>
-						<button
-							onClick={() => setShowUpdateNotification(false)}
-							style={{
-								background: 'transparent',
-								color: 'white',
-								border: '1px solid white',
-								padding: '6px 12px',
-								borderRadius: '4px',
-								cursor: 'pointer',
-								fontSize: '14px',
-							}}
-						>
-							Later
-						</button>
-					</div>
-				</div>
-			)} */}
+			{/* NotchDrop Voice Activator - handles LiveKit voice integration */}
+			<NotchDropVoiceActivator />
 
 			<Routes>
 				{routes?.map((route) => (
@@ -165,8 +294,22 @@ const App = () => {
 				))}
 			</Routes>
 
+			{/* NotchDrop Voice Agent Integration - DIRECT */}
+			{showVoiceFromNotch && <VoiceAgentParent />}
+
 			{/* Global Upload Progress Popup - persists across all routes */}
 			<UploadProgressPopup />
+
+			{/* Global Download Progress Popup - persists across all routes */}
+			<DownloadProgressPopup />
+
+			{isUpdatePopupVisible && updateStatus?.status === 'downloaded' && (
+				<UpdateReadyPopup
+					updateInfo={updateStatus}
+					onRestart={handleRestartApp}
+					onDismiss={() => setIsUpdatePopupVisible(false)}
+				/>
+			)}
 		</>
 	);
 };

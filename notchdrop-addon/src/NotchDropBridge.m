@@ -124,4 +124,43 @@ static void (^incomingActionCallback)(NSString*, NSString*);
     [NotchDropCore.shared onOverlayStateChange:state];
 }
 
+// MARK: - Voice Assistant Integration
++ (void)configureVoice:(NSString*)url token:(NSString*)token {
+    [NotchDropCore.shared configureVoice:url token:token];
+}
+
++ (void)connectVoiceAssistant {
+    [NotchDropCore.shared connectVoiceAssistant];
+}
+
++ (void)disconnectVoiceAssistant {
+    [NotchDropCore.shared disconnectVoiceAssistant];
+}
+
++ (NSString*)getVoiceConnectionStatus {
+    return [NotchDropCore.shared getVoiceConnectionStatus];
+}
+
++ (void)updateVoiceConnectionState:(NSString*)status {
+    [NotchDropCore.shared updateVoiceConnectionState:status];
+}
+
++ (void)updateVoiceMuteState:(BOOL)isMuted {
+    [NotchDropCore.shared updateVoiceMuteState:isMuted];
+}
+
++ (void)addVoiceMessage:(NSString*)messageJson {
+    [NotchDropCore.shared addVoiceMessage:messageJson];
+}
+
++ (void)updateStealthModeState:(BOOL)isEnabled {
+    [NotchDropCore.shared updateStealthModeState:isEnabled];
+}
+
+// MARK: - Wake Word Detection Methods
+
++ (void)handleWakeWordDetected:(float)score {
+    [NotchDropCore.shared handleWakeWordDetected:score];
+}
+
 @end

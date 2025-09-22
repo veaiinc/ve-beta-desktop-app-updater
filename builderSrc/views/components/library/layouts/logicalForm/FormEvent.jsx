@@ -120,7 +120,7 @@ class FormEvent extends Component {
 					label: 'Pooja - Bride',
 				},
 				{
-					value: 22,	
+					value: 22,
 					label: 'Pooja - Groom',
 				},
 				{

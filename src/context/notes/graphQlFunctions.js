@@ -1072,6 +1072,11 @@ export const getMeetSummaryQuery = gql`
 		}
 	}
 `;
+export const getMeetingAnalyticsQuery = gql`
+	query Query($meetingId: ID!) {
+		getMeetingAnalytics(meetingId: $meetingId)
+	}
+`;
 
 export const meetBotCreateMutation = gql`
 	mutation Mutation($input: MeetingInput) {
@@ -1138,6 +1143,15 @@ export const getMeetTranscriptHistoryQuery = gql`
 				createdAt
 				updatedAt
 			}
+		}
+	}
+`;
+
+export const deleteMeetingMutation = gql`
+	mutation DeleteMeeting($meetingId: ID!) {
+		deleteMeeting(meetingId: $meetingId) {
+			success
+			message
 		}
 	}
 `;
@@ -1215,6 +1229,15 @@ export const getAiLiveIntelligenceHistoryQuery = gql`
 				createdAt
 				updatedAt
 			}
+		}
+	}
+`;
+
+export const updateMeetingMutation = gql`
+	mutation UpdateMeeting($meetingId: ID!, $input: MeetingUpdateInput) {
+		updateMeeting(meetingId: $meetingId, input: $input) {
+			_id
+			title
 		}
 	}
 `;

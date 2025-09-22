@@ -78,10 +78,10 @@ export const settingsItems = [
 	},
 	{
 		id: 6,
-		label: 'AI Setup',
+		label: 'Memory',
 		icon: <AISetupSvg />,
-		route: '/settings/ai-setup',
-		value: 'ai-setup',
+		route: '/settings/ai-memory',
+		value: 'ai-memory',
 	},
 	{
 		id: 7,

@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from 'react';
+import { useState, useEffect, memo, useContext } from 'react';
 import { ReactComponent as Call } from '../../../assets/svg/smartFiles/formResponse/call.svg';
 import { ReactComponent as Message } from '../../../assets/svg/smartFiles/formResponse/message.svg';
 import { ReactComponent as Calender } from '../../../assets/svg/smartFiles/formResponse/calendar.svg';
@@ -7,10 +7,7 @@ import { ReactComponent as Delete } from '../../../assets/svg/delete.svg';
 import moment from 'moment';
 import '../../../assets/scss/forms/FormresCard.scss';
 import service from '../../../services/graphQlServices';
-import {
-	getFormResponsesListQuery,
-	deleteFormResponseMutation,
-} from '../../../context/Templates/graphQlFunctions';
+import { getFormResponsesListQuery } from '../../../context/Templates/graphQlFunctions';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 // import QuickActions from '../globalComponents/QuickActions';
@@ -21,6 +18,7 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { message } from '../globalComponents/CustomToast';
 import DeleteModal from '../modalsV2/DeleteModal/DeleteModal';
+import Context from '../../../context/context';
 
 const removeHTMLTags = (text) =>
 	text
@@ -46,6 +44,11 @@ const FormResCard = ({
 	const [expandedCard, setExpandedCard] = useState(null);
 	const [delFormResLoading, setDelFormResLoading] = useState(false);
 	const [deleteModal, setDeleteModal] = useState({ open: false, responseId: null });
+
+	// Get context functions
+	const {
+		templates: { updateFormResponse, deleteFormResponse },
+	} = useContext(Context);
 
 	useEffect(() => {
 		fetchInitialResponses();
@@ -286,18 +289,8 @@ const FormResCard = ({
 		try {
 			if (delFormResLoading) return;
 			setDelFormResLoading(true);
-			const workspaceId = localStorage.getItem('workspaceId');
-			const usertoken = localStorage.getItem('usertoken');
 
-			const response = await service.mutation(
-				deleteFormResponseMutation,
-				{
-					responseId: responseId,
-				},
-				workspaceId,
-				usertoken,
-				'workflows_Api',
-			);
+			const response = await deleteFormResponse({ responseId });
 
 			if (response?.[0]) {
 				message.success('Response deleted successfully');
@@ -306,11 +299,11 @@ const FormResCard = ({
 				// Update total submissions count
 				updateTotalSubmissions(responses.length - 1, null);
 			} else {
-				message.error('Failed to delete response');
+				message.error(response?.[1]?.message || 'Failed to delete response');
 			}
 		} catch (err) {
 			console.error('Error deleting response:', err);
-			message.error('Failed to delete response');
+			message.error(err?.message || 'Failed to delete response');
 		} finally {
 			setDelFormResLoading(false);
 		}
@@ -328,6 +321,23 @@ const FormResCard = ({
 
 	const handleCancelDelete = () => {
 		setDeleteModal({ open: false, responseId: null });
+	};
+
+	const markResponseAsViewed = async (responseId) => {
+		try {
+			const response = await updateFormResponse({ responseId });
+
+			if (response?.[0]) {
+				// Update the local state to reflect the viewed status
+				setResponses((prev) =>
+					prev.map((r) => (r._id === responseId ? { ...r, isRead: true } : r)),
+				);
+			} else {
+				message.error(response?.[1]?.message || 'Failed to mark response as viewed');
+			}
+		} catch (err) {
+			message.error(err?.message || 'Error marking response as viewed');
+		}
 	};
 
 	const sortResponses = (responses) => {
@@ -500,8 +510,15 @@ const FormResCard = ({
 										key={response._id || index}
 										className={`resWrapper ${isExpanded ? 'open' : ''}`}
 										onClick={() => {
-											setExpandedCard(expandedCard === index ? null : index);
+											const newExpandedCard =
+												expandedCard === index ? null : index;
+											setExpandedCard(newExpandedCard);
 											handleCardClick(response, index);
+
+											// Mark as viewed when expanding (not when collapsing)
+											if (newExpandedCard === index && !response.isRead) {
+												markResponseAsViewed(response._id);
+											}
 										}}
 									>
 										<div className="topRow">
@@ -509,14 +526,19 @@ const FormResCard = ({
 												<h1 className="name">{getName(response)}</h1>
 												<h1 className="time">{getTimeAgo(response)}</h1>
 											</div>
-											<div
-												className="deleteButton"
-												onClick={(e) => {
-													e.stopPropagation();
-													handleOpenDeleteModal(response._id);
-												}}
-											>
-												<Delete />
+											<div className="actionsContainer">
+												{!response.isRead && (
+													<div className="unviewed-dot"></div>
+												)}
+												<div
+													className="deleteButton"
+													onClick={(e) => {
+														e.stopPropagation();
+														handleOpenDeleteModal(response._id);
+													}}
+												>
+													<Delete />
+												</div>
 											</div>
 										</div>
 										{isExpanded && (

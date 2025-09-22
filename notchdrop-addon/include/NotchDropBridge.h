@@ -67,6 +67,19 @@
 // Overlay State Integration
 + (void)onOverlayStateChange:(NSDictionary*)state;
 
+// Voice Assistant Integration
++ (void)configureVoice:(NSString*)url token:(NSString*)token;
++ (void)connectVoiceAssistant;
++ (void)disconnectVoiceAssistant;
++ (NSString*)getVoiceConnectionStatus;
++ (void)updateVoiceConnectionState:(NSString*)status;
++ (void)updateVoiceMuteState:(BOOL)isMuted;
++ (void)addVoiceMessage:(NSString*)messageJson;
++ (void)updateStealthModeState:(BOOL)isEnabled;
+
+// Wake Word Detection Integration
++ (void)handleWakeWordDetected:(float)score;
+
 @end
 
 #endif /* NotchDropBridge_h */

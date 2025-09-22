@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import s from './meetingSummary.module.scss';
+import ClockSvg from '../meetBot/clock.svg';
 
 const MeetingSummary = () => {
 	return (

@@ -1,15 +1,16 @@
 .memoryBlockContainer {
-	display: flex;
-	max-height: 390px;
-	padding: 24px;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: 14px;
-	align-self: stretch;
+	// display: flex;
+	// max-height: 390px;
+	// padding: 24px;
+	// flex-direction: column;
+	// align-items: flex-start;
+	// gap: 14px;
+	// align-self: stretch;
+	height: calc(100vh - 302px);
 
-	border-radius: 12px;
-	background: var(--card);
-	overflow-y: auto;
+	// border-radius: 12px;
+	// background: var(--card);
+	// overflow-y: auto;
 
 	.memoryBlockItem {
 		display: flex;
@@ -34,9 +35,7 @@
 
 		.memoryBlockItemActions {
 			display: flex;
-			gap: 14px;
-			align-items: center;
-			flex-shrink: 0;
+			align-items: flex-start;
 
 			.deleteButton {
 				background: none;
@@ -45,4 +44,15 @@
 			}
 		}
 	}
+}
+
+.memoryBlockEmptyState {
+	color: var(--secondary-font);
+	font-family: var(--primary-font-family);
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: normal;
+	text-align: center;
+	width: 100%;
 }

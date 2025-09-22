@@ -93,9 +93,40 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 			const type = response?.[1]?.data?.startMeeting?.transcriptionSource;
 
 			if (meetingId && type) {
-				navigate(
-					`/meet/${meetingId}?type=${type}&isAiIntelligenceEnabled=${formData.isAiIntelligenceEnabled}`,
-				);
+				// navigate(
+				// 	`/meet/${meetingId}?type=${type}&isAiIntelligenceEnabled=${formData.isAiIntelligenceEnabled}`,
+				// );
+
+				if (window.electronApi) {
+					window.electronApi.overlay.startRecording({
+						...(response?.[1]?.data?.startMeeting || {}),
+					});
+
+					
+
+					window.electronApi.minimizeMainWindow();
+
+					// Trigger Dynamic Island recording for Windows (desktop mode only)
+					if (formData.selectedMode === 'desktop') {
+						try {
+							console.log(
+								'🏝️ Triggering Dynamic Island recording from CreateMeetingModal',
+							);
+							const result =
+								await window.electronApi.dynamicIsland.startRecordingFromModal();
+							if (result.success) {
+								console.log('✅ Successfully started Dynamic Island recording');
+							} else {
+								console.warn('⚠️ Dynamic Island recording failed:', result.error);
+								// Don't show error to user as this is a nice-to-have enhancement
+							}
+						} catch (error) {
+							console.error('❌ Error triggering Dynamic Island recording:', error);
+							// Don't show error to user as this is a nice-to-have enhancement
+						}
+					}
+				}
+
 				handleClose();
 				return;
 			}
@@ -108,7 +139,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 
 	const handleClose = () => {
 		setFormData({
-			selectedMode: 'meeting_bot',
+			selectedMode: 'desktop',
 			meetingUrl: '',
 			creating: false,
 			isAiIntelligenceEnabled: true,

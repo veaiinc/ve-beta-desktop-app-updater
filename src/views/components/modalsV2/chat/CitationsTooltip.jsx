@@ -1,8 +1,7 @@
 import { Tooltip } from 'antd';
-import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
+import React, { memo, useContext, useLayoutEffect, useState } from 'react';
 import Context from '../../../../context/context';
 import '../../../../assets/scss/chat/citationsTooltip.scss';
-import { Markdown } from '../../../../helpers/markdownHelper';
 import {
 	getFaviconUrl,
 	getWebsiteName,
@@ -25,7 +24,7 @@ export const CitationsTooltip = memo(({ citationId, citations = [], placement = 
 	const [citationData, setCitationData] = useState(null);
 	const [citationInfo, setCitationInfo] = useState(null);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (citations?.length > 0) {
 			const citation = citations?.find((citation) => citation?.id === citationId);
 			setCitationInfo(citation || null);
@@ -81,7 +80,7 @@ export const CitationsTooltip = memo(({ citationId, citations = [], placement = 
 	return (
 		<Tooltip
 			arrow={false}
-			trigger={'hover'}
+			trigger="hover"
 			color="transparent"
 			// open={citationInfo?.source ? null : false}
 			placement={placement}

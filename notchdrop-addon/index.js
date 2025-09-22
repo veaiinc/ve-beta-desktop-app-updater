@@ -445,6 +445,9 @@ class NotchDropAddonWrapper extends EventEmitter {
 			'stopRecording',
 			'pauseRecording',
 			'resumeRecording',
+			'toggleWebcam',
+			'startWebcam',
+			'stopWebcam',
 		];
 		return criticalActions.includes(action);
 	}
@@ -462,6 +465,11 @@ class NotchDropAddonWrapper extends EventEmitter {
 				return this.triggerOverlayPauseRecordingImmediate();
 			case 'resumeRecording':
 				return this.triggerOverlayResumeRecordingImmediate();
+			case 'toggleWebcam':
+			case 'startWebcam':
+			case 'stopWebcam':
+				// Execute webcam actions immediately
+				return this.executeAction(action, data);
 			default:
 				// Fallback to normal execution
 				return this.executeAction(action, data);
@@ -504,11 +512,63 @@ class NotchDropAddonWrapper extends EventEmitter {
 			case 'setAuthenticated':
 				this.emit('setAuthenticated', data === 'true');
 				break;
+			case 'navigateToMainScreen': {
+				const targetPath =
+					typeof data === 'string' && data.trim().length > 0
+						? data.trim()
+						: '/verify-user';
+				this.emit('navigateToMainScreen', targetPath);
+				break;
+			}
 			case 'sendLog':
 				this.handleSwiftLog(data);
 				break;
+			// Voice Assistant Actions
+			case 'connectVoice':
+				this.emit('connectVoice', data);
+				break;
+			case 'disconnectVoice':
+				this.emit('disconnectVoice', data);
+				break;
+			case 'toggleVoiceMute':
+				this.emit('toggleVoiceMute', data);
+				break;
+			case 'sendVoiceMessage':
+				this.emit('sendVoiceMessage', data);
+				break;
+			case 'voiceConnectionStateChanged':
+				this.emit('voiceConnectionStateChanged', data);
+				break;
+			case 'startVoiceAgent':
+				console.log('🎤 NotchDrop: Received startVoiceAgent action');
+				this.emit('startVoiceAgent', data);
+				break;
 			case 'receiveMessage':
 				this.handleReceivedMessage(data);
+				break;
+			// Webcam Actions
+			case 'toggleWebcam':
+				this.emit('toggleWebcam', data);
+				break;
+			case 'startWebcam':
+				this.emit('startWebcam', data);
+				break;
+			case 'stopWebcam':
+				this.emit('stopWebcam', data);
+				break;
+			case 'checkCameraPermission':
+				this.emit('checkCameraPermission', data);
+				break;
+			case 'requestCameraPermission':
+				this.emit('requestCameraPermission', data);
+				break;
+			case 'toggleStealthMode':
+				this.emit('toggleStealthMode', data);
+				break;
+			// Wake Word Detection Actions
+			case 'wakeWordDetected':
+				console.log('🎯 NotchDrop: Wake word detected with score:', data);
+				this.emit('wakeWordDetected', parseFloat(data) || 0.0);
 				break;
 			default:
 				console.error('❌ Unknown Swift action:', action);
@@ -992,6 +1052,136 @@ class NotchDropAddonWrapper extends EventEmitter {
 			console.log('📊 Overlay state sent to Swift side:', state);
 		} catch (error) {
 			console.error('❌ Error sending overlay state to Swift:', error);
+		}
+	}
+
+	// MARK: - Voice Assistant Methods
+
+	configureVoice(url, token) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			this.addon.configureVoice(url, token);
+			console.log('🎤 Voice configured with URL:', url);
+		} catch (error) {
+			console.error('❌ Error configuring voice:', error);
+			throw error;
+		}
+	}
+
+	connectVoiceAssistant() {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			this.addon.connectVoiceAssistant();
+		} catch (error) {
+			console.error('❌ Error connecting voice assistant:', error);
+			throw error;
+		}
+	}
+
+	disconnectVoiceAssistant() {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			this.addon.disconnectVoiceAssistant();
+		} catch (error) {
+			console.error('❌ Error disconnecting voice assistant:', error);
+			throw error;
+		}
+	}
+
+	getVoiceConnectionStatus() {
+		if (!this.isInitialized) {
+			return 'disconnected';
+		}
+		try {
+			return this.addon.getVoiceConnectionStatus();
+		} catch (error) {
+			console.error('❌ Error getting voice connection status:', error);
+			return 'error';
+		}
+	}
+
+	// Update voice connection state from JavaScript
+	updateVoiceConnectionState(status) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			this.addon.updateVoiceConnectionState(status);
+			console.log(`🔄 Voice connection state updated to: ${status}`);
+		} catch (error) {
+			console.error('❌ Error updating voice connection state:', error);
+			throw error;
+		}
+	}
+
+	// Update voice mute state from JavaScript
+	updateVoiceMuteState(isMuted) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			this.addon.updateVoiceMuteState(isMuted);
+			console.log(`🔇 Voice mute state updated: ${isMuted}`);
+		} catch (error) {
+			console.error('❌ Error updating voice mute state:', error);
+			throw error;
+		}
+	}
+
+	updateStealthModeState(isEnabled) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			if (typeof this.addon.updateStealthModeState === 'function') {
+				this.addon.updateStealthModeState(Boolean(isEnabled));
+			}
+			console.log(`🏴‍☠️ Stealth mode state updated: ${Boolean(isEnabled)}`);
+		} catch (error) {
+			console.error('❌ Error updating stealth mode state:', error);
+			throw error;
+		}
+	}
+
+	// Add voice message from JavaScript
+	addVoiceMessage(messageData) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			// Convert messageData to JSON string for native layer
+			const messageJson = JSON.stringify(messageData);
+			this.addon.addVoiceMessage(messageJson);
+			console.log(
+				`💬 Voice message added: ${messageData.sender}: ${messageData.content?.substring(
+					0,
+					30,
+				)}...`,
+			);
+		} catch (error) {
+			console.error('❌ Error adding voice message:', error);
+			throw error;
+		}
+	}
+
+	// MARK: - Wake Word Detection Methods
+
+	handleWakeWordDetected(score) {
+		if (!this.isInitialized) {
+			console.warn('NotchDrop not initialized, cannot handle wake word detection');
+			return;
+		}
+		try {
+			this.addon.handleWakeWordDetected(score);
+			console.log(`🎯 Wake word detected with score: ${score} - activating voice agent!`);
+		} catch (error) {
+			console.error('❌ Error handling wake word detection:', error);
 		}
 	}
 

@@ -8,7 +8,7 @@ class Form extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			client:props.client,
+			client: props.client,
 			sections: props.sections,
 			isDragging: false,
 			actionType: props.actionType,

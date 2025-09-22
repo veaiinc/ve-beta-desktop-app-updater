@@ -14,8 +14,7 @@ const animationComponents = {
 	rotate: Rotate,
 	appear: Appear,
 };
-const HoverPressAdj = ({ activeComponent, adjustAnimation }) => { 
-	
+const HoverPressAdj = ({ activeComponent, adjustAnimation }) => {
 	const AnimationComponent = animationComponents[activeComponent?.animations?.animeName];
 	return AnimationComponent ? (
 		<AnimationComponent activeComponent={activeComponent} adjustAnimation={adjustAnimation} />

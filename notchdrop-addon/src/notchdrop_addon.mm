@@ -23,6 +23,15 @@ public:
             InstanceMethod("setNotchVisible", &NotchDropAddon::SetNotchVisible),
             InstanceMethod("getNotchVisible", &NotchDropAddon::GetNotchVisible),
             InstanceMethod("getWindowPosition", &NotchDropAddon::GetWindowPosition),
+            InstanceMethod("configureVoice", &NotchDropAddon::ConfigureVoice),
+            InstanceMethod("connectVoiceAssistant", &NotchDropAddon::ConnectVoiceAssistant),
+            InstanceMethod("disconnectVoiceAssistant", &NotchDropAddon::DisconnectVoiceAssistant),
+            InstanceMethod("getVoiceConnectionStatus", &NotchDropAddon::GetVoiceConnectionStatus),
+            InstanceMethod("updateVoiceConnectionState", &NotchDropAddon::UpdateVoiceConnectionState),
+            InstanceMethod("updateVoiceMuteState", &NotchDropAddon::UpdateVoiceMuteState),
+            InstanceMethod("addVoiceMessage", &NotchDropAddon::AddVoiceMessage),
+            InstanceMethod("updateStealthModeState", &NotchDropAddon::UpdateStealthModeState),
+            InstanceMethod("handleWakeWordDetected", &NotchDropAddon::HandleWakeWordDetected),
             InstanceMethod("triggerSwiftAction", &NotchDropAddon::TriggerSwiftAction),
             InstanceMethod("on", &NotchDropAddon::On)
         });
@@ -317,6 +326,106 @@ private:
         }
 
         callbacks.Value().Set(info[0].As<Napi::String>(), info[1].As<Napi::Function>());
+        return env.Undefined();
+    }
+
+    // MARK: - Voice Assistant Methods
+    
+    Napi::Value ConfigureVoice(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 2 || !info[0].IsString() || !info[1].IsString()) {
+            Napi::TypeError::New(env, "Expected (string, string) arguments for URL and token").ThrowAsJavaScriptException();
+            return env.Undefined();
+        }
+        
+        std::string url = info[0].As<Napi::String>();
+        std::string token = info[1].As<Napi::String>();
+        
+        NSString* nsURL = [NSString stringWithUTF8String:url.c_str()];
+        NSString* nsToken = [NSString stringWithUTF8String:token.c_str()];
+        
+        [NotchDropBridge configureVoice:nsURL token:nsToken];
+        return env.Undefined();
+    }
+    
+    Napi::Value ConnectVoiceAssistant(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        [NotchDropBridge connectVoiceAssistant];
+        return env.Undefined();
+    }
+    
+    Napi::Value DisconnectVoiceAssistant(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        [NotchDropBridge disconnectVoiceAssistant];
+        return env.Undefined();
+    }
+    
+    Napi::Value GetVoiceConnectionStatus(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        NSString* status = [NotchDropBridge getVoiceConnectionStatus];
+        return Napi::String::New(env, [status UTF8String]);
+    }
+    
+    Napi::Value UpdateVoiceConnectionState(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 1 || !info[0].IsString()) {
+            Napi::TypeError::New(env, "Expected string argument").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+        
+        std::string status = info[0].As<Napi::String>();
+        NSString* nsStatus = [NSString stringWithUTF8String:status.c_str()];
+        [NotchDropBridge updateVoiceConnectionState:nsStatus];
+        return env.Undefined();
+    }
+
+    Napi::Value UpdateVoiceMuteState(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 1 || !info[0].IsBoolean()) {
+            Napi::TypeError::New(env, "Expected boolean argument").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+        
+        bool isMuted = info[0].As<Napi::Boolean>();
+        [NotchDropBridge updateVoiceMuteState:isMuted];
+        return env.Undefined();
+    }
+    
+    Napi::Value AddVoiceMessage(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 1 || !info[0].IsString()) {
+            Napi::TypeError::New(env, "Expected string argument").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+        
+        std::string messageJson = info[0].As<Napi::String>();
+        NSString* nsMessageJson = [NSString stringWithUTF8String:messageJson.c_str()];
+        [NotchDropBridge addVoiceMessage:nsMessageJson];
+        return env.Undefined();
+    }
+        Napi::Value UpdateStealthModeState(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 1 || !info[0].IsBoolean()) {
+            Napi::TypeError::New(env, "Expected boolean argument").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+
+        bool isEnabled = info[0].As<Napi::Boolean>();
+        [NotchDropBridge updateStealthModeState:isEnabled];
+        return env.Undefined();
+    }
+    
+    // MARK: - Wake Word Detection Methods
+    
+    Napi::Value HandleWakeWordDetected(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 1 || !info[0].IsNumber()) {
+            Napi::TypeError::New(env, "Expected number argument").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+        
+        float score = info[0].As<Napi::Number>().FloatValue();
+        [NotchDropBridge handleWakeWordDetected:score];
         return env.Undefined();
     }
 };
