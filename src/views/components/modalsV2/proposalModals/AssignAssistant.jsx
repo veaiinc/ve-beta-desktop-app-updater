@@ -114,7 +114,7 @@ const AssignAssistantModal = ({ modalIsOpen, closeModal, selectedAssistant }) =>
 					))}
 				</div>
 				<div className="assignModalFooterContainer">
-					<div className="createBtn" onClick={() => navigate(`/settings/ai-setup`)}>
+					<div className="createBtn" onClick={() => navigate(`/settings/ai-memory`)}>
 						Create new
 					</div>
 					<div className="assignBtn" onClick={onClickAssign}>

@@ -119,7 +119,6 @@
 				width: 100%;
 				max-width: 768px;
 				margin: 0 auto 0 auto;
-				padding-bottom: 70px;
 
 				.chat-message {
 					display: flex;
@@ -189,6 +188,7 @@
 		color: var(--secondary-font);
 		font-family: var(--chat-primary-font-family);
 		margin-top: -12px;
+		width: 100%;
 	}
 }
 

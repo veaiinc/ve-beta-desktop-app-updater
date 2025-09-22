@@ -80,7 +80,11 @@ const apiFetch = async (url, method, body, token, type, isPublicChat = false) =>
 
 		body && (body = JSON.stringify(body));
 
-		const response = await fetch(endpoint, { method, headers, body });
+		const requestInit =
+			type === 'auth'
+				? { method, headers, body, credentials: 'include' }
+				: { method, headers, body };
+		const response = await fetch(endpoint, requestInit);
 		return await processResponse(response);
 	} catch (error) {
 		console.log('Api Failed: ' + error.message);
