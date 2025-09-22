@@ -1,37 +1,7 @@
 // Wake Word Integration Service
 // Connects Python wake word detection to Swift voice agent
 
-const path = require('path');
-
-function resolveWakeWordService() {
-    const candidatePaths = [
-        path.join(__dirname, '..', 'dist-electron', 'helpers', 'wakeWordService'),
-        path.join(__dirname, '..', 'dist-electron', 'wakeWordService'),
-        path.join(__dirname, '..', 'electron', 'wakeWordService'),
-    ];
-
-    let lastError;
-
-    for (const candidate of candidatePaths) {
-        try {
-            return require(candidate);
-        } catch (error) {
-            if (error.code !== 'MODULE_NOT_FOUND') {
-                throw error;
-            }
-            lastError = error;
-        }
-    }
-
-    const attemptedPaths = candidatePaths.join(', ');
-    const errorDetails = lastError?.message ? ` Last error: ${lastError.message}` : '';
-
-    throw new Error(
-        `WakeWordIntegration could not locate wakeWordService module. Tried paths: ${attemptedPaths}.${errorDetails}`,
-    );
-}
-
-const { WakeWordService } = resolveWakeWordService();
+const { WakeWordService } = require('../electron/wakeWordService');
 
 class WakeWordIntegration {
     constructor(notchDropService) {

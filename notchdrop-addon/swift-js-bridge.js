@@ -901,6 +901,7 @@ class SwiftJSBridge {
 										// Use existing Dynamic Island camera permission functionality
 										if (window.electronApi?.askAI?.camera?.checkPermission) {
 											const permission = await window.electronApi.askAI.camera.checkPermission();
+											console.log('📹 Camera permission result:', permission);
 											return { success: true, permission, method: 'askAI.camera.checkPermission' };
 										}
 										
@@ -912,6 +913,8 @@ class SwiftJSBridge {
 									}
 								})()
 							`);
+
+							console.log('📹 NotchDrop camera permission check result:', result);
 						} catch (jsError) {
 							console.warn(
 								'⚠️ Could not execute NotchDrop camera permission check JavaScript:',
