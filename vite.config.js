@@ -57,7 +57,6 @@ export default defineConfig({
 								dynamicIslandHelper: 'electron/helpers/dynamicIslandHelper.js',
 								desktopUtilHelper: 'electron/desktopUtilHelper.js',
 								autoUpdateHelper: 'electron/helpers/autoUpdateHelper.js',
-								wakeWordService: 'electron/wakeWordService.js',
 							},
 							output: {
 								format: 'cjs',
@@ -65,8 +64,7 @@ export default defineConfig({
 									if (
 										chunkInfo.name === 'windowHelper' ||
 										chunkInfo.name === 'dynamicIslandHelper' ||
-										chunkInfo.name === 'autoUpdateHelper' ||
-										chunkInfo.name === 'wakeWordService'
+										chunkInfo.name === 'autoUpdateHelper'
 									) {
 										return 'helpers/[name].js';
 									}

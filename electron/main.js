@@ -43,7 +43,11 @@ const {
 // const { DynamicIslandHelper } = require('./dynamicIslandHelper');
 
 // Import Windows compatibility fixes
-const { safeExtractImageMetadata } = require('./windowsCompatibility');
+const {
+	loadSharpModule,
+	safeProcessImageWithSharp,
+	safeExtractImageMetadata,
+} = require('./windowsCompatibility');
 
 const {
 	processImageWithSharp,
@@ -1481,7 +1485,7 @@ app.whenReady().then(async () => {
 		// Also request camera permission
 		setTimeout(async () => {
 			const cameraGranted = await systemPreferences.askForMediaAccess('camera');
-			// log.info('Camera permission result:', cameraGranted);
+			log.info('Camera permission result:', cameraGranted);
 		}, 3000);
 	}
 
@@ -1798,6 +1802,7 @@ app.whenReady().then(async () => {
 		if (notchDropService && notchDropService.isInitialized) {
 			try {
 				const status = notchDropService.getStatus();
+				log.info('✅ NotchDrop service status check:', status);
 			} catch (error) {
 				log.warn('⚠️ NotchDrop service status check failed:', error.message);
 			}
