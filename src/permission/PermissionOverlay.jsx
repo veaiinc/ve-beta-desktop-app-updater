@@ -5,8 +5,14 @@ import './permissionOverlay.scss';
 const PermissionOverlay = () => {
 	const [microphonePermission, setMicrophonePermission] = useState(false);
 	const [screenPermission, setScreenPermission] = useState(false);
+	const [cameraPermission, setCameraPermission] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 	const [currentStep, setCurrentStep] = useState(1); // 1: Permissions, 2: Shortcuts
+	const [permissionDetails, setPermissionDetails] = useState({
+		microphone: { status: 'unknown', message: '' },
+		screen: { status: 'unknown', message: '' },
+		camera: { status: 'unknown', message: '' },
+	});
 
 	const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
 	const isMac = RUNTIME_PLATFORM === 'darwin';
@@ -48,15 +54,70 @@ const PermissionOverlay = () => {
 			// Check microphone permission
 			const micResult = await window.electronApi.permission.checkMicrophonePermission();
 			setMicrophonePermission(micResult.hasPermission);
+			setPermissionDetails((prev) => ({
+				...prev,
+				microphone: {
+					status: micResult.permission || 'unknown',
+					message: micResult.message || '',
+				},
+			}));
 
 			// Check screen permission
 			const screenResult = await window.electronApi.permission.checkScreenPermission();
 			setScreenPermission(screenResult.hasPermission);
+			setPermissionDetails((prev) => ({
+				...prev,
+				screen: {
+					status: screenResult.permission || 'unknown',
+					message: screenResult.message || '',
+				},
+			}));
+
+			// Check camera permission
+			const cameraResult = await window.electronApi.permission.checkCameraPermission();
+			setCameraPermission(cameraResult.hasPermission);
+			setPermissionDetails((prev) => ({
+				...prev,
+				camera: {
+					status: cameraResult.permission || 'unknown',
+					message: cameraResult.message || '',
+				},
+			}));
 
 			setIsLoading(false);
 		} catch (error) {
 			console.error('Error checking permissions:', error);
 			setIsLoading(false);
+		}
+	};
+
+	const getPermissionStatusText = (status) => {
+		switch (status) {
+			case 'granted':
+				return 'Granted';
+			case 'denied':
+				return 'Denied';
+			case 'not-determined':
+				return 'Not Requested';
+			case 'restricted':
+				return 'Restricted';
+			default:
+				return 'Unknown';
+		}
+	};
+
+	const getPermissionStatusClass = (status) => {
+		switch (status) {
+			case 'granted':
+				return 'status-granted';
+			case 'denied':
+				return 'status-denied';
+			case 'not-determined':
+				return 'status-not-determined';
+			case 'restricted':
+				return 'status-restricted';
+			default:
+				return 'status-unknown';
 		}
 	};
 
@@ -300,7 +361,8 @@ const PermissionOverlay = () => {
 					<div className="main-title-container">
 						<h1 className="main-title">Let's get you set up</h1>
 						<p className="subtitle">
-							We'll need permission to assess your screen and microphone to continue
+							We'll need permission to access your screen, microphone, and camera to
+							continue
 						</p>
 					</div>
 
@@ -317,6 +379,22 @@ const PermissionOverlay = () => {
 									<p className="permission-description">
 										Allow Ve to access your microphone
 									</p>
+									<div className="permission-status">
+										<span
+											className={`status-badge ${getPermissionStatusClass(
+												permissionDetails.microphone.status,
+											)}`}
+										>
+											{getPermissionStatusText(
+												permissionDetails.microphone.status,
+											)}
+										</span>
+										{permissionDetails.microphone.message && (
+											<span className="status-message">
+												{permissionDetails.microphone.message}
+											</span>
+										)}
+									</div>
 								</div>
 							</div>
 							<div className="permission-toggle">
@@ -329,6 +407,8 @@ const PermissionOverlay = () => {
 											.openMicrophoneSettings()
 											.then((result) => {
 												console.log('System settings result:', result);
+												// Refresh permissions after opening settings
+												setTimeout(checkPermissions, 1000);
 											})
 											.catch((error) => {
 												console.error(
@@ -345,40 +425,62 @@ const PermissionOverlay = () => {
 						</div>
 
 						{/* Screen Recording Permission */}
-						<div className="permission-item">
-							<div className="permission-info">
-								<div className="permission-icon">
-									<Monitor size={20} />
+						{finalIsMac && (
+							<div className="permission-item">
+								<div className="permission-info">
+									<div className="permission-icon">
+										<Monitor size={20} />
+									</div>
+									<div className="permission-details">
+										<h3 className="permission-title">Screen Recording</h3>
+										<p className="permission-description">
+											Allow Ve to access your screen
+										</p>
+										<div className="permission-status">
+											<span
+												className={`status-badge ${getPermissionStatusClass(
+													permissionDetails.screen.status,
+												)}`}
+											>
+												{getPermissionStatusText(
+													permissionDetails.screen.status,
+												)}
+											</span>
+											{permissionDetails.screen.message && (
+												<span className="status-message">
+													{permissionDetails.screen.message}
+												</span>
+											)}
+										</div>
+									</div>
 								</div>
-								<div className="permission-details">
-									<h3 className="permission-title">Screen</h3>
-									<p className="permission-description">
-										Allow Ve to access your screen
-									</p>
+								<div className="permission-toggle">
+									<button
+										className={`toggle-switch ${
+											screenPermission ? 'active' : ''
+										}`}
+										onClick={() => {
+											window.electronApi
+												.openScreenSettings()
+												.then((result) => {
+													console.log('System settings result:', result);
+													// Refresh permissions after opening settings
+													setTimeout(checkPermissions, 1000);
+												})
+												.catch((error) => {
+													console.error(
+														'Failed to open system settings:',
+														error,
+													);
+												});
+										}}
+										style={{ pointerEvents: 'auto' }}
+									>
+										<div className="toggle-handle"></div>
+									</button>
 								</div>
 							</div>
-							<div className="permission-toggle">
-								<button
-									className={`toggle-switch ${screenPermission ? 'active' : ''}`}
-									onClick={() => {
-										window.electronApi
-											.openScreenSettings()
-											.then((result) => {
-												console.log('System settings result:', result);
-											})
-											.catch((error) => {
-												console.error(
-													'Failed to open system settings:',
-													error,
-												);
-											});
-									}}
-									style={{ pointerEvents: 'auto' }}
-								>
-									<div className="toggle-handle"></div>
-								</button>
-							</div>
-						</div>
+						)}
 
 						{/* Camera Permission */}
 						<div className="permission-item">
@@ -391,16 +493,34 @@ const PermissionOverlay = () => {
 									<p className="permission-description">
 										Allow Ve to access your camera
 									</p>
+									<div className="permission-status">
+										<span
+											className={`status-badge ${getPermissionStatusClass(
+												permissionDetails.camera.status,
+											)}`}
+										>
+											{getPermissionStatusText(
+												permissionDetails.camera.status,
+											)}
+										</span>
+										{permissionDetails.camera.message && (
+											<span className="status-message">
+												{permissionDetails.camera.message}
+											</span>
+										)}
+									</div>
 								</div>
 							</div>
 							<div className="permission-toggle">
 								<button
-									className={`toggle-switch ${screenPermission ? 'active' : ''}`}
+									className={`toggle-switch ${cameraPermission ? 'active' : ''}`}
 									onClick={() => {
 										window.electronApi
 											.openCameraSettings()
 											.then((result) => {
 												console.log('System settings result:', result);
+												// Refresh permissions after opening settings
+												setTimeout(checkPermissions, 1000);
 											})
 											.catch((error) => {
 												console.error(
@@ -415,37 +535,6 @@ const PermissionOverlay = () => {
 								</button>
 							</div>
 						</div>
-
-						{/* Test System Settings Button */}
-						{/* <div
-								className="test-settings-container"
-								style={{ marginTop: '20px', textAlign: 'center' }}
-							>
-								<button
-									className="test-settings-button"
-									onClick={() => {
-										window.electronApi
-											.openSystemSettings()
-											.then((result) => {
-												console.log('System settings result:', result);
-											})
-											.catch((error) => {
-												console.error('Failed to open system settings:', error);
-											});
-									}}
-									style={{
-										background: '#007AFF',
-										color: 'white',
-										border: 'none',
-										padding: '10px 20px',
-										borderRadius: '8px',
-										cursor: 'pointer',
-										fontSize: '14px',
-									}}
-								>
-									Test: Open System Settings
-								</button>
-							</div> */}
 
 						{/* Next Button */}
 						<div className="next-button-container">
