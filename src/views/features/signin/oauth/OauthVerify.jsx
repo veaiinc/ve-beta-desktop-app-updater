@@ -11,15 +11,14 @@ const OauthVerify = () => {
 	const params = new URLSearchParams(location.search);
 	useEffect(() => {
 		const accessToken = params.get('accessToken');
-		let accessibleWorkspaces = params.get('workspaceId');
-		const region = params.get('region');
+		const accessibleWorkspaces = params.get('workspaceId')
+			? JSON.parse(decodeURIComponent(params.get('workspaceId')))
+			: null;
+
+		const region = accessibleWorkspaces?.region;
 		const accessTokenExpiry = params.get('accessTokenExpiry');
 		const refreshToken = params.get('refreshToken');
 		const refreshTokenExpiry = params.get('refreshTokenExpiry');
-		accessibleWorkspaces = decodeURIComponent(accessibleWorkspaces);
-		if (accessibleWorkspaces !== undefined || accessibleWorkspaces !== 'undefined') {
-			accessibleWorkspaces = JSON.parse(accessibleWorkspaces);
-		}
 
 		if (accessToken) {
 			if (
