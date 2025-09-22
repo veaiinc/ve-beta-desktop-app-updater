@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Mic, Monitor } from 'lucide-react';
+import { Mic, Monitor, Camera } from 'lucide-react';
 import './permissionOverlay.scss';
 
 const PermissionOverlay = () => {
@@ -362,7 +362,7 @@ const PermissionOverlay = () => {
 									className={`toggle-switch ${screenPermission ? 'active' : ''}`}
 									onClick={() => {
 										window.electronApi
-											.openScreenRecordingSettings()
+											.openScreenSettings()
 											.then((result) => {
 												console.log('System settings result:', result);
 											})
@@ -380,16 +380,16 @@ const PermissionOverlay = () => {
 							</div>
 						</div>
 
-						{/* Screen Sharing Permission */}
+						{/* Camera Permission */}
 						<div className="permission-item">
 							<div className="permission-info">
 								<div className="permission-icon">
-									<Monitor size={20} />
+									<Camera size={20} />
 								</div>
 								<div className="permission-details">
-									<h3 className="permission-title">Screen</h3>
+									<h3 className="permission-title">Camera</h3>
 									<p className="permission-description">
-										Allow Ve to access your screen sharing
+										Allow Ve to access your camera
 									</p>
 								</div>
 							</div>
@@ -398,7 +398,7 @@ const PermissionOverlay = () => {
 									className={`toggle-switch ${screenPermission ? 'active' : ''}`}
 									onClick={() => {
 										window.electronApi
-											.openScreenSharingSettings()
+											.openCameraSettings()
 											.then((result) => {
 												console.log('System settings result:', result);
 											})

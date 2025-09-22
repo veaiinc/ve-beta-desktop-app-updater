@@ -23,8 +23,11 @@ contextBridge.exposeInMainWorld('electronApi', {
 	repositionDynamicIsland: () => ipcRenderer.invoke('reposition-dynamic-island'),
 	openSystemSettings: () => ipcRenderer.invoke('open-system-settings'),
 	openMicrophoneSettings: () => ipcRenderer.invoke('open-microphone-settings'),
-	openScreenRecordingSettings: () => ipcRenderer.invoke('open-screen-recording-settings'),
-	openScreenSharingSettings: () => ipcRenderer.invoke('open-screen-sharing-settings'),
+	// openScreenRecordingSettings: () => ipcRenderer.invoke('open-screen-recording-settings'),
+	// openScreenSharingSettings: () => ipcRenderer.invoke('open-screen-sharing-settings'),
+	openScreenSettings: () => ipcRenderer.invoke('open-screen-settings'),
+
+	openCameraSettings: () => ipcRenderer.invoke('open-camera-settings'),
 
 	onUpdateStatus: (callback) => {
 		ipcRenderer.on('update-status', (event, data) => {
