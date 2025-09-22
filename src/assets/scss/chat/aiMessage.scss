@@ -6,6 +6,20 @@
 
 	.markdown-container {
 		width: 100%;
+
+		.answer-skipped {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 8px 12px;
+			border-radius: 8px;
+			background: var(--card-hover);
+			border: 1px dashed var(--stroke);
+			color: var(--secondary-font);
+			font-family: var(--chat-primary-font-family);
+			font-size: 14px;
+			font-weight: 500;
+		}
 	}
 	.view-document-container {
 		display: flex;

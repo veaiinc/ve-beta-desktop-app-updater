@@ -242,65 +242,88 @@ const AIMessage = ({
 				handleReplyElementClose={handleReplyElementClose}
 			/>
 
-			{info?.usedAgents?.length > 0 &&
-				messageData?.workflow_template_id &&
-				messageData?.module_template_id &&
-				(showCanvas && !isNoteCanvas ? (
-					info?.usedAgents?.map((agent, index) => (
-						<FormWidget
-							workflowTemplateId={messageData?.workflow_template_id}
-							moduleTemplateId={messageData?.module_template_id}
-							handleViewDocument={handleViewDocument}
-							showViewDocument={showViewDocument}
-							isLastMessage={isLastMessage}
-							messageData={messageData}
-							agent={agent}
-							key={index}
-							sessionId={sessionId}
-						/>
-					))
-				) : (
-					<div
-						className="view-document-container"
-						onClick={() =>
-							handleUpdateId(
-								messageData?.workflow_template_id,
-								messageData?.module_template_id,
-							)
-						}
-					>
-						<ViewDocumentIcon />
-						<p>View Document</p>
-					</div>
-				))}
+			{(() => {
+				const isCancelled = messageData?.status === 'cancelled';
+				const primaryText =
+					typeof text === 'string' && text?.length >= 0
+						? text
+						: messageData?.response ?? messageData?.answer ?? '';
+				const hasText = (primaryText || '')?.trim()?.length > 0;
+				const isSkipped = !hasText && (isCancelled || messageData?.response === '');
+				const effectiveStreamEnd = isSkipped ? true : messageData?.stream_end || false;
+				const displayText = isSkipped ? 'Answer skipped' : primaryText;
 
-			{messageData?.browserChainOfThought ? (
-				<BrowserChainOfThought chainOfThought={messageData?.browserChainOfThought} />
-			) : (
-				''
-			)}
+				return (
+					<>
+						{info?.usedAgents?.length > 0 &&
+							messageData?.workflow_template_id &&
+							messageData?.module_template_id &&
+							(showCanvas && !isNoteCanvas ? (
+								info?.usedAgents?.map((agent, index) => (
+									<FormWidget
+										workflowTemplateId={messageData?.workflow_template_id}
+										moduleTemplateId={messageData?.module_template_id}
+										handleViewDocument={handleViewDocument}
+										showViewDocument={showViewDocument}
+										isLastMessage={isLastMessage}
+										messageData={messageData}
+										agent={agent}
+										key={index}
+										sessionId={sessionId}
+									/>
+								))
+							) : (
+								<div
+									className="view-document-container"
+									onClick={() =>
+										handleUpdateId(
+											messageData?.workflow_template_id,
+											messageData?.module_template_id,
+										)
+									}
+								>
+									<ViewDocumentIcon />
+									<p>View Document</p>
+								</div>
+							))}
 
-			{messageData?.tool_invocations ? (
-				<IntermediateSteps
-					steps={messageData?.tool_invocations}
-					isStreaming={messageData?.stream_end === false}
-				/>
-			) : (
-				''
-			)}
+						{messageData?.browserChainOfThought && !isSkipped ? (
+							<BrowserChainOfThought
+								chainOfThought={messageData?.browserChainOfThought}
+							/>
+						) : (
+							''
+						)}
 
-			{messageData?.moduleType === 'ai_suggestion_report' ? (
-				<AISuggestionsReportAiComponent data={messageData?.data} />
-			) : messageData?.widget_type === 'clarifyWidget' ? (
-				<ClarifyWidget data={messageData?.data} sessionId={sessionId} />
-			) : (
-				<div className="markdown-container" ref={markdownContainerRef}>
-					{/* here animate key's initial value only used, next updated animate value will not reach markdown component */}
-					<Markdown citations={citations} animate={!(messageData?.stream_end || false)}>
-						{text}
-					</Markdown>
-				</div>
-			)}
+						{messageData?.tool_invocations && !isSkipped ? (
+							<IntermediateSteps
+								steps={messageData?.tool_invocations}
+								isStreaming={effectiveStreamEnd === false}
+							/>
+						) : (
+							''
+						)}
+
+						{messageData?.moduleType === 'ai_suggestion_report' ? (
+							<AISuggestionsReportAiComponent data={messageData?.data} />
+						) : messageData?.widget_type === 'clarifyWidget' ? (
+							<ClarifyWidget data={messageData?.data} sessionId={sessionId} />
+						) : (
+							<div className="markdown-container" ref={markdownContainerRef}>
+								{/* Dedicated UI for skipped answer */}
+								{isSkipped ? (
+									<div className="answer-skipped">Answer skipped</div>
+								) : (
+									/* here animate key's initial value only used, next updated animate value will not reach markdown component */
+									<Markdown citations={citations} animate={!effectiveStreamEnd}>
+										{displayText}
+									</Markdown>
+								)}
+							</div>
+						)}
+					</>
+				);
+			})()}
 
 			{messageData?.unintegrated_apps?.length > 0 ? (
 				<UnintegratedAgentApps apps={messageData?.unintegrated_apps} />
