@@ -354,7 +354,7 @@ struct DynamicIslandContentView: View {
             .sink { action in
                 switch action {
                 case .receiveMessage(let message):
-                    print("📨 Swift UI received message from Electron: \(message)")
+                    // print("📨 Swift UI received message from Electron: \(message)")
                     receivedMessage = message
                 default:
                     break

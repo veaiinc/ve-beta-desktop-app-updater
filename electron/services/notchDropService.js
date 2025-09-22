@@ -26,7 +26,7 @@ class NotchDropService {
 			setStatus: null,
 		};
 		this.isStealthModeEnabled = false;
-		
+
 		// Wake word integration
 		this.wakeWordIntegration = null;
 	}
@@ -218,10 +218,9 @@ class NotchDropService {
 		});
 
 		this.notchDropAddon.on('toggleStealthMode', () => {
-			Promise.resolve(this.handleToggleStealthModeRequest('swift-event'))
-				.catch((error) => {
-					log.error('❌ Error handling Swift UI stealth toggle event:', error);
-				});
+			Promise.resolve(this.handleToggleStealthModeRequest('swift-event')).catch((error) => {
+				log.error('❌ Error handling Swift UI stealth toggle event:', error);
+			});
 		});
 
 		// Listen for voice mute toggle requests from Swift UI
@@ -236,10 +235,9 @@ class NotchDropService {
 		});
 
 		// Listen for messages received by Swift UI from Electron
-		this.notchDropAddon.on('messageReceived', (message) => {
-			log.info('📨 Swift UI received message from Electron:', message);
-			// You can add additional handling here if needed
-		});
+		// this.notchDropAddon.on('messageReceived', (message) => {
+		// 	// You can add additional handling here if needed
+		// });
 
 		this.notchDropAddon.on('navigateToMainScreen', (targetPath) => {
 			try {
@@ -718,7 +716,6 @@ class NotchDropService {
 			if (this.mainWindow) {
 				// ONLY dispatch LiveKit voice deactivation event - no web interface
 				const liveKitResult = await this.mainWindow.webContents.executeJavaScript(`
-					console.log('🔌 NotchDrop: Dispatching LiveKit voice deactivation event...');
 					window.dispatchEvent(new CustomEvent('notchdrop-deactivate-voice', { 
 						detail: { 
 							source: 'notchdrop', 
@@ -728,8 +725,6 @@ class NotchDropService {
 					}));
 					'{ "success": true, "method": "LiveKit voice deactivation event" }';
 				`);
-				console.log('🔌 LiveKit voice deactivation event result:', liveKitResult);
-				console.log('✅ Voice conversation ended within NotchDrop UI');
 			}
 		} catch (error) {
 			console.error('❌ Error deactivating voice agent:', error);
@@ -870,7 +865,10 @@ class NotchDropService {
 				return normalized;
 			}
 
-			if (this.notchDropAddon && typeof this.notchDropAddon.updateStealthModeState === 'function') {
+			if (
+				this.notchDropAddon &&
+				typeof this.notchDropAddon.updateStealthModeState === 'function'
+			) {
 				this.notchDropAddon.updateStealthModeState(normalized);
 				log.info(`🏴‍☠️ Stealth mode state synced to Swift UI: ${normalized}`);
 			} else {
@@ -891,9 +889,7 @@ class NotchDropService {
 				return this.isStealthModeEnabled;
 			}
 
-			const result = await Promise.resolve(
-				this.stealthModeController.toggle(source),
-			);
+			const result = await Promise.resolve(this.stealthModeController.toggle(source));
 			const enabled = Boolean(result);
 			await this.updateStealthModeState(enabled);
 			return enabled;
@@ -921,9 +917,7 @@ class NotchDropService {
 				return this.isStealthModeEnabled;
 			}
 
-			const status = await Promise.resolve(
-				this.stealthModeController.getStatus(),
-			);
+			const status = await Promise.resolve(this.stealthModeController.getStatus());
 			return await this.updateStealthModeState(status);
 		} catch (error) {
 			log.warn('⚠️ Unable to sync stealth mode state:', error);
@@ -971,7 +965,7 @@ class NotchDropService {
 			// Use the triggerSwiftAction method to send a custom message action
 			if (this.notchDropAddon.triggerSwiftAction) {
 				this.notchDropAddon.triggerSwiftAction('receiveMessage', message);
-				log.info('📤 Message sent to Swift UI:', message);
+				// log.info('📤 Message sent to Swift UI:', message);
 				return { success: true };
 			} else {
 				log.error('❌ triggerSwiftAction method not available on NotchDrop addon');
