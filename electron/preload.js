@@ -21,6 +21,10 @@ contextBridge.exposeInMainWorld('electronApi', {
 	downloadUpdate: () => ipcRenderer.invoke('download-update'),
 	restartApp: () => ipcRenderer.invoke('restart-app'),
 	repositionDynamicIsland: () => ipcRenderer.invoke('reposition-dynamic-island'),
+	openSystemSettings: () => ipcRenderer.invoke('open-system-settings'),
+	openMicrophoneSettings: () => ipcRenderer.invoke('open-microphone-settings'),
+	openScreenRecordingSettings: () => ipcRenderer.invoke('open-screen-recording-settings'),
+	openScreenSharingSettings: () => ipcRenderer.invoke('open-screen-sharing-settings'),
 
 	onUpdateStatus: (callback) => {
 		ipcRenderer.on('update-status', (event, data) => {
@@ -222,14 +226,10 @@ contextBridge.exposeInMainWorld('electronApi', {
 		// Permission checking and requesting
 		checkMicrophonePermission: () => ipcRenderer.invoke('check-microphone-permission'),
 		requestMicrophonePermission: () => ipcRenderer.invoke('request-microphone-permission'),
-		showMicrophonePermissionHelp: () =>
-			ipcRenderer.invoke('show-microphone-permission-help'),
-		checkScreenPermission: () =>
-			ipcRenderer.invoke('check-screen-recording-permission'),
-		requestScreenPermission: () =>
-			ipcRenderer.invoke('request-screen-recording-permission'),
-		showScreenPermissionHelp: () =>
-			ipcRenderer.invoke('show-screen-recording-permission-help'),
+		showMicrophonePermissionHelp: () => ipcRenderer.invoke('show-microphone-permission-help'),
+		checkScreenPermission: () => ipcRenderer.invoke('check-screen-recording-permission'),
+		requestScreenPermission: () => ipcRenderer.invoke('request-screen-recording-permission'),
+		showScreenPermissionHelp: () => ipcRenderer.invoke('show-screen-recording-permission-help'),
 	},
 
 	// Home icon click handler (cross-platform)

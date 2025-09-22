@@ -60,116 +60,116 @@ const PermissionOverlay = () => {
 		}
 	};
 
-	const handleMicrophoneToggle = async () => {
-		try {
-			console.log('🔈 Microphone toggle clicked');
+	// const handleMicrophoneToggle = async () => {
+	// 	try {
+	// 		console.log('🔈 Microphone toggle clicked');
 
-			// Re-check current permission first
-			const micStatus = await window.electronApi.permission.checkMicrophonePermission();
-			const hasMic = !!micStatus?.hasPermission;
+	// 		// Re-check current permission first
+	// 		const micStatus = await window.electronApi.permission.checkMicrophonePermission();
+	// 		const hasMic = !!micStatus?.hasPermission;
 
-			if (hasMic) {
-				// Already granted; keep it true and do not toggle off
-				setMicrophonePermission(true);
-				checkAllPermissionsGranted();
-				return;
-			}
+	// 		if (hasMic) {
+	// 			// Already granted; keep it true and do not toggle off
+	// 			setMicrophonePermission(true);
+	// 			checkAllPermissionsGranted();
+	// 			return;
+	// 		}
 
-			// Request microphone permission
-			const result = await window.electronApi.permission.requestMicrophonePermission();
-			if (result?.granted) {
-				setMicrophonePermission(true);
-				checkAllPermissionsGranted();
-			} else {
-				await window.electronApi.permission.showMicrophonePermissionHelp();
-				setMicrophonePermission(false);
-			}
-		} catch (error) {
-			console.error('Error handling microphone permission:', error);
-			try {
-				await window.electronApi.permission.showMicrophonePermissionHelp();
-			} catch (helpError) {
-				console.error('Error showing microphone help:', helpError);
-			}
-		}
-	};
+	// 		// Request microphone permission
+	// 		const result = await window.electronApi.permission.requestMicrophonePermission();
+	// 		if (result?.granted) {
+	// 			setMicrophonePermission(true);
+	// 			checkAllPermissionsGranted();
+	// 		} else {
+	// 			await window.electronApi.permission.showMicrophonePermissionHelp();
+	// 			setMicrophonePermission(false);
+	// 		}
+	// 	} catch (error) {
+	// 		console.error('Error handling microphone permission:', error);
+	// 		try {
+	// 			await window.electronApi.permission.showMicrophonePermissionHelp();
+	// 		} catch (helpError) {
+	// 			console.error('Error showing microphone help:', helpError);
+	// 		}
+	// 	}
+	// };
 
-	const handleScreenToggle = async () => {
-		try {
-			console.log('🖥️ Screen permission toggle clicked');
-			// Re-check current screen permission
-			const screenStatus = await window.electronApi.permission.checkScreenPermission();
-			const hasScreen = !!screenStatus?.hasPermission;
+	// const handleScreenToggle = async () => {
+	// 	try {
+	// 		console.log('🖥️ Screen permission toggle clicked');
+	// 		// Re-check current screen permission
+	// 		const screenStatus = await window.electronApi.permission.checkScreenPermission();
+	// 		const hasScreen = !!screenStatus?.hasPermission;
 
-			if (hasScreen) {
-				setScreenPermission(true);
-				checkAllPermissionsGranted();
-				return;
-			}
+	// 		if (hasScreen) {
+	// 			setScreenPermission(true);
+	// 			checkAllPermissionsGranted();
+	// 			return;
+	// 		}
 
-			// Attempt request (may not be grantable programmatically on macOS)
-			const result = await window.electronApi.permission.requestScreenPermission();
-			if (result?.granted) {
-				setScreenPermission(true);
-				checkAllPermissionsGranted();
-			} else {
-				await window.electronApi.permission.showScreenPermissionHelp();
-				setScreenPermission(false);
-			}
-		} catch (error) {
-			console.error('Error handling screen permission:', error);
-			try {
-				await window.electronApi.permission.showScreenPermissionHelp();
-			} catch (helpError) {
-				console.error('Error showing screen recording help:', helpError);
-			}
-		}
-	};
+	// 		// Attempt request (may not be grantable programmatically on macOS)
+	// 		const result = await window.electronApi.permission.requestScreenPermission();
+	// 		if (result?.granted) {
+	// 			setScreenPermission(true);
+	// 			checkAllPermissionsGranted();
+	// 		} else {
+	// 			await window.electronApi.permission.showScreenPermissionHelp();
+	// 			setScreenPermission(false);
+	// 		}
+	// 	} catch (error) {
+	// 		console.error('Error handling screen permission:', error);
+	// 		try {
+	// 			await window.electronApi.permission.showScreenPermissionHelp();
+	// 		} catch (helpError) {
+	// 			console.error('Error showing screen recording help:', helpError);
+	// 		}
+	// 	}
+	// };
 
-	const handleScreenRecordingToggle = async () => {
-		try {
-			console.log('🎞️ Screen recording toggle clicked');
-			const screenStatus = await window.electronApi.permission.checkScreenPermission();
-			const hasScreen = !!screenStatus?.hasPermission;
-			if (hasScreen) {
-				setScreenPermission(true);
-				checkAllPermissionsGranted();
-				return;
-			}
-			const result = await window.electronApi.permission.requestScreenPermission();
-			if (result?.granted) {
-				setScreenPermission(true);
-				checkAllPermissionsGranted();
-			} else {
-				await window.electronApi.permission.showScreenPermissionHelp();
-				setScreenPermission(false);
-			}
-		} catch (error) {
-			console.error('Error handling screen recording permission:', error);
-			try {
-				await window.electronApi.permission.showScreenPermissionHelp();
-			} catch (helpError) {
-				console.error('Error showing screen recording help:', helpError);
-			}
-		}
-	};
+	// const handleScreenRecordingToggle = async () => {
+	// 	try {
+	// 		console.log('🎞️ Screen recording toggle clicked');
+	// 		const screenStatus = await window.electronApi.permission.checkScreenPermission();
+	// 		const hasScreen = !!screenStatus?.hasPermission;
+	// 		if (hasScreen) {
+	// 			setScreenPermission(true);
+	// 			checkAllPermissionsGranted();
+	// 			return;
+	// 		}
+	// 		const result = await window.electronApi.permission.requestScreenPermission();
+	// 		if (result?.granted) {
+	// 			setScreenPermission(true);
+	// 			checkAllPermissionsGranted();
+	// 		} else {
+	// 			await window.electronApi.permission.showScreenPermissionHelp();
+	// 			setScreenPermission(false);
+	// 		}
+	// 	} catch (error) {
+	// 		console.error('Error handling screen recording permission:', error);
+	// 		try {
+	// 			await window.electronApi.permission.showScreenPermissionHelp();
+	// 		} catch (helpError) {
+	// 			console.error('Error showing screen recording help:', helpError);
+	// 		}
+	// 	}
+	// };
 
-	const checkAllPermissionsGranted = () => {
-		if (microphonePermission && screenPermission) {
-			console.log('🔐 All permissions granted! Notifying main app...');
-			// Emit event to notify main app that permissions are granted
-			window.dispatchEvent(new CustomEvent('permission-granted'));
-			// Close the permission overlay after a short delay
-			setTimeout(() => {
-				window.electronApi.permission.closeWindow();
-			}, 1000);
-		}
-	};
+	// const checkAllPermissionsGranted = () => {
+	// 	if (microphonePermission && screenPermission) {
+	// 		console.log('🔐 All permissions granted! Notifying main app...');
+	// 		// Emit event to notify main app that permissions are granted
+	// 		window.dispatchEvent(new CustomEvent('permission-granted'));
+	// 		// Close the permission overlay after a short delay
+	// 		setTimeout(() => {
+	// 			window.electronApi.permission.closeWindow();
+	// 		}, 1000);
+	// 	}
+	// };
 
-	const handleContinue = () => {
-		// Close the permission overlay
-		window.electronApi.permission.closeWindow();
-	};
+	// const handleContinue = () => {
+	// 	// Close the permission overlay
+	// 	window.electronApi.permission.closeWindow();
+	// };
 
 	const handleNext = () => {
 		setCurrentStep(2);
@@ -324,7 +324,19 @@ const PermissionOverlay = () => {
 									className={`toggle-switch ${
 										microphonePermission ? 'active' : ''
 									}`}
-									onClick={handleMicrophoneToggle}
+									onClick={() => {
+										window.electronApi
+											.openMicrophoneSettings()
+											.then((result) => {
+												console.log('System settings result:', result);
+											})
+											.catch((error) => {
+												console.error(
+													'Failed to open system settings:',
+													error,
+												);
+											});
+									}}
 									style={{ pointerEvents: 'auto' }}
 								>
 									<div className="toggle-handle"></div>
@@ -332,7 +344,7 @@ const PermissionOverlay = () => {
 							</div>
 						</div>
 
-						{/* Screen Permission */}
+						{/* Screen Recording Permission */}
 						<div className="permission-item">
 							<div className="permission-info">
 								<div className="permission-icon">
@@ -348,13 +360,92 @@ const PermissionOverlay = () => {
 							<div className="permission-toggle">
 								<button
 									className={`toggle-switch ${screenPermission ? 'active' : ''}`}
-									onClick={handleScreenToggle}
+									onClick={() => {
+										window.electronApi
+											.openScreenRecordingSettings()
+											.then((result) => {
+												console.log('System settings result:', result);
+											})
+											.catch((error) => {
+												console.error(
+													'Failed to open system settings:',
+													error,
+												);
+											});
+									}}
 									style={{ pointerEvents: 'auto' }}
 								>
 									<div className="toggle-handle"></div>
 								</button>
 							</div>
 						</div>
+
+						{/* Screen Sharing Permission */}
+						<div className="permission-item">
+							<div className="permission-info">
+								<div className="permission-icon">
+									<Monitor size={20} />
+								</div>
+								<div className="permission-details">
+									<h3 className="permission-title">Screen</h3>
+									<p className="permission-description">
+										Allow Ve to access your screen sharing
+									</p>
+								</div>
+							</div>
+							<div className="permission-toggle">
+								<button
+									className={`toggle-switch ${screenPermission ? 'active' : ''}`}
+									onClick={() => {
+										window.electronApi
+											.openScreenSharingSettings()
+											.then((result) => {
+												console.log('System settings result:', result);
+											})
+											.catch((error) => {
+												console.error(
+													'Failed to open system settings:',
+													error,
+												);
+											});
+									}}
+									style={{ pointerEvents: 'auto' }}
+								>
+									<div className="toggle-handle"></div>
+								</button>
+							</div>
+						</div>
+
+						{/* Test System Settings Button */}
+						{/* <div
+								className="test-settings-container"
+								style={{ marginTop: '20px', textAlign: 'center' }}
+							>
+								<button
+									className="test-settings-button"
+									onClick={() => {
+										window.electronApi
+											.openSystemSettings()
+											.then((result) => {
+												console.log('System settings result:', result);
+											})
+											.catch((error) => {
+												console.error('Failed to open system settings:', error);
+											});
+									}}
+									style={{
+										background: '#007AFF',
+										color: 'white',
+										border: 'none',
+										padding: '10px 20px',
+										borderRadius: '8px',
+										cursor: 'pointer',
+										fontSize: '14px',
+									}}
+								>
+									Test: Open System Settings
+								</button>
+							</div> */}
 
 						{/* Next Button */}
 						<div className="next-button-container">
