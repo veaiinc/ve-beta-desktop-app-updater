@@ -388,13 +388,14 @@
 					justify-content: center;
 					align-items: center;
 					cursor: pointer;
-					background-color: var(--primary-font);
+					background-color: var(--primary-font, #f2f2f3);
+					border: none;
 
 					.stop-button-square {
 						display: block;
 						height: 12px;
 						width: 12px;
-						background-color: var(--error);
+						background-color: var(--error, #c71b3a);
 						border-radius: 2px;
 					}
 
