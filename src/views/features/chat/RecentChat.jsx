@@ -459,7 +459,7 @@ const RecentChat = ({
 	const handleChatHistoryToggle = useCallback(() => {
 		setInfo((prev) => ({
 			...prev,
-			isChatHistoryClosed: !Boolean(prev?.isChatHistoryClosed),
+			isChatHistoryClosed: !prev?.isChatHistoryClosed,
 		}));
 	}, []);
 
@@ -513,6 +513,7 @@ const RecentChat = ({
 				const {
 					originalQuery = '',
 					response,
+					status,
 					_id: messageId,
 					citations,
 					workflowTemplateId,
@@ -599,6 +600,8 @@ const RecentChat = ({
 					},
 					{
 						message: response,
+						response,
+						status,
 						type: 'AI',
 						messageId,
 						rating: rating || null,
