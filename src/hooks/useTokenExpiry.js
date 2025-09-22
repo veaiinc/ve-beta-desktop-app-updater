@@ -40,10 +40,11 @@ const useTokenExpiry = () => {
 						sameSite: 'lax',
 						domain: host,
 					});
-					Cookies.set('refreshToken', newRefreshToken, {
-						sameSite: 'lax',
-						domain: host,
-					});
+					// API response is setting refresh token in cookies, so no need to set it again
+					// Cookies.set('refreshToken', newRefreshToken, {
+					// 	sameSite: 'lax',
+					// 	domain: host,
+					// });
 					Cookies.set('accessTokenExpiry', newAccessTokenExpiry, {
 						sameSite: 'lax',
 						domain: host,

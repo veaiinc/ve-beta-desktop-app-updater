@@ -15,8 +15,17 @@ const logoutAPI = async () => {
 			};
 		}
 
-		localStorage.clear();
 		const response = await Service?.fetchPost(path, body, token, 'auth');
+		localStorage.clear();
+		Cookies.remove('usertoken');
+		Cookies.remove('refreshToken');
+		Cookies.remove('accessTokenExpiry');
+		Cookies.remove('refreshTokenExpiry');
+		Cookies.remove('region');
+		Cookies.remove('workspaceId');
+		Cookies.remove('isOnboard');
+		Cookies.remove('accessibleWorkspaces');
+		Cookies.remove('fcmToken');
 
 		return response;
 	} catch (error) {
