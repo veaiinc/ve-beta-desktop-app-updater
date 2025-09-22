@@ -12,7 +12,7 @@ const OauthVerify = () => {
 	useEffect(() => {
 		const accessToken = params.get('accessToken');
 		let accessibleWorkspaces = params.get('workspaceId');
-		const region = params.get('region');
+		const region = accessibleWorkspaces?.region;
 		const accessTokenExpiry = params.get('accessTokenExpiry');
 		const refreshToken = params.get('refreshToken');
 		const refreshTokenExpiry = params.get('refreshTokenExpiry');
