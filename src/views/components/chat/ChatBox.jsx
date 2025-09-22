@@ -866,16 +866,6 @@ const ChatBox = ({
 						});
 					}
 
-					if (proactiveInfoForChat) {
-						payload.proactive = true;
-						if (proactiveInfoForChat?.proactiveSessionId) {
-							payload.proactive_id = proactiveInfoForChat?.proactiveSessionId;
-						}
-						updateStateValues({
-							proactiveInfoForChat: null,
-						});
-					}
-
 					if (activeWorkflowSlugForSmartFile) {
 						payload.workflow_slug = activeWorkflowSlugForSmartFile;
 					}
@@ -902,6 +892,17 @@ const ChatBox = ({
 						payload.direct_agent = 'search_agent';
 						updateStateValues({
 							isDirectSearchAgent: false,
+						});
+					}
+					if (proactiveInfoForChat) {
+						payload.proactive = true;
+						if (proactiveInfoForChat?.proactiveSessionId) {
+							payload.proactive_id = proactiveInfoForChat?.proactiveSessionId;
+							payload.module_id = proactiveInfoForChat?.moduleId;
+							payload.screen = proactiveInfoForChat?.screen;
+						}
+						updateStateValues({
+							proactiveInfoForChat: null,
 						});
 					}
 
