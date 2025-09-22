@@ -14,8 +14,6 @@ const logoutAPI = async () => {
 				fcmToken,
 			};
 		}
-
-		const response = await Service?.fetchPost(path, body, token, 'auth');
 		localStorage.clear();
 		Cookies.remove('usertoken');
 		Cookies.remove('refreshToken');
@@ -26,6 +24,8 @@ const logoutAPI = async () => {
 		Cookies.remove('isOnboard');
 		Cookies.remove('accessibleWorkspaces');
 		Cookies.remove('fcmToken');
+
+		const response = await Service?.fetchPost(path, body, token, 'auth');
 
 		return response;
 	} catch (error) {
