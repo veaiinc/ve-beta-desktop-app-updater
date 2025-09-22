@@ -14,7 +14,6 @@ const initialData = {
 };
 
 const OnboardingStepper = ({ onStepChange }) => {
-
 	const [step, setStep] = useState(() => {
 		// Initialize step from localStorage, default to 1 if not found
 		const savedStep = localStorage.getItem('onboardingStep');
