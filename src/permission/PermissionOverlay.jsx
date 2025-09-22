@@ -8,6 +8,25 @@ const PermissionOverlay = () => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [currentStep, setCurrentStep] = useState(1); // 1: Permissions, 2: Shortcuts
 
+	const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
+	const isMac = RUNTIME_PLATFORM === 'darwin';
+
+	// Additional fallback check for better macOS detection
+	const isMacFallback = process.platform === 'darwin' || navigator.platform.includes('Mac');
+	const finalIsMac = isMac || isMacFallback;
+
+	// Debug logging to help troubleshoot platform detection
+	console.log('🔍 PermissionOverlay Platform Debug:', {
+		processPlatform: process.platform,
+		runtimePlatform: RUNTIME_PLATFORM,
+		isMac: isMac,
+		isMacFallback: isMacFallback,
+		finalIsMac: finalIsMac,
+		envForcePlatform: process.env.VE_FORCE_PLATFORM,
+		userAgent: navigator.userAgent,
+		navigatorPlatform: navigator.platform,
+	});
+
 	useEffect(() => {
 		// Check current permissions on mount
 		checkPermissions();
@@ -207,7 +226,7 @@ const PermissionOverlay = () => {
 								</p>
 							</div>
 							<div className="shortcut-key">
-								<kbd>Ctrl</kbd> + <kbd>\</kbd>
+								<kbd>{finalIsMac ? '⌘' : 'Ctrl'}</kbd> + <kbd>\</kbd>
 							</div>
 						</div>
 
@@ -220,7 +239,7 @@ const PermissionOverlay = () => {
 								</p>
 							</div>
 							<div className="shortcut-key">
-								<kbd>Ctrl</kbd> + <kbd>N</kbd>
+								<kbd>{finalIsMac ? '⌘' : 'Ctrl'}</kbd> + <kbd>N</kbd>
 							</div>
 						</div>
 
@@ -233,7 +252,7 @@ const PermissionOverlay = () => {
 								</p>
 							</div>
 							<div className="shortcut-key">
-								<kbd>Ctrl</kbd> + <kbd>↵</kbd>
+								<kbd>{finalIsMac ? '⌘' : 'Ctrl'}</kbd> + <kbd>↵</kbd>
 							</div>
 						</div>
 
@@ -246,7 +265,7 @@ const PermissionOverlay = () => {
 								</p>
 							</div>
 							<div className="shortcut-key">
-								<kbd>Ctrl</kbd> + <kbd>•</kbd>
+								<kbd>{finalIsMac ? '⌘' : 'Ctrl'}</kbd> + <kbd>•</kbd>
 							</div>
 						</div>
 					</div>
