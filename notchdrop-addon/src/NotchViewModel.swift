@@ -610,7 +610,7 @@ class NotchViewModel: NSObject, ObservableObject {
     }
     
     func receiveMessage(_ message: String) {
-        // print("📨 Received message from Electron: \(message)")
+        print("📨 Received message from Electron: \(message)")
 
         // Try to parse as JSON first for structured messages
         if let jsonData = message.data(using: .utf8),
@@ -654,11 +654,11 @@ class NotchViewModel: NSObject, ObservableObject {
         if lowerMessage == "authorized" {
             // Set authentication state to true for authorized message
             setAuthenticated(true)
-            // print("🔐 Authentication state set to TRUE based on message: \(message)")
+            print("🔐 Authentication state set to TRUE based on message: \(message)")
         } else if lowerMessage == "unauthorized" || lowerMessage == "loggedout" {
             // Set authentication state to false for unauthorized or loggedOut messages
             setAuthenticated(false)
-            // print("🔓 Authentication state set to FALSE based on message: \(message)")
+            print("🔓 Authentication state set to FALSE based on message: \(message)")
         } else if lowerMessage == "meetingstarted" {
             // Set authentication state to true for loggedin message
             // startRecording()
@@ -673,15 +673,15 @@ class NotchViewModel: NSObject, ObservableObject {
             startWebcam()
 
             // contentType = .recording
-            // print("🔐 Meeting started based on message: \(message)")
+            print("🔐 Meeting started based on message: \(message)")
         } else if lowerMessage == "meetingstopped" {
             // Set authentication state to true for loggedin message
             stopRecording()
-            // print("🔐 Meeting stopped based on message: \(message)")
+            print("🔐 Meeting stopped based on message: \(message)")
         } else if lowerMessage == "meetingmute" {
             // Set authentication state to true for loggedin message
             toggleVoiceMute()
-            // print("🔐 Meeting muted based on message: \(message)")
+            print("🔐 Meeting muted based on message: \(message)")
         }
     }
     
@@ -825,7 +825,7 @@ class NotchViewModel: NSObject, ObservableObject {
     func updateCameraPermission(_ permission: String) {
         DispatchQueue.main.async {
             self.cameraPermission = permission
-            // print("📹 Camera permission updated: \(permission)")
+            print("📹 Camera permission updated: \(permission)")
         }
     }
     
@@ -834,7 +834,7 @@ class NotchViewModel: NSObject, ObservableObject {
         DispatchQueue.main.async {
             self.cameraError = error
             if let error = error {
-                // print("📹 Camera error: \(error)")
+                print("📹 Camera error: \(error)")
             }
         }
     }
