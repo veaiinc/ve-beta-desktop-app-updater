@@ -432,6 +432,36 @@ ipcMain.handle('reposition-dynamic-island', () => {
 	return { success: false, error: 'Dynamic Island helper not available' };
 });
 
+// System Settings handler
+ipcMain.handle('open-system-settings', async () => {
+	const platform = os.platform();
+
+	try {
+		if (platform === 'darwin') {
+			// macOS System Settings (modern approach)
+			exec('open "x-apple.systempreferences:"', (error) => {
+				if (error) {
+					log.error('Failed to open macOS System Settings:', error);
+				}
+			});
+		} else if (platform === 'win32') {
+			// Windows Settings
+			exec('start ms-settings:', (error) => {
+				if (error) {
+					log.error('Failed to open Windows Settings:', error);
+				}
+			});
+		} else {
+			log.warn('Unsupported platform for system settings:', platform);
+			return { success: false, error: 'Unsupported platform' };
+		}
+		return { success: true, platform };
+	} catch (error) {
+		log.error('Error opening system settings:', error);
+		return { success: false, error: error.message };
+	}
+});
+
 ipcMain.handle('desktop:capture-screen', async () => {
 	try {
 		const sources = await desktopCapturer.getSources({

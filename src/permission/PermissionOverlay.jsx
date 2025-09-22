@@ -356,6 +356,39 @@ const PermissionOverlay = () => {
 							</div>
 						</div>
 
+						{/* Test System Settings Button */}
+						<div
+							className="test-settings-container"
+							style={{ marginTop: '20px', textAlign: 'center' }}
+						>
+							<button
+								className="test-settings-button"
+								onClick={() => {
+									window.electronApi
+										.openSystemSettings()
+										.then((result) => {
+											console.log('System settings result:', result);
+										})
+										.catch((error) => {
+											console.error('Failed to open system settings:', error);
+										});
+								}}
+								style={{
+									background: '#007AFF',
+									color: 'white',
+									border: 'none',
+									padding: '10px 20px',
+									borderRadius: '8px',
+									cursor: 'pointer',
+									fontSize: '14px',
+								}}
+							>
+								Test: Open System Settings
+							</button>
+						</div>
+
+						{/* Next Button */}
+
 						{/* Next Button */}
 						<div className="next-button-container">
 							<button className="next-button" onClick={handleNext}>
