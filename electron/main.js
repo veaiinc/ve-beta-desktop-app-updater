@@ -467,6 +467,70 @@ ipcMain.handle('reposition-dynamic-island', () => {
 // });
 
 // Generic system settings
+
+ipcMain.handle('open-camera-settings', async () => {
+	const platform = os.platform();
+
+	try {
+		if (platform === 'darwin') {
+			// macOS: Opens Privacy > Camera
+			exec(
+				'open "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera"',
+				(error) => {
+					if (error) {
+						console.error('Failed to open macOS Camera Settings:', error);
+					}
+				},
+			);
+		} else if (platform === 'win32') {
+			// Windows: Opens Camera privacy settings
+			exec('start ms-settings:privacy-webcam', (error) => {
+				if (error) {
+					console.error('Failed to open Windows Camera Settings:', error);
+				}
+			});
+		} else {
+			console.warn('Unsupported platform for camera settings:', platform);
+			return { success: false, error: 'Unsupported platform' };
+		}
+		return { success: true, platform };
+	} catch (error) {
+		console.error('Error opening camera settings:', error);
+		return { success: false, error: error.message };
+	}
+});
+ipcMain.handle('open-screen-settings', async () => {
+	const platform = os.platform();
+
+	try {
+		if (platform === 'darwin') {
+			// macOS: Opens Privacy > Screen Recording
+			exec(
+				'open "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"',
+				(error) => {
+					if (error) {
+						console.error('Failed to open Screen Recording Settings (macOS):', error);
+					}
+				},
+			);
+		} else if (platform === 'win32') {
+			// Windows: No direct screen recording permission
+			console.warn('Screen recording permission not required or configurable on Windows.');
+			return {
+				success: true,
+				message: 'Screen recording permissions are not required on Windows.',
+				platform,
+			};
+		} else {
+			return { success: false, error: 'Unsupported platform' };
+		}
+		return { success: true, platform };
+	} catch (error) {
+		console.error('Error opening screen recording settings:', error);
+		return { success: false, error: error.message };
+	}
+});
+
 ipcMain.handle('open-system-settings', async () => {
 	const platform = os.platform();
 	try {
@@ -491,34 +555,59 @@ ipcMain.handle('open-system-settings', async () => {
 
 // 🎤 Microphone privacy settings
 ipcMain.handle('open-microphone-settings', async () => {
-	if (os.platform() === 'darwin') {
-		exec("open 'x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone'");
-	} else {
-		console.warn('Microphone settings not supported on this platform');
+	const platform = os.platform();
+
+	try {
+		if (platform === 'darwin') {
+			// macOS: Open Microphone privacy settings
+			exec(
+				'open "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone"',
+				(error) => {
+					if (error) {
+						console.error('❌ Failed to open Microphone Settings on macOS:', error);
+					}
+				},
+			);
+			return { success: true, platform: 'macOS' };
+		} else if (platform === 'win32') {
+			// Windows: Open Microphone privacy settings
+			exec('start ms-settings:privacy-microphone', (error) => {
+				if (error) {
+					console.error('❌ Failed to open Microphone Settings on Windows:', error);
+				}
+			});
+			return { success: true, platform: 'Windows' };
+		} else {
+			console.warn('⚠️ Unsupported platform for microphone settings:', platform);
+			return { success: false, error: 'Unsupported platform' };
+		}
+	} catch (err) {
+		console.error('❌ Error opening microphone settings:', err);
+		return { success: false, error: err.message };
 	}
 });
 
 // 🖥️ Screen Recording privacy settings
-ipcMain.handle('open-screen-recording-settings', async () => {
-	if (os.platform() === 'darwin') {
-		exec(
-			"open 'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenRecording'",
-		);
-	} else {
-		console.warn('Screen recording settings not supported on this platform');
-	}
-});
+// ipcMain.handle('open-screen-recording-settings', async () => {
+// 	if (os.platform() === 'darwin') {
+// 		exec(
+// 			"open 'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenRecording'",
+// 		);
+// 	} else {
+// 		console.warn('Screen recording settings not supported on this platform');
+// 	}
+// });
 
 // 📡 Screen Sharing (optional)
-ipcMain.handle('open-screen-sharing-settings', async () => {
-	if (os.platform() === 'darwin') {
-		exec(
-			"open 'x-apple.systempreferences:com.apple.preference.sharing?Services_ScreenSharing'",
-		);
-	} else {
-		console.warn('Screen sharing settings not supported on this platform');
-	}
-});
+// ipcMain.handle('open-screen-sharing-settings', async () => {
+// 	if (os.platform() === 'darwin') {
+// 		exec(
+// 			"open 'x-apple.systempreferences:com.apple.preference.sharing?Services_ScreenSharing'",
+// 		);
+// 	} else {
+// 		console.warn('Screen sharing settings not supported on this platform');
+// 	}
+// });
 
 ipcMain.handle('desktop:capture-screen', async () => {
 	try {
