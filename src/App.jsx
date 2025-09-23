@@ -314,8 +314,11 @@ const App = () => {
 				</button>
 			)} */}
 
-			<button
-				onClick={() => window.electronApi?.permission?.showWindow()}
+			{/* <button
+				onClick={async () => {
+					const result = await window.electronApi?.permission?.checkAuthAndShowOverlay();
+					console.log('🔍 Auth check result:', result);
+				}}
 				style={{
 					position: 'fixed',
 					top: '20px',
@@ -332,8 +335,8 @@ const App = () => {
 					boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
 				}}
 			>
-				Test Permission Overlay
-			</button>
+				Test Auth-Based Permission Overlay
+			</button> */}
 
 			{/* Update Notification - Commented out for auto restart */}
 			{/* {showUpdateNotification && updateStatus?.status === 'downloaded' && (

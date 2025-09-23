@@ -94,6 +94,12 @@ let lastWindowState = {
 	windowBounds: null, // Store window size and position
 };
 
+// Authentication state management
+let userAuthenticationStatus = {
+	isLoggedIn: false,
+	shouldShowPermissionOverlay: true, // Show by default until we know auth status
+};
+
 // Recording timer variables for Are You There functionality
 let recordingStartTime = null;
 let areYouThereTimer = null;
@@ -1377,9 +1383,25 @@ function createWindow(restoreState = false) {
 	ipcMain.on('veAppMsg', async (event, msg) => {
 		// log.info('🔄 Received message from veApp:', msg); // logs: btn clicked from react
 
-		// Handle logout message - notify Dynamic Island
-		if (msg === 'loggedout') {
-			log.info('🔓 User logged out - notifying Dynamic Island');
+		// Handle authentication status messages
+		if (msg === 'authorized') {
+			log.info('✅ User authenticated - hiding permission overlay if visible');
+			userAuthenticationStatus.isLoggedIn = true;
+			userAuthenticationStatus.shouldShowPermissionOverlay = false;
+
+			// Hide permission overlay if it's currently visible
+			if (windowHelper?.isPermissionVisible) {
+				windowHelper.hidePermissionWindow();
+			}
+		} else if (msg === 'unauthorized') {
+			log.info('🔓 User not authenticated - permission overlay may be needed');
+			userAuthenticationStatus.isLoggedIn = false;
+			userAuthenticationStatus.shouldShowPermissionOverlay = true;
+		} else if (msg === 'loggedout') {
+			log.info('🔓 User logged out - updating auth status and notifying Dynamic Island');
+			userAuthenticationStatus.isLoggedIn = false;
+			userAuthenticationStatus.shouldShowPermissionOverlay = true;
+
 			const dynamicIslandWindow = dynamicIslandHelper?.dynamicIslandWindow;
 			if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
 				dynamicIslandWindow.webContents.send('user-logout');
@@ -1643,44 +1665,48 @@ if (!gotTheLock) {
 	});
 }
 
-// Function to check permissions and show overlay if needed
-async function checkAndShowPermissionOverlay() {
+// Function to check if user is authenticated by checking renderer localStorage
+async function checkUserAuthenticationStatus() {
 	try {
-		log.info('🔍 Checking permissions on app startup...');
-
-		let needsPermissionOverlay = false;
-
-		// Check if this is first run or permissions are missing
-		const permissionsGranted = await checkAllPermissions();
-
-		if (!permissionsGranted.allGranted) {
-			log.info('❌ Some permissions are missing, showing permission overlay');
-			needsPermissionOverlay = true;
-		} else {
-			log.info('✅ All permissions granted, skipping permission overlay');
+		if (!mainWindow || mainWindow.isDestroyed()) {
+			log.warn('⚠️ Main window not available for auth check');
+			return false;
 		}
 
-		// Show permission overlay if needed
-		if (needsPermissionOverlay) {
-			setTimeout(() => {
+		// Execute script in renderer to check localStorage
+		const isAuthenticated = await mainWindow.webContents.executeJavaScript(`
+			(function() {
 				try {
-					windowHelper?.showPermissionWindow();
-					log.info('📋 Permission overlay shown automatically');
+					const usertoken = localStorage.getItem('usertoken');
+					const workspaceId = localStorage.getItem('workspaceId');
+					const isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
+					
+					// User is considered authenticated if they have token, workspace, and are onboarded
+					const authenticated = !!(usertoken && workspaceId && isOnboard);
+					console.log('🔍 Auth check - token:', !!usertoken, 'workspace:', !!workspaceId, 'onboard:', isOnboard, 'result:', authenticated);
+					return authenticated;
 				} catch (error) {
-					log.error('❌ Error showing permission overlay:', error);
+					console.error('❌ Error checking auth status:', error);
+					return false;
 				}
-			}, 1000); // Small delay to ensure main window is ready
-		}
+			})()
+		`);
+
+		userAuthenticationStatus.isLoggedIn = isAuthenticated;
+		userAuthenticationStatus.shouldShowPermissionOverlay = !isAuthenticated;
+
+		log.info(
+			`🔐 Authentication check result: ${
+				isAuthenticated ? 'authenticated' : 'not authenticated'
+			}`,
+		);
+		return isAuthenticated;
 	} catch (error) {
-		log.error('❌ Error checking permissions on startup:', error);
-		// Show overlay on error to be safe
-		setTimeout(() => {
-			try {
-				windowHelper?.showPermissionWindow();
-			} catch (overlayError) {
-				log.error('❌ Error showing permission overlay as fallback:', overlayError);
-			}
-		}, 1000);
+		log.error('❌ Error checking user authentication status:', error);
+		// Default to not authenticated on error
+		userAuthenticationStatus.isLoggedIn = false;
+		userAuthenticationStatus.shouldShowPermissionOverlay = true;
+		return false;
 	}
 }
 
@@ -1895,6 +1921,24 @@ app.whenReady().then(async () => {
 	windowHelper.registerGlobalShortcuts(mainWindow);
 	windowHelper.setDynamicIslandHelper(dynamicIslandHelper);
 
+	// Check authentication status and show permission overlay only for unauthenticated users
+	setTimeout(async () => {
+		try {
+			const isAuthenticated = await checkUserAuthenticationStatus();
+
+			if (!isAuthenticated) {
+				windowHelper.showPermissionWindow();
+				log.info('📋 Permission overlay shown for unauthenticated user');
+			} else {
+				log.info('👤 User is authenticated - skipping permission overlay');
+			}
+		} catch (error) {
+			log.error('❌ Error checking authentication or showing permission overlay:', error);
+			// Show overlay on error to be safe
+			windowHelper.showPermissionWindow();
+		}
+	}, 2000); // Delay to ensure main window is ready
+
 	// Simple Content Protection IPC handlers
 	ipcMain.handle('toggle-content-protection', () => {
 		const newStatus = toggleContentProtection();
@@ -2038,6 +2082,25 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// IPC handler to check and show permission overlay based on auth status
+	ipcMain.handle('check-auth-and-show-permission-overlay', async () => {
+		try {
+			const isAuthenticated = await checkUserAuthenticationStatus();
+
+			if (!isAuthenticated) {
+				windowHelper?.showPermissionWindow();
+				log.info('📋 Permission overlay shown after auth check');
+				return { success: true, shown: true, authenticated: false };
+			} else {
+				log.info('👤 User is authenticated - permission overlay not needed');
+				return { success: true, shown: false, authenticated: true };
+			}
+		} catch (error) {
+			log.error('❌ Error checking auth and showing permission overlay:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	ipcMain.handle('is-permission-window-visible', async () => {
 		try {
 			const isVisible = windowHelper?.isPermissionWindowVisible();
@@ -2075,8 +2138,7 @@ app.whenReady().then(async () => {
 		log.error('❌ Error pre-creating overlay window:', error);
 	}
 
-	// Check permissions and show permission overlay if needed
-	await checkAndShowPermissionOverlay();
+	// Permission overlay is now shown by default above, so we don't need conditional checking
 
 	// Initialize NotchDrop asynchronously to prevent blocking main window
 	const initializeNotchDropAsync = async () => {

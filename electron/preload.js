@@ -226,6 +226,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 		hideWindow: () => ipcRenderer.invoke('hide-permission-window'),
 		isWindowVisible: () => ipcRenderer.invoke('is-permission-window-visible'),
 		closeWindow: () => ipcRenderer.invoke('hide-permission-window'),
+		checkAuthAndShowOverlay: () => ipcRenderer.invoke('check-auth-and-show-permission-overlay'),
 		// Permission checking and requesting
 		checkMicrophonePermission: () => ipcRenderer.invoke('check-microphone-permission'),
 		requestMicrophonePermission: () => ipcRenderer.invoke('request-microphone-permission'),
