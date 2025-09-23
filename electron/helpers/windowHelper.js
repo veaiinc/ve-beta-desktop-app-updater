@@ -299,8 +299,11 @@ class WindowHelper {
 			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
-			resizable: false, // Disable resizing - keep only movable functionality
+			resizable: true, // Enable resizing for user customization
 			movable: true, // Explicitly enable window movement
+			minWidth: 400, // Minimum width for usability
+			minHeight: 300, // Minimum height for usability
+			// maxWidth and maxHeight removed to allow full screen expansion
 			devTools: true,
 		};
 
@@ -621,7 +624,14 @@ class WindowHelper {
 			}
 		});
 
-		// Resize event listener removed - resizing is disabled
+		// Listen for resize events to update our internal size tracking
+		this.askAIWindow.on('resize', () => {
+			if (this.askAIWindow && !this.askAIWindow.isDestroyed()) {
+				const bounds = this.askAIWindow.getBounds();
+				this.askAIWindowSize = { width: bounds.width, height: bounds.height };
+				log.info('🎯 ASK AI RESIZE: Updated size tracking', this.askAIWindowSize);
+			}
+		});
 
 		this.askAIWindow.on('closed', () => {
 			this.askAIWindow = null;
@@ -1251,11 +1261,25 @@ class WindowHelper {
 		const { screen } = require('electron');
 		const workArea = screen.getPrimaryDisplay().workAreaSize;
 
-		const newWidth = width; // Allow up to 600px width
-		const newHeight = Math.min(height, workArea.height); // Max height 500px
+		// Apply min constraints that match the window creation settings
+		const minWidth = 400;
+		const minHeight = 300;
+
+		// Get current bounds to preserve dimensions when not specified
+		const currentBounds = this.askAIWindow.getBounds();
+		
+		// Check if this is an expand operation that should bypass height constraints
+		const isExpanding = position && position.isExpanding === true;
+		
+		// Only update dimensions that are explicitly provided (not null/undefined)
+		const newWidth = width !== null && width !== undefined 
+			? Math.max(minWidth, Math.min(width, workArea.width)) // No maxWidth constraint
+			: currentBounds.width;
+		const newHeight = height !== null && height !== undefined
+			? Math.max(minHeight, Math.min(height, workArea.height)) // No maxHeight constraint
+			: currentBounds.height;
 
 		// Get current window position to preserve user's manual positioning
-		const currentBounds = this.askAIWindow.getBounds();
 		const currentX = position.x ?? currentBounds.x;
 		const currentY = position.y ?? currentBounds.y;
 

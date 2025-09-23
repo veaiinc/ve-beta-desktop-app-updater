@@ -18,6 +18,7 @@ const AskAIApp = () => {
 		sessionId: ObjectID()?.toString(),
 		expandChat: false,
 		workarea: null,
+		userIsResizing: false,
 	});
 	const containerRef = useRef(null);
 	const expandChatRef = useRef(false);
@@ -27,15 +28,19 @@ const AskAIApp = () => {
 
 		const observer = new ResizeObserver((entries) => {
 			for (let entry of entries) {
-				if (expandChatRef.current) return;
+				// Skip auto-resize if user is manually resizing or chat is expanded
+				if (expandChatRef.current || info.userIsResizing) return;
 
 				const { height } = entry.contentRect;
 				const updatedHeight = Math.min(height, 600);
 
-				// If you want to notify main process (Electron)
-				// window.electron?.ipcRenderer?.send('element-height-change', height);
-
-				window?.electronApi?.askAI?.updateDimensions({ width: 600, height: updatedHeight });
+				// Only auto-adjust height for content changes, not user resize
+				// This prevents interference with manual window resizing
+				window?.electronApi?.askAI?.updateDimensions({ 
+					width: null, // Don't override width - let user control it
+					height: updatedHeight,
+					position: { isExpanding: false } // Not an expand operation
+				});
 			}
 		});
 
@@ -44,7 +49,7 @@ const AskAIApp = () => {
 		return () => {
 			observer.disconnect();
 		};
-	}, []);
+	}, [info.userIsResizing]);
 
 	useEffect(() => {
 		if (info?.expandChat) {
@@ -239,8 +244,19 @@ const AskAIApp = () => {
 
 	const handleChatToggle = useCallback(() => {
 		setInfo((prev) => {
-			expandChatRef.current = !prev?.expandChat;
-			return { ...prev, expandChat: !prev?.expandChat };
+			const newExpandState = !prev?.expandChat;
+			expandChatRef.current = newExpandState;
+			
+			// If collapsing from expanded state, reset to normal size
+			if (!newExpandState && prev?.expandChat) {
+				window?.electronApi?.askAI?.updateDimensions({
+					width: 600,
+					height: 600, // Reset to default height
+					position: { isExpanding: false }, // Keep current position but set expanding flag
+				});
+			}
+			
+			return { ...prev, expandChat: newExpandState };
 		});
 	}, []);
 
@@ -249,16 +265,30 @@ const AskAIApp = () => {
 		if (!workarea) {
 			workarea = await window?.electronApi?.askAI?.getWorkArea();
 		}
+		
+		
 		window?.electronApi?.askAI?.updateDimensions({
 			width: 600,
 			height: workarea.height,
-			position: { x: (workarea.width || 0) - 600, y: 0 },
+			position: { x: (workarea.width || 0) - 600, y: 0, isExpanding: true },
 		});
 
 		if (!info?.workarea) {
 			setInfo((prev) => ({ ...prev, workarea }));
 		}
 	}, [info?.workarea]);
+
+	// Add global mouse up listener to handle resize end
+	useEffect(() => {
+		const handleGlobalMouseUp = () => {
+			setInfo(prev => ({ ...prev, userIsResizing: false }));
+		};
+
+		if (info.userIsResizing) {
+			document.addEventListener('mouseup', handleGlobalMouseUp);
+			return () => document.removeEventListener('mouseup', handleGlobalMouseUp);
+		}
+	}, [info.userIsResizing]);
 
 	return (
 		<div
@@ -304,6 +334,17 @@ const AskAIApp = () => {
 					/>
 				</div>
 			</div>
+			
+			{/* Resize Handle */}
+			<div 
+				className="resize-handle" 
+				title="Drag to resize"
+				onMouseDown={() => setInfo(prev => ({ ...prev, userIsResizing: true }))}
+				onMouseUp={() => setInfo(prev => ({ ...prev, userIsResizing: false }))}
+			>
+				<div className="resize-grip"></div>
+			</div>
+			
 			<CustomToast />
 		</div>
 	);
