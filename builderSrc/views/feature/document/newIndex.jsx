@@ -691,416 +691,1013 @@ const CreateDocument = () => {
 						<span style={{ cursor: 'pointer' }}>&#8592;</span> Back to Files
 					</span>
 				</div>
-				<div className="createInnerContentContainer">
-					<span className="createDocumentTitle">Create a document</span>
-					<div className="stage1Container">
-						{stageInfo.clientSelection ? (
-							<>
-								{stageInfo.isNewClient || stageInfo.isNewClientFromUrl ? (
-									<>
-										<div className="newClientHeader">
-											<div className="newClientHeading">
-												<span>
-													{stageInfo.isNewClientFromUrl
-														? 'Client Details'
-														: 'Adding New Client'}
-												</span>
-											</div>
-											<button
-												className="backButton"
-												onClick={() =>
-													setStageInfo((prev) => ({
-														...prev,
-														clientSelection: false,
-														showClientSelectionToolTip: true,
-														duplicateWarning: null, // Clear duplicate warning
-													}))
-												}
-											>
-												Back
-											</button>
-										</div>
-										<div className="inputFieldContainer">
-											<label className="inputLabel">Client Name *</label>
-											<input
-												className="inputBoxContainer"
-												placeholder="Enter client name"
-												value={stageInfo.clientDetails.name}
-												onChange={(e) => handleInputChange(e, 'name')}
-												required
-											/>
-										</div>
-										<div className="inputFieldContainer">
-											<label className="inputLabel">Client Email</label>
-											<div className="inputWithIconContainer">
-												<input
-													className="inputBoxContainer withIcon"
-													placeholder="Enter client email"
-													value={stageInfo.clientDetails.email}
-													onChange={(e) => handleInputChange(e, 'email')}
-												/>
-												<Tooltip title="Email" placement="top">
-													<div className="inputIcon">
-														<MailIcon />
-													</div>
-												</Tooltip>
-											</div>
-										</div>
-										<div className="inputFieldContainer">
-											<label className="inputLabel">Client Phone</label>
-											<div className="inputWithIconContainer">
-												<PhoneInput
-													placeholder="Enter client phone number"
-													value={stageInfo.clientDetails.phoneNumber}
-													onChange={(value) =>
-														setStageInfo((prev) => ({
-															...prev,
-															clientDetails: {
-																...prev.clientDetails,
-																phoneNumber: value || '',
-															},
-														}))
-													}
-													defaultCountry={(() => {
-														try {
-															const locationDetails = JSON.parse(
-																localStorage.getItem(
-																	'locationDetails',
-																),
-															);
-															return (
-																locationDetails?.countryCode || 'US'
-															);
-														} catch {
-															return 'US';
+
+				<div className="createInnerContentContainer-main">
+					<div className="createInnerContentContainer">
+						<span className="createDocumentTitle">Create a new document</span>
+						<div className="stage1Container ">
+							{stageInfo.clientSelection ? (
+								<>
+									{stageInfo.isNewClient || stageInfo.isNewClientFromUrl ? (
+										<div className="createDocumentContainer">
+											<div className="newClientHeader">
+												<div className="newClientHeading">
+													<span>
+														{stageInfo.isNewClientFromUrl
+															? 'Client Details'
+															: 'Adding New Client'}
+													</span>
+												</div>
+												{/* <button
+														className="backButton"
+														onClick={() =>
+															setStageInfo((prev) => ({
+																...prev,
+																clientSelection: false,
+																showClientSelectionToolTip: true,
+																duplicateWarning: null, // Clear duplicate warning
+															}))
 														}
-													})()}
-													className="phoneInputNumber"
-													countryCallingCodeEditable={true}
-													autoComplete="tel"
-													style={phoneInputStyle}
+													>
+														Back
+													</button> */}
+											</div>
+											<div className="inputFieldContainer documentInputField">
+												<label className="inputLabel documentInputLabel">
+													Client Name
+												</label>
+												<input
+													className="inputBoxContainer documentInput"
+													placeholder="Enter Name"
+													value={stageInfo.clientDetails.name}
+													onChange={(e) => handleInputChange(e, 'name')}
+													required
 												/>
-												<Tooltip title="Phone Number" placement="top">
-													<div className="inputIcon">
-														<PhoneIcon />
-													</div>
-												</Tooltip>
 											</div>
-										</div>
-										{/* Duplicate warning message */}
-										{stageInfo.duplicateWarning && (
-											<div className="duplicateWarningMessage">
-												{stageInfo.duplicateWarning.message}
-											</div>
-										)}
-									</>
-								) : (
-									<>
-										{/* <div className="clientDetailsHeader">
-											<span>Client Details</span>
-										</div> */}
-										<span className="inputLabel">Client Name</span>
-										<Tooltip
-											placement="bottomLeft"
-											title={
-												<ClientSelectionTooltip
-													handleOptionSelection={handleOptionSelection}
-													clientsList={stageInfo.clientData}
-													getClientList={getClientList}
-												/>
-											}
-											color={'var(--right-bar, #161618)'}
-											arrow={false}
-											trigger="click"
-											overlayClassName="toolTipContainer"
-											open={stageInfo.showClientSelectionToolTip}
-											onOpenChange={() => closeToolTip()}
-										>
-											<div className="chooseClientTriggerContainer">
-												<span>
-													{stageInfo.clientDetails.name || 'Client Name'}
-												</span>
-												<div className="clientSelectorBox">Client</div>
-											</div>
-										</Tooltip>
-										<div className="inputWithIconContainer">
-											<span className="inputLabel">Client Email</span>
-											<input
-												className="inputBoxContainer withIcon"
-												placeholder="Client Email"
-												value={stageInfo.clientDetails.email}
-												disabled={!stageInfo.clientEditable}
-												onChange={(e) => handleInputChange(e, 'email')}
-											/>
-											<Tooltip title="Email" placement="top">
-												<div className="inputIcon">
-													<MailIcon />
-												</div>
-											</Tooltip>
-										</div>
-										<div className="inputWithIconContainer">
-											<span className="inputLabel">Client Phone</span>
-											<PhoneInput
-												placeholder="Client Phone"
-												value={stageInfo.clientDetails.phoneNumber}
-												onChange={(value) =>
-													setStageInfo((prev) => ({
-														...prev,
-														clientDetails: {
-															...prev.clientDetails,
-															phoneNumber: value || '',
-														},
-													}))
-												}
-												defaultCountry={(() => {
-													try {
-														const locationDetails = JSON.parse(
-															localStorage.getItem('locationDetails'),
-														);
-														return locationDetails?.countryCode || 'US';
-													} catch {
-														return 'US';
-													}
-												})()}
-												className="phoneInputNumber"
-												countryCallingCodeEditable={true}
-												autoComplete="tel"
-												style={{
-													...phoneInputStyle,
-													backgroundColor: 'none',
-													border: '1px solid var(--stroke)',
-												}}
-											/>
-											<Tooltip title="Phone Number" placement="top">
-												<div className="inputIcon">
-													<PhoneIcon />
-												</div>
-											</Tooltip>
-										</div>
-									</>
-								)}
-								<div className="templateSelectionSection">
-									<span className="sectionTitle">Start with template</span>
-									<Tooltip
-										title={
-											!(
-												stageInfo.clientDetails.name &&
-												(stageInfo.clientDetails.email ||
-													stageInfo.clientDetails.phoneNumber)
-											)
-												? 'Please fill in client details before selecting a template.'
-												: ''
-										}
-										placement="top"
-									>
-										<div
-											className="selectedTemplate"
-											onClick={
-												stageInfo.clientDetails.name &&
-												(stageInfo.clientDetails.email ||
-													stageInfo.clientDetails.phoneNumber)
-													? toggleTemplateList
-													: handleDisabledTemplateClick
-											}
-											style={{
-												opacity:
-													stageInfo.clientDetails.name &&
-													(stageInfo.clientDetails.email ||
-														stageInfo.clientDetails.phoneNumber)
-														? 1
-														: 0.5,
-												pointerEvents: 'auto',
-											}}
-										>
-											{stageInfo.selectedTemplate ? (
-												<>
-													<div className="templateInfo">
-														<span className="templateName">
-															{stageInfo.selectedTemplate.title}
-														</span>
-														<span className="templateMeta">
-															{stageInfo.selectedTemplate.workflows}{' '}
-															workflow
-															{stageInfo.selectedTemplate
-																.workflows !== 1
-																? 's'
-																: ''}
-														</span>
-													</div>
-													<div className="verifiedIconWrapper">
-														{/* <VerifiedSvg className="verifiedIcon" /> */}
-														<span className="changeButton">Change</span>
-													</div>
-												</>
-											) : (
-												<>
-													<div className="templateInfo">
-														<span className="templateName">
-															Select template
-														</span>
-													</div>
-													<button className="changeButton">
-														{stageInfo.selectedTemplate
-															? 'Change'
-															: 'Choose Template'}
-													</button>
-												</>
-											)}
-										</div>
-									</Tooltip>
-									{stageInfo.showTemplateList && (
-										<div
-											className={`templateListContainer ${
-												stageInfo.searchQuery ? 'has-search' : ''
-											}`}
-										>
-											<div className="templateSearch">
-												<div className="searchContainer">
-													<SearchIcon />
+											<div className="inputFieldContainer documentInputField">
+												<label className="inputLabel documentInputLabel">
+													Client Email
+												</label>
+												<div className="inputWithIconContainer documentInputWithIcon">
 													<input
-														type="text"
-														placeholder="Search template here"
-														value={stageInfo.searchQuery}
-														onChange={handleTemplateSearch}
-														onClick={(e) => e.stopPropagation()}
+														className="inputBoxContainer withIcon documentInput"
+														placeholder="Enter Email"
+														value={stageInfo.clientDetails.email}
+														onChange={(e) =>
+															handleInputChange(e, 'email')
+														}
 													/>
+													<Tooltip title="Email" placement="top">
+														<div className="inputIcon documentInputIcon">
+															<MailIcon />
+														</div>
+													</Tooltip>
 												</div>
-												<div className="filterContainer">
-													<div className="filterTitle">Filter</div>
-													<div className="filterOptionsContainer">
-														{filterOptions.map((option) => (
-															<div
-																key={option.id}
-																className={`filterOption ${
-																	stageInfo.selectedFilter ===
-																	option.value
-																		? 'selected'
-																		: ''
-																}`}
-																onClick={(e) => {
-																	e.stopPropagation();
-																	setStageInfo((prev) => ({
-																		...prev,
-																		selectedFilter:
-																			option.value,
-																		searchChanged: true,
-																		loading: true,
-																	}));
-																}}
-															>
-																{option.title}
+											</div>
+											<div className="inputFieldContainer documentInputField">
+												<label className="inputLabel documentInputLabel">
+													Client Phone
+												</label>
+												<div className="inputWithIconContainer documentInputWithIcon">
+													<PhoneInput
+														placeholder="Enter phone number"
+														value={stageInfo.clientDetails.phoneNumber}
+														onChange={handlePhoneNumberChange}
+														defaultCountry={(() => {
+															try {
+																const locationDetails = JSON.parse(
+																	localStorage.getItem(
+																		'locationDetails',
+																	),
+																);
+																return (
+																	locationDetails?.countryCode ||
+																	'US'
+																);
+															} catch {
+																return 'US';
+															}
+														})()}
+														className="phoneInputNumberDocument documentPhoneInput"
+														countryCallingCodeEditable={true}
+														autoComplete="tel"
+														style={{
+															backgroundColor: 'none',
+															border: '1px solid var(--stroke)',
+														}}
+													/>
+													<Tooltip title="Phone Number" placement="top">
+														<div className="inputIcon documentInputIcon">
+															<PhoneIcon />
+														</div>
+													</Tooltip>
+												</div>
+												{stageInfo.clientDetails.phoneNumber.length >= 13 ||
+													(stageInfo.clientDetails.email &&
+														stageInfo.clientDetails.name && (
+															// !stageInfo.duplicateWarning &&
+															<div className="templateSelectionSection">
+																<span className="sectionTitle">
+																	Start with template
+																</span>
+																<Tooltip
+																	title={
+																		!(
+																			stageInfo.clientDetails
+																				.name &&
+																			(stageInfo.clientDetails
+																				.email ||
+																				stageInfo
+																					.clientDetails
+																					.phoneNumber)
+																		)
+																			? 'Please fill in client details before selecting a template.'
+																			: ''
+																	}
+																	placement="top"
+																>
+																	<div
+																		className="selectedTemplate"
+																		onClick={
+																			stageInfo.clientDetails
+																				.name &&
+																			(stageInfo.clientDetails
+																				.email ||
+																				stageInfo
+																					.clientDetails
+																					.phoneNumber)
+																				? toggleTemplateList
+																				: handleDisabledTemplateClick
+																		}
+																		style={{
+																			opacity:
+																				stageInfo
+																					.clientDetails
+																					.name &&
+																				(stageInfo
+																					.clientDetails
+																					.email ||
+																					stageInfo
+																						.clientDetails
+																						.phoneNumber)
+																					? 1
+																					: 0.5,
+																			pointerEvents: 'auto',
+																		}}
+																	>
+																		{stageInfo.selectedTemplate ? (
+																			<>
+																				<div className="templateInfo">
+																					<span className="templateName">
+																						{
+																							stageInfo
+																								.selectedTemplate
+																								.title
+																						}
+																					</span>
+																					<span className="templateMeta">
+																						{
+																							stageInfo
+																								.selectedTemplate
+																								.workflows
+																						}{' '}
+																						workflow
+																						{stageInfo
+																							.selectedTemplate
+																							.workflows !==
+																						1
+																							? 's'
+																							: ''}
+																					</span>
+																				</div>
+																				<div className="verifiedIconWrapper">
+																					{/* <VerifiedSvg className="verifiedIcon" /> */}
+																					<span className="changeButton">
+																						Change
+																					</span>
+																				</div>
+																			</>
+																		) : (
+																			<>
+																				<div className="templateInfo">
+																					<span className="templateName">
+																						change
+																					</span>
+																				</div>
+																				<button className="changeButton">
+																					{stageInfo.selectedTemplate
+																						? 'Change'
+																						: 'Choose Template'}
+																				</button>
+																			</>
+																		)}
+																	</div>
+																</Tooltip>
+																{stageInfo.showTemplateList && (
+																	<div
+																		ref={templateListRef}
+																		className={`templateListContainer ${
+																			stageInfo.searchQuery
+																				? 'has-search'
+																				: ''
+																		} ${
+																			stageInfo.showTemplateList
+																				? 'fadein'
+																				: 'fadeout'
+																		}`}
+																	>
+																		<div className="templateSearch">
+																			<div className="searchContainer documentSearchContainer">
+																				<SearchIcon />
+																				<input
+																					className="inputBoxContainer documentSearchInput"
+																					type="text"
+																					placeholder="Search template here"
+																					value={
+																						stageInfo.searchQuery
+																					}
+																					onChange={
+																						handleTemplateSearch
+																					}
+																					onClick={(e) =>
+																						e.stopPropagation()
+																					}
+																				/>
+																			</div>
+																			<div className="filterContainer">
+																				{/* <div className="filterTitle">
+																		Filter
+																	</div> */}
+																				<div className="filterOptionsContainer">
+																					{filterOptions.map(
+																						(
+																							option,
+																						) => (
+																							<div
+																								key={
+																									option.id
+																								}
+																								className={`filterOption ${
+																									stageInfo.selectedFilter ===
+																									option.value
+																										? 'selected'
+																										: ''
+																								}`}
+																								onClick={(
+																									e,
+																								) => {
+																									e.stopPropagation();
+																									setStageInfo(
+																										(
+																											prev,
+																										) => ({
+																											...prev,
+																											selectedFilter:
+																												option.value,
+																											searchChanged: true,
+																											loading: true,
+																										}),
+																									);
+																								}}
+																							>
+																								{
+																									option.title
+																								}
+																							</div>
+																						),
+																					)}
+																				</div>
+																			</div>
+																		</div>
+																		<div className="templateList">
+																			{stageInfo.loading ? (
+																				<div className="loadingContainer">
+																					<Spinner
+																						height="32px"
+																						width="32px"
+																					/>
+																				</div>
+																			) : stageInfo.templates
+																					.length > 0 ? (
+																				stageInfo.templates.map(
+																					(template) => (
+																						<div
+																							key={
+																								template._id
+																							}
+																							className={`templateItem ${
+																								stageInfo
+																									.selectedTemplate
+																									?._id ===
+																								template._id
+																									? 'selected'
+																									: ''
+																							}`}
+																							onClick={() =>
+																								handleTemplateSelect(
+																									template,
+																								)
+																							}
+																						>
+																							<div className="templateInfo">
+																								<span className="templateName">
+																									{
+																										template.title
+																									}
+																								</span>
+																								<span className="templateMeta">
+																									{
+																										template.workflows
+																									}{' '}
+																									workflow
+																									{template.workflows !==
+																									1
+																										? 's'
+																										: ''}
+																								</span>
+																							</div>
+																							{stageInfo
+																								.selectedTemplate
+																								?._id ===
+																								template._id && (
+																								<div className="verifiedIconWrapper">
+																									<VerifiedSvg className="verifiedIcon" />
+																								</div>
+																							)}
+																						</div>
+																					),
+																				)
+																			) : (
+																				<div className="noResultsContainer">
+																					No templates
+																					found
+																				</div>
+																			)}
+																		</div>
+																	</div>
+																)}
 															</div>
 														))}
+												<div className="createDocumentFooter">
+													<div className="createDocumentFooterButtons">
+														<button
+															className="backButton cancelButton"
+															onClick={() => {
+																setStageInfo((prev) => ({
+																	...prev,
+																	clientSelection: false,
+																	showClientSelectionToolTip: true,
+																	duplicateWarning: null, // Clear duplicate warning
+																}));
+																handleClickStep(stepNo - 1);
+															}}
+														>
+															Cancle
+														</button>
+
+														<button
+															className="createDocumentButton createButton"
+															onClick={handleCreate}
+															style={{
+																opacity: canCreate ? 1 : 0.7,
+																cursor: canCreate
+																	? 'pointer'
+																	: 'not-allowed',
+															}}
+															disabled={!canCreate}
+														>
+															{stageInfo.isCreating ? (
+																<>
+																	{/* <Spinner
+																		height="16px"
+																		width="16px"
+																	/> */}
+																	<CustomSpinner size="small" />
+																	<span
+																		style={{
+																			marginLeft: '8px',
+																		}}
+																	>
+																		{stageInfo.isNewClient
+																			? 'Creating new client...'
+																			: 'Creating document...'}
+																	</span>
+																</>
+															) : (
+																'Create'
+															)}
+														</button>
 													</div>
 												</div>
 											</div>
-											<div className="templateList">
-												{stageInfo.loading ? (
-													<div className="loadingContainer">
-														<Spinner height="32px" width="32px" />
-													</div>
-												) : stageInfo.templates.length > 0 ? (
-													stageInfo.templates.map((template) => (
-														<div
-															key={template._id}
-															className={`templateItem ${
-																stageInfo.selectedTemplate?._id ===
-																template._id
-																	? 'selected'
-																	: ''
-															}`}
-															onClick={() =>
-																handleTemplateSelect(template)
+
+											{/* Duplicate warning message */}
+											{stageInfo.duplicateWarning && (
+												<div className="duplicateWarningMessage">
+													{stageInfo.duplicateWarning.message}
+												</div>
+											)}
+										</div>
+									) : (
+										<>
+											{/* <div className="clientDetailsHeader">
+												<span>Client Details</span>
+											</div> */}
+											<div className={`selected-client-main `}>
+												<span className="inputLabel">Client Name *</span>
+												<Tooltip
+													placement="bottomLeft"
+													overlayStyle={{
+														// width: 'min(600px, 90vw)',
+														// maxWidth: '100%',
+
+														width: '100%',
+													}}
+													title={
+														<ClientSelectionTooltip
+															handleOptionSelection={
+																handleOptionSelection
 															}
-														>
-															<div className="templateInfo">
-																<span className="templateName">
-																	{template.title}
-																</span>
-																<span className="templateMeta">
-																	{template.workflows} workflow
-																	{template.workflows !== 1
-																		? 's'
-																		: ''}
-																</span>
-															</div>
-															{stageInfo.selectedTemplate?._id ===
-																template._id && (
-																<div className="verifiedIconWrapper">
-																	<VerifiedSvg className="verifiedIcon" />
-																</div>
-															)}
+															clientsList={stageInfo.clientData}
+															getClientList={getClientList}
+															isTemplateSelected={
+																stageInfo.selectedTemplate
+															}
+															handleOptionSelectionReset={
+																handleOptionSelectionReset
+															}
+														/>
+													}
+													color={'var(--right-bar, #161618)'}
+													arrow={false}
+													x
+													trigger="click"
+													overlayClassName="toolTipContainer responsive-tooltip"
+													open={stageInfo.showClientSelectionToolTip}
+													onOpenChange={() => closeToolTip()}
+												>
+													<div className="chooseClientTriggerContainer">
+														<span>
+															{stageInfo.clientDetails.name ||
+																'Client Name'}
+														</span>
+														<div className="clientSelectorBox">
+															<UserSvg
+																style={{
+																	width: '14px',
+																	height: '14px',
+																}}
+															/>{' '}
+															Client
+															<ChevronDownIcon />
 														</div>
-													))
-												) : (
-													<div className="noResultsContainer">
-														No templates found
+													</div>
+												</Tooltip>
+												<div className="inputWithIconContainer">
+													<span className="inputLabel">Client Email</span>
+													<input
+														className="inputBoxContainer withIcon"
+														placeholder="Client Email"
+														value={stageInfo.clientDetails.email}
+														// disabled={!stageInfo.clientEditable}
+														onChange={(e) =>
+															handleInputChange(e, 'email')
+														}
+													/>
+													<Tooltip title="Email" placement="top">
+														<div className="inputIcon">
+															<MailIcon />
+														</div>
+													</Tooltip>
+												</div>
+												<div className="inputWithIconContainer">
+													<span className="inputLabel">Client Phone</span>
+													<PhoneInput
+														placeholder="Client Phone"
+														value={
+															stageInfo.clientDetails.phoneNumber ||
+															undefined
+														}
+														onChange={handlePhoneNumberChange}
+														defaultCountry={(() => {
+															try {
+																const locationDetails = JSON.parse(
+																	localStorage.getItem(
+																		'locationDetails',
+																	),
+																);
+																return (
+																	locationDetails?.countryCode ||
+																	'US'
+																);
+															} catch {
+																return 'US';
+															}
+														})()}
+														className="phoneInputNumber"
+														countryCallingCodeEditable={true}
+														autoComplete="tel"
+														style={{
+															color: '#ffffff',
+															backgroundColor: 'none',
+															border: '1px solid var(--stroke, #2b2e31)',
+														}}
+													/>
+													<Tooltip title="Phone Number" placement="top">
+														<div className="inputIcon">
+															<PhoneIcon />
+														</div>
+													</Tooltip>
+												</div>
+												{stageInfo.selectedTemplate && (
+													<div className="inputWithIconContainer">
+														<span className="inputLabel">
+															Document Name
+														</span>
+														<input
+															className="inputBoxContainer withIcon"
+															placeholder="Enter document name"
+															value={stageInfo.documentName}
+															disabled={!stageInfo.clientEditable}
+															onChange={handleDocumentNameChange}
+														/>
+
+														<Tooltip
+															title="Document Name"
+															placement="top"
+														>
+															<div className="inputIcon">
+																{/* You can add a document icon here or use an existing one */}
+																<svg
+																	width="18"
+																	height="18"
+																	viewBox="0 0 24 24"
+																	fill="currentColor"
+																>
+																	<path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+																</svg>
+															</div>
+														</Tooltip>
 													</div>
 												)}
+
+												{/* template selection section */}
+
+												{
+													<div className="templateSelectionSection">
+														<span className="sectionTitle">
+															Start with template
+														</span>
+														<Tooltip
+															title={
+																!(
+																	stageInfo.clientDetails.name &&
+																	(stageInfo.clientDetails
+																		.email ||
+																		stageInfo.clientDetails
+																			.phoneNumber)
+																)
+																	? 'Please fill in client details before selecting a template.'
+																	: ''
+															}
+															placement="top"
+														>
+															<div
+																className="selectedTemplate"
+																onClick={
+																	stageInfo.clientDetails.name &&
+																	(stageInfo.clientDetails
+																		.email ||
+																		stageInfo.clientDetails
+																			.phoneNumber)
+																		? toggleTemplateList
+																		: handleDisabledTemplateClick
+																}
+																style={{
+																	opacity:
+																		stageInfo.clientDetails
+																			.name &&
+																		(stageInfo.clientDetails
+																			.email ||
+																			stageInfo.clientDetails
+																				.phoneNumber)
+																			? 1
+																			: 0.5,
+																	pointerEvents: 'auto',
+																}}
+															>
+																{stageInfo.selectedTemplate ? (
+																	<>
+																		<div className="templateImg">
+																			<img
+																				src={dummyImage}
+																				alt="template-image"
+																			/>
+																		</div>
+																		<div className="templateInfo">
+																			<span className="templateName">
+																				{
+																					stageInfo
+																						.selectedTemplate
+																						.title
+																				}
+																			</span>
+																			<span className="templateMeta">
+																				{
+																					stageInfo
+																						.selectedTemplate
+																						.workflows
+																				}{' '}
+																				workflow
+																				{stageInfo
+																					.selectedTemplate
+																					.workflows !== 1
+																					? 's'
+																					: ''}
+																			</span>
+																		</div>
+																		<div className="verifiedIconWrapper">
+																			{/* <VerifiedSvg className="verifiedIcon" /> */}
+																			<span className="changeButton">
+																				Change
+																			</span>
+																		</div>
+																	</>
+																) : (
+																	<>
+																		<div className="templateInfo">
+																			<span className="templateName">
+																				change
+																			</span>
+																		</div>
+																		<button className="changeButton">
+																			{stageInfo.selectedTemplate
+																				? 'Change'
+																				: 'Choose Template'}
+																		</button>
+																	</>
+																)}
+															</div>
+														</Tooltip>
+														{stageInfo.showTemplateList && (
+															<div
+																ref={templateListRef}
+																className={`templateListContainer ${
+																	stageInfo.searchQuery
+																		? 'has-search'
+																		: ''
+																}`}
+															>
+																<div className="templateSearch">
+																	<div className="searchContainer">
+																		<SearchIcon />
+																		<input
+																			type="text"
+																			placeholder="Search template here"
+																			value={
+																				stageInfo.searchQuery
+																			}
+																			onChange={
+																				handleTemplateSearch
+																			}
+																			onClick={(e) =>
+																				e.stopPropagation()
+																			}
+																		/>
+																	</div>
+																	<div className="filterContainer">
+																		{/* <div className="filterTitle">
+																		Filter
+																	</div> */}
+																		<div className="filterOptionsContainer">
+																			{filterOptions.map(
+																				(option) => (
+																					<div
+																						key={
+																							option.id
+																						}
+																						className={`filterOption ${
+																							stageInfo.selectedFilter ===
+																							option.value
+																								? 'selected'
+																								: ''
+																						}`}
+																						onClick={(
+																							e,
+																						) => {
+																							e.stopPropagation();
+																							setStageInfo(
+																								(
+																									prev,
+																								) => ({
+																									...prev,
+																									selectedFilter:
+																										option.value,
+																									searchChanged: true,
+																									loading: true,
+																								}),
+																							);
+																						}}
+																					>
+																						{
+																							option.title
+																						}
+																					</div>
+																				),
+																			)}
+																		</div>
+																	</div>
+																</div>
+																<div className="templateList">
+																	{stageInfo.loading ? (
+																		<div className="loadingContainer">
+																			<Spinner
+																				height="32px"
+																				width="32px"
+																			/>
+																		</div>
+																	) : stageInfo.templates.length >
+																	  0 ? (
+																		stageInfo.templates.map(
+																			(template) => (
+																				<div
+																					key={
+																						template._id
+																					}
+																					className={`templateItem ${
+																						stageInfo
+																							.selectedTemplate
+																							?._id ===
+																						template._id
+																							? 'selected'
+																							: ''
+																					}`}
+																					onClick={() =>
+																						handleTemplateSelect(
+																							template,
+																						)
+																					}
+																				>
+																					<div className="templateInfo">
+																						<span className="templateName">
+																							{
+																								template.title
+																							}
+																						</span>
+																						<span className="templateMeta">
+																							{
+																								template.workflows
+																							}{' '}
+																							workflow
+																							{template.workflows !==
+																							1
+																								? 's'
+																								: ''}
+																						</span>
+																					</div>
+																					{stageInfo
+																						.selectedTemplate
+																						?._id ===
+																						template._id && (
+																						<div className="verifiedIconWrapper">
+																							<VerifiedSvg className="verifiedIcon" />
+																						</div>
+																					)}
+																				</div>
+																			),
+																		)
+																	) : (
+																		<div className="noResultsContainer">
+																			No templates found
+																		</div>
+																	)}
+																</div>
+															</div>
+														)}
+													</div>
+												}
+
+												<button
+													className="createDocumentButton create-Button"
+													onClick={handleCreate}
+													style={{
+														opacity: canCreate ? 1 : 0.7,
+														cursor: canCreate
+															? 'pointer'
+															: 'not-allowed',
+													}}
+													disabled={!canCreate}
+												>
+													{stageInfo.isCreating ? (
+														<>
+															<Spinner height="16px" width="16px" />
+															<span
+																style={{
+																	marginLeft: '8px',
+																}}
+															>
+																{stageInfo.isNewClient
+																	? 'Creating new client...'
+																	: 'Creating document...'}
+															</span>
+														</>
+													) : (
+														'Create Document'
+													)}
+												</button>
 											</div>
-										</div>
+											{/* Duplicate warning message */}
+											{stageInfo.duplicateWarning && (
+												<div className="duplicateWarningMessage">
+													{stageInfo.duplicateWarning.message}
+												</div>
+											)}
+										</>
 									)}
-								</div>
-								{stageInfo.showDocumentName && (
-									<div className="documentNameSection">
-										<span className="sectionTitle">Document name</span>
-										<input
-											type="text"
-											className="documentNameInput"
-											placeholder="Document name"
-											value={stageInfo.documentName}
-											onChange={handleDocumentNameChange}
-										/>
-									</div>
-								)}
-							</>
-						) : (
-							<Tooltip
-								placement="bottomLeft"
-								title={
-									<ClientSelectionTooltip
-										handleOptionSelection={handleOptionSelection}
-										clientsList={stageInfo.clientData}
-										getClientList={getClientList}
-									/>
-								}
-								color={'#202020'}
-								arrow={false}
-								trigger="click"
-								overlayClassName="toolTipContainer"
-								open={stageInfo.showClientSelectionToolTip}
-								onOpenChange={() => closeToolTip()}
-							>
-								<div className="chooseClientTriggerContainer">
-									<span>Client Name</span>
-									<div className="clientSelectorBox">Select Client</div>
-								</div>
-							</Tooltip>
-						)}
-					</div>
-					<div className="createDocumentFooter">
-						<button
-							className="createDocumentButton"
-							onClick={handleCreate}
-							style={{
-								opacity: canCreate ? 1 : 0.7,
-								cursor: canCreate ? 'pointer' : 'not-allowed',
-							}}
-							disabled={!canCreate}
-						>
-							{stageInfo.isCreating ? (
-								<>
-									<Spinner height="16px" width="16px" />
-									<span style={{ marginLeft: '8px' }}>
-										{stageInfo.isNewClient
-											? 'Creating new client...'
-											: 'Creating document...'}
-									</span>
+
+									{/* Remove or comment out the duplicate document name section since we've integrated it above */}
+									{/* {stageInfo.showDocumentName && (
+											<div className="documentNameSection">
+												<span className="sectionTitle">Document name</span>
+												<input
+													type="text"
+													className="documentNameInput"
+													placeholder="Document name"
+													value={searchQuery}
+													onChange={handleSearchChange}
+													onClick={(e) => e.stopPropagation()}
+												/>
+											</div>
+										)} */}
 								</>
 							) : (
-								'Create'
+								<Tooltip
+									overlayStyle={{
+										width: 'min(600px, 90vw)',
+										maxWidth: '600px',
+									}}
+									placement="bottomLeft"
+									// title={
+									// 	<ClientSelectionTooltip
+									// 		handleOptionSelection={handleOptionSelection}
+									// 		clientsList={stageInfo.clientData}
+									// 		getClientList={getClientList}
+									// 		newContainer={true}
+									// 	/>
+									// }
+									color={'#202020'}
+									arrow={false}
+									trigger="click"
+									overlayClassName="toolTipContainer responsive-tooltip"
+									open={stageInfo.showClientSelectionToolTip}
+									onOpenChange={() => closeToolTip()}
+								>
+									<div className="client-name">
+										<p>Client Name</p>
+									</div>
+									{/* <div className="chooseClientTriggerContainer">
+										<span>Client Name</span>
+										<div className="clientSelectorBox">Select Client</div>
+									</div> */}
+									<div className={`clientSelectionTooltipContainer  `}>
+										<div className="clientSearch">
+											{/* <SearchIcon /> */}
+											<input
+												type="text"
+												placeholder="Search client here"
+												value={searchQuery}
+												onChange={handleSearchChange}
+												onClick={(e) => {
+													e.stopPropagation();
+													setShowClient(true);
+													// console.log('clicked');
+												}}
+											/>
+										</div>
+										{showClient && (
+											<div
+												style={{ width: '100%' }}
+												className={`${showClient ? 'fadein' : 'fadeout'}`}
+											>
+												<div
+													ref={addClientRef}
+													className={`createAddClientOption`}
+													onClick={() => {
+														handleOptionSelection('addNew');
+													}}
+												>
+													<Plus /> Add new client
+												</div>
+
+												<div
+													// className="existingClientContainer"
+													className={`existingClientContainer `}
+												>
+													{!filteredClients.length && (
+														<div class="loading-spinner"></div>
+													)}
+
+													{filteredClients.length > 0 ? (
+														filteredClients.map((client) => {
+															const clientData = JSON.parse(
+																client.value,
+															);
+															return (
+																<>
+																	<div
+																		className="clientDetailsCard"
+																		key={client._id}
+																		onClick={() =>
+																			handleOptionSelection(
+																				'existing',
+																				clientData,
+																			)
+																		}
+																	>
+																		<div className="clientAvatar-div">
+																			<div className="clientAvatar">
+																				<p className="clientAvatarText">
+																					{clientData.name
+																						?.slice(
+																							0,
+																							1,
+																						)
+																						?.toUpperCase() ||
+																						'?'}
+																				</p>
+																			</div>
+																		</div>
+																		<div className="clientDetailsContainer">
+																			<span className="clientDetailsNameText">
+																				{clientData.name ||
+																					'Unnamed Client'}
+																			</span>
+																			<div
+																				style={{
+																					display: 'flex',
+																					flexDirection:
+																						'row',
+																					gap: '5px',
+																				}}
+																			>
+																				{clientData.email && (
+																					<span className="clientEmailText">
+																						{
+																							clientData.email
+																						}
+																					</span>
+																				)}
+																				<span></span>
+																				{clientData.phoneNumber && (
+																					<span className="clientEmailText">
+																						{
+																							clientData.phoneNumber
+																						}
+																					</span>
+																				)}
+																			</div>
+																		</div>
+																	</div>
+																</>
+															);
+														})
+													) : (
+														<div className="noResultsContainer">
+															No clients found
+														</div>
+													)}
+												</div>
+											</div>
+										)}
+									</div>
+								</Tooltip>
 							)}
-						</button>
+						</div>
+
+						{/* <div className="createDocumentFooter">
+							<button
+								className="createDocumentButton"
+								onClick={handleCreate}
+								style={{
+									opacity: canCreate ? 1 : 0.7,
+									cursor: canCreate ? 'pointer' : 'not-allowed',
+								}}
+								disabled={!canCreate}
+							>
+								{stageInfo.isCreating ? (
+									<>
+										<Spinner height="16px" width="16px" />
+										<span style={{ marginLeft: '8px' }}>
+											{stageInfo.isNewClient
+												? 'Creating new client...'
+												: 'Creating document...'}
+										</span>
+									</>
+								) : (
+									'Create'
+								)}
+							</button>
+						</div> */}
 					</div>
 				</div>
 			</div>
