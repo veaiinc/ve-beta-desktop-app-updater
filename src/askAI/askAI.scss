@@ -38,7 +38,7 @@
 			app-region: drag;
 
 			&.chat-expanded {
-				app-region: no-drag;
+				app-region: drag;
 			}
 
 			.ai-response-title {
@@ -57,6 +57,7 @@
 				align-items: center;
 				gap: 8px;
 				position: relative;
+				app-region: no-drag;
 
 				.chat-btn {
 					background: transparent;

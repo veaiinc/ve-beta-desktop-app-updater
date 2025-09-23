@@ -634,16 +634,35 @@ struct ChatTextAreaView: View {
                 }
                 .onChange(of: isChatInputFocused) { oldValue, newValue in
                     handleFocusChange(newValue)
+                    // Sync focus state with view model
+                    vm.isChatInputFocused = newValue
                 }
                 .onChange(of: vm.isChatMode) { oldValue, newValue in
                     // When chat mode is turned off (back button pressed), remove focus
                     if !newValue && isChatInputFocused {
                         isChatInputFocused = false
                     }
+                    // When chat mode is turned ON, focus the text input
+                    else if newValue && !oldValue {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            isChatInputFocused = true
+                            vm.isChatInputFocused = true
+                            print("🎯 Auto-focusing TextEditor when chat mode activated")
+                        }
+                    }
                 }
                 .onAppear {
                     // Calculate width based on available space in the dynamic island
                     calculateTextEditorWidth()
+                    
+                    // Auto-focus when TextEditor appears
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        if vm.isChatMode {
+                            isChatInputFocused = true
+                            vm.isChatInputFocused = true
+                            print("🎯 Auto-focusing TextEditor on appear")
+                        }
+                    }
                 }
                 .onChange(of: vm.isRecording) { oldValue, newValue in
                     // Adjust width when recording state changes (but only if not focused)
@@ -659,21 +678,29 @@ struct ChatTextAreaView: View {
         .onTapGesture {
             print("🎯 Chat area tapped - attempting to focus text input")
             
-            // Ensure window is key first
-            if let window = NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible }) {
-                if !window.isKeyWindow {
-                    window.makeKey()
+            // Find the NotchDrop window specifically
+            var notchWindow: NSWindow?
+            for window in NSApp.windows {
+                if window.isVisible && window.className.contains("NotchDropPanel") {
+                    notchWindow = window
+                    break
                 }
-                // Force the window to become key and order front
-                window.makeKeyAndOrderFront(nil)
             }
             
-            // Set focus directly without delays or additional responder calls
-            DispatchQueue.main.async {
+            // Ensure window is key first
+            if let window = notchWindow ?? NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible }) {
+                print("🎯 Making window key: \(window.className)")
+                window.makeKeyAndOrderFront(nil)
+                
+                // Force focus immediately
                 isChatInputFocused = true
                 isTextFieldActive = true
                 vm.isChatMode = true
+                vm.isChatInputFocused = true
+                
                 print("🎯 Chat input focus set to: \(isChatInputFocused)")
+            } else {
+                print("🎯 No suitable window found for focus")
             }
         }
         .zIndex(2) // Ensure chat input is above the background overlay
