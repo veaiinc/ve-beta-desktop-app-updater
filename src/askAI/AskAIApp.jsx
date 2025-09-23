@@ -18,7 +18,6 @@ const AskAIApp = () => {
 		sessionId: ObjectID()?.toString(),
 		expandChat: false,
 		workarea: null,
-		userIsResizing: false,
 	});
 	const containerRef = useRef(null);
 	const expandChatRef = useRef(false);
@@ -28,8 +27,8 @@ const AskAIApp = () => {
 
 		const observer = new ResizeObserver((entries) => {
 			for (let entry of entries) {
-				// Skip auto-resize if user is manually resizing or chat is expanded
-				if (expandChatRef.current || info.userIsResizing) return;
+				// Skip auto-resize if chat is expanded
+				if (expandChatRef.current) return;
 
 				const { height } = entry.contentRect;
 				const updatedHeight = Math.min(height, 600);
@@ -49,7 +48,7 @@ const AskAIApp = () => {
 		return () => {
 			observer.disconnect();
 		};
-	}, [info.userIsResizing]);
+	}, []);
 
 	useEffect(() => {
 		if (info?.expandChat) {
@@ -278,17 +277,7 @@ const AskAIApp = () => {
 		}
 	}, [info?.workarea]);
 
-	// Add global mouse up listener to handle resize end
-	useEffect(() => {
-		const handleGlobalMouseUp = () => {
-			setInfo(prev => ({ ...prev, userIsResizing: false }));
-		};
-
-		if (info.userIsResizing) {
-			document.addEventListener('mouseup', handleGlobalMouseUp);
-			return () => document.removeEventListener('mouseup', handleGlobalMouseUp);
-		}
-	}, [info.userIsResizing]);
+	// Note: Resize handling is now done natively by Electron
 
 	return (
 		<div
@@ -335,15 +324,7 @@ const AskAIApp = () => {
 				</div>
 			</div>
 			
-			{/* Resize Handle */}
-			<div 
-				className="resize-handle" 
-				title="Drag to resize"
-				onMouseDown={() => setInfo(prev => ({ ...prev, userIsResizing: true }))}
-				onMouseUp={() => setInfo(prev => ({ ...prev, userIsResizing: false }))}
-			>
-				<div className="resize-grip"></div>
-			</div>
+			{/* Note: Window resizing is handled natively by Electron since resizable: true is set */}
 			
 			<CustomToast />
 		</div>

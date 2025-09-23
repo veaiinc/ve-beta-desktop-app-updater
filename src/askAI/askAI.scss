@@ -150,59 +150,6 @@
 		}
 	}
 
-	// Resize Handle
-	.resize-handle {
-		position: absolute;
-		bottom: 0;
-		right: 0;
-		width: 20px;
-		height: 20px;
-		cursor: se-resize;
-		-webkit-app-region: no-drag; /* Prevent dragging on resize handle */
-		app-region: no-drag;
-		z-index: 1000;
-		
-		.resize-grip {
-			position: absolute;
-			bottom: 4px;
-			right: 4px;
-			width: 12px;
-			height: 12px;
-			background: transparent;
-			
-			// Create diagonal lines for grip visual
-			&::before,
-			&::after {
-				content: '';
-				position: absolute;
-				background: rgba(255, 255, 255, 0.3);
-				border-radius: 1px;
-			}
-			
-			// First diagonal line
-			&::before {
-				width: 2px;
-				height: 8px;
-				top: 2px;
-				right: 2px;
-				transform: rotate(45deg);
-			}
-			
-			// Second diagonal line  
-			&::after {
-				width: 2px;
-				height: 4px;
-				top: 6px;
-				right: 6px;
-				transform: rotate(45deg);
-			}
-		}
-		
-		&:hover .resize-grip {
-			&::before,
-			&::after {
-				background: rgba(255, 255, 255, 0.6);
-			}
-		}
-	}
+	// Note: Window resizing is handled natively by Electron
+	// Custom resize handles removed to prevent conflicts with native functionality
 }
