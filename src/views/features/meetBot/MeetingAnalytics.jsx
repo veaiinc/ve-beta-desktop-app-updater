@@ -713,7 +713,7 @@ const MeetingAnalytics = ({ meetingId }) => {
 							</div>
 						</div>
 						<div className={a.conditionGraph}>
-							<WaveGraph className={a.waveGraph} />
+							{/* <WaveGraph className={a.waveGraph} /> */}
 						</div>
 					</div>
 					<div className={a.analyticsContainerOneItem}>
@@ -725,7 +725,7 @@ const MeetingAnalytics = ({ meetingId }) => {
 							</div>
 						</div>
 						<div className={a.conditionGraph}>
-							<WaveGraph className={a.waveGraph} />
+							{/* <WaveGraph className={a.waveGraph} /> */}
 						</div>
 					</div>
 				</div>

@@ -1723,7 +1723,15 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('minimize-main-window', async () => {
 		try {
-			mainWindow?.minimize();
+			if (mainWindow?.isFullScreen()) {
+				mainWindow.once('leave-full-screen', () => {
+					mainWindow?.minimize();
+				});
+				mainWindow.setFullScreen(false);
+			} else {
+				mainWindow?.minimize();
+			}
+
 			return { success: true };
 		} catch (error) {
 			log.error('Error minimizing main window:', error);

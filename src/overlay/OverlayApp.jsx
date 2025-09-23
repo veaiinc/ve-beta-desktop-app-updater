@@ -3,7 +3,7 @@ import { Track } from 'livekit-client';
 import { useTrackTranscription } from '@livekit/components-react';
 // import { GripHorizontal } from 'lucide-react';
 import Context from '../context/context';
-import useLiveIntelligenceStream from '../hooks/useLiveIntelligenceStream';
+// import useLiveIntelligenceStream from '../hooks/useLiveIntelligenceStream';
 import useRecallStream from '../hooks/useRecallStream';
 import useMeetingAudioRecorder from '../hooks/useMeetingAudioRecorder';
 import audioStorageService from '../services/audioStorageService';
@@ -127,7 +127,7 @@ const OverlayApp = () => {
 
 	// Audio recording hook for local audio storage
 	const meetingId = info.meetingData?._id || null;
-	console.log('OverlayApp: Current meeting ID:', meetingId);
+	// console.log('OverlayApp: Current meeting ID:', meetingId);
 
 	const {
 		isRecording: isAudioRecording,
@@ -138,8 +138,8 @@ const OverlayApp = () => {
 		error: audioError,
 	} = useMeetingAudioRecorder(meetingId);
 
-	const { closeWebSocketConnection: closeLiveIntelligenceConnection } =
-		useLiveIntelligenceStream();
+	// const { closeWebSocketConnection: closeLiveIntelligenceConnection } =
+	// 	useLiveIntelligenceStream();
 
 	// Recall Stream Hook for Live Intelligence
 	const {
@@ -334,11 +334,11 @@ const OverlayApp = () => {
 		}
 
 		if (meetingData) {
-			console.log('Meeting created successfully:', meetingData);
+			// console.log('Meeting created successfully:', meetingData);
 
 			// Store meeting data and ID for later use
 			meetingIdRef.current = meetingData._id;
-			console.log('OverlayApp: Stored meeting ID in ref:', meetingData._id);
+			// console.log('OverlayApp: Stored meeting ID in ref:', meetingData._id);
 
 			setInfo((prev) => ({
 				...prev,
@@ -356,7 +356,7 @@ const OverlayApp = () => {
 
 			// Start audio recording for local storage
 			try {
-				console.log('OverlayApp: Starting audio recording for meeting:', meetingData._id);
+				// console.log('OverlayApp: Starting audio recording for meeting:', meetingData._id);
 				console.log(
 					'OverlayApp: startAudioRecording function available:',
 					typeof startAudioRecording,
@@ -409,8 +409,8 @@ const OverlayApp = () => {
 		sessionIdRef.current = null;
 
 		stopRecording({ meetingId: info?.meetingData?._id });
-		closeLiveIntelligenceConnection();
-		closeRecallConnection();
+		// closeLiveIntelligenceConnection();
+		// closeRecallConnection();
 
 		// Stop audio recording for local storage
 		try {
@@ -505,11 +505,11 @@ const OverlayApp = () => {
 		};
 
 		// Set up listener for overlay commands from Dynamic Island
-		console.log('🔍 Setting up overlay command listener...');
-		console.log(
-			'window.electronApi?.overlay?.onCommand available:',
-			!!window.electronApi?.overlay?.onCommand,
-		);
+		// console.log('🔍 Setting up overlay command listener...');
+		// console.log(
+		// 	'window.electronApi?.overlay?.onCommand available:',
+		// 	!!window.electronApi?.overlay?.onCommand,
+		// );
 
 		if (window.electronApi?.overlay?.onCommand) {
 			console.log('✅ Setting up overlay command listener');
