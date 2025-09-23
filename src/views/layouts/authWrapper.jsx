@@ -40,7 +40,7 @@ const AuthWrapper = ({
 
 	usePushNotifications(showPushNotification);
 	const { authInitialized } = useAuthInitializer();
-	// const { migrationLoading, migrationInProgress } = useMigrationGate();
+	const { migrationLoading, migrationInProgress } = useMigrationGate();
 
 	// Initialize Intercom for all authenticated users
 	useIntercom();
