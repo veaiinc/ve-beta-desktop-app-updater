@@ -1,6 +1,6 @@
 import Context from '../../../context/context';
 import { useContext, useEffect, useState, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
 import RecentChat from '../chat/RecentChat';
 import TranscriptionSidebar from '../notesModule/TranscriptionSidebar';
@@ -24,21 +24,13 @@ const MeetBotWrapper = () => {
 		chatActive: false,
 		transcriptionActive: false,
 	});
-	const sessionId = searchParams.get('sId') || ObjectID()?.toString();
+	const meetingId = useParams()?.meetingId;
 
 	useEffect(() => {
 		updateStateValues({
 			leftSidebarState: 'close',
 		});
 	}, []);
-
-	useEffect(() => {
-		if (sessionId && sessionId !== searchParams.get('sId')) {
-			const newParams = new URLSearchParams(searchParams);
-			newParams.set('sId', sessionId);
-			setSearchParams(newParams, { replace: true });
-		}
-	}, [sessionId]);
 
 	useEffect(() => {
 		const chat = searchParams.get('chat');
@@ -96,7 +88,7 @@ const MeetBotWrapper = () => {
 							isPreview={true}
 							showCitationsButton={false}
 							// customChatBoxClick={handleCustomChatBoxClick}
-							sId={sessionId}
+							sId={meetingId}
 							animateChatBox={true}
 							showHeader={false}
 						/>
