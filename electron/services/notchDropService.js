@@ -1,7 +1,7 @@
 const path = require('path');
 const log = require('electron-log');
 const { BrowserWindow } = require('electron');
-const { WakeWordIntegration } = require('../../notchdrop-addon/wake-word-integration');
+const { WakeWordIntegration } = import('../../notchdrop-addon/wake-word-integration');
 
 let NotchDropAddonWrapper;
 
