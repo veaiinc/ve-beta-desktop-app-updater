@@ -20,6 +20,8 @@
 		align-self: stretch;
 		padding-bottom: 8px;
 		border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+		-webkit-app-region: drag;
+		app-region: drag;
 
 		.transcript-panel-header-left {
 			display: flex;
@@ -51,6 +53,8 @@
 			display: flex;
 			align-items: center;
 			gap: 8px;
+			-webkit-app-region: no-drag;
+			app-region: no-drag;
 
 			.transcript-panel-header-right-button {
 				display: flex;
@@ -90,12 +94,15 @@
 	}
 
 	.transcript-content-container {
-		flex: 1;
+		// flex: 1;
 		width: 100%;
 		position: relative;
 		display: flex;
 		flex-direction: column;
 		max-height: 400px;
+		// width: 380px;
+		overflow-y: scroll;
+		height: 350px;
 	}
 
 	.transcript-content {

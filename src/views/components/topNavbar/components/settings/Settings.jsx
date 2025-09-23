@@ -17,7 +17,6 @@ import { ReactComponent as LogoutSvg } from '../../assets/logout.svg';
 import { ReactComponent as DownloadMacSvg } from '../../assets/download-mac.svg';
 import { ReactComponent as DownloadWindowsSvg } from '../../assets/download-windows.svg';
 import { ReactComponent as TemplatesSvg } from '../../assets/templates.svg';
-import useIntercom from '../../../../../hooks/useIntercom';
 import useBroadcastChannel from '../../../../../hooks/useBroadcastChannel';
 import { ReactComponent as BackIcon } from '../../../../../assets/svg/mobile/back.svg';
 import { ReactComponent as CloseIcon } from '../../../../../assets/svg/mobile/close.svg';
@@ -107,7 +106,6 @@ const Settings = ({
 	closeSettingsTooltip,
 }) => {
 	const { pathname } = useLocation();
-	const { shutdownIntercom, showIntercom, launchIntercom } = useIntercom();
 	const channel = useBroadcastChannel();
 	const navigate = useNavigate();
 
@@ -181,16 +179,18 @@ const Settings = ({
 			navigate(settingItem.route);
 		} else {
 			if (settingItem.label === 'Help') {
-				if (info.intercomOpen) {
-					shutdownIntercom();
-				} else {
-					await launchIntercom();
-					showIntercom();
+				// Use global Intercom instance
+				if (window.Intercom) {
+					if (info.intercomOpen) {
+						window.Intercom('shutdown');
+					} else {
+						window.Intercom('show');
+					}
+					setInfo((prev) => ({
+						...prev,
+						intercomOpen: !prev.intercomOpen,
+					}));
 				}
-				setInfo((prev) => ({
-					...prev,
-					intercomOpen: !prev.intercomOpen,
-				}));
 			}
 		}
 		closeSettingsTooltip();

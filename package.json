@@ -1,7 +1,7 @@
 {
 	"name": "VEAI",
 	"description": "Your living intelligence remembers everything, sees what you see, figures out your goals, and doesn’t stop until they're done.",
-	"version": "v0.4.32",
+	"version": "0.4.35",
 	"private": true,
 	"main": "dist-electron/main.js",
 	"author": "Ve AI",
@@ -52,7 +52,13 @@
 		"clean:build:win": "if exist dist-electron rmdir /s /q dist-electron && if exist build rmdir /s /q build && if exist dist rmdir /s /q dist",
 		"clean:build:cross": "rimraf dist-electron build dist",
 		"rebuild:native:mac": "electron-builder install-app-deps && npx electron-rebuild -f -w notchdrop-addon",
-		"validate:notchdrop": "node scripts/validate-notchdrop.js"
+		"validate:notchdrop": "node scripts/validate-notchdrop.js",
+		"release:patch": "node scripts/trigger-release.js patch",
+		"release:minor": "node scripts/trigger-release.js minor",
+		"release:major": "node scripts/trigger-release.js major",
+		"release:quick": "node scripts/trigger-release.js quick",
+		"release:test": "node scripts/trigger-release.js test",
+		"sync:releases": "bash scripts/sync-releases-remote.sh"
 	},
 	"dependencies": {
 		"dotenv": "^17.2.2",

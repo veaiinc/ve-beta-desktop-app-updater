@@ -179,7 +179,7 @@ const AmbientAiInfo = ({
 		[data],
 	);
 
-	const handleActionClick = useCallback((prompt, proactiveSessionId) => {
+	const handleActionClick = useCallback((prompt, proactiveSessionId, moduleId) => {
 		const sessionId = ObjectID()?.toString();
 		updateStateValues({
 			activePromptForChat: {
@@ -189,6 +189,8 @@ const AmbientAiInfo = ({
 			proactiveInfoForChat: {
 				isProactive: true,
 				proactiveSessionId,
+				moduleId,
+				screen: 'proactive',
 			},
 		});
 		navigate(`/chat/${sessionId}`);
@@ -710,7 +712,11 @@ const AmbientAiInfo = ({
 														className="suggested-action"
 														key={index}
 														onClick={() =>
-															handleActionClick(item, sessionId)
+															handleActionClick(
+																item,
+																sessionId,
+																data?._id,
+															)
 														}
 													>
 														{updateCitationIdsWithCitations(
