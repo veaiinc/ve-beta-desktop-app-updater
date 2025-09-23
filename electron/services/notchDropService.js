@@ -114,7 +114,8 @@ class NotchDropService {
 			// Phase 7: Initialize wake word integration
 			try {
 				this.wakeWordIntegration = new WakeWordIntegration(this);
-				await this.wakeWordIntegration.start();
+				//Commenting out wake word integration for now
+				// await this.wakeWordIntegration.start();
 				log.info('✅ Wake word integration initialized - "Hey Ve" detection active');
 			} catch (wakeWordError) {
 				log.warn('⚠️ Wake word integration failed to start:', wakeWordError.message);
