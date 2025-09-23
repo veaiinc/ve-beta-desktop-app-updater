@@ -137,7 +137,9 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 						<div className="header-actions">
 							<div className="status-badge connected">
 								<span className="status-dot"></span>
-								<span className="status-text">Connected</span>
+								<span className="status-text">
+									{connectedIntegration?.isActive ? 'Active' : 'Inactive'}
+								</span>
 							</div>
 							<button
 								className="disconnect-button"
