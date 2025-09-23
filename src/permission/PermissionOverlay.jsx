@@ -19,23 +19,23 @@ const PermissionOverlay = () => {
 	const intervalRef = useRef(null);
 	const successTimeoutRef = useRef(null);
 
-	const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
-	const isMac = RUNTIME_PLATFORM === 'darwin';
+	// Get platform information safely from electronApi
+	const platformInfo = window.electronApi?.platform || {
+		name: 'unknown',
+		isMac: navigator.platform.includes('Mac'),
+		isWindows: navigator.platform.includes('Win'),
+		isLinux: navigator.platform.includes('Linux'),
+	};
 
-	// Additional fallback check for better macOS detection
-	const isMacFallback = process.platform === 'darwin' || navigator.platform.includes('Mac');
-	const finalIsMac = isMac || isMacFallback;
+	const finalIsMac = platformInfo.isMac;
 
 	// Debug logging to help troubleshoot platform detection
 	console.log('🔍 PermissionOverlay Platform Debug:', {
-		processPlatform: process.platform,
-		runtimePlatform: RUNTIME_PLATFORM,
-		isMac: isMac,
-		isMacFallback: isMacFallback,
-		finalIsMac: finalIsMac,
-		envForcePlatform: process.env.VE_FORCE_PLATFORM,
-		userAgent: navigator.userAgent,
+		electronApiPlatform: window.electronApi?.platform,
+		platformInfo,
+		finalIsMac,
 		navigatorPlatform: navigator.platform,
+		userAgent: navigator.userAgent,
 	});
 
 	useEffect(() => {

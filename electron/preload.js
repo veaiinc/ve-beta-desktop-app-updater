@@ -280,6 +280,15 @@ contextBridge.exposeInMainWorld('electronApi', {
 	// Developer tools API for WebSocket debugging
 	openDevTools: (options) => ipcRenderer.invoke('open-dev-tools', options),
 
+	// Platform information
+	platform: {
+		name: process.platform,
+		arch: process.arch,
+		isMac: process.platform === 'darwin',
+		isWindows: process.platform === 'win32',
+		isLinux: process.platform === 'linux',
+	},
+
 	// Download progress listener
 	onDownloadProgress: (callback) => {
 		ipcRenderer.on('download-progress', (event, data) => {
