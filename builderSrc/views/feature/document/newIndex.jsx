@@ -1565,7 +1565,7 @@ const CreateDocument = () => {
 											<input
 												type="text"
 												placeholder="Search client here"
-												value={searchQuery}
+												value={stageInfo.searchQuery}
 												onChange={handleSearchChange}
 												onClick={(e) => {
 													e.stopPropagation();
