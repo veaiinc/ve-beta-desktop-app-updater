@@ -95,7 +95,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	const transcription = searchParams.get('transcription') === 'true' ? true : false;
 	const useAssemblyAI =
 		searchParams.get('useAssemblyAI') === 'true' ||
-		(type === 'desktop' && searchParams.get('useAssemblyAI') !== 'false');
+		(type === 'in_app_meeting' && searchParams.get('useAssemblyAI') !== 'false');
 	const isAiIntelligenceEnabled =
 		searchParams.get('isAiIntelligenceEnabled') === 'true' ? true : false;
 
@@ -140,7 +140,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 
 	const [info, setInfo] = useState(initialState);
 	const [transcriptList, setTranscriptList] = useState([]);
-	const [activeTab, setActiveTab] = useState(type === 'desktop' ? 'summary' : 'summary');
+	const [activeTab, setActiveTab] = useState(type === 'in_app_meeting' ? 'summary' : 'summary');
 	const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
 	// Check if audio recording exists for this meeting
@@ -272,7 +272,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	// }, [aiLiveIntelligenceHistory]);
 	// Function to fetch historical transcriptions for desktop
 	const fetchHistoricalTranscriptions = useCallback(async () => {
-		if (!meetingId || !showTranscriptTabs || type !== 'desktop') return;
+		if (!meetingId || !showTranscriptTabs || type !== 'in_app_meeting') return;
 
 		setIsLoadingHistory(true);
 		try {
@@ -323,7 +323,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 
 	// Function to fetch historical transcriptions for meeting_bot
 	const fetchMeetingBotTranscriptions = useCallback(async () => {
-		if (!meetingId || !showTranscriptTabs || type !== 'meeting_bot') return;
+		if (!meetingId || !showTranscriptTabs || type !== 'third_party_meeting') return;
 
 		try {
 			const response = await getMeetTranscriptHistory(
@@ -458,7 +458,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	useEffect(() => {
 		fetchHistoricalTranscriptions();
 		// Also fetch meeting bot transcriptions if needed
-		if (type === 'meeting_bot' && showTranscriptTabs) {
+		if (type === 'third_party_meeting' && showTranscriptTabs) {
 			fetchMeetingBotTranscriptions();
 		}
 	}, []);
@@ -481,7 +481,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	// }, [showTranscriptTabs, sessionId, type]);
 
 	useEffect(() => {
-		if (showTranscriptTabs && type === 'desktop' && !history) {
+		if (showTranscriptTabs && type === 'in_app_meeting' && !history) {
 			sentinalScrollRef?.current?.scrollIntoView({ behavior: 'smooth' });
 		}
 	}, [info?.transcriptions?.length]);
@@ -680,6 +680,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		setActiveTab('all');
 		if (window.electronApi) {
 			window.electronApi.overlay.startRecording(createBotInfo);
+			window.electronApi.minimizeMainWindow();
 		}
 	};
 
@@ -795,7 +796,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 				})()}
 				{showTranscriptTabs &&
 					activeTab === 'transcript' &&
-					(type === 'desktop' || type === 'meeting_bot') && (
+					(type === 'in_app_meeting' || type === 'third_party_meeting') && (
 						// <div style={{ paddingBottom: 80, width: '100%' }}>
 						<div className="transcript-list-container">
 							{info.transcriptionsLoading && info.transcriptions?.length === 0 ? (
@@ -824,7 +825,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 												key={item._id || item.id || idx}
 											>
 												<div className="meet-transcript-meta">
-													{type === 'meeting_bot' && (
+													{type === 'third_party_meeting' && (
 														<span
 															className="avatar"
 															style={{
@@ -886,7 +887,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						/>
 					)}
 
-				{showTranscriptTabs && type === 'meeting_bot' && !history && (
+				{showTranscriptTabs && type === 'third_party_meeting' && !history && (
 					<TranscriptionWrapper
 						chat={chat}
 						transcription={transcription}
@@ -897,7 +898,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					/>
 				)}
 				{/* Always render NoteTakerTranscript or AssemblyTranscript at the root level */}
-				{showTranscriptTabs && type === 'desktop' && !history && !useAssemblyAI && (
+				{showTranscriptTabs && type === 'in_app_meeting' && !history && !useAssemblyAI && (
 					<NoteTakerTranscript
 						sendMessage={recallSendMessage}
 						tenantId={tennantSettingsData?._id}
