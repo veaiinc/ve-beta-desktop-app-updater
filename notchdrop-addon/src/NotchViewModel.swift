@@ -19,7 +19,7 @@ class NotchViewModel: NSObject, ObservableObject {
     }
 
     let animation: Animation = DynamicIslandTheme.expansionAnimation
-    // Dynamic opened size matches React spec; width adjusts when recording or chat expanded, height stays constant
+    // Fixed size - no width expansion functionality
     var notchOpenedSize: CGSize {
         // When showing notification, use notification-specific dimensions matching Figma
         if showNotificationOverlay {
@@ -27,27 +27,8 @@ class NotchViewModel: NSObject, ObservableObject {
                 width: 370,  // Figma design width
                 height: 100   // Figma design height
             )
-        } else if isRecording && isChatExpanded {
-            // Recording + Chat expanded: Use the larger width for better chat experience
-            let expandedWidth = max(DynamicIslandTheme.recordingExpandedWidth, DynamicIslandTheme.chatExpandedWidth)
-            return .init(
-                width: expandedWidth,
-                height: DynamicIslandTheme.recordingExpandedHeight
-            )
-        } else if isRecording {
-            // Recording only
-            return .init(
-                width: DynamicIslandTheme.recordingExpandedWidth,
-                height: DynamicIslandTheme.recordingExpandedHeight
-            )
-        } else if isChatExpanded {
-            // Chat expanded only (when not recording)
-            return .init(
-                width: DynamicIslandTheme.chatExpandedWidth,
-                height: DynamicIslandTheme.expandedHeight
-            )
         }
-        // Default compact size when not expanded
+        // Always use fixed compact width - no expansion for any state
         return .init(
             width: DynamicIslandTheme.compactWidth,
             height: DynamicIslandTheme.expandedHeight
@@ -125,7 +106,7 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var isStealthModeEnabled: Bool = false
     
     // Chat expansion state
-    @Published var isChatExpanded: Bool = false
+    @Published var isChatExpanded: Bool = false // Deprecated - no longer used for width expansion
     @Published var chatTextHeight: CGFloat = 100
 
     // Voice UI state (UI parity with React)
@@ -257,11 +238,14 @@ class NotchViewModel: NSObject, ObservableObject {
     
     // Dynamic Island UI functions
     func startRecording() {
-        isConnecting = true
-        // isRecording = true
-        // isPaused = false
-        // timer = 0
-        // startTimer()
+        isConnecting = false // Set to false immediately to show recording state
+        isRecording = true
+        isPaused = false
+        timer = 0
+        startTimer()
+        
+        // Ensure voice interface is not shown when recording
+        showVoiceInterface = false
         
         // Emit action for JavaScript
         swiftActionSender.send(.startRecording)
@@ -269,7 +253,7 @@ class NotchViewModel: NSObject, ObservableObject {
         // Trigger overlay integration - this is the key addition
         // This will communicate with the overlay system to actually start recording
         // and show the Live Intelligence panel, just like the JavaScript version
-        // swiftActionSender.send(.triggerOverlayToggleLiveIntelligence)
+        swiftActionSender.send(.triggerOverlayToggleLiveIntelligence)
     }
     
     func stopRecording() {
@@ -867,5 +851,10 @@ class NotchViewModel: NSObject, ObservableObject {
         let minutes = seconds / 60
         let remainingSeconds = seconds % 60
         return String(format: "%d:%02d", minutes, remainingSeconds)
+    }
+    
+    func toggleVoiceMode() {
+        // Toggle voice mode UI appearance only
+        showVoiceInterface.toggle()
     }
 }

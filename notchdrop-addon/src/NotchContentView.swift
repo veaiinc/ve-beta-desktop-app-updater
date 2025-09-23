@@ -88,7 +88,7 @@ struct DynamicIslandContentView: View {
                         // Start button section
                         HStack(spacing: 8) {
                             if !vm.isRecording && !vm.showVoiceInterface {
-                                // Listen button (existing functionality)
+                                // Listen button (starts transcription/recording)
                                 Button(action: {
                                     vm.startRecording()
                                 }) {
@@ -110,30 +110,6 @@ struct DynamicIslandContentView: View {
                                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isRecording)
                                 .disabled(vm.isConnecting)
                                 .opacity(vm.isConnecting ? 0.8 : 1.0)
-                                // Voice button (new LiveKit voice assistant)
-                                Button(action: {
-                                    vm.connectVoiceAssistant()
-                                }) {
-                                    HStack(spacing: 4) {
-                                        // Voice/microphone icon
-                                        Image(systemName: "mic.fill")
-                                            .font(.system(size: 12))
-                                            .foregroundColor(DynamicIslandTheme.primaryGreen)
-                                        Text("Voice")
-                                            .font(.system(size: 12, weight: .medium))
-                                            .foregroundColor(DynamicIslandTheme.primaryGreen)
-                                    }
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 2)
-                                    .background(DynamicIslandTheme.primaryGreen.opacity(0.1))
-                                    .overlay(
-                                        Capsule().stroke(DynamicIslandTheme.primaryGreen.opacity(0.3), lineWidth: 1)
-                                    )
-                                    .clipShape(Capsule())
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                                .scaleEffect(1.0)
-                                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.voiceConnectionStatus)
                             } else if vm.showVoiceInterface {
                                 // Voice mode indicator (when split layout is visible)
                                 HStack(spacing: 8) {
@@ -242,78 +218,74 @@ struct DynamicIslandContentView: View {
                                 }
                             }
 
-                        Button(action: {
-                            vm.toggleStealthMode()
-                        }) {
-                            Group {
-                                if vm.isStealthModeEnabled {
-                                    PirateIcon(color: DynamicIslandTheme.primaryGreen)
-                                } else {
-                                    EyeIcon(color: .white)
-                                }
+                        // Right side icons and controls
+                        HStack(spacing: 6) {
+                            // Min/Max text controls (moved to first position)
+                            Text("Min/Max")
+                                .font(.system(size: 10, weight: .medium))
+                                .foregroundColor(.white.opacity(0.7))
+                            
+                            // CMD + . icon with background
+                            HStack(spacing: 2) {
+                                Text("⌘")
+                                    .font(.system(size: 10, weight: .medium))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 4)
+                                    .padding(.vertical, 2)
+                                    .background(Color.white.opacity(0.15))
+                                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                                Text(".")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 4)
+                                    .padding(.vertical, 2)
+                                    .background(Color.white.opacity(0.15))
+                                    .clipShape(RoundedRectangle(cornerRadius: 4))
                             }
-                            .frame(width: 20, height: 20)
-                            .padding(6)
-                            .background(
-                                vm.isStealthModeEnabled
-                                    ? DynamicIslandTheme.primaryGreen.opacity(0.16)
-                                    : Color.white.opacity(0.15)
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            
+                            // Eye icon (moved to middle, no background)
+                            Button(action: {
+                                vm.toggleStealthMode()
+                            }) {
+                                Group {
+                                    if vm.isStealthModeEnabled {
+                                        EyeIcon(color: DynamicIslandTheme.primaryGreen)
+                                    } else {
+                                        EyeIcon(color: .white)
+                                    }
+                                }
+                                .frame(width: 20, height: 20)
+                                .padding(2)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .help("Stealth Mode")
                         }
-                        .buttonStyle(PlainButtonStyle())
-                        .help(vm.isStealthModeEnabled ? "Disable stealth mode" : "Enable stealth mode")
-
-                        // Right side icons (parity: Back + Home only)
-                        HStack(spacing: 8) {
-                            // COMMENTED OUT: Back button (as requested)
-                            // if vm.isChatMode || vm.showVoiceInterface {
-                            //     // Back button
-                            //     Button(action: {
-                            //         if vm.showVoiceInterface {
-                            //             vm.disconnectVoiceUI()
-                            //         } else {
-                            //             vm.toggleChatMode()
-                            //         }
-                            //     }) {
-                            //         HStack(spacing: 8) {
-                            //             Image(systemName: "chevron.left")
-                            //                 .font(.system(size: 12))
-                            //             Text("Back")
-                            //                 .font(.system(size: 11, weight: .medium))
-                            //         }
-                            //         .foregroundColor(DynamicIslandTheme.textPrimary)
-                            //         .padding(.horizontal, 8)
-                            //         .padding(.vertical, 2)
-                            //         .background(Color.clear)
-                            //         .clipShape(RoundedRectangle(cornerRadius: 8))
-                            //     }
-                            //     .buttonStyle(PlainButtonStyle())
-                            // }
-
-                            // Home icon - only show when chat input is focused or in voice mode
-                            if vm.isChatMode || vm.showVoiceInterface {
-                                Button(action: {
-                                    vm.navigateToMainScreen()
-                                }) {
-                                    HomeIcon(color: .white)
-                                        .frame(width: 24, height: 24)
-                                        .background(Color.white.opacity(0.15))
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                                }
-                                .buttonStyle(PlainButtonStyle())
+                        
+                        // Separate HStack for home icon with reduced spacing
+                        HStack(spacing: 0) {
+                            // Home icon - always visible (no background) with reduced left padding
+                            Button(action: {
+                                vm.navigateToMainScreen()
+                            }) {
+                                HomeIcon(color: .white)
+                                    .frame(width: 18, height: 18)
+                                    .padding(.leading, 2) // Reduced left padding to decrease gap with eye icon
+                                    .padding(.trailing, 4)
+                                    .padding(.vertical, 4)
                             }
+                            .buttonStyle(PlainButtonStyle())
+                            .help("Home")
                         }
                     }
                     
                     
-                    // Main content area
+                    // Main content area - always show chat box with Voice Mode button
                     HStack(spacing: 12) {
                         if vm.showVoiceInterface {
                             // Voice split layout (left conversation, right controls)
                             VoiceSplitLayout(vm: vm)
                         } else {
-                            // Chat input section with fixed container
+                            // Chat input section with dynamic container
                             HStack(spacing: 12) {
                                 ChatTextAreaView(
                                     chatInput: $vm.chatInput,
@@ -321,26 +293,33 @@ struct DynamicIslandContentView: View {
                                     isTextFieldActive: $isTextFieldActive,
                                     vm: vm
                                 )
-                                .frame(width: 480) // Reduced width for chatbox to accommodate webcam
+                                .frame(width: vm.isChatMode ? 450 : 370) // Expand chat width when focused
+                                .animation(.easeInOut(duration: 0.3), value: vm.isChatMode)
                                 
                                 // Webcam button - only show when recording
                                 if vm.isRecording {
                                     WebcamButton(vm: vm)
-                                        .frame(width: 70, height: 70) // Further reduced size to prevent cropping
+                                        .frame(width: 60, height: 60) // Smaller webcam button
+                                }
+                                
+                                // Voice Mode button - only show when NOT recording AND chat not focused
+                                if !vm.isRecording && !vm.isChatMode {
+                                    VoiceModeButton(vm: vm)
+                                        .frame(width: 85, height: 85) // Slightly smaller voice mode button to prevent cropping
+                                        .transition(.scale.combined(with: .opacity))
                                 }
                             }
-                            .frame(width: vm.isRecording ? 550 : 480) // Optimized container width: 480px chatbox + 70px webcam + 0px spacing
+                            .frame(width: 440) // Fixed container width - no expansion
                         }
                     }
                     .frame(maxWidth: vm.notchOpenedSize.width - 32) // Constrain main content area
                     .clipped() // Ensure content doesn't overflow
-                    .animation(DynamicIslandTheme.expansionAnimation, value: vm.isChatMode)
+                    .animation(.easeInOut(duration: 0.3), value: vm.isChatMode)
                 }
             }
         }
         .padding(vm.spacing)
         .frame(width: vm.notchOpenedSize.width, height: vm.notchOpenedSize.height)
-        .animation(vm.animation, value: vm.isChatExpanded)
         .onAppear {
             // Set up listener for Swift actions to handle received messages
             setupMessageListener()
@@ -416,10 +395,11 @@ struct VoiceSplitLayout: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(8)
-            .background(DynamicIslandTheme.card)
+            .background(Color.clear)
             .clipShape(RoundedRectangle(cornerRadius: 12))
+            // .border(DynamicIslandTheme.stroke.opacity(0.3), lineWidth: 0.5)
 
-            // Right: assistant controls circle
+            // Right: assistant controls circle (restore original functionality)
             VoiceControlsCircle(vm: vm)
         }
         .frame(maxWidth: vm.notchOpenedSize.width - 32) // Constrain to dynamic island width minus padding
@@ -454,7 +434,7 @@ struct VoiceMessageBubble: View {
         .background(
             isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.1) :
             isStatus ? Color.clear :
-            DynamicIslandTheme.card
+            Color.clear
         )
         .overlay(
             RoundedRectangle(cornerRadius: 8)
@@ -580,10 +560,10 @@ struct ChatTextAreaView: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             // Background for the textarea
-            RoundedRectangle(cornerRadius: 16)
-                .fill(DynamicIslandTheme.card)
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color.clear)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16)
+                    RoundedRectangle(cornerRadius: 8)
                         .stroke(DynamicIslandTheme.stroke.opacity(isChatInputFocused ? 1.0 : 0.5), lineWidth: 1)
                 )
                 .frame(width: .infinity, height: textEditorHeight)
@@ -592,7 +572,7 @@ struct ChatTextAreaView: View {
             
             // Placeholder text when empty
             if chatInput.isEmpty {
-                Text("Ask about screen or audio")
+                Text("Ask about screen or anything")
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(DynamicIslandTheme.textMuted)
                     .padding(.horizontal, 20)
@@ -669,12 +649,9 @@ struct ChatTextAreaView: View {
             }
             
             // Set focus directly without delays or additional responder calls
-            DispatchQueue.main.async {
-                isChatInputFocused = true
-                isTextFieldActive = true
-                vm.isChatMode = true
-                print("🎯 Chat input focus set to: \(isChatInputFocused)")
-            }
+            isChatInputFocused = true
+            isTextFieldActive = true
+            vm.isChatMode = true // Re-enabled for chat expansion
         }
         .zIndex(2) // Ensure chat input is above the background overlay
     }
@@ -732,13 +709,10 @@ struct ChatTextAreaView: View {
         print("🎯 TextEditor focus changed: \(newValue)")
         isTextFieldActive = newValue
         
-        // Hide voice section when focused, show when unfocused (like React behavior)
+        // Enable chat mode to hide Voice Mode button and expand chat
         vm.isChatMode = newValue
         
-        // Update chat expansion state for Dynamic Island sizing
-        withAnimation(vm.animation) {
-            vm.isChatExpanded = newValue
-        }
+        // Chat expansion disabled - keep fixed width
         
         // Animate width change based on focus state - synchronized with Dynamic Island timing
         withAnimation(DynamicIslandTheme.expansionAnimation) {
@@ -768,8 +742,8 @@ struct ChatTextAreaView: View {
     
     // MARK: - Width Calculation Helper
     private func calculateTextEditorWidth() {
-        // Use fixed width for chatbox - 480px
-        let calculatedWidth: CGFloat = 480
+        // Dynamic width based on chat mode: expanded when focused, normal when not
+        let calculatedWidth: CGFloat = vm.isChatMode ? 450 : 370
         
         textEditorWidth = calculatedWidth
     }
@@ -1259,6 +1233,51 @@ struct NotificationOverlayView: View {
         progressTimer?.invalidate()
         progressTimer = nil
         progressValue = 0.0
+    }
+}
+
+// MARK: - Voice Mode Button (Large circular button as shown in image)
+struct VoiceModeButton: View {
+    @ObservedObject var vm: NotchViewModel
+    @State private var isHovered: Bool = false
+    
+    var body: some View {
+        Button(action: {
+            // Connect to voice assistant (restore previous functionality)
+            vm.connectVoiceAssistant()
+        }) {
+            ZStack {
+                // Background circle with conditional border
+                Circle()
+                    .fill(DynamicIslandTheme.card)
+                    .overlay(
+                        Circle()
+                            .stroke(
+                                vm.showVoiceInterface ? DynamicIslandTheme.primaryGreen : Color.clear,
+                                lineWidth: 2
+                            )
+                    )
+                    .frame(width: 85, height: 85)
+                    .scaleEffect(isHovered ? 1.05 : 1.0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
+                
+                // Content
+                VStack(spacing: 6) {
+                    // Large wave icon (green when active, gray when inactive)
+                    WaveIcon(color: vm.showVoiceInterface ? DynamicIslandTheme.primaryGreen : Color.gray.opacity(0.6))
+                        .frame(width: 22, height: 22)
+                    
+                    // "Voice Mode" text
+                    Text("Voice Mode")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(.white)
+                }
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+        .onHover { hovering in
+            isHovered = hovering
+        }
     }
 }
 
