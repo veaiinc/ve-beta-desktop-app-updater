@@ -1,7 +1,7 @@
 const path = require('path');
 const log = require('electron-log');
 const { BrowserWindow } = require('electron');
-const { WakeWordIntegration } = require('../../notchdrop-addon/wake-word-integration');
+// const { WakeWordIntegration } = import('../../notchdrop-addon/wake-word-integration');
 
 let NotchDropAddonWrapper;
 
@@ -26,9 +26,9 @@ class NotchDropService {
 			setStatus: null,
 		};
 		this.isStealthModeEnabled = false;
-		
-		// Wake word integration
-		this.wakeWordIntegration = null;
+
+		// Wake word integration - DISABLED
+		// this.wakeWordIntegration = null;
 	}
 
 	async initialize() {
@@ -111,15 +111,17 @@ class NotchDropService {
 			// Sync stealth mode state for initial render
 			await this.syncStealthModeState();
 
-			// Phase 7: Initialize wake word integration
-			try {
-				this.wakeWordIntegration = new WakeWordIntegration(this);
-				await this.wakeWordIntegration.start();
-				log.info('✅ Wake word integration initialized - "Hey Ve" detection active');
-			} catch (wakeWordError) {
-				log.warn('⚠️ Wake word integration failed to start:', wakeWordError.message);
-				// Continue without wake word - not critical for core functionality
-			}
+			// Phase 7: Initialize wake word integration - DISABLED
+			// try {
+			// 	this.wakeWordIntegration = new WakeWordIntegration(this);
+			// 	//Commenting out wake word integration for now
+			// 	// await this.wakeWordIntegration.start();
+			// 	log.info('✅ Wake word integration initialized - "Hey Ve" detection active');
+			// } catch (wakeWordError) {
+			// 	log.warn('⚠️ Wake word integration failed to start:', wakeWordError.message);
+			// 	// Continue without wake word - not critical for core functionality
+			// }
+			log.info('ℹ️ Wake word integration disabled for build');
 
 			// Auto-open NotchDrop after initialization if enabled
 			if (this.autoOpenOnStartup) {
@@ -218,10 +220,9 @@ class NotchDropService {
 		});
 
 		this.notchDropAddon.on('toggleStealthMode', () => {
-			Promise.resolve(this.handleToggleStealthModeRequest('swift-event'))
-				.catch((error) => {
-					log.error('❌ Error handling Swift UI stealth toggle event:', error);
-				});
+			Promise.resolve(this.handleToggleStealthModeRequest('swift-event')).catch((error) => {
+				log.error('❌ Error handling Swift UI stealth toggle event:', error);
+			});
 		});
 
 		// Listen for voice mute toggle requests from Swift UI
@@ -870,7 +871,10 @@ class NotchDropService {
 				return normalized;
 			}
 
-			if (this.notchDropAddon && typeof this.notchDropAddon.updateStealthModeState === 'function') {
+			if (
+				this.notchDropAddon &&
+				typeof this.notchDropAddon.updateStealthModeState === 'function'
+			) {
 				this.notchDropAddon.updateStealthModeState(normalized);
 				log.info(`🏴‍☠️ Stealth mode state synced to Swift UI: ${normalized}`);
 			} else {
@@ -891,9 +895,7 @@ class NotchDropService {
 				return this.isStealthModeEnabled;
 			}
 
-			const result = await Promise.resolve(
-				this.stealthModeController.toggle(source),
-			);
+			const result = await Promise.resolve(this.stealthModeController.toggle(source));
 			const enabled = Boolean(result);
 			await this.updateStealthModeState(enabled);
 			return enabled;
@@ -921,9 +923,7 @@ class NotchDropService {
 				return this.isStealthModeEnabled;
 			}
 
-			const status = await Promise.resolve(
-				this.stealthModeController.getStatus(),
-			);
+			const status = await Promise.resolve(this.stealthModeController.getStatus());
 			return await this.updateStealthModeState(status);
 		} catch (error) {
 			log.warn('⚠️ Unable to sync stealth mode state:', error);
