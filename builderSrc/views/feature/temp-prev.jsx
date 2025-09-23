@@ -827,7 +827,7 @@ class TempBuilderPreview extends Proposals {
 
 	render() {
 		return (
-			<div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+			<div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
 				<div
 					className="home_wrapper"
 					ref={this.parentRef}

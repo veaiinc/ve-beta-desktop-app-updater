@@ -79,6 +79,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 		}
 	};
 	const handleDuplicate = async () => {
+		console.log('duplicate clicked', workflowInfoDetails);
 		if (info?.duplicateLoading) return;
 
 		// Try context first
@@ -223,7 +224,24 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 			}
 		}
 	};
+	const handdleIsContractSigned = () => {
+		const contractTable = (workflowInfoDetails?.summary?.tables || []).find(
+			(table) => table.type === 'contract-with-signature',
+		);
 
+		let tenantUserSigned = true;
+		if (contractTable) {
+			const tenantUser = (contractTable.values || []).find(
+				(value) => value.userType === 'tenantUser',
+			);
+			if (tenantUser && !tenantUser.value) {
+				navigate(
+					`/builder/document/edit/${workflowInfoDetails?._id}?workflow=true&openSignature=true`,
+				);
+				return;
+			}
+		}
+	};
 	return (
 		<>
 			{/* Header Section */}
@@ -232,7 +250,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 					<span className="doc-header-title-container-text">Document Title</span>
 					<span className="doc-header-title">{info?.title}</span>
 				</div>
-				<div className="doc-header-actions">
+				{/* <div className="doc-header-actions">
 					<div className="doc-header-btn" onClick={handleEditClick}>
 						<UserIcon />
 						<span className="doc-header-btn-text">Re-Edit document</span>
@@ -257,7 +275,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 					>
 						<DeleteIcon />
 					</div>
-				</div>
+				</div> */}
 			</div>
 			<div className="doc-info-badge">
 				<div className="doc-info-badge-left">
@@ -272,7 +290,10 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 					style={{
 						cursor: 'pointer',
 					}}
-					onClick={() => {
+					onClick={(e) => {
+						e.preventDefault();
+						e.stopPropagation();
+						handdleIsContractSigned();
 						setInfo((prev) => ({ ...prev, showAcceptDocumentModal: true }));
 					}}
 				>
@@ -281,7 +302,7 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 							<span className="doc-info-badge-accept-text-accepted">Accepted</span>
 						) : (
 						)} */}
-						<span className="doc-info-badge-accept-text-accept">Accept</span>
+						<span className="doc-info-badge-accept-text-accept">Confirm</span>
 					</span>
 				</div>
 			</div>
@@ -493,16 +514,210 @@ const MainDocumentSection = ({ workflowId, templateID }) => {
 
 const ViewDocument = ({ workflowId, templateID }) => {
 	const navigate = useNavigate();
+	const {
+		templates: {
+			workflowInfoDetails,
+			deleteLead,
+			duplicateSmartFile,
+			getWorkflowInfo,
+			smartFileInfo,
+			getSmartFileData,
+			chnageWorkflowStats,
+			moveWorkflowStatus,
+			updateStateValues,
+		},
+	} = useContext(Context);
+	const [info, setInfo] = useState({
+		clientDetails: {},
+		title: '',
+		actions: [],
+		showDeleteModal: false,
+		showDuplicateModal: false,
+		showAcceptDocumentModal: false,
+		showMoveStageModal: false,
+		workflowInfo: null,
+		isShareModalOpen: false,
+		showEditDocumentModal: false,
+	});
+
 	const handleBackToEdit = () => {
 		navigate(`/builder/document/edit/${workflowId}/${templateID}`);
 	};
+
+	const handleEditClick = () => {
+		navigate(`/builder/document/edit/${workflowId}?workflow=true`);
+	};
+
+	const handleShare = () => {
+		setInfo((prev) => ({ ...prev, isShareModalOpen: true }));
+	};
+
+	useEffect(() => {
+		const fetchWorkflowInfo = async () => {
+			const response = await getWorkflowInfo({ workflowInfoId: workflowId });
+			setInfo((prev) => ({ ...prev, workflowInfo: response, isShareModalOpen: false }));
+		};
+		fetchWorkflowInfo();
+	}, [workflowId]);
+	useEffect(() => {
+		if (workflowId && info.isShareModalOpen) {
+			getSmartFileData({ getWorkflowWithModulesId: workflowId });
+		}
+	}, [workflowId, info.isShareModalOpen]);
+	const handleShareClick = () => {
+		setInfo((prev) => ({ ...prev, isShareModalOpen: true }));
+	};
+	const handleCloseShareModal = () => {
+		setInfo((prev) => ({ ...prev, isShareModalOpen: false }));
+	};
+	const handleDelete = async () => {
+		console.log('delete clicked', info.showDeleteModal);
+		console.log('workflowId', workflowId);
+		try {
+			const response = await deleteLead({ deleteWorkflowId: workflowId });
+			if (response?.[0] === true) {
+				message.success('Lead deleted successfully');
+				updateStateValues({ docsFilesRefetch: true });
+				navigate('/files?activeTab=Documents');
+			} else {
+				message.error(response?.[1] || 'Failed to delete lead');
+			}
+		} catch (error) {
+			message.error('An error occurred while deleting the lead');
+		}
+	};
+	const handleDuplicate = async () => {
+		console.log('duplicate clicked', workflowInfoDetails);
+		if (info?.duplicateLoading) return;
+
+		// Try context first
+		let title = workflowInfoDetails?.title;
+		let clientName = workflowInfoDetails?.clientDetails?.name;
+
+		// If missing, fetch from API
+		if (!title || !clientName) {
+			const apiData = await getWorkflowInfo({ workflowInfoId: workflowId });
+			title = apiData?.title;
+			clientName = apiData?.clientDetails?.name;
+		}
+
+		// If still missing, show error
+		if (!title || !clientName) {
+			message.error(
+				'Document title or client name is missing. Please wait for data to load.',
+			);
+			return;
+		}
+
+		setInfo((prev) => ({ ...prev, duplicateLoading: true }));
+		const payload = {
+			duplicateSmartFile: {
+				workflowId: workflowId,
+				title: `Copy of ${title} for ${clientName}`,
+			},
+		};
+		const response = await duplicateSmartFile(payload);
+		const smartFileworkflowId = response?.[1]?.data?.duplicateSmartFile?._id;
+		if (smartFileworkflowId) {
+			setInfo((prev) => ({ ...prev, duplicateLoading: false }));
+			navigate(`/builder/document/edit/${smartFileworkflowId}?workflow=true`);
+		} else {
+			message.error(response?.[1]?.message);
+			setInfo((prev) => ({ ...prev, duplicateLoading: false }));
+		}
+	};
+
+	const handleStatusChange = useCallback(async () => {
+		if (info.workflowInfo?.status === 'enquiry' || info.workflowInfo?.status === 'draft') {
+			await chnageWorkflowStats({ fileSentStatusId: workflowId });
+			const response = await getWorkflowInfo({ workflowInfoId: workflowId });
+			setInfo((prev) => ({ ...prev, workflowInfo: response }));
+		}
+	}, [workflowId, info.workflowInfo?.status, chnageWorkflowStats, getWorkflowInfo]);
+	const updateSmartFileEmailAuth = useCallback((value) => {}, []);
+	const updateSmartFileIsAiChatEnabled = useCallback((value) => {}, []);
+
 	return (
-		<div className="viewDocumentContainer">
-			<div className="back-to-files" onClick={() => navigate('/files?activeTab=Documents')}>
-				<span className="back-arrow">&#8592;</span> Back to Files
+		<>
+			<div className="back-to-files">
+				<span className="back-arrow" onClick={() => navigate('/files?activeTab=Documents')}>
+					&#8592; Back to Files
+				</span>
+				<div className="doc-header-actions">
+					<div className="doc-header-btn" onClick={handleEditClick}>
+						<UserIcon />
+						<span className="doc-header-btn-text">Re-Edit document</span>
+					</div>
+					<div
+						className="doc-header-btn"
+						onClick={() => setInfo((prev) => ({ ...prev, isShareModalOpen: true }))}
+					>
+						<ShareIcon />
+						<span className="doc-header-btn-text">Share</span>
+					</div>
+					<div
+						className="doc-header-btn"
+						onClick={() => setInfo((prev) => ({ ...prev, showDuplicateModal: true }))}
+					>
+						<DuplicateIcon />
+						<span className="doc-header-btn-text">Duplicate</span>
+					</div>
+					<div
+						className="doc-header-btn delete"
+						onClick={() => setInfo((prev) => ({ ...prev, showDeleteModal: true }))}
+					>
+						<DeleteIcon />
+					</div>
+				</div>
 			</div>
-			<MainDocumentSection workflowId={workflowId} templateID={templateID} />
-		</div>
+			<div className="viewDocumentContainer">
+				{/* Add the header actions */}
+
+				<MainDocumentSection workflowId={workflowId} templateID={templateID} />
+				{info.showDeleteModal && (
+					<DeleteLeadModal
+						isOpen={info.showDeleteModal}
+						onClose={() => setInfo((prev) => ({ ...prev, showDeleteModal: false }))}
+						onDelete={handleDelete}
+					/>
+				)}
+				{info.showDuplicateModal && (
+					<DuplicateLeadModal
+						isOpen={info.showDuplicateModal}
+						onClose={() => setInfo((prev) => ({ ...prev, showDuplicateModal: false }))}
+						onDuplicate={handleDuplicate}
+					/>
+				)}
+				{info.isShareModalOpen && (
+					<DocumentShare
+						isOpen={info.isShareModalOpen}
+						onClose={handleCloseShareModal}
+						updateSmartFileEmailAuth={updateSmartFileEmailAuth}
+						updateSmartFileIsAiChatEnabled={updateSmartFileIsAiChatEnabled}
+						onCopy={handleStatusChange}
+						status={info.workflowInfo?.status}
+					/>
+				)}
+				<DuplicateLeadModal
+					open={info.showDuplicateModal}
+					closeModal={() => setInfo((prev) => ({ ...prev, showDuplicateModal: false }))}
+					duplicateLeadFunc={handleDuplicate}
+				/>
+				<DeleteLeadModal
+					open={info.showDeleteModal}
+					closeModal={() => setInfo((prev) => ({ ...prev, showDeleteModal: false }))}
+					deleteLeadFunc={handleDelete}
+				/>
+				<DocumentShare
+					isOpen={info.isShareModalOpen}
+					onClose={handleCloseShareModal}
+					updateSmartFileEmailAuth={updateSmartFileEmailAuth}
+					updateSmartFileIsAiChatEnabled={updateSmartFileIsAiChatEnabled}
+					onCopy={handleStatusChange}
+					status={info.workflowInfo?.status}
+				/>
+			</div>
+		</>
 	);
 };
 
