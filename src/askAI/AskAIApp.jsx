@@ -21,6 +21,8 @@ const AskAIApp = () => {
 	});
 	const containerRef = useRef(null);
 	const expandChatRef = useRef(false);
+	const lastWindowHeightRef = useRef(null);
+	const userResizingRef = useRef(false);
 
 	useEffect(() => {
 		if (!containerRef.current) return;
@@ -29,8 +31,22 @@ const AskAIApp = () => {
 			for (let entry of entries) {
 				// Skip auto-resize if chat is expanded
 				if (expandChatRef.current) return;
+				
+				// Skip if user is manually resizing the window
+				if (userResizingRef.current) return;
 
 				const { height } = entry.contentRect;
+				
+				// Only auto-resize if the content height is significantly different
+				// and smaller than current window height (content shrinking)
+				if (lastWindowHeightRef.current !== null) {
+					const heightDifference = Math.abs(height - lastWindowHeightRef.current);
+					// Only auto-resize if content is shrinking or if it's a significant change
+					if (height >= lastWindowHeightRef.current && heightDifference < 50) {
+						return; // Don't interfere with manual resizing
+					}
+				}
+
 				const updatedHeight = Math.min(height, 600);
 
 				// Only auto-adjust height for content changes, not user resize
@@ -40,6 +56,8 @@ const AskAIApp = () => {
 					height: updatedHeight,
 					position: { isExpanding: false } // Not an expand operation
 				});
+				
+				lastWindowHeightRef.current = updatedHeight;
 			}
 		});
 
@@ -55,6 +73,35 @@ const AskAIApp = () => {
 			handleExpandChat();
 		}
 	}, [info?.expandChat]);
+
+	// Track window resize events to prevent ResizeObserver interference
+	useEffect(() => {
+		let resizeTimeout;
+		
+		const handleWindowResize = () => {
+			userResizingRef.current = true;
+			
+			// Clear any existing timeout
+			if (resizeTimeout) {
+				clearTimeout(resizeTimeout);
+			}
+			
+			// Reset the flag after a delay to allow content-based resizing again
+			resizeTimeout = setTimeout(() => {
+				userResizingRef.current = false;
+			}, 1000); // 1 second delay
+		};
+
+		// Listen for window resize events
+		window.addEventListener('resize', handleWindowResize);
+
+		return () => {
+			window.removeEventListener('resize', handleWindowResize);
+			if (resizeTimeout) {
+				clearTimeout(resizeTimeout);
+			}
+		};
+	}, []);
 
 	// Listen for tab content from overlay
 	useEffect(() => {
@@ -253,6 +300,9 @@ const AskAIApp = () => {
 					height: 600, // Reset to default height
 					position: { isExpanding: false }, // Keep current position but set expanding flag
 				});
+				
+				// Update height reference to prevent ResizeObserver conflicts
+				lastWindowHeightRef.current = 600;
 			}
 			
 			return { ...prev, expandChat: newExpandState };
@@ -265,12 +315,14 @@ const AskAIApp = () => {
 			workarea = await window?.electronApi?.askAI?.getWorkArea();
 		}
 		
-		
 		window?.electronApi?.askAI?.updateDimensions({
 			width: 600,
 			height: workarea.height,
 			position: { x: (workarea.width || 0) - 600, y: 0, isExpanding: true },
 		});
+
+		// Update height reference to match the expanded height
+		lastWindowHeightRef.current = workarea.height;
 
 		if (!info?.workarea) {
 			setInfo((prev) => ({ ...prev, workarea }));
@@ -284,7 +336,6 @@ const AskAIApp = () => {
 			className={`ask-ai-app`}
 			ref={containerRef}
 			style={{
-				maxHeight: info?.expandChat ? 'unset' : '600px',
 				height: info?.expandChat ? '100%' : 'unset',
 			}}
 		>
