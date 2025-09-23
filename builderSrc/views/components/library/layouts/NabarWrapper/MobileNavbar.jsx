@@ -264,16 +264,17 @@ class MobileNavbarComponent extends Component {
 									// }}
 								>
 									{(this.props?.navBar?.style?.downloadIcon ||
-										!_.has(this.props?.navBar?.style, 'downloadIcon')) && 
+										!_.has(this.props?.navBar?.style, 'downloadIcon')) &&
 										!isIOSDevice() && (
-										<div>
-											<DownloadPDF
-												fillColor={
-													this.props?.navBar?.navigationColor || '#000000'
-												}
-											/>
-										</div>
-									)}
+											<div>
+												<DownloadPDF
+													fillColor={
+														this.props?.navBar?.navigationColor ||
+														'#000000'
+													}
+												/>
+											</div>
+										)}
 									{(this.props?.navBar?.style?.showCart ||
 										!_.has(this.props?.navBar?.style, 'showCart')) && (
 										<div>
@@ -614,26 +615,27 @@ class MobileNavbarComponent extends Component {
 							>
 								{/* <DownloadIcon onClick={this.props?.handleDownload} /> */}
 								{(this.props?.navBar?.style?.downloadIcon ||
-									!_.has(this.props?.navBar?.style, 'downloadIcon')) && 
+									!_.has(this.props?.navBar?.style, 'downloadIcon')) &&
 									!isIOSDevice() && (
-									<>
-										<div
-											style={{ cursor: 'pointer' }}
-											onClick={this.props?.handleDownload}
-										>
-											<DownloadPDF
-												fillColor={
-													this.props?.navBar?.navigationColor || '#000000'
-												}
-											/>
-										</div>
+										<>
+											<div
+												style={{ cursor: 'pointer' }}
+												onClick={this.props?.handleDownload}
+											>
+												<DownloadPDF
+													fillColor={
+														this.props?.navBar?.navigationColor ||
+														'#000000'
+													}
+												/>
+											</div>
 
-										{/* {this.props?.navBar?.style?.downloadIcon &&
+											{/* {this.props?.navBar?.style?.downloadIcon &&
 											this.props?.navBar?.style?.cartValue && (
 												<Divider height="20px" />
 											)} */}
-									</>
-								)}
+										</>
+									)}
 								{(this.props?.navBar?.style?.showCart ||
 									!_.has(this.props?.navBar?.style, 'showCart')) && (
 									<>

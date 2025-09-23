@@ -14,6 +14,7 @@ import useMigrationGate from '../../hooks/useMigrationGate';
 import VoiceWrapper from './VoiceWrapper';
 import Context from '../../context/context';
 import useNetworkStatus from '../../hooks/useNetworkStatus';
+import useIntercom from '../../hooks/useIntercom';
 import Offline from '../features/offline/Offline';
 import UnderMaintainence from '../features/underMaintainence/underMaintainence';
 import { internalServerEmitter } from '../../services';
@@ -40,6 +41,9 @@ const AuthWrapper = ({
 	usePushNotifications(showPushNotification);
 	const { authInitialized } = useAuthInitializer();
 	// const { migrationLoading, migrationInProgress } = useMigrationGate();
+
+	// Initialize Intercom for all authenticated users
+	useIntercom();
 
 	const {
 		aiSetup: { showVoiceWidget },
