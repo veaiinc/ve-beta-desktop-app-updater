@@ -1258,6 +1258,30 @@ function createWindow(restoreState = false) {
 		notchDropService.setMainWindow(mainWindow);
 	}
 
+	// Add focus event handler to show permission overlay if needed
+	mainWindow.on('focus', async () => {
+		log.info('Main window focused');
+		// Emit focus event to renderer
+		mainWindow.webContents.send('window-focus');
+		
+		// Check if permissions are missing and show overlay if needed
+		try {
+			const permissionsGranted = await checkAllPermissions();
+			if (!permissionsGranted.allGranted) {
+				log.info('🔍 Main window focused but permissions missing, showing permission overlay');
+				setTimeout(() => {
+					try {
+						windowHelper?.showPermissionWindow();
+					} catch (error) {
+						log.error('❌ Error showing permission overlay on focus:', error);
+					}
+				}, 500);
+			}
+		} catch (error) {
+			log.error('❌ Error checking permissions on window focus:', error);
+		}
+	});
+
 	// Add context menu support for copy/paste functionality
 	mainWindow.webContents.on('context-menu', (event, params) => {
 		const menu = Menu.buildFromTemplate([
@@ -1536,6 +1560,88 @@ if (!gotTheLock) {
 			mainWindow.show();
 		}
 	});
+}
+
+// Function to check permissions and show overlay if needed
+async function checkAndShowPermissionOverlay() {
+	try {
+		log.info('🔍 Checking permissions on app startup...');
+		
+		let needsPermissionOverlay = false;
+		
+		// Check if this is first run or permissions are missing
+		const permissionsGranted = await checkAllPermissions();
+		
+		if (!permissionsGranted.allGranted) {
+			log.info('❌ Some permissions are missing, showing permission overlay');
+			needsPermissionOverlay = true;
+		} else {
+			log.info('✅ All permissions granted, skipping permission overlay');
+		}
+		
+		// Show permission overlay if needed
+		if (needsPermissionOverlay) {
+			setTimeout(() => {
+				try {
+					windowHelper?.showPermissionWindow();
+					log.info('📋 Permission overlay shown automatically');
+				} catch (error) {
+					log.error('❌ Error showing permission overlay:', error);
+				}
+			}, 1000); // Small delay to ensure main window is ready
+		}
+		
+	} catch (error) {
+		log.error('❌ Error checking permissions on startup:', error);
+		// Show overlay on error to be safe
+		setTimeout(() => {
+			try {
+				windowHelper?.showPermissionWindow();
+			} catch (overlayError) {
+				log.error('❌ Error showing permission overlay as fallback:', overlayError);
+			}
+		}, 1000);
+	}
+}
+
+// Function to check all required permissions
+async function checkAllPermissions() {
+	try {
+		const results = {
+			microphone: false,
+			screen: false,
+			camera: false,
+			allGranted: false
+		};
+		
+		// Check microphone permission
+		if (isMacRuntime) {
+			const micStatus = systemPreferences.getMediaAccessStatus('microphone');
+			results.microphone = micStatus === 'granted';
+			
+			const screenStatus = systemPreferences.getMediaAccessStatus('screen');
+			results.screen = screenStatus === 'granted';
+			
+			const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
+			results.camera = cameraStatus === 'granted';
+		} else {
+			// On non-macOS platforms, assume permissions are handled by system
+			results.microphone = true;
+			results.screen = true;
+			results.camera = true;
+		}
+		
+		// All permissions must be granted (for macOS) or we're on non-macOS
+		results.allGranted = results.microphone && results.screen;
+		// Note: Camera is optional for now, only require mic and screen
+		
+		log.info('🔍 Permission check results:', results);
+		return results;
+		
+	} catch (error) {
+		log.error('❌ Error checking all permissions:', error);
+		return { allGranted: false, microphone: false, screen: false, camera: false };
+	}
 }
 
 // App lifecycle
@@ -1889,6 +1995,9 @@ app.whenReady().then(async () => {
 	} catch (error) {
 		log.error('❌ Error pre-creating overlay window:', error);
 	}
+
+	// Check permissions and show permission overlay if needed
+	await checkAndShowPermissionOverlay();
 
 	// Initialize NotchDrop only on Apple Silicon Macs
 	if (isAppleSiliconMac) {
@@ -4116,16 +4225,44 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// Request camera permission handler
+	ipcMain.handle('request-camera-permission', async () => {
+		try {
+			if (isMacRuntime) {
+				// Request camera access (this will show the system dialog)
+				const granted = await systemPreferences.askForMediaAccess('camera');
+				return {
+					success: true,
+					granted: granted,
+				};
+			} else {
+				// For non-macOS platforms, assume permission is available
+				return {
+					success: true,
+					granted: true,
+				};
+			}
+		} catch (error) {
+			log.error('Error requesting camera permission:', error);
+			return {
+				success: false,
+				error: error.message,
+				granted: false,
+			};
+		}
+	});
+
 	// Show camera permission help dialog
 	ipcMain.handle('show-camera-permission-help', async () => {
 		try {
+			log.info('🔧 show-camera-permission-help handler called');
 			if (isMacRuntime) {
 				const result = await dialog.showMessageBox(mainWindow, {
 					type: 'info',
 					title: 'Camera Permission Required',
 					message: 'Camera access is needed for webcam functionality',
-					detail: 'To enable camera access:\n\n1. Go to System Preferences > Security & Privacy > Privacy\n2. Select "Camera" from the left sidebar\n3. Check the box next to this app\n4. Restart the app if needed',
-					buttons: ['Open System Preferences', 'Cancel'],
+					detail: 'To enable camera access:\n\n1. Go to System Settings > Privacy & Security > Camera\n2. Enable access for this app\n3. Restart the app if needed',
+					buttons: ['Open System Settings', 'Cancel'],
 					defaultId: 0,
 					cancelId: 1,
 				});
