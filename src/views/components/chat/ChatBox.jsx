@@ -204,6 +204,7 @@ const ChatBox = ({
 		chatBoxInfo: initialChatBoxInfo,
 		chatboxMinimized: true,
 		chatBoxContainerHeight: 60,
+		stopLoading: false,
 	});
 	const chatBoxWrapperRef = useRef(null);
 	const chatbarContainerRef = useRef(null);
@@ -328,7 +329,11 @@ const ChatBox = ({
 		}
 
 		if (info?.chatLoading !== isStreaming) {
-			setInfo((prev) => ({ ...prev, chatLoading: isStreaming }));
+			setInfo((prev) => ({
+				...prev,
+				chatLoading: isStreaming,
+				...(isStreaming ? {} : { stopLoading: false }),
+			}));
 		}
 
 		if (latestStreamMessage) {
@@ -866,16 +871,6 @@ const ChatBox = ({
 						});
 					}
 
-					if (proactiveInfoForChat) {
-						payload.proactive = true;
-						if (proactiveInfoForChat?.proactiveSessionId) {
-							payload.proactive_id = proactiveInfoForChat?.proactiveSessionId;
-						}
-						updateStateValues({
-							proactiveInfoForChat: null,
-						});
-					}
-
 					if (activeWorkflowSlugForSmartFile) {
 						payload.workflow_slug = activeWorkflowSlugForSmartFile;
 					}
@@ -902,6 +897,17 @@ const ChatBox = ({
 						payload.direct_agent = 'search_agent';
 						updateStateValues({
 							isDirectSearchAgent: false,
+						});
+					}
+					if (proactiveInfoForChat) {
+						payload.proactive = true;
+						if (proactiveInfoForChat?.proactiveSessionId) {
+							payload.proactive_id = proactiveInfoForChat?.proactiveSessionId;
+							payload.module_id = proactiveInfoForChat?.moduleId;
+							payload.screen = proactiveInfoForChat?.screen;
+						}
+						updateStateValues({
+							proactiveInfoForChat: null,
 						});
 					}
 
@@ -1682,6 +1688,25 @@ const ChatBox = ({
 		}
 	};
 
+	const handleStopCurrentChatStream = useCallback(() => {
+		// Prevent rage clicks: ignore if already stopping or not streaming
+		if (!info?.chatLoading || info?.stopLoading) return;
+		setInfo((prev) => ({ ...prev, stopLoading: true }));
+		try {
+			const payload = { action: 'stop' };
+			if (handleSendWebsocketMessage) {
+				// Keep arguments consistent with other usages in this component
+				handleSendWebsocketMessage(payload, '', '', info?.chatSessionId);
+			} else {
+				// Fallback (avoid if possible): do not close connection unless no sender is available
+				// handleStopChatStream();
+			}
+		} catch (error) {
+			console.error('Failed to send stop action:', error);
+			setInfo((prev) => ({ ...prev, stopLoading: false }));
+		}
+	}, [handleSendWebsocketMessage, info?.chatSessionId, info?.chatLoading, info?.stopLoading]);
+
 	return (
 		<div className="chatBoxParentWrapper" ref={chatBoxWrapperRef} onClick={handleChatBoxClick}>
 			<div className="chatbarContainer" ref={chatbarContainerRef}>
@@ -1920,77 +1945,102 @@ const ChatBox = ({
 						</div>
 					</div>
 
-					<div className="buttons-right-container">
-						{/* Separate Speech-to-Text Button */}
-						{showMicBtn && (
-							<div
-								className={`click-btn speech-to-text-btn ${
-									isTranscribing ? 'transcribing' : ''
-								}`}
-								onClick={(e) => {
-									e.stopPropagation();
-									handleMicIconClick(e);
-								}}
-								style={{
-									backgroundColor: isTranscribing ? 'var(--error-color)' : 'none',
-								}}
-								title={isTranscribing ? 'Stop Recording' : 'Start Speech-to-Text'}
+					{info?.chatLoading ? (
+						<div className="buttons-right-container">
+							<button
+								className="stop-button"
+								onClick={handleStopCurrentChatStream}
+								disabled={info?.stopLoading}
+								title={info?.stopLoading ? 'Stopping…' : 'Stop generation'}
 							>
-								{isTranscribing ? (
-									<StopIconSvg className="voice-icon" />
-								) : (
-									<SpeechMicSvg className="voice-icon" />
-								)}
-							</div>
-						)}
+								<div className="stop-button-square"></div>
+							</button>
+						</div>
+					) : (
+						<div className="buttons-right-container">
+							{/* Separate Speech-to-Text Button */}
+							{showMicBtn && (
+								<div
+									className={`click-btn speech-to-text-btn ${
+										isTranscribing ? 'transcribing' : ''
+									}`}
+									onClick={(e) => {
+										e.stopPropagation();
+										handleMicIconClick(e);
+									}}
+									style={{
+										backgroundColor: isTranscribing
+											? 'var(--error-color)'
+											: 'none',
+									}}
+									title={
+										isTranscribing ? 'Stop Recording' : 'Start Speech-to-Text'
+									}
+								>
+									{isTranscribing ? (
+										<StopIconSvg className="voice-icon" />
+									) : (
+										<SpeechMicSvg className="voice-icon" />
+									)}
+								</div>
+							)}
 
-						{isDesktopApp ? (
-							<div
-								className={`click-btn voice-agent-btn ${
-									info?.chatQuery?.trim()?.length > 0 ? 'active' : ''
-								}`}
-								onClick={(e) => {
-									e.stopPropagation();
-									if (info?.chatLoading) {
-										handleStopChatStream();
-									} else {
-										handleSendBtnClick(e);
-									}
-								}}
-							>
-								{info?.chatLoading ? (
-									<div className="stop-chat-icon"></div>
-								) : (
-									<ArrowUp className="voice-wave-icon" width={16} height={16} />
-								)}
-							</div>
-						) : (
-							<div
-								className={`click-btn voice-agent-btn ${
-									info?.chatQuery?.trim()?.length > 0 ? 'active' : ''
-								}`}
-								onClick={(e) => {
-									e.stopPropagation();
-									if (info?.chatQuery?.trim()?.length > 0) {
-										handleSendBtnClick(e);
-									} else {
-										if (info?.voiceIntegration) return;
-										handleVoiceAgentClick(e);
-									}
-								}}
-							>
-								{info?.chatQuery?.trim()?.length > 0 ? (
-									<ArrowUp className="voice-wave-icon" width={16} height={16} />
-								) : (
-									<VoiceAgentSvg
-										className="voice-wave-icon"
-										width={18}
-										height={18}
-									/>
-								)}
-							</div>
-						)}
-					</div>
+							{isDesktopApp ? (
+								<div
+									className={`click-btn voice-agent-btn ${
+										info?.chatQuery?.trim()?.length > 0 ? 'active' : ''
+									}`}
+									onClick={(e) => {
+										e.stopPropagation();
+										if (info?.chatLoading) {
+											if (!info?.stopLoading) handleStopCurrentChatStream();
+										} else {
+											handleSendBtnClick(e);
+										}
+									}}
+								>
+									{info?.chatLoading ? (
+										<div className="stop-chat-icon"></div>
+									) : (
+										<ArrowUp
+											className="voice-wave-icon"
+											width={16}
+											height={16}
+										/>
+									)}
+								</div>
+							) : (
+								<div
+									className={`click-btn voice-agent-btn ${
+										info?.chatQuery?.trim()?.length > 0 ? 'active' : ''
+									}`}
+									onClick={(e) => {
+										e.stopPropagation();
+										if (info?.chatQuery?.trim()?.length > 0) {
+											handleSendBtnClick(e);
+										} else {
+											if (info?.voiceIntegration) return;
+											handleVoiceAgentClick(e);
+										}
+									}}
+								>
+									{info?.chatQuery?.trim()?.length > 0 ? (
+										<ArrowUp
+											className="voice-wave-icon"
+											width={16}
+											height={16}
+										/>
+									) : (
+										<VoiceAgentSvg
+											className="voice-wave-icon"
+											width={18}
+											height={18}
+										/>
+									)}
+								</div>
+							)}
+						</div>
+					)}
 				</div>
 			</div>
 

@@ -140,7 +140,9 @@ const TranscriptionTabs = ({
 						onClick={() => setActiveTab('userQuestions')}
 					>
 						<UserIcon />
-						Ask user
+						{/* Ask user
+						 */}
+						Ask Speaker
 						<div className={s.tabButtonCount}>{userQuestions?.length}</div>
 					</button>
 				)}
@@ -155,7 +157,7 @@ const TranscriptionTabs = ({
 						onClick={() => setActiveTab('aiQuestions')}
 					>
 						<NeedHelpIcon />
-						Need help?
+						Ask AI
 						<div className={s.tabButtonCount}>{aiQuestions?.length}</div>
 					</button>
 				)}
