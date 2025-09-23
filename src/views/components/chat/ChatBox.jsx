@@ -166,11 +166,11 @@ const ChatBox = ({
 			isBrowserScreenActive,
 		},
 		chatBoxSuggestionsSocket: { sendMessage, closeWebSocketConnection },
+		chatStream: { createWebSocketConnection },
 		subscriptionInfo: { currentPlan, getCurrentSubscriptionPlan },
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
 		aiSetup: { voiceIntegrationData, updateAiChatSessions, aiChatSessions, updateAiSetupState },
-		// notes: { getLiveKitToken },
 		profileInfo: { tenantSettinsData },
 	} = useContext(Context);
 
@@ -204,6 +204,7 @@ const ChatBox = ({
 		chatboxMinimized: true,
 		chatBoxContainerHeight: 60,
 		stopLoading: false,
+		chatSocketConnectionAttempted: false,
 	});
 	const chatBoxWrapperRef = useRef(null);
 	const chatbarContainerRef = useRef(null);
@@ -430,6 +431,16 @@ const ChatBox = ({
 			handleTextAreaChange({}, info.chatQuery);
 		}
 		isTypingRef.current = false;
+
+		if (
+			info?.chatQuery?.length > 0 &&
+			!info?.chatSocketConnectionAttempted &&
+			info?.chatSessionId
+		) {
+			const agentType = globalChatMessages?.[sessionId]?.chatInfo?.agentType ?? null;
+			createWebSocketConnection({ sessionId: info?.chatSessionId, isPublicChat, agentType });
+			setInfo((prev) => ({ ...prev, chatSocketConnectionAttempted: true }));
+		}
 
 		if (
 			info?.chatQuery?.length > 0 &&

@@ -80,12 +80,12 @@ export const ChatStreamState = () => {
 							'Connection closed, attempting to reconnect...',
 							socketRefs.current[sessionId],
 						);
-						createWebSocketConnection(
+						createWebSocketConnection({
 							sessionId,
 							onMessageFunc,
 							agentType,
 							isPublicChat,
-						);
+						});
 						attempts++;
 						setTimeout(attemptSend, RETRY_DELAY);
 						return;
@@ -117,30 +117,33 @@ export const ChatStreamState = () => {
 		[resetInactivityTimeout],
 	);
 	const createWebSocketConnection = useCallback(
-		async (sessionId, onMessageFunc, agentType, isPublicChat = false) => {
+		async ({ sessionId, onMessageFunc, agentType, isPublicChat = false }) => {
 			if (!sessionId) {
 				return;
 			}
 
 			currentSessionIdRef.current = sessionId;
-			if (socketRefs.current[sessionId]) {
+			if (
+				socketRefs.current[sessionId] &&
+				socketRefs.current[sessionId].readyState === WebSocket.OPEN
+			) {
 				return;
 			}
 
 			const agent = agentTypeMap[agentType] || 'multi_agent_chat_streaming';
+
 			socketsInfoRef.current[sessionId] = {
-				agentType,
+				...(socketsInfoRef.current[sessionId] || {}),
+				...(agentType && { agentType }),
+				...(onMessageFunc && { onMessageFunc }),
 				isPublicChat,
-				onMessageFunc,
 			};
 
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
-			// const { chat_ws_api, chat_ws_api_US, guest_chat_ws_api, guest_chat_ws_api_US } = config;
 			const region = Cookies.get('region') || localStorage.getItem('region') || 'us-east-1';
 			const type = 'chat_ws_api';
 			const chat_ws_api = getBaseUrl({ region, type });
-			// `https://direct-garfish-smooth.ngrok-free.app`
 			let baseUrl = `${chat_ws_api}/${workspaceId}/${sessionId}/${agent}?token=${usertoken}`;
 
 			if (isPublicChat) {
@@ -158,6 +161,13 @@ export const ChatStreamState = () => {
 
 			socketRefs.current[sessionId].onclose = () => {
 				console.log('Disconnected from WebSocket server');
+				if (inactivityTimeoutRef.current) {
+					clearTimeout(inactivityTimeoutRef.current);
+				}
+			};
+
+			socketRefs.current[sessionId].onerror = (e) => {
+				console.log('Error from socket', e);
 				if (inactivityTimeoutRef.current) {
 					clearTimeout(inactivityTimeoutRef.current);
 				}
