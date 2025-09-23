@@ -1264,11 +1264,14 @@ function createWindow(restoreState = false) {
 		y: windowBounds.y,
 		show: false,
 		icon: iconPath,
+		backgroundColor: '#1a1a1a', // Set dark background to prevent white flash
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
 			nodeIntegration: false,
 			contextIsolation: true,
 			devTools: true, // Enable developer tools in production
+			webSecurity: true,
+			allowRunningInsecureContent: false,
 		},
 	});
 
@@ -1401,13 +1404,41 @@ function createWindow(restoreState = false) {
 		}
 	});
 
-	if (process.env.VITE_DEV_SERVER_URL) {
-		mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
-	} else {
-		mainWindow.loadFile('build/index.html');
-	}
+	// Enhanced file loading with error handling and verification
+	const loadMainWindow = async () => {
+		try {
+			if (process.env.VITE_DEV_SERVER_URL) {
+				log.info('🔗 Loading development server URL:', process.env.VITE_DEV_SERVER_URL);
+				await mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
+			} else {
+				// Verify build file exists before loading
+				const buildPath = path.join(__dirname, '..', 'build', 'index.html');
+				if (fs.existsSync(buildPath)) {
+					log.info('📁 Loading production build file:', buildPath);
+					await mainWindow.loadFile(buildPath);
+				} else {
+					log.error('❌ Build file not found:', buildPath);
+					// Show error page or fallback
+					mainWindow.loadURL(
+						'data:text/html,<html><body style="background:#1a1a1a;color:#fff;font-family:Arial;padding:20px;"><h1>Ve.AI</h1><p>Application is loading...</p><p>If this persists, please restart the application.</p></body></html>',
+					);
+				}
+			}
+		} catch (error) {
+			log.error('❌ Failed to load main window:', error);
+			// Show error page
+			mainWindow.loadURL(
+				'data:text/html,<html><body style="background:#1a1a1a;color:#fff;font-family:Arial;padding:20px;"><h1>Ve.AI</h1><p>Failed to load application.</p><p>Please restart the application.</p></body></html>',
+			);
+		}
+	};
 
+	// Load the main window
+	loadMainWindow();
+
+	// Enhanced ready-to-show with better error handling
 	mainWindow.once('ready-to-show', () => {
+		log.info('✅ Main window ready to show');
 		mainWindow.show();
 
 		// If restoring state, navigate to the last known route
@@ -1417,6 +1448,36 @@ function createWindow(restoreState = false) {
 				log.info('Window state restoration message sent:', lastWindowState);
 			}, 1000); // Wait a bit for the app to fully load
 		}
+	});
+
+	// Add error handling for failed loads
+	mainWindow.webContents.on(
+		'did-fail-load',
+		(event, errorCode, errorDescription, validatedURL) => {
+			log.error(
+				'❌ Failed to load URL:',
+				validatedURL,
+				'Error:',
+				errorCode,
+				errorDescription,
+			);
+
+			// Show user-friendly error page
+			mainWindow.loadURL(
+				'data:text/html,<html><body style="background:#1a1a1a;color:#fff;font-family:Arial;padding:20px;text-align:center;"><h1>Ve.AI</h1><p>Application failed to load.</p><p>Error: ' +
+					errorDescription +
+					'</p><p>Please restart the application.</p></body></html>',
+			);
+		},
+	);
+
+	// Add loading progress tracking
+	mainWindow.webContents.on('did-start-loading', () => {
+		log.info('🔄 Started loading main window');
+	});
+
+	mainWindow.webContents.on('did-finish-load', () => {
+		log.info('✅ Finished loading main window');
 	});
 
 	// Save window state before closing (cross-platform)
@@ -2017,52 +2078,44 @@ app.whenReady().then(async () => {
 	// Check permissions and show permission overlay if needed
 	await checkAndShowPermissionOverlay();
 
-	// Initialize NotchDrop only on Apple Silicon Macs
-	if (isAppleSiliconMac) {
-		log.info('Initializing NotchDrop service for Apple Silicon Mac');
-		notchDropService = new NotchDropService();
-		notchDropService.setMainWindow(mainWindow);
-		notchDropService.setMainWindowFactory((restoreState = false) => createWindow(restoreState));
-		notchDropService.setStealthModeController({
-			toggle: toggleContentProtection,
-			getStatus: getContentProtectionStatus,
-			setStatus: setContentProtection,
-		});
+	// Initialize NotchDrop asynchronously to prevent blocking main window
+	const initializeNotchDropAsync = async () => {
+		if (isAppleSiliconMac) {
+			log.info('Initializing NotchDrop service for Apple Silicon Mac (async)');
+			notchDropService = new NotchDropService();
+			notchDropService.setMainWindow(mainWindow);
+			notchDropService.setMainWindowFactory((restoreState = false) =>
+				createWindow(restoreState),
+			);
+			notchDropService.setStealthModeController({
+				toggle: toggleContentProtection,
+				getStatus: getContentProtectionStatus,
+				setStatus: setContentProtection,
+			});
 
-		// CRITICAL: Ensure NotchDrop service fully initializes before proceeding
-		let notchDropInitialized = false;
-		let initRetries = 0;
-		const maxInitRetries = 5;
-
-		while (!notchDropInitialized && initRetries < maxInitRetries) {
+			// Initialize NotchDrop in background without blocking main window
 			try {
 				await notchDropService.initialize();
-
-				// Verify service is truly ready
-				if (notchDropService && notchDropService.isInitialized) {
-					notchDropInitialized = true;
-				} else {
-					throw new Error('NotchDrop service initialization incomplete');
-				}
+				log.info('✅ NotchDrop service initialized successfully');
 			} catch (error) {
-				initRetries++;
-
-				if (initRetries < maxInitRetries) {
-					await new Promise((resolve) => setTimeout(resolve, 1000 * initRetries)); // Exponential backoff
-				} else {
-					log.error('❌ NotchDrop service failed to initialize after maximum retries');
-					// Continue anyway but log the issue
-					notchDropInitialized = true; // Allow app to continue
-				}
+				log.error('❌ NotchDrop service initialization failed:', error);
+				// Continue without NotchDrop - app should still work
 			}
+		} else if (isIntelMac) {
+			log.info(
+				'Skipping NotchDrop initialization on Intel Mac (using Dynamic Island instead)',
+			);
+		} else {
+			log.info(
+				'Skipping NotchDrop initialization on non-Mac platform (using Dynamic Island instead)',
+			);
 		}
-	} else if (isIntelMac) {
-		log.info('Skipping NotchDrop initialization on Intel Mac (using Dynamic Island instead)');
-	} else {
-		log.info(
-			'Skipping NotchDrop initialization on non-Mac platform (using Dynamic Island instead)',
-		);
-	}
+	};
+
+	// Start NotchDrop initialization in background (non-blocking)
+	initializeNotchDropAsync().catch((error) => {
+		log.error('❌ NotchDrop async initialization failed:', error);
+	});
 
 	await new Promise((resolve) => setTimeout(resolve, 1500)); // Give bridge time to initialize
 
