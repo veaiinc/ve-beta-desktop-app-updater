@@ -544,6 +544,11 @@ export const getWorkflowInfoQuery = gql`
 		workflowInfo(id: $workflowInfoId)
 	}
 `;
+export const updateWorkflowInfoQuery = gql`
+	mutation UpdateWorkflow($updateWorkflowId: ID!, $updateWorkflowInput: UpdateWorkflowInput) {
+		updateWorkflow(id: $updateWorkflowId, updateWorkflowInput: $updateWorkflowInput)
+	}
+`;
 
 export const getSmartFileActivityQuery = gql`
 	query GetSmartFileSummary($workflowId: ID!) {
