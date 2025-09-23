@@ -30,14 +30,18 @@ const deepLinkUrl = 'veai://open';
 const isMac =
 	navigator.userAgentData?.platform === 'macOS' ||
 	navigator.userAgent.toLowerCase().indexOf('mac') !== -1;
-const isMacIntel64 =
-	navigator.userAgent.includes('Macintosh') &&
-	navigator.userAgent.includes('Intel') &&
-	navigator.userAgent.includes('x86_64');
+// const isMacIntel64 =
+// 	navigator.userAgent.includes('Macintosh') &&
+// 	navigator.userAgent.includes('Intel') &&
+// 	navigator.userAgent.includes('x86_64');
 
-const desktopAppDownloadUrl = isMacIntel64
-	? import.meta.env.VITE_APP_DESKTOP_APP_MACINTEL64_DOWNLOAD_URL
-	: import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
+const isMacArm64 = await navigator.userAgentData
+	.getHighEntropyValues(['architecture'])
+	.then((ua) => ua.architecture === 'arm');
+
+const desktopAppDownloadUrl = isMacArm64
+	? import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL
+	: import.meta.env.VITE_APP_DESKTOP_APP_MACINTEL64_DOWNLOAD_URL || null;
 
 export const settingsItems = [
 	{
