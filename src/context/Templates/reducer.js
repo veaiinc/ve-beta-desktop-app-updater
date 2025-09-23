@@ -500,9 +500,11 @@ const actionHandlers = {
 						(message?.message || '') +
 						(typeof payload?.answer === 'object'
 							? payload?.answer?.final_report || ''
-							: payload?.answer || ''),
+							: payload?.answer ?? payload?.response ?? ''),
 					deepResearch,
 					messageId: payload?.message_id,
+					status: payload?.status,
+					response: payload?.response,
 				};
 			} else if (cot === 'chain_of_thought' || payload?.step || payload?.reading) {
 				let chainOfThought = [...(message?.chainOfThought || [])];
@@ -524,9 +526,12 @@ const actionHandlers = {
 				messages[requiredIndex] = {
 					...message,
 					...payload,
-					message: (message?.message || '') + (payload?.answer || ''),
+					message:
+						(message?.message || '') + (payload?.answer ?? payload?.response ?? ''),
 					messageId: payload?.message_id,
 					chainOfThought,
+					status: payload?.status,
+					response: payload?.response,
 				};
 			} else {
 				const { toolType, planType } = payload;
@@ -549,9 +554,12 @@ const actionHandlers = {
 				messages[requiredIndex] = {
 					...message,
 					...payload,
-					message: (message?.message || '') + (payload?.answer || ''),
+					message:
+						(message?.message || '') + (payload?.answer ?? payload?.response ?? ''),
 					messageId: payload?.message_id,
 					...(hasBrowserChainOfThought && { browserChainOfThought }),
+					status: payload?.status,
+					response: payload?.response,
 				};
 			}
 		} else {
@@ -563,9 +571,11 @@ const actionHandlers = {
 				...payload,
 				type: 'AI',
 				contentType: 'message',
-				message: payload?.answer || '',
+				message: payload?.answer ?? payload?.response ?? '',
 				messageId: payload?.message_id,
 				chainOfThought,
+				status: payload?.status,
+				response: payload?.response,
 			});
 		}
 

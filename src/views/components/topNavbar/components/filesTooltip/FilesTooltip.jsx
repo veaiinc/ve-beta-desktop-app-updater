@@ -1,3 +1,4 @@
+import { useContext, useEffect } from 'react';
 import s from './filesTooltip.module.scss';
 import { ReactComponent as Documents } from './assets/documents.svg';
 import { ReactComponent as Forms } from './assets/forms.svg';
@@ -5,8 +6,16 @@ import { ReactComponent as Templates } from './assets/templates.svg';
 import { ReactComponent as Sites } from './assets/sites.svg';
 import { ReactComponent as Gallery } from './assets/gallery.svg';
 import { ReactComponent as NotesIcon } from './assets/noteIcon.svg';
-
+import Context from '../../../../../context/context';
 import { useNavigate } from 'react-router-dom';
+
+export const fileLabelToAppName = {
+	Documents: 'fileManager',
+	Forms: 'form',
+	Gallery: ['liteGallery', 'classicGallery'],
+	Templates: 'template',
+	Notes: 'note',
+};
 
 const files = [
 	{
@@ -56,31 +65,63 @@ const files = [
 const FilesTooltip = ({ closeTooltip }) => {
 	const region = localStorage.getItem('region');
 	const navigate = useNavigate();
+	const {
+		profileInfo: { tenantUserAccessControls, getTenantUserAccessControls },
+	} = useContext(Context);
+
+	useEffect(() => {
+		if (!tenantUserAccessControls) {
+			getTenantUserAccessControls();
+		}
+	}, [tenantUserAccessControls]);
+
+	const accessControls = tenantUserAccessControls?.accessControls;
+	const userRole = tenantUserAccessControls?.role;
+	const appsMap = Array.isArray(accessControls)
+		? accessControls.reduce((acc, { app, isEnabled }) => {
+				if (app) acc[app] = isEnabled;
+				return acc;
+		  }, {})
+		: {};
+
+	const shouldShowFile = (fileLabel) => {
+		if (userRole !== 'default' || fileLabel === 'Sites') return true;
+
+		const appNames = fileLabelToAppName[fileLabel];
+		if (!appNames) return false;
+
+		return [appNames].flat().some((name) => appsMap[name]);
+	};
+
+	const visibleFiles = files.filter((file) => shouldShowFile(file.label));
+	const noFiles = visibleFiles.length === 0;
 
 	return (
-		<div
-			className={s.filesTooltipContainer}
-			style={region === 'ap-south-1' ? { left: '-12px' } : { left: '-226px' }}
-		>
-			{files.map((file) => (
-				<div
-					key={file.id}
-					className={s.fileContainer}
-					onClick={() => {
-						if (file.link) {
-							navigate(file.link);
-						}
-						closeTooltip();
-					}}
-				>
-					<div className={s.fileIcon}>{file.icon}</div>
-					<div className={s.fileInfo}>
-						<h3 className={s.fileLabel}>{file.label}</h3>
-						{/* <p className={s.fileDescription}>{file.description}</p> */}
+		!noFiles && (
+			<div
+				className={s.filesTooltipContainer}
+				style={region === 'ap-south-1' ? { left: '-12px' } : { left: '-226px' }}
+			>
+				{visibleFiles.map((file) => (
+					<div
+						key={file.id}
+						className={s.fileContainer}
+						onClick={() => {
+							if (file.link) {
+								navigate(file.link);
+							}
+							closeTooltip();
+						}}
+					>
+						<div className={s.fileIcon}>{file.icon}</div>
+						<div className={s.fileInfo}>
+							<h3 className={s.fileLabel}>{file.label}</h3>
+							{/* <p className={s.fileDescription}>{file.description}</p> */}
+						</div>
 					</div>
-				</div>
-			))}
-		</div>
+				))}
+			</div>
+		)
 	);
 };
 

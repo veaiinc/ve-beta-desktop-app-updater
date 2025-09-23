@@ -130,7 +130,6 @@ export default class InvoiceCardPopup extends Images {
 				const blob = new Blob(byteArrays, { type: 'image/jpeg' });
 				file = new File([blob], 'ai-generated-image.jpg', { type: 'image/jpeg' });
 			} catch (error) {
-				
 				return;
 			}
 		} else {
@@ -408,7 +407,7 @@ export default class InvoiceCardPopup extends Images {
 				},
 			};
 		}
-		
+
 		this.setState(
 			{ activeComponent: newComponent, activeBgtype: newComponent?.style?.backgroundType },
 			() => {
@@ -439,7 +438,7 @@ export default class InvoiceCardPopup extends Images {
 				labels: { ...newComponent?.style?.labels, [type]: value },
 			},
 		};
-		
+
 		this.setState({ activeComponent: newComponent }, () => {
 			this.props?.handleCardPopupProps(newComponent);
 		});
