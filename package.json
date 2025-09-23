@@ -13,12 +13,8 @@
 		"postinstall:win": "npm rebuild sharp --platform=win32 --arch=x64",
 		"dev": "npm run build:notchdrop:all && cross-env NODE_ENV=development npm run clean:build:dev && vite",
 		"clean:build:dev": "rimraf dist-electron build",
-		"dev:swift": "node scripts/dev-with-swift-watch.js",
-		"dev:swift:shell": "bash scripts/dev-swift-watch.sh",
-		"dev:swift:watch-only": "node scripts/swift-watcher.js",
 		"dev:win": "set NODE_ENV=development && npm run clean:build:win && vite",
 		"dev:win:no-clean": "set NODE_ENV=development && vite",
-		"start": "electron .",
 		"build": "npm run build:notchdrop:all && cross-env NODE_ENV=production node --max-old-space-size=12288 node_modules/vite/bin/vite.js build --mode production",
 		"build:win": "set NODE_ENV=production && node --max-old-space-size=12288 node_modules/vite/bin/vite.js build --mode production",
 		"package": "npm run clean:build:cross && npm run build && electron-builder",
@@ -53,12 +49,8 @@
 		"clean:build:cross": "rimraf dist-electron build dist",
 		"rebuild:native:mac": "electron-builder install-app-deps && npx electron-rebuild -f -w notchdrop-addon",
 		"validate:notchdrop": "node scripts/validate-notchdrop.js",
-		"release:patch": "node scripts/trigger-release.js patch",
-		"release:minor": "node scripts/trigger-release.js minor",
-		"release:major": "node scripts/trigger-release.js major",
-		"release:quick": "node scripts/trigger-release.js quick",
-		"release:test": "node scripts/trigger-release.js test",
-		"sync:releases": "bash scripts/sync-releases-remote.sh"
+		"release:dmg": "npm run clean:build:cross && npm run build && npm run rebuild:native:mac && electron-builder --mac --publish always",
+		"release:auto": "bash scripts/release-dmg.sh"
 	},
 	"dependencies": {
 		"dotenv": "^17.2.2",

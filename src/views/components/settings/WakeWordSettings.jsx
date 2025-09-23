@@ -1,31 +1,35 @@
+// WAKE WORD FUNCTIONALITY DISABLED FOR BUILD
 import React from 'react';
-import { useWakeWord } from '../../../hooks/useWakeWord';
+// import { useWakeWord } from '../../../hooks/useWakeWord';
 
 const WakeWordSettings = () => {
-	const { isEnabled, isDetecting, startDetection, stopDetection, checkStatus } = useWakeWord();
+	// const { isEnabled, isDetecting, startDetection, stopDetection, checkStatus } = useWakeWord();
 
-	const handleToggle = async () => {
-		if (isEnabled) {
-			await stopDetection();
-		} else {
-			await startDetection();
-		}
-	};
+	// const handleToggle = async () => {
+	// 	if (isEnabled) {
+	// 		await stopDetection();
+	// 	} else {
+	// 		await startDetection();
+	// 	}
+	// };
 
 	return (
 		<div className="wake-word-settings">
 			<h3>Wake Word Detection</h3>
-			<p>Say "Hey Ve" to activate the AI assistant</p>
+			<p style={{ color: '#666', fontStyle: 'italic' }}>
+				Wake word functionality is currently disabled for this build
+			</p>
 
 			<div className="settings-controls">
 				<button
-					onClick={handleToggle}
-					className={`toggle-btn ${isEnabled ? 'enabled' : 'disabled'}`}
+					disabled
+					className="toggle-btn disabled"
+					style={{ opacity: 0.5, cursor: 'not-allowed' }}
 				>
-					{isEnabled ? 'Disable' : 'Enable'} Wake Word
+					Wake Word Disabled
 				</button>
 
-				<div className="status">Status: {isDetecting ? 'Listening...' : 'Stopped'}</div>
+				<div className="status">Status: Disabled</div>
 			</div>
 		</div>
 	);
