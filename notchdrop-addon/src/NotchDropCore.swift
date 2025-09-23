@@ -4,7 +4,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 import Combine
 
-// MARK: - Custom Non-activating Panel
+// MARK: - Custom Panel for NotchDrop
 class NotchDropPanel: NSPanel {
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { false }
@@ -23,8 +23,18 @@ class NotchDropPanel: NSPanel {
     }
 
     override func makeFirstResponder(_ responder: NSResponder?) -> Bool {
-        // Keep SwiftUI text inputs responsive without forcing the app to activate
+        // Allow SwiftUI text inputs to receive focus properly
         return super.makeFirstResponder(responder)
+    }
+    
+    override func becomeKey() {
+        super.becomeKey()
+        // Ensure the window can receive keyboard input for text fields
+    }
+    
+    override func resignKey() {
+        super.resignKey()
+        // Handle focus loss gracefully
     }
 }
 
@@ -88,7 +98,6 @@ class NotchDropPanel: NSPanel {
         let panelStyle: NSWindow.StyleMask = [
             .borderless,
             .fullSizeContentView,
-            .nonactivatingPanel,
         ]
 
         notchWindow = NotchDropPanel(
