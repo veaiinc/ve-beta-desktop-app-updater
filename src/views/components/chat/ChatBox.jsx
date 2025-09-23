@@ -165,7 +165,6 @@ const ChatBox = ({
 			isDirectSearchAgent,
 			isBrowserScreenActive,
 		},
-		chatStream: { closeWebSocketConnection: closeChatWebSocketConnection },
 		chatBoxSuggestionsSocket: { sendMessage, closeWebSocketConnection },
 		subscriptionInfo: { currentPlan, getCurrentSubscriptionPlan },
 		calendarInfo: { updateCalendarState },
@@ -529,7 +528,7 @@ const ChatBox = ({
 
 			const { payload, localPayload, currentQuery, recentFiles = [] } = activePayloadForChat;
 			if (handleSendWebsocketMessage) {
-				handleSendWebsocketMessage(payload, currentQuery, '', info?.chatSessionId);
+				handleSendWebsocketMessage(payload, currentQuery);
 			}
 
 			handleStreamSendMessage(payload, localPayload, currentQuery, info?.chatSessionId);
@@ -1689,17 +1688,6 @@ const ChatBox = ({
 		[updateAiSetupState],
 	);
 
-	const handleStopChatStream = () => {
-		if (info?.chatSessionId) {
-			closeChatWebSocketConnection([info?.chatSessionId]);
-			handleGlobalChatMessages({
-				sessionId: info?.chatSessionId,
-				removeStreaming: true,
-				updateExtraInfo: true,
-			});
-		}
-	};
-
 	const handleStopCurrentChatStream = useCallback(() => {
 		// Prevent rage clicks: ignore if already stopping or not streaming
 		if (!info?.chatLoading || info?.stopLoading) return;
@@ -1708,7 +1696,7 @@ const ChatBox = ({
 			const payload = { action: 'stop' };
 			if (handleSendWebsocketMessage) {
 				// Keep arguments consistent with other usages in this component
-				handleSendWebsocketMessage(payload, '', '', info?.chatSessionId);
+				handleSendWebsocketMessage(payload, '');
 			} else {
 				// Fallback (avoid if possible): do not close connection unless no sender is available
 				// handleStopChatStream();
@@ -2004,22 +1992,10 @@ const ChatBox = ({
 									}`}
 									onClick={(e) => {
 										e.stopPropagation();
-										if (info?.chatLoading) {
-											if (!info?.stopLoading) handleStopCurrentChatStream();
-										} else {
-											handleSendBtnClick(e);
-										}
+										handleSendBtnClick(e);
 									}}
 								>
-									{info?.chatLoading ? (
-										<div className="stop-chat-icon"></div>
-									) : (
-										<ArrowUp
-											className="voice-wave-icon"
-											width={16}
-											height={16}
-										/>
-									)}
+									<ArrowUp className="voice-wave-icon" width={16} height={16} />
 								</div>
 							) : (
 								<div

@@ -600,7 +600,6 @@ const RecentChat = ({
 					},
 					{
 						message: response,
-						response,
 						status,
 						type: 'AI',
 						messageId,
@@ -844,14 +843,16 @@ const RecentChat = ({
 		async (data, lastQuery) => {
 			try {
 				await sendMessage({ data, sessionId, onMessageFunc, isPublicChat, agentType });
-				setTimeout(() => {
-					smoothScrollToLastMessage();
-				}, 0);
-				handleGlobalChatMessages({
-					sessionId,
-					lastQuery,
-					updateExtraInfo: true,
-				});
+				if (data?.action !== 'stop') {
+					setTimeout(() => {
+						smoothScrollToLastMessage();
+					}, 0);
+					handleGlobalChatMessages({
+						sessionId,
+						lastQuery,
+						updateExtraInfo: true,
+					});
+				}
 			} catch (error) {
 				const info = typeof error?.message === 'string' ? error?.message || '' : '';
 				message.error(info);
@@ -862,8 +863,6 @@ const RecentChat = ({
 					updateExtraInfo: true,
 					removeStreaming: true,
 				});
-
-				// Handle error appropriately (show notification, etc.)
 			}
 		},
 		[sendMessage, sessionId, onMessageFunc, agentType, isPublicChat],

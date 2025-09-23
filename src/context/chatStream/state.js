@@ -50,11 +50,12 @@ export const ChatStreamState = () => {
 	}, []);
 
 	const sendMessage = useCallback(
-		({ data, sessionId, onMessageFunc, isPublicChat, agentType }) => {
+		({ data, sessionId, onMessageFunc, isPublicChat = false, agentType }) => {
 			socketsInfoRef.current[sessionId] = {
-				agentType,
+				...(socketsInfoRef.current[sessionId] || {}),
+				...(agentType && { agentType }),
+				...(onMessageFunc && { onMessageFunc }),
 				isPublicChat,
-				onMessageFunc,
 			};
 			return new Promise((resolve, reject) => {
 				let attempts = 0;
