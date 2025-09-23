@@ -49,7 +49,6 @@ import {
 	getViewersSessionDetailsQuery,
 	duplicateSmartFileQuery,
 	getFormResponseQuery,
-	updateWorkflowInfoQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -916,18 +915,15 @@ export const TemplatesState = (props) => {
 	};
 
 	const getSendSmartFileEmailTemplate = async (payload) => {
-		// alert('payload');
-		// console.log('payload', payload);
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			console.log(usertoken, 'jeeva token');
 			const response = await service.query(
 				getSendSmartFileTemplateQuery,
 				payload,
 				workspaceId,
-				'workflows_Api',
 				usertoken,
+				'workflows_Api',
 			);
 			if (response?.[0]) {
 				dispatch({
@@ -1140,6 +1136,7 @@ export const TemplatesState = (props) => {
 	};
 
 	const updateSendSmartFileSettings = async (payload) => {
+		console.log('yes im the one');
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -1907,29 +1904,6 @@ export const TemplatesState = (props) => {
 			return null;
 		}
 	};
-	const updateWorkflowInfo = async (payload) => {
-		try {
-			let workspaceId = localStorage.getItem('workspaceId');
-			let usertoken = localStorage.getItem('usertoken');
-			const response = await service.query(
-				updateWorkflowInfoQuery,
-				payload,
-				workspaceId,
-				null,
-				usertoken,
-				// 'graphql_server',
-			);
-			if (response?.[0]) {
-				getWorkflowInfo({ workflowInfoId: payload?.updateWorkflowId });
-				return true;
-			} else {
-				return null;
-			}
-		} catch (error) {
-			console.log('error==>getDetailedWorkflowInfo', error);
-			return null;
-		}
-	};
 
 	const getSmartFileActivity = async (payload) => {
 		try {
@@ -2076,7 +2050,6 @@ export const TemplatesState = (props) => {
 		updateInvoice,
 		updateForm,
 		updateThankyou,
-		updateWorkflowInfo,
 		getWorkflowsList,
 		getWorkflowsListForFiles,
 		getTemplatesListForCreateLead,

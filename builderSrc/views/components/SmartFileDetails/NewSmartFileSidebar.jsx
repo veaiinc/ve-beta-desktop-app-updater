@@ -774,24 +774,13 @@ const SmartFileSidebar = ({
 		}
 	}, [emptyFields, info?.variablesData]);
 
-	const [stepNo, setStep] = useState(3);
-	const handleClickStep = (index) => {
-		setStep(index);
-	};
-
 	return (
 		<div
 			className={`smartFileSideBarParentContainer${
 				isWorkflowPath ? ' with-document-padding' : ''
 			} ${isActive ? 'active' : ''}`}
 		>
-			<div
-				className="createDocumentHeader"
-				onClick={() => {
-					navigate(-1);
-					handleClickStep(stepNo - 1);
-				}}
-			>
+			<div className="createDocumentHeader" onClick={() => navigate(-1)}>
 				<span className="back-arrow">←</span>
 				<span className="createDocumentTitle">Back</span>
 			</div>
@@ -825,19 +814,19 @@ const SmartFileSidebar = ({
 							<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
 								<span
 									className="sidebar-title-value"
-									// style={{
-									// 	color: 'var(--primary-font)',
-									// 	fontSize: 18,
-									// 	fontWeight: 500,
-									// 	cursor: 'pointer',
-									// 	flex: 1,
-									// 	whiteSpace: 'nowrap',
-									// 	overflow: 'hidden',
-									// 	textOverflow: 'ellipsis',
-									// }}
+									style={{
+										color: 'var(--primary-font)',
+										fontSize: 18,
+										fontWeight: 500,
+										cursor: 'pointer',
+										flex: 1,
+										whiteSpace: 'nowrap',
+										overflow: 'hidden',
+										textOverflow: 'ellipsis',
+									}}
 									onClick={handleEditTitleClick}
 								>
-									Created From : {info.documentTitle || 'Untitled Document'}
+									{info.documentTitle || 'Untitled Document'}
 								</span>
 								<EditIcon
 									style={{
@@ -852,6 +841,7 @@ const SmartFileSidebar = ({
 						)}
 					</div>
 				</div>
+
 				{formResponseId ? (
 					<>
 						<div className="smartFileTabsBar">
@@ -1088,45 +1078,13 @@ const SmartFileSidebar = ({
 						</Collapse>
 					</>
 				)}
-				<div className="getSummeryButton" onClick={handleButtonClick}>
-					{info.status === 'enquiry' || info.status === 'draft'
-						? 'Share Document'
-						: 'Update'}
-					{/* <RightArrow /> */}
-				</div>
 			</div>
 			<div className="smartFileSidebarFooter">
-				<span className="progress">
-					<span className={`${stepNo >= 0 ? 'progress-active' : ''}`}></span>
-					<span className={`${stepNo >= 2 ? 'progress-active' : ''}`}></span>
-					<span className={`${stepNo >= 3 ? 'progress-active' : ''}`}></span>
-					<span className={`${stepNo >= 4 ? 'progress-active' : ''}`}></span>
-				</span>
-				<div className="createdoc-inner-footer">
-					<div className="createdoc-footer-section">
-						<span className={`${stepNo >= 1 ? 'step-text' : ''}`}>Step 1</span>
-						<span className={`${stepNo >= 1 ? 'details-text' : ''}`}>
-							Fill client details
-						</span>
-					</div>
-					<div className="createdoc-footer-section">
-						<span className={`${stepNo >= 2 ? 'step-text' : ''}`}>Step 2</span>
-						<span className={`${stepNo >= 2 ? 'details-text' : ''}`}>
-							Select Template
-						</span>
-					</div>
-					<div className="createdoc-footer-section">
-						<span className={`${stepNo >= 3 ? 'step-text' : ''}`}>Step 3</span>
-						<span className={`${stepNo >= 3 ? 'details-text' : ''}`}>
-							Service selection
-						</span>
-					</div>
-					<div className="createdoc-footer-section">
-						<span className={`${stepNo >= 4 ? 'step-text' : ''}`}>Step 4</span>
-						<span className={`${stepNo >= 4 ? 'details-text' : ''}`}>
-							Share Document
-						</span>
-					</div>
+				<div className="getSummeryButton" onClick={handleButtonClick}>
+					{info.status === 'enquiry' || info.status === 'draft'
+						? 'Share & Publish'
+						: 'Update'}
+					<RightArrow />
 				</div>
 			</div>
 			{(info.status === 'enquiry' || info.status === 'draft') && (
@@ -1161,17 +1119,12 @@ const CustomAccordionHeader = ({ option }) => {
 		<div className="customHeaderComponent">
 			<div className="customHeaderUpperComponent">
 				<div className="customHeaderTitleContainer">
-					<span style={{ fontSize: '14px', fontWeight: '500' }}>Services</span>
-					<span style={{ color: 'var(--secondary-font, #94989E)', fontSize: '12px' }}>
-						{option.label}
-					</span>
+					<span>{option.label}</span>
+					<Warning />
 				</div>
 				<DownArrow />
 			</div>
-			<span style={{ fontSize: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-				<Warning />
-				Page {option.key}
-			</span>
+			<span>Page {option.key}</span>
 		</div>
 	);
 };
