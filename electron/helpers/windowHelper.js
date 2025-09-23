@@ -480,19 +480,45 @@ class WindowHelper {
 		// Simple drag detection: Hide Dynamic Island during drag, show when stopped
 		let isDragging = false;
 		let dragEndTimeout;
+		let constraintTimeout;
+		let isApplyingConstraints = false;
 
 		// Listen for when window starts moving (drag start)
 		this.overlayWindow.on('will-move', () => {
 			if (!isDragging) {
 				isDragging = true;
-				log.info('🎯 DRAG START: Hiding Dynamic Island for smooth dragging');
+				log.info('🎯 OVERLAY DRAG START: Hiding Dynamic Island for smooth dragging');
 				this.hideDynamicIslandForDrag();
 			}
 		});
 
 		this.overlayWindow.on('move', () => {
-			if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+			if (this.overlayWindow && !this.overlayWindow.isDestroyed() && !isApplyingConstraints) {
 				const bounds = this.overlayWindow.getBounds();
+				
+				// Apply drag constraints to keep overlay window always accessible
+				const constrainedBounds = this.constrainOverlayWindowPosition(bounds);
+				
+				// Only apply constraints if the window is actually outside bounds
+				// and we're not already in the middle of applying constraints
+				if ((constrainedBounds.x !== bounds.x || constrainedBounds.y !== bounds.y)) {
+					// Clear any pending constraint application
+					clearTimeout(constraintTimeout);
+					
+					// Apply constraints with a small delay to prevent bouncing
+					constraintTimeout = setTimeout(() => {
+						if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+							isApplyingConstraints = true;
+							this.overlayWindow.setBounds(constrainedBounds);
+							
+							// Allow new moves after constraint is applied
+							setTimeout(() => {
+								isApplyingConstraints = false;
+							}, 50);
+						}
+					}, 10); // Small delay to smooth out the constraint application
+				}
+				
 				this.windowPosition = { x: bounds.x, y: bounds.y };
 				this.currentX = bounds.x;
 				this.currentY = bounds.y;
@@ -502,7 +528,7 @@ class WindowHelper {
 					clearTimeout(dragEndTimeout);
 					dragEndTimeout = setTimeout(() => {
 						isDragging = false;
-						log.info('🎯 DRAG END: Showing Dynamic Island again');
+						log.info('🎯 OVERLAY DRAG END: Showing Dynamic Island again');
 						this.showDynamicIslandAfterDrag();
 					}, 100); // 100ms after last move event
 				}
@@ -517,6 +543,9 @@ class WindowHelper {
 			// CRITICAL FIX: Reset readiness state when window closes
 			this.overlayWindowReady = false;
 			this.pendingOverlayActions = [];
+			// Clear any pending timeouts
+			clearTimeout(constraintTimeout);
+			clearTimeout(dragEndTimeout);
 		});
 
 		// CRITICAL FIX: Wait for complete loading before marking as ready
@@ -609,6 +638,80 @@ class WindowHelper {
 	 * @returns {Object} Constrained bounds
 	 */
 	constrainAskAIWindowPosition(bounds) {
+		const displays = screen.getAllDisplays();
+		let constrainedBounds = { ...bounds };
+		
+		// Get the display where the window is currently located
+		const currentDisplay = screen.getDisplayMatching(bounds) || screen.getPrimaryDisplay();
+		const workArea = currentDisplay.workArea;
+		
+		// Add a small tolerance to prevent micro-adjustments from triggering constraints
+		const tolerance = 2; // 2px tolerance
+		
+		// STRICT CONSTRAINT: The ENTIRE window must be visible - no part can go off-screen
+		// Left edge constraint - window cannot go past left edge
+		if (bounds.x < workArea.x - tolerance) {
+			constrainedBounds.x = workArea.x;
+		}
+		
+		// Right edge constraint - window cannot go past right edge  
+		if (bounds.x + bounds.width > workArea.x + workArea.width + tolerance) {
+			constrainedBounds.x = workArea.x + workArea.width - bounds.width;
+		}
+		
+		// Top edge constraint - window cannot go past top edge
+		// Add extra buffer on macOS for menu bar
+		const topBuffer = process.platform === 'darwin' ? 25 : 0;
+		if (bounds.y < workArea.y + topBuffer - tolerance) {
+			constrainedBounds.y = workArea.y + topBuffer;
+		}
+		
+		// Bottom edge constraint - window cannot go past bottom edge
+		if (bounds.y + bounds.height > workArea.y + workArea.height + tolerance) {
+			constrainedBounds.y = workArea.y + workArea.height - bounds.height;
+		}
+		
+		// Multi-monitor support: If dragging between displays, ensure it stays within the target display
+		for (const display of displays) {
+			const displayBounds = display.bounds;
+			const displayWorkArea = display.workArea;
+			
+			// Check if window center is within this display
+			const windowCenterX = bounds.x + bounds.width / 2;
+			const windowCenterY = bounds.y + bounds.height / 2;
+			
+			if (windowCenterX >= displayBounds.x && windowCenterX < displayBounds.x + displayBounds.width &&
+				windowCenterY >= displayBounds.y && windowCenterY < displayBounds.y + displayBounds.height) {
+				
+				// Apply constraints for this specific display with tolerance
+				const displayTopBuffer = process.platform === 'darwin' ? 25 : 0;
+				
+				if (bounds.x < displayWorkArea.x - tolerance) {
+					constrainedBounds.x = displayWorkArea.x;
+				}
+				if (bounds.x + bounds.width > displayWorkArea.x + displayWorkArea.width + tolerance) {
+					constrainedBounds.x = displayWorkArea.x + displayWorkArea.width - bounds.width;
+				}
+				if (bounds.y < displayWorkArea.y + displayTopBuffer - tolerance) {
+					constrainedBounds.y = displayWorkArea.y + displayTopBuffer;
+				}
+				if (bounds.y + bounds.height > displayWorkArea.y + displayWorkArea.height + tolerance) {
+					constrainedBounds.y = displayWorkArea.y + displayWorkArea.height - bounds.height;
+				}
+				
+				break;
+			}
+		}
+		
+		return constrainedBounds;
+	}
+
+	/**
+	 * Constrains Overlay window position to ensure it NEVER goes inside other windows - must stay 100% visible
+	 * @param {Object} bounds - Current window bounds {x, y, width, height}
+	 * @returns {Object} Constrained bounds
+	 */
+	constrainOverlayWindowPosition(bounds) {
 		const displays = screen.getAllDisplays();
 		let constrainedBounds = { ...bounds };
 		
