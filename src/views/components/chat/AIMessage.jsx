@@ -307,7 +307,10 @@ const AIMessage = ({
 						<div className="answer-skipped">Answer skipped</div>
 					) : (
 						/* here animate key's initial value only used, next updated animate value will not reach markdown component */
-						<Markdown citations={citations} animate={!effectiveStreamEnd}>
+						<Markdown
+							citations={citations}
+							animate={!(messageData?.stream_end ?? false)}
+						>
 							{displayText}
 						</Markdown>
 					)}
@@ -324,6 +327,7 @@ const AIMessage = ({
 				className="hover-actions-container"
 				style={{
 					...(isLastMessage && { opacity: 1 }),
+					display: messageData?.stream_end ? 'flex' : 'none',
 				}}
 			>
 				<div className="left-container">
