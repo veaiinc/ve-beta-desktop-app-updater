@@ -355,6 +355,16 @@ const useAssemblyTranscription = ({
 			screenBufferRef.current = [];
 			screenSampleCountRef.current = 0;
 			cleanup();
+
+			// Notify NotchDrop about the state change
+			if (window.electronApi?.notchDrop?.onOverlayStateChange) {
+				window.electronApi.notchDrop.onOverlayStateChange({
+					isRecording: false,
+					isPaused: false,
+					timer: 0,
+					isLiveIntelligenceOpen: false,
+				});
+			}
 		},
 		[log, cleanup, stopTimer],
 	);

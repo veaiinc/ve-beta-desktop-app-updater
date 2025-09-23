@@ -481,6 +481,12 @@ class NotchDropPanel: NSPanel {
             if let isRecording = state["isRecording"] as? Bool {
                 print("📊 Updating recording state: \(isRecording)")
                 viewModel.isRecording = isRecording
+                
+                // Stop the timer if recording stopped
+                if !isRecording {
+                    print("📊 Recording stopped - calling stopRecording to stop timer")
+                    viewModel.stopRecording()
+                }
             }
             
             // Update pause state
