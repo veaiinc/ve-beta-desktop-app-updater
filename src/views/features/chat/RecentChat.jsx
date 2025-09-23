@@ -611,9 +611,8 @@ const RecentChat = ({
 						userFeedbackReasons,
 						userRemarks,
 						unintegrated_apps: unintegratedApps,
-						...(processing === 'Deep Search' && { chainOfThought: cot }),
+						...(hasChainOfThought && { chainOfThought: cot }),
 						...(processing === 'Deep Research' && { deepResearch }),
-						...(processing === 'Normal Search' && { chainOfThought: cot }),
 						...(browserChainOfThought && { browserChainOfThought }),
 					},
 				]?.concat(messages);
