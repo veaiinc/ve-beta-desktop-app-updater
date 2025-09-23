@@ -872,6 +872,24 @@ function createMenuBar() {
 							},
 						},
 						{
+							label: 'Permission Window (permission.html)',
+							accelerator: 'CmdOrCtrl+Shift+k',
+							click: () => {
+								try {
+									const permissionWindow = windowHelper?.getPermissionWindow();
+									if (permissionWindow && !permissionWindow.isDestroyed()) {
+										permissionWindow.webContents.openDevTools({
+											mode: 'detach',
+										});
+									} else {
+										log.warn('Permission window not available for dev tools');
+									}
+								} catch (error) {
+									log.error('Error toggling Permission window dev tools:', error);
+								}
+							},
+						},
+						{
 							label: 'Ask AI Window (askai.html)',
 							accelerator: 'CmdOrCtrl+Shift+A',
 							click: () => {
@@ -1263,12 +1281,14 @@ function createWindow(restoreState = false) {
 		log.info('Main window focused');
 		// Emit focus event to renderer
 		mainWindow.webContents.send('window-focus');
-		
+
 		// Check if permissions are missing and show overlay if needed
 		try {
 			const permissionsGranted = await checkAllPermissions();
 			if (!permissionsGranted.allGranted) {
-				log.info('🔍 Main window focused but permissions missing, showing permission overlay');
+				log.info(
+					'🔍 Main window focused but permissions missing, showing permission overlay',
+				);
 				setTimeout(() => {
 					try {
 						windowHelper?.showPermissionWindow();
@@ -1566,19 +1586,19 @@ if (!gotTheLock) {
 async function checkAndShowPermissionOverlay() {
 	try {
 		log.info('🔍 Checking permissions on app startup...');
-		
+
 		let needsPermissionOverlay = false;
-		
+
 		// Check if this is first run or permissions are missing
 		const permissionsGranted = await checkAllPermissions();
-		
+
 		if (!permissionsGranted.allGranted) {
 			log.info('❌ Some permissions are missing, showing permission overlay');
 			needsPermissionOverlay = true;
 		} else {
 			log.info('✅ All permissions granted, skipping permission overlay');
 		}
-		
+
 		// Show permission overlay if needed
 		if (needsPermissionOverlay) {
 			setTimeout(() => {
@@ -1590,7 +1610,6 @@ async function checkAndShowPermissionOverlay() {
 				}
 			}, 1000); // Small delay to ensure main window is ready
 		}
-		
 	} catch (error) {
 		log.error('❌ Error checking permissions on startup:', error);
 		// Show overlay on error to be safe
@@ -1611,17 +1630,17 @@ async function checkAllPermissions() {
 			microphone: false,
 			screen: false,
 			camera: false,
-			allGranted: false
+			allGranted: false,
 		};
-		
+
 		// Check microphone permission
 		if (isMacRuntime) {
 			const micStatus = systemPreferences.getMediaAccessStatus('microphone');
 			results.microphone = micStatus === 'granted';
-			
+
 			const screenStatus = systemPreferences.getMediaAccessStatus('screen');
 			results.screen = screenStatus === 'granted';
-			
+
 			const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
 			results.camera = cameraStatus === 'granted';
 		} else {
@@ -1630,14 +1649,13 @@ async function checkAllPermissions() {
 			results.screen = true;
 			results.camera = true;
 		}
-		
+
 		// All permissions must be granted (for macOS) or we're on non-macOS
 		results.allGranted = results.microphone && results.screen;
 		// Note: Camera is optional for now, only require mic and screen
-		
+
 		log.info('🔍 Permission check results:', results);
 		return results;
-		
 	} catch (error) {
 		log.error('❌ Error checking all permissions:', error);
 		return { allGranted: false, microphone: false, screen: false, camera: false };
@@ -4397,6 +4415,12 @@ app.whenReady().then(async () => {
 				window = windowHelper?.getOverlayWindow();
 			} else if (targetWindow === 'askAI') {
 				window = windowHelper?.getAskAIWindow();
+			} else if (targetWindow === 'permission') {
+				window = windowHelper?.getPermissionWindow();
+			} else if (targetWindow === 'areYouThere') {
+				window = windowHelper?.getAreYouThereWindow();
+			} else if (targetWindow === 'dynamicIsland') {
+				window = dynamicIslandHelper?.getDynamicIslandWindow();
 			}
 
 			if (window && !window.isDestroyed()) {

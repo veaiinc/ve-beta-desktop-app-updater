@@ -50,10 +50,35 @@ const PermissionOverlay = () => {
 			window.dispatchEvent(new CustomEvent('permission-window-closed'));
 		};
 
+		// Add keyboard shortcut for developer tools
+		const handleKeyDown = (event) => {
+			// F12 or Ctrl+Shift+I or Cmd+Shift+I to open dev tools
+			if (
+				event.key === 'F12' ||
+				((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'I')
+			) {
+				event.preventDefault();
+				openDevTools();
+			}
+		};
+
+		// Add context menu for developer tools
+		const handleContextMenu = (event) => {
+			// Check if Ctrl/Cmd is held while right-clicking for dev tools access
+			if (event.ctrlKey || event.metaKey) {
+				event.preventDefault();
+				openDevTools();
+			}
+		};
+
 		window.addEventListener('beforeunload', handleBeforeUnload);
+		window.addEventListener('keydown', handleKeyDown);
+		window.addEventListener('contextmenu', handleContextMenu);
 
 		return () => {
 			window.removeEventListener('beforeunload', handleBeforeUnload);
+			window.removeEventListener('keydown', handleKeyDown);
+			window.removeEventListener('contextmenu', handleContextMenu);
 			stopPermissionMonitoring();
 		};
 	}, []);
@@ -248,6 +273,16 @@ const PermissionOverlay = () => {
 	const handleFinish = () => {
 		// Close the permission overlay
 		window.electronApi.permission.closeWindow();
+	};
+
+	const openDevTools = () => {
+		try {
+			// Open dev tools for the current permission window
+			window.electronApi.openDevTools({ targetWindow: 'current', mode: 'detach' });
+			console.log('🛠️ Developer tools opened for permission overlay');
+		} catch (error) {
+			console.error('❌ Error opening developer tools:', error);
+		}
 	};
 
 	if (isLoading) {
@@ -578,7 +613,7 @@ const PermissionOverlay = () => {
 	);
 
 	// Render based on current step
-	return currentStep === 1 ? renderPermissionsScreen() : renderShortcutsScreen();
+	return <>{currentStep === 1 ? renderPermissionsScreen() : renderShortcutsScreen()}</>;
 };
 
 export default PermissionOverlay;
