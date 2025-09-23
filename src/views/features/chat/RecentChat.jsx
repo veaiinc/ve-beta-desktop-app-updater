@@ -556,23 +556,21 @@ const RecentChat = ({
 				}
 				let processing = null,
 					browserChainOfThought = null,
-					openBrowser = false;
+					openBrowser = false,
+					hasChainOfThought = false;
 
 				let deepResearch = {},
 					cot = [];
 
 				if (chainOfThought?.length > 0) {
 					for (let i = 0; i < chainOfThought?.length; i++) {
-						const { deep_search, deep_research, normal_search, open_browser } =
+						const { cot, deep_research, open_browser, normal_search } =
 							chainOfThought?.[i] || {};
-						if (deep_search) {
-							processing = 'Deep Search';
+						if (cot || normal_search) {
+							hasChainOfThought = true;
 							break;
 						} else if (deep_research) {
 							processing = 'Deep Research';
-							break;
-						} else if (normal_search) {
-							processing = 'Normal Search';
 							break;
 						} else if (open_browser) {
 							openBrowser = true;
@@ -580,12 +578,10 @@ const RecentChat = ({
 						}
 					}
 
-					if (processing === 'Deep Search') {
+					if (hasChainOfThought) {
 						cot = handleChainOfThought(chainOfThought);
 					} else if (processing === 'Deep Research') {
 						deepResearch = handleDeepResearchChainOfThought(chainOfThought);
-					} else if (processing === 'Normal Search') {
-						cot = handleChainOfThought(chainOfThought);
 					} else if (openBrowser) {
 						browserChainOfThought = handleBrowserData(chainOfThought);
 					}
