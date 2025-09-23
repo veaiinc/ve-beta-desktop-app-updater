@@ -10,9 +10,8 @@ import React, {
 } from 'react';
 import '../../../assets/scss/chat/chat.scss';
 import {
-	handleDeepSearchChainOfThought,
+	handleChainOfThought,
 	handleDeepResearchChainOfThought,
-	getBrowserUrls,
 	handleBrowserData,
 } from '../../../helpers/chat/chatHelpers';
 import Context from '../../../context/context';
@@ -582,11 +581,11 @@ const RecentChat = ({
 					}
 
 					if (processing === 'Deep Search') {
-						cot = handleDeepSearchChainOfThought(chainOfThought);
+						cot = handleChainOfThought(chainOfThought);
 					} else if (processing === 'Deep Research') {
 						deepResearch = handleDeepResearchChainOfThought(chainOfThought);
 					} else if (processing === 'Normal Search') {
-						cot = handleDeepSearchChainOfThought(chainOfThought);
+						cot = handleChainOfThought(chainOfThought);
 					} else if (openBrowser) {
 						browserChainOfThought = handleBrowserData(chainOfThought);
 					}
@@ -808,10 +807,6 @@ const RecentChat = ({
 				}));
 			}
 			const { message_chunk_id, url_type, browserMetadata } = data;
-
-			// if (toolName) {
-			// 	getBrowserUrls(sessionId, handleGlobalChatMessages);
-			// }
 
 			if (message_chunk_id && (url_type === 'live_view' || browserMetadata)) {
 				handleGlobalChatMessages({
