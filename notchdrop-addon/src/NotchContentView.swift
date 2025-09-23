@@ -611,6 +611,7 @@ struct ChatTextAreaView: View {
                 .frame(width: textEditorWidth, height: textEditorHeight)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
                 .scrollContentBackground(.hidden) // Hide default TextEditor background
+                .allowsHitTesting(true) // Ensure TextEditor can receive mouse events
                 .onKeyPress(keys: [.return]) { event in
                     print("🎯 Return key pressed - modifiers: \(event.modifiers)")
                     if event.modifiers == .shift {
@@ -656,18 +657,24 @@ struct ChatTextAreaView: View {
         .contentShape(Rectangle()) // Ensure entire area is tappable
         .allowsHitTesting(true) // Explicitly allow hit testing
         .onTapGesture {
+            print("🎯 Chat area tapped - attempting to focus text input")
             
             // Ensure window is key first
             if let window = NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible }) {
                 if !window.isKeyWindow {
                     window.makeKey()
                 }
+                // Force the window to become key and order front
+                window.makeKeyAndOrderFront(nil)
             }
             
             // Set focus directly without delays or additional responder calls
-            isChatInputFocused = true
-            isTextFieldActive = true
-            vm.isChatMode = true
+            DispatchQueue.main.async {
+                isChatInputFocused = true
+                isTextFieldActive = true
+                vm.isChatMode = true
+                print("🎯 Chat input focus set to: \(isChatInputFocused)")
+            }
         }
         .zIndex(2) // Ensure chat input is above the background overlay
     }
