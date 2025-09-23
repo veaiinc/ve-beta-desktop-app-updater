@@ -79,7 +79,7 @@
 // Live Intelligence Container
 .live-intelligence-container {
 	display: flex;
-	padding: 24px 10px;
+	padding: 0px 10px 24px 10px;
 	flex-direction: column;
 	align-items: flex-start;
 	border-radius: 6px;
@@ -99,24 +99,25 @@
 	backdrop-filter: blur(4px);
 	-webkit-app-region: no-drag; /* Ensure panel content is not draggable */
 	app-region: no-drag; /* Standard property for non-draggable regions */
+	// width: 100%;
 }
 
 // Add drag area to live intelligence panel
-.live-intelligence-container::before {
-	content: '';
-	position: absolute;
-	top: -4px;
-	left: 0;
-	right: 0;
-	height: 16px;
+// .live-intelligence-container::before {
+// 	content: '';
+// 	position: absolute;
+// 	top: -4px;
+// 	left: 0;
+// 	right: 0;
+// 	height: 16px;
 
-	-webkit-app-region: drag;
-	app-region: drag;
-	z-index: 1;
-	pointer-events: auto;
-	// background: rgba(0, 0, 0, 0.199);
-	border: 1px solid rgba(255, 255, 255, 0.146);
-}
+// 	-webkit-app-region: drag;
+// 	app-region: drag;
+// 	z-index: 1;
+// 	pointer-events: auto;
+// 	// background: rgba(0, 0, 0, 0.199);
+// 	border: 1px solid rgba(255, 255, 255, 0.146);
+// }
 
 // Live intelligence drag handle with grip icon
 .live-intelligence-drag-handle {
@@ -136,7 +137,7 @@
 // Transcript Container
 .transcript-container {
 	display: flex;
-	padding: 12px;
+	padding: 0px 12px 12px 12px;
 	flex-direction: column;
 	align-items: flex-start;
 	border-radius: 6px;
@@ -157,21 +158,21 @@
 	app-region: no-drag; /* Standard property for non-draggable regions */
 }
 
-// Add drag area to transcript panel
-.transcript-container::before {
-	content: '';
-	position: absolute;
-	top: -4px;
-	left: 0;
-	right: 0;
-	height: 16px;
-	-webkit-app-region: drag;
-	app-region: drag;
-	z-index: 1;
-	pointer-events: auto;
-	background: rgba(0, 0, 0, 0.199);
-	border: 1px solid rgba(255, 255, 255, 0.146);
-}
+// // Add drag area to transcript panel
+// .transcript-container::before {
+// 	content: '';
+// 	position: absolute;
+// 	top: -4px;
+// 	left: 0;
+// 	right: 0;
+// 	height: 16px;
+// 	-webkit-app-region: drag;
+// 	app-region: drag;
+// 	z-index: 1;
+// 	pointer-events: auto;
+// 	background: rgba(0, 0, 0, 0.199);
+// 	border: 1px solid rgba(255, 255, 255, 0.146);
+// }
 
 // Transcript drag handle with grip icon
 .transcript-drag-handle {

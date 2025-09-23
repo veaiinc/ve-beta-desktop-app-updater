@@ -5,6 +5,7 @@ import userIcon from '../../assets/svg/transcription/user.svg';
 import needHelpIcon from '../../assets/svg/transcription/question.svg';
 import actionsIcon from '../../assets/svg/transcription/thunder.svg';
 import filesIcon from '../../assets/svg/files/file.svg';
+import VELogo from '../../assets/svg/transcription/velogo.svg';
 
 const LiveIntelligencePanel = ({
 	onClose,
@@ -145,7 +146,7 @@ const LiveIntelligencePanel = ({
 			? [
 					{
 						key: 'ask-user',
-						label: 'Ask user',
+						label: 'Ask Speaker',
 						icon: userIcon,
 						count: getBadgeCount('ask-user'),
 					},
@@ -155,7 +156,7 @@ const LiveIntelligencePanel = ({
 			? [
 					{
 						key: 'need-help',
-						label: 'Need help?',
+						label: 'Ask AI',
 						icon: needHelpIcon,
 						count: getBadgeCount('need-help'),
 					},
@@ -192,8 +193,8 @@ const LiveIntelligencePanel = ({
 		};
 
 		const getCategoryLabel = (entity, type) => {
-			if (entity === 'user' || entity === 'other_user') return 'Ask user';
-			if (entity === 'agent' && type === 'search') return 'Need help?';
+			if (entity === 'user' || entity === 'other_user') return 'Ask Speaker';
+			if (entity === 'agent' && type === 'search') return 'Ask AI';
 			if (entity === 'agent' && type === 'action') return 'Actions';
 			if (entity === 'file') return 'Files';
 			return 'Unknown';
@@ -394,7 +395,9 @@ const LiveIntelligencePanel = ({
 			{/* Header */}
 			<div className="live-intelligence-panel__header">
 				<div className="live-intelligence-panel__title">
-					<span className="live-intelligence-panel__title-text">Live Intelligence</span>
+					<span className="live-intelligence-panel__title-text">
+						<img src={VELogo} alt="VE Logo" />
+					</span>
 					{/* {isRecording && formatTime && (
 						<span className={`recording-indicator ${isPaused ? 'paused' : ''}`}>
 							{isPaused ? '⏸' : '●'} {formatTime(timer)}

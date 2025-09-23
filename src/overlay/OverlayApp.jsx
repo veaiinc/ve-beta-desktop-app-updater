@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
 import { Track } from 'livekit-client';
 import { useTrackTranscription } from '@livekit/components-react';
-import { GripHorizontal } from 'lucide-react';
+// import { GripHorizontal } from 'lucide-react';
 import Context from '../context/context';
 import useLiveIntelligenceStream from '../hooks/useLiveIntelligenceStream';
 import useRecallStream from '../hooks/useRecallStream';
@@ -793,9 +793,9 @@ const OverlayApp = () => {
 			{/* Live Intelligence panel */}
 			{activePanel === 'live-intelligence' && (
 				<div className="live-intelligence-container">
-					<div className="live-intelligence-drag-handle">
+					{/* <div className="live-intelligence-drag-handle">
 						<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
-					</div>
+					</div> */}
 					<LiveIntelligencePanel
 						onClose={handleClosePanel}
 						onShowTranscript={handleShowTranscript}
@@ -811,9 +811,9 @@ const OverlayApp = () => {
 			{/* Transcript panel */}
 			{activePanel === 'transcript' && (
 				<div className="transcript-container">
-					<div className="transcript-drag-handle">
+					{/* <div className="transcript-drag-handle">
 						<GripHorizontal size={16} color="rgba(255, 255, 255, 0.7)" />
-					</div>
+					</div> */}
 					<TranscriptPanel
 						onClose={handleClosePanel}
 						onShowLiveIntelligence={handleShowLiveIntelligence}
