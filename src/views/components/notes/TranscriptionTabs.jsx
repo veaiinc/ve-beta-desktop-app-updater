@@ -143,8 +143,17 @@ const TranscriptionTabs = ({
 						<div className={s.tabButtonCount}>{files?.length}</div>
 					</button>
 				)}
+
+				<button
+					className={
+						s.meetingTabButton + ' ' + (activeTab === 'transcript' ? s.activeTab : '')
+					}
+					onClick={() => setActiveTab('transcript')}
+				>
+					Transcription
+				</button>
 			</div>
-			<div
+			{/* <div
 				className={s.meetingTabRight}
 				onClick={() => setActiveTab(activeTab === 'transcript' ? 'all' : 'transcript')}
 			>
@@ -154,7 +163,7 @@ const TranscriptionTabs = ({
 				<div className={s.waveIcon}>
 					{activeTab === 'transcript' ? <AiSparkleIcon /> : <WaveIcon />}
 				</div>
-			</div>
+			</div> */}
 		</div>
 	);
 };
