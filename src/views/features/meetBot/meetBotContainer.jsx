@@ -257,10 +257,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			newParams.set('chat', 'true');
 			setSearchParams(newParams);
 			updateStateValues({
-				activePromptForChat: {
-					prompt: data?.currentQuery,
-					sessionId,
-				},
+				activePayloadForChat: data,
 			});
 		},
 		[sessionId],
@@ -930,12 +927,12 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 							Resume
 						</button>
 						{!chat && (
-							<div className="chatbox-container" onClick={handleChatBoxClick}>
+							<div className="chatbox-container">
 								<ChatBox
 									onSend={handleActionClick}
 									customChatActions={true}
 									showUpgradeSubscriptionBtn={false}
-									sessionId={info?.sessionId}
+									sessionId={sessionId}
 									animateChatBox={false}
 									placeholder="Ask anything about the meeting"
 									showBottomTools={false}
