@@ -330,8 +330,8 @@ const Email = ({
 						>
 							{info.isLoading ? (
 								<Spinner
-									width="10px"
-									height="10px"
+									width="20px"
+									height="20px"
 									borderTopColor="transparent"
 									color="var(--background-color)"
 								/>

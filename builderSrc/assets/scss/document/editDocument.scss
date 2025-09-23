@@ -1,17 +1,14 @@
-$font-inter: 'Inter', sans-serif;
-$font-general-sans: 'General Sans', sans-serif;
-
 .editDocumentContainer {
 	display: flex;
 	width: 100%;
 	height: 100vh;
 	.section1-main-container {
-		width: 50%;
+		width: 40%;
 		height: 100%;
 	}
 	.section2-main-container {
 		background: var(--background-color);
-		width: 50%;
+		width: 60%;
 		height: 100%;
 		overflow: auto;
 		display: flex;
@@ -41,7 +38,7 @@ $font-general-sans: 'General Sans', sans-serif;
 					border-radius: 6px;
 					border: 1px solid var(--stroke-hover, #424548);
 					color: var(--primary-font, #f2f2f3);
-					font-family: $font-general-sans;
+					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -73,11 +70,9 @@ $font-general-sans: 'General Sans', sans-serif;
 
 				&.active,
 				&:focus {
-					background: #252728;
+					background: var(--stroke-hover);
 				}
-				&:hover {
-					background: #252728;
-				}
+
 				svg {
 					width: 24px;
 					height: 24px;

@@ -57,7 +57,7 @@ class ErrorBoundary extends Component {
 			this.setState({ isLazyLoadingError: true });
 
 			setTimeout(() => {
-				// window.location.reload(true);/
+				window.location.reload(true);
 			}, 300);
 			return;
 		}
