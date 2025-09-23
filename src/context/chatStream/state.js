@@ -17,34 +17,20 @@ export const ChatStreamState = () => {
 	const [state, dispatch] = useReducer(Reducer, initialChatStreamState);
 	const socketRefs = useRef({});
 	const socketsInfoRef = useRef({});
-	const inactivityTimeoutRef = useRef(null);
+	const inactivityTimeoutsRef = useRef({});
 	const currentSessionIdRef = useRef(null);
-	const MAX_RETRY_ATTEMPTS = 60;
-	const RETRY_DELAY = 1000; // 1 second
-
-	// // Cleanup on unmount
-	// useEffect(() => {
-	// 	return () => {
-	// 		if (inactivityTimeoutRef.current) {
-	// 			clearTimeout(inactivityTimeoutRef.current);
-	// 		}
-	// 		if (socketRef.current) {
-	// 			socketRef.current.close();
-	// 		}
-	// 	};
-	// }, []);
+	const MAX_RETRY_ATTEMPTS = 6;
 
 	// Helper function to reset the inactivity timer
-	const resetInactivityTimeout = useCallback(() => {
-		if (inactivityTimeoutRef.current) {
-			clearTimeout(inactivityTimeoutRef.current);
+	const resetInactivityTimeout = useCallback((sessionId) => {
+		if (inactivityTimeoutsRef.current[sessionId]) {
+			clearTimeout(inactivityTimeoutsRef.current[sessionId]);
 		}
 
-		inactivityTimeoutRef.current = setTimeout(() => {
-			if (socketRefs.current[currentSessionIdRef.current]) {
+		inactivityTimeoutsRef.current[sessionId] = setTimeout(() => {
+			if (socketRefs.current[sessionId]) {
 				console.log('Disconnecting due to inactivity');
-				socketRefs.current[currentSessionIdRef.current].close();
-				delete socketRefs.current[currentSessionIdRef.current];
+				socketRefs.current[sessionId].close();
 			}
 		}, 5 * 60 * 1000); // 5 minutes in milliseconds
 	}, []);
@@ -80,22 +66,25 @@ export const ChatStreamState = () => {
 							'Connection closed, attempting to reconnect...',
 							socketRefs.current[sessionId],
 						);
+						// exponential backoff delay
+						const delay = Math.min(1000 * 2 ** attempts, 30000);
 						createWebSocketConnection({
 							sessionId,
 							onMessageFunc,
 							agentType,
 							isPublicChat,
 						});
+						setTimeout(attemptSend, delay);
 						attempts++;
-						setTimeout(attemptSend, RETRY_DELAY);
 						return;
 					}
 
 					// If socket is still connecting, wait and retry
 					if (socketRefs.current[sessionId].readyState === WebSocket.CONNECTING) {
 						console.log('Connection not ready, waiting...');
+						const delay = Math.min(1000 * 2 ** attempts, 30000);
+						setTimeout(attemptSend, delay);
 						attempts++;
-						setTimeout(attemptSend, RETRY_DELAY);
 						return;
 					}
 
@@ -103,7 +92,7 @@ export const ChatStreamState = () => {
 					if (socketRefs.current[sessionId].readyState === WebSocket.OPEN) {
 						try {
 							socketRefs.current[sessionId].send(JSON.stringify(data));
-							resetInactivityTimeout();
+							resetInactivityTimeout(sessionId);
 							resolve();
 						} catch (error) {
 							reject(error);
@@ -156,25 +145,27 @@ export const ChatStreamState = () => {
 
 			socketRefs.current[sessionId].onopen = () => {
 				console.log('Connected to WebSocket server');
-				resetInactivityTimeout();
+				resetInactivityTimeout(sessionId);
 			};
 
 			socketRefs.current[sessionId].onclose = () => {
-				console.log('Disconnected from WebSocket server');
-				if (inactivityTimeoutRef.current) {
-					clearTimeout(inactivityTimeoutRef.current);
+				console.log('Disconnected from WebSocket server', sessionId);
+
+				if (inactivityTimeoutsRef.current[sessionId]) {
+					clearTimeout(inactivityTimeoutsRef.current[sessionId]);
+					delete inactivityTimeoutsRef.current[sessionId];
 				}
+				delete socketRefs.current[sessionId];
+				delete socketsInfoRef.current[sessionId];
 			};
 
 			socketRefs.current[sessionId].onerror = (e) => {
 				console.log('Error from socket', e);
-				if (inactivityTimeoutRef.current) {
-					clearTimeout(inactivityTimeoutRef.current);
-				}
+				socketRefs.current[sessionId].close();
 			};
 
 			socketRefs.current[sessionId].onmessage = (event) => {
-				resetInactivityTimeout();
+				resetInactivityTimeout(sessionId);
 				const { onMessageFunc } = socketsInfoRef.current[sessionId];
 				if (onMessageFunc) {
 					onMessageFunc(event, currentSessionIdRef.current);
@@ -189,8 +180,6 @@ export const ChatStreamState = () => {
 			sessionIds?.forEach((sessionId) => {
 				if (socketRefs.current[sessionId]) {
 					socketRefs.current[sessionId].close();
-					delete socketRefs.current[sessionId];
-					delete socketsInfoRef.current[sessionId];
 				}
 			});
 		}
