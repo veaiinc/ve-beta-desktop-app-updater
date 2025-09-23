@@ -1,7 +1,7 @@
 // Wake Word Integration Service
 // Connects Python wake word detection to Swift voice agent
 
-const { WakeWordService } = require('../electron/wakeWordService');
+const { WakeWordService } = import('../electron/wakeWordService');
 
 class WakeWordIntegration {
     constructor(notchDropService) {
