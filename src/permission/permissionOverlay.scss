@@ -217,8 +217,8 @@
 
 							&.pending {
 								background: rgba(59, 130, 246, 0.1);
-								border-color: rgba(59, 130, 246, 0.3);
-								color: #3b82f6;
+								border-color: #ffff;
+								color: #ffff;
 
 								&:hover:not(:disabled) {
 									background: rgba(59, 130, 246, 0.2);

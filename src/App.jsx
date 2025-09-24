@@ -314,7 +314,7 @@ const App = () => {
 				</button>
 			)} */}
 
-			{/* <button
+			<button
 				onClick={async () => {
 					const result = await window.electronApi?.permission?.checkAuthAndShowOverlay();
 					console.log('🔍 Auth check result:', result);
@@ -336,7 +336,7 @@ const App = () => {
 				}}
 			>
 				Test Auth-Based Permission Overlay
-			</button> */}
+			</button>
 
 			{/* Update Notification - Commented out for auto restart */}
 			{/* {showUpdateNotification && updateStatus?.status === 'downloaded' && (

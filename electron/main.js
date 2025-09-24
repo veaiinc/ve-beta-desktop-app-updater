@@ -1430,8 +1430,9 @@ function createWindow(restoreState = false) {
 	const loadMainWindow = async () => {
 		try {
 			if (process.env.VITE_DEV_SERVER_URL) {
-				log.info('🔗 Loading development server URL:', process.env.VITE_DEV_SERVER_URL);
-				await mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
+				const cleanURL = process.env.VITE_DEV_SERVER_URL.replace(/\/$/, '');
+				log.info('🔗 Loading development server URL:', cleanURL);
+				await mainWindow.loadURL(cleanURL);
 			} else {
 				// Verify build file exists before loading
 				const buildPath = path.join(__dirname, '..', 'build', 'index.html');
@@ -1911,6 +1912,37 @@ app.whenReady().then(async () => {
 		} catch (error) {
 			log.error('Clipboard read error:', error);
 			return { success: false, error: error.message };
+		}
+	});
+
+	// Microphone permission check handler - REGISTERED EARLY to avoid timing issues
+	log.info('📋 Registering microphone permission check handler EARLY');
+	ipcMain.handle('check-microphone-permission', async () => {
+		log.info('🎤 Microphone permission check handler called');
+		try {
+			if (isMacRuntime) {
+				const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
+
+				return {
+					success: true,
+					permission: microphoneStatus,
+					hasPermission: microphoneStatus === 'granted',
+				};
+			} else {
+				// For non-macOS platforms, assume permission is available
+				return {
+					success: true,
+					permission: 'granted',
+					hasPermission: true,
+				};
+			}
+		} catch (error) {
+			log.error('Error checking microphone permission:', error);
+			return {
+				success: false,
+				error: error.message,
+				hasPermission: false,
+			};
 		}
 	});
 
@@ -4335,35 +4367,6 @@ app.whenReady().then(async () => {
 			return { success: false, error: 'Gallery helper not available' };
 		}
 		return helper.createZipFromUrls(event, data);
-	});
-
-	// Microphone permission check handler
-	ipcMain.handle('check-microphone-permission', async () => {
-		try {
-			if (isMacRuntime) {
-				const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
-
-				return {
-					success: true,
-					permission: microphoneStatus,
-					hasPermission: microphoneStatus === 'granted',
-				};
-			} else {
-				// For non-macOS platforms, assume permission is available
-				return {
-					success: true,
-					permission: 'granted',
-					hasPermission: true,
-				};
-			}
-		} catch (error) {
-			log.error('Error checking microphone permission:', error);
-			return {
-				success: false,
-				error: error.message,
-				hasPermission: false,
-			};
-		}
 	});
 
 	// Request camera permission handler
