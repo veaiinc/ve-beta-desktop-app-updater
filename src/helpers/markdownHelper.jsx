@@ -8,6 +8,7 @@ import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
 import Context from '../context/context';
 import { Image, Tooltip } from 'antd';
 import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
+import Plotly from '../views/components/chat/chatComponents/Plotly';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -185,48 +186,6 @@ const rehypeCITPlugin = () => {
 	};
 };
 
-// const rehypeFadeInWords = () => {
-// 	return (tree) => {
-// 		const visit = (node, parent) => {
-// 			if (!node || typeof node !== 'object') return;
-
-// 			// Then transform text nodes
-// 			if (node.type === 'text' && node.value) {
-// 				const words = node.value.split(/(\s+)/); // keep spaces too
-
-// 				const newNode = {
-// 					type: 'element',
-// 					tagName: 'span',
-// 					properties: {},
-// 					children: words.map((word) =>
-// 						word.trim() === ''
-// 							? { type: 'text', value: word }
-// 							: {
-// 									type: 'element',
-// 									tagName: 'span',
-// 									properties: { fadeIn: true },
-// 									children: [{ type: 'text', value: word }],
-// 							  },
-// 					),
-// 				};
-
-// 				// Replace this node in the parent's children
-// 				if (parent && parent.children) {
-// 					const idx = parent.children.indexOf(node);
-// 					parent.children[idx] = newNode;
-// 				}
-// 			}
-
-// 			// Recurse first into existing children
-// 			if (node.children && Array.isArray(node.children)) {
-// 				node.children.forEach((child) => visit(child, node));
-// 			}
-// 		};
-
-// 		visit(tree, null);
-// 	};
-// };
-
 const rehypeFadeInWords = () => {
 	return (tree) => {
 		const visit = (node, parent) => {
@@ -390,7 +349,7 @@ const MarkdownTable = memo(({ children, node, markdown }) => {
 });
 
 // Memoize citation-specific components
-const createCustomComponents = (citationsRef, markdownRef) => ({
+const createCustomComponents = (citationsRef, markdownRef, plotsRef) => ({
 	span: ({ children, citationId, fadeIn, ...props }) => {
 		if (citationId)
 			return <CitationsTooltip citationId={citationId} citations={citationsRef.current} />;
@@ -431,25 +390,30 @@ const createCustomComponents = (citationsRef, markdownRef) => ({
 			</code>
 		);
 	},
+	plotly: ({ attachmentid, ...props }) => {
+		return <Plotly attachmentId={attachmentid} plotly={plotsRef.current} />;
+	},
 });
 //use remaarkMath for math equations
 const remarkPlugins = [remarkGfm];
 const rehypePlugins = [rehypeKatex, rehypeRaw];
 
-const NonMemoizedMarkdown = ({ children, citations = [], animate = false }) => {
+const NonMemoizedMarkdown = ({ children, citations = [], plots = [], animate = false }) => {
 	const markdownRef = useRef('');
 	const citationsRef = useRef([]);
+	const plotsRef = useRef([]);
 
 	const markdown = children;
 
 	markdownRef.current = children;
 	citationsRef.current = citations;
+	plotsRef.current = plots;
 
 	// Memoize the combined components object
 	const components = useMemo(
 		() => ({
 			...baseComponents,
-			...createCustomComponents(citationsRef, markdownRef),
+			...createCustomComponents(citationsRef, markdownRef, plotsRef),
 		}),
 		[],
 	);
