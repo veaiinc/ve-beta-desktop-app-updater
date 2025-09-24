@@ -30,7 +30,7 @@ class NotchViewModel: NSObject, ObservableObject {
         }
         // Always use fixed compact width - no expansion for any state
         return .init(
-            width: DynamicIslandTheme.compactWidth,
+            width: 550, // Increased width to accommodate new UI layout
             height: DynamicIslandTheme.expandedHeight
         )
     }
@@ -283,17 +283,31 @@ class NotchViewModel: NSObject, ObservableObject {
         swiftActionSender.send(.resumeRecording)
     }
 
+    private var lastToggleTime: Date = Date.distantPast
+    
     func toggleStealthMode() {
-        print("🏴‍☠️ Swift requested stealth mode toggle")
+        print("🏴‍☠️ Swift requested stealth mode toggle - current: \(isStealthModeEnabled)")
+        // Toggle immediately for instant UI feedback
+        isStealthModeEnabled.toggle()
+        lastToggleTime = Date() // Record when we toggled
+        print("🏴‍☠️ Stealth mode toggled to: \(isStealthModeEnabled)")
+        // Also send to JavaScript for synchronization
         swiftActionSender.send(.toggleStealthMode)
     }
 
     func updateStealthModeState(_ isEnabled: Bool) {
         DispatchQueue.main.async {
-            if self.isStealthModeEnabled != isEnabled {
-                print("🏴‍☠️ Stealth mode state updated: \(isEnabled ? "ENABLED" : "DISABLED")")
+            // Ignore updates that come within 500ms of a manual toggle to prevent race conditions
+            let timeSinceToggle = Date().timeIntervalSince(self.lastToggleTime)
+            if timeSinceToggle < 0.5 {
+                print("🏴‍☠️ Ignoring stealth mode update from JS (recent toggle: \(timeSinceToggle)s ago)")
+                return
             }
-            self.isStealthModeEnabled = isEnabled
+            
+            if self.isStealthModeEnabled != isEnabled {
+                print("🏴‍☠️ Stealth mode state updated from JS: \(isEnabled ? "ENABLED" : "DISABLED")")
+                self.isStealthModeEnabled = isEnabled
+            }
         }
     }
     

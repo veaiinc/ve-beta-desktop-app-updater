@@ -7,6 +7,8 @@ import AVFoundation
 
 struct NotchContentView: View {
     @StateObject var vm: NotchViewModel
+    @State private var showInfoPopup: Bool = false
+    @State private var infoPopupPosition: CGPoint = .zero
     
     var body: some View {
         ZStack {
@@ -18,9 +20,17 @@ struct NotchContentView: View {
                 // Normal content switching when no notification
                 switch vm.contentType {
                 case .normal:
-                    DynamicIslandContentView(vm: vm)
+                    DynamicIslandContentView(vm: vm, showInfoPopup: $showInfoPopup, infoPopupPosition: $infoPopupPosition)
                         .transition(.scale(scale: 0.8).combined(with: .opacity))
                 }
+            }
+            
+            // Info popup rendered outside the notch container
+            if showInfoPopup {
+                InfoPopupMenu()
+                    .offset(x: 400, y: 0) // Position to the right of the notch
+                    .zIndex(1000) // Ensure it appears above everything
+                    .transition(.scale(scale: 0.95).combined(with: .opacity))
             }
         }
         .animation(vm.animation, value: vm.contentType)
@@ -31,6 +41,8 @@ struct NotchContentView: View {
 // New Dynamic Island Content View matching JavaScript structure
 struct DynamicIslandContentView: View {
     @StateObject var vm: NotchViewModel
+    @Binding var showInfoPopup: Bool
+    @Binding var infoPopupPosition: CGPoint
     @FocusState private var isChatInputFocused: Bool
     @State private var isTextFieldActive: Bool = false
     @State private var textEditorHeight: CGFloat = 100 // Dynamic height for textarea
@@ -82,27 +94,31 @@ struct DynamicIslandContentView: View {
             } else {
                 // Full UI when authenticated
                 // Reduce spacing to bring chat input closer to the header
-                VStack(spacing: 8.0) {
+                VStack(spacing: 12.0) {
                     // Top row with start button and icons
                     HStack(spacing: 0.0) {
                         // Start button section
                         HStack(spacing: 8) {
                             if !vm.isRecording && !vm.showVoiceInterface {
-                                // Listen button (starts transcription/recording)
+                                // Start button (starts transcription/recording) - matches image design
                                 Button(action: {
                                     vm.startRecording()
                                 }) {
-                                    HStack(spacing: 5.0) {
+                                    HStack(spacing: 6.0) {
                                         // Custom wave icon (SVG-based)
-                                        WaveIcon(color: DynamicIslandTheme.black)
-                                            .frame(width: 15, height: 15)
-                                        Text(vm.isConnecting ? "Connecting..." : "Listen")
-                                            .font(.system(size: 12, weight: .medium))
-                                            .foregroundColor(Color(red: 0.055, green: 0.184, blue: 0.165)) // #0E2F2A
+                                        WaveIcon(color: DynamicIslandTheme.primaryGreen)
+                                            .frame(width: 16, height: 16)
+                                        Text(vm.isConnecting ? "Connecting..." : "Start")
+                                            .font(.system(size: 13, weight: .medium))
+                                            .foregroundColor(DynamicIslandTheme.primaryGreen)
                                     }
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 2)
-                                    .background(DynamicIslandTheme.textPrimary)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
+                                    // .background(Color(red: 0.067, green: 0.184, blue: 0.165)) // Dark green background
+                                    .overlay(
+                                        Capsule()
+                                            .stroke(DynamicIslandTheme.primaryGreen, lineWidth: 0.5)
+                                    )
                                     .clipShape(Capsule())
                                 }
                                 .buttonStyle(PlainButtonStyle())
@@ -212,109 +228,113 @@ struct DynamicIslandContentView: View {
                                 // Click on spacer area should unfocus chat input
                                 if isChatInputFocused {
                                     print("🎯 Clicked on spacer area - removing focus from chat input")
-                                    isChatInputFocused = false
-                                    isTextFieldActive = false
-                                    vm.isChatMode = false
+                                    DispatchQueue.main.async {
+                                        isChatInputFocused = false
+                                        isTextFieldActive = false
+                                        vm.isChatMode = false
+                                    }
                                 }
                             }
 
-                        // Right side icons and controls
-                        HStack(spacing: 6) {
-                            // Min/Max text controls (moved to first position)
-                            Text("Min/Max")
-                                .font(.system(size: 10, weight: .medium))
-                                .foregroundColor(.white.opacity(0.7))
-                            
-                            // CMD + . icon with background
-                            HStack(spacing: 2) {
-                                Text("⌘")
-                                    .font(.system(size: 10, weight: .medium))
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 4)
-                                    .padding(.vertical, 2)
-                                    .background(Color.white.opacity(0.15))
-                                    .clipShape(RoundedRectangle(cornerRadius: 4))
-                                Text(".")
-                                    .font(.system(size: 10, weight: .bold))
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 4)
-                                    .padding(.vertical, 2)
-                                    .background(Color.white.opacity(0.15))
-                                    .clipShape(RoundedRectangle(cornerRadius: 4))
-                            }
-                            
-                            // Eye icon (moved to middle, no background)
-                            Button(action: {
-                                vm.toggleStealthMode()
-                            }) {
-                                Group {
-                                    if vm.isStealthModeEnabled {
-                                        EyeIcon(color: DynamicIslandTheme.primaryGreen)
-                                    } else {
-                                        EyeIcon(color: .white)
-                                    }
-                                }
-                                .frame(width: 20, height: 20)
-                                .padding(2)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .help("Stealth Mode")
-                        }
-                        
-                        // Separate HStack for home icon with reduced spacing
-                        HStack(spacing: 0) {
-                            // Home icon - always visible (no background) with reduced left padding
+                        // Right side icons and controls with even spacing
+                        HStack(spacing: 8) {
+                            // Home icon with border styling (first icon)
                             Button(action: {
                                 vm.navigateToMainScreen()
                             }) {
                                 HomeIcon(color: .white)
-                                    .frame(width: 18, height: 18)
-                                    .padding(.leading, 2) // Reduced left padding to decrease gap with eye icon
-                                    .padding(.trailing, 4)
-                                    .padding(.vertical, 4)
+                                    .frame(width: 16, height: 16)
+                                    .padding(8) // Increased padding for larger clickable area
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
+                                            .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
+                                    )
                             }
                             .buttonStyle(PlainButtonStyle())
                             .help("Home")
+                            
+                            // Stealth mode toggle icon - second icon
+                            Button(action: {
+                                print("🎯 Stealth mode icon clicked - current stealth state: \(vm.isStealthModeEnabled)")
+                                vm.toggleStealthMode()
+                                print("🎯 After toggle - new stealth state: \(vm.isStealthModeEnabled)")
+                            }) {
+                                Group {
+                                    if vm.isStealthModeEnabled {
+                                        // Show eye icon when stealth mode is ON (clicked)
+                                        EyeIcon(color: .white)
+                                    } else {
+                                        // Show pirate icon when stealth mode is OFF (default)
+                                        PirateIcon(color: .white)
+                                    }
+                                }
+                                .frame(width: 16, height: 16)
+                                .padding(8) // Increased padding for larger clickable area
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
+                                        .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
+                                )
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .help(vm.isStealthModeEnabled ? "Disable Stealth Mode" : "Enable Stealth Mode")
+                            
+                            // Information icon (third icon) with popup menu
+                            InfoIconWithPopup(showInfoPopup: $showInfoPopup, infoPopupPosition: $infoPopupPosition)
                         }
                     }
                     
                     
                     // Main content area - always show chat box with Voice Mode button
-                    HStack(spacing: 12) {
+                    HStack(alignment: .center, spacing: 16) {
                         if vm.showVoiceInterface {
                             // Voice split layout (left conversation, right controls)
                             VoiceSplitLayout(vm: vm)
                         } else {
-                            // Chat input section with dynamic container
-                            HStack(spacing: 12) {
-                                ChatTextAreaView(
-                                    chatInput: $vm.chatInput,
-                                    textEditorHeight: $textEditorHeight,
-                                    isTextFieldActive: $isTextFieldActive,
-                                    vm: vm
-                                )
-                                .frame(width: vm.isChatMode ? 450 : 370) // Expand chat width when focused
-                                .animation(.easeInOut(duration: 0.3), value: vm.isChatMode)
-                                
-                                // Webcam button - only show when recording
-                                if vm.isRecording {
-                                    WebcamButton(vm: vm)
-                                        .frame(width: 60, height: 60) // Smaller webcam button
-                                }
-                                
-                                // Voice Mode button - only show when NOT recording AND chat not focused
-                                if !vm.isRecording && !vm.isChatMode {
-                                    VoiceModeButton(vm: vm)
-                                        .frame(width: 85, height: 85) // Slightly smaller voice mode button to prevent cropping
-                                        .transition(.scale.combined(with: .opacity))
-                                }
+                            // Chat input section with arrow icon inside - matches image layout
+                            ChatTextAreaView(
+                                chatInput: $vm.chatInput,
+                                textEditorHeight: $textEditorHeight,
+                                isTextFieldActive: $isTextFieldActive,
+                                vm: vm
+                            )
+                            .frame(width: (vm.isChatMode && !vm.isRecording) ? 510 : 400) // Dynamic width: 400px initially, 510px when focused (but 400px in meeting mode)
+                            .animation(.easeInOut(duration: 0.3), value: vm.isChatMode)
+                            .animation(.easeInOut(duration: 0.3), value: vm.isRecording)
+                            
+                            // Voice Mode button - only show when NOT recording AND chat not focused
+                            if !vm.isRecording && !vm.isChatMode {
+                                VoiceModeButton(vm: vm, onFocusChat: {
+                                    print("🎯 onFocusChat callback triggered")
+                                    // When voice mode button is clicked, focus the chat input
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                        print("🎯 Setting chat input focused: true")
+                                        isChatInputFocused = true
+                                        isTextFieldActive = true
+                                        
+                                        // Ensure window is key for cursor to appear
+                                        if let window = NSApp.keyWindow {
+                                            window.makeKeyAndOrderFront(nil)
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                                                window.makeFirstResponder(window.firstResponder)
+                                            }
+                                        }
+                                    }
+                                })
+                                    .frame(width: 100, height: 100) // Larger voice mode button to match image
+                                    .transition(.scale.combined(with: .opacity))
                             }
-                            .frame(width: 440) // Fixed container width - no expansion
+                            
+                            // Webcam button - only show when recording
+                            if vm.isRecording {
+                                WebcamButton(vm: vm)
+                                    .frame(width: 90, height: 90) // Larger webcam button as requested
+                            }
                         }
                     }
                     .frame(maxWidth: vm.notchOpenedSize.width - 32) // Constrain main content area
                     .clipped() // Ensure content doesn't overflow
                     .animation(.easeInOut(duration: 0.3), value: vm.isChatMode)
+                    .animation(.easeInOut(duration: 0.3), value: vm.isRecording)
                 }
             }
         }
@@ -559,20 +579,32 @@ struct ChatTextAreaView: View {
     
     var body: some View {
         ZStack(alignment: .topLeading) {
-            // Background for the textarea
+            // Background for the textarea with active effect
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color.clear)
+                .fill(isChatInputFocused ? Color.white.opacity(0.05) : Color.clear) // Subtle background when active
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(DynamicIslandTheme.stroke.opacity(isChatInputFocused ? 1.0 : 0.5), lineWidth: 1)
+                        .stroke(
+                            isChatInputFocused ? 
+                            DynamicIslandTheme.primaryGreen.opacity(0.8) : // Green border when active
+                            DynamicIslandTheme.stroke.opacity(0.5), 
+                            lineWidth: isChatInputFocused ? 1.5 : 1 // Thicker border when active
+                        )
                 )
                 .frame(width: .infinity, height: textEditorHeight)
+                .shadow(
+                    color: isChatInputFocused ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear,
+                    radius: isChatInputFocused ? 4 : 0,
+                    x: 0,
+                    y: 0
+                )
                 .animation(DynamicIslandTheme.expansionAnimation, value: textEditorWidth)
                 .animation(.easeInOut(duration: 0.25), value: textEditorHeight)
+                .animation(.easeInOut(duration: 0.2), value: isChatInputFocused) // Smooth transition for active state
             
-            // Placeholder text when empty
+            // Placeholder text when empty - matches image
             if chatInput.isEmpty {
-                Text("Ask about screen or anything")
+                Text("Ask about screen")
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(DynamicIslandTheme.textMuted)
                     .padding(.horizontal, 20)
@@ -586,12 +618,49 @@ struct ChatTextAreaView: View {
                 .foregroundColor(DynamicIslandTheme.textPrimary)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
+                .padding(.trailing, 40) // Add space for arrow icon
                 .background(Color.clear)
                 .focused($isChatInputFocused)
                 .frame(width: textEditorWidth, height: textEditorHeight)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
                 .scrollContentBackground(.hidden) // Hide default TextEditor background
                 .allowsHitTesting(true) // Ensure TextEditor can receive mouse events
+                .onTapGesture {
+                    // Direct tap on TextEditor to ensure focus and cursor
+                    print("🎯 TextEditor directly tapped")
+                    DispatchQueue.main.async {
+                        isChatInputFocused = true
+                        isTextFieldActive = true
+                        // Only enable chat mode if NOT in meeting mode (recording)
+                        if !vm.isRecording {
+                            vm.isChatMode = true
+                        }
+                    }
+                }
+            
+            // Arrow icon inside the input box (bottom-right)
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        print("🎯 Arrow button clicked - submitting chat")
+                        if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            vm.submitChat()
+                        }
+                    }) {
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 14))
+                            .foregroundColor(.white)
+                            .frame(width: 24, height: 24)
+                            // .background(Color(red: 0.067, green: 0.184, blue: 0.165)) // Dark green background
+                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .padding(.trailing, 8)
+                    .padding(.bottom, 8)
+                }
+            }
                 .onKeyPress(keys: [.return]) { event in
                     print("🎯 Return key pressed - modifiers: \(event.modifiers)")
                     if event.modifiers == .shift {
@@ -626,11 +695,14 @@ struct ChatTextAreaView: View {
                     calculateTextEditorWidth()
                 }
                 .onChange(of: vm.isRecording) { oldValue, newValue in
-                    // Adjust width when recording state changes (but only if not focused)
-                    if !isChatInputFocused {
-                        withAnimation(DynamicIslandTheme.expansionAnimation) {
-                            calculateTextEditorWidth()
-                        }
+                    // When recording starts, disable chat mode to keep width at 400px
+                    if newValue && vm.isChatMode {
+                        vm.isChatMode = false
+                    }
+                    
+                    // Adjust width when recording state changes
+                    withAnimation(DynamicIslandTheme.expansionAnimation) {
+                        calculateTextEditorWidth()
                     }
                 }
         }
@@ -648,10 +720,22 @@ struct ChatTextAreaView: View {
                 window.makeKeyAndOrderFront(nil)
             }
             
-            // Set focus directly without delays or additional responder calls
-            isChatInputFocused = true
-            isTextFieldActive = true
-            vm.isChatMode = true // Re-enabled for chat expansion
+            // Set focus with proper timing to ensure cursor appears
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                isChatInputFocused = true
+                isTextFieldActive = true
+                // Only enable chat mode if NOT in meeting mode (recording)
+                if !vm.isRecording {
+                    vm.isChatMode = true
+                }
+                
+                // Force the window to become first responder after a short delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                    if let window = NSApp.keyWindow {
+                        window.makeFirstResponder(window.firstResponder)
+                    }
+                }
+            }
         }
         .zIndex(2) // Ensure chat input is above the background overlay
     }
@@ -709,8 +793,10 @@ struct ChatTextAreaView: View {
         print("🎯 TextEditor focus changed: \(newValue)")
         isTextFieldActive = newValue
         
-        // Enable chat mode to hide Voice Mode button and expand chat
-        vm.isChatMode = newValue
+        // Enable chat mode to hide Voice Mode button and expand chat (but not in meeting mode)
+        if !vm.isRecording {
+            vm.isChatMode = newValue
+        }
         
         // Chat expansion disabled - keep fixed width
         
@@ -721,20 +807,26 @@ struct ChatTextAreaView: View {
         
         // When unfocused and no text, clear chat input and reset height
         if !newValue && chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            chatInput = ""
             withAnimation(.easeInOut(duration: 0.25)) {
                 textEditorHeight = 100 // Reset to minimum height
             }
         }
         
-        // When focused, ensure window is key but DON'T change first responder
+        // When focused, ensure window is key and cursor appears
         if newValue {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 if let window = NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible }) {
                     if !window.isKeyWindow {
                         window.makeKey()
                     }
-                    // Don't call makeFirstResponder here - it steals focus from TextEditor
+                    // Force window to become key and order front to ensure cursor appears
+                    window.makeKeyAndOrderFront(nil)
+                    
+                    // Additional delay to ensure TextEditor gets proper focus
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                        // Force the window to become first responder to show cursor
+                        window.makeFirstResponder(window.firstResponder)
+                    }
                 }
             }
         }
@@ -742,8 +834,8 @@ struct ChatTextAreaView: View {
     
     // MARK: - Width Calculation Helper
     private func calculateTextEditorWidth() {
-        // Dynamic width based on chat mode: expanded when focused, normal when not
-        let calculatedWidth: CGFloat = vm.isChatMode ? 450 : 370
+        // Dynamic width based on chat mode: 400px initially, 510px when focused (but 400px in meeting mode)
+        let calculatedWidth: CGFloat = (vm.isChatMode && !vm.isRecording) ? 510 : 400
         
         textEditorWidth = calculatedWidth
     }
@@ -756,7 +848,7 @@ struct HomeIcon: View {
     var color: Color = .white
     var body: some View {
         Image(systemName: "house.fill")
-            .font(.system(size: 18))
+            .font(.system(size: 14))
             .foregroundColor(color)
     }
 }
@@ -907,7 +999,7 @@ struct WebcamButton: View {
                 if !vm.showCameraPreview {
                     Circle()
                         .fill(DynamicIslandTheme.card)
-                        .frame(width: 70, height: 80)
+                        .frame(width: 90, height: 90)
                         .scaleEffect(isHovered ? 1.05 : 1.0)
                         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
                 }
@@ -929,11 +1021,11 @@ struct WebcamButton: View {
                         // Background circle for camera preview
                         Circle()
                             .fill(DynamicIslandTheme.card)
-                            .frame(width: 70, height: 70)
+                            .frame(width: 90, height: 90)
                         
                         // Camera preview
                         CameraPreviewView()
-                            .frame(width: 70, height: 70)
+                            .frame(width: 90, height: 90)
                             .clipShape(Circle())
                     }
                     .scaleEffect(isHovered ? 1.05 : 1.0)
@@ -1101,6 +1193,53 @@ struct PirateIcon: View {
     }
 }
 
+// MARK: - InfoIcon
+struct InfoIcon: View {
+    var color: Color = .white
+
+    var body: some View {
+        GeometryReader { geo in
+            let scale = min(geo.size.width, geo.size.height) / 24.0
+            let offsetX = (geo.size.width - 24.0 * scale) / 2.0
+            let offsetY = (geo.size.height - 24.0 * scale) / 2.0
+            let strokeStyle = StrokeStyle(lineWidth: 2.0 * scale, lineCap: .round, lineJoin: .round)
+            let point: (CGFloat, CGFloat) -> CGPoint = { x, y in
+                CGPoint(x: offsetX + x * scale, y: offsetY + y * scale)
+            }
+            let circleRect: (CGFloat, CGFloat, CGFloat) -> CGRect = { centerX, centerY, radius in
+                CGRect(
+                    x: offsetX + (centerX - radius) * scale,
+                    y: offsetY + (centerY - radius) * scale,
+                    width: radius * 2.0 * scale,
+                    height: radius * 2.0 * scale
+                )
+            }
+
+            ZStack {
+                // Outer circle
+                Path { path in
+                    path.addEllipse(in: circleRect(12.0, 12.0, 10.0))
+                }
+                .stroke(color, style: strokeStyle)
+
+                // Inner dot (i dot)
+                Path { path in
+                    path.addEllipse(in: circleRect(12.0, 8.0, 1.5))
+                }
+                .fill(color)
+
+                // Vertical line (i stem)
+                Path { path in
+                    path.move(to: point(12.0, 10.0))
+                    path.addLine(to: point(12.0, 16.0))
+                }
+                .stroke(color, style: strokeStyle)
+            }
+        }
+        .aspectRatio(1.0, contentMode: .fit)
+    }
+}
+
 // MARK: - Notification Overlay View
 struct NotificationOverlayView: View {
     @ObservedObject var vm: NotchViewModel
@@ -1240,44 +1379,184 @@ struct NotificationOverlayView: View {
 struct VoiceModeButton: View {
     @ObservedObject var vm: NotchViewModel
     @State private var isHovered: Bool = false
+    let onFocusChat: () -> Void
     
     var body: some View {
         Button(action: {
-            // Connect to voice assistant (restore previous functionality)
-            vm.connectVoiceAssistant()
+            print("🎯 Voice Mode button clicked - enabling chat mode")
+            // Focus chat input and expand to 510px when voice mode button is clicked
+            vm.isChatMode = true
+            // Ensure voice interface is not shown
+            vm.showVoiceInterface = false
+            onFocusChat()
         }) {
             ZStack {
-                // Background circle with conditional border
-                Circle()
-                    .fill(DynamicIslandTheme.card)
-                    .overlay(
-                        Circle()
-                            .stroke(
-                                vm.showVoiceInterface ? DynamicIslandTheme.primaryGreen : Color.clear,
-                                lineWidth: 2
-                            )
-                    )
-                    .frame(width: 85, height: 85)
-                    .scaleEffect(isHovered ? 1.05 : 1.0)
-                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
-                
-                // Content
-                VStack(spacing: 6) {
-                    // Large wave icon (green when active, gray when inactive)
-                    WaveIcon(color: vm.showVoiceInterface ? DynamicIslandTheme.primaryGreen : Color.gray.opacity(0.6))
-                        .frame(width: 22, height: 22)
+                // Main circle with CSS properties
+                ZStack {
+                    // Background circle - border-radius: 100px; background: rgba(255, 255, 255, 0.01);
+                    Circle()
+                        .fill(Color.white.opacity(0.01))
+                        .frame(width: 90, height: 90)
                     
-                    // "Voice Mode" text
-                    Text("Voice Mode")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(.white)
+                  
+                    
+                    // Border - border: 1px solid #79ECC9;
+                     Circle()
+                         .stroke(Color(red: 0.475, green: 0.925, blue: 0.788), lineWidth: 1)
+                         .frame(width: 90, height: 90)
                 }
+                .scaleEffect(isHovered ? 1.05 : 1.0)
+                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
+                
+                // Content with inline text
+                HStack(spacing: 2) {
+                    // "VOICE" text - bold
+                    Text("VOICE")
+                        .font(.custom("SF Pro Text", size: 10))
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .tracking(1)
+                    
+                    // "MODE" text - semibold
+                    Text("MODE")
+                        .font(.custom("SF Pro Text", size: 10))
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .tracking(1)
+                }
+                .frame(width: 90, height: 90) // width: 90px; height: 90px;
+                .padding(.horizontal, 24) // padding: 6px 24px; (horizontal)
+                .padding(.vertical, 6)    // padding: 6px 24px; (vertical)
             }
         }
         .buttonStyle(PlainButtonStyle())
         .onHover { hovering in
             isHovered = hovering
         }
+    }
+}
+
+// MARK: - Info Icon with Popup Menu
+struct InfoIconWithPopup: View {
+    @Binding var showInfoPopup: Bool
+    @Binding var infoPopupPosition: CGPoint
+    @State private var isHovered: Bool = false
+    
+    var body: some View {
+        // Info icon button
+        Button(action: {
+            print("🎯 Information icon clicked")
+            // Toggle popup on click as well
+            withAnimation(.easeInOut(duration: 0.2)) {
+                showInfoPopup.toggle()
+            }
+        }) {
+            InfoIcon(color: .white)
+                .frame(width: 16, height: 16)
+                .padding(8) // Increased padding for larger clickable area
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
+                        .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
+                )
+        }
+        .buttonStyle(PlainButtonStyle())
+        .help("Information")
+        .onHover { hovering in
+            isHovered = hovering
+            withAnimation(.easeInOut(duration: 0.2)) {
+                showInfoPopup = hovering
+            }
+        }
+    }
+}
+
+// MARK: - Info Popup Menu Component
+struct InfoPopupMenu: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Live Intelligence
+            InfoMenuItem(
+                title: "Live Intelligence",
+                shortcutKeys: ["⌘", "\\"]
+            )
+            
+            // Notch
+            InfoMenuItem(
+                title: "Notch",
+                shortcutKeys: ["⌘", "N"]
+            )
+            
+            // Ask Ve
+            InfoMenuItem(
+                title: "Ask Ve",
+                shortcutKeys: ["⌘", "⏎"]
+            )
+            
+            // Ve App
+            InfoMenuItem(
+                title: "Ve App",
+                shortcutKeys: ["⌘", "."]
+            )
+        }
+        .padding(.vertical, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color(red: 0.15, green: 0.15, blue: 0.15)) // Dark grey background
+                .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
+        )
+        .frame(width: 200) // Fixed width to match design
+    }
+}
+
+// MARK: - Info Menu Item Component
+struct InfoMenuItem: View {
+    let title: String
+    let shortcutKeys: [String]
+    
+    var body: some View {
+        HStack {
+            // Menu item title
+            Text(title)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.white)
+            
+            Spacer()
+            
+            // Keyboard shortcut
+            HStack(spacing: 4) {
+                ForEach(shortcutKeys, id: \.self) { key in
+                    ShortcutKeyView(keyText: key)
+                }
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            print("🎯 Menu item tapped: \(title)")
+            // Handle menu item actions here
+        }
+    }
+}
+
+// MARK: - Shortcut Key View Component
+struct ShortcutKeyView: View {
+    let keyText: String
+    
+    var body: some View {
+        Text(keyText)
+            .font(.system(size: 11, weight: .medium))
+            .foregroundColor(.white)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.white.opacity(0.15))
+            )
     }
 }
 
