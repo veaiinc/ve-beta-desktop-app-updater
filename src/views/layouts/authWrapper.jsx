@@ -36,12 +36,6 @@ const AuthWrapper = ({
 	const showPushNotification = useCallback((payload) => {
 		const { title, body } = payload.notification || {};
 		message.success(`${title || 'Notification'}: ${body || ''}`);
-		const firebasePN = {
-			firebasePN: payload,
-		};
-		const strPayload = JSON.stringify(firebasePN);
-		console.log('firebasePN', strPayload);
-		window.electronApi.sendMessageFrmVeApp(strPayload);
 	}, []);
 
 	usePushNotifications(showPushNotification);
