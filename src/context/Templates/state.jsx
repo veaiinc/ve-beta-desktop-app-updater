@@ -2884,7 +2884,7 @@ export const TemplatesState = (props) => {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 			const url = `/${workspaceId}/ai-chat/delete-multiagent-conversation/${sessionId}`;
-			const body = { isPermanent: false };
+			const body = { isPermanent: true };
 			const response = await Service.fetchDelete(url, usertoken, body, 'ai_assistant_api');
 			return response;
 		} catch (error) {
