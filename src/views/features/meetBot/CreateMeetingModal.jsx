@@ -92,7 +92,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 			const meetingId = response?.[1]?.data?.startMeeting?._id;
 			const type = response?.[1]?.data?.startMeeting?.transcriptionSource;
 
-			if (meetingId && type) {
+			if (meetingId) {
 				// navigate(
 				// 	`/meet/${meetingId}?type=${type}&isAiIntelligenceEnabled=${formData.isAiIntelligenceEnabled}`,
 				// );
@@ -101,8 +101,6 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 					window.electronApi.overlay.startRecording({
 						...(response?.[1]?.data?.startMeeting || {}),
 					});
-
-					
 
 					window.electronApi.minimizeMainWindow();
 
@@ -131,7 +129,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 				return;
 			}
 
-			message.error('Invalid meeting link');
+			// message.error('Invalid meeting link');
 		} finally {
 			setFormData((prev) => ({ ...prev, creating: false }));
 		}
