@@ -604,12 +604,16 @@ const useAssemblyTranscription = ({
 	const audioEchoCancellationRef = useRef({
 		screenAudioHistory: [], // Store recent screen audio for comparison
 		micAudioHistory: [], // Store recent mic audio for comparison
-		echoThreshold: 0.3, // Lower threshold for more aggressive echo detection
+		echoThreshold: 0.2, // Much more aggressive threshold
 		historySize: 8, // More history for better detection
 		lastScreenTime: 0,
 		lastMicTime: 0,
 		consecutiveEchoCount: 0, // Track consecutive echoes
-		maxConsecutiveEchoes: 3, // If we detect echoes, be more aggressive
+		maxConsecutiveEchoes: 2, // If we detect echoes, be more aggressive
+		lastUniqueVoiceTime: 0, // Track when we last heard unique voice
+		micSilenceCount: 0, // Track consecutive silent mic chunks
+		debugMode: false, // Set to true to disable echo cancellation for testing
+		screenAudioActive: false, // Track if screen audio is currently active
 	});
 
 	// Advanced echo detection using cross-correlation and timing analysis
@@ -662,26 +666,30 @@ const useAssemblyTranscription = ({
 		// Method 5: Check if mic audio is significantly quieter than screen audio (typical of echo)
 		const isQuieterEcho = micRMS < screenRMS * 0.8 && directCorrelation > 0.2;
 
-		// Method 6: Check for similar audio patterns even with slight variations (like "bike" vs "ai")
-		const patternSimilarity = Math.abs(directCorrelation - 0.5) < 0.3; // If correlation is around 0.5, it might be similar content
-		
+		// Method 6: Check for very high correlation (obvious echo)
+		const isObviousEcho = directCorrelation > 0.4;
+
 		// Method 7: Check if both audio sources have similar energy patterns
-		const energySimilarity = rmsRatio > 0.4 && directCorrelation > 0.2;
+		const energySimilarity = rmsRatio > 0.3 && directCorrelation > 0.2;
 
-		// Method 8: If we've been detecting echoes recently, be more aggressive
-		const isRecentEchoPattern = audioEchoCancellationRef.current.consecutiveEchoCount > 0 && directCorrelation > 0.15;
+		// Method 8: If screen audio is active, be much more aggressive
+		const isScreenActive = audioEchoCancellationRef.current.screenAudioActive;
+		const isScreenActiveEcho = isScreenActive && directCorrelation > 0.15;
 
-		// Combine all methods for robust echo detection - much more aggressive
-		const isEcho = (directCorrelation > audioEchoCancellationRef.current.echoThreshold) ||
-					   (maxHistoricalCorrelation > audioEchoCancellationRef.current.echoThreshold) ||
+		// Method 9: Check for similar content patterns (like "influence money" appearing in both)
+		const isContentSimilar = directCorrelation > 0.1 && rmsRatio > 0.2;
+
+		// Combine methods - be much more aggressive when screen audio is active
+		const isEcho = isObviousEcho ||
+					   (directCorrelation > audioEchoCancellationRef.current.echoThreshold) ||
+					   (maxHistoricalCorrelation > 0.3) ||
 					   (isTimingEcho && directCorrelation > 0.2) ||
-					   (isQuieterEcho && rmsRatio > 0.2) ||
-					   (patternSimilarity && rmsRatio > 0.3) ||
 					   (energySimilarity) ||
-					   (isRecentEchoPattern);
+					   (isScreenActiveEcho) ||
+					   (isContentSimilar && isScreenActive);
 
 		if (isEcho) {
-			log(`🎯 Echo detected: direct=${directCorrelation.toFixed(3)}, historical=${maxHistoricalCorrelation.toFixed(3)}, timing=${isTimingEcho}, quieter=${isQuieterEcho}, rmsRatio=${rmsRatio.toFixed(3)}, pattern=${patternSimilarity}, energy=${energySimilarity}, recent=${isRecentEchoPattern}`);
+			log(`🎯 Echo detected: direct=${directCorrelation.toFixed(3)}, historical=${maxHistoricalCorrelation.toFixed(3)}, timing=${isTimingEcho}, quieter=${isQuieterEcho}, rmsRatio=${rmsRatio.toFixed(3)}, energy=${energySimilarity}, screenActive=${isScreenActive}, contentSimilar=${isContentSimilar}`);
 		}
 
 		return isEcho;
@@ -881,48 +889,29 @@ const useAssemblyTranscription = ({
 								// Check if this mic audio is echo from screen audio
 								let isEcho = false;
 								
-								// If screen audio is active, be much more aggressive about echo detection
-								const isScreenAudioActive = audioEchoCancellationRef.current.screenAudioHistory.length > 0;
-								
-								if (isScreenAudioActive) {
-									// Check against most recent screen audio
-									const mostRecentScreenAudio = audioEchoCancellationRef.current.screenAudioHistory[audioEchoCancellationRef.current.screenAudioHistory.length - 1];
-									isEcho = isEchoAudio(micBufferRef.current, mostRecentScreenAudio);
-									
-									// Also check against all recent screen audio history for delayed echo
-									if (!isEcho && audioEchoCancellationRef.current.screenAudioHistory.length > 1) {
-										for (let i = audioEchoCancellationRef.current.screenAudioHistory.length - 1; i >= 0 && !isEcho; i--) {
-											const historicalScreenAudio = audioEchoCancellationRef.current.screenAudioHistory[i];
-											isEcho = isEchoAudio(micBufferRef.current, historicalScreenAudio);
-										}
+								// Debug mode: disable echo cancellation for testing
+								if (audioEchoCancellationRef.current.debugMode || window.echoDebugMode) {
+									log(`🔧 DEBUG MODE: Echo cancellation disabled - sending all mic audio`);
+									isEcho = false;
+								} else {
+									// SIMPLE APPROACH: If screen audio is active, temporarily disable mic transcription
+									if (audioEchoCancellationRef.current.screenAudioActive) {
+										log(`🔇 Screen audio active - temporarily disabling mic transcription to prevent echo`);
+										isEcho = true; // Block all mic audio when screen is active
+									} else {
+										// Only allow mic audio when screen audio is not active
+										isEcho = false;
+										log(`🎤 Screen audio inactive - allowing mic transcription`);
 									}
-									
-									// Additional check: if we've been detecting echoes, be even more aggressive
-									if (!isEcho && audioEchoCancellationRef.current.consecutiveEchoCount > 0) {
-										// Use a much lower threshold for echo detection when we're in an echo pattern
-										const micRMS = Math.sqrt(micBufferRef.current.reduce((sum, val) => sum + val * val, 0) / micBufferRef.current.length);
-										const screenRMS = Math.sqrt(mostRecentScreenAudio.reduce((sum, val) => sum + val * val, 0) / mostRecentScreenAudio.length);
-										const rmsRatio = Math.min(micRMS, screenRMS) / Math.max(micRMS, screenRMS);
-										
-										// If the audio levels are similar and we're in an echo pattern, it's likely echo
-										if (rmsRatio > 0.2) {
-											isEcho = true;
-											log(`🔇 Aggressive echo detection: rmsRatio=${rmsRatio.toFixed(3)}, consecutiveEchoes=${audioEchoCancellationRef.current.consecutiveEchoCount}`);
-										}
-									}
-								}
-								
-								// If we've detected too many consecutive echoes, temporarily disable mic transcription
-								if (audioEchoCancellationRef.current.consecutiveEchoCount > 5) {
-									log(`🔇 Temporarily disabling mic transcription due to persistent echo (${audioEchoCancellationRef.current.consecutiveEchoCount} consecutive echoes)`);
-									isEcho = true; // Force echo to prevent transcription
 								}
 								
 								if (!isEcho) {
 									log(`🎤 Sending mic audio chunk: ${audioData.length} samples (unique voice)`);
 									sendAudioData(audioData, 'mic');
-									// Reset consecutive echo count when we find unique voice
+									// Reset consecutive echo count and update last unique voice time
 									audioEchoCancellationRef.current.consecutiveEchoCount = 0;
+									audioEchoCancellationRef.current.lastUniqueVoiceTime = Date.now();
+									audioEchoCancellationRef.current.micSilenceCount = 0;
 								} else {
 									log(`🔇 Filtering echo from mic audio (YouTube/screen audio detected in microphone)`);
 									// Increment consecutive echo count for more aggressive filtering
@@ -933,6 +922,7 @@ const useAssemblyTranscription = ({
 								storeAudioHistory(micBufferRef.current, 'mic');
 							} else {
 								log('Skipping silent mic audio chunk');
+								audioEchoCancellationRef.current.micSilenceCount++;
 							}
 						}
 
@@ -1011,10 +1001,18 @@ const useAssemblyTranscription = ({
 										log(`📺 Sending screen audio chunk: ${audioData.length} samples`);
 										sendAudioData(audioData, 'screen');
 										
+										// Mark screen audio as active
+										audioEchoCancellationRef.current.screenAudioActive = true;
+										
 										// Store screen audio history for echo detection
 										storeAudioHistory(screenBufferRef.current, 'screen');
 									} else {
 										log('Skipping silent screen audio chunk');
+										// If screen audio is silent for a while, mark it as inactive
+										if (audioEchoCancellationRef.current.screenAudioActive) {
+											audioEchoCancellationRef.current.screenAudioActive = false;
+											log('📺 Screen audio marked as inactive');
+										}
 									}
 								}
 
