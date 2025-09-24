@@ -2,6 +2,8 @@
 	display: flex;
 	flex-direction: column;
 	width: 100%;
+	height: 100%; /* Use actual window height, not viewport */
+	min-height: 100%; /* Minimum height based on container */
 	font-family: var(--chat-primary-font-family), -apple-system, BlinkMacSystemFont, 'Segoe UI',
 		Roboto, sans-serif;
 	user-select: text;
@@ -113,10 +115,11 @@
 
 		.chatWrapper {
 			width: 100%;
-			overflow: auto;
+			overflow: hidden; /* Prevent double scrollbars */
 			flex-grow: 1;
 			display: flex;
 			flex-direction: column;
+			min-height: 0; /* Allow flexbox to shrink */
 			-webkit-app-region: no-drag; /* Ensure chat content is not draggable */
 			app-region: no-drag;
 
@@ -130,23 +133,97 @@
 
 			.chat-page-container-wrapper {
 				flex-grow: 1;
+				display: flex;
+				flex-direction: column;
+				min-height: 0; /* Allow flexbox to shrink */
+				height: 100%;
+				overflow: hidden; /* Prevent outer scrolling */
 
 				.textArea {
 					max-height: 125px !important;
 				}
+
+				/* Override the main chat layout for Ask AI */
+				.chatBodyWrapper {
+					flex-grow: 1;
+					display: flex;
+					flex-direction: column;
+					padding: 0 20px 0 20px;
+					min-height: 0; /* Allow flexbox to shrink */
+					overflow: hidden;
+
+					.chatBodyParentContainer {
+						flex-grow: 1;
+						overflow-y: auto !important; /* Force scrolling to be enabled */
+						overflow-x: hidden;
+						min-height: 0; /* Allow flexbox to shrink */
+						max-height: none !important; /* Remove any height restrictions */
+						height: 100% !important; /* Take full available height */
+						position: relative; /* Ensure proper positioning */
+						
+						/* Ensure scrollbar is visible and functional */
+						&::-webkit-scrollbar {
+							width: 8px;
+							background: transparent;
+						}
+						
+						&::-webkit-scrollbar-track {
+							background: rgba(255, 255, 255, 0.1);
+							border-radius: 4px;
+							margin: 4px 0;
+						}
+						
+						&::-webkit-scrollbar-thumb {
+							background: rgba(255, 255, 255, 0.4);
+							border-radius: 4px;
+							border: 1px solid rgba(255, 255, 255, 0.1);
+						}
+						
+						&::-webkit-scrollbar-thumb:hover {
+							background: rgba(255, 255, 255, 0.6);
+						}
+						
+						&::-webkit-scrollbar-thumb:active {
+							background: rgba(255, 255, 255, 0.8);
+						}
+						
+						/* Ensure content can be scrolled */
+						.chatContent {
+							min-height: 100%;
+							padding-bottom: 20px;
+						}
+					}
+
+					/* Hide the chat input inside the scrollable area - we'll add it outside */
+					.chatBoxWrapper {
+						display: none !important; /* Hide the original chat input */
+					}
+				}
 			}
 
 			.chatContent {
-				padding: 0 5px 70px 5px;
-			}
-
-			.chatBodyWrapper {
-				padding: 0 20px 20px 20px;
+				padding: 0 5px 10px 5px; /* Reduced bottom padding */
 			}
 
 			.ve-mistake-text {
 				display: none;
 			}
+		}
+	}
+
+	// Separate chat input wrapper outside the scrollable area
+	.ask-ai-chat-input-wrapper {
+		flex-shrink: 0; /* Keep input always visible */
+		padding: 0 20px 20px 20px; /* Match the chat content padding */
+		background: transparent;
+		border-top: 1px solid rgba(255, 255, 255, 0.1);
+		margin-top: 10px;
+		
+		/* Ensure the chat input is properly styled */
+		.chatBoxWrapper {
+			display: block !important; /* Show the chat input */
+			margin: 0;
+			padding: 0;
 		}
 	}
 
