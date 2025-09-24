@@ -600,6 +600,114 @@ const useAssemblyTranscription = ({
 		return rms > threshold;
 	}, []);
 
+	// Automatic echo cancellation and source separation
+	const audioEchoCancellationRef = useRef({
+		screenAudioHistory: [], // Store recent screen audio for comparison
+		micAudioHistory: [], // Store recent mic audio for comparison
+		echoThreshold: 0.3, // Lower threshold for more aggressive echo detection
+		historySize: 8, // More history for better detection
+		lastScreenTime: 0,
+		lastMicTime: 0,
+		consecutiveEchoCount: 0, // Track consecutive echoes
+		maxConsecutiveEchoes: 3, // If we detect echoes, be more aggressive
+	});
+
+	// Advanced echo detection using cross-correlation and timing analysis
+	const isEchoAudio = useCallback((micAudioData, screenAudioData) => {
+		if (!micAudioData || !screenAudioData || micAudioData.length !== screenAudioData.length) {
+			return false;
+		}
+
+		// Method 1: Direct correlation (immediate echo)
+		let correlation = 0;
+		let norm1 = 0;
+		let norm2 = 0;
+
+		for (let i = 0; i < micAudioData.length; i++) {
+			correlation += micAudioData[i] * screenAudioData[i];
+			norm1 += micAudioData[i] * micAudioData[i];
+			norm2 += screenAudioData[i] * screenAudioData[i];
+		}
+
+		const directCorrelation = Math.abs(correlation) / (Math.sqrt(norm1) * Math.sqrt(norm2));
+
+		// Method 2: Check against recent screen audio history (delayed echo)
+		let maxHistoricalCorrelation = 0;
+		for (const historicalScreenAudio of audioEchoCancellationRef.current.screenAudioHistory) {
+			if (historicalScreenAudio.length === micAudioData.length) {
+				let histCorrelation = 0;
+				let histNorm1 = 0;
+				let histNorm2 = 0;
+
+				for (let i = 0; i < micAudioData.length; i++) {
+					histCorrelation += micAudioData[i] * historicalScreenAudio[i];
+					histNorm1 += micAudioData[i] * micAudioData[i];
+					histNorm2 += historicalScreenAudio[i] * historicalScreenAudio[i];
+				}
+
+				const histNormalizedCorrelation = Math.abs(histCorrelation) / (Math.sqrt(histNorm1) * Math.sqrt(histNorm2));
+				maxHistoricalCorrelation = Math.max(maxHistoricalCorrelation, histNormalizedCorrelation);
+			}
+		}
+
+		// Method 3: Timing analysis - if mic audio comes shortly after screen audio
+		const timeDiff = Date.now() - audioEchoCancellationRef.current.lastScreenTime;
+		const isTimingEcho = timeDiff > 50 && timeDiff < 500; // 50ms-500ms delay typical for echo
+
+		// Method 4: Frequency domain analysis for better echo detection
+		const micRMS = Math.sqrt(norm1 / micAudioData.length);
+		const screenRMS = Math.sqrt(norm2 / screenAudioData.length);
+		const rmsRatio = Math.min(micRMS, screenRMS) / Math.max(micRMS, screenRMS);
+
+		// Method 5: Check if mic audio is significantly quieter than screen audio (typical of echo)
+		const isQuieterEcho = micRMS < screenRMS * 0.8 && directCorrelation > 0.2;
+
+		// Method 6: Check for similar audio patterns even with slight variations (like "bike" vs "ai")
+		const patternSimilarity = Math.abs(directCorrelation - 0.5) < 0.3; // If correlation is around 0.5, it might be similar content
+		
+		// Method 7: Check if both audio sources have similar energy patterns
+		const energySimilarity = rmsRatio > 0.4 && directCorrelation > 0.2;
+
+		// Method 8: If we've been detecting echoes recently, be more aggressive
+		const isRecentEchoPattern = audioEchoCancellationRef.current.consecutiveEchoCount > 0 && directCorrelation > 0.15;
+
+		// Combine all methods for robust echo detection - much more aggressive
+		const isEcho = (directCorrelation > audioEchoCancellationRef.current.echoThreshold) ||
+					   (maxHistoricalCorrelation > audioEchoCancellationRef.current.echoThreshold) ||
+					   (isTimingEcho && directCorrelation > 0.2) ||
+					   (isQuieterEcho && rmsRatio > 0.2) ||
+					   (patternSimilarity && rmsRatio > 0.3) ||
+					   (energySimilarity) ||
+					   (isRecentEchoPattern);
+
+		if (isEcho) {
+			log(`🎯 Echo detected: direct=${directCorrelation.toFixed(3)}, historical=${maxHistoricalCorrelation.toFixed(3)}, timing=${isTimingEcho}, quieter=${isQuieterEcho}, rmsRatio=${rmsRatio.toFixed(3)}, pattern=${patternSimilarity}, energy=${energySimilarity}, recent=${isRecentEchoPattern}`);
+		}
+
+		return isEcho;
+	}, []);
+
+	// Store audio history for echo detection
+	const storeAudioHistory = useCallback((audioData, source) => {
+		const history = source === 'screen' ? 
+			audioEchoCancellationRef.current.screenAudioHistory : 
+			audioEchoCancellationRef.current.micAudioHistory;
+
+		history.push([...audioData]);
+		
+		// Keep only recent history
+		if (history.length > audioEchoCancellationRef.current.historySize) {
+			history.shift();
+		}
+
+		// Update timing
+		if (source === 'screen') {
+			audioEchoCancellationRef.current.lastScreenTime = Date.now();
+		} else {
+			audioEchoCancellationRef.current.lastMicTime = Date.now();
+		}
+	}, []);
+
 	const startAudioCapture = useCallback(async () => {
 		try {
 			log('Starting audio capture...');
@@ -770,8 +878,59 @@ const useAssemblyTranscription = ({
 
 							// Use Voice Activity Detection to determine if we should send this chunk
 							if (hasAudioSignal(micBufferRef.current, 'mic')) {
-								log(`Sending mic audio chunk: ${audioData.length} samples`);
-								sendAudioData(audioData, 'mic');
+								// Check if this mic audio is echo from screen audio
+								let isEcho = false;
+								
+								// If screen audio is active, be much more aggressive about echo detection
+								const isScreenAudioActive = audioEchoCancellationRef.current.screenAudioHistory.length > 0;
+								
+								if (isScreenAudioActive) {
+									// Check against most recent screen audio
+									const mostRecentScreenAudio = audioEchoCancellationRef.current.screenAudioHistory[audioEchoCancellationRef.current.screenAudioHistory.length - 1];
+									isEcho = isEchoAudio(micBufferRef.current, mostRecentScreenAudio);
+									
+									// Also check against all recent screen audio history for delayed echo
+									if (!isEcho && audioEchoCancellationRef.current.screenAudioHistory.length > 1) {
+										for (let i = audioEchoCancellationRef.current.screenAudioHistory.length - 1; i >= 0 && !isEcho; i--) {
+											const historicalScreenAudio = audioEchoCancellationRef.current.screenAudioHistory[i];
+											isEcho = isEchoAudio(micBufferRef.current, historicalScreenAudio);
+										}
+									}
+									
+									// Additional check: if we've been detecting echoes, be even more aggressive
+									if (!isEcho && audioEchoCancellationRef.current.consecutiveEchoCount > 0) {
+										// Use a much lower threshold for echo detection when we're in an echo pattern
+										const micRMS = Math.sqrt(micBufferRef.current.reduce((sum, val) => sum + val * val, 0) / micBufferRef.current.length);
+										const screenRMS = Math.sqrt(mostRecentScreenAudio.reduce((sum, val) => sum + val * val, 0) / mostRecentScreenAudio.length);
+										const rmsRatio = Math.min(micRMS, screenRMS) / Math.max(micRMS, screenRMS);
+										
+										// If the audio levels are similar and we're in an echo pattern, it's likely echo
+										if (rmsRatio > 0.2) {
+											isEcho = true;
+											log(`🔇 Aggressive echo detection: rmsRatio=${rmsRatio.toFixed(3)}, consecutiveEchoes=${audioEchoCancellationRef.current.consecutiveEchoCount}`);
+										}
+									}
+								}
+								
+								// If we've detected too many consecutive echoes, temporarily disable mic transcription
+								if (audioEchoCancellationRef.current.consecutiveEchoCount > 5) {
+									log(`🔇 Temporarily disabling mic transcription due to persistent echo (${audioEchoCancellationRef.current.consecutiveEchoCount} consecutive echoes)`);
+									isEcho = true; // Force echo to prevent transcription
+								}
+								
+								if (!isEcho) {
+									log(`🎤 Sending mic audio chunk: ${audioData.length} samples (unique voice)`);
+									sendAudioData(audioData, 'mic');
+									// Reset consecutive echo count when we find unique voice
+									audioEchoCancellationRef.current.consecutiveEchoCount = 0;
+								} else {
+									log(`🔇 Filtering echo from mic audio (YouTube/screen audio detected in microphone)`);
+									// Increment consecutive echo count for more aggressive filtering
+									audioEchoCancellationRef.current.consecutiveEchoCount++;
+								}
+								
+								// Store mic audio history for echo detection
+								storeAudioHistory(micBufferRef.current, 'mic');
 							} else {
 								log('Skipping silent mic audio chunk');
 							}
@@ -849,10 +1008,11 @@ const useAssemblyTranscription = ({
 
 									// Use Voice Activity Detection to determine if we should send this chunk
 									if (hasAudioSignal(screenBufferRef.current, 'screen')) {
-										log(
-											`Sending screen audio chunk: ${audioData.length} samples`,
-										);
+										log(`📺 Sending screen audio chunk: ${audioData.length} samples`);
 										sendAudioData(audioData, 'screen');
+										
+										// Store screen audio history for echo detection
+										storeAudioHistory(screenBufferRef.current, 'screen');
 									} else {
 										log('Skipping silent screen audio chunk');
 									}
