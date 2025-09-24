@@ -35,13 +35,34 @@ const isMac =
 // 	navigator.userAgent.includes('Intel') &&
 // 	navigator.userAgent.includes('x86_64');
 
-const isMacArm64 = await navigator.userAgentData
-	.getHighEntropyValues(['architecture'])
-	.then((ua) => ua.architecture === 'arm');
+// Helper function to get Mac architecture asynchronously
+const getMacArchitecture = async () => {
+	try {
+		if (navigator.userAgentData?.getHighEntropyValues) {
+			const ua = await navigator.userAgentData.getHighEntropyValues(['architecture']);
+			return ua.architecture === 'arm';
+		}
+		return false;
+	} catch (error) {
+		console.warn('Failed to detect Mac architecture:', error);
+		return false;
+	}
+};
 
-const desktopAppDownloadUrl = isMacArm64
-	? import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL
-	: import.meta.env.VITE_APP_DESKTOP_APP_MACINTEL64_DOWNLOAD_URL || null;
+// Function to get the appropriate desktop app download URL
+const getDesktopAppDownloadUrl = async () => {
+	if (!isMac) return null;
+	
+	try {
+		const isMacArm64 = await getMacArchitecture();
+		return isMacArm64
+			? import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL
+			: import.meta.env.VITE_APP_DESKTOP_APP_MACINTEL64_DOWNLOAD_URL || null;
+	} catch (error) {
+		console.warn('Failed to determine download URL:', error);
+		return import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
+	}
+};
 
 export const settingsItems = [
 	{
@@ -154,11 +175,12 @@ const Settings = ({
 
 	// ✅ Extract the plan title (fallback to 'Free' or currentPlan?.currentPlan if not found)
 	const currentPlanTitle = currentPlanData?.plan || currentPlan?.currentPlan || 'Free';
-	const handleInstallOrOpen = () => {
+	const handleInstallOrOpen = async () => {
 		window.location.href = deepLinkUrl;
 
-		const timer = setTimeout(() => {
+		const timer = setTimeout(async () => {
 			if (isMac) {
+				const desktopAppDownloadUrl = await getDesktopAppDownloadUrl();
 				if (desktopAppDownloadUrl) {
 					window.open(desktopAppDownloadUrl, '_blank');
 				}
