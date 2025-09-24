@@ -40,7 +40,8 @@ const PermissionOverlay = () => {
 	});
 
 	useEffect(() => {
-		// Check current permissions on mount
+		// Check current permissions on mount immediately
+		console.log('🚀 PermissionOverlay mounted, checking permissions...');
 		checkPermissions();
 
 		// Start real-time permission monitoring
@@ -85,21 +86,21 @@ const PermissionOverlay = () => {
 	}, []);
 
 	// Auto-close overlay when all permissions are granted
-	useEffect(() => {
-		if (microphonePermission && screenPermission && cameraPermission && !isLoading) {
-			setShowSuccessMessage(true);
-			successTimeoutRef.current = setTimeout(() => {
-				console.log('🎉 All permissions granted! Auto-closing overlay...');
-				window.electronApi.permission.closeWindow();
-			}, 5000); // Show success message for 2 seconds before closing
-		}
+	// useEffect(() => {
+	// 	if (microphonePermission && screenPermission && cameraPermission && !isLoading) {
+	// 		setShowSuccessMessage(true);
+	// 		successTimeoutRef.current = setTimeout(() => {
+	// 			console.log('🎉 All permissions granted! Auto-closing overlay...');
+	// 			window.electronApi.permission.closeWindow();
+	// 		}, 5000); // Show success message for 2 seconds before closing
+	// 	}
 
-		return () => {
-			if (successTimeoutRef.current) {
-				clearTimeout(successTimeoutRef.current);
-			}
-		};
-	}, [microphonePermission, screenPermission, cameraPermission, isLoading]);
+	// 	return () => {
+	// 		if (successTimeoutRef.current) {
+	// 			clearTimeout(successTimeoutRef.current);
+	// 		}
+	// 	};
+	// }, [microphonePermission, screenPermission, cameraPermission, isLoading]);
 
 	// Real-time permission monitoring
 	const startPermissionMonitoring = useCallback(() => {
@@ -108,12 +109,13 @@ const PermissionOverlay = () => {
 		}
 
 		intervalRef.current = setInterval(() => {
-			// Only check if we're not already checking and it's been at least 2 seconds
+			// Only check if we're not already checking and it's been at least 1 second
 			const now = Date.now();
-			if (!isCheckingPermissions && now - lastPermissionCheck >= 2000) {
+			if (!isCheckingPermissions && now - lastPermissionCheck >= 1000) {
+				console.log('🔄 Auto-checking permissions...');
 				checkPermissions();
 			}
-		}, 3000); // Check every 3 seconds
+		}, 2000); // Check every 2 seconds for more responsive updates
 	}, [isCheckingPermissions, lastPermissionCheck]);
 
 	const stopPermissionMonitoring = useCallback(() => {
@@ -130,8 +132,11 @@ const PermissionOverlay = () => {
 			setIsCheckingPermissions(true);
 			setLastPermissionCheck(Date.now());
 
+			console.log('🔍 Checking permissions...');
+
 			// Check microphone permission
 			const micResult = await window.electronApi.permission.checkMicrophonePermission();
+			console.log('🎤 Microphone result:', micResult);
 			setMicrophonePermission(micResult.hasPermission);
 			setPermissionDetails((prev) => ({
 				...prev,
@@ -143,6 +148,7 @@ const PermissionOverlay = () => {
 
 			// Check screen permission
 			const screenResult = await window.electronApi.permission.checkScreenPermission();
+			console.log('🖥️ Screen result:', screenResult);
 			setScreenPermission(screenResult.hasPermission);
 			setPermissionDetails((prev) => ({
 				...prev,
@@ -154,6 +160,7 @@ const PermissionOverlay = () => {
 
 			// Check camera permission
 			const cameraResult = await window.electronApi.permission.checkCameraPermission();
+			console.log('📷 Camera result:', cameraResult);
 			setCameraPermission(cameraResult.hasPermission);
 			setPermissionDetails((prev) => ({
 				...prev,
@@ -163,9 +170,21 @@ const PermissionOverlay = () => {
 				},
 			}));
 
+			console.log('✅ Permission check completed:', {
+				microphone: micResult.hasPermission,
+				screen: screenResult.hasPermission,
+				camera: cameraResult.hasPermission,
+				platform: finalIsMac ? 'macOS' : 'Windows/Linux',
+				details: {
+					microphone: micResult,
+					screen: screenResult,
+					camera: cameraResult,
+				},
+			});
+
 			setIsLoading(false);
 		} catch (error) {
-			console.error('Error checking permissions:', error);
+			console.error('❌ Error checking permissions:', error);
 			setIsLoading(false);
 		} finally {
 			setIsCheckingPermissions(false);
@@ -210,7 +229,10 @@ const PermissionOverlay = () => {
 			if (result.success) {
 				console.log('✅ Microphone settings opened successfully');
 				// Start more frequent checking after opening settings
-				setTimeout(() => checkPermissions(), 1000);
+				setTimeout(() => {
+					console.log('🔄 Re-checking permissions after opening microphone settings...');
+					checkPermissions();
+				}, 1000);
 			} else {
 				console.error('❌ Failed to open microphone settings:', result.error);
 			}
@@ -226,7 +248,10 @@ const PermissionOverlay = () => {
 			if (result.success) {
 				console.log('✅ Screen recording settings opened successfully');
 				// Start more frequent checking after opening settings
-				setTimeout(() => checkPermissions(), 1000);
+				setTimeout(() => {
+					console.log('🔄 Re-checking permissions after opening screen settings...');
+					checkPermissions();
+				}, 1000);
 			} else {
 				console.error('❌ Failed to open screen recording settings:', result.error);
 			}
@@ -242,7 +267,10 @@ const PermissionOverlay = () => {
 			if (result.success) {
 				console.log('✅ Camera settings opened successfully');
 				// Start more frequent checking after opening settings
-				setTimeout(() => checkPermissions(), 1000);
+				setTimeout(() => {
+					console.log('🔄 Re-checking permissions after opening camera settings...');
+					checkPermissions();
+				}, 1000);
 			} else {
 				console.error('❌ Failed to open camera settings:', result.error);
 			}
@@ -404,9 +432,7 @@ const PermissionOverlay = () => {
 						{showSuccessMessage ? (
 							<div className="success-message">
 								<CheckCircle size={20} />
-								<p className="success-text">
-									All permissions granted! Closing in a moment...
-								</p>
+								<p className="success-text">All permissions granted!</p>
 							</div>
 						) : (
 							<p className="subtitle">
@@ -419,6 +445,17 @@ const PermissionOverlay = () => {
 							<div className="checking-permissions">
 								<div className="spinner"></div>
 								<span>Checking permissions...</span>
+							</div>
+						)}
+						{!isCheckingPermissions && (
+							<div className="permission-controls">
+								<button
+									className="refresh-permissions-btn"
+									onClick={checkPermissions}
+									title="Refresh permission status"
+								>
+									🔄 Refresh
+								</button>
 							</div>
 						)}
 					</div>
@@ -436,8 +473,8 @@ const PermissionOverlay = () => {
 									<p className="permission-description">
 										Allow Ve to access your microphone
 									</p>
-									{/* <div className="permission-status">
-										<span
+									<div className="permission-status">
+										{/* <span
 											className={`status-badge ${getPermissionStatusClass(
 												permissionDetails.microphone.status,
 											)}`}
@@ -445,13 +482,13 @@ const PermissionOverlay = () => {
 											{getPermissionStatusText(
 												permissionDetails.microphone.status,
 											)}
-										</span>
+										</span> */}
 										{permissionDetails.microphone.message && (
 											<span className="status-message">
 												{permissionDetails.microphone.message}
 											</span>
 										)}
-									</div> */}
+									</div>
 								</div>
 							</div>
 							<div className="permission-action">
@@ -461,7 +498,7 @@ const PermissionOverlay = () => {
 										permissionDetails.microphone.status,
 									)}
 									onClick={handleMicrophoneAction}
-									disabled={microphonePermission}
+									disabled={microphonePermission || isCheckingPermissions}
 								>
 									{microphonePermission ? (
 										<>
@@ -495,8 +532,8 @@ const PermissionOverlay = () => {
 										<p className="permission-description">
 											Allow Ve to access your screen
 										</p>
-										{/* <div className="permission-status">
-											<span
+										<div className="permission-status">
+											{/* <span
 												className={`status-badge ${getPermissionStatusClass(
 													permissionDetails.screen.status,
 												)}`}
@@ -504,13 +541,13 @@ const PermissionOverlay = () => {
 												{getPermissionStatusText(
 													permissionDetails.screen.status,
 												)}
-											</span>
+											</span> */}
 											{permissionDetails.screen.message && (
 												<span className="status-message">
 													{permissionDetails.screen.message}
 												</span>
 											)}
-										</div> */}
+										</div>
 									</div>
 								</div>
 								<div className="permission-action">
@@ -520,7 +557,7 @@ const PermissionOverlay = () => {
 											permissionDetails.screen.status,
 										)}
 										onClick={handleScreenAction}
-										disabled={screenPermission}
+										disabled={screenPermission || isCheckingPermissions}
 									>
 										{screenPermission ? (
 											<>
@@ -554,8 +591,8 @@ const PermissionOverlay = () => {
 									<p className="permission-description">
 										Allow Ve to access your camera
 									</p>
-									{/* <div className="permission-status">
-										<span
+									<div className="permission-status">
+										{/* <span
 											className={`status-badge ${getPermissionStatusClass(
 												permissionDetails.camera.status,
 											)}`}
@@ -563,13 +600,13 @@ const PermissionOverlay = () => {
 											{getPermissionStatusText(
 												permissionDetails.camera.status,
 											)}
-										</span>
+										</span> */}
 										{permissionDetails.camera.message && (
 											<span className="status-message">
 												{permissionDetails.camera.message}
 											</span>
 										)}
-									</div> */}
+									</div>
 								</div>
 							</div>
 							<div className="permission-action">
@@ -579,7 +616,7 @@ const PermissionOverlay = () => {
 										permissionDetails.camera.status,
 									)}
 									onClick={handleCameraAction}
-									disabled={cameraPermission}
+									disabled={cameraPermission || isCheckingPermissions}
 								>
 									{cameraPermission ? (
 										<>
