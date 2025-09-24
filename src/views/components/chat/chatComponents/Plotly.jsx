@@ -1,7 +1,11 @@
 import { memo, useContext, useLayoutEffect, useState } from 'react';
 import s from '../../../../assets/scss/chat/chatComponents/plotly.module.scss';
-import Plot from 'react-plotly.js';
+
 import Context from '../../../../context/context';
+import Plotlyy from 'plotly.js-basic-dist';
+import createPlotlyComponent from 'react-plotly.js/factory';
+
+const Plot = createPlotlyComponent(Plotlyy);
 
 // const plots = [
 // 	{
@@ -2865,6 +2869,7 @@ const Plotly = ({ attachmentId = null, plotly = [] }) => {
 		<div className={s.plotlyContainer}>
 			{info?.plotData ? (
 				<Plot
+					plotly={Plotlyy}
 					data={info?.plotData?.data}
 					layout={info?.plotData?.layout}
 					config={{
