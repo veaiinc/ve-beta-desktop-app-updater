@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useEffect, useState } from 'react';
 import {
 	redirectTo,
 	fileTypeIcons,
@@ -9,9 +9,33 @@ import {
 import '../../../../assets/scss/chat/chatComponents/sources.scss';
 
 const Sources = ({ sources = [] }) => {
+	const [info, setInfo] = useState({
+		sources: [],
+	});
+	useEffect(() => {
+		if (sources?.length > 0) {
+			const formattedSources = sources?.map((source) => {
+				let title = source?.title ?? '';
+				title = title?.trim();
+				if (title?.length > 0) {
+					const words = title?.split(' ');
+					title = words?.slice(0, 12)?.join(' ');
+					if (words?.length > 12) {
+						title += ' ...';
+					}
+				}
+				return {
+					...source,
+					title,
+				};
+			});
+			setInfo((prev) => ({ ...prev, sources: formattedSources }));
+		}
+	}, [sources]);
+
 	return (
 		<div className="sources">
-			{sources?.map?.((source, index) => {
+			{info?.sources?.map?.((source, index) => {
 				const { type, name, title } = source;
 				return (
 					<button
