@@ -37,6 +37,12 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	extractImageMetadata: (data) => ipcRenderer.invoke('extract-image-metadata', data),
 
+	// Diagnostic function
+	getDiagnosticInfo: () => ipcRenderer.invoke('get-diagnostic-info'),
+
+	// DevTools function
+	openDevTools: () => ipcRenderer.invoke('open-dev-tools'),
+
 	// New: Download album as ZIP(s)
 	downloadAlbumZip: (payload) => ipcRenderer.invoke('download-album-zip', payload),
 
