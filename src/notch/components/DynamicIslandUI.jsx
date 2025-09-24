@@ -909,7 +909,7 @@ const DynamicIslandUI = () => {
 		if (window.electronApi?.askAI?.camera?.requestPermission) {
 			try {
 				const permissionResult = await window.electronApi.askAI.camera.requestPermission();
-				console.log('Camera permission result:', permissionResult);
+				// console.log('Camera permission result:', permissionResult);
 
 				if (!permissionResult.success || !permissionResult.granted) {
 					setCameraError(

@@ -1317,6 +1317,9 @@ class NotchDropAddonWrapper extends EventEmitter {
 
 	// Immediate stop/pause/resume methods for completeness
 	async triggerOverlayStopRecordingImmediate() {
+		console.log('⏹️ NotchDrop requested overlay stop recording');
+		console.log('⏹️ NotchDrop requested overlay stop recording');
+		// this one is being used for stop recording
 		try {
 			if (typeof require !== 'undefined') {
 				try {

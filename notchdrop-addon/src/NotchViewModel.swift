@@ -759,12 +759,12 @@ class NotchViewModel: NSObject, ObservableObject {
                     self?.isCameraActive = true
                     self?.cameraStatus = "active"
                     self?.cameraPermission = "granted"
-                    print("📹 Webcam started successfully with real camera access")
+                    // print("📹 Webcam started successfully with real camera access")
                 } else {
                     self?.cameraStatus = "error"
                     self?.cameraPermission = "denied"
                     self?.cameraError = "Camera access denied"
-                    print("📹 Webcam failed to start - camera access denied")
+                    // print("📹 Webcam failed to start - camera access denied")
                 }
             }
         }
@@ -802,7 +802,7 @@ class NotchViewModel: NSObject, ObservableObject {
         // Emit action for JavaScript integration
         swiftActionSender.send(.stopWebcam)
         
-        print("📹 Webcam stopped")
+        // print("📹 Webcam stopped")
     }
     
     /// Check camera permission status
@@ -825,7 +825,7 @@ class NotchViewModel: NSObject, ObservableObject {
     func updateCameraPermission(_ permission: String) {
         DispatchQueue.main.async {
             self.cameraPermission = permission
-            print("📹 Camera permission updated: \(permission)")
+            // print("📹 Camera permission updated: \(permission)")
         }
     }
     
@@ -834,7 +834,7 @@ class NotchViewModel: NSObject, ObservableObject {
         DispatchQueue.main.async {
             self.cameraError = error
             if let error = error {
-                print("📹 Camera error: \(error)")
+                // print("📹 Camera error: \(error)")
             }
         }
     }
