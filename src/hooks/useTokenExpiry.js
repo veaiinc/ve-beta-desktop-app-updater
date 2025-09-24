@@ -16,7 +16,7 @@ const useTokenExpiry = () => {
 
 	useEffect(() => {
 		if (timerRef.current) clearTimeout(timerRef.current); // clear existing timers (if any)
-		const triggerAt = (accessTokenExpiry - 10) * 1000; // 10s before access token expires
+		const triggerAt = (accessTokenExpiry - 60) * 1000; // 60s before access token expires
 		const delay = Math.max(triggerAt - Date.now(), 0);
 
 		timerRef.current = setTimeout(async () => {
