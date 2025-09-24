@@ -355,6 +355,16 @@ const useAssemblyTranscription = ({
 			screenBufferRef.current = [];
 			screenSampleCountRef.current = 0;
 			cleanup();
+
+			// Notify NotchDrop about the state change
+			if (window.electronApi?.notchDrop?.onOverlayStateChange) {
+				window.electronApi.notchDrop.onOverlayStateChange({
+					isRecording: false,
+					isPaused: false,
+					timer: 0,
+					isLiveIntelligenceOpen: false,
+				});
+			}
 		},
 		[log, cleanup, stopTimer],
 	);
@@ -464,6 +474,13 @@ const useAssemblyTranscription = ({
 										source: data.source,
 									};
 									onTranscriptionUpdate?.(transcriptionData);
+
+									// Reset the 5-minute Are You There timer when transcription is received
+									if (
+										window.electronApi?.areYouThere?.updateTranscriptionActivity
+									) {
+										window.electronApi.areYouThere.updateTranscriptionActivity();
+									}
 								}
 							} else if (data.type === 'error') {
 								notification?.error(data.message || 'Transcription service error');
@@ -1025,30 +1042,30 @@ const useAssemblyTranscription = ({
 	}, []);
 
 	// Handle audio context state changes
-	useEffect(() => {
-		const handleVisibilityChange = () => {
-			if (document.hidden && audioContextRef.current) {
-				// Page hidden - suspend audio context to save resources
-				if (audioContextRef.current.state === 'running') {
-					audioContextRef.current.suspend().catch((e) => {
-						log(`Error suspending audio context: ${e.message}`);
-					});
-				}
-			} else if (!document.hidden && audioContextRef.current && isRecording) {
-				// Page visible - resume audio context
-				if (audioContextRef.current.state === 'suspended') {
-					audioContextRef.current.resume().catch((e) => {
-						log(`Error resuming audio context: ${e.message}`);
-					});
-				}
-			}
-		};
+	// useEffect(() => {
+	// 	const handleVisibilityChange = () => {
+	// 		if (document.hidden && audioContextRef.current) {
+	// 			// Page hidden - suspend audio context to save resources
+	// 			if (audioContextRef.current.state === 'running') {
+	// 				audioContextRef.current.suspend().catch((e) => {
+	// 					log(`Error suspending audio context: ${e.message}`);
+	// 				});
+	// 			}
+	// 		} else if (!document.hidden && audioContextRef.current && isRecording) {
+	// 			// Page visible - resume audio context
+	// 			if (audioContextRef.current.state === 'suspended') {
+	// 				audioContextRef.current.resume().catch((e) => {
+	// 					log(`Error resuming audio context: ${e.message}`);
+	// 				});
+	// 			}
+	// 		}
+	// 	};
 
-		document.addEventListener('visibilitychange', handleVisibilityChange);
-		return () => {
-			document.removeEventListener('visibilitychange', handleVisibilityChange);
-		};
-	}, [isRecording, log]);
+	// 	document.addEventListener('visibilitychange', handleVisibilityChange);
+	// 	return () => {
+	// 		document.removeEventListener('visibilitychange', handleVisibilityChange);
+	// 	};
+	// }, [isRecording, log]);
 
 	// Timer anomaly detection
 	useEffect(() => {

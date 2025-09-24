@@ -57,9 +57,9 @@ module.exports = class DynamicIslandHelper {
 		// Skip window creation on Apple Silicon Macs (they use native NotchDrop)
 		// But create Dynamic Island for Intel Macs, Windows, and Linux
 		if (isAppleSiliconMac) {
-			log.info(
-				'Skipping Dynamic Island window creation on Apple Silicon Mac (using native NotchDrop)',
-			);
+			// log.info(
+			// 	'Skipping Dynamic Island window creation on Apple Silicon Mac (using native NotchDrop)',
+			// );
 			return;
 		}
 
