@@ -19,23 +19,24 @@ const PermissionOverlay = () => {
 	const intervalRef = useRef(null);
 	const successTimeoutRef = useRef(null);
 
-	const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
-	const isMac = RUNTIME_PLATFORM === 'darwin';
+	// Get platform information safely from electronApi
+	const platformInfo = window.electronApi?.platform || {
+		name: 'unknown',
+		isMac: navigator.platform.includes('Mac'),
+		isWindows: navigator.platform.includes('Win'),
+		isLinux: navigator.platform.includes('Linux'),
+	};
 
-	// Additional fallback check for better macOS detection
-	const isMacFallback = process.platform === 'darwin' || navigator.platform.includes('Mac');
-	const finalIsMac = isMac || isMacFallback;
+	const finalIsMac = platformInfo.isMac;
 
 	// Debug logging to help troubleshoot platform detection
 	console.log('🔍 PermissionOverlay Platform Debug:', {
-		processPlatform: process.platform,
-		runtimePlatform: RUNTIME_PLATFORM,
-		isMac: isMac,
-		isMacFallback: isMacFallback,
-		finalIsMac: finalIsMac,
-		envForcePlatform: process.env.VE_FORCE_PLATFORM,
-		userAgent: navigator.userAgent,
+		electronApiPlatform: window.electronApi?.platform,
+		platformInfo,
+		finalIsMac,
 		navigatorPlatform: navigator.platform,
+		userAgent: navigator.userAgent,
+		permissionDetails,
 	});
 
 	useEffect(() => {
@@ -50,10 +51,35 @@ const PermissionOverlay = () => {
 			window.dispatchEvent(new CustomEvent('permission-window-closed'));
 		};
 
+		// Add keyboard shortcut for developer tools
+		const handleKeyDown = (event) => {
+			// F12 or Ctrl+Shift+I or Cmd+Shift+I to open dev tools
+			if (
+				event.key === 'F12' ||
+				((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'I')
+			) {
+				event.preventDefault();
+				openDevTools();
+			}
+		};
+
+		// Add context menu for developer tools
+		const handleContextMenu = (event) => {
+			// Check if Ctrl/Cmd is held while right-clicking for dev tools access
+			if (event.ctrlKey || event.metaKey) {
+				event.preventDefault();
+				openDevTools();
+			}
+		};
+
 		window.addEventListener('beforeunload', handleBeforeUnload);
+		window.addEventListener('keydown', handleKeyDown);
+		window.addEventListener('contextmenu', handleContextMenu);
 
 		return () => {
 			window.removeEventListener('beforeunload', handleBeforeUnload);
+			window.removeEventListener('keydown', handleKeyDown);
+			window.removeEventListener('contextmenu', handleContextMenu);
 			stopPermissionMonitoring();
 		};
 	}, []);
@@ -250,6 +276,16 @@ const PermissionOverlay = () => {
 		window.electronApi.permission.closeWindow();
 	};
 
+	const openDevTools = () => {
+		try {
+			// Open dev tools for the current permission window
+			window.electronApi.openDevTools({ targetWindow: 'current', mode: 'detach' });
+			console.log('🛠️ Developer tools opened for permission overlay');
+		} catch (error) {
+			console.error('❌ Error opening developer tools:', error);
+		}
+	};
+
 	if (isLoading) {
 		return (
 			<div className="permission-overlay">
@@ -400,7 +436,7 @@ const PermissionOverlay = () => {
 									<p className="permission-description">
 										Allow Ve to access your microphone
 									</p>
-									{/* <div className="permission-status">
+									<div className="permission-status">
 										<span
 											className={`status-badge ${getPermissionStatusClass(
 												permissionDetails.microphone.status,
@@ -415,7 +451,7 @@ const PermissionOverlay = () => {
 												{permissionDetails.microphone.message}
 											</span>
 										)}
-									</div> */}
+									</div>
 								</div>
 							</div>
 							<div className="permission-action">
@@ -459,7 +495,7 @@ const PermissionOverlay = () => {
 										<p className="permission-description">
 											Allow Ve to access your screen
 										</p>
-										{/* <div className="permission-status">
+										<div className="permission-status">
 											<span
 												className={`status-badge ${getPermissionStatusClass(
 													permissionDetails.screen.status,
@@ -474,7 +510,7 @@ const PermissionOverlay = () => {
 													{permissionDetails.screen.message}
 												</span>
 											)}
-										</div> */}
+										</div>
 									</div>
 								</div>
 								<div className="permission-action">
@@ -518,7 +554,7 @@ const PermissionOverlay = () => {
 									<p className="permission-description">
 										Allow Ve to access your camera
 									</p>
-									{/* <div className="permission-status">
+									<div className="permission-status">
 										<span
 											className={`status-badge ${getPermissionStatusClass(
 												permissionDetails.camera.status,
@@ -533,7 +569,7 @@ const PermissionOverlay = () => {
 												{permissionDetails.camera.message}
 											</span>
 										)}
-									</div> */}
+									</div>
 								</div>
 							</div>
 							<div className="permission-action">
@@ -578,7 +614,7 @@ const PermissionOverlay = () => {
 	);
 
 	// Render based on current step
-	return currentStep === 1 ? renderPermissionsScreen() : renderShortcutsScreen();
+	return <>{currentStep === 1 ? renderPermissionsScreen() : renderShortcutsScreen()}</>;
 };
 
 export default PermissionOverlay;

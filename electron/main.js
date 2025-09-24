@@ -94,6 +94,12 @@ let lastWindowState = {
 	windowBounds: null, // Store window size and position
 };
 
+// Authentication state management
+let userAuthenticationStatus = {
+	isLoggedIn: false,
+	shouldShowPermissionOverlay: true, // Show by default until we know auth status
+};
+
 // Recording timer variables for Are You There functionality
 let recordingStartTime = null;
 let areYouThereTimer = null;
@@ -872,6 +878,24 @@ function createMenuBar() {
 							},
 						},
 						{
+							label: 'Permission Window (permission.html)',
+							accelerator: 'CmdOrCtrl+Shift+k',
+							click: () => {
+								try {
+									const permissionWindow = windowHelper?.getPermissionWindow();
+									if (permissionWindow && !permissionWindow.isDestroyed()) {
+										permissionWindow.webContents.openDevTools({
+											mode: 'detach',
+										});
+									} else {
+										log.warn('Permission window not available for dev tools');
+									}
+								} catch (error) {
+									log.error('Error toggling Permission window dev tools:', error);
+								}
+							},
+						},
+						{
 							label: 'Ask AI Window (askai.html)',
 							accelerator: 'CmdOrCtrl+Shift+A',
 							click: () => {
@@ -1266,12 +1290,14 @@ function createWindow(restoreState = false) {
 		log.info('Main window focused');
 		// Emit focus event to renderer
 		mainWindow.webContents.send('window-focus');
-		
+
 		// Check if permissions are missing and show overlay if needed
 		try {
 			const permissionsGranted = await checkAllPermissions();
 			if (!permissionsGranted.allGranted) {
-				log.info('🔍 Main window focused but permissions missing, showing permission overlay');
+				log.info(
+					'🔍 Main window focused but permissions missing, showing permission overlay',
+				);
 				setTimeout(() => {
 					try {
 						windowHelper?.showPermissionWindow();
@@ -1357,9 +1383,25 @@ function createWindow(restoreState = false) {
 	ipcMain.on('veAppMsg', async (event, msg) => {
 		// log.info('🔄 Received message from veApp:', msg); // logs: btn clicked from react
 
-		// Handle logout message - notify Dynamic Island
-		if (msg === 'loggedout') {
-			log.info('🔓 User logged out - notifying Dynamic Island');
+		// Handle authentication status messages
+		if (msg === 'authorized') {
+			log.info('✅ User authenticated - hiding permission overlay if visible');
+			userAuthenticationStatus.isLoggedIn = true;
+			userAuthenticationStatus.shouldShowPermissionOverlay = false;
+
+			// Hide permission overlay if it's currently visible
+			if (windowHelper?.isPermissionVisible) {
+				windowHelper.hidePermissionWindow();
+			}
+		} else if (msg === 'unauthorized') {
+			log.info('🔓 User not authenticated - permission overlay may be needed');
+			userAuthenticationStatus.isLoggedIn = false;
+			userAuthenticationStatus.shouldShowPermissionOverlay = true;
+		} else if (msg === 'loggedout') {
+			log.info('🔓 User logged out - updating auth status and notifying Dynamic Island');
+			userAuthenticationStatus.isLoggedIn = false;
+			userAuthenticationStatus.shouldShowPermissionOverlay = true;
+
 			const dynamicIslandWindow = dynamicIslandHelper?.dynamicIslandWindow;
 			if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
 				dynamicIslandWindow.webContents.send('user-logout');
@@ -1388,8 +1430,9 @@ function createWindow(restoreState = false) {
 	const loadMainWindow = async () => {
 		try {
 			if (process.env.VITE_DEV_SERVER_URL) {
-				log.info('🔗 Loading development server URL:', process.env.VITE_DEV_SERVER_URL);
-				await mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
+				const cleanURL = process.env.VITE_DEV_SERVER_URL.replace(/\/$/, '');
+				log.info('🔗 Loading development server URL:', cleanURL);
+				await mainWindow.loadURL(cleanURL);
 			} else {
 				// Verify build file exists before loading
 				const buildPath = path.join(__dirname, '..', 'build', 'index.html');
@@ -1623,45 +1666,48 @@ if (!gotTheLock) {
 	});
 }
 
-// Function to check permissions and show overlay if needed
-async function checkAndShowPermissionOverlay() {
+// Function to check if user is authenticated by checking renderer localStorage
+async function checkUserAuthenticationStatus() {
 	try {
-		log.info('🔍 Checking permissions on app startup...');
-		
-		let needsPermissionOverlay = false;
-		
-		// Check if this is first run or permissions are missing
-		const permissionsGranted = await checkAllPermissions();
-		
-		if (!permissionsGranted.allGranted) {
-			log.info('❌ Some permissions are missing, showing permission overlay');
-			needsPermissionOverlay = true;
-		} else {
-			log.info('✅ All permissions granted, skipping permission overlay');
+		if (!mainWindow || mainWindow.isDestroyed()) {
+			log.warn('⚠️ Main window not available for auth check');
+			return false;
 		}
-		
-		// Show permission overlay if needed
-		if (needsPermissionOverlay) {
-			setTimeout(() => {
+
+		// Execute script in renderer to check localStorage
+		const isAuthenticated = await mainWindow.webContents.executeJavaScript(`
+			(function() {
 				try {
-					windowHelper?.showPermissionWindow();
-					log.info('📋 Permission overlay shown automatically');
+					const usertoken = localStorage.getItem('usertoken');
+					const workspaceId = localStorage.getItem('workspaceId');
+					const isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
+					
+					// User is considered authenticated if they have token, workspace, and are onboarded
+					const authenticated = !!(usertoken && workspaceId && isOnboard);
+					console.log('🔍 Auth check - token:', !!usertoken, 'workspace:', !!workspaceId, 'onboard:', isOnboard, 'result:', authenticated);
+					return authenticated;
 				} catch (error) {
-					log.error('❌ Error showing permission overlay:', error);
+					console.error('❌ Error checking auth status:', error);
+					return false;
 				}
-			}, 1000); // Small delay to ensure main window is ready
-		}
-		
+			})()
+		`);
+
+		userAuthenticationStatus.isLoggedIn = isAuthenticated;
+		userAuthenticationStatus.shouldShowPermissionOverlay = !isAuthenticated;
+
+		log.info(
+			`🔐 Authentication check result: ${
+				isAuthenticated ? 'authenticated' : 'not authenticated'
+			}`,
+		);
+		return isAuthenticated;
 	} catch (error) {
-		log.error('❌ Error checking permissions on startup:', error);
-		// Show overlay on error to be safe
-		setTimeout(() => {
-			try {
-				windowHelper?.showPermissionWindow();
-			} catch (overlayError) {
-				log.error('❌ Error showing permission overlay as fallback:', overlayError);
-			}
-		}, 1000);
+		log.error('❌ Error checking user authentication status:', error);
+		// Default to not authenticated on error
+		userAuthenticationStatus.isLoggedIn = false;
+		userAuthenticationStatus.shouldShowPermissionOverlay = true;
+		return false;
 	}
 }
 
@@ -1672,17 +1718,17 @@ async function checkAllPermissions() {
 			microphone: false,
 			screen: false,
 			camera: false,
-			allGranted: false
+			allGranted: false,
 		};
-		
+
 		// Check microphone permission
 		if (isMacRuntime) {
 			const micStatus = systemPreferences.getMediaAccessStatus('microphone');
 			results.microphone = micStatus === 'granted';
-			
+
 			const screenStatus = systemPreferences.getMediaAccessStatus('screen');
 			results.screen = screenStatus === 'granted';
-			
+
 			const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
 			results.camera = cameraStatus === 'granted';
 		} else {
@@ -1691,14 +1737,13 @@ async function checkAllPermissions() {
 			results.screen = true;
 			results.camera = true;
 		}
-		
+
 		// All permissions must be granted (for macOS) or we're on non-macOS
 		results.allGranted = results.microphone && results.screen;
 		// Note: Camera is optional for now, only require mic and screen
-		
+
 		log.info('🔍 Permission check results:', results);
 		return results;
-		
 	} catch (error) {
 		log.error('❌ Error checking all permissions:', error);
 		return { allGranted: false, microphone: false, screen: false, camera: false };
@@ -1870,12 +1915,61 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// Microphone permission check handler - REGISTERED EARLY to avoid timing issues
+	log.info('📋 Registering microphone permission check handler EARLY');
+	ipcMain.handle('check-microphone-permission', async () => {
+		log.info('🎤 Microphone permission check handler called');
+		try {
+			if (isMacRuntime) {
+				const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
+
+				return {
+					success: true,
+					permission: microphoneStatus,
+					hasPermission: microphoneStatus === 'granted',
+				};
+			} else {
+				// For non-macOS platforms, assume permission is available
+				return {
+					success: true,
+					permission: 'granted',
+					hasPermission: true,
+				};
+			}
+		} catch (error) {
+			log.error('Error checking microphone permission:', error);
+			return {
+				success: false,
+				error: error.message,
+				hasPermission: false,
+			};
+		}
+	});
+
 	createTray(); // Create system tray for Windows
 	createMenuBar();
 
 	windowHelper = new WindowHelper(applyContentProtectionToWindow);
 	windowHelper.registerGlobalShortcuts(mainWindow);
 	windowHelper.setDynamicIslandHelper(dynamicIslandHelper);
+
+	// Check authentication status and show permission overlay only for unauthenticated users
+	setTimeout(async () => {
+		try {
+			const isAuthenticated = await checkUserAuthenticationStatus();
+
+			if (!isAuthenticated) {
+				windowHelper.showPermissionWindow();
+				log.info('📋 Permission overlay shown for unauthenticated user');
+			} else {
+				log.info('👤 User is authenticated - skipping permission overlay');
+			}
+		} catch (error) {
+			log.error('❌ Error checking authentication or showing permission overlay:', error);
+			// Show overlay on error to be safe
+			windowHelper.showPermissionWindow();
+		}
+	}, 2000); // Delay to ensure main window is ready
 
 	// Simple Content Protection IPC handlers
 	ipcMain.handle('toggle-content-protection', () => {
@@ -2020,6 +2114,25 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// IPC handler to check and show permission overlay based on auth status
+	ipcMain.handle('check-auth-and-show-permission-overlay', async () => {
+		try {
+			const isAuthenticated = await checkUserAuthenticationStatus();
+
+			if (!isAuthenticated) {
+				windowHelper?.showPermissionWindow();
+				log.info('📋 Permission overlay shown after auth check');
+				return { success: true, shown: true, authenticated: false };
+			} else {
+				log.info('👤 User is authenticated - permission overlay not needed');
+				return { success: true, shown: false, authenticated: true };
+			}
+		} catch (error) {
+			log.error('❌ Error checking auth and showing permission overlay:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	ipcMain.handle('is-permission-window-visible', async () => {
 		try {
 			const isVisible = windowHelper?.isPermissionWindowVisible();
@@ -2065,8 +2178,7 @@ app.whenReady().then(async () => {
 		log.error('❌ Error pre-creating overlay window:', error);
 	}
 
-	// Check permissions and show permission overlay if needed
-	await checkAndShowPermissionOverlay();
+	// Permission overlay is now shown by default above, so we don't need conditional checking
 
 	// Initialize NotchDrop asynchronously to prevent blocking main window
 	const initializeNotchDropAsync = async () => {
@@ -4257,35 +4369,6 @@ app.whenReady().then(async () => {
 		return helper.createZipFromUrls(event, data);
 	});
 
-	// Microphone permission check handler
-	ipcMain.handle('check-microphone-permission', async () => {
-		try {
-			if (isMacRuntime) {
-				const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
-
-				return {
-					success: true,
-					permission: microphoneStatus,
-					hasPermission: microphoneStatus === 'granted',
-				};
-			} else {
-				// For non-macOS platforms, assume permission is available
-				return {
-					success: true,
-					permission: 'granted',
-					hasPermission: true,
-				};
-			}
-		} catch (error) {
-			log.error('Error checking microphone permission:', error);
-			return {
-				success: false,
-				error: error.message,
-				hasPermission: false,
-			};
-		}
-	});
-
 	// Request camera permission handler
 	ipcMain.handle('request-camera-permission', async () => {
 		try {
@@ -4458,6 +4541,12 @@ app.whenReady().then(async () => {
 				window = windowHelper?.getOverlayWindow();
 			} else if (targetWindow === 'askAI') {
 				window = windowHelper?.getAskAIWindow();
+			} else if (targetWindow === 'permission') {
+				window = windowHelper?.getPermissionWindow();
+			} else if (targetWindow === 'areYouThere') {
+				window = windowHelper?.getAreYouThereWindow();
+			} else if (targetWindow === 'dynamicIsland') {
+				window = dynamicIslandHelper?.getDynamicIslandWindow();
 			}
 
 			if (window && !window.isDestroyed()) {

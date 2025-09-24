@@ -226,6 +226,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 		hideWindow: () => ipcRenderer.invoke('hide-permission-window'),
 		isWindowVisible: () => ipcRenderer.invoke('is-permission-window-visible'),
 		closeWindow: () => ipcRenderer.invoke('hide-permission-window'),
+		checkAuthAndShowOverlay: () => ipcRenderer.invoke('check-auth-and-show-permission-overlay'),
 		// Permission checking and requesting
 		checkMicrophonePermission: () => ipcRenderer.invoke('check-microphone-permission'),
 		requestMicrophonePermission: () => ipcRenderer.invoke('request-microphone-permission'),
@@ -279,6 +280,15 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	// Developer tools API for WebSocket debugging
 	openDevTools: (options) => ipcRenderer.invoke('open-dev-tools', options),
+
+	// Platform information
+	platform: {
+		name: process.platform,
+		arch: process.arch,
+		isMac: process.platform === 'darwin',
+		isWindows: process.platform === 'win32',
+		isLinux: process.platform === 'linux',
+	},
 
 	// Download progress listener
 	onDownloadProgress: (callback) => {

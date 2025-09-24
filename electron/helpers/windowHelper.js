@@ -212,7 +212,10 @@ class WindowHelper {
 		// Apply content protection to overlay window
 		this.applyContentProtection(this.overlayWindow);
 
-		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
+		const devURL = (process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173').replace(
+			/\/$/,
+			'',
+		);
 		const isDevelopment =
 			process.env.NODE_ENV === 'development' ||
 			process.env.NODE_ENV?.trim() === 'development';
@@ -329,7 +332,10 @@ class WindowHelper {
 		// Apply content protection to Ask AI window
 		this.applyContentProtection(this.askAIWindow);
 
-		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
+		const devURL = (process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173').replace(
+			/\/$/,
+			'',
+		);
 		const isDevelopment =
 			process.env.NODE_ENV === 'development' ||
 			process.env.NODE_ENV?.trim() === 'development';
@@ -436,7 +442,10 @@ class WindowHelper {
 		// Apply content protection to Are You There window
 		this.applyContentProtection(this.areYouThereWindow);
 
-		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
+		const devURL = (process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173').replace(
+			/\/$/,
+			'',
+		);
 		const isDevelopment =
 			process.env.NODE_ENV === 'development' ||
 			process.env.NODE_ENV?.trim() === 'development';
@@ -542,7 +551,10 @@ class WindowHelper {
 		// Apply content protection to permission window
 		this.applyContentProtection(this.permissionWindow);
 
-		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
+		const devURL = (process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173').replace(
+			/\/$/,
+			'',
+		);
 		const isDevelopment =
 			process.env.NODE_ENV === 'development' ||
 			process.env.NODE_ENV?.trim() === 'development';
