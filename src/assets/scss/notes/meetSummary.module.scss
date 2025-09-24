@@ -548,12 +548,13 @@ $font-family: 'GeneralSans';
 		margin-right: 8px;
 	}
 
-	.copyButton {
+	.actionButtons {
 		margin-bottom: 8px;
 		display: flex;
 		justify-content: flex-end;
 		align-items: center;
 		width: 100%;
+		gap: 12px;
 
 		.copyButton {
 			background-color: transparent;

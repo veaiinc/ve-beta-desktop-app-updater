@@ -1336,13 +1336,11 @@
 	width: 100%;
 	flex-direction: column;
 	align-items: flex-start;
-	gap: 32px;
 
 	.meet-transcript-item {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 8px;
 		align-self: stretch;
 
 		.meet-transcript-meta {
