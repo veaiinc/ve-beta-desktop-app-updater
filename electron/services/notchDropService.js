@@ -121,7 +121,7 @@ class NotchDropService {
 			// 	log.warn('⚠️ Wake word integration failed to start:', wakeWordError.message);
 			// 	// Continue without wake word - not critical for core functionality
 			// }
-			log.info('ℹ️ Wake word integration disabled for build');
+			// log.info('ℹ️ Wake word integration disabled for build');
 
 			// Auto-open NotchDrop after initialization if enabled
 			if (this.autoOpenOnStartup) {
@@ -876,7 +876,7 @@ class NotchDropService {
 				typeof this.notchDropAddon.updateStealthModeState === 'function'
 			) {
 				this.notchDropAddon.updateStealthModeState(normalized);
-				log.info(`🏴‍☠️ Stealth mode state synced to Swift UI: ${normalized}`);
+				// log.info(`🏴‍☠️ Stealth mode state synced to Swift UI: ${normalized}`);
 			} else {
 				log.warn('⚠️ updateStealthModeState method not available on addon');
 			}

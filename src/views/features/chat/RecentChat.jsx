@@ -48,6 +48,7 @@ const RecentChat = ({
 	showRecentFiles = true,
 	showResponseEditBtn = true,
 	fetchRecentChatMessages = true,
+	showChatBox = true, // New prop to control ChatBox visibility
 
 	// below props are for desktop app
 	isDesktopApp = false,
@@ -1124,33 +1125,35 @@ const RecentChat = ({
 								</div>
 							</InfiniteScroll>
 						</div>
-						<div className="chatBoxWrapper">
-							<ChatBox
-								isPublicChat={isPublicChat}
-								handleSendWebsocketMessage={handleSendWebsocketMessage}
-								hideDeepResearch={agentType === 'search_agent'}
-								autoFocus={autoFocus}
-								customChatBoxClick={customChatBoxClick}
-								showScrollButton={info?.showScrollButton}
-								smoothScrollToBottom={smoothScrollToBottom}
-								onChatQueryChange={handleChatQueryChange}
-								animateChatBox={animateChatBox}
-								sessionId={sessionId}
-								handleBrowserButtonClick={handleBrowserButtonClick}
-								showBrowserButton={!info?.openBrowser && info?.browserDataAvailable}
-								browserImage={
-									globalChatMessages?.[sessionId]?.browserData?.browserMetadata
-										?.signedUrl
-								}
-								showBottomTools={showBottomTools}
-								showMicBtn={showMicBtn}
-								showRecentFiles={showRecentFiles}
-								isDesktopApp={isDesktopApp}
-								handleDesktopAppPayload={handleDesktopAppPayload}
-								handleChatBoxHeight={handleChatBoxHeight}
-								getChatBoxHeight={true}
-							/>
-						</div>
+						{showChatBox && (
+							<div className="chatBoxWrapper">
+								<ChatBox
+									isPublicChat={isPublicChat}
+									handleSendWebsocketMessage={handleSendWebsocketMessage}
+									hideDeepResearch={agentType === 'search_agent'}
+									autoFocus={autoFocus}
+									customChatBoxClick={customChatBoxClick}
+									showScrollButton={info?.showScrollButton}
+									smoothScrollToBottom={smoothScrollToBottom}
+									onChatQueryChange={handleChatQueryChange}
+									animateChatBox={animateChatBox}
+									sessionId={sessionId}
+									handleBrowserButtonClick={handleBrowserButtonClick}
+									showBrowserButton={!info?.openBrowser && info?.browserDataAvailable}
+									browserImage={
+										globalChatMessages?.[sessionId]?.browserData?.browserMetadata
+											?.signedUrl
+									}
+									showBottomTools={showBottomTools}
+									showMicBtn={showMicBtn}
+									showRecentFiles={showRecentFiles}
+									isDesktopApp={isDesktopApp}
+									handleDesktopAppPayload={handleDesktopAppPayload}
+									handleChatBoxHeight={handleChatBoxHeight}
+									getChatBoxHeight={true}
+								/>
+							</div>
+						)}
 					</div>
 
 					<div className="ve-mistake-text">
