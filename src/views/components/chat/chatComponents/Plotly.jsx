@@ -2806,7 +2806,7 @@ const updatePlotData = (plotData, theme = 'dark') => {
 
 	templateLayout.font = {
 		color: primaryFont,
-		family: 'FKGroteskNeue, GeneralSans, Arial, Segoe UI, Helvetica, Apple, "Courier New", Consolas, monospace',
+		family: 'Inter, GeneralSans, Arial, Segoe UI, Helvetica, Apple, "Courier New", Consolas, monospace',
 	};
 
 	templateLayout.paper_bgcolor = 'transparent';
