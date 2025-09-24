@@ -116,6 +116,10 @@ const regionBaseUrls = {
 			environment === 'production'
 				? 'wss://guestsearch.ap-south-1.ve.ai'
 				: 'wss://guestsearch.ap-south-1.ve.ai',
+		galleries_b2_api:
+			environment === 'production'
+				? 'https://ap.api.ve.ai/galleries/dev'
+				: 'https://ap.api.ve.ai/galleries/dev',
 	},
 
 	'us-east-1': {
@@ -234,6 +238,10 @@ const regionBaseUrls = {
 		voice_agent_api: 'wss://ve-ai-voice-agent-ginreaey.livekit.cloud',
 		browser_ws_api: 'wss://browser.us-east-1.ve.ai', // Browser Agent
 		generate_voice_agent_token_api: 'https://voice.us-east-1.ve.ai',
+		galleries_b2_api:
+			environment === 'production'
+				? 'https://ap.api.ve.ai/galleries/dev'
+				: 'https://ap.api.ve.ai/galleries/dev',
 	},
 };
 

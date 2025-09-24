@@ -696,7 +696,7 @@ export const Galleries = () => {
 			const response = await service.fetchGet(
 				`/${workspaceId}/content-distribution/get-credentials/${galleryId}`,
 				usertoken,
-				'galleries',
+				'galleries_b2_api',
 			);
 			if (response[0]) {
 				dispatch({
