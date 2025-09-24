@@ -858,9 +858,9 @@ const useAssemblyTranscription = ({
 				if (!isMountedRef.current) return;
 
 				micProcessingCount++;
-				if (micProcessingCount % 100 === 0) {
-					log(`Mic audio processing active (${micProcessingCount} calls)`);
-				}
+				// if (micProcessingCount % 100 === 0) {
+				// 	log(`Mic audio processing active (${micProcessingCount} calls)`);
+				// }
 
 				try {
 					const inputData = e.inputBuffer.getChannelData(0);
@@ -965,9 +965,9 @@ const useAssemblyTranscription = ({
 						if (!isMountedRef.current) return;
 
 						screenProcessingCount++;
-						if (screenProcessingCount % 100 === 0) {
-							log(`Screen audio processing active (${screenProcessingCount} calls)`);
-						}
+						// if (screenProcessingCount % 100 === 0) {
+						// 	log(`Screen audio processing active (${screenProcessingCount} calls)`);
+						// }
 
 						try {
 							const inputData = e.inputBuffer.getChannelData(0);
