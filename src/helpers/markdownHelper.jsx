@@ -39,7 +39,7 @@ const codeColorTheme = {
 		background: 'transparent',
 		fontFamily: 'monospace, Consolas, Monaco, "Andale Mono", "Ubuntu Mono"',
 		lineHeight: '1.5',
-		padding: '16px',
+		padding: 'calc(var(--font-size) * 0.85) calc(var(--font-size) * 1)',
 		overflow: 'auto',
 	},
 	comment: {
@@ -282,13 +282,13 @@ const MarkdownCode = memo(({ code, match }) => {
 				<div className="code-language">{match[1]}</div>
 				<button className="copy-code-btn" onClick={() => handleCopyCode(code || '')}>
 					<Tooltip title={isCopied ? 'Copied Code' : 'Copy Code'} placement="bottom">
-						{isCopied ? <TickSvg /> : <CopyIcon />}
+						{isCopied ? <TickSvg /> : <CopyIcon width="14px" height="14px" />}
 					</Tooltip>
 				</button>
 			</div>
 
 			<SyntaxHighlighter style={codeColorTheme} language={match[1]} PreTag="div">
-				{String(code)?.replace(/\n$/, '')}
+				{String(code)?.trim()?.replace(/\n$/, '')}
 			</SyntaxHighlighter>
 		</div>
 	);
