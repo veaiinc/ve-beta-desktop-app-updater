@@ -221,72 +221,42 @@ const rehypeFadeInWords = () => {
 const baseComponents = {
 	pre: ({ children }) => <pre className="pre">{children}</pre>,
 	hr: () => <hr />,
-	ol: ({ children, ...props }) => (
-		<ol className="ol" {...props}>
+	ol: ({ children, ...props }) => <ol className="ol">{children}</ol>,
+	li: ({ children, ...props }) => <li className="li">{children}</li>,
+	ul: ({ children, ...props }) => <ul className="ul">{children}</ul>,
+	strong: ({ children, ...props }) => <strong className="strong">{children}</strong>,
+	a: ({ children, href, ...props }) => (
+		<a target="_blank" rel="noreferrer" href={href} className="a">
 			{children}
-		</ol>
+		</a>
 	),
-	li: ({ children, ...props }) => {
-		return <li className="li">{children}</li>;
-	},
-	ul: ({ children, ...props }) => {
-		return <ul className="ul">{children}</ul>;
-	},
-	strong: ({ children, ...props }) => {
-		return <strong className="strong">{children}</strong>;
-	},
-	a: ({ children, ...props }) => {
-		return (
-			<a target="_blank" rel="noreferrer" {...props} className="a">
-				{children}
-			</a>
-		);
-	},
-	h1: ({ children, ...props }) => {
-		return <h1 className="h1">{children}</h1>;
-	},
-	h2: ({ children, ...props }) => {
-		return <h2 className="h2">{children}</h2>;
-	},
-	h3: ({ children, ...props }) => {
-		return <h3 className="h3">{children}</h3>;
-	},
-	h4: ({ children, ...props }) => {
-		return <h4 className="h4">{children}</h4>;
-	},
-	h5: ({ children, ...props }) => {
-		return <h5 className="h5">{children}</h5>;
-	},
-	h6: ({ children, ...props }) => {
-		return <h6 className="h6">{children}</h6>;
-	},
-	p: ({ children, ...props }) => {
-		return <p className="p">{children}</p>;
-	},
-	img: ({ children, ...props }) => {
-		return (
-			<div className="markdown-image-wrapper ">
-				<img
-					{...props}
-					className="img"
-					src={props?.src}
-					alt="img"
-					style={{ maxWidth: '50%', maxHeight: '50%', borderRadius: '4px' }}
-				/>
-			</div>
-		);
-	},
+	h1: ({ children, ...props }) => <h1 className="h1">{children}</h1>,
+	h2: ({ children, ...props }) => <h2 className="h2">{children}</h2>,
+	h3: ({ children, ...props }) => <h3 className="h3">{children}</h3>,
+	h4: ({ children, ...props }) => <h4 className="h4">{children}</h4>,
+	h5: ({ children, ...props }) => <h5 className="h5">{children}</h5>,
+	h6: ({ children, ...props }) => <h6 className="h6">{children}</h6>,
+	p: ({ children, ...props }) => <p className="p">{children}</p>,
+	img: ({ children, ...props }) => (
+		<div className="markdown-image-wrapper ">
+			<img
+				{...props}
+				className="img"
+				src={props?.src}
+				alt="img"
+				style={{ maxWidth: '50%', maxHeight: '50%', borderRadius: '4px' }}
+			/>
+		</div>
+	),
 	thead: ({ children, ...props }) => <thead>{children}</thead>,
 	th: ({ children, ...props }) => <th>{children}</th>,
 	td: ({ children, ...props }) => <td>{children}</td>,
 	tr: ({ children, ...props }) => <tr>{children}</tr>,
-	iframe: ({ children, ...props }) => {
-		return (
-			<div className="iframe-wrapper">
-				<iframe {...props} className="iframe" />
-			</div>
-		);
-	},
+	iframe: ({ children, ...props }) => (
+		<div className="iframe-wrapper">
+			<iframe {...props} className="iframe" />
+		</div>
+	),
 	blockquote: ({ children, ...props }) => (
 		<blockquote className="blockquote">{children}</blockquote>
 	),
