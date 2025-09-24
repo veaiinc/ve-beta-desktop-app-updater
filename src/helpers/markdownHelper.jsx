@@ -5,6 +5,7 @@ import '../assets/scss/markdownHelper.scss';
 import { ReactComponent as PencilSparkleIcon } from '../assets/svg/notes/pencilSparkle.svg';
 import { ReactComponent as TickSvg } from '../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
+import { ReactComponent as LinkArrowSvg } from '../assets/svg/sidebar/arrowupright.svg';
 import Context from '../context/context';
 import { Image, Tooltip } from 'antd';
 import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
@@ -228,6 +229,9 @@ const baseComponents = {
 	a: ({ children, href, ...props }) => (
 		<a target="_blank" rel="noreferrer" href={href} className="a">
 			{children}
+			<span className="link-arrow">
+				<LinkArrowSvg />
+			</span>
 		</a>
 	),
 	h1: ({ children, ...props }) => <h1 className="h1">{children}</h1>,

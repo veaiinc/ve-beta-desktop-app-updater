@@ -20,8 +20,8 @@ const Sources = ({ sources = [] }) => {
 				title = title?.trim();
 				if (title?.length > 0) {
 					const words = title?.split(' ');
-					title = words?.slice(0, 12)?.join(' ');
-					if (words?.length > 12) {
+					title = words?.slice(0, 10)?.join(' ');
+					if (words?.length > 10) {
 						title += ' ...';
 					}
 				}
