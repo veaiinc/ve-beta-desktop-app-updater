@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Application Error</title>
+	<style>
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+			background: #1a1a1a;
+			color: #ffffff;
+			margin: 0;
+			padding: 40px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 100vh;
+			text-align: center;
+		}
+		.error-container {
+			max-width: 600px;
+			padding: 40px;
+			background: #2a2a2a;
+			border-radius: 12px;
+			box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+		}
+		.error-icon {
+			font-size: 48px;
+			margin-bottom: 20px;
+		}
+		.error-title {
+			font-size: 24px;
+			font-weight: 600;
+			margin-bottom: 16px;
+			color: #ff6b6b;
+		}
+		.error-message {
+			font-size: 16px;
+			line-height: 1.5;
+			margin-bottom: 24px;
+			color: #cccccc;
+		}
+		.error-details {
+			background: #1a1a1a;
+			padding: 16px;
+			border-radius: 8px;
+			font-family: 'Monaco', 'Menlo', monospace;
+			font-size: 14px;
+			color: #888888;
+			text-align: left;
+			white-space: pre-wrap;
+			word-break: break-all;
+			margin-bottom: 20px;
+		}
+		.retry-button {
+			background: #007AFF;
+			color: white;
+			border: none;
+			padding: 12px 24px;
+			border-radius: 8px;
+			font-size: 16px;
+			cursor: pointer;
+			margin: 8px;
+		}
+		.retry-button:hover {
+			background: #0056CC;
+		}
+		.actions {
+			display: flex;
+			gap: 12px;
+			justify-content: center;
+			margin-top: 20px;
+			flex-wrap: wrap;
+		}
+		.action-button {
+			background: #333;
+			color: white;
+			border: none;
+			padding: 8px 16px;
+			border-radius: 6px;
+			font-size: 14px;
+			cursor: pointer;
+		}
+		.action-button:hover {
+			background: #555;
+		}
+		.solutions {
+			background: #1a1a1a;
+			padding: 16px;
+			border-radius: 8px;
+			margin-top: 20px;
+			text-align: left;
+		}
+		.solutions h3 {
+			color: #ff6b6b;
+			margin-top: 0;
+		}
+		.solutions ul {
+			color: #cccccc;
+			margin: 0;
+			padding-left: 20px;
+		}
+		.solutions li {
+			margin-bottom: 8px;
+		}
+		.code {
+			background: #000;
+			padding: 4px 8px;
+			border-radius: 4px;
+			font-family: monospace;
+			color: #00ff00;
+		}
+	</style>
+</head>
+<body>
+	<div class="error-container">
+		<div class="error-icon">⚠️</div>
+		<div class="error-title">Application Error</div>
+		<div class="error-message">
+			The application failed to start properly. This usually happens on first installation or after reinstalling the app.
+		</div>
+		<div class="error-details" id="errorDetails">
+			Loading error details...
+		</div>
+		<div class="actions">
+			<button class="retry-button" onclick="retryLoad()">Retry</button>
+			<button class="action-button" onclick="showDiagnostics()">Show Diagnostics</button>
+			<button class="action-button" onclick="openDevTools()">Open DevTools</button>
+		</div>
+		<div class="solutions">
+			<h3>Common Solutions:</h3>
+			<ul>
+				<li>Run <span class="code">npm run build</span> to rebuild the application</li>
+				<li>Check that build files exist and are not corrupted</li>
+				<li>Verify file permissions on the build directory</li>
+				<li>Try running <span class="code">npm run clean:build</span> then <span class="code">npm run build</span></li>
+				<li>Check the console for detailed error information</li>
+			</ul>
+		</div>
+	</div>
+	<script>
+		// Get error details from URL parameters or localStorage
+		function getErrorDetails() {
+			const urlParams = new URLSearchParams(window.location.search);
+			const errorTitle = urlParams.get('title') || 'Application Error';
+			const errorMessage = urlParams.get('message') || 'Unknown error occurred';
+			
+			document.querySelector('.error-title').textContent = errorTitle;
+			document.getElementById('errorDetails').textContent = errorMessage;
+			
+			console.error('Application Error:', errorTitle, errorMessage);
+		}
+		
+		function retryLoad() {
+			console.log('Retrying application load...');
+			window.location.reload();
+		}
+		
+		function showDiagnostics() {
+			if (window.electronApi && window.electronApi.getDiagnosticInfo) {
+				window.electronApi.getDiagnosticInfo().then(info => {
+					console.log('Diagnostic Information:', info);
+					alert('Diagnostic information logged to console. Press F12 to view.');
+				}).catch(err => {
+					console.error('Failed to get diagnostic info:', err);
+					alert('Failed to get diagnostic information. Check console for details.');
+				});
+			} else {
+				alert('Diagnostic API not available. Check console for details.');
+			}
+		}
+		
+		function openDevTools() {
+			if (window.electronApi && window.electronApi.openDevTools) {
+				window.electronApi.openDevTools();
+			} else {
+				alert('DevTools API not available. Use Ctrl+Shift+I or Cmd+Option+I to open DevTools.');
+			}
+		}
+		
+		// Initialize error details
+		getErrorDetails();
+		
+		// Auto-retry after 10 seconds
+		setTimeout(() => {
+			console.log('Auto-retrying application load...');
+			retryLoad();
+		}, 10000);
+	</script>
+</body>
+</html>
