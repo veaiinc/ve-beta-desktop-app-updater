@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useLayoutEffect, useState } from 'react';
 import {
 	redirectTo,
 	fileTypeIcons,
@@ -12,7 +12,8 @@ const Sources = ({ sources = [] }) => {
 	const [info, setInfo] = useState({
 		sources: [],
 	});
-	useEffect(() => {
+
+	useLayoutEffect(() => {
 		if (sources?.length > 0) {
 			const formattedSources = sources?.map((source) => {
 				let title = source?.title ?? '';
