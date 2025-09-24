@@ -280,11 +280,11 @@ const MarkdownCode = memo(({ code, match }) => {
 		<div className="markdown-code-wrapper">
 			<div className="code-header">
 				<div className="code-language">{match[1]}</div>
-				<button className="copy-code-btn" onClick={() => handleCopyCode(code || '')}>
-					<Tooltip title={isCopied ? 'Copied Code' : 'Copy Code'} placement="bottom">
+				<Tooltip title={isCopied ? 'Copied Code' : 'Copy Code'} placement="bottom">
+					<button className="copy-code-btn" onClick={() => handleCopyCode(code || '')}>
 						{isCopied ? <TickSvg /> : <CopyIcon width="14px" height="14px" />}
-					</Tooltip>
-				</button>
+					</button>
+				</Tooltip>
 			</div>
 
 			<SyntaxHighlighter style={codeColorTheme} language={match[1]} PreTag="div">
