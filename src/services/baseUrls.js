@@ -31,7 +31,7 @@ const regionBaseUrls = {
 		proposals_api:
 			environment === 'production'
 				? 'https://ap.api.ve.ai/proposals/1.0'
-				: 'https://ap.api.ve.ai/proposals/1.0',
+				: 'https://ap.api.ve.co/proposals/dev',
 		workflows_Api:
 			environment === 'production'
 				? 'https://ap.api.ve.ai/workflows/1.0'
@@ -138,7 +138,7 @@ const regionBaseUrls = {
 		proposals_api:
 			environment === 'production'
 				? 'https://us.api.ve.ai/proposals/1.0'
-				: 'https://us.api.ve.ai/proposals/1.0',
+				: 'https://ap.api.ve.co/proposals/dev',
 		workflows_Api:
 			environment === 'production'
 				? 'https://us.api.ve.ai/workflows/1.0'
