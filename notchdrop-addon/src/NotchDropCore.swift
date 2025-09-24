@@ -98,6 +98,7 @@ class NotchDropPanel: NSPanel {
         let panelStyle: NSWindow.StyleMask = [
             .borderless,
             .fullSizeContentView,
+            .nonactivatingPanel,
         ]
 
         notchWindow = NotchDropPanel(

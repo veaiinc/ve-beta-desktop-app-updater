@@ -1328,36 +1328,6 @@ class WindowHelper {
 		}, 50);
 	}
 
-	moveWindowLeft() {
-		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) return;
-		this.currentX = Math.max(-this.windowSize.width / 2, this.currentX - this.step);
-		this.overlayWindow.setPosition(Math.round(this.currentX), Math.round(this.currentY));
-	}
-
-	moveWindowRight() {
-		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) return;
-		this.currentX = Math.min(
-			this.screenWidth - this.windowSize.width / 2,
-			this.currentX + this.step,
-		);
-		this.overlayWindow.setPosition(Math.round(this.currentX), Math.round(this.currentY));
-	}
-
-	moveWindowUp() {
-		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) return;
-		this.currentY = Math.max(-this.windowSize.height / 2, this.currentY - this.step);
-		this.overlayWindow.setPosition(Math.round(this.currentX), Math.round(this.currentY));
-	}
-
-	moveWindowDown() {
-		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) return;
-		this.currentY = Math.min(
-			this.screenHeight - this.windowSize.height / 2,
-			this.currentY + this.step,
-		);
-		this.overlayWindow.setPosition(Math.round(this.currentX), Math.round(this.currentY));
-	}
-
 	// Simple drag optimization methods
 	setDynamicIslandHelper(dynamicIslandHelper) {
 		this.dynamicIslandHelper = dynamicIslandHelper;
@@ -1394,9 +1364,6 @@ class WindowHelper {
 			log.error('❌ globalShortcut module not available!');
 			return;
 		}
-
-		// Log system-specific information
-		this.logSystemInfo();
 
 		// Register Cmd+\ to toggle overlay window only (independent of main window)
 		const cmdBackslashRegistered = globalShortcut.register('CommandOrControl+\\', () => {
@@ -1567,17 +1534,6 @@ class WindowHelper {
 				if (this.isVisible()) this.moveWindowDown();
 			});
 		}
-	}
-
-	// Log system-specific information for debugging
-	logSystemInfo() {
-		// if (process.platform === 'win32') {
-		// 	log.info(`     Windows version: ${process.getSystemVersion()}`);
-		// } else if (process.platform === 'darwin') {
-		// 	log.info(
-		// 		'     Check System Preferences > Security & Privacy > Privacy > Accessibility',
-		// 	);
-		// }
 	}
 
 	// Flag to prevent multiple cleanup calls

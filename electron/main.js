@@ -43,11 +43,7 @@ const {
 // const { DynamicIslandHelper } = require('./dynamicIslandHelper');
 
 // Import Windows compatibility fixes
-const {
-	loadSharpModule,
-	safeProcessImageWithSharp,
-	safeExtractImageMetadata,
-} = require('./windowsCompatibility');
+const { safeExtractImageMetadata } = require('./windowsCompatibility');
 
 const {
 	processImageWithSharp,
@@ -671,7 +667,7 @@ function saveWindowState() {
 			timestamp: Date.now(),
 			windowBounds: mainWindow.getBounds(), // Save window size and position
 		};
-		log.info('Window state saved:', lastWindowState);
+		// log.info('Window state saved:', lastWindowState);
 	}
 }
 
@@ -716,7 +712,7 @@ function createMenuBar() {
 										if (notchDropService) {
 											const result = await notchDropService.enable();
 											if (result) {
-												log.info('✅ NotchDrop opened from menu');
+												// log.info('✅ NotchDrop opened from menu');
 												updateMenuBarState();
 											}
 										}
@@ -1253,7 +1249,7 @@ function createWindow(restoreState = false) {
 	}
 
 	// Log the icon path being used
-	log.info('🎨 Using icon:', iconPath);
+	// log.info('🎨 Using icon:', iconPath);
 
 	// Use saved window bounds if available, otherwise use defaults
 	const defaultBounds = { width: 1366, height: 768, x: undefined, y: undefined };
@@ -1461,14 +1457,14 @@ function createWindow(restoreState = false) {
 
 	// Enhanced ready-to-show with better error handling
 	mainWindow.once('ready-to-show', () => {
-		log.info('✅ Main window ready to show');
+		// log.info('✅ Main window ready to show');
 		mainWindow.show();
 
 		// If restoring state, navigate to the last known route
 		if (restoreState && lastWindowState.route) {
 			setTimeout(() => {
 				mainWindow.webContents.send('restore-window-state', lastWindowState);
-				log.info('Window state restoration message sent:', lastWindowState);
+				// log.info('Window state restoration message sent:', lastWindowState);
 			}, 1000); // Wait a bit for the app to fully load
 		}
 	});
@@ -1493,15 +1489,6 @@ function createWindow(restoreState = false) {
 			);
 		},
 	);
-
-	// Add loading progress tracking
-	mainWindow.webContents.on('did-start-loading', () => {
-		log.info('🔄 Started loading main window');
-	});
-
-	mainWindow.webContents.on('did-finish-load', () => {
-		log.info('✅ Finished loading main window');
-	});
 
 	// Save window state before closing (cross-platform)
 	mainWindow.on('close', (event) => {
@@ -1789,19 +1776,19 @@ app.whenReady().then(async () => {
 	// Configure automatic screen capture without dialog
 	session.defaultSession.setDisplayMediaRequestHandler(
 		(request, callback) => {
-			log.info('📺 Display media requested - providing automatic whole screen capture');
+			// log.info('📺 Display media requested - providing automatic whole screen capture');
 			desktopCapturer
 				.getSources({ types: ['screen'] })
 				.then((sources) => {
 					if (sources && sources.length > 0) {
 						// Automatically select the first (primary) screen
-						log.info(`🎯 Auto-selecting primary screen: ${sources[0].name}`);
+						// log.info(`🎯 Auto-selecting primary screen: ${sources[0].name}`);
 						callback({
 							video: sources[0],
 							audio: 'loopback', // Include system audio
 						});
 					} else {
-						log.warn('⚠️ No screen sources available for automatic capture');
+						// log.warn('⚠️ No screen sources available for automatic capture');
 						callback({});
 					}
 				})
@@ -1819,11 +1806,11 @@ app.whenReady().then(async () => {
 		const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
 		const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
 
-		log.info('macOS Microphone permission status:', microphoneStatus);
-		log.info('macOS Camera permission status:', cameraStatus);
+		// log.info('macOS Microphone permission status:', microphoneStatus);
+		// log.info('macOS Camera permission status:', cameraStatus);
 
-		console.log('Microphone status:', microphoneStatus);
-		console.log('Camera status:', cameraStatus);
+		// console.log('Microphone status:', microphoneStatus);
+		// console.log('Camera status:', cameraStatus);
 	}
 
 	// ✅ Request screen recording permission (macOS only)
@@ -1839,8 +1826,8 @@ app.whenReady().then(async () => {
 
 		// Also request camera permission
 		setTimeout(async () => {
-			const cameraGranted = await systemPreferences.askForMediaAccess('camera');
-			log.info('Camera permission result:', cameraGranted);
+			await systemPreferences.askForMediaAccess('camera');
+			// log.info('Camera permission result:', cameraGranted);
 		}, 3000);
 	}
 
@@ -1868,9 +1855,9 @@ app.whenReady().then(async () => {
 			dynamicIslandHelper = null;
 		}
 	} else {
-		log.info(
-			'Skipping Dynamic Island initialization on Apple Silicon Mac (using NotchDrop instead)',
-		);
+		// log.info(
+		// 	'Skipping Dynamic Island initialization on Apple Silicon Mac (using NotchDrop instead)',
+		// );
 	}
 
 	// THEN: Create main window after dynamic island
@@ -2183,7 +2170,7 @@ app.whenReady().then(async () => {
 	// Initialize NotchDrop asynchronously to prevent blocking main window
 	const initializeNotchDropAsync = async () => {
 		if (isAppleSiliconMac) {
-			log.info('Initializing NotchDrop service for Apple Silicon Mac (async)');
+			// log.info('Initializing NotchDrop service for Apple Silicon Mac (async)');
 			notchDropService = new NotchDropService();
 			notchDropService.setMainWindow(mainWindow);
 			notchDropService.setMainWindowFactory((restoreState = false) =>
@@ -2198,7 +2185,7 @@ app.whenReady().then(async () => {
 			// Initialize NotchDrop in background without blocking main window
 			try {
 				await notchDropService.initialize();
-				log.info('✅ NotchDrop service initialized successfully');
+				// log.info('✅ NotchDrop service initialized successfully');
 			} catch (error) {
 				log.error('❌ NotchDrop service initialization failed:', error);
 				// Continue without NotchDrop - app should still work
@@ -2227,7 +2214,7 @@ app.whenReady().then(async () => {
 		if (notchDropService && notchDropService.isInitialized) {
 			try {
 				const status = notchDropService.getStatus();
-				log.info('✅ NotchDrop service status check:', status);
+				// log.info('✅ NotchDrop service status check:', status);
 			} catch (error) {
 				log.warn('⚠️ NotchDrop service status check failed:', error.message);
 			}
@@ -2804,9 +2791,9 @@ app.whenReady().then(async () => {
 			})();
 
 			if (isAppleSiliconMac && !shouldForceShowDynamicIsland) {
-				log.info(
-					'🍎 Skipping Dynamic Island recording on Apple Silicon Mac (using NotchDrop)',
-				);
+				// log.info(
+				// 	'🍎 Skipping Dynamic Island recording on Apple Silicon Mac (using NotchDrop)',
+				// );
 				return { success: false, error: 'Use NotchDrop on Apple Silicon Mac' };
 			}
 
@@ -3537,8 +3524,8 @@ app.whenReady().then(async () => {
 	});
 
 	ipcMain.handle('notchdrop:triggerOverlayStopRecording', async () => {
+		// this one is being used for stop recording
 		try {
-			log.info('⏹️ NotchDrop requested overlay stop recording');
 			const overlayWindow = windowHelper?.getOverlayWindow();
 			if (overlayWindow) {
 				overlayWindow.webContents.send('overlay-command', {
