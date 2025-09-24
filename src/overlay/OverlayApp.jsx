@@ -1,7 +1,4 @@
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
-import { Track } from 'livekit-client';
-import { useTrackTranscription } from '@livekit/components-react';
-// import { GripHorizontal } from 'lucide-react';
 import Context from '../context/context';
 import useLiveIntelligenceStream from '../hooks/useLiveIntelligenceStream';
 import useRecallStream from '../hooks/useRecallStream';
@@ -14,7 +11,6 @@ import LiveIntelligencePanel from './components/LiveIntelligencePanel';
 import TranscriptPanel from './components/TranscriptPanel';
 import OverlayNotification, { useOverlayNotification } from './components/OverlayNotification';
 import './overlay.scss';
-import { transcription_socket } from '../services/config.live';
 import useAssemblyTranscription from './hooks/useAssemblyTranscription';
 
 const OverlayApp = () => {
@@ -649,45 +645,6 @@ const OverlayApp = () => {
 			height: calculatedHeight, // Max 80% of screen height
 		};
 	}, [activePanel, showShortcutBar, isDynamicIslandControlled]);
-
-	useEffect(() => {
-		// Update window dimensions when content changes
-		const updateDimensions = () => {
-			if (containerRef.current) {
-				// Use a small delay to allow CSS transitions to complete
-				setTimeout(() => {
-					const { width, height } = calculateDynamicDimensions();
-
-					window?.electronApi.overlay.updateDimensions({ width, height });
-				}, 50);
-			}
-		};
-
-		// Initial dimension update
-		updateDimensions();
-
-		// ResizeObserver removed - resizing is disabled, only content changes trigger updates
-
-		// Set up MutationObserver to watch for DOM changes
-		const mutationObserver = new MutationObserver(() => {
-			updateDimensions();
-		});
-
-		if (containerRef.current) {
-			mutationObserver.observe(containerRef.current, {
-				childList: true,
-				subtree: true,
-				attributes: true,
-				characterData: true,
-				attributeOldValue: true,
-				characterDataOldValue: true,
-			});
-		}
-
-		return () => {
-			mutationObserver.disconnect();
-		};
-	}, [calculateDynamicDimensions]);
 
 	// Send state updates to Dynamic Island when recording state changes
 	useEffect(() => {

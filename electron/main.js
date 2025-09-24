@@ -43,11 +43,7 @@ const {
 // const { DynamicIslandHelper } = require('./dynamicIslandHelper');
 
 // Import Windows compatibility fixes
-const {
-	loadSharpModule,
-	safeProcessImageWithSharp,
-	safeExtractImageMetadata,
-} = require('./windowsCompatibility');
+const { safeExtractImageMetadata } = require('./windowsCompatibility');
 
 const {
 	processImageWithSharp,
