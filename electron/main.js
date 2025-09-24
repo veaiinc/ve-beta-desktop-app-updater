@@ -3203,11 +3203,6 @@ app.whenReady().then(async () => {
 					action: 'startRecording',
 					data: data,
 				});
-				log.info(
-					`✅ SMART QUEUE: StartRecording command ${
-						commandSent ? 'sent immediately' : 'queued'
-					}`,
-				);
 
 				// Also trigger focus and bring to front
 				overlayWindow.focus();
@@ -3230,6 +3225,9 @@ app.whenReady().then(async () => {
 		try {
 			const overlayWindow = windowHelper?.getOverlayWindow();
 			if (overlayWindow) {
+				if (overlayWindow.isVisible()) {
+					overlayWindow.hide();
+				}
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'stopRecording',
 				});
