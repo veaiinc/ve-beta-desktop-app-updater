@@ -10,6 +10,12 @@
 	z-index: 1000;
 	overflow: hidden;
 
+	// Performance optimizations for smooth circular animation
+	will-change: clip-path, opacity, transform;
+	backface-visibility: hidden;
+	transform: translateZ(0);
+	contain: layout style paint;
+
 	.heroSection {
 		display: flex;
 		flex-direction: column;
@@ -22,6 +28,8 @@
 		gap: 60px;
 
 		.mainTitle {
+			clip-path: inset(0 0 0 0);
+			mask: linear-gradient(white 50%, transparent) 0 100% / 100% 200% no-repeat;
 			font-family: 'General Sans Variable', sans-serif;
 			font-size: 124px;
 			font-weight: 400;

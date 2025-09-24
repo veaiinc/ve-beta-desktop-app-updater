@@ -232,8 +232,8 @@
 	will-change: opacity;
 	border-radius: 1.64px; // Slightly smaller radius to fit inside frame
 
-	// Varya image - initially visible
-	&[data-image='varya'] {
+	// veImage image - initially visible
+	&[data-image='veImage'] {
 		opacity: 1;
 		z-index: 1;
 	}

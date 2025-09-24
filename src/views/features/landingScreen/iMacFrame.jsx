@@ -1,18 +1,38 @@
-import { memo, forwardRef } from 'react';
+import { memo, forwardRef, useRef, useEffect } from 'react';
 import s from './iMacFrame.module.scss';
-import VaryaImage from '../../../assets/svg/landingScreen/Varya.svg';
 import BgLayerImage from '../../../assets/svg/landingScreen/Blue.svg';
 
-const iMacFrame = forwardRef((props, ref) => {
+const iMacFrame = forwardRef(({ videoRef: externalVideoRef }, ref) => {
+	const internalVideoRef = useRef(null);
+	const containerRef = useRef(null);
+
+	// Use external videoRef if provided, otherwise use internal one
+	const videoRef = externalVideoRef || internalVideoRef;
+
+	// Expose both video ref and container ref to parent component
+	useEffect(() => {
+		if (ref) {
+			if (typeof ref === 'function') {
+				ref({ videoRef, current: containerRef.current });
+			} else {
+				ref.current = { videoRef, current: containerRef.current };
+			}
+		}
+	}, [ref, videoRef]);
+
 	return (
-		<div ref={ref} className={s.imacFrame}>
+		<div ref={containerRef} className={s.imacFrame}>
 			<div className={s.screen}>
 				<div className={s.screenContent}>
-					<img
-						src={VaryaImage}
-						alt="Varya"
+					<video
+						ref={videoRef}
+						src="https://us.images.ve.ai/public/dashboard/notch_final.mp4"
 						className={s.screenImage}
 						data-image="varya"
+						loop
+						muted
+						playsInline
+						preload="metadata"
 					/>
 					<img
 						src={BgLayerImage}

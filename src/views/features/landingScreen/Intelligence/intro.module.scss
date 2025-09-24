@@ -1,0 +1,55 @@
+.Intro {
+	width: 100%;
+	min-height: 100vh;
+	position: relative;
+	background-image: url('../../../../assets/svg/landingScreen/Blue.svg');
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	padding: 0;
+	z-index: 1000;
+	overflow: hidden;
+
+	// Performance optimizations for smooth circular animation
+	will-change: clip-path, opacity, transform;
+	backface-visibility: hidden;
+	transform: translateZ(0);
+	contain: layout style paint;
+
+	.content {
+		align-items: flex-start;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-end;
+		height: 100vh;
+		padding: 80px 60px;
+		gap: 10px;
+	}
+
+	.title {
+		color: #f2f2f3;
+		font-family: var(--primary-font-family);
+		font-size: 32px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		text-transform: uppercase;
+	}
+	.subHead {
+		color: rgba(242, 242, 243, 0.6);
+		font-family: var(--primary-font-family);
+		font-size: 26px;
+		font-style: normal;
+		font-weight: 300;
+		line-height: 30px; /* 142.857% */
+	}
+
+	.mainContent {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 2;
+	}
+}

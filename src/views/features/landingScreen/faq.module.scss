@@ -1,10 +1,15 @@
 .faqSection {
 	padding: 120px;
 	background: var(--background-color);
+	background-image: url('../../../assets/svg/landingScreen/Blue.svg');
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
 	display: flex;
 	justify-content: center;
 	position: relative;
 	z-index: 5; // Ensure FAQ section stays above background elements
+	width: 100%;
 
 	.container {
 		max-width: 1680px;
@@ -23,7 +28,7 @@
 		line-height: 1.14;
 		letter-spacing: -3%;
 		text-align: center;
-		color: var(--primary-font);
+		color: #ffffff;
 		margin: 0;
 		max-width: 546px;
 		span {
@@ -130,12 +135,12 @@
 		gap: 20px;
 
 		&:hover .questionText {
-			color: var(--primary-font);
+			color: #ffffff;
 		}
 
 		&.openQuestion {
 			.questionText {
-				color: var(--primary-button);
+				color: #34ad9b;
 			}
 		}
 	}
@@ -153,11 +158,11 @@
 		word-wrap: break-word;
 
 		.faqItem:first-child & {
-			color: var(--primary-button);
+			color: #34ad9b;
 		}
 
 		&.openQuestionText {
-			color: var(--primary-button);
+			color: #34ad9b;
 		}
 
 		@media (max-width: 768px) {
@@ -181,7 +186,7 @@
 		svg {
 			width: 100%;
 			height: 100%;
-			stroke: var(--primary-font);
+			stroke: #ffffff;
 			stroke-width: 1.5px;
 		}
 
@@ -202,7 +207,7 @@
 			font-weight: 500;
 			font-size: 18px;
 			line-height: 1.89;
-			color: var(--primary-font);
+			color: #94989e;
 			margin: 0;
 			width: 100%;
 			max-width: 800px;

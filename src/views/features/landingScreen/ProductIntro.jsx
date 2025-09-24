@@ -1,7 +1,7 @@
-import { memo } from 'react';
+import { memo, forwardRef } from 'react';
 import s from './productIntro.module.scss';
 
-const ProductIntro = () => {
+const ProductIntro = forwardRef((props, ref) => {
 	const intelligenceTypes = [
 		{
 			number: '1',
@@ -30,8 +30,8 @@ const ProductIntro = () => {
 	];
 
 	return (
-		<div className={s.ProductIntro}>
-			<div className={s.heroSection}>
+		<div ref={ref} className={s.ProductIntro}>
+			<div className={s.heroSection} data-hero-section="true">
 				<h1 className={s.mainTitle}>
 					Personal
 					<br />
@@ -58,7 +58,7 @@ const ProductIntro = () => {
 			<div className={s.lightPassing}></div>
 		</div>
 	);
-};
+});
 
 ProductIntro.displayName = 'ProductIntro';
 

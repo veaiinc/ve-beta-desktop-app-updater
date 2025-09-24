@@ -11,10 +11,18 @@ export const useScrollAnimation = () => {
 	const fullscreenIMacRef = useRef(null);
 	const backgroundRef = useRef(null);
 	const headerRef = useRef(null);
+	const productIntroRef = useRef(null);
+	const videoRef = useRef(null);
 
 	useEffect(() => {
 		if (!downloadSectionRef.current || !iMacFrameRef.current || !fullscreenIMacRef.current)
 			return;
+
+		// Helper function to get the actual DOM element from ref
+		const getIMacElement = () => {
+			const ref = iMacFrameRef.current;
+			return ref?.current || ref;
+		};
 
 		// Grab header
 		const headerElement = document.querySelector('.page-header');
@@ -29,13 +37,10 @@ export const useScrollAnimation = () => {
 		gsap.set(backgroundRef.current, { zIndex: -1 });
 
 		// Set initial states for all text elements
-		const veText = iMacFrameRef.current?.querySelector('[data-ve-text="true"]');
-		const descriptionText = iMacFrameRef.current?.querySelector(
-			'[data-description-text="true"]',
-		);
-		const descriptionText2 = iMacFrameRef.current?.querySelector(
-			'[data-description-text-2="true"]',
-		);
+		const iMacElement = getIMacElement();
+		const veText = iMacElement?.querySelector('[data-ve-text="true"]');
+		const descriptionText = iMacElement?.querySelector('[data-description-text="true"]');
+		const descriptionText2 = iMacElement?.querySelector('[data-description-text-2="true"]');
 
 		// Reset all text elements
 		if (veText) {
@@ -61,8 +66,8 @@ export const useScrollAnimation = () => {
 		}
 
 		// Set initial states for images
-		const varyaImage = iMacFrameRef.current?.querySelector('[data-image="varya"]');
-		const bgLayerImage = iMacFrameRef.current?.querySelector('[data-image="bg-layer"]');
+		const varyaImage = iMacElement?.querySelector('[data-image="varya"]');
+		const bgLayerImage = iMacElement?.querySelector('[data-image="bg-layer"]');
 		if (varyaImage) {
 			gsap.set(varyaImage, { opacity: 1 });
 		}
@@ -94,89 +99,101 @@ export const useScrollAnimation = () => {
 						const iMacProgress = Math.min(1, (progress - 0.1) / 0.6);
 						const iMacScale = 1 + iMacProgress * 4; // Scale from 1 to 5
 
-						gsap.set(iMacFrameRef.current, {
+						gsap.set(iMacElement, {
 							scale: iMacScale,
 							zIndex: 20,
 						});
+					} else {
+						// Reset scale when progress is less than 0.1 (scrolling back up)
+						gsap.set(iMacElement, {
+							scale: 1,
+							zIndex: 1,
+						});
+					}
 
-						// Image transition (20-30% progress)
-						if (progress >= 0.2) {
-							const imageProgress = Math.min(1, (progress - 0.2) / 0.1);
-							const varyaImage =
-								iMacFrameRef.current?.querySelector('[data-image="varya"]');
-							const bgLayerImage =
-								iMacFrameRef.current?.querySelector('[data-image="bg-layer"]');
-
-							if (varyaImage && bgLayerImage) {
-								gsap.set(varyaImage, { opacity: 1 - imageProgress });
-								gsap.set(bgLayerImage, { opacity: imageProgress });
-							}
+					// Video control based on scroll direction
+					if (videoRef.current) {
+						if (progress >= 0.1 && isScrollingDown && videoRef.current.paused) {
+							// Start video when scrolling down and iMac starts scaling
+							videoRef.current.play().catch((err) => {
+								console.log('Video autoplay prevented:', err);
+							});
+						} else if (!isScrollingDown && progress < 0.1 && !videoRef.current.paused) {
+							// Stop video when scrolling back up before scaling starts
+							videoRef.current.pause();
+							videoRef.current.currentTime = 0;
 						}
+					}
 
-						// Text animations with smooth transitions
-						// VE Text (25-40% progress)
-						if (veText) {
-							const veProgress = Math.min(1, Math.max(0, (progress - 0.25) / 0.15));
-							gsap.set(veText, {
-								opacity: veProgress,
-								y: 30 * (1 - veProgress),
-								scale: 0.9 + 0.1 * veProgress,
+					// Image transition (20-30% progress)
+					if (progress >= 0.2) {
+						const imageProgress = Math.min(1, (progress - 0.2) / 0.1);
+						const varyaImage = iMacElement?.querySelector('[data-image="varya"]');
+						const bgLayerImage = iMacElement?.querySelector('[data-image="bg-layer"]');
+
+						if (varyaImage && bgLayerImage) {
+							gsap.set(varyaImage, { opacity: 1 - imageProgress });
+							gsap.set(bgLayerImage, { opacity: imageProgress });
+						}
+					}
+
+					// Text animations with smooth transitions
+					// VE Text (25-40% progress)
+					if (veText) {
+						const veProgress = Math.min(1, Math.max(0, (progress - 0.25) / 0.15));
+						gsap.set(veText, {
+							opacity: veProgress,
+							y: 30 * (1 - veProgress),
+							scale: 0.9 + 0.1 * veProgress,
+						});
+					}
+
+					// First description text - show container but let SplitText handle the reveal
+					if (descriptionText) {
+						// Show the container when VE text is fully visible
+						if (progress >= 0.4) {
+							const descProgress = Math.min(1, Math.max(0, (progress - 0.4) / 0.1));
+							gsap.set(descriptionText, {
+								opacity: descProgress,
+								y: 30 * (1 - descProgress),
+								scale: 0.9 + 0.1 * descProgress,
+							});
+						} else {
+							// Keep hidden before VE text is fully visible
+							gsap.set(descriptionText, {
+								opacity: 0,
+								y: 30,
+								scale: 0.9,
 							});
 						}
+					}
 
-						// First description text - show container but let SplitText handle the reveal
-						if (descriptionText) {
-							// Show the container when VE text is fully visible
-							if (progress >= 0.4) {
-								const descProgress = Math.min(
-									1,
-									Math.max(0, (progress - 0.4) / 0.1),
-								);
-								gsap.set(descriptionText, {
-									opacity: descProgress,
-									y: 30 * (1 - descProgress),
-									scale: 0.9 + 0.1 * descProgress,
-								});
-							} else {
-								// Keep hidden before VE text is fully visible
-								gsap.set(descriptionText, {
-									opacity: 0,
-									y: 30,
-									scale: 0.9,
-								});
-							}
+					// Second description text - show container but let SplitText handle the reveal
+					if (descriptionText2) {
+						// Show the container after first description gets reduced
+						if (progress >= 0.85) {
+							const desc2Progress = Math.min(1, Math.max(0, (progress - 0.85) / 0.1));
+							gsap.set(descriptionText2, {
+								opacity: desc2Progress,
+								y: 30 * (1 - desc2Progress),
+								scale: 0.9 + 0.1 * desc2Progress,
+							});
+						} else {
+							// Keep hidden before first description gets reduced
+							gsap.set(descriptionText2, {
+								opacity: 0,
+								y: 30,
+								scale: 0.9,
+							});
 						}
+					}
 
-						// Second description text - show container but let SplitText handle the reveal
-						if (descriptionText2) {
-							// Show the container after first description gets reduced
-							if (progress >= 0.85) {
-								const desc2Progress = Math.min(
-									1,
-									Math.max(0, (progress - 0.85) / 0.1),
-								);
-								gsap.set(descriptionText2, {
-									opacity: desc2Progress,
-									y: 30 * (1 - desc2Progress),
-									scale: 0.9 + 0.1 * desc2Progress,
-								});
-							} else {
-								// Keep hidden before first description gets reduced
-								gsap.set(descriptionText2, {
-									opacity: 0,
-									y: 30,
-									scale: 0.9,
-								});
-							}
-						}
-
-						// Header behind iMac
-						if (headerRef.current) {
-							headerRef.current.classList.add('behind-fullscreen');
-						}
-						if (backgroundRef.current) {
-							gsap.set(backgroundRef.current, { zIndex: 1 });
-						}
+					// Header behind iMac
+					if (headerRef.current) {
+						headerRef.current.classList.add('behind-fullscreen');
+					}
+					if (backgroundRef.current) {
+						gsap.set(backgroundRef.current, { zIndex: 1 });
 					}
 
 					// Phase 3: Fullscreen iMac (70-100% progress)
@@ -201,9 +218,7 @@ export const useScrollAnimation = () => {
 
 		// Create text reveal animation for description text
 		const createTextRevealAnimation = () => {
-			const descriptionText = iMacFrameRef.current?.querySelector(
-				'[data-description-text="true"]',
-			);
+			const descriptionText = iMacElement?.querySelector('[data-description-text="true"]');
 			if (descriptionText) {
 				// Split text into lines for animation
 				const split = new SplitText(descriptionText, { type: 'lines' });
@@ -225,9 +240,7 @@ export const useScrollAnimation = () => {
 			}
 
 			// Create text reveal animation for second description text (starts after first description completes)
-			const descriptionText2 = iMacFrameRef.current?.querySelector(
-				'[data-description-text-2="true"]',
-			);
+			const descriptionText2 = iMacElement?.querySelector('[data-description-text-2="true"]');
 			if (descriptionText2) {
 				// Split text into lines for animation
 				const split2 = new SplitText(descriptionText2, { type: 'lines' });
@@ -261,7 +274,7 @@ export const useScrollAnimation = () => {
 			markers: true, // Show start/end markers
 			onEnter: () => {
 				// Description text reduction starts after SplitText completes
-				const descriptionText = iMacFrameRef.current?.querySelector(
+				const descriptionText = iMacElement?.querySelector(
 					'[data-description-text="true"]',
 				);
 				if (descriptionText) {
@@ -278,7 +291,7 @@ export const useScrollAnimation = () => {
 			},
 			onEnterBack: () => {
 				// Reset when scrolling back up
-				const descriptionText = iMacFrameRef.current?.querySelector(
+				const descriptionText = iMacElement?.querySelector(
 					'[data-description-text="true"]',
 				);
 				if (descriptionText) {
@@ -295,17 +308,103 @@ export const useScrollAnimation = () => {
 			},
 		});
 
+		// Circular sphere ellipse animation for transition to ProductIntro
+		if (productIntroRef.current) {
+			// Set initial state - ProductIntro hidden with circular clip
+			gsap.set(productIntroRef.current, {
+				clipPath: 'ellipse(220% 200% at 50% 300%)',
+				opacity: 0,
+				scale: 1,
+				willChange: 'clip-path, opacity, transform',
+				backfaceVisibility: 'hidden',
+				transform: 'translateZ(0)',
+				transformStyle: 'flat',
+			});
+
+			// Create smooth circular reveal animation
+			ScrollTrigger.create({
+				trigger: productIntroRef.current,
+				start: 'top bottom',
+				end: 'top top',
+				scrub: 1, // Smoother scrubbing
+				markers: true,
+				onUpdate: (self) => {
+					const progress = self.progress;
+
+					// Smooth circular reveal - ellipse moves from bottom to center
+					const clipY = 300 - progress * 125; // Move from 300% to 175%
+					const opacity = Math.min(1, progress * 1.2); // Slightly faster opacity reveal
+
+					gsap.set(productIntroRef.current, {
+						clipPath: `ellipse(220% 200% at 50% ${clipY}%)`,
+						opacity: opacity,
+					});
+				},
+				onEnter: () => {
+					// Ensure final state is correct
+					gsap.set(productIntroRef.current, {
+						clipPath: 'ellipse(220% 200% at 50% 175%)',
+						opacity: 1,
+					});
+				},
+				onLeave: () => {
+					// Keep revealed state
+					gsap.set(productIntroRef.current, {
+						clipPath: 'ellipse(220% 200% at 50% 175%)',
+						opacity: 1,
+					});
+				},
+				onEnterBack: () => {
+					// Reset when scrolling back up
+					gsap.set(productIntroRef.current, {
+						clipPath: 'ellipse(220% 200% at 50% 300%)',
+						opacity: 0,
+					});
+				},
+				onLeaveBack: () => {
+					// Keep hidden state when scrolling back down
+					gsap.set(productIntroRef.current, {
+						clipPath: 'ellipse(220% 200% at 50% 300%)',
+						opacity: 0,
+					});
+				},
+			});
+
+			// Additional smooth entrance animation for content
+			ScrollTrigger.create({
+				trigger: productIntroRef.current,
+				start: 'top 80%',
+				end: 'top 20%',
+				scrub: 1,
+				onUpdate: (self) => {
+					const progress = self.progress;
+
+					// Animate hero section content
+					const heroSection = productIntroRef.current?.querySelector(
+						'[data-hero-section="true"]',
+					);
+					if (heroSection) {
+						gsap.set(heroSection, {
+							y: (1 - progress) * 50, // Slide up from below
+							opacity: progress,
+						});
+					}
+				},
+			});
+		}
+
 		return () => {
 			// Kill all ScrollTriggers
 			ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
 
 			// Reset all elements to initial state
 			if (iMacFrameRef.current) {
-				const veText = iMacFrameRef.current.querySelector('[data-ve-text="true"]');
-				const descriptionText = iMacFrameRef.current.querySelector(
+				const iMacElement = getIMacElement();
+				const veText = iMacElement?.querySelector('[data-ve-text="true"]');
+				const descriptionText = iMacElement?.querySelector(
 					'[data-description-text="true"]',
 				);
-				const descriptionText2 = iMacFrameRef.current.querySelector(
+				const descriptionText2 = iMacElement?.querySelector(
 					'[data-description-text-2="true"]',
 				);
 
@@ -329,5 +428,7 @@ export const useScrollAnimation = () => {
 		iMacFrameRef,
 		fullscreenIMacRef,
 		backgroundRef,
+		productIntroRef,
+		videoRef,
 	};
 };

@@ -19,6 +19,7 @@ import NewsletterSection from './NewsletterSection';
 import GlassFooterSection from './GlassFooter';
 import FullscreenIMac from './FullscreenIMac';
 import ProductIntro from './ProductIntro';
+import AmbientIntelligence from './Intelligence/AmbientIntelligence';
 
 import { ReactComponent as MenuIcon } from '../../../assets/svg/menu.svg';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
@@ -48,8 +49,14 @@ const LandingPage = () => {
 	const [info, setInfo] = useState({ navVisible: true, seenOnce: false });
 
 	const videoRef = useRef(null);
-	const { downloadSectionRef, iMacFrameRef, fullscreenIMacRef, backgroundRef } =
-		useScrollAnimation();
+	const {
+		downloadSectionRef,
+		iMacFrameRef,
+		fullscreenIMacRef,
+		backgroundRef,
+		productIntroRef,
+		videoRef: scrollVideoRef,
+	} = useScrollAnimation();
 
 	// sync tab with URL
 	useEffect(() => {
@@ -132,7 +139,11 @@ const LandingPage = () => {
 			<div className="page-body">
 				<div className="heroContainer">
 					<div className="title-container">
-						<DownloadSection ref={downloadSectionRef} iMacFrameRef={iMacFrameRef} />
+						<DownloadSection
+							ref={downloadSectionRef}
+							iMacFrameRef={iMacFrameRef}
+							videoRef={scrollVideoRef}
+						/>
 					</div>
 
 					{/* <div className={`videoContainer ${hasPlayed ? 'played' : 'unplayed'}`}>
@@ -167,12 +178,16 @@ const LandingPage = () => {
 				<div style={{ height: '65vh', background: 'transparent' }}></div>
 
 				{/* Product Intro */}
-				<ProductIntro />
+				<ProductIntro ref={productIntroRef} />
+
+				{/* (Ambient Intelligence + Actions) */}
+				<AmbientIntelligence />
 
 				{/* <Tagline /> */}
-				{/* <PartnerSection />
+				<PartnerSection />
 
-				<FAQ /> */}
+				<FAQ />
+				<Footer />
 
 				{/* Newsletter floating on MacBook Section */}
 				{/* <div className="newsletter-macbook-container">

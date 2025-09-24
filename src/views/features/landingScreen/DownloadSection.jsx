@@ -10,7 +10,7 @@ const desktopAppDownloadWindows = import.meta.env.VITE_APP_DESKTOP_APP_WINDOWS_D
 const desktopAppDownloadMacIntel64 =
 	import.meta.env.VITE_APP_DESKTOP_APP_MACINTEL64_DOWNLOAD_URL || null;
 
-const DownloadSection = forwardRef(({ iMacFrameRef }, ref) => {
+const DownloadSection = forwardRef(({ iMacFrameRef, videoRef }, ref) => {
 	const handleDownload = (platform) => {
 		let downloadUrl = null;
 
@@ -72,7 +72,7 @@ const DownloadSection = forwardRef(({ iMacFrameRef }, ref) => {
 
 				{/* iMac Frame - Desktop only */}
 				<div className={s.imacContainer}>
-					<IMacFrame ref={iMacFrameRef} />
+					<IMacFrame ref={iMacFrameRef} videoRef={videoRef} />
 				</div>
 			</div>
 		</section>
