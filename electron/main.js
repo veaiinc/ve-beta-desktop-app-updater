@@ -640,23 +640,70 @@ ipcMain.handle('check-screen-recording-permission', async () => {
 	}
 
 	const status = systemPreferences.getMediaAccessStatus('screen');
+	log.info('🖥️ Screen recording permission check:', status, 'granted:', status === 'granted');
 
 	return {
 		success: true,
 		permission: status,
 		hasPermission: status === 'granted',
+		message:
+			status === 'granted'
+				? 'Screen recording access granted'
+				: status === 'denied'
+				? 'Screen recording access denied'
+				: status === 'not-determined'
+				? 'Screen recording permission not yet determined'
+				: 'Screen recording access restricted',
 	};
 });
 
 // Request screen recording permission
 ipcMain.handle('request-screen-recording-permission', async () => {
-	// Windows doesn't have the same permission system as macOS
-	if (process.platform !== 'darwin') {
-		return { success: true, granted: true };
+	log.info('🖥️ Screen recording permission request handler called');
+	try {
+		// Windows doesn't have the same permission system as macOS
+		if (process.platform !== 'darwin') {
+			return { success: true, granted: true };
+		}
+		
+		// Check current status first
+		const currentStatus = systemPreferences.getMediaAccessStatus('screen');
+		log.info('🖥️ Current screen recording permission status:', currentStatus);
+		
+		if (currentStatus === 'granted') {
+			log.info('🖥️ Screen recording permission already granted');
+			return { success: true, granted: true, status: currentStatus };
+		}
+		
+		if (currentStatus === 'denied') {
+			log.info('🖥️ Screen recording permission previously denied');
+			return { 
+				success: false, 
+				granted: false, 
+				status: currentStatus,
+				error: 'Screen recording access was previously denied. Please enable it manually in System Settings.'
+			};
+		}
+		
+		// Request permission if not determined
+		log.info('🖥️ Requesting screen recording permission...');
+		const granted = await systemPreferences.askForMediaAccess('screen');
+		log.info('🖥️ Screen recording permission request result:', granted);
+		
+		return { 
+			success: true, 
+			granted: granted,
+			status: granted ? 'granted' : 'denied'
+		};
+	} catch (error) {
+		log.error('❌ Error requesting screen recording permission:', error);
+		return {
+			success: false,
+			error: error.message,
+			granted: false,
+			status: 'error'
+		};
 	}
-	const granted = await systemPreferences.askForMediaAccess('screen');
-
-	return { success: true, granted };
 });
 // Window state management functions
 function saveWindowState() {
@@ -1813,21 +1860,36 @@ app.whenReady().then(async () => {
 		// console.log('Camera status:', cameraStatus);
 	}
 
-	// ✅ Request screen recording permission (macOS only)
+	// ✅ Request all permissions on startup (macOS only)
 	if (isMacRuntime) {
+		// Request microphone permission
 		setTimeout(async () => {
 			try {
-				const granted = await systemPreferences.askForMediaAccess('screen-recording');
+				const granted = await systemPreferences.askForMediaAccess('microphone');
+				log.info('🎤 Microphone permission request result:', granted);
+			} catch (error) {
+				log.error('Error requesting microphone permission:', error);
+			}
+		}, 1000);
+
+		// Request screen recording permission
+		setTimeout(async () => {
+			try {
+				const granted = await systemPreferences.askForMediaAccess('screen');
+				log.info('🖥️ Screen recording permission request result:', granted);
 			} catch (error) {
 				log.error('Error requesting screen recording permission:', error);
-				// This is expected in some cases, not a critical error
 			}
 		}, 2000);
 
-		// Also request camera permission
+		// Request camera permission
 		setTimeout(async () => {
-			await systemPreferences.askForMediaAccess('camera');
-			// log.info('Camera permission result:', cameraGranted);
+			try {
+				const granted = await systemPreferences.askForMediaAccess('camera');
+				log.info('📷 Camera permission request result:', granted);
+			} catch (error) {
+				log.error('Error requesting camera permission:', error);
+			}
 		}, 3000);
 	}
 
@@ -1909,11 +1971,20 @@ app.whenReady().then(async () => {
 		try {
 			if (isMacRuntime) {
 				const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
+				log.info('🎤 Microphone permission check:', microphoneStatus, 'granted:', microphoneStatus === 'granted');
 
 				return {
 					success: true,
 					permission: microphoneStatus,
 					hasPermission: microphoneStatus === 'granted',
+					message:
+						microphoneStatus === 'granted'
+							? 'Microphone access granted'
+							: microphoneStatus === 'denied'
+							? 'Microphone access denied'
+							: microphoneStatus === 'not-determined'
+							? 'Microphone permission not yet determined'
+							: 'Microphone access restricted',
 				};
 			} else {
 				// For non-macOS platforms, assume permission is available
@@ -1921,6 +1992,7 @@ app.whenReady().then(async () => {
 					success: true,
 					permission: 'granted',
 					hasPermission: true,
+					message: 'Microphone access available',
 				};
 			}
 		} catch (error) {
@@ -1929,6 +2001,7 @@ app.whenReady().then(async () => {
 				success: false,
 				error: error.message,
 				hasPermission: false,
+				permission: 'error',
 			};
 		}
 	});
@@ -2584,6 +2657,7 @@ app.whenReady().then(async () => {
 		try {
 			if (isMacRuntime) {
 				const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
+				log.info('📷 Camera permission check:', cameraStatus, 'granted:', cameraStatus === 'granted');
 
 				return {
 					success: true,
@@ -2614,6 +2688,43 @@ app.whenReady().then(async () => {
 				error: error.message,
 				hasPermission: false,
 				permission: 'error',
+			};
+		}
+	});
+
+	// Debug permission handler - for troubleshooting
+	ipcMain.handle('debug-permissions', async () => {
+		try {
+			const debugInfo = {
+				platform: process.platform,
+				isMacRuntime,
+				permissions: {}
+			};
+
+			if (isMacRuntime) {
+				debugInfo.permissions = {
+					microphone: systemPreferences.getMediaAccessStatus('microphone'),
+					screen: systemPreferences.getMediaAccessStatus('screen'),
+					camera: systemPreferences.getMediaAccessStatus('camera'),
+				};
+			} else {
+				debugInfo.permissions = {
+					microphone: 'granted (non-macOS)',
+					screen: 'granted (non-macOS)',
+					camera: 'granted (non-macOS)',
+				};
+			}
+
+			log.info('🔍 Debug permissions info:', debugInfo);
+			return {
+				success: true,
+				debugInfo
+			};
+		} catch (error) {
+			log.error('Error in debug permissions:', error);
+			return {
+				success: false,
+				error: error.message
 			};
 		}
 	});
@@ -4356,19 +4467,44 @@ app.whenReady().then(async () => {
 
 	// Request camera permission handler
 	ipcMain.handle('request-camera-permission', async () => {
+		log.info('📷 Camera permission request handler called');
 		try {
 			if (isMacRuntime) {
+				// Check current status first
+				const currentStatus = systemPreferences.getMediaAccessStatus('camera');
+				log.info('📷 Current camera permission status:', currentStatus);
+				
+				if (currentStatus === 'granted') {
+					log.info('📷 Camera permission already granted');
+					return { success: true, granted: true, status: currentStatus };
+				}
+				
+				if (currentStatus === 'denied') {
+					log.info('📷 Camera permission previously denied');
+					return { 
+						success: false, 
+						granted: false, 
+						status: currentStatus,
+						error: 'Camera access was previously denied. Please enable it manually in System Settings.'
+					};
+				}
+				
 				// Request camera access (this will show the system dialog)
+				log.info('📷 Requesting camera permission...');
 				const granted = await systemPreferences.askForMediaAccess('camera');
+				log.info('📷 Camera permission request result:', granted);
+				
 				return {
 					success: true,
 					granted: granted,
+					status: granted ? 'granted' : 'denied'
 				};
 			} else {
 				// For non-macOS platforms, assume permission is available
 				return {
 					success: true,
 					granted: true,
+					status: 'granted'
 				};
 			}
 		} catch (error) {
@@ -4377,6 +4513,7 @@ app.whenReady().then(async () => {
 				success: false,
 				error: error.message,
 				granted: false,
+				status: 'error'
 			};
 		}
 	});
@@ -4454,20 +4591,44 @@ app.whenReady().then(async () => {
 
 	// Request microphone permission handler
 	ipcMain.handle('request-microphone-permission', async () => {
+		log.info('🎤 Microphone permission request handler called');
 		try {
 			if (isMacRuntime) {
+				// Check current status first
+				const currentStatus = systemPreferences.getMediaAccessStatus('microphone');
+				log.info('🎤 Current microphone permission status:', currentStatus);
+				
+				if (currentStatus === 'granted') {
+					log.info('🎤 Microphone permission already granted');
+					return { success: true, granted: true, status: currentStatus };
+				}
+				
+				if (currentStatus === 'denied') {
+					log.info('🎤 Microphone permission previously denied');
+					return { 
+						success: false, 
+						granted: false, 
+						status: currentStatus,
+						error: 'Microphone access was previously denied. Please enable it manually in System Settings.'
+					};
+				}
+				
 				// Request microphone access (this will show the system dialog)
+				log.info('🎤 Requesting microphone permission...');
 				const granted = await systemPreferences.askForMediaAccess('microphone');
+				log.info('🎤 Microphone permission request result:', granted);
 
 				return {
 					success: true,
 					granted: granted,
+					status: granted ? 'granted' : 'denied'
 				};
 			} else {
 				// For non-macOS platforms, assume permission is available
 				return {
 					success: true,
 					granted: true,
+					status: 'granted'
 				};
 			}
 		} catch (error) {
@@ -4476,6 +4637,7 @@ app.whenReady().then(async () => {
 				success: false,
 				error: error.message,
 				granted: false,
+				status: 'error'
 			};
 		}
 	});
