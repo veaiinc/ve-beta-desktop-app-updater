@@ -105,7 +105,7 @@ const TranscriptPanel = ({
 						<Clock size={16} />
 						<span>Show Live Intelligence</span>
 					</button>
-					<button
+					{/* <button
 						className="transcript-panel-header-action"
 						onClick={() => {
 							// Toggle debug mode by setting a global flag
@@ -116,7 +116,7 @@ const TranscriptPanel = ({
 						style={{ fontSize: '12px' }}
 					>
 						🔧
-					</button>
+					</button> */}
 					<button
 						className="transcript-panel-header-action"
 						onClick={onClose}
