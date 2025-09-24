@@ -680,6 +680,7 @@ const AskAIApp = () => {
 						fetchRecentChatMessages={false}
 						handleDesktopAppPayload={handleDesktopAppPayload}
 						showUpgradeSubscriptionBtn={false}
+						showChatBox={false} // Disable ChatBox in RecentChat to prevent duplicate messages
 					/>
 				</div>
 				

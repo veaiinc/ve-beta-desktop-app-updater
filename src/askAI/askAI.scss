@@ -194,10 +194,7 @@
 						}
 					}
 
-					/* Hide the chat input inside the scrollable area - we'll add it outside */
-					.chatBoxWrapper {
-						display: none !important; /* Hide the original chat input */
-					}
+					/* ChatBox is now conditionally rendered, no need to hide with CSS */
 				}
 			}
 
