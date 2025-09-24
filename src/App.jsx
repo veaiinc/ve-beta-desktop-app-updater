@@ -109,10 +109,10 @@ const App = () => {
 		// Expose voiceIntegration to window for NotchDrop access only when not using LiveKit
 		if (voiceIntegration && !disableOldVoiceIntegration && !window.voiceIntegration) {
 			window.voiceIntegration = voiceIntegration;
-			console.log('✅ voiceIntegration exposed to window.voiceIntegration');
+			// console.log('✅ voiceIntegration exposed to window.voiceIntegration');
 		} else if (disableOldVoiceIntegration && window.voiceIntegration) {
 			delete window.voiceIntegration;
-			console.log('🚫 Old voice integration disabled - using LiveKit instead');
+			// console.log('🚫 Old voice integration disabled - using LiveKit instead');
 		}
 		return () => {
 			if (window.voiceIntegration) {
@@ -127,10 +127,10 @@ const App = () => {
 			const { isConnected } = voiceIntegration;
 
 			if (isConnected) {
-				console.log('🔄 Voice connected - notifying NotchDrop...');
+				// console.log('🔄 Voice connected - notifying NotchDrop...');
 				window.electronApi.notchdrop.updateVoiceConnectionState('connected');
 			} else {
-				console.log('🔄 Voice disconnected - notifying NotchDrop...');
+				// console.log('🔄 Voice disconnected - notifying NotchDrop...');
 				window.electronApi.notchdrop.updateVoiceConnectionState('disconnected');
 			}
 		}
@@ -139,10 +139,10 @@ const App = () => {
 	// Handle NotchDrop voice disconnect
 	useEffect(() => {
 		const handleNotchDropVoiceDisconnect = async (event) => {
-			console.log(`🔌 NotchDrop voice disconnect: ${event.type}`);
+			// console.log(`🔌 NotchDrop voice disconnect: ${event.type}`);
 			if (voiceIntegration && voiceIntegration.disconnect) {
 				try {
-					console.log('🔌 Disconnecting voice agent from NotchDrop X button...');
+					// console.log('🔌 Disconnecting voice agent from NotchDrop X button...');
 					await voiceIntegration.disconnect();
 					console.log('✅ Voice agent disconnected successfully from NotchDrop!');
 				} catch (error) {
@@ -164,7 +164,7 @@ const App = () => {
 	// Listen for old voice integration disable/enable events
 	useEffect(() => {
 		const handleDisableOldVoiceIntegration = (event) => {
-			console.log('🚫 Received disable old voice integration event:', event.detail);
+			// console.log('🚫 Received disable old voice integration event:', event.detail);
 			setDisableOldVoiceIntegration(event.detail.disable);
 		};
 
@@ -181,7 +181,7 @@ const App = () => {
 	const handleCheckForUpdates = async () => {
 		try {
 			const result = await window?.electronApi?.checkForUpdates();
-			console.log('✅ Update check initiated:', result);
+			// console.log('✅ Update check initiated:', result);
 		} catch (error) {
 			console.error('❌ Error checking for updates:', error);
 		}
@@ -214,28 +214,28 @@ const App = () => {
 		// Set up update status listener
 		if (window?.electronApi?.onUpdateStatus) {
 			const handleUpdateStatus = (data) => {
-				console.log('📱 Update status received:', data);
+				// console.log('📱 Update status received:', data);
 				setUpdateStatus(data);
 
 				switch (data.status) {
 					case 'checking':
-						console.log('🔍 Checking for updates...');
+						// console.log('🔍 Checking for updates...');
 						break;
 
 					case 'available':
-						console.log(`🆕 Update available: ${data.version}`);
+						// console.log(`🆕 Update available: ${data.version}`);
 						console.log('⬇️ Download starting automatically...');
 						break;
 
 					case 'not-available':
-						console.log('✅ No updates available');
+						// console.log('✅ No updates available');
 						break;
 
 					case 'downloaded':
-						console.log(`✅ Update downloaded: ${data.version}`);
-						console.log(
-							'📣 Update prompt will appear so the user can restart manually.',
-						);
+						// 	console.log(`✅ Update downloaded: ${data.version}`);
+						// console.log(
+						// 	'📣 Update prompt will appear so the user can restart manually.',
+						// );
 						break;
 
 					case 'download-failed':

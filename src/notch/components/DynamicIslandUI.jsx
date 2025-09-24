@@ -1202,7 +1202,7 @@ const DynamicIslandUI = () => {
 	const handleStopRecording = async () => {
 		console.log('⏹️ Stop recording clicked - triggering overlay');
 		if (!window.electronApi?.overlay?.stopRecording) {
-			console.error('Overlay stopRecording API not available');
+			// console.error('Overlay stopRecording API not available');
 			return;
 		}
 		try {
