@@ -2880,7 +2880,6 @@ export const TemplatesState = (props) => {
 
 	const deleteChatSession = async (sessionId) => {
 		try {
-			console.log('sessionId==>deleteChatSession', sessionId);
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 			const url = `/${workspaceId}/ai-chat/delete-multiagent-conversation/${sessionId}`;
