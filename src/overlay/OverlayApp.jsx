@@ -290,6 +290,57 @@ const OverlayApp = () => {
 		}
 	}, []);
 
+	const calculateDynamicDimensions = useCallback(() => {
+		if (!containerRef.current) return { width: 600, height: 50 };
+
+		let calculatedWidth = 560;
+		let calculatedHeight = 450;
+
+		return {
+			width: Math.min(calculatedWidth, window.screen.width * 0.8), // Max 80% of screen width
+			height: calculatedHeight, // Max 80% of screen height
+		};
+	}, [activePanel, showShortcutBar, isDynamicIslandControlled]);
+
+	useEffect(() => {
+		// Update window dimensions when content changes
+		const updateDimensions = () => {
+			if (containerRef.current) {
+				// Use a small delay to allow CSS transitions to complete
+				setTimeout(() => {
+					const { width, height } = calculateDynamicDimensions();
+
+					window?.electronApi.overlay.updateDimensions({ width, height });
+				}, 50);
+			}
+		};
+
+		// Initial dimension update
+		updateDimensions();
+
+		// ResizeObserver removed - resizing is disabled, only content changes trigger updates
+
+		// Set up MutationObserver to watch for DOM changes
+		const mutationObserver = new MutationObserver(() => {
+			updateDimensions();
+		});
+
+		if (containerRef.current) {
+			mutationObserver.observe(containerRef.current, {
+				childList: true,
+				subtree: true,
+				attributes: true,
+				characterData: true,
+				attributeOldValue: true,
+				characterDataOldValue: true,
+			});
+		}
+
+		return () => {
+			mutationObserver.disconnect();
+		};
+	}, [calculateDynamicDimensions]);
+
 	const handleStartTranscription = async (data = {}) => {
 		// Reset stopping flag
 		isStoppingRef.current = false;
@@ -633,18 +684,6 @@ const OverlayApp = () => {
 		// Open Ask AI window via electron API
 		window?.electronApi.askAI.toggleWindow();
 	};
-
-	const calculateDynamicDimensions = useCallback(() => {
-		if (!containerRef.current) return { width: 600, height: 50 };
-
-		let calculatedWidth = 560;
-		let calculatedHeight = 450;
-
-		return {
-			width: Math.min(calculatedWidth, window.screen.width * 0.8), // Max 80% of screen width
-			height: calculatedHeight, // Max 80% of screen height
-		};
-	}, [activePanel, showShortcutBar, isDynamicIslandControlled]);
 
 	// Send state updates to Dynamic Island when recording state changes
 	useEffect(() => {
