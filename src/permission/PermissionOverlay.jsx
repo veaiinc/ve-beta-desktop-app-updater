@@ -91,7 +91,7 @@ const PermissionOverlay = () => {
 			successTimeoutRef.current = setTimeout(() => {
 				console.log('🎉 All permissions granted! Auto-closing overlay...');
 				window.electronApi.permission.closeWindow();
-			}, 2000); // Show success message for 2 seconds before closing
+			}, 5000); // Show success message for 2 seconds before closing
 		}
 
 		return () => {
@@ -436,7 +436,7 @@ const PermissionOverlay = () => {
 									<p className="permission-description">
 										Allow Ve to access your microphone
 									</p>
-									<div className="permission-status">
+									{/* <div className="permission-status">
 										<span
 											className={`status-badge ${getPermissionStatusClass(
 												permissionDetails.microphone.status,
@@ -451,7 +451,7 @@ const PermissionOverlay = () => {
 												{permissionDetails.microphone.message}
 											</span>
 										)}
-									</div>
+									</div> */}
 								</div>
 							</div>
 							<div className="permission-action">
@@ -495,7 +495,7 @@ const PermissionOverlay = () => {
 										<p className="permission-description">
 											Allow Ve to access your screen
 										</p>
-										<div className="permission-status">
+										{/* <div className="permission-status">
 											<span
 												className={`status-badge ${getPermissionStatusClass(
 													permissionDetails.screen.status,
@@ -510,7 +510,7 @@ const PermissionOverlay = () => {
 													{permissionDetails.screen.message}
 												</span>
 											)}
-										</div>
+										</div> */}
 									</div>
 								</div>
 								<div className="permission-action">
@@ -554,7 +554,7 @@ const PermissionOverlay = () => {
 									<p className="permission-description">
 										Allow Ve to access your camera
 									</p>
-									<div className="permission-status">
+									{/* <div className="permission-status">
 										<span
 											className={`status-badge ${getPermissionStatusClass(
 												permissionDetails.camera.status,
@@ -569,7 +569,7 @@ const PermissionOverlay = () => {
 												{permissionDetails.camera.message}
 											</span>
 										)}
-									</div>
+									</div> */}
 								</div>
 							</div>
 							<div className="permission-action">
