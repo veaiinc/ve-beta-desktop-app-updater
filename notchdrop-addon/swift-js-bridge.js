@@ -269,6 +269,7 @@ class SwiftJSBridge {
 
 	async triggerOverlayStopRecording(data) {
 		try {
+			console.log('⏹️ Triggering overlay stop recording from Swift');
 			try {
 				const { ipcRenderer } = require('electron');
 				if (ipcRenderer) {
@@ -901,7 +902,6 @@ class SwiftJSBridge {
 										// Use existing Dynamic Island camera permission functionality
 										if (window.electronApi?.askAI?.camera?.checkPermission) {
 											const permission = await window.electronApi.askAI.camera.checkPermission();
-											console.log('📹 Camera permission result:', permission);
 											return { success: true, permission, method: 'askAI.camera.checkPermission' };
 										}
 										
@@ -957,7 +957,6 @@ class SwiftJSBridge {
 										// Use existing Dynamic Island camera permission functionality
 										if (window.electronApi?.askAI?.camera?.requestPermission) {
 											const permission = await window.electronApi.askAI.camera.requestPermission();
-											console.log('📹 Camera permission request result:', permission);
 											return { success: true, permission, method: 'askAI.camera.requestPermission' };
 										}
 										
