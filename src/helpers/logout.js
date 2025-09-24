@@ -14,16 +14,6 @@ const logoutAPI = async () => {
 				fcmToken,
 			};
 		}
-		localStorage.clear();
-		Cookies.remove('usertoken');
-		Cookies.remove('refreshToken');
-		Cookies.remove('accessTokenExpiry');
-		Cookies.remove('refreshTokenExpiry');
-		Cookies.remove('region');
-		Cookies.remove('workspaceId');
-		Cookies.remove('isOnboard');
-		Cookies.remove('accessibleWorkspaces');
-		Cookies.remove('fcmToken');
 
 		const response = await Service?.fetchPost(path, body, token, 'auth');
 
@@ -36,22 +26,11 @@ const logoutAPI = async () => {
 
 const logout = async () => {
 	try {
-		const theme = localStorage.getItem('theme');
-		const cookieTheme = Cookies.get('theme');
-
-		if (theme) {
-			localStorage.setItem('theme', theme);
-		}
+		localStorage.clear();
 
 		Object.keys(Cookies.get()).forEach((cookieName) => {
-			if (cookieName !== 'theme') {
-				Cookies.remove(cookieName);
-			}
+			Cookies.remove(cookieName);
 		});
-
-		if (cookieTheme) {
-			Cookies.set('theme', cookieTheme, { expires: 365 });
-		}
 
 		window.location.replace('/');
 		logoutAPI();
