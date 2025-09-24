@@ -162,6 +162,9 @@ class WindowHelper {
 		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
 		this.currentY = 0 + dynamicIslandHeight + gapFromDynamicIsland;
 
+		// Initialize window position for future position persistence
+		this.windowPosition = { x: this.currentX, y: this.currentY };
+
 		const windowSettings = {
 			width: this.windowSize.width,
 			height: this.windowSize.height,
@@ -322,6 +325,10 @@ class WindowHelper {
 		}
 
 		this.askAIWindow = new BrowserWindow(windowSettings);
+
+		// Store initial position for proper tracking
+		this.askAIWindowPosition = { x: askAIX, y: askAIY };
+		this.askAIWindowSize = { width: this.askAIWindowSize.width, height: this.askAIWindowSize.height };
 
 		// Apply content protection to Ask AI window
 		this.applyContentProtection(this.askAIWindow);
@@ -966,44 +973,64 @@ class WindowHelper {
 		const primaryDisplay = screen.getPrimaryDisplay();
 		const workArea = primaryDisplay.workAreaSize;
 
-		// Add proper spacing from Dynamic Island with platform-specific positioning
-		const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
-		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+		// Check if we have a saved position from previous hide/show cycle
+		const hasValidSavedPosition = this.windowPosition && 
+			typeof this.windowPosition.x === 'number' && 
+			typeof this.windowPosition.y === 'number' &&
+			this.windowPosition.x >= 0 && this.windowPosition.y >= 0 &&
+			// Ensure position is within screen bounds
+			this.windowPosition.x < workArea.width && this.windowPosition.y < workArea.height;
 
-		// Platform-specific Dynamic Island Y position - eliminate gap with menu bar
-		let dynamicIslandY;
-		if (process.platform === 'win32') {
-			dynamicIslandY = 0; // At absolute top on Windows to eliminate any gap
+		let overlayX, overlayY;
+
+		if (hasValidSavedPosition) {
+			// Use saved position
+			overlayX = this.windowPosition.x;
+			overlayY = this.windowPosition.y;
+			log.info(`📍 Overlay: Restoring saved position (${overlayX}, ${overlayY})`);
 		} else {
-			dynamicIslandY = -8; // Slightly above screen edge on Mac/Linux to eliminate menu bar gap
-		}
+			// Calculate default position (existing logic)
+			// Add proper spacing from Dynamic Island with platform-specific positioning
+			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
+			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
 
-		const topY = dynamicIslandY;
+			// Platform-specific Dynamic Island Y position - eliminate gap with menu bar
+			let dynamicIslandY;
+			if (process.platform === 'win32') {
+				dynamicIslandY = 0; // At absolute top on Windows to eliminate any gap
+			} else {
+				dynamicIslandY = -8; // Slightly above screen edge on Mac/Linux to eliminate menu bar gap
+			}
 
-		// Position overlay to allow space for ask AI on the right
-		let overlayX;
-		if (this.isAskAIWindowVisible() && this.askAIWindow && !this.askAIWindow.isDestroyed()) {
-			// Position overlay to the left to make room for ask AI on the right
-			const gap = 30; // Gap between windows
-			const totalWidth = this.windowSize.width + this.askAIWindowSize.width + gap;
-			const startX = Math.floor(workArea.width / 2) - Math.floor(totalWidth / 2);
-			overlayX = startX;
-		} else {
-			// Center overlay when ask AI is not visible
-			overlayX = Math.floor(workArea.width / 2) - Math.floor(this.windowSize.width / 2);
+			overlayY = dynamicIslandY;
+
+			// Position overlay to allow space for ask AI on the right
+			if (this.isAskAIWindowVisible() && this.askAIWindow && !this.askAIWindow.isDestroyed()) {
+				// Position overlay to the left to make room for ask AI on the right
+				const gap = 30; // Gap between windows
+				const totalWidth = this.windowSize.width + this.askAIWindowSize.width + gap;
+				const startX = Math.floor(workArea.width / 2) - Math.floor(totalWidth / 2);
+				overlayX = startX;
+			} else {
+				// Center overlay when ask AI is not visible
+				overlayX = Math.floor(workArea.width / 2) - Math.floor(this.windowSize.width / 2);
+			}
+
+			// Store the calculated position for future use
+			this.windowPosition = { x: overlayX, y: overlayY };
+			log.info(`📍 Overlay: Using calculated position (${overlayX}, ${overlayY})`);
 		}
 
 		this.overlayWindow.setBounds({
 			x: overlayX,
-			y: topY,
+			y: overlayY,
 			width: this.windowSize.width,
 			height: this.windowSize.height,
 		});
 
 		// Update current position tracking
 		this.currentX = overlayX;
-		this.currentY = topY;
-		this.windowPosition = { x: overlayX, y: topY };
+		this.currentY = overlayY;
 
 		// Ensure window properties for all desktops/spaces on macOS
 		if (process.platform === 'darwin') {
@@ -1041,33 +1068,46 @@ class WindowHelper {
 		// 	this.hideOverlayWindow();
 		// }
 
-		// Position Ask AI window to the right of overlay with gap
-		const primaryDisplay = screen.getPrimaryDisplay();
-		const workArea = primaryDisplay.workAreaSize;
-		const gap = 20; // Gap between windows
-
 		let askAIX, askAIY;
-		if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
-			// Position ask AI to the right of overlay
-			askAIX = this.currentX + this.windowSize.width + gap;
-			askAIY = 80; // Same Y level as overlay
+
+		// Check if we have a saved position from previous hide/show cycle
+		const hasValidSavedPosition = this.askAIWindowPosition && 
+			typeof this.askAIWindowPosition.x === 'number' && 
+			typeof this.askAIWindowPosition.y === 'number' &&
+			this.askAIWindowPosition.x !== 0 && this.askAIWindowPosition.y !== 0;
+
+		if (hasValidSavedPosition) {
+			// Use the saved position (user's last position)
+			askAIX = this.askAIWindowPosition.x;
+			askAIY = this.askAIWindowPosition.y;
 		} else {
-			// Center ask AI when overlay is not visible, below Dynamic Island with proper spacing
-			askAIX = Math.floor(workArea.width / 2) - Math.floor(this.askAIWindowSize.width / 2);
+			// Calculate default position for first-time show or when no saved position
+			const primaryDisplay = screen.getPrimaryDisplay();
+			const workArea = primaryDisplay.workAreaSize;
+			const gap = 20; // Gap between windows
 
-			// Add proper spacing from Dynamic Island with platform-specific positioning
-			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
-			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-
-			// Platform-specific Dynamic Island Y position - eliminate gap with menu bar
-			let dynamicIslandY;
-			if (process.platform === 'win32') {
-				dynamicIslandY = 0; // At absolute top on Windows to eliminate any gap
+			if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+				// Position ask AI to the right of overlay
+				askAIX = this.currentX + this.windowSize.width + gap;
+				askAIY = 80; // Same Y level as overlay
 			} else {
-				dynamicIslandY = -8; // Slightly above screen edge on Mac/Linux to eliminate menu bar gap
-			}
+				// Center ask AI when overlay is not visible, below Dynamic Island with proper spacing
+				askAIX = Math.floor(workArea.width / 2) - Math.floor(this.askAIWindowSize.width / 2);
 
-			askAIY = dynamicIslandY + dynamicIslandHeight + gapFromDynamicIsland;
+				// Add proper spacing from Dynamic Island with platform-specific positioning
+				const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
+				const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+
+				// Platform-specific Dynamic Island Y position - eliminate gap with menu bar
+				let dynamicIslandY;
+				if (process.platform === 'win32') {
+					dynamicIslandY = 0; // At absolute top on Windows to eliminate any gap
+				} else {
+					dynamicIslandY = -8; // Slightly above screen edge on Mac/Linux to eliminate menu bar gap
+				}
+
+				askAIY = dynamicIslandY + dynamicIslandHeight + gapFromDynamicIsland;
+			}
 		}
 
 		this.askAIWindow.setBounds({

@@ -5,13 +5,15 @@ import ObjectID from 'bson-objectid';
 import { getLocationsDetails } from '../helpers';
 import Context from '../context/context';
 import RecentChat from '../views/features/chat/RecentChat';
+import ChatBox from '../views/components/chat/ChatBox';
 import CustomToast from '../views/components/globalComponents/CustomToast';
 import { ReactComponent as ExpandSvg } from './expand.svg';
 import { ReactComponent as MinimizeSvg } from './minimize.svg';
 
 const AskAIApp = () => {
 	const {
-		templates: { updateStateValues },
+		templates: { updateStateValues, globalChatMessages, handleGlobalChatMessages },
+		chatStream: { sendMessage },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -23,6 +25,7 @@ const AskAIApp = () => {
 	const expandChatRef = useRef(false);
 	const lastWindowHeightRef = useRef(null);
 	const userResizingRef = useRef(false);
+	const chatContainerRef = useRef(null); // Ref for auto-scrolling
 
 	useEffect(() => {
 		if (!containerRef.current) return;
@@ -329,6 +332,312 @@ const AskAIApp = () => {
 		}
 	}, [info?.workarea]);
 
+	// Handler functions for ChatBox
+	const handleChatQueryChange = useCallback((query) => {
+		// This function is called when the chat query changes
+		// We don't need to store it in state since ChatBox manages its own state
+	}, []);
+
+	const handleSendWebsocketMessage = useCallback(
+		async (data, lastQuery) => {
+			try {
+				await sendMessage({ 
+					data, 
+					sessionId: info?.sessionId, 
+					onMessageFunc: (event, currentSessionId) => {
+						// Handle incoming messages
+						let { data: messageData = '' } = event || {};
+						messageData = JSON?.parse(messageData);
+						
+						if (messageData?.stream_end) {
+							handleGlobalChatMessages({
+								sessionId: info?.sessionId,
+								removeLoadingMessage: true,
+								updateExtraInfo: true,
+								removeStreaming: true,
+								latestStreamMessage: messageData,
+							});
+						}
+						
+						if (messageData?.message_chunk_id) {
+							handleGlobalChatMessages({
+								payload: messageData,
+								chunkId: messageData.message_chunk_id,
+								sessionId: info?.sessionId,
+								updateExtraInfo: false,
+							});
+						}
+					}, 
+					isPublicChat: false, 
+					agentType: 'multi_agent' 
+				});
+				
+				handleGlobalChatMessages({
+					sessionId: info?.sessionId,
+					lastQuery,
+					updateExtraInfo: true,
+				});
+				
+				// Auto-scroll after sending message
+				setTimeout(() => {
+					scrollToBottom();
+				}, 100);
+			} catch (error) {
+				console.error('Failed to send message:', error);
+				handleGlobalChatMessages({
+					sessionId: info?.sessionId,
+					updateExtraInfo: true,
+					removeStreaming: true,
+				});
+			}
+		},
+		[sendMessage, info?.sessionId, handleGlobalChatMessages]
+	);
+
+	// Auto-scroll functionality for Ask AI overlay
+	const scrollToBottom = useCallback(() => {
+		// Find the chat content container with more specific targeting
+		const chatBodyContainer = document.querySelector('.ask-ai-app .chatBodyParentContainer');
+		if (chatBodyContainer) {
+			console.log('📜 Ask AI scrollToBottom:', {
+				scrollHeight: chatBodyContainer.scrollHeight,
+				clientHeight: chatBodyContainer.clientHeight,
+				scrollTop: chatBodyContainer.scrollTop,
+				canScroll: chatBodyContainer.scrollHeight > chatBodyContainer.clientHeight,
+				containerStyle: {
+					overflow: chatBodyContainer.style.overflow,
+					height: chatBodyContainer.style.height,
+					position: chatBodyContainer.style.position
+				}
+			});
+			
+			// Ensure the container is properly configured for scrolling
+			chatBodyContainer.style.overflowY = 'auto';
+			chatBodyContainer.style.height = '100%';
+			
+			// Force scroll to bottom
+			requestAnimationFrame(() => {
+				chatBodyContainer.scrollTo({
+					top: chatBodyContainer.scrollHeight,
+					behavior: 'smooth'
+				});
+			});
+		} else {
+			console.log('🚫 Ask AI scrollToBottom: No chat container found');
+		}
+	}, []);
+
+	// Auto-scroll when new messages are added (Ask AI specific)
+	useEffect(() => {
+		if (!info?.sessionId) return;
+		
+		const messages = globalChatMessages?.[info.sessionId]?.messages;
+		if (!messages || !messages.length) return;
+
+		// Get the last message
+		const lastMessage = messages[messages.length - 1];
+		if (!lastMessage) return;
+
+		// Auto-scroll for AI responses or when stream ends
+		const shouldAutoScroll = 
+			lastMessage?.type?.toLowerCase() === 'ai' || // AI response
+			lastMessage?.stream_end || // Stream finished
+			lastMessage?.contentType === 'loading'; // Loading state
+
+		if (shouldAutoScroll) {
+			// Use multiple attempts to ensure DOM has updated and scroll works
+			const attemptScroll = (attempts = 3) => {
+				const chatBodyContainer = document.querySelector('.ask-ai-app .chatBodyParentContainer');
+				if (!chatBodyContainer && attempts > 0) {
+					setTimeout(() => attemptScroll(attempts - 1), 50);
+					return;
+				}
+				
+				if (!chatBodyContainer) return;
+
+				// Force layout recalculation before checking scroll position
+				chatBodyContainer.style.height = 'auto';
+				requestAnimationFrame(() => {
+					chatBodyContainer.style.height = '';
+					
+					const { scrollTop, scrollHeight, clientHeight } = chatBodyContainer;
+					const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+					const isNearBottom = distanceFromBottom < 100; // Auto-scroll if within 100px of bottom
+
+					console.log('📊 Auto-scroll check after layout fix:', {
+						scrollTop,
+						scrollHeight,
+						clientHeight,
+						distanceFromBottom,
+						isNearBottom
+					});
+
+					// Only auto-scroll if user is near the bottom (to not interrupt manual scrolling)
+					if (isNearBottom) {
+						scrollToBottom();
+					}
+				});
+			};
+			
+			setTimeout(() => attemptScroll(), 100);
+		}
+	}, [globalChatMessages?.[info?.sessionId]?.messages?.length, info?.sessionId, scrollToBottom]);
+
+	// Auto-scroll when user sends a message
+	useEffect(() => {
+		if (!info?.sessionId) return;
+		
+		const messages = globalChatMessages?.[info.sessionId]?.messages;
+		if (!messages || !messages.length) return;
+
+		const lastMessage = messages[messages.length - 1];
+		if (lastMessage?.type?.toLowerCase() === 'user') {
+			// Always scroll to bottom when user sends a message
+			setTimeout(() => {
+				scrollToBottom();
+			}, 100);
+		}
+	}, [globalChatMessages?.[info?.sessionId]?.messages?.length, info?.sessionId, scrollToBottom]);
+
+	// Handle window resize to fix scrolling issues
+	useEffect(() => {
+		const handleResize = () => {
+			console.log('🔄 Ask AI window resized, recalculating layout...');
+			
+			// Force layout recalculation by temporarily changing and restoring a style
+			const chatBodyContainer = document.querySelector('.ask-ai-app .chatBodyParentContainer');
+			if (chatBodyContainer) {
+				// Force a reflow to recalculate dimensions
+				const originalHeight = chatBodyContainer.style.height;
+				chatBodyContainer.style.height = 'auto';
+				
+				// Use requestAnimationFrame to ensure the change is applied
+				requestAnimationFrame(() => {
+					chatBodyContainer.style.height = originalHeight;
+					
+					// Trigger a scroll to bottom to ensure everything is working
+					setTimeout(() => {
+						scrollToBottom();
+					}, 100);
+				});
+			}
+		};
+
+		// Listen for window resize events
+		window.addEventListener('resize', handleResize);
+		
+		// Also listen for Electron window resize events
+		if (window.electronApi?.askAI?.onWindowResize) {
+			window.electronApi.askAI.onWindowResize(handleResize);
+		}
+
+		// Use ResizeObserver to watch for container size changes
+		let resizeObserver;
+		const chatBodyContainer = document.querySelector('.ask-ai-app .chatBodyParentContainer');
+		if (chatBodyContainer && window.ResizeObserver) {
+			resizeObserver = new ResizeObserver((entries) => {
+				for (let entry of entries) {
+					console.log('📏 Chat container resized:', {
+						width: entry.contentRect.width,
+						height: entry.contentRect.height
+					});
+					
+					// Force scroll recalculation when container size changes
+					setTimeout(() => {
+						scrollToBottom();
+					}, 50);
+				}
+			});
+			
+			resizeObserver.observe(chatBodyContainer);
+		}
+
+		// Cleanup
+		return () => {
+			window.removeEventListener('resize', handleResize);
+			if (resizeObserver) {
+				resizeObserver.disconnect();
+			}
+		};
+	}, [scrollToBottom]);
+
+	// Initialize scroll container when component mounts
+	useEffect(() => {
+		const initializeScrollContainer = () => {
+			const chatBodyContainer = document.querySelector('.ask-ai-app .chatBodyParentContainer');
+			if (chatBodyContainer) {
+				console.log('🔧 Initializing scroll container...');
+				
+				// Ensure proper scroll configuration
+				chatBodyContainer.style.overflowY = 'auto';
+				chatBodyContainer.style.overflowX = 'hidden';
+				chatBodyContainer.style.height = '100%';
+				chatBodyContainer.style.position = 'relative';
+				
+				// Force a layout recalculation
+				chatBodyContainer.offsetHeight;
+				
+				console.log('✅ Scroll container initialized:', {
+					scrollHeight: chatBodyContainer.scrollHeight,
+					clientHeight: chatBodyContainer.clientHeight,
+					canScroll: chatBodyContainer.scrollHeight > chatBodyContainer.clientHeight
+				});
+			}
+		};
+
+		// Initialize immediately and after a short delay
+		initializeScrollContainer();
+		setTimeout(initializeScrollContainer, 500);
+	}, []);
+
+	// Debug function to test scrolling manually
+	useEffect(() => {
+		// Add a global function for debugging
+		window.testAskAIScroll = () => {
+			console.log('🧪 Testing Ask AI scroll manually...');
+			scrollToBottom();
+		};
+		
+		// Add a function to force layout recalculation
+		window.forceAskAILayout = () => {
+			console.log('🔧 Forcing Ask AI layout recalculation...');
+			const chatBodyContainer = document.querySelector('.ask-ai-app .chatBodyParentContainer');
+			if (chatBodyContainer) {
+				chatBodyContainer.style.height = 'auto';
+				requestAnimationFrame(() => {
+					chatBodyContainer.style.height = '';
+					scrollToBottom();
+				});
+			}
+		};
+		
+		// Add a function to check scroll status
+		window.checkAskAIScroll = () => {
+			const chatBodyContainer = document.querySelector('.ask-ai-app .chatBodyParentContainer');
+			if (chatBodyContainer) {
+				console.log('📊 Ask AI scroll status:', {
+					element: chatBodyContainer,
+					scrollHeight: chatBodyContainer.scrollHeight,
+					clientHeight: chatBodyContainer.clientHeight,
+					scrollTop: chatBodyContainer.scrollTop,
+					canScroll: chatBodyContainer.scrollHeight > chatBodyContainer.clientHeight,
+					computedStyle: {
+						overflow: window.getComputedStyle(chatBodyContainer).overflow,
+						height: window.getComputedStyle(chatBodyContainer).height,
+						position: window.getComputedStyle(chatBodyContainer).position
+					}
+				});
+			}
+		};
+		
+		// Cleanup
+		return () => {
+			delete window.testAskAIScroll;
+			delete window.forceAskAILayout;
+			delete window.checkAskAIScroll;
+		};
+	}, [scrollToBottom]);
+
 	// Note: Resize handling is now done natively by Electron
 
 	return (
@@ -371,6 +680,32 @@ const AskAIApp = () => {
 						fetchRecentChatMessages={false}
 						handleDesktopAppPayload={handleDesktopAppPayload}
 						showUpgradeSubscriptionBtn={false}
+					/>
+				</div>
+				
+				{/* Separate chat input outside the scrollable area */}
+				<div className="ask-ai-chat-input-wrapper">
+					<ChatBox
+						isPublicChat={false}
+						handleSendWebsocketMessage={handleSendWebsocketMessage}
+						hideDeepResearch={false}
+						autoFocus={true}
+						customChatBoxClick={null}
+						showScrollButton={false}
+						smoothScrollToBottom={scrollToBottom}
+						onChatQueryChange={handleChatQueryChange}
+						animateChatBox={true}
+						sessionId={info?.sessionId}
+						handleBrowserButtonClick={null}
+						showBrowserButton={false}
+						browserImage={null}
+						showBottomTools={false}
+						showMicBtn={true}
+						showRecentFiles={false}
+						isDesktopApp={true}
+						handleDesktopAppPayload={handleDesktopAppPayload}
+						handleChatBoxHeight={null}
+						getChatBoxHeight={false}
 					/>
 				</div>
 			</div>
