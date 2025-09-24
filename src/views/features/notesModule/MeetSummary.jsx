@@ -203,7 +203,7 @@ const MeetSummary = ({ meetingId }) => {
 			<div className={s.summarySection}>
 				{meetingData.summary && (
 					<>
-						<div className={s.copyButton}>
+						<div className={s.actionButtons}>
 							<button className={s.copyButton} onClick={handleSummaryCopy}>
 								{copying ? (
 									<>
