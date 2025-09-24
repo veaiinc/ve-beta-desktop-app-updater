@@ -46,7 +46,7 @@ const processResponse = async (response, requestInit, endpoint, type, isPublicCh
 
 		if (response.status >= 200 && response.status < 300) {
 			return [true, jsonData];
-		} else if (response.status === 401) {
+		} else if (response.status === 401 || (response.status === 403 && type === 'auth')) {
 			try {
 				// ensure only one refresh at a time
 				if (!isRefreshing) {
