@@ -742,9 +742,9 @@ const useAssemblyTranscription = ({
 				if (!isMountedRef.current) return;
 
 				micProcessingCount++;
-				if (micProcessingCount % 100 === 0) {
-					log(`Mic audio processing active (${micProcessingCount} calls)`);
-				}
+				// if (micProcessingCount % 100 === 0) {
+				// 	log(`Mic audio processing active (${micProcessingCount} calls)`);
+				// }
 
 				try {
 					const inputData = e.inputBuffer.getChannelData(0);
@@ -770,10 +770,10 @@ const useAssemblyTranscription = ({
 
 							// Use Voice Activity Detection to determine if we should send this chunk
 							if (hasAudioSignal(micBufferRef.current, 'mic')) {
-								log(`Sending mic audio chunk: ${audioData.length} samples`);
+								// log(`Sending mic audio chunk: ${audioData.length} samples`);
 								sendAudioData(audioData, 'mic');
 							} else {
-								log('Skipping silent mic audio chunk');
+								// log('Skipping silent mic audio chunk');
 							}
 						}
 
@@ -816,9 +816,9 @@ const useAssemblyTranscription = ({
 						if (!isMountedRef.current) return;
 
 						screenProcessingCount++;
-						if (screenProcessingCount % 100 === 0) {
-							log(`Screen audio processing active (${screenProcessingCount} calls)`);
-						}
+						// if (screenProcessingCount % 100 === 0) {
+						// 	log(`Screen audio processing active (${screenProcessingCount} calls)`);
+						// }
 
 						try {
 							const inputData = e.inputBuffer.getChannelData(0);
@@ -849,12 +849,12 @@ const useAssemblyTranscription = ({
 
 									// Use Voice Activity Detection to determine if we should send this chunk
 									if (hasAudioSignal(screenBufferRef.current, 'screen')) {
-										log(
-											`Sending screen audio chunk: ${audioData.length} samples`,
-										);
+										// log(
+										// 	`Sending screen audio chunk: ${audioData.length} samples`,
+										// );
 										sendAudioData(audioData, 'screen');
 									} else {
-										log('Skipping silent screen audio chunk');
+										// log('Skipping silent screen audio chunk');
 									}
 								}
 
