@@ -181,7 +181,7 @@
 
 							.queries-container {
 								display: flex;
-								flex-direction: column;
+								flex-wrap: wrap;
 								gap: 6px;
 								.query-container {
 									display: flex;
