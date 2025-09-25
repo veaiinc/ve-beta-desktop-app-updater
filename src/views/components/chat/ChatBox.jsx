@@ -47,12 +47,6 @@ const moduleHelper = {
 	note: 'notes',
 };
 
-const initialChatFilters = {
-	modules: {},
-	integrations: {},
-	dateRange: null,
-};
-
 const integrationsOptions = {
 	meeting: 'Meeting',
 	notion: 'Notion',
@@ -184,7 +178,6 @@ const ChatBox = ({
 		citationsModalIsOpen: false,
 		filtersEnabled: false,
 		isRecentFileOpen: false,
-		chatFilters: initialChatFilters,
 		isIntegrationsDropdownOpen: false,
 		isModulesDropdownOpen: false,
 		recentFiles: [],
@@ -687,13 +680,6 @@ const ChatBox = ({
 		});
 	};
 
-	const handleResetFiltersClick = () => {
-		setInfo((prev) => ({
-			...prev,
-			chatFilters: initialChatFilters,
-		}));
-	};
-
 	const handleRecentFileClick = (file) => {
 		let udpatedData = [...(recentFilesRef?.current || [])];
 		const isFileAlreadyPresent = recentFilesRef?.current?.some((ele) => ele?._id === file?._id);
@@ -726,38 +712,6 @@ const ChatBox = ({
 		setInfo((prev) => ({
 			...prev,
 			recentFiles: updatedRecentFiles,
-		}));
-	};
-
-	const handleIntegrationsOptionClick = (key) => {
-		let currentIntegrations = { ...info?.chatFilters?.integrations };
-		if (currentIntegrations[key]) {
-			delete currentIntegrations[key];
-		} else {
-			currentIntegrations[key] = integrationsOptions[key];
-		}
-		setInfo((prev) => ({
-			...prev,
-			chatFilters: {
-				...prev?.chatFilters,
-				integrations: currentIntegrations,
-			},
-		}));
-	};
-
-	const handleModulesOptionClick = (key) => {
-		let currentModules = { ...info?.chatFilters?.modules };
-		if (currentModules[key]) {
-			delete currentModules[key];
-		} else {
-			currentModules[key] = modulesOptions[key];
-		}
-		setInfo((prev) => ({
-			...prev,
-			chatFilters: {
-				...prev?.chatFilters,
-				modules: currentModules,
-			},
 		}));
 	};
 
@@ -799,13 +753,6 @@ const ChatBox = ({
 					const chatInfo = globalChatMessages?.[sessionId]?.chatInfo;
 
 					const chatPayload = globalChatMessages?.[sessionId]?.chatPayload || {};
-					const date =
-						info?.chatFilters?.dateRange?.length > 0
-							? [
-									moment(info?.chatFilters?.dateRange[0])?.unix(),
-									moment(info?.chatFilters?.dateRange[1])?.unix(),
-							  ]
-							: [];
 
 					query = currentQuery;
 
@@ -816,8 +763,6 @@ const ChatBox = ({
 						...(!isPublicChat && {
 							knowledge_base_search: chatBoxData?.workspaceSearch,
 						}),
-						...(!isPublicChat && { modules: Object?.keys(info?.chatFilters?.modules) }),
-						...(!isPublicChat && { date: date }),
 						deep_research: chatBoxData?.deepResearch,
 						deep_search: chatBoxData?.deepSearch,
 					};
@@ -959,7 +904,6 @@ const ChatBox = ({
 						uploadedImages: [],
 						chatQuery: '',
 						recentFiles: [],
-						chatFilters: initialChatFilters,
 						chatboxMinimized: true,
 						suggestion: null,
 						showSuggestion: false,
