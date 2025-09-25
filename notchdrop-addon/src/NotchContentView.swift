@@ -744,23 +744,22 @@ struct ChatTextAreaView: View {
             if let window = notchWindow ?? NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible }) {
                 print("🎯 Making window key: \(window.className)")
                 window.makeKeyAndOrderFront(nil)
-            }
-            
-            // Set focus with proper timing to ensure cursor appears
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                isChatInputFocused = true
-                isTextFieldActive = true
-                // Only enable chat mode if NOT in meeting mode (recording)
-                if !vm.isRecording {
-                    vm.isChatMode = true
-                vm.isChatInputFocused = true
                 
-                }
-                
-                // Force the window to become first responder after a short delay
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                    if let window = NSApp.keyWindow {
-                        window.makeFirstResponder(window.firstResponder)
+                // Set focus with proper timing to ensure cursor appears
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    isChatInputFocused = true
+                    isTextFieldActive = true
+                    // Only enable chat mode if NOT in meeting mode (recording)
+                    if !vm.isRecording {
+                        vm.isChatMode = true
+                        vm.isChatInputFocused = true
+                    }
+                    
+                    // Force the window to become first responder after a short delay
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                        if let window = NSApp.keyWindow {
+                            window.makeFirstResponder(window.firstResponder)
+                        }
                     }
                 }
             } else {
