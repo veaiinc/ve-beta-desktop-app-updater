@@ -41,6 +41,17 @@ class AudioStorageService {
 				throw new Error('Electron APIs not available');
 			}
 
+			// Check if audio already exists to prevent duplicates
+			const hasExistingAudio = await this.hasAudio(meetingId);
+			if (hasExistingAudio) {
+				console.log('⚠️ Audio already exists for meeting, skipping duplicate save:', meetingId);
+				return {
+					success: true,
+					skipped: true,
+					message: 'Audio already exists for this meeting'
+				};
+			}
+
 			const audioDir = this.getAudioDirectoryPath(meetingId);
 			const audioFilePath = this.getAudioFilePath(meetingId);
 			const metadataPath = this.getMetadataFilePath(meetingId);
