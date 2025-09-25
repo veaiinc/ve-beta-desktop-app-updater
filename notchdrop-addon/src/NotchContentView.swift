@@ -1383,12 +1383,9 @@ struct VoiceModeButton: View {
     
     var body: some View {
         Button(action: {
-            print("🎯 Voice Mode button clicked - enabling chat mode")
-            // Focus chat input and expand to 510px when voice mode button is clicked
-            vm.isChatMode = true
-            // Ensure voice interface is not shown
-            vm.showVoiceInterface = false
-            onFocusChat()
+            print("🎤 Voice Mode button clicked - connecting to voice assistant")
+            // Connect to voice assistant instead of just enabling chat mode
+            vm.connectVoiceAssistant()
         }) {
             ZStack {
                 // Main circle with CSS properties
