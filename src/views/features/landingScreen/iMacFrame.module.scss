@@ -221,6 +221,62 @@
 	overflow: hidden;
 }
 
+// Glow background container
+.glowBackgroundContainer {
+	position: absolute;
+	top: 20px;
+	left: 20px;
+	width: calc(100% - 40px);
+	height: calc(100% - 40px);
+	border-radius: 1.64px;
+	overflow: hidden;
+	z-index: 1;
+	opacity: 1;
+	transition: opacity 0.8s ease-in-out;
+	will-change: opacity;
+}
+
+.glowBackground {
+	width: 100%;
+	height: 100%;
+	border-radius: 1.64px;
+	overflow: hidden;
+
+	// Override the default background to be transparent
+	background: transparent !important;
+
+	// Ensure glow balls are visible within the frame
+	.glowContainer {
+		height: 100%;
+		width: 100%;
+		position: relative;
+	}
+
+	// Adjust ball sizes for the smaller frame
+	.ball {
+		// Scale down the balls for the iMac frame
+		width: calc(80vw * var(--size)) !important;
+		filter: blur(8vw) !important;
+
+		// Ensure balls stay within bounds
+		max-width: 200px;
+		max-height: 200px;
+	}
+
+	// Intensity adjustments for frame
+	&.mediumIntensity .ball {
+		opacity: 0.6;
+	}
+
+	&.highIntensity .ball {
+		opacity: 0.8;
+	}
+
+	&.lowIntensity .ball {
+		opacity: 0.4;
+	}
+}
+
 .screenImage {
 	width: calc(100% - 40px); // Account for 20px border on each side
 	height: calc(100% - 40px); // Account for 20px border on each side
@@ -232,13 +288,13 @@
 	will-change: opacity;
 	border-radius: 1.64px; // Slightly smaller radius to fit inside frame
 
-	// veImage image - initially visible
-	&[data-image='veImage'] {
+	// Video - shows by default, hidden when zoomed (glow shows instead)
+	&[data-image='varya'] {
 		opacity: 1;
-		z-index: 1;
+		z-index: 3;
 	}
 
-	// BgLayer image - initially hidden
+	// BgLayer image - fallback static background
 	&[data-image='bg-layer'] {
 		opacity: 0;
 		z-index: 2;
@@ -251,6 +307,18 @@
 
 	&.fade-in {
 		opacity: 1;
+	}
+
+	// Video active state (when zoomed)
+	&.video-active {
+		opacity: 1;
+		z-index: 3;
+	}
+
+	// Hidden state
+	&.hidden {
+		opacity: 0;
+		pointer-events: none;
 	}
 }
 

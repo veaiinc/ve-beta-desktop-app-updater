@@ -1,0 +1,70 @@
+.riskCard {
+	position: absolute;
+	bottom: 225px;
+	right: 300px;
+	width: 500px;
+	display: flex;
+	flex-direction: column;
+	gap: 32px;
+}
+
+.riskHeader {
+	display: flex;
+	flex-direction: column;
+	align-self: stretch;
+	gap: 12px;
+	width: 100%;
+}
+
+.riskTitle {
+	font-family: 'General Sans Variable', sans-serif;
+	font-weight: 500;
+	font-size: 40px;
+	line-height: 1.35em;
+	color: #f2f2f3;
+	width: 399px;
+}
+
+.riskDescription {
+	font-family: 'General Sans Variable', sans-serif;
+	font-weight: 400;
+	font-size: 24px;
+	line-height: 1.35em;
+	color: #f2f2f3;
+	width: 100%;
+}
+
+.riskActions {
+	display: flex;
+	flex-direction: column;
+	align-self: stretch;
+	gap: 6px;
+	width: 100%;
+}
+
+.actionButton {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	align-self: stretch;
+	gap: 8px;
+	padding: 12px 18px;
+	border-radius: 24px;
+	border: 1px solid rgba(121, 236, 201, 0.1);
+	background: rgba(0, 0, 0, 0.1);
+	box-shadow: inset 0px 0px 10px 0px rgba(121, 236, 201, 0.2);
+	backdrop-filter: blur(50px);
+	cursor: pointer;
+	transition: all 0.3s ease;
+
+	&:hover {
+		background: rgba(0, 0, 0, 0.2);
+		box-shadow: inset 0px 0px 15px 0px rgba(121, 236, 201, 0.3);
+	}
+
+	font-family: 'General Sans Variable', sans-serif;
+	font-weight: 550;
+	font-size: 17px;
+	line-height: 1.35em;
+	color: #79ecc9;
+}

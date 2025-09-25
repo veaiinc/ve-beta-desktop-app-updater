@@ -11,7 +11,6 @@ export const useScrollAnimation = () => {
 	const fullscreenIMacRef = useRef(null);
 	const backgroundRef = useRef(null);
 	const headerRef = useRef(null);
-	const productIntroRef = useRef(null);
 	const videoRef = useRef(null);
 
 	useEffect(() => {
@@ -308,91 +307,6 @@ export const useScrollAnimation = () => {
 			},
 		});
 
-		// Circular sphere ellipse animation for transition to ProductIntro
-		if (productIntroRef.current) {
-			// Set initial state - ProductIntro hidden with circular clip
-			gsap.set(productIntroRef.current, {
-				clipPath: 'ellipse(220% 200% at 50% 300%)',
-				opacity: 0,
-				scale: 1,
-				willChange: 'clip-path, opacity, transform',
-				backfaceVisibility: 'hidden',
-				transform: 'translateZ(0)',
-				transformStyle: 'flat',
-			});
-
-			// Create smooth circular reveal animation
-			ScrollTrigger.create({
-				trigger: productIntroRef.current,
-				start: 'top bottom',
-				end: 'top top',
-				scrub: 1, // Smoother scrubbing
-				markers: true,
-				onUpdate: (self) => {
-					const progress = self.progress;
-
-					// Smooth circular reveal - ellipse moves from bottom to center
-					const clipY = 300 - progress * 125; // Move from 300% to 175%
-					const opacity = Math.min(1, progress * 1.2); // Slightly faster opacity reveal
-
-					gsap.set(productIntroRef.current, {
-						clipPath: `ellipse(220% 200% at 50% ${clipY}%)`,
-						opacity: opacity,
-					});
-				},
-				onEnter: () => {
-					// Ensure final state is correct
-					gsap.set(productIntroRef.current, {
-						clipPath: 'ellipse(220% 200% at 50% 175%)',
-						opacity: 1,
-					});
-				},
-				onLeave: () => {
-					// Keep revealed state
-					gsap.set(productIntroRef.current, {
-						clipPath: 'ellipse(220% 200% at 50% 175%)',
-						opacity: 1,
-					});
-				},
-				onEnterBack: () => {
-					// Reset when scrolling back up
-					gsap.set(productIntroRef.current, {
-						clipPath: 'ellipse(220% 200% at 50% 300%)',
-						opacity: 0,
-					});
-				},
-				onLeaveBack: () => {
-					// Keep hidden state when scrolling back down
-					gsap.set(productIntroRef.current, {
-						clipPath: 'ellipse(220% 200% at 50% 300%)',
-						opacity: 0,
-					});
-				},
-			});
-
-			// Additional smooth entrance animation for content
-			ScrollTrigger.create({
-				trigger: productIntroRef.current,
-				start: 'top 80%',
-				end: 'top 20%',
-				scrub: 1,
-				onUpdate: (self) => {
-					const progress = self.progress;
-
-					// Animate hero section content
-					const heroSection = productIntroRef.current?.querySelector(
-						'[data-hero-section="true"]',
-					);
-					if (heroSection) {
-						gsap.set(heroSection, {
-							y: (1 - progress) * 50, // Slide up from below
-							opacity: progress,
-						});
-					}
-				},
-			});
-		}
-
 		return () => {
 			// Kill all ScrollTriggers
 			ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
@@ -428,7 +342,6 @@ export const useScrollAnimation = () => {
 		iMacFrameRef,
 		fullscreenIMacRef,
 		backgroundRef,
-		productIntroRef,
 		videoRef,
 	};
 };

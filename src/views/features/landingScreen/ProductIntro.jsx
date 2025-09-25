@@ -1,5 +1,6 @@
 import { memo, forwardRef } from 'react';
 import s from './productIntro.module.scss';
+import { ReactComponent as LightPassingSvg } from '../../../assets/svg/landingScreen/LightPassing.svg';
 
 const ProductIntro = forwardRef((props, ref) => {
 	const intelligenceTypes = [
@@ -31,6 +32,19 @@ const ProductIntro = forwardRef((props, ref) => {
 
 	return (
 		<div ref={ref} className={s.ProductIntro}>
+			{/* Animated Background Glow Effect */}
+			<div className={s.glowContainer}>
+				<div className={s.ball} style={{ '--size': '0.6', '--speed': '12s' }}></div>
+				<div
+					className={s.ball}
+					style={{ '--delay': '-8s', '--size': '0.4', '--speed': '15s' }}
+				></div>
+				<div
+					className={s.ball}
+					style={{ '--delay': '-4s', '--size': '0.3', '--speed': '10s' }}
+				></div>
+			</div>
+
 			<div className={s.heroSection} data-hero-section="true">
 				<h1 className={s.mainTitle}>
 					Personal
@@ -55,7 +69,9 @@ const ProductIntro = forwardRef((props, ref) => {
 				))}
 			</div>
 
-			<div className={s.lightPassing}></div>
+			<div className={s.lightPassing}>
+				<LightPassingSvg />
+			</div>
 		</div>
 	);
 });

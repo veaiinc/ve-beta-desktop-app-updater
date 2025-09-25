@@ -2,10 +2,6 @@
 	width: 100%;
 	min-height: 100vh;
 	position: relative;
-	background-image: url('../../../../assets/svg/landingScreen/Blue.svg');
-	background-size: cover;
-	background-position: center;
-	background-repeat: no-repeat;
 	padding: 0;
 	z-index: 1000;
 	overflow: hidden;
@@ -24,6 +20,8 @@
 		height: 100vh;
 		padding: 80px 60px;
 		gap: 10px;
+		position: relative;
+		z-index: 2;
 	}
 
 	.title {

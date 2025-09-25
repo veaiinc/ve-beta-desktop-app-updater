@@ -1,13 +1,50 @@
-import { memo, forwardRef, useRef, useEffect } from 'react';
+import { memo, forwardRef, useRef, useEffect, useState } from 'react';
 import s from './iMacFrame.module.scss';
 import BgLayerImage from '../../../assets/svg/landingScreen/Blue.svg';
+import AnimatedGlowBackground from '../../components/globalComponents/AnimatedGlowBackground';
 
 const iMacFrame = forwardRef(({ videoRef: externalVideoRef }, ref) => {
 	const internalVideoRef = useRef(null);
 	const containerRef = useRef(null);
+	const [isZoomed, setIsZoomed] = useState(false);
 
 	// Use external videoRef if provided, otherwise use internal one
 	const videoRef = externalVideoRef || internalVideoRef;
+
+	// Track zoom state by observing transform changes
+	useEffect(() => {
+		const container = containerRef.current;
+		if (!container) return;
+
+		const checkZoomState = () => {
+			const transform = container.style.transform;
+			console.log('Transform:', transform); // Debug log
+
+			const scale = transform.match(/scale\(([^)]+)\)/);
+			if (scale) {
+				const scaleValue = parseFloat(scale[1]);
+				console.log('Scale value:', scaleValue); // Debug log
+				const zoomed = scaleValue > 1.05; // Lowered threshold
+				console.log('Is zoomed:', zoomed); // Debug log
+				setIsZoomed(zoomed);
+			} else {
+				console.log('No scale found, setting zoomed to false'); // Debug log
+				setIsZoomed(false);
+			}
+		};
+
+		const observer = new MutationObserver(checkZoomState);
+
+		observer.observe(container, {
+			attributes: true,
+			attributeFilter: ['style'],
+		});
+
+		// Also check immediately
+		checkZoomState();
+
+		return () => observer.disconnect();
+	}, []);
 
 	// Expose both video ref and container ref to parent component
 	useEffect(() => {
@@ -27,13 +64,25 @@ const iMacFrame = forwardRef(({ videoRef: externalVideoRef }, ref) => {
 					<video
 						ref={videoRef}
 						src="https://us.images.ve.ai/public/dashboard/notch_final.mp4"
-						className={s.screenImage}
+						className={`${s.screenImage} ${isZoomed ? s.hidden : ''}`}
 						data-image="varya"
 						loop
 						muted
 						playsInline
 						preload="metadata"
 					/>
+					{/* Animated Glow Background - shows only when zoomed */}
+					{isZoomed && (
+						<div className={s.glowBackgroundContainer}>
+							<AnimatedGlowBackground
+								variant="default"
+								intensity="medium"
+								className={s.glowBackground}
+							/>
+						</div>
+					)}
+
+					{/* Fallback static background */}
 					<img
 						src={BgLayerImage}
 						alt="VE Dashboard"

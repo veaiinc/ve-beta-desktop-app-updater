@@ -1,10 +1,5 @@
 .faqSection {
 	padding: 120px;
-	background: var(--background-color);
-	background-image: url('../../../assets/svg/landingScreen/Blue.svg');
-	background-size: cover;
-	background-position: center;
-	background-repeat: no-repeat;
 	display: flex;
 	justify-content: center;
 	position: relative;
@@ -19,6 +14,8 @@
 		align-items: center;
 		gap: 70px;
 		margin-bottom: 80px;
+		position: relative;
+		z-index: 2;
 	}
 
 	.heading {

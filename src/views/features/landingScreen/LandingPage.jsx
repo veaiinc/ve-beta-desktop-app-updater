@@ -19,7 +19,9 @@ import NewsletterSection from './NewsletterSection';
 import GlassFooterSection from './GlassFooter';
 import FullscreenIMac from './FullscreenIMac';
 import ProductIntro from './ProductIntro';
-import AmbientIntelligence from './Intelligence/AmbientIntelligence';
+import AmbientIntelligence from './intelligenceSections/Intelligence/AmbientIntelligence';
+import SuperAgent from './intelligenceSections/SuperAgent/SuperAgent';
+import MeetingIntelligence from './intelligenceSections/MeetingIntelligence/MeetingIntelligence';
 
 import { ReactComponent as MenuIcon } from '../../../assets/svg/menu.svg';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
@@ -182,6 +184,12 @@ const LandingPage = () => {
 
 				{/* (Ambient Intelligence + Actions) */}
 				<AmbientIntelligence />
+
+				{/* (Super Agent + Actions) */}
+				<SuperAgent />
+
+				{/* (Meeting Intelligence + Actions) */}
+				<MeetingIntelligence />
 
 				{/* <Tagline /> */}
 				<PartnerSection />

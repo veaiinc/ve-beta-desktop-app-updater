@@ -2,13 +2,10 @@
 	width: 100%;
 	min-height: 100vh;
 	position: relative;
-	background-image: url('../../../assets/svg/landingScreen/Blue.svg');
-	background-size: cover;
-	background-position: center;
-	background-repeat: no-repeat;
+	background: #000938;
 	padding: 0;
 	z-index: 1000;
-	overflow: hidden;
+	overflow: visible;
 
 	// Performance optimizations for smooth circular animation
 	will-change: clip-path, opacity, transform;
@@ -26,6 +23,8 @@
 		max-width: 779px;
 		margin: 0 auto;
 		gap: 60px;
+		position: relative;
+		z-index: 10;
 
 		.mainTitle {
 			clip-path: inset(0 0 0 0);
@@ -35,7 +34,7 @@
 			font-weight: 400;
 			line-height: 0.97;
 			letter-spacing: -0.04em;
-			color: #ffffff;
+			color: #f8fafc;
 			margin: 0;
 			text-align: center;
 
@@ -57,7 +56,7 @@
 			font-size: 32px;
 			font-weight: 400;
 			line-height: 1.35;
-			color: rgba(255, 255, 255, 0.6);
+			color: rgba(248, 250, 252, 0.8);
 			margin: 0;
 			text-align: center;
 
@@ -78,6 +77,8 @@
 		padding: 0 20px 100px;
 		max-width: 1378px;
 		margin: 0 auto;
+		position: relative;
+		z-index: 10;
 
 		.intelligenceItem {
 			display: flex;
@@ -101,7 +102,7 @@
 					font-size: 32px;
 					font-weight: 500;
 					line-height: 1.35;
-					color: #f2f2f3;
+					color: #e2e8f0;
 					margin: 0;
 					text-align: left;
 
@@ -119,7 +120,7 @@
 					font-size: 26px;
 					font-weight: 400;
 					line-height: 1.615;
-					color: rgba(255, 255, 255, 0.5);
+					color: rgba(226, 232, 240, 0.7);
 					margin: 0;
 					text-align: left;
 
@@ -137,13 +138,13 @@
 				background: linear-gradient(180deg, #79ecc9, #79ecc94d 50%, #79ecc905);
 				background-clip: text;
 				-webkit-background-clip: text;
-				color: #0000001a;
+				color: transparent;
 				font-family: Times New Roman, serif;
 				font-size: 600px;
 				font-weight: 400;
 				line-height: 1.15;
-				text-shadow: 0 0 250px #79ecc912;
-				-webkit-text-fill-color: #0000;
+				text-shadow: 0 0 250px rgba(96, 165, 250, 0.3);
+				-webkit-text-fill-color: transparent;
 				align-items: center;
 				display: flex;
 				flex-shrink: 0;
@@ -194,7 +195,6 @@
 		transform: translate(-50%, -50%);
 		width: 267px;
 		height: 3527px;
-		background-image: url('../../../assets/svg/landingScreen/LightPassing.svg');
 		background-size: contain;
 		background-position: center;
 		background-repeat: no-repeat;
@@ -208,6 +208,115 @@
 		@media (max-width: 480px) {
 			width: 150px;
 			height: 1984px;
+		}
+	}
+
+	// Animated Background Glow Effect
+	.glowContainer {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 200vh;
+		z-index: 1;
+		pointer-events: none;
+		overflow: visible;
+	}
+
+	.ball {
+		--delay: 0s;
+		--size: 0.4;
+		--speed: 20s;
+
+		aspect-ratio: 1;
+		width: calc(120vw * var(--size));
+
+		background: radial-gradient(
+			circle at center,
+			#1e40af 0%,
+			#3b82f6 25%,
+			#60a5fa 50%,
+			#93c5fd 75%,
+			#dbeafe 100%
+		);
+		filter: blur(15vw);
+
+		border-radius: 50%;
+
+		position: absolute;
+		top: 0;
+		left: 0;
+
+		animation: loop var(--speed) infinite linear;
+		animation-delay: var(--delay);
+		transform-origin: 50% 50%;
+
+		opacity: 0.5;
+	}
+
+	@keyframes loop {
+		0% {
+			transform: translate3D(0%, 0%, 0) rotate(0deg);
+		}
+		5% {
+			transform: translate3D(8%, 15%, 0) rotate(18deg);
+		}
+		10% {
+			transform: translate3D(15%, 30%, 0) rotate(36deg);
+		}
+		15% {
+			transform: translate3D(25%, 45%, 0) rotate(54deg);
+		}
+		20% {
+			transform: translate3D(35%, 60%, 0) rotate(72deg);
+		}
+		25% {
+			transform: translate3D(45%, 75%, 0) rotate(90deg);
+		}
+		30% {
+			transform: translate3D(55%, 90%, 0) rotate(108deg);
+		}
+		35% {
+			transform: translate3D(65%, 105%, 0) rotate(126deg);
+		}
+		40% {
+			transform: translate3D(75%, 120%, 0) rotate(144deg);
+		}
+		45% {
+			transform: translate3D(85%, 135%, 0) rotate(162deg);
+		}
+		50% {
+			transform: translate3D(95%, 150%, 0) rotate(180deg);
+		}
+		55% {
+			transform: translate3D(85%, 165%, 0) rotate(198deg);
+		}
+		60% {
+			transform: translate3D(75%, 180%, 0) rotate(216deg);
+		}
+		65% {
+			transform: translate3D(65%, 195%, 0) rotate(234deg);
+		}
+		70% {
+			transform: translate3D(55%, 210%, 0) rotate(252deg);
+		}
+		75% {
+			transform: translate3D(45%, 225%, 0) rotate(270deg);
+		}
+		80% {
+			transform: translate3D(35%, 240%, 0) rotate(288deg);
+		}
+		85% {
+			transform: translate3D(25%, 255%, 0) rotate(306deg);
+		}
+		90% {
+			transform: translate3D(15%, 270%, 0) rotate(324deg);
+		}
+		95% {
+			transform: translate3D(8%, 285%, 0) rotate(342deg);
+		}
+		100% {
+			transform: translate3D(0%, 300%, 0) rotate(360deg);
 		}
 	}
 }

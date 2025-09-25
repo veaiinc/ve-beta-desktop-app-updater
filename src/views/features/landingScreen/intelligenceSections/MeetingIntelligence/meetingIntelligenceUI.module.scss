@@ -1,0 +1,284 @@
+.meetingIntelligenceUI {
+	width: 100%;
+	min-height: 100vh; // Normal height for natural scrolling
+	position: relative;
+	z-index: 1000;
+	overflow: visible;
+}
+
+.meetingIntelligenceUIInner {
+	width: 100%;
+	min-height: 100vh;
+	position: relative;
+	padding: 50px 0; // Reduced padding for better spacing
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 30px; // Add gap between cards
+	z-index: 2;
+
+	.dotGrid {
+		position: absolute;
+		top: 200px;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 955px;
+		height: 955px;
+		background-image: radial-gradient(circle, #2e3339 1px, transparent 1px);
+		background-size: 20px 20px;
+		opacity: 0.3;
+		z-index: 1;
+
+		&::after {
+			content: '';
+			position: absolute;
+			top: 124.65px;
+			left: 124.65px;
+			width: 704.69px;
+			height: 704.69px;
+			background: rgba(121, 236, 201, 0.1);
+			border-radius: 50%;
+			filter: blur(293.3357849121094px);
+		}
+	}
+
+	.meetingOverlay {
+		max-width: 600px;
+		max-height: 300px;
+		align-self: center;
+		justify-self: center;
+		margin: -35px 0 34px;
+		z-index: 2;
+	}
+
+	.messageCard {
+		border-radius: 13.34px;
+		padding: 16.68px;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 13.34px;
+		width: fit-content;
+		max-width: 400px;
+		z-index: 10;
+		margin: -45px 0; // Increased margin for better spacing
+		position: relative;
+
+		&.leftSide {
+			align-self: flex-start;
+			margin-left: 350px;
+			margin-right: auto;
+		}
+
+		&.rightSide {
+			align-self: flex-end;
+			margin-left: auto;
+			margin-right: 350px;
+		}
+	}
+
+	.userInfo {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+
+	.userTag {
+		display: flex;
+		align-items: center;
+		gap: 6.67px;
+		padding: 5px 8.34px;
+		width: 26.68px;
+		height: 26.68px;
+		background: #2c2d2e;
+		border: 0.83px solid #2c2d2e;
+		border-radius: 41.69px;
+	}
+
+	.userAvatar {
+		width: 16px;
+		height: 16px;
+
+		border-radius: 50%;
+	}
+
+	.userName {
+		font-family: 'Gilroy-Regular', sans-serif;
+		font-weight: 400;
+		font-size: 15px;
+		line-height: 1.2em;
+		color: #f2f2f3;
+	}
+
+	.messageText {
+		font-family: 'General Sans Variable', sans-serif;
+		font-weight: 500;
+		font-size: 16px;
+		line-height: 1.35em;
+		color: #f2f2f3;
+		text-align: left;
+	}
+
+	.suggestionCard {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		width: 400px;
+		margin: -22px 0;
+		position: relative;
+		z-index: 10;
+		// Center suggestion cards by default
+		align-self: center;
+		margin-left: auto;
+		margin-right: auto;
+
+		// Override side positioning for suggestion cards - always center them
+		&.leftSide,
+		&.rightSide {
+			align-self: center;
+			margin-left: auto;
+			margin-right: auto;
+		}
+	}
+
+	.suggestionLabel {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 10px;
+		padding: 6px 10px;
+		width: fit-content;
+	}
+
+	.labelIcon {
+		width: 12px;
+		height: 12px;
+		background: #79ecc9;
+		border-radius: 50%;
+		box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+	}
+
+	.labelText {
+		font-family: 'General Sans Variable', sans-serif;
+		font-weight: 500;
+		font-size: 18px;
+		line-height: 1.35em;
+		color: #79ecc9;
+	}
+
+	.suggestionMessage {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 50px;
+		padding: 32px;
+		background: rgba(0, 0, 0, 0.25);
+		border: 1px solid rgba(121, 236, 201, 0.3);
+		border-radius: 16px;
+		box-shadow: inset 0px 0px 20px 0px rgba(121, 236, 201, 0.15);
+		backdrop-filter: blur(10px);
+		width: 100%;
+	}
+
+	.suggestionMessageText {
+		font-family: 'General Sans Variable', sans-serif;
+		font-weight: 600;
+		font-size: 18px;
+		line-height: 1.78em;
+		color: #79ecc9;
+		width: auto;
+	}
+
+	.aiResponseCard {
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+		padding: 24px;
+		width: 680px;
+		background: #202123;
+		border: 1px solid;
+		border-radius: 24px;
+		box-shadow: 2px 6px 15px 0px rgba(0, 0, 0, 0.2), 10px 26px 27px 0px rgba(0, 0, 0, 0.17),
+			22px 57px 37px 0px rgba(0, 0, 0, 0.1), 39px 102px 44px 0px rgba(0, 0, 0, 0.03),
+			60px 159px 48px 0px rgba(0, 0, 0, 0), 0px 0px 80px 0px rgba(121, 236, 201, 0.07);
+		margin: -20px 0; // Increased margin for better spacing
+		position: relative;
+		z-index: 10;
+
+		&.leftSide {
+			align-self: flex-start;
+			margin-left: 350px;
+			margin-right: auto;
+		}
+
+		&.rightSide {
+			align-self: flex-end;
+			margin-left: auto;
+			margin-right: 350px;
+		}
+	}
+
+	.aiResponseHeader {
+		font-family: 'General Sans Variable', sans-serif;
+		font-weight: 500;
+		font-size: 12px;
+		line-height: 1.35em;
+		text-transform: uppercase;
+		color: #94989e;
+		width: fit-content;
+	}
+
+	.aiResponseContent {
+		font-family: 'General Sans Variable', sans-serif;
+		font-weight: 500;
+		font-size: 16px;
+		line-height: 1.75em;
+		color: #ffffff;
+		width: 100%;
+	}
+
+	// Animation system - GSAP handles all animations
+	.animatedCard {
+		will-change: transform, opacity, z-index;
+		transition: none; // Disable CSS transitions to prevent conflicts with GSAP
+		opacity: 1;
+		transform: translateY(0) scale(1);
+		position: relative;
+		backface-visibility: hidden; // Prevent flickering
+		transform-style: preserve-3d; // Better performance
+	}
+
+	// Performance optimizations for different card types
+	.messageCard.animatedCard {
+		transform-origin: center center;
+	}
+
+	.suggestionCard.animatedCard {
+		transform-origin: center center;
+	}
+
+	.aiResponseCard.animatedCard {
+		transform-origin: center center;
+	}
+
+	// Special styling when suggestion card is at middle position
+	.suggestionCard.animatedCard {
+		&.topPosition {
+			box-shadow: 0px 12px 40px rgba(121, 236, 201, 0.4);
+			transform: scale(1.08);
+			border: 2px solid rgba(121, 236, 201, 0.6);
+			// Center the suggestion card in the middle of the viewport
+			position: relative;
+			left: 50%;
+			transform: translateX(-50%) scale(1.08);
+			// Ensure consistent middle positioning
+			margin-left: auto;
+			margin-right: auto;
+		}
+	}
+
+	// Performance optimizations
+	scroll-behavior: smooth;
+	contain: layout style paint; // Better performance
+}

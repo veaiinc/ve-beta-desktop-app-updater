@@ -1,4 +1,5 @@
 import { memo, useState } from 'react';
+import AnimatedGlowBackground from '../../components/globalComponents/AnimatedGlowBackground';
 import s from './faq.module.scss';
 import { ReactComponent as ArrowDown } from '../../../assets/svg/landingScreen/Arrow.svg';
 
@@ -62,7 +63,7 @@ const FAQ = () => {
 	};
 
 	return (
-		<section className={s.faqSection}>
+		<AnimatedGlowBackground variant="default" intensity="medium" className={s.faqSection}>
 			<div className={s.container}>
 				<h2 className={s.heading}>
 					Frequently <span>asked questions</span>
@@ -111,7 +112,7 @@ const FAQ = () => {
 					))}
 				</div>
 			</div>
-		</section>
+		</AnimatedGlowBackground>
 	);
 };
 

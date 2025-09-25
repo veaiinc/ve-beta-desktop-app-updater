@@ -3,14 +3,19 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import ScrollToPlugin from 'gsap/ScrollToPlugin';
-import Intro from './Intro';
-import Actions from './Actions';
-import s from './ambientIntelligence.module.scss';
+import AnimatedIntro from './AnimatedIntro';
+import AnimatedActions from './AnimatedActions';
+import s from './animatedSection.module.scss';
 
 // Register GSAP plugins
 gsap.registerPlugin(useGSAP, ScrollTrigger, ScrollToPlugin);
 
-const AmbientIntelligence = memo(function AmbientIntelligence() {
+const AnimatedSection = memo(function AnimatedSection({
+	introTitle,
+	introSubhead,
+	actionsContent,
+	sectionId,
+}) {
 	const containerRef = useRef(null);
 	const introRef = useRef(null);
 	const actionsRef = useRef(null);
@@ -28,8 +33,13 @@ const AmbientIntelligence = memo(function AmbientIntelligence() {
 
 	// GSAP + ScrollTrigger setup for curve animation
 	useGSAP(() => {
-		// Clear old triggers
-		ScrollTrigger.getAll().forEach((t) => t.kill());
+		// Clear old triggers for this component only
+		const triggers = ScrollTrigger.getAll();
+		triggers.forEach((t) => {
+			if (t.trigger === containerRef.current) {
+				t.kill();
+			}
+		});
 
 		const container = containerRef.current;
 		const intro = introRef.current;
@@ -53,11 +63,14 @@ const AmbientIntelligence = memo(function AmbientIntelligence() {
 			y: 0,
 		});
 
-		// Create pin container for extended scroll (curve animation + 4 Actions cards)
+		// Create pin container for extended scroll (curve animation + Actions cards)
+		const cardCount = sectionId === 'SuperAgent' ? 3 : 4;
+		const scrollAmount = 100 + cardCount * 150; // 100% for curve + 150% per card
+
 		ScrollTrigger.create({
 			trigger: container,
 			start: 'top top',
-			end: '+=700%', // Extended scroll: 100% for curve + 600% for 4 Actions cards
+			end: `+=${scrollAmount}%`, // Dynamic scroll based on card count
 			pin: true,
 			anticipatePin: 1,
 			pinSpacing: true,
@@ -67,7 +80,7 @@ const AmbientIntelligence = memo(function AmbientIntelligence() {
 		ScrollTrigger.create({
 			trigger: container,
 			start: 'top top',
-			end: '+=700%',
+			end: `+=${scrollAmount}%`,
 			scrub: 1, // Smoother scrubbing
 			onUpdate: (self) => {
 				const progress = self.progress;
@@ -112,21 +125,19 @@ const AmbientIntelligence = memo(function AmbientIntelligence() {
 					const actionsScrollProgress = (progress - 0.15) / 0.85; // 0 to 1 for Actions cards
 					let activeCard = 0;
 
-					// Calculate which card should be active based on progress
-					if (actionsScrollProgress >= 0.75) activeCard = 3; // Risk
-					else if (actionsScrollProgress >= 0.5) activeCard = 2; // Opportunity
-					else if (actionsScrollProgress >= 0.25) activeCard = 1; // Suggestions
-					else activeCard = 0; // Actions
-
-					// Debug logging
-					console.log(
-						'Scroll Progress:',
-						progress,
-						'Actions Progress:',
-						actionsScrollProgress,
-						'Active Card:',
-						activeCard,
-					);
+					// Calculate which card should be active based on progress and card count
+					if (cardCount === 3) {
+						// Super Agent: 3 cards (actions, suggestions, opportunity)
+						if (actionsScrollProgress >= 0.66) activeCard = 2; // Opportunity
+						else if (actionsScrollProgress >= 0.33) activeCard = 1; // Suggestions
+						else activeCard = 0; // Actions
+					} else {
+						// Other sections: 4 cards (actions, suggestions, opportunity, risk)
+						if (actionsScrollProgress >= 0.75) activeCard = 3; // Risk
+						else if (actionsScrollProgress >= 0.5) activeCard = 2; // Opportunity
+						else if (actionsScrollProgress >= 0.25) activeCard = 1; // Suggestions
+						else activeCard = 0; // Actions
+					}
 
 					// Update the current card index - Actions component will handle visibility
 					setCurrentActionsCard(activeCard);
@@ -171,20 +182,30 @@ const AmbientIntelligence = memo(function AmbientIntelligence() {
 		});
 
 		return () => {
-			ScrollTrigger.getAll().forEach((t) => t.kill());
+			// Clean up only this component's triggers
+			const triggers = ScrollTrigger.getAll();
+			triggers.forEach((t) => {
+				if (t.trigger === containerRef.current) {
+					t.kill();
+				}
+			});
 		};
-	}, []);
+	}, [sectionId]);
 
 	return (
-		<div ref={containerRef} className={s.ambientIntelligenceContainer}>
+		<div ref={containerRef} className={s.animatedSectionContainer}>
 			<div ref={introRef} className={s.introSection}>
-				<Intro />
+				<AnimatedIntro title={introTitle} subhead={introSubhead} />
 			</div>
 			<div ref={actionsRef} className={s.actionsSection}>
-				<Actions currentCardIndex={currentActionsCard} />
+				<AnimatedActions
+					currentCardIndex={currentActionsCard}
+					actionsContent={actionsContent}
+					sectionId={sectionId}
+				/>
 			</div>
 		</div>
 	);
 });
 
-export default AmbientIntelligence;
+export default AnimatedSection;
