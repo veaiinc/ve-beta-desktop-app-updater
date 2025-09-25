@@ -346,7 +346,6 @@ export default function NoteTranscription({
 		transcriptionsMapRef.current.clear();
 		displayedTextMapRef.current.clear();
 		processedSegmentsRef.current.clear();
-		initializeMeetingSummary({ meeting_id: meetingId });
 	};
 
 	// Helper for formatting time
