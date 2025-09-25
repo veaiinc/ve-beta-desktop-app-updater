@@ -964,13 +964,14 @@ const ChatBox = ({
 						...prev,
 						uploadedImages: [],
 						chatQuery: '',
-						// recentFiles: [],// not clearing the recent files , because they want like sana
+						recentFiles: [],
 						chatFilters: initialChatFilters,
 						chatboxMinimized: true,
 						suggestion: null,
 						showSuggestion: false,
 					}));
 					uploadedImagesRef.current = [];
+					recentFilesRef.current = [];
 
 					onChatQueryChange?.('');
 					clearTextArea();
