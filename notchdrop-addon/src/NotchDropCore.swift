@@ -17,7 +17,7 @@ class NotchDropPanel: NSPanel {
     ) {
         super.init(contentRect: contentRect, styleMask: style, backing: bufferingType, defer: flag)
         isFloatingPanel = true
-        becomesKeyOnlyIfNeeded = true
+        becomesKeyOnlyIfNeeded = false  // Allow window to become key for text input
         worksWhenModal = true
         hidesOnDeactivate = false
     }
@@ -98,6 +98,7 @@ class NotchDropPanel: NSPanel {
         let panelStyle: NSWindow.StyleMask = [
             .borderless,
             .fullSizeContentView,
+            .nonactivatingPanel,
         ]
 
         notchWindow = NotchDropPanel(
