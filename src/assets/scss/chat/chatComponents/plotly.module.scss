@@ -1,0 +1,12 @@
+.plotlyContainer {
+	width: 100%;
+	margin: 16px 0;
+	border: 1px solid var(--dividers);
+	overflow: hidden;
+	border-radius: 28px;
+	box-shadow: rgba(10, 18, 23, 0.05) 0px 4px 16px 0px;
+
+	:global .modebar-container {
+		margin-top: 30px !important;
+	}
+}
