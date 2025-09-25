@@ -218,7 +218,6 @@ const useAssemblyTranscription = ({
 
 		if (meetingIdRef.current) {
 			const meetingId = meetingIdRef.current;
-			await initializeMeetingSummary({ meeting_id: meetingId });
 			setTimeout(() => {
 				if (window?.electronApi?.navigateMainWindow) {
 					window?.electronApi?.navigateMainWindow({

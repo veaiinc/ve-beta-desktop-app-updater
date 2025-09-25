@@ -94,18 +94,16 @@ class AudioStorageService {
 
 			// Automatically trigger upload to AssemblyAI after successful save
 			console.log('🚀 Automatically triggering upload to AssemblyAI...');
-			setTimeout(async () => {
-				try {
-					const uploadResult = await this.uploadToAssemblyAI(meetingId);
-					if (uploadResult.success) {
-						console.log('✅ Auto-upload to AssemblyAI successful!');
-					} else {
-						console.error('❌ Auto-upload to AssemblyAI failed:', uploadResult.error);
-					}
-				} catch (error) {
-					console.error('❌ Error during auto-upload:', error);
+			try {
+				const uploadResult = await this.uploadToAssemblyAI(meetingId);
+				if (uploadResult.success) {
+					console.log('✅ Auto-upload to AssemblyAI successful!');
+				} else {
+					console.error('❌ Auto-upload to AssemblyAI failed:', uploadResult.error);
 				}
-			}, 1000); // Small delay to ensure file is fully written
+			} catch (error) {
+				console.error('❌ Error during auto-upload:', error);
+			}
 
 			return {
 				success: true,
