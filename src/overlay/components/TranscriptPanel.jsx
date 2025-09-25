@@ -72,6 +72,10 @@ const TranscriptPanel = ({
 	onMuteAudio,
 	onUnmuteAudio,
 	onClearTranscripts,
+	// Live intelligence data for badge
+	liveIntelligenceData = {},
+	// Seen thread count from parent
+	lastSeenThreadCount = 0,
 }) => {
 	const containerRef = useRef(null);
 
@@ -81,6 +85,26 @@ const TranscriptPanel = ({
 			containerRef.current.scrollTop = containerRef.current.scrollHeight;
 		}
 	}, [transcriptions]);
+
+	// Debug logging for live intelligence data
+	useEffect(() => {
+		const currentThreadCount = liveIntelligenceData?.allThreads?.length || 0;
+		const newThreadsCount = currentThreadCount - lastSeenThreadCount;
+		
+		console.log('📊 TranscriptPanel Badge Logic:', {
+			currentThreadCount,
+			lastSeenThreadCount,
+			newThreadsCount,
+			badgeVisible: newThreadsCount > 0,
+			badgeNumber: newThreadsCount > 0 ? newThreadsCount : 'none'
+		});
+	}, [liveIntelligenceData, lastSeenThreadCount]);
+
+	// Function to handle showing live intelligence
+	const handleShowLiveIntelligence = () => {
+		console.log('👁️ User clicked Show Live Intelligence');
+		onShowLiveIntelligence();
+	};
 
 	return (
 		<div className="transcript-panel">
@@ -99,11 +123,26 @@ const TranscriptPanel = ({
 				<div className="transcript-panel-header-right">
 					<button
 						className="transcript-panel-header-right-button"
-						onClick={onShowLiveIntelligence}
+						onClick={handleShowLiveIntelligence}
 						title="Show Live Intelligence"
+						style={{ position: 'relative' }}
 					>
 						<Clock size={16} />
 						<span>Show Live Intelligence</span>
+						{(() => {
+							// Show only NEW/unseen threads count
+							const currentThreadCount = liveIntelligenceData?.allThreads?.length || 0;
+							const newThreadsCount = currentThreadCount - lastSeenThreadCount;
+							
+							return newThreadsCount > 0 ? (
+								<span 
+									className="transcript-panel__live-intelligence-badge"
+									title={`${newThreadsCount} new thread${newThreadsCount > 1 ? 's' : ''} available`}
+								>
+									{newThreadsCount}
+								</span>
+							) : null;
+						})()}
 					</button>
 					{/* <button
 						className="transcript-panel-header-action"
