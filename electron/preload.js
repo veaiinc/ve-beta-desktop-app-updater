@@ -246,6 +246,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 		showCameraPermissionHelp: () => ipcRenderer.invoke('show-camera-permission-help'),
 		// System settings opener
 		openSystemSettings: (section) => ipcRenderer.invoke('open-system-settings', section),
+		// Debug permissions
+		debugPermissions: () => ipcRenderer.invoke('debug-permissions'),
 	},
 
 	// Home icon click handler (cross-platform)
