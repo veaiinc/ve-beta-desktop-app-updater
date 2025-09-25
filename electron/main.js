@@ -2574,11 +2574,6 @@ app.whenReady().then(async () => {
 			// If Ask AI window doesn't exist or is destroyed, create it
 			if (!askAIWindow || askAIWindow.isDestroyed()) {
 				windowHelper.createAskAIWindow();
-
-				// Wait for window to be created and ready
-				await new Promise((resolve) => setTimeout(resolve, 1000));
-
-				// Get the window reference again after creating it
 				askAIWindow = windowHelper.getAskAIWindow();
 			}
 
@@ -2586,12 +2581,30 @@ app.whenReady().then(async () => {
 			if (askAIWindow && !askAIWindow.isDestroyed()) {
 				if (!askAIWindow.isVisible()) {
 					windowHelper.showAskAIWindow();
-					// Wait a bit for the window to be fully visible
-					await new Promise((resolve) => setTimeout(resolve, 500));
 				}
+
+				// Wait for window to be fully ready before sending message
+				await new Promise((resolve, reject) => {
+					const timeout = setTimeout(() => {
+						reject(new Error('Window ready timeout'));
+					}, 3000); // 3 second timeout
+
+					const checkWindowReady = () => {
+						if (windowHelper.isAskAIWindowReady()) {
+							clearTimeout(timeout);
+							resolve();
+						} else {
+							setTimeout(checkWindowReady, 100);
+						}
+					};
+
+					// Start checking immediately
+					checkWindowReady();
+				});
 
 				// Send the chat message to Ask AI window
 				askAIWindow.webContents.send('receive-chat-message', chatMessage);
+				log.info('Successfully sent chat message to Ask AI window');
 				return { success: true };
 			} else {
 				log.error('Ask AI window not available after creation attempts');
